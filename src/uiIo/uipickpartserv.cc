@@ -248,7 +248,7 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 
 void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
-    static const char* sKeyMisClass = "Misclassified [NN]";
+    const char* sKeyMisClass = "Misclassified [NN]";
     int setidx = setmgr_.indexOf( sKeyMisClass );
     const bool isnew = setidx < 0;
     Pick::Set* ps = isnew ? 0 : &setmgr_.get( setidx );

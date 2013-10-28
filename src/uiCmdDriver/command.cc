@@ -57,7 +57,8 @@ BufferString Command::createFactoryKey( const char* keyword )
 
 void Command::initStandardCommands()
 {
-    static bool done = false;
+    mDefineStaticLocalObject( bool, done, (false) );
+
     if ( done ) return; 
     done = true;
 

@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainpspec.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "staticstring.h"
 
 
 const char* DataInpSpec::valuestr = "Val";
@@ -528,10 +529,11 @@ float PositionInpSpec::getOffset( float udfval ) const
 
 const char* PositionInpSpec::text( int idx ) const
 {
-    static char ret[255];
+    mDeclStaticString( ret );
+
     const float v = getVal( setup_, idx );
-    getStringFromFloat( 0, v, ret );
-    return ret;
+    getStringFromFloat( 0, v, ret.buf() );
+    return ret.buf();
 }
 
 

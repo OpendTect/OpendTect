@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 class ioPixmap;
 class uiMainWin;

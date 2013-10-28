@@ -408,7 +408,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     ln1fld_->setCurrentItem( sellns.get(0) );
     ln2fld_->setCurrentItem( sellns.get(1) );
 
-    static const char* mrgopts[]
+    const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
     mrgoptfld_ = new uiGenInput( this, "Merge method",
 	    			 StringListInpSpec(mrgopts) );

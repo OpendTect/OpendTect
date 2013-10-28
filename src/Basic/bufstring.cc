@@ -263,10 +263,11 @@ bool BufferString::operator <( const char* s ) const
 { return s && buf_ ? strcmp(buf_,s) < 0 : (bool) s; }
 
 
+static BufferString emptystr( 1, true );
+
 const BufferString& BufferString::empty()
 {
-    static PtrMan<BufferString> ret = new BufferString( 1, true );
-    return *ret;
+    return emptystr;
 }
 
 

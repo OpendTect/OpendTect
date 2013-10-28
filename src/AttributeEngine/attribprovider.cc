@@ -1021,9 +1021,8 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	{
 	    ValueSeries<float>* valptr = 0;
 	    float dummy;
-	    static const BinDataDesc floatdatadesc( dummy );
 	    const BinDataDesc outputformat = getOutputFormat( idx );
-	    if ( outputformat==floatdatadesc )
+	    if ( outputformat==BinDataDesc(dummy) )
 	    {
 		float* ptr = new float[nrsamples];
 		valptr =
@@ -1099,7 +1098,7 @@ const char* Provider::prepare( Desc& desc )
 
     desc.setNeedProvInit( false );
 
-    static BufferString errmsg;
+    mDefineStaticLocalObject( BufferString, errmsg, );
     RefMan<Provider> prov = PF().create( desc );
     if ( prov && prov->isOK() )
 	return 0;

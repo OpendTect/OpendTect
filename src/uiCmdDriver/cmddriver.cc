@@ -100,7 +100,7 @@ bool ModalStatus::operator!=( const ModalStatus& ms ) const
 
 static int getNrActiveCmdDrivers( int nrextra )
 {
-    static int nrcmddrvrs = 0;
+    mDefineStaticLocalObject( int, nrcmddrvrs, = 0 );
     nrcmddrvrs += nrextra;
     return nrcmddrvrs;
 }
@@ -1523,7 +1523,7 @@ void CmdDriver::interactCB( CallBacker* )
 
 void CmdDriver::interact( const InteractSpec* ispec )
 {
-    static InteractSpec interactbuf_;
+    mDefineStaticLocalObject( InteractSpec, interactbuf_, );
 
     interactspec_ = 0;
     if ( ispec )

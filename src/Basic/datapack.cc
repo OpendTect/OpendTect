@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "od_ostream.h"
+#include "atomic.h"
 
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
@@ -26,10 +27,7 @@ Threads::Lock DataPackMgr::mgrlistlock_;
 
 DataPack::ID DataPack::getNewID()
 {
-    static Threads::Lock lock( true );
-    Threads::Locker lckr( lock );
-
-    static DataPack::ID curid = 1;
+    mDefineStaticLocalObject( Threads::Atomic<int>, curid, (1) );
     return curid++;
 }
 
@@ -71,8 +69,7 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
-    static DataPackMgr* emptymgr = 0;
-    if ( emptymgr ) delete emptymgr;
+    mDefineStaticLocalObject( PtrMan<DataPackMgr>, emptymgr, = 0 );
     emptymgr = new DataPackMgr( manid );
     return *emptymgr;
 }

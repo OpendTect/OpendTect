@@ -379,8 +379,8 @@ BufferString FilePath::mkCleanPath( const char* path, Style stl )
 
 const char* FilePath::dirSep( Style stl )
 {
-    static const char* wds = "\\";
-    static const char* uds = "/";
+    const char* wds = "\\";
+    const char* uds = "/";
 
     if ( stl == Local )
 	stl = __iswin__ ? Windows : Unix;

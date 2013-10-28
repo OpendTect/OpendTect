@@ -50,7 +50,7 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
 	    mCB(this, uiSimilaritybyAW, steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    static const char* attributelist_[] = { "Optimal similarity", 
+    const char* attributelist_[] = { "Optimal similarity", 
 					    "Optimal time gate", 0 };
     attributefld_ = 
 	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );

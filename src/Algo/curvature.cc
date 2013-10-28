@@ -71,7 +71,7 @@ bool Curvature::set( double z1, double z2, double z3,
 
     const double cde = c*d*e;
 
-    static double powval = 3./2;
+    const double powval = 3./2;
 
     const bool dominmax = setup_.minmax_ || setup_.shapeindex_ ||
 			  setup_.curvedness_;

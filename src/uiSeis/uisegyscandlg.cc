@@ -238,7 +238,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
 				   const char* fnm )
 {
-    static const char* titl = "SEG-Y scan report";
+    const char* titl = "SEG-Y scan report";
     IOPar rep( titl );
     sc.getReport( rep );
     if ( sc.warnings().size() == 1 )

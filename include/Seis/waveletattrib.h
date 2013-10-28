@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 class ArrayNDWindow;
 class Wavelet;

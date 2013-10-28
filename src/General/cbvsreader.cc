@@ -303,7 +303,8 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     xtr.a = dinterp_.get( buf, 0 ); xtr.b = dinterp_.get( buf, 1 );
     xtr.c = dinterp_.get( buf, 2 ); ytr.a = dinterp_.get( buf, 3 );
     ytr.b = dinterp_.get( buf, 4 ); ytr.c = dinterp_.get( buf, 5 );
-    static const bool useinfvar = GetEnvVarYN("DTECT_CBVS_USE_STORED_SURVINFO");
+    mDefineStaticLocalObject( const bool, useinfvar,
+                              =GetEnvVarYN("DTECT_CBVS_USE_STORED_SURVINFO") );
     const bool useinfo = forceusecbvsinfo ? true : useinfvar;
     if ( useinfo && xtr.valid(ytr) )
 	info_.geom_.b2c.setTransforms( xtr, ytr );

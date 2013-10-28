@@ -438,7 +438,7 @@ void StringProcessor::removeCmdFileEscapes()
 const char* StringProcessor::getCharElement( int idx ) const
 {
     const char* ptr = constptr_;
-    static char res[3] = "";
+    mDefineStaticLocalObject( char, res, [3] = "");
 
     if ( idx<0 )
 	return res;

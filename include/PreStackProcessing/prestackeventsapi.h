@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 #include "prestackprocessingmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 extern "C" {
 

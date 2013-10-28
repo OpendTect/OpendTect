@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 namespace Well { class D2TModel; }
 namespace WellTie

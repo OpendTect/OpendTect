@@ -27,9 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 EM::EMManager& EM::EMM()
 {
-    static EMManager* emm = 0;
-    if ( !emm )
-	emm = new EM::EMManager;
+    mDefineStaticLocalObject( PtrMan<EM::EMManager>, emm, (new EM::EMManager) );
     return *emm;
 }
 

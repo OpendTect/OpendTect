@@ -206,12 +206,10 @@ bool DipFilter::initKernel()
 	    {
 		float kt = kti * refstep_;
 
-		static const float rad2deg = 180 / M_PI;
-
-		float velocity = fabs(spatialdist/kt);
-		float dipangle = fabs(rad2deg *atan2( kt, spatialdist));
-		float val = zIsTime() ? velocity : dipangle;
-		float azimuth = rad2deg * atan2( ki, kc );
+                const float velocity = fabs(spatialdist/kt);
+		const float dipangle = fabs(mRad2DegF *atan2( kt, spatialdist));
+		const float val = zIsTime() ? velocity : dipangle;
+		const float azimuth = mRad2DegF * atan2( ki, kc );
 
 		float factor = 1;
 		if ( kii || kci || kti )

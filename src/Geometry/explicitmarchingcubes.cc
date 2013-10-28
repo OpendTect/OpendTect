@@ -662,6 +662,7 @@ MarchingCubeLookupTable::~MarchingCubeLookupTable()
 
 const MarchingCubeLookupTable& MarchingCubeLookupTable::get()
 {
-    static MarchingCubeLookupTable* table = new MarchingCubeLookupTable;
+    mDefineStaticLocalObject( MarchingCubeLookupTable*, table,
+                              (new MarchingCubeLookupTable) );
     return *table;
 }

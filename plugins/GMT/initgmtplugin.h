@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 */
 #include "gmtmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 namespace GMT
 {

@@ -67,7 +67,7 @@ const char** DateInfo::sAllDaysInMonth() { return alldays; }
 
 DateInfo::DateInfo()
 {
-    static const od_int64 days1900_to_1970 = 25568;
+    const od_int64 days1900_to_1970 = 25568;
     const int days1970 = (int)(time(0) / 86400L);
     days1900_ = days1970 + days1900_to_1970;
     calcDMY();

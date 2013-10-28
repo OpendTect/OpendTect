@@ -407,7 +407,7 @@ protected:
 #define mDefineInstanceCreatedNotifierAccess(clss) \
 Notifier<clss>& clss::instanceCreated() \
 { \
-    static Notifier<clss> theNotif(0); \
+    mDefineStaticLocalObject( Notifier<clss>, theNotif, (0)); \
     return theNotif; \
 }
 

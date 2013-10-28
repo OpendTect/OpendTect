@@ -187,9 +187,11 @@ double FlatDataPack::getAltDim0Value( int ikey, int idim0 ) const
 }
 
 
+static const float kbfac = ((float)sizeof(float)) / 1024.0;
+
+
 float FlatDataPack::nrKBytes() const
 {
-    static const float kbfac = ((float)sizeof(float)) / 1024.0;
     return size(true) * kbfac * size(false);
 }
 
@@ -397,7 +399,6 @@ VolumeDataPack::VolumeDataPack( const char* cat )
 
 float VolumeDataPack::nrKBytes() const
 {
-    static const float kbfac = ((float)sizeof(float)) / 1024.0;
     float ret = size(0) * kbfac;
     return size( 1 ) * ret * size( 2 );
 }

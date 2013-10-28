@@ -344,7 +344,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 
 int uiSeisMMProc::defltNrInlPerJob( const IOPar& inputpar )
 {
-    static int nr_inl_job = -1;
+    mDefineStaticLocalObject( int, nr_inl_job, (-1));
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
 
     if ( nr_inl_job <= 0 )

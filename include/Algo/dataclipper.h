@@ -159,7 +159,7 @@ protected:
     bool		finished_;
 
     void		doAdd(float);
-    const char*		getClipRgStr(float) const;
+    BufferString	getClipRgStr(float) const;
 };
 
 

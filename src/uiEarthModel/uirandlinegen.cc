@@ -76,7 +76,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     vtxthreshfld_->box()->setInterval( 2, INT_MAX );
     vtxthreshfld_->attach( alignedBelow, nrlargestfld_ );
 
-    static const char* fldnm = "Random line Z range";
+    const char* fldnm = "Random line Z range";
     const float wdth = 50 * sizrg.step;
     relzrgfld_ = new uiGenInput( this, fldnm,
 			FloatInpIntervalSpec(Interval<float>(-wdth,wdth)) );

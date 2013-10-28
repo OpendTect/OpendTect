@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 #include "math.h"
 #include "typeset.h"
 

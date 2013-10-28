@@ -52,7 +52,7 @@ BufferString Function::createFactoryKey( const char* keyword )
 
 void Function::initStandardFunctions()
 {
-    static bool done = false;
+    mDefineStaticLocalObject( bool, done, (false) );
     if ( done ) return;
     done = true;
 

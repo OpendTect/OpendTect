@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 
-#include "commondefs.h"
+#include "gendefs.h"
 
 #ifdef __mac__
 mGlobal(uiBase) void uiInitMac();

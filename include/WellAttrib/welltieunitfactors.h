@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 class UnitOfMeasure;
 namespace Well { class Log; }

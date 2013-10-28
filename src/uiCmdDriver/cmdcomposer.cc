@@ -115,7 +115,7 @@ CmdComposer::~CmdComposer()
 
 void CmdComposer::initStandardComposers()
 {
-    static bool done = false;
+    mDefineStaticLocalObject( bool, done, = false );
     if ( done ) return;
     done = true;
 

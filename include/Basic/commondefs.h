@@ -159,22 +159,37 @@ ________________________________________________________________________
 
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
+namespace Threads
+{
+    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int&,int);
+}
+
+
 #ifdef __win__
 namespace Threads
 {
     mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
     mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 }
-#define mDefineStaticLocalObject( type, var, init ) \
-static volatile int static##var##lck__ = 0; \
-Threads::lockSimpleSpinWaitLock(static##var##lck__);\
-static type var init; \
-Threads::unlockSimpleSpinLock(static##var##lck__)
+
+#define mLockStaticInitLock( nm ) \
+static volatile int nm = 0; \
+Threads::lockSimpleSpinWaitLock( nm )
+
+#define mUnlockStaticInitLock( nm ) \
+Threads::unlockSimpleSpinLock( nm )
+
 #else
-#define mDefineStaticLocalObject( type, var, init ) \
-static type var init
+
+#define mLockStaticInitLock( nm ) 
+#define mUnlockStaticInitLock( nm )
+
 #endif
 
+#define mDefineStaticLocalObject( type, var, init ) \
+mLockStaticInitLock( static##var##lck__ ); \
+static type var init; \
+mUnlockStaticInitLock( static##var##lck__ )
 
 //for Qt
 #ifndef QT_NAMESPACE
@@ -188,9 +203,13 @@ static type var init
 #endif
 
 #define mIfNotFirstTime(act) \
-    static bool _already_visited_ = false; \
-    if ( _already_visited_ ) act; \
-    _already_visited_ = true
+{ \
+    static volatile int _already_visited_ = 0; \
+    int _already_visited_oldval_ = 0; \
+    if ( !Threads::atomicSetIfValueIs( _already_visited_, \
+                                       _already_visited_oldval_, 1 ) ) \
+	act; \
+}
 
 // Helps keep 4.4 compatibility
 #define mDefClass( module )	mExpClass( module )

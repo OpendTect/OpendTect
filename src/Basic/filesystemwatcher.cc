@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filesystemwatcher.h"
 #include "qfilesystemcomm.h"
 #include "bufstringset.h"
+#include "ptrman.h"
 
 mUseQtnamespace
 
@@ -55,7 +56,7 @@ void FileSystemWatcher::removeFiles( const BufferStringSet& fnms )
 
 FileSystemWatcher& FSW()
 {
-    static FileSystemWatcher* fsw = 0;
-    if ( !fsw ) fsw = new FileSystemWatcher;
+    mDefineStaticLocalObject( PtrMan<FileSystemWatcher>, fsw,
+                              (new FileSystemWatcher));
     return *fsw;
 }

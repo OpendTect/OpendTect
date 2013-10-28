@@ -481,7 +481,7 @@ BodyOperator::~BodyOperator()
 
 int BodyOperator::getFreeID()
 {
-    static int id = 0;
+    mDefineStaticLocalObject( Threads::Atomic<int>, id, (0));
     return id++;
 }
 

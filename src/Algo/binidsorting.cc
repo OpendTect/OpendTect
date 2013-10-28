@@ -38,10 +38,10 @@ bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
 }
 
 
-const char* BinIDSorting::description( bool is2d,
+BufferString BinIDSorting::description( bool is2d,
 				       bool inlsort, bool inlupw, bool crlupw )
 {
-    static BufferString ret;
+    BufferString ret;
     if ( is2d )
     {
 	ret = "Trace numbers go ";

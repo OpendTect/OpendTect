@@ -27,9 +27,8 @@ namespace EM
 
 HorizonPreLoader& HPreL()
 {
-    static PtrMan<HorizonPreLoader> hpl = 0;
-    if ( !hpl )
-	hpl = new HorizonPreLoader;
+    mDefineStaticLocalObject( PtrMan<HorizonPreLoader>, hpl,
+                              (new HorizonPreLoader) );
 
     return *hpl;
 }

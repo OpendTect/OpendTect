@@ -95,15 +95,21 @@ const char* ElasticFormula::parseVariable( int idx, float& val ) const
 
 ElasticFormulaRepository& ElFR()
 {
-    static ElasticFormulaRepository* elasticrepos = 0;
+    mDefineStaticLocalObject( 	PtrMan<ElasticFormulaRepository>,
+                              elasticrepos, (0) );
     if ( !elasticrepos )
     {
-	elasticrepos = new ElasticFormulaRepository;
-	elasticrepos->addRockPhysicsFormulas();
-	elasticrepos->addPreDefinedFormulas();
+	ElasticFormulaRepository* newrepos = new ElasticFormulaRepository;
+	newrepos->addRockPhysicsFormulas();
+	newrepos->addPreDefinedFormulas();
+
+        if ( !elasticrepos.setIfNull( newrepos ) )
+            delete newrepos;
     }
+
     return *elasticrepos;
 }
+
 
 void ElasticFormulaRepository::addPreDefinedFormulas()
 {

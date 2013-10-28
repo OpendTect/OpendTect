@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 #include "vistransform.h"
 
 class HorSampling;

@@ -35,10 +35,8 @@ const char* uiIcon::None()		{ return "-"; }
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
 {
-    static ObjectSet<uiToolBar>* ret = 0;
-    if ( !ret )
-	ret = new ObjectSet<uiToolBar>;
-    return *ret;
+    mDefineStaticLocalObject( ObjectSet<uiToolBar>, ret, );
+    return ret;
 }
 
 

@@ -495,9 +495,8 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 
 ColTab::SeqMgr& ColTab::SM()
 {
-    static ColTab::SeqMgr* theinst = 0;
-    if ( !theinst )
-	theinst = new ColTab::SeqMgr;
+    mDefineStaticLocalObject( PtrMan<ColTab::SeqMgr>, theinst,
+                              = new ColTab::SeqMgr );
     return *theinst;
 }
 

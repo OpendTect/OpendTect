@@ -6,6 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "gendefs.h"
 #include "displaypropertylinks.h"
 #include "ptrman.h"
 
@@ -103,7 +104,8 @@ DisplayLinkManager::~DisplayLinkManager()
 
 DisplayLinkManager& DisplayLinkManager::getImpl()
 {
-    static PtrMan<DisplayLinkManager> mgr = new DisplayLinkManager;
+    mDefineStaticLocalObject( PtrMan<DisplayLinkManager>, mgr,
+                              (new DisplayLinkManager) );
     return *mgr;
 }
 

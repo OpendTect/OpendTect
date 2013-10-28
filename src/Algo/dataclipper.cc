@@ -440,10 +440,10 @@ Interval<float> DataClipSampler::getRange( float clip ) const
 }
 
 
-const char* DataClipSampler::getClipRgStr( float pct ) const
+BufferString DataClipSampler::getClipRgStr( float pct ) const
 {
     Interval<float> rg( getRange(pct * 0.01f) );
-    static BufferString ret;
+    BufferString ret;
     ret = rg.start; ret += " - "; ret += rg.stop;
 
     float maxabs = fabs( rg.start );

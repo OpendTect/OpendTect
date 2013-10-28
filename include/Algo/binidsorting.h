@@ -44,7 +44,7 @@ public:
 
     static bool		isValid(bool is2d,const BinID& prev,const BinID& cur,
 	    			bool inlsorted,bool inlupward,bool crlupward);
-    static const char*	description(bool is2d,bool inlsorted,bool inlupward,
+    static BufferString	description(bool is2d,bool inlsorted,bool inlupward,
 	    			    bool crlupward);
 
 protected:

@@ -233,7 +233,7 @@ int CBVSWriteMgr::nrComponents() const
 
 const BinID& CBVSWriteMgr::binID() const
 {
-    static BinID binid00(0,0);
+    mDefineStaticLocalObject( BinID, binid00, (0,0) );
     return writers_.size() ? writers_[0]->binID() : binid00;
 }
 

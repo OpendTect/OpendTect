@@ -8,7 +8,7 @@
 -*/
 
 #include "tutmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 namespace Well { class Log; }
 

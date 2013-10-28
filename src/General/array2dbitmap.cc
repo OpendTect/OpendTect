@@ -240,7 +240,7 @@ void A2DBitMapGenerator::fill()
 
 static inline int gtPrettyBMVal( char c )
 {
-    static const float rgmax = 1000;
+    const float rgmax = 1000;
     float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
 	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill())
 	    	- .5f;
@@ -254,7 +254,7 @@ bool A2DBitMapGenerator::dump( std::ostream& strm ) const
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
 	return false;
 
-    static const bool make_xpm = !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" );
+    const bool make_xpm = !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" );
     if ( make_xpm && dumpXPM(strm) )
 	return true;
 

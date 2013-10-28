@@ -29,14 +29,18 @@ mDefSimpleTranslatorSelector(EMHorizon3D,keyword())
 
 const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 {
-    static IOObjContext* ctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, (0) );
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( 0 );
-	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->toselect.allowtransls_ = mDGBKey;
+	IOObjContext* newctxt = new IOObjContext( 0 );
+	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->toselect.allowtransls_ = mDGBKey;
+        newctxt->trgroup = &theInst();
+
+        if ( !ctxt.setIfNull( newctxt ) )
+            delete newctxt;
     }
-    ctxt->trgroup = &theInst();
+    
     return *ctxt;
 }
 
@@ -47,14 +51,18 @@ mDefSimpleTranslatorSelector(EMHorizon2D,keyword())
 
 const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 {
-    static IOObjContext* ctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, (0) );
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( 0 );
-	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->toselect.allowtransls_ = mDGBKey;
+	IOObjContext* newctxt = new IOObjContext( 0 );
+	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->toselect.allowtransls_ = mDGBKey;
+        newctxt->trgroup = &theInst();
+
+        if ( !ctxt.setIfNull( newctxt ) )
+            delete newctxt;
     }
-    ctxt->trgroup = &theInst();
+
     return *ctxt;
 }
 

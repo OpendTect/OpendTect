@@ -885,7 +885,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 {
     mDeclGroup( "PS group" );
 
-    static const char* choices[] = {
+    const char* choices[] = {
 	"In file", "From src/rcv coordinates", "Not present", 0 };
     if ( forread_ )
     {

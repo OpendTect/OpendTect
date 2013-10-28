@@ -125,9 +125,11 @@ namespace DBG
 bool crashOnNaN()
 {
 #ifdef __debug__
-    static bool dohide = GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 0);
+    mDefineStaticLocalObject( bool, dohide,
+                     (GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 0)));
 #else
-    static bool dohide = GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 1);
+    mDefineStaticLocalObject( bool, dohide,
+                     (GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 1));
 #endif
 
     return !dohide;

@@ -198,7 +198,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     }
 
     BufferString storage = "";
-    static const char* storagekey = sKey::DataStorage();
+    const char* storagekey = sKey::DataStorage();
     bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )
     {

@@ -44,7 +44,8 @@ mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 #ifdef __win__
 const char* GetLocalIP(void)
 {
-    static char ret[16];
+    mDefineStaticLocalObject( char, ret, [16] );
+
     struct in_addr addr;
     struct hostent* remotehost = gethostbyname( GetLocalHostName() );
     addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
@@ -64,7 +65,7 @@ int initWinSock()
 
 const char* GetLocalHostName()
 { 
-    static char ret[256];
+    mDefineStaticLocalObject( char, ret, [256] );
 #ifdef __win__
     initWinSock();
 #endif
@@ -113,10 +114,9 @@ int GetPID()
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
-    static int nrfns = 0;
-    static PtrAllVoidFn fns[100];
+    mDefineStaticLocalObject( Threads::Atomic<int>, nrfns, (0) );
+    mDefineStaticLocalObject( PtrAllVoidFn, fns, [100] );
     int idx;
-
 
     if ( fn == ((PtrAllVoidFn)(-1)) )
     {
@@ -125,8 +125,8 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     }
     else
     {
-	fns[nrfns] = fn;
-	nrfns++;
+        const int myfnidx = nrfns++;
+	fns[myfnidx] = fn;
     }
 }
 
@@ -381,8 +381,9 @@ static const char* getShortPathName( const char* path )
     GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) ); 
     // get the fullpath to the exectuabe including the extension. 
     // Do not use argv[0] on Windows
-    static char shortpath[1024];
-    GetShortPathName( fullpath, shortpath, sizeof(shortpath) ); 
+    mDeclStaticString( shortpath );
+    shortpath.setMinBufSize( 1025 );
+    GetShortPathName( fullpath, shortpath, shortpath.minBufSize() );
     //Extract the shortname by removing spaces
     return shortpath;
 #endif
@@ -391,7 +392,11 @@ static const char* getShortPathName( const char* path )
 
 mExternC(Basic) const char* GetFullExecutablePath( void )
 {
-    static BufferString res;
+    mDefineStaticLocalObject( BufferString, res, );
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+
+    Threads::Locker locker( lock );
+
     if ( res.isEmpty() )
     {
 	FilePath executable = GetArgV()[0];

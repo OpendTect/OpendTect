@@ -25,8 +25,8 @@ mUseQtnamespace
 
 uiShortcutsMgr& SCMgr()
 {
-    static uiShortcutsMgr* scmgr = 0;
-    if ( !scmgr ) scmgr = new uiShortcutsMgr;
+    mDefineStaticLocalObject( PtrMan<uiShortcutsMgr>, scmgr,
+                              (new uiShortcutsMgr) );
     return *scmgr;
 }
 

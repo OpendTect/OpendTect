@@ -162,10 +162,12 @@ public:
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
 
+    			~SeqMgr()	{}
+
 protected:
 
     			SeqMgr();
-			~SeqMgr()	{}
+
 
     ObjectSet<Sequence>	seqs_;
 

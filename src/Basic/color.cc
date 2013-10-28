@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "bufstringset.h"
 #include "typeset.h"
+#include "ptrman.h"
 #include "staticstring.h"
 #include <stdlib.h>
 #include <string.h>
@@ -321,7 +322,7 @@ static void addTranspToStr( char* str, unsigned char val, int transpopt,
 
 const char* Color::getStdStr( bool withhash, int transpopt ) const
 {
-    static char buf[10];
+    mDefineStaticLocalObject( char, buf, [10] );
     int curidx = 0;
     const bool isrev = !withhash;
     if ( withhash ) { buf[curidx] = '#'; curidx++; }
@@ -542,12 +543,15 @@ bool Color::fromDescription( const char* inp )
 
 const BufferStringSet& Color::descriptions()
 {
-    static BufferStringSet* bss = 0;
+    mDefineStaticLocalObject( PtrMan<BufferStringSet>, bss, = 0 );
     if ( !bss )
     {
-	bss = new BufferStringSet;
+        BufferStringSet* newbss = new BufferStringSet;
 	for ( int idx=0; idx<cNrColDD; idx++ )
-	    bss->add( cColDD[idx].nm_ );
+	    newbss->add( cColDD[idx].nm_ );
+
+        if ( !bss.setIfNull( newbss ) )
+            delete newbss;
     }
     return *bss;
 }
@@ -555,17 +559,20 @@ const BufferStringSet& Color::descriptions()
 
 const TypeSet<Color>& Color::descriptionCenters()
 {
-    static TypeSet<Color>* cols = 0;
+    mDefineStaticLocalObject( PtrMan<TypeSet<Color> >, cols, = 0 );
     if ( !cols )
     {
-	cols = new TypeSet<Color>;
+	TypeSet<Color>* newcols = new TypeSet<Color>;
 	for ( int idx=0; idx<cNrColDD; idx++ )
 	{
 	    const ColorDescriptionData& cdd = cColDD[idx];
-	    *cols += Color( (unsigned char) cdd.r_,
+	    *newcols += Color( (unsigned char) cdd.r_,
 		    	    (unsigned char) cdd.g_,
 			    (unsigned char) cdd.b_ );
 	}
+
+        if ( !cols.setIfNull( newcols ) )
+            delete newcols;
     }
     return *cols;
 }

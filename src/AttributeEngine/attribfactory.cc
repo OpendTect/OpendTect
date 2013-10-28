@@ -88,7 +88,8 @@ void ProviderFactory::updateAllDescsDefaults()
 
 ProviderFactory& PF()
 {
-    static PtrMan<ProviderFactory> factory = new ProviderFactory();
+    mDefineStaticLocalObject(PtrMan<ProviderFactory>, factory,
+                             (new ProviderFactory));
     return *factory;
 }
 
