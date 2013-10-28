@@ -383,7 +383,7 @@ static const char* getShortPathName( const char* path )
     // Do not use argv[0] on Windows
     mDeclStaticString( shortpath );
     shortpath.setMinBufSize( 1025 );
-    GetShortPathName( fullpath, shortpath, shortpath.minBufSize() );
+    GetShortPathName( fullpath, shortpath.buf(), shortpath.minBufSize()-1 );
     //Extract the shortname by removing spaces
     return shortpath;
 #endif
