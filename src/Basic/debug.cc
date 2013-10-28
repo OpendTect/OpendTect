@@ -129,7 +129,7 @@ bool crashOnNaN()
                      (GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 0)));
 #else
     mDefineStaticLocalObject( bool, dohide,
-                     (GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 1));
+                     (GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 1)));
 #endif
 
     return !dohide;
