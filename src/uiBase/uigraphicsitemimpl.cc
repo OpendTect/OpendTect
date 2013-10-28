@@ -809,8 +809,8 @@ void uiCurvedItem::drawTo( const Geom::Point2D<float>& pt )
 
 void uiCurvedItem::drawTo( const ArcSpec& as )
 {
-    Interval<float> angs( Angle::rad2deg(as.angles_.start),
-			  Angle::rad2deg(as.angles_.stop) );
+    Interval<float> angs( Math::toDegrees(as.angles_.start),
+			  Math::toDegrees(as.angles_.stop) );
     QRectF qr( as.center_.x - as.radius_, as.center_.y - as.radius_,
 	       2*as.radius_, 2*as.radius_ );
     qppath_->arcTo( qr, angs.start, angs.stop - angs.start );
