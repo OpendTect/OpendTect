@@ -1411,7 +1411,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval =  Angle::rad2deg( radval );
+	    const float dval =  Math::toDegrees( radval );
 	    agdata.set( idx, idy, dval );
 	}
     }
