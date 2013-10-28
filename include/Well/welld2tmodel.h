@@ -92,7 +92,12 @@ protected:
 };
 
 
-mGlobal(Well) float getDefaultVelocity();
+mGlobal(Well) float	getDefaultVelocity();
+			//!< If survey depth is in feet, it returns 8000
+    			//!< otherwise 2000. Its purpose is to get nice values 
+			//!< of velocity for use in UI or where we may need 
+			//!< such functionality( eg. replacement velocity 
+			//!< for wells ).
 
 
 }; // namespace Well
