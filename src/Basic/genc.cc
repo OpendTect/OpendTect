@@ -298,8 +298,7 @@ mExternC(Basic) int SetEnvVar( const char* env, const char* val )
 	return mC_False;
 
 #ifdef __msvc__
-    BufferString topass( env, "=", val );
-    _putenv( topass.buf() );
+    _putenv_s( env, val );
 #else
     setenv( env, val, 1 );
 #endif
