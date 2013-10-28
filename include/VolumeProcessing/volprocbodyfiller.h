@@ -37,7 +37,7 @@ public:
     				BodyFiller();
     				~BodyFiller();
 
-    bool			needsInput() const; 
+    bool			needsInput() const	      { return false; } 
     bool			areSamplesIndependent() const { return true; }
     
     void			fillPar(IOPar&) const;
