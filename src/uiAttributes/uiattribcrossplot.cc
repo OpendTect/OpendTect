@@ -375,7 +375,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
 		for ( int lidx=0; lidx<lnms.size(); lidx++ )
 		{
-		    PosInfo::GeomID geomid =
+		    PosInfo::Line2DKey geomid =
 			S2DPOS().getLine2DKey( lsobj->name(), lnms.get(lidx) );
 		    if ( geomid.isOK() )
 			p2d->addLineID( geomid );

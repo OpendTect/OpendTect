@@ -185,7 +185,7 @@ public:
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 					
-    void			set2DGeomIds(const TypeSet<PosInfo::GeomID>&);
+    void			set2DGeomIds(const TypeSet<PosInfo::Line2DKey>&);
     				/*<for FaultStickSet picked from 2D lines.*/
 
     Notifier<uiFaultParSel>	selChange;
@@ -199,7 +199,7 @@ protected:
     bool			is2d_;
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
-    TypeSet<PosInfo::GeomID>	geomids_;
+    TypeSet<PosInfo::Line2DKey>	geomids_;
     
     bool			useoptions_;
     BufferStringSet		optnms_;

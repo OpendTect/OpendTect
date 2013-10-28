@@ -52,7 +52,7 @@ Horizon2DLine* Horizon2DLine::clone() const
 { return new Horizon2DLine(*this); }
 
 
-bool Horizon2DLine::addRow( const PosInfo::GeomID& geomid,
+bool Horizon2DLine::addRow( const PosInfo::Line2DKey& geomid,
 			   const TypeSet<Coord>& coords, int start, int step )
 {
     const int index = getRowIndex( geomid );
@@ -92,7 +92,7 @@ bool Horizon2DLine::addRow( Pos::GeomID geomid,const TypeSet<Coord>& coords,
 }
 
 
-bool Horizon2DLine::addUdfRow( const PosInfo::GeomID& geomid, int start,
+bool Horizon2DLine::addUdfRow( const PosInfo::Line2DKey& geomid, int start,
 			      int stop, int step )
 {
     TypeSet<Coord> coords;
@@ -114,8 +114,8 @@ bool Horizon2DLine::addUdfRow( Pos::GeomID geomid, int start, int stop,
 }
 
 
-bool Horizon2DLine::reassignRow( const PosInfo::GeomID& from,
-				 const PosInfo::GeomID& to )
+bool Horizon2DLine::reassignRow( const PosInfo::Line2DKey& from,
+				 const PosInfo::Line2DKey& to )
 {
     const int idx = getRowIndex( from );
     if ( idx < 0 )
@@ -138,7 +138,7 @@ bool Horizon2DLine::reassignRow( Pos::GeomID fromgeomid,
 }
 
 
-void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
+void Horizon2DLine::syncRow( const PosInfo::Line2DKey& geomid,
 			     const PosInfo::Line2DData& geom )
 {
     const int rowidx = getRowIndex( geomid );
@@ -264,7 +264,7 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 }
 
 	
-void Horizon2DLine::removeRow( const PosInfo::GeomID& geomid )
+void Horizon2DLine::removeRow( const PosInfo::Line2DKey& geomid )
 {
     const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
@@ -304,7 +304,7 @@ void Horizon2DLine::removeRow( Pos::GeomID geomid )
 }
 
 
-void Horizon2DLine::removeCols( const PosInfo::GeomID& geomid, int col1,
+void Horizon2DLine::removeCols( const PosInfo::Line2DKey& geomid, int col1,
 				int col2 )
 {
     const int rowidx = getRowIndex( geomid );
@@ -357,7 +357,7 @@ void Horizon2DLine::removeCols( Pos::GeomID geomid, int col1, int col2 )
 }
 
 
-void Horizon2DLine::setRow( const PosInfo::GeomID& geomid,
+void Horizon2DLine::setRow( const PosInfo::Line2DKey& geomid,
 			    const TypeSet<Coord>& path, int start, int step )
 {
     const int rowidx = getRowIndex( geomid );
@@ -426,7 +426,7 @@ StepInterval<int> Horizon2DLine::colRange( int rowidx ) const
 }
 
 
-StepInterval<int> Horizon2DLine::colRange( const PosInfo::GeomID& geomid ) const
+StepInterval<int> Horizon2DLine::colRange( const PosInfo::Line2DKey& geomid ) const
 {
     return colRange( getRowIndex(geomid) );
 }
@@ -438,7 +438,7 @@ StepInterval<int> Horizon2DLine::columnRange( Pos::GeomID geomid ) const
 }
 
 
-Interval<float> Horizon2DLine::zRange( const PosInfo::GeomID& geomid ) const
+Interval<float> Horizon2DLine::zRange( const PosInfo::Line2DKey& geomid ) const
 {
     Interval<float> zrange( mUdf(float), -mUdf(float) );
     StepInterval<int> colrg = colRange( getRowIndex(geomid) );
@@ -470,7 +470,7 @@ Interval<float> Horizon2DLine::zRange( Pos::GeomID geomid ) const
 }
 
 
-void Horizon2DLine::geometry( const PosInfo::GeomID& geomid,
+void Horizon2DLine::geometry( const PosInfo::Line2DKey& geomid,
 			      PosInfo::Line2DData& ld ) const
 {
     ld.setEmpty();
@@ -512,7 +512,7 @@ void Horizon2DLine::geometry( Pos::GeomID geomid,
 }
 
 
-int Horizon2DLine::getRowIndex( const PosInfo::GeomID& geomid ) const
+int Horizon2DLine::getRowIndex( const PosInfo::Line2DKey& geomid ) const
 {
     return oldgeomids_.indexOf( geomid );
 }
@@ -599,7 +599,7 @@ bool Horizon2DLine::isKnotDefined( const RowCol& rc ) const
 }
 
 
-Coord3 Horizon2DLine::computePosition( const PosInfo::GeomID& geomid,
+Coord3 Horizon2DLine::computePosition( const PosInfo::Line2DKey& geomid,
 				       int col ) const
 {
     const int row = getRowIndex( geomid );

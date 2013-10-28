@@ -229,7 +229,7 @@ const PosInfo::Line2DData* Pos::RangeProvider2D::curGeom() const
 {
     if ( !curlinegeom_ && geomids_.validIdx(curlineidx_) )
     {
-	const PosInfo::GeomID& curgeomid = geomids_[curlineidx_];
+	const PosInfo::Line2DKey& curgeomid = geomids_[curlineidx_];
 	PosInfo::Line2DData* linegeom = new PosInfo::Line2DData;
 	if ( !S2DPOS().getGeometry(curgeomid,*linegeom) )
 	    delete linegeom;
@@ -453,7 +453,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	idx = 0;
 	geomids_.erase();
 	BufferString str;
-	PosInfo::GeomID geomid;
+	PosInfo::Line2DKey geomid;
 	while ( subpargeom->get(toString(idx++),str) && geomid.fromString(str))
 	    addLineID( geomid );
     }

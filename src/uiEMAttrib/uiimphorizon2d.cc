@@ -94,7 +94,7 @@ int nextStep()
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
 
-    const PosInfo::GeomID& geomid = geomidset_[bid.inl()];
+    const PosInfo::Line2DKey& geomid = geomidset_[bid.inl()];
 
     if ( bid.inl() != prevlineidx_ )
     {
@@ -161,7 +161,7 @@ int nextStep()
 }
 
 
-void interpolateAndSetVals( int hidx, const PosInfo::GeomID& geomid,
+void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& geomid,
 			    int curtrcnr, int prevtrcnr,
 			    float curval, float prevval )
 {
@@ -197,7 +197,7 @@ protected:
     ObjectSet<EM::Horizon2D>&	hors_;
     const MultiID&		setid_;
     const BinIDValueSet*	bvalset_;
-    TypeSet<PosInfo::GeomID>	geomidset_;
+    TypeSet<PosInfo::Line2DKey>	geomidset_;
     PosInfo::Line2DData		linegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;

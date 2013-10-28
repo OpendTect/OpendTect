@@ -40,9 +40,9 @@ public:
 
     void			setDirection(const BinIDValue&);
     const BinIDValue*		getDirection() const { return &direction_; }
-    void			setGeomID( const PosInfo::GeomID& id )
+    void			setGeomID( const PosInfo::Line2DKey& id )
 				{ geomid_ = id; }
-    const PosInfo::GeomID&	geomID() const		{ return geomid_; }
+    const PosInfo::Line2DKey&	geomID() const		{ return geomid_; }
 
     int				nextStep();
 
@@ -58,7 +58,7 @@ protected:
     Coord		xydirection_;
     BinIDValue		direction_;
     EM::Horizon2D&	surface_;
-    PosInfo::GeomID	geomid_;
+    PosInfo::Line2DKey	geomid_;
 };
 
 

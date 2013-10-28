@@ -37,7 +37,7 @@ class uiLineSetFld;
 mExpClass(uiIo) LineInfo
 {
 public:
-				LineInfo(const PosInfo::GeomID& id,
+				LineInfo(const PosInfo::Line2DKey& id,
 					 const StepInterval<int>& trcrange,
 					 const StepInterval<float>& zrange) 
 				: geomid_(id)
@@ -46,7 +46,7 @@ public:
 				, issel_(false)			{}
     
     bool			issel_;
-    PosInfo::GeomID		geomid_;
+    PosInfo::Line2DKey		geomid_;
     StepInterval<float>		zrange_;
     StepInterval<int>		trcrange_;
     StepInterval<float>		selzrange_;
@@ -97,7 +97,7 @@ public:
     void			usePar(const IOPar&);
 
 protected:
-    TypeSet<PosInfo::GeomID>	geomids_;
+    TypeSet<PosInfo::Line2DKey>	geomids_;
     ObjectSet<LineInfo>		lineinfo_;
     ui2DMultiLineSelDlg*	dlg_;
     Setup			setup_;
@@ -119,7 +119,7 @@ public:
     bool			fillDlg();
     BufferString		getSummary() const;
     ObjectSet<LineInfo>&	getLineInfo() { return lineinfo_; }
-    TypeSet<PosInfo::GeomID>&	getSelLinesGeomIds() { return selgeomids_; }
+    TypeSet<PosInfo::Line2DKey>&	getSelLinesGeomIds() { return selgeomids_; }
 
     bool			isZRangeForAll() const;
 
@@ -128,8 +128,8 @@ public:
 
 protected:
 
-    void			getSelLines(TypeSet<PosInfo::GeomID>&) const;
-    int				lineID(const PosInfo::GeomID&)const;
+    void			getSelLines(TypeSet<PosInfo::Line2DKey>&) const;
+    int				lineID(const PosInfo::Line2DKey&)const;
     void			fillLineInfo();
 
     void			fillUIForMultiLine();
@@ -143,7 +143,7 @@ protected:
 
     BufferString		previouslnm_;
     BufferString		previouslsnm_;
-    TypeSet<PosInfo::GeomID>	selgeomids_;
+    TypeSet<PosInfo::Line2DKey>	selgeomids_;
 
     uiLabeledListBox*		llb_;
     uiLabeledListBox*		llb2_;

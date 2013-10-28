@@ -43,27 +43,27 @@ public:
 
     int				nrLines() const;
 
-    int				lineIndex(const PosInfo::GeomID&) const;
+    int				lineIndex(const PosInfo::Line2DKey&) const;
     int				lineIndex(Pos::GeomID geomid) const;
 
     int				lineIndex(const char* linenm) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
-    PosInfo::GeomID		lineGeomID(int idx) const;
+    PosInfo::Line2DKey		lineGeomID(int idx) const;
     Pos::GeomID			geomID(int idx) const;
 
-    bool			includeLine(const PosInfo::GeomID&,int step=1);
+    bool			includeLine(const PosInfo::Line2DKey&,int step=1);
     bool			includeLine(Pos::GeomID geomid,int step=1);
 
-    bool 			addLine(const PosInfo::GeomID&,int step=1);
+    bool 			addLine(const PosInfo::Line2DKey&,int step=1);
     bool 			addLine(Pos::GeomID geomid,int step=1);
 
-    bool 			addLine(const PosInfo::GeomID&,
+    bool 			addLine(const PosInfo::Line2DKey&,
 					const StepInterval<int>& trcrg);
     bool 			addLine(Pos::GeomID geomid,
 					const StepInterval<int>& trcrg);
 
-    void			removeLine(const PosInfo::GeomID&);
+    void			removeLine(const PosInfo::Line2DKey&);
     void			removeLine(Pos::GeomID geomid);
 
     bool			isAtEdge(const PosID&) const;
@@ -87,17 +87,17 @@ public:
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
     StepInterval<int>		colRange(const SectionID&,
-	    				 const PosInfo::GeomID&) const;
+	    				 const PosInfo::Line2DKey&) const;
     StepInterval<int>		colRange(const SectionID&,
 					 Pos::GeomID geomid) const;
 
-    StepInterval<int>		colRange(const PosInfo::GeomID&) const;
+    StepInterval<int>		colRange(const PosInfo::Line2DKey&) const;
     StepInterval<int>		colRange(Pos::GeomID geomid) const;
 
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
-    bool 			doAddLine(const PosInfo::GeomID&,
+    bool 			doAddLine(const PosInfo::Line2DKey&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
     bool 			doAddLine(Pos::GeomID geomid,
@@ -107,7 +107,7 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TypeSet<PosInfo::GeomID>	oldgeomids_;
+    TypeSet<PosInfo::Line2DKey>	oldgeomids_;
     TypeSet<Pos::GeomID>	geomids_;
 };
 
@@ -136,12 +136,12 @@ public:
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
     Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
 
-    Coord3			getPos(EM::SectionID,const PosInfo::GeomID&,
+    Coord3			getPos(EM::SectionID,const PosInfo::Line2DKey&,
 	    			       int trcnr) const;
     Coord3			getPosition(EM::SectionID,Pos::GeomID geomid
 					    ,int trcnr) const;
 
-    bool			setPos(EM::SectionID,const PosInfo::GeomID&,
+    bool			setPos(EM::SectionID,const PosInfo::Line2DKey&,
 	    			       int trcnr,float z,bool addtohistory);
     bool			setPos(EM::SectionID,Pos::GeomID geomid,
 	    			       int trcnr,float z,bool addtohistory);
@@ -159,19 +159,19 @@ public:
 
     bool			setArray1D(const Array1D<float>&,
 					   SectionID sid,
-					   const PosInfo::GeomID& geomid,
+					   const PosInfo::Line2DKey& geomid,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,
 					   SectionID sid,
-					   const PosInfo::GeomID& geomid,
+					   const PosInfo::Line2DKey& geomid,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,SectionID sid,
 	    				   Pos::GeomID geomid,
 					   bool onlyfillundefs );
 
     Array1D<float>*		createArray1D(SectionID,
-	    				      const PosInfo::GeomID& geomid,
+	    				      const PosInfo::Line2DKey& geomid,
 	    				      const ZAxisTransform* =0) const;
     Array1D<float>*		createArray1D(SectionID,
 	    				      Pos::GeomID geomid,

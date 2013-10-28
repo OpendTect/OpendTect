@@ -833,12 +833,12 @@ void StorageProvider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::GeomID StorageProvider::getLine2DKey() const
+PosInfo::Line2DKey StorageProvider::getLine2DKey() const
 {
     const ValParam* idpar = desc_.getValParam( keyStr() );
     LineKey lk( idpar->getStringValue() );
     PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-    return !ioobj ? PosInfo::GeomID()
+    return !ioobj ? PosInfo::Line2DKey()
 	      : S2DPOS().getLine2DKey( ioobj->name(), curlinekey_.lineName() );
 }
 

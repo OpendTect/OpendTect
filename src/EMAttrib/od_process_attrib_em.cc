@@ -506,7 +506,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    pars().get( "Input Line Set", linsetid );
 	    PtrMan<IOObj> lineset = IOM().get( linsetid );
 	    if ( !lineset ) return false;
-	    const PosInfo::GeomID geomid =
+	    const PosInfo::Line2DKey geomid =
 		S2DPOS().getLine2DKey( lineset->name(), linename );
 	    hsamp.start.inl() = hsamp.stop.inl() = 0;
 	    if ( mIsUdf(hsamp.stop.crl()) )

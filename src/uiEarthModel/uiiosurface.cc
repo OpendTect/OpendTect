@@ -533,7 +533,7 @@ bool uiSurfaceRead::processInput()
 class uiFSS2DLineSelDlg : public uiDialog
 {
 public:
-    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::GeomID>& geoids )    
+    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::Line2DKey>& geoids )    
     	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
 		    "Available for 2D lines",mNoHelpID))
     {
@@ -782,7 +782,7 @@ void uiFaultParSel::clearPush( CallBacker* )
 }
 
 
-void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::GeomID>& nids )
+void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::Line2DKey>& nids )
 {
     geomids_.erase();
     geomids_ = nids;

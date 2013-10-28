@@ -387,7 +387,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	for ( int lnidx=0; lnidx<emgeo.nrLines(); lnidx++ )
 	{
 	    linenames.add( emgeo.lineName(lnidx) );
-	    const PosInfo::GeomID& geomid = emgeo.lineGeomID( lnidx );
+	    const PosInfo::Line2DKey& geomid = emgeo.lineGeomID( lnidx );
 
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
@@ -438,7 +438,7 @@ void Horizon2DDisplay::updateLinesOnSections(
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
     {
-	const PosInfo::GeomID& geomid = h2d->geometry().lineGeomID( lnidx );
+	const PosInfo::Line2DKey& geomid = h2d->geometry().lineGeomID( lnidx );
 	linergs.trcrgs += TypeSet<Interval<int> >();
 	linergs.zrgs += TypeSet<Interval<float> >();
 	for ( int idx=0; idx<seis2dlist.size(); idx++ )

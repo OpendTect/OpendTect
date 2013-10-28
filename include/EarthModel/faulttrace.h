@@ -189,7 +189,7 @@ mExpClass(EarthModel) FaultTraceExtractor2D : public FaultTraceExtractor
 {
 public:
     			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
-					      const PosInfo::GeomID&);
+					      const PosInfo::Line2DKey&);
 			~FaultTraceExtractor2D();
 
 protected:
@@ -198,7 +198,7 @@ protected:
     virtual bool	doPrepare(int);
     virtual bool	doFinish(bool);
 
-    PosInfo::GeomID	geomid_;
+    PosInfo::Line2DKey	geomid_;
     PosInfo::Line2DData& linegeom_;
 };
 
@@ -211,7 +211,7 @@ mExpClass(EarthModel) FaultTrcDataProvider
 {
 public:
 			FaultTrcDataProvider();
-			FaultTrcDataProvider(const PosInfo::GeomID&);
+			FaultTrcDataProvider(const PosInfo::Line2DKey&);
 			~FaultTrcDataProvider();
 
     bool		init(const TypeSet<MultiID>&,const HorSampling&,
@@ -242,7 +242,7 @@ protected:
 
     ObjectSet<FaultTrcHolder>	holders_;
 
-    PosInfo::GeomID	geomid_;
+    PosInfo::Line2DKey	geomid_;
     BufferString	errmsg_;
     bool		is2d_;
 };

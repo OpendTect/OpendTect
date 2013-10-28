@@ -56,7 +56,7 @@ protected:
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
-    PosInfo::GeomID		oldgeomid_;
+    PosInfo::Line2DKey		oldgeomid_;
     Pos::GeomID			geomid_;
     
     PosInfo::Line2DData		posdata_;

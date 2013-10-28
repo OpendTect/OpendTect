@@ -129,7 +129,7 @@ void HorizonModifier::getLines( const EM::Horizon* hor )
     const EM::SectionID sid = hor2d->sectionID( 0 );
     for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
     {
-	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( ldx );
+	const PosInfo::Line2DKey& geomid = hor2d->geometry().lineGeomID( ldx );
 	const Geometry::Horizon2DLine* geom =
 	    	hor2d->geometry().sectionGeometry(sid);
 	if ( !geom ) return;

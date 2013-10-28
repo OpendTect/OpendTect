@@ -74,7 +74,7 @@ void HorizonSorter::calcBoundingBox()
 		    			hor2d->geometry().sectionGeometry(sid);
 		if ( !geom ) continue;
 
-		PosInfo::GeomID geomid = hor2d->geometry().lineGeomID( ldx );
+		PosInfo::Line2DKey geomid = hor2d->geometry().lineGeomID( ldx );
 		const int lidx = geomids_.indexOf( geomid );
 		const int rowidx =
 		    geom->getRowIndex( hor2d->geometry().lineGeomID(ldx) );

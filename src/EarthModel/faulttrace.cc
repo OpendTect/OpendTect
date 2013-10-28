@@ -780,7 +780,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 
 FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 					  FaultTrcHolder& holder,
-					  const PosInfo::GeomID& geomid )
+					  const PosInfo::Line2DKey& geomid )
   : FaultTraceExtractor(flt,holder)
   , geomid_(geomid)
   , linegeom_(*new PosInfo::Line2DData)
@@ -894,7 +894,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     const char* linenm = fss->geometry().pickedName( sid, sticknr );
     if ( !linenm ) return true;
 
-    PosInfo::GeomID geomid = S2DPOS().getLine2DKey( lsobj->name(), linenm );
+    PosInfo::Line2DKey geomid = S2DPOS().getLine2DKey( lsobj->name(), linenm );
     if ( !(geomid==geomid_) ) return true;
 
     const int nrknots = fltgeom->nrKnots( sticknr );
@@ -930,7 +930,7 @@ FaultTrcDataProvider::FaultTrcDataProvider()
     : is2d_(false)
 { holders_.allowNull(); }
 
-FaultTrcDataProvider::FaultTrcDataProvider( const PosInfo::GeomID& geomid )
+FaultTrcDataProvider::FaultTrcDataProvider( const PosInfo::Line2DKey& geomid )
     : geomid_(geomid)
     , is2d_(true)
 { holders_.allowNull(); }

@@ -106,10 +106,10 @@ public:
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
 
-    void		addLineID(const PosInfo::GeomID&);
+    void		addLineID(const PosInfo::Line2DKey&);
     void		removeLineID(int lidx);
-    PosInfo::GeomID	lineID(int) const;
-    int			indexOf(const PosInfo::GeomID&) const;
+    PosInfo::Line2DKey	lineID(int) const;
+    int			indexOf(const PosInfo::Line2DKey&) const;
     int			nrLines() const;
 
     mDefineFactoryInClass(Filter2D,factory);
@@ -117,7 +117,7 @@ public:
 
 protected:
 
-    TypeSet<PosInfo::GeomID>	geomids_;
+    TypeSet<PosInfo::Line2DKey>	geomids_;
 };
 
 

@@ -58,7 +58,7 @@ protected:
     int				nrdone_;
 
     bool			is2d_;
-    TypeSet<PosInfo::GeomID>	geomids_;
+    TypeSet<PosInfo::Line2DKey>	geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
     HorSamplingIterator*	iterator_;

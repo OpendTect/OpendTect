@@ -106,7 +106,7 @@ bool Horizon2DSeedPicker::startSeedPick()
     if ( !ioobj )
 	return false;
 
-    const PosInfo::GeomID l2dky = S2DPOS().getLine2DKey(
+    const PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey(
 	    				ioobj->name(), linename_ );
     if ( !l2dky.isOK() )
 	return false;

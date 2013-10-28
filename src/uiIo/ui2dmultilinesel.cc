@@ -238,7 +238,7 @@ bool ui2DMultiLineSelDlg::fillDlg()
 }
 
 
-void ui2DMultiLineSelDlg::getSelLines( TypeSet<PosInfo::GeomID>& gid ) const
+void ui2DMultiLineSelDlg::getSelLines( TypeSet<PosInfo::Line2DKey>& gid ) const
 {
     gid.erase();
     for( int idx=0; idx<lineinfo_.size(); idx++ )
@@ -261,7 +261,7 @@ void ui2DMultiLineSelDlg::fillLineInfo()
 	    S2DPOS().setCurLineSet( lsnms.get(idx).buf() );
 	    PosInfo::Line2DData l2d( lnms.get(id).buf() );
 	    S2DPOS().getGeometry( l2d );
-	    PosInfo::GeomID gid = S2DPOS().getGeomID( lsnms.get(idx).buf(),
+	    PosInfo::Line2DKey gid = S2DPOS().getLine2DKey( lsnms.get(idx).buf(),
 						      lnms.get(id).buf() );
 	    LineInfo* li = new LineInfo( gid, l2d.trcNrRange(), l2d.zRange() );
 	    lineinfo_ += li;
@@ -431,7 +431,7 @@ void ui2DMultiLineSelDlg::multiLineSetCheck( CallBacker* )
     S2DPOS().getLines( lnms, lsnmsfld_->getText() );
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	PosInfo::GeomID gid = S2DPOS().getGeomID( lsnm.buf(),
+	PosInfo::Line2DKey gid = S2DPOS().getLine2DKey( lsnm.buf(),
 						  lnms.get(idx).buf() );
 	int index = lineID( gid );
 	lineinfo_[index]->issel_ = false;
@@ -457,7 +457,7 @@ void ui2DMultiLineSelDlg::multiLineSetSel( CallBacker* )
     if ( lnms.size() == 0 )
 	return;
 
-    PosInfo::GeomID gid = S2DPOS().getGeomID
+    PosInfo::Line2DKey gid = S2DPOS().getLine2DKey
 				    ( lsnmsfld_->getText(), lnms.get(0).buf() );
     S2DPOS().setCurLineSet( gid.lsID() );
     for ( int idx=0; idx<selgeomids_.size(); idx++ )
@@ -540,7 +540,7 @@ void ui2DMultiLineSelDlg::multiLineSel( CallBacker* )
 
     previouslnm_ = lnmsfld_->getText();
     lnm = lnmsfld_->getText();
-    PosInfo::GeomID gid = S2DPOS().getGeomID( lsnm.buf(), lnm.buf() );
+    PosInfo::Line2DKey gid = S2DPOS().getLine2DKey( lsnm.buf(), lnm.buf() );
     int index = lineID( gid );
     if ( !lineinfo_.validIdx(index) )
 	return;
@@ -601,7 +601,7 @@ void ui2DMultiLineSelDlg::lineSel( CallBacker* )
 
 void ui2DMultiLineSelDlg::trcRgZrgChanged()
 {
-    PosInfo::GeomID gid  = S2DPOS().getGeomID
+    PosInfo::Line2DKey gid  = S2DPOS().getLine2DKey
 				    ( previouslsnm_.buf(), previouslnm_.buf() );
     int index = lineID( gid );
     if ( !lineinfo_.validIdx(index) )
@@ -625,14 +625,14 @@ bool ui2DMultiLineSelDlg::acceptOK( CallBacker* )
 	BufferStringSet lnms;
 	lnmsfld_->getCheckedItems( lnms );
 	for( int idx=0; idx<lnms.size(); idx++ )
-	    selgeomids_ += S2DPOS().getGeomID( previouslsnm_.buf(),
+	    selgeomids_ += S2DPOS().getLine2DKey( previouslsnm_.buf(),
 		   				lnms.get(idx).buf() );
     }
 
     if ( !setup_.allowmultiline_ )
     {
 	selgeomids_.erase();
-	selgeomids_ += S2DPOS().getGeomID( previouslsnm_.buf(),
+	selgeomids_ += S2DPOS().getLine2DKey( previouslsnm_.buf(),
 					   previouslnm_.buf() );
     }
 
@@ -662,8 +662,8 @@ bool ui2DMultiLineSelDlg::fillPar( IOPar& iop ) const
     for ( int idx=0; idx<selgeomids_.size(); idx++ )
     {
 	lineidx = lineID( selgeomids_[idx] );
-	iop.set( IOPar::compKey(sKey::Line(),idx), 
-		 IOPar::compKey(sKey::ID(),selgeomids_[idx].toString()) );
+	/*iop.set( IOPar::compKey(sKey::Line(),idx), 
+		 IOPar::compKey(sKey::ID(),selgeomids_[idx].toString()) );*/
 	iop.set( IOPar::compKey(IOPar::compKey(sKey::Line(),idx),
 			sKey::TrcRange()), lineinfo_[lineidx]->seltrcrange_ );
 	iop.set( IOPar::compKey(IOPar::compKey(sKey::Line(),idx),
@@ -696,8 +696,8 @@ void ui2DMultiLineSelDlg::usePar(const IOPar& par)
 	     !linepar->get(sKey::ZRange(),zrg) )
 	     continue;
 
-	PosInfo::GeomID gid;
-	gid.fromString( geomid.buf() );
+	PosInfo::Line2DKey gid;
+	//gid.fromString( geomid.buf() );
 	int lineidx = lineID( gid );
 	lineinfo_[lineidx]->seltrcrange_ = trcrg;
 	lineinfo_[lineidx]->selzrange_ = zrg;
@@ -706,7 +706,7 @@ void ui2DMultiLineSelDlg::usePar(const IOPar& par)
 }
 
 
-int ui2DMultiLineSelDlg::lineID( const PosInfo::GeomID& gid ) const
+int ui2DMultiLineSelDlg::lineID( const PosInfo::Line2DKey& gid ) const
 {
     for ( int idx=0; idx<lineinfo_.size(); idx++ )
     {

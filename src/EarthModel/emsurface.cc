@@ -88,7 +88,7 @@ void SurfaceIOData::use( const Surface& surf )
 		emgeom.sectionGeometry( emgeom.sectionID(0) );
 	    trcranges += geom->colRange( geom->getRowIndex(emgeom.geomID(idx)));
 #else
-	    const PosInfo::GeomID geomid = emgeom.lineGeomID( idx );
+	    const PosInfo::Line2DKey geomid = emgeom.lineGeomID( idx );
 	    linesets.add( S2DPOS().getLineSet(geomid.lsID()) );
 	    S2DPOS().setCurLineSet( geomid.lsID() );
 	    linenames.add( S2DPOS().getLineName(geomid.lineID()) );
