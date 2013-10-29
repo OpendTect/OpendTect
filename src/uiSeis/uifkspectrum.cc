@@ -1,12 +1,12 @@
 /*+
 ________________________________________________________________________
-            
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Satyaki Maitra
- Date:          September 2007
+ Author:	Nanne Hemstra
+ Date:		April 2012
 _______________________________________________________________________
-                   
--*/   
+
+-*/
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifkspectrum.h"
@@ -54,7 +54,7 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( datapack )
-	setCaption( !datapack ? "No data" 
+	setCaption( !datapack ? "No data"
 	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::CubeID() )
@@ -86,14 +86,17 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
 	return;
 
     for ( int idx=0; idx<sz0; idx++ )
-	for ( int idy=0; idy<sz1; idy++ )
-	    spectrum_->set( idx, idy, abs(output_->get(idx,idy)) );
+    {
+	const int kidx = idx<sz0/2 ? idx+sz0/2 : idx-sz0/2;
+	for ( int idy=0; idy<sz1/2; idy++ )
+	    spectrum_->set( kidx, idy, abs(output_->get(idx,idy)) );
+    }
 
     view( *spectrum_ );
 }
 
 
-void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples ) 
+void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
 {
     fft_ = Fourier::CC::createDefault();
     if ( !fft_ ) return;
@@ -108,7 +111,7 @@ void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
     output_ = new Array2DImpl<float_complex>( xsz, zsz );
     output_->setAll( float_complex(0,0) );
 
-    spectrum_ = new Array2DImpl<float>( xsz, zsz );
+    spectrum_ = new Array2DImpl<float>( xsz, zsz/2 );
     spectrum_->setAll( 0 );
 }
 
@@ -139,13 +142,17 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
     MapDataPack* datapack = new MapDataPack( sKey::Attribute(), "F-K", &array );
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
-    // TODO: Get dk and df from input data
-    const float dk = fft_->getDf( SI().crlDistance(), sz0 );
-    const float df = fft_->getDf( SI().zStep(), sz1 );
-    StepInterval<double> frg( 0, df*(sz0-1), df );
-    StepInterval<double> krg( 0, dk*(sz1-1), dk );
+
+    const int nrk = array.info().getSize( 0 );
+    const int nrtrcs = input_->info().getSize( 0 );
+    const float dk = fft_->getDf( SI().crlDistance(), nrtrcs );
+    const StepInterval<double> krg( -dk*(nrk-1)/2, dk*(nrk-1)/2, dk );
+
+    const int nrf = array.info().getSize( 1 );
+    const int nrz = input_->info().getSize( 1 );
+    const float df = fft_->getDf( SI().zStep(), nrz );
+    const StepInterval<double> frg( 0, df*(nrf-1), df );
+
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
     datapack->setPosCoord( false );
