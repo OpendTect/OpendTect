@@ -39,6 +39,8 @@ public:
     void		setNormalization(bool yn); 
     static float	getNyqvist(float samplespacing);
     static float	getDf(float samplespacing,int nrsamples);
+    static void		getFrequencies(float samplespacing,int nrsamples,
+	    			       TypeSet<float>&);
     bool		isFast(int sz) const;
     virtual int		getFastSize(int sz) const;
 			/*!<Returns a size that is equal or larger than sz */
@@ -150,7 +152,7 @@ protected:
     float*		sinv_;
     int*		permutation0_;
     int*		permutation1_;
-    TypeSet<int>	permutfactors_;    
+    TypeSet<int>	permutfactors_;
     TypeSet<int>	factors_;
 };
 

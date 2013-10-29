@@ -66,6 +66,20 @@ mType CC::getDf( mType samplespacing, int nrsamples )
 { return 1.f / (samplespacing * nrsamples); }
 
 
+void CC::getFrequencies( mType samplespacing, int nrsamples,
+       			 TypeSet<float>& frequencies )
+{
+    frequencies.setEmpty();
+    const mType nyqfreq = getNyqvist( samplespacing );
+    const mType df = getDf( samplespacing, nrsamples );
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const float freq = idx * df;
+	frequencies += freq > nyqfreq ? freq - 2.f * nyqfreq : freq;
+    }
+}
+
+
 bool CC::isFast( int sz ) const 
 { return sz==getFastSize(sz); }
 
