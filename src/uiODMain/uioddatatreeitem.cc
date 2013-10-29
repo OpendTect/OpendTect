@@ -248,11 +248,12 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
 			  true, false )
-	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
-			  true, false )
     }
     else
+    {
 	mResetMenuItem( &amplspectrumitem_ )
+	mResetMenuItem( &fkspectrumitem_ )
+    }
 
     mAddMenuOrTBItem( istb, menu, menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
