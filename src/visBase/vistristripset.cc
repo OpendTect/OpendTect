@@ -17,7 +17,7 @@ namespace visBase
 {
 
 TriangleStripSet::TriangleStripSet()
-    : IndexedShape( Geometry::PrimitiveSet::TriangleStrip )
+    : VertexShape( Geometry::PrimitiveSet::TriangleStrip, true )
 {}
 
 }; // namespace visBase

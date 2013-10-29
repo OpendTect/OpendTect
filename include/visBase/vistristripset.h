@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace visBase
 {
 
-mExpClass(visBase) TriangleStripSet : public IndexedShape
+mExpClass(visBase) TriangleStripSet : public VertexShape
 {
 public:
     static TriangleStripSet*	create()

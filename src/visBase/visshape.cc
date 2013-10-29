@@ -472,54 +472,6 @@ void VertexShape::setTextureChannels( TextureChannels* channels )
     channels_ = channels;
     needstextureupdate_ = true;
 }
-
-
-#define mCheckCreateShapeHints() \
-    return;
-
-
-
-IndexedShape::IndexedShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp )
-    : VertexShape( tp, true )
-{}
-
-
-#define setGetIndex( resourcename, fieldname )  \
-int IndexedShape::nr##resourcename##Index() const \
-{ return 0; } \
- \
- \
-void IndexedShape::set##resourcename##Index( int pos, int idx ) \
-{ } \
- \
- \
-void IndexedShape::remove##resourcename##IndexAfter(int pos) \
-{ } \
- \
- \
-int IndexedShape::get##resourcename##Index( int pos ) const \
-{ return -1; } \
- \
- \
-void IndexedShape::set##resourcename##Indices( const int* ptr, int sz ) \
-{ } \
-\
-void IndexedShape::set##resourcename##Indices( const int* ptr, int sz, \
-					       int start ) \
-{ } \
-
-
-setGetIndex( Coord, coordIndex );
-setGetIndex( TextureCoord, textureCoordIndex );
-setGetIndex( Normal, normalIndex );
-setGetIndex( Material, materialIndex );
-
-
-int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
-{
-    pErrMsg( "Not implemented in osg. Needed?");
-    return -1;
-}
     
 
 class OSGPrimitiveSet

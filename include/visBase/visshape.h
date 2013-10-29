@@ -169,58 +169,6 @@ protected:
 #undef mDeclSetGetItem
     
     
-mExpClass(visBase) IndexedShape : public VertexShape
-{
-public:
-    
-    int		nrCoordIndex() const;
-    void	setCoordIndex(int pos,int idx);
-    void	setCoordIndices(const int* idxs, int sz);
-    		/*!<\note idxs are not copied, and caller must ensure
-			  they remain in memory. */
-    void	setCoordIndices(const int* idxs, int sz, int start);
-    		/*!<\note idxs are copied */
-
-    void	removeCoordIndexAfter(int);
-    int		getCoordIndex(int) const;
-
-    int		nrTextureCoordIndex() const;
-    void	setTextureCoordIndex(int pos,int idx);
-    void	setTextureCoordIndices(const int* idxs,int sz);
-    		/*!<\note idxs are not copied, and caller must ensure
-			  they remain in memory. */
-    void	setTextureCoordIndices(const int* idxs, int sz, int start);
-    		/*!<\note idxs are copied */
-    void	removeTextureCoordIndexAfter(int);
-    int		getTextureCoordIndex(int) const;
-
-    int		nrNormalIndex() const;
-    void	setNormalIndex(int pos,int idx);
-    void	setNormalIndices(const int* idxs,int sz);
-    		/*!<\note idxs are not copied, and caller must ensure
-			  they remain in memory. */
-    void	setNormalIndices(const int* idxs, int sz, int start);
-    		/*!<\note idxs are copied */
-    void	removeNormalIndexAfter(int);
-    int		getNormalIndex(int) const;
-
-    int		nrMaterialIndex() const;
-    void	setMaterialIndex(int pos,int idx);
-    void	setMaterialIndices(const int* idxs,int sz);
-    		/*!<\note idxs are not copied, and caller must ensure
-			  they remain in memory. */
-    void	setMaterialIndices(const int* idxs, int sz, int start);
-    		/*!<\note idxs are copied */
-    void	removeMaterialIndexAfter(int);
-    int		getMaterialIndex(int) const;
-
-    int		getClosestCoordIndex(const EventInfo&) const;
-    void	replaceShape(SoNode*);
-
-protected:
-		IndexedShape( Geometry::PrimitiveSet::PrimitiveType );
-};
-    
     
 class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {

@@ -804,7 +804,8 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 {
     if ( !intersectiondisplay_ || !explicitintersections_ )
 	return;
-    
+
+    /*
     const TypeSet<Geometry::ExplPlaneIntersection::PlaneIntersection>& pi =
 	explicitintersections_->getPlaneIntersections();
     
@@ -838,6 +839,7 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
     	}
 	ci++;
     }
+     */
 }
 
 
