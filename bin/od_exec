@@ -20,12 +20,7 @@ if ( ! $?DTECT_APPL ) then
     exit 1
 endif
 
-if ( $?COMSPEC ) then
-    setenv HDIR win
-    set binsubdir=win
-else
-    eval `"$DTECT_APPL/bin/mksethdir"`
-endif
+eval `"$DTECT_APPL/bin/mksethdir"`
 if ( $binsubdir == luxia64 ) then
 	echo "Warning: IA64 Linux not supported. Trying x32 emulation."
 	set binsubdir=lux32
@@ -196,69 +191,27 @@ if ( $extrascript != "" ) then
 endif
 
 
-# win32 only - when in dos box - handle separately
-if ( $indosbox == yes ) then
-
-    if ( $issys == yes ) then
-	set execfile=`which $prog`
-    else
-	set execfile="$bindir/$prog"
-    endif
-
-    shift
-
-    set tempbatfile="/tmp/odexec$$.bat"
-
-    if ( $?TEMP ) then
-        set tempbatfile=`cygpath -u "$TEMP\odexec$$.bat"`
-    else if ( $?TMP ) then
-        set tempbatfile=`cygpath -u "$TMP\odexec$$.bat"`
-    else if ( $?DTECT_MYDOCUMENTS_DIR ) then
-        set tempbatfile=`cygpath -u "$DTECT_MYDOCUMENTS_DIR\odexec$$.bat"`
-    else if ( $?USERPROFILE ) then
-        set tempbatfile=`cygpath -u "$USERPROFILE\odexec$$.bat"`
-    endif
-
-    if ( -e "${execfile}.exe" ) then
-	setenv executable `cygpath -w "${execfile}.exe" | sed -e's%\\%\\\\%g'`
-    else
-	setenv executable `cygpath -w "$execfile" | sed -e's%\\%\\\\%g'`
-    endif
-
-    setenv args "$nicecmd -@-$executable-@- "
-    foreach arg ( $* )
-        setenv args "$args -@-$arg-@-"
-    end
-
-    echo "$args" | sed -e 's/-@-/"/g' -e 's/%/ /g' > "$tempbatfile"
-    if ( $askclosebox == yes ) then
-        echo "pause" >> "$tempbatfile"
-    endif
-
-    echo "exit" >> "$tempbatfile"
-
-    setenv batfile `cygpath -ws "${tempbatfile}"`
-
-    echo cmd /E:off /c start "$batfile"
-    cmd /E:off /c start "$batfile"
-
-    exit $status
-
-endif
-
-# Further only UNIX or not in dos box
-
-set allargs=""
+set argsnospaces=""
+set argswithspaces=""
 
 more_args:
 
 if ( "$1" != "" ) then
 
-    set arg=`echo "$1" | sed 's/ /%/g'`
-    if ( "$allargs" == "" ) then
-	set allargs="$arg"
+    set arg="$1"
+    set hasspacechar = `expr index "$arg" ' '`
+    if( ${hasspacechar} ) then
+	if ( "$argswithspaces" == "" ) then
+	    set argswithspaces="$arg"
+	else
+	    set argswithspaces="$argswithspaces $arg"
+	endif
     else
-	set allargs="$allargs $arg"
+	if ( "$argsnospaces" == "" ) then
+	    set argsnospaces="$arg"
+	else
+	    set argsnospaces="$argsnospaces $arg"
+	endif
     endif
 
     shift
@@ -269,22 +222,20 @@ endif
 set exitcode = 0
 if ( $issys == yes ) then
 
-    if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
+    if ( $?DTECT_SCRIPT_DEBUG ) then
+	echo "$0 : $xtermcmd $nicecmd $argsnospaces $argswithspaces"
+    endif
+
     if ( $background == yes ) then
-	$xtermcmd $nicecmd $allargs &
+	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q &
 	set exitcode = $status
     else
-	$xtermcmd $nicecmd $allargs 
+	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q
 	set exitcode = $status
     endif
 else
     if ( $?DTECT_SCRIPT_DEBUG ) then
-	if ( $?COMSPEC ) then
-	    echo "$0 : analyse dll deps"
-	    cygcheck `cygpath -w "${bindir}/${prog}.exe"` 
-	endif
-
-	echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
+	echo "$0 : $xtermcmd $nicecmd $bindir/$argsnospaces $argswithspaces"
     endif
 
     if ( $?DTECT_PRELOAD ) then
@@ -292,10 +243,10 @@ else
     endif
 
     if ( $background == yes ) then
-	$xtermcmd $nicecmd "$bindir"/$allargs &
+	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q &
 	set exitcode = $status
     else
-	$xtermcmd $nicecmd "$bindir"/$allargs
+	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q
 	set exitcode = $status
     endif
 endif
