@@ -36,6 +36,13 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <shlobj.h>
 #endif
 
+
+static Threads::Lock& getEnvVarLock()
+{
+    mDefineStaticLocalObject( Threads::Lock, lock, (false) );
+    return lock;
+}
+
 static IOPar envvar_entries;
 static int insysadmmode_ = 0;
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
@@ -204,9 +211,15 @@ int ExitProgram( int ret )
 
 /*-> envvar.h */
 
-mExternC(Basic) char* GetOSEnvVar( const char* env )
+mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
-    return getenv( env );
+    Threads::Locker lock( getEnvVarLock() );
+    const char* res = getenv( env );
+    if ( !res ) return 0;
+
+    mDeclStaticString( resbuf );
+    resbuf = res;
+    return resbuf.buf();
 }
 
 
@@ -240,8 +253,9 @@ static void loadEntries( const char* fnm, IOPar* iop=0 )
 }
 
 
-mExternC(Basic) const char* GetEnvVar( const char* env )
+mExtern(Basic) const char* GetEnvVar( const char* env )
 {
+    Threads::Locker lock( getEnvVarLock() );
     if ( !env || !*env )
 	{ pFreeFnErrMsg( "Asked for empty env var", "GetEnvVar" ); return 0; }
     if ( insysadmmode_ )
@@ -264,11 +278,16 @@ mExternC(Basic) const char* GetEnvVar( const char* env )
     }
 
     const char* res = envvar_entries.find( env );
-    return res ? res : GetOSEnvVar( env );
+    if ( !res ) res = GetOSEnvVar( env );
+
+    mDeclStaticString( retbuf );
+
+    retbuf = res;
+    return retbuf.str();
 }
 
 
-mExternC(Basic) int GetEnvVarYN( const char* env, int defaultval )
+mExtern(Basic) int GetEnvVarYN( const char* env, int defaultval )
 {
     const char* s = GetEnvVar( env );
     if ( !s )
@@ -278,25 +297,26 @@ mExternC(Basic) int GetEnvVarYN( const char* env, int defaultval )
 }
 
 
-mExternC(Basic) int GetEnvVarIVal( const char* env, int defltval )
+mExtern(Basic) int GetEnvVarIVal( const char* env, int defltval )
 {
     const char* s = GetEnvVar( env );
     return s ? atoi(s) : defltval;
 }
 
 
-mExternC(Basic) double GetEnvVarDVal( const char* env, double defltval )
+mExtern(Basic) double GetEnvVarDVal( const char* env, double defltval )
 {
     const char* s = GetEnvVar( env );
     return s ? atof(s) : defltval;
 }
 
 
-mExternC(Basic) int SetEnvVar( const char* env, const char* val )
+mExtern(Basic) int SetEnvVar( const char* env, const char* val )
 {
     if ( !env || !*env )
 	return mC_False;
-
+    
+    Threads::Locker lock( getEnvVarLock() );
 #ifdef __msvc__
     _putenv_s( env, val );
 #else
@@ -320,10 +340,12 @@ static bool writeEntries( const char* fnm, const IOPar& iop )
 }
 
 
-mExternC(Basic) int WriteEnvVar( const char* env, const char* val )
+mExtern(Basic) int WriteEnvVar( const char* env, const char* val )
 {
     if ( !env || !*env )
 	return 0;
+
+    Threads::Locker lock( getEnvVarLock() );
 
     BufferString fnm( insysadmmode_
 	    ? GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1)
