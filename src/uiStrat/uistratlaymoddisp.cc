@@ -60,6 +60,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , modelEdited(this)   
     , infoChanged(this)   
     , zskipChanged(this)
+    , dispPropChanged(this)
 {
 }
 
@@ -175,6 +176,38 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     return true;
 }
 
+
+bool uiStratLayerModelDisp::getCurPropDispPars(
+	LMPropSpecificDispPars& pars ) const
+{
+    LMPropSpecificDispPars disppars;
+    disppars.propnm_ = tools_.selProp();
+    const int curpropidx = lmdisppars_.indexOf( disppars );
+    if ( curpropidx<0 )
+	return false;
+    pars = lmdisppars_[curpropidx];
+    return true;
+}
+
+
+bool uiStratLayerModelDisp::setPropDispPars( const LMPropSpecificDispPars& pars)
+{
+    BufferStringSet propnms;
+    for ( int idx=0; idx<layerModel().propertyRefs().size(); idx++ )
+	propnms.add( layerModel().propertyRefs()[idx]->name() );
+
+    if ( !propnms.isPresent(pars.propnm_) )
+	return false;
+    const int propidx = lmdisppars_.indexOf( pars );
+    if ( propidx<0 )
+	lmdisppars_ += pars;
+    else
+	lmdisppars_[propidx] = pars;
+    return true;
+}
+
+
+//=========================================================================>>
 
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(

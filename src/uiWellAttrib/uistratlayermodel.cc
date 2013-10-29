@@ -377,6 +377,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
+    synthdisp_->dispParsChanged.notify(
+	    mCB(this,uiStratLayerModel,synthDispParsChangedCB) );
     synthdisp_->layerPropSelNeeded.notify(
 			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
     synthdisp_->control()->infoChanged.notify(
@@ -389,6 +391,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
     moddisp_->zskipChanged.notify( mCB(this,uiStratLayerModel,zSkipChanged) );
+    moddisp_->dispPropChanged.notify(
+	    mCB(this,uiStratLayerModel,lmDispParsChangedCB) );
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
@@ -782,6 +786,63 @@ MultiID uiStratLayerModel::genDescID() const
 void uiStratLayerModel::seqSel( CallBacker* )
 {
     synthdisp_->setSelectedTrace( moddisp_->selectedSequence() );
+}
+
+
+static bool getCleanSyntheicName( BufferString& sdnm )
+{
+    if ( sdnm.isEmpty() ) return false;
+    char* cleansdnm = sdnm.buf();
+    if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
+    cleansdnm++;
+    int idx = 0;
+    while ( cleansdnm[idx] != ']' && idx<sdnm.size() )
+	idx++;
+
+    cleansdnm[idx] = '\0';
+    sdnm = cleansdnm;
+    return true;
+}
+
+
+void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
+{
+    LMPropSpecificDispPars lmpropdp;
+    if ( !moddisp_->getCurPropDispPars(lmpropdp) )
+	return;
+    BufferString propnm( "[", lmpropdp.propnm_.buf(), "]" );
+    SyntheticData* sd = synthdisp_->getSyntheticData( propnm );
+    if ( !sd ) return;
+    sd->dispPars().vdmapper_ = lmpropdp.mapper_;
+    sd->dispPars().ctab_ = lmpropdp.ctab_;
+    sd->dispPars().overlap_ = lmpropdp.overlap_;
+    SyntheticData* vdsd = synthdisp_->getCurrentSyntheticData( false );
+    SyntheticData* wvasd = synthdisp_->getCurrentSyntheticData( true );
+    if ( (vdsd && propnm == vdsd->name()) ||
+	 (wvasd && propnm == wvasd->name()) )
+	synthdisp_->modelChanged();
+}
+
+
+void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
+{
+    SyntheticData* vdsd = synthdisp_->getCurrentSyntheticData( false );
+    if ( !vdsd ) return;
+
+    BufferString sdnm( vdsd->name() );
+    if ( !getCleanSyntheicName(sdnm) )
+	return;
+
+    LMPropSpecificDispPars vddisppars( sdnm );
+    vddisppars.mapper_ = vdsd->dispPars().vdmapper_;
+    vddisppars.ctab_ = vdsd->dispPars().ctab_;
+    vddisppars.overlap_ = vdsd->dispPars().overlap_;
+    if ( !moddisp_->setPropDispPars(vddisppars) )
+	return;
+
+    BufferString selpropnm = modtools_->selProp();
+    if ( !selpropnm.isEmpty() && selpropnm == sdnm )
+	moddisp_->modelChanged();
 }
 
 

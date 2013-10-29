@@ -56,7 +56,6 @@ static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
 static const char* sKeyDispPar() 		{ return "Display Parameter"; } 
-static const char* sKeyColTab() 		{ return "Color Table"; } 
 static const char* sKeyInput()	 		{ return "Input Synthetic"; } 
 static const char* sKeyAngleRange()		{ return "Angle Range"; } 
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
@@ -151,23 +150,46 @@ void SynthGenParams::createName( BufferString& nm ) const
 
 
 
-void SynthDispParams::fillPar( IOPar& par ) const
+void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
 {
-    IOPar disppar;
-    disppar.set( sKey::Range(), mapperrange_ );
-    disppar.set( sKeyColTab(), coltab_ );
+    IOPar disppar, vdmapperpar, wvamapperpar;
+    disppar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+    disppar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
+    vdmapper_.fillPar( vdmapperpar );
+    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
+    wvamapper_.fillPar( wvamapperpar );
+    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyWVA() );
     par.mergeComp( disppar, sKeyDispPar() );
 }
 
 
-void SynthDispParams::usePar( const IOPar& par ) 
+void SynthFVSpecificDispPars::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> disppar = par.subselect( sKeyDispPar() );
     if ( !disppar ) 
 	return;
 
-    disppar->get( sKey::Range(), mapperrange_ );
-    disppar->get( sKeyColTab(), coltab_ );
+    overlap_ = 1.0f;
+    disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+    disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
+    if ( disppar->size()==2 ) // Older par file
+    {
+	vdmapper_.type_ = ColTab::MapperSetup::Fixed;
+	wvamapper_.type_ = ColTab::MapperSetup::Fixed;
+	disppar->get( sKey::Range(), vdmapper_.range_ );
+	disppar->get( sKey::Range(), wvamapper_.range_ );
+    }
+    else
+    {
+	 PtrMan<IOPar> vdmapperpar =
+	     disppar->subselect( FlatView::DataDispPars::sKeyVD() );
+	 if ( vdmapperpar )
+	     vdmapper_.usePar( *vdmapperpar );
+	 PtrMan<IOPar> wvamapperpar =
+	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
+	 if ( wvamapperpar )
+	     wvamapper_.usePar( *wvamapperpar );
+    }
 }
 
 

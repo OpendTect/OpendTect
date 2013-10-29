@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "flatview.h"
 #include "wellattribmod.h"
 #include "datapack.h"
 #include "stratsynthgenparams.h"
@@ -20,12 +21,12 @@ class SeisTrc;
 class TimeDepthModel;
 
 
-mStruct(WellAttrib) SynthDispParams
+mStruct(WellAttrib) SynthFVSpecificDispPars
 {
-    			SynthDispParams()
-			: mapperrange_(mUdf(float),mUdf(float))	{}
-    Interval<float>	mapperrange_;
-    BufferString	coltab_;
+    ColTab::MapperSetup	vdmapper_;
+    ColTab::MapperSetup	wvamapper_;
+    BufferString	ctab_;
+    float 		overlap_;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 };
@@ -65,8 +66,8 @@ public:
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
-    SynthDispParams&			dispPars() 	{ return disppars_; }
-    const SynthDispParams&		dispPars() const
+    SynthFVSpecificDispPars&		dispPars() 	{ return disppars_; }
+    const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
 
 protected:
@@ -75,7 +76,7 @@ protected:
 
     BufferString 			wvltnm_;
     IOPar				raypars_;
-    SynthDispParams			disppars_;
+    SynthFVSpecificDispPars		disppars_;
 
     void				removePack();
 
