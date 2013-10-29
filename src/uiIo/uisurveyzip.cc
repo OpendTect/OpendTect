@@ -27,6 +27,11 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     ZipArchiveInfo zinfo( inpfnm );
     BufferStringSet fnms;
     zinfo.getAllFnms( fnms );
+    if ( fnms.isEmpty() )
+    {
+	uiMSG().error( "Invalid Zip archive" );
+	return false;
+    }
     const BufferString survnm( fnms.get(0) );
     const BufferString omf( survnm, ".omf" );
     const bool isvalidsurvey = fnms.indexOf( omf ) > -1;
