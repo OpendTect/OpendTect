@@ -230,7 +230,7 @@ void uiFlatViewControl::flip( bool hor )
 			    = hor ? vwrs_[idx]->appearance().annot_.x1_
 				  : vwrs_[idx]->appearance().annot_.x2_;
 	ad.reversed_ = !ad.reversed_;
-	vwrs_[idx]->handleChange( FlatView::Viewer::Annot | FlatView::Viewer::DisplayPars );
+	vwrs_[idx]->handleChange( FlatView::Viewer::Annot );
     }
 }
 
@@ -289,7 +289,8 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
-    vwr->handleChange( FlatView::Viewer::Annot );
+    vwr->handleChange( FlatView::Viewer::Annot | FlatView::Viewer::DisplayPars);
+    vwr->dispPropChanged.trigger();
 }
 
 

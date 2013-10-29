@@ -76,8 +76,11 @@ public:
 
     Notifier<uiFlatViewer> 	viewChanged; //!< setView called
     Notifier<uiFlatViewer> 	dataChanged; //!< new DataPack set
-    Notifier<uiFlatViewer> 	dispParsChanged; //!< WVA or VD disppars changed
+    Notifier<uiFlatViewer> 	dispParsChanged;
+    					//!< Triggered with each bitmap update
     Notifier<uiFlatViewer>	annotChanged; //!< Annotation changed
+    Notifier<uiFlatViewer>	dispPropChanged;
+    					//!< Triggered with property dlg change
 
     uiFlatViewControl*		control() { return control_; }
 

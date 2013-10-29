@@ -48,6 +48,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , dataChanged(this)
     , dispParsChanged(this)
     , annotChanged(this)
+    , dispPropChanged(this)
     , wr_(0,0,1,1)
 {
     updatequeueid_ =
