@@ -95,12 +95,9 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
    
-    if ( show )
-    {
-    	blockyfld_ = new uiGenInput( this,
-		"Display blocky (no interpolation)", BoolInpSpec(true) );
-    	blockyfld_->attach( alignedBelow, symmidvalfld_ );
-    }
+    blockyfld_ = new uiGenInput( this,
+	    "Display blocky (no interpolation)", BoolInpSpec(true) );
+    blockyfld_->attach( alignedBelow, symmidvalfld_ );
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
 }
@@ -314,7 +311,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
 
 
 uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
-    : uiFlatViewDataDispPropTab(p,vwr,"Wiggle Variable Area")
+    : uiFlatViewDataDispPropTab(p,vwr,"Wiggle Variable Area",
+      vwr.appearance().ddpars_.wva_.allowuserchangedata_)
     , pars_(ddpars_.wva_)
 {
     overlapfld_ = new uiGenInput( this, "Overlap ratio", FloatInpSpec() );
@@ -444,7 +442,8 @@ bool uiFVWVAPropTab::acceptOK()
 
 
 uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
-    : uiFlatViewDataDispPropTab(p,vwr,"Variable Density")
+    : uiFlatViewDataDispPropTab(p,vwr,"Variable Density",
+      vwr.appearance().ddpars_.vd_.allowuserchangedata_)
     , pars_(ddpars_.vd_)
     , ctab_(ddpars_.vd_.ctab_.buf())
 {

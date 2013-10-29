@@ -188,6 +188,7 @@ public:
 	bool			show_;	   // default=true
 	bool			blocky_;   // default=false
 	bool			allowuserchange_;
+	bool			allowuserchangedata_;
 	ColTab::MapperSetup	mappersetup_;
     };
 

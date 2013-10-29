@@ -141,6 +141,7 @@ FlatView::DataDispPars::Common::Common()
     : show_(true)
     , blocky_(false)
     , allowuserchange_(true)		    
+    , allowuserchangedata_(true)
 {}
 
 
