@@ -210,7 +210,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 
 
 bool BodyFiller::needsInput() const
-{ return true; }
+{ return false; }
 
 
 void BodyFiller::setOutput( Attrib::DataCubes* ni )
