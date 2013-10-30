@@ -175,7 +175,6 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
     cmd += mGetExecScript(); cmd += " "; cmd += prognm;
 
     BufferString fnm( filenm );
-    replaceCharacter( fnm.buf(), ' ', (char)128 );
     FilePath fp( fnm );
     cmd += " \'"; cmd += fp.fullPath( FilePath::Unix ); cmd += "\' ";
     return cmd;
