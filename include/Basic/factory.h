@@ -273,6 +273,18 @@ static baseclss*	createInstance() { return new clss; } \
     mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
+
+#define mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
+static baseclss*	createInstance( parclss p1 ) \
+			{ return new clss( p1 ); }
+
+#define mDefaultFactoryInstantiation1Param( baseclss, clss, parclss,\
+					    keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
+    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryInitClassImpl( baseclss, createInstance )
+
+
 #define mCreateImpl( donames, createfunc ) \
     if ( donames ) \
     { \
