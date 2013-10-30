@@ -165,12 +165,12 @@ void ConvMemValueSeries<T>::setValue( od_int64 idx, T v )
 
 template <class T> inline
 const T* ConvMemValueSeries<T>::arr() const
-{ return interpreter_.dataChar()==rettype_ ? (T*) ptr_ : 0; }
+{ return interpreter_.dataChar()==rettype_ ? mCastPtr(const T,ptr_) : 0; }
 
 
 template <class T> inline
 T* ConvMemValueSeries<T>::arr()
-{ return interpreter_.dataChar()==rettype_ ? (T*) ptr_ : 0; }
+{ return interpreter_.dataChar()==rettype_ ? mCastPtr(T,ptr_) : 0; }
 
 
 template <class T> inline

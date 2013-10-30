@@ -22,6 +22,16 @@ ________________________________________________________________________
 #define mNINT64(x)		mRounded( od_int64, x )
 #define mCast(tp,v)		((tp)(v))
 
+/*!Use only when you KNOW that pointer is correctly aligned.
+   Used to avoid casting alignment warnings. */
+
+#ifdef __mac__
+# define mCastPtr(tp,p)		((tp*)((od_int64)(p)))
+#else
+# define mCastPtr(tp,p)		((tp*)p)
+#endif
+
+
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )

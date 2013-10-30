@@ -10,6 +10,7 @@ set( OD_USEBREAKPAD Yes)
 set( OD_USEZLIB Yes)
 set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
 set( OD_TEST_PROGS
+		basic.cc
 		callback.cc
 		commandlineparser.cc
 		file.cc
