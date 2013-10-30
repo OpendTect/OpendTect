@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mType		      float
 #define mCplxType	      float_complex
 
-namespace Fourier
-{
+using namespace Fourier;
+
 
 
 mImplFactory( CC, CC::factory );
@@ -4222,7 +4222,14 @@ void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
 }
 
 
+
 int CC::CC1D::getFastSize( int nmin )
+{
+    return FFTCC1D::getFastSize( nmin );
+}
+
+
+int FFTCC1D::getFastSize( int nmin )
 {
     for ( int idx=0; idx<NTAB; idx++ )
     {
@@ -4256,4 +4263,3 @@ int CC::npfaro( int nmin, int nmax )
     return 2*npfao((nmin+1)/2,(nmax+1)/2);
 }
 
-}; //namespace

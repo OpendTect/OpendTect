@@ -70,7 +70,8 @@ protected:
     bool		normalize_;
 
     Transform1D*	createTransform() const;
-    mClass(Algo) CC1D : public GenericTransformND::Transform1D, public ParallelTask
+    mClass(Algo) CC1D : public GenericTransformND::Transform1D,
+			public ParallelTask
     {
 	public:
 			CC1D();
@@ -98,7 +99,8 @@ protected:
 
 
 /*!
-\brief Computes FFT for any size of data.
+\brief Computes 1D FFT for any size of data. This function is used internally
+       by the ND computation.
 */
 
 mExpClass(Algo) FFTCC1D
@@ -116,6 +118,8 @@ public:
     void		setDir(bool forward)		{ forward_ = forward; }
     void		setNormalization(bool yn)	{ normalize_ = yn; } 
     bool		run(float_complex* data);
+
+    static int		getFastSize(int sz);
 
 protected:
 
