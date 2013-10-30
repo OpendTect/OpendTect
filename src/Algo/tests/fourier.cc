@@ -93,8 +93,8 @@ bool testForwardCC( bool quiet, const TypeSet<float_complex>& input )
             freqsum += contrib * val;
         }
 
-        reference[idx] = float_complex( freqsum.real(),
-                                        freqsum.imag() );
+        reference[idx] = float_complex( (float) freqsum.real(),
+                                        (float) freqsum.imag() );
     }
 
     Fourier::FFTCC1D transform;
