@@ -1565,7 +1565,7 @@ bool ZipHandler::readAndSetFileAttr()
             File::remove( curfname );
             File::createLink( linkbuff, curfname );
         }
-        else
+        else if ( fileattr.integer_ )
             chmod( curfname, fileattr.integer_ );
 #endif
         fileheadpos = fileheadpos
