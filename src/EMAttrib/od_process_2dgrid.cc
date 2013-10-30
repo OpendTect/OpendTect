@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool BatchProgram::go( std::ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
+    OD::ModDeps().ensureLoaded( "Seis" );
 
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )
