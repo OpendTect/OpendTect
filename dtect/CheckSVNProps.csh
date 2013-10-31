@@ -43,7 +43,7 @@ goto nextarg
 do_it:
 
 if ( "${listfile}" != "" ) then
-    cat ${listfile} | grep \\.ico -v | xargs ${progname} 
+    cat ${listfile} | grep \\.ico -v | xargs -P0 -n 200 ${progname} 
     exit ${status}
 endif
 
