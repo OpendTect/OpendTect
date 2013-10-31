@@ -61,12 +61,14 @@ if ( "${listfile}" != "" ) then
     endif
 endif
 
+set failure = 0
+
 nextfile:
 
 set filename = ${1}
 
 if ( "${filename}" == "" ) then
-    exit 0
+    exit ${failure}
 endif
 
 shift 
@@ -81,6 +83,7 @@ if ( ${status} == 0 ) then
     endif
 	    
     echo ${filename}
+    set failure = 1;
 endif
 
 goto nextfile
