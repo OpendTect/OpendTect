@@ -49,8 +49,8 @@ void removeTrailingBlanks( char* str )
 const char* getStringFromInt( od_int32 val, char* str )
 
 {
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     sprintf( ret, "%d", val );
     return ret;
 }
@@ -58,9 +58,7 @@ const char* getStringFromInt( od_int32 val, char* str )
 
 const char* quoteString( const char* initial, char quote )
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-
+    mDeclStaticString( str );
     str = initial;
 
     if ( !str.size() )
@@ -80,8 +78,8 @@ const char* quoteString( const char* initial, char quote )
 
 const char* getStringFromUInt( od_uint32 val, char* str )
 {
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     sprintf( ret, "%du", val );
     return ret;
 }
@@ -122,8 +120,8 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 
 const char* getStringFromInt64( od_int64 val, char* str )
 {
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     const bool isneg = val < 0 ? 1 : 0;
     if ( isneg ) val = -val;
     mkUIntStr( ret, (od_uint64)val, isneg );
@@ -133,8 +131,8 @@ const char* getStringFromInt64( od_int64 val, char* str )
 
 const char* getStringFromUInt64( od_uint64 val, char* str )
 {
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     mkUIntStr( ret, val, 0 );
     return ret;
 }
@@ -145,8 +143,8 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
     if ( !fmt )
 	return getStringFromDouble( actualval, str );
 
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     const bool isneg = actualval < 0;
     const double val = isneg ? -actualval : actualval;
     char* bufptr;
@@ -169,8 +167,8 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
 {
     if ( nrdigits<=0 || nrdigits>15 ) nrdigits = 15;
 
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     const bool isneg = actualval < 0;
     const double val = isneg ? -actualval : actualval;
     char* bufptr;
@@ -246,8 +244,8 @@ const char* getStringFromFloat( float actualval, char* str, int nrdigits )
 {
     if ( nrdigits<=0 || nrdigits>7 ) nrdigits = 7;
 
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     const bool isneg = actualval < 0;
     const float val = isneg ? -actualval : actualval;
     char* bufptr;
@@ -295,8 +293,8 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
     if ( !fmt )
 	return getStringFromFloat( actualval, str );
 
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     const bool isneg = actualval < 0;
     const float val = isneg ? -actualval : actualval;
     char* bufptr;
@@ -790,8 +788,8 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
     if ( parensonunit )
 	val += ")";
 
-    static StaticStringManager stm;
-    char* ret = str ? str : stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* ret = str ? str : retstr.buf();
     strcpy( ret, val.buf() );
 
     return ret;
@@ -837,8 +835,7 @@ const char* toString( unsigned char c )
 
 const char* toString( const char* str )
 {
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
+    mDeclStaticString( res );
     res = str;
     return res.buf();
 }
@@ -846,8 +843,8 @@ const char* toString( const char* str )
 
 const char* toString( signed char c )
 {
-    static StaticStringManager stm;
-    char* buf = stm.getString().buf();
+    mDeclStaticString( retstr );
+    char* buf = retstr.buf();
     buf[0] = (char)c; buf[1] = '\0';
     return buf;
 }
@@ -906,9 +903,8 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( nrdecimals );
     formatstr.add( "f");
     
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    
+    mDeclStaticString( res );
+
     getStringFromFloat( formatstr, fsz, res.buf() );
     
     if ( withunit )

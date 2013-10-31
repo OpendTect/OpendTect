@@ -53,9 +53,7 @@ const char* DatabaseColumnBase::createColumnQuery() const
 	return 0;
     }
 
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-
+    mDeclStaticString( str );
     str = backQuoteString( columnName() );
     str += " ";
     str += columnType();
@@ -73,9 +71,7 @@ const char* DatabaseColumnBase::createColumnQuery() const
 
 const char* DatabaseColumnBase::selectString() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-
+    mDeclStaticString( str );
     str = backQuoteString( table_.tableName() );
     str.add( "." ).add( backQuoteString( columnName() ) );
     return str;
@@ -132,8 +128,7 @@ const char* DateDatabaseColumn::dataString(const DateInfo& di) const
     datestr.add( toString( di.usrMonth() ) );
     datestr.add( toString( di.day() ) );
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
+    mDeclStaticString( res );
     res = datestr.buf();
     return res.buf();
 }
@@ -172,8 +167,7 @@ const char* PriceDatabaseColumn::dataString( const Price& price ) const
     SeparString pricestr( price.currency_->abrevation_, ' ' );
     pricestr.add( toString( price.amount_ ) );
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
+    mDeclStaticString( res );
     res = pricestr.buf();
     return res.buf();
 }
@@ -197,9 +191,7 @@ bool CreatedTimeStampDatabaseColumn::parse( const Query& query,
 
 const char* CreatedTimeStampDatabaseColumn::selectString() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-
+    mDeclStaticString( str );
     str = "UNIX_TIMESTAMP(";
     str.add( backQuoteString( table_.tableName() ) ).add(".");
     str += backQuoteString( columnName() );

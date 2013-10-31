@@ -36,5 +36,10 @@ protected:
     Threads::Mutex		lock_;
 };
 
+
+#define mDeclStaticString(nm) \
+    mDefineStaticLocalObject( StaticStringManager, nm##_ssm, ); \
+    BufferString& nm = nm##_ssm.getString()
+
 #endif
 

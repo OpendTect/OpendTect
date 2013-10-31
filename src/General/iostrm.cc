@@ -81,8 +81,7 @@ void IOStream::copyFrom( const IOObj* obj )
 
 const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     StreamProvider* sp = streamProvider( forread, fillwc );
     if ( !sp ) return "<bad>";
     ret = sp->fullName();
@@ -98,8 +97,8 @@ const char* IOStream::fullDirName() const
 	fp.setFileName( 0 );
     else
 	{ fp.set( IOM().rootDir() ); fp.add( dirName() ); }
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+
+    mDeclStaticString( ret );
     ret = fp.fullPath();
     return ret.buf();
 }

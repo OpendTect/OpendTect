@@ -58,8 +58,7 @@ void DirList::update()
 
 const char* DirList::fullPath( int idx ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     if ( idx < size() )
 	ret = FilePath( dirName(), (*this).get(idx) ).fullPath();
     else

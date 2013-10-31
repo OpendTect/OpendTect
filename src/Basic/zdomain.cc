@@ -128,8 +128,7 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 {
     if ( withparens )
     {
-	static StaticStringManager stm;
-	BufferString& ret = stm.getString();
+	mDeclStaticString( ret );
 	ret = "";
 	BufferString unitstr = unitStr( false );
 	if ( !unitstr.isEmpty() )

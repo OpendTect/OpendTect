@@ -617,8 +617,7 @@ bool IOMan::isKey( const char* ky ) const
 
 const char* IOMan::nameOf( const char* id ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     if ( !id || !*id || !IOObj::isKey(id) )
 	return id;
 
@@ -758,8 +757,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
     cleanupString( ptr, false, false, true );
-    static StaticStringManager stm;
-    BufferString& fnm = stm.getString();
+    mDeclStaticString( fnm );
     for ( int subnr=0; ; subnr++ )
     {
 	fnm = cleanname;

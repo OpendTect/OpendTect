@@ -853,8 +853,7 @@ PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 
 const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 {
-    static StaticStringManager stm;
-    BufferString& fnm = stm.getString();
+    mDeclStaticString( fnm );
     BufferString cleannm( lsnm );
     cleanupString( cleannm.buf(), false, false, false );
     fnm = FilePath(basefp_,cleannm,sIdxFilename).fullPath();
@@ -865,8 +864,7 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
        					      const char* linenm ) const
 {
-    static StaticStringManager stm;
-    BufferString& fnm = stm.getString();
+    mDeclStaticString( fnm );
     BufferString cllsnm( lsnm );
     cleanupString( cllsnm.buf(), false, false, false );
     BufferString cllnm( linenm );

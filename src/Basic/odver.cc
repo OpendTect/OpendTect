@@ -38,8 +38,7 @@ DefineEnumNames(OD::Platform,Type,0,"Platform")
 
 extern "C" const char* GetFullODVersion()
 {
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
+    mDeclStaticString( res );
     if ( !res.isEmpty() ) return res.buf();
 
     GetSpecificODVersion( 0, res );

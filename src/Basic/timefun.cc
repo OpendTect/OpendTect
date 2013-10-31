@@ -59,8 +59,7 @@ const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
 const char* getDateTimeString( const char* fmt, bool local )
 {
-    static StaticStringManager stm;
-    BufferString& datetimestr = stm.getString();
+    mDeclStaticString( datetimestr );
     QDateTime qdt = QDateTime::currentDateTime();
     if ( !local ) qdt = qdt.toUTC();
     datetimestr = qdt.toString( fmt ).toLatin1().constData();

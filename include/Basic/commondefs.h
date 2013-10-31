@@ -154,6 +154,35 @@ ________________________________________________________________________
 
 #define mExportTemplClassInst(mod,clss)	mExportInst(mod,template class,clss)
 
+#ifdef __win__
+#ifdef __cpp__
+namespace Threads
+{
+    mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
+    mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
+}
+#endif
+
+#define mLockStaticInitLock( nm ) \
+static volatile int nm = 0; \
+Threads::lockSimpleSpinWaitLock( nm )
+
+#define mUnlockStaticInitLock( nm ) \
+Threads::unlockSimpleSpinLock( nm )
+
+#else
+
+#define mLockStaticInitLock( nm ) 
+#define mUnlockStaticInitLock( nm )
+
+#endif
+
+#define mDefineStaticLocalObject( type, var, init ) \
+mLockStaticInitLock( static##var##lck__ ); \
+static type var init; \
+mUnlockStaticInitLock( static##var##lck__ )
+
+
 //for Qt
 #ifndef QT_NAMESPACE
 # define mFDQtclass(cls) class cls;

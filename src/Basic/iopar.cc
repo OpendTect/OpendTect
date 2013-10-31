@@ -183,8 +183,7 @@ const char* IOPar::compKey( const char* key1, int k2 )
 
 const char* IOPar::compKey( const char* key1, const char* key2 )
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = key1;
     if ( key1 && key2 && *key1 && *key2 ) ret += ".";
     ret += key2;

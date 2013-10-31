@@ -698,8 +698,8 @@ bool StreamProvider::isNormalFile() const
 
 const char* StreamProvider::fullName() const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
+    
     ret = "";
     if ( iscomm_ )
 	ret += "@";
@@ -973,9 +973,7 @@ static const char* getCmd( const char* fnm )
     
     if ( interp )
     {
-	static StaticStringManager stm;
-	BufferString& fullexec = stm.getString();
-
+	mDeclStaticString( fullexec );
 	fullexec = "\"";
 	FilePath interpfp;
 

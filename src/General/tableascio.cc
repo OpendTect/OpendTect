@@ -755,8 +755,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     if ( isNumberString(sval,flg) )
 	return sval;
 
-    static StaticStringManager stm;
-    BufferString& bufstr = stm.getString();
+    mDeclStaticString( bufstr );
     bufstr = sval;
     sval = bufstr.buf();
     char* ptr = bufstr.buf() + bufstr.size() - 1;

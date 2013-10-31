@@ -156,6 +156,30 @@ bool Threads::Locker::convertToWriteLock()
 }
 
 
+bool Threads::lockSimpleSpinWaitLock(volatile int& lock)
+{ return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked ); }
+
+
+void Threads::unlockSimpleSpinLock(volatile int& lock)
+{ lock = 0; }
+
+
+bool Threads::lockSimpleSpinLock( volatile int& lock,
+                                  Threads::Locker::WaitType wt )
+{
+    int curval = 0;
+    if ( wt==Threads::Locker::WaitIfLocked )
+    {
+        while ( !Threads::atomicSetIfValueIs( lock, curval, 1 ) )
+        {
+            curval = 0;
+        }
+
+        return true;
+    }
+
+    return Threads::atomicSetIfValueIs( lock, curval, 1 );
+}
 
 // Thread::General interface
 

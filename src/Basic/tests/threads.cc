@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
+#include "threadlock.h"
 #include "genc.h"
 #include "keystrs.h"
 #include "string2.h"
@@ -168,6 +169,21 @@ bool testAtomic( const char* valtype, bool quiet )
 	std::cout << " Fail\n"; \
 	return false; \
     } \
+}
+
+bool testAtomicSetIfValueIs( bool quiet )
+{
+    volatile int val = 0;
+
+    int curval = 1;
+    mRunTest( "atomicSetIfValueIs failure",
+              !Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+
+    curval = 0;
+    mRunTest( "atomicSetIfValueIs success",
+              Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+
+    return true;
 }
 
 
@@ -332,6 +348,25 @@ bool testLock( bool quiet, bool testcount, const char* type )
 }
 
 
+bool testSimpleSpinLock( bool quiet )
+{
+    volatile int lock = 0;
+    Threads::lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
+
+    mRunTest( "Simple spinlock acquire lock", (lock==1));
+    mRunTest( "Simple spinlock trylock on locked lock.",
+        !Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+
+    Threads::unlockSimpleSpinLock( lock );
+    mRunTest( "Simple spinlock release lock", lock==0 );
+
+    mRunTest( "Simple spinlock trylock on unlocked lock.",
+         Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+
+    return true;
+}
+
+
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " ", quiet ) ) \
 	ExitProgram( 1 );
@@ -358,6 +393,12 @@ int main( int narg, char** argv )
     mRunTestWithType(unsigned int);
     mRunTestWithType(short);
     mRunTestWithType(unsigned short);
+
+    if ( !testAtomicSetIfValueIs(quiet))
+        ExitProgram( 1 );
+
+    if ( !testSimpleSpinLock(quiet) )
+        ExitProgram( 1 );
 
     if ( !testLock<Threads::Mutex>( quiet, false, "Mutex" ) )
 	ExitProgram( 1 );

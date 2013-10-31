@@ -80,6 +80,38 @@ private:
 };
 
 
+/*!>
+ Atomically sets the 'val' only if its value is currently the value of 'curval'.
+ If the value in 'val' is identical to the value of 'curval', function will
+ change 'val' and return true. Otherwise, it will not change 'val', it
+ will return false, and update 'curval' to the current value of 'val'.
+ */
+
+
+inline bool atomicSetIfValueIs( volatile int& val, int& curval, int newval )
+{
+# ifdef __win__
+    const int oldval =InterlockedCompareExchange( (volatile long*) &val,
+						  newval, curval );
+    if ( oldval!=curval )
+    {
+        curval = oldval;
+        return false;
+    }
+
+    return true;
+# else
+    const int old = __sync_val_compare_and_swap( &val, curval, newval );
+    if ( old!=curval )
+    {
+        curval = old;
+        return false;
+    }
+
+    return true;
+#endif
+}
+
 #ifdef __win__
 #define mAtomicPointerType long long
 #else

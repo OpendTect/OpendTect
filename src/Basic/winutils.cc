@@ -38,9 +38,7 @@ const char* getCleanUnxPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-
+    mDeclStaticString( res );
     BufferString buf; buf = path;
     char* ptr = buf.buf();
     mTrimBlanks( ptr );
@@ -75,8 +73,7 @@ const char* getCleanWinPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = path;
     replaceCharacter( ret.buf(), ';' , ':' );
 
@@ -132,8 +129,7 @@ const char* getCleanWinPath( const char* path )
 
 const char* getCygDir()
 {
-    static StaticStringManager stm;
-    BufferString& answer = stm.getString();
+    mDeclStaticString( answer );
     if ( !answer.isEmpty() )  return answer;
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
@@ -170,9 +166,7 @@ const char* getCygDir()
 
 const char* GetSpecialFolderLocation(int nFolder)
 {
-    static StaticStringManager stm;
-    BufferString& Result = stm.getString();
-
+    mDeclStaticString( Result );
     LPITEMIDLIST pidl;
     HRESULT hr = SHGetSpecialFolderLocation(NULL, nFolder, &pidl);
     

@@ -280,8 +280,7 @@ void DateInfo::calcDays1900()
 
 const char* DateInfo::whenRelative( const DateInfo* di ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
 
     if ( di )	getRel( *di, ret );
     else	getRelToday( ret );
