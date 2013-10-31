@@ -27,11 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "binidvalset.h"
+#include "coltabmapper.h"
 #include "datapackbase.h"
 #include "elasticpropsel.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "flatposdata.h"
+#include "flatview.h"
 #include "ioman.h"
 #include "mathfunc.h"
 #include "prestackattrib.h"
@@ -51,12 +53,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timeser.h"
 #include "wavelet.h"
 
+#include "hiddenparam.h"
+
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
 static const char* sKeyDispPar() 		{ return "Display Parameter"; } 
-static const char* sKeyColTab() 		{ return "Color Table"; } 
 static const char* sKeyInput()	 		{ return "Input Synthetic"; } 
 static const char* sKeyAngleRange()		{ return "Angle Range"; } 
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
@@ -150,12 +153,68 @@ void SynthGenParams::createName( BufferString& nm ) const
 }
 
 
+static HiddenParam<SynthDispParams,ColTab::MapperSetup*> vdmappers( 0 );
+static HiddenParam<SynthDispParams,ColTab::MapperSetup*> wvamappers( 0 );
+static HiddenParam<SynthDispParams,float> overlaps( 1.0f );
+
+
+SynthDispParams::SynthDispParams()
+{
+    ColTab::MapperSetup* vdmapper = new ColTab::MapperSetup;
+    ColTab::MapperSetup* wvamapper = new ColTab::MapperSetup;
+    vdmappers.setParam( this, vdmapper );
+    wvamappers.setParam( this, wvamapper );
+    overlaps.setParam( this, 1.0f );
+}
+
+
+SynthDispParams::~SynthDispParams()
+{
+    ColTab::MapperSetup* vdmapper = vdmappers.getParam( this );
+    vdmappers.removeParam( this );
+    delete vdmapper;
+    ColTab::MapperSetup* wvamapper = wvamappers.getParam( this );
+    wvamappers.removeParam( this );
+    delete wvamapper;
+    overlaps.removeParam( this );
+}
+
+
+ColTab::MapperSetup& SynthDispParams::vdMapper()
+{ return *vdmappers.getParam( this ); }
+
+
+ColTab::MapperSetup& SynthDispParams::wvaMapper()
+{ return *wvamappers.getParam( this ); }
+
+
+const ColTab::MapperSetup& SynthDispParams::vdMapper() const
+{ return *vdmappers.getParam( this ); }
+
+
+const ColTab::MapperSetup& SynthDispParams::wvaMapper() const
+{ return *wvamappers.getParam( this ); }
+
+
+float SynthDispParams::overlap() const
+{ return overlaps.getParam( this ); }
+
+
+void SynthDispParams::setOverlap( float ovlap )
+{
+    overlaps.setParam( this, ovlap );
+}
+
 
 void SynthDispParams::fillPar( IOPar& par ) const
 {
-    IOPar disppar;
-    disppar.set( sKey::Range(), mapperrange_ );
-    disppar.set( sKeyColTab(), coltab_ );
+    IOPar disppar, vdmapperpar, wvamapperpar;
+    disppar.set( FlatView::DataDispPars::sKeyColTab(), coltab_ );
+    disppar.set( FlatView::DataDispPars::sKeyOverlap(), overlap() );
+    vdMapper().fillPar( vdmapperpar );
+    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
+    wvaMapper().fillPar( wvamapperpar );
+    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyWVA() );
     par.mergeComp( disppar, sKeyDispPar() );
 }
 
@@ -166,8 +225,28 @@ void SynthDispParams::usePar( const IOPar& par )
     if ( !disppar ) 
 	return;
 
-    disppar->get( sKey::Range(), mapperrange_ );
-    disppar->get( sKeyColTab(), coltab_ );
+    float ovlap = 1.0f;
+    disppar->get( FlatView::DataDispPars::sKeyColTab(), coltab_ );
+    disppar->get( FlatView::DataDispPars::sKeyOverlap(), ovlap );
+    setOverlap( ovlap );
+     PtrMan<IOPar> vdmapperpar =
+	 disppar->subselect( FlatView::DataDispPars::sKeyVD() );
+    if ( !vdmapperpar ) // Older par file
+    {
+	vdMapper().type_ = ColTab::MapperSetup::Fixed;
+	wvaMapper().type_ = ColTab::MapperSetup::Fixed;
+	disppar->get( sKey::Range(), vdMapper().range_ );
+	disppar->get( sKey::Range(), wvaMapper().range_ );
+    }
+    else
+    {
+	 if ( vdmapperpar )
+	     vdMapper().usePar( *vdmapperpar );
+	 PtrMan<IOPar> wvamapperpar =
+	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
+	 if ( wvamapperpar )
+	     wvaMapper().usePar( *wvamapperpar );
+    }
 }
 
 

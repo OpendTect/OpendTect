@@ -56,6 +56,8 @@ static const char* sKeyViewArea()	{ return "Start View Area"; }
 
 static HiddenParam< uiStratSynthDisp, uiWorldRect > curviewwr( 
 	uiWorldRect(mUdf(double),mUdf(double),mUdf(double),mUdf(double)) );
+static HiddenParam< uiStratSynthDisp, Notifier<uiStratSynthDisp>* >
+	disppropchanged( 0 );
 
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
@@ -88,6 +90,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
 {
+    Notifier<uiStratSynthDisp>* dispnot = new Notifier<uiStratSynthDisp>( this);
+    disppropchanged.setParam( this, dispnot );
     uiWorldRect wr( mUdf(double), 0, 0,0 );
     curviewwr.setParam( this, wr );
     stratsynth_->setTaskRunner( taskrunner_ );
@@ -173,7 +177,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
-    vwr_->dispParsChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
+    vwr_->dispPropChanged().notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -183,6 +187,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     app.annot_.x2_.showAll( true );
     app.annot_.x2_.name_ = "TWT (s)";
     app.ddpars_.show( true, true );
+    app.ddpars_.vd_.setAllowUserChangeData( false );
+    app.ddpars_.wva_.setAllowUserChangeData( false );
     vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
 
     uiFlatViewStdControl::Setup fvsu( this );
@@ -200,10 +206,19 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
+    Notifier<uiStratSynthDisp>* notifier = disppropchanged.getParam( this );
+    disppropchanged.removeParam( this );
+    delete notifier;
     curviewwr.removeParam( this );
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
+}
+
+
+Notifier<uiStratSynthDisp>& uiStratSynthDisp::dispParsChanged()
+{
+    return *disppropchanged.getParam( this );
 }
 
 
@@ -552,16 +567,17 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
     {
 	SynthDispParams& disppars = currentvdsynthetic_->dispPars();
 	disppars.coltab_ = vwr_->appearance().ddpars_.vd_.ctab_;
-	disppars.mapperrange_ =
-	    vwr_->appearance().ddpars_.vd_.mappersetup_.range_;
+	disppars.vdMapper() = vwr_->appearance().ddpars_.vd_.mappersetup_;
     }
 
     if ( currentwvasynthetic_ )
     {
 	SynthDispParams& disppars = currentwvasynthetic_->dispPars();
-	disppars.mapperrange_ =
-	    vwr_->appearance().ddpars_.wva_.mappersetup_.range_;
+	disppars.wvaMapper() = vwr_->appearance().ddpars_.wva_.mappersetup_;
+	disppars.setOverlap( vwr_->appearance().ddpars_.wva_.overlap_ );
     }
+
+    dispParsChanged().trigger();
 }
 
 
@@ -766,7 +782,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	curSS().flattenTraces( *disptbuf );
     }
     else
-        reSampleTraces( *disptbuf );
+        reSampleTraces( sd, *disptbuf );
 
     curSS().trimTraces( *disptbuf, 0.0f, curd2tmodels, dispskipz_);
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
@@ -779,14 +795,13 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
     mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
-    const bool hasrgsaved = !mIsUdf(sd->dispPars().mapperrange_.start) &&
-			    !mIsUdf(sd->dispPars().mapperrange_.stop);
-    if ( hasrgsaved && !prsd )
-    {
-	mapper.range_ = sd->dispPars().mapperrange_;
-	mapper.autosym0_ = false;
-	mapper.type_ = ColTab::MapperSetup::Fixed;
-    }
+    SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
+    ColTab::MapperSetup& dispparsmapper =
+	!wva ? dispsd->dispPars().vdMapper() : dispsd->dispPars().wvaMapper();
+    const bool hasrgsaved = !mIsZero(dispparsmapper.range_.start,mDefEps) &&
+			    !mIsZero(dispparsmapper.range_.stop,mDefEps);
+    if ( hasrgsaved )
+	mapper = dispparsmapper;
     else
     {
 	mapper.cliprate_ = Interval<float>(0.0,0.0);
@@ -802,20 +817,26 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     else
 	vwr_->setView( curviewwr_ );
     curviewwr.setParam( this, curviewwr_ );
-    if ( !hasrgsaved && !prsd )
+    if ( !hasrgsaved  )
     {
 	mapper.autosym0_ = false;
 	mapper.type_ = ColTab::MapperSetup::Fixed;
-	SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
-	dispsd->dispPars().mapperrange_ = mapper.range_;
+	dispparsmapper = mapper;
     }
-    displayFRText();
 
+    displayFRText();
     levelSnapChanged( 0 );
 }
 
 
 void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
+{
+    reSampleTraces( currentwvasynthetic_, tbuf );
+}
+
+
+void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
+				       SeisTrcBuf& tbuf ) const
 {
     if ( longestaimdl_>=layerModel().size() || longestaimdl_<0 )
 	return;
@@ -824,7 +845,8 @@ void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
     const float offset = 
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
 				  : 0.0f;
-    getCurD2TModel( currentwvasynthetic_, curd2tmodels, offset );
+    mDynamicCastGet(const StratPropSyntheticData*,spsd,sd)
+    getCurD2TModel( sd, curd2tmodels, offset );
     if ( !curd2tmodels.validIdx(longestaimdl_) )
 	return;
     const TimeDepthModel& d2t = *curd2tmodels[longestaimdl_];
@@ -835,10 +857,17 @@ void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
 	SeisTrc& trc = *tbuf.get( idx );
 
 	const float lastzval = trc.info().sampling.atIndex( trc.size()-1 );
+	const int lastsz = trc.size();
 	if ( lastzval > reqlastzval )
 	    continue;
 	const int newsz = trc.info().sampling.nearestIndex( reqlastzval );
 	trc.reSize( newsz, true );
+	if ( spsd )
+	{
+	    const float lastval = trc.get( lastsz-1, 0 );
+	    for ( int xtrasampidx=lastsz; xtrasampidx<newsz; xtrasampidx++ )
+		trc.set( xtrasampidx, lastval, 0 );
+	}
     }
 }
 
@@ -1268,6 +1297,12 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     synthsChanged.trigger();
     synthgendlg_->putToScreen();
     synthgendlg_->updateSynthNames();
+}
+
+
+SyntheticData* uiStratSynthDisp::getSyntheticData( const char* nm )
+{
+    return curSS().getSynthetic( nm );
 }
 
 

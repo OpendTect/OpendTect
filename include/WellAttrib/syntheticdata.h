@@ -13,19 +13,25 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+#include "coltabmapper.h"
 #include "datapack.h"
 #include "stratsynthgenparams.h"
 
 class SeisTrc;
 class TimeDepthModel;
 
-
 mStruct(WellAttrib) SynthDispParams
 {
-    			SynthDispParams()
-			: mapperrange_(mUdf(float),mUdf(float))	{}
-    Interval<float>	mapperrange_;
+    			SynthDispParams();
+    			~SynthDispParams();
     BufferString	coltab_;
+    Interval<float>	mapperrange_;
+    ColTab::MapperSetup& vdMapper();
+    ColTab::MapperSetup& wvaMapper();
+    const ColTab::MapperSetup& vdMapper() const;
+    const ColTab::MapperSetup& wvaMapper() const;
+    float		overlap() const;
+    void 		setOverlap(float);
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 };
@@ -65,9 +71,8 @@ public:
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
-    SynthDispParams&			dispPars() 	{ return disppars_; }
-    const SynthDispParams&		dispPars() const
-							{ return disppars_; }
+    SynthDispParams&			dispPars() 	 { return disppars_; }
+    const SynthDispParams&		dispPars() const { return disppars_; }
 
 protected:
 					SyntheticData(const SynthGenParams&,

@@ -136,6 +136,8 @@ protected:
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			zSkipChanged(CallBacker*);
+    void			synthDispParsChangedCB(CallBacker*);
+    void			lmDispParsChangedCB(CallBacker*);
 
     bool			closeOK();
     

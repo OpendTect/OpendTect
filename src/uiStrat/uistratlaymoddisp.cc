@@ -43,7 +43,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
 static HiddenParam< uiStratLayerModelDisp, Notifier<uiStratLayerModelDisp>* >
-							zskipchanged( 0 );
+	zskipchanged( 0 );
+static HiddenParam< uiStratLayerModelDisp, Notifier<uiStratLayerModelDisp>* >
+	disppropchanged( 0 );
+static HiddenParam< uiStratLayerModelDisp, Notifier<uiStratLayerModelDisp>* >
+	levelchanged( 0 );
+static HiddenParam< uiStratLayerModelDisp, TypeSet<LMPropSpecificDispPars>* >
+	lmdispparsset( 0 );
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp )
@@ -60,11 +66,20 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , genNewModelNeeded(this)
     , rangeChanged(this)   
     , modelEdited(this)   
-    , infoChanged(this)   
+    , infoChanged(this)
 {
-    Notifier<uiStratLayerModelDisp>* notifier =
+    TypeSet<LMPropSpecificDispPars>* emptylmdisppars =
+	new TypeSet<LMPropSpecificDispPars>;
+    lmdispparsset.setParam( this, emptylmdisppars );
+    Notifier<uiStratLayerModelDisp>* zskipnot =
 	new Notifier<uiStratLayerModelDisp>( this );
-    zskipchanged.setParam( this, notifier );
+    zskipchanged.setParam( this, zskipnot );
+    Notifier<uiStratLayerModelDisp>* disppropnot =
+	new Notifier<uiStratLayerModelDisp>( this );
+    disppropchanged.setParam( this, disppropnot );
+    Notifier<uiStratLayerModelDisp>* lvlchgnot =
+	new Notifier<uiStratLayerModelDisp>( this );
+    levelchanged.setParam( this, lvlchgnot );
 }
 
 
@@ -73,12 +88,41 @@ uiStratLayerModelDisp::~uiStratLayerModelDisp()
     Notifier<uiStratLayerModelDisp>* notifier = zskipchanged.getParam( this );
     zskipchanged.removeParam( this );
     delete notifier;
+    Notifier<uiStratLayerModelDisp>* dispnot = disppropchanged.getParam(this);
+    disppropchanged.removeParam( this );
+    delete dispnot;
+    Notifier<uiStratLayerModelDisp>* lvlchgnot = levelchanged.getParam(this);
+    levelchanged.removeParam( this );
+    delete lvlchgnot;
+    TypeSet<LMPropSpecificDispPars>* lmpars = lmdispparsset.getParam( this );
+    lmdispparsset.removeParam( this );
+    delete lmpars;
 }
+
+
+const TypeSet<LMPropSpecificDispPars>& uiStratLayerModelDisp::lmDispPars() const
+{ return *lmdispparsset.getParam( this ); }
+
+
+TypeSet<LMPropSpecificDispPars>& uiStratLayerModelDisp::lmDispPars()
+{ return *lmdispparsset.getParam( this ); }
 
 
 Notifier<uiStratLayerModelDisp>& uiStratLayerModelDisp::zskipChanged()
 {
     return *zskipchanged.getParam( this );
+}
+
+
+Notifier<uiStratLayerModelDisp>& uiStratLayerModelDisp::dispPropChanged()
+{
+    return *disppropchanged.getParam( this );
+}
+
+
+Notifier<uiStratLayerModelDisp>& uiStratLayerModelDisp::levelChanged()
+{
+    return *levelchanged.getParam( this );
 }
 
 
@@ -97,8 +141,12 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 
 void uiStratLayerModelDisp::setFlattened( bool yn )
 {
+    const bool domodelchg = flattened_ || yn;
     flattened_ = yn;
-    modelChanged();
+    if ( domodelchg )
+	modelChanged();
+    else
+	levelChanged().trigger();
 }
 
 
@@ -188,6 +236,38 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 }
 
 
+bool uiStratLayerModelDisp::getCurPropDispPars(
+	LMPropSpecificDispPars& pars ) const
+{
+    LMPropSpecificDispPars disppars;
+    disppars.propnm_ = tools_.selProp();
+    const int curpropidx = lmDispPars().indexOf( disppars );
+    if ( curpropidx<0 )
+	return false;
+    pars = lmDispPars()[curpropidx];
+    return true;
+}
+
+
+bool uiStratLayerModelDisp::setPropDispPars( const LMPropSpecificDispPars& pars)
+{
+    BufferStringSet propnms;
+    for ( int idx=0; idx<layerModel().propertyRefs().size(); idx++ )
+	propnms.add( layerModel().propertyRefs()[idx]->name() );
+
+    if ( !propnms.isPresent(pars.propnm_) )
+	return false;
+    const int propidx = lmDispPars().indexOf( pars );
+    if ( propidx<0 )
+	lmDispPars() += pars;
+    else
+	lmDispPars()[propidx] = pars;
+    return true;
+}
+
+
+//=========================================================================>>
+
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 		uiStratLayModEditTools& t, const Strat::LayerModelProvider& l )
@@ -240,6 +320,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     tools_.dispEachChg.notify( redrawcb );
     tools_.dispZoomedChg.notify( redrawcb );
     tools_.dispLithChg.notify( redrawcb );
+    levelChanged().notify( redrawcb );
 }
 
 

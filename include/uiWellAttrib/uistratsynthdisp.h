@@ -55,6 +55,7 @@ public:
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
+    SyntheticData*	getSyntheticData(const char* nm);
     const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
     const SeisTrcBuf&   postStackTraces(const char* nm) const;
     const PropertyRefSelection&	modelPropertyRefs() const;
@@ -79,6 +80,7 @@ public:
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
     Notifier<uiStratSynthDisp>	synthsChanged;
+    Notifier<uiStratSynthDisp>&	dispParsChanged();
 
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
@@ -147,7 +149,8 @@ protected:
     void		getCurD2TModel(const SyntheticData*,
 	    			    ObjectSet<const TimeDepthModel>&,
 				    float offset = 0.0f) const;
-    void		reSampleTraces(SeisTrcBuf&) const;
+    void		reSampleTraces(SeisTrcBuf&) const;// uses curwvasynth
+    void		reSampleTraces(const SyntheticData*,SeisTrcBuf&) const;
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);

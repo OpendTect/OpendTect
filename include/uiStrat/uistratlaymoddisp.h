@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "flatview.h"
 #include "uistratmod.h"
 #include "uigroup.h"
 
@@ -26,6 +27,20 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
   The world rect boundaries are [1,nrmodels+1] vs zrg_.
 */
+
+mStruct(uiStrat) LMPropSpecificDispPars
+{
+    			LMPropSpecificDispPars( const char* nm=0 )
+			    : propnm_(nm)	{}
+    bool		operator==( const LMPropSpecificDispPars& oth ) const
+			{ return propnm_ == oth.propnm_; }
+
+    ColTab::MapperSetup	mapper_;
+    BufferString	ctab_;
+    float		overlap_;
+    BufferString	propnm_;
+};
+
 
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 {
@@ -55,13 +70,14 @@ public:
 
     float		getLayerPropValue(const Strat::Layer&,
 	    				  const PropertyRef*,int) const;
+    bool		setPropDispPars(const LMPropSpecificDispPars&);
+    bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
     CNotifier<uiStratLayerModelDisp,IOPar> infoChanged;
-
 protected:
 
     const Strat::LayerModelProvider& lmp_;
@@ -82,7 +98,11 @@ protected:
     bool		doLayerModelIO(bool);
     				//!< returns whether layermodel has changed
 public:
-    Notifier<uiStratLayerModelDisp>& zskipChanged();
+    Notifier<uiStratLayerModelDisp>&	zskipChanged();
+    Notifier<uiStratLayerModelDisp>& 	dispPropChanged();
+    Notifier<uiStratLayerModelDisp>& 	levelChanged();
+    TypeSet<LMPropSpecificDispPars>&	lmDispPars();
+    const TypeSet<LMPropSpecificDispPars>& lmDispPars() const;
 
 };
 
