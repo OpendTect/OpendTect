@@ -53,10 +53,10 @@ do_it:
 
 if ( "${listfile}" != "" ) then
     if ( "${exceptionfile}" != "" ) then
-	cat ${listfile} | xargs ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile}
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile}
 	exit ${status}
     else
-	cat ${listfile} | xargs ${progname} --keyword "${keyword}"
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}"
 	exit ${status}
     endif
 endif
