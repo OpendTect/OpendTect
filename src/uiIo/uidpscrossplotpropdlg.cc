@@ -218,8 +218,6 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 void initFlds( CallBacker* )
 {
-    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
-
     const LinStats2D& ls = plotter_.linStats();
     a0fld_->setValue( ls.lp.a0 );
     a1fld_->setValue( ls.lp.ax );
