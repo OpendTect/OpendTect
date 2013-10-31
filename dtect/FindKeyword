@@ -3,6 +3,8 @@
 # Copyright (C): dGB Beheer B. V.
 #
 
+setenv LANG C
+setenv  LC_CTYPE C
 set progname = $0
 set exceptionfile=""
 set listfile=""
@@ -16,7 +18,7 @@ nextarg:
 
 if ( "${1}" == "--keyword" ) then
     shift
-    set keyword = $1
+    set keyword = "${1}"
 else if ( "${1}" == "--exceptionfile" ) then
     set exceptionfile=${2}
     if ( "${exceptionfile}" == "" ) then
@@ -51,10 +53,10 @@ do_it:
 
 if ( "${listfile}" != "" ) then
     if ( "${exceptionfile}" != "" ) then
-	cat ${listfile} | xargs ${progname} --keyword ${keyword} --exceptionfile ${exceptionfile}
+	cat ${listfile} | xargs ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile}
 	exit ${status}
     else
-	cat ${listfile} | xargs ${progname} --keyword ${keyword}
+	cat ${listfile} | xargs ${progname} --keyword "${keyword}"
 	exit ${status}
     endif
 endif
@@ -69,7 +71,7 @@ endif
 
 shift 
 
-grep -q ${keyword} ${filename}
+cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | egrep -q "${keyword}"
 if ( ${status} == 0 ) then
     if ( "${exceptionfile}" != "" ) then
 	grep -q ${filename} ${exceptionfile}
@@ -78,8 +80,7 @@ if ( ${status} == 0 ) then
 	endif
     endif
 	    
-    echo Found \"${keyword}\" in ${filename}
-    exit 1
+    echo ${filename}
 endif
 
 goto nextfile
