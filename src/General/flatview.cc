@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabmapper.h"
 #include "datapackbase.h"
 
+#include "hiddenparam.h"
 
 namespace FlatView
 {
@@ -306,6 +307,21 @@ void FlatView::AuxData::empty()
     iop.fn( IOPar::compKey(sKeyWVA(),keynm), memb )
 #define mIOPDoVD(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyVD(),keynm), memb )
+
+static HiddenParam< FlatView::DataDispPars::Common, BoolTypeSetType >
+						allowuserchangedata( true );
+
+bool FlatView::DataDispPars::Common::allowUserChangeData() const
+{
+    return allowuserchangedata.getParam( this );
+}
+
+
+void FlatView::DataDispPars::Common::setAllowUserChangeData( bool allow )
+{
+    allowuserchangedata.setParam( this, allow );
+}
+
 
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {

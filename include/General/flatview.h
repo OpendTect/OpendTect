@@ -192,6 +192,8 @@ public:
 	bool			blocky_;   // default=false
 	bool			allowuserchange_;
 	ColTab::MapperSetup	mappersetup_;
+	bool			allowUserChangeData() const;
+	void			setAllowUserChangeData(bool);
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
