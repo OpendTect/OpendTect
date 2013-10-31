@@ -35,8 +35,8 @@ od_stream from a function.
 
 Note the usage of the stream checking functions. There are only two left:
 
-* isBad() - indicates a fatal, non-recoverable error.
-* isOK() - indicates whether the stream is ready for new read or write.
+- isBad() - indicates a fatal, non-recoverable error.
+- isOK() - indicates whether the stream is ready for new read or write.
 
 The difference is with end-of-file when reading. eof will not give you isBad(),
 but it will make the stream !isOK(). There is no difference for write.
@@ -57,7 +57,9 @@ public:
 
     virtual			~od_stream();
 
-    bool			isOK() const;
+    bool			isOK() const;	//!< eof is not OK
+    bool			isBad() const;	//!< eof is not Bad
+
     const char*			errMsg() const; //!< see also below
     bool			forRead() const;
     bool			forWrite() const;
@@ -76,7 +78,6 @@ public:
     void			setNoClose( bool yn=true )	{ noclose_=yn; }
     void			releaseStream(StreamData&);
     void			close();
-    bool			isBad() const;	//!< eof is not Bad
 
     void			addErrMsgTo(BufferString&) const;
     static od_stream*		create(const char*,bool forread,
