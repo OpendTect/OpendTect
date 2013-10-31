@@ -39,6 +39,7 @@ mGlobal(Basic) bool		winRemoveDir( const char* dirnm );
 mGlobal(Basic) bool		executeWinProg(const char* comm,
 				    const char* parm, const char* runin=0);
 mGlobal(Basic) unsigned int	getWinVersion();
+mGlobal(Basic) const char*	getFullWinVersion();
 mGlobal(Basic) bool		execShellCmd(const char* comm,const char* parm,
 				    const char* runin );
 mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
