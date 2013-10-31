@@ -58,12 +58,12 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D::~Filter2D()
 {
-    geomids_.erase(); 
+    l2dkey_.erase(); 
 }
 
 
 int Pos::Filter2D::nrLines() const
-{ return geomids_.size(); }
+{ return l2dkey_.size(); }
 
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
@@ -79,19 +79,19 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 }
 
 
-void Pos::Filter2D::addLineID( const PosInfo::Line2DKey& geomid )
-{ geomids_ += geomid; }
+void Pos::Filter2D::addLineKey( const PosInfo::Line2DKey& l2dkey )
+{ l2dkey_ += l2dkey; }
 
 
-void Pos::Filter2D::removeLineID( int lidx )
+void Pos::Filter2D::removeLineKey( int lidx )
 {
-    if ( geomids_.validIdx(lidx) )
-	geomids_.removeSingle( lidx );
+    if ( l2dkey_.validIdx(lidx) )
+	l2dkey_.removeSingle( lidx );
 }
 
 
-PosInfo::Line2DKey Pos::Filter2D::lineID( int lidx ) const
-{ return geomids_.validIdx(lidx) ? geomids_[lidx] : PosInfo::Line2DKey(); }
+PosInfo::Line2DKey Pos::Filter2D::lineKey( int lidx ) const
+{ return l2dkey_.validIdx(lidx) ? l2dkey_[lidx] : PosInfo::Line2DKey(); }
 
 
 Pos::FilterSet::~FilterSet()

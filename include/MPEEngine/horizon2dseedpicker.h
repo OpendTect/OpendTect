@@ -105,7 +105,7 @@ protected:
 
     EM::SectionID		sectionid_;
     bool			didchecksupport_;
-    PosInfo::Line2DKey		geomid_;
+    PosInfo::Line2DKey		l2dkey_;
 
     BufferString		linename_;
     MultiID			lineset_;

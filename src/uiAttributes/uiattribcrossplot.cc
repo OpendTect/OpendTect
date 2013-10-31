@@ -365,7 +365,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 		    {
 			const char* lsnm = linesetnms[ls2didx]->buf();
 			if ( S2DPOS().hasLine(linenm,lsnm) )
-			    p2d->addLineID( S2DPOS().getLine2DKey(lsnm,linenm));
+			   p2d->addLineKey( S2DPOS().getLine2DKey(lsnm,linenm));
 		    }
 		}
 	    }
@@ -375,10 +375,10 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
 		for ( int lidx=0; lidx<lnms.size(); lidx++ )
 		{
-		    PosInfo::Line2DKey geomid =
+		    PosInfo::Line2DKey l2dkey =
 			S2DPOS().getLine2DKey( lsobj->name(), lnms.get(lidx) );
-		    if ( geomid.isOK() )
-			p2d->addLineID( geomid );
+		    if ( l2dkey.isOK() )
+			p2d->addLineKey( l2dkey );
 		}
 	    }
 	}

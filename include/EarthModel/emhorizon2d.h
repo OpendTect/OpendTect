@@ -49,10 +49,11 @@ public:
     int				lineIndex(const char* linenm) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
-    PosInfo::Line2DKey		lineGeomID(int idx) const;
+    PosInfo::Line2DKey		lineKey(int idx) const;
     Pos::GeomID			geomID(int idx) const;
 
-    bool			includeLine(const PosInfo::Line2DKey&,int step=1);
+    bool			includeLine(const PosInfo::Line2DKey&,
+					    int step=1);
     bool			includeLine(Pos::GeomID geomid,int step=1);
 
     bool 			addLine(const PosInfo::Line2DKey&,int step=1);
@@ -107,7 +108,7 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    TypeSet<PosInfo::Line2DKey>	oldgeomids_;
+    TypeSet<PosInfo::Line2DKey>	l2dkeys_;
     TypeSet<Pos::GeomID>	geomids_;
 };
 

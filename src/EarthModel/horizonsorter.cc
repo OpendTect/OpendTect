@@ -43,7 +43,7 @@ HorizonSorter::~HorizonSorter()
 void HorizonSorter::init()
 {
     calcBoundingBox();
-    totalnr_ = is2d_ ? geomids_.size() : hrg_.nrInl();
+    totalnr_ = is2d_ ? l2dkeys_.size() : hrg_.nrInl();
 
     if ( !is2d_ )
     {
@@ -74,13 +74,13 @@ void HorizonSorter::calcBoundingBox()
 		    			hor2d->geometry().sectionGeometry(sid);
 		if ( !geom ) continue;
 
-		PosInfo::Line2DKey geomid = hor2d->geometry().lineGeomID( ldx );
-		const int lidx = geomids_.indexOf( geomid );
+		PosInfo::Line2DKey l2dkey = hor2d->geometry().lineKey( ldx );
+		const int lidx = l2dkeys_.indexOf( l2dkey );
 		const int rowidx =
-		    geom->getRowIndex( hor2d->geometry().lineGeomID(ldx) );
+		    geom->getRowIndex( hor2d->geometry().lineKey(ldx) );
 		if ( lidx < 0 )
 		{
-		    geomids_ += geomid;
+		    l2dkeys_ += l2dkey;
 		    trcrgs_ += geom->colRange( rowidx );
 		}
 		else
@@ -205,7 +205,7 @@ int HorizonSorter::nextStep()
 
     if ( !is2d_ && !iterator_ ) return Finished();
 
-    if ( is2d_ && geomids_.isEmpty() )
+    if ( is2d_ && l2dkeys_.isEmpty() )
 	mErrRet( "Could not load 2D geometry." );
 
     const int previnl = binid_.inl();
@@ -219,7 +219,7 @@ int HorizonSorter::nextStep()
 	}
 
 	if ( ( !is2d_ && !iterator_->next(binid_) )
-	       || ( is2d_ && binid_.inl() >= geomids_.size() ) )
+	       || ( is2d_ && binid_.inl() >= l2dkeys_.size() ) )
 	{
 	    sort();
 	    return Finished();
@@ -240,7 +240,8 @@ int HorizonSorter::nextStep()
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    (float) hor2d->getPos( sid, geomids_[binid_.inl()], binid_.crl() ).z;
+		    (float) hor2d->getPos( sid, l2dkeys_[binid_.inl()], 
+					   binid_.crl() ).z;
 	    }
 	    else
 		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z;

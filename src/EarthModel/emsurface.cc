@@ -88,13 +88,13 @@ void SurfaceIOData::use( const Surface& surf )
 		emgeom.sectionGeometry( emgeom.sectionID(0) );
 	    trcranges += geom->colRange( geom->getRowIndex(emgeom.geomID(idx)));
 #else
-	    const PosInfo::Line2DKey geomid = emgeom.lineGeomID( idx );
-	    linesets.add( S2DPOS().getLineSet(geomid.lsID()) );
-	    S2DPOS().setCurLineSet( geomid.lsID() );
-	    linenames.add( S2DPOS().getLineName(geomid.lineID()) );
+	    const PosInfo::Line2DKey l2dkey = emgeom.lineKey( idx );
+	    linesets.add( S2DPOS().getLineSet(l2dkey.lsID()) );
+	    S2DPOS().setCurLineSet( l2dkey.lsID() );
+	    linenames.add( S2DPOS().getLineName(l2dkey.lineID()) );
 	    const Geometry::Horizon2DLine* geom =
 		emgeom.sectionGeometry( emgeom.sectionID(0) );
-	    trcranges += geom->colRange( geom->getRowIndex(geomid) );
+	    trcranges += geom->colRange( geom->getRowIndex(l2dkey) );
 #endif
 	}
     }

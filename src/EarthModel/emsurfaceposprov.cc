@@ -367,9 +367,10 @@ const char* EMSurfaceProvider2D::curLine() const
 	if ( !hor2d )
 	    return 0;
 
-	const PosInfo::Line2DKey& geomid = hor2d->geometry().lineGeomID( bid.inl() );
-	S2DPOS().setCurLineSet( geomid.lsID() );
-	return S2DPOS().getLineName( geomid.lineID() );
+	const PosInfo::Line2DKey& l2dkey = hor2d->geometry().lineKey( 
+								    bid.inl() );
+	S2DPOS().setCurLineSet( l2dkey.lsID() );
+	return S2DPOS().getLineName( l2dkey.lineID() );
     }
 
     return 0;
@@ -390,7 +391,7 @@ bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
 	PosInfo::Line2DData l2d;
-	if ( !S2DPOS().getGeometry(lineID(lidx),l2d) )
+	if ( !S2DPOS().getGeometry(lineKey(lidx),l2d) )
 	    continue;
 
 	if ( l2d.getPos(c,pos,SI().inlDistance()))
@@ -407,7 +408,7 @@ bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 {
     PosInfo::Line2DData l2d;
-    if ( !S2DPOS().getGeometry(lineID(lidx),l2d) )
+    if ( !S2DPOS().getGeometry(lineKey(lidx),l2d) )
 	return false;
     if ( l2d.lineName().isEmpty() || l2d.indexOf(nr)<0 )
 	return false;

@@ -141,10 +141,10 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    PtrMan<IOObj> lsobj = IOM().get( lsid );
 	    if ( lsobj )
 	    {
-		const PosInfo::Line2DKey& geomid =
+		const PosInfo::Line2DKey& l2dkey =
 		    S2DPOS().getLine2DKey( lsobj->name(), linename );
 		PosInfo::Line2DData l2dd;
-		S2DPOS().getGeometry( geomid, l2dd );
+		S2DPOS().getGeometry( l2dkey, l2dd );
 		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
 		cs_.zrg = l2dd.zRange();
 	    }

@@ -85,7 +85,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !isValid() )
 	{ delete lset_; lset_ = 0; return; }
 
-    const char* lsnm = S2DPOS().getLineSet( geom_->lineGeomID(lineidx_).lsID());
+    const char* lsnm = S2DPOS().getLineSet( geom_->lineKey(lineidx_).lsID());
     if ( !lset_ || lset_->name() != lsnm )
     {
 	delete lset_; lset_ = 0;
@@ -103,9 +103,9 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 
 const char* EM::Hor2DSeisLineIterator::lineName() const
 {
-    const PosInfo::Line2DKey& geomid = geom_->lineGeomID( lineidx_ );
-    S2DPOS().setCurLineSet( geomid.lsID() );
-    return isValid() ? S2DPOS().getLineName( geomid.lineID() ) : 0;
+    const PosInfo::Line2DKey& l2dkey = geom_->lineKey( lineidx_ );
+    S2DPOS().setCurLineSet( l2dkey.lsID() );
+    return isValid() ? S2DPOS().getLineName( l2dkey.lineID() ) : 0;
 }
 
 

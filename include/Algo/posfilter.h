@@ -106,9 +106,9 @@ public:
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
 
-    void		addLineID(const PosInfo::Line2DKey&);
-    void		removeLineID(int lidx);
-    PosInfo::Line2DKey	lineID(int) const;
+    void		addLineKey(const PosInfo::Line2DKey&);
+    void		removeLineKey(int lidx);
+    PosInfo::Line2DKey	lineKey(int) const;
     int			indexOf(const PosInfo::Line2DKey&) const;
     int			nrLines() const;
 
@@ -117,7 +117,7 @@ public:
 
 protected:
 
-    TypeSet<PosInfo::Line2DKey>	geomids_;
+    TypeSet<PosInfo::Line2DKey>	l2dkey_;
 };
 
 

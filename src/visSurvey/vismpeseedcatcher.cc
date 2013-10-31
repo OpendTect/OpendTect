@@ -317,9 +317,9 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !hor2d ) return;
 
     const int lineidx = nodepid.getRowCol().row();
-    const PosInfo::Line2DKey& geomid = hor2d->geometry().lineGeomID( lineidx );
-    S2DPOS().setCurLineSet( geomid.lsID() );
-    BufferString linenm = S2DPOS().getLineName( geomid.lineID() );
+    const PosInfo::Line2DKey& l2dkey = hor2d->geometry().lineKey( lineidx );
+    S2DPOS().setCurLineSet( l2dkey.lsID() );
+    BufferString linenm = S2DPOS().getLineName( l2dkey.lineID() );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
@@ -339,7 +339,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 	
-	if ( !geomid.isOK() )
+	if ( !l2dkey.isOK() )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )

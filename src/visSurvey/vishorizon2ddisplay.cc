@@ -387,7 +387,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	for ( int lnidx=0; lnidx<emgeo.nrLines(); lnidx++ )
 	{
 	    linenames.add( emgeo.lineName(lnidx) );
-	    const PosInfo::Line2DKey& geomid = emgeo.lineGeomID( lnidx );
+	    const PosInfo::Line2DKey& l2dkey = emgeo.lineKey( lnidx );
 
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
@@ -399,8 +399,8 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     		    linergs.zrgs += TypeSet<Interval<float> >();
     		    const int ridx = linergs.trcrgs.size()-1;
 		    
-    		    linergs.trcrgs[ridx] += ghl->colRange( geomid );
-    		    linergs.zrgs[ridx] += ghl->zRange( geomid );
+    		    linergs.trcrgs[ridx] += ghl->colRange( l2dkey );
+    		    linergs.zrgs[ridx] += ghl->zRange( l2dkey );
 		}
 	    }
 	}
@@ -438,22 +438,22 @@ void Horizon2DDisplay::updateLinesOnSections(
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
     {
-	const PosInfo::Line2DKey& geomid = h2d->geometry().lineGeomID( lnidx );
+	const PosInfo::Line2DKey& l2dkey = h2d->geometry().lineKey( lnidx );
 	linergs.trcrgs += TypeSet<Interval<int> >();
 	linergs.zrgs += TypeSet<Interval<float> >();
 	for ( int idx=0; idx<seis2dlist.size(); idx++ )
 	{
-	    Interval<int> trcrg = h2d->geometry().colRange( geomid );
+	    Interval<int> trcrg = h2d->geometry().colRange( l2dkey );
 	    trcrg.limitTo( seis2dlist[idx]->getTraceNrRange() );
-	    if ( geomid != seis2dlist[idx]->getLine2DKey() )
+	    if ( l2dkey != seis2dlist[idx]->getLine2DKey() )
 	    {
 		const Coord sp0 = seis2dlist[idx]->getCoord( trcrg.start );
 		const Coord sp1 = seis2dlist[idx]->getCoord( trcrg.stop );
 		if ( !trcrg.width() || !sp0.isDefined() || !sp1.isDefined() )
 		    continue;
 
-		const Coord hp0 = h2d->getPos( 0, geomid, trcrg.start );
-		const Coord hp1 = h2d->getPos( 0, geomid, trcrg.stop );
+		const Coord hp0 = h2d->getPos( 0, l2dkey, trcrg.start );
+		const Coord hp1 = h2d->getPos( 0, l2dkey, trcrg.stop );
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
