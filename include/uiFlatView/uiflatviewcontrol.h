@@ -35,9 +35,10 @@ public:
     			//!< No attaching done. Viewer may be in other window.
     void		removeViewer(uiFlatViewer&);
 
-    virtual uiWorldRect	getBoundingBox() const;
+    TypeSet<uiWorldRect>getBoundingBoxes() const;
+    			//!< Returns bounding boxes of all viewers.
     virtual void	setNewView(Geom::Point2D<double>& centre,
-	    			   Geom::Size2D<double>& sizes );
+	    			   Geom::Size2D<double>& size );
     			//!< retains uiWorldRect's LR/TB swapping
     			//!< Changes the input to the actual new values
     virtual void	flip(bool hor);
@@ -92,6 +93,8 @@ protected:
     virtual void	onFinalise(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
 	    				      Geom::Size2D<double> ) const;
+    void                addSizes();
+    			//!< Adds current sizes of all viewers to the ZoomMgr.
     
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);

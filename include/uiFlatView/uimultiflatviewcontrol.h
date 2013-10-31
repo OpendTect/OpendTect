@@ -39,7 +39,7 @@ public:
     void		reInitZooms();
 
 protected:
-    ObjectSet<FlatView::ZoomMgr> zoommgrs_;
+
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiToolButton> parsbuts_;
     ObjectSet<FlatView::AuxData> zoomboxes_;

@@ -31,39 +31,55 @@ public:
     typedef Geom::Point2D<double>	Point;
 
 
-			ZoomMgr()
-			    : cur_(-1)
-			    , fwdfac_(0.8)	{}
+			ZoomMgr();
+			~ZoomMgr();
+
+    void		setNrViewers(int);
 
     void		init(const Geom::Rectangle<double>&);
     void		reInit(const Geom::Rectangle<double>&);
-    				//!< Will try to keep as many zooms as possible
-    void		add(Size);
-    				//!< Will put this Size at the right place
-    				//!< and make it current
-    				//!< will remove zooms larger than this one
+			//!< Will try to keep as many zooms as possible
 
-    Size		current() const;
-    Size		back() const;		//!< never past initial zoom
-    Size		forward() const;	//!< goes on and on
+    void		init(const TypeSet<Geom::Rectangle<double> >&);
+    void		reInit(const TypeSet<Geom::Rectangle<double> >&);
+
+    void		init(const TypeSet<Geom::PosRectangle<double> >&);
+    void                reInit(const TypeSet<Geom::PosRectangle<double> >&);
+
+    void		add(Size);
+			//!< Will put this Size at the right place
+    			//!< and make it current
+    			//!< will remove zooms larger than this one
+    void		add(const TypeSet<Size>&);
+			//!< Will put this Size at the right place
+			//!< and make it current
+			//!< will remove zooms larger than this one
+
+    Size		current(int vieweridx=0) const;
+    void		back() const;		//!< never past initial zoom
+    void		forward() const;	//!< goes on and on
     bool		atStart() const		{ return cur_ < 1; }
     Size		toStart() const;
-    int			nrZooms() const		{ return zooms_.size(); }
-    Size		initialSize() const 	{ return nrZooms() ? zooms_[0] 
-								   : 0;       }
+    int			nrZooms() const;
+    Size		initialSize(int vieweridx=0) const;
+    Point               initialCenter(int vieweridx=0) const;
 
     double		fwdFac() const		{ return fwdfac_; }
     void		setFwdFac( double fac )	{ fwdfac_ = fac; }
 
-    Point		initialCenter() const	{ return center_; }
-
 protected:
 
-    mutable int		cur_;
-    TypeSet<Size>	zooms_;
-    Point		center_;
-    double		fwdfac_;
+    mutable int			cur_;
 
+    struct ViewerZoomData
+    {
+    				TypeSet<Size>	zooms_;
+    				Point		center_;
+    };
+
+    ObjectSet<ViewerZoomData>	viewerdata_;
+
+    double			fwdfac_;
 };
 
 } // namespace FlatView

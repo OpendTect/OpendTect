@@ -36,20 +36,18 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     setBorder( 0 );
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
-	vwr.attachObj()->parent()->postFinalise().notify(
-				    mCB(this,uiFlatViewControl,onFinalise) );
-    viewerAdded.notify( mCB(this,uiFlatViewControl,vwrAdded) );
+	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
+			uiFlatViewControl::onFinalise );
+    mAttachCB( viewerAdded, uiFlatViewControl::vwrAdded );
 }
 
 
 uiFlatViewControl::~uiFlatViewControl()
 {
+    detachAllNotifiers();
     delete &zoommgr_;
-    if ( propdlg_ )
-    {
-	delete propdlg_;
-	propdlg_ = 0;
-    }
+    delete propdlg_;
+    propdlg_ = 0;
 }
 
 
@@ -57,15 +55,16 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 {
     vwrs_ += &vwr;
     vwr.control_ = this;
-    vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
+    zoommgr_.setNrViewers( vwrs_.size() );
+    mAttachCB( vwr.dataChanged, uiFlatViewControl::dataChangeCB );
 
     uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
-	cnvs.rubberBandUsed.notify( mCB(this,uiFlatViewControl,rubBandCB));
+	mAttachCB( cnvs.rubberBandUsed, uiFlatViewControl::rubBandCB );
 
     MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
-    mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
-    mevh.buttonReleased.notify( mCB(this,uiFlatViewControl,usrClickCB) );
+    mAttachCB( mevh.movement, uiFlatViewControl::mouseMoveCB );
+    mAttachCB( mevh.buttonReleased, uiFlatViewControl::usrClickCB );
 
     viewerAdded.trigger();
 }
@@ -74,50 +73,46 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
 {
     vwrs_ -= &vwr;
-    vwr.dataChanged.remove( mCB(this,uiFlatViewControl,dataChangeCB) );
+    zoommgr_.setNrViewers( !vwrs_.size() ? 1 : vwrs_.size() );
+    mDetachCB( vwr.dataChanged, uiFlatViewControl::dataChangeCB );
 
     uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
-	cnvs.rubberBandUsed.remove( mCB(this,uiFlatViewControl,rubBandCB));
+	mDetachCB( cnvs.rubberBandUsed, uiFlatViewControl::rubBandCB );
 
     MouseEventHandler& mevh = cnvs.scene().getMouseEventHandler();
-    mevh.movement.remove( mCB(this,uiFlatViewControl,mouseMoveCB) );
+    mDetachCB( mevh.movement, uiFlatViewControl::mouseMoveCB );
+    mDetachCB( mevh.buttonReleased, uiFlatViewControl::usrClickCB );
 }
 
 
-
-uiWorldRect uiFlatViewControl::getBoundingBox() const
+TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 {
-    uiWorldRect bb( vwrs_[0]->boundingBox() );
+    TypeSet<uiWorldRect> wrs;
 
-    for ( int idx=1; idx<vwrs_.size(); idx++ )
-    {
-	const uiWorldRect bb2( vwrs_[idx]->boundingBox() );
-	if ( bb2.left() < bb.left() ) bb.setLeft( bb2.left() );
-	if ( bb2.right() > bb.right() ) bb.setRight( bb2.right() );
-	if ( bb2.bottom() < bb.bottom() ) bb.setBottom( bb2.bottom() );
-	if ( bb2.top() > bb.top() ) bb.setTop( bb2.top() );
-    }
+    for ( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
+	wrs += vwrs_[ivwr]->boundingBox();
 
-    return bb;
+    return wrs;
 }
 
 
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
-    uiWorldRect viewrect = vwrs_[0]->curView();
     const bool canreuse = zoommgr_.current().width() > 10
 			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
 						  zoommgr_.current() );
     if ( !canreuse )
     {
-	viewrect = getBoundingBox();
-	zoommgr_.init( viewrect );
+	zoommgr_.init( getBoundingBoxes() );
     }
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	vwrs_[idx]->setView( viewrect );
+	if ( !canreuse )
+	    vwrs_[idx]->setViewToBoundingBox();
+	else
+    	    vwrs_[idx]->setView( vwrs_[idx]->curView() );
     }
 
     finalPrepare();
@@ -126,7 +121,7 @@ void uiFlatViewControl::onFinalise( CallBacker* )
 
 void uiFlatViewControl::dataChangeCB( CallBacker* cb )
 {
-    zoommgr_.reInit( getBoundingBox() );
+    zoommgr_.reInit( getBoundingBoxes() );
 }
 
 
@@ -161,8 +156,6 @@ uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
     uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz,bb)
 	    				: getZoomOrPanRect(centre,sz,bb) );
     centre = wr.centre(); sz = wr.size();
-    if ( havezoom )
-	zoommgr_.add( sz );
 
     if ( cv.left() > cv.right() ) wr.swapHor();
     if ( cv.bottom() > cv.top() ) wr.swapVer();
@@ -177,12 +170,11 @@ uiTabStackDlg* uiFlatViewControl::propDialog()
 void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 				    Geom::Size2D<double>& sz )
 {
-    uiWorldRect br = getBoundingBox();
+    uiWorldRect br = vwrs_[0]->boundingBox();
     br.sortCorners();
     const uiWorldRect wr = getNewWorldRect( centre,sz, vwrs_[0]->curView(),br );
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setView( wr );
+    vwrs_[0]->setView( wr );
+    zoommgr_.add( sz );
 
     zoomChanged.trigger();
 }
@@ -260,12 +252,17 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
     BufferStringSet annots;
     const int selannot = vwr.getAnnotChoices( annots ); 
 
-    if ( propdlg_ ) delete propdlg_;
-    propdlg_ = new uiFlatViewPropDlg( 0, vwr,
-				  mCB(this,uiFlatViewControl,applyProperties),
-	   			  annots.size() ? &annots : 0, selannot );
-    propdlg_->windowClosed.notify( mCB(this,uiFlatViewControl,propDlgClosed) );
-    propdlg_->go();
+    if ( !propdlg_ || &propdlg_->viewer()!=&vwr )
+    {
+	delete propdlg_;
+    	propdlg_ = new uiFlatViewPropDlg( 0, vwr,
+				mCB(this,uiFlatViewControl,applyProperties),
+				annots.size() ? &annots : 0, selannot );
+    	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );
+    }
+
+    propdlg_->show();
+    propdlg_->raise();
 }
 
 
@@ -289,7 +286,8 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
-    vwr->handleChange( FlatView::Viewer::Annot | FlatView::Viewer::DisplayPars);
+    vwr->handleChange( FlatView::Viewer::Annot |
+	    	       FlatView::Viewer::DisplayPars );
     vwr->dispPropChanged.trigger();
 }
 
@@ -322,6 +320,17 @@ uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
 { return vwr->getViewRect(); }
 
 
+void uiFlatViewControl::addSizes()
+{
+    TypeSet<FlatView::ZoomMgr::Size> sizes;
+    
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	sizes += vwrs_[idx]->curView().size();
+    
+    zoommgr_.add( sizes );
+}
+
+
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
@@ -338,7 +347,6 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 	infoChanged.trigger( &caps );
     }
 }
-
 
 
 void uiFlatViewControl::usrClickCB( CallBacker* cb )
@@ -360,7 +368,7 @@ bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
 					      Geom::Size2D<double> sz ) const
 {
     //TODO: allow user to decide to reuse or not with a specific parameter
-    const uiWorldRect bb( getBoundingBox() );
+    const uiWorldRect bb( vwrs_[0]->boundingBox() );
     if ( sz.width() > bb.width() || sz.height() > bb.height() )
 	return false;
     

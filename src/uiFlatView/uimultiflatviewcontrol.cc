@@ -31,11 +31,10 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
     , drawzoomboxes_(false)			  
     , activevwr_(0)  
 {
-    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
-    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     parsbuts_ += parsbut_;
     toolbars_ += tb_;
-    zoommgrs_ += &zoommgr_;
 
     finalPrepare();
 }
@@ -43,8 +42,7 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
-    for ( int idx=zoommgrs_.size()-1; idx>=1; idx-- )
-	delete zoommgrs_.removeSingle( idx );
+    detachAllNotifiers();
 }
 
 
@@ -67,10 +65,6 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
     uiWorldRect br = activevwr_->boundingBox();
     br.sortCorners();
     const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
-    const bool havezoom = haveZoom( activevwr_->curView().size(), sz );
-    if ( (activevwr_ != &vwr_) && havezoom )
-	 zoommgrs_[vwrs_.indexOf(activevwr_)]->add( sz );
-
     activevwr_->setView( wr );
 
     zoomChanged.trigger();
@@ -86,10 +80,9 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     const int ivwr = vwrs_.size()-1;
     uiFlatViewer& vwr = *vwrs_[ivwr];
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
-    mevh.wheelMove.notify( mCB(this,uiMultiFlatViewControl,wheelMoveCB) );
+    mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
 
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
-    zoommgrs_ += new FlatView::ZoomMgr;
 
     parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
 	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
@@ -97,10 +90,10 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 
     vwr.setRubberBandingOn( !manip_ );
-    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
     vwr.appearance().annot_.editable_ = false;
-    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
-    vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::vwChgCB );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
 
     reInitZooms();
 }
@@ -140,22 +133,19 @@ void uiMultiFlatViewControl::dataChangeCB( CallBacker* cb )
 void uiMultiFlatViewControl::reInitZooms()
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->setView( vwrs_[idx]->boundingBox() );
-	zoommgrs_[idx]->reInit( vwrs_[idx]->boundingBox() );
-	zoommgrs_[idx]->toStart();
-    }
+	vwrs_[idx]->setViewToBoundingBox();
+    zoommgr_.reInit( getBoundingBoxes() );
+    zoommgr_.toStart();
 }
 
 
 void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 {
-    activevwr_ = vwrs_[0];
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
-	    { activevwr_ = vwrs_[idx]; break; }
-    }
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx(meh);
+    activevwr_ = vwrs_[vwridx<0 ? 0 : vwridx];
     if ( !activevwr_ ) return;
 
     const MouseEvent& ev = 
@@ -173,13 +163,17 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 	activevwr_ = vwrs_[0];
 
     const bool zoomin = but == zoominbut_;
-    doZoom( zoomin, *activevwr_, *zoommgrs_[vwrs_.indexOf( activevwr_ )] );
+    doZoom( zoomin, *activevwr_, zoommgr_ );
 }
 
 
 void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 {
     if ( !iszoomcoupled_ || !activeVwr() ) return;
+
+    mDynamicCastGet(uiFlatViewer*,vwr,cb);
+    if ( !vwrs_.isPresent(vwr) ) return;
+    activevwr_ = vwr;
 
     const uiWorldRect& masterbbox = activeVwr()->boundingBox();
     const uiWorldRect& wr = activeVwr()->curView();
@@ -190,7 +184,6 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 	    continue;
 
 	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
-	const uiWorldRect& oldwr = vwrs_[idx]->curView();
 	LinScaler sclr( masterbbox.left(), bbox.left(),
 		        masterbbox.right(), bbox.right() );
 	LinScaler sctb( masterbbox.top(), bbox.top(),
@@ -199,11 +192,9 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
 	NotifyStopper ns( vwrs_[idx]->viewChanged );
 	vwrs_[idx]->setView( newwr );
-
-	const bool havezoom = haveZoom( oldwr.size(), newwr.size() );
-	if ( havezoom )
-	    zoommgr_.add( newwr.size() );
     }
+
+    addSizes();
 }
 
 

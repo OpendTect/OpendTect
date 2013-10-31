@@ -55,8 +55,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withstates_ )
     {
 	mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode");
-	vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
-		mCB(this,uiFlatViewStdControl,keyPressCB) );
+	mAttachCB( vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed,
+		   uiFlatViewStdControl::keyPressCB );
     }
 
     vwr_.setRubberBandingOn( !manip_ );
@@ -87,7 +87,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
 	ctabed_ = new uiFlatViewColTabEd( *coltabtb, vwr );
-	ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
+	mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
     }
 
@@ -102,12 +102,12 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
-    zoomChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
-    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
+    mAttachCB( zoomChanged, uiFlatViewStdControl::vwChgCB );
+    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
 
     menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
+    mAttachCB( menu_.createnotifier, uiFlatViewStdControl::createMenuCB );
+    mAttachCB( menu_.handlenotifier, uiFlatViewStdControl::handleMenuCB );
 
     if ( setup.withthumbnail_ )
 	new uiFlatViewThumbnail( this, vwr );
@@ -117,8 +117,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 uiFlatViewStdControl::~uiFlatViewStdControl()
 {
     menu_.unRef();
-
-    if ( ctabed_ ) { delete ctabed_; ctabed_ = 0; }
+    detachAllNotifiers();
+    delete ctabed_; ctabed_ = 0;
 }
 
 
@@ -129,14 +129,12 @@ void uiFlatViewStdControl::finalPrepare()
     {
 	MouseEventHandler& mevh =
 	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
-	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
+	mAttachCB( mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
 	if ( withhanddrag_ )
 	{
-	    mevh.buttonPressed.notify(
-		    mCB(this,uiFlatViewStdControl,handDragStarted));
-	    mevh.buttonReleased.notify(
-		    mCB(this,uiFlatViewStdControl,handDragged));
-	    mevh.movement.notify( mCB(this,uiFlatViewStdControl,handDragging));
+	    mAttachCB(mevh.buttonPressed,uiFlatViewStdControl::handDragStarted);
+	    mAttachCB( mevh.buttonReleased, uiFlatViewStdControl::handDragged );
+	    mAttachCB( mevh.movement, uiFlatViewStdControl::handDragging );
 	}
     }
 }
@@ -216,7 +214,8 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
     Geom::Size2D<double> newsz;
     if (!vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() || !zoomin)
     {
-	newsz = zoommgr.current();
+	const int vwridx = vwrs_.indexOf( &vwr );
+	newsz = zoommgr.current( vwridx<0 ? 0 : vwridx );
 	centre = vwr.curView().centre();
     }
     else
@@ -256,42 +255,43 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
 void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
     mousepressed_ = true;
-    
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( meh )
-    {
-	mousedownpt_ = meh->event().pos();
-	mousedownwr_ = vwrs_[0]->curView();
-    }
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx( meh );
+    const uiFlatViewer* vwr = vwrs_[vwridx<0 ? 0 : vwridx];
+    mousedownpt_ = meh->event().pos();
+    mousedownwr_ = vwr->curView();
 }
 
 
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
-    const uiGraphicsView& canvas = vwrs_[0]->rgbCanvas();
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx( meh );
+    uiFlatViewer* vwr = vwrs_[vwridx<0 ? 0 : vwridx];
+    const uiGraphicsView& canvas = vwr->rgbCanvas();
     if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
 	 !mousepressed_ || !withhanddrag_ )
 	return;
     
-    mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh )
-	return;
-    
     const uiPoint curpt = meh->event().pos();
-    const uiWorld2Ui w2ui( mousedownwr_, vwrs_[0]->getViewRect().size() );
+    const uiWorld2Ui w2ui( mousedownwr_, vwr->getViewRect().size() );
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
     const uiWorldPoint curwpt = w2ui.transform( curpt );
     
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt );
 
-    uiWorldRect bb = vwrs_[0]->boundingBox();
-    uiWorldRect oldwr = vwrs_[0]->curView();
+    uiWorldRect bb = vwr->boundingBox();
+    uiWorldRect oldwr = vwr->curView();
     Geom::Point2D<double> newcentre = newwr.centre();
     Geom::Size2D<double> cursize = oldwr.size();
     newwr = getNewWorldRect( newcentre, cursize, oldwr, bb );
     
-    vwrs_[0]->setView( newwr );    
+    vwr->setView( newwr );    
 }
 
 
@@ -301,6 +301,21 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
     mousepressed_ = false;
     
     //TODO: Should we set the zoom-manager ?
+}
+
+
+int uiFlatViewStdControl::getViewerIdx( const MouseEventHandler* meh )
+{
+    if ( !meh ) return -1;
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	const MouseEventHandler* imeh =
+	    &vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
+	if ( imeh==meh && imeh->hasEvent() ) return idx;
+    }
+
+    return -1;
 }
 
 
