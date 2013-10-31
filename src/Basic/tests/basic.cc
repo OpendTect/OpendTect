@@ -8,7 +8,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "commandlineparser.h"
-#include "commandlineparser.h"
 #include "keystrs.h"
 
 #include <iostream>
@@ -43,6 +42,43 @@ bool testPointerCast( bool quiet )
 }
 
 
+bool testPointerAlignment( bool quiet )
+{
+    char buffer[] = { 0, 0, 0, 0, 1, 1, 1, 1 };
+
+    char* ptr0 = buffer;
+    char* ptr1 = buffer+1;
+
+    od_uint32* iptr0 = mCastPtr( od_uint32, ptr0 );
+    od_uint32* iptr1 = mCastPtr( od_uint32, ptr1 );
+
+    od_uint32 ival0 = *iptr0;
+    od_uint32 ival1 = *iptr1;
+
+    char* ptr0_mod = (char*) iptr0;
+    char* ptr1_mod = (char*) iptr1;
+
+    union IVal1Reference
+    {
+    public:
+			IVal1Reference()
+        		{
+                            charval_[0] = 0;
+                            charval_[1] = 0;
+                            charval_[2] = 0;
+                            charval_[3] = 1;
+                        }
+        char		charval_[4];
+        int		intval_;
+    }  val1ref;
+    
+    mTest("Pointer alignment", ptr0_mod==ptr0 && ptr1_mod==ptr1 &&
+                               ival0==0 && ival1 == val1ref.intval_ );
+
+    return true;
+}
+
+
 int main( int narg, char** argv )
 {
     od_init_test_program( narg, argv );
@@ -53,6 +89,10 @@ int main( int narg, char** argv )
 
     if ( !testPointerCast(quiet) )
 	ExitProgram(1);
+
+
+    if ( !testPointerAlignment(quiet) )
+        ExitProgram( 1 );
 
     ExitProgram( 0 );
 }
