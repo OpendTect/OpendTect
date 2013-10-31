@@ -112,7 +112,7 @@ protected:
 
     ObjectSet<TypeSet<Coord3> >	rows_;
     TypeSet<SamplingData<int> >	colsampling_;
-    TypeSet<PosInfo::Line2DKey>	oldgeomids_;
+    TypeSet<PosInfo::Line2DKey>	l2dkeys_;
     TypeSet<Pos::GeomID>	geomids_;
 };
 

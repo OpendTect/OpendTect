@@ -80,11 +80,11 @@ bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
     hor2d_.geometry().addLine( geomid_ );
 #else
     posdata_.setLineName( linename );
-    oldgeomid_ = S2DPOS().getLine2DKey( lsname, linename );
-    if ( !oldgeomid_.isOK() ) return false;
+    l2dkey_ = S2DPOS().getLine2DKey( lsname, linename );
+    if ( !l2dkey_.isOK() ) return false;
 
     S2DPOS().getGeometry( posdata_ );
-    hor2d_.geometry().addLine( oldgeomid_ );
+    hor2d_.geometry().addLine( l2dkey_ );
 #endif
     totalnr_ = posdata_.positions().size();
     return true;
@@ -103,7 +103,7 @@ int Hor2DFrom3DCreator::nextStep()
 	hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,
 													mCast(float,pos3d.z),false);
 #else
-	hor2d_.setPos( hor2d_.sectionID(0), oldgeomid_, posinfo.nr_,
+	hor2d_.setPos( hor2d_.sectionID(0), l2dkey_, posinfo.nr_,
 			    (float) pos3d.z,false);
 #endif
 	nrdone_++;

@@ -32,7 +32,7 @@ public:
     bool		waiting() const		{ return status_==Waiting; }
     const Coord3&	getPos() const		{ return pickedpos_; }
     int			getTrcNr() const	{ return pickedtrcnr_; }
-    const PosInfo::Line2DKey& getGeomID() const	{ return pickedgeomid_; }
+    const PosInfo::Line2DKey& getLine2DKey() const  { return pickedl2dkey__; }
     int			getSceneID() const	{ return pickedscene_; }
     const TypeSet<int>&	getPickedObjIDs() const	{ return pickedobjids_; }
     			
@@ -54,7 +54,7 @@ protected:
     enum Status			{ Idle, Waiting, Failed, Success } status_;
     Coord3			pickedpos_;
     int				pickedtrcnr_;
-    PosInfo::Line2DKey		pickedgeomid_;
+    PosInfo::Line2DKey		pickedl2dkey__;
 
     int				pickedscene_;
     Notifier<uiVisPickRetriever> finished_;

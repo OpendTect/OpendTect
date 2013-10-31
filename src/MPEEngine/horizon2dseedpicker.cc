@@ -422,7 +422,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     
     extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
     extender->setExtBoundary( getTrackBox() );
-    extender2d->setGeomID( l2dkey_ );
+    extender2d->setLine2DKey( l2dkey_ );
 
     TypeSet<EM::SubID> addedpos;
     TypeSet<EM::SubID> addedpossrc;

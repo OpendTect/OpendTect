@@ -35,7 +35,7 @@ Horizon2DLine::Horizon2DLine( int lineid, const TypeSet<Coord>& path, int start,
 Horizon2DLine::Horizon2DLine( const Horizon2DLine& ln )
     : firstrow_(ln.firstrow_)
     , colsampling_(ln.colsampling_)
-    , oldgeomids_(ln.oldgeomids_)
+    , l2dkeys_(ln.l2dkeys_)
     , geomids_(ln.geomids_)
 {
     deepCopy( rows_, ln.rows_ );
@@ -62,7 +62,7 @@ bool Horizon2DLine::addRow( const PosInfo::Line2DKey& geomid,
 
     if ( index< 0 )
     {
-	oldgeomids_ += geomid;
+	l2dkeys_ += geomid;
 	rows_ += new TypeSet<Coord3>;
 	colsampling_ += SamplingData<int>( start, step );
     }
@@ -121,7 +121,7 @@ bool Horizon2DLine::reassignRow( const PosInfo::Line2DKey& from,
     if ( idx < 0 )
 	return false;
 
-    oldgeomids_[idx] = to;
+    l2dkeys_[idx] = to;
     return true;
 }
 
@@ -271,7 +271,7 @@ void Horizon2DLine::removeRow( const PosInfo::Line2DKey& geomid )
 	return;
 
     delete rows_.removeSingle( rowidx, false );
-    oldgeomids_.removeSingle( rowidx, false );
+    l2dkeys_.removeSingle( rowidx, false );
     colsampling_.removeSingle( rowidx, false );
     if ( !rowidx )
     {
@@ -514,7 +514,7 @@ void Horizon2DLine::geometry( Pos::GeomID geomid,
 
 int Horizon2DLine::getRowIndex( const PosInfo::Line2DKey& geomid ) const
 {
-    return oldgeomids_.indexOf( geomid );
+    return l2dkeys_.indexOf( geomid );
 }
 
 
@@ -538,9 +538,9 @@ int Horizon2DLine::rowIndex( int rowid ) const
 {
     if ( geomids_.isEmpty() )
     {
-    	for ( int rowidx=0; rowidx<oldgeomids_.size(); rowidx++ )
+    	for ( int rowidx=0; rowidx<l2dkeys_.size(); rowidx++ )
     	{
-    	    if ( oldgeomids_[rowidx].lineID()==rowid )
+    	    if ( l2dkeys_[rowidx].lineID()==rowid )
     		return rowidx;
     	}
     }

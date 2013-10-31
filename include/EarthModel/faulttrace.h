@@ -198,7 +198,7 @@ protected:
     virtual bool	doPrepare(int);
     virtual bool	doFinish(bool);
 
-    PosInfo::Line2DKey	geomid_;
+    PosInfo::Line2DKey	l2dkey_;
     PosInfo::Line2DData& linegeom_;
 };
 
@@ -242,7 +242,7 @@ protected:
 
     ObjectSet<FaultTrcHolder>	holders_;
 
-    PosInfo::Line2DKey	geomid_;
+    PosInfo::Line2DKey	l2dkey_;
     BufferString	errmsg_;
     bool		is2d_;
 };

@@ -52,7 +52,7 @@ public:
 protected:
     virtual int			nextStep();
 
-    PosInfo::Line2DKey		horgeomid_;
+    PosInfo::Line2DKey		horl2dkey_;
     SeisTrc			trc_;
     SeisTrcReader*		seisrdr_;
     const EM::Horizon2D&	orghor_;

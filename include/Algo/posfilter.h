@@ -117,7 +117,7 @@ public:
 
 protected:
 
-    TypeSet<PosInfo::Line2DKey>	l2dkey_;
+    TypeSet<PosInfo::Line2DKey>	l2dkeys_;
 };
 
 

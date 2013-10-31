@@ -25,7 +25,7 @@ Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
     , orghor_(orghor)
     , newhor_(newhor)
 {
-    horgeomid_ = S2DPOS().getLine2DKey( su.ioobj_->name(), su.lk_.lineName() );
+    horl2dkey_ = S2DPOS().getLine2DKey( su.ioobj_->name(), su.lk_.lineName() );
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
     seldata->lineKey() = su.lk_;
     seisrdr_ = new SeisTrcReader( su.ioobj_ );
@@ -54,8 +54,8 @@ int Seis2DEventSnapper::nextStep()
 	return MoreToDo();
 
     EM::SectionID sid(0);
-    Coord3 coord = orghor_.getPos( sid, horgeomid_, trc_.info().nr );
-    newhor_.setPos( sid, horgeomid_, trc_.info().nr,
+    Coord3 coord = orghor_.getPos( sid, horl2dkey_, trc_.info().nr );
+    newhor_.setPos( sid, horl2dkey_, trc_.info().nr,
 	    	    findNearestEvent(trc_,(float) coord.z), false );
     nrdone_ ++;
 

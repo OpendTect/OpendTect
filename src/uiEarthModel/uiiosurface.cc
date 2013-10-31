@@ -782,10 +782,10 @@ void uiFaultParSel::clearPush( CallBacker* )
 }
 
 
-void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::Line2DKey>& nids )
+void uiFaultParSel::set2DLineKeys( const TypeSet<PosInfo::Line2DKey>& keys )
 {
-    geomids_.erase();
-    geomids_ = nids;
+    l2dkeys_.erase();
+    l2dkeys_ = keys;
 }
 
 
@@ -796,9 +796,9 @@ void uiFaultParSel::doDlg( CallBacker* )
 	uiFaultOptSel dlg( this, *this );
 	if ( !dlg.go() ) return;
     }
-    else if ( is2d_ && geomids_.size() )
+    else if ( is2d_ && l2dkeys_.size() )
     {
-    	uiFSS2DLineSelDlg dlg( this, geomids_ );
+    	uiFSS2DLineSelDlg dlg( this, l2dkeys_ );
     	dlg.setSelectedItems( selfaultnms_ );
     	if ( !dlg.go() ) return;
     	

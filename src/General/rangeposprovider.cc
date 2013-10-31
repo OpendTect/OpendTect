@@ -208,10 +208,10 @@ void Pos::RangeProvider2D::reset()
     curlineidx_ = 0;
     delete curlinegeom_; curlinegeom_ = 0;
     StepInterval<float> zrg = zrgs_[0];
-    if ( !l2dkey_.isEmpty() )
+    if ( !l2dkeys_.isEmpty() )
     {
 	PosInfo::Line2DData* linegeom = new PosInfo::Line2DData;
-	if ( !S2DPOS().getGeometry(l2dkey_[0],*linegeom) )
+	if ( !S2DPOS().getGeometry(l2dkeys_[0],*linegeom) )
 	    delete linegeom;
 	else
 	{
@@ -227,9 +227,9 @@ void Pos::RangeProvider2D::reset()
 
 const PosInfo::Line2DData* Pos::RangeProvider2D::curGeom() const
 {
-    if ( !curlinegeom_ && l2dkey_.validIdx(curlineidx_) )
+    if ( !curlinegeom_ && l2dkeys_.validIdx(curlineidx_) )
     {
-	const PosInfo::Line2DKey& curgeomid = l2dkey_[curlineidx_];
+	const PosInfo::Line2DKey& curgeomid = l2dkeys_[curlineidx_];
 	PosInfo::Line2DData* linegeom = new PosInfo::Line2DData;
 	if ( !S2DPOS().getGeometry(curgeomid,*linegeom) )
 	    delete linegeom;
@@ -255,7 +255,7 @@ bool Pos::RangeProvider2D::toNextPos()
 
 	curlineidx_++;
 	delete curlinegeom_; curlinegeom_ = 0;
-	if ( !l2dkey_.validIdx(curlineidx_) )
+	if ( !l2dkeys_.validIdx(curlineidx_) )
 	    return false;
 
 	curtrcidx_ = -1;
@@ -338,12 +338,12 @@ StepInterval<float> Pos::RangeProvider2D::curZRange() const
 
 bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 {
-    if ( lidx == curlineidx_ || !l2dkey_.validIdx(lidx) )
+    if ( lidx == curlineidx_ || !l2dkeys_.validIdx(lidx) )
 	return curTrcRange().includes(nr,false)
 	    && curZRange().includes(z,false);
 
     PosInfo::Line2DData l2d;
-    if ( !S2DPOS().getGeometry(l2dkey_[lidx],l2d) )
+    if ( !S2DPOS().getGeometry(l2dkeys_[lidx],l2d) )
 	return false;
 
     StepInterval<int> trcrg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx]
@@ -370,7 +370,7 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
 	PosInfo::Line2DData l2d;
-	if ( !S2DPOS().getGeometry(l2dkey_[lidx],l2d) )
+	if ( !S2DPOS().getGeometry(l2dkeys_[lidx],l2d) )
 	    continue;
 
 	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->positions();
@@ -395,12 +395,12 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 
 void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
 {
-    if ( lidx == curlineidx_ || !l2dkey_.validIdx(lidx) )
+    if ( lidx == curlineidx_ || !l2dkeys_.validIdx(lidx) )
     { rg = curTrcRange(); return; }
 
     rg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx] : trcrgs_[0];
     PosInfo::Line2DData l2d;
-    if ( !S2DPOS().getGeometry(l2dkey_[lidx],l2d) )
+    if ( !S2DPOS().getGeometry(l2dkeys_[lidx],l2d) )
 	return;
 
     rg.limitTo( l2d.trcNrRange() );
@@ -409,12 +409,12 @@ void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
 
 void Pos::RangeProvider2D::getZRange( Interval<float>& zrg, int lidx ) const
 {
-    if ( lidx == curlineidx_ || !l2dkey_.validIdx(lidx) )
+    if ( lidx == curlineidx_ || !l2dkeys_.validIdx(lidx) )
     { zrg = curZRange(); return; }
 
     zrg = zrgs_.validIdx(lidx) ? zrgs_[lidx] : zrgs_[0];
     PosInfo::Line2DData l2d;
-    if ( !S2DPOS().getGeometry(l2dkey_[lidx],l2d) )
+    if ( !S2DPOS().getGeometry(l2dkeys_[lidx],l2d) )
 	return;
 
     zrg.limitTo( l2d.zRange() );
@@ -451,7 +451,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
     if ( subpargeom )
     {
 	idx = 0;
-	l2dkey_.erase();
+	l2dkeys_.erase();
 	BufferString str;
 	PosInfo::Line2DKey geomid;
 	while ( subpargeom->get(toString(idx++),str) && geomid.fromString(str))
@@ -475,9 +475,9 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 
 void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
-    for ( int lidx=0; lidx<l2dkey_.size(); lidx++ )
+    for ( int lidx=0; lidx<l2dkeys_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::GeomID(),lidx),
-		 l2dkey_[lidx].toString() );
+		 l2dkeys_[lidx].toString() );
     for ( int lidx=0; lidx<trcrgs_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
     for ( int lidx=0; lidx<zrgs_.size(); lidx++ )
@@ -488,10 +488,10 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 od_int64 Pos::RangeProvider2D::estNrPos() const
 {
     od_int64 sz = 0;
-    for ( int idx=0; idx<l2dkey_.size(); idx++ )
+    for ( int idx=0; idx<l2dkeys_.size(); idx++ )
     {
 	PosInfo::Line2DData l2d;
-	if ( !S2DPOS().getGeometry(l2dkey_[idx],l2d) )
+	if ( !S2DPOS().getGeometry(l2dkeys_[idx],l2d) )
 	    continue;
 
 	sz += l2d.positions().size();
