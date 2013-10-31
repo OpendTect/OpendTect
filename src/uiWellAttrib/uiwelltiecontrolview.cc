@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelltiecontrolview.h"
@@ -64,8 +63,8 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 	tb_->display(false);
     toolbar_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
-    mDefBut(zoominbut_,"zoomforward",altZoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",altZoomCB,"Zoom out");
+    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
     mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
     mDefBut(editbut_,"seedpickmode",editCB,"Pick mode (P)");
 
@@ -119,20 +118,6 @@ void uiControlView::rubBandCB( CallBacker* cb )
 }
 
 
-void uiControlView::altZoomCB( CallBacker* but )
-{
-    const uiWorldRect& bbox = vwr_.boundingBox();
-    const Interval<double> xrg( bbox.left(), bbox.right());
-    zoomCB( but );
-    uiWorldRect wr = vwr_.curView();
-    wr.setLeftRight( xrg );
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> size = wr.size();
-    setNewView( centre, size );
-    curview_ = wr;
-}
-
-
 void uiControlView::wheelMoveCB( CallBacker* )
 {
     if ( !vwr_.rgbCanvas().
@@ -144,7 +129,7 @@ void uiControlView::wheelMoveCB( CallBacker* )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    altZoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
 }
 
 
@@ -179,8 +164,21 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    curview_ = wr;
     setNewView( centre, newsz );
+}
+
+
+void uiControlView::setNewView( Geom::Point2D<double>& centre,
+				Geom::Size2D<double>& sz )
+{
+    uiWorldRect br = vwr_.boundingBox(); br.sortCorners();
+    uiWorldRect wr = getNewWorldRect( centre, sz, vwr_.curView(), br );
+
+    const Interval<double> xrg( br.left(), br.right());
+    wr.setLeftRight( xrg ); vwr_.setView( wr );
+    curview_ = wr; zoommgr_.add( sz ); 
+
+    zoomChanged.trigger();
 }
 
 

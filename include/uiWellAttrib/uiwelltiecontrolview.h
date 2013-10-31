@@ -31,7 +31,9 @@ public:
 			uiControlView(uiParent*,uiToolBar*,
 					uiFlatViewer*,Server&);
 			~uiControlView(){};
-   
+
+    void        	setNewView(Geom::Point2D<double>& centre,
+				   Geom::Size2D<double>& size );   
     bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
@@ -58,7 +60,6 @@ protected:
     bool 		checkIfInside(double,double);
     bool 		handleUserClick();
    
-    void 		altZoomCB(CallBacker*);
     void                applyProperties(CallBacker*);
     void 		keyPressCB(CallBacker*);
     void		loadHorizons(CallBacker*);
