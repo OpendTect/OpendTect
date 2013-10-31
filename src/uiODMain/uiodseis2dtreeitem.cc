@@ -617,8 +617,8 @@ bool uiOD2DLineSetSubItem::init()
 	if ( !lsitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = visSurvey::Seis2DDisplay::create();
-	s2d->setLineInfo( lsitm->lineSetID(), name_ );
 	visserv_->addObject( s2d, sceneID(), true );
+	s2d->setLineInfo( lsitm->lineSetID(), name_ );
 	displayid_ = s2d->id();
 
 	s2d->turnOn( true );
@@ -744,29 +744,32 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	if ( !positiondlg.go() ) return;
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 
-	bool doupdate = false;
 	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
 	{
-	    doupdate = true;
+	    s2d->annotateNextUpdateStage( true );
 	    s2d->setZRange( newzrg );
 	}
 
 	const Interval<int> ntrcnrrg( newcs.hrg.start.crl(), newcs.hrg.stop.crl() );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
-	    doupdate = true;
+	    if ( !s2d->getUpdateStageNr() )
+		s2d->annotateNextUpdateStage( true );
+
 	    s2d->setTraceNrRange( ntrcnrrg );
 	}
 
-	if ( doupdate )
+	if ( s2d->getUpdateStageNr() )
 	{
+	    s2d->annotateNextUpdateStage( true );
 	    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
 	    {
 		if ( s2d->getSelSpec(idx)
 		  && s2d->getSelSpec(idx)->id().isValid() )
 		    visserv_->calculateAttrib( displayid_, idx, false );
 	    }
+	    s2d->annotateNextUpdateStage( false );
 	}
     }
 }
@@ -875,12 +878,15 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
+    s2d->annotateNextUpdateStage( true );
     s2d->setZRange( newzrg );
+    s2d->annotateNextUpdateStage( true );
     for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
     {
 	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id().isValid() )
 	    visserv_->calculateAttrib( displayid_, idx, false );
     }
+    s2d->annotateNextUpdateStage( false );
 }
 
 
