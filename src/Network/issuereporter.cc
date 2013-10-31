@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
+#include "winutils.h"
 
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
@@ -104,6 +105,8 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
     unfilteredreport.add( "\nUser's platform is : " );
     unfilteredreport.add( OD::Platform::local().longName() );
+    unfilteredreport.add( "\nWindows OS Version : " );
+    unfilteredreport.add( getFullWinVersion() );
 
     SeparString sep( unfilteredreport.buf(), '\n' );
     
