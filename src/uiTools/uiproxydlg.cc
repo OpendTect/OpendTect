@@ -76,6 +76,10 @@ void uiProxyDlg::initFromSettings()
     setts.get( ODHttp::sKeyProxyPort(), port );
     portfld_->box()->setValue( port );
 
+    bool needauth = false;
+    setts.getYN( ODHttp::sKeyUseAuthentication(), needauth );
+    authenticationfld_->setChecked( needauth );
+
     BufferString username;
     setts.get( ODHttp::sKeyProxyUserName(), username );
     usernamefld_->setText( username );
