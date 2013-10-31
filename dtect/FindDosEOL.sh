@@ -19,7 +19,7 @@ then
    exit 1
 fi
 
-files=`cat $listfile | grep \\.ico -v | xargs grep -l $'\r'`
+files=`cat $listfile | grep \\.ico -v | xargs -P0 -n 200 grep -l $'\r'`
 if [ -z "$files" ];then
    echo "No DOS EOL found!"
 else
