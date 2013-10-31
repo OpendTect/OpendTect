@@ -24,10 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "mousecursor.h"
 
+#include "hiddenparam.h"
+
 #define mBitMapZ	0
 #define mAuxDataZ	100
 #define mAxisZStart	200
 #define mAnnotZ		300
+
+static HiddenParam< uiFlatViewer, Notifier<uiFlatViewer>* > disppropchanged( 0);
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
@@ -49,6 +53,8 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , dispParsChanged(this)
     , wr_(0,0,1,1)
 {
+    Notifier<uiFlatViewer>* dpnot = new Notifier<uiFlatViewer>( this);
+    disppropchanged.setParam( this, dpnot );
     updatequeueid_ =
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
 
@@ -86,6 +92,10 @@ uiFlatViewer::~uiFlatViewer()
     deepErase( auxdata_ );
 
 }
+
+
+Notifier<uiFlatViewer>& uiFlatViewer::dispPropChanged()
+{ return *disppropchanged.getParam( this ); }
 
 
 void uiFlatViewer::reSizeCB( CallBacker* cb )

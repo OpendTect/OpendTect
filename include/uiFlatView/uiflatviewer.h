@@ -125,6 +125,8 @@ protected:
     bool			useseldataranges_;
 
     ObjectSet<FlatView::uiAuxDataDisplay>	auxdata_;
+public:
+    Notifier<uiFlatViewer>&	dispPropChanged();
 
 };
 
