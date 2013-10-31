@@ -102,8 +102,10 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
     unfilteredreport.add( "\nUser's platform is : " );
     unfilteredreport.add( OD::Platform::local().longName() );
+    #ifdef __win__
     unfilteredreport.add( "\nWindows OS Version : " );
     unfilteredreport.add( getFullWinVersion() );
+    #endif
 
     SeparString sep( unfilteredreport.buf(), '\n' );
     
