@@ -35,12 +35,12 @@ public:
 
 protected:
 
-    uiImagAttrSel*      inpfld;
-    uiGenInput*         isfftfld;
-    uiFreqFilterSelFreq* freqfld;
-    uiGenInput*		polesfld;
-    uiCheckBox*		freqwinselfld;
-    ObjectSet<uiWindowFunctionSel> winflds;
+    uiImagAttrSel*      inpfld_;
+    uiGenInput*         isfftfld_;
+    uiFreqFilterSelFreq* freqfld_;
+    uiGenInput*		polesfld_;
+    uiCheckBox*		freqwinselfld_;
+    ObjectSet<uiWindowFunctionSel> winflds_;
     uiWindowFunctionSel::Setup* viewsetup_;
 
     void		finaliseCB(CallBacker*);
