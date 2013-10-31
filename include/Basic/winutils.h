@@ -44,6 +44,7 @@ mGlobal(Basic)	bool		winRemoveDir( const char* dirnm );
 mGlobal(Basic) bool		executeWinProg(const char* comm,const char* parm,
 					const char* runin=0);
 mGlobal(Basic)	unsigned int	getWinVersion();
+mGlobal(Basic)	const char*	getFullWinVersion();
 mGlobal(Basic)	bool		execShellCmd(const char* comm,const char* parm,
 					const char* runin );
 mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,bool inbg,
@@ -90,7 +91,7 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
           repository for application-specific data. A typical path is
           C:\Documents and Settings\username\Application Data. This CSIDL
           is supported by the redistributable Shfolder.dll for systems
-          that do not have the Microsoft® Internet Explorer 4.0
+          that do not have the Microsoft Internet Explorer 4.0
           integrated Shell installed.
 
    CSIDL_BITBUCKET (0x000a)
@@ -110,7 +111,7 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
    CSIDL_COMMON_ALTSTARTUP (0x001e)
           The file system directory that corresponds to the nonlocalized
           Startup program group for all users. Valid only for Microsoft
-          Windows NT® systems.
+          Windows NT systems.
 
    CSIDL_COMMON_APPDATA (0x0023)
           Version 5.0. The file system directory containing application
@@ -127,7 +128,7 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
           The file system directory that contains documents that are
           common to all users. A typical paths is C:\Documents and
           Settings\All Users\Documents. Valid for Windows NT systems and
-          Microsoft Windows® 95 and Windows 98 systems with Shfolder.dll
+          Microsoft Windows 95 and Windows 98 systems with Shfolder.dll
           installed.
 
    CSIDL_COMMON_FAVORITES (0x001f)
