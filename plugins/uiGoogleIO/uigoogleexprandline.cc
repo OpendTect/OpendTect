@@ -27,7 +27,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 				 "Specify how to export","109.0.7") )
     , crds_(crds)
 {
-    static const char* choices[]
+    const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
     putlnmfld_ = new uiGenInput( this, "Annotate line",
 	    			 StringListInpSpec(choices) );
