@@ -1629,7 +1629,7 @@ bool ZipHandler::readAndSetFileAttr()
             File::remove( allfilenames_.get(index) );
             File::createLink( linkbuff, allfilenames_.get(index) );
         }
-        else
+        else if ( fileattr.integer_ )
             chmod( allfilenames_.get(index), fileattr.integer_ );
 #endif
         ptrlocation = ptrlocation
