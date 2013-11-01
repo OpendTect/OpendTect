@@ -160,6 +160,14 @@ FreqFilter::FreqFilter( Desc& ds )
     if ( filtertype_ != FFTFilter::HighPass )
 	mGetFloat( maxfreq_, maxfreqStr() );
 
+    if ( filtertype_ != FFTFilter::HighPass && 
+	 filtertype_ != FFTFilter::LowPass &&
+	 mIsEqual( minfreq_, maxfreq_, 1e-3) )
+    {
+	errmsg_ = "Minimum and maximum frequencies are the same.";
+	return;
+    }
+
     mGetBool( isfftfilter_, isfftfilterStr() );
     if ( isfftfilter_ )
     {

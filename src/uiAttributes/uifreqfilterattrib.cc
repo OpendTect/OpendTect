@@ -281,6 +281,14 @@ bool uiFreqFilterAttrib::areUIParsOK()
 	if ( freqresvar.stop < freqfld->freqRange().stop )
 	{  msg += "Taper max frequency must be higher"; mErrWinFreqMsg(msg) }
     }
+
+    const int passtype = (int)freqfld->filterType();
+    if ( passtype == 2 && mIsZero(freqfld->freqRange().width(),1e-3) )
+    {  
+	errmsg_ = "min and max frequencies should be different";
+	return false;
+    }
+
     return true;
 }
 
