@@ -52,6 +52,7 @@ static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
 static const char* sKeyViewArea()	{ return "Start View Area"; }
+static const char* sKeyNone()		{ return "None"; }
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    const Strat::LayerModelProvider& lmp )
@@ -249,7 +250,7 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     BufferString curitem = datalist->text();
     datalist->setEmpty();
-    datalist->addItem( "None" );
+    datalist->addItem( sKeyNone() );
     for ( int idx=0; idx<curSS().nrSynthetics(); idx ++)
     {
 	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
@@ -1043,7 +1044,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
-    if ( !datalist->isPresent(syntheticnm) || synthnm == "None" )
+    if ( !datalist->isPresent(syntheticnm) || synthnm == sKeyNone() )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
