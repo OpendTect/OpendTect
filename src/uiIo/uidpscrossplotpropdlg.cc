@@ -265,8 +265,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
     , mathobj1_(0)
-    , exp1plotted_(false)
-    , exp2plotted_(false)
+    , exp1plotted_(true)
+    , exp2plotted_(true)
     , line1drawn_(false)
     , line2drawn_(false)
     , err1bfrplot_(false)
@@ -506,6 +506,7 @@ void drawPolyLines()
     else if ( !exp1plotted_ && mathexprstring_.isEmpty() )
     {
 	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
+	exp1plotted_ = true;
     }
     plotter_.setUserDefDrawType( shwy1,false );
 
@@ -522,7 +523,8 @@ void drawPolyLines()
 	}
 	else if ( !exp2plotted_ && mathexprstring1_.isEmpty() )
 	{
-   	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;   
+   	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
+	    exp2plotted_ = true;
 	}
 	plotter_.setUserDefDrawType( shwy2,true );
     }
