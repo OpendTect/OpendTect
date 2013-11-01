@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odinst.h"
 #include "od_istream.h"
 #include "odplatform.h"
+#include "odsysmem.h"
 #include "winutils.h"
 
 
@@ -102,6 +103,14 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
     unfilteredreport.add( "\nUser's platform is : " );
     unfilteredreport.add( OD::Platform::local().longName() );
+
+    IOPar dumppar; OD::dumpMemInfo( dumppar );
+    BufferString dumpmemstr;
+    dumppar.dumpPretty( dumpmemstr );
+    unfilteredreport.add( "\n" ).add( dumpmemstr );
+
+    unfilteredreport.add( "Nr. of Processors : " );
+    unfilteredreport.add( Threads::getNrProcessors() );
     #ifdef __win__
     unfilteredreport.add( "\nWindows OS Version : " );
     unfilteredreport.add( getFullWinVersion() );
