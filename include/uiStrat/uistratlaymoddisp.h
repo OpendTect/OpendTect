@@ -101,6 +101,7 @@ protected:
     virtual void	drawSelectedSequence()		= 0;
 
     bool		doLayerModelIO(bool);
+    virtual void	doLevelChg()			= 0;
     				//!< returns whether layermodel has changed
 
 };

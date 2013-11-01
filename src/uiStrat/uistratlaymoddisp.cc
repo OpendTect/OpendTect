@@ -85,8 +85,12 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 
 void uiStratLayerModelDisp::setFlattened( bool yn )
 {
+    const bool domodelchg = flattened_ || yn;
     flattened_ = yn;
-    modelChanged();
+    if ( domodelchg )
+	modelChanged();
+    else
+	doLevelChg();
 }
 
 
@@ -843,6 +847,10 @@ void uiStratSimpleLayerModelDisp::drawLevels()
     for ( int idx=itmidx; idx<lvlitms_.size(); idx++ )
 	lvlitms_[idx]->hide();
 }
+
+
+void uiStratSimpleLayerModelDisp::doLevelChg()
+{ reDrawCB( 0 ); }
 
 
 void uiStratSimpleLayerModelDisp::drawSelectedSequence()

@@ -23,6 +23,8 @@ class TimeDepthModel;
 
 mStruct(WellAttrib) SynthFVSpecificDispPars
 {
+    			SynthFVSpecificDispPars()
+			: overlap_(1)	{}
     ColTab::MapperSetup	vdmapper_;
     ColTab::MapperSetup	wvamapper_;
     BufferString	ctab_;

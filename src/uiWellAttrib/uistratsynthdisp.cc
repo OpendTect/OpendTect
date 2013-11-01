@@ -249,6 +249,7 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     BufferString curitem = datalist->text();
     datalist->setEmpty();
+    datalist->addItem( "None" );
     for ( int idx=0; idx<curSS().nrSynthetics(); idx ++)
     {
 	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
@@ -445,8 +446,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    FixedString wvasynthnm( wvasd->name() );
-    FixedString vdsynthnm( vdsd->name() );
+    FixedString wvasynthnm( wvasd ? wvasd->name() : "" );
+    FixedString vdsynthnm( vdsd ? vdsd->name() : "" );
 
     if ( wvasd )
     {
@@ -615,10 +616,7 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
     depthwr.setLeft( timewr.left() );
     depthwr.setRight( timewr.right() );
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
-    getCurD2TModel( currentwvasynthetic_, curd2tmodels, offset );
+    getCurD2TModel( currentwvasynthetic_, curd2tmodels, 0.0f );
     if ( !curd2tmodels.isEmpty() )
     {
 	for ( int idx=0; idx<curd2tmodels.size(); idx++ )
@@ -795,7 +793,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     {
 	mapper.autosym0_ = false;
 	mapper.type_ = ColTab::MapperSetup::Fixed;
-	dispparsmapper.range_ = mapper.range_;
+	dispparsmapper = mapper;
     }
     displayFRText();
     levelSnapChanged( 0 );
@@ -979,7 +977,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 {
     SyntheticData* sd = curSS().getSynthetic( wva ? wvadatalist_->text()
-	    					      : vddatalist_->text() );
+						  : vddatalist_->text() );
     if ( wva )
 	currentwvasynthetic_ = sd;
     else
@@ -1008,8 +1006,6 @@ void uiStratSynthDisp::updateFields()
     }
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
-
-    topgrp_->setSensitive( currentwvasynthetic_ );
     datagrp_->setSensitive( currentwvasynthetic_ );
 }
 
@@ -1032,6 +1028,8 @@ void uiStratSynthDisp::doModelChange()
     ss->clearInfoMsg();
     updateSyntheticList( true );
     updateSyntheticList( false );
+    wvadatalist_->setCurrentItem( 1 );
+    vddatalist_->setCurrentItem( 1 );
     setCurrentSynthetic( true );
     setCurrentSynthetic( false );
 
@@ -1045,9 +1043,10 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
-    if ( !datalist->isPresent(syntheticnm) )
+    if ( !datalist->isPresent(syntheticnm) || synthnm == "None" )
 	return;
-    curSS().removeSynthetic( syntheticnm );
+    if ( !curSS().removeSynthetic(syntheticnm) )
+	return;
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
@@ -1070,8 +1069,10 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     else
 	syntheticnm = wvadatalist_->text();
 
-    const BufferString curvdsynthnm( currentvdsynthetic_->name().buf() );
-    const BufferString curwvasynthnm( currentwvasynthetic_->name().buf() );
+    const BufferString curvdsynthnm(
+	    currentvdsynthetic_ ? currentvdsynthetic_->name().buf() : "" );
+    const BufferString curwvasynthnm(
+	    currentwvasynthetic_ ? currentwvasynthetic_->name().buf() : "" );
     SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
     if ( !cursd ) return;
     SynthGenParams curgp;
@@ -1102,10 +1103,13 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,synthname,cb);
-    curSS().removeSynthetic( synthname );
+    if ( !curSS().removeSynthetic(synthname) )
+	return;
     synthsChanged.trigger();
     updateSyntheticList( true );
     updateSyntheticList( false );
+    wvadatalist_->setCurrentItem( 1 );
+    vddatalist_->setCurrentItem( 1 );
     setCurrentSynthetic( true );
     setCurrentSynthetic( false );
     displayPostStackSynthetic( currentwvasynthetic_, true );
@@ -1293,7 +1297,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	sd->fillGenParams( genparams );
 	IOPar synthpar;
 	genparams.fillPar( synthpar );
-		sd->fillDispPar( synthpar );
+	sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
 		    		 nr_nonproprefsynths-1) );
     }
@@ -1343,8 +1347,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
 	currentvdsynthetic_ = 0;
 	currentwvasynthetic_ = 0;
-	wvadatalist_->setEmpty();
-	vddatalist_->setEmpty();
 	for ( int idx=0; idx<nrsynths; idx++ )
 	{
 	    PtrMan<IOPar> synthpar =
@@ -1371,8 +1373,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	    }
 	    else
 		sd->useDispPar( *synthpar );
-
-	    wvadatalist_->addItem( sd->name() );
 	}
 
 	if ( !nrsynths )
