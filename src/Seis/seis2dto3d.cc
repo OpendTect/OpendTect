@@ -282,10 +282,11 @@ int Seis2DTo3D::nextStep()
 
 bool Seis2DTo3D::writeTmpTrcs()
 { 
+    if ( tmpseisbuf_.isEmpty() )
+	return true;
+
     if ( !wrr_ )
-    {
 	wrr_ = new SeisTrcWriter( outioobj_ );
-    }
 
     tmpseisbuf_.sort( true, SeisTrcInfo::BinIDInl );
     int curinl = tmpseisbuf_.get( 0 )->info().binid.inl();
