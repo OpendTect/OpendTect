@@ -1044,7 +1044,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
-    if ( !datalist->isPresent(syntheticnm) || synthnm == sKeyNone() )
+    if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
