@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
+#include "uiosgmod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "color.h"
@@ -25,7 +25,7 @@ class BufferStringSet;
 
 namespace visBase { class Scene; class PolygonSelection; };
 
-mExpClass(uiCoin) ui3DViewer : public uiObject
+mExpClass(uiOSG) ui3DViewer : public uiObject
 {
 friend class		uiSoViewerBody;
 friend class		ui3DViewerBody;

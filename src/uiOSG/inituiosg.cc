@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uiosgfont.h"
 
-mDefModInitFn(uiCoin)
+mDefModInitFn(uiOSG)
 {
     mIfNotFirstTime( return );
 

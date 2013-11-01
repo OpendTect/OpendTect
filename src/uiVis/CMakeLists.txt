@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiCoin uiMPE )
+SET(OD_MODULE_DEPS uiOSG uiMPE )
 SET(OD_MODULE_SOURCES
 		uiattribtransdlg.cc
 		uifltdispoptgrp.cc

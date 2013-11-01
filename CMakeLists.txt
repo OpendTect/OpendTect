@@ -42,7 +42,7 @@ set( OD_MODULES
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiVolumeProcessing uiPreStackProcessing
 	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
-	visBase visSurvey uiCoin uiVis
+	visBase visSurvey uiOSG uiVis
 	uiODMain
 )
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 */
 
-#include "uicoinmod.h"
+#include "uiosgmod.h"
 #include "bufstringset.h"
 
 class SoMouseButtonEvent;
@@ -25,7 +25,7 @@ class SoEvent;
   separated by a `.  e.g. zoom = "Left`Control"
 */
 
-mExpClass(uiCoin) KeyBindings
+mExpClass(uiOSG) KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
@@ -56,7 +56,7 @@ public:
 \brief Event button.
 */
 
-mExpClass(uiCoin) EventButton
+mExpClass(uiOSG) EventButton
 {
 public:
                                 EventButton() {}
@@ -70,7 +70,7 @@ public:
 \brief Manages keybindings.
 */
 
-mExpClass(uiCoin) KeyBindMan
+mExpClass(uiOSG) KeyBindMan
 {
 public:
                                 KeyBindMan();

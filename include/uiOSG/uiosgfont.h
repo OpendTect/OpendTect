@@ -14,10 +14,10 @@ ________________________________________________________________________
 
 #include "vistext.h"
 
-#include "uicoinmod.h"
+#include "uiosgmod.h"
 
 
-mClass(uiCoin) uiOsgFontCreator : public visBase::OsgFontCreator
+mClass(uiOSG) uiOsgFontCreator : public visBase::OsgFontCreator
 {
 public:
     static void			initClass();

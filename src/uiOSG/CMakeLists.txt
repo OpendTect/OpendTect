@@ -10,13 +10,12 @@ SET(OD_USEQT OpenGL)
 SET(OD_USEOSG 1)
 
 SET(OD_MODULE_SOURCES
-		inituicoin.cc
+		inituiosg.cc
 		uiosgfont.cc
 		#uiprintscenedlg.cc
 		ui3dviewer.cc 
 		ui3dindirectviewer.cc 
 		uistereodlg.cc 
-		#uithumbwheel.cc
 )
 
 SET(OD_MODULE_PROGS od_osgfileviewer.cc )

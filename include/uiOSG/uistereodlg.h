@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
+#include "uiosgmod.h"
 #include "uidialog.h"
 
 class uiSliderExtra;
@@ -21,7 +21,7 @@ class ui3DViewer;
 \brief Dialog for stereo.
 */
 
-mExpClass(uiCoin) uiStereoDlg : public uiDialog
+mExpClass(uiOSG) uiStereoDlg : public uiDialog
 {
 public:
 			uiStereoDlg(uiParent*,ObjectSet<ui3DViewer>&);
