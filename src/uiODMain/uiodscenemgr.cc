@@ -34,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
 #include "uistatusbar.h"
-#include "uithumbwheel.h"
 #include "uitoolbar.h"
 #include "uitreeitemmanager.h"
 #include "uitreeview.h"
