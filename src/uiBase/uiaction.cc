@@ -156,7 +156,6 @@ void uiAction::setText( const wchar_t* txt )
 const char* uiAction::text() const
 {
     mDeclStaticString( ret );
-    static StaticStringManager stm;
     ret = qaction_->text().toLatin1().data();
     return ret.buf();
 }

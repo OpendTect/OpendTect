@@ -52,7 +52,8 @@ const char* SurveyInfo::surveyFileName()
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
 	    fp.setExtension( ptr );
-	static BufferString fnm;
+
+	mDeclStaticString( fnm );
 	fnm = fp.fullPath();
 	ret = fnm.buf();
 
@@ -125,7 +126,7 @@ mExternC(Basic) const char* GetBaseDataDir()
 
     if ( !dir ) return 0;
 
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = dir;
     return ret.buf();
 }
@@ -141,7 +142,7 @@ mExternC(Basic) const char* GetDataDir()
     if ( !survnm || !*survnm )
 	survnm = "_no_current_survey_";
 
-    static BufferString ret;
+   mDeclStaticString( ret );
     ret = FilePath( basedir, survnm ).fullPath();
     if ( od_debug_isOn(DBG_SETTINGS) )
 	mPrDebug( "GetDataDir", ret );
@@ -151,7 +152,7 @@ mExternC(Basic) const char* GetDataDir()
 
 mExternC(Basic) const char* GetProcFileName( const char* fname )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = FilePath( GetDataDir(), "Proc", fname ).fullPath();
     return ret.buf();
 }
@@ -159,7 +160,7 @@ mExternC(Basic) const char* GetProcFileName( const char* fname )
 
 mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     const char* envval = GetEnvVar( "DTECT_SCRIPTS_DIR" );
     ret = envval && *envval ? envval : GetProcFileName( subdir );
     return ret.buf();
@@ -168,7 +169,7 @@ mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 
 mExternC(Basic) const char* GetSoftwareDir( int acceptnone )
 {
-    static BufferString res;
+    mDeclStaticString( res );
     
     if ( res.isEmpty() )
     {
@@ -207,7 +208,7 @@ mExternC(Basic) const char* GetApplSetupDir()
     if ( !ret )
     {
 
-	static BufferString bs;
+	mDeclStaticString( bs );
 	bs.setEmpty();
 #ifdef __win__
 	bs = GetEnvVar( "DTECT_WINAPPL_SETUP" );
@@ -232,7 +233,7 @@ mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
     if ( !basedir )
 	return 0;
 
-    static BufferString dirnm;
+    mDeclStaticString( dirnm );
     dirnm = FilePath( basedir, "data" ).fullPath();
     return dirnm.buf();
 }
@@ -241,7 +242,7 @@ mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 				const char* fnm, int acceptnone )
 {
-    static BufferString filenm;
+    mDeclStaticString( filenm );
 
     if ( lt == ODSetupLoc_SWDirOnly )
     {
@@ -279,7 +280,7 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 
 mExternC(Basic) const char* GetDocFileDir( const char* filedir )
 {
-    static BufferString dirnm;
+    mDeclStaticString( dirnm );
     dirnm = FilePath(GetSoftwareDir(0),"doc",filedir).fullPath();
     return dirnm;
 }
@@ -293,7 +294,7 @@ mExternC(Basic) const char* GetPlfSubDir()
 
 mExternC(Basic) const char* GetBinPlfDir()
 {
-    static BufferString res;
+    mDeclStaticString( res );
     if ( res.isEmpty() )
 	res = FilePath( GetFullExecutablePath() ).pathOnly();
     return res.buf();
@@ -302,7 +303,7 @@ mExternC(Basic) const char* GetBinPlfDir()
 
 static const char* gtExecScript( const char* basedir, int remote )
 {
-    static BufferString scriptnm;
+    mDeclStaticString( scriptnm );
     scriptnm = FilePath(basedir,"bin","od_exec").fullPath();
     if ( remote ) scriptnm.add( "_rmt" );
     return scriptnm;
@@ -324,7 +325,7 @@ mExternC(Basic) const char* GetExecScript( int remote )
     if ( !fnm || !File::exists(fnm) )
 	fnm = gtExecScript( GetSoftwareDir(0), remote );
 
-    static BufferString progname;
+    mDeclStaticString( progname );
     progname.set( "'" ).add( fnm ).add( "' " );
     return progname.buf();
 #endif
@@ -345,7 +346,7 @@ mExternC(Basic) const char* GetSoftwareUser()
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetSoftwareUser", envval ? envval : "<None>" );
 
-	static BufferString bs;
+	mDeclStaticString( bs );
 	bs = envval;
 	ret = bs.buf();
     }
@@ -362,7 +363,7 @@ mExternC(Basic) const char* GetUserNm()
     GetUserName( usernm, &len );
     return usernm;
 #else
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = GetEnvVar( "USER" );
     return ret.isEmpty() ? 0 : ret.buf();
 #endif
@@ -446,7 +447,7 @@ mExternC(Basic) const char* GetPersonalDir()
 
     if ( !ret )
     {
-	static BufferString dirnm;
+	mDeclStaticString( dirnm );
 	const char* ptr = GetEnvVar( "DTECT_PERSONAL_DIR" );
 	if ( ptr )
 	    dirnm = ptr;
@@ -477,7 +478,7 @@ mExternC(Basic) const char* GetSettingsDir()
 	ptr = GetEnvVar( "DTECT_SETTINGS" );
 #endif
 
-	static BufferString dirnm;
+	mDeclStaticString( dirnm );
 	if ( ptr )
 	    dirnm = ptr;
 	else
@@ -512,7 +513,7 @@ mExternC(Basic) const char* GetSettingsDir()
 
 mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = FilePath( GetSettingsDir(), fnm ).fullPath();
     return ret;
 }

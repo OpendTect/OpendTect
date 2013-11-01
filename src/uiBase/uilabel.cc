@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
+#include "staticstring.h"
 
 #include <qlabel.h> 
 
@@ -92,7 +93,7 @@ void uiLabel::setText( const char* txt )
 
 const char* uiLabel::text() const
 {
-    static BufferString txt;
+    mDeclStaticString( txt );
     txt = mQStringToConstChar( body_->text() );
     return txt.buf();
 }

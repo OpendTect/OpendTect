@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "strmprov.h"
 #include "progressmeter.h"
+#include "staticstring.h"
 #include <iostream>
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
@@ -250,7 +251,7 @@ const char* ODMad::ProcExec::getProcString()
 const char* ODMad::ProcExec::getPlotString() const
 {
     const char* rsfroot = GetEnvVar( "RSFROOT" );
-    static BufferString ret;
+    mDeclStaticString( ret );
     int curprocidx = 0;
     if ( !pars_.get(sKeyCurProc(),curprocidx) || curprocidx < 1 )
 	return 0;

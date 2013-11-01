@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "staticstring.h"
 
 #define mGoToEMDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) )
@@ -257,7 +258,7 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 
     if ( !str->startRead(*ioobj_) )
     {
-	static BufferString msg;
+	mDeclStaticString( msg );
 	msg = str->errMsg();
 	if ( msg.isEmpty() )
 	    msg = BufferString( "Cannot read '", ioobj_->name(), "'" );

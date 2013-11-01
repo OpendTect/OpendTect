@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "oddirs.h"
 #include "iopar.h"
+#include "staticstring.h"
 
 const char* ODMad::FileSpec::sKeyMaskFile()	{ return "Mask File Name"; }
 const char* ODMad::sKeyMadagascar()		{ return "Madagascar"; }
@@ -96,7 +97,7 @@ bool ODMad::FileSpec::usePar( const IOPar& iop )
 
 const char* ODMad::FileSpec::defPath()
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = FilePath( GetDataDir(), sKeyMadagascar() ).fullPath();
     return ret.buf();
 }
@@ -104,7 +105,7 @@ const char* ODMad::FileSpec::defPath()
 
 const char* ODMad::FileSpec::madDataPath()
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
 
     ret = GetEnvVar("DATAPATH");
     if ( ret.isEmpty() )

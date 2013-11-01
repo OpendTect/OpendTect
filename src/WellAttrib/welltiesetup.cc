@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "ascstream.h"
 #include "od_iostream.h"
+#include "staticstring.h"
 
 namespace WellTie
 {
@@ -140,7 +141,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky )
 	return 0;
     }
 
-    static BufferString hdrln; hdrln = astrm.headerStartLine();
+    mDeclStaticString( hdrln ); hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
 

@@ -62,7 +62,7 @@ const char* Well::IO::getFileName( const char* ext, int nr ) const
 
 const char* Well::IO::mkFileName( const char* bnm, const char* ext, int nr )
 {
-    static BufferString fnm;
+    mDeclStaticString( fnm );
     fnm = bnm;
     if ( nr )
 	{ fnm += "^"; fnm += nr; }
@@ -114,7 +114,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 
     ver = (double)astrm.majorVersion() +
 	  ((double)astrm.minorVersion() / (double)10);
-    static BufferString hdrln; hdrln = astrm.headerStartLine();
+    mDeclStaticString( hdrln ); hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
 

@@ -19,6 +19,7 @@ static const char* rcsPrStr = "$Revision$ $Date$";
 #include "od_iostream.h"
 #include "thread.h"
 #include "timefun.h"
+#include "staticstring.h"
 
 const char* Usage::Server::sKeyPort()		{ return "Port"; }
 const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }
@@ -70,7 +71,7 @@ Usage::Server::~Server()
 
 const char* Usage::Server::setupFileName( const char* admnm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase(),0);
     if ( admnm && *admnm )
     {

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "queue.h"
 #include "timefun.h"
+#include "staticstring.h"
 
 #include <iostream>
 
@@ -46,7 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const BufferString& getTempBaseNm()
 {
-    static BufferString tmpfnm_base;
+    mDeclStaticString( tmpfnm_base );
     if ( tmpfnm_base.isEmpty() )
     {
 	tmpfnm_base = HostData::localHostName();

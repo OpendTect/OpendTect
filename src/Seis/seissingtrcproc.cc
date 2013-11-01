@@ -237,7 +237,7 @@ const char* SeisSingleTraceProc::message() const
     if ( !*msg && currentobj_ < rdrset_.size() )
     {
 	const SeisTrcReader* currdr = rdrset_[currentobj_];
-	static BufferString ret;
+	mDeclStaticString( ret );
 	ret = "Handling ";
 	if ( !currdr->is2D() )
 	    ret += "data";

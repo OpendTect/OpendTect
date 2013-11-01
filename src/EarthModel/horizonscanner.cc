@@ -165,7 +165,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 
 const char* HorizonScanner::defaultUserInfoFile()
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = GetProcFileName( "scan_horizon" );
     if ( GetSoftwareUser() )
 	{ ret += "_"; ret += GetSoftwareUser(); }

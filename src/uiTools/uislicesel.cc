@@ -315,7 +315,7 @@ bool rejectOK( CallBacker* )
 
 const char* getTitle( uiSliceSel* ss )
 {
-    static BufferString title;
+    mDeclStaticString( title );
     title = "Control scrolling through ";
     if ( !ss->istsl_ )
 	title += ss->isinl_ ? "Inlines" : "Crosslines";

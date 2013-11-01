@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "seissingtrcproc.h"
+#include "staticstring.h"
 #include "thread.h"
 #include "timefun.h"
 
@@ -601,7 +602,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 
 const char* uiSeisMMProc::curUsedMachName()
 {
-   static BufferString mach;
+   mDeclStaticString( mach );
    mach = usedmachfld->box()->getText();
 
    char* ptr = strstr( mach.buf(), " -:- ");

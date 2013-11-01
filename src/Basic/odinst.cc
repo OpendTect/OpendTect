@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "strmprov.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "bufstringset.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
@@ -206,7 +207,7 @@ bool ODInst::updatesAvailable()
 
 const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     const BufferString part1( "ver.", file_pkg_basenm );
     BufferString fnm = part1;
     fnm.add( "_" ).add( OD::Platform::local().shortName() );

@@ -820,7 +820,7 @@ Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 
 const char* uiTable::rowLabel( int row ) const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->verticalHeaderItem( row );
     if ( !itm )
 	return 0;
@@ -868,7 +868,7 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 
 const char* uiTable::columnLabel( int col ) const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
     if ( !itm )
 	return 0;

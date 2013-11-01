@@ -51,7 +51,7 @@ GMTPar* GMTFault::createInstance( const IOPar& iop )
 
 const char* GMTFault::userRef() const
 {
-    static BufferString userref;
+    mDeclStaticString( userref );
     userref = BufferString( "Fault: ", find(sKey::Name()) );
     return userref.buf();
 }

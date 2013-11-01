@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ioman.h"
 #include "strmprov.h"
+#include "staticstring.h"
 #include "cbvsio.h"
 
 const char* Seis::PreLoader::sKeyLines()	{ return "Lines"; }
@@ -210,7 +211,7 @@ void Seis::PreLoader::unLoad() const
 
 void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 {
-    static BufferString errmsg;
+    mDeclStaticString( errmsg );
 
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
     if ( !iop || iop->isEmpty() ) return;

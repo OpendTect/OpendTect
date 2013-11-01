@@ -449,7 +449,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 	const char* fnm = strmconn->odStream().fileName();
 	if ( c->bad() && !File::isDirectory(fnm) )
 	{
-	    static BufferString emsg; emsg.setEmpty();
+	    mDeclStaticString( emsg ); emsg.setEmpty();
 	    emsg.add( "Cannot open file: " ).add( fnm );
 	    errmsg = emsg.buf(); return false;
 	}

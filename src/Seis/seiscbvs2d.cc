@@ -31,7 +31,7 @@ int SeisCBVS2DLineIOProvider::factid_
 
 static const BufferString& gtFileName( const char* fnm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = fnm;
     if ( ret.isEmpty() ) return ret;
 

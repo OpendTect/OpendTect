@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpolnd.h"
 #include "idxable.h"
 #include "statrand.h"
+#include "staticstring.h"
 #include "od_iostream.h"
 #include <math.h>
 
@@ -125,7 +126,7 @@ const char* ProbDenFunc2D::dimName( int idim ) const
     const BufferString* bs = idim < 1 ? &dim0nm_ : &dim1nm_;
     if ( bs->isEmpty() )
     {
-	static BufferString ret;
+	mDeclStaticString( ret );
 	ret = "Dim"; ret += idim ? "1" : "0";
 	bs = &ret;
     }
@@ -655,7 +656,8 @@ const char* SampledNDProbDenFunc::dimName( int dim ) const
     if ( dim >= 0 && dim < dimnms_.size() )
 	return dimnms_.get( dim ).buf();
 
-    static BufferString ret; ret = "Dim";
+    mDeclStaticString( ret ); 
+    ret = "Dim";
     ret += dim;
     return ret.buf();
 }

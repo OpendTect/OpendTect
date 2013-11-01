@@ -115,7 +115,7 @@ Executor* WellTranslator::createDataPointSets(	const BufferStringSet& ids,
 
 static const char* getFileName( const IOObj& ioobj )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = ioobj.fullUserExpr( true );
     return ret.buf();
 }

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iostrm.h"
 #include "oddirs.h"
+#include "staticstring.h"
 
 #include <QHostAddress>
 #include <QHostInfo>
@@ -41,7 +42,7 @@ namespace System
 
 const char* localHostName()
 {
-    static BufferString str;
+    mDeclStaticString( str );
     str = QHostInfo::localHostName().toLatin1().constData();
     return str.buf();
 }
@@ -53,7 +54,7 @@ const char* localAddress()
 
 const char* hostName( const char* ip )
 {
-    static BufferString str;
+    mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName().toLatin1().constData();
     return str.buf();
@@ -62,7 +63,7 @@ const char* hostName( const char* ip )
 
 const char* hostAddress( const char* hostname )
 {
-    static BufferString str;
+    mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )

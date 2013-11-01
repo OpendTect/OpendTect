@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "staticstring.h"
 
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
@@ -162,7 +163,7 @@ const char* uiAttrInpDlg::getSeisKey() const
 	lk.setAttrName( seisinpfld_->attrNm() );
     else
     {
-	static BufferString buf;
+	mDeclStaticString( buf );
 	buf = lk.lineName();
 	return buf;
     }
@@ -181,7 +182,7 @@ const char* uiAttrInpDlg::getSteerKey() const
 	lk.setAttrName( steerinpfld_->attrNm() );
     else
     {
-	static BufferString buf;
+	mDeclStaticString( buf );
 	buf = lk.lineName();
 	return buf;
     }

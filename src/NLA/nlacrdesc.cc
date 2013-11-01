@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
+#include "staticstring.h"
 
 const char** NLACreationDesc::DataTypeNames()
 {
@@ -107,7 +108,9 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	PtrMan<IOObj> ioobj = IOM().get( vdsid );
 	if ( !ioobj )
 	    return "Cannot find training data set specified";
-	static BufferString errmsg; PosVecDataSet vds;
+
+	mDeclStaticString( errmsg ); 
+	PosVecDataSet vds;
 	if ( !vds.getFrom(ioobj->fullUserExpr(true),errmsg) )
 	    return errmsg.buf();
 	if ( vds.pars().isEmpty() || vds.data().isEmpty() )

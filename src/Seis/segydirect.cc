@@ -488,7 +488,7 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     BufferString nm( unm ); cleanupString( nm.buf(), 1, 1, 1 );
     FilePath fp( dirnm, nm );
     fp.setExtension( "sgydef" );

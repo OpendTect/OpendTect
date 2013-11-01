@@ -34,7 +34,7 @@ static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {
-    static BufferString vret;
+    mDeclStaticString( vret );
     vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute(),"V" );
     return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute();
 }

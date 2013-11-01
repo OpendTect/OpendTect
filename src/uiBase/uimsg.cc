@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "separstr.h"
 #include "bufstringset.h"
+#include "staticstring.h"
+
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uistatusbar.h"
@@ -112,7 +114,7 @@ static const char* getCaptn( const char* s )
     if ( gtCaptn().isEmpty() )
 	return s;
 
-    static BufferString oldcaptn;
+    mDeclStaticString( oldcaptn );
     oldcaptn = gtCaptn();
     gtCaptn() = "";
 

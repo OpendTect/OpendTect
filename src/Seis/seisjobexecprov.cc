@@ -86,7 +86,7 @@ SeisJobExecProv::~SeisJobExecProv()
 
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = iopar.find( sKeySeisOutIDKey() ).str();
     if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
     return res.buf();

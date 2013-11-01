@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "pixmap.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "strmprov.h"
 #include "texttranslator.h"
 #include "thread.h"
@@ -823,7 +824,7 @@ void uiMainWin::setCaption( const char* txt )
 
 const char* uiMainWin::caption( bool unique ) const
 {
-    static BufferString capt;
+    mDeclStaticString( capt );
     capt = unique ? mQStringToConstChar(body_->windowTitle()) : caption_.buf();
     return capt;
 }
@@ -1000,7 +1001,7 @@ const char* uiMainWin::activeModalQDlgTitle()
     if ( !amw )
 	return 0;
 
-    static BufferString title;
+    mDeclStaticString( title );
     title = mQStringToConstChar( amw->windowTitle() );
     return title;
 }
@@ -1034,7 +1035,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
 	mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
 
-	static BufferString buttext;
+	mDeclStaticString( buttext );
         if ( stdbut )
 	    buttext = mQStringToConstChar( qmb->button(stdbut)->text() );
 	else if ( !stdbutcount )
@@ -1118,7 +1119,7 @@ void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 const char* uiMainWin::uniqueWinTitle( const char* txt,
 				       QWidget* forwindow )
 {
-    static BufferString wintitle;
+    mDeclStaticString( wintitle );
     const QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
     for ( int count=1; true; count++ )
