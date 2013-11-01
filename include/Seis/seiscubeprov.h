@@ -40,15 +40,15 @@ inline and crossline number relative to the center. This is irrespective
 the steps in the cube's numbers. Therefore, the actual inline number of
 get(1,0) may be 10 higher than get(0,0) .
 
-The advance() method moves the reader one step further along the seismic 
+The advance() method moves the reader one step further along the seismic
 storage. The return value will tell you whether there is a new position
 available to work on, or that more traces need to be read first.
 
 You can specify two stepouts: required and desired. The required stepout
-traces will always be available when the return of advance() is DataOK. 
-If "Buffering" is returned, then the provider is still gathering more 
+traces will always be available when the return of advance() is DataOK.
+If "Buffering" is returned, then the provider is still gathering more
 traces.
- 
+
  */
 
 
@@ -85,7 +85,7 @@ public:
     			//!< seldata becomes mine
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
-    AdvanceState	advance();	
+    AdvanceState	advance();
     const char*		errMsg() const		{ return errmsg_.str(); }
 
     BinID		getPos() const;
@@ -121,12 +121,12 @@ protected:
     mutable int		estnrtrcs_;
 
     			// Indexes of new pos ready, equals -1 while buffering.
-    int			bufidx_; 
+    int			bufidx_;
     int			trcidx_;
     			// Indexes of next position to be examined.
     int			pivotidx_;
-    int			pivotidy_;	
-    
+    int			pivotidy_;
+
     void		init();
     bool		startWork();
     int			readTrace(SeisTrc&);
@@ -138,17 +138,18 @@ protected:
 mExpClass(Seis) SeisFixedCubeProvider
 {
 public:
-    			SeisFixedCubeProvider(const MultiID&);
+			SeisFixedCubeProvider(const MultiID&);
 			~SeisFixedCubeProvider();
 
     void		clear();
     bool		isEmpty() const;
     bool		readData(const CubeSampling&,TaskRunner* tr=0);
     bool		readData(const CubeSampling&,const LineKey* lk,
-	    			 TaskRunner* tr=0);
+				 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;
+    float		getTrcDist() const		{ return trcdist_; }
     const char*		errMsg() const;
 
 protected:
@@ -158,7 +159,9 @@ protected:
     CubeSampling	cs_;
     IOObj*		ioobj_;
     BufferString	errmsg_;
+    float		trcdist_;
 
+    bool		calcTrcDist(const LineKey&);
 };
 
 #endif
