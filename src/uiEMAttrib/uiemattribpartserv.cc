@@ -154,7 +154,7 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
 }
 
 
-void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
+void uiEMAttribPartServer::shiftDlgClosed( CallBacker* )
 {
     if ( horshiftdlg_->uiResult()==1 )
     {
@@ -168,7 +168,7 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
 }
 
 
-void uiEMAttribPartServer::calcDPS( CallBacker* cb )
+void uiEMAttribPartServer::calcDPS( CallBacker* )
 {
     setAttribID( horshiftdlg_->attribID() );
     sendEvent( uiEMAttribPartServer::evCalcShiftAttribute() );
