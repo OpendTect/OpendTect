@@ -16,16 +16,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "file.h"
 #include "filepath.h"
-
-#include <fstream>
-#include "separstr.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
+#include "separstr.h"
+#include "thread.h"
 #include "winutils.h"
 
+#include <fstream>
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_( host )
@@ -60,7 +60,7 @@ bool System::IssueReporter::readReport( const char* filename )
 	mStreamError( open );
 
     report_.setEmpty();
-    
+
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
 
     BufferString unfilteredreport;
@@ -69,18 +69,18 @@ bool System::IssueReporter::readReport( const char* filename )
 	mStreamError( read );
 
     SeparString sep( unfilteredreport.buf(), '\n' );
-    
+
     for ( int idx=0; idx<sep.size(); idx++ )
     {
 	BufferString line = sep[idx];
-	
+
 	mTestMatch( "zypper" )
 	mTestMatch( "no debugging symbols found" );
 	mTestMatch( "Missing separate debuginfo for" );
 	mTestMatch( "no loadable sections found in added symbol-file");
 	report_.add( line ).add( "\n" );
     }
-    
+
     return true;
 }
 
@@ -117,7 +117,7 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     #endif
 
     SeparString sep( unfilteredreport.buf(), '\n' );
-    
+
     for ( int idx=0; idx<sep.size(); idx++ )
     {
 	BufferString line = sep[idx];
@@ -135,7 +135,7 @@ bool System::IssueReporter::send()
     request.setHost( host_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
-    
+
     if ( crashreportpath_.isEmpty() )
     {
 	if ( request.post( path_, postvars )!=-1 )
@@ -145,7 +145,7 @@ bool System::IssueReporter::send()
     {
 	return true;
     }
-    
+
     errmsg_ = "Cannot connect to ";
     errmsg_.add( host_ );
     return false;
@@ -159,13 +159,13 @@ bool System::IssueReporter::parseCommandLine()
     const char* pathkey = "path";
     parser.setKeyHasValue( hostkey );
     parser.setKeyHasValue( pathkey );
-    
+
     BufferStringSet normalargs;
     bool syntaxerror = false;
     parser.getNormalArguments( normalargs );
     if ( normalargs.size()!=1 )
 	syntaxerror = true;
-    
+
     if ( syntaxerror || parser.nrArgs()<1 )
     {
 	errmsg_.add( "Usage: " ).add( parser.getExecutable() )
@@ -173,12 +173,12 @@ bool System::IssueReporter::parseCommandLine()
 	       .add( " [--path <path>]" );
 	return false;
     }
-    
+
     host_ = "www.opendtect.org";
     path_ = "/relman/scripts/crashreport.php";
 
     const BufferString& filename = normalargs.get( 0 );
-    
+
     parser.getVal( hostkey, host_ );
     parser.getVal( pathkey, path_ );
     const bool binary = parser.hasKey( "binary" );
@@ -187,7 +187,7 @@ bool System::IssueReporter::parseCommandLine()
     {
 	return setDumpFileName( filename );
     }
-        
+
     return readReport( filename );
 }
 
