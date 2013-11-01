@@ -31,6 +31,7 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     : outputhor_(0)
     , ownsarray_(true)
     , hs_(false)
+    , depths_(0)
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -40,11 +41,14 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	inputhors_ += hor;
 	IOObjInfo oi( EMM().getMultiID(objid) );
 	SurfaceIOData sd;
-	if ( oi.getSurfaceData(sd) )
+	if ( !oi.getSurfaceData(sd) )
 	    { hs_.include( sd.rg ); hs_.step = sd.rg.step; }
     }
 
     deepRef( inputhors_ );
+    if ( !hs_.totalNr() )
+	return;
+
     depths_ = new Array2DImpl<float>( hs_.nrInl(), hs_.nrCrl() );
     depths_->setAll( mUdf(float) );
 
@@ -79,6 +83,9 @@ od_int64 Horizon3DMerger::nrIterations() const
 
 bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 {
+    if ( !depths_ )
+	return false;
+
     Stats::CalcSetup rcs;
     rcs.require( Stats::Extreme ).require( Stats::Average );
     Stats::RunCalc<float> rc( rcs );
@@ -116,6 +123,9 @@ bool Horizon3DMerger::doFinish( bool success )
 {
     if ( !success )
 	return success;
+
+    if ( !outputhor_ )
+	return false;
 
     EM::SectionID sid = outputhor_->sectionID( 0 );
     Geometry::BinIDSurface* geom = outputhor_->geometry().sectionGeometry( sid);
