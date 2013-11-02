@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uistrings.h"
 #include "uimsg.h"
 
 
@@ -82,9 +83,9 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 	    mCB(this, uiProcessorManager,saveCB), true );
     savebutton_->attach( rightOf, loadbutton_ );
 
-    saveasbutton_ = new uiPushButton( this, "Save as",
+    saveasbutton_ = new uiPushButton( this, sSaveAs(),
 			    ioPixmap(uiIcon::saveAs()),
-			    mCB(this, uiProcessorManager,saveAsCB), false );
+			    mCB(this, uiProcessorManager,saveAsCB), true );
     saveasbutton_->attach( rightOf, savebutton_ );
 
     updateList();
