@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisplitter.h"
 #include "uitreeview.h"
 #include "uiworld2ui.h"
+#include "uistrings.h"
 
 #define mTransHeight	150
 #define mTransWidth	200
@@ -143,7 +144,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ );
 
-    uiPushButton* savebut = new uiPushButton( this, "&Save as", false );
+    uiPushButton* savebut = new uiPushButton( this, sSaveAs(), true );
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
     savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );
