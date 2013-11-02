@@ -33,8 +33,11 @@ goto nextarg
 
 do_it:
 
+set dtectdir = `dirname ${progname}`
+set nrcpus = `${dtectdir}/GetNrProc`
+
 if ( "${listfile}" != "" ) then
-    cat ${listfile} | grep \\.ico -v | xargs -P0 -n 200 ${progname} 
+    cat ${listfile} | grep \\.ico -v | xargs -P ${nrcpus} -n 200 ${progname} 
     exit ${status}
 endif
 
