@@ -60,7 +60,8 @@ public:
     bool			isOK() const;	//!< eof is not OK
     bool			isBad() const;	//!< eof is not Bad
 
-    const char*			errMsg() const; //!< see also below
+    const char*			errMsg() const;
+				//!< see also below. Returns 0 if empty
     bool			forRead() const;
     bool			forWrite() const;
 

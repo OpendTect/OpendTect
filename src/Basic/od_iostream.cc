@@ -168,14 +168,16 @@ bool od_stream::isBad() const
 
 const char* od_stream::errMsg() const
 {
-    return StrmOper::getErrorMessage( streamData() );
+    const char* res = StrmOper::getErrorMessage( streamData() );
+    if ( !res || !*res ) return 0;
+    return res;
 }
 
 
 void od_stream::addErrMsgTo( BufferString& msg ) const
 {
     const char* mymsg = errMsg();
-    if ( mymsg && *mymsg )
+    if ( mymsg )
 	msg.add( ":\n" ).add( mymsg );
 }
 
