@@ -73,7 +73,8 @@ final class TextLinter extends ArcanistLinter {
       return;
     }
 
-    $iscmake = strpos( $path, ".cmake" )!==false;
+    $iscmake = strpos( $path, ".cmake" )!==false ||
+	       strpos( $path, ".txt") !==false;
     $isphp = strpos( $path, ".php" )!==false;
 
     $this->lintNewlines($path);
@@ -82,13 +83,12 @@ final class TextLinter extends ArcanistLinter {
       return;
     }
 
-    if ( !$isphp ) {
+    if ( !$isphp && !$iscmake ) {
       $this->lintForbiddenStrings($path);
 
       if ($this->didStopAllLinters()) {
 	return;
       }
-
 /*
       $this->lintStaticLocalVar($path);
 
