@@ -243,7 +243,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction( sSaveAs(), 1 );
+    mnu.insertItem( new uiAction( sSaveAs()), 1 );
     mnu.insertItem( new uiAction("&Remove"), 2 );
 
     const int mnuid = mnu.exec();
