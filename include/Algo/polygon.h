@@ -82,9 +82,9 @@ public:
     void	keepBendPoints(float eps);
     
     		// not for self-intersecting polygons
-    float	area() const			{ return fabs(sgnArea()); } 	
-    bool	clockwise() const		{ return sgnArea()<0; } 
-    bool	anticlockwise() const		{ return sgnArea()>0; } 
+    double	area() const		{ return fabs(sgnArea2<double>()/2.0); }
+    bool	clockwise() const	{ return sgnArea2<T>()<0; }
+    bool	anticlockwise() const	{ return sgnArea2<T>()>0; }
 
     void	reverse();
 
@@ -97,48 +97,49 @@ public:
 
 protected:
  
-    static int doSegmentsMeet( const Geom::Point2D<T>& p1,
-			       const Geom::Point2D<T>& p2,
-			       const Geom::Point2D<T>& q1,
-			       const Geom::Point2D<T>& q2,
-			       T eps );
+    static int			doSegmentsMeet( const Geom::Point2D<T>& p1,
+				    const Geom::Point2D<T>& p2,
+				    const Geom::Point2D<T>& q1,
+				    const Geom::Point2D<T>& q2,
+				    T eps );
 
-    static bool	isOnSegment( const Geom::Point2D<T>& pt,
-	    		     const Geom::Point2D<T>& pt0,
-	    		     const Geom::Point2D<T>& pt1,
-	   		     T eps );
-    static bool isOnHalfLine( const Geom::Point2D<T>& point,
-			      const Geom::Point2D<T>& dirvec,
-			      const Geom::Point2D<T>& endvec,
-			      T eps );
-    static bool isEdgeCrossing( const Geom::Point2D<T>& raydir,
-	    			const Geom::Point2D<T>& raysrc,
-				const Geom::Point2D<T>& vtx1,
-				const Geom::Point2D<T>& vtx2 );
+    static bool			isOnSegment( const Geom::Point2D<T>& pt,
+				    const Geom::Point2D<T>& pt0,
+				    const Geom::Point2D<T>& pt1,
+				    T eps );
+    static bool			isOnHalfLine( const Geom::Point2D<T>& point,
+				    const Geom::Point2D<T>& dirvec,
+				    const Geom::Point2D<T>& endvec,
+				    T eps );
 
-    static bool isOnLine( const Geom::Point2D<T>& point,
-			  const Geom::Point2D<T>& dirvec,
-			  const Geom::Point2D<T>& posvec,
-			  T eps );
+    static bool			isEdgeCrossing( const Geom::Point2D<T>& raydir,
+				    const Geom::Point2D<T>& raysrc,
+				    const Geom::Point2D<T>& vtx1,
+				    const Geom::Point2D<T>& vtx2 );
 
-    static bool isRightOfLine( const Geom::Point2D<T>& point,
-			       const Geom::Point2D<T>& dirvec,
-			       const Geom::Point2D<T>& posvec );
+    static bool			isOnLine( const Geom::Point2D<T>& point,
+				    const Geom::Point2D<T>& dirvec,
+				    const Geom::Point2D<T>& posvec,
+				    T eps );
 
-    static bool doCoincide( const Geom::Point2D<T>& point1,
-			    const Geom::Point2D<T>& point2,
-			    T eps=mDefEps );
+    static bool			isRightOfLine( const Geom::Point2D<T>& point,
+				    const Geom::Point2D<T>& dirvec,
+				    const Geom::Point2D<T>& posvec );
 
-    static double sgnDistToLine( const Geom::Point2D<T>& point,
-				 const Geom::Point2D<T>& dirvec,
-				 const Geom::Point2D<T>& posvec );
+    static bool			doCoincide( const Geom::Point2D<T>& point1,
+				    const Geom::Point2D<T>& point2,
+				    T eps=mDefEps );
 
-    float sgnArea() const;
+    static double		sgnDistToLine( const Geom::Point2D<T>& point,
+				    const Geom::Point2D<T>& dirvec,
+				    const Geom::Point2D<T>& posvec );
 
-    static double distToSegment( const Geom::Point2D<T>& p1,
-	    			 const Geom::Point2D<T>& p2,
-				 const Geom::Point2D<T>& refpt,
-				 double* fractionptr=0 );
+    template <class ST> ST	sgnArea2() const;
+
+    static double		distToSegment( const Geom::Point2D<T>& p1,
+				    const Geom::Point2D<T>& p2,
+				    const Geom::Point2D<T>& refpt,
+				    double* fractionptr=0 );
 
     TypeSet<Geom::Point2D<T> >	poly_;
     bool			closed_;
@@ -531,21 +532,22 @@ double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
 }
 
 
-template <class T> inline
-float ODPolygon<T>::sgnArea() const
+template <class T> 
+template <class ST> inline
+ST ODPolygon<T>::sgnArea2() const
 {
-    float area2 = 0.0;
+    ST area2 = 0;
 
     const Geom::Point2D<T>& pt0 = poly_[0];
     for ( int idx=1; idx<size()-1; idx++ )
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (float) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
-					(pt2.x-pt0.x) * (pt1.y-pt0.y) );
+	area2 += (ST) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
+			(pt2.x-pt0.x) * (pt1.y-pt0.y) );
     }
-
-    return 0.5f * area2;
+    
+    return area2;
 }
 
 
