@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 #include "pixmap.h"
@@ -242,7 +243,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction("&Save As ..."), 1 );
+    mnu.insertItem( new uiAction( sSaveAs(), 1 );
     mnu.insertItem( new uiAction("&Remove"), 2 );
 
     const int mnuid = mnu.exec();

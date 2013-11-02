@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uistrings.h"
 #include "uivispartserv.h"
 
 
@@ -166,7 +167,7 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 #define mCommonInit \
     , savemnuitem_("&Save") \
-    , saveasmnuitem_("Save as ...") \
+    , saveasmnuitem_(sSaveAs()) \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \

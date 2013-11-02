@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uistrings.h"
 #include "uiviscoltabed.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
@@ -59,7 +60,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , uivisemobj_(0)
     , createflatscenemnuitem_("&Create flattened scene")
     , savemnuitem_("Save",-800)
-    , saveasmnuitem_("Save as ...",-850)
+    , saveasmnuitem_(sSaveAs(),-850)
     , enabletrackingmnuitem_("Enable tracking")
     , changesetupmnuitem_("Change setup ...")
     , reloadmnuitem_("Reload",-750)

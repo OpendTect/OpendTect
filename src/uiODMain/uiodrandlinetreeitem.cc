@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodviewer2dmgr.h"
 #include "uipositiontable.h"
 #include "uiselsimple.h"
+#include "uistrings.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
@@ -330,7 +331,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
     , editnodesmnuitem_("&Edit nodes ...")
     , insertnodemnuitem_("&Insert node")
-    , saveasmnuitem_("&Save As ...")
+    , saveasmnuitem_( sSaveAs() )
     , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
 {

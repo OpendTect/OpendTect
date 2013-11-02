@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
 #include "uisetpickdirs.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "visvw2ddataman.h"
 #include "visvw2dpickset.h"
@@ -170,7 +171,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     uiAction* saveitm = new uiAction( "&Save" );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
-    mnu.insertItem( new uiAction("&Save As ..."), 3 );
+    mnu.insertItem( new uiAction( uiSaveAs() ), 3 );
     mnu.insertItem( new uiAction("&Remove"), 4 );
 
     const int mnuid = mnu.exec();
