@@ -30,7 +30,8 @@ class BufferStringSet;
   
   Thus:
    - dgb1:@handle_data
-        Executable handle_data on remote host dgb1 will get/put on stdin/stdout.   - \\winserv\foo\bar
+	Executable handle_data on remote host dgb1 will get/put on stdin/stdout.
+   - \\winserv\foo\bar
 	File \foo\bar on remote host winserv.
    - foo.bar
 	File foo.bar in current directory.
