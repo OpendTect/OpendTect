@@ -175,9 +175,9 @@ bool exists( const char* fnm )
 #ifndef OD_NO_QT
     return QFile::exists( fnm );
 #else
-    std::ifstream strm;
-    strm.open( fnm );
-    return strm.is_open();
+    od_istream strm( fnm );
+
+    return strm.isOK();
 #endif
 }
 

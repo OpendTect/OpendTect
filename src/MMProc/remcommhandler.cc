@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "od_ostream.h"
 #include "strmprov.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
@@ -104,20 +105,20 @@ void RemCommHandler::uiErrorMsg( const char* msg )
 }
 
 
-std::ostream& RemCommHandler::createLogFile()
+od_ostream& RemCommHandler::createLogFile()
 {
     FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
     replaceCharacter( lhname.buf(), '.',  '_' );
     logfp.add( lhname );
     logfp.setExtension( ".log" );
-    std::ostream* strm = new std::ofstream( logfp.fullPath() );
+    od_ostream* strm = new od_ostream( logfp.fullPath() );
     return *strm;
 }
 
 
 void RemCommHandler::writeLog( const char* msg )
 {
-    logstrm_ << msg << std::endl;
+    logstrm_ << msg << od_endl;
 }
 

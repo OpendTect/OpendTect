@@ -72,7 +72,7 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
 {
 #ifdef __lux__
 
-    std::ifstream strm( "/proc/meminfo" );
+    od_istream strm( "/proc/meminfo" );
     BufferString filecont;
     if ( !StrmOper::readFile(strm,filecont) )
 	mErrRet

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "mmprocmod.h"
 #include "callback.h"
+#include "od_iosfwd.h"
 
 class TcpServer;
 
@@ -34,9 +35,9 @@ protected:
     void	  	dataReceivedCB(CallBacker*);
     bool		mkCommand(const IOPar&,BufferString&);
     void		uiErrorMsg(const char*);
-    std::ostream& 	createLogFile();
+    od_ostream& 	createLogFile();
     void		writeLog(const char* msg);
-    std::ostream&       logstrm_;
+    od_ostream& 	logstrm_;
 
     const int	   	port_;  
     TcpServer&   	server_;
