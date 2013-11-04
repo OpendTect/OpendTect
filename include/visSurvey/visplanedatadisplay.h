@@ -214,7 +214,7 @@ protected:
     float				minx0step_;
     float				minx1step_;
     ZAxisTransform*			datatransform_;
-    mutable int				voiidx_;
+    mutable int				voiid_;
 
     RefMan<const mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;

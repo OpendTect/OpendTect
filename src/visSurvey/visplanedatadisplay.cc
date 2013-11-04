@@ -126,7 +126,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , gridlines_( visBase::GridLines::create() )
     , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
     , datatransform_( 0 )
-    , voiidx_(-1)
+    , voiid_(-1)
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
@@ -362,6 +362,12 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,PlaneDataDisplay,dataTransformCB) );
+	if ( voiid_>0 )
+	{
+	    datatransform_->removeVolumeOfInterest( voiid_ );
+	    voiid_ = -1;
+	}
+
 	datatransform_->unRef();
 	datatransform_ = 0;
     }
@@ -648,12 +654,12 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
     const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
     if ( datatransform_->needsVolumeOfInterest() )
     {
-	if ( voiidx_<0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	if ( voiid_<0 )
+	    voiid_ = datatransform_->addVolumeOfInterest( cs, true );
 	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	    datatransform_->setVolumeOfInterest( voiid_, cs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_ );
+	datatransform_->loadDataIfMissing( voiid_ );
     }
 
     HorSamplingIterator iter( cs.hrg );
