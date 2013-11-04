@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "geometry.h"
 
-#define mArrVal(arr) (*(float*)(arr + idx * offs))
+#define mArrVal(arr) (arr[idx * offs])
 
-static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
+static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
 		    int nrpts, int offs )
 {
     double sumx = 0, sumy = 0;
@@ -76,22 +76,21 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
     else
     {
 	ls.sd.ax = (float) ( Math::Sqrt( sumd2 / ((nrpts-2) * sumx2) ) );
-	ls.sd.a0 = (float) ( Math::Sqrt( (sumx2 * sumd2) / 
-									 (nrpts * (nrpts-2) * sumx2) ) );
+	ls.sd.a0 = (float) ( Math::Sqrt( (sumx2 * sumd2) /
+                                         (nrpts * (nrpts-2) * sumx2) ) );
     }
 }
 
 
 void LinStats2D::use( const float* xvals, const float* yvals, int nrpts )
 {
-    calcLS( *this, (const char*) xvals, (const char*) yvals,
-	    nrpts, sizeof(float) );
+    calcLS( *this, xvals, yvals, nrpts, sizeof(float) );
 }
 
 
 void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 {
     if ( nrpts < 1 ) return;
-    calcLS( *this, (const char*) &vals[0].x, (const char*) &vals[0].y, nrpts,
+    calcLS( *this, &vals[0].x, &vals[0].y, nrpts,
 	    sizeof(Geom::Point2D<float>) );
 }
