@@ -89,6 +89,7 @@ namespace sKey
     inline FixedString Scale()		{ return "Scale"; }
     inline FixedString SeisID()		{ return "SeisID"; }
     inline FixedString Selection()	{ return "Selection"; }
+    inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
