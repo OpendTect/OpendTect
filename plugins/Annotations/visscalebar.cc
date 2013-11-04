@@ -138,14 +138,20 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 	}
 	else
 	{
-	    const Coord3 normal = spherical2Cartesian( loc.dir_, true );
+	    const Coord3 vector = spherical2Cartesian( loc.dir_, true );
+	    const double signx = vector.x > 0 ? 1 : -1;
+	    const double signy = vector.y > 0 ? 1 : -1;
+
 	    const double l2 = length_*length_;
-	    const double ny2 = normal.x*normal.x;
-	    const double nx2 = normal.y*normal.y;
-	    const double term = 1 + nx2/ny2;
-	    const double dx2 = l2 / term;
-	    const double dy2 = l2 - dx2;
-	    pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
+	    const double vx2 = vector.x*vector.x;
+	    const double vy2 = vector.y*vector.y;
+	    const double v2 = vx2 + vy2;
+	    const double factor = l2 / v2;
+	    const double dx2 = vx2 * factor;
+	    const double dy2 = vy2 * factor;
+
+	    pos = loc.pos_ +
+		Coord3( signx*Math::Sqrt(dx2), signy*Math::Sqrt(dy2), 0 );
 	}
     }
     else
