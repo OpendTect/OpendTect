@@ -108,6 +108,10 @@ public:
 			/*!< The res value is between 0 and 1. It indicates the 
 			quality of marker visualization. */
 
+     int		size() const; 
+    void		addPos(const Coord3&);
+    void		setPos(int, const Coord3&);
+
 protected:
     void		materialChangeCB(CallBacker*);
 				~MarkerSet();

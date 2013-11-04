@@ -299,4 +299,25 @@ int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,
 }
 
 
+void MarkerSet::addPos( const Coord3& crd )
+{
+    if ( coords_ )
+	coords_->addPos( crd );
+    
+}
 
+
+void MarkerSet::setPos( int idx, const Coord3& crd )
+{
+    if ( coords_ )
+	coords_->setPos( idx, crd );
+}
+
+
+int MarkerSet::size() const
+{
+    if ( coords_ )
+	return coords_->size();
+
+    return 0;
+}
