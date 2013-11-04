@@ -220,7 +220,7 @@ void Pos::PolyProvider3D::getZRange( Interval<float>& zrg ) const
 
 od_int64 Pos::PolyProvider3D::estNrPos() const
 {
-    float fnr = poly_.area() / hs_.step.inl();
+    float fnr = (float) poly_.area() / hs_.step.inl();
     fnr /= hs_.step.crl();
     return mRounded(od_int64,fnr);
 }

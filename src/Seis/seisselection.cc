@@ -800,11 +800,13 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
 	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
-    const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0f;
+        const float coverfrac = rectarea
+	    ? (float) polys_[idx]->area()/rectarea
+	    : 1.0f;
 	
-	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop) );
+	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop));
 	inlrg.widen( stepoutreach_.inl() );
-	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop) );
+	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop));
 	crlrg.widen( stepoutreach_.crl() );
 	
 	HorSampling hs; 
