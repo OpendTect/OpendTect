@@ -437,8 +437,8 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
     {
         menu->setIsHandled( true );
 
-        TypeSet<float> zvals, areas;
-        getZVSAreaValues( zvals, areas );
+        TypeSet<float> zvals, areavalues;
+        getZVSAreaValues( zvals, areavalues );
 
         uiDialog dlg( ODMainWin(), uiDialog::Setup("Countour areas", 0,
                     				   mNoHelpID ) );
@@ -451,7 +451,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
         const ZDomain::Info& zinfo = scene->zDomainInfo();
 
-	uiTable* table = new uiTable( &dlg, uiTable::Setup(areas.size(),2),
+	uiTable* table = new uiTable( &dlg, uiTable::Setup(areavalues.size(),2),
                                      "Area table");
 
         const BufferString zdesc( zinfo.userName(), " ", zinfo.unitStr(true) );
@@ -460,11 +460,11 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
         table->setColumnLabel( 1, areaString() );
 
-        for ( int idx=0; idx<areas.size(); idx++ )
+        for ( int idx=0; idx<areavalues.size(); idx++ )
         {
             table->setText( RowCol(idx,0),
                            toString( zvals[idx] * zinfo.userFactor() ) );
-            table->setText( RowCol(idx,1), toString( areas[idx] ) );
+            table->setText( RowCol(idx,1), toString( areavalues[idx] ) );
         }
 
         uiPushButton* button = new uiPushButton( &dlg, "Save &as",
@@ -477,14 +477,14 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
 
 void uiContourTreeItem::getZVSAreaValues( TypeSet<float>& zvals,
-                                         TypeSet<float>& areavals ) const
+                                         TypeSet<float>& areavalues ) const
 {
     for ( int idx=0; idx<areas().size(); idx++ )
     {
         if ( !mIsUdf(areas()[idx]))
         {
             zvals += contourintv_.atIndex(idx);
-            areavals += areas()[idx];
+            areavalues += (float) areas()[idx];
         }
     }
 }
