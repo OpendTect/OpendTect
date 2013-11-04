@@ -9,12 +9,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscubeprov.h"
 
 #include "arrayndimpl.h"
+#include "hiddenparam.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "seisread.h"
 #include "seisbuf.h"
 #include "seisbounds.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "surv2dgeom.h"
 #include "cubesampling.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -260,7 +263,7 @@ bool SeisMSCProvider::startWork()
     SeisTrcBuf* newbuf = new SeisTrcBuf( false );
     tbufs_ += newbuf;
     newbuf->add( trc );
-    
+
     pivotidx_ = 0; pivotidy_ = 0;
     readstate_ = ReadOK;
     return true;
@@ -458,10 +461,10 @@ bool SeisMSCProvider::doAdvance()
 class TrcDataLoader : public Executor
 {
 public:
-TrcDataLoader( SeisTrcReader* rdr, Array2D<SeisTrc*>& arr,
-		const HorSampling& hs, bool is2d )
+TrcDataLoader( SeisTrcReader& rdr, Array2D<SeisTrc*>& arr,
+	       const HorSampling& hs, bool is2d )
     : Executor("Data Loader")
-    , rdr_(rdr),arr_(arr),hs_(hs)
+    , rdr_(rdr), arr_(arr), hs_(hs)
     , nrdone_(0)
     , is2d_(is2d)
 {
@@ -478,16 +481,12 @@ const char* message() const
 
 int nextStep()
 {
-    if ( !rdr_ )
-	return ErrorOccurred();
-
     SeisTrc* trc = new SeisTrc;
-
-    const int res = rdr_->get( trc->info() );
+    const int res = rdr_.get( trc->info() );
     if ( res == -1 ) { delete trc; return ErrorOccurred(); }
     if ( res == 0 ) { delete trc; return Finished(); }
     if ( res == 2 ) { delete trc; return MoreToDo(); }
-    else if ( rdr_->get(*trc) )
+    else if ( rdr_.get(*trc) )
     {
 	const BinID bid = trc->info().binid;
 	const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl );
@@ -501,7 +500,7 @@ int nextStep()
     return MoreToDo();
 }
 
-    SeisTrcReader*		rdr_;
+    SeisTrcReader&		rdr_;
     Array2D<SeisTrc*>&		arr_;
     const HorSampling&		hs_;
     od_int64			nrdone_;
@@ -510,11 +509,14 @@ int nextStep()
 };
 
 
+HiddenParam<SeisFixedCubeProvider,float> trcdists( 0 );
+
 SeisFixedCubeProvider::SeisFixedCubeProvider( const MultiID& key )
     : cs_(false)
     , data_(0)
     , ioobj_(IOM().get(key))
 {
+    trcdists.setParam( this, SI().crlDistance() );
 }
 
 
@@ -524,8 +526,10 @@ SeisFixedCubeProvider::~SeisFixedCubeProvider()
     delete ioobj_;
 }
 
+
 const char* SeisFixedCubeProvider::errMsg() const
 { return errmsg_.buf(); }
+
 
 void SeisFixedCubeProvider::clear()
 {
@@ -540,16 +544,54 @@ void SeisFixedCubeProvider::clear()
     data_ = 0;
 }
 
+
 bool SeisFixedCubeProvider::isEmpty() const
 { return !data_; }
+
+
+bool SeisFixedCubeProvider::calcTrcDist( const LineKey& lk )
+{
+    trcdists.setParam( this, SI().crlDistance() );
+    const SeisIOObjInfo si( ioobj_->key() );
+    if ( !si.is2D() )
+	return true;
+
+    BufferStringSet nms;
+    si.getComponentNames( nms, lk );
+    if ( nms.size() > 1 && nms.get(1)=="Line dip" )
+    {
+	PosInfo::Line2DData l2dd( lk.lineName() );
+	S2DPOS().setCurLineSet( ioobj_->name() );
+	const bool res = S2DPOS().getGeometry( l2dd );
+	if ( !res )
+	{ errmsg_ = "Cannot read 2D geometry"; return false; }
+
+	float max, trcdist;
+	l2dd.compDistBetwTrcsStats( max, trcdist );
+	trcdists.setParam( this, trcdist );
+	if ( mIsZero(trcdist,mDefEps) )
+	{
+	    errmsg_ = "Cannot calculate median trace distance";
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+
+float SeisFixedCubeProvider::getTrcDist() const
+{ return trcdists.getParam( this ); }
+
 
 bool SeisFixedCubeProvider::readData( const CubeSampling& cs, TaskRunner* tr )
 { return readData( cs, 0, tr ); }
 
+
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
-				    const LineKey* lk, TaskRunner* tr )
+				      const LineKey* lk, TaskRunner* tr )
 {
     if ( !ioobj_ )
 	mErrRet( "Failed to find the input dataset" )
@@ -560,7 +602,11 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
     cs_ = cs;
     Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
     if ( lk )
+    {
 	sd->lineKey() = *lk;
+	if ( !calcTrcDist(*lk) )
+	    return false;
+    }
 
     seisrdr->setSelData( sd );
 
@@ -570,8 +616,8 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
-    PtrMan<TrcDataLoader> loader = new TrcDataLoader( seisrdr, *data_, cs_.hrg,
-	    					      lk );
+    PtrMan<TrcDataLoader> loader =
+	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, lk );
     const bool res = TaskRunner::execute( tr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
@@ -582,6 +628,7 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
 { return getTrace( BinID(0,trcnr) ); }
+
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {

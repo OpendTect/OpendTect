@@ -140,14 +140,14 @@ protected:
 mExpClass(Seis) SeisFixedCubeProvider
 {
 public:
-    			SeisFixedCubeProvider(const MultiID&);
+			SeisFixedCubeProvider(const MultiID&);
 			~SeisFixedCubeProvider();
 
     void		clear();
     bool		isEmpty() const;
     bool		readData(const CubeSampling&,TaskRunner* tr=0);
     bool		readData(const CubeSampling&,const LineKey* lk,
-	    			 TaskRunner* tr=0);
+				 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;
@@ -161,6 +161,9 @@ protected:
     IOObj*		ioobj_;
     BufferString	errmsg_;
 
+public:
+    bool		calcTrcDist(const LineKey&);
+    float		getTrcDist() const;
 };
 
 #endif
