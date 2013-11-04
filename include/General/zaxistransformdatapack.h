@@ -32,8 +32,8 @@ mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
 {
 public:
     				ZAxisTransformDataPack(const FlatDataPack&,
-						       const CubeSampling&,
-						       ZAxisTransform&);
+					       const CubeSampling& inputcs,
+					       ZAxisTransform&);
 				~ZAxisTransformDataPack();
 
     void			setOutputCS(const CubeSampling&);
