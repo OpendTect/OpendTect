@@ -48,16 +48,20 @@ public:
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
 	    					    bool zistrans=false);
-    virtual void		setVolumeOfInterest(int,const CubeSampling&,
+				/*!<\returns id of new Volume of Interest.*/
+    virtual void		setVolumeOfInterest(int volid,
+						    const CubeSampling&,
 	    					    bool zistrans=false);
     virtual int			addVolumeOfInterest2D(const char* linenm,
 						    const CubeSampling&,
 						    bool zistrans=false);
+				/*!<\returns id of new Volume of Interest.*/
     virtual void		setVolumeOfInterest2D(int,const char* linenm,
 						    const CubeSampling&,
 						    bool zistrans=false);
-    virtual void		removeVolumeOfInterest(int);
-    virtual bool		loadDataIfMissing(int,TaskRunner* =0);
+    virtual void		removeVolumeOfInterest(int volid);
+
+    virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
     
 				//3D    
     virtual void		transform(const BinID&, 
