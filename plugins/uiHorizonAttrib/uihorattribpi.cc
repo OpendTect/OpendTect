@@ -196,6 +196,8 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     attrlb_ = llb->box();
 }
 
+int nrAttribs() const { return attrlb_->size(); }
+
 const char* getAttribName() const
 { return attrlb_->getText(); }
 
@@ -215,7 +217,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     if ( !hor ) { uiMSG().error("Internal: cannot find horizon"); return; }
 
     uiSelContourAttribDlg dlg( appl_, emobj->id() );
-    if ( !dlg.go() )
+    if ( dlg.nrAttribs()>1 && !dlg.go() )
 	return;
 
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );

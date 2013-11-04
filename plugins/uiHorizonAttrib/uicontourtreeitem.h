@@ -58,7 +58,7 @@ public:
     static const char*		sKeyContourDefString();
     static const char*		sKeyZValue();
 
-protected:
+private:
 
     virtual bool		init();
     virtual bool		hasTransparencyMenu() const { return false; }
@@ -66,6 +66,7 @@ protected:
     virtual void		checkCB(CallBacker*);
     virtual void		createMenu(MenuHandler*,bool istb);
     virtual void		handleMenuCB(CallBacker*);
+    void			saveAreasAsCB(CallBacker*);
 
     void			prepareForShutdown();
     void			removeAll();
@@ -80,6 +81,8 @@ protected:
     bool			createPolyLines();
     bool			setLabels(visBase::Text2*);
     bool			computeUICContourSteps(const Array2D<float>&);
+    void			getZVSAreaValues(TypeSet<float>& zvals,
+                                                 TypeSet<float>& areas) const;
 
     void			updateUICContours(const StepInterval<float>&);
     void			updateColumnText(int);
@@ -101,8 +104,10 @@ protected:
     visBase::Text2*		labels_;
 				//
     Interval<float>		contoursteprange_;
+    TypeSet<double>		areas_; //empty if no non-udf
     StepInterval<float>		contourintv_;
     MenuItem			optionsmenuitem_;
+    MenuItem			areamenuitm_;
 
     friend class	uiContourTreeItemContourGenerator;
 
