@@ -87,8 +87,8 @@ public:
     Array2D<float>*	createArray2D(int dataid,SectionID) const;
     void		setArray2D(int dataid,SectionID,const Array2D<float>&);
 
-    virtual bool	usePar( const IOPar& );
-    virtual void	fillPar( IOPar& ) const;
+    bool		usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
 
 protected:
     Horizon3D&		horizon_;

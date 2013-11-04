@@ -29,7 +29,7 @@ class Translator;
 mExpClass(General) IOObjProducer
 {
 public:
-
+virtual 		~IOObjProducer()		{}
     virtual bool	canMake(const char*) const	= 0;
     virtual IOObj*	make(const char*,const MultiID&,
 	    		     bool fill_defs) const	= 0;
