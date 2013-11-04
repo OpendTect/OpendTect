@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odmemory.h"
 
 #ifdef __lux__
+# include "od_istream.h"
 # include "strmoper.h" 
 # include <fstream>
 static od_int64 swapfree;
@@ -74,7 +75,8 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
 
     od_istream strm( "/proc/meminfo" );
     BufferString filecont;
-    if ( !StrmOper::readFile(strm,filecont) )
+
+    if ( !strm.getAll(filecont) )
 	mErrRet
 
     total = getMemFromStr( filecont.buf(), "MemTotal:" );
