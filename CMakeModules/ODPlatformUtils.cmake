@@ -48,9 +48,6 @@ if(UNIX) #Apple an Linux
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 
 	set ( OD_PLFSUBDIR mac )
-
-	#NEEDED AS LONG AS WE HAVE COIN
-	set ( CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
     else() #Linux
 	#Not on most platforms, but for the few that does, it's better
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)

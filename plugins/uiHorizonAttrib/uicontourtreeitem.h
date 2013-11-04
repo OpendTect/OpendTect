@@ -76,6 +76,12 @@ protected:
     void			createLines();
     void			addText(const Coord3&,const char*);
     void			updateZShift();
+    MenuItem&			areaMenuItem();
+    TypeSet<double>&		areas();
+    const TypeSet<double>&	areas() const;
+    void			getZVSAreaValues(TypeSet<float>& zvals,
+                                                 TypeSet<float>& areas) const;
+    void			saveAreasAsCB(CallBacker*);
 
     Array2DImpl<int>*		arr_;
     TypeSet<BinID>		bids_;

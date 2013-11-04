@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"
+#include "hiddenparam.h"
 
 #include "uibutton.h"
 #include "uidialog.h"
@@ -37,6 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
+#include "uitable.h"
+#include "uifiledlg.h"
 
 #include "viscoord.h"
 #include "visdrawstyle.h"
@@ -47,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "zaxistransform.h"
 
+#include <fstream>
 
 static const int cMinNrNodesForLbl = 25;
 
@@ -213,6 +217,12 @@ const char* uiContourTreeItem::sKeyZValue()
 void uiContourTreeItem::initClass()
 { uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
+HiddenParam<uiContourTreeItem, MenuItem*> areamenuitem( 0 );
+HiddenParam<uiContourTreeItem, TypeSet<double>*> areavals( 0 );
+
+
+
+
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , optionsmenuitem_( "Properties ..." )
@@ -231,12 +241,24 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
 
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
+
+    areamenuitem.setParam( this, new MenuItem( "Contour areas" ) );
+    areavals.setParam( this, new TypeSet<double> );
+
+    // No icon before we find a painter
+    // areaMenuItem().iconfnm = "contourarea";
 }
 
 
 uiContourTreeItem::~uiContourTreeItem()
 {
     delete arr_;
+
+    delete areamenuitem.getParam( this );
+    areamenuitem.removeParam( this );
+
+    delete areavals.getParam( this );
+    areavals.removeParam( this );
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
 		    applMgr()->visServer()->getObject(displayID()))
@@ -253,6 +275,24 @@ uiContourTreeItem::~uiContourTreeItem()
 	return;
 
     parent_->checkStatusChange()->remove(mCB(this,uiContourTreeItem,checkCB));
+}
+
+
+MenuItem& uiContourTreeItem::areaMenuItem()
+{
+    return *areamenuitem.getParam( this );
+}
+
+
+TypeSet<double>& uiContourTreeItem::areas()
+{
+    return *areavals.getParam( this );
+}
+
+
+const TypeSet<double>& uiContourTreeItem::areas() const
+{
+    return *areavals.getParam( this );
 }
 
 
@@ -350,6 +390,14 @@ void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODDataTreeItem::createMenu( menu, istb );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
 		      &optionsmenuitem_, lines_, false );
+
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
+                     &areaMenuItem(), lines_ && areas().size(), false );
+}
+
+const char* areaString()
+{
+    return SI().xyInFeet() ? "Area (sqft)" : " Area (m^2)";
 }
 
 
@@ -358,31 +406,128 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
     uiODDataTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( mnuid==-1 || menu->isHandled() || mnuid!=optionsmenuitem_.id )
-	return;
 
-    if ( !lines_ )
-	return;
+    if ( mnuid==-1 || menu->isHandled() || !lines_ )
+        return;
 
-    menu->setIsHandled( true );
-    Interval<float> range( rg_.start, rg_.stop );
-    range += Interval<float>( zshift_, zshift_ );
-    StepInterval<float> oldintv( contourintv_ );
-    oldintv += Interval<float>( zshift_, zshift_ );
-    uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
-			  LineStyle(LineStyle::Solid,linewidth_,color_),
-			  sceneID() );
-    if ( labelgrp_ )
-	dlg.setShowLabels( labelgrp_->isOn() );
-    dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
-    dlg.intervalChanged.notify( mCB(this,uiContourTreeItem,intvChangeCB) );
-    const bool res = dlg.go();
-    dlg.propertyChanged.remove( mCB(this,uiContourTreeItem,propChangeCB) );
-    dlg.intervalChanged.remove( mCB(this,uiContourTreeItem,intvChangeCB) );
-    if ( !res ) return;
+    if ( mnuid==optionsmenuitem_.id )
+    {
+        menu->setIsHandled( true );
+        Interval<float> range( rg_.start, rg_.stop );
+        range += Interval<float>( zshift_, zshift_ );
+        StepInterval<float> oldintv( contourintv_ );
+        oldintv += Interval<float>( zshift_, zshift_ );
+        uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
+                              LineStyle(LineStyle::Solid,linewidth_,color_),
+                              sceneID() );
+        if ( labelgrp_ )
+            dlg.setShowLabels( labelgrp_->isOn() );
+        dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
+        dlg.intervalChanged.notify( mCB(this,uiContourTreeItem,intvChangeCB) );
+        const bool res = dlg.go();
+        dlg.propertyChanged.remove( mCB(this,uiContourTreeItem,propChangeCB) );
+        dlg.intervalChanged.remove( mCB(this,uiContourTreeItem,intvChangeCB) );
+        if ( !res ) return;
 
-    StepInterval<float> newintv = dlg.getContourInterval();
-    updateContours( newintv );
+        StepInterval<float> newintv = dlg.getContourInterval();
+        updateContours( newintv );
+    }
+
+    if ( mnuid==areaMenuItem().id )
+    {
+        menu->setIsHandled( true );
+
+        TypeSet<float> zvals, areas;
+        getZVSAreaValues( zvals, areas );
+
+        uiDialog dlg( ODMainWin(), uiDialog::Setup("Countour areas", 0,
+                    				   mNoHelpID ) );
+        dlg.setCancelText( 0 );
+
+        RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
+                                applMgr()->visServer()->getObject(sceneID()) );
+
+        if ( !scene ) { pErrMsg("No scene"); return; }
+
+        const ZDomain::Info& zinfo = scene->zDomainInfo();
+
+	uiTable* table = new uiTable( &dlg, uiTable::Setup(areas.size(),2),
+                                     "Area table");
+
+        const BufferString zdesc( zinfo.userName(), " ", zinfo.unitStr(true) );
+        table->setColumnLabel( 0, zdesc.buf() );
+
+
+        table->setColumnLabel( 1, areaString() );
+
+        for ( int idx=0; idx<areas.size(); idx++ )
+        {
+            table->setText( RowCol(idx,0),
+                           toString( zvals[idx] * zinfo.userFactor() ) );
+            table->setText( RowCol(idx,1), toString( areas[idx] ) );
+        }
+
+        uiPushButton* button = new uiPushButton( &dlg, "Save &as",
+                            mCB(this,uiContourTreeItem,saveAreasAsCB), true );
+        button->attach( leftAlignedBelow, table );
+        
+        dlg.go();
+    }
+}
+
+
+void uiContourTreeItem::getZVSAreaValues( TypeSet<float>& zvals,
+                                         TypeSet<float>& areavals ) const
+{
+    for ( int idx=0; idx<areas().size(); idx++ )
+    {
+        if ( !mIsUdf(areas()[idx]))
+        {
+            zvals += contourintv_.atIndex(idx);
+            areavals += areas()[idx];
+        }
+    }
+}
+
+
+void uiContourTreeItem::saveAreasAsCB(CallBacker*)
+{
+    uiFileDialog dlg( ODMainWin(), 0, "*.txt",
+                     "Select file to store contour areas" );
+    if ( dlg.go() )
+    {
+        std::ofstream stream( dlg.fileName() );
+        RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
+                                              applMgr()->visServer()->getObject(sceneID()) );
+
+        if ( !scene ) { pErrMsg("No scene"); return; }
+
+        const ZDomain::Info& zinfo = scene->zDomainInfo();
+
+        stream << BufferString(zinfo.userName(), " ", zinfo.unitStr(true))
+        << '\t' << areaString() << '\n';
+
+        TypeSet<float> zvals, areavalues;
+        getZVSAreaValues( zvals, areavalues );
+
+        for ( int idx=0; idx<areas().size(); idx++ )
+        {
+            stream << zvals[idx] * zinfo.userFactor() << '\t'
+                    << areavalues[idx] << '\n';
+        }
+
+        if ( stream.bad() )
+        {
+            BufferString errmsg( "Could not save file ", dlg.fileName() );
+
+            uiMSG().error( errmsg.buf() );
+        }
+        else
+        {
+            uiMSG().message( BufferString( "Area table saved as ",
+                                          dlg.fileName(), ".").buf());
+        }
+    }
 }
 
 
@@ -572,8 +717,11 @@ void uiContourTreeItem::createContours()
     mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
     const ZAxisTransform* transform = scene ? scene->getZAxisTransform() : 0;
     const float fac = mCast( float, scene->zDomainInfo().userFactor() );
+    areas().setEmpty();
+
     while ( contourval < maxcontourval+mDefEps )
     {
+        double area = 0;
 	ManagedObjectSet<ODPolygon<float> > isocontours;
 	ictracer.getContours( isocontours, contourval, false );
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
@@ -603,15 +751,25 @@ void uiContourTreeItem::createContours()
 		if ( ic.size() > cMinNrNodesForLbl && vidx == ic.size()/2 )
 		    addText( pos, getStringFromFloat(fmt, labelval, buf) );
 	    }
-	    
+
+
 	    if ( ic.isClosed() )
 	    {
 		const int posidx = lines_->getCoordIndex( cii-ic.size() );
 		lines_->setCoordIndex( cii++, posidx );
+
 	    }
-	    
+
+            if ( !mIsUdf(area) && ic.isClosed() )
+                area += ic.area();
+            else
+                area = mUdf(double);
+
+
 	    lines_->setCoordIndex( cii++, -1 );
 	}
+
+        areas() += area;
 
 	progwin.setProgress( progwin.progress() + 1 );
 	contourval += contourintv_.step;
@@ -622,7 +780,20 @@ void uiContourTreeItem::createContours()
     if ( hd->getZAxisTransform() )
 	delete field;
 
-    if ( labelgrp_ ) 
+    bool validfound = false;
+    for ( int idx=0; idx<areas().size(); idx++ )
+    {
+        if ( !mIsUdf(areas()[idx]))
+        {
+            validfound = true;
+            break;
+        }
+    }
+
+    if ( !validfound )
+        areas().erase();
+
+    if ( labelgrp_ )
 	labelgrp_->turnOn( showlabels_ );
 }
 
