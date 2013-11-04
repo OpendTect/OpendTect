@@ -740,7 +740,7 @@ void uiContourTreeItem::getZVSAreaValues( TypeSet<float>& zvals,
         if ( !mIsUdf(areas_[idx]))
         {
             zvals += contourintv_.atIndex(idx);
-            areas += (flaot) areas_[idx];
+            areas += (float) areas_[idx];
         }
     }
 }
