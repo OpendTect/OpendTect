@@ -327,11 +327,12 @@ void uiTieView::drawViewerWellMarkers()
 	auxdata->linestyle_ = ls;
 
 	BufferString mtxt( marker->name() );
-	if ( !params_.dispmrkfullnames_ && mtxt.size() > 3 )
-	    mtxt[3] = '\0';
+	mtxt.insertAt( 0, " " );
+	if ( !params_.dispmrkfullnames_ && mtxt.size()>4 )
+	    mtxt[4] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
-	auxdata->namepos_ = 1;
+	auxdata->namealignment_ = Alignment(Alignment::Left,Alignment::Top);
+	auxdata->namepos_ = 0;
     
 	drawMarker( auxdata, true, zpos );
     }
@@ -349,8 +350,8 @@ void uiTieView::drawUserPicks()
 	userpickauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
     }
-    drawUserPicks( seispickset_, false );
     drawUserPicks( synthpickset_, true );
+    drawUserPicks( seispickset_, false );
 }
 
 
@@ -387,7 +388,7 @@ void uiTieView::drawHorizons()
 	    mtxt[3] = '\0';
 	auxdata->name_ = mtxt;
 	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
-	auxdata->namepos_ = 1;
+	auxdata->namepos_ = 0;
 	LineStyle ls = LineStyle( LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;
     
