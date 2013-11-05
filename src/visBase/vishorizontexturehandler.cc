@@ -350,6 +350,12 @@ void HorizonTextureHandler::updateTileTextureOrigin()
     const osg::Vec2f texturesize = texture->imageEnvelopeSize();
     if ( !texturesize.length() ) return;
 
+    // temporal code to avoid crash when texture size is less than 8
+    if ( texturesize[0] < 8 || texturesize[1] < 8 )
+	return;
+    //////////////////////////////////////////////////////////////////////////
+        
+
     texture->reInitTiling();
     texture->planTiling(horsection_->nrcoordspertileside_-1,sorigins,torigins);
 
