@@ -69,6 +69,9 @@ PolygonBodyDisplay::PolygonBodyDisplay()
 
     intsurf_->ref();
     intsurf_->turnOn( false );
+    intsurf_->setNormalBindType( visBase::VertexShape::BIND_PER_VERTEX );
+    intsurf_->setColorBindType( visBase::VertexShape::BIND_OVERALL );
+    intsurf_->setRenderMode( visBase::RenderBothSides );
 
     addChild( intsurf_->osgNode() );
 
@@ -119,8 +122,6 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
     delete explicitintersections_;
 
     nearestpolygonmarker_->unRef();
-
-    //removeChild( drawstyle_->osgNode() );
     drawstyle_->unRef(); drawstyle_ = 0;
     
     removeChild( intsurf_->osgNode() );
@@ -183,7 +184,7 @@ void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
 void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const float linewidth = islinesolid ? 3.5f*lineStyle()->width_ : -1.0f;
+    const float linewidth = islinesolid ? 1.5f*lineStyle()->width_ : -1.0f;
 
     LineStyle lnstyle( *lineStyle() ) ;
     lnstyle.width_ = (int)( linewidth );
@@ -804,14 +805,17 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 {
     if ( !intersectiondisplay_ || !explicitintersections_ )
 	return;
-
-    /*
+    
     const TypeSet<Geometry::ExplPlaneIntersection::PlaneIntersection>& pi =
 	explicitintersections_->getPlaneIntersections();
     
-    intsurf_->getCoordinates()->removeAfter( -1 );
-    intsurf_->removeCoordIndexAfter( -1 );
+    intsurf_->getCoordinates()->setEmpty();
+    intsurf_->removeAllPrimitiveSets();
     
+    Geometry::PrimitiveSet* ps =
+	Geometry::IndexedPrimitiveSet::create( false );
+    ps->ref();
+
     int ci = 0;
     int cii = 0;
     for ( int idx=0; idx<pi.size(); idx++ )
@@ -832,14 +836,17 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 	intsurf_->getCoordinates()->setPos( ci, center );
 	for ( int idy=0; idy<conns.size()/3; idy++ )
 	{
-	    intsurf_->setCoordIndex( cii++, ci );
-	    intsurf_->setCoordIndex( cii++, conns[3*idy]+startci );
-	    intsurf_->setCoordIndex( cii++, conns[3*idy+1]+startci );
-	    intsurf_->setCoordIndex( cii++, -1 );
+	    ps->append( ci );
+	    ps->append( conns[3*idy]+startci );
+	    ps->append( conns[3*idy+1]+startci );
     	}
 	ci++;
     }
-     */
+     
+    if ( ps->size()> 3)
+	intsurf_->addPrimitiveSet( ps );
+    else
+	ps->unRef();
 }
 
 

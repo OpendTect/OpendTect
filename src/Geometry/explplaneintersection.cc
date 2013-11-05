@@ -116,7 +116,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
 
     intersectioncoordids_.allowDuplicates( false );
     output_ = const_cast<IndexedGeometry*>( explsurf_.getGeometry()[0] );
-    output_->removeAll( true );
+    output_->removeAll( false );
     addedposes_.erase();
 }
 
