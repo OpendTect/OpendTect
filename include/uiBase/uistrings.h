@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 //Common strings used in OD. Should be extended
 
-inline FixedString sCancel()				{ return "&Cancel"; }
-inline FixedString sOk()				{ return "&Ok"; }
+inline FixedString sCancel()			{ return "&Cancel"; }
+inline FixedString sOk()			{ return "&Ok"; }
 inline FixedString sOpen(bool immediate=false);
 inline FixedString sSave(bool immediate=true);
-inline FixedString sSaveAs()				{ return "Save &as"; }
+inline FixedString sSaveAs()			{ return "Save &as ..."; }
 inline FixedString sSaveAsDefault();
 
 
