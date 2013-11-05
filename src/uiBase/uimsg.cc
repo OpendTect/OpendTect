@@ -304,8 +304,8 @@ void uiMsg::about( const char* text )
 
 bool uiMsg::askGoOn( const char* text, bool yn )
 {
-    const char* oktxt = yn ? "&Yes" : sOk();
-    const char* canceltxt = yn ? "&No" : sCancel();
+    const char* oktxt = yn ? sYes() : sOk();
+    const char* canceltxt = yn ? sNo() : sCancel();
 
     return askGoOn( text, oktxt, canceltxt );
 }
@@ -333,9 +333,9 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
     if ( !cnclmsg || !*cnclmsg )
 	cnclmsg = sCancel();
     if ( !textyes || !*textyes )
-	textyes = "&Yes";
+	textyes = sYes();
     if ( !textno || !*textno )
-	textno = "&No";
+	textno = sNo();
 
     const char* wintitle = mCapt("Please specify");
     const int refnr = beginCmdRecEvent( wintitle );

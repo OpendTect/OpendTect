@@ -18,11 +18,15 @@ ________________________________________________________________________
 //Common strings used in OD. Should be extended
 
 inline FixedString sCancel()			{ return "&Cancel"; }
+inline FixedString sLoad()			{ return "&Load ..."; }
+inline FixedString sNew()			{ return "&New"; }
+inline FixedString sNo()			{ return "&No"; }
 inline FixedString sOk()			{ return "&Ok"; }
 inline FixedString sOpen(bool immediate=false);
 inline FixedString sSave(bool immediate=true);
 inline FixedString sSaveAs()			{ return "Save &as ..."; }
 inline FixedString sSaveAsDefault();
+inline FixedString sYes()			{ return "&Yes"; }
 
 
 //Implementations

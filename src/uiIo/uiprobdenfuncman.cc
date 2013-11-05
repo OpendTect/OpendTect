@@ -72,8 +72,8 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
     uiEditProbDenFunc dlg( this, *pdf, true );
     if ( dlg.go() && dlg.isChanged() )
     {
-	const int choice = uiMSG().question( "PDF changed. Save?", "&Yes",
-						"&As new ...", "&No" );
+	const int choice = uiMSG().question( "PDF changed. Save?", sYes(),
+						"&As new ...", sNo() );
 	if ( choice < 0 ) return;
 
 	PtrMan<IOObj> saveioobj = curioobj_->clone();
