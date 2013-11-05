@@ -448,7 +448,12 @@ void VertexShape::materialChangeCB( CallBacker* )
 
 
 void VertexShape::setDisplayTransformation( const mVisTrans* tr )
-{ coords_->setDisplayTransformation( tr ); }
+{ 
+    coords_->setDisplayTransformation( tr ); 
+    if ( osggeom_)
+	osggeom_->dirtyDisplayList();
+    
+}
 
 
 const mVisTrans* VertexShape::getDisplayTransformation() const
