@@ -342,6 +342,7 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
     if ( ctio_.ioobj )
     {
 	subselfld_->setInput( *ctio_.ioobj );
+	subselfld_->usePar( data().subselpars_ );
 	LineKey lkey( ctio_.ioobj->key() );
 	BufferStringSet compnms;
 	SeisIOObjInfo::getCompNames( lkey, compnms );
