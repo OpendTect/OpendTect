@@ -409,26 +409,16 @@ mImplSimpleAddGetFns(od_uint32)
 mImplSimpleAddGetFns(od_int64)
 mImplSimpleAddGetFns(od_uint64)
 
-
 mImplStrmAddFn(float,toString(t))
 mImplSimpleGetFn(float)
 mImplStrmAddFn(double,toString(t))
 mImplSimpleGetFn(double)
-
 
 mImplSimpleAddFn(const char*)
 od_istream& od_istream::get( char* str )
     { pErrMsg("Dangerous: od_istream::get(char*)"); return getC( str, 0 ); }
 
 mImplStrmAddFn(const BufferString&,t.buf())
-od_istream& od_istream::get( BufferString& bs, bool allownl )
-{
-    if ( allownl )
-	StrmOper::readWord( stdStream(), &bs );
-    else
-	StrmOper::wordFromLine( stdStream(), bs );
-    return *this;
-}
 
 od_ostream& od_ostream::add( const FixedString& fs )
     { return fs.str() ? add( fs.str() ) : *this; }
@@ -482,6 +472,14 @@ od_ostream& od_ostream::addPtr( const void* ptr )
 	{ mAddWithRetry( strm << ((const int*)ptr), *this ) }
     else
 	{ mAddWithRetry( strm << "(null)", *this ) }
+}
+
+
+bool od_istream::getWord( BufferString& bs, bool allownl )
+{
+    return allownl
+	? StrmOper::readWord( stdStream(), &bs )
+	: StrmOper::wordFromLine( stdStream(), bs );
 }
 
 

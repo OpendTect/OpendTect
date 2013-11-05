@@ -22,8 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"
-#include "strmprov.h"
-#include "strmoper.h"
+#include "od_iostream.h"
 #include "odver.h"
 #include "timefun.h"
 
@@ -85,27 +84,21 @@ class RokDocImporter
 public:
 
 RokDocImporter( const char* fnm )
+    : strm_(fnm)
 {
-    sd_ = StreamProvider( fnm ).makeIStream();
-    if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open input file"; return; }
-}
-
-~RokDocImporter()
-{
-    sd_.close();
 }
 
 Sampled2DProbDenFunc* getPDF()
 {
-    if ( !sd_.usable() ) return 0;
+    if ( !strm_.isOK() )
+	{ errmsg_ = "Cannot open input file"; return 0; }
 
-    char buf[1024]; int wordnr = 0; int nrdims = 2;
-    while ( StrmOper::wordFromLine(*sd_.istrm,buf,1024) )
+    BufferString word; int wordnr = 0; int nrdims = 2;
+    while ( strm_.getWord(word) )
     {
 	wordnr++;
 	if ( wordnr == 4 )
-	    nrdims = buf[0] - '0';
+	    nrdims = word[0] - '0';
     }
     if ( nrdims != 2 )
     {
@@ -118,7 +111,7 @@ Sampled2DProbDenFunc* getPDF()
     SamplingData<float> sd0(0,1), sd1(0,1);
     int nr0=-1, nr1=-1;
     bool cols_are_0 = true;
-    ascistream astrm( *sd_.istrm, false );
+    ascistream astrm( strm_, false );
     while ( !astrm.next().atEOS() )
     {
 	if ( astrm.hasKeyword(sKeyXNoBins) )
@@ -159,12 +152,12 @@ Sampled2DProbDenFunc* getPDF()
 	const int rowsdidx = nrrows - irow - 1;
 	for ( int icol=0; icol<nrcols; icol++ )
 	{
-	    float val = 0; *sd_.istrm >> val;
+	    float val = 0; strm_ >> val;
 	    a2d.set( cols_are_0 ? icol : rowsdidx,
 		     cols_are_0 ? rowsdidx : icol, val );
 	}
     }
-    sd_.close();
+    strm_.close();
 
     Sampled2DProbDenFunc* pdf = new Sampled2DProbDenFunc( a2d );
     pdf->setDimName( 0, dim0nm ); pdf->setDimName( 1, dim1nm );
@@ -173,7 +166,7 @@ Sampled2DProbDenFunc* getPDF()
 }
 
     BufferString	errmsg_;
-    StreamData		sd_;
+    od_istream		strm_;
 
 };
 
@@ -316,66 +309,56 @@ class RokDocExporter
 public:
 
 RokDocExporter( const char* fnm )
+    :strm_(fnm)
 {
-    sd_ = StreamProvider( fnm ).makeOStream();
-    if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open output file"; return; }
-}
-
-~RokDocExporter()
-{
-    sd_.close();
 }
 
 bool putPDF( const Sampled2DProbDenFunc& pdf )
 {
-    if ( !sd_.usable() ) return false;
+    if ( !strm_.isOK() )
+	{ errmsg_ = "Cannot open output file"; return false; }
 
-    std::ostream& strm = *sd_.ostrm;
-
-    strm << "Probability Density Function 2D \"" << pdf.name()
+    strm_ << "Probability Density Function 2D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
 	 << " on " << Time::getDateTimeString() << "\n\n";
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );
 
-    strm << "X Log Type        : " << pdf.dimName(0) << '\n';
-    strm << "X Mid Bin Minimum : " << pdf.sd0_.start << '\n';
-    strm << "X Bin Width       : " << pdf.sd0_.step << '\n';
-    strm << "X No of Bins      : " << nrx << "\n\n";
+    strm_ << "X Log Type        : " << pdf.dimName(0) << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sd0_.start << '\n';
+    strm_ << "X Bin Width       : " << pdf.sd0_.step << '\n';
+    strm_ << "X No of Bins      : " << nrx << "\n\n";
 
-    strm << "Y Log Type        : " << pdf.dimName(1) << '\n';
-    strm << "Y Mid Bin Minimum : " << pdf.sd1_.start << '\n';
-    strm << "Y Bin Width       : " << pdf.sd1_.step << '\n';
-    strm << "Y No of Bins      : " << nry << "\n\n";
+    strm_ << "Y Log Type        : " << pdf.dimName(1) << '\n';
+    strm_ << "Y Mid Bin Minimum : " << pdf.sd1_.start << '\n';
+    strm_ << "Y Bin Width       : " << pdf.sd1_.step << '\n';
+    strm_ << "Y No of Bins      : " << nry << "\n\n";
 
     static const char* twentyspaces = "                    ";
 
     for ( int idx=0; idx<nrx; idx++ )
-	strm << BufferString("X Bin ",idx,twentyspaces);
+	strm_ << BufferString("X Bin ",idx,twentyspaces);
 
     for ( int iy=nry-1; iy>=0; iy-- )
     {
-	strm << '\n';
+	strm_ << '\n';
 	for ( int ix=0; ix<nrx; ix++ )
 	{
 	    BufferString txt; txt += pdf.bins_.get(ix,iy);
 	    const int len = txt.size();
 	    txt += len < 20 ? twentyspaces + len : " ";
-	    strm << txt;
+	    strm_ << txt;
 	}
     }
 
-    const bool ret = strm.good();
-    if ( !ret )
-	errmsg_ = "Error during write";
-    sd_.close();
-    return ret;
+    if ( !strm_.isOK() )
+	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+    return errmsg_.isEmpty();
 }
 
     BufferString	errmsg_;
-    StreamData		sd_;
+    od_ostream		strm_;
 
 };
 

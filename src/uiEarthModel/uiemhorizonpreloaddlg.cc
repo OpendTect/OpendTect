@@ -187,14 +187,11 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	return;
 
     const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    ascistream astrm( *sd.istrm, true );
+    od_istream strm( fnm );
+    ascistream astrm( strm, true );
     IOPar fulliop( astrm );
     if ( fulliop.isEmpty() )
-    {
-	uiMSG().message( "No valid objects found" );
-	return;
-    }
+	{ uiMSG().message( "No valid objects found" ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     TypeSet<MultiID> selmids;
@@ -244,12 +241,9 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 	return;
 
     const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
-    {
-	uiMSG().message( "Cannot open output file:\n", fnm );
-	return;
-    }
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	{ uiMSG().message( "Cannot open output file:\n", fnm ); return; }
 
     IOPar par;
     EM::HorizonPreLoader& hpl = EM::HPreL();
@@ -265,7 +259,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 	par.set( key, mid );
     }
 
-    ascostream astrm( *sd.ostrm );
+    ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
     {
 	uiMSG().message( "Cannot write to output file:\n", fnm );

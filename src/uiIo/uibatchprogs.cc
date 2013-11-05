@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "od_istream.h"
 #include "file.h"
 #include "filepath.h"
 #include "manobjectset.h"
@@ -118,11 +119,13 @@ BatchProgInfoList::BatchProgInfoList()
 
 void BatchProgInfoList::getEntries( const char* fnm )
 {
-    if ( File::isEmpty(fnm) ) return;
-    StreamData sd = StreamProvider(fnm).makeIStream();
-    if ( !sd.usable() ) return;
+    if ( File::isEmpty(fnm) )
+	return;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	return;
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( strm, true );
 
     while ( astrm.type() != ascistream::EndOfFile )
     {
@@ -153,8 +156,6 @@ void BatchProgInfoList::getEntries( const char* fnm )
 
 	if ( bpi ) *this += bpi;
     }
-
-    sd.close();
 }
 
 

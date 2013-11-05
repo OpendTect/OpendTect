@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "oddirs.h"
 #include "strmprov.h"
+#include "od_ostream.h"
 #include "timer.h"
 
 #include "uigroup.h"
@@ -83,11 +84,15 @@ bool CmdRecorder::mustSkip() const
 
 bool CmdRecorder::start()
 {
-    outputsd_ = StreamProvider(outputfnm_).makeOStream( false );
-    if ( !outputfnm_ || !outputsd_.usable() )
+    if ( outputfnm_.isEmpty() )
 	return false;
 
-    ascostream astrm( *outputsd_.ostrm );
+    outputsd_ = StreamProvider(outputfnm_).makeOStream( false );
+    if ( !outputsd_.usable() )
+	return false;
+
+    od_ostream strm( *outputsd_.ostrm );
+    ascostream astrm( strm );
     if ( !astrm.putHeader("OpendTect commands") )
 	return false;
 

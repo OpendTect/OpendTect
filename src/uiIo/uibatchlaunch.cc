@@ -463,25 +463,22 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     {
 	if ( issing )
 	{
-	    StreamData sd = StreamProvider( fnm ).makeIStream();
-	    if ( !sd.usable() )
+	    od_istream strm( fnm );
+	    if ( !strm.isOK() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
-	    ascistream aistrm( *sd.istrm, true );
+	    ascistream aistrm( strm, true );
 	    if ( aistrm.fileType()!=sKey::Pars() )
 	    {
-		sd.close();
 		uiMSG().error(BufferString(fnm," is not a parameter file"));
 		return false;
 	    }
 	    const float ver = toFloat( aistrm.version() );
 	    if ( ver < 3.1999 )
 	    {
-		sd.close();
 		uiMSG().error( "Invalid parameter file: pre-3.2 version");
 		return false;
 	    }
 	    iop = new IOPar; iop->getFrom( aistrm );
-	    sd.close();
 	}
     }
     else
@@ -547,10 +544,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
     const bool inbg=dormt;
     if ( !StreamProvider( comm ).executeCommand(inbg) )
-    {
-	uiMSG().error( "Cannot start batch program" );
-	return false;
-    }
+	{ uiMSG().error( "Cannot start batch program" ); return false; }
     return true;
 }
 

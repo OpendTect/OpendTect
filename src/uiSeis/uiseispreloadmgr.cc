@@ -517,11 +517,11 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj;
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( BufferString("Cannot open input file:\n",fnm) )
 
-    ascistream astrm( *sd.istrm,true );
+    ascistream astrm( strm,true );
     IOPar iop( astrm );
     if ( iop.isEmpty() )
 	mErrRet( "No valid objects found" )
@@ -543,8 +543,8 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj;
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( BufferString("Cannot open output file:\n",fnm) )
 
     IOPar alliop;
@@ -556,7 +556,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 	alliop.mergeComp( iop, parkey );
     }
 
-    ascostream astrm( *sd.ostrm );
+    ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
 	mErrRet( BufferString("Cannot write to output file:\n",fnm) )
     alliop.putTo( astrm );

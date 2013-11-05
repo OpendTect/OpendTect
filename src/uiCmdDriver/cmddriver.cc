@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "strmprov.h"
+#include "od_istream.h"
 #include "thread.h"
 #include "timefun.h"
 #include "timer.h"
@@ -268,7 +269,6 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	errmsg_ += nrsubst<-1 ? "failures" : "failure"; \
 	errmsg_ += " at line "; errmsg_ += linenr; errmsg_ +=": '"; \
        	errmsg_ += action; errmsg_ += "'"; \
-	sd.close(); \
 	return false; \
     } \
 }
@@ -281,7 +281,6 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	errmsg_ += "has unexpected content at end of line "; \
        	errmsg_ += linenr; errmsg_ += ": '"; \
 	errmsg_ += action; errmsg_ += "'"; \
-	sd.close(); \
 	return false; \
     } \
 }
@@ -313,7 +312,6 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	    errmsg_ += ": '"; errmsg_ += #cmd; \
 	    errmsg_ += "' - Matching '"; errmsg_ += matchingstr; \
 	    errmsg_ += "' is missing or ill-formatted"; \
-	    sd.close(); \
 	    return false; \
 	} \
 	if ( backward ) \
@@ -339,7 +337,6 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 		   stack[0]==ForTag ? "a for-loop" : \
 		   stack[0]==DoWhileTag ? "a while-loop" : \
 		   stack[0]==DoTag ? "an until-loop" : "an if-structure"; \
-	sd.close(); \
 	return false; \
     } \
 }
@@ -348,22 +345,14 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 {
     errmsg_ = actionlist.isEmpty() ? "Command" : "Included command";
     errmsg_ += " file \""; errmsg_ += fnm; errmsg_ += "\" ";
-    
-    StreamData sd = StreamProvider( fnm ).makeIStream();
 
-    if ( !sd.usable() )
-    {
-     	errmsg_ += "cannot be opened";
-	return false;
-    }
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	{ errmsg_ += "cannot be opened"; return false; }
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( strm, true );
     if ( !astrm.isOfFileType("OpendTect commands") )
-    {
-	errmsg_ += "is invalid";
-	sd.close(); 
-	return false;
-    }
+	{ errmsg_ += "is invalid"; return false; }
 
     int linenr = 4;		// Header has four lines
     int extralines = 0; 
@@ -375,7 +364,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
     const char* actptr = actseq.buf();
     line.setBufSize( 8096 );
 
-    while ( *sd.istrm )
+    while ( strm.isOK() )
     {
 	if ( !*actptr )
 	{
@@ -383,9 +372,9 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	    extralines = 0;
 	    actseq.setEmpty();
 
-	    while ( *sd.istrm )
+	    while ( strm.isOK() )
 	    {
-		sd.istrm->getline( line.buf(), line.bufSize() );
+		strm.getLine( line );
 		char* lineptr = line.buf();
 		mTrimBlanks( lineptr );
 		if ( !*lineptr )
@@ -417,14 +406,10 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	    mCheckTail( tail, linenr, action );
 
 	    BufferString errmsgprefix = errmsg_;
-	    if ( addActions(actionlist,inclfnm) )
-	    {
-		errmsg_ = errmsgprefix;
-		continue;
-	    }
+	    if ( !addActions(actionlist,inclfnm) )
+		return false;
 
-	    sd.close();
-	    return false;
+	    errmsg_ = errmsgprefix;
 	}
 
 	actionlist += new Action( action );
@@ -452,8 +437,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
     }
 
     mCheckFlowStack( flowstack );
-    errmsg_ = "";
-    sd.close();
+    errmsg_.setEmpty();
     return true;
 }
 

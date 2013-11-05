@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispacketinfo.h"
 #include "seisbuf.h"
 #include "posinfo.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "ascstream.h"
 #include "separstr.h"
 #include "ioman.h"
@@ -60,26 +60,28 @@ MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
 }
 
 
+#define mRetStrmErrMsg(msg,s1,s2) \
+    { msg.set( s1 ).add( " '" ).add( fnm ).add( "' " ).add( s2 ); \
+    strm.addErrMsgTo( msg ); return false; }
+
+
 bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 {
     deepErase( rdrs_ ); offs_.erase(); comps_.erase(); errmsg_.setEmpty();
     posdata_ = PosInfo::CubeData();
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mRetStrmErrMsg(errmsg_,"Data store definition file","is not readable")
     {
-	errmsg_ = "Data store definition file '"; errmsg_ += fnm;
-	errmsg_ += "' not readable";
+	errmsg_.set( "Data store definition file '" ).add( fnm )
+	       .add ( "' is not readable" );
 	return false;
     }
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
-    {
-	errmsg_ = "The file '"; errmsg_ += fnm;
-	errmsg_ += "' holds no "; errmsg_ += sKeyFileType;
-	sd.close(); return false;
-    }
+	mRetStrmErrMsg(errmsg_,"The file","is not the right file type")
 
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
@@ -124,7 +126,6 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
     if ( !rv && errmsg_.isEmpty() )
 	errmsg_ = "No valid cubes found";
 
-    sd.close();
     return true;
 }
 
@@ -154,19 +155,13 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
 	const ObjectSet<MultiID>& keys, const TypeSet<float>& offs,
 	const TypeSet<int>& comps, BufferString& emsg )
 {
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
-    {
-	emsg = "Cannot open new file '"; emsg += fnm;
-	emsg += "'"; return false;
-    }
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	mRetStrmErrMsg(emsg,"Cannot open new file","for write")
 
-    ascostream astrm( *sd.ostrm );
+    ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
-    {
-	emsg = "Cannot write to new file '"; emsg += fnm;
-	emsg += "'"; sd.close(); return false;
-    }
+	mRetStrmErrMsg(emsg,"Cannot start writing to file","")
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
@@ -175,11 +170,9 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
 	astrm.put( *keys[idx], fms );
     }
 
-    bool rv = sd.ostrm->good();
-    sd.close();
-    if ( !rv )
-	{ emsg = "Error during write to file '"; emsg += fnm; emsg += "'"; }
-    return rv;
+    if ( !strm.isOK() )
+	mRetStrmErrMsg(emsg,"Error during write to file","")
+    return true;
 }
 
 

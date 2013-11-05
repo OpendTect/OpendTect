@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "";
 #include "safefileio.h"
 #include "separstr.h"
 #include "strmprov.h"
-#include "strmoper.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "timefun.h"
 
@@ -395,7 +395,8 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
     if ( !sd_.usable() )
 	return selgrpset;
 
-    ascistream astrm( *sd_.istrm, true );
+    od_istream strm( *sd_.istrm );
+    ascistream astrm( strm, true );
 
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
@@ -449,7 +450,8 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 {
     if ( !sd_.usable() ) return false;
 
-    ascostream astrm( *sd_.ostrm );
+    od_ostream strm( *sd_.ostrm );
+    ascostream astrm( strm );
 
     if ( !selgrps.size() )
 	{ errmsg_ = "No selections found"; return false; }

@@ -1077,7 +1077,8 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 	return;
     }
 
-    std::istream& strm = ((StreamConn*)conn_)->iStream().stdStream();
+    StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
+    od_istream& strm = sconn.iStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( EventReader::sFileType() ) )
     {
@@ -1119,12 +1120,11 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 	readdip_ = false;
     }
 
-    if ( !fileheader_.fromStream( strm ) )
+    if ( !fileheader_.fromStream( strm.stdStream() ) )
     {
-	BufferString errmsg( "Could not read file header from " );
-	errmsg += ((StreamConn*)conn_)->fileName();
-	errmsg += ".";
-	FileMultiString fms( errmsg.buf() );
+	const BufferString firstmsg( "Could not read file header from ",
+				strm.fileName(), "." );
+	FileMultiString fms( firstmsg.buf() );
 	fms += fileheader_.errMsg();
 	errmsg_ = fms.buf();
     }
