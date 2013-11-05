@@ -244,7 +244,7 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 
     if ( !str->startRead(*ioobj_) )
     {
-	static BufferString msg;
+	mDeclStaticString( msg );
 	msg = str->errMsg();
 	if ( msg.isEmpty() )
 	    msg = BufferString( "Cannot read '", ioobj_->name(), "'" );

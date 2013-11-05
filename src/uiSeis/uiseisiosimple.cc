@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static bool survChanged()
 {
-    static BufferString survnm;
+    mDeclStaticString( survnm );
     const bool issame = survnm.isEmpty() || survnm == SI().name();
     survnm = SI().name();
     return !issame;

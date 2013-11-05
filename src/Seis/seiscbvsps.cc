@@ -296,7 +296,7 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 
 static const char* posdataFileName( const char* dirnm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = FilePath( dirnm, cPosDataFnm ).fullPath();
     return ret.buf();
 }

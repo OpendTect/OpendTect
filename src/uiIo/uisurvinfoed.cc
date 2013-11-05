@@ -407,7 +407,7 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 
 const char* uiSurveyInfoEditor::newSurvTempDirName()
 {
-    static BufferString nm;
+    mDeclStaticString( nm );
     nm = "_New_Survey_";
     const char* usr = GetSoftwareUser();
     if ( usr )
@@ -626,7 +626,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
 const char* uiSurveyInfoEditor::dirName() const
 {
-    static BufferString ret; ret = survnmfld_->text();
+    mDeclStaticString( ret ); ret = survnmfld_->text();
     cleanupString( ret.buf(), false, false, true );
     return ret.buf();
 }

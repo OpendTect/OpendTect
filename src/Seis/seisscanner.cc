@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "staticstring.h"
 #include "statrand.h"
 #include "conn.h"
 #include "errh.h"
@@ -182,7 +183,7 @@ const char* SeisScanner::getClipRgStr( float pct ) const
     int idx1 = nrvals - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
 
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = vals[idx0]; ret += " - "; ret += vals[idx1];
 
     float maxabs = fabs( vals[idx0] );

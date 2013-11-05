@@ -1102,7 +1102,7 @@ const char* Provider::prepare( Desc& desc )
 
     desc.setNeedProvInit( false );
 
-    static BufferString errmsg;
+    mDeclStaticString( errmsg );
     RefMan<Provider> prov = PF().create( desc );
     if ( prov && prov->isOK() )
 	return 0;

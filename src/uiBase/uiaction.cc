@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "menuhandler.h"
 #include "pixmap.h"
+#include "staticstring.h"
 
 mUseQtnamespace
 
@@ -100,7 +101,7 @@ void uiAction::setToolTip( const char* txt )
 
 const char* uiAction::toolTip() const
 {
-    static BufferString str;
+    mDeclStaticString( str );
     str = qaction_->toolTip().toLatin1().data();
     return str;
 }

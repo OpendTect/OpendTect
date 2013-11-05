@@ -68,7 +68,8 @@ static const char* mkUnLinked( const char* fnm )
 	return fnm;
 
     // Maybe the file itself is a link
-    static BufferString ret; ret = File::linkTarget(fnm);
+    mDeclStaticString( ret ); 
+    ret = File::linkTarget(fnm);
     if ( File::exists(ret) )
 	return ret.buf();
 
@@ -170,7 +171,7 @@ const char* GetExecCommand(const char* prognm,const char* filenm);
 
 const char* GetExecCommand( const char* prognm, const char* filenm )
 {
-    static BufferString cmd;
+    mDeclStaticString( cmd );
     cmd = "@";
     cmd += mGetExecScript(); cmd += " "; cmd += prognm;
 
@@ -184,7 +185,7 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
 
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 {
-    static BufferString cmd;
+    mDeclStaticString( cmd );
 #if defined( __win__ ) || defined( __mac__ )
     bool inbg = true;
 #else

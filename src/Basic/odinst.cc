@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odplatform.h"
 #include "envvars.h"
+#include "staticstring.h"
 #include "strmoper.h"
 #include "strmprov.h"
 #include "settings.h"
@@ -206,7 +207,7 @@ bool ODInst::updatesAvailable()
 
 const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     const BufferString part1( "ver.", file_pkg_basenm );
     BufferString fnm = part1;
     fnm.add( "_" ).add( OD::Platform::local().shortName() );

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
+#include "staticstring.h"
 #include "strmprov.h"
 #include "filepath.h"
 #include "tableconvimpl.h"
@@ -211,7 +212,7 @@ const char* uiTextFile::text() const
     if ( mTxtEd() )
 	return mTxtEd()->text();
 
-    static BufferString ret; ret = "";
+    mDeclStaticString( ret ); ret = "";
     BufferString linetxt;
     const int nrrows = tbl_->nrRows(); const int nrcols = tbl_->nrCols();
     for ( RowCol rc(0,0); rc.row<nrrows; rc.row++ )

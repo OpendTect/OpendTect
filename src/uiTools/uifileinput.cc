@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "staticstring.h"
 #include "strmprov.h"
 
 
@@ -202,7 +203,7 @@ void uiFileInput::doSelect( CallBacker* )
 
 const char* uiFileInput::fileName() const
 {
-    static BufferString fname;
+    mDeclStaticString( fname );
     fname = text();
     if ( fname.isEmpty() )
 	return fname;

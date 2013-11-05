@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "pixmap.h"
 #include "settings.h"
+#include "staticstring.h"
 
 
 #include <QCheckBox>
@@ -226,7 +227,7 @@ void uiButton::setText( const char* txt )
 
 const char* uiButton::text()
 {
-    static BufferString buttxt;
+    mDeclStaticString( buttxt );
     buttxt = mQStringToConstChar( mqbut()->text() );
     return buttxt.buf();
 }

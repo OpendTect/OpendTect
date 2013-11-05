@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_qspinbox.h"
 #include "mouseevent.h"
+#include "staticstring.h"
 #include "uiobjbody.h"
 #include "uivirtualkeyboard.h"
 
@@ -252,7 +253,7 @@ float uiSpinBox::getFValue() const
 
 const char* uiSpinBox::text() const
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = mQStringToConstChar( body_->textFromValue(getFValue()) );
     return res;
 }
@@ -347,7 +348,7 @@ void uiSpinBox::setPrefix( const char* pfx )
 
 const char* uiSpinBox::prefix() const
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = mQStringToConstChar( body_->prefix() );
     return res;
 }
@@ -359,7 +360,7 @@ void uiSpinBox::setSuffix( const char* sfx )
 
 const char* uiSpinBox::suffix() const
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = mQStringToConstChar( body_->suffix() );
     return res;
 }

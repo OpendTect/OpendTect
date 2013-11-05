@@ -89,7 +89,7 @@ bool	clss::use(const char* str) \
 { \
     if ( !str || !*str ) return false; \
  \
-    static BufferString buf; buf = str; \
+    mDeclStaticString( buf ); buf = str; \
     char* ptr = strchr( buf.buf(), '/' ); \
     if ( !ptr ) return false; \
     *ptr++ = '\0'; \

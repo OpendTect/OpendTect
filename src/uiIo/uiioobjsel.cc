@@ -763,7 +763,7 @@ void uiIOObjSel::updateInput()
 
 const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 {
-    static BufferString nm;
+    mDeclStaticString( nm );
     nm = "";
     if ( ky && *ky )
 	nm = IOM().nameOf( ky );

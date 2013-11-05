@@ -188,7 +188,7 @@ void Text2::setText( const char* newtext )
 
 const char* Text2::getText() const
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = "";
     for ( int idx=0; idx<text_->string.getNum(); idx++ )
     {
@@ -251,7 +251,7 @@ void TextBox::setText( const char* newtext )
 
 const char* TextBox::getText() const
 {
-    static BufferString res;
+    mDeclStaticString( res );
     res = "";
     for ( int idx=0; idx<text_->string.getNum(); idx++ )
     {

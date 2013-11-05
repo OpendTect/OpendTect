@@ -147,7 +147,7 @@ const char* Poly2HorVol::dispText( float m3, bool zinft )
     if ( fabs(dispval) > 1e6 )
 	{ mega = true; dispval /= 1e6; }
 
-    static BufferString txt;
+    mDeclStaticString( txt );
     txt = dispval; txt += mega ? "M " : " ";
     txt += zinft ? "ft^3" : "m^3";
     txt += " (";

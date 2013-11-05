@@ -173,7 +173,7 @@ const char* gtTitle( const DataPointSet& dps ) const
 {
     const PosVecDataSet& pvds = dps.dataSet();
     const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = "Specify data preparation for '";
     ret += dcd.name_;
     ret += "'";

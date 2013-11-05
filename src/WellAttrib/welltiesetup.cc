@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "keystrs.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "ascstream.h"
 #include <iostream>
 
@@ -145,7 +146,7 @@ static const char* rdHdr( std::istream& strm, const char* fileky )
 	return 0;
     }
 
-    static BufferString hdrln; hdrln = astrm.headerStartLine();
+    mDeclStaticString( hdrln ); hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
 

@@ -210,8 +210,6 @@ void Seis::PreLoader::unLoad() const
 
 void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 {
-    static BufferString errmsg;
-
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
     if ( !iop || iop->isEmpty() ) return;
 

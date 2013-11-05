@@ -266,7 +266,7 @@ const char* Strat::LayerSequenceGenDesc::userIdentification( int unnr ) const
 	    dupls++;
     }
 
-    static BufferString ret; ret = unnm;
+    mDeclStaticString( ret ); ret = unnm;
     if ( dupls > 0 )
 	ret.add( " [" ).add( dupls+1 ).add( "]" );
     return ret.buf();
@@ -321,7 +321,7 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
 
 const char* Strat::SingleLayerGenerator::name() const
 {
-    static BufferString ret; ret = unit().fullCode();
+    mDeclStaticString( ret ); ret = unit().fullCode();
     return ret.buf();
 }
 

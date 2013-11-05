@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
+#include "staticstring.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -226,7 +227,7 @@ void uiMdiArea::setActiveWin( const char* nm )
 
 const char* uiMdiArea::getActiveWin() const
 {
-    static BufferString nm;
+    mDeclStaticString( nm );
     QWidget* widget = body_->activeSubWindow();
     nm = widget ? mQStringToConstChar(widget->windowTitle()) : "";
     return nm.buf();
@@ -292,7 +293,7 @@ void uiMdiAreaWindow::setTitle( const char* nm )
 
 const char* uiMdiAreaWindow::getTitle() const
 {
-    static BufferString title;
+    mDeclStaticString( title );
     title = mQStringToConstChar( qmdisubwindow_->windowTitle() );
     return title.buf();
 }

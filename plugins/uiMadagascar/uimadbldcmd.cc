@@ -22,13 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "maddefs.h"
 #include "madproc.h"
+#include "staticstring.h"
 
 static const char* sKeyAll = "All";
 static const char* sKeySrchRes = "Search results";
 
 static BufferString& separateProgName( const char* cmd, bool wantprog )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = cmd; // resize to fit
 
     mSkipBlanks( cmd );

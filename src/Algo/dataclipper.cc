@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "simpnumer.h"
 #include "sorting.h"
+#include "staticstring.h"
 #include "statrand.h"
 #include "undefval.h"
 #include "valseries.h"
@@ -452,7 +453,7 @@ Interval<float> DataClipSampler::getRange( float clip ) const
 const char* DataClipSampler::getClipRgStr( float pct ) const
 {
     Interval<float> rg( getRange(pct * 0.01f) );
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = rg.start; ret += " - "; ret += rg.stop;
 
     float maxabs = fabs( rg.start );

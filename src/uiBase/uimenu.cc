@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uiparentbody.h"
 #include "pixmap.h"
+#include "staticstring.h"
 #include "texttranslator.h"
 #include <climits>
 
@@ -266,7 +267,7 @@ void uiMenuItem::setChecked( bool yn )
 
 const char* uiMenuItem::text() const
 {
-    static BufferString txt;
+    mDeclStaticString( txt );
     txt = qaction_ ? mQStringToConstChar(qaction_->text()) : "";
     return txt;
 }

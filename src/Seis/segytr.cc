@@ -614,7 +614,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
 
 const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     int usecur = 1; const bool is2d = Seis::is2D(fileopts_.geomType());
     if ( is2d )
     {
@@ -901,7 +901,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 
 void SEGYSeisTrcTranslator::fillErrMsg( const char* s, bool withpos )
 {
-    static BufferString msg;
+    mDeclStaticString( msg );
     msg = "";
 
     const char* fnm = sConn().streamData().fileName();

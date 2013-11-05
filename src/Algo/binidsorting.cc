@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidsorting.h"
+#include "staticstring.h"
 #include "undefval.h"
 
 
@@ -41,7 +42,7 @@ bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
 const char* BinIDSorting::description( bool is2d,
 				       bool inlsort, bool inlupw, bool crlupw )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     if ( is2d )
     {
 	ret = "Trace numbers go ";

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidsorting.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "staticstring.h"
 
 
 PosInfo::Detector::Detector( const Setup& su )
@@ -152,7 +153,7 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
 					    Coord crd[3] ) const
 {
-    static BufferString errmsg;
+    mDeclStaticString( errmsg );
     if ( setup_.is2d_ )
 	mErrRet( "Cannot determine survey setup from a 2D line scan" )
     if ( nruniquepos_ < 3 )

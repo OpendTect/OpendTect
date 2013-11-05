@@ -102,7 +102,8 @@ mExternC(Basic) const char* GetSurveyFileName(void)
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
 	    fp.setExtension( ptr );
-	static BufferString fnm;
+
+	mDeclStaticString( fnm );
 	fnm = fp.fullPath();
 	ret = fnm.buf();
 
@@ -229,8 +230,7 @@ const char* GetScriptsDir( const char* subdir )
 
 const char* GetSoftwareDir( int acceptnone )
 {
-    static BufferString res;
-    
+    mDeclStaticString( res );
     if ( res.isEmpty() )
     {
 	res = GetEnvVar( "DTECT_APPL" );
@@ -367,7 +367,7 @@ const char* GetPlfSubDir(void)
 
 const char* GetBinPlfDir(void)
 {
-    static BufferString res;
+    mDeclStaticString( res );
     if ( res.isEmpty() )
     {
 	FilePath path = GetFullExecutablePath();

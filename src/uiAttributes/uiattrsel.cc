@@ -870,7 +870,7 @@ void uiAttrSel::fillSelSpec( SelSpec& as ) const
 
 const char* uiAttrSel::getAttrName() const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
 
     ret = getInput();
     if ( is2D() )

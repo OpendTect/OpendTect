@@ -507,7 +507,7 @@ const BinID& CBVSReadMgr::binID() const
 
 const char* CBVSReadMgr::check( const char* basefname )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
 
     int curnr=0;
     for ( ; ; curnr++ )

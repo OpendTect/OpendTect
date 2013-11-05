@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "filepath.h"
 #include "settings.h"
+#include "staticstring.h"
 #include "odver.h"
 #include <iostream>
 
@@ -145,7 +146,7 @@ void uiPluginMan::loadPush( CallBacker* )
 # endif
 #endif
 
-    static BufferString loaddir;
+    mDeclStaticString( loaddir );
     if ( loaddir.isEmpty() )
     {
 	loaddir = PIM().getAutoDir( true );

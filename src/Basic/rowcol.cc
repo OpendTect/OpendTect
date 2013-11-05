@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "typeset.h"
 #include "position.h"
+#include "staticstring.h"
 
 #include <math.h>
 #include <stdio.h>

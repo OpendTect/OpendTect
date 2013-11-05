@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "convert.h"
 #include "bufstringset.h"
 #include "hiddenparam.h"
+#include "staticstring.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
@@ -583,7 +584,7 @@ const char* uiTable::text( const RowCol& rc ) const
 	return cb->text();
     }
 
-    static BufferString rettxt;
+    mDeclStaticString( rettxt );
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
     rettxt = itm ? itm->text().toLatin1().data() : "";
     return rettxt;
@@ -857,7 +858,7 @@ Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 
 const char* uiTable::rowLabel( int row ) const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->verticalHeaderItem( row );
     if ( !itm )
 	return 0;
@@ -905,7 +906,7 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 
 const char* uiTable::columnLabel( int col ) const
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
     if ( !itm )
 	return 0;

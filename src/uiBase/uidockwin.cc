@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uiparentbody.h"
 
+#include "staticstring.h"
 #include <QDockWidget>
 
 mUseQtnamespace
@@ -116,7 +117,7 @@ void uiDockWin::setGroup( uiGroup* grp )
 
 const char* uiDockWin::getDockName() const
 {
-    static BufferString docknm;
+    mDeclStaticString( docknm );
     docknm = mQStringToConstChar( body_->qwidget()->objectName() );
     return docknm;
 }

@@ -16,6 +16,7 @@ static const char* rcsPrStr = "$Revision$ $Date$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "staticstring.h"
 #include "strmprov.h"
 #include "thread.h"
 #include "timefun.h"
@@ -70,7 +71,7 @@ Usage::Server::~Server()
 
 const char* Usage::Server::setupFileName( const char* admnm )
 {
-    static BufferString ret;
+    mDeclStaticString( ret );
     ret = GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase(),0);
     if ( admnm && *admnm )
     {
