@@ -29,7 +29,7 @@ mCreateFactoryEntry( visBase::Annotation );
 
 namespace visBase
 {
-
+ 
 const char* Annotation::textprefixstr()	    { return "Text "; }
 const char* Annotation::cornerprefixstr()   { return "Corner "; }
 const char* Annotation::showtextstr()	    { return "Show Text"; }
@@ -179,11 +179,13 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
     setCorner( 6, inlrg.stop, crlrg.stop, zrg.stop );
     setCorner( 7, inlrg.start, crlrg.stop, zrg.stop );
 
+    box_->dirtyBound();
     box_->dirtyDisplayList();
     geode_->dirtyBound();
 
     updateTextPos();
     updateGridLines();
+
 }
 
 
@@ -206,6 +208,9 @@ void Annotation::setText( int dim, const char* string )
 void Annotation::updateGridLines()
 {
     osg::Vec3Array* coords = mGetOsgVec3Arr( gridlinecoords_ );
+
+    for ( int idx=gridlines_->getNumDrawables()-1; idx>=0; idx-- )
+	gridlines_->removeDrawable( gridlines_->getDrawable( idx ) );
 
     for ( int idx=gridlines_->getNumDrawables(); idx<6; idx++ )
     {
