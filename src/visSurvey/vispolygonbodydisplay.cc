@@ -817,7 +817,6 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
     ps->ref();
 
     int ci = 0;
-    int cii = 0;
     for ( int idx=0; idx<pi.size(); idx++ )
     {
 	const TypeSet<Coord3>& crds = pi[idx].knots_;
