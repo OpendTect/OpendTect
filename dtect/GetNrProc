@@ -3,7 +3,7 @@
 set kernel=`uname -a | awk '{print $1}'`
 
 if ( "${kernel}" == "Darwin" ) then
-    sysctl hw.ncpu | awk '{print $2}'
+    /usr/sbin/sysctl hw.ncpu | awk '{print $2}'
     exit 0
 endif
 
