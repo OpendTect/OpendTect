@@ -51,8 +51,8 @@ public:
     od_istream&		get(float&);
     od_istream&		get(double&);
 
-    od_istream&		get(BufferString&,bool allowgotonextline=true);
-    			//!< reads one word delimited by whitespace, "" or ''
+    od_istream&		get( BufferString& bs, bool allowgotonextline=true )
+			{ getWord(bs,allowgotonextline); return *this; }
 
     od_istream&		get(IOPar&);
     od_istream&		get(SeparString&);
@@ -63,9 +63,11 @@ public:
     od_istream&		get(FixedString&); //!< does nothing + pErrMsg
     od_istream&		get(void*); //!< does nothing + pErrMsg
 
-    bool		getBin(void*,Count nrbytes);
+    bool		getWord(BufferString&,bool allowgotonextline=true);
     bool		getLine(BufferString&);
     bool		getAll(BufferString&);
+
+    bool		getBin(void*,Count nrbytes);
 
     char		peek() const;
     void		ignore(Count);
