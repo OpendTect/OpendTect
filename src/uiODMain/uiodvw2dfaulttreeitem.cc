@@ -225,7 +225,7 @@ bool uiODVw2DFaultTreeItem::select()
 bool uiODVw2DFaultTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction("&Save ... ");
+    uiAction* savemnu = new uiAction(sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
     mnu.insertItem( new uiAction( sSaveAs() ), 1 );

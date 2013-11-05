@@ -17,10 +17,25 @@ ________________________________________________________________________
 
 //Common strings used in OD. Should be extended
 
-inline FixedString sSave()		{ return "&Save"; }
-inline FixedString sSaveAs()            { return "Save &as ..."; }
-inline FixedString sSaveAsDefault()     { return "Save as &default ..."; }
+inline FixedString sCancel()				{ return "&Cancel"; }
+inline FixedString sOk()				{ return "&Ok"; }
+inline FixedString sOpen(bool immediate=false);
+inline FixedString sSave(bool immediate=true);
+inline FixedString sSaveAs()				{ return "Save &as"; }
+inline FixedString sSaveAsDefault();
 
+
+//Implementations
+inline FixedString sOpen(bool immediate)
+{ return immediate ? "&Open" : "&Open ..."; }
+
+
+inline FixedString sSave(bool immediate)
+{ return immediate ? "&Save" : "&Save ..."; }
+
+
+inline FixedString sSaveAsDefault()
+{ return "Save as &default"; }
 
 
 

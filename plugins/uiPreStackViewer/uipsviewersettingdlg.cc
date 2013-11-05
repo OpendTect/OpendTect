@@ -47,7 +47,7 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     applytoallfld_ = new uiCheckBox(this,"&Apply to all viewers");
     applytoallfld_->attach( centeredBelow, tabObject() );
     
-    enableSaveButton( "Save as Default" );
+    enableSaveButton( sSaveAsDefault() );
 }
 
 

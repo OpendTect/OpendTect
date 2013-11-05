@@ -331,7 +331,7 @@ bool uiODVw2DHor3DTreeItem::select()
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction("&Save ... ");
+    uiAction* savemnu = new uiAction(sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );

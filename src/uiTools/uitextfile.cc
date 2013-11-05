@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "filepath.h"
 #include "tableconvimpl.h"
+#include "uistrings.h"
 #include "staticstring.h"
 #include "od_iostream.h"
 
@@ -267,13 +268,13 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 
     uiMenu* filemnu = new uiMenu( this, "&File" );
     if ( dlgsetup.allowopen_ )
-	filemnu->insertItem( new uiAction("&Open ...",
+	filemnu->insertItem( new uiAction(sOpen(false),
 		    	     mCB(this,uiTextFileDlg,open)) );
     if ( dlgsetup.allowsave_ )
     {
-	filemnu->insertItem( new uiAction("&Save ...",
+	filemnu->insertItem( new uiAction(sSave(false),
 		    	     mCB(this,uiTextFileDlg,save)) );
-	filemnu->insertItem( new uiAction("Save &As ...",
+	filemnu->insertItem( new uiAction( sSaveAs(),
 		    	     mCB(this,uiTextFileDlg,saveAs)) );
     }
     filemnu->insertItem( new uiAction("&Quit",

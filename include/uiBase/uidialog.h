@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uimainwin.h"
 #include "bufstring.h"
+#include "uistrings.h"
 
 class uiButton;
 
@@ -54,7 +55,7 @@ public:
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")
-			, oktext_("&Ok"), canceltext_("&Cancel")
+			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)

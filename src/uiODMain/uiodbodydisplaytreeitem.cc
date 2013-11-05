@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uistrings.h"
 #include "uiodscenemgr.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
@@ -183,8 +184,8 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 
 
 #define mCommonInit \
-    , savemnuitem_("&Save") \
-    , saveasmnuitem_("Save &as ...") \
+    , savemnuitem_(sSave()) \
+    , saveasmnuitem_(sSaveAs()) \
     , volcalmnuitem_("Calculate &volume ...") \
     , displaybodymnuitem_("&Body") \
     , displaypolygonmnuitem_("&Picked polygons") \

@@ -841,7 +841,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     uiPushButton* applybut = new uiPushButton( this, "&Apply",
 			     mCB(this,uiFlatViewPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
-    enableSaveButton( "Save as Default" );
+    enableSaveButton( sSaveAsDefault() );
 
     putAllToScreen();
 

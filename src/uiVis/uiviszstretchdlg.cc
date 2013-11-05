@@ -91,7 +91,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     }
 
     grp->attach( centeredBelow, sliderfld_ );
-    savefld_ = new uiCheckBox( this, "Save as default" );
+    savefld_ = new uiCheckBox( this, sSaveAsDefault() );
     savefld_->attach( alignedBelow, grp );
 }
 

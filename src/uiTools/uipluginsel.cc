@@ -32,7 +32,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     setCaption( titl );
 
     setCtrlStyle( uiDialog::LeaveOnly );
-    setCancelText( "&Ok" );
+    setCancelText( sOk() );
     setSaveButtonChecked( true );
 
     BufferStringSet dontloadlist;

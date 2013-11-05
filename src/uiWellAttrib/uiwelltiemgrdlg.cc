@@ -55,7 +55,7 @@ namespace WellTie
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
 		"Select Data to tie Well to Seismic","107.4.0")
-		.savetext("Save as default")
+		.savetext(sSaveAsDefault())
 		.savebutton(true)
 		.savechecked(false)
 		.modal(false))

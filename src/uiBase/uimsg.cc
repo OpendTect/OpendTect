@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobj.h"
 #include "uibody.h"
 #include "uiparentbody.h"
+#include "uistrings.h"
 
 #undef Ok
 #include <QMessageBox>
@@ -169,7 +170,7 @@ void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
     mPrepCursor(); \
     BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3; \
     if ( msg.isEmpty() ) return; \
-    const char* oktxt = "&Ok"; \
+    const char* oktxt = sOk(); \
  \
     const char* title = mCapt(caption); \
     const int refnr = beginCmdRecEvent( title ); \
@@ -234,19 +235,17 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 
 int uiMsg::askSave( const char* text, bool wcancel )
 {
-    const char* savetxt = "&Save";
     const char* dontsavetxt = "&Don't save";
-    const char* canceltxt = "&Cancel";
-    return question( text, savetxt, dontsavetxt,
-	    	     wcancel ? canceltxt : 0, "Data not saved" );
+    return question( text, sSave(), dontsavetxt,
+	    	     wcancel ? sCancel().str() : 0, "Data not saved" );
 }
 
 
 int uiMsg::askRemove( const char* text, bool wcancel )
 {
     const char* yestxt = "&Remove";
-    const char* notxt = wcancel ? "&Don't remove" : "&Cancel";
-    const char* canceltxt = "&Cancel";
+    const char* notxt = wcancel ? "&Don't remove" : sCancel();
+    const char* canceltxt = sCancel();
     return question( text, yestxt, notxt,
 	    	     wcancel ? canceltxt : 0, "Remove data" );
 }
@@ -263,7 +262,7 @@ int uiMsg::askContinue( const char* text )
 int uiMsg::askOverwrite( const char* text )
 {
     const char* yestxt = "&Overwrite";
-    const char* notxt = "&Cancel";
+    const char* notxt = sCancel();
     return question( text, yestxt, notxt, 0 );
 }
 
@@ -305,8 +304,8 @@ void uiMsg::about( const char* text )
 
 bool uiMsg::askGoOn( const char* text, bool yn )
 {
-    const char* oktxt = yn ? "&Yes" : "&Ok";
-    const char* canceltxt = yn ? "&No" : "&Cancel";
+    const char* oktxt = yn ? "&Yes" : sOk();
+    const char* canceltxt = yn ? "&No" : sCancel();
 
     return askGoOn( text, oktxt, canceltxt );
 }
@@ -332,7 +331,7 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
 {
     mPrepCursor();
     if ( !cnclmsg || !*cnclmsg )
-	cnclmsg = "&Cancel";
+	cnclmsg = sCancel();
     if ( !textyes || !*textyes )
 	textyes = "&Yes";
     if ( !textno || !*textno )
@@ -353,7 +352,7 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
 bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
 {
     mPrepCursor();
-    const char* oktxt = "&Ok";
+    const char* oktxt = sOk();
     if ( !ntmsg || !*ntmsg )
 	ntmsg = "&Don't show this message again";
 

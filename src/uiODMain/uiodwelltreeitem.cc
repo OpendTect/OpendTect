@@ -244,7 +244,7 @@ void uiODWellTreeItem::initMenuItems()
     logcubemnuitem_.text = "&Create log cube ...";
     showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
-    storemnuitem_.text = "&Save";
+    storemnuitem_.text = sSave();
     storemnuitem_.iconfnm = "save";
     amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 

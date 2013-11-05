@@ -235,7 +235,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
 
-    okbut_ = new uiPushButton( this, "&Ok",
+    okbut_ = new uiPushButton( this, sOk(),
 				mCB(this,uiWellLogToolWin,acceptOK), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
@@ -254,7 +254,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
     overwritefld_->setStretch( 0, 0 );
 
-    uiPushButton* cancelbut = new uiPushButton( this, "&Cancel",
+    uiPushButton* cancelbut = new uiPushButton( this, sCancel(),
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );

@@ -183,7 +183,7 @@ void uiODMenuMgr::fillSurveyMenu()
 	    	       "survey" )
 
     uiMenu* sessionitm = new uiMenu( &appl_, "S&ession" );
-    mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
+    mInsertItem( sessionitm, sSave(false), mSessSaveMnuItm );
     mInsertItem( sessionitm, "&Restore ...", mSessRestMnuItm );
     mInsertItem( sessionitm, "&Auto ...", mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );

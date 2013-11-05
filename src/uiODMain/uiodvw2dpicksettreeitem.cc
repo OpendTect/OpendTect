@@ -168,7 +168,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction("&Properties ..."), 0 );
     mnu.insertItem( new uiAction("Set &direction ..."), 1 );
-    uiAction* saveitm = new uiAction( "&Save" );
+    uiAction* saveitm = new uiAction( sSave(false) );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
     mnu.insertItem( new uiAction( sSaveAs() ), 3 );

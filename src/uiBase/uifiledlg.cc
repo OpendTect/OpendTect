@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimainwin.h"
+#include "uistrings.h"
 
 #include <QFileDialog>
 #include <QPushButton>
@@ -193,7 +194,7 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == "&Save" || qpb->text() == "&Open"
+	if ( qpb->text() == sSave() || qpb->text() == sOpen(true) 
 				    || qpb->text() == "&Choose" )
 	    qpb->setText( "&Ok" );
     }

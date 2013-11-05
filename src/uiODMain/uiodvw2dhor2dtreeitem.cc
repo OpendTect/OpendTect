@@ -285,7 +285,7 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction("&Save ... ");
+    uiAction* savemnu = new uiAction(sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );

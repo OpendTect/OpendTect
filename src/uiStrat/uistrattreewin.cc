@@ -169,7 +169,7 @@ void uiStratTreeWin::createMenu()
 	    			   mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setPixmap( ioPixmap("unlock") );
-    savemnuitem_ = new uiAction( "&Save", mCB(this,uiStratTreeWin,saveCB) );
+    savemnuitem_ = new uiAction( sSave(), mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setPixmap( ioPixmap("save") );
     resetmnuitem_ = new uiAction( "&Reset to last saved",
@@ -178,7 +178,7 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setPixmap( ioPixmap("undo") );
     mnu->insertSeparator();
     
-    saveasmnuitem_ = new uiAction( "Save &As...",
+    saveasmnuitem_ = new uiAction( sSaveAs(),
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setPixmap( ioPixmap("saveas") );

@@ -1797,8 +1797,8 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     switch ( cs )
     {
     case DoAndLeave:
-	setOkText( "&Ok" );
-	setCancelText( "&Cancel" );
+	setOkText( sOk() );
+	setCancelText( sCancel() );
     break;
     case DoAndStay:
 	setOkText( "&Go" );

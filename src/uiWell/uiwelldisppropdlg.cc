@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
-	   "","107.2.0").savetext("Save as default").savebutton(true)
+	   "","107.2.0").savetext(sSaveAsDefault()).savebutton(true)
 					.savechecked(false)
 				       	.modal(false))
 	, wd_(d)
