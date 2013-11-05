@@ -162,6 +162,11 @@ if ( par.get( sKeyAnnotFont(), font ) ) \
 }
 
 
+
+#define mRemoveSelector \
+unRefAndZeroPtr( polyselector_ ); \
+deleteAndZeroPtr( coordselector_ )
+
 Scene::~Scene()
 {
     if ( basemap_ && basemapcursor_ )
@@ -188,10 +193,9 @@ Scene::~Scene()
 	so->setScene( 0 );
    }
 
-    delete coordselector_;
+    mRemoveSelector;
     delete &infopar_;
     delete zdomaininfo_;
-
 }
 
 
@@ -927,9 +931,6 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
      */
 }
 
-#define mRemoveSelector \
-unRefAndZeroPtr( polyselector_ ); \
-deleteAndZeroPtr( coordselector_ )
 
 void Scene::removeAll()
 {

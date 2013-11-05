@@ -218,6 +218,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     visServ().setZAxisTransform( sceneid, zt, 0 );
 
     scenetimer_->start( 50, true );
+    visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
     return sceneid;
 }
 
