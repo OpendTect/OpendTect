@@ -121,11 +121,11 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
     if ( forread_ )
     {
 	EM::IOObjInfo oi( id );
-	const char* res = oi.getSurfaceData( sd );
-	if ( res )
+	BufferString errmsg;
+	if ( !oi.getSurfaceData(sd,errmsg) )
 	{
 	    if ( showerrmsg )
-		uiMSG().error( res );
+		uiMSG().error( errmsg.buf() );
 	    return false;
 	}
     }

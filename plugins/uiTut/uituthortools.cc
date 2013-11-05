@@ -88,7 +88,10 @@ bool uiTutHorTools::checkAttribName() const
     const bool top = selfld_->getBoolValue();
     const MultiID key = top ? inpfld_->key() : inpfld2_->key();
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( key, sd );
+    BufferString errmsg;
+    if ( !EM::EMM().getSurfaceData(key,sd,errmsg) )
+	return false;
+
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
     {
 	if ( attrnm != sd.valnames.get(idx) )

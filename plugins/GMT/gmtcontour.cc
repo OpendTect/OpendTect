@@ -95,7 +95,10 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( id, sd );
+    BufferString errmsg;
+    if ( !EM::EMM().getSurfaceData(id,sd,errmsg) )
+	mErrStrmRet( errmsg.buf() )
+
     PtrMan<IOPar> subpar = subselect( sKey::Selection() );
     if ( !subpar )
 	mErrStrmRet("Missing subselection")

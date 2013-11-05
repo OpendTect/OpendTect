@@ -169,7 +169,10 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	return;
     }
 
-    eminfo.getSurfaceData( sd_ );
+    BufferString errmsg;
+    if ( !eminfo.getSurfaceData(sd_,errmsg) )
+	return;
+
     CubeSampling cs;
     cs.hrg = sd_.rg;
     subselfld_->setInput( cs );

@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "staticstring.h"
 
 #define mGoToEMDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) )
@@ -230,18 +229,19 @@ bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 }
 
 
-const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
+#define mErrRet(s) { errmsg = s; return false; }
+bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, BufferString& errmsg ) const
 {
     if ( !ioobj_ )
-	return "Cannot find surface in object database";
+	mErrRet( "Cannot find surface in object database" )
 
     if ( !ioobj_->implExists(true) )
-	return "Cannot find file on disk";
+	mErrRet( "Cannot find file on disk" )
 
     if ( !isSurface() )
     {
 	pErrMsg("getSurfaceData called on non-surface");
-	return "Internal: Trying to get surface data from a non-surface";
+	mErrRet( "Internal: Trying to get surface data from a non-surface" )
     }
 
     Translator* tr = ioobj_->createTranslator();
@@ -253,16 +253,15 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 	    { pErrMsg("No Translator for IOObj" ); }
 	else
 	    { pErrMsg("Created Translator is not a EMSurfaceTranslator"); }
-	return "Internal: Unknown Surface interpreter encountered";
+	mErrRet( "Internal: Unknown Surface interpreter encountered" )
     }
 
     if ( !str->startRead(*ioobj_) )
     {
-	mDeclStaticString( msg );
-	msg = str->errMsg();
+	BufferString msg( str->errMsg() );
 	if ( msg.isEmpty() )
 	    msg = BufferString( "Cannot read '", ioobj_->name(), "'" );
-	return msg.buf();
+	mErrRet( msg.buf() )
     }
 
     const SurfaceIOData& newsd = str->selections().sd;
@@ -274,7 +273,7 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
     sd.linesets = newsd.linesets;
     sd.trcranges = newsd.trcranges;
 
-    return 0;
+    return true;
 }
 
 

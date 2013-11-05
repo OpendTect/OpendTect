@@ -192,7 +192,10 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     newhorizon_->setMultiID( horizon_->multiID() );
 
     EM::SurfaceIOData sd;
-    em.getSurfaceData( horizon_->multiID(), sd );
+    BufferString errmsg;
+    if ( !em.getSurfaceData(horizon_->multiID(),sd,errmsg) )
+	mErrRet( errmsg.buf() )
+
     EM::SurfaceIODataSelection sdsel( sd );
 
     uiTaskRunner tr( this );

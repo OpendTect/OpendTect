@@ -139,8 +139,8 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	const MultiID mid = ioobjselgrp_->selected( idx );
 	const EM::IOObjInfo info( mid );
 	EM::SurfaceIOData sd;
-	const char* res = info.getSurfaceData( sd );
-	if ( !res )
+	BufferString errmsg;
+	if ( info.getSurfaceData(sd,errmsg) )
 	    mids += mid;
 	else
 	{
@@ -149,7 +149,7 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 
 	    errormsgstr += info.ioObj()->name();
 	    errormsgstr += " :  ";
-	    errormsgstr += res;
+	    errormsgstr += errmsg;
 	    errormsgstr += "\n";
 	}
 
@@ -178,8 +178,10 @@ void uiMultiSurfaceRead::getSurfaceSelection(
     const MultiID mid = ioobjselgrp_->selected( 0 );
     const EM::IOObjInfo info( mid );
     EM::SurfaceIOData sd;
-    const char* res = info.getSurfaceData( sd );
-    if ( res || sd.sections.size() < 2 || !info.isHorizon() ) return;
+    BufferString errmsg;
+    if ( !info.getSurfaceData(sd,errmsg) || sd.sections.size() < 2
+	    || !info.isHorizon() )
+	return;
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
 	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpID) );

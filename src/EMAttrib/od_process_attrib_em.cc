@@ -368,7 +368,13 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << "Loading: " << mid->buf() << "\n\n";
 
 	SurfaceIOData sd;
-	EM::EMM().getSurfaceData( *mid, sd );
+	if ( !EM::EMM().getSurfaceData(*mid,sd,errmsg) )
+	{
+	    BufferString errstr( "Cannot load horizon ", mid->buf(), ": " );
+	    errstr += errmsg;
+	    mErrRetNoProc( errstr.buf() );
+	}
+
 	SurfaceIODataSelection sels( sd );
 	sels.selvalues.erase();
 	for ( int ids=0; ids<sd.sections.size(); ids++ )

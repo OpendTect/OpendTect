@@ -66,8 +66,7 @@ public:
 
     // Surface
     inline bool		isSurface() const	{ return type_ != Body; }
-    const char*		getSurfaceData(SurfaceIOData&) const;
-    			//!<\returns err msg or null if OK
+    bool		getSurfaceData(SurfaceIOData&,BufferString& err) const;
 
     // Horizon
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}

@@ -40,7 +40,8 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	inputhors_ += hor;
 	IOObjInfo oi( EMM().getMultiID(objid) );
 	SurfaceIOData sd;
-	if ( oi.getSurfaceData(sd) )
+	BufferString errmsg;
+	if ( oi.getSurfaceData(sd,errmsg) )
 	    { hs_.include( sd.rg ); hs_.step = sd.rg.step; }
     }
 

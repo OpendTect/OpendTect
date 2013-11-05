@@ -274,8 +274,9 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     if ( !ioobj ) return;
 
     EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
-    BufferString errmsg = oi.getSurfaceData( emdata );
-    if ( !errmsg.isEmpty() ) return;
+    BufferString errmsg;
+    if ( !oi.getSurfaceData(emdata,errmsg) )
+	return;
 
     linenmfld_->addItems( emdata.linenames );
 }

@@ -350,7 +350,13 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 	Attrib::Desc* desc = ads_.getDesc( attrfld_->attribID() );
 	EM::SurfaceIOData data;
-	EM::EMM().getSurfaceData( ctio_.ioobj->key(), data );
+	BufferString errmsg;
+	if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),data,errmsg) )
+	{
+	    uiMSG().error( errmsg.buf() );
+	    return false;
+	}
+
 	MultiID mid;
 	if ( desc )	
 	    mid = MultiID( desc->getStoredID() );
@@ -495,7 +501,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 {
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( ctio_.ioobj->key(), sd );
+    BufferString errmsg;
+    if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),sd,errmsg) )
+	return;
 
     Interval<int> inlrg(sd.rg.start.inl(), sd.rg.stop.inl());
     Interval<int> crlrg(sd.rg.start.crl(), sd.rg.stop.crl());
@@ -503,7 +511,8 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
     if ( !usesinglehor_ )
     {
 	EM::SurfaceIOData sd2;
-	EM::EMM().getSurfaceData( ctio2_.ioobj->key(), sd2 );
+	if ( !EM::EMM().getSurfaceData(ctio2_.ioobj->key(),sd2,errmsg) )
+	    return;
 
 	Interval<int> inlrg2(sd2.rg.start.inl(), sd2.rg.stop.inl());
 	Interval<int> crlrg2(sd2.rg.start.crl(), sd2.rg.stop.crl());

@@ -83,7 +83,8 @@ public:
 	    			       TaskRunner*);
     bool		readPars(const MultiID&,IOPar&) const;
     bool		writePars(const MultiID&,const IOPar&) const;
-    void		getSurfaceData(const MultiID&,SurfaceIOData&) const;
+    bool		getSurfaceData(const MultiID&,SurfaceIOData&,
+	    			       BufferString& errmsg) const;
 
     Notifier<EMManager>	addRemove;
 
