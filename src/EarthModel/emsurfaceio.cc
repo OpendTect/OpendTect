@@ -1252,7 +1252,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( colindex )
 	    {
 		fullyread_ = false;
-		strm.setPosition( colindex*int16interpreter_->nrBytes() );
+		strm.setPosition( colindex*int16interpreter_->nrBytes(),
+				  od_stream::Rel );
 	    }
 	}
     }
