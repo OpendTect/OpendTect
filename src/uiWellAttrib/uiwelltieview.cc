@@ -256,8 +256,8 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 {
     Interval<float> xrg( (float) vwr_->boundingBox().left(),
 				    (float) vwr_->boundingBox().right() );
-    auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
     auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
+    auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
 }	
 
 
@@ -327,10 +327,11 @@ void uiTieView::drawViewerWellMarkers()
 	auxdata->linestyle_ = ls;
 
 	BufferString mtxt( marker->name() );
-	if ( !params_.dispmrkfullnames_ && mtxt.size() > 3 )
-	    mtxt[3] = '\0';
+	mtxt.insertAt( 0, " " );
+	if ( !params_.dispmrkfullnames_ && mtxt.size()>4 )
+	    mtxt[4] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
+	auxdata->namealignment_ = Alignment(Alignment::Left,Alignment::Top);
 	auxdata->namepos_ = 1;
     
 	drawMarker( auxdata, true, zpos );
