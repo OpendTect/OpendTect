@@ -264,8 +264,7 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
 	uiRect rc = border.getRect( sz );
 	w2ui_.set( rc, *survinfo_ );
-	if ( title_ )
-	    title_->setText( survinfo_->name() );
+	if ( title_ ) title_->setText( survinfo_->name().buf() );
     }
 
     uiBaseMap::reDraw();
