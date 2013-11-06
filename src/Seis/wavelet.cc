@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 static const char* sKeyScaled = "Scaled";
-const float Wavelet::snapdist = 1e-4f;
+#define mDefaultSnapdist (1e-4f);
 
 Wavelet::Wavelet( const char* nm )
 	: NamedObject(nm)
@@ -182,14 +182,18 @@ void Wavelet::reSize( int newsz )
 
 const ValueSeriesInterpolator<float>& Wavelet::interpolator() const
 {
-    mDefineStaticLocalObject( ValueSeriesInterpolator<float>*, defintpol, = 0);
+    mDefineStaticLocalObject(
+	   PtrMan<ValueSeriesInterpolator<float> >, defintpol, = 0);
     if ( !defintpol )
     {
-	defintpol = new ValueSeriesInterpolator<float>();
-	defintpol->snapdist_ = snapdist;
-	defintpol->smooth_ = true;
-	defintpol->extrapol_ = false;
-	defintpol->udfval_ = 0;
+	ValueSeriesInterpolator<float>* newdefintpol = new
+					ValueSeriesInterpolator<float>();
+	newdefintpol->snapdist_ = mDefaultSnapdist;
+	newdefintpol->smooth_ = true;
+	newdefintpol->extrapol_ = false;
+	newdefintpol->udfval_ = 0;
+	if ( !defintpol.setIfNull(newdefintpol) )
+	    delete newdefintpol;
     }
     ValueSeriesInterpolator<float>& ret
 	= const_cast<ValueSeriesInterpolator<float>&>(
@@ -467,14 +471,7 @@ int Wavelet::nearestSample( float z ) const
 
 float Wavelet::getValue( float z ) const
 {
-    int sampidx = nearestSample( z );
-    if ( !isValidSample(sampidx) || !samplePositions().includes(z,false) )
-	return interpolator().udfval_;
-
     const float pos = ( z - samplePositions().start ) / dpos_;
-    if ( (float)sampidx-pos > -snapdist && (float)sampidx-pos < snapdist )
-	return get( sampidx );
-
     return interpolator().value( WaveletValueSeries(*this), pos );
 }
 

@@ -71,10 +71,6 @@ public:
     void		normalize();
     float		getExtrValue(bool ismax = true) const;
 
-    static const float	snapdist; //!< Default 1e-4
-    			//!< relative distance from a sample below which no
-    			//!< interpolation is done. 99.9% chance default is OK.
-
     const ValueSeriesInterpolator<float>& interpolator() const;
     void		setInterpolator(ValueSeriesInterpolator<float>*);
     			//!< becomes mine
