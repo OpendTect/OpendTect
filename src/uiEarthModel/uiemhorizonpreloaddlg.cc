@@ -190,11 +190,9 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
     StreamData sd( StreamProvider(fnm).makeIStream() );
     ascistream astrm( *sd.istrm, true );
     IOPar fulliop( astrm );
+    sd.close();
     if ( fulliop.isEmpty() )
-    {
-	uiMSG().message( "No valid objects found" );
-	return;
-    }
+	{ uiMSG().message( "No valid objects found" ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     TypeSet<MultiID> selmids;
@@ -246,10 +244,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() )
-    {
-	uiMSG().message( "Cannot open output file:\n", fnm );
-	return;
-    }
+	{ uiMSG().message( "Cannot open output file:\n", fnm ); return; }
 
     IOPar par;
     EM::HorizonPreLoader& hpl = EM::HPreL();
@@ -268,9 +263,11 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     ascostream astrm( *sd.ostrm );
     if ( !astrm.putHeader("Pre-loads") )
     {
+	sd.close();
 	uiMSG().message( "Cannot write to output file:\n", fnm );
 	return;
     }
 
     par.putTo( astrm );
+    sd.close();
 }

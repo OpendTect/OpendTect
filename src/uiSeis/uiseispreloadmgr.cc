@@ -523,6 +523,7 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
 
     ascistream astrm( *sd.istrm,true );
     IOPar iop( astrm );
+    sd.close();
     if ( iop.isEmpty() )
 	mErrRet( "No valid objects found" )
 
@@ -558,6 +559,11 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
     ascostream astrm( *sd.ostrm );
     if ( !astrm.putHeader("Pre-loads") )
+    {
+	sd.close();
 	mErrRet( BufferString("Cannot write to output file:\n",fnm) )
+    }
+
     alliop.putTo( astrm );
+    sd.close();
 }
