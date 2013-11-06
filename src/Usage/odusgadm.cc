@@ -21,11 +21,20 @@ od_ostream* Usage::Administrator::logstrm_ = 0;
 
 static ObjectSet<Usage::Administrator>& ADMS()
 {
-    static ObjectSet<Usage::Administrator>* adms = 0;
+    mDefineStaticLocalObject( PtrMan<ObjectSet<Usage::Administrator> >, 
+			      adms, = 0 );
     if ( !adms )
     {
-	adms = new ObjectSet<Usage::Administrator>;
-	*adms += new Usage::BaseAdministrator;
+	ObjectSet<Usage::Administrator>* newadms = 
+			    new ObjectSet<Usage::Administrator>;
+	*newadms += new Usage::BaseAdministrator;
+
+	if ( !adms.setIfNull(newadms) )
+	{
+	    deepErase( *newadms );
+	    delete newadms;
+	}
+
     }
     return *adms;
 }

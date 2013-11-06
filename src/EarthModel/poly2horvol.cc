@@ -135,8 +135,8 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
 const char* Poly2HorVol::dispText( float m3, bool zinft )
 {
-    static const float bblconv = 6.2898108;
-    static const float ft3conv = 35.314667;
+    const float bblconv = 6.2898108;
+    const float ft3conv = 35.314667;
 
     if ( mIsUdf(m3) )
 	return "";

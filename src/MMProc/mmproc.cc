@@ -12,8 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const ObjectSet<MMProc::AssetMgr>& MMProc::ASMGRS()
 {
-    static ObjectSet<MMProc::AssetMgr>* mgrs = 0;
-    if ( !mgrs ) mgrs = new ObjectSet<MMProc::AssetMgr>;
+    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::AssetMgr> >, mgrs, 
+			      = new ObjectSet<MMProc::AssetMgr> );
     return *mgrs;
 }
 
@@ -28,8 +28,8 @@ int MMProc::AssetMgr::add( AssetMgr* am )
 
 ObjectSet<MMProc::ProgSpec>& MMProc::PRSPS()
 {
-    static ObjectSet<MMProc::ProgSpec>* mgrs = 0;
-    if ( !mgrs ) mgrs = new ObjectSet<MMProc::ProgSpec>;
+    mDefineStaticLocalObject( PtrMan<ObjectSet<MMProc::ProgSpec> >, mgrs, 
+			      = new ObjectSet<MMProc::ProgSpec> );
     return *mgrs;
 }
 

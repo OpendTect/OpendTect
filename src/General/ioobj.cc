@@ -27,8 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static ObjectSet<const IOObjProducer>& getProducers()
 {
-    static ObjectSet<const IOObjProducer>* prods = 0;
-    if ( !prods ) prods = new ObjectSet<const IOObjProducer>;
+    mDefineStaticLocalObject( PtrMan<ObjectSet<const IOObjProducer> >, prods, 
+			      = new ObjectSet<const IOObjProducer> );
     return *prods;
 }
 

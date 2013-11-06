@@ -141,7 +141,8 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( "Please generate some layer sequences" )
 
-    static BufferString fixeddumpfnm = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" );
+    mDefineStaticLocalObject( BufferString, fixeddumpfnm, 
+			      = GetEnvVar("OD_FIXED_LAYMOD_DUMPFILE") );
     BufferString dumpfnm( fixeddumpfnm );
     if ( dumpfnm.isEmpty() )
     {
@@ -317,7 +318,7 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
     float depth = yax_->getVal( mev.pos().y );
     if ( !Math::IsNormalNumber(depth) )
     {
-	static bool havewarned = false;
+	mDefineStaticLocalObject( bool, havewarned, = false );
 	if ( !havewarned )
 	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
 	depth = 0;
@@ -614,7 +615,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
 
 int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
 {
-    static const float margin = 0.05;
+    const float margin = 0.05f;
     relx = (1-margin) * relx + margin * .5f; // get relx between 0.025 and 0.975
     relx *= dispeach_;
     return xax_->getPix( iseq + 1 + relx );

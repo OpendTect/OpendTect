@@ -81,8 +81,8 @@ void uiStratTreeToDisp::triggerDataChange( CallBacker* )
 void uiStratTreeToDisp::readFromTree()
 {
     data_.eraseData();
-    static const char* colnms[] = { "Super Group", "Group", "Formation", 
-					"Member", "Type", 0 };
+    const char* colnms[] = { "Super Group", "Group", "Formation", 
+			     "Member", "Type", 0 };
 
     for ( int idcol=0; colnms[idcol]; idcol++ )
     {

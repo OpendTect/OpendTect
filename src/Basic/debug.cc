@@ -138,8 +138,8 @@ bool crashOnNaN()
 
 static int getMask()
 {
-    static bool maskgot = false;
-    static int themask = 0;
+    mDefineStaticLocalObject( bool, maskgot, = false );
+    mDefineStaticLocalObject( int, themask, = 0 );
     if ( maskgot ) return themask;
     maskgot = true;
 
@@ -201,7 +201,8 @@ void message( const char* msg )
     if ( !isOn() ) return;
 
     BufferString msg_;
-    static bool wantpid = GetEnvVarYN("DTECT_ADD_DBG_PID");
+    mDefineStaticLocalObject( bool, wantpid, 
+			      = GetEnvVarYN("DTECT_ADD_DBG_PID") );
     if ( wantpid )
     {
 	msg_ = "[";
@@ -306,7 +307,7 @@ namespace OD {
 
 Export_Basic od_ostream& logMsgStrm()
 {
-    static od_ostream* strm = 0;
+    mDefineStaticLocalObject( od_ostream*, strm, = 0 );
     if ( strm )
 	return *strm;
 
@@ -421,7 +422,7 @@ void ErrMsg( const char* msg, bool progr )
 
 CallBack& MsgClass::theCB( const CallBack* cb )
 {
-    static CallBack thecb;
+    mDefineStaticLocalObject( CallBack, thecb, );
     if ( cb ) thecb = *cb;
     return thecb;
 }
@@ -429,7 +430,7 @@ CallBack& MsgClass::theCB( const CallBack* cb )
 
 const char* MsgClass::nameOf( MsgClass::Type typ )
 {
-    static const char* strs[] =
+    const char* strs[] =
     	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }

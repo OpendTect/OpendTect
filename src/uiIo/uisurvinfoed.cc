@@ -234,7 +234,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     crlfld_->attach( alignedBelow, inlfld_ );
     zfld_->attach( alignedBelow, crlfld_ );
 
-    static const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
+    const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );
@@ -390,9 +390,8 @@ void uiSurveyInfoEditor::setValues()
 
 ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
 {
-    static ObjectSet<uiSurvInfoProvider>* sips = 0;
-    if ( !sips )
-	sips = new ObjectSet<uiSurvInfoProvider>;
+    mDefineStaticLocalObject( PtrMan<ObjectSet<uiSurvInfoProvider> >, sips, 
+			      = new ObjectSet<uiSurvInfoProvider> );
     return *sips;
 }
 

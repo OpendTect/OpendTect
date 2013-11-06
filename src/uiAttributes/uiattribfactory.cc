@@ -22,11 +22,8 @@ uiAttributeFactory::~uiAttributeFactory()
 
 uiAttributeFactory& uiAF()
 {
-    static PtrMan<uiAttributeFactory> inst = 0;
-    if ( !inst )
-    {
-	inst = new uiAttributeFactory;
-    }
+    mDefineStaticLocalObject( PtrMan<uiAttributeFactory>, inst, 
+			      = new uiAttributeFactory );
     return *inst;
 }
 

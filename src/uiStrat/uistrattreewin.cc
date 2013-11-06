@@ -455,7 +455,7 @@ void uiStratTreeWin::manConts( CallBacker* )
 
 void uiStratTreeWin::changeLayerModelNumber( bool add )
 {
-    static int nrlayermodelwin = 0;
+    mDefineStaticLocalObject( int, nrlayermodelwin, = 0 );
     bool haschged = false;
     if ( add )
     {

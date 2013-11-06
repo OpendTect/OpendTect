@@ -65,7 +65,7 @@ int mkTmpFileNr()
 mGlobal(MMProc) int& MMJob_getTempFileNr(); // keep compiler happy
 int& MMJob_getTempFileNr()
 {
-    static int tmpfile_nr = 1;
+    mDefineStaticLocalObject( int, tmpfile_nr, = 1 );
     return tmpfile_nr;
 }
 
@@ -179,7 +179,7 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
     if ( hfi.inuse_ ) return NotReady;
 
-    static int timestamp = -1;
+    mDefineStaticLocalObject( int, timestamp, = -1 );
     const int elapsed = Time::passedSince( timestamp );
     if ( elapsed < 0 ) timestamp = Time::getMilliSeconds();
     if ( elapsed < startwaittime_ ) return NotReady;
@@ -275,7 +275,7 @@ JobIOMgr& JobRunner::iomgr()
 
 const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 {
-    static FilePath basefp;
+    mDefineStaticLocalObject( FilePath, basefp, );
 
     BufferString basenm( hd.name() );
 #ifdef __win__

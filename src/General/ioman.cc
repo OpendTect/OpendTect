@@ -892,9 +892,8 @@ bool SurveyDataTreePreparer::createDataTree()
 
 static TypeSet<IOMan::CustomDirData>& getCDDs()
 {
-    static TypeSet<IOMan::CustomDirData>* cdds = 0;
-    if ( !cdds )
-	cdds = new TypeSet<IOMan::CustomDirData>;
+    mDefineStaticLocalObject( PtrMan<TypeSet<IOMan::CustomDirData> >, cdds, 
+			      = new TypeSet<IOMan::CustomDirData> );
     return *cdds;
 }
 
@@ -905,7 +904,7 @@ const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
     if ( !sdtp.prepDirData() )
     {
 	ErrMsg( sdtp.errmsg_ );
-	static MultiID none( "" );
+	mDefineStaticLocalObject( MultiID, none, ("") );
 	return none;
     }
 

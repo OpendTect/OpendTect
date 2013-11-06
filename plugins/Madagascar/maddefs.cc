@@ -18,8 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 ODMad::ProgInfo& ODMad::PI()
 {
-    static ODMad::ProgInfo* pi = 0;
-    if ( !pi ) pi = new ODMad::ProgInfo;
+    mDefineStaticLocalObject( PtrMan<ODMad::ProgInfo>, pi, 
+			      = new ODMad::ProgInfo );
     return *pi;
 }
 
@@ -193,7 +193,7 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
     if ( !sd.usable() ) return;
     ODMad::ProgDef* def = new ODMad::ProgDef;
 
-    static char buf[mbuflen];
+    char buf[mbuflen];
     sd.istrm->getline( buf, mbuflen );
     if ( strncmp(buf,"Program",7) )
 	return;

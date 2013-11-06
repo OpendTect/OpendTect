@@ -66,15 +66,21 @@ static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
-    static ObjectSet<uiSurvey::Util>* utils = 0;
+    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurvey::Util> >, 
+			      utils, = 0 );
     if ( !utils )
     {
-	utils = new ObjectSet<uiSurvey::Util>;
-	*utils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
+	ManagedObjectSet<uiSurvey::Util>* newutils = 
+				    new ManagedObjectSet<uiSurvey::Util>;
+	*newutils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
 				      CallBack() );
-	*utils += new uiSurvey::Util( "spherewire",
+	*newutils += new uiSurvey::Util( "spherewire",
 				"Setup geographical coordinates",
 				      CallBack() );
+
+	if ( !utils.setIfNull(newutils) )
+	    delete newutils;
+
     }
     return *utils;
 }
@@ -141,7 +147,7 @@ bool copySurv()
         return false;
     }
 
-    static const char* msg =
+    const char* msg =
 	"An unknown amount of data needs to be copied."
 	"\nDuring the copy, OpendTect will freeze."
 	"\nDepending on the data transfer rate, this can take a long time!"
@@ -399,10 +405,10 @@ uiSurvey::uiSurvey( uiParent* p )
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
-    static int sipidx2d mUnusedVar =
-		uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
-    static int sipidxcp mUnusedVar =
-		uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
+    mDefineStaticLocalObject( int, sipidx2d, mUnusedVar = 
+	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
+    mDefineStaticLocalObject( int, sipidxcp, mUnusedVar = 
+	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );

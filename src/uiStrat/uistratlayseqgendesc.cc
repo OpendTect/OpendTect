@@ -469,7 +469,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
 {
     const PropertyRef& pr = prop.ref();
 
-    static const char* opts[] = { "Value", "Range", 0 };
+    const char* opts[] = { "Value", "Range", 0 };
     typfld_ = new uiComboBox( this, opts, BufferString(pr.name()," type") );
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );

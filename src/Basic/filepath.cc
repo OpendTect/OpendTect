@@ -347,7 +347,7 @@ BufferString FilePath::getTempName( const char* ext )
     FilePath fp( getTempDir() );
 
     BufferString fname( "od", GetPID() );
-    static int counter = 0;
+    mDefineStaticLocalObject( int, counter, = 0 );
     time_t time_stamp = time( (time_t*)0 ) + counter++;
     fname += (od_int64)time_stamp;
 

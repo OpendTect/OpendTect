@@ -72,8 +72,8 @@ void LatLong::getDMS( bool lat, int& d, int& m, float& s ) const
 void LatLong::setDMS( bool lat, int d, int m, float s )
 {
     double& v = lat ? lat_ : lng_;
-    static const double one60th = 1. / 60.;
-    static const double one3600th = one60th * one60th;
+    const double one60th = 1. / 60.;
+    const double one3600th = one60th * one60th;
     v = d + one60th * m + one3600th * s;
 }
 

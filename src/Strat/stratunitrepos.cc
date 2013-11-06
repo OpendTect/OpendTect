@@ -62,7 +62,7 @@ RefTree& curTree()
 
 
 static Strat::RefTreeMgr& refTreeMgr()
-{ static Strat::RefTreeMgr mgr; return mgr; }
+{ mDefineStaticLocalObject( Strat::RefTreeMgr, mgr, ); return mgr; }
 const Strat::RefTree& Strat::RT()
 { return refTreeMgr().curTree(); }
 void Strat::pushRefTree( Strat::RefTree* rt )

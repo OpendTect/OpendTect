@@ -77,7 +77,7 @@ int FaultExtender::nextStep()
 	    if ( coldir.isDefined() )
 	    {
 		coldir = coldir.normalize();
-		static float cos60 = 0.5;
+		const float cos60 = 0.5f;
 		const float cosangle = coldir.dot(draggerdir);
 		if ( fabs(cosangle)<cos60 ) { rcs.remove(idx--); continue; }
 

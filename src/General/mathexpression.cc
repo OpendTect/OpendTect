@@ -34,9 +34,12 @@ static const char* rcsID mUsedVar = "$Id$";
 const ObjectSet<const MathExpressionOperatorDescGroup>&
 			MathExpressionOperatorDescGroup::supported()
 {
-    static ObjectSet<const MathExpressionOperatorDescGroup>* ret = 0;
+    mDefineStaticLocalObject( 
+	PtrMan<ManagedObjectSet<const MathExpressionOperatorDescGroup> >, 
+	ret, = 0 );
+
     if ( ret ) return *ret;
-    ret = new ObjectSet<const MathExpressionOperatorDescGroup>;
+    ret = new ManagedObjectSet<const MathExpressionOperatorDescGroup>;
 
     MathExpressionOperatorDescGroup* grp = new MathExpressionOperatorDescGroup;
     grp->name_ = "Basic";
@@ -425,7 +428,7 @@ double MathExpressionRandom::getValue() const
     if ( Values::isUdf(maxval) )
 	return mUdf(double);
 
-    static int dum mUnusedVar = ensureRandInited();
+    mDefineStaticLocalObject( int, dum, mUnusedVar = ensureRandInited() );
     return ( double )( maxval * Stats::randGen().get() );
 }
 
@@ -437,7 +440,7 @@ double MathExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(double);
 
-    static int dum mUnusedVar = ensureRandInited();
+    mDefineStaticLocalObject( int, dum, mUnusedVar = ensureRandInited() );
     return ( double ) Stats::randGen().getNormal(0,stdev);
 }
 

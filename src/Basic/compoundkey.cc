@@ -126,7 +126,7 @@ int MultiID::leafID() const
 
 const MultiID& MultiID::udf()
 {
-   static MultiID _udf( -1 );
+   mDefineStaticLocalObject( MultiID, _udf, (-1) );
    return _udf;
 }
 

@@ -91,14 +91,14 @@ od_int64 Math::IntPowerOf( od_int64 numb, int to )
 
 float Math::Exp( float s )
 {
-    static const float maxval = mFloatLogFn( MAXFLOAT );
+    mDefineStaticLocalObject( const float, maxval, = mFloatLogFn(MAXFLOAT) );
     return s < maxval ? mFloatExpFn( s ) : mUdf(float);
 }
 
 
 double Math::Exp( double s )
 {
-    static const double maxval = log( MAXDOUBLE );
+    mDefineStaticLocalObject( const double, maxval, = log(MAXDOUBLE) );
     return s < maxval ? exp( s ) : mUdf(double);
 }
 

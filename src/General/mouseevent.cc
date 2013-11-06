@@ -32,7 +32,7 @@ TabletInfo::TabletInfo()
 
 TabletInfo& TabletInfo::latestState()
 {
-    static TabletInfo lateststate_;
+    mDefineStaticLocalObject( TabletInfo, lateststate_, );
     return lateststate_;
 }
 

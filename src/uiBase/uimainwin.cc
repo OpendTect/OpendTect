@@ -763,7 +763,8 @@ QWidget* uiMainWin::qWidget() const
 void uiMainWin::provideHelp( const char* winid )
 {
     const BufferString fnm = HelpViewer::getURLForWinID( winid );
-    static bool shwonly = GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
+    mDefineStaticLocalObject( bool, shwonly, 
+			      = GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY") );
     if ( shwonly ) return;
 
     BufferString browser;
@@ -1609,7 +1610,8 @@ uiObject* uiDialogBody::createChildren()
     const BufferString hid( dlg.helpID() );
     if ( !hid.isEmpty() && hid != "-" )
     {
-	static bool shwhid = GetEnvVarYN( "DTECT_SHOW_HELP" );
+	mDefineStaticLocalObject( bool, shwhid, 
+				  = GetEnvVarYN("DTECT_SHOW_HELP") );
 #ifdef __debug__
 	shwhid = true;
 #endif

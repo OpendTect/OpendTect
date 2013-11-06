@@ -106,8 +106,8 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 
 const BufferString& getOutSubSelKey()
 {
-    static const BufferString outsubselkey(
-		IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    mDefineStaticLocalObject( const BufferString, outsubselkey, 
+		    ( IOPar::compKey(sKey::Output(),sKey::Subsel()) ) );
     return outsubselkey;
 }
 

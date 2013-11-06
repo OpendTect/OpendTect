@@ -885,14 +885,16 @@ const Color& Scene::getMarkerColor() const
 {
     if ( !markerset_ )
 	return cDefaultMarkerColor();
-    static const Color singlecolor = markerset_->getMarkersSingleColor();
+
+    mDefineStaticLocalObject( const Color, singlecolor, 
+			      = markerset_->getMarkersSingleColor() );
     return singlecolor;
 }
 
 
 const Color& Scene::cDefaultMarkerColor()
 {
-    static Color res( 255,255,255 );
+    mDefineStaticLocalObject( Color, res, (255,255,255) );
     return res;
 }
 

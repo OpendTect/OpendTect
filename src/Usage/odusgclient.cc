@@ -48,7 +48,7 @@ bool Usage::Client::sendUsgInfo() const
 
     if ( usginfo_.withreply_ )
     {
-	static int iret = 1;
+	mDefineStaticLocalObject( int, iret, = 1 );
 	usginfo_.withreply_ = false;
 	usginfo_.aux_ = "OK ";
 	usginfo_.aux_ += iret++;
@@ -59,9 +59,6 @@ bool Usage::Client::sendUsgInfo() const
 #endif
 
     // only go here if send succeeded
-    static ProcExit* thepe = 0;
-    if ( !thepe )
-	thepe = new ProcExit;
-
+    mDefineStaticLocalObject( PtrMan<ProcExit>, thepe, = new ProcExit );
     return true;
 }

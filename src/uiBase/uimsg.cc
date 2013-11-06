@@ -91,10 +91,8 @@ bool uiMsg::toStatusbar( const char* msg, int fldidx, int msec )
 
 static BufferString& gtCaptn()
 {
-    static BufferString* captn = 0;
-    if ( !captn )
-	captn = new BufferString;
-    return *captn;
+    mDeclStaticString( captn );
+    return captn;
 }
 
 

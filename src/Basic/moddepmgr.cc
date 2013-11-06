@@ -23,9 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const OD::ModDepMgr& OD::ModDeps()
 {
-    static ModDepMgr* mgr = 0;
-    if ( !mgr )
-	mgr = new ModDepMgr;
+    mDefineStaticLocalObject( ModDepMgr*, mgr, = new ModDepMgr );
     return *mgr;
 }
 

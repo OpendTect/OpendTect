@@ -257,7 +257,7 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 					 const QPoint& qpt,
 					 const QPoint& comingfrom )
 {
-    static const float headangfac = .82; // bigger => lines closer to main line
+    const float headangfac = .82; // bigger => lines closer to main line
 
     // In UI, Y is positive downward
     const QPoint relvec( qpt.x() - comingfrom.x(),

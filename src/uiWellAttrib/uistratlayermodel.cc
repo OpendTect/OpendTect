@@ -201,7 +201,7 @@ void addToTreeWin()
 
 static uiStratLayerModelManager& uislm_manager()
 {
-    static uiStratLayerModelManager theinst;
+    mDefineStaticLocalObject( uiStratLayerModelManager, theinst, );
     return theinst;
 }
 
@@ -464,7 +464,7 @@ const PropertyRefSelection& uiStratLayerModel::modelProperties() const
 
 const ObjectSet<const TimeDepthModel>& uiStratLayerModel::d2TModels() const
 {
-    static ObjectSet<const TimeDepthModel> empty;
+    mDefineStaticLocalObject( ObjectSet<const TimeDepthModel>, empty, );
     const ObjectSet<const TimeDepthModel>* ret = synthdisp_->d2TModels();
     return ret ? *ret : empty;
 }

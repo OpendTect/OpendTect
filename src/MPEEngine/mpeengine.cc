@@ -39,9 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 MPE::Engine& MPE::engine()
 {
-    static MPE::Engine* theinst_ = 0;
-    if ( !theinst_ )
-	theinst_ = new MPE::Engine;
+    mDefineStaticLocalObject( PtrMan<MPE::Engine>, theinst_, 
+			      = new MPE::Engine );
     return *theinst_;
 }
 

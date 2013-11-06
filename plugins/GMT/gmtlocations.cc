@@ -55,10 +55,8 @@ bool GMTWellSymbol::usePar( const IOPar& par )
 
 const GMTWellSymbolRepository& GMTWSR()
 {
-    static GMTWellSymbolRepository* inst = 0;
-    if ( !inst )
-	inst = new GMTWellSymbolRepository;
-
+    mDefineStaticLocalObject( PtrMan<GMTWellSymbolRepository>, inst,  
+			      = new GMTWellSymbolRepository );
     return *inst;
 }
 

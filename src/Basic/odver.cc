@@ -68,7 +68,7 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 
 const OD::Platform& OD::Platform::local()
 {
-    static Platform theplf;
+    mDefineStaticLocalObject( Platform, theplf, );
     return theplf;
 }
 

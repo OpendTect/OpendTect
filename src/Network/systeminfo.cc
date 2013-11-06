@@ -113,7 +113,7 @@ int getFreeMBOnDisk( const char* path )
     res = freeBytesAvail2User.QuadPart * fac * fac;
 #else
 
-    static struct statfs fsstatbuf;
+    struct statfs fsstatbuf;
     if ( statfs(path,&fsstatbuf) == -1 )
 	return 0;
 

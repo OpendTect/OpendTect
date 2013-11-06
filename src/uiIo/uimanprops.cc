@@ -347,9 +347,9 @@ uiManPROPS::uiManPROPS( uiParent* p )
 {
     setCtrlStyle( LeaveOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
-    static const char* strs[] = { "For this survey only",
-				  "As default for all surveys",
-				  "As default for my user ID only", 0 };
+    const char* strs[] = { "For this survey only",
+			   "As default for all surveys",
+			   "As default for my user ID only", 0 };
     srcfld_ = new uiGenInput( this, "Store", StringListInpSpec(strs) );
     srcfld_->attach( centeredBelow, buildfld_ );
 }

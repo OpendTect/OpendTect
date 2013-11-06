@@ -23,30 +23,36 @@ static const char* rcsID mUsedVar = "$Id$";
 
 od_istream& od_istream::nullStream()
 {
-    static od_istream* ret = 0;
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = 0 );
     if ( !ret )
     {
 #ifndef __win__
-	ret = new od_istream( "/dev/null" );
+	od_istream* newret = new od_istream( "/dev/null" );
 #else
-	ret = new od_istream( "NUL:" );
+	od_istream* newret = new od_istream( "NUL:" );
 #endif
-	ret->setNoClose();
+	newret->setNoClose();
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
     return *ret;
 }
 
 od_ostream& od_ostream::nullStream()
 {
-    static od_ostream* ret = 0;
+    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = 0 );
     if ( !ret )
     {
 #ifndef __win__
-	ret = new od_ostream( "/dev/null" );
+	od_ostream* newret = new od_ostream( "/dev/null" );
 #else
-	ret = new od_ostream( "NUL" );
+	od_ostream* newret = new od_ostream( "NUL" );
 #endif
-	ret->setNoClose();
+	newret->setNoClose();
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
     return *ret;
 }

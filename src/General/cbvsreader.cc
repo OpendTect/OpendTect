@@ -598,7 +598,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
-	static PosAuxInfo dum;
+	PosAuxInfo dum;
 	if ( !getAuxInfo(dum) ) return false;
     }
 
