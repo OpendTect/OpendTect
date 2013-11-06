@@ -391,13 +391,13 @@ void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
 		      &optionsmenuitem_, lines_, false );
 
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
-                     &areaMenuItem(), lines_ && areas().size(), false );
+    mAddMenuItem( &displaymnuitem_,
+                  &areaMenuItem(), lines_ && areas().size(), false );
 }
 
 const char* areaString()
 {
-    return SI().xyInFeet() ? "Area (sqft)" : " Area (m^2)";
+    return SI().xyInFeet() ? "Area (sqft)" : "Area (m^2)";
 }
 
 
