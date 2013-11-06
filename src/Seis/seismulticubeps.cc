@@ -73,11 +73,6 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mRetStrmErrMsg(errmsg_,"Data store definition file","is not readable")
-    {
-	errmsg_.set( "Data store definition file '" ).add( fnm )
-	       .add ( "' is not readable" );
-	return false;
-    }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
