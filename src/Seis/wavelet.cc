@@ -123,7 +123,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
     Wavelet* newwv = 0;
 
     Conn* connptr = ioobj->getConn( Conn::Read );
-    if ( !connptr || connptr->bad() )
+    if ( !connptr || connptr->isBad() )
 	ErrMsg( "Cannot open Wavelet file" );
     else
     {
@@ -152,7 +152,7 @@ bool Wavelet::put( const IOObj* ioobj ) const
     bool retval = false;
 
     Conn* connptr = ioobj->getConn( Conn::Write );
-    if ( connptr && !connptr->bad() )
+    if ( connptr && !connptr->isBad() )
     {
 	if ( tr->write( this, *connptr ) )
 	    retval = true;

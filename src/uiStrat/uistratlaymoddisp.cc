@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratreftree.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "property.h"
 #include "keystrs.h"
@@ -152,32 +152,29 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	dumpfnm = dlg.fileName();
     }
 
-    StreamProvider sp( dumpfnm );
-    StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
-    if ( !sd.usable() )
-	mErrRet( BufferString("Cannot open:\n",dumpfnm) )
-
     if ( !foradd )
     {
-	if ( !lm.write(*sd.ostrm) )
-	    { sd.close(); mErrRet( "Unknown error during write ..." ) }
-	sd.close();
+	od_ostream strm( dumpfnm );
+	if ( !strm.isOK() )
+	    mErrRet( BufferString("Cannot open:\n",dumpfnm,"\nfor write") )
+	if ( !lm.write(strm) )
+	    mErrRet( "Unknown error during write ..." )
 	return false;
     }
 
+    od_istream strm( dumpfnm );
+    if ( !strm.isOK() )
+	mErrRet( BufferString("Cannot open:\n",dumpfnm,"\nfor read") )
+
     Strat::LayerModel newlm;
-    if ( !newlm.read(*sd.istrm) )
-    {
-	sd.close();
+    if ( !newlm.read(strm) )
 	mErrRet( "Cannot read layer model from file."
 		 "\nFile may not be a layer model file" )
-    }
 
     for ( int ils=0; ils<newlm.size(); ils++ )
 	const_cast<Strat::LayerModel&>(lm)
 			    .addSequence( newlm.sequence( ils ) );
 
-    sd.close();
     return true;
 }
 

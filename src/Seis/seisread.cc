@@ -192,12 +192,12 @@ Conn* SeisTrcReader::openFirst()
 
     Conn* conn = ioobj_->getConn( Conn::Read );
     const char* fnm = ioobj_->fullUserExpr( Conn::Read );
-    if ( !conn || (conn->bad() && !File::isDirectory(fnm)) )
+    if ( !conn || (conn->isBad() && !File::isDirectory(fnm)) )
     {
 	delete conn; conn = 0;
 	if ( iostrm && isMultiConn() )
 	{
-	    while ( !conn || conn->bad() )
+	    while ( !conn || conn->isBad() )
 	    {
 		delete conn; conn = 0;
 		if ( !iostrm->toNextConnNr() ) break;
@@ -645,7 +645,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     Conn* conn = iostrm->getConn( Conn::Read );
 
-    while ( !conn || conn->bad() )
+    while ( !conn || conn->isBad() )
     {
 	delete conn; conn = 0;
 	if ( !iostrm->toNextConnNr() ) return 0;

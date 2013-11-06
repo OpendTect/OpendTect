@@ -40,7 +40,7 @@ public:
 			IODir(const MultiID&);
 			~IODir();
     void		reRead();
-    bool		bad() const		{ return !isok_; }
+    bool		isBad() const		{ return !isok_; }
     const MultiID&	key() const		{ return key_; }
 
     const IOObj*	main() const;

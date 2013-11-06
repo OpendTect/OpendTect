@@ -12,8 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratunitrefiter.h"
 #include "property.h"
 #include "separstr.h"
-#include "strmoper.h"
 #include "keystrs.h"
+#include "od_iostream.h"
 #include "elasticpropsel.h"
 
 
@@ -430,27 +430,25 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
-#define mReadNewline() StrmOper::readLine( strm )
-
-bool Strat::LayerModel::read( std::istream& strm )
+bool Strat::LayerModel::read( od_istream& strm )
 {
     deepErase( seqs_ );
-    char buf[256];
-    StrmOper::wordFromLine( strm, buf, 256 );
-    if ( buf[0] != '#' || buf[1] != 'M' )
+    BufferString word;
+    strm.getWord( word, false );
+    if ( word[0] != '#' || word[1] != 'M' )
 	return false;
 
     int nrseqs, nrprops;
     strm >> nrprops >> nrseqs;
     if ( nrprops < 1 ) return false;
-    mReadNewline();
+    strm.skipLine();
 
     PropertyRefSelection newprops;
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
-	StrmOper::wordFromLine( strm, buf, 256 ); // read "#P.."
+	strm.skipWord(); // skip "#P.."
 	BufferString propnm;
-	StrmOper::readLine( strm, &propnm );
+	strm.getLine( propnm );
 	if ( iprop != 0 )
 	{
 	    const PropertyRef* p = PROPS().find( propnm.buf() );
@@ -458,24 +456,24 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    newprops += p;
 	}
     }
-    if ( !strm.good() ) return false;
+    if ( !strm.isOK() ) return false;
 
     proprefs_ = newprops;
     const RefTree& rt = RT();
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
-	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S.."
+	strm.skipWord(); // skip "#S.."
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
 	int nrlays; strm >> nrlays;
-	mReadNewline();
-	if ( strm.bad() ) return false;
+	strm.skipLine();
+	if ( strm.isBad() ) return false;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
-	    StrmOper::wordFromLine( strm, buf, 256 ); // read away "#L.."
-	    StrmOper::wordFromLine( strm, buf, 256 );
-	    FileMultiString fms( buf );
+	    strm.skipWord(); // skip "#L.."
+	    strm.getWord( word, false );
+	    FileMultiString fms( word );
 	    const UnitRef* ur = rt.find( fms[0] );
 	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
 	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf() );
@@ -489,7 +487,7 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
 		{ strm >> val; newlay->setValue( iprop, val ); }
 	    seq->layers() += newlay;
-	    mReadNewline();
+	    strm.skipLine();
 	}
 	seq->prepareUse();
 	seqs_ += seq;
@@ -498,24 +496,24 @@ bool Strat::LayerModel::read( std::istream& strm )
 }
 
 
-bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
+bool Strat::LayerModel::write( od_ostream& strm, int modnr ) const
 {
     const int nrseqs = seqs_.size();
     const int nrprops = proprefs_.size();
-    strm << "#M" << modnr << '\t' << nrprops << '\t' << nrseqs << '\n';
+    strm << "#M" << modnr << od_tab << nrprops << od_tab << nrseqs << od_endl;
 
     for ( int iprop=0; iprop<nrprops; iprop++ )
-	strm << "#P" << iprop << '\t' << proprefs_[iprop]->name() << '\n';
+	strm << "#P" << iprop << od_tab << proprefs_[iprop]->name() << od_endl;
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
 	const LayerSequence& seq = *seqs_[iseq];
 	const int nrlays = seq.size();
-	strm << "#S" << iseq << '\t' << nrlays << '\n';
+	strm << "#S" << iseq << od_tab << nrlays << od_endl;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
-	    strm << "#L" << ilay << '\t';
+	    strm << "#L" << ilay << od_tab;
 	    const Layer& lay = *seq.layers()[ilay];
 	    if ( lay.content().isUnspecified() )
 		strm << lay.name();
@@ -525,13 +523,13 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 		fms += lay.content().name();
 		strm << fms;
 	    }
-	    strm << '\t' << toString(lay.thickness());
+	    strm << od_tab << toString(lay.thickness());
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
-		strm << '\t' << toString(lay.value(iprop));
-	    strm << std::endl;
+		strm << od_tab << toString(lay.value(iprop));
+	    strm << od_endl;
 	}
     }
-    return strm.good();
+    return strm.isOK();
 }
 
 

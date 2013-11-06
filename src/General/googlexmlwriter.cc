@@ -8,14 +8,13 @@ static const char* rcsID mUsedVar = "$Id";
 
 #include "googlexmlwriter.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "latlong.h"
 #include "color.h"
-#include <iostream>
+#include "od_ostream.h"
 
 ODGoogle::XMLWriter::XMLWriter( const char* enm, const char* fnm,
 				const char* snm )
-    : sd_(*new StreamData)
+    : strm_(0)
     , elemnm_(enm)
     , survnm_(snm)
 {
@@ -23,15 +22,9 @@ ODGoogle::XMLWriter::XMLWriter( const char* enm, const char* fnm,
 }
 
 
-std::ostream& ODGoogle::XMLWriter::strm()
-{
-    return *sd_.ostrm;
-}
-
-
 bool ODGoogle::XMLWriter::isOK() const
 {
-    return sd_.usable() && strm().good();
+    return strm_ && strm_->isOK();
 }
 
 
@@ -43,8 +36,9 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 
     if ( !fnm || !*fnm )
 	mErrRet("No file name provided",0)
-    sd_ = StreamProvider(fnm).makeOStream();
-    if ( !sd_.usable() )
+
+    strm_ = new od_ostream( fnm );
+    if ( !strm_ || !strm_->isOK() )
 	mErrRet("Cannot create file: ",fnm)
 
     strm() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -55,10 +49,14 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 	    "<Document>\n";
     BufferString treenm = survnm_.isEmpty() ? SI().name() : survnm_;
     treenm += ": "; treenm += elemnm_;
-    strm() << "<name>" << treenm << "</name>" << std::endl;
+    strm() << "<name>" << treenm << "</name>" << od_endl;
 
-    if ( !strm().good() )
-	mErrRet("Error during write of XML header info",fnm)
+    if ( !strm().isOK() )
+    {
+	BufferString emsg( "Error during write of XML header info" );
+	strm().addErrMsgTo( emsg );
+	mErrRet(emsg,0)
+    }
 
     return true;
 }
@@ -67,10 +65,11 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 void ODGoogle::XMLWriter::close()
 {
     errmsg_.setEmpty();
-    if ( !sd_.usable() ) return;
+    if ( !strm_ ) return;
 
-    strm() << "</Document>\n</kml>" << std::endl;
-    sd_.close();
+    if ( strm_->isOK() )
+	strm() << "</Document>\n</kml>" << od_endl;
+    delete strm_; strm_ = 0;
 }
 
 
@@ -120,7 +119,7 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 	"\t\t\t<key>highlight</key>\n"
 	"\t\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
-	"\t</StyleMap>\n\n" << std::endl;
+	"\t</StyleMap>\n\n" << od_endl;
 
 }
 
@@ -158,7 +157,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 	"\t\t\t<coordinates>" << lngstr;
     strm() << ',' << latstr << ",0</coordinates>\n"
 	"\t\t</Point>\n"
-	"\t</Placemark>\n" << std::endl;
+	"\t</Placemark>\n" << od_endl;
 }
 
 
@@ -188,7 +187,7 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 
     strm() << "\t\t\t</coordinates>\n"
 	      "\t\t</LineString>\n"
-	      "\t</Placemark>\n" << std::endl;
+	      "\t</Placemark>\n" << od_endl;
 }
 
 
@@ -207,7 +206,7 @@ void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm, const Color& col,
 		"\t\t<PolyStyle>\n"
 		"\t\t\t<color>" << col.getStdStr(false,-1) << "</color>\n";
     strm() <<	"\t\t</PolyStyle>\n"
-		"\t</Style>\n" << std::endl;
+		"\t</Style>\n" << od_endl;
 }
 
 
@@ -241,5 +240,5 @@ void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 		"\t\t\t\t</LinearRing>\n"
 		"\t\t\t</outerBoundaryIs>\n"
 		"\t\t</Polygon>\n"
-		"\t</Placemark>\n" << std::endl;
+		"\t</Placemark>\n" << od_endl;
 }

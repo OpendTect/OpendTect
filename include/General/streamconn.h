@@ -33,7 +33,7 @@ public:
 			StreamConn(const char* fnm,bool forread);
     virtual		~StreamConn();
 
-    virtual bool	bad() const;
+    virtual bool	isBad() const;
     virtual bool	forRead() const;
     virtual bool	forWrite() const;
     virtual StreamConn*	getStream()		{ return this; }

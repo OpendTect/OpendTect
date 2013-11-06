@@ -524,7 +524,7 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
     ElasticPropSelection* eps = 0;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-    if ( conn && !conn->bad() )
+    if ( conn && !conn->isBad() )
     {
 	eps = new ElasticPropSelection;
 	
@@ -563,7 +563,7 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     bool retval = false;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( conn && !conn->bad() )
+    if ( conn && !conn->isBad() )
     {
 	if ( !conn->forWrite() || !conn->isStream() )
 	    return false;

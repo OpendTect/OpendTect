@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodirentry.h"
 #include "ioman.h"
 #include "latlong.h"
-#include <iostream>
+#include "od_ostream.h"
 
 
 uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
@@ -78,8 +78,8 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
 
 	wrr.writePlaceMark( "wellpin", wd.track().pos(0),
 			    selfld_->textOfItem(idx) );
-	if ( !wrr.strm().good() )
-	    { wrr.close(); uiMSG().error("Error during write"); return false; }
+	if ( !wrr.isOK() )
+	    { uiMSG().error(wrr.errMsg()); return false; }
     }
 
     wrr.close();

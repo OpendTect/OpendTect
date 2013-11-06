@@ -24,7 +24,7 @@ mExpClass(General) IOX : public IOObj
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
     virtual		~IOX();
-    bool		bad() const;
+    bool		isBad() const;
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool forread=true) const;

@@ -80,7 +80,7 @@ bool BatchProgram::go( std::ostream& logstrm )
     pars().get( "Output", fname );
     sp.set( fname );
     sp.addPathIfNecessary( File::getCurrentPath() );
-    if ( sp.bad() )
+    if ( sp.isBad() )
         { mErrStrm << "Invalid output: " << fname << std::endl; return false; }
     StreamData sd = sp.makeOStream();
     if ( !sd.usable() )

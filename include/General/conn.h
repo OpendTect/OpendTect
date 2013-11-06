@@ -35,7 +35,7 @@ public:
     virtual		~Conn()			{}
     virtual const char*	connType() const	= 0;
 
-    virtual bool	bad() const		= 0;
+    virtual bool	isBad() const		= 0;
     virtual bool	forRead() const		= 0;
     virtual bool	forWrite() const	{ return !forRead(); }
     virtual void	close()			{}
@@ -76,8 +76,8 @@ public:
 			XConn() : conn_(0), mine_(true)	{}
 			~XConn()	{ if ( mine_ ) delete conn_; }
 
-    virtual bool	bad() const
-			{ return conn_ ? conn_->bad() : true; }
+    virtual bool	isBad() const
+			{ return conn_ ? conn_->isBad() : true; }
     virtual bool	forRead() const	
     			{ return conn_ && conn_->forRead(); }
     virtual bool	forWrite() const

@@ -61,7 +61,7 @@ public:
     virtual const MultiID&	key() const			{ return key_; }
 
     virtual			~IOObj();
-    virtual bool		bad() const			= 0;
+    virtual bool		isBad() const			= 0;
     virtual void		copyFrom(const IOObj*)		= 0;
     virtual bool		hasConnType( const char* s ) const
 				{ return s && s==connType(); }

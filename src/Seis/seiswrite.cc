@@ -196,7 +196,7 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
 
 bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
-    if ( !conn || conn->bad() || !trl_ )
+    if ( !conn || conn->isBad() || !trl_ )
     {
 	errmsg_ = "Cannot write to ";
 	errmsg_ += ioobj_->fullUserExpr(false);

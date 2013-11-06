@@ -151,7 +151,7 @@ uiODMain::uiODMain( uiMain& a )
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     if ( !ensureGoodDataDir()
-      || (IOM().bad() && !ensureGoodSurveySetup()) )
+      || (IOM().isBad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
 
     // TODO uncomment when transfer to S2DPOS() is complete

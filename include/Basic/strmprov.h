@@ -48,7 +48,7 @@ public:
     bool	rename(const char*,const CallBack* cb=0);
     		//!< renames if file. if successful, does a set()
 
-    bool	bad() const				{ return isbad_; }
+    bool	isBad() const				{ return isbad_; }
 
     bool	exists(int forread) const;
     bool	remove(bool recursive=true) const;

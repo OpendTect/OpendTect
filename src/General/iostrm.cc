@@ -52,7 +52,7 @@ FixedString IOStream::connType() const
 }
 
 
-bool IOStream::bad() const
+bool IOStream::isBad() const
 {
     return !iscomm_ && fname_.isEmpty();
 }
@@ -176,7 +176,7 @@ Conn* IOStream::getConn( bool forread ) const
 
     const BufferString implnm( getExpandedName(forread) );
     StreamConn*	ret = new StreamConn( implnm, forread );
-    if ( !ret || ret->bad() )
+    if ( !ret || ret->isBad() )
 	{ delete ret; ret = 0; }
     else
 	ret->ioobj = this;
@@ -365,7 +365,7 @@ StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
     }
 
     StreamProvider* sp = new StreamProvider( hostname_, nm, iscomm_ );
-    if ( !sp || sp->bad() )
+    if ( !sp || sp->isBad() )
 	{ delete sp; return 0; }
 
     if ( hostname_.isEmpty() && !iscomm_ )

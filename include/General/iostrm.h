@@ -29,7 +29,7 @@ public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
     virtual		~IOStream();
-    bool		bad() const;
+    bool		isBad() const;
     bool		isCommand() const		{ return iscomm_; }
 
     void		copyFrom(const IOObj*);

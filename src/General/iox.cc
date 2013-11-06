@@ -48,7 +48,7 @@ FixedString IOX::connType() const
 }
 
 
-bool IOX::bad() const
+bool IOX::isBad() const
 {
     return ownkey_ == "";
 }

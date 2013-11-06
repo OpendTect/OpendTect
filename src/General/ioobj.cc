@@ -125,7 +125,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     	{ delete objptr; objptr = 0; }
     else
     {
-	if ( !objptr->getFrom(astream) || objptr->bad() )
+	if ( !objptr->getFrom(astream) || objptr->isBad() )
 	    { delete objptr; objptr = 0; }
 	else
 	{
@@ -339,7 +339,7 @@ const char* IOSubDir::fullUserExpr( bool ) const
 
 bool IOSubDir::putTo( ascostream& stream ) const
 {
-    if ( bad() ) return false;
+    if ( isBad() ) return false;
     const BufferString str( "@", myKey() );
     stream.put( str, name() );
     return true;

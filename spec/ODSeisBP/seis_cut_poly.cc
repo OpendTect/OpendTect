@@ -61,7 +61,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !pstr )
 	    mErrRet("Invalid object ID (probably not a Pick Set entry")
 	PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-	if ( !conn || conn->bad() )
+	if ( !conn || conn->isBad() )
 	    mErrRet("Cannot open Pick Set")
 	PtrMan<Pick::Set> pickset = new Pick::Set;
 	const char* errmsg = pstr->read( *pickset, *conn );

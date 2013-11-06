@@ -34,7 +34,7 @@ StreamConn::~StreamConn()
 }
 
 
-bool StreamConn::bad() const
+bool StreamConn::isBad() const
 {
     return !strm_ || strm_->isBad();
 }

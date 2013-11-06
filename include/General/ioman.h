@@ -36,7 +36,7 @@ mExpClass(General) IOMan : public NamedObject
 {
 public:
 
-    bool		bad() const		{ return state_ != Good; }
+    bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
     const BufferString&	message() const		{ return msg_; }
 

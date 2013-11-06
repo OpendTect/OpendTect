@@ -196,12 +196,12 @@ IOMan::~IOMan()
 
 bool IOMan::isReady() const
 {
-    return bad() || !dirptr_ ? false : dirptr_->key() != MultiID("-1");
+    return isBad() || !dirptr_ ? false : dirptr_->key() != MultiID("-1");
 }
 
 
 #define mDestroyInst(dotrigger) \
-    if ( dotrigger && !IOM().bad() ) \
+    if ( dotrigger && !IOM().isBad() ) \
 	IOM().surveyToBeChanged.trigger(); \
     if ( IOM().changeSurveyBlocked() ) \
     { \
@@ -226,7 +226,7 @@ bool IOMan::isReady() const
     IOM().entryRemoved.cbs_ = rmcbs; \
     IOM().newIODir.cbs_ = dccbs; \
     IOM().applicationClosing.cbs_ = apccbs; \
-    if ( dotrigger && !IOM().bad() ) \
+    if ( dotrigger && !IOM().isBad() ) \
     { \
 	setupCustomDataDirs(-1); \
 	if ( dotrigger ) \
@@ -259,7 +259,7 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
     }
 
     mFinishNewInst( true );
-    return !IOM().bad();
+    return !IOM().isBad();
 }
 
 
@@ -271,7 +271,7 @@ bool IOMan::setSurvey( const char* survname )
     SurveyInfo::setSurveyName( survname );
 
     mFinishNewInst( true );
-    return !IOM().bad();
+    return !IOM().isBad();
 }
 
 
@@ -339,7 +339,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 					   fullPath() );
 	if ( !noomf && !nosurv )
 	{
-	    if ( !IOM().bad() )
+	    if ( !IOM().isBad() )
 		return true; // This is normal
 
 	    // But what's wrong here? In any case - survey is not good.
@@ -391,9 +391,9 @@ bool IOMan::setRootDir( const char* dirnm )
 
 bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
-    if ( bad() )
+    if ( isBad() )
     {
-	if ( !to("0",true) || bad() ) return false;
+	if ( !to("0",true) || isBad() ) return false;
 	return to( sd, true );
     }
     else if ( !forcereread )
@@ -432,7 +432,7 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     delete refioobj;
 
     IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
-    if ( !newdir || newdir->bad() )
+    if ( !newdir || newdir->isBad() )
 	return false;
 
     bool needtrigger = dirptr_;
@@ -471,7 +471,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
-    if ( bad() || !tgname ) return 0;
+    if ( isBad() || !tgname ) return 0;
 
     const IOObj* ioobj = 0;
     for ( int idx=0; idx<dirptr_->size(); idx++ )
@@ -647,7 +647,7 @@ bool IOMan::setDir( const char* dirname )
 
     IODir* newdirptr = new IODir( dirname );
     if ( !newdirptr ) return false;
-    if ( newdirptr->bad() )
+    if ( newdirptr->isBad() )
     {
 	delete newdirptr;
 	return false;
@@ -822,13 +822,13 @@ bool SurveyDataTreePreparer::prepDirData()
 
 bool SurveyDataTreePreparer::prepSurv()
 {
-    if ( IOM().bad() ) { errmsg_ = "Bad directory"; return false; }
+    if ( IOM().isBad() ) { errmsg_ = "Bad directory"; return false; }
 
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
     IOM().toRoot();
-    if ( IOM().bad() )
+    if ( IOM().isBad() )
 	{ errmsg_ = "Can't go to root of survey"; return false; }
     IODir* topdir = IOM().dirPtr();
     if ( !topdir->main() || topdir->main()->name() == "Appl dir" )

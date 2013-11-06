@@ -127,7 +127,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     while ( astream.type() != ascistream::EndOfFile )
     {
 	IOObj* obj = IOObj::get(astream,dirnm,dirky);
-	if ( !obj || obj->bad() ) { delete obj; continue; }
+	if ( !obj || obj->isBad() ) { delete obj; continue; }
 
 	MultiID ky( obj->key() );
 	int id = ky.ID( ky.nrKeys()-1 );
@@ -229,7 +229,7 @@ void IODir::reRead()
 bool IODir::permRemove( const MultiID& ky )
 {
     reRead();
-    if ( bad() ) return false;
+    if ( isBad() ) return false;
 
     int sz = objs_.size();
     for ( int idx=0; idx<sz; idx++ )
@@ -258,7 +258,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
     IOObj* clone = ioobj->clone();
     if ( !clone ) return false;
     reRead();
-    if ( bad() ) { delete clone; return false; }
+    if ( isBad() ) { delete clone; return false; }
 
     int sz = objs_.size();
     bool found = false;
@@ -283,7 +283,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
     if ( persist )
     {
 	reRead();
-	if ( bad() ) return false;
+	if ( isBad() ) return false;
     }
     if ( ioobj->key().isEmpty() || (*this)[ioobj->key()] )
 	ioobj->setKey( newKey() );

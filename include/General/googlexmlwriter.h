@@ -10,9 +10,9 @@
 #include "generalmod.h"
 #include "bufstring.h"
 
-class StreamData;
 class LatLong;
 class SurveyInfo;
+class od_ostream;
 
 
 namespace ODGoogle
@@ -45,9 +45,8 @@ public:
     void		start(const XMLItem&);
     void		finish(const XMLItem&);
 
-    std::ostream&	strm();
-    const std::ostream&	strm() const
-    			{ return const_cast<XMLWriter*>(this)->strm(); }
+    od_ostream&		strm()			{ return *strm_; }
+    const od_ostream&	strm() const		{ return *strm_; }
 
     void		writeIconStyles(const char* iconnm,int xpixoffs,
 					const char* ins=0);
@@ -67,7 +66,7 @@ protected:
 
     BufferString	elemnm_;
     BufferString	survnm_;
-    StreamData&		sd_;
+    od_ostream*		strm_;
     BufferString	errmsg_;
 
 };

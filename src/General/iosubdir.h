@@ -21,7 +21,7 @@ public:
 		IOSubDir(const char* subdirnm);
 		IOSubDir(const IOSubDir&);
     bool	isSubdir() const	{ return true; }
-    bool	bad() const		{ return isbad_; }
+    bool	isBad() const		{ return isbad_; }
     void	copyFrom(const IOObj*)	{}
     static IOSubDir* get(ascistream&,const char* rootdirnm);
 

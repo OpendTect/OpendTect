@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "propertyref.h"
 #include "stratlayersequence.h"
+#include "od_iosfwd.h"
 
 
 namespace Strat
@@ -64,8 +65,8 @@ public:
 
     const RefTree&		refTree() const;
 
-    bool			read(std::istream&);
-    bool			write(std::ostream&,int modnr=0) const;
+    bool			read(od_istream&);
+    bool			write(od_ostream&,int modnr=0) const;
     static const char*		sKeyNrSeqs()		{return "Nr Sequences";}
     static FixedString          defSVelStr()		{ return "DefaultSVel";}
 
