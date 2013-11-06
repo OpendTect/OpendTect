@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "multiid.h"
 #include "oddirs.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 
 #include "embodytr.h"
@@ -52,63 +52,95 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 
-#define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d,  body ) \
-    !strcmp(typ,EMBodyTranslatorGroup::sKeyword()) ? body : \
-    (!strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
-    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
-    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword()) ? anyhor : \
-    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword()) ? emfss : flt3d))))
-
-#define mGetIoContext(typ) \
-    mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
-	       EMHorizon3DTranslatorGroup::ioContext(), \
-	       EMAnyHorizonTranslatorGroup::ioContext(), \
-	       EMFaultStickSetTranslatorGroup::ioContext(), \
-	       EMFault3DTranslatorGroup::ioContext(), \
-	       EMBodyTranslatorGroup::ioContext() )
-
-#define mGetManageStr(typ) \
-    mGet( typ, "Manage 2D Horizons", "Manage 3D Horizons", "Manage Horizons", \
-	       "Manage FaultStickSets", "Manage Faults", "Manage Bodies" )
-
-#define mGetCopyStr(typ) \
-    mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
-	       "Copy faultStickSet", "Copy fault","Copy body" )
-
-#define mGetHelpID(typ) \
-    mGet( typ, "104.2.1", "104.2.0", "104.2.0", "104.2.4", "104.2.5", "104.2.6")
-
-using namespace EM;
+DefineEnumNames(uiSurfaceMan,Type,0,"Surface type")
+{
+    EMHorizon2DTranslatorGroup::keyword(),
+    EMHorizon3DTranslatorGroup::keyword(),
+    EMAnyHorizonTranslatorGroup::keyword(),
+    EMFaultStickSetTranslatorGroup::keyword(),
+    EMFault3DTranslatorGroup::keyword(),
+    EMBodyTranslatorGroup::sKeyword(),
+    0
+};
 
 mDefineInstanceCreatedNotifierAccess(uiSurfaceMan)
 
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
-    : uiObjFileMan(p,uiDialog::Setup(mGetManageStr(typ),mNoDlgTitle,
-                                     mGetHelpID(typ)).nrstatusflds(1),
-		   mGetIoContext(typ) )
+
+#define mCaseRetCtxt(enm,trgrpnm) \
+    case uiSurfaceMan::enm: return trgrpnm##TranslatorGroup::ioContext()
+
+static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
+{
+    switch ( typ )
+    {
+	mCaseRetCtxt(Hor2D,EMHorizon2D);
+	mCaseRetCtxt(Hor3D,EMHorizon3D);
+	mCaseRetCtxt(AnyHor,EMAnyHorizon);
+	mCaseRetCtxt(StickSet,EMFaultStickSet);
+	mCaseRetCtxt(Flt3D,EMFault3D);
+	default:
+	mCaseRetCtxt(Body,EMBody);
+    }
+}
+
+#define mCaseRetStr(enm,str) \
+    case uiSurfaceMan::enm: return BufferString( act, " ", str )
+
+static BufferString getActStr( uiSurfaceMan::Type typ, const char* act )
+{
+    switch ( typ )
+    {
+	mCaseRetStr(Hor2D,"2D Horizons");
+	mCaseRetStr(Hor3D,"3D Horizons");
+	mCaseRetStr(StickSet,"FaultStickSets");
+	mCaseRetStr(Flt3D,"Faults");
+	mCaseRetStr(Body,"Bodies");
+	default:
+	mCaseRetStr(AnyHor,"Horizons");
+    }
+}
+
+static const char* getHelpID( uiSurfaceMan::Type typ )
+{
+    switch ( typ )
+    {
+	case uiSurfaceMan::Hor2D:	return "104.2.1";
+	case uiSurfaceMan::StickSet:	return "104.2.4";
+	case uiSurfaceMan::Flt3D:	return "104.2.5";
+	case uiSurfaceMan::Body:	return "104.2.6";
+	default:			return "104.2.0";
+    }
+}
+
+
+uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
+    : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,"Manage"),mNoDlgTitle,
+                                     getHelpID(typ)).nrstatusflds(1),
+		   getIOCtxt(typ) )
+    , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    if ( strcmp(typ,EMBodyTranslatorGroup::sKeyword()) )
-    	manipgrp->addButton( "copyobj", mGetCopyStr(typ),
-		mCB(this,uiSurfaceMan,copyCB) );
+    if ( type_ != Body )
+    	manipgrp->addButton( "copyobj", "Copy to new object",
+			     mCB(this,uiSurfaceMan,copyCB) );
 
-    if ( mGet(typ,true,false,true,false,false,false) )
+    if ( type_ == Hor2D || type_ == AnyHor )
     {
 	man2dbut_ = manipgrp->addButton( "man2d", "Manage 2D Horizons",
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
-    else if ( mGet(typ,false,true,false,false,false,false) )
+    if ( type_ == Hor3D )
     {
 	manipgrp->addButton( "mergehorizons", "Merge 3D Horizons",
 		mCB(this,uiSurfaceMan,merge3dCB) );
     }
-    else if ( mGet(typ,false,true,true,false,false,false) )
+    if ( type_ == Hor3D || type_ == AnyHor )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
 		"Horizon Data", true, uiLabeledListBox::AboveLeft );
@@ -136,7 +168,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
 	setPrefWidth( 50 );
     }
-    else if ( mGet(typ,false,false,false,false,true,false) )
+    if ( type_ == Flt3D )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
 		"Fault Data", true, uiLabeledListBox::AboveLeft );
@@ -152,7 +184,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
     }	
-    else if ( mGet(typ,false,false,false,false,false,true) )
+    if ( type_ == Body )
     {
 	manipgrp->addButton( "set_union", "Merge bodies",
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
@@ -206,14 +238,6 @@ void uiSurfaceMan::copyCB( CallBacker* )
     uiCopySurface dlg( this, *ioobj, su );
     if ( dlg.go() )
 	selgrp_->fullUpdate( ioobj->key() );
-}
-
-
-void uiSurfaceMan::man2dCB( CallBacker* )
-{
-    EM::IOObjInfo eminfo( curioobj_->key() );
-    uiSurface2DMan dlg( this, eminfo );
-    dlg.go();
 }
 
 
@@ -293,14 +317,14 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {
-	FaultAuxData fad( curioobj_->key() );
+	EM::FaultAuxData fad( curioobj_->key() );
     	for ( int ida=0; ida<attrnms.size(); ida++ )
 	    fad.removeData( attrnms.get(ida) );
     }
     else
     {
     	for ( int ida=0; ida<attrnms.size(); ida++ )
-    	    SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
+    	    EM::SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
     }
 
     selChg( this );
@@ -324,7 +348,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {
-	FaultAuxData fad( curioobj_->key() );
+	EM::FaultAuxData fad( curioobj_->key() );
 	fad.setDataName( attribnm, newnm );
     
 	selChg( this );
@@ -332,35 +356,31 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     }
 
     const BufferString filename =
-		SurfaceAuxData::getFileName( *curioobj_, attribnm );
+		EM::SurfaceAuxData::getFileName( *curioobj_, attribnm );
     if ( File::isEmpty(filename) )
 	mErrRet( "Cannot find Horizon Data file" )
     else if ( !File::isWritable(filename) )
 	mErrRet( "The Horizon Data file is not writable" )
 
-    StreamData sdin( StreamProvider(filename).makeIStream() );
-    if ( !sdin.usable() )
+    od_istream instrm( filename );
+    if ( !instrm.isOK() )
 	mErrRet( "Cannot open Horizon Data file for read" )
-    BufferString ofilename( filename ); ofilename += "_new";
-    StreamData sdout( StreamProvider(ofilename).makeOStream() );
-    if ( !sdout.usable() )
-    {
-	sdin.close();
+    const BufferString ofilename( filename, "_new" );
+    od_ostream outstrm( ofilename );
+    if ( !outstrm.isOK() )
 	mErrRet( "Cannot open new Horizon Data file for write" )
-    }
 
-    ascistream aistrm( *sdin.istrm );
-    ascostream aostrm( *sdout.ostrm );
+    ascistream aistrm( instrm );
+    ascostream aostrm( outstrm );
     aostrm.putHeader( aistrm.fileType() );
     IOPar iop( aistrm );
     iop.set( sKey::Attribute(), newnm );
     iop.putTo( aostrm );
 
-    char c;
-    while ( *sdin.istrm )
-	{ sdin.istrm->read( &c, 1 ); sdout.ostrm->write( &c, 1 ); }
-    const bool writeok = sdout.ostrm->good();
-    sdin.close(); sdout.close();
+    outstrm.add( instrm );
+    const bool writeok = outstrm.isOK();
+    instrm.close(); outstrm.close();
+
     BufferString tmpfnm( filename ); tmpfnm += "_old";
     if ( !writeok )
     {
@@ -607,7 +627,11 @@ void uiSurfaceMan::stratSel( CallBacker* )
 }
 
 
-uiSurface2DMan::uiSurface2DMan( uiParent* p, const IOObjInfo& info )
+class uiSurface2DMan : public uiDialog
+{
+public:
+
+uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     :uiDialog(p,uiDialog::Setup("2D Horizons management","Manage 2D horizons",
 				"104.2.1"))
     , eminfo_(info)
@@ -636,7 +660,7 @@ uiSurface2DMan::uiSurface2DMan( uiParent* p, const IOObjInfo& info )
 }
 
 
-void uiSurface2DMan::lineSel( CallBacker* )
+void lineSel( CallBacker* )
 {
     const int curitm = linelist_->currentItem();
     BufferStringSet linesets;
@@ -664,3 +688,16 @@ void uiSurface2DMan::lineSel( CallBacker* )
     infofld_->setText( txt );
 }
 
+    uiListBox*			linelist_;
+    uiTextEdit*			infofld_;
+    const EM::IOObjInfo&	eminfo_;
+
+};
+
+
+void uiSurfaceMan::man2dCB( CallBacker* )
+{
+    EM::IOObjInfo eminfo( curioobj_->key() );
+    uiSurface2DMan dlg( this, eminfo );
+    dlg.go();
+}

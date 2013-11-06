@@ -12,28 +12,32 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "uidialog.h"
 #include "uiobjfileman.h"
+#include "enums.h"
 
 class BufferStringSet;
-namespace EM { class IOObjInfo; }
 
 class uiButton;
 class uiListBox;
 class uiStratLevelSel;
-class uiTextEdit;
 class uiToolButton;
 
 mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 {
 public:
-			uiSurfaceMan(uiParent*,const char* typ);
+
+    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body };
+			DeclareEnumUtils(Type);
+
+			uiSurfaceMan(uiParent*,Type);
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
     void		addTool(uiButton*);
 
 protected:
+
+    const Type		type_;
 
     uiListBox*		attribfld_;
 
@@ -61,18 +65,4 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiSurface2DMan : public uiDialog
-{
-public:
-    			uiSurface2DMan(uiParent*,const EM::IOObjInfo&);
-protected:
-    void		lineSel(CallBacker*);
-
-    uiListBox*		linelist_;
-    uiTextEdit*		infofld_;
-    const EM::IOObjInfo& eminfo_;
-};
-
-
 #endif
-
