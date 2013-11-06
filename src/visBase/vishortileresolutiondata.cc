@@ -57,7 +57,7 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
     , cosanglexinl_( cos(SI().angleXInl()) )
     , sinanglexinl_( sin(SI().angleXInl()) )
     , needsetposition_( true )
-
+    , dispgeometrytype_( Triangle )
 {
     geodes_->ref();
     vertices_->ref();
@@ -110,6 +110,7 @@ void TileResolutionData::setDisplayGeometryType( int dispgeometrytype )
     {
 	osgswitch_->setValue( dispgeometrytype, true );
     }
+    dispgeometrytype_ = dispgeometrytype;
 }
 
 
@@ -120,6 +121,10 @@ void TileResolutionData::setAllVertices( const TypeSet<Coord3>& positions )
     const int nrcoords = hrsection.nrcoordspertileside_;
     int crdidx = 0;
     bbox_.init();
+
+    const RefMan<const Transformation> trans = 
+	sectile_->hrsection_.transformation_;
+    vertices_->setDisplayTransformation( trans );
 
     for ( int row=0; row<nrcoords; row+=spacing )
     {
@@ -142,6 +147,7 @@ void TileResolutionData::setAllVertices( const TypeSet<Coord3>& positions )
 	    crdidx++;
 	}
     }
+    
 }
 
 
@@ -177,7 +183,21 @@ void TileResolutionData::calcNormals( bool allownormalinvalid )
 
 
 void TileResolutionData::setDisplayTransformation( const mVisTrans* t )
-{ vertices_->setDisplayTransformation( t ); }
+{ 
+       vertices_->setDisplayTransformation( t ); 
+}
+
+
+void TileResolutionData::dirtyGeometry()
+{
+    osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype_ );
+
+    if ( geode )
+    {
+	mGetOsgGeometry( geode )->dirtyBound();
+	mGetOsgGeometry( geode )->dirtyDisplayList();
+    }
+}
 
 
 osg::BoundingBox& TileResolutionData::updateBBox()
@@ -288,7 +308,7 @@ bool TileResolutionData::setVerticesFromHighestResolution()
     const visBase::Coordinates* highestrescoords = 
 	tile->getHighestResolutionCoordinates();
 
-    if( !tile || !highestrescoords) return false;
+    if( !tile || !highestrescoords ) return false;
 
     const RefMan<const Transformation> trans = 
 	sectile_->hrsection_.transformation_;
@@ -326,7 +346,6 @@ bool TileResolutionData::setVerticesFromHighestResolution()
     allnormalsinvalid_ = true;
     invalidnormals_.erase();
     needsetposition_ = false;
-
     return true;
 
 }

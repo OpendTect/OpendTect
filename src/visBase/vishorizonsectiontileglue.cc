@@ -14,15 +14,19 @@ using namespace visBase;
 
 
 HorizonSectionTileGlue::HorizonSectionTileGlue()
-    : gluevtxcoords_( new osg::Vec3Array )
-    , gluetxcoords_( new osg::Vec2Array )
+    : gluetxcoords_( new osg::Vec2Array )
     , gluegeode_( new osg::Geode )
     , gluegeom_( new osg::Geometry )
-    , gluenormals_ ( new osg::Vec3Array )
     , glueps_(new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLE_STRIP, 0))
+    , gluevtexarr_( Coordinates::create() )
+    , gluenormalarr_( Coordinates::create() )
     , glueosgps_( 0 )
+    , transformation_( 0 )
 {
+    gluegeode_->ref();
     glueps_->ref();
+    gluevtexarr_->ref();
+    gluenormalarr_->ref();
     buildOsgGeometry();
 }
 
@@ -31,6 +35,9 @@ HorizonSectionTileGlue::~HorizonSectionTileGlue()
 {
     removeGlue();
     glueps_->unref();
+    gluegeode_->unref();
+    gluevtexarr_->unRef();
+    gluenormalarr_->unRef();
 }
 
 
@@ -38,12 +45,13 @@ void HorizonSectionTileGlue::removeGlue()
 {
     if ( gluegeom_ ) 
 	gluegeom_->removePrimitiveSet( 0,gluegeom_->getNumPrimitiveSets() );
-    if ( mGetOsgVec3Arr( gluevtxcoords_ )->size() )
-	mGetOsgVec3Arr( gluevtxcoords_ )->clear();
-    if ( mGetOsgVec3Arr( gluenormals_ )->size() )
-	mGetOsgVec3Arr( gluenormals_ )->clear();
+
+    gluevtexarr_->setEmpty();
+    gluenormalarr_->setEmpty();
+
     if ( mGetOsgVec2Arr( gluetxcoords_ )->size() )
 	 mGetOsgVec2Arr( gluetxcoords_ )->clear();
+
     if ( glueps_->size() ) glueps_->clear();
 }
 
@@ -51,8 +59,8 @@ void HorizonSectionTileGlue::removeGlue()
 void HorizonSectionTileGlue::buildOsgGeometry()
 {
     gluegeode_->addDrawable( gluegeom_ );
-    gluegeom_->setVertexArray( gluevtxcoords_ );
-    gluegeom_->setNormalArray( gluenormals_ );
+    gluegeom_->setVertexArray( gluevtexarr_->osgArray() );
+    gluegeom_->setNormalArray( gluenormalarr_->osgArray() );
     gluegeom_->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     gluegeom_->setDataVariance( osg::Object::DYNAMIC );
     gluegeom_->removePrimitiveSet( 0 , gluegeom_->getNumPrimitiveSets() );
@@ -62,8 +70,6 @@ void HorizonSectionTileGlue::buildOsgGeometry()
 void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile, 
 		    HorizonSectionTile* neighbortile, bool rightneighbor )
 {
-    osg::Vec3Array* coordsarr = mGetOsgVec3Arr( gluevtxcoords_ );
-    osg::Vec3Array* normalarr = mGetOsgVec3Arr( gluenormals_ );
     osg::Vec2Array* texturesarr = mGetOsgVec2Arr( gluetxcoords_ );
 
     datalock_.lock();
@@ -91,17 +97,16 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
     const int spacing = hrsection.spacing_[highestres];
     const int nrblocks = spacing == 1 ? (int)hrsection.nrcoordspertileside_
 	/spacing : (int)hrsection.nrcoordspertileside_/spacing +1 ;
-    const Coordinates* coords = 
+
+    const Coordinates* vtxarr = 
 	gluetile->tileresolutiondata_[highestres]->vertices_;
 
-    const osg::Vec3Array* arr = mGetOsgVec3Arr( 
-	gluetile->tileresolutiondata_[highestres]->vertices_->osgArray() );
     const osg::Vec3Array* normals = mGetOsgVec3Arr(
 	gluetile->tileresolutiondata_[highestres]->normals_ );
     const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
 	gluetile->tileresolutiondata_[highestres]->txcoords_ );
 
-    if ( arr->size()<=0  || normals->size()<=0  || tcoords->size()<=0 )
+    if ( vtxarr->size()<=0  || normals->size()<=0  || tcoords->size()<=0 )
 	return;
 
     int coordidx = 0;
@@ -131,11 +136,18 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	    coordidx = idx;
 	}
 
-	if( coords->isDefined( coordidx ) )
+	if( vtxarr->isDefined( coordidx ) )
 	{
-	    if ( coordsarr ) coordsarr->push_back((*arr)[coordidx] ) ; 
+	    if ( vtxarr ) gluevtexarr_->addPos( vtxarr->getPos( coordidx ) );
 	    if ( gluetxcoords_  ) texturesarr->push_back((*tcoords)[coordidx]);
-	    if ( normalarr  ) 	normalarr->push_back((*normals)[coordidx]);
+	    if ( normals  ) 
+	    {
+		const osg::Vec3f osgnmcrd = (*normals)[coordidx];
+		Coord3 nmcrd = Conv::to<Coord3>( osgnmcrd );
+		if ( transformation_ )
+		    transformation_->transformBack( nmcrd );
+		gluenormalarr_->addPos( nmcrd );
+	    }
 
 	    triangleidxs += gluepsidx;
 	    gluepsidx++;
@@ -180,3 +192,18 @@ void HorizonSectionTileGlue::addGlueTrianglePrimitiveSet(TypeSet<int>& idxs)
     idxs.setEmpty();
 }
 
+void HorizonSectionTileGlue::setDisplayTransformation( const mVisTrans* nt )
+{
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = nt;
+
+    if ( transformation_ )
+	transformation_->ref();
+
+    gluevtexarr_->setDisplayTransformation( nt );
+    gluenormalarr_->setDisplayTransformation( nt );
+    gluegeom_->dirtyBound();
+    gluegeom_->dirtyDisplayList();
+}

@@ -196,6 +196,16 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 
     if ( transformation_ )
 	transformation_->ref();
+
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    const int tilesz = tiles_.info().getTotalSz();
+
+    for ( int idx=0; idx<tilesz; idx++ )
+    {
+	tileptrs[idx]->setDisplayTransformation( nt );
+	tileptrs[idx]->dirtyGeometry();
+    }
+
 }
 
 
@@ -291,6 +301,7 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 
     configSizeParameters();
     surfaceChange( 0, 0 );
+
     setResolution( desiredresolution_, 0 );
 }
 
@@ -323,9 +334,13 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, gpids, cb );
 
-    updatelock_.lock();
-    surfaceChange( gpids, 0 );
-    updatelock_.unLock();
+    if ( gpids )
+    {
+	updatelock_.lock();
+	surfaceChange( gpids, 0 );
+	updatelock_.unLock();
+    }
+    
 }
 
 char HorizonSection::currentResolution() const

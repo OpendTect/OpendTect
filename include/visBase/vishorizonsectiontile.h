@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "color.h"
 #include "rowcol.h"
+#include "visdata.h"
 
 #if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
 #include <osg/BoundingBox>
@@ -70,6 +71,7 @@ public:
     //!<Sets origin and opposite in global texture
     void		    addTileTesselator( int res );
     void		    addTileGlueTesselator();
+    void		    setDisplayTransformation(const mVisTrans*);
 
 protected:
 
@@ -93,6 +95,7 @@ protected:
 
     void		    updatePrimitiveSets();
     const visBase::Coordinates*   getHighestResolutionCoordinates();
+    void		    dirtyGeometry();
 
 
 protected:

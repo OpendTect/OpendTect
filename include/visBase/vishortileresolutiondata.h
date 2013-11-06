@@ -65,10 +65,12 @@ public:
     void		calcNormals(bool allownormalinvalid = true );
     bool		tesselateResolution(bool onlyifabsness);
 
+
     osg::BoundingBox&	updateBBox();
     void		updatePrimitiveSets();
     void		setLineColor(Color& color);
     visBase::Coordinates*	getCoordinates() { return vertices_; };
+    void		dirtyGeometry();
 
 protected:
 
@@ -107,6 +109,7 @@ protected:
     double			cosanglexinl_;
     double			sinanglexinl_;
     bool			needsetposition_;
+    int				dispgeometrytype_;
 
 private:
 

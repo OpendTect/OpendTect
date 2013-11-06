@@ -136,6 +136,7 @@ protected:
     void			configSizeParameters();
     void			updateAutoResolution( const osg::CullStack* );
 
+
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
 

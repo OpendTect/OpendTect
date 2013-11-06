@@ -211,12 +211,13 @@ void HorizonSectionTile::addTileGlueTesselator()
 
 void HorizonSectionTile::updateBBox()
 {
-    if ( !needsupdatebbox_ ) return;
-
+    if ( !needsupdatebbox_ )
+	return;
     bbox_.init();
-    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	bbox_.expandBy( tileresolutiondata_[res]->updateBBox() );
-
+    if ( tileresolutiondata_[0] )
+    {
+	bbox_.expandBy( tileresolutiondata_[0]->updateBBox() );
+    }
     needsupdatebbox_ = false;
 }
 
@@ -277,9 +278,9 @@ char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs )
     const static int cIdealNrPixelsPerCell = 32;
 
     updateBBox();
-    if ( !bbox_.valid() || !cs) return cNoneResolution;
+    if ( !bbox_.valid() || !cs ) return cNoneResolution;
 
-    const float screensize = cs->clampedPixelSize( osg::BoundingSphere(bbox_));
+    const float screensize = cs->clampedPixelSize( osg::BoundingSphere(bbox_) );
     const float nrpixels = screensize*screensize;
     const int wantednumcells = (int)( nrpixels / cIdealNrPixelsPerCell);
 
@@ -325,6 +326,7 @@ void HorizonSectionTile::setActualResolution( char resolution )
 
 	resolutionhaschanged_ = true;
     }
+    
 }
 
 
@@ -352,6 +354,32 @@ void HorizonSectionTile::useWireframe( bool yn )
 { usewireframe_=yn; }
 
 
+void HorizonSectionTile::setDisplayTransformation( const mVisTrans* nt )
+{
+    if ( getHighestResolutionCoordinates()->size() == 0 )
+	return;
+
+    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
+    {
+	tileresolutiondata_[res]->setDisplayTransformation( nt );
+	updateNormals( res );
+    }
+    righttileglue_->setDisplayTransformation( nt );
+    bottomtileglue_->setDisplayTransformation( nt );
+}
+
+
+void HorizonSectionTile::dirtyGeometry()
+{
+    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
+    {
+	tileresolutiondata_[res]->dirtyGeometry();
+    }
+
+}
+
+
+
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
     const RefMan<const Transformation> trans = hrsection_.transformation_;
@@ -361,7 +389,6 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
     datalock_.lock();
 
     tileresolutiondata_[0]->initVertices();
-    tileresolutiondata_[0]->setDisplayTransformation( trans );
     tileresolutiondata_[0]->setAllVertices( pos );
     bbox_.expandBy( tileresolutiondata_[0]->bbox_ );
     tileresolutiondata_[0]->needsretesselation_ = cMustRetesselate;

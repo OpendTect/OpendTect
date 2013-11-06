@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "typeset.h"
 #include "thread.h"
+#include "visdata.h"
 
 
 namespace osg
@@ -31,6 +32,7 @@ namespace osg
 namespace visBase
 {
     class HorizonSectionTile;
+    class Coordinates;
  
 class HorizonSectionTileGlue
 {
@@ -40,10 +42,11 @@ class HorizonSectionTileGlue
 	void			buildGlue(HorizonSectionTile*, 
 					  HorizonSectionTile*,bool);
 	osg::Geode*		getGeode() { return gluegeode_; }
+	void			setDisplayTransformation(const mVisTrans*);
 
 protected:
-    osg::Array*			gluevtxcoords_;
-    osg::Array*		    	gluenormals_;
+    visBase::Coordinates*	gluevtexarr_;
+    visBase::Coordinates*	gluenormalarr_;
     osg::Array*			gluetxcoords_;
     osg::Geode*			gluegeode_;
     osg::Geometry*		gluegeom_;
@@ -51,6 +54,8 @@ protected:
     osg::DrawElementsUShort*	glueosgps_;
 
     Threads::Mutex		datalock_;
+
+    const mVisTrans*		transformation_;
 
     void			buildOsgGeometry();
     void			addGlueTrianglePrimitiveSet(TypeSet<int>&);
