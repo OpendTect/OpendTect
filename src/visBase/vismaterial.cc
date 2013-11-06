@@ -58,7 +58,7 @@ bool OsgColorArrayUpdator::doPrepare(int)
 bool OsgColorArrayUpdator::doWork(od_int64 start,od_int64 stop,int)
 {
     for ( int idx = mCast(int,start); idx<=mCast(int,stop); idx++ )
-	material_->updateOsgColor( idx, false );
+	material_->updateOsgColor( idx );
 
     return true;
 }
@@ -77,7 +77,7 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
     Threads::Locker nm( lock_, Threads::Locker::WriteLock )
 
 #define mGetReadLock(nm) \
-    Threads::Locker lckr( lock_, Threads::Locker::ReadLock )
+    Threads::Locker nm( lock_, Threads::Locker::ReadLock )
 
 
 Material::Material()
@@ -153,12 +153,14 @@ void Material::setColor( const Color& n, int idx )
 {
     mGetWriteLock( lckr );
     setMinNrOfMaterials( idx,true,false );
-
     if ( colors_[idx]==n )
 	return;
     colors_[idx] = n;
 
     updateOsgColor( idx );
+
+    lckr.unlockNow();
+    change.trigger();
 
 }
 
@@ -211,6 +213,8 @@ void Material::setDiffIntensity( float n, int idx )
     setMinNrOfMaterials(idx);
     diffuseintensity_[idx] = n;
     updateOsgColor( idx );
+    lckr.unlockNow();
+    change.trigger();
 }
 
 
@@ -239,6 +243,8 @@ void Material::setTransparency( float n, int idx )
 
     transparency_[idx] = n;
     updateOsgColor( idx );
+    lckr.unlockNow();
+    change.trigger();
 }
 
 void Material::setAllTransparencies( float n )
@@ -292,6 +298,8 @@ void Material::set##func( Type n ) \
     mGetReadLock( lck ); \
     var = n; \
     updateOsgColor( 0 ); \
+    lck.unlockNow();\
+    change.trigger();\
 } \
 Type Material::get##func() const \
 { \
@@ -309,7 +317,7 @@ mSetGetProperty( float, Shininess, shininess_ );
     osg::Vec4( col.r()*fac/255, col.g()*fac/255, col.b()*fac/255, 1.0-transp )
 
 
-void Material::updateOsgColor( int idx, bool trigger)
+void Material::updateOsgColor( int idx )
 {
     if ( !osgcolorarray_ || idx > (*mGetOsgVec4Arr(osgcolorarray_)).size() )
 	return;
@@ -342,8 +350,6 @@ void Material::updateOsgColor( int idx, bool trigger)
 	 colarr[idx] = diffuse;
     }
 
-    if( trigger )
-	change.trigger();
 }
 
 
@@ -443,7 +449,7 @@ void Material::setNrOfMaterials( int nr )
     if ( nr > colors_.size() )
     {
 	setMinNrOfMaterials( nr, false );
-	updateOsgColor( nr, false );
+	updateOsgColor( nr );
     }
 }
 

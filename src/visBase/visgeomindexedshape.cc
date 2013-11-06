@@ -64,10 +64,7 @@ GeomIndexedShape::GeomIndexedShape()
 
     setRenderMode( RenderBothSides );
 
-    if ( getMaterial() )
-    {
-	getMaterial()->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
-    }
+    setMaterial( new Material );
 }
 
 
@@ -125,7 +122,6 @@ void GeomIndexedShape::setMaterial( Material* mat )
 
     colorhandler_->material_->setPropertiesFrom( *mat );
 
-    mat->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
 }
 
 

@@ -110,7 +110,7 @@ private:
     void		setMinNrOfMaterials(int,bool synchronize = true,
 						    bool trigger = true );
 			//!<Assumes that object is write locked
-    void		updateOsgColor(int,bool trigger = true);
+    void		updateOsgColor(int);
 			//!<Needs to be read or write locked
     void		createOsgColorArray(int);
     void		synchronizingOsgColorArray(bool trigger = true);
