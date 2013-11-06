@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:sourceDocument="Z:\tmp\Userdoc_Chapter_4-6.docx">
+    <head><title></title>
+        <link href="../Resources/Stylesheets/Userdoc_Chapter_4-6.css" rel="stylesheet" />
+    </head>
+    <body>
+        <h4 class="Heading4">Pickset Sub-elements Pop-up Menu</h4>
+        <p>If more than one pickset is loaded, the following options will be available in the tree:<br /><br /><img src="../Resources/Images/Userdoc_Chapter_4-6/0300000A.png" style="height: 218px;width: 368px;" class="img_1" /><br /><br /><span class="span_2">Calculate Volume</span><br /><br />In OpendTect, an estimated volume can be computed from a polygon to a given surface.<br />The velocity default is set to 3000 m/s. Negative thicknesses can either be discarded or taken into account.<br /><br /><img src="../Resources/Images/Userdoc_Chapter_4-6/0200000B.jpg" style="height: 326px;width: 348px;" class="img_1" /><br /><br /><span class="span_2">Close polygon.</span> During, and at the end of a picking session, picksets should be stored.<br /><br /><span class="span_2">Properties:</span> In this window the <span class="span_1">Type</span>, <span class="span_1">Size</span> and <span class="span_1">Color</span> of the pick markers on the graphics area can be set. The type <span class="span_1">Arrow</span> is also automatically used when the pick is given directional information in the <span class="span_1">Set directions</span> option under the pickset pop-up menu.<br /><br /><span class="span_2">Display only at sections:</span> Shows picks on the displayed elements in the graphics area only. This mode allows picking at new locations without being distracted by previously picked points throughout the survey volume.<br /><br /><span class="span_2">Convert to body:</span> Convert the polygon into a body.<br /><br /><span class="span_2">Set direction:</span> Display direction, guided by the steering cube/attribute. This helps to understand the geological dips and fluid flow. It is assigned by setting a direction to each pick based on dip and azimuth information (attributes). In the pop-up window (see below), specify either a steering cube or two attributes providing the polar dip and azimuth in degrees. A velocity of 2000 m/s will be used in time survey to convert the dip from degrees to Î¼s/m if the dip angle data is read from a stored cube instead of the dip angle attribute. Do not forget after setting the directions to save you pickset and change the display type to "Arrow".<br /><br /><img src="../Resources/Images/Userdoc_Chapter_4-6/0300000C.png" style="height: 400px;width: 500px;" class="img_1" /><br /><span class="span_1">An example of setting direction to a pickset</span> <span class="span_1">(black arrows)</span><span class="span_1">.</span></p>
+        <table class="table_1">
+            <col style="width: 328pt;" />
+            <col style="width: 4pt;" />
+            <tr class="tr_1">
+                <td class="td_1">
+                    <p>
+                        <img src="../Resources/Images/Userdoc_Chapter_4-6/0200000D.jpg" style="height: 239px;width: 432px;" class="img_1" />
+                        <br /><span class="span_1">Steering cube direction</span>
+                    </p>
+                </td>
+                <td class="td_1">
+                    <p>&#160;</p>
+                </td>
+            </tr>
+            <tr class="tr_1">
+                <td class="td_1">
+                    <p>&#160;</p>
+                </td>
+                <td class="td_1">
+                    <p>&#160;</p>
+                </td>
+            </tr>
+        </table>
+        <p>
+            <img src="../Resources/Images/Userdoc_Chapter_4-6/0200000E.jpg" style="height: 239px;width: 432px;" class="img_1" />
+            <br /><span class="span_1">Attributes input</span><span class="span_2"><br /></span><span class="span_2"><br /></span><span class="span_2">Save/Save As:</span> Either overwrite the stored input by using option <span class="span_1">Save</span> or store <span class="span_1">as new</span> pickset by using <span class="span_1">Save As</span> option.<br /><br /><span class="span_2">Create Body:</span> This option is available only for a polygon. It is used to create a body using the polygon as a constraining area. It requires a top and bottom horizon between which the body would be created. This feature is only enabled if SSIS plugin is loaded (or licensed). For details, please go to the Manual SSIS chapter of the plugin documentation.<br /><br /><span class="span_2">Lock / Unlock:</span> Lock the selected object. Prevents accidental removal, moving or displaying of data on the object. Clicking "Unlock" enables editing again.<br /><br /><span class="span_2">Remove:</span> Remove pickset from tree. Note: removing any unsaved pickset will result in complete loss of data.<br /><br /><span class="span_2">Export to Google KML:</span> Export selected polygon to a Google KML file. When selected, the following export window is launched. Fill in the output KML parameters and write/select the output file location. Press the 'Ok' button to export the polygon in the selected location. The feature will prompt an additional conversion dialog if the conversion settings for the survey are not defined. For further information, please refer to the Survey Selection section.<br /><br /><br /><img src="../Resources/Images/Userdoc_Chapter_4-6/0200000F.jpg" style="height: 235px;width: 293px;" class="img_1" /><br /><span class="span_1">Export the polygon to a KML file</span></p>
+        <p>&#160;</p>
+    </body>
+</html>

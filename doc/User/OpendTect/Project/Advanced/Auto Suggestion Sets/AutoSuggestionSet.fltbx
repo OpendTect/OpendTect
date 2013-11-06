@@ -1,0 +1,46 @@
+﻿<?xml version='1.0'?>
+<!DOCTYPE martif SYSTEM "TBXBasiccoreStructV02.dtd">
+<!-- The following lines are required when validating this file against the TBX-Basic RNG schema.
+If you want to use this schema for validation, instead of the DTD, you must uncomment the following
+two lines (6 and 7), and comment-out the DOCTYPE statement on line 2.-->
+<!--<?oxygen SCHSchema="TBXBasicRNGV02.rng"?>-->
+<!--<?oxygen RNGSchema="TBXBasicRNGV02.rng" type="xml"?>-->
+
+<CatapultTbx>
+  <martif type="TBX-Basic" xml:lang="en-US">
+    <martifHeader>
+      <fileDesc>
+        <titleStmt>
+          <title>TBX-Basic File</title>
+          <note>This file provides TBX-Basic functionality in MadCap Flare</note>
+        </titleStmt>
+        <sourceDesc>
+          <p>This is a TBX-Basic file from MadCap Flare.</p>
+        </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+        <p type="XCSURI">
+          http://www.lisa.org/fileadmin/standards/tbx_basic/TBXBasicXCSV02.XCS
+        </p>
+      </encodingDesc>
+    </martifHeader>
+    <text>
+      <body>
+        <termEntry
+          id="neweid1">
+          <langSet
+            xml:lang="en">
+            <tig
+              id="newtid1">
+              <term>Enter your phrase here</term>
+              <termNote
+                type="administrativeStatus">preferredTerm-admn-sts</termNote>
+            </tig>
+          </langSet>
+        </termEntry>
+      </body>
+      <back/>
+    </text>
+  </martif>  
+</CatapultTbx>
+

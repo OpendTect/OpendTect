@@ -1,0 +1,114 @@
+/*<meta sourceDocument="Z:\tmp\Userdoc_Chapter_4-6.docx" />*/
+
+p
+{
+	margin-bottom: 10pt;
+	font-size: 11pt;
+	margin-top: 0pt;
+}
+
+ol
+{
+	margin-bottom: 10pt;
+	font-size: 11pt;
+	margin-top: 0pt;
+}
+
+ul
+{
+	margin-bottom: 10pt;
+	font-size: 11pt;
+	margin-top: 0pt;
+}
+
+li
+{
+	margin-bottom: 10pt;
+	font-size: 11pt;
+	margin-top: 0pt;
+}
+
+td
+{
+	margin-bottom: 10pt;
+	font-size: 11pt;
+	vertical-align: top;
+}
+
+h1.Heading1
+{
+	margin-top: 5pt;
+	margin-bottom: 5pt;
+	mc-heading-level: 1;
+	font-weight: bold;
+	font-size: 24pt;
+}
+
+span.span_1
+{
+	font-style: italic;
+}
+
+img.img_1
+{
+	mso-wrap-distance-bottom: 0;
+	mso-wrap-distance-left: 0;
+	mso-wrap-distance-right: 0;
+	mso-wrap-distance-top: 0;
+}
+
+span.span_2
+{
+	font-weight: bold;
+}
+
+h3.Heading2
+{
+	page-break-after: avoid;
+	page-break-inside: avoid;
+	margin-top: 10pt;
+	margin-bottom: 0pt;
+	mc-heading-level: 2;
+	font-weight: bold;
+	color: #4F81BD;
+	font-size: 13pt;
+}
+
+p.p_1
+{
+	margin-bottom: 12pt;
+}
+
+td.td_1
+{
+	vertical-align: middle;
+	padding-top: 1pt;
+	padding-bottom: 1pt;
+	padding-left: 1pt;
+	padding-right: 1pt;
+}
+
+tr.tr_1
+{
+	margin-left: 0pt;
+}
+
+table.table_1
+{
+	margin-left: 0pt;
+	border-collapse: collapse;
+}
+
+h4.Heading4
+{
+	font-size: 11pt;
+	page-break-after: avoid;
+	page-break-inside: avoid;
+	margin-top: 10pt;
+	margin-bottom: 0pt;
+	mc-heading-level: 4;
+	font-weight: bold;
+	font-style: italic;
+	color: #4F81BD;
+}
+
