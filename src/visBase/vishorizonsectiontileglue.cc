@@ -12,7 +12,6 @@
 
 using namespace visBase;
 
-
 HorizonSectionTileGlue::HorizonSectionTileGlue()
     : gluetxcoords_( new osg::Vec2Array )
     , gluegeode_( new osg::Geode )
