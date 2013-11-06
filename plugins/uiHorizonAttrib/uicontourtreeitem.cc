@@ -649,7 +649,7 @@ void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 const char* areaString()
 {
-    return SI().xyInFeet() ? "Area (sqft)" : " Area (m^2)";
+    return SI().xyInFeet() ? "Area (sqft)" : "Area (m^2)";
 }
 
 
