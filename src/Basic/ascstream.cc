@@ -64,10 +64,6 @@ ascostream::ascostream( od_ostream& strm )
     mImplConstr( strm, false )
 ascostream::ascostream( od_ostream* strm )
     mImplConstr( strm ? *strm : od_ostream::nullStream(), true )
-ascostream::ascostream( std::ostream& strm )
-    mImplConstr( *new od_ostream(strm), true )
-ascostream::ascostream( std::ostream* strm )
-    mImplConstr( *new od_ostream(strm), true )
 ascostream::~ascostream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascostream::isOK() const
@@ -236,10 +232,6 @@ ascistream::ascistream( od_istream& strm, bool rdhead )
     mImplConstr( strm, false )
 ascistream::ascistream( od_istream* strm, bool rdhead )
     mImplConstr( strm ? *strm : od_istream::nullStream(), true )
-ascistream::ascistream( std::istream& strm, bool rdhead )
-    mImplConstr( *new od_istream(strm), true )
-ascistream::ascistream( std::istream* strm, bool rdhead )
-    mImplConstr( *new od_istream(strm), true )
 ascistream::~ascistream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascistream::isOK() const

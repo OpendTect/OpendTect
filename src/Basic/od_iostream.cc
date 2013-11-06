@@ -481,6 +481,18 @@ od_ostream& od_ostream::addPtr( const void* ptr )
 }
 
 
+od_ostream& od_ostream::add( od_istream& strm )
+{
+    char c;
+    while ( isOK() && strm.isOK() )
+    {
+	strm.get( c );
+	add( c );
+    }
+    return *this;
+}
+
+
 bool od_istream::getWord( BufferString& bs, bool allownl )
 {
     return allownl

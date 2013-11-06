@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "dirlist.h"
 #include "helpview.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "filepath.h"
 #include "file.h"
 #include "oddirs.h"
@@ -68,11 +68,11 @@ public:
     BufferString	starturl;
     BufferString	shortcut;
 
-    bool		getFrom(std::istream&,const char*);
+    bool		getFrom(od_istream&,const char*);
 };
 
 
-bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
+bool uiODHelpDocInfo::getFrom( od_istream& strm, const char* dirnm )
 {
     ascistream astrm( strm );
 
@@ -109,8 +109,8 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	FilePath fp( dl.dirName(), dirnm );
 	const BufferString fulldirnm = fp.fullPath();
 	fp.add( ".mnuinfo" );
-	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-	if ( !sd.usable() || !di->getFrom(*sd.istrm,fulldirnm) )
+	od_istream strm( fp.fullPath() );
+	if ( !strm.isOK() || !di->getFrom(strm,fulldirnm) )
 	{
 	    fp.setFileName( "LinkFileTable.txt" );
 	    const bool haslinkfile = File::exists( fp.fullPath() );
@@ -122,13 +122,13 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 		if( File::exists(temfp.fullPath()) )
 		    fp.setFileName( "index.html" );
 		if ( !File::exists(fp.fullPath()) && !haslinkfile )
-		    { delete di; sd.close(); continue; }
+		    { delete di; continue; }
 	    }
 	    di->starturl = fp.fullPath();
 	    di->iconfnm = FilePath(docdir,"defhelpicon").fullPath();
 	    di->nm = dirnm;
 	}
-	sd.close();
+	strm.close();
 
 	di->id = mHelpVarMnuBase + varentries_.size();
 	varentries_ += di;

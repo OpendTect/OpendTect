@@ -60,7 +60,8 @@ public:
 
     od_ostream&		add(const void*); //!< produces pErrMsg but works
     od_ostream&		addPtr(const void*);
-    od_ostream&		add( od_ostream& )		{ return *this; }
+    od_ostream&		add(od_istream&);
+    od_ostream&		add( od_ostream& )	{ return *this; }
 
     bool		addBin(const void*,Count nrbytes);
     std::ostream&	stdStream();

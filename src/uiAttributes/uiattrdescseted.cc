@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistype.h"
 #include "survinfo.h"
 #include "settings.h"
-#include "strmprov.h"
+#include "od_istream.h"
 
 #include "uiattrdesced.h"
 #include "uiattrgetfile.h"
@@ -1018,8 +1018,8 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 
 void uiAttribDescSetEd::importFromFile( const char* filenm )
 {
-    StreamProvider sp( filenm );
-    ascistream ascstrm( *sp.makeIStream(false).istrm );
+    od_istream strm( filenm );
+    ascistream ascstrm( strm );
     IOPar iopar( ascstrm );
     replaceStoredAttr( iopar );
     attrset_->usePar( iopar, toFloat(ascstrm.version()) );

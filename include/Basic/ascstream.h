@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "plftypes.h"
 #include "od_iostream.h"
-#include <iosfwd>
 
 #define mAscStrmParagraphMarker		"!"
 #define mAscStrmKeyValSep		':'
@@ -37,8 +36,6 @@ public:
 
 		ascostream(od_ostream&);
 		ascostream(od_ostream*); // becomes mine
-		ascostream(std::ostream&);
-		ascostream(std::ostream*); // becomes mine
     virtual	~ascostream();
 
     bool	isOK() const;
@@ -87,8 +84,6 @@ mExpClass(Basic) ascistream
 public:
 			ascistream(od_istream&,bool rdhead=true);
 			ascistream(od_istream*,bool rdhead=true);
-			ascistream(std::istream&,bool rdhead=true);
-			ascistream(std::istream*,bool rdhead=true);
     virtual		~ascistream();
 
     ascistream&		next();
