@@ -52,6 +52,8 @@ public:
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
     			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
+    inline const StratSynth& altSS() const
+    			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
@@ -100,6 +102,7 @@ public:
     void		fillPar(IOPar&,bool) const;
     bool		usePar(const IOPar&);
 
+    void		showFRResults();
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
     void		setUseEdited( bool yn )	  { useed_ = yn; }
@@ -156,6 +159,8 @@ protected:
     void		updateSyntheticList(bool wva);
     inline StratSynth&	curSS()
     			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
+    inline StratSynth&	altSS()
+    			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
     void		displayFRText();
