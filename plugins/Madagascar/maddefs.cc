@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "executor.h"
 #include "globexpr.h"
+#include "ptrman.h"
 #include <iostream>
 
 ODMad::ProgInfo& ODMad::PI()
