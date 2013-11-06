@@ -15,21 +15,31 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hilberttransform.h"
 #include "ascstream.h"
 #include "errh.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "ptrman.h"
 #include "seisinfo.h"
-#include "seistrc.h"
 #include "separstr.h"
 #include "statruncalc.h"
 #include "streamconn.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "valseriesinterpol.h"
 
 #include <math.h>
 
 static const char* sKeyScaled = "Scaled";
+#define mDefaultSnapdist (1e-4f);
+
+HiddenParam<Wavelet,ValueSeriesInterpolator<float>*> intpol_(0);
+
+ValueSeriesInterpolator<float>* Wavelet::getIntPol() const
+{
+    return intpol_.getParam( this );
+}
+
 
 
 Wavelet::Wavelet( const char* nm )
@@ -39,6 +49,7 @@ Wavelet::Wavelet( const char* nm )
 	, sz_(0)
 	, samps_(0)
 {
+    intpol_.setParam( this, 0 );
 }
 
 
@@ -47,6 +58,7 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     	, sz_(0)
 	, samps_(0)
 {
+    intpol_.setParam( this, 0 );
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
     if ( mIsUdf(scale) )
@@ -84,16 +96,24 @@ Wavelet::Wavelet( const Wavelet& wv )
 	: sz_(0)
 	, samps_(0)
 {
+    intpol_.setParam( this, 0 );
     *this = wv;
 }
 
 
 Wavelet& Wavelet::operator =( const Wavelet& wv )
 {
+    if ( &wv == this ) return *this;
+
     cidx_ = wv.cidx_;
     dpos_ = wv.dpos_;
     reSize( wv.size() );
     if ( sz_ ) memcpy( samps_, wv.samps_, sz_*sizeof(float) );
+    delete intpol_.getParam(this); intpol_.removeParam(this);
+    if ( wv.getIntPol() )
+	intpol_.setParam( this,
+	   new ValueSeriesInterpolator<float>( *wv.getIntPol() ) );
+
     return *this;
 }
 
@@ -101,13 +121,16 @@ Wavelet& Wavelet::operator =( const Wavelet& wv )
 Wavelet::~Wavelet()
 {
     delete [] samps_;
+    delete intpol_.getParam(this);
+    intpol_.removeParam(this);
 }
 
 
 Wavelet* Wavelet::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    PtrMan<WaveletTranslator> tr = (WaveletTranslator*)ioobj->createTranslator();
+    PtrMan<WaveletTranslator> tr =
+		(WaveletTranslator*)ioobj->createTranslator();
     if ( !tr ) return 0;
     Wavelet* newwv = 0;
 
@@ -166,6 +189,37 @@ void Wavelet::reSize( int newsz )
     delete [] samps_;
     samps_ = newsamps;
     sz_ = newsz;
+}
+
+
+const ValueSeriesInterpolator<float>& Wavelet::interpolator() const
+{
+    mDefineStaticLocalObject(
+	   PtrMan<ValueSeriesInterpolator<float> >, defintpol, = 0);
+    if ( !defintpol )
+    {
+	ValueSeriesInterpolator<float>* newdefintpol = new
+					ValueSeriesInterpolator<float>();
+	newdefintpol->snapdist_ = mDefaultSnapdist;
+	newdefintpol->smooth_ = true;
+	newdefintpol->extrapol_ = false;
+	newdefintpol->udfval_ = 0;
+	if ( !defintpol.setIfNull(newdefintpol) )
+	    delete newdefintpol;
+    }
+    ValueSeriesInterpolator<float>& ret
+	= const_cast<ValueSeriesInterpolator<float>&>( intpol_.getParam(this)
+				    ? *intpol_.getParam(this) : *defintpol );
+    ret.maxidx_ = size() - 1;
+    return ret;
+}
+
+
+void Wavelet::setInterpolator( ValueSeriesInterpolator<float>* intpol )
+{
+    delete intpol_.getParam(this);
+    intpol_.removeParam(this);
+    intpol_.setParam( this, intpol );
 }
 
 
@@ -288,7 +342,7 @@ bool Wavelet::reSample( float newsr )
 
 bool Wavelet::reSampleTime( float newsr )
 {
-    if ( newsr < 1e-6 )
+    if ( newsr < 1e-6f )
 	return false;
 
     float fnewsz = (sz_-1) * dpos_ / newsr + 1.f - 1e-5f;
@@ -298,18 +352,13 @@ bool Wavelet::reSampleTime( float newsr )
 	return false;
 
     StepInterval<float> twtrg = samplePositions();
-    twtrg.step = dpos_;
-    SeisTrc wvlttrc( sz_ );
-    wvlttrc.info().sampling.start = twtrg.start;
-    wvlttrc.info().sampling.step = twtrg.step;
-    for ( int idx=0; idx<sz_; idx++ )
-	wvlttrc.set( idx, samps_[idx], 0 );
+    twtrg.step = newsr;
+    for ( int idx=0; idx<newsz; idx++ )
+	newsamps[idx] = getValue( twtrg.atIndex(idx) );
 
     sz_ = newsz;
-    twtrg.step = newsr;
-    delete [] samps_; samps_ = newsamps;
-    for ( int idx=0; idx<sz_; idx++ )
-	samps_[idx] = wvlttrc.getValue( twtrg.atIndex(idx), 0 );
+    delete [] samps_;
+    samps_ = newsamps;
     cidx_ = twtrg.getIndex( 0.f );
     dpos_ = newsr;
     return true;
@@ -425,6 +474,36 @@ bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
     orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
     return true;
 }
+
+
+int Wavelet::nearestSample( float z ) const
+{
+    float s = mIsUdf(z) ? 0.f : ( z - samplePositions().start ) / dpos_;
+    return mNINT32(s);
+}
+
+
+float Wavelet::getValue( float z ) const
+{
+    const float pos = ( z - samplePositions().start ) / dpos_;
+    return interpolator().value( WaveletValueSeries(*this), pos );
+}
+
+
+float WaveletValueSeries::value( od_int64 idx ) const
+{ return wv_.get((int) idx ); }
+
+
+void WaveletValueSeries::setValue( od_int64 idx,float v )
+{ wv_.set((int) idx,v); }
+
+
+float* WaveletValueSeries::arr()
+{ return wv_.samples(); }
+
+
+const float* WaveletValueSeries::arr() const
+{ return const_cast<WaveletValueSeries*>( this )->arr(); }
 
 
 int WaveletTranslatorGroup::selector( const char* key )
