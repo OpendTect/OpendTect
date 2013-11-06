@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odusginfo.h"
 #include "callback.h"
 #include "genc.h"
+#include "ptrman.h"
 #include <iostream>
 
 
