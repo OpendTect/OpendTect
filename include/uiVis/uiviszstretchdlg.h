@@ -39,10 +39,10 @@ protected:
 
     TypeSet<int>	sceneids_;
     float		initslval_;
+    float		uifactor_;
     bool		valchgd_;
 
     void		setZStretch(float,bool permanent);
-    float		getCurrentZStretch() const;
     void		updateSliderValues();
 
     void		doFinalise(CallBacker*);

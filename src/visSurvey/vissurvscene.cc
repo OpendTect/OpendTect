@@ -46,7 +46,7 @@ const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
 const char* Scene::sKeyAnnotFont()	{ return "Annotation font"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
-const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
+const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
 const char* Scene::sKeyAppAllowShading(){ return "Allow shading";}
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
@@ -117,8 +117,10 @@ void Scene::setup()
 
     const CubeSampling& cs = SI().sampling(true);
 
-    SI().pars().get( sKeyZStretch(), curzstretch_ );
-    updateTransforms( cs.hrg );
+    if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
+        SI().pars().get( "Z Scale", curzstretch_ );
+    
+    updateTransforms( cs );
 
     setCubeSampling( cs );
     addInlCrlZObject( annot_ );
@@ -199,7 +201,10 @@ Scene::~Scene()
 }
 
 
-void Scene::updateTransforms( const HorSampling& hs )
+#define mZFactor(stretch) (zscale_*stretch / 2)
+
+
+void Scene::updateTransforms( const CubeSampling& cs )
 {
     if ( !tempzstretchtrans_ )
     {
@@ -210,11 +215,11 @@ void Scene::updateTransforms( const HorSampling& hs )
     RefMan<mVisTrans> newinlcrlrotation = mVisTrans::create();
     RefMan<mVisTrans> newinlcrlscale = mVisTrans::create();
 
-    const float zfactor = -1 * zscale_*curzstretch_;
-    //-1 to compensate for that we want z to increase with depth
+    const float zfactor = -1 * mZFactor(curzstretch_);
+    // -1 to compensate for that we want z to increase with depth
 
     SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
-	zfactor, newinlcrlrotation, newinlcrlscale );
+	zfactor, cs.zrg.center(), newinlcrlrotation, newinlcrlscale );
 
     tempzstretchtrans_->addObject( newinlcrlrotation );
 
@@ -240,7 +245,8 @@ void Scene::updateTransforms( const HorSampling& hs )
 
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
-		    *SI().get3DGeometry(true), zfactor, newutm2disptransform );
+		    *SI().get3DGeometry(true), zfactor, cs.zrg.center(),
+                    newutm2disptransform );
 
     if ( utm2disptransform_ )
     {
@@ -421,7 +427,7 @@ void Scene::setFixedZStretch( float zstretch )
     if ( mIsEqual(zstretch,curzstretch_,mDefEps) ) return;
 
     curzstretch_ = zstretch;
-    updateTransforms( cs_.hrg );
+    updateTransforms( cs_ );
 }
 
 
@@ -452,12 +458,35 @@ void Scene::setTempZStretch( float zstretch )
 void Scene::setZScale( float zscale )
 {
     zscale_ = zscale;
-    updateTransforms( cs_.hrg );
+    updateTransforms( cs_ );
 }
 
 
 float Scene::getZScale() const
 { return zscale_; }
+
+
+float Scene::getApparentVelocity(float zstretch) const
+{
+    if ( !zDomainInfo().def_.isTime() )
+        return zstretch;
+
+    //The depth when t=1 s
+    //in xy units
+    float depthat1sec = mZFactor(zstretch);
+
+    //In meters
+    if ( SI().xyInFeet() )
+        depthat1sec *= mFromFeetFactorF;
+
+    //in depth units
+    if ( SI().depthsInFeet() )
+        depthat1sec *= mToFeetFactorF;
+
+    //compensate for twt
+    const float travelleddistance = 2*depthat1sec;
+    return travelleddistance; //distance travelled at 1 second
+}
 
 
 const mVisTrans* Scene::getTempZStretchTransform() const

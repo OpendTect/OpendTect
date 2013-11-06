@@ -29,21 +29,26 @@ SceneTransformManager& visSurvey::STM()
     return *tm;
 }
 
+#define mComputeZTranslation( sign ) (-1*sign*zfactor*zmidpt)
+
 
 void SceneTransformManager::computeUTM2DisplayTransform(
-	const Survey::Geometry3D& sg, float zfactor, mVisTrans* res)
+	const Survey::Geometry3D& sg, float zfactor, float zmidpt,
+        mVisTrans* res)
 {
     const Coord startpos = SI().transform( sg.sampling().hrg.start );
 
-    res->setA(	1,	0,	0,	-startpos.x,
-	    	0,	1,	0,	-startpos.y,
-		0,	0,	zfactor,	0,
-		0,	0,	0,	1 );
+    const float ztransl = mComputeZTranslation( 1 );
+
+    res->setA(	1,	0,	0,		-startpos.x,
+	    	0,	1,	0,		-startpos.y,
+		0,	0,	zfactor,	ztransl,
+		0,	0,	0,		1 );
 }
 
 
 void SceneTransformManager::computeICRotationTransform(
-	const Survey::Geometry3D& sg, float zfactor,
+	const Survey::Geometry3D& sg, float zfactor, float zmidpt,
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {
@@ -124,10 +129,13 @@ void SceneTransformManager::computeICRotationTransform(
 			0,	0,	sign,	0,
 			0,	0,	0,	1 );
 
+
+    const float ztransl = mComputeZTranslation(sign);
+
     if ( disptrans )
 	disptrans->setA( inldist,	0,		0,		0,
 			 0,		crldist,	0,		0,
-			 0,		0,		sign*zfactor,	0,
+			 0,		0,		sign*zfactor,	ztransl,
 			 0,		0,		0,		1 );
 }
 

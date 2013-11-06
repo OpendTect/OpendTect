@@ -148,6 +148,10 @@ public:
     				/*!<Returns an anproximate figure how to scale Z
 				    relates to XY coordinates in this scene. */
 
+    float			getApparentVelocity(float zstretch) const;
+    				/*<!Velocity Unit depends on display depth in
+                                    feet setting. */
+
     const mVisTrans*		getTempZStretchTransform() const;
     const mVisTrans*		getInlCrl2DisplayTransform() const;
     const mVisTrans*		getUTM2DisplayTransform() const;
@@ -197,7 +201,7 @@ protected:
 
     void			setup();
     void			updateAnnotationText();
-    void			updateTransforms(const HorSampling&);
+    void			updateTransforms(const CubeSampling&);
     void			mouseMoveCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			updateBaseMapCursor(const Coord&);

@@ -32,11 +32,11 @@ public:
     			{}
 
     static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
-				    float zfactor, mVisTrans* res);
+				    float zfactor, float zmidpt,mVisTrans* res);
     			//!<Given to all objects in XY-space
 
     static void		computeICRotationTransform(const Survey::Geometry3D&,
-						   float zfactor,
+						   float zfactor, float zmidpt,
 					      	   mVisTrans* rotation,
 						   mVisTrans* disptrans );
 
