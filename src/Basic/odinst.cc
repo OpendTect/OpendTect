@@ -90,22 +90,20 @@ ODInst::RelType ODInst::getRelType()
 }
 
 
+const char* sAutoInstTypeUserMsgs[] = {
+    "[&Manager] Start the Installation Manager when updates are available",
+    "[&Inform] When new updates are present, show this in OpendTect title bar",
+    "[&Auto] Automatically download and install new updates "
+	"(requires sufficient administrator rights)",
+    "[&None] Never check for updates", 0 };
+ 
+
 const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 {
-    static BufferStringSet* ret = 0;
-    if ( !ret )
-    {
-	ret = new BufferStringSet;
-	ret->add( "[&Manager] Start the Installation Manager "
-		    "when updates are available" );
-	ret->add( "[&Inform] When new updates are present, "
-		    "show this in OpendTect's title bar" );
-	ret->add( "[&Auto] Automatically download and install new updates "
-		    "(requires sufficient administrator rights)" );
-	ret->add( "[&None] Never check for updates" );
-    };
-    return *ret;
+    mDefineStaticLocalObject( BufferStringSet, ret, (sAutoInstTypeUserMsgs) );
+    return ret;
 }
+
 const char* ODInst::sKeyAutoInst() { return ODInst::AutoInstTypeDef().name(); }
 
 
