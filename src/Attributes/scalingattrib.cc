@@ -477,7 +477,7 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
     samplewindow.start = mNINT32( window_.start/refstep_ );
     samplewindow.stop = mNINT32( window_.stop/refstep_ );
 
-    if ( nrsamples <= samplewindow.width() )
+    if ( inputdata_->nrsamples_ <= samplewindow.width() )
     {
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
