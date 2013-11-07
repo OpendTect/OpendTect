@@ -151,12 +151,11 @@ void uiMultiFlatViewControl::reInitZooms()
 
 void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 {
-    activevwr_ = vwrs_[0];
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	if (vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().hasEvent())
-	    { activevwr_ = vwrs_[idx]; break; }
-    }
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx(meh);
+    activevwr_ = vwrs_[vwridx<0 ? 0 : vwridx];
     if ( !activevwr_ ) return;
 
     const MouseEvent& ev = 
@@ -182,6 +181,10 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 {
     if ( !iszoomcoupled_ || !activeVwr() ) return;
 
+    mDynamicCastGet(uiFlatViewer*,vwr,cb);
+    if ( !vwrs_.isPresent(vwr) ) return;
+    activevwr_ = vwr;
+
     const uiWorldRect& masterbbox = activeVwr()->boundingBox();
     const uiWorldRect& wr = activeVwr()->curView();
 
@@ -190,8 +193,8 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 	if ( vwrs_[idx] == activeVwr() )
 	    continue;
 
-	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
-	const uiWorldRect& oldwr = vwrs_[idx]->curView();
+	const uiWorldRect bbox = vwrs_[idx]->boundingBox();
+	const uiWorldRect oldwr = vwrs_[idx]->curView();
 	LinScaler sclr( masterbbox.left(), bbox.left(),
 		        masterbbox.right(), bbox.right() );
 	LinScaler sctb( masterbbox.top(), bbox.top(),
@@ -203,7 +206,7 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 
 	const bool havezoom = haveZoom( oldwr.size(), newwr.size() );
 	if ( havezoom )
-	    zoommgr_.add( newwr.size() );
+	    zoommgrs_[idx]->add( newwr.size() );
     }
 }
 

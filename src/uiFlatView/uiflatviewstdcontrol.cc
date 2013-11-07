@@ -257,40 +257,42 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mousepressed_ = true;
     
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( meh )
-    {
-	mousedownpt_ = meh->event().pos();
-	mousedownwr_ = vwrs_[0]->curView();
-    }
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx( meh );
+    const uiFlatViewer* vwr = vwrs_[vwridx<0 ? 0 : vwridx];
+    mousedownpt_ = meh->event().pos();
+    mousedownwr_ = vwr->curView();
 }
 
 
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
-    const uiGraphicsView& canvas = vwrs_[0]->rgbCanvas();
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh ) return;
+
+    const int vwridx = getViewerIdx( meh );
+    uiFlatViewer* vwr = vwrs_[vwridx<0 ? 0 : vwridx];
+    const uiGraphicsView& canvas = vwr->rgbCanvas();
     if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
 	 !mousepressed_ || !withhanddrag_ )
 	return;
     
-    mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh )
-	return;
-    
     const uiPoint curpt = meh->event().pos();
-    const uiWorld2Ui w2ui( mousedownwr_, vwrs_[0]->getViewRect().size() );
+    const uiWorld2Ui w2ui( mousedownwr_, vwr->getViewRect().size() );
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
     const uiWorldPoint curwpt = w2ui.transform( curpt );
     
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt);
 
-    uiWorldRect bb = vwrs_[0]->boundingBox();
-    uiWorldRect oldwr = vwrs_[0]->curView();
+    uiWorldRect bb = vwr->boundingBox();
+    uiWorldRect oldwr = vwr->curView();
     Geom::Point2D<double> newcentre = newwr.centre();
     Geom::Size2D<double> cursize = oldwr.size();
     newwr = getNewWorldRect( newcentre, cursize, oldwr, bb );
     
-    vwrs_[0]->setView( newwr );    
+    vwr->setView( newwr );
 }
 
 
@@ -300,6 +302,21 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
     mousepressed_ = false;
     
     //TODO: Should we set the zoom-manager ?
+}
+
+
+int uiFlatViewStdControl::getViewerIdx( const MouseEventHandler* meh )
+{
+    if ( !meh ) return -1;
+    
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	const MouseEventHandler* imeh =
+	    &vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
+	if ( imeh==meh && imeh->hasEvent() ) return idx;
+    }
+    
+    return -1;
 }
 
 
