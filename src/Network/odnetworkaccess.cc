@@ -383,7 +383,11 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
 
 
 DataUploader::~DataUploader()
-{ delete qeventloop_, odnr_, data_; }
+{
+    delete qeventloop_;
+    delete odnr_;
+    delete data_;
+}
 
 
 int DataUploader::nextStep()
