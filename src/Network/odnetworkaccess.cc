@@ -87,10 +87,12 @@ FileDownloader::FileDownloader( const BufferStringSet& urls, const char* path )
     , msg_(0)
     , nrdone_(0)
     , nrfilesdownloaded_(0)
-    , totalnr_(0)
     , osd_(new od_ostream())
     , databuffer_(0)
-{ setSaveAsPaths( urls, path ); }
+{ 
+    setSaveAsPaths( urls, path ); 
+    totalnr_ = getDownloadSize();
+}
 
 
 FileDownloader::FileDownloader( const char* url, DataBuffer* db )
@@ -100,10 +102,12 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     , msg_(0)
     , nrdone_(0)
     , nrfilesdownloaded_(0)
-    , totalnr_(0)
     , osd_(0)
     , databuffer_(db)
-{ urls_.add(url); }
+{ 
+    urls_.add(url);
+    totalnr_ = getDownloadSize();
+}
 
 
 FileDownloader::FileDownloader( const char* url )
@@ -147,12 +151,8 @@ void FileDownloader::setSaveAsPaths( const BufferStringSet& urls,
 
 int FileDownloader::nextStep()
 {
-    if ( totalnr_ == 0 )
-    {
-	totalnr_ = getDownloadSize();
-	if ( totalnr_ < 0 )
-	    return ErrorOccurred();
-    }
+    if ( totalnr_ < 0 )
+	errorOccured();
 
     if ( initneeded_ )
     { 
@@ -257,7 +257,7 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
 int FileDownloader::errorOccured()
 {
-    FilePath fp( saveaspaths_.get(nrfilesdownloaded_) );
+    FilePath fp( urls_.get(nrfilesdownloaded_) );
     msg_ = "Something went wrong while downloading the file: ";
     msg_.add( fp.fileName() );
     if( odnr_ )
