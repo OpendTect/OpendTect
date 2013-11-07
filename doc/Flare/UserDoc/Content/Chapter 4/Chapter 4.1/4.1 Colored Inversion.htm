@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:lastBlockDepth="2" MadCap:lastHeight="608" MadCap:lastWidth="762">
+    <head>
+    </head>
+    <body>
+        <h1 style="font-family: Arial;">4.1. Colored Inversion</h1>
+        <p style="font-family: Arial;"><i style="font-weight: bold;">Purpose:</i> A fast-track approach to invert seismic data to band-limited (relative) acoustic impedance.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Theory:</b> A single convolution inversion operator is derived that optimally inverts the data and honours available well data in a global sense. In this way, the process is intrinsically stable and broadly consistent with known AI behaviour in the area. Construction of the operator is a simple process and implementation can be readily performed within the processing module included in SCI. As an explicit wavelet is not required, other than testing for a residual constant phase rotation as the last step, this removes an inherently weak link that more sophisticated processes rely on.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Software:</b> OpendTect + Seismic Colored Inversion</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Workflow:</b>
+        </p>
+        <p style="font-family: Arial;">1.	Open the attribute set window, add a new Attribute: Colored Inversion, select input seismic and specify a wavelet name.</p>
+        <p style="font-family: Arial;">2.	Press Analyze and Create ... to open the Colored Inversion application.</p>
+        <p style="font-family: Arial;">3.	Select Input Seismic and Well data, select well logs (right-click on the well) and time windows for seismic and wells. To load, press Load seismic and Reload wells, respectively.</p>
+        <p style="font-family: Arial;">4.	Select Design controls and play with the parameters (increase the smoothing operator, toggle range and try reducing the max. frequency, toggle Auto Calc. and change low-cut and high-cut). Notice how the curves change interactively. Choose parameters that yield a smooth spectrum over the seismic frequency band.</p>
+        <p style="font-family: Arial;">5.	Apply the Colored Inversion attribute to the seismic data in batch: Processing - Create seismic output, or on-the-fly: right-click on the element in the tree (e.g. part of an inline).</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Tips:</b>
+        </p>
+        <p style="font-family: Arial;">Use the Chart Controller and Zoom options (View menu) to see all graphs simultaneously.</p>
+    </body>
+</html>

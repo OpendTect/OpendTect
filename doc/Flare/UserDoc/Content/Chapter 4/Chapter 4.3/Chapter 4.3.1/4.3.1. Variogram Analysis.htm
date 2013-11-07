@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:lastBlockDepth="2" MadCap:lastHeight="916" MadCap:lastWidth="789">
+    <head>
+    </head>
+    <body>
+        <h1 style="font-family: Arial;">4.3.1. Variogram Analysis</h1>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Purpose:</b> Analyse the data prior to the MPSI deterministic and stochastic inversion. Provides the necessary "variogram ranges" and "variogram model" parameters.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Theory:</b> Variogram models are used to model the spatial correlation between rock properties when performing a stochastic impedance inversion, or gridding rock properties to a 2D/3D space. The model is defined by a measure of the cross-correlation of a given rock property (impedance) as a function of the distance, vertical or lateral, between the data points. The variogram analysis tool computes a semi-variogram graph from the actual data, and allows to fit a model through it. The model parameters can be input into the MPSI attributes EW3DModelBuidler, EW2DErrorGrid.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Software:</b> OpendTect.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Workflow - Vertical variogram analysis:</b>
+        </p>
+        <p style="font-family: Arial;">1.	Open the "Well logs Attributes" cross-plot extraction window from the menu Analyis --&gt; Cross-plot.</p>
+        <p style="font-family: Arial;">2.	Select one or more wells, one or more logs.</p>
+        <p style="font-family: Arial;">3.	Adjust the extraction interval using "Extract between" and "Distance "above/below".</p>
+        <p style="font-family: Arial;">4.	Make sure the "Radius around wells" parameter is set to 0.</p>
+        <p style="font-family: Arial;">5.	Make sure the "Log resampling method" parameter is set to "Nearest sample".</p>
+        <p style="font-family: Arial;">6.	Launch the data extraction.</p>
+        <p style="font-family: Arial;">7.	Fit the variogram model (green) to your data (blue) by moving the still and range sliders or typing values.</p>
+        <p style="font-family: Arial;">8.	Find one single optimal range for all wells, even if their sill (total variance) varies a lot.</p>
+        <p style="font-family: Arial;"><b style="font-style: italic;">Workflow - Horizontal variogram analysis:</b>
+        </p>
+        <p style="font-family: Arial;">1.	Load saved horizon data on an horizon. Ideally you would like to use relative impedance data, such as an average map from a coloured inverted volume (can be computed from Processing --&gt; Create Horizon output --&gt; Stratal amplitude). Alternatively you may use energy or spectral decomposition attributes.</p>
+        <p style="font-family: Arial;">2.	Right-click on the horizon data --&gt; Tools --&gt; Variogram.</p>
+        <p style="font-family: Arial;">3.	You may want to increase the maximum number of pairs for the final run a larger number (by powers of 10) to increase the output quality. Press OK.</p>
+        <p style="font-family: Arial;">4.	Fit the variogram model (green) to your data (blue) by moving the still and range sliders or typing values.</p>
+        <p style="font-family: Arial;">5.	Do not try to do a global fit, but instead concentrate on the fit for the small lags. Also do not try to force the sill to be at 1 (total variance of the attribute), the horizontal variogram on measured data always keeps on increasing.</p>
+        <p style="font-family: Arial;">6.	Check if the variogram model you deducted fits equally well in the three directions defined by the grid. You may want to keep the same sill and model, but change the range.</p>
+    </body>
+</html>
