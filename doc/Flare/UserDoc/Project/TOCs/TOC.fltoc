@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CatapultToc Version="1">
+
+  <TocEntry Title="New Book 1">
+	<TocEntry Title="New entry 1" />
+	<TocEntry Title="New entry 2" />
+  </TocEntry>
+
+  <TocEntry Title="New Book 2">
+	<TocEntry Title="New entry 3" />
+	<TocEntry Title="New entry 4" />
+  </TocEntry>
+
+</CatapultToc>
