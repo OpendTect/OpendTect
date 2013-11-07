@@ -863,14 +863,15 @@ void uiStratLayerModel::zSkipChanged( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    uiWorldRect zoomwr = synthdisp_->curView( false );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->modelChanged();
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
-    zoomwr_ = zoomwr;
+    zoomwr_ =  synthdisp_->curView( false );
     synthdisp_->setZoomView( zoomwr_ );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+		    modtools_->selLevelColor(), modtools_->showFlattened() );
 }
 
 
