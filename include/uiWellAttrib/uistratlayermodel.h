@@ -122,6 +122,7 @@ protected:
 
     bool			canShowFlattened() const;
     void			setWinTitle();
+    void			handleNewModel(bool autoupdatechged=false);
     void			setModelProps();
     void			setElasticProps();
     void			infoChanged(CallBacker*);

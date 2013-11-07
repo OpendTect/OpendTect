@@ -264,10 +264,14 @@ void setEmpty()
     curmodl_ = modl_;
 }
 
-void setModel( Strat::LayerModel* newmdl )
+void setBaseModel( Strat::LayerModel* newmdl )
 {
     delete modl_;
     modl_ = newmdl;
+}
+
+void resetEditing()
+{
     modled_ = *modl_;
     curmodl_ = modl_;
 }
@@ -900,8 +904,15 @@ void uiStratLayerModel::genModels( CallBacker* )
 	return uiMSG().error("Layer model is empty" );
     }
 
-    lmp_.setModel( newmodl );
-    lmp_.setUseEdited( false );
+    lmp_.setBaseModel( newmodl );
+    handleNewModel( autoupdatechged );
+}
+
+
+
+void uiStratLayerModel::handleNewModel( bool autoupdatechged )
+{
+    lmp_.resetEditing();
     synthdisp_->setUseEdited( false );
     moddisp_->setFluidReplOn( false );
 
