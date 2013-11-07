@@ -232,7 +232,8 @@ void MeasureToolMan::changeCB( CallBacker* cb )
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
     if ( !cd || !cd->set_ ) return;
 
-    giveCoordsToDialog( *cd->set_, *measuredlg_ );
+    if ( measuredlg_ )
+	giveCoordsToDialog( *cd->set_, *measuredlg_ );
 }
 
 
