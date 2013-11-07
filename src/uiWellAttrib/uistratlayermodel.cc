@@ -1013,11 +1013,9 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     synthdisp_->setUseEdited( usefr );
     if ( parschanged ) 
 	useSyntheticsPars( desc_.getWorkBenchParams() );
-    synthdisp_->modelChanged();
-    synthdisp_->setDispMrkrs(
-	    modtools_->selLevel(), moddisp_->levelDepths(),
-	    modtools_->selLevelColor(), modtools_->showFlattened() );
-
+    synthdisp_->showFRResults();
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+		    modtools_->selLevelColor(), modtools_->showFlattened() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();

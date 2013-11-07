@@ -1011,6 +1011,16 @@ void uiStratSynthDisp::updateFields()
 }
 
 
+void uiStratSynthDisp::showFRResults()
+{
+    setCurrentSynthetic( true );
+    setCurrentSynthetic( false );
+    displaySynthetic( currentwvasynthetic_ );
+    displayPostStackSynthetic( currentvdsynthetic_, false );
+    levelSnapChanged( 0 );
+}
+
+
 void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
@@ -1048,9 +1058,14 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
+    altSS().removeSynthetic( syntheticnm );
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
+    altSS().genParams() = curSS().genParams();
+    SyntheticData* altsd = altSS().addSynthetic();
+    if ( !altsd )
+	mErrRet(altSS().errMsg(), return );
     updateSyntheticList( wva );
     synthsChanged.trigger();
 
@@ -1106,6 +1121,7 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
+    altSS().removeSynthetic( synthname );
     synthsChanged.trigger();
     updateSyntheticList( true );
     updateSyntheticList( false );
@@ -1262,6 +1278,10 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
+    altSS().genParams() = curSS().genParams();
+    SyntheticData* altsd = altSS().addSynthetic();
+    if ( !altsd )
+	mErrRet(altSS().errMsg(), return );
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
