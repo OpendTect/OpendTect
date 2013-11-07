@@ -228,7 +228,7 @@ bool IOMan::isReady() const
     IOM().applicationClosing.cbs_ = apccbs; \
     if ( dotrigger && !IOM().isBad() ) \
     { \
-	setupCustomDataDirs(-1); \
+	setupCustomDataDirs(-1); (void)SI(); \
 	if ( dotrigger ) \
 	{ \
 	    IOM().surveyChanged.trigger(); \
