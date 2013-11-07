@@ -226,9 +226,10 @@ bool IOMan::isReady() const
     IOM().entryRemoved.cbs_ = rmcbs; \
     IOM().newIODir.cbs_ = dccbs; \
     IOM().applicationClosing.cbs_ = apccbs; \
-    if ( dotrigger && !IOM().isBad() ) \
+    if ( !IOM().isBad() ) \
     { \
-	setupCustomDataDirs(-1); (void)SI(); \
+	SurveyInfo::setSurveyName( SI().getDirName() ); \
+	setupCustomDataDirs(-1); \
 	if ( dotrigger ) \
 	{ \
 	    IOM().surveyChanged.trigger(); \
