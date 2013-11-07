@@ -66,26 +66,12 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 
 bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
 {
-#ifdef mNew2DGeometryImpl
-	BufferString lnm = linename;
-	geomid_ = Survey::GM().getGeomID( lnm.buf() );
-	if ( geomid_ < 0 )
-	{
-		lnm = Survey::Geometry2D::makeUniqueLineName( lsname, linename );
-		geomid_ = Survey::GM().getGeomID( lnm );
-	}
-
-    posdata_.setLineName( lnm );
-    posdata_ = ((Survey::Geometry2D*)Survey::GM().getGeometry(geomid_))->data();
-    hor2d_.geometry().addLine( geomid_ );
-#else
     posdata_.setLineName( linename );
     l2dkey_ = S2DPOS().getLine2DKey( lsname, linename );
     if ( !l2dkey_.isOK() ) return false;
 
     S2DPOS().getGeometry( posdata_ );
     hor2d_.geometry().addLine( l2dkey_ );
-#endif
     totalnr_ = posdata_.positions().size();
     return true;
 }
@@ -99,13 +85,8 @@ int Hor2DFrom3DCreator::nextStep()
 	BinID bid = SI().transform( posinfo.coord_ );
 	EM::SubID subid = bid.toInt64();
 	const Coord3 pos3d = hor3d_.getPos( hor3d_.sectionID(0), subid );
-#ifdef mNew2DGeometryImpl
-	hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,
-													mCast(float,pos3d.z),false);
-#else
 	hor2d_.setPos( hor2d_.sectionID(0), l2dkey_, posinfo.nr_,
 			    (float) pos3d.z,false);
-#endif
 	nrdone_++;
 	return MoreToDo();
     }
