@@ -7,10 +7,13 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "odnetworkaccess.h"
+
+#include "commandlineparser.h"
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "od_istream.h"
 #include "od_ostream.h"
 
@@ -26,7 +29,7 @@ using namespace std;
 }
 
 
-bool testPing()
+bool testPing( const bool quiet )
 {
     const char* url = "http://opendtect.org";
     BufferString err;
@@ -37,7 +40,7 @@ bool testPing()
 }
 
 
-bool testDownloadToBuffer()
+bool testDownloadToBuffer( const bool quiet )
 {
     const char* url = "http://opendtect.org/dlsites.txt";
     DataBuffer* db = new DataBuffer(1000,4);
@@ -55,7 +58,7 @@ bool testDownloadToBuffer()
 }
 
 
-bool testDownloadToFile()
+bool testDownloadToFile( const bool quiet )
 {
     const char* url = "http://opendtect.org/dlsites.txt";
     BufferString err;
@@ -73,7 +76,7 @@ bool testDownloadToFile()
 }
 
 
-bool testFileUpload()
+bool testFileUpload( const bool quiet )
 {
     const char* url = 
 		    "http://dgbindia1/testing/ctest/php_do_not_delete_it.php";
@@ -91,7 +94,7 @@ bool testFileUpload()
 }
 
 
-bool testQueryUpload()
+bool testQueryUpload( const bool quiet )
 {
     const char* report = "This is test report";
     IOPar querypars;
@@ -106,7 +109,7 @@ bool testQueryUpload()
 }
 
 
-bool testFileSizes()
+bool testFileSizes( const bool quiet )
 {
     od_int64 sizeremotefile=0,sizeofuploadedfile=0;
     const char* url = "http://dgbindia1/testing/ctest/test_file";
@@ -127,22 +130,26 @@ int main(int argc, char** argv)
 {
     QCoreApplication app( argc, argv );
 
-    if ( !testPing() )
+    od_init_test_program( argc, argv );
+    CommandLineParser clparser;
+    const bool quiet = clparser.hasKey( sKey::Quiet() );
+
+    if ( !testPing(quiet) )
 	ExitProgram(1);
 
-    if ( !testDownloadToBuffer() )
+    if ( !testDownloadToBuffer(quiet) )
 	ExitProgram(1);
 
-    if ( !testDownloadToFile() )
+    if ( !testDownloadToFile(quiet) )
 	ExitProgram(1);
 
-    if ( !testFileUpload() )
+    if ( !testFileUpload(quiet) )
 	ExitProgram(1);
 
-    if ( !testQueryUpload() )
+    if ( !testQueryUpload(quiet) )
 	ExitProgram(1);
 
-    if ( !testFileSizes() )
+    if ( !testFileSizes(quiet) )
 	ExitProgram(1);
 
     ExitProgram(0);
