@@ -879,11 +879,10 @@ void uiStratLayerModel::genModels( CallBacker* )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
     const int prevnrmods = lmp_.getCurrent().size();
-    bool autoupdatechged = false;
+    bool settoautoupd = false;
     if ( prevnrmods != nrmods && !automksynth_ )
     {
-	automksynth_ = true;
-	autoupdatechged = true;
+	automksynth_ = settoautoupd = true;
 	synthdisp_->setAutoUpdate( automksynth_ );
     }
 
@@ -905,12 +904,18 @@ void uiStratLayerModel::genModels( CallBacker* )
     }
 
     lmp_.setBaseModel( newmodl );
-    handleNewModel( autoupdatechged );
+    handleNewModel();
+
+    if ( settoautoupd )
+    {
+	automksynth_ = false;
+	synthdisp_->setAutoUpdate( automksynth_ );
+    }
 }
 
 
 
-void uiStratLayerModel::handleNewModel( bool autoupdatechged )
+void uiStratLayerModel::handleNewModel()
 {
     lmp_.resetEditing();
     synthdisp_->setUseEdited( false );
@@ -939,12 +944,6 @@ void uiStratLayerModel::handleNewModel( bool autoupdatechged )
     if ( mfvc ) mfvc->reInitZooms();
     zoomwr_ = zoomwr;
     synthdisp_->setZoomView( zoomwr_ );
-
-    if ( autoupdatechged )
-    {
-	automksynth_ = false;
-	synthdisp_->setAutoUpdate( automksynth_ );
-    }
 }
 
 
