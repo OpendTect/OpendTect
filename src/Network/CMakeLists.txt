@@ -13,6 +13,7 @@ SET(QT_MOC_HEADERS
 	    qhttpconn.h
 	    qlocalservercomm.h
 	    qlocalsocketcomm.h
+		qnetworkaccessconn.h
 	    qtcpservercomm.h
 	    qtcpsocketcomm.h)
 SET(OD_MODULE_SOURCES 
@@ -26,9 +27,12 @@ SET(OD_MODULE_SOURCES
 		oddlsite.cc
 		odftp.cc
 		odhttp.cc
+		odnetworkaccess.cc
+		odnetworkreply.cc
 		svnaccess.cc
 		systeminfo.cc
 		tcpserver.cc
 		tcpsocket.cc)
+SET ( OD_TEST_PROGS networkaccess.cc )
 SET ( OD_MODULE_PROGS od_ReportIssue.cc )
 OD_INIT_MODULE()
