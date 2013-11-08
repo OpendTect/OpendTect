@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 #include "ascstream.h"
-#include "envvars.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
@@ -965,6 +964,8 @@ bool OD_isValidRootDataDir( const char* d )
     return true;
 }
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+
 /* Hidden function, not to be used lightly. Basically, changes DTECT_DATA */
 const char* OD_SetRootDataDir( const char* inpdatadir )
 {
@@ -973,30 +974,8 @@ const char* OD_SetRootDataDir( const char* inpdatadir )
     if ( !OD_isValidRootDataDir(datadir) )
 	return "Provided directory name is not a valid OpendTect root data dir";
 
-    const bool haveenv = GetEnvVar("DTECT_DATA") || GetEnvVar("dGB_DATA")
-		      || GetEnvVar("DTECT_WINDATA") || GetEnvVar("dGB_WINDATA");
-    if ( haveenv )
-    {
-#ifdef __win__
-	FilePath dtectdatafp( datadir.buf() );
-	
-	SetEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
-
-	if ( GetOSEnvVar( "DTECT_DATA" ) )
-	    SetEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
-#else
-	SetEnvVar( "DTECT_DATA", datadir.buf() );
-#endif
-    }
+    SetCurBaseDataDir( datadir );
 
     Settings::common().set( "Default DATA directory", datadir );
-    if ( !Settings::common().write() )
-    {
-	if ( !haveenv )
-	    return "Cannot write the user settings defining the "
-		    "OpendTect root data dir";
-    }
-
-    IOMan::newSurvey();
-    return 0;
+    return Settings::common().write() ? 0 : "Cannot write user settings file";
 }

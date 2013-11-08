@@ -104,23 +104,55 @@ mExternC(Basic) const char* GetSurveyName()
 
 /* 'survey data' scope */
 
+
+static BufferString basedatadiroverrule;
+
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
+mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
+{
+    basedatadiroverrule = dirnm;
+}
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
+{
+#ifdef __win__
+    const BufferString windirnm( FilePath(dirnm).fullPath(FilePath::Windows) );
+    SetEnvVar( "DTECT_WINDATA", windirnm );
+    if ( GetOSEnvVar( "DTECT_DATA" ) )
+	SetEnvVar( "DTECT_DATA", windirnm );
+#else
+    SetEnvVar( "DTECT_DATA", dirnm );
+#endif
+}
+
 mExternC(Basic) const char* GetBaseDataDir()
 {
     const char* dir;
+    if ( !basedatadiroverrule.isEmpty() )
+	return basedatadiroverrule.buf();
 
 #ifdef __win__
 
     dir = GetEnvVar( "DTECT_WINDATA" );
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
-    if ( !dir ) dir = getCleanWinPath( GetSettingsDataDir() );
+    if ( !dir )
+    {
+	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
+	if ( !dir )
+	    dir = getCleanWinPath( GetSettingsDataDir() );
 
-    if ( dir && *dir && !GetEnvVar("DTECT_WINDATA") )
-	SetEnvVar( "DTECT_WINDATA" , dir );
+	if ( dir && *dir )
+	    SetEnvVar( "DTECT_WINDATA", dir );
+    }
 
 #else
 
     dir = GetEnvVar( "DTECT_DATA" );
-    if ( !dir ) dir = GetSettingsDataDir();
+    if ( !dir )
+    {
+	dir = GetSettingsDataDir();
+	if ( dir && *dir )
+	    SetEnvVar( "DTECT_DATA", dir );
+    }
 
 #endif
 
@@ -142,7 +174,7 @@ mExternC(Basic) const char* GetDataDir()
     if ( !survnm || !*survnm )
 	survnm = "_no_current_survey_";
 
-   mDeclStaticString( ret );
+    mDeclStaticString( ret );
     ret = FilePath( basedir, survnm ).fullPath();
     if ( od_debug_isOn(DBG_SETTINGS) )
 	mPrDebug( "GetDataDir", ret );

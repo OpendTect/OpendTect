@@ -40,19 +40,19 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Set Data Directory",
 		    		     "Specify a data storage directory",
 		    		     "8.0.1"))
-	, olddatadir(GetBaseDataDir())
+	, curdatadir_(GetBaseDataDir())
 {
-    const bool oldok = OD_isValidRootDataDir( olddatadir );
+    const bool oldok = OD_isValidRootDataDir( curdatadir_ );
     BufferString oddirnm, basedirnm;
     const char* titletxt = 0;
 
-    if ( !olddatadir.isEmpty() )
+    if ( !curdatadir_.isEmpty() )
     {
 	if ( oldok )
 	{
 	    titletxt =	"Locate an OpendTect Data Root directory\n"
 			"or specify a new directory name to create";
-	    basedirnm = olddatadir;
+	    basedirnm = curdatadir_;
 	}
 	else
 	{
@@ -61,7 +61,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 			"* Locate a valid data root directory\n"
 			"* Or specify a new directory name to create";
 
-	    FilePath fp( olddatadir );
+	    FilePath fp( curdatadir_ );
 	    oddirnm = fp.fileName();
 	    basedirnm = fp.pathOnly();
 	}
@@ -87,7 +87,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     setTitleText( titletxt );
 
     const char* basetxt = "OpendTect Data Root Directory";
-    basedirfld = new uiFileInput( this, basetxt,
+    basedirfld_ = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
 }
@@ -97,28 +97,29 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 
 bool uiSetDataDir::acceptOK( CallBacker* )
 {
-    BufferString datadir = basedirfld->text();
-    if ( datadir.isEmpty() || !File::isDirectory(datadir) )
+    seldir_ = basedirfld_->text();
+    if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )
 	mErrRet( "Please enter a valid (existing) location" )
 
-    if ( datadir == olddatadir && OD_isValidRootDataDir( olddatadir ) )
+    if ( seldir_ == curdatadir_ && OD_isValidRootDataDir(seldir_) )
 	return true;
 
-    FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir(0) );
+    FilePath fpdd( seldir_ ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
     if ( fpdd.nrLevels() >= nrslvls )
     {
 	const BufferString ddatslvl( fpdd.dirUpTo(nrslvls-1) );
 	if ( ddatslvl == fps.fullPath() )
 	{
-	    uiMSG().error( "The directory you have chosen is\n *INSIDE*\n"
-			   "the software installation directory.\n"
-			   "Please choose another directory" );
+	    uiMSG().error( "The directory you have chosen is"
+		   "\n *INSIDE*\nthe software installation directory."
+		   "\nThis leads to many problems, and we cannot support this."
+		   "\n\nPlease choose another directory" );
 	    return false;
 	}
     }
 
-    return setRootDataDir( this, datadir );
+    return true;
 }
 
 
@@ -209,10 +210,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
     retmsg = OD_SetRootDataDir( datadir );
     if ( retmsg )
-    {
-	uiMSG().error( retmsg );
-	return false;
-    }
+	{ uiMSG().error( retmsg ); return false; }
 
     return true;
 }
