@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "iostrm.h"
 #include "iosubdir.h"
-#include "oddatadirmanip.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
@@ -950,7 +949,7 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 }
 
 
-bool OD_isValidRootDataDir( const char* d )
+bool IOMan::isValidDataRoot( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
     const BufferString dirnm( fp.fullPath() );
@@ -962,20 +961,4 @@ bool OD_isValidRootDataDir( const char* d )
 	return false;
 
     return true;
-}
-
-extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
-
-/* Hidden function, not to be used lightly. Basically, changes DTECT_DATA */
-const char* OD_SetRootDataDir( const char* inpdatadir )
-{
-    BufferString datadir = inpdatadir;
-
-    if ( !OD_isValidRootDataDir(datadir) )
-	return "Provided directory name is not a valid OpendTect root data dir";
-
-    SetCurBaseDataDir( datadir );
-
-    Settings::common().set( "Default DATA directory", datadir );
-    return Settings::common().write() ? 0 : "Cannot write user settings file";
 }

@@ -44,7 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
-#include "oddatadirmanip.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsessionfact.h"
@@ -196,7 +195,7 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
-    if ( !OD_isValidRootDataDir(GetBaseDataDir()) )
+    if ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
     {
 	uiSetDataDir dlg( this );
 	return dlg.go();
