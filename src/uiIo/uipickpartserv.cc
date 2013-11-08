@@ -94,20 +94,24 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	const MultiID id = dlg.selected(idx);
 	psids += id;
 	PtrMan<IOObj> ioobj = IOM().get( id );
-	if ( setmgr_.indexOf(ioobj->key()) >= 0 )
-	    continue;
-
-	Pick::Set* newps = new Pick::Set;
+	const int setidx = setmgr_.indexOf( ioobj->key() );
+	Pick::Set* ps = setidx < 0 ? new Pick::Set : &(setmgr_.get(setidx));
 	BufferString bs;
-	if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true, bs) )
 	{
-	    setmgr_.set( ioobj->key(), newps );
+	    if ( setidx < 0 )
+		setmgr_.set( ioobj->key(), ps );
+
 	    psids.addIfNew( ioobj->key() );
 	    retval = true;
 	}
 	else
 	{
-	    delete newps;
+	    if ( setidx < 0 )
+		delete ps;
+	    else
+		setmgr_.set( ioobj->key(), 0 ); //Remove from Mgr if present.
+
 	    if ( idx == 0 )
 	    {
 		uiMSG().error( bs );
