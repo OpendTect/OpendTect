@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiobjdisposer.h"
+#include "ptrman.h"
 #include "timer.h"
 
 static ObjectSet<Timer> todeltimers;
