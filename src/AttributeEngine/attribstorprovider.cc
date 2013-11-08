@@ -983,6 +983,9 @@ bool StorageProvider::useInterTrcDist() const
 							IOObjContext::Seis) );
 		PtrMan<CBVSSeisTrcTranslator> tmptransl =
 		    CBVSSeisTrcTranslator::make( fp.fullPath(), true, true, 0 );
+		if ( !tmptransl )
+		    return false;
+
 		BufferStringSet compnms;
 		tmptransl->getComponentNames( compnms );
 		if ( compnms.size()>=2 
