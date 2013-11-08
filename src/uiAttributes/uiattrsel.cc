@@ -260,8 +260,11 @@ void uiAttrSelDlg::createSelectionButtons()
 
     if ( attrdata_.zdomaininfo_ )
     {
+	BufferStringSet nms;
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	zdomainfld_ = new uiRadioButton( selgrp_,
 					 attrdata_.zdomaininfo_->key() );
+	zdomainfld_->setSensitive( !nms.isEmpty() );
 	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 }
@@ -353,9 +356,10 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 	    steeroutfld_->display( seltyp==1 );
     }
 
-    const bool isstoreddata = seltyp==0 ||seltyp==1 || seltyp==4;
+    const bool isstoreddata = seltyp==0 || seltyp==1;
+    const bool issteerdata = seltyp==1;
     filtfld_->display( isstoreddata );
-    compfld_->display( isstoreddata );
+    compfld_->display( issteerdata );
 
     cubeSel(0);
 }
@@ -406,15 +410,20 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	const int selidx = zdomoutfld_->currentItem();
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
-	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
-	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
-	if ( ioobj ) ioobjkey = ioobj->key();
+	if ( nms.validIdx(selidx) )
+	{
+    	    IOM().to(
+		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
+    	    if ( ioobj ) ioobjkey = ioobj->key();
+	}
     }
 
     const bool is2d = ioobjkey.isEmpty()
 	? false : SelInfo::is2D( ioobjkey.buf() );
+    const bool isstoreddata = seltyp==0 || seltyp==1;
     attr2dfld_->display( is2d );
-    filtfld_->display( !is2d );
+    filtfld_->display( !is2d && isstoreddata );
     if ( is2d )
     {
 	BufferStringSet nms;
