@@ -316,7 +316,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 
 BinID SEGYDirectSeisTrcTranslator::curBinID() const
 {
-    if ( ild_ < 0 ) return BinID(0,0);
+    if ( !cubeData().validIdx(ild_) || !cubeData()[ild_]  ) return BinID(0,0);
 
     const PosInfo::LineData& ld = *cubeData()[ild_];
     return BinID( ld.linenr_, ld.segments_[iseg_].atIndex( itrc_ ) );
