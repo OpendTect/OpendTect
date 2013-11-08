@@ -208,7 +208,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
     sz *= si.maxbytespsamp;
     sz = (sz + overhead) * si.expectednrtrcs;
 
-    static const double bytes2mb = 9.53674e-7;
+    const double bytes2mb = 9.53674e-7;
     return (int)((sz * bytes2mb) + .5);
 }
 
@@ -440,18 +440,14 @@ BufferString SeisIOObjInfo::def3DDispName( const char* defkey,
 
 static BufferStringSet& getTypes()
 {
-    static BufferStringSet* types = 0;
-    if ( !types )
-	types = new BufferStringSet;
-    return *types;
+    mDefineStaticLocalObject( BufferStringSet, types, );
+    return types;
 }
 
 static TypeSet<MultiID>& getIDs()
 {
-    static TypeSet<MultiID>* ids = 0;
-    if ( !ids )
-	ids = new TypeSet<MultiID>;
-    return *ids;
+    mDefineStaticLocalObject( TypeSet<MultiID>, ids, );
+    return ids;
 }
 
 
@@ -475,7 +471,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
 
 const MultiID& SeisIOObjInfo::getDefault( const char* typ )
 {
-    static const MultiID noid( "" );
+    mDefineStaticLocalObject( const MultiID, noid, ("") );
     const int typidx = getTypes().indexOf( typ );
     return typidx < 0 ? noid : getIDs()[typidx];
 }

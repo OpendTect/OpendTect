@@ -19,12 +19,15 @@ mDefSimpleTranslatorSelector(PSEvent,sKeyword());
 
 const IOObjContext& PSEventTranslatorGroup::ioContext()
 {
-    static IOObjContext* ctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = 0 );
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( 0 );
-	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->toselect.allowtransls_ = mDGBKey;
+	IOObjContext* newctxt = new IOObjContext( 0 );
+	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->toselect.allowtransls_ = mDGBKey;
+
+	if ( !ctxt.setIfNull(newctxt) )
+	    delete newctxt;
     }
 
     ctxt->trgroup = &theInst();

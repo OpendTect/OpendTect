@@ -659,7 +659,7 @@ bool uiDirLightDlg::rejectOK( CallBacker* )
 
 void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
 {
-    static bool pdshown;
+    mDefineStaticLocalObject( bool, pdshown, );
     const bool dirlight = !lighttypefld_->getBoolValue();
 
     // Save visibility of polar diagram dialog to restore when the scene light

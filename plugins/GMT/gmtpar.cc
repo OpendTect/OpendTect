@@ -23,11 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 GMTParFactory& GMTPF()
 {
-    static PtrMan<GMTParFactory> inst = 0;
-    if ( !inst )
-	inst = new GMTParFactory;
-
-    return *inst;
+    mDefineStaticLocalObject( GMTParFactory, inst, );
+    return inst;
 }
 
 

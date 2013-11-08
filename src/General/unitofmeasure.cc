@@ -20,7 +20,7 @@ static const char* filenamebase = "UnitsOfMeasure";
 
 UnitOfMeasureRepository& UoMR()
 {
-    static UnitOfMeasureRepository* umrepo = 0;
+    mDefineStaticLocalObject( PtrMan<UnitOfMeasureRepository>, umrepo, = 0 );
     if ( !umrepo )
     {
 	if ( DBG::isOn() ) DBG::message( "Creating UnitOfMeasureRepository" );

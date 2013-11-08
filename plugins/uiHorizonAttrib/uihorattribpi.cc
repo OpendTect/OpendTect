@@ -285,8 +285,6 @@ mDefODInitPlugin(uiHorizonAttrib)
 {
     uiHorizonAttrib::initClass();
     uiContourTreeItem::initClass();
-    static uiHorAttribPIMgr* mgr = 0; if ( mgr ) return 0;
-    mgr = new uiHorAttribPIMgr( ODMainWin() );
-
+    mDefineStaticLocalObject( uiHorAttribPIMgr, mgr, (ODMainWin()) );
     return 0;
 }

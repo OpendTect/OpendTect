@@ -58,9 +58,9 @@ void uiGraphicsItem::setScene( uiGraphicsScene* scene )
 
 int uiGraphicsItem::getNewID()
 {
-    static Threads::Mutex mutex;
+    mDefineStaticLocalObject( Threads::Mutex, mutex, );
     Threads::MutexLocker lock( mutex );
-    static int curid = 1;
+    mDefineStaticLocalObject( int, curid, = 1 );
     return curid++;
 }
 
@@ -251,8 +251,8 @@ void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
 
     // Beware, this is a duplication of what is in draw.cc
     // Did this to get full freedom to solve extensions and changes in .cc only
-    static const int cDotsFillPatternType = 1;
-    static const int cLinesFillPatternType = 2;
+    const int cDotsFillPatternType = 1;
+    const int cLinesFillPatternType = 2;
     if ( fp.type_ == cDotsFillPatternType )
     {
 	if ( fp.opt_ < 0 || fp.opt_ > 7 ) fp.opt_ = 0;

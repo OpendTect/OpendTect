@@ -28,7 +28,7 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
     const int rcidx =  clockwisedirs.indexOf(tmprc);
     const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4 
 			     : atan2( (float)tmprc.col(), (float)-tmprc.row() );
-    static double twopi = M_PI*2;
+    const double twopi = M_2PI;
     float anglediff = rcangle-selfangle;
     if ( anglediff<0 ) anglediff = (float)( anglediff + twopi );
     else if ( anglediff>twopi )
@@ -40,7 +40,7 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
 
 float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 {
-    static float twopi = (float) M_PI*2;
+    const float twopi = M_2PIf;
     float anglediff = -clockwiseAngleTo(rc);
     if ( anglediff<0 ) anglediff += twopi;
     else if ( anglediff>twopi ) anglediff -= twopi;
@@ -58,20 +58,25 @@ float RowCol::angleTo(const RowCol& rc) const
 
 const TypeSet<RowCol>& RowCol::clockWiseSequence()
 {
-    static PtrMan<TypeSet<RowCol> > clockwisedirs_ = new TypeSet<RowCol>;
-    if ( !clockwisedirs_->size() )
+    mDefineStaticLocalObject( PtrMan<TypeSet<RowCol> >, clockwisedirs_, = 0 );
+
+    if ( !clockwisedirs_ )
     {
-	(*clockwisedirs_) += RowCol(-1, 0);
-	(*clockwisedirs_) += RowCol(-1, 1);
+	TypeSet<RowCol>* newclockwisedirs = new TypeSet<RowCol>;
+	(*newclockwisedirs) += RowCol(-1, 0);
+	(*newclockwisedirs) += RowCol(-1, 1);
 
-	(*clockwisedirs_) += RowCol( 0, 1);
-	(*clockwisedirs_) += RowCol( 1, 1);
+	(*newclockwisedirs) += RowCol( 0, 1);
+	(*newclockwisedirs) += RowCol( 1, 1);
 
-	(*clockwisedirs_) += RowCol( 1, 0);
-	(*clockwisedirs_) += RowCol( 1,-1);
+	(*newclockwisedirs) += RowCol( 1, 0);
+	(*newclockwisedirs) += RowCol( 1,-1);
 
-	(*clockwisedirs_) += RowCol( 0, -1);
-	(*clockwisedirs_) += RowCol( -1,-1);
+	(*newclockwisedirs) += RowCol( 0, -1);
+	(*newclockwisedirs) += RowCol( -1,-1);
+
+	if ( !clockwisedirs_.setIfNull(newclockwisedirs) )
+	    delete newclockwisedirs;
     }
 
     return *clockwisedirs_;

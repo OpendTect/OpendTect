@@ -27,12 +27,15 @@ namespace Strat
 
 const Level& Level::undef()
 {
-    static Level* lvl = 0;
+    mDefineStaticLocalObject( PtrMan<Level>, lvl, = 0 );
     if ( !lvl )
     {
-	lvl = new Level( "Undefined", 0 );
-	lvl->id_ = -1;
-	lvl->color_ = Color::Black();
+	Level* newlvl = new Level( "Undefined", 0 );
+	newlvl->id_ = -1;
+	newlvl->color_ = Color::Black();
+
+	if ( !lvl.setIfNull(newlvl) )
+	    delete newlvl;
     }
     return *lvl;
 }
@@ -95,7 +98,7 @@ LevelSet& curSet()
 
 
 static Strat::LevelSetMgr& lvlSetMgr()
-{ static Strat::LevelSetMgr mgr; return mgr; }
+{ mDefineStaticLocalObject( Strat::LevelSetMgr, mgr, ); return mgr; }
 const Strat::LevelSet& Strat::LVLS()
 { return lvlSetMgr().curSet(); }
 void Strat::pushLevelSet( Strat::LevelSet* ls )

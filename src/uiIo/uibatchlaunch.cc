@@ -143,7 +143,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
     remhostfld_->attach( alignedBelow, remfld_ );
     remhostfld_->setValue( localhostidx );
 
-    static BufferString fname = "";
+    mDefineStaticLocalObject( BufferString, fname, ("") );
     if ( fname.isEmpty() )
     {
 	fname = GetProcFileName( "log" );

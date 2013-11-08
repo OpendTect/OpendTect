@@ -273,7 +273,7 @@ void StrmOper::seek( std::istream& strm, od_int64 offset,
 #ifndef __win32__
     strm.seekg( offset, dir );
 #else
-    static int smalloffset = INT_MAX - 1;
+    const int smalloffset = INT_MAX - 1;
     
     if ( offset < smalloffset )
     { strm.seekg( offset, dir ); return; }
@@ -323,7 +323,7 @@ void StrmOper::seek( std::ostream& strm, od_int64 offset,
 #ifndef __win32__
     strm.seekp( offset, dir );
 #else
-    static int smalloffset = INT_MAX - 1;
+    const int smalloffset = INT_MAX - 1;
     
     if ( offset < smalloffset )
     { strm.seekp( offset, dir ); return; }

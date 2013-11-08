@@ -37,7 +37,8 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
 {
 #ifdef __debug__
-    static bool lyoutdbg_loc = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
+    mDefineStaticLocalObject( bool, lyoutdbg_loc, 
+			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
 }

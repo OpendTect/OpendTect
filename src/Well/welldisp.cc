@@ -365,13 +365,16 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 
 Well::DisplayProperties& Well::DisplayProperties::defaults()
 {
-    static Well::DisplayProperties* ret = 0;
+    mDefineStaticLocalObject( PtrMan<Well::DisplayProperties>, ret, = 0 );
 
     if ( !ret )
     {
 	Settings& setts = Settings::fetch( "welldisp" );
-	ret = new DisplayProperties;
-	ret->usePar( setts );
+	Well::DisplayProperties* newret = new DisplayProperties;
+	newret->usePar( setts );
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
 
     return *ret;

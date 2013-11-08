@@ -23,11 +23,11 @@ TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 
     const int nrdips = mNINT32(M_PI_2/dradius)+1;
     const double ddip = M_PI_2/(nrdips-1);
+    const double twopi = M_2PI;
 
     for ( int dipidx=0; dipidx<nrdips; dipidx++ )
     {
 	const double dip = ddip*dipidx;
-	static const double twopi = M_PI*2;
 	const double radius = cos(dip);
 	const double perimeter = twopi*radius;
 
@@ -72,7 +72,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
     const TypeSet<Coord3>& usedvectors =  normalize || checkforundefs
 					 ? ownvectors : vectors;
 
-    static const Coord3 udfcrd3( mUdf(double), mUdf(double), mUdf(double) );
+    const Coord3 udfcrd3( mUdf(double), mUdf(double), mUdf(double) );
     const int nrusedvectors = usedvectors.size();
     if ( !nrusedvectors )
 	return udfcrd3;

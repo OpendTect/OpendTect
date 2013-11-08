@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SignalHandling& SignalHandling::SH()
 {
-    static SignalHandling theinst;
+    mDefineStaticLocalObject( SignalHandling, theinst, );
     return theinst;
 }
 

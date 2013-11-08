@@ -63,13 +63,16 @@ void Setup::fillPar( IOPar& iop ) const
 
 Setup& Setup::defaults()
 {
-    static Setup* ret = 0;
+    mDefineStaticLocalObject( PtrMan<Setup>, ret, = 0 );
 
     if ( !ret )
     {
 	Settings& setts = Settings::fetch( "welltie" );
-	ret = new Setup;
-	ret->usePar( setts );
+	Setup* newret = new Setup;
+	newret->usePar( setts );
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
 
     return *ret;

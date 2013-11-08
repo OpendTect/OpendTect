@@ -58,7 +58,7 @@ bool Pick::operator==( const Pick& b ) const
 
 PicksMgr& VPM()
 {
-    static PicksMgr mgr;
+    mDefineStaticLocalObject( PicksMgr, mgr, );
     return mgr;
 }
 
@@ -1050,13 +1050,18 @@ void Picks::setGatherID( const MultiID& m )
 
 const IOObjContext& Picks::getStorageContext()
 {
-    static PtrMan<IOObjContext> ret = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = 0 );
     if ( !ret )
     {
-	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
-	ret->setName( "Velocity picks" );
-	ret->toselect.require_.set( sKey::Type(), sKeyVelocityPicks() );
+	IOObjContext* newret = 
+		new IOObjContext(PickSetTranslatorGroup::ioContext());
+	newret->setName( "Velocity picks" );
+	newret->toselect.require_.set( sKey::Type(), sKeyVelocityPicks() );
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
+
     return *ret;
 }
 

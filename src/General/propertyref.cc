@@ -84,10 +84,8 @@ void setZUnit( CallBacker* cb=0 )
 
 const PropertyRef& PropertyRef::thickness()
 {
-    static PropRef_ThickRef_Man* ptm = 0;
-    if ( !ptm )
-	ptm = new PropRef_ThickRef_Man;
-
+    mDefineStaticLocalObject( PtrMan<PropRef_ThickRef_Man>, ptm, 
+			      = new PropRef_ThickRef_Man );
     return *ptm->ref_;
 }
 
@@ -112,17 +110,21 @@ float PropertyRef::DispDefs::possibleValue() const
 
 const PropertyRef& PropertyRef::undef()
 {
-    static PropertyRef* udf = 0;
+    mDefineStaticLocalObject( PtrMan<PropertyRef>, udf, = 0 );
     if ( !udf )
     {
-	udf = new PropertyRef( "Undef" );
-	udf->aliases().add( "" );
-	udf->aliases().add( "undef*" );
-	udf->aliases().add( "?undef?" );
-	udf->aliases().add( "?undefined?" );
-	udf->aliases().add( "udf" );
-	udf->aliases().add( "unknown" );
-	udf->disp_.color_ = Color::LightGrey();
+	PropertyRef* newudf = new PropertyRef( "Undef" );
+	newudf->aliases().add( "" );
+	newudf->aliases().add( "undef*" );
+	newudf->aliases().add( "?undef?" );
+	newudf->aliases().add( "?undefined?" );
+	newudf->aliases().add( "udf" );
+	newudf->aliases().add( "unknown" );
+	newudf->disp_.color_ = Color::LightGrey();
+
+	if ( !udf.setIfNull(newudf) )
+	    delete newudf;
+
     }
     return *udf;
 }
@@ -300,7 +302,7 @@ void createSet()
 
 const PropertyRefSet& PROPS()
 {
-    static PropertyRefSetMgr rsm;
+    mDefineStaticLocalObject( PropertyRefSetMgr, rsm, );
     if ( !rsm.prs_ )
 	rsm.createSet();
     return *rsm.prs_;

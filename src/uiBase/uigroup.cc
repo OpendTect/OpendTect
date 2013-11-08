@@ -431,7 +431,8 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     , grpobj_( 0 )
     , body_( 0 )
 {
-    static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
+    mDefineStaticLocalObject( bool, showgrps__, 
+			      = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES") );
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 

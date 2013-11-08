@@ -30,9 +30,8 @@ const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
 SeisPSIOProviderFactory& SPSIOPF()
 {
-    static PtrMan<SeisPSIOProviderFactory> theinst = 0;
-    if ( !theinst ) theinst = new SeisPSIOProviderFactory;
-    return *theinst;
+    mDefineStaticLocalObject( SeisPSIOProviderFactory, theinst, );
+    return theinst;
 }
 
 

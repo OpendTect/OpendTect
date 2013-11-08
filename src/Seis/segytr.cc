@@ -161,7 +161,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	if ( nrstzs )
 	{
 	    // Never seen any file with stanzas, so we'll mistrust it
-	    static bool indeed_wants = GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS");
+	    mDefineStaticLocalObject( bool, indeed_wants, 
+				= GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS") );
 	    if ( !indeed_wants )
 		addWarn( cSEGYFoundStanzas, toString(nrstzs) );
 	    else
@@ -208,7 +209,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
 void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
-    static const bool nowarn = Settings::common().isTrue("SEG-Y.No warnings");
+    mDefineStaticLocalObject( const bool, nowarn, 
+			= Settings::common().isTrue("SEG-Y.No warnings") );
     if ( nowarn || warnnrs_.isPresent(nr) ) return;
 
     BufferString msg;
@@ -410,7 +412,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
     filepars_.fmt_ = binhead.format();
     binhead.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo.nr );
-    static int jobid = 0;
+    mDefineStaticLocalObject( int, jobid, = 0 );
     binhead.setEntryVal( SEGY::BinHeader::EntryJobID(), ++jobid );
     binhead.setNrSamples( outnrsamples );
     binhead.setSampleRate( outsd.step, mInDepth );
@@ -873,9 +875,10 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 {
     const int curcomp = selComp();
 
-    static bool allowudfs = GetEnvVarYN( "OD_SEIS_SEGY_ALLOW_UDF" );
-    static float udfreplaceval = (float) GetEnvVarDVal(
-	    				"OD_SEIS_SEGY_UDF_REPLACE", 0 );
+    mDefineStaticLocalObject( bool, allowudfs, 
+			      = GetEnvVarYN("OD_SEIS_SEGY_ALLOW_UDF") );
+    mDefineStaticLocalObject( float, udfreplaceval, 
+		= (float) GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 ) );
     for ( int idx=0; idx<outnrsamples; idx++ )
     {
 	float val = trc.getValue( outsd.atIndex(idx), curcomp );

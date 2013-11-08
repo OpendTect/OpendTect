@@ -647,7 +647,7 @@ int EdgeLineSegment::findNeighborTo(RowCol const& rc, bool forward) const
 ObjectSet<EdgeLineSegmentFactory>&
 EdgeLineSegment::factories()
 {
-    static ObjectSet<EdgeLineSegmentFactory> f;
+    mDefineStaticLocalObject( ObjectSet<EdgeLineSegmentFactory>, f, );
     return f;
 }
 

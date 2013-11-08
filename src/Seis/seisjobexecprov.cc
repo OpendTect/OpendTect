@@ -41,8 +41,8 @@ static const char* sKeyProcIs2D = "Processing is 2D";
 
 const BufferString& getOutSubSelKey()
 {
-    static const BufferString outsubselkey(
-				IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    mDefineStaticLocalObject( const BufferString, outsubselkey, 
+			(IOPar::compKey(sKey::Output(),sKey::Subsel())) );
     return outsubselkey;
 }
 

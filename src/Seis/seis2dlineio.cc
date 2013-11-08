@@ -35,8 +35,8 @@ public:
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 {
-    static PtrMan<Seis2DLineIOProviderSet> theinst = 0;
-    if ( !theinst ) theinst = new Seis2DLineIOProviderSet;
+    mDefineStaticLocalObject( PtrMan<Seis2DLineIOProviderSet>, theinst, 
+			      = new Seis2DLineIOProviderSet );
     return *theinst.ptr();
 }
 

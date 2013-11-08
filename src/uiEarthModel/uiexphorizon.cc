@@ -134,7 +134,7 @@ static void initGF( std::ostream& strm, const char* hornm,
 static void writeGF( std::ostream& strm, const BinID& bid, float z,
 		     float val, const Coord& crd, int segid )
 {
-    static char buf[mDataGFLineLen+2];
+    char buf[mDataGFLineLen+2];
     const float crl = mCast( float, bid.crl() );
     const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
     const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );

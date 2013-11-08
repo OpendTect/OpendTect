@@ -44,7 +44,8 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
     , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
 #ifdef __debug__
-    static bool lyoutdbg_loc = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
+    mDefineStaticLocalObject( bool, lyoutdbg_loc, 
+			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
 

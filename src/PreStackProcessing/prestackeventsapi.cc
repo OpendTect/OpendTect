@@ -477,6 +477,6 @@ int PreStack::EventsAPIMgr::getHorizonID( int handle, int index,
 
 PreStack::EventsAPIMgr& PreStack::EventsAPIMgr::getMgr()
 {
-    static PreStack::EventsAPIMgr mgr;
+    mDefineStaticLocalObject( PreStack::EventsAPIMgr, mgr, );
     return mgr;
 }

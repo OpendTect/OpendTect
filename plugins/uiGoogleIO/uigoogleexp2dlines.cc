@@ -41,7 +41,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
 	putallfld_ = new uiGenInput( this, "Export", BoolInpSpec(true,"All",
 		    nrsel > 1 ? "Selected lines":"Selected line") );
 
-    static const char* choices[]
+    const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
     putlnmfld_ = new uiGenInput( this, "Put line names",
 	    			 StringListInpSpec(choices) );

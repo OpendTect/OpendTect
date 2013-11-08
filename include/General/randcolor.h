@@ -28,7 +28,7 @@ inline Color getRandomColor( bool withtransp=false )
 
 inline Color getRandStdDrawColor()
 {
-    static int curidx = -1;
+    mDefineStaticLocalObject( int, curidx, = -1 );
     if ( curidx == -1 )
     {
 	Stats::randGen().init();

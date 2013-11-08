@@ -110,7 +110,8 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 
     BufferString key;
     BufferString tmpkey;
-    static const BufferString keybase( IOPar::compKey( sKey::Output(), 0 ) );
+    mDefineStaticLocalObject( const BufferString, keybase, 
+			      ( IOPar::compKey(sKey::Output(), 0) ) );
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );
     iopar.set( key, 1 );

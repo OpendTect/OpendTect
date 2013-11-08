@@ -275,11 +275,11 @@ bool Location::getText( const char* idkey, BufferString& val ) const
 // Pick::SetMgr
 SetMgr& SetMgr::getMgr( const char* nm )
 {
-    static ObjectSet<SetMgr>* mgrs = 0;
+    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<SetMgr> >, mgrs, = 0 );
     SetMgr* newmgr = 0;
     if ( !mgrs )
     {
-	mgrs = new ObjectSet<SetMgr>;
+	mgrs = new ManagedObjectSet<SetMgr>;
 	newmgr = new SetMgr( 0 );
 	    // ensure the first mgr has the 'empty' name
     }

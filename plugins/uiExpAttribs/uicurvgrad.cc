@@ -34,7 +34,7 @@ uiCurvGrad::uiCurvGrad( uiParent* p, bool is2d )
     steerfld_->steertypeSelected_.notify( mCB(this,uiCurvGrad,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    static const char* attributelist_[]={ "Gradient", "Azimuth", 0 };
+    const char* attributelist_[] = { "Gradient", "Azimuth", 0 };
     attributefld_ = 
 	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );
     attributefld_->valuechanged.notify( mCB(this,uiCurvGrad,choiceSel) );

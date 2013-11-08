@@ -37,7 +37,7 @@ void Strat::Content::putAppearanceTo( BufferString& str ) const
 
 const Strat::Content& Strat::Content::unspecified()
 {
-    static Strat::Content unspec( "" );
+    mDefineStaticLocalObject( Strat::Content, unspec, ("") );
     return unspec;
 }
 
@@ -53,11 +53,14 @@ int Strat::ContentSet::getIndexOf( const char* nm ) const
 
 const Strat::Lithology& Strat::Lithology::undef()
 {
-    static Strat::Lithology* udf = 0;
+    mDefineStaticLocalObject( PtrMan<Strat::Lithology>, udf, = 0 );
     if ( !udf )
     {
-	udf = new Strat::Lithology( -1, "-", true );
-	udf->color() = Color::LightGrey();
+	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
+	newudf->color() = Color::LightGrey();
+	
+	if ( !udf.setIfNull(newudf) )
+	    delete newudf;
     }
     return *udf;
 }

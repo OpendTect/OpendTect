@@ -20,7 +20,7 @@ mUseQtnamespace
 
 void uiCursorManager::initClass()
 {
-    static uiCursorManager uimgr;
+    mDefineStaticLocalObject( uiCursorManager, uimgr, );
     MouseCursorManager::setMgr( &uimgr );
 }
 

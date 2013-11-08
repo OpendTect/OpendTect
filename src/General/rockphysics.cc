@@ -248,7 +248,7 @@ void createSet()
 
 const RockPhysics::FormulaSet& ROCKPHYSFORMS()
 {
-    static RockPhysicsFormulaMgr rfm;
+    mDefineStaticLocalObject( RockPhysicsFormulaMgr, rfm, );
     if ( !rfm.fms_ )
 	rfm.createSet();
     return *rfm.fms_;

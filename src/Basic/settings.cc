@@ -23,10 +23,8 @@ static const char* sKeyCommon = "Common";
 
 static ObjectSet<Settings>& getSetts()
 {
-    static ObjectSet<Settings>* theinst_ = 0;
-    if ( !theinst_ )
-	theinst_ = new ObjectSet<Settings>;
-    return *theinst_;
+    mDefineStaticLocalObject( ObjectSet<Settings>, theinst_, );
+    return theinst_;
 }
 
 

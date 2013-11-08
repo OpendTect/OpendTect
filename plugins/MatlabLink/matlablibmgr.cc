@@ -257,6 +257,6 @@ void MatlabLibMgr::terminateApplication()	{}
 
 MatlabLibMgr& MLM()
 {
-    static PtrMan<MatlabLibMgr> inst = new MatlabLibMgr;
-    return *inst;
+    mDefineStaticLocalObject( MatlabLibMgr, inst, );
+    return inst;
 }

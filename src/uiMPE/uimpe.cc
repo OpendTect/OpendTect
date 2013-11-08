@@ -78,14 +78,8 @@ uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
 
 uiMPEEngine& uiMPE()
 {
-    static PtrMan<uiMPEEngine> uiengine = 0;
-    if ( !uiengine )
-    {
-	uiengine = new uiMPEEngine;
-	
-    }
-
-    return *uiengine;
+    mDefineStaticLocalObject( uiMPEEngine, uiengine,  );
+    return uiengine;
 }
 
 };

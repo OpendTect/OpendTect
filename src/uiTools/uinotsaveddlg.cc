@@ -99,8 +99,8 @@ protected:
 
 NotSavedPrompter& NotSavedPrompter::NSP()
 {
-    static PtrMan<NotSavedPrompter> res = new NotSavedPrompter;
-    return *res;
+    mDefineStaticLocalObject( NotSavedPrompter, res, );
+    return res;
 }
 
 

@@ -77,7 +77,7 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 
     if ( !neighbortile || !thistile ) return;
 
-    const static int cTriangleEndIdx = 3;
+    const int cTriangleEndIdx = 3;
 
     const char thisres = thistile->getActualResolution();
     const char neighborres = neighbortile->getActualResolution();

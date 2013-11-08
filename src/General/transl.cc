@@ -52,10 +52,8 @@ TranslatorGroup::~TranslatorGroup()
 
 ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 {
-    static ObjectSet<TranslatorGroup>* allgrps = 0;
-    if ( !allgrps )
-	allgrps = new ObjectSet< TranslatorGroup >;
-    return *allgrps;
+    mDefineStaticLocalObject( ObjectSet<TranslatorGroup>, allgrps, );
+    return allgrps;
 }
 
 
@@ -254,7 +252,7 @@ Translator::Translator( const char* nm, const char* unm )
     , usrname_(unm)
     , group_(0)
 {
-    static bool init_done = false;
+    mDefineStaticLocalObject( bool, init_done, = false );
     if ( !init_done )
     {
 	od_Basic_initStdClasses();

@@ -192,9 +192,8 @@ uiFontList::~uiFontList()
 
 uiFontList& uiFontList::getInst()
 {
-    static uiFontList* fl = 0;
-    if ( !fl ) fl = new uiFontList;
-    return *fl;
+    mDefineStaticLocalObject( uiFontList, fl, );
+    return fl;
 }
 
 

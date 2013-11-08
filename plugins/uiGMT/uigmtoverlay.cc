@@ -25,11 +25,8 @@ uiGMTOverlayGrp::uiGMTOverlayGrp( uiParent* p, const char* nm )
 
 uiGMTOverlayGrpFactory& uiGMTOF()
 {
-    static PtrMan<uiGMTOverlayGrpFactory> inst = 0;
-    if ( !inst )
-	inst = new uiGMTOverlayGrpFactory;
-
-    return *inst;
+    mDefineStaticLocalObject( uiGMTOverlayGrpFactory, inst, );
+    return inst;
 }
 
 

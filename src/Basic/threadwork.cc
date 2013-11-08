@@ -26,7 +26,7 @@ static void shutdownTWM()
 
 Threads::WorkManager& WorkManager::twm()
 {
-    static PtrMan<Threads::WorkManager> twm_= 0;
+    mDefineStaticLocalObject( PtrMan<Threads::WorkManager>, twm_, = 0 );
     if ( !twm_ )
     {
 	Threads::WorkManager* newtwm =

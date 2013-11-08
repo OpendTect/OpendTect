@@ -18,7 +18,7 @@ const char* PosID::subidStr() { return  "Sub ID"; }
 
 const PosID& PosID::udf()
 {
-    static PosID undef( -1, -1, -1 );
+    mDefineStaticLocalObject( PosID, undef, ( -1, -1, -1 ) );
     return undef; 
 }
 

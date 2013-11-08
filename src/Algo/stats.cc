@@ -44,10 +44,8 @@ Stats::RandGen::RandGen()
 
 Stats::RandGen Stats::randGen()
 {
-    static Stats::RandGen* rgptr = 0;
-    if ( !rgptr )
-	rgptr = new Stats::RandGen();
-
+    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr, 
+			      = new Stats::RandGen() );
     return *rgptr;
 }
 
@@ -71,7 +69,7 @@ Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 
 int Stats::CalcSetup::medianEvenHandling()
 {
-    static int ret = -2;
+    mDefineStaticLocalObject( int, ret, = -2 );
     if ( ret != -2 ) return ret;
 
     if ( GetEnvVarYN("OD_EVEN_MEDIAN_AVERAGE") )
@@ -98,7 +96,7 @@ int Stats::CalcSetup::medianEvenHandling()
 double Stats::RandGen::get()
 {
 #ifdef __win__
-    static const unsigned int rmax_ = UINT_MAX;
+    mDefineStaticLocalObject( const unsigned int, rmax_, = UINT_MAX );
     unsigned int rand = 0;
     rand_s( &rand );
     double ret = rand;
@@ -143,8 +141,8 @@ void Stats::RandGen::init( int seed )
 
 double Stats::RandGen::getNormal( double ex, double sd )
 {
-    static int iset = 0;
-    static double gset = 0;
+    mDefineStaticLocalObject( int, iset, = 0 );
+    mDefineStaticLocalObject( double, gset, = 0 );
     double fac, r, v1, v2;
     double arg;
 

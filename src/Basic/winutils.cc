@@ -83,7 +83,8 @@ const char* getCleanWinPath( const char* path )
 
     mTrimBlanks( ptr );
 
-    static bool __do_debug_cleanpath = GetEnvVarYN("DTECT_DEBUG_WINPATH");
+    mDefineStaticLocalObject( bool, __do_debug_cleanpath, 
+			      = GetEnvVarYN("DTECT_DEBUG_WINPATH") );
 
     if ( *(ptr+1) == ':' ) // already in windows style.
 	{ ret = ptr;  mRet( ret ); }

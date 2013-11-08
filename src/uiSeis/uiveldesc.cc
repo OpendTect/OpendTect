@@ -267,11 +267,17 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 
 const IOObjContext& uiVelSel::ioContext()
 {
-    static PtrMan<IOObjContext> velctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, velctxt, = 0 );
     if ( !velctxt )
     {
-	velctxt = new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
-	velctxt->toselect.require_.setYN( VelocityDesc::sKeyIsVelocity(), true);
+
+	IOObjContext* newvelctxt = 
+		new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
+	newvelctxt->toselect.require_.setYN( 
+		VelocityDesc::sKeyIsVelocity(), true );
+
+	if ( !velctxt.setIfNull(newvelctxt) )
+	    delete newvelctxt;
     }
 
     return *velctxt;

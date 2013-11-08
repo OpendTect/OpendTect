@@ -109,7 +109,7 @@ void Math::updateDesc( Desc& desc )
 
 const BufferStringSet& Math::getSpecVars()
 {
-    static const BufferStringSet res( specvararr );
+    mDefineStaticLocalObject( const BufferStringSet, res, (specvararr) );
     return res;
 }
 

@@ -224,8 +224,8 @@ bool PreStackDisplay::setPosition( const BinID& nb )
     PtrMan<PreStack::Gather> gather = new PreStack::Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom( *ioobj_, *reader_, nb ) )
     {
-	static bool shown3d = false;
-	static bool resetpos = true;
+	mDefineStaticLocalObject( bool, shown3d, = false );
+	mDefineStaticLocalObject( bool, resetpos, = true );
 	if ( !shown3d )
 	{
 //	    resetpos = uiMSG().askContinue(
@@ -649,8 +649,8 @@ void PreStackDisplay::setTraceNr( int trcnr )
     	if ( !ioobj_ || !reader_ ||
 	     !gather->readFrom(*ioobj_,*reader_,BinID(0,trcnr)) )
     	{
-    	    static bool show2d = false;
-    	    static bool resettrace = true;
+    	    mDefineStaticLocalObject( bool, show2d, = false );
+    	    mDefineStaticLocalObject( bool, resettrace, = true );
     	    if ( !show2d )
     	    {
 //		resettrace = uiMSG().askContinue(

@@ -588,7 +588,7 @@ void uiODMain::timerCB( CallBacker* )
 
 void uiODMain::memTimerCB( CallBacker* )
 {
-    static Threads::Lock memtimerlock( true );
+    mDefineStaticLocalObject( Threads::Lock, memtimerlock, (true) );
     Threads::Locker locker( memtimerlock, Threads::Locker::DontWaitForLock );
     if ( !locker.isLocked() )
 	return;

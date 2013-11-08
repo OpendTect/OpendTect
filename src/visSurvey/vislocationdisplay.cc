@@ -629,7 +629,7 @@ bool LocationDisplay::isPicking() const
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
-    static TypeSet<Coord3> sowinghistory;
+    mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
     int locidx = -1;
     bool insertpick = false;

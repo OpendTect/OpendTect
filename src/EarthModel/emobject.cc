@@ -51,7 +51,7 @@ EMObject::EMObject( EMManager& emm )
     , insideselremoval_( false )
     , selremoving_( false )
 {
-    static EM::ObjectID oid = 0;
+    mDefineStaticLocalObject( Threads::Atomic<int>, oid, = 0 );
     id_ = oid++;
 
     removebypolyposbox_.setEmpty();

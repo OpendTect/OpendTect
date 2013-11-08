@@ -26,11 +26,8 @@ const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }
 
 DataManager& DM()
 {
-    static DataManager* manager = 0;
-
-    if ( !manager ) manager = new DataManager;
-
-    return *manager;
+    mDefineStaticLocalObject( DataManager, manager, );
+    return manager;
 }
 
 

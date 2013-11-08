@@ -20,7 +20,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     : uiGroup( p, "Frequency Filter Selection")
     , parchanged(this)  
 {
-    static const char** typestrs = FFTFilter::TypeNames();
+    const char** typestrs = FFTFilter::TypeNames();
     typefld_ = new uiGenInput(this, "Filter type", StringListInpSpec(typestrs));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );

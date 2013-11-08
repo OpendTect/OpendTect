@@ -93,7 +93,7 @@ int SeisPSMerger::nextStep()
     if ( readers_.isEmpty() )
 	return Executor::ErrorOccurred();
 
-    static const float offseps = 1e-6;
+    const float offseps = 1e-6;
     SeisTrcBuf* gather = 0;
     while ( true )
     {

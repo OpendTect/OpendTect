@@ -170,7 +170,7 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
 	pErrMsg( "channel >= mappers_.size()" );
 	if ( mappers_.isEmpty() )
 	{
-	    static ColTab::MapperSetup ctms;
+	    mDefineStaticLocalObject( ColTab::MapperSetup, ctms, );
 	    return ctms;
 	}
 	return mappers_[mappers_.size()-1]->setup_;

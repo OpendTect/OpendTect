@@ -25,7 +25,7 @@ namespace CmdDrive
 
 static const char* getSpecDir( const char* envvar, const char* defdir )
 {
-    static BufferString retdir = GetEnvVar( envvar );
+    mDefineStaticLocalObject( BufferString, retdir, = GetEnvVar(envvar) );
     if ( retdir.isEmpty() || !File::isDirectory(retdir) )
     {
 	retdir = FilePath( GetDataDir(), defdir ).fullPath();

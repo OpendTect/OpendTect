@@ -244,7 +244,7 @@ const char* MarchingCubesSurface::getTypeStr() const
 
 void MarchingCubesSurface::setNewName()
 {
-    static int objnr = 1;
+    mDefineStaticLocalObject( int, objnr, = 1 );
     BufferString nm( "<New ", typeStr(), " " );
     nm.add( objnr++ ).add( ">" );
     setName( nm );
@@ -337,12 +337,16 @@ bool MarchingCubesSurface::isEmpty() const
 
 const IOObjContext& MarchingCubesSurface::getIOObjContext() const
 {
-    static IOObjContext* res = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	res->deftransl = mcEMBodyTranslator::sKeyUserName();
-	res->toselect.allowtransls_ = mcEMBodyTranslator::sKeyUserName();
+	IOObjContext* newres = 
+		new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->deftransl = mcEMBodyTranslator::sKeyUserName();
+	newres->toselect.allowtransls_ = mcEMBodyTranslator::sKeyUserName();
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
     }
 
     return *res; 

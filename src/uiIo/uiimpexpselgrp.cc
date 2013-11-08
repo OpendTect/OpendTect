@@ -211,7 +211,7 @@ static SGSelGrpManager& SGM()
     if ( !sgm )
     {
 	sgm = new SGSelGrpManager();
-	static SGSelGrpManDeleter sgsmd;
+	mDefineStaticLocalObject( SGSelGrpManDeleter, sgsmd, );
 	const_cast<SurveyInfo&>(SI()).deleteNotify(
 		mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
     }

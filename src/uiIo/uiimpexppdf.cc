@@ -335,7 +335,7 @@ bool putPDF( const Sampled2DProbDenFunc& pdf )
     strm_ << "Y Bin Width       : " << pdf.sd1_.step << '\n';
     strm_ << "Y No of Bins      : " << nry << "\n\n";
 
-    static const char* twentyspaces = "                    ";
+    const char* twentyspaces = "                    ";
 
     for ( int idx=0; idx<nrx; idx++ )
 	strm_ << BufferString("X Bin ",idx,twentyspaces);

@@ -325,8 +325,8 @@ TrcKey::TrcKey( TrcKey::SurvID id, int linenr, int trcnr )
 
 const TrcKey& TrcKey::udf()
 {
-    static const TrcKey udfkey( mUdf(SurvID),
-	    	BinID::udf().lineNr(), BinID::udf().trcNr() );
+    mDefineStaticLocalObject( const TrcKey, udfkey, 
+	    (mUdf(SurvID), BinID::udf().lineNr(), BinID::udf().trcNr()) );
     return udfkey;
 }
 

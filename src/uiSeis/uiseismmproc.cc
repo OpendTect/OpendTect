@@ -439,8 +439,8 @@ void uiSeisMMProc::doCycle( CallBacker* )
 
 void uiSeisMMProc::updateAliveDisp()
 {
-    static const int nrdispstrs = 6;
-    static const char* dispstrs[]
+    const int nrdispstrs = 6;
+    const char* dispstrs[]
 	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
 

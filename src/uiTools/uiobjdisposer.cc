@@ -17,9 +17,8 @@ static ObjectSet<Timer> todeltimers;
 
 uiObjDisposer* uiOBJDISP()
 {
-    static uiObjDisposer* theinst = 0;
-    if ( !theinst )
-	theinst = new uiObjDisposer;
+    mDefineStaticLocalObject( PtrMan<uiObjDisposer>, theinst, 
+			      = new uiObjDisposer );
     return theinst;
 }
 

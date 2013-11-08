@@ -21,10 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const DataColDef& DataColDef::unknown()
 {
-    static DataColDef* def = 0;
-    if ( !def )
-	def = new DataColDef( "Unknown", 0 );
-    return *def;
+    mDefineStaticLocalObject( DataColDef, def, ("Unknown", 0) );
+    return def;
 }
 
 

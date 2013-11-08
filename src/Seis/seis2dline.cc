@@ -56,13 +56,15 @@ Seis2DLineSet::~Seis2DLineSet()
 
 static BufferStringSet& preSetFiles()
 {
-    static BufferStringSet* psf = 0; if ( !psf ) psf = new BufferStringSet;
-    return *psf;
+    mDefineStaticLocalObject( BufferStringSet, psf, );
+    return psf;
 }
+
+
 static BufferStringSet& preSetContents()
 {
-    static BufferStringSet* psc = 0; if ( !psc ) psc = new BufferStringSet;
-    return *psc;
+    mDefineStaticLocalObject( BufferStringSet, psc, );
+    return psc;
 }
 
 

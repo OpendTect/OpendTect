@@ -48,13 +48,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const Attrib::DescSet& emptyads2d()
 {
-	static Attrib::DescSet res( true );
-	return res;
+    mDefineStaticLocalObject( Attrib::DescSet, res, (true) );
+    return res;
 }
 
 const Attrib::DescSet& emptyads3d()
 {
-	static Attrib::DescSet res( false );
+    mDefineStaticLocalObject( Attrib::DescSet, res, (false) );
     return res;
 }
 

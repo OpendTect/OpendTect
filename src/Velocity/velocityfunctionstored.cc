@@ -40,13 +40,17 @@ const char* StoredFunctionSource::sKeyVelocityType()
 
 IOObjContext& StoredFunctionSource::ioContext()
 {
-    static PtrMan<IOObjContext> ret = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = 0 );
 
     if ( !ret )
     {
-	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
-	ret->setName( "RMO picks" );
-	ret->toselect.require_.set( sKey::Type(), sKeyVelocityFunction() );
+	IOObjContext* newret = 
+		    new IOObjContext(PickSetTranslatorGroup::ioContext());
+	newret->setName( "RMO picks" );
+	newret->toselect.require_.set( sKey::Type(), sKeyVelocityFunction() );
+
+	if ( !ret.setIfNull(newret) )
+	    delete newret;
     }
 
     return *ret;

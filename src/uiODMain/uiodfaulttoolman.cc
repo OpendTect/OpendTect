@@ -670,7 +670,7 @@ void uiODFaultToolMan::outputEditTextChg( CallBacker* )
 
 void uiODFaultToolMan::editReadyTimerCB( CallBacker* )
 {
-    static uiPoint lastpos( uiPoint::udf() );
+    mDefineStaticLocalObject( uiPoint, lastpos, (uiPoint::udf()) );
 
     if ( outputnamecombo_->isCursorInside() ||
 	 !lastpos.isDefined() || lastpos==uiCursorManager::cursorPos() )

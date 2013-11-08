@@ -49,7 +49,7 @@ int main( int argc, char** argv )
 	  && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")		// Better.
 	  && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") )	// Yo.
 	{
-	    static const char* msg =
+	    const char* msg =
 		"OpendTect can be run under one of three licenses:"
 		" (GPL, Commercial, Academic).\n"
 		"Please consult http://opendtect.org/OpendTect_license.txt.";

@@ -21,12 +21,17 @@ const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
 
 const PosImpExpPars& PosImpExpPars::SVY()
 {
-    static PosImpExpPars* thinst = 0;
+    mDefineStaticLocalObject( PtrMan<PosImpExpPars>, thinst, = 0 );
     if ( !thinst )
     {
-	thinst = new PosImpExpPars;
-	thinst->getFromSI();
-	IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
+	PosImpExpPars* newthinst = new PosImpExpPars;
+	newthinst->getFromSI();
+
+	if ( !thinst.setIfNull(newthinst) )
+	    delete newthinst;
+	else
+	    IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
+
     }
     return *thinst;
 }

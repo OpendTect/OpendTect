@@ -27,7 +27,8 @@ namespace visBase
 
 Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
 {
-    static Notifier<PolygonSelection> polygonfinished(0);
+    mDefineStaticLocalObject( Notifier<PolygonSelection>, 
+			      polygonfinished, (0) );
     return &polygonfinished;
 }
 

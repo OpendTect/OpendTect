@@ -345,9 +345,8 @@ bool isOK() const
 
 static ObjectSet<StreamProviderPreLoadedData>& PLDs()
 {
-    static ObjectSet<StreamProviderPreLoadedData>* plds = 0;
-    if ( !plds ) plds = new ObjectSet<StreamProviderPreLoadedData>;
-    return *plds;
+    mDefineStaticLocalObject( ObjectSet<StreamProviderPreLoadedData>, plds, );
+    return plds;
 }
 
 

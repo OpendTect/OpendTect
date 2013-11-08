@@ -59,7 +59,7 @@ int PlaneFrom3DSpaceHoughTransformTask::nextStep()
     int temppos[3];
     datainfo_.getArrayPos( calcpositions_[idx], temppos );
     const Coord3 pos( temppos[0], temppos[1], temppos[2] );
-    static const Coord3 origo( 0,0,0 );
+    const Coord3 origo( 0,0,0 );
 
     for ( int normal=0; normal<normals_.size(); normal++ )
     {

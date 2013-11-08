@@ -32,10 +32,8 @@ static const char* sKeyGroup = "Group";
 
 FileFormatRepository& FFR()
 {
-    static FileFormatRepository* ffrepo = 0;
-    if ( !ffrepo )
-	ffrepo = new FileFormatRepository;
-    return *ffrepo;
+    mDefineStaticLocalObject( FileFormatRepository, ffrepo, );
+    return ffrepo;
 }
 
 

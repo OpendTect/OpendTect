@@ -25,12 +25,15 @@ int EMBodyTranslatorGroup::selector( const char* s )
 
 const IOObjContext& EMBodyTranslatorGroup::ioContext()
 {
-    static PtrMan<IOObjContext> ctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = 0 );
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( 0 );
-	ctxt->stdseltype = IOObjContext::Surf;
-	ctxt->toselect.allownonreaddefault_ = true;
+	IOObjContext* newctxt = new IOObjContext( 0 );
+	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->toselect.allownonreaddefault_ = true;
+
+	if ( !ctxt.setIfNull(newctxt) )
+	    delete newctxt;
     }
 
     ctxt->trgroup = &theInst();

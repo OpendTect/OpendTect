@@ -526,9 +526,9 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	     .deflt( ds_.fmtname_ )
 	     .dlgtitle( "Enter a name for the format" );
     uiGetObjectName dlg( this, listsetup );
-    static const char* strs[] = { "All surveys",
-				  "This survey only",
-				  "My user ID only", 0 };
+    const char* strs[] = { "All surveys",
+			   "This survey only",
+			   "My user ID only", 0 };
     uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
 	    				 StringListInpSpec(strs) );
     srcfld->attach( alignedBelow, dlg.inpFld() );
@@ -608,7 +608,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 	, fd_(fd)
     	, descChanged(this)
 {
-    static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
+    const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
     const CallBack hdrchgcb = mCB(this,uiTableImpDataSel,hdrChg);
     hdrtypefld_ = new uiGenInput( this, "File header",

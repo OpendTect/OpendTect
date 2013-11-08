@@ -309,13 +309,17 @@ void uiSteerCubeSel::doFinalise( CallBacker* c )
 
 const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
 {
-    static PtrMan<IOObjContext> ctxt = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = 0 );
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
-	ctxt->deftransl = CBVSSeisTrcTranslator::translKey();
+	IOObjContext* newctxt = 
+		new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
+	newctxt->deftransl = CBVSSeisTrcTranslator::translKey();
 	if ( !is2d )
-	    ctxt->toselect.require_.set( sKey::Type(), sKey::Steering() );
+	    newctxt->toselect.require_.set( sKey::Type(), sKey::Steering() );
+
+	if ( !ctxt.setIfNull(newctxt) )
+	    delete newctxt;
     }
 
     return *ctxt;

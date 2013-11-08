@@ -324,7 +324,7 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
 
 const char* getYesNoString( bool yn )
 {
-    static const char* strs[] = { "Yes", "No" };
+    const char* strs[] = { "Yes", "No" };
     return yn ? strs[0] : strs[1];
 }
 
@@ -700,7 +700,7 @@ const char* getRankPostFix( int nr )
 	if ( nr > 3 ) nr = 0;
     }
 
-    static const char* rets[] = { "th", "st", "nd", "rd" };
+    const char* rets[] = { "th", "st", "nd", "rd" };
     return rets[ nr ];
 }
 

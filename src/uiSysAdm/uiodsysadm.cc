@@ -25,10 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiODSysAdm& ODSysAdmMainWin()
 {
-    static uiODSysAdm* theinst = 0;
-    if ( !theinst )
-	theinst = new uiODSysAdm( 0 );
-    return *theinst;
+    mDefineStaticLocalObject( uiODSysAdm, theinst, (0) );
+    return theinst;
 }
 
 

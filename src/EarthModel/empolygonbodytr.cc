@@ -18,12 +18,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const IOObjContext& polygonEMBodyTranslator::getIOObjContext()
 {
-    static IOObjContext* res = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	res->deftransl = polygonEMBodyTranslator::sKeyUserName();
-	res->toselect.allowtransls_ = polygonEMBodyTranslator::sKeyUserName();
+	IOObjContext* newres = 
+		    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->deftransl = polygonEMBodyTranslator::sKeyUserName();
+	newres->toselect.allowtransls_ = 
+		    polygonEMBodyTranslator::sKeyUserName();
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
     }
 
     return *res;

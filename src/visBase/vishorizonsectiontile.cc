@@ -275,7 +275,7 @@ void HorizonSectionTile::ensureGlueTesselated()
 
 char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs ) 
 {
-    const static int cIdealNrPixelsPerCell = 32;
+    const int cIdealNrPixelsPerCell = 32;
 
     updateBBox();
     if ( !bbox_.valid() || !cs ) return cNoneResolution;

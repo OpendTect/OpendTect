@@ -16,7 +16,7 @@ const double Grav::G = 6.67428e-11;
 
 double Grav::Bouguer( double h, double rho )
 {
-    static const double bougfact = 2 * M_PI * G;
+    const double bougfact = 4.1935738032002570e-10; // 2 * M_PI * G
     return bougfact * rho * h;
 }
 
