@@ -243,6 +243,10 @@ public:
     			//!< If filetype is set to null no ascstream header
     			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(od_ostream&,const char* filetyp) const;
+    int			majorVersion() const	{ return majorversion_; }
+			//!<Only set if read from file. Otherwise set to current ver
+    int			minorVersion() const	{ return minorversion_; }
+			//!<Only set if read from file. Otherwise set to current ver
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 
@@ -251,6 +255,9 @@ public:
     static const char*	sKeySubHdr()		 { return "-->";     }   	
 
 protected:
+
+    int			majorversion_;
+    int			minorversion_;
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;

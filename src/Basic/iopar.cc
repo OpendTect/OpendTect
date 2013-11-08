@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "globexpr.h"
 #include "position.h"
+#include "odversion.h"
 #include "separstr.h"
 #include "ascstream.h"
 #include "samplingdata.h"
@@ -28,6 +29,8 @@ IOPar::IOPar( const char* nm )
 	: NamedObject(nm)
 	, keys_(*new BufferStringSet)
 	, vals_(*new BufferStringSet)
+        , minorversion_( mODMinorVersion )
+        , majorversion_( mODMajorVersion )
 {
 }
 
@@ -36,6 +39,8 @@ IOPar::IOPar( ascistream& astream )
 	: NamedObject("")
 	, keys_(*new BufferStringSet)
 	, vals_(*new BufferStringSet)
+        , minorversion_( mODMinorVersion )
+        , majorversion_( mODMajorVersion )
 {
     getFrom( astream );
 }
@@ -45,6 +50,8 @@ IOPar::IOPar( const IOPar& iop )
 	: NamedObject(iop.name())
 	, keys_(*new BufferStringSet)
 	, vals_(*new BufferStringSet)
+        , minorversion_( iop.minorversion_ )
+        , majorversion_( iop.majorversion_ )
 {
     for ( int idx=0; idx<iop.size(); idx++ )
 	add( iop.keys_.get(idx), iop.vals_.get(idx) );
@@ -60,6 +67,9 @@ IOPar& IOPar::operator =( const IOPar& iop )
 	for ( int idx=0; idx<iop.size(); idx++ )
 	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
     }
+
+    minorversion_ = iop.minorversion_;
+    majorversion_ = iop.majorversion_;
     return *this;
 }
 
@@ -211,8 +221,12 @@ IOPar* IOPar::subselect( const char* key ) const
 	    iopar->add( nm+1, vals_.get(idx) );
     }
 
+    iopar->majorversion_ = majorversion_;
+    iopar->minorversion_ = minorversion_;
+
     if ( iopar->size() == 0 )
 	{ delete iopar; iopar = 0; }
+
     return iopar;
 }
 
@@ -969,6 +983,9 @@ void IOPar::getFrom( ascistream& strm )
 	add( strm.keyWord(), strm.value() );
 	strm.next();
     }
+
+    majorversion_ = strm.majorVersion();
+    minorversion_ = strm.minorVersion();
 }
 
 
