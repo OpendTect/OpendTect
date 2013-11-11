@@ -16,13 +16,11 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "arrayndalgo.h"
 #include "enums.h"
-
-#include <complex>
+#include "odcomplex.h"
 
 namespace Fourier { class CC; }
 
 template <class T> class Array1DImpl;
-typedef std::complex<float> float_complex;
 
 
 /*!

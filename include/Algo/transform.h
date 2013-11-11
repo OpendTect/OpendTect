@@ -14,14 +14,13 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "complex"
 #include "task.h"
 #include "sets.h"
+#include "odcomplex.h"
 
 class ArrayNDInfo;
 template <class T> class ArrayND;
 
-typedef std::complex<float> float_complex;
 
 /*!
 \brief Lets any 1D orthogonal transform (GenericTransformND::GenericTransform1D)be extended to ND. Most transform fftw can be implemented as a subclass of

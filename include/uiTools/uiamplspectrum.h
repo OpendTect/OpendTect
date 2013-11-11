@@ -16,9 +16,7 @@ ______________________________________________________________________
 #include "uidialog.h"
 #include "datapack.h"
 #include "survinfo.h"
-
-#include <complex>
-typedef std::complex<float> float_complex;
+#include "odcomplex.h"
 
 class uiFunctionDisplay;
 class uiGenInput;

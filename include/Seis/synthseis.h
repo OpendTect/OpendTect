@@ -18,10 +18,9 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 #include "iopar.h"
 #include "odmemory.h"
+#include "odcomplex.h"
 #include "task.h"
 #include "threadlock.h"
-
-#include "complex"
 
 class RayTracer1D;
 class SeisTrc;
@@ -29,7 +28,6 @@ class TimeDepthModel;
 class RayTracerRunner;
 class Wavelet;
 
-typedef std::complex<float> float_complex;
 namespace Fourier { class CC; };
 namespace PreStack { class Gather; }
 

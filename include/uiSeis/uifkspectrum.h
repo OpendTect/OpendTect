@@ -14,12 +14,10 @@ ______________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiflatviewmainwin.h"
-
 #include "datapack.h"
 #include "survinfo.h"
+#include "odcomplex.h"
 
-#include <complex>
-typedef std::complex<float> float_complex;
 
 namespace Fourier { class CC; }
 template <class T> class Array2D;

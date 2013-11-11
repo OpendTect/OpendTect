@@ -20,8 +20,6 @@ class ArrayNDInfo;
 template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
-typedef std::complex<float> float_complex;
-
 
 /*!
 \brief Class to compute Hilbert Transform.

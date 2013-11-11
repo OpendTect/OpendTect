@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
-#include <complex>
+#include "odcomplex.h"
 
 /* Functions with some extra facilities added to math.h
 
@@ -25,7 +25,6 @@ ________________________________________________________________________
 
  */
 
-typedef std::complex<float> float_complex;
 
 namespace Math
 {

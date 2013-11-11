@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 */
 
-#include "complex"
+#include "odcomplex.h"
 #include "arraynd.h"
 #include "task.h"
 #include "rowcol.h"
@@ -25,7 +25,6 @@ ________________________________________________________________________
 #endif
 
 namespace Fourier { class CC; }
-typedef std::complex<float> float_complex;
 
 /*!
 \brief Convolves (or correlates) two 2D signals.
