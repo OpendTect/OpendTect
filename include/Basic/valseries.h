@@ -404,10 +404,10 @@ template <class RT, class AT>
 void ArrayValueSeries<RT,AT>::setAll( RT val )
 {
     if ( cursize_<=0 )
-    {
-	MemSetter<AT> setter( ptr_, (AT) val, cursize_ );
-	setter.execute();
-    }
+	return;
+
+    MemSetter<AT> setter( ptr_, (AT) val, cursize_ );
+    setter.execute();
 }
 
 
