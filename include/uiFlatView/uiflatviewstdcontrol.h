@@ -39,7 +39,8 @@ public:
 			    , withstates_(true)
 			    , withhanddrag_(true)
 			    , withsnapshot_(true)
-				, withflip_(true)
+			    , withflip_(true)
+			    , withrubber_(true)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -52,6 +53,7 @@ public:
 	mDefSetupMemb(BufferString,helpid)
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
+	mDefSetupMemb(bool,withrubber)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);

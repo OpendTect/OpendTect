@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
-    : uiFlatViewControl(vwr,setup.parent_,true,setup.withhanddrag_)
+    : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_,setup.withhanddrag_)
     , vwr_(vwr)
     , ctabed_(0)
     , manip_(false)
