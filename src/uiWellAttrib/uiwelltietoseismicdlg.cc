@@ -808,6 +808,8 @@ void uiInfoDlg::zrgChanged( CallBacker* )
 	return;
 
     zrg_.limitTo( data_.getTraceRange() );
+    if ( zrg_.isRev() )
+	mErrRet( "Top marker must be above base marker." )
     server_.setCrossCorrZrg( zrg_ );
     needNewEstimatedWvlt(0);
 
