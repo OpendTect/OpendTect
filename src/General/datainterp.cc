@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ibmformat.h"
 #include "separstr.h"
-#include "strmoper.h"
+#include "od_istream.h"
 
 DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
 	"0 - auto",
@@ -630,32 +630,32 @@ mDefDIPFIbmswp(od_int64)
 
 #define mImpl( type ) \
 template <> \
-type DataInterpreter<type>::get( std::istream& strm ) const \
+type DataInterpreter<type>::get( od_istream& strm ) const \
 { \
     char buf[16]; \
-    StrmOper::readBlock( strm, buf, nrBytes() ); \
+    strm.getBin( buf, nrBytes() ); \
     return get( buf, 0 ); \
 } \
  \
 template <> \
 bool DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-				 std::istream& strm, type& res ) \
+				 od_istream& strm, type& res ) \
 { \
     if ( di ) \
     { \
 	char buf[16]; \
-        if ( !StrmOper::readBlock( strm, buf, di->nrBytes() ) ) \
+        if ( !strm.getBin( buf, di->nrBytes() ) ) \
 	    return false;\
 	res = di->get( buf, 0 ); \
 	return true; \
     } \
     \
-    return StrmOper::readBlock( strm, &res, sizeof(type) ); \
+    return strm.getBin( &res, sizeof(type) ); \
 } \
  \
 template <> \
 type DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-std::istream& strm ) \
+				 od_istream& strm ) \
 { \
 type val; \
 get( di, strm, val ); \

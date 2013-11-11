@@ -9,10 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "datainterp.h"
 #include "survinfo.h"
+#include "od_iostream.h"
 
-#include "strmoper.h"
-#include "strmprov.h"
-#include <fstream>
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
        			      bool excludeunreasonable )
@@ -70,10 +68,10 @@ void Seis::PosIndexer::empty()
     nrrejected_ = 0;
 }
 
-#define mWrite( val ) \
-    strm.write( (const char*) &val, sizeof(val))
 
-bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
+#define mWrite( val ) strm.addBin( &val, sizeof(val) )
+
+bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 {
     mWrite( is2d_ );
     mWrite( isps_ );
@@ -86,16 +84,15 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
 
     mWrite( maxidx_ );
 
-    TypeSet<od_int64> inloffsets( inls_.size(), 0 );
-    od_int64 offsetstart = 0;
+    TypeSet<od_stream::Pos> inloffsets( inls_.size(), 0 );
+    od_stream::Pos offsetstart = 0;
     if ( !is2d_ )
     {
 	const int nrinl = inls_.size();
 	mWrite( nrinl );
-	strm.write( (const char*) inls_.arr(), sizeof(int) * nrinl );
-	offsetstart = strm.tellp();
-	strm.write( (const char*) inloffsets.arr(),
-		sizeof(od_int64) * inloffsets.size() );
+	strm.addBin( inls_.arr(), sizeof(int) * nrinl );
+	offsetstart = strm.position();
+	strm.addBin( inloffsets.arr(), sizeof(od_int64) * inloffsets.size() );
     }
 
     const int nrlines = is2d_ ? 1 : inls_.size();
@@ -105,22 +102,21 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
 	const TypeSet<int>& crlset = *crlsets_[lineidx];
 	const TypeSet<od_int64>& idxset = *idxsets_[lineidx];
 	const int nrtrcs = crlset.size();
-	if ( !is2d_ ) inloffsets[lineidx] = strm.tellp();
+	if ( !is2d_ ) inloffsets[lineidx] = strm.position();
 	mWrite( nrtrcs );
-	strm.write( (const char*) crlset.arr(), sizeof(int) * nrtrcs );
-	strm.write( (const char*) idxset.arr(), sizeof(od_int64) * nrtrcs );
+	strm.addBin( crlset.arr(), sizeof(int) * nrtrcs );
+	strm.addBin( idxset.arr(), sizeof(od_int64) * nrtrcs );
     }
 
     if ( !is2d_ )
     {
-	od_int64 eof = strm.tellp();
-	strm.seekp( offsetstart, std::ios::beg );
-	strm.write( (const char*) inloffsets.arr(),
-		sizeof(od_int64) * inloffsets.size() );
-	strm.seekp( eof, std::ios::beg );
+	od_int64 eof = strm.position();
+	strm.setPosition( offsetstart );
+	strm.addBin( inloffsets.arr(), sizeof(od_int64) * inloffsets.size() );
+	strm.setPosition( eof );
     }
 
-    return strm.good();
+    return !strm.isBad();
 }
 
 
@@ -128,16 +124,16 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
     if ( interp ) \
     { \
 	char buf[8]; \
-	strm_->read( (char*) buf, 8 ); \
+	strm_->getBin( buf, sz ); \
 	var = interp->get( buf, 0 ); \
     } \
     else \
-	strm_->read( (char*) &var, sizeof(var) )
+	strm_->getBin( &var, sizeof(var) )
 
-#   define mRet(yn) { sd.close(); strm_ = 0; return yn; }
+#   define mRet(yn) { strm_ = 0; return yn; }
 
 
-bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
+bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 	bool readall,
 	DataInterpreter<int>* int32interp,
 	DataInterpreter<od_int64>* int64interp,
@@ -146,16 +142,16 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
     if ( strm_ )
 	{ pErrMsg("strm_ not null"); delete strm_; strm_ = 0; }
 
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() )
+    od_istream* strm = new od_istream( fnm );
+    if ( !strm->isOK() )
 	mRet( false )
 
-    StrmOper::seek( *sd.istrm, offset, std::ios::beg );
-    if ( !sd.istrm->good() )
+    strm->setPosition( offset );
+    if ( !strm->isOK() )
 	mRet( false )
 
 
-    strm_ = sd.istrm;
+    strm_ = strm;
     if ( !readHeader( int32interp, int64interp, floatinterp ) )
 	mRet( false )
 
@@ -188,7 +184,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
 	idxsets_ += idxset;
     }
 
-    const bool res = strm_->good();
+    const bool res = !strm_->isBad();
     mRet( res )
 }
 
@@ -199,7 +195,7 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	DataInterpreter<od_int64>* int64interp ) const
 {
     int nrtrcs = DataInterpreter<int>::get( int32interp, *strm_ );
-    if ( !strm_->good() )
+    if ( strm_->isBad() )
 	return false;
 
     crlset.setSize( nrtrcs, 0 );
@@ -217,8 +213,8 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	buf = (char*) crlset.arr();
     }
 
-    strm_->read( buf, sz*nrtrcs );
-    if ( !strm_->good() )
+    strm_->getBin( buf, sz*nrtrcs );
+    if ( strm_->isBad() )
 	return false;
 
     if ( int32interp )
@@ -239,8 +235,8 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	buf = (char*) idxset.arr();
     }
 
-    strm_->read( buf, sz*nrtrcs );
-    if ( !strm_->good() )
+    strm_->getBin( buf, sz*nrtrcs );
+    if ( strm_->isBad() )
 	return false;
 
     if ( int64interp )
@@ -249,7 +245,7 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	    idxset[idx] = int64interp->get( buf, idx );
     }
 
-    return strm_->good();
+    return !strm_->isBad();
 }
 
 
@@ -259,8 +255,8 @@ bool Seis::PosIndexer::readHeader(
         DataInterpreter<float>* floatinterp )
 {
     empty();
-    strm_->read( (char*) &is2d_, sizeof(is2d_) );
-    strm_->read( (char*) &isps_, sizeof(isps_) );
+    strm_->getBin( &is2d_, sizeof(is2d_) );
+    strm_->getBin( &isps_, sizeof(isps_) );
 
     mRead ( inlrg_.start, int32interp, 4 );
     mRead ( inlrg_.stop, int32interp, 4 );
@@ -271,14 +267,14 @@ bool Seis::PosIndexer::readHeader(
 
     mRead ( maxidx_, int64interp, 8 );
 
-    if ( !strm_->good() )
+    if ( strm_->isBad() )
 	return false;
 
     if ( !is2d_ )
     {
 	int nrinl;
 	mRead( nrinl, int32interp, 4 );
-	if ( !strm_->good() )
+	if ( strm_->isBad() )
 	    return false;
 
 	char* buf;
@@ -296,8 +292,8 @@ bool Seis::PosIndexer::readHeader(
 	    buf = (char*) inls_.arr();
 	}
 
-	strm_->read( buf, sz*nrinl );
-	if ( !strm_->good() )
+	strm_->getBin( buf, sz*nrinl );
+	if ( strm_->isBad() )
 	    return false;
 
 	if ( int32interp )
@@ -318,8 +314,8 @@ bool Seis::PosIndexer::readHeader(
 	    buf = (char*) inlfileoffsets_.arr();
 	}
 
-	strm_->read( buf, sz*nrinl );
-	if ( !strm_->good() )
+	strm_->getBin( buf, sz*nrinl );
+	if ( strm_->isBad() )
 	    return false;
 
 	if ( int64interp )
@@ -329,7 +325,7 @@ bool Seis::PosIndexer::readHeader(
 	}
     }
 
-    return strm_->good();
+    return !strm_->isBad();
 }
 
 
@@ -361,7 +357,7 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
     {
 	if ( curinl_!=bid.inl() )
 	{
-	    StrmOper::seek( *strm_, inlfileoffsets_[inlidx], std::ios::beg );
+	    strm_->setPosition( inlfileoffsets_[inlidx] );
 	    if ( !readLine(curcrlset_,curidxset_,int32interp_,int64interp_ ) )
 		return -1;
 	    curinl_ = bid.inl();
@@ -396,7 +392,7 @@ void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
     {
 	if ( curinl_!=inl )
 	{
-	    StrmOper::seek( *strm_, inlfileoffsets_[inlidx], std::ios::beg );
+	    strm_->setPosition( inlfileoffsets_[inlidx] );
 	    if ( !readLine(const_cast<Seis::PosIndexer*>(this)->curcrlset_,
 			   const_cast<Seis::PosIndexer*>(this)->curidxset_,
 			   const_cast<Seis::PosIndexer*>(this)->int32interp_,
@@ -505,7 +501,8 @@ TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
 							  inlidx, crlidx );
     if ( res < 0 ) return retidxs;
 
-    od_int64 idx = strm_ ? curidxset_[crlidx] : (*idxsets_[inlidx])[crlidx];
+    od_stream::Pos idx = strm_ ? curidxset_[crlidx]
+			       : (*idxsets_[inlidx])[crlidx];
     retidxs += idx;
 
     PosKey curpk;

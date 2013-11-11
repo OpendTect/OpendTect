@@ -22,11 +22,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "seisposindexer.h"
 #include "survinfo.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "segytr.h"
+#include "od_iostream.h"
 
-#include <fstream>
 
 static const char* sKeyNrFiles = "Number of files";
 
@@ -39,18 +37,18 @@ static const char* sKeyNrUsable = "Nr Usable";
 
 
 SEGY::FileDataSet::StoredData::StoredData( const char* filename,
-	od_int64 offset,
+	od_stream_Pos offset,
 	const DataCharacteristics& dc32 )
     : int32di_( DataInterpreter<int>::create( dc32, false ) )
     , start_( offset )
-    , istrm_( StreamProvider( filename ).makeIStream().istrm )
+    , istrm_( new od_istream(filename) )
     , ostrm_( 0 )
 {}
 
 
-SEGY::FileDataSet::StoredData::StoredData( std::ostream& ostrm )
+SEGY::FileDataSet::StoredData::StoredData( od_ostream& ostrm )
     : int32di_( 0 )
-    , start_( ostrm.tellp() )
+    , start_( ostrm.position() )
     , istrm_( 0 )
     , ostrm_( &ostrm )
 {}
@@ -63,7 +61,7 @@ SEGY::FileDataSet::StoredData::~StoredData()
 }
 
 
-bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
+bool SEGY::FileDataSet::StoredData::getKey( od_stream_Pos pos, Seis::PosKey& pk,
 					    bool& usable ) const
 {
     Threads::Locker lckr( lock_ );
@@ -72,9 +70,9 @@ bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
 	return false;
 
     static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
-    const od_int64 offset = start_+pos*unitsz;
-    StrmOper::seek( *istrm_, offset, std::ios::beg );
-    if ( !istrm_->good() )
+    const od_stream_Pos offset = start_+pos*unitsz;
+    istrm_->setPosition( offset );
+    if ( !istrm_->isOK() )
 	return false;
 
     BinID bid;
@@ -82,7 +80,7 @@ bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
     if ( !DataInterpreter<int>::get( int32di_, *istrm_, bid.inl() ) ||
 	 !DataInterpreter<int>::get( int32di_, *istrm_, bid.crl() ) ||
 	 !DataInterpreter<int>::get( int32di_, *istrm_, offsetazimuth ) ||
-	 !StrmOper::readBlock( *istrm_, &usable, sizeof(bool) ) )
+	 !istrm_->getBin( &usable, sizeof(bool) ) )
 	 return false;
   
     OffsetAzimuth oa; oa.setFrom( offsetazimuth );
@@ -96,24 +94,21 @@ bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
 
 bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable ) 
 {
-    if ( !ostrm_ )
-	return false;
-
-    if ( !ostrm_->good() )
+    if ( !ostrm_ || !ostrm_->isOK() )
 	return false;
 
     const int inl = pk.binID().inl();
     const int crl = pk.binID().crl();
 
-    ostrm_->write( (const char*) &inl, sizeof( inl ) );
-    ostrm_->write( (const char*) &crl, sizeof( crl ) );
+    ostrm_->addBin( &inl, sizeof(inl) );
+    ostrm_->addBin( &crl, sizeof(crl) );
 
     const OffsetAzimuth oa( pk.offset(), 0 );
     const int oaint = oa.asInt();
-    ostrm_->write( (const char*) &oaint, sizeof(oaint) );
-    ostrm_->write( (const char*) &usable, sizeof(usable) );
+    ostrm_->addBin( &oaint, sizeof(oaint) );
+    ostrm_->addBin( &usable, sizeof(usable) );
 
-    return ostrm_->good();
+    return ostrm_->isOK();
 }
 
 
@@ -130,7 +125,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop, ascistream& strm )
 
 
 SEGY::FileDataSet::FileDataSet( const IOPar& iop,
-				const char* filename,od_int64 start,
+				const char* filename,od_stream_Pos start,
 				const DataCharacteristics& int32 )
     : segypars_( iop )
     , storeddata_( new StoredData( filename, start, int32 ) )
@@ -159,7 +154,7 @@ SEGY::FileDataSet::~FileDataSet()
 }
 
 
-bool SEGY::FileDataSet::setOutputStream( std::ostream& strm )
+bool SEGY::FileDataSet::setOutputStream( od_ostream& strm )
 {
     delete storeddata_;
     storeddata_ = new SEGY::FileDataSet::StoredData( strm );
@@ -585,14 +580,14 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 }
 
 
-void SEGY::FileDataSet::dump( std::ostream& strm ) const
+void SEGY::FileDataSet::dump( od_ostream& strm ) const
 {
     Seis::PosKey pk; bool usable;
     for ( od_int64 idx=0; idx<totalsz_; idx++ )
     {
 	getDetails( idx, pk, usable );
-	strm << idx << '\t' << pk.inLine() << '\t' << pk.xLine()
-	     << '\t' << pk.offset() << '\t' << (usable?'Y':'N') << std::endl;
+	strm << idx << od_tab << pk.inLine() << od_tab << pk.xLine()
+	     << od_tab << pk.offset() << od_tab << (usable?'Y':'N') << od_endl;
     }
 }
 

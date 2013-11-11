@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "datachar.h"
 #include "general.h"
+class od_istream;
 
 
 #if defined(__msvc__) && (defined(GENERAL_EXPORTS) || defined(General_EXPORTS) )
@@ -70,9 +71,9 @@ public:
 			{ (this->*swpfn)( buf, bufsz_in_elements );
 			  const_cast<DataInterpreter<T>*>(this)->swpSwap(); }
 
-    T			get(std::istream&) const;
-    static T		get(const DataInterpreter<T>*,std::istream&);
-    static bool         get(const DataInterpreter<T>*,std::istream&,T&);
+    T			get(od_istream&) const;
+    static T		get(const DataInterpreter<T>*,od_istream&);
+    static bool         get(const DataInterpreter<T>*,od_istream&,T&);
     inline T		get( const void* buf, od_int64 nr ) const
 			{ return (this->*getfn)( buf, nr ); }
     inline void		put( void* buf, od_int64 nr, T t ) const

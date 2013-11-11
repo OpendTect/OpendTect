@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seisposkey.h"
 #include "sortedtable.h"
 #include "threadlock.h"
+#include "od_iosfwd.h"
 
 class ascostream;
 class DataCharacteristics;
@@ -58,7 +59,7 @@ public:
     			~FileDataSet();
 
 			FileDataSet(const IOPar&,const char* filename,
-				od_int64 start,
+				od_stream_Pos start,
 				const DataCharacteristics& int32 );
 			/*!<Reads new version of file, only auxdata is read
 			    in, the bulk of the data remains on disk. */
@@ -67,7 +68,7 @@ public:
 
     void		save2DCoords(bool yn);
 
-    bool		setOutputStream(std::ostream&);
+    bool		setOutputStream(od_ostream&);
     			/*!<Will store all information to the stream, rather 
 			    than in memory. */
     void		setAuxData(const Seis::GeomType&,
@@ -83,7 +84,7 @@ public:
     				//Auxdata
     int				nrFiles() const;
     FixedString			fileName(int) const;
-    bool			isEmpty() const		{ return totalsz_==1; }
+    bool			isEmpty() const		{ return totalsz_<2; }
     od_int64			size() const		{ return totalsz_; }
     bool			isRev1() const		{ return isrev1_; }
     Seis::GeomType		geomType() const	{ return geom_; }
@@ -105,7 +106,7 @@ public:
 				    object. */
 
     void			getReport(IOPar&) const;
-    void			dump(std::ostream&) const;
+    void			dump(od_ostream&) const;
 
     bool			usePar(const IOPar& iop);
     				//!<Read auxdata from storage
@@ -116,22 +117,23 @@ protected:
 
     struct		StoredData
     {
-			StoredData(const char* filename,od_int64 start,
+			StoredData(const char* filename,od_stream_Pos start,
 				const DataCharacteristics& int32);
-			StoredData(std::ostream&);
+			StoredData(od_ostream&);
 			~StoredData();
 
 	bool		getKey(od_int64, Seis::PosKey&, bool& ) const;
 	bool		add(const Seis::PosKey&,bool);
 
     protected:
+
 	DataInterpreter<int>*		int32di_;
 
 	mutable Threads::Lock		lock_;
-	std::istream*			istrm_;
-	od_int64			start_;
+	od_istream*			istrm_;
+	od_stream_Pos			start_;
 
-	std::ostream*			ostrm_;
+	od_ostream*			ostrm_;
     };
 
     bool			readVersion1( ascistream& );

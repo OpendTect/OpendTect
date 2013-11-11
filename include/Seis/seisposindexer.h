@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "ranges.h"
 #include "sets.h"
+#include "od_iosfwd.h"
 
 
 template <class T> class DataInterpreter;
@@ -28,9 +29,11 @@ namespace Seis
 mExpClass(Seis) PosKeyList
 {
 public:
+
     virtual		~PosKeyList()			{}
     virtual od_int64	size() const			= 0;
     virtual bool	key(od_int64,PosKey&) const	= 0;
+
 };
 
 /*!\brief builds an index of a list of positions, making it easy to find a
@@ -82,7 +85,7 @@ public:
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
     od_int64			nrRejected() const	{ return nrrejected_; }
 
-    bool			dumpTo(std::ostream& strm) const;
+    bool			dumpTo(od_ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
 	    				bool all,
 	    				DataInterpreter<int>*  =0,
@@ -104,7 +107,7 @@ protected:
 				    DataInterpreter<int>*,
 				    DataInterpreter<od_int64>* ) const;
 
-    std::istream*		strm_;
+    od_istream*			strm_;
     DataInterpreter<int>*	int32interp_;
     DataInterpreter<od_int64>*	int64interp_;
     TypeSet<od_int64>		inlfileoffsets_;

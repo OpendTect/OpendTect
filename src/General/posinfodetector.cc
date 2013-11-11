@@ -548,8 +548,12 @@ static BufferString getStepRangeStr( T start, T stop, T step )
 void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
-	iop.add( "Sorting", errmsg_.isEmpty() ? sorting_.description()
-					      : errmsg_.buf() );
+    {
+	BufferString sortdesc( errmsg_ );
+	if ( sortdesc.isEmpty() )
+	    sortdesc = sorting_.description();
+	iop.add( "Sorting", sortdesc );
+    }
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
     iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x) );

@@ -814,7 +814,7 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
     od_istream& strm = sConn().iStream();
     if ( !strm.getBin(headerbuf_,mSEGYTraceHeaderBytes) || !strm.isOK() )
     {
-	if ( !strm.isOK() )
+	if ( strm.isBad() )
 	    mPosErrRet("Error reading trace header")
 	return noErrMsg();
     }

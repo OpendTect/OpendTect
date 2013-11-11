@@ -265,15 +265,14 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	IOPar segypars;
 	segypars.getFrom( astrm );
 
-	std::istream& stdstrm = strm.stdStream();
 	const od_stream::Pos datastart =
-	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,strm);
 	const od_stream::Pos textpars =
-	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,strm);
 	const od_stream::Pos cubedatastart =
-	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,strm);
 	const od_stream::Pos indexstart =
-	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,strm);
 	if ( !strm.isOK() )
 	    mErrRet( readerror );
 
@@ -408,7 +407,7 @@ bool SEGY::DirectDef::writeFootersToFile()
 
     indexstart_ = strm.position();
 
-    indexer_->dumpTo( strm.stdStream() );
+    indexer_->dumpTo( strm );
 
     //Put this at the end, so one can manipulate the filenames without
     //breaking the indexing
@@ -570,8 +569,7 @@ int SEGY::FileIndexer::nextStep()
 	if ( !directdef_->writeHeadersToFile( outfile ) )
 	    mErrRet( "Cannot write to file", outfile )
 
-	scanner_->fileDataSet().setOutputStream(
-			directdef_->getOutputStream()->stdStream() );
+	scanner_->fileDataSet().setOutputStream(*directdef_->getOutputStream());
 	return MoreToDo();
     }
 
