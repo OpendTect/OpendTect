@@ -101,6 +101,7 @@ void TopBotImage::setImageFilename( const char* fnm )
     filenm_ = fnm;
     osg::ref_ptr<osg::Image> image = osgDB::readImageFile( fnm );
     laytex_->setDataLayerImage( layerid_, image );
+    texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
 }
 
 

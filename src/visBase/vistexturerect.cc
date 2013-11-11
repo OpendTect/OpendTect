@@ -13,8 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coord.h"
 #include "coord.h"
 #include "vistexturechannels.h"
+#include "odversion.h"
 
-
+#include <osgGeo/LayeredTexture>
 #include <osgGeo/TexturePlane>
 
 mCreateFactoryEntry( visBase::TextureRectangle );
@@ -44,6 +45,15 @@ void TextureRectangle::setTextureChannels( visBase::TextureChannels* channels )
 {
     channels_ = channels;
     textureplane_->setLayeredTexture( channels_->getOsgTexture() );
+
+#if mODVersion>470
+    const int maxtexsize = channels_->getOsgTexture()->maxTextureSize();
+    pErrMsg( "Obsolete code for tile size limit of 64 can be removed" );
+#else
+    const int maxtexsize = 64;
+#endif
+
+    textureplane_->setTextureBrickSize( maxtexsize, false );
 }
 
 

@@ -11,8 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturepanelstrip.h"
 #include "vistexturechannels.h"
+#include "odversion.h"
 
-
+#include <osgGeo/LayeredTexture>
 #include <osgGeo/TexturePanelStrip>
 
 mCreateFactoryEntry( visBase::TexturePanelStrip );
@@ -29,8 +30,6 @@ TexturePanelStrip::TexturePanelStrip()
     osgpanelstrip_->ref();
     addChild( osgpanelstrip_ );
     // osgpanelstrip_->toggleTilingMode();	// for testing purposes only
-    osgpanelstrip_->setTextureBrickSize( 64, false );
-    // TODO: around release time, tile size should be increased
 }
 
 
@@ -44,6 +43,15 @@ void TexturePanelStrip::setTextureChannels( visBase::TextureChannels* channels )
 {
     channels_ = channels;
     osgpanelstrip_->setTexture( channels_->getOsgTexture() );
+
+#if mODVersion>470
+    const int maxtexsize = channels_->getOsgTexture()->maxTextureSize();
+    pErrMsg( "Obsolete code for tile size limit of 64 can be removed" );  
+#else
+    const int maxtexsize = 64;
+#endif
+
+    osgpanelstrip_->setTextureBrickSize( maxtexsize, false );
 }
 
 
