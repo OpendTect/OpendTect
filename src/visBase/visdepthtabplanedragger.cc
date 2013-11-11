@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keyenum.h"
 #include "mouseevent.h"
 
-#include <osgManipulator/TabPlaneDragger>
+#include <osgGeo/TabPlaneDragger>
 #include <osg/Geometry>
 #include <osg/Switch>
 #include <osg/LightModel>
@@ -198,13 +198,12 @@ void DepthTabPlaneDragger::initOsgDragger()
 	return;
 
 #if OSG_MIN_VERSION_REQUIRED(3,1,3)
-    osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
+    osgdragger_ = new osgGeo::TabPlaneDragger( 12.0 );
     osgdragger_->setIntersectionMask( cIntersectionTraversalMask() );
     osgdragger_->setActivationMouseButtonMask(
-	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON |
-				osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON );
+	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
 #else
-    osgdragger_ = new osgManipulator::TabPlaneDragger();
+    osgdragger_ = new osgGeo::TabPlaneDragger();
 #endif
 
     addChild( osgdragger_ );
@@ -441,65 +440,38 @@ const mVisTrans* DepthTabPlaneDragger::getDisplayTransformation() const
 
 void DepthTabPlaneDragger::setTransDragKeys( bool depth, int ns )
 {
-    const bool ctrl = ns & OD::ControlButton;
-    const bool shift = ns & OD::ShiftButton;
-    const bool alt = ns & OD::AltButton;
+    int mask = osgGA::GUIEventAdapter::NONE;
 
-    unsigned int mask  = osgGA::GUIEventAdapter::NONE;
-    if ( ctrl )  mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-    if ( shift ) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
-    if ( alt )   mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    if ( ns & OD::ControlButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( ns & OD::ShiftButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( ns & OD::AltButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
 
-    for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, tpd,
-			 osgdragger_->getDragger(idx) );
-
-	if ( tpd && depth )
-	{
-	    //tpd->getTranslate1DDragger()->setActivationMouseButtonMask(
-	    //			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
-	    tpd->getTranslate1DDragger()->setActivationModKeyMask( mask );
-	}
-	if ( tpd && !depth )
-	{
-	    //tpd->getTranslate1DDragger()->setActivationMouseButtonMask(
-	    //			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
-	    tpd->getTranslate2DDragger()->setActivationModKeyMask( mask );
-	}
-    }
+    if ( depth )
+	osgdragger_->set1DTranslateModKeyMask( mask );
+    else
+	osgdragger_->set2DTranslateModKeyMask( mask );
 }
 
 
 int DepthTabPlaneDragger::getTransDragKeys( bool depth ) const
 {
+    const int mask = depth ? osgdragger_->get1DTranslateModKeyMask()
+			   : osgdragger_->get2DTranslateModKeyMask();
 
     int state = OD::NoButton;
-    for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, tpd,
-			 osgdragger_->getDragger(idx) );
-	if ( !tpd )
-	    continue;
 
-	const osgManipulator::Dragger* dragger;
-	if ( depth )
-	    dragger = tpd->getTranslate1DDragger();
-	else
-	    dragger = tpd->getTranslate2DDragger();
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_CTRL )
+	state |= OD::ControlButton;
 
-	const unsigned int ctrl  = osgGA::GUIEventAdapter::MODKEY_CTRL;
-	if ( (dragger->getActivationModKeyMask() & ctrl) == ctrl )
-	    state |= OD::ControlButton;
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_SHIFT )
+	state |= OD::ShiftButton;
 
-	const unsigned int shift = osgGA::GUIEventAdapter::MODKEY_SHIFT;
-	if ( (dragger->getActivationModKeyMask() & shift) == shift )
-	    state |= OD::ShiftButton;
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_ALT )
+	state |= OD::AltButton;
 
-	const unsigned int alt   = osgGA::GUIEventAdapter::MODKEY_ALT;
-	if ( (dragger->getActivationModKeyMask() & alt) == alt )
-	    state |= OD::AltButton;
-    }
     return (OD::ButtonState) state;
 }
 

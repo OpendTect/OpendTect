@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 
-namespace osgManipulator { class TabPlaneDragger; }
+namespace osgGeo { class TabPlaneDragger; }
 namespace osg { class Switch; }
 
 
@@ -120,7 +120,7 @@ protected:
 
     RefMan<const mVisTrans>	transform_;
 
-    osgManipulator::TabPlaneDragger*	osgdragger_;
+    osgGeo::TabPlaneDragger*	osgdragger_;
     osg::Switch*			osgdraggerplane_;
     PlaneDraggerCallbackHandler*	osgcallbackhandler_;
 
