@@ -65,6 +65,8 @@ DataPlayer::~DataPlayer()
 
 bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 {
+    errmsg_.setEmpty();
+
     if ( !data_.wd_ )
 	mErrRet( "Cannot read well data" );
 
@@ -86,6 +88,7 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 
 bool DataPlayer::extractSeismics()
 {
+    errmsg_.setEmpty();
     const IOObj& ioobj = *IOM().get( seisid_ );
     IOObj* seisobj = ioobj.clone();
     SeisIOObjInfo oinf( seisid_ );
@@ -137,6 +140,7 @@ bool DataPlayer::extractSeismics()
 
 bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
+    errmsg_.setEmpty();
     Seis::SynthGenerator gen;
     gen.enableFourierDomain( true );
     gen.setModel( refmodel_ );
@@ -167,6 +171,7 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 
 bool DataPlayer::checkCrossCorrInps()
 {
+    errmsg_.setEmpty();
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
 
@@ -200,8 +205,13 @@ bool DataPlayer::checkCrossCorrInps()
 
 bool DataPlayer::computeCrossCorrelation()
 {
+    errmsg_.setEmpty();
+
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
+
+    if ( zrg_.isRev() )
+	mErrRet( "Cross-correlation window is not valid" )
 
     if ( !extractWvf(false) )
 	mErrRet( "Cannot extraction seismic for cross-correlation" )
@@ -223,8 +233,13 @@ bool DataPlayer::computeCrossCorrelation()
 
 bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 {
+    errmsg_.setEmpty();
+
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
+
+    if ( zrg_.isRev() )
+	mErrRet( "Cross-correlation window is not valid" )
 
     if ( !extractReflectivity() )
 	mErrRet( "Cannot extraction reflectivity for wavelet estimation" )
@@ -264,6 +279,7 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 
 bool DataPlayer::extractWvf( bool issynt )
 {
+    errmsg_.setEmpty();
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation extraction window not set" )
 
@@ -311,6 +327,7 @@ bool DataPlayer::extractWvf( bool issynt )
 
 bool DataPlayer::extractReflectivity()
 {
+    errmsg_.setEmpty();
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation extraction window not set" )
 
@@ -318,7 +335,7 @@ bool DataPlayer::extractReflectivity()
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     const int totnrspikes = refmodel_.size();
     if ( totnrspikes < nrsamps )
-	mErrRet( "Reflectivity serie too short" )
+	mErrRet( "Reflectivity series too short" )
 
     int firstspike = 0;
     int lastspike = 0;
@@ -356,13 +373,13 @@ bool DataPlayer::extractReflectivity()
     if ( (lastspike-firstspike+1) != nrsamps )
     {
 	BufferString errmsg = "The wavelet estimation window must be";
-	errmsg += " smaller than the reflectivity serie";
+	errmsg += " smaller than the reflectivity series";
 	mErrRet( errmsg );
     }
 
     mDeclareAndTryAlloc( float_complex*, valarr, float_complex[nrsamps] );
     if ( !valarr )
-	mErrRet( "Cannot allocate memory for reflectivity serie" )
+	mErrRet( "Cannot allocate memory for reflectivity series" )
 
     int nrspikefound = 0;
     for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
@@ -438,6 +455,7 @@ bool DataPlayer::setAIModel()
 
 bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
+    errmsg_.setEmpty();
     refmodel_.erase();
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
@@ -466,6 +484,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 
 bool DataPlayer::copyDataToLogSet()
 {
+    errmsg_.setEmpty();
     if ( aimodel_.isEmpty() )
 	mErrRet( "No data found" )
 
@@ -585,6 +604,7 @@ bool DataPlayer::copyDataToLogSet()
 bool DataPlayer::processLog( const Well::Log* log, 
 			     Well::Log& outplog, const char* nm ) 
 {
+    errmsg_.setEmpty();
     BufferString msg;
     if ( !log ) 
 	{ msg += "Can not find "; msg += nm; mErrRet( msg ); }
