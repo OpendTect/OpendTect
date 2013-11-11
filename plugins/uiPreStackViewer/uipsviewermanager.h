@@ -83,7 +83,6 @@ protected:
     MenuItem		selectpsdatamenuitem_;
     MenuItem		selectpsvwr2ddatamenuitem_;
     MenuItem		proptymenuitem_;
-    MenuItem		resolutionmenuitem_;
     MenuItem		positionmenuitem_;
     MenuItem		viewermenuitem_;
     MenuItem		amplspectrumitem_;
