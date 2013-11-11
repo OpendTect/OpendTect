@@ -160,19 +160,19 @@ public:
 
     bool			setArray1D(const Array1D<float>&,
 					   SectionID sid,
-					   const PosInfo::Line2DKey& geomid,
+					   const PosInfo::Line2DKey& l2dkey,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,
 					   SectionID sid,
-					   const PosInfo::Line2DKey& geomid,
+					   const PosInfo::Line2DKey& l2dkey,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,SectionID sid,
 	    				   Pos::GeomID geomid,
 					   bool onlyfillundefs );
 
     Array1D<float>*		createArray1D(SectionID,
-	    				      const PosInfo::Line2DKey& geomid,
+	    				      const PosInfo::Line2DKey& l2dkey,
 	    				      const ZAxisTransform* =0) const;
     Array1D<float>*		createArray1D(SectionID,
 	    				      Pos::GeomID geomid,

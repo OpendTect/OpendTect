@@ -253,19 +253,19 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    SeparString linekey( "Line", '.' );
 	    linekey.add( idx );
 
-	    PosInfo::Line2DKey geomid;
+	    PosInfo::Line2DKey l2dkey;
 	    SeparString lineidkey( linekey.buf(), '.' );
 	    lineidkey.add( Horizon2DGeometry::sKeyID() );
 	    BufferString geomidstr;
 	    if ( !par_->get(lineidkey.buf(),geomidstr) )
 		continue;
 
-	    geomid.fromString( geomidstr );
-	    S2DPOS().setCurLineSet( geomid.lsID() );
-	    linesets_.add( S2DPOS().hasLineSet(geomid.lsID())
-		    ? S2DPOS().getLineSet(geomid.lsID()) : sKeyUndefLineSet() );
-	    linenames_.add(S2DPOS().hasLine(geomid.lineID(),geomid.lsID())
-		    ? S2DPOS().getLineName(geomid.lineID()) : sKeyUndefLine() );
+	    l2dkey.fromString( geomidstr );
+	    S2DPOS().setCurLineSet( l2dkey.lsID() );
+	    linesets_.add( S2DPOS().hasLineSet(l2dkey.lsID())
+		    ? S2DPOS().getLineSet(l2dkey.lsID()) : sKeyUndefLineSet() );
+	    linenames_.add(S2DPOS().hasLine(l2dkey.lineID(),l2dkey.lsID())
+		    ? S2DPOS().getLineName(l2dkey.lineID()) : sKeyUndefLine() );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -833,9 +833,9 @@ int dgbSurfaceReader::nextStep()
 	    BufferString key = IOPar::compKey( "Line", idx );
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::Line2DKey geomid; geomid.fromString( idstr );
-	    lines.add( S2DPOS().hasLine(geomid.lineID(),geomid.lsID()) ?
-		S2DPOS().getLineName(geomid.lineID()) : sKeyUndefLine() );
+	    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
+	    lines.add( S2DPOS().hasLine(l2dkey.lineID(),l2dkey.lsID()) ?
+		S2DPOS().getLineName(l2dkey.lineID()) : sKeyUndefLine() );
 	}
     }
 

@@ -512,18 +512,18 @@ bool BatchProgram::go( od_ostream& strm )
 	    pars().get( "Input Line Set", linsetid );
 	    PtrMan<IOObj> lineset = IOM().get( linsetid );
 	    if ( !lineset ) return false;
-	    const PosInfo::Line2DKey geomid =
+	    const PosInfo::Line2DKey l2dkey =
 		S2DPOS().getLine2DKey( lineset->name(), linename );
 	    hsamp.start.inl() = hsamp.stop.inl() = 0;
 	    if ( mIsUdf(hsamp.stop.crl()) )
 	    {
 		PosInfo::Line2DData l2dd;
-		S2DPOS().getGeometry( geomid, l2dd );
+		S2DPOS().getGeometry( l2dkey, l2dd );
 		hsamp.setCrlRange( l2dd.trcNrRange() );
 	    }
 
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps,
-		    			  hsamp, extraz, geomid );
+		    			  hsamp, extraz, l2dkey );
 	}
 	else
 	{

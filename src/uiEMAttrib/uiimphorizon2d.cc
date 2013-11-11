@@ -64,7 +64,7 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 {
     const char* lsnm = IOM().get( setid )->name();
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomidset_ += S2DPOS().getLine2DKey( lsnm, lnms.get(lineidx).buf() );
+	l2dkeyset_ += S2DPOS().getLine2DKey( lsnm, lnms.get(lineidx).buf() );
 }
 
 
@@ -94,7 +94,7 @@ int nextStep()
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
 
-    const PosInfo::Line2DKey& geomid = geomidset_[bid.inl()];
+    const PosInfo::Line2DKey& l2dkey = l2dkeyset_[bid.inl()];
 
     if ( bid.inl() != prevlineidx_ )
     {
@@ -107,27 +107,27 @@ int nextStep()
 	if ( !lsobj ) return Executor::ErrorOccurred();
 
 	S2DPOS().setCurLineSet( lsobj->name() );
-	BufferString linenm = S2DPOS().getLineName( geomid.lineID() );
+	BufferString linenm = S2DPOS().getLineName( l2dkey.lineID() );
 	linegeom_.setLineName( linenm );
 	if ( !S2DPOS().getGeometry(linegeom_) )
 	    return Executor::ErrorOccurred();
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
 	{
-	    if ( !geomid.isOK() )
+	    if ( !l2dkey.isOK() )
 	    {
-		hors_[hdx]->geometry().removeLine( geomid );
+		hors_[hdx]->geometry().removeLine( l2dkey );
 		continue;
 	    }
 
-	    hors_[hdx]->geometry().addLine( geomid );
+	    hors_[hdx]->geometry().addLine( l2dkey );
 	}
     }
 
     const int curtrcnr = bid.crl();
     for ( int validx=0; validx<nrvals; validx++ )
     {
-	if ( validx>=hors_.size() || !geomid.isOK() )
+	if ( validx>=hors_.size() || !l2dkey.isOK() )
 	    break;
 
 	if ( !hors_[validx] )
@@ -138,7 +138,7 @@ int nextStep()
 	    continue;
 
 	const EM::SectionID sid = hors_[validx]->sectionID(0);
-	hors_[validx]->setPos( sid, geomid, curtrcnr, curval, false );
+	hors_[validx]->setPos( sid, l2dkey, curtrcnr, curval, false );
 
 	if ( mIsUdf(curval) )
 	    continue;
@@ -148,7 +148,7 @@ int nextStep()
 	if ( udftreat_==Interpolate && prevtrcnr>=0
 				    && abs(curtrcnr-prevtrcnr)>1 )
 	{
-	    interpolateAndSetVals( validx, geomid, curtrcnr, prevtrcnr,
+	    interpolateAndSetVals( validx, l2dkey, curtrcnr, prevtrcnr,
 				   curval, prevtrcvals_[validx] );
 	}
 
@@ -161,7 +161,7 @@ int nextStep()
 }
 
 
-void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& geomid,
+void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& l2dkey,
 			    int curtrcnr, int prevtrcnr,
 			    float curval, float prevval )
 {
@@ -187,7 +187,7 @@ void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& geomid,
 	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
+	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), l2dkey,trcnr,val,false);
     }
 }
 
@@ -197,7 +197,7 @@ protected:
     ObjectSet<EM::Horizon2D>&	hors_;
     const MultiID&		setid_;
     const BinIDValueSet*	bvalset_;
-    TypeSet<PosInfo::Line2DKey>	geomidset_;
+    TypeSet<PosInfo::Line2DKey>	l2dkeyset_;
     PosInfo::Line2DData		linegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;

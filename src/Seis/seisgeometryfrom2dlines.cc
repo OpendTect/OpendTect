@@ -67,9 +67,9 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 	    if ( doupdate && ls.getGeometry(iln,l2dd) )
 	    {
 		l2dd.setLineName( lnm );
-		PosInfo::Line2DKey geomid =
+		PosInfo::Line2DKey l2dkey =
 		    PosInfo::POS2DAdmin().getLine2DKey( ls.name(), lnm );
-		if ( !geomid.isOK() )
+		if ( !l2dkey.isOK() )
 		    PosInfo::POS2DAdmin().setGeometry( l2dd );
 		linesdone.add( lnm );
 	    }
