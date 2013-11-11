@@ -102,6 +102,47 @@ protected:
 };
 
 
+uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
+    : ui3DViewerBody( hndl, parnt )
+    , mousebutdown_(false)
+    , zoomfactor_( 1 )
+{
+    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
+    osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
+
+    eventfilter_.attachToQObj( glw );
+
+    graphicswin_ = new osgQt::GraphicsWindowQt( glw );
+    setStretch(2,2);
+
+    setupHUD();
+    setupView();
+}
+
+const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
+{ return graphicswin_->getGLWidget(); }
+
+
+void uiDirectViewBody::updateActModeCursor()
+{
+    /*
+    if ( isViewing() )
+	return;
+
+    if ( !isCursorEnabled() )
+	return;
+
+    QCursor qcursor;
+    uiCursorManager::fillQCursor( actmodecursor_, qcursor );
+
+    getGLWidget()->setCursor( qcursor );
+    */
+}
+
+
+//--------------------------------------------------------------------------
+
+
 ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody( parnt, 0 )
     , handle_( h )
@@ -346,24 +387,6 @@ visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector() const
 }
 
 
-uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
-    : ui3DViewerBody( hndl, parnt )
-    , mousebutdown_(false)
-    , zoomfactor_( 1 )
-{
-    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
-    osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
-
-    eventfilter_.attachToQObj( glw );
-
-    graphicswin_ = new osgQt::GraphicsWindowQt( glw );
-    setStretch(2,2);
-
-    setupHUD();
-    setupView();
-}
-
-
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
     if ( eventfilter_.getCurrentEventType()==uiEventFilter::Resize ||
@@ -375,32 +398,14 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
     {
 	const QKeyEvent* keyevent =
 	    (const QKeyEvent*) eventfilter_.getCurrentEvent();
+
 	if ( keyevent->key()==Qt::Key_Escape )
-	{
 	    toggleViewMode( 0 );
-	}
+	if ( keyevent->key()==Qt::Key_PageUp )
+	    handle_.pageupdown.trigger( true );
+	if ( keyevent->key()==Qt::Key_PageDown )
+	    handle_.pageupdown.trigger( false );
     }
-}
-
-
-const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
-{ return graphicswin_->getGLWidget(); }
-
-
-void uiDirectViewBody::updateActModeCursor()
-{
-    /*
-    if ( isViewing() )
-	return;
-
-    if ( !isCursorEnabled() )
-	return;
-
-    QCursor qcursor;
-    uiCursorManager::fillQCursor( actmodecursor_, qcursor );
-
-    getGLWidget()->setCursor( qcursor );
-    */
 }
 
 
