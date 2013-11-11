@@ -236,15 +236,14 @@ MenuItemHandler::MenuItemHandler( MenuHandler& mh, const char* nm,
     , ischecked_(false)
     , parenttext_(parenttext)
 {
-    menuhandler_.createnotifier.notify( mCB(this,MenuItemHandler,createMenuCB));
-    menuhandler_.handlenotifier.notify( mCB(this,MenuItemHandler,handleMenuCB));
+    mAttachCB( menuhandler_.createnotifier, MenuItemHandler::createMenuCB );
+    mAttachCB( menuhandler_.handlenotifier, MenuItemHandler::handleMenuCB );
 }
 
 
 MenuItemHandler::~MenuItemHandler()
 {
-    menuhandler_.createnotifier.remove( mCB(this,MenuItemHandler,createMenuCB));
-    menuhandler_.handlenotifier.remove( mCB(this,MenuItemHandler,handleMenuCB));
+    detachAllNotifiers();
 }
 
 
