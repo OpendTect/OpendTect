@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidsorting.h"
-#include "undefval.h"
+#include "staticstring.h"
 
 
 bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
@@ -71,7 +71,9 @@ bool BinIDSorting::isValid( const BinID& prev, const BinID& cur ) const
 
 const char* BinIDSorting::description() const
 {
-    return description( is2d_, inlSorted(), inlUpward(), crlUpward() );
+    mDeclStaticString(ret);
+    ret = description( is2d_, inlSorted(), inlUpward(), crlUpward() );
+    return ret.buf();
 }
 
 
