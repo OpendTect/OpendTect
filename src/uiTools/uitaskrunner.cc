@@ -134,6 +134,11 @@ void uiTaskRunner::updateFields()
 #endif
     const BufferString message = task_->message();
 
+    if ( nrdone < 0 )
+    {
+	setCaption( execnm_ );
+	return;
+    }
 
     if ( prevmessage_!=message )
     {
@@ -171,12 +176,13 @@ void uiTaskRunner::updateFields()
 	if ( percentage!=prevpercentage_ )
 	{
 	    BufferString capt( "[" );
-	    capt += percentage; capt += "%] "; capt += execnm_;
+	    capt.add( percentage ).add( "%] " ).add( execnm_ );
 	    setCaption( capt.buf() );
 
 	    prevpercentage_ = percentage;
 	}
     }
+
     const bool disppb = totalnr > 0;
     if ( !disppb )
     {
