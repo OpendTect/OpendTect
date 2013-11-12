@@ -655,11 +655,11 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 }
 
 
-void uiWellLogDispProperties::logSel( CallBacker* )
+void uiWellLogDispProperties::logSel( CallBacker* cb )
 {
     setFieldVals();
-    BufferString fillname = filllogsfld_->box()->text();
-    filllogsfld_-> box() -> setText( logsfld_->box()->text() );
+    if ( cb )
+	filllogsfld_->box()->setText( logsfld_->box()->text() );
 }
 
 
