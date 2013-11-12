@@ -29,7 +29,7 @@ class ZAxisTransform;
 
 namespace osgGeo
 {
-    class PlaneWellLog;
+    class WellLog;
 }
 
 
@@ -55,7 +55,9 @@ public:
     static Well*		create()
     				mCreateDataObj(Well);
 
-    enum			Side { Left, Right };
+    enum			Side { Left=0, Right };
+
+    enum			LogStyle { Welllog, Seismic, Logtube };
 
     mStruct(visBase) BasicParams
     {
@@ -122,7 +124,6 @@ public:
 	bool			islinedisplayed_;
 	bool                	islogarithmic_;
 	bool  			issinglcol_;
-	bool  			iswelllog_;
 	bool 			isleftfilled_;
 	bool 			isrightfilled_;
 	bool			isblock_;
@@ -143,6 +144,7 @@ public:
 	int                 	repeat_;
 	float               	ovlap_;
 	Color               	seiscolor_;
+	LogStyle		style_;
     };
 
     const LineStyle&		lineStyle() const;
@@ -168,7 +170,7 @@ public:
     bool			logsShown() const;
     void			showLogName(bool);
     bool			logNameShown() const; 
-    void			setLogStyle(bool,Side);
+    void			setLogStyle(int,Side);
     void			setLogFill(bool,Side);
     void			setLogBlock(bool,int);
     void			setOverlapp(float,Side);
@@ -184,6 +186,7 @@ public:
     void			setLogData(const TypeSet<Coord3Value>& crdvals,
 					 const TypeSet<Coord3Value>& crdvalsF,
 					const LogParams& lp, bool isFilled );
+    void			setLogTubeDisplay(Side side,bool yn);
 
     void			fillPar(IOPar&) const;
     int				usePar(const IOPar& par);
@@ -200,12 +203,11 @@ public:
     static const char*		logwidthstr();
 
 protected:
-    				~Well();
-
+				~Well();
     PolyLine*			track_;
     MarkerSet*			markerset_;
-    osgGeo::PlaneWellLog*	leftlog_;
-    osgGeo::PlaneWellLog*	rightlog_;
+    osgGeo::WellLog*		leftlogdisplay_;
+    osgGeo::WellLog*		rightlogdisplay_;
 
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
@@ -220,6 +222,7 @@ protected:
     
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
+    bool			displaytube_[2];
 
 private:
     void			setText(Text*, const char*, Coord3*,

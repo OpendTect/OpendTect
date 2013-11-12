@@ -140,7 +140,8 @@ public:
 			    , repeatovlap_(50)
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
-			    , iscoltabflipped_(false)			 
+			    , iscoltabflipped_(false)	
+			    , style_( 0 )
 			    {}		 
 
 	virtual const char* subjectName() const 	{ return "Log"; }
@@ -164,6 +165,7 @@ public:
 	Color 		seiscolor_;
 	BufferString    seqname_;
 	int 		logwidth_;
+	int		style_;
 
     protected:
 

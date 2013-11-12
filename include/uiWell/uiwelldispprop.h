@@ -29,6 +29,7 @@ class uiLabeledComboBox;
 class uiLabeledSpinBox;
 class uiSpinBox;
 class uiListBox;
+class uiCheckList;
 
 namespace Well { class LogDisplayParSet; class LogSet; }
 
@@ -71,7 +72,8 @@ protected:
 
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
-    uiSpinBox*		szfld_;
+    //uiSpinBox*		szfld_;
+    uiLabeledSpinBox*	szfld_;    
 
 };
 
@@ -167,7 +169,9 @@ protected:
     void        	doGetFromScreen();
     void                isFilledSel(CallBacker*);
     void 		isRepeatSel(CallBacker*);
-    void 		isSeismicSel(CallBacker*);
+    void 		setSeismicSel();
+    void 		setTubeSel();
+    void		setWellLogSel();
     void 		isStyleChanged(CallBacker*);
     void 		recoverProp();
     void 		choiceSel(CallBacker*);
@@ -180,8 +184,10 @@ protected:
     void 		logSel(CallBacker*);
     void 		selNone();
     void 		setFieldVals();
+    void		disableLogDisplays();
+    void		setStyleSensitive(bool);
 
-    uiGenInput*		stylefld_;
+    uiCheckList*	stylefld_;
     uiGenInput*         clipratefld_;
     uiGenInput*         rangefld_;
     uiGenInput*         colorrangefld_;

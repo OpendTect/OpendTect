@@ -250,7 +250,6 @@ void WellDisplay::fillLogParams(
     lp.isleftfilled_ 	= mGetLogPar( side, isleftfill_ );
     lp.isrightfilled_ 	= mGetLogPar( side, isrightfill_ );
     lp.issinglcol_	= mGetLogPar( side, issinglecol_);
-    lp.iswelllog_	= mGetLogPar( side, iswelllog_ );
     lp.islogarithmic_ 	= mGetLogPar( side, islogarithmic_ );
     lp.logwidth_ 	= mGetLogPar( side, logwidth_ );
     lp.name_	 	= mGetLogPar( side, name_ );
@@ -261,6 +260,8 @@ void WellDisplay::fillLogParams(
     lp.size_	 	= mGetLogPar( side, size_ );
     lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
     lp.iscoltabflipped_	= mGetLogPar( side, iscoltabflipped_ );
+    int style		= mGetLogPar( side, style_ );
+    lp.style_		= ( visBase::Well::LogStyle ) style;
 }
 
 
@@ -565,10 +566,10 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 {
     const visBase::Well::Side side = lp.side_;
 
+    well_->setLogStyle( lp.style_, side );
+
     well_->setOverlapp( lp.ovlap_, side );
     well_->setRepeat( lp.repeat_,side );
-    well_->setLogStyle( lp.iswelllog_, side );
-
     well_->setLogFill( ( lp.isleftfilled_ || lp.isrightfilled_ ), side );
     well_->setLogFillColorTab( lp, side );
     well_->setLogLineDisplayed( lp.size_ > 0, side );
