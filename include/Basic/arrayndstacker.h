@@ -44,13 +44,13 @@ public:
 		    if ( totalnr_ < 1 )
 			return false;
 
-		    for ( int idy=1; idy<inp_.size(); idy++ )
+		    for ( int iarr=1; iarr<inp_.size(); iarr++ )
 		    {
-			if ( !inp_.validIdx(idy) || !inp_[idy] )
+			if ( !inp_[iarr] )
 			    continue;
 
-			if ( inp_[idy]->info().getTotalSz() != totalnr_ )
-			    totalnr_ = inp_[idy]->info().getTotalSz();
+			if ( inp_[iarr]->info().getTotalSz() > totalnr_ )
+			    totalnr_ = inp_[iarr]->info().getTotalSz();
 		    }
 
 		    out_.setSize( totalnr_ );
@@ -70,24 +70,25 @@ public:
 		    int count = 0;
 		    for ( int idx=start; idx<=stop; idx++ )
 		    {
-			for ( int idy=0; idy<inp_.size(); idy++ )
+			fT& outval = outarr[idx];
+			for ( int iarr=0; iarr<inp_.size(); iarr++ )
 			{
-			    if ( !inp_[idy] ) continue;
-			    const fT* inparr = inp_[idy]->getData();
+			    if ( !inp_[iarr] ) continue;
+			    const fT* inparr = inp_[iarr]->getData();
 			    if ( !inparr ||
-				 idx >= inp_[idy]->info().getTotalSz() )
+				 idx >= inp_[iarr]->info().getTotalSz() )
 			       continue;
 
 			    const fT val = inparr[idx];
 			    if ( !mIsUdf(val) )
 			    {
-				outarr[idx] += val;
+				outval += val;
 				count++;
 			    }
 			}
 
 			if ( normalize_ && count )
-			    outarr[idx] /= count;
+			    outval /= count;
 		    }
 
 		    return true;
