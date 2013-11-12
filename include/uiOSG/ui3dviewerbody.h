@@ -98,6 +98,8 @@ public:
     void			setAnimationEnabled(bool) {} // OSG-TODO
     bool			isAnimationEnabled() { return true; }
     void			showRotAxis(bool);
+    bool			isAxisShown() const;
+    void			setAxisAnnotColor(const Color&);
     visBase::PolygonSelection*	getPolygonSelector() const;
 protected:
 

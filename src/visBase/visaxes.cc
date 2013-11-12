@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visaxes.h"
 
+#include "color.h"
 #include "viscamera.h"
 
 #include <osg/Camera>
@@ -70,6 +71,17 @@ void Axes::setPosition( float x, float y )
 void Axes::setSize( float rad, float len )
 {
     axesnode_->setSize( osg::Vec2(rad,len) );
+}
+
+
+void Axes::setAnnotationColor( const Color& annotcolor )
+{
+#define mColTof(c) ((float) ( c / 255.0f )) \
+
+    osg::Vec4 anncol( mColTof(annotcolor.r()),
+		      mColTof(annotcolor.g()),
+		      mColTof(annotcolor.b()), 1.0f );
+    axesnode_->setAnnotationColor( anncol );
 }
 
 

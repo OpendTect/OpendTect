@@ -381,6 +381,18 @@ void ui3DViewerBody::showRotAxis( bool yn )
 }
 
 
+bool ui3DViewerBody::isAxisShown() const
+{
+    return axes_->isOn();
+}
+
+
+void ui3DViewerBody::setAxisAnnotColor( const Color& color )
+{
+    axes_->setAnnotationColor( color );
+}
+
+
 visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector() const
 {
     return polygonselection_;
@@ -919,6 +931,7 @@ void ui3DViewer::setBackgroundColor( const Color& col )
 
 void ui3DViewer::setAxisAnnotColor( const Color& col )
 {
+    osgbody_->setAxisAnnotColor( col );
 }
 
 
@@ -1087,8 +1100,7 @@ void ui3DViewer::showRotAxis( bool yn )
 
 bool ui3DViewer::rotAxisShown() const
 {
-    pErrMsg("Not impl");
-    return false;
+    return osgbody_->isAxisShown();
 }
 
 

@@ -34,6 +34,7 @@ public:
     float			getLength() const;
     void			setPosition(float,float);
     void			setSize(float rad, float len);
+    void			setAnnotationColor(const Color&);
     void			setMasterCamera(visBase::Camera*);
 
 protected:
