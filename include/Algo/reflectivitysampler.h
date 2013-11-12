@@ -20,8 +20,10 @@ ________________________________________________________________________
 namespace Fourier { class CC; };
 
 /*!
-\brief Takes a ReflectivityModel and samples it in either frequency or
-time domain.
+\brief Takes a ReflectivityModel and samples it in the frequency domain
+Applies inverse FFT if a second output is provided
+The time sampling determines the frequency distribution
+  outsampling_.start should be a multiple of outsampling_.step
 */
 
 mExpClass(Algo) ReflectivitySampler : public ParallelTask
@@ -29,13 +31,20 @@ mExpClass(Algo) ReflectivitySampler : public ParallelTask
 public:
     			ReflectivitySampler(const ReflectivityModel&,
 				const StepInterval<float>& timesampling,
-				TypeSet<float_complex>& output,
+				TypeSet<float_complex>& freqreflectivities,
 				bool usenmotime=false);
 
 			~ReflectivitySampler();
 
-    void		setTargetDomain(bool fourier);
-    			/*!<Default is time-domain */
+    void			setTargetDomain(bool fourier);
+    				/*!<Do not use, will be removed */
+
+				/*<! In addition to frequency domain! */
+    void			doTimeReflectivities();
+
+    				/*<! Available after execution */
+    TypeSet<float_complex>&	reflectivities(bool time) const;
+    void			getTimeReflectivities(TypeSet<float>&) const;
 
 protected:
     od_int64			nrIterations() const	{return model_.size();}
@@ -45,10 +54,12 @@ protected:
     bool			doFinish(bool);
 
     void			removeBuffers();
+    bool			applyInvFFT();
+    void			sortOutput();
 
     const ReflectivityModel&	model_;
     const StepInterval<float>	outsampling_;
-    TypeSet<float_complex>&	output_;
+    TypeSet<float_complex>&	output_; // freqreflectivities_
     bool			usenmotime_;
     Fourier::CC*		fft_;
 

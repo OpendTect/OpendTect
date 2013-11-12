@@ -28,6 +28,8 @@ class TimeDepthModel;
 class TaskRunner;
 class RayTracerRunner;
 class Wavelet;
+template <class T> class Array1D;
+template <class T> class SamplingData;
 
 typedef std::complex<float> float_complex;
 namespace Fourier { class CC; };
@@ -51,7 +53,12 @@ mExpClass(Seis) SynthGenBase
 public:
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
+    			/* depends on the wavelet size too */
+    bool		getOutSamplingFromModel
+				(const ObjectSet<const ReflectivityModel>&,
+				 StepInterval<float>&, bool usenmo=false);
     
     void		setMuteLength(float n)	{ mutelength_ = n; }
     float		getMuteLength() const	{ return mutelength_; }
@@ -108,6 +115,8 @@ public:
     			~SynthGenerator();
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    			/* auto computed: not necessary - 
+			   will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
     bool		setModel(const ReflectivityModel&);
 
@@ -118,6 +127,12 @@ public:
 
     void 		getSampledReflectivities( TypeSet<float>& s ) const
 			{ computeSampledReflectivities(s); }
+
+    			/*<! available after execution */
+    const TypeSet<float_complex>& freqReflectivities() const
+			{ return freqreflectivities_; }
+    const TypeSet<float>& reflectivities() const
+			{ return reflectivities_; }
     
     od_int64            currentProgress() const { return progress_; }
 
@@ -134,6 +149,10 @@ protected:
 				     ValueSeries<float>& out,int outsz) const;
     bool 		doFFTConvolve(ValueSeries<float>&,int sz) const;
     bool 		doTimeConvolve(ValueSeries<float>&,int sz) const;
+    void		getWaveletTrace(Array1D<float>&,float z,float scal,
+	    				SamplingData<float>&) const;
+    void		sortOutput(float_complex*,ValueSeries<float>&,
+	    			   int sz) const;
 
     virtual bool	computeReflectivities();
 
@@ -151,7 +170,8 @@ protected:
 };
 
 
-mExpClass(Seis) MultiTraceSynthGenerator : public ParallelTask, public SynthGenBase
+mExpClass(Seis) MultiTraceSynthGenerator : public ParallelTask,
+    					   public SynthGenBase
 {
 public:
     				MultiTraceSynthGenerator();
@@ -196,6 +216,9 @@ public:
     void		forceReflTimes(const StepInterval<float>&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
+
+    //available after initialization
+    void		getAllRefls(ObjectSet<const ReflectivityModel>&);
 
     const char*         message() const
     			{ return errmsg_.isEmpty() ? message_ : errmsg_; }

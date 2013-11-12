@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
+#include "envvars.h"
 #include "raytrace1d.h"
 #include "synthseis.h"
 #include "seisioobjinfo.h"
@@ -142,9 +143,9 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
     Seis::SynthGenerator gen;
-    gen.enableFourierDomain( true );
     gen.setModel( refmodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     gen.setOutSampling( data_.getTraceRange() );
 
     if ( !gen.doWork() )
@@ -463,6 +464,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.forceReflTimes( data_.getReflRange() );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( data_.getTraceRange() );
+    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     IOPar par;
     gen.usePar( par ); 
     TaskRunner* tr = data_.trunner_;
