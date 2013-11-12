@@ -124,6 +124,8 @@ public :
     const Interval<float>&	getDahRange() const	{ return dahrg_; }
     const StepInterval<float>&	getModelRange() const	{ return modelrg_; }
     const StepInterval<float>&	getReflRange() const	{ return reflrg_; }
+    void			setTraceRange( const StepInterval<float>& zrg )
+				{ tracerg_ = zrg; }
     void			computeExtractionRange();
 
     const Setup&		setup() const	{ return setup_; }

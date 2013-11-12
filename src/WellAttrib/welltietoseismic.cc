@@ -206,7 +206,7 @@ bool DataPlayer::checkCrossCorrInps()
 bool DataPlayer::computeCrossCorrelation()
 {
     errmsg_.setEmpty();
-
+    
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
 
@@ -234,7 +234,7 @@ bool DataPlayer::computeCrossCorrelation()
 bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 {
     errmsg_.setEmpty();
-
+    
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
 
@@ -477,6 +477,8 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 
     refmodel_ = *refmodels[0];
     data_.synthtrc_ = *rm.stackedTrc();
+    data_.setTraceRange( data_.synthtrc_.zRange() );
+    //requested range was too small
 
     return true;
 }
