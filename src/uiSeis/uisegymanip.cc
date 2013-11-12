@@ -236,6 +236,7 @@ uiSEGYFileManip::~uiSEGYFileManip()
     delete &txthdr_;
     delete &binhdr_;
     delete &calcset_;
+    sd_.close();
 }
 
 
