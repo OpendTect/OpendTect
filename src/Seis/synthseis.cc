@@ -44,7 +44,7 @@ SynthGenBase::SynthGenBase()
     , mutelength_( cStdMuteLength() )  //20ms
     , waveletismine_(false)
     , applynmo_(false)
-    , outputsampling_(mUdf(float),mUdf(float),mUdf(float))
+    , outputsampling_(mUdf(float),-mUdf(float),mUdf(float))
     , dointernalmultiples_(false)
     , surfreflcoeff_(1)
 {}
@@ -713,6 +713,7 @@ bool RaySynthGenerator::doPrepare( int )
     SynthGenBase::getOutSamplingFromModel( models, cursampling,
 	   				   applynmo_ || zerooffset );
     outputsampling_.include( cursampling, false );
+    outputsampling_.step = cursampling.step;
 
     message_ = "Generating synthethics";
 
