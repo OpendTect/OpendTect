@@ -479,7 +479,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 
     refmodel_ = *refmodels[0];
     data_.synthtrc_ = *rm.stackedTrc();
-    data_.setTraceRange( data_.synthtrc_.zRange() );
+//    data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small
 
     return true;
