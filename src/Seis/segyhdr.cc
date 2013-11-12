@@ -132,7 +132,6 @@ void SEGY::TxtHeader::clearText()
 
 void SEGY::TxtHeader::setLineStarts()
 {
-    char cbuf[3];
     for ( int iln=0; iln<cTxtHeadNrLines; iln++ )
     {
 	const int i80 = iln*cTxtHeadCharsPerLine;
