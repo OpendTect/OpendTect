@@ -18,8 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
+#include "od_ostream.h"
 
-#include <sstream>
 
 
 Seis2DDataSet::Seis2DDataSet( const IOObj& ioobj )
@@ -426,7 +426,7 @@ class Seis2DGeomDumper : public Executor
 {
 public:
 
-Seis2DGeomDumper( const Seis2DDataSet& l, std::ostream& o, bool inr, float z,
+Seis2DGeomDumper( const Seis2DDataSet& l, od_ostream& o, bool inr, float z,
 		  const char* lk )
 	: Executor("Geometry extraction")
 	, ds(l)
@@ -476,7 +476,7 @@ int nextStep()
 {
     if ( curidx < 0 )
 	return ErrorOccurred();
-    if ( !strm.good() )
+    if ( !strm.isOK() )
     {
 	curmsg = "Cannot write to file";
 	return ErrorOccurred();
@@ -526,7 +526,7 @@ int nextStep()
     }
     strm.flush();
 
-    if ( !strm.good() )
+    if ( !strm.isOK() )
     {
 	curmsg = "Error during write to file";
 	return ErrorOccurred();
@@ -538,7 +538,7 @@ int nextStep()
 }
 
     const Seis2DDataSet&	ds;
-    std::ostream&		strm;
+    od_ostream&			strm;
     BufferString		attrnm;
     const bool			incz;
     const float			zval;
@@ -554,7 +554,7 @@ int nextStep()
 };
 
 
-Executor* Seis2DDataSet::geometryDumper( std::ostream& strm, bool incnr,
+Executor* Seis2DDataSet::geometryDumper( od_ostream& strm, bool incnr,
 					 float z, const char* lk ) const
 {
     return new Seis2DGeomDumper( *this, strm, incnr, z, lk );

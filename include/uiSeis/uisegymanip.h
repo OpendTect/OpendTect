@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "strmdata.h"
 #include "segyhdr.h"
 class uiLabel;
 class uiTable;
@@ -25,6 +24,7 @@ class uiFileInput;
 class uiToolButton;
 class uiSEGYBinHdrEd;
 namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
+class od_istream;
 
 
 /*!\brief UI for SEG-Y file manipulation */
@@ -37,7 +37,7 @@ public:
     			~uiSEGYFileManip();
 
     const char*		fileName() const	{ return fname_; }
-    inline std::istream& strm()			{ return *sd_.istrm; }
+    inline od_istream&	strm()			{ return *strm_; }
 
     od_int64		traceBytes() const;
 
@@ -49,7 +49,7 @@ protected:
     SEGY::HdrCalcSet&	calcset_;
     BufferString	errmsg_;
     BoolTypeSet		trchdrdefined_;
-    StreamData		sd_;
+    od_istream*		strm_;
     od_int64		filesize_;
     unsigned char	inphdrbuf_[SegyTrcHeaderLength];
     unsigned char	curhdrbuf_[SegyTrcHeaderLength];

@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "coord.h"
 #include "samplingdata.h"
 class SeisTrcInfo;
+class od_ostream;
+
 
 namespace SEGY
 {
@@ -57,7 +59,7 @@ public:
     static bool& info2D();
 
     void	setLineStarts();
-    void	dump(std::ostream&) const;
+    void	dump(od_ostream&) const;
 
 protected:
 
@@ -112,7 +114,7 @@ public:
     void	setSampleRate(float,bool isdpth);
     void	setInFeet( bool yn )	{ setEntryVal(EntryMFeet(),yn?2:1); }
 
-    void	dump(std::ostream&) const;
+    void	dump(od_ostream&) const;
 
     static const HdrDef&	hdrDef();
     unsigned char*		buf()			{ return buf_; }
@@ -164,7 +166,7 @@ public:
     bool		isusable; // trid < 2 ; mostly ignored but not always
     bool		nonrectcoords; // counit == 1, 2 or 3
 
-    void		dump(std::ostream&) const;
+    void		dump(od_ostream&) const;
 
 protected:
 

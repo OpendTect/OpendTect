@@ -19,13 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "timefun.h"
 #include "linekey.h"
+#include "od_ostream.h"
 #include "posimpexppars.h"
 
-#include <string.h>
-#include <ctype.h>
-#include <iostream>
-#include <stdio.h>
-#include <math.h>
 
 static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
@@ -139,9 +135,9 @@ void SEGY::TxtHeader::setLineStarts()
     char cbuf[3];
     for ( int iln=0; iln<cTxtHeadNrLines; iln++ )
     {
-	int i80 = iln*cTxtHeadCharsPerLine; txt_[i80] = 'C';
-	sprintf( cbuf, "%02d", iln+1 );
-	txt_[i80+1] = cbuf[0]; txt_[i80+2] = cbuf[1];
+	const int i80 = iln*cTxtHeadCharsPerLine;
+	const BufferString lnrstr( iln < 9 ? "0" : "", iln+1 );
+	txt_[i80] = 'C'; txt_[i80+1] = lnrstr[0]; txt_[i80+2] = lnrstr[1];
     }
 
     BufferString rvstr( "SEG Y REV" );
@@ -292,10 +288,10 @@ void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 }
 
 
-void SEGY::TxtHeader::dump( std::ostream& stream ) const
+void SEGY::TxtHeader::dump( od_ostream& stream ) const
 {
     BufferString buf; getText( buf );
-    stream << buf << std::endl;
+    stream << buf << od_endl;
 }
 
 
@@ -381,7 +377,7 @@ void SEGY::BinHeader::setSampleRate( float sr, bool isdepth )
 }
 
 
-void SEGY::BinHeader::dump( std::ostream& strm ) const
+void SEGY::BinHeader::dump( od_ostream& strm ) const
 {
     const HdrDef& hdef = hdrDef();
     strm << "Field\tByte\tValue\tDescription\n\n";
@@ -391,10 +387,10 @@ void SEGY::BinHeader::dump( std::ostream& strm ) const
 	const int value = he.getValue( buf_, needswap_ );
 	if ( !value ) continue;
 
-	strm << he.name() << '\t' << (int)(he.bytepos_+1)
-	     << '\t' << value << "\t" << he.description() << '\n';
+	strm << he.name() << od_tab << (int)(he.bytepos_+1)
+	     << od_tab << value << od_tab << he.description() << od_newline;
     }
-    strm << std::endl;
+    strm << od_endl;
 }
 
 

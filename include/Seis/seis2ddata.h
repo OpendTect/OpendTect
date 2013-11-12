@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "od_iosfwd.h"
-#include <iosfwd>
 
 class IOObj;
 class Executor;
@@ -94,8 +93,9 @@ protected:
     void		writeFile() const;
 
 private:
+
     bool		getGeometry(int,PosInfo::Line2DData&) const;
-    Executor*		geometryDumper(std::ostream&,bool inc_nr,
+    Executor*		geometryDumper(od_ostream&,bool inc_nr,
 	    				float z_val=mUdf(float),
 	    				const char* linekey=0) const;
 

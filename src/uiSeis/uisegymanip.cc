@@ -32,11 +32,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyhdrdef.h"
 #include "segyhdrcalc.h"
 #include "segyfiledef.h"
-#include "strmprov.h"
-#include "strmoper.h"
 #include "filepath.h"
 #include "executor.h"
 #include "oddirs.h"
+#include "od_iostream.h"
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -193,6 +192,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , txthdr_(*new SEGY::TxtHeader)
     , binhdr_(*new SEGY::BinHeader)
     , calcset_(*new SEGY::HdrCalcSet(SEGY::TrcHeader::hdrDef()))
+    , strm_(0)
     , errlbl_(0)
 {
     if ( !openInpFile() )
@@ -236,6 +236,7 @@ uiSEGYFileManip::~uiSEGYFileManip()
     delete &txthdr_;
     delete &binhdr_;
     delete &calcset_;
+    delete strm_;
 }
 
 
@@ -324,15 +325,15 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 
 bool uiSEGYFileManip::openInpFile()
 {
-    sd_ = StreamProvider(fname_).makeIStream();
-    if ( !sd_.usable() )
+    strm_ = new od_istream( fname_ );
+    if ( !strm_ || !strm_->isOK() )
 	{ errmsg_ = "Cannot open input file"; return false; }
 
-    if ( !StrmOper::readBlock( strm(), txthdr_.txt_, SegyTxtHeaderLength ) )
+    if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	            "Cannot fully read the text header"; return false; }
     char buf[SegyBinHeaderLength];
-    if ( !StrmOper::readBlock( strm(), buf, SegyBinHeaderLength ) )
+    if ( !strm().getBin( buf, SegyBinHeaderLength ) )
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	    	    "Cannot read full binary header"; return false; }
 
@@ -340,9 +341,7 @@ bool uiSEGYFileManip::openInpFile()
     binhdr_.setInput( buf );
     binhdr_.guessIsSwapped();
 
-    StrmOper::seek( strm(), 0, std::ios::end );
-    filesize_ = StrmOper::tell( strm() );
-
+    filesize_ = strm_->endPosition();
     return true;
 }
 
@@ -583,7 +582,7 @@ od_int64 uiSEGYFileManip::traceBytes() const
 void uiSEGYFileManip::trcNrChg( CallBacker* )
 {
     const od_int64 tbyts = traceBytes();
-    od_int64 offs = cFileHeaderSize + (trcnrfld_->getValue()-1) * tbyts;
+    od_stream::Pos offs = cFileHeaderSize + (trcnrfld_->getValue()-1) * tbyts;
     if ( offs >= filesize_ )
     {
 	const od_int64 nrtrcsinfile = (filesize_-cFileHeaderSize) / tbyts;
@@ -597,8 +596,8 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
 	}
     }
 
-    StrmOper::seek( strm(), offs );
-    StrmOper::readBlock( strm(), inphdrbuf_, SegyTrcHeaderLength );
+    strm().setPosition( offs );
+    strm().getBin( inphdrbuf_, SegyTrcHeaderLength );
 
     updTrcVals();
 }
@@ -623,7 +622,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     , hdef_(SEGY::TrcHeader::hdrDef())
     , needswap_(p->binhdr_.isSwapped())
 {
-    StrmOper::seek( fm_.strm(), cFileHeaderSize );
+    fm_.strm().setPosition( cFileHeaderSize );
     trcrg_.start = 1;
     totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
     trcrg_.stop = (int)totalnr_;
@@ -659,8 +658,8 @@ int nextStep()
     if ( totalnr_ < 0 )
 	return Finished();
 
-    StrmOper::seek( fm_.strm(), cFileHeaderSize + nrdone_ * fm_.traceBytes() );
-    if ( !StrmOper::readBlock(fm_.strm(),buf_,SegyTrcHeaderLength) )
+    fm_.strm().setPosition( cFileHeaderSize + nrdone_ * fm_.traceBytes() );
+    if ( !fm_.strm().getBin(buf_,SegyTrcHeaderLength) )
 	return Finished();
 
     fm_.calcset_.apply( buf_, fm_.binhdr_.isSwapped() );
@@ -752,19 +751,21 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 	outfp.setPath( inpfp.pathOnly() );
     if ( inpfp == outfp )
 	mErrRet("input and output file cannot be the same" )
-    StreamData sdout( StreamProvider(outfp.fullPath()).makeOStream() );
-    if ( !sdout.usable() )
+
+    od_ostream outstrm( outfp.fullPath() );
+    if ( !outstrm.isOK() )
 	{ mErrRet("Cannot open output file" ) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );
 
     const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
-    Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc,
+    strm().setPosition( 0 );
+    Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
 	   				  &binhdr_, &txthdr_ );
     uiTaskRunner tr( this );
     const bool rv = TaskRunner::execute( &tr, *exec );
-    sdout.close(); delete exec;
+    delete exec;
 
     if ( rv )
 	fname_ = fnm;

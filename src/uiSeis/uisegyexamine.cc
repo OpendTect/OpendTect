@@ -35,8 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "od_strstream.h"
 #include "oddirs.h"
-#include <sstream>
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
@@ -156,15 +156,14 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 	    		FilePath(GetDataDir(),"Seismics").fullPath() );
     if ( !dlg.go() ) return;
 
-    StreamData sd = StreamProvider(dlg.fileName()).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( dlg.fileName() );
+    if ( !strm.isOK() )
 	{ uiMSG().error("Cannot open file for writing"); return; }
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
     const SEGY::TxtHeader& th = *tr->txtHeader();
     BufferString buf; th.getText( buf );
-    *sd.ostrm << buf << std::endl;
-    sd.close();
+    strm << buf << od_endl;
 }
 
 
@@ -351,14 +350,14 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 {
     const SEGY::TxtHeader& txthead = *tr.txtHeader();
     const SEGY::BinHeader& binhead = tr.binHeader();
-    std::ostringstream thstrm, bhstrm;
+    od_ostrstream thstrm, bhstrm;
     txthead.dump( thstrm );
     binhead.dump( bhstrm );
 
-    txtinfo_ = thstrm.str().c_str();
+    txtinfo_ = thstrm.result();
     txtinfo_ += "\n------\n\n"
 		"Binary header info (non-zero values displayed only):\n\n";
-    txtinfo_ += bhstrm.str().c_str();
+    txtinfo_ += bhstrm.result();
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();

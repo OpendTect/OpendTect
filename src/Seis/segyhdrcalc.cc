@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyhdr.h"
 #include "mathexpression.h"
 #include "executor.h"
-#include "strmoper.h"
+#include "od_iostream.h"
 #include "settings.h"
 
 
@@ -192,7 +192,7 @@ class SEGYHdrCalcSetapplier : public Executor
 public:
 
 SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
-			std::istream& is, std::ostream& os, int dbpt,
+			od_istream& is, od_ostream& os, int dbpt,
 			const SEGY::BinHeader* bh, const SEGY::TxtHeader* th )
     : Executor("Manipulate SEG-Y file")
     , cs_(cs)
@@ -203,12 +203,11 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     , msg_("Handling traces")
     , needswap_(bh ? bh->isSwapped() : false)
 {
-    StrmOper::seek( inpstrm_, 0, std::ios::end );
-    totalnr_ = StrmOper::tell( inpstrm_ );
-    StrmOper::seek( inpstrm_, 0 );
+    totalnr_ = inpstrm_.endPosition();
+    inpstrm_.setPosition( 0 );
 
     buf_ = new unsigned char [bptrc_>mSEGYFileHdrSize?bptrc_:mSEGYFileHdrSize];
-    if ( !StrmOper::readBlock(inpstrm_,buf_,mSEGYFileHdrSize) )
+    if ( !inpstrm_.getBin(buf_,mSEGYFileHdrSize) )
 	msg_ = "Cannot read file headers";
     else
     {
@@ -221,7 +220,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 		SEGY::BinHeader::hdrDef().swapValues( buf_+3200 );
 	}
 
-	if ( !StrmOper::writeBlock(outstrm_,buf_,mSEGYFileHdrSize) )
+	if ( !outstrm_.addBin(buf_,mSEGYFileHdrSize) )
 	    msg_ = "Cannot write to output file";
 	else
 	    nrdone_ = 0;
@@ -244,13 +243,13 @@ int nextStep()
     if ( nrdone_ >= totalnr_ )
 	return Finished();
 
-    if ( !StrmOper::readBlock(inpstrm_,buf_,bptrc_) )
+    if ( !inpstrm_.getBin(buf_,bptrc_) )
     {
 	msg_ = "Unexpected early end of input file encountered";
 	return ErrorOccurred();
     }
     cs_.apply( buf_, needswap_ );
-    if ( !StrmOper::writeBlock(outstrm_,buf_,bptrc_) )
+    if ( !outstrm_.addBin(buf_,bptrc_) )
     {
 	msg_ = "Cannot write to output file.";
 	msg_.add( "\nWrote " ).add( nrdone_ )
@@ -264,8 +263,8 @@ int nextStep()
 }
 
     const SEGY::HdrCalcSet& cs_;
-    std::istream&	inpstrm_;
-    std::ostream&	outstrm_;
+    od_istream&		inpstrm_;
+    od_ostream&		outstrm_;
     od_int64		nrdone_;
     od_int64		totalnr_;
     const unsigned int	bptrc_;
@@ -276,7 +275,7 @@ int nextStep()
 };
 
 
-Executor* SEGY::HdrCalcSet::getApplier( std::istream& is, std::ostream& os,
+Executor* SEGY::HdrCalcSet::getApplier( od_istream& is, od_ostream& os,
 	int dbpt, const SEGY::BinHeader* bh, const SEGY::TxtHeader* th ) const
 {
     return new SEGYHdrCalcSetapplier( *this, is, os, dbpt, bh, th );

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "segyhdrdef.h"
 #include "typeset.h"
+#include "od_iosfwd.h"
 class Executor;
 class MathExpression;
 class BufferStringSet;
@@ -63,7 +64,7 @@ public:
 
     void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
     void			apply(void*,bool needswap) const;
-    Executor*			getApplier(std::istream&,std::ostream&,
+    Executor*			getApplier(od_istream&,od_ostream&,
 	    				   int data_bytes_per_trace,
 					   const BinHeader* bh=0,
 					   const TxtHeader* th=0) const;
