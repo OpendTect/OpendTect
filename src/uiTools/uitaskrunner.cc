@@ -134,6 +134,12 @@ void uiTaskRunner::updateFields()
     const BufferString nrdonetext = task_->nrDoneText();
     const BufferString message = task_->message();
 
+    if ( nrdone < 0 )
+    {
+	setCaption( execnm_ );
+	dispinfomutex_.unLock();
+	return;
+    }
 
     if ( prevmessage_!=message )
     {
