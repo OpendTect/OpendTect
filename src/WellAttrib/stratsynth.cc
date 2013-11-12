@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "datapackbase.h"
 #include "elasticpropsel.h"
+#include "envvars.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "flatposdata.h"
@@ -654,6 +655,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     BufferString capt( "Generating ", synthgenpar.name_ ); 
     synthgen.setName( capt.buf() );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
 

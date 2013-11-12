@@ -27,6 +27,8 @@ class SeisTrc;
 class TimeDepthModel;
 class RayTracerRunner;
 class Wavelet;
+template <class T> class Array1D;
+template <class T> class SamplingData;
 
 namespace Fourier { class CC; };
 namespace PreStack { class Gather; }
@@ -49,8 +51,12 @@ mExpClass(Seis) SynthGenBase
 public:
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
-    			/* will be overruled if too small */
+    			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
+    			/* depends on the wavelet size too */
+    bool		getOutSamplingFromModel
+				(const ObjectSet<const ReflectivityModel>&,
+				 StepInterval<float>&, bool usenmo=false);
     
     void		setMuteLength(float n)	{ mutelength_ = n; }
     float		getMuteLength() const	{ return mutelength_; }
@@ -107,19 +113,23 @@ public:
     			~SynthGenerator();
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
-    			/* will be overruled if too small */
+    			/* auto computed: not necessary - 
+			   will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
     bool		setModel(const ReflectivityModel&);
 
     bool		doWork();
+    od_int64            currentProgress() const { return progress_; }
     
     const SeisTrc&	result() const		{ return outtrc_; }
     SeisTrc&		result() 		{ return outtrc_; }
 
-    void 		getSampledReflectivities( TypeSet<float>& s ) const
-			{ computeSampledReflectivities(s); }
+    			/*<! available after execution */
+    const TypeSet<float_complex>& freqReflectivities() const
+			{ return freqreflectivities_; }
+    const TypeSet<float>& reflectivities() const
+			{ return reflectivities_; }
     
-    od_int64            currentProgress() const { return progress_; }
 
 protected:
     
@@ -127,13 +137,15 @@ protected:
     int			setConvolveSize();
     int			genFreqWavelet();
 
-    bool 		computeTrace(SeisTrc&) const;
-    void		computeSampledReflectivities(TypeSet<float>&,
-	    				TypeSet<float_complex>* = 0) const;
+    bool 		computeTrace(SeisTrc&);
     bool		doNMOStretch(const ValueSeries<float>&, int insz,
 				     ValueSeries<float>& out,int outsz) const;
-    bool 		doFFTConvolve(ValueSeries<float>&,int sz) const;
-    bool 		doTimeConvolve(ValueSeries<float>&,int sz) const;
+    bool 		doFFTConvolve(ValueSeries<float>&,int sz);
+    bool 		doTimeConvolve(ValueSeries<float>&,int sz);
+    void		getWaveletTrace(Array1D<float>&,float z,float scal,
+	    				SamplingData<float>&) const;
+    void		sortOutput(float_complex*,ValueSeries<float>&,
+	    			   int sz) const;
 
     virtual bool	computeReflectivities();
 
@@ -194,9 +206,12 @@ public:
     void		reset() { resetNrDone(); message_ = ""; }
 
     //input
-    void		forceReflTimes(const StepInterval<float>&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
+    void		forceReflTimes(const StepInterval<float>&);
+
+    //available after initialization
+    void		getAllRefls(ObjectSet<const ReflectivityModel>&);
 
     const char*         message() const
     			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
@@ -228,7 +243,6 @@ public:
     RayModel&		result(int id) 		{ return *raymodels_[id]; }
     const RayModel&	result(int id) const 	{ return *raymodels_[id]; }
 
-    const Interval<float>&	raySampling() const { return raysampling_; }
     const ObjectSet<RayTracer1D>& rayTracers() const;
     const TypeSet<ElasticModel>& elasticModels() const	{ return aimodels_; }
 
@@ -244,7 +258,6 @@ protected:
     BufferString		message_;
     const TypeSet<ElasticModel>& aimodels_;
     TypeSet<float>		offsets_;
-    Interval<float>		raysampling_;
     IOPar 			raysetup_;
     ObjectSet<RayModel>		raymodels_;
 
