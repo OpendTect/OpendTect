@@ -205,8 +205,8 @@ void ReflectivitySampler::sortOutput()
 
     mDeclareAndTryAlloc( float_complex*, fftrefl, float_complex[fftsz] );
     if ( !fftrefl ) return;
-    memcpy( fftrefl, creflectivities_, fftsz*sizeof(float_complex) );
     float_complex* realres = creflectivities_->arr();
+    memcpy( fftrefl, realres, fftsz * sizeof(float_complex) );
     memset( realres, 0, sz*sizeof(float_complex) );
 
     const float stoptwt = start + width;
