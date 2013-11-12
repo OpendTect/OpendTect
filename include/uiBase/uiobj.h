@@ -33,7 +33,6 @@ class uiObjEventFilter;
 
 
 /*!
-\ingroup uiBase
 \brief The base class for most UI elements.
 */
 
