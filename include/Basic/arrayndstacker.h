@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
   Author:        Arnaud Huck
   Date:		 Nov 2013
-  RCS:		 $Id:
+  RCS:		 $Id$
 ________________________________________________________________________ 
  
 -*/
@@ -68,7 +68,7 @@ public:
 		{
 		    fT* outarr = out_.getData();
 		    int count = 0;
-		    for ( int idx=start; idx<=stop; idx++ )
+		    for ( od_int64 idx=start; idx<=stop; idx++ )
 		    {
 			fT& outval = outarr[idx];
 			for ( int iarr=0; iarr<inp_.size(); iarr++ )
