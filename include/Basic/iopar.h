@@ -59,8 +59,7 @@ public:
     FixedString		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
-    bool		hasKey( const char* s ) const
-			{ return !find(s).isEmpty(); }
+    bool		hasKey( const char* s ) const { return indexOf(s)>=0; }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
     void		remove(int);

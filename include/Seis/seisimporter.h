@@ -47,6 +47,7 @@ public:
 	virtual			~Reader()			{}
 
 	virtual const char*	name() const			= 0;
+	virtual const char*	implName() const		= 0;
 	virtual bool		fetch(SeisTrc&)			= 0;
 	virtual int		totalNr() const			{ return -1; }
 
@@ -112,6 +113,7 @@ public:
     SeisTrcReader&	reader()		{ return rdr_; }
 
     const char*		name() const		{ return name_; }
+    const char*		implName() const;
     bool		fetch(SeisTrc&);
 
     void		removeNull( bool yn )	{ remnull_ = yn; }

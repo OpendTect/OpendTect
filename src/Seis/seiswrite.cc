@@ -166,7 +166,14 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    return false;
     }
 
-    return (prepared_ = true);
+    prepared_ = true;
+
+    ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
+    ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
+    ioobj_->pars().setToDateTime( sKey::CrAt() );
+    IOM().commitChanges( *ioobj_ );
+
+    return prepared_;
 }
 
 

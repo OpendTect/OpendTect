@@ -77,6 +77,9 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
+    void		setCrFrom( const char* str )	{ crfrom_ = str; }
+    void		setCrUserInfo( const char* str ) { crusrinfo_ = str; }
+
 protected:
 
     bool		prepared_;
@@ -108,6 +111,9 @@ protected:
     BufferString	datatype_;
     bool		next2DLine();
     bool		put2D(const SeisTrc&);
+
+    BufferString	crfrom_;
+    BufferString	crusrinfo_;
 
 };
 
@@ -161,6 +167,7 @@ protected:
 
     int				queueid_;
     BufferString		errmsg_;
+
 };
     			
 

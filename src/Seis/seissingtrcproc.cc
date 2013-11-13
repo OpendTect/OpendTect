@@ -129,7 +129,11 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 {
     worktrc_ = &intrc_;
     if ( wrr_ )
+    {
 	wrrkey_ = wrr_->ioObj()->key();
+	if ( ioobjs.size() == 1 )
+	    wrr_->setCrFrom( ioobjs[0]->fullUserExpr() );
+    }
     currentobj_ = 0;
 
     totnr_ = 0;

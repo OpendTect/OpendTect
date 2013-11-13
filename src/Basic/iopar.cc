@@ -117,7 +117,7 @@ int IOPar::size() const
 
 int IOPar::indexOf( const char* key ) const
 {
-    return keys_.indexOf( key );
+    return key && *key ? keys_.indexOf( key ) : false;
 }
 
 

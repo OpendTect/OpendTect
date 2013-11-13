@@ -51,6 +51,8 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     queueid_ = Threads::WorkManager::twm().addQueue(
 					Threads::WorkManager::SingleThread,
 					"SeisImporter");
+    if ( rdr_ )
+	wrr_.setCrFrom( rdr_->implName() );
 }
 
 
@@ -549,6 +551,12 @@ SeisStdImporterReader::~SeisStdImporterReader()
     delete resampler_;
     delete scaler_;
     delete &rdr_;
+}
+
+
+const char* SeisStdImporterReader::implName() const
+{
+    return rdr_.ioObj() ? rdr_.ioObj()->fullUserExpr() : "";
 }
 
 

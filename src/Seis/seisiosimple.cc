@@ -221,6 +221,7 @@ SeisIOSimpleImportReader( SeisIOSimple& sios )
     	: sios_(sios)		{}
 
 const char* name() const	{ return "Simple File"; }
+const char* implName() const	{ return sios_.iStream().fileName(); }
 bool fetch( SeisTrc& trc )
 {
     int rv = sios_.readImpTrc( trc );
