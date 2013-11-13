@@ -42,44 +42,44 @@ protected:
 
 
 
-uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt, 
+uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 			      const char* nm )
     : uiParentBody( nm )
     , QDockWidget( nm )
     , handle_( uidw )
-    , initing( true )
-    , centralWidget_( 0 )
+    , initing_( true )
+    , centralwidget_( 0 )
 
 {
-    QDockWidget::setFeatures( QDockWidget::DockWidgetMovable | 
-	    		      QDockWidget::DockWidgetFloatable );
+    QDockWidget::setFeatures( QDockWidget::DockWidgetMovable |
+			      QDockWidget::DockWidgetFloatable );
     setObjectName( nm );
 }
 
 
 void uiDockWinBody::construct()
 {
-    centralWidget_ = new uiGroup( &handle(), "uiDockWin central widget" );
-    setWidget( centralWidget_->body()->qwidget() ); 
+    centralwidget_ = new uiGroup( &handle(), "uiDockWin central widget" );
+    setWidget( centralwidget_->body()->qwidget() );
 
-    centralWidget_->setIsMain(true);
-    centralWidget_->setBorder(0);
-    centralWidget_->setStretch(2,2);
+    centralwidget_->setIsMain(true);
+    centralwidget_->setBorder(0);
+    centralwidget_->setStretch(2,2);
 
-    initing = false;
+    initing_ = false;
 }
 
 
 uiDockWinBody::~uiDockWinBody( )
 {
-    delete centralWidget_; centralWidget_ = 0;
+    delete centralwidget_; centralwidget_ = 0;
 }
 
 
 void uiDockWinBody::finalise()
 {
     handle_.preFinalise().trigger( handle_ );
-    centralWidget_->finalise();
+    centralwidget_->finalise();
     finaliseChildren();
     handle_.postFinalise().trigger( handle_ );
 }
@@ -90,8 +90,8 @@ uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
     : uiParent(nm,0)
     , body_(0)
     , parent_(parnt)
-{ 
-    body_= new uiDockWinBody( *this, parnt, nm ); 
+{
+    body_= new uiDockWinBody( *this, parnt, nm );
     setBody( body_ );
     body_->construct();
 }
@@ -125,12 +125,12 @@ const char* uiDockWin::getDockName() const
 void uiDockWin::setDockName( const char* nm )
 { body_->qwidget()->setObjectName( nm ); }
 
-uiGroup* uiDockWin::topGroup()	    	   
+uiGroup* uiDockWin::topGroup()
 { return body_->uiCentralWidg(); }
 
 
 uiMainWin* uiDockWin::mainwin()
-{ 
+{
     mDynamicCastGet(uiMainWin*,uimw,parent_);
     return uimw;
 }

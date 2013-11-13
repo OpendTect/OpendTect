@@ -84,8 +84,8 @@ public:
 
 public:
 
-    uiStatusBar* 	uistatusbar();
-    uiMenuBar* 		uimenubar();
+    uiStatusBar*	uistatusbar();
+    uiMenuBar*		uimenubar();
 
     virtual void        polish();
     void		reDraw(bool deep);
@@ -96,7 +96,7 @@ public:
     void		move(int,int);
 
     void		close();
-    bool		poppedUp() const		{ return popped_up; }
+    bool		poppedUp() const		{ return poppedup_; }
     bool		touch();
 
     void		removeDockWin(uiDockWin*);
@@ -145,10 +145,10 @@ protected:
 
     int			eventrefnr_;
 
-    uiStatusBar* 	statusbar;
-    uiMenuBar* 		menubar;
+    uiStatusBar*	statusbar_;
+    uiMenuBar*		menubar_;
     uiMenu*		toolbarsmnu_;
-    
+
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
 
@@ -160,9 +160,9 @@ private:
     bool		modal_;
     Qt::WFlags		getFlags(bool hasparent,bool modal) const;
 
-    void 		popTimTick(CallBacker*);
-    Timer		poptimer;
-    bool		popped_up;
+    void		popTimTick(CallBacker*);
+    Timer		poptimer_;
+    bool		poppedup_;
     uiSize		prefsz_;
     uiPoint		prefpos_;
     bool		moved_;
@@ -174,19 +174,19 @@ private:
 
 
 #define mParent p && p->pbody() ? p->pbody()->qwidget() : 0
-uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p, 
+uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
 	, QMainWindow(mParent,getFlags(p,modal) )
 	, handle_(uimw)
-	, initing(true)
-	, centralWidget_(0)
-	, statusbar(0)
-	, menubar(0)
+	, initing_(true)
+	, centralwidget_(0)
+	, statusbar_(0)
+	, menubar_(0)
 	, toolbarsmnu_(0)
 	, modal_(p && modal)
-	, poptimer("Popup timer")
-	, popped_up(false)
+	, poptimer_("Popup timer")
+	, poppedup_(false)
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
 	, prefpos_(uiPoint::udf())
@@ -197,13 +197,13 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     if ( nm && *nm )
 	setObjectName( nm );
 
-    poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
+    poptimer_.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
     iconsz_ = uiObject::iconSize();
     setIconSize( QSize(iconsz_,iconsz_) );
 
     setWindowModality( p && modal ? Qt::WindowModal
-	    			  : Qt::NonModal );
+				  : Qt::NonModal );
 
     setDockOptions( VerticalTabs | AnimatedDocks );
 
@@ -214,7 +214,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 uiMainWinBody::~uiMainWinBody()
 {
     deleteAllChildren(); //delete them now to make sure all ui objects
-    			 //are deleted before their body counterparts
+			 //are deleted before their body counterparts
 
     deepErase( toolbars_ );
 
@@ -231,8 +231,8 @@ uiMainWinBody::~uiMainWinBody()
 	delete &handle_;
     }
 
-    delete statusbar;
-    delete menubar;
+    delete statusbar_;
+    delete menubar_;
 }
 
 
@@ -240,7 +240,7 @@ void uiMainWinBody::setModal( bool yn )
 {
     modal_ = yn;
     setWindowModality( yn ? Qt::WindowModal
-	    		  : Qt::NonModal );
+			  : Qt::NonModal );
 }
 
 
@@ -262,11 +262,11 @@ void uiMainWinBody::doShow( bool minimized )
 	QMainWindow::show();
     }
 
-    if( poptimer.isActive() )
-	poptimer.stop();
+    if( poptimer_.isActive() )
+	poptimer_.stop();
 
-    popped_up = false;
-    poptimer.start( 100, true );
+    poppedup_ = false;
+    poptimer_.start( 100, true );
 
     QEvent* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
@@ -278,18 +278,18 @@ void uiMainWinBody::doShow( bool minimized )
 
 void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
-    centralWidget_ = new uiGroup( &handle(), "OpendTect Main Window" );
-    setCentralWidget( centralWidget_->body()->qwidget() ); 
+    centralwidget_ = new uiGroup( &handle(), "OpendTect Main Window" );
+    setCentralWidget( centralwidget_->body()->qwidget() );
 
-    centralWidget_->setIsMain(true);
-    centralWidget_->setBorder(10);
-    centralWidget_->setStretch(2,2);
+    centralwidget_->setIsMain(true);
+    centralwidget_->setBorder(10);
+    centralwidget_->setStretch(2,2);
 
     if ( nrstatusflds != 0 )
     {
 	QStatusBar* mbar= statusBar();
 	if ( mbar )
-	    statusbar = new uiStatusBar( &handle(),
+	    statusbar_ = new uiStatusBar( &handle(),
 					  "MainWindow StatusBar handle", *mbar);
 	else
 	    { pErrMsg("No statusbar returned from Qt"); }
@@ -297,21 +297,21 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	if ( nrstatusflds > 0 )
 	{
 	    for( int idx=0; idx<nrstatusflds; idx++ )
-		statusbar->addMsgFld();
+		statusbar_->addMsgFld();
 	}
     }
     if ( wantmenubar )
-    {   
+    {
 	QMenuBar* qmenubar = menuBar();
 	if ( qmenubar )
-	    menubar = new uiMenuBar( &handle(), "MenuBar", qmenubar );
+	    menubar_ = new uiMenuBar( &handle(), "MenuBar", qmenubar );
 	else
 	    { pErrMsg("No menubar returned from Qt"); }
 
 	toolbarsmnu_ = new uiMenu( &handle(), "Toolbars" );
     }
 
-    initing = false;
+    initing_ = false;
 }
 
 
@@ -320,7 +320,7 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
     QDesktopWidget wgt;
     const int xpos = wgt.screen()->width() - QMainWindow::width();
     const int ypos = wgt.screen()->height() - QMainWindow::height();
-   
+
     switch( pa )
     {
 	case uiMainWin::TopLeft :
@@ -353,7 +353,7 @@ void uiMainWinBody::polish()
 void uiMainWinBody::reDraw( bool deep )
 {
     update();
-    centralWidget_->reDraw( deep );
+    centralwidget_->reDraw( deep );
 }
 
 
@@ -367,14 +367,14 @@ void uiMainWinBody::go( bool showminimized )
 
 bool uiMainWinBody::touch()
 {
-    if ( popped_up || !finalised() )
+    if ( poppedup_ || !finalised() )
 	return false;
 
-    if ( poptimer.isActive() )
-	poptimer.stop();
+    if ( poptimer_.isActive() )
+	poptimer_.stop();
 
-    if ( !popped_up )
-	poptimer.start( 100, true );
+    if ( !poppedup_ )
+	poptimer_.start( 100, true );
 
     return true;
 }
@@ -386,9 +386,9 @@ QMenu* uiMainWinBody::createPopupMenu()
 
 void uiMainWinBody::popTimTick( CallBacker* )
 {
-    if ( popped_up )
-    	{ pErrMsg( "huh?" ); return; }
-    popped_up = true;
+    if ( poppedup_ )
+	{ pErrMsg( "huh?" ); return; }
+    poppedup_ = true;
 
 // TODO: Remove when we can get rid of the popTimTick
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
@@ -403,7 +403,7 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
     if ( trigger_finalise_start_stop )
 	handle_.preFinalise().trigger( handle_ );
 
-    centralWidget_->finalise();
+    centralwidget_->finalise();
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
@@ -432,7 +432,7 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 
 void uiMainWinBody::close()
 {
-    if ( !handle_.closeOK() ) return; 
+    if ( !handle_.closeOK() ) return;
 
     handle_.windowClosed.trigger( handle_ );
 
@@ -453,10 +453,10 @@ void uiMainWinBody::close()
 
 
 uiStatusBar* uiMainWinBody::uistatusbar()
-{ return statusbar; }
+{ return statusbar_; }
 
 uiMenuBar* uiMainWinBody::uimenubar()
-{ return menubar; }
+{ return menubar_; }
 
 
 void uiMainWinBody::removeDockWin( uiDockWin* dwin )
@@ -539,7 +539,7 @@ void uiMainWinBody::renewToolbarsMenu()
     if ( !toolbarsmnu_ ) return;
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
-	toolbars_[idx]->setToolBarMenuAction( 0 ); 
+	toolbars_[idx]->setToolBarMenuAction( 0 );
 
     toolbarsmnu_->clear();
     for ( int idx=0; idx<toolbars_.size(); idx++ )
@@ -548,7 +548,7 @@ void uiMainWinBody::renewToolbarsMenu()
 	uiAction* itm =
 	    new uiAction( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
-	tb.setToolBarMenuAction( itm ); 
+	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
     }
 }
@@ -616,7 +616,7 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 	if ( idx < 0 )
 	    break;
 
-	Threads::sleep( sleeptime ); 
+	Threads::sleep( sleeptime );
 	if ( sleeptime < 1.28 )
 	    sleeptime *= 2;
     }
@@ -654,8 +654,8 @@ bool uiMainWinBody::event( QEvent* ev )
     }
     else
 	return QMainWindow::event( ev );
-    
-    return true; 
+
+    return true;
 }
 
 
@@ -691,8 +691,8 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , activatedone(this)
     , ctrlCPressed(this)
     , caption_(setup.caption_)
-{ 
-    body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ ); 
+{
+    body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ );
     setBody( body_ );
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText(
@@ -712,8 +712,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , activatedone(this)
     , ctrlCPressed(this)
     , caption_(nm)
-{ 
-    body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
+{
+    body_ = new uiMainWinBody( *this, parnt, nm, modal );
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
@@ -723,7 +723,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 
 uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     : uiParent(nm,0)
-    , body_(0)			
+    , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
     , windowClosed(this)
@@ -763,7 +763,7 @@ QWidget* uiMainWin::qWidget() const
 void uiMainWin::provideHelp( const char* winid )
 {
     const BufferString fnm = HelpViewer::getURLForWinID( winid );
-    mDefineStaticLocalObject( bool, shwonly, 
+    mDefineStaticLocalObject( bool, shwonly,
 			      = GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY") );
     if ( shwonly ) return;
 
@@ -805,7 +805,7 @@ void uiMainWin::show()
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
-bool uiMainWin::touch() 			{ return body_->touch(); }
+bool uiMainWin::touch()			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 void uiMainWin::showMaximized()			{ body_->showMaximized(); }
@@ -852,7 +852,7 @@ uiToolBar* uiMainWin::removeToolBar( uiToolBar* tb )
 
 
 void uiMainWin::addToolBarBreak()
-{ body_->addToolBarBreak(); } 
+{ body_->addToolBarBreak(); }
 
 
 uiMenu& uiMainWin::getToolbarsMenu() const
@@ -860,21 +860,21 @@ uiMenu& uiMainWin::getToolbarsMenu() const
 
 
 const ObjectSet<uiToolBar>& uiMainWin::toolBars() const
-{ return body_->toolBars(); } 
-    
+{ return body_->toolBars(); }
+
 
 const ObjectSet<uiDockWin>& uiMainWin::dockWins() const
-{ return body_->dockWins(); } 
+{ return body_->dockWins(); }
 
 
-uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
+uiGroup* uiMainWin::topGroup()		   { return body_->uiCentralWidg(); }
 
 
-void uiMainWin::setShrinkAllowed(bool yn)  
+void uiMainWin::setShrinkAllowed(bool yn)
     { if ( topGroup() ) topGroup()->setShrinkAllowed(yn); }
- 
 
-bool uiMainWin::shrinkAllowed()	 	   
+
+bool uiMainWin::shrinkAllowed()
     { return topGroup() ? topGroup()->shrinkAllowed() : false; }
 
 
@@ -889,7 +889,7 @@ void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
     if ( sb )
 	sb->message( txt, fldidx, msecs );
     else if ( *txt )
-    	UsrMsg(txt);
+	UsrMsg(txt);
 }
 
 
@@ -922,7 +922,7 @@ uiRect uiMainWin::geometry( bool frame ) const
     QRect qframe = body_->frameGeometry();
     QPoint correction = body_->mapToGlobal(QPoint(0,0)) - qarea.topLeft();
     qframe.translate( correction );
-    qarea.translate( correction ); 
+    qarea.translate( correction );
     QRect qrect = frame ? qframe : qarea;
 
     //QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
@@ -974,15 +974,15 @@ uiMainWin::ActModalTyp uiMainWin::activeModalType()
     QWidget* amw = qApp->activeModalWidget();
     if ( !amw )					return None;
 
-    if ( dynamic_cast<uiMainWinBody*>(amw) ) 	return Main;
-    if ( dynamic_cast<QMessageBox*>(amw) ) 	return Message;
-    if ( dynamic_cast<QFileDialog*>(amw) ) 	return File;
-    if ( dynamic_cast<QColorDialog*>(amw) ) 	return Colour;
-    if ( dynamic_cast<QFontDialog*>(amw) ) 	return Font;
+    if ( dynamic_cast<uiMainWinBody*>(amw) )	return Main;
+    if ( dynamic_cast<QMessageBox*>(amw) )	return Message;
+    if ( dynamic_cast<QFileDialog*>(amw) )	return File;
+    if ( dynamic_cast<QColorDialog*>(amw) )	return Colour;
+    if ( dynamic_cast<QFontDialog*>(amw) )	return Font;
 
     return Unknown;
 }
-    
+
 
 uiMainWin* uiMainWin::activeModalWindow()
 {
@@ -1033,7 +1033,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
     if ( typ == Message )
     {
-	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
+	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
 	mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
 
 	mDeclStaticString( buttext );
@@ -1041,7 +1041,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 	    buttext = mQStringToConstChar( qmb->button(stdbut)->text() );
 	else if ( !stdbutcount )
 	    buttext = mQStringToConstChar( qmb->buttonText(buttonnr) );
-	else 
+	else
 	    buttext = "";
 
 	return buttext;
@@ -1061,7 +1061,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 int uiMainWin::activeModalQDlgRetVal( int buttonnr )
 {
     QWidget* amw = qApp->activeModalWidget();
-    const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
+    const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
     mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
 
     return stdbut ? ((int) stdbut) : buttonnr;
@@ -1074,11 +1074,11 @@ void uiMainWin::closeActiveModalQDlg( int retval )
 	return;
 
     QWidget* _amw = qApp->activeModalWidget();
-    if ( !_amw ) 
+    if ( !_amw )
 	return;
 
     QDialog* _qdlg = dynamic_cast<QDialog*>(_amw);
-    if ( !_qdlg ) 
+    if ( !_qdlg )
 	return;
 
     _qdlg->done( retval );
@@ -1201,7 +1201,7 @@ static void doTranslate( const uiBaseObject* obj )
 
 void uiMainWin::translate()
 {
-    doTranslate( body_->centralWidget_ );
+    doTranslate( body_->centralwidget_ );
 
     for ( int idx=0; idx<body_->toolbars_.size(); idx++ )
     {
@@ -1237,7 +1237,7 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 {
     QString fname( fnm );
-    
+
     QWidget* qwin = qWidget();
     if ( !qwin )
 	qwin = body_;
@@ -1255,38 +1255,31 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 
 */
 
-int uiDialog::titlepos_ = 0; // default is centered.
-int uiDialog::titlePos()
-{ return titlepos_; }
-
-void uiDialog::setTitlePos( int p )
-{ titlepos_ = p; }
-
 #define mHandle static_cast<uiDialog&>(handle_)
 
 class uiDialogBody : public uiMainWinBody
-{ 	
+{
 public:
 			uiDialogBody(uiDialog&,uiParent*,
 				     const uiDialog::Setup&);
 			~uiDialogBody();
 
-    int			exec( bool showminimized ); 
+    int			exec( bool showminimized );
 
-    void		reject( CallBacker* s )	
+    void		reject( CallBacker* s )
 			{
-			    mHandle.cancelpushed_ = s == cnclbut;
+			    mHandle.cancelpushed_ = s == cnclbut_;
 			    if ( mHandle.rejectOK(s) )
-				done_(0);
+				_done(0);
 			    else
 				uiSetResult( -1 );
 			}
                         //!< to be called by a 'cancel' button
-    void		accept( CallBacker* s )	
-			    { if ( mHandle.acceptOK(s) ) done_(1); }
+    void		accept( CallBacker* s )
+			    { if ( mHandle.acceptOK(s) ) _done(1); }
                         //!< to be called by a 'ok' button
     void		done( int i )
-			    { if ( mHandle.doneOK(i) ) done_(i); }
+			    { if ( mHandle.doneOK(i) ) _done(i); }
 
     void		uiSetResult( int v )	{ result_ = v; }
     int			uiResult()		{ return result_; }
@@ -1304,55 +1297,54 @@ public:
     uiButton*		button(uiDialog::Button);
 
 			//! Separator between central dialog and Ok/Cancel bar?
-    void		setSeparator( bool yn )	{ setup.separator_ = yn; }
-    bool		separator() const	{ return setup.separator_; }
-    void		setHelpID( const char* id ) { setup.helpid_ = id; }
-    const char*		helpID() const		{ return setup.helpid_; }
+    void		setSeparator( bool yn )	{ setup_.separator_ = yn; }
+    bool		separator() const	{ return setup_.separator_; }
+    void		setHelpID( const char* id ) { setup_.helpid_ = id; }
+    const char*		helpID() const		{ return setup_.helpid_; }
 
-    void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
+    void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 
-    void		setHSpacing( int spc )	{ dlgGroup->setHSpacing(spc); }
-    void		setVSpacing( int spc )	{ dlgGroup->setVSpacing(spc); }
-    void		setBorder( int b )	{ dlgGroup->setBorder( b ); }
+    void		setHSpacing( int spc )	{ dlggrp_->setHSpacing(spc); }
+    void		setVSpacing( int spc )	{ dlggrp_->setVSpacing(spc); }
+    void		setBorder( int b )	{ dlggrp_->setBorder( b ); }
 
     virtual void        addChild(uiBaseObject& child);
     virtual void        manageChld_(uiBaseObject&,uiObjectBody&);
-    virtual void  	attachChild(constraintType,uiObject* child,
+    virtual void	attachChild(constraintType,uiObject* child,
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
     void		showCredits(CallBacker*);
     void		doTranslate(CallBacker*);
 
-    const uiDialog::Setup& getSetup() const	{ return setup; }
+    const uiDialog::Setup& getSetup() const	{ return setup_; }
 
 protected:
 
-    virtual const QWidget* managewidg_() const 
-			{ 
-			    if ( !initing ) 
-				return dlgGroup->pbody()->managewidg();
+    virtual const QWidget* managewidg_() const
+			{
+			    if ( !initing_ )
+				return dlggrp_->pbody()->managewidg();
 			    return uiMainWinBody::managewidg_();
 			}
 
-    int 		result_;
-    bool		childrenInited;
+    int			result_;
+    bool		initchildrendone_;
 
-    uiGroup*            dlgGroup;
-    uiDialog::Setup	setup;
+    uiGroup*            dlggrp_;
+    uiDialog::Setup	setup_;
 
-    uiPushButton*	okbut;
-    uiPushButton*	cnclbut;
-    uiToolButton*	helpbut;
-    uiToolButton*	creditsbut;
-    uiToolButton*	translatebut;
+    uiPushButton*	okbut_;
+    uiPushButton*	cnclbut_;
+    uiToolButton*	helpbut_;
+    uiToolButton*	creditsbut_;
+    uiToolButton*	translatebut_;
 
-    uiCheckBox*		savebut_cb;
-    uiToolButton*	savebut_tb;
+    uiCheckBox*		savebutcb_;
+    uiToolButton*	savebuttb_;
 
-    uiSeparator*	horSepar;
-    uiLabel*		title;
+    uiLabel*		titlelbl_;
 
-    void		done_(int);
+    void		_done(int);
 
     virtual void	finalise()	{ finalise(false); }
     virtual void	finalise(bool);
@@ -1370,12 +1362,12 @@ private:
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
     : uiMainWinBody(hndle,parnt,s.wintitle_,s.modal_)
-    , dlgGroup(0)
-    , setup(s)
-    , okbut(0), cnclbut(0), savebut_cb(0),  savebut_tb(0)
-    , helpbut(0), creditsbut(0), translatebut(0)
-    , title(0), result_(0)
-    , childrenInited(false)
+    , dlggrp_(0)
+    , setup_(s)
+    , okbut_(0), cnclbut_(0), savebutcb_(0),  savebuttb_(0)
+    , helpbut_(0), creditsbut_(0), translatebut_(0)
+    , titlelbl_(0), result_(0)
+    , initchildrendone_(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
 }
@@ -1383,20 +1375,20 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 
 uiDialogBody::~uiDialogBody()
 {
-    if ( okbut )
-	okbut->activated.remove( mCB(this,uiDialogBody,accept) );
+    if ( okbut_ )
+	okbut_->activated.remove( mCB(this,uiDialogBody,accept) );
 
-    if ( cnclbut )
-	cnclbut->activated.remove( mCB(this,uiDialogBody,reject) );
+    if ( cnclbut_ )
+	cnclbut_->activated.remove( mCB(this,uiDialogBody,reject) );
 }
 
 
 
 int uiDialogBody::exec( bool showminimized )
-{ 
+{
     uiSetResult( 0 );
 
-    if ( setup.fixedsize_ )
+    if ( setup_.fixedsize_ )
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
     move( handle_.getPopupArea() );
@@ -1407,47 +1399,47 @@ int uiDialogBody::exec( bool showminimized )
 
 
 
-void uiDialogBody::setOkText( const char* txt )    
-{ 
-    setup.oktext_ = txt; 
-    if ( okbut ) okbut->setText(txt);
+void uiDialogBody::setOkText( const char* txt )
+{
+    setup_.oktext_ = txt;
+    if ( okbut_ ) okbut_->setText(txt);
 }
 
 
-void uiDialogBody::setTitleText( const char* txt )    
-{ 
-    setup.dlgtitle_ = txt; 
-    if ( title ) 
-    { 
-	title->setText(txt); 
-	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( title->body() ); 
+void uiDialogBody::setTitleText( const char* txt )
+{
+    setup_.dlgtitle_ = txt;
+    if ( titlelbl_ )
+    {
+	titlelbl_->setText(txt);
+	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( titlelbl_->body() );
 	if ( tb && !tb->itemInited() )
-	    title->setPrefWidthInChar( 
-		    mMAX( tb->prefWidthInCharSet(), strlen(txt) + 2 )); 
+	    titlelbl_->setPrefWidthInChar(
+		    mMAX( tb->prefWidthInCharSet(), strlen(txt) + 2 ));
     }
 }
 
-void uiDialogBody::setCancelText( const char* txt ) 
-{ 
-    setup.canceltext_ = txt; 
-    if ( cnclbut ) cnclbut->setText(txt);
+void uiDialogBody::setCancelText( const char* txt )
+{
+    setup_.canceltext_ = txt;
+    if ( cnclbut_ ) cnclbut_->setText(txt);
 }
 
 
 bool uiDialogBody::hasSaveButton() const
 {
-    return savebut_cb;
+    return savebutcb_;
 }
 
 
 bool uiDialogBody::saveButtonChecked() const
-{ 
-    return savebut_cb ? savebut_cb->isChecked() : false;
+{
+    return savebutcb_ ? savebutcb_->isChecked() : false;
 }
 
 
 /*! Hides the box, which also exits the event loop in case of a modal box.  */
-void uiDialogBody::done_( int v )
+void uiDialogBody::_done( int v )
 {
     uiSetResult( v );
     close();
@@ -1469,51 +1461,53 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
 
 
 void uiDialogBody::enableSaveButton( const char* txt )
-{ setup.savetext_ = txt; setup.savebutton_ = true; }
+{ setup_.savetext_ = txt; setup_.savebutton_ = true; }
 
 void uiDialogBody::setSaveButtonChecked( bool yn )
 {
-    setup.savechecked_ = yn;
-    if ( savebut_cb ) savebut_cb->setChecked(yn);
+    setup_.savechecked_ = yn;
+    if ( savebutcb_ ) savebutcb_->setChecked(yn);
 }
 
 
 void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
-{ 
+{
     switch ( but )
     {
-    case uiDialog::OK:		if ( okbut ) okbut->setSensitive(yn); 
+    case uiDialog::OK:		if ( okbut_ ) okbut_->setSensitive(yn);
     break;
-    case uiDialog::CANCEL:	if ( cnclbut ) cnclbut->setSensitive(yn); 
+    case uiDialog::CANCEL:	if ( cnclbut_ ) cnclbut_->setSensitive(yn);
     break;
-    case uiDialog::SAVE: 
-	if ( savebut_cb ) savebut_cb->setSensitive(yn); 
-	if ( savebut_tb ) savebut_tb->setSensitive(yn); 
+    case uiDialog::SAVE:
+	if ( savebutcb_ ) savebutcb_->setSensitive(yn);
+	if ( savebuttb_ ) savebuttb_->setSensitive(yn);
     break;
-    case uiDialog::HELP:	if ( helpbut ) helpbut->setSensitive(yn); 
+    case uiDialog::HELP:
+	if ( helpbut_ ) helpbut_->setSensitive(yn);
     break;
-    case uiDialog::CREDITS:	if ( creditsbut ) creditsbut->setSensitive(yn); 
+    case uiDialog::CREDITS:
+	if ( creditsbut_ ) creditsbut_->setSensitive(yn);
     break;
     case uiDialog::TRANSLATE:
-	if ( translatebut ) translatebut->setSensitive(yn);
+	if ( translatebut_ ) translatebut_->setSensitive(yn);
     break;
     }
 }
 
 
-uiButton* uiDialogBody::button( uiDialog::Button but ) 
-{ 
+uiButton* uiDialogBody::button( uiDialog::Button but )
+{
     switch ( but )
     {
-    case uiDialog::OK:		return okbut; break;
-    case uiDialog::CANCEL:	return cnclbut; break;
-    case uiDialog::SAVE: 
-	return savebut_cb
-	    ? (uiButton*)savebut_cb : (uiButton*)savebut_tb;
+    case uiDialog::OK:		return okbut_; break;
+    case uiDialog::CANCEL:	return cnclbut_; break;
+    case uiDialog::SAVE:
+	return savebutcb_
+	    ? (uiButton*)savebutcb_ : (uiButton*)savebuttb_;
     break;
-    case uiDialog::HELP:	return helpbut; break;
-    case uiDialog::CREDITS:	return creditsbut; break;
-    case uiDialog::TRANSLATE:	return translatebut; break;
+    case uiDialog::HELP:	return helpbut_; break;
+    case uiDialog::CREDITS:	return creditsbut_; break;
+    case uiDialog::TRANSLATE:	return translatebut_; break;
     }
 
     return 0;
@@ -1521,27 +1515,27 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
 
 
 void uiDialogBody::addChild( uiBaseObject& child )
-{ 
-    if ( !initing ) 
-	dlgGroup->addChild( child );
+{
+    if ( !initing_ )
+	dlggrp_->addChild( child );
     else
 	uiMainWinBody::addChild( child );
 }
 
 
 void uiDialogBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
-{ 
-    if ( !initing ) 
-	dlgGroup->manageChld( o, b );
+{
+    if ( !initing_ )
+	dlggrp_->manageChld( o, b );
 }
 
 
 void uiDialogBody::attachChild( constraintType tp, uiObject* child,
 				uiObject* other, int margin, bool reciprocal )
 {
-    if ( !child || initing ) return;
+    if ( !child || initing_ ) return;
 
-    dlgGroup->attachChild( tp, child, other, margin, reciprocal ); 
+    dlggrp_->attachChild( tp, child, other, margin, reciprocal );
 }
 
 
@@ -1550,15 +1544,15 @@ void uiDialogBody::attachChild( constraintType tp, uiObject* child,
     This gives chance not to construct them in case OKtext and CancelText have
     been set to ""
 */
-void uiDialogBody::finalise( bool ) 
+void uiDialogBody::finalise( bool )
 {
-    uiMainWinBody::finalise( false ); 
+    uiMainWinBody::finalise( false );
 
     handle_.preFinalise().trigger( handle_ );
 
-    dlgGroup->finalise();
+    dlggrp_->finalise();
 
-    if ( !childrenInited ) 
+    if ( !initchildrendone_ )
 	initChildren();
 
     finaliseChildren();
@@ -1572,96 +1566,97 @@ void uiDialogBody::initChildren()
     uiObject* lowestobject = createChildren();
     layoutChildren( lowestobject );
 
-    if ( okbut )
+    if ( okbut_ )
     {
-	okbut->activated.notify( mCB(this,uiDialogBody,accept) );
-	okbut->setDefault();
+	okbut_->activated.notify( mCB(this,uiDialogBody,accept) );
+	okbut_->setDefault();
     }
-    if ( cnclbut )
+    if ( cnclbut_ )
     {
-	cnclbut->activated.notify( mCB(this,uiDialogBody,reject) );
-	if ( !okbut )
-	    cnclbut->setDefault();
+	cnclbut_->activated.notify( mCB(this,uiDialogBody,reject) );
+	if ( !okbut_ )
+	    cnclbut_->setDefault();
     }
 
-    childrenInited = true;
+    initchildrendone_ = true;
 }
 
 
 uiObject* uiDialogBody::createChildren()
 {
-    if ( !setup.oktext_.isEmpty() )
-	okbut = new uiPushButton( centralWidget_, setup.oktext_, true );
-    if ( !setup.canceltext_.isEmpty() )
-	cnclbut = new uiPushButton( centralWidget_, setup.canceltext_, true );
+    if ( !setup_.oktext_.isEmpty() )
+	okbut_ = new uiPushButton( centralwidget_, setup_.oktext_, true );
+    if ( !setup_.canceltext_.isEmpty() )
+	cnclbut_ = new uiPushButton( centralwidget_, setup_.canceltext_, true );
 
-    if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
+    if ( setup_.savebutton_ && !setup_.savetext_.isEmpty() )
     {
-	if ( setup.savebutispush_ )
-	    savebut_tb = new uiToolButton( centralWidget_, "save",
-			  setup.savetext_, CallBack() );
+	if ( setup_.savebutispush_ )
+	    savebuttb_ = new uiToolButton( centralwidget_, "save",
+			  setup_.savetext_, CallBack() );
 	else
 	{
-	    savebut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
-	    savebut_cb->setChecked( setup.savechecked_ );
+	    savebutcb_ = new uiCheckBox( centralwidget_, setup_.savetext_ );
+	    savebutcb_->setChecked( setup_.savechecked_ );
 	}
     }
     mDynamicCastGet( uiDialog&, dlg, handle_ );
     const BufferString hid( dlg.helpID() );
     if ( !hid.isEmpty() && hid != "-" )
     {
-	mDefineStaticLocalObject( bool, shwhid, 
+	mDefineStaticLocalObject( bool, shwhid,
 				  = GetEnvVarYN("DTECT_SHOW_HELP") );
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut = new uiToolButton( centralWidget_, "contexthelp",
+	helpbut_ = new uiToolButton( centralwidget_, "contexthelp",
 			shwhid ? hid.buf() : "Help on this window",
-	       		mCB(this,uiDialogBody,provideHelp) );
-	helpbut->setPrefWidthInChar( 5 );
+			mCB(this,uiDialogBody,provideHelp) );
+	helpbut_->setPrefWidthInChar( 5 );
 	if ( TrMgr().tr() && TrMgr().tr()->enabled() )
 	{
-	    translatebut = new uiToolButton( centralWidget_,
+	    translatebut_ = new uiToolButton( centralwidget_,
 		TrMgr().tr()->getIcon(),
 		"Translate", mCB(this,uiDialogBody,doTranslate) );
-	    translatebut->attach( rightOf, helpbut );
+	    translatebut_->attach( rightOf, helpbut_ );
 	}
 	if ( dlg.haveCredits() )
 	{
-	    creditsbut = new uiToolButton( centralWidget_, "credits",
+	    creditsbut_ = new uiToolButton( centralwidget_, "credits",
 		    "Show credits", mCB(this,uiDialogBody,showCredits) );
-	    creditsbut->setPrefWidthInChar( 5 );
-	    creditsbut->attach( rightOf, translatebut ? translatebut : helpbut);
+	    creditsbut_->setPrefWidthInChar( 5 );
+	    creditsbut_->attach( rightOf,
+				 translatebut_ ? translatebut_ : helpbut_);
 	}
     }
 
-    if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
+    if ( !setup_.menubar_ && !setup_.dlgtitle_.isEmpty() )
     {
-	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
-	uiObject* obj = setup.separator_ 
-			    ? (uiObject*) new uiSeparator(centralWidget_)
-			    : (uiObject*) title;
+	titlelbl_ = new uiLabel( centralwidget_, setup_.dlgtitle_ );
+	uiObject* obj = setup_.separator_
+			    ? (uiObject*) new uiSeparator(centralwidget_)
+			    : (uiObject*) titlelbl_;
 
-	if ( obj != title )
+	if ( obj != titlelbl_ )
 	{
 	    if ( uiDialog::titlePos() == 0 )
-		title->attach( centeredAbove, obj );
+		titlelbl_->attach( centeredAbove, obj );
 	    else if ( uiDialog::titlePos() > 0 )
-		title->attach( rightBorder );
-	    obj->attach( stretchedBelow, title, -2 );
+		titlelbl_->attach( rightBorder );
+	    obj->attach( stretchedBelow, titlelbl_, -2 );
 	}
-	if ( setup.mainwidgcentered_ )
-	    dlgGroup->attach( centeredBelow, obj );
+	if ( setup_.mainwidgcentered_ )
+	    dlggrp_->attach( centeredBelow, obj );
 	else
-	    dlgGroup->attach( stretchedBelow, obj );
+	    dlggrp_->attach( stretchedBelow, obj );
     }
 
-    uiObject* lowestobj = dlgGroup->mainObject();
-    if ( setup.separator_ && ( okbut || cnclbut || savebut_cb || 
-			       savebut_tb || helpbut) )
+    uiObject* lowestobj = dlggrp_->mainObject();
+    if ( setup_.separator_ && ( okbut_ || cnclbut_ || savebutcb_ ||
+			       savebuttb_ || helpbut_) )
     {
-	horSepar = new uiSeparator( centralWidget_ );
-	horSepar->attach( stretchedBelow, dlgGroup, -2 );
+	uiSeparator* horSepar = new uiSeparator( centralwidget_ );
+	horSepar->attach( stretchedBelow, dlggrp_, -2 );
 	lowestobj = horSepar;
     }
 
@@ -1671,20 +1666,20 @@ uiObject* uiDialogBody::createChildren()
 
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
-    uiObject* leftbut = setup.okcancelrev_ ? cnclbut : okbut;
-    uiObject* rightbut = setup.okcancelrev_ ? okbut : cnclbut;
-    uiObject* exitbut = okbut ? okbut : cnclbut;
-    uiObject* centerbut = helpbut;
-    uiObject* extrabut = savebut_tb;
+    uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
+    uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
+    uiObject* exitbut = okbut_ ? okbut_ : cnclbut_;
+    uiObject* centerbut = helpbut_;
+    uiObject* extrabut = savebuttb_;
 
-    if ( !okbut || !cnclbut )
+    if ( !okbut_ || !cnclbut_ )
     {
 	leftbut = rightbut = 0;
 	if ( exitbut )
 	{
 	    centerbut = exitbut;
-	    extrabut = helpbut;
-	    leftbut = savebut_tb;
+	    extrabut = helpbut_;
+	    leftbut = savebuttb_;
 	}
     }
 
@@ -1725,13 +1720,13 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	    centerbut->attach( ensureLeftOf, rightbut );
     }
 
-    if ( savebut_cb )
+    if ( savebutcb_ )
     {
-	savebut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
+	savebutcb_->attach( extrabut ? leftOf : rightOf, exitbut );
 	if ( centerbut && centerbut != exitbut )
-	    centerbut->attach( ensureRightOf, savebut_cb );
+	    centerbut->attach( ensureRightOf, savebutcb_ );
 	if ( rightbut && rightbut != exitbut )
-	    rightbut->attach( ensureRightOf, savebut_cb );
+	    rightbut->attach( ensureRightOf, savebutcb_ );
     }
 
     if ( extrabut )
@@ -1762,17 +1757,18 @@ void uiDialogBody::showCredits( CallBacker* )
 }
 
 
+
+// uiDialog
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 	: uiMainWin( s.wintitle_, p )
-    	, cancelpushed_(false)
+	, cancelpushed_(false)
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
     body_->construct( s.nrstatusflds_, s.menubar_ );
-    uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
-
+    uiGroup* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
@@ -1784,7 +1780,7 @@ void uiDialog::setButtonText( Button but, const char* txt )
 {
     switch ( but )
     {
-        case OK	: setOkText( txt ); break;
+        case OK		: setOkText( txt ); break;
         case CANCEL	: setCancelText( txt ); break;
         case SAVE	: enableSaveButton( txt ); break;
         case HELP	: pErrMsg("set help txt but"); break;
@@ -1830,7 +1826,7 @@ void uiDialog::showMinMaxButtons()
 
 void uiDialog::showAlwaysOnTop()
 {
-    Qt::WindowFlags flags = body_->windowFlags(); 
+    Qt::WindowFlags flags = body_->windowFlags();
     flags |= Qt::WindowStaysOnTopHint;
     body_->setWindowFlags( flags );
 }
@@ -1843,14 +1839,14 @@ bool uiDialog::haveCredits() const
 
 
 int uiDialog::go()
-{ 
+{
     mAddToOrderedWinList( this );
     return mBody->exec( false );
 }
 
 
 int uiDialog::goMinimized()
-{ 
+{
     mAddToOrderedWinList( this );
     return mBody->exec( true );
 }
@@ -1876,9 +1872,9 @@ int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
 bool uiDialog::isModal() const			{ return mBody->isModal(); }
 
-void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 
+void uiDialog::setButtonSensitive(uiDialog::Button b, bool s )
     { mBody->setButtonSensitive(b,s); }
-void uiDialog::setSaveButtonChecked(bool b) 
+void uiDialog::setSaveButtonChecked(bool b)
     { mBody->setSaveButtonChecked(b); }
 bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
@@ -1886,3 +1882,8 @@ bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
 void uiDialog::setCaption( const char* txt )
     { caption_ = txt; mBody->setWindowTitle( txt ); }
+
+int uiDialog::titlepos_ = 0; // default is centered.
+int uiDialog::titlePos()			{ return titlepos_; }
+void uiDialog::setTitlePos( int p )		{ titlepos_ = p; }
+

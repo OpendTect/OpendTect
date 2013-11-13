@@ -10,11 +10,11 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef mHANDLE_OBJ 
+#ifndef mHANDLE_OBJ
 # define mHANDLE_OBJ	C
 #endif
 
-#ifndef mQWIDGET_BODY 
+#ifndef mQWIDGET_BODY
 # define mQWIDGET_BODY	T
 #endif
 
@@ -33,7 +33,7 @@ public:
 
 #ifndef UIBASEBODY_ONLY
 			//! over-ride Qt
-    virtual void 	setFont( const QFont& )
+    virtual void	setFont( const QFont& )
 			{
 			    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
 			    mQWIDGET_BASE::setFont( uifont()->qFont() );
@@ -48,9 +48,9 @@ public:
 			//! over-ride Qt
     virtual void	closeEvent( QCloseEvent *e )
 			{
-			    if ( uiCloseOK() ) 
+			    if ( uiCloseOK() )
 				mQWIDGET_BASE::closeEvent(e);
-			} 
+			}
 
 protected:
 
@@ -62,60 +62,60 @@ protected:
 
 public:
 
-    uiGroup*		uiCentralWidg()		{ return centralWidget_; }
+    uiGroup*		uiCentralWidg()		{ return centralwidget_; }
 
 
     virtual void        addChild( uiBaseObject& child )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->addChild( child );
+			{
+			    if ( !initing_ && centralwidget_ )
+				centralwidget_->addChild( child );
 			    else
 				uiParentBody::addChild( child );
 			}
 
     virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->manageChld( o, b );
+			{
+			    if ( !initing_ && centralwidget_ )
+				centralwidget_->manageChld( o, b );
 
 			}
 
-    virtual void  	attachChild ( constraintType tp,
+    virtual void	attachChild ( constraintType tp,
                                               uiObject* child,
                                               uiObject* other, int margin,
 					      bool reciprocal )
                         {
-                            if ( !child || initing ) return;
+                            if ( !child || initing_ ) return;
 
-			    centralWidget_->attachChild( tp, child, other,
-							margin, reciprocal); 
+			    centralwidget_->attachChild( tp, child, other,
+							margin, reciprocal);
                         }
 protected:
 
-    bool		initing;
+    bool		initing_;
 
-    uiGroup*		centralWidget_;
+    uiGroup*		centralwidget_;
 
 protected:
 
-    virtual const QWidget* managewidg_() const 
-			{ 
-			    if ( !initing ) 
-				return centralWidget_->pbody()->managewidg();
+    virtual const QWidget* managewidg_() const
+			{
+			    if ( !initing_ )
+				return centralwidget_->pbody()->managewidg();
 			    return qwidget_();
 			}
 #endif
 
 protected:
 
-    mHANDLE_OBJ&     	handle()		{ return handle_; }
+    mHANDLE_OBJ&	handle()		{ return handle_; }
 
 protected:
 
-    mHANDLE_OBJ&       	handle_;
+    mHANDLE_OBJ&	handle_;
 
 
-#undef mHANDLE_OBJ 
+#undef mHANDLE_OBJ
 #undef mQWIDGET_BASE
 #undef mQWIDGET_BODY
 #undef mTHIS_QWIDGET
