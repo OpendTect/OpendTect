@@ -152,7 +152,7 @@ void FileDownloader::setSaveAsPaths( const BufferStringSet& urls,
 int FileDownloader::nextStep()
 {
     if ( totalnr_ < 0 )
-	errorOccured();
+	return errorOccured();
 
     if ( initneeded_ )
     { 
