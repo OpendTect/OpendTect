@@ -145,8 +145,8 @@ void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
     if ( !meh ) return;
 
     const int vwridx = getViewerIdx(meh);
-    activevwr_ = vwrs_[vwridx<0 ? 0 : vwridx];
-    if ( !activevwr_ ) return;
+    if ( vwridx<0 ) return;
+    activevwr_ = vwrs_[vwridx];
 
     const MouseEvent& ev = 
 	activevwr_->rgbCanvas().getNavigationMouseEventHandler().event();
