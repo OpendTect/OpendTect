@@ -299,9 +299,23 @@ BufferString uiObjFileMan::getFileInfo()
 	delete conn;
     }
 
-    BufferString usrnm; curioobj_->pars().get( sKey::User(), usrnm );
-    if ( !usrnm.isEmpty() )
-	txt.add( "User: " ).add( usrnm ).add( "\n" );
+    BufferString crspec;
+    curioobj_->pars().get( sKey::CrBy(), crspec );
+    if ( crspec.isEmpty() )
+	curioobj_->pars().get( "User", crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created by: " ).add( crspec ).add( "\n" );
+
+    crspec.setEmpty();
+    curioobj_->pars().get( sKey::CrAt(), crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created at: " ).add( crspec ).add( "\n" );
+
+    crspec.setEmpty();
+    curioobj_->pars().get( sKey::CrFrom(), crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created from: " ).add( crspec ).add( "\n" );
+
     txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
     return txt;
 }

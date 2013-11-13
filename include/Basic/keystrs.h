@@ -113,7 +113,6 @@ namespace sKey
     inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
-    inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
     inline FixedString Version()	{ return "Version"; }
     inline FixedString Weight()		{ return "Weight"; }
@@ -148,15 +147,13 @@ namespace sKey
     inline FixedString TrcRange()	{ return "Trace Range"; }
 
     // History of objects
+    inline FixedString CrBy()		{ return "Created.By"; }
     inline FixedString CrAt()		{ return "Created.At"; }
     inline FixedString CrFrom()		{ return "Created.From"; }
     inline FixedString CrInfo()		{ return "Created.Info"; }
 
 };
 
-
-// Makes compat with 4.4 easier
-#define mGetKeyStr(id)	sKey::id()
 
 
 #endif

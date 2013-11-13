@@ -733,7 +733,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	const char* odusrnm = GetSoftwareUser();
 	FileMultiString fms; fms.add( GetUserNm() );
 	if ( odusrnm ) fms.add( odusrnm );
-	ioobj->pars().set( sKey::User(), fms.buf() );
+	ioobj->pars().set( sKey::CrBy(), fms.buf() );
 
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	dirPtr()->addObj( (IOObj*)ioobj );
