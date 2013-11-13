@@ -453,9 +453,10 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const FlatDataPack* dp = pack( iswva );
     if ( !dp ) 
     {
-	iswva ? iop.remove( "Wiggle/VA data" )
-	      : iop.remove( "Variable density data" );
-	iswva ? iop.remove( "WVA Value" ) : iop.remove( "VD Value" );
+	iswva ? iop.removeWithKey( "Wiggle/VA data" )
+	      : iop.removeWithKey( "Variable density data" );
+	iswva ? iop.removeWithKey( "WVA Value" )
+	      : iop.removeWithKey( "VD Value" );
 	    return;
     }
     const Array2D<float>& arr = dp->data();

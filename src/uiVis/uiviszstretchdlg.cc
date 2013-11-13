@@ -172,7 +172,7 @@ bool uiZStretchDlg::acceptOK( CallBacker* )
     if ( savefld_->isChecked() )
     {
 	SI().getPars().set( visSurvey::Scene::sKeyZStretch(), slval );
-        SI().getPars().remove("Z Scale"); //Old setting
+        SI().getPars().removeWithKey("Z Scale"); //Old setting
 	SI().savePars();
     }
 

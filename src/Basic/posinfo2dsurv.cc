@@ -253,7 +253,6 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 
 void PosInfo::Survey2D::updateMaxID( mIdxTyp maxid, IOPar& par )
 {
-    par.remove( sKeyMaxID );
     par.set( sKeyMaxID, maxid );
 }
 

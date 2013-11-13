@@ -54,7 +54,7 @@ bool RemoveVelocityVolumeTag( IOObj& ioobj )
     if ( !ioobj.pars().hasKey( VelocityDesc::sKeyVelocityVolume() ) )
 	return true;
 
-    ioobj.pars().remove( VelocityDesc::sKeyVelocityVolume() );
+    ioobj.pars().removeWithKey( VelocityDesc::sKeyVelocityVolume() );
     return IOM().commitChanges( ioobj );
 }
 
@@ -95,6 +95,6 @@ bool RemoveZDomainTag( IOObj& ioobj, BufferString& res )
     if ( !ioobj.pars().hasKey( ZDomain::sKey() ) )
 	return true;
 
-    ioobj.pars().remove( ZDomain::sKey() );
+    ioobj.pars().removeWithKey( ZDomain::sKey() );
     return IOM().commitChanges( ioobj );
 }

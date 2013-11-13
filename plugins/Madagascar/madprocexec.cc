@@ -212,8 +212,8 @@ const char* ODMad::ProcExec::getProcString()
 	    pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 	    pars_.set( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),sKey::Type() ),
 		       "Madagascar" );
-	    pars_.remove( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
-					 sKey::FileName()) );
+	    pars_.removeWithKey( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
+						 sKey::FileName()) );
 	    pars_.set( sKeyFlowStage(), getFlowStageString(newstage) );
 	    ret += " | ";
 	    if ( endproc && nooutput )

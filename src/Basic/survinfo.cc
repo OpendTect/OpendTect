@@ -310,7 +310,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     si->getPars().setName( sKeySurvDefs );
 
     //Scrub away old settings (confusing to users)
-    si->getPars().remove("Depth in feet");
+    si->getPars().removeWithKey( "Depth in feet" );
     
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();

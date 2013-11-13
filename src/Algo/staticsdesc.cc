@@ -60,9 +60,9 @@ bool StaticsDesc::operator!=( const StaticsDesc& b ) const
 
 void StaticsDesc::removePars( IOPar& par )
 {
-    par.remove( sKeyHorizon() );
-    par.remove( sKeyVelocity() );
-    par.remove( sKeyVelocityAttrib() );
+    par.removeWithKey( sKeyHorizon() );
+    par.removeWithKey( sKeyVelocity() );
+    par.removeWithKey( sKeyVelocityAttrib() );
 }
 
 

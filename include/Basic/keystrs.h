@@ -49,6 +49,7 @@ namespace sKey
     inline FixedString DataStorage()	{ return "Data storage"; }
     inline FixedString DataType()	{ return "DataType"; }
     inline FixedString Date()		{ return "Date"; }
+    inline FixedString DateTime()	{ return "Date/Time"; }
     inline FixedString Default()	{ return "Default"; }
     inline FixedString Depth()		{ return "Depth"; }
     inline FixedString Desc()		{ return "Description"; }
@@ -145,6 +146,11 @@ namespace sKey
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }
+
+    // History of objects
+    inline FixedString CrAt()		{ return "Created.At"; }
+    inline FixedString CrFrom()		{ return "Created.From"; }
+    inline FixedString CrInfo()		{ return "Created.Info"; }
 
 };
 

@@ -59,13 +59,13 @@ public:
     FixedString		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
-    void		remove(int);
-    void		remove(const char* key);
     bool		hasKey( const char* s ) const
 			{ return !find(s).isEmpty(); }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
-    void		removeWithKey(const char* globexpression);
+    void		remove(int);
+    void		removeWithKey(const char* key);
+    void		removeWithKeyPattern(const char* globexpression);
 				//!< removes all entries with key matching
 				//!< this glob expression
 
@@ -159,10 +159,12 @@ public:
 
 // SET functions
 
-    void		set(const char*,const char*);
-			/*!< Set replaces when key already exists */
-    void		add(const char*,const char*);
-			/*!< Add does not check for duplicate keys */
+    void		set(const char* ky,const char* val);
+			/*!< replaces when key already exists, otherwise adds */
+    void		add(const char* ky,const char* val);
+			/*!< unsafe: does not check for duplicate keys */
+    void		update(const char* ky,const char* val);
+			/*!< removes if val is empty or null */
 
     			// Functions for 1,2,3 and 4 of the same type
 #define mIOParDeclFns(fnnm,type) \
@@ -220,6 +222,8 @@ public:
     void		set(const char*,const TypeSet<od_uint64>&);
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
+
+    void		setToDateTime(const char* ky=0);
 
 
 // I/O  functions

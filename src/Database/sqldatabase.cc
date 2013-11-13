@@ -55,12 +55,7 @@ SqlDB::ConnectionData::ConnectionData( const char* dbtype )
 
 void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
 {
-#define mSetInPar(memb,ky) \
-    if ( memb##_.isEmpty() ) \
-        iop.removeWithKey( sKey##ky() ); \
-    else \
-	iop.set( sKey##ky(), memb##_ )
-
+#   define mSetInPar(memb,ky) iop.update( sKey##ky(), memb##_ )
     mSetInPar(hostname,HostName);
     mSetInPar(username,UserName);
     mSetInPar(pwd,Password);
@@ -71,8 +66,7 @@ void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
 
 bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 {
-#define mGetFromPar(memb,ky) \
-    memb##_ = iop.find( sKey##ky() )
+#   define mGetFromPar(memb,ky) memb##_ = iop.find( sKey##ky() )
     mGetFromPar(hostname,HostName);
     mGetFromPar(username,UserName);
     mGetFromPar(pwd,Password);

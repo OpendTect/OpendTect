@@ -81,8 +81,8 @@ void VelocityDesc::fillPar( IOPar& par ) const
 
 void VelocityDesc::removePars( IOPar& par )
 {
-    par.remove( sKeyVelocityType() );
-    par.remove( sKeyIsVelocity() );
+    par.removeWithKey( sKeyVelocityType() );
+    par.removeWithKey( sKeyIsVelocity() );
     StaticsDesc::removePars( par );
 }
 

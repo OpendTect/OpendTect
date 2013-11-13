@@ -96,7 +96,7 @@ static void handleLegacyPar( Settings& setts, const char* key,
 	modernsetts.merge( *legacypar );
 	modernsetts.write( false );
 	BufferString rmkey( key ); rmkey += ".*";
-	setts.removeWithKey( rmkey );
+	setts.removeWithKeyPattern( rmkey );
 	setts.write( false );
     }
     delete legacypar;

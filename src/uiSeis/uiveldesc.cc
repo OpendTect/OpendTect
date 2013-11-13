@@ -229,8 +229,8 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     }
     else
     {
-	ioobj->pars().remove( VelocityStretcher::sKeyTopVavg() );
-	ioobj->pars().remove( VelocityStretcher::sKeyBotVavg() );
+	ioobj->pars().removeWithKey( VelocityStretcher::sKeyTopVavg() );
+	ioobj->pars().removeWithKey( VelocityStretcher::sKeyBotVavg() );
     }
 
     return veldescfld_->updateAndCommit( *ioobj, true );

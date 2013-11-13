@@ -176,7 +176,7 @@ void handleDisp( CallBacker* )
 bool acceptOK( CallBacker* )
 {
     PtrMan<ProbDenFunc> pdf0 = 0;
-    pars_.removeWithKey( mGetSeisBayesPDFIDKey("*") );
+    pars_.removeWithKeyPattern( mGetSeisBayesPDFIDKey("*") );
 
     for ( int idx=0; idx<nrdisp_; idx++ )
     {
@@ -332,8 +332,8 @@ bool rejectOK( CallBacker* cb )
 bool acceptOK( CallBacker* )
 {
     if ( nrpdfs_ < 1 ) return false;
-    pars_.removeWithKey( mGetSeisBayesAPProbIDKey("*") );
-    pars_.removeWithKey( mGetSeisBayesPreScaleKey("*") );
+    pars_.removeWithKeyPattern( mGetSeisBayesAPProbIDKey("*") );
+    pars_.removeWithKeyPattern( mGetSeisBayesPreScaleKey("*") );
     return getFromScreen( false );
 }
 
@@ -452,7 +452,7 @@ bool rejectOK( CallBacker* cb )
 
 bool acceptOK( CallBacker* )
 {
-    pars_.removeWithKey( mGetSeisBayesSeisInpIDKey("*") );
+    pars_.removeWithKeyPattern( mGetSeisBayesSeisInpIDKey("*") );
     return getFromScreen( false );
 }
 
@@ -570,7 +570,7 @@ bool rejectOK( CallBacker* cb )
 
 bool acceptOK( CallBacker* )
 {
-    pars_.removeWithKey( mGetSeisBayesSeisOutIDKey("*") );
+    pars_.removeWithKeyPattern( mGetSeisBayesSeisOutIDKey("*") );
     return getFromScreen( false );
 }
 

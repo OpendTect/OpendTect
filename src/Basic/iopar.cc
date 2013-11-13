@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
+#include "timefun.h"
 #include <stdio.h>
 
 const int cMaxTypeSetItemsPerLine = 100;
@@ -159,18 +160,37 @@ void IOPar::setEmpty()
 
 void IOPar::remove( int idx )
 {
-    if ( idx >= size() ) return;
-    keys_.removeSingle( idx ); vals_.removeSingle( idx );
+    if ( idx >= 0 && idx < keys_.size() )
+	{ keys_.removeSingle( idx ); vals_.removeSingle( idx ); }
 }
 
 
-void IOPar::remove( const char* key )
+void IOPar::removeWithKey( const char* key )
 {
-    const int idx = keys_.indexOf( key );
-    if ( idx<0 )
-	return;
+    if ( !key || !*key ) return;
 
-    remove( idx );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( keys_.get(idx) == key )
+	{
+	    remove( idx );
+	    idx--;
+	}
+    }
+}
+
+
+void IOPar::removeWithKeyPattern( const char* pattern )
+{
+    const GlobExpr ge( pattern );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( ge.matches( keys_.get(idx) ) )
+	{
+	    remove( idx );
+	    idx--;
+	}
+    }
 }
 
 
@@ -291,20 +311,6 @@ const char* IOPar::findKeyFor( const char* s, int nr ) const
 }
 
 
-void IOPar::removeWithKey( const char* key )
-{
-    GlobExpr ge( key );
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( ge.matches( keys_.get(idx) ) )
-	{
-	    remove( idx );
-	    idx--;
-	}
-    }
-}
-
-
 FixedString IOPar::operator[]( const char* keyw ) const
 {
     FixedString res = find( keyw );
@@ -322,9 +328,44 @@ FixedString IOPar::find( const char* keyw ) const
 }
 
 
-void IOPar::add( const char* nm, const char* val )
+void IOPar::set( const char* keyw, const char* val )
 {
-    keys_.add( nm ); vals_.add( val );
+    if ( !keyw ) return;
+
+    const int idxof = indexOf( keyw );
+    if ( idxof < 0 )
+	add( keyw, val );
+    else
+	vals_.get( idxof ) = val;
+}
+
+
+void IOPar::add( const char* keyw, const char* val )
+{
+    if ( !keyw ) return;
+
+    keys_.add( keyw );
+    vals_.add( val );
+}
+
+
+void IOPar::update( const char* keyw, const char* val )
+{
+    if ( !keyw ) return;
+
+    const int idxof = indexOf( keyw );
+    if ( idxof < 0 )
+    {
+	if ( val && *val )
+	add( keyw, val );
+    }
+    else if ( !val || !*val )
+    {
+	keys_.removeSingle( idxof );
+	vals_.removeSingle( idxof );
+    }
+    else
+	vals_.get( idxof ) = val;
 }
 
 
@@ -791,16 +832,6 @@ bool IOPar::getPtr( const char* s, void*& res ) const
 }
 
 
-void IOPar::set( const char* keyw, const char* vals )
-{
-    int idx = keys_.indexOf( keyw );
-    if ( idx < 0 )
-	add( keyw, vals );
-    else
-	setValue( idx, vals );
-}
-
-
 void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 {
     FileMultiString fms( vals1 ); fms += vals2;
@@ -965,6 +996,14 @@ void IOPar::set( const char* s, const Color& c )
 {
     BufferString bs; c.fill( bs );
     set( s, bs );
+}
+
+
+void IOPar::setToDateTime( const char* keyw )
+{
+    if ( !keyw || !*keyw )
+	keyw = sKey::DateTime();
+    set( keyw, Time::getDateTimeString() );
 }
 
 

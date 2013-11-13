@@ -203,7 +203,7 @@ ZDomain::Info::Info( const IOPar& iop )
     , pars_(*new IOPar(iop))
 {
     const BufferString torem( ZDomain::sKey(), "*" );
-    pars_.removeWithKey( torem.buf() );
+    pars_.removeWithKeyPattern( torem.buf() );
 }
 
 

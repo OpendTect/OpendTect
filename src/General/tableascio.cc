@@ -301,10 +301,7 @@ void FormatDesc::fillPar( IOPar& iopar ) const
     iopar.set( sKeyHdrSize, nrhdrlines_ );
     FileMultiString fms; fms += eohtokencol_; fms += eohtoken_;
     iopar.set( sKeyHdrToken, fms );
-    if ( haveEOBToken() )
-	iopar.set( sKeyBodyEndToken, eobtoken_ );
-    else
-	iopar.removeWithKey( sKeyBodyEndToken );
+    iopar.update( sKeyBodyEndToken, eobtoken_ );
     for ( int idx=0; idx<headerinfos_.size(); idx++ )
     {
 	IOPar subpar; headerinfos_[idx]->fillPar( subpar );
