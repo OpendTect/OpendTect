@@ -1092,14 +1092,17 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
-    altSS().removeSynthetic( syntheticnm );
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
-    altSS().genParams() = curSS().genParams();
-    SyntheticData* altsd = altSS().addSynthetic();
-    if ( !altsd )
-	mErrRet(altSS().errMsg(), return );
+    if ( altSS().hasElasticModels() )
+    {
+	altSS().removeSynthetic( syntheticnm );
+	altSS().genParams() = curSS().genParams();
+	SyntheticData* altsd = altSS().addSynthetic();
+	if ( !altsd )
+	    mErrRet(altSS().errMsg(), return );
+    }
     updateSyntheticList( wva );
     synthsChanged.trigger();
 
@@ -1312,10 +1315,13 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
-    altSS().genParams() = curSS().genParams();
-    SyntheticData* altsd = altSS().addSynthetic();
-    if ( !altsd )
-	mErrRet(altSS().errMsg(), return );
+    if ( altSS().hasElasticModels() )
+    {
+	altSS().genParams() = curSS().genParams();
+	SyntheticData* altsd = altSS().addSynthetic();
+	if ( !altsd )
+	    mErrRet(altSS().errMsg(), return );
+    }
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
