@@ -320,7 +320,7 @@ uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
 { return vwr->getViewRect(); }
 
 
-void uiFlatViewControl::addSizes()
+void uiFlatViewControl::addSizesToZoomMgr()
 {
     TypeSet<FlatView::ZoomMgr::Size> sizes;
     

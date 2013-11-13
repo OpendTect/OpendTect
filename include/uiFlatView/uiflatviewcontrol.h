@@ -93,7 +93,7 @@ protected:
     virtual void	onFinalise(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
 	    				      Geom::Size2D<double> ) const;
-    void                addSizes();
+    void                addSizesToZoomMgr();
     			//!< Adds current sizes of all viewers to the ZoomMgr.
     
     virtual void	dataChangeCB(CallBacker*);

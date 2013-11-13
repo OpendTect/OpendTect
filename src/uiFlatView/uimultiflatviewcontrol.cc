@@ -194,7 +194,7 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 	vwrs_[idx]->setView( newwr );
     }
 
-    addSizes();
+    addSizesToZoomMgr();
 }
 
 
