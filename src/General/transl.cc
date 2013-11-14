@@ -105,7 +105,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 				   const char* nm, bool user, bool iserr )
 {
     if ( !nm || !*nm )
-	{ pFreeFnErrMsg("nm empty","findGroup"); return 0; }
+	return 0;
 
     for ( int idx=0; idx<grps.size(); idx++ )
     {
@@ -119,11 +119,6 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 	const char* spaceptr = strchr( nm, ' ' );
 	if ( spaceptr && matchStringCI("directory",spaceptr+1) )
 	    return 0;
-
-	BufferString errmsg( "Cannot find '" );
-	errmsg += nm;
-	errmsg += "' TranslatorGroup";
-	pFreeFnErrMsg(errmsg,"findGroup");
     }
     return 0;
 }
