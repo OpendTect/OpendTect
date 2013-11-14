@@ -119,14 +119,15 @@ int IOPar::size() const
 
 int IOPar::indexOf( const char* key ) const
 {
-    return key && *key ? keys_.indexOf( key ) : -1;
+    if ( !key || !*key )
+	{ pErrMsg("indexOf empty key requested"); return -1; }
+    return keys_.indexOf( key );
 }
 
 
 FixedString IOPar::getKey( int nr ) const
 {
-    if ( nr >= size() ) return "";
-    return FixedString(keys_.get( nr ).buf() );
+    return FixedString( keys_.validIdx(nr) ? keys_.get(nr).buf() : "" );
 }
 
 
@@ -162,7 +163,7 @@ void IOPar::setEmpty()
 
 void IOPar::remove( int idx )
 {
-    if ( idx >= 0 && idx < keys_.size() )
+    if ( keys_.validIdx(idx) )
 	{ keys_.removeSingle( idx ); vals_.removeSingle( idx ); }
 }
 
@@ -359,7 +360,7 @@ void IOPar::update( const char* keyw, const char* val )
     if ( idxof < 0 )
     {
 	if ( val && *val )
-	add( keyw, val );
+	    add( keyw, val );
     }
     else if ( !val || !*val )
     {

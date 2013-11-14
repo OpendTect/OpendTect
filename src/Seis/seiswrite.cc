@@ -170,7 +170,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 
     ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
     ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
-    ioobj_->pars().setStdCreationEntries();
+    ioobj_->updateCreationPars();
     IOM().commitChanges( *ioobj_ );
 
     return prepared_;

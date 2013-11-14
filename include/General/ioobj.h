@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "generalmod.h"
 #include "multiid.h"
 #include "namedobj.h"
@@ -29,10 +29,10 @@ class Translator;
 mExpClass(General) IOObjProducer
 {
 public:
-virtual 		~IOObjProducer()		{}
+virtual		~IOObjProducer()		{}
     virtual bool	canMake(const char*) const	= 0;
     virtual IOObj*	make(const char*,const MultiID&,
-	    		     bool fill_defs) const	= 0;
+			     bool fill_defs) const	= 0;
 
 };
 
@@ -80,32 +80,33 @@ public:
     virtual bool		implRemove() const		{ return false;}
     virtual bool		implShouldRemove() const	{ return true; }
     virtual bool		implRename(const char*,const CallBack* cb=0)
-    							{ return false; }
+							{ return false; }
     virtual bool		implSetReadOnly(bool) const	{ return false;}
     virtual bool		removeQuery() const		{ return false;}
     virtual void		genDefaultImpl()		{}
 
-    virtual const char*	 	dirName() const		{ return dirnm_; }
-			    	//!< The directory ame within the tree
+    virtual const char*		dirName() const		{ return dirnm_; }
+				//!< The directory ame within the tree
     virtual IOPar&		pars() const			{ return pars_;}
-    				//!< These are the extra parameters: #xxx: yyy
-    				//!< in .omf
-    
+				//!< These are the extra parameters: #xxx: yyy
+				//!< in .omf
+    void			updateCreationPars();
+
     static bool			isKey(const char*);
-    				//!< Returns whether given string may be a valid
-    				//!< key
+				//!< Returns whether given string may be a valid
+				//!< key
     static bool			isSurveyDefault(const MultiID&);
-    				//!<Checks the 'Default.' entries in SI().pars()
+				//!<Checks the 'Default.' entries in SI().pars()
     void			setSurveyDefault(const char* subsel = 0) const;
 				/*!<\param subsel may be a subselection lower
 				    than the translator group, such as
 				    "Velocity".*/
 
     Translator*			createTranslator() const;
-    				//!< returns a subclass of Translator according
-    				//!< to the translator name and group.
+				//!< returns a subclass of Translator according
+				//!< to the translator name and group.
     virtual void		acquireNewKey();
-    				//!< This will give the IOObj a new (free) ID
+				//!< This will give the IOObj a new (free) ID
 
     static int			tmpID()		{ return  999999; }
     inline bool			isTmp() const	{return key_.leafID()==tmpID();}
@@ -143,7 +144,7 @@ public:
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);
-    			//!< Factory for IOObj types. Not for casual use.
+			//!< Factory for IOObj types. Not for casual use.
 
 };
 

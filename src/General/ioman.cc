@@ -729,8 +729,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	    dirPtr()->mkUniqueName( iostrm );
 	}
 
+	iostrm->updateCreationPars();
 	ioobj = iostrm;
-	ioobj->pars().setStdCreationEntries();
 
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	dirPtr()->addObj( (IOObj*)ioobj );
