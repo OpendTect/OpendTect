@@ -2,6 +2,33 @@ OpendTect V4.6.x : Release info
 
 ----
 
+v4.6.0d: November 13, 2013
+  * Introducing the new survey prepare dialog
+  * Fix for crash in band pass filter when minimum and maximum frequencies
+    are identical
+  * Fix for crash while unzipping a survey
+  * Fix for crash while picking interactive random line
+  * Fix for crash while displaying faultstickset
+  * Fix for crash while displaying fault
+  * Fix for crash while tracking horizon in box
+  * Fix for crash while creating 3D cube from 2D lineset
+  * Fix for crash while measuring distance using 'Display distance' tool
+  * Fix for crash while displaying 2D Seismics
+  * Fix for crash while merging 3D horizons
+  * Fix for processing of body shape painter
+  * Fix for unzipping a file on Linux which is zipped on Windows platform
+  * Fix for calculation of prestack anglemute in feet for depth survey
+  * Fix for changing Y-axis range in cross-plot
+  * Fix for exporting simple seismics for a 2nd time in the same session
+  * Fix for loading pre-loaded horiozons when pre-load settings files
+    are open
+  * Fix for Scalebar orientation
+  * Fix for loading PickSets
+  * Fix for well log color fill
+  * Fix for scaling AGC while processing z-slices, horizons and picks
+  * Fix for angle gather display of Prestack 2D Viewer
+  * Fix for updating 'Fill with' field in log properties window
+
 v4.6.0c: October 18, 2013
   * Added feature 'Show BinIDs' to Attribute data window
   * Fix for crash while removing selected markers in wellmarker manager
