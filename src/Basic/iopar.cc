@@ -117,7 +117,7 @@ int IOPar::size() const
 
 int IOPar::indexOf( const char* key ) const
 {
-    return key && *key ? keys_.indexOf( key ) : false;
+    return key && *key ? keys_.indexOf( key ) : -1;
 }
 
 
@@ -617,7 +617,7 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 	for ( int idx=0; idx<len; idx++ )
 	{
 	    const char* valstr = fms[idx];
-	    const T newval = Conv::to<T>( valstr ); 
+	    const T newval = Conv::to<T>( valstr );
 	    res += newval;
 	}
 
@@ -630,12 +630,12 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 
 
 template <class T>
-static void iopset_typeset( IOPar& iop, const char* keyw, 
+static void iopset_typeset( IOPar& iop, const char* keyw,
 			    const TypeSet<T>& vals )
 {
     const int nrvals = vals.size();
 
-    int validx = 0; 
+    int validx = 0;
     int keyidx = 0;
 
     while ( validx != nrvals )
@@ -646,11 +646,11 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
 	{
 	    if ( validx == nrvals ) break;
-	    
+
 	    val = vals[ validx++ ];
 	    fms += toString( val );
 	}
-	
+
 	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
 	iop.set( newkey, fms );
 	keyidx++;
