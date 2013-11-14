@@ -73,7 +73,7 @@ void FlatView::ZoomMgr::init(const TypeSet<Geom::PosRectangle<double> >& wrs)
     TypeSet<Geom::Rectangle<double> > rects;
     for ( int idx=0; idx<wrs.size(); idx++ )
     {
-	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[0]);
+	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[idx]);
 	rects += wr;
     }
 
@@ -112,7 +112,7 @@ void FlatView::ZoomMgr::reInit( const TypeSet<Geom::PosRectangle<double> >& wrs 
     TypeSet<Geom::Rectangle<double> > rects;
     for ( int idx=0; idx<wrs.size(); idx++ )
     {
-	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[0]);
+	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[idx]);
 	rects += wr;
     }
 
