@@ -10,18 +10,22 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimanprops.h"
-#include "uibuildlistfromlist.h"
-#include "uigeninput.h"
-#include "uimathexpression.h"
-#include "uirockphysform.h"
-#include "uilistbox.h"
-#include "uiunitsel.h"
-#include "uicolor.h"
-#include "uitoolbutton.h"
-#include "uimsg.h"
-#include "uilineedit.h"
+
+#include "mathexpression.h"
 #include "mathproperty.h"
 #include "separstr.h"
+#include "uibuildlistfromlist.h"
+#include "uicolor.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uilineedit.h"
+#include "uilistbox.h"
+#include "uimathexpression.h"
+#include "uimsg.h"
+#include "uirockphysform.h"
+#include "uitoolbutton.h"
+#include "uiunitsel.h"
 #include "unitofmeasure.h"
 
 
@@ -169,7 +173,7 @@ void uiEditPropRef::unitSel( CallBacker* )
     curunit_ = newun;
 }
 
-
+static const int cMaxNrVars = 6;
 class uiEditPropRefMathDef : public uiDialog
 {
 public:
@@ -183,7 +187,8 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
     formfld_ = new uiMathExpression( this, mesu );
     formfld_->formSet.notify( mCB(this,uiEditPropRefMathDef,formSet) );
-    BufferString curdef( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
+    FileMultiString defstr( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
+    BufferString curdef = defstr[0];
     if ( !pr_.disp_.defval_ )
     {
 	float val = pr_.disp_.range_.center();
@@ -195,6 +200,25 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "RockPhysics");
     formfld_->addButton( tbsu );
+
+    for ( int idx=0; idx<=cMaxNrVars; idx++ )
+    {
+	BufferString lbl;
+	if ( idx == cMaxNrVars )
+	    lbl = "Choose formula output unit";
+	uiLabeledComboBox* unfld = new uiLabeledComboBox( this, lbl );
+	const ObjectSet<const UnitOfMeasure>& alluom( UoMR().all() );
+	unfld->box()->addItem( "-" );
+	for ( int iduom=0; iduom<alluom.size(); iduom++ )
+	    unfld->box()->addItem( alluom[iduom]->name() );
+
+	unfld->attach( alignedBelow, idx ? (uiGroup*)unflds_[idx-1]
+					 : (uiGroup*)formfld_ );
+	unfld->display( idx == cMaxNrVars );
+	unflds_ += unfld;
+    }
+
+    formSet(0);
 }
 
 void rockPhysReq( CallBacker* )
@@ -202,21 +226,70 @@ void rockPhysReq( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
 		  "Use a rock physics formula", "110.0.7") );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, pr_.stdType() );
-    if ( dlg.go() )
-	formfld_->setText( formgrp->getText(true) );
+
+    BufferString formula;
+    BufferString formulaunit;
+    BufferString outunit;
+    BufferStringSet inputunits;
+    TypeSet<PropertyRef::StdType> inputtypes;
+    if ( dlg.go() && formgrp->getFormulaInfo( formula, formulaunit, outunit,
+					      inputunits, inputtypes, true ) )
+    {
+	formfld_->setText( formula.buf() );
+	if ( inputunits.size() != inputtypes.size() )
+	    return;
+
+	formSet(0);
+	for ( int idx=0; idx<inputunits.size(); idx++ )
+	{
+	    if ( !unflds_[idx] ) return;
+
+	    ObjectSet<const UnitOfMeasure> possibleunits;
+	    UoMR().getRelevant( inputtypes[idx], possibleunits );
+	    const UnitOfMeasure* un =
+			    UnitOfMeasure::getGuessed( inputunits[idx]->buf() );
+
+	    uiComboBox& cbb = *unflds_[idx]->box();
+	    cbb.setEmpty(); cbb.addItem( "-" );
+	    for ( int idu=0; idu<possibleunits.size(); idu++ )
+		cbb.addItem( possibleunits[idu]->name() );
+
+	    if ( un && cbb.isPresent(un->name()) )
+		cbb.setText( un->name() );
+	    else
+		cbb.setText( "-" );
+	}
+	
+	unflds_[unflds_.size()-1]->box()->setText( formulaunit.buf() );
+    }
 }
 
-//TODO implement
-void formSet( CallBacker*  c )                                   
+void formSet( CallBacker* c ) 
 {                                                                               
-    getMathExpr();                                                              
-//    nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;                            
+    getMathExpr();
+    int nrvars = expr_ ? expr_->nrUniqueVarNames() : 0;
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	if ( idx >= unflds_.size()-1 )
+	    return;
+
+	BufferString lbl( "Choose unit for", expr_->uniqueVarName(idx) );	
+    }
+
+    for ( int idx=0; idx<unflds_.size()-1; idx++ )
+    {
+	BufferString lblstr( "Choose unit for ", 
+			     idx<nrvars ? expr_->uniqueVarName(idx)
+			     		: "                         " );
+	unflds_[idx]->label()->setText( lblstr.buf() );
+	unflds_[idx]->display( idx<nrvars );
+    }
 }
 
 
 void getMathExpr()                                               
 {                                                                               
-/*    delete expr_; expr_ = 0;                                                    
+    delete expr_; expr_ = 0;                                                    
     if ( !formfld_ ) return;                                                    
 
     const BufferString inp( formfld_->text() );                                 
@@ -226,14 +299,16 @@ void getMathExpr()
     expr_ = mep.parse();                                                        
 		    
     if ( !expr_ )                                                               
-    uiMSG().warning(                                                        
-	BufferString("The provided expression cannot be used:\n",mep.errMsg()));
-*/}
+	uiMSG().warning( 
+		BufferString("The provided expression cannot be used:\n",
+		    	     mep.errMsg()) );
+}
 
 
     const PropertyRef&	pr_;
     uiMathExpression*	formfld_;
-
+    MathExpression*	expr_;
+    ObjectSet<uiLabeledComboBox> unflds_;
 };
 
 
