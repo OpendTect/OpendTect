@@ -21,7 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "color.h"
 #include "convert.h"
 #include "timefun.h"
+#include "oddirs.h"
 #include <stdio.h>
+
 
 const int cMaxTypeSetItemsPerLine = 100;
 
@@ -1004,6 +1006,26 @@ void IOPar::setToDateTime( const char* keyw )
     if ( !keyw || !*keyw )
 	keyw = sKey::DateTime();
     set( keyw, Time::getDateTimeString() );
+}
+
+
+void IOPar::setToUser( const char* keyw )
+{
+    if ( !keyw || !*keyw )
+	keyw = sKey::User();
+
+    FileMultiString fms; fms.add( GetUserNm() );
+    const char* odusrnm = GetSoftwareUser();
+    if ( odusrnm ) fms.add( odusrnm );
+
+    set( keyw, fms.buf() );
+}
+
+
+void IOPar::setStdCreationEntries()
+{
+    setToDateTime( sKey::CrAt() );
+    setToUser( sKey::CrBy() );
 }
 
 

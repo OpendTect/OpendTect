@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "basicmod.h"
 #include "namedobj.h"
 #include "fixedstring.h"
@@ -28,10 +28,10 @@ class ascostream;
 
   Part of the function of this class is as in an STL map<string,string>.
   Passing a keyword will return the appropriate value.
-  
+
   Tools around this basic idea are paring into other types, key composition,
   reading/writing to/from file, merging, and more.
-  
+
   dumpPretty() is used for reports.  The title of the report is the name of the
   IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
   with the value. Use add() rather than set(). Values may contain newlines.
@@ -94,19 +94,19 @@ public:
     FixedString		operator[](const char*) const;
 			//!< returns empty string if not found
 
-    			// Functions for getting 1,2,3 and 4 of the same type
+			// Functions for getting 1,2,3 and 4 of the same type
 #define mIOParDeclFns(type) \
     bool		get(const char*,type&) const; \
     bool		get(const char*,type&,type&) const; \
     bool		get(const char*,type&,type&,type&) const; \
     bool		get(const char*,type&,type&,type&,type&) const
 
-    			mIOParDeclFns(int);
-    			mIOParDeclFns(od_uint32);
-    			mIOParDeclFns(od_int64);
-    			mIOParDeclFns(od_uint64);
-    			mIOParDeclFns(float);
-    			mIOParDeclFns(double);
+			mIOParDeclFns(int);
+			mIOParDeclFns(od_uint32);
+			mIOParDeclFns(od_int64);
+			mIOParDeclFns(od_uint64);
+			mIOParDeclFns(float);
+			mIOParDeclFns(double);
 #undef mIOParDeclFns
     bool		getYN(const char*,bool&) const;
     bool		getYN(const char*,bool&,bool&) const;
@@ -145,14 +145,14 @@ public:
 
 #define mIOParDeclFns(type) \
     bool		getScaled(const char*,type&,type applied_scale, \
-	    		      bool set_to_undef_if_not_found) const; \
+			      bool set_to_undef_if_not_found) const; \
     bool		getScaled(const char*,type&,type&,type,bool) const; \
     bool		getScaled(const char*,type&,type&,type&,type, \
-	    			  bool) const; \
+				  bool) const; \
     bool		getScaled(const char*,type&,type&,type&,type&,type, \
-	    		      bool) const
-    			mIOParDeclFns(float);
-    			mIOParDeclFns(double);
+			      bool) const
+			mIOParDeclFns(float);
+			mIOParDeclFns(double);
 #undef mIOParDeclFns
 
 
@@ -165,7 +165,7 @@ public:
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
 
-    			// Functions for 1,2,3 and 4 of the same type
+			// Functions for 1,2,3 and 4 of the same type
 #define mIOParDeclFns(fnnm,type) \
     void		fnnm(const char*,type); \
     void		fnnm(const char*,type,type); \
@@ -208,7 +208,7 @@ public:
     void		set(const char*,const FixedString&);
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
-	    				const BufferString&);
+					const BufferString&);
     void		set(const char*,const BufferStringSet&);
     template <class T>
     void		set(const char*,const Interval<T>&);
@@ -223,6 +223,8 @@ public:
     void		set(const char*,const TypeSet<float>&);
 
     void		setToDateTime(const char* ky=0);
+    void		setToUser(const char* ky=0);
+    void		setStdCreationEntries();
 
 
 // I/O  functions
@@ -237,14 +239,14 @@ public:
     void		getFrom(ascistream&);
     void		putTo(ascostream&) const;
     bool		read(const char* filename,const char* filetype,
-	    			bool chktype=false);
-    			//!< filetype null will assume no file header
-    			//!< uses set(). no clear() done
+				bool chktype=false);
+			//!< filetype null will assume no file header
+			//!< uses set(). no clear() done
     bool		read(od_istream&,const char* filetype,
-	    			bool chktype=false);
+				bool chktype=false);
     bool		write(const char* filename,const char* filetype) const;
-    			//!< If filetype is set to null no ascstream header
-    			//!< sKeyDumpPretty calls dumpPretty.
+			//!< If filetype is set to null no ascstream header
+			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(od_ostream&,const char* filetyp) const;
     int			majorVersion() const	{ return majorversion_; }
 			//!<Only set if read from file. Otherwise set to current ver
@@ -254,8 +256,8 @@ public:
     void		dumpPretty(od_ostream&) const;
 
     static const char*	sKeyDumpPretty()         { return "_pretty"; }
-    static const char*	sKeyHdr()		 { return "->";	     }	
-    static const char*	sKeySubHdr()		 { return "-->";     }   	
+    static const char*	sKeyHdr()		 { return "->";	     }
+    static const char*	sKeySubHdr()		 { return "-->";     }
 
 protected:
 

@@ -12,8 +12,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "gendefs.h"
 #include "fixedstring.h"
 
@@ -113,6 +113,7 @@ namespace sKey
     inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
+    inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
     inline FixedString Version()	{ return "Version"; }
     inline FixedString Weight()		{ return "Weight"; }

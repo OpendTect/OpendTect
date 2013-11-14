@@ -44,12 +44,12 @@ IOMan::IOMan( const char* rd )
 	, dirptr_(0)
 	, survchgblocked_(false)
 	, state_(IOMan::NeedInit)
-    	, newIODir(this)
-    	, entryRemoved(this)
-    	, surveyToBeChanged(this)
-    	, surveyChanged(this)
-    	, afterSurveyChange(this)
-    	, applicationClosing(this)
+	, newIODir(this)
+	, entryRemoved(this)
+	, surveyToBeChanged(this)
+	, surveyChanged(this)
+	, afterSurveyChange(this)
+	, applicationClosing(this)
 {
     rootdir_ = rd && *rd ? rd : GetDataDir();
     if ( !File::isDirectory(rootdir_) )
@@ -66,18 +66,18 @@ void IOMan::init()
         if ( File::exists(surveyfp.fullPath().buf()) )
         {
             msg_ = "Warning: Invalid '.omf' found in:\n";
-	    msg_ += rootdir_; 
+	    msg_ += rootdir_;
             msg_ += ".\nThis survey is corrupt.";
 	    return;
         }
 
         FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
-	       		  ".omf" );
+			  ".omf" );
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
-        if ( !to( emptykey, true ) ) 
+        if ( !to( emptykey, true ) )
         {
             msg_ = "Warning: Invalid or no '.omf' found in:\n";
-	    msg_ += rootdir_; 
+	    msg_ += rootdir_;
             msg_ += ".\nThis survey is corrupt.";
 	    return;
         }
@@ -121,9 +121,9 @@ void IOMan::init()
 		}
 		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
 		si.survdatatypeknown_ = true;
-		si.survdatatype_ = !has2d ? SurveyInfo::No2D 
-		    				// thus also if nothing found
-		    		 : (has3d ? SurveyInfo::Both2DAnd3D
+		si.survdatatype_ = !has2d ? SurveyInfo::No2D
+						// thus also if nothing found
+				 : (has3d ? SurveyInfo::Both2DAnd3D
 					  : SurveyInfo::Only2D);
 		si.write();
 	    }
@@ -134,7 +134,7 @@ void IOMan::init()
 	// Oops, a data directory required is missing
 	// We'll try to recover by using the 'Basic Survey' in the app
 	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
-	       		  "X" );
+			  "X" );
 	basicfp.setFileName( dd->dirnm );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File::exists(basicdirnm) )
@@ -154,7 +154,7 @@ void IOMan::init()
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
-		msg += dirnm; mErrMsgRet( msg ); 
+		msg += dirnm; mErrMsgRet( msg );
 	    }
 	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
@@ -730,10 +730,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	}
 
 	ioobj = iostrm;
-	const char* odusrnm = GetSoftwareUser();
-	FileMultiString fms; fms.add( GetUserNm() );
-	if ( odusrnm ) fms.add( odusrnm );
-	ioobj->pars().set( sKey::CrBy(), fms.buf() );
+	ioobj->pars().setStdCreationEntries();
 
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	dirPtr()->addObj( (IOObj*)ioobj );
@@ -784,7 +781,7 @@ bool IOMan::permRemove( const MultiID& ky )
 class SurveyDataTreePreparer
 {
 public:
-    			SurveyDataTreePreparer( const IOMan::CustomDirData& dd )
+			SurveyDataTreePreparer( const IOMan::CustomDirData& dd )
 			    : dirdata_(dd)		{}
 
     bool		prepDirData();
@@ -882,7 +879,7 @@ bool SurveyDataTreePreparer::createDataTree()
     *sd.ostrm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"
-	     	"$Name: Main\n!"
+		"$Name: Main\n!"
 	      << std::endl;
     sd.close();
     return true;
@@ -891,7 +888,7 @@ bool SurveyDataTreePreparer::createDataTree()
 
 static TypeSet<IOMan::CustomDirData>& getCDDs()
 {
-    mDefineStaticLocalObject( PtrMan<TypeSet<IOMan::CustomDirData> >, cdds, 
+    mDefineStaticLocalObject( PtrMan<TypeSet<IOMan::CustomDirData> >, cdds,
 			      = new TypeSet<IOMan::CustomDirData> );
     return *cdds;
 }
