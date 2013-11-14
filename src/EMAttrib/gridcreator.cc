@@ -54,7 +54,7 @@ const char* Seis2DGridCreator::sKeyCrlPrefix()	{ return "Crl Prefix"; }
 class Seis2DLineCreator : public Executor
 {
 public:
-    			Seis2DLineCreator(const IOObj& input,
+			Seis2DLineCreator(const IOObj& input,
 					  const CubeSampling&,
 					  const IOObj& output,
 					  const LineKey&);
@@ -108,17 +108,22 @@ int Seis2DLineCreator::nextStep()
     const int res = rdr_->get( trc.info() );
     if ( res == -1 )
 	{ msg_ = rdr_->errMsg(); return ErrorOccurred(); }
-    if ( res == 0 ) return Finished();
-    if ( res == 2 ) return MoreToDo();
+    if ( res == 0 )
+	return Finished();
+    if ( res == 2 )
+	return MoreToDo();
+
     if ( !rdr_->get(trc) )
     {
-	msg_ = "Error reading input trace";
+	msg_ = "Error reading input trace\n";
+	msg_.add( rdr_->errMsg() );
 	return ErrorOccurred();
     }
 
     if ( !wrr_->put(trc) )
     {
-	msg_ = "Error writing output trace";
+	msg_ = "Error writing output trace\n";
+	msg_.add( wrr_->errMsg() );
 	return ErrorOccurred();
     }
 
