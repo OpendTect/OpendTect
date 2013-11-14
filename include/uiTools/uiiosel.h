@@ -56,7 +56,7 @@ public:
     void		setInput(const char* key);
 			//!< Will fetch user name using userNameFromKey
     void		setInputText(const char*);
-    			//!< As if user typed it manually
+			//!< As if user typed it manually
 
     int			nrItems() const;
     int			getCurrentItem() const;
@@ -65,22 +65,18 @@ public:
     bool		isChecked() const; //!< only useful when optional_
     void		setChecked(bool yn); //!< does something when optional_
 
-    void		addSpecialItem(const char* key,const char* value=0);
-			//!< If value is null, add value same as key
-
     virtual void	updateHistory(IOPar&) const;
     virtual void	getHistory(const IOPar&);
     void		addToHistory(const char*);
     void		addToHistory(const BufferStringSet&);
 
-    void		clear()			{ setCurrentItem( 0 ); }
-    void		setEmpty(bool withclear=false);
+    void		setEmpty();
     virtual void	processInput()		{}
     void		setReadOnly(bool readonly=true);
 
     void		doSel(CallBacker*);
-    			//!< Called by Select button push.
-    			//!< Make sure selok_ is true if that is the case!
+			//!< Called by Select button push.
+			//!< Make sure selok_ is true if that is the case!
 
     Notifier<uiIOSelect> selectionDone;
     Notifier<uiIOSelect> optionalChecked;
@@ -95,11 +91,11 @@ public:
 
 protected:
 
-    CallBack		doselcb_;
     BufferStringSet	entries_;
-    IOPar&		specialitems;
+    bool		haveempty_;
     bool		selok_;
     bool		keepmytxt_;
+    CallBack		doselcb_;
 
     uiComboBox*		inp_;
     uiPushButton*	selbut_;
@@ -115,6 +111,7 @@ protected:
 			//!< If 0 returned, then if possible,
 			//!< that entry is not entered in the entries_.
 
+    int			nrSpec() const;
     void		checkState() const;
     void		updateFromEntries();
     bool		haveEntry(const char*) const;

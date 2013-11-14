@@ -67,7 +67,7 @@ void uiVelocityDesc::updateFlds( CallBacker* )
 }
 
 
-NotifierAccess& uiVelocityDesc::typeChangeNotifier() 
+NotifierAccess& uiVelocityDesc::typeChangeNotifier()
 { return typefld_->valuechanged; }
 
 
@@ -76,7 +76,7 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
     typefld_->setValue( desc.type_ );
     hasstaticsfld_->setValue( !desc.statics_.horizon_.isEmpty() );
     staticsfld_->set( desc.statics_ );
-    updateFlds( 0 ); 
+    updateFlds( 0 );
 }
 
 
@@ -105,7 +105,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 	return false;
 
     const char* errmsg = "Cannot write velocity information";
-    
+
     if ( desc.type_ != VelocityDesc::Unknown )
     {
 	if ( !SetVelocityTag( ioobj, desc ) )
@@ -122,7 +122,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 	    return false;
 	}
     }
-    
+
     return true;
 }
 
@@ -135,9 +135,9 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 {
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
-	    			ssu );
+				ssu );
     if ( sel )
-	volselfld_->setInput( *sel );  
+	volselfld_->setInput( *sel );
 
     volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
 
@@ -172,7 +172,7 @@ void uiVelocityDescDlg::volSelChange(CallBacker*)
 	    bottomrange_.stop = mUdf(float);
 	}
 
-	
+
 	if ( !GetVelocityTag( *ioobj, oldveldesc_ ) )
 	    oldveldesc_.type_ = VelocityDesc::Unknown;
     }
@@ -181,15 +181,15 @@ void uiVelocityDescDlg::volSelChange(CallBacker*)
 }
 
 
-bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj, 
+bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj,
 				    const VelocityDesc& desc )
 {
     VelocityModelScanner scanner( ioobj, desc );
     uiTaskRunner tr( this );
     if ( !TaskRunner::execute( &tr, scanner ) )
 	return false;
-     
-    toprange_ = scanner.getTopVAvg(); 
+
+    toprange_ = scanner.getTopVAvg();
     bottomrange_ = scanner.getBotVAvg();
 
     toprange_.sort();
@@ -210,7 +210,7 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     }
 
     VelocityDesc desc;
-    if ( !veldescfld_->get( desc, true ) ) 
+    if ( !veldescfld_->get( desc, true ) )
     {
 	uiMSG().error("Please provide valid velocity type");
 	return false;
@@ -254,7 +254,7 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
 
-    setEmpty( true );
+    setEmpty();
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
 	setInput( MultiID(res) );
@@ -271,9 +271,9 @@ const IOObjContext& uiVelSel::ioContext()
     if ( !velctxt )
     {
 
-	IOObjContext* newvelctxt = 
+	IOObjContext* newvelctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
-	newvelctxt->toselect.require_.setYN( 
+	newvelctxt->toselect.require_.setYN(
 		VelocityDesc::sKeyIsVelocity(), true );
 
 	if ( !velctxt.setIfNull(newvelctxt) )
@@ -298,7 +298,7 @@ void uiVelSel::editCB(CallBacker*)
     brg_ = dlg.getVelocityBottomRange();
     velrgchanged.trigger();
     selectionDone.trigger();
-    
+
     updateEditButton();
 }
 
@@ -350,12 +350,12 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );
     velsel_->selectionDone.notify(
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );
-	
+
     rangefld_ = new uiZRangeInput(this,t2d,true);
     rangefld_->attach( alignedBelow, velsel_ );
 
     setHAlignObj( rangefld_ );
-    
+
     setZRangeCB( 0 );
 }
 
@@ -384,7 +384,7 @@ bool uiTimeDepthBase::getTargetSampling( StepInterval<float>& res ) const
 {
     res = rangefld_->getFZRange();
     return true;
-} 
+}
 
 
 void uiTimeDepthBase::setZRangeCB( CallBacker* )
@@ -510,7 +510,7 @@ void uiDepth2Time::initClass()
 
 
 uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain,
-       					const char* todomain )
+					const char* todomain )
 {
     if ( fromdomain && fromdomain!=ZDomain::sKeyDepth() )
 	return 0;

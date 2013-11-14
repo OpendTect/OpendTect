@@ -160,7 +160,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
 							 havereloc );
-	
+
 	if ( havesetsurvdefault )
 	{
 	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
@@ -273,13 +273,13 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 {
     if ( nrSel()!=1 )
 	return;
-    
+
     PtrMan<IOObj> ioobj = IOM().get( selected() );
     if ( !ioobj )
 	return;
-    
+
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
-    
+
     fullUpdate( 0 );
 }
 
@@ -566,7 +566,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      bool havesetsurvdefault)
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
-		    	mNoDlgTitle,"8.1.1")
+			mNoDlgTitle,"8.1.1")
 		.nrstatusflds(1))
 	, selgrp_( 0 )
 {
@@ -629,7 +629,7 @@ void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
-	    	 mCB(this,uiIOObjSel,doObjSel))
+		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(*new CtxtIOObj(c))
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c))
@@ -655,7 +655,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt)),
-	    	 mCB(this,uiIOObjSel,doObjSel))
+		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c.ctxt))
@@ -775,14 +775,14 @@ void uiIOObjSel::obtainIOObj()
 {
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
-    if ( specialitems.findKeyFor(inp) )
+    if ( inp.isEmpty() )
 	{ workctio_.setObj( 0 ); return; }
 
     int selidx = getCurrentItem();
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj 
+	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj
 			      && workctio_.ioobj->name()==inp.buf() )
 	    return;
     }
@@ -790,7 +790,7 @@ void uiIOObjSel::obtainIOObj()
     IOM().to( workctio_.ctxt.getSelKey() );
     const IOObj* ioob = (*IOM().dirPtr())[ inp.buf() ];
     workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
-	    	    ? ioob->clone() : 0 );
+		    ? ioob->clone() : 0 );
 }
 
 
@@ -870,14 +870,14 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
-    if ( specialitems.findKeyFor(inp) )
+    if ( inp.isEmpty() )
     {
+	if ( !haveempty_ )
+	    return false;
 	workctio_.setObj( 0 ); inctio_.setObj( 0 );
 	commitSucceeded();
 	return true;
     }
-    if ( inp.isEmpty() )
-	return false;
 
     processInput();
     if ( existingTyped() )
@@ -896,7 +896,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 					     "' exists and is read-only"))
 		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
 				BufferString("'",getInput(),
-				    	     "' already exists. Overwrite?")) )
+					     "' already exists. Overwrite?")) )
 			mErrRet(0)
 		}
 	    }
@@ -946,7 +946,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 void uiIOObjSel::objSel()
 {
     const char* ky = getKey();
-    if ( specialitems.find(ky) )
+    if ( !ky || !*ky )
 	workctio_.setObj( 0 );
     else
 	workctio_.setObj( IOM().get(ky) );
