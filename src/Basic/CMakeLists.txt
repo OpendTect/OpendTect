@@ -14,6 +14,7 @@ set( OD_TEST_PROGS
 		basic.cc
 		callback.cc
 		commandlineparser.cc
+		cubesampling.cc
 		file.cc
 		math2.cc
 		refcount.cc

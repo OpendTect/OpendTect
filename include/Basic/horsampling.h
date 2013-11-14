@@ -56,7 +56,7 @@ public:
     void		includeCrl( int crl );
     void		include( const HorSampling&, bool ignoresteps=false );
     bool		isDefined() const;
-    void		limitTo(const HorSampling&);
+    void		limitTo(const HorSampling&,bool ignoresteps=false);
     void		limitToWithUdf(const HorSampling&);
 			    /*!< handles undef values +returns reference HS
 				 nearest limit if HS's do not intersect */

@@ -76,7 +76,7 @@ public:
     			//!< Returns false if intersection is empty
     void		include(const BinID&,float z);
     void		include(const CubeSampling&);
-    void		limitTo(const CubeSampling&);
+    void		limitTo(const CubeSampling&,bool ignoresteps=false);
     void		limitToWithUdf(const CubeSampling&);
     			/*!< handles undef values + returns reference cube 
 			     nearest limit if the 2 cubes do not intersect */

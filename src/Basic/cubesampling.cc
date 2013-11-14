@@ -172,7 +172,7 @@ bool HorSampling::isDefined() const
 }
 
 
-void HorSampling::limitTo( const HorSampling& h )
+void HorSampling::limitTo( const HorSampling& h, bool ignoresteps )
 {
     HorSampling hs( h ); hs.normalise();
     normalise();
@@ -183,13 +183,35 @@ void HorSampling::limitTo( const HorSampling& h )
 	init( false );
 	return;
     }
-    
-    if ( hs.start.inl() > start.inl() ) start.inl() = hs.start.inl();
-    if ( hs.start.crl() > start.crl() ) start.crl() = hs.start.crl();
-    if ( hs.stop.crl() < stop.crl() ) stop.crl() = hs.stop.crl();
-    if ( hs.stop.inl() < stop.inl() ) stop.inl() = hs.stop.inl();
-    if ( hs.step.inl() > step.inl() ) step.inl() = hs.step.inl();
-    if ( hs.step.crl() > step.crl() ) step.crl() = hs.step.crl();
+
+#define mLimitIC( ic ) \
+    const bool ic##nostephandling = step.ic() == h.step.ic() && \
+    			( ic##OK(hs.start.ic()) || hs.ic##OK(start.ic()) ); \
+    if ( ignoresteps || ic##nostephandling ) \
+    { \
+	if ( hs.start.ic() > start.ic() ) start.ic() = hs.start.ic(); \
+	if ( hs.stop.ic() < stop.ic() ) stop.ic() = hs.stop.ic(); \
+    } \
+    else \
+    { \
+	float startdiff = mCast( float, start.ic() - h.start.ic() ); \
+	int minstop = mMIN( stop.ic(), h.stop.ic() ); \
+	int common = start.ic() + step.ic() * (startdiff > 0 ? 1 \
+					: ceil(-startdiff/step.ic()) ); \
+	while ( common <= minstop && (common-h.start.ic())%h.step.ic() ) \
+	    common += step.ic(); \
+	if ( common > minstop ) \
+	{ \
+	    init( false ); \
+	    return; \
+	} \
+	start.ic() = common; \
+	step.ic() = Math::LCMOf( step.ic(), h.step.ic() ); \
+	stop.ic() = common + step.ic() * ((minstop-common)/step.ic()); \
+    }
+
+    mLimitIC(inl);
+    mLimitIC(crl);
 }
 
 
@@ -580,11 +602,11 @@ bool CubeSampling::isDefined() const
 
 
 
-void CubeSampling::limitTo( const CubeSampling& c )
+void CubeSampling::limitTo( const CubeSampling& c, bool ignoresteps )
 {
     CubeSampling cs( c ); cs.normalise();
     normalise();
-    hrg.limitTo( cs.hrg );
+    hrg.limitTo( cs.hrg, ignoresteps );
     if ( hrg.isEmpty() || cs.zrg.start > zrg.stop || cs.zrg.stop < zrg.start )
     {
 	init( false );
@@ -593,7 +615,8 @@ void CubeSampling::limitTo( const CubeSampling& c )
 
     if ( zrg.start < cs.zrg.start ) zrg.start = cs.zrg.start;
     if ( zrg.stop > cs.zrg.stop ) zrg.stop = cs.zrg.stop;
-    if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
+    if ( !ignoresteps )
+	if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
 }
 
 
