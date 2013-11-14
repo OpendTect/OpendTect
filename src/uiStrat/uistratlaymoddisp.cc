@@ -59,7 +59,6 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , rangeChanged(this)   
     , modelEdited(this)   
     , infoChanged(this)   
-    , zskipChanged(this)
     , dispPropChanged(this)
 {
 }

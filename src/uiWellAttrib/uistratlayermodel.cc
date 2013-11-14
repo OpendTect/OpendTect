@@ -298,6 +298,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , lmp_(*new uiStratLayerModelLMProvider)
     , needtoretrievefrpars_(false)
     , automksynth_(true)
+    , nrmodels_(0)
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)
@@ -394,7 +395,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 			    mCB(this,uiStratLayerModel,infoChanged));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
-    moddisp_->zskipChanged.notify( mCB(this,uiStratLayerModel,zSkipChanged) );
     moddisp_->dispPropChanged.notify(
 	    mCB(this,uiStratLayerModel,lmDispParsChangedCB) );
 
@@ -513,15 +513,7 @@ void uiStratLayerModel::mkSynthChg( CallBacker* cb )
     automksynth_ = modtools_->mkSynthetics();
     synthdisp_->setAutoUpdate( automksynth_ );
     if ( automksynth_ )
-    {
-	uiWorldRect zoomwr = synthdisp_->curView( false );
-	useSyntheticsPars( desc_.getWorkBenchParams() );
-	synthdisp_->modelChanged();
-	mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-	if ( mfvc ) mfvc->reInitZooms();
-	zoomwr_ = zoomwr;
-	synthdisp_->setZoomView( zoomwr_ );
-    }
+	handleNewModel();
 }
 
 
@@ -552,7 +544,6 @@ void uiStratLayerModel::zoomChg( CallBacker* )
     if ( synthdisp_->getSynthetics().size() )
 	wr = synthdisp_->curView( true );
     moddisp_->setZoomBox( wr );
-    zoomwr_ = synthdisp_->curView( false );
 }
 
 
@@ -748,6 +739,8 @@ bool uiStratLayerModel::openGenDesc()
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
+    synthdisp_->resetRelativeViewRect();
+    synthdisp_->setForceUpdate( true );
     if ( !profilestr.isStartOf(edtyp) )
     {
 	needtoretrievefrpars_ = true;
@@ -850,41 +843,22 @@ void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
 }
 
 
-void uiStratLayerModel::zSkipChanged( CallBacker* )
-{
-    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    synthdisp_->modelChanged();
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-}
-
-
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    uiWorldRect zoomwr = synthdisp_->curView( false );
-    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    useSyntheticsPars( desc_.getWorkBenchParams() );
-    synthdisp_->modelChanged();
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-    zoomwr_ = zoomwr;
-    synthdisp_->setZoomView( zoomwr_ );
+    synthdisp_->setForceUpdate( nrmodels_!=lmp_.getCurrent().size() );
+    handleNewModel();
 }
 
 
-void uiStratLayerModel::genModels( CallBacker* )
+void uiStratLayerModel::genModels( CallBacker* cb )
 {
     const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
-    const int prevnrmods = lmp_.getCurrent().size();
-    bool settoautoupd = false;
-    if ( prevnrmods != nrmods && !automksynth_ )
-    {
-	automksynth_ = settoautoupd = true;
-	synthdisp_->setAutoUpdate( automksynth_ );
-    }
+    const bool forceupdate = gentools_==cb; // when 'Go' is pressed
+    if ( forceupdate )
+	synthdisp_->setForceUpdate( true );
 
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = seqdisp_->desc().propSelection();
@@ -905,12 +879,6 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     lmp_.setBaseModel( newmodl );
     handleNewModel();
-
-    if ( settoautoupd )
-    {
-	automksynth_ = false;
-	synthdisp_->setAutoUpdate( automksynth_ );
-    }
 }
 
 
@@ -937,13 +905,14 @@ void uiStratLayerModel::handleNewModel()
     else
 	levelChg( 0 );
 
+    nrmodels_ = layerModel().size();
     newModels.trigger();
 
-    uiWorldRect zoomwr = synthdisp_->curView( false );
+    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
-    zoomwr_ = zoomwr;
-    synthdisp_->setZoomView( zoomwr_ );
+    synthdisp_->setZoomView( prevrelzoomwr );
+    synthdisp_->setForceUpdate( false );
 }
 
 
@@ -1019,18 +988,22 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     if ( !usefr )
 	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
 
-    uiWorldRect prevzoomwr = zoomwr_;
+    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
     synthdisp_->setUseEdited( usefr );
     if ( parschanged ) 
+    {
+	synthdisp_->setForceUpdate( true );
 	useSyntheticsPars( desc_.getWorkBenchParams() );
+    }
     synthdisp_->showFRResults();
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
-    if ( !mIsUdf(prevzoomwr.left()) )
-	synthdisp_->setZoomView( prevzoomwr );
+    if ( parschanged ) 
+	synthdisp_->setZoomView( prevrelzoomwr );
+    synthdisp_->setForceUpdate( false );
 }
 
 
@@ -1105,7 +1078,7 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 
 bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
 {
-    if ( !automksynth_ || !synthdisp_->prepareElasticModel() )
+    if ( !synthdisp_->prepareElasticModel() )
 	return false;
     return synthdisp_->usePar( par );
 }

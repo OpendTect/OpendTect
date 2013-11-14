@@ -104,8 +104,13 @@ public:
 
     void		showFRResults();
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
-    void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
+    void		setAutoUpdate( bool yn )  { autoupdate_ = yn; }
+    void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
+    bool		doForceUpdate() const 	  { return forceupdate_; }
     void		setUseEdited( bool yn )	  { useed_ = yn; }
+    void		resetRelativeViewRect();
+    void		setRelativeViewRect(const uiWorldRect& relwr);
+    const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
 
 protected:
 
@@ -113,13 +118,14 @@ protected:
     StratSynth*		stratsynth_;
     StratSynth*		edstratsynth_;
     const Strat::LayerModelProvider& lmp_;
-    uiWorldRect		curviewwr_;
+    uiWorldRect		relzoomwr_;
     int			selectedtrace_;
     int			dispeach_;
     float		dispskipz_;
     bool		dispflattened_;
     bool		isbrinefilled_;
     bool		autoupdate_;
+    bool		forceupdate_;
     bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
@@ -168,6 +174,8 @@ protected:
     void		displayPostStackSynthetic(const SyntheticData*,
 	    					  bool wva=true);
     void		setPreStackMapper();
+    void		setAbsoluteViewRect(const uiWorldRect& abswr);
+    void		getAbsoluteViewRect(uiWorldRect& abswr) const;
 
     void		addEditSynth(CallBacker*);
     void		exportSynth(CallBacker*);

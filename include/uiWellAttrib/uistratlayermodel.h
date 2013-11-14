@@ -95,7 +95,6 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_;
-    uiWorldRect			zoomwr_;
 
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
@@ -104,6 +103,7 @@ protected:
     bool			mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
+    int				nrmodels_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
@@ -136,7 +136,6 @@ protected:
 	    				bool allowcancel=true) const;
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
-    void			zSkipChanged(CallBacker*);
     void			synthDispParsChangedCB(CallBacker*);
     void			lmDispParsChangedCB(CallBacker*);
 

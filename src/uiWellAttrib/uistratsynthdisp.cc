@@ -51,7 +51,6 @@ static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
-static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
@@ -82,9 +81,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , currentwvasynthetic_(0)
     , currentvdsynthetic_(0)
     , autoupdate_(true)
+    , forceupdate_(false)
     , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
-    , curviewwr_(mUdf(double),0,0,0)
+    , relzoomwr_(0,0,1,1)
 {
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
@@ -326,7 +326,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     dispflattened_ = dispflattened;
     if ( domodelchg )
     {
-	curviewwr_ = uiWorldRect( mUdf(double), 0, 0, 0 );
+	relzoomwr_ = uiWorldRect( 0, 0, 1, 1 );
 	doModelChange();
 	control_->zoomMgr().toStart();
 	return;
@@ -336,13 +336,62 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 }
 
 
-void uiStratSynthDisp::setZoomView( const uiWorldRect& wr )
+void uiStratSynthDisp::setRelativeViewRect( const uiWorldRect& relwr )
 {
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> newsz = wr.size();
+    relzoomwr_ = relwr;
+    uiWorldRect abswr;
+    getAbsoluteViewRect( abswr );
+    vwr_->setView( abswr );
+}
+
+
+void uiStratSynthDisp::setAbsoluteViewRect( const uiWorldRect& wr )
+{
+    uiWorldRect abswr = wr;
+    uiWorldRect bbwr = vwr_->boundingBox();
+    bbwr.sortCorners();
+    abswr.sortCorners();
+    if ( mIsZero(bbwr.width(),1e-3) || mIsZero(bbwr.height(),1e-3) ||
+	 !bbwr.contains(abswr,1e-3) )
+	return;
+
+    const double left = (abswr.left() - bbwr.left())/bbwr.width();
+    const double right = (abswr.right() - bbwr.left())/bbwr.width();
+    const double top = (abswr.top() - bbwr.top())/bbwr.height();
+    const double bottom = (abswr.bottom() - bbwr.top())/bbwr.height();
+    relzoomwr_ = uiWorldRect( left, top, right, bottom );
+}
+
+
+void uiStratSynthDisp::getAbsoluteViewRect( uiWorldRect& abswr ) const
+{
+    uiWorldRect bbwr = vwr_->boundingBox();
+    bbwr.sortCorners();
+    if ( mIsZero(bbwr.width(),1e-3) || mIsZero(bbwr.height(),1e-3) )
+	return;
+    const double left = bbwr.left() + relzoomwr_.left()*bbwr.width();
+    const double right = bbwr.left() + relzoomwr_.right()*bbwr.width();
+    const double top = bbwr.top() + relzoomwr_.top()*bbwr.height();
+    const double bottom = bbwr.top() + relzoomwr_.bottom()*bbwr.height();
+    abswr = uiWorldRect( left, top, right, bottom );
+}
+
+
+void uiStratSynthDisp::resetRelativeViewRect() 
+{
+    relzoomwr_ = uiWorldRect( 0, 0, 1, 1 );
+}
+
+
+void uiStratSynthDisp::setZoomView( const uiWorldRect& relwr )
+{
+    relzoomwr_ = relwr;
+    uiWorldRect abswr;
+    getAbsoluteViewRect( abswr );
+    Geom::Point2D<double> centre = abswr.centre();
+    Geom::Size2D<double> newsz = abswr.size();
     control_->setActiveVwr( 0 );
     control_->setNewView( centre, newsz );
-    curviewwr_ = wr;
 }
 
 
@@ -565,14 +614,14 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
 
 void uiStratSynthDisp::viewChg( CallBacker* )
 {
-    curviewwr_ = curView( false );
+    setAbsoluteViewRect( curView(false) );
     viewChanged.trigger();
 }
 
 
 void uiStratSynthDisp::zoomChg( CallBacker* )
 {
-    curviewwr_ = curView( false );
+    setAbsoluteViewRect( curView(false) );
     zoomChanged.trigger();
 }
 
@@ -785,10 +834,16 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setPack( wva, dp->id(), false, !hadpack );
-    if ( mIsUdf(curviewwr_.left()) )
+    if ( mIsZero(relzoomwr_.left(),1e-3) &&
+	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
+	 mIsEqual(relzoomwr_.height(),1.0,1e-3) )
 	vwr_->setViewToBoundingBox();
     else
-	vwr_->setView( curviewwr_ );
+    {
+	uiWorldRect abswr;
+	getAbsoluteViewRect( abswr );
+	vwr_->setView( abswr );
+    }
 
     if ( !hasrgsaved )
     {
@@ -1025,7 +1080,7 @@ void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
 
-    if ( !autoupdate_ ) return;
+    if ( !autoupdate_ && !forceupdate_ ) return;
     
     if ( curSS().errMsg() )
 	mErrRet( curSS().errMsg(), return )
@@ -1058,14 +1113,17 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
-    altSS().removeSynthetic( syntheticnm );
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
-    altSS().genParams() = curSS().genParams();
-    SyntheticData* altsd = altSS().addSynthetic();
-    if ( !altsd )
-	mErrRet(altSS().errMsg(), return );
+    if ( altSS().hasElasticModels() )
+    {
+	altSS().removeSynthetic( syntheticnm );
+	altSS().genParams() = curSS().genParams();
+	SyntheticData* altsd = altSS().addSynthetic();
+	if ( !altsd )
+	    mErrRet(altSS().errMsg(), return );
+    }
     updateSyntheticList( wva );
     synthsChanged.trigger();
 
@@ -1278,10 +1336,13 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
-    altSS().genParams() = curSS().genParams();
-    SyntheticData* altsd = altSS().addSynthetic();
-    if ( !altsd )
-	mErrRet(altSS().errMsg(), return );
+    if ( altSS().hasElasticModels() )
+    {
+	altSS().genParams() = curSS().genParams();
+	SyntheticData* altsd = altSS().addSynthetic();
+	if ( !altsd )
+	    mErrRet(altSS().errMsg(), return );
+    }
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
@@ -1324,13 +1385,6 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
     }
 
     stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
-    TypeSet<double> startviewareapts;
-    startviewareapts.setSize( 4 );
-    startviewareapts[0] = curviewwr_.left();
-    startviewareapts[1] = curviewwr_.top();
-    startviewareapts[2] = curviewwr_.right();
-    startviewareapts[3] = curviewwr_.bottom();
-    stratsynthpar.set( sKeyViewArea(), startviewareapts );
     par.removeWithKey( sKeySynthetics() );
     par.mergeComp( stratsynthpar, sKeySynthetics() );
 }
@@ -1350,6 +1404,8 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
 
 bool uiStratSynthDisp::prepareElasticModel()
 {
+    if ( !forceupdate_ && !autoupdate_ )
+	return false;
     return curSS().createElasticModels();
 }
 
@@ -1398,17 +1454,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	if ( !nrsynths )
 	    curSS().addDefaultSynthetic();
-    }
-
-    TypeSet<double> startviewareapts;
-    curviewwr_ = uiWorldRect( mUdf(double), 0, 0, 0 );
-    if ( stratsynthpar && stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
-	 startviewareapts.size()==4 )
-    {
-	curviewwr_.setLeft( startviewareapts[0] );
-	curviewwr_.setTop( startviewareapts[1] );
-	curviewwr_.setRight( startviewareapts[2] );
-	curviewwr_.setBottom( startviewareapts[3] );
     }
 
     if ( !curSS().nrSynthetics() )

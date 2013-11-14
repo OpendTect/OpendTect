@@ -79,7 +79,6 @@ public:
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
     CNotifier<uiStratLayerModelDisp,IOPar> infoChanged;
-    Notifier<uiStratLayerModelDisp> zskipChanged;
     Notifier<uiStratLayerModelDisp> dispPropChanged;
 
 protected:
