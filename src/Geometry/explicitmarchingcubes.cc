@@ -377,7 +377,8 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	else
 	{
 	    bucket = new Geometry::IndexedGeometry(
-		    Geometry::IndexedGeometry::Triangles,0, normallist_ );
+		    Geometry::IndexedGeometry::Triangles,0, normallist_, 0,
+		    Geometry::IndexedGeometry::IndexSet, true );
 
 	    ibuckets_.add( &bucket, indicesbucket );
 	    geometries_ += bucket;

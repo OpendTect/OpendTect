@@ -101,7 +101,7 @@ public:
 
     		IndexedGeometry(Type,Coord3List* coords=0,Coord3List* normals=0,
 				Coord3List* texturecoords=0,
-				SetType settype =IndexSet );
+				SetType settype =IndexSet, bool large = false);
 		/*!<If coords or normals are given, used indices will be
 		    removed when object deleted or removeAll is called. If
 		    multiple geometries are sharing the coords/normals, 

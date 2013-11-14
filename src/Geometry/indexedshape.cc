@@ -93,7 +93,7 @@ void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
 IndexedGeometry::IndexedGeometry( Type type, Coord3List* coords,
 				  Coord3List* normals,
 				  Coord3List* texturecoordlist,
-				  SetType settype)
+				  SetType settype, bool large)
     : coordlist_( coords )
     , primitivetype_( type )
     , texturecoordlist_( texturecoordlist )
@@ -105,7 +105,7 @@ IndexedGeometry::IndexedGeometry( Type type, Coord3List* coords,
     if ( primitivesettype_ == RangeSet )
 	primitiveset_ =  Geometry::RangePrimitiveSet::create();
     else
-	primitiveset_ =  Geometry::IndexedPrimitiveSet::create( false );
+	primitiveset_ =  Geometry::IndexedPrimitiveSet::create( large );
 
     if ( primitiveset_ )	primitiveset_->ref();
     if ( coordlist_ )		coordlist_->ref();
