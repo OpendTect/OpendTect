@@ -210,8 +210,8 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
     {
         const bool doGb = filesz > 1048576;
 	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
-	szstr = nr/100; 
-	const int rest = nr%100; 
+	szstr = nr/100;
+	const int rest = nr%100;
 	szstr += rest < 10 ? ".0" : "."; szstr += rest;
 	szstr += doGb ? " GB" : " MB";
     }
@@ -232,10 +232,10 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 {
     timestamp = File::timeLastModified( fname );
     FilePath fp( fname );
-    fp.setExtension( "" );          
-    const BufferString dirnm = fp.fullPath();           
+    fp.setExtension( "" );
+    const BufferString dirnm = fp.fullPath();
     if ( File::isDirectory(dirnm) )
-    	getTimeLastModified( dirnm, timestamp );
+	getTimeLastModified( dirnm, timestamp );
 }
 
 
@@ -245,16 +245,16 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
     const FixedString ftimestamp = File::timeLastModified( fname );
     if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
 	timestamp = ftimestamp;
-    
+
     if ( !File::isDirectory(fname) ) return;
-    
+
     DirList dl( fname );
     BufferString subtimestamp;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString subfnm( dl.fullPath(idx) );
 	getTimeLastModified( subfnm, subtimestamp );
-	
+
 	if ( Time::isEarlier( timestamp, subtimestamp ) )
 	    timestamp = subtimestamp;
     }
@@ -299,9 +299,23 @@ BufferString uiObjFileMan::getFileInfo()
 	delete conn;
     }
 
-    BufferString usrnm; curioobj_->pars().get( sKey::User(), usrnm );
-    if ( !usrnm.isEmpty() )
-	txt.add( "User: " ).add( usrnm ).add( "\n" );
+    BufferString crspec;
+    curioobj_->pars().get( sKey::CrBy(), crspec );
+    if ( crspec.isEmpty() )
+	curioobj_->pars().get( sKey::User(), crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created by: " ).add( crspec ).add( "\n" );
+
+    crspec.setEmpty();
+    curioobj_->pars().get( sKey::CrAt(), crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created at: " ).add( crspec ).add( "\n" );
+
+    crspec.setEmpty();
+    curioobj_->pars().get( sKey::CrFrom(), crspec );
+    if ( !crspec.isEmpty() )
+	txt.add( "Created from: " ).add( crspec ).add( "\n" );
+
     txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
     return txt;
 }

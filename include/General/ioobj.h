@@ -90,6 +90,7 @@ public:
     virtual IOPar&		pars() const			{ return pars_;}
     				//!< These are the extra parameters: #xxx: yyy
     				//!< in .omf
+    void			updateCreationPars();
     
     static bool			isKey(const char*);
     				//!< Returns whether given string may be a valid

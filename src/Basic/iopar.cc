@@ -20,7 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
-#include "errh.h"
+#include "timefun.h"
+#include "oddirs.h"
+
 
 const int cMaxTypeSetItemsPerLine = 100;
 
@@ -107,14 +109,13 @@ int IOPar::size() const
 
 int IOPar::indexOf( const char* key ) const
 {
-    return keys_.indexOf( key );
+    return key && *key ? keys_.indexOf( key ) : -1;
 }
 
 
 FixedString IOPar::getKey( int nr ) const
 {
-    if ( nr >= size() ) return "";
-    return FixedString(keys_.get( nr ).buf() );
+    return FixedString( keys_.validIdx(nr) ? keys_.get(nr).buf() : "" );
 }
 
 
@@ -150,8 +151,8 @@ void IOPar::setEmpty()
 
 void IOPar::remove( int idx )
 {
-    if ( idx >= size() ) return;
-    keys_.removeSingle( idx ); vals_.removeSingle( idx );
+    if ( keys_.validIdx(idx) )
+	{ keys_.removeSingle( idx ); vals_.removeSingle( idx ); }
 }
 
 
@@ -309,9 +310,44 @@ FixedString IOPar::find( const char* keyw ) const
 }
 
 
-void IOPar::add( const char* nm, const char* val )
+void IOPar::set( const char* keyw, const char* val )
 {
-    keys_.add( nm ); vals_.add( val );
+    if ( !keyw ) return;
+
+    const int idxof = indexOf( keyw );
+    if ( idxof < 0 )
+	add( keyw, val );
+    else
+	vals_.get( idxof ) = val;
+}
+
+
+void IOPar::add( const char* keyw, const char* val )
+{
+    if ( !keyw ) return;
+
+    keys_.add( keyw );
+    vals_.add( val );
+}
+
+
+void IOPar::update( const char* keyw, const char* val )
+{
+    if ( !keyw ) return;
+
+    const int idxof = indexOf( keyw );
+    if ( idxof < 0 )
+    {
+	if ( val && *val )
+	    add( keyw, val );
+    }
+    else if ( !val || !*val )
+    {
+	keys_.removeSingle( idxof );
+	vals_.removeSingle( idxof );
+    }
+    else
+	vals_.get( idxof ) = val;
 }
 
 
@@ -562,7 +598,7 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 	for ( int idx=0; idx<len; idx++ )
 	{
 	    const char* valstr = fms[idx];
-	    const T newval = Conv::to<T>( valstr ); 
+	    const T newval = Conv::to<T>( valstr );
 	    res += newval;
 	}
 
@@ -575,12 +611,12 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 
 
 template <class T>
-static void iopset_typeset( IOPar& iop, const char* keyw, 
+static void iopset_typeset( IOPar& iop, const char* keyw,
 			    const TypeSet<T>& vals )
 {
     const int nrvals = vals.size();
 
-    int validx = 0; 
+    int validx = 0;
     int keyidx = 0;
 
     while ( validx != nrvals )
@@ -591,11 +627,11 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
 	{
 	    if ( validx == nrvals ) break;
-	    
+
 	    val = vals[ validx++ ];
 	    fms += toString( val );
 	}
-	
+
 	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
 	iop.set( newkey, fms );
 	keyidx++;
@@ -777,16 +813,6 @@ bool IOPar::getPtr( const char* s, void*& res ) const
 }
 
 
-void IOPar::set( const char* keyw, const char* vals )
-{
-    int idx = keys_.indexOf( keyw );
-    if ( idx < 0 )
-	add( keyw, vals );
-    else
-	setValue( idx, vals );
-}
-
-
 void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 {
     FileMultiString fms( vals1 ); fms += vals2;
@@ -933,6 +959,34 @@ void IOPar::set( const char* s, const Color& c )
 {
     BufferString bs; c.fill( bs.buf() );
     set( s, bs );
+}
+
+
+void IOPar::setToDateTime( const char* keyw )
+{
+    if ( !keyw || !*keyw )
+	keyw = sKey::DateTime();
+    set( keyw, Time::getDateTimeString() );
+}
+
+
+void IOPar::setToUser( const char* keyw )
+{
+    if ( !keyw || !*keyw )
+	keyw = sKey::User();
+
+    FileMultiString fms; fms.add( GetUserNm() );
+    const char* odusrnm = GetSoftwareUser();
+    if ( odusrnm ) fms.add( odusrnm );
+
+    set( keyw, fms.buf() );
+}
+
+
+void IOPar::setStdCreationEntries()
+{
+    setToDateTime( sKey::CrAt() );
+    setToUser( sKey::CrBy() );
 }
 
 

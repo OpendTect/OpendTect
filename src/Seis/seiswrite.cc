@@ -34,7 +34,7 @@ const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
-    	, lineauxiopar_(*new IOPar)
+	, lineauxiopar_(*new IOPar)
 	, lkp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
@@ -47,7 +47,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
-    	, lineauxiopar_(*new IOPar)
+	, lineauxiopar_(*new IOPar)
 	, lkp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
@@ -165,7 +165,14 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    return false;
     }
 
-    return (prepared_ = true);
+    prepared_ = true;
+
+    ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
+    ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
+    ioobj_->updateCreationPars();
+    IOM().commitChanges( *ioobj_ );
+
+    return prepared_;
 }
 
 
@@ -446,8 +453,8 @@ public:
 protected:
 
     SeisSequentialWriter&       ssw_;
-    SeisTrcWriter&     		writer_;
-    SeisTrc*             	trc_;
+    SeisTrcWriter&		writer_;
+    SeisTrc*	trc_;
 };
 
 
@@ -557,7 +564,7 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
 	return;
     }
 
-    const int bufsize = Threads::WorkManager::twm().queueSize( queueid_ ) + 
+    const int bufsize = Threads::WorkManager::twm().queueSize( queueid_ ) +
 			outputs_.size();
     if ( bufsize<maxbuffersize_ )
 	lock_.signal( true );

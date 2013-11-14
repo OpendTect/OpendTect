@@ -200,6 +200,12 @@ bool IOObj::isKey( const char* ky )
 { return IOM().isKey(ky); }
 
 
+void IOObj::updateCreationPars()
+{
+    pars_.setStdCreationEntries();
+}
+
+
 bool IOObj::put( ascostream& astream ) const
 {
     if ( !isSubdir() )
