@@ -216,7 +216,7 @@ void FlatView::ZoomMgr::add( const TypeSet<FlatView::ZoomMgr::Size>& newzooms )
 	}
     }
 
-    for ( int idx=0; idx<viewerdata_[0]->zooms_.size(); idx++ )
+    for ( int idx=viewerdata_[0]->zooms_.size()-1; idx>=0; idx-- )
     {
 	bool doremove = false;
 	for ( int idy=0; idy<viewerdata_.size(); idy++ )
