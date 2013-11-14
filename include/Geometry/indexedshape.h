@@ -105,7 +105,9 @@ public:
 		/*!<If coords or normals are given, used indices will be
 		    removed when object deleted or removeAll is called. If
 		    multiple geometries are sharing the coords/normals, 
-		    this is probably not what you want. */
+		    this is probably not what you want. The bool "large:true" 
+		    indicates creating a geometry set by uint primitive 
+		    set type, otherwise set by ushort type*/
     virtual 	~IndexedGeometry();
 
     void	removeAll(bool deep);
