@@ -192,7 +192,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(su.geom_), &emsg );
-	if ( su.linekey_.attrName() == sKey::Steering() )
+	if ( seislineset.datatype(index) == sKey::Steering() )
 	    compnr_ = 1;
     }
     else
