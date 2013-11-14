@@ -106,7 +106,8 @@ int Seis2DLineCreator::nextStep()
 {
     SeisTrc trc;
     const int res = rdr_->get( trc.info() );
-    if ( res == -1 ) return ErrorOccurred();
+    if ( res == -1 )
+	{ msg_ = rdr_->errMsg(); return ErrorOccurred(); }
     if ( res == 0 ) return Finished();
     if ( res == 2 ) return MoreToDo();
     if ( !rdr_->get(trc) )
