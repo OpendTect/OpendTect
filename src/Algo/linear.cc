@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "geometry.h"
 
-#define mArrVal(arr) (arr[idx * offs])
+#define mArrVal(arr) ( arr[idx * offs / sizeof(float)] )
 
 static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
 		    int nrpts, int offs )
