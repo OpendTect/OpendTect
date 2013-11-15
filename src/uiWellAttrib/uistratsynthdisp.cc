@@ -658,11 +658,15 @@ float uiStratSynthDisp::centralTrcShift() const
 
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
-    static uiWorldRect timewr; timewr = vwr_->curView();
+    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
+    Threads::Locker locker ( lock );
+
+    mDefineStaticLocalObject( uiWorldRect, timewr, ); 
+    timewr = vwr_->curView();
     if ( !indpth )
 	return timewr;
 
-    static uiWorldRect depthwr;
+    mDefineStaticLocalObject( uiWorldRect, depthwr, );
     depthwr.setLeft( timewr.left() );
     depthwr.setRight( timewr.right() );
     ObjectSet<const TimeDepthModel> curd2tmodels;

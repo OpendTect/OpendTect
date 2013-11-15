@@ -44,24 +44,23 @@ static BufferString cur_survey_name;
 
 const char* SurveyInfo::surveyFileName()
 {
-    static const char* ret = 0;
+    mDeclStaticString( fnm );
 
-    if ( !ret )
+    if ( fnm.isEmpty() )
     {
 	FilePath fp( GetSettingsDir(), "survey" );
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
 	    fp.setExtension( ptr );
 
-	mDeclStaticString( fnm );
+	
 	fnm = fp.fullPath();
-	ret = fnm.buf();
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
-	    mPrDebug( "SurveyInfo::surveyFileName", ret );
+	    mPrDebug( "SurveyInfo::surveyFileName", fnm.buf() );
     }
 
-    return *ret ? ret : 0;
+    return fnm.str();
 }
 
 
@@ -236,21 +235,18 @@ mExternC(Basic) const char* GetSoftwareDir( int acceptnone )
 
 mExternC(Basic) const char* GetApplSetupDir()
 {
-    static const char* ret = 0;
-    if ( !ret )
+    mDeclStaticString( bs );
+    if ( bs.isEmpty() )
     {
 
-	mDeclStaticString( bs );
-	bs.setEmpty();
 #ifdef __win__
 	bs = GetEnvVar( "DTECT_WINAPPL_SETUP" );
 #endif
 	if ( bs.isEmpty() )
 	    bs = GetEnvVar( "DTECT_APPL_SETUP" );
 
-	ret = bs.buf();
     }
-    return *ret ? ret : 0;
+    return bs.str();
 }
 
 
@@ -366,8 +362,8 @@ mExternC(Basic) const char* GetExecScript( int remote )
 
 mExternC(Basic) const char* GetSoftwareUser()
 {
-    static const char* ret = 0;
-    if ( !ret )
+    mDeclStaticString( bs );
+    if ( bs.isEmpty() )
     {
 	const char* envval = 0;
 #ifdef __win__
@@ -378,19 +374,17 @@ mExternC(Basic) const char* GetSoftwareUser()
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetSoftwareUser", envval ? envval : "<None>" );
 
-	mDeclStaticString( bs );
 	bs = envval;
-	ret = bs.buf();
     }
 
-    return *ret ? ret : 0;
+    return bs.str();
 }
 
 
 mExternC(Basic) const char* GetUserNm()
 {
 #ifdef __win__
-    static char usernm[256];
+    mDefineStaticLocalObject( char, usernm, [256] );
     DWORD len = 256;
     GetUserName( usernm, &len );
     return usernm;
@@ -475,11 +469,10 @@ mExternC(Basic) const char* GetBinSubDir()
 
 mExternC(Basic) const char* GetPersonalDir()
 {
-    static const char* ret = 0;
+    mDeclStaticString( dirnm );
 
-    if ( !ret )
+    if ( dirnm.isEmpty() )
     {
-	mDeclStaticString( dirnm );
 	const char* ptr = GetEnvVar( "DTECT_PERSONAL_DIR" );
 	if ( ptr )
 	    dirnm = ptr;
@@ -488,19 +481,17 @@ mExternC(Basic) const char* GetPersonalDir()
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetPersonalDir", dirnm );
-
-	ret = dirnm.buf();
     }
 
-    return ret;
+    return dirnm.buf();
 }
 
 
 mExternC(Basic) const char* GetSettingsDir()
 {
-    static const char* ret = 0;
+    mDeclStaticString( dirnm );
 
-    if ( !ret )
+    if ( dirnm.isEmpty() )
     {
 	const char* ptr = 0;
 #ifdef __win__
@@ -510,7 +501,6 @@ mExternC(Basic) const char* GetSettingsDir()
 	ptr = GetEnvVar( "DTECT_SETTINGS" );
 #endif
 
-	mDeclStaticString( dirnm );
 	if ( ptr )
 	    dirnm = ptr;
 	else
@@ -535,11 +525,9 @@ mExternC(Basic) const char* GetSettingsDir()
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetSettingsDir", dirnm );
-
-	ret = dirnm.buf();
     }
 
-    return ret;
+    return dirnm.buf();
 }
 
 

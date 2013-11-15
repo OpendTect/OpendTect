@@ -299,7 +299,10 @@ uiObject& ui3DViewerBody::uiObjHandle()
 
 osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 {
-    static osg::ref_ptr<osgViewer::CompositeViewer> viewer = 0;
+    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
+    Threads::Locker locker ( lock );
+    mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>, 
+			      viewer, = 0 );
     if ( !viewer )
     {
 	viewer = new osgViewer::CompositeViewer;

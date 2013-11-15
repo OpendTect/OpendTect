@@ -27,12 +27,10 @@ static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
 
 bool& SEGY::TxtHeader::info2D()
-{ static bool is2d = false; return is2d; }
+{ mDefineStaticLocalObject( bool, is2d, = false ); return is2d; }
 
-static void Ebcdic2Ascii( unsigned char *chbuf, int len )
-{
-    int i;
-    static unsigned char e2a[256] = {
+
+    static unsigned char segyhdre2a[256] = {
 0x00,0x01,0x02,0x03,0x9C,0x09,0x86,0x7F,0x97,0x8D,0x8E,0x0B,0x0C,0x0D,0x0E,0x0F,
 0x10,0x11,0x12,0x13,0x9D,0x85,0x08,0x87,0x18,0x19,0x92,0x8F,0x1C,0x1D,0x1E,0x1F,
 0x80,0x81,0x82,0x83,0x84,0x0A,0x17,0x1B,0x88,0x89,0x8A,0x8B,0x8C,0x05,0x06,0x07,
@@ -51,13 +49,16 @@ static void Ebcdic2Ascii( unsigned char *chbuf, int len )
 0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF
     };
 
-    for ( i=0; i<len; i++ ) chbuf[i] = e2a[chbuf[i]];
-}
 
-static void Ascii2Ebcdic( unsigned char *chbuf, int len )
+static void Ebcdic2Ascii( unsigned char *chbuf, int len )
 {
     int i;
-    static unsigned char a2e[256] = {
+
+    for ( i=0; i<len; i++ ) chbuf[i] = segyhdre2a[chbuf[i]];
+}
+
+
+static unsigned char segyhdra2e[256] = {
 0x00,0x01,0x02,0x03,0x37,0x2D,0x2E,0x2F,0x16,0x05,0x25,0x0B,0x0C,0x0D,0x0E,0x0F,
 0x10,0x11,0x12,0x13,0x3C,0x3D,0x32,0x26,0x18,0x19,0x3F,0x27,0x1C,0x1D,0x1E,0x1F,
 0x40,0x4F,0x7F,0x7B,0x5B,0x6C,0x50,0x7D,0x4D,0x5D,0x5C,0x4E,0x6B,0x60,0x4B,0x61,
@@ -76,7 +77,12 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 0xDC,0xDD,0xDE,0xDF,0xEA,0xEB,0xEC,0xED,0xEE,0xEF,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF
     };
 
-    for ( i=0; i<len; i++ ) chbuf[i] = a2e[chbuf[i]];
+
+static void Ascii2Ebcdic( unsigned char *chbuf, int len )
+{
+    int i;
+
+    for ( i=0; i<len; i++ ) chbuf[i] = segyhdra2e[chbuf[i]];
 }
 
 
@@ -346,7 +352,7 @@ void SEGY::BinHeader::unSwap()
 
 const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 {
-    static SEGY::HdrDef def( true );
+    mDefineStaticLocalObject( SEGY::HdrDef, def, (true) );
     return def;
 }
 
@@ -410,7 +416,7 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
 
 const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 {
-    static SEGY::HdrDef def( false );
+    mDefineStaticLocalObject( SEGY::HdrDef, def, (false) );
     return def;
 }
 
@@ -532,9 +538,9 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     // Then we'd expect this to be 4 byte. Sigh. How far do we need to go
     // to support crap from SEG-Y vandals?
     HdrEntry he( *hdrDef()[EntryTrwf()] );
-    static bool postscale_byte_established = false;
-    static int bnr = he.bytepos_;
-    static bool smallbtsz = he.small_;
+    mDefineStaticLocalObject( bool, postscale_byte_established, = false );
+    mDefineStaticLocalObject( int, bnr, = he.bytepos_ );
+    mDefineStaticLocalObject( bool, smallbtsz, = he.small_ );
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
@@ -576,7 +582,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( mIsZero(extcoordsc,1e-8)
 	    && !GetEnvVarYN("OD_ALLOW_ZERO_COORD_SCALING") )
     {
-	static bool warningdone = false;
+	mDefineStaticLocalObject( bool, warningdone, = false );
 	if ( !warningdone )
 	{
 	    ErrMsg( "Replacing requested zero scaling with 1" );
@@ -593,7 +599,8 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( delrt == 0 )
     {
 	delrt = - (short)entryVal( EntryLagA() ); // HRS and Petrel
-	static const bool smt_bad_laga = GetEnvVarYN("OD_SEGY_BAD_LAGA");
+	mDefineStaticLocalObject( const bool, smt_bad_laga, 
+				  = GetEnvVarYN("OD_SEGY_BAD_LAGA") );
 	if ( smt_bad_laga )
 	    delrt = -delrt;
 	float startz = delrt * zfac;
@@ -639,7 +646,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     else
     {
 	// Trick to set trace number to sequence number when no trnr_ defined
-	static int seqnr;
+	mDefineStaticLocalObject( Threads::Atomic<int>, seqnr, (0) );
 	if ( hdef_.trnr_.bytepos_ == -5 )
 	    seqnr++;
 	else

@@ -163,7 +163,7 @@ const char* getFileSystemName( const char* path )
     FilePath fp( path );
 #ifdef __win__
     const char* drive = fp.winDrive();
-    static char filesystemname[MAX_PATH+1] = { 0 };
+    mDefineStaticLocalObject( char, filesystemname, [MAX_PATH+1] = { 0 } );
     char volumename[MAX_PATH+1] = { 0 };
 
     GetVolumeInformationA( path, volumename, ARRAYSIZE(volumename),

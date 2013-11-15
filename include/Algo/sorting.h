@@ -165,7 +165,7 @@ void partSort( T* arr, I istart, I istop,
 {
     I ipivot, ileft, iright;
     T pivotval, tmp;
-    static long int seed = 0L;
+    mDefineStaticLocalObject( long int, seed, = 0L );
 
     seed = (seed * FA + FC) % FM;
     ipivot = (int)(istart + (istop-istart) * (float)seed / (float)FM + .5);
@@ -282,7 +282,7 @@ void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
     int ipivot, ileft, iright;
     T pivotval, tmp;
     IT itmp;
-    static long int seed = 0L;
+    mDefineStaticLocalObject( long int, seed, = 0L );
 
     seed = (seed * FA + FC) % FM;
     ipivot = (int)(istart + (istop-istart) * (float)seed / (float)FM);

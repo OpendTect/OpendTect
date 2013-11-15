@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "timeser.h"
+#include "threadlock.h"
 #include <math.h>
 #include <string.h>
 
@@ -183,9 +184,12 @@ void Resample( int stepsize, int n, const float* arrin, float* arrout )
 
 void Hilbert( int n, float* x, float* y )
 {
-    static int madeh = 0;
-    static float h[mHilbertLength];
-    static int hlen = mHalfHilbertLength;
+    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
+    Threads::Locker locker( lock );
+
+    mDefineStaticLocalObject( int, madeh, = 0 );
+    mDefineStaticLocalObject( float, h, [mHilbertLength] );
+    mDefineStaticLocalObject( int, hlen, = mHalfHilbertLength );
     int i;
     float taper;
 

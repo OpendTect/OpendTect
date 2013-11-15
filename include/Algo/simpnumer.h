@@ -339,7 +339,7 @@ inline int solve3DPoly( double a, double b, double c,
     {
 	const double minus_twosqrt_q = -2*Math::Sqrt(q);
 	const double theta = Math::ACos(r/Math::Sqrt(q3));
-	static const double twopi = 2*M_PI;
+	const double twopi = M_2PI;
 
 
 	root0 = minus_twosqrt_q*cos(theta/3)+minus_a_through_3; 
@@ -355,7 +355,7 @@ inline int solve3DPoly( double a, double b, double c,
 
     /*!
     The complex roots can be calculated as follows:
-    static const double sqrt3_through_2 = Math::Sqrt(3)/2;
+    const double sqrt3_through_2 = Math::Sqrt(3)/2;
 
     root1 = complex_double( 0.5*(A+B)+minus_a_through_3,
 			   sqrt3_through_2*(A-B));
@@ -395,7 +395,7 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 	return true;
     }
 
-    static od_int64 seed = mUdf(od_int64);
+    mDefineStaticLocalObject( od_int64, seed, = mUdf(od_int64) );
     seed *= seed + 1; // Clumsy but cheap sort-of random generation
 
     for ( int idx=0; idx<samplesz; idx++ )
@@ -439,7 +439,7 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
 	return true;
     }
 
-    static od_int64 seed = mUdf(od_int64);
+    mDefineStaticLocalObject( od_int64, seed, = mUdf(od_int64) );
     seed *= seed + 1; // Clumsy but cheap sort-of random generation
 
     for ( int idx=0; idx<samplesz; idx++ )

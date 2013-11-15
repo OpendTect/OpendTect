@@ -281,8 +281,9 @@ std::istream& operator >>( std::istream& s, SeparString& ss )
 { s >> ss.rep(); return s; }
 
 
+#define mComma ,
 const char* FileMultiString::separatorStr()
 {
-    static const char str[] = { separator(), 0 };
+    mDefineStaticLocalObject( const char, str, [] = { separator() mComma 0 } );
     return str;
 }

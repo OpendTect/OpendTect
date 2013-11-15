@@ -18,11 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "staticstring.h"
 
+static const char* nladatatyps[] = { "Training data", "Test data",
+		"Misclassified training data", "Misclassified test data", 0 };
+
 const char** NLACreationDesc::DataTypeNames()
 {
-    static const char* datatyps[] = { "Training data", "Test data",
-		"Misclassified training data", "Misclassified test data", 0 };
-    return datatyps;
+    return nladatatyps;
 }
 
 

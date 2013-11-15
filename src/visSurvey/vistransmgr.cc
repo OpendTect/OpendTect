@@ -24,8 +24,8 @@ using namespace visSurvey;
 
 SceneTransformManager& visSurvey::STM()
 {
-    static SceneTransformManager* tm = 0;
-    if ( !tm ) mTryAlloc( tm, SceneTransformManager );
+    mDefineStaticLocalObject( SceneTransformManager*, tm, 
+			      = new SceneTransformManager );
     return *tm;
 }
 

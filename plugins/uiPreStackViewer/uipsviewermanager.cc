@@ -146,12 +146,13 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 }
 
 
+#define mComma ,
 static void setDlgPos( uiMainWin* mw, int idx )
 {
     if ( !mw ) return;
-    static uiMainWin::PopupArea puas[] =
-	{ uiMainWin::BottomRight, uiMainWin::BottomLeft,
-	     uiMainWin::TopRight, uiMainWin::TopLeft };
+    mDefineStaticLocalObject( uiMainWin::PopupArea, puas, [] =
+	{ uiMainWin::BottomRight mComma uiMainWin::BottomLeft mComma
+	     uiMainWin::TopRight mComma uiMainWin::TopLeft } );
     mw->setPopupArea( puas[ idx % 4 ] );
 }
 

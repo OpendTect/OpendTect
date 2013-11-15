@@ -146,7 +146,8 @@ bool ODMad::ProcExec::init()
 const char* ODMad::ProcExec::getProcString()
 {
     const char* rsfroot = GetEnvVar( "RSFROOT" );
-    static BufferString ret( "@" );
+    mDeclStaticString( ret );
+    ret = "@";
     ODMad::ProcFlow procflow;
     procflow.usePar( pars_ );
     ODMad::ProcFlow::IOType outtyp = procflow.ioType( false );

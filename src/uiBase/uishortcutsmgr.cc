@@ -31,13 +31,14 @@ uiShortcutsMgr& SCMgr()
 }
 
 
-const char** uiKeyDesc::sKeyKeyStrs()
-{
-    static const char* strs[] =
+static const char* keydescstrs[] =
 { "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S",
   "T","U","V","W","X","Y","Z","Plus","Minus","Asterisk","Slash","Up","Down",
   "Left","Right","Delete","PageUp","PageDown", 0 };
-    return strs;
+
+const char** uiKeyDesc::sKeyKeyStrs()
+{
+    return keydescstrs;
 }
 
 

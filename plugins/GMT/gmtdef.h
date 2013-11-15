@@ -27,17 +27,12 @@ namespace ODGMT
 			DeclareNameSpaceEnumUtils(GMT,Alignment);
     enum ExecStatus	{ Success, FatalError, Failure };
 
-    mGlobal(GMT) inline const char**	sShapeKeys()
-    			{
-			    static const char* buf[] = { "a", "c", "d", "s", "t", "x", "n", "-", 0 };
-			    return buf;
-			}
-    mGlobal(GMT) inline const char**	sResolKeys()
-    			{
-			    static const char* buf[] = { "f", "h", "i", "l", "c" };
-			    return buf;
-			}
+    static const char* shapekeysbuf[] = { "a", "c", "d", "s", "t", "x", "n", "-", 0 };
+    static const char* resolkeysbuf[] = { "f", "h", "i", "l", "c" };
 
+    mGlobal(GMT) inline const char**	sShapeKeys() { return shapekeysbuf; }
+    mGlobal(GMT) inline const char**	sResolKeys() { return resolkeysbuf; }
+			
     mGlobal(GMT) inline const char*	sKeyAttribName() { return "Attribute name"; }
     mGlobal(GMT) inline const char*	sKeyClipOutside() { return "Clip outside"; }
     mGlobal(GMT) inline const char*	sKeyClosePS() { return "Close PostScript"; }

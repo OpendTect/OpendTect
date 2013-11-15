@@ -12,19 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "samplfunc.h"
 
+static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 }; 
 
 const char** EventTracker::sEventNames() 
 { 
-    static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 }; 
     return event_names; 
 } 
  
- 
+
+#define mComma ,
 const VSEvent::Type* EventTracker::cEventTypes() 
 { 
-    static const VSEvent::Type event_types[] =
-	{ VSEvent::Min, VSEvent::Max, VSEvent::ZCPosNeg, VSEvent::ZCNegPos };
-	 
+    mDefineStaticLocalObject( const VSEvent::Type, event_types, [] =
+	{ VSEvent::Min mComma VSEvent::Max mComma 
+	  VSEvent::ZCPosNeg mComma VSEvent::ZCNegPos } );
     return event_types; 
 } 
 

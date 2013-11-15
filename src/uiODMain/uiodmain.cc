@@ -69,7 +69,7 @@ static const int cCTHeight = 200;
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
-    static uiODMain* theinst = 0;
+    mDefineStaticLocalObject( uiODMain*, theinst, = 0 );
     if ( i ) theinst = i;
     return theinst;
 }

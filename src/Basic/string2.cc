@@ -732,7 +732,10 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     if ( inplen < nrchars )
 	return inp;
 
-    static char* ret = 0;
+    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
+    Threads::Locker locker ( lock );
+
+    mDefineStaticLocalObject( char*, ret, = 0 );
     delete [] ret; ret = new char [nrchars+1];
     char* ptr = ret;
 

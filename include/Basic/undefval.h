@@ -232,7 +232,7 @@ bool isUdf( const T& t )
 template <class T> inline
 const T& udfVal( const T& t )
 { 
-    static T u = Undef<T>::val();
+    mDefineStaticLocalObject( T, u, = Undef<T>::val() );
     return u;
 }
 

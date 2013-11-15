@@ -51,7 +51,8 @@ const char* SEGY::HdrEntry::description() const
     else if ( isUdf() )
 	return "";
 
-    static BufferString ret( "Byte ", (int)bytepos_, "(" );
+    mDefineStaticLocalObject( BufferString, ret, 
+			      ( "Byte ", (int)bytepos_, "(" ) );
     ret.add( byteSize() ).add( " bytes, type " );
     if ( type_ == UInt )
 	ret.add( "un" );
@@ -89,7 +90,7 @@ void SEGY::HdrEntry::setDescription( const char* d )
 static const unsigned char* getBytes( const void* inpbuf, bool swapped,
 				      int bytenr, int nrbytes )
 {
-    static unsigned char swpbuf[4];
+    mDefineStaticLocalObject( unsigned char, swpbuf, [4] );
     const unsigned char* ptr = ((const unsigned char*)inpbuf) + bytenr;
     if ( !swapped ) return ptr;
 
