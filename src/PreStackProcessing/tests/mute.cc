@@ -6,6 +6,7 @@
 
 static const char* rcsID mUsedVar = ""; 
 
+#include "batchprog.h"
 #include "commandlineparser.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -16,10 +17,9 @@ static const char* rcsID mUsedVar = "";
 #include "survinfo.h"
 #include <iostream>
 
-static const char* sKeyTestSurvey()		{ return "F3_Test_Survey"; }
-static const char* sKeyTestMute41()		{ return "100070.41"; }
-static const char* sKeyTestMute44()		{ return "100070.44"; }
-static const char* sKeyTestMute46()		{ return "100070.46"; }
+static const char* sKeyTestMute41()	{ return "Mute for V4.1"; }
+static const char* sKeyTestMute44()	{ return "Mute for V4.4"; }
+static const char* sKeyTestMute46()	{ return "Mute for V4.6"; }
 #define mCheckVal(offset,inl,crl,chkval) \
 muteval = mutedef.value( offset, BinID(inl,crl) ); \
 if ( !mIsEqual(muteval,chkval,1e-5f) ) \
@@ -28,23 +28,24 @@ if ( !mIsEqual(muteval,chkval,1e-5f) ) \
     msg += " Offset :"; msg += offset; \
     msg += " Inline :"; msg += inl; \
     msg += " Crossline :"; msg += crl; \
-    std::cerr<<msg<<std::endl; \
+    strm<<msg<<od_newline; \
     return false; \
 }
 
 //check for Top Mute created in different versions
-bool odTestSameMuteInDiffVersion( const MultiID& muteid, bool quiet )
+bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid,
+				  bool quiet )
 {
-    BufferString errmsg;
     IOObj* muteobj = IOM().get( muteid );
     if ( !muteobj )
     {
-	errmsg += "Mute object not found";
-	std::cerr<<errmsg.buf()<<std::endl;
+	strm<<"Mute object with id "<<muteid.buf()
+		     <<" not found"<<od_newline;
 	return false;
     }
 
     PreStack::MuteDef mutedef;
+    BufferString errmsg;
     if ( !MuteDefTranslator::retrieve(mutedef,muteobj,errmsg) )
     {
 	BufferString msg;
@@ -52,7 +53,7 @@ bool odTestSameMuteInDiffVersion( const MultiID& muteid, bool quiet )
 	msg += muteobj->name();
 	msg += " cannot be read. ";
 	msg += errmsg;
-	std::cerr<<msg.buf()<<std::endl;
+	strm<<msg.buf()<<od_newline;
 	return false;
     }
 
@@ -121,27 +122,43 @@ bool odTestSameMuteInDiffVersion( const MultiID& muteid, bool quiet )
     {
 	BufferString msg( "Test on mute '", muteobj->name() );
 	msg += "' is OK";
-	std::cout<<msg.buf()<<std::endl;
+	strm<<msg.buf()<<od_newline;
     }
 
     return true;
 }
 
 
-int main( int argc, char** argv )
+bool BatchProgram::go( od_ostream& strm )
 {
-    od_init_test_program( argc, argv );
+    od_init_test_program( GetArgC(), GetArgV() );
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-
-    CommandLineParser parser( argc, argv );
-    const bool quiet = parser.hasKey( sKey::Quiet() );
-
-    IOMan::setSurvey( sKeyTestSurvey() );
-    if ( !odTestSameMuteInDiffVersion(MultiID(sKeyTestMute41()),quiet) )
-	ExitProgram( 1 );
-    if ( !odTestSameMuteInDiffVersion(MultiID(sKeyTestMute44()),quiet) )
-	ExitProgram( 1 );
-    if ( !odTestSameMuteInDiffVersion(MultiID(sKeyTestMute46()),quiet) )
-	ExitProgram( 1 );
-    ExitProgram( 0 );
+    const bool quiet = clparser_->hasKey( sKey::Quiet() );
+    
+    MultiID muteid;
+    if ( !pars().get(sKeyTestMute41(),muteid) )
+    {
+	strm<<"Can not find mute for V4.1 in parameter file"<<od_newline;
+	return false;
+    }
+    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+	return false;
+    
+    if ( !pars().get(sKeyTestMute44(),muteid) )
+    {
+	strm<<"Can not find mute for V4.4 in parameter file"<<od_newline;
+	return false;
+    }
+    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+	return false;
+    
+    if ( !pars().get(sKeyTestMute46(),muteid) )
+    {
+	strm<<"Can not find mute for V4.6 in parameter file"<<od_newline;
+	return false;
+    }
+    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+	return false;
+   
+    return true;
 };
