@@ -301,8 +301,6 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
     mousepressed_ = false;
-    
-    //TODO: Should we set the zoom-manager ?
 }
 
 
