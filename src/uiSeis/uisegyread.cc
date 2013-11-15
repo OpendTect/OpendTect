@@ -519,6 +519,6 @@ void uiSEGYRead::impDlgClose( CallBacker* )
 void uiSEGYRead::rev1qDlgClose( CallBacker* )
 {
     mHandleVWCancel(rev1qdlg_,BasicOpts)
-    rev1qdlg_ = 0;
     determineRevPol();
+    rev1qdlg_ = 0;
 }
