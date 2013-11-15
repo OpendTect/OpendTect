@@ -52,6 +52,7 @@ int main( int argc, char** argv )
 	std::cerr << "Usage: " << argv[0] << " cbvs_file" << std::endl;
 	ExitProgram( 1 );
     }
+    SetProgramArgs( argc, argv );
 
     FilePath fp( argv[1] );
     if ( !fp.isAbsolute() )
