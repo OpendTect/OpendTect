@@ -72,7 +72,7 @@ public:
 
 
     // Survey menu operations
-    int				manageSurvey();
+    static int			manageSurvey();
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
 				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom, 
 				  Body, Props, ColTab };

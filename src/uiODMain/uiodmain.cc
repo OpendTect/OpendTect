@@ -195,10 +195,17 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
-    if ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
+    while ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
     {
 	uiSetDataDir dlg( this );
-	return dlg.go();
+	if ( !dlg.go() )
+	{
+	    if ( uiMSG().askGoOn( "Without a valid data root, OpendTect "
+			"cannot start.\nDo you wish to exit?" ) )
+		return false;
+	}
+	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
+	    break;
     }
 
     return true;
@@ -216,25 +223,10 @@ bool uiODMain::ensureGoodSurveySetup()
     }
     else if ( !IOM().isReady() )
     {
-	if ( !applmgr_ )
+	while ( !uiODApplMgr::manageSurvey() )
 	{
-	    BufferString msg( "Data management cannot be started. "
-		"Please check your data directory:\n",
-		GetBaseDataDir(),
-		"\nDoes it look OK, exist, do you have read permission?" );
-	    BufferStringSet msgs;
-	    msgs.add( "\nData directory in:" );
-	    msgs.add( BufferString("$HOME/.od/settings: ",
-				   GetSettingsDataDir()) );
-	    msgs.add( BufferString("DTECT_DATA variable: ",
-				   GetEnvVar("DTECT_DATA")) );
-	    uiMSG().errorWithDetails( msgs, msg );
-	    return false;
-	}
-
-	while ( !applmgr_->manageSurvey() )
-	{
-	    if ( uiMSG().askGoOn( "No survey selected. Do you wish to quit?" ) )
+	    if ( uiMSG().askGoOn( "Without a valid survey, OpendTect "
+			"cannot start.\nDo you wish to exit?" ) )
 		return false;
 	}
     }
