@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "envvars.h"
 #include "iopar.h"
+#include "vismaterial.h"
 #include "valseries.h"
 #include "viscolortab.h"
 #include "visdataman.h"
@@ -23,9 +24,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdint.h>
 #include <osgVolume/Volume>
 #include <osgVolume/VolumeTile>
-#include <osgVolume/FixedFunctionTechnique>
-#include <osgVolume/RayTracedTechnique>
 #include <osg/TransferFunction>
+#include <osg/CullFace>
+
+#include <osgGeo/VolumeTechniques>
+
 
 mCreateFactoryEntry( visBase::VolumeRenderScalarField );
 
@@ -45,6 +48,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz1_( 1 )
     , sz2_( 1 )
 //    , blendcolor_( Color::White() )
+    , material_( 0 )
     , useshading_( true )
     , sequence_( ColTab::Sequence( ColTab::defSeqName() ) )
     , osgvoltile_( new osgVolume::VolumeTile() )
@@ -67,27 +71,38 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     osgvoltile_->setLayer( osgimagelayer_ );
     osgvolroot_->addChild( osgvolume_ );
 
-//  osgVolume::AlphaFuncProperty* ap = new osgVolume::AlphaFuncProperty(0.5);
-//  osgVolume::SampleDensityProperty* sd =
-//  	new osgVolume::SampleDensityProperty(0.005);
-//  osgVolume::TransparencyProperty* tp =
-//  	new osgVolume::TransparencyProperty(1.0);
+    osgVolume::AlphaFuncProperty* alpha =
+			new osgVolume::AlphaFuncProperty( 0.0 );
+    osgVolume::SampleDensityProperty* sampledensity =
+			new osgVolume::SampleDensityProperty( 0.005 );
+    osgVolume::SampleDensityWhenMovingProperty* movingsampledensity =
+			new osgVolume::SampleDensityWhenMovingProperty( 0.005 );
+    osgVolume::TransparencyProperty* transparency =
+			new osgVolume::TransparencyProperty( 1.0 );
+//    osgVolume::IsoSurfaceProperty* isosurface =
+//			new osgVolume::IsoSurfaceProperty( 0.99 );
 
     osgtransfunc_->allocate( mNrColors );
-    osg::ref_ptr<osgVolume::TransferFunctionProperty> tfp =
+    osg::ref_ptr<osgVolume::TransferFunctionProperty> transferfunction =
 		    new osgVolume::TransferFunctionProperty( osgtransfunc_ );
 
-//    osgimagelayer_->addProperty( ap );
-//    osgimagelayer_->addProperty( sd );
-//    osgimagelayer_->addProperty( tp );
+    osgVolume::CompositeProperty* compprop = new osgVolume::CompositeProperty;
+    compprop->addProperty( alpha );
+    compprop->addProperty( sampledensity );
+    compprop->addProperty( movingsampledensity );
+    compprop->addProperty( transparency );
 
-    osgimagelayer_->addProperty( tfp );
-
+    compprop->addProperty( transferfunction );
+//    compprop->addProperty( isosurface );
+//    compprop->addProperty( new osgVolume::LightingProperty );
+    osgimagelayer_->addProperty( compprop );
 
     useShading( Settings::common().isTrue("dTect.Use VolRen shading") );
 
-    // Relies on edits in OSG trunk! Mipmap is said not to do a good job!
-    osgimagelayer_->setMinFilter( osg::Texture::LINEAR_MIPMAP_LINEAR );
+    // Mipmap is said not to do a good job, and that shows unless colormap
+    // is non-transparent and sample density is set very high.
+    // osgimagelayer_->setMinFilter( osg::Texture::LINEAR_MIPMAP_LINEAR );
+    osgimagelayer_->setMinFilter( osg::Texture::LINEAR );
     osgimagelayer_->setMagFilter( osg::Texture::LINEAR );
 }
 
@@ -103,7 +118,37 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
     osgimagelayer_->unref();
     osgvoldata_->unref();
     osgtransfunc_->unref();
+
+    setMaterial( 0 );
 }
+
+
+void VolumeRenderScalarField::setVolumeTransform( const Coord3& trans,
+				    const Coord3& rotvec, double rotangle,
+				    const Coord3& scale ) 
+{
+    /* Modified code from OpenSceneGraph/examples/osgvolume/osgvolume.cpp:
+       Flipped signs of y and z dimensions. */
+
+    Coord3 fabsscale( fabs(scale.x), -fabs(scale.y), -fabs(scale.z) );
+
+    osg::Matrix mat = osg::Matrix::scale( Conv::to<osg::Vec3d>(fabsscale) );
+    mat *= osg::Matrix::rotate(
+			osg::Quat(rotangle,Conv::to<osg::Vec3d>(rotvec)) ); 
+    mat *= osg::Matrix::translate( Conv::to<osg::Vec3d>(trans) );
+    osgvoltile_->setLocator( new osgVolume::Locator(mat) );
+
+    mat.preMult( osg::Matrix::scale( scale.x<0.0 ? -1.0 : 1.0,
+				     scale.y>0.0 ? -1.0 : 1.0,
+				     scale.z>0.0 ? -1.0 : 1.0 ) );
+
+    mat.preMult( osg::Matrix::translate( scale.x<0.0 ? -1.0 : 0.0,
+					 scale.y>0.0 ? -1.0 : 0.0,
+					 scale.z>0.0 ? -1.0 : 0.0) );
+
+    osgimagelayer_->setLocator( new osgVolume::Locator( mat) );
+}
+
 
 
 void VolumeRenderScalarField::useShading( bool yn )
@@ -112,15 +157,27 @@ void VolumeRenderScalarField::useShading( bool yn )
 	return;
 
     if ( yn )
-	osgvoltile_->setVolumeTechnique(new osgVolume::RayTracedTechnique);
+	osgvoltile_->setVolumeTechnique(new osgGeo::RayTracedTechnique);
     else
-	osgvoltile_->setVolumeTechnique(new osgVolume::FixedFunctionTechnique);
+	osgvoltile_->setVolumeTechnique(new osgGeo::FixedFunctionTechnique);
 
     useshading_ = yn;
+
+    updateVolumeSlicing();
+    setCustomShader( true );
 
 //    Does this have an equivalent in OSG?
 //    if ( !useshading_ )
 //	SetEnvVar( "CVR_DISABLE_PALETTED_FRAGPROG", "1" );
+}
+
+
+void VolumeRenderScalarField::updateVolumeSlicing()
+{
+    mDynamicCastGet( osgGeo::FixedFunctionTechnique*, fft,
+		     osgvoltile_->getVolumeTechnique() );
+    if ( fft )
+	fft->setNumSlices( 8*mMAX(sz0_,mMAX(sz1_,sz2_)) );     // Empirical
 }
 
 
@@ -185,6 +242,8 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
 
 	if ( ownsindexcache_ ) delete [] indexcache_;
 	indexcache_ = 0;
+
+	updateVolumeSlicing();
     }
 
     if ( ownsdatacache_ ) delete datacache_;
@@ -377,8 +436,13 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 	ownsindexcache_ = true;
     }
 
-    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-	mNrColors-1, *datacache_, indexcache_ );
+    // Reverse the index order, because osgVolume turns out to perform well
+    // for one sense of the coordinate system only, and OD uses the other. A
+    // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
+        ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
+         mNrColors-1, *datacache_, indexcache_+totalsz-1, -1 );
+//    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
+//				    mNrColors-1, *datacache_, indexcache_ );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
 	return;
@@ -433,11 +497,35 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 		GL_UNSIGNED_BYTE, indexcache_, osg::Image::NO_DELETE, 1 );
     }
     else
-    {
 	osgvoldata_->dirty();
-    }
 
     osgvoltile_->setDirty( true );
+}
+
+
+void VolumeRenderScalarField::setMaterial( Material* newmat )
+{
+    if ( material_ == newmat )
+	return;
+
+    if ( material_ )
+    {
+	material_->detachStateSet( osgvolume_->getOrCreateStateSet() );
+	material_->unRef();
+    }
+
+    if ( !newmat )
+	return;
+
+    newmat->ref();
+    newmat->attachStateSet( osgvolume_->getStateSet() );
+    material_ = newmat;
+
+    osg::StateAttribute* attr = osgvolume_->getStateSet()->getAttribute(
+					    osg::StateAttribute::MATERIAL );
+
+    osgvolume_->getStateSet()->setAttribute( attr,
+					    osg::StateAttribute::OVERRIDE );
 }
 
 
@@ -503,6 +591,190 @@ const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
     return 0;
 }
 
+
+//======= Custom shader ======================================================
+
+
+static char volume_vert[] =
+
+"#version 110\n"
+"varying vec4 cameraPos;\n"
+"varying vec4 vertexPos;\n"
+"varying vec3 lightDirection;\n"
+"varying mat4 texgen;\n"
+"varying vec4 baseColor;\n"
+"\n"
+"void main(void)\n"
+"{\n"
+"        gl_Position = ftransform();\n"
+"\n"
+"        cameraPos = gl_ModelViewMatrixInverse * vec4(0,0,0,1);\n"
+"        vertexPos = gl_Vertex;\n"
+"        baseColor = gl_FrontMaterial.diffuse;\n"
+"\n"
+"        vec4 lightPosition = gl_ModelViewMatrixInverse *\n"
+"                             gl_LightSource[0].position;\n"
+"        if (lightPosition[3]==0.0)\n"
+"        {\n"
+"            // directional light source\n"
+"            lightDirection = -normalize(lightPosition.xyz);\n"
+"        }\n"
+"        else\n"
+"        {\n"
+"            // positional light source\n"
+"            lightDirection = normalize((lightPosition-vertexPos).xyz);\n"
+"        }\n"
+"\n"
+"\n"
+"        texgen = mat4(gl_ObjectPlaneS[0], \n"
+"                      gl_ObjectPlaneT[0],\n"
+"                      gl_ObjectPlaneR[0],\n"
+"                      gl_ObjectPlaneQ[0]);\n"
+"}\n"
+"\n";
+
+
+static char volume_tf_frag[] =
+
+"uniform sampler3D baseTexture;\n"
+"\n"
+"uniform sampler1D tfTexture;\n"
+"uniform float tfScale;\n"
+"uniform float tfOffset;\n"
+"\n"
+"uniform float SampleDensityValue;\n"
+"uniform float TransparencyValue;\n"
+"uniform float AlphaFuncValue;\n"
+"\n"
+"varying vec4 cameraPos;\n"
+"varying vec4 vertexPos;\n"
+"varying mat4 texgen;\n"
+"varying vec4 baseColor;\n"
+"\n"
+"void main(void)\n"
+"{ \n"
+"    vec4 t0 = vertexPos;\n"
+"    vec4 te = cameraPos;\n"
+"\n"
+"    if (te.x>=0.0 && te.x<=1.0 &&\n"
+"        te.y>=0.0 && te.y<=1.0 &&\n"
+"        te.z>=0.0 && te.z<=1.0)\n"
+"    {\n"
+"        // do nothing... te inside volume\n"
+"    }\n"
+"    else if ( !gl_FrontFacing )\n"				// modified!
+"    {\n"
+"        te = t0 + 2.0 * normalize(vertexPos-cameraPos);\n"	// modified!
+"        if (te.x<0.0)\n"
+"        {\n"
+"            float r = -te.x / (t0.x-te.x);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"\n"
+"        if (te.x>1.0)\n"
+"        {\n"
+"            float r = (1.0-te.x) / (t0.x-te.x);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"\n"
+"        if (te.y<0.0)\n"
+"        {\n"
+"            float r = -te.y / (t0.y-te.y);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"\n"
+"        if (te.y>1.0)\n"
+"        {\n"
+"            float r = (1.0-te.y) / (t0.y-te.y);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"\n"
+"        if (te.z<0.0)\n"
+"        {\n"
+"            float r = -te.z / (t0.z-te.z);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"\n"
+"        if (te.z>1.0)\n"
+"        {\n"
+"            float r = (1.0-te.z) / (t0.z-te.z);\n"
+"            te = te + (t0-te)*r;\n"
+"        }\n"
+"        vec4 temp = te; te = t0; t0 = temp;\n"			// modified!
+"    }\n"
+"    else discard;\n"						// modified!
+"\n"
+"    t0 = t0 * texgen;\n"
+"    te = te * texgen;\n"
+"\n"
+"    const float max_iteratrions = 2048.0;\n"
+"    float num_iterations = ceil(length((te-t0).xyz)/SampleDensityValue);\n"
+"    if (num_iterations<2.0) num_iterations = 2.0;\n"
+"\n"
+"    if (num_iterations>max_iteratrions) \n"
+"    {\n"
+"        num_iterations = max_iteratrions;\n"
+"    }\n"
+"\n"
+"    vec3 deltaTexCoord=(te-t0).xyz/float(num_iterations-1.0);\n"
+"    vec3 texcoord = t0.xyz;\n"
+"\n"
+"    vec4 fragColor = vec4(0.0, 0.0, 0.0, 0.0); \n"
+"    while(num_iterations>0.0)\n"
+"    {\n"
+"        float v = texture3D( baseTexture, texcoord).a * tfScale + tfOffset;\n"
+"        vec4 color = texture1D( tfTexture, v);\n"
+"\n"
+"        float r = color[3]*TransparencyValue;\n"
+"        if (r>AlphaFuncValue)\n"
+"        {\n"
+"            fragColor.xyz = fragColor.xyz*(1.0-r)+color.xyz*r;\n"
+"            fragColor.w += r;\n"
+"        }\n"
+"\n"
+"        if (fragColor.w<color.w)\n"
+"        {\n"
+"            fragColor = color;\n"
+"        }\n"
+"        texcoord += deltaTexCoord; \n"
+"\n"
+"        --num_iterations;\n"
+"    }\n"
+"\n"
+"    fragColor.w *= TransparencyValue;\n"
+"    if (fragColor.w>1.0) fragColor.w = 1.0;\n"
+"\n"
+"    fragColor *= baseColor;\n"
+"\n"
+"    if (fragColor.w<AlphaFuncValue) discard;\n"
+"    \n"
+"    gl_FragColor = fragColor;\n"
+"}\n"
+"\n";
+
+
+void VolumeRenderScalarField::setCustomShader( bool yn )
+{
+    if ( !osgvolume_ || !osgvoltile_ )
+	return;
+
+    if ( !useshading_ || !yn )
+    {
+	osgvolume_->getOrCreateStateSet()->removeMode( GL_CULL_FACE);
+	osgvolume_->getStateSet()->removeAttribute(
+						osg::StateAttribute::PROGRAM );
+	return;
+    }
+
+    osgvolume_->getOrCreateStateSet()->setMode( GL_CULL_FACE,
+		    osg::StateAttribute::OVERRIDE|osg::StateAttribute::OFF );
+
+    osg::Program* program = new osg::Program();
+    program->addShader( new osg::Shader(osg::Shader::VERTEX,volume_vert) );
+    program->addShader( new osg::Shader(osg::Shader::FRAGMENT,volume_tf_frag) );
+    osgvolume_->getStateSet()->setAttributeAndModes( program,
+			osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON );
+}
 
 
 } // namespace visBase

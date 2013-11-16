@@ -31,6 +31,7 @@ namespace osg { class Switch; class Image; class TransferFunction1D; }
 
 namespace visBase
 {
+    class Material;
 
 mExpClass(visBase) VolumeRenderScalarField : public DataObject
 {
@@ -58,6 +59,14 @@ public:
 //    void			setBlendColor(const Color&);
 //    const Color&		getBlendColor() const;
     const TypeSet<float>&	getHistogram() const;
+    void			setVolumeTransform(const Coord3& trans,
+				    const Coord3& rotvec,double rotangle,
+				    const Coord3& scale);
+				/*!< Use this instead of parent transformation
+				    node, because of normal rescaling issue at
+				    fixed function technique! */
+
+    void			setMaterial(Material*);
 
     const char* 		writeVolumeFile(od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
@@ -68,6 +77,9 @@ protected:
     void			makeColorTables();
     void			makeIndices(bool doset,TaskRunner*);
     void			clipData(TaskRunner*);
+
+    void			updateVolumeSlicing();
+    void			setCustomShader(bool yn);
 
 //    unsigned char		dummytexture_;
 
@@ -81,6 +93,7 @@ protected:
     bool			ownsdatacache_;
     TypeSet<float>		histogram_;
 //    Color			blendcolor_;
+    Material*			material_;
     bool			useshading_;
 
     osgVolume::VolumeTile*	osgvoltile_;

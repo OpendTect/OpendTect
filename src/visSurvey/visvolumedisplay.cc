@@ -111,21 +111,21 @@ VolumeDisplay::VolumeDisplay()
     addChild( boxdragger_->osgNode() );
 
     boxdragger_->ref();
-    boxdragger_->setBoxTransparency( 0.7 );
+    boxdragger_->setBoxTransparency( 0.75 );
     updateRanges( true, true );
+
+    voltrans_->ref();
+
+    scalarfield_ = visBase::VolumeRenderScalarField::create();
+    scalarfield_->ref(); //Don't add it here, do that in getInventorNode
+
+    addChild( scalarfield_->osgNode() );
 
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.3 );
     getMaterial()->setDiffIntensity( 0.8 );
     getMaterial()->change.notify(mCB(this,VolumeDisplay,materialChange) );
-    voltrans_->ref();
-
-    addChild( voltrans_->osgNode() );
-
-    scalarfield_ = visBase::VolumeRenderScalarField::create();
-    scalarfield_->ref(); //Don't add it here, do that in getInventorNode
-
-    voltrans_->addObject( scalarfield_ );
+    scalarfield_->setMaterial( getMaterial() );
 
     CubeSampling sics = SI().sampling( true );
     CubeSampling cs = getInitCubeSampling( sics );
@@ -149,7 +149,6 @@ VolumeDisplay::~VolumeDisplay()
     for ( int idx=0; idx<children.size(); idx++ )
 	removeChild( children[idx] );
 
-    boxdragger_->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     boxdragger_->unRef();
     voltrans_->unRef();
     scalarfield_->unRef();
@@ -478,9 +477,10 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     mVisTrans::transform( displaytrans_, trans );
     Coord3 scale( xintv.width(), yintv.width(), zintv.width() );
     mVisTrans::transformDir( displaytrans_, scale );
-    trans -= 0.5*scale;
-    scale = Coord3( -scale.z, scale.y, scale.x );
+    trans += 0.5*scale;
+    scale = Coord3( scale.z, -scale.y, -scale.x );
     voltrans_->setMatrix( trans, Coord3( 0, 1, 0 ), M_PI_2, scale );
+    scalarfield_->setVolumeTransform( trans, Coord3( 0, 1, 0 ), M_PI_2, scale );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5), 
@@ -494,8 +494,6 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     }
 
     if ( scalarfield_ ) scalarfield_->turnOn( false );
-
-    resetManipulation();
 
     boxdragger_->setCenter(
 		    Coord3(xintv.center(),yintv.center(),zintv.center()) );
