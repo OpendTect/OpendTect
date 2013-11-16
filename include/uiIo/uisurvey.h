@@ -66,8 +66,9 @@ public:
 protected:
 
     SurveyInfo*		cursurvinfo_;
-    BufferString	initialdatadir_;
-    BufferString	initialsurvey_;
+    const BufferString	orgdataroot_;
+    BufferString	dataroot_;
+    BufferString	initialsurveyname_;
     uiSurveyMap*	survmap_;
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;

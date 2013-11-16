@@ -228,6 +228,7 @@ bool IOMan::isReady() const
     IOM().applicationClosing.cbs_ = apccbs; \
     if ( dotrigger && !IOM().bad() ) \
     { \
+	SurveyInfo::setSurveyName( SI().getDirName() ); \
 	setupCustomDataDirs(-1); \
 	if ( dotrigger ) \
 	{ \
@@ -982,7 +983,11 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 }
 
 
+//DEPRECATED:
 bool OD_isValidRootDataDir( const char* d )
+{ return IOMan::isValidDataRoot( d ); }
+
+bool IOMan::isValidDataRoot( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
     const BufferString dirnm( fp.fullPath() );
@@ -996,38 +1001,9 @@ bool OD_isValidRootDataDir( const char* d )
     return true;
 }
 
-/* Hidden function, not to be used lightly. Basically, changes DTECT_DATA */
-const char* OD_SetRootDataDir( const char* inpdatadir )
+
+//DEPRECATED:
+const char* OD_SetRootDataDir(const char*)
 {
-    BufferString datadir = inpdatadir;
-
-    if ( !OD_isValidRootDataDir(datadir) )
-	return "Provided directory name is not a valid OpendTect root data dir";
-
-    const bool haveenv = GetEnvVar("DTECT_DATA") || GetEnvVar("dGB_DATA")
-		      || GetEnvVar("DTECT_WINDATA") || GetEnvVar("dGB_WINDATA");
-    if ( haveenv )
-    {
-#ifdef __win__
-	FilePath dtectdatafp( datadir.buf() );
-
-	SetEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
-
-	if ( GetOSEnvVar( "DTECT_DATA" ) )
-	    SetEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
-#else
-	SetEnvVar( "DTECT_DATA", datadir.buf() );
-#endif
-    }
-
-    Settings::common().set( "Default DATA directory", datadir );
-    if ( !Settings::common().write() )
-    {
-	if ( !haveenv )
-	    return "Cannot write the user settings defining the "
-		    "OpendTect root data dir";
-    }
-
-    IOMan::newSurvey(0);
-    return 0;
+    return "Internal: Ignoring request to set root datadir";
 }

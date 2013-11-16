@@ -13,12 +13,16 @@ ________________________________________________________________________
 -*/
 
 
+/* DEPRECATED! Don't use! Will be gone in 5.0! */
+
+
 #include "generalmod.h"
 #include "gendefs.h"
 
 mGlobal(General) bool OD_isValidRootDataDir(const char*);
+	// Replaced by IOMan::isValidDataRoot
 mGlobal(General) const char* OD_SetRootDataDir(const char*);
-	    //!< return err msg (or null on success)
+	    //!< Don't do this!
 
 
 #endif

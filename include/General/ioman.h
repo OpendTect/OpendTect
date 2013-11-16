@@ -107,6 +107,8 @@ public:
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
+    static bool		isValidDataRoot(const char* dirnm);
+
 private:
 
     enum State		{ Bad, NeedInit, Good };

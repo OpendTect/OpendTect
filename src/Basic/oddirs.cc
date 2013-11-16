@@ -151,52 +151,81 @@ mExternC(Basic) const char* GetSurveyName(void)
 
 /* 'survey data' scope */
 
-const char* GetBaseDataDir(void)
+static BufferString basedatadiroverrule;
+
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
+mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
 {
-    static FileNameString bddir;
-    const char* dir = 0;
+    basedatadiroverrule = dirnm;
+}
+
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
+{
+#ifdef __win__
+    const BufferString windirnm( FilePath(dirnm).fullPath(FilePath::Windows) );
+    SetEnvVar( "DTECT_WINDATA", windirnm );
+    if ( GetOSEnvVar( "DTECT_DATA" ) )
+	SetEnvVar( "DTECT_DATA", windirnm );
+#else
+    SetEnvVar( "DTECT_DATA", dirnm );
+#endif
+}
+
+mExternC(Basic) const char* GetBaseDataDir()
+{
+    const char* dir;
+    if ( !basedatadiroverrule.isEmpty() )
+	return basedatadiroverrule.buf();
 
 #ifdef __win__
 
     dir = GetEnvVar( "DTECT_WINDATA" );
+    if ( !dir )
+    {
+	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
+	if ( !dir )
+	    dir = getCleanWinPath( GetSettingsDataDir() );
 
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
-    if ( !dir ) dir = getCleanWinPath( GetSettingsDataDir() );
-
-    if ( dir && *dir && !GetEnvVar("DTECT_WINDATA") )
-	SetEnvVar( "DTECT_WINDATA" , dir );
+	if ( dir && *dir )
+	    SetEnvVar( "DTECT_WINDATA", dir );
+    }
 
 #else
 
-    if ( !dir ) dir = GetEnvVar( "DTECT_DATA" );
-    if ( !dir ) dir = GetSettingsDataDir();
+    dir = GetEnvVar( "DTECT_DATA" );
+    if ( !dir )
+    {
+	dir = GetSettingsDataDir();
+	if ( dir && *dir )
+	    SetEnvVar( "DTECT_DATA", dir );
+    }
 
 #endif
 
     if ( !dir ) return 0;
-    strcpy( bddir.buf(), dir );
-    return bddir;
+
+    mDeclStaticString( ret );
+    ret = dir;
+    return ret.buf();
 }
 
 
-const char* GetDataDir(void)
+mExternC(Basic) const char* GetDataDir()
 {
-    static FileNameString filenamebuf;
-    const char* survnm;
     const char* basedir = GetBaseDataDir();
-    if ( !basedir || !*basedir ) return lostinspace;
+    if ( !basedir || !*basedir )
+	return lostinspace;
 
-    survnm = GetSurveyName();
-    if ( !survnm || !*survnm ) survnm = "_no_current_survey_";
-    strcpy( filenamebuf.buf(), mkFullPath(basedir,survnm) );
+    const char* survnm = GetSurveyName();
+    if ( !survnm || !*survnm )
+	survnm = "_no_current_survey_";
 
+    mDeclStaticString( ret );
+    ret = FilePath( basedir, survnm ).fullPath();
     if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgstrbuf, "GetDataDir: '%s'", filenamebuf.buf() );
-	od_debug_message( dbgstrbuf );
-    }
-
-    return filenamebuf;
+	od_debug_message( BufferString("GetDataDir",": ",ret) );
+    return ret.buf();
 }
 
 

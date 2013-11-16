@@ -21,13 +21,16 @@ mExpClass(uiIo) uiSetDataDir : public uiDialog
 public:
 			uiSetDataDir(uiParent*);
 
+    const char*		selectedDir() const	{ return seldir_; }
     static bool		isOK(const char* dirnm=0); // if null, std data dir
     static bool		setRootDataDir(uiParent*,const char*);
 
 protected:
 
-    BufferString	olddatadir;
-    uiFileInput*	basedirfld;
+    BufferString	seldir_;
+    uiFileInput*	basedirfld_;
+    const BufferString	curdatadir_;
+
 
     bool		acceptOK(CallBacker*);
 

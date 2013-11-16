@@ -75,8 +75,13 @@ public:
 				{ return (uiApplService&)applservice_; }
 
 
-    // Survey menu operations
+    // Survey management:
+    //! Kept for binary compat, in 5.0 only manageSurvey(uiParent* p=0)
     int				manageSurvey();
+    //! Will get default '= 0' in 5.0
+    static int			manageSurvey(uiParent*);
+
+    // Survey menu operations
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
 				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom, 
 				  Body, Props };

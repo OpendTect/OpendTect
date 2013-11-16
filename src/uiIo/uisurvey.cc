@@ -108,17 +108,18 @@ class uiNewSurveyByCopy : public uiDialog
 
 public:
 
-uiNewSurveyByCopy( uiParent* p, const char* dirnm )
+uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	: uiDialog(p,uiDialog::Setup("Import survey from location",
 		   "Copy surveys from any data root",mTODOHelpID))
+	, dataroot_(dataroot)
 {
     BufferString curfnm;
     if ( dirnm && *dirnm )
-	curfnm = FilePath( GetBaseDataDir(), dirnm ).fullPath();
+	curfnm = FilePath( dataroot_, dirnm ).fullPath();
     else
-	curfnm = GetBaseDataDir();
+	curfnm = dataroot_;
 
-    inpsurveyfld_ = new uiSurveySelect( this,"Survey to copy" );
+    inpsurveyfld_ = new uiSurveySelect( this, "Survey to copy" );
     inpsurveyfld_->setSurveyPath( curfnm );
     newsurveyfld_ = new uiSurveySelect( this, "New Survey name" );
     newsurveyfld_->attach( alignedBelow,  inpsurveyfld_ );
@@ -141,7 +142,7 @@ bool copySurv()
         return false;
     }
 
-    static const char* msg =
+    const char* msg =
 	"An unknown amount of data needs to be copied."
 	"\nDuring the copy, OpendTect will freeze."
 	"\nDepending on the data transfer rate, this can take a long time!"
@@ -167,6 +168,7 @@ bool acceptOK( CallBacker* )
     return copySurv();
 }
 
+    const BufferString	dataroot_;
     BufferString	inpdirnm_;
     BufferString	newdirnm_;
     uiSurveySelect*	inpsurveyfld_;
@@ -182,13 +184,15 @@ class uiStartNewSurveySetup : public uiDialog
 {
 
 public:
-    			uiStartNewSurveySetup(uiParent*,SurveyInfo&);
+    			uiStartNewSurveySetup(uiParent*,const char*,
+						SurveyInfo&);
 
     bool		isOK();
     bool		acceptOK(CallBacker*);
 
 protected:
 
+    const BufferString	dataroot_;
     SurveyInfo&		survinfo_;
     uiGenInput*		survnmfld_;
     uiCheckList*	pol2dfld_;
@@ -227,11 +231,12 @@ void zdomainChg( CallBacker* cb )
 };
 
 
-uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p,
+uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
     	: uiDialog(p,uiDialog::Setup("Create new survey",
 		    "Specify new survey parameters",mTODOHelpID))
 	, survinfo_(survinfo)
+	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
 {
     survnmfld_ = new uiGenInput( this, "Survey name" );
@@ -281,8 +286,7 @@ bool uiStartNewSurveySetup::isOK()
 
     char* str = survnm.buf();
     cleanupString( str, false, false, true );
-    const BufferString storagedir = FilePath( GetBaseDataDir() ).add( str )
-								.fullPath();
+    const BufferString storagedir = FilePath(dataroot_).add(str).fullPath();
     if ( File::exists(storagedir) )
     {
 	BufferString errmsg( "A survey called ", survnm, " already exists\n" );
@@ -372,8 +376,9 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey selection",
 	       "Select and setup survey","0.3.1").nrstatusflds(1))
-    , initialdatadir_(GetBaseDataDir())
-    , initialsurvey_(GetSurveyName())
+    , orgdataroot_(GetBaseDataDir())
+    , dataroot_(GetBaseDataDir())
+    , initialsurveyname_(GetSurveyName())
     , cursurvinfo_(0)
     , survmap_(0)
     , dirfld_(0)
@@ -387,8 +392,7 @@ uiSurvey::uiSurvey( uiParent* p )
     const int noteshght = 5;
     const int totwdth = lbwidth + mMapWidth + 10;
 
-    const char* ptr = GetBaseDataDir();
-    if ( !ptr || !*ptr )
+    if ( dataroot_.isEmpty() )
     {
 	new uiLabel( this,
 		"Cannot establish a base data directory."
@@ -399,10 +403,10 @@ uiSurvey::uiSurvey( uiParent* p )
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
-    static int sipidx2d mUnusedVar =
-		uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
-    static int sipidxcp mUnusedVar =
-		uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
+    mDefineStaticLocalObject( int, sipidx2d, mUnusedVar = 
+	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
+    mDefineStaticLocalObject( int, sipidxcp, mUnusedVar = 
+	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
@@ -537,12 +541,11 @@ const char* uiSurvey::selectedSurveyName() const
 
 bool uiSurvey::rootDirWritable() const
 {
-    const char* rootdir = GetBaseDataDir();
-    if ( !File::isWritable(rootdir) )
+    if ( !File::isWritable(dataroot_) )
     {
-	BufferString msg( "Cannot create new survey in\n",rootdir, \
-			  ".\nDirectory is write protected."); \
-	uiMSG().error( msg ); \
+	BufferString msg( "Cannot create new survey in\n",dataroot_,
+			  ".\nDirectory is write protected.");
+	uiMSG().error( msg );
 	return false;
     }
     return true;
@@ -594,29 +597,32 @@ bool uiSurvey::survTypeOKForUser( bool is2d )
 
 void uiSurvey::updateDataRootInSettings()
 {
-    Settings::common().set( "Default DATA directory", GetBaseDataDir() );
+    Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
 	uiMSG().warning(
 		"Could not save the base data location in the settings file" );
 }
 
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
+#define mRetExitWin { SetCurBaseDataDirOverrule( "" ); return true; }
+
+
 bool uiSurvey::acceptOK( CallBacker* )
 {
-    if ( !dirfld_ )
-	return true;
+    if ( !dirfld_ ) mRetExitWin
     if ( dirfld_->isEmpty() )
 	mErrRet("Please create a survey (or press Cancel)")
 
     const BufferString selsurv( selectedSurveyName() );
-    const bool samedataroot = initialdatadir_ == GetBaseDataDir();
-    const bool samesurvey = samedataroot && initialsurvey_ == selsurv;
+    const bool samedataroot = dataroot_ == orgdataroot_;
+    const bool samesurvey = samedataroot && initialsurveyname_ == selsurv;
 
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(0)
     if ( samedataroot && samesurvey && !parschanged_ )
-	return true;
+	mRetExitWin
 
     // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
@@ -631,6 +637,11 @@ bool uiSurvey::acceptOK( CallBacker* )
 	IOM().surveyParsChanged();
     else
     {
+	if ( !samedataroot )
+	{
+	    if ( !uiSetDataDir::setRootDataDir(this,dataroot_) )
+		return false;
+	}
 	if ( IOMan::newSurvey(cursurvinfo_) )
 	    cursurvinfo_ = 0; // it's not ours anymore
 	else
@@ -654,7 +665,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	}
     }
 
-    return true;
+    mRetExitWin
 }
 
 
@@ -664,14 +675,7 @@ bool uiSurvey::rejectOK( CallBacker* )
 	mErrRet( "You have removed the current survey ...\n"
 		   "You *have to* select a survey now!" )
 
-    if ( initialdatadir_ != GetBaseDataDir() )
-    {
-	if ( !uiSetDataDir::setRootDataDir(this,initialdatadir_) )
-	    mErrRet( "As we cannot reset to the old Data Root,\n"
-		       "You *have to* select a survey now!" )
-    }
-
-    return true;
+    mRetExitWin
 }
 
 
@@ -714,27 +718,26 @@ void uiSurvey::newButPushed( CallBacker* )
 	mErrRetVoid( errmsg )
     }
 
-    uiStartNewSurveySetup dlg( this, *newsurvinfo );
+    uiStartNewSurveySetup dlg( this, dataroot_, *newsurvinfo );
     if ( !dlg.go() )
 	{ delete newsurvinfo; return; }
 
-    const BufferString rootdir( GetBaseDataDir() );
     const BufferString orgdirname = newsurvinfo->getDirName().buf();
-    const BufferString storagedir = FilePath( rootdir ).add( orgdirname )
+    const BufferString storagedir = FilePath( dataroot_ ).add( orgdirname )
 						       	    .fullPath();
     if ( !uiSurveyInfoEditor::copySurv(
 		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),0,
-				  rootdir,orgdirname) )
+				  dataroot_,orgdirname) )
 	{ delete newsurvinfo;
 	    mErrRetVoid( "Cannot make a copy of the default survey" ); }
 
     setCurrentSurvInfo( newsurvinfo, false );
 
-    cursurvinfo_->datadir_ = rootdir;
+    cursurvinfo_->datadir_ = dataroot_;
     if ( !File::makeWritable(storagedir,true,true) )
 	mRetRollBackNewSurvey("Cannot set the permissions for the new survey")
 
-    if ( !cursurvinfo_->write(rootdir) )
+    if ( !cursurvinfo_->write(dataroot_) )
 	mRetRollBackNewSurvey( "Failed to write survey info" )
 
     if ( !doSurvInfoDialog(true) )
@@ -755,8 +758,7 @@ void uiSurvey::newButPushed( CallBacker* )
 void uiSurvey::rmButPushed( CallBacker* )
 {
     const BufferString selnm( selectedSurveyName() );
-    const BufferString seldirnm = FilePath(GetBaseDataDir())
-					    .add(selnm).fullPath();
+    const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
     BufferString msg( "This will remove the entire survey directory:\n\t" );
@@ -796,7 +798,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 {
     if ( !cursurvinfo_ || !rootDirWritable() ) return;
 
-    uiNewSurveyByCopy dlg( this, selectedSurveyName() );
+    uiNewSurveyByCopy dlg( this, dataroot_, selectedSurveyName() );
     if ( !dlg.go() )
 	return;
 
@@ -823,7 +825,7 @@ void uiSurvey::importButPushed( CallBacker* )
     if ( !fdlg.go() )
 	return;
 
-    uiSurvey_UnzipFile( this, fdlg.fileName(), GetBaseDataDir() );
+    uiSurvey_UnzipFile( this, fdlg.fileName(), dataroot_ );
     updateSurvList();
     //TODO set unpacked survey as current with dirfld_->setCurrentItem()
 }
@@ -867,8 +869,11 @@ void uiSurvey::exportButPushed( CallBacker* )
 void uiSurvey::dataRootPushed( CallBacker* )
 {
     uiSetDataDir dlg( this );
-    if ( !dlg.go() )
+    if ( !dlg.go() || dataroot_ == dlg.selectedDir() )
 	return;
+
+    dataroot_ = dlg.selectedDir();
+    SetCurBaseDataDirOverrule( dataroot_ );
 
     updateSurvList();
     const char* ptr = GetSurveyName();
@@ -915,7 +920,7 @@ void uiSurvey::updateSurvList()
     NotifyStopper ns( dirfld_->selectionChanged );
     const BufferString prevsel( dirfld_->getText() );
     dirfld_->setEmpty();
-    BufferStringSet dirlist; getSurveyList( dirlist );
+    BufferStringSet dirlist; getSurveyList( dirlist, dataroot_ );
     dirfld_->addItems( dirlist );
 
     if ( !dirfld_->isEmpty() )
@@ -939,7 +944,7 @@ bool uiSurvey::writeSettingsSurveyFile()
     if ( seltxt.isEmpty() )
 	mErrRet( "Survey folder name cannot be empty" )
 
-    if ( !File::exists(FilePath(GetBaseDataDir(),seltxt).fullPath()) )
+    if ( !File::exists(FilePath(dataroot_,seltxt).fullPath()) )
 	mErrRet( "Survey directory does not exist anymore" )
 
     const char* survfnm = SurveyInfo::surveyFileName();
@@ -965,7 +970,7 @@ void uiSurvey::readSurvInfoFromFile()
     SurveyInfo* newsi = 0;
     if ( !survnm.isEmpty() )
     {
-	const BufferString fname = FilePath( GetBaseDataDir() )
+	const BufferString fname = FilePath( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
 	newsi = SurveyInfo::read( fname );
 	if ( !newsi )
@@ -987,7 +992,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     if ( !dlg.go() )
 	return false;
 
-    if ( initialsurvey_ == selectedSurveyName() )
+    if ( initialsurveyname_ == selectedSurveyName() )
 	parschanged_ = true;
 
     updateSurvList();
@@ -1098,7 +1103,7 @@ bool uiSurvey::writeSurvInfoFileIfCommentChanged()
 	return true;
 
     cursurvinfo_->setComment( notes_->text() );
-    if ( !cursurvinfo_->write( GetBaseDataDir() ) )
+    if ( !cursurvinfo_->write( dataroot_ ) )
 	mErrRet( "Failed to write survey info.\nNo changes committed." )
 
     return true;
