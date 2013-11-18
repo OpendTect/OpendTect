@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "helpview.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -93,7 +94,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , attrsneedupdt_(attrsneedupdt)
 {
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
-	    				   adsm->is2D() ? "3D" : "2D" );
+					   adsm->is2D() ? "3D" : "2D" );
 
     createMenuBar();
     createToolBar();
@@ -148,14 +149,14 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "newset", newSet, "New attribute set" );
     mAddButton( "openset", openSet, "Open attribute set" );
     mAddButton( "defset", defaultSet, "Open default attribute set" );
-    mAddButton( "impset", importSet, 
-	    	"Import attribute set from other survey" );
+    mAddButton( "impset", importSet,
+		"Import attribute set from other survey" );
     mAddButton( "job2set", job2Set, "Reconstruct set from job file" );
     mAddButton( "save", savePush, "Save attribute set" );
     mAddButton( "saveas", saveAsPush, "Save attribute set as" );
     toolbar_->addSeparator();
-    mAddButton( "showattrnow", directShow, 
-	    	"Redisplay element with current attribute");
+    mAddButton( "showattrnow", directShow,
+		"Redisplay element with current attribute");
     mAddButton( "evalattr", evalAttribute, "Evaluate attribute" );
     mAddButton( "evalcrossattr",crossEvalAttrs,"Cross attributes evaluate");
     mAddButton( "xplot", crossPlot, "Cross-Plot attributes" );
@@ -181,7 +182,7 @@ void uiAttribDescSetEd::createGroups()
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
     sortbut_ = new uiToolButton( leftgrp, "sort", "Sort attributes",
-	    			 mCB(this,uiAttribDescSetEd,sortPush) );
+				 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( alignedBelow, movedownbut_ );
     rmbut_ = new uiToolButton( leftgrp, "trashcan", "Remove selected",
 				mCB(this,uiAttribDescSetEd,rmPush) );
@@ -200,14 +201,14 @@ void uiAttribDescSetEd::createGroups()
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	uiAttrDescEd::DomainType dt =
-	    	(uiAttrDescEd::DomainType)uiAF().domainType( idx );
+		(uiAttrDescEd::DomainType)uiAF().domainType( idx );
 	if ( (dt == uiAttrDescEd::Depth && SI().zIsTime())
 		|| (dt == uiAttrDescEd::Time && !SI().zIsTime()) )
 	    continue;
 
 	const bool is2d = inoutadsman_ ? inoutadsman_->is2D() : false;
 	uiAttrDescEd::DimensionType dimtyp =
-	    	(uiAttrDescEd::DimensionType)uiAF().dimensionType( idx );
+		(uiAttrDescEd::DimensionType)uiAF().dimensionType( idx );
 	if ( (dimtyp == uiAttrDescEd::Only3D && is2d)
 		|| (dimtyp == uiAttrDescEd::Only2D && !is2d) )
 	    continue;
@@ -224,6 +225,10 @@ void uiAttribDescSetEd::createGroups()
     helpbut_ = new uiToolButton( degrp, "contexthelp", "Help",
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
+
+    creditsbut_ = new uiToolButton( degrp, "credits", "Show credits",
+				mCB(this,uiAttribDescSetEd,creditsButPush) );
+    creditsbut_->attach( rightTo, helpbut_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );
     attrnmfld_->attach( alignedBelow, degrp );
@@ -271,7 +276,7 @@ void uiAttribDescSetEd::init()
         msg += "Load another now?";
         if ( uiMSG().askGoOn( msg ) )
 	{
-    	    BufferStringSet attribfiles;
+	    BufferStringSet attribfiles;
 	    BufferStringSet attribnames;
 	    getDefaultAttribsets( attribfiles, attribnames );
 	    uiAutoAttrSetOpen dlg( this, attribfiles, attribnames );
@@ -308,7 +313,7 @@ void uiAttribDescSetEd::init()
 	    }
 	}
 	else
-	{ 
+	{
 	    mUnsetAuto;
 	}
     }
@@ -316,7 +321,7 @@ void uiAttribDescSetEd::init()
     {
 	const BufferString txt = setctio_.ioobj ? setctio_.ioobj->name().buf()
 						: sKeyNotSaved;
-    	attrsetfld_->setText( txt );
+	attrsetfld_->setText( txt );
     }
 
     cancelsetid_ = setid_;
@@ -358,7 +363,7 @@ void uiAttribDescSetEd::attrTypSel( CallBacker* )
 void uiAttribDescSetEd::selChg( CallBacker* )
 {
     if ( updating_fields_ ) return;
-    	// Fix for continuous call during re-build of list
+	// Fix for continuous call during re-build of list
 
     doCommit( true );
     updateFields();
@@ -422,7 +427,7 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 	const bool douse = dlg.useAuto();
 	IOObj* ioobj = dlg.getObj();
 	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
-    	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
+	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
 	IOPar& par = SI().getPars();
 	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, (const char*)id)
@@ -492,6 +497,12 @@ void uiAttribDescSetEd::helpButPush( CallBacker* )
 }
 
 
+void uiAttribDescSetEd::creditsButPush( CallBacker* )
+{
+    uiMainWin::showCredits( curDescEd()->helpID() );
+}
+
+
 void uiAttribDescSetEd::rmPush( CallBacker* )
 {
     Desc* curdesc = curDesc();
@@ -547,7 +558,7 @@ void uiAttribDescSetEd::sortPush( CallBacker* )
 	newList( idx );
 }
 
-    
+
 void uiAttribDescSetEd::handleSensitivity()
 {
     bool havedescs = !attrdescs_.isEmpty();
@@ -564,7 +575,7 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     removeNotUsedAttr();
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
-    
+
     if ( inoutadsman_ )
         inoutadsman_->setSaved( adsman_->isSaved() );
 
@@ -589,7 +600,7 @@ void uiAttribDescSetEd::newList( int newcur )
     updating_fields_ = true;
     attrlistfld_->setEmpty();
     attrlistfld_->addItems( userattrnames_ );
-    updating_fields_ = false;	
+    updating_fields_ = false;
     if ( newcur < 0 ) newcur = 0;
     if ( newcur >= attrlistfld_->size() ) newcur = attrlistfld_->size()-1;
     if ( !userattrnames_.isEmpty() )
@@ -626,7 +637,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     Desc* dummydesc = PF().createDescCopy( attribname );
     if ( !dummydesc )
 	dummydesc = new Desc( "Dummy" );
-    
+
     dummydesc->ref();
     dummydesc->setDescSet( attrset_ );
     for ( int idx=0; idx<desceds_.size(); idx++ )
@@ -650,6 +661,8 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     }
     dummydesc->unRef();
     updating_fields_ = false;
+
+    creditsbut_->display( HelpViewer::hasSpecificCredits(curde->helpID()) );
 }
 
 
@@ -663,8 +676,8 @@ bool uiAttribDescSetEd::doAcceptInputs()
 	if ( errmsg )
 	{
 	    const char* attribname = desc->userRef();
-	    BufferString msg ( "Input is not correct for attribute '", 
-				attribname, "'. " ); 
+	    BufferString msg ( "Input is not correct for attribute '",
+				attribname, "'. " );
 	    uiMSG().error( msg, errmsg );
 	    return false;
 	}
@@ -679,7 +692,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     Desc* usedesc = useprev ? prevdesc_ : curDesc();
     if ( !usedesc )
 	return false;
-    
+
     BufferString newattr = uiAF().attrNameOf( attrtypefld_->attr() );
     BufferString oldattr = usedesc->attribName();
     bool checkusrref = true;
@@ -700,7 +713,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	    int oldattridx = attribids.indexOf( id );
 	    Desc* newdesc = createAttribDesc( checkusrref );
 	    if ( !newdesc ) return false;
-	    
+
 	    attrset_->removeDesc( id );
 	    if ( attrset_->errMsg() )
 	    {
@@ -852,7 +865,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	if ( setid_.isEmpty() ) return false;
 
 	setctio_.ioobj = IOM().get( setid_ );
-	if ( !setctio_.ioobj ) 
+	if ( !setctio_.ioobj )
 	    mErrRetFalse("Cannot find attribute set in data base")
     }
 
@@ -962,7 +975,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList dlg( this, sflsu );
     dlg.setHelpID("101.1.6");
     if ( !dlg.go() ) return;
-    
+
     const int selitm = dlg.selection();
     if ( selitm < 0 ) return;
     const char* filenm = attribfiles[selitm]->buf();
@@ -998,7 +1011,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 	    }
 
 	    if ( !File::exists(attrfnm) ) continue;
-		
+
 	    attribnames.add( subpar->getKey(idy) );
 	    attribfiles.add( attrfnm );
 	}
@@ -1011,7 +1024,7 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 {
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
-	    		 attribnames );
+			 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
 }
 
@@ -1160,11 +1173,11 @@ void uiAttribDescSetEd::removeNotUsedAttr()
 
 bool uiAttribDescSetEd::is2D() const
 {
-    if ( adsman_ ) 
+    if ( adsman_ )
 	return adsman_->is2D();
-    else if ( attrset_ ) 
+    else if ( attrset_ )
 	return attrset_->is2D();
-    else 
+    else
 	return false;
 }
 
@@ -1175,8 +1188,8 @@ void uiAttribDescSetEd::updtAllEntries()
 }
 
 
-bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip, 
-	ObjectSet<AttribParamGroup>& res, BufferStringSet& paramnms, 
+bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
+	ObjectSet<AttribParamGroup>& res, BufferStringSet& paramnms,
 	TypeSet<BufferStringSet>& usernms )
 {
     if ( !curDesc() )
@@ -1195,34 +1208,34 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 	const char* attrnm = ad->attribName();
 	const char* usernm = ad->userRef();
 	for ( int idy=0; idy<desceds_.size(); idy++ )
-    	{
-    	    if ( !desceds_[idy] || strcmp(attrnm,desceds_[idy]->attribName()) )
+	{
+	    if ( !desceds_[idy] || strcmp(attrnm,desceds_[idy]->attribName()) )
 	    continue;
-    
-	    TypeSet<EvalParam> tmp;
-    	    desceds_[idy]->getEvalParams( tmp );
-	    for ( int idz=0; idz<tmp.size(); idz++ )
-    	    {
-    		const int pidx = eps.indexOf(tmp[idz]);
-    		if ( pidx>=0 )
-    		    usernms[pidx].add( usernm );
-    		else
-    		{
-    		    eps += tmp[idz];
-    		    paramnms.add( tmp[idz].label_ );
 
-    		    BufferStringSet unms;
-    		    unms.add( usernm );
-    		    usernms += unms;
-    		    ids += idy;
-    		}
-    	    }
+	    TypeSet<EvalParam> tmp;
+	    desceds_[idy]->getEvalParams( tmp );
+	    for ( int idz=0; idz<tmp.size(); idz++ )
+	    {
+		const int pidx = eps.indexOf(tmp[idz]);
+		if ( pidx>=0 )
+		    usernms[pidx].add( usernm );
+		else
+		{
+		    eps += tmp[idz];
+		    paramnms.add( tmp[idz].label_ );
+
+		    BufferStringSet unms;
+		    unms.add( usernm );
+		    usernms += unms;
+		    ids += idy;
+		}
+	    }
 	    break;
-    	}
+	}
     }
-    
+
     for ( int idx=0; idx<eps.size(); idx++ )
-    	res += new AttribParamGroup( uip, *desceds_[ids[idx]], eps[idx] );
-    
+	res += new AttribParamGroup( uip, *desceds_[ids[idx]], eps[idx] );
+
     return eps.size();
 }

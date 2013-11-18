@@ -55,30 +55,30 @@ public:
     const MultiID&	curSetID() const	{ return setid_; }
 
     uiAttrDescEd*	curDescEd();
-    			//!< Use during operation only!
+			//!< Use during operation only!
     Attrib::Desc*	curDesc() const;
-    			//!< Use during operation only!
+			//!< Use during operation only!
     int			curDescNr() const;
-    			//!< Use during operation only!
+			//!< Use during operation only!
     void		updateCurDescEd();
     bool		is2D() const;
 
     void		setSensitive(bool);
 
     bool		getUiAttribParamGrps(
-	    			uiParent*,ObjectSet<AttribParamGroup>&,
+				uiParent*,ObjectSet<AttribParamGroup>&,
 				BufferStringSet& paramnms,
 				TypeSet<BufferStringSet>& usernms);
-    			//!<Get curDesc() parameter grps and param-usernms info!
+			//!<Get curDesc() parameter grps and param-usernms info!
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
     Notifier<uiAttribDescSetEd>		crossevalattrcb;
     Notifier<uiAttribDescSetEd>		xplotcb;
 
-    static const char* 	sKeyUseAutoAttrSet;
-    static const char* 	sKeyAuto2DAttrSetID;
-    static const char*  sKeyAuto3DAttrSetID;
+    static const char*	sKeyUseAutoAttrSet;
+    static const char*	sKeyAuto2DAttrSetID;
+    static const char*	sKeyAuto3DAttrSetID;
 
 protected:
 
@@ -87,8 +87,8 @@ protected:
     Attrib::DescSet*		attrset_;
     Attrib::Desc*		prevdesc_;
     MultiID			setid_;
-    ObjectSet<uiAttrDescEd> 	desceds_;
-    ObjectSet<Attrib::Desc> 	attrdescs_;
+    ObjectSet<uiAttrDescEd>	desceds_;
+    ObjectSet<Attrib::Desc>	attrdescs_;
     BufferStringSet&		userattrnames_;
     CtxtIOObj&			setctio_;
     MultiID			cancelsetid_;
@@ -104,10 +104,11 @@ protected:
     uiPushButton*		revbut_;
     uiGenInput*			attrnmfld_;
     uiGenInput*			attrsetfld_;
-    uiToolButton*       	helpbut_;
-    uiToolButton*       	moveupbut_;
-    uiToolButton*       	movedownbut_;
-    uiToolButton*       	sortbut_;
+    uiToolButton*		helpbut_;
+    uiToolButton*		creditsbut_;
+    uiToolButton*		moveupbut_;
+    uiToolButton*		movedownbut_;
+    uiToolButton*		sortbut_;
     uiToolButton*		rmbut_;
 
     void			attrTypSel(CallBacker*);
@@ -116,19 +117,20 @@ protected:
     void			addPush(CallBacker*);
     void			rmPush(CallBacker*);
     void			moveUpDownCB(CallBacker*);
-    void                	sortPush(CallBacker*);
-    void                	helpButPush(CallBacker*);
+    void			sortPush(CallBacker*);
+    void			helpButPush(CallBacker*);
+    void			creditsButPush(CallBacker*);
 
     void			autoSet(CallBacker*);
     void			newSet(CallBacker*);
     void			openSet(CallBacker*);
-    void                	openAttribSet(const IOObj*);
+    void			openAttribSet(const IOObj*);
     void			savePush(CallBacker*);
     void			saveAsPush(CallBacker*);
     void			changeInput(CallBacker*);
     void			defaultSet(CallBacker*);
     void			getDefaultAttribsets(BufferStringSet&,
-	    					     BufferStringSet&);
+						     BufferStringSet&);
     void			importSet(CallBacker*);
     void			importFile(CallBacker*);
     void			job2Set(CallBacker*);
@@ -170,7 +172,6 @@ public:
 
     void			updtAllEntries();
 };
-
 
 #endif
 
