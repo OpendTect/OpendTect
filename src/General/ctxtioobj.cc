@@ -258,6 +258,7 @@ MultiID IOObjContext::getSelKey() const
 	: selkey;
 }
 
+
 void IOObjContext::fillTrGroup()
 {
     if ( trgroup ) return;
@@ -279,7 +280,7 @@ void IOObjContext::fillTrGroup()
 	case IOObjContext::NLA:
 	    trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis", true );
 	    if ( trgroup->userName().isEmpty() )
-	    trgroup = &TranslatorGroup::getGroup( "Neural network", true );
+		trgroup = &TranslatorGroup::getGroup( "Neural network", true );
 	default:
 	    trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
 	break;
@@ -300,7 +301,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	{
 	    if ( trs[idx]->userName() == ioobj.translator() )
 		break;
-	    else if ( idx == trs.size() - 1 )
+	    else if ( idx == trs.size()-1 )
 		return false;
 	}
     }
@@ -336,12 +337,12 @@ void CtxtIOObj::fillDefault( bool oone2 )
 {
     ctxt.fillTrGroup();
 
-    BufferString keystr( ctxt.trgroup->getSurveyDefaultKey( 0 ) );
-    
+    BufferString keystr( ctxt.trgroup->getSurveyDefaultKey(0) );
+
     const FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
-	    keystr = IOPar::compKey(keystr,typestr);
-	
+	    keystr = IOPar::compKey( keystr, typestr );
+
     return fillDefaultWithKey( keystr, oone2 );
 }
 
@@ -383,8 +384,8 @@ void CtxtIOObj::setPar( IOPar* iop )
 
 void CtxtIOObj::destroyAll()
 {
-    delete ioobj;
-    delete iopar;
+    delete ioobj; ioobj = 0;
+    delete iopar; iopar = 0;
 }
 
 
