@@ -3,7 +3,7 @@
 # Description:  Script to scan zip files
 # Author:       Nageswara
 # Date:         April 2013
-# RCS:          $Id: $
+# RCS:          $Id: scan_pkgs 32443 2013-11-18 05:04:29Z nageswara.rao@dgbes.com $
 
 if ( $#argv != 2 ) then
     echo "Usage $0 <directory to scan zip file(s)> <all/single zipfile name>"
@@ -25,26 +25,27 @@ if( $pkgstoscan == all ) then
 else
     set pkgs=$pkgstoscan
 endif
-echo $pkgs
+echo "Packages to scan: $pkgs"
 
 rm -rf scaninfo.log
 
 foreach pkg ( ${pkgs} )
-echo "$pkg"
     set instdir=`zipinfo -1 ${pkg} | sed -e 's@/.*@@' | uniq`
-echo "DIR: $instdir"
+    echo "DIR: $instdir"
     echo "Scaning $pkg ..."
-    set filename=${pkg}.virusscan.log
-    avgscan $pkg --report=$filename
+    avgscan -a $pkg -r scan_report.log
     if ( $status != 0 ) then
 	echo "Failed to scan package $pkg. Scanning stopped!"
 	echo "Failed to scan $pkg" >> scaninfo.log
 	exit 1
     endif
 
+    set filename=${pkg}.virusscan.log
+    awk '{ if ($2!="command:") print $0 }' scan_report.log > $filename
     rm -rf "$instdir"
     mkdir "$instdir" "$instdir/relinfo"
     mv "$filename" "$instdir/relinfo/."
+    rm -rf scan_report.log
 
     zip $pkg "$instdir/relinfo/$filename"
     if ( $status != 0 ) then
