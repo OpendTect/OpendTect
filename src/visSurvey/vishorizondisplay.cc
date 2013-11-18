@@ -671,11 +671,14 @@ void HorizonDisplay::allowShading( bool yn )
 
 
 const Attrib::SelSpec* HorizonDisplay::getSelSpec( int channel ) const
-{ return as_[channel]; }
+{ return as_.validIdx( channel ) ? as_[channel] : 0; }
 
 
 void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
-{ (*as_[channel]) = as; }
+{ 
+    if ( as_.validIdx(channel) && as_[channel] ) 
+	(*as_[channel]) = as; 
+}
 
 
 void HorizonDisplay::setDepthAsAttrib( int channel )
