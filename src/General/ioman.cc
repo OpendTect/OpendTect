@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "threadlock.h"
 #include "timefun.h"
 #include "transl.h"
 
@@ -32,6 +33,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 IOMan*	IOMan::theinst_	= 0;
 static const MultiID emptykey( "" );
+
+
+static Threads::Lock& getIOMLock()
+{
+    mDefineStaticLocalObject( Threads::Lock, lock, (false) );
+    return lock;
+}
 
 
 IOMan& IOM()
@@ -249,6 +257,7 @@ static void clearSelHists()
 bool IOMan::newSurvey() { return newSurvey(0); }
 bool IOMan::newSurvey( SurveyInfo* newsi )
 {
+    Threads::Locker lock( getIOMLock() );
     mDestroyInst( true );
 
     SurveyInfo::deleteInstance();
@@ -267,6 +276,7 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
 
 bool IOMan::setSurvey( const char* survname )
 {
+    Threads::Locker lock( getIOMLock() );
     mDestroyInst( true );
 
     SurveyInfo::deleteInstance();
@@ -382,6 +392,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
     SurveyInfo::setSurveyName( "" ); // force user-set of survey
 
+    Threads::Locker lock( getIOMLock() );
     mDestroyInst( false );
     mFinishNewInst( false );
     return true;
@@ -390,6 +401,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
 bool IOMan::setRootDir( const char* dirnm )
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !dirnm || rootdir_==dirnm ) return true;
     if ( !File::isDirectory(dirnm) ) return false;
     rootdir_ = dirnm;
@@ -422,6 +434,8 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
+    Threads::Locker lock( getIOMLock() );
+
     const bool issamedir = dirptr_ && ky == dirptr_->key();
     if ( !forcereread && issamedir )
 	return true;
@@ -457,6 +471,7 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
 IOObj* IOMan::get( const MultiID& k ) const
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !IOObj::isKey(k) )
 	return 0;
 
@@ -479,6 +494,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
+    Threads::Locker lock( getIOMLock() );
     if ( bad() || !tgname ) return 0;
 
     const IOObj* ioobj = 0;
@@ -525,6 +541,7 @@ IOObj* IOMan::getLocal( const char* objname ) const
 
 IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !ctxt.trgroup ) return 0;
 
     IOM().to( ctxt.getSelKey() );
@@ -553,6 +570,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 			  const IOObjContext& ctxt,
 			  bool mknew, BufferString& errmsg ) const
 {
+    Threads::Locker lock( getIOMLock() );
     BufferString basekey( bky );
     if ( !basekey.isEmpty() ) basekey.add( "." );
     BufferString iopkey( basekey );
@@ -651,6 +669,7 @@ const MultiID& IOMan::key() const
 
 bool IOMan::setDir( const char* dirname )
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !dirname ) dirname = rootdir_;
 
     IODir* newdirptr = new IODir( dirname );
@@ -682,6 +701,7 @@ static const char* getTranslDirNm( const Translator* tr )
 
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 {
+    Threads::Locker lock( getIOMLock() );
     ctio.setObj( 0 );
     if ( ctio.ctxt.name().isEmpty() )
 	return;
@@ -778,6 +798,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 
 int IOMan::levelOf( const char* dirnm ) const
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !dirnm ) return 0;
 
     int lendir = strlen(dirnm);
@@ -797,6 +818,7 @@ int IOMan::levelOf( const char* dirnm ) const
 
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
+    Threads::Locker lock( getIOMLock() );
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
     return dirPtr() ? dirPtr()->commitChanges( clone ) : false;
@@ -805,6 +827,7 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 
 bool IOMan::permRemove( const MultiID& ky )
 {
+    Threads::Locker lock( getIOMLock() );
     if ( !dirPtr() || !dirPtr()->permRemove(ky) )
 	return false;
 
@@ -836,6 +859,7 @@ public:
 
 bool SurveyDataTreePreparer::prepDirData()
 {
+    Threads::Locker lock( getIOMLock() );
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     replaceCharacter( dd->desc_.buf(), ':', ';' );
@@ -854,6 +878,7 @@ bool SurveyDataTreePreparer::prepDirData()
 
 bool SurveyDataTreePreparer::prepSurv()
 {
+    Threads::Locker lock( getIOMLock() );
     if ( IOM().bad() ) { errmsg_ = "Bad directory"; return false; }
 
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
@@ -949,6 +974,7 @@ const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
 	    return cdd.selkey_;
     }
 
+    Threads::Locker lock( getIOMLock() );
     cdds += dd;
     int idx = cdds.size() - 1;
     const char* survnm = IOM().surveyName();
