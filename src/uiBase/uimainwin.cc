@@ -259,6 +259,7 @@ void uiMainWinBody::doShow( bool minimized )
     else
     {
 	if ( isMinimized() ) showNormal();
+	raise();
 	QMainWindow::show();
     }
 
