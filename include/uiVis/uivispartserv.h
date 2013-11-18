@@ -13,12 +13,14 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+#include "uiapplserv.h"
+
 #include "cubesampling.h"
 #include "datapack.h"
 #include "menuhandler.h"
 #include "ranges.h"
 #include "thread.h"
-#include "uiapplserv.h"
+#include <typeinfo>
 
 class BufferStringSet;
 class DataPointSet;
@@ -54,7 +56,7 @@ namespace ZDomain   { class Info; }
 
 mExpClass(uiVis) uiVisPartServer : public uiApplPartServer
 {
-    friend class 	uiMenuHandler;
+    friend class	uiMenuHandler;
     friend class        uiVisModeMgr;
 
 public:
@@ -62,9 +64,9 @@ public:
 			~uiVisPartServer();
 
     const char*		name() const;
-    			/*<\returns the partservers name */
+			/*<\returns the partservers name */
     NotifierAccess&	removeAllNotifier();
-    			/*<\Returns a notifier that is triggered
+			/*<\Returns a notifier that is triggered
 			            when the entire visualization is
 				    closed. All visBase::DataObjects
 				    must then be unrefed.  */
@@ -88,12 +90,12 @@ public:
     void		removeSelection();
 
     int			addScene(visSurvey::Scene* =0);
-    			/*!<Adds a scene. The argument is only used internally.
+			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
     void		removeScene(int);
     NotifierAccess&	nrScenesChange() { return nrsceneschange_; }
-    bool		clickablesInScene(const char* trackertype, 
+    bool		clickablesInScene(const char* trackertype,
 					  int sceneid) const;
     const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
 
@@ -104,11 +106,11 @@ public:
 
     bool		hasAttrib(int) const;
     enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };
-    			/*!\enum AttribFormat
+			/*!\enum AttribFormat
 				 Specifies how the object wants it's
 				 attrib data delivered.
 			   \var None
-			   	This object does not handle attribdata.
+				This object does not handle attribdata.
 			   \var	Cube
 				This object wants attribdata as DataCubes.
 			   \var Traces
@@ -127,7 +129,7 @@ public:
     void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;
     void		getAttribPosName(int id,int attrib,BufferString&) const;
-    			//!<Gets the name of the attrib position
+			//!<Gets the name of the attrib position
     bool		swapAttribs(int id,int attrib0,int attrib1);
     void		showAttribTransparencyDlg(int id,int attrib);
     unsigned char	getAttribTransparency(int id,int attrib) const;
@@ -136,40 +138,40 @@ public:
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
     void		setUserRefs(int id,int attrib,BufferStringSet*);
     bool		interpolationEnabled(int id) const;
-    			/*!<Specifies that the data is integers that should
+			/*!<Specifies that the data is integers that should
 			    be interpolated. */
     void		enableInterpolation(int id,bool yn);
-    			/*!<Specify that the data is integers that should
+			/*!<Specify that the data is integers that should
 			    be interpolated. */
     bool		isAngle(int id,int attrib) const;
-    			/*!<Specifies that the data is angles, i.e. -PI==PI. */
+			/*!<Specifies that the data is angles, i.e. -PI==PI. */
     void		setAngleFlag(int id, int attrib, bool yn);
-    			/*!<Specify that the data is angles, i.e. -PI==PI. */
+			/*!<Specify that the data is angles, i.e. -PI==PI. */
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
     void		setTranslation(int visid,const Coord3& shift);
     Coord3		getTranslation(int visid) const;
-    
+
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id,int attrib=-1) const;
     const Attrib::DataCubes* getCachedData(int id,int attrib) const;
     bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
-    			/*!< data becomes mine */
+			/*!< data becomes mine */
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
     void		createAndDispDataPack(int id,int attrib,
-	    				      const DataPointSet* );
+					      const DataPointSet* );
 
-    			//Trace data
+			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(int id) const;
     void		setTraceData(int id,int attrib,SeisTrcBuf&);
 
-    			// See visSurvey::SurfaceDisplay for details
+			// See visSurvey::SurfaceDisplay for details
     void		getRandomPos(int visid,DataPointSet&) const;
     void		getRandomPosCache(int visid,int attrib,
-	    				  DataPointSet& ) const;
+					  DataPointSet& ) const;
     void		setRandomPosData(int visid, int attrib,
 					 const DataPointSet*);
 
@@ -188,8 +190,8 @@ public:
 			/*!<\returns The previous status. */
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
-	    			 const Coord3& = Coord3::udf());
-    			/*!<\param menutype Please refer to \ref
+				 const Coord3& = Coord3::udf());
+			/*!<\param menutype Please refer to \ref
 				uiMenuHandler::executeMenu for a detailed
 				description.
 			*/
@@ -198,41 +200,41 @@ public:
     MenuHandler*	getToolBarHandler();
 
     MultiID		getMultiID(int) const;
-	
+
     int			getSelObjectId() const;
     int			getSelAttribNr() const;
     void		setSelObjectId(int visid,int attrib=-1);
     int			getSceneID(int visid) const;
     const ZDomain::Info* zDomainInfo(int sceneid) const;
-    			/*!< Returns Z domain info of scene */
+			/*!< Returns Z domain info of scene */
 
-    			//Events and their functions
+			//Events and their functions
     void		unlockEvent();
-    			/*!< This function _must_ be called after
+			/*!< This function _must_ be called after
 			     the object has sent an event to unlock
 			     the object. */
     int			getEventObjId() const;
-    			/*<\returns the id that triggered the event */
+			/*<\returns the id that triggered the event */
     int			getEventAttrib() const;
-    			/*<\returns the attrib that triggered the event */
+			/*<\returns the attrib that triggered the event */
 
     static int		evUpdateTree();
     void		triggerTreeUpdate();
 
     static int		evSelection();
-    			/*<! Get the id with getEventObjId() */
+			/*<! Get the id with getEventObjId() */
 
     static int		evDeSelection();
-    			/*<! Get the id with getEventObjId() */
+			/*<! Get the id with getEventObjId() */
 
     static int		evGetNewData();
-    			/*!< Get the id with getEventObjId() */
-    			/*!< Get the attrib with getEventAttrib() */
-    			/*!< Get selSpec with getSelSpec */
+			/*!< Get the id with getEventObjId() */
+			/*!< Get the attrib with getEventAttrib() */
+			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
     bool		calculateAttrib(int id,int attrib,bool newsel,
-	    				bool ignorelocked=false);
+					bool ignorelocked=false);
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;
     void		selectTexture(int id,int attrib,int texture);
@@ -250,15 +252,15 @@ public:
     static int		evSelectAttrib();
 
     static int		evInteraction();
-    			/*<! Get the id with getEventObjId() */
+			/*<! Get the id with getEventObjId() */
     BufferString	getInteractionMsg(int id) const;
-    			/*!< Returns dragger position or
+			/*!< Returns dragger position or
 			     Nr positions in picksets */
 
     static int		evViewAll();
     static int		evToHomePos();
 
-    				// ColorTable stuff
+				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
 					 FlatView::DataDispPars&,bool) const;
     const ColTab::MapperSetup*	getColTabMapperSetup(int id,int attrib,
@@ -268,7 +270,7 @@ public:
     const ColTab::Sequence*	getColTabSequence(int id,int attrib) const;
     bool			canSetColTabSequence(int id) const;
     void			setColTabSequence(int id,int attrib,
-	    					  const ColTab::Sequence&);
+						  const ColTab::Sequence&);
     bool			canHandleColTabSeqTrans(int id,int attr) const;
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
@@ -314,30 +316,30 @@ public:
 
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);
-    				/*!< \returns id of new object */
+				/*!< \returns id of new object */
 
-    				// Headon intensity event-related
+				// Headon intensity event-related
     float			sendGetHeadOnIntensityEvent(int sceneid);
-    void			sendSetHeadOnIntensityEvent(int sceneid, 
-	    						    float val);
+    void			sendSetHeadOnIntensityEvent(int sceneid,
+							    float val);
     float			getHeadOnIntensity() const;
     void			setHeadOnIntensity(float val);
     static int			evGetHeadOnIntensity();
     static int			evSetHeadOnIntensity();
 
-    				// Tracking stuff
+				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static int			evPickingStatusChange();
-    bool			sendPickingStatusChangeEvent(); 
+    bool			sendPickingStatusChangeEvent();
     static int			evDisableSelTracker();
     bool			sendDisableSelTrackerEvent();
-    void			trackInVolume(); 
+    void			trackInVolume();
 
     void			reportTrackingSetupActive(bool yn);
-    bool 			isTrackingSetupActive() const;
+    bool			isTrackingSetupActive() const;
 
     bool			isPicking() const;
-    				/*!<\returns true if the selected object
+				/*!<\returns true if the selected object
 				     is handling left-mouse picks on other
 				     objects, so the picks won't be handled by
 				     the selman. */
@@ -345,17 +347,17 @@ public:
     void			getPickingMessage(BufferString&) const;
 
     static int			evLoadPostponedData();
-    void 			loadPostponedData() const;
+    void			loadPostponedData() const;
 
     static int			evPostponedLoadingData();
     void			postponedLoadingData() const;
-    
+
     static int			evToggleBlockDataLoad();
-    void 			toggleBlockDataLoad() const;
+    void			toggleBlockDataLoad() const;
 
     static int			evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
-    
+
     void			showMPEToolbar(bool yn=true);
     void			updateMPEToolbar();
     void			updateSeedConnectMode();
@@ -370,13 +372,13 @@ public:
     void			fireFromMPEManStoreEMObject();
 
     uiSlicePos3DDisp*		getUiSlicePos() const
-    				{ return slicepostools_; }
+				{ return slicepostools_; }
 
     uiToolBar*			getItemTB() const	{ return itemtools_; }
 
     bool			writeSceneToFile(int id,
-	    					 const char* dlgtitle) const;
-    
+						 const char* dlgtitle) const;
+
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
@@ -385,7 +387,7 @@ public:
 
     void			lock(int id,bool yn);
     bool			isLocked(int id) const;
-    
+
 protected:
 
     void			createMenuCB(CallBacker*);
@@ -404,7 +406,7 @@ protected:
     bool			resetManipulation(int id);
 
     void			setUpConnections(int id);
-    				/*!< Should set all cbs for the object */
+				/*!< Should set all cbs for the object */
     void			removeConnections(int id);
 
     void			updateDraggers();
@@ -473,7 +475,7 @@ protected:
 };
 
 
-mClass(uiVis) uiVisModeMgr 
+mClass(uiVis) uiVisModeMgr
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);
@@ -483,7 +485,7 @@ public:
 
 protected:
 
-	uiVisPartServer&	visserv;	
+	uiVisPartServer&	visserv;
 };
 
 #endif
