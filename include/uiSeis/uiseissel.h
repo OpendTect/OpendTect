@@ -89,7 +89,7 @@ public:
     virtual void	updateInput();
 
     static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
-    				//!< returns new default CtxtIOObj
+				//!< returns new default CtxtIOObj
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
     static void		fillContext(Seis::GeomType,bool forread,IOObjContext&);
 
@@ -103,6 +103,7 @@ protected:
     uiCheckBox*		othdombox_;
 
     Setup		mkSetup(const Setup&,bool);
+    void		fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual void	commitSucceeded();
     virtual IOObj*	createEntry(const char*);
@@ -133,7 +134,7 @@ protected:
     BufferString	zdomainkey_;	// 2D only
 
     void		entrySel(CallBacker*);
-    void 		attrNmSel(CallBacker*);
+    void		attrNmSel(CallBacker*);
     const char*		getDataType();
     void		getComponentNames(BufferStringSet&) const;
 };

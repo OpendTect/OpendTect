@@ -49,8 +49,8 @@ static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     case Seis::Line:
 	return forread ? (setup.selattr_ ? "Input Line Set|Attribute"
 					 : "Input Line Set")
-	    	       : (setup.selattr_ ? "Output Line Set|Attribute"
-			       		 : "Output Line Set");
+		       : (setup.selattr_ ? "Output Line Set|Attribute"
+					 : "Output Line Set");
     default:
 	return forread ? "Input Data Store" : "Output Data Store";
     }
@@ -109,7 +109,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     , zdomainkey_(sssu.zdomkey_)
 {
     setSurveyDefaultSubsel( sssu.survdefsubsel_ );
-    
+
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
 
@@ -164,7 +164,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     selgrp_->getListField()->selectionChanged.notify(
-	    			mCB(this,uiSeisSelDlg,entrySel) );
+				mCB(this,uiSeisSelDlg,entrySel) );
     if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
@@ -173,11 +173,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
     {
-	compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
+	compfld_ = new uiLabeledComboBox( selgrp_, "Component", "Compfld" );
 	if ( attrfld_ )
 	    compfld_->attach( rightTo, attrfld_ );
 	else
-	    compfld_->attach( alignedBelow, selgrp_ );
+	    compfld_->attach( alignedBelow, topgrp );
 
 	entrySel(0);
     }
@@ -236,7 +236,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
 	const BufferString attrnm( attrfld_->text() );
         attrlistfld_->setEmpty();
-	attrlistfld_->addItems( nms ); 
+	attrlistfld_->addItems( nms );
 	attrfld_->setText( attrnm );
     }
 }
@@ -309,10 +309,10 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
     compnms.erase();
     const IOObj* ioobj = ioObj();
     if ( !ioobj ) return;
-    SeisTrcReader rdr( ioobj );                                         
+    SeisTrcReader rdr( ioobj );
     if ( !rdr.prepareWork(Seis::PreScan) ) return;
     SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;                     
+    if ( !transl ) return;
     transl->getComponentNames( compnms );
 }
 
@@ -335,8 +335,8 @@ static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread))
-    	, seissetup_(mkSetup(su,ctxt.forread))
-    	, othdombox_(0)
+	, seissetup_(mkSetup(su,ctxt.forread))
+	, othdombox_(0)
         , compnr_(0)
 {
     workctio_.ctxt = inctio_.ctxt;
@@ -344,14 +344,15 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
+    fillDefault();
     updateInput();
 }
 
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
-    	, seissetup_(mkSetup(su,c.ctxt.forread))
-    	, othdombox_(0)
+	, seissetup_(mkSetup(su,c.ctxt.forread))
+	, othdombox_(0)
         , compnr_(0)
 {
     workctio_.ctxt = inctio_.ctxt;
@@ -359,6 +360,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
+    fillDefault();
     updateInput();
 }
 
@@ -393,22 +395,30 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 
     CtxtIOObj* ret;
     if ( Seis::isPS(gt) )
-    {
 	ret = is2d ? mMkCtxtIOObj(SeisPS2D) : mMkCtxtIOObj(SeisPS3D);
-	if ( forread )
-	    ret->fillDefault();
-    }
     else
-    {
 	ret = mMkCtxtIOObj(SeisTrc);
-	if ( forread )
-	    ret->fillDefaultWithKey( IOPar::compKey( sKey::Default(),
-	       is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
-		    : SeisTrcTranslatorGroup::sKeyDefault3D() ) );
-    }
 
     ret->ctxt.forread = forread;
     return ret;
+}
+
+
+void uiSeisSel::fillDefault()
+{
+    workctio_.destroyAll();
+    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
+        return;
+
+    if ( Seis::isPS(seissetup_.geom_) )
+	workctio_.fillDefault();
+    else
+    {
+	const bool is2d = Seis::is2D( seissetup_.geom_ );
+	workctio_.fillDefaultWithKey( IOPar::compKey( sKey::Default(),
+	   is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
+		: SeisTrcTranslatorGroup::sKeyDefault3D() ) );
+    }
 }
 
 
@@ -525,8 +535,8 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 bool uiSeisSel::existingTyped() const
 {
     bool containscompnm = false;
-    const char* ptr = "";                                                   
-    ptr = strchr( getInput(), '|' );                                      
+    const char* ptr = "";
+    ptr = strchr( getInput(), '|' );
     if ( ptr )
 	containscompnm = true;
     return (!is2D() && !containscompnm) || isPS() ? uiIOObjSel::existingTyped()
@@ -632,7 +642,7 @@ void uiSeisSel::processInput()
     obtainIOObj();
     if ( !workctio_.ioobj && !workctio_.ctxt.forread )
 	return;
-    
+
     setAttrNm( workctio_.ioobj ? LineKey( getInput() ).attrName() : "" );
     uiIOObjSel::fillPar( dlgiopar_ );
     updateInput();
