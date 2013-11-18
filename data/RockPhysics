@@ -247,7 +247,7 @@ Variable.1.Unit: Seconds/meter
 Acoustic Impedance from sonic: Impedance
 Description: Compute acoustic impedance from sonic and density
 Formula: den / dt
-Formula.Unit: Kg/m2s
+Formula.Unit: Meter/second x Kg/m3
 Unit: G/cm2s
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -261,7 +261,7 @@ Variable.1.Unit: Seconds/meter
 Shear Impedance from sonic: Impedance
 Description: Compute shear impedance from shear sonic and density
 Formula: den / dts
-Formula.Unit: Kg/m2s
+Formula.Unit: Meter/second x Kg/m3
 Unit: G/cm2s
 Variable.0.Type: Density
 Variable.0.Name: Rhob
@@ -275,7 +275,7 @@ Variable.1.Unit: Seconds/meter
 Acoustic Impedance from P-wave velocity: Impedance
 Description: Compute acoustic impedance from P-wave velocity and density
 Formula: velp * den
-Formula.Unit: Kg/m2s
+Formula.Unit: Meter/second x Kg/m3
 Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -289,7 +289,7 @@ Variable.1.Unit: Kg/m3
 Shear Impedance from S-wave velocity: Impedance
 Description: Compute shear impedance from S-wave velocity and density
 Formula: vels * den
-Formula.Unit: Kg/m2s
+Formula.Unit: Meter/second x Kg/m3
 Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vs
@@ -303,7 +303,7 @@ Variable.1.Unit: Kg/m3
 Extended elastic impedance using CHI angle: Impedance
 Description: Compute elastic impedance from Density, P-wave velocity and S-wave velocity
 Formula: c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180)))
-Formula.Unit: Kg/m2s
+Formula.Unit: Meter/second x Kg/m3
 Unit: G/cm2s
 Variable.0.Type: Velocity
 Variable.0.Name: Vp
@@ -338,11 +338,11 @@ Unit: GigaPascal
 Variable.0.Type: Impedance
 Variable.0.Name: Ip
 Variable.0.Description: Acoustic Impedance
-Variable.0.Unit: Kg/m2s
+Variable.0.Unit: Meter/second x Kg/m3
 Variable.1.Type: Impedance
 Variable.1.Name: Is
 Variable.1.Description: Shear Impedance
-Variable.1.Unit: Kg/m2s
+Variable.1.Unit: Meter/second x Kg/m3
 Variable.2.Type: Density
 Variable.2.Name: Rhob
 Variable.2.Description: Density
@@ -359,7 +359,7 @@ Unit: GigaPascal
 Variable.0.Type: Impedance
 Variable.0.Name: Is
 Variable.0.Description: Shear Impedance
-Variable.0.Unit: Kg/m2s
+Variable.0.Unit: Meter/second x Kg/m3
 Variable.1.Type: Density
 Variable.1.Name: Rhob
 Variable.1.Description: Density
@@ -373,11 +373,11 @@ Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Ip
 Variable.0.Description: Acoustic Impedance
-Variable.0.Unit: Kg/m2s
+Variable.0.Unit: Meter/second x Kg/m3
 Variable.1.Type: Impedance
 Variable.1.Name: Is
 Variable.1.Description: Shear Impedance
-Variable.1.Unit: Kg/m2s
+Variable.1.Unit: Meter/second x Kg/m3
 Constant.0.Name: a
 Constant.0.Default: 2
 Constant.0.Typical Range: 2`2.5
@@ -390,7 +390,7 @@ Unit: GigaPascal.g/cm3
 Variable.0.Type: Impedance
 Variable.0.Name: Is
 Variable.0.Description: Shear Impedance
-Variable.0.Unit: Kg/m2s
+Variable.0.Unit: Meter/second x Kg/m3
 !
 Sonic from velocity: Sonic travel time
 Description: Conversion from velocity to sonic travel time
