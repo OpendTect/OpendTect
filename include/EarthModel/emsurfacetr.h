@@ -31,7 +31,7 @@ namespace EM
     class Surface;
 }
 
-typedef EM::Horizon3D 		EMHorizon3D;
+typedef EM::Horizon3D		EMHorizon3D;
 typedef EM::Horizon2D		EMHorizon2D;
 typedef EM::Horizon		EMAnyHorizon;
 typedef EM::Fault3D		EMFault3D;
@@ -89,7 +89,7 @@ public:
 mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMFault3D)
 public:
-    			mDefEmptyTranslatorGroupConstructor(EMFault3D)
+			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
 
@@ -104,7 +104,7 @@ public:
 mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
 {				       isTranslatorGroup(EMFaultStickSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
+			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
     const char*		defExtension() const { return "fss"; }
 
@@ -119,7 +119,7 @@ public:
 mExpClass(EarthModel) EMSurfaceTranslator : public Translator
 {
 public:
-    				EMSurfaceTranslator(const char* nm,
+				EMSurfaceTranslator(const char* nm,
 						    const char* unm)
 				    : Translator(nm,unm)
 				    , ioobj_(0)
@@ -136,16 +136,19 @@ public:
     virtual Executor*		reader(EM::Surface&)	{ return 0; }
 				/*!< Executor is managed by client. */
     Executor*			writer(const IOObj&,bool fullimplremove=true);
-				/*!< Executor is managed by client. */ 
+				/*!< Executor is managed by client. */
 
     const char*			errMsg() const		{ return errmsg_.str(); }
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
-	    				   const CallBack* cb=0) const;
+					   const CallBack* cb=0) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     static bool			getBinarySetting();
+
+    void			setCreatedFrom( const char* src )
+							{ crfrom_ = src; }
 
 protected:
 
@@ -154,6 +157,7 @@ protected:
     BufferString		errmsg_;
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;
+    BufferString		crfrom_;
 
     virtual bool		prepRead()		{ return true; }
     virtual bool		prepWrite()		{ return true; }
@@ -171,7 +175,7 @@ protected:
 mExpClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
-    				dgbEMSurfaceTranslator(const char*,const char*);
+				dgbEMSurfaceTranslator(const char*,const char*);
     virtual			~dgbEMSurfaceTranslator();
 
     virtual Executor*		reader(EM::Surface&);
@@ -201,7 +205,7 @@ protected:
 mExpClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon3D)
 public:
-    				dgbEMHorizon3DTranslator(const char* unm,
+				dgbEMHorizon3DTranslator(const char* unm,
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMHorizon3DTranslator()		{}
@@ -220,7 +224,7 @@ protected:
 mExpClass(EarthModel) dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon2D)
 public:
-    				dgbEMHorizon2DTranslator(const char* unm,
+				dgbEMHorizon2DTranslator(const char* unm,
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMHorizon2DTranslator()		{}
@@ -239,7 +243,7 @@ protected:
 mExpClass(EarthModel) dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
 {			       isTranslator(dgb,EMFault3D)
 public:
-    				dgbEMFault3DTranslator(const char* unm,
+				dgbEMFault3DTranslator(const char* unm,
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMFault3DTranslator()		{}
@@ -258,7 +262,7 @@ protected:
 mExpClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
-    				dgbEMFaultStickSetTranslator(const char* unm,
+				dgbEMFaultStickSetTranslator(const char* unm,
 							     const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMFaultStickSetTranslator()		{}

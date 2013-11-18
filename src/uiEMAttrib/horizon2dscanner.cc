@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
 #include "emhorizon2d.h"
+#include "emhorizonascio.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "strmprov.h"
@@ -194,7 +195,7 @@ int Horizon2DScanner::nextStep()
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( linenm, crd, trcnr, data );
     if ( ret < 0 ) return Executor::ErrorOccurred();
-    if ( ret == 0 ) 
+    if ( ret == 0 )
     {
 	fileidx_++;
 	delete ascio_;
@@ -267,7 +268,7 @@ int Horizon2DScanner::nextStep()
 
 	validx++;
     }
-    
+
     const int lineidx = validnms_.indexOf( linenm );
     const BinID bid( lineidx, pos.nr_ );
     bvalset_->add( bid, data.arr() );

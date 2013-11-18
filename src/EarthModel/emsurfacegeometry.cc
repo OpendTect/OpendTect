@@ -52,10 +52,10 @@ protected:
     SectionID				sid_;
     BufferString			name_;
 
-    static const char*  		addKey();
-    static const char*  		objKey();
-    static const char*  		sectionKey();
-    static const char*  		nameKey();
+    static const char*		addKey();
+    static const char*		objKey();
+    static const char*		sectionKey();
+    static const char*		nameKey();
 };
 
 
@@ -162,7 +162,7 @@ void SurfaceGeometry::geomChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event == EMObjectCallbackData::PositionChange )
-       changed_ = true;	
+       changed_ = true;
 }
 
 
@@ -261,7 +261,7 @@ SectionID SurfaceGeometry::addSection( const char* nm, bool addtoundo )
 }
 
 
-SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid, 
+SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid,
 				       bool addtoundo )
 {
     Geometry::Element* newsurf = createSectionGeometry();
@@ -379,7 +379,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
     Coord3 origpos = pos_;
     if ( t2dfunc ) origpos.z = t2dfunc->getValue( pos_.z );
 
-    const StepInterval<int> rowrange = rowRange(); 
+    const StepInterval<int> rowrange = rowRange();
     if ( rowrange.width(false)<0 )
 	return false;
     const StepInterval<int> colrange = rowRange();
@@ -399,7 +399,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
 			      PosID(surface_.id(),sid,rc.toInt64()) );
-	    
+
 	    }
 	}
     }
@@ -426,7 +426,7 @@ bool SurfaceGeometry::findClosestMesh( PosID& res, const Coord3& timepos,
 	PosID pid = closestnodes.getAssociatedValue(idx);
 	Coord3 c00, c10, c01, c11;
 	bool c00def, c10def, c01def, c11def;
-	getMeshCoords( pid, c00, c10, c01, c11, 
+	getMeshCoords( pid, c00, c10, c01, c11,
 		       c00def, c10def, c01def, c11def, t2dfunc );
 
 	int nrvalidcoords = 0;
@@ -457,7 +457,7 @@ bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
     getMeshCoords( pid, c00, c10, c01, c11,
-	    	   c00def, c10def, c01def, c11def,
+		   c00def, c10def, c01def, c11def,
 		   t2dfunc );
 
     TypeSet<Coord3> normals;
@@ -519,10 +519,10 @@ bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
-		 const FloatMathFunction* t2dfunc, bool normalize ) const 
+		 const FloatMathFunction* t2dfunc, bool normalize ) const
 {
     TypeSet<PosID> nodes;
-    if ( cs ) 
+    if ( cs )
 	findPos( *cs, &nodes );
     else
     {
@@ -531,7 +531,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	    const SectionID sid = sectionID(idy);
 	    const int nrsections = nrSections();
 
-	    const StepInterval<int> rowrange = rowRange(sid); 
+	    const StepInterval<int> rowrange = rowRange(sid);
 	    if ( rowrange.width(false)<0 )
 		continue;
 
@@ -573,7 +573,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
     const Coord3 nodetpos = surface_.getPos(node);
     const bool defnode = nodetpos.isDefined();
     const Coord3 nodecoord( nodetpos,
-	     		 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
+			 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     BoolTypeSet defnodes(dirs.size(), false );
@@ -660,7 +660,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
     if ( validcolvector && validrowvector )
     {
 	res = normalize ? rowvector.cross(colvector).normalize() :
-	    		  rowvector.cross(colvector);
+			  rowvector.cross(colvector);
 	return true;
     }
 
@@ -742,7 +742,7 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
     getMeshCoords( closestmesh, c00, c10, c01, c11,
-	    	   c00def, c10def, c01def, c11def,
+		   c00def, c10def, c01def, c11def,
 		   t2dfunc );
 
     Coord3 center(0,0,0);
@@ -810,9 +810,9 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 
 
 void SurfaceGeometry::getMeshCoords( const PosID& pid,
-				 Coord3& c00, Coord3& c10, 
+				 Coord3& c00, Coord3& c10,
 				 Coord3& c01, Coord3& c11,
-				 bool& c00def, bool& c10def, 
+				 bool& c00def, bool& c10def,
 				 bool& c01def, bool& c11def,
 				 const FloatMathFunction* t2dfunc ) const
 {
@@ -836,7 +836,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
 int SurfaceGeometry::findPos( const SectionID& sid,
 			  const Interval<float>& x, const Interval<float>& y,
 			  const Interval<float>& z,
-			  TypeSet<PosID>* res ) const	
+			  TypeSet<PosID>* res ) const
 {
     return 0;
 
@@ -855,7 +855,7 @@ int SurfaceGeometry::findPos( const SectionID& sid,
     for ( int idy=0; idy<nrnodes; idy++ )
     {
 	const SectionID sid = sids_[idx];
-	const PosID posid( surface_.id(), sid, 
+	const PosID posid( surface_.id(), sid,
 			getSurfSubID(nodes[idy],sid) );
 
 	TypeSet<PosID> clones;
@@ -883,7 +883,7 @@ int SurfaceGeometry::findPos( const SectionID& sid,
 int SurfaceGeometry::findPos( const Interval<float>& x,
 			      const Interval<float>& y,
 			      const Interval<float>& z,
-			      TypeSet<PosID>* res ) const	
+			      TypeSet<PosID>* res ) const
 {
     int sum = 0;
     const int nrsections = nrSections();
@@ -893,7 +893,7 @@ int SurfaceGeometry::findPos( const Interval<float>& x,
     return sum;
 }
 
-    
+
 int SurfaceGeometry::findPos( const CubeSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
@@ -957,7 +957,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     if ( !ioobj )
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
-    PtrMan<EMSurfaceTranslator> tr = 
+    PtrMan<EMSurfaceTranslator> tr =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
 	{ surface_.errmsg_ = tr ? tr->errMsg() :
@@ -968,7 +968,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     {
 	sel.sellinenames = newsel->sellinenames;
 	sel.seltrcranges = newsel->seltrcranges;
-	
+
 	sel.rg.start.inl() = sel.rg.inlRange().limitValue(
 		sel.rg.inlRange().snap( newsel->rg.inlRange().start ) );
 	sel.rg.start.crl() = sel.rg.crlRange().limitValue(
@@ -977,10 +977,12 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 		sel.rg.inlRange().snap( newsel->rg.inlRange().stop ) );
 	sel.rg.stop.crl() = sel.rg.crlRange().limitValue(
 		sel.rg.crlRange().snap( newsel->rg.crlRange().stop ) );
-	int stepfactorinl = mNINT32(((float)newsel->rg.step.inl()/sel.rg.step.inl()));
+	int stepfactorinl = mNINT32(((float)newsel->rg.step.inl()
+			  / sel.rg.step.inl()));
 	if ( stepfactorinl<1 ) stepfactorinl = 1;
 	sel.rg.step.inl() *= stepfactorinl;
-	int stepfactorcrl = mNINT32(((float)newsel->rg.step.crl()/sel.rg.step.crl()));
+	int stepfactorcrl = mNINT32(((float)newsel->rg.step.crl()
+			  / sel.rg.step.crl()));
 	if ( stepfactorcrl<1 ) stepfactorcrl = 1;
 	sel.rg.step.crl() *= stepfactorcrl;
 
@@ -998,17 +1000,20 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 
 
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
-       			          const MultiID* key )
+			          const MultiID* key )
 {
     const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
-    PtrMan<EMSurfaceTranslator> tr = 
+    PtrMan<EMSurfaceTranslator> tr =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !tr || !tr->startWrite(surface_) )
-	{ surface_.errmsg_ = tr ? tr->errMsg() : "No Translator"; return 0; }
+    if ( !tr )
+	{ surface_.errmsg_ = "Internal: No Translator"; return 0; }
+    if ( !tr->startWrite(surface_) )
+	{ surface_.errmsg_ = tr->errMsg(); return 0; }
+
 
     SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
@@ -1033,7 +1038,7 @@ void SurfaceGeometry::fillPar( IOPar& par ) const
 
 
 EMObjectIterator* SurfaceGeometry::createIterator( const SectionID&,
-       						   const CubeSampling* ) const
+						   const CubeSampling* ) const
 { return 0; }
 
 
@@ -1049,8 +1054,8 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
 	sid = 0;
 	while ( sids_.isPresent(sid) ) sid++;
     }
-    
-    BufferString name; 
+
+    BufferString name;
     if ( nm && *nm ) name = nm;
     else { name = "["; name += sid + 1; name += "]"; }
 
@@ -1064,7 +1069,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
 	EMM().undo().removeAllBeforeCurrentEvent();
     }
 
-    enableChecks( isChecksEnabled() ); 
+    enableChecks( isChecksEnabled() );
 
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
@@ -1131,7 +1136,7 @@ StepInterval<int> RowColSurfaceGeometry::rowRange() const
 
 
 StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
-       						   int row ) const
+						   int row ) const
 {
     if ( sid == -1 )
 	return colRange();
@@ -1148,7 +1153,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange() const
     for ( int idx=0; idx<nrSections(); idx++ )
     {
 	Geometry::RowColSurface* surf =
-	    		(Geometry::RowColSurface*) sections_[idx];
+			(Geometry::RowColSurface*) sections_[idx];
 
 	StepInterval<int> sectionrg = surf->colRange();
 	if ( sectionrg.start>sectionrg.stop )
@@ -1182,7 +1187,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
 }
 
 
-EMObjectIterator* RowColSurfaceGeometry::createIterator( 
+EMObjectIterator* RowColSurfaceGeometry::createIterator(
 			const SectionID& sid, const CubeSampling* cs ) const
 {
     return new RowColIterator( surface_, sid, cs );

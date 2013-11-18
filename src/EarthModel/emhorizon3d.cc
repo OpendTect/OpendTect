@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "emhorizon3d.h"
+#include "emhorizonascio.h"
 
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
@@ -44,7 +45,7 @@ public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
-       		 HorSampling hs	)
+		 HorSampling hs	)
     : Executor("Data Import")
     , horizon_(hor)
     , bvss_(sects)
@@ -156,7 +157,7 @@ class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects, 
+HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const HorSampling& hs )
     : Executor("Horizon Import")
     , horizon_(hor)
@@ -333,7 +334,7 @@ HorSampling Horizon3D::range( SectionID sid ) const
 }
 
 
-Array2D<float>* Horizon3D::createArray2D( 
+Array2D<float>* Horizon3D::createArray2D(
 		    SectionID sid, const ZAxisTransform* zaxistransform ) const
 {
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
@@ -373,7 +374,7 @@ Array2D<float>* Horizon3D::createArray2D(
 }
 
 
-bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid, 
+bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 			    bool onlyfillundefs, const char* undodesc )
 {
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
@@ -386,7 +387,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     const RowCol startrc( rowrg.start, colrg.start );
     const RowCol stoprc( rowrg.stop, colrg.stop );
     geometry().sectionGeometry( sid )->expandWithUdf( startrc, stoprc );
-    
+
     int poscount = 0;
     geometry().sectionGeometry( sid )->blockCallBacks( true, false );
     const bool didcheck = geometry().enableChecks( false );
@@ -420,7 +421,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 	    pos.z = val;
 	    setPos( sid, rc.toInt64(), pos, false );
 
-	    if ( ++poscount >= 10000 ) 
+	    if ( ++poscount >= 10000 )
 	    {
 		geometry().sectionGeometry( sid )->blockCallBacks( true, true );
 		poscount = 0;
@@ -447,7 +448,7 @@ const IOObjContext& Horizon3D::getIOObjContext() const
 { return EMHorizon3DTranslatorGroup::ioContext(); }
 
 
-Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections, 
+Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 			   const HorSampling& hs )
 {
     removeAll();
@@ -457,7 +458,7 @@ Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 
 Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 				      const BufferStringSet& attribnms,
-       				      const int start, const HorSampling& hs )
+				      const int start, const HorSampling& hs )
 {
     return new AuxDataImporter( *this, sections, attribnms, start, hs );
 }
@@ -465,7 +466,7 @@ Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 
 
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
-    : HorizonGeometry( surf ) 
+    : HorizonGeometry( surf )
     , step_( SI().inlStep(), SI().crlStep() )
     , loadedstep_( SI().inlStep(), SI().crlStep() )
     , checksupport_( true )
@@ -728,7 +729,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 		break;
 	    }
 	}
-	
+
 	if ( posid == firstposid || !nodefound || set.size() > 100000 )
 	    break;
     }
@@ -740,7 +741,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 
 void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 					   BinIDValueSet& bivs,
-       					   Pos::Provider3D* prov ) const
+					   Pos::Provider3D* prov ) const
 {
     PtrMan<EMObjectIterator> it = createIterator( sid );
     if ( !it ) return;
@@ -781,11 +782,11 @@ const char* Horizon3DAscIO::sKeyFormatStr()
 const char* Horizon3DAscIO::sKeyAttribFormatStr()
 { return "Horizon3DAttributes"; }
 
-Table::FormatDesc* Horizon3DAscIO::getDesc() 
+Table::FormatDesc* Horizon3DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+			StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet attrnms;
     createDescBody( fd, attrnms );
     return fd;
@@ -805,7 +806,7 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 	    ti = Table::TargetInfo::mkZPosition( true );
 	else
 	    ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
-		    			Table::Required );
+					Table::Required );
 	fd->bodyinfos_ += ti;
     }
 }
@@ -834,7 +835,7 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
     {
 	if ( !getHdrVals(strm_) )
 	    return -1;
-	
+
 	udfval_ = getfValue( 0 );
 	finishedreadingheader_ = true;
     }

@@ -199,9 +199,9 @@ bool IOObj::isKey( const char* ky )
 { return IOM().isKey(ky); }
 
 
-void IOObj::updateCreationPars()
+void IOObj::updateCreationPars() const
 {
-    pars_.setStdCreationEntries();
+    pars().setStdCreationEntries();
 }
 
 

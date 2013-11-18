@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "horizonscanner.h"
+#include "emhorizonascio.h"
 #include "binidvalset.h"
 #include "emhorizon3d.h"
 #include "posinfodetector.h"
@@ -198,7 +199,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 
 
 #define mGetZFac SI().zIsTime() ? 0.001f : 1
-	
+
 bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
@@ -221,7 +222,7 @@ bool HorizonScanner::analyzeData()
     {
 	if ( data.isEmpty() ) break;
 
-	if ( count > maxcount ) 
+	if ( count > maxcount )
 	{
 	    if ( nrscale == nrnoscale ) maxcount *= 2;
 	    else break;
@@ -241,7 +242,7 @@ bool HorizonScanner::analyzeData()
 
 	val = data[0];
 	bool validvert = false;
-	if ( !mIsUdf(val) ) 
+	if ( !mIsUdf(val) )
 	{
 	    if ( validrg.includes(val,false) ) { nrnoscale++; validvert=true; }
 	    if ( zistime && validrg.includes(val*fac,false) )
@@ -265,7 +266,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 {
     if ( !SI().isReasonable(bid) )
 	return false;
-    
+
     Interval<float> zrg( SI().zRange(false) );
     const float zwidth = zrg.width();
     zrg.sort();
@@ -311,7 +312,7 @@ int HorizonScanner::nextStep()
     if ( ret < 0 )
 	mErrRet("Error during data interpretation."
 		"\nPlease check the format definition")
-    if ( ret == 0 ) 
+    if ( ret == 0 )
     {
 	fileidx_++;
 	delete ascio_;

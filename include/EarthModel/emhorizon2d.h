@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "horizon2dline.h"
 #include "posinfo2dsurv.h"
-#include "tableascio.h"
-#include "od_istream.h"
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
@@ -56,12 +54,12 @@ public:
 					    int step=1);
     bool			includeLine(Pos::GeomID geomid,int step=1);
 
-    bool 			addLine(const PosInfo::Line2DKey&,int step=1);
-    bool 			addLine(Pos::GeomID geomid,int step=1);
+    bool			addLine(const PosInfo::Line2DKey&,int step=1);
+    bool			addLine(Pos::GeomID geomid,int step=1);
 
-    bool 			addLine(const PosInfo::Line2DKey&,
+    bool			addLine(const PosInfo::Line2DKey&,
 					const StepInterval<int>& trcrg);
-    bool 			addLine(Pos::GeomID geomid,
+    bool			addLine(Pos::GeomID geomid,
 					const StepInterval<int>& trcrg);
 
     void			removeLine(const PosInfo::Line2DKey&);
@@ -69,8 +67,8 @@ public:
 
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
-	    				    bool retundef=false) const;
-    				/*!<\param retundef specifies what to do
+					    bool retundef=false) const;
+				/*!<\param retundef specifies what to do
 				           if no neighbor is found. If it
 					   true, it returnes unf, if not
 					   it return the id of the undef
@@ -81,14 +79,14 @@ public:
     static const char*		sKeyLineSets()	{ return "Set ID of line "; }
     static const char*		sKeyID()	{ return "ID"; }
     static const char*		sKeyTraceRange()
-    				{ return "Trace Range of line "; }
+				{ return "Trace Range of line "; }
     static const char*		sKeyTrcRg()	{ return "Trace range"; }
     static const char*		sKeyNrLines()	{ return "Nr of Lines"; }
 
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
     StepInterval<int>		colRange(const SectionID&,
-	    				 const PosInfo::Line2DKey&) const;
+					 const PosInfo::Line2DKey&) const;
     StepInterval<int>		colRange(const SectionID&,
 					 Pos::GeomID geomid) const;
 
@@ -98,10 +96,10 @@ public:
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
-    bool 			doAddLine(const PosInfo::Line2DKey&,
+    bool			doAddLine(const PosInfo::Line2DKey&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
-    bool 			doAddLine(Pos::GeomID geomid,
+    bool			doAddLine(Pos::GeomID geomid,
 					  const StepInterval<int>& trcrg,
 					  bool mergewithdouble);
 
@@ -125,8 +123,8 @@ public:
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
-    				//!< Convenience function. If you need speed,
-    				//!< don't use it.
+				//!< Convenience function. If you need speed,
+				//!< don't use it.
 
     bool			unSetPos(const EM::PosID&,bool addtohistory);
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,
@@ -138,25 +136,25 @@ public:
     Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
 
     Coord3			getPos(EM::SectionID,const PosInfo::Line2DKey&,
-	    			       int trcnr) const;
+				       int trcnr) const;
     Coord3			getPosition(EM::SectionID,Pos::GeomID geomid
 					    ,int trcnr) const;
 
     bool			setPos(EM::SectionID,const PosInfo::Line2DKey&,
-	    			       int trcnr,float z,bool addtohistory);
+				       int trcnr,float z,bool addtohistory);
     bool			setPos(EM::SectionID,Pos::GeomID geomid,
-	    			       int trcnr,float z,bool addtohistory);
+				       int trcnr,float z,bool addtohistory);
 
     bool			setPos(const EM::PosID&,const Coord3&,bool);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-	    			       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohistory);
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
     virtual void		removeAll();
     void			removeSelected(const Selector<Coord3>& selector,
-	    				       TaskRunner* tr );
+					       TaskRunner* tr );
 
     bool			setArray1D(const Array1D<float>&,
 					   SectionID sid,
@@ -168,15 +166,15 @@ public:
 					   const PosInfo::Line2DKey& l2dkey,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,SectionID sid,
-	    				   Pos::GeomID geomid,
+					   Pos::GeomID geomid,
 					   bool onlyfillundefs );
 
     Array1D<float>*		createArray1D(SectionID,
-	    				      const PosInfo::Line2DKey& l2dkey,
-	    				      const ZAxisTransform* =0) const;
+					      const PosInfo::Line2DKey& l2dkey,
+					      const ZAxisTransform* =0) const;
     Array1D<float>*		createArray1D(SectionID,
-	    				      Pos::GeomID geomid,
-	    				      const ZAxisTransform* =0) const;
+					      Pos::GeomID geomid,
+					      const ZAxisTransform* =0) const;
 
 protected:
 
@@ -184,38 +182,6 @@ protected:
     Horizon2DGeometry		geometry_;
 };
 
-
-/*!
-\brief Ascii I/O for Horizon2D.
-*/
-
-mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
-{
-public:
-    				Horizon2DAscIO( const Table::FormatDesc& fd,
-						od_istream& strm )
-				    : Table::AscIO(fd)
-				    , udfval_(mUdf(float))
-				    , finishedreadingheader_(false)
-				    , strm_(strm)      		    {}
-
-    static Table::FormatDesc*   getDesc();
-    static void			updateDesc(Table::FormatDesc&,
-	    				   const BufferStringSet&);
-    static void                 createDescBody(Table::FormatDesc*,
-	    				   const BufferStringSet&);
-
-    static bool			isFormatOK(const Table::FormatDesc&,
-	    				   BufferString&);
-    int				getNextLine(BufferString& lnm,Coord& crd,
-					    int& trcnr,TypeSet<float>& data);
-
-protected:
-
-    od_istream			strm_;
-    float			udfval_;
-    bool			finishedreadingheader_;
-};
 
 } // namespace EM
 

@@ -41,7 +41,7 @@ class SurfaceIODataSelection;
 mExpClass(EarthModel) SurfaceGeometry : public CallBacker
 {
 public:
-    			SurfaceGeometry(Surface&);
+			SurfaceGeometry(Surface&);
     virtual		~SurfaceGeometry();
     virtual void	removeAll();
 
@@ -56,19 +56,19 @@ public:
     int			sectionIndex(const SectionID&) const;
     const char*		sectionName(const SectionID&) const;
     bool		setSectionName( const SectionID&, const char*,
-	    				bool addtohistory );
+					bool addtohistory );
     SectionID		addSection(const char* nm,bool addtohistory);
     SectionID		addSection(const char* nm,const SectionID&,
-	    			   bool addtohistory);
-    			/*!<Return false if the sectionid allready exists */
+				   bool addtohistory);
+			/*!<Return false if the sectionid allready exists */
     virtual bool	removeSection(const SectionID&,bool addtohistory);
     virtual SectionID	cloneSection(const SectionID&);
-    
+
     virtual const Geometry::Element*	sectionGeometry(const SectionID&) const;
     virtual Geometry::Element*		sectionGeometry(const SectionID&);
     virtual int		getConnectedPos(const PosID& posid,
-	    				TypeSet<PosID>* res) const;
-    			/*!<\returns the number of connected pos. */
+					TypeSet<PosID>* res) const;
+			/*!<\returns the number of connected pos. */
     virtual void	getLinkedPos(const PosID& posid,TypeSet<PosID>&) const;
     virtual bool	isAtEdge(const PosID&) const;
 
@@ -82,16 +82,16 @@ public:
 			      const MultiID* key=0);
 
     virtual int		findPos(const SectionID&,const Interval<float>& x,
-	    			const Interval<float>& y,
+				const Interval<float>& y,
 				const Interval<float>& z,
 				TypeSet<PosID>* res) const;
     virtual int		findPos(const Interval<float>& x,
-	    			const Interval<float>& y,
+				const Interval<float>& y,
 				const Interval<float>& z,TypeSet<PosID>*) const;
     virtual int		findPos(const CubeSampling&,TypeSet<PosID>*) const;
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-	    				       const CubeSampling* =0) const;
+					       const CubeSampling* =0) const;
 
 
     virtual bool	usePar(const IOPar&);
@@ -124,7 +124,7 @@ protected:
 mExpClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
 {
 public:
-    			RowColSurfaceGeometry(Surface&);
+			RowColSurfaceGeometry(Surface&);
     virtual		~RowColSurfaceGeometry();
 
 
@@ -138,7 +138,7 @@ public:
     StepInterval<int>		colRange(int row) const;
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-	    				       const CubeSampling* =0) const;
+					       const CubeSampling* =0) const;
 
 };
 

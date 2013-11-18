@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tabledef.h"
 #include "file.h"
 #include "emhorizon2d.h"
+#include "emhorizonascio.h"
 
 #include <math.h>
 
@@ -208,7 +209,7 @@ protected:
 };
 
 
-uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
+uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
 				 "104.0.14").modal(false))
     , scanner_(0)
@@ -228,7 +229,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     TypeSet<BufferStringSet> linenms;
     uiSeisPartServer::get2DLineInfo( linesetnms_, setids_, linenms );
     uiLabeledComboBox* lsetbox = new uiLabeledComboBox( this, "Select Line Set",
-	    						"Line Set Selector" );
+							"Line Set Selector" );
     lsetbox->attach( alignedBelow, inpfld_ );
     linesetfld_ = lsetbox->box();
     linesetfld_->addItems( linesetnms_ );
@@ -240,14 +241,14 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	hornms.add( horinfos_[idx]->name );
 
     uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
-	   				"Select Horizons to import", true ); 
+					"Select Horizons to import", true );
     horbox->attach( alignedBelow, lsetbox );
     horselfld_ = horbox->box();
     horselfld_->selectAll( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, "Add new",
-	    			mCB(this,uiImportHorizon2D,addHor), false );
+				mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.9" );
@@ -255,7 +256,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 
     scanbut_ = new uiPushButton( this, "Scan Input Files",
-	    			 mCB(this,uiImportHorizon2D,scanPush), false );
+				 mCB(this,uiImportHorizon2D,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_ );
 
     uiSeparator* sep = new uiSeparator( this );
@@ -340,7 +341,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 	return;
     }
 
-    if ( scanner_ ) 
+    if ( scanner_ )
     {
 	if ( cb )
 	    scanner_->launchBrowser();
@@ -409,7 +410,7 @@ bool uiImportHorizon2D::doImport()
 	{
 	    id = em.createObject( EM::Horizon2D::typeStr(), nm );
 	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	    if ( ioobj ) 
+	    if ( ioobj )
 		hor->setMultiID( ioobj->key() );
 
 	    hor->ref();
@@ -505,7 +506,7 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select input file(s)" )
-    
+
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
@@ -529,7 +530,7 @@ bool uiImportHorizon2D::checkInpFlds()
     if ( !getFileNames(filenames) ) return false;
 
     if ( !horselfld_->nrSelected() )
-	mErrRet("Please select at least one horizon") 
+	mErrRet("Please select at least one horizon")
 
     if ( !dataselfld_->commit() )
 	mErrRet( "Please define data format" );

@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "emhorizon2d.h"
+#include "emhorizonascio.h"
 
 #include "arrayndimpl.h"
 #include "emsurfacetr.h"
@@ -106,22 +107,22 @@ Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 
 
 bool Horizon2DGeometry::includeLine( const PosInfo::Line2DKey& l2dkey,int step )
-{ return doAddLine( l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step), 
+{ return doAddLine( l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step),
 								    true ); }
 
 
 bool Horizon2DGeometry::includeLine( Pos::GeomID geomid, int step )
-{ return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step), 
+{ return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
 								    true ); }
 
 
 bool Horizon2DGeometry::addLine( const PosInfo::Line2DKey& l2dkey, int step )
-{ return doAddLine(l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step), 
+{ return doAddLine(l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step),
 								    false); }
 
 
 bool Horizon2DGeometry::addLine( Pos::GeomID geomid, int step )
-{ return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step), 
+{ return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
 								    false); }
 
 
@@ -136,7 +137,7 @@ bool Horizon2DGeometry::addLine( Pos::GeomID geomid,
 
 
 bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
-				   const StepInterval<int>& inptrg, 
+				   const StepInterval<int>& inptrg,
 				   bool mergewithdouble )
 {
     if ( geomids_.isPresent(geomid) )
@@ -469,7 +470,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    if( S2DPOS().curLineSetID() != l2dkey.lsID() )
 		S2DPOS().setCurLineSet( l2dkey.lsID() );
 	    PosInfo::Line2DData linegeom(
-		    	S2DPOS().getLineName(l2dkey.lineID()));
+			S2DPOS().getLineName(l2dkey.lineID()));
 	    if ( !S2DPOS().getGeometry(linegeom) )
 		continue;
 
@@ -489,7 +490,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	return false;
     BufferStringSet linenames;
     if ( !par.get(sKeyLineNames(),linenames)  )
-     	return false;
+	return false;
 
     for ( int idx=0; idx<lineids.size(); idx++ )
     {
@@ -874,7 +875,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+			StringInpSpec(sKey::FloatUdf()), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;
@@ -900,11 +901,11 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
     Table::TargetInfo* ti = new Table::TargetInfo( "Position", DoubleInpSpec(),
-	    				    Table::Optional );
+					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
     fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
-	    				     Table::Optional );
+					     Table::Optional );
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
@@ -927,7 +928,7 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
 int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
-     				 TypeSet<float>& data )
+				 TypeSet<float>& data )
 {
     data.erase();
     if ( !finishedreadingheader_ )

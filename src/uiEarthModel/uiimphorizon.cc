@@ -34,13 +34,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
+#include "emhorizonascio.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 #include "file.h"
 #include "filepath.h"
 #include "horizonscanner.h"
+#include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
@@ -142,7 +145,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
-	interpolparbut_ = new uiPushButton( this, "Settings", 
+	interpolparbut_ = new uiPushButton( this, "Settings",
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
 
@@ -159,7 +162,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	displayfld_ = new uiCheckBox( this, "Display after import" );
 	displayfld_->attach( alignedBelow, colbut_ );
-	
+
 	fillUdfSel(0);
     }
 
@@ -215,7 +218,7 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 
     const FixedString fnm = inpfld_->fileName();
     scanbut_->setSensitive( !fnm.isEmpty() && nrattrib );
-    if ( !scanner_ ) 
+    if ( !scanner_ )
     {
 	subselfld_->setSensitive( false );
 	if ( filludffld_ )
@@ -278,10 +281,10 @@ void uiImportHorizon::scanPush( CallBacker* )
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 
-    if ( isgeom_ ) 
+    if ( isgeom_ )
     {
 	filludffld_->setSensitive( scanner_->gapsFound(true) ||
-	    		   	   scanner_->gapsFound(false) );
+				   scanner_->gapsFound(false) );
 	fillUdfSel(0);
     }
 
@@ -298,7 +301,7 @@ void uiImportHorizon::scanPush( CallBacker* )
 	BufferString msg = "The horizon is not compatible with survey "; \
 	msg +=  "trace, do you want to continue?"; \
 	if ( !uiMSG().askGoOn(msg) ) \
-    	    return false; \
+	    return false; \
     }
 
 
@@ -328,7 +331,7 @@ bool uiImportHorizon::doScan()
     {
 	mNotCompatibleRet(c);
     }
-    
+
     cs.hrg.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
@@ -372,7 +375,7 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
     if ( col != Color::NoColor() )
 	colbut_->setColor( col );
 }
-    
+
 #define mErrRet(s) { uiMSG().error(s); return 0; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
 #define mSave(taskrunner) \
@@ -383,7 +386,7 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 	return false; \
     } \
     rv = TaskRunner::execute( &taskrunner, *exec ); \
-    delete exec; 
+    delete exec;
 
 bool uiImportHorizon::doImport()
 {
@@ -473,6 +476,17 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     const bool res = doImport();
     if ( res )
     {
+	if ( isgeom_ )
+	{
+	    const IOObj* ioobj = outputfld_->ioobj();
+	    if ( ioobj )
+	    {
+		ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+		ioobj->updateCreationPars();
+		IOM().commitChanges( *ioobj );
+	    }
+	}
+
 	uiMSG().message( "Horizon successfully imported" );
 	if ( doDisplay() )
 	    importReady.trigger();
@@ -486,7 +500,7 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select input file(s)" )
-    
+
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {

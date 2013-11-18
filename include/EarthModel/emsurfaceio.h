@@ -52,9 +52,9 @@ public:
 
     void		setOutput(EM::Surface&);
     void		setOutput(Array3D<float>&);
-    			/*!<\note only z-values will be put in array
+			/*!<\note only z-values will be put in array
 			    \note sizes of 1st and second dim must fit
-			   	  row/col selection.
+				  row/col selection.
 			    \note size in third dim must fit number of
 			          sections given by selSections. */
 
@@ -67,7 +67,7 @@ public:
     EM::SectionID	sectionID(int) const;
     BufferString	sectionName(int) const;
     void		selSections(const TypeSet<EM::SectionID>&);
-    			/*!< The given sectionIDs will be loaded. If
+			/*!< The given sectionIDs will be loaded. If
 			     this function is not called, all avaliable
 			     sections will be loaded. */
 
@@ -76,7 +76,7 @@ public:
     const char*		auxDataName(int) const;
     float		auxDataShift(int) const;
     void		selAuxData(const TypeSet<int>&);
-    			/*!< The specified data will be loaded. If this
+			/*!< The specified data will be loaded. If this
 			     function is not called, all avaliable
 			     auxdata will be loaded. */
 
@@ -87,7 +87,7 @@ public:
     void		setRowInterval(const StepInterval<int>&);
     void		setColInterval(const StepInterval<int>&);
     void		setReadOnlyZ(bool yn=true);
-    void 		setLineNames(const BufferStringSet&);
+    void		setLineNames(const BufferStringSet&);
     void		setLinesTrcRngs(const TypeSet<StepInterval<int> >&);
 
     int			nrLines() const;
@@ -203,9 +203,9 @@ protected:
 
     bool		readVersion2Row(od_istream&,int,int);
 
-//Version 3 stuff 
+//Version 3 stuff
     bool		readVersion3Row(od_istream&,int,int,int,
-	    					int noofcoltoskip=0);
+						int noofcoltoskip=0);
     DataInterpreter<int>* int16interpreter_;
     DataInterpreter<od_int64>* int64interpreter_;
     TypeSet<od_int64>	rowoffsets_;
@@ -222,8 +222,8 @@ protected:
 
 // for loading horizon based on Lines trace range
    const BufferStringSet* readlinenames_;
-   const TypeSet< StepInterval<int> >* linestrcrgs_; 
-   static const char*	linenamesstr_;  
+   const TypeSet< StepInterval<int> >* linestrcrgs_;
+   static const char*	linenamesstr_;
    void			init(const char* fulluserexp,const char* name);
 };
 
@@ -231,7 +231,7 @@ protected:
 /*!
 \brief Surface Writer
 
-1. Construct (no changes are made to filesystem) 
+1. Construct (no changes are made to filesystem)
 2. Select what you want to write
 3. Do NextStep
 */
@@ -242,19 +242,19 @@ public:
 			dgbSurfaceWriter( const IOObj* ioobj,
 					  const char* filetype,
 					  const EM::Surface& surface,
-			       		  bool binary );
+					  bool binary );
 			dgbSurfaceWriter( const char* fulluserexpr,
 					  const char* filetype,
 					  const EM::Surface& surface,
-			       		  bool binary ); 
-			/*!< Sets up object, but does not touch file (that's 
+					  bool binary );
+			/*!< Sets up object, but does not touch file (that's
 			     done in nextStep() )
 			\param ioobj	The IOObj with info about where to
 					write data.
 			\param filetype	The filetype that should be in
 					the file header.
 			\param surface	The surface that should be written with
-					data. 
+					data.
 			*/
 			~dgbSurfaceWriter();
 			/*!< Closes the stream */
@@ -263,19 +263,19 @@ public:
     EM::SectionID	sectionID( int ) const;
     const char*		sectionName( int ) const;
     void		selSections(const TypeSet<EM::SectionID>&,
-	    			    bool add=false);
-    			/*!< The given sectionIDs will be written. If this
+				    bool add=false);
+			/*!< The given sectionIDs will be written. If this
 			     function is not called, all avaliable sections
 			     will be written.
 			*/
     void		setShift(float);
-    			//!<Shift is added to z values before writing
+			//!<Shift is added to z values before writing
 
     int			nrAuxVals() const;
     const char*		auxDataName(int) const;
     const char*		auxDataInfo(int) const;
     void		selAuxData(const TypeSet<int>&);
-    			/*!< The specified data will be written. If this
+			/*!< The specified data will be written. If this
 			     function is not called, all avaliable auxdata
 			     will be written.
 			*/
@@ -298,17 +298,18 @@ public:
     virtual const char*		message() const;
 
 protected:
+
     bool			writeNewSection(od_ostream&);
     bool			writeRow(od_ostream&);
 
     bool			writeDouble(od_ostream&,double,
-	    				   const char*) const;
-    bool                 	writeInt16(od_ostream&,unsigned short,
-	    				   const char*) const;
-    bool                 	writeInt32(od_ostream&,od_int32,
-	    				   const char*) const;
-    bool                 	writeInt64(od_ostream&,od_int64,
-	    				   const char*) const;
+					   const char*) const;
+    bool	writeInt16(od_ostream&,unsigned short,
+					   const char*) const;
+    bool	writeInt32(od_ostream&,od_int32,
+					   const char*) const;
+    bool	writeInt64(od_ostream&,od_int64,
+					   const char*) const;
 
     void			finishWriting();
     bool			writingfinished_;
@@ -357,7 +358,7 @@ protected:
     static const char*		sEOLTab()	{ return "\n\t\t"; }
     static const char*		sMsgWriteError(){return "Cannot write surface";}
 
-   void 			init(const char* fulluserexp);
+   void			init(const char* fulluserexp);
 };
 
 };

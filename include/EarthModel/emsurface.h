@@ -59,7 +59,7 @@ public:
     virtual void		fillPar(IOPar&) const;
 
     virtual EMObjectIterator*	createIterator(const SectionID&,
-	    				       const CubeSampling* =0) const;
+					       const CubeSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
@@ -73,11 +73,12 @@ public:
     virtual void		apply(const Pos::Filter&);
 
 protected:
+
     friend class		SurfaceGeometry;
     friend class		EMObject;
 
-    				Surface(EMManager&);
-    				~Surface();
+				Surface(EMManager&);
+				~Surface();
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
     BufferString		dbinfo;

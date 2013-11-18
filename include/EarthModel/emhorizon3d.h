@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
-#include "tableascio.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -30,7 +29,7 @@ namespace Pos { class Provider3D; }
 
 namespace EM
 {
-class SurfaceAuxData;    
+class SurfaceAuxData;
 
 /*!
 \brief 3D HorizonGeometry
@@ -51,7 +50,7 @@ public:
     RowCol			loadedStep() const;
     RowCol			step() const;
     void			setStep(const RowCol& step,
-	    				const RowCol& loadedstep);
+					const RowCol& loadedstep);
 
     bool			enableChecks(bool yn);
     bool			isChecksEnabled() const;
@@ -60,18 +59,18 @@ public:
     bool			isAtEdge(const PosID& pid) const;
     PosID			getNeighbor(const PosID&,const RowCol&) const;
     int				getConnectedPos(const PosID&,
-	    					TypeSet<PosID>*) const;
+						TypeSet<PosID>*) const;
 
     bool			getBoundingPolygon(const SectionID&,
-	    					   Pick::Set&) const;
+						   Pick::Set&) const;
     void			getDataPointSet( const SectionID&,
-	    					  DataPointSet&,
+						  DataPointSet&,
 						  float shift=0.0) const;
     void			fillBinIDValueSet(const SectionID&,
-	    					 BinIDValueSet&,
+						 BinIDValueSet&,
 						 Pos::Provider3D* prov=0) const;
 
-    EMObjectIterator*   	createIterator(const EM::SectionID&,
+    EMObjectIterator*	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
 protected:
 
@@ -98,7 +97,7 @@ public:
     bool			setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
     virtual float		getZValue(const Coord&,bool allow_udf=true,
-	    				  int nr=0) const;
+					  int nr=0) const;
 				//!< Slow: if you need the choices
     HorSampling			range(SectionID sid=-1) const;
 
@@ -109,19 +108,19 @@ public:
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
-	    				   bool onlyfillundefs,
+					   bool onlyfillundefs,
 					   const char* histdesc);
-    				/*!< Returns true on succes.  If histdesc
+				/*!< Returns true on succes.  If histdesc
 				     is set, the event will be saved to
 				     history with the desc. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
-	    				 const HorSampling& hs);
-    					/*!< Removes all data and creates 
+					 const HorSampling& hs);
+					/*!< Removes all data and creates
 					  a section for every BinIDValueSet
 					*/
     Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
-	    				const BufferStringSet& attribnms,int,
+					const BufferStringSet& attribnms,int,
 					const HorSampling& hs);
 
     SurfaceAuxData&		auxdata;
@@ -138,41 +137,6 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for Horizon3D.
-*/
-
-mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
-{
-public:
-    				Horizon3DAscIO( const Table::FormatDesc& fd,
-						od_istream& strm )
-				    : Table::AscIO(fd)
-				    , udfval_(mUdf(float))
-				    , finishedreadingheader_(false)
-				    , strm_(strm)      		    {}
-
-    static Table::FormatDesc*   getDesc();
-    static void			updateDesc(Table::FormatDesc&,
-	    				   const BufferStringSet&);
-    static void                 createDescBody(Table::FormatDesc*,
-	    				   const BufferStringSet&);
-
-    bool			isXY() const;
-    int				getNextLine(Coord&,TypeSet<float>&);
-
-    static const char*		sKeyFormatStr();
-    static const char*		sKeyAttribFormatStr();
-
-protected:
-
-    od_istream&			strm_;
-    float			udfval_;
-    bool			finishedreadingheader_;
-};
-
-
 } // namespace EM
 
 #endif
-

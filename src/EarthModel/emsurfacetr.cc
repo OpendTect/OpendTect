@@ -17,7 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfauxdataio.h"
 #include "executor.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -40,7 +42,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
         if ( !ctxt.setIfNull( newctxt ) )
             delete newctxt;
     }
-    
+
     return *ctxt;
 }
 
@@ -72,7 +74,7 @@ mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
 				       ctxt->toselect.allowtransls_=mDGBKey)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
-{ 
+{
     int retval3d = defaultSelector( EMHorizon3DTranslatorGroup::keyword(), s );
     int retval2d = defaultSelector( EMHorizon2DTranslatorGroup::keyword(), s );
     return retval3d ? retval3d : retval2d;
@@ -157,7 +159,7 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
     if ( ioobj )
     {
 	EM::FaultAuxData fad( ioobj->key() );
-    	fad.removeAllData();
+	fad.removeAllData();
     }
 
     mImplStart(remove(false));
@@ -193,7 +195,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	FilePath fp( newnm );
 	fp.setExtension("");
 	EM::FaultAuxData fad( ioobj->key() );
-    	fad.renameFault( fp.fileName() );
+	fad.renameFault( fp.fileName() );
     }
 
     mImplStart(rename(newnm,cb));
@@ -222,7 +224,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     mRename( getSetupFileName )
     mRename( getParFileName )
-    
+
     return res;
 }
 
@@ -269,7 +271,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 
     for ( int idx=0; idx<reader_->nrSections(); idx++ )
 	sd_.sections.add( reader_->sectionName(idx) );
-    
+
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
     {
 	sd_.valnames.add( reader_->auxDataName(idx) );
@@ -346,7 +348,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 	TypeSet<EM::SectionID> sectionids;
 	for ( int idx=0; idx<sels_.selsections.size(); idx++ )
 	    sectionids += reader_->sectionID( sels_.selsections[idx] );
-	
+
 	reader_->selSections( sectionids );
 	reader_->selAuxData( sels_.selvalues );
     }
@@ -370,7 +372,7 @@ Executor* dgbEMSurfaceTranslator::getWriter()
     TypeSet<EM::SectionID> sectionids;
     for ( int idx=0; idx<sels_.selsections.size(); idx++ )
 	sectionids += res->sectionID( sels_.selsections[idx] );
-    
+
     res->selSections( sectionids );
     res->selAuxData( sels_.selvalues );
 
