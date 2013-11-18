@@ -40,7 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "horizonscanner.h"
+#include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
@@ -472,6 +474,17 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     const bool res = doImport();
     if ( res )
     {
+	if ( isgeom_ )
+	{
+	    const IOObj* ioobj = outputfld_->ioobj();
+	    if ( ioobj )
+	    {
+		ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+		ioobj->updateCreationPars();
+		IOM().commitChanges( *ioobj );
+	    }
+	}
+
 	uiMSG().message( "Horizon successfully imported" );
 	if ( doDisplay() )
 	    importReady.trigger();

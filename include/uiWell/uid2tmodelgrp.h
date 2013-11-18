@@ -41,11 +41,12 @@ public:
 
     };
 
-    			uiD2TModelGroup(uiParent*,const Setup&);
+			uiD2TModelGroup(uiParent*,const Setup&);
 
     const char*		getD2T(Well::Data&,bool cksh = true) const;
 
     bool		wantAsCSModel() const;
+    BufferString	dataSourceName() const;
 
 protected:
 
@@ -58,7 +59,7 @@ protected:
     uiGenInput*		csfld_;
     uiTableImpDataSel*  dataselfld_;
 
-    void 		fileFldChecked(CallBacker*);
+    void		fileFldChecked(CallBacker*);
 };
 
 

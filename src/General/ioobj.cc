@@ -123,7 +123,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 
     astream.next();
     if ( *astream.keyWord() != '$' )
-    	{ delete objptr; objptr = 0; }
+	{ delete objptr; objptr = 0; }
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->bad() )
@@ -200,9 +200,9 @@ bool IOObj::isKey( const char* ky )
 { return IOM().isKey(ky); }
 
 
-void IOObj::updateCreationPars()
+void IOObj::updateCreationPars() const
 {
-    pars_.setStdCreationEntries();
+    pars().setStdCreationEntries();
 }
 
 
@@ -254,7 +254,7 @@ void IOObj::setSurveyDefault( const char* subsel ) const
     CompoundKey defaultkey = tr->group()->getSurveyDefaultKey( this );
     if ( subsel )
 	defaultkey += subsel;
-    
+
     SI().getPars().set( defaultkey.buf(), key() );
     SI().savePars();
 }
@@ -306,7 +306,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 bool fullImplRemove( const IOObj& ioobj )
 {
     if ( ioobj.isSubdir() ) return false;
-    
+
     PtrMan<Translator> tr = ioobj.createTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }

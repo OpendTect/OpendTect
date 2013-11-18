@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welltrack.h"
 
+#define mZUnLbl SI().depthsInFeet() ? " (ft/s)" : " (m/s)"
+
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
@@ -37,9 +39,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft" : " (m";
-		     zlbl += "/s)";
-	BufferString velllbl( "Temporary model velocity"); velllbl += zlbl;
+	const BufferString velllbl( "Temporary model velocity", mZUnLbl );
 	const float vel = Well::getDefaultVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
@@ -49,8 +49,8 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.3" );
     dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
-	    						    : filefld_ );
-    
+							    : filefld_ );
+
     if ( setup_.asksetcsmdl_ )
     {
 	csfld_ = new uiGenInput( this, "Is this checkshot data?",
@@ -74,6 +74,11 @@ void uiD2TModelGroup::fileFldChecked( CallBacker* )
 }
 
 
+#define mGetVel(var,fac) \
+	const float var = velfld_->getfValue() * fac * \
+			( SI().depthsInFeet() ? mFromFeetFactorF : 1.0f )
+
+
 const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 {
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
@@ -81,7 +86,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( velfld_->isUndef() )
 	    return "Please enter the velocity for generating the D2T model";
     }
-    
+
     if ( cksh )
 	wd.setCheckShotModel( new Well::D2TModel );
     else
@@ -95,19 +100,18 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     {
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
-	
+
 	d2t.setEmpty();
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
 	float srd = mCast( float, SI().seismicReferenceDatum() );
 	float kb  = wd.track().getKbElev();
-	if ( SI().depthsInFeetByDefault() && zun_ )
+	if ( SI().depthsInFeet() && zun_ )
 	{
 	    srd = zun_->userValue( srd );
 	    kb  = zun_->userValue( kb );
 	}
 	if ( mIsZero(srd,0.01f) ) srd = 0.f;
-	const float twtvel = velfld_->getfValue() * .5f *
-                        ( SI().depthsInFeetByDefault() ? mFromFeetFactorF : 1 );
+	mGetVel(twtvel,0.5f);
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
 				( (1 / twtvel) - (2 / wd.info().replvel) );
 	int idahofminz = 0;
@@ -160,4 +164,18 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 bool uiD2TModelGroup::wantAsCSModel() const
 {
     return csfld_ && csfld_->getBoolValue() && filefld_->isChecked();
+}
+
+
+BufferString uiD2TModelGroup::dataSourceName() const
+{
+    BufferString ret;
+    if ( !filefld_->isCheckable() || filefld_->isChecked() )
+	ret.set( filefld_->fileName() );
+    else
+    {
+	mGetVel(vel,1.0f);
+	ret.set( "[V=" ).add( vel ).add( mZUnLbl ).add( "]" );
+    }
+    return ret;
 }
