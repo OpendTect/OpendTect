@@ -13,10 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ptrman.h"
+#include "keystrs.h"
 #include "od_istream.h"
+#include "ptrman.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -57,7 +60,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
     trckinpfld_ = new uiFileInput( this, "Well Track File",
-	    			   uiFileInput::Setup().withexamine(true) );
+				   uiFileInput::Setup().withexamine(true) );
     trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
 
@@ -104,10 +107,10 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     }
 
     uiButton* but = new uiPushButton( this, "Advanced/Optional",
-	    				mCB(this,uiWellImportAsc,doAdvOpt),
+					mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
     but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp_
-	    			       : (uiObject*)dataselfld_ );
+				       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
     outfld_ = new uiWellSel( this, false );
@@ -204,7 +207,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	dispval = zun_->userValue( info.groundelev );
     if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
     gdelevfld = new uiGenInput( this, "Ground level elevation",
-       				       FloatInpSpec(dispval) );
+				       FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, gdelevfld );
@@ -215,10 +218,10 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 
     idfld = new uiGenInput( this, "Well ID (UWI)", StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
-    
+
     operfld = new uiGenInput( this, "Operator", StringInpSpec(info.oper) );
     operfld->attach( alignedBelow, idfld );
-    
+
     statefld = new uiGenInput( this, "State", StringInpSpec(info.state) );
     statefld->attach( alignedBelow, operfld );
 
@@ -255,7 +258,7 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    const UnitOfMeasure* zun_; 
+    const UnitOfMeasure* zun_;
     uiWellImportAsc*	uwia_;
     uiGenInput*		coordfld;
     uiGenInput*		elevfld;
@@ -292,28 +295,29 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 
 bool uiWellImportAsc::doWork()
 {
-    wd_.empty();
+    wd_.setEmpty();
     wd_.info().setName( outfld_->getInput() );
+
+    FileMultiString datasrcnms;
 
     if ( havetrckbox_->isChecked() )
     {
-	BufferString fnm( trckinpfld_->fileName() );
-	if ( !fnm.isEmpty() )
+	const BufferString fnm( trckinpfld_->fileName() );
+	datasrcnms += fnm;
+	od_istream strm( fnm );
+	if ( !strm.isOK() )
+	    mErrRet( "Cannot open track file" )
+	Well::TrackAscIO wellascio( fd_, strm );
+	if ( !wellascio.getData(wd_,true) )
 	{
-	    od_istream strm( trckinpfld_->fileName() );
-	    if ( !strm.isOK() )
-		mErrRet( "Cannot open track file" )
-	    Well::TrackAscIO wellascio( fd_, strm );
-	    if ( !wellascio.getData(wd_,true) )
-	    {
-		BufferString msg( "The track file cannot be loaded:\n" );
-		msg += wellascio.errMsg();
-		mErrRet( msg.buf() );
-	    }
+	    BufferString msg( "The track file cannot be loaded:\n" );
+	    msg += wellascio.errMsg();
+	    mErrRet( msg.buf() );
 	}
     }
     else
     {
+	datasrcnms += "[Vertical]";
 	float kbelev = kbelevfld_->getfValue();
 	if ( mIsUdf(kbelev) ) kbelev = 0;
 	else if ( SI().depthsInFeet() && zun_ )
@@ -342,15 +346,21 @@ bool uiWellImportAsc::doWork()
 	if ( errmsg ) mErrRet( errmsg );
 	if ( d2tgrp_->wantAsCSModel() )
 	    d2tgrp_->getD2T( wd_, true );
+	datasrcnms += d2tgrp_->dataSourceName();
     }
 
     const IOObj* ioobj = outfld_->ioobj();
     PtrMan<Translator> t = ioobj ? ioobj->createTranslator() : 0;
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-	    		 "Another type object with this name already exists." );
+			 "Another type object with this name already exists." );
 
-    if ( !wtr->write(wd_,*ioobj) ) mErrRet( "Cannot write well" );
+    if ( !wtr->write(wd_,*ioobj) )
+	mErrRet( "Cannot write well" );
+
+    ioobj->pars().update( sKey::CrFrom(), datasrcnms );
+    ioobj->updateCreationPars();
+    IOM().commitChanges( *ioobj );
 
     uiMSG().message( "Well import successful" );
     if ( saveButtonChecked() )
@@ -376,7 +386,7 @@ bool uiWellImportAsc::checkInpFlds()
 	{
 	    if ( !uiMSG().askGoOn(
 			"Well coordinate seems to be far outside the survey."
-		    	"\nIs this correct?") )
+			"\nIs this correct?") )
 		return false;
 	}
     }

@@ -146,8 +146,8 @@ Well::Data::~Data()
     delete csmodel_;
     delete &markers_;
 
-    Strat::eLVLS().levelToBeRemoved.remove( 
-	    			mCB(this, Well::Data, levelToBeRemoved ) );
+    Strat::eLVLS().levelToBeRemoved.remove(
+				mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 
@@ -165,7 +165,7 @@ bool Well::Data::haveLogs() const
 
 void Well::Data::setD2TModel( D2TModel* d )
 {
-    if ( d2tmodel_ == d ) 
+    if ( d2tmodel_ == d )
 	return;
     delete d2tmodel_;
     d2tmodel_ = d;
@@ -174,14 +174,14 @@ void Well::Data::setD2TModel( D2TModel* d )
 
 void Well::Data::setCheckShotModel( D2TModel* d )
 {
-    if ( csmodel_ == d ) 
+    if ( csmodel_ == d )
 	return;
     delete csmodel_;
     csmodel_ = d;
 }
 
 
-void Well::Data::empty()
+void Well::Data::setEmpty()
 {
     setD2TModel( 0 ); setCheckShotModel( 0 );
     track_.setEmpty();

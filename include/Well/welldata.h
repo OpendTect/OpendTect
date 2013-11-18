@@ -75,7 +75,7 @@ public:
 
 /*!
 \brief The holder of all data concerning a certain well.
- 
+
   Note that a well is not a POSC well in the sense that it describes the data
   for one well bore. Thus, a well has a single track. This may mean duplication
   when more well tracks share an upper part.
@@ -89,8 +89,8 @@ public:
 				~Data();
 
     const MultiID&		multiID() const		{ return mid_; }
-    void			setMultiID(const MultiID& mid) 
-    							{ mid_ = mid; }
+    void			setMultiID(const MultiID& mid)
+							{ mid_ = mid; }
 
     const char*			name() const		{ return info_.name(); }
     const Info&			info() const		{ return info_; }
@@ -107,12 +107,12 @@ public:
     D2TModel*			checkShotModel()	{ return csmodel_; }
     void			setD2TModel(D2TModel*);	//!< becomes mine
     void			setCheckShotModel(D2TModel*); //!< mine, too
-    DisplayProperties&		displayProperties( bool for2d=false ) 
+    DisplayProperties&		displayProperties( bool for2d=false )
 				    { return for2d ? disp2d_ : disp3d_; }
     const DisplayProperties&	displayProperties( bool for2d=false ) const
 				    { return for2d ? disp2d_ : disp3d_; }
 
-    void			empty(); //!< removes everything
+    void			setEmpty(); //!< removes everything
 
     void			levelToBeRemoved(CallBacker*);
 
