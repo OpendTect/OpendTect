@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "zaxistransform.h"
 
-#define		mPickSz 	3
+#define		mPickSz	3
 #define         mPickType	3
 
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
@@ -216,23 +216,23 @@ void WellDisplay::setWell( visBase::Well* well )
 void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 {
     mGetWD(return);
-    tp.col_ 		= mGetDispPar( track_.color_ );
-    tp.isdispabove_ 	= mGetDispPar( track_.dispabove_ );
-    tp.isdispbelow_ 	= mGetDispPar( track_.dispbelow_ );
-    tp.font_ 		= mGetDispPar( track_.font_ );
-    tp.size_ 		= mGetDispPar( track_.size_ );
+    tp.col_		= mGetDispPar( track_.color_ );
+    tp.isdispabove_	= mGetDispPar( track_.dispabove_ );
+    tp.isdispbelow_	= mGetDispPar( track_.dispbelow_ );
+    tp.font_		= mGetDispPar( track_.font_ );
+    tp.size_		= mGetDispPar( track_.size_ );
 }
 
 
 void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 {
     mGetWD(return);
-    mp.col_ 		= mGetDispPar( markers_.color_  );
-    mp.shapeint_ 	= mGetDispPar( markers_.shapeint_ );
-    mp.cylinderheight_ 	= mGetDispPar( markers_.cylinderheight_ );
-    mp.font_ 		= mGetDispPar( markers_.font_ );
-    mp.namecol_ 	= mGetDispPar( markers_.nmcol_ );
-    mp.size_ 		= mGetDispPar( markers_.size_ );
+    mp.col_		= mGetDispPar( markers_.color_  );
+    mp.shapeint_	= mGetDispPar( markers_.shapeint_ );
+    mp.cylinderheight_	= mGetDispPar( markers_.cylinderheight_ );
+    mp.font_		= mGetDispPar( markers_.font_ );
+    mp.namecol_	= mGetDispPar( markers_.nmcol_ );
+    mp.size_		= mGetDispPar( markers_.size_ );
 }
 
 
@@ -242,22 +242,22 @@ void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
     mGetWD(return);
-    lp.cliprate_ 	= mGetLogPar( side, cliprate_ );
-    lp.col_ 	 	= mGetLogPar( side, color_);
-    lp.fillname_ 	= mGetLogPar( side, fillname_ );
-    lp.fillrange_ 	= mGetLogPar( side, fillrange_ );
-    lp.isdatarange_ 	= mGetLogPar( side, isdatarange_ );
-    lp.isleftfilled_ 	= mGetLogPar( side, isleftfill_ );
-    lp.isrightfilled_ 	= mGetLogPar( side, isrightfill_ );
+    lp.cliprate_	= mGetLogPar( side, cliprate_ );
+    lp.col_	 	= mGetLogPar( side, color_);
+    lp.fillname_	= mGetLogPar( side, fillname_ );
+    lp.fillrange_	= mGetLogPar( side, fillrange_ );
+    lp.isdatarange_	= mGetLogPar( side, isdatarange_ );
+    lp.isleftfilled_	= mGetLogPar( side, isleftfill_ );
+    lp.isrightfilled_	= mGetLogPar( side, isrightfill_ );
     lp.issinglcol_	= mGetLogPar( side, issinglecol_);
-    lp.islogarithmic_ 	= mGetLogPar( side, islogarithmic_ );
-    lp.logwidth_ 	= mGetLogPar( side, logwidth_ );
-    lp.name_	 	= mGetLogPar( side, name_ );
-    lp.ovlap_ 	 	= mGetLogPar( side, repeatovlap_ );
-    lp.range_ 		= mGetLogPar( side, range_ );
-    lp.repeat_ 	 	= mGetLogPar( side, repeat_);
-    lp.seqname_	 	= mGetLogPar( side, seqname_ );
-    lp.size_	 	= mGetLogPar( side, size_ );
+    lp.islogarithmic_	= mGetLogPar( side, islogarithmic_ );
+    lp.logwidth_	= mGetLogPar( side, logwidth_ );
+    lp.name_		= mGetLogPar( side, name_ );
+    lp.ovlap_	 	= mGetLogPar( side, repeatovlap_ );
+    lp.range_		= mGetLogPar( side, range_ );
+    lp.repeat_	 	= mGetLogPar( side, repeat_);
+    lp.seqname_		= mGetLogPar( side, seqname_ );
+    lp.size_		= mGetLogPar( side, size_ );
     lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
     lp.iscoltabflipped_	= mGetLogPar( side, iscoltabflipped_ );
     int style		= mGetLogPar( side, style_ );
@@ -343,7 +343,7 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 
     if ( wd->track().size() < 1 )
 	return;
-    
+
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ )
     {
@@ -371,9 +371,9 @@ void WellDisplay::updateMarkers( CallBacker* )
     visBase::Well::MarkerParams mp;
     fillMarkerParams( mp );
     well_->setMarkerSetParams( mp );
-    
+
     const BufferStringSet selnms(
-	    	wd->displayProperties(false).markers_.selmarkernms_ );
+		wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
@@ -389,7 +389,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 	if ( mIsUdf( pos.z ) )
 	    continue;
 
-	mp.pos_ = &pos;	mp.name_ = wellmarker->name();	
+	mp.pos_ = &pos;	mp.name_ = wellmarker->name();
 
 	if ( !mGetDispPar( markers_.issinglecol_ ) )
 	    mp.col_ = wellmarker->color();
@@ -658,8 +658,8 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     info = "Well: "; info += wd->name();
     info += ", MD ";
 
-    info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
+    info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
+    const float zfac = SI().depthsInFeet() && SI().zIsTime() ?
 							mToFeetFactorF : 1;
     const float dah = track.nearestDah(pos);
     info += toString( mNINT32(dah*zfac) );
