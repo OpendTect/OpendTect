@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifingerprintattrib.h"
 #include "uifrequencyattrib.h"
 #include "uifreqfilterattrib.h"
+#include "uigapdeconattrib.h"
 #include "uiinstantattrib.h"
 #include "uimatchdeltaattrib.h"
 #include "uimathattrib.h"
@@ -46,6 +47,7 @@ mDefModInitFn(uiAttributes)
     uiFingerPrintAttrib::initClass();
     uiFrequencyAttrib::initClass();
     uiFreqFilterAttrib::initClass();
+    uiGapDeconAttrib::initClass();
     uiInstantaneousAttrib::initClass();
     uiMatchDeltaAttrib::initClass();
     uiMathAttrib::initClass();

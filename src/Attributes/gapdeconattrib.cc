@@ -22,9 +22,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #define	HALFLENGTH	30
 
 
-/*!> Solves a symmetric Toeplitz linear system of equations rf=g 
-     ( finds f given r ( top row of Toeplitz matrix ) 
-     		 and g ( right-hand-side column vector ),
+/*!> Solves a symmetric Toeplitz linear system of equations rf=g
+     ( finds f given r ( top row of Toeplitz matrix )
+		 and g ( right-hand-side column vector ),
 	a is the array[systdim] of solution to Ra=v
 	(Claerbout, FGDP, p. 57) )
 */
@@ -47,7 +47,7 @@ void solveSymToeplitzsystem(int systdim, float* r, float* g, float* f, float* a)
 	float tmpvar = 0;		// corresponds to e in Clearbout, FGDP
 	for ( int i=0; i<j; i++ )
 	    tmpvar += a[i]*r[j-i];
-	
+
 	float coef = tmpvar/v;		// corresponds to c in Clearbout, FGDP
 	v -= coef*tmpvar;
 	if ( v < 0.001 && v > -0.001 )
@@ -61,11 +61,11 @@ void solveSymToeplitzsystem(int systdim, float* r, float* g, float* f, float* a)
 	}
 
 	/* use a and v above to get f[i], i = 0,1,2,...,j */
-	
+
 	float w; int i;
 	for ( i=0,w=0; i<j; i++ )
 	    w += f[i]*r[j-i];
-	
+
 	coef = (w-g[j])/v;
 	for ( i=0; i<=j; i++ )
 	    f[i] -= coef*a[j-i];
@@ -79,8 +79,8 @@ static inline float* makeHilbFilt( int hlen )
     h[hlen] = 0;
     for ( int i=1; i<=hlen; i++ )
     {
-	const float taper = (float) (0.54 + 0.46 * 
-										cos( M_PI*(float)i / (float)(hlen) ));
+	const float taper = (float) (0.54 + 0.46 *
+		cos( M_PI*(float)i / (float)(hlen) ));
 	h[hlen+i] = (float) (taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) ));
 	h[hlen-i] = -h[hlen+i];
     }
@@ -91,19 +91,19 @@ static inline float* makeHilbFilt( int hlen )
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(GapDecon)
-    
+
 void GapDecon::initClass()
 {
     mAttrStartInitClassWithUpdate
-	
+
     IntParam* lagsize = new IntParam( lagsizeStr() );
     desc->addParam( lagsize );
-		
+
     IntParam* gapsize = new IntParam( gapsizeStr() );
     desc->addParam( gapsize );
-    
+
     IntParam* noiselevel = new IntParam( noiselevelStr() );
     noiselevel->setDefaultValue( 1 );
     desc->addParam( noiselevel );
@@ -115,7 +115,7 @@ void GapDecon::initClass()
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( SI().zRange(true) );
     desc->addParam( gate );
-    
+
     BoolParam* isinputzerophase = new BoolParam( isinp0phaseStr() );
     isinputzerophase->setDefaultValue( false );
     desc->addParam( isinputzerophase );
@@ -240,13 +240,13 @@ float operator[]( int idx ) const
 };
 
 
-bool GapDecon::computeData( const DataHolder& output, const BinID& relpos, 
+bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     if ( !inputdata_ ) return false;
 
-    int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );	
-    int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );	
+    int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );
+    int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );
     mAllocVarLenArr( float, wiener, ngap_ );
     mAllocVarLenArr( float, spiker, ngap_ );
     ArrPtrMan<float> autocorr = new float[safelcorr];
@@ -254,8 +254,8 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     memset( wiener, 0, ngap_ * sizeof( float ) );
     memset( spiker, 0, ngap_ * sizeof( float ) );
     memset( autocorr, 0, safelcorr * sizeof( float ) );
-    
-    float* crosscorr = autocorr + nlag_;//first sample of gap is at 
+
+    float* crosscorr = autocorr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0
 
     int absstartsampidx = mNINT32( gate_.start / refstep_ );
@@ -277,7 +277,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	return false;
 
     float scale = 1.f/autocorr[0];
-    for ( int idx=0; idx<safelcorr; idx++)  
+    for ( int idx=0; idx<safelcorr; idx++)
 	autocorr[idx] *= scale;
 
     if ( useonlyacorr_ )
@@ -334,7 +334,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	delete tmpdh;
     }
 
-/*    
+/*
     //few lines to test autocorr filtered with gapdecon
     float* inputoutarr = output.series(0)->arr();
     genericCrossCorrelation<float,float,float*>( ncorr_, startcorr, inputoutarr,

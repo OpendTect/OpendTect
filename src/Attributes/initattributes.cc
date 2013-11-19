@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fingerprintattrib.h"
 #include "frequencyattrib.h"
 #include "freqfilterattrib.h"
+#include "gapdeconattrib.h"
 #include "hilbertattrib.h"
 #include "instantattrib.h"
 #include "matchdeltaattrib.h"
@@ -47,6 +48,7 @@ mDefModInitFn(Attributes)
     Attrib::FingerPrint::initClass();
     Attrib::Frequency::initClass();
     Attrib::FreqFilter::initClass();
+    Attrib::GapDecon::initClass();
     Attrib::Hilbert::initClass();
     Attrib::Instantaneous::initClass();
     Attrib::MatchDelta::initClass();

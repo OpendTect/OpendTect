@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "attributesmod.h"
 #include "attribprovider.h"
-#include "gapdeconmod.h"
 
 /*!\brief Gap Decon Attribute
 */
@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mClass(GapDecon) GapDecon : public Provider
+mClass(Attributes) GapDecon : public Provider
 {
 public:
 
@@ -50,11 +50,11 @@ protected:
 
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
     const Interval<int>*	desZSampMargin(int,int) const
-    				{ return &dessampgate_; }
+				{ return &dessampgate_; }
 
     Interval<float>		gate_;
     int				lagsize_;
@@ -70,7 +70,7 @@ protected:
     int				ncorr_;
     int				lcorr_;
     int				ngap_;
-    
+
     const DataHolder*		inputdata_;
     const DataHolder*		inputdatamixed_;
     int				dataidx_;
@@ -81,6 +81,5 @@ protected:
 };
 
 } // namespace Attrib
-
 
 #endif

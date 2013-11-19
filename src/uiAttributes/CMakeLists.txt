@@ -37,6 +37,8 @@ SET(OD_MODULE_SOURCES
 		uifreqfilterattrib.cc
 		uifrequencyattrib.cc
 		uigainanalysisdlg.cc
+		uigapdeconattrib.cc
+		uigdexamacorr.cc
 		uiinstantattrib.cc
 		uimatchdeltaattrib.cc
 		uimathattrib.cc

@@ -17,6 +17,7 @@ SET(OD_MODULE_SOURCES
 		fingerprintattrib.cc
 		freqfilterattrib.cc
 		frequencyattrib.cc
+		gapdeconattrib.cc
 		hilbertattrib.cc
 		instantattrib.cc
 		matchdeltaattrib.cc

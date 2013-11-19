@@ -12,8 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uigapdeconmod.h"
+#include "uiattributesmod.h"
 #include "uiattrdesced.h"
+
 #include "attribdescid.h"
 #include "position.h"
 #include "ranges.h"
@@ -28,7 +29,7 @@ class GapDeconACorrView;
 
 /*! \brief GapDecon Attribute description editor */
 
-mClass(uiGapDecon) uiGapDeconAttrib : public uiAttrDescEd
+mClass(uiAttributes) uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
 
@@ -66,21 +67,21 @@ protected:
     void                qCPush(CallBacker*);
     void                mixSel(CallBacker*);
     bool		passStdCheck(const Attrib::Desc*,const char*,int,int,
-	    			     Attrib::DescID);
+				     Attrib::DescID);
     bool		passVolStatsCheck(const Attrib::Desc*,BinID,
-	    				  Interval<float>);
-    Attrib::Desc* 	createNewDesc(Attrib::DescSet*,Attrib::DescID,
-	    			      const char*,int,int,BufferString);
+					  Interval<float>);
+    Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
+				      const char*,int,int,BufferString);
     Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
     void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);
     Attrib::DescID	createGapDeconDesc(Attrib::DescID&,Attrib::DescID,
-	    				   DescSet*,bool);
+					   DescSet*,bool);
     void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
-	    				  Attrib::DescSet*);
+					  Attrib::DescSet*);
     void		fillInGDDescParams(Attrib::Desc*);
     void		getInputMID(MultiID&) const;
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 

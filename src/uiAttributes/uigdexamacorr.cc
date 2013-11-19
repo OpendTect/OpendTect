@@ -62,9 +62,9 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     BufferString errmsg;
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
-	
-    PtrMan<Processor> proc = dset_->is2D() ? 
-			    aem->createScreenOutput2D( errmsg, *d2dh ) 
+
+    PtrMan<Processor> proc = dset_->is2D() ?
+			    aem->createScreenOutput2D( errmsg, *d2dh )
 			    : aem->createDataCubesOutput( errmsg, 0  );
     if ( !proc )
     {
@@ -100,8 +100,8 @@ EngineMan* GapDeconACorrView::createEngineMan()
 	 !SI().zRange(0).includes( cs_.zrg.stop, false ) )
     {
 	//'fake' a 'normal' cubesampling for the attribute engine
-	cs.zrg.start = SI().sampling(0).zrg.start;	
-	cs.zrg.stop = cs.zrg.start + cs_.zrg.width();	
+	cs.zrg.start = SI().sampling(0).zrg.start;
+	cs.zrg.stop = cs.zrg.start + cs_.zrg.width();
     }
     aem->setCubeSampling( cs );
 
@@ -127,7 +127,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	SeisTrcInfo* info = new SeisTrcInfo(*d2dh.trcinfoset_[idx]);
 	correctd2dh->trcinfoset_ += info;
     }
-    
+
     if ( ( !SI().zRange(0).includes(cs_.zrg.start, false )
 	|| !SI().zRange(0).includes(cs_.zrg.stop, false ) )
 	 && correctd2dh.ptr()->trcinfoset_.size() )
@@ -140,7 +140,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     }
 
     if ( isqc )
-    	mCreateFD2DDataPack(fddatapackqc_)
+	mCreateFD2DDataPack(fddatapackqc_)
     else
 	mCreateFD2DDataPack(fddatapackexam_)
 }
@@ -159,7 +159,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     const Attrib::DataCubes* output = aem->getDataCubesOutput( *proc );
     if ( !output )
 	return;
-    
+
     output->ref();
     bool csmatchessurv = SI().zRange(0).includes(cs_.zrg.start, false )
 			&& SI().zRange(0).includes(cs_.zrg.stop, false );
@@ -174,12 +174,12 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 
     for ( int idx=0; idx<output->nrCubes(); idx++ )
 	correctoutput->setCube(idx, output->getCube(idx) );
-    
+
     if ( isqc )
-    	mCreateFD3DDataPack(fddatapackqc_)
+	mCreateFD3DDataPack(fddatapackqc_)
     else
 	mCreateFD3DDataPack(fddatapackexam_)
-	    
+
     output->unRef();
     correctoutput->unRef();
 }
@@ -214,7 +214,7 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
     }
 }
 
-    
+
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
     setUpViewWin( isqc );

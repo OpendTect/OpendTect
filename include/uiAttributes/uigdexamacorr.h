@@ -12,37 +12,40 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattrdesced.h"
+#include "uiattributesmod.h"
+
+#include "attribdescid.h"
 #include "cubesampling.h"
 #include "linekey.h"
-#include "attribdescid.h"
 
 namespace Attrib { class EngineMan; class DescSet;
-    		   class Data2DHolder; class Processor; }
+		   class Data2DHolder; class Processor; }
 class uiFlatViewMainWin;
+class uiParent;
 class FlatDataPack;
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
-mClass(uiGapDecon) GapDeconACorrView
+mClass(uiAttributes) GapDeconACorrView
 {
 public:
-    			GapDeconACorrView(uiParent*);
-    			~GapDeconACorrView();
+			GapDeconACorrView(uiParent*);
+			~GapDeconACorrView();
+
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
     void		setCubeSampling( CubeSampling cs )	{ cs_ = cs; }
     void		setLineKey( LineKey lk )		{ lk_ = lk; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
     void                setDescSet(Attrib::DescSet*);
-    			//<! descset becomes mine!
+			//<! descset becomes mine!
 
 protected:
 
     Attrib::EngineMan*	createEngineMan();
     void		createFD2DDataPack(bool,const Attrib::Data2DHolder&);
     void		createFD3DDataPack(bool,Attrib::EngineMan*,
-	    				   Attrib::Processor*);
+					   Attrib::Processor*);
     void		displayWiggles(bool,bool);
     void		setUpViewWin(bool);
 
@@ -51,7 +54,7 @@ protected:
     CubeSampling		cs_;
     LineKey			lk_;
     Attrib::DescID		attribid_;
-    Attrib::DescSet*    	dset_;
+    Attrib::DescSet*		dset_;
     uiParent*			parent_;
     BufferString		examtitle_;
     BufferString		qctitle_;
@@ -59,6 +62,5 @@ protected:
     FlatDataPack*		fddatapackqc_;
     FlatDataPack*		fddatapackexam_;
 };
-
 
 #endif

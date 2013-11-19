@@ -48,7 +48,6 @@ set( OD_MODULES
 
 set( OD_PLUGINS
 	ExpAttribs
-	GapDecon
 	GMT
 	GoogleTranslate
 	Hello
@@ -61,7 +60,6 @@ set( OD_PLUGINS
 	VoxelConnectivityFilter
 	uiDPSDemo
 	uiExpAttribs
-	uiGapDecon
 	uiGMT
 	uiGoogleIO
 	uiGrav
