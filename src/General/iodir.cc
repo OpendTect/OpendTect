@@ -106,9 +106,13 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
 }
 
 
+static Threads::Lock lock_;
+
 IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 			IODir* dirptr, int needid )
 {
+    Threads::Locker locker( lock_ );
+
     ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
@@ -193,7 +197,6 @@ const IOObj* IODir::operator[]( const MultiID& ky ) const
 	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->key() == ky )
 	    return ioobj;
-	
     }
 
     return 0;
