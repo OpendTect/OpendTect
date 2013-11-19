@@ -41,6 +41,13 @@ Camera::~Camera()
 {
 }
 
+
+osg::Camera* Camera::osgCamera() const
+{
+    return camera_;
+}
+
+
 void Camera::setPosition(const Coord3& pos)
 {
     pErrMsg("Not impl");

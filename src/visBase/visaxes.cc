@@ -89,8 +89,7 @@ void Axes::setMasterCamera( visBase::Camera* camera )
 {
     mastercamera_ = camera;
     mastercamera_->ref();
-    mDynamicCastGet(osg::Camera*, osgcamera, mastercamera_->osgNode() );
-    axesnode_->setMasterCamera( osgcamera );
+    axesnode_->setMasterCamera( mastercamera_->osgCamera() );
 }
 
 } //namespace visBase

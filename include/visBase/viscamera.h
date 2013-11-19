@@ -35,6 +35,8 @@ public:
     static Camera*	create()
 			mCreateDataObj( Camera );
 
+    osg::Camera*	osgCamera() const;
+
     void		setPosition(const Coord3&);
     Coord3		position() const;
 
