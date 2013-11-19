@@ -33,7 +33,6 @@ public:
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
 					  int selann=0 );
-			~uiFlatViewPropDlg() {};
 
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
