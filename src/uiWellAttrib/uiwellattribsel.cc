@@ -31,8 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
-       				  const Attrib::DescSet& as,
-       				  const NLAModel* mdl )
+				  const Attrib::DescSet& as,
+				  const NLAModel* mdl )
     : uiDialog(p,uiDialog::Setup("Attributes",
 				 "Attribute selection",
 				 "mNoHelpID"))
@@ -45,7 +45,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
     attribfld->setNLAModel( nlamodel_ );
     attribfld->selectionDone.notify( mCB(this,uiWellAttribSel,selDone) );
 
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().depthsInFeet();
     BufferString lbl = "Depth range"; lbl += zinft ? "(ft)" : "(m)";
     rangefld = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     rangefld->attach( alignedBelow, attribfld );
@@ -86,7 +86,7 @@ void uiWellAttribSel::setDefaultRange()
 	dahintv.step = dahintv.width() / (sz-1);
     }
 
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().depthsInFeet();
     if ( zinft )
     {
 	dahintv.start *= mToFeetFactor;
@@ -151,11 +151,11 @@ bool uiWellAttribSel::inputsOK()
 }
 
 
-void uiWellAttribSel::getPositions( BinIDValueSet& bidset, 
+void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
 				    TypeSet<BinIDValueSet::Pos>& positions,
 				    TypeSet<float>& mdepths )
 {
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().depthsInFeet();
     const StepInterval<float> intv = rangefld->getFStepInterval();
     const int nrsteps = intv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )

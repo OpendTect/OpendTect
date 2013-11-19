@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 	: uiDialog(p,Setup("Calculate volume",dlgtxt,"104.4.5"))
-	, zinft_(SI().depthsInFeetByDefault())
+	, zinft_(SI().depthsInFeet())
 	, velfld_(0)
 	, valfld_(0)
 {
@@ -67,7 +67,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     sep->attach( stretchedBelow, attobj );
 
     uiPushButton* calcbut = new uiPushButton( grp,
-	    			"&Estimate volume", calccb, true);
+				"&Estimate volume", calccb, true);
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
 
@@ -124,7 +124,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
     float m3 = ph2v.getM3( vel, optsfld_->isChecked(0),
-	    			!optsfld_->isChecked(1));
+				!optsfld_->isChecked(1));
     valfld_->setText( ph2v.dispText(m3,zinft_) );
 }
 
@@ -138,7 +138,7 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	{ new uiLabel( this, "Invalid polygon" ); return; }
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-	    			"Calculate to" );
+				"Calculate to" );
     horsel_->selectionDone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );
@@ -215,7 +215,7 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     const IOObj* ioobj = pssel_->ioobj();
     if ( !ioobj ) return;
 
-    ps_ = new Pick::Set; BufferString msg; 
+    ps_ = new Pick::Set; BufferString msg;
     if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
     {
 	uiMSG().error( msg );

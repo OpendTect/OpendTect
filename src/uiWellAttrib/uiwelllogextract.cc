@@ -48,11 +48,11 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
 	: uiGroup(p)
 	, ads_( d )
-    	, attrsfld_(0)
-    	, posfiltfld_(0)
-    	, radiusfld_(0)
-    	, curdps_(0)
-    	, setup_(setup)
+	, attrsfld_(0)
+	, posfiltfld_(0)
+	, radiusfld_(0)
+	, curdps_(0)
+	, setup_(setup)
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
@@ -68,7 +68,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     welllogselfld_->attach( ensureBelow, llba );
     const float inldist = SI().inlDistance();
     const char* distunit =  SI().getXYUnitString();
-    BufferString radiusbuf( "  Radius around wells "); 
+    BufferString radiusbuf( "  Radius around wells ");
     radiusbuf += distunit;
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
@@ -136,7 +136,7 @@ void uiWellLogExtractGrp::adsChg()
 	}
 	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
     }
-    
+
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
@@ -210,7 +210,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     {
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = welllogselfld_->params().samppol_; 
+	wlde.samppol_ = welllogselfld_->params().samppol_;
 	if ( !TaskRunner::execute( &tr, wlde ) )
 	    return false;
     }
@@ -249,7 +249,7 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
     BufferString unit( "MD" );
-    SI().depthsInFeetByDefault() ? unit.add( "(ft)" ) : unit.add( "(m)" );
+    SI().depthsInFeet() ? unit.add( "(ft)" ) : unit.add( "(m)" );
     dcds += new DataColDef( unit );
     BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -312,7 +312,7 @@ bool uiWellLogExtractGrp::extractDPS()
 		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
 
-	    if ( uom && !SI().zInFeet() && SI().depthsInFeetByDefault() )
+	    if ( uom && !SI().zInFeet() && SI().depthsInFeet() )
 		newdr.data_[0] = uom->getUserValueFromSI( newdr.data_[0] );
 
 	    curdps_->setRow( newdr );

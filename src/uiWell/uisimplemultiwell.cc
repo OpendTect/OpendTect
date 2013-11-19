@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiSMWCData
 {
 public:
-    			uiSMWCData( const char* wn=0 )
+			uiSMWCData( const char* wn=0 )
 			    : nm_(wn)			{}
     bool		operator ==( const uiSMWCData& wcd ) const
 			{ return nm_ == wcd.nm_; }
@@ -53,14 +53,14 @@ public:
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,"107.0.7")
-	    		.savebutton(true).savetext("Display after creation") )
+			.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
-    , zinft_(SI().depthsInFeetByDefault())
+    , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , overwritepol_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
-	    					  .manualresize(true)
+						  .manualresize(true)
 						  .selmode(uiTable::Multi),
 		        "Data Table" );
     tbl_->setColumnLabel( 0, "Well name" );
@@ -85,7 +85,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     {
 	const float defvel = Well::getDefaultVelocity();
 	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
-		   		  FloatInpSpec(defvel) );
+				  FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
@@ -158,7 +158,7 @@ public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup("Multi-well creation","Create multiple wells",
-			 	 "107.0.8"))
+				 "107.0.8"))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
@@ -294,7 +294,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     if ( mIsUdf(wcd.coord_.x) || mIsUdf(wcd.coord_.y) )
     {
 	uiMSG().message(BufferString("No full coordinate for ", wellnm,
-		    		     "\nWell not created") );
+				     "\nWell not created") );
 	return false;
     }
 

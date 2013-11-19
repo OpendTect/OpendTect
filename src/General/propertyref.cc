@@ -74,7 +74,7 @@ PropRef_ThickRef_Man()
 
 void setZUnit( CallBacker* cb=0 )
 {
-    ref_->disp_.unit_ = SI().depthsInFeetByDefault() ? "ft" : "m";
+    ref_->disp_.unit_ = SI().depthsInFeet() ? "ft" : "m";
 }
 
     PropertyRef*	ref_;
@@ -509,14 +509,14 @@ int PropertyRefSelection::find( const char* nm ) const
 }
 
 
-PropertyRefSelection PropertyRefSelection::subselect(                           
-					PropertyRef::StdType type ) const       
-{                                                                               
+PropertyRefSelection PropertyRefSelection::subselect(
+					PropertyRef::StdType type ) const
+{
     PropertyRefSelection subsel;
     subsel.erase();
-    for ( int idx=0; idx<size(); idx++ )                                        
-	if ( (*this)[idx] && (*this)[idx]->hasType( type ) )                    
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] && (*this)[idx]->hasType( type ) )
 	    subsel += (*this) [idx];
 
-    return subsel; 
+    return subsel;
 }

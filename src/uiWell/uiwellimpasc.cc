@@ -78,7 +78,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft) " : " (m) ";
+    BufferString zlbl = SI().depthsInFeet() ? " (ft) " : " (m) ";
     BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );

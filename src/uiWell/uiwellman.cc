@@ -65,7 +65,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
-	    					 false );
+						 false );
     addlogsbut_ = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
     calclogsbut_ = new uiPushButton( logsbgrp, "&Create", false );
@@ -75,30 +75,30 @@ uiWellMan::uiWellMan( uiParent* p )
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
     butgrp->addButton( "view_log", "View selected log",
-	    		mCB(this,uiWellMan,viewLogPush) );
+			mCB(this,uiWellMan,viewLogPush) );
     butgrp->addButton( uiManipButGrp::Rename, "Rename selected log",
 			mCB(this,uiWellMan,renameLogPush) );
     butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
 			mCB(this,uiWellMan,removeLogPush) );
     butgrp->addButton( "export", "Export log",
-	    		mCB(this,uiWellMan,exportLogs) );
+			mCB(this,uiWellMan,exportLogs) );
     butgrp->addButton( "unitsofmeasure", "View/edit unit of measure",
-	    		mCB(this,uiWellMan,logUOMPush) );
+			mCB(this,uiWellMan,logUOMPush) );
     logupbut_ = butgrp->addButton( "uparrow", "Move up",
-	    		mCB(this,uiWellMan,moveLogsPush) );
+			mCB(this,uiWellMan,moveLogsPush) );
     logdownbut_ = butgrp->addButton( "downarrow", "Move down",
-	    		mCB(this,uiWellMan,moveLogsPush) );
+			mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
     selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
     uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
-	    	"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
+		"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, logsgrp_ );
-    
+
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
@@ -111,12 +111,12 @@ uiWellMan::uiWellMan( uiParent* p )
     }
 
     uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
-	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
+			"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 
     uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
-	    		"Log tools", mCB(this,uiWellMan,logTools) );
+			"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
 
@@ -215,7 +215,7 @@ void uiWellMan::checkMoveLogs( CallBacker* )
     const int nrlogs = logsfld_->size();
     const int nrlogsel = logsfld_->nrSelected();
     const int nrsel_ = selGroup()->getListField()->nrSelected();
-    bool nomove = ( nrsel_ != 1 ) 
+    bool nomove = ( nrsel_ != 1 )
 			&& ( nrlogsel != 1 || curidx < 0 || curidx >= nrlogs );
     bool canmoveup = curidx > 0 && !nomove && curwds_.size() == 1;
     bool canmovedown = curidx < nrlogs-1 && !nomove && curwds_.size() == 1;
@@ -249,7 +249,7 @@ void uiWellMan::edMarkers( CallBacker* )
 
     dlg.getMarkerSet( wd->markers() );
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
-    if ( !wtr.putMarkers() ) 
+    if ( !wtr.putMarkers() )
 	uiMSG().error( "Cannot write new markers to disk" );
 
     wd->markerschanged.trigger();
@@ -349,7 +349,7 @@ void uiWellMan::calcLogs( CallBacker* )
 
     currdrs_[0]->getLogs();
     uiWellLogCalc dlg( this, curwds_[0]->logs(), availablelognms_,
-	    		curmultiids_ );
+			curmultiids_ );
     dlg.go();
     if ( dlg.haveNewLogs() )
 	wellsChgd();
@@ -365,8 +365,8 @@ void uiWellMan::logUOMPush( CallBacker* )
     currdrs_[0]->getLogs();
     const char* lognm = logsfld_->getText();
     Well::LogSet& wls = curwds_[0]->logs();
-    const int curlogidx = wls.indexOf( lognm ); 
-    if ( curlogidx < 0 ) 
+    const int curlogidx = wls.indexOf( lognm );
+    if ( curlogidx < 0 )
 	mErrRet( "Cannot read selected log" )
 
     Well::Log& wl = wls.getLog( curlogidx );
@@ -470,7 +470,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     BufferString titl( "Rename '" );
     titl += lognm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
-    if ( !dlg.go() ) 
+    if ( !dlg.go() )
 	return;
 
     BufferString newnm = dlg.text();
@@ -536,13 +536,13 @@ void uiWellMan::exportLogs( CallBacker* )
     dlg.go();
 
     for ( int idw=0; idw<curwds_.size(); idw++ )
-	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
+	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); }
 }
 
 
 void uiWellMan::mkFileInfo()
 {
-    if ( curwds_.isEmpty() || curwds_.size() > 1 
+    if ( curwds_.isEmpty() || curwds_.size() > 1
 	    || currdrs_.isEmpty() || currdrs_.size() > 1 || !curioobj_ )
     {
 	setInfo( "" );
@@ -596,7 +596,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(replvel) )
 	{
 	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	     txt += ( SI().depthsInFeetByDefault() && !SI().zInFeet() ) ?
+	     txt += ( SI().depthsInFeet() && !SI().zInFeet() ) ?
 		    mToFeetFactorF * replvel : replvel;
 	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
 	     txt += "/s\n";

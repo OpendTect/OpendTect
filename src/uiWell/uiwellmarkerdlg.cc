@@ -58,13 +58,13 @@ static const int cLevelCol = 5;
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", "107.1.1"))
-    	, track_(t)
+	, track_(t)
         , oldmrkrs_(0)
         , table_(0)
-   	, unitfld_(0)
+	, unitfld_(0)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				        .rowgrow(true)
+					        .rowgrow(true)
 					        .defrowlbl("")
 						.selmode(uiTable::Multi)
 				,"Well Marker Table" );
@@ -84,30 +84,30 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setPrefWidth( 650 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",
-	    			mCB(this,uiMarkerDlg,updateDisplayCB), true );
+				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
     uiButton* rfbut = new uiPushButton( this, "&Read new",
-	    				mCB(this,uiMarkerDlg,rdFile), false );
+					mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 
     uiButton* expbut = new uiPushButton( this, "&Export",
-	    				mCB(this,uiMarkerDlg,exportCB), false );
+					mCB(this,uiMarkerDlg,exportCB), false );
     expbut->attach( rightOf, rfbut );
 
     uiPushButton* setregmrkar =
 	new uiPushButton( this,	"Set as regional markers",
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
-    
+
     uiToolButton* stratbut = new uiToolButton( this, "man_strat",
-	    			"Edit Stratigraphy to define Levels",
+				"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
 
     unitfld_ = new uiCheckBox( this, "Z in Feet" );
     unitfld_->attach( rightAlignedBelow, table_ );
-    unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
     setPrefWidthInChar( 60 );
@@ -221,7 +221,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 float uiMarkerDlg::zFactor() const
 {
     const bool unitval = !unitfld_->isChecked();
-    
+
     if ( SI().zIsTime() )
 	return unitval ? 1 : mToFeetFactorF;
 
@@ -395,14 +395,14 @@ uiReadMarkerFile( uiParent* p )
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     fnmfld_ = new uiFileInput( this, "Input Ascii file",
-	    		uiFileInput::Setup().withexamine(true)
+			uiFileInput::Setup().withexamine(true)
 					    .forread(true));
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.1.9" );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, "Existing markers (if any)",
-	    		      BoolInpSpec(true,"Replace","Keep") );
+			      BoolInpSpec(true,"Replace","Keep") );
     replfld_->attach( alignedBelow, dataselfld_ );
 }
 
@@ -525,8 +525,8 @@ class uiMarkersList : public uiDialog
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", 
-		    			mNoHelpID) )
+	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers",
+					mNoHelpID) )
 {
     list_ = new uiListBox( this, "Markers" );
     list_->setItemsCheckable( true );
@@ -621,7 +621,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
     if ( !sd.usable() )
     {
 	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
-		    		     "' for write" ) );
+				     "' for write" ) );
 	sd.close();
 	return;
     }
@@ -632,7 +632,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
     *sd.ostrm << header.get( cTVDCol ) << '\t';
     *sd.ostrm << header.get( cTVDSSCol ) << '\t';
     *sd.ostrm << header.get( cNameCol ) << '\n';
-    
+
     const float kbelev = track_.getKbElev();
     const float zfac = zFactor();
     for ( int idx=0; idx<mset.size(); idx++ )
@@ -643,7 +643,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 	*sd.ostrm << toString( dah * zfac ) << '\t';
 	*sd.ostrm << toString( tvd * zfac ) << '\t';
 	*sd.ostrm << toString( tvdss * zfac ) << '\t';
-   	*sd.ostrm << mset[idx]->name() << '\n';
+	*sd.ostrm << mset[idx]->name() << '\n';
     }
 
     sd.close();

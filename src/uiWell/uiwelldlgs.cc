@@ -56,13 +56,13 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 				     "Edit Well Track",
 				     "107.1.7"))
 	, wd_(d)
-    	, track_(d.track())
-    	, orgtrack_(new Well::Track(d.track()))
+	, track_(d.track())
+	, orgtrack_(new Well::Track(d.track()))
 	, fd_( *Well::TrackAscIO::getDesc() )
 
 {
     tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
-	    				      .rowgrow(true)
+					      .rowgrow(true)
 					      .defrowlbl(""),
 		        "Well Track Table" );
     tbl_->setColumnLabels( trackcollbls );
@@ -72,22 +72,22 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setPrefHeight( 400 );
 
     zinftfld_ = new uiCheckBox( this, "Z in Feet" );
-    zinftfld_->setChecked( SI().depthsInFeetByDefault() );
+    zinftfld_->setChecked( SI().depthsInFeet() );
     zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTable ) );
     zinftfld_->attach( ensureBelow, tbl_ );
     zinftfld_->attach( rightBorder );
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
     uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
-	    				    mCB(this,uiWellTrackDlg,updNow),
+					    mCB(this,uiWellTrackDlg,updNow),
 					    true );
     uiButton* readbut = new uiPushButton( actbutgrp, "&Read new",
-	    				    mCB(this,uiWellTrackDlg,readNew),
+					    mCB(this,uiWellTrackDlg,readNew),
 					    false );
     readbut->attach( rightOf, updnowbut );
 
     uiButton* expbut = new uiPushButton( actbutgrp, "&Export",
-	    				 mCB(this,uiWellTrackDlg,exportCB),
+					 mCB(this,uiWellTrackDlg,exportCB),
 					 false );
     expbut->attach( rightOf, readbut );
     actbutgrp->attach( centeredBelow, tbl_ );
@@ -148,13 +148,13 @@ class uiWellTrackReadDlg : public uiDialog
 public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
-    	: uiDialog(p,uiDialog::Setup("Read new Well Track",
-		    		     "Specify new Well Track","107.1.8"))
-	, track_(track)							  
+	: uiDialog(p,uiDialog::Setup("Read new Well Track",
+				     "Specify new Well Track","107.1.8"))
+	, track_(track)
 {
     wtinfld_ = new uiFileInput( this, "Well Track File",
     uiFileInput::Setup().withexamine(true) );
-    
+
     uiTableImpDataSel* dataselfld = new uiTableImpDataSel( this, fd, 0 );
     dataselfld->attach( alignedBelow, wtinfld_ );
 }
@@ -191,7 +191,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 	    uiMSG().error( "Failed to convert into compatible data" );
 
 	sd.close();
-	
+
 	tbl_->clearTable();
 	if ( !fillTable() )
 	    return;
@@ -228,7 +228,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	const double yval = toDouble(sval);
 	sval = tbl_->text( RowCol(idx,2) );
 	if ( !*sval ) continue;
-	const double zval = toDouble(sval) * fac; 
+	const double zval = toDouble(sval) * fac;
 
 	const Coord3 newc( xval, yval, zval );
 	if ( !SI().isReasonable( newc ) )
@@ -242,10 +242,10 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	sval = tbl_->text( RowCol(idx,3) );
 	float dahval = 0;
 	if ( *sval )
-	    dahval = toFloat(sval) * fac; 
+	    dahval = toFloat(sval) * fac;
 	else if ( idx > 0 )
 	{
-	    dahval = (float) ( track_.dah(idx-1) + 
+	    dahval = (float) ( track_.dah(idx-1) +
 					track_.pos(idx-1).distTo( newc ) );
 	    needfill = true;
 	}
@@ -333,7 +333,7 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     if ( !sd.usable() )
     {
 	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
-		    		     "' for write" ) );
+				     "' for write" ) );
 	return;
     }
 
@@ -373,14 +373,14 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 		 BufferString("Edit ",cksh?"Checkshot":"Time/Depth"," model"),
 				     "107.1.5"))
 	, wd_(wd)
-    	, cksh_(cksh)
-    	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
+	, cksh_(cksh)
+	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
         , tbl_(0)
         , unitfld_(0)
 {
     timefld_.setParam( this, 0 );
     tbl_ = new uiTable( this, uiTable::Setup()
-	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
+				.rowdesc(cksh_ ? "Measure point" : "Control Pt")
 				.rowgrow(true)
 				.defrowlbl("")
 				.selmode(uiTable::Single),
@@ -409,7 +409,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     timefld_.setParam( this, timefld );
 
     unitfld_ = new uiCheckBox( this, " Z in feet" );
-    unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
     unitfld_->attach( rightAlignedBelow, timefld );
 
@@ -515,8 +515,8 @@ int uiD2TModelDlg::getVintCol() const
 { \
     wd_.track().getPos(dah).z < 1e-2f - SI().seismicReferenceDatum() && \
     !mIsUdf(wd_.info().replvel)\
-    	   ? wd_.info().replvel \
-    	   : mCast(float,d2t->getVelocityForDah( dah, wd_.track() )) \
+	   ? wd_.info().replvel \
+	   : mCast(float,d2t->getVelocityForDah( dah, wd_.track() )) \
 }
 
 
@@ -535,7 +535,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 	uiMSG().error( "Invalid track" );
 	return;
     }
-    
+
     const int dtsz = d2t->size();
     tbl_->setNrRows( dtsz + nremptyrows );
     tbl_->setColumnLabels( getColLabels() );
@@ -630,7 +630,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
-	    				: "Invalid time-depth model";
+					: "Invalid time-depth model";
 	mErrRet(errmsg)
     }
 
@@ -708,7 +708,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     if ( !zrange.includes(inval,true) )
     {
 	errmsg.add( lbl ).add( " value " ).add( inval * zfac );
-       	errmsg.add( " is outside of track range\n" );
+	errmsg.add( " is outside of track range\n" );
 	errmsg.add( "[" ).add( zrange.start * zfac );
 	errmsg.add( ", " ).add( zrange.stop * zfac ).add( "]" );
 	errmsg.add( getDistUnitString(unitfld_->isChecked(),false) );
@@ -770,10 +770,10 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
-	    				: "Invalid time-depth model";
+					: "Invalid time-depth model";
 	mErrRet(errmsg)
     }
-    
+
     const RowCol rcin(row,getTimeCol());
     const bool newrow = rowIsIncomplete( row );
     const float oldval = newrow ? mUdf(float) : d2t->value( row );
@@ -815,7 +815,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
 	const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
 	const float tvdss = ( wd_.info().replvel * inval * 500.f / twtfac
 			      - mCast(float, SI().seismicReferenceDatum()) ) *
-	    		    zfac;
+			    zfac;
 	const RowCol rc( row, getTVDSSCol() );
 	tbl_->setValue( rc, tvdss );
 	tbl_->setSelected( rc );
@@ -836,7 +836,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
-	    				: "Invalid time-depth model";
+					: "Invalid time-depth model";
 	mErrRet(errmsg)
     }
 
@@ -927,8 +927,8 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-    	: uiDialog(p,uiDialog::Setup("Read new data",
-		    		     "Specify input file","107.1.6"))
+	: uiDialog(p,uiDialog::Setup("Read new data",
+				     "Specify input file","107.1.6"))
 	, cksh_(cksh)
 	, wd_(wd)
 {
@@ -990,7 +990,7 @@ void uiD2TModelDlg::expData( CallBacker* )
     if ( !sd.usable() )
     {
 	uiMSG().error( BufferString("Cannot open '", dlg.fileName(),
-		    			"' for write") );
+					"' for write") );
 	sd.close();
 	return;
     }
@@ -1122,7 +1122,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
 			      FloatInpIntervalSpec(false) );
     intvfld->attach( alignedBelow, lasfld );
-    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
+    BoolInpSpec mft( !SI().depthsInFeet(), "Meter", "Feet" );
     intvunfld = new uiGenInput( this, "", mft );
     intvunfld->attach( rightOf, intvfld );
     intvunfld->display( false );
@@ -1132,7 +1132,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     unitlbl->display( false );
 
     istvdfld = new uiGenInput( this, "Depth values are",
-	    			BoolInpSpec(false,"TVDSS","MD") );
+				BoolInpSpec(false,"TVDSS","MD") );
     istvdfld->attach( alignedBelow, intvfld );
 
     udffld = new uiGenInput( this, "Undefined value in logs",
@@ -1171,9 +1171,9 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     if ( isft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(lfi.zrg.start) && zun ) 
+	if ( !mIsUdf(lfi.zrg.start) && zun )
 	    usrzrg.start = zun->userValue( lfi.zrg.start );
-	if ( !mIsUdf(lfi.zrg.stop) && zun ) 
+	if ( !mIsUdf(lfi.zrg.stop) && zun )
 	    usrzrg.stop = zun->userValue( lfi.zrg.stop );
     }
     intvfld->setValue( usrzrg );
@@ -1192,31 +1192,31 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     if ( zinft )
     {
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(usrzrg.start) && zun ) 
+	if ( !mIsUdf(usrzrg.start) && zun )
 	    usrzrg.start = zun->internalValue( usrzrg.start );
-	if ( !mIsUdf(usrzrg.stop) && zun ) 
+	if ( !mIsUdf(usrzrg.stop) && zun )
 	    usrzrg.stop = zun->internalValue( usrzrg.stop );
     }
     lfi.zrg.setFrom( usrzrg );
 
     const char* lasfnm = lasfld->text();
-    if ( !lasfnm || !*lasfnm ) 
+    if ( !lasfnm || !*lasfnm )
 	{ uiMSG().error("Enter valid filename"); return false; }
 
-    BufferStringSet lognms; 	
+    BufferStringSet lognms;
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
     {
 	if ( logsfld->box()->isSelected(idx) )
 	    lognms += new BufferString( logsfld->box()->textOfItem(idx) );
     }
 
-    BufferString existlogmsg; 
+    BufferString existlogmsg;
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
-    { 
+    {
 	if ( wd.logs().getLog( lognms.get( idx ) ) )
 	{
-	    if ( !existlogmsg.isEmpty() ) existlogmsg += ", "; 
-	    existlogmsg += lognms.get( idx ); 
+	    if ( !existlogmsg.isEmpty() ) existlogmsg += ", ";
+	    existlogmsg += lognms.get( idx );
 	    lognms.removeSingle( idx );
 	}
     }
@@ -1252,7 +1252,7 @@ static const char* exptypes[] =
 static const float cTWTFac  = 1000.f;
 
 
-uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds, 
+uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
     : uiDialog(p,uiDialog::Setup("Export Well logs",
 				 "Specify format","107.1.3"))
@@ -1260,13 +1260,13 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , logsel_(logsel)
     , multiwellsnamefld_(0)
 {
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().depthsInFeet();
     BufferString lbl( "Depth range " ); lbl += zinft ? "(ft)" : "(m)";
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld_ = new uiGenInput( this, "Output format", 
-	    		      StringListInpSpec(exptypes) );
+    typefld_ = new uiGenInput( this, "Output format",
+			      StringListInpSpec(exptypes) );
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
@@ -1279,7 +1279,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
-	if ( !wds_[idwell]->haveD2TModel() ) 
+	if ( !wds_[idwell]->haveD2TModel() )
 	{ have2dtmodel = false; break; }
     }
     if ( SI().zIsTime() && have2dtmodel)
@@ -1290,10 +1290,10 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ? "File Directory" 
-	    					: "Output file",
+    outfld_ = new uiFileInput( this, multiwells ? "File Directory"
+						: "Output file",
 			      uiFileInput::Setup().forread(false)
-			      			  .directories(multiwells) );
+						  .directories(multiwells) );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
@@ -1361,7 +1361,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 
 	for ( int idx=0; idx<wds_.size(); idx++ )
 	{
-	    BufferString nm( fname ); 
+	    BufferString nm( fname );
 	    nm += "/"; nm += wds_[idx]->name(); nm += "_"; nm += suffix;
 	    fnames.add( nm );
 	}
@@ -1388,7 +1388,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 {
     const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
-    
+
     if ( typefld_->getIntValue() == 1 )
 	*sdo.ostrm << "X\tY\t";
     else if ( typefld_->getIntValue() == 2 )
@@ -1410,7 +1410,7 @@ void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 	if ( *log.unitMeasLabel() )
 	    *sdo.ostrm << "(" << log.unitMeasLabel() << ")";
     }
-    
+
     *sdo.ostrm << '\n';
 }
 
@@ -1427,7 +1427,7 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 	return;
     }
 
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().depthsInFeet();
     const int outtypesel = typefld_->getIntValue();
     const bool dobinid = outtypesel == 2;
     const StepInterval<float> intv = zrangefld_->getFStepInterval();
@@ -1491,10 +1491,10 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
         : uiGetObjectName(p,uiGetObjectName::Setup("New Well",mkWellNms())
-	       			.inptxt("New well name") )
+				.inptxt("New well name") )
 {
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
-	    			      .lbltxt("Color") );
+				      .lbltxt("Color") );
     colsel_->attach( alignedBelow, inpFld() );
 }
 
@@ -1546,7 +1546,7 @@ const Color& uiNewWellDlg::getWellColor()
 
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID))
-    , log_(wl)			
+    , log_(wl)
 {
     BufferString ttl( "Edit unit of measure :" );
     ttl += wl.name();

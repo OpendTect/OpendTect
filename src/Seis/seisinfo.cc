@@ -169,7 +169,7 @@ bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
     gt = geomTypeOf( res );
     return true;
 }
- 
+
 
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
 	"Trace number",
@@ -396,7 +396,7 @@ Seis::PosKey SeisTrcInfo::posKey( Seis::GeomType gt ) const
     case Seis::VolPS:	return Seis::PosKey( binid, offset );
     case Seis::Line:	return Seis::PosKey( nr );
     case Seis::LinePS:	return Seis::PosKey( nr, offset );
-    default: 		return Seis::PosKey( binid );
+    default:		return Seis::PosKey( binid );
     }
 }
 
@@ -441,7 +441,7 @@ void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
 						bool othdomain )
 {
     if ( SI().zIsTime() != othdomain		// data is in time
-      || (othdomain && !SI().depthsInFeetByDefault())
+      || (othdomain && !SI().depthsInFeet())
       || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
 	return;
 

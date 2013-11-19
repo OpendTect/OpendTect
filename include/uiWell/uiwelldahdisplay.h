@@ -49,7 +49,7 @@ else if ( !zdata_.zistime_ && track() )\
 
 mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 {
-public:	
+public:
     mStruct(uiWell) Setup
     {
 			    Setup()
@@ -60,9 +60,9 @@ public:
 			    , noyannot_(false)
 			    , annotinside_(false)
 			    , samexaxisrange_(false)
-			    , symetricalxaxis_(false) 
+			    , symetricalxaxis_(false)
 			    , drawcurvenames_(false)
-			    , xannotinpercents_(false)			   
+			    , xannotinpercents_(false)
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -85,7 +85,7 @@ public:
     {
 	virtual			~DahObjData() { delete xaxprcts_; }
 
-	//Set these	
+	//Set these
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
 	bool                    hasData() const { return dahobj_; }
 	bool                    xrev_;
@@ -93,9 +93,9 @@ public:
 	float			cliprate_;
 	Color			col_;
 	bool			drawascurve_;
-	int		 	curvesz_;	
+	int			curvesz_;
 	bool			drawaspoints_;
-	int		 	pointsz_;	
+	int			pointsz_;
 
 	//Get these
 	Interval<float>         zrg_;
@@ -123,16 +123,16 @@ public:
 				    Data()
 				    : zrg_(mUdf(float),mUdf(float))
 				    , zistime_(SI().zIsTime())
-				    , dispzinft_(SI().depthsInFeetByDefault())
+				    , dispzinft_(SI().depthsInFeet())
 				    , wd_(0)
 				    {}
 
 	void copyFrom(const uiWellDahDisplay::Data& d)
 	{
-	    zrg_     	= d.zrg_;
-	    zistime_ 	= d.zistime_;
-	    dispzinft_ 	= d.dispzinft_;
-	    wd_ 	= d.wd_;
+	    zrg_	= d.zrg_;
+	    zistime_	= d.zistime_;
+	    dispzinft_	= d.dispzinft_;
+	    wd_	= d.wd_;
 	}
 	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
@@ -153,9 +153,9 @@ public:
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
 
 	float                   dah_;
-	Color                   color_; //!< default will use the global 
+	Color                   color_; //!< default will use the global
 					//setup color
-	float			val_; //this will be a point if defined, 
+	float			val_; //this will be a point if defined,
 				      //a line otherwise
     };
 
@@ -164,15 +164,15 @@ public:
     void			setZRange(Interval<float> zrg)
 					{ zdata_.zrg_ = zrg; dataChanged();}
 
-    const Data&			zData() 	   { return zdata_; }
+    const Data&			zData()	   { return zdata_; }
     TypeSet<PickData>&          zPicks()           { return zpicks_; }
     Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
 
     void			reDraw()	{ gatherInfo(); draw(); }
     void			reDrawAnnots()	{ drawMarkers(); drawZPicks(); }
 
-    DahObjData&                 dahObjData( bool first ) 
-    				{ return first ? *ld1_ : *ld2_; }
+    DahObjData&                 dahObjData( bool first )
+				{ return first ? *ld1_ : *ld2_; }
 protected:
 
     DahObjData*			ld1_;
@@ -180,7 +180,7 @@ protected:
     Data			zdata_;
     Setup                       setup_;
     TypeSet<PickData>           zpicks_;
-    uiGraphicsItemSet       	zpickitms_;
+    uiGraphicsItemSet	zpickitms_;
 
     mStruct(uiWell) MarkerDraw
     {
@@ -198,8 +198,8 @@ protected:
     MarkerDraw*                 getMarkerDraw(const Well::Marker&);
     Well::DisplayProperties::Markers mrkdisp_;
 
-    const Well::D2TModel*	d2T() const 	{ return zdata_.d2T(); }
-    const Well::Track*		track() const 	{ return zdata_.track(); }
+    const Well::D2TModel*	d2T() const	{ return zdata_.d2T(); }
+    const Well::Track*		track() const	{ return zdata_.track(); }
     const Well::MarkerSet*	markers() const { return zdata_.mrks(); }
 
     virtual void		draw();

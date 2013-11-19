@@ -58,11 +58,11 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     velflds.setParam( this, 0 );
     if ( SI().zIsTime() )
     {
-	const BufferString zlbl(
-		SI().depthsInFeetByDefault() ? " (ft" : " (m", "/s)" );
+	const BufferString zlbl( SI().depthsInFeet() ? " (ft" : " (m", "/s)" );
 	const BufferString vellbl( "Temporary model velocity", zlbl );
 	const float vel = Well::getDefaultVelocity();
-	uiGenInput* velocityfld = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
+	uiGenInput* velocityfld = new uiGenInput( this, vellbl,
+							FloatInpSpec(vel) );
 	velocityfld->attach( alignedBelow, dataselfld_ );
 	velflds.setParam( this, velocityfld );
     }

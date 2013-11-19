@@ -24,26 +24,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     : uiDialog(p,Setup("Calculate volume","Body volume estimation","103.1.22"))
-    , embody_(eb)  
+    , embody_(eb)
     , velfld_(0)
     , volfld_(0)
-    , impbody_(0)  
+    , impbody_(0)
 {
     setCtrlStyle( LeaveOnly );
-    
+
     if ( SI().zIsTime() )
     {
-	const bool zinft = SI().depthsInFeetByDefault();
+	const bool zinft = SI().depthsInFeet();
 	const char* txt = zinft ? "Velocity (ft/s)" : "Velocity (m/s)";
 	velfld_ = new uiGenInput( this, txt, FloatInpSpec(
 					    mCast(float,zinft?10000:3000)) );
     }
-    
+
     volfld_ = new uiGenInput( this, "Volume" );
     volfld_->setReadOnly( true );
     if ( velfld_ )
 	volfld_->attach( alignedBelow, velfld_ );
-    
+
     uiPushButton* calcbut = new uiPushButton( this, "&Estimate", true );
     calcbut->activated.notify( mCB(this,uiImplBodyCalDlg,calcCB) );
     calcbut->attach( rightTo, volfld_ );
@@ -61,8 +61,8 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     if ( !impbody_ )
     {
 	getImpBody();
-    	if ( !impbody_ || !impbody_->arr_ )
-    	    mErrRet("Checking body failed");
+	if ( !impbody_ || !impbody_->arr_ )
+	    mErrRet("Checking body failed");
     }
 
     float vel = 1;
@@ -71,12 +71,12 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	vel = velfld_->getfValue();
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
-	if ( SI().depthsInFeetByDefault() )
+	if ( SI().depthsInFeet() )
 	    vel *= mFromFeetFactorF;
     }
 
     uiTaskRunner tr(this);
-    BodyVolumeCalculator bc( impbody_->cs_, *impbody_->arr_, 
+    BodyVolumeCalculator bc( impbody_->cs_, *impbody_->arr_,
 	    impbody_->threshold_, vel );
     TaskRunner::execute( &tr, bc );
 

@@ -24,25 +24,25 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     : uiGroup(p,w.name())
     , wd_(w)
-    , setup_(s)	    
+    , setup_(s)
     , zrg_(mUdf(float),0)
-    , dispzinft_(SI().depthsInFeetByDefault())
+    , dispzinft_(SI().depthsInFeet())
     , zistime_(w.haveD2TModel() && SI().zIsTime())
-    , use3ddisp_(s.takedisplayfrom3d_)				
+    , use3ddisp_(s.takedisplayfrom3d_)
     , control_(0)
-    , stratdisp_(0) 
+    , stratdisp_(0)
 {
     Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
-	uiWellLogDisplay::Setup wlsu; 
+	uiWellLogDisplay::Setup wlsu;
 	wlsu.noyannot_ = s.noyannot_;
 	wlsu.noxannot_ = s.noxannot_;
 	wlsu.xannotinpercents_ = s.xaxisinpercents_;
 	if ( s.nologborder_ )
 	{
-	    wlsu.border_ = uiBorder(0); 
+	    wlsu.border_ = uiBorder(0);
 	    wlsu.annotinside_ = true;
 	}
 	uiWellLogDisplay* wld = new uiWellLogDisplay( this, wlsu );
@@ -129,7 +129,7 @@ void uiWellDisplay::setDahData()
 }
 
 
-void uiWellDisplay::setDisplayProperties() 
+void uiWellDisplay::setDisplayProperties()
 {
     const Well::DisplayProperties& dpp = wd_.displayProperties( !use3ddisp_ );
 
@@ -164,7 +164,7 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 
 uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     : uiMainWin(p,wd.name())
-    , wd_(wd)  
+    , wd_(wd)
 {
     setStretch( 2, 2 );
     uiWellDisplay::Setup su; su.takedisplayfrom3d_ = true;
@@ -185,7 +185,7 @@ void uiWellDisplayWin::closeWin( CallBacker* )
 {
     delete welldisp_;
     welldisp_ = 0;
-    close(); 
+    close();
 }
 
 

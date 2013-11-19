@@ -104,7 +104,7 @@ bool Time2DepthStretcher::isOK() const
 Interval<float> Time2DepthStretcher::getDefaultVAvg()
 {
     Interval<float> res( 1350, 4500 );
-    if ( SI().depthsInFeetByDefault() )
+    if ( SI().depthsInFeet() )
     {
 	res.start *= mToFeetFactorF;
 	res.stop *= mToFeetFactorF;
@@ -259,19 +259,19 @@ protected:
 	return MoreToDo();
     }
 
-    CubeSampling        	readcs_;
-    SeisTrcReader&      	reader_;
-    Array3D<float>&     	arr_;
-    TimeDepthConverter  	tdc_;
-    VelocityDesc        	veldesc_;
-    bool                	velintime_;
-    bool                	voiintime_;
-    BinID               	curbid_;
-    int                 	nrdone_;
+    CubeSampling	readcs_;
+    SeisTrcReader&	reader_;
+    Array3D<float>&	arr_;
+    TimeDepthConverter	tdc_;
+    VelocityDesc	veldesc_;
+    bool		velintime_;
+    bool		voiintime_;
+    BinID		curbid_;
+    int			nrdone_;
 
-    SamplingData<double>	voisd_;
+    SamplingData<double> voisd_;
+    HorSamplingIterator	hiter_;
 
-    HorSamplingIterator		hiter_;
 };
 
 
@@ -279,7 +279,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 {
     if ( !velreader_ )
 	return true;
-    
+
     mDynamicCastGet( SeisTrcTranslator*, veltranslator,
 		     velreader_->translator() );
 
@@ -388,7 +388,7 @@ void Time2DepthStretcher::transform(const BinID& bid,
 	if ( !voidata_[idx] )
 	    continue;
 
-	if ( !voivols_[idx].hrg.includes( bid ) ) 
+	if ( !voivols_[idx].hrg.includes( bid ) )
 	    continue;
 
 	const Interval<float> voirg = getTimeInterval( bid, idx );
@@ -526,8 +526,8 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
 	Interval<float>( voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
 				    voivols_[idx].hrg.crlIdx(bid.crl), 0 ),
 			 voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
-				    voivols_[idx].hrg.crlIdx(bid.crl), 
-		   		    voidata_[idx]->info().getSize(2)-1 ) );
+				    voivols_[idx].hrg.crlIdx(bid.crl),
+				    voidata_[idx]->info().getSize(2)-1 ) );
 }
 
 
@@ -607,9 +607,9 @@ void Time2DepthStretcher::releaseData()
 
 float Time2DepthStretcher::zScale() const
 {
-    const SurveyInfo::Unit zscaleunit = SI().depthsInFeet() ? SurveyInfo::Feet 
+    const SurveyInfo::Unit zscaleunit = SI().depthsInFeet() ? SurveyInfo::Feet
 							    : SurveyInfo::Meter;
-    return SurveyInfo::defaultXYtoZScale( zscaleunit, SI().xyUnit() ); 
+    return SurveyInfo::defaultXYtoZScale( zscaleunit, SI().xyUnit() );
 }
 
 
@@ -635,7 +635,7 @@ bool Depth2TimeStretcher::needsVolumeOfInterest() const
 
 
 void Depth2TimeStretcher::fillPar( IOPar& par ) const
-{ 
+{
     stretcher_->fillPar( par );
     ZAxisTransform::fillPar( par );
 }
@@ -717,7 +717,7 @@ float Depth2TimeStretcher::zScale() const
 { return SurveyInfo::defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() ); }
 
 
-VelocityModelScanner::VelocityModelScanner( const IOObj& input, 
+VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 					    const VelocityDesc& vd )
     : obj_( input )
     , vd_( vd )
@@ -755,10 +755,10 @@ int VelocityModelScanner::nextStep()
 	    msg_ = "Velocity volume is not defined for the selected type.";
 	    return ErrorOccurred();
 	}
-	
+
 	return Finished();
     }
-   
+
     mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
     if ( !veltranslator || !veltranslator->supportsGoTo() )
     {
@@ -766,8 +766,8 @@ int VelocityModelScanner::nextStep()
 	return ErrorOccurred();
     }
 
-    nrdone_++; 
-    
+    nrdone_++;
+
     SeisTrc veltrace;
     if ( !veltranslator->goTo(curbid_) || !reader_->get(veltrace) )
 	return MoreToDo();
@@ -776,15 +776,15 @@ int VelocityModelScanner::nextStep()
 
     const int sz = veltrace.size();
     if ( sz<2 ) return MoreToDo();
-    
-    const SamplingData<double> sd = veltrace.info().sampling;    
+
+    const SamplingData<double> sd = veltrace.info().sampling;
 
     TimeDepthConverter tdconverter;
     if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
 	return MoreToDo();
-	
+
     ArrayValueSeries<float, float> resvs( sz );
-    
+
     if ( zistime_ )
     {
 	if ( !tdconverter.calcDepths( resvs, sz, sd ) )
@@ -820,16 +820,16 @@ int VelocityModelScanner::nextStep()
     {
 	const float firsttime = (float) sd.atIndex(first);
 	float v0 = -1;
-    	if ( firsttime>0 )
-    	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
+	if ( firsttime>0 )
+	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
 			  : ( resvs.value(first)>0.0001
 				  ?  2*firsttime/resvs.value(first)
 				  : 1500 );
-    	else
-    	{
-	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
+	else
+	{
+	    const float diff0 = resvs.value(first+1) - resvs.value(first);
 	    v0 = (float)( zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0);
-    	}
+	}
 
 	if ( v0 > 0 )
 	{

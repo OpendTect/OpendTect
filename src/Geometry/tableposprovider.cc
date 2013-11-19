@@ -111,7 +111,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    {
 		float zfac = -1;
 		if ( !SI().zIsTime() )
-		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactorF : -1;
+		    zfac = SI().depthsInFeet() ? mFromFeetFactorF : -1;
 		else if ( bvs.nrVals() > 0 )
 		{
 		    const Interval<float> zrg( bvs.valRange(0) );

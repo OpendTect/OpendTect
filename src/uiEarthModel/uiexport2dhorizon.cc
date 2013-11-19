@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
-       				      const ObjectSet<SurfaceInfo>& hinfos )
+				      const ObjectSet<SurfaceInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export 2D Horizon",
 				     "Specify output parameters","104.0.1"))
 	, hinfos_(hinfos)
@@ -49,14 +49,14 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     setCtrlStyle( DoAndStay );
 
     uiLabeledComboBox* lcbox = new uiLabeledComboBox( this, "Select Horizon",
-	   					      "Select 2D Horizon" );
+						      "Select 2D Horizon" );
     horselfld_ = lcbox->box();
     horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	horselfld_->addItem( hinfos_[idx]->name );
 
     uiLabeledListBox* llbox = new uiLabeledListBox( this, "Select lines",
-	    					    true );
+						    true );
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
@@ -64,19 +64,19 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     headerfld_->attach( alignedBelow, llbox );
 
     udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
-	    		     StringInpSpec(sKey::FloatUdf()) );
+			     StringInpSpec(sKey::FloatUdf()) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
 
     optsfld_ = new uiCheckList( this, "Write line name",
-	    		SI().zIsTime() ? "Z in msec" : "Z in feet" );
+			SI().zIsTime() ? "Z in msec" : "Z in feet" );
     optsfld_->attach( alignedBelow, udffld_ );
     optsfld_->setChecked( 0, true );
-    optsfld_->setChecked( 1, !SI().zIsTime() && SI().depthsInFeetByDefault() );
+    optsfld_->setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
-	    		      uiFileInput::Setup().forread(false) );
+			      uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, optsfld_ );
 
     horChg( 0 );
@@ -124,7 +124,7 @@ bool uiExport2DHorizon::doExport()
     mDynamicCastGet(EM::Horizon2D*,hor,obj);
     if ( !hor )
 	mErrRet("Cannot load horizon")
-    
+
     EM::SectionID sid = hor->sectionID( 0 );
     const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
     if ( !geom ) mErrRet("Error Reading Horizon")
@@ -157,7 +157,7 @@ bool uiExport2DHorizon::doExport()
 	    const bool zudf = mIsUdf(pos.z);
 	    if ( zudf && !wrudfs )
 		continue;
-	   
+
 	    const bool hasspace = strchr( linename.buf(), ' ' ) ||
 				  strchr( linename.buf(), '\t' );
 	    BufferString controlstr = hasspace ? "\"%15s\"" : "%15s";
@@ -166,7 +166,7 @@ bool uiExport2DHorizon::doExport()
 	    {
 		if ( wrlnms )
 		{
-		    controlstr += "%16.2lf%16.2lf%8d%16s"; 
+		    controlstr += "%16.2lf%16.2lf%8d%16s";
 		    sprintf( buf, controlstr.buf(), linename.buf(),
 			     pos.x, pos.y, trcnr, undefstr.buf() );
 		}
@@ -250,7 +250,7 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
     if ( !strcmp(outfld_->fileName(),"") )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) && 
+    if ( File::exists(outfld_->fileName()) &&
 		!uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 

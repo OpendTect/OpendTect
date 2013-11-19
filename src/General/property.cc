@@ -339,7 +339,7 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 					 bool mainname ) const
 {
     if ( !nm || !*nm || caseInsensitiveEqual(nm,"depth")
-	    	     || caseInsensitiveEqual(nm,"z") )
+		     || caseInsensitiveEqual(nm,"z") )
 	return &depthprop;
     else if ( caseInsensitiveEqual(nm,"xpos") )
 	return &xposprop;
@@ -376,7 +376,7 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
 bool MathProperty::isDepOn( const Property& p ) const
 {
     if ( &p == this ) return true;
-    
+
     for ( int idep=0; idep<inps_.size(); idep++ )
     {
 	const Property* inp = inps_[idep];
@@ -549,14 +549,14 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    if ( uom )
 		v = uom->getUserValueFromSI( v );
 	}
-	else if ( SI().depthsInFeetByDefault() )
+	else if ( SI().depthsInFeet() )
 	    v *= mToFeetFactorF;
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
     }
 
     for ( int idx=0; idx<consts_.size(); idx++ )
-	expr_->setVariableValue( getMathVarIdx(*expr_,idx,false), 
-	      			 constValue(idx) );
+	expr_->setVariableValue( getMathVarIdx(*expr_,idx,false),
+				 constValue(idx) );
 
     float res = expr_->getValue();
     if ( formulauom_ )
@@ -658,7 +658,7 @@ int PropertySet::set( Property* p )
 
     int idxof = indexOf( p->name(), false );
     if ( idxof >= 0 )
-    	delete props_.replace( idxof, p );
+	delete props_.replace( idxof, p );
     else
     {
 	idxof = props_.size();
@@ -686,7 +686,7 @@ bool PropertySet::prepareUsage() const
 
 
 void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
-       					  ObjectSet<Property>& resultset ) const
+					  ObjectSet<Property>& resultset ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
 	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )

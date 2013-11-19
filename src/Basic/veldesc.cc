@@ -124,7 +124,7 @@ bool VelocityDesc::usePar( const IOPar& par )
 
 const char* VelocityDesc::getVelUnit( bool wp )
 {
-    if ( SI().depthsInFeetByDefault() )
+    if ( SI().depthsInFeet() )
 	return wp ? "(ft/s)" : "ft/s";
 
     return wp ? "(m/s)" : "m/s";
