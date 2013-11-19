@@ -1170,11 +1170,10 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     Interval<float> usrzrg = lfi.zrg;
     if ( isft )
     {
-	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(lfi.zrg.start) && zun )
-	    usrzrg.start = zun->userValue( lfi.zrg.start );
-	if ( !mIsUdf(lfi.zrg.stop) && zun )
-	    usrzrg.stop = zun->userValue( lfi.zrg.stop );
+	if ( !mIsUdf(lfi.zrg.start) ) 
+	    usrzrg.start *= mToFeetFactorF;
+	if ( !mIsUdf(lfi.zrg.stop) ) 
+	    usrzrg.stop *= mToFeetFactorF;
     }
     intvfld->setValue( usrzrg );
 }
@@ -1191,11 +1190,10 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
-	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( !mIsUdf(usrzrg.start) && zun )
-	    usrzrg.start = zun->internalValue( usrzrg.start );
-	if ( !mIsUdf(usrzrg.stop) && zun )
-	    usrzrg.stop = zun->internalValue( usrzrg.stop );
+	if ( !mIsUdf(usrzrg.start) ) 
+	    usrzrg.start *= mFromFeetFactorF;
+	if ( !mIsUdf(usrzrg.stop) ) 
+	    usrzrg.stop *= mFromFeetFactorF;
     }
     lfi.zrg.setFrom( usrzrg );
 
