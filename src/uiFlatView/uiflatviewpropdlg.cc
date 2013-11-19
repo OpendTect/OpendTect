@@ -850,26 +850,6 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     {
 	showGroup( 1 );
     }
-
-    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
-    if ( uivwr )
-    {
-    	mAttachCB( uivwr->dispParsChanged, uiFlatViewPropDlg::parsChgCB );
-	mAttachCB( uivwr->annotChanged, uiFlatViewPropDlg::parsChgCB );
-    }
-    vwr_.fillAppearancePar( initialpar_ );
-}
-
-
-uiFlatViewPropDlg::~uiFlatViewPropDlg()
-{
-    detachAllNotifiers();
-}
-
-
-void uiFlatViewPropDlg::parsChgCB( CallBacker* )
-{
-    vwr_.fillAppearancePar( initialpar_ );
 }
 
 
@@ -890,7 +870,6 @@ void uiFlatViewPropDlg::putAllToScreen()
 void uiFlatViewPropDlg::doApply( CallBacker* cb )
 {
     acceptOK( cb );
-    vwr_.fillAppearancePar( initialpar_ );
     applycb_.doCall( this );
 }
 
@@ -898,7 +877,6 @@ void uiFlatViewPropDlg::doApply( CallBacker* cb )
 bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 {
     putAllToScreen();
-    vwr_.useAppearancePar( initialpar_ );
     return true;
 }
 

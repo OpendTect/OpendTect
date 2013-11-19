@@ -33,7 +33,7 @@ public:
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
 					  int selann=0 );
-			~uiFlatViewPropDlg();
+			~uiFlatViewPropDlg() {};
 
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
@@ -50,7 +50,6 @@ protected:
     uiFVAnnotPropTab*	annottab_;
 
     FlatView::Viewer&	vwr_;
-    IOPar		initialpar_;
     int			selannot_;
 
     bool		rejectOK(CallBacker*);
@@ -58,7 +57,6 @@ protected:
 
     CallBack		applycb_;
     void		doApply(CallBacker*);
-    void		parsChgCB(CallBacker*);
 
 };
 
