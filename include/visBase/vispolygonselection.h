@@ -79,6 +79,7 @@ public:
 					       TypeSet<int>& pickedobjids,
 					       int depthidx=0) const;
     void			setMasterCamera(Camera*);
+    void			setHUDCamera(Camera*);
 
 protected:
 

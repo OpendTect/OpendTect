@@ -187,7 +187,8 @@ void ui3DViewerBody::setupHUD()
     if ( hudview_ )
 	return;
 
-    osg::ref_ptr<osg::Camera> hudcamera = new osg::Camera;
+    visBase::Camera* vishudcam = visBase::Camera::create();
+    osg::ref_ptr<osg::Camera> hudcamera = vishudcam->osgCamera();
     hudcamera->setGraphicsContext( getGraphicsContext() );
     hudcamera->setName("HUD Camera");
     hudcamera->setProjectionMatrix( osg::Matrix::ortho2D(0,1024,0,768) );
@@ -202,7 +203,7 @@ void ui3DViewerBody::setupHUD()
 
     //we don't want the camera to grab event focus from the viewers main cam(s).
     hudcamera->setAllowEventFocus(false);
-
+    
     hudscene_ = visBase::DataObjectGroup::create();
 
     hudview_ = new osgViewer::View;
@@ -237,6 +238,7 @@ void ui3DViewerBody::setupHUD()
     {
 	polygonselection_ = visBase::PolygonSelection::create();
 	hudscene_->addObject( polygonselection_ );
+	polygonselection_->setHUDCamera( vishudcam );
     }
 }
 

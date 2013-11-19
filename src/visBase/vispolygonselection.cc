@@ -104,8 +104,13 @@ void PolygonSelection::setMasterCamera( Camera* maincam )
 {
     mastercamera_ = maincam;
     mastercamera_->ref();
-    mDynamicCastGet(osg::Camera*,osgcamera,mastercamera_->osgNode());
-    selector_->setEventHandlerCamera( osgcamera );
+    selector_->setEventHandlerCamera( mastercamera_->osgCamera() );
+}
+
+
+void PolygonSelection::setHUDCamera( Camera* hudcam )
+{
+    selector_->setHUDCamera( hudcam->osgCamera() );
 }
 
 
