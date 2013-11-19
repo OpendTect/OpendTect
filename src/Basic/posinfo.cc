@@ -491,12 +491,12 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
 	const StepInterval<int>& seg( segs[iseg] );
-	if ( segs[iseg].includes(bid.crl(),false) )
+	if ( seg.includes(bid.crl(),true) )
 	{
 	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
 	    {
 		cdp.segnr_ = iseg;
-		cdp.sidx_ = segs[iseg].getIndex( bid.crl() );
+		cdp.sidx_ = seg.getIndex( bid.crl() );
 	    }
 	    break;
 	}

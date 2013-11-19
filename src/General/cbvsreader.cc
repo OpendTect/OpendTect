@@ -381,7 +381,6 @@ bool CBVSReader::readTrailer()
 	info_.geom_.stop = hs_.stop;
     }
 
-    info_.geom_.fullyrectandreg = lds_.isFullyRectAndReg();;
     if ( !info_.geom_.fullyrectandreg )
 	info_.geom_.cubedata = lds_;
     return strm_.isOK();

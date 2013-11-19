@@ -437,6 +437,8 @@ bool CBVSSeisTrcTranslator::startWrite()
     if ( wrmgr_->failed() )
 	{ errmsg = wrmgr_->errMsg(); return false; }
 
+    if ( is2d_ )
+	wrmgr_->setForceTrailers( true );
     return true;
 }
 
