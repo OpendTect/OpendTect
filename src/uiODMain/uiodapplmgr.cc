@@ -173,11 +173,13 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
 }
 
 
-int uiODApplMgr::manageSurvey()
+int uiODApplMgr::manageSurvey( uiParent* p )
 {
     BufferString prevnm = GetDataDir();
-    uiSurvey dlg( ODMainWin() );
-    dlg.setModal( true );
+    if ( !p ) p = ODMainWin();
+	uiSurvey dlg( p );
+    if ( !p )
+	dlg.setModal( true );
     if ( !dlg.go() )
 	return 0;
     else if ( prevnm == GetDataDir() )
