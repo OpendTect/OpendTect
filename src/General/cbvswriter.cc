@@ -41,6 +41,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 	, auxnrbytes_(0)
 	, input_rectnreg_(false)
     	, forcedlinestep_(0,0)
+    	, forcetrailer_(false)
 {
     coordpol_ = coordpol;
     init( i );
@@ -421,7 +422,7 @@ void CBVSWriter::getRealGeometry()
     for ( int idx=0; idx<lds_.size(); idx++ )
 	cd += new PosInfo::LineData( *lds_[idx] );
 
-    survgeom_.fullyrectandreg = cd.isFullyRectAndReg();
+    survgeom_.fullyrectandreg = forcetrailer_ ? false : cd.isFullyRectAndReg();
     StepInterval<int> rg;
     cd.getInlRange( rg ); survgeom_.step.inl = rg.step;
     survgeom_.start.inl = rg.start; survgeom_.stop.inl = rg.stop;

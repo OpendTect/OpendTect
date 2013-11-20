@@ -39,8 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
-    	: scaler_(0)
-    	, resampler_(0)
+	: scaler_(0)
+	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
 	, geom_(gt)
@@ -57,7 +57,7 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 
 
 SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
-    	: scaler_(0)
+	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
@@ -145,17 +145,17 @@ void SeisIOSimple::Data::clear( bool survchg )
 
 
 SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
-    	: Executor( imp ? "Import Seismics from simple file"
+	: Executor( imp ? "Import Seismics from simple file"
 			: "Export Seismics to simple file" )
 	, data_(d)
 	, isimp_(imp)
-    	, sd_(*new StreamData)
-    	, trc_(*new SeisTrc)
-    	, rdr_(0)
-    	, wrr_(0)
-    	, importer_(0)
-    	, nrdone_(0)
-    	, firsttrc_(true)
+	, sd_(*new StreamData)
+	, trc_(*new SeisTrc)
+	, rdr_(0)
+	, wrr_(0)
+	, importer_(0)
+	, nrdone_(0)
+	, firsttrc_(true)
 	, offsnr_(0)
 	, prevbid_(mUdf(int),0)
 	, prevnr_(mUdf(int))
@@ -184,7 +184,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     sa->setSelData( seldata );
 
     StreamProvider sp( data_.fname_ );
-    sd_ = isimp_ ? sp.makeIStream() : sp.makeOStream(); 
+    sd_ = isimp_ ? sp.makeIStream() : sp.makeOStream();
     if ( !sd_.usable() )
     {
 	errmsg_ = isimp_ ? "Cannot open input file"
@@ -213,7 +213,7 @@ class SeisIOSimpleImportReader : public SeisImporter::Reader
 public:
 
 SeisIOSimpleImportReader( SeisIOSimple& sios )
-    	: sios_(sios)		{}
+	: sios_(sios)		{}
 
 const char* name() const	{ return "Simple File"; }
 bool fetch( SeisTrc& trc )
@@ -253,7 +253,7 @@ void SeisIOSimple::startImpRead()
 
     trc_.info().sampling = data_.sd_;
     importer_ = new SeisImporter( new SeisIOSimpleImportReader(*this),
-	    			  *wrr_, data_.geom_ );
+				  *wrr_, data_.geom_ );
 }
 
 
@@ -291,7 +291,7 @@ int SeisIOSimple::nextStep()
     else if ( isimp_ )
     {
 	int rv = importer_ ? importer_->nextStep() : -1;
-	if ( rv == Executor::Finished() && importer_->nrSkipped() > 0 )
+	if ( rv == Finished() && importer_->nrSkipped() > 0 )
 	    UsrMsg( BufferString("Warning: ",importer_->nrSkipped(),
 				 " traces were rejected during import") );
 	return rv;
@@ -299,11 +299,9 @@ int SeisIOSimple::nextStep()
 
     int rv = readExpTrc();
     if ( rv < 0 )
-	return errmsg_.isEmpty()
-	    ? Executor::Finished()
-	    : Executor::ErrorOccurred();
+	return errmsg_.isEmpty() ? Finished() : ErrorOccurred();
 
-    return rv == 0 ? Executor::MoreToDo() : writeExpTrc();
+    return rv == 0 ? MoreToDo() : writeExpTrc();
 }
 
 
@@ -313,7 +311,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     while ( isspace(strm.peek()) )
 	strm.ignore( 1 );
     if ( !strm.good() )
-	return Executor::Finished();
+	return Finished();
 
 
     BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
@@ -412,7 +410,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     }
 
     if ( !strm.good() )
-	return Executor::Finished();
+	return Finished();
 
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
@@ -432,19 +430,19 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( data_.isasc_ )
 	{
 	    if ( !StrmOper::wordFromLine( strm, buf, 127 ) )
-		return Executor::Finished();
+		return Finished();
 	    Conv::set( val, ptr );
 	}
 	else
 	    mStrmBinRead( val, float );
-	if ( !strm.good() )
-	    return Executor::Finished();
+	if ( strm.bad() )
+	    return Finished();
 
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
     }
 
-    return Executor::MoreToDo();
+    return strm.good() ? MoreToDo() : Finished();
 }
 
 
@@ -503,7 +501,7 @@ int SeisIOSimple::writeExpTrc()
     }
 
     if ( data_.remnull_ && trc_.isNull() )
-	return Executor::MoreToDo();
+	return MoreToDo();
 
     if ( data_.havenr_ )
     {
@@ -594,8 +592,8 @@ int SeisIOSimple::writeExpTrc()
 	*sd_.ostrm << std::endl;
 
     if ( !sd_.ostrm->good() )
-	{ errmsg_ = "Error during write"; return Executor::ErrorOccurred(); }
+	{ errmsg_ = "Error during write"; return ErrorOccurred(); }
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }

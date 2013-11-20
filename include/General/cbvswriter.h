@@ -56,6 +56,8 @@ public:
 			    { forcedlinestep_ = stp; }
     void		forceNrTrcsPerPos( int nr )
 			    { nrtrcsperposn_ = nr; nrtrcsperposn_status_ = 0; }
+    void		forceTrailer( bool yn=true )
+    			    { forcetrailer_ = yn; }
 
     int			put(void**,int offs=0);
 			//!< Expects a buffer for each component
@@ -76,6 +78,7 @@ protected:
     bool		input_rectnreg_;
     int*		nrbytespersample_;
     BinID		forcedlinestep_;
+    bool		forcetrailer_;
 
     void		writeHdr(const CBVSInfo&);
     void		putAuxInfoSel(unsigned char*) const;

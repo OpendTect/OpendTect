@@ -110,6 +110,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	, info_(i)
     	, single_file(sf)
     	, coordpol_(cp)
+    	, forcetrailers_(false)
 {
     const int totsamps = info_.nrsamples_;
     if ( totsamps < 1 ) return;
@@ -123,7 +124,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	std::ostream* strm = mkStrm();
 	if ( !strm ) return;
 	CBVSWriter* wr = new CBVSWriter( strm, info_, pai, coordpol_ );
-	
+	wr->forceTrailer( forcetrailers_ );
 	writers_ += wr;
 	endsamps_ += totsamps-1;
 	return;
@@ -157,6 +158,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	if ( !strm )
 	    { cleanup(); return; }
 	CBVSWriter* wr = new CBVSWriter( strm, inf, pai, coordpol_ );
+	wr->forceTrailer( forcetrailers_ );
 	writers_ += wr;
 
 	if ( writers_.size() == 1 )
@@ -288,6 +290,7 @@ bool CBVSWriteMgr::put( void** data )
 
 		writer->forceLineStep( writer->survGeom().step );
 		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
+		newwriter->forceTrailer( forcetrailers_ );
 		writers_ += newwriter;
 		writers_ -= writer;
 		delete writer;
@@ -299,4 +302,12 @@ bool CBVSWriteMgr::put( void** data )
     }
 
     return ret == -1 ? false : true;
+}
+
+
+void CBVSWriteMgr::setForceTrailers( bool yn )
+{
+    forcetrailers_ = yn;
+    for ( int idx=0; idx<writers_.size(); idx++ )
+	writers_[idx]->forceTrailer( forcetrailers_ );
 }

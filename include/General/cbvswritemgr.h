@@ -55,6 +55,7 @@ public:
     			//!< Only active without vertical bricking
     void		setBytesPerFile(unsigned long);
     			//!< Only works without vertical bricking
+    void		setForceTrailers(bool yn=true);
 
     bool		put(void**);
 			//!< See CBVSWriter::put, only now succeeds or fails
@@ -73,6 +74,7 @@ protected:
     CBVSInfo		info_;
     bool		single_file;
     CBVSIO::CoordPol	coordpol_;
+    bool		forcetrailers_;
 
     const char*		errMsg_() const;
 
