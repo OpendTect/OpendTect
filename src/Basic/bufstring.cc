@@ -86,12 +86,13 @@ bool BufferString::isEmpty() const
 { return !buf_ || !(*buf_); }
 
 
-void BufferString::setEmpty()
+BufferString& BufferString::setEmpty()
 {
     if ( len_ != minlen_ )
 	{ destroy(); init(); }
     else
 	buf_[0] = 0;
+    return *this;
 }
 
 
@@ -225,10 +226,10 @@ int BufferString::count( char tocount ) const
 }
 
 
-void BufferString::replace( char from, char to )
+BufferString& BufferString::replace( char from, char to )
 {
     if ( isEmpty() || from == to )
-	return;
+	return *this;
 
     char* ptr = buf();
     while ( *ptr )
@@ -237,13 +238,14 @@ void BufferString::replace( char from, char to )
 	    *ptr = to;
 	ptr++;
     }
+    return *this;
 }
 
 
-void BufferString::replace( const char* from, const char* to )
+BufferString& BufferString::replace( const char* from, const char* to )
 {
     if ( isEmpty() || !from || !*from )
-	return;
+	return *this;
 
     const int fromlen = strlen( from );
 
@@ -257,13 +259,14 @@ void BufferString::replace( const char* from, const char* to )
 	add( rest );
 	ptrfound = strstr( buf()+curpos, from );
     }
+    return *this;
 }
 
 
-void BufferString::remove( char torem )
+BufferString& BufferString::remove( char torem )
 {
     if ( isEmpty() )
-	return;
+	return *this;
 
     char* chckpos = buf();
     char* writepos = chckpos;
@@ -278,13 +281,14 @@ void BufferString::remove( char torem )
 	chckpos++;
     }
     *writepos = '\0';
+    return *this;
 }
 
 
-void BufferString::trimBlanks()
+BufferString& BufferString::trimBlanks()
 {
     if ( isEmpty() )
-	return;
+	return *this;
 
     char* memstart = buf();
     char* ptr = memstart;
@@ -292,7 +296,7 @@ void BufferString::trimBlanks()
     removeTrailingBlanks( ptr );
 
     if ( ptr == memstart )
-	return;
+	return *this;
     else if ( !*ptr )
 	setEmpty();
     else
@@ -300,21 +304,23 @@ void BufferString::trimBlanks()
 	BufferString tmp( ptr );
 	*this = tmp;
     }
+    return *this;
 }
 
 
-void BufferString::insertAt( int atidx, const char* string )
+BufferString& BufferString::insertAt( int atidx, const char* string )
 {
     const int cursz = size();	// Had to do this to avoid weird compiler bug
     if ( atidx >= cursz )	// i.e. do not replace cursz with size() ...!
-	{ replaceAt( atidx, string ); return; }
+	{ replaceAt( atidx, string ); return *this; }
     if ( !string || !*string )
-	return;
+	return *this;
 
     if ( atidx < 0 )
     {
 	const int lenstr = strlen( string );
-	if ( atidx <= -lenstr ) return;
+	if ( atidx <= -lenstr )
+	    return *this;
 	string += -atidx;
 	atidx = 0;
     }
@@ -323,10 +329,11 @@ void BufferString::insertAt( int atidx, const char* string )
     *(buf_ + atidx) = '\0';
     *this += string;
     *this += rest;
+    return *this;
 }
 
 
-void BufferString::replaceAt( int atidx, const char* string, bool cut )
+BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
 {
     const int strsz = string ? strlen(string) : 0;
     int cursz = size();
@@ -362,6 +369,17 @@ void BufferString::replaceAt( int atidx, const char* string, bool cut )
 	setBufSize( atidx + strsz + 1 );
 	buf_[atidx + strsz] = '\0';
     }
+
+    return *this;
+}
+
+
+BufferString& BufferString::embed( char s, char e )
+{
+    char sbuf[2]; sbuf[0] = s; sbuf[1] = '\0';
+    char ebuf[2]; ebuf[0] = e; ebuf[1] = '\0';
+    *this = BufferString( sbuf, buf(), ebuf );
+    return *this;
 }
 
 
@@ -381,18 +399,6 @@ const BufferString& BufferString::empty()
 }
 
 
-void BufferString::fill( char* output, int maxnrchar ) const
-{
-    if ( !output || maxnrchar < 1 )
-	return;
-
-    if ( !buf_ || maxnrchar < 2 )
-	*output = 0;
-    else
-	strncpy( output, buf_, maxnrchar );
-}
-
-
 void BufferString::init()
 {
     len_ = minlen_;
@@ -404,6 +410,18 @@ void BufferString::init()
 	if ( buf_ )
 	    *buf_ ='\0';
     }
+}
+
+
+void BufferString::fill( char* output, int maxnrchar ) const
+{
+    if ( !output || maxnrchar < 1 )
+	return;
+
+    if ( !buf_ || maxnrchar < 2 )
+	*output = 0;
+    else
+	strncpy( output, buf_, maxnrchar );
 }
 
 

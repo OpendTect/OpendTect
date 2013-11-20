@@ -75,7 +75,7 @@ public:
     inline char&	operator []( int idx )		{ return buf()[idx]; }
     inline const char&	operator []( int idx ) const	{ return buf()[idx]; }
     bool		isEmpty() const;
-    void		setEmpty();
+    BufferString&	setEmpty();
 
     BufferString&	add(const char*);
     BufferString&	add( const BufferString& b )	{ return add(b.buf()); }
@@ -101,16 +101,18 @@ public:
     bool		contains(const char*) const;
 
     int			count(char) const;
-    void		replace(char from,char to);
-    void		replace(const char* from,const char* to);
-    void		remove(char);
-    inline void		remove( const char* s )	{ replace(s,0); }
-    void		trimBlanks(); //!< removes front and back whitespaces
+    BufferString&	replace(char from,char to);
+    BufferString&	replace(const char* from,const char* to);
+    BufferString&	remove(char);
+    inline BufferString& remove( const char* s )	{ return replace(s,0); }
+    BufferString&	trimBlanks(); //!< removes front and back whitespaces
 
-    void		insertAt(int idx, const char*);
-			//< If idx >= size(), pads spaces
-    void		replaceAt(int idx, const char*,bool cutoff=true);
-			//< If idx >= size(), pads spaces
+    BufferString&	insertAt(int idx, const char*);
+				//< If idx >= size(), pads spaces
+    BufferString&	replaceAt(int idx, const char*,bool cutoff=true);
+				//< If idx >= size(), pads spaces
+    BufferString&	embed(char open,char close);
+    inline BufferString& quote( char q='"' )		{ return embed(q,q); }
 
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;

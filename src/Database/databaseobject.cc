@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "price.h"
 #include "sqlquery.h"
 
+#define mCrBackQuoteString(nm,str) BufferString nm( str ); nm.quote( '`' );
+
 namespace SqlDB
 {
 
@@ -53,17 +55,12 @@ const char* DatabaseColumnBase::createColumnQuery() const
     }
 
     mDeclStaticString( ret );
+    mCrBackQuoteString( bqcolnm, columnName() );
 
-    ret = backQuoteString( columnName() );
-    ret += " ";
-    ret += columnType();
-    
+    ret.set( bqcolnm ).add( " " ).add( columnType() );
     const char* options = columnOptions();
-    if ( options )
-    {
-	ret += " ";
-	ret += options;
-    }
+    if ( options && *options )
+	ret.add( " " ).add( options );
 
     return ret.buf();
 }
@@ -71,10 +68,11 @@ const char* DatabaseColumnBase::createColumnQuery() const
 
 const char* DatabaseColumnBase::selectString() const
 {
-    mDeclStaticString( ret );
+    mCrBackQuoteString( bqtblnm, table_.tableName() );
+    mCrBackQuoteString( bqcolnm, columnName() );
 
-    ret = backQuoteString( table_.tableName() );
-    ret.add( "." ).add( backQuoteString( columnName() ) );
+    mDeclStaticString( ret );
+    ret.set( bqtblnm ).add( "." ).add( bqcolnm );
     return ret;
 }
 
@@ -194,10 +192,12 @@ const char* CreatedTimeStampDatabaseColumn::selectString() const
 {
     mDeclStaticString( ret );
 
-    ret = "UNIX_TIMESTAMP(";
-    ret.add( backQuoteString( table_.tableName() ) ).add(".");
-    ret += backQuoteString( columnName() );
-    ret += ")";
+    mCrBackQuoteString( bqtblnm, table_.tableName() );
+    mCrBackQuoteString( bqcolnm, columnName() );
+
+    ret.set( "UNIX_TIMESTAMP(" )
+	.add( bqtblnm ).add( "." ).add( bqcolnm )
+	.add( ")" );
 
     return ret.buf();
 }
@@ -250,18 +250,20 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
     while ( query.next() )
 	tables.add( query.data(0) );
 
+    mCrBackQuoteString( bqtblnm, tableName() );
+
     if ( !tables.isPresent(tableName()) )
     {
 	if ( !fix )
 	    return MinorError;
 
-	BufferString querystring = "CREATE TABLE ";
-	querystring += backQuoteString( tableName() );
-	querystring += " (";
-	querystring += rowidcolumn_->createColumnQuery();
-	querystring += " , PRIMARY KEY(";
-	querystring += backQuoteString( rowidcolumn_->columnName() );
-	querystring += ") )";
+	mCrBackQuoteString( bqcolnm, rowidcolumn_->columnName() );
+
+	BufferString querystring( "CREATE TABLE ", bqtblnm );
+	querystring.add( " (" )
+		   .add( rowidcolumn_->createColumnQuery() )
+		   .add( " , PRIMARY KEY(" ).add( bqcolnm )
+		   .add( ") )" );
 
 	if ( !query.execute( querystring.buf() ) )
 	{
@@ -270,14 +272,10 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 	}
     }
 
-    BufferString querystring = "SHOW COLUMNS IN ";
-    querystring += backQuoteString( tableName() );
+    BufferString querystring( "SHOW COLUMNS IN ", bqtblnm );
 
     if ( !query.execute( querystring ) )
-    {
-	errmsg = query.errMsg();
-	return AccessError;
-    }
+	{ errmsg = query.errMsg(); return AccessError; }
 
     BufferStringSet columns;
     BufferStringSet types;
@@ -299,15 +297,10 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 		continue;
 	    }
 
-	    querystring = "ALTER TABLE ";
-	    querystring += backQuoteString( tableName() );
-	    querystring += " ADD ";
+	    querystring.set( "ALTER TABLE " ).add( bqtblnm ).add( " ADD " );
 	    querystring += columns_[idx]->createColumnQuery();
 	    if ( !query.execute( querystring ) )
-	    {
-		errmsg = query.errMsg();
-		return AccessError;
-	    }
+		{ errmsg = query.errMsg(); return AccessError; }
 
 	    continue;
 	}
@@ -321,7 +314,7 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 	}
     }
 
-    return minorerror ? MinorError : OK; 
+    return minorerror ? MinorError : OK;
 }
 
 
@@ -423,22 +416,16 @@ bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
     usedcols.add( entryidcolumn_->columnName() );
 
     if ( !query.insert( usedcols, usedvals, tableName() ) )
-    {
-	errmsg = query.errMsg();
-	return false;
-    }
+	{ errmsg = query.errMsg(); return false; }
 
+    mCrBackQuoteString( bqtblnm, tableName() );
     BufferString querystring = "SELECT LAST_INSERT_ID() AS ";
-    querystring += IDDatabaseColumn::sKey();
-    querystring += " FROM ";
-    querystring += backQuoteString( tableName() );
-    querystring += " LIMIT 1";
+    querystring.add( IDDatabaseColumn::sKey() )
+		.add( " FROM " ).add( bqtblnm )
+		.add( " LIMIT 1" );
 
     if ( !query.execute(querystring) )
-    {
-	errmsg = query.errMsg();
-	return false;
-    }
+	{ errmsg = query.errMsg(); return false; }
 
     if ( query.next() )
     {

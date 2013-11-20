@@ -130,6 +130,11 @@ static bool testBufferStringFns( bool quiet )
     mRunTest("BufferString remove 1",bs == "\nXXYY Z");
     bs.remove( "XX" );
     mRunTest("BufferString remove 2",bs == "\nYY Z");
+    bs = "XXYYZ";
+    bs.embed( '^', '+' );
+    mRunTest("BufferString embed",bs == "^XXYYZ+");
+    bs.quote( '=' );
+    mRunTest("BufferString quote",bs == "=^XXYYZ+=");
     return true;
 }
 

@@ -14,21 +14,33 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "posinfo2dsurv.h"
 #include "filepath.h"
+#ifdef __win__
+# include <stdio.h> // for _set_output_format
+#endif
 
 #define OD_EXT_KEYSTR_EXPAND 1
 
 #include "keystrs.h"
 
+
+
 mDefModInitFn(Basic)
 {
     mIfNotFirstTime( return );
+
     SignalHandling::initClass();
+
+#ifdef __win__
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+    // From MSDN:
+    // "is used to configure the output of formatted I/O functions"
+#endif
+
     PosInfo::Survey2D::initClass();
 
-    initStringFormat();
-    
 #ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
-	    				System::CrashDumper::sSenderAppl() );
+					System::CrashDumper::sSenderAppl() );
 #endif
+
 }

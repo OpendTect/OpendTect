@@ -14,43 +14,12 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "commondefs.h"
-
-
-/*!
-\brief Advances given pointer to first non-whitespace.
-*/
-
-#define mSkipBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
-
-/*!
-\brief Advances given pointer to first whitespace.
-*/
-
-#define mSkipNonBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
-
-/*!
-\brief Advances to first whitespace and removes trailing whitespace.
-*/
-
-#define mTrimBlanks(ptr) \
-    { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
-
-
-
-/*!> bluntly puts a '\0' on trailing white space. */
-mGlobal(Basic) void removeTrailingBlanks(char*);
-
-
 #include "undefval.h"
 #include "fixedstring.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 
-//!>Called from initBasic to setup some global settings for string format
-mGlobal(Basic) void initStringFormat();
 
 /*!> stricmp with option to compare part, default is all */
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
@@ -118,10 +87,6 @@ mGlobal(Basic) const char* getBytesString(od_uint64);
 /*!> returns a string for display, never larger than specified nr of chars */
 mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);
-
-mGlobal(Basic) const char* quoteString(const char* str, char qt='"' );
-mGlobal(Basic) inline const char* backQuoteString(const char* str, char qt='"' )
-{ return quoteString( str, '`' ); }
 
 /*!> Finds a string in string array, case insensitive */
 mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
@@ -212,5 +177,30 @@ inline int toInt( const char* s, int defval=0 )
 }
 
 
-#endif
+/*!
+\brief Advances given pointer to first non-whitespace.
+*/
 
+#define mSkipBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
+
+/*!
+\brief Advances given pointer to first whitespace.
+*/
+
+#define mSkipNonBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
+
+/*!
+\brief Advances to first whitespace and removes trailing whitespace.
+*/
+
+#define mTrimBlanks(ptr) \
+    { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
+
+
+/*!> bluntly puts a '\0' on trailing white space. */
+mGlobal(Basic) void removeTrailingBlanks(char*);
+
+
+#endif

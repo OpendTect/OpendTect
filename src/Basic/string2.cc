@@ -34,13 +34,6 @@ void removeTrailingBlanks( char* str )
 }
 
 
-void initStringFormat()
-{
-#ifdef __win__
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-}
-
 const char* getStringFromInt( od_int32 val, char* str )
 
 {
@@ -48,26 +41,6 @@ const char* getStringFromInt( od_int32 val, char* str )
     char* ret = str ? str : retstr.buf();
     sprintf( ret, "%d", val );
     return ret;
-}
-
-
-const char* quoteString( const char* initial, char quote )
-{
-    mDeclStaticString( str );
-    str = initial;
-
-    if ( str.isEmpty() )
-	return str.str();
-
-    char insertstr[] = { quote, 0 };
-
-    if ( str[0]!=quote )
-	str.insertAt( 0, insertstr );
-
-    if ( str[str.size()-1]!='`' )
-	str += insertstr;
-
-    return str.str();
 }
 
 
