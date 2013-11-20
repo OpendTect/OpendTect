@@ -290,6 +290,9 @@ static void interpolate( EM::Horizon3D* horizon,
     gridpar->get( sKey::Name(), gridmethodnm );
     PtrMan<Array2DInterpol> arr2dint =
 	Array2DInterpol::factory().create( gridmethodnm );
+    if ( !arr2dint )
+	return;
+
     arr2dint->usePar( *gridpar );
     for ( int idx=0; idx<attribrefs.size(); idx++ )
     {
