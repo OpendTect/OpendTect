@@ -1,0 +1,206 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : A. Huck
+ * DATE     : Oct 2013
+-*/
+
+static const char* rcsID mUsedVar = "$Id$";
+
+#include "synthseis.h"
+
+#include "ailayer.h"
+#include "commandlineparser.h"
+#include "factory.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
+#include "multiid.h"
+#include "ptrman.h"
+#include "raytrace1d.h"
+#include "raytracerrunner.h"
+#include "seistrc.h"
+#include "wavelet.h"
+
+#include <iostream>
+
+#define cStep 0.004f
+
+#define mTest( testname, test, message ) \
+    if ( (test)==true ) \
+{ \
+    if ( !quiet ) \
+    std::cout << testname << ": OK\n"; \
+} \
+else \
+{ \
+    std::cout << testname << ": Failed\n"; \
+    if ( message ) \
+    std::cout << message << "\n"; \
+    \
+    return false; \
+}
+
+
+void init( bool onespike, bool onemodel, float start_depth,
+	   TypeSet<ElasticModel>& models )
+{
+    AILayer layer1 = AILayer( start_depth, 2000.f, 2500.f );
+    AILayer layer2 = AILayer( 520.f, 2600.f, 2300.f );
+    AILayer layer3 = AILayer( 385.f, 3500.f, 2200.f );
+    AILayer layer4 = AILayer( 350.f, 4000.f, 2800.f );
+
+    models += ElasticModel();
+    models[0] += layer1;
+    models[0] += layer3;
+    if ( !onespike )
+	models[0] += layer4;
+
+    if ( onemodel ) return;
+
+    models += ElasticModel();
+    models[1] += layer1;
+    models[1] += layer2;
+    if ( onespike ) return;
+    models[1] += layer3;
+    models[1] += layer4;
+}
+
+
+bool testSynthGeneration( bool quiet, bool success,
+			  Seis::RaySynthGenerator& synthgen )
+{
+    BufferString testname( "test Synthetic generation" );
+    mTest( testname, success, synthgen.errMsg() );
+
+    return true;
+}
+
+
+bool testTraceSize( bool quiet, SeisTrc& trc )
+{
+    BufferString testname( "test Trace size" );
+    const StepInterval<float> zrg1( 0.028f, 0.688f, cStep );
+    const StepInterval<float> zrg2( -0.012f, 0.728f, cStep );
+    const StepInterval<float>& zrg = trc.zRange().isEqual(zrg1,1e-4f)
+				   ? zrg1 : zrg2;
+    BufferString msg( "Expected trace range: [", zrg.start, " " );
+    msg.add( zrg.stop ).add( "] step " ).add( zrg.step ).add( "\n" );
+    msg.add( "Output trace range: [" ).add( trc.startPos() ).add( " " );
+    msg.add( trc.endPos() ).add( "] step " ).add( trc.info().sampling.step );
+    mTest( testname, trc.zRange().isEqual(zrg,1e-4f), msg );
+
+    return true;
+}
+
+
+bool testSpike( bool quiet, const SeisTrc& trc, const ReflectivitySpike& spike,
+       		float scal, int nr )
+{
+    BufferString testname( "test Spike ", nr, " is defined" );
+    mTest( testname, spike.isDefined(), "Spike is not defined" );
+
+    testname = "test amplitude of the spike ";
+    testname.add( nr ).add( " in the trace" );
+    const float twt = spike.time_;
+    const float ref = spike.reflectivity_.real();
+    const float traceval = trc.getValue( twt, 0 );
+    BufferString msg( "Trace amplitude: ", traceval, " at " );
+    msg.add( twt ).add( "\n" ).add( "Expected amplitude is: " ).add( ref*scal );
+    mTest( testname, mIsEqual(traceval,ref*scal,1e-3f), msg );
+
+    return true;
+}
+
+
+bool testTracesAmplitudes( bool quiet, Seis::RaySynthGenerator& synthgen,
+       			   float scal )
+{
+    BufferString testname( "test Traces amplitudes" );
+    bool success = true;
+    const int nrpos = synthgen.elasticModels().size();
+    int nr = -1;
+    for ( int ipos=0; ipos<nrpos; ipos++ )
+    {
+	Seis::RaySynthGenerator::RayModel& raymodel = synthgen.result( ipos );
+	ObjectSet<SeisTrc> gather;
+	raymodel.getTraces( gather, false );
+	ObjectSet<const ReflectivityModel> refmodels;
+	raymodel.getRefs( refmodels, false );
+	for ( int ioff=0; ioff<refmodels.size(); ioff++ )
+	{
+	    const SeisTrc& trout = *gather[ioff];
+	    const ReflectivityModel& refmodel = *refmodels[ioff];
+	    for ( int idz=0; idz<refmodel.size(); idz++ )
+	    {
+		nr++;
+		if ( !testSpike(quiet,trout,refmodel[idz],scal,nr) )
+		    success = false;
+	    }
+	}
+    }
+
+    mTest( testname, success, 0 );
+
+    return true;
+}
+
+
+
+int main( int argc, char** argv )
+{
+    od_init_test_program( argc, argv );
+    OD::ModDeps().ensureLoaded( "Seis" );
+
+    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    VrmsRayTracer1D::initClass();
+
+    // Inputs
+    TypeSet<ElasticModel> models;
+    const bool singlespike = false;
+    const int nrmodels = 2; // model1: 2 spikes, model2: 3 spikes
+    const float start_depth = 48.f;
+    ObjectSet<Wavelet> wvlts;
+    Wavelet synthethicricker(true,50.f,cStep,1.f); //Ricker 50Hz, 4ms SR
+    wvlts += &synthethicricker;
+    PtrMan<IOObj> wavioobj = IOM().get( MultiID("100010.3") );
+    if ( !wavioobj )
+    {
+	std::cerr<<" Input wavelet is not available.\n";
+	ExitProgram( 1 );
+    }
+
+    PtrMan<Wavelet> realwav = Wavelet::get( wavioobj );
+    if ( !realwav )
+    {
+	std::cerr<<" Input wavelet could not be read.\n";
+	ExitProgram( 1 );
+    }
+
+    wvlts += realwav; 
+    init( singlespike, nrmodels==1, start_depth, models );
+    for ( int iwav=0; iwav<wvlts.size(); iwav++ )
+    {
+	const Wavelet* wav = wvlts[iwav];
+	if ( !wav )
+	    ExitProgram( 1 );
+
+	const float scal = wav->get( wav->centerSample() );
+	Seis::RaySynthGenerator synthgen( models );
+	synthgen.setWavelet( wav, OD::UsePtr );
+	synthgen.enableFourierDomain( true );
+
+	TaskRunner* tr = new TaskRunner;
+	if ( !testSynthGeneration(quiet,TaskRunner::execute(tr,synthgen),
+		    		  synthgen) )
+	    ExitProgram( 1 );
+
+	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( nrmodels-1 );
+	SeisTrc stack = *rm.stackedTrc();
+	if ( !testTraceSize(quiet,stack) ||
+	     !testTracesAmplitudes(quiet,synthgen,scal) )
+	    ExitProgram( 1 );
+    }
+
+    ExitProgram( 0 );
+}

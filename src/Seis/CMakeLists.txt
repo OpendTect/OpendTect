@@ -8,6 +8,7 @@
 SET(OD_MODULE_DEPS Geometry MMProc )
 
 #SET ( OD_TEST_PROGS listvols.cc )
+SET ( OD_TEST_PROGS synthseis.cc )
 
 SET(OD_MODULE_SOURCES
 	initseis.cc
