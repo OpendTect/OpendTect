@@ -30,43 +30,54 @@ namespace Network
 
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
-mGlobal(Network) bool	downloadFile(const char* url,const char* outpath,
-				     BufferString& errmsg,TaskRunner* tr=0);
-
-mGlobal(Network) bool	downloadFiles(BufferStringSet& urls,const char* outpath,
-				      BufferString& errmsg,TaskRunner* tr=0);
-
-mGlobal(Network) bool	downloadFiles(BufferStringSet& urls,
-				      BufferStringSet& outpaths,
-				      BufferString& errmsg,TaskRunner* tr=0);
-
-mGlobal(Network) bool	downloadToBuffer(const char* url,DataBuffer* databuffer,
+    mGlobal(Network) bool   downloadFile(const char* url,const char* outpath,
 					 BufferString& errmsg,TaskRunner* tr=0);
 
-mGlobal(Network) bool	uploadFile(const char* url,const char* localfname,
-				   const char* remotefname,const char* ftype,
-				   const IOPar& postvars, BufferString& errmsg,
-				   TaskRunner* tr=0);
+    mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
+					  const char* outpath,
+					  BufferString& errmsg,
+					  TaskRunner* tr=0);
 
-mGlobal(Network) bool	uploadQuery(const char* url,const IOPar& querypars,
-				    BufferString& errmsg,TaskRunner* tr=0);
+    mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
+					  BufferStringSet& outpaths,
+					  BufferString& errmsg,
+					  TaskRunner* tr=0);
 
-mGlobal(Network) bool	getRemoteFileSize(const char* url,od_int64& size, 
-					  BufferString& errmsg);
+    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer* db,
+					     BufferString& errmsg,
+					     TaskRunner* tr=0);
 
-mGlobal(Network) bool	ping(const char* url, BufferString& msg );
+    mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
+				       const char* remotefname,
+				       const char* ftype,const IOPar& postvars, 
+				       BufferString& errmsg,TaskRunner* tr=0);
 
-mGlobal(Network) void	setHttpProxy(const char* hostname,int port,
-				     bool auth=false,const char* username=0,
-				     const char* password=0);
-mGlobal(Network) void	setHttpProxyFromSettings();
+    mGlobal(Network) bool   uploadQuery(const char* url,const IOPar& querypars,
+					BufferString& errmsg,TaskRunner* tr=0);
 
-static const char*	sKeyUseProxy()		{ return "Use Proxy"; };
-static const char*	sKeyUseAuthentication() { return "Use Authentication";};
-static const char*	sKeyProxyHost()		{ return "Http Proxy Host"; };
-static const char*	sKeyProxyPort()		{ return "Http Proxy Port"; };
-static const char*	sKeyProxyUserName()  { return "Http Proxy User Name"; };
-static const char*	sKeyProxyPassword()  { return "Http Proxy Password"; };
+    mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size, 
+					      BufferString& errmsg);
+
+    mGlobal(Network) bool   ping(const char* url, BufferString& msg );
+
+    mGlobal(Network) void   setHttpProxy(const char* hostname,int port,
+					 bool auth=false,
+					 const char* username=0,
+					 const char* password=0);
+
+    mGlobal(Network) void   setHttpProxyFromSettings();
+
+    inline const char*	    sKeyUseProxy()  { return "Use Proxy"; };
+    inline const char*	    sKeyUseAuthentication() 
+					    { return "Use Authentication";};
+    inline const char*	    sKeyProxyHost()	    
+					    { return "Http Proxy Host"; };
+    inline const char*	    sKeyProxyPort()	    
+					    { return "Http Proxy Port"; };
+    inline const char*	    sKeyProxyUserName()  
+					    { return "Http Proxy User Name"; };
+    inline const char*	    sKeyProxyPassword()  
+					    { return "Http Proxy Password"; };
 
 }
 
