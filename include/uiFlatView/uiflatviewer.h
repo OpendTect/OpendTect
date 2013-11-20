@@ -84,14 +84,11 @@ public:
 
     uiFlatViewControl*		control() { return control_; }
 
-
 			//restrain the data ranges between the selected ranges
     void		setUseSelDataRanges(bool yn) { useseldataranges_ = yn; }
     void		setSelDataRanges(Interval<double>,Interval<double>);
     const Interval<double>& getSelDataRange(bool forx) const
 			{ return forx ? xseldatarange_ : yseldatarange_; } 
-
-    void		setNoViewDone() {}
 
 protected:
 
