@@ -11,13 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "issuereporter.h"
 
-#include "odhttp.h"
 #include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "odinst.h"
+#include "odnetworkaccess.h"
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
@@ -131,23 +131,25 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
 
 bool System::IssueReporter::send()
 {
-    ODHttp request;
-    request.setHost( host_ );
+    BufferString url( host_);
+    url.add( path_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
 
+    const char* remotefname = "crash.dmp";
+    const char* filetype = "dumpfile";
+    BufferString errmsg;
     if ( crashreportpath_.isEmpty() )
     {
-	if ( request.post( path_, postvars )!=-1 )
+	if ( Network::uploadQuery( url.buf(), postvars, errmsg ) )
 	    return true;
     }
-    else if ( request.postFile( path_, crashreportpath_, postvars )!=-1 )
-    {
+    else if ( Network::uploadFile( url.buf(), crashreportpath_,
+	      remotefname, filetype, postvars, errmsg ) )
 	return true;
-    }
 
     errmsg_ = "Cannot connect to ";
-    errmsg_.add( host_ );
+    errmsg_.add( host_ ).add( "\n" ).add( errmsg );
     return false;
 }
 
@@ -174,7 +176,7 @@ bool System::IssueReporter::parseCommandLine()
 	return false;
     }
 
-    host_ = "www.opendtect.org";
+    host_ = "http://opendtect.org";
     path_ = "/relman/scripts/crashreport.php";
 
     const BufferString& filename = normalargs.get( 0 );

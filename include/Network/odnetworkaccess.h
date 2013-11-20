@@ -25,7 +25,8 @@ class DataBuffer;
 class od_ostream;
 
 
-
+namespace Network
+{
 
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
@@ -33,6 +34,10 @@ mGlobal(Network) bool	downloadFile(const char* url,const char* outpath,
 				     BufferString& errmsg,TaskRunner* tr=0);
 
 mGlobal(Network) bool	downloadFiles(BufferStringSet& urls,const char* outpath,
+				      BufferString& errmsg,TaskRunner* tr=0);
+
+mGlobal(Network) bool	downloadFiles(BufferStringSet& urls,
+				      BufferStringSet& outpaths,
 				      BufferString& errmsg,TaskRunner* tr=0);
 
 mGlobal(Network) bool	downloadToBuffer(const char* url,DataBuffer* databuffer,
@@ -54,7 +59,16 @@ mGlobal(Network) bool	ping(const char* url, BufferString& msg );
 mGlobal(Network) void	setHttpProxy(const char* hostname,int port,
 				     bool auth=false,const char* username=0,
 				     const char* password=0);
+mGlobal(Network) void	setHttpProxyFromSettings();
 
+static const char*	sKeyUseProxy()		{ return "Use Proxy"; };
+static const char*	sKeyUseAuthentication() { return "Use Authentication";};
+static const char*	sKeyProxyHost()		{ return "Http Proxy Host"; };
+static const char*	sKeyProxyPort()		{ return "Http Proxy Port"; };
+static const char*	sKeyProxyUserName()  { return "Http Proxy User Name"; };
+static const char*	sKeyProxyPassword()  { return "Http Proxy Password"; };
+
+}
 
 //!>Provides file download facility
 mExpClass(Network) FileDownloader : public SequentialTask
@@ -63,7 +77,7 @@ public:
 			FileDownloader(const char* url);
 			FileDownloader(const char* url,DataBuffer* db);
 			FileDownloader(const BufferStringSet& urls,
-				       const char* outpath);
+				       const BufferStringSet& outputpaths);
 			~FileDownloader();
 
     od_int64		getDownloadSize();

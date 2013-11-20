@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uispinbox.h"
-#include "odhttp.h"
+#include "odnetworkaccess.h"
 #include "settings.h"
 
 
@@ -65,27 +65,27 @@ void uiProxyDlg::initFromSettings()
 {
     Settings& setts = Settings::common();
     bool useproxy = false;
-    setts.getYN( ODHttp::sKeyUseProxy(), useproxy );
+    setts.getYN( Network::sKeyUseProxy(), useproxy );
     useproxyfld_->setValue( useproxy );
 
     BufferString host;
-    setts.get( ODHttp::sKeyProxyHost(), host );
+    setts.get( Network::sKeyProxyHost(), host );
     hostfld_->setText( host );
 
     int port = 1;
-    setts.get( ODHttp::sKeyProxyPort(), port );
+    setts.get( Network::sKeyProxyPort(), port );
     portfld_->box()->setValue( port );
 
     bool needauth = false;
-    setts.getYN( ODHttp::sKeyUseAuthentication(), needauth );
+    setts.getYN( Network::sKeyUseAuthentication(), needauth );
     authenticationfld_->setChecked( needauth );
 
     BufferString username;
-    setts.get( ODHttp::sKeyProxyUserName(), username );
+    setts.get( Network::sKeyProxyUserName(), username );
     usernamefld_->setText( username );
 
     BufferString password;
-    setts.get( ODHttp::sKeyProxyPassword(), password );
+    setts.get( Network::sKeyProxyPassword(), password );
     pwdfld_->setText( password );
 }
 
@@ -94,22 +94,22 @@ bool uiProxyDlg::saveInSettings()
 {
     Settings& setts = Settings::common();
     const bool useproxy = useproxyfld_->getBoolValue();
-    setts.setYN( ODHttp::sKeyUseProxy(), useproxy );
+    setts.setYN( Network::sKeyUseProxy(), useproxy );
 
     BufferString host = useproxy ? hostfld_->text() : "";
-    setts.set( ODHttp::sKeyProxyHost(), host );
+    setts.set( Network::sKeyProxyHost(), host );
 
     const int port = useproxy ? portfld_->box()->getValue() : 1;
-    setts.set( ODHttp::sKeyProxyPort(), port );
+    setts.set( Network::sKeyProxyPort(), port );
 
     const bool needauth = useproxy ? authenticationfld_->isChecked() : false;
-    setts.setYN( ODHttp::sKeyUseAuthentication(), needauth );
+    setts.setYN( Network::sKeyUseAuthentication(), needauth );
     if ( needauth )
     {
 	BufferString username = useproxy ? usernamefld_->text() : "";
-	setts.set( ODHttp::sKeyProxyUserName(), username );
+	setts.set( Network::sKeyProxyUserName(), username );
 	BufferString password = useproxy ? pwdfld_->text() : "";
-	setts.set( ODHttp::sKeyProxyPassword(), password );
+	setts.set( Network::sKeyProxyPassword(), password );
     }
 
     return setts.write();

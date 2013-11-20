@@ -10,16 +10,13 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "oddlsite.h"
-#include "odhttp.h"
-#include "httptask.h"
+#include "odnetworkaccess.h"
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
 #include "strmoper.h"
 #include "strmprov.h"
 #include "settings.h"
-#include "executor.h"
-#include "thread.h"
 #include "timefun.h"
 
 static const char* sKeyTimeOut = "Download.Timout";
@@ -31,7 +28,6 @@ ODDLSite::ODDLSite( const char* h, float t )
     , isfailed_(false)
     , issecure_(false)
 {
-    odhttp_ = islocal_ ? 0 : new ODHttp;
     if ( !h ) h = "opendtect.org";
     int stroffs = 0;
     if ( islocal_ )
@@ -52,17 +48,13 @@ ODDLSite::ODDLSite( const char* h, float t )
 
     if ( host_.isEmpty() )
 	host_ = "opendtect.org";
-    if ( !islocal_ )
-	odhttp_->requestFinished.notify( mCB(this,ODDLSite,reqFinish) );
 
-    reConnect();
 }
 
 
 ODDLSite::~ODDLSite()
 {
     delete databuf_;
-    delete odhttp_;
 }
 
 
@@ -77,28 +69,6 @@ void ODDLSite::setTimeOut( float t, bool sett )
 }
 
 
-bool ODDLSite::reConnect()
-{
-    if ( islocal_ )
-    {
-	isfailed_ = !File::isDirectory(host_);
-	return !isfailed_;
-    }
-    else if ( issecure_ )
-	{ errmsg_ = "TODO secure access not implemented."; return false; }
-
-    if ( odhttp_->state() == ODHttp::Unconnected )
-    {
-	if ( issecure_ )
-	    odhttp_->setHttpsHost( host_ );
-	else
-	    odhttp_->setHost( host_ );
-    }
-
-    return true;
-}
-
-
 bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 			    const char* nicename )
 {
@@ -108,61 +78,13 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	return getLocalFile( relfnm, outfnm );
   
     if ( outfnm )
-    {
-	odhttp_->setASynchronous( true );
-	odhttp_->get( getFileName(relfnm), outfnm );
-	HttpTask task( *odhttp_ );
-	task.setName( nicename );
-	if ( !TaskRunner::execute( tr, task ) )
-	{
-	    errmsg_ = task.message();
-	    if ( odhttp_->isForcedAbort() )
-	    {
-		reConnect();
-		odhttp_->resetForceAbort();
-		errmsg_ = ". Operation aborted by the user";
-		File::remove( outfnm );
-	    }
-	
-	    return false;
-	}
-    }
+	return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_, tr );
     else
     {
-	odhttp_->setASynchronous( false );
-	odhttp_->get( getFileName(relfnm), outfnm );
+	databuf_ = new DataBuffer( 0, 1, true );
+	return Network::downloadToBuffer(fullURL(relfnm),databuf_,errmsg_,tr);
     }
-    
-    const od_int64 totnr = odhttp_->totalNr();
-    if ( totnr <= 0 )
-	return false;
 
-    const od_int64 nrbytes = odhttp_->bytesAvailable();
-    databuf_ = new DataBuffer( mCast(int,nrbytes), 1, true );
-    const char* buffer = odhttp_->readCharBuffer();
-    const char* hdptr = strstr( buffer, "<HEAD>" );
-    const char* errptr = strstr( buffer, "error" );
-    if ( hdptr || errptr )
-    {
-	errmsg_ = relfnm;
-	errmsg_ += " file not found on the server. "
-		   "Please try with the other sites from the drop down list\nor "
-		   "change the proxy settings if necessary";
-	return false;
-    }
-    memcpy( databuf_->data(), buffer, nrbytes );
-
-    if ( outfnm && *outfnm )
-    {
-	if ( File::getFileSize(outfnm) < 1024
-	    || File::getFileSize(outfnm) < totnr )
-	{
-	    errmsg_ = ". Download failed, it seems, you might be having problem"
-		      " with your internet connection ";
-	    return false;
-	}
-    }
-    
     return true;
 }
 
@@ -197,104 +119,15 @@ DataBuffer* ODDLSite::obtainResultBuf()
 }
 
 
-class ODDLSiteMultiFileGetter : public Executor
-{
-public:
-
-ODDLSiteMultiFileGetter( ODDLSite& dls,
-		const BufferStringSet& fnms, const char* outputdir )
-    : Executor("File download")
-    , dlsite_(dls)
-    , fnms_(fnms)
-    , curidx_(-1)
-    , outdir_(outputdir)
-    , httptask_(0)
-{
-    if ( !dlsite_.isOK() )
-	{ msg_ = dlsite_.errMsg(); return; }
-    if ( !File::isDirectory(outputdir) )
-	{ msg_ = "Output directory does not exist"; return; }
-
-    curidx_ = 0;
-    if ( fnms_.isEmpty() )
-	msg_ = "No files to get";
-    else
-	msg_.add( "Getting '" ).add( fnms_.get(curidx_) );
-
-    if ( !dlsite_.islocal_ )
-	httptask_ = new HttpTask( *dlsite_.odhttp_ );
-}
-
-~ODDLSiteMultiFileGetter()
-{
-    delete httptask_;
-}
-
-const char* message() const	{ return msg_; }
-const char* nrDoneText() const	{ return "Files downloaded"; }
-od_int64 nrDone() const		{ return curidx_ + 1; }
-od_int64 totalNr() const	{ return fnms_.size(); }
-
-    int				nextStep();
-
-    ODDLSite&			dlsite_;
-    HttpTask*			httptask_;
-    const BufferStringSet&	fnms_;
-    int				curidx_;
-    BufferString		outdir_;
-    BufferString		msg_;
-
-};
-
-
-int ODDLSiteMultiFileGetter::nextStep()
-{
-    if ( curidx_ < 0 )
-	return ErrorOccurred();
-    else if ( curidx_ >= fnms_.size() )
-	return Finished();
-
-    const BufferString inpfnm( dlsite_.getFileName(fnms_.get(curidx_)) );
-    BufferString outfnm( FilePath(outdir_).add(inpfnm).fullPath() );
-    bool isok = true;
-    if ( dlsite_.islocal_ )
-	isok = dlsite_.getFile( inpfnm, outfnm );
-    else
-    {
-	dlsite_.odhttp_->get( inpfnm, outfnm );
-	isok = dlsite_.odhttp_->state() > ODHttp::Connecting;
-    }
-
-    if ( isok )
-	curidx_++;
-    else
-    {
-	msg_ = dlsite_.errMsg();
-	curidx_ = -1;
-    }
-
-    return MoreToDo();
-}
-
-
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 			 TaskRunner& tr )
 {
     errmsg_.setEmpty();
+    BufferStringSet fullurls;
+    for ( int idx=0; idx<fnms.size(); idx++ )
+	fullurls.add( fullURL(fnms.get(idx)) );
 
-    ODDLSiteMultiFileGetter mfg( *this, fnms, outputdir );
-    if ( !TaskRunner::execute( &tr, mfg ) )
-    {
-	errmsg_ = mfg.curidx_ < 0 ? mfg.msg_.buf() : "";
-	return false;
-    }
-
-    const bool res = mfg.httptask_ ?
-	TaskRunner::execute( &tr, *mfg.httptask_ ) : true;
-    if ( !res && !mfg.httptask_->userStop() )
-	errmsg_ = mfg.httptask_->message();
-
-    return res;
+    return Network::downloadFiles( fullurls, outputdir, errmsg_, &tr );
 }
 
 

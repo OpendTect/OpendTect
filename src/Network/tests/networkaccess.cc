@@ -33,7 +33,7 @@ bool testPing( const bool quiet )
 {
     const char* url = "http://opendtect.org";
     BufferString err;
-    if ( !ping( url, err ) )
+    if ( !Network::ping( url, err ) )
 	returnError
 
     return true;
@@ -45,7 +45,7 @@ bool testDownloadToBuffer( const bool quiet )
     const char* url = "http://opendtect.org/dlsites.txt";
     DataBuffer* db = new DataBuffer(1000,4);
     BufferString err;
-    if ( !downloadToBuffer( url, db, err ) )
+    if ( !Network::downloadToBuffer( url, db, err ) )
 	returnError
 
     if ( db->size() != 23 )
@@ -62,14 +62,15 @@ bool testDownloadToFile( const bool quiet )
 {
     const char* url = "http://opendtect.org/dlsites.txt";
     BufferString err;
-    BufferString outpath( FilePath::getTempDir() );
+    FilePath outpath( FilePath::getTempDir() );
     if ( outpath.isEmpty() )
     {
 	err.add( "Temp directory path is empty." );
 	returnError
     }
 
-    if ( !downloadFile( url, outpath.buf(), err ) )
+    outpath.add( "dlsites.txt" );
+    if ( !Network::downloadFile( url, outpath.fullPath(), err ) )
 	returnError
 
     return true;
@@ -85,8 +86,8 @@ bool testFileUpload( const bool quiet )
     const char* remotefn("test_file");
     BufferString err;
     IOPar postvars;
-    if ( !uploadFile(url, localfp.fullPath(), remotefn, "dumpfile", 
-		     postvars, err) )
+    if ( !Network::uploadFile(url, localfp.fullPath(), remotefn, "dumpfile", 
+			      postvars, err) )
 	  returnError
 
     
@@ -102,7 +103,7 @@ bool testQueryUpload( const bool quiet )
     const char* url =
 		    "http://dgbindia1/testing/ctest/php_do_not_delete_it_2.php";
     BufferString err;
-    if ( !uploadQuery( url, querypars, err ) )
+    if ( !Network::uploadQuery( url, querypars, err ) )
 	returnError
 
     return true;
@@ -114,9 +115,9 @@ bool testFileSizes( const bool quiet )
     od_int64 sizeremotefile=0,sizeofuploadedfile=0;
     const char* url = "http://dgbindia1/testing/ctest/test_file";
     BufferString err;
-    getRemoteFileSize( url, sizeremotefile, err );
+    Network::getRemoteFileSize( url, sizeremotefile, err );
     url = "http://dgbindia1/testing/ctest/dumpuploads/test_file";
-    getRemoteFileSize( url, sizeofuploadedfile, err );
+    Network::getRemoteFileSize( url, sizeofuploadedfile, err );
 
     if ( sizeofuploadedfile < 0 || sizeremotefile < 0 || 
 	 sizeofuploadedfile != sizeremotefile )

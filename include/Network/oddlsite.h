@@ -18,7 +18,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class TaskRunner;
 class DataBuffer;
-class ODHttp;
 
 
 /*!\brief Access to an http site to get the contents of files.
@@ -49,8 +48,6 @@ public:
 			ODDLSite(const char* the_host,float timeout_sec=0);
 			~ODDLSite();
     bool		isOK() const			{ return !isfailed_; }
-    bool		reConnect();
-    			//!< usable for 'Re-try'. Done automatically if needed.
 
     const char*		host() const			{ return host_; }
     const char*		subDir() const			{ return subdir_; }
@@ -73,7 +70,6 @@ public:
     			//!< if haveErrMsg(), then failure - otherwise user stop
 
     BufferString	fullURL(const char*) const;
-    ODHttp*		getODHttp() const { return odhttp_; };
 
 protected:
 
@@ -83,7 +79,6 @@ protected:
     bool		islocal_;
     bool		issecure_;
 
-    ODHttp*		odhttp_;
     mutable BufferString errmsg_;
     bool		isfailed_;
     DataBuffer*		databuf_;
@@ -91,9 +86,6 @@ protected:
     void		reqFinish(CallBacker*);
     BufferString	getFileName(const char*) const;
     bool		getLocalFile(const char*,const char*);
-
-    friend class	ODDLSiteMultiFileGetter;
-
 };
 
 
