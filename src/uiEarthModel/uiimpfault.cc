@@ -64,7 +64,6 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     setModal( false );
 
     setCtrlStyle( DoAndStay );
-    setDeleteOnClose( true );
 }
 
 
