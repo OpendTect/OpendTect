@@ -69,7 +69,7 @@ public:
     inline const char*	buf() const	{ return buf_ ? buf_ : empty().buf_; }
     inline const char*	str() const;	//!<\returns null pointer if empty
     char*		bufEnd()	{ return buf()+size(); }
-    			/*!<Use with care, allocation beyond min length is not
+			/*!<Use with care, allocation beyond min length is not
 			    guaranteed. */
     inline		operator const char*() const	{ return buf(); }
     inline char&	operator []( int idx )		{ return buf()[idx]; }
@@ -101,6 +101,7 @@ public:
 			//< If idx >= size(), pads spaces
     void		replaceAt(int idx, const char*,bool cutoff=true);
 			//< If idx >= size(), pads spaces
+    void		trimBlanks();
 
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;
@@ -127,12 +128,12 @@ private:
 };
 
 /*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to 
+   of not implementing is that we want to avoid promotions to
    BufferStrings if not needed. */
 mGlobal(Basic) bool operator==(const char*,const BufferString&);
 
 /*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to 
+   of not implementing is that we want to avoid promotions to
    BufferStrings if not needed. */
 mGlobal(Basic) bool operator!=(const char*,const BufferString&);
 
@@ -156,8 +157,8 @@ BufferString::BufferString( const char* s1, const T& t, const char* s2 )
 
 
 inline
-const char* BufferString::str() const	
-{ return isEmpty() ? 0 : buf_; }	
+const char* BufferString::str() const
+{ return isEmpty() ? 0 : buf_; }
 
 
 inline bool BufferString::operator==( const BufferString& s ) const

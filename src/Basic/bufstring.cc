@@ -142,7 +142,7 @@ BufferString& BufferString::add( const char* s )
 }
 
 
-unsigned int BufferString::size() const	
+unsigned int BufferString::size() const
 {
     return buf_ ? strlen(buf_) : 0;
 }
@@ -251,6 +251,28 @@ void BufferString::replaceAt( int atidx, const char* string, bool cut )
     {
 	setBufSize( atidx + strsz + 1 );
 	buf_[atidx + strsz] = '\0';
+    }
+}
+
+
+void BufferString::trimBlanks()
+{
+    if ( isEmpty() )
+	return;
+
+    char* memstart = buf();
+    char* ptr = memstart;
+    mSkipBlanks( ptr );
+    removeTrailingBlanks( ptr );
+
+    if ( ptr == memstart )
+	return;
+    else if ( !*ptr )
+	setEmpty();
+    else
+    {
+	BufferString tmp( ptr );
+	*this = tmp;
     }
 }
 
@@ -580,7 +602,7 @@ void BufferStringSet::usePar( const IOPar& iopar )
 {
     BufferString key;
     for ( int idx=0; ; idx++ )
-    { 
+    {
 	key = idx;
 	if ( !iopar.find(key) ) return;
 	add( iopar[key] );
