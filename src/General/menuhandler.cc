@@ -113,11 +113,11 @@ const MenuItem* MenuItemHolder::findItem( const char* txt ) const
 MenuItem* MenuItemHolder::findItem( const char* txt )
 {
     BufferString tofindtxt = txt;
-    removeCharacter( tofindtxt.buf(), '&' );
+    tofindtxt.remove( '&' );
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	BufferString itmtxt = items_[idx]->text;
-	removeCharacter( itmtxt.buf(), '&' );
+	itmtxt.remove( '&' );
 	if ( itmtxt == tofindtxt )
 	    return items_[idx];
     }
@@ -191,7 +191,7 @@ MenuHandler::MenuHandler( int id )
     , handlenotifier(this)
     , queueid_(
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
-	    				      "MenuHandler" ) )
+					      "MenuHandler" ) )
 {}
 
 

@@ -41,8 +41,8 @@ static void showProgrDoc()
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
 	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
-		    		     "Specify a work directory",
-		    		     "8.0.1"))
+				     "Specify a work directory",
+				     "8.0.1"))
 	, workdirfld(0)
 	, basedirfld(0)
 {
@@ -131,7 +131,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     }
 
     if ( workdirnm.isEmpty() ) return;
-	
+
     if ( File::exists(workdirnm) )
     {
 	BufferString msg;
@@ -150,7 +150,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	msg += "Do you want to completely remove the existing ";
 	msg += isdir ? "directory\n" : "file\n";
-	msg += "and create a new work directory there?";   
+	msg += "and create a new work directory there?";
 
 	if ( !uiMSG().askRemove(msg) )
 	    return;
@@ -189,7 +189,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     cmd += "' '"; cmd += workdirnm; cmd += "'";
     StreamProvider( cmd ).executeCommand( false );
 #endif
-    
+
     BufferString cmakefile = FilePath(workdirnm).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
 	mErrRet( "Creation seems to have failed" )
@@ -220,12 +220,11 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
     if ( !File::exists(workdir) )
     {
 #ifdef __win__
-	if ( !strncasecmp("C:\\Program Files", workdir, 16)
-	  || strstr( workdir, "Program Files" )
-	  || strstr( workdir, "program files" )
-	  || strstr( workdir, "PROGRAM FILES" ) )
+	if ( workdir.contains( "Program Files" )
+	  || workdir.contains( "program files" )
+	  || workdir.contains( "PROGRAM FILES" ) )
 	    mErrRet( "Please do not use 'Program Files'.\n"
-		     "A directory like 'My Documents' would be good." )
+		     "Instead, a directory like 'My Documents' would be OK." )
 #endif
     }
 

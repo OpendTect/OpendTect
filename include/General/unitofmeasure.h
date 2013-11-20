@@ -24,7 +24,7 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
 
 
 /*!\brief Unit of Measure
- 
+
  Only linear transformations to SI units supported.
 
  All units of measure in OpendTect are available through the UoMR() instance
@@ -36,16 +36,16 @@ mExpClass(General) UnitOfMeasure : public NamedObject
 {
 public:
 
-    			UnitOfMeasure()
+			UnitOfMeasure()
 			    : proptype_(PropertyRef::Other)
 			    , source_(Repos::Temp) {}
-    			UnitOfMeasure( const char* n, const char* s, double f,
+			UnitOfMeasure( const char* n, const char* s, double f,
 				      PropertyRef::StdType t=PropertyRef::Other)
 			    : NamedObject(n), symbol_(s)
 			    , scaler_(0,f), source_(Repos::Temp)
 			    , proptype_(t)	{}
 			UnitOfMeasure( const UnitOfMeasure& uom )
-			    			{ *this = uom; }
+						{ *this = uom; }
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
 
     const char*		symbol() const		{ return symbol_.buf(); }
@@ -99,7 +99,7 @@ template <class T> void convUserValue(T& val,
 
 
 /*!\brief Repository of all Units of Measure in the system.
- 
+
  At first usage of the singleton instance of this class (accessible through
  the global UoMR() function), the data files for the repository are
  searched, by iterating through the different 'Repos' sources (see repos.h).
@@ -116,27 +116,27 @@ public:
     const UnitOfMeasure* get(PropertyRef::StdType,const char* nm) const;
     const UnitOfMeasure* get(const char* nm) const;
     static const char*	guessedStdName(const char*);
-    			//!< May return null
+			//!< May return null
 
     const ObjectSet<const UnitOfMeasure>& all() const	{ return entries; }
     void		getRelevant(PropertyRef::StdType,
-	    			    ObjectSet<const UnitOfMeasure>&) const;
+				    ObjectSet<const UnitOfMeasure>&) const;
     const UnitOfMeasure* getInternalFor(PropertyRef::StdType) const;
 
     bool		add(const UnitOfMeasure&);
-    			//!< returns false when already present
+			//!< returns false when already present
     bool		write(Repos::Source) const;
 
 private:
 
-    			UnitOfMeasureRepository();
+			UnitOfMeasureRepository();
 
     ObjectSet<const UnitOfMeasure> entries;
 
     void		addUnitsFromFile(const char*,Repos::Source);
     const UnitOfMeasure* findBest(const ObjectSet<const UnitOfMeasure>&,
-	    			  const char* nm) const;
-    			//!< Will try names first, then symbols, otherwise null
+				  const char* nm) const;
+			//!< Will try names first, then symbols, otherwise null
 
     friend mGlobal(General) UnitOfMeasureRepository& UoMR();
 
@@ -148,9 +148,9 @@ template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
-	if ( strstr(symbol_.buf(),"ft") )
+	if ( symbol_.contains("ft") )
 	    return inp;
-	else if ( strstr(symbol_.buf(),"m") )
+	else if ( symbol_.contains("m") )
 	{
 	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
 	    return feetunit ? feetunit->getUserValueFromSI( inp ) : inp;
@@ -165,9 +165,9 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
-	if ( strstr(symbol_.buf(),"ft") )
+	if ( symbol_.contains("ft") )
 	    return inp;
-	else if ( strstr(symbol_.buf(),"m") )
+	else if ( symbol_.contains("m") )
 	{
 	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
 	    return feetunit ? feetunit->getSIValue( inp ) : inp;

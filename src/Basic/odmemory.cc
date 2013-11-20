@@ -11,10 +11,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "odsysmem.h"
 #include "odmemory.h"
+#include "nrbytes2string.h"
 
 #ifdef __lux__
 # include "od_istream.h"
-# include "strmoper.h" 
+# include "strmoper.h"
 # include <fstream>
 static od_int64 swapfree;
 #endif
@@ -26,8 +27,8 @@ static od_int64 swapfree;
 # include <mach/host_info.h>
 #endif
 
-#include "iopar.h" 
-#include "string2.h" 
+#include "iopar.h"
+#include "string2.h"
 
 
 void OD::dumpMemInfo( IOPar& res )
@@ -37,7 +38,7 @@ void OD::dumpMemInfo( IOPar& res )
     NrBytesToStringCreator converter;
 
     converter.setUnitFrom( total );
-    
+
     res.set( "Total memory", converter.getString(total) );
     res.set( "Free memory", converter.getString( free ) );
 #ifdef __lux__

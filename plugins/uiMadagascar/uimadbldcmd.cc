@@ -36,12 +36,12 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     char* retptr = ret.buf();
     *retptr = '\0';
     if ( wantprog )
-	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++; 
+	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++;
     else
     {
 	mSkipNonBlanks( cmd );
 	mSkipBlanks( cmd );
-	while ( *cmd ) *retptr++ = *cmd++; 
+	while ( *cmd ) *retptr++ = *cmd++;
     }
     *retptr = '\0';
     return ret;
@@ -52,7 +52,7 @@ class uiMadagascarBldPlotCmd : public uiCompoundParSel
 {
 public:
 
-    			uiMadagascarBldPlotCmd(uiParent*);
+			uiMadagascarBldPlotCmd(uiParent*);
 			~uiMadagascarBldPlotCmd();
 
     BufferString	getPlotCommand() const		{ return getSummary(); }
@@ -79,7 +79,7 @@ uiMadagascarBldPlotCmd::uiMadagascarBldPlotCmd( uiParent* p )
     {
 	const ODMad::ProgDef& def = *defs[idx];
 	if ( matchStringCI("plot",def.group_->buf())
-	  && strstr(def.synopsis_.buf(),"in.rsf") )
+	  && def.synopsis_.contains("in.rsf") )
 	    cmdlist_.add( def.name_ );
     }
 
@@ -154,10 +154,10 @@ void uiMadagascarBldPlotCmd::doDlg( CallBacker* )
 uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	: uiGroup(p,"Madagascar command builder")
 	, cmdAvailable(this)
-    	, cmdisadd_(true)
-    	, groupfld_(0)
-    	, progfld_(0)
-    	, synopsfld_(0)
+	, cmdisadd_(true)
+	, groupfld_(0)
+	, progfld_(0)
+	, synopsfld_(0)
 {
     bool allok = ODMad::PI().errMsg().isEmpty();
     if ( allok && !ODMad::PI().scanned() )
@@ -189,7 +189,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
     uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
-	    						 "Group" );
+							 "Group" );
     groupfld_ = groupfld->box();
     groupfld_->setToolTip( "Madagascar program group" );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
@@ -249,7 +249,7 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
 	cmdfld_->attach( alignedBelow, synopsfld_ );
 
     useauxfld_ = new uiCheckBox( lowgrp, "Add Plot Command",
-	   			 mCB(this,uiMadagascarBldCmd,auxSel) );
+				 mCB(this,uiMadagascarBldCmd,auxSel) );
     useauxfld_->attach( alignedBelow, cmdfld_ );
 
     auxcmdfld_ = new uiMadagascarBldPlotCmd( lowgrp );

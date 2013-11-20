@@ -76,7 +76,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 }
 
 
-void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 					const Well::Data& wd ) const
 {
     const int sz = d2t.size();
@@ -93,8 +93,8 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     float initialt = mUdf(float);
     for ( int idx=0; idx<sz; idx++ )
     {
-	dahs += d2t.dah( idx ); 
-	times += d2t.value( idx ); 
+	dahs += d2t.dah( idx );
+	times += d2t.value( idx );
 	zidxs[idx] = idx;
 	if ( mIsZero(d2t.dah(idx),mLocalEps) )
 	    initialt = d2t.value( idx );
@@ -117,7 +117,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	return;
 
     do { idah++; }
-    while ( (idah < sz) && (dahs[zidxs[idah]] <= srddah || 
+    while ( (idah < sz) && (dahs[zidxs[idah]] <= srddah ||
             dahs[zidxs[idah]]  < mLocalEps || times[zidxs[idah]] < mLocalEps) );
 
     if ( idah < sz )
@@ -150,10 +150,9 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
 	if ( loguom->propType()==PropertyRef::Son )
 	{
 	    issonic = true;
-	    if ( strstr(loguom->name(),"Milli") )
+	    if ( loguom->name().contains("Milli") )
 		fact = 1e3f;
-
-	    if ( strstr(loguom->name(),"Micro") )
+	    else if ( loguom->name().contains("Micro") )
 		fact = 1e6f;
 	}
     }
@@ -206,7 +205,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     bool logisvel = loguom && loguom->propType() == PropertyRef::Vel;
     BufferString outuomlbl = logisvel ? "s"
 				      : getDistUnitString( SI().depthsInFeet(),
-					      		   false );
+							   false );
     if ( !logisvel )
 	outuomlbl += "/s";
     const UnitOfMeasure* outuom = UnitOfMeasure::getGuessed( outuomlbl );
@@ -249,7 +248,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	const float newval = vals[sidx];
 	const int cursz = sdpts.size();
 	if ( cursz>1 && (mIsEqual(newdepth,sdpts[cursz-1],mLocalEps) ||
-		    	 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
+			 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
 	    continue;
 	sdpts += dpts[idx];
 	svals += vals[sidx];
@@ -280,7 +279,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	outvals += replvel;
 	for ( int idx=1; idx<sz; idx++ )
 	    outvals += verticaldtmod.getVelocity( sdpts.arr(), svals.arr(),
-		    				  sz, sdpts[idx] );
+						  sz, sdpts[idx] );
     }
 
     log.setEmpty();
@@ -288,7 +287,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     {
 	const float outdah = track.getDahForTVD( sdpts[idx] );
 	const float outval = outuom ? outuom->getUserValueFromSI(outvals[idx])
-	    			    : outvals[idx];
+				    : outvals[idx];
 
 	log.addValue( outdah, outval );
     }
@@ -301,12 +300,12 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 {
     if ( sz< 2 || sz < 2*gate ) return;
-    float prevval = inp[0]; 
-    for ( int idx=gate/2; idx<sz-gate; idx+=gate  ) 
+    float prevval = inp[0];
+    for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
     {
 	float avg = 0;
 	for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
-	    avg += inp[winidx]/gate; 
+	    avg += inp[winidx]/gate;
 	for ( int winidx = idx-gate/2; winidx<idx+gate/2; winidx++ )
 	{
 	    if ( inp[winidx] > fac*avg )
@@ -320,7 +319,7 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 class DeconvolveData
 {
 public:
-    
+
 DeconvolveData( int sz )
     : fft_(*Fourier::CC::createDefault())
     , sz_(getPower2Size(sz))
@@ -447,7 +446,7 @@ double GeoCalculator::crossCorr( const float* seis, const float* synth,
 }
 
 
-void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t, 
+void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
 					Well::Log& log ) const
 {
     log.setEmpty();

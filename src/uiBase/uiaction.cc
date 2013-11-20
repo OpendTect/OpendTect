@@ -281,7 +281,7 @@ void uiAction::doTranslate()
 
     BufferString txt( *toolTip() ? toolTip() : text() );
     txt.trimBlanks();
-    removeCharacter( txt.buf(), '&' );
+    txt.remove( '&' );
     if ( txt.isEmpty() || isNumberString(txt.buf()) )
 	return;
 

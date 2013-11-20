@@ -7,7 +7,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "string2.h"
+#include "nrbytes2string.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
 
@@ -123,6 +123,13 @@ static bool testBufferStringFns( bool quiet )
     bs.trimBlanks();
     mRunTest("BufferString trimBlanks 2",bs == "XX\tYY Z");
     mRunTest("BufferString count",bs.count('Y')==2);
+    mRunTest("BufferString contains 1",bs.contains(" Z"));
+    mRunTest("BufferString contains 2",!bs.contains("\n"));
+    bs = "\nXX\tYY Z\t";
+    bs.remove( '\t' );
+    mRunTest("BufferString remove 1",bs == "\nXXYY Z");
+    bs.remove( "XX" );
+    mRunTest("BufferString remove 2",bs == "\nYY Z");
     return true;
 }
 

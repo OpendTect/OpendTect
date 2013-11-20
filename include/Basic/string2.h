@@ -64,10 +64,6 @@ mGlobal(Basic) bool stringEndsWith(const char* endstring,
 				   const char* maybebigger);
 mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 
-/*!> removes all occurrences of a char */
-mGlobal(Basic) void removeCharacter(char*,char);
-/*!> cleans a string from non-alpha numeric by replacing with underscores.
-     params: allow whitespace, allow slashes, allow dots */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
 /*!> tells whether a string holds a parseable number */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
@@ -150,34 +146,6 @@ mGlobal(Basic) const char* toString( const char* str );
 mGlobal(Basic) const char* toString( unsigned char c );
 mGlobal(Basic) const char* toString( signed char c );
 mGlobal(Basic) const char* toString( bool b );
-
-/*!Converts integer with number of bytes to a string with KB, GB or similar
-   unit. */
-
-mExpClass(Basic) NrBytesToStringCreator
-{
-public:
-			NrBytesToStringCreator();
-    enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5 };
-
-    void		setUnitFrom(od_uint64 number,bool maximum=true);
-			/*!<Sets the unit (B, KB, MB, GB, TB) based on the
-			 number.
-			 \param maximum will only change unit if a larger
-			 unit is needed.
-			 */
-
-    FixedString		getString(od_uint64 number,int nrdecimals=2,
-				  bool withunit=true) const;
-			/*!<Use string before doing anything else, as it will be
-			    overwritten at next call from same thread. */
-
-    FixedString		getUnitString() const;
-    static FixedString	toString(Unit);
-
-protected:
-    Unit		unit_;
-};
 
 
 #define mImplGetFromStrFunc( type, func, udfv ) \

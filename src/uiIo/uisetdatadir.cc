@@ -54,8 +54,8 @@ static const char* doSetRootDataDir( const char* inpdatadir )
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Set Data Directory",
-		    		     "Specify a data storage directory",
-		    		     "8.0.1"))
+				     "Specify a data storage directory",
+				     "8.0.1"))
 	, curdatadir_(GetBaseDataDir())
 {
     const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
@@ -173,13 +173,13 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 #ifdef __win__
 	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
 
-	if ( ( progfiles.size() && 
+	if ( ( !progfiles.isEmpty() &&
 	       !strncasecmp(progfiles, datadir, strlen(progfiles)) )
-	  || strstr( datadir, "Program Files" )
-	  || strstr( datadir, "program files" )
-	  || strstr( datadir, "PROGRAM FILES" ) )
+	  || datadir.contains( "Program Files" )
+	  || datadir.contains( "program files" )
+	  || datadir.contains( "PROGRAM FILES" ) )
 	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
-		     "A directory like 'My Documents' would be good." )
+		     "Instead, a directory like 'My Documents' would be OK." )
 #endif
 	if ( !File::createDir( datadir ) )
 	    mErrRet( "Cannot create the new directory.\n"
@@ -260,12 +260,12 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     if ( !uigc.go() || uigc.choice() == 0 )
 	return;
 
-    if ( (havedemosurv && uigc.choice() == 2) || 
+    if ( (havedemosurv && uigc.choice() == 2) ||
          (!havedemosurv && uigc.choice() == 1))
     {
         uiFileDialog dlg( par, true, "", "*.zip", "Select zip file" );
         dlg.setDirectory( datadir );
-        if ( !dlg.go() ) 
+        if ( !dlg.go() )
             return;
 
         zipfilenm = dlg.fileName();

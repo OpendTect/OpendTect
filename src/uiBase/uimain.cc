@@ -562,7 +562,7 @@ void uiMain::formatNameToolTipString( BufferString& namestr )
 {
     BufferString bufstr( namestr );
     bufstr.replace( "&&", "\a" );
-    removeCharacter( bufstr.buf(), '&' );
+    bufstr.remove( '&' );
     bufstr.replace( '\a', '&' );
 
     namestr = "\""; namestr += bufstr; namestr += "\"";

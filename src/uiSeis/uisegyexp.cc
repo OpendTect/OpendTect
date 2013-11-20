@@ -300,7 +300,8 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Directory provided not usable" );
 	return false;
     }
-    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken()) )
+    fnm = fp.fullPath();
+    if ( !fnm.contains(uiSEGYFileSpec::sKeyLineNmToken()) )
     {
 	BufferString msg( "The file name has to contain at least one '" );
 	msg += uiSEGYFileSpec::sKeyLineNmToken(); msg += "'\n";

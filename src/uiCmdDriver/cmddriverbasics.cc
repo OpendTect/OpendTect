@@ -495,7 +495,7 @@ void StringProcessor::filterAmpersands()
     mReturnIfReadOnly();
 
     bufstr_->replace( "&&", "\f" );
-    removeCharacter( bufstr_->buf(), '&' );
+    bufstr_->remove( '&' );
     bufstr_->replace( '\f', '&' );
 }
 

@@ -66,7 +66,7 @@ static const char* mkUnLinked( const char* fnm )
 	return fnm;
 
     // Maybe the file itself is a link
-    mDeclStaticString( ret ); 
+    mDeclStaticString( ret );
     ret = File::linkTarget(fnm);
     if ( File::exists(ret) )
 	return ret.buf();
@@ -109,7 +109,7 @@ bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 
     BufferString oscmd(comm);
 
-    if ( inbg ) 
+    if ( inbg )
 	oscmd += "&";
 
     int res = system( oscmd );
@@ -126,21 +126,21 @@ bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
     if ( !inconsole )
     {
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
+	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
 	si.wShowWindow = SW_HIDE;
     }
-    
-   //Start the child process. 
-    int res = CreateProcess( NULL,	// No module name (use command line). 
+
+   //Start the child process.
+    int res = CreateProcess( NULL,	// No module name (use command line).
         const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable. 
-        NULL,				// Thread handle not inheritable. 
-        FALSE,				// Set handle inheritance to FALSE. 
-        0,				// Creation flags. 
-        NULL,				// Use parent's environment block. 
-        NULL,       			// Use parent's starting directory. 
+        NULL,				// Process handle not inheritable.
+        NULL,				// Thread handle not inheritable.
+        FALSE,				// Set handle inheritance to FALSE.
+        0,				// Creation flags.
+        NULL,				// Use parent's environment block.
+        NULL,			// Use parent's starting directory.
         &si, &pi );
-	
+
     if ( res )
     {
 	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
@@ -407,7 +407,7 @@ bool mkNewPLD()
 const char* message() const	{ return curpld_ ? curpld_->message() : ""; }
 const char* nrDoneText() const	{ return curpld_ ? curpld_->nrDoneText() : ""; }
 od_int64 totalNr() const	{ return totnr_; }
-od_int64 nrDone() const	
+od_int64 nrDone() const
 { return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }
 
 int nextStep()
@@ -607,7 +607,7 @@ void StreamProvider::set( const char* inpstr )
 	pErrMsg(BufferString(ptr," looks like a URL. Not supported (yet)"));
 	ptr = 0;
     }
-    if ( ptr ) 
+    if ( ptr )
     {
 	const BufferString fnamestr = fname_;
 	*ptr++ = '\0';
@@ -643,7 +643,7 @@ const char* StreamProvider::fullName() const
 
     if ( iscomm_ )
 	ret.add( "@" );
-    if ( !hostname_.isEmpty() ) 
+    if ( !hostname_.isEmpty() )
     {
 #ifdef __win__
 	ret.add( "\\\\" ).add( hostname_ );
@@ -743,7 +743,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp_, std::ios_base::in );
 	sd.istrm = new std::istream( stdiofb );
 # else
-	sd.istrm = new std::ifstream( fileno(sd.fp) );  
+	sd.istrm = new std::ifstream( fileno(sd.fp) );
 # endif
 #endif
     }
@@ -830,7 +830,7 @@ bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
 void StreamProvider::mkBatchCmd( BufferString& comm ) const
 {
     const BufferString fnm(
-	    	FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
+		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
 
     FILE *fp = fopen( fnm, "wt" );
     fprintf( fp, "@echo off\n%s\npause\n", comm.buf() );
@@ -859,7 +859,7 @@ static const char* getCmd( const char* fnm )
 	ptr = strchr( ptr , ' ' );
 	if ( ptr ) { *ptr = '\0'; args = ptr+1; }
     }
-    else if ( ptr == execnm.buf()+2) 
+    else if ( ptr == execnm.buf()+2)
     {
 	char sep = *execnm.buf();
 	if ( sep == '\"' || sep == '\'' )
@@ -872,21 +872,21 @@ static const char* getCmd( const char* fnm )
     else
 	return fnm;
 
-    if ( strstr(execnm,".exe") || strstr(execnm,".EXE") 
-       || strstr(execnm,".bat") || strstr(execnm,".BAT")
-       || strstr(execnm,".com") || strstr(execnm,".COM") )
+    if ( execnm.contains(".exe") || execnm.contains(".EXE")
+       || execnm.contains(".bat") || execnm.contains(".BAT")
+       || execnm.contains(".com") || execnm.contains(".COM") )
 	return fnm;
 
     const char* interp = 0;
 
-    if ( strstr(execnm,".csh") || strstr(execnm,".CSH") )
+    if ( execnm.contains(".csh") || execnm.contains(".CSH") )
 	interp = "tcsh.exe";
-    else if ( strstr(execnm,".sh") || strstr(execnm,".SH") ||
-	      strstr(execnm,".bash") || strstr(execnm,".BASH") )
+    else if ( execnm.contains(".sh") || execnm.contains(".SH") ||
+	      execnm.contains(".bash") || execnm.contains(".BASH") )
 	interp = "sh.exe";
-    else if ( strstr(execnm,".awk") || strstr(execnm,".AWK") )
+    else if ( execnm.contains(".awk") || execnm.contains(".AWK") )
 	interp = "awk.exe";
-    else if ( strstr(execnm,".sed") || strstr(execnm,".SED") )
+    else if ( execnm.contains(".sed") || execnm.contains(".SED") )
 	interp = "sed.exe";
     else if ( File::exists( execnm ) )
     {
@@ -900,17 +900,17 @@ static const char* getCmd( const char* fnm )
 	BufferString line;
 	sd.istrm->getline( line.buf(), 40 ); sd.close();
 
-	if ( !strstr(line,"#!") && !strstr(line,"# !") )
+	if ( !line.contains("#!") && !line.contains("# !") )
 	    return fnm;
 
-	if ( strstr(line,"csh") )
+	if ( line.contains("csh") )
 	    interp = "tcsh.exe";
-	else if ( strstr(line,"awk") )
+	else if ( line.contains("awk") )
 	    interp = "awk.exe";
-	else if ( strstr(line,"sh") )
+	else if ( line.contains("sh") )
 	    interp = "sh.exe";
     }
-    
+
     if ( interp )
     {
 	mDeclStaticString( fullexec );
@@ -1002,7 +1002,7 @@ bool StreamProvider::exists( int fr ) const
 
     BufferString cmd;
     sprintf( cmd.buf(), "%s %s 'test -%c %s && echo 1'", rshcomm_.buf(),
-	    			hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
+				hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
     mRemoteTest(return);
 }
 

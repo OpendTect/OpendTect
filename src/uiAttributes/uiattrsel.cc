@@ -97,13 +97,13 @@ bool uiAttrSelData::is2D() const
 	, attr2dfld_(0) \
 	, nlafld_(0) \
 	, nlaoutfld_(0) \
-    	, zdomainfld_(0) \
+	, zdomainfld_(0) \
 	, zdomoutfld_(0) \
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
 	, usedasinput_(stp.isinp4otherattrib_)
 
-uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd, 
+uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const Setup& stp )
 mImplInitVar
 {
@@ -127,7 +127,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 {
     //TODO: steering will never be displayed: on purpose?
     attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
-	    		    is2D(), ignoreid );
+			    is2D(), ignoreid );
     if ( dpfids_.size() )
 	replaceStoredByInMem();
 
@@ -159,7 +159,7 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
     else
     {
 	const Desc* desc = attrdata_.attribid_.isValid()
-	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
+			? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 2;
@@ -399,12 +399,12 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( seltyp==0 )
     {
 	if ( !attrinf_->ioobjids_.isEmpty() )
-    	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
+	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
     }
     else if ( seltyp==1 )
     {
 	if ( !attrinf_->steerids_.isEmpty() )
-    	    ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
+	    ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
     }
     else if ( seltyp==4 )
     {
@@ -413,10 +413,10 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	if ( nms.validIdx(selidx) )
 	{
-    	    IOM().to(
+	    IOM().to(
 		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
-    	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
-    	    if ( ioobj ) ioobjkey = ioobj->key();
+	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
+	    if ( ioobj ) ioobjkey = ioobj->key();
 	}
     }
 
@@ -432,7 +432,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
 	int attridx = 0;
 	const Desc* desc = attrdata_.attribid_.isValid()
-	    		? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
+			? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
 	const Attrib::ValParam* param = desc
 	    ? desc->getValParam( Attrib::StorageProvider::keyStr() )
 	    : 0;
@@ -509,9 +509,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else
     {
 	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
-	       				== BufferString("ALL") 
+					== BufferString("ALL")
 					&& compfld_->mainObject()->visible();
-	const int curselitmidx = compfld_->box()->currentItem(); 
+	const int curselitmidx = compfld_->box()->currentItem();
 	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
 	    attrdata_.compnr_ = 0;
@@ -547,7 +547,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	{
 	    BufferString msg( "Could not find the seismic data " );
 	    msg += attrdata_.attribid_ == DescID::undef() ? "in object manager"
-							  : "on disk";	
+							  : "on disk";
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -585,12 +585,12 @@ void uiAttrSelDlg::replaceStoredByInMem()
     }
 
     int* sortindexes = ioobjnmscopy.getSortIndexes();
-    for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )                       
-    {                                                                       
+    for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
+    {
 	attrinf_->ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
 	attrinf_->ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
-    }                                                                       
-									    
+    }
+
     delete [] sortindexes;
 }
 
@@ -612,7 +612,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
-       		      bool isinp4otherattrib )
+		      bool isinp4otherattrib )
     : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
@@ -737,11 +737,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	//tricky test: look for "=" or "|ALL"
 	BufferString descattrnm( ad->userRef() );
 	BufferString copyofdanm( descattrnm );
-	removeCharacter( const_cast<BufferString*>(&copyofdanm)->buf(), '=' );
-	/*
-	if ( (descattrnm != copyofdanm 
-		|| stringEndsWith( "|ALL", descattrnm.buf() )) && !mid.isUdf() )
-	*/
+	const_cast<BufferString*>(&copyofdanm)->remove( '=' );
 	if ( descattrnm != copyofdanm && !mid.isUdf() )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -783,7 +779,7 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
     if ( !desc->isStored() ) return false;
 
-    const ValParam* keypar = 
+    const ValParam* keypar =
 		(ValParam*)desc->getParam( StorageProvider::keyStr() );
     const MultiID mid( keypar->getStringValue() );
     return SeisTrcTranslator::getRanges( mid, cs,
@@ -852,7 +848,7 @@ void uiAttrSel::processInput()
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
 	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
-	    						: inp.buf();
+							: inp.buf();
 	for ( int idx=0; idx<outnms.size(); idx++ )
 	{
 	    const BufferString& outstr = *outnms[idx];
@@ -946,7 +942,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     {
 	Attrib::SelSpec* tmpss = new Attrib::SelSpec(0,Attrib::DescID::undef());
         setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
-	delete tmpss;	
+	delete tmpss;
     }
 
     //use the first fid as default data

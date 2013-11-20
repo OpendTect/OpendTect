@@ -76,10 +76,6 @@ public:
     inline const char&	operator []( int idx ) const	{ return buf()[idx]; }
     bool		isEmpty() const;
     void		setEmpty();
-    bool		isEqual(const char*,bool caseinsens=false) const;
-    bool		isStartOf(const char*,bool caseinsens=false) const;
-    bool		matches(const char*,bool caseinsens=false) const;
-    void                fill(char*,int maxnrchar) const;
 
     BufferString&	add(const char*);
     BufferString&	add( const BufferString& b )	{ return add(b.buf()); }
@@ -90,6 +86,7 @@ public:
     inline BufferString& operator+=( const T& t )	{ return add( t ); }
     template <class T>
     BufferString&	set(const T&);
+    void                fill(char*,int maxnrchar) const;
 
     unsigned int	size() const;
     inline unsigned int	bufSize() const		{ return len_; }
@@ -97,10 +94,18 @@ public:
     inline unsigned int	minBufSize() const	{ return minlen_; }
     void		setMinBufSize(unsigned int);
 
+    bool		isEqual(const char*,bool caseinsens=false) const;
+    bool		isStartOf(const char*,bool caseinsens=false) const;
+    bool		matches(const char*,bool caseinsens=false) const;
+    bool		contains(char) const;
+    bool		contains(const char*) const;
+
     int			count(char) const;
     void		replace(char from,char to);
     void		replace(const char* from,const char* to);
-    void		trimBlanks();
+    void		remove(char);
+    inline void		remove( const char* s )	{ replace(s,0); }
+    void		trimBlanks(); //!< removes front and back whitespaces
 
     void		insertAt(int idx, const char*);
 			//< If idx >= size(), pads spaces

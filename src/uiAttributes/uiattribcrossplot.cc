@@ -49,10 +49,10 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 		     "Select attributes and locations for cross-plot"
 		     ,"111.1.0").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
-    	, lnmfld_(0)
-    	, curdps_(0)
-    	, dpsdispmgr_(0)
-    	, attrinfo_(0)
+	, lnmfld_(0)
+	, curdps_(0)
+	, dpsdispmgr_(0)
+	, attrinfo_(0)
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiLabeledListBox* llb =
@@ -72,7 +72,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 		mCB(this,uiAttribCrossPlot,attrChanged) );
 	uiLabeledListBox* lnmlb =
 	    new uiLabeledListBox( attrgrp, "Line names", true,
-		    		  uiLabeledListBox::AboveMid ); 
+				  uiLabeledListBox::AboveMid );
 	lnmfld_ = lnmlb->box();
 	lnmlb->attach( rightTo, llb );
 	lnmfld_->selectionChanged.notify(
@@ -121,7 +121,7 @@ void uiAttribCrossPlot::adsChg()
 	}
 	attrsfld_->addItem( attrinfo_->attrnms_.get(idx), false );
     }
-    
+
     for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
@@ -216,16 +216,21 @@ void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
     if ( isstored )
     {
 	BufferString attrnm( attrsfld_->getText() );
-	removeCharacter( attrnm.buf(), '[' );
-	removeCharacter( attrnm.buf(), ']' );
-	const LineKey lk( attrnm );
+	const int nmsz = attrnm.size();
+	char* ptrattrnm = attrnm.buf();
+	if ( attrnm[0] == '[' && attrnm[nmsz-1] == ']' )
+	{
+	    ptrattrnm[nmsz-1] = '\0';
+	    ptrattrnm++;
+	}
+	const LineKey lk( ptrattrnm );
 	seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
     }
     else
     {
 	const LineKey lk( mid );
 	seisinfo.isPS() ? seisinfo.getLineNames( linenames )
-	    		: seisinfo.getLineNamesWithAttrib( lk.attrName(),
+			: seisinfo.getLineNamesWithAttrib( lk.attrName(),
 							   linenames );
     }
 }
@@ -395,7 +400,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 			 : attrsfld_->isSelected(idx) )
 	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
     }
-    
+
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
@@ -431,7 +436,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
-	    
+
     if ( !TaskRunner::execute( &tr, *tabextr ) )
     {
 	mDPM.release( dps->id() );

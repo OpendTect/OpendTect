@@ -7,7 +7,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "string2.h"
+#include "nrbytes2string.h"
 #include "staticstring.h"
 #include "fixedstring.h"
 #include "survinfo.h"
@@ -343,25 +343,6 @@ bool yesNoFromString( const char* str )
     if ( !str ) return false;
     mSkipBlanks( str );
     return *str == 'Y' || *str == 'y' || *str == 'T' || *str == 't';
-}
-
-
-void removeCharacter( char* str, char torem )
-{
-    char* curptr = str;
-    if ( !str || ! *str ) return;
-
-    while ( *curptr )
-    {
-	if ( *curptr != torem )
-	{
-	    if ( curptr != str )
-		*str = *curptr;
-	    str++;
-	}
-	curptr++;
-    }
-    *str = '\0';
 }
 
 

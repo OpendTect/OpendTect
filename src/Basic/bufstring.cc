@@ -113,6 +113,19 @@ bool BufferString::matches( const char* s, bool caseinsens ) const
 }
 
 
+bool BufferString::contains( char tofind ) const
+{
+    return isEmpty() ? false : (bool)strchr( buf(), tofind );
+}
+
+
+bool BufferString::contains( const char* tofind ) const
+{
+    return isEmpty() ? false : (bool)strstr( buf(), tofind );
+}
+
+
+
 BufferString& BufferString::assignTo( const char* s )
 {
     if ( buf_ == s ) return *this;
@@ -244,6 +257,27 @@ void BufferString::replace( const char* from, const char* to )
 	add( rest );
 	ptrfound = strstr( buf()+curpos, from );
     }
+}
+
+
+void BufferString::remove( char torem )
+{
+    if ( isEmpty() )
+	return;
+
+    char* chckpos = buf();
+    char* writepos = chckpos;
+
+    while ( *chckpos )
+    {
+	if ( *chckpos != torem )
+	{
+	    *writepos = *chckpos;
+	    writepos++;
+	}
+	chckpos++;
+    }
+    *writepos = '\0';
 }
 
 

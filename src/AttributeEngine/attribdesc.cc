@@ -61,7 +61,7 @@ const char* Desc::sKeyLineDipComp() { return "Line dip"; }
 
 
 Desc::Desc( const char* attribname, DescStatusUpdater updater,
-       	    DescDefaultsUpdater defupdater )
+	    DescDefaultsUpdater defupdater )
     : descset_( 0 )
     , attribname_( attribname )
     , statusupdater_( updater )
@@ -75,12 +75,7 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
     , locality_( PossiblyMultiTrace )
     , usestrcpos_( false )
 {
-    if ( strchr(attribname_.buf(),' ') )
-    {
-	pErrMsg("Space character is not permitted in attribute names");
-	removeCharacter( attribname_.buf(), ' ' );
-    }
-
+    attribname_.replace( ' ', '_' );
     inputs_.allowNull(true);
 }
 
@@ -168,7 +163,7 @@ bool Desc::parseDefStr( const char* defstr )
     BufferString outputstr;
     bool res = getParamString( defstr, "output", outputstr );
     selectOutput( res ? toInt(outputstr.buf()) : 0 );
-  
+
     BufferStringSet keys, vals;
     getKeysVals( defstr, keys, vals );
 
@@ -236,7 +231,7 @@ bool Desc::parseDefStr( const char* defstr )
          if ( !params_[idx]->isOK() )
 	     return false;
     }
-     
+
     return true;
 }
 
@@ -270,7 +265,7 @@ bool Desc::getParentID( DescID did, DescID& pid, int& dididx ) const
     TypeSet<DescID> tmp;
     getDependencies( tmp );
     if ( !tmp.isPresent(did) )
-	return false; 
+	return false;
 
     for ( int idx=nrInputs()-1; idx>=0; idx-- )
     {
@@ -432,7 +427,7 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 
 	if ( !inputs_[idx] && !desc.inputs_[idx] ) continue;
 
-	if ( !desc.inputs_[idx] || 
+	if ( !desc.inputs_[idx] ||
 	     !inputs_[idx]->isIdenticalTo(*desc.inputs_[idx], true) )
 	    return false;
     }
@@ -494,7 +489,7 @@ bool Desc::isParamEnabled( const char* key ) const
 
     return param->isEnabled();
 }
-	
+
 
 
 void Desc::setParamRequired( const char* key, bool yn )
@@ -521,7 +516,7 @@ void Desc::updateParams()
 
     for ( int idx=0; idx<nrInputs(); idx++ )
     {
-	Desc* dsc = getInput(idx); 
+	Desc* dsc = getInput(idx);
 	if ( dsc && dsc->isHidden() )
 	    dsc->updateParams();
     }
@@ -570,7 +565,7 @@ void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
     for ( int idx=0; idx<nroutp; idx++ )
 	addOutputDataType( dt );
 }
-	
+
 
 void Desc::addOutputDataType( Seis::DataType dt )
 { outputtypes_+=dt; outputtypelinks_+=-1; }
@@ -588,7 +583,7 @@ void Desc::changeOutputDataType( int input, Seis::DataType ndt )
     if ( outputtypes_.size()<=input || input<0 ) return;
     outputtypes_[input] = ndt;
 }
-	
+
 
 bool Desc::getAttribName( const char* defstr_, BufferString& res )
 {
@@ -739,7 +734,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	if ( !getParamString(defstr,params_[0]->getKey(),parstr) )
 	    return false;
 
-	const bool is2ddefstr = 
+	const bool is2ddefstr =
 	    parstr == lk.lineName() && lk.attrName()==LineKey::sKeyDefAttrib();
 	if ( parstr == str || is2ddefstr )
 	    return true;
@@ -773,7 +768,7 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 	tmpkey[lastpos-spacepos+1] = 0;
 	const char* tmp = tmpkey;
 	keys.add(tmp);
-	
+
 	spacepos = idx+1;
 
 	if ( defstr[spacepos] == '"' )
@@ -866,7 +861,7 @@ bool Desc::isStoredInMem() const
 
 
 Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
-       					BufferString sufix )
+					BufferString sufix )
 {
     if ( seloutput_ == -1 )
 	return descset_->getDesc( newinputid );
