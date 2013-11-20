@@ -18,189 +18,130 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include <string.h>
 #include <ctype.h>
-#include <stdlib.h>
 
 
-/*!> stricmp with option to compare part, default is all */
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
 					 int match_nrchars=-1);
-/*!> checks whether a string is the start of another string. */
+	/*!< stricmp with option to compare part, default is all */
 mGlobal(Basic) bool matchString(const char* startstring,
 				const char* maybebigger);
-/*!> is a case insensitive version of matchString */
+	/*!< checks whether a string is the start of another string. */
 mGlobal(Basic) bool matchStringCI(const char*,const char*);
+	/*!< is a case insensitive version of matchString */
 mGlobal(Basic) bool stringEndsWith(const char* endstring,
 				   const char* maybebigger);
+	/*!< checks whether a string is the end of another string. */
 mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
+	/*!< is a case insensitive version of stringEndsWith */
 
+mGlobal(Basic) void removeTrailingBlanks(char*);
+	/*!< bluntly puts a '\0' on trailing white space. */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
-/*!> tells whether a string holds a parseable number */
+	/*!< replaces whitespace, slashes, and/or dots with underscores. */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
-/*!> tells whether has printable characters only. */
+	/*!< tells whether a string holds a parseable number */
 mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
+	/*!< tells whether has printable characters only. */
 
-/*!> fills a buffer with the next word (delimited by whitespace) in string.
-     It returns a ptr just after the word. */
 mGlobal(Basic) const char* getNextWord(const char*,char*);
+	/*!< fills a buffer with the next word (delimited by whitespace).
+	     It returns a ptr just after the word. */
 
-/*!> Fills string with string for an int.
-     If you pass 0 for retbuf, then a static buffer is used. */
+	/*!> Fills string with string for an int.
+	     If you pass 0 for retbuf, then a static buffer is used. */
 mGlobal(Basic) const char* getStringFromInt(od_int32,char* retbuf);
 mGlobal(Basic) const char* getStringFromUInt(od_uint32,char* retbuf);
 mGlobal(Basic) const char* getStringFromInt64(od_int64,char* retbuf);
 mGlobal(Basic) const char* getStringFromUInt64(od_uint64,char* retbuf);
 
-/*!> Normally, pass null for fmt. Then it will do removal of
-     trailing zeros and use %lf in more cases than std.
-     If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
 mGlobal(Basic) const char* getStringFromDouble(const char* fmt,double,
 					       char* retbuf);
-
-/*>Prints a double with the requested nr of digits.
-    Use the returned string result immediately.*/
+	/*!< Normally, pass null for fmt. Then it will do removal of
+	     trailing zeros and use %lf in more cases than std.
+	     If you pass 0 for retbuf, then a static buffer is used. */
 mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0,
 					       int nrdigits=15);
-
-/*!> is like getStringFromDouble, with special %f treatment. */
-
+	/*!< Prints a double with the requested nr of digits.
+	     Use the returned string result immediately.*/
 mGlobal(Basic) const char* getStringFromFloat(const char* fmt,float,
 					      char* retbuf);
-
-/*>Prints a float with the requested nr of digits.
-	    Use the returned string result immediately.*/
+	/*!< is like getStringFromDouble, with special %f treatment. */
 mGlobal(Basic) const char* getStringFromFloat(float,char* retbuf=0,
+	/*>Prints a float with the requested nr of digits.
+		    Use the returned string result immediately.*/
 					      int nrdigits=7);
-/*!> removes unwanted zeros and dots from a floating point in string. */
 mGlobal(Basic) void prettyNumber(char*,bool is_float);
+	/*!< removes unwanted zeros and dots from a floating point in string. */
 
-/*!> returns ptr to static buffer with "yes" or "No". */
 mGlobal(Basic) const char* getYesNoString(bool);
-/*!> returns ptr to static buffer with "m" or "ft" */
+	/*!< returns ptr to static buffer with "yes" or "No". */
 mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
+	/*!< returns ptr to static buffer with "m" or "ft" */
 
-/*!> returns 1 or 0 by inspecting string */
 mGlobal(Basic) bool yesNoFromString(const char*);
-/*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
+	/*!< returns 1 or 0 by inspecting string */
 mGlobal(Basic) const char* getRankPostFix(int);
-/*!> returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
+	/*!< returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
 mGlobal(Basic) const char* getBytesString(od_uint64);
-/*!> returns a string for display, never larger than specified nr of chars */
+	/*!< returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
 mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);
+	/*!< returns a string for display, never larger than nrchars */
 
-/*!> Finds a string in string array, case insensitive */
 mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 				  int startnr=0,int nr_chars_to_match=0,
 				  int notfoundidx=-1);
+	/*!< Finds a string in string array, case insensitive */
 
-/*!>Returns a string with an area and its unit, depending on survey and
-    area size, unit is ft^2, m^2, km^2 or mile^2. */
 mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=0);
+	/*!<Returns a string with an area and its unit, depending on survey and
+	    area size, unit is ft^2, m^2, km^2 or mile^2. */
 
-// toString functions.
-mGlobal(Basic) const char* toString( od_int32 i );
-mGlobal(Basic) const char* toString( od_uint32 i );
-mGlobal(Basic) const char* toString( od_int64 i );
-mGlobal(Basic) const char* toString( od_uint64 i );
-mGlobal(Basic) const char* toString( float f )	;
-mGlobal(Basic) const char* toString( double d );
-mGlobal(Basic) const char* toString( short i );
-mGlobal(Basic) const char* toString( unsigned short i );
-mGlobal(Basic) const char* toString( const char* str );
-mGlobal(Basic) const char* toString( unsigned char c );
-mGlobal(Basic) const char* toString( signed char c );
-mGlobal(Basic) const char* toString( bool b );
+mGlobal(Basic) const char* toString(od_int32);
+mGlobal(Basic) const char* toString(od_uint32);
+mGlobal(Basic) const char* toString(od_int64);
+mGlobal(Basic) const char* toString(od_uint64);
+mGlobal(Basic) const char* toString(float)	;
+mGlobal(Basic) const char* toString(double);
+mGlobal(Basic) const char* toString(short);
+mGlobal(Basic) const char* toString(unsigned short);
+mGlobal(Basic) const char* toString(const char*);
+mGlobal(Basic) const char* toString(unsigned char);
+mGlobal(Basic) const char* toString(signed char);
+mGlobal(Basic) const char* toString(bool);
 
-
-#define mImplGetFromStrFunc( type, func, udfv ) \
-inline bool getFromString( type& i, const char* s, type undef=udfv ) \
-{ \
-    if ( s && *s ) \
-    { \
-	char* e; \
-	i = (type)func; \
-	if ( e==s ) \
-	{ \
-	    i = undef; \
-	    return false;\
-	}\
-	return true; \
-    } \
- \
-    i = undef; \
-    return false; \
-}
-
-
-
-// inline bool getFromString( double& d, const char* s, double udefval );
-mImplGetFromStrFunc(double, strtod(s,&e), mUdf(double) )
-// inline bool getFromString( float& d, const char* s, float udefval );
-mImplGetFromStrFunc(float, strtod(s,&e), mUdf(float) )
-// inline bool getFromString( int& d, const char* s, int udefval );
-mImplGetFromStrFunc(int, strtol(s,&e,10), mUdf(int) )
-#undef mImplGetFromStrFunc
-
+mGlobal(Basic) bool getFromString(int&,const char*,int udf=mUdf(int));
+mGlobal(Basic) bool getFromString(float&,const char*,float udf=mUdf(float));
+mGlobal(Basic) bool getFromString(double&,const char*,double udf=mUdf(double));
 mGlobal(Basic) bool getFromString(BufferString&,const char*);
+mGlobal(Basic) bool getFromString(bool&,const char*);
 
-inline bool getFromString( bool& b, const char* s )
-{
-    if ( s )
-    {
-	b = ( yesNoFromString( s ) ? true : false );
-	return true;
-    }
-
-    b = false;
-    return false;
-}
 
 inline bool toBool( const char* s, bool defval=true )
-{
-    return s && *s ? yesNoFromString(s) : defval;
-}
+{ return s && *s ? yesNoFromString(s) : defval; }
 
 inline float toFloat( const char* s, float defval=0 )
-{
-    float ret = defval; getFromString( ret, s, ret ); return ret;
-}
+{ float ret = defval; getFromString( ret, s, ret ); return ret; }
 
 inline double toDouble( const char* s, double defval=0 )
-{
-    double ret = defval; getFromString( ret, s, ret ); return ret;
-}
+{ double ret = defval; getFromString( ret, s, ret ); return ret; }
 
 inline int toInt( const char* s, int defval=0 )
-{
-    int ret = defval; getFromString( ret, s, ret ); return ret;
-}
+{ int ret = defval; getFromString( ret, s, ret ); return ret; }
 
 
-/*!
-\brief Advances given pointer to first non-whitespace.
-*/
-
+/*!\brief Advances given pointer to first non-whitespace */
 #define mSkipBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
 
-/*!
-\brief Advances given pointer to first whitespace.
-*/
-
+/*!\brief Advances given pointer to first whitespace  */
 #define mSkipNonBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
 
-/*!
-\brief Advances to first whitespace and removes trailing whitespace.
-*/
-
+/*!\brief Advances to first whitespace and removes trailing whitespace */
 #define mTrimBlanks(ptr) \
     { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
-
-
-/*!> bluntly puts a '\0' on trailing white space. */
-mGlobal(Basic) void removeTrailingBlanks(char*);
 
 
 #endif

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "fixedstring.h"
 #include "string2.h"
+#include <stdlib.h>
 
 #ifdef __msvc__
 # include "msvcdefs.h"
@@ -30,7 +31,7 @@ inline void set( T& _to, const F& fr )
 
 template <class T, class F>
 inline T to( const F& fr )
-{ 
+{
     T ret;
     Values::setUdf(ret);
     set<T,F>(ret,fr);
@@ -45,7 +46,7 @@ inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 {
     if ( Values::hasUdf<F>() && Values::isUdf(fr) )
 	_to = und;
-    else 
+    else
     {
 	set(_to,fr);
 	if ( Values::isUdf(_to) ) _to = und;
@@ -54,7 +55,7 @@ inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 
 template <class T, class F>
 inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
-{ 
+{
     T ret;
     Values::setUdf(ret);
     udfset<T,F>(ret,fr,und);
@@ -126,7 +127,7 @@ inline void set( type& _to, const FixedString& s ) \
 	_to = (type) tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
-} 
+}
 
 mConvDefFromStrToFn( int, (int)strtol(s,&endptr,0) )
 mConvDefFromStrToFn( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
@@ -153,7 +154,7 @@ mConvDefFromStrToFn( unsigned short, atoi )
 
 #undef mConvDefFromStrToFn
 
-    
+
 template <>
 inline void set( bool& _to, const char* const& s )
     { _to = yesNoFromString(s); }

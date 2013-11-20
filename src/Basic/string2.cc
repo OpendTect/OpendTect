@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include "survinfo.h"
 #include "undefval.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 #ifdef __win__
@@ -746,11 +747,52 @@ const char* toString( bool b )
 { const char* res = getYesNoString(b); return res; }
 
 
+bool getFromString( bool& b, const char* s )
+{
+    if ( s )
+    {
+	b = ( yesNoFromString( s ) ? true : false );
+	return true;
+    }
+
+    b = false;
+    return false;
+}
+
+
 bool getFromString( BufferString& res, const char* s )
 {
     res = s;
     return true;
 }
+
+
+#define mImplGetFromStrFunc( type, func ) \
+bool getFromString( type& i, const char* s, type undef ) \
+{ \
+    if ( s && *s ) \
+    { \
+	char* e; \
+	i = (type)func; \
+	if ( e==s ) \
+	{ \
+	    i = undef; \
+	    return false;\
+	}\
+	return true; \
+    } \
+ \
+    i = undef; \
+    return false; \
+}
+
+
+mImplGetFromStrFunc(int, strtol(s,&e,10) )
+mImplGetFromStrFunc(float, strtod(s,&e) )
+mImplGetFromStrFunc(double, strtod(s,&e) )
+
+#undef mImplGetFromStrFunc
+
 
 
 NrBytesToStringCreator::NrBytesToStringCreator()
