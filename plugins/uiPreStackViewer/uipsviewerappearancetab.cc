@@ -270,7 +270,6 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-	fvwr->handleChange( FlatView::Viewer::DisplayPars );
 	
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;
@@ -280,7 +279,8 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	if ( showoffsgridlines )
 	    fvwr->appearance().annot_.x1_.sampling_ = offssmp;
 
-	fvwr->handleChange( FlatView::Viewer::Annot );
+	fvwr->handleChange( FlatView::Viewer::Annot |
+			    FlatView::Viewer::DisplayPars );
     }
 }
 
