@@ -1150,9 +1150,9 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     Interval<float> usrzrg = lfi.zrg;
     if ( isft )
     {
-	if ( !mIsUdf(lfi.zrg.start) ) 
+	if ( !mIsUdf(lfi.zrg.start) )
 	    usrzrg.start *= mToFeetFactorF;
-	if ( !mIsUdf(lfi.zrg.stop) ) 
+	if ( !mIsUdf(lfi.zrg.stop) )
 	    usrzrg.stop *= mToFeetFactorF;
     }
     intvfld->setValue( usrzrg );
@@ -1170,9 +1170,9 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
-	if ( !mIsUdf(usrzrg.start) ) 
+	if ( !mIsUdf(usrzrg.start) )
 	    usrzrg.start *= mFromFeetFactorF;
-	if ( !mIsUdf(usrzrg.stop) ) 
+	if ( !mIsUdf(usrzrg.stop) )
 	    usrzrg.stop *= mFromFeetFactorF;
     }
     lfi.zrg.setFrom( usrzrg );
@@ -1383,8 +1383,8 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 	if ( !logsel_.isPresent( log.name() ) ) continue;
 	BufferString lognm( log.name() );
 	cleanupString( lognm.buf(), 0, 0, 0 );
-	replaceCharacter( lognm.buf(), '+', '_' );
-	replaceCharacter( lognm.buf(), '-', '_' );
+	lognm.replace( '+', '_' );
+	lognm.replace( '-', '_' );
 	strm << od_tab << lognm;
 	if ( *log.unitMeasLabel() )
 	    strm << "(" << log.unitMeasLabel() << ")";

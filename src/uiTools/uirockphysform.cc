@@ -29,7 +29,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     , fixedtype_(PropertyRef::Den)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-	    			PropertyRef::StdTypeNames(), "Property Type" );
+				PropertyRef::StdTypeNames(), "Property Type" );
     typfld_ = lcb->box();
     typfld_->setHSzPol( uiObject::MedMax );
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
@@ -182,9 +182,9 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	cstflds_[idx]->display( dodisp );
 	if ( dodisp )
 	    cstflds_[idx]->updField( fm->constdefs_[idx]->name(),
-		    		     fm->constdefs_[idx]->typicalrg_,
-		   		     fm->constdefs_[idx]->desc_,
-		   		     fm->constdefs_[idx]->defaultval_ );
+				     fm->constdefs_[idx]->typicalrg_,
+				     fm->constdefs_[idx]->desc_,
+				     fm->constdefs_[idx]->defaultval_ );
     }
 
     descriptionfld_->setText( fm->desc_ );
@@ -200,7 +200,7 @@ BufferString uiRockPhysForm::getText( bool usecstvals ) const
     BufferString outunit;
     BufferStringSet varsunits;
     TypeSet<PropertyRef::StdType> varstypes;
-    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits, 
+    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits,
 			 varstypes, usecstvals ) )
 	return formula;
 
@@ -240,7 +240,7 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     {
 	char* cleanvarnm = const_cast<char*>(fm->vardefs_[idx]->name().buf());
 	cleanupString( cleanvarnm, false, false, false );
-	replaceString( ret.buf(), mp->inputName( idx ), cleanvarnm );
+	ret.replace( mp->inputName(idx), cleanvarnm );
 
 	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
 	varstypes += fm->vardefs_[idx]->type_;
@@ -248,14 +248,14 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     for ( int idx=0; idx<mp->nrConsts(); idx++ )
     {
 	if ( usecstvals )
-	    replaceString( ret.buf(), mp->constName(idx),
+	    ret.replace( mp->constName(idx),
 			   toString(cstflds_[idx]->getCstVal()) );
 	else
 	{
 	    char* cleancstnm = const_cast<char*>(
-		    			fm->constdefs_[idx]->name().buf());
+					fm->constdefs_[idx]->name().buf());
 	    cleanupString( cleancstnm, false, false, false );
-	    replaceString( ret.buf(), mp->constName( idx ), cleancstnm );
+	    ret.replace( mp->constName( idx ), cleancstnm );
 	}
     }
 

@@ -53,7 +53,7 @@ const char* SurveyInfo::surveyFileName()
 	if ( ptr )
 	    fp.setExtension( ptr );
 
-	
+
 	fnm = fp.fullPath();
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
@@ -201,7 +201,7 @@ mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 mExternC(Basic) const char* GetSoftwareDir( int acceptnone )
 {
     mDeclStaticString( res );
-    
+
     if ( res.isEmpty() )
     {
 	//Find the relinfo directory, and set sw dir to its parent
@@ -215,20 +215,20 @@ mExternC(Basic) const char* GetSoftwareDir( int acceptnone )
 		break;
 	    }
 	}
-    
+
 	if ( res.isEmpty() )
 	{
 	    if ( acceptnone )
 		return 0;
-	    
+
 	    std::cerr << "Cannot determine OpendTect location ..." << std::endl;
 	    ExitProgram( 1 );
 	}
-	
+
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetSoftwareDir", res );
     }
-    
+
     return res.buf();
 }
 
@@ -409,7 +409,7 @@ static void getHomeDir( BufferString& homedir )
 
     dir = GetEnvVar( "DTECT_WINHOME" );
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_HOME") );
-    				// should always at least be set
+				// should always at least be set
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
 
     if ( !dir && GetEnvVar("HOMEDRIVE") && GetEnvVar("HOMEPATH") )
@@ -424,12 +424,12 @@ static void getHomeDir( BufferString& homedir )
     if ( !dir && od_debug_isOn(DBG_SETTINGS) )
 	od_debug_message( "Problem: No DTECT_WINHOME, DTECT_HOME "
 			  "or HOMEDRIVE/HOMEPATH. Result may be bad." );
-    
+
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
     if ( !dir ) dir = GetEnvVar( "USERPROFILE" ); // set by OS
-    if ( !dir ) dir = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden 
+    if ( !dir ) dir = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden
     if ( !dir ) dir = GetEnvVar( "DTECT_USERPROFILE_DIR" );// set by init script
-    if ( !dir ) // Last resort. Is known to cause problems when used 
+    if ( !dir ) // Last resort. Is known to cause problems when used
 		// during initialisation of statics. (0xc0000005)
 	dir = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
 
@@ -449,7 +449,7 @@ static void getHomeDir( BufferString& homedir )
 #ifdef __win__
     if ( !GetEnvVar("DTECT_WINHOME") )
 	SetEnvVar( "DTECT_WINHOME", homedir.buf() );
-    replaceCharacter( homedir.buf(), '\r', '\0' );
+    homedir.replace( '\r', '\0' );
 #endif
 }
 

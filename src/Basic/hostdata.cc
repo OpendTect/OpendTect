@@ -67,10 +67,10 @@ void HostData::init( const char* nm )
 	mSkipBlanks(ptr)
 	if ( !isdigit(*ptr) && * ptr != '.' )
 	    is_ip_adrr = false;
-    }	
+    }
 
     if ( !is_ip_adrr )
-    {	
+    {
 	char* dot = strstr( name_.buf(), "." );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
     }
@@ -137,10 +137,10 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 HostDataList::HostDataList( bool readhostfile )
-    	: realaliases_(false)
-    	, rshcomm_("rsh")
-    	, defnicelvl_(19)
-    	, portnr_(1963)
+	: realaliases_(false)
+	, rshcomm_("rsh")
+	, defnicelvl_(19)
+	, portnr_(1963)
 {
     BufferString bhfnm = "BatchHosts";
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
@@ -194,7 +194,7 @@ bool HostDataList::readHostFile( const char* fname )
     }
 
     BufferString sharehost;
-    
+
     if ( atEndOfSection(astrm) ) astrm.next();
     while ( !atEndOfSection(astrm) )
     {
@@ -230,52 +230,54 @@ bool HostDataList::readHostFile( const char* fname )
 	if ( *astrm.value() )
 	{
 	    SeparString val( astrm.value(), ':' );
-	    BufferString vstr; char* bufptr;
+	    BufferString vstr;
 
 #define mGetVStr(valnr) \
-	    vstr = val[valnr]; bufptr = vstr.buf(); \
-	    mTrimBlanks(bufptr);
+	    vstr = val[valnr]; vstr.trimBlanks()
 
 	    mGetVStr(0);
-	    if ( *bufptr )
-		newhd->aliases_.add( bufptr );
+	    if ( !vstr.isEmpty() )
+		newhd->aliases_.add( vstr );
 
 	    mGetVStr(1);
-	    newhd->iswin_ = FixedString(bufptr)== "win";
+	    newhd->iswin_ = vstr == "win";
 
 	    mGetVStr(2);
-	    if ( *bufptr )
+	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
-		newhd->data_pr_ = bufptr;
+		if ( newhd->iswin_ )
+		    vstr.replace( ';', ':' );
+		newhd->data_pr_ = vstr;
 	    }
-	    else 
+	    else
 		newhd->data_pr_ = newhd->iswin_ ? win_data_pr_ : unx_data_pr_;
 
 	    mGetVStr(3);
-	    if ( *bufptr )
+	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
-		newhd->appl_pr_ = bufptr;
+		if ( newhd->iswin_ )
+		    vstr.replace( ';', ':' );
+		newhd->appl_pr_ = vstr;
 	    }
-	    else 
+	    else
 		newhd->appl_pr_ = newhd->iswin_ ? win_appl_pr_ : unx_appl_pr_;
 
 	    mGetVStr(4);
-	    if ( *bufptr )
+	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
-		newhd->pass_ = bufptr;
+		if ( newhd->iswin_ )
+		    vstr.replace( ';', ':' );
+		newhd->pass_ = vstr;
 	    }
 	    else if ( newhd->iswin_ )
 		newhd->pass_ = sharedata_.pass_;
 
-	    newhd->setShareData( &sharedata_ ); 
+	    newhd->setShareData( &sharedata_ );
 	}
 	*this += newhd;
     }
 
-    const int sz = size(); 
+    const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	HostData* hd = (*this)[idx];

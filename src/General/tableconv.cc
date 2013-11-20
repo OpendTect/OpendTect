@@ -227,27 +227,28 @@ Table::ImportHandler::State Table::CSVImportHandler::add( char c )
 }
 
 
-void Table::WSExportHandler::addVal( int col, const char* val )
+void Table::WSExportHandler::addVal( int col, const char* inpval )
 {
     if ( col )
 	strm_ << od_tab;
 
     bool needsquotes = false;
-    const bool isquotecand = !*val || strcspn( val, " \t" );
+    const bool isquotecand = !*inpval || strcspn( inpval, " \t" );
     const char quotechar = colwshanld_ == SingQuot ? '\'' : '"';
 
+    BufferString val( inpval );
     if ( colwshanld_ != None && isquotecand )
     {
        if ( colwshanld_ >= SingQuot )
        {
 	    needsquotes = true;
-	    if ( strchr( val, quotechar ) )
-		replaceCharacter( (char*)val, quotechar, '`' );
-	    	//TODO should in fact escape with '\\'
+	    if ( strchr( inpval, quotechar ) )
+		val.replace( quotechar, '`' );
+		//TODO should in fact escape with '\\'
        }
        else
        {
-	   char* ptr = (char*)val;
+	   char* ptr = val.buf();
 	   while ( *ptr )
 	   {
 	       if ( *ptr == ' ' || *ptr == '\t' )
@@ -259,7 +260,7 @@ void Table::WSExportHandler::addVal( int col, const char* val )
 
     if ( needsquotes )
 	strm_ << quotechar;
-    if ( *val )
+    if ( !val.isEmpty() )
 	strm_ << val;
     if ( needsquotes )
 	strm_ << quotechar;

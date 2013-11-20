@@ -97,11 +97,15 @@ public:
     inline unsigned int	minBufSize() const	{ return minlen_; }
     void		setMinBufSize(unsigned int);
 
+    int			count(char) const;
+    void		replace(char from,char to);
+    void		replace(const char* from,const char* to);
+    void		trimBlanks();
+
     void		insertAt(int idx, const char*);
 			//< If idx >= size(), pads spaces
     void		replaceAt(int idx, const char*,bool cutoff=true);
 			//< If idx >= size(), pads spaces
-    void		trimBlanks();
 
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;

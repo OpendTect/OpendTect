@@ -334,7 +334,7 @@ bool Seis2DDataSet::renameFiles( const char* newnm )
 	BufferString filenm, oldfilenm;
 	pars_[idx]->get( sKey::FileName(), filenm );
 	oldfilenm = filenm;
-	replaceString( filenm.buf(), oldnm.buf(), cleannm.buf() );
+	filenm.replace( oldnm.buf(), cleannm.buf() );
 	FilePath newfp( fp.pathOnly(), filenm );
 	FilePath oldfp( fp.pathOnly(), oldfilenm );
 	if ( oldfp.isEmpty() || newfp.isEmpty() || oldfp == newfp )
@@ -457,11 +457,11 @@ Seis2DGeomDumper( const Seis2DDataSet& l, od_ostream& o, bool inr, float z,
 	    curmsg += lk; curmsg += "' in data set";
 	    return;
 	}
-	    
+
 	lastidx = curidx;
 	dolnm = false;
     }
-    
+
     totalnr = lastidx - curidx + 1;
     curmsg = "Extracting geometry";
 }

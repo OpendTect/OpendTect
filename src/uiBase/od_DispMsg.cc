@@ -24,10 +24,10 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     CommandLineParser parser;
-    
+
     if ( parser.nrArgs()<1 )
 	return 1;
-    
+
     int typ = 0; //Default is info
     if ( parser.hasKey( "warn" ) )
     { typ = 1; }
@@ -35,20 +35,20 @@ int main( int argc, char** argv )
     { typ = 2; }
     else if ( parser.hasKey( "ask" ))
     { typ = 3; }
-    
+
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
-    
+
     BufferString msg = "";
     for ( int idx=0; idx<normalargs.size(); idx++ )
     {
 	BufferString nextarg( normalargs[idx]->buf() );
-	replaceString( nextarg.buf(), "-+-", "\n" );
+	nextarg.replace( "-+-", "\n" );
 	msg += nextarg;
 	if ( idx<normalargs.size()-1 )
 	    msg += " ";
     }
-  
+
     if ( msg.isEmpty() )
 	msg = typ == 1 ? "Be careful!"
 	    : (typ ==2 ? "Problem found!"

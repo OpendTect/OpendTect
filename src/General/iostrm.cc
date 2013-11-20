@@ -361,7 +361,7 @@ StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
 		strcat( numbstr, "0" );
 	}
 	strcat( numbstr, numb );
-	replaceString( nm.buf(), hasast ? "*" : "%", numbstr );
+	nm.replace( hasast ? "*" : "%", numbstr );
     }
 
     StreamProvider* sp = new StreamProvider( hostname_, nm, iscomm_ );

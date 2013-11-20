@@ -36,7 +36,7 @@ class BatchProgPar
 {
 public:
 
-    			BatchProgPar(const char*);
+			BatchProgPar(const char*);
 
     enum Type		{ FileRead, FileWrite, Words, QWord };
 
@@ -104,7 +104,7 @@ BatchProgInfoList::BatchProgInfoList()
 	if ( !dirnm.isEmpty() )
 	{
 	    DirList dlsite( FilePath(dirnm,"data").fullPath(),
-		    	    DirList::FilesOnly,"BatchPrograms*");
+			    DirList::FilesOnly,"BatchPrograms*");
 	    for ( int idx=0; idx<dlsite.size(); idx++ )
 		getEntries( dlsite.fullPath(idx) );
 	}
@@ -180,7 +180,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	progfld->box()->addItem( pil[idx]->name );
     progfld->box()->setCurrentItem( 0 );
     progfld->box()->selectionChanged.notify(
-	    		mCB(this,uiBatchProgLaunch,progSel) );
+			mCB(this,uiBatchProgLaunch,progSel) );
 
     commfld = new uiTextEdit( this, "Comments" );
     commfld->attach( centeredBelow, progfld );
@@ -303,7 +303,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
     const int selidx = progfld->box()->currentItem();
     const BatchProgInfo& bpi = *pil[selidx];
-    
+
 #ifndef __msvc__
 
     BufferString comm( "@" );
@@ -335,7 +335,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
 	    FilePath argfp( finp->fileName() );
 	    BufferString arg = argfp.fullPath( FilePath::Unix );
-	    replaceCharacter(arg.buf(),' ','%');
+	    arg.replace(' ','%');
 	    val += arg;
 
 	    val += "\"";

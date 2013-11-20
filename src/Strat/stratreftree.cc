@@ -44,7 +44,7 @@ Strat::RefTree::~RefTree()
 {
     deleteNotif.trigger();
     delete &udfleaf_;
-} 
+}
 
 
 void Strat::RefTree::reportChange( const Strat::UnitRef* un, bool isrem )
@@ -116,7 +116,7 @@ void Strat::RefTree::setToActualTypes()
     for ( int idx=0; idx<norefs.size(); idx++ )
     {
 	LeavedUnitRef* un = norefs[idx];
-	if ( un->ref(0).isLeaf() ) 
+	if ( un->ref(0).isLeaf() )
 	    continue;
 	NodeUnitRef* par = un->upNode();
 	NodeOnlyUnitRef* newun = new NodeOnlyUnitRef( par, un->code(),
@@ -156,7 +156,7 @@ bool Strat::RefTree::read( od_istream& strm )
 		for ( int idx=0; idx<nrcont; idx++ )
 		    contents_ += new Content( fms[idx] );
 	    }
-	    else if ( countCharacter(keyw.buf(),'.') > 1 )
+	    else if ( keyw.count('.') > 1 )
 	    {
 		char* contnm = strchr( keyw.buf(), '.' ) + 1;
 		char* contkeyw = strchr( contnm, '.' );
@@ -288,7 +288,7 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 	return;
 
     NodeOnlyUnitRef* ndun = new NodeOnlyUnitRef( this, "Above",
-	    					"Layers above all markers" );
+						"Layers above all markers" );
     const Level& lvl0 = ls.getLevel( 0 );
     ndun->add( new LeavedUnitRef( ndun, lvl0.name(),
 				BufferString("Above ",lvl0.name()) ) );

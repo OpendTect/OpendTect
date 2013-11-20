@@ -43,7 +43,7 @@ static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
 
 void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
-       					 bool forsisetup )
+					 bool forsisetup )
 {
     if ( forsisetup || SI().has3D() )
     {
@@ -237,13 +237,13 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     , rep_("SEG-Y scan report")
 {
     nrtrcsfld_ = new uiGenInput( this, "Limit to number of traces",
-	    			 IntInpSpec(1000) );
+				 IntInpSpec(1000) );
     nrtrcsfld_->setWithCheck( true );
     nrtrcsfld_->setChecked( true );
 
     SEGY::FileSpec fs; fs.usePar( pars );
     BufferString fnm( fs.fname_ );
-    replaceCharacter( fnm.buf(), '*', 'x' );
+    fnm.replace( '*', 'x' );
     FilePath fp( fnm ); fp.setExtension( "txt" );
     uiFileInput::Setup fisu( GetProcFileName(fp.fileName()) );
     fisu.forread( false );
@@ -346,11 +346,11 @@ public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
     : uiVarWizardDlg(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8"),
-	    			iop,Middle)
+				iop,Middle)
     , initialpol_(pol)
 {
     choicefld_ = new uiCheckList( this, BufferStringSet(rev1txts),
-	    			  uiCheckList::OneOnly );
+				  uiCheckList::OneOnly );
     choicefld_->setChecked( pol-1, true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
@@ -428,7 +428,7 @@ void uiSEGYRead::basicOptsGot()
 	else
 	{
 	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_,
-		    				    Seis::is2D(geom_), pars_ );
+						    Seis::is2D(geom_), pars_ );
 	    needimmediatedet = false;
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
 	}
@@ -464,7 +464,7 @@ void uiSEGYRead::setupScan()
 	"But to actually set up your survey, you need to use\n"
 	"'Set for 2D only'\nIn the survey setup window.\n" );
     scandlg_ = new uiSEGYScanDlg( parent_, su, pars_,
-	    			  setup_.purpose_ == SurvSetup );
+				  setup_.purpose_ == SurvSetup );
     scandlg_->mSetreadReqCB();
     scandlg_->mSetwriteReqCB();
     scandlg_->mSetpreScanReqCB();
@@ -474,7 +474,7 @@ void uiSEGYRead::setupScan()
 
 void uiSEGYRead::setupImport()
 {
-    if ( impdlg_ ) 
+    if ( impdlg_ )
         return;
 
     uiSEGYImpDlg::Setup su( geom_ );

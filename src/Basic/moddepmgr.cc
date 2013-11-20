@@ -15,10 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "envvars.h"
 #include "sharedlibs.h"
-#include <iostream>
+#include "od_istream.h"
 
 
 const OD::ModDepMgr& OD::ModDeps()
@@ -28,98 +27,80 @@ const OD::ModDepMgr& OD::ModDeps()
 }
 
 
-OD::ModDepMgr::ModDepMgr( const char* mdfnm )	
+OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 {
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
-    
+
     const FilePath moddepfp( GetSoftwareDir(0), "data", mdfnm );
     const BufferString moddepfnm = moddepfp.fullPath();
-    StreamData sd( StreamProvider( moddepfnm ).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( moddepfnm );
+    if ( !strm.isOK() )
     {
 	if ( DBG::isOn(DBG_PROGSTART) )
-	{
-	    BufferString msg( "Ouch. Cannot read ", moddepfnm,"." );
-	    DBG::message( msg );
-	}
+	    DBG::message( BufferString( "Cannot read module dependencies from ",
+					moddepfnm ) );
 	return;
     }
 
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Start reading ",moddepfnm,".") );
-    readDeps( *sd.istrm );
+	DBG::message( BufferString("Starting reading ",moddepfnm,".") );
+    readDeps( strm );
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Read ",moddepfnm,".") );
-    sd.close();
+	DBG::message( BufferString("Reading ",moddepfnm," done.") );
 
     if ( !File::exists( GetBinPlfDir()) )
-    {
-	const BufferString msg( "Cannot find ", GetBinPlfDir() );
-	pErrMsg( msg );
-	return;
-    }
+	{ ErrMsg( BufferString( "Cannot find ", GetBinPlfDir() ) ); return; }
 }
 
 
-void OD::ModDepMgr::readDeps( std::istream& strm )
+static BufferString mkErrMsg( od_istream& strm, const char* msg,
+				const char* detail )
 {
-    char linebuf[1024]; char wordbuf[256];
+    BufferString ret( strm.fileName(), ": ", msg );
+    if ( detail )
+	ret.add( "\n'" ).add( detail ).add( "'" );
+    return ret;
+}
 
-    while ( strm )
+
+void OD::ModDepMgr::readDeps( od_istream& strm )
+{
+    BufferString word;
+    while ( strm.getWord(word,true) )
     {
-	strm.getline( linebuf, 1024 );
-	char* bufptr = linebuf; 
-	mTrimBlanks(bufptr);
-	if ( ! *bufptr || *bufptr == '#' )
+	word.trimBlanks();
+	if ( word.isEmpty() || *word.buf() == '#' )
 	    continue;
 
-	char* nextptr = (char*)getNextWord(bufptr,wordbuf);
-	if ( ! wordbuf[0] ) continue;
-	od_int64 l = strlen( wordbuf );
-	if ( wordbuf[l-1] == ':' ) wordbuf[l-1] = '\0';
-	if ( ! wordbuf[0] ) continue;
+	const int wordlen = word.size();
+	if ( word[wordlen-1] != ':' )
+	    { ErrMsg( mkErrMsg(strm,"Invalid line found",word) ); continue; }
+	word[wordlen-1] = '\0';
 
-	*nextptr++ = '\0';
-	mSkipBlanks(nextptr);
+	ModDep* newdep = new ModDep( word ) ;
 
-	ModDep* newdep = new ModDep( wordbuf ) ;
 	BufferStringSet filedeps;
-	while ( nextptr && *nextptr )
+	while ( strm.getWord(word,false) )
 	{
-	    mSkipBlanks(nextptr);
-	    nextptr = (char*)getNextWord(nextptr,wordbuf);
-	    if ( !wordbuf[0] ) break;
+	    if ( word[1] != '.' || (word[0] != 'S' && word[0] != 'D') )
+		{ ErrMsg( mkErrMsg(strm,"Invalid moddep",word) ); continue; }
 
-	    if ( wordbuf[1] != '.' || (wordbuf[0] != 'S' && wordbuf[0] != 'D') )
-	    {
-		if ( DBG::isOn(DBG_PROGSTART) )
-		    DBG::message( BufferString("Found bad dep: ",wordbuf,".") );
-		continue;
-	    }
-
-	    filedeps.add( wordbuf );
+	    filedeps.add( word );
 	}
 
 
 	BufferStringSet depmods;
 	for ( int idx=filedeps.size()-1; idx>=0; idx-- )
 	{
-	    const char* filedep = filedeps.get(idx).buf();
-	    const char* modnm = filedep + 2;
-	    if ( *filedep == 'S' )
-	    {
-		depmods.add( modnm );
-	        continue;
-	    }
+	    const BufferString& filedep = filedeps.get(idx);
+	    const char* modnm = filedep.buf() + 2;
+	    if ( filedep[0] == 'S' )
+		{ depmods.add( modnm ); continue; }
 
 	    const ModDep* depdep = find( modnm );
 	    if ( !depdep )
-	    {
-		if ( DBG::isOn(DBG_PROGSTART) )
-		    DBG::message( BufferString("Cannot find dep: ",modnm,".") );
-		continue;
-	    }
+		{ ErrMsg( mkErrMsg(strm,"Moddep not found",modnm) ); continue; }
 
 	    for ( int idep=depdep->mods_.size()-1; idep>=0; idep-- )
 	    {
@@ -130,8 +111,8 @@ void OD::ModDepMgr::readDeps( std::istream& strm )
 	}
 	if ( depmods.size() < 1 )
 	    { delete newdep; continue; }
-	deps_ += newdep;
 
+	deps_ += newdep;
 	for ( int idx=depmods.size()-1; idx>=0; idx-- )
 	    newdep->mods_.add( depmods.get(idx) );
     }

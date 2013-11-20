@@ -69,7 +69,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
     uiToolButton* savesettb = new uiToolButton( txtgrp, "saveset",
-	    				 "Save text header to file",
+					 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
@@ -153,7 +153,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 {
     if ( !rdr_ ) return;
     uiFileDialog dlg( this, false,
-	    		FilePath(GetDataDir(),"Seismics").fullPath() );
+			FilePath(GetDataDir(),"Seismics").fullPath() );
     if ( !dlg.go() ) return;
 
     od_ostream strm( dlg.fileName() );
@@ -176,7 +176,7 @@ void uiSEGYExamine::dispSeis( CallBacker* )
 {
     mGetWinTile();
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
-	    			uiSeisTrcBufViewer::Setup(wintitle) );
+				uiSeisTrcBufViewer::Setup(wintitle) );
     vwr->selectDispTypes( true, true );
     vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "SEG-Y Examiner" );
     vwr->start(); vwr->handleBufChange();
@@ -220,12 +220,12 @@ void uiSEGYExamine::setRow( int irow )
     }
 
     hvaldisp_->setData( *SEGY::TrcHeader::hdrDef()[irow],
-	    		data.arr(), data.size() );
+			data.arr(), data.size() );
 }
 
 
 SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
-       					 BufferString& emsg )
+					 BufferString& emsg )
 {
     IOObj* ioobj = su.fs_.getIOObj( true );
     su.fp_.fillPar( ioobj->pars() );
@@ -238,7 +238,7 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr->translator())
     if ( !tr )
 	{ emsg = "Internal: cannot obtain SEG-Y Translator";
-	    	delete rdr; return 0; }
+		delete rdr; return 0; }
 
     return rdr;
 }
@@ -287,7 +287,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
     }
 
     BufferString fnm( su.fs_.fname_ );
-    replaceString( fnm.buf(), "*", "+x+" );
+    fnm.replace( "*", "+x+" );
     return ExecuteScriptCommand( cmd, fnm );
 }
 

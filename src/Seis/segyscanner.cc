@@ -186,14 +186,14 @@ int SEGY::Scanner::readNext()
     const SeisTrcInfo& ti = trc_.info();
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
-	    	    trc_.size() );
+		    trc_.size() );
     nrdone_++;
 
     if ( notrcinfo_ )
 	return Executor::MoreToDo();
 
     fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord,
-	    	   tr_->trcHeader().isusable );
+		   tr_->trcHeader().isusable );
 
     return Executor::MoreToDo();
 }
@@ -215,7 +215,7 @@ int SEGY::Scanner::openNext()
 
     BufferString path = fnms_.get(curfidx_);
 #ifdef __win__
-    replaceCharacter( path.buf(), '/', '\\' );  
+    path.replace( '/', '\\' );
 #endif
     FilePath fp( path );
     if ( !fp.isAbsolute() )
@@ -225,7 +225,7 @@ int SEGY::Scanner::openNext()
     od_istream* strm = new od_istream( abspath );
     if ( !strm || !strm->isOK() )
 	{ delete strm; addFailed( "Cannot open this file" );
-	    	return Executor::MoreToDo(); }
+		return Executor::MoreToDo(); }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     tr_->usePar( pars_ );

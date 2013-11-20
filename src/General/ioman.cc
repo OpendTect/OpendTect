@@ -802,7 +802,7 @@ bool SurveyDataTreePreparer::prepDirData()
 {
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
-    replaceCharacter( dd->desc_.buf(), ':', ';' );
+    dd->desc_.replace( ':', ';' );
     cleanupString( dd->dirname_.buf(), false, false, false );
 
     int nr = dd->selkey_.ID( 0 );

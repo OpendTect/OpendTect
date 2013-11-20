@@ -344,7 +344,7 @@ bool Seis2DLineSet::getGeometry( PosInfo::LineSet2DData& lsgeom ) const
 	    return false;
 	}
     }
-    
+
     return true;
 }
 
@@ -468,7 +468,7 @@ bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
 	    newiop->set( sKey::DataType(), dtyp );
 
 	const IOPar* previop = ls.pars_.size() ? ls.pars_[ls.pars_.size()-1]
-	    					: 0;
+						: 0;
 	ls.pars_ += newiop;
 	delete ls.liop_->getAdder( *newiop, previop, ls.name() );
     }
@@ -539,7 +539,7 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
 	{
 	    lk.setLineName( newlnm );
 	    lk.fillPar( iop, true );
-	    PosInfo::POS2DAdmin().renameLine(oldlnm,newlnm); 
+	    PosInfo::POS2DAdmin().renameLine(oldlnm,newlnm);
 	}
     }
 
@@ -618,7 +618,7 @@ bool Seis2DLineSet::renameFiles( const char* newlsnm )
 	BufferString filenm, oldfilenm;
 	pars_[idx]->get( sKey::FileName(), filenm );
 	oldfilenm = filenm;
-	replaceString( filenm.buf(), oldlsnm.buf(), cleannm.buf() );
+	filenm.replace( oldlsnm.buf(), cleannm.buf() );
 	FilePath newfp( fp.pathOnly(), filenm );
 	FilePath oldfp( fp.pathOnly(), oldfilenm );
 	if ( oldfp.isEmpty() || newfp.isEmpty() || oldfp == newfp )
@@ -658,8 +658,8 @@ bool Seis2DLineSet::getRanges( int ipar, StepInterval<int>& sii,
 
 
 void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
-       					    const char* datatypptr,
-					    bool allowcnstabsent, 
+					    const char* datatypptr,
+					    bool allowcnstabsent,
 					    bool incl ) const
 {
     FixedString datatyp( datatypptr );
@@ -673,7 +673,7 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 
 	    if ( !founddatatype)
 	    {
-		if ( allowcnstabsent )	
+		if ( allowcnstabsent )
 		{
 		    if ( datatyp!=attribute(idx) )
 			nms.addIfNew( attribute(idx) );
@@ -730,7 +730,7 @@ void Seis2DLineSet::getLineNamesWithAttrib( BufferStringSet& nms,
 
 
 const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
-       					    const LineKey& lk ) const
+					    const LineKey& lk ) const
 {
     const BufferString lnm( lk.lineName() );
     const BufferString anm( lk.attrName() );
@@ -852,11 +852,11 @@ void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
 				   const char* worklskey )
 {
     const char* reallsfnm = iop.find(
-	    			IOPar::compKey(reallskey,sKey::FileName()) );
+				IOPar::compKey(reallskey,sKey::FileName()) );
     if ( !reallsfnm ) return;
 
     const char* worklsfnm = iop.find(
-	    			IOPar::compKey(worklskey,sKey::FileName()) );
+				IOPar::compKey(worklskey,sKey::FileName()) );
     if ( !worklsfnm ) return;
 
     Seis2DLineSet ls( worklsfnm );

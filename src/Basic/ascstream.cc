@@ -126,7 +126,7 @@ bool ascostream::put( const char* keyword, const char* value )
 	    {
 		*ptr++ = '\0';
 		strm_ << startptr << newline_replacement;
-		startptr = ptr; 
+		startptr = ptr;
 		ptr = strchr( ptr, '\n' );
 	    }
 	    value += startptr - str.buf();
@@ -299,12 +299,12 @@ ascistream& ascistream::next()
 
     const char keyvalsepstr[] = { mAscStrmKeyValSep, '\0' };
     mTrimBlanks( keywptr );
-    replaceString( keywptr, valsep_replacement, keyvalsepstr );
     keybuf_ = keywptr;
+    keybuf_.replace( valsep_replacement, keyvalsepstr );
     if ( valptr )
     {
-	replaceString( valptr, newline_replacement, "\n" );
 	valbuf_ = valptr;
+	valbuf_.replace( newline_replacement, "\n" );
     }
 
     return *this;

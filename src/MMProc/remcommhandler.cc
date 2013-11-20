@@ -42,7 +42,7 @@ RemCommHandler::~RemCommHandler()
 
 
 void RemCommHandler::listen() const
-{   
+{
     server_.listen( System::localAddress(), port_ );
 }
 
@@ -74,7 +74,7 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 	res = par.get( "Proc Name", procnm ) && par.get( "Par File", parfile );
 	cmd = procnm;
 	cmd.add( " \" " ).add( parfile ).add( "\"" );
-	return res; 
+	return res;
     }
     else
     {
@@ -109,7 +109,7 @@ od_ostream& RemCommHandler::createLogFile()
 {
     FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
-    replaceCharacter( lhname.buf(), '.',  '_' );
+    lhname.replace( '.',  '_' );
     logfp.add( lhname );
     logfp.setExtension( ".log" );
     od_ostream* strm = new od_ostream( logfp.fullPath() );

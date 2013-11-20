@@ -100,7 +100,7 @@ int StringProcessor::nrDQuotes() const
 }
 
 
-int StringProcessor::removeNumAppendix() 
+int StringProcessor::removeNumAppendix()
 {
     mReturnRetIfReadOnly( 0 );
 
@@ -112,16 +112,16 @@ int StringProcessor::removeNumAppendix()
 	    return 0;
 	wicketptr--;
     }
-    
+
     char* endptr;
-    double num = strtod( wicketptr+1, &endptr ); 
-    
+    double num = strtod( wicketptr+1, &endptr );
+
     if ( endptr == wicketptr+1 )
 	return 0;
     mSkipBlanks( endptr );
     if ( *endptr != '\0' )
 	return 0;
-    
+
     *wicketptr = '\0';
     return num && num==mNINT32(num) ? mNINT32(num) : mUdf(int);
 }
@@ -162,7 +162,7 @@ const char* StringProcessor::nextAction( BufferString& action ) const
 	else if ( *ptr!='"' && *ptr!='[' )
 	    ptr++;
 	else
-	    while ( *ptr ) ptr++; 
+	    while ( *ptr ) ptr++;
     }
 
     *( action.buf() + (ptr-constptr_) ) = '\0';
@@ -368,7 +368,7 @@ void StringProcessor::makeDirSepIndep( int startpos )
     while ( *(++ptr) && (*ptr!='"' || isEscapedSymbol(ptr)) )
     {
 	if ( *ptr==*winsep || *ptr==*unixsep )
-	   *ptr = *FilePath::dirSep(FilePath::Local); 
+	   *ptr = *FilePath::dirSep(FilePath::Local);
     }
 }
 
@@ -494,9 +494,9 @@ void StringProcessor::filterAmpersands()
 {
     mReturnIfReadOnly();
 
-    replaceString( bufstr_->buf(), "&&", "\f" );
+    bufstr_->replace( "&&", "\f" );
     removeCharacter( bufstr_->buf(), '&' );
-    replaceCharacter( bufstr_->buf(), '\f', '&' );
+    bufstr_->replace( '\f', '&' );
 }
 
 
@@ -505,10 +505,10 @@ void StringProcessor::addFileMultiStrEscapes()
     mReturnIfReadOnly();
 
     bufstr_->setBufSize( 2*bufstr_->size()+1 );
-    replaceString( bufstr_->buf(), "\\", "\\\\" );
-    replaceString( bufstr_->buf(), "@@", "\f" );
-    replaceString( bufstr_->buf(), "@`", "@\\`" );
-    replaceString( bufstr_->buf(), "\f", "@@" );
+    bufstr_->replace( "\\", "\\\\" );
+    bufstr_->replace( "@@", "\f" );
+    bufstr_->replace( "@`", "@\\`" );
+    bufstr_->replace( "\f", "@@" );
 }
 
 
@@ -519,7 +519,7 @@ void StringProcessor::removeExtraSpace()
     char* writeptr = bufstr_->buf();
     const char* readptr = writeptr;
 
-    while ( *readptr ) 
+    while ( *readptr )
     {
 	if ( isspace(*readptr) )
 	{
@@ -590,7 +590,7 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 	return '\0';
 
     *firstptr = ' ';
-    *lastptr = ' '; 
+    *lastptr = ' ';
     mTrimBlanks( firstptr );
     *bufstr_ = firstptr;
     return *bracketptr;
@@ -789,7 +789,7 @@ const char* UIEntity::toolTip() const
 }
 
 
-const uiParent* UIEntity::parent() const 
+const uiParent* UIEntity::parent() const
 { return uiobj_ ? uiobj_->parent() : 0; }
 
 

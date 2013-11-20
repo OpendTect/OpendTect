@@ -74,25 +74,25 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
 	, iomgr_(0)
 	, descprov_(p)
-    	, rshcomm_("rsh")
+	, rshcomm_("rsh")
 	, niceval_(19)
 	, firstport_(19636)
-    	, prog_(cmd)
+	, prog_(cmd)
 	, starttimeout_( 1000 * GetEnvVarIVal("DTECT_MM_START_TO",   45 ) )
 	, failtimeout_(  1000 * GetEnvVarIVal("DTECT_MM_FAIL_TO",    450 ) )
 	, wrapuptimeout_(1000 *	GetEnvVarIVal("DTECT_MM_WRAPUP_TO",  1800 ) )
 	, hosttimeout_(  1000 * GetEnvVarIVal("DTECT_MM_HOST_TO",    600 ) )
-    	, maxhostfailures_(	GetEnvVarIVal("DTECT_MM_MX_HSTFAIL", 5 ) )
-    	, maxjobfailures_(	GetEnvVarIVal("DTECT_MM_MX_JOBFAIL", 2 ) )
-    	, maxjobhstfails_(	GetEnvVarIVal("DTECT_MM_MX_JOBHSTF", 7 ) )
+	, maxhostfailures_(	GetEnvVarIVal("DTECT_MM_MX_HSTFAIL", 5 ) )
+	, maxjobfailures_(	GetEnvVarIVal("DTECT_MM_MX_JOBFAIL", 2 ) )
+	, maxjobhstfails_(	GetEnvVarIVal("DTECT_MM_MX_JOBHSTF", 7 ) )
 	, startwaittime_ (	GetEnvVarIVal("DTECT_MM_START_WAIT", 1000 ) )
 	, preJobStart(this)
 	, postJobStart(this)
 	, jobFailed(this)
 	, msgAvail(this)
-    	, curjobiop_(*new IOPar)
-    	, curjobfp_(*new FilePath)
-    	, curjobinfo_(0)
+	, curjobiop_(*new IOPar)
+	, curjobfp_(*new FilePath)
+	, curjobinfo_(0)
 {
     procdir_ = GetProcFileName( getTempBaseNm() );
     procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
@@ -279,7 +279,7 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
     BufferString basenm( hd.name() );
 #ifdef __win__
-    replaceCharacter( basenm.buf(), '.',  '_' );
+    basenm.replace( '.',  '_' );
 #endif
     basenm += "_"; basenm += ji.descnr_;
 
@@ -310,7 +310,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	    mAddDebugMsg( ji )
 	    DBG::message(msg);
 	}
-       	return;
+	return;
     }
 
     curjobinfo_ = &ji;

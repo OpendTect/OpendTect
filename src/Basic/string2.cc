@@ -150,7 +150,7 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
     {
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	
+
 	sprintf( bufptr, fmt, val );
 	prettyNumber( ret, true );
     }
@@ -182,7 +182,7 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
 	    int nonfractionsize ( 0 ) ;
 	    if ( val !=0.0 )
 		nonfractionsize = abs(((int) log10( val ))+1);
-	    
+
 	    int fractionsize = nrdigits-nonfractionsize;
 	    if ( fractionsize<0 ) fractionsize = 0;
 
@@ -346,58 +346,6 @@ bool yesNoFromString( const char* str )
 }
 
 
-int countCharacter( const char* str, char ch )
-{
-    int nr = 0;
-    if ( !str || ! *str ) return nr;
-
-    while ( *str )
-    {
-	if ( *str == ch ) nr++;
-	str++;
-    }
-
-    return nr;
-}
-
-
-void replaceCharacter( char* str, char chorg, char chnew )
-{
-    if ( !str )
-	return;
-
-    while ( *str )
-    {
-	if ( *str == chorg ) *str = chnew;
-	str++;
-    }
-}
-
-
-void replaceString( char* str, const char* tok, const char* repl )
-{
-    const int toksz = tok ? strlen( tok ) : 0;
-    const int replsz = repl ? strlen( repl ) : 0;
-
-    if ( !str || !*str || toksz == 0 ) return;
-    if ( !repl ) repl = "";
-
-    char* tokptr = strstr( str, tok );
-    if ( !tokptr ) return;
-
-    char* restbuf = new char [ strlen(str) ];
-    while ( tokptr )
-    {
-	strcpy( restbuf, tokptr + toksz );
-	strcpy( tokptr, repl );
-	tokptr += replsz;
-	strcpy( tokptr, restbuf );
-	tokptr = strstr( tokptr, tok );
-    }
-    delete [] restbuf;
-}
-
-
 void removeCharacter( char* str, char torem )
 {
     char* curptr = str;
@@ -502,28 +450,6 @@ bool isAlphaNumString( const char* str, bool allowspace )
 }
 
 
-void removeStartAndEndSpaces( char* str )
-{
-    if ( !str ) return;
-
-    char* firstnonblank = str;
-    while ( *firstnonblank && isspace( *firstnonblank ) )
-	firstnonblank++;
-
-    if ( *firstnonblank )
-	memmove( str, firstnonblank, strlen( firstnonblank ) );
-
-    char* lastnonblank = str + strlen(str)-1;
-
-    while ( lastnonblank!=str && isspace( *lastnonblank ) )
-    {
-	*lastnonblank = 0;
-	lastnonblank--;
-    }
-}
-
-
-
 void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 {
     if ( !str )
@@ -537,7 +463,7 @@ void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 	    switch ( *str )
 	    {
 	    case ' ': case '\n' : case '\t':
-		    	if ( spaceallow )	dorepl = false;	break;
+			if ( spaceallow )	dorepl = false;	break;
 	    case '.':	if ( dotallow )		dorepl = false;	break;
 	    case '+':	case '-':		dorepl = false;	break;
 	    default:						break;
@@ -656,7 +582,7 @@ void prettyNumber( char* str, bool is_double )
 
     char ret[255]; char* ptrret = ret;
 
-    /* find '.' and copy to end or 'E' */ 
+    /* find '.' and copy to end or 'E' */
     char* ptr = strrchr( str, '.' );
     if ( !ptr ) return;
     char* ptre = ptr; char* ptrb = ptrret;
@@ -753,7 +679,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 
     if ( trimright )
 	strcat( ret,  dots );
-    
+
     return ret;
 }
 
@@ -808,7 +734,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 }
 
 
-// toString functions. 
+// toString functions.
 const char* toString( od_int32 i )
 { return getStringFromInt( i, 0 ); }
 
@@ -883,7 +809,7 @@ void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
     int nrshifts = 0;
     for ( ; nrshifts<4 && number>=1024; nrshifts++ )
 	number >>= 10;
-    
+
     const Unit newunit = (Unit) nrshifts;
     if ( max )
 	unit_ = mMAX( newunit, unit_ );
@@ -897,33 +823,33 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
 {
     if ( nrdecimals>5 ) nrdecimals = 5;
     if ( nrdecimals<0 ) nrdecimals = 0;
-    
+
     //Deliberatily make 10 times larger, so that rounding off will work
     od_uint64 nrdecfactor = 10;
     for ( int idx=0; idx<nrdecimals; idx++ )
 	nrdecfactor *= 10;
-    
+
     sz *= nrdecfactor;
     unsigned char nrshifts = (unsigned char) unit_;
     for ( int idx=0; idx<nrshifts; idx++ )
 	sz >>= 10;
-    
+
     float fsz = (float) sz;
     fsz /= nrdecfactor;
-    
+
     BufferString formatstr = "%.";
     formatstr.add( nrdecimals );
     formatstr.add( "f");
-    
+
     mDeclStaticString( ret );
     getStringFromFloat( formatstr, fsz, ret.buf() );
-    
+
     if ( withunit )
     {
 	ret.add( " " );
 	ret.add( getUnitString() );
     }
-    
+
     return FixedString( ret.str() );
 }
 

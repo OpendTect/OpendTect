@@ -280,8 +280,8 @@ void uiAction::doTranslate()
     if ( !TrMgr().tr() ) return;
 
     BufferString txt( *toolTip() ? toolTip() : text() );
+    txt.trimBlanks();
     removeCharacter( txt.buf(), '&' );
-    removeStartAndEndSpaces( txt.buf() );
     if ( txt.isEmpty() || isNumberString(txt.buf()) )
 	return;
 

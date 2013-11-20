@@ -42,7 +42,7 @@ const char* SqlDB::MantisDBMgr::sKeyProjectUserListTable()
 const char* SqlDB::MantisDBMgr::sKeyBugFileTable()
 { return "mantis_bug_file_table"; }
 int	    SqlDB::MantisDBMgr::cOpenDtectProjectID() { return 1; }
-int 	    SqlDB::MantisDBMgr::cAccessLevelDeveloper() { return 50; }
+int	    SqlDB::MantisDBMgr::cAccessLevelDeveloper() { return 50; }
 int	    SqlDB::MantisDBMgr::cAccessLevelCaseStudy() { return 25; }
 
 
@@ -65,7 +65,7 @@ bool SqlDB::MantisQuery::updateTables( BugTableEntry& bugtable,
 
     if ( tte.description_.isEmpty() )
 	return isexec;
-    
+
     isexec = false;
     colnms.erase(); values.erase();
     tte.getQueryInfo( colnms, values );
@@ -87,7 +87,7 @@ SqlDB::MantisDBMgr::MantisDBMgr( const ConnectionData* cd, const char* usernm )
     if ( !isopen )
     {
 	errmsg_ = "Unable to open database please check network connection";
-       	errmsg_.add ( " or consult database administrator" );
+	errmsg_.add ( " or consult database administrator" );
     }
 
     if ( username_.isEmpty() )
@@ -281,7 +281,7 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
     querystrusers.add( " OR " ).add( sKeyProjectUserListTable() )
 		 .add( ".access_level" ).add( "=" )
 		 .add( cAccessLevelCaseStudy() )
-	    	 .add( " )) ORDER BY " ).add( sKeyUserTable() )
+		 .add( " )) ORDER BY " ).add( sKeyUserTable() )
 		 .add( ".username ASC" );
     if ( !query().execute( querystrusers ) )
 	mErrMsgRet( sKeyProjectUserListTable() );
@@ -433,7 +433,7 @@ bool SqlDB::MantisDBMgr::fillAttachedFilesInfo()
 	    attachids_.add( toInt(query().data(0).buf()) );
 	    attachfilenms_.add( query().data(1) );
 	}
-	
+
 	return true;
 }
 
@@ -530,7 +530,7 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
     if ( !isallprojs && projidx < 0 )
     {
 	UsrMsg( BufferString( "Project ", projectnm,
-		    	      " does not exist in Mantis") );
+			      " does not exist in Mantis") );
 	return false;
     }
 
@@ -547,7 +547,7 @@ bool SqlDB::MantisDBMgr::fillBugsIdx( const char* projectnm, const char* usernm,
 	    continue;
 
 	const bool isprojequal = projid < 0 ? true
-	    				    : bugtable->projectid_ == projid;
+					    : bugtable->projectid_ == projid;
 	if ( isprojequal && usrid < 0 )
 	    bugsindex_.add( idx );
 	else if ( isprojequal && usrid == bugtable->handlerid_ )
@@ -572,7 +572,7 @@ void SqlDB::MantisDBMgr::addBugTextTableEntryToSet( BugTextTableEntry& tt )
 
 
 void SqlDB::MantisDBMgr::removeBugTableEntryFromSet( int tableidx )
-{ 
+{
     bugs_.removeSingle( tableidx, true );
 }
 
@@ -598,7 +598,7 @@ SqlDB::BugTableEntry* SqlDB::MantisDBMgr::getBugTableEntry( int idx )
 
 
 SqlDB::BugTextTableEntry* SqlDB::MantisDBMgr::getBugTextTableEntry( int idx )
-{ 
+{
     if ( idx == -1 ) return bugtexttable_;
     return texttables_.validIdx( idx ) ? texttables_[idx] : 0;
 }
@@ -733,7 +733,7 @@ bool SqlDB::MantisDBMgr::updateBugHistoryTable(
 
 	entry->getQueryInfo( colnms, values );
 	if ( !query().insert( colnms, values,
-		    	      BugHistoryTableEntry::sKeyBugHistoryTable() ) )
+			      BugHistoryTableEntry::sKeyBugHistoryTable() ) )
 	{
 	    errmsg_ = query().errMsg();
 	    colnms.erase(); values.erase();
@@ -1156,15 +1156,15 @@ int SqlDB::MantisDBMgr::getMaxNoteIDFromBugNoteTable() const
 void SqlDB::MantisDBMgr::prepareForQuery( BufferString& str )
 {
     if ( str.isEmpty() ) return;
-    const int nrsrepl = countCharacter( str, '\'' );
-    const int nrdrepl = countCharacter( str, '"' );
+    const int nrsrepl = str.count( '\'' );
+    const int nrdrepl = str.count( '"' );
     if ( nrsrepl + nrdrepl < 1 ) return;
 
     str.setBufSize( str.size() + nrsrepl + nrdrepl + 1 );
     if ( nrsrepl > 0 )
-	replaceString( str.buf(), "'", "''" ); // ANSI standard
+	str.replace( "'", "''" ); // ANSI standard
     if ( nrdrepl > 0 )
-	replaceString( str.buf(), "\"", "\\\"" ); // MySql specific
+	str.replace( "\"", "\\\"" ); // MySql specific
 }
 
 

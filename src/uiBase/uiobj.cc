@@ -162,11 +162,11 @@ void uiParent::addChild( uiBaseObject& child )
     mDynamicCastGet(uiBaseObject*,thisuiobj,this);
     if ( thisuiobj && child == thisuiobj ) return;
     if ( !body() )
-    	{ pErrMsg("uiParent has no body!"); return; } 
+	{ pErrMsg("uiParent has no body!"); return; }
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
-    if ( !b )			
-	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+    if ( !b )
+	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; }
 
     b->addChild( child );
 }
@@ -187,19 +187,19 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 			     uiObject* other, int margin, bool reciprocal )
 {
     if ( child == static_cast<uiBaseObject*>(this) ) return;
-    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
+    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; }
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
-    if ( !b )			
-	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+    if ( !b )
+	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; }
 
     b->attachChild ( tp, child, other, margin, reciprocal );
 }
 
 
-const ObjectSet<uiBaseObject>* uiParent::childList() const 
+const ObjectSet<uiBaseObject>* uiParent::childList() const
 {
-    uiParentBody* uipb = 
+    uiParentBody* uipb =
 	    dynamic_cast<uiParentBody*>( const_cast<uiParent*>(this)->body() );
     return uipb ? uipb->childList(): 0;
 }
@@ -274,12 +274,12 @@ uiObject::uiObject( uiParent* p, const char* nm )
     : uiBaseObject( getCleanName(nm), 0 )
     , setGeometry(this)
     , closed(this)
-    , parent_( p )				
+    , parent_( p )
     , qnormaltooltipstr_(new QString)
     , qtranslatedtooltipstr_(new QString)
     , translateid_(-1)
-{ 
-    if ( p ) p->addChild( *this );  
+{
+    if ( p ) p->addChild( *this );
     uiobjectlist_ += this;
     updateToolTip();
 
@@ -293,14 +293,14 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     : uiBaseObject( getCleanName(nm), &b )
     , setGeometry(this)
     , closed(this)
-    , parent_( p )				
+    , parent_( p )
     , qnormaltooltipstr_(new QString)
     , qtranslatedtooltipstr_(new QString)
     , translateid_(-1)
-{ 
-    if ( p ) p->manageChld( *this, b );  
+{
+    if ( p ) p->manageChld( *this, b );
     uiobjectlist_ += this;
-    updateToolTip(); 
+    updateToolTip();
 
     uiobjeventfilter_ = new uiObjEventFilter( *this );
     if ( body() && body()->qwidget() )
@@ -386,7 +386,7 @@ void uiObject::translate()
     if ( !TrMgr().tr() ) return;
 
     BufferString txt( *toolTip() ? toolTip() : name().buf() );
-    removeStartAndEndSpaces( txt.buf() );
+    txt.trimBlanks();
     if ( txt.isEmpty() || isNumberString(txt.buf()) )
 	return;
 
@@ -414,16 +414,16 @@ void uiObject::trlReady( CallBacker* cb )
 }
 
 
-void uiObject::display( bool yn, bool shrink, bool maximise )	
-{ 
+void uiObject::display( bool yn, bool shrink, bool maximise )
+{
     finalise();
-    mBody()->display(yn,shrink,maximise); 
+    mBody()->display(yn,shrink,maximise);
 }
 
-void uiObject::setFocus()			
+void uiObject::setFocus()
 { mBody()->uisetFocus(); }
-    
-bool uiObject::hasFocus() const			
+
+bool uiObject::hasFocus() const
 { return mConstBody()->uihasFocus(); }
 
 void uiObject::disabFocus()
@@ -450,7 +450,7 @@ bool uiObject::isCursorInside() const
 }
 
 
-Color uiObject::backgroundColor() const	
+Color uiObject::backgroundColor() const
     { return mConstBody()->uibackgroundColor(); }
 
 
@@ -466,7 +466,7 @@ void uiObject::setTextColor(const Color& col)
     { mBody()->uisetTextColor(col); }
 
 
-void uiObject::setSensitive(bool yn)	
+void uiObject::setSensitive(bool yn)
     { mBody()->uisetSensitive(yn); }
 
 bool uiObject::sensitive() const
@@ -584,7 +584,7 @@ void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
 {
     if ( mBody() && mylayout == mBody()->layoutItem() )
 	setGeometry.trigger(geom);
-}   
+}
 
 
 void uiObject::reDraw( bool deep )
@@ -658,7 +658,7 @@ void uiObject::reParent( uiParent* p )
     uiParentBody* b = dynamic_cast<uiParentBody*>( p->body() );
     if ( !b ) return;
     mBody()->reParent( b );
-    p->manageChld( *this, *mBody() );  
+    p->manageChld( *this, *mBody() );
 }
 
 

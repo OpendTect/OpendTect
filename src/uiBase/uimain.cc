@@ -48,7 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
   const char** uiMain::XpmIconData = uimainicon_xpm_data;
 #endif
 void uiMain::setXpmIconData( const char** xpmdata )
-{ 
+{
     XpmIconData = xpmdata;
 }
 
@@ -64,7 +64,7 @@ void uiMain::setXpmIconData( const char** xpmdata )
 class KeyboardEventFilter : public mQtclass(QObject)
 {
 public:
-    			KeyboardEventFilter(KeyboardEventHandler& kbeh)
+			KeyboardEventFilter(KeyboardEventHandler& kbeh)
 			    : kbehandler_(kbeh)				{}
 protected:
     bool		eventFilter(mQtclass(QObject*),mQtclass(QEvent*));
@@ -90,7 +90,7 @@ bool KeyboardEventFilter::eventFilter( mQtclass(QObject*) obj,
 
     if ( ev->type() == mQtclass(QEvent)::KeyPress )
 	kbehandler_.triggerKeyPressed( kbe );
-    else 
+    else
 	kbehandler_.triggerKeyReleased( kbe );
 
     if ( kbehandler_.isHandled() )
@@ -103,7 +103,7 @@ bool KeyboardEventFilter::eventFilter( mQtclass(QObject*) obj,
 class mQtclass(QtTabletEventFilter) : public mQtclass(QObject)
 {
 public:
-    			mQtclass(QtTabletEventFilter)()
+			mQtclass(QtTabletEventFilter)()
 			    : mousepressed_( false )
 			    , checklongleft_( false )
 			    , lostreleasefixevent_( 0 )
@@ -161,7 +161,7 @@ bool mQtclass(QtTabletEventFilter)::eventFilter( mQtclass(QObject*) obj,
     if ( mousepressed_ && !lostreleasefixevent_ && ti && !ti->pressure_ &&
 	 qme->type()!=mQtclass(QEvent)::MouseButtonRelease )
     {
-	lostreleasefixevent_ = new mQtclass(QMouseEvent)( 
+	lostreleasefixevent_ = new mQtclass(QMouseEvent)(
 					mQtclass(QEvent)::MouseButtonRelease,
 					qme->pos(), qme->globalPos(),
 					mousebutton_,
@@ -220,7 +220,7 @@ bool mQtclass(QtTabletEventFilter)::eventFilter( mQtclass(QObject*) obj,
 	mousepressed_ = false;
 	checklongleft_ = false;
     }
-    
+
     if ( ti && qme->type()==mQtclass(QEvent)::MouseMove && mousepressed_ )
     {
 	if ( checklongleft_ &&
@@ -230,11 +230,11 @@ bool mQtclass(QtTabletEventFilter)::eventFilter( mQtclass(QObject*) obj,
 	    mQtclass(QEvent*) qev =
 				new mQtclass(QEvent)( mUsrEvLongTabletPress );
 	    mQtclass(QApplication)::postEvent(
-		    		   mQtclass(QApplication)::focusWidget(), qev );
+				   mQtclass(QApplication)::focusWidget(), qev );
 	}
 
 	mQtclass(QWidget*) tlw =
-	    		mQtclass(QApplication)::topLevelAt( qme->globalPos() );
+			mQtclass(QApplication)::topLevelAt( qme->globalPos() );
 	if ( dynamic_cast<mQtclass(QMenu*)>(tlw) )
 	    return true;
 
@@ -273,12 +273,12 @@ static void initQApplication()
 #ifdef __mac__
 
     mQtclass(QCoreApplication)::setAttribute(
-	    			mQtclass(Qt)::AA_MacDontSwapCtrlAndMeta, true );
+				mQtclass(Qt)::AA_MacDontSwapCtrlAndMeta, true );
 #endif
-    
+
 #ifndef __win__
-    mQtclass(QCoreApplication)::addLibraryPath( GetBinPlfDir() ); 
-    							// Qt plugin libraries
+    mQtclass(QCoreApplication)::addLibraryPath( GetBinPlfDir() );
+							// Qt plugin libraries
 #endif
 }
 
@@ -292,7 +292,7 @@ uiMain::uiMain( int& argc, char **argv )
 
     initQApplication();
     init( 0, argc, argv );
-    
+
     QPixmap pixmap( XpmIconData );
     app_->setWindowIcon( QIcon( pixmap ) );
 }
@@ -300,7 +300,7 @@ uiMain::uiMain( int& argc, char **argv )
 
 uiMain::uiMain( mQtclass(QApplication*) qapp )
     : mainobj_( 0 )
-{ 
+{
     initQApplication();
     app_ = qapp;
     app_->setWindowIcon( mQtclass(QIcon)(XpmIconData) );
@@ -342,7 +342,7 @@ static mQtclass(QStyle*) getStyleFromSettings()
 
 void uiMain::init( mQtclass(QApplication*) qap, int& argc, char **argv )
 {
-    if ( app_ ) 
+    if ( app_ )
     {
 	pErrMsg("You already have a uiMain object!");
 	return;
@@ -367,7 +367,7 @@ void uiMain::init( mQtclass(QApplication*) qap, int& argc, char **argv )
 
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
-    
+
 #if QT_VERSION >= 0x050000
     qInstallMessageHandler( myMessageOutput );
 #else
@@ -378,8 +378,8 @@ void uiMain::init( mQtclass(QApplication*) qap, int& argc, char **argv )
 #ifdef __win__
     if ( !styl )
 	styl = mQtclass(QSysInfo)::WindowsVersion ==
-	    					mQtclass(QSysInfo)::WV_VISTA
-	    	? new mQtclass(QWindowsVistaStyle)
+						mQtclass(QSysInfo)::WV_VISTA
+		? new mQtclass(QWindowsVistaStyle)
 		: new mQtclass(QWindowsXPStyle);
 #else
 # ifdef __mac__
@@ -408,7 +408,7 @@ uiMain::~uiMain()
 }
 
 
-int uiMain::exec()          			
+int uiMain::exec()
 {
     if ( !app_ )  { pErrMsg("Huh?") ; return -1; }
     return app_->exec();
@@ -441,29 +441,29 @@ void uiMain::setTopLevel( uiMainWin* obj )
 
 
 void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
-{   
+{
     font_ = &fnt;
     if ( !app_ )  { pErrMsg("Huh?") ; return; }
     app_->setFont( font_->qFont() );
 }
 
 
-void uiMain::exit( int retcode ) 
-{ 
+void uiMain::exit( int retcode )
+{
     if ( !app_ )  { pErrMsg("Huh?") ; return; }
     app_->exit( retcode );
 }
 /*!<
-    \brief Tells the application to exit with a return code. 
+    \brief Tells the application to exit with a return code.
 
-    After this function has been called, the application leaves the main 
+    After this function has been called, the application leaves the main
     event loop and returns from the call to exec(). The exec() function
-    returns retcode. 
+    returns retcode.
 
-    By convention, retcode 0 means success, any non-zero value indicates 
-    an error. 
+    By convention, retcode 0 means success, any non-zero value indicates
+    an error.
 
-    Note that unlike the C library exit function, this function does 
+    Note that unlike the C library exit function, this function does
     return to the caller - it is event processing that stops
 
 */
@@ -496,10 +496,10 @@ uiSize uiMain::desktopSize() const
 
 
 uiMain& uiMain::theMain()
-{ 
+{
     if ( themain_ ) return *themain_;
-    if ( !qApp ) 
-    { 
+    if ( !qApp )
+    {
 	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
 	mQtclass(QApplication)::exit( -1 );
     }
@@ -518,7 +518,7 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 }
 
 
-void uiMain::flushX()        
+void uiMain::flushX()
 { if ( app_ ) app_->flush(); }
 
 
@@ -558,12 +558,12 @@ bool uiMain::isNameToolTipUsed()
 { return usenametooltip_; }
 
 
-void uiMain::formatNameToolTipString( BufferString& namestr ) 
+void uiMain::formatNameToolTipString( BufferString& namestr )
 {
     BufferString bufstr( namestr );
-    replaceString( bufstr.buf(), "&&", "\a" );
+    bufstr.replace( "&&", "\a" );
     removeCharacter( bufstr.buf(), '&' );
-    replaceCharacter( bufstr.buf(), '\a', '&' );
+    bufstr.replace( '\a', '&' );
 
     namestr = "\""; namestr += bufstr; namestr += "\"";
 }

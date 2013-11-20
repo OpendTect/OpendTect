@@ -218,7 +218,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
     if ( !iostrm ) { pErrMsg("Wrong IOObj type"); return; }
 
     BufferString dispfnm( iostrm->getExpandedName(forread_,false) );
-    replaceCharacter( dispfnm.buf(), '%', '*' );
+    dispfnm.replace( '%', '*' );
     setFileName( dispfnm );
     if ( iostrm->isMulti() )
 	setMultiInput( iostrm->fileNumbers(), iostrm->zeroPadding() );
@@ -303,7 +303,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 
 #define mDefRetrTB(clss,grp) \
     uiSeparator* sep = new uiSeparator( grp->attachObj()->parent(), \
-	    		"Vert sep", false );\
+			"Vert sep", false );\
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
@@ -330,7 +330,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 				      false, true );
 
     fmtfld_ = new uiGenInput( grp, "SEG-Y 'format'",
-	    	StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
+		StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
     if ( nrsamplesfld_ )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
 
@@ -584,7 +584,7 @@ bool getVals()
 uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 				const IOPar* iop )
 	: uiSEGYDefGroup(p,"SEG-Y Opts group",true)
-    	, setup_(su)
+	, setup_(su)
 	, scalcofld_(0)
 	, xcoorddeffld_(0)
 	, ycoorddeffld_(0)
@@ -600,12 +600,12 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
         , timeshiftfld_(0)
 	, sampleratefld_(0)
 	, ensurepsxylbl_(0)
-    	, isps_(Seis::isPS(su.geom_))
-    	, is2d_(Seis::is2D(su.geom_))
-    	, ts_(0)
-    	, thdef_(*new SEGY::TrcHeaderDef)
-    	, readParsReq(this)
-    	, preScanReq(this)
+	, isps_(Seis::isPS(su.geom_))
+	, is2d_(Seis::is2D(su.geom_))
+	, ts_(0)
+	, thdef_(*new SEGY::TrcHeaderDef)
+	, readParsReq(this)
+	, preScanReq(this)
 {
     thdef_.fromSettings();
     IOPar emptyiop;
@@ -744,7 +744,7 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 {
 #define mMkDefFld(p,fldnm,kystr,wsz,opt,wfr) \
     fldnm##deffld_ = new uiSEGYFOByteSpec( p, thdef_.fldnm##_, wsz, iop, opt, \
-	   		 SEGY::TrcHeaderDef::s##kystr##Byte(), wfr )
+			 SEGY::TrcHeaderDef::s##kystr##Byte(), wfr )
 
     mMkDefFld( grp, inl, Inl, true, false, true );
     mMkDefFld( grp, crl, Crl, true, false, true );
@@ -777,28 +777,28 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 		    "Header contains coordinates", BoolInpSpec(true) );
 	    havecoordsinhdrfld_->attach( alignedBelow, trnrdeffld_ );
 	    havecoordsinhdrfld_->valuechanged.notify(
-		    			mCB(this,uiSEGYFileOpts,crdChk) );
+					mCB(this,uiSEGYFileOpts,crdChk) );
 	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_ = new uiGenInput( grp, "Coordinate source",
 			     BoolInpSpec(false,"'Nr X Y' file","Generate") );
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
-		    			mCB(this,uiSEGYFileOpts,crdChk) );
+					mCB(this,uiSEGYFileOpts,crdChk) );
 	    coordsfnmfld_ = new uiFileInput( grp, "Name",
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(forread_) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, "Extension",
-		    			    StringInpSpec("crd") );
+					    StringInpSpec("crd") );
 	    coordsextfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsspecfnmbox_ = new uiCheckBox( grp, "Specify file" );
 	    coordsspecfnmbox_->setChecked( true );
 	    coordsspecfnmbox_->attach( leftOf, coordsextfld_ );
 	    coordsspecfnmbox_->activated.notify(
-		    			mCB(this,uiSEGYFileOpts,crdChk) );
+					mCB(this,uiSEGYFileOpts,crdChk) );
 
 	    coordsstartfld_ = new uiGenInput( grp, "Start coordinate",
-		    			DoubleInpSpec(), DoubleInpSpec() );
+					DoubleInpSpec(), DoubleInpSpec() );
 	    coordsstartfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsstartfld_->setElemSzPol( uiObject::Small );
 	    coordsstepfld_ = new uiGenInput( grp, "Step",

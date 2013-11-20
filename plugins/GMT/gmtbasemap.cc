@@ -85,7 +85,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += cTitleBoxHeight; comm += "c/BL ";
     if ( !closeps ) comm += "-K ";
 
-    comm += "-UBL/0/0 ";    
+    comm += "-UBL/0/0 ";
     comm += "1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
@@ -175,7 +175,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     comm += ymargin / 2 + cTitleBoxHeight + ( hascolbar ? 2 * ymargin : 0 );
     comm += "c/"; comm += 10; comm += "c/";
     comm += nritems ? nritems : 1; comm += "c/BL ";
-    
+
     comm += "1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay legend")
@@ -301,8 +301,7 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 
     strm << res << std::endl;
     BufferString comm = res;
-    char* commptr = comm.buf();
-    char* ptr = strstr( commptr, " -R" );
+    char* ptr = strstr( comm.buf(), " -R" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
@@ -315,10 +314,10 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 	BufferString newstr;
 	mGetRangeString( newstr )
 	newstr.insertAt( 0, " " );
-	replaceString( commptr, oldstr.buf(), newstr.buf() );
+	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = strstr( commptr, " -J" );
+    ptr = strstr( comm.buf(), " -J" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
@@ -331,13 +330,13 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 	BufferString newstr;
 	mGetProjString( newstr, "X" )
 	newstr.insertAt( 0, " " );
-	replaceString( commptr, oldstr.buf(), newstr.buf() );
+	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = strstr( commptr, ".ps" );
+    ptr = strstr( comm.buf(), ".ps" );
     if ( ptr )
     {
-	ptr = strstr( commptr, ">>" );
+	ptr = strstr( comm.buf(), ">>" );
 	if ( ptr )
 	{
 	    BufferString temp = ptr;

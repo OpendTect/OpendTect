@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
+class od_istream;
 
 class SharedLibAccess;
 
@@ -28,7 +29,7 @@ namespace OD
 mExpClass(Basic) ModDep
 {
 public:
-    			ModDep( const char* m )
+			ModDep( const char* m )
 			    : name_(m)	{}
     bool		operator ==( const char* s ) const
 			    { return name_ == s; }
@@ -62,7 +63,7 @@ protected:
     mutable BufferStringSet		loadedmods_;
     mutable ObjectSet<SharedLibAccess>	shlibaccs_;
 
-    void		readDeps(std::istream&);
+    void		readDeps(od_istream&);
     int			getLoadIdx(const char*) const;
 
 };

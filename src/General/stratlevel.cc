@@ -135,7 +135,7 @@ Strat::Level::Level( const char* nm, const Strat::LevelSet* ls )
 
 
 Strat::Level::Level( const Level& oth )
-    : NamedObject(oth) 
+    : NamedObject(oth)
     , id_(-1)
     , color_(oth.color_)
     , pars_(*new IOPar(oth.pars_))
@@ -270,7 +270,7 @@ Strat::LevelSet& Strat::LevelSet::operator =( const Strat::LevelSet& oth )
 void Strat::LevelSet::getLevelsFrom( const Strat::LevelSet& oth )
 {
     deepErase(lvls_);
-	
+
     for ( int ilvl=0; ilvl<oth.size(); ilvl++ )
     {
 	Strat::Level* newlvl = new Strat::Level( *oth.lvls_[ilvl] );
@@ -357,8 +357,8 @@ void Strat::LevelSet::remove( Level::ID id )
 }
 
 
-void Strat::LevelSet::add( const BufferStringSet& lvlnms, 
-				const TypeSet<Color>& cols ) 
+void Strat::LevelSet::add( const BufferStringSet& lvlnms,
+				const TypeSet<Color>& cols )
 {
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	add( lvlnms.get(idx), cols[idx] );
@@ -375,7 +375,7 @@ void Strat::LevelSet::addLvl( Level* lvl )
 }
 
 
-Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx ) 
+Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx )
 {
     int curidx = indexOf( nm );
     Level* lvl = 0;
@@ -539,7 +539,7 @@ bool Strat::LevelSet::writeTo( const char* fnm ) const
 BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
 {
     BufferString nm( inpnm );
-    replaceCharacter( nm.buf(), ' ', '_' );
+    nm.replace( ' ', '_' );
     FilePath fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
     if ( basenm )
 	fp.add( basenm );
@@ -555,8 +555,8 @@ void Strat::LevelSet::getStdNames( BufferStringSet& nms )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
-	char* nm = fnm.buf() + 7;
-	replaceCharacter( nm, '_', ' ' );
+	BufferString nm( fnm.buf() + 7 );
+	nm.replace( ' ', '_' );
 	nms.add( nm );
     }
 }

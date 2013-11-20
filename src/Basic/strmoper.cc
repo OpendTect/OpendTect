@@ -144,7 +144,7 @@ bool StrmOper::wordFromLine( std::istream& strm, BufferString& bs )
 
     char ch;
     char* ptr = bs.buf();
-    while ( getNextChar(strm,ch) && ch != '\n' )
+    while ( (char)strm.peek() != '\n' && getNextChar(strm,ch) )
     {
 	if ( isspace(ch) )
 	{
@@ -274,7 +274,7 @@ void StrmOper::seek( std::istream& strm, od_int64 offset,
     strm.seekg( offset, dir );
 #else
     const int smalloffset = INT_MAX - 1;
-    
+
     if ( offset < smalloffset )
     { strm.seekg( offset, dir ); return; }
 
@@ -284,7 +284,7 @@ void StrmOper::seek( std::istream& strm, od_int64 offset,
     while ( curoffset < offset )
     {
 	const od_int64 diff = offset - curoffset;
-	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur ) 
+	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur )
 			   : strm.seekg( diff, std::ios::cur );
 	curoffset += smalloffset;
     }
@@ -300,16 +300,16 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
     int smalloffset = INT_MAX - 1;
     od_int64 curoffset = 0;
     od_int64 diff = 0;
-    
+
     strm.seekg( 0, std::ios::beg );
-    
+
     if ( pos < smalloffset )
     { strm.seekg( pos, std::ios::cur ); return; }
 
     while ( curoffset < pos )
     {
 	diff = pos - curoffset;
-	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur ) 
+	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur )
 			   : strm.seekg( diff, std::ios::cur );
 	curoffset += smalloffset;
     }
@@ -324,7 +324,7 @@ void StrmOper::seek( std::ostream& strm, od_int64 offset,
     strm.seekp( offset, dir );
 #else
     const int smalloffset = INT_MAX - 1;
-    
+
     if ( offset < smalloffset )
     { strm.seekp( offset, dir ); return; }
 
@@ -334,7 +334,7 @@ void StrmOper::seek( std::ostream& strm, od_int64 offset,
     while ( curoffset < offset )
     {
 	const od_int64 diff = offset - curoffset;
-	diff > smalloffset ? strm.seekp( smalloffset, std::ios::cur ) 
+	diff > smalloffset ? strm.seekp( smalloffset, std::ios::cur )
 			   : strm.seekp( diff, std::ios::cur );
 	curoffset += smalloffset;
     }
@@ -442,7 +442,7 @@ StreamData& StreamData::operator =( const StreamData& sd )
 void StreamData::close()
 {
     if ( istrm && istrm != &std::cin )
-    	delete istrm;
+	delete istrm;
 
     if ( ostrm )
     {

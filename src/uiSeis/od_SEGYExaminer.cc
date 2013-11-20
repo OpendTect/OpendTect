@@ -51,7 +51,7 @@ int main( int argc, char ** argv )
 	std::cerr << "Usage: " << argv[0]
 		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
 		     "\n\t[--fmt segy_format_number]"
-	    	     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
+		     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
 		     "\n\t[--swapbytes 0_1_or_2]"
 		     "\n\tfilename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
@@ -69,9 +69,9 @@ int main( int argc, char ** argv )
 	ForkProcess();
 
     su.fs_.fname_ = argv[argidx];
-    //replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' ); 
+    //su.fs_.fname_.replace( (char)128, ' ' );
     //ToDo : Is it Needed. 'char' takes values upto 127 ?
-    replaceString( su.fs_.fname_.buf(), "+x+", "*" );
+    su.fs_.fname_.replace( "+x+", "*" );
 
     uiMain app( argc, argv );
 

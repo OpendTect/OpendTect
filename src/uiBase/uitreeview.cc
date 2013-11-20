@@ -44,10 +44,10 @@ class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
 public:
 			uiTreeViewBody(uiTreeView& hndle,uiParent* parnt,
 				       const char* nm,int nrl);
-    virtual 		~uiTreeViewBody();
+    virtual		~uiTreeViewBody();
 
-    void 		setNrLines( int prefNrLines )
-			{ 
+    void		setNrLines( int prefNrLines )
+			{
 			    if ( prefNrLines >= 0 )
 				prefnrlines_ = prefNrLines;
 
@@ -55,7 +55,7 @@ public:
 			    setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual int 	nrTxtLines() const
+    virtual int	nrTxtLines() const
 			    { return prefnrlines_ ? prefnrlines_ : 7; }
 
     uiTreeView&		lvhandle()	{ return lvhandle_; }
@@ -63,7 +63,7 @@ public:
 
 protected:
 
-    int 		prefnrlines_;
+    int		prefnrlines_;
 
     void		resizeEvent(QResizeEvent *);
     void		keyPressEvent(QKeyEvent*);
@@ -281,7 +281,7 @@ void uiTreeView::updateCheckStatus( uiTreeViewItem* itm )
         itm->setChecked( itm->isChecked(true), true );
 }
 
-   
+
 uiTreeViewBody& uiTreeView::mkbody( uiParent* p, const char* nm, int nl )
 {
     body_ = new uiTreeViewBody( *this, p, nm, nl );
@@ -297,9 +297,9 @@ void uiTreeView::setVScrollBarMode( ScrollMode mode )
 { body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
 
 
-/*! \brief Set preferred number of lines. 
+/*! \brief Set preferred number of lines.
     If set to 0, then it is determined by the number of items in tree.
-    If set to 1, then the tree has a fixed height of 1 textline and 
+    If set to 1, then the tree has a fixed height of 1 textline and
     therefore can not grow/shrink vertically.
 */
 void uiTreeView::setNrLines( int prefNrLines )
@@ -329,7 +329,7 @@ void uiTreeView::insertItem( int idx, uiTreeViewItem* itm )
 
 
 void uiTreeView::takeItem( uiTreeViewItem* itm )
-{ 
+{
     mBlockCmdRec;
     const int childid = body_->indexOfTopLevelItem( itm->qItem() );
     body_->takeTopLevelItem( childid );
@@ -397,7 +397,7 @@ int uiTreeView::nrColumns() const
 void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 {
     body_->header()->setResizeMode( column,
-	    			    (QHeaderView::ResizeMode)int(widthmode) ); 
+				    (QHeaderView::ResizeMode)int(widthmode) );
 }
 
 
@@ -605,7 +605,7 @@ uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
     , keyPressed(this)
     , qnormaltooltipstrlist_(new QStringList)
     , qtranslatedtooltipstrlist_(new QStringList)
-{ 
+{
     qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
@@ -617,7 +617,7 @@ uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
     , keyPressed(this)
     , qnormaltooltipstrlist_(new QStringList)
     , qtranslatedtooltipstrlist_(new QStringList)
-{ 
+{
     qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
     init( setup );
@@ -666,7 +666,7 @@ uiTreeViewItem::~uiTreeViewItem()
 
 
 void uiTreeViewItem::setText( const char* txt, int column )
-{ 
+{
     mTreeViewBlockCmdRec;
     qtreeitem_->setText( column, QString(txt) );
     setToolTip( column, txt );
@@ -703,7 +703,7 @@ bool uiTreeViewItem::translate( int column )
 	return false;
 
     BufferString txt( *toolTip(column) ? toolTip(column) : text(column) );
-    removeStartAndEndSpaces( txt.buf() );
+    txt.trimBlanks();
     if ( txt.isEmpty() || isNumberString(txt.buf()) )
 	return true;
 
@@ -820,7 +820,7 @@ uiTreeView* uiTreeViewItem::treeView() const
 
 
 void uiTreeViewItem::takeItem( uiTreeViewItem* itm )
-{ 
+{
     mTreeViewBlockCmdRec;
     const int childid = qItem()->indexOfChild( itm->qItem() );
     qItem()->takeChild( childid );

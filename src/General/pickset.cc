@@ -145,7 +145,7 @@ bool Location::fromString( const char* s, bool doxy, bool testdir )
 	{
 	    *stop = '\0';
 	    s += stop - start + 1;
-	    replaceCharacter( text_->buf(), newlinechar, pipechar );
+	    text_->replace( newlinechar, pipechar );
 	}
     }
     else if ( text_ )
@@ -207,7 +207,7 @@ void Location::toString( BufferString& str, bool forexport ) const
     if ( text_ && *text_ )
     {
 	BufferString txt( *text_ );
-	replaceCharacter( txt.buf(), newlinechar, pipechar );
+	txt.replace( newlinechar, pipechar );
 	str = "\""; str += txt; str += "\"\t";
     }
 
@@ -230,12 +230,12 @@ void Location::toString( BufferString& str, bool forexport ) const
 
     str.setMinBufSize( str.size()+1024 );
     const char* fmt = 0;
-   
+
     mSetFormat(usepos.x);
     getStringFromDouble( fmt, usepos.x, str.bufEnd() );
     mSetFormat(usepos.y);
     str += "\t"; getStringFromDouble( fmt, usepos.y, str.bufEnd() );
-    mSetFormat(usepos.z); 
+    mSetFormat(usepos.z);
     str += "\t"; getStringFromDouble( fmt, usepos.z, str.bufEnd() );
 
     if ( hasDir() )
@@ -254,7 +254,7 @@ bool Location::getText( const char* idkey, BufferString& val ) const
 	val = "";
 	return false;
     }
-    
+
     SeparString sepstr( *text_, '\'' );
     const int strsz = sepstr.size();
     if ( !strsz ) return false;
@@ -331,9 +331,9 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 	const int idx = pss_.indexOf( oldset );
 	//Must be removed from list before trigger, otherwise
 	//other users may remove it in calls invoked by the cb.
-	pss_.removeSingle( idx ); 
+	pss_.removeSingle( idx );
 	setToBeRemoved.trigger( oldset );
-	delete oldset; 
+	delete oldset;
 	ids_.removeSingle( idx );
 	changed_.removeSingle( idx );
 	if ( newset )
@@ -496,7 +496,7 @@ float Set::getXYArea() const
 {
     if ( size()<3 || disp_.connect_==Set::Disp::None )
 	return mUdf(float);
-    
+
     TypeSet<Geom::Point2D<float> > posxy;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
@@ -587,7 +587,7 @@ void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool iszreq )
     fd.bodyinfos_.erase();
     createDescBody( &fd, iszreq );
 }
-    
+
 
 bool PickSetAscIO::isXY() const
 {

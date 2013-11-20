@@ -178,7 +178,7 @@ int uiFileDialog::go()
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
-	    			: QFileDialog::AcceptSave );
+				: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
     fd->setWindowTitle( QString(wintitle) );
     fd->setConfirmOverwrite( confirmoverwrite_ );
@@ -194,14 +194,14 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == sSave() || qpb->text() == sOpen(true) 
+	if ( qpb->text() == sSave() || qpb->text() == sOpen(true)
 				    || qpb->text() == "&Choose" )
 	    qpb->setText( "&Ok" );
     }
 
     if ( fd->exec() != QDialog::Accepted )
     {
-    	int res = processExternalFilenames( dirname, flt );
+	int res = processExternalFilenames( dirname, flt );
 	endCmdRecEvent( refnr, res );
 	return res;
     }
@@ -213,14 +213,14 @@ int uiFileDialog::go()
     selectedfilter_ = fd->selectedFilter().toLatin1().constData();
 
 #ifdef __win__
-    replaceCharacter( fn.buf(), '/', '\\' );
+    fn.replace( '/', '\\' );
 #endif
 
     for ( int idx=0; idx<selfiles.size(); idx++ )
     {
 	BufferString bs( mQStringToConstChar(selfiles[idx]) );
 #ifdef __win__
-	replaceCharacter( bs.buf(), '/', '\\' );
+	bs.replace( '/', '\\' );
 #endif
 	filenames_.add( bs );
     }
@@ -291,12 +291,12 @@ static bool filterIncludesExt( const char* fltr, const char* ext )
 	    continue;
 	if ( *(fltptr) != '.' )
 	    return true;
-	
+
 	if ( !ext )
 	    continue;
 	const char* extptr = ext;
 	while ( true )
-	{ 
+	{
 	    fltptr++;
 	    if ( *extptr == '\0' )
 	    {
@@ -332,7 +332,7 @@ static bool filterIncludesExt( const char* fltr, const char* ext )
     mRetMsg( pathname, msg, 0 )
 
 
-int uiFileDialog::processExternalFilenames( const char* dir, 
+int uiFileDialog::processExternalFilenames( const char* dir,
 					    const char* filters )
 {
     if ( !externalfilenames_ )
@@ -377,14 +377,14 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	    if ( !forread_ && !File::isWritable(fname) )
 		mRetErrMsg( fname, "specifies a read-only directory" );
 	}
-	else 
+	else
 	{
 	    if ( mode_==Directory || mode_==DirectoryOnly )
 		mRetErrMsg( fname, "specifies no existing directory" );
 
 	    if ( !File::exists(fname) )
 	    {
-		if ( mode_ != AnyFile ) 
+		if ( mode_ != AnyFile )
 		    mRetErrMsg( fname, "specifies no existing file" );
 		if ( fp.nrLevels() > 1 )
 		{
@@ -400,10 +400,10 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 
 	BufferString* bs = new BufferString( fname );
 #ifdef __win__
-	replaceCharacter( bs->buf(), '/', '\\' );
+	bs->replace( '/', '\\' );
 #endif
 	filenames_ += bs;
-	
+
 	if ( !idx )
 	    fn = *bs;
 
@@ -457,7 +457,7 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
     {
 	FileMultiString fms;
 	fms += filenames_;
-	msg += " "; msg += fms; 
+	msg += " "; msg += fms;
     }
 
     uiMainWin* carrier = uiMain::theMain().topLevel();

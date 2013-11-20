@@ -429,7 +429,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     const BufferString iopfnm( iopfp.fullPath() );
 
     BufferString bs( remotefp.fullPath() );
-    replaceCharacter( bs.buf(), '.',  '_' );
+    bs.replace( '.',  '_' );
     FilePath logfp( bs );
     remotefp.setExtension( ".par", false );
     logfp.setExtension( ".log", false );

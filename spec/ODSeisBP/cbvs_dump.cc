@@ -97,7 +97,7 @@ bool BatchProgram::go( std::ostream& logstrm )
 	outstrm << "Range.Xline: " << datacs.hrg.start.crl << ' '
 		<< datacs.hrg.stop.crl << ' ' << datacs.hrg.step.crl << '\n';
 	outstrm << "Range.Z: " << datacs.zrg.start << ' '
-	    	<< datacs.zrg.stop << ' ' << datacs.zrg.step << std::endl;
+		<< datacs.zrg.stop << ' ' << datacs.zrg.step << std::endl;
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
@@ -109,8 +109,8 @@ bool BatchProgram::go( std::ostream& logstrm )
 	bid.inl = datacs.hrg.start.inl; bid.crl = datacs.hrg.stop.crl;
 	prBidCoord( outstrm, b2c, bid );
 
-	char buf[80]; ci[0]->datachar.toString(buf);
-	replaceCharacter( buf, '`', ' ' );
+	BufferString buf; ci[0]->datachar.toString(buf.buf());
+	buf.replace( '`', ' ' );
 	outstrm << "Storage.Internal: " << buf << std::endl;
 	return true;
     }

@@ -62,7 +62,7 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
     }
 
     static FileNameString ret; ret = fname_;
-    replaceString( ret.buf(), "*", replstr.buf() );
+    ret.replace( "*", replstr.buf() );
     return ret.buf();
 }
 
@@ -86,7 +86,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     iostrm->setDirName( "Seismics" );
     const bool ismulti = !mIsUdf(nrs_.start);
     if ( ismulti )
-    {   
+    {
 	iostrm->fileNumbers() = nrs_;
 	iostrm->setZeroPadding( zeropad_ );
     }
@@ -242,7 +242,7 @@ void SEGY::FilePars::getReport( IOPar& iop, bool ) const
     if ( byteswap_ )
     {
 	const char* str = byteswap_ > 1
-	    		? (forread_ ? "All bytes are" : "All bytes will be")
+			? (forread_ ? "All bytes are" : "All bytes will be")
 			: (forread_ ? "Data bytes are" : "Data bytes will be");
 	iop.set( str, "swapped" );
     }
@@ -288,7 +288,7 @@ static SEGY::FileReadOpts::ICvsXYType getICType( int opt )
 {
     return opt < 0 ? SEGY::FileReadOpts::XYOnly
 	: (opt > 0 ? SEGY::FileReadOpts::ICOnly
-	 	   : SEGY::FileReadOpts::Both);
+		   : SEGY::FileReadOpts::Both);
 }
 
 

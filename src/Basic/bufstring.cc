@@ -193,6 +193,82 @@ void BufferString::setMinBufSize( unsigned int newlen )
 }
 
 
+int BufferString::count( char tocount ) const
+{
+    int ret = 0;
+
+    if ( !isEmpty() )
+    {
+	const char* ptr = buf();
+	while ( *ptr )
+	{
+	    if ( *ptr == tocount )
+		ret++;
+	    ptr++;
+	}
+    }
+
+    return ret;
+}
+
+
+void BufferString::replace( char from, char to )
+{
+    if ( isEmpty() || from == to )
+	return;
+
+    char* ptr = buf();
+    while ( *ptr )
+    {
+	if ( *ptr == from )
+	    *ptr = to;
+	ptr++;
+    }
+}
+
+
+void BufferString::replace( const char* from, const char* to )
+{
+    if ( isEmpty() || !from || !*from )
+	return;
+
+    const int fromlen = strlen( from );
+
+    char* ptrfound = strstr( buf(), from );
+    while ( ptrfound )
+    {
+	BufferString rest( ptrfound + fromlen );
+	*ptrfound = '\0';
+	add( to );
+	const int curpos = size();
+	add( rest );
+	ptrfound = strstr( buf()+curpos, from );
+    }
+}
+
+
+void BufferString::trimBlanks()
+{
+    if ( isEmpty() )
+	return;
+
+    char* memstart = buf();
+    char* ptr = memstart;
+    mSkipBlanks( ptr );
+    removeTrailingBlanks( ptr );
+
+    if ( ptr == memstart )
+	return;
+    else if ( !*ptr )
+	setEmpty();
+    else
+    {
+	BufferString tmp( ptr );
+	*this = tmp;
+    }
+}
+
+
 void BufferString::insertAt( int atidx, const char* string )
 {
     const int cursz = size();	// Had to do this to avoid weird compiler bug
@@ -251,28 +327,6 @@ void BufferString::replaceAt( int atidx, const char* string, bool cut )
     {
 	setBufSize( atidx + strsz + 1 );
 	buf_[atidx + strsz] = '\0';
-    }
-}
-
-
-void BufferString::trimBlanks()
-{
-    if ( isEmpty() )
-	return;
-
-    char* memstart = buf();
-    char* ptr = memstart;
-    mSkipBlanks( ptr );
-    removeTrailingBlanks( ptr );
-
-    if ( ptr == memstart )
-	return;
-    else if ( !*ptr )
-	setEmpty();
-    else
-    {
-	BufferString tmp( ptr );
-	*this = tmp;
     }
 }
 

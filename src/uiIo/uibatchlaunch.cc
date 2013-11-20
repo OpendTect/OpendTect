@@ -152,9 +152,9 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 	fname += ".txt";
     }
     filefld_ = new uiFileInput( this, "Log file",
-	   		       uiFileInput::Setup(uiFileDialog::Gen,fname)
+			       uiFileInput::Setup(uiFileDialog::Gen,fname)
 				.forread(false)
-	   			.filter("*.log;;*.txt") );
+				.filter("*.log;;*.txt") );
     filefld_->attach( alignedBelow, optfld_ );
 
 #ifndef __msvc__
@@ -323,7 +323,7 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 
 
 void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
-       				      bool clusterproc )
+				      bool clusterproc )
 {
     uiGroup* dogrp = new uiGroup( this, "Proc details" );
     if ( !redo_ )
@@ -342,12 +342,12 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 	opts.add("Single machine").add("Multiple machines").add("Cluster");
 	if ( hascluster_ )
 	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
-		    			   StringListInpSpec(opts) );
+					   StringListInpSpec(opts) );
 	else
 	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
-		    		BoolInpSpec(true,opts.get(0),opts.get(1)) );
+				BoolInpSpec(true,opts.get(0),opts.get(1)) );
 
-	singmachfld_->valuechanged.notify( 
+	singmachfld_->valuechanged.notify(
 		mCB(this,uiFullBatchDialog,singTogg) );
     }
 
@@ -492,7 +492,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	return false;
 
     bool res = issing ? singLaunch( *iop, fnm ) : multiLaunch( fnm );
-    return ctrlstyle_ == DoAndStay ? false : res; 
+    return ctrlstyle_ == DoAndStay ? false : res;
 }
 
 
@@ -522,11 +522,11 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
 
-# ifdef __win__ 
+# ifdef __win__
     comm += " --inxterm+askclose "; comm += procprognm_;
 
     BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
-    replaceCharacter(_parfnm.buf(),' ','%');
+    _parfnm.replace( ' ', '%' );
 
     comm += " \""; comm += _parfnm; comm += "\"";
 
@@ -568,8 +568,8 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 
 // uiRestartBatchDialog
 uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
-       					    const char* mpn )
-    	: uiFullBatchDialog(p,Setup("(Re-)Start processing")
+					    const char* mpn )
+	: uiFullBatchDialog(p,Setup("(Re-)Start processing")
 				.procprognm(ppn).multiprocprognm(mpn))
 {
     redo_ = true;

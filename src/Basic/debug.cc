@@ -201,7 +201,7 @@ void message( const char* msg )
     if ( !isOn() ) return;
 
     BufferString msg_;
-    mDefineStaticLocalObject( bool, wantpid, 
+    mDefineStaticLocalObject( bool, wantpid,
 			      = GetEnvVarYN("DTECT_ADD_DBG_PID") );
     if ( wantpid )
     {
@@ -333,9 +333,9 @@ Export_Basic od_ostream& logMsgStrm()
 		if ( odusr && *odusr )
 		    { fnm += "_"; fnm += odusr; }
 		BufferString datestr = Time::getDateTimeString();
-		replaceString( datestr.buf(), ", ", "-" );
-		replaceCharacter( datestr.buf(), ':', '.' );
-		replaceCharacter( datestr.buf(), ' ', '_' );
+		datestr.replace( ", ", "-" );
+		datestr.replace( ':', '.' );
+		datestr.replace( ' ', '_' );
 		fnm += "_"; fnm += datestr.buf();
 		fnm += ".txt";
 
@@ -414,7 +414,7 @@ void ErrMsg( const char* msg, bool progr )
 	ErrMsgClass obj( msg, progr );
 	MsgClass::theCB().doCall( &obj );
     }
-    
+
     if ( progr && crashonprogerror )
 	DBG::forceCrash( false );
 }
@@ -431,7 +431,7 @@ CallBack& MsgClass::theCB( const CallBack* cb )
 const char* MsgClass::nameOf( MsgClass::Type typ )
 {
     const char* strs[] =
-    	{ "Information", "Message", "Warning", "Error", "PE", 0 };
+	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }
 
@@ -448,21 +448,21 @@ mExpClass(Basic) CrashDumper
 public:
     static CrashDumper&	getInstance();
 			//!Creates and installs at first run.
-    			
+
     void		sendDump(const char* filename);
-    
+
     void		setSendAppl(const char* a)    { sendappl_ = a; }
-    
+
     static FixedString	sSenderAppl();		//od_ReportIssue
     static FixedString	sUiSenderAppl();	//od_uiReportIssue
-    
+
 private:
 					CrashDumper();
 
     void				init();
-    
+
     static CrashDumper*			theinst_;
-    
+
     BufferString			sendappl_;
     google_breakpad::ExceptionHandler*	handler_;
 };
@@ -488,7 +488,7 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
                      void *context, EXCEPTION_POINTERS *exinfo,
                      MDRawAssertionInfo *assertion,
                      bool succeeded)
-{ 
+{
     const QString path = QString::fromWCharArray( dump_path );
     const QString mndmpid = QString::fromWCharArray( id );
     const BufferString dmppath ( path.toAscii().constData() );
@@ -517,7 +517,7 @@ void CrashDumper::sendDump( const char* filename )
 {
     if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
-    
+
     const BufferString cmd( sendappl_, " --binary ", filename );
     StreamProvider(cmd).executeCommand( true, true );
 }
@@ -529,7 +529,7 @@ CrashDumper& CrashDumper::getInstance()
     {
 	theinst_ = new CrashDumper;
     }
-    
+
     return *theinst_;
 }
 

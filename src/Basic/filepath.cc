@@ -57,7 +57,7 @@ FilePath& FilePath::operator =( const char* fnm )
 
 bool FilePath::operator ==( const FilePath& fp ) const
 {
-    return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_; 
+    return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_;
 }
 
 
@@ -79,7 +79,7 @@ FilePath& FilePath::set( const char* _fnm )
     lvls_.erase(); prefix_ = ""; isabs_ = false;
     if ( !_fnm ) return *this;
 
-    const char* fnm = fnmbs.buf(); 
+    const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
     if ( !*fnm ) return *this;
 
@@ -225,7 +225,7 @@ bool FilePath::makeCanonical()
     set( File::getCanonicalPath( fullpath.buf() ) );
 #else
     BufferString winpath = File::getCanonicalPath( fullpath.buf() );
-    replaceCharacter( winpath.buf(), '/', '\\' );
+    winpath.replace( '/', '\\' );
     set( winpath );
 #endif
     return true;
@@ -386,7 +386,7 @@ const char* FilePath::dirSep( Style stl )
 	stl = __iswin__ ? Windows : Unix;
 
     return stl == Windows ? wds : uds;
-} 
+}
 
 
 void FilePath::addPart( const char* fnm )

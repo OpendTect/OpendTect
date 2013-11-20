@@ -31,7 +31,7 @@ SearchKey::SearchKey( const char* expr, bool cs )
 static const char* programmedwildcard = "\a";
 static const char* scriptedwildcard   = "\b";
 
-// "\f*" : to be used as intermediate(s) in substring replacements 
+// "\f*" : to be used as intermediate(s) in substring replacements
 
 
 bool SearchKey::isMatching( const char* nameptr ) const
@@ -39,11 +39,11 @@ bool SearchKey::isMatching( const char* nameptr ) const
     BufferString key( searchexpr_ );
     BufferString name( nameptr );
 
-    replaceString( key.buf(), "@@", "\f1" );
-    replaceString( key.buf(), "@*", "\f2" );
-    replaceString( key.buf(), "\f1", "@@" );
-    replaceString( key.buf(), "*", scriptedwildcard );
-    replaceString( key.buf(), "\f2", "*" );
+    key.replace( "@@", "\f1" );
+    key.replace( "@*", "\f2" );
+    key.replace( "\f1", "@@" );
+    key.replace( "*", scriptedwildcard );
+    key.replace( "\f2", "*" );
 
     StringProcessor(key).removeCmdFileEscapes();
     StringProcessor(key).cleanUp();
@@ -72,10 +72,10 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
 	return keyptr == nameptr;
 
     if ( !*nameptr )
-    { 
+    {
 	int nrwildcards = 0;
 	while ( *keyptr )
-	{ 
+	{
 	    if ( *keyptr == *scriptedwildcard )
 		nrwildcards++;
 	    else if ( !isspace(*keyptr) && *keyptr!='.' )
@@ -140,7 +140,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
     {
 	if ( wcm && idx )
 	    continue;
-	    
+
 	if ( !isCmdDriverWindow(windowlist[idx]) )
 	{
 	    for ( int aliasnr=0; true; aliasnr++ )

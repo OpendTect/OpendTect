@@ -54,7 +54,7 @@ int main( int argc, char** argv )
 	ForkProcess();
 
     BufferString fnm = argidx > 0 ? argv[argidx] : "";
-    //replaceCharacter( fnm.buf(), (char)128, ' ' );
+    //fnm.replace( (char)128, ' ' );
     //ToDo : Is it Needed. 'char' takes values upto 127 ?
 
     uiMain app( argc, argv );

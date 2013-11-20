@@ -112,7 +112,7 @@ public:
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
 		     const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
-		    		     "Specify file details","103.0.4"))
+				     "Specify file details","103.0.4"))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)
@@ -185,9 +185,9 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 bool doImp( const FilePath& fp )
 {
     BufferString mask( fp.fileName() );
-    replaceString( mask.buf(), uiSEGYFileSpec::sKeyLineNmToken(), "*" );
+    mask.replace( uiSEGYFileSpec::sKeyLineNmToken(), "*" );
     FilePath maskfp( fp ); maskfp.setFileName( mask );
-    const int nrtok = countCharacter( mask.buf(), '*' );
+    const int nrtok = mask.count( '*' );
     DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
     if ( dl.size() < 1 )
     {
@@ -196,7 +196,7 @@ bool doImp( const FilePath& fp )
     }
 
     BufferString fullmaskfnm( maskfp.fullPath() );
-    int lnmoffs = mCast( int, strstr( fullmaskfnm.buf(), "*" ) - 
+    int lnmoffs = mCast( int, strstr( fullmaskfnm.buf(), "*" ) -
 	                                   fullmaskfnm.buf() );
     const int orglen = fullmaskfnm.size();
     bool nofails = true;
@@ -261,7 +261,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	retval = impFile( *useinioobj, outioobj, lnm, attrnm );
 	if ( is2d && retval )
 	    uiMSG().message( "Successfully loaded ",
-		    		useinioobj->fullUserExpr() );
+				useinioobj->fullUserExpr() );
     }
     else
     {
@@ -300,7 +300,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	{
 	    BufferString msg(
 		    "Geometry of Line '", linenm,
-		    "' is already present. Do you want to overwrite?" ); 
+		    "' is already present. Do you want to overwrite?" );
 	    if ( uiMSG().askGoOn(msg) )
 	    {
 		S2DPOS().setCurLineSet( outioobj.name() );

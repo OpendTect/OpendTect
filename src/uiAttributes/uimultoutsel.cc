@@ -43,7 +43,7 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
-		    	   "Select the outputs to compute", "101.2.3"))
+			   "Select the outputs to compute", "101.2.3"))
 	, outlistfld_(0)
 	, outallfld_(0)
 {
@@ -97,77 +97,73 @@ void uiMultOutSel::allSel( CallBacker* c )
 }
 
 
-bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,        
+bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 					const Attrib::DescID& multicompinpid,
 					bool is2d, const SelInfo& attrinf,
 					Attrib::DescSet* curdescset,
 					uiParent* parent,
 					TypeSet<Attrib::SelSpec>& targetspecs)
-{                                                                               
-    if ( !curdescset ) return false;           
-    Desc* seldesc = curdescset->getDesc( attribid );                            
-    if ( !seldesc )                                                             
-	return false;                                                           
+{
+    if ( !curdescset ) return false;
+    Desc* seldesc = curdescset->getDesc( attribid );
+    if ( !seldesc )
+	return false;
 
-    Desc* inpdesc = curdescset->getDesc( multicompinpid );                      
-    if ( !inpdesc ) return false;                                               
+    Desc* inpdesc = curdescset->getDesc( multicompinpid );
+    if ( !inpdesc ) return false;
 
-    BufferStringSet complist;                                                   
-    uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );                    
+    BufferStringSet complist;
+    uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
     uiMultCompDlg compdlg( parent, complist );
-    if ( compdlg.go() )                                                         
-    {                                                                           
-	LineKey lk;                                                             
-	BufferString userrefstr ( inpdesc->userRef() );                         
-	if ( stringEndsWith( "|ALL", userrefstr.buf() ))                        
-	{                                                                       
-	    char* cleanuserrefstr = const_cast<char*>( userrefstr.buf() );
-	    replaceString( cleanuserrefstr, "|ALL", "" );                       
-	    removeStartAndEndSpaces( cleanuserrefstr );                         
-	    userrefstr = BufferString( cleanuserrefstr );                       
-	}                                                                       
+    if ( compdlg.go() )
+    {
+	LineKey lk;
+	BufferString userrefstr ( inpdesc->userRef() );
+	userrefstr.trimBlanks();
+	if ( stringEndsWith( "|ALL", userrefstr.buf() ))
+	    userrefstr[ userrefstr.size()-4 ] = '\0';
 
-	if ( is2d )                                                             
-	{                                                                       
-	    const MultiID mid( attrinf.ioobjids_.get(0) );                      
-	    lk = LineKey( mid, userrefstr );                                    
-	}                                                                       
-	else                                                                    
-	{                                                                       
-	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );   
-	    if ( inpidx<0 ) return false;                                       
+	if ( is2d )
+	{
+	    const MultiID mid( attrinf.ioobjids_.get(0) );
+	    lk = LineKey( mid, userrefstr );
+	}
+	else
+	{
+	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
+	    if ( inpidx<0 ) return false;
 
-	    const char* objidstr = attrinf.ioobjids_.get(inpidx);               
-	    lk = LineKey( objidstr );                                           
+	    const char* objidstr = attrinf.ioobjids_.get(inpidx);
+	    lk = LineKey( objidstr );
 	}
 
-	TypeSet<int> selectedcomps;                                             
-	compdlg.getCompNrs( selectedcomps );                                    
-	const int selcompssz = selectedcomps.size();                            
-	if ( selcompssz )                                                       
-	    targetspecs.erase();                                               
+	TypeSet<int> selectedcomps;
+	compdlg.getCompNrs( selectedcomps );
+	const int selcompssz = selectedcomps.size();
+	if ( selcompssz )
+	    targetspecs.erase();
 
-	for ( int idx=0; idx<selcompssz; idx++ )                                
-	{                                                                       
-	    const int compidx = selectedcomps[idx];                             
-	    const DescID newinpid = curdescset->getStoredID( lk, compidx,       
+	for ( int idx=0; idx<selcompssz; idx++ )
+	{
+	    const int compidx = selectedcomps[idx];
+	    const DescID newinpid = curdescset->getStoredID( lk, compidx,
 					    true, true, complist.get(compidx) );
-	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,      
+	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
 							complist.get(compidx) );
-	    if ( !newdesc ) continue;                                           
+	    if ( !newdesc ) continue;
 
-	    DescID newdid = curdescset->getID( *newdesc );                      
-	    SelSpec as( 0, newdid );                                            
-	    BufferString bfs;                                                   
-	    newdesc->getDefStr( bfs );                                          
-	    as.setDefString( bfs.buf() );                                       
-	    as.setRefFromID( *curdescset );                                     
-	    as.set2DFlag( is2d );                                               
-	    targetspecs += as;                                                 
-	}                                                                       
-    }                                                                           
+	    DescID newdid = curdescset->getID( *newdesc );
+	    SelSpec as( 0, newdid );
+	    BufferString bfs;
+	    newdesc->getDefStr( bfs );
+	    as.setDefString( bfs.buf() );
+	    as.setRefFromID( *curdescset );
+	    as.set2DFlag( is2d );
+	    targetspecs += as;
+	}
+    }
 
-    return true;                                                                
+    return true;
 }
 
 

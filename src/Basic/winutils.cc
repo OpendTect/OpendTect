@@ -41,17 +41,19 @@ const char* getCleanUnxPath( const char* path )
     mDeclStaticString( ret );
 
     BufferString buf; buf = path;
-    char* ptr = buf.buf();
-    mTrimBlanks( ptr );
-    replaceCharacter( ptr, '\\' , '/' );
-    replaceCharacter( ptr, ';' , ':' );
+    buf.trimBlanks();
+    buf.replace( '\\' , '/' );
+    buf.replace( ';', ':' );
 
-    char* drivesep = strstr( ptr, ":" );
-    if ( !drivesep ) { ret = ptr; return ret; }
+    char* ptr = buf.buf();
+    char* drivesep = strchr( ptr, ':' );
+    if ( !drivesep )
+	{ ret = ptr; return ret; }
+
     *drivesep = '\0';
 
     ret = drvstr;
-    *ptr = (char) tolower(*ptr);
+    *ptr = (char)tolower(*ptr);
     ret += ptr;
     ret += ++drivesep;
 
@@ -59,16 +61,14 @@ const char* getCleanUnxPath( const char* path )
 }
 
 #define mRet(ret) \
-    replaceCharacter( ret.buf(), '/', '\\' ); \
+    ret.replace( '/', '\\' ); \
     if ( __do_debug_cleanpath ) \
     { \
-        BufferString msg("getCleanWinPath for:"); \
-	msg += path; \
-	msg += " : "; \
+        BufferString msg("getCleanWinPath for: ",path," : "); \
 	msg += ret; \
         od_debug_message( msg ); \
     } \
-    return ret;  
+    return ret;
 
 const char* getCleanWinPath( const char* path )
 {
@@ -76,21 +76,21 @@ const char* getCleanWinPath( const char* path )
 
     mDeclStaticString( ret );
     ret = path;
-    replaceCharacter( ret.buf(), ';' , ':' );
+    ret.replace( ';', ':' );
 
     BufferString buf( ret );
     char* ptr = buf.buf();
 
     mTrimBlanks( ptr );
 
-    mDefineStaticLocalObject( bool, __do_debug_cleanpath, 
+    mDefineStaticLocalObject( bool, __do_debug_cleanpath,
 			      = GetEnvVarYN("DTECT_DEBUG_WINPATH") );
 
     if ( *(ptr+1) == ':' ) // already in windows style.
 	{ ret = ptr;  mRet( ret ); }
 
     bool isabs = *ptr == '/';
-                
+
     char* cygdrv = strstr( ptr, drvstr );
     if ( cygdrv )
     {
@@ -102,12 +102,12 @@ const char* getCleanWinPath( const char* path )
     }
 
     char* drivesep = strstr( ret.buf(), ":" );
-    if ( isabs && !drivesep ) 
+    if ( isabs && !drivesep )
     {
 	const char* cygdir =
 #ifdef __win__
 				getCygDir();
-#else 
+#else
 				0;
 #endif
 	if ( !cygdir || !*cygdir )
@@ -136,7 +136,7 @@ const char* getCygDir()
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
     LPTSTR subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
-    LPTSTR Value="native"; 
+    LPTSTR Value="native";
 
     BYTE Value_data[256];
     DWORD Value_size = sizeof(Value_data);
@@ -201,10 +201,10 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 
     const int sz = frm.size();
     frm[sz+1] = '\0';
-     
+
     ZeroMemory( &fileop, sizeof(fileop) );
     fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
-    fileop.pFrom = frm; fileop.pTo = to; 
+    fileop.pFrom = frm; fileop.pTo = to;
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
 			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
 			     //  | FOF_SILENT;
@@ -232,9 +232,9 @@ bool winRemoveDir( const char* dirnm )
 
 unsigned int getWinVersion()
 {
-    DWORD dwVersion = 0; 
+    DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0; 
+    DWORD dwMinorVersion = 0;
     dwVersion = GetVersion();
     dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
     dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
@@ -244,9 +244,9 @@ unsigned int getWinVersion()
 
 const char* getFullWinVersion()
 {
-    DWORD dwVersion = 0; 
+    DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0; 
+    DWORD dwMinorVersion = 0;
     dwVersion = GetVersion();
     dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
     dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
@@ -286,21 +286,21 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
     if ( !inconsole )
     {
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
+	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
 	si.wShowWindow = SW_HIDE;
     }
-    
-   //Start the child process. 
-    int res = CreateProcess( NULL,	// No module name (use command line). 
+
+   //Start the child process.
+    int res = CreateProcess( NULL,	// No module name (use command line).
         const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable. 
-        NULL,				// Thread handle not inheritable. 
-        FALSE,				// Set handle inheritance to FALSE. 
-        0,				// Creation flags. 
-        NULL,				// Use parent's environment block. 
-        const_cast<char*>( runin ), 	// Use parent's starting directory if runin is NULL. 
+        NULL,				// Process handle not inheritable.
+        NULL,				// Thread handle not inheritable.
+        FALSE,				// Set handle inheritance to FALSE.
+        0,				// Creation flags.
+        NULL,				// Use parent's environment block.
+        const_cast<char*>( runin ),	// Use parent's starting directory if runin is NULL.
         &si, &pi );
-	
+
     if ( res )
     {
 	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );

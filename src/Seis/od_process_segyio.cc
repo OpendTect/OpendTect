@@ -23,9 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 bool BatchProgram::go( od_ostream& strm )
-{ 
+{
     OD::ModDeps().ensureLoaded("Seis");
-    
+
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isps = task == SEGY::IO::sKeyIndexPS();
     const bool isvol = task == SEGY::IO::sKeyIndex3DVol();
@@ -59,11 +59,11 @@ bool BatchProgram::go( od_ostream& strm )
 		relpath += "/";
 		relpath += fp.fileName();
 #ifdef __win__
-		replaceCharacter( relpath.buf(), '/', '\\' );  
+		relpath.replace( '/', '\\' );
 #endif
 		if ( relpath != filespec.fname_ )
 		{
-		    replaceCharacter( relpath.buf(), '\\', '/' );  
+		    relpath.replace( '\\', '/' );
 		    filespec.fname_ = relpath;
 		}
 		pars().set( sKey::FileName(), filespec.fname_ );

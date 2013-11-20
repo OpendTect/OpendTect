@@ -4,7 +4,7 @@
  * DATE     : 14-9-1998
  * FUNCTION : Batch Program 'driver'
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
@@ -74,42 +74,42 @@ BatchProgram::BatchProgram()
 void BatchProgram::init()
 {
     delete clparser_;
-    
+
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyMasterHost() );
     clparser_->setKeyHasValue( sKeyMasterPort() );
     clparser_->setKeyHasValue( sKeyJobID() );
     clparser_->setKeyHasValue( sKeyDataDir() );
-    
+
     inbg_ = clparser_->hasKey( sKeyBG() );
 
     BufferString masterhost;
     clparser_->getVal( sKeyMasterHost(), masterhost );
-    
+
     int masterport = -1;
     clparser_->getVal( sKeyMasterPort(), masterport );
-    
+
     clparser_->getVal( sKeyJobID(), jobid_ );
-    
+
     if ( masterhost.size() && masterport > 0 )  // both must be set.
 	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
-    
+
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );
-    
+
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
     {
 	const FilePath parfp( normalargs.get(idx) );
-	
+
 	parfilnm = parfp.fullPath();
-	replaceCharacter(parfilnm.buf(),'%',' ');
+	parfilnm.replace( '%', ' ' );
 	if ( File::exists( parfilnm ) )
 	    break;
-	
+
 	parfilnm.setEmpty();
     }
-    
+
     if ( parfilnm.isEmpty() )
     {
 	BufferString msg( clparser_->getExecutableName() );
@@ -128,7 +128,7 @@ void BatchProgram::init()
 	odstrm.addErrMsgTo( msg );
 	errorMsg( msg ); return;
     }
- 
+
     ascistream aistrm( odstrm, true );
     if ( aistrm.fileType()!=sKey::Pars() )
     {
@@ -153,15 +153,15 @@ void BatchProgram::init()
     BufferString res = iopar_->find( sKey::LogFile() ).str();
     if ( !res )
 	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
-    
+
     res = iopar_->find( sKey::DataRoot() ).str();
     if ( !res.isEmpty() && File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() && 
+    if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() &&
 	 File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
-	
+
     res = iopar_->find( sKey::Survey() ).str();
     if ( res.isEmpty() )
 	IOMan::newSurvey();
@@ -197,7 +197,7 @@ BatchProgram::~BatchProgram()
 
 	JobCommunic::State s = comm_->state();
 
-	bool isSet =  s == JobCommunic::AllDone 
+	bool isSet =  s == JobCommunic::AllDone
 	           || s == JobCommunic::JobError
 		   || s == JobCommunic::HostError;
 
@@ -205,7 +205,7 @@ BatchProgram::~BatchProgram()
 	    comm_->setState( stillok_ ? JobCommunic::AllDone
 				    : JobCommunic::HostError );
 
-       	bool ok = comm_->sendState( true );
+	bool ok = comm_->sendState( true );
 
 	if ( ok )	infoMsg( "Successfully wrote final status" );
 	else		infoMsg( "Could not write final status" );
@@ -301,7 +301,7 @@ bool BatchProgram::initOutput()
 
     BufferString res = pars().find( sKey::LogFile() ).str();
     if ( res == "stdout" ) res.setEmpty();
- 
+
     bool hasviewprogress = true;
 #ifdef __cygwin__
     hasviewprogress = false;
@@ -346,7 +346,7 @@ bool BatchProgram::initOutput()
 
 IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 					const IOObjContext& ctxt,
-       					bool msgiffail ) const
+					bool msgiffail ) const
 {
     BufferString errmsg;
     IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );

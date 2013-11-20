@@ -39,12 +39,12 @@ public:
     static void		initStandardCommands();
     static BufferString	factoryKey(const char* name);
 
-    			Command(CmdDriver& cmddrv)
+			Command(CmdDriver& cmddrv)
 			    : drv_(cmddrv)
-    			{}
+			{}
     virtual		~Command()			{}
 
-    virtual const char* name() const			= 0; 			
+    virtual const char* name() const			= 0;
     virtual bool	act(const char* parstr)		= 0;
 
     virtual bool	isOpenQDlgCommand() const	{ return true; }
@@ -110,7 +110,7 @@ protected:
     ExprInterpreter&	exprInterpreter();
 
     void		end();
-    void		jump(int extralines=0);                    
+    void		jump(int extralines=0);
     int			lastActionIdxMove() const;
 
     int			curActionIdx() const;
@@ -123,7 +123,7 @@ protected:
 mExpClass(mod) cmdkey##Cmd : public parentclass \
 { \
 public: \
-    			cmdkey##Cmd(CmdDriver& cmddrv) \
+			cmdkey##Cmd(CmdDriver& cmddrv) \
 			    : parentclass(cmddrv) \
 			{} \
 \
@@ -175,7 +175,7 @@ mEndDeclCmdClass
     uiMainWin::activateInGUIThread( mCB(activator,Activator,actCB), busywait )
     function. Its actCB(cber) function contains the code that must be executed
     in the GUI thread to prevent Qt from crashing.
-   
+
     Apart from pointers or references to ui-objects, the Activator subclasses
     should be careful declaring pointer or reference data members. Copying is
     preferable, since their initialization by local variables will be unsafe
@@ -195,7 +195,7 @@ mExpClass(uiCmdDriver) CloseActivator: public Activator
 public:
 			CloseActivator(const uiMainWin& uimw)
 			    : actmainwin_( const_cast<uiMainWin&>(uimw) )
-			{} 
+			{}
     void		actCB(CallBacker* cb)
 			{ actmainwin_.close(); }
 protected:
@@ -208,7 +208,7 @@ mExpClass(uiCmdDriver) CloseQDlgActivator: public Activator
 public:
 			CloseQDlgActivator(int retval)
 			    : actretval_( retval )
-			{} 
+			{}
     void		actCB(CallBacker* cb)
 			{ uiMainWin::closeActiveModalQDlg(actretval_); }
 protected:
@@ -222,7 +222,7 @@ protected:
 mExpClass(uiCmdDriver) MenuTracer
 {
 public:
-    			MenuTracer(const uiActionContainer& mnu,
+			MenuTracer(const uiActionContainer& mnu,
 				   CmdDriver& cmddrv)
 			    : startmenu_(mnu), drv_(cmddrv)
 			{}
@@ -235,7 +235,7 @@ public:
 protected:
 
     CmdDriver&			drv_;
-    const uiActionContainer& 	startmenu_;
+    const uiActionContainer&	startmenu_;
 
     int			nrItems(const FileMultiString& menupath) const;
     bool		greyOutsSkipped() const;
@@ -266,7 +266,7 @@ protected:
 	mParseErrStrm << "Non-zero integer required to disambiguate " \
 		      << argnm << ": \"" << str << "\"" << std::endl; \
 	return retfld; \
-    } 
+    }
 
 #define mParDisambiguator( argnm, str, selnr ) \
     mParDisambiguatorRet( argnm, str, selnr, false )
@@ -283,7 +283,7 @@ protected:
 			<< std::endl; \
 \
 	BufferString dispstr = str; \
-	replaceString( dispstr.buf(), "\a", "*" ); \
+	dispstr.replace( "\a", "*" ); \
 	mWinErrStrm << "Found " << nrfound \
 		    << (greyOutsSkipped() ? " enabled " : " ") << objnm \
 		    << "(s) defined by " << strnm << ": \"" << dispstr \
@@ -346,7 +346,7 @@ protected:
 
 #define mParOptPathStrInit( objnm, parstr, parnext, path, optional ) \
     mParDQuoted( objnm " path", parstr, parnext, path##str, false, optional ); \
-    mGetEscConvertedFMS( path, path##str, false ); 
+    mGetEscConvertedFMS( path, path##str, false );
 
 #define mParPathStrInit( objnm, parstr, parnext, path ) \
     mParOptPathStrInit( objnm, parstr, parnext, path, false )
@@ -368,7 +368,7 @@ protected:
     } \
     else \
 	mKeepSelection( windowlist, selnr );
-    
+
 // no selection at all: itemnr = mUdf(int)
 // No selection number: itemnr = 0
 // No item name: itemstr = "\a"
@@ -536,7 +536,7 @@ protected:
     { \
 	mParseWarnStrm << "Double or Right mouse-click has no (lasting) " \
 		       << "effect on check-box" << std::endl; \
-    }	
+    }
 
 
 #define mParExpr( isarg, identnm, parstr, parnext, valstr, prescan ) \
@@ -755,7 +755,7 @@ protected:
 }
 
 #define mFindObjs2Base( objsfound, objcls1, objcls2, keys, warn ) \
-    mFindObjs3Base( objsfound, objcls1, objcls1, objcls2, keys, warn ) 
+    mFindObjs3Base( objsfound, objcls1, objcls1, objcls2, keys, warn )
 
 #define mFindObjsBase( objsfound, objclass, keys ) \
     mFindObjs2Base( objsfound, objclass, objclass, keys, true )

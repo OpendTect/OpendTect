@@ -57,7 +57,7 @@ public:
 	{ BufferString ret("E "); ret += idx(); return QString(ret.buf()); }
     };
 
-    		mQSqlQuery(const mQSqlDatabase&)	{}
+		mQSqlQuery(const mQSqlDatabase&)	{}
     void	setHostName(const char*)		{}
     bool	exec(const char*)			{ return false; }
     bool	next() const				{ return false; }
@@ -207,8 +207,8 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	else
 	{
 	    str.setBufSize( 2*str.size()+2 );
-	    replaceString( str.buf(), "\\", "\\\\" );
-	    replaceString( str.buf(), "'", "\\'" );
+	    str.replace( "\\", "\\\\" );
+	    str.replace( "'", "\\'" );
 	    querystr.add( "'" ).add ( str ).add( "'" );
 	}
 
@@ -244,7 +244,7 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() ).add( "='" )
-	    	.add( values[idx]->buf() )
+		.add( values[idx]->buf() )
 		.add( idx != nrvals-1 ? "'," : "'" );
     }
 

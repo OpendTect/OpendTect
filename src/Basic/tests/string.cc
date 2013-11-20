@@ -2,7 +2,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
@@ -32,13 +32,13 @@ static const char* rcsID mUsedVar = "$Id$";
 }
 
 
-bool testBytes2String( bool quiet )
+static bool testBytes2String( bool quiet )
 {
     NrBytesToStringCreator b2s;
     b2s.setUnitFrom( 100000, true ); //hundred thoughand
     mRunTest( "kB unit (1)",
 	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
-    
+
     b2s.setUnitFrom( 1000000, true ); //One million
     mRunTest( "kB unit (2)",
 	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
@@ -46,7 +46,7 @@ bool testBytes2String( bool quiet )
     b2s.setUnitFrom( 2000000, true ); //Two millions
     mRunTest( "MB unit",
 	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB) )
-    
+
     b2s.setUnitFrom( 1000000, true ); //One million
     mRunTest( "Maximum flag turned on",
 	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB) )
@@ -54,7 +54,7 @@ bool testBytes2String( bool quiet )
     b2s.setUnitFrom( 1000000, false ); //One million
     mRunTest( "Maximum flag turned off",
 	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
-    
+
     mRunTest( "Conversion test", b2s.getString( 100000 )=="97.66 kB" );
 
     return true;
@@ -84,7 +84,7 @@ bool testBytes2String( bool quiet )
     ( strcmp( valbfstr.buf(),strval) == 0 ) );\
 }
 
-bool testStringPrecisionInAscII( bool quiet )
+static bool testStringPrecisionInAscII( bool quiet )
 {
     mTestStringPrecision( 0, "0", true );
     mTestStringPrecision( 0.1, "0.1", true );
@@ -109,16 +109,37 @@ bool testStringPrecisionInAscII( bool quiet )
 }
 
 
+static bool testBufferStringFns( bool quiet )
+{
+    BufferString bs( "Tok1 Tok1 Tok2 Tok3 Tok4" );
+    bs.replace( '4', '5' );
+    bs.replace( "Tok1", 0 );
+    bs.replace( "Tok2", " " );
+    bs.replace( "Tok3", "X" );
+    mRunTest("BufferString replace",bs == "    X Tok5");
+    bs.trimBlanks();
+    mRunTest("BufferString trimBlanks 1",bs == "X Tok5");
+    bs = "\nXX\tYY Z\t";
+    bs.trimBlanks();
+    mRunTest("BufferString trimBlanks 2",bs == "XX\tYY Z");
+    mRunTest("BufferString count",bs.count('Y')==2);
+    return true;
+}
+
+
 int main( int narg, char** argv )
 {
     od_init_test_program( narg, argv );
-    
+
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
 
     if ( !testBytes2String(quiet) )
 	ExitProgram( 1 );
 
     if ( !testStringPrecisionInAscII(quiet) )
+	ExitProgram( 1 );
+
+    if ( !testBufferStringFns(quiet) )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

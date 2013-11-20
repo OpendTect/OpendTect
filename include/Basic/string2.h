@@ -64,19 +64,11 @@ mGlobal(Basic) bool stringEndsWith(const char* endstring,
 				   const char* maybebigger);
 mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 
-/*!> counts occurrences of a char in string */
-mGlobal(Basic) int countCharacter(const char*,char);
-/*!> replaces all occurrences of a char with another */
-mGlobal(Basic) void replaceCharacter(char*,char from,char to);
-/*!> replaces all occurrences of a string with another */
-mGlobal(Basic) void replaceString(char*,const char* from,const char* to);
 /*!> removes all occurrences of a char */
 mGlobal(Basic) void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: allow whitespace, allow slashes, allow dots */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
-/*!> Removes initial and trailing spaces and tabs*/
-mGlobal(Basic) void removeStartAndEndSpaces(char*);
 /*!> tells whether a string holds a parseable number */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 /*!> tells whether has printable characters only. */
@@ -99,9 +91,9 @@ mGlobal(Basic) const char* getStringFromUInt64(od_uint64,char* retbuf);
 mGlobal(Basic) const char* getStringFromDouble(const char* fmt,double,
 					       char* retbuf);
 
-/*>Prints a double with the requested nr of digits. 
+/*>Prints a double with the requested nr of digits.
     Use the returned string result immediately.*/
-mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0, 
+mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0,
 					       int nrdigits=15);
 
 /*!> is like getStringFromDouble, with special %f treatment. */
@@ -145,7 +137,7 @@ mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=0);
 
-// toString functions. 
+// toString functions.
 mGlobal(Basic) const char* toString( od_int32 i );
 mGlobal(Basic) const char* toString( od_uint32 i );
 mGlobal(Basic) const char* toString( od_int64 i );
@@ -167,22 +159,22 @@ mExpClass(Basic) NrBytesToStringCreator
 public:
 			NrBytesToStringCreator();
     enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5 };
-    
+
     void		setUnitFrom(od_uint64 number,bool maximum=true);
 			/*!<Sets the unit (B, KB, MB, GB, TB) based on the
 			 number.
 			 \param maximum will only change unit if a larger
 			 unit is needed.
 			 */
-    
+
     FixedString		getString(od_uint64 number,int nrdecimals=2,
 				  bool withunit=true) const;
 			/*!<Use string before doing anything else, as it will be
 			    overwritten at next call from same thread. */
-    
+
     FixedString		getUnitString() const;
     static FixedString	toString(Unit);
-    
+
 protected:
     Unit		unit_;
 };

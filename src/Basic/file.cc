@@ -48,7 +48,7 @@ namespace File
 class RecursiveCopier : public Executor
 {
 public:
-    			RecursiveCopier(const char* from,const char* to)
+			RecursiveCopier(const char* from,const char* to)
 			    : Executor("Copying Directory")
 			    , src_(from),dest_(to),fileidx_(0)
 			    , msg_("Copying files")
@@ -109,7 +109,7 @@ int RecursiveCopier::nextStep()
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
 	    mErrRet("Cannot overwrite ",dest_)
-		
+
 	if ( !File::createDir(dest_) )
 	    mErrRet("Cannot create directory ",dest_)
     }
@@ -145,7 +145,7 @@ od_int64 getFileSize( const char* fnm, bool followlink )
     {
         od_int64 filesize = 0;
 #ifdef __win__
-        HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
+        HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
                                    FILE_ATTRIBUTE_NORMAL, NULL );
         filesize = GetFileSize( file, NULL );
         CloseHandle( file );
@@ -160,7 +160,7 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.size();
-#else 
+#else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
     if (status != 0)
@@ -193,7 +193,7 @@ bool isFile( const char* fnm )
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isFile();
-#else 
+#else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
     if (status != 0)
@@ -359,7 +359,7 @@ bool rename( const char* oldname, const char* newname )
 
 
 bool createLink( const char* fnm, const char* linknm )
-{ 
+{
 #ifndef OD_NO_QT
 #ifdef __win__
     BufferString winlinknm( linknm );
@@ -382,7 +382,7 @@ bool saveCopy( const char* from, const char* to )
     if ( isDirectory(from) ) return false;
     if ( !exists(to) )
 	return File::copy( from, to );
-    
+
     const BufferString tmpfnm( to, ".tmp" );
     if ( !File::rename(to,tmpfnm) )
 	return false;
@@ -439,7 +439,7 @@ bool copyDir( const char* from, const char* to )
 
 
 bool remove( const char* fnm )
-{ 
+{
 #ifndef OD_NO_QT
     return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
 #else
@@ -663,7 +663,7 @@ const char* getTempPath()
 #ifndef OD_NO_QT
     ret = QDir::tempPath().toAscii().constData();
 # ifdef __win__
-    replaceCharacter( ret.buf(), '/', '\\' );
+    ret.replace( '/', '\\' );
 # endif
 #else
     pFreeFnErrMsg(not_implemented_str,"getTmpPath");

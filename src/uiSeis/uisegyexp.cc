@@ -58,7 +58,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
 {
     const CallBack cb( mCB(this,uiSEGYExpTxtHeaderDlg,agSel) );
     autogenfld_ = new uiGenInput( this, "Automatically generate",
-	    			  BoolInpSpec(false) );
+				  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
     uiToolButton* wtb = new uiToolButton( this, "saveset", "Write to file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
@@ -168,16 +168,16 @@ BufferString getSummary() const
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y","103.0.7"))
 	, Usage::Client("SEG-Y")
-    	, geom_(gt)
-    	, morebox_(0)
-    	, manipbox_(0)
-    	, autogentxthead_(true)
+	, geom_(gt)
+	, morebox_(0)
+	, manipbox_(0)
+	, autogentxthead_(true)
 	, selcomp_(-1)
 {
     prepUsgStart( "Export" ); sendUsgInfo();
     setCtrlStyle( DoAndStay );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
-    
+
     PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
     seissel_ = new uiSeisSel( this, ctio->ctxt, sssu );
@@ -235,7 +235,7 @@ public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
-		    		     "Specify file details","103.0.2"))
+				     "Specify file details","103.0.2"))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
@@ -245,7 +245,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     FilePath fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
-    BufferString setupnm( "Exp " ); 
+    BufferString setupnm( "Exp " );
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiLabel* lbl = 0;
@@ -357,7 +357,7 @@ bool doExp( const FilePath& fp )
     {
 	const BufferString& lnm = *lnms[idx];
 	BufferString filenm( fp.fullPath() );
-	replaceString( filenm.buf(), uiSEGYFileSpec::sKeyLineNmToken(), lnm );
+	filenm.replace( uiSEGYFileSpec::sKeyLineNmToken(), lnm );
 	IOObj* newioobj = getSubstIOObj( filenm );
 	if ( !doWork( newioobj, lnm, idx > lnms.size()-2, nofails ) )
 	    return false;
