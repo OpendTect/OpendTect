@@ -77,15 +77,13 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
   
-    if ( outfnm )
-	return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_, tr );
-    else
+    if ( !outfnm )
     {
 	databuf_ = new DataBuffer( 0, 1, true );
 	return Network::downloadToBuffer(fullURL(relfnm),databuf_,errmsg_,tr);
     }
 
-    return true;
+    return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_, tr );
 }
 
 
