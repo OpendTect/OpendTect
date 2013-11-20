@@ -594,6 +594,9 @@ void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 				   TypeSet<BufferStringSet>* linenames )
 {
     mGoToSeisDir();
+    if ( !IOM().dirPtr() )
+	return;
+
     ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
