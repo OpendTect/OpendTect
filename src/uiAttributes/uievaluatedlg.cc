@@ -53,7 +53,9 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 {
     if ( evaloutput_ )
     {
-	const float val = ade.getOutputValue( ade.curDesc()->selectedOutput() );
+	const Attrib::Desc* desc = ade.curDesc();
+	const float val = desc ? ade.getOutputValue( desc->selectedOutput() ) 
+			       : 0;
 	initfld = new uiGenInput( this, sKeyInit, FloatInpSpec(val) );
 	setHAlignObj( initfld );
 	return;
