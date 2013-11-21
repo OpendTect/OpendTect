@@ -62,19 +62,33 @@ mGlobal(Basic) bool matchStringCI(const char*,const char*);
 mGlobal(Basic) bool stringEndsWith(const char* endstring,const char* maybebigger);
 mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 
-/*!> counts occurrences of a char in string */
+//DEPRECATED - In 5.0, will be available as BufferString functions only
+/*!> counts occurrences of a char in string
+  (5.0: BufferString::count(char)) */
 mGlobal(Basic) int countCharacter(const char*,char);
-/*!> replaces all occurrences of a char with another */
+/*!> replaces all occurrences of a char with another
+  (5.0: BufferString::replace(char,char)) */
 mGlobal(Basic) void replaceCharacter(char*,char from,char to);
-/*!> replaces all occurrences of a string with another */
+/*!> replaces all occurrences of a string with another
+  (5.0: BufferString::replace(const char*,const char*)) */
 mGlobal(Basic) void replaceString(char*,const char* from,const char* to);
-/*!> removes all occurrences of a char */
+/*!> removes all occurrences of a char
+  (5.0: BufferString::remove(char)) */
 mGlobal(Basic) void removeCharacter(char*,char);
+/*!> Removes initial and trailing spaces and tabs
+  (5.0: BufferString::trimBlanks()) */
+mGlobal(Basic) void removeStartAndEndSpaces(char*);
+/*!> Quotes a string.
+  (5.0: BufferString::quote(char)) */
+mGlobal(Basic) const char* quoteString(const char* str, char qt='"' );
+/*!> Back-quotes a string.
+  (5.0: BufferString::quote('`')) */
+mGlobal(Basic) inline const char* backQuoteString(const char* str, char qt='"' )
+{ return quoteString( str, '`' ); }
+
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: allow whitespace, allow slashes, allow dots */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
-/*!> Removes initial and trailing spaces and tabs*/
-mGlobal(Basic) void removeStartAndEndSpaces(char*);
 /*!> tells whether a string holds a parseable number */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 /*!> tells whether has printable characters only. */
@@ -97,9 +111,9 @@ mGlobal(Basic) const char* getStringFromUInt64(od_uint64,char* retbuf);
 mGlobal(Basic) const char* getStringFromDouble(const char* fmt,double,
 					       char* retbuf);
 
-/*>Prints a double with the requested nr of digits. 
+/*>Prints a double with the requested nr of digits.
     Use the returned string result immediately.*/
-mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0, 
+mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0,
 					       int nrdigits=15);
 
 /*!> is like getStringFromDouble, with special %f treatment. */
@@ -128,10 +142,6 @@ mGlobal(Basic) const char* getBytesString(od_uint64);
 mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
 					    bool trimright);
 
-mGlobal(Basic) const char* quoteString(const char* str, char qt='"' );
-mGlobal(Basic) inline const char* backQuoteString(const char* str, char qt='"' )
-{ return quoteString( str, '`' ); }
-
 /*!> Finds a string in string array, case insensitive */
 mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 				  int startnr=0,int nr_chars_to_match=0,
@@ -141,7 +151,7 @@ mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
     area size, unit is ft^2, m^2, km^2 or mile^2. */
 mGlobal(Basic) const char* getAreaString( float m2, bool parensonunit, char* str=0 );
 
-// toString functions. 
+// toString functions.
 mGlobal(Basic) const char* toString( od_int32 i );
 mGlobal(Basic) const char* toString( od_uint32 i );
 mGlobal(Basic) const char* toString( od_int64 i );
@@ -156,29 +166,29 @@ mGlobal(Basic) const char* toString( signed char c );
 mGlobal(Basic) const char* toString( bool b );
 
 /*!Converts integer with number of bytes to a string with KB, GB or similar
-   unit. */
+   unit. (5.0: gets its own header file nrbytes2string.h) */
 
 mExpClass(Basic) NrBytesToStringCreator
 {
 public:
 			NrBytesToStringCreator();
     enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5 };
-    
+
     void		setUnitFrom(od_uint64 number,bool maximum=true);
 			/*!<Sets the unit (B, KB, MB, GB, TB) based on the
 			 number.
 			 \param maximum will only change unit if a larger
 			 unit is needed.
 			 */
-    
+
     FixedString		getString(od_uint64 number,int nrdecimals=2,
 				  bool withunit=true) const;
 			/*!<Use string before doing anything else, as it will be
 			    overwritten at next call from same thread. */
-    
+
     FixedString		getUnitString() const;
     static FixedString	toString(Unit);
-    
+
 protected:
     Unit		unit_;
 };
