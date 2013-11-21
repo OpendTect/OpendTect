@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uibutton.h"
+#include "uimsg.h"
 
 #include "zdomain.h"
 #include "ctxtioobj.h"
@@ -262,7 +263,32 @@ const char* uiSeisSelDlg::getDataType()
 void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
-    if ( attrfld_ ) iopar.set( sKey::Attribute(), attrfld_->text() );
+    const IOObj* ioobj = ioObj();
+    if ( !ioobj )
+	return;
+
+    SeisIOObjInfo oinf( *ioobj );
+    const bool is2d = oinf.is2D();
+
+    if ( is2d && attrfld_ )
+    {
+	BufferString attrnm( attrfld_->text() );
+	const int nroccuer = attrnm.count( '|' );
+	attrnm.replace( '|', '_' );
+	if( nroccuer )
+	{
+	    BufferString msg( "Invalid charactor  '|' " );
+	    msg.add( " found in attribute name. " )
+	       .add( "It will be renamed to: '" )
+	       .add( attrnm.buf() ).add("'." )
+	       .add( "\nDo you want to continue?" );
+	    if( !uiMSG().askGoOn( msg.buf() ) )
+		return;
+	}
+
+	iopar.set( sKey::Attribute(), attrnm );
+    }
+
     if ( compfld_ )
     {
 	BufferStringSet compnms;

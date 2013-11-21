@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrsel.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uimultoutsel.h"
@@ -162,7 +163,12 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 }
 
 
-#define mSetObjFld(s) { objfld_->setInputText( s ); objfld_->processInput(); }
+#define mSetObjFld(s) \
+{ \
+    objfld_->setInputText( s ); \
+    objfld_->processInput(); \
+    if( is2d ) objfld_->inpBox()->setReadOnly( true ); \
+}
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
@@ -247,6 +253,19 @@ bool uiAttrVolOut::prepareProcessing()
 	{
 	    const char* outputnm = objfld_->getInput();
 	    BufferString attrnm = LineKey( outputnm ).attrName();
+	    const int nroccuer = attrnm.count( '|' );
+	    attrnm.replace( '|', '_' );
+	    if( nroccuer )
+	    {
+		BufferString msg( "Invalid charactor  '|' " );
+		msg.add( " found in attribute name. " )
+		   .add( "It will be renamed to: '" )
+		   .add( attrnm.buf() ).add("'." )
+		   .add( "\nDo you want to continue?" );
+		if( !uiMSG().askGoOn( msg.buf() ) )
+		    return false;
+	    }
+
 	    if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
 	    {
 		const bool res = uiMSG().askGoOn(
