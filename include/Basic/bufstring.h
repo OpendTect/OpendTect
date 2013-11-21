@@ -112,7 +112,9 @@ public:
     BufferString&	replaceAt(int idx, const char*,bool cutoff=true);
 				//< If idx >= size(), pads spaces
     BufferString&	embed(char open,char close);
-    inline BufferString& quote( char q='"' )		{ return embed(q,q); }
+    BufferString&	unEmbed(char open,char close);
+    inline BufferString& quote( char q='\'' )		{ return embed(q,q); }
+    inline BufferString& unQuote( char q='\'' )		{ return unEmbed(q,q); }
 
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;

@@ -33,11 +33,11 @@ class BufferStringSet;
 mExpClass(Basic) SeparString
 {
 public:
-			SeparString( const SeparString& ss )
-			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
 
 			SeparString( const char* escapedstr=0, char separ=',' )
 			{ initSep( separ ); initRep( escapedstr ); } 
+			SeparString( const SeparString& ss )
+			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
 
     SeparString&	operator=(const SeparString&);
     SeparString&	operator=(const char* escapedstr);
@@ -63,11 +63,11 @@ public:
     SeparString&	add(const SeparString&);	//!< Concatenation
     SeparString&	add(const char* unescapedstr);		
     template <class T>
-    SeparString&	add( T t )
+    inline SeparString&	add( T t )
 			{ return add( toString(t) ); }
 
     template <class T>
-    SeparString&	operator +=( T t )	{ return add( t ); }
+    inline SeparString&	operator +=( T t )	{ return add( t ); }
 
     inline		operator const char*() const
 						{ return buf(); }
@@ -86,6 +86,7 @@ public:
 			     and escaped separ-chars will get lost. */
 
     inline char		sepChar() const		{ return *sep_; }
+    inline const char*	sepStr() const		{ return sep_; }
     void		setSepChar(char);
 
 private:
@@ -105,9 +106,6 @@ private:
     const char*		findSeparator(const char*) const;
 };
 
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const SeparString&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
-
 
 /*!
 \brief SeparString with backquotes as separators, use in most ascii files.
@@ -119,24 +117,22 @@ public:
 
 			FileMultiString(const char* escapedstr=0)
 			    : SeparString(escapedstr, separator() )	{} 
-    template <class T>	FileMultiString( T t )
-			    : SeparString(t, separator() )		{}
+    template <class T>	FileMultiString( const T& t )
+			    : SeparString(t,separator())		{}
 
     static char		separator() { return '`'; }
-    static const char*  separatorStr();
 
     // The function template overloading add(const SeparString&) in the base
     // class needs an exact match! Passing a derived object would make the
     // template function convert it to (const char*).
-    FileMultiString&	add(const FileMultiString& fms)
+    inline FileMultiString& add( const FileMultiString& fms )
 			{ return add( (SeparString&)fms ); }
-    template <class T>
+    template <class T> inline
+    FileMultiString&	operator +=( T t )		{ return add( t ); }
+    template <class T> inline
     FileMultiString&	add( T t )
 			{ SeparString::add( t ); return *this; }
-    template <class T>
-    FileMultiString&	operator +=( T t )		{ return add( t ); }
 
 };
 
 #endif
-

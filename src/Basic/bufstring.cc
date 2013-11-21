@@ -383,6 +383,37 @@ BufferString& BufferString::embed( char s, char e )
 }
 
 
+BufferString& BufferString::unEmbed( char s, char e )
+{
+    if ( isEmpty() )
+	return *this;
+
+    char* bufptr = buf();
+    char* startptr = bufptr;
+    if ( *startptr == s )
+	startptr++;
+
+    char* endptr = startptr;
+    if ( !*endptr )
+	setEmpty();
+    else
+    {
+	while ( *endptr ) endptr++;
+	endptr--;
+	if ( *endptr == e )
+	    *endptr = '\0';
+
+	if ( startptr != bufptr )
+	{
+	    BufferString tmp( startptr );
+	    *this = tmp;
+	}
+    }
+
+    return *this;
+}
+
+
 bool BufferString::operator >( const char* s ) const
 { return s && buf_ ? strcmp(buf_,s) > 0 : (bool) buf_; }
 

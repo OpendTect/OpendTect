@@ -272,18 +272,3 @@ void SeparString::setSepChar( char newchar )
 	ss.add( (*this)[idx] );
     *this = ss;
 }
-
-
-std::ostream& operator <<( std::ostream& s, const SeparString& ss )
-{ s << ss.rep(); return s; }
-
-std::istream& operator >>( std::istream& s, SeparString& ss )
-{ s >> ss.rep(); return s; }
-
-
-#define mComma ,
-const char* FileMultiString::separatorStr()
-{
-    mDefineStaticLocalObject( const char, str, [] = { separator() mComma 0 } );
-    return str;
-}

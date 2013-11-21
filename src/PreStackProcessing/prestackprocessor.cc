@@ -384,17 +384,15 @@ bool ProcessManager::usePar( const IOPar& par )
 	Processor* proc = Processor::factory().create( name.buf() );
 	if ( !proc || proc->errMsg() || !proc->usePar( *steppar ) )
 	{
-	    errmsg_ = "Could not parse processing step ";
-	    errmsg_ += name.buf();
-	    errmsg_ += ".";
-	    if ( proc && proc->errMsg() )
-	    {
-		errmsg_ += FileMultiString::separatorStr();
-		errmsg_ += proc->errMsg();
-	    }
+	    const BufferString msg( "Could not parse processing step ",
+		    		    name, "." );
+	    if ( !proc || !proc->errMsg() )
+		errmsg_.set( msg ).add( "\nAre all plugins loaded?" );
 	    else
 	    {
-		errmsg_ += " Perhaps all plugins are not loaded?";
+		FileMultiString fms( msg );
+		fms += proc->errMsg();
+		errmsg_ = fms;
 	    }
 
 	    delete proc;
