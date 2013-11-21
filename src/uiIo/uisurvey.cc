@@ -647,6 +647,10 @@ bool uiSurvey::acceptOK( CallBacker* )
 	    cursurvinfo_ = 0; // it's not ours anymore
 	else
 	{
+	    const SurveyInfo* si = &SI();
+	    if ( cursurvinfo_ == si )
+		cursurvinfo_ = 0;
+
 	    const bool isblocked = IOM().message().isEmpty();
 	    if ( !isblocked )
 		uiMSG().error( IOM().message() );
