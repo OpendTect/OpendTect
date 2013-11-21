@@ -412,7 +412,11 @@ inline double BaseCalc<T>::normvariance() const
     double fact = 0.1;
     double avg = average();
     double var = variance();
-    return var / (avg*avg + fact*var);
+    const double divisor = avg*avg + fact*var;
+    if ( mIsZero(divisor,mDefEps) )
+	return 0;
+
+    return var / divisor;
 }
 
 
