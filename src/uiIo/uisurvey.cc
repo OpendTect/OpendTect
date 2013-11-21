@@ -981,7 +981,9 @@ void uiSurvey::readSurvInfoFromFile()
 	    uiMSG().warning(
 		    BufferString("Cannot read survey setup file: ",fname) );
     }
-    setCurrentSurvInfo( newsi );
+
+    if ( newsi )
+	setCurrentSurvInfo( newsi );
 }
 
 
