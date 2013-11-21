@@ -62,7 +62,7 @@ void uiGraphicsSceneAxis::setPosition(bool isx,bool istoporleft,bool isinside)
 }
 
 
-void uiGraphicsSceneAxis::drawMask( bool yn )
+void uiGraphicsSceneAxis::enableMask( bool yn )
 {
     if ( yn==(bool) mask_ )
 	return;
@@ -369,15 +369,16 @@ void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
 }
 
 
-void uiGraphicsSceneAxisMgr::annotInside( bool yn )
+void uiGraphicsSceneAxisMgr::setAnnotInside( bool yn )
 {
-    // TODO: Implement!
+    xaxis_->setAnnotInside( yn );
+    yaxis_->setAnnotInside( yn );
 }
 
 
-void uiGraphicsSceneAxisMgr::drawAxisLine( bool yn )
+void uiGraphicsSceneAxisMgr::enableAxisLine( bool yn )
 {
-    xaxis_->drawAxisLine( yn ); 
-    yaxis_->drawAxisLine( yn ); 
+    xaxis_->enableAxisLine( yn ); 
+    yaxis_->enableAxisLine( yn ); 
 }
 

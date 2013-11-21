@@ -66,8 +66,8 @@ void FlatView::AxesDrawer::update()
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     enableXAxis( annot.x1_.showannot_ );
     enableYAxis( annot.x2_.showannot_ );
-    xaxis_->drawGridLines( annot.x1_.showgridlines_ );
-    yaxis_->drawGridLines( annot.x2_.showgridlines_ );
+    xaxis_->enableGridLines( annot.x1_.showgridlines_ );
+    yaxis_->enableGridLines( annot.x2_.showgridlines_ );
 }
 
 
