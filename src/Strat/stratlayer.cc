@@ -117,7 +117,7 @@ int Strat::LayerSequence::layerIdxAtZ( float zreq ) const
 {
     const int nrlays = layers_.size();
     if ( nrlays == 0 || zreq < layers_[0]->zTop()
-	    	     || zreq > layers_[nrlays-1]->zBot() )
+		     || zreq > layers_[nrlays-1]->zBot() )
 	return -1;
 
     for ( int ilay=0; ilay<nrlays; ilay++ )
@@ -160,7 +160,7 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
     while ( it.next() )
     {
 	const Strat::LeavedUnitRef* un
-	    	= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
+		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( un->levelID() == lvl.id() )
 	    { lvlunit = un; break; }
     }
@@ -195,7 +195,7 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
 	// gather all units below level into unlist
     {
 	const Strat::LeavedUnitRef* un
-	    	= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
+		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( foundlvl || un->levelID() == lvl.id() )
 	    { foundlvl = true; unlist += un; }
     }
@@ -252,8 +252,8 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
     if ( sz < 1 ) return;
     if ( depthrg.isUdf() ) return;
 
-    Interval<int> laysidx( layerIdxAtZ( depthrg.start ), 
-	    		   layerIdxAtZ( depthrg.stop ) );
+    Interval<int> laysidx( layerIdxAtZ( depthrg.start ),
+			   layerIdxAtZ( depthrg.stop ) );
 
     if ( laysidx.isUdf() ) return;
     if ( laysidx.start == -1 )
@@ -400,7 +400,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	{
 	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
 	    newlay->setValue( iprop,
-		    	idxof < 0 ? mUdf(float) : inplay.value(idxof) );
+			idxof < 0 ? mUdf(float) : inplay.value(idxof) );
 	}
 	newls->layers() += newlay;
     }
@@ -516,12 +516,12 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr ) const
 	    strm << "#L" << ilay << od_tab;
 	    const Layer& lay = *seq.layers()[ilay];
 	    if ( lay.content().isUnspecified() )
-		strm << lay.name();
+		strm << '\'' << lay.name() << '\'';
 	    else
 	    {
 		FileMultiString fms( lay.name() );
 		fms += lay.content().name();
-		strm << fms;
+		strm << '\'' << fms << '\'';
 	    }
 	    strm << od_tab << toString(lay.thickness());
 	    for ( int iprop=1; iprop<nrprops; iprop++ )

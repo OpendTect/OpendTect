@@ -495,9 +495,7 @@ od_ostream& od_ostream::add( od_istream& strm )
 
 bool od_istream::getWord( BufferString& bs, bool allownl )
 {
-    return allownl
-	? StrmOper::readWord( stdStream(), &bs )
-	: StrmOper::wordFromLine( stdStream(), bs );
+    return StrmOper::readWord( stdStream(), allownl, &bs );
 }
 
 
@@ -515,7 +513,9 @@ bool od_istream::getAll( BufferString& bs )
 
 char od_istream::peek() const
 {
-    return (char)(const_cast<od_istream*>(this)->stdStream()).peek();
+    char ch;
+    return StrmOper::peekChar( const_cast<od_istream*>(this)->stdStream(), ch )
+			? ch : '\0';
 }
 
 
@@ -537,7 +537,7 @@ bool od_istream::skipUntil( char tofind )
 
 bool od_istream::skipWord()
 {
-    StrmOper::readWord( stdStream() );
+    StrmOper::readWord( stdStream(), true );
     return isOK();
 }
 

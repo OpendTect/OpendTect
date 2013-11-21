@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odplatform.h"
 #include "envvars.h"
-#include "strmoper.h"
+#include "od_istream.h"
 #include "strmprov.h"
 #include "settings.h"
 #include "staticstring.h"
@@ -34,7 +34,7 @@ static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
     char* termchar = 0;
-    termchar = strstr( dirnm.buf(), "\\bin\\win" ); 
+    termchar = strstr( dirnm.buf(), "\\bin\\win" );
     if ( !termchar )
 	termchar = strstr( dirnm.buf(), "\\bin\\Win" );
 
@@ -69,24 +69,20 @@ ODInst::RelType ODInst::getRelType()
 {
     FilePath relinfofp( GetSoftwareDir(true), "relinfo", "README.txt" );
     const BufferString reltxtfnm( relinfofp.fullPath() );
-    if ( !File::exists(reltxtfnm) )
-	return ODInst::Other;
-    StreamData sd( StreamProvider(reltxtfnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( reltxtfnm );
+    if ( !strm.isOK() )
 	return ODInst::Other;
 
-    char appnm[64], relstr[64];
-    appnm[0] = relstr[0] = '\0';
-    StrmOper::wordFromLine(*sd.istrm,appnm,64);
-    StrmOper::wordFromLine(*sd.istrm,relstr,64);
-    sd.close();
-    int relstrlen = strlen( relstr );
-    if ( appnm[0] != '[' || relstrlen < 4 || relstr[0] != '('
-	|| relstr[relstrlen-1] != ']' || relstr[relstrlen-2] != ')' )
+    BufferString appnm, relstr;
+    strm.getWord( appnm, false );
+    strm.getWord( relstr, false );
+    const int relsz = relstr.size();
+    if ( appnm[0] != '[' || relsz < 4 || relstr[0] != '('
+	|| relstr[relsz-1] != ']' || relstr[relsz-2] != ')' )
 	return ODInst::Other;
 
-    relstr[relstrlen-2] = '\0';
-    return ODInst::parseEnumRelType( relstr+1 );
+    relstr[relsz-2] = '\0';
+    return ODInst::parseEnumRelType( relstr.buf()+1 );
 }
 
 
@@ -96,7 +92,7 @@ const char* sAutoInstTypeUserMsgs[] = {
     "[&Auto] Automatically download and install new updates "
 	"(requires sufficient administrator rights)",
     "[&None] Never check for updates", 0 };
- 
+
 
 const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 {
@@ -125,7 +121,7 @@ bool ODInst::canInstall()
     if ( !File::isExecutable(cmd) ) \
         return errretval; \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
-   
+
 
 BufferString ODInst::GetInstallerDir()
 {
@@ -152,10 +148,10 @@ void ODInst::startInstManagement()
     if ( installerdir.isEmpty() )
 	return;
     installerdir.add( "od_instmgr" );
-    BufferString cmd( installerdir.fullPath() ); 
+    BufferString cmd( installerdir.fullPath() );
     BufferString parm( " --instdir "  );
     parm.add( "\"" ).add( mRelRootDir ).add( "\"" );
-    
+
     executeWinProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
@@ -167,7 +163,7 @@ BufferString ODInst::getInstallerPlfDir()
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
     FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
-    const BufferString path = installerdir.fullPath(); 
+    const BufferString path = installerdir.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();
 

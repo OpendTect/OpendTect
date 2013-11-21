@@ -38,6 +38,7 @@ bool StrmOper::resetSoftError( std::istream& strm, int& retrycount )
     return true;
 }
 
+
 bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
 {
     if ( strm.good() ) return true;
@@ -108,141 +109,109 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 }
 
 
-bool StrmOper::getNextChar( std::istream& strm, char& ch )
+bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
     if ( strm.bad() || strm.eof() )
 	return false;
-    else if ( strm.fail() )
+
+    if ( strm.fail() )
     {
 	Threads::sleep( retrydelay );
 	strm.clear();
-	ch = (char) strm.peek();
-	strm.ignore( 1 );
-	return strm.good();
     }
 
     ch = (char)strm.peek();
-    strm.ignore( 1 );
     return strm.good();
 }
 
 
-bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
+bool StrmOper::readChar( std::istream& strm, char& ch, bool allownls )
 {
-    BufferString bs;
-    if ( wordFromLine( strm, bs ) )
-	strncpy( ptr, bs.buf(), maxnrchars );
-
-    *ptr = '\0';
-    return false;
+    if ( !peekChar(strm,ch) )
+	return false;
+    if ( !allownls && ch == '\n' )
+	return false;
+    strm.ignore( 1 );
+    return true;
 }
 
 
-bool StrmOper::wordFromLine( std::istream& strm, BufferString& bs )
+static void addToBS( BufferString& bs, char* bsbuf, int& bsidx, char ch )
 {
-    bs.setEmpty();
-
-    char ch;
-    char* ptr = bs.buf();
-    while ( (char)strm.peek() != '\n' && getNextChar(strm,ch) )
+    bsbuf[bsidx] = ch;
+    bsidx++;
+    if ( bsidx == 1024 )
     {
-	if ( isspace(ch) )
-	{
-	    if ( ptr == bs.buf() )
-		continue; // 'skip leading blanks'
-	    break;
-	}
-
-	*ptr++ = ch;
-	const od_int64 nrchar = ptr - bs.buf();
-	if ( nrchar >= bs.bufSize() )
-	{
-	    bs.setBufSize( (unsigned int)(nrchar + 256) );
-	    ptr = bs.buf() + nrchar;
-	}
+	bsbuf[bsidx] = '\0';
+	bs.add( bsbuf );
+	bsidx = 0;
     }
-
-    *ptr = '\0';
-    return ptr != bs.buf();
 }
 
 
-#define mGetNextChar() \
-    { getres = getNextChar(strm,ch); if ( !getres ) return false; }
 #define mIsQuote() (ch == '\'' || ch == '"')
 
 
-bool StrmOper::readWord( std::istream& strm, BufferString* bs )
+bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
 {
-    if ( bs ) bs->setEmpty();
-    int bsidx = 0; char ch;
-    bool getres = getNextChar(strm,ch);
-    if ( !getres ) return false;
+    if ( bs )
+	bs->setEmpty();
 
+    char ch = ' ';
     while ( isspace(ch) )
-	mGetNextChar();
-
-    char quotetofind = '\0';
-    if ( ch == '\'' || ch == '"' )
     {
-	quotetofind = ch;
-	mGetNextChar()
+	if ( !readChar(strm,ch,allownl) )
+	    return false;
     }
 
-    char bsbuf[1024+1];
-    while ( !isspace(ch) )
+    char quotechar = '\0';
+    if ( ch == '\'' || ch == '"' )
     {
-	if ( ch == quotetofind )
+	quotechar = ch;
+	if ( !readChar(strm,ch,allownl) )
+	    return false;
+    }
+
+    char bsbuf[1024+1]; bsbuf[0] = ch;
+    int bsidx = 1;
+
+    while ( readChar(strm,ch,allownl) )
+    {
+	if ( ch == quotechar || isspace(ch) )
 	    break;
 
 	if ( bs )
-	{
-	    bsbuf[bsidx] = ch;
-	    bsidx++;
-	    if ( bsidx == 1024 )
-	    {
-		bsbuf[bsidx] = '\0';
-		*bs += bsbuf;
-		bsidx = 0;
-	    }
-	}
-	mGetNextChar()
+	    addToBS( *bs, bsbuf, bsidx, ch );
     }
 
     if ( bs && bsidx )
 	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+
     return !strm.bad();
 }
 
 
 bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 {
-    if ( bs ) bs->setEmpty();
-    int bsidx = 0; char ch;
-    bool getres = getNextChar(strm,ch);
-    if ( !getres ) return false;
+    if ( bs )
+	bs->setEmpty();
 
-    char bsbuf[1024+1];
+    char ch;
+    if ( !readChar(strm,ch,true) )
+	return false;
+
+    char bsbuf[1024+1]; int bsidx = 0;
     while ( ch != '\n' )
     {
 	if ( bs )
-	{
-	    bsbuf[bsidx] = ch;
-	    bsidx++;
-	    if ( bsidx == 1024 )
-	    {
-		bsbuf[bsidx] = '\0';
-		*bs += bsbuf;
-		bsidx = 0;
-	    }
-	}
-	getres = getNextChar(strm,ch);
-	if ( !getres )
+	    addToBS( *bs, bsbuf, bsidx, ch );
+	if ( !readChar(strm,ch,true) )
 	    break;
     }
 
     if ( bs && bsidx )
 	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+
     return !strm.bad();
 }
 
