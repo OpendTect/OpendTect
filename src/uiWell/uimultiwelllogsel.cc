@@ -380,10 +380,14 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 
 void uiMultiWellLogSel::init()
 {
+    const uiObject::SzPolicy hpol = uiObject::MedMax;
+    const uiObject::SzPolicy vpol = uiObject::WideMax;
     uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
     logsfld_->setMultiSelect( !singlelog_ );
+    logsfld_->setHSzPol( hpol );
+    logsfld_->setVSzPol( vpol );
 
     welllslblfld_ = 0;
     wellsfld_ = 0;
@@ -393,11 +397,12 @@ void uiMultiWellLogSel::init()
     {
 	uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
 	wellsfld_ = llbw->box();
+	wellsfld_->setHSzPol( hpol );
+	wellsfld_->setVSzPol( vpol );
 	llbl->attach( rightTo, llbw );
 	welllslblfld_ = llbw;
     }
     zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
-    setStretch( 2, 0 );
 }
 
 
