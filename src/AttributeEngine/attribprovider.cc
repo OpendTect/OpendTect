@@ -1572,8 +1572,11 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
 	    if ( localcomputezintervals_[idx].includes(z0,true) )
 		intvidx = idx;
 
-	float exacttime = exactz_[intvidx];
-	extraz = getExtraZFromSampPos( exacttime );
+	if ( exactz_.validIdx(intvidx) )
+	{
+	    float exacttime = exactz_[intvidx];
+	    extraz = getExtraZFromSampPos( exacttime );
+	}
     }
 
     if ( needinterp_ && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
