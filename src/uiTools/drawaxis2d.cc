@@ -370,7 +370,8 @@ void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
 
 void uiGraphicsSceneAxisMgr::annotInside( bool yn )
 {
-    // TODO: Implement!
+    xaxis_->annotInside( yn );
+    yaxis_->annotInside( yn );
 }
 
 

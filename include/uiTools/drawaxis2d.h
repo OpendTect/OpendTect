@@ -61,12 +61,15 @@ public:
     void		setZValue(int nv);
     
     void		turnOn(bool);
-    
+
+    void		annotInside(bool yn)	{ inside_ = yn; update(); }    
     void		drawAxisLine(bool yn) { drawaxisline_=yn; update(); }
     void		drawGridLines(bool yn) { drawgridlines_=yn; update(); }
 
     void		drawMask(bool yn);
     void		setTextFactor(int n) { txtfactor_ = n; update(); }
+    			// Values displayed along axis are multiplied by this
+			// factor.
     void		setLineStyle(const LineStyle& lst) {ls_=lst; update(); }
     void		setGridLineStyle(const LineStyle& gls)
 			{ gridls_ = gls; update(); }
@@ -126,8 +129,10 @@ public:
 
     void		annotInside( bool yn );
     void		drawAxisLine( bool yn );
-    void		setXFactor(int);
-    void		setYFactor(int);
+    void		setXFactor(int n); // Values displayed along x-axis are
+					   // multiplied by this factor.
+    void		setYFactor(int n); // Values displayed along y-axis are
+                                           // multiplied by this factor.
     void		setXLineStyle(const LineStyle&);
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
