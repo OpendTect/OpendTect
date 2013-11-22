@@ -436,11 +436,12 @@ bool Strat::LayerModel::read( od_istream& strm )
     BufferString word;
     strm.getWord( word, false );
     if ( word[0] != '#' || word[1] != 'M' )
-	return false;
+	{ ErrMsg( "File needs to start with '#M'" ); return false; }
 
     int nrseqs, nrprops;
     strm >> nrprops >> nrseqs;
-    if ( nrprops < 1 ) return false;
+    if ( nrprops < 1 )
+	{ ErrMsg( "No properties found in file" ); return false; }
     strm.skipLine();
 
     PropertyRefSelection newprops;
@@ -452,11 +453,16 @@ bool Strat::LayerModel::read( od_istream& strm )
 	if ( iprop != 0 )
 	{
 	    const PropertyRef* p = PROPS().find( propnm.buf() );
-	    if ( !p ) return false;
+	    if ( !p )
+	    {
+		ErrMsg( BufferString("Property not found: ",propnm) );
+		return false;
+	    }
 	    newprops += p;
 	}
     }
-    if ( !strm.isOK() ) return false;
+    if ( !strm.isOK() )
+	{ ErrMsg("No sequences found"); return false; }
 
     proprefs_ = newprops;
     const RefTree& rt = RT();
@@ -467,13 +473,17 @@ bool Strat::LayerModel::read( od_istream& strm )
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
 	int nrlays; strm >> nrlays;
 	strm.skipLine();
-	if ( !strm.isOK() ) return false;
+	if ( !strm.isOK() )
+	    { ErrMsg("Error during read"); return false; }
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
 	    strm.skipWord(); // skip "#L.."
 	    if ( !strm.getWord(word,false) )
-		{ delete seq; seq = 0; break; }
+	    {
+		ErrMsg( BufferString("Incomplete sequence found: ",iseq) );
+		delete seq; seq = 0; break;
+	    }
 	    FileMultiString fms( word );
 	    const UnitRef* ur = rt.find( fms[0] );
 	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
