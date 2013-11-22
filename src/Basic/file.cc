@@ -81,8 +81,7 @@ void RecursiveCopier::makeFileList( const char* dir )
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	BufferString curfile( files.fullPath(idx) );
-	BufferString relpath( srcdir.relativeFilePath(curfile.buf())
-						.toAscii().constData() );
+	BufferString relpath( srcdir.relativeFilePath(curfile.buf()) );
 	filelist_.add( relpath );
     }
 
@@ -90,8 +89,7 @@ void RecursiveCopier::makeFileList( const char* dir )
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	BufferString curdir( dirs.fullPath(idx) );
-	BufferString relpath( srcdir.relativeFilePath(curdir.buf())
-						.toAscii().constData() );
+	BufferString relpath( srcdir.relativeFilePath(curdir.buf()) );
 	filelist_.add( relpath );
 	if ( !File::isLink(curdir) )
 	    makeFileList( curdir );
@@ -237,8 +235,8 @@ const char* getCanonicalPath( const char* dir )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    QDir qdir( dir );
-    ret = qdir.canonicalPath().toAscii().constData();
+    const QDir qdir( dir );
+    ret = qdir.canonicalPath();
 #else
     pFreeFnErrMsg(not_implemented_str,"getCanonicalPath");
     ret = dir;
@@ -253,8 +251,8 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
     BufferString reltopath = getCanonicalPath( reltodir );
     BufferString path = getCanonicalPath( fnm );
     mDeclStaticString( ret );
-    QDir qdir( reltopath.buf() );
-    ret = qdir.relativeFilePath( path.buf() ).toAscii().constData();
+    const QDir qdir( reltopath.buf() );
+    ret = qdir.relativeFilePath( path.buf() );
     return ret.isEmpty() ? fnm : ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str,"getRelativePath");
@@ -533,7 +531,6 @@ bool getContent( const char* fnm, BufferString& bs )
     if ( !fnm || !*fnm ) return false;
 
     od_istream stream( fnm );
-
     if ( stream.isBad() )
         return false;
 
@@ -552,9 +549,8 @@ const char* timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    QString qstr = qfi.created().toString( fmt );
-    ret = qstr.toAscii().constData();
+    const QFileInfo qfi( fnm );
+    ret = qfi.created().toString( fmt );
 #else
     pFreeFnErrMsg(not_implemented_str,"timeCreated");
     ret = "<unknown>";
@@ -567,9 +563,8 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    QString qstr = qfi.lastModified().toString( fmt );
-    ret = qstr.toAscii().constData();
+    const QFileInfo qfi( fnm );
+    ret = qfi.lastModified().toString( fmt );
 #else
     pFreeFnErrMsg(not_implemented_str,"timeLastModified");
     ret = "<unknown>";
@@ -581,7 +576,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 od_int64 getTimeInSeconds( const char* fnm )
 {
 #ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
+    const QFileInfo qfi( fnm );
     return qfi.lastModified().toTime_t();
 #else
     struct stat st_buf;
@@ -615,8 +610,8 @@ const char* linkTarget( const char* linknm )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    QFileInfo qfi( linknm );
-    ret = qfi.isSymLink() ? qfi.symLinkTarget().toAscii().constData()
+    const QFileInfo qfi( linknm );
+    ret = qfi.isSymLink() ? qfi.symLinkTarget()
 			  : linknm;
 #else
     pFreeFnErrMsg(not_implemented_str,"linkTarget");
@@ -631,7 +626,7 @@ const char* getCurrentPath()
     mDeclStaticString( ret );
 
 #ifndef OD_NO_QT
-    ret = QDir::currentPath().toAscii().constData();
+    ret = QDir::currentPath();
 #else
     ret.setMinBufSize( 1024 );
 # ifdef __win__
@@ -648,7 +643,7 @@ const char* getHomePath()
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    ret = QDir::homePath().toAscii().constData();
+    ret = QDir::homePath();
 #else
     pFreeFnErrMsg(not_implemented_str,"getHomePath");
     ret = GetEnvVar( "HOME" );
@@ -661,7 +656,7 @@ const char* getTempPath()
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    ret = QDir::tempPath().toAscii().constData();
+    ret = QDir::tempPath();
 # ifdef __win__
     ret.replace( '/', '\\' );
 # endif
@@ -681,8 +676,8 @@ const char* getRootPath( const char* path )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    QDir qdir( path );
-    ret = qdir.rootPath().toAscii().constData();
+    const QDir qdir( path );
+    ret = qdir.rootPath();
 #else
     pFreeFnErrMsg(not_implemented_str,"getRootPath");
 # ifdef __win__
