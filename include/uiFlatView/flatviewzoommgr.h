@@ -46,30 +46,35 @@ public:
     void		init(const TypeSet<Geom::PosRectangle<double> >&);
     void                reInit(const TypeSet<Geom::PosRectangle<double> >&);
 
-    void		add(Size);
-			//!< Will put this Size at the right place
-    			//!< and make it current
-    			//!< will remove zooms larger than this one
     void		add(const TypeSet<Size>&);
 			//!< Will put this Size at the right place
 			//!< and make it current
 			//!< will remove zooms larger than this one
+    void		add(Size,int vieweridx=-1);
+    			//!< Will put this Size at the right place
+			//!< and make it current
+			//!< will remove zooms larger than this one
 
     Size		current(int vieweridx=0) const;
-    void		back() const;		//!< never past initial zoom
-    void		forward() const;	//!< goes on and on
-    bool		atStart() const		{ return cur_ < 1; }
-    Size		toStart() const;
-    int			nrZooms() const;
+    void		back(int vieweridx=-1) const;
+    			//!< never past initial zoom
+    void		forward(int vieweridx=-1) const; //!< goes on and on
+    bool		atStart(int vieweridx=-1) const;
+    			//!< If vieweridx is not specified, returns true
+    			//!< only if all viewers are at start.
+    void		toStart(int vieweridx=-1) const;
+    			//!< If vieweridx is not specified, all viewers will be
+			//!< back to initial zoom.
+    int			nrZooms(int vieweridx=0) const;
     Size		initialSize(int vieweridx=0) const;
     Point               initialCenter(int vieweridx=0) const;
 
     double		fwdFac() const		{ return fwdfac_; }
-    void		setFwdFac( double fac )	{ fwdfac_ = fac; }
+    void		setFwdFac(double fac)	{ fwdfac_ = fac; }
 
 protected:
 
-    mutable int			cur_;
+    mutable TypeSet<int>	current_;
 
     struct ViewerZoomData
     {

@@ -13,8 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 FlatView::ZoomMgr::ZoomMgr()
-    : cur_(-1)
-    , fwdfac_(0.8)
+    : fwdfac_(0.8)
 { setNrViewers( 1 ); }
 
 
@@ -33,11 +32,13 @@ void FlatView::ZoomMgr::setNrViewers( int nrviewers )
     while ( viewerdata_.size()<nrviewers )
     {
 	viewerdata_ += new ViewerZoomData;
+	current_ += -1;
     }
 
     while ( viewerdata_.size()>nrviewers )
     {
 	delete viewerdata_.pop();
+	current_.pop();
     }
 
     for ( int idx=0; idx<viewerdata_.size(); idx++ )
@@ -45,16 +46,29 @@ void FlatView::ZoomMgr::setNrViewers( int nrviewers )
 	viewerdata_[idx]->zooms_.erase();
     }
 
-    cur_ = -1;
+    current_.setAll( -1 );
 }
 
 
-int FlatView::ZoomMgr::nrZooms() const
-{ return viewerdata_[0]->zooms_.size(); }
+int FlatView::ZoomMgr::nrZooms( int vieweridx ) const
+{ return viewerdata_[vieweridx]->zooms_.size(); }
+
+
+bool FlatView::ZoomMgr::atStart( int vieweridx ) const
+{
+    if ( vieweridx != -1 ) return current_[vieweridx] < 1;
+
+    for ( int idx=0; idx<viewerdata_.size(); idx++ )
+    {
+	if ( !atStart(idx) ) return false;
+    }
+
+    return true;
+}
 
 
 FlatView::ZoomMgr::Size	FlatView::ZoomMgr::initialSize( int vieweridx ) const
-{ return nrZooms() ? viewerdata_[vieweridx]->zooms_[0] : 0; }
+{ return nrZooms(vieweridx) ? viewerdata_[vieweridx]->zooms_[0] : 0; }
 
 
 FlatView::ZoomMgr::Point FlatView::ZoomMgr::initialCenter( int vieweridx ) const
@@ -96,7 +110,7 @@ void FlatView::ZoomMgr::init( const TypeSet<Geom::Rectangle<double> >& wrs )
 	viewerdata_[idx]->center_ = wrs[idx].centre();
     }
 
-    cur_ = 0;
+    current_.setAll( 0 );
 }
 
 
@@ -131,42 +145,25 @@ void FlatView::ZoomMgr::reInit( const TypeSet<Geom::Rectangle<double> >& wrs )
     ObjectSet<ViewerZoomData> oldviewerdata;
     deepCopy( oldviewerdata, viewerdata_ );
 
-    const int oldcur = cur_;
+    const TypeSet<int> oldcur = current_;
     init( wrs );
 
-    for ( int idx=0; idx<oldviewerdata[0]->zooms_.size(); idx++ )
+    for ( int idx=0; idx<oldviewerdata.size(); idx++ )
     {
-	bool keep = true;
-	for ( int idy=0; idy<oldviewerdata.size(); idy++ )
+	const Size zoom0 = viewerdata_[idx]->zooms_[0];
+	for ( int idy=1; idy<oldviewerdata[idx]->zooms_.size(); idy++ )
 	{
-	    const Size zoom0 = oldviewerdata[idy]->zooms_[0];
-	    const Size zoom = oldviewerdata[idy]->zooms_[idx];
-
-	    if ( zoom.width()>=zoom0.width() && zoom.height()>=zoom0.height() )
+	    const Size zoom = oldviewerdata[idx]->zooms_[idy];
+	    if ( zoom.width()<zoom0.width() && zoom.height()<zoom0.height() )
 	    {
-		keep = false;
-		break;
+		viewerdata_[idx]->zooms_ += oldviewerdata[idx]->zooms_[idy];
+		if ( idy == oldcur[idx] )
+    		    current_[idx] = nrZooms(idx)-1;
 	    }
 	}
-
-	if ( keep )
-	{
-	    for ( int idy=0; idy<oldviewerdata.size(); idy++ )
-		viewerdata_[idy]->zooms_ += oldviewerdata[idy]->zooms_[idx];
-	}
-
-	if ( idx == oldcur )
-	    cur_ = viewerdata_[0]->zooms_.size() - 1;
     }
 
     deepErase( oldviewerdata );
-}
-
-
-void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
-{
-    TypeSet<FlatView::ZoomMgr::Size> newzooms( 1, newzoom );
-    add( newzooms );
 }
 
 
@@ -178,7 +175,7 @@ void FlatView::ZoomMgr::add( const TypeSet<FlatView::ZoomMgr::Size>& newzooms )
 	return;
     }
 
-    if ( cur_ < 0 )
+    if ( current_.isPresent(-1) )
     {
 	TypeSet<Geom::Rectangle<double> > rectangles;
 	for ( int idx=0; idx<newzooms.size(); idx++ )
@@ -192,100 +189,112 @@ void FlatView::ZoomMgr::add( const TypeSet<FlatView::ZoomMgr::Size>& newzooms )
 	return;
     }
 
-    for ( int idx=0; idx<viewerdata_[0]->zooms_.size(); idx++ )
+    for ( int idx=0; idx<viewerdata_.size(); idx++ )
     {
-	bool identical = true;
-	for ( int idy=0; idy<viewerdata_.size(); idy++ )
-	{
-	    const Size zoom = viewerdata_[idy]->zooms_[idx];
-	    const Size newzoom = newzooms[idy];
-	    const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
+	add( newzooms[idx], idx );
+    }
+}
 
-	    if ( !mIsEqual(newzoom.width(),zoom.width(), eps.width() ) ||
-		 !mIsEqual(newzoom.height(),zoom.height(), eps.height() ) )
-	    {
-		identical = false;
-		break;
-	    }
-	}
 
-	if ( identical )
+void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
+{
+    if ( vieweridx==-1 || current_.isPresent(-1) )
+    {
+	if ( vieweridx>0 )
 	{
-	    cur_ = idx;
+	    pErrMsg("ZoomMgr is not initialized");
 	    return;
 	}
+
+	TypeSet<FlatView::ZoomMgr::Size> newzooms( 1, newzoom );
+	add( newzooms ); return;
     }
 
-    for ( int idx=viewerdata_[0]->zooms_.size()-1; idx>=0; idx-- )
+    bool found = false;
+    for ( int idx=0; idx<viewerdata_[vieweridx]->zooms_.size(); idx++ )
     {
-	bool doremove = false;
-	for ( int idy=0; idy<viewerdata_.size(); idy++ )
+	const Size zoom = viewerdata_[vieweridx]->zooms_[idx];
+	const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
+	
+	if ( mIsEqual(newzoom.width(),zoom.width(), eps.width() ) &&
+	     mIsEqual(newzoom.height(),zoom.height(), eps.height() ) )
 	{
-	    const Size zoom = viewerdata_[idy]->zooms_[idx];
-	    const Size newzoom = newzooms[idy];
+	    current_[vieweridx] = idx;
+	    found = true; break;
+	}
+    }
+    
+    if ( !found )
+    {
+	for ( int idx=viewerdata_[vieweridx]->zooms_.size()-1; idx>=0; idx-- )
+	{
+	    const Size zoom = viewerdata_[vieweridx]->zooms_[idx];
 	    const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
-
+	    
 	    if ( newzoom.width() > zoom.width() + eps.width()
 		|| newzoom.height() > zoom.height() + eps.height() )
-	    {
-		doremove = true;
-		break;
-	    }
+		viewerdata_[vieweridx]->zooms_.removeSingle(idx);
 	}
-
-	if ( doremove )
-	{
-	    for ( int idy=0; idy<viewerdata_.size(); idy++ )
-		viewerdata_[idy]->zooms_.removeSingle(idx);
-	}
+	
+	viewerdata_[vieweridx]->zooms_ += newzoom;
+	current_[vieweridx] = nrZooms(vieweridx)-1;
     }
-
-    for ( int idy=0; idy<viewerdata_.size(); idy++ )
-	viewerdata_[idy]->zooms_ += newzooms[idy];
-
-    cur_ = viewerdata_[0]->zooms_.size() - 1;
 }
 
 
 FlatView::ZoomMgr::Size FlatView::ZoomMgr::current( int vieweridx ) const
 {
-    return cur_ < 0 ? Size(1,1) : viewerdata_[vieweridx]->zooms_[cur_];
+    const int cur = current_[vieweridx];
+    return cur < 0 ? Size(1,1) : viewerdata_[vieweridx]->zooms_[cur];
 }
 
 
-void FlatView::ZoomMgr::back() const
+void FlatView::ZoomMgr::back( int vieweridx ) const
 {
-    if ( cur_ > 0 )
-	cur_--;
-}
-
-
-void FlatView::ZoomMgr::forward() const
-{
-    if ( cur_ < 0 ) return;
-
-    if ( cur_ < nrZooms()-1 )
+    if ( vieweridx == -1 )
     {
-	cur_++;
+	for ( int idx=0; idx<viewerdata_.size(); idx++ )
+	    back( idx );
+	return;
+    }
+    
+    int& cur = current_[vieweridx];
+    if ( cur > 0 ) cur--;
+}
+
+
+void FlatView::ZoomMgr::forward( int vieweridx ) const
+{
+    if ( vieweridx == -1 )
+    {
+	for ( int idx=0; idx<viewerdata_.size(); idx++ )
+	    forward( idx );
 	return;
     }
 
-    TypeSet<FlatView::ZoomMgr::Size> newsizes;
-    for ( int idy=0; idy<viewerdata_.size(); idy++ )
-    {
-	Size zoom( viewerdata_[idy]->zooms_[cur_] );
-	zoom.setWidth( zoom.width() * fwdfac_ );
-	zoom.setHeight( zoom.height() * fwdfac_ );
-	newsizes += zoom;
-    }
+    int& cur = current_[vieweridx];
+    if ( cur < 0 ) return;
 
-    const_cast<FlatView::ZoomMgr*>(this)->add( newsizes );
+    if ( cur < nrZooms(vieweridx)-1 )
+    {
+	cur++;
+	return;
+    }
+    
+    FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
+    newsize.setWidth( newsize.width() * fwdfac_ );
+    newsize.setHeight( newsize.height() * fwdfac_ );
+    const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
 }
 
 
-FlatView::ZoomMgr::Size FlatView::ZoomMgr::toStart() const
+void FlatView::ZoomMgr::toStart( int vieweridx ) const
 {
-    if ( cur_ > 0 )
-	cur_ = 0;
-    return current();
+    if ( vieweridx != -1 )
+    {
+	if ( current_[vieweridx] > 0 ) current_[vieweridx] = 0;
+	return;
+    }
+
+    if ( !current_.isPresent(-1) ) current_.setAll( 0 );
 }

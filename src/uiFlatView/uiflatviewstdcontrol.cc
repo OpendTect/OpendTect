@@ -188,34 +188,35 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 {
     if ( !but ) return;
     const bool zoomin = but == zoominbut_;
-    doZoom( zoomin, *vwrs_[0], zoommgr_ );
+    doZoom( zoomin, *vwrs_[0] );
 }
 
 
-void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr, 
-					FlatView::ZoomMgr& zoommgr )
+void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr )
 {
+    const int vwridx = vwrs_.indexOf( &vwr );
+    if ( vwridx < 0 ) return;
+
     uiRect viewrect = vwr.getViewRect();
     uiSize newrectsz = viewrect.size();
     if ( zoomin )
     {
-	zoommgr.forward();
-	newrectsz.setWidth( mNINT32(newrectsz.width()*zoommgr.fwdFac()) );
-	newrectsz.setHeight( mNINT32(newrectsz.height()*zoommgr.fwdFac()));
+	zoommgr_.forward( vwridx );
+	newrectsz.setWidth( mNINT32(newrectsz.width()*zoommgr_.fwdFac()) );
+	newrectsz.setHeight( mNINT32(newrectsz.height()*zoommgr_.fwdFac()));
     }
     else
     {
-	if ( zoommgr.atStart() )
+	if ( zoommgr_.atStart(vwridx) )
 	    return;
-	zoommgr.back();
+	zoommgr_.back( vwridx );
     }
 
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
     if (!vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() || !zoomin)
     {
-	const int vwridx = vwrs_.indexOf( &vwr );
-	newsz = zoommgr.current( vwridx<0 ? 0 : vwridx );
+	newsz = zoommgr_.current( vwridx );
 	centre = vwr.curView().centre();
     }
     else
@@ -245,8 +246,8 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr,
 	newsz = wr.size();
     }
 
-    if ( zoommgr.atStart() )
-	centre = zoommgr.initialCenter();
+    if ( zoommgr_.atStart(vwridx) )
+	centre = zoommgr_.initialCenter( vwridx );
 
     setNewView( centre, newsz );
 }

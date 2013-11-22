@@ -52,7 +52,6 @@ protected:
 
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
-    void		dataChangeCB(CallBacker*);
     void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
     void		vwrAdded(CallBacker*);

@@ -84,7 +84,7 @@ protected:
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
-    void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
+    void		doZoom(bool zoomin,uiFlatViewer&);
     int                 getViewerIdx(const MouseEventHandler*);
 
     virtual void	coltabChg(CallBacker*);
