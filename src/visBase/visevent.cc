@@ -481,6 +481,7 @@ EventCatcher::EventCatcher()
 {
     osgnode_ = setOsgNode( new osg::Node );
     eventcatchhandler_ = new EventCatchHandler( *this );
+    eventcatchhandler_->ref();
     osgnode_->setEventCallback( eventcatchhandler_ );
 }
 
@@ -504,6 +505,7 @@ EventCatcher::~EventCatcher()
     deepUnRef( utm2display_ );
 
     osgnode_->removeEventCallback( eventcatchhandler_ );
+    eventcatchhandler_->unref();
 }
 
 
