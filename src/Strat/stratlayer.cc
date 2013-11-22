@@ -467,12 +467,13 @@ bool Strat::LayerModel::read( od_istream& strm )
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
 	int nrlays; strm >> nrlays;
 	strm.skipLine();
-	if ( strm.isBad() ) return false;
+	if ( !strm.isOK() ) return false;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
 	    strm.skipWord(); // skip "#L.."
-	    strm.getWord( word, false );
+	    if ( !strm.getWord(word,false) )
+		{ delete seq; seq = 0; break; }
 	    FileMultiString fms( word );
 	    const UnitRef* ur = rt.find( fms[0] );
 	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
@@ -489,6 +490,9 @@ bool Strat::LayerModel::read( od_istream& strm )
 	    seq->layers() += newlay;
 	    strm.skipLine();
 	}
+	if ( !seq )
+	    break;
+
 	seq->prepareUse();
 	seqs_ += seq;
     }

@@ -136,15 +136,15 @@ bool StrmOper::readChar( std::istream& strm, char& ch, bool allownls )
 }
 
 
-static void addToBS( BufferString& bs, char* bsbuf, int& bsidx, char ch )
+static void addToBS( BufferString& bs, char* partbuf, int& pos, char ch )
 {
-    bsbuf[bsidx] = ch;
-    bsidx++;
-    if ( bsidx == 1024 )
+    partbuf[pos] = ch;
+    pos++;
+    if ( pos == 1024 )
     {
-	bsbuf[bsidx] = '\0';
-	bs.add( bsbuf );
-	bsidx = 0;
+	partbuf[pos] = '\0';
+	bs.add( partbuf );
+	pos = 0;
     }
 }
 
@@ -172,20 +172,20 @@ bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
 	    return false;
     }
 
-    char bsbuf[1024+1]; bsbuf[0] = ch;
-    int bsidx = 1;
+    char partbuf[1024+1]; partbuf[0] = ch;
+    int bufidx = 1;
 
     while ( readChar(strm,ch,allownl) )
     {
-	if ( ch == quotechar || isspace(ch) )
+	if ( quotechar == '\0' ? isspace(ch) : ch == quotechar )
 	    break;
 
 	if ( bs )
-	    addToBS( *bs, bsbuf, bsidx, ch );
+	    addToBS( *bs, partbuf, bufidx, ch );
     }
 
-    if ( bs && bsidx )
-	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+    if ( bs && bufidx )
+	{ partbuf[bufidx] = '\0'; bs->add( partbuf ); }
 
     return !strm.bad();
 }
@@ -200,17 +200,17 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
     if ( !readChar(strm,ch,true) )
 	return false;
 
-    char bsbuf[1024+1]; int bsidx = 0;
+    char partbuf[1024+1]; int bufidx = 0;
     while ( ch != '\n' )
     {
 	if ( bs )
-	    addToBS( *bs, bsbuf, bsidx, ch );
+	    addToBS( *bs, partbuf, bufidx, ch );
 	if ( !readChar(strm,ch,true) )
 	    break;
     }
 
-    if ( bs && bsidx )
-	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+    if ( bs && bufidx )
+	{ partbuf[bufidx] = '\0'; *bs += partbuf; }
 
     return !strm.bad();
 }
