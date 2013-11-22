@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include <string.h>
 
+#include <QString>
+
 
 BufferString::BufferString( const FixedString& s )
     : mBufferStringSimpConstrInitList
@@ -52,6 +54,11 @@ BufferString::BufferString( const BufferString& bs )
 	strcpy( buf_, bs.buf_ );
     }
 }
+
+
+BufferString::BufferString( const QString& qstr )
+    : mBufferStringSimpConstrInitList
+{ add( qstr ); }
 
 
 BufferString::~BufferString()
@@ -153,6 +160,13 @@ BufferString& BufferString::add( const char* s )
 	*ptr = '\0';
     }
     return *this;
+}
+
+
+BufferString& BufferString::add( const QString& qstr )
+{
+    const QByteArray qba = qstr.toUtf8();
+    return add( qba.constData() );
 }
 
 

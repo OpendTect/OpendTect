@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include <iosfwd>
 
 class FixedString;
+class QString;
 
 /*!
 \brief String with variable length but guaranteed minimum buffer size.
@@ -45,9 +46,10 @@ public:
     inline		BufferString(const char*);
 			BufferString(const FixedString&);
 			BufferString(int minlen,bool setnull);
-			BufferString(const BufferString& bs);
+			BufferString(const BufferString&);
     template <class T>
     inline		BufferString(const char*,const T&,const char* s=0);
+			BufferString(const QString&);
     virtual		~BufferString();
     inline BufferString& operator=( const BufferString& b )
 						{ return assignTo(b.buf_); }
@@ -82,6 +84,7 @@ public:
     inline BufferString& operator+=( const char* s )	{ return add( s ); }
     template <class T>
     BufferString&	add(const T&);
+    BufferString&	add(const QString&);
     template <class T>
     inline BufferString& operator+=( const T& t )	{ return add( t ); }
     template <class T>
