@@ -967,6 +967,18 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 }
 
 
+void uiAttribPartServer::importAttrSetFromFile()
+{
+    uiMSG().message( "Not implemented yet" );
+}
+
+
+void uiAttribPartServer::importAttrSetFromOtherSurvey()
+{
+    uiMSG().message( "Not implemented yet" );
+}
+
+
 bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
 					 float velocity )
 {

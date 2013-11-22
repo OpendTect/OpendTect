@@ -216,6 +216,7 @@ void uiODMenuMgr::fillImportMenu()
 {
     impmnu_->clear();
 
+    uiMenu* impattr = new uiMenu( &appl_, "&Attributes" );
     uiMenu* impseis = new uiMenu( &appl_, "&Seismics" );
     uiMenu* imphor = new uiMenu( &appl_, "&Horizons" );
     uiMenu* impfault = new uiMenu( &appl_, "&Faults" );
@@ -229,6 +230,7 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* imppdf =
 	new uiMenu( &appl_, "Probability &Density Functions" );
 
+    impmnu_->insertItem( impattr );
     mInsertItem( impmnu_, "&Color Table ...", mImpColTabMnuItm );
     impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
@@ -243,6 +245,8 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwell );
     impmnu_->insertSeparator();
 
+    mInsertItem( impattr, "&Ascii ...", mImpAttrMnuItm );
+    mInsertItem( impattr, "&From other survey ...", mImpAttrOthSurvMnuItm );
     mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
     mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
     mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
@@ -260,7 +264,7 @@ void uiODMenuMgr::fillImportMenu()
     impseis->insertItem( impseissimple );
     uiMenu* impcbvsseis = new uiMenu( &appl_, "&CBVS" );
     mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impcbvsseis, "&From other survey ...",
+    mInsertItem( impcbvsseis, "From other &survey ...",
 					   mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
@@ -996,6 +1000,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
+    case mImpAttrMnuItm:		mDoOp(Imp,Attr,0); break;
+    case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
     case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;
     case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
     case mImpSeisSEGYMnuItm:		mDoOp(Imp,Seis,1); break;

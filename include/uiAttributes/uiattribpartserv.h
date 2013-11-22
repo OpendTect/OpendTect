@@ -134,6 +134,8 @@ public:
     bool		extractData(ObjectSet<DataPointSet>&);
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
+    void		importAttrSetFromFile();
+    void		importAttrSetFromOtherSurvey();
 
     const NLAModel*	getNLAModel(bool) const;
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }

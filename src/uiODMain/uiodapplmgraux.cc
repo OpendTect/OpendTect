@@ -225,8 +225,17 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
     break;
     mCase(Attr):
-	if ( at == uiODApplMgr::Man )
-	    am_.attrserv_->manageAttribSets();
+	switch( at )
+	{
+	mCase(Man):	am_.attrserv_->manageAttribSets();  break;
+	mCase(Imp):
+	    if ( opt == 0 )
+		am_.attrserv_->importAttrSetFromFile();
+	    else if ( opt == 1 )
+		am_.attrserv_->importAttrSetFromOtherSurvey();
+	break;
+	default:					    break;
+	}
     break;
     mCase(Pick):
 	switch ( at )

@@ -44,7 +44,9 @@ ________________________________________________________________________
 #define mSessRestMnuItm		(mFileSessMnu + 20)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
 
-#define mImpColTabMnuItm	(mFileImpMnu + 5)
+#define mImpAttrMnuItm		(mFileImpMnu + 5)
+#define mImpAttrOthSurvMnuItm	(mFileImpMnu + 6)
+#define mImpColTabMnuItm	(mFileImpMnu + 7)
 
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSEGYMnuItm	(mFileImpMnu + 11)
