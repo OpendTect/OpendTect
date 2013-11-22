@@ -121,12 +121,7 @@ macro(OD_SETUP_OSG)
 		OSGGEO )
 
 	foreach( OSGMODULE ${OSGMODULES} )
-	    if (  ${OSGMODULE}_LIBRARY_DEBUG AND  ${OSGMODULE}_LIBRARY )
-		list( APPEND OD_OSG_LIBS "optimized" ${${OSGMODULE}_LIBRARY}
-		      "debug" ${${OSGMODULE}_LIBRARY_DEBUG} )
-	    elseif ( ${OSGMODULE}_LIBRARY_DEBUG )
-		list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_DEBUG} )
-	    elseif ( ${OSGMODULE}_LIBRARY )
+	    if ( ${OSGMODULE}_LIBRARY )
 		list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
 	    else()
 		message(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
