@@ -25,6 +25,31 @@ macro(OD_SETUP_QT)
     if ( Qt5Widgets_FOUND )
 	cmake_minimum_required( VERSION 2.8.9 )
 	set( CMAKE_AUTOMOC ON )
+
+	find_package( Qt5 REQUIRED Core Network Gui PrintSupport )
+	STRING( FIND "${OD_USEQT}" "Core" USE_QT_CORE )
+	if( NOT "${USE_QT_CORE}" EQUAL -1 )
+	    list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5Core_INCLUDE_DIRS} )
+	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${Qt5Core_LIBRARIES}" )
+	endif()
+
+	STRING( FIND "${OD_USEQT}" "Network" USE_QT_NETWORK )
+	if( NOT "${USE_QT_NETWORK}" EQUAL -1 )
+	    list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5Network_INCLUDE_DIRS} )
+	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${Qt5Network_LIBRARIES}" )
+	endif()
+
+	STRING( FIND "${OD_USEQT}" "Widgets" USE_QT_GUI )
+	if( NOT "${USE_QT_GUI}" EQUAL -1 )
+	    list( APPEND OD_MODULE_INCLUDESYSPATH
+		  "${Qt5Widgets_INCLUDE_DIRS}"
+		  "${Qt5PrintSupport_INCLUDE_DIRS}" )
+	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${Qt5Widgets_LIBRARIES}"
+				"${Qt5PrintSupport_LIBRARIES}" )
+	endif()
+
+	list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
+
     else()
 	set( ENV{QTDIR} ${QTDIR} )
 	set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
