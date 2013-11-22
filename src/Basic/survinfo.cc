@@ -95,7 +95,7 @@ const SurveyInfo& SI()
 	survinfostack += newsi;
 	cursurvinfoidx = survinfostack.size() - 1;
     }
-    
+
     return *survinfostack[cursurvinfoidx];
 }
 
@@ -111,9 +111,8 @@ void SurveyInfo::pushSI( SurveyInfo* newsi )
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    if ( survinfostack.isEmpty() )
-	{ pFreeFnErrMsg("Pop from empty stack","SurveyInfo::popSI"); return 0; }
-    return survinfostack.removeSingle( survinfostack.size()-1 );
+    return survinfostack.isEmpty() ? 0
+	 : survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
@@ -121,8 +120,8 @@ void SurveyInfo::setInvalid() const
 {
     SurveyInfo* myself = const_cast<SurveyInfo*>(this);
     myself->valid_ = false;
-    
-    
+
+
     winlcrlsystem_.unRef();
     inlcrlsystem_.unRef();
 }
@@ -176,7 +175,7 @@ SurveyInfo::~SurveyInfo()
     delete &cs_;
     delete &wcs_;
     delete &zdef_;
-    
+
     inlcrlsystem_.unRef();
     winlcrlsystem_.unRef();
 }
@@ -244,7 +243,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
     //Scrub away old settings (confusing to users)
     si->getPars().remove("Depth in feet");
-    
+
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
@@ -322,7 +321,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	si->comment_ += buf;
     }
     sfio.closeSuccess();
-    
+
     if ( !si->wrapUpRead() )
     { delete si; return 0; }
 
@@ -429,14 +428,14 @@ float SurveyInfo::crlDistance() const
 
 
 float SurveyInfo::computeArea( const Interval<int>& inlrg,
-			       const Interval<int>& crlrg ) const 
+			       const Interval<int>& crlrg ) const
 {
     const BinID step = sampling(false).hrg.step;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl,crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactorF : 1; 
+    const float scale = xyInFeet() ? mFromFeetFactorF : 1;
     const double d01 = c00.distTo( c01 ) * scale;
     const double d10 = c00.distTo( c10 ) * scale;
 
@@ -444,7 +443,7 @@ float SurveyInfo::computeArea( const Interval<int>& inlrg,
 }
 
 
-float SurveyInfo::computeArea( bool work ) const 
+float SurveyInfo::computeArea( bool work ) const
 { return computeArea( inlRange( work ), crlRange( work ) ); }
 
 
@@ -454,7 +453,7 @@ float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 {
-    Coord3 translation( 0, 0, 0 ); 
+    Coord3 translation( 0, 0, 0 );
 
     if ( fabs(planenormal.z) > 0.5 )
     {
@@ -519,7 +518,7 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
     if ( Values::isUdf(crd.x) || Values::isUdf(crd.y) )
 	return false;
 
-    return isReasonable( transform(crd) ); 
+    return isReasonable( transform(crd) );
 }
 
 
@@ -612,7 +611,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 }
 
 
-bool SurveyInfo::zIsTime() const 
+bool SurveyInfo::zIsTime() const
 { return zdef_.isTime(); }
 
 
@@ -660,7 +659,7 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 	if ( xyunit==Meter )
 	    return 1000;
 
-	//xyunit==feet	
+	//xyunit==feet
 	return 3048;
     }
     else if ( zunit==Feet && xyunit==Meter )
@@ -744,9 +743,9 @@ static void doSnap( int& idx, int start, int step, int dir )
     int rel = idx - start;
     int rest = rel % step;
     if ( !rest ) return;
- 
+
     idx -= rest;
- 
+
     if ( !dir ) dir = rest > step / 2 ? 1 : -1;
     if ( rel > 0 && dir > 0 )      idx += step;
     else if ( rel < 0 && dir < 0 ) idx -= step;
@@ -991,22 +990,22 @@ RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
     Threads::AtomicPointer<InlCrlSystem>& sys = work
         ? winlcrlsystem_
         : inlcrlsystem_;
-    
+
     if ( !sys )
     {
 	RefMan<InlCrlSystem> newsys = new InlCrlSystem( name(), zdef_ );
 	newsys->ref();
 	if ( work )
 	    newsys->setGeomID( Survey::GeometryManager::cDefault3DGeom() );
-	
+
 	newsys->b2c_ = b2c_;
 	newsys->cs_ = sampling( work );
 	newsys->zscale_ = zScale();
-	
+
 	 if ( sys.setIfEqual( newsys, 0 ) )
 	    newsys->ref();
     }
-    
+
     return RefMan<InlCrlSystem>( sys );
 }
 

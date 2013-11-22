@@ -117,7 +117,7 @@ int Strat::LayerSequence::layerIdxAtZ( float zreq ) const
 {
     const int nrlays = layers_.size();
     if ( nrlays == 0 || zreq < layers_[0]->zTop()
-	    	     || zreq > layers_[nrlays-1]->zBot() )
+		     || zreq > layers_[nrlays-1]->zBot() )
 	return -1;
 
     for ( int ilay=0; ilay<nrlays; ilay++ )
@@ -160,7 +160,7 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
     while ( it.next() )
     {
 	const Strat::LeavedUnitRef* un
-	    	= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
+		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( un->levelID() == lvl.id() )
 	    { lvlunit = un; break; }
     }
@@ -195,7 +195,7 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
 	// gather all units below level into unlist
     {
 	const Strat::LeavedUnitRef* un
-	    	= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
+		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( foundlvl || un->levelID() == lvl.id() )
 	    { foundlvl = true; unlist += un; }
     }
@@ -252,8 +252,8 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
     if ( sz < 1 ) return;
     if ( depthrg.isUdf() ) return;
 
-    Interval<int> laysidx( layerIdxAtZ( depthrg.start ), 
-	    		   layerIdxAtZ( depthrg.stop ) );
+    Interval<int> laysidx( layerIdxAtZ( depthrg.start ),
+			   layerIdxAtZ( depthrg.stop ) );
 
     if ( laysidx.isUdf() ) return;
     if ( laysidx.start == -1 )
@@ -400,7 +400,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	{
 	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
 	    newlay->setValue( iprop,
-		    	idxof < 0 ? mUdf(float) : inplay.value(idxof) );
+			idxof < 0 ? mUdf(float) : inplay.value(idxof) );
 	}
 	newls->layers() += newlay;
     }
@@ -430,6 +430,50 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
+static bool readQuotedWord( std::istream& strm, BufferString& bs )
+{
+    bs.setEmpty();
+
+    char ch = ' ';
+    while ( isspace(ch) )
+    {
+	if ( !StrmOper::getNextChar(strm,ch) )
+	    return false;
+    }
+
+    char quotechar = '\0';
+    if ( ch == '\'' )
+    {
+	quotechar = ch;
+	if ( !StrmOper::getNextChar(strm,ch) )
+	    return false;
+    }
+
+    char partbuf[1024+1]; partbuf[0] = ch;
+    int bufidx = 1;
+
+    while ( StrmOper::getNextChar(strm,ch) )
+    {
+	if ( quotechar == '\0' ? isspace(ch) : ch == quotechar )
+	    break;
+
+	partbuf[bufidx] = ch;
+	bufidx++;
+	if ( bufidx == 1024 )
+	{
+	    partbuf[bufidx] = '\0'; bs.add( partbuf );
+	    bufidx = 0;
+	}
+    }
+
+    if ( bufidx )
+	{ partbuf[bufidx] = '\0'; bs.add( partbuf ); }
+
+    return !strm.bad();
+}
+
+
+
 #define mReadNewline() StrmOper::readLine( strm )
 
 bool Strat::LayerModel::read( std::istream& strm )
@@ -438,11 +482,12 @@ bool Strat::LayerModel::read( std::istream& strm )
     char buf[256];
     StrmOper::wordFromLine( strm, buf, 256 );
     if ( buf[0] != '#' || buf[1] != 'M' )
-	return false;
+	{ ErrMsg( "File needs to start with '#M'" ); return false; }
 
     int nrseqs, nrprops;
     strm >> nrprops >> nrseqs;
-    if ( nrprops < 1 ) return false;
+    if ( nrprops < 1 )
+	{ ErrMsg( "No properties found in file" ); return false; }
     mReadNewline();
 
     PropertyRefSelection newprops;
@@ -454,28 +499,43 @@ bool Strat::LayerModel::read( std::istream& strm )
 	if ( iprop != 0 )
 	{
 	    const PropertyRef* p = PROPS().find( propnm.buf() );
-	    if ( !p ) return false;
+	    if ( !p )
+	    {
+		ErrMsg( BufferString("Property not found: ",propnm) );
+		return false;
+	    }
 	    newprops += p;
 	}
     }
-    if ( !strm.good() ) return false;
+    if ( !strm.good() )
+	{ ErrMsg("No sequences found"); return false; }
 
     proprefs_ = newprops;
     const RefTree& rt = RT();
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
+	if ( !strm.good() )
+	    break;
+
 	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S.."
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
 	int nrlays; strm >> nrlays;
 	mReadNewline();
-	if ( strm.bad() ) return false;
+	if ( strm.bad() )
+	    { ErrMsg("Error during read"); return false; }
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
 	    StrmOper::wordFromLine( strm, buf, 256 ); // read away "#L.."
-	    StrmOper::wordFromLine( strm, buf, 256 );
-	    FileMultiString fms( buf );
+
+	    BufferString laynm;
+	    if ( !readQuotedWord(strm,laynm) )
+	    {
+		ErrMsg( BufferString("Incomplete sequence found: ",iseq) );
+		delete seq; seq = 0; break;
+	    }
+	    FileMultiString fms( laynm );
 	    const UnitRef* ur = rt.find( fms[0] );
 	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
 	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf() );
@@ -491,6 +551,9 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    seq->layers() += newlay;
 	    mReadNewline();
 	}
+	if ( !seq )
+	    break;
+
 	seq->prepareUse();
 	seqs_ += seq;
     }
@@ -518,12 +581,12 @@ bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 	    strm << "#L" << ilay << '\t';
 	    const Layer& lay = *seq.layers()[ilay];
 	    if ( lay.content().isUnspecified() )
-		strm << lay.name();
+		strm << '\'' << lay.name() << '\'';
 	    else
 	    {
 		FileMultiString fms( lay.name() );
 		fms += lay.content().name();
-		strm << fms;
+		strm << '\'' << fms << '\'';
 	    }
 	    strm << '\t' << toString(lay.thickness());
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
