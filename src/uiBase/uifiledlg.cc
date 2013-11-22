@@ -185,7 +185,7 @@ int uiFileDialog::go()
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
-	fd->selectFilter( QString(selectedfilter_) );
+	fd->selectNameFilter( QString(selectedfilter_) );
 
 #ifdef __win__
     fd->setViewMode( QFileDialog::Detail );
@@ -210,7 +210,7 @@ int uiFileDialog::go()
     if ( !selfiles.isEmpty() )
 	fn = mQStringToConstChar( selfiles[0] );
 
-    selectedfilter_ = fd->selectedFilter().toLatin1().constData();
+    selectedfilter_ = fd->selectedNameFilter();
 
 #ifdef __win__
     fn.replace( '/', '\\' );
