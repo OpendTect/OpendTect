@@ -311,7 +311,8 @@ void VertexShape::setupOsgNode()
 	useVertexBufferRender( false );
     }
     setCoordinates( Coordinates::create() );
-    if ( geode_ && coords_ )
+    if ( geode_ && coords_ && coords_->size() &&
+		   osggeom_ && osggeom_->getNumPrimitiveSets() )
     {
 	osgUtil::Optimizer optimizer;
 	optimizer.optimize( geode_ );
