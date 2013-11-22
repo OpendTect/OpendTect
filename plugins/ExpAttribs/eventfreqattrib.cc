@@ -19,9 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(EventFreq)
-    
+
 void EventFreq::initClass()
 {
     mAttrStartInitClass
@@ -32,8 +32,8 @@ void EventFreq::initClass()
 }
 
 
-EventFreq::EventFreq( Desc& desc_ )
-    : Provider( desc_ )
+EventFreq::EventFreq( Desc& desc )
+    : Provider( desc )
     , dessamps_(-20,20)
 {
     if ( !isOK() ) return;
@@ -48,7 +48,7 @@ const Interval<int>* EventFreq::desZSampMargin(int,int) const
 
 bool EventFreq::getInputData( const BinID& relpos, int zintv )
 {
-    inpdata_ = inputs[0]->getData( relpos, zintv );
+    inpdata_ = inputs_[0]->getData( relpos, zintv );
     if ( !inpdata_ ) return false;
 
     inpseries_ = inpdata_->series( getDataIndex(0) );
@@ -61,12 +61,12 @@ bool EventFreq::getInputData( const BinID& relpos, int zintv )
 void EventFreq::findEvents( int z0, int nrsamples ) const
 {
     Interval<int> worksamps( z0 + dessamps_.start,
-	    		     z0 + dessamps_.stop + nrsamples - 1 );
+			     z0 + dessamps_.stop + nrsamples - 1 );
     worksamps.limitTo( cubeintv_ );
 
     SamplingData<float> sd( cubeintv_.start, 1 );
     ValueSeriesEvFinder<float,float> evf( *inpseries_,
-	    				  inpdata_->nrsamples_-1, sd );
+					  inpdata_->nrsamples_-1, sd );
     ValueSeriesEvent<float,float> curev( 0, worksamps.start - 2 );
     Interval<float> sampsleft( 0, worksamps.stop );
 
@@ -90,8 +90,8 @@ void EventFreq::findEvents( int z0, int nrsamples ) const
 		// Too close anyway: must be noise
 		continue;
 	    // OK OK, seems we missed an event. Insert one in the middle
-	    float prevpos = evposns_[evposns_.size()-1];
-	    evposns_ += (curev.pos + prevpos) * .5;
+	    float evpos = evposns_[evposns_.size()-1];
+	    evposns_ += (curev.pos + evpos) * .5;
 	}
 
 	evposns_ += curev.pos;
@@ -123,7 +123,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
     if ( evposns_.size() < 3 )
     {
 	const float val = evposns_.size() < 2 ? mUdf(float)
-			: 1. / (2 * refstep * (evposns_[1] - evposns_[0]));
+			: 1. / (2 * refstep_ * (evposns_[1] - evposns_[0]));
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, val );
 	return;
@@ -148,7 +148,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
 
 	float r = (zpos - p1) / dz[1];
 	float t = dz[1] + r * dz[2] + (1-r) * dz[0];
-	float freq = 1. / (refstep * t);
+	float freq = 1. / (refstep_ * t);
 	setOutputValue( output, 0, idx, z0, freq );
     }
 }
@@ -196,19 +196,19 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
 }
 
 
-bool EventFreq::computeData( const DataHolder& output, const BinID& relpos, 
+bool EventFreq::computeData( const DataHolder& output, const BinID& relpos,
 			  int z0, int nrsamples, int threadid ) const
 {
     if ( !inpseries_ ) return false;
 
     evposns_.erase();
     findEvents( z0, nrsamples );
-    if ( outputinterest[0] )
+    if ( outputinterest_[0] )
 	fillFreqOutput( output, z0, nrsamples );
-    if ( outputinterest[1] )
+    if ( outputinterest_[1] )
 	fillPhaseOutput( output, z0, nrsamples );
 
     return true;
 }
 
-}; //namespace
+} // namespace Attrib

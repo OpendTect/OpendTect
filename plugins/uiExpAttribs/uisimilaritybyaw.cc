@@ -24,19 +24,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW, 
-	"Similarity by Adaptive Time Gate", sKeyBasicGrp() )
+mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
+	"Similarity by Adaptive Time Gate", "Experimental" )
 
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     :  uiAttrDescEd(p, is2d)
 {
     inputfld_ = createInpFld( is2d, "Input Data" );
 
-    reftimegatefld_ = 
+    reftimegatefld_ =
 	new uiGenInput( this, "Ref time gate (ms)", FloatInpIntervalSpec() );
     reftimegatefld_->attach( alignedBelow, inputfld_ );
 
-    searchrangefld_ = 
+    searchrangefld_ =
 	new uiGenInput( this, "Search range (ms)", FloatInpIntervalSpec() );
     searchrangefld_->attach( alignedBelow, reftimegatefld_ );
 
@@ -50,11 +50,11 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
 	    mCB(this, uiSimilaritybyAW, steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    const char* attributelist_[] = { "Optimal similarity", 
+    const char* attributelist_[] = { "Optimal similarity",
 					    "Optimal time gate", 0 };
-    attributefld_ = 
+    attributefld_ =
 	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );
-    attributefld_->valuechanged.notify( 
+    attributefld_->valuechanged.notify(
 	    mCB(this, uiSimilaritybyAW, choiceSel) );
     attributefld_->attach(alignedBelow, steerfld_);
 
@@ -86,7 +86,7 @@ bool uiSimilaritybyAW::setParameters( const Desc& desc )
 	    stepoutfld_->setBinID(stepout) );
 
     choiceSel(0);
-    return true; 
+    return true;
 }
 
 
@@ -104,10 +104,10 @@ bool  uiSimilaritybyAW::getParameters( Desc& desc )
     if( strcmp(desc.attribName(),SimilaritybyAW::attribName()) )
 	return false;
 
-    mSetFloatInterval( SimilaritybyAW::refTimeGateStr(), 
+    mSetFloatInterval( SimilaritybyAW::refTimeGateStr(),
 	    reftimegatefld_->getFInterval() );
 
-    mSetFloatInterval( SimilaritybyAW::searchRangeStr(), 
+    mSetFloatInterval( SimilaritybyAW::searchRangeStr(),
 	    searchrangefld_->getFInterval() );
 
     BinID stepout( stepoutfld_->getBinID() );

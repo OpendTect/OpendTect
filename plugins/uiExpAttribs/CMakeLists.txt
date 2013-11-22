@@ -10,6 +10,7 @@ SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uiexpattribspi.cc
 	uicurvgrad.cc
+	uieventfreqattrib.cc
 	uigrubbsfilterattrib.cc
 	uisimilaritybyaw.cc)
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )

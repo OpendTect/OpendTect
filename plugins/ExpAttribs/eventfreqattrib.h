@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "expattribsmod.h"
 #include "attribprovider.h"
 #include "valseries.h"
 
@@ -20,7 +21,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mClass(EventFreq) EventFreq : public Provider
+mClass(ExpAttribs) EventFreq : public Provider
 {
 public:
 
@@ -35,7 +36,7 @@ protected:
 
     bool		getInputData(const BinID&,int);
     bool		computeData(const DataHolder&,const BinID&,
-	    			    int,int,int) const;
+				    int,int,int) const;
 
     const DataHolder*	inpdata_;
     ValueSeries<float>*	inpseries_;

@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 
 #include "uicurvgrad.h"
+#include "uieventfreqattrib.h"
 #include "uigrubbsfilterattrib.h"
 #include "uisimilaritybyaw.h"
 
@@ -22,9 +23,9 @@ mDefODPluginInfo(uiExpAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Experimental Attributes (UI)",
-	"dGB (Nanne)",
+	"dGB",
 	"=od",
-   	"" ));
+	"" ));
     return &retpi;
 }
 
@@ -32,8 +33,11 @@ mDefODPluginInfo(uiExpAttribs)
 mDefODInitPlugin(uiExpAttribs)
 {
     uiCurvGrad::initClass();
+    uiEventFreqAttrib::initClass();
     uiGrubbsFilterAttrib::initClass();
+#ifdef __debug__
     uiSimilaritybyAW::initClass();
+#endif
 
     return 0;
 }

@@ -17,14 +17,14 @@
 using namespace Attrib;
 
 
-mInitAttribUI( uiCurvGrad, CurvGrad, "Curvature Gradient", sKeyDipGrp() )
+mInitAttribUI( uiCurvGrad, CurvGrad, "Curvature Gradient", "Experimental" )
 
 
 uiCurvGrad::uiCurvGrad( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d)
 {
     inputfld_ = createInpFld( is2d, "Curvature Data" );
-    
+
     stepoutfld_ = new uiStepOutSel( this, is2d );
     const StepInterval<int> intv( 1, 10, 1 );
     stepoutfld_->setInterval( intv, intv );
@@ -35,7 +35,7 @@ uiCurvGrad::uiCurvGrad( uiParent* p, bool is2d )
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
     const char* attributelist_[] = { "Gradient", "Azimuth", 0 };
-    attributefld_ = 
+    attributefld_ =
 	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );
     attributefld_->valuechanged.notify( mCB(this,uiCurvGrad,choiceSel) );
     attributefld_->attach( alignedBelow, steerfld_ );
@@ -58,7 +58,7 @@ bool uiCurvGrad::setParameters( const Desc& desc )
     mIfGetBinID(CurvGrad::stepoutStr(),stepout,stepoutfld_->setBinID(stepout) );
 
     choiceSel(0);
-    return true; 
+    return true;
 }
 
 
@@ -71,7 +71,7 @@ bool uiCurvGrad::setInput( const Desc& desc )
 }
 
 
-bool  uiCurvGrad::getParameters( Desc& desc )
+bool uiCurvGrad::getParameters( Desc& desc )
 {
     if( strcmp(desc.attribName(),CurvGrad::attribName()) )
 	return false;
@@ -99,10 +99,10 @@ bool uiCurvGrad::getInput( Desc& desc )
 
 void uiCurvGrad::steerTypeSel( CallBacker* )
 {
-    if( is2D() && steerfld_->willSteer() && !inputfld_->isEmpty() )
+    if ( is2D() && steerfld_->willSteer() && !inputfld_->isEmpty() )
     {
 	const char* steertxt = steerfld_->text();
-	if( steertxt )
+	if ( steertxt )
 	{
 	    LineKey inp( inputfld_->getInput() );
 	    LineKey steer( steertxt );

@@ -34,7 +34,7 @@ static const char* replacetypestr[] =
 };
 
 
-mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,"Grubbs Filter",sKeyFilterGrp())
+mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,"Grubbs Filter","Experimental" )
 
 
 uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
@@ -49,16 +49,16 @@ uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			       FloatInpIntervalSpec().setName("Z start",0)
-			      			     .setName("Z stop",1) );
+						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, grubbsvalfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
     stepoutfld_->attach( alignedBelow, gatefld_ );
     stepoutfld_->setFieldNames( is2d ? "Trace Nr Stepout" : "Inl Stepout",
-	    		       "Crl Stepout" );
+			       "Crl Stepout" );
 
     replacetype_ = new uiGenInput( this, "Replace Type",
-	    			   StringListInpSpec(replacetypestr) );
+				   StringListInpSpec(replacetypestr) );
     replacetype_->attach( alignedBelow, stepoutfld_ );
     replacetype_->valuechanged.notify(
 	    mCB(this,uiGrubbsFilterAttrib,replaceTypChanged) );
@@ -85,9 +85,9 @@ bool uiGrubbsFilterAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     mIfGetFloat(GrubbsFilter::grubbsvalStr(),cogrubbsval,
-	    	grubbsvalfld_->setValue(cogrubbsval) )
+		grubbsvalfld_->setValue(cogrubbsval) )
     mIfGetFloatInterval(GrubbsFilter::gateStr(),gate,gatefld_->setValue(gate))
-    mIfGetBinID(GrubbsFilter::stepoutStr(),stepout, 
+    mIfGetBinID(GrubbsFilter::stepoutStr(),stepout,
 	        stepoutfld_->setBinID(stepout) )
     mIfGetEnum(GrubbsFilter::replaceValStr(),type,replacetype_->setValue(type))
     return true;
@@ -110,7 +110,7 @@ bool uiGrubbsFilterAttrib::getParameters( Attrib::Desc& desc )
     mSetBinID( GrubbsFilter::stepoutStr(), stepoutfld_->getBinID() );
     mSetFloatInterval( GrubbsFilter::gateStr(), gatefld_->getFInterval() );
     mSetEnum(GrubbsFilter::replaceValStr(),replacetype_->getIntValue());
-    
+
     return true;
 }
 

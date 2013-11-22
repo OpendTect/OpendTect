@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "expattribsmod.h"
 
 #include "curvgrad.h"
+#include "eventfreqattrib.h"
 #include "grubbsfilterattrib.h"
 #include "similaritybyaw.h"
 
@@ -25,7 +26,7 @@ mDefODPluginInfo(ExpAttribs)
 	( "Experimental Attributes (Base)",
 	"dGB Earth Sciences (Nanne)",
 	"=od",
-    	"" ) );
+	"" ) );
     return &retpi;
 }
 
@@ -33,8 +34,12 @@ mDefODPluginInfo(ExpAttribs)
 mDefODInitPlugin(ExpAttribs)
 {
     Attrib::CurvGrad::initClass();
+    Attrib::EventFreq::initClass();
     Attrib::GrubbsFilter::initClass();
+
+#ifdef __debug__
     Attrib::SimilaritybyAW::initClass();
+#endif
 
     return 0;
 }
