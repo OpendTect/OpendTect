@@ -56,9 +56,9 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , isbrinefilled_(true)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
-    , rangeChanged(this)   
-    , modelEdited(this)   
-    , infoChanged(this)   
+    , rangeChanged(this)
+    , modelEdited(this)
+    , infoChanged(this)
     , dispPropChanged(this)
 {
 }
@@ -104,7 +104,7 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
 
 float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 						const PropertyRef* pr,
-       						int propidx ) const
+						int propidx ) const
 {
     return propidx < lay.nrValues() ? lay.value( propidx ) : mUdf(float);
 }
@@ -140,7 +140,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( "Please generate some layer sequences" )
 
-    mDefineStaticLocalObject( BufferString, fixeddumpfnm, 
+    mDefineStaticLocalObject( BufferString, fixeddumpfnm,
 			      = GetEnvVar("OD_FIXED_LAYMOD_DUMPFILE") );
     BufferString dumpfnm( fixeddumpfnm );
     if ( dumpfnm.isEmpty() )
@@ -168,7 +168,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     Strat::LayerModel newlm;
     if ( !newlm.read(strm) )
 	mErrRet( "Cannot read layer model from file."
-		 "\nFile may not be a layer model file" )
+	     "\nDetails may be in the log file ('Utilities-Show log file')" )
 
     for ( int ils=0; ils<newlm.size(); ils++ )
 	const_cast<Strat::LayerModel&>(lm)
@@ -347,7 +347,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	return;
 
     Strat::LayerSequence& ls = const_cast<Strat::LayerSequence&>(
-	    				layerModel().sequence( selidx ) );
+					layerModel().sequence( selidx ) );
     ObjectSet<Strat::Layer>& lays = ls.layers();
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
     float zsel = yax_->getVal( mevh.event().pos().y );
@@ -498,7 +498,7 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 	zoomwr_.setLeft( wr.left() + .5 );
 	zoomwr_.setRight( wr.right() + .5 );
 	Interval<float> zrg( (float)wr.bottom(), (float)wr.top() );
-    	mGetDispZrg(zrg,dispzrg);
+	mGetDispZrg(zrg,dispzrg);
 	zoomwr_.setTop( dispzrg.start );
 	zoomwr_.setBottom( dispzrg.stop );
     }
@@ -665,7 +665,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     if ( !showzoomed_ )
     {
 	xax_->setBounds( Interval<float>(1,mCast(float,layerModel().size() )));
-    	mGetDispZrg(zrg_,dispzrg);
+	mGetDispZrg(zrg_,dispzrg);
 	yax_->setBounds( Interval<float>(dispzrg.stop,dispzrg.start) );
     }
     else
@@ -673,11 +673,11 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	xax_->setBounds( Interval<float>((float)zoomwr_.left(),
 						(float)zoomwr_.right()) );
 	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
-		    	 		 (float)zoomwr_.bottom()) );
+			 		 (float)zoomwr_.bottom()) );
     }
 
     yax_->plotAxis(); xax_->plotAxis();
-    if ( vrg_.width() == 0 ) 
+    if ( vrg_.width() == 0 )
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
@@ -834,7 +834,7 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 
 	if ( !it )
 	    continue;
- 
+
 	it->setLine( uiPoint(xpix1,ypix), uiPoint(xpix2,ypix) );
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 999999 );

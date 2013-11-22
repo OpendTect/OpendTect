@@ -171,7 +171,7 @@ const SurveyInfo& SI()
 	survinfostack += newsi;
 	cursurvinfoidx = survinfostack.size() - 1;
     }
-    
+
     return *survinfostack[cursurvinfoidx];
 }
 
@@ -187,10 +187,8 @@ void SurveyInfo::pushSI( SurveyInfo* newsi )
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    if ( survinfostack.isEmpty() )
-	{ pFreeFnErrMsg("Pop from empty stack","SurveyInfo::popSI"); return 0; }
-
-    return survinfostack.removeSingle( survinfostack.size()-1 );
+    return survinfostack.isEmpty() ? 0
+	 : survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
@@ -241,7 +239,7 @@ SurveyInfo::~SurveyInfo()
     delete &cs_;
     delete &wcs_;
     delete &zdef_;
-    
+
     Survey::Geometry3D* old = work_s3dgeom_.setToNull();
     if ( old ) old->unRef();
 
@@ -311,7 +309,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
     //Scrub away old settings (confusing to users)
     si->getPars().removeWithKey( "Depth in feet" );
-    
+
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
@@ -389,7 +387,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	si->comment_ += line;
     }
     sfio.closeSuccess();
-    
+
     if ( !si->wrapUpRead() )
     { delete si; return 0; }
 
@@ -498,14 +496,14 @@ float SurveyInfo::crlDistance() const
 
 
 float SurveyInfo::getArea( const Interval<int>& inlrg,
-			       const Interval<int>& crlrg ) const 
+			       const Interval<int>& crlrg ) const
 {
     const BinID step = sampling(false).hrg.step;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactorF : 1; 
+    const float scale = xyInFeet() ? mFromFeetFactorF : 1;
     const double d01 = c00.distTo( c01 ) * scale;
     const double d10 = c00.distTo( c10 ) * scale;
 
@@ -513,7 +511,7 @@ float SurveyInfo::getArea( const Interval<int>& inlrg,
 }
 
 
-float SurveyInfo::getArea( bool work ) const 
+float SurveyInfo::getArea( bool work ) const
 {
     return getArea( inlRange( work ), crlRange( work ) );
 }
@@ -573,7 +571,7 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
     if ( Values::isUdf(crd.x) || Values::isUdf(crd.y) )
 	return false;
 
-    return isReasonable( transform(crd) ); 
+    return isReasonable( transform(crd) );
 }
 
 
@@ -666,7 +664,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 }
 
 
-bool SurveyInfo::zIsTime() const 
+bool SurveyInfo::zIsTime() const
 { return zdef_.isTime(); }
 
 
@@ -714,7 +712,7 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 	if ( xyunit==Meter )
 	    return 1000;
 
-	//xyunit==feet	
+	//xyunit==feet
 	return 3048;
     }
     else if ( zunit==Feet && xyunit==Meter )
@@ -796,9 +794,9 @@ static void doSnap( int& idx, int start, int step, int dir )
     int rel = idx - start;
     int rest = rel % step;
     if ( !rest ) return;
- 
+
     idx -= rest;
- 
+
     if ( !dir ) dir = rest > step / 2 ? 1 : -1;
     if ( rel > 0 && dir > 0 )      idx += step;
     else if ( rel < 0 && dir < 0 ) idx -= step;
@@ -1037,7 +1035,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
     if ( !sgeom )
     {
 	RefMan<Survey::Geometry3D> newsgeom
-	    		= new Survey::Geometry3D( name(), zdef_ );
+			= new Survey::Geometry3D( name(), zdef_ );
 	newsgeom->ref();
 	if ( work )
 	    newsgeom->setID( Survey::GM().default3DSurvID() );
