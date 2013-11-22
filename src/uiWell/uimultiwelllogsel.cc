@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
 
@@ -63,8 +64,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     zchoicefld_->valuechanged.notify( cb );
     setHAlignObj( zchoicefld_ );
 
-    const bool zinft = SI().depthsInFeet();
-    BufferString dptlbl = zinft ? "(ft)":"(m)";
+    BufferString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
     const char* units[] = { "",dptlbl.buf(),"(ms)",0 };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
@@ -102,7 +102,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     }
 
     BufferString txt = "Distance above/below ";
-    txt += SI().depthsInFeet() ? "(ft)" : "(m)";
+    txt += UnitOfMeasure::zUnitAnnot(false,true,true);
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );
@@ -380,10 +380,14 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 
 void uiMultiWellLogSel::init()
 {
+    const uiObject::SzPolicy hpol = uiObject::MedMax;
+    const uiObject::SzPolicy vpol = uiObject::WideMax;
     uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
     logsfld_->setMultiSelect( !singlelog_ );
+    logsfld_->setHSzPol( hpol );
+    logsfld_->setVSzPol( vpol );
 
     welllslblfld_ = 0;
     wellsfld_ = 0;
@@ -393,11 +397,12 @@ void uiMultiWellLogSel::init()
     {
 	uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
 	wellsfld_ = llbw->box();
+	wellsfld_->setHSzPol( hpol );
+	wellsfld_->setVSzPol( vpol );
 	llbl->attach( rightTo, llbw );
 	welllslblfld_ = llbw;
     }
     zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
-    setStretch( 2, 0 );
 }
 
 
