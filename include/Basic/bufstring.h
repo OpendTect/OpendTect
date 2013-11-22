@@ -87,6 +87,9 @@ public:
     template <class T>
     BufferString&	set(const T&);
     void                fill(char*,int maxnrchar) const;
+    BufferString&	addSpace();
+    BufferString&	addTab();
+    BufferString&	addNewLine();
 
     unsigned int	size() const;
     inline unsigned int	bufSize() const		{ return len_; }

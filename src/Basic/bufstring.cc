@@ -156,10 +156,17 @@ BufferString& BufferString::add( const char* s )
 }
 
 
+BufferString& BufferString::addSpace()
+{ return add( " " ); }
+
+BufferString& BufferString::addTab()
+{ return add( "\t" ); }
+
+BufferString& BufferString::addNewLine()
+{ return add( "\n" ); }
+
 unsigned int BufferString::size() const
-{
-    return buf_ ? strlen(buf_) : 0;
-}
+{ return buf_ ? strlen(buf_) : 0; }
 
 
 void BufferString::setBufSize( unsigned int newlen )
