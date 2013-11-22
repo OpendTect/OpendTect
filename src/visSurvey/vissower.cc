@@ -583,7 +583,7 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
     mDynamicCastGet( const LocationDisplay*, locdisp, editobject_ );
     if ( locdisp )
     {
-	const int knotid = locdisp->isMarkerClick( eventinfo.worldpickedpos );
+	const int knotid = locdisp->clickedMarkerIndex( eventinfo );
 	return knotid<0 ? EM::PosID::udf() : EM::PosID( 0, 0, knotid );
     }
 

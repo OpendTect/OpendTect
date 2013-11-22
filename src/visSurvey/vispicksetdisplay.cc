@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "visrandompos2body.h"
+#include "visevent.h"
 #include "zaxistransform.h"
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
@@ -222,22 +223,6 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 // markerset->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );*/
 //    }
 //}
-
-
-
-int PickSetDisplay::isMarkerClick( const Coord3& clickworldpos ) const
-{
-    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
-    const double epsz = 0.01f * get3DSurvGeom()->zStep();
-    const Coord3 eps( epsxy,epsxy,epsz );
-
-    const int markeridx = markerset_->findMarker( clickworldpos,eps );
-
-    if( markeridx >= 0 )
-	return markeridx;
-
-    return -1;
-}
 
 
 void PickSetDisplay::fillPar( IOPar& par ) const

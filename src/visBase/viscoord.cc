@@ -289,6 +289,7 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 	{
 	    mGetOsgVec3Arr(osgcoords_)->erase(
 		mGetOsgVec3Arr(osgcoords_)->begin() + idx );
+	    osgcoords_->dirty();
 
 	    for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
 	    {
@@ -313,6 +314,8 @@ void Coordinates::removeAfter( int idx )
 	if ( unusedcoords_[idy]>idx )
 	    unusedcoords_.removeSingle(idy--);
     }
+    
+    dirty();
 }
 
 
@@ -341,6 +344,8 @@ void Coordinates::setAllZ( const float* vals, int sz, float zscale )
 	    vals++;
 	}
     }
+
+    dirty();
 }
 
 
@@ -379,6 +384,12 @@ void Coordinates::setAllPositions( const Coord3 pos, int sz, int start )
 	setPosWithoutLock(idx+start, pos, false );
 }
 
+
+void Coordinates::dirty() const
+{
+    if ( osgcoords_ && osgcoords_->getNumElements()> 0 )
+	osgcoords_->dirty();
+}
     
 CoinFloatVertexAttribList::CoinFloatVertexAttribList(Coordinates& c, Normals* n)
     : coords_( c )

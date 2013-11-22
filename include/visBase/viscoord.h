@@ -85,6 +85,7 @@ public:
     const osg::Array*	osgArray() const { return osgcoords_; }
 
     void		setEmpty();
+    void		dirty() const;
 
 protected:
 

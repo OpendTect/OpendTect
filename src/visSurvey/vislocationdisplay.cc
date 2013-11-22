@@ -37,6 +37,7 @@ const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
 const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 static const float cDistEps = 0.1f;
+static const int cMinMarkerSize = 10;
 
 static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 {
@@ -126,7 +127,7 @@ void LocationDisplay::setSet( Pick::Set* s )
     setName( set_->name() );
 
     MarkerStyle3D markerstyle;
-    markerstyle.size_ = set_->disp_.pixsize_;
+    markerstyle.size_ = set_->disp_.pixsize_ + cMinMarkerSize;
     markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
     markerset_->setMaterial( 0 );
     markerset_->setMarkerStyle( markerstyle );
@@ -366,7 +367,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	     !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
 	     !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
 	{
-	    const int selfpickidx = isMarkerClick( eventinfo.worldpickedpos );
+	    const int selfpickidx = clickedMarkerIndex( eventinfo );
 	    if ( selfpickidx!=-1 )
 	    {
 		setPickable( false );
@@ -400,7 +401,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( eventinfo.pickedobjids.size() &&
 		 eventid==mousepressid_ )
 	    {
-		const int removeidx = isMarkerClick( eventinfo.worldpickedpos );
+		const int removeidx = clickedMarkerIndex( eventinfo );
 		if ( removeidx!=-1 ) removePick( removeidx );
 	    }
 
@@ -436,6 +437,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	}
     }
 }
+
 
 
 bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
@@ -889,8 +891,19 @@ const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 }
 
 
-int LocationDisplay::isMarkerClick(const Coord3& clickworldpos) const
-{ return -1; }
+int LocationDisplay::clickedMarkerIndex(const visBase::EventInfo& evi) const
+{
+    if ( !isMarkerClick( evi ) )
+	return -1;
+
+    return  markerset_->findClosestMarker( evi.displaypickedpos, true );
+}
+
+
+bool LocationDisplay::isMarkerClick(const visBase::EventInfo& evi) const
+{ 
+    return evi.pickedobjids.isPresent( markerset_->id() );
+}
 
 
 int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
@@ -940,7 +953,7 @@ void LocationDisplay::fillPar( IOPar& par ) const
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
 
-    fillSOPar( par );
+    fillPar( par );
 }
 
 
@@ -987,7 +1000,7 @@ int LocationDisplay::usePar( const IOPar& par )
     else
 	setSet( &picksetmgr_->get( storedmid_ ) );
 
-    return useSOPar( par );
+    return usePar( par );
 }
 
 

@@ -1,3 +1,4 @@
+
 #ifndef vislocationdisplay_h
 #define vislocationdisplay_h
 
@@ -100,12 +101,16 @@ public:
     const ZAxisTransform*	getZAxisTransform() const;
 
 protected:
-					LocationDisplay();
-    virtual void			setPosition(int idx,
-	    					    const Pick::Location&);
-    virtual bool			hasDirection() const { return false; }
-    virtual bool			hasText() const { return false; }
-    virtual int			isMarkerClick(const Coord3&) const;
+				LocationDisplay();
+    virtual void		setPosition(int idx,
+	    				    const Pick::Location&);
+    virtual bool		hasDirection() const { return false; }
+    virtual bool		hasText() const { return false; }
+    int				clickedMarkerIndex(
+					const visBase::EventInfo& evi)const;
+    bool			isMarkerClick(
+					const visBase::EventInfo& evi)const;
+
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();
 

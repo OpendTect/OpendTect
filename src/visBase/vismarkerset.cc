@@ -110,9 +110,9 @@ void MarkerSet::clearMarkers()
 
 void MarkerSet::removeMarker( int idx )
 {
-    if ( coords_ ) coords_->removePos( idx );
     if ( normals_ ) normals_->removeNormal( idx );
     if ( material_ ) material_->removeColor( idx );
+    if ( coords_ ) coords_->removePos( idx, false );
 }
 
 
