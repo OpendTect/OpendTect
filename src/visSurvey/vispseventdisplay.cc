@@ -53,7 +53,7 @@ PSEventDisplay::PSEventDisplay()
     addNodeState( linestyle_ );
     eventmarkerset_->ref();
     eventmarkerset_->setMarkerStyle( markerstyle_ );
-    eventmarkerset_->setScreenSize( 26 );
+    eventmarkerset_->setScreenSize( 16 );
     eventmarkerset_->setMaterial( getMaterial() );
 
     addChild( eventmarkerset_->osgNode() );
@@ -262,21 +262,17 @@ void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st, bool update )
 
 void PSEventDisplay::updateDisplay()
 {
-    if ( !tryWriteLock() )
-	return;
+    Threads::Locker locker( lock_ );
 
     if ( displaymode_==ZeroOffset )
     {
 	eventChangeCB( 0 );
 	updateDisplay( 0 );
-	writeUnLock();
 	return;
     }
 
     for ( int idx=0; idx<parentattached_.size(); idx++ )
 	updateDisplay( parentattached_[idx] );
-
-    writeUnLock();
 }
 
 

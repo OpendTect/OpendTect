@@ -134,6 +134,7 @@ protected:
     ColTab::Sequence			ctabsequence_;
     MarkerStyle3D			markerstyle_;
     visBase::MarkerSet*			eventmarkerset_;
+    mutable Threads::Lock		lock_;
 };
 
 } // namespace visSurvey
