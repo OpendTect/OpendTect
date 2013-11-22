@@ -635,8 +635,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
     , setup_(mSelTxt(txt,c))
     , inctiomine_(true)
 {
-    fillDefault();
-    updateInput();
+    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
@@ -648,8 +647,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
     , setup_(su)
     , inctiomine_(true)
 {
-    fillDefault();
-    updateInput();
+    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
@@ -661,8 +659,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
     , setup_(mSelTxt(txt,c.ctxt))
     , inctiomine_(false)
 {
-    fillDefault();
-    updateInput();
+    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
@@ -673,8 +670,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , setup_(su)
     , inctiomine_(false)
 {
-    fillDefault();
-    updateInput();
+    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
@@ -683,6 +679,13 @@ uiIOObjSel::~uiIOObjSel()
     if ( inctiomine_ )
 	{ delete inctio_.ioobj; delete &inctio_; }
     delete workctio_.ioobj; delete &workctio_;
+}
+
+
+void uiIOObjSel::preFinaliseCB( CallBacker* )
+{
+    fillDefault();
+    updateInput();
 }
 
 

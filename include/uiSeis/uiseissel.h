@@ -103,7 +103,7 @@ protected:
     uiCheckBox*		othdombox_;
 
     Setup		mkSetup(const Setup&,bool);
-    void		fillDefault();
+    virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual void	commitSucceeded();
     virtual IOObj*	createEntry(const char*);
@@ -111,6 +111,8 @@ protected:
     virtual const char* compNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
     void		mkOthDomBox();
+
+    const char*		getDefaultKey(Seis::GeomType) const;
 };
 
 

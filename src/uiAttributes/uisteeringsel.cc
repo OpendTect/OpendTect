@@ -37,7 +37,7 @@ using namespace Attrib;
 
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
-uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
+uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 			      bool is2d, bool withconstdir, bool doinit )
     : uiGroup(p,"Steering selection")
     , ctio_( *uiSteerCubeSel::mkCtxtIOObj(is2d,true) )
@@ -104,7 +104,7 @@ void uiSteeringSel::doFinalise(CallBacker*)
 
 void uiSteeringSel::typeSel( CallBacker* )
 {
-    if ( !inpfld_ ) return; 
+    if ( !inpfld_ ) return;
 
     int typ = typfld_->getIntValue();
     inpfld_->display( typ > 0 && typ < 3 );
@@ -125,7 +125,7 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 {
     if ( !typfld_ || !inpfld_ )
 	return;
-    
+
     if ( !ad )
     {
 	typfld_->setValue( 0 );
@@ -243,7 +243,7 @@ DescID uiSteeringSel::descID()
     desc->setHidden( true );
     desc->setSteering( true );
 
-    const ValParam* param = 
+    const ValParam* param =
 	ads->getDesc(inldipid)->getValParam( StorageProvider::keyStr() );
     BufferString userref = attribnm; userref += " ";
     userref += param->getStringValue();
@@ -278,6 +278,13 @@ const char* uiSteeringSel::text() const
 }
 
 
+// uiSteerCubeSel
+/* TODO:
+   - Move uiSteerCubeSel to uiSeis
+   - Create subclass uiSteerAttrSel for attribute related i/o
+   - Remove CtxtIOObj input argument. A IOObjContext can be created locally
+*/
+
 static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
@@ -288,35 +295,44 @@ static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
-	: uiSeisSel( p, c, mkSeisSelSetup(is2d,txt) )
+	: uiSeisSel(p,c,mkSeisSelSetup(is2d,txt))
 	, attrdata_( is2d )
 {
     attrdata_.setAttrSet( ads );
-    preFinalise().notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
 
 
-void uiSteerCubeSel::doFinalise( CallBacker* c )
+static uiSeisSel::Setup mkSeisSelSetup( Seis::GeomType gt, const char* txt )
 {
-    if ( workctio_.ioobj ) return;
-
-    const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering() );
-    workctio_.setObj( IOM().get(defid) );
-    if ( workctio_.ioobj )
-	updateInput();
+    uiSeisSel::Setup sssu( gt );
+    sssu.selattr( Seis::is2D(gt) ).wantSteering().seltxt( txt );
+    return sssu;
 }
 
 
-const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
+uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
+				Seis::GeomType gt, const char* txt )
+    : uiSeisSel(p,c,mkSeisSelSetup(gt,txt))
+    , attrdata_(Seis::is2D(gt))
+{
+}
+
+
+const IOObjContext& uiSteerCubeSel::ioContext( bool is2d, bool forread )
 {
     mDefineStaticLocalObject( PtrMan<IOObjContext>, ctxt, = 0 );
     if ( !ctxt )
     {
-	IOObjContext* newctxt = 
+	IOObjContext* newctxt =
 		new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
-	newctxt->deftransl = CBVSSeisTrcTranslator::translKey();
-	if ( !is2d )
+	newctxt->forread = forread;
+	if ( is2d )
+	    newctxt->deftransl = "2D";
+	else
+	{
+	    newctxt->deftransl = CBVSSeisTrcTranslator::translKey();
 	    newctxt->toselect.require_.set( sKey::Type(), sKey::Steering() );
+	}
 
 	if ( !ctxt.setIfNull(newctxt) )
 	    delete newctxt;
@@ -329,28 +345,33 @@ const IOObjContext& uiSteerCubeSel::ioContext( bool is2d )
 CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 {
     CtxtIOObj* ret = mMkCtxtIOObj(SeisTrc);
-    ret->ctxt = ioContext( is2d );
-    ret->ctxt.forread = forread;
-    if ( is2d )
-	ret->ctxt.deftransl = "2D";
-    else
-	ret->ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
-
-    if ( forread && !is2d )
-    {
-	const char* defcubeid = SI().pars().find( "Default.Cube.Steering" );
-	if ( defcubeid && *defcubeid )
-	    ret->setObj( MultiID(defcubeid) );
-			     
-    }
+    ret->ctxt = ioContext( is2d, forread );
     return ret;
+}
+
+
+void uiSteerCubeSel::fillDefault()
+{
+    workctio_.destroyAll();
+    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
+	return;
+
+    if ( Seis::isPS(seissetup_.geom_) )
+	workctio_.fillDefault();
+    else
+    {
+	const bool is2d = Seis::is2D( seissetup_.geom_ );
+	BufferString defkey = getDefaultKey( seissetup_.geom_ );
+	if ( !is2d ) defkey = IOPar::compKey( defkey, sKey::Steering() );
+	workctio_.fillDefaultWithKey( defkey );
+    }
 }
 
 
 DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
-    if ( !workctio_.ioobj ) 
+    if ( !workctio_.ioobj )
 	return DescID::undef();
 
     LineKey linekey( workctio_.ioobj->key() );

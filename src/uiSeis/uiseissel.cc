@@ -370,8 +370,6 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
-    fillDefault();
-    updateInput();
 }
 
 
@@ -386,8 +384,6 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
-    fillDefault();
-    updateInput();
 }
 
 
@@ -430,6 +426,15 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 }
 
 
+const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
+{
+    const bool is2d = Seis::is2D( gt );
+    return IOPar::compKey( sKey::Default(),
+	is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
+	     : SeisTrcTranslatorGroup::sKeyDefault3D() );
+}
+
+
 void uiSeisSel::fillDefault()
 {
     workctio_.destroyAll();
@@ -439,12 +444,7 @@ void uiSeisSel::fillDefault()
     if ( Seis::isPS(seissetup_.geom_) )
 	workctio_.fillDefault();
     else
-    {
-	const bool is2d = Seis::is2D( seissetup_.geom_ );
-	workctio_.fillDefaultWithKey( IOPar::compKey( sKey::Default(),
-	   is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
-		: SeisTrcTranslatorGroup::sKeyDefault3D() ) );
-    }
+	workctio_.fillDefaultWithKey( getDefaultKey(seissetup_.geom_) );
 }
 
 

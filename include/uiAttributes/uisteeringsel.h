@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiLabel;
-namespace Attrib { class Desc; class DescSet; class SelSpec; };
+namespace Attrib { class Desc; class DescSet; class SelSpec; }
 
 
 mExpClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
@@ -27,28 +27,31 @@ mExpClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
 public:
 
 				uiSteerCubeSel(uiParent*,CtxtIOObj&,
-				       const Attrib::DescSet*,bool,
-				       const char* txt="Steering Data" );
+				       const Attrib::DescSet*,bool is2d,
+				       const char* txt="Steering Data");
+				uiSteerCubeSel(uiParent*,CtxtIOObj&,
+					       Seis::GeomType,
+					       const char* txt="Steering Data");
 
     inline Attrib::DescID	inlDipID() const	{ return getDipID(0); }
 				// Returns -2 when selected is not a dip
-    inline Attrib::DescID 	crlDipID() const	{ return getDipID(1); }
+    inline Attrib::DescID	crlDipID() const	{ return getDipID(1); }
 				// Returns -2 when selected is not a dip
 
     void			setDesc(const Attrib::Desc*);
     void			setDescSet(const Attrib::DescSet*);
 
     void			fillSelSpec(Attrib::SelSpec&,bool inl);
-    				/* inl=true: AttribSelSpec for inline comp
-    				   inl=false: AttribSelSpec for crossline comp*/
+				/* inl=true: AttribSelSpec for inline comp
+				   inl=false: AttribSelSpec for crossline comp*/
 
-    static const IOObjContext&	ioContext(bool is2d);
+    static const IOObjContext&	ioContext(bool is2d,bool forread);
     static CtxtIOObj*		mkCtxtIOObj(bool is2d,bool forread);
 
 protected:
 
     Attrib::DescID		getDipID(int) const;
-    void			doFinalise(CallBacker*);
+    void			fillDefault();
 
     uiAttrSelData		attrdata_;
 };

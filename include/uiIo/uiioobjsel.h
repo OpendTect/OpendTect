@@ -40,7 +40,7 @@ public:
 			: uiDialog(p,s) {}
 
     virtual const IOObj*	ioObj() const		= 0;
- 
+
     virtual uiIOObjSelGrp*	selGrp()		{ return 0; }
 };
 
@@ -168,7 +168,7 @@ protected:
 \brief User Interface (UI) element for selection of IOObjs.
 
   User gets the possibility to select an object of a certain type.
-  
+
   If nothing is selected, an error will be generated if setup.mandatory_ is
   true. This is the default. Thus, you can simply do, in acceptOK():
   const IOObj* theobj = theselfld_->ioobj();
@@ -231,13 +231,14 @@ protected:
     BufferString	helpid_;
     bool		inctiomine_;
 
+    void		preFinaliseCB(CallBacker*);
     void		doObjSel(CallBacker*);
 
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
     virtual void	commitSucceeded()			{}
 
-    void		fillDefault();
+    virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*)		{}
     virtual uiIOObjRetDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);
