@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
-    , totalnr_( ids.size() * (SI().inlRange(true).width()+1) )
+    , totalnr_(-1)
     , nrdone_(0)
     , iterator_(0)
     , result_(0)
@@ -53,8 +53,7 @@ void HorizonSorter::init()
 
     delete result_;
     result_ = new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
-    for ( int idx=0; idx<result_->info().getTotalSz(); idx++ )
-	result_->getData()[idx] = 0;
+    result_->setAll( 0 );
 }
 
 
@@ -71,7 +70,7 @@ void HorizonSorter::calcBoundingBox()
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
 		const Geometry::Horizon2DLine* geom =
-		    			hor2d->geometry().sectionGeometry(sid);
+			hor2d->geometry().sectionGeometry(sid);
 		if ( !geom ) continue;
 
 		PosInfo::Line2DKey l2dkey = hor2d->geometry().lineKey( ldx );
@@ -233,7 +232,7 @@ int HorizonSorter::nextStep()
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
 	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
-	    EM::SubID subid = binid_.toInt64();
+	    const EM::SubID subid = binid_.toInt64();
 	    if ( is2d_ )
 	    {	
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
@@ -250,6 +249,7 @@ int HorizonSorter::nextStep()
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
 	    if ( mIsUdf(depths[idx]) ) continue;
+
 	    for ( int idy=idx+1; idy<nrhors; idy++ )
 	    {
 		if ( mIsUdf(depths[idy]) ) continue;

@@ -14,7 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "cubesampling.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
+#include "survinfo.h"
 
 
 HorizonModifier::HorizonModifier( bool is2d )
@@ -29,6 +31,7 @@ HorizonModifier::HorizonModifier( bool is2d )
 
 HorizonModifier::~HorizonModifier()
 {
+    delete iter_;
     if ( tophor_ ) tophor_->unRef();
     if ( bothor_ ) bothor_->unRef();
 }
@@ -176,7 +179,7 @@ void HorizonModifier::doWork()
 
 float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
 {
-    if (      !hor ) return mUdf(float);
+    if ( !hor ) return mUdf(float);
 
     const EM::SectionID sid = hor->sectionID(0);
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
@@ -190,27 +193,25 @@ void HorizonModifier::shiftNode( const BinID& bid )
 {
     const EM::Horizon* statichor = topisstatic_ ? tophor_ : bothor_;
     EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
-
-    const double extrashift = topisstatic_ ? 0.001 : -0.001;
-    EM::SubID staticsubid, dynamicsubid;
+    const float extrashift = SI().zStep() / (topisstatic_ ? 4.f : -4.f);
+    
     if ( !is2d_ )
     {
-	staticsubid = dynamicsubid = bid.toInt64();
-	double newz = statichor->getPos( statichor->sectionID(0), staticsubid).z;
+	mDynamicCastGet(const EM::Horizon3D*,statichor3d,statichor)
+	mDynamicCastGet(EM::Horizon3D*,dynamichor3d,dynamichor)
+	if ( !statichor3d || !dynamichor3d ) return;
+
+	float newz = statichor3d->getZ( bid );
 	if ( !mIsUdf(newz) )
 	    newz += extrashift;
 
-	Coord3 pos = dynamichor->getPos( dynamichor->sectionID(0),dynamicsubid);
-	pos.z = newz;
-	dynamichor->setPos( dynamichor->sectionID(0), dynamicsubid, pos, false);
+	dynamichor3d->setZ( bid, newz, false );
     }
     else
     { 
 	mDynamicCastGet(const EM::Horizon2D*,statichor2d,statichor)
-	if ( !statichor2d ) return;
-
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
-	if ( !dynamichor2d ) return;
+	if ( !statichor2d || !dynamichor2d ) return;
 
 	float newz = (float) statichor2d->getPos( statichor->sectionID(0),
 					  l2dkeys_[bid.inl()], bid.crl() ).z;
@@ -220,7 +221,6 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	dynamichor2d->setPos( dynamichor->sectionID(0), l2dkeys_[bid.inl()],
 			      bid.crl(), newz, false);
     }
-
 }
 
 
@@ -241,5 +241,4 @@ void HorizonModifier::removeNode( const BinID& bid )
 	dynamichor2d->setPos( dynamichor->sectionID(0), l2dkeys_[bid.inl()],
 			      bid.crl(), mUdf(float), false );
     }
-
 }
