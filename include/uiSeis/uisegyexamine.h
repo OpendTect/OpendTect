@@ -25,6 +25,8 @@ class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
 
 
+/* The dialog for examining SEG-Y files */
+
 mExpClass(uiSeis) uiSEGYExamine : public uiDialog
 {
 public:
@@ -77,7 +79,7 @@ protected:
     void		updateInp();
     void		setRow(int);
     void		handleFirstTrace(const SeisTrc&,
-	    				 const SEGYSeisTrcTranslator&);
+					 const SEGYSeisTrcTranslator&);
     bool		rejectOK(CallBacker*);
 
     void		outInfo(const char*);
