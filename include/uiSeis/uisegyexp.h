@@ -24,6 +24,9 @@ class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 
 
+/*\brief SEG-Y exporting dialog */
+
+
 mExpClass(uiSeis) uiSEGYExp : public uiDialog
 		 , public Usage::Client
 {
