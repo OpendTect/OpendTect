@@ -16,11 +16,13 @@ ________________________________________________________________________
 #include "iopar.h"
 
 
+/* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
+
 mExpClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 
-    			uiSEGYSurvInfoProvider()
+			uiSEGYSurvInfoProvider()
 			    : xyinft_(false)	{}
 
     const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
@@ -29,7 +31,7 @@ public:
     bool		xyInFeet() const	{ return xyinft_; }
 
     IOPar*		getImportPars() const
-    			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
+			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
 
