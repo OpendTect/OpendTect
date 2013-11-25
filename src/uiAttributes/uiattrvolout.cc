@@ -459,7 +459,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	       transffld_->scfmtfld->extendTrcToSI() );
 
     IOPar tmpiop; CubeSampling cs;
-    transffld_->fillPar( tmpiop );
+    transffld_->selfld->fillPar( tmpiop );
     BufferString typestr;
     //Subselection type and geometry will have an extra level key: 'Subsel
     if ( tmpiop.get( sKey::Type(), typestr ) )
