@@ -40,6 +40,10 @@ public:
         camera_.triggerDrawCallBack( this, renderInfo );
     }
 
+    //Just to avoid warning
+    virtual void operator () (const osg::Camera&) const
+    { }
+
 private:
     visBase::Camera&	camera_;
 };

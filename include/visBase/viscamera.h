@@ -82,7 +82,7 @@ public:
     				//!<Only available during pre/post draw cb
 
 private:
-    friend			DrawCallback;
+    friend			class DrawCallback;
 
     void			triggerDrawCallBack(const DrawCallback*,
                                 	            const osg::RenderInfo&);
