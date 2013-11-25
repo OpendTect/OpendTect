@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uibatchlaunch.h"
 #include "segyhdr.h"
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
@@ -38,6 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iostrm.h"
 #include "zdomain.h"
+#include "segybatchio.h"
+#include "keystrs.h"
 
 
 
@@ -45,6 +48,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 			const uiSEGYReadDlg::Setup& su, IOPar& iop )
     : uiSEGYReadDlg(p,su,iop)
     , morebut_(0)
+    , inbatchfld_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
 {
     ctio_.ctxt.forread = false;
@@ -75,7 +79,13 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     seissel_ = new uiSeisSel( outgrp, ctio_, sssu );
     seissel_->attach( alignedBelow, transffld_ );
 
-    if ( setup_.geom_ == Seis::Line )
+    if ( setup_.geom_ != Seis::Line )
+    {
+	inbatchfld_ = new uiGenInput( outgrp, "Execute in Batch mode",
+					BoolInpSpec(false) );
+	inbatchfld_->attach( alignedBelow, seissel_ );
+    }
+    else
     {
 	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
 	morebut_->attach( alignedBelow, seissel_ );
@@ -289,6 +299,20 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
     }
+    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
+
+    if ( inbatchfld_ && inbatchfld_->getBoolValue() )
+    {
+	IOPar batchpars( pars_ );
+	IOPar outpars;
+	transffld_->fillPar( outpars );
+	seissel_->fillPar( outpars );
+	batchpars.mergeComp( outpars, sKey::Output() );
+	batchpars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
+	batchpars.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	uiBatchLaunch dlg( this, batchpars, 0, SEGY::IO::sProgname(), false );
+	return dlg.go();
+    }
 
     if ( is2d )
     {
@@ -311,7 +335,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     SEGY::TxtHeader::info2D() = is2d;
-    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
     PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
     SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );

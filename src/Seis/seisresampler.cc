@@ -14,12 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
 				const Interval<float>* v )
-    	: nrtrcs(0)
-    	, worktrc(*new SeisTrc)
-    	, valrg(v? new Interval<float>(*v) : 0)
-    	, cs(*new CubeSampling(c))
+	: nrtrcs(0)
+	, worktrc(*new SeisTrc)
+	, valrg(v? new Interval<float>(*v) : 0)
+	, cs(*new CubeSampling(c))
 	, is3d(!is2d)
 	, dozsubsel(false)
+	, replval(0)
 {
     cs.normalise();
     if ( valrg )
@@ -31,9 +32,9 @@ SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
 
 
 SeisResampler::SeisResampler( const SeisResampler& r )
-    	: worktrc(*new SeisTrc)
-    	, cs(*new CubeSampling(r.cs))
-    	, valrg(0)
+	: worktrc(*new SeisTrc)
+	, cs(*new CubeSampling(r.cs))
+	, valrg(0)
 {
     *this = r;
 }

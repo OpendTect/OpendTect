@@ -39,12 +39,13 @@ protected:
     uiSeisTransfer*	transffld_;
     uiSeisSel*		seissel_;
     uiCheckBox*		morebut_;
+    uiGenInput*		inbatchfld_;
 
     virtual bool	doWork(const IOObj&);
 
     friend class	uiSEGYImpSimilarDlg;
     bool		impFile(const IOObj&,const IOObj&,
-	    			const char*,const char*);
+				const char*,const char*);
 
 };
 

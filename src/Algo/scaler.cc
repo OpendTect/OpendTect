@@ -4,7 +4,7 @@
  * DATE     : 8-9-1995
  * FUNCTION : Scaler functions
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "scaler.h"
@@ -24,21 +24,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Scaler* Scaler::get( const char* str )
 {
-    if ( !str || ! *str ) return new LinScaler;
+    if ( !str || ! *str )
+	return 0;
 
     FileMultiString fs( str );
     FixedString typ = fs[0];
     Scaler* scaler = 0;
-    if ( typ==sLinScaler )
+    if ( typ == sLinScaler )
 	scaler = new LinScaler;
-    else if ( typ==sLogScaler )
+    else if ( typ == sLogScaler )
 	scaler = new LogScaler;
-    else if ( typ==sExpScaler )
+    else if ( typ == sExpScaler )
 	scaler = new ExpScaler;
-    else if ( typ==sAsymptScaler )
+    else if ( typ == sAsymptScaler )
 	scaler = new AsymptScaler;
 
-    if ( scaler ) scaler->fromString( fs.from(1) );
+    if ( scaler )
+	scaler->fromString( fs.from(1) );
     return scaler;
 }
 

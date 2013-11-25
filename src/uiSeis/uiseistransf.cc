@@ -45,7 +45,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     remnullfld->attach( alignedBelow, selfld );
 
     scfmtfld = new uiSeisFmtScale( this, setup_.geomType(),
-	    			   !setup_.fornewentry_ );
+				   !setup_.fornewentry_ );
     scfmtfld->attach( alignedBelow, remnullfld );
 
     setHAlignObj( remnullfld );
@@ -90,7 +90,7 @@ int uiSeisTransfer::maxBytesPerSample() const
 SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 {
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
-	    	selfld->expectedNrTraces(), maxBytesPerSample() );
+		selfld->expectedNrTraces(), maxBytesPerSample() );
 
     if ( setup_.is2d_ )
 	si.expectednrtrcs = -1;
@@ -163,7 +163,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     }
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,
-	    				extxt, &iop, worktxt );
+					extxt, &iop, worktxt );
     stp->setScaler( scfmtfld->getScaler() );
     stp->skipNullTraces( removeNull() );
     stp->fillNullTraces( fillNull() );
@@ -171,4 +171,12 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     stp->setExtTrcToSI( scfmtfld->extendTrcToSI() );
 
     return stp;
+}
+
+
+void uiSeisTransfer::fillPar( IOPar& iop ) const
+{
+    selfld->fillPar( iop );
+    scfmtfld->fillOtherPars( iop );
+    iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
 }

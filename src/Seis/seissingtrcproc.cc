@@ -37,15 +37,15 @@ static const char* rcsID mUsedVar = "$Id$";
 	, nrwr_(0) \
 	, wrrkey_(*new MultiID) \
 	, totnr_(-1) \
-    	, trcsperstep_(10) \
-    	, scaler_(0) \
-    	, skipnull_(false) \
-    	, fillnull_(false) \
-    	, fillhs_(true) \
-    	, filltrc_(0) \
-    	, resampler_(0) \
+	, trcsperstep_(10) \
+	, scaler_(0) \
+	, skipnull_(false) \
+	, fillnull_(false) \
+	, fillhs_(true) \
+	, filltrc_(0) \
+	, resampler_(0) \
 	, extendtrctosi_( false ) \
-    	, is3d_(true) \
+	, is3d_(true) \
 	, traceselected_(this) \
 	, proctobedone_(this) \
 { \
@@ -55,17 +55,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
-				       	  const char* nm, const IOPar* iop,
-				       	  const char* msg )
+					  const char* nm, const IOPar* iop,
+					  const char* msg )
     mInitVars();
 
     setInput( in, out, nm, iop, msg );
 }
 
 
-SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset, 
-					  const IOObj* out, const char* nm, 
-					  ObjectSet<IOPar>* iopset, 
+SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
+					  const IOObj* out, const char* nm,
+					  ObjectSet<IOPar>* iopset,
 					  const char* msg )
     mInitVars();
 
@@ -105,11 +105,11 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 
     nrobjs_ = 1;
 
-    ObjectSet<IOObj> objset_;
-    ObjectSet<IOPar> iopset_;
-    objset_ += in->clone();
-    iopset_ += const_cast<IOPar*>(iop);
-    init( objset_, iopset_ );
+    ObjectSet<IOObj> objset;
+    ObjectSet<IOPar> iopset;
+    objset += in->clone();
+    iopset += const_cast<IOPar*>(iop);
+    init( objset, iopset );
 }
 
 
@@ -282,7 +282,7 @@ int SeisSingleTraceProc::getNextTrc()
 
     int rv = currdr.get( intrc_.info() );
     if ( rv == 0 )
-    { 
+    {
 	currentobj_++;
 	if ( currentobj_ == nrobjs_ )
 	    { wrapUp(); return Executor::Finished(); }
@@ -404,7 +404,7 @@ bool SeisSingleTraceProc::prepareTrc()
 
     if ( scaler_ )
 	const_cast<SeisTrc*>(worktrc_)->data().scale( *scaler_ );
-    
+
     if ( extendtrctosi_ )
     {
 	SeisTrc* newtrc = worktrc_->getExtendedTo( SI().zRange(true) );
@@ -435,7 +435,7 @@ bool SeisSingleTraceProc::writeTrc()
 						*currdr.seisTranslator() );
 		for ( int icomp=0; icomp<wrtr.componentInfo().size(); icomp++ )
 		    wrtr.componentInfo()[icomp]->setName(
-			    	rdtr.componentInfo()[icomp]->name() );
+				rdtr.componentInfo()[icomp]->name() );
 	    }
 	}
     }

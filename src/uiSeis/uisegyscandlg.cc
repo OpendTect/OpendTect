@@ -60,7 +60,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	if ( !optsgrp_ )
 	    attobj = new uiLabel( this,
-		    		  "Press Go or hit enter to start SEG-Y scan" );
+				  "Press Go or hit enter to start SEG-Y scan" );
     }
     else
     {
@@ -142,7 +142,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     BufferString pathnm, lnm;
 
     if ( outfld_ )
-    { 
+    {
 	if ( lnmfld_ )
 	{
 	    lnm = lnmfld_->lineName();
@@ -193,7 +193,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	pars_.set( sKey::Output(), outfld_->key(true) );
 	pars_.set( sKey::LineName(), lnm );
-	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
+	uiBatchLaunch launcher( this, pars_, 0, SEGY::IO::sProgname(), false );
 	launcher.setParFileName( parfilefld_->text() );
 
 	return launcher.go();
@@ -256,7 +256,7 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
 	uiMSG().warning( "Cannot write report to specified file" );
 
     uiDialog* dlg = new uiDialog( p,
-	    	    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
+		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
     dlg->setCtrlStyle( uiDialog::LeaveOnly );
     od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, titl );

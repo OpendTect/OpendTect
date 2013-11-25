@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
+#include "seistrc.h"
 #include "uigeninput.h"
 
 
@@ -159,7 +160,7 @@ BufferString getSummary() const
 
 
 uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
-       				bool withext )
+				bool withext )
 	: uiGroup(p,"Seis format and scale")
 	, gt_(gt)
 	, issteer_(false)
@@ -244,19 +245,28 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
     if ( !ioobj || Seis::is2D(gt_) ) return;
 
     if ( !scalefld_ )
-    {
-	const int tp = getFormat();
-	ioobj->pars().set( sKey::DataStorage(),
-		DataCharacteristics::UserTypeNames()[tp] );
-	if ( horOptim() )
-	    ioobj->pars().set( "Optimized direction", "Horizontal" );
-	else
-	    ioobj->pars().removeWithKey( "Optimized direction" );
-    }
+	fillFmtPars( ioobj->pars() );
 
     if ( commit )
     {
 	IOM().to( ioobj->key() );
 	IOM().commitChanges( *ioobj );
     }
+}
+
+
+void uiSeisFmtScale::fillFmtPars( IOPar& iop ) const
+{
+    const int tp = getFormat();
+    iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[tp] );
+    iop.update( sKeyOptDir(), horOptim() ? "Horizontal" : "" );
+}
+
+
+void uiSeisFmtScale::fillOtherPars( IOPar& iop ) const
+{
+    Scaler* sc = getScaler();
+    iop.update( sKey::Scale(), sc ? sc->toString() : "" );
+    delete sc;
+    iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcToSI() );
 }

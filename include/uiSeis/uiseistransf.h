@@ -52,7 +52,7 @@ public:
     void		updateFrom(const IOObj&);
 
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
-	    			   const char* executor_txt,
+				   const char* executor_txt,
 				   const char* work_txt,
 				   const char* attr2dnm,
 				   const char* linenm2d_overrule=0) const;
@@ -74,6 +74,11 @@ public:
 
     bool		removeNull() const;
     bool		fillNull() const;
+    int			nullTrcPolicy() const
+			{ return removeNull() ? 0 : (fillNull() ? 2 : 1); }
+
+    void		fillPar(IOPar&) const;
+    static const char*	sKeyNullTrcPol()	{ return "Null trace policy"; }
 
 protected:
 
