@@ -28,18 +28,47 @@ const char* Camera::sKeyNearDistance() 	{ return "Near Distance"; }
 const char* Camera::sKeyFarDistance() 	{ return "Far Distance"; }
 const char* Camera::sKeyFocalDistance()	{ return "Focal Distance"; }
 
+class DrawCallback : public osg::Camera::DrawCallback
+{
+public:
+    DrawCallback( visBase::Camera& cam )
+        : camera_( cam )
+    {}
+
+    virtual void operator () (osg::RenderInfo& renderInfo) const
+    {
+        camera_.triggerDrawCallBack( this, renderInfo );
+    }
+
+private:
+    visBase::Camera&	camera_;
+};
+
 
 Camera::Camera()
     : camera_( new osg::Camera )
+    , preDraw( this )
+    , postDraw( this )
+    , renderinfo_( 0 )
+    , postdraw_( new DrawCallback( *this ) )
+    , predraw_( new DrawCallback( *this ) )
 {
+    postdraw_->ref();
+    predraw_->ref();
+
     camera_->getOrCreateStateSet()->setGlobalDefaults();
     camera_->setProjectionResizePolicy( osg::Camera::FIXED );
+
+    camera_->setPreDrawCallback( predraw_ );
+    camera_->setPostDrawCallback( postdraw_ );
     setOsgNode( camera_ );
 }
 
 
 Camera::~Camera()
 {
+    postdraw_->unref();
+    predraw_->unref();
 }
 
 
@@ -205,6 +234,23 @@ void Camera::fillPar( IOPar& iopar ) const
     iopar.set( sKeyNearDistance(), (int)(nearDistance()+.5) );
     iopar.set( sKeyFarDistance(), (int)(farDistance()+.5) );
     iopar.set( sKeyFocalDistance(), focalDistance() );
+}
+
+
+void Camera::triggerDrawCallBack( const DrawCallback* src,
+                                  const osg::RenderInfo& ri )
+{
+    renderinfo_ = &ri;
+    if ( src==predraw_ )
+    {
+        preDraw.trigger();
+    }
+    else if ( src==postdraw_ )
+    {
+        postDraw.trigger();
+    }
+
+    renderinfo_ = 0;
 }
 
 

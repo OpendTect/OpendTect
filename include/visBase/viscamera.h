@@ -17,10 +17,12 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "position.h"
 
-namespace osg { class Camera; }
+namespace osg { class Camera; class RenderInfo; }
 
 namespace visBase
 {
+
+class DrawCallback;
 
 /*!\brief
 
@@ -72,18 +74,32 @@ public:
     int			usePar( const IOPar& );
     void		fillPar( IOPar& ) const;
 
-protected:
 
-    virtual		~Camera();
+    Notifier<Camera>		preDraw;
+    Notifier<Camera>		postDraw;
 
-    osg::Camera*	camera_;
+    const osg::RenderInfo*	getRenderInfo() const { return renderinfo_; }
+    				//!<Only available during pre/post draw cb
 
-    static const char*	sKeyPosition();
-    static const char*	sKeyOrientation();
-    static const char*	sKeyAspectRatio();
-    static const char*	sKeyNearDistance();
-    static const char*	sKeyFarDistance();
-    static const char*	sKeyFocalDistance();
+private:
+    friend			DrawCallback;
+
+    void			triggerDrawCallBack(const DrawCallback*,
+                                	            const osg::RenderInfo&);
+
+    virtual			~Camera();
+
+    osg::Camera*		camera_;
+    const osg::RenderInfo*	renderinfo_;
+    DrawCallback*		predraw_;
+    DrawCallback*		postdraw_;
+
+    static const char*		sKeyPosition();
+    static const char*		sKeyOrientation();
+    static const char*		sKeyAspectRatio();
+    static const char*		sKeyNearDistance();
+    static const char*		sKeyFarDistance();
+    static const char*		sKeyFocalDistance();
 };
 
 
