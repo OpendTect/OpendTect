@@ -27,9 +27,9 @@ mUseQtnamespace
 static bool sNoCloseMessage = false;
 
 class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
-{ 	
+{
 public:
-    			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
+			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
 			~uiMdiAreaBody();
 
 protected:
@@ -103,7 +103,7 @@ void uiMdiArea::tileVertical()
 	if ( widget->isHidden() ) continue;
 
 	widget->showNormal();
-	const int prefheight = widget->minimumHeight() + 
+	const int prefheight = widget->minimumHeight() +
 			       widget->parentWidget()->baseSize().height();
 	const int actheight = mMAX( avgheight, prefheight );
 	widget->setGeometry( 0, y, wswidth, actheight );
@@ -137,7 +137,7 @@ void uiMdiArea::tileHorizontal()
 	if ( widget->isHidden() ) continue;
 
 	widget->showNormal();
-	const int prefwidth = widget->minimumWidth() + 
+	const int prefwidth = widget->minimumWidth() +
 			      widget->parentWidget()->baseSize().width();
 	const int actwidth = mMAX( avgwidth, prefwidth );
 	widget->setGeometry( x, 0, actwidth, wsheight );
@@ -302,7 +302,8 @@ const char* uiMdiAreaWindow::getTitle() const
 void uiMdiAreaWindow::setIcon( const char* img[] )
 {
     if ( !img ) return;
-    qmdisubwindow_->setWindowIcon( QIcon(img) );
+    const QPixmap pixmap( img );
+    qmdisubwindow_->setWindowIcon( QIcon(pixmap) );
 }
 
 

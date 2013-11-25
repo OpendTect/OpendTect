@@ -152,22 +152,28 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 
 
 #define mImplCase( fromtp, totp, enm ) \
-    case fromtp::enm: return totp::enm;
+    case fromtp::enm: return totp::enm
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-# define mEventsQt5 \
+# define mEventsQt5( fromnmspace, tonmspace ) \
 	mImplCase( fromnmspace, tonmspace, ApplicationStateChange ); \
-	mImplCase( fromnmspace, tonmspace, EnterEditFocus ); \
 	mImplCase( fromnmspace, tonmspace, Expose ); \
 	mImplCase( fromnmspace, tonmspace, FocusAboutToChange ); \
 	mImplCase( fromnmspace, tonmspace, InputMethodQuery ); \
-	mImplCase( fromnmspace, tonmspace, LeaveEditFocus ); \
 	mImplCase( fromnmspace, tonmspace, OrientationChange ); \
 	mImplCase( fromnmspace, tonmspace, ScrollPrepare ); \
 	mImplCase( fromnmspace, tonmspace, Scroll ); \
 	mImplCase( fromnmspace, tonmspace, TouchCancel );
+# ifdef QT_KEYPAD_NAVIGATION
+#  define mKeyPadEvents( fromnmspace, tonmspace ) \
+	mImplCase( fromnmspace, tonmspace, EnterEditFocus ); \
+	mImplCase( fromnmspace, tonmspace, LeaveEditFocus );
+# else
+# define mKeyPadEvents( fromnmspace, tonmspace )
+# endif
 #else
-# define mEventsQt5
+# define mEventsQt5( fromnmspace, tonmspace )
+# define mKeyPadEvents( fromnmspace, tonmspace )
 #endif
 
 #define mImpTransform( fromnmspace, tonmspace ) \
@@ -304,7 +310,8 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, WindowUnblocked ); \
 	mImplCase( fromnmspace, tonmspace, WinIdChange ); \
 	mImplCase( fromnmspace, tonmspace, ZOrderChange ); \
-	mEventsQt5 \
+	mEventsQt5( fromnmspace, tonmspace ) \
+	mKeyPadEvents( fromnmspace, tonmspace ) \
 	     \
 	default: \
 	    break; \

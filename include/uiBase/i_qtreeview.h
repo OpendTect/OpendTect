@@ -35,7 +35,7 @@ protected:
 i_treeVwMessenger( QTreeWidget& sndr, uiTreeView& receiver )
     : sender_(sndr)
     , receiver_(receiver)
-{ 
+{
     connect( &sndr, SIGNAL(itemSelectionChanged()),
 	     this, SLOT(itemSelectionChanged()) );
 
@@ -43,29 +43,29 @@ i_treeVwMessenger( QTreeWidget& sndr, uiTreeView& receiver )
 	     this, SLOT(itemChanged(QTreeWidgetItem*,int)) );
 
     connect( &sndr,
-	     SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), 
+	     SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
 	     this,
 	     SLOT(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)) );
 
-    connect( &sndr, SIGNAL(itemClicked(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
 	     this, SLOT(itemClicked(QTreeWidgetItem*,int)) );
 
-    connect( &sndr, SIGNAL(itemPressed(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
 	     this, SLOT(itemPressed(QTreeWidgetItem*,int)) );
 
-    connect( &sndr, SIGNAL(customContextMenuRequested(const QPoint &)), 
+    connect( &sndr, SIGNAL(customContextMenuRequested(const QPoint &)),
 	     this, SLOT(customContextMenuRequested(const QPoint &)) );
 
-    connect( &sndr, SIGNAL(itemExpanded(QTreeWidgetItem*)), 
+    connect( &sndr, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 	     this, SLOT(itemExpanded(QTreeWidgetItem*)) );
 
-    connect( &sndr, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
+    connect( &sndr, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
 	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
 
-    connect( &sndr, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
 	     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
 
-    connect( &sndr, SIGNAL(itemEntered(QTreeWidgetItem*,int)), 
+    connect( &sndr, SIGNAL(itemEntered(QTreeWidgetItem*,int)),
 	     this, SLOT(itemEntered(QTreeWidgetItem*,int)) );
 }
 
@@ -78,7 +78,7 @@ void setNotifiedColumn( int col )
 { receiver_.setNotifiedColumn( col ); }
 
 uiTreeView&	receiver_;
-QTreeWidget& 	sender_;
+QTreeWidget&	sender_;
 
 
 #define mTriggerBody( notifier, triggerstatement1, triggerstatement2 ) \
@@ -129,7 +129,7 @@ void itemClicked( QTreeWidgetItem* item, int col )
 	mTriggerExtra( rightButtonClicked, mouseButtonClicked )
     else if ( receiver_.buttonstate_ == OD::LeftButton )
 	mTriggerExtra( leftButtonClicked, mouseButtonClicked )
-    else 
+    else
 	mTrigger( mouseButtonClicked );
 }
 
@@ -141,7 +141,7 @@ void itemPressed( QTreeWidgetItem* item, int col )
 	mTriggerExtra( rightButtonPressed, mouseButtonPressed )
     else if ( receiver_.buttonstate_ == OD::LeftButton )
 	mTriggerExtra( leftButtonPressed, mouseButtonPressed )
-    else 
+    else
 	mTrigger( mouseButtonPressed );
 }
 
@@ -178,6 +178,10 @@ void itemEntered( QTreeWidgetItem* item, int col )
     mNoTrigger( itemEntered );
 }
 
+#undef mTriggerBody
+#undef mNoTrigger
+#undef mTrigger
+#undef mTriggerExtra
 
 };
 

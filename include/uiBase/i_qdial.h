@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidial.h"
 
 #include <QObject>
-#include <QDial> 
+#include <QDial>
 
 //! Helper class for uidial to relay Qt's messages.
 /*!
@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_DialMessenger : public QObject 
+class i_DialMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiDialBody;
@@ -34,7 +34,7 @@ protected:
 i_DialMessenger( QDial* sndr, uiDial* receiver )
     : sender_(sndr)
     , receiver_(receiver)
-{ 
+{
     connect( sndr, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
     connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
     connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
@@ -44,8 +44,8 @@ i_DialMessenger( QDial* sndr, uiDial* receiver )
 
 private:
 
-    uiDial* 	receiver_;
-    QDial*  	sender_;
+    uiDial*	receiver_;
+    QDial*	sender_;
 
 #define mTrigger( notifier ) \
     const int refnr = receiver_->beginCmdRecEvent( #notifier ); \
@@ -58,6 +58,8 @@ void sliderMoved(int)	{ mTrigger(sliderMoved); }
 void sliderPressed()	{ mTrigger(sliderPressed); }
 void sliderReleased()	{ mTrigger(sliderReleased); }
 void valueChanged(int)	{ mTrigger(valueChanged); }
+
+#undef mTrigger
 
 };
 

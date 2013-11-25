@@ -158,7 +158,7 @@ private:
 
     int			iconsz_;
     bool		modal_;
-    Qt::WFlags		getFlags(bool hasparent,bool modal) const;
+    Qt::WindowFlags	getFlags(bool hasparent,bool modal) const;
 
     void		popTimTick(CallBacker*);
     Timer		poptimer_;
@@ -244,7 +244,7 @@ void uiMainWinBody::setModal( bool yn )
 }
 
 
-Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
+Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 { return Qt::WindowFlags( Qt::Window ); }
 
 

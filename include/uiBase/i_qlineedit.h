@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uilineedit.h"
 
-#include <QLineEdit> 
+#include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
 
@@ -24,7 +24,7 @@ class QString;
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-class i_lineEditMessenger : public QObject 
+class i_lineEditMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiLineEditBody;
@@ -33,7 +33,7 @@ protected:
 i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* receiver )
     : sender_( sndr )
     , receiver_( receiver )
-{ 
+{
     connect( sndr, SIGNAL(returnPressed()),
 	     this, SLOT(returnPressed()) );
     connect( sndr, SIGNAL(editingFinished()),
@@ -46,8 +46,8 @@ i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* receiver )
 
 private:
 
-    uiLineEdit* 	receiver_;
-    QLineEdit*  	sender_;
+    uiLineEdit*	receiver_;
+    QLineEdit*	sender_;
 
 private slots:
 
@@ -56,7 +56,7 @@ private slots:
     receiver_->notifier.trigger(*receiver_); \
     receiver_->endCmdRecEvent( refnr, #notifier );
 
-    void 		editingFinished()
+    void		editingFinished()
 			{
 			    if ( !sender_->isModified() )
 				return;
@@ -64,13 +64,14 @@ private slots:
 			    mTrigger( editingFinished );
 			}
 
-    void 		returnPressed()
+    void		returnPressed()
 			{ mTrigger( returnPressed ); }
-    void 		textChanged(const QString&)
+    void		textChanged(const QString&)
 			{ mTrigger( textChanged ); }
 
     void		selectionChanged()
-    			{ receiver_->selectionChanged.trigger(*receiver_); }
+			{ receiver_->selectionChanged.trigger(*receiver_); }
+#undef mTrigger
 };
 
 QT_END_NAMESPACE

@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_tableMessenger : public QObject 
+class i_tableMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiTableBody;
@@ -38,7 +38,7 @@ i_tableMessenger( QTableWidget*  sndr, uiTable* receiver )
     : sender_(sndr)
     , receiver_(receiver)
     , lastpressedheaderidx_(-1)
-{ 
+{
     connect( sndr, SIGNAL(cellChanged(int,int)),
 	     this, SLOT(valueChanged(int,int)) );
 
@@ -74,11 +74,11 @@ i_tableMessenger( QTableWidget*  sndr, uiTable* receiver )
 }
 
     virtual		~i_tableMessenger() {}
-   
+
 private:
 
-    uiTable* 		receiver_;
-    QTableWidget*  	sender_;
+    uiTable*		receiver_;
+    QTableWidget*	sender_;
     int			lastpressedheaderidx_;
 
 private slots:
@@ -156,7 +156,7 @@ void rowClicked( int idx )
     // and lists, the header signals a final click after mouse dragging.
     if ( idx == lastpressedheaderidx_ )
 	mHeaderTrigger( rowClicked, idx, true );
-} 
+}
 
 
 void columnClicked( int idx )
@@ -172,7 +172,7 @@ void rowPressed( int idx )
 {
     lastpressedheaderidx_ = idx;
     mNoHeaderTrigger( rowPressed, idx, true );
-} 
+}
 
 
 void columnPressed( int idx )
@@ -188,6 +188,13 @@ void rowDoubleClicked( int idx )
 
 void columnDoubleClicked( int idx )
 { mNoHeaderTrigger( columnDoubleClicked, idx, false ); }
+
+#undef mNoTrigger
+#undef mTrigger
+#undef mTriggerBody
+#undef mHeaderTriggerBody
+#undef mNoHeaderTrigger
+#undef mHeaderTrigger
 
 };
 

@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 #include <math.h>
 
-#if !defined( __win__ ) && !defined( __mac__ )
+#if !defined( __win__ ) && !defined( __mac__ ) && QT_VERSION < 0x050000
 # include <QX11Info>
 #endif
 
@@ -45,7 +45,7 @@ mUseQtnamespace
 class ODGraphicsScene : public QGraphicsScene
 {
 public:
-    			ODGraphicsScene( uiGraphicsScene& scene )
+			ODGraphicsScene( uiGraphicsScene& scene )
 			    : uiscene_(scene)
 			    , bgopaque_(false)
 			    , mousepressedbs_(OD::NoButton) {}
@@ -73,8 +73,8 @@ private:
 void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 {
     uiscene_.executePendingUpdates();
-    painter->setBackgroundMode( bgopaque_ ? Qt::OpaqueMode 
-	    				  : Qt::TransparentMode );
+    painter->setBackgroundMode( bgopaque_ ? Qt::OpaqueMode
+					  : Qt::TransparentMode );
     QGraphicsScene::drawBackground( painter, rect );
 }
 
@@ -93,7 +93,7 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 {
     MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
-	    	   ev->delta() );
+		   ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
 }
 
@@ -101,7 +101,7 @@ void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
     MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
-	    	    (int)qev->scenePos().y() );
+		    (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerMovement( mev );
     QGraphicsScene::mouseMoveEvent( qev );
@@ -220,7 +220,7 @@ bool uiGraphicsScene::executePendingUpdates()
 
 void uiGraphicsScene::addUpdateToQueue( Task* t )
 {
-    Threads::WorkManager::twm().addWork( 
+    Threads::WorkManager::twm().addWork(
 	Threads::Work( *t, true ), 0, queueid_, false );
 
     odgraphicsscene_->update();
@@ -277,7 +277,7 @@ void uiGraphicsScene::removeItems( uiGraphicsItemSet& itms )
 
 // TODO: remove
 uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
-{ 
+{
     uiRectItem* uirectitem =
 	new uiRectItem( odgraphicsscene_->addRect(x,y,w,h) );
     uirectitem->setScene( this );
@@ -296,7 +296,7 @@ uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 	uipolyitem->fill();
 
     addItem( uipolyitem );
-    
+
     return uipolyitem;
 }
 
@@ -320,7 +320,7 @@ void uiGraphicsScene::setBackGroundColor( const Color& color )
 
 const Color uiGraphicsScene::backGroundColor() const
 {
-    QColor color( odgraphicsscene_->backgroundBrush().color() ); 
+    QColor color( odgraphicsscene_->backgroundBrush().color() );
     return Color( color.red() , color.green(), color.blue() );
 }
 
@@ -353,7 +353,7 @@ uiRect uiGraphicsScene::getSelectedArea() const
 {
     QRectF selarea( odgraphicsscene_->selectionArea().boundingRect().toRect() );
     return uiRect( (int)selarea.topLeft().x(), (int)selarea.topLeft().y(),
-	   	   (int)selarea.bottomRight().x(),
+		   (int)selarea.bottomRight().x(),
 		   (int)selarea.bottomRight().y() );
 }
 
@@ -363,7 +363,7 @@ void uiGraphicsScene::setSelectionArea( const uiRect& uirect )
     uiRect rect = uirect;
     rect.sortCorners();
     const QRectF selrect( rect.topLeft().x, rect.topLeft().y, rect.width(),
-	    		  rect.height() );
+			  rect.height() );
     QPainterPath selareapath;
     selareapath.addRect( selrect );
     odgraphicsscene_->setSelectionArea( selareapath );
@@ -393,7 +393,7 @@ double uiGraphicsScene::height() const
 int uiGraphicsScene::getDPI() const
 {
 // TODO: move to Basic
-#if defined( __win__ ) || defined( __mac__ )
+#if defined( __win__ ) || defined( __mac__ ) || QT_VERSION >= 0x050000
     return 100;
 #else
     return QX11Info::appDpiX();
@@ -423,7 +423,7 @@ void uiGraphicsScene::copyToClipBoard()
 {
     QPainter* imagepainter = new QPainter();
     QImage* image = new QImage( QSize((int)width(), (int)height()),
-	    			QImage::Format_ARGB32 );
+				QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
     image->setDotsPerMeterX( (int)(getDPI()/0.0254) );
@@ -432,11 +432,11 @@ void uiGraphicsScene::copyToClipBoard()
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
-	    	       view->mapToScene(view->width(),view->height()) );
+		       view->mapToScene(view->width(),view->height()) );
     qGraphicsScene()->render( imagepainter, QRectF(0,0,width(),height()),
-	    		      sourcerect );
+			      sourcerect );
     imagepainter->end();
-    
+
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setImage( *image );
     delete imagepainter;
@@ -457,7 +457,7 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
-	    	       view->mapToScene(view->width(),view->height()) );
+		       view->mapToScene(view->width(),view->height()) );
     qGraphicsScene()->render( imagepainter,QRectF(0,0,w,h),sourcerect);
     imagepainter->end();
     image->save( fname );
@@ -467,12 +467,16 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 
 
 void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
-       				    int w, int h,int res )
+				    int w, int h, int res )
 {
     QString fileName( filename );
     QPrinter* pdfprinter = new QPrinter();
+#if QT_VERSION >= 0x050000
+    pdfprinter->setOutputFormat( QPrinter::PdfFormat );
+#else
     pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
 				       : QPrinter::PostScriptFormat );
+#endif
     pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
@@ -481,7 +485,7 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
     pdfpainter->begin( pdfprinter );
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
-	    	       view->mapToScene(view->width(),view->height()) );
+		       view->mapToScene(view->width(),view->height()) );
     qGraphicsScene()->render( pdfpainter,
 	    QRectF(0,0,pdfprinter->width(),pdfprinter->height()) ,sourcerect );
     pdfpainter->end();
@@ -523,7 +527,7 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 
 uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     : uiGraphicsScene(nm)
-    , layout_(new QGraphicsLinearLayout)  
+    , layout_(new QGraphicsLinearLayout)
     , layoutitem_(new QGraphicsWidget)
 {
     layoutitem_->setLayout( layout_ );
@@ -548,7 +552,7 @@ const uiPoint uiGraphicsObjectScene::layoutPos() const
 
 void uiGraphicsObjectScene::resizeLayoutToContent()
 {
-    float w = 0; float h = 0; 
+    float w = 0; float h = 0;
     for ( int idx=0; idx<layout_->count(); idx++ )
     {
 	mDynamicCastGet(uiObjectItem*,item,items_[idx]);

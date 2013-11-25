@@ -42,7 +42,7 @@ public:
     virtual void	fontChange( const QFont& oldFont )
 			{
 			    uiBody::fontchanged();
-			    mQWIDGET_BASE::fontChange( oldFont );
+//			    mQWIDGET_BASE::fontChange( oldFont );
 			}
 
 			//! over-ride Qt

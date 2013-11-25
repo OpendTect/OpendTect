@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_listMessenger : public QObject 
+class i_listMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiListBoxBody;
@@ -58,11 +58,11 @@ protected:
 			}
 
     virtual		~i_listMessenger() {}
-   
+
 private:
 
-    uiListBox* 		receiver_;
-    QListWidget*  	sender_;
+    uiListBox*		receiver_;
+    QListWidget*	sender_;
 
 
 #define mTrigger( notifier, itm ) \
@@ -109,6 +109,8 @@ void itemChanged( QListWidgetItem* itm )
 {
     receiver_->handleCheckChange( itm );
 }
+
+#undef mTrigger
 
 };
 
