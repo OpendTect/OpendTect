@@ -25,11 +25,11 @@ public:
 					    : uif_( uif )
 					{}
 
-    bool 				eventFilter(QObject*,QEvent*);
+    bool				eventFilter(QObject*,QEvent*);
     static uiEventFilter::EventType	translate(QEvent::Type);
     static QEvent::Type			translate(uiEventFilter::EventType);
 
-    					//Set at the events
+					//Set at the events
     const QEvent*			currentevent_;
     bool				blockevent_;
 
@@ -40,7 +40,7 @@ public:
 
 protected:
     i_QPtrImpl				qobj_;
-    uiEventFilter& 			uif_;
+    uiEventFilter&			uif_;
 };
 
 
@@ -120,7 +120,7 @@ void uiEventFilterImpl::attachFilter( QObject* obj )
 void uiEventFilterImpl::detachFilter()
 {
     Threads::Locker lckr( qobj_.lock_ );
-    
+
     if ( qobj_ ) qobj_->removeEventFilter( this );
     qobj_ = 0;
 }
@@ -154,20 +154,30 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 #define mImplCase( fromtp, totp, enm ) \
     case fromtp::enm: return totp::enm;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+# define mEventsQt5 \
+	mImplCase( fromnmspace, tonmspace, ApplicationStateChange ); \
+	mImplCase( fromnmspace, tonmspace, EnterEditFocus ); \
+	mImplCase( fromnmspace, tonmspace, Expose ); \
+	mImplCase( fromnmspace, tonmspace, FocusAboutToChange ); \
+	mImplCase( fromnmspace, tonmspace, InputMethodQuery ); \
+	mImplCase( fromnmspace, tonmspace, LeaveEditFocus ); \
+	mImplCase( fromnmspace, tonmspace, OrientationChange ); \
+	mImplCase( fromnmspace, tonmspace, ScrollPrepare ); \
+	mImplCase( fromnmspace, tonmspace, Scroll ); \
+	mImplCase( fromnmspace, tonmspace, TouchCancel );
+#else
+# define mEventsQt5
+#endif
 
 #define mImpTransform( fromnmspace, tonmspace ) \
     switch (tp) \
     { \
 	mImplCase( fromnmspace, tonmspace, None ); \
-	mImplCase( fromnmspace, tonmspace, AccessibilityDescription ); \
-	mImplCase( fromnmspace, tonmspace, AccessibilityHelp ); \
-	mImplCase( fromnmspace, tonmspace, AccessibilityPrepare ); \
 	mImplCase( fromnmspace, tonmspace, ActionAdded ); \
 	mImplCase( fromnmspace, tonmspace, ActionChanged ); \
 	mImplCase( fromnmspace, tonmspace, ActionRemoved ); \
 	mImplCase( fromnmspace, tonmspace, ActivationChange ); \
-	mImplCase( fromnmspace, tonmspace, ApplicationActivate ); \
-	mImplCase( fromnmspace, tonmspace, ApplicationDeactivate ); \
 	mImplCase( fromnmspace, tonmspace, ApplicationFontChange ); \
 	mImplCase( fromnmspace, tonmspace, ApplicationLayoutDirectionChange ); \
 	mImplCase( fromnmspace, tonmspace, ApplicationPaletteChange ); \
@@ -177,6 +187,7 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, ChildRemoved ); \
 	mImplCase( fromnmspace, tonmspace, Clipboard ); \
 	mImplCase( fromnmspace, tonmspace, Close ); \
+	mImplCase( fromnmspace, tonmspace, CloseSoftwareInputPanel ); \
 	mImplCase( fromnmspace, tonmspace, ContentsRectChange ); \
 	mImplCase( fromnmspace, tonmspace, ContextMenu ); \
 	mImplCase( fromnmspace, tonmspace, CursorChange ); \
@@ -185,6 +196,7 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, DragLeave ); \
 	mImplCase( fromnmspace, tonmspace, DragMove ); \
 	mImplCase( fromnmspace, tonmspace, Drop ); \
+	mImplCase( fromnmspace, tonmspace, DynamicPropertyChange ); \
 	mImplCase( fromnmspace, tonmspace, EnabledChange ); \
 	mImplCase( fromnmspace, tonmspace, Enter ); \
 	mImplCase( fromnmspace, tonmspace, EnterWhatsThisMode ); \
@@ -192,6 +204,8 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, FocusIn ); \
 	mImplCase( fromnmspace, tonmspace, FocusOut ); \
 	mImplCase( fromnmspace, tonmspace, FontChange ); \
+	mImplCase( fromnmspace, tonmspace, Gesture ); \
+	mImplCase( fromnmspace, tonmspace, GestureOverride ); \
 	mImplCase( fromnmspace, tonmspace, GrabKeyboard ); \
 	mImplCase( fromnmspace, tonmspace, GrabMouse ); \
 	mImplCase( fromnmspace, tonmspace, GraphicsSceneContextMenu ); \
@@ -218,6 +232,7 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, IconDrag ); \
 	mImplCase( fromnmspace, tonmspace, IconTextChange ); \
 	mImplCase( fromnmspace, tonmspace, InputMethod ); \
+	mImplCase( fromnmspace, tonmspace, KeyboardLayoutChange ); \
 	mImplCase( fromnmspace, tonmspace, KeyPress ); \
 	mImplCase( fromnmspace, tonmspace, KeyRelease ); \
 	mImplCase( fromnmspace, tonmspace, LanguageChange ); \
@@ -231,7 +246,6 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, NonClientAreaMouseButtonRelease ); \
 	mImplCase( fromnmspace, tonmspace, NonClientAreaMouseMove ); \
 	mImplCase( fromnmspace, tonmspace, MacSizeChange ); \
-	mImplCase( fromnmspace, tonmspace, MenubarUpdated ); \
 	mImplCase( fromnmspace, tonmspace, MetaCall ); \
 	mImplCase( fromnmspace, tonmspace, ModifiedChange ); \
 	mImplCase( fromnmspace, tonmspace, MouseButtonDblClick ); \
@@ -244,15 +258,19 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, PaletteChange ); \
 	mImplCase( fromnmspace, tonmspace, ParentAboutToChange ); \
 	mImplCase( fromnmspace, tonmspace, ParentChange ); \
+	mImplCase( fromnmspace, tonmspace, PlatformPanel ); \
 	mImplCase( fromnmspace, tonmspace, Polish ); \
 	mImplCase( fromnmspace, tonmspace, PolishRequest ); \
 	mImplCase( fromnmspace, tonmspace, QueryWhatsThis ); \
+	mImplCase( fromnmspace, tonmspace, RequestSoftwareInputPanel ); \
 	mImplCase( fromnmspace, tonmspace, Resize ); \
 	mImplCase( fromnmspace, tonmspace, Shortcut ); \
 	mImplCase( fromnmspace, tonmspace, ShortcutOverride ); \
 	mImplCase( fromnmspace, tonmspace, Show ); \
 	mImplCase( fromnmspace, tonmspace, ShowToParent ); \
 	mImplCase( fromnmspace, tonmspace, SockAct ); \
+	mImplCase( fromnmspace, tonmspace, StateMachineSignal ); \
+	mImplCase( fromnmspace, tonmspace, StateMachineWrapped ); \
 	mImplCase( fromnmspace, tonmspace, StatusTip ); \
 	mImplCase( fromnmspace, tonmspace, StyleChange ); \
 	mImplCase( fromnmspace, tonmspace, TabletMove ); \
@@ -261,10 +279,14 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, OkRequest ); \
 	mImplCase( fromnmspace, tonmspace, TabletEnterProximity ); \
 	mImplCase( fromnmspace, tonmspace, TabletLeaveProximity ); \
+	mImplCase( fromnmspace, tonmspace, ThreadChange ); \
 	mImplCase( fromnmspace, tonmspace, Timer ); \
 	mImplCase( fromnmspace, tonmspace, ToolBarChange ); \
 	mImplCase( fromnmspace, tonmspace, ToolTip ); \
 	mImplCase( fromnmspace, tonmspace, ToolTipChange ); \
+	mImplCase( fromnmspace, tonmspace, TouchBegin ); \
+	mImplCase( fromnmspace, tonmspace, TouchEnd ); \
+	mImplCase( fromnmspace, tonmspace, TouchUpdate ); \
 	mImplCase( fromnmspace, tonmspace, UngrabKeyboard ); \
 	mImplCase( fromnmspace, tonmspace, UngrabMouse ); \
 	mImplCase( fromnmspace, tonmspace, UpdateLater ); \
@@ -280,9 +302,9 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 	mImplCase( fromnmspace, tonmspace, WindowStateChange ); \
 	mImplCase( fromnmspace, tonmspace, WindowTitleChange ); \
 	mImplCase( fromnmspace, tonmspace, WindowUnblocked ); \
+	mImplCase( fromnmspace, tonmspace, WinIdChange ); \
 	mImplCase( fromnmspace, tonmspace, ZOrderChange ); \
-	mImplCase( fromnmspace, tonmspace, KeyboardLayoutChange ); \
-	mImplCase( fromnmspace, tonmspace, DynamicPropertyChange ); \
+	mEventsQt5 \
 	     \
 	default: \
 	    break; \
@@ -299,3 +321,4 @@ uiEventFilter::EventType uiEventFilterImpl::translate( QEvent::Type tp )
 {
     mImpTransform( QEvent, uiEventFilter );
 }
+
