@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 
-#define mBytesToKBFactor 1024
+#define mBytesToMBFactor 1048576
 
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
@@ -210,22 +210,22 @@ int Zipper::nextStep()
 
 
 od_int64 Zipper::nrDone() const
-{ return ziphd_.getNrDoneSize()/mBytesToKBFactor; }
+{ return ziphd_.getNrDoneSize()/mBytesToMBFactor; }
 
 
 od_int64 Zipper::totalNr() const
-{ return ziphd_.getTotalSize()/mBytesToKBFactor; }
+{ return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
 const char* Zipper::nrDoneText() const
-{ return "Files archived"; }
+{ return "MBytes processed: "; }
 
 
 const char* Zipper::message() const
 { 
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
-	return "Archiving files";
+	return "Archiving data";
     else
 	return errmsg;
 }
@@ -281,7 +281,7 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 
 
 UnZipper::UnZipper( const char* zipfnm,const char* destination )
-    : Executor("Unpacking Files")
+    : Executor("Unpacking Archive")
     , nrdone_(0)	    
 { isok_ = ziphd_.initUnZipArchive( zipfnm, destination ); }
 
@@ -297,22 +297,22 @@ int UnZipper::nextStep()
 
 
 od_int64 UnZipper::nrDone() const
-{ return ziphd_.getNrDoneSize()/mBytesToKBFactor; }
+{ return ziphd_.getNrDoneSize()/mBytesToMBFactor; }
 
 
 od_int64 UnZipper::totalNr() const
-{ return ziphd_.getTotalSize()/mBytesToKBFactor; }
+{ return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
 const char* UnZipper::nrDoneText() const
-{ return "Files unpacked"; }
+{ return "MBytes Processed: "; }
 
 
 const char* UnZipper::message() const
 { 
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
-	return "Unpacking files";
+	return "Extracting data";
     else
 	return errmsg;
 }
