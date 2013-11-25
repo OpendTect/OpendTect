@@ -55,7 +55,6 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     stp->fillNullTraces( nulltrcpol == 2 );
     stp->setExtTrcToSI( exttrcs );
     stp->setResampler( resmplr );
-	//TODO resampler stuff
     return stp->go( strm );
 }
 
