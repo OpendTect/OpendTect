@@ -85,7 +85,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	attrselfld_ = new uiMultiAttribSel( uppgrp_, attrdata.attrSet() );
 
     transffld_ = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
-	    	.fornewentry(!is2d).withstep(false).multiline(true) );
+		.fornewentry(!is2d).withstep(false).multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
@@ -98,7 +98,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
-    
+
     objfld_ = new uiSeisSel( uppgrp_, ctio_, su );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
@@ -272,7 +272,7 @@ bool uiAttrVolOut::prepareProcessing()
 		    "No attribute name given. Do you want to continue? "
 		    "Click on 'Yes' if you want 'Seis' as attribute name. "
 		    "Click on 'No' to provide another name." );
-		if ( !res ) return false; 
+		if ( !res ) return false;
 	    }
 
 	    if ( attrnm.isEmpty() )
@@ -289,7 +289,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    {
 		const bool rv = uiMSG().askGoOn(
 		    "Output attribute already exists.", "Overwrite", "Cancel" );
-		if ( !rv ) return false; 
+		if ( !rv ) return false;
 	    }
 	}
 
@@ -374,9 +374,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
 	{
 	    if ( !nlaid_ || !(*nlaid_) )
-	    { 
+	    {
 		uiMSG().message("NN needs to be stored before creating volume");
-		return false; 
+		return false;
 	    }
 	    addNLA( nlamodel_id );
 	}
@@ -389,26 +389,26 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	{
 	    const bool is2d = todofld_->is2D();
 	    DescID multoiid = seldesc->getMultiOutputInputID();
-	    if ( multoiid != DescID::undef() )                                  
+	    if ( multoiid != DescID::undef() )
 	    {
-		uiAttrSelData attrdata( ads_ );                   
-		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d, 
+		uiAttrSelData attrdata( ads_ );
+		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d,
 				 DescID::undef(), false, false );
-    		TypeSet<Attrib::SelSpec> targetspecs;		
+		TypeSet<Attrib::SelSpec> targetspecs;
 		if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
 				    is2d, attrinf, &ads_, this, targetspecs ))
 		    return false;
-	   	for ( int idx=0; idx<targetspecs.size(); idx++ )
+		for ( int idx=0; idx<targetspecs.size(); idx++ )
 		    outdescids += targetspecs[idx].id();
 	    }
 	}
 	const int outdescidsz = outdescids.size();
 	clonedset = outdescidsz ? ads_.optimizeClone( outdescids )
-	    			: ads_.optimizeClone( targetid );
+				: ads_.optimizeClone( targetid );
 	if ( !clonedset ) return false;
 
 	nrseloutputs = seloutputs_.size() ? seloutputs_.size()
-	    				  : outdescidsz ? outdescidsz : 1;
+					  : outdescidsz ? outdescidsz : 1;
 	if ( clonedset && seloutputs_.size() )
 	    //TODO make use of the multiple targetspecs (pre-stack for inst)
 	    clonedset->createAndAddMultOutDescs( targetid, seloutputs_,
@@ -450,10 +450,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     BufferString outseisid;
     outseisid += ctio_.ioobj->key();
     if ( is2d )
-    {
-	outseisid += "|";
-	outseisid += objfld_->attrNm();
-    }
+	{ outseisid += "|"; outseisid += objfld_->attrNm(); }
 
     iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid);
 
@@ -461,20 +458,19 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
 	       transffld_->scfmtfld->extendTrcToSI() );
 
-    IOPar tmpiop;
-    CubeSampling cs;
-    transffld_->selfld->fillPar( tmpiop );
+    IOPar tmpiop; CubeSampling cs;
+    transffld_->fillPar( tmpiop );
     BufferString typestr;
-    //Subselectio_n type and geometry will have an extra level key: 'Subsel
+    //Subselection type and geometry will have an extra level key: 'Subsel
     if ( tmpiop.get( sKey::Type(), typestr ) )
 	tmpiop.removeWithKey( sKey::Type() );
-    
+
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
     tmpiop.setEmpty();
     if ( strcmp( typestr.buf(), "" ) )
 	tmpiop.set( sKey::Type(), typestr );
-    
+
     const bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
     {
@@ -518,7 +514,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
 
 	Desc* desc = nlamodel_ ? descset.getFirstStored()
-	    		      : ads_.getDesc( todofld_->attribID() );
+			      : ads_.getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
@@ -571,7 +567,7 @@ void uiAttrVolOut::addNLA( DescID& id )
     defstr += nlaid_;
 
     BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(), 
+    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
     if ( errmsg.size() )
