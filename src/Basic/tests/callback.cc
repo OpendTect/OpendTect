@@ -182,7 +182,23 @@ bool testLateDetach( bool quiet )
 
     return true;
 }
-    
+
+
+bool testDetachBeforeRemoval( bool quiet )
+{
+    ClassWithNotifier* notifier = new ClassWithNotifier;
+    NotifierAccess* naccess = &notifier->notifier;
+    NotifiedClass* notified = new NotifiedClass( naccess );
+
+    notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+    delete notified;
+    delete notifier;
+
+    if ( !quiet )
+	std::cout << "Detach before removal: Pass\n";
+
+    return true;
+}
 
 
 #define mNrNotifiers 100
@@ -394,6 +410,7 @@ int main( int narg, char** argv )
     
     if ( !testNormalOp( quiet ) || !testAttach( quiet ) ||
 	 !testLateDetach( quiet ) || !testEarlyDetach( quiet ) ||
+         !testDetachBeforeRemoval( quiet ) ||
 	 !testMulthThreadChaos( quiet ) )
 	ExitProgram( 1 );
     
