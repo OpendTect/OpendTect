@@ -774,9 +774,11 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
 	DPM( DataPackMgr::FlatID() ).add( dp );
 	vwr_->setPack( wva, dp->id(), false, !hadpack );
+	vwr_->setVisible( wva, false );
 	return;
     }
 
+    vwr_->setVisible( wva, true );
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
@@ -825,8 +827,10 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
     ColTab::MapperSetup& dispparsmapper =
 	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
-    const bool hasrgsaved = !mIsZero(dispparsmapper.range_.start,mDefEps) &&
-			    !mIsZero(dispparsmapper.range_.stop,mDefEps);
+    const bool hasrgsaved = !mIsUdf(dispparsmapper.range_.start) ||
+	    		    !mIsUdf(dispparsmapper.range_.stop) ||
+			    (!mIsZero(dispparsmapper.range_.start,mDefEps) &&
+			     !mIsZero(dispparsmapper.range_.stop,mDefEps)); 
     if ( hasrgsaved )
 	mapper = dispparsmapper;
     else
@@ -838,6 +842,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setPack( wva, dp->id(), false, !hadpack );
+    NotifyStopper notstop( vwr_->viewChanged );
     if ( mIsZero(relzoomwr_.left(),1e-3) &&
 	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
 	 mIsEqual(relzoomwr_.height(),1.0,1e-3) )
