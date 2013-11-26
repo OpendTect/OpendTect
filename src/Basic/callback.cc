@@ -106,7 +106,19 @@ void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 
     if ( !notif.willCall( this ) )
     {
-	attachednotifiers_ -= &notif;
+        while ( attachednotifiers_.isPresent( &notif ) )
+    	{
+            if ( notif.removeShutdownSubscription( this, false ) )
+            {
+                attachednotifiers_ -= &notif;
+            }
+            else
+            {
+                lckr.unLock();
+                Threads::sleep( mOneMilliSecond );
+                lckr.lock();
+            }
+	}
     }
 }
 
