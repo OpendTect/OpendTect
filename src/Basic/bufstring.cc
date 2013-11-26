@@ -310,10 +310,12 @@ std::istream& operator >>( std::istream& s, BufferString& bs )
 }
 
 
-std::ostream& operator <<( std::ostream& s, const FixedString& fs )
+std::ostream& operator <<( std::ostream& strm, const FixedString& fs )
 {
-    s << fs.str();
-    return s;
+    const char* fsstr = fs.str();
+    if ( fsstr )
+	strm << fsstr;
+    return strm;
 }
 
 
@@ -570,7 +572,7 @@ void BufferStringSet::fillPar( IOPar& iopar ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	key = idx;
-	iopar.set( key, *(*this)[idx] );
+	iopar.set( key, get(idx) );
     }
 }
 
@@ -581,8 +583,11 @@ void BufferStringSet::usePar( const IOPar& iopar )
     for ( int idx=0; ; idx++ )
     { 
 	key = idx;
-	if ( !iopar.find(key) ) return;
-	add( iopar[key] );
+	const int idxof = iopar.indexOf( key );
+	if ( idxof < 0 )
+	    break;
+
+	add( iopar.getValue(idx) );
     }
 }
 
