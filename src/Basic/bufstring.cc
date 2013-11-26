@@ -14,12 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include "arrayndimpl.h"
 
-#include <iostream>
-#include <stdlib.h>
 #include "string2.h"
 #include <string.h>
 
 #include <QString>
+#include <iostream>
 
 
 BufferString::BufferString( const FixedString& s )
@@ -477,27 +476,6 @@ void BufferString::fill( char* output, int maxnrchar ) const
 }
 
 
-std::ostream& operator <<( std::ostream& s, const BufferString& bs )
-{
-    s << bs.buf();
-    return s;
-}
-
-std::istream& operator >>( std::istream& s, BufferString& bs )
-{
-    std::string stdstr; s >> stdstr;
-    bs = stdstr.c_str();
-    return s;
-}
-
-
-std::ostream& operator <<( std::ostream& s, const FixedString& fs )
-{
-    s << fs.str();
-    return s;
-}
-
-
 BufferStringSet::BufferStringSet( int nelem, const char* s )
 {
     for ( int idx=0; idx<nelem; idx++ )
@@ -750,8 +728,8 @@ void BufferStringSet::fillPar( IOPar& iopar ) const
     BufferString key;
     for ( int idx=0; idx<size(); idx++ )
     {
-	key = idx;
-	iopar.set( key, *(*this)[idx] );
+	key.set( idx );
+	iopar.set( key, get(idx) );
     }
 }
 
@@ -761,9 +739,12 @@ void BufferStringSet::usePar( const IOPar& iopar )
     BufferString key;
     for ( int idx=0; ; idx++ )
     {
-	key = idx;
-	if ( !iopar.find(key) ) return;
-	add( iopar[key] );
+	key.set( idx );
+	const int idxof = iopar.indexOf( key );
+	if ( idxof < 0 )
+	    break;
+
+	add( iopar.getValue(idx) );
     }
 }
 
@@ -798,6 +779,15 @@ void BufferStringSet::unCat( const char* inpstr, char sepchar )
 
     if ( *ptr )
 	add( ptr );
+}
+
+
+std::ostream& operator <<( std::ostream& strm, const FixedString& fs )
+{
+    const char* fsstr = fs.str();
+    if ( fsstr )
+	strm << fsstr;
+    return strm;
 }
 
 

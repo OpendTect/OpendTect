@@ -62,19 +62,20 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     , domainunitinterval(-1,-1)
     , distancuniteinterval(-1,-1)
 {
-    if ( !formatfilename )
-    {
-	error = true;
-	return;
-    }
+    if ( !formatfilename || !*formatfilename )
+	{ msg = "No format file name specified"; error = true; return; }
 
-    StreamData formatsd = StreamProvider( formatfilename ).makeIStream();
-    while ( formatsd.istrm && *formatsd.istrm )
+    od_istream formatstrm( formatfilename );
+    if ( !formatstrm.isOK() )
+	{ msg = "Cannot open format file"; error = true; return; }
+
+    while ( formatstrm.isOK() )
     {
 	BufferString fieldname; Interval<int> rg;
-
-	*formatsd.istrm >> fieldname >> rg.start >> rg.stop;
-	if ( !*formatsd.istrm ) break;
+	formatstrm.getWord( fieldname );
+	if ( !formatstrm.isOK() )
+	    break;
+	formatstrm.get( rg.start ).get( rg.stop );
 
 	if ( fieldname==lmkEMFault3DTranslator::xstr() )
 	    xinterval = rg;
@@ -94,8 +95,10 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 	    lineidinterval = rg;
 	else if ( fieldname==lmkEMFault3DTranslator::tracestr() )
 	    traceinterval = rg;
+
+	if ( !formatstrm.isOK() )
+	    break;
     }
-    formatsd.close();
 
     if ( (  xinterval.start==-1 || xinterval.stop==-1 ||
 	    yinterval.start==-1 || yinterval.stop==-1 ) &&
@@ -109,36 +112,32 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 		zinterval.start==-1 || zinterval.stop==-1 ||
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
-	msg = lmkEMFault3DTranslator::xstr();
-	msg += ", "; 
-	msg += lmkEMFault3DTranslator::ystr();
-	msg += ", "; 
-	msg += lmkEMFault3DTranslator::zstr();
-	msg += "and ";
-	msg += lmkEMFault3DTranslator::pointtypestr();
-	msg += " must be provided for reading";
+	msg.set( lmkEMFault3DTranslator::xstr() ).add( ", " ) 
+	   .add( lmkEMFault3DTranslator::ystr() ).add( ", " )
+	   .add( lmkEMFault3DTranslator::zstr() ).add( "and " )
+	   .add( lmkEMFault3DTranslator::pointtypestr() )
+	   .add( " must be provided for reading" );
 	error = true;
 	return;
     }
 
     if ( !conn->forRead() || !conn->isStream() )
-    {
-	msg = "Internal error: Bad connection";
-	error = true;
-	return;
-    }
+	{ msg = "Internal error: Bad connection"; error = true; return; }
 
     error = false;
 }
 
 
 lmkEMFault3DReader::~lmkEMFault3DReader()
-{ delete conn; }
+{
+    delete conn;
+}
 
 
 int lmkEMFault3DReader::nextStep()
 {
-    if ( error ) return ErrorOccurred();
+    if ( error )
+	return ErrorOccurred();
 
     od_istream& strm = ((StreamConn*)conn)->iStream();
     
@@ -152,9 +151,7 @@ int lmkEMFault3DReader::nextStep()
     }
 
     if ( !strm.isOK() )
-    {
 	return Finished();
-    }
 
     int reqlen = mMAX(pointtypeinterval.stop, zinterval.stop );
     if ( useinlcrl )

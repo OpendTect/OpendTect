@@ -51,17 +51,21 @@ public:
 			{ return !isEqual(iop); }
 
     int			size() const;
+    int			indexOf(const char* key) const;
+    inline bool		isPresent( const char* ky ) const
+						{ return indexOf(ky) >= 0; }
+
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		isEqual(const IOPar&,bool need_same_order=false) const;
-
-    int			indexOf(const char* key) const;
     FixedString		getKey(int) const;
     FixedString		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
-    bool		hasKey( const char* s ) const { return indexOf(s)>=0; }
+
+    inline bool		hasKey( const char* s ) const { return isPresent(s); }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
+
     void		remove(int);
     void		removeWithKey(const char* key);
     void		removeWithKeyPattern(const char* globexpression);
@@ -91,8 +95,7 @@ public:
 
     FixedString		find(const char*) const;
 			//!< returns null if not found
-    FixedString		operator[](const char*) const;
-			//!< returns empty string if not found
+    FixedString		operator[](const char* ky) const;
 
 			// Functions for getting 1,2,3 and 4 of the same type
 #define mIOParDeclFns(type) \

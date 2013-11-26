@@ -235,10 +235,11 @@ void HorSampling::limitToWithUdf( const HorSampling& h )
 static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
 		      int& step )
 {
-    const char* ptr = par.find( key );
-    if ( !ptr || !*ptr ) return false;
+    FixedString parval = par[key];
+    if ( !parval )
+	return false;
 
-    FileMultiString fms( ptr );
+    FileMultiString fms( parval );
     if ( fms.size() > 0 )
 	start = fms.getIValue( 0 );
     if ( fms.size() > 1 )

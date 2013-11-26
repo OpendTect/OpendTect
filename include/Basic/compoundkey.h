@@ -25,22 +25,26 @@ mExpClass(Basic) CompoundKey
 {
 public:
 
-    inline		CompoundKey( const char* s=0 )	{ if ( s ) id_ = s; }
+    inline		CompoundKey( const char* s=0 )	{ if ( s ) impl_ = s; }
     inline		CompoundKey( const CompoundKey& ck ) 
-			: id_(ck.id_)			{}
-    inline CompoundKey&	operator=(const char* s)	{id_ = s; return *this;}
-    inline CompoundKey&	operator+=(const char*);
-    inline bool		operator==(const char* s) const	{ return id_ == s; }
-    inline bool		operator==(const CompoundKey& u) const
-							{ return id_ == u.id_; }
-    inline bool		operator!=(const char* s) const	{ return id_ != s; }
+			: impl_(ck.impl_)	{}
+    inline CompoundKey&	operator=( const char* s )
+    						{ impl_ = s; return *this;}
+    inline CompoundKey&	operator+=( const char* );
+    inline bool		operator==( const char* s ) const
+    						{ return impl_ == s; }
+    inline bool		operator==( const CompoundKey& oth ) const
+						{ return impl_ == oth.impl_; }
+    inline bool		operator!=( const char* s ) const
+    						{ return impl_ != s; }
     inline bool		operator!=(const CompoundKey& u) const
-							{ return id_ != u.id_; }
-    inline void		setEmpty()			{ id_.setEmpty(); }
-    inline bool		isEmpty() const			{ return id_.isEmpty();}
-    inline char*	buf()				{ return id_.buf(); }
-    inline const char*	buf() const			{ return id_.buf(); }
-    inline		operator const char*() const	{ return buf(); }
+						{ return impl_ != u.impl_; }
+    inline void		setEmpty()		{ impl_.setEmpty(); }
+    inline bool		isEmpty() const		{ return impl_.isEmpty();}
+    inline char*	buf()			{ return impl_.buf(); }
+    inline const char*	buf() const		{ return impl_.buf(); }
+    inline		operator const char*() const
+    						{ return buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;
@@ -50,10 +54,9 @@ public:
 
 protected:
 
-    BufferString	id_;
+    BufferString	impl_;
     char*		fromKey(int) const;
     const char*		getKeyPart(int) const;
-    mGlobal(Basic) friend std::istream& operator >>(std::istream&,CompoundKey&);
 
 private:
 
@@ -64,14 +67,11 @@ private:
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {
-    if ( !id_.isEmpty() )
-	id_.add( "." );
-    id_.add( s );
+    if ( !impl_.isEmpty() )
+	impl_.add( "." );
+    impl_.add( s );
     return *this;
 }
-
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const CompoundKey&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,CompoundKey&);
 
 
 #endif

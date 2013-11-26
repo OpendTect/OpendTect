@@ -39,18 +39,18 @@ public:
 			{ add(i1); add(i2); add(i3); }
 
     inline MultiID&	operator =( const MultiID& mi )
-			{ id_ = mi.id_; return *this; }
+			{ impl_ = mi.impl_; return *this; }
     inline MultiID&	operator =( const CompoundKey& ck )
-			{ id_ = ck.buf(); return *this; }
+			{ impl_ = ck.buf(); return *this; }
     inline MultiID&	operator =( const FixedString& fs )
-			{ id_ = fs.str(); return *this; }
+			{ impl_ = fs.str(); return *this; }
     inline MultiID&	operator =( const char* s )
-			{ id_ = s; return *this; }
+			{ impl_ = s; return *this; }
 
     inline bool		operator==( const MultiID& m ) const
-			{ return id_ == m.id_; }
+			{ return impl_ == m.impl_; }
     inline bool		operator==( const char* s ) const
-			{ return id_ == s; }
+			{ return impl_ == s; }
 
     inline int		ID( int idx ) const
 			{ return toInt(key(idx).buf()); }
@@ -69,4 +69,3 @@ public:
 
 
 #endif
-

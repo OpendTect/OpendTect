@@ -15,9 +15,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "convert.h"
-#include <iosfwd>
-
-class FixedString;
 class QString;
 
 /*!
@@ -155,10 +152,6 @@ mGlobal(Basic) bool operator==(const char*,const BufferString&);
    of not implementing is that we want to avoid promotions to
    BufferStrings if not needed. */
 mGlobal(Basic) bool operator!=(const char*,const BufferString&);
-
-
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const BufferString&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,BufferString&);
 
 
 #define mBufferStringSimpConstrInitList \

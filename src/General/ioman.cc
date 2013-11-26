@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "transl.h"
 #include "msgh.h"
+#include "od_ostream.h"
 
 #include <stdlib.h>
 
@@ -864,8 +865,8 @@ bool SurveyDataTreePreparer::createDataTree()
     if ( File::exists(omffnm) )
 	return true;
 
-    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fp );
+    if ( !strm.isOK() )
     {
 	if ( dircreated )
 	    File::remove( thedirnm );
@@ -873,15 +874,14 @@ bool SurveyDataTreePreparer::createDataTree()
 		 " directory" );
     }
 
-    *sd.ostrm << GetProjectVersionName();
-    *sd.ostrm << "\nObject Management file\n";
-    *sd.ostrm << Time::getDateTimeString();
-    *sd.ostrm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
+    strm << GetProjectVersionName();
+    strm << "\nObject Management file\n";
+    strm << Time::getDateTimeString();
+    strm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"
 		"$Name: Main\n!"
-	      << std::endl;
-    sd.close();
+	      << od_endl;
     return true;
 }
 

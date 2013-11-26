@@ -10,6 +10,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nrbytes2string.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
+#include "bufstringset.h"
+#include "iopar.h"
 
 #include <iostream>
 
@@ -143,6 +145,7 @@ static bool testBufferStringFns( bool quiet )
 }
 
 
+
 int main( int narg, char** argv )
 {
     od_init_test_program( narg, argv );
@@ -157,6 +160,20 @@ int main( int narg, char** argv )
 
     if ( !testBufferStringFns(quiet) )
 	ExitProgram( 1 );
+
+    BufferStringSet strs;
+    strs.add( "Str pos 0" );
+    strs.add( "" );
+    strs.add( "Str pos 2" );
+    IOPar iop; strs.fillPar( iop );
+    strs.setEmpty(); strs.usePar( iop );
+    mRunTest( "BufferString use/fillPar test", strs.get(2)=="Str pos 2" );
+
+    if ( !quiet )
+    {
+	FixedString str( 0 );
+	std::cerr << "Should be empty: '" << str << "'" << std::endl;
+    }
 
     ExitProgram( 0 );
 }

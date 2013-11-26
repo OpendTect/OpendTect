@@ -94,7 +94,7 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 	else
 	{
 	    FixedString res = iop.find( getKey(idx) );
-	    if ( !res || res!=getValue(idx) )
+	    if ( res!=getValue(idx) )
 		return false;
 	}
     }
@@ -608,7 +608,7 @@ mDefGetFVals(double)
 template <class T>
 static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 {
-    const char* ptr = iop.find(s); \
+    const char* ptr = iop.find(s);
     if ( !ptr || !*ptr ) return false;
 
     res.erase();

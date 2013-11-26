@@ -8,11 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
-#include "globexpr.h"
-#include "od_iostream.h"
 #include "staticstring.h"
-#include <stdlib.h>
-#include <iostream>
 
 
 char* CompoundKey::fromKey( int keynr ) const
@@ -23,7 +19,7 @@ char* CompoundKey::fromKey( int keynr ) const
 
 char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
 {
-    char* ptr = const_cast<char*>( id_.buf() );
+    char* ptr = const_cast<char*>( impl_.buf() );
     if ( !ptr || (keynr<1 && !parttobuf) )
 	return ptr;
 
@@ -49,10 +45,10 @@ char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
 
 int CompoundKey::nrKeys() const
 {
-    if ( id_.isEmpty() ) return 0;
+    if ( impl_.isEmpty() ) return 0;
 
     int nrkeys = 1;
-    const char* ptr = id_;
+    const char* ptr = impl_;
     while ( true )
     {
 	ptr = strchr(ptr,'.');
@@ -80,20 +76,20 @@ void CompoundKey::setKey( int ikey, const char* s )
     if ( !ptr ) return;
 
     const BufferString lastpart( strchr(ptr,'.') ); // lastpart=".Z"
-    *ptr = '\0';			// id_="X."
+    *ptr = '\0';			// impl_="X."
 
     if ( s && *s )
-	id_.add( s );			// id_="X.new"
-    else if ( ptr != id_.buf() )
-	*(ptr-1) = '\0';		// id_="X"
+	impl_.add( s );			// impl_="X.new"
+    else if ( ptr != impl_.buf() )
+	*(ptr-1) = '\0';		// impl_="X"
 
-    id_.add( lastpart );		// id_="X.new.Z" or "X.Z" if s==0
+    impl_.add( lastpart );		// impl_="X.new.Z" or "X.Z" if s==0
 }
 
 
 CompoundKey CompoundKey::upLevel() const
 {
-    if ( id_.isEmpty() )
+    if ( impl_.isEmpty() )
 	return CompoundKey("");
 
     CompoundKey ret( *this );
@@ -113,14 +109,14 @@ CompoundKey CompoundKey::upLevel() const
 
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
-    return nrKeys() < ky.nrKeys() && matchString( id_, ky.id_ );
+    return nrKeys() < ky.nrKeys() && matchString( impl_, ky.impl_ );
 }
 
 
 int MultiID::leafID() const
 {
-    const char* ptr = strrchr( id_, '.' );
-    return toInt( ptr ? ptr+1 : (const char*)id_ );
+    const char* ptr = strrchr( impl_, '.' );
+    return toInt( ptr ? ptr+1 : (const char*)impl_ );
 }
 
 
@@ -129,9 +125,3 @@ const MultiID& MultiID::udf()
    mDefineStaticLocalObject( MultiID, _udf, (-1) );
    return _udf;
 }
-
-
-std::ostream& operator <<( std::ostream& strm, const CompoundKey& ck )
-	{ strm << ck.buf(); return strm; }
-std::istream& operator >>( std::istream& strm, CompoundKey& ck )
-	{ strm >> ck.id_; return strm; }
