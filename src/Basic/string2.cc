@@ -12,8 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include "survinfo.h"
 #include "undefval.h"
-#include <stdlib.h>
+#include "odcomplex.h"
+#include <ctype.h>
 #include <stdio.h>
+#include <iostream>
 
 #ifdef __win__
 # define sDirSep        "\\"
@@ -693,34 +695,26 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 const char* toString( od_int32 i )
 { return getStringFromInt( i, 0 ); }
 
-
 const char* toString( od_uint32 i )
 { return getStringFromUInt( i, 0 ); }
-
 
 const char* toString( od_int64 i )
 { return getStringFromInt64( i, 0 ); }
 
-
 const char* toString( od_uint64 i )
 { return getStringFromUInt64(i, 0); }
-
 
 const char* toString( float f )
 { return getStringFromFloat( f ); }
 
-
 const char* toString( double d )
 { return getStringFromDouble( d ); }
-
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }
 
-
 const char* toString( unsigned short i )
 { return getStringFromUInt( (unsigned int)i, 0 ); }
-
 
 const char* toString( unsigned char c )
 { return toString( ((unsigned short)c) ); }
@@ -728,9 +722,13 @@ const char* toString( unsigned char c )
 
 const char* toString( const char* str )
 {
-    mDeclStaticString( ret );
-    ret = str;
-    return ret.buf();
+    return str ? str : "";
+}
+
+
+const char* toString( const FixedString& fs )
+{
+    return fs.buf();
 }
 
 
@@ -744,7 +742,55 @@ const char* toString( signed char c )
 
 
 const char* toString( bool b )
-{ const char* res = getYesNoString(b); return res; }
+{
+    const char* res = getYesNoString(b);
+    return res;
+}
+
+
+const char* toString( float_complex c )
+{
+    mDeclStaticString( ret );
+    if ( mIsUdf(c) )
+	ret.set( "<undef>" );
+    else
+	ret.set( "(" ).add( c.real() ).add( "," ).add( c.imag() ).add( ")" );
+    return ret.buf();
+}
+
+
+float_complex float_complexFromString( const char* str,
+					char** pendptr )
+{
+    float_complex ret = float_complex(0.f,0.f);
+    char* workendptr; if ( !pendptr ) pendptr = &workendptr;
+    if ( !str || !*str )
+	{ if ( str ) pendptr = (char**)(&str); return ret; }
+
+    mSkipBlanks( str );
+    pendptr = (char**)(&str);
+    BufferString fcstr;
+    char buf[1024+1]; int bufidx = 0;
+    while ( **pendptr && !isspace(**pendptr) )
+    {
+	buf[bufidx] = **pendptr;
+	(*pendptr)++;
+	if ( ++bufidx == 1024 )
+	    { buf[bufidx] = '\0'; fcstr.add( buf ); bufidx = 0; }
+    }
+    if ( bufidx )
+	{ buf[bufidx] = '\0'; fcstr.add( buf ); }
+
+    char* ptrfcstr = fcstr.buf();
+    if ( !*ptrfcstr )
+	return ret;
+
+    Coord c; c.fromString( fcstr.buf() );
+    ret.real() = (float)c.x;
+    ret.imag() = (float)c.y;
+
+    return ret;
+}
 
 
 bool getFromString( bool& b, const char* s )
@@ -797,7 +843,8 @@ mImplGetFromStrFunc(double, strtod(s,&e) )
 
 NrBytesToStringCreator::NrBytesToStringCreator()
     : unit_( Bytes )
-{}
+{
+}
 
 
 void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
@@ -863,3 +910,34 @@ FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
     return units[(int) unit];
 }
 
+
+bool FixedString::operator==( const char* s ) const
+{
+    if ( ptr_ == s )
+	return true;
+    else if ( !ptr_ || !s )
+	return false;
+
+    return !strcmp( ptr_, s );
+}
+
+
+bool FixedString::operator==( const BufferString& s ) const
+{
+    return FixedString::operator==( s.buf() );
+}
+
+
+int FixedString::size() const
+{
+    return ptr_ ? strlen( ptr_ ) : 0;
+}
+
+
+std::ostream& operator <<( std::ostream& strm, const FixedString& fs )
+{
+    const char* tostrm = fs.str();
+    if ( tostrm )
+	strm << tostrm;
+    return strm;
+}

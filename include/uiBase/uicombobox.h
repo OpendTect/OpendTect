@@ -36,7 +36,7 @@ public:
 			uiComboBox(uiParent*,const BufferStringSet&,
 				   const char* nm);
 			uiComboBox(uiParent*,const char**,const char* nm);
-    virtual 		~uiComboBox();
+    virtual		~uiComboBox();
 
     virtual void        setReadOnly( bool = true );
     virtual bool        isReadOnly() const;
@@ -52,6 +52,8 @@ public:
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
+    void		setCurrentItem( const FixedString& fs )
+						{ setCurrentItem( fs.str() ); }
 
     void		addItem(const wchar_t*,int id=-1);
     virtual void	addItem(const char*);
@@ -81,7 +83,7 @@ protected:
 
     virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
     virtual bool	notifyValueChanging_(const CallBack&)	{return false;}
-    virtual bool	notifyValueChanged_( const CallBack& cb )   
+    virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
 
 private:
@@ -98,7 +100,7 @@ private:
 public:
 
     void		setToolTip( const char* tt )
-    			{ uiObject::setToolTip(tt); }
+			{ uiObject::setToolTip(tt); }
 
     virtual bool	update_( const DataInpSpec& spec );
     void		getItemSize(int,int& h,int& w) const;

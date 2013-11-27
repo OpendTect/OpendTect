@@ -186,8 +186,9 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     }
     else
     {
-	SeparString str( par.find(sKey::InlRange()).str() );
-	for ( int idx=0; idx<str.size(); idx++ )
+	SeparString str( par.find(sKey::InlRange()) );
+	const int nrinls = str.size();
+	for ( int idx=0; idx<nrinls; idx++ )
 	    inlines += str.getIValue(idx);
     }
 
@@ -211,7 +212,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     }
     else
     {
-	SeparString str( par.find(sKey::CrlRange()).str() );
+	SeparString str( par.find(sKey::CrlRange()) );
 	for ( int idx=0; idx<str.size(); idx++ )
 	    crosslines += str.getIValue(idx);
     }

@@ -32,6 +32,12 @@ class ascostream;
   Tools around this basic idea are paring into other types, key composition,
   reading/writing to/from file, merging, and more.
 
+  The get() functions return a bool, which is false when:
+  * either the key is not present
+  * or the value is not acceptable (usually: when empty is not OK,
+    like for numerical values).
+  In that case the passed variable is untouched; it keeps its original value.
+
   dumpPretty() is used for reports.  The title of the report is the name of the
   IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
   with the value. Use add() rather than set(). Values may contain newlines.
@@ -80,22 +86,29 @@ public:
 			//!< The composite key: (a,b) -> a.b
     static const char*	compKey(const char*,int);
 			//!< The composite key where int will be --> string
+    static const char*	compKey( const char* ky1, const FixedString& ky2 )
+			{ return compKey(ky1,ky2.str()); }
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
     IOPar*		subselect(int) const;
 			//!< returns iopar with key that start with number.
+    IOPar*		subselect( const FixedString& fs ) const
+			{ return subselect( fs.str() ); }
     void		removeSubSelection(const char*);
 			//!< removes with key that start with <str>.
     void		removeSubSelection(int);
 			//!< removes with key that start with number.
+    void		removeSubSelection( const FixedString& fs )
+			{ removeSubSelection( fs.str() ); }
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
 
 // GET functions
 
-    FixedString		find(const char*) const;
-			//!< returns null if not found
-    FixedString		operator[](const char* ky) const;
+    const char*		find(const char*) const;
+				//!< returns null if not found
+    FixedString		operator[]( const char* ky ) const
+			{ return FixedString( find(ky) ); }
 
 			// Functions for getting 1,2,3 and 4 of the same type
 #define mIOParDeclFns(type) \
@@ -138,6 +151,8 @@ public:
     bool		get(const char*,SeparString&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
+    bool		get(const char*,BufferString&,BufferString&,
+					BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
@@ -165,6 +180,8 @@ public:
 			/*!< replaces when key already exists, otherwise adds */
     void		add(const char* ky,const char* val);
 			/*!< unsafe: does not check for duplicate keys */
+    void		add( const char* ky, const FixedString& val )
+			{ add( ky, val.str() ); }
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
 
@@ -201,6 +218,7 @@ public:
     void		setPtr(const char*,void*);
 
     void		set(const char*,const char*,const char*);
+    void		set(const char*,const char*,const char*,const char*);
     void		set(const char*,const BinID&);
     void		set(const char*,const TrcKey&);
     void		set(const char*,const Coord&);
@@ -209,8 +227,16 @@ public:
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
     void		set(const char*,const FixedString&);
+    void		set(const char*,const FixedString&,
+					const FixedString&);
+    void		set(const char*,const FixedString&,
+					const FixedString&,
+					const FixedString&);
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
+					const BufferString&);
+    void		set(const char*,const BufferString&,
+					const BufferString&,
 					const BufferString&);
     void		set(const char*,const BufferStringSet&);
     template <class T>

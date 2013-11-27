@@ -106,7 +106,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
     if ( !display )
 	return;
-    
+
     menu->removeItems();
 
     bool dispcorrect = false;
@@ -340,7 +340,7 @@ const char* uiVisDataPointSetDisplayMgr::getViewerName( int parentidx ) const
 {
     RefMan<visBase::DataObject> scene =
 	visserv_.getObject( allsceneids_[parentidx] );
-    return scene ? scene->name() : 0;
+    return scene ? scene->name().str() : 0;
 }
 
 

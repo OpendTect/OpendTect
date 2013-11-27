@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet(s,act) \
 { uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
 
-uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp) 
+uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
 				 "103.4.4").modal(false))
     , stratsynth_(gp)
@@ -69,7 +69,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
     rtsel_ = new uiRayTracerSel( pargrp, rsu );
-    rtsel_->usePar( stratsynth_.genParams().raypars_ ); 
+    rtsel_->usePar( stratsynth_.genParams().raypars_ );
     rtsel_->attach( alignedBelow, angleinpfld_ );
     rtsel_->offsetChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
@@ -77,18 +77,18 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     wvltfld_->newSelection.notify( mCB(this,uiSynthGenDlg,parsChanged) );
     wvltfld_->attach( alignedBelow, rtsel_ );
     wvltfld_->setFrame( false );
-    
+
     nmofld_ = new uiGenInput( pargrp, "Apply NMO corrections",
 			      BoolInpSpec(true) );
     mAttachCB( nmofld_->valuechanged, uiSynthGenDlg::parsChanged);
     nmofld_->attach( alignedBelow, wvltfld_ );
     nmofld_->setValue( true );
-    
+
     FloatInpSpec inpspec;
     inpspec.setLimits( Interval<float>(1,500) );
     stretchmutelimitfld_ = new uiGenInput(pargrp, "Stretch mute (%)", inpspec );
     stretchmutelimitfld_->attach( alignedBelow, nmofld_ );
-    
+
     mutelenfld_ = new uiGenInput( pargrp, "Mute taper-length (ms)",
 				      FloatInpSpec() );
     mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
@@ -117,7 +117,7 @@ void uiSynthGenDlg::finaliseDone( CallBacker* )
 }
 
 
-void uiSynthGenDlg::getPSNames( BufferStringSet& synthnms ) 
+void uiSynthGenDlg::getPSNames( BufferStringSet& synthnms )
 {
     synthnms.erase();
 
@@ -136,7 +136,7 @@ void uiSynthGenDlg::getPSNames( BufferStringSet& synthnms )
 }
 
 
-void uiSynthGenDlg::updateSynthNames() 
+void uiSynthGenDlg::updateSynthNames()
 {
     synthnmlb_->setEmpty();
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
@@ -155,7 +155,7 @@ void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
     FixedString synthnm( synthnmlb_->textOfItem(synthnmlb_->nextSelected()) );
     if ( synthnm.isEmpty() ) return;
-    SyntheticData* sd = stratsynth_.getSynthetic( synthnm );
+    SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
     if ( !sd ) return;
     sd->fillGenParams( stratsynth_.genParams() );
     putToScreen();
@@ -268,7 +268,7 @@ void uiSynthGenDlg::putToScreen()
     const SynthGenParams& genparams = stratsynth_.genParams();
     wvltfld_->setInput( genparams.wvltnm_ );
     namefld_->setText( genparams.name_ );
-    
+
     const bool isps = genparams.isPreStack();
     typefld_->setCurrentItem( (int)genparams.synthtype_ );
     if ( genparams.synthtype_ == SynthGenParams::ZeroOffset )
@@ -282,18 +282,18 @@ void uiSynthGenDlg::putToScreen()
 	psselfld_->box()->setEmpty();
 	psselfld_->box()->addItems( psnms );
 	psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
-	angleinpfld_->setValue( genparams.anglerg_ ); 
+	angleinpfld_->setValue( genparams.anglerg_ );
 	updateFieldSensitivity();
 	return;
     }
 
     TypeSet<float> offsets;
     genparams.raypars_.get( RayTracer1D::sKeyOffset(), offsets );
-        
+
     bool donmo = true;
     genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
     nmofld_->setValue( donmo );
-    
+
     if ( isps )
     {
 	float mutelen = Seis::SynthGenBase::cStdMuteLength();
@@ -301,7 +301,7 @@ void uiSynthGenDlg::putToScreen()
 		Seis::SynthGenBase::sKeyMuteLength(), mutelen );
 	mutelenfld_->setValue(
 	    mIsUdf(mutelen) ? mutelen : mutelen *ZDomain::Time().userFactor());
-	
+
 	float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
 	genparams.raypars_.get(
 			Seis::SynthGenBase::sKeyStretchLimit(), stretchlimit );
@@ -313,25 +313,25 @@ void uiSynthGenDlg::putToScreen()
 }
 
 
-bool uiSynthGenDlg::getFromScreen() 
+bool uiSynthGenDlg::getFromScreen()
 {
-    const char* nm = namefld_->text(); 
+    const char* nm = namefld_->text();
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
-    
+
     if ( mutelenfld_->attachObj()->isDisplayed() &&
 	 (mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0) )
 	mErrRet( "The mutelength must be more than zero.", return false );
-    
+
     if ( stretchmutelimitfld_->attachObj()->isDisplayed() &&
 	(mIsUdf(stretchmutelimitfld_->getfValue()) ||
 	 stretchmutelimitfld_->getfValue()<0) )
 	mErrRet( "The stretch mute must be more than 0%", return false );
-    
+
     stratsynth_.genParams().raypars_.setEmpty();
-    
+
     SynthGenParams& genparams = stratsynth_.genParams();
-    genparams.synthtype_ = (SynthGenParams::SynthType)typefld_->currentItem(); 
+    genparams.synthtype_ = (SynthGenParams::SynthType)typefld_->currentItem();
     const bool isps = !typefld_->currentItem();
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
@@ -345,7 +345,7 @@ bool uiSynthGenDlg::getFromScreen()
 		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
 	    mErrRet("Problem with Input Pre-Stack synthetic data",return false);
-	
+
 	inppssd->fillGenParams( genparams );
 	genparams.name_ = nm;
 	genparams.synthtype_ = synthtype;
@@ -364,7 +364,7 @@ bool uiSynthGenDlg::getFromScreen()
     bool donmo = isps ? nmofld_->getBoolValue() : false;
     genparams.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), donmo );
     genparams.name_ = namefld_->text();
-    
+
     if ( isps )
     {
 	genparams.raypars_.set( Seis::SynthGenBase::sKeyMuteLength(),
@@ -378,7 +378,7 @@ bool uiSynthGenDlg::getFromScreen()
 }
 
 
-void uiSynthGenDlg::updateWaveletName() 
+void uiSynthGenDlg::updateWaveletName()
 {
     wvltfld_->setInput( stratsynth_.genParams().wvltnm_ );
     BufferString nm;
@@ -397,7 +397,7 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
 	return true;
     BufferString synthname( synthnmlb_->textOfItem(selidx) );
     synthChanged.trigger( synthname );
-    
+
     return true;
 }
 

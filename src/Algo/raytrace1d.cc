@@ -37,7 +37,7 @@ bool RayTracer1D::Setup::usePar( const IOPar& par )
 }
 
 
-void RayTracer1D::Setup::fillPar( IOPar& par ) const 
+void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyPWave(), pdown_, pup_ );
     par.setYN( sKeyReflectivity(), doreflectivity_);
@@ -48,7 +48,7 @@ RayTracer1D::RayTracer1D()
     : sini_( 0 )
     , twt_(0)
     , reflectivity_( 0 )
-{}					       
+{}
 
 
 RayTracer1D::~RayTracer1D()
@@ -87,7 +87,7 @@ bool RayTracer1D::usePar( const IOPar& par )
 }
 
 
-void RayTracer1D::fillPar( IOPar& par ) const 
+void RayTracer1D::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), factoryKeyword() );
     par.set( sKeyOffset(), offsets_ );
@@ -104,12 +104,12 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 
 void RayTracer1D::setModel( const ElasticModel& lys )
 {
-    model_ = lys; 
+    model_ = lys;
 
     for ( int idx=model_.size()-1; idx>=0; idx-- )
     {
 	ElasticLayer& lay = model_[idx];
-	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_)) 
+	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_))
 		|| ( mIsUdf(lay.den_) && setup().doreflectivity_ ) )
 	    model_.removeSingle( idx );
     }
@@ -149,8 +149,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     if ( sz < 1 )
     {
-	errmsg_ = sz ? "Model is only one layer, please specify a valid model"
-		     : "Model is empty, please specify a valid model";
+	errmsg_.set( sz ? "Model has only one layer" : "Model is empty" )
+	       .add( ", cannot do raytracing." );
 	return false;
     }
 
@@ -179,7 +179,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     for ( int idx=0; idx<layersize; idx++ )
     {
-	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_ 
+	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
 	               : model_[idx].thickness_;
 	velmax_ += model_[idx].vel_;
     }
@@ -206,7 +206,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	twt_->setSize( layersize, offsetsz );
     twt_->setAll( mUdf(float) );
 
-    if ( setup().doreflectivity_ ) 
+    if ( setup().doreflectivity_ )
     {
 	if ( reflectivity_ && reflectivity_->isEmpty() )
 	    { delete reflectivity_; reflectivity_ = 0; }
@@ -244,7 +244,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     float_complex reflectivity = 0;
     const int nrinterfaces = layer+1;
 
-    if ( !mIsZero(off,mDefEps) ) 
+    if ( !mIsZero(off,mDefEps) )
     {
 	if ( rayparam*model_[layer].vel_ > 1 ||   // critical angle reached
 	     rayparam*model_[layer+1].vel_ > 1 )  // no reflection
@@ -269,14 +269,14 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	for ( int iidx=1; iidx<nrinterfaces; iidx++ )
 	{
 	    reflectivity *= coefs[iidx].getCoeff( true, iidx!=layer,
-		    				 setup().pdown_, iidx==layer ?
+						 setup().pdown_, iidx==layer ?
 						 setup().pup_ : setup().pdown_);
 	}
 
 	for ( int iidx=nrinterfaces-2; iidx>=0; iidx--)
 	{
 	    reflectivity *= coefs[iidx].getCoeff( false, false, setup().pup_,
-		    						setup().pup_);
+								setup().pup_);
 	}
     }
     else
@@ -287,7 +287,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	const float ai1 = ail1.vel_ * ail1.den_;
 	const float real =
 	    mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
-	    					           : (ai1-ai0)/(ai1+ai0);
+						           : (ai1-ai0)/(ai1+ai0);
 	reflectivity = float_complex( real, 0 );
     }
 
@@ -304,10 +304,10 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 
     const int offsetidx = offsetpermutation_[offset];
 
-    if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) || 
+    if ( !sini_ || layer<0 || layer>=sini_->info().getSize(0) ||
 	 offsetidx<0 || offsetidx>=sini_->info().getSize(1) )
 	return mUdf(float);
-    
+
     return sini_->get( layer, offsetidx );
 }
 
@@ -332,12 +332,12 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     for ( int iidx=0; iidx<nrinterfaces; iidx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( iidx, offsetidx );
-	spike.depth_ = depths_[iidx]; 
+	spike.depth_ = depths_[iidx];
 	spike.time_ = twt_->get( iidx, offsetidx );
 	spike.correctedtime_ = twt_->get( iidx, 0 );
 	if ( !spike.isDefined()	)
 	    continue;
-	
+
 	model += spike;
     }
     return true;
@@ -369,8 +369,8 @@ bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
 	depths += depths_[lidx];
 	times += time;
     }
-    
-    return d2tm.setModel( depths.arr(), times.arr(), times.size() ); 
+
+    return d2tm.setModel( depths.arr(), times.arr(), times.size() );
 }
 
 
@@ -393,9 +393,9 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	const float dz = layer.thickness_;
 
 	dnmotime = dz / dvel;
-	dvrmssum = dz * dvel;  
+	dvrmssum = dz * dvel;
 	unmotime = dz / uvel;
-	uvrmssum = dz * uvel; 
+	uvrmssum = dz * uvel;
 
 	dvrmssum += prevdvrmssum;
 	uvrmssum += prevuvrmssum;
@@ -412,7 +412,7 @@ bool VrmsRayTracer1D::doPrepare( int nrthreads )
 	velmax_[lidx] = Math::Sqrt( vrmssum / twt );
 	twt_->set( lidx, 0, twt );
     }
-    
+
     return true;
 }
 
@@ -434,15 +434,14 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 	    const float rayparam = sin(angle) / vel;
 
 	    if ( !compute( layer, osidx, rayparam ) )
-	    { 
-		BufferString msg( "Can not compute layer " );
-		msg += toString( layer ); 
-		msg += "\n most probably the velocity is not correct";
-		errmsg_ = msg; return false; 
+	    {
+		errmsg_.set( "Can not compute layer " ).add( toString(layer) )
+			.add( "\n most probably the velocity is not correct" );
+		return false;
 	    }
 	}
     }
-    
+
     return true;
 }
 
@@ -454,9 +453,9 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float off = offsets_[offsetidx];
     float twt = tnmo;
     if ( vrms && !mIsUdf(tnmo) )
-    	twt = Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo);
+	twt = Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo);
 
     twt_->set( layer, offsetidx, twt );
-    
+
     return RayTracer1D::compute( layer, offsetidx, rayparam );
 }

@@ -152,7 +152,7 @@ void MadStream::initRead( IOPar* par )
 
     if ( inptyp == "Madagascar" )
     {
-	const char* filenm = par->find( sKey::FileName() ).str();
+	const char* filenm = par->find( sKey::FileName() );
 
 	BufferString inpstr( filenm );
 	bool scons = false;
@@ -201,7 +201,7 @@ void MadStream::initRead( IOPar* par )
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
-    const char* attrnm = par->find( sKey::Attribute() ).str();
+    const char* attrnm = par->find( sKey::Attribute() );
     if ( attrnm && *attrnm && seldata )
 	seldata->lineKey().setAttrName( attrnm );
 
@@ -225,7 +225,7 @@ void MadStream::initRead( IOPar* par )
 	fillHeaderParsFromPS( seldata );
     }
 }
- 
+
 
 void MadStream::initWrite( IOPar* par )
 {
@@ -252,19 +252,19 @@ void MadStream::initWrite( IOPar* par )
     {
 	const LineKey lk = seldata ? seldata->lineKey() : 0;
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,lk.lineName())
-	    	       : SPSIOPF().get3DWriter(*ioobj);
+		       : SPSIOPF().get3DWriter(*ioobj);
 	if ( !pswrr_ ) mErrRet( "Cannot write to output object" );
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
-    
+
     if ( is2d_ && !isps_ )
     {
-	const char* attrnm = par->find( sKey::Attribute() ).str();
+	const char* attrnm = par->find( sKey::Attribute() );
 	if ( attrnm && *attrnm && seldata )
 	    seldata->lineKey().setAttrName( attrnm );
 
 	seiswrr_->setSelData(seldata);
-    }	
+    }
 
     fillHeaderParsFromStream();
 }
@@ -275,20 +275,20 @@ BufferString MadStream::getPosFileName( bool forread ) const
     BufferString posfnm;
     if ( forread )
     {
-	posfnm = pars_.find( sKeyPosFileName ).str();
+	posfnm = pars_.find( sKeyPosFileName );
 	if ( !posfnm.isEmpty() && File::exists(posfnm) )
 	    return posfnm;
 	else posfnm.setEmpty();
     }
 
-    BufferString typ = 
+    BufferString typ =
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    		    sKey::Type()) ).str();
+				    sKey::Type()) );
     if ( typ == sKeyMadagascar )
     {
 	BufferString outfnm =
 	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    			sKey::FileName()) ).str();
+					sKey::FileName()) );
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
 	if ( !forread || File::exists(fp.fullPath()) )
@@ -364,7 +364,7 @@ void MadStream::fillHeaderParsFromSeis()
 	SeisPacketInfo& pinfo = seisrdr_->seisTranslator()->packetInfo();
 	zrg = pinfo.zrg;
 	trcrg = pinfo.crlrg;
-	
+
 	mDynamicCastGet(const Seis::RangeSelData*,rangesel,seisrdr_->selData())
 	if ( rangesel && !rangesel->isAll() )
 	{
@@ -389,7 +389,7 @@ void MadStream::fillHeaderParsFromSeis()
 		mWriteToPosFile( newcd )
 	    }
 	}
-	
+
 	if ( !needposfile )
 	{
 	    StepInterval<int> inlrg = rangesel ?
@@ -489,7 +489,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     SeisTrc* nexttrc = trcbuf.get(1);
     if ( !firsttrc || !nexttrc || !firsttrc->size() || !nexttrc->size() )
 	mErrRet( "No data to read" );
-    
+
     headerpars_->set( "n3", nrbids );
 
     headerpars_->set( "o2", firsttrc->info().offset );
@@ -597,7 +597,7 @@ bool MadStream::getNextPos( BinID& bid )
     const TypeSet<PosInfo::Line2DPos>& posns = l2ddata_->positions();
     if ( !bid.crl() )
 	{ bid.crl() = posns[0].nr_; return true; }
-    
+
     int idx = 0;
     while ( idx<posns.size() && bid.crl() != posns[idx].nr_ )
 	idx++;
@@ -679,9 +679,9 @@ void MadStream::readRSFTrace( float* arr, int nrsamps ) const
 	haspos = true; \
 	od_istream strm( posfnm ); \
 	if ( !strm.isOK() ) mErrBoolRet("Cannot Open Pos File"); \
-       	if ( !obj.read(strm,false) ) \
+	if ( !obj.read(strm,false) ) \
 	    mErrBoolRet("Cannot Read Pos File"); \
-       	if ( obj.isEmpty() ) \
+	if ( obj.isEmpty() ) \
 	    mErrBoolRet("No positions in Pos File"); \
 	strm.close(); \
 	if ( FilePath(posfnm).pathOnly() == FilePath::getTempDir() ) \
@@ -734,7 +734,7 @@ bool MadStream::writeTraces( bool writetofile )
     for ( int inlidx=0; inlidx<nrinl; inlidx++ )
     {
 	const int inl = haspos ? cubedata[inlidx]->linenr_
-	    			: inlstart + inlidx * inlstep;
+				: inlstart + inlidx * inlstep;
 
 	const int nrsegs = haspos ? cubedata[inlidx]->segments_.size() : 1;
 	for ( int segidx=0; segidx<nrsegs; segidx++ )
@@ -768,7 +768,7 @@ bool MadStream::writeTraces( bool writetofile )
 		    {
 			if ( ( isps_ && !pswrr_->put (*trc) )
 			    || ( !isps_ && !seiswrr_->put(*trc) ) )
-			{ 
+			{
 			    delete [] buf; delete trc;
 			    mErrBoolRet("Cannot write trace");
 			}

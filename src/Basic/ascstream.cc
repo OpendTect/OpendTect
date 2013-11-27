@@ -139,6 +139,12 @@ bool ascostream::put( const char* keyword, const char* value )
 }
 
 
+bool ascostream::put( const char* keyword, const FixedString& value )
+{
+    return put( keyword, value.buf() );
+}
+
+
 #define mDeclPut1IFn(typ) \
 bool ascostream::put( const char* keyword, typ value ) \
 { \

@@ -66,7 +66,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     {
 	par.set( ODGMT::sKeyShape(), "Line" );
 	par.set( sKey::Size(), 1 );
-	str = find( ODGMT::sKeyLineStyle() ).str();
+	str = find( ODGMT::sKeyLineStyle() );
 	par.set( ODGMT::sKeyLineStyle(), str );
     }
 
@@ -75,7 +75,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     if ( dofill )
     {
 	par.set( ODGMT::sKeyPostColorBar(), true );
-	str = find( ODGMT::sKeyDataRange() ).str();
+	str = find( ODGMT::sKeyDataRange() );
 	par.set( ODGMT::sKeyDataRange(), str );
     }
 
@@ -152,9 +152,9 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     Coord spt3 = SI().transform( BinID(sd.rg.stop.inl(),sd.rg.start.crl()) );
     Coord spt4 = SI().transform( BinID(sd.rg.stop.inl(),sd.rg.stop.crl()) );
     Coord botleft( mMIN( mMIN( spt1.x, spt2.x ), mMIN( spt3.x, spt4.x ) ),
-	    	   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
+		   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
     Coord topright( mMAX( mMAX( spt1.x, spt2.x ), mMAX( spt3.x, spt4.x ) ),
-	    	    mMAX( mMAX( spt1.y, spt2.y ), mMAX( spt3.y, spt4.y ) ) );
+		    mMAX( mMAX( spt1.y, spt2.y ), mMAX( spt3.y, spt4.y ) ) );
     fp.setExtension( "gd1" );
     BufferString grd100fnm = fileName( fp.fullPath() );
     BufferString rstr = "-R";
@@ -179,7 +179,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	    continue;
 
 	const float val = isz ? (float) pos.z * fac
-	    		      : hor->auxdata.getAuxDataVal( dataidx, posid );
+			      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 
 	*sdata.ostrm << pos.x << " " << pos.y << " " << val << std::endl;

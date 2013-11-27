@@ -53,7 +53,7 @@ const char* SeparString::getEscaped( const char* str, char sep ) const
     {
 	if ( *str=='\\' || *str==sep )
 	    *writeptr++ = '\\';
-	
+
 	*writeptr++ = *str++;
     }
     *writeptr = '\0';
@@ -247,17 +247,17 @@ int SeparString::indexOf( const char* str ) const
     int elemnr = 0;
     while ( *startptr )
     {
-	FixedString nextsep = findSeparator( startptr );
+	const char* nextsep = findSeparator( startptr );
 	FixedString elemstr = getUnescaped( startptr, nextsep );
 
-	if ( elemstr==str )
+	if ( elemstr == str )
 	    return elemnr;
 
 	if ( !nextsep )
 	    return -1;
 
 	elemnr++;
-	startptr = nextsep+1;
+	startptr = nextsep + 1;
     }
 
     return -1;

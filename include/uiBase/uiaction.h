@@ -37,28 +37,28 @@ public:
                         uiAction(const char*);
                         uiAction(const char*,const CallBack&);
                         uiAction(const char*,const CallBack&,const ioPixmap&);
-    			uiAction(const char*,const CallBack&,const char* pmfln);
-    			uiAction(const char*,const char* pmfln);
-    			uiAction(const MenuItem&);
+			uiAction(const char*,const CallBack&,const char* pmfln);
+			uiAction(const char*,const char* pmfln);
+			uiAction(const MenuItem&);
 			uiAction(mQtclass(QAction*));
 			~uiAction();
 
     void		setText(const char*);
     void		setText(const wchar_t* txt);
     const char*		text() const;
-    			/*!<\note Use before next call.*/
+			/*!<\note Use before next call.*/
     void		setIconText(const char*);
     const char*		iconText() const;
-    			/*!<\note Use before next call.*/
+			/*!<\note Use before next call.*/
     void		setToolTip(const char*);
     void		setToolTip(const wchar_t*);
     const char*		toolTip() const;
-    			/*!<\note Use before next call.*/
+			/*!<\note Use before next call.*/
 
     static void		updateToolTips();
 
     void		setMenu(uiMenu*);
-    			//!<Becomes mine
+			//!<Becomes mine
 
     uiMenu*		getMenu()		{ return menu_; }
     const uiMenu*	getMenu() const		{ return menu_; }
@@ -82,7 +82,7 @@ public:
 
     void		setParentContainer(const uiActionContainer*);
     int			getID() const;
-    			/*!<Only works if parent is set. */
+			/*!<Only works if parent is set. */
 
     mQtclass(QAction*)	qaction()		{ return qaction_; }
     const mQtclass(QAction*)	qaction() const { return qaction_; }
@@ -146,7 +146,7 @@ public:
 mExpClass(uiBase) uiActionContainer
 {
 public:
-    virtual 			~uiActionContainer();
+    virtual			~uiActionContainer();
 
     int				nrActions() const;
     const ObjectSet<uiAction>&	actions() const;
@@ -155,6 +155,8 @@ public:
     uiAction*			findAction(const char* itmtxt);
     uiAction*			findAction(int id);
     uiAction*			findAction(const uiMenu*);
+    uiAction*			findAction( const FixedString& fs )
+					{ return findAction(fs.str()); }
     int				getID(const uiAction*) const;
     int				getID(const mQtclass(QAction)*) const;
 

@@ -53,7 +53,7 @@ public:
 				  const char* nm=0,bool multiselect=false,
 				  int prefNrLines=0,int prefFieldWidth=0);
 
-    virtual 		~uiListBox();
+    virtual		~uiListBox();
 
     enum SelectionMode	{ No, Single, Multi, Extended, Contiguous };
     void		setSelectionMode(SelectionMode);
@@ -76,6 +76,8 @@ public:
     void		setEmpty();
     void		removeItem(int);
     void		removeItem(const char*);
+    void		removeItem( const FixedString& fs )
+						{ removeItem( fs.str() ); }
     void		setAllowDuplicates(bool yn);
     void		addItem(const char*,bool marked=false,int id=-1);
     void		addItem(const char*,const ioPixmap&,int id=-1);
@@ -100,6 +102,8 @@ public:
     const char*		getText() const	 { return textOfItem(currentItem()); }
     void                setCurrentItem(int);
     void                setCurrentItem(const char*);	//!< First match
+    void		setCurrentItem( const FixedString& fs )
+						{ setCurrentItem( fs.str() ); }
     int			indexOf(const char*) const;	//!< First match
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
@@ -136,7 +140,7 @@ public:
 
     Alignment::HPos	alignment() const		{ return alignment_; }
     void		setAlignment(Alignment::HPos);
-    void 		setNrLines(int);
+    void		setNrLines(int);
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     static int		cDefNrLines();		//!< == 7 (July 2011)
@@ -158,7 +162,7 @@ protected:
     OD::ButtonState	buttonstate_;
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
-    bool 		allowduplicates_;
+    bool		allowduplicates_;
     uiMenu&		rightclickmnu_;
 
     void		menuCB(CallBacker*);

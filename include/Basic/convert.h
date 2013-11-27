@@ -22,7 +22,8 @@ ________________________________________________________________________
 
 /*!\brief Template based type conversion. */
 
-namespace Conv{
+namespace Conv
+{
 
 //! template based type conversion
 template <class T, class F>
@@ -114,7 +115,7 @@ inline void set( type& _to, const char* const& s ) \
     if ( s != endptr ) \
 	_to = (type) tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
+	Values::setUdf( _to ); \
 } \
 template <> \
 inline void set( type& _to, const FixedString& s ) \
@@ -126,8 +127,14 @@ inline void set( type& _to, const FixedString& s ) \
     if ( s.str() != endptr ) \
 	_to = (type) tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
+	Values::setUdf( _to ); \
 }
+
+#define mConvDefSFromStrToFn(type,fn) \
+template <> \
+inline void set( type& _to, const char* const& s ) \
+    { _to = (type)fn(s); }
+
 
 mConvDefFromStrToFn( int, (int)strtol(s,&endptr,0) )
 mConvDefFromStrToFn( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
@@ -136,24 +143,13 @@ mConvDefFromStrToFn( od_uint64, strtoull(s,&endptr,0) )
 mConvDefFromStrToFn( double, strtod(s,&endptr) )
 mConvDefFromStrToFn( float, strtof(s,&endptr) )
 
-#undef mConvDefFromStrToFn
+mConvDefSFromStrToFn( short, atoi )
+mConvDefSFromStrToFn( unsigned short, atoi )
+
 
 template <>
 inline void set( bool& _to, const FixedString& s )
     { _to = yesNoFromString(s.str()); }
-
-
-#define mConvDefFromStrToFn(type,fn) \
-template <> \
-inline void set( type& _to, const char* const& s ) \
-    { _to = (type)fn(s); }
-
-
-mConvDefFromStrToFn( short, atoi )
-mConvDefFromStrToFn( unsigned short, atoi )
-
-#undef mConvDefFromStrToFn
-
 
 template <>
 inline void set( bool& _to, const char* const& s )
@@ -220,5 +216,6 @@ inline void set( bool& _to, const double& d )
     { _to = !mIsZero(d,mDefEpsD); }
 
 
-}
+} // namespace Conv
+
 #endif

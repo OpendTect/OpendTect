@@ -45,7 +45,7 @@ static const BufferString& gtFileName( const char* fnm )
 
 static const BufferString& gtFileName( const IOPar& iop )
 {
-    return gtFileName( iop.find( sKey::FileName() ).str() );
+    return gtFileName( iop.find( sKey::FileName() ) );
 }
 
 const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
@@ -55,7 +55,7 @@ const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
 
 
 SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
-    	: Seis2DLineIOProvider(CBVSSeisTrcTranslator::translKey() )
+	: Seis2DLineIOProvider(CBVSSeisTrcTranslator::translKey() )
 {
 }
 
@@ -127,7 +127,7 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 					    int ntps, const Seis::SelData& sd )
-    	: Executor("Load 2D line")
+	: Executor("Load 2D line")
 	, tbuf_(b)
 	, curnr_(0)
 	, totnr_(0)
@@ -146,7 +146,7 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 	seldata_ = sd.clone();
 	tr_->setSelData( seldata_ );
     }
-    
+
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
 }
 
@@ -308,11 +308,11 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    BufferString fnm = iop.find( sKey::FileName() ).str();
+    BufferString fnm = iop.find( sKey::FileName() );
     if ( fnm.isEmpty() )
     {
 	if ( previop )
-	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName())).buf();
+	    fnm = CBVSIOMgr::baseFileName( previop->find(sKey::FileName()) );
 	else
 	{
 	    if ( lsetnm && *lsetnm )
@@ -335,7 +335,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 //-------------------SeisCBVS2DLinePutter-----------------
 
 SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
-    	: nrwr_(0)
+	: nrwr_(0)
 	, fname_(gtFileName(fnm))
 	, tr_(CBVSSeisTrcTranslator::getInstance())
 	, preseldt_(DataCharacteristics::Auto)
@@ -406,6 +406,6 @@ bool SeisCBVS2DLinePutter::close()
     tr_->setIs2D( true );
     bool ret = tr_->close();
     if ( ret ) errmsg_ = tr_->errMsg();
-    return ret; 
+    return ret;
 }
 

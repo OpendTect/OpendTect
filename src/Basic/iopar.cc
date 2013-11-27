@@ -94,7 +94,7 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 	else
 	{
 	    FixedString res = iop.find( getKey(idx) );
-	    if ( res!=getValue(idx) )
+	    if ( res != getValue(idx) )
 		return false;
 	}
     }
@@ -127,14 +127,13 @@ int IOPar::indexOf( const char* key ) const
 
 FixedString IOPar::getKey( int nr ) const
 {
-    return FixedString( keys_.validIdx(nr) ? keys_.get(nr).buf() : "" );
+    return FixedString( keys_.validIdx(nr) ? keys_.get(nr).buf() : 0 );
 }
 
 
 FixedString IOPar::getValue( int nr ) const
 {
-    if ( nr >= size() ) return "";
-    return FixedString(vals_.get( nr ).buf() );
+    return FixedString( vals_.validIdx(nr) ? vals_.get(nr).buf() : 0 );
 }
 
 
@@ -297,13 +296,13 @@ void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 }
 
 
-const char* IOPar::findKeyFor( const char* s, int nr ) const
+const char* IOPar::findKeyFor( const char* val, int nr ) const
 {
-    if ( !s ) return 0;
+    if ( !val ) return 0;
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( vals_.get(idx) == s )
+	if ( vals_.get(idx) == val )
 	{
 	    if ( nr )	nr--;
 	    else	return keys_.get(idx).buf();
@@ -314,20 +313,10 @@ const char* IOPar::findKeyFor( const char* s, int nr ) const
 }
 
 
-FixedString IOPar::operator[]( const char* keyw ) const
-{
-    FixedString res = find( keyw );
-    if ( res )
-	return res;
-
-    return sKey::EmptyString();
-}
-
-
-FixedString IOPar::find( const char* keyw ) const
+const char* IOPar::find( const char* keyw ) const
 {
     const int idx = keys_.indexOf( keyw );
-    return FixedString( keys_.validIdx(idx) ? vals_.get(idx).buf() : 0 );
+    return vals_.validIdx(idx) ? vals_.get(idx).buf() : 0;
 }
 
 
@@ -410,28 +399,28 @@ void IOPar::set( const char* keyw, type val ) \
     set( keyw, toString( val ) );\
 }
 #define mDefSet2Val( type ) \
-void IOPar::set( const char* s, type v1, type v2 ) \
+void IOPar::set( const char* keyw, type v1, type v2 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
-    set( s, fms ); \
+    set( keyw, fms ); \
 }
 #define mDefSet3Val( type ) \
-void IOPar::set( const char* s, type v1, type v2, type v3 ) \
+void IOPar::set( const char* keyw, type v1, type v2, type v3 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
-    set( s, fms ); \
+    set( keyw, fms ); \
 }
 #define mDefSet4Val( type ) \
-void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
+void IOPar::set( const char* keyw, type v1, type v2, type v3, type v4 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
     fms.add( toString(v4) ); \
-    set( s, fms ); \
+    set( keyw, fms ); \
 }
 
 #define mDefAdd1Val(type) \
@@ -440,28 +429,28 @@ void IOPar::add( const char* keyw, type val ) \
     add( keyw, toString( val ) ); \
 }
 #define mDefAdd2Val( type ) \
-void IOPar::add( const char* s, type v1, type v2 ) \
+void IOPar::add( const char* keyw, type v1, type v2 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
-    add( s, fms ); \
+    add( keyw, fms ); \
 }
 #define mDefAdd3Val( type ) \
-void IOPar::add( const char* s, type v1, type v2, type v3 ) \
+void IOPar::add( const char* keyw, type v1, type v2, type v3 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
-    add( s, fms ); \
+    add( keyw, fms ); \
 }
 #define mDefAdd4Val( type ) \
-void IOPar::add( const char* s, type v1, type v2, type v3, type v4 ) \
+void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
     fms.add( toString(v4) ); \
-    add( s, fms ); \
+    add( keyw, fms ); \
 }
 
 mDefSet1Val(int)	mDefSet2Val(int)
@@ -491,104 +480,120 @@ mDefAdd1Val(double)	mDefAdd2Val(double)
 mDefAdd3Val(double)	mDefAdd4Val(double)
 
 
+#define mGetStart(pval) \
+    if ( !pval ) return false; \
+    mSkipBlanks(pval)
+
+#define mGetStartAllowEmptyOn(iop,pval) \
+    const char* pval = iop.find( keyw ); \
+    mGetStart(pval)
+
+#define mGetStartAllowEmpty(pval) \
+    const char* pval = find( keyw ); \
+    mGetStart(pval)
+
+#define mGetStartNotEmptyOn(iop,pval) \
+    mGetStartAllowEmptyOn(iop,pval); \
+    if ( !*pval ) return false
+
+#define mGetStartNotEmpty(pval) \
+    mGetStartAllowEmpty(pval); \
+    if ( !*pval ) return false
+
+
 #define mDefGetI1Val( type, convfunc ) \
-bool IOPar::get( const char* s, type& v1 ) const \
+bool IOPar::get( const char* keyw, type& v1 ) const \
 { \
-    const char* ptr = find(s); \
-    if ( !ptr || !*ptr ) return false; \
-\
+    mGetStartNotEmpty(pval); \
     char* endptr; \
-    type tmpval = convfunc; \
-    if ( ptr==endptr ) return false; \
-    v1 = tmpval; \
+    type valfound = convfunc; \
+    if ( pval==endptr ) return false; \
+    v1 = valfound; \
     return true; \
 }
 
 #define mDefGetI2Val( type, convfunc ) \
-bool IOPar::get( const char* s, type& v1, type& v2 ) const \
+bool IOPar::get( const char* keyw, type& v1, type& v2 ) const \
 { \
-    const char* ptr = find(s); \
-    if ( !ptr || !*ptr ) return false; \
-    FileMultiString fms( ptr ); \
+    mGetStartNotEmpty(pval); \
+    FileMultiString fms( pval ); \
     if ( fms.size() < 2 ) return false; \
     char* endptr; \
 \
-    ptr = fms[0]; \
-    type tmpval = convfunc; \
-    if ( ptr == endptr ) return false; \
-    v1 = tmpval; \
+    pval = fms[0]; \
+    type valfound = convfunc; \
+    if ( pval == endptr ) return false; \
+    v1 = valfound; \
 \
-    ptr = fms[1]; tmpval = convfunc; \
-    if ( ptr != endptr ) v2 = tmpval; \
+    pval = fms[1]; valfound = convfunc; \
+    if ( pval != endptr ) v2 = valfound; \
 \
     return true; \
 }
 
 #define mDefGetI3Val( type, convfunc ) \
-bool IOPar::get( const char* s, type& v1, type& v2, type& v3 ) const \
+bool IOPar::get( const char* keyw, type& v1, type& v2, type& v3 ) const \
 { \
-    const char* ptr = find(s); \
-    if ( !ptr || !*ptr ) return false; \
-    FileMultiString fms( ptr ); \
+    mGetStartNotEmpty(pval); \
+    FileMultiString fms( pval ); \
     if ( fms.size() < 3 ) return false; \
     char* endptr; \
 \
-    ptr = fms[0]; \
-    type tmpval = convfunc; \
-    if ( ptr == endptr ) return false; \
-    v1 = tmpval; \
+    pval = fms[0]; \
+    type valfound = convfunc; \
+    if ( pval == endptr ) return false; \
+    v1 = valfound; \
 \
-    ptr = fms[1]; tmpval = convfunc; \
-    if ( ptr != endptr ) v2 = tmpval; \
+    pval = fms[1]; valfound = convfunc; \
+    if ( pval != endptr ) v2 = valfound; \
 \
-    ptr = fms[2]; tmpval = convfunc; \
-    if ( ptr != endptr ) v3 = tmpval; \
+    pval = fms[2]; valfound = convfunc; \
+    if ( pval != endptr ) v3 = valfound; \
 \
     return true; \
 }
 
 #define mDefGetI4Val( type, convfunc ) \
-bool IOPar::get( const char* s, type& v1, type& v2, type& v3, type& v4 ) const \
+bool IOPar::get( const char* keyw, type& v1,type& v2,type& v3,type& v4 ) const \
 { \
-    const char* ptr = find(s); \
-    if ( !ptr || !*ptr ) return false; \
-    FileMultiString fms( ptr ); \
+    mGetStartNotEmpty(pval); \
+    FileMultiString fms( pval ); \
     if ( fms.size() < 4 ) return false; \
     char* endptr; \
 \
-    ptr = fms[0]; \
-    type tmpval = convfunc; \
-    if ( ptr == endptr ) return false; \
-    v1 = tmpval; \
+    pval = fms[0]; \
+    type valfound = convfunc; \
+    if ( pval == endptr ) return false; \
+    v1 = valfound; \
 \
-    ptr = fms[1]; tmpval = convfunc; \
-    if ( ptr != endptr ) v2 = tmpval; \
+    pval = fms[1]; valfound = convfunc; \
+    if ( pval != endptr ) v2 = valfound; \
 \
-    ptr = fms[2]; tmpval = convfunc; \
-    if ( ptr != endptr ) v3 = tmpval; \
+    pval = fms[2]; valfound = convfunc; \
+    if ( pval != endptr ) v3 = valfound; \
 \
-    ptr = fms[3]; tmpval = convfunc; \
-    if ( ptr != endptr ) v4 = tmpval; \
+    pval = fms[3]; valfound = convfunc; \
+    if ( pval != endptr ) v4 = valfound; \
 \
     return true; \
 }
 
-mDefGetI1Val(int,strtol(ptr, &endptr, 0));
-mDefGetI2Val(int,strtol(ptr, &endptr, 0));
-mDefGetI3Val(int,strtol(ptr, &endptr, 0));
-mDefGetI4Val(int,strtol(ptr, &endptr, 0));
-mDefGetI1Val(od_uint32,strtoul(ptr, &endptr, 0));
-mDefGetI2Val(od_uint32,strtoul(ptr, &endptr, 0));
-mDefGetI3Val(od_uint32,strtoul(ptr, &endptr, 0));
-mDefGetI4Val(od_uint32,strtoul(ptr, &endptr, 0));
-mDefGetI1Val(od_int64,strtoll(ptr, &endptr, 0));
-mDefGetI2Val(od_int64,strtoll(ptr, &endptr, 0));
-mDefGetI3Val(od_int64,strtoll(ptr, &endptr, 0));
-mDefGetI4Val(od_int64,strtoll(ptr, &endptr, 0));
-mDefGetI1Val(od_uint64,strtoull(ptr, &endptr, 0));
-mDefGetI2Val(od_uint64,strtoull(ptr, &endptr, 0));
-mDefGetI3Val(od_uint64,strtoull(ptr, &endptr, 0));
-mDefGetI4Val(od_uint64,strtoull(ptr, &endptr, 0));
+mDefGetI1Val(int,strtol(pval, &endptr, 0));
+mDefGetI2Val(int,strtol(pval, &endptr, 0));
+mDefGetI3Val(int,strtol(pval, &endptr, 0));
+mDefGetI4Val(int,strtol(pval, &endptr, 0));
+mDefGetI1Val(od_uint32,strtoul(pval, &endptr, 0));
+mDefGetI2Val(od_uint32,strtoul(pval, &endptr, 0));
+mDefGetI3Val(od_uint32,strtoul(pval, &endptr, 0));
+mDefGetI4Val(od_uint32,strtoul(pval, &endptr, 0));
+mDefGetI1Val(od_int64,strtoll(pval, &endptr, 0));
+mDefGetI2Val(od_int64,strtoll(pval, &endptr, 0));
+mDefGetI3Val(od_int64,strtoll(pval, &endptr, 0));
+mDefGetI4Val(od_int64,strtoll(pval, &endptr, 0));
+mDefGetI1Val(od_uint64,strtoull(pval, &endptr, 0));
+mDefGetI2Val(od_uint64,strtoull(pval, &endptr, 0));
+mDefGetI3Val(od_uint64,strtoull(pval, &endptr, 0));
+mDefGetI4Val(od_uint64,strtoull(pval, &endptr, 0));
 
 
 #define mDefGetFVals(typ) \
@@ -606,16 +611,15 @@ mDefGetFVals(double)
 
 
 template <class T>
-static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
+static bool iopget_typeset( const IOPar& iop, const char* keyw, TypeSet<T>& res)
 {
-    const char* ptr = iop.find(s);
-    if ( !ptr || !*ptr ) return false;
+    mGetStartNotEmptyOn(iop,pval);
 
     res.erase();
     int keyidx = 0;
-    while ( ptr && *ptr )
+    while ( pval && *pval )
     {
-	FileMultiString fms( ptr );
+	FileMultiString fms( pval );
 	const int len = fms.size();
 	for ( int idx=0; idx<len; idx++ )
 	{
@@ -625,8 +629,7 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 	}
 
 	keyidx++;
-	FixedString newkey = IOPar::compKey(s,keyidx);
-	ptr = iop.find( newkey );
+	pval = iop.find( IOPar::compKey(keyw,keyidx) );
     }
     return true;
 }
@@ -661,9 +664,9 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 }
 
 #define mDefTSFns(typ) \
-bool IOPar::get( const char* s, TypeSet<typ>& res ) const \
+bool IOPar::get( const char* keyw, TypeSet<typ>& res ) const \
 { \
-    return iopget_typeset( *this, s, res ); \
+    return iopget_typeset( *this, keyw, res ); \
 } \
 \
 void IOPar::set( const char* keyw, const TypeSet<typ>& vals ) \
@@ -680,22 +683,22 @@ mDefTSFns(double)
 
 
 template <class T>
-static bool iopget_scaled( const IOPar& iop, const char* s,
+static bool iopget_scaled( const IOPar& iop, const char* keyw,
 			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    FixedString ptr = iop.find( s );
+    FixedString fs = iop.find( keyw );
     bool havedata = false;
-    if ( setudf || !ptr.isEmpty() )
+    if ( setudf || !fs.isEmpty() )
     {
-	FileMultiString fms = ptr;
+	FileMultiString fms = fs;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    ptr = fms[idx];
+	    fs = fms[idx];
 	    T& f( *(vptrs[idx]) );
-	    if ( !ptr.isEmpty() )
+	    if ( !fs.isEmpty() )
 	    {
 		havedata = true;
-		Conv::udfset( f, ptr );
+		Conv::udfset( f, fs );
 		if ( !mIsUdf(f) ) f *= sc;
 	    }
 	    else if ( setudf )
@@ -706,105 +709,97 @@ static bool iopget_scaled( const IOPar& iop, const char* s,
 }
 
 
-bool IOPar::getScaled( const char* s, float& f, float sc, bool udf ) const
+bool IOPar::getScaled( const char* keyw, float& f, float sc, bool udf ) const
 {
     float* vptrs[1]; vptrs[0] = &f;
-    return iopget_scaled( *this, s, vptrs, 1, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 1, sc, udf );
 }
-bool IOPar::getScaled( const char* s, double& f, double sc, bool udf ) const
+bool IOPar::getScaled( const char* keyw, double& f, double sc, bool udf ) const
 {
     double* vptrs[1]; vptrs[0] = &f;
-    return iopget_scaled( *this, s, vptrs, 1, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 1, sc, udf );
 }
-bool IOPar::getScaled( const char* s, float& f1, float& f2, float sc,
+bool IOPar::getScaled( const char* keyw, float& f1, float& f2, float sc,
 		       bool udf ) const
 {
     float* vptrs[2]; vptrs[0] = &f1; vptrs[1] = &f2;
-    return iopget_scaled( *this, s, vptrs, 2, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 2, sc, udf );
 }
-bool IOPar::getScaled( const char* s, double& f1, double& f2, double sc,
+bool IOPar::getScaled( const char* keyw, double& f1, double& f2, double sc,
 		       bool udf ) const
 {
     double* vptrs[2]; vptrs[0] = &f1; vptrs[1] = &f2;
-    return iopget_scaled( *this, s, vptrs, 2, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 2, sc, udf );
 }
-bool IOPar::getScaled( const char* s, float& f1, float& f2, float& f3, float sc,
-		       bool udf ) const
+bool IOPar::getScaled( const char* keyw, float& f1, float& f2, float& f3,
+			float sc, bool udf ) const
 {
     float* vptrs[3]; vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3;
-    return iopget_scaled( *this, s, vptrs, 3, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 3, sc, udf );
 }
-bool IOPar::getScaled( const char* s, double& f1, double& f2, double& f3,
+bool IOPar::getScaled( const char* keyw, double& f1, double& f2, double& f3,
 			double sc, bool udf ) const
 {
     double* vptrs[3]; vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3;
-    return iopget_scaled( *this, s, vptrs, 3, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 3, sc, udf );
 }
 
-bool IOPar::getScaled( const char* s, float& f1, float& f2, float& f3,
+bool IOPar::getScaled( const char* keyw, float& f1, float& f2, float& f3,
 			float& f4, float sc, bool udf ) const
 {
     float* vptrs[4];
     vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3; vptrs[3] = &f4;
-    return iopget_scaled( *this, s, vptrs, 4, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 4, sc, udf );
 }
-bool IOPar::getScaled( const char* s, double& f1, double& f2, double& f3,
+bool IOPar::getScaled( const char* keyw, double& f1, double& f2, double& f3,
 		       double& f4, double sc, bool udf ) const
 {
     double* vptrs[4];
     vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3; vptrs[3] = &f4;
-    return iopget_scaled( *this, s, vptrs, 4, sc, udf );
+    return iopget_scaled( *this, keyw, vptrs, 4, sc, udf );
 }
 
 
-bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
+bool IOPar::get( const char* keyw, int& i1, int& i2, float& f ) const
 {
-    const char* ptr = find( s );
+    mGetStartNotEmpty(pval);
     bool havedata = false;
-    if ( ptr && *ptr )
+    if ( pval && *pval )
     {
-	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr ) { i1 = toInt( ptr ); havedata = true; }
-	ptr = fms[1];
-	if ( *ptr ) { i2 = toInt( ptr ); havedata = true; }
-	ptr = fms[2];
-	if ( *ptr ) { f = toFloat( ptr ); havedata = true; }
+	FileMultiString fms = pval;
+	pval = fms[0];
+	if ( *pval ) { i1 = toInt( pval ); havedata = true; }
+	pval = fms[1];
+	if ( *pval ) { i2 = toInt( pval ); havedata = true; }
+	pval = fms[2];
+	if ( *pval ) { f = toFloat( pval ); havedata = true; }
     }
     return havedata;
 }
 
 
-bool IOPar::getYN( const char* s, bool& i ) const
+bool IOPar::getYN( const char* keyw, bool& i ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr ) return false;
-    mSkipBlanks(ptr);
-    if ( !*ptr ) return false;
-
-    i = toBool(ptr,true);
+    mGetStartNotEmpty(pval);
+    i = toBool(pval,true);
     return true;
 }
 
 
-bool IOPar::getYN( const char* s, bool& i1, bool& i2 ) const
+bool IOPar::getYN( const char* keyw, bool& i1, bool& i2 ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-
-    FileMultiString fms( ptr );
+    mGetStartNotEmpty(pval);
+    FileMultiString fms( pval );
     i1 = toBool(fms[0],false);
     i2 = toBool(fms[1],false);
     return true;
 }
 
 
-bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3 ) const
+bool IOPar::getYN( const char* keyw, bool& i1, bool& i2, bool& i3 ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-
-    FileMultiString fms( ptr );
+    mGetStartNotEmpty(pval);
+    FileMultiString fms( pval );
     i1 = toBool(fms[0],false);
     i2 = toBool(fms[1],false);
     i3 = toBool(fms[2],false);
@@ -812,12 +807,11 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3 ) const
 }
 
 
-bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3, bool& i4 ) const
+bool IOPar::getYN( const char* keyw, bool& i1, bool& i2, bool& i3,
+		   bool& i4 ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-
-    FileMultiString fms( ptr );
+    mGetStartNotEmpty(pval);
+    FileMultiString fms( pval );
     i1 = toBool(fms[0],false);
     i2 = toBool(fms[1],false);
     i3 = toBool(fms[2],false);
@@ -826,32 +820,34 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3, bool& i4 ) const
 }
 
 
-bool IOPar::getPtr( const char* s, void*& res ) const
+bool IOPar::getPtr( const char* keyw, void*& res ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-
-    return sscanf( ptr, "%p", &res ) > 0;
+    mGetStartNotEmpty(pval);
+    return sscanf( pval, "%p", &res ) > 0;
 }
 
 
-void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
+void IOPar::set( const char* keyw, const char* v1, const char* v2 )
 {
-    FileMultiString fms( vals1 ); fms += vals2;
-    int idx = keys_.indexOf( keyw );
-    if ( idx < 0 )
-	add( keyw, fms );
-    else
-	setValue( idx, fms );
+    FileMultiString fms( v1 ); fms += v2;
+    set( keyw, fms.buf() );
 }
 
 
-void IOPar::set( const char* s, int i1, int i2, float f )
+void IOPar::set( const char* keyw, const char* v1, const char* v2,
+		 const char* v3 )
+{
+    FileMultiString fms( v1 ); fms += v2; fms += v3;
+    set( keyw, fms.buf() );
+}
+
+
+void IOPar::set( const char* keyw, int i1, int i2, float f )
 {
     FileMultiString fms = toString( i1 );
     fms.add( toString(i2) );
     fms.add( toString(f) );
-    set( s, fms );
+    set( keyw, fms.buf() );
 }
 
 
@@ -862,29 +858,29 @@ void IOPar::setPtr( const char* keyw, void* ptr )
 }
 
 
-bool IOPar::get( const char* s, Coord& crd ) const
-{ return get( s, crd.x, crd.y ); }
-void IOPar::set( const char* s, const Coord& crd )
-{ set( s, crd.x, crd.y ); }
+bool IOPar::get( const char* keyw, Coord& crd ) const
+{ return get( keyw, crd.x, crd.y ); }
+void IOPar::set( const char* keyw, const Coord& crd )
+{ set( keyw, crd.x, crd.y ); }
 
-bool IOPar::get( const char* s, Coord3& crd ) const
-{ return get( s, crd.x, crd.y, crd.z ); }
-void IOPar::set( const char* s, const Coord3& crd )
-{ set( s, crd.x, crd.y, crd.z ); }
+bool IOPar::get( const char* keyw, Coord3& crd ) const
+{ return get( keyw, crd.x, crd.y, crd.z ); }
+void IOPar::set( const char* keyw, const Coord3& crd )
+{ set( keyw, crd.x, crd.y, crd.z ); }
 
-bool IOPar::get( const char* s, BinID& binid ) const
-{ return get( s, binid.inl(), binid.crl() ); }
-void IOPar::set( const char* s, const BinID& binid )
-{ set( s, binid.inl(), binid.crl() ); }
+bool IOPar::get( const char* keyw, BinID& binid ) const
+{ return get( keyw, binid.inl(), binid.crl() ); }
+void IOPar::set( const char* keyw, const BinID& binid )
+{ set( keyw, binid.inl(), binid.crl() ); }
 
 
-bool IOPar::get( const char* s, TrcKey& tk ) const
+bool IOPar::get( const char* keyw, TrcKey& tk ) const
 {
     TrcKey::SurvID sid;
     int trcnr;
     int linenr;
 
-    if ( !get( s, sid, linenr, trcnr ) )
+    if ( !get( keyw, sid, linenr, trcnr ) )
 	return false;
 
     tk.setSurvID( sid );
@@ -892,45 +888,50 @@ bool IOPar::get( const char* s, TrcKey& tk ) const
     tk.lineNr() = linenr;
     return true;
 }
-void IOPar::set( const char* s, const TrcKey& tk )
-{ set( s, tk.survID(), tk.lineNr(), tk.trcNr() ); }
+void IOPar::set( const char* keyw, const TrcKey& tk )
+{ set( keyw, tk.survID(), tk.lineNr(), tk.trcNr() ); }
 
 
-bool IOPar::get( const char* s, SeparString& ss ) const
+bool IOPar::get( const char* keyw, SeparString& ss ) const
 {
-    const char* res = find( s );
-    if ( !res ) return false;
-    ss = res;
+    mGetStartAllowEmpty(pval);
+    ss = pval;
     return true;
 }
 
 
-bool IOPar::get( const char* s, BufferString& bs ) const
+bool IOPar::get( const char* keyw, BufferString& bs ) const
 {
-    const char* res = find( s );
-    if ( !res ) return false;
-    bs = res;
+    mGetStartAllowEmpty(pval);
+    bs = pval;
     return true;
 }
 
 
-bool IOPar::get( const char* s, BufferString& bs1, BufferString& bs2 ) const
+bool IOPar::get( const char* keyw, BufferString& bs1, BufferString& bs2 ) const
 {
-    const char* res = find( s );
-    if ( !res ) return false;
-    FileMultiString fms( res );
+    mGetStartAllowEmpty(pval);
+    FileMultiString fms( pval );
     bs1 = fms[0]; bs2 = fms[1];
     return true;
 }
 
 
-bool IOPar::get( const char* s, BufferStringSet& bss ) const
+bool IOPar::get( const char* keyw, BufferString& bs1, BufferString& bs2,
+		 BufferString& bs3 ) const
 {
-    const char* res = find( s );
-    if ( !res ) return false;
+    mGetStartAllowEmpty(pval);
+    FileMultiString fms( pval );
+    bs1 = fms[0]; bs2 = fms[1]; bs3 = fms[2];
+    return true;
+}
 
+
+bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
+{
+    mGetStartAllowEmpty(pval);
     bss.erase();
-    FileMultiString fms( res );
+    FileMultiString fms( pval );
     const int sz = fms.size();
     for ( int idx=0; idx<sz; idx++ )
 	bss.add( fms[idx] );
@@ -938,67 +939,87 @@ bool IOPar::get( const char* s, BufferStringSet& bss ) const
 }
 
 
-void IOPar::set( const char* s, const SeparString& ss )
+void IOPar::set( const char* keyw, const SeparString& ss )
 {
-    set( s, ss.buf() );
+    set( keyw, ss.buf() );
 }
 
 
-void IOPar::set( const char* s, const BufferString& bs )
+void IOPar::set( const char* keyw, const BufferString& bs )
 {
-    set( s, bs.buf() );
+    set( keyw, bs.buf() );
 }
 
 
-void IOPar::set( const char* s, const FixedString& bs )
+void IOPar::set( const char* keyw, const BufferString& bs1,
+				   const BufferString& bs2 )
 {
-    set( s, bs.str() );
+    set( keyw, bs1.buf(), bs2.buf() );
 }
 
 
-void IOPar::set( const char* s, const BufferString& bs1,
-				const BufferString& bs2 )
+void IOPar::set( const char* keyw, const BufferString& bs1,
+				   const BufferString& bs2,
+				   const BufferString& bs3 )
 {
-    set( s, bs1.buf(), bs2.buf() );
+    set( keyw, bs1.buf(), bs2.buf(), bs3.buf() );
 }
 
 
-void IOPar::set( const char* s, const BufferStringSet& bss )
+void IOPar::set( const char* keyw, const FixedString& fs )
+{
+    set( keyw, fs.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const FixedString& fs1,
+				   const FixedString& fs2 )
+{
+    set( keyw, fs1.buf(), fs2.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const FixedString& fs1,
+				   const FixedString& fs2,
+				   const FixedString& fs3 )
+{
+    set( keyw, fs1.buf(), fs2.buf(), fs3.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const BufferStringSet& bss )
 {
     FileMultiString fms;
     for ( int idx=0; idx<bss.size(); idx++ )
 	fms += bss.get( idx );
-    set( s, fms.buf() );
+    set( keyw, fms.buf() );
 }
 
 
-bool IOPar::get( const char* s, MultiID& mid ) const
+bool IOPar::get( const char* keyw, MultiID& mid ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-    mid = ptr;
+    mGetStartNotEmpty(pval);
+    mid = pval;
     return true;
 }
 
 
-void IOPar::set( const char* s, const MultiID& mid )
+void IOPar::set( const char* keyw, const MultiID& mid )
 {
-    set( s, mid.buf() );
+    set( keyw, mid.buf() );
 }
 
 
-bool IOPar::get( const char* s, Color& c ) const
+bool IOPar::get( const char* keyw, Color& c ) const
 {
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr ) return false;
-
-    return c.use( ptr );
+    mGetStartNotEmpty(pval);
+    return c.use( pval );
 }
 
-void IOPar::set( const char* s, const Color& c )
+void IOPar::set( const char* keyw, const Color& c )
 {
     BufferString bs; c.fill( bs );
-    set( s, bs );
+    set( keyw, bs );
 }
 
 

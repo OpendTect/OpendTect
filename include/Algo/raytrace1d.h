@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "ailayer.h"
-#include "fixedstring.h"
 #include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
@@ -30,7 +29,7 @@ class TimeDepthModel;
 */
 
 mExpClass(Algo) RayTracer1D : public ParallelTask
-{ 
+{
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
@@ -41,10 +40,10 @@ public:
     mExpClass(Algo) Setup
     {
     public:
-			Setup() 
+			Setup()
 			    : pdown_( true )
 			    , pup_( true )
-			    , doreflectivity_(true)			 
+			    , doreflectivity_(true)
 			{
 			}
 
@@ -56,21 +55,21 @@ public:
 	virtual bool	usePar(const IOPar&);
     };
 
-    virtual RayTracer1D::Setup&	setup() 		= 0;
-    virtual const RayTracer1D::Setup& setup() const 	= 0;
+    virtual RayTracer1D::Setup&	setup()		= 0;
+    virtual const RayTracer1D::Setup& setup() const	= 0;
 
     void		setModel(const ElasticModel&);
-    const ElasticModel&	getModel() const 	{ return model_; }
-    			// model top depth must be TWT = 0ms
-			/*!<Note, if either p-wave or s-wave are undef, 
-			  will fill them with Castagna 
+    const ElasticModel&	getModel() const	{ return model_; }
+			// model top depth must be TWT = 0ms
+			/*!<Note, if either p-wave or s-wave are undef,
+			  will fill them with Castagna
 			  to compute zoeppritz coeffs <!*/
 
     void		setOffsets(const TypeSet<float>& offsets);
 
     const char*		errMsg() const { return errmsg_.str(); }
 
-    			//Available after execution
+			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
     bool                getReflectivity(int offset,ReflectivityModel&) const;
     bool		getTDModel(int offset,TimeDepthModel&) const;
@@ -89,15 +88,15 @@ public:
 
 protected:
 			RayTracer1D();
-    
+
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     virtual bool	compute(int,int,float);
 
-    			//Setup variables
+			//Setup variables
     ElasticModel	model_; // model top depth must be TWT = 0ms
     TypeSet<float>	offsets_;
-    FixedString		errmsg_;
+    BufferString	errmsg_;
 
 			//Runtime variables
     TypeSet<int>	offsetpermutation_;
@@ -116,13 +115,13 @@ protected:
 */
 
 mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
-{ 
+{
 public:
 
     mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRayTracer",
-	    			"Simple RayTracer" );
+				"Simple RayTracer" );
 
-    RayTracer1D::Setup&		setup() 	{ return setup_; }
+    RayTracer1D::Setup&		setup()	{ return setup_; }
     const RayTracer1D::Setup&	setup() const	{ return setup_; }
 
 protected:

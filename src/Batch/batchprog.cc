@@ -150,11 +150,11 @@ void BatchProgram::init()
         return;
     }
 
-    BufferString res = iopar_->find( sKey::LogFile() ).str();
+    BufferString res = iopar_->find( sKey::LogFile() );
     if ( !res )
 	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
 
-    res = iopar_->find( sKey::DataRoot() ).str();
+    res = iopar_->find( sKey::DataRoot() );
     if ( !res.isEmpty() && File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
@@ -162,7 +162,7 @@ void BatchProgram::init()
 	 File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    res = iopar_->find( sKey::Survey() ).str();
+    res = iopar_->find( sKey::Survey() );
     if ( res.isEmpty() )
 	IOMan::newSurvey();
     else
@@ -299,7 +299,7 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    BufferString res = pars().find( sKey::LogFile() ).str();
+    BufferString res = pars().find( sKey::LogFile() );
     if ( res == "stdout" ) res.setEmpty();
 
     bool hasviewprogress = true;

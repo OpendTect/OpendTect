@@ -63,14 +63,14 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	, progname(prnm)
 	, parfnm(pfnm)
 	, hdl(*new HostDataList)
-    	, iop(*new IOPar(ip))
+	, iop(*new IOPar(ip))
 	, avmachfld(0), usedmachfld(0)
 	, jrppolselfld(0), nicefld(0)
 	, tmpstordirfld(0), inlperjobfld(0), logvwer(0)
 	, progrfld(0) , progbar(0)
 	, jrpstartfld(0), jrpstopfld(0)
-    	, jobprov(0), jobrunner(0)
-    	, outioobjinfo(0), isrestart(false)
+	, jobprov(0), jobrunner(0)
+	, outioobjinfo(0), isrestart(false)
 	, lsfileemitted(false)
 	, timer(0)
 	, nrcyclesdone(0)
@@ -83,9 +83,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 
     const int nrhosts = hdl.size();
     const bool multihost = nrhosts > 1;
-    int maxhostdisp = multihost ? (nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts))	
+    int maxhostdisp = multihost ? (nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts))
 				: 1;
-    
+
     const int hostnmwdth = 30;
     is2d = outioobjinfo->is2D();
 
@@ -109,7 +109,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iop.find(sKey::TmpStor()).str();
+	BufferString tmpstordir = iop.find(sKey::TmpStor());
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
@@ -198,7 +198,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	addbut = new uiPushButton( usedmachgrp, "St&art", true );
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( centeredBelow, usedmachfld );
-    	machgrp->setHAlignObj( stopbut );
+	machgrp->setHAlignObj( stopbut );
     }
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
 
@@ -398,7 +398,7 @@ static int getSecs( const char* txt )
 
 	if( tail )
 	    secs += toInt( tail );
-    }   
+    }
     return secs;
 }
 
@@ -469,7 +469,7 @@ void uiSeisMMProc::updateCurMachs()
     jobrunner->showMachStatus( machs );
     sort( machs );
 
-    const int oldsz = usedmachfld->box()->size(); 
+    const int oldsz = usedmachfld->box()->size();
     const int newsz = machs.size();
 
     int curit = oldsz ? usedmachfld->box()->currentItem() : -1;
@@ -510,7 +510,7 @@ int uiSeisMMProc::runnerHostIdx( const char* mach ) const
 
 static bool isHostOK( const HostData& hd, const char* rshcomm,
 		      BufferString& errmsg )
-{	
+{
     BufferString remotecmd( rshcomm );
     remotecmd += " "; remotecmd += hd.name();
     BufferString checkcmd( remotecmd ); checkcmd += " whoami";
@@ -713,7 +713,7 @@ void uiSeisMMProc::infoMsgAvail( CallBacker* cb )
     if ( ji.hostdata_ )
 	{ msg += " on "; msg += ji.hostdata_->name(); }
 
-    msg += ": "; msg += ji.infomsg_; 
+    msg += ": "; msg += ji.infomsg_;
     progrfld->append( msg );
 }
 
@@ -754,13 +754,13 @@ static void rmTmpSeis( SeisJobExecProv* jp )
 {
     if ( !jp ) return;
 
-    bool removed = jp->removeTempSeis(); 
+    bool removed = jp->removeTempSeis();
     int count = 30;
 
     while ( !removed && count-- > 0 )
     {
 	Threads::sleep( 1 );
-	removed = jp->removeTempSeis(); 
+	removed = jp->removeTempSeis();
     }
 
     if ( !removed )
@@ -811,7 +811,7 @@ bool uiSeisMMProc::wrapUp( bool force )
 	delete exec;
 	if ( !res )
 	    return false;
-    }   
+    }
 
     progrfld->append( "Processing completed" );
     setCtrlStyle( LeaveOnly );
@@ -858,7 +858,7 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
     if ( usedmachfld->box()->size() && !uiMSG().askGoOn(
 	    "This will stop further processing and wrap up",false) )
 	return false;
-    
+
     jobrunner->stopAll();
     return wrapUp( true );
 }

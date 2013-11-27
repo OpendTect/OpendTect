@@ -309,7 +309,7 @@ void uiAction::reloadIcon()
     FileMultiString fms( iconfile_ );
     const int len = fms.size();
     const BufferString fnm( fms[0] );
-    const ioPixmap pm( fnm.buf(), len > 1 ? fms[1] : 0 );
+    const ioPixmap pm( fnm.buf(), len > 1 ? fms[1].str() : 0 );
     if ( pm.isEmpty() )
 	return;
 

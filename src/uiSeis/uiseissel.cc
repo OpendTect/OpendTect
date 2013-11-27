@@ -252,7 +252,8 @@ void uiSeisSelDlg::attrNmSel( CallBacker* )
 const char* uiSeisSelDlg::getDataType()
 {
     if ( steerpol_ )
-	return steerpol_ == uiSeisSel::Setup::NoSteering ? 0 : sKey::Steering();
+	return steerpol_ == uiSeisSel::Setup::NoSteering
+			  ? 0 : sKey::Steering().str();
     const IOObj* ioobj = ioObj();
     if ( !ioobj ) return 0;
     const char* res = ioobj->pars().find( sKey::Type() );

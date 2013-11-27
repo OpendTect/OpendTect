@@ -143,14 +143,12 @@ private:
 
 };
 
-/*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to
-   BufferStrings if not needed. */
+/*!Not implemented. Only here to cause link-errors if used. Did this to avoid
+   silent promotions to BufferStrings as they can cause a lot of misery. */
 mGlobal(Basic) bool operator==(const char*,const BufferString&);
 
-/*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to
-   BufferStrings if not needed. */
+/*!Not implemented. Only here to cause link-errors if used. Did this to avoid
+   silent promotions to BufferStrings as they can cause a lot of misery. */
 mGlobal(Basic) bool operator!=(const char*,const BufferString&);
 
 

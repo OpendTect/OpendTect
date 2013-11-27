@@ -261,7 +261,7 @@ void PosInfo::Survey2D::getKeys( const IOPar& iop, BufferStringSet& nms ) const
 {
     nms.erase();
     BufferString maxidkey( sKeyMaxID );
-    
+
     for ( int idx=0; idx<iop.size(); idx++ )
     {
 	if ( maxidkey != iop.getKey(idx) )
@@ -359,7 +359,7 @@ const char* PosInfo::Survey2D::getLineName( mIdxTyp lineid ) const
 {
     if ( lineid < 0 )
 	return 0;
-    
+
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
 	FileMultiString info( lineindex_.getValue(idx) );
@@ -388,7 +388,7 @@ bool PosInfo::Survey2D::hasLine( mIdxTyp lineid, mIdxTyp lsid ) const
 	lsid = curLineSetID();
 
     if ( !hasLineSet(lsid) )
-	return false; 
+	return false;
 
     TypeSet<mIdxTyp> lineids; getLineIDs( lineids, lsid );
     return lineids.isPresent( lineid );
@@ -461,12 +461,12 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<mIdxTyp>& ids, mIdxTyp lsid ) const
 }
 
 
-mIdxTyp PosInfo::Survey2D::getNewID( IOPar& iop ) 
+mIdxTyp PosInfo::Survey2D::getNewID( IOPar& iop )
 {
     mIdxTyp savedmeaxid = -mUdf(int);
     iop.get( sKeyMaxID, savedmeaxid );
     mIdxTyp newlineidx = 0;
-    
+
     if ( !iop.size() )
 	return 0;
 
@@ -523,10 +523,10 @@ void PosInfo::Survey2D::setCurLineSet( mIdxTyp lsid ) const
     int lsidx = getLineSetIdx( lsid );
     if ( lsidx < 0 )
 	return;
-    
+
     BufferString maxidkey( sKeyMaxID );
     if ( maxidkey != lsindex_.getKey(lsidx) )
-	setCurLineSet( lsindex_.getKey(lsidx) );
+	setCurLineSet( lsindex_.getKey(lsidx).str() );
 }
 
 
@@ -534,10 +534,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
     Threads::Locker lckr( lock_ );
     if ( !lsnm || !*lsnm )
-    {
-	lineindex_.setEmpty();
-	return;
-    }
+	{ lineindex_.setEmpty(); return; }
 
     if ( lsnm_ == lsnm && !isIdxFileNew(lsnm) )
 	return;
@@ -597,7 +594,7 @@ bool PosInfo::Survey2D::getGeometry( const Line2DKey& l2dky,
     const char* linenm = S2DPOS().getLineName( l2dky.lineID() );
     if ( !linenm )
 	{ delete lckr; return false; }
-    
+
     const bool ret = S2DPOS().getGeometry( l2dky.lineID(), l2dd );
     delete lckr;
     return ret;
@@ -709,7 +706,7 @@ void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
     FileMultiString oldfms( lineindex_.getValue(lidx) );
     const FilePath oldfp( lsfp_ , oldfms[0] );
     const FilePath newfp( lsfp_ , cleannm.buf() );
-    
+
     if ( hasLine(newlnm) )
 	removeLine( newlnm );
 
@@ -757,7 +754,7 @@ void PosInfo::Survey2D::removeLineSet( mIdxTyp lsid )
 {
     const int lsidx = getLineSetIdx( lsid );
     if ( lsidx<0 ) return;
-    
+
 	BufferString linesetnm( getLineSet(lsid) );
 	const char* curlinesetnm = curLineSet();
 	const bool iscurls = linesetnm == curlinesetnm;
@@ -773,8 +770,8 @@ void PosInfo::Survey2D::removeLineSet( mIdxTyp lsid )
     writeIdxFile( false );
 
 	if ( !iscurls )	return;
-    if ( lsindex_.size() > 1 ) 
-	setCurLineSet( lsindex_.getKey(0) );
+    if ( lsindex_.size() > 1 )
+	setCurLineSet( lsindex_.getKey(0).str() );
 }
 
 
@@ -797,8 +794,8 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     writeIdxFile( false );
     if ( !iscurls ) return;
 
-    if ( lsindex_.size() > 1 ) 
-	setCurLineSet( lsindex_.getKey(0) );
+    if ( lsindex_.size() > 1 )
+	setCurLineSet( lsindex_.getKey(0).str() );
 }
 
 
@@ -852,13 +849,13 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 
 
 const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
-       					      const char* linenm ) const
+					      const char* linenm ) const
 {
     BufferString cllsnm( lsnm );
     cleanupString( cllsnm.buf(), false, false, false );
     BufferString cllnm( linenm );
     cleanupString( cllnm.buf(), false, false, false );
-    
+
     PosInfo::Line2DKey l2dky = getLine2DKey( lsnm, linenm );
     if ( !l2dky.isOK() )
 	return 0;
@@ -896,10 +893,10 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     SafeFileIO sfio( FilePath(lsfp_,linenm).fullPath() );
     if ( !sfio.open(true) )
 	return false;
-		    
+
     ascistream astrm( sfio.istrm() ); // read header
     while ( !atEndOfSection(astrm.next()) )
-    {   
+    {
 	if ( FixedString(astrm.keyWord()) == sKeyTrcDist )
 	{
 	    FileMultiString statsstr(astrm.value());
@@ -908,7 +905,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
 	    sfio.closeSuccess();
 	    return true;
 	}
-    }   
+    }
     sfio.closeSuccess();
     return false;
 }

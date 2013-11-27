@@ -432,7 +432,7 @@ bool uiTimeDepthBase::acceptOK()
     if ( !GetVelocityTag( *ioobj, desc ) )
 	mErrRet("Cannot read velocity information for selected model");
 
-    BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).str();
+    BufferString zdomain = ioobj->pars().find( ZDomain::sKey() );
     if ( zdomain.isEmpty() )
 	zdomain = ZDomain::SI().key();
 

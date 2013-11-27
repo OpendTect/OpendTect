@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 /*!
 \brief OpendTect standard ascii format file writing.
-  
+
   An ascostream puts data in an OpendTect standard ascii format file. That means
   it has a OpendTect standard header and often keyword/value pairs separated by
   a colon.
@@ -42,13 +42,14 @@ public:
 
     bool	putHeader(const char* filetype);
     bool	put(const char*,const char* val=0);
+    bool	put(const char*,const FixedString&);
 
 #define mAscStreamDefFns(fn,typ) \
     bool	fn(const char*,typ); \
     bool	fn(const char*,typ,typ); \
     bool	fn(const char*,typ,typ,typ); \
     bool	fn(const char*,typ,typ,typ,typ)
-    		mAscStreamDefFns(put,int);
+		mAscStreamDefFns(put,int);
 		mAscStreamDefFns(put,od_uint32);
 		mAscStreamDefFns(put,od_int64);
 		mAscStreamDefFns(put,od_uint64);
@@ -73,7 +74,7 @@ protected:
 
 /*!
 \brief OpendTect standard ascii format file reading.
-  
+
   An ascistream gets data from a OpendTect standard ascii format file. This
   format consists of the OpendTect header (version, file type, date), and then
   a number of 'paragraphs', each separated by a single '!' on a line.

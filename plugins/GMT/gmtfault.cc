@@ -82,7 +82,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 
     BufferStringSet styles;
     getLineStyles( styles );
-    if ( styles.size() != flts_.size() ) 
+    if ( styles.size() != flts_.size() )
 	mErrRet("Failed to fetch LineStyles")
 
     bool usecoloryn = false;
@@ -102,10 +102,10 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 
 	EM::SectionID fltsid = fault3d->sectionID( 0 );
 	Geometry::FaultStickSurface* fsssurf =
-	    			fault3d->geometry().sectionGeometry(fltsid);
-	PtrMan<Geometry::ExplFaultStickSurface> fltsurf = 
+				fault3d->geometry().sectionGeometry(fltsid);
+	PtrMan<Geometry::ExplFaultStickSurface> fltsurf =
 	    new Geometry::ExplFaultStickSurface( fsssurf,
-		    		  mCast(float,SI().zDomain().userFactor()) );
+				  mCast(float,SI().zDomain().userFactor()) );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
 	if ( !fltsurf->update(true,0) )
 	    continue;
@@ -227,7 +227,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
     if ( !bidsurface )
 	return false;
 
-    PtrMan<Geometry::FaultBinIDSurfaceIntersector> horfltinsec = 
+    PtrMan<Geometry::FaultBinIDSurfaceIntersector> horfltinsec =
 	    new Geometry::FaultBinIDSurfaceIntersector( (float)0, *bidsurface,
 							expfault, clist );
     horfltinsec->compute();
@@ -240,7 +240,7 @@ void GMTFault::getLineStyles( BufferStringSet& styles )
     bool usecoloryn = false;
     getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     if ( !usecoloryn )
     {

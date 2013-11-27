@@ -24,7 +24,7 @@ namespace CmdDrive
 bool WinAssertCmd::act( const char* parstr )
 {
     BufferString winassertion;
-    const char* partail = StringProcessor(parstr).parseBracketed(winassertion); 
+    const char* partail = StringProcessor(parstr).parseBracketed(winassertion);
     if ( !partail )
     {
 	mParseErrStrm << "Missing right bracket in window assertion"
@@ -43,7 +43,7 @@ bool WindowCmd::act( const char* parstr )
 {
     mParWinStrInit( "window", parstr, partail, winstr, selnr, false );
     mParTail( partail );
-    mParWinStrPre( windowlist, winstr, selnr, true ); 
+    mParWinStrPre( windowlist, winstr, selnr, true );
 
     if ( switchCurWin(windowlist[0]) )
 	return true;
@@ -63,8 +63,8 @@ bool IsWindowCmd::act( const char* parstr )
     BufferString wintitle = winstr;
     mParDisambiguator( "window name", wintitle, selnr );
 
-    BufferString winprop; 
-    const char* partail = getNextWord( parnexxt, winprop.buf() ); 
+    BufferString winprop;
+    const char* partail = getNextWord( parnexxt, winprop.buf() );
 
     BufferString answer;
     if ( winprop.isEmpty() || mMatchCI(winprop, "Existent") ||
@@ -111,8 +111,8 @@ bool SleepCmd::act( const char* parstr )
     char* parnext;
     double time = strtod( parstr, &parnext );
 
-    BufferString sleeptype; 
-    const char* partail = getNextWord( parnext, sleeptype.buf() ); 
+    BufferString sleeptype;
+    const char* partail = getNextWord( parnext, sleeptype.buf() );
     bool regular = false;
 
     if ( mMatchCI(sleeptype, "Regular") )
@@ -138,8 +138,8 @@ bool WaitCmd::act( const char* parstr )
     char* parnext;
     double time = strtod( parstr, &parnext );
 
-    BufferString waittype; 
-    const char* partail = getNextWord( parnext, waittype.buf() ); 
+    BufferString waittype;
+    const char* partail = getNextWord( parnext, waittype.buf() );
     bool regular = false;
 
     if ( mMatchCI(waittype, "Regular") )
@@ -162,8 +162,8 @@ bool WaitCmd::act( const char* parstr )
 
 bool OnErrorCmd::act( const char* parstr )
 {
-    BufferString argword; 
-    const char* partail = getNextWord( parstr, argword.buf() ); 
+    BufferString argword;
+    const char* partail = getNextWord( parstr, argword.buf() );
 
     if ( mMatchCI(argword,"Continue") )
     {
@@ -175,7 +175,7 @@ bool OnErrorCmd::act( const char* parstr )
 	setOnError( CmdDriver::Recover );
     else if ( mMatchCI(argword,"Stop") )
 	setOnError( CmdDriver::Stop );
-    else 
+    else
     {
 	mParseErrStrm << "Argument not in {Stop, Recover}"
 		      << std::endl;
@@ -205,14 +205,14 @@ bool CaseCmd::act( const char* parstr )
 
 bool GreyOutsCmd::act( const char* parstr )
 {
-    BufferString argword; 
-    const char* partail = getNextWord( parstr, argword.buf() ); 
+    BufferString argword;
+    const char* partail = getNextWord( parstr, argword.buf() );
 
     if ( mMatchCI(argword,"Skip") )
 	skipGreyOuts( true );
     else if ( mMatchCI(argword,"Count") )
 	skipGreyOuts( false );
-    else 
+    else
     {
 	mParseErrStrm << "Argument not in {Count, Skip}"
 		      << std::endl;
@@ -235,7 +235,7 @@ bool IsMatchCmd::act( const char* parstr )
     if ( parnexxxt==partail )
 	casesensitive = isCaseSensitive();
 
-    const SearchKey key( searchkey, casesensitive ); 
+    const SearchKey key( searchkey, casesensitive );
     mParIdentPost( identname, (key.isMatching(searchnm) ? 1 : 0), parnext );
     wildcardMan().check( key, searchnm, false );
     return true;
@@ -244,8 +244,8 @@ bool IsMatchCmd::act( const char* parstr )
 
 bool LogModeCmd::act( const char* parstr )
 {
-    BufferString argword; 
-    const char* partail = getNextWord( parstr, argword.buf() ); 
+    BufferString argword;
+    const char* partail = getNextWord( parstr, argword.buf() );
 
     if ( mMatchCI(argword,"Basic") )
 	drv_.setLogMode( CmdDriver::LogBasic );
@@ -312,8 +312,8 @@ bool GuideCmd::act( const char* parstr )
 {
     mParDQuoted( "text", parstr, parnext, txtstr, false, false );
 
-    BufferString winstatetag; 
-    const char* parnexxt = getNextWord( parnext, winstatetag.buf() ); 
+    BufferString winstatetag;
+    const char* parnexxt = getNextWord( parnext, winstatetag.buf() );
 
     WinStateType winstatetyp = NoState;
 
@@ -518,9 +518,9 @@ bool ForCmd::act( const char* parstr )
     mParExpr( false, "", parnext, partail, fromdummy, true );
     BufferString fromexpr = exprInterpreter().parsedExpr();
 
-    BufferString tostepword, toexpr, stepexpr, newexpr; 
+    BufferString tostepword, toexpr, stepexpr, newexpr;
 
-    const char* parnexxt = getNextWord( partail, tostepword.buf() ); 
+    const char* parnexxt = getNextWord( partail, tostepword.buf() );
     if ( mMatchCI(tostepword, "To") )
     {
 	mParExpr( false, "", parnexxt, parnexxxt, todummy, true );
@@ -728,7 +728,7 @@ bool CallCmd::act( const char* parstr )
 	    evalfms += identnm;
 	    if ( actualpar != "_dummyvar" )
 	    {
-		if ( formalfms[idx] == "_dummyvar" ) 
+		if ( formalfms[idx] == "_dummyvar" )
 		{
 		    mParseWarnStrm << "Procedure did not define return "
 			<< "parameter to link: " << actualpar << std::endl;
@@ -743,7 +743,7 @@ bool CallCmd::act( const char* parstr )
     }
 
     identifierMan().raiseScopeLevel( true );
-    identifierMan().set( "_returnvar", formalfms[0] );
+    identifierMan().set( "_returnvar", formalfms[0].str() );
 
     for ( int idx=0; idx<actualfms.size(); idx++ )
     {
@@ -766,14 +766,14 @@ bool ReturnCmd::act( const char* parstr )
 	const char* identnm = identifierMan().getValue( "_returnvar" );
 	if ( !identnm || FixedString(identnm)=="_dummyvar" )
 	{
-	    mParseErrStrm << "Procedure did not define parameter to assign " 
+	    mParseErrStrm << "Procedure did not define parameter to assign "
 			  << "a return value" << std::endl;
 	    return false;
 	}
 
 	mParExpr( false, identnm, parstr, partail, valstr, false );
 	mParTail( partail );
-	identifierMan().set( identnm, valstr ); 
+	identifierMan().set( identnm, valstr );
     }
 
     identifierMan().raiseScopeLevel( false );

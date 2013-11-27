@@ -78,7 +78,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
 
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel(), postlabel );
@@ -132,7 +132,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
-	    
+
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
 	LineKey lk( linenms.get(idx), attribnm );
@@ -263,9 +263,9 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     Geometry::RandomLineSet inprls; BufferString msg;
     if ( !RandomLineSetTranslator::retrieve(inprls,ioobj,msg) )
 	mErrStrmRet("Cannot read random lines")
-	
+
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle() ).str();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel(), postlabel );
@@ -311,7 +311,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
-	    
+
     for ( int idx=0; idx<inprls.size(); idx++ )
     {
 	const Geometry::RandomLine* rdl = inprls.lines()[idx];

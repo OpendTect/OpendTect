@@ -55,7 +55,7 @@ EMManager::~EMManager()
 
 
 void EMManager::setEmpty()
-{   
+{
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	EMObjectCallbackData cbdata;
@@ -66,7 +66,7 @@ void EMManager::setEmpty()
 	if ( oldsize!=objects_.size() ) idx--;
     }
 
-    deepRef( objects_ );		//Removes all non-reffed 
+    deepRef( objects_ );		//Removes all non-reffed
     deepUnRef( objects_ );
 
     if ( objects_.size() )
@@ -104,8 +104,8 @@ const char* EMManager::objectType( const MultiID& mid ) const
 	return 0;
 
     const IOObj& ioobj = *ioobjinfo.ioObj();
-    FixedString typenm = ioobj.pars().find( sKey::Type() );
-    if ( !typenm )
+    BufferString typenm = ioobj.pars().find( sKey::Type() );
+    if ( typenm.isEmpty() )
 	typenm = ioobj.group();
 
     const int idx = EMOF().getNames().indexOf( typenm );
@@ -127,7 +127,7 @@ ObjectID EMManager::createObject( const char* type, const char* name )
     ctio.setName( name );
     if ( ctio.fillObj() )
     {
-    	object->setMultiID( ctio.ioobj->key() );
+	object->setMultiID( ctio.ioobj->key() );
 	delete ctio.ioobj;
     }
 
@@ -217,7 +217,7 @@ ObjectID EMManager::objectID( int idx ) const
 
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
-				   const SurfaceIODataSelection* iosel, 
+				   const SurfaceIODataSelection* iosel,
 				   TypeSet<MultiID>* idstobeloaded )
 {
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
@@ -261,14 +261,14 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 {
     const ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
-   
+
     if ( !obj )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	FixedString typenm = ioobj->pars().find( sKey::Type() );
-	if ( !typenm )
+	BufferString typenm = ioobj->pars().find( sKey::Type() );
+	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
 	obj = EMOF().create( typenm, *this );
@@ -345,9 +345,9 @@ void EMManager::burstAlertToAll( bool yn )
 }
 
 
-void EMManager::removeSelected( const ObjectID& id, 
+void EMManager::removeSelected( const ObjectID& id,
 				const Selector<Coord3>& selector,
-       				TaskRunner* tr )
+				TaskRunner* tr )
 {
     EM::EMObject* emobj = getObject( id );
     if ( !emobj ) return;

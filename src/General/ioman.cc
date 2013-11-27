@@ -549,11 +549,11 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
     if ( !basekey.isEmpty() ) basekey.add( "." );
     BufferString iopkey( basekey );
     iopkey.add( sKey::ID() );
-    BufferString res = par.find( iopkey ).str();
+    BufferString res = par.find( iopkey );
     if ( res.isEmpty() )
     {
 	iopkey = basekey; iopkey.add( sKey::Name() );
-	res = par.find( iopkey ).str();
+	res = par.find( iopkey );
 	if ( res.isEmpty() )
 	{
 	    errmsg = BufferString( "Please specify '", iopkey, "'" );

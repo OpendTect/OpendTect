@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <complex>
-#include "undefval.h"
+#include "convert.h"
 
 typedef std::complex<float> float_complex;
 
@@ -29,11 +29,11 @@ mClass(Basic) Undef<float_complex>
 {
 public:
 
-    static bool			hasUdf() 		{ return true; }
+    static bool			hasUdf()		{ return true; }
     static float_complex	val()
 				{
 				    return float_complex( __mUndefFValue,
-					    		  __mUndefFValue);
+							  __mUndefFValue);
 				}
     static bool			isUdf( float_complex f )
 				{
@@ -45,7 +45,7 @@ public:
     static void			setUdf( float_complex& f )
 				{
 				    f = float_complex(__mUndefFValue,
-					    	      __mUndefFValue );
+						      __mUndefFValue );
 				}
 
 };
@@ -55,7 +55,24 @@ public:
 
 
 mGlobal(Basic) bool isUdfImpl(float_complex);
+mGlobal(Basic) const char* toString(float_complex);
+mGlobal(Basic) float_complex float_complexFromString(const char*,
+						     char** end=0);
+
+namespace Conv
+{
+
+mConvDefFromStrToFn( float_complex, float_complexFromString(s,&endptr) )
+
+template <>
+inline void set( const char*& _to, const float_complex& c )
+        { _to = toString(c); }
+template <>
+inline void set( bool& _to, const float_complex& c )
+	{ _to = !(mIsZero(c.real(),mDefEpsD) && mIsZero(c.imag(),mDefEpsD)); }
+
+
+}
 
 
 #endif
-

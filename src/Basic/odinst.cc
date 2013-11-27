@@ -235,7 +235,7 @@ ODInst::AutoInstType ODInst::getAutoInstType()
 {
     mDeclEnvVarVal;
     const char* res = envvarval && *envvarval ? envvarval
-			: userSettings().find( sKeyAutoInst() ).str();
+			: userSettings().find( sKeyAutoInst() );
     return res && *res ? parseEnumAutoInstType( res ) : ODInst::InformOnly;
 }
 

@@ -13,12 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "general.h"
 #include "globexpr.h"
 #include "arrayndimpl.h"
-
 #include "string2.h"
-#include <string.h>
 
+#include <string.h>
 #include <QString>
-#include <iostream>
 
 
 BufferString::BufferString( const FixedString& s )
@@ -779,48 +777,4 @@ void BufferStringSet::unCat( const char* inpstr, char sepchar )
 
     if ( *ptr )
 	add( ptr );
-}
-
-
-std::ostream& operator <<( std::ostream& strm, const FixedString& fs )
-{
-    const char* fsstr = fs.str();
-    if ( fsstr )
-	strm << fsstr;
-    return strm;
-}
-
-
-FixedString& FixedString::operator=( const BufferString& b )
-{ptr_=b.buf();return *this;}
-
-
-bool FixedString::operator==( const char* s ) const
-{
-    if ( ptr_==s )
-	return true;
-
-    if ( !ptr_ || !s )
-	return false;
-
-    return !strcmp(ptr_,s);
-}
-
-
-bool FixedString::operator==( const BufferString& s ) const
-{
-    return FixedString::operator==( s.buf() );
-}
-
-
-bool FixedString::operator!=( const BufferString& s ) const
-{
-    return FixedString::operator!=( s.buf() );
-}
-
-
-int FixedString::size() const
-{
-    if ( !ptr_ ) return 0;
-    return strlen( ptr_ );
 }

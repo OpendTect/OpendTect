@@ -25,8 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibody.h"
 
 #include <qfont.h>
-#include <qfontdialog.h> 
-#include <qfontmetrics.h> 
+#include <qfontdialog.h>
+#include <qfontmetrics.h>
 
 mUseQtnamespace
 
@@ -56,7 +56,7 @@ uiFont::uiFont( const uiFont& afont )
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_(afont.key_)
 	, changed(this)
-{} 
+{}
 
 
 uiFont::~uiFont()
@@ -156,15 +156,15 @@ int uiFont::ascent() const
 #define mImplGetFont( qfont, oldfont ) \
 bool ok; \
 qfont  = QFontDialog::getFont( &ok, oldfont, \
-			      parnt ? parnt->pbody()->qwidget() : 0, nm ) 
+			      parnt ? parnt->pbody()->qwidget() : 0, nm )
 
 bool select( uiFont& fnt, uiParent* parnt, const char* nm )
-{  
+{
     QFont fontNew;
     mImplGetFont( fontNew, fnt.qFont() );
-    
-    if( ok ) 
-    { 
+
+    if( ok )
+    {
 	*fnt.qfont_ = fontNew;
 	 fnt.updateMetrics();
     }
@@ -176,10 +176,10 @@ bool select( FontData& fnt, uiParent* parnt, const char* nm )
     mQtclass(QFont) qfont;
     uiFont::setFontData( qfont, fnt );
     mImplGetFont( qfont, qfont );
-    
+
     if ( ok )
 	uiFont::getFontData( fnt, qfont );
-    
+
     return ok;
 }
 
@@ -224,7 +224,7 @@ uiFont& uiFontList::getFromQfnt( QFont* qf )
 
 int uiFontList::nrKeys()
 {
-    return fonts_.size(); 
+    return fonts_.size();
 }
 
 
@@ -247,20 +247,20 @@ uiFont& uiFontList::gtFont( const char* ky, const FontData* fdat,
 			    const QFont* qf )
 {
     initialise();
-    if ( (!ky || !*ky) && !qf ) return *fonts_[0]; 
+    if ( (!ky || !*ky) && !qf ) return *fonts_[0];
 
     for ( int idx=0; idx<fonts_.size(); idx++ )
     {
 	uiFont* fnt = fonts_[ idx ];
-	if ( ky && !strcmp(fnt->key(),ky) ) 
+	if ( ky && !strcmp(fnt->key(),ky) )
 	{
 	    if ( fdat ) fnt->setFontData( *fdat );
-	    return *fnt; 
+	    return *fnt;
 	}
 	if( qf && fnt->qFont() == *qf )
 	{
 	    if ( fdat ) fnt->setFontData( *fdat );
-	    return *fnt; 
+	    return *fnt;
 	}
     }
 
@@ -293,7 +293,7 @@ void uiFontList::use( const Settings& settings )
     int ikey=0;
     while ( const char* ky = FontData::defaultKeys()[ikey++] )
     {
-	const char* res = fontpar ? (*fontpar)[ky] : 0;
+	const char* res = fontpar ? fontpar->find(ky) : 0;
 	if ( res && *res )
 	    add( ky, FontData(res) );
 	else if ( strcmp(ky,"Fixed width") )
@@ -324,7 +324,7 @@ void uiFontList::use( const Settings& settings )
 		if ( !strcmp(ky,parkey) ) { isstd = true; break; }
 
 	    if ( !isstd )
-		add( parkey, FontData( (*fontpar)[parkey] ) );
+		add( parkey, FontData( fontpar->find(parkey) ) );
 	}
 
 	delete fontpar;
