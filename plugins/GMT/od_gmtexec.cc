@@ -65,8 +65,12 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !iop ) break;
 
 	PtrMan<GMTPar> par = GMTPF().create( *iop );
-	if ( !idx && ( !par || par->find(ODGMT::sKeyGroupName()) != "Basemap" ) )
-	    mErrFatalRet("Basemap parameters missing")
+	if ( idx == 0 )
+	{
+	    FixedString bmres( par ? par->find(ODGMT::sKeyGroupName()) : 0 );
+	    if ( bmres.isEmpty() )
+		mErrFatalRet("Basemap parameters missing")
+	}
 
 	if ( !par->execute(strm.stdStream(),psfilenm) )
 	{
