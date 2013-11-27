@@ -64,11 +64,11 @@ void EventFreq::findEvents( int z0, int nrsamples ) const
 			     z0 + dessamps_.stop + nrsamples - 1 );
     worksamps.limitTo( cubeintv_ );
 
-    SamplingData<float> sd( cubeintv_.start, 1 );
+    SamplingData<float> sd( mCast(float,cubeintv_.start), 1 );
     ValueSeriesEvFinder<float,float> evf( *inpseries_,
 					  inpdata_->nrsamples_-1, sd );
-    ValueSeriesEvent<float,float> curev( 0, worksamps.start - 2 );
-    Interval<float> sampsleft( 0, worksamps.stop );
+    ValueSeriesEvent<float,float> curev( 0, mCast(float,worksamps.start - 2) );
+    Interval<float> sampsleft( 0, mCast(float,worksamps.stop) );
 
     VSEvent::Type prevtype = VSEvent::None;
     float prevpos = -999;
@@ -91,7 +91,7 @@ void EventFreq::findEvents( int z0, int nrsamples ) const
 		continue;
 	    // OK OK, seems we missed an event. Insert one in the middle
 	    float evpos = evposns_[evposns_.size()-1];
-	    evposns_ += (curev.pos + evpos) * .5;
+	    evposns_ += (curev.pos + evpos) * .5f;
 	}
 
 	evposns_ += curev.pos;
@@ -123,7 +123,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
     if ( evposns_.size() < 3 )
     {
 	const float val = evposns_.size() < 2 ? mUdf(float)
-			: 1. / (2 * refstep_ * (evposns_[1] - evposns_[0]));
+			: 1.0f / (2.0f * refstep_ * (evposns_[1] - evposns_[0]));
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, val );
 	return;
@@ -137,7 +137,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float zpos = z0 + idx;
+	const float zpos = mCast(float,z0 + idx);
 
 	while ( evidxafter < evposns_.size()-1
 	     && evposns_[evidxafter+1] < zpos )
@@ -148,7 +148,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
 
 	float r = (zpos - p1) / dz[1];
 	float t = dz[1] + r * dz[2] + (1-r) * dz[0];
-	float freq = 1. / (refstep_ * t);
+	float freq = 1.0f / (refstep_ * t);
 	setOutputValue( output, 0, idx, z0, freq );
     }
 }
@@ -165,8 +165,8 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
     if ( evposns_.size() == 1 )
     {
 	firstevmax_ = !firstevmax_;
-	evposns_.insert( 0, z0 );
-	evposns_ += z0 + nrsamples - 1;
+	evposns_.insert( 0, mCast(float,z0) );
+	evposns_ += mCast( float, z0 + nrsamples - 1);
     }
 
     int evidxafter = 0;
@@ -177,7 +177,7 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float zpos = z0 + idx;
+	const float zpos = mCast(float,z0 + idx);
 
 	while ( evidxafter < evposns_.size()-1
 	     && evposns_[evidxafter+1] < zpos )
@@ -187,7 +187,7 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
 	}
 
 	float r = (zpos - p1) / dz[1];
-	float ph = r*M_PI;
+	float ph = mCast(float,r*M_PI);
 	bool oddevnr = evidxafter % 2;
 	bool aftermin = (oddevnr && !firstevmax_) || (!oddevnr && firstevmax_);
 	if ( aftermin ) ph -= M_PI;
