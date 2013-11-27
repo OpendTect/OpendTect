@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackprop.h"
 
+#include "angles.h"
 #include "idxable.h"
 #include "flatposdata.h"
 #include "prestackgather.h"
@@ -16,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 
 namespace PreStack
-{ 
+{
 DefineEnumNames(PropCalc,CalcType,1,"Calculation type")
 {
 	"Statistics",
@@ -33,6 +34,7 @@ DefineEnumNames(PropCalc,AxisType,2,"Axis transformation")
 	"Square root",
 	"Absolute value",
 	"Sine-square",
+	"Sine-square (degrees)",
 	0
 };
 
@@ -136,10 +138,10 @@ float PropCalc::getVal( float z ) const
     Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start = setup_.anglerg_.start*M_PIf/180; 
+	axisvalrg.start = setup_.anglerg_.start*M_PIf/180;
 	axisvalrg.stop = setup_.anglerg_.stop*M_PIf/180;
     }
-   
+
     const float eps = 1e-3;
     axisvalrg.start -= eps; axisvalrg.stop += eps;
     axisvalrg.sort();
@@ -167,8 +169,8 @@ float PropCalc::getVal( float z ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float axisval = 
-			useangle ? angledata_->data().get( itrc, (int)cursamp ) 
+	    const float axisval =
+			useangle ? angledata_->data().get( itrc, (int)cursamp )
 				 : gather_->getOffset(itrc);
 
 	    if ( !axisvalrg.includes( axisval, true ) )
@@ -176,7 +178,7 @@ float PropCalc::getVal( float z ) const
 
 	    if ( setup_.calctype_ != Stats )
 		axisvals += axisval;
-	   
+
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
 	    vals += val;
@@ -203,6 +205,9 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 	case PropCalc::Abs:	vals[idx] = fabs( val );	break;
 	case PropCalc::Sinsq:	vals[idx] = sin( val );
 				vals[idx] *= vals[idx];		break;
+	case PropCalc::Sinsqdeg: vals[idx] = sin( Angle::deg2rad(val) );
+				 vals[idx] *= vals[idx];         break;
+
 	default:						break;
 	}
     }
