@@ -193,6 +193,9 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 	return true;
     }
 
+    if ( trc.zRange().width(false) <  wvlt_.samplePositions().width(false) )
+	return false;
+
     const BinIDValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
     BinID bid = trc.info().binid;
@@ -212,6 +215,9 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     }
 
     if ( z2 < z1 ) { float tmp; mSWAP( z1, z2, tmp ); }
+
+    if( !trc.dataPresent(z1 + extz.start) || !trc.dataPresent(z2 + extz.stop) )
+	return false;
 
     startsample = trc.nearestSample( z1 + extz.start );
     const int stopsample = trc.nearestSample( z2 + extz.stop );
