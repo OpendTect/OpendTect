@@ -52,15 +52,22 @@ bool SeisTrc::reSize( int sz, bool copydata )
 
 const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 {
-    static ValueSeriesInterpolator<float>* defintpol = 0;
+    mDefineStaticLocalObject( PtrMan<ValueSeriesInterpolator<float> >,
+			      defintpol, = 0 );
+    
     if ( !defintpol )
     {
-	defintpol = new ValueSeriesInterpolator<float>();
-	defintpol->snapdist_ = snapdist;
-	defintpol->smooth_ = true;
-	defintpol->extrapol_ = false;
-	defintpol->udfval_ = 0;
+	ValueSeriesInterpolator<float>* newdefintpol =
+					new ValueSeriesInterpolator<float>;
+	newdefintpol->snapdist_ = snapdist;
+	newdefintpol->smooth_ = true;
+	newdefintpol->extrapol_ = false;
+	newdefintpol->udfval_ = 0;
+	
+	if ( !defintpol.setIfNull(newdefintpol))
+	    delete newdefintpol;
     }
+    
     ValueSeriesInterpolator<float>& ret
 	= const_cast<ValueSeriesInterpolator<float>&>(
 	    				intpol_ ? *intpol_ : *defintpol );
@@ -316,7 +323,7 @@ void SeisTrcValueSeries::setValue( od_int64 idx,float v )
 float* SeisTrcValueSeries::arr()
 {
     float val;
-    static DataCharacteristics dc( val );
+    DataCharacteristics dc( val );
     const TraceDataInterpreter* tdi = trc_.data().getInterpreter( icomp_ );
     if ( !tdi ) return 0;
 
