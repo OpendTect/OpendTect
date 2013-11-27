@@ -313,7 +313,7 @@ void SeisTrcValueSeries::setValue( od_int64 idx,float v )
 float* SeisTrcValueSeries::arr()
 {
     float val;
-    mDefineStaticLocalObject( DataCharacteristics, dc, (val) );
+    DataCharacteristics dc(val);
     const TraceDataInterpreter* tdi = trc_.data().getInterpreter( icomp_ );
     if ( !tdi ) return 0;
 
