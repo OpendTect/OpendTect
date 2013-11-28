@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifdef __win__
 # include "winutils.h"
+# include "od_istream.h"
 # include <windows.h>
 
 # ifdef __msvc__
@@ -312,12 +313,11 @@ static const char* getCmd( const char* fnm )
 	// We have a full path to a file with no known extension,
 	// but it exists. Let's peek inside.
 
-	StreamData sd = OSCommand( execnm ).makeIStream();
-	if ( !sd.usable() )
-	    return fnm;
+	od_istream strm( execnm );
+	if ( !strm.isOK() )
 
 	BufferString line;
-	sd.istrm->getline( line.buf(), 40 ); sd.close();
+	strm.getLine( line );
 
 	if ( !line.contains("#!") && !line.contains("# !") )
 	    return fnm;
