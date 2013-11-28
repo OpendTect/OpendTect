@@ -318,7 +318,7 @@ static const char* getCmd( const char* fnm )
 	    return fnm;
 
 	char buf[41];
-	strm.getC( line, 40 );
+	strm.getC( buf, 40 );
 	BufferString line( buf );
 
 	if ( !line.contains("#!") && !line.contains("# !") )
