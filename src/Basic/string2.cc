@@ -786,8 +786,7 @@ float_complex float_complexFromString( const char* str,
 	return ret;
 
     Coord c; c.fromString( fcstr.buf() );
-    ret.real() = (float)c.x;
-    ret.imag() = (float)c.y;
+    ret = float_complex( (float)c.x, (float)c.y );
 
     return ret;
 }
