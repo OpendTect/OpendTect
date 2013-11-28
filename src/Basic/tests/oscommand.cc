@@ -20,12 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 static bool testCmds( bool quiet )
 {
 #ifdef __win__
-    return true;
+    //TODO
 #else
 #   define mMkCmd(s) BufferString(s,redir)
     const BufferString redir( quiet ? " >/dev/null" : "| head -10" );
     if ( !ExecOSCmd(mMkCmd("ls -l"),true) )
-	mRetFail( "ExecOSCmd inconsole" );
+	mRetFail( "ExecOSCmd in console" );
     if ( !ExecOSCmd(mMkCmd("ls -l"),false) )
 	mRetFail( "ExecOSCmd not in console" );
     if ( !ExecODProgram(mMkCmd("od_glxinfo"),"") )
