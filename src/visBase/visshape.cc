@@ -555,7 +555,7 @@ void VertexShape::addPrimitiveSetToScene( osg::PrimitiveSet* ps )
 void VertexShape::updatePartialGeometry( Interval<int> psrange )
 {
     /* wait for further implementing only update psrange, rests of primitive
-       sets will be static */
+       sets will be Static */
 
    /* osg::Vec4Array* colorarr = mGetOsgVec4Arr( material_->getColorArray() );
     osg::Vec4Array* osgcolorarr = mGetOsgVec4Arr( osggeom_->getColorArray() );*/

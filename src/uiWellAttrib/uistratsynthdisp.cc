@@ -695,7 +695,7 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
     mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
     if ( !tbdp )
     {
-	static SeisTrcBuf emptybuf( false );
+	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
 	return emptybuf;
     }
     return tbdp->trcBuf();
