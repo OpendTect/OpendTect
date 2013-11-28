@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int argc, char ** argv )
 {
+    SetProgramArgs( argc, argv );
+
     bool dofork = true;
     uiSEGYExamine::Setup su;
     int argidx = 1;

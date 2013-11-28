@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "safefileio.h"
 #include "settings.h"
 #include "staticstring.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "timefun.h"
@@ -98,8 +98,7 @@ const PosInfo::Survey2D& S2DPOS()
 #define mErrRet(s1,s2,s3) \
 { \
     BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
-    StreamProvider prov( cmd ); \
-    prov.executeCommand( false ); \
+    ExecOSCmd( cmd, false, false ); \
     return; \
 }
 

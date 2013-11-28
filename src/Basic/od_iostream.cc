@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "compoundkey.h"
 #include "iopar.h"
 #include "ascstream.h"
+#include "staticstring.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -611,7 +612,9 @@ od_ostrstream::od_ostrstream()
 const char* od_ostrstream::result() const
 {
     mGetStdStream(od_ostrstream,ostringstream,const,stdstrstrm);
-    return stdstrstrm.str().c_str();
+    mDeclStaticString( ret );
+    ret = stdstrstrm.str().c_str();
+    return ret.buf();
 }
 
 

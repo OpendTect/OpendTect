@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplatform.h"
 #include "envvars.h"
 #include "od_istream.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "settings.h"
 #include "staticstring.h"
 #include "bufstringset.h"
@@ -141,7 +141,7 @@ void ODInst::startInstManagement()
     mDefCmd();
     const BufferString curpath = File::getCurrentPath();
     File::changeDir( installerdir.pathOnly() );
-    StreamProvider( cmd ).executeCommand( true, true );
+    ExecOSCmd( cmd, true, true );
     File::changeDir( curpath.buf() );
 #else
     FilePath installerdir( getInstallerPlfDir() );

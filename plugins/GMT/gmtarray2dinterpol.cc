@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "string2.h"
-#include "strmdata.h"
 #include "strmprov.h"
+#include "oscommand.h"
 
 #include <iostream>
 
@@ -116,8 +116,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     BufferString cmd( "@grdmath " );
     cmd.add( path ).add( " " ).add( defundefpath_ )
        .add( " OR = " ).add( path_ );
-    StreamProvider strmprov( cmd );
-    if ( !strmprov.executeCommand() )
+    if ( !ExecOSCmd(cmd) )
 	return false;
 
     File::remove( defundefpath_ );
@@ -153,7 +152,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 	    char rowstr[10], colstr[10], valstr[20];
 	    *sd_.istrm >> rowstr >> colstr >> valstr;
 	    if ( !strcmp(rowstr, sKeyGMTUdf) || !strcmp(colstr, sKeyGMTUdf)
-	      				     || !strcmp(valstr, sKeyGMTUdf) )
+					     || !strcmp(valstr, sKeyGMTUdf) )
 		continue;
 
 	    int row, col; float val;

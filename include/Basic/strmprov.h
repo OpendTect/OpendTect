@@ -26,7 +26,7 @@ class BufferStringSet;
 \brief Provides I/O stream for file or system command.
 
   StreamProvider provides a stream with requested source attached:
-   - starting with '@' --> OS command that produces the data on stdin/stdout
+   - starting with '@' --> OS command
    - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
 
   Thus:
@@ -38,49 +38,44 @@ class BufferStringSet;
 	File foo.bar in current directory.
 
   A null string or StreamProvider::sStdIO will select std input and output.
+  Empty string and invalid strings will make isBad() return true.
 */
 
 mExpClass(Basic) StreamProvider
 {
 public:
-		StreamProvider(const char* nm=0);
+		StreamProvider(const char* nm="");
 		StreamProvider(const char* hostnm,const char* fnm,bool iscomm);
     void	set(const char*);
-    bool	rename(const char*,const CallBack* cb=0);
-		//!< renames if file. if successful, does a set()
 
-    bool	isBad() const				{ return isbad_; }
+    inline bool	isBad() const			{ return fname_.isEmpty(); }
 
-    bool	exists(int forread) const;
+    bool	exists(bool forread) const;
     bool	remove(bool recursive=true) const;
     bool	setReadOnly(bool yn) const;
     bool	isReadOnly() const;
+    bool	rename(const char*,const CallBack* cb=0);
+		    //!< renames if file. if successful, does a set()
+		    //!< The callback will be called with a const char* capsule
 
     StreamData	makeOStream(bool binary=true,bool editmode=false) const;
-		/*!< On win32, binary mode differs from text mode.
-		    Use binary=false when explicitly reading txt files.
-                    Use editmode=true when want to edit/modify existing data
-                    in a file.*/
+		    /*!< On win32, binary mode differs from text mode.
+			Use binary=false when explicitly reading txt files.
+			Use editmode=true when want to edit/modify existing data
+			in a file.*/
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
-		//!< see makeOStream remark
-    bool	executeCommand(bool inbg=false,bool inconsole=false) const;
-		//!< If type is Command, execute command without opening pipe
-		//!< 'inbg' will execute in background if remote
-    void	mkBatchCmd(BufferString& comm) const;
+		    //!< see makeOStream remark
 
     const char*	fullName() const;
     const char*	hostName() const		{ return hostname_.buf(); }
     const char*	fileName() const		{ return fname_.buf(); }
     const char*	command() const			{ return fname_.buf(); }
-    long	blockSize() const		{ return blocksize_; }
 
     void	setHostName( const char* hname ) { hostname_ = hname; }
     void	setFileName( const char* fn )	{ fname_ = fn; }
     void	setCommand( const char* fn )	{ fname_ = fn; }
-    void	setBlockSize( long bs )		{ blocksize_ = bs; }
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
-    void	setRemExec( const char* s )	{ rshcomm_ = s; }
 
     bool	isCommand() const		{ return iscomm_; }
     bool	isNormalFile() const;
@@ -105,19 +100,14 @@ public:
 
 protected:
 
-    BufferString		fname_;
-    BufferString		hostname_;
-    BufferString		rshcomm_;
+    BufferString	fname_;
+    BufferString	hostname_;
+    bool		iscomm_;
 
-    long			blocksize_;
-    bool			isbad_;
-    bool			iscomm_;
+    static StreamData	makePLIStream(int);
+    void		mkOSCmd(bool forread,BufferString&) const;
 
-    void			mkOSCmd(bool,BufferString&) const;
-    static StreamData		makePLIStream(int);
-
-    static void	sendCBMsg(const CallBack*,const char*);
-		//!< The callback will be called with a const char* capsule
+    static void		sendCBMsg(const CallBack*,const char*);
 
 };
 

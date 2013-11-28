@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "math2.h"
 #include "odplatform.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "odcomplex.h"
 #include "moddepmgr.h"
 #include "od_ostream.h"
@@ -519,7 +519,7 @@ void CrashDumper::sendDump( const char* filename )
 	return;
 
     const BufferString cmd( sendappl_, " --binary ", filename );
-    StreamProvider(cmd).executeCommand( true, true );
+    ExecOSCmd( cmd, true, true );
 }
 
 

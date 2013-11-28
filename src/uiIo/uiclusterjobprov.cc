@@ -29,8 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "statrand.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
+#include "oscommand.h"
 #include "transl.h"
 
 
@@ -60,7 +60,7 @@ class ClusterJobCreator : public Executor
 {
 public:
 ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
-       		   const char* prognm )
+		   const char* prognm )
     : Executor("Job generator")
     , jobprov_(jobprov),dirnm_(dir),prognm_(prognm)
     , curidx_(0)
@@ -88,31 +88,31 @@ od_int64 totalNr() const
 #define mSetEnvVar(s) \
 { \
     const char* envval = GetEnvVar( s ); \
-    *sd.ostrm << "setenv " << s << " " << (envval ? envval : "") << std::endl; \
+    strm << "setenv " << s << " " << (envval ? envval : "") << od_endl; \
 }
 
 static bool writeScriptFile( const char* scrfnm, const char* prognm,
 			     const char* desc )
 {
-    StreamData sd = StreamProvider(scrfnm).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( scrfnm );
+    if ( !strm.isOK() )
 	return false;
 
-    *sd.ostrm << "#!/bin/csh -f " << std::endl;
+    strm << "#!/bin/csh -f " << od_endl;
 
-    *sd.ostrm << "setenv DTECT_DATA " << GetBaseDataDir() << std::endl;
+    strm << "setenv DTECT_DATA " << GetBaseDataDir() << od_endl;
     mSetEnvVar("LD_LIBRARY_PATH")
-    *sd.ostrm << GetExecScript(false) << " " << prognm << " \\" << std::endl;
+    strm << GetExecScript(false) << " " << prognm << " \\" << od_endl;
     FilePath fp( scrfnm );
     fp.setExtension( ".par" );
-    *sd.ostrm << fp.fullPath().buf() << std::endl;
-    *sd.ostrm << "set exitcode = $status" << std::endl;
-    *sd.ostrm << "echo \""; *sd.ostrm << desc;
-    *sd.ostrm << " finished with code ${exitcode}\"  >>\\" << std::endl;
+    strm << fp.fullPath().buf() << od_endl;
+    strm << "set exitcode = $status" << od_endl;
+    strm << "echo \""; strm << desc;
+    strm << " finished with code ${exitcode}\"  >>\\" << od_endl;
     fp.setExtension( ".log" );
-    *sd.ostrm << fp.fullPath().buf() << std::endl;
-    *sd.ostrm << "exit ${exitcode}" << std::endl;
-    sd.close();
+    strm << fp.fullPath().buf() << od_endl;
+    strm << "exit ${exitcode}" << od_endl;
+    strm.close();
     File::setPermissions( scrfnm, "711", 0 );
     return true;
 }
@@ -149,19 +149,19 @@ int nextStep()
 }
 
 protected:
-	
+
 	const InlineSplitJobDescProv&	jobprov_;
 	BufferString			dirnm_;
 	BufferString			prognm_;
-	int				curidx_;	
+	int				curidx_;
 
 };
 
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
-       				    const char* prognm, const char* parfnm )
+				    const char* prognm, const char* parfnm )
     : uiDialog(p,uiDialog::Setup("Cluster job generator","","101.2.2")
-	    		   .oktext("Continue"))
+			   .oktext("Continue"))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
     , iopar_(*new IOPar(iop))
@@ -170,19 +170,19 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 
     const int nrinl = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, "Nr of inlines per job",
-	    			IntInpSpec(nrinl) );
+				IntInpSpec(nrinl) );
     nrinlfld_->valuechanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
-	
+
     nrjobsfld_ = new uiLabel( this, "Total no. of jobs: 0000" );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
     parfilefld_ = new uiFileInput( this, "Par file",
-	    	uiFileInput::Setup(uiFileDialog::Gen,parfnm)
+		uiFileInput::Setup(uiFileDialog::Gen,parfnm)
 		.forread(false).filter("*.par;;").confirmoverwrite(false) );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
     tmpstordirfld_ = new uiFileInput( this, "Temporary storage directory",
-	   			      tempstordir_.buf() );
+				      tempstordir_.buf() );
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
@@ -194,12 +194,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     if ( !File::isDirectory(fp.fullPath()) )
 	File::createDir( fp.fullPath() );
     scriptdirfld_ = new uiFileInput( this, "Storage directory for scripts",
-	   			     fp.fullPath() );
+				     fp.fullPath() );
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
     cmdfld_ = new uiGenInput( this, "Cluster Processing command",
-	   		      StringInpSpec("srun") );
+			      StringInpSpec("srun") );
     cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
@@ -275,11 +275,8 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";
 	comm += " --dosubmit "; comm += parfnm;
-	if ( !StreamProvider( comm ).executeCommand(true) )
-	{
-	    uiMSG().error( "Cannot start batch program" );
-	    return false;
-	}
+	if ( !ExecOSCmd(comm,false,true) )
+	    { uiMSG().error( "Cannot start batch program" ); return false; }
     }
 
     return true;
@@ -310,7 +307,7 @@ const char* uiClusterJobProv::getOutPutIDKey() const
 MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 {
     CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data",
-		    					     true)) );
+							     true)) );
     ctio.ctxt.stdseltype = IOObjContext::Seis;
     FilePath fp( tmpdir );
     BufferString objnm( "~" );

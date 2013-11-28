@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "oddirs.h"
 #include "settings.h"
-#include "strmprov.h"
+#include "oscommand.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -173,24 +173,24 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     FilePath fp( swdir, "bin" );
 #ifdef __win__
-    BufferString cmd( "@" );
+    BufferString cmd( "od_cr_dev_env.bat" );
     fp.add( "od_cr_dev_env.bat" );
     cmd += fp.fullPath();
     cmd += " "; cmd += swdir;
     char shortpath[1024];
     GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
-    StreamProvider( cmd ).executeCommand( false, true );
+    ExecOSCmd( cmd, true, false );
 #else
-    BufferString cmd( "@'" );
     fp.add( "od_cr_dev_env" );
-    cmd += fp.fullPath();
+    BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-    StreamProvider( cmd ).executeCommand( false );
+    ExecOSCmd( cmd, false, false );
 #endif
 
-    BufferString cmakefile = FilePath(workdirnm).add("CMakeLists.txt").fullPath();
+    BufferString cmakefile =
+			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
 	mErrRet( "Creation seems to have failed" )
     else

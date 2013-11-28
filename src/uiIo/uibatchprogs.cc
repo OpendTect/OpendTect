@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "envvars.h"
 #include "dirlist.h"
-#include <iostream>
 
 
 
@@ -393,8 +392,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
 #endif
 
-    StreamProvider sp( comm );
-    if ( !sp.executeCommand(true,true) )
+    if ( !ExecOSCmd(comm,true,true) )
 	uiMSG().error( "Could not execute command:\n", comm );
 
     return false;

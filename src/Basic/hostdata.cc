@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "debug.h"
 #include "od_strstream.h"
+#include "oscommand.h"
 #ifdef __win__
 # include <windows.h>
 #else
@@ -196,10 +197,12 @@ bool HostDataList::readHostFile( const char* fname )
     BufferString sharehost;
 
     if ( atEndOfSection(astrm) ) astrm.next();
+
+    bool foundrsh = false;
     while ( !atEndOfSection(astrm) )
     {
 	if ( astrm.hasKeyword("Remote shell") )
-	    rshcomm_ = astrm.value();
+	    { rshcomm_ = astrm.value(); foundrsh = !rshcomm_.isEmpty(); }
 	if ( astrm.hasKeyword("Default nice level") )
 	    defnicelvl_ = astrm.getIValue();
 	if ( astrm.hasKeyword("First port") )
@@ -224,6 +227,10 @@ bool HostDataList::readHostFile( const char* fname )
 
 	astrm.next();
     }
+
+    if ( foundrsh )
+	OSCommand::setDefaultRemExec( rshcomm_ );
+
     while ( !atEndOfSection(astrm.next()) )
     {
 	HostData* newhd = new HostData( astrm.keyWord() );

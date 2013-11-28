@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "iopar.h"
 #include "envvars.h"
+#include "oscommand.h"
 #include "staticstring.h"
 
 #ifdef __win__
@@ -40,17 +41,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "string2.h"
-#include "strmoper.h"
-#include "callback.h"
 #include "namedobj.h"
 #include "debug.h"
-#include "oddirs.h"
 #include "executor.h"
 #include "fixedstreambuf.h"
 
 
 const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
 const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
+#define mCmdBufSz 8000
 #define mPreLoadChunkSz 8388608
 		// 8 MB
 
@@ -101,123 +100,11 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-/*
-bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
+static inline const char* remExecCmd()
 {
-    if ( !comm || !*comm ) return false;
-
-#ifndef __win__
-
-    BufferString oscmd(comm);
-
-    if ( inbg )
-	oscmd += "&";
-
-    int res = system( oscmd );
-    return !res;
-
-#else
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof(STARTUPINFO);
-
-    if ( !inconsole )
-    {
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-	si.wShowWindow = SW_HIDE;
-    }
-
-   //Start the child process.
-    int res = CreateProcess( NULL,	// No module name (use command line).
-        const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable.
-        NULL,				// Thread handle not inheritable.
-        FALSE,				// Set handle inheritance to FALSE.
-        0,				// Creation flags.
-        NULL,				// Use parent's environment block.
-        NULL,			// Use parent's starting directory.
-        &si, &pi );
-
-    if ( res )
-    {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-    }
-    else
-    {
-	char *ptr = NULL;
-	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM,
-	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
-
-	fprintf(stderr, "\nError: %s\n", ptr);
-	LocalFree(ptr);
-    }
-
-    return res;
-
-#endif
+    return OSCommand::defaultRemExec();
 }
 
-*/
-
-#ifndef __msvc__
-//! Create Execute command
-const char* GetExecCommand(const char* prognm,const char* filenm);
-
-const char* GetExecCommand( const char* prognm, const char* filenm )
-{
-    mDeclStaticString( cmd );
-    cmd = "@";
-    cmd += mGetExecScript(); cmd += " "; cmd += prognm;
-
-    BufferString fnm( filenm );
-    FilePath fp( fnm );
-    cmd += " \'"; cmd += fp.fullPath( FilePath::Unix ); cmd += "\' ";
-    return cmd;
-}
-#endif
-
-
-/*
-
-bool ExecuteScriptCommand( const char* prognm, const char* filenm )
-{
-    mDeclStaticString( cmd );
-#if defined( __win__ ) || defined( __mac__ )
-    bool inbg = true;
-#else
-    bool inbg = false;
-#endif
-
-#ifdef __msvc__
-    cmd = BufferString( prognm );
-    cmd += " \"";
-    cmd += filenm;
-    cmd += "\"";
-    return ExecOSCmd( cmd, true, inbg );
-#else
-    cmd = GetExecCommand( prognm, filenm );
-    StreamProvider strmprov( cmd );
-
-    if ( !strmprov.executeCommand(inbg) )
-    {
-	BufferString s( "Failed to submit command '" );
-	s += strmprov.command(); s += "'";
-	ErrMsg( s );
-	return false;
-    }
-
-    return true;
-#endif
-}
-
-*/
 
 //---- Pre-loaded data ----
 
@@ -557,8 +444,7 @@ StreamData StreamProvider::makePLIStream( int plid )
 
 
 StreamProvider::StreamProvider( const char* inp )
-    : rshcomm_("rsh")
-    , iscomm_(false)
+    : iscomm_(false)
 {
     set( inp );
 }
@@ -566,73 +452,45 @@ StreamProvider::StreamProvider( const char* inp )
 
 StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 				bool iscomm )
-    : isbad_(false)
-    , iscomm_(iscomm)
+    : iscomm_(iscomm)
     , hostname_(hostnm)
     , fname_(fnm?fnm:sStdIO())
-    , rshcomm_("rsh")
 {
-    if ( fname_.isEmpty() ) isbad_ = true;
 }
 
 
-void StreamProvider::set( const char* inpstr )
+void StreamProvider::set( const char* inp )
 {
-    iscomm_ = isbad_ = false;
     hostname_.setEmpty(); fname_.setEmpty();
-
-    FixedString inp = inpstr;
-
-    if ( !inp || inp==sStdIO() || inp==sStdErr() )
-	{ fname_ = inpstr ? inpstr : sStdIO(); return; }
-    else if ( inp.isEmpty() )
-	{ isbad_ = true; return; }
-
-    char* ptr = (char*)inpstr;
-    mSkipBlanks( ptr );
-    if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
-
-    mSkipBlanks( ptr );
-    fname_ = ptr;
-
-    ptr = fname_.buf();
-    // separate hostname from filename
-#ifdef __win__
-    if ( *ptr == '\\' && *(ptr+1) == '\\' )
+    iscomm_ = false;
+    if ( !inp || !*inp )
     {
-	char* endptr = strchr( ptr+2, '\\' );
-	if ( endptr ) *endptr++ = '\0';
-	hostname_ = ptr+2;
-	if ( !endptr )
-	    { fname_ = sStdIO(); return; }
+	if ( !inp )
+	    fname_ = sStdIO();
+	return;
     }
-#else
-    ptr = strchr( ptr, ':' );
-    if ( ptr && *(ptr+1) == '/' && *(ptr+2) == '/' )
-    {
-	pErrMsg(BufferString(ptr," looks like a URL. Not supported (yet)"));
-	ptr = 0;
-    }
-    if ( ptr )
-    {
-	const BufferString fnamestr = fname_;
-	*ptr++ = '\0';
-	if ( !strchr(fname_.buf(),' ') )
-	    hostname_ = fname_;
-	else	// ':' may just be a part of an argument in the command string.
-	{
-	    fname_ = fnamestr;
-	    ptr = fname_.buf();
-	}
-    }
-    if ( !ptr )
-	ptr = fname_.buf();
-#endif
 
-    mSkipBlanks( ptr );
-    if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
-    BufferString tmp( ptr );
-    fname_ = tmp;
+    BufferString workstr( inp );
+    workstr.trimBlanks();
+    if ( workstr.isEmpty() )
+	return; // only spaces: invalid
+    else if ( workstr == sStdIO() || workstr == sStdErr() )
+	{ fname_ = workstr; return; }
+
+    char* pwork = workstr.buf();
+    if ( *pwork == '@' )
+	{ iscomm_ = true; pwork++; }
+
+    mSkipBlanks( pwork );
+    fname_ = pwork;
+
+    workstr = OSCommand::extractHostName( fname_.buf(), hostname_ );
+    pwork = workstr.buf();
+    mSkipBlanks( pwork );
+    if ( *pwork == '@' )
+	{ iscomm_ = true; pwork++; }
+
+    fname_ = pwork;
 }
 
 
@@ -665,9 +523,7 @@ const char* StreamProvider::fullName() const
 
 void StreamProvider::addPathIfNecessary( const char* path )
 {
-    if ( isbad_ ) return;
-
-    if ( iscomm_ || !path || ! *path
+    if ( isBad() || iscomm_ || !path || ! *path
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
@@ -688,14 +544,10 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	sd.setFileName( mkUnLinked(fname_) );
     else
 	sd.setFileName( fname_ );
-    if ( isbad_ || fname_.isEmpty() )
+    if ( isBad() )
 	return sd;
-
-    if ( fname_ == sStdIO() || fname_ == sStdErr() )
-    {
-	sd.istrm = &std::cin;
-	return sd;
-    }
+    else if ( fname_ == sStdIO() || fname_ == sStdErr() )
+	{ sd.istrm = &std::cin; return sd; }
 
     if ( allowpl )
     {
@@ -727,7 +579,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	  ( sd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
 				  : std::ios_base::in );
 
-	if ( !sd.istrm->good() )
+	if ( sd.istrm->bad() )
 	    { delete sd.istrm; sd.istrm = 0; }
 	return sd;
     }
@@ -745,7 +597,6 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	sd.istrm = new std::istream( fb );
 #else
 # if __GNUC__ > 2
-	//TODO change StreamData to include filebuf?
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp_, std::ios_base::in );
 	sd.istrm = new std::istream( stdiofb );
 # else
@@ -762,19 +613,13 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 {
     StreamData sd;
     sd.setFileName( mkUnLinked(fname_) );
-    if ( isbad_ || fname_.isEmpty() )
-	return sd;
 
+    if ( isBad() )
+	return sd;
     else if ( fname_ == sStdIO() )
-    {
-	sd.ostrm = &std::cout;
-	return sd;
-    }
+	{ sd.ostrm = &std::cout; return sd; }
     else if ( fname_ == sStdErr() )
-    {
-	sd.ostrm = &std::cerr;
-	return sd;
-    }
+	{ sd.ostrm = &std::cerr; return sd; }
 
     if ( !iscomm_ && hostname_.isEmpty() )
     {
@@ -791,7 +636,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	sd.ostrm = new std::ofstream( sd.fileName(), openmode );
 #endif
 
-	if ( !sd.ostrm->good() )
+	if ( sd.ostrm->bad() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
 	return sd;
     }
@@ -821,171 +666,20 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 }
 
 
-bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
-{
-    BufferString cmd;
-    mkOSCmd( true, cmd );
-#ifdef __msvc__
-    if ( inconsole )
-	mkBatchCmd( cmd );
-#endif
-    return ExecOSCmd( cmd, inconsole, inbg );
-}
-
-
-void StreamProvider::mkBatchCmd( BufferString& comm ) const
-{
-    const BufferString fnm(
-		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
-
-    FILE *fp = fopen( fnm, "wt" );
-    fprintf( fp, "@echo off\n%s\npause\n", comm.buf() );
-    fclose( fp );
-
-    comm = fnm;
-}
-
-
-#ifdef __win__
-
-static const char* getCmd( const char* fnm )
-{
-    BufferString execnm( fnm );
-
-    char* ptr = strchr( execnm.buf() , ':' );
-
-    if ( !ptr )
-	return fnm;
-
-    char* args=0;
-
-    // if only one char before the ':', it must be a drive letter.
-    if ( ptr == execnm.buf() + 1 )
-    {
-	ptr = strchr( ptr , ' ' );
-	if ( ptr ) { *ptr = '\0'; args = ptr+1; }
-    }
-    else if ( ptr == execnm.buf()+2)
-    {
-	char sep = *execnm.buf();
-	if ( sep == '\"' || sep == '\'' )
-	{
-	    execnm=fnm+1;
-	    ptr = strchr( execnm.buf() , sep );
-	    if ( ptr ) { *ptr = '\0'; args = ptr+1; }
-	}
-    }
-    else
-	return fnm;
-
-    if ( execnm.contains(".exe") || execnm.contains(".EXE")
-       || execnm.contains(".bat") || execnm.contains(".BAT")
-       || execnm.contains(".com") || execnm.contains(".COM") )
-	return fnm;
-
-    const char* interp = 0;
-
-    if ( execnm.contains(".csh") || execnm.contains(".CSH") )
-	interp = "tcsh.exe";
-    else if ( execnm.contains(".sh") || execnm.contains(".SH") ||
-	      execnm.contains(".bash") || execnm.contains(".BASH") )
-	interp = "sh.exe";
-    else if ( execnm.contains(".awk") || execnm.contains(".AWK") )
-	interp = "awk.exe";
-    else if ( execnm.contains(".sed") || execnm.contains(".SED") )
-	interp = "sed.exe";
-    else if ( File::exists( execnm ) )
-    {
-	// We have a full path to a file with no known extension,
-	// but it exists. Let's peek inside.
-
-	StreamData sd = StreamProvider( execnm ).makeIStream();
-	if ( !sd.usable() )
-	    return fnm;
-
-	BufferString line;
-	sd.istrm->getline( line.buf(), 40 ); sd.close();
-
-	if ( !line.contains("#!") && !line.contains("# !") )
-	    return fnm;
-
-	if ( line.contains("csh") )
-	    interp = "tcsh.exe";
-	else if ( line.contains("awk") )
-	    interp = "awk.exe";
-	else if ( line.contains("sh") )
-	    interp = "sh.exe";
-    }
-
-    if ( interp )
-    {
-	mDeclStaticString( fullexec );
-
-	fullexec = "\"";
-	FilePath interpfp;
-
-	if ( getCygDir() )
-	{
-	    interpfp.set( getCygDir() );
-	    interpfp.add("bin").add(interp);
-	}
-
-	if ( !File::exists( interpfp.fullPath() ) )
-	{
-	    interpfp.set( GetSoftwareDir(0) );
-	    interpfp.add("bin").add("win").add("sys").add(interp);
-	}
-
-	fullexec.add( interpfp.fullPath() ).add( "\" '" )
-	    .add( FilePath(execnm).fullPath(FilePath::Unix) ).add( "'" );
-	if ( args && *args )
-	    fullexec.add( " " ).add( args );
-
-	return fullexec.buf();
-    }
-
-    return fnm;
-}
-#endif
-
-
-#ifdef __win__
-# define mGetCmd(fname_) getCmd(fname_)
-#else
-# define mGetCmd(fname_) fname_.buf()
-#endif
-
 void StreamProvider::mkOSCmd( bool forread, BufferString& cmd ) const
 {
-    if ( hostname_.isEmpty() )
-	cmd = mGetCmd(fname_);
+    if ( iscomm_ )
+	cmd = OSCommand( fname_, hostname_ ).get();
     else
     {
-	if ( iscomm_ )
-	{
-	    sprintf( cmd.buf(), "%s %s %s", rshcomm_.buf(),
-		     hostname_.buf(), mGetCmd(fname_) );
-	}
+	char buf[mCmdBufSz];
+	if ( forread )
+	    sprintf( buf, "%s %s cat %s", remExecCmd(),
+			    hostname_.buf(), fname_.buf() );
 	else
-	{
-	    if ( forread )
-		sprintf( cmd.buf(), "%s %s cat %s",
-				rshcomm_.buf(), hostname_.buf(), fname_.buf() );
-	    else
-		sprintf( cmd.buf(), "%s %s tee %s > /dev/null",
-				rshcomm_.buf(), hostname_.buf(), fname_.buf() );
-	}
-    }
-
-
-
-
-    if ( DBG::isOn(DBG_IO) )
-    {
-	BufferString msg( "About to execute: '" );
-	msg += cmd;
-	msg += "'";
-	DBG::message( msg );
+	    sprintf( buf, "%s %s tee %s > /dev/null", remExecCmd(),
+			    hostname_.buf(), fname_.buf() );
+	cmd = buf;
     }
 }
 
@@ -997,34 +691,35 @@ void StreamProvider::mkOSCmd( bool forread, BufferString& cmd ) const
     act (c == '1')
 
 
-bool StreamProvider::exists( int fr ) const
+bool StreamProvider::exists( bool fr ) const
 {
-    if ( isbad_ ) return false;
-    if ( iscomm_ ) return fr;
+    if ( isBad() )
+	return false;
+    if ( iscomm_ )
+	return fr;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? true
 	     : File::exists( fname_ );
 
-    BufferString cmd;
-    sprintf( cmd.buf(), "%s %s 'test -%c %s && echo 1'", rshcomm_.buf(),
-				hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
+    char cmd[mCmdBufSz];
+    sprintf( cmd, "%s %s 'test -%c %s && echo 1'", remExecCmd(),
+			hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
     mRemoteTest(return);
 }
 
 
 bool StreamProvider::remove( bool recursive ) const
 {
-    if ( isbad_ || iscomm_ ) return false;
+    if ( isBad() || iscomm_ ) return false;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr()
 	    ? false : File::remove( fname_ );
 
-    BufferString cmd;
-    sprintf( cmd.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
-	      rshcomm_.buf(), hostname_.buf(), recursive ? "r" : "",
-	      fname_.buf() );
+    char cmd[mCmdBufSz];
+    sprintf( cmd, "%s %s '/bin/rm -%s %s && echo 1'", remExecCmd(),
+		hostname_.buf(), recursive ? "r" : "", fname_.buf() );
 
     mRemoteTest(return);
 }
@@ -1032,16 +727,15 @@ bool StreamProvider::remove( bool recursive ) const
 
 bool StreamProvider::setReadOnly( bool yn ) const
 {
-    if ( isbad_ || iscomm_ ) return false;
+    if ( isBad() || iscomm_ ) return false;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
 	       File::makeWritable( fname_, !yn, false );
 
-    BufferString cmd;
-    sprintf( cmd.buf(), "%s %s 'chmod %s %s && echo 1'",
-	      rshcomm_.buf(), hostname_.buf(), yn ? "a-w" : "ug+w",
-	      fname_.buf() );
+    char cmd[mCmdBufSz];
+    sprintf( cmd, "%s %s 'chmod %s %s && echo 1'", remExecCmd(),
+		hostname_.buf(), yn ? "a-w" : "ug+w", fname_.buf() );
 
     mRemoteTest(return);
 }
@@ -1049,15 +743,15 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
 bool StreamProvider::isReadOnly() const
 {
-    if ( isbad_ || iscomm_ ) return true;
+    if ( isBad() || iscomm_ ) return true;
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
 		!File::isWritable( fname_ );
 
-    BufferString cmd;
-    sprintf( cmd.buf(), "%s %s 'test -w %s && echo 1'",
-	      rshcomm_.buf(), hostname_.buf(), fname_.buf() );
+    char cmd[mCmdBufSz];
+    sprintf( cmd, "%s %s 'test -w %s && echo 1'", remExecCmd(),
+		hostname_.buf(), fname_.buf() );
 
     mRemoteTest(return !);
 }
@@ -1083,7 +777,7 @@ void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
 bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 {
     bool rv = false;
-    const bool issane = newnm && *newnm && !isbad_ && !iscomm_;
+    const bool issane = newnm && *newnm && !isBad() && !iscomm_;
 
     if ( cb && cb->willCall() )
     {
@@ -1094,7 +788,7 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 	    msg = "Cannot rename commands";
 	else
 	{
-	    if ( isbad_ )
+	    if ( isBad() )
 		msg = "Cannot rename invalid filename";
 	    else
 		msg = "No filename provided for rename";
@@ -1109,9 +803,9 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 		    File::rename( fname_, newnm );
 	else
 	{
-	    BufferString cmd;
-	    sprintf( cmd.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",
-		      rshcomm_.buf(), hostname_.buf(), fname_.buf(), newnm );
+	    char cmd[mCmdBufSz];
+	    sprintf( cmd, "%s %s '/bin/mv -f %s %s && echo 1'", remExecCmd(),
+			hostname_.buf(), fname_.buf(), newnm );
 	    mRemoteTest(rv =);
 	}
     }

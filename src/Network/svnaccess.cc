@@ -13,8 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "file.h"
 #include "genc.h"
-#include "strmprov.h"
-#include "strmoper.h"
+#include "od_iostream.h"
+#include "oscommand.h"
 #include "dirlist.h"
 
 static const char* sRedirect = " > /dev/null 2>&1";
@@ -36,14 +36,15 @@ SVNAccess::SVNAccess( const char* dir )
     if ( !havesvn_ ) return;
 
     const BufferString fnm( FilePath(dir,".svn","entries").fullPath() );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() ) return;
+    od_istream strm( FilePath(dir,".svn","entries") );
+    if ( !strm.isOK() )
 
     for ( int idx=0; idx<5; idx++ )
-	if ( !StrmOper::readLine(*sd.istrm) )
-	    { sd.close(); return; }
+	if ( !strm.skipLine() )
+	    return;
+
     BufferString reposinfo;
-    if ( StrmOper::readLine(*sd.istrm,&reposinfo) )
+    if ( strm.getLine(reposinfo) )
     {
 	char* reposnm = strrchr( reposinfo.buf(), '/' );
 	if ( reposnm ) *reposnm++ = '\0';
@@ -52,7 +53,6 @@ SVNAccess::SVNAccess( const char* dir )
 	if ( hostnm ) hostnm++;
 	const_cast<BufferString&>(host_) = hostnm;
     }
-    sd.close();
 }
 
 
@@ -68,7 +68,7 @@ bool SVNAccess::isOK() const
     //TODO
 #else
     const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
-    hostreachable =  StreamProvider(cmd).executeCommand();
+    hostreachable = ExecOSCmd(cmd);
 #endif
     return havesvn_ && hostreachable;
 }
@@ -106,7 +106,7 @@ bool SVNAccess::update( const char* fnm )
 
     mGetReqFnm();
     const BufferString cmd( "@svn update ", reqfnm, sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -130,7 +130,7 @@ bool SVNAccess::lock( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -156,7 +156,7 @@ bool SVNAccess::add( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -192,7 +192,7 @@ bool SVNAccess::remove( const BufferStringSet& fnms )
 	return true;
 
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -215,10 +215,10 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
 	cmd.add( " -m \".\"" );
     else
     {
-	StreamData sd( StreamProvider(tmpfnm).makeOStream() );
-	if ( sd.usable() )
+	od_ostream strm( tmpfnm );
+	if ( strm.isOK() )
 	{
-	    *sd.ostrm << msg; sd.close();
+	    strm << msg << od_endl;
 	    havetmpfile = true;
 	    cmd.add( " -F \"" ).add( tmpfnm ).add( "\"" );
 	}
@@ -235,7 +235,7 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
     }
 
     cmd.add( sRedirect );
-    const bool res = StreamProvider(cmd).executeCommand();
+    const bool res = ExecOSCmd(cmd);
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
@@ -254,7 +254,7 @@ bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
     const BufferString tofnm( tofp.fullPath() );
     BufferString cmd( "@svn rename '", fromfnm, "' '" );
     cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -272,7 +272,7 @@ bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
 
     BufferString cmd( "@svn move '", fromfnm, "' '" );
     cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd(cmd);
 }
 
 
@@ -291,15 +291,15 @@ void SVNAccess::diff( const char* fnm, BufferString& res ) const
     BufferString cmd( "@svn diff ", reqfnm, " > " );
     mGetTmpFnm("svndiff",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !StreamProvider(cmd).executeCommand() )
+    if ( !ExecOSCmd(cmd) )
 	mRetRmTempFile()
 
-    StreamData sd( StreamProvider(tmpfnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( tmpfnm );
+    if ( !strm.isOK() )
 	mRetRmTempFile()
 
     BufferString line;
-    while ( StrmOper::readLine(*sd.istrm,&line) )
+    while ( strm.getLine(line) )
     {
 	if ( line.isEmpty() )
 	    continue;

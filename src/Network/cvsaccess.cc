@@ -13,8 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "file.h"
 #include "genc.h"
-#include "strmprov.h"
-#include "strmoper.h"
+#include "od_iostream.h"
+#include "oscommand.h"
 
 static const char* sRedirect = " > /dev/null 2>&1";
 
@@ -32,14 +32,12 @@ static BufferString getHost( const char* dir )
 {
     BufferString ret;
 
-    FilePath fp( dir, "CVS", "Root" );
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( FilePath(dir,"CVS","Root") );
+    if ( !strm.isOK() )
 	return ret;
 
     BufferString line;
-    StrmOper::readLine( *sd.istrm, &line );
-    sd.close();
+    strm.getLine( line );
     if ( line.isEmpty() )
 	return ret;
     const char* atptr = strchr( line.buf(), '@' );
@@ -59,11 +57,9 @@ CVSAccess::CVSAccess( const char* dir )
 {
     if ( isOK() )
     {
-	FilePath fp( dir_, "CVS", "Repository" );
-	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-	if ( sd.usable() )
-	    StrmOper::readLine(*sd.istrm,&reposdir_);
-	sd.close();
+	od_istream strm( FilePath(dir,"CVS","Repository") );
+	if ( strm.isOK() )
+	    strm.getLine( reposdir_ );
     }
 }
 
@@ -79,7 +75,7 @@ bool CVSAccess::hostOK() const
     return true; //TODO
 #else
     const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd( cmd );
 #endif
 }
 
@@ -98,13 +94,12 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
 
-    const FilePath fp( dir_, dir, "CVS", "Entries" );
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( FilePath(dir,"CVS","Entries") );
+    if ( !strm.isOK() )
 	return;
 
     BufferString line;
-    while ( StrmOper::readLine(*sd.istrm,&line) )
+    while ( strm.getLine(line) )
     {
 	char* nmptr = strchr( line.buf(), '/' );
 	if ( !nmptr ) continue;
@@ -122,8 +117,8 @@ bool CVSAccess::update( const char* fnm )
 	return true;
 
     mGetReqFnm();
-    const BufferString cmd( "@cvs update ", reqfnm, sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    const BufferString cmd( "cvs update ", reqfnm, sRedirect );
+    return ExecOSCmd( cmd );
 }
 
 
@@ -147,7 +142,7 @@ bool CVSAccess::edit( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd( cmd );
 }
 
 
@@ -174,7 +169,7 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd( cmd );
 }
 
 
@@ -210,7 +205,7 @@ bool CVSAccess::remove( const BufferStringSet& fnms )
 	return true;
 
     cmd.add( sRedirect );
-    return StreamProvider(cmd).executeCommand();
+    return ExecOSCmd( cmd );
 }
 
 
@@ -233,10 +228,10 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 	cmd.add( " -m \".\"" );
     else
     {
-	StreamData sd( StreamProvider(tmpfnm).makeOStream() );
-	if ( sd.usable() )
+	od_ostream strm( tmpfnm );
+	if ( strm.isOK() )
 	{
-	    *sd.ostrm << msg; sd.close();
+	    strm << msg << od_endl;
 	    havetmpfile = true;
 	    cmd.add( " -F \"" ).add( tmpfnm ).add( "\"" );
 	}
@@ -253,7 +248,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
     }
 
     cmd.add( sRedirect );
-    const bool res = StreamProvider(cmd).executeCommand();
+    const bool res = ExecOSCmd( cmd );
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
@@ -320,15 +315,15 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
     BufferString cmd( "@cvs editors ", reqfnm, " > " );
     mGetTmpFnm("cvseditors",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !StreamProvider(cmd).executeCommand() )
+    if ( !ExecOSCmd(cmd) )
 	mRetRmTempFile()
 
-    StreamData sd( StreamProvider(tmpfnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( tmpfnm );
+    if ( !strm.isOK() )
 	mRetRmTempFile()
 
     BufferString line;
-    while ( StrmOper::readLine(*sd.istrm,&line) )
+    while ( strm.getLine(line) )
 	if ( !line.isEmpty() )
 	    edtxts.add( line );
 
@@ -352,15 +347,15 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
     BufferString cmd( "@cvs diff ", reqfnm, " > " );
     mGetTmpFnm("cvsdiff",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !StreamProvider(cmd).executeCommand() )
+    if ( !ExecOSCmd(cmd) )
 	mRetRmTempFile()
 
-    StreamData sd( StreamProvider(tmpfnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( tmpfnm );
+    if ( !strm.isOK() )
 	mRetRmTempFile()
 
     BufferString line;
-    while ( StrmOper::readLine(*sd.istrm,&line) )
+    while ( strm.getLine(line) )
     {
 	if ( line.isEmpty() )
 	    continue;

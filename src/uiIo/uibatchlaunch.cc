@@ -32,8 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "ptrman.h"
 #include "settings.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "survinfo.h"
 
 
@@ -275,11 +274,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     bool inbg = dormt;
     comm += GetExecScript( dormt );
     if ( dormt )
-    {
-	comm += hostname_;
-	comm += " --rexec ";
-	comm += rshcomm_;
-    }
+	comm.add( hostname_ ).add( " --rexec " ).add( rshcomm_ );
 
     nicelvl_ = nicefld_->box()->getValue();
     if ( nicelvl_ != 0 )
@@ -289,7 +284,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #endif
     comm.add( " \"" ).add( parfname_ ).add( "\"" );
 
-    if ( !StreamProvider( comm ).executeCommand(inbg,sel==2) )
+    if ( !ExecOSCmd( comm, sel==2, inbg ) )
     {
 	uiMSG().error( "Cannot start batch program" );
 	return false;
@@ -527,7 +522,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 # else
     comm += " --release ";
 # endif
-    	
+
 # ifdef __win__
     comm += " --inxterm+askclose "; comm += procprognm_;
 
@@ -551,7 +546,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 #endif
 
     const bool inbg=dormt;
-    if ( !StreamProvider( comm ).executeCommand(inbg) )
+    if ( !ExecOSCmd(comm,false,inbg) )
 	{ uiMSG().error( "Cannot start batch program" ); return false; }
     return true;
 }

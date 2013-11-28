@@ -15,11 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_ostream.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
 #include "timefun.h"
-#include <fstream>
 
 
 #define mErrRet( s ) \
@@ -55,11 +54,9 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     if ( par.isEmpty() )
 	mErrRet( "Could not read any parameters from server" );
 
-    BufferString tmpcmd;
-    mkCommand( par, tmpcmd );
-    BufferString cmd( "@", tmpcmd );
-    StreamProvider sp( cmd );
-    if ( !sp.executeCommand( true ) )
+    BufferString cmd;
+    mkCommand( par, cmd );
+    if ( !ExecOSCmd( cmd, false, true ) )
 	mErrRet( "Command Execution failed" );
 }
 

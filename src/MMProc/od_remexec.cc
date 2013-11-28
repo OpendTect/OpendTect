@@ -14,14 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "remjobexec.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "systeminfo.h"
-#include <iostream>
 
 
 static BufferString createCmdLine( int argc, char** argv )
 {
-    BufferString cmdline( "@" );
+    BufferString cmdline;
     for ( int idx=2; idx<argc-1; idx++ )
 	cmdline.add( argv[idx] ).add( " " );
 
@@ -33,9 +32,8 @@ static BufferString createCmdLine( int argc, char** argv )
 
 static int executeLocal( int argc, char** argv )
 {
-    BufferString cmdline = createCmdLine( argc, argv );
-    StreamProvider strmprov( cmdline );
-    return strmprov.executeCommand( true );
+    const BufferString cmdline = createCmdLine( argc, argv );
+    return ExecOSCmd( cmdline, false, true );
 }
 
 
@@ -60,7 +58,7 @@ int main( int argc, char** argv )
 	par.set( "Job ID", argv[8] );
 	par.set( "Par File", argv[9] );
     }
-    	
+
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();

@@ -36,7 +36,20 @@ BufferString OSCommand::defremexec_( "ssh" );
 
 bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 {
-    if ( !comm || !*comm ) return false;
+    OSCommand oscmd( comm );
+    if ( oscmd.isBad() )
+	return false;
+
+    return oscmd.execute( inconsole, inbg );
+}
+
+
+static bool doExecOSCmd( const char* comm, bool inconsole, bool inbg )
+{
+    if ( !comm || !*comm )
+	return false;
+    if ( *comm == '@' )
+	comm++;
 
 #ifndef __win__
 
@@ -118,7 +131,7 @@ bool ExecODProgram( const char* prognm, const char* filenm )
     }
 
     OSCommand oscmd( cmd );
-    return oscmd.execute( inbg, true );
+    return oscmd.execute( true, inbg );
 
 
 #endif
@@ -232,24 +245,24 @@ const char* OSCommand::get() const
 }
 
 
-bool OSCommand::execute( bool inbg, bool inconsole ) const
+bool OSCommand::execute( bool inconsole, bool inbg ) const
 {
     BufferString cmd;
 
 #ifdef __win__
     if ( inconsole )
-	mkBatchCmd( cmd );
+	mkConsoleCmd( cmd );
     else
 #endif
-
 	mkOSCmd( true, cmd );
-    return ExecOSCmd( cmd, inconsole, inbg );
+
+    return doExecOSCmd( cmd, inconsole, inbg );
 }
 
 
 #ifdef __win__
 
-void OSCommand::mkBatchCmd( BufferString& comm ) const
+void OSCommand::mkConsoleCmd( BufferString& comm ) const
 {
     const BufferString fnm(
 		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );

@@ -12,12 +12,10 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "sighndl.h"
-#include "strmdata.h"
-#include "strmprov.h"
 #include "envvars.h"
+#include "oscommand.h"
 
 #include <signal.h>
-#include <iostream>
 
 #ifdef __win__
 # include <windows.h>
@@ -50,7 +48,7 @@ void SignalHandling::initClass()
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
-    
+
     CallBackSet& cbs = SH().getCBL( et );
     if ( !cbs.isPresent(cb) ) cbs += cb;
 #ifndef __win__
@@ -58,15 +56,14 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
     {
 	/* tell OS not to restart system calls if a signal is received */
 	/* see: http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/ */
-	if ( siginterrupt(SIGALRM, 1) < 0 ) 
-	{   
-	    std::cout <<"WARNING: setting of siginterrupt failed. ";
-	    std::cout <<"System operations might not be interuptable ";
-	    std::cout <<"using alarm signals." << std::endl;
+	if ( siginterrupt(SIGALRM, 1) < 0 )
+	{
+	    // setting of siginterrupt failed
+	    // System operations might not be interuptable using alarm signals.
 	}
     }
 #endif
-    
+
 }
 
 
@@ -198,10 +195,10 @@ void SignalHandling::doKill( int signalnr )
 {
     mReleaseSignal( signalnr );
     if ( signalnr != SIGTERM )
-    { 
+    {
 	BufferString msg;
 #ifdef __lux__
- 	msg = "Stopped by Linux";
+	msg = "Stopped by Linux";
 # ifdef __debug__
 	msg += ", received signal: ";
 
@@ -289,19 +286,18 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 				 const char* rshcomm )
 {
     if ( !mach || !*mach )
-	{ stopProcess( pid, friendly ); }
+	{ stopProcess( pid, friendly ); return; }
 
-    BufferString cmd( mach );
-    cmd += ":@'kill ";
-    cmd += friendly ? "-TERM " : "-9 ";
-    cmd += pid;
-    cmd += " > /dev/null'";
+#ifdef __win__
+    pErrMsg( "Not impl: stopRemote() for Windows" );
+#else
 
-    StreamProvider strmp( cmd );
-    if ( rshcomm && *rshcomm )
-	strmp.setRemExec( rshcomm );
-    StreamData sd = strmp.makeOStream();
-    sd.close();
+    BufferString cmd( "kill ", friendly ? "-TERM " : "-9 " );
+    cmd.add( pid ).add( " > /dev/null" );
+    OSCommand oscmd( cmd, mach );
+    oscmd.execute();
+
+#endif
 }
 
 
@@ -361,7 +357,7 @@ Return Value:
     TA_FAILED:		If the shutdown failed.
     TA_SUCCESS_CLEAN:	If the process was shutdown using WM_CLOSE.
     TA_SUCCESS_KILL:	if the process was shut down with TerminateProcess().
-----------------------------------------------------------------*/ 
+----------------------------------------------------------------*/
 
 static DWORD WINAPI TerminateApp( DWORD dwPID, DWORD dwTimeout )
 {

@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "queue.h"
 #include "separstr.h"
 #include "string2.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "od_ostream.h"
 #include "survinfo.h"
 #include "systeminfo.h"
@@ -388,14 +388,11 @@ bool JobIOMgr::startProg( const char* progname,
 	DBG::message(msg);
     }
 
-    StreamProvider strmprov( cmd.string() );
-    if ( !strmprov.executeCommand(true) ) // true: in background
+    const BufferString cmdbs( cmd.string() );
+    if ( !ExecOSCmd(cmdbs,false,true) ) // in background
     {
-	BufferString s( "Failed to submit command '" );
-	s += strmprov.command(); s += "'";
-
 	iohdlr_.removeJobDesc( machine.name(), ji.descnr_ );
-	mErrRet(s)
+	mErrRet( BufferString("Failed to submit command '", cmdbs, "'") )
     }
 
     return true;

@@ -43,7 +43,7 @@ public:
 			//!< returns !isBad()
     const char*		get() const;
 
-    bool		execute(bool inbg=false,bool inconsole=false) const;
+    bool		execute(bool inconsole=false,bool inbg=false) const;
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
@@ -60,7 +60,7 @@ protected:
 
     void		mkOSCmd(bool,BufferString&) const;
 #ifdef __win__
-    void		mkBatchCmd(BufferString& comm) const;
+    void		mkConsoleCmd(BufferString& comm) const;
 #endif
 
 };
