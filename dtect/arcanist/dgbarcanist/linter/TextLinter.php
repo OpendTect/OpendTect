@@ -89,13 +89,12 @@ final class TextLinter extends ArcanistLinter {
       if ($this->didStopAllLinters()) {
 	return;
       }
-/*
+
       $this->lintStaticLocalVar($path);
 
       if ($this->didStopAllLinters()) {
 	return;
       }
-*/
     }
 
     $this->lintCharset($path);
