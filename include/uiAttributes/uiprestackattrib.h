@@ -24,7 +24,7 @@ class uiGenInput;
 class uiLabel;
 class uiPreStackSel;
 class uiVelSel;
-namespace PreStack { class uiProcSel; class uiAngleCompGrp; 
+namespace PreStack { class uiProcSel; class uiAngleCompGrp;
 		     class AngleCompParams; class AngleComputer; }
 
 /*! \brief PreStack Attribute ui */
@@ -38,21 +38,23 @@ public:
 
     void                getEvalParams(TypeSet<EvalParam>&) const;
 
-    void        	setDataPackInp(const TypeSet<DataPack::FullID>&);
+    void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
 protected:
 
     uiPreStackSel*			prestackinpfld_;
     uiGenInput*				dopreprocessfld_;
     PreStack::uiProcSel*		preprocsel_;
-    uiGenInput*				offsrgfld_;
     uiGenInput*				calctypefld_;
     uiGenInput*				stattypefld_;
     uiGenInput*				lsqtypefld_;
-    uiGenInput*				offsaxtypefld_;
-    uiGenInput*				valaxtypefld_;
     uiCheckBox*				useanglefld_;
-    uiLabel*				offsrglbl_;
+    uiGenInput*				gathertypefld_;
+    uiGenInput*				xrgfld_;
+    uiLabel*				xrglbl_;
+    uiGenInput*				xunitfld_;
+    uiGenInput*				xaxistypefld_;
+    uiGenInput*				valaxtypefld_;
 
     PreStack::uiAngleCompGrp*		anglecompgrp_;
     PreStack::AngleCompParams&		params_;
@@ -68,13 +70,15 @@ protected:
     const char*		getStringfromStatEnum(Stats::Type enm);
     void		getStatTypeNames(BufferStringSet& stattypenames);
 
+    void		doPreProcSel(CallBacker*);
     void		calcTypSel(CallBacker*);
     void		angleTypSel(CallBacker*);
-    void		doPreProcSel(CallBacker*);
+    void		gatherTypSel(CallBacker*);
+    void		gatherUnitSel(CallBacker*);
 
-    bool        	setInput(const Desc&);
+    bool	setInput(const Desc&);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 #endif

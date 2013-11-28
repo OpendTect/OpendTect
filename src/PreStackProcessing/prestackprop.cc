@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 
 namespace PreStack
-{ 
+{
 DefineEnumNames(PropCalc,CalcType,1,"Calculation type")
 {
 	"Statistics",
@@ -139,7 +139,7 @@ float PropCalc::getVal( float z ) const
 	axisvalrg.start = Math::toRadians( (float) setup_.anglerg_.start );
 	axisvalrg.stop = Math::toRadians( (float) setup_.anglerg_.stop );
     }
-   
+
     const float eps = 1e-3;
     axisvalrg.start -= eps; axisvalrg.stop += eps;
     axisvalrg.sort();
@@ -167,16 +167,16 @@ float PropCalc::getVal( float z ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float axisval = 
-			useangle ? angledata_->data().get( itrc, (int)cursamp ) 
+	    const float axisval =
+			useangle ? angledata_->data().get( itrc, (int)cursamp )
 				 : gather_->getOffset(itrc);
 
 	    if ( !axisvalrg.includes( axisval, true ) )
 		continue;
 
 	    if ( setup_.calctype_ != Stats )
-		axisvals += axisval;
-	   
+		axisvals += axisval * setup_.xscaler_;
+
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
 	    vals += val;

@@ -34,12 +34,12 @@ mExpClass(PreStackProcessing) PropCalc
 public:
 
     enum CalcType	{ Stats, LLSQ };
-    			DeclareEnumUtils(CalcType)
+			DeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
-    			DeclareEnumUtils(AxisType)
-    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, 
+			DeclareEnumUtils(AxisType)
+    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff,
 		          CorrCoeff };
-    			DeclareEnumUtils(LSQType)
+			DeclareEnumUtils(LSQType)
 
     mExpClass(PreStackProcessing) Setup
     {
@@ -51,6 +51,7 @@ public:
 			    , offsaxis_(Norm)
 			    , valaxis_(Norm)
 			    , offsrg_(0,mUdf(float))
+			    , xscaler_(1.f)
 			    , anglerg_(0,30)
 			    , useangle_(false)
 			    , aperture_(0)  {}
@@ -61,6 +62,7 @@ public:
 	mDefSetupMemb(AxisType,offsaxis)
 	mDefSetupMemb(AxisType,valaxis)
 	mDefSetupMemb(Interval<float>,offsrg)
+	mDefSetupMemb(float,xscaler)
 	mDefSetupMemb(Interval<int>,anglerg)
 	mDefSetupMemb(bool,useangle)
 	mDefSetupMemb(int,aperture)
@@ -75,7 +77,7 @@ public:
     void		setGather(DataPack::ID);
     void		setAngleData(DataPack::ID);
 			/*!< Only used if AngleA0 or AngleCoeff. If not set,
-			     offset values from traces will be assumed to 
+			     offset values from traces will be assumed to
 			     contain angles. */
     float		getVal(int sampnr) const;
     float		getVal(float z) const;

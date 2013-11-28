@@ -21,7 +21,7 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; class Gather; 
+namespace PreStack { class ProcessManager; class Gather;
 		     class AngleComputer; }
 
 
@@ -38,16 +38,16 @@ namespace Attrib
 <pre>
   PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp=
   aperture= preprocessor=
-  
-  
+
+
   Input:
   0		Pre-Stack Data
-  
+
   Output:
   0		Attribute
 </pre>
 */
-    
+
 mExpClass(Attributes) PSAttrib : public Provider
 {
 public:
@@ -72,6 +72,13 @@ public:
     static const char*  angleStartStr()		{ return "anglestart"; }
     static const char*  angleStopStr()		{ return "anglestop"; }
     static const char*	rayTracerParamStr()	{ return "raytracerparam"; }
+    static const char*	gathertypeStr()		{ return "gathertype"; }
+    static const char*	xaxisunitStr()		{ return "xaxisunit"; }
+
+    enum GatherType	{ Off, Ang };
+			DeclareEnumUtils(GatherType)
+    enum XaxisUnit	{ Deg, Rad };
+			DeclareEnumUtils(XaxisUnit)
 
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }
@@ -95,22 +102,25 @@ protected:
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
     void		setSmootheningPar();
+    float		getXscaler(bool isoffset, bool isindegrees) const;
 
     MultiID			psid_;
     IOObj*			psioobj_;
-    PreStack::PropCalc::Setup	setup_;
-    int				component_;
     SeisPSReader*		psrdr_;
-    PreStack::PropCalc*		propcalc_;
-    PreStack::AngleComputer*    anglecomp_;
-
+    int				component_;
     PreStack::ProcessManager*	preprocessor_;
+    PreStack::PropCalc*		propcalc_;
+    PreStack::PropCalc::Setup	setup_;
+    PreStack::AngleComputer*    anglecomp_;
+    int				gathertype_; //!< default: Offset
+    int				xaxisunit_;  //!< default: Degrees
+
     MultiID			preprocid_;
     int				dataidx_;
     const DataHolder*		inputdata_;
     MultiID			velocityid_;
 
-    ObjectSet<PreStack::Gather>    gatherset_; 
+    ObjectSet<PreStack::Gather>    gatherset_;
 };
 
 }; // namespace Attrib
