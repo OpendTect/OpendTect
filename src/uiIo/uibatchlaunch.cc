@@ -522,6 +522,12 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
 
+# ifdef __debug__
+    comm += " --debug ";
+# else
+    comm += " --release ";
+# endif
+    	
 # ifdef __win__
     comm += " --inxterm+askclose "; comm += procprognm_;
 
@@ -534,6 +540,8 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     comm += " "; comm += procprognm_;
     comm += " -bg "; comm += parfp.fullPath();
 # endif
+
+
 
 #else
     BufferString comm = FilePath(GetBinPlfDir()).add(procprognm_).fullPath();
