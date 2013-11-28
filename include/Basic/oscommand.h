@@ -5,9 +5,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		17-5-1995
- Contents:	Generalized stream opener.
+ Author:	Bert
+ Date:		Nov 2013
  RCS:		$Id$
 ________________________________________________________________________
 
@@ -68,7 +67,7 @@ protected:
 //! Execute command on local host
 mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsole=false,bool inbg=false);
 
-//! Execute od script
+//! Execute od program via the startup script
 mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* filenm);
 
 
