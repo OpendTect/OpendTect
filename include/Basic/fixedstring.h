@@ -103,14 +103,14 @@ mGlobal(Basic) std::ostream& operator <<(std::ostream&,const FixedString&);
 
 
 
-void Qq_FixedString_eq_bs_qQ();
+#ifndef __win__
 
+// Avoid silent conversion BufferString -> FixedString as it is dangerous.
+void OD_Undef_FixedString_eq_bs_finder();
 inline FixedString& FixedString::operator=(const BufferString&)
-{
-    Qq_FixedString_eq_bs_qQ();
-    ptr_ = 0;
-    return *this;
-}
+{ OD_Undef_FixedString_eq_bs_finder(); return *this; }
+
+#endif
 
 
 #endif

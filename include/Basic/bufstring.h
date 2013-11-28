@@ -143,13 +143,19 @@ private:
 
 };
 
-/*!Not implemented. Only here to cause link-errors if used. Did this to avoid
-   silent promotions to BufferStrings as they can cause a lot of misery. */
-mGlobal(Basic) bool operator==(const char*,const BufferString&);
 
-/*!Not implemented. Only here to cause link-errors if used. Did this to avoid
-   silent promotions to BufferStrings as they can cause a lot of misery. */
-mGlobal(Basic) bool operator!=(const char*,const BufferString&);
+#ifndef __win__
+
+// Avoid silent conversion to BufferString from any type.
+
+void OD_Undef_const_char_eq_bs_finder();
+void OD_Undef_const_char_neq_bs_finder();
+inline bool operator==(const char*,const BufferString&)
+{ OD_Undef_const_char_eq_bs_finder(); return false; }
+inline bool operator!=(const char*,const BufferString&)
+{ OD_Undef_const_char_neq_bs_finder(); return true; }
+
+#endif
 
 
 #define mBufferStringSimpConstrInitList \
@@ -200,4 +206,3 @@ template <class T> inline bool BufferString::operator <( const T& t ) const
 
 
 #endif
-
