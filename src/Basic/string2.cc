@@ -622,7 +622,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     delete [] ret; ret = new char [nrchars+1];
     char* ptr = ret;
 
-    static const char* dots = "...";
+    const char* dots = "...";
     if ( !trimright )
     {
 	inp += inplen - nrchars + 3;
