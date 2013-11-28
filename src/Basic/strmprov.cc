@@ -579,7 +579,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	  ( sd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
 				  : std::ios_base::in );
 
-	if ( sd.istrm->bad() )
+	if ( !sd.istrm->good() )
 	    { delete sd.istrm; sd.istrm = 0; }
 	return sd;
     }
@@ -636,7 +636,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	sd.ostrm = new std::ofstream( sd.fileName(), openmode );
 #endif
 
-	if ( sd.ostrm->bad() )
+	if ( !sd.ostrm->good() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
 	return sd;
     }
