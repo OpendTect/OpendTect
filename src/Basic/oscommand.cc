@@ -315,9 +315,11 @@ static const char* getCmd( const char* fnm )
 
 	od_istream strm( execnm );
 	if ( !strm.isOK() )
+	    return fnm;
 
-	BufferString line;
-	strm.getLine( line );
+	char buf[41];
+	strm.getC( line, 40 );
+	BufferString line( buf );
 
 	if ( !line.contains("#!") && !line.contains("# !") )
 	    return fnm;
