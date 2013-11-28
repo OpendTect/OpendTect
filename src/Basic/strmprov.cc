@@ -101,6 +101,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
+/*
 bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 {
     if ( !comm || !*comm ) return false;
@@ -163,6 +164,8 @@ bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 #endif
 }
 
+*/
+
 #ifndef __msvc__
 //! Create Execute command
 const char* GetExecCommand(const char* prognm,const char* filenm);
@@ -180,6 +183,8 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
 }
 #endif
 
+
+/*
 
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 {
@@ -212,6 +217,7 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 #endif
 }
 
+*/
 
 //---- Pre-loaded data ----
 

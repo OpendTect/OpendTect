@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "posinfodetector.h"
 #include "iopar.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "od_istream.h"
 #include "survinfo.h"
 #include "oddirs.h"
@@ -182,7 +182,7 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecuteScriptCommand( "od_FileBrowser", fnm );
+    ExecODProgram( "od_FileBrowser", fnm );
 }
 
 

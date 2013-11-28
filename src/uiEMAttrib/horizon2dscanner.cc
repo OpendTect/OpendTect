@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizonascio.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
@@ -71,18 +71,13 @@ od_int64 Horizon2DScanner::totalNr() const
     totalnr_ = 0;
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	StreamProvider sp( filenames_.get(0).buf() );
-	StreamData sd = sp.makeIStream();
-	if ( !sd.usable() ) continue;
+	od_istream strm( filenames_.get(0).buf() );
+	if ( !strm.isOK() ) continue;
 
-	char buf[180];
-	while ( *sd.istrm )
-	{
-	    sd.istrm->getline( buf, 180 );
-	    totalnr_++;
-	}
+	BufferString line;
+	while ( strm.isOK() )
+	    { strm.getLine( line ); totalnr_++; }
 
-	sd.close();
 	totalnr_ -= fd_.nrhdrlines_;
     }
 
@@ -166,7 +161,7 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecuteScriptCommand( "od_FileBrowser", fnm );
+    ExecODProgram( "od_FileBrowser", fnm );
 }
 
 

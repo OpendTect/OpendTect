@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "staticstring.h"
 
 
@@ -207,7 +207,7 @@ const char* uiFileInput::fileName() const
     fname = text();
     if ( fname.isEmpty() )
 	return fname;
-#ifdef __win__ 
+#ifdef __win__
     if ( fname.size() == 2 )
 	fname += "\\";
 #endif
@@ -249,6 +249,6 @@ void uiFileInput::examineFile( CallBacker* )
 	if ( examstyle_ == Setup::Edit )
 	    cmd += " --edit";
 
-	ExecuteScriptCommand( cmd, fileName() );
+	ExecODProgram( cmd, fileName() );
     }
 }

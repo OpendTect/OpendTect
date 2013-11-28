@@ -12,10 +12,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "basicmod.h"
 #include "strmdata.h"
 #include "bufstring.h"
+#include "oscommand.h"
 class CallBack;
 class TaskRunner;
 class BufferStringSet;
@@ -27,7 +28,7 @@ class BufferStringSet;
   StreamProvider provides a stream with requested source attached:
    - starting with '@' --> OS command that produces the data on stdin/stdout
    - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
-  
+
   Thus:
    - dgb1:@handle_data
 	Executable handle_data on remote host dgb1 will get/put on stdin/stdout.
@@ -46,7 +47,7 @@ public:
 		StreamProvider(const char* hostnm,const char* fnm,bool iscomm);
     void	set(const char*);
     bool	rename(const char*,const CallBack* cb=0);
-    		//!< renames if file. if successful, does a set()
+		//!< renames if file. if successful, does a set()
 
     bool	isBad() const				{ return isbad_; }
 
@@ -56,15 +57,15 @@ public:
     bool	isReadOnly() const;
 
     StreamData	makeOStream(bool binary=true,bool editmode=false) const;
-		/*!< On win32, binary mode differs from text mode. 
-		    Use binary=false when explicitly reading txt files. 
-                    Use editmode=true when want to edit/modify existing data 
+		/*!< On win32, binary mode differs from text mode.
+		    Use binary=false when explicitly reading txt files.
+                    Use editmode=true when want to edit/modify existing data
                     in a file.*/
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		//!< see makeOStream remark
     bool	executeCommand(bool inbg=false,bool inconsole=false) const;
-    		//!< If type is Command, execute command without opening pipe
-    		//!< 'inbg' will execute in background if remote
+		//!< If type is Command, execute command without opening pipe
+		//!< 'inbg' will execute in background if remote
     void	mkBatchCmd(BufferString& comm) const;
 
     const char*	fullName() const;
@@ -90,10 +91,10 @@ public:
     static bool		isPreLoaded(const char*,bool isid);
 			    //!< If isid, a single hit will return true
     static bool		preLoad(const char*,TaskRunner&,const char* id);
-    			    //!< id can be anything, usually MultiID though
+			    //!< id can be anything, usually MultiID though
     static bool		preLoad(const BufferStringSet&,TaskRunner&,
-	    			const char* id);
-    			    //!< id can be anything, usually MultiID though
+				const char* id);
+			    //!< id can be anything, usually MultiID though
     static void		getPreLoadedIDs(BufferStringSet&);
     static void		getPreLoadedFileNames(const char* id,BufferStringSet&);
 			    //!< pass null id for all files
@@ -116,15 +117,10 @@ protected:
     static StreamData		makePLIStream(int);
 
     static void	sendCBMsg(const CallBack*,const char*);
-    		//!< The callback will be called with a const char* capsule
+		//!< The callback will be called with a const char* capsule
 
 };
 
-//! Execute command in OS
-mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
 
-//! Execute command
-mGlobal(Basic) bool ExecuteScriptCommand(const char* prognm,const char* filenm);
 
 #endif
-

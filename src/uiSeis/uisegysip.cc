@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "oddirs.h"
 #include "timer.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "od_ostream.h"
 
 
@@ -85,12 +85,12 @@ static void showReport( const SEGY::Scanner& scanner )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet("Cannot open temporary file in Proc directory")
-    IOPar iop; 
+    IOPar iop;
     scanner.getReport( iop );
     if ( !iop.write(strm,IOPar::sKeyDumpPretty()) )
 	mErrRet("Cannot write to temporary file in Proc directory")
 
-    ExecuteScriptCommand( "od_FileBrowser", fnm );
+    ExecODProgram( "od_FileBrowser", fnm );
 }
 
 

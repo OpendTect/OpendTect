@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "envvars.h"
 #include "separstr.h"
-#include "strmprov.h"
+#include "oscommand.h"
 #include "od_strstream.h"
 #include "oddirs.h"
 
@@ -288,7 +288,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 
     BufferString fnm( su.fs_.fname_ );
     fnm.replace( "*", "+x+" );
-    return ExecuteScriptCommand( cmd, fnm );
+    return ExecODProgram( cmd, fnm );
 }
 
 

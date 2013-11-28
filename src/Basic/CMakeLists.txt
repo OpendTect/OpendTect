@@ -17,6 +17,7 @@ set( OD_TEST_PROGS
 		cubesampling.cc
 		file.cc
 		math2.cc
+		oscommand.cc
 		refcount.cc
 		sets.cc
 		string.cc
@@ -62,6 +63,7 @@ set( OD_MODULE_SOURCES
 	    odinst.cc
 	    odmemory.cc
 	    odver.cc
+	    oscommand.cc
 	    plugins.cc
 	    posinfo.cc
 	    posinfo2d.cc
