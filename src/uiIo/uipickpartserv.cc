@@ -161,6 +161,12 @@ bool uiPickPartServer::createRandom2DSet()
     deepErase( linesets_ );
     linenms_.erase();
     sendEvent( evGet2DLineInfo() );
+    if ( linesets_.isEmpty() || linenms_.isEmpty() )
+    {
+	uiMSG().message( "No 2D lines were found" );
+	return false;
+    }
+
     uiGenRandPicks2D dlg( parent(), hornms, linesets_, linenms_ );
     mHandleDlg();
     if ( !mkRandLocs2D(*newps,dlg.randPars()) )
