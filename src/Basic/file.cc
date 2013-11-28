@@ -531,10 +531,10 @@ bool getContent( const char* fnm, BufferString& bs )
     if ( !fnm || !*fnm ) return false;
 
     od_istream stream( fnm );
-    if ( !stream.isOK() )
+    if ( stream.isBad() )
         return false;
 
-    return stream.getAll( bs );
+    return !stream.isOK() ? true : stream.getAll( bs );
 }
 
 
