@@ -86,7 +86,9 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 
 bool SeisSingleTraceProc::mkWriter( const IOObj* out )
 {
+    wrrkey_.setEmpty();
     if ( !out ) return false;
+    wrrkey_ = out->key();
     wrr_ = new SeisTrcWriter( out );
     return true;
 }
@@ -130,7 +132,9 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
     worktrc_ = &intrc_;
     if ( wrr_ )
     {
-	wrrkey_ = wrr_->ioObj()->key();
+	const IOObj* wrioobj = wrr_->ioObj();
+	if ( wrioobj )
+	    wrrkey_ = wrioobj->key();
 	if ( ioobjs.size() == 1 )
 	    wrr_->setCrFrom( ioobjs[0]->fullUserExpr() );
     }
