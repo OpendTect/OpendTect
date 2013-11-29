@@ -520,7 +520,6 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 #ifndef __msvc__
 
     BufferString comm( GetExecScript( dormt ) );
-    comm += GetExecScript( dormt );
 
 # ifdef __debug__
     comm += " --debug ";
