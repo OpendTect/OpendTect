@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackprop.h"
 
-#include "angles.h"
+#include "hiddenparam.h"
 #include "idxable.h"
 #include "flatposdata.h"
 #include "prestackgather.h"
@@ -34,7 +34,6 @@ DefineEnumNames(PropCalc,AxisType,2,"Axis transformation")
 	"Square root",
 	"Absolute value",
 	"Sine-square",
-	"Sine-square (degrees)",
 	0
 };
 
@@ -49,13 +48,28 @@ DefineEnumNames(PropCalc,LSQType,0,"Axis type")
 };
 
 
+HiddenParam<PropCalc,float> xscaler_( 0 );
+
+void PropCalc::setScaler( float scal )
+{
+    xscaler_.setParam( this, scal );
+}
+
+
+float PropCalc::getScaler() const
+{ return xscaler_.getParam( this ); }
+
+
+
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
     , gather_( 0 )
     , innermutes_( 0 )
     , outermutes_( 0 )
     , angledata_( 0 )
-{}
+{
+    xscaler_.setParam( this, 1.f );
+}
 
 
 PropCalc::~PropCalc()
@@ -138,8 +152,8 @@ float PropCalc::getVal( float z ) const
     Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start = setup_.anglerg_.start*M_PIf/180;
-	axisvalrg.stop = setup_.anglerg_.stop*M_PIf/180;
+	axisvalrg.start = Math::toRadians( (float) setup_.anglerg_.start );
+	axisvalrg.stop = Math::toRadians( (float) setup_.anglerg_.stop );
     }
 
     const float eps = 1e-3;
@@ -177,7 +191,7 @@ float PropCalc::getVal( float z ) const
 		continue;
 
 	    if ( setup_.calctype_ != Stats )
-		axisvals += axisval;
+		axisvals += axisval * getScaler();
 
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
@@ -205,9 +219,6 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 	case PropCalc::Abs:	vals[idx] = fabs( val );	break;
 	case PropCalc::Sinsq:	vals[idx] = sin( val );
 				vals[idx] *= vals[idx];		break;
-	case PropCalc::Sinsqdeg: vals[idx] = sin( Angle::deg2rad(val) );
-				 vals[idx] *= vals[idx];         break;
-
 	default:						break;
 	}
     }

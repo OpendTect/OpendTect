@@ -27,11 +27,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 
+#define mDeg2RadF         0.017453292519943292f
+
 namespace Attrib
 {
+DefineEnumNames(PSAttrib,GatherType,0,"Gather type")
+{
+    "Offset",
+    "Angle",
+    0
+};
+
+DefineEnumNames(PSAttrib,XaxisUnit,0,"X-Axis unit")
+{
+    "in Degrees",
+    "in Radians",
+    0
+};
+
 
 mAttrDefCreateInstance(PSAttrib)
-    
+
 void PSAttrib::initClass()
 {
     mAttrStartInitClass
@@ -50,6 +66,8 @@ void PSAttrib::initClass()
     mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType,0);
     mDefEnumPar(valaxis,PreStack::PropCalc::AxisType,0);
     mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType,0);
+    mDefEnumPar(gathertype,PSAttrib::GatherType,0);
+    mDefEnumPar(xaxisunit,PSAttrib::XaxisUnit,0);
 
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
@@ -67,7 +85,7 @@ void PSAttrib::initClass()
     desc->addParam( new IntParam( angleStartStr(), 0, false ) );
     desc->addParam( new IntParam( angleStopStr(), mUdf(int), false ) );
 
-    EnumParam* smoothtype = new EnumParam( 
+    EnumParam* smoothtype = new EnumParam(
 				PreStack::AngleComputer::sKeySmoothType() );
     smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
     smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
@@ -76,13 +94,13 @@ void PSAttrib::initClass()
 
     desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "",
 				     false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(), 
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(),
 				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinLen(), 
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinLen(),
 				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(),
 				    mUdf(float), false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(), 
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(),
 				    mUdf(float), false ) );
     desc->addParam( new BoolParam( useangleStr(), true, false ) );
     desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
@@ -100,19 +118,34 @@ PSAttrib::PSAttrib( Desc& ds )
     : Provider(ds)
     , psrdr_(0)
     , propcalc_(0)
-    , preprocessor_( 0 )
-    , psioobj_( 0 )
-    , component_( 0 )
-    , anglecomp_( 0 )
+    , preprocessor_(0)
+    , psioobj_(0)
+    , component_(0)
+    , anglecomp_(0)
 {
     if ( !isOK() ) return;
 
     const char* res; mGetString(res,"id") psid_ = res;
-    float offstart, offstop;
-    mGetFloat( offstart, offStartStr() );
-    mGetFloat( offstop, offStopStr() );
 
-    setup_.offsrg_ = Interval<float>( offstart, offstop );
+    BufferString preprocessstr;
+    mGetString( preprocessstr, preProcessStr() );
+    preprocid_ = preprocessstr;
+    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
+    if ( preprociopar )
+    {
+	preprocessor_ = new PreStack::ProcessManager;
+	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
+					       errmsg_ ) )
+	{
+	    delete preprocessor_;
+	    preprocessor_ = 0;
+	}
+    }
+    else
+	preprocid_.setEmpty();
+
+    mGetInt( component_, componentStr() );
+    mGetInt( setup_.aperture_, apertureStr() );
 
 #define mGetSetupEnumPar(var,typ) \
     int tmp_##var = (int)setup_.var##_; \
@@ -120,18 +153,22 @@ PSAttrib::PSAttrib( Desc& ds )
     setup_.var##_ = (typ)tmp_##var
 
     mGetSetupEnumPar(calctype,PreStack::PropCalc::CalcType);
-    mGetSetupEnumPar(stattype,Stats::Type);
-    mGetSetupEnumPar(lsqtype,PreStack::PropCalc::LSQType);
-    mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
-    mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
+    if ( setup_.calctype_ == PreStack::PropCalc::Stats )
+    {
+	mGetSetupEnumPar(stattype,Stats::Type);
+    }
+    else
+    {
+	mGetSetupEnumPar(lsqtype,PreStack::PropCalc::LSQType);
+	mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
+    }
 
-    mGetInt( component_, componentStr() );
-    mGetInt( setup_.aperture_, apertureStr() );
+    mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
 
     bool useangle = setup_.useangle_;
-    mGetBool( useangle, useangleStr() ); setup_.useangle_ = useangle;
-    
-    if ( setup_.useangle_ ) 
+    mGetBool( useangle, useangleStr() );
+    setup_.useangle_ = useangle;
+    if ( setup_.useangle_ )
     {
 	mGetString( velocityid_, velocityIDStr() );
 	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
@@ -142,6 +179,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_ = velangcomp;
 	    anglecomp_->ref();
 	}
+	else
+	    velocityid_.setEmpty();
 
 	if ( anglecomp_ )
 	{
@@ -158,20 +197,12 @@ PSAttrib::PSAttrib( Desc& ds )
 	    setSmootheningPar();
 	}
     }
-
-    BufferString preprocessstr;
-    mGetString( preprocessstr, preProcessStr() );
-    preprocid_ = preprocessstr;
-    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
-    if ( preprociopar )
+    else
     {
-	preprocessor_ = new PreStack::ProcessManager;
-	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
-					       errmsg_ ) )
-	{
-	    delete preprocessor_;
-	    preprocessor_ = 0;
-	}
+	float offstart, offstop;
+	mGetFloat( offstart, offStartStr() );
+	mGetFloat( offstop, offStopStr() );
+	setup_.offsrg_ = Interval<float>( offstart, offstop );
     }
 }
 
@@ -197,7 +228,7 @@ void PSAttrib::setSmootheningPar()
 	anglecomp_->setNoSmoother();
     }
     else if ( smoothtype == PreStack::AngleComputer::TimeAverage )
-    {  
+    {
 	BufferString smwindow;
 	float windowparam, windowlength;
 	mGetString( smwindow, PreStack::AngleComputer::sKeyWinFunc() );
@@ -206,7 +237,7 @@ void PSAttrib::setSmootheningPar()
 
 	if ( smwindow == CosTaperWindow::sName() )
 	    anglecomp_->setMovingAverageSmoother( windowlength, smwindow,
-		   				  windowparam );
+						  windowparam );
 	else
 	    anglecomp_->setMovingAverageSmoother( windowlength, smwindow );
     }
@@ -228,7 +259,7 @@ void PSAttrib::fillSmootheningPar( IOPar& iopar )
 
     iopar.set( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
     if ( smoothtype == PreStack::AngleComputer::TimeAverage )
-    {  
+    {
 	BufferString smwindow;
 	float windowparam, windowlength;
 	mGetString( smwindow, PreStack::AngleComputer::sKeyWinFunc() );
@@ -258,6 +289,12 @@ void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
     anglecomp_ = ac;
     anglecomp_->ref();
     setSmootheningPar();
+}
+
+
+float PSAttrib::getXscaler( bool isoffset, bool isindegrees ) const
+{
+    return isoffset || !isindegrees ? 1.f : mDeg2RadF;
 }
 
 
@@ -307,7 +344,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    for ( int idx=0; idx<gatherset_.size(); idx++ )
 	    {
 		const BinID relbid = gatherset_[idx]->getBinID();
-		if ( !preprocessor_->wantsInput(relbid) )                       
+		if ( !preprocessor_->wantsInput(relbid) )
 		    continue;
 
 		preprocessor_->setInput( relbid, gatherset_[idx]->id() );
@@ -359,8 +396,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     if ( gatherset_.size() )
     {
 	PreStack::Gather* curgather = 0;
-	for ( int idx=0; idx<gatherset_.size(); idx++ )  
-	{                                       
+	for ( int idx=0; idx<gatherset_.size(); idx++ )
+	{
 	    //TODO full support for 2d : idx is not really my nymber of traces
 	    if ( is2D() )
 	    {
@@ -372,7 +409,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	}
 	if (!curgather ) return false;
 
-	mDeclareAndTryAlloc( PreStack::Gather*, gather, 
+	mDeclareAndTryAlloc( PreStack::Gather*, gather,
 				PreStack::Gather(*curgather ) );
 	if ( !gather )
 	    return false;
@@ -428,18 +465,27 @@ void PSAttrib::prepPriorToBoundsCalc()
 
 	if ( is2D() )
 	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
-		    			    curlinekey_.lineName().buf() );
+					    curlinekey_.lineName().buf() );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 
 	if ( !psrdr_ )
 	    mErrRet("Cannot create reader for ",psid_," pre-stack data store")
-	
+
 	const char* emsg = psrdr_->errMsg();
 	if ( emsg ) mErrRet("PS Reader: ",emsg,"");
     }
 
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
+    if ( !anglecomp_ && propcalc_ )
+    {
+	int gathertype;
+	mGetEnum( gathertype, gathertypeStr() );
+	int xaxisunit;
+	mGetEnum( xaxisunit, xaxisunitStr() );
+	propcalc_->setScaler( getXscaler( gathertype == PSAttrib::Off,
+					  xaxisunit == PSAttrib::Deg ) );
+    }
 }
 
 

@@ -37,7 +37,7 @@ public:
 
     enum CalcType	{ Stats, LLSQ };
 			DeclareEnumUtils(CalcType)
-    enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq, Sinsqdeg };
+    enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
 			DeclareEnumUtils(AxisType)
     enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff,
 		          CorrCoeff };
@@ -84,6 +84,9 @@ public:
 
     static float	getVal( const PropCalc::Setup& su,
 			        TypeSet<float>& vals, TypeSet<float>& offs );
+
+    void		setScaler(float);
+    float		getScaler() const;
 
 protected:
 

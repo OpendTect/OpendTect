@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "multiid.h"
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
@@ -42,11 +43,16 @@ mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
 static const char*	statTypeCountStr()	{ return "Fold"; }
 static const char*	statTypeAverageStr()	{ return "Stack"; }
 
+HiddenParam<uiPreStackAttrib,uiGenInput*> gathertypefld_( 0 );
+HiddenParam<uiPreStackAttrib,uiGenInput*> xunitfld_( 0 );
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.17")
 	, params_(*new PreStack::AngleCompParams)
 {
+    gathertypefld_.setParam( this, 0 );
+    xunitfld_.setParam( this, 0 );
+
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
     dopreprocessfld_ = new uiGenInput( this, "Preprocess", BoolInpSpec(false) );
@@ -74,13 +80,26 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     useanglefld_->attach( rightOf, lsqtypefld_ );
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
 
-    offsrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
-	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
-    offsrgfld_->attach( alignedBelow, stattypefld_ );
+    uiGenInput* gathertypefld = new uiGenInput( this, "Gather type",
+			       StringListInpSpec(PSAttrib::GatherTypeNames()) );
+    gathertypefld->attach( alignedBelow, stattypefld_ );
+    gathertypefld->valuechanged.notify(
+				mCB(this,uiPreStackAttrib,gatherTypSel) );
+    gathertypefld_.setParam( this, gathertypefld );
 
-    const char* offslabel = SI().xyInFeet() ? "feet" : "meters";
+    offsrgfld_ = new uiGenInput( this, "Offset range (empty=all) ",
+	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
+    offsrgfld_->attach( alignedBelow, gathertypefld );
+
+    const char* offslabel = SI().xyInFeet() ? "feet     " : "meters    ";
     offsrglbl_ = new uiLabel( this, offslabel );
     offsrglbl_->attach( rightOf, offsrgfld_ );
+
+    uiGenInput* xunitfld = new uiGenInput( this, "",
+			       StringListInpSpec(PSAttrib::XaxisUnitNames()) );
+    xunitfld->attach( rightOf, gathertypefld );
+    xunitfld->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
+    xunitfld_.setParam( this, xunitfld );
 
     offsaxtypefld_ = new uiGenInput( this, "X Axis Transformation:",
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
@@ -227,25 +246,48 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const MultiID ppid = aps->preProcID();
-    dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
-    preprocsel_->setSel( ppid );
+    if ( !ppid.isEmpty() && ppid.ID(0)!=0 )
+    {
+	dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
+	preprocsel_->setSel( ppid );
+    }
 
-    Interval<float> offsrg( aps->setup().offsrg_ );
-    if ( SI().xyInFeet() && !offsrg.isUdf() )
-	offsrg.scale( mToFeetFactorF );
-
-    offsrgfld_->setValue( offsrg );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
-    stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
-    lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
-    offsaxtypefld_->setValue( (int)aps->setup().offsaxis_ );
+    if ( aps->setup().calctype_ == PreStack::PropCalc::Stats )
+    {
+	stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
+    }
+    else
+    {
+	lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
+	offsaxtypefld_->setValue( (int)aps->setup().offsaxis_ );
+    }
+
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
+
     useanglefld_->setChecked( aps->setup().useangle_ );
     if ( aps->setup().useangle_ && !setAngleParameters(desc) )
 	return false;
 
-    calcTypSel(0);
+    if ( aps->setup().useangle_ && !setAngleParameters(desc) )
+	return false;
+
+    if ( !aps->setup().useangle_ )
+    {
+	mIfGetEnum(PSAttrib::gathertypeStr(),gtp,
+			gathertypefld_.getParam(this)->setValue(gtp));
+	mIfGetEnum(PSAttrib::xaxisunitStr(),xut,
+			xunitfld_.getParam(this)->setValue(xut));
+	Interval<float> offsrg( aps->setup().offsrg_ );
+	if ( SI().xyInFeet() && !offsrg.isUdf() &&
+	     gathertypefld_.getParam(this)->getIntValue() == 0 )
+	    offsrg.scale( mToFeetFactorF );
+
+	offsrgfld_->setValue( offsrg );
+    }
+
     doPreProcSel(0);
+    calcTypSel(0);
     return true;
 }
 
@@ -285,6 +327,9 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 	    if ( winparam>=0 && winparam <= 1 )
 		mSetFloat( PreStack::AngleComputer::sKeyWinParam(), winparam )
 	}
+
+	desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF3(), false );
+	desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF4(), false );
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
@@ -294,6 +339,10 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 	float f4freq;
 	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
 	mSetFloat( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
+
+	desc.setParamEnabled( PreStack::AngleComputer::sKeyWinLen(), false );
+	desc.setParamEnabled( PreStack::AngleComputer::sKeyWinFunc(), false );
+	desc.setParamEnabled( PreStack::AngleComputer::sKeyWinParam(), false );
     }
 
     return true;
@@ -315,39 +364,72 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
     }
     else
-    {
-	mSetString(Attrib::PSAttrib::preProcessStr(), ((const char*) 0) );
-    }
+	desc.setParamEnabled( Attrib::PSAttrib::preProcessStr(), false );
 
-    Interval<float> offsrg = offsrgfld_->getFInterval();
-    if ( SI().xyInFeet() && !offsrg.isUdf() )
-	offsrg.scale( mFromFeetFactorF );
-
-    if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
-    mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
-    mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)
-    const bool useangle = useanglefld_->isChecked();
-    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
-    if ( useangle && !getAngleParameters(desc) )
-	return false;
-
-    const bool isnorm = calctyp == 0;
-    if ( isnorm )
+    if ( calctyp == 0 )
     {
-	mSetEnum(Attrib::PSAttrib::stattypeStr(),
-		 getStatEnumfromString(stattypefld_->text()))
+	mSetEnum( Attrib::PSAttrib::stattypeStr(),
+		  getStatEnumfromString(stattypefld_->text()) )
+	desc.setParamEnabled( Attrib::PSAttrib::lsqtypeStr(), false );
+	desc.setParamEnabled( Attrib::PSAttrib::offsaxisStr(), false );
     }
     else
     {
 	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
 	mSetEnum(Attrib::PSAttrib::offsaxisStr(),offsaxtypefld_->getIntValue())
+	desc.setParamEnabled( Attrib::PSAttrib::stattypeStr(), false );
     }
+
     mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
+
+    const bool useangle = useanglefld_->isChecked();
+    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
+    if ( useangle )
+    {
+	if ( !getAngleParameters(desc) )
+	    return false;
+
+	desc.setParamEnabled( Attrib::PSAttrib::gathertypeStr(), false );
+	desc.setParamEnabled( Attrib::PSAttrib::xaxisunitStr(), false );
+	desc.setParamEnabled( Attrib::PSAttrib::offStartStr(), false );
+	desc.setParamEnabled( Attrib::PSAttrib::offStopStr(), false );
+    }
+    else
+    {
+	const int gathertype = gathertypefld_.getParam(this)->getIntValue();
+	mSetEnum(Attrib::PSAttrib::gathertypeStr(),gathertype)
+	mSetEnum(Attrib::PSAttrib::xaxisunitStr(),
+				xunitfld_.getParam(this)->getIntValue());
+	Interval<float> offsrg = offsrgfld_->getFInterval();
+	if ( SI().xyInFeet() && !offsrg.isUdf() && gathertype == 0 )
+	    offsrg.scale( mFromFeetFactorF );
+
+	if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
+	mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
+	mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
+
+	disableAngleParameters( desc );
+    }
+
     return true;
 }
 
+
+void uiPreStackAttrib::disableAngleParameters( Desc& desc )
+{
+    desc.setParamEnabled( Attrib::PSAttrib::velocityIDStr(), false );
+    desc.setParamEnabled( Attrib::PSAttrib::angleStartStr(), false );
+    desc.setParamEnabled( Attrib::PSAttrib::angleStopStr(), false );
+    desc.setParamEnabled( Attrib::PSAttrib::rayTracerParamStr(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeySmoothType(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF3(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF4(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinLen(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinFunc(), false );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinParam(), false );
+}
 
 void uiPreStackAttrib::calcTypSel( CallBacker* )
 {
@@ -369,17 +451,50 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 
     const bool useangle = useanglefld_->isChecked();
     anglecompgrp_->display( useangle );
+    gathertypefld_.getParam(this)->display( !useangle );
     offsrgfld_->display( !useangle );
     offsrglbl_->display( !useangle );
+    xunitfld_.getParam(this)->display( !useangle );
     offsaxtypefld_->setSensitive( !useangle );
     if ( useangle )
 	 offsaxtypefld_->setValue( PreStack::PropCalc::Sinsq );
+    else
+	gatherTypSel( 0 );
 }
 
 
 void uiPreStackAttrib:: doPreProcSel(CallBacker*)
 {
     preprocsel_->display( dopreprocessfld_->getBoolValue() );
+}
+
+
+void uiPreStackAttrib::gatherTypSel( CallBacker* )
+{
+    const bool isoffset = gathertypefld_.getParam(this)->getIntValue() == 0;
+    BufferString xlbl( gathertypefld_.getParam(this)->text(),
+		       " range (empty=all)" );
+    offsrgfld_->setTitleText( xlbl );
+    xunitfld_.getParam(this)->display( !isoffset );
+    if ( isoffset )
+    {
+	offsrglbl_->setText( SI().xyInFeet() ? "feet    " : "meters    " );
+    }
+    else
+    {
+	offsaxtypefld_->setValue( PreStack::PropCalc::Sinsq );
+	gatherUnitSel( 0 );
+    }
+
+    offsaxtypefld_->setSensitive( isoffset );
+}
+
+
+void uiPreStackAttrib::gatherUnitSel( CallBacker* )
+{
+    const bool isdegrees = xunitfld_.getParam(this)->getIntValue() == 0;
+    if ( xunitfld_.getParam(this)->rightObj()->isDisplayed() )
+	offsrglbl_->setText( isdegrees ? "degrees" : "radians" );
 }
 
 

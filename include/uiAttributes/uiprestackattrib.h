@@ -25,7 +25,7 @@ class uiGenInput;
 class uiLabel;
 class uiPreStackSel;
 class uiVelSel;
-namespace PreStack { class uiProcSel; class uiAngleCompGrp; 
+namespace PreStack { class uiProcSel; class uiAngleCompGrp;
 		     class AngleCompParams; class AngleComputer; }
 
 /*! \brief PreStack Attribute ui */
@@ -39,7 +39,7 @@ public:
 
     void                getEvalParams(TypeSet<EvalParam>&) const;
 
-    void        	setDataPackInp(const TypeSet<DataPack::FullID>&);
+    void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
 protected:
 
@@ -64,6 +64,7 @@ protected:
     bool		setAngleParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
     bool		getAngleParameters(Attrib::Desc&);
+    void		disableAngleParameters(Attrib::Desc&);
 
     Stats::Type		getStatEnumfromString(const char* stattypename);
     const char*		getStringfromStatEnum(Stats::Type enm);
@@ -72,10 +73,12 @@ protected:
     void		calcTypSel(CallBacker*);
     void		angleTypSel(CallBacker*);
     void		doPreProcSel(CallBacker*);
+    void		gatherTypSel(CallBacker*);
+    void		gatherUnitSel(CallBacker*);
 
-    bool        	setInput(const Desc&);
+    bool		setInput(const Desc&);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 #endif
