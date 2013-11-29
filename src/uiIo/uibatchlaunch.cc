@@ -110,6 +110,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 	, iop_(*new IOPar(ip))
 	, hostname_(hn)
 	, progname_(pn)
+	, nicefld_(0)
 {
     postFinalise().notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
@@ -156,7 +157,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 				.filter("*.log;;*.txt") );
     filefld_->attach( alignedBelow, optfld_ );
 
-#ifndef __msvc__
+#ifndef __win__
     nicefld_ = new uiLabeledSpinBox( this, "Nice level" );
     nicefld_->attach( alignedBelow, filefld_ );
     nicefld_->box()->setInterval( 0, 19 );
@@ -241,56 +242,59 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
     if ( parfname_.isEmpty() )
 	getProcFilename( sSingBaseNm, sSingBaseNm, parfname_ );
+
     if ( !writeProcFile(iop_,parfname_) )
 	return false;
 
-    BufferString comm( "@" );
-#ifdef __msvc__
-    bool inbg = true;
-    if ( dormt )
+    nicelvl_ = nicefld_ ? nicefld_->box()->getValue() : 0;
+
+    if ( !dormt )
     {
-	HostDataList hdl;
-	const HostData* hd = hdl.find( hostname_.buf() );
-	FilePath remfp = hd->prefixFilePath( HostData::Data );
-	FilePath temppath( parfname_ );
-	iop_.set( sKey::DataRoot(), remfp.fullPath() );
-	remfp.add(  GetSurveyName() ).add( "Proc" )
-	     .add( temppath.fileName() );
-	FilePath logfp( remfp );
-	logfp.setExtension( ".log", true );
-	iop_.set( sKey::LogFile(), logfp.fullPath(hd->pathStyle()) );
-	if ( !iop_.write(parfname_,sKey::Pars()) )
-	{
-	    uiMSG().error( "Cannot write parameter file" );
-            return false;
-	}
-	parfname_ = remfp.fullPath( hd->pathStyle() );
-	comm.add( "od_remexec " ).add( hostname_ )
-	    .add( " " ).add( progname_ ).add( " " );
+	const bool canstart = ExecODProgram( progname_, parfname_, nicelvl_ );
+	if ( !canstart )
+	    uiMSG().error( "Cannot start batch program" );
+	return canstart;
     }
-    else
-	comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
-#else
-    bool inbg = dormt;
-    comm += GetExecScript( dormt );
-    if ( dormt )
-	comm.add( hostname_ ).add( " --rexec " ).add( rshcomm_ );
 
-    nicelvl_ = nicefld_->box()->getValue();
-    if ( nicelvl_ != 0 )
-	comm.add( " --nice " ).add( nicelvl_ );
+    BufferString comm;
 
-    comm.add( " --inbg " ).add( progname_ );
-#endif
-    comm.add( " \"" ).add( parfname_ ).add( "\"" );
+#ifdef __msvc__
 
-    if ( !ExecOSCmd( comm, sel==2, inbg ) )
+    HostDataList hdl;
+    const HostData* hd = hdl.find( hostname_.buf() );
+    FilePath remfp = hd->prefixFilePath( HostData::Data );
+    FilePath temppath( parfname_ );
+    iop_.set( sKey::DataRoot(), remfp.fullPath() );
+    remfp.add(  GetSurveyName() ).add( "Proc" )
+	 .add( temppath.fileName() );
+    FilePath logfp( remfp );
+    logfp.setExtension( ".log", true );
+    iop_.set( sKey::LogFile(), logfp.fullPath(hd->pathStyle()) );
+    if ( !iop_.write(parfname_,sKey::Pars()) )
     {
-	uiMSG().error( "Cannot start batch program" );
+	uiMSG().error( BufferString("Cannot write par file:\n",parfname_) );
 	return false;
     }
 
-    return true;
+    parfname_ = remfp.fullPath( hd->pathStyle() );
+    comm.set( "od_remexec " ).add( hostname_ )
+	.add( " " ).add( progname_ );
+
+#else
+
+    comm = GetExecScript( true );
+    comm.add( hostname_ ).add( " --rexec " ).add( rshcomm_ );
+    if ( nicelvl_ != 0 )
+	comm.add( " --nice " ).add( nicelvl_ );
+    comm.add( " --inbg " ).add( progname_ );
+
+#endif
+
+    comm.add( " \"" ).add( parfname_ ).add( "\"" );
+    const bool startok = ExecOSCmd( comm, false, true );
+    if ( !startok )
+	uiMSG().error( BufferString( "Error executing:\n", comm ) );
+    return startok;
 }
 
 
@@ -514,7 +518,8 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     bool dormt = false;
 
 #ifndef __msvc__
-    BufferString comm( "@" );
+
+    BufferString comm( GetExecScript( dormt ) );
     comm += GetExecScript( dormt );
 
 # ifdef __debug__
@@ -536,8 +541,6 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     comm += " -bg "; comm += parfp.fullPath();
 # endif
 
-
-
 #else
     BufferString comm = FilePath(GetBinPlfDir()).add(procprognm_).fullPath();
     BufferString _parfnm( parfp.fullPath(FilePath::Windows) );
@@ -545,8 +548,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     dormt = true;
 #endif
 
-    const bool inbg=dormt;
-    if ( !ExecOSCmd(comm,false,inbg) )
+    if ( !ExecOSCmd(comm,false,dormt) )
 	{ uiMSG().error( "Cannot start batch program" ); return false; }
     return true;
 }

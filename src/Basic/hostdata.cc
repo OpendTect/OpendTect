@@ -185,7 +185,7 @@ bool HostDataList::readHostFile( const char* fname )
 {
     od_istream strm( fname );
     if ( !strm.isOK() )
-	{ ErrMsg( strm.errMsg() ); return false; }
+	return false;
 
     ascistream astrm( strm );
     if ( !astrm.isOfFileType("Batch Processing Hosts") )

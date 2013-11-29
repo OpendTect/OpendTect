@@ -68,7 +68,8 @@ protected:
 mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsole=false,bool inbg=false);
 
 //! Execute od program via the startup script
-mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* filenm);
+mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* filenm,
+				  int nicelvl=19,const char* args=0);
 
 
 #endif

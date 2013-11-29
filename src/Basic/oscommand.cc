@@ -50,6 +50,8 @@ static bool doExecOSCmd( const char* comm, bool inconsole, bool inbg )
 	return false;
     if ( *comm == '@' )
 	comm++;
+    if ( !*comm )
+	return false;
 
 #ifndef __win__
 
@@ -109,29 +111,40 @@ static bool doExecOSCmd( const char* comm, bool inconsole, bool inbg )
 }
 
 
-bool ExecODProgram( const char* prognm, const char* filenm )
+bool ExecODProgram( const char* prognm, const char* filenm, int nicelvl,
+		    const char* args )
 {
-    const bool inbg = __iswin__ || __ismac__;
+    const bool scriptinbg = __iswin__ || __ismac__;
 
 #ifdef __win__
 
     BufferString cmd( prognm );
     if ( filenm && *filenm )
 	cmd.add( " \"" ).add( filenm ).add( "\"" );
-    return ExecOSCmd( cmd, true, inbg );
+    cmd.add( args );
+
+    return ExecOSCmd( cmd, true, scriptinbg );
 
 #else
 
-    BufferString cmd( mGetExecScript(), " ", prognm );
+    BufferString cmd( mGetExecScript(), " --inbg" );
+#ifdef __debug__
+    cmd.add( " --debug" );
+#endif
+    if ( nicelvl )
+	cmd.add( " --nice " ).add( nicelvl );
 
+    cmd.add( " " ).add( prognm );
     if ( filenm && *filenm )
     {
 	const FilePath fp( filenm );
-	cmd.add( " \'" ).add( fp.fullPath(FilePath::Unix) ).add( "\' " );
+	cmd.add( " \'" ).add( fp.fullPath(FilePath::Unix) ).add( "\'" );
     }
+    if ( args && *args )
+	cmd.add( " " ).add( args );
 
     OSCommand oscmd( cmd );
-    return oscmd.execute( true, inbg );
+    return oscmd.execute( true, scriptinbg );
 
 
 #endif
