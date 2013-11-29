@@ -99,8 +99,7 @@ void DrawStyle::updateLineStyle()
 
     linestipple_->setPattern( pattern );
 
-    pErrMsg( "Set Factor as well?" );
-
+    //TODO set Factor as well?
  }
 
 
