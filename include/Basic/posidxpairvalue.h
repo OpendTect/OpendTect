@@ -125,17 +125,16 @@ protected:
 };
 
 
-template <class IPT,class FT>
-inline void ValueIdxPair<IPT,FT>::set( const IdxPairValues<IPT,FT>& ipvs,
-					   int idx )
+template <class IPT,class FT> inline
+void ValueIdxPair<IPT,FT>::set( const IdxPairValues<IPT,FT>& ipvs, int idx )
 {
     IPT::operator=( ipvs );
     val_ = ipvs.validIdx( idx ) ? ipvs.value( idx ) : mUdf(FT);
 }
 
 
-template <class IPT,class FT>
-inline bool ValueIdxPair<IPT,FT>::operator ==( const ValueIdxPair<IPT,FT>& oth ) const
+template <class IPT,class FT> inline
+bool ValueIdxPair<IPT,FT>::operator ==( const ValueIdxPair<IPT,FT>& oth ) const
 {
     if ( !equalPos( oth ) )
 	return false;
@@ -147,8 +146,8 @@ inline bool ValueIdxPair<IPT,FT>::operator ==( const ValueIdxPair<IPT,FT>& oth )
 }
 
 
-template <class IPT,class FT>
-inline bool IdxPairValues<IPT,FT>::operator ==(
+template <class IPT,class FT> inline
+bool IdxPairValues<IPT,FT>::operator ==(
 				const IdxPairValues<IPT,FT>& oth ) const
 {
     const size_type sz = size();
@@ -172,8 +171,8 @@ inline bool IdxPairValues<IPT,FT>::operator ==(
 }
 
 
-template <class IPT,class FT>
-inline void IdxPairValues<IPT,FT>::setSize(
+template <class IPT,class FT> inline
+void IdxPairValues<IPT,FT>::setSize(
 		typename IdxPairValues<IPT,FT>::size_type sz, bool kpvals )
 {
     if ( sz == size() )
@@ -190,8 +189,8 @@ inline void IdxPairValues<IPT,FT>::setSize(
 }
 
 
-template <class IPT,class FT>
-inline void IdxPairValues<IPT,FT>::setVals( const FT* newvals )
+template <class IPT,class FT> inline
+void IdxPairValues<IPT,FT>::setVals( const FT* newvals )
 {
     const size_type sz = size();
     for ( size_type idx=0; idx<sz; idx++ )
@@ -199,16 +198,16 @@ inline void IdxPairValues<IPT,FT>::setVals( const FT* newvals )
 }
 
 
-template <class IPT,class FT>
-inline void IdxPairValues<IPT,FT>::set( int idx, FT val )
+template <class IPT,class FT> inline
+void IdxPairValues<IPT,FT>::set( int idx, FT val )
 {
     if ( validIdx(idx) )
 	vals_[idx] = val;
 }
 
 
-template <class IPT,class FT>
-inline bool IdxPairValues<IPT,FT>::isUdf( bool anyvaludf ) const
+template <class IPT,class FT> inline
+bool IdxPairValues<IPT,FT>::isUdf( bool anyvaludf ) const
 {
     if ( IPT::isUdf() )
 	return true;

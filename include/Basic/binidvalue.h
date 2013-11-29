@@ -39,6 +39,11 @@ public:
 			    : BinIDValueIdxPair(b,v)	{}
 			BinIDValue(const BinIDValues&,int idx);
 
+
+    inline bool		operator==( const BinIDValueIdxPair& oth ) const
+			{ return BinIDValueIdxPair::operator==(oth); }
+    inline bool		operator!=( const BinIDValueIdxPair& oth ) const
+			{ return BinIDValueIdxPair::operator!=(oth); }
     bool		operator==(const BinID&) const;
     bool		operator!=(const BinID&) const;
 
@@ -64,6 +69,11 @@ public:
 			    : BinIDIdxPairValues(b,n)	{}
     inline		BinIDValues( const BinIDValue& biv )
 			    : BinIDIdxPairValues(biv)	{}
+
+    inline bool		operator==( const BinIDIdxPairValues& oth ) const
+			{ return BinIDIdxPairValues::operator==(oth); }
+    inline bool		operator!=( const BinIDIdxPairValues& oth ) const
+			{ return BinIDIdxPairValues::operator!=(oth); }
 
     bool		operator==(const BinID&) const;
     bool		operator!=(const BinID&) const;
