@@ -62,8 +62,7 @@ const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
 const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 
 Seis2DDisplay::Seis2DDisplay()
-    : MultiTextureSurveyObject( true )
-    , transformation_(0)
+    : transformation_(0)
     , geometry_(*new PosInfo::Line2DData)
     , panelstrip_( visBase::TexturePanelStrip::create() )
     , linename_( visBase::Text2::create() )

@@ -102,9 +102,8 @@ public:
     
     static const char*		sKeyTC2RGBA();
 protected:
-// OSG-TODO: Remove usechannels parameter
-    				MultiTextureSurveyObject(
-					bool usechannels );
+
+    				MultiTextureSurveyObject();
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
 	    				       BufferString&) const;

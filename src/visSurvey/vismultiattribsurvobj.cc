@@ -33,7 +33,7 @@ const char* MultiTextureSurveyObject::sKeySequence()	{ return "Sequence"; }
 const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
 const char* MultiTextureSurveyObject::sKeyTC2RGBA()	{ return "TC2RGBA"; }
 
-MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
+MultiTextureSurveyObject::MultiTextureSurveyObject()
     : VisualObjectImpl(true)
     , channels_( visBase::TextureChannels::create() )
     , onoffstatus_( true )
@@ -41,7 +41,6 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     , enabletextureinterp_( true )
 {
     channels_->ref();
-    addChild( channels_->getInventorNode() );
     channels_->setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
 
     channels_->enableTextureInterpolation( enabletextureinterp_ );

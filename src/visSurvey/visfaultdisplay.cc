@@ -64,7 +64,7 @@ const char* FaultDisplay::sKeyUseTexture()	{ return "Use texture"; }
 const char* FaultDisplay::sKeyLineStyle()	{ return "Linestyle"; }
 
 FaultDisplay::FaultDisplay()
-    : MultiTextureSurveyObject( true )
+    : MultiTextureSurveyObject()
     , emfault_( 0 )
     , activestickmarker_( visBase::PolyLine3D::create() )
     , validtexture_( false )

@@ -157,23 +157,7 @@ Material* VisualObjectImpl::getMaterial()
     return material_;
 }
 
-
-void VisualObjectImpl::addChild( SoNode* nn )
-{  }
-
-
-void VisualObjectImpl::insertChild( int pos, SoNode* nn )
-{  }
-
-
-void VisualObjectImpl::removeChild( SoNode* nn )
-{  }
-
-
-int VisualObjectImpl::childIndex( const SoNode* nn ) const
-{ return -1;}
-
-
+    
 int VisualObjectImpl::addChild( osg::Node* nn )
 {
     if ( !nn )
@@ -202,10 +186,6 @@ int VisualObjectImpl::childIndex( const osg::Node* nn ) const
 	return -1;
     return idx;
 }
-
-
-SoNode* VisualObjectImpl::getChild(int idx)
-{ return 0; }
 
 
 int VisualObjectImpl::usePar( const IOPar& iopar )

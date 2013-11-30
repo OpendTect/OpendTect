@@ -121,7 +121,7 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 { "Inline", "Crossline", "Z-slice", 0 };
 
 PlaneDataDisplay::PlaneDataDisplay()
-    : MultiTextureSurveyObject( true )
+    : MultiTextureSurveyObject()
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
     , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())

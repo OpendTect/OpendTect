@@ -39,7 +39,6 @@ PointSetDisplay::~PointSetDisplay()
 {
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
-    removeChild( pointset_->getInventorNode() );
     if ( data_ )
 	DPM( DataPackMgr::PointID() ).release( data_->id() );
     delete dpsdispprop_;
@@ -52,7 +51,7 @@ void PointSetDisplay::setPointSet()
     pst->setMaterial( new visBase::Material );
     pst->setMaterialBinding(
 	    visBase::Shape::cPerVertexMaterialBinding() );
-    addChild( pst->getInventorNode() );
+
     if ( transformation_ )
 	pst->setDisplayTransformation( transformation_ );
     pointset_ = pst;

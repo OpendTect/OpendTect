@@ -63,8 +63,7 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : MultiTextureSurveyObject(true)
-    , panelstrip_( visBase::TexturePanelStrip::create() )
+    : panelstrip_( visBase::TexturePanelStrip::create() )
 //    , dragger_( visBase::RandomTrackDragger::create())
     , polyline_( visBase::PolyLine::create())
     , polylinemode_(false)

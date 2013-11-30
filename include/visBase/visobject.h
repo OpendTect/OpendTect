@@ -104,12 +104,6 @@ public:
 
 protected:
 
-    void		addChild(SoNode*);
-    void		insertChild(int pos,SoNode*);
-    void		removeChild(SoNode*);
-    int			childIndex(const SoNode*) const;
-    SoNode*		getChild(int);
-
     int			addChild(osg::Node*);
 			//!<\returns new child index
     void		insertChild(int pos,osg::Node*);
