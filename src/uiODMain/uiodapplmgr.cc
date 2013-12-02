@@ -932,13 +932,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	attrserv_->setTargetSelSpec( *as );
 	DataPack::ID datapackid = attrserv_->createOutput( cs, olddatapackid );
 	mpeserv_->setAttribData( *as, datapackid );
-	if ( olddatapackid != datapackid )
-	{
-	    const bool isflat = cs.isFlat();
-	    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID()
-		    			     : DataPackMgr::CubeID() );
-	    dpman.release( olddatapackid );
-	}
     }
     else if ( evid==uiMPEPartServer::evCreate2DSelSpec() )
     {
