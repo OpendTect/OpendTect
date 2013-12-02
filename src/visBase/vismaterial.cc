@@ -406,7 +406,6 @@ void Material::attachGeometry( osg::Geometry* geom )
     if ( osgcolorarray_ )
     {
 	mGetWriteLock( lckr );
-	geom->setColorBinding((osg::Geometry::AttributeBinding)colorbindtype_ );
 	if ( colorbindtype_ == osg::Geometry::BIND_OVERALL )
 	{
 	    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array(1);
@@ -416,6 +415,7 @@ void Material::attachGeometry( osg::Geometry* geom )
 	else
 	    geom->setColorArray( osgcolorarray_ );
 
+	geom->setColorBinding((osg::Geometry::AttributeBinding)colorbindtype_ );
 	geom->dirtyBound();
 
     }

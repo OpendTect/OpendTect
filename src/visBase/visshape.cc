@@ -421,12 +421,7 @@ int VertexShape::getNormalBindType()
 
 void VertexShape::setNormalBindType( BindType normalbindtype )
 {
-    if ( osggeom_ )
-    {
-	osggeom_->setNormalBinding(
-	    osg::Geometry::AttributeBinding( normalbindtype ) );
-	normalbindtype_ = normalbindtype;
-    }
+    normalbindtype_ = normalbindtype;
 }
 
 
@@ -465,7 +460,9 @@ mDefSetGetItem( VertexShape, Normals, normals_,
 if ( osggeom_ ) osggeom_->setNormalArray( 0 ),
 if ( osggeom_ )
 {
-    osggeom_->setNormalArray(mGetOsgVec3Arr(normals_->osgArray()));
+    osggeom_->setNormalArray( mGetOsgVec3Arr(normals_->osgArray()) );
+    osggeom_->setNormalBinding(
+			osg::Geometry::AttributeBinding( normalbindtype_ ) );
 }
 );
 
