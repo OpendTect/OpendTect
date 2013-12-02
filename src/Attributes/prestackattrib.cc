@@ -175,9 +175,9 @@ PSAttrib::PSAttrib( Desc& ds )
     }
     else
     {
-	int gathertype;
+	int gathertype = 0;
 	mGetEnum( gathertype, gathertypeStr() );
-	int xaxisunit;
+	int xaxisunit = 0;
 	mGetEnum( xaxisunit, xaxisunitStr() );
 	setup_.xscaler_ = getXscaler( gathertype == PSAttrib::Off,
 				      xaxisunit == PSAttrib::Deg );
