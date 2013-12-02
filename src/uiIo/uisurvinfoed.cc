@@ -699,9 +699,9 @@ void uiSurveyInfoEditor::updatePar( CallBacker* cb )
 
     const bool zistime = zunitfld_->currentItem() == 0;
     const bool zdepthft = zunitfld_->currentItem() == 2;
-    si_.setZUnit( zistime, zdepthft );
-
     const bool depthinft = xyinft || zdepthft || !depthdispfld_->getBoolValue();
+
+    si_.setZUnit( zistime, zistime ? depthinft : zdepthft );
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
 	    				  depthinft );
 }
