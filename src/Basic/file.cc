@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "winutils.h"
 #include "executor.h"
 #include "ptrman.h"
-#include "strmprov.h"
-#include "strmoper.h"
 #include "od_istream.h"
 
 #ifdef __win__

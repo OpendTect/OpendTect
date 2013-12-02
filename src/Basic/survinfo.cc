@@ -18,14 +18,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "safefileio.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "oddirs.h"
 #include "iopar.h"
 #include "zdomain.h"
 #include "keystrs.h"
 #include "posidxpair2coord.h"
 #include "od_istream.h"
+#include "oscommand.h"
 #include <math.h>
+#include <stdio.h>
 
 
 static const char* sKeySI = "Survey Info";

@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "safefileio.h"
 #include "settings.h"
-#include "strmprov.h"
 #include "varlenarray.h"
 
 namespace EM
@@ -54,9 +53,9 @@ FaultAuxData::DataInfo::~DataInfo()
 
 
 bool FaultAuxData::DataInfo::operator==( const DataInfo& di )
-{ 
-    return username==di.username && filename==di.filename && 
-	   data==di.data && policy==di.policy; 
+{
+    return username==di.username && filename==di.filename &&
+	   data==di.data && policy==di.policy;
 }
 
 
@@ -87,15 +86,15 @@ bool FaultAuxData::init()
 
     PtrMan<IOObj> ioobj = IOM().get( faultmid_ );
     IOObjInfo ioinfo( ioobj );
-    if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault ) 
+    if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
 	return false;
-    
+
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "" );
     fltfullnm_ = fp.fullPath();
 
     deepErase( dataset_ );
-    
+
     ObjectSet<IOPar> pars;
     readSDInfoFile( pars );
     for ( int idx=0; idx<pars.size(); idx++ )
@@ -103,7 +102,7 @@ bool FaultAuxData::init()
 	DataInfo* di = new DataInfo();
 	pars[idx]->get( sKey::Name(), di->username );
 	pars[idx]->get( sKey::FileName(), di->filename );
-	
+
 	dataset_ += di;
     }
     deepErase( pars );
@@ -119,7 +118,7 @@ int FaultAuxData::dataIndex( const char* nm ) const
 	    return idx;
     }
 
-    return -1; 
+    return -1;
 }
 
 
@@ -146,7 +145,7 @@ void FaultAuxData::getAuxDataList( BufferStringSet& list ) const
 }
 
 
-int FaultAuxData::setData( const char* name, const Array2D<float>* data, 
+int FaultAuxData::setData( const char* name, const Array2D<float>* data,
 			   OD::PtrPolicy policy )
 {
     if ( !data )
@@ -161,7 +160,7 @@ int FaultAuxData::setData( const char* name, const Array2D<float>* data,
 
 	dataset_ += di;
 	const int cursdidx = dataset_.size()-1;
-    	updateDataFiles( SetName, cursdidx, name );
+	updateDataFiles( SetName, cursdidx, name );
 	return cursdidx;
     }
 
@@ -170,7 +169,7 @@ int FaultAuxData::setData( const char* name, const Array2D<float>* data,
 }
 
 
-void FaultAuxData::setData( int sdidx, const Array2D<float>* data, 
+void FaultAuxData::setData( int sdidx, const Array2D<float>* data,
 			   OD::PtrPolicy policy )
 {
     if ( !data || !dataset_.validIdx(sdidx) )
@@ -178,7 +177,7 @@ void FaultAuxData::setData( int sdidx, const Array2D<float>* data,
 
     if ( dataset_[sdidx]->policy != OD::UsePtr )
 	delete dataset_[sdidx]->data;
-    
+
     dataset_[sdidx]->data = data;
     dataset_[sdidx]->policy = policy;
 }
@@ -217,7 +216,7 @@ void FaultAuxData::removeAllData()
     for ( int idx=0; idx<datasize; idx++ )
     {
 	const BufferString attrnm = createFltDataName( fltfullnm_, idx );
-    	File::remove( attrnm );
+	File::remove( attrnm );
     }
 
     FilePath fp( fltfullnm_ );
@@ -235,15 +234,15 @@ void FaultAuxData::renameFault( const char* fltnewname )
     FilePath fp( fltfullnm_ );
     fp.setFileName( fltnewname );
     fltfullnm_ = fp.fullPath();
-    
+
     for ( int idx=0; idx<dataset_.size(); idx++ )
     {
 	const BufferString newname = createFltDataName( fltfullnm_, idx );
 	const BufferString oldname = createFltDataName( oldfltfulnm, idx );
 
 	FilePath fn( newname );
-	dataset_[idx]->filename = fn.fileName(); 
-    	File::rename( oldname, newname );
+	dataset_[idx]->filename = fn.fileName();
+	File::rename( oldname, newname );
     }
 
     FilePath oldfp( oldfltfulnm );
@@ -256,7 +255,7 @@ void FaultAuxData::renameFault( const char* fltnewname )
 
 void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 {
-    if ( !dataset_.validIdx(sdidx) ) 
+    if ( !dataset_.validIdx(sdidx) )
 	return;
 
     FilePath fp( fltfullnm_ );
@@ -276,7 +275,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 
     ascostream astream( sfio.ostrm() );
     astream.putHeader( sKeyFaultAuxData() );
-    
+
     FilePath fpnm( fltfullnm_ );
     BufferString filenm( fpnm.fileName() );
     cleanupString( filenm.buf(), false, false, false );
@@ -284,10 +283,10 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
     if ( act==Remove )
     {
 	delete dataset_.removeSingle( sdidx );
-    
+
 	BufferString prevnm = createFltDataName( fltfullnm_, sdidx );
 	BufferString nextnm = createFltDataName( fltfullnm_, sdidx+1 );
-    	File::remove( prevnm );
+	File::remove( prevnm );
 	for ( int idx=sdidx; idx<dataset_.size(); idx++ )
 	{
 	    File::rename( nextnm, prevnm );
@@ -295,7 +294,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 	    nextnm = createFltDataName( fltfullnm_, idx+2 );
 	}
     }
-    else 
+    else
 	dataset_[sdidx]->username = nm;
 
     ObjectSet<IOPar> pars;
@@ -303,20 +302,20 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
     {
 	IOPar* par = new IOPar();
 	par->set( sKey::Name(), dataset_[idx]->username );
-    
-	const BufferString attrfilenm = createFltDataName( filenm,  idx ); 
+
+	const BufferString attrfilenm = createFltDataName( filenm,  idx );
 	par->set( sKey::FileName(), attrfilenm );
 	pars += par;
     }
 
     astream.put( "Number of surface data", pars.size() );
     astream.newParagraph();
-    
+
     IOPar allpars;
     for ( int pidx=0; pidx<pars.size(); pidx++ )
 	allpars.mergeComp( *pars[pidx], toString(pidx) );
     allpars.putTo( astream );
-    
+
     deepErase( pars );
     File::remove( backupfp.fullPath() );
     sfio.closeSuccess();
@@ -339,13 +338,13 @@ void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
 	sfio.closeSuccess();
 	return;
     }
-    
+
     while ( !atEndOfSection(astrm.next()) )
 	continue;
 
     IOPar allpars;
     allpars.getFrom( astrm );
-    
+
     int idx = 0;
     while ( true )
     {
@@ -371,8 +370,8 @@ BufferString FaultAuxData::createFltDataName( const char* base, int sdidx )
 bool FaultAuxData::storeData( int sdidx, bool binary )
 {
     errmsg_.setEmpty();
-    
-    if ( !dataset_.validIdx(sdidx) || !dataset_[sdidx]->data ) 
+
+    if ( !dataset_.validIdx(sdidx) || !dataset_[sdidx]->data )
 	mErrRtn("No valid surface data to store");
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
@@ -422,15 +421,15 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	    for ( int jdx=0; jdx<jsz; jdx++ )
 	    {
 		const float val = dataset_[sdidx]->data->get( idx, jdx );
-    		if ( binary )
-    		    strm.addBin( &val, sizeof(float) );
-    		else
-    		    strm << val << od_tab;
+		if ( binary )
+		    strm.addBin( &val, sizeof(float) );
+		else
+		    strm << val << od_tab;
 	    }
 	}
     }
-	
-    if ( !binary ) 
+
+    if ( !binary )
 	strm << od_newline;
 
     File::remove( backupfp.fullPath() );
@@ -443,21 +442,21 @@ const Array2D<float>* FaultAuxData::loadIfNotLoaded( const char* sdname )
 
 
 const Array2D<float>* FaultAuxData::loadIfNotLoaded( int sdidx )
-{ 
+{
     if ( !dataset_.validIdx(sdidx) )
 	return 0;
 
     if ( !dataset_[sdidx]->data )
 	loadData( sdidx );
 
-    return dataset_[sdidx]->data; 
+    return dataset_[sdidx]->data;
 }
 
 
 bool FaultAuxData::loadData( int sdidx )
 {
     errmsg_.setEmpty();
-    if ( !dataset_.validIdx(sdidx) ) 
+    if ( !dataset_.validIdx(sdidx) )
 	mErrRtn("Surface data does not exist");
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
@@ -487,7 +486,7 @@ bool FaultAuxData::loadData( int sdidx )
     sdinfo.getYN( sKey::Binary(), binary );
     sdinfo.get( "RowSize", rowsize );
     sdinfo.get( "ColSize", colsize );
-    
+
     Array2DImpl<float>* newdata = new Array2DImpl<float>( rowsize, colsize );
     const od_int64 datasz = rowsize * colsize;
     float* arr = newdata->getData();

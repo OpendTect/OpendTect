@@ -19,10 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "file.h"
 #include "filepath.h"
-#include "strmprov.h"
 #include "staticstring.h"
-
-#include <iostream>
 
 
 DefineEnumNames(OD::Platform,Type,0,"Platform")

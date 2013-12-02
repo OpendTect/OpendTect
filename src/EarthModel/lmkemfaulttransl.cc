@@ -21,8 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ascstream.h"
 #include "od_istream.h"
-#include "strmprov.h"
-#include <iostream>
 
 
 const char* lmkEMFault3DTranslator::pointtypestr() { return "FAULT_PTYPE"; }
@@ -36,7 +34,7 @@ const char* lmkEMFault3DTranslator::domainunitstr()
 const char* lmkEMFault3DTranslator::distancunitestr()
 				    { return "FAULT_DISTANCE_UNIT"; }
 const char* lmkEMFault3DTranslator::lineidstr()	{ return "FAULT_LINEID"; }
-const char* lmkEMFault3DTranslator::tracestr() 	{ return "FAULT_TRACE"; }
+const char* lmkEMFault3DTranslator::tracestr()	{ return "FAULT_TRACE"; }
 
 
 #define mWriteFormatRecord(nm)				\
@@ -112,7 +110,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 		zinterval.start==-1 || zinterval.stop==-1 ||
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
-	msg.set( lmkEMFault3DTranslator::xstr() ).add( ", " ) 
+	msg.set( lmkEMFault3DTranslator::xstr() ).add( ", " )
 	   .add( lmkEMFault3DTranslator::ystr() ).add( ", " )
 	   .add( lmkEMFault3DTranslator::zstr() ).add( "and " )
 	   .add( lmkEMFault3DTranslator::pointtypestr() )
@@ -140,7 +138,7 @@ int lmkEMFault3DReader::nextStep()
 	return ErrorOccurred();
 
     od_istream& strm = ((StreamConn*)conn)->iStream();
-    
+
     char buf[] = " ";
     BufferString buffer;
 
@@ -178,7 +176,7 @@ int lmkEMFault3DReader::nextStep()
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
 	int inl = toInt( str.buf() );
-	
+
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
 	int crl = toInt( str.buf() );

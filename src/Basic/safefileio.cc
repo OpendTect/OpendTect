@@ -13,20 +13,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "hostdata.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "thread.h"
 #include "msgh.h"
 
 
 SafeFileIO::SafeFileIO( const char* fnm, bool l )
-    	: filenm_(fnm)
-    	, strm_(0)
-    	, locked_(l)
-    	, removebakonsuccess_(false)
-    	, usebakwhenmissing_(true)
-    	, lockretries_(10)
-    	, lockwaitincr_(0.5)
-    	, allowlockremove_(true)
+	: filenm_(fnm)
+	, strm_(0)
+	, locked_(l)
+	, removebakonsuccess_(false)
+	, usebakwhenmissing_(true)
+	, lockretries_(10)
+	, lockwaitincr_(0.5)
+	, allowlockremove_(true)
 {
     FilePath fp( filenm_ );
     const_cast<BufferString&>(filenm_) = fp.fullPath();

@@ -20,13 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
-#include "strmprov.h"
 #include "staticstring.h"
 #include "moddepmgr.h"
 #include "msgh.h"
 #include "keystrs.h"
-
-#include <iostream>
+#include "od_istream.h"
 
 #ifndef __win__
 # include <dlfcn.h>
@@ -57,7 +55,7 @@ extern "C" {
 
 
 SharedLibAccess::SharedLibAccess( const char* lnm )
-    	: handle_(0)
+	: handle_(0)
 {
     if ( !lnm || !*lnm  )
 	return;
@@ -127,19 +125,27 @@ void* SharedLibAccess::getFunction( const char* fnnm ) const
 }
 
 
+static BufferString mkLibName( const char* modnm )
+{
+    BufferString ret;
+#ifdef __win__
+    ret.set( modnm ).add( ".dll" );
+#else
+    ret.set( "lib" ).add( modnm );
+# ifdef __mac__
+    ret.add( ".dylib" );
+# else
+    ret.add( ".so" );
+# endif
+#endif
+    return ret;
+}
+
 
 void SharedLibAccess::getLibName( const char* modnm, char* out )
 {
-#ifdef __win__
-    strcpy( out, modnm ); strcat( out, ".dll" );
-#else
-    strcpy( out, "lib" ); strcat( out, modnm );
-# ifdef __mac__
-    strcat( out, ".dylib" );
-# else
-    strcat( out, ".so" );
-# endif
-#endif
+    BufferString libnm( mkLibName(modnm) );
+    strncpy( out, libnm.buf(), 256 );
 }
 
 
@@ -150,7 +156,7 @@ PluginManager::PluginManager()
 	pErrMsg("Program arguments are not set!");
 	DBG::forceCrash(false);
     }
-    
+
     getDefDirs();
     mkALOList();
 }
@@ -380,20 +386,19 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	BufferString fnm = dl.get(idx);
 	if ( !isALO(fnm) ) continue;
 
-	*strchr( fnm.buf(), '.' ) = '\0';
+	char* ptr = strchr( fnm.buf(), '.' );
+	if ( ptr ) *ptr = '\0';
 	if ( fnm != prognm ) continue;
 
-	StreamData sd = StreamProvider( dl.fullPath(idx) ).makeIStream(false);
-	if ( !sd.usable() ) { sd.close(); continue; }
-
-	char buf[128];
-	while ( *sd.istrm )
+	od_istream strm( dl.fullPath(idx) );
+	while ( strm.isOK() )
 	{
-	    sd.istrm->getline( buf, 128 );
-	    if ( buf[0] == '\0' ) continue;
+	    BufferString libnmbase;
+	    if ( !strm.getLine(libnmbase) || libnmbase.isEmpty() )
+		continue;
 
-	    char libnm[256]; SharedLibAccess::getLibName( buf, libnm );
-	    Data* data = findData( libnm );
+	    const BufferString libnm( mkLibName(libnmbase) );
+	    Data* data = findData( libnm.buf() );
 	    if ( !data )
 	    {
 		data = new Data( libnm );
@@ -403,8 +408,6 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    else if ( usrdir != Data::isUserDir(data->autosource_) )
 		data->autosource_ = Data::Both;
 	}
-
-	sd.close();
     }
 }
 
@@ -418,7 +421,7 @@ void PluginManager::mkALOList()
 
 
 static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
-       			const char* libnm )
+			const char* libnm )
 {
     mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
     if ( !fn ) // their bad

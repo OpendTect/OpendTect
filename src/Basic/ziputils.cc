@@ -16,11 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "winutils.h"
 #include "ziparchiveinfo.h"
 
-#include <iostream>
 
 #define mBytesToMBFactor 1048576
 
@@ -64,7 +62,7 @@ bool ZipUtils::doZip( const char* src, const char* dest )
     BufferString newsrc = srcfp.fileName();
     FilePath zipcomfp( GetBinPlfDir(), "zip" );
     BufferString cmd( zipcomfp.fullPath() );
-    cmd += " -r \""; 
+    cmd += " -r \"";
     cmd += dest;
     cmd += "\"";
     cmd += " ";
@@ -86,7 +84,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     FilePath orgfnm( filelistname_ );
     if ( needfilelist_ )
     {
-	if ( !File::exists( orgfnm.pathOnly() ) ) 
+	if ( !File::exists( orgfnm.pathOnly() ) )
 	{
 	    tempfile = true;
 	    FilePath listfp( src );
@@ -98,7 +96,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 		listfp.add( orgfnm.fileName() );
 		filelistname_ = listfp.fullPath();
 	    }
-	}    
+	}
     }
 
     bool res = false;
@@ -147,7 +145,7 @@ bool ZipUtils::makeZip( const char* zipfnm, const char* src,
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
-       			BufferString& errmsg, TaskRunner* tr,
+			BufferString& errmsg, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
     Zipper exec( zipfnm, src, cl );
@@ -179,8 +177,8 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 Zipper::Zipper( const char* zipfnm, const BufferStringSet& srcfnms,
                 ZipHandler::CompLevel cl )
     : Executor( "Making Zip Archive" )
-    , nrdone_(0)	    
-{ 
+    , nrdone_(0)
+{
     ziphd_.setCompLevel( cl );
     isok_ = ziphd_.initMakeZip( zipfnm, srcfnms );
 }
@@ -189,8 +187,8 @@ Zipper::Zipper( const char* zipfnm, const BufferStringSet& srcfnms,
 Zipper::Zipper( const char* zipfnm, const char* srcfnm,
                 ZipHandler::CompLevel cl )
     : Executor( "Making Zip Archive" )
-    , nrdone_(0)	    
-{ 
+    , nrdone_(0)
+{
     ziphd_.setCompLevel( cl );
     isok_ = ziphd_.initAppend( zipfnm, srcfnm );
 }
@@ -198,7 +196,7 @@ Zipper::Zipper( const char* zipfnm, const char* srcfnm,
 
 int Zipper::nextStep()
 {
-    if ( !isok_ || !ziphd_.compressNextFile() ) 
+    if ( !isok_ || !ziphd_.compressNextFile() )
 	return ErrorOccurred();
 
     nrdone_++;
@@ -222,7 +220,7 @@ const char* Zipper::nrDoneText() const
 
 
 const char* Zipper::message() const
-{ 
+{
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
 	return "Archiving data";
@@ -282,7 +280,7 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 
 UnZipper::UnZipper( const char* zipfnm,const char* destination )
     : Executor("Unpacking Archive")
-    , nrdone_(0)	    
+    , nrdone_(0)
 { isok_ = ziphd_.initUnZipArchive( zipfnm, destination ); }
 
 
@@ -309,7 +307,7 @@ const char* UnZipper::nrDoneText() const
 
 
 const char* UnZipper::message() const
-{ 
+{
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
 	return "Extracting data";

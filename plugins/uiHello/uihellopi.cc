@@ -22,12 +22,12 @@ mDefODInitPlugin(uiHello)
 #else /* PLAN_A is not defined */
 
 
+#include "odplugin.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
-#include "plugins.h"
 
 mDefODPluginInfo(uiHello)
 {
@@ -36,7 +36,7 @@ mDefODPluginInfo(uiHello)
 	"Bert",
 	"1.1.1",
 	"This is the more extensive variant of the uiHello example.\n"
-   	"See the plugin manual for details.") );
+	"See the plugin manual for details.") );
     return &retpi;
 }
 
@@ -59,7 +59,7 @@ uiHelloMgr::uiHelloMgr( uiODMain& a )
 	: appl(a)
 {
     uiAction* newitem = new uiAction( "&Display Hello Message ...",
-	    				  mCB(this,uiHelloMgr,dispMsg) );
+					  mCB(this,uiHelloMgr,dispMsg) );
     appl.menuMgr().utilMnu()->insertItem( newitem );
 }
 
@@ -73,9 +73,9 @@ uiHelloMsgBringer( uiParent* p )
 			mNoHelpID))
 {
     txtfld = new uiGenInput( this, "Hello message",
-	    			StringInpSpec("Hello world") );
+				StringInpSpec("Hello world") );
     typfld = new uiGenInput( this, "Message type",
-	    			BoolInpSpec(true,"Info","Warning") );
+				BoolInpSpec(true,"Info","Warning") );
     typfld->attach( alignedBelow, txtfld );
 }
 

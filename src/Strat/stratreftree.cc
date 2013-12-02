@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratunitrefiter.h"
 #include "ascstream.h"
 #include "separstr.h"
-#include "strmprov.h"
 
 static const char* sKeyStratTree = "Stratigraphic Tree";
 static const char* sKeyLith = "Lithology";

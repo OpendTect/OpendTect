@@ -29,19 +29,20 @@ mExpClass(Basic) SharedLibAccess
 {
 public:
 
-    		SharedLibAccess(const char* file_name);
+		SharedLibAccess(const char* file_name);
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
 
     void	close();
 
     void*	getFunction(const char* function_name) const;
-    		//!< Difficult for C++ functions as the names are mangled.
+		//!< Difficult for C++ functions as the names are mangled.
 
     Handletype	handle()		{ return handle_; }
 
     static void	getLibName(const char* modnm,char*);
-    		//!< returns lib name with ".dll" or "lib" and ".so"/".dylib"
+		//!< returns lib name with ".dll" or "lib" and ".so"/".dylib"
+		//!< output can be up to 255 chars long (guaranteed maximum)
 
 protected:
 

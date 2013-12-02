@@ -16,8 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "sampledprobdenfunc.h"
-#include "strmprov.h"
-#include <iostream>
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
 defineTranslator(od,ProbDenFunc,mdTectKey);
@@ -39,7 +37,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 					  BufferString* emsg )
 {
     mDynamicCast(ProbDenFuncTranslator*,
-	    	 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
+		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
 
