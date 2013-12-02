@@ -17,7 +17,6 @@ ________________________________________________________________________
 class IOObj;
 class Scaler;
 class uiScaler;
-class uiGenInput;
 class uiSeisFmtScaleComp;
 
 
@@ -31,13 +30,17 @@ public:
 
     Scaler*		getScaler() const;
     int			getFormat() const;
-    			//!< returns (int)DataCharacteristics::UserType
+			//!< returns (int)DataCharacteristics::UserType
     bool		horOptim() const;
     bool		extendTrcToSI() const;
     void		updateIOObj(IOObj*,bool commit=true) const;
 
     bool		isSteering() const	{ return issteer_; }
     void		setSteering(bool);
+
+    void		fillFmtPars(IOPar&) const; // for IOObj
+    void		fillOtherPars(IOPar&) const;
+    static const char*	sKeyOptDir()		{ return "Optimized direction";}
 
 protected:
 

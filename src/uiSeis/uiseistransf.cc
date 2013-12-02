@@ -173,3 +173,11 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 
     return stp;
 }
+
+
+void uiSeisTransfer::fillPar( IOPar& iop ) const
+{
+    selfld->fillPar( iop );
+    scfmtfld->fillOtherPars( iop );
+    iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
+}

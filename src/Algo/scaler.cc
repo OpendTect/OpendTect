@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Scaler* Scaler::get( const char* str )
 {
-    if ( !str || ! *str ) return new LinScaler;
+    if ( !str || ! *str )
+	return 0;
 
     FileMultiString fs( str );
     FixedString typ = fs[0];

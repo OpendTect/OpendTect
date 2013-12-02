@@ -193,7 +193,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	pars_.set( sKey::Output(), outfld_->key(true) );
 	pars_.set( sKey::LineName(), lnm );
-	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
+	uiBatchLaunch launcher( this, pars_, 0, SEGY::IO::sProgname(), false );
 	launcher.setParFileName( parfilefld_->text() );
 
 	return launcher.go();

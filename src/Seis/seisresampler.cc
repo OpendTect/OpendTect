@@ -20,6 +20,7 @@ SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
     	, cs(*new CubeSampling(c))
 	, is3d(!is2d)
 	, dozsubsel(false)
+	, replval(0)
 {
     cs.normalise();
     if ( valrg )
