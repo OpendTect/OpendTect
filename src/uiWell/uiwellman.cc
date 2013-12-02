@@ -580,7 +580,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(srd,1e-4f) )
 	{
 	    txt.add( "Seismic Reference Datum (SRD) :" );
-	    txt.add( zun ? zun->userValue(srd) : srd );
+	    txt.add( srd );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.add( "\n" );
 	}
@@ -596,8 +596,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(replvel) )
 	{
 	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	     txt += ( SI().depthsInFeet() && !SI().zInFeet() ) ?
-		    mToFeetFactorF * replvel : replvel;
+	     txt += replvel;
 	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
 	     txt += "/s\n";
 	}
