@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-//! Wrapper around QButtons. 
+//! Wrapper around QButtons.
 /*!
     Extends each QButton class <T> with a i_ButMessenger, which connects
     itself to the signals transmitted from Qt buttons.  Each signal is
@@ -48,24 +48,24 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
                             , T(p && p->pbody() ? p->pbody()->managewidg() : 0 )
                             , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
-			    , idInGroup( 0 )		
-			    { 
-				this->setText(txt); 
+			    , idInGroup( 0 )
+			    {
+				this->setText(txt);
 				setHSzPol( uiObject::SmallVar );
 			    }
 
-			uiButtonTemplBody(uiButton& hndle, 
+			uiButtonTemplBody(uiButton& hndle,
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
-			    , T( QIcon(*pm.qpixmap()),txt, 
+			    , T( QIcon(*pm.qpixmap()),txt,
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0 )
                             , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
-			    , idInGroup( 0 )		
-			    { 
-				this->setText(txt); 
+			    , idInGroup( 0 )
+			    {
+				this->setText(txt);
 				setHSzPol( uiObject::SmallVar );
 			    }
 
@@ -80,7 +80,7 @@ public:
     inline const QAbstractButton& qButton() const
                         { return ((uiButtonTemplBody*)this)->qButton(); }
 
-    virtual int 	nrTxtLines() const		{ return 1; }
+    virtual int	nrTxtLines() const		{ return 1; }
 
     const char*		text();
 
@@ -100,7 +100,7 @@ protected:
 class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
 {
 public:
-			uiPushButtonBody( uiButton& hndle, 
+			uiPushButtonBody( uiButton& hndle,
 					  uiParent* parnt, const char* txt )
 		     : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
 		     , iconfrac_(0.75)
@@ -129,7 +129,7 @@ public:
 
 protected:
 
-    virtual void        notifyHandler( notifyTp tp ) 
+    virtual void        notifyHandler( notifyTp tp )
 			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 
     void		resizeEvent( QResizeEvent* ev )
@@ -151,9 +151,9 @@ protected:
 
 
 class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
-{                        
+{
 public:
-			uiRadioButtonBody(uiButton& hndle, 
+			uiRadioButtonBody(uiButton& hndle,
 				     uiParent* parnt, const char* txt)
 		    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
 		    {}
@@ -162,7 +162,7 @@ public:
 
 protected:
 
-    virtual void        notifyHandler( notifyTp tp ) 
+    virtual void        notifyHandler( notifyTp tp )
 			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
@@ -171,7 +171,7 @@ class uiCheckBoxBody: public uiButtonTemplBody<QCheckBox>
 {
 public:
 
-			uiCheckBoxBody(uiButton& hndle, 
+			uiCheckBoxBody(uiButton& hndle,
 				     uiParent* parnt, const char* txt)
 		       : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
 		       {}
@@ -180,7 +180,7 @@ public:
 
 protected:
 
-    virtual void        notifyHandler( notifyTp tp ) 
+    virtual void        notifyHandler( notifyTp tp )
 			{ if ( tp == uiButtonBody::toggled ) doNotify(); }
 };
 
@@ -188,7 +188,7 @@ protected:
 class uiToolButtonBody : public uiButtonTemplBody<QToolButton>
 {
 public:
-			uiToolButtonBody(uiButton& hndle, 
+			uiToolButtonBody(uiButton& hndle,
 				     uiParent* parnt, const char* txt)
 		     : uiButtonTemplBody<QToolButton>(hndle,parnt,txt)
 		      {
@@ -201,7 +201,7 @@ public:
 
 protected:
 
-    virtual void        notifyHandler( notifyTp tp ) 
+    virtual void        notifyHandler( notifyTp tp )
 			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
@@ -229,7 +229,7 @@ void uiButton::setText( const char* txt )
 const char* uiButton::text()
 {
     mDeclStaticString( buttxt );
-    buttxt = mQStringToConstChar( mqbut()->text() );
+    buttxt = mqbut()->text();
     return buttxt.buf();
 }
 
@@ -274,10 +274,10 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     BufferString buttxt( txt );
     if ( !immact && txt && *txt )
 	buttxt += " ...";
-    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,buttxt.buf()); 
-    else	body_ = new uiPushButtonBody(*this,parnt,buttxt.buf()); 
+    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,buttxt.buf());
+    else	body_ = new uiPushButtonBody(*this,parnt,buttxt.buf());
 
-    return *body_; 
+    return *body_;
 }
 
 
@@ -312,16 +312,16 @@ uiRadioButton::uiRadioButton( uiParent* p, const char* nm )
 {}
 
 
-uiRadioButton::uiRadioButton( uiParent* p, const char* nm, 
+uiRadioButton::uiRadioButton( uiParent* p, const char* nm,
 			      const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
 {}
 
 
 uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const char* txt )
-{ 
+{
     body_= new uiRadioButtonBody(*this,parnt,txt);
-    return *body_; 
+    return *body_;
 }
 
 
@@ -333,8 +333,8 @@ void uiRadioButton::setChecked( bool check )
     body_->setChecked( check );
 }
 
-void uiRadioButton::click()			
-{ 
+void uiRadioButton::click()
+{
     setChecked( !isChecked() );
     activated.trigger();
 }
@@ -357,9 +357,9 @@ void uiCheckBox::setText( const char* txt )
 
 
 uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
-{ 
+{
     body_= new uiCheckBoxBody(*this,parnt,txt);
-    return *body_; 
+    return *body_;
 }
 
 bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
@@ -372,7 +372,7 @@ void uiCheckBox::setChecked ( bool check )
 }
 
 
-void uiCheckBox::click()			
+void uiCheckBox::click()
 {
     setChecked( !isChecked() );
     activated.trigger();
@@ -445,7 +445,7 @@ uiToolButton::~uiToolButton()
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
 					const char* txt)
 {
-    body_ = new uiToolButtonBody(*this,parnt,txt); 
+    body_ = new uiToolButtonBody(*this,parnt,txt);
     if ( pm.qpixmap() )
         body_->setIcon( *pm.qpixmap() );
 
@@ -520,7 +520,7 @@ void uiToolButton::setMenu( uiMenu* mnu )
     for ( int idx=0; idx<mnu->nrActions(); idx++ )
     {
 	QAction* qact =
-	    	 const_cast<QAction*>( mnu->actions()[idx]->qaction() );
+		 const_cast<QAction*>( mnu->actions()[idx]->qaction() );
 	qmenu_->addAction( qact );
     }
 

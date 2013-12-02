@@ -229,7 +229,7 @@ const char* uiMdiArea::getActiveWin() const
 {
     mDeclStaticString( nm );
     QWidget* widget = body_->activeSubWindow();
-    nm = widget ? mQStringToConstChar(widget->windowTitle()) : "";
+    nm = widget ? widget->windowTitle() : "";
     return nm.buf();
 }
 
@@ -260,8 +260,8 @@ ODMdiSubWindow( QWidget* par=0, Qt::WindowFlags flgs=0 )
 protected:
 void closeEvent( QCloseEvent* ev )
 {
-    const BufferString msg( "Do you want to close ",\
-			    mQStringToConstChar(windowTitle()), "?" );
+    BufferString msg( "Do you want to close " );
+    msg.add( windowTitle() ).add( "?" );
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();
@@ -294,7 +294,7 @@ void uiMdiAreaWindow::setTitle( const char* nm )
 const char* uiMdiAreaWindow::getTitle() const
 {
     mDeclStaticString( title );
-    title = mQStringToConstChar( qmdisubwindow_->windowTitle() );
+    title = qmdisubwindow_->windowTitle();
     return title.buf();
 }
 

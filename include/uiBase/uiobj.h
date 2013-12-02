@@ -43,9 +43,9 @@ mExpClass(uiBase) uiObject : public uiBaseObject
 public:
 			uiObject(uiParent*,const char* nm);
 			uiObject(uiParent*,const char* nm,uiObjectBody&);
-			~uiObject();			
+			~uiObject();
 
-/*! \brief How should the object's size behave? 
+/*! \brief How should the object's size behave?
     Undef       : use default.
     Small       : 1 base sz.
     Medium      : 2* base sz + 1.
@@ -74,7 +74,7 @@ public:
     static void		updateToolTips();
 
     virtual void	translate();
-    
+
     void		display(bool yn,bool shrink=false,bool maximised=false);
     void		setFocus();
     bool		hasFocus() const;
@@ -126,7 +126,7 @@ public:
 
     static void		setTabOrder(uiObject* first, uiObject* second);
 
-    void 		setFont(const uiFont&);
+    void		setFont(const uiFont&);
     const uiFont*	font() const;
     void		setCaption(const char*);
 
@@ -141,9 +141,9 @@ public:
     const uiParent*	parent() const
 			    { return const_cast<uiObject*>(this)->parent(); }
     void		reParent(uiParent*);
-    
+
     uiMainWin*		mainwin();
-    
+
     mQtclass(QWidget*)	getWidget() { return qwidget(); }
     mQtclass(QWidget*)	qwidget();
     const mQtclass(QWidget*)	qwidget() const
@@ -158,9 +158,9 @@ public:
     void		close();
 
 
-			/*! \brief triggered when getting a new geometry 
-			    A reference to the new geometry is passed 
-			    which *can* be manipulated, before the 
+			/*! \brief triggered when getting a new geometry
+			    A reference to the new geometry is passed
+			    which *can* be manipulated, before the
 			    geometry is actually set to the QWidget.
 			*/
     CNotifier<uiObject,uiRect&>	setGeometry;
@@ -170,10 +170,10 @@ public:
 
 protected:
                         //! hook. Accepts/denies closing of window.
-    virtual bool	closeOK()	{ closed.trigger(); return true; } 
+    virtual bool	closeOK()	{ closed.trigger(); return true; }
 
 			//! setGeometry should be triggered by this's layoutItem
-    void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
+    void		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
     void		updateToolTip();
     mQtclass(QString*)	qnormaltooltipstr_;
@@ -187,10 +187,6 @@ private:
     int			translateid_;
     void		trlReady(CallBacker*);
 };
-
-
-#define mQStringToConstChar( str ) \
-    str.toLatin1().constData()
 
 
 #define mTemplTypeDef(fromclass,templ_arg,toclass) \

@@ -60,14 +60,14 @@ class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 
 public:
 
-                        uiListBoxBody(uiListBox& hndle, 
-				  uiParent* parnt=0, 
+                        uiListBoxBody(uiListBox& hndle,
+				  uiParent* parnt=0,
 				  const char* nm="uiListBoxBody",
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
 
-    virtual 		~uiListBoxBody()		{ delete &messenger_; }
+    virtual		~uiListBoxBody()		{ delete &messenger_; }
 
     void		insertItem(int idx,const char* txt,bool mark,int id);
     void		addItem(const char* txt,bool mark,int id);
@@ -90,8 +90,8 @@ public:
 
     int			maxNrOfSelections() const;
 
-    void 		setNrLines( int prefNrLines )
-			{ 
+    void		setNrLines( int prefNrLines )
+			{
 			    if( prefNrLines >= 0 )
 				prefnrlines_=prefNrLines;
 			    int hs = stretch(true,true);
@@ -99,12 +99,12 @@ public:
 			}
 
     virtual uiSize	minimumsize() const; //!< \reimp
-    virtual int 	nrTxtLines() const
+    virtual int		nrTxtLines() const
 			{ return prefnrlines_ > 0 ? prefnrlines_
-			    			  : uiListBox::cDefNrLines(); }
+						  : uiListBox::cDefNrLines(); }
 
-    int 		fieldwidth_;
-    int 		prefnrlines_;
+    int			fieldwidth_;
+    int			prefnrlines_;
 
 protected:
     void		mouseReleaseEvent(QMouseEvent*);
@@ -118,7 +118,7 @@ private:
 };
 
 
-uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt, 
+uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
 			const char* nm, bool ismultiselect,
 			int preferrednrlines, int preferredfieldwidth )
     : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
@@ -204,7 +204,7 @@ void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
 
 
 uiSize uiListBoxBody::minimumsize() const
-{ 
+{
     const int totHeight = fontHgt() * prefnrlines_;
     const int totWidth  = fontWdt( true ) * fieldwidth_;
     return uiSize( totWidth, totHeight );
@@ -237,7 +237,7 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 
 
 int uiListBoxBody::maxNrOfSelections() const
-{ 
+{
     if ( selectionMode() == mNoSelection )	return 0;
     if ( selectionMode() == mSingle )		return 1;
     return count();
@@ -373,7 +373,7 @@ void uiListBox::setAllowDuplicates( bool yn )
     {
 	BufferString nm = allitems[0]->buf();
 	allitems.removeSingle(0);
-	while ( allitems.isPresent( nm ) ) 
+	while ( allitems.isPresent( nm ) )
 	{
 	    const int itmidx = allitems.indexOf( nm );
 	    allitems.removeSingle( itmidx );
@@ -386,11 +386,11 @@ void uiListBox::setAllowDuplicates( bool yn )
 void uiListBox::getItems( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	nms.add( textOfItem( idx ) ); 
+	nms.add( textOfItem( idx ) );
 }
 
 
-void uiListBox::addItem( const char* text, bool mark, int id ) 
+void uiListBox::addItem( const char* text, bool mark, int id )
 {
     if ( !allowduplicates_ && isPresent( text ) )
 	return;
@@ -417,7 +417,7 @@ void uiListBox::addItem( const char* text, const Color& col, int id )
 }
 
 
-void uiListBox::addItems( const char** textList ) 
+void uiListBox::addItems( const char** textList )
 {
     int curidx = currentItem();
     const char** pt_cur = textList;
@@ -487,7 +487,7 @@ void uiListBox::setPixmap( int index, const Color& col )
 
 void uiListBox::setPixmap( int index, const ioPixmap& pm )
 {
-    if ( index<0 || index>=size() || 
+    if ( index<0 || index>=size() ||
 	 !body_->item(index) || !pm.qpixmap() ) return;
 
     body_->item(index)->setIcon( *pm.qpixmap() );
@@ -597,7 +597,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( body_->item(idx)->text().toLatin1().data() );
+	BufferString itmtxt( body_->item(idx)->text() );
 	char* ptr = itmtxt.buf();
 	mSkipBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
@@ -611,7 +611,7 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIndex(idx) )
 	return "";
 
-    rettxt = (const char*)body_->item(idx)->text().toLatin1();
+    rettxt = body_->item(idx)->text();
     if ( rettxt[0] != *startmark )
 	return rettxt;
 
@@ -626,7 +626,7 @@ const char* uiListBox::textOfItem( int idx ) const
 
 bool uiListBox::isMarked( int idx ) const
 {
-    rettxt = (const char*)body_->item(idx)->text().toLatin1();
+    rettxt = body_->item(idx)->text();
     return rettxt.buf()[0] == *startmark
 	&& rettxt.buf()[rettxt.size()-1] == *endmark;
 }

@@ -44,7 +44,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
     , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
 #ifdef __debug__
-    mDefineStaticLocalObject( bool, lyoutdbg_loc, 
+    mDefineStaticLocalObject( bool, lyoutdbg_loc,
 			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
@@ -97,16 +97,16 @@ QSize i_LayoutMngr::minimumSize() const
     if ( !mFinalised() ) return QSize(0,0);
 
     if ( !minimumDone )
-    { 
-	doLayout( minimum, QRect() ); 
-	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
+    {
+	doLayout( minimum, QRect() );
+	const_cast<i_LayoutMngr*>(this)->minimumDone=true;
     }
 
     uiRect mPos;
 
     if ( ismain )
     {
-	if ( managedBody.shrinkAllowed() )	
+	if ( managedBody.shrinkAllowed() )
 	    return QSize(0, 0);
 
 	QSize sh = sizeHint();
@@ -149,9 +149,9 @@ QSize i_LayoutMngr::sizeHint() const
     if ( !mFinalised() ) return QSize(0, 0);
 
     if ( !preferredDone )
-    { 
-	doLayout( preferred, QRect() ); 
-	const_cast<i_LayoutMngr*>(this)->preferredDone=true; 
+    {
+	doLayout( preferred, QRect() );
+	const_cast<i_LayoutMngr*>(this)->preferredDone=true;
     }
     uiRect mPos = curpos(preferred);
 
@@ -187,27 +187,27 @@ QSize i_LayoutMngr::sizeHint() const
 }
 
 
-const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const 
-{ 
-    i_LayoutItem* managedItem = 
+const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const
+{
+    i_LayoutItem* managedItem =
 	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
 
-    return managedItem ? managedItem->curpos(lom) : layoutpos[lom]; 
+    return managedItem ? managedItem->curpos(lom) : layoutpos[lom];
 }
 
 
 uiRect& i_LayoutMngr::curpos(LayoutMode lom)
-{ 
-    i_LayoutItem* managedItem = 
+{
+    i_LayoutItem* managedItem =
 	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
 
-    return managedItem ? managedItem->curpos(lom) : layoutpos[lom]; 
+    return managedItem ? managedItem->curpos(lom) : layoutpos[lom];
 }
 
 
-uiRect i_LayoutMngr::winpos( LayoutMode lom ) const 
+uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
 {
-    i_LayoutItem* managedItem = 
+    i_LayoutItem* managedItem =
 	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
 
     if ( ismain && managedItem )
@@ -230,15 +230,15 @@ class resizeItem
 {
 #define NR_RES_IT	3
 public:
-			resizeItem( i_LayoutItem* it, int hStre, int vStre ) 
+			resizeItem( i_LayoutItem* it, int hStre, int vStre )
 			    : item( it ), hStr( hStre ), vStr( vStre )
-			    , hDelta( 0 ), vDelta( 0 ) 
+			    , hDelta( 0 ), vDelta( 0 )
 			    , nhiter( hStre ? NR_RES_IT : 0 )
 			    , nviter( vStre ? NR_RES_IT : 0 ) {}
 
-    i_LayoutItem* 	item;
-    const int 		hStr;
-    const int 		vStr;
+    i_LayoutItem*	item;
+    const int		hStr;
+    const int		vStr;
     int			nhiter;
     int			nviter;
     int			hDelta;
@@ -303,7 +303,7 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 }
 
 
-void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList, 
+void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 				   bool isPrefSz )
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
@@ -322,7 +322,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 
 	    if ( add ) resizeList += new resizeItem( childrenlist[idx], hs, vs);
         }
-    } 
+    }
 }
 
 
@@ -337,7 +337,7 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
 }
 
 
-bool i_LayoutMngr::tryToGrowItem( resizeItem& itm, 
+bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 				  const int maxhdelt, const int maxvdelt,
 				  int hdir, int vdir,
 				  const QRect& targetRect, int iternr )
@@ -358,35 +358,35 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     bool vdone = false;
 
     if ( hdir && itm.nhiter>0
-        && ( (itm.hStr>1) 
+        && ( (itm.hStr>1)
 	    || ((itm.hStr==1) && (abs(itm.hDelta+hdir) < abs(maxhdelt)))
 	   )
-        &&!( (hdir>0) && 
+        &&!( (hdir>0) &&
 	     ( itmGeometry.right() + hdir > targetRect.right() )
 	   )
-        &&!( (hdir<0) && 
+        &&!( (hdir<0) &&
              ( itmGeometry.right() <= targetRect.right() )
 	   )
-      ) 
-    { 
+      )
+    {
         hdone = true;
         itm.hDelta += hdir;
         itmGeometry.setHNrPics ( refGeom.hNrPics() + itm.hDelta );
 	if ( hdir>0 &&  itmGeometry.right() > targetRect.right() )
 	    itmGeometry.leftTo( itmGeometry.left() - 1 );
-    }   
-    
-    if ( vdir && itm.nviter>0 
-        && ( (itm.vStr>1) 
+    }
+
+    if ( vdir && itm.nviter>0
+        && ( (itm.vStr>1)
             || ((itm.vStr==1) && (abs(itm.vDelta+vdir) < abs(maxvdelt)))
 	   )
-        &&!( (vdir>0) && 
+        &&!( (vdir>0) &&
 	       ( itmGeometry.bottom() + vdir > targetRect.bottom() ) )
-        &&!( (vdir<0) && 
+        &&!( (vdir<0) &&
               ( itmGeometry.bottom() <= targetRect.bottom()) )
       )
-    {   
-        vdone = true; 
+    {
+        vdone = true;
         itm.vDelta += vdir;
         itmGeometry.setVNrPics( refGeom.vNrPics() + itm.vDelta );
     }
@@ -400,9 +400,9 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     {
 	BufferString msg;
 	if ( itm.item && itm.item->objLayouted() )
-	{   
+	{
 	    msg="Trying to grow item ";
-	    msg+= itm.item->objLayouted() ? 
+	    msg+= itm.item->objLayouted() ?
 		    (const char*)itm.item->objLayouted()->name() : "UNKNOWN ";
 
 	    if ( hdone ) msg+=" hdone. ";
@@ -412,7 +412,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 
 	}
 	else msg = "not a uiLayout item..";
-	pErrMsg( msg ); 
+	pErrMsg( msg );
     }
 #endif
 
@@ -420,7 +420,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     int oldcbbbtm = childrenBBox.bottom();
 
     layoutChildren( setGeom );
-    childrenBBox = childrenRect(setGeom);  
+    childrenBBox = childrenRect(setGeom);
 
     bool do_layout = false;
 
@@ -449,7 +449,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	}
 
 	if( revert )
-	{ 
+	{
 	    itm.nhiter--;
 	    itm.hDelta -= hdir;
 
@@ -461,22 +461,22 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     if ( vdone )
     {
 	if ( ((vdir >0)&&
-             ( 
+             (
 		( itmGeometry.bottom() > targetRect.bottom() )
-	      ||(  ( childrenBBox.bottom() > targetRect.bottom() ) 
+	      ||(  ( childrenBBox.bottom() > targetRect.bottom() )
 		 &&( childrenBBox.bottom() > oldcbbbtm )
 	        )
 	     )
-	    ) 
-	    || ( (vdir <0) && 
-                !(  ( childrenBBox.bottom() < oldcbbbtm ) 
+	    )
+	    || ( (vdir <0) &&
+                !(  ( childrenBBox.bottom() < oldcbbbtm )
 		  ||(  ( itmGeometry.bottom() > targetRect.bottom())
 		     &&( itmGeometry.bottom() < oldbtm)
 		    )
                  )
                )
 	  )
-	{   
+	{
 	    itm.nviter--;
 	    itm.vDelta -= vdir;
 
@@ -485,11 +485,11 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	}
     }
 
-    if ( do_layout ) 
-    {   // move all items to top-left corner first 
+    if ( do_layout )
+    {   // move all items to top-left corner first
 	moveChildrenTo( targetRect.top(), targetRect.left(),setGeom);
 	layoutChildren( setGeom );
-    } 
+    }
 
     return true;
 }
@@ -513,7 +513,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     if ( lyoutdbg )
     {
 	std::cout << "(Re)sizing:" << NamedObject::name();
-	if ( isprefsz ) std::cout << " yes"; else 
+	if ( isprefsz ) std::cout << " yes"; else
 	    { std::cout << " no " << hgrow << " ," << vgrow; }
 	std::cout << std::endl;
     }
@@ -525,16 +525,16 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     int iternr = MAX_ITER;
 
     for( bool go_on = true; go_on && iternr; iternr--)
-    {   
+    {
 	go_on = false;
 	for( int idx=0; idx<resizeList.size(); idx++ )
 	{
 	    resizeItem* cur = resizeList[idx];
-	    if ( cur && (cur->nhiter || cur->nviter)) 
-	    { 
-		if ( tryToGrowItem( *cur, hgrow, vgrow, 
+	    if ( cur && (cur->nhiter || cur->nviter))
+	    {
+		if ( tryToGrowItem( *cur, hgrow, vgrow,
 				    hdir, vdir, targetRect, iternr ))
-		    go_on = true; 
+		    go_on = true;
 	    }
 	}
     }
@@ -613,14 +613,14 @@ void i_LayoutMngr::doLayout( LayoutMode lom, const QRect& extrect )
 {
     bool geomSetExt = extrect.width()>0 && extrect.height()>0;
     if ( geomSetExt )
-	curpos(lom) = uiRect( extrect.left(), extrect.top(), 
+	curpos(lom) = uiRect( extrect.left(), extrect.top(),
 			      extrect.right(), extrect.bottom() );
 
     int mngrTop  = geomSetExt ? extrect.top() + borderSpace() : borderSpace();
     int mngrLeft = geomSetExt ? extrect.left() + borderSpace() : borderSpace();
 
     for ( int idx=0; idx<childrenlist.size(); idx++ )
-	 childrenlist[idx]->initLayout( lom, mngrTop, mngrLeft ); 
+	 childrenlist[idx]->initLayout( lom, mngrTop, mngrLeft );
 
     layoutChildren(lom);
     if ( !geomSetExt )
@@ -633,7 +633,7 @@ void i_LayoutMngr::layoutChildren( LayoutMode lom, bool finalLoop )
     startPoptimer();
 
     int iternr;
-    for ( iternr=0 ; iternr<MAX_ITER; iternr++ ) 
+    for ( iternr=0 ; iternr<MAX_ITER; iternr++ )
     {
         bool child_updated = false;
 	for ( int idx=0; idx<childrenlist.size(); idx++ )
@@ -645,7 +645,7 @@ void i_LayoutMngr::layoutChildren( LayoutMode lom, bool finalLoop )
 	if ( finalLoop && iternr > 1 )	break;
     }
 
-    if ( iternr == MAX_ITER ) 
+    if ( iternr == MAX_ITER )
       { pErrMsg("Stopped layout. Too many iterations "); }
 }
 
@@ -659,9 +659,9 @@ uiRect i_LayoutMngr::childrenRect( LayoutMode lom )
     {
 	const uiRect* childPos = &childrenlist[idx]->curpos(lom);
 
-	if ( (childPos->top() ) < chldRect.top() || chldRect.top() < 0 ) 
+	if ( (childPos->top() ) < chldRect.top() || chldRect.top() < 0 )
 			chldRect.setTop( childPos->top() );
-	if ( (childPos->left()) < chldRect.left() || chldRect.left() < 0 ) 
+	if ( (childPos->left()) < chldRect.left() || chldRect.left() < 0 )
 			chldRect.setLeft( childPos->left() );
 	if ( childPos->right() > chldRect.right() || chldRect.right() < 0)
 				    chldRect.setRight( childPos->right() );
@@ -686,22 +686,22 @@ uiRect i_LayoutMngr::childrenRect( LayoutMode lom )
 }
 
 
-void i_LayoutMngr::invalidate() 
-{ 
+void i_LayoutMngr::invalidate()
+{
     for ( int idx=0; idx<childrenlist.size(); idx++ )
-	 childrenlist[idx]->invalidate(); 
+	 childrenlist[idx]->invalidate();
 }
 
 
 void i_LayoutMngr::updatedAlignment( LayoutMode lom )
-{ 
+{
     for ( int idx=0; idx < childrenlist.size(); idx++ )
 	 childrenlist[idx]->updatedAlignment(lom);
 }
 
 
 void i_LayoutMngr::initChildLayout( LayoutMode lom )
-{ 
+{
     for ( int idx=0; idx<childrenlist.size(); idx++ )
 	 childrenlist[idx]->initLayout( lom, -1, -1 );
 }
@@ -711,7 +711,7 @@ QLayoutItem* i_LayoutMngr::itemAt( int idx ) const
 {
     if ( childrenlist.validIdx(idx) && childrenlist[idx] )
 	return const_cast<QLayoutItem*>(&childrenlist[idx]->qlayoutItm());
-    return 0; 
+    return 0;
 }
 
 
@@ -723,19 +723,19 @@ QLayoutItem* i_LayoutMngr::takeAt( int idx )
     QLayoutItem* ret = itm->takeQlayoutItm(); delete itm;
     return ret;
 }
- 
+
 
 int i_LayoutMngr::count () const
     { return childrenlist.size(); }
 
 
-bool i_LayoutMngr::attach( constraintType type, QWidget& current, 
+bool i_LayoutMngr::attach( constraintType type, QWidget& current,
 			   QWidget* other, int mrgin,
-			   bool reciprocal ) 
+			   bool reciprocal )
 {
     if ( &current == other )
 	{ pErrMsg("Attempt to attach an object to itself"); return false; }
-    
+
     i_LayoutItem* curli = 0; i_LayoutItem* othli = 0;
 
     const bool needother = other;
@@ -755,11 +755,11 @@ bool i_LayoutMngr::attach( constraintType type, QWidget& current,
     }
 
     BufferString msg( NamedObject::name() ); msg += ": Cannot attach '";
-    msg += current.objectName().toLatin1().constData(); msg += "'";
+    msg += current.objectName(); msg += "'";
     if ( needother )
     {
 	msg += " and '";
-	msg += other->objectName().toLatin1().constData(); msg += "'";
+	msg += other->objectName(); msg += "'";
     }
 
     msg += " - constraint: "; msg += (int)type;
@@ -787,7 +787,7 @@ void i_LayoutMngr::startPoptimer()
 {
     if ( timer_running || popped_up ) return;
 
-    if ( managedBody.uiObjHandle().mainwin()  
+    if ( managedBody.uiObjHandle().mainwin()
 	 && !managedBody.uiObjHandle().mainwin()->touch() )
 	return;
 

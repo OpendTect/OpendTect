@@ -140,7 +140,7 @@ const char* uiKeyDesc::keyStr() const
 	if ( speckeystransbl[idx-26] == key_ )
 	    break;
     }
-    
+
     return strs[idx];
 }
 
@@ -168,21 +168,21 @@ uiShortcutsList::uiShortcutsList( const char* selkey )
 {
     PtrMan<IOPar> pars = SCMgr().getStored( selkey );
     if ( !pars ) return;
-    
+
     int index = 0;
     while ( true )
     {
 	BufferString name;
 	if ( !getSCNames( *pars, index, name ) )
 	    return;
-	
+
 	BufferString val1, val2;
 	if ( !getKeyValues( *pars, index, val1, val2 ) )
 	    return;
 
 	names_.add( name );
 	BufferString proplbl;
-       	int propval;
+	int propval;
 	if ( getSCProperties( *pars, index, proplbl, propval ) )
 	{
 	    uiExtraIntKeyDesc* uieikd =
@@ -220,7 +220,7 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 	    keydescs_ += new uiKeyDesc( *nonconstkd );
 
     }
-    return *this; 
+    return *this;
 }
 
 
@@ -267,7 +267,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
 				       BufferString& proplbl,
 				       int& propval) const
-{                                                                               
+{
     BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );
     BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value() );
     return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );

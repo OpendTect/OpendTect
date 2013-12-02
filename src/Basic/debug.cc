@@ -467,12 +467,12 @@ private:
     google_breakpad::ExceptionHandler*	handler_;
 };
 
-}; //Namespace System
+} // namespace System
 
 
 using namespace System;
 
-//Crashdumper stuff
+// CrashDumper
 CrashDumper::CrashDumper()
     : sendappl_( sSenderAppl() )
     , handler_(0)
@@ -484,16 +484,14 @@ CrashDumper::CrashDumper()
 CrashDumper* CrashDumper::theinst_ = 0;
 
 
-static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
-                     void *context, EXCEPTION_POINTERS *exinfo,
-                     MDRawAssertionInfo *assertion,
-                     bool succeeded)
+static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
+			void* context, EXCEPTION_POINTERS *exinfo,
+			MDRawAssertionInfo *assertion, bool succeeded )
 {
-    const QString path = QString::fromWCharArray( dump_path );
-    const QString mndmpid = QString::fromWCharArray( id );
-    const BufferString dmppath ( path.toAscii().constData() );
-    const BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
-    const FilePath dmpfp( dmppath, dmpid );
+    const BufferString dmppath( QString::fromWCharArray(dump_path) );
+    const BufferString dmpid( QString::fromWCharArray(id) );
+    FilePath dmpfp( dmppath, dmpid );
+    dmpfp.setExtension( "dmp" );
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
@@ -501,15 +499,14 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
 
 void CrashDumper::init()
 {
-    if ( !handler_ )
-    {
-	const QString dmppath = FilePath::getTempDir();
-	const std::wstring wpath = dmppath.toStdWString();
-	handler_ = new google_breakpad::ExceptionHandler(
-			wpath,
-			NULL, MinidumpCB, NULL,
-			google_breakpad::ExceptionHandler::HANDLER_ALL );
-    }
+    if ( handler_ )
+	return;
+
+    const QString dmppath = FilePath::getTempDir();
+    const std::wstring wpath = dmppath.toStdWString();
+    handler_ = new google_breakpad::ExceptionHandler(
+		    wpath, NULL, MinidumpCB, NULL,
+		    google_breakpad::ExceptionHandler::HANDLER_ALL );
 }
 
 
@@ -526,9 +523,7 @@ void CrashDumper::sendDump( const char* filename )
 CrashDumper& CrashDumper::getInstance()
 {
     if ( !theinst_ )
-    {
 	theinst_ = new CrashDumper;
-    }
 
     return *theinst_;
 }
@@ -537,9 +532,7 @@ CrashDumper& CrashDumper::getInstance()
 FixedString CrashDumper::sSenderAppl()
 { return FixedString("od_ReportIssue" ); }
 
-
 FixedString CrashDumper::sUiSenderAppl()
 { return FixedString( "od_uiReportIssue" ); }
-
 
 #endif // mUseCrashDumper

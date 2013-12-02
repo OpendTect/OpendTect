@@ -827,7 +827,7 @@ void uiMainWin::setCaption( const char* txt )
 const char* uiMainWin::caption( bool unique ) const
 {
     mDeclStaticString( capt );
-    capt = unique ? mQStringToConstChar(body_->windowTitle()) : caption_.buf();
+    capt = unique ? body_->windowTitle() : caption_.buf();
     return capt;
 }
 
@@ -1004,7 +1004,7 @@ const char* uiMainWin::activeModalQDlgTitle()
 	return 0;
 
     mDeclStaticString( title );
-    title = mQStringToConstChar( amw->windowTitle() );
+    title = amw->windowTitle();
     return title;
 }
 
@@ -1039,9 +1039,9 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
 	mDeclStaticString( buttext );
         if ( stdbut )
-	    buttext = mQStringToConstChar( qmb->button(stdbut)->text() );
+	    buttext = qmb->button(stdbut)->text();
 	else if ( !stdbutcount )
-	    buttext = mQStringToConstChar( qmb->buttonText(buttonnr) );
+	    buttext = qmb->buttonText( buttonnr );
 	else
 	    buttext = "";
 
@@ -1142,7 +1142,7 @@ const char* uiMainWin::uniqueWinTitle( const char* txt,
 	    if ( !qw->isWindow() || qw->isHidden() || qw==forwindow )
 		continue;
 
-	    if ( wintitle==mQStringToConstChar(qw->windowTitle())  )
+	    if ( qw->windowTitle() == wintitle )
 		unique = false;
 	}
 

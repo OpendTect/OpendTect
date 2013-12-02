@@ -55,13 +55,13 @@ bool uiDesktopServices::openUrl( const char* url )
     if ( DBG::isOn(DBG_IO) )
     {
 	BufferString msg( "Open url: " );
-	msg += qurl.toString().toLatin1().data();
+	msg.add( qurl.toString() );
 	DBG::message( msg );
     }
 
     const BufferString syslibpath( GetEnvVar(sKeySysLibPath) );
     const BufferString odenvlibpath( sKeyLDLibPath ? GetEnvVar(sKeyLDLibPath)
-	    					   : 0 );
+						   : 0 );
     if ( odenvlibpath.isEmpty() )
 	return QDesktopServices::openUrl( qurl );
 

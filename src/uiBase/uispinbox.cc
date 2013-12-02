@@ -32,7 +32,7 @@ public:
                         uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
     virtual		~uiSpinBoxBody();
 
-    virtual int 	nrTxtLines() const	{ return 1; }
+    virtual int		nrTxtLines() const	{ return 1; }
     void		setNrDecimals(int);
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
@@ -187,9 +187,9 @@ uiSpinBox::~uiSpinBox()
 
 
 uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
-{ 
+{
     body_= new uiSpinBoxBody(*this,parnt, nm);
-    return *body_; 
+    return *body_;
 }
 
 void uiSpinBox::setSpecialValueText( const char* txt )
@@ -263,14 +263,14 @@ StepInterval<float> uiSpinBox::getFInterval() const
 int uiSpinBox::getValue() const
 { return mNINT32(body_->value()); }
 
-float uiSpinBox::getFValue() const	
+float uiSpinBox::getFValue() const
 { return (float)body_->value(); }
 
 
 const char* uiSpinBox::text() const
 {
     mDeclStaticString( res );
-    res = mQStringToConstChar( body_->textFromValue(getFValue()) );
+    res = body_->textFromValue( getFValue() );
     return res;
 }
 
@@ -345,7 +345,7 @@ void uiSpinBox::stepBy( int nrsteps )
     body_->stepBy( nrsteps );
 }
 
-void uiSpinBox::setStep( int stp, bool snapcur )		
+void uiSpinBox::setStep( int stp, bool snapcur )
 { setStep( (float)stp, snapcur ); }
 
 void uiSpinBox::setStep( float stp, bool snapcur )
@@ -365,7 +365,7 @@ void uiSpinBox::setPrefix( const char* pfx )
 const char* uiSpinBox::prefix() const
 {
     mDeclStaticString( res );
-    res = mQStringToConstChar( body_->prefix() );
+    res = body_->prefix();
     return res;
 }
 
@@ -377,28 +377,16 @@ void uiSpinBox::setSuffix( const char* sfx )
 const char* uiSpinBox::suffix() const
 {
     mDeclStaticString( res );
-    res = mQStringToConstChar( body_->suffix() );
+    res = body_->suffix();
     return res;
 }
 
 
 void uiSpinBox::setKeyboardTracking( bool yn )
-{
-#if QT_VERSION >= 0x040300
-    body_->setKeyboardTracking( yn );
-#endif
-}
-
+{ body_->setKeyboardTracking( yn ); }
 
 bool uiSpinBox::keyboardTracking() const
-{
-#if QT_VERSION < 0x040300
-    return false;
-#else
-    return body_->keyboardTracking();
-#endif
-}
-
+{ return body_->keyboardTracking(); }
 
 void uiSpinBox::setFocusChangeTrigger( bool yn )
 { focuschgtrigger_ = yn; }
@@ -437,7 +425,7 @@ bool uiSpinBox::handleLongTabletPress()
 void uiSpinBox::popupVirtualKeyboard( int globalx, int globaly )
 {
     if ( !hasFocus() )
-	return; 
+	return;
 
     uiVirtualKeyboard virkeyboard( *this, globalx, globaly );
     virkeyboard.show();

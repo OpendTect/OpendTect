@@ -408,7 +408,7 @@ void uiMain::getCmdLineArgs( BufferStringSet& args ) const
 {
     QStringList qargs = app_->arguments();
     for ( int idx=0; idx<qargs.count(); idx++ )
-	args.add( qargs.at(idx).toLatin1() );
+	args.add( qargs.at(idx) );
 }
 
 

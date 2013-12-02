@@ -50,7 +50,7 @@ public:
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
 
-    // take & insert are meant to MOVE an item to another point in the tree 
+    // take & insert are meant to MOVE an item to another point in the tree
     void		takeItem(uiTreeViewItem*);
     void		insertItem(int,uiTreeViewItem*);
 
@@ -76,7 +76,7 @@ public:
 
     enum		SelectionMode
     			{ NoSelection=0, Single, Multi, Extended, Contiguous };
-    enum		SelectionBehavior 
+    enum		SelectionBehavior
 			{ SelectItems, SelectRows, SelectColumns };
     void		setSelectionMode(SelectionMode);
     SelectionMode	selectionMode() const;
@@ -185,7 +185,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-				Setup( const char* txt=0, 
+				Setup( const char* txt=0,
 				       uiTreeViewItem::Type tp=
 						uiTreeViewItem::Standard,
 				       bool setchecked=true )
@@ -201,11 +201,11 @@ public:
 	mDefSetupMemb(bool,setcheck)
 	BufferStringSet		labels_;
 
-	Setup& 			label( const char* txt ) 
-				{ 
-				    if( txt ) 
-					labels_ += new BufferString( txt ); 
-				    return *this; 
+	Setup& 			label( const char* txt )
+				{
+				    if( txt )
+					labels_ += new BufferString( txt );
+				    return *this;
 				}
     };
 
@@ -305,8 +305,7 @@ public:
 
 protected:
 
-    mQtclass(QTreeWidgetItem*)		qtreeitem_;
-    mutable BufferString	rettxt;
+    mQtclass(QTreeWidgetItem*)	qtreeitem_;
 
     void			init(const Setup&);
 

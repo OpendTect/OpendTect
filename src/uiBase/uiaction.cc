@@ -156,7 +156,7 @@ void uiAction::setText( const wchar_t* txt )
 const char* uiAction::text() const
 {
     mDeclStaticString( ret );
-    ret = qaction_->text().toLatin1().data();
+    ret = qaction_->text();
     return ret.buf();
 }
 
@@ -168,7 +168,7 @@ void uiAction::setIconText( const char* txt )
 const char* uiAction::iconText() const
 {
     mDeclStaticString( ret );
-    ret = qaction_->iconText().toLatin1().data();
+    ret = qaction_->iconText();
     return ret.buf();
 }
 
@@ -202,7 +202,7 @@ void uiAction::setToolTip( const QString& txt )
 const char* uiAction::toolTip() const
 {
     mDeclStaticString( ret );
-    ret = qnormaltooltipstr_->toLatin1().data();
+    ret = *qnormaltooltipstr_;
     return ret.buf();
 }
 

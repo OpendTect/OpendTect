@@ -373,8 +373,10 @@ void uiTreeView::setColumnText( int col, const char* label )
 const char* uiTreeView::columnText( int col ) const
 {
     if ( col < 0  ) return "";
-    QString qlabel = body_->headerItem()->text( col );
-    return qlabel.toLatin1().data();
+
+    mDeclStaticString( ret );
+    ret = body_->headerItem()->text( col );
+    return ret.buf();
 }
 
 
@@ -697,8 +699,9 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 
 const char* uiTreeViewItem::text( int column ) const
 {
-    rettxt = mQStringToConstChar( qItem()->text(column) );
-    return rettxt;
+    mDeclStaticString( res );
+    res = qItem()->text(column);
+    return res.buf();
 }
 
 
@@ -966,7 +969,7 @@ const char* uiTreeViewItem::toolTip(int column) const
 {
     mDeclStaticString( ret );
     ret = column<0 || column>=qnormaltooltipstrlist_->size() ? "" :
-		      (*qnormaltooltipstrlist_)[column].toLatin1().data();
+		      (*qnormaltooltipstrlist_)[column];
     return ret.buf();
 }
 

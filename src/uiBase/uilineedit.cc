@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uivirtualkeyboard.h"
 
-#include <QSize> 
+#include <QSize>
 #include <QCompleter>
 #include <QContextMenuEvent>
 #include <QIntValidator>
@@ -35,7 +35,7 @@ public:
 
     virtual		~uiLineEditBody()		{ delete &messenger_; }
 
-    virtual int 	nrTxtLines() const		{ return 1; }
+    virtual int	nrTxtLines() const		{ return 1; }
 
 protected:
 
@@ -48,12 +48,12 @@ private:
 };
 
 
-uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt, 
+uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt,
 				const char* nm )
     : uiObjBodyImpl<uiLineEdit,QLineEdit>(hndle,parnt,nm)
     , messenger_ ( *new i_lineEditMessenger(this,&hndle) )
-{ 
-    setStretch( 1, 0 ); 
+{
+    setStretch( 1, 0 );
     setHSzPol( uiObject::Medium );
 }
 
@@ -76,7 +76,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 }
 
 
-uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm ) 
+uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
     , selectionChanged(this), textChanged(this)
@@ -87,15 +87,15 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm )
 
 
 uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
-{ 
+{
     body_ = new uiLineEditBody(*this,parnt,nm);
-    return *body_; 
+    return *body_;
 }
 
 
 const char* uiLineEdit::getvalue_() const
 {
-    BufferString res( mQStringToConstChar( body_->text() ) );
+    BufferString res( body_->text() );
     char* ptr = res.buf();
     mTrimBlanks(ptr);
     result_ = ptr;
@@ -154,7 +154,7 @@ void uiLineEdit::setCompleter( const BufferStringSet& bs, bool cs )
 
     QCompleter* qc = new QCompleter( qsl, 0 );
     qc->setCaseSensitivity( cs ? Qt::CaseSensitive
-	    		       : Qt::CaseInsensitive );
+			       : Qt::CaseInsensitive );
     body_->setCompleter( qc );
 }
 
@@ -204,7 +204,7 @@ void uiLineEdit::setSelection( int start, int length )
 
 const char* uiLineEdit::selectedText() const
 {
-    result_ = mQStringToConstChar( body_->selectedText() );
+    result_ = body_->selectedText();
     return result_.buf();
 }
 

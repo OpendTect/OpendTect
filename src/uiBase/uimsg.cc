@@ -56,7 +56,7 @@ uiMainWin* uiMsg::setMainWin( uiMainWin* m )
 
 uiStatusBar* uiMsg::statusBar()
 {
-    uiMainWin* mw = uimainwin_;/* ? uimainwin_ 
+    uiMainWin* mw = uimainwin_;/* ? uimainwin_
 			       : uiMainWin::gtUiWinIfIsBdy( parent_ );*/
 
     if ( !mw || !mw->statusBar() )
@@ -142,9 +142,9 @@ int uiMsg::beginCmdRecEvent( const char* wintitle )
 #define mEndCmdRecEvent( refnr, qmsgbox ) \
 \
     QAbstractButton* abstrbut = qmsgbox.clickedButton(); \
-    endCmdRecEvent( refnr, 0, \
-		    (abstrbut ? mQStringToConstChar(abstrbut->text()) : "") );
-	
+    BufferString msg; if ( abstrbut ) msg = abstrbut->text(); \
+    endCmdRecEvent( refnr, 0, msg );
+
 void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 			    const char* buttxt1, const char* buttxt2 )
 {
@@ -173,7 +173,7 @@ void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
     const char* title = mCapt(caption); \
     const int refnr = beginCmdRecEvent( title ); \
     QMessageBox::qtfunc( popParnt(), QString(title), \
-	    			   mTxt, QString(oktxt) ); \
+				   mTxt, QString(oktxt) ); \
     endCmdRecEvent( refnr, 0, oktxt ); \
 }
 
@@ -235,7 +235,7 @@ int uiMsg::askSave( const char* text, bool wcancel )
 {
     const char* dontsavetxt = "&Don't save";
     return question( text, sSave(), dontsavetxt,
-	    	     wcancel ? sCancel().str() : 0, "Data not saved" );
+		     wcancel ? sCancel().str() : 0, "Data not saved" );
 }
 
 
@@ -245,7 +245,7 @@ int uiMsg::askRemove( const char* text, bool wcancel )
     const char* notxt = wcancel ? "&Don't remove" : sCancel();
     const char* canceltxt = sCancel();
     return question( text, yestxt, notxt,
-	    	     wcancel ? canceltxt : 0, "Remove data" );
+		     wcancel ? canceltxt : 0, "Remove data" );
 }
 
 
@@ -282,7 +282,7 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 					   QString(notxt),
 					   cncltxt ? QString(cncltxt)
 					           : QString::null,
-			       	           0, 2 );
+				           0, 2 );
 
     endCmdRecEvent( refnr, res, yestxt, notxt, cncltxt );
     return res == 0 ? 1 : (res == 1 ? 0 : -1);
@@ -295,7 +295,7 @@ void uiMsg::about( const char* text )
     const char* wintitle = mCapt("About");
     const int refnr = beginCmdRecEvent( wintitle );
     QMessageBox::about( popParnt(), QString(wintitle),
-	    			  QString(text) );
+				  QString(text) );
     endCmdRecEvent( refnr, 0, "&OK" );
 }
 
@@ -316,7 +316,7 @@ bool uiMsg::askGoOn( const char* text, const char* textyes, const char* textno )
     const char* wintitle = mCapt("Please specify");
     const int refnr = beginCmdRecEvent( wintitle );
     const int res = QMessageBox::warning( popParnt(), QString(wintitle),
-	    				  QString(text), QString(textyes),
+					  QString(text), QString(textyes),
 					  QString(textno),
 					  QString::null, 0, 1);
     endCmdRecEvent( refnr, res, textyes, textno );

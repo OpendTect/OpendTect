@@ -101,7 +101,8 @@ void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fData )
 
 void uiFont::getFontData( FontData& fData, const mQtclass(QFont)& qfont )
 {
-    fData = FontData( qfont.pointSize(), mQStringToConstChar(qfont.family()),
+    const BufferString fontfamily = qfont.family();
+    fData = FontData( qfont.pointSize(), fontfamily,
 		    FontData::enumWeight(qfont.weight()),
 		    qfont.italic() );
 }

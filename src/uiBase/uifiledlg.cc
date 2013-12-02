@@ -208,7 +208,7 @@ int uiFileDialog::go()
 
     QStringList selfiles = fd->selectedFiles();
     if ( !selfiles.isEmpty() )
-	fn = mQStringToConstChar( selfiles[0] );
+	fn = selfiles[0];
 
     selectedfilter_ = fd->selectedNameFilter();
 
@@ -218,7 +218,7 @@ int uiFileDialog::go()
 
     for ( int idx=0; idx<selfiles.size(); idx++ )
     {
-	BufferString bs( mQStringToConstChar(selfiles[idx]) );
+	BufferString bs( selfiles[idx] );
 #ifdef __win__
 	bs.replace( '/', '\\' );
 #endif
@@ -243,7 +243,7 @@ void uiFileDialog::list2String( const BufferStringSet& list,
     for ( int idx=0; idx<list.size(); idx++ )
 	qlist.append( (QString)list[idx]->buf() );
 
-    string = qlist.join( (QString)filesep_ ).toLatin1().constData();
+    string = qlist.join( (QString)filesep_ );
 }
 
 
@@ -253,7 +253,7 @@ void uiFileDialog::string2List( const BufferString& string,
     QString qstr( string.buf() );
     QStringList qlist = qstr.split( (QString)filesep_ );
     for ( int idx=0; idx<qlist.size(); idx++ )
-	list.add( mQStringToConstChar(qlist[idx]) );
+	list.add( qlist[idx] );
 }
 
 

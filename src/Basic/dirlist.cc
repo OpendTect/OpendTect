@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 	: dir_(dirname?dirname:".")
 	, type_(t)
-    	, mask_(msk)
+	, mask_(msk)
 {
     update();
 }
@@ -42,15 +42,12 @@ void DirList::update()
     else if ( type_ == DirsOnly )
 	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
     else
-	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files | QDir::Hidden;
+	filters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
+			     | QDir::Hidden;
 
     QStringList qlist = qdir.entryList( filters );
-    
     for ( int idx=0; idx<qlist.size(); idx++ )
-    {	
-	BufferString dirnm = qlist[idx].toLatin1().constData();
-	add( dirnm );
-    }
+	add( qlist[idx] );
 
     sort();
 }

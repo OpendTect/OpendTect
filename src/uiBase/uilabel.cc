@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 #include "staticstring.h"
 
-#include <qlabel.h> 
+#include <qlabel.h>
 
 mUseQtnamespace
 
@@ -28,15 +28,15 @@ public:
 			    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,txt)
 			{}
 
-    virtual int 	nrTxtLines() const		
-			{ 
+    virtual int	nrTxtLines() const
+			{
 			    int nrl = 1;
-			    BufferString str = mQStringToConstChar( text() );
+			    BufferString str = text();
 			    char* txt = str.buf();
 			    while ( txt && *txt )
 				{ if ( *txt == '\n' ) nrl++; txt++; }
 
-			    return nrl; 
+			    return nrl;
 			}
 
 };
@@ -68,7 +68,7 @@ void uiLabel::init( const char* txt, uiObject* buddy )
     setText( txt );
     setTextSelectable( true );
 
-    if ( buddy ) 
+    if ( buddy )
     {
 	body_->setBuddy( buddy->body()->qwidget() );
 	buddy->attach( rightOf, this );
@@ -78,14 +78,14 @@ void uiLabel::init( const char* txt, uiObject* buddy )
 
 
 uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
-{ 
+{
     body_= new uiLabelBody( *this, p, txt );
-    return *body_; 
+    return *body_;
 }
 
 
 void uiLabel::setText( const char* txt )
-{ 
+{
     body_->setText( QString(txt) );
     setName( txt );
 }
@@ -94,12 +94,12 @@ void uiLabel::setText( const char* txt )
 const char* uiLabel::text() const
 {
     mDeclStaticString( txt );
-    txt = mQStringToConstChar( body_->text() );
+    txt = body_->text();
     return txt.buf();
 }
 
 
-void uiLabel::setTextSelectable( bool yn ) 
+void uiLabel::setTextSelectable( bool yn )
 {
     body_->setTextInteractionFlags( yn ? Qt::TextSelectableByMouse :
 					 Qt::NoTextInteraction );

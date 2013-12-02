@@ -565,7 +565,7 @@ const char* uiTable::text( const RowCol& rc ) const
 
     mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
-    ret = itm ? itm->text().toLatin1().data() : "";
+    ret = itm ? itm->text() : "";
     return ret;
 }
 
@@ -837,12 +837,12 @@ Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 
 const char* uiTable::rowLabel( int row ) const
 {
-    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->verticalHeaderItem( row );
     if ( !itm )
 	return 0;
 
-    ret = itm->text().toLatin1().data();
+    mDeclStaticString( ret );
+    ret = itm->text();
     return ret;
 }
 
@@ -885,12 +885,12 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 
 const char* uiTable::columnLabel( int col ) const
 {
-    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
     if ( !itm )
 	return 0;
 
-    ret = itm->text().toLatin1().data();
+    mDeclStaticString( ret );
+    ret = itm->text();
     return ret;
 }
 

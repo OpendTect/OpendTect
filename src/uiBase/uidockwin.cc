@@ -118,8 +118,8 @@ void uiDockWin::setGroup( uiGroup* grp )
 const char* uiDockWin::getDockName() const
 {
     mDeclStaticString( docknm );
-    docknm = mQStringToConstChar( body_->qwidget()->objectName() );
-    return docknm;
+    docknm = body_->qwidget()->objectName();
+    return docknm.buf();
 }
 
 void uiDockWin::setDockName( const char* nm )

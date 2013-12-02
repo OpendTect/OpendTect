@@ -67,7 +67,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
     , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
 {
 }
 
@@ -77,8 +77,8 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
     , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
-{ 
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+{
     addItems( uids );
 }
 
@@ -87,8 +87,8 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
     , editTextChanged( this )
-    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
-{ 
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+{
     addItems( uids );
 }
 
@@ -100,7 +100,7 @@ uiComboBox::~uiComboBox()
 uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 {
     body_ = new uiComboBoxBody( *this, parnt, nm );
-    return *body_; 
+    return *body_;
 }
 
 
@@ -142,7 +142,7 @@ void uiComboBox::setEmpty()
 
 const char* uiComboBox::text() const
 {
-    rettxt_ = mQStringToConstChar( body_->currentText() );
+    rettxt_ = body_->currentText();
     return rettxt_.buf();
 }
 
@@ -177,7 +177,7 @@ bool uiComboBox::isPresent( const char* txt ) const
 const char* uiComboBox::textOfItem( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return "";
-    rettxt_ = mQStringToConstChar( body_->itemText(idx) );
+    rettxt_ = body_->itemText(idx);
     return rettxt_.buf();
 }
 
@@ -263,7 +263,7 @@ void uiComboBox::addItem( const char* txt )
 { addItem( txt, -1 ); }
 
 
-void uiComboBox::addItem( const char* txt, int id ) 
+void uiComboBox::addItem( const char* txt, int id )
 {
     mBlockCmdRec;
     body_->addItem( QString(txt) );

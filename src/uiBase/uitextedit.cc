@@ -26,9 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <QScrollBar>
-#include <QTextDocument> 
-#include <QTextEdit> 
-#include <QToolTip> 
+#include <QTextDocument>
+#include <QTextEdit>
+#include <QToolTip>
 
 mUseQtnamespace
 
@@ -47,8 +47,8 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 
 
 const char* uiTextEditBase::text() const
-{ 
-    result_ = mQStringToConstChar( qte().toPlainText() );
+{
+    result_ = qte().toPlainText();
     return result_.buf();
 }
 
@@ -62,10 +62,10 @@ void uiTextEditBase::allowTextSelection( bool yn )
     const Qt::TextInteractionFlags selflag = Qt::TextSelectableByMouse;
     const Qt::TextInteractionFlags mask = ~selflag;
     Qt::TextInteractionFlags flags = qte().textInteractionFlags() & mask;
-    
+
     if ( yn )
         flags |= selflag;
-    
+
     qte().setTextInteractionFlags( flags );
 }
 
@@ -221,7 +221,7 @@ protected:
 };
 
 
-uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p, 
+uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 				const char* nm, bool ro )
     : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
     , messenger_(*new i_TextEditMessenger(this,&hndl))
@@ -232,7 +232,7 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 
 
 void uiTextEditBody::append( const char* txt)
-{ 
+{
     QTextEdit::append( txt );
     repaint();
     moveCursor( QTextCursor::End );
@@ -241,7 +241,7 @@ void uiTextEditBody::append( const char* txt)
 //-------------------------------------------------------
 
 uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
-    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )		
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )
     , textChanged(this)
 {
     setPrefWidth( defaultWidth() );
@@ -250,9 +250,9 @@ uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
 
 
 uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
-{ 
+{
     body_= new uiTextEditBody( *this, parnt, nm, ro );
-    return *body_; 
+    return *body_;
 }
 
 
@@ -291,7 +291,7 @@ protected:
 };
 
 
-uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p, 
+uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 				      const char* nm, bool plaintxt )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &hndl))
@@ -323,7 +323,7 @@ void uiTextBrowserBody::restoreScrollPos()
 
 uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
 			      bool forceplaintxt, bool lvmode )
-    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forceplaintxt) )	
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forceplaintxt) )
     , goneForwardOrBack(this)
     , linkHighlighted(this)
     , linkClicked(this)
@@ -351,9 +351,9 @@ uiTextBrowser::~uiTextBrowser()
 
 uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 					  bool forceplaintxt )
-{ 
+{
     body_ = new uiTextBrowserBody( *this, parnt, nm, forceplaintxt );
-    return *body_; 
+    return *body_;
 }
 
 
@@ -407,17 +407,10 @@ void uiTextBrowser::setText( const char* txt )
 { qte().setText( txt ); }
 
 void uiTextBrowser::setHtmlText( const char* txt )
-{
-    body_->setHtml( txt );
-}
-
+{ body_->setHtml( txt ); }
 
 void uiTextBrowser::getHtmlText( BufferString& res ) const
-{
-    const QString str = body_->toHtml();
-    res = str.toLatin1().data();
-}
-
+{ res = body_->toHtml(); }
 
 
 void  uiTextBrowser::setLinkBehavior( uiTextBrowser::LinkBehavior lb )
@@ -428,12 +421,12 @@ void  uiTextBrowser::setLinkBehavior( uiTextBrowser::LinkBehavior lb )
 
 
 const char* uiTextBrowser::source() const
-{ 
+{
     if ( forceplaintxt_ )
 	return textsrc_;
 
 
-    result_ = body_->source().path().toLatin1().data();
+    result_ = body_->source().path();
     return result_.buf();
 }
 
@@ -449,7 +442,7 @@ void uiTextBrowser::setSource( const char* src )
 	    qte().setText( "" );
 	    lastlinestartpos_ = -1;
 	    readTailCB( 0 );
-	    timer_->start( 500, false ); 
+	    timer_->start( 500, false );
 	}
 	else
 	    readFromFile( src );

@@ -266,7 +266,7 @@ static BufferString getCleanName( const char* nm )
 {
     QString qstr( nm );
     qstr.remove( QChar('&') );
-    return BufferString( qstr.toLatin1().data() );
+    return BufferString( qstr );
 }
 
 
@@ -341,7 +341,7 @@ void uiObject::setName( const char* nm )
 const char* uiObject::toolTip() const
 {
     mDeclStaticString( ret );
-    ret = qnormaltooltipstr_->toLatin1().data();
+    ret = *qnormaltooltipstr_;
     return ret.buf();
 }
 

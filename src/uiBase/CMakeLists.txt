@@ -6,7 +6,7 @@
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS General)
-set(OD_USEQT Widgets)
+set(OD_USEQT Widgets PrintSupport)
 set(QT_MOC_HEADERS i_qaction.h
 		i_qbutton.h
 		i_qcombobox.h
