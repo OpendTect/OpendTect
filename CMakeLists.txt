@@ -49,7 +49,7 @@ set( OD_MODULES
 set( OD_PLUGINS
 	ExpAttribs
 	GMT
-	GoogleTranslate
+#	GoogleTranslate
 	Hello
 	HorizonAttrib
 	Madagascar

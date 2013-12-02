@@ -9,24 +9,18 @@ SET(OD_USEQT Network)
 SET(OD_MODULE_DEPS General)
 
 SET(QT_MOC_HEADERS 
-	    qftpconn.h
-	    qhttpconn.h
-	    qlocalservercomm.h
-	    qlocalsocketcomm.h
-		qnetworkaccessconn.h
-	    qtcpservercomm.h
-	    qtcpsocketcomm.h)
+	qlocalservercomm.h
+	qlocalsocketcomm.h
+	qnetworkaccessconn.h
+	qtcpservercomm.h
+	qtcpsocketcomm.h)
 SET(OD_MODULE_SOURCES 
 		cvsaccess.cc
-		ftptask.cc
-		httptask.cc
 		issuereporter.cc
 		jobcommunic.cc
 		localserver.cc
 		localsocket.cc
 		oddlsite.cc
-		odftp.cc
-		odhttp.cc
 		odnetworkaccess.cc
 		odnetworkreply.cc
 		svnaccess.cc
