@@ -43,11 +43,12 @@ DefineEnumNames(PSAttrib,XaxisUnit,0,"X-Axis unit")
     0
 };
 
+
 mAttrDefCreateInstance(PSAttrib)
 
 void PSAttrib::initClass()
 {
-    mAttrStartInitClass
+    mAttrStartInitClassWithUpdate
 
     desc->addParam( new SeisStorageRefParam("id") );
 
@@ -86,7 +87,6 @@ void PSAttrib::initClass()
 				PreStack::AngleComputer::sKeySmoothType() );
     smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
     smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
-    smoothtype->setRequired( false );
     desc->addParam( smoothtype );
 
     desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "",
@@ -111,6 +111,48 @@ void PSAttrib::initClass()
 }
 
 
+void PSAttrib::updateDesc( Desc& desc )
+{
+    const MultiID procid = desc.getValParam(preProcessStr())->getStringValue();
+    const bool dopreproc = !procid.isEmpty() && !procid.isUdf();
+    desc.setParamEnabled( preProcessStr(), dopreproc );
+
+    const int calctype = desc.getValParam( calctypeStr() )->getIntValue();
+    const bool dostats = calctype == PreStack::PropCalc::Stats;
+    desc.setParamEnabled( stattypeStr(), dostats );
+    desc.setParamEnabled( lsqtypeStr(), !dostats );
+    desc.setParamEnabled( offsaxisStr(), !dostats );
+
+    const bool useangle = desc.getValParam(useangleStr())->getBoolValue();
+    desc.setParamEnabled( gathertypeStr(), !useangle );
+    desc.setParamEnabled( xaxisunitStr(), !useangle );
+    desc.setParamEnabled( offStartStr(), !useangle );
+    desc.setParamEnabled( offStopStr(), !useangle );
+
+    desc.setParamEnabled( velocityIDStr(), useangle );
+    desc.setParamEnabled( angleStartStr(), useangle );
+    desc.setParamEnabled( angleStopStr(), useangle );
+    desc.setParamEnabled( rayTracerParamStr(), useangle );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeySmoothType(), useangle );
+
+    const int smoothtype = desc.getValParam(
+		     PreStack::AngleComputer::sKeySmoothType())->getIntValue();
+    const bool fftfilter = smoothtype == PreStack::AngleComputer::FFTFilter;
+    const bool movingavg = smoothtype == PreStack::AngleComputer::MovingAverage;
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF3(),
+			  useangle && fftfilter );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyFreqF4(),
+			  useangle && fftfilter );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinFunc(),
+			  useangle && movingavg );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinParam(),
+			  useangle && movingavg );
+    desc.setParamEnabled( PreStack::AngleComputer::sKeyWinLen(),
+			  useangle && movingavg );
+
+}
+
+
 PSAttrib::PSAttrib( Desc& ds )
     : Provider(ds)
     , psioobj_(0)
@@ -123,11 +165,26 @@ PSAttrib::PSAttrib( Desc& ds )
     if ( !isOK() ) return;
 
     const char* res; mGetString(res,"id") psid_ = res;
-    float offstart, offstop;
-    mGetFloat( offstart, offStartStr() );
-    mGetFloat( offstop, offStopStr() );
 
-    setup_.offsrg_ = Interval<float>( offstart, offstop );
+    BufferString preprocessstr;
+    mGetString( preprocessstr, preProcessStr() );
+    preprocid_ = preprocessstr;
+    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
+    if ( preprociopar )
+    {
+	preprocessor_ = new PreStack::ProcessManager;
+	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
+					       errmsg_ ) )
+	{
+	    delete preprocessor_;
+	    preprocessor_ = 0;
+	}
+    }
+    else
+	preprocid_.setEmpty();
+
+    mGetInt( component_, componentStr() );
+    mGetInt( setup_.aperture_, apertureStr() );
 
 #define mGetSetupEnumPar(var,typ) \
     int tmp_##var = (int)setup_.var##_; \
@@ -135,13 +192,17 @@ PSAttrib::PSAttrib( Desc& ds )
     setup_.var##_ = (typ)tmp_##var
 
     mGetSetupEnumPar(calctype,PreStack::PropCalc::CalcType);
-    mGetSetupEnumPar(stattype,Stats::Type);
-    mGetSetupEnumPar(lsqtype,PreStack::PropCalc::LSQType);
-    mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
-    mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
+    if ( setup_.calctype_ == PreStack::PropCalc::Stats )
+    {
+	mGetSetupEnumPar(stattype,Stats::Type);
+    }
+    else
+    {
+	mGetSetupEnumPar(lsqtype,PreStack::PropCalc::LSQType);
+	mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
+    }
 
-    mGetInt( component_, componentStr() );
-    mGetInt( setup_.aperture_, apertureStr() );
+    mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
 
     bool useangle = setup_.useangle_;
     mGetBool( useangle, useangleStr() );
@@ -157,6 +218,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_ = velangcomp;
 	    anglecomp_->ref();
 	}
+	else
+	    velocityid_.setEmpty();
 
 	if ( anglecomp_ )
 	{
@@ -175,6 +238,11 @@ PSAttrib::PSAttrib( Desc& ds )
     }
     else
     {
+	float offstart, offstop;
+	mGetFloat( offstart, offStartStr() );
+	mGetFloat( offstop, offStopStr() );
+	setup_.offsrg_ = Interval<float>( offstart, offstop );
+
 	int gathertype = 0;
 	mGetEnum( gathertype, gathertypeStr() );
 	int xaxisunit = 0;
@@ -183,20 +251,6 @@ PSAttrib::PSAttrib( Desc& ds )
 				      xaxisunit == PSAttrib::Deg );
     }
 
-    BufferString preprocessstr;
-    mGetString( preprocessstr, preProcessStr() );
-    preprocid_ = preprocessstr;
-    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
-    if ( preprociopar )
-    {
-	preprocessor_ = new PreStack::ProcessManager;
-	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
-					       errmsg_ ) )
-	{
-	    delete preprocessor_;
-	    preprocessor_ = 0;
-	}
-    }
 }
 
 

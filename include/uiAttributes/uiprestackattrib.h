@@ -76,7 +76,7 @@ protected:
     void		gatherTypSel(CallBacker*);
     void		gatherUnitSel(CallBacker*);
 
-    bool	setInput(const Desc&);
+    bool		setInput(const Desc&);
 
 			mDeclReqAttribUIFns
 };

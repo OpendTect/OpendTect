@@ -80,7 +80,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     gathertypefld_->valuechanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
 
-    xrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
+    xrgfld_ = new uiGenInput( this, "Offset range (empty=all) ",
 	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
     xrgfld_->attach( alignedBelow, gathertypefld_ );
 
@@ -238,18 +238,23 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const MultiID ppid = aps->preProcID();
-    dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
-    preprocsel_->setSel( ppid );
+    if ( !ppid.isEmpty() && ppid.ID(0)!=0 )
+    {
+	dopreprocessfld_->setValue( true );
+	preprocsel_->setSel( ppid );
+    }
 
-    Interval<float> offsrg( aps->setup().offsrg_ );
-    if ( SI().xyInFeet() && !offsrg.isUdf() )
-	offsrg.scale( mToFeetFactorF );
-
-    xrgfld_->setValue( offsrg );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
-    stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
-    lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
-    xaxistypefld_->setValue( (int)aps->setup().offsaxis_ );
+    if ( aps->setup().calctype_ == PreStack::PropCalc::Stats )
+    {
+	stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
+    }
+    else
+    {
+	lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
+	xaxistypefld_->setValue( (int)aps->setup().offsaxis_ );
+    }
+
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
     useanglefld_->setChecked( aps->setup().useangle_ );
     if ( aps->setup().useangle_ && !setAngleParameters(desc) )
@@ -259,10 +264,16 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     {
 	mIfGetEnum(PSAttrib::gathertypeStr(),gtp,gathertypefld_->setValue(gtp));
 	mIfGetEnum(PSAttrib::xaxisunitStr(),xut,xunitfld_->setValue(xut));
+	Interval<float> offsrg( aps->setup().offsrg_ );
+	if ( SI().xyInFeet() && !offsrg.isUdf() &&
+	     gathertypefld_->getIntValue() == 0 )
+	    offsrg.scale( mToFeetFactorF );
+
+	xrgfld_->setValue( offsrg );
     }
 
-    calcTypSel(0);
     doPreProcSel(0);
+    calcTypSel(0);
     return true;
 }
 
@@ -331,42 +342,39 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	    { errmsg_ = "Please select preprocessing setup"; return false; }
 	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
     }
-    else
-    {
-	mSetString(Attrib::PSAttrib::preProcessStr(), ((const char*) 0) );
-    }
 
-    Interval<float> offsrg = xrgfld_->getFInterval();
-    if ( SI().xyInFeet() && !offsrg.isUdf() )
-	offsrg.scale( mFromFeetFactorF );
-
-    if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
-    mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
-    mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)
-    const bool useangle = useanglefld_->isChecked();
-    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
-    if ( useangle && !getAngleParameters(desc) )
-	return false;
-
-    const bool isnorm = calctyp == 0;
-    if ( isnorm )
+    if ( calctyp == 0 )
     {
-	mSetEnum(Attrib::PSAttrib::stattypeStr(),
-		 getStatEnumfromString(stattypefld_->text()))
+	mSetEnum( Attrib::PSAttrib::stattypeStr(),
+		  getStatEnumfromString(stattypefld_->text()) )
     }
     else
     {
 	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
 	mSetEnum(Attrib::PSAttrib::offsaxisStr(),xaxistypefld_->getIntValue())
     }
+
     mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
+
+    const bool useangle = useanglefld_->isChecked();
+    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
+    if ( useangle && !getAngleParameters(desc) )
+	return false;
+
     if ( !useangle )
     {
-	mSetEnum(Attrib::PSAttrib::gathertypeStr(),
-		 gathertypefld_->getIntValue());
+	const int gathertype = gathertypefld_->getIntValue();
+	mSetEnum(Attrib::PSAttrib::gathertypeStr(),gathertype)
 	mSetEnum(Attrib::PSAttrib::xaxisunitStr(),xunitfld_->getIntValue());
+	Interval<float> offsrg = xrgfld_->getFInterval();
+	if ( SI().xyInFeet() && !offsrg.isUdf() && gathertype == 0 )
+	    offsrg.scale( mFromFeetFactorF );
+
+	if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
+	mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
+	mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
     }
 
     return true;
@@ -418,9 +426,16 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
     xrgfld_->setTitleText( xlbl );
     xunitfld_->display( !isoffset );
     if ( isoffset )
+    {
 	xrglbl_->setText( SI().xyInFeet() ? "feet    " : "meters    " );
+    }
     else
+    {
+	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	gatherUnitSel( 0 );
+    }
+
+    xaxistypefld_->setSensitive( isoffset );
 }
 
 

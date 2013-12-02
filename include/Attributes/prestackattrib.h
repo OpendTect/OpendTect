@@ -93,6 +93,7 @@ protected:
 
 			~PSAttrib();
     static Provider*    createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
     bool		allowParallelComputation() const	{ return true;}
     bool		getInputOutput(int input,TypeSet<int>& res) const;
@@ -112,8 +113,6 @@ protected:
     PreStack::PropCalc*		propcalc_;
     PreStack::PropCalc::Setup	setup_;
     PreStack::AngleComputer*    anglecomp_;
-    int				gathertype_; //!< default: Offset
-    int				xaxisunit_;  //!< default: Degrees
 
     MultiID			preprocid_;
     int				dataidx_;
