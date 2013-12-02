@@ -147,7 +147,7 @@ bool getLine()
       && fd_.bodyinfos_[0]->selection_.isInFile(1))
     {
 	coord_.x = getdValue( 0 ); coord_.y = getdValue( 1 );
-	if ( formOf(false,0) == 1 )
+	if ( formOf(false,0) == 1 && coord_.isDefined() )
 	    coord_ = SI().transform( BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
     }
     else
@@ -220,11 +220,14 @@ bool uiImpPVDS::getData( std::istream& strm, Table::FormatDesc& fd,
 
     while ( true )
     {
-	DataPointSet::Pos dpspos( aio.coord_, aio.z_ );
-	if ( is2d_ ) dpspos.nr_ = aio.trcnr_;
-	DataPointSet::DataRow dr( dpspos );
-	dr.data_ = aio.datavals_;
-	dps.addRow( dr );
+	if ( aio.coord_.isDefined() )
+	{
+	    DataPointSet::Pos dpspos( aio.coord_, aio.z_ );
+	    if ( is2d_ ) dpspos.nr_ = aio.trcnr_;
+	    DataPointSet::DataRow dr( dpspos );
+	    dr.data_ = aio.datavals_;
+	    dps.addRow( dr );
+	}
 
 	if ( !aio.getLine() )
 	    break;
