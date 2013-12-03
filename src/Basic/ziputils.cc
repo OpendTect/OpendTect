@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "winutils.h"
+#include "oscommand.h"
 #include "ziparchiveinfo.h"
 
 
