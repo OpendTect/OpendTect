@@ -137,8 +137,9 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     for ( int icol=0; icol<nrcols; icol++ )
     {
 	const DataColDef& cd( dps0.colDef(icol) );
-	const char* colnm = cd.name_.buf();
-	const bool issel = isPresentInDesgn( design, colnm );
+	bool issel = isPresentInDesgn( design, cd.name_ );
+	if ( !issel )
+	    issel = isPresentInDesgn( design, cd.ref_ );
 	isincl += issel;
 	if ( issel )
 	    dps.dataSet().add( new DataColDef(cd) );
