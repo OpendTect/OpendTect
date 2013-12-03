@@ -123,17 +123,17 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
-	    if ( itm )
-	    {
-		const int displayid = itm->visEMObject()->id();
-		mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-				applMgr()->visServer()->getObject(displayid))
-		if ( !hd ) continue;
+	    if ( !itm || !itm->visEMObject() )
+		continue;
 
-		hd->displayIntersectionLines( both );
-		hd->setOnlyAtSectionsDisplay( onlyatsection );
-		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
-	    }
+	    const int displayid = itm->visEMObject()->id();
+	    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+			    applMgr()->visServer()->getObject(displayid))
+	    if ( !hd ) continue;
+
+	    hd->displayIntersectionLines( both );
+	    hd->setOnlyAtSectionsDisplay( onlyatsection );
+	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
     else
@@ -608,7 +608,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODHorizon2DTreeItem*,itm,children_[idx])
-	    if ( itm )
+	    if ( itm && itm->visEMObject() )
 	    {
 		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
 		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
