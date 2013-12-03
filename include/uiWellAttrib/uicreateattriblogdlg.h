@@ -32,8 +32,6 @@ public:
 					             const Attrib::DescSet*,
 						     const NLAModel*,bool);
 				~uiCreateAttribLogDlg(){};
-    int                         selectedLogIdx() const  
-    				{ return sellogidx_; }
 
 protected:
     

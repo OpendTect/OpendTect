@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uiapplserv.h"
 
+class BufferStringSet;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
@@ -42,7 +43,8 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			createAttribLog(const MultiID&,int);
+    bool			createAttribLog(const MultiID&);
+    bool			createAttribLog(const BufferStringSet&);
     bool			createLogCube(const MultiID&);
     void			doXPlot();
 

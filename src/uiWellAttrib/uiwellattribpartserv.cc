@@ -22,11 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datapointset.h"
 #include "ptrman.h"
-#include "ioobj.h"
 #include "ioman.h"
 #include "randcolor.h"
-#include "od_ostream.h"
-#include "wellwriter.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
@@ -100,46 +97,26 @@ void uiWellAttribPartServer::doXPlot()
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
-bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
+bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
 {
     Well::Data* wd = Well::MGR().get( wellid );
-    if ( !wd ) mErrRet("Cannot read well data")
-    
-    BufferStringSet wellname;
-    wellname.add( wd->name() );
-
-    if ( lognr<0 )
+    if ( !wd )
     {
-	uiCreateAttribLogDlg dlg( appserv().parent(), wellname ,
-				  attrset, nlamodel, true );
-	dlg.go();
-       	lognr = dlg.selectedLogIdx();
-    }
-
-    if ( lognr<0 )
-	return false;
-    PtrMan<IOObj> ioobj = IOM().get( wellid );
-    if ( !ioobj ) mErrRet("Cannot find well in object manager")
-
-    BufferString fname( ioobj->fullUserExpr(true) );
-    Well::Writer wtr( fname, *wd );
- 
-    if ( lognr > wd->logs().size() - 1 )
-	lognr = wd->logs().size() - 1;
-    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr+1 );
-    od_ostream strm( logfnm );
-    if ( !strm.isOK() )
-    {
-	BufferString errmsg( "Cannot write log to disk: ", logfnm );
-	strm.addErrMsgTo( errmsg );
-	uiMSG().error( errmsg );
+	uiMSG().error( "Cannot read well data" );
 	return false;
     }
 
-    wtr.putLog( strm, wd->logs().getLog(lognr) );
-    return true;
+    BufferStringSet wellnames;
+    wellnames.add( wd->name() );
+    return createAttribLog( wellnames );
+}
+
+
+bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
+{
+    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset,
+	    		      nlamodel, wellnames.size() == 1 );
+    return dlg.go();
 }
 
 

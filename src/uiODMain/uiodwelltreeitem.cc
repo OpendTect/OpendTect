@@ -136,22 +136,13 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == cAttribIdx )
     {
-	ObjectSet<MultiID> wellids;
-	BufferStringSet list;
+	BufferStringSet wellnms;
 	for ( int idx = 0; idx<children_.size(); idx++ )
-	{
-	    mGetWellDisplayFromChild( idx );
-	    wellids += new MultiID( wd->getMultiID() );
-	    list.add( children_[idx]->name() );
-	}
-	uiCreateAttribLogDlg dlg( getUiParent(), list, applMgr()->attrServer()->
-				  curDescSet(false), ODMainWin()->applMgr().
-				  wellAttribServer()->getNLAModel(), false );
-	if (! dlg.go() )
+	    wellnms.addIfNew( children_[idx]->name() );
+
+	uiWellAttribPartServer* srv = ODMainWin()->applMgr().wellAttribServer();
+	if ( srv->createAttribLog(wellnms) )
 	    return false;
-	for ( int idx=0; idx<wellids.size(); idx++ )
-	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
-		*wellids[idx], dlg.selectedLogIdx() );
     }
 
     else if ( mnuid == cLogDispSize )
@@ -354,7 +345,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	//TODO false set to make it compile: change!
 	applMgr()->wellAttribServer()->setAttribSet(
 				*applMgr()->attrServer()->curDescSet(false) );
-	applMgr()->wellAttribServer()->createAttribLog( wellid, -1 );
+	applMgr()->wellAttribServer()->createAttribLog( wellid );
     }
     if ( mnuid == logcubemnuitem_.id )
     {
