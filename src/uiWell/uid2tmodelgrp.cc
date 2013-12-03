@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 
 #include "ctxtioobj.h"
 #include "strmprov.h"
@@ -74,10 +75,6 @@ void uiD2TModelGroup::fileFldChecked( CallBacker* )
 }
 
 
-#define mGetVel(var,fac) \
-	const float var = velfld_->getfValue() * fac * \
-			( SI().depthsInFeet() ? mFromFeetFactorF : 1.0f )
-
 
 const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 {
@@ -96,46 +93,12 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     if ( !&d2t )
 	return "D2Time model not set properly";
 
+    if ( wd.track().isEmpty() )
+	return "Cannot generate D2Time model without track";
+
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
-	if ( wd.track().isEmpty() )
-	    return "Cannot generate D2Time model without track";
-
-	d2t.setEmpty();
-	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
-	float srd = mCast( float, SI().seismicReferenceDatum() );
-	float kb  = wd.track().getKbElev();
-	if ( SI().depthsInFeet() && zun_ )
-	{
-	    srd = zun_->userValue( srd );
-	    kb  = zun_->userValue( kb );
-	}
-	if ( mIsZero(srd,0.01f) ) srd = 0.f;
-	mGetVel(twtvel,0.5f);
-	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
-				( (1 / twtvel) - (2 / wd.info().replvel) );
-	int idahofminz = 0;
-	int idahofmaxz = wd.track().size()-1;
-	float tvdmin = 1e10;
-	float tvdmax = -1;
-	for ( int idx=0; idx<wd.track().size(); idx++ )
-	{
-	    const float zpostrack = (float)wd.track().pos(idx).z;
-	    if ( zpostrack > tvdmax )
-	    {
-		tvdmax = zpostrack;
-		idahofmaxz = idx;
-	    }
-
-	    if ( zpostrack < tvdmin )
-	    {
-		tvdmin = zpostrack;
-		idahofminz = idx;
-	    }
-	}
-
-	d2t.add( wd.track().dah(idahofminz), ( tvdmin+srd )/twtvel+ bulkshift );
-	d2t.add( wd.track().dah(idahofmaxz), ( tvdmax+srd )/twtvel+ bulkshift );
+	d2t.makeFromTrack( wd.track(), velfld_->getfValue(), wd.info().replvel);
     }
     else
     {
@@ -153,8 +116,16 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
-	aio.get( *sdi.istrm, d2t, wd );
+	if ( !aio.get(*sdi.istrm,d2t,wd) )
+	{
+	    uiMSG().warning( "Ascii TD model import failed - using fallback" );
+	    d2t.makeFromTrack( wd.track(), Well::getDefaultVelocity(),
+			       wd.info().replvel );
+	}
     }
+
+    if ( d2t.size() < 2 )
+	return "Cannot import time-depth model";
 
     d2t.deInterpolate();
     return 0;
@@ -173,9 +144,7 @@ BufferString uiD2TModelGroup::dataSourceName() const
     if ( !filefld_->isCheckable() || filefld_->isChecked() )
 	ret.set( filefld_->fileName() );
     else
-    {
-	mGetVel(vel,1.0f);
-	ret.set( "[V=" ).add( vel ).add( mZUnLbl ).add( "]" );
-    }
+	ret.set( "[V=" ).add( velfld_->getfValue() ).add( mZUnLbl ).add( "]" );
+
     return ret;
 }

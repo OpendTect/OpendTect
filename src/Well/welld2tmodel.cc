@@ -11,7 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "iopar.h"
 #include "stratlevel.h"
+#include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
@@ -62,7 +64,7 @@ float Well::D2TModel::getDepth( float twt, const Track& track ) const
 	return mUdf(float);
 
     const double curvel = getVelocityForTwt( twt, track );
-    const double depth = depths.start + 
+    const double depth = depths.start +
 	( ( mCast(double,twt) - mCast(double,times.start) ) * curvel ) / 2.f;
 
     return mCast( float, depth );
@@ -95,7 +97,7 @@ double Well::D2TModel::getVelocityForDah( float dh, const Track& track ) const
 
 
 double Well::D2TModel::getVelocityForDepth( float dpt,
-       					    const Track& track ) const
+					    const Track& track ) const
 {
     const float dahval = track.getDahForTVD( dpt );
     return getVelocityForDah( dahval, track );
@@ -185,7 +187,7 @@ int Well::D2TModel::getVelocityIdx( float pos, const Track& track,
 	const double dhtop = mCast( double, track.dah(idx-1) );
 	const double dhbase = mCast( double, track.dah(idx) );
 	const double fraction = ( reqz - track.value(idx-1) ) /
-	    			( track.value(idx) - track.value(idx-1) );
+				( track.value(idx) - track.value(idx-1) );
 	const float reqdh = mCast( float, dhtop + (fraction * (dhbase-dhtop)) );
 	idah = IdxAble::getUpperIdx( dah_, dtsize, reqdh );
     }
@@ -293,6 +295,58 @@ bool Well::D2TModel::getOldVelocityBoundsForTwt( float twt, const Track& track,
     }
 
     return true;
+}
+
+
+void Well::D2TModel::makeFromTrack( const Track& track, float vel,
+				    float replvel )
+{
+    setEmpty();
+    const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
+    float srd = mCast( float, SI().seismicReferenceDatum() );
+    float kb  = track.getKbElev();
+    if ( SI().zIsTime() && SI().depthsInFeet() && zun_ )
+    {
+	srd = zun_->internalValue( srd );
+	vel = zun_->internalValue( vel );
+	replvel = zun_->internalValue( replvel );
+    }
+
+    if ( mIsZero(srd,0.01f) ) srd = 0.f;
+    const float bulkshift = mIsUdf( replvel ) ? 0.f
+			  : ( kb-srd )* ( (2.f / vel) - (2.f / replvel) );
+    int idahofminz = 0;
+    int idahofmaxz = track.size()-1;
+    float tvdmin = 1e10;
+    float tvdmax = -1;
+    for ( int idx=0; idx<track.size(); idx++ )
+    {
+	const float zpostrack = (float)track.pos(idx).z;
+	if ( zpostrack > tvdmax )
+	{
+	    tvdmax = zpostrack;
+	    idahofmaxz = idx;
+	}
+
+	if ( zpostrack < tvdmin )
+	{
+	    tvdmin = zpostrack;
+	    idahofminz = idx;
+	}
+    }
+
+    if ( tvdmax < -1.f * srd ) // whole track above SRD !
+	return;
+
+    float firstdah = track.dah(idahofminz);
+    if ( tvdmin < -1.f * srd ) // no write above SRD
+    {
+	tvdmin = -1. * srd;
+	firstdah = track.getDahForTVD( tvdmin );
+    }
+
+    add( firstdah, 2.f*( tvdmin+srd )/vel + bulkshift );
+    add( track.dah(idahofmaxz), 2.f*( tvdmax+srd )/vel + bulkshift );
 }
 
 
