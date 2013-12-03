@@ -694,24 +694,19 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     itmtxt += nrsurfdata; itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
 
+    //TODO: enable menus when they are ready
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
-	    !islocked && nrsurfdata>0, false );
-    if ( uivisemobj_ )
-    {
-	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
-    }
-    else
-    {
-	mResetMenuItem( &depthattribmnuitem_ );
-    }
+	    false && !islocked && nrsurfdata>0, false );
+
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, false && !islocked,
+	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
 	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
 
-    mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( menu, &savesurfacedatamnuitem_, false && enabsave, false );
+    mAddMenuItem( menu, &algomnuitem_, false, false );
 }
 
 
@@ -720,15 +715,8 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( mnuid==-1 || menu->isHandled() ||
-	 (mnuid!=savesurfacedatamnuitem_.id &&
-	 mnuid!=depthattribmnuitem_.id &&
-	 mnuid!=loadsurfacedatamnuitem_.id) )
+    if ( mnuid==-1 || menu->isHandled() )
 	return;
-
-    uiMSG().message("Not complete yet");
-    return; //TODO
-    /*
 
     const int visid = displayID();
     const int attribnr = attribNr();
@@ -762,7 +750,10 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==depthattribmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uivisemobj_->setDepthAsAttrib( attribnr );
+
+	mDynamicCastGet( visSurvey::FaultDisplay*, fltdisp,
+		visserv->getObject(visid) );
+	fltdisp->setDepthAsAttrib( attribnr );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
@@ -784,10 +775,9 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
-    else
+    else if ( mnuid==algomnuitem_.id )
     {
     }
-    */
 }
 
 
