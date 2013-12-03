@@ -297,10 +297,13 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 
 	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
 			${OD_${TARGET_NAME}_RESOURCE} )
-	
+	if ( OD_EXECUTABLE_COMPILE_FLAGS )
+	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
+				     ${OD_EXECUTABLE_COMPILE_FLAGS} )
+	endif( OD_EXECUTABLE_COMPILE_FLAGS )
+
 	set ( OD_LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}" )
 
-			
 	set( TARGET_PROPERTIES ${TARGET_NAME}
 	    PROPERTIES 
 	    LINK_FLAGS "${OD_LINK_FLAGS}"
@@ -353,6 +356,10 @@ if(OD_MODULE_BATCHPROGS)
     foreach ( EXEC ${OD_MODULE_BATCHPROGS} )
 	get_filename_component( TARGET_NAME ${EXEC} NAME_WE )
 	add_executable( ${TARGET_NAME} ${EXEC} )
+	if ( OD_EXECUTABLE_COMPILE_FLAGS )
+	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
+				     ${OD_EXECUTABLE_COMPILE_FLAGS} )
+	endif( OD_EXECUTABLE_COMPILE_FLAGS )
 	target_link_libraries(
 	    ${TARGET_NAME}
 	    ${OD_EXEC_DEP_LIBS}
@@ -425,6 +432,10 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST_NAME}.par )
     set ( TEST_NAME test_${TEST_NAME} )
     add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} tests/${TEST_FILE} )
+    if ( OD_EXECUTABLE_COMPILE_FLAGS )
+	set_source_files_properties( tests/${TEST_FILE} PROPERTIES COMPILE_FLAGS
+				 ${OD_EXECUTABLE_COMPILE_FLAGS} )
+    endif( OD_EXECUTABLE_COMPILE_FLAGS )
     OD_ADD_SOURCE_FILES( tests/${TEST_FILE} )
 
     set_target_properties( ${TEST_NAME}

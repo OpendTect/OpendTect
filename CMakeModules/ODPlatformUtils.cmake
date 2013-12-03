@@ -25,7 +25,7 @@ set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_S
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
 if(UNIX) #Apple an Linux
-    if ( CMAKE_COMPILER_IS_GNUCC  ) 
+    if ( CMAKE_COMPILER_IS_GNUCC  )
 	set ( OD_GCC_COMPILER 1 )
 	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
 			 OUTPUT_VARIABLE GCC_VERSION )
@@ -68,12 +68,13 @@ if(UNIX) #Apple an Linux
 
 	if ( OD_64BIT )
 	    set ( OD_PLFSUBDIR "lux64" )
+	    set ( OD_EXECUTABLE_COMPILE_FLAGS "-fPIC" )
 	else()
 	    set ( OD_PLFSUBDIR "lux32" )
 	    add_definitions("-march=pentium4")
 	endif()
 
-	if ( CMAKE_COMPILER_IS_GNUCC  ) 
+	if ( CMAKE_COMPILER_IS_GNUCC  )
 	    if ( GCC_VERSION VERSION_GREATER 4.2 )
 		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
 	    endif()
@@ -125,7 +126,7 @@ if(WIN32)
 
     set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
-    
+
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
     set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
     #set ( CMAKE_CXX_FLAGS "/MP")
