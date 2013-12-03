@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mCreateFactoryEntry( visBase::ThumbWheel );
 
+#define col2f(rgb) float(col.rgb())/255
+
 namespace visBase
 {
     
@@ -74,6 +76,15 @@ void ThumbWheel::setPosition(bool horizontal, float x, float y, float len,
 			 horizontal ? y+width : y+len );
     
     thumbwheel_->setShape( horizontal ? 0 : 1, min, max, zval );
+}
+
+
+void ThumbWheel::setBackgroundColor( const Color& col )
+{
+    osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
+    osg::Vec4 gray( 0.5f, 0.5f, 0.5f, 1.0f );
+
+    thumbwheel_->setBorderColor( (gray+osgcol)/2 );
 }
     
 

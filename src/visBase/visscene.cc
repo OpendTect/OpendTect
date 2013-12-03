@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarkerset.h"
 #include "vispolygonoffset.h"
 #include "vislight.h"
+#include "viscamera.h"
 
 #include <osg/Group>
 #include <osg/Light>
@@ -42,6 +43,7 @@ Scene::Scene()
     , blockmousesel_( false )
     , nameChanged(this)
     , osgsceneroot_( 0 )
+    , camera_( 0 )
 {
     light_->ref();
     light_->turnOn( false );
@@ -85,8 +87,22 @@ bool Scene::saveCurrentOffsetAsDefault() const
 }
 
 
+void Scene::setCamera( visBase::Camera* cam )
+{
+    if ( camera_ )
+    {
+        pErrMsg( "Should not be set");
+    }
+
+    camera_ = cam;
+    camera_->ref();
+}
+
+
 Scene::~Scene()
 {
+    camera_->unRef();
+
     if ( osgsceneroot_ )
 	osgsceneroot_->unref();
 

@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGeo/TrackballManipulator>
-#include <osg/ComputeBoundsVisitor>
 #include <osg/MatrixTransform>
 #include <osgGeo/ThumbWheel>
 
@@ -250,6 +249,10 @@ void ui3DViewerBody::setupView()
 	axes_->setMasterCamera( camera_ );
     if ( polygonselection_ )
 	polygonselection_->setMasterCamera( camera_ );
+
+    if ( scene_ )
+        scene_->setCamera( camera_ );
+    
     mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
     osgcamera->setGraphicsContext( getGraphicsContext() );
     osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
@@ -266,8 +269,12 @@ void ui3DViewerBody::setupView()
 
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	new osgGeo::TrackballManipulator(
-	    osgGA::StandardManipulator::DEFAULT_SETTINGS |
-	    osgGA::StandardManipulator::SET_CENTER_ON_WHEEL_FORWARD_MOVEMENT );
+	    osgGA::StandardManipulator::DEFAULT_SETTINGS );
+
+    manip->setBoundTraversalMask( visBase::cBBoxTraversalMask() );
+    manip->setIntersectTraversalMask( visBase::cIntersectionTraversalMask() );
+    manip->setAnimationTime( 0.5 );
+
     manip->enableDragging( isViewMode() );
 
     manip->setAutoComputeHomePosition( false );
@@ -353,8 +360,8 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     hudview_->getCamera()->setProjectionMatrix(
 	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
-    horthumbwheel_->setPosition( true, 20, 10, 100, 15, -1 );
-    verthumbwheel_->setPosition( false, 10, 20, 100, 15, -1 );
+    horthumbwheel_->setPosition( true, 40, 15, 100, 15, -1 );
+    verthumbwheel_->setPosition( false, 15, 40, 100, 15, -1 );
     const float offset = axes_->getLength() + 10;
     axes_->setPosition( widget->width()-offset, offset );
 }
@@ -511,6 +518,8 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
     sceneroot_->addChild( newscene->osgNode() );
     scene_ = newscene;
+
+    if ( camera_ ) newscene->setCamera( camera_ );
 }
 
 
@@ -573,84 +582,18 @@ void ui3DViewerBody::viewPlaneX()
 }
 
 
-void ui3DViewerBody::viewAll()
+void ui3DViewerBody::viewAll( bool animate )
 {
     if ( !view_ )
 	return;
 
-    osg::ref_ptr<osgGA::CameraManipulator> manip =
-	static_cast<osgGA::CameraManipulator*>(
-	    view_->getCameraManipulator() );
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+        static_cast<osgGeo::TrackballManipulator*>(
+                                        view_->getCameraManipulator() );
 
-    if ( !manip )
-	return;
-
-    osg::ref_ptr<osgGA::GUIEventAdapter>& ea =
-	osgGA::GUIEventAdapter::getAccumulatedEventState();
-    if ( !ea )
-	return;
-
-    computeViewAllPosition();
-    manip->home( *ea, getActionAdapter() );
+    manip->viewAll( view_, animate );
 }
 
-
-
-void ui3DViewerBody::computeViewAllPosition()
-{
-    if ( !view_ )
-	return;
-
-    osg::ref_ptr<osgGA::CameraManipulator> manip =
-    static_cast<osgGA::CameraManipulator*>(
-				view_->getCameraManipulator() );
-
-    osg::ref_ptr<osg::Node> node = manip ? manip->getNode() : 0;
-    if ( !node )
-	return;
-
-    osg::ComputeBoundsVisitor visitor(
-			    osg::NodeVisitor::TRAVERSE_ACTIVE_CHILDREN);
-    visitor.setNodeMaskOverride( visBase::cBBoxTraversalMask() );
-    node->accept(visitor);
-    osg::BoundingBox &bb = visitor.getBoundingBox();
-
-    osg::BoundingSphere boundingsphere;
-
-
-    if ( bb.valid() ) boundingsphere.expandBy(bb);
-    else boundingsphere = node->getBound();
-
-    // set dist to default
-    double dist = 3.5f * boundingsphere.radius();
-
-    // try to compute dist from frustrum
-    double left,right,bottom,top,znear,zfar;
-    if ( getOsgCamera()->getProjectionMatrixAsFrustum(
-					    left,right,bottom,top,znear,zfar) )
-    {
-	double vertical2 = fabs(right - left) / znear / 2.;
-	double horizontal2 = fabs(top - bottom) / znear / 2.;
-	double dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-	double viewangle = atan2(dim,1.);
-	dist = boundingsphere.radius() / sin(viewangle);
-    }
-    else
-    {
-	// try to compute dist from ortho
-	if ( getOsgCamera()->getProjectionMatrixAsOrtho(
-					    left,right,bottom,top,znear,zfar) )
-	{
-	    dist = fabs(zfar - znear) / 2.;
-	}
-    }
-
-    // set home position
-    manip->setHomePosition(boundingsphere.center() + osg::Vec3d(0.0,-dist,0.0f),
-		    boundingsphere.center(),
-		    osg::Vec3d(0.0f,0.0f,1.0f),
-		    false );
-}
 
 
 void ui3DViewerBody::viewPlaneY()
@@ -661,7 +604,11 @@ void ui3DViewerBody::viewPlaneY()
 
 void ui3DViewerBody::setBackgroundColor( const Color& col )
 {
-    getOsgCamera()->setClearColor( osg::Vec4(col2f(r),col2f(g),col2f(b), 1.0) );
+    osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
+    getOsgCamera()->setClearColor( osgcol );
+
+    horthumbwheel_->setBackgroundColor( col );
+    verthumbwheel_->setBackgroundColor( col );
 }
 
 
@@ -894,12 +841,12 @@ uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
     return *osgbody_;
 }
 
-void ui3DViewer::viewAll()
+void ui3DViewer::viewAll( bool animate )
 {
     mDynamicCastGet(visSurvey::Scene*,survscene,getScene());
     if ( !survscene )
     {
-	osgbody_->viewAll();
+	osgbody_->viewAll( animate );
     }
     else
     {
@@ -907,13 +854,13 @@ void ui3DViewer::viewAll()
 	bool showscale = survscene->isAnnotScaleShown();
 	if ( !showtext && !showscale )
 	{
-	    osgbody_->viewAll();
+	    osgbody_->viewAll(animate);
 	}
 	else
 	{
 	    survscene->showAnnotText( false );
 	    survscene->showAnnotScale( false );
-	    osgbody_->viewAll();
+	    osgbody_->viewAll(animate);
 	    survscene->showAnnotText( showtext );
 	    survscene->showAnnotScale( showscale );
 	}

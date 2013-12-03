@@ -34,6 +34,8 @@ public:
     void			setPosition(bool horizontal,
 					    float x, float y, float len,
 					    float width,float zval = 0);
+    
+    void			setBackgroundColor(const Color&);
 
     float			getAngle() const;
     void			setAngle(float);

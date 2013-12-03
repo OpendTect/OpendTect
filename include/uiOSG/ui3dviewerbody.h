@@ -53,7 +53,7 @@ public:
     			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
     virtual		~ui3DViewerBody();
 
-    void			viewAll();
+    void			viewAll( bool animate );
 
     void			setSceneID(int);
     visBase::Scene*		getScene()		{ return scene_; }
@@ -117,7 +117,7 @@ protected:
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&, bool);
-    void				computeViewAllPosition();
+    
     void				thumbWheelRotationCB(CallBacker*);
 
 

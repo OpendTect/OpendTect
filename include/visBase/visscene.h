@@ -29,6 +29,7 @@ namespace visBase
     class EventCatcher;
     class PolygonOffset;
     class Light;
+    class Camera;
 
 /*!\brief
     Scene manages all DataObjects and has some managing
@@ -55,6 +56,10 @@ public:
     bool		blockMouseSelection(bool yn);
     			/*!<\returns previous status. */
 
+    Camera*		getCamera() 			{ return camera_; }
+    const Camera*	getCamera() const 		{ return camera_; }
+    virtual void	setCamera(Camera*);
+
     EventCatcher&	eventCatcher();
 
     void		setName(const char*);
@@ -74,6 +79,7 @@ protected:
     void		fillOffsetPar( IOPar& ) const;
 
 private:
+
     int			mousedownid_;
 
     void		mousePickCB(CallBacker*);
@@ -83,6 +89,8 @@ private:
 
     bool		blockmousesel_;
     osg::Group*		osgsceneroot_;
+
+    Camera*		camera_;
 };
 
 }

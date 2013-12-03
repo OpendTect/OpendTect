@@ -66,7 +66,7 @@ public:
     void		setStereoOffset(float);
     float		getStereoOffset() const;
 
-    void		viewAll();
+    void		viewAll(bool animate=true);
     void		toHomePos();
     void		saveHomePos();
     void		showRotAxis(bool);
