@@ -291,7 +291,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, "Code" );
 	for ( int ic=0; ic<codes.size(); ic++ )
 	{
-	    if ( ic == curcode ) continue;
+	    if ( ic == icode ) continue;
 	    BufferString s; s+= codes[ic];
 	    codelcb->box()->addItem( s );
 	}
