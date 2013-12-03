@@ -103,7 +103,7 @@ void uiWellAttribPartServer::doXPlot()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
+bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) mErrRet("Cannot read well data")
@@ -111,38 +111,9 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
     BufferStringSet wellname;
     wellname.add( wd->name() );
 
-    if ( lognr<0 )
-    {
-	uiCreateAttribLogDlg dlg( appserv().parent(), wellname ,
-				  attrset, nlamodel, true );
-	dlg.go();
-       	lognr = dlg.selectedLogIdx();
-    }
-
-    if ( lognr<0 )
-	return false;
-    PtrMan<IOObj> ioobj = IOM().get( wellid );
-    if ( !ioobj ) mErrRet("Cannot find well in object manager")
-
-    BufferString fname( ioobj->fullUserExpr(true) );
-    Well::Writer wtr( fname, *wd );
- 
-    if ( lognr > wd->logs().size() - 1 )
-	lognr = wd->logs().size() - 1;
-    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr+1 );
-    StreamData sdo = StreamProvider(logfnm).makeOStream();
-    if ( !sdo.usable() )
-    {
-	BufferStringSet errmsg; errmsg.add( "Cannot write log to disk" );
-	errmsg.add( logfnm );
-	uiMSG().errorWithDetails( errmsg );
-	return false;
-    }
-
-    wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr) );
-    sdo.close();
-
-    return true;
+    uiCreateAttribLogDlg dlg( appserv().parent(), wellname, attrset, nlamodel,
+	    		      true );
+    return dlg.go();
 }
 
 

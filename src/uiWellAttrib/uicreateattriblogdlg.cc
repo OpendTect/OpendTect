@@ -12,12 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicreateattriblogdlg.h"
 
 #include "attribsel.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
 #include "wellmarker.h"
+#include "wellwriter.h"
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -153,16 +157,37 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	if ( !inputsOK(wellidx) )
 	    return false;
 
-	uiTaskRunner* tr = new uiTaskRunner( this );
+	PtrMan<uiTaskRunner> tr = new uiTaskRunner( this );
 	datasetup_.tr_ = tr;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
 	Well::Data* wd = Well::MGR().wells()[ wellidx ];
 	if ( !wd ) 
 	    continue;
 	if ( !attriblog.doWork( *wd, errmsg ) )
-	    { delete tr; mErrRet( errmsg ) }
-	delete tr;
+	    mErrRet( errmsg )
+		
+	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
+	if ( !ioobj ) mErrRet("Cannot find well in object manager")
+
+	BufferString fname( ioobj->fullUserExpr(true) );
+	Well::Writer wtr( fname, *wd );
+     
+	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(),
+					       sellogidx_ + 1 );
+	StreamData sdo = StreamProvider(logfnm).makeOStream();
+	if ( !sdo.usable() )
+	{
+	    BufferStringSet errmsgwithdetail;
+	    errmsgwithdetail.add( "Cannot write log to disk" );
+	    errmsgwithdetail.add( logfnm );
+	    uiMSG().errorWithDetails( errmsgwithdetail );
+	    return false;
+	}
+
+	wtr.putLog( *sdo.ostrm, wd->logs().getLog(sellogidx_) );
+	sdo.close();
     }
+
     return true;
 }
 

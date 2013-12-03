@@ -135,22 +135,15 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == cAttribIdx )
     {
-	ObjectSet<MultiID> wellids;
 	BufferStringSet list;
 	for ( int idx = 0; idx<children_.size(); idx++ )
-	{
-	    mGetWellDisplayFromChild( idx );
-	    wellids += new MultiID( wd->getMultiID() );
 	    list.add( children_[idx]->name() );
-	}
+
 	uiCreateAttribLogDlg dlg( getUiParent(), list, applMgr()->attrServer()->
 				  curDescSet(false), ODMainWin()->applMgr().
 				  wellAttribServer()->getNLAModel(), false );
-	if (! dlg.go() )
+	if ( !dlg.go() )
 	    return false;
-	for ( int idx=0; idx<wellids.size(); idx++ )
-	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
-		*wellids[idx], dlg.selectedLogIdx() );
     }
 
     else if ( mnuid == cLogDispSize )
