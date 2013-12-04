@@ -820,6 +820,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     dp->setName( sd->name() );
     if ( !wva )
 	vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().ctab_;
+    else
+	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
@@ -827,15 +829,15 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
     ColTab::MapperSetup& dispparsmapper =
 	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
-    const bool hasrgsaved = !mIsUdf(dispparsmapper.range_.start) ||
-	    		    !mIsUdf(dispparsmapper.range_.stop) ||
-			    (!mIsZero(dispparsmapper.range_.start,mDefEps) &&
-			     !mIsZero(dispparsmapper.range_.stop,mDefEps)); 
-    if ( hasrgsaved )
+    const bool rgnotsaved = (mIsZero(dispparsmapper.range_.start,mDefEps) &&
+			     mIsZero(dispparsmapper.range_.stop,mDefEps)) ||
+			     dispparsmapper.range_.isUdf();
+    if ( !rgnotsaved )
 	mapper = dispparsmapper;
     else
     {
-	mapper.cliprate_ = Interval<float>(0.0,0.0);
+	const float cliprate = wva ? 0.0 : 0.025;
+	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
 	mapper.autosym0_ = true;
 	mapper.type_ = ColTab::MapperSetup::Auto;
 	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
@@ -854,7 +856,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	vwr_->setView( abswr );
     }
 
-    if ( !hasrgsaved )
+    if ( rgnotsaved )
     {
 	mapper.autosym0_ = false;
 	mapper.type_ = ColTab::MapperSetup::Fixed;

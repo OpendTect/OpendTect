@@ -154,12 +154,12 @@ void SynthGenParams::createName( BufferString& nm ) const
 void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
 {
     IOPar disppar, vdmapperpar, wvamapperpar;
-    disppar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-    disppar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
+    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+    wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
     vdmapper_.fillPar( vdmapperpar );
     disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
     wvamapper_.fillPar( wvamapperpar );
-    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyWVA() );
+    disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
     par.mergeComp( disppar, sKeyDispPar() );
 }
 
@@ -173,7 +173,9 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
     overlap_ = 1.0f;
     disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
     disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    if ( disppar->size()==2 ) // Older par file
+    PtrMan<IOPar> vdmapperpar =
+	disppar->subselect( FlatView::DataDispPars::sKeyVD() );
+    if ( !vdmapperpar ) // Older par file
     {
 	vdmapper_.type_ = ColTab::MapperSetup::Fixed;
 	wvamapper_.type_ = ColTab::MapperSetup::Fixed;
@@ -182,14 +184,18 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
     }
     else
     {
-	 PtrMan<IOPar> vdmapperpar =
-	     disppar->subselect( FlatView::DataDispPars::sKeyVD() );
 	 if ( vdmapperpar )
+	 {
 	     vdmapper_.usePar( *vdmapperpar );
+	     vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+	 }
 	 PtrMan<IOPar> wvamapperpar =
 	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
 	 if ( wvamapperpar )
+	 {
 	     wvamapper_.usePar( *wvamapperpar );
+	     wvamapperpar->get(FlatView::DataDispPars::sKeyOverlap(),overlap_);
+	 }
     }
 }
 
