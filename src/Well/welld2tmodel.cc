@@ -357,7 +357,7 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
     float firstdah = track.dah(idahofminz);
     if ( tvdmin < -1.f * srd ) // no write above SRD
     {
-	tvdmin = -1. * srd;
+	tvdmin = -1.f * srd;
 	firstdah = track.getDahForTVD( tvdmin );
     }
 
