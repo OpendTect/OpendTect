@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispscubetr.h"
 #include "executor.h"
 #include "iostrm.h"
-#include "iox.h"
 #include "ioman.h"
 #include "separstr.h"
 #include "survgeom2d.h"

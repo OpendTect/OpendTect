@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "iostrm.h"
+#include "iox.h"
 #include "iosubdir.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "staticstring.h"
 
-#include <stdlib.h>
 
 static ObjectSet<const IOObjProducer>& getProducers()
 {
@@ -33,6 +32,17 @@ static ObjectSet<const IOObjProducer>& getProducers()
 }
 
 
+class IOXProducer : public IOObjProducer
+{
+    bool	canMake( const char* typ ) const
+		{ return FixedString(typ)==XConn::sType(); }
+    IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
+		{ return new IOX(nm,ky,fd); }
+};
+
+int IOX::prodid = IOObj::addProducer( new IOXProducer );
+
+
 int IOObj::addProducer( IOObjProducer* prod )
 {
     if ( !prod ) return -1;
@@ -40,6 +50,7 @@ int IOObj::addProducer( IOObjProducer* prod )
     prods += prod;
     return prods.size();
 }
+
 
 
 IOObj::IOObj( const char* nm, const char* ky )
@@ -349,4 +360,112 @@ bool IOSubDir::putTo( ascostream& stream ) const
     const BufferString str( "@", myKey() );
     stream.put( str, name() );
     return true;
+}
+
+
+IOX::IOX( const char* nm, const char* ky, bool )
+	: IOObj(nm,ky)
+	, ownkey_("")
+{
+}
+
+
+IOX::~IOX()
+{
+}
+
+
+void IOX::setOwnKey( const MultiID& ky )
+{
+    ownkey_ = ky;
+}
+
+
+FixedString IOX::connType() const
+{
+    return XConn::sType();
+}
+
+
+bool IOX::isBad() const
+{
+    return ownkey_ == "";
+}
+
+
+void IOX::copyFrom( const IOObj* obj )
+{
+    if ( !obj ) return;
+
+    IOObj::copyFrom(obj);
+    mDynamicCastGet(const IOX*,trobj,obj)
+    if ( trobj )
+	ownkey_ = trobj->ownkey_;
+}
+
+
+const char* IOX::fullUserExpr( bool i ) const
+{
+    IOObj* ioobj = IOM().get( ownkey_ );
+    if ( !ioobj ) return "<invalid>";
+    const char* s = ioobj->fullUserExpr(i);
+    delete ioobj;
+    return s;
+}
+
+
+bool IOX::implExists( bool i ) const
+{
+    IOObj* ioobj = IOM().get( ownkey_ );
+    if ( !ioobj ) return false;
+    bool yn = ioobj->implExists(i);
+    delete ioobj;
+    return yn;
+}
+
+
+Conn* IOX::getConn( bool forread ) const
+{
+    IOObj* ioobj = getIOObj();
+    if ( !ioobj ) return 0;
+
+    XConn* xconn = new XConn;
+    xconn->conn_ = ioobj->getConn( forread );
+    if ( xconn->conn_ ) xconn->conn_->ioobj = 0;
+    xconn->ioobj = const_cast<IOX*>( this );
+
+    delete ioobj;
+    return xconn;
+}
+
+
+IOObj* IOX::getIOObj() const
+{
+    return ownkey_ == "" ? 0 : IOM().get( ownkey_ );
+}
+
+
+bool IOX::getFrom( ascistream& stream )
+{
+    ownkey_ = stream.value();
+    stream.next();
+    return true;
+}
+
+
+bool IOX::putTo( ascostream& stream ) const
+{
+    stream.stream() << '$';
+    stream.put( "ID", ownkey_ );
+    return true;
+}
+
+
+const char* IOX::dirName() const
+{
+    IOObj* ioobj = getIOObj();
+    if ( !ioobj ) return dirnm_;
+    const_cast<IOX*>(this)->dirnm_ = ioobj->dirName();
+    delete ioobj;
+    return dirnm_;
 }
