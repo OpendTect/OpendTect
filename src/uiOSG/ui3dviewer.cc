@@ -295,7 +295,7 @@ void ui3DViewerBody::setupView()
     osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
     handler->addThumbWheel( (osgGeo::ThumbWheel*) horthumbwheel_->osgNode() );
     handler->addThumbWheel( (osgGeo::ThumbWheel*) verthumbwheel_->osgNode() );
-    osgcamera->addEventCallback( handler );
+    view_->getSceneData()->addEventCallback( handler );
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
