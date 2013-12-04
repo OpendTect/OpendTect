@@ -20,14 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     : uiGroup( p, "Window function selector" )
-    , onlytaper_(su.onlytaper_)				 
+    , onlytaper_(su.onlytaper_)
     , winfuncseldlg_(0)
 {
     windowfuncs_.allowNull();
 
-    BufferStringSet funcnames; 
-    if ( onlytaper_ ) 
-	funcnames.add( "CosTaper" ); 
+    BufferStringSet funcnames;
+    if ( onlytaper_ )
+	funcnames.add( "CosTaper" );
     else
 	funcnames = WINFUNCS().getNames();
     funcnames.insertAt( new BufferString( sNone() ), 0 );
@@ -54,12 +54,12 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	    if ( su.with2fldsinput_ )
 	    {
 		BufferString twosidedvarname( su.inpfldtxt_ );
-		varinpfld_ = new uiGenInput( this, twosidedvarname.buf(), 
+		varinpfld_ = new uiGenInput( this, twosidedvarname.buf(),
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }
 	    else
 		varinpfld_ = new uiGenInput(this,varname.buf(),FloatInpSpec(v));
-	    if ( su.winname_ && !strcmp(su.winname_, winfunc->name() ) )
+	    if ( FixedString(su.winname_) == winfunc->name() )
 		varinpfld_->setValue( su.winparam_ * 100 );
 
 	    varinpfld_->attach( alignedBelow, windowtypefld_ );
@@ -104,7 +104,7 @@ void uiWindowFunctionSel::setWindowParamValue( float val, int fldnr )
 
 
 float uiWindowFunctionSel::windowParamValue() const
-{ 
+{
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     if ( winidx<0 || winidx != taperidx_ )
 	return mUdf(float);
@@ -114,7 +114,7 @@ float uiWindowFunctionSel::windowParamValue() const
 
 
 const char* uiWindowFunctionSel::windowParamName() const
-{ 
+{
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     if ( winidx<0 ) return 0;
 
@@ -125,7 +125,7 @@ const char* uiWindowFunctionSel::windowParamName() const
 void uiWindowFunctionSel::winfuncseldlgCB( CallBacker* )
 {
     if ( !winfuncseldlg_ )
-	winfuncseldlg_ = new uiWindowFuncSelDlg( this, windowName(), 
+	winfuncseldlg_ = new uiWindowFuncSelDlg( this, windowName(),
 						       windowParamValue() );
     else
     {
@@ -151,7 +151,7 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
     const float variable = winfuncseldlg_->getVariable();
     if( !mIsUdf(variable) && variable >= 0 )
 	setWindowParamValue( variable );
-    
+
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     varinpfld_->display( winidx == taperidx_ );
     viewbut_->display( !onlytaper_ || winidx == taperidx_  );

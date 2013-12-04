@@ -83,7 +83,7 @@ inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 	    {
 		return false;
 	    }
-	    
+
 	    count += 1;
 	    vals += arr[idx];
 	}
@@ -94,7 +94,7 @@ inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
     const int vsize = mCast(int,vals.size());
     TypeSet<int> idxs;
     for ( int idx=0; idx<vsize; idx++ )
-    	idxs += idx;
+	idxs += idx;
     sort_coupled( vals.arr(), idxs.arr(), vsize );
 
     I index = -1;
@@ -103,7 +103,7 @@ inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
 	    arr[++index] = vals[idx];
     }
-    
+
     return true;
 }
 
@@ -131,8 +131,8 @@ protected:
     bool			doFinish(bool);
     bool			doWork(od_int64,od_int64,int);
     static bool			mergeLists(const T* vals, T* res,
-	    				   int start0,int start1,int start2,
-	    				   int stop, int& totalsz );
+					   int start0,int start1,int start2,
+					   int stop, int& totalsz );
     od_int64			nrDone() const { return totalnr_; }
 
     T*				vals_;
@@ -412,7 +412,7 @@ void quickSort( T* arr, IT* iarr, int sz )
 #undef NSMALL
 #undef FM
 #undef FA
-#undef FC 
+#undef FC
 #undef NSTACK
 
 
@@ -423,7 +423,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int sz)
     , nrvals_( sz )
     , tmpbuffer_( 0 )
     , barrier_( -1, false )
-    , totalnr_(0)		     
+    , totalnr_(0)
     , idxs_( 0 )
 {
     mTryAlloc( tmpbuffer_, T[sz] );
@@ -435,7 +435,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int* idxs, int sz)
     : vals_( vals )
     , nrvals_( sz )
     , tmpbuffer_( 0 )
-    , totalnr_(0)		     
+    , totalnr_(0)
     , barrier_( -1, false )
     , idxs_( idxs )
 {
@@ -473,7 +473,7 @@ bool ParallelSorter<T>::doFinish( bool success )
 	return false;
 
     if ( curvals_!=vals_ )
-	memcpy( vals_, curvals_, nrvals_*sizeof(T) );
+	OD::memCopy( vals_, curvals_, nrvals_*sizeof(T) );
 
     return true;
 }
@@ -550,7 +550,7 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	barrier_.mutex().unLock();
 
 	int cursize;
-	if ( !mergeLists( curvals_, buf_, 
+	if ( !mergeLists( curvals_, buf_,
 		    curstart0, curstart1, curstart2, curstop, cursize) )
 	    return false;
 

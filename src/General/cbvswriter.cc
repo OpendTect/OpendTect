@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainterp.h"
 #include "survinfo.h"
 #include "strmoper.h"
-#include <string.h>
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;
@@ -108,7 +107,7 @@ CBVSWriter::~CBVSWriter()
 
 void CBVSWriter::writeHdr( const CBVSInfo& info )
 {
-    unsigned char ucbuf[headstartbytes]; memset( ucbuf, 0, headstartbytes );
+    unsigned char ucbuf[headstartbytes]; OD::memZero( ucbuf, headstartbytes );
     ucbuf[0] = 'd'; ucbuf[1] = 'G'; ucbuf[2] = 'B';
     PutIsLittleEndian( ucbuf + 3 );
     ucbuf[4] = version;

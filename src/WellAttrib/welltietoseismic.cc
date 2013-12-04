@@ -40,7 +40,7 @@ namespace WellTie
     errmsg_ += msg; return false; }
 
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
-    : data_(data)		    
+    : data_(data)
     , seisid_(seisid)
     , linekey_(lk)
     , seisarr_(0)
@@ -102,7 +102,7 @@ bool DataPlayer::extractSeismics()
     StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zrg.step );
 
     Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
-	    			     true, false );
+				     true, false );
     wtextr.setSampling( seisrg );
     TaskRunner::execute( data_.trunner_, wtextr );
 
@@ -207,7 +207,7 @@ bool DataPlayer::checkCrossCorrInps()
 bool DataPlayer::computeCrossCorrelation()
 {
     errmsg_.setEmpty();
-    
+
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
 
@@ -235,7 +235,7 @@ bool DataPlayer::computeCrossCorrelation()
 bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 {
     errmsg_.setEmpty();
-    
+
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
 
@@ -270,8 +270,8 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     data_.estimatedwvlt_.setSampleRate( step );
     data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
     data_.estimatedwvlt_.reSize( outwvltsz );
-    memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
-	    outwvltsz*sizeof(float) );
+    OD::memCopy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
+		outwvltsz*sizeof(float) );
     delete [] wvltarrfull;
 
     return true;
@@ -311,7 +311,7 @@ bool DataPlayer::extractWvf( bool issynt )
 
 	syntarr_ = valarr;
 	data_.correl_.scaler_ = mIsUdf(wvfrms) ? mUdf(float)
-	    		      : data_.correl_.scaler_ / wvfrms;
+			      : data_.correl_.scaler_ / wvfrms;
     }
     else
     {
@@ -394,7 +394,7 @@ bool DataPlayer::extractReflectivity()
 	}
 
 	valarr[nrspikefound] = spike.isDefined()
-	    		     ? spike.reflectivity_ : float_complex( 0., 0. );
+			     ? spike.reflectivity_ : float_complex( 0., 0. );
 	nrspikefound++;
     }
 
@@ -466,7 +466,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.setOutSampling( data_.getTraceRange() );
     gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     IOPar par;
-    gen.usePar( par ); 
+    gen.usePar( par );
     TaskRunner* tr = data_.trunner_;
     if ( !TaskRunner::execute( tr, gen ) )
 	mErrRet( gen.errMsg() )
@@ -511,8 +511,8 @@ bool DataPlayer::copyDataToLogSet()
 	ai += layer.getAI();
     }
 
-    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
-    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
+    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() );
+    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() );
     createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
 
     TypeSet<float> dahref, refs;
@@ -569,7 +569,7 @@ bool DataPlayer::copyDataToLogSet()
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
-	    			UoMR().getInternalFor(PropertyRef::Den);
+				UoMR().getInternalFor(PropertyRef::Den);
 	if ( denuomfrommodel )
 	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
 
@@ -605,12 +605,12 @@ bool DataPlayer::copyDataToLogSet()
 }
 
 
-bool DataPlayer::processLog( const Well::Log* log, 
-			     Well::Log& outplog, const char* nm ) 
+bool DataPlayer::processLog( const Well::Log* log,
+			     Well::Log& outplog, const char* nm )
 {
     errmsg_.setEmpty();
     BufferString msg;
-    if ( !log ) 
+    if ( !log )
 	{ msg += "Can not find "; msg += nm; mErrRet( msg ); }
 
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
@@ -633,7 +633,7 @@ bool DataPlayer::processLog( const Well::Log* log,
 	mErrRet(msg)
     }
 
-    GeoCalculator gc; 
+    GeoCalculator gc;
     gc.removeSpikes( outplog.valArr(), sz, 10, 3 );
     outplog.setName( log->name() );
 

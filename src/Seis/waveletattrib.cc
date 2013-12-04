@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
-	, wvltsz_(0)  
+	, wvltsz_(0)
 {
     setNewWavelet( wvlt );
 }
@@ -34,7 +34,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 {
     wvltsz_ = wvlt.size();
     delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
-    memcpy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
+    OD::memCopy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
 }
 
 
@@ -58,7 +58,7 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
     hilbert.setDir( true );
     hilbert.init();
     hilbert.transform( *wvltarr_, hilb );
-} 
+}
 
 
 void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
@@ -159,7 +159,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	ctimearr.set( idx + padshift, timedata.get(idx) );
-    
+
     mDoFFT( true, ctimearr, cfreqarr, padsz );
 
     bool isoddpadsz = ( padsz%2 !=0 );
@@ -178,4 +178,4 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );
-} 
+}

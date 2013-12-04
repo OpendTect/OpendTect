@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "marchingcubes.h"
 #include "positionlist.h"
 #include "samplingdata.h"
-#include <string.h>
 
 #define mX	0
 #define mY	1
@@ -84,7 +83,7 @@ protected:
 	    idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
-		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
+		OD::memCopy( idxs, tableidxs+idx*3, sizeof(int)*3 );
 	    else if ( idx==start )
 	    {
 		if ( !models.getIndex(mCast(int,start),idxs) )
@@ -417,7 +416,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	switch ( neighbor )
 	{
 	    case 0:
-		memcpy( neighborpos, pos, sizeof(int)*3 );
+		OD::memCopy( neighborpos, pos, sizeof(int)*3 );
 		break;
 	    case 1:
 		neighborpos[0] = pos[0];
@@ -577,7 +576,7 @@ bool ExplicitMarchingCubesSurface::getCoordIndices( const int* pos, int* res )
 
     int* indices = &coordindices_.getRef( cidxs, 0 );
 
-    memcpy( res, indices, sizeof(int)*3 );
+    OD::memCopy( res, indices, sizeof(int)*3 );
     return true;
 }
 

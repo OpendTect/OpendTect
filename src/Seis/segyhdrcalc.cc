@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "od_iostream.h"
 #include "settings.h"
-#include <string.h>
 
 
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
@@ -213,10 +212,10 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     else
     {
 	if ( th )
-	    memcpy( buf_, th->txt_, 3200 );
+	    OD::memCopy( buf_, th->txt_, 3200 );
 	if ( bh )
 	{
-	    memcpy( buf_+3200, bh->buf(), 400 );
+	    OD::memCopy( buf_+3200, bh->buf(), 400 );
 	    if ( needswap_ )
 		SEGY::BinHeader::hdrDef().swapValues( buf_+3200 );
 	}

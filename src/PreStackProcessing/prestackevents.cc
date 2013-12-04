@@ -64,11 +64,11 @@ Event::~Event()
 Event& Event::operator=( const Event& b )
 {
     setSize( b.sz_, b.pickquality_ );
-   
-    memcpy( pick_, b.pick_, sizeof(float)*sz_ ); 
-    memcpy( offsetazimuth_, b.offsetazimuth_, sizeof(OffsetAzimuth)*sz_ ); 
+
+    OD::memCopy( pick_, b.pick_, sizeof(float)*sz_ );
+    OD::memCopy( offsetazimuth_, b.offsetazimuth_, sizeof(OffsetAzimuth)*sz_ );
     if ( pickquality_ )
-	memcpy( pickquality_, b.pickquality_, sizeof(unsigned char)*sz_ ); 
+	OD::memCopy( pickquality_, b.pickquality_, sizeof(unsigned char)*sz_ );
 
     horid_ = b.horid_;
     quality_ = b.quality_;
@@ -288,7 +288,7 @@ bool EventManager::removeHorizon( int id )
 		events_.getPos( arraypos, bid );
 		reportChange( bid );
 	    }
-	} 
+	}
     }
 
     reportChange( BinID(-1,-1) );
@@ -373,12 +373,12 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 
     Executor* loader = load( *reloadbids_, true );
     reportChange( BinID(-1,-1) ); //since blocked by loader, it will fire when
-    				  //loading finished
+				  //loading finished
     return loader;
 }
 
 
-const MultiID& EventManager::getStorageID() const 
+const MultiID& EventManager::getStorageID() const
 { return storageid_; }
 
 
@@ -684,7 +684,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff = (float) 
+	const float inldiff = (float)
 	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
 	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
 
@@ -698,7 +698,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff = (float) 
+	const float crldiff = (float)
 	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
 	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
 
@@ -738,7 +738,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	float tmpinldip = diptrc.getValue( bidv.val(), 0 );
 	float tmpcrldip = diptrc.getValue( bidv.val(), 1 );
 
-	if ( mIsUdf(tmpinldip) || mIsUdf(tmpcrldip) ) 
+	if ( mIsUdf(tmpinldip) || mIsUdf(tmpcrldip) )
 	    return false;
 
 	if ( SI().zIsTime() )
@@ -833,13 +833,13 @@ SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
 }
 
 
-bool SetPickUndo::unDo() 
+bool SetPickUndo::unDo()
 {
     return doWork( olddepth_, oldquality_ );
 }
 
 
-bool SetPickUndo::reDo() 
+bool SetPickUndo::reDo()
 {
     return doWork( newdepth_, newquality_ );
 }

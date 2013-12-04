@@ -25,8 +25,6 @@ ________________________________________________________________________
  errmsg.h
  gendefs.h
 
- All the above are usable from C and C++.
-
 -*/
 
 #ifndef undefval_h
@@ -37,6 +35,23 @@ ________________________________________________________________________
 #endif
 #ifndef errmsg_h
 #include "errmsg.h"
+#endif
+
+#ifdef __cpp__
+
+namespace OD
+{
+    // For large memory operations: consider using odmemory.h tools.
+
+    //! Simple function; use if your data is measured in kBs or less
+    mGlobal(Basic) void	memCopy(void*,const void*,od_int64);
+    //! Simple function; use if your data is measured in kBs or less
+    mGlobal(Basic) void	memSet(void*,char,od_int64);
+    //! Simple function; use if your data is measured in kBs or less
+    mGlobal(Basic) void	memZero(void*,od_int64);
+
+}
+
 #endif
 
 

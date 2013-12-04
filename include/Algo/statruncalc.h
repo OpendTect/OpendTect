@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "sorting.h"
 #include "typeset.h"
-#include <string.h>
 
 #define mUndefReplacement 0
 
@@ -532,7 +531,7 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
     mGetIdxArr(int,idxs,sz)
     quickSort( valarr, idxs, sz );
     T* wtcopy = new T[sz];
-    memcpy( wtcopy, wts, sz*sizeof(T) );
+    OD::memCopy( wtcopy, wts, sz*sizeof(T) );
     float wsum = 0;
     for ( int idx=0; idx<sz; idx++ )
     {

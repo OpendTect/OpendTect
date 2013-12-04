@@ -71,7 +71,7 @@ for ( int idx=0; idx<transforms_.size(); idx++ ) \
 void GenericTransformND::setInput( const float_complex* id )
 {
     if ( !id ) return;
-    
+
     cinput_ = id;
     rinput_ = 0;
 
@@ -82,7 +82,7 @@ void GenericTransformND::setInput( const float_complex* id )
 void GenericTransformND::setInput( const float* id )
 {
     if ( !id ) return;
-    
+
     rinput_ = id;
     cinput_ = 0;
 
@@ -94,7 +94,7 @@ void GenericTransformND::setInput( const float* id )
 void GenericTransformND::setOutput( float_complex* od )
 {
     if ( !od ) return;
-    
+
     coutput_ = od;
     routput_ = 0;
 
@@ -105,7 +105,7 @@ void GenericTransformND::setOutput( float_complex* od )
 void GenericTransformND::setOutput( float* od )
 {
     if ( !od ) return;
-    
+
     routput_ = od;
     coutput_ = 0;
 
@@ -185,7 +185,7 @@ bool GenericTransformND::setup()
 	transforms_ += trans;
 
 	int* offsets = new int[nr_];
-	memcpy( offsets, starts.arr(), sizeof(int)*starts.size() );
+	OD::memCopy( offsets, starts.arr(), sizeof(int)*starts.size() );
 
 	transforms1dstarts_ += offsets;
 	nr1dtransforms_ += nr_;
@@ -194,7 +194,7 @@ bool GenericTransformND::setup()
     {
 	ArrayNDInfoImpl curarrsz( ndim-1 );
 	mAllocVarLenArr(int,globalarrpos,ndim);
-	memset( globalarrpos, 0, ndim*sizeof(int) );
+	OD::memZero( globalarrpos, ndim*sizeof(int) );
 	for ( int dim=0; dim<ndim; dim++ )
 	{
 	    globalarrpos[dim] = 0;
@@ -237,7 +237,7 @@ bool GenericTransformND::setup()
 	    }
 
 	    mAllocVarLenArr(int,nextarrpos,ndim);
-	    memcpy( nextarrpos, globalarrpos, ndim*sizeof(int) );
+	    OD::memCopy( nextarrpos, globalarrpos, ndim*sizeof(int) );
 	    nextarrpos[dim] = 1;
 
 	    //Compute sampling for 1D transform
@@ -293,7 +293,7 @@ GenericTransformND::Transform1D::Transform1D()
 void GenericTransformND::Transform1D::setInputData(const float_complex* id )
 {
     if ( !id ) return;
-    
+
     cinput_ = id;
     rinput_ = 0;
 }
@@ -302,7 +302,7 @@ void GenericTransformND::Transform1D::setInputData(const float_complex* id )
 void GenericTransformND::Transform1D::setInputData( const float* id )
 {
     if ( !id ) return;
-    
+
     rinput_ = id;
     cinput_ = 0;
 }
@@ -311,7 +311,7 @@ void GenericTransformND::Transform1D::setInputData( const float* id )
 void GenericTransformND::Transform1D::setOutputData( float_complex* od )
 {
     if ( !od ) return;
-    
+
     coutput_ = od;
     routput_ = 0;
 }
@@ -320,7 +320,7 @@ void GenericTransformND::Transform1D::setOutputData( float_complex* od )
 void GenericTransformND::Transform1D::setOutputData( float* od )
 {
     if ( !od ) return;
-    
+
     routput_ = od;
     coutput_ = 0;
 }

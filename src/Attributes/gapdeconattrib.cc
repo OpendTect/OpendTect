@@ -251,9 +251,9 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     mAllocVarLenArr( float, spiker, ngap_ );
     ArrPtrMan<float> autocorr = new float[safelcorr];
 
-    memset( wiener, 0, ngap_ * sizeof( float ) );
-    memset( spiker, 0, ngap_ * sizeof( float ) );
-    memset( autocorr, 0, safelcorr * sizeof( float ) );
+    OD::memZero( wiener, ngap_ * sizeof( float ) );
+    OD::memZero( spiker, ngap_ * sizeof( float ) );
+    OD::memZero( autocorr, safelcorr * sizeof( float ) );
 
     float* crosscorr = autocorr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0

@@ -12,18 +12,19 @@ ________________________________________________________________________
 */
 
 #include "task.h"
-#include <string.h>
+
+template <class T> class ValueSeries;
 
 
 namespace OD
 {
     enum		PtrPolicy { UsePtr, CopyPtr, TakeOverPtr };
-};
+}
 
-template <class T> class ValueSeries;
+
 
 // 1M operations min per thread
-#define mMemMinThreadSize 1048576
+#define mODMemMinThreadSize 1048576
 
 
 /*!
@@ -46,7 +47,7 @@ public:
     bool	doPrepare(int);
     bool	doWork(od_int64,od_int64,int);
     od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mMemMinThreadSize; }
+    int		minThreadSize() const		{ return mODMemMinThreadSize; }
 
 protected:
 
@@ -85,7 +86,7 @@ public:
     bool	doPrepare(int);
     bool	doWork(od_int64,od_int64,int);
     od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mMemMinThreadSize; }
+    int		minThreadSize() const		{ return mODMemMinThreadSize; }
 
 protected:
 
@@ -121,7 +122,7 @@ public:
     bool        doPrepare(int);
     bool        doWork(od_int64,od_int64,int);
     od_int64    nrIterations() const            { return sz_; }
-    int         minThreadSize() const           { return mMemMinThreadSize; }
+    int         minThreadSize() const           { return mODMemMinThreadSize; }
 
 protected:
 
@@ -185,7 +186,7 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    OD::memSet( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
@@ -193,7 +194,7 @@ bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    OD::memSet( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
@@ -201,12 +202,12 @@ bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    OD::memSet( ptr_+start, (int)val_, (size_t) size );
     return true;
 }
 
 
-#define mSetterFullImpl(Type) \
+#define mODMemSetterFullImpl(Type) \
     Type* ptr = ptr_ + start; \
     const Type* stopptr = ptr + size; \
     while ( ptr != stopptr ) \
@@ -215,39 +216,39 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
     return true
 
 
-#define mSpecialImpl( Type ) \
+#define mODMemSpecialImpl( Type ) \
 template <> inline \
 bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
     { \
-	memset( ptr_+start, 0, (size_t) (size*sizeof(Type)) ); \
+	OD::memZero( ptr_+start, size*sizeof(Type) ); \
 	return true; \
     } \
  \
-    mSetterFullImpl(Type); \
+    mODMemSetterFullImpl(Type); \
 }
 
 
-mSpecialImpl( float );
-mSpecialImpl( double );
-mSpecialImpl( int );
-mSpecialImpl( unsigned int );
-mSpecialImpl( short );
-mSpecialImpl( unsigned short );
-mSpecialImpl( od_int64 );
-mSpecialImpl( od_uint64 );
+mODMemSpecialImpl( float );
+mODMemSpecialImpl( double );
+mODMemSpecialImpl( int );
+mODMemSpecialImpl( unsigned int );
+mODMemSpecialImpl( short );
+mODMemSpecialImpl( unsigned short );
+mODMemSpecialImpl( od_int64 );
+mODMemSpecialImpl( od_uint64 );
 
 
 
 template <class T> inline
 bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 {
-    mSetterFullImpl(T);
+    mODMemSetterFullImpl(T);
 }
 
-#undef mSpecialImpl
-#undef mSetterFullImpl
+#undef mODMemSpecialImpl
+#undef mODMemSetterFullImpl
 
 
 template <class T> inline
@@ -267,7 +268,8 @@ MemCopier<T>::MemCopier( T* o, const ValueSeries<T>& i, od_int64 sz )
     : sz_(sz), inptr_(i.arr()), invs_(&i), outptr_(o), outvs_(0)	{}
 
 template <class T> inline
-MemCopier<T>::MemCopier( ValueSeries<T>& o, const ValueSeries<T>& i,od_int64 sz)
+MemCopier<T>::MemCopier( ValueSeries<T>& o, const ValueSeries<T>& i,
+				od_int64 sz)
     : sz_(sz), inptr_(i.arr), invs_(&i), outptr_(o.arr()), outvs_(&o)	{}
 
 
@@ -304,7 +306,7 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
-    memcpy( outptr_ + start, inptr_ + start, (size_t) (size * sizeof(T)) );
+    OD::memCopy( outptr_+start, inptr_+start, size * sizeof(T) );
     return true;
 }
 
@@ -367,5 +369,6 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 
     return true;
 }
+
 
 #endif

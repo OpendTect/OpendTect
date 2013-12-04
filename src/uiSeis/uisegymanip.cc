@@ -36,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "oddirs.h"
 #include "od_iostream.h"
-#include <string.h>
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -391,7 +390,7 @@ void uiSEGYFileManip::fillDefCalcs( int selidx )
 
 void uiSEGYFileManip::updTrcVals()
 {
-    memcpy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
+    OD::memCopy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
     calcset_.reSetSeqNr( trcnrfld_->getValue() );
     calcset_.apply( curhdrbuf_, binhdr_.isSwapped() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )

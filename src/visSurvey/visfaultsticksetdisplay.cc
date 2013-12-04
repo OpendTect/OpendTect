@@ -45,7 +45,7 @@ namespace visSurvey
 
 const char* FaultStickSetDisplay::sKeyEarthModelID()	{ return "EM ID"; }
 const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
-    					{ return "Display only at sections"; }
+					{ return "Display only at sections"; }
 
 
 FaultStickSetDisplay::FaultStickSetDisplay()
@@ -109,7 +109,7 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     if ( emfss_ )
     {
 	emfss_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
-       	emfss_->unRef();
+	emfss_->unRef();
 	emfss_ = 0;
     }
 
@@ -139,7 +139,7 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
     }
 
     eventcatcher_ = vec;
-    
+
     if ( eventcatcher_ )
     {
 	eventcatcher_->ref();
@@ -339,7 +339,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	    Seis2DDisplay* s2dd = 0;
 	    if ( emfss_->geometry().pickedOn2DLine(sid, rc.row()) )
-	    { 
+	    {
 		const char* lnm = emfss_->geometry().pickedName(sid, rc.row());
 		const MultiID* lset =
 			    emfss_->geometry().pickedMultiID( sid, rc.row() );
@@ -438,7 +438,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		    partarclen += dist;
 		    arclen += dist;
 		    const double basedist = prevpos.distTo(nextpos);
-		    if ( partarclen-basedist>0.001*partarclen ) 
+		    if ( partarclen-basedist>0.001*partarclen )
 		    {
 			double maxperpdev = 0.0;
 			partarclen = dist;
@@ -459,7 +459,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 				break;
 
 			    maxperpdev = dev;
-			    partarclen += backpos.distTo( curpos ); 
+			    partarclen += backpos.distTo( curpos );
 			    curpos = backpos;
 			    curnr = backtrcnr;
 			}
@@ -500,7 +500,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 {
-    Coord3 pos = displaypos;  
+    Coord3 pos = displaypos;
     if ( pos.isDefined() )
     {
 	if ( scene_ )
@@ -589,7 +589,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    if ( plane )
 	    {
 		normal = new Coord3( plane->getNormal(Coord3::udf()) );
-		break;	
+		break;
 	    }
 	    mDynamicCastGet(FaultStickSetDisplay*,fssd,dataobj);
 	    if ( fssd )
@@ -621,7 +621,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	setActiveStick( mousepid );
     }
 
-    if ( OD::altKeyboardButton(eventinfo.buttonstate_) || 
+    if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
@@ -648,7 +648,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     if ( !mousepid.isUdf() || OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
 	return;
-    
+
  /*   if ( viseditor_->sower().activate(emfss_->preferredColor(), eventinfo) )
 	return;*/
 
@@ -666,7 +666,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	const EM::SectionID sid = emfss_->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 
-	const int insertsticknr = 
+	const int insertsticknr =
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
 	editpids_.erase();
@@ -799,7 +799,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	    Coord3 pos = dragpos;
 
 	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( *mid, nm );
-	    if ( s2dd ) 
+	    if ( s2dd )
 		pos = s2dd->getNearestSubPos( pos, true );
 
 	    HorizonDisplay* hordisp = HorizonDisplay::getHorizonDisplay( *mid );
@@ -891,7 +891,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	visBase::DataObject* dataobj = scene_->getObject( idx );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	if ( !s2dd || !s2dd->isOn() || pickedmid!=s2dd->lineSetID() ||
-	     !pickednm || strcmp(pickednm,s2dd->getLineName()) )
+	     !pickednm || FixedString(pickednm)!=s2dd->getLineName() )
 	    continue;
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
@@ -1003,7 +1003,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 		continue;
 
 	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row()) )
-	    { 
+	    {
 		const char* lnm = emfss_->geometry().pickedName(sid,rc.row());
 		const MultiID* lset =
 			    emfss_->geometry().pickedMultiID( sid, rc.row() );
@@ -1076,7 +1076,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 
 
 bool FaultStickSetDisplay::isSelectableMarkerInPolySel(
-					const Coord3& markerworldpos ) const 
+					const Coord3& markerworldpos ) const
 {
     visBase::PolygonSelection* polysel = scene_->getPolySelection();
     if ( !polysel->isInside(markerworldpos) )
@@ -1132,7 +1132,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( !isSelectableMarkerInPolySel(sip->pos_) )
 	    continue;
 
-	fss->selectStick( sip->sticknr_, !ctrldown_ ); 
+	fss->selectStick( sip->sticknr_, !ctrldown_ );
     }
 
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
@@ -1152,7 +1152,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( !isSelectableMarkerInPolySel(emfss_->getPos(pid)) )
 	    continue;
 
-	fss->selectStick( sticknr, !ctrldown_ ); 
+	fss->selectStick( sticknr, !ctrldown_ );
     }
 
     updateKnotMarkers();
@@ -1168,7 +1168,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 {
     if ( !emfss_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
-    
+
     for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
     {
 	visBase::MarkerSet* markerset = knotmarkersets_[idx];

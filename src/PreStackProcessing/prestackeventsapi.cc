@@ -93,10 +93,10 @@ extern "C" int dGBPreStackEventsGetEventSize( int handle, int index )
 
 extern "C" void dGBPreStackEventsGetEvent( int handle, int index,
 				float* offsets, float* azimuths, float* depths,
-       				      float* quality )
+				      float* quality )
 {
     PreStack::EventsAPIMgr::getMgr().getEvent( handle, index, offsets, azimuths,
-	    				     depths, quality );
+					     depths, quality );
 }
 
 
@@ -110,7 +110,7 @@ extern "C" void dGBPreStackEventsGetDip( int handle, int index,
 extern "C" int dGBPreStackEventsGetHorizonID( int handle, int index, int& horid)
 {
     return PreStack::EventsAPIMgr::getMgr().getHorizonID( handle, index,
-	    						  horid );
+							  horid );
 }
 
 
@@ -168,7 +168,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     int res = 0;
     while ( ids_.isPresent(res) ) res++;
 
-    if ( !strcmp(ioobj->group(),PSEventTranslatorGroup::sKeyword() ) )
+    if ( ioobj->group() == PSEventTranslatorGroup::sKeyword() )
     {
 	PreStack::EventManager* picks = new PreStack::EventManager;
 	picks->ref();
@@ -296,7 +296,7 @@ int PreStack::EventsAPIMgr::getNextCDP(int handle, int previnl, int prevcrl,
 
     const BinID newbid = locations_[idx]->getBinID( pos );
     nextinl = newbid.inl();
-    nextcrl = newbid.crl(); 
+    nextcrl = newbid.crl();
     return 1;
 }
 
@@ -337,7 +337,7 @@ int PreStack::EventsAPIMgr::getNrEvents( int handle ) const
     if ( events_[idx] )
     {
 	const PreStack::EventSet* ge =  events_[idx]->getEvents( curpos_[idx] );
-	return ge ? ge->events_.size() : 0; 
+	return ge ? ge->events_.size() : 0;
     }
 
     return velpicks_[idx]->get( curpos_[idx], 0, 0, 0, 0, false );
@@ -431,7 +431,7 @@ void PreStack::EventsAPIMgr::getDip( int handle, int index,
 	return;
 
     events_[idx]->getDip( BinIDValue(curpos_[idx],pick->pick_[0]),
-	    		  pick->horid_, inldip, crldip );
+			  pick->horid_, inldip, crldip );
 }
 
 

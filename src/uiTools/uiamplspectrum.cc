@@ -1,12 +1,12 @@
 /*+
 ________________________________________________________________________
-            
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:          September 2007
 _______________________________________________________________________
-                   
--*/   
+
+-*/
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiamplspectrum.h"
@@ -52,9 +52,9 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     disp_->xAxis()->setName( SI().zIsTime() ? !setup_.iscepstrum_
 						    ? "Frequency (Hz)"
 						    : "Quefrency (ms)"
-	    				    : "Wavenumber (/m)" );
+					    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
-    disp_->getMouseEventHandler().movement.notify( 
+    disp_->getMouseEventHandler().movement.notify(
 	    mCB(this,uiAmplSpectrum,valChgd) );
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
@@ -70,8 +70,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
-    
-    BufferString lbl =  SI().zIsTime() ? "Value(frequency, power)" : 
+
+    BufferString lbl =  SI().zIsTime() ? "Value(frequency, power)" :
 					 "Value(wavenumber, power)";
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
@@ -80,7 +80,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     uiPushButton* exportbut = new uiPushButton( this, "Export", false );
     exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
     exportbut->attach( rightAlignedBelow, disp_ );
-    
+
     if ( !setup_.iscepstrum_ )
     {
 	uiPushButton* cepbut = new uiPushButton( this,"Display cepstrum",false);
@@ -106,7 +106,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( datapack )
-	setCaption( !datapack ? "No data" 
+	setCaption( !datapack ? "No data"
 	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::CubeID() )
@@ -114,7 +114,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const ::CubeDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = dp->sampling().zrg.step;	    
+	    setup_.nyqvistspspace_ = dp->sampling().zrg.step;
 	    setData( dp->data() );
 	}
     }
@@ -123,7 +123,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const FlatDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);	    
+	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);
 	    setData( dp->data() );
 	}
     }
@@ -154,7 +154,7 @@ void uiAmplSpectrum::setData( const Array1D<float>& arr1d )
 void uiAmplSpectrum::setData( const float* array, int size )
 {
     Array1DImpl<float> arr1d( size );
-    memcpy( arr1d.getData(), array, sizeof(float)*size );
+    OD::memCopy( arr1d.getData(), array, sizeof(float)*size );
     setData( arr1d );
 }
 
@@ -182,7 +182,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
 }
 
 
-void uiAmplSpectrum::initFFT( int nrsamples ) 
+void uiAmplSpectrum::initFFT( int nrsamples )
 {
     fft_ = Fourier::CC::createDefault();
     if ( !fft_ ) return;
@@ -227,7 +227,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 	    fft_->setInput( timedomain_->getData() );
 	    fft_->setOutput( freqdomain_->getData() );
 	    fft_->run( true );
-	    
+
 	    for ( int idz=0; idz<fftsz; idz++ )
 		freqdomainsum_->arr()[idz] += abs(freqdomain_->get(idz));
 	}
@@ -237,7 +237,7 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 }
 
 
-void uiAmplSpectrum::putDispData() 
+void uiAmplSpectrum::putDispData()
 {
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
     delete specvals_;
@@ -247,7 +247,7 @@ void uiAmplSpectrum::putDispData()
     {
 	const float val = freqdomainsum_->get( idx )/nrtrcs_;
 	specvals_->set( idx, val );
-	dbspecvals.set( idx, mDispVal( val )  ); 
+	dbspecvals.set( idx, mDispVal( val )  );
     }
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
@@ -255,8 +255,8 @@ void uiAmplSpectrum::putDispData()
 	maxfreq = mCast( float, mNINT32( maxfreq ) );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
-    stepfld_->box()->setInterval( posrange_.start, posrange_.stop, 
-	    			  (posrange_.stop-posrange_.start)/25 );
+    stepfld_->box()->setInterval( posrange_.start, posrange_.stop,
+				  (posrange_.stop-posrange_.start)/25 );
     stepfld_->box()->setValue( maxfreq/5 );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
     disp_->draw();
@@ -277,14 +277,14 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 {
     StepInterval<float> rg = rangefld_->getFInterval();
     rg.step = stepfld_->box()->getFValue();
-    if ( posrange_.start > rg.start || posrange_.stop < rg.stop 
+    if ( posrange_.start > rg.start || posrange_.stop < rg.stop
 	    || rg.stop <=0 || rg.start >= rg.stop )
-    { 
+    {
 	rg.start = posrange_.start; rg.stop = posrange_.stop;
         rg.step = ( rg.stop - rg.start )/5;
-	rangefld_->setValue( posrange_ ); 
+	rangefld_->setValue( posrange_ );
     }
-    disp_->xAxis()->setRange( rg ); 
+    disp_->xAxis()->setRange( rg );
     disp_->draw();
 }
 
@@ -315,9 +315,9 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     if ( !specvals_ ) return;
 
     const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
-    Interval<float> rg( disp_->xAxis()->getVal( pos.x ), 
+    Interval<float> rg( disp_->xAxis()->getVal( pos.x ),
 			disp_->yAxis(false)->getVal( pos.y ) );
-    const bool disp = disp_->xAxis()->range().includes(rg.start,true) && 
+    const bool disp = disp_->xAxis()->range().includes(rg.start,true) &&
 		      disp_->yAxis(false)->range().includes(rg.stop,true);
     valfld_->display( disp );
     if ( !disp )

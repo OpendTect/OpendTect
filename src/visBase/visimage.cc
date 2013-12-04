@@ -52,10 +52,10 @@ void Image::replaceMaterial( bool yn )
 
 
 void Image::setData( const Array2D<Color>& arr, bool usetrans )
-{ 
+{
     texture_->image.setValue( SbVec2s(arr.info().getSize(0),
 				      arr.info().getSize(1)),
-	    		      usetrans ? 4 : 3, 0 );
+			      usetrans ? 4 : 3, 0 );
     SbVec2s sz;
     int nrcomponents;
     unsigned char* ptr = texture_->image.startEditing( sz, nrcomponents );
@@ -128,7 +128,7 @@ void RGBImage::fill( unsigned char* res ) const
     unsigned char* ptr = image_->getValue( size, bytesperpixel );
     const int ptrsz = size[0]*size[1]*bytesperpixel;
 
-    memcpy( res, ptr, ptrsz );
+    OD::memCopy( res, ptr, ptrsz );
 }
 
 
@@ -160,6 +160,6 @@ Color RGBImage::get(int idx, int idy ) const
 }
 
 
-    
+
 
 }; // namespace visBase

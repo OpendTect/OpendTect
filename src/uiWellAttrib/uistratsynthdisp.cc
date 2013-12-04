@@ -57,27 +57,27 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    const Strat::LayerModelProvider& lmp )
     : uiGroup(p,"LayerModel synthetics display")
     , lmp_(lmp)
-    , d2tmodels_(0)	    
+    , d2tmodels_(0)
     , stratsynth_(new StratSynth(lmp,false))
     , edstratsynth_(new StratSynth(lmp,true))
-    , useed_(false)	
-    , dispeach_(1)	
-    , dispskipz_(0)	
+    , useed_(false)
+    , dispeach_(1)
+    , dispskipz_(0)
     , dispflattened_(false)
-    , selectedtrace_(-1)	
+    , selectedtrace_(-1)
     , selectedtraceaux_(0)
     , levelaux_(0)
     , wvltChanged(this)
     , zoomChanged(this)
     , viewChanged(this)
-    , modSelChanged(this)		       
-    , synthsChanged(this)		       
+    , modSelChanged(this)
+    , synthsChanged(this)
     , dispParsChanged(this)
     , layerPropSelNeeded(this)
     , longestaimdl_(0)
     , lasttool_(0)
     , synthgendlg_(0)
-    , prestackwin_(0)		      
+    , prestackwin_(0)
     , currentwvasynthetic_(0)
     , currentvdsynthetic_(0)
     , autoupdate_(true)
@@ -92,7 +92,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );
     topgrp_->setStretch( 2, 0 );
-    
+
     uiLabeledComboBox* datalblcbx =
 	new uiLabeledComboBox( topgrp_, "Wiggle View", "" );
     wvadatalist_ = datalblcbx->box();
@@ -100,8 +100,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 	    mCB(this,uiStratSynthDisp,wvDataSetSel) );
     wvadatalist_->setHSzPol( uiObject::Wide );
 
-    uiToolButton* edbut = new uiToolButton( topgrp_, "edit", 
-	    			"Add/Edit Synthetic DataSet",
+    uiToolButton* edbut = new uiToolButton( topgrp_, "edit",
+				"Add/Edit Synthetic DataSet",
 				mCB(this,uiStratSynthDisp,addEditSynth) );
 
     edbut->attach( leftOf, datalblcbx );
@@ -109,7 +109,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     uiGroup* dataselgrp = new uiGroup( this, "Data Selection" );
     dataselgrp->attach( rightBorder );
     dataselgrp->attach( ensureRightOf, topgrp_ );
-    
+
     uiLabeledComboBox* prdatalblcbx =
 	new uiLabeledComboBox( dataselgrp, "Variable Density View", "" );
     vddatalist_ = prdatalblcbx->box();
@@ -118,8 +118,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vddatalist_->setHSzPol( uiObject::Wide );
     prdatalblcbx->attach( leftBorder );
 
-    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export", 
-	    			"Export Synthetic DataSet(s)",
+    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export",
+				"Export Synthetic DataSet(s)",
 				mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
 
@@ -129,8 +129,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setFrame( true );
     datagrp_->setStretch( 2, 0 );
 
-    uiToolButton* layertb = new uiToolButton( datagrp_, "defraytraceprops", 
-				    "Specify input for synthetic creation", 
+    uiToolButton* layertb = new uiToolButton( datagrp_, "defraytraceprops",
+				    "Specify input for synthetic creation",
 				    mCB(this,uiStratSynthDisp,layerPropsPush));
 
     wvltfld_ = new uiSeisWaveletSel( datagrp_ );
@@ -158,8 +158,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     offsetposfld_ = new uiSynthSlicePos( prestackgrp_, "Offset" );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged));
 
-    prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64", 
-				"View Offset Direction", 
+    prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64",
+				"View Offset Direction",
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
 
@@ -231,7 +231,7 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     else
 	tb->attach( rightBorder );
 
-    tb->attach( ensureRightOf, prestackbut_ ); 
+    tb->attach( ensureRightOf, prestackbut_ );
 
     lasttool_ = tb;
 }
@@ -299,7 +299,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->zvalue_ = 2;
     vwr_->addAuxData( selectedtraceaux_ );
 
-    const double ptx = selectedtrace_ + offset; 
+    const double ptx = selectedtrace_ + offset;
     const double ptz1 = zrg.start;
     const double ptz2 = zrg.stop;
 
@@ -308,7 +308,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 
     selectedtraceaux_->poly_ += pt1;
     selectedtraceaux_->poly_ += pt2;
-    selectedtraceaux_->linestyle_ = 
+    selectedtraceaux_->linestyle_ =
 	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
 
     vwr_->handleChange( FlatView::Viewer::Auxdata );
@@ -317,7 +317,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col,
-       				     bool dispflattened )
+				     bool dispflattened )
 {
     StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
     curSS().setLevel( lvl );
@@ -377,7 +377,7 @@ void uiStratSynthDisp::getAbsoluteViewRect( uiWorldRect& abswr ) const
 }
 
 
-void uiStratSynthDisp::resetRelativeViewRect() 
+void uiStratSynthDisp::resetRelativeViewRect()
 {
     relzoomwr_ = uiWorldRect( 0, 0, 1, 1 );
 }
@@ -409,7 +409,7 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 	newzrg.stop = d2t.getTime( (float)zrg.stop );
     }
     const Interval<double> xrg = vwr_->getDataPackRange( true );
-    vwr_->setSelDataRanges( xrg, newzrg ); 
+    vwr_->setSelDataRanges( xrg, newzrg );
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
@@ -555,7 +555,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 		"Stratigraphic Level to real amplitudes along a horizon" );
 	return false;
     }
-    BufferString levelname; 
+    BufferString levelname;
     if ( curSS().getLevel() ) levelname = curSS().getLevel()->name();
     if ( levelname.isEmpty() || matchString( "--", levelname) )
     {
@@ -661,7 +661,7 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
     mDefineStaticLocalObject( Threads::Lock, lock, (true) );
     Threads::Locker locker ( lock );
 
-    mDefineStaticLocalObject( uiWorldRect, timewr, ); 
+    mDefineStaticLocalObject( uiWorldRect, timewr, );
     timewr = vwr_->curView();
     if ( !indpth )
 	return timewr;
@@ -760,16 +760,16 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 						     bool wva )
 {
-    const bool hadpack = vwr_->pack( wva ); 
+    const bool hadpack = vwr_->pack( wva );
     if ( hadpack )
-	vwr_->removePack( vwr_->packID(wva) ); 
+	vwr_->removePack( vwr_->packID(wva) );
     vwr_->removeAllAuxData();
     delete d2tmodels_;
     d2tmodels_ = 0;
     if ( !sd )
     {
 	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
 					SeisTrcInfo::TrcNr, "Forward Modeling");
 	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
 	DPM( DataPackMgr::FlatID() ).add( dp );
@@ -785,7 +785,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     const float offset =
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
 				  : 0.0f;
-    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 ) 
+    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 )
 				   : &postsd->postStackPack().trcBuf();
     if ( !tbuf ) return;
 
@@ -814,7 +814,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
         reSampleTraces( sd, *disptbuf );
 
     curSS().trimTraces( *disptbuf, curd2tmodels, dispskipz_);
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
@@ -994,7 +994,7 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 	    if ( !sd ) continue;
 	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
 	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
-		    	    &sd->getPack())
+			    &sd->getPack())
 	    if ( !gsetdp || !presd ) continue;
 	    const PreStack::GatherSetDataPack& angledp = presd->angleData();
 	    for ( int idx=0; idx<ginfos.size(); idx++ )
@@ -1092,7 +1092,7 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     if ( !autoupdate_ && !forceupdate_ ) return;
-    
+
     if ( curSS().errMsg() )
 	mErrRet( curSS().errMsg(), return )
     if ( curSS().infoMsg() )
@@ -1234,7 +1234,7 @@ void uiStratSynthDisp::exportSynth( CallBacker* )
 void uiStratSynthDisp::offsetChged( CallBacker* )
 {
     displayPostStackSynthetic( currentwvasynthetic_, true );
-    if ( !strcmp(wvadatalist_->text(),vddatalist_->text()) &&
+    if ( FixedString(wvadatalist_->text())==vddatalist_->text() &&
 	 currentwvasynthetic_ && currentwvasynthetic_->isPS() )
 	displayPostStackSynthetic( currentvdsynthetic_, false );
 }
@@ -1340,7 +1340,7 @@ const MultiID& uiStratSynthDisp::waveletID() const
 
 void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 {
-    if ( !synthgendlg_ ) 
+    if ( !synthgendlg_ )
 	return;
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
@@ -1370,7 +1370,7 @@ SyntheticData* uiStratSynthDisp::getSyntheticData( const char* nm )
 
 SyntheticData* uiStratSynthDisp::getCurrentSyntheticData( bool wva ) const
 {
-    return wva ? currentwvasynthetic_ : currentvdsynthetic_; 
+    return wva ? currentwvasynthetic_ : currentvdsynthetic_;
 }
 
 
@@ -1392,7 +1392,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	genparams.fillPar( synthpar );
 	sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
-		    		 nr_nonproprefsynths-1) );
+				 nr_nonproprefsynths-1) );
     }
 
     stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
@@ -1421,7 +1421,7 @@ bool uiStratSynthDisp::prepareElasticModel()
 }
 
 
-bool uiStratSynthDisp::usePar( const IOPar& par ) 
+bool uiStratSynthDisp::usePar( const IOPar& par )
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
     if ( !curSS().hasElasticModels() )
@@ -1476,7 +1476,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     curSS().generateOtherQuantities();
     synthsChanged.trigger();
-    
+
     if ( stratsynthpar )
     {
 	int snaplvl = 0;
@@ -1490,7 +1490,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
     : uiGroup( p, "Slice Pos" )
-    , positionChg(this)  
+    , positionChg(this)
 {
     label_ = new uiLabel( this, lbltxt );
     sliceposbox_ = new uiSpinBox( this, 0, "Slice position" );

@@ -145,7 +145,7 @@ bool DataCubesOutput::wantsOutput( const BinID& bid ) const
 
 TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 							   float zstep,
-       							   TypeSet<float>&)const
+							   TypeSet<float>&)const
 {
     if ( sampleinterval_.size() ==0 )
     {
@@ -222,7 +222,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	return;
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
-	    			 mMIN(inputrg.stop, outrg.stop ) );
+				 mMIN(inputrg.stop, outrg.stop ) );
 
     const int inlidx =
 	datacubes_->inlsampling_.nearestIndex(info.binid.inl());
@@ -251,7 +251,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	else
 	{
 	    mDynamicCastGet( ConvMemValueSeries<float>*, deststor,
-		    	     datacubes_->getCube(desout).getStorage() );
+			     datacubes_->getCube(desout).getStorage() );
 	    const char elemsz = mCast(char,cmvs->dataDesc().nrBytes());
 
 	    const od_int64 destoffset = transrg.start-datacubes_->z0_ +
@@ -260,7 +260,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    char* dest = deststor->storArr() + destoffset * elemsz;
 	    char* src = cmvs->storArr() +
 			(transrg.start-data.z0_) * elemsz;
-	    memcpy( dest, src, elemsz*(transrg.width()+1) );
+	    OD::memCopy( dest, src, elemsz*(transrg.width()+1) );
 	}
     }
 }
@@ -461,7 +461,7 @@ LineKey lineKey() const
     return lk;
 }
     BufferString        attrnm_;
-    BufferString 	linename_;
+    BufferString	linename_;
 
 };
 
@@ -571,7 +571,7 @@ void SeisTrcStorOutput::writeTrc()
 		             = transl->componentInfo();
 	    for ( int idx=0; idx<cis.size(); idx++ )
 		cis[idx]->datatype = outptypes_.size() ? outptypes_[idx] :
-		    					Seis::UnknowData;
+							Seis::UnknowData;
 	}
 
 	storinited_ = true;
@@ -696,7 +696,7 @@ void TwoDOutput::setOutput( Data2DHolder& no )
 
 TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 						      float zstep,
-       						      TypeSet<float>& ) const
+						      TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() == 0 )
     {
@@ -746,7 +746,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	DataHolder::getExtraZAndSampIdxFromExactZ( vals[0], refstep, lowz );
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1,false) &&
-	    		    datarg.includes(highz+1,false);
+			    datarg.includes(highz+1,false);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false)
 			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
@@ -937,7 +937,7 @@ void TrcSelectionOutput::setLineKey( const LineKey& linekey )
 
 TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 						const BinID& bid, float zstep,
-       						TypeSet<float>&	) const
+						TypeSet<float>&	) const
 {
     BinIDValueSet::SPos pos = bidvalset_.find( bid );
     BinID binid;
@@ -967,14 +967,14 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 
 bool TrcSelectionOutput::getDesiredVolume( CubeSampling& cs ) const
 {
-    Interval<int> inlrg = bidvalset_.inlRange(); 
-    Interval<int> crlrg = bidvalset_.crlRange(); 
+    Interval<int> inlrg = bidvalset_.inlRange();
+    Interval<int> crlrg = bidvalset_.crlRange();
     Interval<float> zrg =
 	Interval<float>( stdstarttime_, stdstarttime_ + stdtrcsz_ );
-    CubeSampling trcselsampling( false ); 
-    trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start); 
-    trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop); 
-    if ( !cs.includes( trcselsampling ) )   
+    CubeSampling trcselsampling( false );
+    trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start);
+    trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop);
+    if ( !cs.includes( trcselsampling ) )
 	cs = trcselsampling;
     return true;
 }
@@ -990,7 +990,7 @@ const CubeSampling Trc2DVarZStorOutput::getCS()
 
 
 Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
-       					  DataPointSet* poszvalues,
+					  DataPointSet* poszvalues,
 					  float outval )
     : SeisTrcStorOutput( getCS(), lk )
     , poszvalues_(poszvalues)
@@ -1155,7 +1155,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 	   &&mIsEqual( poszvalues_->coord(idx).y, coord.y, 1e-3 ) )
 	{
 	    Interval<int> interval( mNINT32(poszvalues_->z(idx)/zstep),
-		    		    mNINT32(poszvalues_->value(0,idx)/zstep) );
+				    mNINT32(poszvalues_->value(0,idx)/zstep) );
 	    sampleinterval += interval;
 	    const int nrextrazintv = (poszvalues_->nrCols()-1)/2;
 	    for ( int idi=0; idi<nrextrazintv; idi+=2 ) //to keep it general
@@ -1248,7 +1248,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1,false) &&
-	    		    datarg.includes(highz+1,false);
+			    datarg.includes(highz+1,false);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false)
 			      && datarg.includes(highz,false);
 	if ( isfulldataok || canusepartdata )
@@ -1361,7 +1361,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 
 
 void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
-       				    TypeSet<float>& exactz,
+				    TypeSet<float>& exactz,
 				    int rid, float zstep ) const
 {
     const float zval = datapointset_.z(rid);

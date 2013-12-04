@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 
 #include <stdio.h>
-#include <string.h>
 
 
 static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
@@ -122,10 +121,10 @@ static void initGF( std::ostream& strm, const char* hornm,
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
-    memcpy( gfbuf+8, hnm.buf(), sz );
+    OD::memCopy( gfbuf+8, hnm.buf(), sz );
     hnm = comment;
     sz = hnm.size(); if ( sz > 45 ) sz = 45;
-    memcpy( gfbuf+35, hnm.buf(), sz );
+    OD::memCopy( gfbuf+35, hnm.buf(), sz );
     strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << std::endl;
 }
 
@@ -430,11 +429,12 @@ bool uiExportHorizon::writeAscii()
 
 bool uiExportHorizon::acceptOK( CallBacker* )
 {
-    if ( !strcmp(outfld_->fileName(),"") )
+    const BufferString outfnm( outfld_->fileName() );
+    if ( outfnm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) &&
-		      !uiMSG().askOverwrite("Output file exists. Overwrite?") )
+    if ( File::exists(outfnm) &&
+		  !uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
     const bool res = writeAscii();

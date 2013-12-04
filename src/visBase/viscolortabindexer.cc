@@ -39,7 +39,7 @@ ColorTabIndexer::ColorTabIndexer( const ValueSeries<float>& inp,
 
     globalhistogram_ = new unsigned int[nrhistogramsteps_];
 
-    memset( globalhistogram_, 0, sizeof(int)*nrhistogramsteps_ );
+    OD::memZero( globalhistogram_, sizeof(int)*nrhistogramsteps_ );
     histogrammutex_.unLock();
 }
 
@@ -60,7 +60,7 @@ ColorTabIndexer::ColorTabIndexer( const float* inp,
 
     globalhistogram_ = new unsigned int[nrhistogramsteps_];
 
-    memset( globalhistogram_, 0, sizeof(int)*nrhistogramsteps_ );
+    OD::memZero( globalhistogram_, sizeof(int)*nrhistogramsteps_ );
     histogrammutex_.unLock();
 }
 
@@ -88,7 +88,7 @@ od_int64 ColorTabIndexer::nrIterations() const
 bool ColorTabIndexer::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     mAllocVarLenArr( unsigned int, histogram, nrhistogramsteps_ );
-    memset( histogram, 0, sizeof(int)*nrhistogramsteps_ );
+    OD::memZero( histogram, sizeof(int)*nrhistogramsteps_ );
 
     if ( datacacheptr_ )
     {

@@ -44,8 +44,8 @@ Wavelet::Wavelet( const char* nm )
 
 
 Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
-    	: dpos_(sr)
-    	, sz_(0)
+	: dpos_(sr)
+	, sz_(0)
 	, samps_(0)
 	, intpol_(0)
 {
@@ -98,7 +98,7 @@ Wavelet& Wavelet::operator =( const Wavelet& wv )
     cidx_ = wv.cidx_;
     dpos_ = wv.dpos_;
     reSize( wv.size() );
-    if ( sz_ ) memcpy( samps_, wv.samps_, sz_*sizeof(float) );
+    if ( sz_ ) OD::memCopy( samps_, wv.samps_, sz_*sizeof(float) );
     delete intpol_; intpol_ = 0;
     if ( wv.intpol_ )
 	intpol_ = new ValueSeriesInterpolator<float>( *wv.intpol_ );
@@ -287,7 +287,7 @@ bool Wavelet::reSample( float newsr )
     PointBasedMathFunction spectrumreal( PointBasedMathFunction::Poly,
 					 PointBasedMathFunction::None );
     PointBasedMathFunction spectrumimag( PointBasedMathFunction::Poly,
-	    				 PointBasedMathFunction::None );
+					 PointBasedMathFunction::None );
     for ( int idx=0; idx<inp.sz_; idx++ )
     {
 	float freq = idx * inp.freqstep_;
@@ -566,7 +566,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
-	    		FloatInpSpec(SI().zRange(true).step), Table::Required,
+			FloatInpSpec(SI().zRange(true).step), Table::Required,
 			PropertyRef::surveyZType() );
     fd->headerinfos_ += new Table::TargetInfo( "Center sample",
 						IntInpSpec(), Table::Optional );
@@ -613,7 +613,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     ret->reSize( samps.size() );
     ret->setCenterSample( centersmp  );
     ret->setSampleRate( sr );
-    memcpy( ret->samples(), samps.arr(), ret->size() * sizeof(float) );
+    OD::memCopy( ret->samples(), samps.arr(), ret->size() * sizeof(float) );
     return ret;
 }
 

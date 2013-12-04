@@ -47,7 +47,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     , propChanged(this)
 
 {
-   
+
     szfld_ = new uiLabeledSpinBox( this, su.mysztxt_ );
     szfld_->box()->setInterval( StepInterval<int>(0,100,1) );
     szfld_->box()->setValue( props().size_ );
@@ -123,7 +123,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
 void uiWellTrackDispProperties::resetProps( Well::DisplayProperties::Track& pp )
 {
-    props_ = &pp; 
+    props_ = &pp;
 }
 
 
@@ -161,22 +161,22 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				Well::DisplayProperties::Markers& mp,
 				const BufferStringSet& allmarkernms, bool is2d )
     : uiWellDispProperties(p,su,mp)
-    , is2d_(is2d)				     
+    , is2d_(is2d)
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
     shapefld_->attach( alignedBelow, colfld_ );
     for ( int idx=0; shapes3d[idx]; idx++)
 	shapefld_->box()->addItem( is2d ? shapes2d[idx] : shapes3d[idx] );
-    
+
     cylinderheightfld_ = new uiLabeledSpinBox( this, "Height" );
     cylinderheightfld_->box()->setInterval( 0, 10, 1 );
     cylinderheightfld_->attach( rightOf, shapefld_ );
     cylinderheightfld_->display( !is2d );
-   
+
     singlecolfld_ = new uiCheckBox( this, "use single color");
-    singlecolfld_->attach( rightOf, colfld_); 
+    singlecolfld_->attach( rightOf, colfld_);
     colfld_->setSensitive( singlecolfld_->isChecked() );
-   
+
     nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
     nmsizefld_->box()->setInterval(5,30,2);
     nmsizefld_->attach( alignedBelow, shapefld_ );
@@ -191,8 +191,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
 
     samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
-    samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
-   
+    samecolasmarkerfld_->attach( rightOf, nmcolfld_);
+
     checkallfld_ = new uiCheckBox( this, "All" );
     checkallfld_->attach( alignedBelow, nmcolfld_ );
     checkallfld_->setChecked( true );
@@ -203,14 +203,14 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     displaymarkersfld_ = new uiListBox( this, lbl->text() );
     displaymarkersfld_->addItems( allmarkernms );
     displaymarkersfld_->setItemsCheckable( true );
-    displaymarkersfld_->attach( alignedBelow, checkallfld_ ); 
+    displaymarkersfld_->attach( alignedBelow, checkallfld_ );
 
     doPutToScreen();
     markerFldsChged(0);
 
     cylinderheightfld_->box()->valueChanging.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmcolfld_->colorChanged.notify( 
+    nmcolfld_->colorChanged.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     nmsizefld_->box()->valueChanging.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
@@ -233,9 +233,9 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     checkallfld_->activated.notify(
 		    mCB(this,uiWellMarkersDispProperties,propChg) );
     displaymarkersfld_->itemChecked.notify(
-	    		mCB(this,uiWellMarkersDispProperties,propChg) );
+			mCB(this,uiWellMarkersDispProperties,propChg) );
     displaymarkersfld_->itemChecked.notify(
-	    		mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
+			mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
 }
 
 
@@ -253,7 +253,7 @@ void uiWellMarkersDispProperties::getSelNames()
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChecked );
-    for ( int idx=0; idx<displaymarkersfld_->size(); idx ++ ) 
+    for ( int idx=0; idx<displaymarkersfld_->size(); idx ++ )
     {
 	BufferString mrknm = displaymarkersfld_->textOfItem(idx);
 	const bool ispresent = mrkprops().selmarkernms_.isPresent( mrknm );
@@ -353,7 +353,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
-				Well::DisplayProperties::Log& lp, 
+				Well::DisplayProperties::Log& lp,
 				const Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
 {
@@ -368,7 +368,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     stylefld_ = new uiCheckList( grp, stringset, uiCheckList::OneOnly, true);
     grp->attach( alignedAbove, szfld_ );
 
-    uiSeparator* sep1 = new uiSeparator( this, "Sep" ); 
+    uiSeparator* sep1 = new uiSeparator( this, "Sep" );
     sep1->attach( stretchedAbove, grp );
 
     rangefld_ = new uiGenInput( this, "Log range (min/max)",
@@ -381,14 +381,14 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     const char* choice[] = { "clip rate", "data range", 0 };
     cliprangefld_ = new uiGenInput( this, "Specify", StringListInpSpec(choice));
     cliprangefld_->attach( alignedAbove, rangefld_ );
-   
+
     clipratefld_ = new uiGenInput( this, "Clip rate", StringInpSpec() );
     clipratefld_->setElemSzPol( uiObject::Small );
     clipratefld_->attach( alignedBelow, cliprangefld_ );
 
     logarithmfld_ = new uiCheckBox( this, "Logarithmic" );
     logarithmfld_->attach( rightOf, rangefld_ );
-    
+
     revertlogfld_ = new uiCheckBox( this, "Flip" );
     revertlogfld_->attach( rightOf, cliprangefld_ );
 
@@ -396,7 +396,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     repeatfld_ = lblr_ ->box();
     repeatfld_->setInterval( 1, 20, 1 );
     lblr_->attach( alignedBelow, colfld_ );
-  
+
     BufferString sellbl( "Select log" );
     logsfld_ = new uiLabeledComboBox( this, sellbl );
     logsfld_->box()->setHSzPol( uiObject::Wide );
@@ -430,7 +430,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     flipcoltabfld_ = new uiCheckBox( this, "flip color table" );
     flipcoltabfld_->attach( rightOf, filllogsfld_ );
 
-    uiSeparator* sep2 = new uiSeparator( this, "Sep" ); 
+    uiSeparator* sep2 = new uiSeparator( this, "Sep" );
     sep2->attach( stretchedBelow, coltablistfld_ );
     logwidthfld_ = new uiLabeledSpinBox( this, "Log screen width" );
     logwidthfld_->box()->setInterval(1,500);
@@ -486,8 +486,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 		mCB(this,uiWellLogDispProperties,updateRange) );
     logsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
-    logfilltypefld_->box()->selectionChanged.notify( 
-	    	mCB(this,uiWellLogDispProperties,isFilledSel));
+    logfilltypefld_->box()->selectionChanged.notify(
+		mCB(this,uiWellLogDispProperties,isFilledSel));
     repeatfld_->valueChanging.notify(
 		mCB(this,uiWellLogDispProperties,isRepeatSel) );
     singlfillcolfld_->activated.notify(
@@ -516,26 +516,26 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsl( logarithmfld_->activated );
     NotifyStopper nsrev( revertlogfld_->activated );
     NotifyStopper nsslf( logfilltypefld_->box()->selectionChanged );
-    
-    revertlogfld_->setChecked( logprops().islogreverted_ ); 
+
+    revertlogfld_->setChecked( logprops().islogreverted_ );
     logsfld_->box()->setText( logprops().name_ );
     rangefld_->setValue( logprops().range_ );
     colorrangefld_->setValue( logprops().fillrange_ );
     filllogsfld_->box()-> setText( logprops().fillname_ );
-    
+
     stylefld_->setChecked( logprops().style_, true );
 
-    logarithmfld_->setChecked( logprops().islogarithmic_ ); 
-    coltablistfld_->setCurrent( logprops().seqname_ ); 
+    logarithmfld_->setChecked( logprops().islogarithmic_ );
+    coltablistfld_->setCurrent( logprops().seqname_ );
     flipcoltabfld_->setChecked( logprops().iscoltabflipped_ );
     ovlapfld_->setValue( logprops().repeatovlap_ );
     repeatfld_->setValue( logprops().repeat_ );
     int fidx = logprops().isleftfill_ ? logprops().isrightfill_ ? 3 : 1
-				      : logprops().isrightfill_ ? 2 : 0; 
+				      : logprops().isrightfill_ ? 2 : 0;
     mSetSwapFillIdx( fidx )
 
     logfilltypefld_->box()->setCurrentItem( fidx );
-    singlfillcolfld_->setChecked( logprops().issinglecol_ ); 
+    singlfillcolfld_->setChecked( logprops().issinglecol_ );
     clipratefld_->setValue( logprops().cliprate_ );
     cliprangefld_->setValue( logprops().isdatarange_ );
     if ( mIsUdf( logprops().cliprate_) || logprops().cliprate_ > 100  )
@@ -564,13 +564,13 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().range_ = rangefld_->getFInterval();
     bool isreverted = revertlogfld_->isChecked();
     if ( !logprops().range_.isRev() && isreverted )
-	logprops().range_.sort( false ); 
+	logprops().range_.sort( false );
     if ( logprops().range_.isRev() && !isreverted )
-	logprops().range_.sort( true ); 
+	logprops().range_.sort( true );
 
     logprops().fillrange_ = colorrangefld_->getFInterval();
     logprops().islogreverted_ = revertlogfld_->isChecked();
-    logprops().islogarithmic_ = logarithmfld_->isChecked(); 
+    logprops().islogarithmic_ = logarithmfld_->isChecked();
     logprops().issinglecol_ = singlfillcolfld_->isChecked();
     int fillidx = logfilltypefld_->box()->currentItem();
     mSetSwapFillIdx( fillidx )
@@ -590,7 +590,7 @@ void uiWellLogDispProperties::doGetFromScreen()
 
 void uiWellLogDispProperties::isFilledSel( CallBacker* )
 {
-    const bool iswelllogortube = 
+    const bool iswelllogortube =
 	stylefld_->isChecked( 0 ) || stylefld_->isChecked( 2 ) ? true : false;
     const bool issinglecol = singlfillcolfld_->isChecked();
     const int fillidx = logfilltypefld_->box()->currentItem();
@@ -756,7 +756,7 @@ void uiWellLogDispProperties::selNone()
     repeatfld_->setValue( 0 );
     ovlapfld_->setValue( 0 );
     singlfillcolfld_->setChecked( false );
-    coltablistfld_->setCurrent( logprops().seqname_ ); 
+    coltablistfld_->setCurrent( logprops().seqname_ );
     logwidthfld_->box()->setValue( deflogwidth );
     setStyleSensitive( false );
 }
@@ -808,10 +808,10 @@ void uiWellLogDispProperties::setFieldVals()
 void uiWellLogDispProperties::updateRange( CallBacker* )
 {
     const char* lognm = logsfld_->box()->textOfItem(
-		        logsfld_->box()->currentItem() ); 
+		        logsfld_->box()->currentItem() );
     const int logno = wl_->indexOf( lognm );
-    if ( logno<0 ) return; 
-    
+    if ( logno<0 ) return;
+
     rangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
 }
@@ -820,9 +820,9 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
     const char* lognm = filllogsfld_->box()->textOfItem(
-			filllogsfld_->box()->currentItem() ); 
+			filllogsfld_->box()->currentItem() );
     const int logno = wl_->indexOf( lognm );
-    if ( logno<0 ) return; 
+    if ( logno<0 ) return;
 
     colorrangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
@@ -836,7 +836,7 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
     valr.set( mUdf(float), -mUdf(float) );
     for ( int idy=0; idy<wl_->size(); idy++ )
     {
-	if ( !strcmp(lognm, wl_->getLog(idy).name()) )
+	if ( wl_->getLog(idy).name() == lognm )
 	{
 	    const int logno = wl_->indexOf( lognm );
 	    Interval<float> range = wl_->getLog(logno).valueRange();
@@ -853,7 +853,7 @@ void uiWellLogDispProperties::disableSeisStyle( bool yn )
 {
     stylefld_->display( !yn );
     seiscolorfld_->display( !yn );
-    ovlapfld_->display( !yn ); 
+    ovlapfld_->display( !yn );
     repeatfld_->display( !yn );
     stylefld_->setChecked( 1, yn );
 }

@@ -27,14 +27,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 #define mTransformTypeFourier		0
-#define mTransformTypeDiscrete  	1
+#define mTransformTypeDiscrete	1
 #define mTransformTypeContinuous	2
 
 namespace Attrib
 {
 
 mAttrDefCreateInstance(SpecDecomp)
-    
+
 void SpecDecomp::initClass()
 {
     mAttrStartInitClassWithDescAndDefaultsUpdate
@@ -130,7 +130,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
     , fftisinit_(false)
     , scalelen_(0)
     , fft_(Fourier::CC::createDefault())
-{ 
+{
     if ( !isOK() ) return;
 
     mGetEnum( transformtype_, transformTypeStr() );
@@ -141,7 +141,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
 	int wtype = mUdf(int);
 	mGetEnum( wtype, windowStr() );
 	windowtype_ = (ArrayNDWindow::WindowType)wtype;
-	
+
 	mGetFloatInterval( gate_, gateStr() );
 	gate_.start = gate_.start / zFactor();
 	gate_.stop = gate_.stop / zFactor();
@@ -152,13 +152,13 @@ SpecDecomp::SpecDecomp( Desc& desc )
 	mGetEnum( dwave, dwtwaveletStr() );
 	dwtwavelet_ = (WaveletTransform::WaveletType) dwave;
     }
-    else 
+    else
     {
 	int cwave = mUdf(int);
 	mGetEnum( cwave, cwtwaveletStr() );
 	cwtwavelet_ = (CWT::WaveletType) cwave;
     }
-    
+
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
 }
 
@@ -186,19 +186,19 @@ bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 
     realidx_ = getDataIndex( 0 );
     imagidx_ = getDataIndex( 1 );
-    
+
     return true;
 }
 
 
 bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
-			      int z0, int nrsamples, int threadid ) const 
+			      int z0, int nrsamples, int threadid ) const
 {
     if ( !fftisinit_ )
     {
 	if ( transformtype_ == mTransformTypeFourier )
 	{
-	    const_cast<SpecDecomp*>(this)->samplegate_ = 
+	    const_cast<SpecDecomp*>(this)->samplegate_ =
 		     Interval<int>(mNINT32(gate_.start/refstep_),
 				   mNINT32(gate_.stop/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
@@ -209,11 +209,11 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	    const_cast<SpecDecomp*>(this)->
 			fft_->setInputInfo(Array1DInfoImpl(fftsz_));
 	    const_cast<SpecDecomp*>(this)->fft_->setDir(true);
-	    const_cast<SpecDecomp*>(this)->df_ = 
+	    const_cast<SpecDecomp*>(this)->df_ =
 		Fourier::CC::getDf(refstep_,fftsz_);
 
-	    const_cast<SpecDecomp*>(this)->window_ = 
-		new ArrayNDWindow( Array1DInfoImpl(sz_), false, 
+	    const_cast<SpecDecomp*>(this)->window_ =
+		new ArrayNDWindow( Array1DInfoImpl(sz_), false,
 			(ArrayNDWindow::WindowType)windowtype_ );
 	}
 	else
@@ -221,7 +221,7 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 
 	const_cast<SpecDecomp*>(this)->fftisinit_ = true;
     }
-    
+
     if ( transformtype_ == mTransformTypeFourier )
 	return calcDFT(output, z0, nrsamples);
     else if ( transformtype_ == mTransformTypeDiscrete )
@@ -238,20 +238,20 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
     Array1DImpl<float_complex> signal( sz_ );
     Array1DImpl<float_complex> timedomain( fftsz_ );
     Array1DImpl<float_complex> freqdomain( fftsz_ );
-    memset( timedomain.getData(), 0, fftsz_*sizeof(float_complex) );
+    OD::memZero( timedomain.getData(), fftsz_*sizeof(float_complex) );
 
     const int outputsz = outputinterest_.size();
     const int maxidx = fftsz_ - 1;
-    
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int samp = idx + samplegate_.start;
 	for ( int ids=0; ids<sz_; ids++ )
 	{
 	    float real = redata_->series(realidx_) ?
-			    getInputValue( *redata_, realidx_, samp, z0 ) : 0;	
-	    float imag = imdata_->series(imagidx_) ? 
-			    -getInputValue( *imdata_, imagidx_, samp, z0 ) : 0;	
+			    getInputValue( *redata_, realidx_, samp, z0 ) : 0;
+	    float imag = imdata_->series(imagidx_) ?
+			    -getInputValue( *imdata_, imagidx_, samp, z0 ) : 0;
 
 	    if ( mIsUdf(real) ) real = 0;
 	    if ( mIsUdf(imag) ) imag = 0;
@@ -278,9 +278,9 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    float val = mUdf(float);
 	    if ( idf<maxidx )
 	    {
-    		const float_complex cval = freqdomain.get( idf+1 );
-    		const float real = cval.real();
-    		const float imag = cval.imag();
+		const float_complex cval = freqdomain.get( idf+1 );
+		const float real = cval.real();
+		const float imag = cval.imag();
 		val = Math::Sqrt(real*real+imag*imag);
 	    }
 
@@ -299,7 +299,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 
     Array1DImpl<float> inputdata( len );
     if ( !redata_->series(realidx_) ) return false;
-    
+
     int off = (len-nrsamples)/2;
     for ( int idx=0; idx<len; idx++ )
         inputdata.set( idx, getInputValue( *redata_, realidx_, idx-off, z0 ) );
@@ -312,7 +312,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     dwt.setOutput( transformed.getData() );
     if ( !dwt.run(false) )
 	return false;
-    
+
     const int nrscales = isPower( len, 2 ) + 1;
     ArrPtrMan<float> spectrum =  new float[nrscales];
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)
@@ -322,7 +322,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     {
         for ( int scale=2; scale<nrscales; scale++ )
         {
-            int scalepos = intpow( 2,mCast(char,scale-1) ) + 
+            int scalepos = intpow( 2,mCast(char,scale-1) ) +
 					( (idx+off) >> (nrscales-scale) );
             spectrum[scale] = fabs(transformed.get(scalepos));
 
@@ -354,7 +354,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	const int cursample = z0 + idx - off;   
+	const int cursample = z0 + idx - off;
 	const int reidx = cursample-redata_->z0_;
 	float real = reidx < 0 || reidx >= redata_->nrsamples_
 		    ? 0 : getInputValue( *redata_, realidx_, idx-off, z0 );
@@ -366,7 +366,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 	if ( mIsUdf(imag) ) imag = 0;
         inputdata.set( idx, float_complex(real, imag) );
     }
-    
+
     CWT& cwt = const_cast<CWT&>(cwt_);
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );

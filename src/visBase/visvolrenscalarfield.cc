@@ -125,7 +125,7 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
 
 void VolumeRenderScalarField::setVolumeTransform( const Coord3& trans,
 				    const Coord3& rotvec, double rotangle,
-				    const Coord3& scale ) 
+				    const Coord3& scale )
 {
     /* Modified code from OpenSceneGraph/examples/osgvolume/osgvolume.cpp:
        Flipped signs of y and z dimensions. */
@@ -134,7 +134,7 @@ void VolumeRenderScalarField::setVolumeTransform( const Coord3& trans,
 
     osg::Matrix mat = osg::Matrix::scale( Conv::to<osg::Vec3d>(fabsscale) );
     mat *= osg::Matrix::rotate(
-			osg::Quat(rotangle,Conv::to<osg::Vec3d>(rotvec)) ); 
+			osg::Quat(rotangle,Conv::to<osg::Vec3d>(rotvec)) );
     mat *= osg::Matrix::translate( Conv::to<osg::Vec3d>(trans) );
     osgvoltile_->setLocator( new osgVolume::Locator(mat) );
 
@@ -191,7 +191,7 @@ bool VolumeRenderScalarField::turnOn( bool yn )
     const bool wason = isOn();
      if ( !yn )
 	 voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
      else if ( indexcache_ )
 	 voldata_->setVolumeData( SbVec3s(sz2_,sz1_,sz0_),
 				 indexcache_, SoVolumeData::UNSIGNED_BYTE );
@@ -204,7 +204,7 @@ bool VolumeRenderScalarField::isOn() const
 {
     return osgvolroot_->getValue(0);
 /*
-    if ( !voldata_ ) 
+    if ( !voldata_ )
 	return false;
 
     SbVec3s size;
@@ -269,7 +269,7 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
     if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
 	//mapper_.setData( datacache_, totalsz, tr );
 	clipData( tr );
-    
+
     makeIndices( doset, tr );
 }
 
@@ -290,16 +290,16 @@ const ColTab::Sequence& VolumeRenderScalarField::getColTabSequence()
 { return sequence_; }
 
 
-void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup& 
+void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup&
 	ms, TaskRunner* tr )
 {
     if ( mapper_.setup_ == ms )
 	return;
-    
+
 //    const bool autoscalechange = mapper_.setup_.type_ != ms.type_;
-    
+
     mapper_.setup_ = ms;
-    
+
     /*if ( autoscalechange )
 	mapper_.setup_.triggerAutoscaleChange();
     else
@@ -307,7 +307,7 @@ void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup&
 
     if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
 	clipData( tr );
-    
+
     makeIndices( false, tr );
 }
 
@@ -338,7 +338,7 @@ SoNode* VolumeRenderScalarField::gtInvntrNode()
 	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
 		       Interval<float>(-0.5,0.5) );
 	voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
 
@@ -389,10 +389,10 @@ void VolumeRenderScalarField::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
-    
-    // Fill up positions 0 to 253 with the color of defined values and 
-    // positions 254 (and 255) with undef color (this is a workaround for a 
-    // bug in SIMVoleon - it does not take in color at position mNrColors-1 
+
+    // Fill up positions 0 to 253 with the color of defined values and
+    // positions 254 (and 255) with undef color (this is a workaround for a
+    // bug in SIMVoleon - it does not take in color at position mNrColors-1
     // (that is, at 255)).
 
     for ( int idx=0; idx<mNrColors-2; idx++ )
@@ -468,7 +468,7 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 	     sz0_!=osgvoldata_->r() )
 	{
 	    osgvoldata_->allocateImage( sz2_, sz1_, sz0_, GL_RGBA,
-		    			GL_UNSIGNED_BYTE );
+					GL_UNSIGNED_BYTE );
 	}
 
 	unsigned char coltab[1024];
@@ -487,7 +487,7 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 
 	for ( int idx=0; idx<nrvoxels; idx++ )
 	{
-	    memcpy( ptr , coltab+4*indexcache_[idx], 4 );
+	    OD::memCopy( ptr , coltab+4*indexcache_[idx], 4 );
 	    ptr += 4;
 	}
     }
@@ -558,7 +558,7 @@ static float hton_float(float value)
     return value;
 }
 
-		    
+
 
 const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
 {

@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timeser.h"
 #include "threadlock.h"
 #include <math.h>
-#include <string.h>
 
 
 void BFhighpass( int npoles, float f3db,
@@ -116,10 +115,8 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
     if ( frac < 0 ) frac = -frac;
     width = mCast(int,2 * (1.f / frac + .5f));
     if ( width < 2 || frac >= 1 )
-    {
-	memcpy( arrout, arrin, sz * sizeof(float) );
-	return;
-    }
+	{ OD::memCopy( arrout, arrin, sz * sizeof(float) ); return; }
+
     if ( (width % 2) == 0 )
 	width++;
     hwidth = width / 2;

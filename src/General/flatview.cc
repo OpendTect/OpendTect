@@ -63,7 +63,7 @@ FlatPosData& FlatPosData::operator =( const FlatPosData& fpd )
     {
 	const int sz = fpd.nrPts(true);
 	x1pos_ = new float[ sz ];
-	memcpy( x1pos_, fpd.x1pos_, sz * sizeof( float ) );
+	OD::memCopy( x1pos_, fpd.x1pos_, sz * sizeof( float ) );
     }
 
     return *this;
@@ -126,7 +126,7 @@ float* FlatPosData::getPositions( bool isx1 ) const
 
     float* ret = new float [sz];
     if ( isx1 && x1pos_ )
-	memcpy( ret, x1pos_, sz * sizeof(float) );
+	OD::memCopy( ret, x1pos_, sz * sizeof(float) );
     else
     {
 	const StepInterval<double>& xrg = range( isx1 );
@@ -140,7 +140,7 @@ float* FlatPosData::getPositions( bool isx1 ) const
 FlatView::DataDispPars::Common::Common()
     : show_(true)
     , blocky_(false)
-    , allowuserchange_(true)		    
+    , allowuserchange_(true)
     , allowuserchangedata_(true)
 {}
 
@@ -154,7 +154,7 @@ FlatView::DataDispPars::Common::Common()
 	{
 	    setup.type_ = ColTab::MapperSetup::Auto;
 	    setup.cliprate_ = Interval<float>( clipperc_.start*0.01,
-		    			       clipperc_.stop*0.01 );
+					       clipperc_.stop*0.01 );
 	    if ( mIsUdf(clipperc_.stop) )
 		setup.cliprate_ = clipperc_.start*0.01;
 	    else
@@ -174,10 +174,10 @@ FlatView::DataDispPars::Common::Common()
 
 
 FlatView::Annotation::AxisData::AxisData()
-    : reversed_(false)  
+    : reversed_(false)
     , sampling_( mUdf(float), mUdf(float) )
     , showannot_( false )
-    , showgridlines_( false )			 
+    , showgridlines_( false )
     , factor_( 1 )
 {}
 
@@ -191,7 +191,7 @@ FlatView::Annotation::Annotation( bool drkbg )
     , showaux_(true)
     , editable_(true)
     , allowuserchange_(true)
-    , allowuserchangereversedaxis_(true)		  
+    , allowuserchangereversedaxis_(true)
 {
     x1_.name_ = "X1";
     x2_.name_ = "X2";
@@ -230,7 +230,7 @@ void FlatView::Annotation::usePar( const IOPar& iop )
     mIOPDoAxes2( get, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,
-	    	 x2_.showgridlines_);
+		 x2_.showgridlines_);
     mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux(), showaux_ );
 }
@@ -256,7 +256,7 @@ FlatView::AuxData::AuxData( const char* nm )
     , namealignment_(mAlignment(Center,Center))
     , linestyle_( LineStyle::None, 1, Color::NoColor() )
     , fillcolor_( Color::NoColor() )
-    , zvalue_( 1 )				  
+    , zvalue_( 1 )
     , close_( false )
     , x1rg_( 0 )
     , x2rg_( 0 )
@@ -272,7 +272,7 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     , namealignment_( aux.namealignment_ )
     , linestyle_( aux.linestyle_ )
     , fillcolor_( aux.fillcolor_ )
-    , zvalue_( aux.zvalue_ )				  
+    , zvalue_( aux.zvalue_ )
     , markerstyles_( aux.markerstyles_ )
     , close_( aux.close_ )
     , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
@@ -317,7 +317,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyAutoScale(),
 	      vd_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
     Interval<float> clipperc( vd_.mappersetup_.cliprate_.start*100,
-	    		      vd_.mappersetup_.cliprate_.stop*100 );
+			      vd_.mappersetup_.cliprate_.stop*100 );
     mIOPDoVD( set, sKeyClipPerc(), clipperc );
     mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
@@ -352,14 +352,14 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
     vd_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
 				       : ColTab::MapperSetup::Fixed;
-   
+
     mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
     vd_.mappersetup_.cliprate_.start *= 0.01;
     if ( mIsUdf(vd_.mappersetup_.cliprate_.stop) )
 	vd_.mappersetup_.cliprate_.stop = vd_.mappersetup_.cliprate_.start;
     else
 	vd_.mappersetup_.cliprate_.stop *= 0.01;
-    
+
     mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
@@ -451,7 +451,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
     const FlatDataPack* dp = pack( iswva );
-    if ( !dp ) 
+    if ( !dp )
     {
 	iswva ? iop.removeWithKey( "Wiggle/VA data" )
 	      : iop.removeWithKey( "Variable density data" );
@@ -590,7 +590,7 @@ void FlatView::Viewer::setVisible( bool wva, bool visibility )
 {
     FlatView::DataDispPars& ddp = appearance().ddpars_;
     bool& show = ( wva ? ddp.wva_.show_ : ddp.vd_.show_ );
-    
+
     if ( show!=visibility )
     {
 	show = visibility;
@@ -621,7 +621,7 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = isVisible(true);
-    const FlatDataPack* dp = pack(wva) ? pack(wva) : pack(!wva); 
+    const FlatDataPack* dp = pack(wva) ? pack(wva) : pack(!wva);
     if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
 
     const FlatPosData& pd = dp->posData();

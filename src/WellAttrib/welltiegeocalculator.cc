@@ -377,12 +377,12 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     ArrayNDWindow window( Array1DInfoImpl(inpsz), false, "CosTaper", 0.90 );
 
     Array1DImpl<float> inputvals( inpsz );
-    memcpy( inputvals.getData(), inp, inpsz*sizeof(float) );
+    OD::memCopy( inputvals.getData(), inp, inpsz*sizeof(float) );
     window.apply( &inputvals );
     removeBias<float,float>( &inputvals );
 
     Array1DImpl<float_complex> cfiltervals( inpsz );
-    memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
+    OD::memCopy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
     removeBias<float_complex,float>( &cfiltervals );
 

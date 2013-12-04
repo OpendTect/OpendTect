@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 #include "varlenarray.h"
 #include "od_iostream.h"
-#include <string.h>
 
 static const float cMaxDistFromGeom = 1000.f;
 
@@ -106,7 +105,8 @@ bool Pos::IdxPairValueSet::append( const IdxPairValueSet& vs )
 	while ( vs.next(pos,!allowdup_) )
 	{
 	    vs.get( pos, idxpair );
-	    memcpy( insvals, vs.getVals( pos ), vs.nrvals_ * sizeof(float) );
+	    OD::memCopy( insvals, vs.getVals( pos ),
+			 vs.nrvals_ * sizeof(float) );
 	    const SPos newpos = add( idxpair, insvals );
 	    if ( !newpos.isValid() )
 		return false;
@@ -473,7 +473,7 @@ void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
 	ip.first = getFrst(pos); ip.second = getScnd(pos);
 	if ( vs && maxnrvals )
 	{
-	    memcpy( vs, getVals(pos), maxnrvals * sizeof(float) );
+	    OD::memCopy( vs, getVals(pos), maxnrvals * sizeof(float) );
 	    return;
 	}
     }
@@ -645,7 +645,7 @@ void Pos::IdxPairValueSet::set( SPos pos, const float* vals )
     if ( !pos.isValid() || !nrvals_ ) return;
 
     if ( vals )
-	memcpy( getVals(pos), vals, nrvals_*sizeof(float) );
+	OD::memCopy( getVals(pos), vals, nrvals_*sizeof(float) );
     else
 	setToUdf( getVals(pos), nrvals_ );
 }
@@ -804,9 +804,9 @@ bool Pos::IdxPairValueSet::insertVal( int validx )
 	float* newarr = newvals->arr();
 	for ( int iscnd=0; iscnd<nrscnd; iscnd++ )
 	{
-	    memcpy( newarr+(iscnd*nrvals_), oldarr+(iscnd*oldnrvals),
+	    OD::memCopy( newarr+(iscnd*nrvals_), oldarr+(iscnd*oldnrvals),
 		    (validx) * sizeof(float) );
-	    memcpy( newarr+(iscnd*nrvals_+validx+1),
+	    OD::memCopy( newarr+(iscnd*nrvals_+validx+1),
 		    oldarr+(iscnd*oldnrvals+validx+1),
 		    (oldnrvals-validx) * sizeof(float) );
 	}
@@ -837,7 +837,7 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals, bool keepdata )
 	{
 	    TypeSet<float>* oldvals = valsets_[ifrst];
 	    mDeclareAndTryAlloc( TypeSet<float>*, newvals,
-				 TypeSet<float>( nrscnd*nrvals_, mUdf(float) ) );
+				 TypeSet<float>( nrscnd*nrvals_, mUdf(float) ));
 	    if ( !newvals )
 		return false;
 	    valsets_.replace( ifrst, newvals );
@@ -848,7 +848,8 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals, bool keepdata )
 		const int cpsz = (oldnrvals > nrvals_ ? nrvals_ : oldnrvals)
 				   * sizeof( float );
 		for ( int iscnd=0; iscnd<nrscnd; iscnd++ )
-		    memcpy( newarr+iscnd*nrvals_, oldarr+iscnd*oldnrvals, cpsz );
+		    OD::memCopy( newarr+iscnd*nrvals_, oldarr+iscnd*oldnrvals,
+				 cpsz );
 	    }
 	    delete oldvals;
 	}

@@ -60,7 +60,7 @@ void ArrayNDSliceBase::setDimMap( int localdim, int remotedim )
 
 
 bool ArrayNDSliceBase::init()
-{ 
+{
     const int nrowndims = vardim_.size();
     const int ndim = position_.size();
 
@@ -114,7 +114,7 @@ bool ArrayNDSliceBase::init()
     else
     {
 	mAllocVarLenArr( int, localpos, nrowndims );
-	memset( localpos, 0, nrowndims * sizeof(int) );
+	OD::memZero( localpos, nrowndims * sizeof(int) );
 
 	mAllocVarLenArr( int, tpos, ndim );
 	getSourcePos( localpos, tpos );
@@ -133,7 +133,7 @@ void ArrayNDSliceBase::getSourcePos( const int* localpos, int* arraypos ) const
     const int ndim = position_.size();
     const int nrowndims = vardim_.size();
 
-    memcpy( arraypos, position_.arr(), ndim*sizeof(int) );
+    OD::memCopy( arraypos, position_.arr(), ndim*sizeof(int) );
 
     for ( int idx=0; idx<nrowndims; idx++ )
 	arraypos[vardim_[idx]] = localpos[idx];

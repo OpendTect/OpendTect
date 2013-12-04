@@ -100,28 +100,28 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , scenetimer_(new Timer)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
-	    	       SurveyInfo::No2D );
+		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000,
-	    	       SurveyInfo::No2D );
+		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODZsliceTreeItemFactory, 3000,
-	    	       SurveyInfo::No2D );
+		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODVolrenTreeItemFactory, 3100, SurveyInfo::No2D );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 3500,
-	    	       SurveyInfo::No2D );
+		       SurveyInfo::No2D );
     tifs_->addFactory( new Seis2DTreeItemFactory, 4000, SurveyInfo::Only2D );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000,
-	    	       SurveyInfo::Both2DAnd3D );
+		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000,
-	    	       SurveyInfo::Both2DAnd3D );
+		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
 		       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000 );
     tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 7100,
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 7500,
-	    	       SurveyInfo::No2D );
+		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
-	    	       SurveyInfo::Both2DAnd3D );
+		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
 		       SurveyInfo::Both2DAnd3D );
 
@@ -249,7 +249,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     scene->itemmanager_->prepareForShutdown();
     appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
     visServ().removeScene( scene->itemmanager_->sceneID() );
-    
+
     appl_.removeDockWindow( scene->dw_ );
 
     scene->mdiwin_->closed().remove( mWSMCB(removeScene) );
@@ -300,15 +300,15 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	}
 
 	Scene& scn = mkNewScene();
-  	if ( !scn.sovwr_->usePar(*scenepar) )
+	if ( !scn.sovwr_->usePar(*scenepar) )
 	{
 	    removeScene( scn.mdiwin_->mainObject() );
 	    continue;
 	}
-    
+
 	BufferString title( scenestr );
 	title += vwridx_;
-  	scn.mdiwin_->setTitle( title );
+	scn.mdiwin_->setTitle( title );
 	scn.sovwr_->display( true );
 	scn.sovwr_->showRotAxis( true );
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
@@ -386,7 +386,7 @@ void uiODSceneMgr::setToWorkMode(uiVisPartServer::WorkMode wm)
     updateStatusBar();
 }
 
-    
+
 void uiODSceneMgr::actMode( CallBacker* )
 {
     setToWorkMode( uiVisPartServer::Interactive );
@@ -581,7 +581,7 @@ public:
     SnapshotType	getSnapshotType() const;
 
 protected:
-    uiButtonGroup* 	butgrp_;
+    uiButtonGroup*	butgrp_;
 };
 
 
@@ -605,7 +605,7 @@ uiSnapshotDlg::SnapshotType uiSnapshotDlg::getSnapshotType() const
 void uiODSceneMgr::mkSnapshot( CallBacker* )
 {
     uiSnapshotDlg snapdlg( &appl_ );
-    if ( !snapdlg.go() ) 
+    if ( !snapdlg.go() )
 	return;
 
     if ( snapdlg.getSnapshotType() == uiSnapshotDlg::Scene )
@@ -621,7 +621,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 	 */
 	pErrMsg("Print screen not implemented with osg.");
     }
-    else 
+    else
     {
 	const bool desktop = snapdlg.getSnapshotType()==uiSnapshotDlg::Desktop;
 	wingrabber_->grabDesktop( desktop );
@@ -636,9 +636,9 @@ void uiODSceneMgr::soloMode( CallBacker* )
     int selectedid = -1;
     const bool issolomodeon = menuMgr().isSoloModeOn();
     for ( int idx=0; idx<scenes_.size(); idx++ )
-	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,  
+	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,
 							      !issolomodeon );
-    
+
     visServ().setSoloMode( issolomodeon, dispids, selectedid );
     updateSelectedTreeItem();
 }
@@ -691,7 +691,7 @@ const ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 }
 
 
-ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) 
+ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid )
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->sovwr_ : 0;
@@ -824,8 +824,8 @@ void uiODSceneMgr::rebuildTrees()
 	{
 	    /*if ( !visServ().getObject(visids[idy])->saveInSessions() )
 		continue; */
-	    uiODDisplayTreeItem::create( scene.itemmanager_, &applMgr(), 
-		    			 visids[idy] );
+	    uiODDisplayTreeItem::create( scene.itemmanager_, &applMgr(),
+					 visids[idy] );
 	}
     }
     updateSelectedTreeItem();
@@ -847,7 +847,7 @@ void uiODSceneMgr::setItemInfo( int id )
     appl_.statusBar()->message( visServ().getInteractionMsg(id), mNameField );
     appl_.statusBar()->message( "", mStatusField );
     appl_.statusBar()->setBGColor( mStatusField,
-	    			   appl_.statusBar()->getBGColor(mPosField) );
+				   appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
@@ -883,7 +883,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	if ( !found )
 	{
 	    mDynamicCastGet( const uiODDisplayTreeItem*, treeitem,
-		    	     scene.itemmanager_->findChild(id) );
+			     scene.itemmanager_->findChild(id) );
 	    if ( treeitem )
 	    {
 		gotoact = treeitem->actModeWhenSelected();
@@ -936,7 +936,7 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !scene || !ioobj ) return -1;
 
-    if ( strcmp(ioobj->group(),mTranslGroupName(Well)) )
+    if ( ioobj->group() != mTranslGroupName(Well) )
 	return -1;
 
     uiODDisplayTreeItem* itm = new uiODWellTreeItem( mid );
@@ -957,7 +957,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 
     FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
-    if ( type=="Horizon" ) 
+    if ( type=="Horizon" )
 	itm = new uiODHorizonTreeItem(emid,false);
     else if ( type=="2D Horizon" )
 	itm = new uiODHorizon2DTreeItem(emid);
@@ -1096,7 +1096,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 	, dw_(0)
 	, mdiwin_(0)
         , sovwr_(0)
-    	, itemmanager_(0)
+	, itemmanager_(0)
 {
     if ( !mdiarea ) return;
 

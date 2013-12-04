@@ -60,11 +60,11 @@ mExpClass(AttributeEngine) DescSetup
 mExpClass(AttributeEngine) InputSpec
 {
 public:
-    				InputSpec( const char* d, bool enabled )
+				InputSpec( const char* d, bool enabled )
 				    : desc_(d), enabled_(enabled)
 				    , issteering_(false)		{}
 
-    const char*        		getDesc() const { return desc_; }
+    const char*		getDesc() const { return desc_; }
 
     BufferString		desc_;
     TypeSet<Seis::DataType>	forbiddenDts_;
@@ -80,10 +80,10 @@ public:
 a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
 least one output. In addition, it may have parameters and inputs. If it has
 multiple outputs, only one of the outputs are selected.
-  
+
 The attrib name, the parameters and the selected output number together form
 a definition string that defines what the attribute calculates.
-  
+
 Each Desc has DescID that is unique within it's DescSet.
 */
 
@@ -106,7 +106,7 @@ public:
     bool			getParentID(DescID cid,DescID& pid,int&) const;
     void			getAncestorIDs(DescID cid,
 				TypeSet<Attrib::DescID>&,TypeSet<int>&) const;
-    				/*ordered from parent to oldest original*/
+				/*ordered from parent to oldest original*/
 
     bool			getDefStr(BufferString&) const;
     bool			parseDefStr(const char*);
@@ -119,7 +119,7 @@ public:
     int				selectedOutput() const;
 
     Seis::DataType		dataType(int output=-1) const;
-				/*!<\param output specifies which output is 
+				/*!<\param output specifies which output is
 				     required, or -1 for the selected output.*/
     Locality			locality() const	  { return locality_; }
     void			setLocality( Locality l ) { locality_ = l; }
@@ -128,27 +128,27 @@ public:
     bool			isSteering() const        { return issteering_;}
     void			setSteering( bool yn )    { issteering_ = yn; }
     bool			isHidden() const	{ return hidden_; }
-    				/*!<If hidden, it won't show up in UI. */
+				/*!<If hidden, it won't show up in UI. */
     void			setHidden( bool yn )	{ hidden_ = yn; }
-    				/*!<If hidden, it won't show up in UI. */
+				/*!<If hidden, it won't show up in UI. */
 
     bool			isStored() const;
     bool			isStoredInMem() const;
     BufferString		getStoredID(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )
-    				{ needprovinit_ = yn; }
+				{ needprovinit_ = yn; }
     bool			needProvInit() const
-    				{ return needprovinit_;}
+				{ return needprovinit_;}
 
     int				nrInputs() const;
     InputSpec&			inputSpec(int);
     const InputSpec&		inputSpec(int) const;
-    bool        		setInput(int,const Desc*);
+    bool		setInput(int,const Desc*);
     Desc*			getInput(int);
     const Desc*			getInput(int) const;
     void			getDependencies(TypeSet<Attrib::DescID>&) const;
-    				/*!<Generates list of attributes this attribute
+				/*!<Generates list of attributes this attribute
 				    is dependant on. */
 
     bool			is2D() const		{ return is2d_; }
@@ -164,13 +164,13 @@ public:
     void			setErrMsg( const char* str )	{ errmsg_=str; }
 
     bool			isIdenticalTo(const Desc&,
-	    				      bool cmpoutput=true) const;
+					      bool cmpoutput=true) const;
     bool			isIdentifiedBy(const char*) const;
     DescID			inputId(int idx) const;
 
-    				/* Interface to factory */
+				/* Interface to factory */
     void			addParam(Param*);
-    				/*!< Pointer becomes mine */
+				/*!< Pointer becomes mine */
     const Param*		getParam(const char* key) const;
     Param*			getParam(const char* key);
     const ValParam*		getValParam(const char* key) const;
@@ -194,7 +194,7 @@ public:
 
     static bool			getAttribName(const char* defstr,BufferString&);
     static bool			getParamString(const char* defstr,
-	    				       const char* key,BufferString&);
+					       const char* key,BufferString&);
 
     Desc*			getStoredInput() const;
     DescID			getMultiOutputInputID() const;
@@ -202,19 +202,19 @@ public:
     //Used to clone an attribute chain and apply it on multiple components
     //of the same input cube (different offsets for instance)
     Desc*			cloneDescAndPropagateInput(const DescID&,
-	    						   BufferString);
-    
+							   BufferString);
+
     static const char*		sKeyInlDipComp();
     static const char*		sKeyCrlDipComp();
     static const char*		sKeyLineDipComp();
-    
+
 protected:
 
     bool			setInput_(int,Desc*);
     Param*			findParam(const char* key);
 
     void			getKeysVals(const char* defstr,
-	    			    BufferStringSet& keys,
+				    BufferStringSet& keys,
 				    BufferStringSet& vals);
 				/*!<Fills \akeys and \avals with pairs of
 				    parameters from the defstr. */
@@ -224,8 +224,8 @@ protected:
     bool			issteering_;
     bool			hidden_;
     bool			needprovinit_;
-    bool 			is2d_;
-    bool 			isps_;
+    bool			is2d_;
+    bool			isps_;
     Locality			locality_;
     bool			usestrcpos_;
 
@@ -235,7 +235,7 @@ protected:
     BufferString		attribname_;
     ObjectSet<Param>		params_;
 
-    BufferString        	userref_;
+    BufferString	userref_;
     int				seloutput_;
     DescSet*			descset_;
 
@@ -292,10 +292,10 @@ protected:
 #define mGetStringFromDesc( __desc, var, varstring ) \
 {\
     var = __desc.getValParam(varstring)->getStringValue(0); \
-    if ( !strcmp( var, "" ) )\
+    if ( FixedString(var).isEmpty() )\
         var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
-    
+
 #define mGetBinIDFromDesc( __desc, var, varstring ) \
 {\
     var.inl() = __desc.getValParam(varstring)->getIntValue(0); \
@@ -309,7 +309,7 @@ protected:
 	    var = binidparam##var->getDefaultBinIDValue();\
     }\
     if ( __desc.descSet()->is2D() ) \
-    	var.inl() = 0; \
+	var.inl() = 0; \
 }
 
 #define mGetFloatIntervalFromDesc( __desc, var, varstring ) \

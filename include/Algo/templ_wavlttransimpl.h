@@ -18,7 +18,7 @@ void transform1Dt( const T* in, T* out, int space ) const
     if ( in != out )
     {
 	int end = sz_ * space;
-	
+
 	for ( int idx=0; idx<end; idx+=space )
 	    out[idx] = in[idx];
     }
@@ -28,7 +28,7 @@ void transform1Dt( const T* in, T* out, int space ) const
 	for ( int nn=sz_; nn>=2; nn>>=1 )
 	{
 	    ArrPtrMan<T> wksp = new T [nn];
-	    memset( wksp, 0, sizeof(T)*nn );
+	    OD::memZero( wksp, sizeof(T)*nn );
 	    int nmod = nn*filtersz_;
 	    int n1 = nn-1;
 	    int nh = nn >> 1;
@@ -58,7 +58,7 @@ void transform1Dt( const T* in, T* out, int space ) const
 	for ( int nn=2; nn<=sz_; nn<<=1 )
 	{
 	    ArrPtrMan<T> wksp = new T [nn];
-	    memset( wksp, 0, sizeof(T)*nn );
+	    OD::memZero( wksp, sizeof(T)*nn );
 	    int nmod = nn*filtersz_;
 	    int n1 = nn-1;
 	    int nh = nn >> 1;
@@ -75,9 +75,9 @@ void transform1Dt( const T* in, T* out, int space ) const
 		{
 		    int jf = (n1 & (ni+k));
 		    int jr = (n1 & (nj+k));
-	       
-		    wksp[jf] += cc_[k]*ai; 
-		    wksp[jr] += cr_[k]*ai1; 
+
+		    wksp[jf] += cc_[k]*ai;
+		    wksp[jr] += cr_[k]*ai1;
 		}
 	    }
 

@@ -30,7 +30,7 @@ MarchingCubesSurfaceEditor::MarchingCubesSurfaceEditor(
     , threshold_( mUdf(float) )
     , xorigin_( 0 )
     , yorigin_( 0 )
-    , zorigin_( 0 )		   				   
+    , zorigin_( 0 )
     , centernormal_( 1, 0, 0 )
 { }
 
@@ -76,13 +76,13 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
     zorigin_ = zpos-1;
 
     kernel_ = new Array3DImpl<unsigned char>( arr.info().getSize(mX)+2,
-	    				      arr.info().getSize(mY)+2, 
-	       				      arr.info().getSize(mZ)+2 );
+					      arr.info().getSize(mY)+2,
+					      arr.info().getSize(mZ)+2 );
 
     if ( !kernel_ || !kernel_->isOK() )
 	mErrRet;
 
-    memset( kernel_->getData(), 0, 
+    OD::memZero( kernel_->getData(),
 	    sizeof(unsigned char) * kernel_->info().getTotalSz() );
 
     for ( int idz=0; idz<arr.info().getSize(mZ); idz++ )
@@ -104,8 +104,8 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
     if ( !originalsurface_->isOK() )
 	mErrRet;
 
-    MarchingCubes2Implicit mc2i( surface_, *originalsurface_, 
-	    			 xorigin_, yorigin_, zorigin_, false );
+    MarchingCubes2Implicit mc2i( surface_, *originalsurface_,
+				 xorigin_, yorigin_, zorigin_, false );
     if ( !mc2i.execute() )
 	mErrRet;
 
@@ -149,7 +149,7 @@ bool MarchingCubesSurfaceEditor::setFactor( int nf )
     prevfactor_ = factor_;
     return true;
 }
-    
+
 
 bool MarchingCubesSurfaceEditor::affectedVolume(Interval<int>& xrg,
 				      Interval<int>& yrg,
@@ -171,7 +171,7 @@ od_int64 MarchingCubesSurfaceEditor::nrIterations() const
     if ( !kernel_ )
 	return 0;
 
-    return ( kernel_->info().getSize(mX) ) * 
+    return ( kernel_->info().getSize(mX) ) *
 	   ( kernel_->info().getSize(mY) ) *
 	   ( kernel_->info().getSize(mZ) );
 }
@@ -197,8 +197,8 @@ bool MarchingCubesSurfaceEditor::doFinish( bool success )
 		    changedsurface_->info().getTotalSz() );
 
 	if ( convarr.setStorage( valseries ) )
-	    surface_.setVolumeData( xorigin_, yorigin_, zorigin_,  
-		    		    convarr, threshold_ );
+	    surface_.setVolumeData( xorigin_, yorigin_, zorigin_,
+				    convarr, threshold_ );
     }
 
     return true;
@@ -218,7 +218,7 @@ bool MarchingCubesSurfaceEditor::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-void MarchingCubesSurfaceEditor::reportShapeChange( bool kernelchange ) 
+void MarchingCubesSurfaceEditor::reportShapeChange( bool kernelchange )
 {
     if ( kernel_ )
     {

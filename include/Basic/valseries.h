@@ -24,7 +24,7 @@ ________________________________________________________________________
 /*!
 \brief Interface to a series of values.
 
-  If the values are in contiguous memory, arr() should return non-null. 
+  If the values are in contiguous memory, arr() should return non-null.
 */
 
 template <class T>
@@ -48,9 +48,9 @@ public:
     virtual void	setAll(T)			{}
 
     virtual bool	selfSufficient() const		{ return false; }
-    			/*!<\returns true if not depending on other objects */
+			/*!<\returns true if not depending on other objects */
     virtual bool	reSizeable() const		{ return false; }
-    virtual bool	setSize(od_int64) 		{ return false; }
+    virtual bool	setSize(od_int64)		{ return false; }
 
     virtual T*		arr()				{ return 0; }
     virtual const T*	arr() const			{ return 0; }
@@ -71,7 +71,7 @@ mClass(Basic) OffsetValueSeries : public ValueSeries<T>
 public:
     inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
     inline		OffsetValueSeries( const ValueSeries<T>& src,
-	    				   od_int64 off);
+					   od_int64 off);
     inline ValueSeries<T>* clone() const;
 
     inline T		value( od_int64 idx ) const;
@@ -110,9 +110,9 @@ mClass(Basic) ArrayValueSeries : public ValueSeries<RT>
 {
 public:
 
-    		ArrayValueSeries( AT* ptr, bool memmine, od_int64 sz=-1 );
-    		ArrayValueSeries( od_int64 sz );
-    		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
+		ArrayValueSeries( AT* ptr, bool memmine, od_int64 sz=-1 );
+		ArrayValueSeries( od_int64 sz );
+		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
     ValueSeries<RT>*	clone() const;
 
@@ -154,9 +154,9 @@ template <class RT, class AT>
 mClass(Basic) MultiArrayValueSeries : public ValueSeries<RT>
 {
 public:
-    		MultiArrayValueSeries(od_int64);
-    		MultiArrayValueSeries(const MultiArrayValueSeries<RT, AT>&);
-    		~MultiArrayValueSeries();
+		MultiArrayValueSeries(od_int64);
+		MultiArrayValueSeries(const MultiArrayValueSeries<RT, AT>&);
+		~MultiArrayValueSeries();
 
     ValueSeries<RT>*	clone() const;
 
@@ -214,12 +214,10 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		{
 		    od_int64 nrleft = stop-start+1;
 		    const T* fromarr = from_.arr();
-		    T* toarr = toptr_ ? toptr_ : to_->arr(); 
+		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-		    {
-			memcpy( toarr+start, fromarr+start,
+			OD::memCopy( toarr+start, fromarr+start,
 			        (size_t) (nrleft*from_.bytesPerItem()) );
-		    }
 		    else if ( toarr )
 		    {
 			toarr += start;
@@ -272,13 +270,13 @@ ValueSeries<RT>* MultiArrayValueSeries<RT,AT>::clone() const
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off )
-    : src_( src ), off_( off ), writable_(true) 
+    : src_( src ), off_( off ), writable_(true)
 {}
 
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries(const ValueSeries<T>& src,od_int64 off)
-    : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false) 
+    : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false)
 {}
 
 
@@ -363,7 +361,7 @@ ValueSeries<RT>* ArrayValueSeries<RT,AT>::clone() const
     if ( mine_ && cursize_>0 )
     {
 	ptr = new AT[cursize_];
-	memcpy( ptr, ptr_, sizeof(AT)*cursize_ );
+	OD::memCopy( ptr, ptr_, sizeof(AT)*cursize_ );
     }
 
     return new ArrayValueSeries( ptr, mine_, cursize_ );
@@ -428,8 +426,8 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     const od_int64 copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
     if ( ptr_ && copysize>0 )
-	memcpy( ptr_, oldptr, (size_t) (copysize*sizeof(AT)) );
-    
+	OD::memCopy( ptr_, oldptr, (size_t) (copysize*sizeof(AT)) );
+
     delete [] oldptr;
     return ptr_;
 }
@@ -446,7 +444,7 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
 
 
 template <class RT, class AT> inline
-MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries( 
+MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
 				const MultiArrayValueSeries<RT, AT>& mavs )
     : ValueSeries<RT>( mavs )
     , cursize_( -1 )

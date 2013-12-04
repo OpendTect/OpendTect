@@ -64,7 +64,7 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 	}
 	bytes_ = tb.bytes_;
 	nelem_ = tb.nelem_;
-	if ( data_ ) memcpy( data_, tb.data_, nelem_*bytes_ );
+	if ( data_ ) OD::memCopy( data_, tb.data_, nelem_*bytes_ );
     }
 
     return *this;
@@ -90,9 +90,10 @@ void DataBuffer::reSize( int newsz, bool copy )
 	mTryAlloc( data_, unsigned char [ newsz * bytes_ ] );
 	if ( data_ )
 	{
-	    memcpy( data_, olddata, bytes_*(newsz > nelem_ ? nelem_ : newsz) );
+	    OD::memCopy( data_, olddata,
+		    bytes_*(newsz > nelem_ ? nelem_ : newsz) );
 	    if ( nelem_ < newsz )
-		memset( data_+(nelem_*bytes_), 0, bytes_ * (newsz - nelem_) );
+		OD::memZero( data_+(nelem_*bytes_), bytes_ * (newsz - nelem_) );
 	}
 	delete [] olddata;
     }
@@ -130,13 +131,13 @@ BufferString DataBuffer::getString() const
     {
 	const size_t totsz = (size_t)( nelem_ * bytes_ + 1 );
 	ret.setBufSize( totsz );
-	memcpy( ret.buf(), data_, totsz-1 );
+	OD::memCopy( ret.buf(), data_, totsz-1 );
 	(ret.buf())[totsz-1] = '\0';
     }
     return ret;
 }
 
- 
+
 TraceData::~TraceData()
 {
     for ( int icomp=0; icomp<nrcomp_; icomp++ )

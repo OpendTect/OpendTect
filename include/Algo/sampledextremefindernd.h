@@ -1,5 +1,5 @@
-#ifndef sampledextremefindernd_h 
-#define sampledextremefindernd_h 
+#ifndef sampledextremefindernd_h
+#define sampledextremefindernd_h
 
 /*+
 ________________________________________________________________________
@@ -76,12 +76,12 @@ bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 
     ArrayNDIter iter( array_.info() );
     iter.setPos<int*>( pos );
-			    
+
     mAllocVarLenArr( int, currentextreme, ndim );
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
-	  idx++, addToNrDone(1), iter.next() ) 
+	  idx++, addToNrDone(1), iter.next() )
     {
-	memcpy( currentextreme, iter.getPos(), ndim*sizeof(int) );
+	OD::memCopy( currentextreme, iter.getPos(), ndim*sizeof(int) );
 	if ( !findExtreme( currentextreme ) )
 	    continue;
 
@@ -150,11 +150,11 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
     mAllocVarLenArr( int, curpos, ndim );
     mAllocVarLenArr( int, bestpos, ndim );
-    memcpy( bestpos, extremepos, ndim*sizeof(int) );
+    OD::memCopy( bestpos, extremepos, ndim*sizeof(int) );
 
     bool change = true;
     bool anychange = false;
-    
+
     while ( change )
     {
 	ArrayNDIter iter( relcube_ );
@@ -182,7 +182,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	    const T val = array_.getND( curpos );
 	    if ( (minima_ && val<extremeval) || (!minima_ && val>extremeval) )
 	    {
-		memcpy( bestpos, curpos, ndim*sizeof(int) );
+		OD::memCopy( bestpos, curpos, ndim*sizeof(int) );
 		extremeval = val;
 		change = true;
 	    }
@@ -190,7 +190,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
 	if ( change )
 	{
-	    memcpy( extremepos, bestpos, ndim*sizeof(int) );
+	    OD::memCopy( extremepos, bestpos, ndim*sizeof(int) );
 	    anychange = true;
 	}
     }

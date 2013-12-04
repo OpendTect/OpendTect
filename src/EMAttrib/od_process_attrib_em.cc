@@ -77,7 +77,7 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar,
 						  tmpattribstr.buf() ) );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    DescID outid( toInt( res ), false ); 
+    DescID outid( toInt( res ), false );
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -95,7 +95,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
     const char* objid = iopar.find( str );
     if ( !objid && claimmissing )
     {
-	errmsg = "No "; errmsg += str; 
+	errmsg = "No "; errmsg += str;
 	errmsg += " defined in parameter file";
 	return false;
     }
@@ -104,7 +104,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	PtrMan<IOObj> ioobj = IOM().get( objid );
 	if ( !ioobj )
 	{
-	    errmsg = "Cannot find object for '"; errmsg += objid; 
+	    errmsg = "Cannot find object for '"; errmsg += objid;
 	    errmsg += "' ...";
 	    return false;
 	}
@@ -113,13 +113,13 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
     }
     else
 	objidstr = "";
-    
+
     return true;
 }
 
 
 static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
-		     ObjectSet<MultiID>& midset, BufferString& errmsg, 
+		     ObjectSet<MultiID>& midset, BufferString& errmsg,
 		     bool iscubeoutp, MultiID& outpid  )
 {
     strm << "Preparing processing" << od_endl;
@@ -147,7 +147,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	BufferString basehorstr(
 	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
 	BufferString hor1str = IOPar::compKey(basehorstr,0);
-	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
+	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
 	MultiID* mid = new MultiID( objidstr.buf() );
@@ -177,7 +177,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << '\n'; }
 
 
-static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc, 
+static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
@@ -203,7 +203,7 @@ static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 		PtrMan<IOObj> ioseisout = IOM().get( outid );
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
-		{ 
+		{
 		    BufferString err = writer->errMsg()
 			?  writer->errMsg()
 			: "ERROR: no trace computed";
@@ -319,7 +319,7 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "Attributes" );
 
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
-    
+
     if ( clParser().nrArgs() )
     {
 	const bool ismaxstepout = clParser().isPresent( "maxstepout" );
@@ -333,15 +333,15 @@ bool BatchProgram::go( od_ostream& strm )
 
     BufferString type;
     pars().get( IOPar::compKey( sKey::Output(), sKey::Type() ), type );
-   
-    const bool iscubeoutp = !strcmp( type, Output::tskey() );
+
+    const bool iscubeoutp = type == Output::tskey();
 
     BufferString errmsg;
     MultiID outpid;
     ObjectSet<MultiID> midset;
-    if ( !prepare( strm, pars(), 
-		   iscubeoutp ? SeisTrcStorOutput::seisidkey() 
-		   	      : LocationOutput::surfidkey(),
+    if ( !prepare( strm, pars(),
+		   iscubeoutp ? SeisTrcStorOutput::seisidkey()
+			      : LocationOutput::surfidkey(),
 		   midset, errmsg, iscubeoutp, outpid ) )
 	mErrRetNoProc(errmsg);
 
@@ -383,9 +383,9 @@ bool BatchProgram::go( od_ostream& strm )
 	for ( int ids=0; ids<sd.sections.size(); ids++ )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
-	PtrMan<Executor> loader = 
+	PtrMan<Executor> loader =
 			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
-	if ( !loader || !loader->go(strm) ) 
+	if ( !loader || !loader->go(strm) )
 	{
 	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
@@ -419,7 +419,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !output ) mErrRetNoProc( "No output specified" );
-    
+
     PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes() );
     if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
 
@@ -467,7 +467,7 @@ bool BatchProgram::go( od_ostream& strm )
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
-	
+
 	interpolate( horizon, attribrefs, pars(), strm );
 
 	SurfaceIOData sd; sd.use( *horizon );
@@ -526,12 +526,12 @@ bool BatchProgram::go( od_ostream& strm )
 	    }
 
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps,
-		    			  hsamp, extraz, l2dkey );
+					  hsamp, extraz, l2dkey );
 	}
 	else
 	{
 	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
-		    						  false );
+								  false );
 	    HorizonUtils::getWantedPositions( strm, midset, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
 				extrawidth, provider );
@@ -542,18 +542,18 @@ bool BatchProgram::go( od_ostream& strm )
 	    //fix needed to get homogeneity when using multi-machines processing
 	    zboundsset = true;
 	    zbounds = zbounds4mmproc==SI().zRange(1) ? zbounds4mmproc
-	       					     : zbounds4mmproc + extraz;
+						     : zbounds4mmproc + extraz;
 	}
 
 	SeisTrcBuf seisoutp( false );
 	Processor* proc =
 	    is2d ? aem.create2DVarZOutput( errmsg, pars(), dtps, outval,
-		    			   zboundsset ? &zbounds : 0 )
-	    	 : aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
-					   zboundsset ? &zbounds : 0 ); 
+					   zboundsset ? &zbounds : 0 )
+		 : aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
+					   zboundsset ? &zbounds : 0 );
 	if ( !proc ) mErrRet( errmsg );
 	if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
-	
+
 	delete dtps;
     }
 

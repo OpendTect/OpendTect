@@ -27,14 +27,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-#define mMINNRSAMPLES 		100
+#define mMINNRSAMPLES		100
 
 
 namespace Attrib
 {
 
-mAttrDefCreateInstance(FreqFilter) 
-   
+mAttrDefCreateInstance(FreqFilter)
+
 void FreqFilter::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -75,7 +75,7 @@ void FreqFilter::initClass()
     variable_->setDefaultValue( defval );
     variable_->setRequired( false );
     desc->addParam(variable_);
-    
+
     BoolParam* isfreqtaper = new BoolParam( isfreqtaperStr() );
     isfreqtaper->setDefaultValue( true );
     desc->addParam( isfreqtaper );
@@ -84,13 +84,13 @@ void FreqFilter::initClass()
     fwindow_->setDefaultValue( "CosTaper" );
     fwindow_->setRequired( false );
     desc->addParam( fwindow_ );
-    
+
     FloatParam* freqf1_ = new FloatParam( freqf1Str() );
     freqf1_->setLimits( Interval<float>(0,mUdf(float)) );
     freqf1_->setDefaultValue( 10 );
     freqf1_->setRequired( false );
     desc->addParam( freqf1_ );
-    
+
     FloatParam* freqf4_ = new FloatParam( freqf4Str() );
     freqf4_->setLimits( Interval<float>(0,mUdf(float)) );
     freqf4_->setDefaultValue( 60 );
@@ -124,7 +124,7 @@ void FreqFilter::updateDesc( Desc& desc )
     const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();
 
-    desc.setParamEnabled( minfreqStr(), 
+    desc.setParamEnabled( minfreqStr(),
 		      type != FFTFilter::getTypeString( FFTFilter::LowPass ) );
     desc.setParamEnabled( maxfreqStr(),
 		      type != FFTFilter::getTypeString( FFTFilter::HighPass ) );
@@ -158,7 +158,7 @@ FreqFilter::FreqFilter( Desc& ds )
     if ( filtertype_ != FFTFilter::HighPass )
 	mGetFloat( maxfreq_, maxfreqStr() );
 
-    if ( filtertype_ != FFTFilter::HighPass && 
+    if ( filtertype_ != FFTFilter::HighPass &&
 	 filtertype_ != FFTFilter::LowPass &&
 	 mIsEqual( minfreq_, maxfreq_, 1e-3) )
     {
@@ -182,7 +182,7 @@ FreqFilter::FreqFilter( Desc& ds )
 	mGetInt( nrpoles_, nrpolesStr() );
 
     zmargin_ = Interval<int>( -mNINT32((float) mMINNRSAMPLES/2),
-	    		       mNINT32((float) mMINNRSAMPLES/2) );
+			       mNINT32((float) mMINNRSAMPLES/2) );
 }
 
 
@@ -204,7 +204,7 @@ bool FreqFilter::getInputData( const BinID& relpos, int idx )
     if ( !redata_ ) return false;
 
     realidx_ = getDataIndex( 0 );
-    
+
     imdata_ = isfftfilter_ ? inputs_[1]->getData(relpos, idx) : 0;
     imagidx_ = isfftfilter_ ? getDataIndex( 1 ) : -1;
     if ( isfftfilter_ && !imdata_ ) return false;
@@ -279,7 +279,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 	BFhighpass( nrpoles_, cutoff, nrsamp, outp, outp );
 	reverseArray( outp.ptr(), nrsamp );
     }
-    
+
     if ( nrsamples < mMINNRSAMPLES )
     {
 	int offset = mNINT32((float) nrsamp/2) - mNINT32((float) nrsamples/2);
@@ -289,7 +289,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     else
     {
 	float* out = output.series(0)->arr();
-	memcpy(out,outp,nrsamp*sizeof(float));
+	OD::memCopy(out,outp,nrsamp*sizeof(float));
     }
 }
 

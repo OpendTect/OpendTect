@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QNetworkProxy>
 
 
-bool Network::downloadFile( const char* url, const char* path, 
+bool Network::downloadFile( const char* url, const char* path,
 			    BufferString& errmsg, TaskRunner* tr )
 {
     BufferStringSet urls; urls.add( url );
@@ -36,7 +36,7 @@ bool Network::downloadFile( const char* url, const char* path,
 }
 
 
-bool Network::downloadFiles( BufferStringSet& urls, const char* path, 
+bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 			     BufferString& errmsg, TaskRunner* tr )
 {
     BufferStringSet outputpaths;
@@ -56,7 +56,7 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 }
 
 
-bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths, 
+bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 			     BufferString& errmsg, TaskRunner* tr )
 {
     if ( urls.size() != outputpaths.size() )
@@ -70,7 +70,7 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 }
 
 
-bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer, 
+bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
 				BufferString& errmsg, TaskRunner* tr )
 {
     databuffer->reSize( 0, false );
@@ -82,7 +82,7 @@ bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
 }
 
 
-bool Network::getRemoteFileSize( const char* url, od_int64& size, 
+bool Network::getRemoteFileSize( const char* url, od_int64& size,
 				 BufferString& errmsg )
 {
     FileDownloader dl( url );
@@ -104,7 +104,7 @@ bool Network::ping( const char* url, BufferString& msg )
 }
 
 
-FileDownloader::FileDownloader( const BufferStringSet& urls, 
+FileDownloader::FileDownloader( const BufferStringSet& urls,
 				const BufferStringSet& outputpaths )
     : qeventloop_(0)
     , odnr_(0)
@@ -128,7 +128,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     , nrfilesdownloaded_(0)
     , osd_(0)
     , databuffer_(db)
-{ 
+{
     urls_.add(url);
     totalnr_ = getDownloadSize();
 }
@@ -148,7 +148,7 @@ FileDownloader::FileDownloader( const char* url )
 
 
 FileDownloader::~FileDownloader()
-{ 
+{
     delete qeventloop_;
     delete odnr_;
     delete osd_;
@@ -161,7 +161,7 @@ int FileDownloader::nextStep()
 	return errorOccured();
 
     if ( initneeded_ )
-    { 
+    {
 	initneeded_ = false;
 	if ( !urls_.validIdx( nrfilesdownloaded_ ) )
 	    return Finished();
@@ -264,7 +264,7 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
     int buffersize = databuffer_->size();
     databuffer_->reSize(nrdone_);
-    memcpy( databuffer_->data()+buffersize, buffer, size );
+    OD::memCopy( databuffer_->data()+buffersize, buffer, size );
     return true;
 }
 
@@ -314,8 +314,8 @@ void addPars( BufferString& data, const IOPar& postvars )
 }
 
 
-bool Network::uploadFile( const char* url, const char* localfname, 
-			  const char* remotefname, const char* ftype, 
+bool Network::uploadFile( const char* url, const char* localfname,
+			  const char* remotefname, const char* ftype,
 		   const IOPar& postvars, BufferString& errmsg, TaskRunner* tr )
 {
     if ( !File::isFile(localfname) )
@@ -335,7 +335,7 @@ bool Network::uploadFile( const char* url, const char* localfname,
     int size = File::getFileSize( localfname );
 
     PtrMan<DataBuffer> databuffer = new DataBuffer( size+bsdata.size(),1 );
-    memcpy( databuffer->data(), bsdata.buf(), bsdata.size() );
+    OD::memCopy( databuffer->data(), bsdata.buf(), bsdata.size() );
     isd.getBin( databuffer->data() + bsdata.size(), size );
     isd.close();
     bsdata = ( "\r\n--" );
@@ -346,7 +346,7 @@ bool Network::uploadFile( const char* url, const char* localfname,
     addPars( bsdata, postvars);
     const int prev_size = databuffer->size();
     databuffer->reSize( prev_size + bsdata.size() );
-    memcpy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
+    OD::memCopy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     Network::setHttpProxyFromSettings();
     DataUploader up( url, *databuffer, header );
@@ -356,13 +356,13 @@ bool Network::uploadFile( const char* url, const char* localfname,
 }
 
 
-bool Network::uploadQuery( const char* url, const IOPar& querypars, 
+bool Network::uploadQuery( const char* url, const IOPar& querypars,
 			   BufferString& errmsg, TaskRunner* tr)
 {
     BufferString data;
     addPars( data, querypars);
     DataBuffer db( data.size(), 1 );
-    memcpy( db.data(), data.buf(), data.size() );
+    OD::memCopy( db.data(), data.buf(), data.size() );
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     Network::setHttpProxyFromSettings();
     DataUploader up( url, db, header );
@@ -372,7 +372,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 }
 
 
-DataUploader::DataUploader( const char* url, const DataBuffer& data, 
+DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
     : data_(new QByteArray(mCast(const char*,data.data()),data.size()))
     , qeventloop_(new QEventLoop())
@@ -407,7 +407,7 @@ int DataUploader::nextStep()
     }
 
     qeventloop_->exec();
-    
+
     if ( odnr_->qNetworkReply()->error() )
 	return errorOccured();
     else if ( odnr_->qNetworkReply()->isFinished() )
@@ -481,7 +481,7 @@ void Network::setHttpProxyFromSettings()
 }
 
 
-void Network::setHttpProxy( const char* hostname, int port, bool auth, 
+void Network::setHttpProxy( const char* hostname, int port, bool auth,
 			    const char* username, const char* password )
 {
     QNetworkProxy proxy;

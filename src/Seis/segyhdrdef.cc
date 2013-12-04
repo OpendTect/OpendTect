@@ -94,7 +94,7 @@ static const unsigned char* getBytes( const void* inpbuf, bool swapped,
     const unsigned char* ptr = ((const unsigned char*)inpbuf) + bytenr;
     if ( !swapped ) return ptr;
 
-    memcpy( swpbuf, ptr, nrbytes );
+    OD::memCopy( swpbuf, ptr, nrbytes );
     SwapBytes( swpbuf, nrbytes );
     return swpbuf;
 }
@@ -139,7 +139,7 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
     else if ( type_ == Float )
     {
 	float fval = (float)val; // see remark in getValue()
-	memcpy( ptr, &fval, sizeof(float) );
+	OD::memCopy( ptr, &fval, sizeof(float) );
     }
     else
 	IbmFormat::putInt( (int)val, ptr );

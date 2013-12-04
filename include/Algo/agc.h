@@ -25,17 +25,17 @@ template <class T>
 mClass(Algo) AGC : public ParallelTask
 {
 public:
-    			AGC();
+			AGC();
 			~AGC();
     void		setInput(const ValueSeries<T>&,int sz);
     void		setOutput(ValueSeries<T>&);
-    			//!<Output can be the same as input
+			//!<Output can be the same as input
 
     void		setSampleGate(const Interval<int>&);
     const Interval<int>& getSampleGate() const;
 
     void		setMuteFraction(float lvmf)	{ mutefraction_ = lvmf;}
-    			//!<The lowest fraction will be muted
+			//!<The lowest fraction will be muted
     float		getMuteFraction() const		{ return mutefraction_;}
 
     bool		doPrepare(int nrthreads);
@@ -129,7 +129,7 @@ void AGC<T>::computeEnergyMute()
 	return;
 
     ArrPtrMan<T> energies = new T[size_];
-    memcpy( energies.ptr(), energies_.arr(), size_*sizeof(T) );
+    OD::memCopy( energies.ptr(), energies_.arr(), size_*sizeof(T) );
     sortFor( energies.ptr(), size_, sample );
     energymute_ = energies[sample];
 }
@@ -194,7 +194,7 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( energysum>=energymute_ && energysum>0 )
 	{
 	    const T inpval = input_->value(idx);
-	    outputval = mIsUdf( inpval ) 
+	    outputval = mIsUdf( inpval )
 		? inpval : inpval/Math::Sqrt( energysum );
 	}
 

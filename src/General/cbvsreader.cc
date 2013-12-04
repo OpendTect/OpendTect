@@ -34,7 +34,6 @@ The next 8 bytes are reserved for 2 integers:
 #include "strmoper.h"
 #include "posinfo.h"
 #include "od_istream.h"
-#include <string.h>
 
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
@@ -189,7 +188,7 @@ const char* CBVSReader::check( od_istream& strm )
     if ( strm.isBad() ) return "Input stream cannot be used";
 
     strm.setPosition( 0, od_stream::Abs );
-    char buf[4]; memset( buf, 0, 4 );
+    char buf[4]; OD::memZero( buf, 4 );
     strm.getBin( buf, 3 );
     const char* msg = "Input stream cannot be used";
     if ( !strm.isOK() ) mErrRet;

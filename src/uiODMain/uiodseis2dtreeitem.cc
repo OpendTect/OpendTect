@@ -850,8 +850,8 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 	    s2d->setSelSpec( attribnr, as );
 	}
 
-	if ( !strcmp(lk.attrName(),LineKey::sKeyDefAttrib()) &&
-	     strcmp(as.userRef(),"") )
+	if ( lk.attrName() == LineKey::sKeyDefAttrib() &&
+	     !FixedString(as.userRef()).isEmpty() )
 	    lk.setAttrName( as.userRef() );
 
 	applMgr()->attrServer()->setTargetSelSpec( as );

@@ -44,26 +44,26 @@ namespace WellTie
 {
 
 
-void DispParams::fillPar( IOPar& iop ) const 
+void DispParams::fillPar( IOPar& iop ) const
 {
     iop.setYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
     iop.setYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
     iop.setYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
     iop.setYN( sKeyZInFeet(), iszinft_ );
-    iop.setYN( sKeyZInTime(), iszintime_ );	
+    iop.setYN( sKeyZInTime(), iszintime_ );
     iop.setYN( sKeyMarkerFullName(), dispmrkfullnames_ );
     iop.setYN( sKeyHorizonFullName(), disphorfullnames_ );
     mrkdisp_.fillPar( iop );
 }
 
 
-void DispParams::usePar( const IOPar& iop ) 
+void DispParams::usePar( const IOPar& iop )
 {
     iop.getYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
     iop.getYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
     iop.getYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
     iop.getYN( sKeyZInFeet(), iszinft_ );
-    iop.getYN( sKeyZInTime(), iszintime_ );	
+    iop.getYN( sKeyZInTime(), iszintime_ );
     iop.getYN( sKeyMarkerFullName(), dispmrkfullnames_ );
     iop.getYN( sKeyHorizonFullName(), disphorfullnames_ );
     mrkdisp_.usePar( iop );
@@ -157,7 +157,7 @@ void Data::computeExtractionRange()
 
 
 
-void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
+void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 				BufferString& errms, TaskRunner& tr )
 {
     horizons_.erase();
@@ -168,8 +168,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	PtrMan<IOObj> ioobj = IOM().get( horids[idx] );
 	if ( !ioobj )
 	{
-	    errms += "Cannot get database entry for selected horizon"; 
-	    return; 
+	    errms += "Cannot get database entry for selected horizon";
+	    return;
 	}
 
 	EM::ObjectID emid = EM::EMM().getObjectID( horids[idx] );
@@ -201,7 +201,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !hor ) continue;
 	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
-	const float zval = 
+	const float zval =
 	    whfinder.findZIntersection()*SI().zDomain().userFactor();
 	if ( !mIsUdf( zval ) )
 	{
@@ -216,7 +216,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 
 
 
-void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs, 
+void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 					bool bynames ) const
 {
     const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : 0;
@@ -227,14 +227,13 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 	for ( int idhor=0; idhor<horizons_.size(); idhor++ )
 	{
 	    Marker& hd = horizons_[idhor];
-	    BufferString mrknm( mrk.name() );
-	    BufferString hdnm( hd.name_ );
-	    if ( ( bynames && !strcmp( mrknm, hdnm ) ) 
+	    const BufferString mrknm( mrk.name() );
+	    if ( ( bynames && mrknm == hd.name_ )
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
 		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
-		    		      SI().zDomain().userFactor(); 
+				      SI().zDomain().userFactor();
 		pc.z2_ = hd.zpos_;
 	    }
 	}
@@ -247,7 +246,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 WellDataMgr::WellDataMgr( const MultiID& wellid )
     : wellid_(wellid)
     , wd_(0)
-    , datadeleted_(this)    
+    , datadeleted_(this)
 {}
 
 
@@ -281,7 +280,7 @@ Well::Data* WellDataMgr::wellData() const
 DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
     : wtr_(0)
     , wd_(&wd)
-    , wellid_(wellid)  
+    , wellid_(wellid)
 {
     setWellWriter();
 }
@@ -299,7 +298,7 @@ void DataWriter::setWellWriter()
     IOObj* ioobj = IOM().get( wellid_ );
     if ( ioobj && wd_ )
     {
-	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*wd_ ); 
+	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*wd_ );
 	delete ioobj;
     }
 }
@@ -326,11 +325,11 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
     if ( ld.logset_.isEmpty() )
 	return false;
 
-    Well::Data wd; 
+    Well::Data wd;
     wd.track() = wd_->track();
     wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
-    wd.logs().setEmpty(); 
-    LogCubeCreator lcr( wd ); 
+    wd.logs().setEmpty();
+    LogCubeCreator lcr( wd );
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
@@ -353,7 +352,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
 
 Server::Server( const WellTie::Setup& wts )
     : is2d_(wts.is2d_)
-    , wellid_(wts.wellid_)  
+    , wellid_(wts.wellid_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );

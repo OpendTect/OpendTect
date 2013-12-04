@@ -60,7 +60,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-	memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
+	OD::memCopy( fva2d->getData(), wvlt->samples(), wvltsz*sizeof(float) );
 	dp->setName( wvlt->name() );
 	DPM( DataPackMgr::FlatID() ).add( dp );
 	curid_ = dp->id();
@@ -125,12 +125,12 @@ void uiSeisSingleTraceDisplay::removeRefs()
 void uiSeisSingleTraceDisplay::addRefZ( float zref )
 {
     const float zfac = mCast( float, SI().zDomain().userFactor() );
-    if ( SI().zIsTime() ) 
+    if ( SI().zIsTime() )
 	zref *= zfac;
 
     const int curnraux = nrAuxData();
     FlatView::AuxData* ad = createAuxData(
-	    			BufferString("Ref Z ",curnraux) );
+				BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
     ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
 				Color::stdDrawColor(curnraux) );

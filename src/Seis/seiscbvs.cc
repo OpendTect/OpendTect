@@ -35,11 +35,11 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, rdmgr_(0)
 	, wrmgr_(0)
 	, nrdone_(0)
-    	, brickspec_(*new VBrickSpec)
-    	, single_file_(false)
-    	, forceusecbvsinfo_(false)
-    	, is2d_(false)
-    	, coordpol_((int)CBVSIO::NotStored)
+	, brickspec_(*new VBrickSpec)
+	, single_file_(false)
+	, forceusecbvsinfo_(false)
+	, is2d_(false)
+	, coordpol_((int)CBVSIO::NotStored)
 {
 }
 
@@ -156,8 +156,8 @@ bool CBVSSeisTrcTranslator::initRead_()
     forread_ = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_, 
-	    		read_mode == Seis::PreScan, forceusecbvsinfo_ );
+    rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_,
+			read_mode == Seis::PreScan, forceusecbvsinfo_ );
     if ( rdmgr_->failed() )
 	{ errmsg = rdmgr_->errMsg(); return false; }
 
@@ -384,7 +384,8 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	if ( matchingdc && outnrsamples > 1 )
-	    memcpy( trc.data().getComponent(iselc)->data(), blockbufs_[iselc],
+	    OD::memCopy( trc.data().getComponent(iselc)->data(),
+		    blockbufs_[iselc],
 		    outnrsamples * storinterps_[iselc]->nrBytes() );
 	else
 	{
@@ -433,7 +434,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.nrsamples_ = innrsamples;
 
     wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
-	    			(CBVSIO::CoordPol)coordpol_ );
+				(CBVSIO::CoordPol)coordpol_ );
     if ( wrmgr_->failed() )
 	{ errmsg = wrmgr_->errMsg(); return false; }
 
@@ -540,7 +541,7 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 
 
 bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-       					const CallBack* cb ) const
+					const CallBack* cb ) const
 {
     mImplStart( implRename(newnm) );
 

@@ -54,12 +54,12 @@ static const char* rcsID mUsedVar = "$Id$";
 class BodyExtractorFromHorizons : public ParallelTask
 {
 public:
-BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist, 
+BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
     , cs_(cs)
-    , plg_(p)	      
+    , plg_(p)
 {
     res_.setAll( 1 );
     for ( int idx=0; idx<hlist.size(); idx++ )
@@ -67,7 +67,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx]);
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj);
 	if ( !hor ) continue;
-	
+
 	hor->ref();
 	hors_ += hor;
 	hsides_ += sides[idx];
@@ -88,8 +88,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int zsz = cs_.nrZ();
     const int horsz = hors_.size();
     const bool usepolygon = !plg_.isEmpty();
-    
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); 
+
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
 						    idx++, addToNrDone(1) )
     {
 	const int inlidx = idx/crlsz;
@@ -105,14 +105,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
 	{
-    	    const float curz = cs_.zrg.atIndex( idz );
+	    const float curz = cs_.zrg.atIndex( idz );
 	    bool curzinrange = true;
 	    float mindist = -1;
 	    for ( int idy=0; idy<horsz; idy++ )
 	    {
 		const float hz = hors_[idy]->getZ(bid) + horshift_[idy];
 		if ( mIsUdf(hz) ) continue;
-	    
+
 		const float dist = hsides_[idy]==mBelow ? curz-hz : hz-curz;
 		if ( dist<0 )
 		{
@@ -121,11 +121,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		}
 
 		if ( mindist<0 || mindist>dist )
-		    mindist = dist; 
+		    mindist = dist;
 	    }
 
 	    if ( curzinrange )
-    		res_.set( inlidx, crlidx, idz, -mindist );
+		res_.set( inlidx, crlidx, idz, -mindist );
 	}
     }
 
@@ -144,7 +144,7 @@ const ODPolygon<float>&				plg_;
 class ImplicitBodyRegionExtractor : public ParallelTask
 {
 public:
-ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist, 
+ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
@@ -154,13 +154,13 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()), 
+    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()),
 	                          mCast(float,cs_.hrg.start.crl()) );
-    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()), 
+    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()),
 				  mCast(float,cs_.hrg.start.crl()) );
-    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()), 
+    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()),
 				  mCast(float,cs_.hrg.stop.crl()) );
-    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()), 
+    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()),
 				  mCast(float,cs_.hrg.stop.crl()) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
@@ -177,12 +177,12 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	else
 	{
 	    mDynamicCastGet( EM::Fault3D*, emflt, emobj );
-	    Geometry::FaultStickSurface* flt = 
+	    Geometry::FaultStickSurface* flt =
 		emflt ? emflt->geometry().sectionGeometry(0) : 0;
 	    if ( !flt ) continue;
 
 	    emflt->ref();
-	    Geometry::ExplFaultStickSurface* efs = 
+	    Geometry::ExplFaultStickSurface* efs =
 		new Geometry::ExplFaultStickSurface(0,SI().zScale());
 	    efs->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
 	    efs->setSurface( flt );
@@ -199,13 +199,13 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     if ( !plg_.isEmpty() )
     {
 	bidinplg_ = new Array2DImpl<unsigned char>(cs_.nrInl(),cs_.nrCrl());
-	
+
 	HorSamplingIterator iter( cs_.hrg );
 	BinID bid;
 	while( iter.next(bid) )
 	{
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl());	    
+	    const int crlidx = cs_.hrg.crlIdx(bid.crl());
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
 		    Geom::Point2D<float>( mCast(float,bid.inl()),
 					 mCast(float,bid.crl()) ),true,0.01 ) );
@@ -222,7 +222,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     deepUnRef( flts_ );
 }
 
-od_int64 nrIterations() const   	{ return cs_.nrZ(); }
+od_int64 nrIterations() const	{ return cs_.nrZ(); }
 const char* message() const		{ return "Extracting implicit body"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
@@ -233,7 +233,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int horsz = hors_.size();
     const int fltsz = fsides_.size();
     const bool usepolygon = !plg_.isEmpty();
-    
+
     ObjectSet<Geometry::ExplPlaneIntersection> intersects;
     for ( int idx=0; idx<fltsz; idx++ )
     {
@@ -254,7 +254,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     }
     const int cornersz = corners.size();
 
-    for ( int idz=mCast(int,start); idz<=stop && shouldContinue(); 
+    for ( int idz=mCast(int,start); idz<=stop && shouldContinue();
 	    idz++, addToNrDone(1) )
     {
 	if ( !idz || idz==lastzidx )
@@ -277,7 +277,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( fltsz )
 	{
 	    for ( int cidx=0; cidx<cornersz; cidx++ )
-    		corners[cidx].z = curz;
+		corners[cidx].z = curz;
 
 	    for ( int fidx=0; fidx<fltsz; fidx++ )
 	    {
@@ -285,7 +285,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    intersects[fidx]->setPlane( 0, Coord3(0,0,1), corners );
 		else
 		    intersects[fidx]->addPlane( Coord3(0,0,1), corners );
-		
+
 		intersects[fidx]->update( false, 0 );
 	    }
 	}
@@ -295,13 +295,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	while( iter.next(bid) )
 	{
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl());	    
+	    const int crlidx = cs_.hrg.crlIdx(bid.crl());
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 
 	    if ( usepolygon && !bidinplg_->get(inlidx,crlidx) )
 		continue;
-	    
+
 	    bool infltrg = true;
 	    for ( int idy=0; idy<fltsz; idy++ )
 	    {
@@ -310,7 +310,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	    if ( !infltrg )
 		continue;
-	    
+
 	    if ( !horsz )
 	    {
 		res_.set( inlidx, crlidx, idz, -1 );
@@ -323,7 +323,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    {
 		const float hz = hors_[idy]->getZ(bid) + horshift_[idy];
 		if ( mIsUdf(hz) ) continue;
-	    
+
 		if ( hsides_[idy]==mBelow )
 		{
 		    if ( mIsUdf(minz) || minz<hz )
@@ -335,13 +335,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    if ( mIsUdf(minz) && mIsUdf(maxz) )
 		continue;
-	    
+
 	    if ( mIsUdf(minz) ) minz = cs_.zrg.start;
 	    if ( mIsUdf(maxz) ) maxz = cs_.zrg.stop;
 	    if ( minz>=maxz )
 		continue;
-	    
-	    double val = curz < minz ? minz - curz : 
+
+	    double val = curz < minz ? minz - curz :
 		( curz > maxz ? curz - maxz : -mMIN(curz-minz, maxz-curz) );
 	    res_.set( inlidx, crlidx, idz, (float) val );
 	}
@@ -351,7 +351,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-bool inFaultRange( const BinID& pos, int curidx, 
+bool inFaultRange( const BinID& pos, int curidx,
 	Geometry::ExplPlaneIntersection* epi )
 {
     const char side = fsides_[curidx];
@@ -359,7 +359,7 @@ bool inFaultRange( const BinID& pos, int curidx,
     if ( outsidergs_[curidx].includes(ic,false) )
 	return false;
 
-    if ( insidergs_[curidx].includes(ic,false) || 
+    if ( insidergs_[curidx].includes(ic,false) ||
 	 !epi || !epi->getPlaneIntersections().size() )
 	return true;
 
@@ -386,7 +386,7 @@ bool inFaultRange( const BinID& pos, int curidx,
     poly.setClosed( true );
     for ( int idx=0; idx<sz; idx++ )
 	poly.add( bidpos[ids[idx]] );
-	
+
     const bool ascending = poly.data()[sz-1].y > poly.data()[0].y;
 
     if ( (side==mToMinInline && ascending) ||
@@ -396,21 +396,21 @@ bool inFaultRange( const BinID& pos, int curidx,
 	poly.add( c_[3] );
 	poly.add( c_[0] );
     }
-    else if ( (side==mToMinInline && !ascending) || 
+    else if ( (side==mToMinInline && !ascending) ||
 	      (side==mToMinCrossline && !ascending) )
     {
 	poly.add( c_[1] );
 	poly.add( c_[0] );
 	poly.add( c_[3] );
     }
-    else if ( (side==mToMaxInline && ascending) || 
+    else if ( (side==mToMaxInline && ascending) ||
 	      (side==mToMinCrossline && ascending) )
     {
 	poly.add( c_[2] );
 	poly.add( c_[1] );
 	poly.add( c_[0] );
     }
-    else 
+    else
     {
 	poly.add( c_[1] );
 	poly.add( c_[2] );
@@ -428,7 +428,7 @@ void computeHorOuterRange()
     Interval<double> horbotoutrg(mUdf(float),mUdf(float));
     for ( int idx=0; idx<hors_.size(); idx++ )
     {
-	const Geometry::BinIDSurface* surf = 
+	const Geometry::BinIDSurface* surf =
 	    hors_[idx]->geometry().sectionGeometry(hors_[idx]->sectionID(0));
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
 	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
@@ -471,9 +471,9 @@ void computeHorOuterRange()
     }
 
     if ( !hortopoutrg.isUdf() && hortopoutrg.start<hortopoutrg.stop )
-    	horoutrgs_ += hortopoutrg;
+	horoutrgs_ += hortopoutrg;
     if ( !horbotoutrg.isUdf() && horbotoutrg.start<horbotoutrg.stop )
-    	horoutrgs_ += horbotoutrg;
+	horoutrgs_ += horbotoutrg;
 }
 
 
@@ -491,7 +491,7 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 
     Interval<int> insiderg;
     Interval<int> outsiderg;
-    
+
     if ( side==mToMinInline )
     {
 	insiderg.set( cs_.hrg.start.inl(), hrg.start.inl() );
@@ -507,7 +507,7 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 	insiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
 	outsiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
     }
-    else 
+    else
     {
 	insiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
 	outsiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
@@ -539,16 +539,16 @@ Array2D<unsigned char>*				bidinplg_;
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     : uiDialog( p, Setup("Region constructor","Boundary settings","103.1.20") )
-    , singlehoradded_(false)  
+    , singlehoradded_(false)
 {
     setCtrlStyle( DoAndStay );
     //setHelpID( "dgb:104.0.4" );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
-	    	seltxt("Geometry boundary").withstep(false) );
+		seltxt("Geometry boundary").withstep(false) );
 
-    singlehorfld_ = new uiGenInput( this, "Apply", BoolInpSpec(false, 
+    singlehorfld_ = new uiGenInput( this, "Apply", BoolInpSpec(false,
 		"Single horizon wrapping", "Multiple horizon layers") );
     singlehorfld_->attach( alignedBelow, subvolfld_ );
     singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
@@ -567,19 +567,19 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     addhorbutton_ = new uiPushButton( this, "&Add horizon",
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addhorbutton_->attach( rightOf, table_ );
-    
+
     addfltbutton_ = new uiPushButton( this, "&Add fault",
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addfltbutton_->attach( alignedBelow, addhorbutton_ );
 
-    removebutton_ = new uiPushButton( this, "&Remove", 
+    removebutton_ = new uiPushButton( this, "&Remove",
 	    mCB(this,uiBodyRegionDlg,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
 
     outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output name" );
     outputfld_->setForRead( false );
-    outputfld_->attach( alignedBelow, table_ ); 
+    outputfld_->attach( alignedBelow, table_ );
 }
 
 
@@ -592,15 +592,15 @@ void uiBodyRegionDlg::horModChg( CallBacker* cb )
     table_->clearTable();
     table_->selectRow( 0 );
     surfacelist_.erase();
-    
+
     const bool singlehormod = singlehorfld_->getBoolValue();
-    BufferStringSet lbls;  
+    BufferStringSet lbls;
     lbls.add("Name").add("Region location");
     if ( singlehormod )
 	lbls.add("Relative shift up").add("Relative shift down");
     else
 	lbls.add("Relative horizon shift").add("  ");
-   
+
     table_->setColumnLabels( lbls );
     table_->resizeColumnsToContents();
     singlehoradded_ = false;
@@ -626,8 +626,8 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	const MultiID& mid = dlg->selected( idx );
 	if ( isflt )
 	{
-    	    if ( surfacelist_.isPresent(mid) )
-    		continue;
+	    if ( surfacelist_.isPresent(mid) )
+		continue;
 	}
 	else
 	{
@@ -640,11 +640,11 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	    if ( count>1 )
 		continue;
 	}
-	
+
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( isflt || !singlehormod )
-    	    addSurfaceTableEntry( *ioobj, isflt, 0 );
-	else 
+	    addSurfaceTableEntry( *ioobj, isflt, 0 );
+	else
 	{
 	    if ( singlehoradded_ )
 	    {
@@ -659,7 +659,7 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 }
 
 
-void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault, 
+void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	char side )
 {
     const int row = surfacelist_.size();
@@ -676,7 +676,7 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	sidenms.add("Between min Crossline and fault");
 	sidenms.add("Between max Crossline and fault");
     }
-    else if ( !singlehormod ) 
+    else if ( !singlehormod )
     {
 	sidenms.add("Below horizon+shift (Z increase side)");
 	sidenms.add("Above horizon+shift (Z decrease side)");
@@ -685,8 +685,8 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
     if ( isfault || (!isfault && !singlehormod) )
     {
 	uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
-    	sidesel->setCurrentItem( side==-1 ? 0 : 1 );
-    	table_->setCellObject( RowCol(row,cSideCol), sidesel );
+	sidesel->setCurrentItem( side==-1 ? 0 : 1 );
+	table_->setCellObject( RowCol(row,cSideCol), sidesel );
     }
 
     table_->setText( RowCol(row,cNameCol), ioobj.name() );
@@ -697,11 +697,11 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	if ( singlehormod )
 	{
 	    BufferString unt( " ", SI().getZUnitString() );
-	    
+
 	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
 	    shiftupfld->setSuffix( unt.buf() );
 	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
-	    
+
 	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
 	    shiftdownfld->setSuffix( unt.buf() );
 	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
@@ -715,7 +715,7 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	    table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
 	}
     }
-    
+
     surfacelist_ += ioobj.key();
     removebutton_->setSensitive( surfacelist_.size() );
 }
@@ -730,11 +730,12 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
     {
 	if ( singlehorfld_->getBoolValue() )
 	{
-	    const char* objtype = EM::EMM().objectType( surfacelist_[currow] );
-	    if ( !strcmp( objtype, sKey::Horizon() ) )
-    		singlehoradded_ = false;
+	    const FixedString objtype
+			= EM::EMM().objectType( surfacelist_[currow] );
+	    if ( objtype == sKey::Horizon() )
+		singlehoradded_ = false;
 	}
-    
+
 	surfacelist_.removeSingle( currow );
     }
 
@@ -782,9 +783,9 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 bool uiBodyRegionDlg::createImplicitBody()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-    
+
     const bool singlehormod = singlehorfld_->getBoolValue();
-    
+
     TypeSet<char> sides;
     TypeSet<float> horshift;
     bool hasfaults = false;
@@ -792,15 +793,15 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
-	mDynamicCastGet(uiComboBox*, selbox, 
-		table_->getCellObject(RowCol(idx,cSideCol)) );    
+	mDynamicCastGet(uiComboBox*, selbox,
+		table_->getCellObject(RowCol(idx,cSideCol)) );
 	if ( singlehormod && !selbox )
 	{
-	    mDynamicCastGet(uiSpinBox*, shiftupfld, 
-		    table_->getCellObject(RowCol(idx,cHorShiftUpCol)) );    
+	    mDynamicCastGet(uiSpinBox*, shiftupfld,
+		    table_->getCellObject(RowCol(idx,cHorShiftUpCol)) );
 
-	    mDynamicCastGet(uiSpinBox*, shiftdownfld, 
-		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );    
+	    mDynamicCastGet(uiSpinBox*, shiftdownfld,
+		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );
 	    if ( !shiftupfld->getValue() && !shiftdownfld->getValue() )
 		mRetErr("You did not choose any horizon shift");
 
@@ -813,56 +814,56 @@ bool uiBodyRegionDlg::createImplicitBody()
 	else
 	{
 	    sides += mCast(char,selbox->currentItem());
-	    mDynamicCastGet(uiSpinBox*, shiftfld, 
-		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );    
+	    mDynamicCastGet(uiSpinBox*, shiftfld,
+		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );
 	    horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
 	}
-	
+
 	if ( !hasfaults )
 	{
-    	    RefMan<EM::EMObject> emobj = 
+	    RefMan<EM::EMObject> emobj =
 		EM::EMM().loadIfNotFullyLoaded( surfacelist_[idx] );
-    	    mDynamicCastGet(EM::Fault3D*,emflt,emobj.ptr());
+	    mDynamicCastGet(EM::Fault3D*,emflt,emobj.ptr());
 	    if ( emflt ) hasfaults = true;
 	}
     }
 
     if ( duplicatehoridx>=0 )
-    	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
+	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
 
     CubeSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
-    cs.hrg.start.inl() -= cs.hrg.step.inl(); 
+    cs.hrg.start.inl() -= cs.hrg.step.inl();
     cs.hrg.stop.inl() += cs.hrg.step.inl();
-    cs.hrg.start.crl() -= cs.hrg.step.crl(); 
+    cs.hrg.start.crl() -= cs.hrg.step.crl();
     cs.hrg.stop.crl() += cs.hrg.step.crl();
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
     if ( !arr )
 	mRetErrDelHoridx("Can not allocate disk space to create region.")
-    
+
     uiTaskRunner taskrunner( this );
     ODPolygon<float> dummy;
     mDynamicCastGet(Pos::PolyProvider3D*,plgp,subvolfld_->curProvider());
 
     if ( hasfaults )
     {
-	ImplicitBodyRegionExtractor ext( surfacelist_, sides, horshift, cs, 
+	ImplicitBodyRegionExtractor ext( surfacelist_, sides, horshift, cs,
 		*arr, plgp ? plgp->polygon() : dummy );
-    
+
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-    	    mRetErrDelHoridx("Extracting body region failed.")
+	    mRetErrDelHoridx("Extracting body region failed.")
     }
     else
     {
-	BodyExtractorFromHorizons ext( surfacelist_, sides, horshift, cs, *arr, 
-     		plgp ? plgp->polygon() : dummy );
+	BodyExtractorFromHorizons ext( surfacelist_, sides, horshift, cs, *arr,
+		plgp ? plgp->polygon() : dummy );
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-    	    mRetErrDelHoridx("Extracting body from horizons failed.")
+	    mRetErrDelHoridx("Extracting body from horizons failed.")
     }
 
-    RefMan<EM::MarchingCubesSurface> emcs = 
+    RefMan<EM::MarchingCubesSurface> emcs =
 	new EM::MarchingCubesSurface(EM::EMM());
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
@@ -878,18 +879,18 @@ bool uiBodyRegionDlg::createImplicitBody()
     emcs->setChangedFlag();
 
     EM::EMM().addObject( emcs );
-    PtrMan<Executor> exec = emcs->saver(); 
-    if ( !exec ) 
- 	mRetErrDelHoridx( "Body saving failed" ) 
+    PtrMan<Executor> exec = emcs->saver();
+    if ( !exec )
+	mRetErrDelHoridx( "Body saving failed" )
 
-    MultiID key = emcs->multiID(); 
-    PtrMan<IOObj> ioobj = IOM().get( key ); 
-    if ( !ioobj->pars().find( sKey::Type() ) ) 
-    { 
-	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() ); 
-	if ( !IOM().commitChanges( *ioobj ) ) 
-	    mRetErrDelHoridx( "Writing body to disk failed, no permision?" ) 
-    } 
+    MultiID key = emcs->multiID();
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj->pars().find( sKey::Type() ) )
+    {
+	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
+	if ( !IOM().commitChanges( *ioobj ) )
+	    mRetErrDelHoridx( "Writing body to disk failed, no permision?" )
+    }
 
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
 	mRetErrDelHoridx("Saving body failed");

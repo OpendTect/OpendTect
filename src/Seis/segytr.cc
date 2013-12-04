@@ -110,7 +110,7 @@ void SEGYSeisTrcTranslator::cleanUp()
 int SEGYSeisTrcTranslator::dataBytes() const
 {
     return SEGY::BinHeader::formatBytes(
-	    	filepars_.fmt_ > 0 ? filepars_.fmt_ : 1 );
+		filepars_.fmt_ > 0 ? filepars_.fmt_ : 1 );
 }
 
 
@@ -161,7 +161,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	if ( nrstzs )
 	{
 	    // Never seen any file with stanzas, so we'll mistrust it
-	    mDefineStaticLocalObject( bool, indeed_wants, 
+	    mDefineStaticLocalObject( bool, indeed_wants,
 				= GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS") );
 	    if ( !indeed_wants )
 		addWarn( cSEGYFoundStanzas, toString(nrstzs) );
@@ -202,14 +202,14 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     od_stream::Pos endpos = strm.endPosition();
     estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
-	    		/ (cTraceHeaderBytes + dataBytes()*innrsamples));
+			/ (cTraceHeaderBytes + dataBytes()*innrsamples));
     return true;
 }
 
 
 void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
-    mDefineStaticLocalObject( const bool, nowarn, 
+    mDefineStaticLocalObject( const bool, nowarn,
 			= Settings::common().isTrue("SEG-Y.No warnings") );
     if ( nowarn || warnnrs_.isPresent(nr) ) return;
 
@@ -374,7 +374,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	}
 	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
     }
-    
+
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
 	addWarn( cSEGYWarnSuspiciousCoord, ti.coord.toString() );
 }
@@ -417,7 +417,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.setNrSamples( outnrsamples );
     binhead.setSampleRate( outsd.step, mInDepth );
     binhead.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
-    					// To make Strata users happy
+					// To make Strata users happy
     binhead.setInFeet( SI().xyInFeet() );
     if ( !sConn().oStream().addBin( binhead.buf(), SegyBinHeaderLength ) )
 	mErrRet("Cannot write SEG-Y binary header")
@@ -539,7 +539,7 @@ bool SEGYSeisTrcTranslator::commitSelections_()
 
     inpcd_ = inpcds[0]; outcd_ = outcds[0];
     storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
-	    					   : outcd_->datachar );
+						   : outcd_->datachar );
     if ( mIsEqual(outsd.start,insd.start,mDefEps)
       && mIsEqual(outsd.step,insd.step,mDefEps) )
 	useinpsd_ = true;
@@ -551,7 +551,7 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     bufsz += 10;
     int nbts = inpcd_->datachar.nrBytes();
     if ( outcd_->datachar.nrBytes() > nbts ) nbts = outcd_->datachar.nrBytes();
-    
+
     blockbuf_ = new unsigned char [ nbts * bufsz ];
     return forread || writeTapeHeader();
 }
@@ -568,7 +568,7 @@ bool SEGYSeisTrcTranslator::initRead_()
 
     if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
 	mErrRet(BufferString("Cannot find a reasonable number of samples."
-		    	     "\nFound: ",innrsamples,
+			     "\nFound: ",innrsamples,
 			     ".\nPlease 'Overrule' to set something usable"))
 
     sConn().iStream().setPosition( cEndTapeHeader );
@@ -799,7 +799,7 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
 bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
-    memset( headerbuf_, 0, mSEGYTraceHeaderBytes );
+    OD::memZero( headerbuf_, mSEGYTraceHeaderBytes );
     fillHeaderBuf( trc );
 
     if ( !sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes ) )
@@ -875,9 +875,9 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 {
     const int curcomp = selComp();
 
-    mDefineStaticLocalObject( bool, allowudfs, 
+    mDefineStaticLocalObject( bool, allowudfs,
 			      = GetEnvVarYN("OD_SEIS_SEGY_ALLOW_UDF") );
-    mDefineStaticLocalObject( float, udfreplaceval, 
+    mDefineStaticLocalObject( float, udfreplaceval,
 		= (float) GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 ) );
     for ( int idx=0; idx<outnrsamples; idx++ )
     {

@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "od_ostream.h"
 #include "posimpexppars.h"
-#include <string.h>
 
 
 static const int cTxtHeadNrLines = 40;
@@ -133,7 +132,7 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
 
 void SEGY::TxtHeader::clearText()
 {
-    memset( txt_, ' ', SegyTxtHeaderLength );
+    OD::memSet( txt_, ' ', SegyTxtHeaderLength );
 }
 
 
@@ -312,7 +311,7 @@ void SEGY::BinHeader::setForWrite()
 {
     forwrite_ = true;
     needswap_ = false;
-    memset( buf_, 0, SegyBinHeaderLength );
+    OD::memZero( buf_, SegyBinHeaderLength );
     setEntryVal( EntryMFeet(), SI().xyInFeet() ? 2 : 1 );
     setEntryVal( EntryRevCode(), 256 );
     setEntryVal( EntryRevCode()+1, 1 );
@@ -323,7 +322,7 @@ void SEGY::BinHeader::setInput( const void* inp, bool needswap )
 {
     forwrite_ = false;
     needswap_ = needswap;
-    memcpy( buf_, inp, SegyBinHeaderLength );
+    OD::memCopy( buf_, inp, SegyBinHeaderLength );
 }
 
 

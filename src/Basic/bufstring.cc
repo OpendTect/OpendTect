@@ -32,7 +32,7 @@ BufferString::BufferString( int sz, bool mknull )
 
     setBufSize( sz );
     if ( len_ > 0 )
-	memset( buf_, 0, len_ );
+	OD::memZero( buf_, len_ );
 }
 
 
@@ -209,7 +209,7 @@ void BufferString::setBufSize( unsigned int newlen )
 	    newsz = newlen;
 	    oldbuf[newsz-1] = '\0';
 	}
-	memcpy( buf_, oldbuf, newsz );
+	OD::memCopy( buf_, oldbuf, newsz );
     }
 
     delete [] oldbuf;

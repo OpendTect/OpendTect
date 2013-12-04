@@ -29,6 +29,43 @@ static od_int64 swapfree;
 
 #include "iopar.h"
 #include "string2.h"
+#include <string.h>
+
+
+void OD::memCopy( void* dest, const void* org, od_int64 sz )
+{
+    if ( sz <= 0 )
+	return;
+    else if ( !dest )
+	{ pFreeFnErrMsg("dest null","OD::memCopy"); return; }
+    else if ( !org )
+	{ pFreeFnErrMsg("org null","OD::memCopy"); return; }
+
+    memcpy( dest, org, (size_t)sz );
+}
+
+
+void OD::memSet( void* data, char setto, od_int64 sz )
+{
+    if ( sz <= 0 )
+	return;
+    else if ( !data )
+	{ pFreeFnErrMsg("data null","OD::memSet"); return; }
+
+    memset( data, (int)setto, (size_t)sz );
+}
+
+
+void OD::memZero( void* data, od_int64 sz )
+{
+    if ( sz <= 0 )
+	return;
+    else if ( !data )
+	{ pFreeFnErrMsg("data null","OD::memZero"); return; }
+
+    memset( data, '\0', (size_t)sz );
+}
+
 
 
 void OD::dumpMemInfo( IOPar& res )

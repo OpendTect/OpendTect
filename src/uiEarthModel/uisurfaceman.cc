@@ -126,7 +126,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     if ( type_ != Body )
-    	manipgrp->addButton( "copyobj", "Copy to new object",
+	manipgrp->addButton( "copyobj", "Copy to new object",
 			     mCB(this,uiSurfaceMan,copyCB) );
 
     if ( type_ == Hor2D || type_ == AnyHor )
@@ -174,7 +174,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		"Fault Data", true, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
-	attribfld_->setToolTip( 
+	attribfld_->setToolTip(
 		"Fault Data (Attributes stored in Fault format)" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
@@ -183,7 +183,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Fault Data",
 			   mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
-    }	
+    }
     if ( type_ == Body )
     {
 	manipgrp->addButton( "set_union", "Merge bodies",
@@ -197,7 +197,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
 
     mTriggerInstanceCreatedNotifier();
-    selChg( this ); 
+    selChg( this );
 }
 
 
@@ -215,14 +215,14 @@ void uiSurfaceMan::addTool( uiButton* but )
 
 bool uiSurfaceMan::isCur2D() const
 {
-    return curioobj_ && 
-	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword());
+    return curioobj_ &&
+	   curioobj_->group() == EMHorizon2DTranslatorGroup::keyword();
 }
 
 
 bool uiSurfaceMan::isCurFault() const
 {
-    BufferString grp = curioobj_ ? curioobj_->group() : "";
+    const BufferString grp = curioobj_ ? curioobj_->group() : "";
     return grp==EMFaultStickSetTranslatorGroup::keyword() ||
 	   grp==EMFault3DTranslatorGroup::keyword();
 }
@@ -252,7 +252,7 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
     uiBodyOperatorDlg dlg( this );
     if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
+	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -261,10 +261,10 @@ void uiSurfaceMan::calVolCB( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    RefMan<EM::EMObject> emo = 
+    RefMan<EM::EMObject> emo =
 	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
-    if ( !emb ) 
+    if ( !emb )
     {
 	uiMSG().error( "Body is empty" );
 	return;
@@ -279,7 +279,7 @@ void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
     uiBodyRegionDlg dlg( this );
     if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
+	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -310,7 +310,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     BufferStringSet attrnms;
     attribfld_->getSelectedItems( attrnms );
-    if ( attrnms.isEmpty() && 
+    if ( attrnms.isEmpty() &&
 	    !uiMSG().askRemove("All selected Surface Data will be removed.\n"
 			       "Do you want to continue?") )
 	return;
@@ -318,13 +318,13 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
-    	for ( int ida=0; ida<attrnms.size(); ida++ )
+	for ( int ida=0; ida<attrnms.size(); ida++ )
 	    fad.removeData( attrnms.get(ida) );
     }
     else
     {
-    	for ( int ida=0; ida<attrnms.size(); ida++ )
-    	    EM::SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
+	for ( int ida=0; ida<attrnms.size(); ida++ )
+	    EM::SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
     }
 
     selChg( this );
@@ -350,7 +350,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
 	fad.setDataName( attribnm, newnm );
-    
+
 	selChg( this );
 	return;
     }
@@ -444,7 +444,7 @@ void uiSurfaceMan::mkFileInfo()
 
     if ( isCur2D() || isCurFault() )
     {
-	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
+	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: ";
 	if ( isCurFault() )
 	    txt += eminfo.nrSticks();
 	else
@@ -483,7 +483,7 @@ void uiSurfaceMan::mkFileInfo()
 	txt += "Nr of sections: "; txt += sectionnms.size(); txt += "\n";
 	for ( int idx=0; idx<sectionnms.size(); idx++ )
 	{
-	    txt += "\tPatch "; txt += idx+1; txt += ": "; 
+	    txt += "\tPatch "; txt += idx+1; txt += ": ";
 	    txt += sectionnms[idx]->buf(); txt += "\n";
 	}
     }
@@ -518,7 +518,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     : uiDialog(p,uiDialog::Setup("Stratigraphy",mNoDlgTitle,""))
     , objids_(ids)
 {
-    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), 
+    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
 			"Stratigraphy Table" );
     BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Marker" );
     tbl_->setColumnLabels( lbls );
@@ -530,7 +530,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
-	    				"Edit Stratigraphy to define Markers",
+					"Edit Stratigraphy to define Markers",
 					mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
 
@@ -584,7 +584,7 @@ void doCol( CallBacker* )
 
 void lvlChg( CallBacker* cb )
 {
-    mDynamicCastGet(uiStratLevelSel*,levelsel,cb) 
+    mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
     if ( !levelsel ) return;
 
     const Color col = levelsel->getColor();

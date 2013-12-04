@@ -11,7 +11,6 @@
 #include "fourier.h"
 #include "scaler.h"
 #include "varlenarray.h"
-#include <string.h>
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
@@ -101,7 +100,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
     float_complex* buffer;
     buffer = threadidx ? buffers_[threadidx] : freqreflectivities_.arr();
     if ( threadidx )
-	memset( buffer, 0, size*sizeof(float_complex) );
+	OD::memZero( buffer, size*sizeof(float_complex) );
 
     TypeSet<float> frequencies;
     Fourier::CC::getFrequencies( outsampling_.step, size, frequencies );
@@ -207,8 +206,8 @@ void ReflectivitySampler::sortOutput()
     mDeclareAndTryAlloc( float_complex*, fftrefl, float_complex[fftsz] );
     if ( !fftrefl ) return;
     float_complex* realres = creflectivities_->arr();
-    memcpy( fftrefl, realres, fftsz * sizeof(float_complex) );
-    memset( realres, 0, sz*sizeof(float_complex) );
+    OD::memCopy( fftrefl, realres, fftsz * sizeof(float_complex) );
+    OD::memZero( realres, sz*sizeof(float_complex) );
 
     const float stoptwt = start + width;
     float twt = width * nperiods - step;

@@ -52,7 +52,7 @@ Geometry::ElementEditor* FaultStickSetEditor::createEditor(
 
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,ge);
     if ( !fss ) return 0;
-    
+
     return new Geometry::StickSetEditor(
 			*const_cast<Geometry::FaultStickSet*>(fss) );
 }
@@ -159,7 +159,9 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
 	    return mUdf(float);
 
 	const char* nm = fssg.pickedName( sid, sticknr );
-	if ( (pickednm || nm) && ( !pickednm || !nm || strcmp(pickednm,nm)) )
+	if ( !pickednm && !nm )
+	if ( (pickednm || nm)
+		&& ( !pickednm || !nm || FixedString(pickednm)!=nm) )
 	    return mUdf(float);
     }
 
@@ -167,8 +169,8 @@ float FaultStickSetEditor::distToStick( int sticknr,const EM::SectionID& sid,
     if ( colrange.isUdf() )
 	return mUdf(float);
 
-    const Plane3 plane( fss->getEditPlaneNormal(sticknr), 
-	    		mWorldScale(mousepos), false );
+    const Plane3 plane( fss->getEditPlaneNormal(sticknr),
+			mWorldScale(mousepos), false );
 
     if ( posnormal && *posnormal!=Coord3::udf() &&
 	 fabs( posnormal->dot(plane.normal()) ) < 0.5 )
@@ -428,7 +430,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
     if ( sowinghistory_.size() > 1 )
 	takeprevious = sowinghistory_[1]==prevpos;
 
-    if ( takeprevious ) 
+    if ( takeprevious )
     {
 	if ( nearestknotidx )
 	{
@@ -485,12 +487,12 @@ void FaultStickSetEditor::cloneMovingNode()
 	return;
     }
 
-    // Performs knot insertion without changing PosID of moving node 
+    // Performs knot insertion without changing PosID of moving node
     emfss->setBurstAlert( true );
     const StepInterval<int> colrg = fss->colRange( sticknr );
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
-	const RowCol currc( sticknr, col ); 
+	const RowCol currc( sticknr, col );
 	const RowCol prevrc( sticknr, col-colrg.step );
 	const EM::PosID prevpid( emfss->id(), sid, prevrc.toInt64() );
 

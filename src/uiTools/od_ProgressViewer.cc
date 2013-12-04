@@ -94,7 +94,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     //Ensure we have space for 80 chars
     const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
     mAllocVarLenArr( char, str, nrchars+1 );
-    memset( str, ' ', nrchars );
+    OD::memSet( str, ' ', nrchars );
     str[nrchars] = 0;
 
     int deswidth = fnt.width( str );

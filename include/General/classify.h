@@ -24,7 +24,7 @@ template <class T>
 mExpClass(General) WeightedClassCounter
 {
 public:
-    		WeightedClassCounter( bool canbeneg=true )
+		WeightedClassCounter( bool canbeneg=true )
 		: wts_(0)
 		, canbeneg_(canbeneg)		{}
 
@@ -56,7 +56,7 @@ inline void WeightedClassCounter<T>::add( int val, T wt )
 	delete wts_;
 	wts_ = new TypeSet<T>( arridx+1, -2. );
 	if ( tmp )
-	    memcpy( wts_->arr(), tmp->arr(), tmp->size() * sizeof(T) );
+	    OD::memCopy( wts_->arr(), tmp->arr(), tmp->size() * sizeof(T) );
     }
 
     T& curwt = (*wts_)[arridx];

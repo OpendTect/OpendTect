@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "interpol1d.h"
 #include "mathfunc.h"
 #include "sorting.h"
-#include <string.h> // for memcpy
 
 /*!\brief Position-sorted indexable objects
 
@@ -375,7 +374,7 @@ void calibrateArray( const T* input, int sz,
     }
 
     if ( func.isEmpty()  )
-	{ memcpy( output, input, sizeof(T)*sz ); return; }
+	{ OD::memCopy( output, input, sizeof(T)*sz ); return; }
 
     for ( int idx=0; idx<sz; idx++ )
     {

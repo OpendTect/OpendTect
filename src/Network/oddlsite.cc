@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "settings.h"
 #include "timefun.h"
-#include <string.h>
 
 static const char* sKeyTimeOut = "Download.Timout";
 
@@ -104,7 +103,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
     if ( isok )
     {
 	databuf_ = new DataBuffer( bs.size(), 1 );
-	memcpy( (char*)databuf_->data(), bs.buf(), databuf_->size() );
+	OD::memCopy( (char*)databuf_->data(), bs.buf(), databuf_->size() );
     }
     return isok;
 }

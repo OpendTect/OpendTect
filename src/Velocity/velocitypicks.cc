@@ -300,12 +300,12 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	if ( hor )
 	{
 	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
-		    		       pickbid.toInt64() ).z;
+				       pickbid.toInt64() ).z;
 	}
 	else if ( mIsUdf( pick.depth_ ) )
 	    return RowCol(-1,-1);
 	else
-	{ 
+	{
 	    pick.depth_ = snapper_.snap(velpick.depth_);
 	}
 
@@ -358,7 +358,7 @@ void Picks::remove( const RowCol& arrpos,
     if ( picks_.isValidPos( arrpos ) )
     {
 	BinID pickbid;
-       	picks_.getPos( arrpos, pickbid );
+	picks_.getPos( arrpos, pickbid );
 	if ( addtoundo )
 	{
 	    int eventid = undo().addEvent(
@@ -394,7 +394,7 @@ bool Picks::store( const IOObj* ioobjarg )
 	if ( horizons_[idx] )
 	    emids += horizons_[idx]->id();
     }
-    
+
     ::Pick::Set ps( ioobj->name() );
     ps.disp_.color_ = color_;
     RowCol arrpos( 0, 0 );
@@ -449,10 +449,10 @@ void Picks::fillIOObjPar( IOPar& par ) const
 }
 
 
-bool Picks::useIOObjPar( const IOPar& par ) 
+bool Picks::useIOObjPar( const IOPar& par )
 {
-    const char* res = par.find( sKey::Type() );
-    if ( !res || strcmp(res,sKeyVelocityPicks()) )
+    FixedString res = par.find( sKey::Type() );
+    if ( res != sKeyVelocityPicks() )
 	return false;
 
     par.get( sKeyGatherID(), gatherid_ );
@@ -482,7 +482,7 @@ void Picks::fillPar( IOPar& par ) const
 
 
 
-bool Picks::usePar( const IOPar& par ) 
+bool Picks::usePar( const IOPar& par )
 {
     if ( !par.getYN( sKeyIsTime(), zit_ ) )
 	return false;
@@ -531,9 +531,9 @@ bool Picks::usePar( const IOPar& par )
 void Picks::horizonChangeCB( CallBacker* cb )
 {
     if ( !cb ) return;
-    
+
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&, cbdata,
-	    			caller, cb );
+				caller, cb );
     if ( cbdata.event==EM::EMObjectCallbackData::PosIDChange ||
 	 cbdata.event==EM::EMObjectCallbackData::AttribChange ||
 	 cbdata.event==EM::EMObjectCallbackData::PrefColorChange ||
@@ -586,7 +586,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     }
 }
 
-   
+
 void Picks::addHorizon( const MultiID& mid, bool addzeroonfail )
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
@@ -619,7 +619,7 @@ int Picks::nrHorizons() const { return horizons_.size(); }
 
 
 EM::ObjectID Picks::getHorizonID( int idx ) const
-{ 
+{
     return horizons_[idx] ? horizons_[idx]->id() : -1;
 }
 
@@ -843,11 +843,11 @@ void Picks::setSmoother(Smoother1D<float>* ns )
     change.trigger(BinID(-1,-1));
     changelate.trigger(BinID(-1,-1));
 }
-  
+
 
 int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 			 TypeSet<float>* velocities, TypeSet<RowCol>* positions,
-       			 TypeSet<EM::ObjectID>* emobjres,
+			 TypeSet<EM::ObjectID>* emobjres,
 			 bool interpolhors ) const
 {
     if ( depths ) depths->erase();
@@ -954,7 +954,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 	    emids += hor->id();
 	}
     }
-    
+
     if ( normalizeoffset )
     {
 	for ( int idx=picks.size()-1; idx>=0; idx-- )
@@ -980,7 +980,7 @@ float Picks::normalizeRMO(float depth, float rmo, float offset) const
 }
 
 
-bool Picks::get( const RowCol& arrpos, BinID& bid, Pick& pick)	
+bool Picks::get( const RowCol& arrpos, BinID& bid, Pick& pick)
 {
     if ( picks_.isValidPos(arrpos) )
     {
@@ -1022,7 +1022,7 @@ void Picks::setAll( float vel, bool addtoundo )
 	    const float oldvel = pick.vel_;
 	    BinID bid;
 	    picks_.getPos( arrpos, bid );
-	    
+
 	    eventid = undo().addEvent( new PickSetEvent(*this,
 				       Pick(olddepth, oldvel,-1),
 				       Pick(olddepth, vel,-1), bid) );
@@ -1053,7 +1053,7 @@ const IOObjContext& Picks::getStorageContext()
     mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = 0 );
     if ( !ret )
     {
-	IOObjContext* newret = 
+	IOObjContext* newret =
 		new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "Velocity picks" );
 	newret->toselect.require_.set( sKey::Type(), sKeyVelocityPicks() );

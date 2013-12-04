@@ -39,13 +39,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 MPE::Engine& MPE::engine()
 {
-    mDefineStaticLocalObject( PtrMan<MPE::Engine>, theinst_, 
+    mDefineStaticLocalObject( PtrMan<MPE::Engine>, theinst_,
 			      = new MPE::Engine );
     return *theinst_;
 }
 
 
-namespace MPE 
+namespace MPE
 {
 
 Engine::Engine()
@@ -161,7 +161,7 @@ bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 	    errmsg_ += trackers_[idx]->errMsg(); \
 	    return false; \
 	} \
-    } 
+    }
 
 bool Engine::trackAtCurrentPlane()
 {
@@ -185,7 +185,7 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 	for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
 	{
 	    EM::SectionID sid = emobj->sectionID( sidx );
-	    SectionTracker* sectiontracker = 
+	    SectionTracker* sectiontracker =
 			trackers_[idx]->getSectionTracker( sid, true );
 	    sectiontracker->setSeedOnlyPropagation( yn );
 	}
@@ -215,7 +215,7 @@ Executor* Engine::trackInVolume()
 
 
 void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
-       				       TaskRunner* tr )
+				       TaskRunner* tr )
 {
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -328,7 +328,7 @@ int Engine::nrTrackersAlive() const
     }
     return nrtrackers;
 }
-	
+
 
 int Engine::highestTrackerID() const
 { return trackers_.size()-1; }
@@ -338,7 +338,7 @@ const EMTracker* Engine::getTracker( int idx ) const
 { return const_cast<Engine*>(this)->getTracker(idx); }
 
 
-EMTracker* Engine::getTracker( int idx ) 
+EMTracker* Engine::getTracker( int idx )
 { return idx>=0 && idx<trackers_.size() ? trackers_[idx] : 0; }
 
 
@@ -366,7 +366,7 @@ int Engine::getTrackerByObject( const char* objname ) const
     {
 	if ( !trackers_[idx] ) continue;
 
-	if ( !strcmp(objname,trackers_[idx]->objectName()) )
+	if ( trackers_[idx]->objectName() == objname )
 	    return idx;
     }
 
@@ -437,7 +437,7 @@ bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
 			    const Attrib::SelSpec& clickedss ) const
 {
     bool setupssisstoed = matchString( Attrib::StorageProvider::attribName(),
-	    			       setupss.defString() );
+				       setupss.defString() );
     return setupss.id().asInt()==clickedss.id().asInt() &&
 	setupssisstoed==clickedss.id().isStored() &&
 	setupss.isNLA()==clickedss.isNLA() &&
@@ -457,12 +457,12 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 	if ( attribcachespecs_[idx]->attrsel_.is2D()	   != as.is2D()  ||
 	     attribcachespecs_[idx]->attrsel_.isNLA()	   != as.isNLA() ||
 	     attribcachespecs_[idx]->attrsel_.id().asInt() != as.id().asInt() ||
-      	     attribcachespecs_[idx]->attrsel_.id().isStored() != asisstored )
+	     attribcachespecs_[idx]->attrsel_.id().isStored() != asisstored )
 	    continue;
 
 	if ( !as.is2D() )
 	    return idx;
-	
+
 	if ( attribcachespecs_[idx]->linesetid_ != active2DLineSetID() ||
 	     attribcachespecs_[idx]->linename_  != active2DLineName()   )
 	    continue;
@@ -567,7 +567,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 }
 
 
-bool Engine::setAttribData( const Attrib::SelSpec& as, 
+bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    const DataHolder* newdata )
 {
     const int idx = getCacheIndexOf(as);
@@ -587,7 +587,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if (newdata)
     {
-	attribcachespecs_ += as.is2D() ? 
+	attribcachespecs_ += as.is2D() ?
 	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
 	    new CacheSpecs( as ) ;
 
@@ -599,17 +599,17 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 }
 
 
-bool Engine::cacheIncludes( const Attrib::SelSpec& as, 
+bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const CubeSampling& cs )
 {
     const DataHolder* cache = getAttribCache( as );
-    if ( !cache ) 
+    if ( !cache )
 	return false;
 
     CubeSampling cachedcs = cache->getCubeSampling();
     const float zrgeps = 0.01f * SI().zStep();
-    cachedcs.zrg.widen( zrgeps );  
-    
+    cachedcs.zrg.widen( zrgeps );
+
     return cachedcs.includes( cs );
 }
 
@@ -633,7 +633,7 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 {
     if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )
 	return;
-    
+
     ObjectSet<FlatCubeInfo>& flatcubes = *flatcubescontainer_[idx];
 
     int idxinquestion = -1;
@@ -642,7 +642,7 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 	{
 	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
 	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl() == 
+		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl() ==
 			cs.hrg.start.inl() )
 		{
 		    idxinquestion = flatcsidx;
@@ -782,14 +782,14 @@ void Engine::fillPar( IOPar& iopar ) const
     {
 	const EMTracker* tracker = trackers_[idx];
 	if ( !tracker ) continue;
-	
+
 	IOPar localpar;
 	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
-	EMSeedPicker* seedpicker = 
-	    		const_cast<EMTracker*>(tracker)->getSeedPicker(false);
-	if ( seedpicker ) 
+	EMSeedPicker* seedpicker =
+			const_cast<EMTracker*>(tracker)->getSeedPicker(false);
+	if ( seedpicker )
 	    localpar.set( sKeySeedConMode(), seedpicker->getSeedConnectMode() );
 
 //	tracker->fillPar( localpar );
@@ -829,7 +829,7 @@ bool Engine::usePar( const IOPar& iopar )
     {
 	PtrMan<IOPar> localpar = iopar.subselect( toString(idx) );
 	if ( !localpar ) continue;
-	
+
 	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;
 	EM::ObjectID oid = EM::EMM().getObjectID( midtoload );
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
@@ -854,12 +854,12 @@ bool Engine::usePar( const IOPar& iopar )
 
 	if ( !emobj )
 	    continue;
-	    
+
 	const int trackeridx = addTracker( emobj );
 	emobj->unRefNoDelete();
 	if ( trackeridx < 0 ) continue;
 	EMTracker* tracker = trackers_[trackeridx];
-	
+
 	bool doenable = true;
 	localpar->getYN( sKeyEnabled(), doenable );
 	tracker->enable( doenable );

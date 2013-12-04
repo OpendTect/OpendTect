@@ -191,9 +191,9 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
 	msg = lmkEMStickSetTranslator::xstr;
-	msg += ", "; 
+	msg += ", ";
 	msg += lmkEMStickSetTranslator::ystr;
-	msg += ", "; 
+	msg += ", ";
 	msg += lmkEMStickSetTranslator::zstr;
 	msg += "and ";
 	msg += lmkEMStickSetTranslator::pointtypestr;
@@ -222,7 +222,7 @@ int lmkEMStickSetReader::nextStep()
     if ( error ) return ErrorOccurred();
 
     std::istream& strm = ((StreamConn*)conn)->iStream();
-    
+
     char buf[] = " ";
     BufferString buffer;
 
@@ -262,7 +262,7 @@ int lmkEMStickSetReader::nextStep()
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
 	int inl = toInt( str );
-	
+
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
 	int crl = toInt( str );
@@ -296,7 +296,7 @@ int lmkEMStickSetReader::nextStep()
 	str = &buffer[domainunitinterval.start-1];
 	str[domainunitinterval.width()+1] = 0;
 	removeTrailingBlanks( str.buf() );
-	
+
 	if ( str=="ms" )
 	    pos.z /= 1000;
 	else
@@ -315,7 +315,7 @@ int lmkEMStickSetReader::nextStep()
 	str = &buffer[domaininterval.start-1];
 	str[domaininterval.width()+1] = 0;
 	removeTrailingBlanks( str.buf() );
-	if ( str != "TIME" && SI().zIsTime() 
+	if ( str != "TIME" && SI().zIsTime()
 		|| str=="TIME" && !SI().zIsTime() )
 	{
 	    msg = "Z domain is not equal to survey domain";
@@ -331,7 +331,7 @@ int lmkEMStickSetReader::nextStep()
 	if ( pt!=mLMK_START_PT )
 	    return ErrorOccurred();
 
-	currentstick = stickset.addStick(false);	
+	currentstick = stickset.addStick(false);
 	currentknot = 0;
     }
 
@@ -384,25 +384,25 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
 
     std::ostream& formatfile = *formatsd.ostrm;
     formatfile  << lmkEMStickSetTranslator::xstr
-		<< '\t' << '\t' << '\t' << xinterval.start 
+		<< '\t' << '\t' << '\t' << xinterval.start
 		<< '\t' << xinterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::ystr
-		<< '\t' << '\t' << '\t' << yinterval.start 
+		<< '\t' << '\t' << '\t' << yinterval.start
 		<< '\t' << yinterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::zstr
-		<< '\t' << '\t' << '\t' << zinterval.start 
+		<< '\t' << '\t' << '\t' << zinterval.start
 		<< '\t' << zinterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::pointtypestr
-		<< '\t' << '\t' << pointtypeinterval.start 
+		<< '\t' << '\t' << pointtypeinterval.start
 		<< '\t' << pointtypeinterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::domainstr
-		<< '\t' << '\t' << domaininterval.start 
+		<< '\t' << '\t' << domaininterval.start
 		<< '\t' << domaininterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::domainunitstr
-		<< '\t' << domainunitinterval.start 
+		<< '\t' << domainunitinterval.start
 		<< '\t' << domainunitinterval.stop << '\n';
     formatfile  << lmkEMStickSetTranslator::distancunitestr
-		<< '\t' << distanceunitinterval.start 
+		<< '\t' << distanceunitinterval.start
 		<< '\t' << distanceunitinterval.stop << '\n';
 
     formatsd.close();
@@ -471,31 +471,31 @@ void lmkEMStickSetWriter::fillBuffer( BufferString& buffer, const Coord3& pos,
     }
 
     BufferString tmp = pos.x;
-    memcpy( &buffer[xinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[xinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),xinterval.width()+1));
 
     tmp = pos.y;
-    memcpy( &buffer[yinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[yinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),yinterval.width()+1));
 
     tmp = pos.z*1000;
-    memcpy( &buffer[zinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[zinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),zinterval.width()+1));
 
     tmp = pt;
-    memcpy( &buffer[pointtypeinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[pointtypeinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),pointtypeinterval.width()+1));
 
     tmp = "TIME";
-    memcpy( &buffer[domaininterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[domaininterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),domaininterval.width()+1));
 
     tmp = "ms";
-    memcpy( &buffer[domainunitinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[domainunitinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),domainunitinterval.width()+1));
 
     tmp = "m";
-    memcpy( &buffer[distanceunitinterval.start-1], &tmp[0],
+    OD::memCopy( &buffer[distanceunitinterval.start-1], &tmp[0],
 	    mMIN(tmp.size(),distanceunitinterval.width()+1));
 
     removeTrailingBlanks( buffer.buf() );

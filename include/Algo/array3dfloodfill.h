@@ -28,17 +28,17 @@ ________________________________________________________________________
 /*!
 \brief Given an input array and a threshold, we use flood fill to find all the
 locations with values less (or greater) than the threshold based on seeds.
-User has the option to set inside or outside value on the output. 
-    
+User has the option to set inside or outside value on the output.
+
     Example: Given known array, threshold, T=float
 
-   	     Array3DImpl<float> output( array.info() ); 
+	     Array3DImpl<float> output( array.info() );
 	     Array3DFloodfill<float> floodfill( arr, threshold, max, output );
 	     floodfill.setOutsideValue( 1e+5 );
-	     
-	     floodfill.addSeed(0,0,0);  
+
+	     floodfill.addSeed(0,0,0);
 	     //At least one seed's value should be bigger than the threshold
-	     //if max (or smaller if !max) 
+	     //if max (or smaller if !max)
 
 	     floodfill.execute();
 */
@@ -47,26 +47,26 @@ template <class T>
 mClass(Algo) Array3DFloodfill : public ParallelTask
 {
 public:
-    			Array3DFloodfill(const Array3D<T>& input,T threshold,
+			Array3DFloodfill(const Array3D<T>& input,T threshold,
 					 bool aboveisovalue,Array3D<T>& output);
 			~Array3DFloodfill();
 
     void		setOutsideValue(T val);
-    			/*!<If udf, uDf(T) will be set. Must be set if use 
+			/*!<If udf, uDf(T) will be set. Must be set if use
 			    Marchingcubes. */
     void		setInsideValue(T val)	{ insideval_ = val; }
-    			/*!<If udf, input value will be used. */
+			/*!<If udf, input value will be used. */
     void		useInputValue(bool yn)	{ useinputval_ = yn; }
     void		use6Neighbors(bool yn)	{ use6neighbors_ = yn; }
-    			/*<The true, we use 6 neighbors, otherwise, use 26. */
+			/*<The true, we use 6 neighbors, otherwise, use 26. */
 
     void		addSeed(int,int,int);
     bool		isAboveIsovalue() const { return aboveisovalue_; }
-    			/*<Only when use input value. */
+			/*<Only when use input value. */
 
-    int			maxNrThreads() const 	{ return compartments_.size(); }
+    int			maxNrThreads() const	{ return compartments_.size(); }
     od_int64		nrIterations() const{return input_.info().getTotalSz();}
-   
+
 
 protected:
 
@@ -96,7 +96,7 @@ protected:
     int				sz2_;
 
     struct Compartment
-    {				
+    {
 				Compartment() : isused_( false )
 					      , seeds_( 3, 0 ) {}
 	bool			isused_;//!<Protected by compartmentlock_
@@ -106,56 +106,56 @@ protected:
 
     ObjectSet<Compartment>	compartments_;
     Threads::ConditionVar	compartmentlock_;
-    				//!<Protects the isused_ flags on the
-				//!<compartments. 
+				//!<Protects the isused_ flags on the
+				//!<compartments.
     TypeSet<int>		permutation_;
 
     const Array3D<T>&		input_;
-    				//!<Not protected
+				//!<Not protected
     Array3D<T>&			output_;
-    				/*!<The locks_ on the compartment protects 'its'
+				/*!<The locks_ on the compartment protects 'its'
 				    part of the array. */
     Array3DImpl<bool>*		isdefined_;
-    				/*!<The locks_ on the compartment protects 'its'
+				/*!<The locks_ on the compartment protects 'its'
 				    part of the array. */
 
 };
 
 
 template <class T> inline
-Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold, 
+Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 				       bool max, Array3D<T>& output )
     : input_( input )
     , output_( output )
     , threshold_( threshold )
     , aboveisovalue_( max )
-    , insideval_( mUdf(T) )				     
+    , insideval_( mUdf(T) )
     , use6neighbors_( true )
-    , useinputval_( true )			    
+    , useinputval_( true )
     , sz0_( input.info().getSize(0) )
     , sz1_( input.info().getSize(1) )
     , sz2_( input.info().getSize(2) )
     , isdefined_( 0 )
-    , nrcomp0_( 0 )		     
-    , nrcomp1_( 0 )		     
+    , nrcomp0_( 0 )
+    , nrcomp1_( 0 )
     , nrcomp2_( 0 )
-    , compsz0_( 0 )	     
-    , compsz1_( 0 )	     
-    , compsz2_( 0 )	     
+    , compsz0_( 0 )
+    , compsz1_( 0 )
+    , compsz2_( 0 )
 {
     isdefined_ = new Array3DImpl<bool>( sz0_, sz1_, sz2_ );
-    memset( isdefined_->getData(), 0, sizeof(bool)*sz0_*sz1_*sz2_ );
+    OD::memZero( isdefined_->getData(), sizeof(bool)*sz0_*sz1_*sz2_ );
 
     setOutsideValue( mUdf(T) );
 
     compsz0_ = sz0_/mMaxNrComp; if ( compsz0_<3 ) compsz0_ = 3;
     compsz1_ = sz1_/mMaxNrComp; if ( compsz1_<3 ) compsz1_ = 3;
     compsz2_ = sz2_/mMaxNrComp; if ( compsz2_<3 ) compsz2_ = 3;
-    
+
     nrcomp0_ = sz0_ % compsz0_ ? sz0_/compsz0_+1 : sz0_/compsz0_;
     nrcomp1_ = sz1_ % compsz1_ ? sz1_/compsz1_+1 : sz1_/compsz1_;
     nrcomp2_ = sz2_ % compsz2_ ? sz2_/compsz2_+1 : sz2_/compsz2_;
-    
+
     const int nrcompartments = nrcomp0_*nrcomp1_*nrcomp2_;
     mAllocVarLenArr( int, arr, nrcompartments);
     for ( int idx=0; idx<nrcompartments; idx++ )
@@ -163,7 +163,7 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 	compartments_ += new Compartment();
 	arr[idx] = idx;
     }
-    
+
     std::random_shuffle( mVarLenArr(arr), arr+nrcompartments );
     for ( int idx=0; idx<nrcompartments; idx++ )
 	permutation_ += arr[idx];
@@ -227,11 +227,11 @@ void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
     }
 
     if ( addseed )
-    	isdefined_->set( x0, x1, x2, true );
+	isdefined_->set( x0, x1, x2, true );
 
     const T inputval = input_.get( x0, x1, x2 );
 
-    if ( (aboveisovalue_ && inputval<threshold_) || 
+    if ( (aboveisovalue_ && inputval<threshold_) ||
 	 (!aboveisovalue_ && inputval>threshold_) )
     {
 	output_.set( x0, x1, x2, useinputval_ ? inputval : outsideval_ );
@@ -318,7 +318,7 @@ bool Array3DFloodfill<T>::doWork( od_int64 start, od_int64 stop, int )
 	    int arrpos[3];
 	    comp.lock_.convReadToWriteLock();
 
-	    if ( !comp.seeds_.getIndex( 0, idxs ) || 
+	    if ( !comp.seeds_.getIndex( 0, idxs ) ||
 		 !comp.seeds_.getPos( idxs, arrpos ) )
 	    {
 		comp.lock_.writeUnLock();

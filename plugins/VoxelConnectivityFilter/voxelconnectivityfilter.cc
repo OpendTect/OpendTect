@@ -40,8 +40,8 @@ class VoxelConnectivityFilterTask : public ParallelTask
 {
 public:
     VoxelConnectivityFilterTask( VoxelConnectivityFilter& step,
-	    			const Array3D<float>& input,
-	    			Array3D<float>& output )
+				const Array3D<float>& input,
+				Array3D<float>& output )
 	: input_( input )
 	, output_( output )
 	, statusarr_( 0 )
@@ -177,7 +177,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     }
 
 #define mDoEdge( dim0, dim1 ) \
-    memcpy( neighbor, arrpos, 3*sizeof(int) ); \
+    OD::memCopy( neighbor, arrpos, 3*sizeof(int) ); \
     neighbor[dim0]--; \
     neighbor[dim1]--; \
     mHandleNeighbor; \
@@ -192,7 +192,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     mHandleNeighbor
 
 #define mDoCorner( op0, op1, op2 ) \
-	    memcpy( neighbor, arrpos, 3*sizeof(int) ); \
+	    OD::memCopy( neighbor, arrpos, 3*sizeof(int) ); \
 	    neighbor[0] op0; \
 	    neighbor[1] op1; \
 	    neighbor[2] op2; \
@@ -276,7 +276,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	    statusarr_[idx] = curbodyid;
 	    queue += idx;
 	    queuebodyids += curbodyid;
-	    
+
 	    bodysize.set( curbodyid, 1 );
 	}
 	else
@@ -355,9 +355,9 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
     nrdone = 0;
 
     barrier_.waitForAll( true ); //After this nothing more will be added
-    				 //to indexvsbodyid_
-    //Convert all indexvsbodyid_ entries in my range to bodyaliases 
-    
+				 //to indexvsbodyid_
+    //Convert all indexvsbodyid_ entries in my range to bodyaliases
+
     barrier_.mutex().lock();
     bodyaliases_.append( bodyaliases );
     barrier_.mutex().unLock();
@@ -464,13 +464,13 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 #define mOutputLoopStart \
         if ( nrdone>10000 ) \
 	{ \
-    	    addToNrDone( mCast(int,nrdone) ); \
+	    addToNrDone( mCast(int,nrdone) ); \
 	    nrdone = 0; \
 	} \
 	int bodynr = statusarr_[idx]; \
         if ( bodynr!=-1 ) \
-    	{ \
-    	    bodynr = outputbodies_[bodynr]; \
+	{ \
+	    bodynr = outputbodies_[bodynr]; \
 	    nrdone++; \
 	} \
  \
@@ -556,14 +556,14 @@ Task* VoxelConnectivityFilter::createTask()
     }
 
     return new VoxelConnectivityFilterTask( *this, input_->getCube(0),
-	    				    output_->getCube(0) );
+					    output_->getCube(0) );
 }
 
 
 void VoxelConnectivityFilter::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
-    
+
     par.set( sKeyRange(), range_ );
     par.set( sKeyConnectivity(), toString(connectivity_) );
 
@@ -582,7 +582,7 @@ void VoxelConnectivityFilter::fillPar( IOPar& par ) const
 	errmsg_ = errstr; \
 	return false; \
     }
-	
+
 bool VoxelConnectivityFilter::usePar( const IOPar& par )
 {
     if ( !Step::usePar( par ) )

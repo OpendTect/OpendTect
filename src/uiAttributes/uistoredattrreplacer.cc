@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrinpdlg.h"
 #include "uimsg.h"
-#include <stdlib.h>
+
 
 using namespace Attrib;
 
@@ -376,7 +376,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    mDeclareAndTryAlloc( char*, tmpbuf, char[newsz+1] );
 	    if ( tmpbuf )
 	    {
-		memcpy( tmpbuf, prevref.buf(), newsz );
+		OD::memCopy( tmpbuf, prevref.buf(), newsz );
 		tmpbuf[newsz]='\0';
 		prevref.setEmpty();
 		prevref = tmpbuf;

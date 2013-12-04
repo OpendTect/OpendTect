@@ -387,9 +387,9 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 {
     SeisTrc& trc = sstp_->getTrace();
     const SeisTrc intrc = sstp_->getInputTrace();
-    const char* typestr =
+    const FixedString typestr =
 	outctio_.ioobj->pars().find( VelocityDesc::sKeyVelocityType() );
-    if ( !typestr ) return;
+    if ( typestr.isEmpty() ) return;
 
     const int compnr = compfld_ && compfld_->box()->visible() ?
 		compfld_->box()->currentItem() - 1 : 0;
@@ -410,11 +410,11 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
     mAllocVarLenArr( float, vout, sizeout );
     if ( !mIsVarLenArrOK(vout) ) return;
 
-    if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::Interval] ) )
+    if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::Interval] )
 	sampleVint( vin, tin, sizein, sdout, vout, sizeout );
-    else if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::RMS] ) )
+    else if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::RMS] )
 	sampleVrms( vin, 0, 0, tin, sizein, sdout, vout, sizeout );
-    else if ( !strcmp( typestr, VelocityDesc::TypeNames()[VelocityDesc::Avg] ) )
+    else if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::Avg] )
 	sampleVavg( vin, tin, sizein, sdout, vout, sizeout );
 
     for ( int idx=0; idx<sizeout; idx++ )

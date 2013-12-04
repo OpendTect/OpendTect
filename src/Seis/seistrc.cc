@@ -51,11 +51,11 @@ bool SeisTrc::reSize( int sz, bool copydata )
 
 const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 {
-    mDefineStaticLocalObject( PtrMan<ValueSeriesInterpolator<float> >, 
+    mDefineStaticLocalObject( PtrMan<ValueSeriesInterpolator<float> >,
 			      defintpol, = 0 );
     if ( !defintpol )
     {
-	ValueSeriesInterpolator<float>* newdefintpol = 
+	ValueSeriesInterpolator<float>* newdefintpol =
 				new ValueSeriesInterpolator<float>();
 	newdefintpol->snapdist_ = snapdist;
 	newdefintpol->smooth_ = true;
@@ -69,7 +69,7 @@ const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 
     ValueSeriesInterpolator<float>& ret
 	= const_cast<ValueSeriesInterpolator<float>&>(
-	    				intpol_ ? *intpol_ : *defintpol );
+					intpol_ ? *intpol_ : *defintpol );
     ret.maxidx_ = size() - 1;
     return ret;
 }
@@ -283,7 +283,7 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
     for ( int icomp=startcomp; icomp<=stopcomp; icomp++ )
     {
 	DataCharacteristics dc = forcefloats
-	    			? DataCharacteristics()
+				? DataCharacteristics()
 				: trc.data().getInterpreter(icomp)->dataChar();
 
 	if ( nrComponents() <= icomp )
@@ -295,7 +295,7 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 	    if ( data_.size(icomp) != sz )
 		data().getComponent(icomp)->reSize( sz );
 	}
-	memcpy( data().getComponent(icomp)->data(),
+	OD::memCopy( data().getComponent(icomp)->data(),
 		trc.data().getComponent(icomp)->data(),
 		sz * (int)dc.nrBytes() );
     }

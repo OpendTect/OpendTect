@@ -15,7 +15,15 @@ ________________________________________________________________________
 -*/
 
 #include "plfdefs.h"
-#include "rounding.h"
+
+
+#ifdef __cpp__
+template <class RT> inline
+RT roundOff( double x ) { return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
+
+template <class RT> inline
+RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
+#endif
 
 #define mRounded(typ,x)		roundOff<typ>( x )
 #define mNINT32(x)		mRounded( od_int32, x )
@@ -24,7 +32,6 @@ ________________________________________________________________________
 
 /*!Use only when you KNOW that pointer is correctly aligned.
    Used to avoid casting alignment warnings. */
-
 #ifdef __mac__
 # define mCastPtr(tp,p)		((tp*)((od_int64)(p)))
 #else
@@ -122,7 +129,7 @@ ________________________________________________________________________
 #define mFromFeetFactorD	0.3048
 #define mToFeetFactorF		3.2808399f
 #define mToFeetFactorD		3.28083989501312336
-#define mToSqMileFactor		0.3861 			//km^2 to mile^2
+#define mToSqMileFactor		0.3861			//km^2 to mile^2
 #define mMileToFeetFactor	5280
 #define mToPercent(f)		(mIsUdf(f) ? f : f*100)
 #define mFromPercent(p)		(mIsUdf(p) ? p : p*0.01)
@@ -163,7 +170,7 @@ ________________________________________________________________________
 #define mExportInst( mod, tp )
 #else
 #define mExp( module )			Export_##module
-#define mExportInst( mod, tp )		Extern_##mod tp mExp(mod) 
+#define mExportInst( mod, tp )		Extern_##mod tp mExp(mod)
 #endif
 
 #define mExpClass( module )		class mExp( module )
@@ -177,18 +184,22 @@ ________________________________________________________________________
 
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
+#ifdef __cpp__
 namespace Threads
 {
     mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int&,int);
 }
+#endif
 
 
 #ifdef __win__
+#ifdef __cpp__
 namespace Threads
 {
     mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
     mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 }
+#endif
 
 #define mLockStaticInitLock( nm ) \
 static volatile int nm = 0; \
@@ -199,7 +210,7 @@ Threads::unlockSimpleSpinLock( nm )
 
 #else
 
-#define mLockStaticInitLock( nm ) 
+#define mLockStaticInitLock( nm )
 #define mUnlockStaticInitLock( nm )
 
 #endif
@@ -234,5 +245,3 @@ mUnlockStaticInitLock( static##var##lck__ )
 
 
 #endif
-
-

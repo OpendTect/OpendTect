@@ -136,6 +136,8 @@ bool GMTArray2DInterpol::doFinish( bool success )
 	return false;
 
     nrdone_ = 0;
+    char rowstr[10], colstr[10], valstr[20];
+    FixedString fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
 	if ( !*sd_.istrm )
@@ -149,18 +151,16 @@ bool GMTArray2DInterpol::doFinish( bool success )
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
-	    char rowstr[10], colstr[10], valstr[20];
+	    rowstr[0] = colstr[0] = valstr[0] = '\0';
 	    *sd_.istrm >> rowstr >> colstr >> valstr;
-	    if ( !strcmp(rowstr, sKeyGMTUdf) || !strcmp(colstr, sKeyGMTUdf)
-					     || !strcmp(valstr, sKeyGMTUdf) )
+	    if ( fsrowstr == sKeyGMTUdf || fscolstr == sKeyGMTUdf
+					|| fsvalstr == sKeyGMTUdf )
 		continue;
 
 	    int row, col; float val;
-	    if ( !getFromString(row, rowstr) || !getFromString(col, colstr)
-					     || !getFromString(val, valstr) )
-		continue;
-
-	    arr_->set( row, col, val );
+	    if ( getFromString(row, rowstr) && getFromString(col, colstr)
+					    && getFromString(val, valstr) )
+		arr_->set( row, col, val );
 	}
 
 	nrdone_++;

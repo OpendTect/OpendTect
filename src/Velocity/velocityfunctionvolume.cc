@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "survinfo.h"
 
+
 namespace Vel
 {
 
@@ -97,9 +98,7 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
     if ( mIsEqual(z0,velsampling_.start,1e-5) &&
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
-    {
-	memcpy( res, vel_.arr(), sizeof(float)*velsz );
-    }
+	OD::memCopy( res, vel_.arr(), sizeof(float)*velsz );
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
 	      !extrapolate_ ||
 	      velsampling_.atIndex(velsz-1)>z0+dz*(nr-1) )
@@ -111,7 +110,7 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	    if ( sample<0 )
 	    {
 		res[idx] = extrapolate_ ? vel_[0] : mUdf(float);
-	    	continue;
+		continue;
 	    }
 
 	    if ( sample<velsz )
@@ -238,11 +237,11 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     {
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {                               
+	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {
 	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
 	    {
 		bids.add( BinID(inl,crl) );
-	    }                                                
+	    }
 	}
     }
 }
@@ -279,7 +278,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
 	trcdata[idx] = velocitytrc.get( idx, 0 );
 
     sd = velocitytrc.info().sampling;
-    
+
     return true;
 }
 

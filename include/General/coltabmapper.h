@@ -36,24 +36,24 @@ mExpClass(General) MapperSetup : public CallBacker
 public:
 			MapperSetup();
     enum Type		{ Fixed, Auto, HistEq };
-    			DeclareEnumUtils(Type);
+			DeclareEnumUtils(Type);
 
     mDefSetupClssMemb(MapperSetup,Type,type);
     mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate);	//!< Auto
     mDefSetupClssMemb(MapperSetup,bool,autosym0);	//!< Auto and HistEq.
     mDefSetupClssMemb(MapperSetup,float,symmidval);	//!< Auto and HistEq.
-    							//!< Usually mUdf(float)
+							//!< Usually mUdf(float)
     mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
     mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
     mDefSetupClssMemb(MapperSetup,bool,flipseq);	//!< All
     mDefSetupClssMemb(MapperSetup,Interval<float>,range);
 
-    bool 			operator==(const MapperSetup&) const;
+    bool			operator==(const MapperSetup&) const;
     bool			operator!=(const MapperSetup&) const;
     MapperSetup&		operator=(const MapperSetup&);
 
     bool			needsReClip(const MapperSetup&) const;
-    				//!<Is new clip necessary if set to this
+				//!<Is new clip necessary if set to this
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -86,10 +86,10 @@ public:
 				~Mapper();
 
     float			position(float val) const;
-    				//!< returns position in ColorTable
+				//!< returns position in ColorTable
     static int			snappedPosition(const Mapper*,float val,
-	    					int nrsteps,
-	    				int udfval);
+						int nrsteps,
+					int udfval);
     const Interval<float>& range() const;
     bool		isFlipped() const { return setup_.flipseq_; }
     const ValueSeries<float>* data() const
@@ -101,11 +101,11 @@ public:
 
     void		setRange( const Interval<float>& rg );
     void		setData(const ValueSeries<float>*,od_int64 sz,
-	    			TaskRunner* = 0);
-    			//!< If data changes, call update()
+				TaskRunner* = 0);
+			//!< If data changes, call update()
 
     void		update(bool full=true, TaskRunner* = 0);
-    			//!< If !full, will assume data is unchanged
+			//!< If !full, will assume data is unchanged
 			//
     MapperSetup		setup_;
 
@@ -126,8 +126,8 @@ protected:
 template <class T>
 mClass(General) MapperTask : public ParallelTask
 {
-public:    
-    			MapperTask(const ColTab::Mapper& map,
+public:
+			MapperTask(const ColTab::Mapper& map,
 				   od_int64 sz,T nrsteps,
 				   const float* unmapped,
 				   T* mappedvals,int mappedvalspacing=1,
@@ -136,7 +136,7 @@ public:
 			    0 or mUndefColIdx depending on if the value
 			    is undef or not. Mapped pointer should thus
 			    have space for 2*sz */
-    			MapperTask(const ColTab::Mapper& map,
+			MapperTask(const ColTab::Mapper& map,
 				   od_int64 sz,T nrsteps,
 				   const ValueSeries<float>& unmapped,
 				   T* mappedvals, int mappedvalspacing=1,
@@ -149,7 +149,7 @@ public:
     od_int64		nrIterations() const;
     const unsigned int*	getHistogram() const	{ return histogram_; }
 
-private:    
+private:
     bool			doWork(od_int64 start,od_int64 stop,int);
 
     const ColTab::Mapper&	mapper_;
@@ -167,13 +167,13 @@ private:
 
 
 template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps, 
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 			   const float* unmapped,
 			   T* mappedvals, int mappedvalsspacing,
-       			   T* mappedudfs, int mappedudfspacing	)
+			   T* mappedudfs, int mappedudfspacing	)
     : mapper_( map )
     , totalsz_( sz )
-    , nrsteps_( nrsteps )		    
+    , nrsteps_( nrsteps )
     , unmapped_( unmapped )
     , unmappedvs_( 0 )
     , mappedvals_( mappedvals )
@@ -182,18 +182,18 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
     , mappedudfspacing_( mappedudfspacing )
     , histogram_( new unsigned int[nrsteps+1] )
 {
-    memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+    OD::memZero( histogram_, (mUndefColIdx+1)*sizeof(unsigned int) );
 }
 
 
 template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps, 
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 			   const ValueSeries<float>& unmapped,
 			   T* mappedvals, int mappedvalsspacing,
-       			   T* mappedudfs, int mappedudfspacing	)
+			   T* mappedudfs, int mappedudfspacing	)
     : mapper_( map )
     , totalsz_( sz )
-    , nrsteps_( nrsteps )		    
+    , nrsteps_( nrsteps )
     , unmapped_( unmapped.arr() )
     , unmappedvs_( unmapped.arr() ? 0 : &unmapped )
     , mappedvals_( mappedvals )
@@ -202,7 +202,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
     , mappedudfspacing_( mappedudfspacing )
     , histogram_( new unsigned int[nrsteps+1] )
 {
-    memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+    OD::memZero( histogram_, (mUndefColIdx+1)*sizeof(unsigned int) );
 }
 
 
@@ -221,8 +221,8 @@ template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
-   
-    memset( histogram, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+
+    OD::memZero( histogram, (mUndefColIdx+1)*sizeof(unsigned int) );
 
     T* valresult = mappedvals_+start*mappedvalsspacing_;
     T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;

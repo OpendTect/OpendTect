@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "od_iostream.h"
+#include <string.h>
 
 static const char* cSampNmsFnm = "samplenames.txt";
 static const char* cPosDataFnm = "posdata.txt";
@@ -79,9 +80,9 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 
 
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
-    	: dirnm_(dirnm)
-    	, reqdtype_(DataCharacteristics::Auto)
-    	, tr_(0)
+	: dirnm_(dirnm)
+	, reqdtype_(DataCharacteristics::Auto)
+	, tr_(0)
 	, nringather_(1)
 {
     BufferString& sm = const_cast<BufferString&>( selmask_ );
@@ -305,9 +306,9 @@ static const char* posdataFileName( const char* dirnm )
 
 
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
-    	: SeisCBVSPSIO(dirnm)
-    	, posdata_(*new PosInfo::SortedCubeData)
-    	, curinl_(mUdf(int))
+	: SeisCBVSPSIO(dirnm)
+	, posdata_(*new PosInfo::SortedCubeData)
+	, curinl_(mUdf(int))
 {
     if ( !dirNmOK(true) ) return;
 
@@ -474,8 +475,8 @@ bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 	mRemoveCache(cachefnm)
 
 SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
-    	: SeisCBVSPSIO(dirnm)
-    	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
+	: SeisCBVSPSIO(dirnm)
+	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
 {
     if ( !dirNmOK(false) ) return;
     mRemCacheIfExists();
@@ -537,9 +538,9 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 
 
 SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
-    	: SeisCBVSPSIO(dirnm)
-    	, SeisPS2DReader(lnm)
-    	, posdata_(*new PosInfo::Line2DData)
+	: SeisCBVSPSIO(dirnm)
+	, SeisPS2DReader(lnm)
+	, posdata_(*new PosInfo::Line2DData)
 {
     if ( !dirNmOK(true) ) return;
 
@@ -551,7 +552,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 	fnm = get2DFileName( lnm2 );
 	if ( !File::exists(fnm) )
 	    return;
-    }	
+    }
 
     errmsg_ = "";
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
@@ -619,9 +620,9 @@ bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 
 
 SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
-    	: SeisCBVSPSIO(dirnm)
-    	, prevnr_(mUdf(int))
-    	, lnm_(lnm)
+	: SeisCBVSPSIO(dirnm)
+	, prevnr_(mUdf(int))
+	, lnm_(lnm)
 {
     if ( !dirNmOK(false) ) return;
     mRemCacheIfExists();

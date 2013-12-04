@@ -31,11 +31,11 @@ CC* CC::createDefault()
 
     return res;
 }
- 
+
 
 
 CC::CC()
-   : normalize_( false ) 
+   : normalize_( false )
 {}
 
 
@@ -43,7 +43,7 @@ bool CC::setup()
 {
     if ( !GenericTransformND::setup() )
 	return false;
-    
+
     for ( int idx=0; idx<transforms_.size(); idx++ )
     {
 	static_cast<CC1D*>(transforms_[idx])->
@@ -67,7 +67,7 @@ mType CC::getDf( mType samplespacing, int nrsamples )
 
 
 void CC::getFrequencies( mType samplespacing, int nrsamples,
-       			 TypeSet<float>& frequencies )
+			 TypeSet<float>& frequencies )
 {
     frequencies.setEmpty();
     const mType nyqfreq = getNyqvist( samplespacing );
@@ -80,7 +80,7 @@ void CC::getFrequencies( mType samplespacing, int nrsamples,
 }
 
 
-bool CC::isFast( int sz ) const 
+bool CC::isFast( int sz ) const
 { return sz==getFastSize(sz); }
 
 
@@ -147,11 +147,11 @@ bool CC::CC1D::doPrepare( int nrthreads )
 	deepErase( ffts_ );
 	for ( int idx=0; idx<nrthreads; idx++ )
 	{
-    	    Fourier::FFTCC1D* cc1d = new Fourier::FFTCC1D();
-    	    cc1d->setSample( sampling_ );
-    	    cc1d->setDir( forward_ );
-    	    cc1d->setSize( sz_ );
-    	    ffts_ += cc1d;
+	    Fourier::FFTCC1D* cc1d = new Fourier::FFTCC1D();
+	    cc1d->setSample( sampling_ );
+	    cc1d->setDir( forward_ );
+	    cc1d->setSize( sz_ );
+	    ffts_ += cc1d;
 	}
     }
 
@@ -182,7 +182,7 @@ bool CC::CC1D::doWork( od_int64 start, od_int64 stop, int threadidx )
 	    const int offset = batchstarts_[idx];
 
 	    mCplxType* output = coutput_ + offset;
-	
+
 	    for ( int idy=0; idy<sz_; idy++, output += sampling_ )
 		*output /= (mType) sz_;
 	}
@@ -225,7 +225,7 @@ GenericTransformND::Transform1D* CC::createTransform() const
 }
 
 
-# define mSin60	mFloatOrDouble(0.86602540378443865)	
+# define mSin60	mFloatOrDouble(0.86602540378443865)
 # define mCos72	mFloatOrDouble(0.30901699437494742)
 # define mSin72	mFloatOrDouble(0.95105651629515357)
 
@@ -268,7 +268,7 @@ bool FFTCC1D::setSize( int sz )
 	return false;
 
     if ( rtmp_ )
-    	cleanUp();
+	cleanUp();
 
     size_ = sz;
     totalsmp_ = size_ * sample_;
@@ -283,12 +283,12 @@ bool FFTCC1D::setSize( int sz )
 }
 
 
-bool FFTCC1D::run( mCplxType* data ) 
+bool FFTCC1D::run( mCplxType* data )
 {
-    if ( !data ) 
+    if ( !data )
 	return false;
-    
-    if ( size_<2 ) 
+
+    if ( size_<2 )
 	return true;
 
     data_ = data-1;
@@ -297,44 +297,44 @@ bool FFTCC1D::run( mCplxType* data )
 
     totalsmp_ = size_ * sample_;
     extsz_ = totalsmp_;
-    curf_ = 0;   
+    curf_ = 0;
     const double smppi = (forward_ ? -M_PI : M_PI) * sample_;
     const int nrfactors = factors_.size();
-    
+
     for ( int fidx=0; fidx<nrfactors; fidx++ )
     {
- 	exp_ = (mType)( smppi / extsz_ ); 
- 	sin2_ = 2 * sin(exp_) * sin(exp_);
- 	exp_ = sin(2*exp_);
-	
- 	if ( factors_[fidx]==2 )
- 	{
-	    extsz_ /= 2;
- 	    if ( doFactor2() )
- 		return doFinish();
- 	}
- 	else if ( factors_[fidx]==4 )
- 	{
-	    extsz_ /= 4;
- 	    if ( doFactor4() )
- 		return doFinish();
- 	}
- 	else
- 	{
- 	    const int psz = extsz_;
- 	    extsz_ /= factors_[fidx];
- 	    if ( factors_[fidx]==3 )
- 		doFactor3();
- 	    else if ( factors_[fidx]==5 )
- 		doFactor5();
- 	    else
- 		doOtherFactor( factors_[fidx], psz );
-	    
- 	    if ( fidx == nrfactors-1 ) 
- 		return doFinish();
+	exp_ = (mType)( smppi / extsz_ );
+	sin2_ = 2 * sin(exp_) * sin(exp_);
+	exp_ = sin(2*exp_);
 
-	    doRotation( psz );	       
- 	}
+	if ( factors_[fidx]==2 )
+	{
+	    extsz_ /= 2;
+	    if ( doFactor2() )
+		return doFinish();
+	}
+	else if ( factors_[fidx]==4 )
+	{
+	    extsz_ /= 4;
+	    if ( doFactor4() )
+		return doFinish();
+	}
+	else
+	{
+	    const int psz = extsz_;
+	    extsz_ /= factors_[fidx];
+	    if ( factors_[fidx]==3 )
+		doFactor3();
+	    else if ( factors_[fidx]==5 )
+		doFactor5();
+	    else
+		doOtherFactor( factors_[fidx], psz );
+
+	    if ( fidx == nrfactors-1 )
+		return doFinish();
+
+	    doRotation( psz );
+	}
     }
 
    return doFinish();
@@ -343,64 +343,64 @@ bool FFTCC1D::run( mCplxType* data )
 
 bool FFTCC1D::getSizeFactors()
 {
-    int remain = size_;          
-    while ( !(remain%16) ) 
+    int remain = size_;
+    while ( !(remain%16) )
     {
-	factors_ += 4;           
+	factors_ += 4;
 	remain /= 16;
     }
-   
+
     int factor = 3;
     int f2 = 9;
-    do 
+    do
     {
-	while ( !(remain % f2) ) 
+	while ( !(remain % f2) )
 	{
-	    factors_ += factor;   
+	    factors_ += factor;
 	    remain /= f2;
-	} 
-       
+	}
+
 	factor += 2;
 	f2 = factor * factor;
     } while ( f2 <= remain );
-   
-    if ( remain<=4 ) 
+
+    if ( remain<=4 )
     {
-	rmfid_ = factors_.size(); 
-        if ( remain != 1 ) 
-	    factors_ += remain; 		
-    } 
-    else 
+	rmfid_ = factors_.size();
+        if ( remain != 1 )
+	    factors_ += remain;
+    }
+    else
     {
-	if ( remain==(remain / 4 << 2) ) 
+	if ( remain==(remain / 4 << 2) )
 	{
-	    factors_ += 2; 
+	    factors_ += 2;
 	    remain /= 4;
 	}
 
-	rmfid_ = factors_.size(); 
+	rmfid_ = factors_.size();
 	factor = 2;
-	do 
+	do
 	{
-	    if ( remain % factor == 0 ) 
+	    if ( remain % factor == 0 )
 	    {
-		factors_ += factor; 	
+		factors_ += factor;
 		remain /= factor;
 	    }
 	    factor = ((factor + 1) / 2 << 1) + 1;
 	} while ( factor <= remain );
     }
 
-    if ( rmfid_ ) 
+    if ( rmfid_ )
     {
 	factor = rmfid_;
 	do
-	{ 
+	{
 	    factors_ += factors_[--factor];
 	} while ( factor );
     }
 
-    permutfactors_ = factors_;    
+    permutfactors_ = factors_;
     return true;
 }
 
@@ -410,10 +410,10 @@ bool FFTCC1D::doFactor2() const
     int cidx = 1;
     const int lastsmp = sample_ * (size_-1);
     const int extsz2 = 2 * extsz_;
- 
-    do 
+
+    do
     {
-	do 
+	do
 	{
 	    const int cidx2 = 2 * cidx;
 	    const int idx = cidx2 + extsz2;
@@ -428,24 +428,24 @@ bool FFTCC1D::doFactor2() const
 
 	cidx -= lastsmp;
     } while ( cidx <= sample_ );
-    
+
     if ( cidx > extsz_ )
-	return true; 	
+	return true;
 
     int cnt = extsz_ + 2;
     const int samp2 = sample_ + sample_;
 
-    do 
+    do
     {
 	mType c1 = mFloatOrDouble(1.0) - sin2_;
 	mType s1 = exp_;
 	int idx;
-	do 
-	{	       
-	    do 
+	do
+	{
+	    do
 	    {
 		const mCplxType c1s1( c1, s1 );
-		do 
+		do
 		{
 		    idx = cidx + extsz_;
 		    const int cidx2 = cidx * 2;
@@ -458,12 +458,12 @@ bool FFTCC1D::doFactor2() const
 		    idata_[idx2] = ar * s1 + ai * c1;
 		    cidx = idx + extsz_;
 		} while ( cidx < totalsmp_ );
-	       	
+
 		idx = cidx - totalsmp_;
 		c1 = -c1;
 		cidx = cnt - idx;
 	    } while ( cidx > idx );
-	    
+
 	    const mType val = c1 - ( sin2_ * c1 + exp_ * s1 );
 	    s1 = exp_ * c1 - sin2_ * s1 + s1;
 	    c1 = mFloatOrDouble(2.0) - ( val * val + s1 * s1 );
@@ -471,28 +471,28 @@ bool FFTCC1D::doFactor2() const
 	    c1 *= val;
 	    cidx += sample_;
 	} while ( cidx < idx );
-	
+
 	cnt += samp2;
 	cidx = (cnt-extsz_) / 2 + sample_;
-    } while ( cidx <= samp2 );   
+    } while ( cidx <= samp2 );
 
-   return false; 
+   return false;
 }
 
 
 void FFTCC1D::doFactor3() const
 {
     int cidx = 2;
-    const mType s60 = forward_ ? (mType) -mSin60 : (mType) mSin60;   
+    const mType s60 = forward_ ? (mType) -mSin60 : (mType) mSin60;
     const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
 
-    do 
+    do
     {
- 	do 
- 	{
- 	    const int idx0 = cidx + extsz2;
- 	    const int idx1 = idx0 + extsz2;
+	do
+	{
+	    const int idx0 = cidx + extsz2;
+	    const int idx1 = idx0 + extsz2;
 
 	    mType ar = rdata_[cidx];
 	    mType ai = idata_[cidx];
@@ -510,65 +510,65 @@ void FFTCC1D::doFactor3() const
 	    idata_[idx1] = ai - br;
 	    cidx = idx1 + extsz2;
 
- 	} while ( cidx < lastsmp );
-	
- 	cidx -= lastsmp;
+	} while ( cidx < lastsmp );
+
+	cidx -= lastsmp;
     } while ( cidx <= extsz2 );
 }
 
-	  
+
 bool FFTCC1D::doFactor4() const
-{ 
+{
     int cidx = 1;
     const int extsz2 = extsz_ * 2;
     const int extsz4 = extsz_ * 4;
     const int extsz6 = extsz_ * 6;
     const int smpdiffextsz = sample_ - extsz_;
     const int smpdiffsz = sample_ - totalsmp_;
-    
-    do 
+
+    do
     {
- 	mType c0 = 1;
- 	mType c1 = 0;
+	mType c0 = 1;
+	mType c1 = 0;
 	mType c2 = 0;
 	mType s0 = 0;
 	mType s1 = 0;
 	mType s2 = 0;
- 	do 
- 	{
- 	    do 
- 	    {
+	do
+	{
+	    do
+	    {
 		const int cidx2 = 2 * cidx;
- 		const int idx0 = cidx2 + extsz2;
- 		const int idx1 = cidx2 + extsz4;
- 		const int idx2 = cidx2 + extsz6;
- 		mType a0r = rdata_[cidx2] + rdata_[idx1];
- 		mType a1r = rdata_[cidx2] - rdata_[idx1];
- 		mType a2r = rdata_[idx0] + rdata_[idx2];
- 		mType a3r = rdata_[idx0] - rdata_[idx2];
- 		mType a0i = idata_[cidx2] + idata_[idx1];
- 		mType a1i = idata_[cidx2] - idata_[idx1];
- 		mType a2i = idata_[idx0] + idata_[idx2];
- 		mType a3i = idata_[idx0] - idata_[idx2];
- 		rdata_[cidx2] = a0r + a2r;
- 		idata_[cidx2] = a0i + a2i;
- 		a2r = a0r - a2r;
- 		a2i = a0i - a2i;
- 		if ( forward_ ) 
- 		{
- 		    a0r = a1r + a3i;
- 		    a0i = a1i - a3r;
- 		    a1r -= a3i;
- 		    a1i += a3r;
- 		} 
- 		else 
- 		{
- 		    a0r = a1r - a3i;
- 		    a0i = a1i + a3r;
- 		    a1r += a3i;
- 		    a1i -= a3r;
- 		}
-		
+		const int idx0 = cidx2 + extsz2;
+		const int idx1 = cidx2 + extsz4;
+		const int idx2 = cidx2 + extsz6;
+		mType a0r = rdata_[cidx2] + rdata_[idx1];
+		mType a1r = rdata_[cidx2] - rdata_[idx1];
+		mType a2r = rdata_[idx0] + rdata_[idx2];
+		mType a3r = rdata_[idx0] - rdata_[idx2];
+		mType a0i = idata_[cidx2] + idata_[idx1];
+		mType a1i = idata_[cidx2] - idata_[idx1];
+		mType a2i = idata_[idx0] + idata_[idx2];
+		mType a3i = idata_[idx0] - idata_[idx2];
+		rdata_[cidx2] = a0r + a2r;
+		idata_[cidx2] = a0i + a2i;
+		a2r = a0r - a2r;
+		a2i = a0i - a2i;
+		if ( forward_ )
+		{
+		    a0r = a1r + a3i;
+		    a0i = a1i - a3r;
+		    a1r -= a3i;
+		    a1i += a3r;
+		}
+		else
+		{
+		    a0r = a1r - a3i;
+		    a0i = a1i + a3r;
+		    a1r += a3i;
+		    a1i -= a3r;
+		}
+
 		if ( mIsZero(s0,1e-8) )
 		{
 		    rdata_[idx0] = a0r;
@@ -580,34 +580,34 @@ bool FFTCC1D::doFactor4() const
 		}
 		else
 		{
-	    	    rdata_[idx0] = a0r * c0 - a0i * s0; 
-    		    rdata_[idx1] = a2r * c1 - a2i * s1;
-    		    rdata_[idx2] = a1r * c2 - a1i * s2;
-	    	    idata_[idx0] = a0r * s0 + a0i * c0; 
-    		    idata_[idx1] = a2r * s1 + a2i * c1;
-    		    idata_[idx2] = a1r * s2 + a1i * c2;
+		    rdata_[idx0] = a0r * c0 - a0i * s0;
+		    rdata_[idx1] = a2r * c1 - a2i * s1;
+		    rdata_[idx2] = a1r * c2 - a1i * s2;
+		    idata_[idx0] = a0r * s0 + a0i * c0;
+		    idata_[idx1] = a2r * s1 + a2i * c1;
+		    idata_[idx2] = a1r * s2 + a1i * c2;
 		}
 		cidx += extsz4;
-    		    
- 	    } while ( cidx <= totalsmp_ );
- 	    
- 	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
- 	    s0 = exp_ * c0 - sin2_ * s0 + s0;
- 	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
- 	    s0 *= c0;
- 	    c0 *= c1;
- 	    c1 = c0 * c0 - s0 * s0;
- 	    s1 = mFloatOrDouble(2.0) * c0 * s0;
- 	    c2 = c1 * c0 - s1 * s0;
- 	    s2 = c1 * s0 + s1 * c0;
- 	    cidx += smpdiffsz;
- 	} while ( cidx <= extsz_ );
-	
- 	cidx += smpdiffextsz;
+
+	    } while ( cidx <= totalsmp_ );
+
+	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
+	    s0 = exp_ * c0 - sin2_ * s0 + s0;
+	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
+	    s0 *= c0;
+	    c0 *= c1;
+	    c1 = c0 * c0 - s0 * s0;
+	    s1 = mFloatOrDouble(2.0) * c0 * s0;
+	    c2 = c1 * c0 - s1 * s0;
+	    s2 = c1 * s0 + s1 * c0;
+	    cidx += smpdiffsz;
+	} while ( cidx <= extsz_ );
+
+	cidx += smpdiffextsz;
     } while ( cidx <= sample_ );
-    
+
     if ( extsz_ == sample_ )
- 	return true; 
+	return true;
 
     return false;
 }
@@ -620,155 +620,155 @@ void FFTCC1D::doFactor5() const
     const mType s72 = forward_ ? (mType) -mSin72 : (mType) mSin72;
     const mType c2 = (mType)( mCos72 * mCos72 - s72 * s72 );
     const mType s2 = (mType)( mFloatOrDouble(2.0) * mCos72 * s72 );
-    
+
     int cidx = 2;
-    
-    do 
+
+    do
     {
- 	do 
- 	{
- 	    const int idx0 = cidx + extsz2;
- 	    const int idx1 = idx0 + extsz2;
- 	    const int idx2 = idx1 + extsz2;
- 	    const int idx3 = idx2 + extsz2;
- 	    const mType ar0 = rdata_[idx0] + rdata_[idx3];
- 	    const mType ai0 = idata_[idx0] + idata_[idx3];
- 	    const mType ar1 = rdata_[idx0] - rdata_[idx3];
- 	    const mType ai1 = idata_[idx0] - idata_[idx3];
- 	    const mType ar2 = rdata_[idx1] + rdata_[idx2];
- 	    const mType ai2 = idata_[idx1] + idata_[idx2];
- 	    const mType ar3 = rdata_[idx1] - rdata_[idx2];
- 	    const mType ai3 = idata_[idx1] - idata_[idx2];
- 	    const mType ar4 = rdata_[cidx];
- 	    const mType ai4 = idata_[cidx];
-	    
- 	    rdata_[cidx] = ar0 + ar2 +ar4; 
- 	    idata_[cidx] = ai0 + ai2 +ai4; 
- 	    
-	    mType ar5 = (mType) ( ar0 * mCos72 + ar2 * c2 + ar4 );	
-	    mType ai5 = (mType) ( ai0 * mCos72 + ai2 * c2 + ai4 );	
- 	    mType ar6 = ar1 * s72 + ar3 * s2;
- 	    mType ai6 = ai1 * s72 + ai3 * s2;
- 	    
+	do
+	{
+	    const int idx0 = cidx + extsz2;
+	    const int idx1 = idx0 + extsz2;
+	    const int idx2 = idx1 + extsz2;
+	    const int idx3 = idx2 + extsz2;
+	    const mType ar0 = rdata_[idx0] + rdata_[idx3];
+	    const mType ai0 = idata_[idx0] + idata_[idx3];
+	    const mType ar1 = rdata_[idx0] - rdata_[idx3];
+	    const mType ai1 = idata_[idx0] - idata_[idx3];
+	    const mType ar2 = rdata_[idx1] + rdata_[idx2];
+	    const mType ai2 = idata_[idx1] + idata_[idx2];
+	    const mType ar3 = rdata_[idx1] - rdata_[idx2];
+	    const mType ai3 = idata_[idx1] - idata_[idx2];
+	    const mType ar4 = rdata_[cidx];
+	    const mType ai4 = idata_[cidx];
+
+	    rdata_[cidx] = ar0 + ar2 +ar4;
+	    idata_[cidx] = ai0 + ai2 +ai4;
+
+	    mType ar5 = (mType) ( ar0 * mCos72 + ar2 * c2 + ar4 );
+	    mType ai5 = (mType) ( ai0 * mCos72 + ai2 * c2 + ai4 );
+	    mType ar6 = ar1 * s72 + ar3 * s2;
+	    mType ai6 = ai1 * s72 + ai3 * s2;
+
 	    rdata_[idx0] = ar5 - ai6;
 	    idata_[idx0] = ai5 + ar6;
- 	    rdata_[idx3] = ar5 + ai6;
- 	    idata_[idx3] = ai5 - ar6;
- 	    
-	    ar5 = (mType) (ar0 * c2 + ar2 * mCos72 + ar4 );	
-	    ai5 = (mType) (ai0 * c2 + ai2 * mCos72 + ai4 );	
- 	    ar6 = ar1 * s2 - ar3 * s72;
- 	    ai6 = ai1 * s2 - ai3 * s72;
- 	    
+	    rdata_[idx3] = ar5 + ai6;
+	    idata_[idx3] = ai5 - ar6;
+
+	    ar5 = (mType) (ar0 * c2 + ar2 * mCos72 + ar4 );
+	    ai5 = (mType) (ai0 * c2 + ai2 * mCos72 + ai4 );
+	    ar6 = ar1 * s2 - ar3 * s72;
+	    ai6 = ai1 * s2 - ai3 * s72;
+
 	    rdata_[idx1] = ar5 - ai6;
 	    idata_[idx1] = ai5 + ar6;
- 	    rdata_[idx2] = ar5 + ai6;
- 	    idata_[idx2] = ai5 - ar6;
- 	    cidx = idx3 + extsz2;
- 	} while ( cidx < lastsmp );
-	
- 	cidx -= lastsmp;
+	    rdata_[idx2] = ar5 + ai6;
+	    idata_[idx2] = ai5 - ar6;
+	    cidx = idx3 + extsz2;
+	} while ( cidx < lastsmp );
+
+	cidx -= lastsmp;
     } while ( cidx <= extsz2 );
 }
 
 
 void FFTCC1D::doOtherFactor( int factor, int psz )
 {
-    if ( factor != curf_ ) 
+    if ( factor != curf_ )
     {
- 	curf_ = factor;
- 	mType s1 = (mType) ( 2*M_PI / (double) factor );
- 	const mType c1 = cos(s1);
- 	s1 = forward_ ? -sin(s1) : sin(s1);
- 	if ( curf_ > size_ )
- 	    return;
-      	
- 	cosv_[curf_-1] = 1;
- 	sinv_[curf_-1] = 0;
- 	int idx = 0;
- 	do 
- 	{
- 	    factor--;
+	curf_ = factor;
+	mType s1 = (mType) ( 2*M_PI / (double) factor );
+	const mType c1 = cos(s1);
+	s1 = forward_ ? -sin(s1) : sin(s1);
+	if ( curf_ > size_ )
+	    return;
+
+	cosv_[curf_-1] = 1;
+	sinv_[curf_-1] = 0;
+	int idx = 0;
+	do
+	{
+	    factor--;
 	    cosv_[idx] = cosv_[factor] * c1 + sinv_[factor] * s1;
 	    sinv_[idx] = cosv_[factor] * s1 - sinv_[factor] * c1;
- 	    cosv_[factor-1] = cosv_[idx];
- 	    sinv_[factor-1] = -sinv_[idx];
- 	    idx++;
- 	} while ( idx < factor-1 );
+	    cosv_[factor-1] = cosv_[idx];
+	    sinv_[factor-1] = -sinv_[idx];
+	    idx++;
+	} while ( idx < factor-1 );
     }
 
     int cidx = 2;
-    const int lastsmp = sample_ * (size_-1) * 2;   
+    const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
     const int localpsz = psz * 2;
-  
-    do 
+
+    do
     {
- 	do 
- 	{
+	do
+	{
 	    mType ar0 = rdata_[cidx];
 	    mType ai0 = idata_[cidx];
 	    mType ar1 = ar0;
 	    mType ai1 = ai0;
- 	    int idx0 = 1;
- 	    int idx1 = cidx;
- 	    int idx2 = cidx + localpsz;
- 	    idx1 += extsz2;
- 	    do 
- 	    {
- 		idx2 -= extsz2;
- 		rtmp_[idx0] = rdata_[idx1] + rdata_[idx2];
- 		itmp_[idx0] = idata_[idx1] + idata_[idx2];
+	    int idx0 = 1;
+	    int idx1 = cidx;
+	    int idx2 = cidx + localpsz;
+	    idx1 += extsz2;
+	    do
+	    {
+		idx2 -= extsz2;
+		rtmp_[idx0] = rdata_[idx1] + rdata_[idx2];
+		itmp_[idx0] = idata_[idx1] + idata_[idx2];
 		ar0 += rtmp_[idx0];
- 		ai0 += itmp_[idx0];
- 		idx0++;
- 		rtmp_[idx0] = rdata_[idx1] - rdata_[idx2];
- 		itmp_[idx0] = idata_[idx1] - idata_[idx2];
- 		idx0++;
- 		idx1 += extsz2;
- 	    } while ( idx1 < idx2 );
- 	    
- 	    rdata_[cidx] = ar0;
- 	    idata_[cidx] = ai0;
- 	    idx1 = cidx;
- 	    idx2 = cidx + localpsz;
- 	    idx0 = 1;
+		ai0 += itmp_[idx0];
+		idx0++;
+		rtmp_[idx0] = rdata_[idx1] - rdata_[idx2];
+		itmp_[idx0] = idata_[idx1] - idata_[idx2];
+		idx0++;
+		idx1 += extsz2;
+	    } while ( idx1 < idx2 );
+
+	    rdata_[cidx] = ar0;
+	    idata_[cidx] = ai0;
+	    idx1 = cidx;
+	    idx2 = cidx + localpsz;
+	    idx0 = 1;
 	    int fidx;
- 	    do 
- 	    {
- 		int pidx = idx0;
- 		idx1 += extsz2;
- 		idx2 -= extsz2;
- 		ar0 = ar1;
- 		ai0 = ai1;
- 		mType ra = 0, ia = 0;
- 		fidx = 1;
- 		do 
- 		{
+	    do
+	    {
+		int pidx = idx0;
+		idx1 += extsz2;
+		idx2 -= extsz2;
+		ar0 = ar1;
+		ai0 = ai1;
+		mType ra = 0, ia = 0;
+		fidx = 1;
+		do
+		{
 		    const int pidx1 = pidx - 1;
- 		    ar0 += rtmp_[fidx] * cosv_[pidx1];
- 		    ai0 += itmp_[fidx] * cosv_[pidx1];
+		    ar0 += rtmp_[fidx] * cosv_[pidx1];
+		    ai0 += itmp_[fidx] * cosv_[pidx1];
 		    fidx++;
- 		    ra += rtmp_[fidx] * sinv_[pidx1];
- 		    ia += itmp_[fidx] * sinv_[pidx1];
+		    ra += rtmp_[fidx] * sinv_[pidx1];
+		    ia += itmp_[fidx] * sinv_[pidx1];
 		    fidx++;
- 		    pidx += idx0;
- 		    if ( pidx > curf_ ) 
+		    pidx += idx0;
+		    if ( pidx > curf_ )
 			pidx -= curf_;
- 		} while ( fidx < curf_ );
-		
- 		fidx = curf_ - idx0;
- 		rdata_[idx1] = ar0 - ia;
- 		idata_[idx1] = ai0 + ra;
- 		rdata_[idx2] = ar0 + ia;
- 		idata_[idx2] = ai0 - ra;
- 		idx0++;
- 	    } while ( idx0 < fidx );
-	    
- 	    cidx += localpsz;
- 	} while ( cidx <= lastsmp );
-	
- 	cidx -= lastsmp;
+		} while ( fidx < curf_ );
+
+		fidx = curf_ - idx0;
+		rdata_[idx1] = ar0 - ia;
+		idata_[idx1] = ai0 + ra;
+		rdata_[idx2] = ar0 + ia;
+		idata_[idx2] = ai0 - ra;
+		idx0++;
+	    } while ( idx0 < fidx );
+
+	    cidx += localpsz;
+	} while ( cidx <= lastsmp );
+
+	cidx -= lastsmp;
     } while ( cidx <= extsz2 );
 }
 
@@ -781,39 +781,39 @@ void FFTCC1D::doRotation( int psz ) const
     const int sampleminuspsz = sample_ - psz;
     const int smp2minusextsz = smp2 - extsz_;
     const mType startc1 = mFloatOrDouble(1.0) - sin2_;
-    
-    do 
+
+    do
     {
- 	mType c1 = startc1;
- 	mType s0 = exp_;
- 	do 
- 	{
- 	    mType c0 = c1;
- 	    mType s1 = s0;
- 	    cidx += extsz_;
- 	    do 
- 	    {
+	mType c1 = startc1;
+	mType s0 = exp_;
+	do
+	{
+	    mType c0 = c1;
+	    mType s1 = s0;
+	    cidx += extsz_;
+	    do
+	    {
 		const mCplxType cs1(c1, s1);
- 		do 
- 		{
- 		    data_[cidx] *= cs1;
- 		    cidx += psz;
- 		} while ( cidx <= totalsmp_ );
-		
- 		const mType tt = s0 * s1;
- 		s1 = s0 * c1 + c0 * s1;
- 		c1 = c0 * c1 - tt;
- 		cidx += sizediff;
- 	    } while ( cidx <= psz );
- 
+		do
+		{
+		    data_[cidx] *= cs1;
+		    cidx += psz;
+		} while ( cidx <= totalsmp_ );
+
+		const mType tt = s0 * s1;
+		s1 = s0 * c1 + c0 * s1;
+		c1 = c0 * c1 - tt;
+		cidx += sizediff;
+	    } while ( cidx <= psz );
+
 	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
- 	    s0 += exp_ * c0 - sin2_ * s0;
- 	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
- 	    s0 *= c0;
- 	    c1 *= c0;
- 	    cidx += sampleminuspsz;
- 	} while ( cidx <= extsz_ );
- 	cidx += smp2minusextsz;
+	    s0 += exp_ * c0 - sin2_ * s0;
+	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
+	    s0 *= c0;
+	    c1 *= c0;
+	    cidx += sampleminuspsz;
+	} while ( cidx <= extsz_ );
+	cidx += smp2minusextsz;
     } while ( cidx <= smp2 );
 }
 
@@ -824,84 +824,84 @@ bool FFTCC1D::setupPermutation()
     const int nrfactors = permutfactors_.size();
     int tmpidy = sample_;
     permutation0_[0] = totalsmp_;
-    
-    if ( rmfid_ ) 
+
+    if ( rmfid_ )
     {
- 	int fidx = 2 * rmfid_ + 1;
- 	if ( nrfactors < fidx )
+	int fidx = 2 * rmfid_ + 1;
+	if ( nrfactors < fidx )
 	    fidx--;
- 
- 	int idx = 0;
- 	permutation0_[fidx] = tmpidy;
- 	do 
- 	{
- 	    permutation0_[idx+1] = permutation0_[idx] / permutfactors_[idx];
- 	    permutation0_[fidx-1] = permutation0_[fidx] * permutfactors_[idx];
- 	    idx++;
- 	    fidx--;
- 	} while ( idx < fidx-1 );
+
+	int idx = 0;
+	permutation0_[fidx] = tmpidy;
+	do
+	{
+	    permutation0_[idx+1] = permutation0_[idx] / permutfactors_[idx];
+	    permutation0_[fidx-1] = permutation0_[fidx] * permutfactors_[idx];
+	    idx++;
+	    fidx--;
+	} while ( idx < fidx-1 );
     }
-    
+
     if ( (rmfid_ << 1) + 1 >= nrfactors )
- 	return true;
+	return true;
 
     mTryAlloc( permutation1_, int[size_] );
-    memcpy( permutation1_, permutation0_, size_*sizeof(int) ); 
-    
+    OD::memCopy( permutation1_, permutation0_, size_*sizeof(int) );
+
     /* permutation for square-free factors of n */
     if ( !rmfid_ ) permutfactors_ += 1;
     int dd = nrfactors - rmfid_;
     permutfactors_[dd] = 1;
-    do 
+    do
     {
- 	permutfactors_[dd-1] *= permutfactors_[dd];
- 	dd--;
+	permutfactors_[dd-1] *= permutfactors_[dd];
+	dd--;
     } while ( dd != rmfid_ );
-   
+
     const int nn = permutfactors_[rmfid_] - 1;
     const int rmfid = rmfid_+1;
-    for ( int idx=0, idx0=0; idx<nn; idx++ ) 
+    for ( int idx=0, idx0=0; idx<nn; idx++ )
     {
-  	int f0 = permutfactors_[rmfid_];
-  	int f1 = permutfactors_[rmfid];
-  	int fidx = rmfid;
-  	idx0 += f1;
-  	while ( idx0 >= f0 ) 
-  	{
-   	    idx0 -= f0;
-   	    f0 = f1;
-   	    fidx++;
-   	    f1 = permutfactors_[fidx];
-   	    idx0 += f1;
-  	}
-  	permutation1_[idx] = idx0;
+	int f0 = permutfactors_[rmfid_];
+	int f1 = permutfactors_[rmfid];
+	int fidx = rmfid;
+	idx0 += f1;
+	while ( idx0 >= f0 )
+	{
+	    idx0 -= f0;
+	    f0 = f1;
+	    fidx++;
+	    f1 = permutfactors_[fidx];
+	    idx0 += f1;
+	}
+	permutation1_[idx] = idx0;
     }
-    
+
     /* determine the permutation cycles of length greater than 1 */
-    for ( int idx=0; ; ) 
+    for ( int idx=0; ; )
     {
- 	int tidx;
- 	do 
- 	{
- 	    tidx = permutation1_[idx++];
- 	} while ( tidx < 0 );
- 	
- 	if ( tidx != idx ) 
- 	{
-   	    do 
-   	    {
-   		const int pidx = tidx-1;
-   		tidx = permutation1_[pidx];
-   		permutation1_[pidx] = -tidx;
-   	    } while ( tidx != idx );
-   	    cycleid_ = tidx;
- 	} 
- 	else 
- 	{
- 	    permutation1_[idx-1] = -idx;
- 	    if ( idx == nn )
- 		break;		
- 	}
+	int tidx;
+	do
+	{
+	    tidx = permutation1_[idx++];
+	} while ( tidx < 0 );
+
+	if ( tidx != idx )
+	{
+	    do
+	    {
+		const int pidx = tidx-1;
+		tidx = permutation1_[pidx];
+		permutation1_[pidx] = -tidx;
+	    } while ( tidx != idx );
+	    cycleid_ = tidx;
+	}
+	else
+	{
+	    permutation1_[idx-1] = -idx;
+	    if ( idx == nn )
+		break;
+	}
     }
 
     return true;
@@ -921,38 +921,38 @@ bool FFTCC1D::setupPermutation()
 
 
 bool FFTCC1D::doFinish()
-{   
+{
     const int nrfactors = factors_.size();
     int tmpidy = sample_;
-    
-    if ( rmfid_ ) 
+
+    if ( rmfid_ )
     {
- 	int fidx = 2 * rmfid_ + 1;
- 	if ( nrfactors < fidx )
+	int fidx = 2 * rmfid_ + 1;
+	if ( nrfactors < fidx )
 	    fidx--;
 
 	fidx -= fidx/2;
 	tmpidy = permutation0_[fidx];
- 
-  	int idx = 0;
-  	const int idx0 = permutation0_[1];
-  	int idx1 = idx0 + 1;
-  	int tidx = sample_ + 1;
-	
+
+	int idx = 0;
+	const int idx0 = permutation0_[1];
+	int idx1 = idx0 + 1;
+	int tidx = sample_ + 1;
+
 	bool cont = true;
 	while ( cont )
 	{
 	    cont = false;
-	    do 
+	    do
 	    {
 		swap( data_[tidx], data_[idx1] );
 		tidx += sample_;
 		idx1 += idx0;
 	    } while ( idx1 < totalsmp_ );
 
-	    do 
+	    do
 	    {
-		do 
+		do
 		{
 		    idx1 -= permutation0_[idx];
 		    idx++;
@@ -960,7 +960,7 @@ bool FFTCC1D::doFinish()
 		} while ( idx1 > permutation0_[idx] );
 
 		idx = 0;
-		do 
+		do
 		{
 		    if ( tidx < idx1 )
 		    {
@@ -972,74 +972,74 @@ bool FFTCC1D::doFinish()
 		    idx1 += idx0;
 		} while ( idx1 < totalsmp_ );
 
-		if ( cont ) 
+		if ( cont )
 		    break;
 	    } while ( tidx < totalsmp_ );
 	}
     }
-    
+
     if ( !permutation1_ )
- 	mRetFinish( true );
+	mRetFinish( true );
 
     int nt = totalsmp_;
-    for ( ; ; ) 
+    for ( ; ; )
     {
- 	int idx = cycleid_ + 1;
- 	nt -= permutation0_[rmfid_];
- 	if ( nt < 0 )
- 	    break;	
- 	
+	int idx = cycleid_ + 1;
+	nt -= permutation0_[rmfid_];
+	if ( nt < 0 )
+	    break;
+
 	const int idy0 = nt - sample_ + 1;
- 	do 
- 	{
- 	    do 
- 	    {
- 		idx--;
- 	    } while ( permutation1_[idx - 1] < 0 );
- 	    
- 	    int idx0 = tmpidy;
- 	    do 
- 	    {
- 		const int minfidx = mMIN(idx0,totalsmp_);
- 		idx0 -= minfidx;
- 		int pidx = permutation1_[idx-1];
- 		int tidx = tmpidy * pidx + idy0 + idx0;
- 		int kidx = tidx + minfidx;
- 		int idx1 = 0;
- 		do 
- 		{
- 		    rtmp_[idx1] = data_[kidx].real();
- 		    itmp_[idx1] = data_[kidx].imag();
- 		    idx1++;
- 		    kidx -= sample_;
- 		} while ( kidx != tidx );
- 		
- 		do 
- 		{
- 		    kidx = tidx + minfidx;
- 		    idx1 = kidx - tmpidy * (pidx + permutation1_[pidx-1]);
- 		    pidx = -permutation1_[pidx-1];
- 		    do 
- 		    {
- 			data_[kidx] = data_[idx1];
- 			kidx -= sample_;
- 			idx1 -= sample_;
- 		    } while ( kidx != tidx );
- 		    tidx = idx1;
- 		} while ( pidx != idx );
- 		kidx = tidx + minfidx;
- 		
+	do
+	{
+	    do
+	    {
+		idx--;
+	    } while ( permutation1_[idx - 1] < 0 );
+
+	    int idx0 = tmpidy;
+	    do
+	    {
+		const int minfidx = mMIN(idx0,totalsmp_);
+		idx0 -= minfidx;
+		int pidx = permutation1_[idx-1];
+		int tidx = tmpidy * pidx + idy0 + idx0;
+		int kidx = tidx + minfidx;
+		int idx1 = 0;
+		do
+		{
+		    rtmp_[idx1] = data_[kidx].real();
+		    itmp_[idx1] = data_[kidx].imag();
+		    idx1++;
+		    kidx -= sample_;
+		} while ( kidx != tidx );
+
+		do
+		{
+		    kidx = tidx + minfidx;
+		    idx1 = kidx - tmpidy * (pidx + permutation1_[pidx-1]);
+		    pidx = -permutation1_[pidx-1];
+		    do
+		    {
+			data_[kidx] = data_[idx1];
+			kidx -= sample_;
+			idx1 -= sample_;
+		    } while ( kidx != tidx );
+		    tidx = idx1;
+		} while ( pidx != idx );
+		kidx = tidx + minfidx;
+
 		idx1 = 0;
- 		do 
- 		{
+		do
+		{
 		    data_[kidx] = float_complex(rtmp_[idx1],itmp_[idx1]);
- 		    idx1++;
- 		    kidx -= sample_;		    
- 		} while ( kidx != tidx );
- 	    } while ( idx0 );
- 	} while ( idx != 1 );
+		    idx1++;
+		    kidx -= sample_;
+		} while ( kidx != tidx );
+	    } while ( idx0 );
+	} while ( idx != 1 );
     }
-    
+
     mRetFinish( true );
 }
 
@@ -1052,32 +1052,32 @@ bool FFTCC1D::doFinish()
     All rights reserved.
 
 
-    Redistribution and use in source and binary forms, with or 
-    without modification, are permitted provided that the following 
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
     conditions are met:
 
-    *	Redistributions of source code must retain the above copyright 
+    *	Redistributions of source code must retain the above copyright
 	notice, this list of conditions and the following disclaimer.
-    *   Redistributions in binary form must reproduce the above 
-	copyright notice, this list of conditions and the following 
-	disclaimer in the documentation and/or other materials provided 
+    *   Redistributions in binary form must reproduce the above
+	copyright notice, this list of conditions and the following
+	disclaimer in the documentation and/or other materials provided
 	with the distribution.
     *   Neither the name of the Colorado School of Mines nor the names of
-	its contributors may be used to endorse or promote products 
+	its contributors may be used to endorse or promote products
 	derived from this software without specific prior written permission.
 
     Warranty Disclaimer:
-    THIS SOFTWARE IS PROVIDED BY THE COLORADO SCHOOL OF MINES AND CONTRIBUTORS 
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    THIS SOFTWARE IS PROVIDED BY THE COLORADO SCHOOL OF MINES AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COLORADO SCHOOL OF MINES OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
-    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
 
@@ -1091,9 +1091,9 @@ bool FFTCC1D::doFinish()
 
     Approved Reference Format:
     In publications, please refer to SU as per the following example:
-    Cohen, J. K. and Stockwell, Jr. J. W., (200_), CWP/SU: Seismic Un*x 
-    Release No. __: an open source software  package for seismic 
-    research and processing, 
+    Cohen, J. K. and Stockwell, Jr. J. W., (200_), CWP/SU: Seismic Un*x
+    Release No. __: an open source software  package for seismic
+    research and processing,
     Center for Wave Phenomena, Colorado School of Mines.
 */
 
@@ -3300,7 +3300,7 @@ bool FFTCC1D::doFinish()
         if (i11>=imax) i11 = i11-imax; \
         i12 = i11+iinc; \
         if (i12>=imax) i12 = i12-imax; \
- 	\
+	\
 	/* if factor is 13 */ \
         if (ifac==13) { \
                 if (mu==1) { \
@@ -4239,7 +4239,7 @@ int FFTCC1D::getFastSize( int nmin )
 
 #ifdef __debug__
     BufferString msg( "\n\tFFT size above largest fast size asked: ", nmin,
-	    	      "\n\tLargest fast is: " );
+		      "\n\tLargest fast is: " );
     msg.add( nctab[NTAB-1].n ).add( "\n\t--> Consider extending nctab ..." );
     pFreeFnErrMsg( msg, "CC::CC1D::getFastSize" );
 #endif

@@ -46,7 +46,7 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	uiwvlts_[idx]->wvltChged.notify( mCB(
 				    this,uiWaveletView,activeWvltChanged ) );
     }
-} 
+}
 
 
 uiWaveletView::~uiWaveletView()
@@ -58,7 +58,7 @@ uiWaveletView::~uiWaveletView()
 void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
-   
+
     const Wavelet* initw = wvltset_[0];
     BufferString initwnm( "Initial :" );
     BufferString estwnm( "Estimated" );
@@ -68,7 +68,7 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
-	   		 mCB(this, uiWaveletView, activeWvltChanged) );
+			 mCB(this, uiWaveletView, activeWvltChanged) );
     setVSpacing ( 0 );
 }
 
@@ -86,7 +86,7 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
     uiwvlts_[0]->setAsActive( isinitactive );
     uiwvlts_[1]->setAsActive( !isinitactive );
     CBCapsule<bool> caps( isinitactive, this );
-    activeWvltChged.trigger( &caps ); 
+    activeWvltChged.trigger( &caps );
 }
 
 
@@ -110,13 +110,13 @@ bool uiWaveletView::isInitialWvltActive() const
 
 uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     : uiGroup(p)
-    , isactive_(isactive)  
+    , isactive_(isactive)
     , wvlt_(wvlt)
-    , wvltpropdlg_(0)		 
-    , wvltChged(this)							 
+    , wvltpropdlg_(0)
+    , wvltChged(this)
 {
     viewer_ = new uiFlatViewer( this );
-    
+
     wvltbuts_ += new uiToolButton( this, "info", "Properties",
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
@@ -218,7 +218,7 @@ void uiWavelet::drawWavelet()
 
     const int wvltsz = wvlt_->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-    memcpy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
+    OD::memCopy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );

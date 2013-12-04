@@ -60,7 +60,7 @@ public:
     int			getOffset(int) const;
     void		setOffset(int,int);
 
-    const char*		errMsg() const 	{ return errmsg_; }
+    const char*		errMsg() const	{ return errmsg_; }
 
 protected:
 
@@ -81,7 +81,7 @@ public:
 			~EventPatchReader();
 
     void		getPositions(BinIDValueSet& bidset) const;
-    const HorSampling&	getRange() const 	{ return filebbox_; }
+    const HorSampling&	getRange() const	{ return filebbox_; }
 
     void		setSelection(const BinIDValueSet*);
     void		setSelection(const HorSampling*);
@@ -282,7 +282,7 @@ int EventReader::nextStep()
 	delete patchreaders_.removeSingle( 0 );
 	if ( patchreaders_.size() )
 	    return MoreToDo();
-        
+
 	return	Finished();
     }
 
@@ -291,7 +291,7 @@ int EventReader::nextStep()
 
 
 bool EventReader::readSamplingData( const IOObj& ioobj,
-	 	SamplingData<int>& inlsampling, SamplingData<int>& crlsampling )
+		SamplingData<int>& inlsampling, SamplingData<int>& crlsampling )
 {
     const BufferString fnm( ioobj.fullUserExpr(true) );
     if ( !File::isDirectory(fnm.buf()) )
@@ -312,7 +312,7 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
 
     IOPar& pars = ioobj.pars();
 
-    return pars.get(sKeyISamp(), inlsampling.start, inlsampling.step ) && 
+    return pars.get(sKeyISamp(), inlsampling.start, inlsampling.step ) &&
 	   pars.get(sKeyCSamp(), crlsampling.start, crlsampling.step );
 }
 
@@ -347,7 +347,7 @@ bool EventReader::prepareWork()
     {
 	if ( File::isEmpty( dirlist.fullPath(idx) ) )
 	   continue;
- 
+
        const SeparString sepstr( dirlist[idx]->buf(), '_' );
        HorSampling filehrg;
        if ( !getFromString( filehrg.start.inl(), sepstr[0], -1 ) ||
@@ -602,7 +602,7 @@ int EventWriter::nextStep()
 		continue;
 
 	    const RowCol rc( (bid.inl()-inlsampling.start)/inlsampling.step,
-		    	     (bid.crl()-crlsampling.start)/crlsampling.step );
+			     (bid.crl()-crlsampling.start)/crlsampling.step );
 
 	    if ( !rcols.isPresent( rc ) )
 		rcols += rc;
@@ -678,7 +678,7 @@ int EventWriter::nextStep()
 	delete patchwriters_.removeSingle( 0 );
 	if ( patchwriters_.size() )
 	    return MoreToDo();
-        
+
 	eventmanager_.resetChangedFlag( false );
 	return	Finished();
     }
@@ -732,7 +732,7 @@ bool EventWriter::writeAuxData( const char* fnm )
 
 	return false;
     }
-	     
+
     if ( !auxinfo_.write( fileio.ostrm(),
 			  EventReader::sHorizonFileType() ) )
     {
@@ -817,7 +817,7 @@ EventDuplicator::~EventDuplicator()
 int EventDuplicator::nextStep()
 {
     if ( errMsg() ) //Catch error in prepareWork
-	return ErrorOccurred();	
+	return ErrorOccurred();
 
     if ( !filestocopy_.size() )
 	return Finished();
@@ -1005,7 +1005,7 @@ void EventPatchFileHeader::setNrEvents( int nr )
 
     const int chunksize = nrevents_*mHeaderEventSize;
     buffptr_ = new char[chunksize];
-    memset( buffptr_, 0, chunksize );
+    OD::memZero( buffptr_, chunksize );
 }
 
 
@@ -1015,7 +1015,7 @@ BinID EventPatchFileHeader::getBinID( int idx ) const
     const char* baseptr = buffptr_+offset;
     if ( int32interpreter_ )
 	return BinID( int32interpreter_->get( baseptr, 0 ),
-	       	      int32interpreter_->get( baseptr, 1 ) );
+		      int32interpreter_->get( baseptr, 1 ) );
 
     return BinID( ((int*) baseptr)[0], ((int*) baseptr)[1] );
 }
@@ -1043,7 +1043,7 @@ int EventPatchFileHeader::getOffset( int idx ) const
     const int offset = idx * mHeaderEventSize;
     const char* baseptr = buffptr_+offset+sizeof(int)*2;
     return int32interpreter_ ? int32interpreter_->get( baseptr, 0 )
-    			     : *((int*) baseptr);
+			     : *((int*) baseptr);
 }
 
 
@@ -1211,7 +1211,7 @@ int EventPatchReader::nextStep()
     if ( headeridx_>=fileheader_.nrEvents() )
 	return Finished();
 
-    StrmOper::seek( strm, (fileheader_.getOffset( headeridx_ )), 
+    StrmOper::seek( strm, (fileheader_.getOffset( headeridx_ )),
 		    std::ios::beg );
     const int nrevents = readInt16( strm );
     if ( !strm )
@@ -1441,7 +1441,7 @@ int EventPatchWriter::nextStep()
 		continue;
 
 	    RefMan<EventSet> pses = eventmanager_.getEvents(bid,false,false);
-	    
+
 	    bool isempty = true;
 	    for ( int idx=pses->events_.size()-1; idx>=0; idx-- )
 	    {

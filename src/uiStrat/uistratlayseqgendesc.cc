@@ -181,7 +181,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 	outeritm_->setZValue( mUdf(int) );
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
-	    		workrect_.width(), workrect_.height() );
+			workrect_.width(), workrect_.height() );
     putTopDepthToScreen();
 
     if ( desc_.isEmpty() )
@@ -380,7 +380,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     const uiSize txtsz( disp.nm_->getTextSize() );
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
-    disp.lithcol_->setPos( mCast(float,midpt.x - txtsz.width()/2 - radius), 
+    disp.lithcol_->setPos( mCast(float,midpt.x - txtsz.width()/2 - radius),
 			   mCast(float,midpt.y) );
 
     leftpt.y = rightpt.y = disp.topy_;
@@ -589,7 +589,7 @@ class uiSingleLayerGeneratorEd : public uiDialog
 public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
-       			  const Strat::RefTree& rt,
+			  const Strat::RefTree& rt,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
@@ -605,7 +605,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	edun_ = new Strat::SingleLayerGenerator;
 
     uiStratSelUnits::Setup ssusu( uiStratSelUnits::Single,
-	    			  Strat::UnitRefIter::Leaves );
+				  Strat::UnitRefIter::Leaves );
     ssusu.fldtxt( "Layer" );
     unfld_ = new uiStratSelUnits( this, rt_, ssusu );
     if ( unfld_->isPresent(edun_->unit()) )
@@ -630,9 +630,9 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	    Property* toadd = 0;
 	    if ( pr.disp_.defval_ )
 	    {
-		const char* typ = pr.disp_.defval_->type();
-		if ( !strcmp(typ,ValueProperty::typeStr())
-		  || !strcmp(typ,RangeProperty::typeStr()) )
+		const BufferString typ = pr.disp_.defval_->type();
+		if ( typ == ValueProperty::typeStr()
+		  || typ == RangeProperty::typeStr() )
 		    toadd = pr.disp_.defval_->clone();
 	    }
 	    if ( !toadd )
@@ -718,7 +718,7 @@ bool uiBasicLayerSequenceGenDesc::newLayGenReq( bool above )
 {
     const int curunidx = curUnitIdx();
     uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
-	    			  desc_.propSelection(),
+				  desc_.propSelection(),
 				  curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
     if ( !dlg.go() )
 	return false;

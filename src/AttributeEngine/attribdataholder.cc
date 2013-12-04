@@ -51,7 +51,7 @@ DataHolder* DataHolder::clone() const
 	else
 	{
 	    dh->add();
-	    memcpy( dh->data_[idx]->arr(), data_[idx]->arr(),
+	    OD::memCopy( dh->data_[idx]->arr(), data_[idx]->arr(),
 		    nrsamples_*sizeof(float) );
 	}
 	dh->classstatus_ += classstatus_[idx];
@@ -126,7 +126,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 	TypeSet<float> tset;
 	tset += p0; tset += p1; tset += p2; tset += p3;
 	const_cast<DataHolder*>(this)->classstatus_[serieidx] =
-	    			holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
+				holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
     }
 
     float val;
@@ -156,7 +156,7 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
     const int extrazem3 =
 	(int)(leftem3*1e-3)%(int)(refzstep*SI().zDomain().userFactor());
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	return (float) (extrazem3 * 1e-3 + extrazem7 * 
+	return (float) (extrazem3 * 1e-3 + extrazem7 *
 											(SI().zIsTime() ? 1e-7 : 1e-4));
 
     return 0;
@@ -277,7 +277,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	if ( arrptr )
 	{
 	    const od_int64 offset = array.info().getOffset( 0, trcidx, zpos );
-	    memcpy( arrptr+offset, srcptr,
+	    OD::memCopy( arrptr+offset, srcptr,
 		    dataset_[idx]->nrsamples_*sizeof(float) );
 	}
 	else
