@@ -51,7 +51,7 @@ const char* SEGY::HdrEntry::description() const
     else if ( isUdf() )
 	return "";
 
-    mDefineStaticLocalObject( BufferString, ret, 
+    mDefineStaticLocalObject( BufferString, ret,
 			      ( "Byte ", (int)bytepos_, "(" ) );
     ret.add( byteSize() ).add( " bytes, type " );
     if ( type_ == UInt )
@@ -109,13 +109,13 @@ int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
 
     if ( small_ )
 	return type_ == UInt ? IbmFormat::asUnsignedShort( mGetBytes() )
-	    		     : IbmFormat::asShort( mGetBytes() );
+			     : IbmFormat::asShort( mGetBytes() );
     else if ( type_ == UInt )
 	return IbmFormat::asUnsignedShort( mGetBytes() );
     else if ( type_ == Float )
 	return (int)( *( (float*)mGetBytes() ) );
-    		// If they are stupid enough to put floats in SEG-Y headers,
-    		// then they will probably not do that in IbmFormat
+		// If they are stupid enough to put floats in SEG-Y headers,
+		// then they will probably not do that in IbmFormat
 
     return IbmFormat::asInt( mGetBytes() );
 }
@@ -218,9 +218,9 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "swevel", "subweathering velocity" );
     mAddHead( "sut", "uphole time at source" );
     mAddHead( "gut", "uphole time at receiver group" );
-    mAddHead( "sstat", "source static correction" ); // 30
-    mAddHead( "gstat", "group static correction" );
-    mAddHead( "tstat", "total static applied" );
+    mAddHead( "sstat", "source " "static correction" ); // 30
+    mAddHead( "gstat", "group " "static correction" );
+    mAddHead( "tstat", "total " "static applied" );
     mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace identification header and time break, positive if time break occurs after end of header" );
     mAddHead( "lagb", "lag time B, time in ms between the time break and the initiation time of the energy source, may be positive or negative" );
     mAddHead( "delrt", "delay recording time, time in ms between initiation time of energy source and time when recording of data samples begins" ); // 35
