@@ -376,10 +376,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	successfulonce = true;
     }
 
+    setCurWls( wls_ );
     if ( !successfulonce )
 	return false;
 
-    setCurWls( wls_ );
     uiMSG().message( "Successfully added this log" );
     havenew_ = true;
     return false;
