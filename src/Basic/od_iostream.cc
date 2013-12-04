@@ -175,17 +175,20 @@ bool od_stream::isBad() const
 
 const char* od_stream::errMsg() const
 {
-    const char* res = StrmOper::getErrorMessage( streamData() );
-    if ( !res || !*res ) return 0;
-    return res;
+    if ( errmsg_.isEmpty() )
+    {
+	const char* sysmsg = StrmOper::getErrorMessage( streamData() );
+	return sysmsg && *sysmsg ? sysmsg : 0;
+    }
+    return errmsg_.buf();
 }
 
 
 void od_stream::addErrMsgTo( BufferString& msg ) const
 {
-    const char* mymsg = errMsg();
-    if ( mymsg )
-	msg.add( ":\n" ).add( mymsg );
+    const char* foundmsg = errMsg();
+    if ( foundmsg )
+	msg.add( ":\n" ).add( foundmsg );
 }
 
 
@@ -365,18 +368,35 @@ od_stream::Count od_istream::lastNrBytesRead() const
 }
 
 
+#define mGetNumberWithRetry() \
+    int retrycount = 0;  \
+    std::istream& strm = stdStream(); \
+    t = ((od_int32)0); \
+    if ( !strm.good() ) return *this; \
+    while ( true ) \
+    { \
+	if ( strm.eof() ) break; \
+	strm >> t; \
+	if ( strm.good() || strm.eof() ) break; \
+	else if ( strm.fail() ) { fillNumberFmtErrMsg(); break; } \
+	else if ( !StrmOper::resetSoftError(strm,retrycount) ) break; \
+    } \
+    return *this
+
 #define mGetWithRetry(stmts,rv) \
 int retrycount = 0; \
 std::istream& strm = stdStream(); \
 while ( true ) \
 { \
-    { stmts; } \
-    if ( strm.eof() || !strm.fail() ) \
+    if ( !strm.good() ) \
 	return rv; \
-    if ( !StrmOper::resetSoftError(stdStream(),retrycount) ) \
+    { stmts; } \
+    if ( strm.good() || strm.eof() ) \
+	return rv; \
+    else if ( !StrmOper::resetSoftError(strm,retrycount) ) \
 	return rv; \
 } \
-return rv;
+return rv
 
 
 #define mAddWithRetry(stmts,rv) \
@@ -385,27 +405,23 @@ std::ostream& strm = stdStream(); \
 while ( true ) \
 { \
     { stmts; } \
-    if ( !strm.fail() || !StrmOper::resetSoftError(stdStream(),retrycount) ) \
+    if ( strm.good() || !StrmOper::resetSoftError(strm,retrycount) ) \
 	return rv; \
 } \
-return rv;
+return rv
 
 
 #define mImplStrmAddFn(typ,tostrm) \
 od_ostream& od_ostream::add( typ t ) \
 { \
-    mAddWithRetry( strm << tostrm, *this ) \
+    mAddWithRetry( strm << tostrm, *this ); \
 }
 
-#define mImplStrmGetFn(typ,tostrm) \
-od_istream& od_istream::get( typ& t ) \
-{ \
-    mGetWithRetry( strm >> tostrm, *this ) \
-}
+#define mImplNumberGetFn(typ) \
+od_istream& od_istream::get( typ& t ) { mGetNumberWithRetry(); }
 
 #define mImplSimpleAddFn(typ) mImplStrmAddFn(typ,t)
-#define mImplSimpleGetFn(typ) mImplStrmGetFn(typ,t)
-#define mImplSimpleAddGetFns(typ) mImplSimpleAddFn(typ) mImplSimpleGetFn(typ)
+#define mImplSimpleAddGetFns(typ) mImplSimpleAddFn(typ) mImplNumberGetFn(typ)
 
 mImplSimpleAddGetFns(char)
 mImplSimpleAddGetFns(unsigned char)
@@ -417,9 +433,9 @@ mImplSimpleAddGetFns(od_int64)
 mImplSimpleAddGetFns(od_uint64)
 
 mImplStrmAddFn(float,toString(t))
-mImplSimpleGetFn(float)
+mImplNumberGetFn(float)
 mImplStrmAddFn(double,toString(t))
-mImplSimpleGetFn(double)
+mImplNumberGetFn(double)
 
 mImplSimpleAddFn(const char*)
 od_istream& od_istream::get( char* str )
@@ -439,13 +455,17 @@ od_istream& od_istream::getC( char* str, int maxnrch )
 {
     if ( str )
     {
-	BufferString bs; get( bs );
-	if ( isBad() )
-	    *str = '\0';
-	else if ( maxnrch > 0 )
-	    strncpy( str, bs.buf(), maxnrch );
-	else
-	    strcpy( str, bs.buf() ); // still dangerous, but intentional
+	*str = '\0';
+	if ( isOK() )
+	{
+	    BufferString bs; get( bs );
+	    if ( isBad() )
+		*str = '\0';
+	    else if ( maxnrch > 0 )
+		strncpy( str, bs.buf(), maxnrch );
+	    else
+		strcpy( str, bs.buf() ); // still dangerous, but intentional
+	}
     }
     return *this;
 }
@@ -476,9 +496,9 @@ od_ostream& od_ostream::add( const void* ptr )
 od_ostream& od_ostream::addPtr( const void* ptr )
 {
     if ( ptr )
-	{ mAddWithRetry( strm << ((const int*)ptr), *this ) }
+	{ mAddWithRetry( strm << ((const int*)ptr), *this ); }
     else
-	{ mAddWithRetry( strm << "(null)", *this ) }
+	{ mAddWithRetry( strm << "(null)", *this ); }
 }
 
 
@@ -524,7 +544,7 @@ void od_istream::ignore( od_stream::Count nrbytes )
 {
     mGetWithRetry(
 	stdStream().ignore( (std::streamsize)nrbytes )
-    , )
+    , );
 }
 
 
@@ -532,7 +552,7 @@ bool od_istream::skipUntil( char tofind )
 {
     mGetWithRetry(
 	stdStream().ignore( 9223372036854775807LL, tofind )
-    , isOK() )
+    , isOK() );
 }
 
 
@@ -550,16 +570,31 @@ bool od_istream::skipLine()
 }
 
 
+void od_istream::fillNumberFmtErrMsg()
+{
+    std::istream& strm = stdStream();
+    if ( !strm.fail() )
+	errmsg_.setEmpty();
+    else
+    {
+	strm.clear(); BufferString word;
+	StrmOper::readWord( strm, true, &word );
+	strm.clear(std::ios::badbit);
+	errmsg_.set( "Invalid number found: '" ).add( word ).add( "'" );
+    }
+}
+
+
 od_istream& od_istream::get( IOPar& iop )
 {
     ascistream astrm( *this, false );
-    mGetWithRetry( iop.getFrom( astrm ), *this )
+    mGetWithRetry( iop.getFrom( astrm ), *this );
 }
 
 od_ostream& od_ostream::add( const IOPar& iop )
 {
     ascostream astrm( *this );
-    mAddWithRetry( iop.putTo( astrm ), *this )
+    mAddWithRetry( iop.putTo( astrm ), *this );
 }
 
 
@@ -600,6 +635,7 @@ void od_istrstream::setInput( const char* inp )
     mGetStdStream(od_istrstream,istringstream,,stdstrstrm);
     stdstrstrm.str( inp ? inp : "" );
     stdstrstrm.clear();
+    errmsg_.setEmpty();
 }
 
 
@@ -623,4 +659,5 @@ void od_ostrstream::setEmpty()
     mGetStdStream(od_ostrstream,ostringstream,,stdstrstrm);
     stdstrstrm.str( "" );
     stdstrstrm.clear();
+    errmsg_.setEmpty();
 }

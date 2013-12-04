@@ -100,6 +100,7 @@ protected:
     StreamData&		sd_;
     bool		mine_;
     bool		noclose_;
+    mutable BufferString errmsg_;
 
 };
 
