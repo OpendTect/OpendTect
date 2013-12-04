@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "fixedstring.h"
 #include "string2.h"
-#include <stdlib.h>
 
 #ifdef __msvc__
 # include "msvcdefs.h"
@@ -65,7 +64,7 @@ inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 }
 
 
-//----- specialisations
+//----- specialisations 1: simple types -> const char*
 
 template <>
 inline void set( const char*& _to, const od_int32& i )
@@ -104,56 +103,7 @@ inline void set( const char*& _to, const unsigned short& i )
     { _to = toString(i); }
 
 
-#define mConvDefFromStrToFn(type,function) \
-template <> \
-inline void set( type& _to, const char* const& s ) \
-{ \
-    if ( !s || !*s ) { return; } \
-\
-    char* endptr; \
-    type tmpval = (type) function; \
-    if ( s != endptr ) \
-	_to = (type) tmpval; \
-    else if ( Values::Undef<type>::hasUdf() ) \
-	Values::setUdf( _to ); \
-} \
-template <> \
-inline void set( type& _to, const FixedString& s ) \
-{ \
-    if ( !s ) { return; } \
-\
-    char* endptr; \
-    type tmpval = (type) function; \
-    if ( s.str() != endptr ) \
-	_to = (type) tmpval; \
-    else if ( Values::Undef<type>::hasUdf() ) \
-	Values::setUdf( _to ); \
-}
-
-#define mConvDefSFromStrToFn(type,fn) \
-template <> \
-inline void set( type& _to, const char* const& s ) \
-    { _to = (type)fn(s); }
-
-
-mConvDefFromStrToFn( int, (int)strtol(s,&endptr,0) )
-mConvDefFromStrToFn( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
-mConvDefFromStrToFn( od_int64, strtoll(s,&endptr,0) )
-mConvDefFromStrToFn( od_uint64, strtoull(s,&endptr,0) )
-mConvDefFromStrToFn( double, strtod(s,&endptr) )
-mConvDefFromStrToFn( float, strtof(s,&endptr) )
-
-mConvDefSFromStrToFn( short, atoi )
-mConvDefSFromStrToFn( unsigned short, atoi )
-
-
-template <>
-inline void set( bool& _to, const FixedString& s )
-    { _to = yesNoFromString(s.str()); }
-
-template <>
-inline void set( bool& _to, const char* const& s )
-    { _to = yesNoFromString(s); }
+//----- specialisations 2: floating point types -> integer types
 
 template <>
 inline void set( od_int32& _to, const float& f )
@@ -203,6 +153,17 @@ template <>
 inline void set( od_uint64& _to, const double& f )
     { _to = mRounded(od_uint64,f); }
 
+
+//----- specialisations 3: strings and simple types -> bool
+
+template <>
+inline void set( bool& _to, const char* const& s )
+    { _to = yesNoFromString(s); }
+
+template <>
+inline void set( bool& _to, const FixedString& s )
+    { _to = yesNoFromString(s.str()); }
+
 template <>
 inline void set( bool& _to, const int& i )
     { _to = i!=0; }
@@ -216,6 +177,53 @@ inline void set( bool& _to, const double& d )
     { _to = !mIsZero(d,mDefEpsD); }
 
 
+//----- specialisations 4: strings -> simple types
+
+
+#define mConvDeclFromStrToSimpleType(type) \
+template <> mGlobal(Basic) void set(type&,const char* const&); \
+template <> mGlobal(Basic) void set(type&,const FixedString&)
+
+mConvDeclFromStrToSimpleType(short);
+mConvDeclFromStrToSimpleType(unsigned short);
+mConvDeclFromStrToSimpleType(int);
+mConvDeclFromStrToSimpleType(od_uint32);
+mConvDeclFromStrToSimpleType(od_int64);
+mConvDeclFromStrToSimpleType(od_uint64);
+mConvDeclFromStrToSimpleType(double);
+mConvDeclFromStrToSimpleType(float);
+
 } // namespace Conv
+
+
+//! macro useful for implementation of string -> your type
+
+#define mConvDefFromStrToSimpleType(type,function) \
+namespace Conv \
+{ \
+    template <> void set( type& _to, const char* const& s ) \
+    { \
+	if ( !s || !*s ) { return; } \
+    \
+	char* endptr; \
+	type tmpval = (type) function; \
+	if ( s != endptr ) \
+	    _to = (type) tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+    template <> void set( type& _to, const FixedString& s ) \
+    { \
+	if ( !s ) { return; } \
+    \
+	char* endptr; \
+	type tmpval = (type) function; \
+	if ( s.str() != endptr ) \
+	    _to = (type) tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+}
+
 
 #endif

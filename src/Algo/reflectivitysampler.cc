@@ -11,6 +11,7 @@
 #include "fourier.h"
 #include "scaler.h"
 #include "varlenarray.h"
+#include <string.h>
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
@@ -161,7 +162,7 @@ bool ReflectivitySampler::doFinish( bool success )
 	    *res += *buffers[idx];
 	    buffers[idx]++;
 	}
-	
+
 	res++;
     }
 

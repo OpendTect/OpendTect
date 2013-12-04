@@ -38,7 +38,7 @@ static void getGrps( BufferStringSet& grps )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
-	char* dotptr = strrchr( fnm.buf(), '.' );
+	char* dotptr = lastOcc( fnm.buf(), '.' );
 	if ( (needdot && !dotptr) || (!needdot && dotptr) )
 	    continue;
 	if ( dotptr )
@@ -48,7 +48,7 @@ static void getGrps( BufferStringSet& grps )
 		continue;
 	    *dotptr = '\0';
 	}
-	const char* underscoreptr = strchr( fnm.buf(), '_' );
+	const char* underscoreptr = firstOcc( fnm.buf(), '_' );
 	if ( !underscoreptr || !*underscoreptr )
 	    continue;
 	grps.add( underscoreptr + 1 );
@@ -58,8 +58,8 @@ static void getGrps( BufferStringSet& grps )
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value","0.2.1"))
-        , issurvdefs_(settskey && !strcmp(settskey,sKeySurveyDefs()))
-    	, grpfld_(0)
+        , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
+	, grpfld_(0)
 {
     setCurSetts();
     if ( issurvdefs_ )
@@ -76,7 +76,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
-	    			"Settings editor" );
+				"Settings editor" );
     tbl_->setColumnLabel( 0, "Keyword" );
     tbl_->setColumnLabel( 1, "Value" );
     // tbl_->setColumnResizeMode( uiTable::Interactive );
@@ -258,7 +258,7 @@ static int theiconsz = -1;
 
 struct LooknFeelSettings
 {
-    		LooknFeelSettings()
+		LooknFeelSettings()
 		    : iconsz(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
 		    , isvert(true)
 		    , showwheels(true)
@@ -273,8 +273,8 @@ struct LooknFeelSettings
     bool	showwheels;
     bool	showinlprogress;
     bool	showcrlprogress;
-    int		textureresfactor;	
-    		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
+    int		textureresfactor;
+		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
     bool	noshading;
     bool	volrenshading;
 };
@@ -284,11 +284,11 @@ struct LooknFeelSettings
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
 	, setts_(Settings::common())
-    	, lfsetts_(*new LooknFeelSettings)
+	, lfsetts_(*new LooknFeelSettings)
 	, changed_(false)
 {
     iconszfld_ = new uiGenInput( this, "Icon Size",
-	    			 IntInpSpec(lfsetts_.iconsz,10,64) );
+				 IntInpSpec(lfsetts_.iconsz,10,64) );
 
     setts_.getYN( mCBarKey, lfsetts_.isvert );
     colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
@@ -309,11 +309,11 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 
     setts_.getYN( mShowWheels, lfsetts_.showwheels );
     showwheelsfld_ = new uiGenInput( this, "Show Zoom/Rotation tools",
-	    			    BoolInpSpec(lfsetts_.showwheels) );
+				    BoolInpSpec(lfsetts_.showwheels) );
     showwheelsfld_->attach( alignedBelow, showcrlprogressfld_ );
 
     setts_.get( mTextureResFactor, lfsetts_.textureresfactor );
-    textureresfactorfld_ = new uiLabeledComboBox( this, 
+    textureresfactorfld_ = new uiLabeledComboBox( this,
 		"Default texture resolution factor" );
     textureresfactorfld_->box()->addItem( "Standard" );
     textureresfactorfld_->box()->addItem( "Higher" );
@@ -332,16 +332,16 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	if ( lfsetts_.textureresfactor == -1 )
 	    selection = 3;
     }
-	
+
     textureresfactorfld_->box()->setCurrentItem( selection );
     textureresfactorfld_->attach( alignedBelow, showwheelsfld_ );
-	
+
     setts_.getYN( mNoShading, lfsetts_.noshading );
     useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
 				    BoolInpSpec(!lfsetts_.noshading) );
     useshadingfld_->attach( alignedBelow, textureresfactorfld_ );
     useshadingfld_->valuechanged.notify(
-	    		mCB(this,uiLooknFeelSettings,shadingChange) );
+			mCB(this,uiLooknFeelSettings,shadingChange) );
     setts_.getYN( mVolRenShading, lfsetts_.volrenshading );
     volrenshadingfld_ = new uiGenInput( this, "Also for volume rendering?",
 				    BoolInpSpec(lfsetts_.volrenshading) );
@@ -405,13 +405,13 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
     updateSettings( lfsetts_.volrenshading, newvolrenshading, mVolRenShading );
 
     updateSettings( lfsetts_.showwheels, showwheelsfld_->getBoolValue(),
-	    	    mShowWheels );
+		    mShowWheels );
     updateSettings( lfsetts_.showinlprogress,
 		    showinlprogressfld_->getBoolValue(),
-	    	    mShowInlProgress );
+		    mShowInlProgress );
     updateSettings( lfsetts_.showcrlprogress,
 		    showcrlprogressfld_->getBoolValue(),
-	    	    mShowCrlProgress );
+		    mShowCrlProgress );
 
     bool textureresfacchanged = false;
     // track this change separately as this will be applied with immediate
@@ -420,7 +420,7 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 		textureresfactorfld_->box()->currentItem();
     if ( lfsetts_.textureresfactor != val )
     {
-	textureresfacchanged = true; 
+	textureresfacchanged = true;
 	setts_.set( mTextureResFactor, val );
     }
 

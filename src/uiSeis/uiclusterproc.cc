@@ -58,7 +58,7 @@ static int getExitStatus( const char* logfile, BufferString& msg )
 	    break;
 
     msg = ptr;
-    ptr = strstr( msg.buf(), "finished with code" );
+    ptr = firstOcc( msg.buf(), "finished with code" );
     if ( !ptr )
     {
 	msg.setEmpty();
@@ -73,11 +73,11 @@ static int getExitStatus( const char* logfile, BufferString& msg )
 
 struct ClusterJobInfo
 {
-    			ClusterJobInfo(const char* logfnm, const char* desc )
+			ClusterJobInfo(const char* logfnm, const char* desc )
 			    : status_(-2),logfnm_(logfnm), desc_(desc) {}
 
     int			status_;	// 0=finished,1=error,-2=notsubmitted,
-    					// -1=submitted
+					// -1=submitted
     BufferString	logfnm_;
     BufferString	desc_;
 };
@@ -113,7 +113,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	jobcmd += "\' &";
 	if ( system(jobcmd) )
 	    continue;
-	
+
 	jobs_[jobstodo_[idx]]->status_ = -1;
 	addToNrDone(1);
     }
@@ -281,7 +281,7 @@ void uiClusterProc::progressCB( CallBacker* )
 	    ques += " job(s) either failed or finished with error, ";
 	    ques += "do you still want to proceed with merging the output?";
 	    const int resp = uiMSG().question( ques.buf(), "Merge anyway",
-		    		"Re-submit failed jobs", "Abort" );
+				"Re-submit failed jobs", "Abort" );
 	    if ( resp == -1 )
 		return;
 
@@ -311,9 +311,9 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
 	mErrRet("Missing ID of output dataset in the parameters file")
     PtrMan<IOObj> outobj = IOM().get( key );
     if ( !inobj || !outobj )
-	mErrRet("Cannot open Output" ) 
+	mErrRet("Cannot open Output" )
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( inobj, outobj,
-	    	"Data transfer", &pars, "Writing results to output cube" );
+		"Data transfer", &pars, "Writing results to output cube" );
 
     if ( !exec )
 	return false;
@@ -325,7 +325,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
 
     if ( !withdelete )
 	return true;
-    
+
     MultiID tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {

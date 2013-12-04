@@ -45,11 +45,11 @@ bool LatLong::fromString( const char* s )
     BufferString str( s );
     char* ptrlat = str.buf(); mSkipBlanks( ptrlat );
     if ( *ptrlat == '[' ) ptrlat++;
-    char* ptrlng = strchr( ptrlat, ',' );
+    char* ptrlng = firstOcc( ptrlat, ',' );
     if ( !ptrlng ) return false;
     *ptrlng++ = '\0';
     if ( !*ptrlng ) return false;
-    char* ptrend = strchr( ptrlng, ']' );
+    char* ptrend = firstOcc( ptrlng, ']' );
     if ( ptrend ) *ptrend = '\0';
 
     lat_ = toDouble( ptrlat );
@@ -114,7 +114,7 @@ LatLong LatLong2Coord::transform( const Coord& c ) const
     mPrepScaleFac();
 
     Coord coorddist( (c.x - refcoord_.x) * scalefac_,
-	    	     (c.y - refcoord_.y) * scalefac_ );
+		     (c.y - refcoord_.y) * scalefac_ );
     LatLong ll( reflatlng_.lat_ + coorddist.y / latdist_,
 		reflatlng_.lng_ + coorddist.x / lngdist_ );
 
@@ -153,7 +153,7 @@ bool LatLong2Coord::fromString( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptr = strchr( str.buf(), '=' );
+    char* ptr = firstOcc( str.buf(), '=' );
     if ( !ptr ) return false;
     *ptr++ = '\0';
     Coord c; LatLong l;

@@ -46,10 +46,10 @@ SVNAccess::SVNAccess( const char* dir )
     BufferString reposinfo;
     if ( strm.getLine(reposinfo) )
     {
-	char* reposnm = strrchr( reposinfo.buf(), '/' );
+	char* reposnm = lastOcc( reposinfo.buf(), '/' );
 	if ( reposnm ) *reposnm++ = '\0';
 	const_cast<BufferString&>(reposdir_) = reposnm;
-	const char* hostnm = strstr( reposinfo.buf(), "//" );
+	const char* hostnm = firstOcc( reposinfo.buf(), "//" );
 	if ( hostnm ) hostnm++;
 	const_cast<BufferString&>(host_) = hostnm;
     }
@@ -92,7 +92,7 @@ void SVNAccess::getEntries( const char* dir, BufferStringSet& entries ) const
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
-	char* ptr = strstr( fnm.buf(), ".svn-base" );
+	char* ptr = firstOcc( fnm.buf(), ".svn-base" );
 	if ( ptr )
 	    { *ptr = '\0'; entries.add( fnm ); }
     }

@@ -15,11 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
-
 #include "bufstring.h"
 #include "file.h"
 #include "filepath.h"
 #include "staticstring.h"
+#include <string.h>
 
 
 DefineEnumNames(OD::Platform,Type,0,"Platform")
@@ -43,7 +43,7 @@ extern "C" const char* GetFullODVersion()
     if ( ret.isEmpty() )
     {
 	const char* pvnm = GetProjectVersionName();
-	pvnm = strrchr( pvnm, 'V' );
+	pvnm = lastOcc( pvnm, 'V' );
 	if ( pvnm )
 	    ret = pvnm + 1;
 
@@ -88,6 +88,9 @@ const char* OD::Platform::shortName() const
 
 void OD::Platform::set( const char* s, bool isshort )
 {
+    if ( !s || !*s )
+	{ pErrMsg("null or empty platform set"); return; }
+
     if ( !isshort )
 	parseEnumType( s, type_ );
     else

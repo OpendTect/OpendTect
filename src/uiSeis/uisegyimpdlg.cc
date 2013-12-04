@@ -201,13 +201,10 @@ bool doImp( const FilePath& fp )
     const int nrtok = mask.count( '*' );
     DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
     if ( dl.size() < 1 )
-    {
-	uiMSG().error( "Cannot find any match for file name" );
-	return false;
-    }
+	{ uiMSG().error( "Cannot find any match for file name" ); return false;}
 
     BufferString fullmaskfnm( maskfp.fullPath() );
-    int lnmoffs = mCast( int, strstr( fullmaskfnm.buf(), "*" ) -
+    int lnmoffs = mCast( int, firstOcc( fullmaskfnm.buf(), '*' ) -
 	                                   fullmaskfnm.buf() );
     const int orglen = fullmaskfnm.size();
     bool nofails = true;

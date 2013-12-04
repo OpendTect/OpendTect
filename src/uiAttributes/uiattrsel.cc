@@ -827,7 +827,7 @@ void uiAttrSel::processInput()
     attrdata_.outputnr_ = -1;
     if ( attrdata_.attribid_.isValid() && is2D() )
     {
-	const char* attr2d = strchr( inp.buf(), '|' );
+	const char* attr2d = firstOcc( inp.buf(), '|' );
 	if ( !attr2d )
 	    attr2d = LineKey::sKeyDefAttrib();
 
@@ -894,7 +894,7 @@ const char* uiAttrSel::getAttrName() const
     if ( is2D() )
     {
 	const Desc* ad = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-	if ( (ad && ad->isStored()) || strchr(ret.buf(),'|') )
+	if ( (ad && ad->isStored()) || ret.contains('|') )
 	    ret = LineKey( ret ).attrName();
     }
 

@@ -14,6 +14,7 @@
 #include "madio.h"
 #include "string2.h"
 #include <cctype>
+#include <string.h>
 
 bool ODMad::Proc::progExists( const char* prog )
 {
@@ -48,7 +49,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
     cmd = getNextWord( cmd, buf );
     if ( !buf || !*buf ) return;
 
-    char* ptr = strchr( buf, '&' );
+    char* ptr = firstOcc( buf, '&' );
     if ( ptr )*ptr = '\0';
 
     if ( progExists(buf) )
@@ -73,14 +74,14 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    continue;
 	}
 
-	const char* startquote = strchr( buf, '"' );
+	const char* startquote = firstOcc( buf, '"' );
 	if ( startquote )
 	{
 	    BufferString newbuf( cmd );
 	    bool foundmatch = false;
 	    while ( cmd )
 	    {
-		const char* endquote = strrchr( buf, '"' );
+		const char* endquote = lastOcc( buf, '"' );
 		if ( endquote && endquote != startquote )
 		{
 		    foundmatch = true;
@@ -97,16 +98,16 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    if ( !foundmatch ) break;
 	}
 
-	char* rsfstr = strstr( buf, ".rsf" );
+	char* rsfstr = firstOcc( buf, ".rsf" );
 	if ( rsfstr )
-	    rsfstr = strchr( buf, '=' );
+	    rsfstr = firstOcc( buf, '=' );
 
 	if ( rsfstr )
 	{
 	    BufferString filenm( startquote ? rsfstr + 2 : rsfstr + 1 );
 	    if ( startquote )
 	    {
-		char* endquote = strrchr( filenm.buf(), '"' );
+		char* endquote = lastOcc( filenm.buf(), '"' );
 		if ( endquote )
 		    *endquote = '\0';
 	    }
@@ -118,7 +119,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		fp.set( ODMad::FileSpec::defPath() );
 		fp.add( filepath );
 	    }
-	    
+
 	    if ( !File::exists(fp.fullPath()) )
 	    {
 		isvalid_ = false;
@@ -126,7 +127,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		errmsg_ += fp.fullPath();
 		return;
 	    }
-    
+
 	    *(rsfstr+1) = '\0';
 	    BufferString parstr( buf );
 	    parstr += "\"";
@@ -135,7 +136,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    parstrs_.add( parstr );
 	    continue;
 	}
-	
+
 	parstrs_.add( buf );
     }
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "attribparambase.h"
 #include "datainpspec.h"
+#include <string.h>
 
 
 namespace Attrib
@@ -22,14 +23,14 @@ namespace Attrib
 
 /*!
 \brief A parameter that is used by an attribute.
-  
+
   Each attribute has a definition string that defines how the attribute is
   computed. The definition string has the format:
-  
+
   AttribNameWithoutSpaces param1=value1 param2=value2,value3
-  
+
   The paramater thus has a key (e.g. param1) and one or more associated values.
-  
+
   Subclasses are used to provide accurate parameter definition for parameters
   of each and every type.
 */
@@ -37,14 +38,14 @@ namespace Attrib
 mExpClass(AttributeEngine) BinIDParam : public ValParam
 {
 public:
-    				BinIDParam(const char*);
-    				BinIDParam(const char*,const BinID&,
+				BinIDParam(const char*);
+				BinIDParam(const char*,const BinID&,
 					   bool isreq=true);
     BinIDParam*			clone() const;
     void			setLimits(const Interval<int>& inlrg,
-	    				  const Interval<int>& crlrg);
+					  const Interval<int>& crlrg);
     void			setLimits(int mininl,int maxinl,
-	    				  int mincrl,int maxcrl);
+					  int mincrl,int maxcrl);
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
@@ -53,7 +54,7 @@ public:
     BinID			getDefaultBinIDValue() const;
     BufferString		getDefaultValue() const;
     BinID			getValue() const;
-    
+
     void			toString(BufferString&,const BinID&) const;
 };
 
@@ -65,8 +66,8 @@ public:
 mExpClass(AttributeEngine) BoolParam : public ValParam
 {
 public:
-    				BoolParam(const char*);
-    				BoolParam(const char*,bool, bool isreq=true);
+				BoolParam(const char*);
+				BoolParam(const char*,bool, bool isreq=true);
     BoolParam*			clone() const;
 
     virtual bool		setCompositeValue(const char*);
@@ -84,8 +85,8 @@ public:
 mExpClass(AttributeEngine) EnumParam : public ValParam
 {
 public:
-    				EnumParam(const char*);
-    				EnumParam(const char*,int defval,
+				EnumParam(const char*);
+				EnumParam(const char*,int defval,
 					  bool isreq=true);
     EnumParam*			clone() const;
     BufferString		getDefaultValue() const;
@@ -93,7 +94,7 @@ public:
     void			addEnum(const char*);
     void			addEnums(const char**);
 
-    void                	fillDefStr(BufferString&) const;
+    void	fillDefStr(BufferString&) const;
     bool			isSet() const;
     void			setSet(bool yn=true);
 };
@@ -106,8 +107,8 @@ public:
 mExpClass(AttributeEngine) StringParam : public ValParam
 {
 public:
-    				StringParam(const char* key);
-    				StringParam(const char* key,const char* defstr,
+				StringParam(const char* key);
+				StringParam(const char* key,const char* defstr,
 					    bool isreq=true);
     StringParam*		clone() const;
 
@@ -127,9 +128,9 @@ template <class T>
 mClass(AttributeEngine) NumParam : public ValParam
 {
 public:
-    				NumParam(const char* key)
+				NumParam(const char* key)
 				    : ValParam(key,new NumInpSpec<T>()) {}
-    				NumParam(const char* key,T defval,
+				NumParam(const char* key,T defval,
 					 bool isreq=true);
 				NumParam(const NumParam<T>&);
 
@@ -250,14 +251,14 @@ template <class T>
 mClass(AttributeEngine) NumGateParam : public ValParam
 {
 public:
-    				NumGateParam(const char* key)
+				NumGateParam(const char* key)
 				    : ValParam(key,new NumInpIntervalSpec<T>())
 				    {}
-				
-    				NumGateParam(const char* key,
+
+				NumGateParam(const char* key,
 					     const Interval<T>& defaultgate,
 					     bool isreq=true);
-				    
+
 				NumGateParam(const NumGateParam<T>&);
 
     virtual NumGateParam<T>*	clone() const

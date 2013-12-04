@@ -424,7 +424,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	ll2c_.fromString( val );
     else if ( matchString("Set Point",(const char*)keyw) )
     {
-	const char* ptr = strchr( (const char*)keyw, '.' );
+	const char* ptr = firstOcc( (const char*)keyw, '.' );
 	if ( !ptr ) return;
 	int ptidx = toInt( ptr + 1 ) - 1;
 	if ( ptidx < 0 ) ptidx = 0;
@@ -929,7 +929,7 @@ bool SurveyInfo::write( const char* basedir ) const
     {
 	while ( 1 )
 	{
-	    char* nlptr = const_cast<char*>( strchr( ptr, '\n' ) );
+	    char* nlptr = const_cast<char*>( firstOcc( ptr, '\n' ) );
 	    if ( !nlptr )
 	    {
 		if ( *ptr )

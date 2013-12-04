@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "interpol1d.h"
 #include "mathfunc.h"
 #include "sorting.h"
+#include <string.h> // for memcpy
 
 /*!\brief Position-sorted indexable objects
 
@@ -81,7 +82,7 @@ bool findPos( const T1& posarr, T3 sz, T2 pos, T3 beforefirst, T3& idx )
     if ( pos == posarr[0] )
 	{ idx = 0; return true; }
     else if ( pos > posarr[sz-1] || pos == posarr[sz-1] )
-    	{ idx = sz-1; return pos == posarr[sz-1]; }
+	{ idx = sz-1; return pos == posarr[sz-1]; }
 
     T3 idx1 = 0;
     T3 idx2 = sz-1;
@@ -123,7 +124,7 @@ bool findFPPos( const T1& posarr, T3 sz, T2 pos, T3 beforefirst, T3& idx,
 	    return false;
     }
     else if ( pos >= posarr[sz-1] )
-    	{ idx = sz-1; return mIsEqual(pos,posarr[sz-1],eps); }
+	{ idx = sz-1; return mIsEqual(pos,posarr[sz-1],eps); }
 
     T3 idx1 = 0;
     T3 idx2 = sz-1;
@@ -211,9 +212,9 @@ inline void interpolatePositioned( const X& x, const Y& y, int sz,
     else
     {
 	if ( prevpos == 0 )
-	    { prevpos++; nextpos++; } 
+	    { prevpos++; nextpos++; }
 	else if ( nextpos == sz-1 )
-	    { prevpos--; nextpos--; } 
+	    { prevpos--; nextpos--; }
 
 	ret = Interpolate::poly1D( x[prevpos-1], y[prevpos-1],
 				   x[prevpos], y[prevpos],
@@ -225,7 +226,7 @@ inline void interpolatePositioned( const X& x, const Y& y, int sz,
 
 
 template <class X,class Y>
-inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos, 
+inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos,
 				    bool extrapolate=false )
 {
     float ret = mUdf(float);
@@ -248,7 +249,7 @@ inline int getInterpolateIdxsWithOff( const T& idxabl, od_int64 sz,
     od_int64 intpos = mNINT64( pos );
     const float dist = pos - intpos;
     intpos += offset;
-    if ( dist>-snapdist && dist<snapdist && intpos>-1 && intpos<sz ) 
+    if ( dist>-snapdist && dist<snapdist && intpos>-1 && intpos<sz )
 	{ p[0] = intpos; return 0; }
 
     p[1] = dist > 0 ? intpos : intpos - 1;
@@ -297,7 +298,7 @@ inline bool interpolateRegWithUdfWithOff( const T& idxabl, od_int64 sz,
 {
     od_int64 p[4];
     int res = getInterpolateIdxsWithOff<T>( idxabl, sz, offset, pos,
-	    				    extrapolate, snapdist, p );
+					    extrapolate, snapdist, p );
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
     else if ( res == 0 )
@@ -305,7 +306,7 @@ inline bool interpolateRegWithUdfWithOff( const T& idxabl, od_int64 sz,
 
     const float relpos = pos - p[1];
     ret = Interpolate::polyReg1DWithUdf( idxabl[p[0]], idxabl[p[1]],
-	    				 idxabl[p[2]], idxabl[p[3]], relpos );
+					 idxabl[p[2]], idxabl[p[3]], relpos );
     return true;
 }
 
@@ -340,10 +341,10 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
 }
 
 
-/*Given an array of values and a number of callibrated values at different
-  positions, compute a n array of values that is callibrated everywhere.
-  Depending on usefactor, the callibration will either be with absolute numbers
-  or with factors. The callibration curve can optionally be output, if
+/*Given an array of values and a number of calibrated values at different
+  positions, compute a n array of values that is calibrated everywhere.
+  Depending on usefactor, the calibration will either be with absolute numbers
+  or with factors. The calibration curve can optionally be output, if
   so, it should have at least sz samples allocated. */
 
 
@@ -351,7 +352,7 @@ template <class T> inline
 void calibrateArray( const T* input, int sz,
 	       const T* controlpts, const int* controlsamples, int nrcontrols,
 	       bool usefactor, T* output,
-	       float* callibrationcurve = 0 )
+	       float* calibrationcurve = 0 )
 {
     int firstsample = mUdf(int), lastsample = -mUdf(int);
     BendPointBasedMathFunction<T,T> func;
@@ -373,28 +374,25 @@ void calibrateArray( const T* input, int sz,
 	func.add( mCast(float,sample), value );
     }
 
-    if ( !func.size()  )
-    {
-	memcpy( output, input, sizeof(T)*sz );
-	return;
-    }
+    if ( func.isEmpty()  )
+	{ memcpy( output, input, sizeof(T)*sz ); return; }
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	float callibration;
+	float calibration;
 	if ( idx<=firstsample )
-	   callibration = func.yVals()[0];
+	   calibration = func.yVals()[0];
 	else if ( idx>=lastsample )
-	   callibration = func.yVals()[func.size()-1];
+	   calibration = func.yVals()[func.size()-1];
 	else
-	   callibration = func.getValue( mCast(float,idx) );
+	   calibration = func.getValue( mCast(float,idx) );
 
 	output[idx] = usefactor
-	    ? input[idx]*callibration 
-	    : input[idx]+callibration;
+	    ? input[idx]*calibration
+	    : input[idx]+calibration;
 
-	if ( callibrationcurve )
-	    callibrationcurve[idx] = callibration;
+	if ( calibrationcurve )
+	    calibrationcurve[idx] = calibration;
     }
 }
 

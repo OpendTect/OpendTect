@@ -11,11 +11,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 */
- 
-#include "ioobj.h"
-#include "keystrs.h"
 
-mClass( General )  IOSubDir : public IOObj
+#include "ioobj.h"
+
+
+class IOSubDir : public IOObj
 {
 public:
 		IOSubDir(const char* subdirnm);
@@ -35,7 +35,7 @@ public:
     bool        implSetReadOnly(bool) const { return false; }
     bool	removeQuery() const	{ return true; }
 
-    FixedString	connType() const	{ return sKey::EmptyString(); }
+    FixedString	connType() const	{ return ""; }
     Conn*	getConn( bool forread ) const { return 0; }
 
     void	genDefaultImpl()	{}

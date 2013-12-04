@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tableconvimpl.h"
 #include "string2.h"
 #include "od_iostream.h"
+#include <string.h>
 
 const GlobExpr Table::RecordMatcher::emptyge_;
 
@@ -242,7 +243,7 @@ void Table::WSExportHandler::addVal( int col, const char* inpval )
        if ( colwshanld_ >= SingQuot )
        {
 	    needsquotes = true;
-	    if ( strchr( inpval, quotechar ) )
+	    if ( firstOcc( inpval, quotechar ) )
 		val.replace( quotechar, '`' );
 		//TODO should in fact escape with '\\'
        }

@@ -15,7 +15,6 @@
 #include "debug.h"
 #include "keystrs.h"
 
-#include <iostream>
 
 static const char* rcsID mUsedVar = "$Id$";
 
@@ -60,9 +59,9 @@ ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 bool TranslatorGroup::add( Translator* tr )
 {
     if ( !tr ) return false;
-    
+
     bool res = false;
-    
+
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
 	const Translator* oldtr = templs_[idx];
@@ -76,14 +75,14 @@ bool TranslatorGroup::add( Translator* tr )
 		DBG::message( msg );
 	    }
 	    res = true;
-	    	    templs_ -= oldtr; break;
-	    
+		    templs_ -= oldtr; break;
+
 	}
     }
 
     tr->setGroup( this );
     templs_ += tr;
-   
+
     return res;
 }
 
@@ -116,7 +115,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 
     if ( iserr )
     {
-	const char* spaceptr = strchr( nm, ' ' );
+	const char* spaceptr = firstOcc( nm, ' ' );
 	if ( spaceptr && matchStringCI("directory",spaceptr+1) )
 	    return 0;
     }
@@ -161,7 +160,7 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
     if ( !newgrp ) mRetEG
 
     TranslatorGroup* grp = findGroup( getGroups(), newgrp->clssName(),
-	    				false, false );
+					false, false );
     if ( grp )
     {
 	if ( DBG::isOn(DBG_IO) )

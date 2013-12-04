@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "oddirs.h"
 #include "od_iostream.h"
+#include <string.h>
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -55,7 +56,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
 {
     const int nrrows = def_.size();
     tbl_ = new uiTable( this, uiTable::Setup(nrrows,3).manualresize(true),
-	    		      "Bin header table" );
+			      "Bin header table" );
     tbl_->setColumnLabel( 0, "Byte" );
     tbl_->setColumnToolTip( 0, "Byte location in binary header" );
     tbl_->setColumnReadOnly( 0, true );
@@ -103,7 +104,7 @@ bool acceptOK( CallBacker* )
 	mErrRet("The 'hns' entry (number of samples) must be > 0")
 
     const short fmt = (short)tbl_->getIntValue(
-	    			RowCol(SEGY::BinHeader::EntryFmt(),1) );
+				RowCol(SEGY::BinHeader::EntryFmt(),1) );
     if ( !SEGY::BinHeader::isValidFormat(fmt) )
 	mErrRet("The 'format' entry must be 1,3,5 or 8 (see row tooltip).\n")
 
@@ -247,7 +248,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
     uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers", false,
-	    				uiLabeledListBox::LeftMid );
+					uiLabeledListBox::LeftMid );
     avtrchdrsfld_ = llb->box();
     avtrchdrsfld_->setHSzPol( uiObject::Small );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
@@ -335,7 +336,7 @@ bool uiSEGYFileManip::openInpFile()
     char buf[SegyBinHeaderLength];
     if ( !strm().getBin( buf, SegyBinHeaderLength ) )
 	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-	    	    "Cannot read full binary header"; return false; }
+		    "Cannot read full binary header"; return false; }
 
     txthdr_.setAscii();
     binhdr_.setInput( buf );
@@ -429,7 +430,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Available", false,
-	    				uiLabeledListBox::AboveMid );
+					uiLabeledListBox::AboveMid );
     hdrfld_ = llb->box();
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
@@ -446,7 +447,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     formfld_->setHSzPol( uiObject::WideVar );
     formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOK));
     uiLabel* lbl = new uiLabel( this,
-	    		BufferString("Formula for '",hc_.he_.name(),"'") );
+			BufferString("Formula for '",hc_.he_.name(),"'") );
     lbl->attach( centeredBelow, formfld_ );
 }
 
@@ -614,7 +615,7 @@ class uiSEGYFileManipDataExtracter : public Executor
 public:
 
 uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
-       			      bool plotall )
+			      bool plotall )
     : Executor("Trace header scan")
     , fm_(*p)
     , sel_(sel)
@@ -762,7 +763,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
     strm().setPosition( 0 );
     Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
-	   				  &binhdr_, &txthdr_ );
+					  &binhdr_, &txthdr_ );
     uiTaskRunner tr( this );
     const bool rv = TaskRunner::execute( &tr, *exec );
     delete exec;

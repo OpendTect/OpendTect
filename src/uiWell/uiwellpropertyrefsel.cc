@@ -39,7 +39,7 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 {
     typefld_ = new uiComboBox( this, BufferString(pr.name()," type") );
     typefld_->selectionChanged.notify(
-	   		       mCB( this, uiPropSelFromList, updateSelCB ) );
+			       mCB( this, uiPropSelFromList, updateSelCB ) );
     typelbl_ = new uiLabel( this, pr.name(), typefld_ );
 
     unfld_ = new uiUnitSel( this, propref_.stdType(), 0, false, true );
@@ -292,7 +292,7 @@ bool uiWellPropSel::isOK() const
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
-	if ( !strcmp ( propflds_[idx]->text(), sKeyPlsSel() ) )
+	if ( FixedString(propflds_[idx]->text()) == sKeyPlsSel() )
 	{
 	    uiMSG().error( BufferString("Please create/select a log for ",
 					propflds_[idx]->propRef().name()) );
@@ -303,7 +303,7 @@ bool uiWellPropSel::isOK() const
 }
 
 
-bool uiWellPropSel::setLog( const PropertyRef::StdType tp, 
+bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
 				const char* nm, bool usealt,
 				const UnitOfMeasure* uom, int idx )
 {
@@ -348,7 +348,7 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 	if ( propflds_[idx] && propflds_[idx]->getLabel() )
 	{
 	    BufferString lblnm = BufferString(
-		    			propflds_[idx]->getLabel()->text() );
+					propflds_[idx]->getLabel()->text() );
 	    if ( lblnm == bfs )
 		return propflds_[idx];
 	}
@@ -370,8 +370,8 @@ uiPropSelFromList* uiWellPropSel::getPropSelFromListByIndex( int idx )
 uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 				const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)
-    , logscreated(this) 
-{ 
+    , logscreated(this)
+{
     for ( int idx=0; idx<propflds_.size(); idx ++ )
     {
 	uiToolButton* createbut = new uiToolButton( this, "newlog",
@@ -415,7 +415,7 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 	logscreated.trigger();
 	propflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
     }
-} 
+}
 
 
 void uiWellPropSelWithCreate::viewLogPushed( CallBacker* cb )

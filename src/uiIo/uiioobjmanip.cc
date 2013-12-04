@@ -32,8 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
 	: but(b)
-    	, pmnm(p)
-    	, tt(t)
+	, pmnm(p)
+	, tt(t)
 {
 }
 
@@ -82,7 +82,7 @@ void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
 	}
     }
 }
-				    
+
 
 void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 {
@@ -103,7 +103,7 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 
 
 uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
-    	: uiManipButGrp(s.obj_->parent())
+	: uiManipButGrp(s.obj_->parent())
 	, subj_(s)
 	, locbut(0)
 {
@@ -182,9 +182,9 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     else if ( tb == rembut )
     {
 	const bool exists = tr ? tr->implExists(ioobj,true)
-	    			: ioobj->implExists(true);
+				: ioobj->implExists(true);
 	const bool readonly = tr ? tr->implReadOnly(ioobj)
-	    			: ioobj->implReadOnly();
+				: ioobj->implReadOnly();
 	bool shldrm = tr ? tr->implShouldRemove(ioobj)
 				: ioobj->implShouldRemove();
 	if ( exists && readonly && shldrm )
@@ -208,7 +208,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
     BufferString titl( "Rename '" );
     titl += ioobj->name(); titl += "'";
     uiGenInputDlg dlg( this, titl, "New name",
-	    		new StringInpSpec(ioobj->name()) );
+			new StringInpSpec(ioobj->name()) );
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();
@@ -260,7 +260,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    const bool newfnm = chiostrm.fileName()!=iostrm->fileName();
 	    if ( newfnm && !doReloc(tr,*iostrm,chiostrm) )
 	    {
-		if ( strchr(newnm.buf(),'/') || strchr(newnm.buf(),'\\') )
+		if ( newnm.contains('/') || newnm.contains('\\') )
 		{
 		    cleanupString(newnm.buf(),false,false,true);
 		    chiostrm.setName( newnm );

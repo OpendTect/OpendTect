@@ -249,7 +249,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiLabel* lbl = 0;
-    const bool isrealattrib = strcmp(attrnm_,LineKey::sKeyDefAttrib());
+    const bool isrealattrib = attrnm_ == LineKey::sKeyDefAttrib();
     if ( isrealattrib )
     {
 	BufferString lbltxt( "Attribute: " );
@@ -373,7 +373,7 @@ bool doExp( const FilePath& fp )
 
     const IOObj&	inioobj_;
     const IOObj&	outioobj_;
-    const char*		attrnm_;
+    const BufferString	attrnm_;
 
 };
 

@@ -283,12 +283,12 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 static const UnitOfMeasure* parseColName( const char* inp, BufferString& nm )
 {
     nm = inp;
-    char* ptrstart = strrchr( nm.buf(), '(' );
+    char* ptrstart = lastOcc( nm.buf(), '(' );
     const UnitOfMeasure* ret = 0;
     if ( ptrstart && ptrstart != nm.buf() && *(ptrstart-1) == ' ' )
     {
 	BufferString unsymb = ptrstart + 1;
-	char* ptrend = strchr( unsymb.buf(), ')' );
+	char* ptrend = firstOcc( unsymb.buf(), ')' );
 	if ( ptrend )
 	{
 	    *ptrend = '\0';

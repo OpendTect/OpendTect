@@ -532,7 +532,7 @@ void MadStream::fillHeaderParsFromStream()
 
 	if ( nullcount > 2 ) break;
 
-	char* valstr = strchr( linebuf, '=' );
+	char* valstr = firstOcc( linebuf, '=' );
 	if ( !valstr )continue;
 
 	*valstr = '\0'; valstr++;

@@ -50,15 +50,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup("Import CBVS cube",
-		    	   "Specify import parameters",
+			   "Specify import parameters",
 			   "103.0.1"))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
-    	, modefld(0)
-    	, sstp_(0)
+	, modefld(0)
+	, sstp_(0)
 {
     setCtrlStyle( DoAndStay );
-    
+
     init( false );
     modeSel(0);
 }
@@ -66,15 +66,15 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
-		    	   "Specify copy parameters",
+			   "Specify copy parameters",
 			   "103.1.1"))
 	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
-    	, modefld(0)
-    	, sstp_(0)
+	, modefld(0)
+	, sstp_(0)
 {
     setCtrlStyle( DoAndStay );
-    
+
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
     oinpSel(0);
@@ -87,7 +87,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     compfld_ = 0;
     ismc_ = false;
     setTitleText( fromioobj ? "Specify transfer parameters"
-	    		    : "Create CBVS cube definition" );
+			    : "Create CBVS cube definition" );
     tmpid_ = "100010."; tmpid_ += IOObj::tmpID();
 
     uiSeisTransfer::Setup sts( Seis::Vol );
@@ -133,7 +133,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
 	attobj = modefld;
 
-	convertfld = new uiCheckBox( this, 
+	convertfld = new uiCheckBox( this,
 		"Convert underscores to spaces in Output Cube name",
 		mCB(this,uiSeisImpCBVS,convertSel) );
     }
@@ -266,8 +266,8 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
     }
 
     // remove .cbvs extension
-    ptr = strrchr( inp.buf(), '.' );
-    if ( ptr && *(ptr+1) == 'c' && *(ptr+2) == 'b' && *(ptr+3) == 'v' 
+    ptr = lastOcc( inp.buf(), '.' );
+    if ( ptr && *(ptr+1) == 'c' && *(ptr+2) == 'b' && *(ptr+3) == 'v'
 	 && *(ptr+4) == 's' )
 	*(ptr) = '\0';
 
@@ -326,7 +326,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    outctio_.ioobj->pars().removeWithKey( "Type" );
 	else
 	    outctio_.ioobj->pars().set( sKey::Type(), seltyp == 1 ?
-		    		        sKey::Attribute() : sKey::Steering() );
+				        sKey::Attribute() : sKey::Steering() );
 
 	outctio_.ioobj->setTranslator( CBVSSeisTrcTranslator::translKey() );
 	if ( !dolink )
@@ -358,7 +358,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 			       : "Importing CBVS seismic cube";
     const char* attrnm = oinpfld ? oinpfld->attrNm() : "";
     PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
-	    			*outctio_.ioobj, titl, "Loading data",
+				*outctio_.ioobj, titl, "Loading data",
 				attrnm );
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
@@ -391,7 +391,7 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 	outctio_.ioobj->pars().find( VelocityDesc::sKeyVelocityType() );
     if ( !typestr ) return;
 
-    const int compnr = compfld_ && compfld_->box()->visible() ? 
+    const int compnr = compfld_ && compfld_->box()->visible() ?
 		compfld_->box()->currentItem() - 1 : 0;
     TypeSet<float> trcvals;
     TypeSet<float> timevals;
@@ -598,7 +598,7 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 	par.set( sKey::Scale(), scaler->toString() );
 
     par.set( IOPar::compKey( sKey::Output(), sKey::Attribute() ),
-	    				outpfld_->attrNm() );
+					outpfld_->attrNm() );
     Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
     uiTaskRunner dlg( this );
 

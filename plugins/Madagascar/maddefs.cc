@@ -16,16 +16,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include "ptrman.h"
 #include <iostream>
+#include <string.h>
 
 ODMad::ProgInfo& ODMad::PI()
 {
-    mDefineStaticLocalObject( PtrMan<ODMad::ProgInfo>, pi, 
+    mDefineStaticLocalObject( PtrMan<ODMad::ProgInfo>, pi,
 			      = new ODMad::ProgInfo );
     return *pi;
 }
 
 ODMad::ProgInfo::ProgInfo()
-    	: scanned_(false)
+	: scanned_(false)
 {
     rsfroot_ = GetEnvVar( "RSFROOT" );
     doPreScanCheck();
@@ -166,7 +167,7 @@ void ODMad::ProgInfo::search( const char* str,
     if ( !str || !*str || !scanned_ ) return;
 
     BufferString gestr;
-    if ( strchr(str,'*') )
+    if ( firstOcc(str,'*') )
 	gestr = str;
     else
 	{ gestr = "*"; gestr += str; gestr += "*"; }

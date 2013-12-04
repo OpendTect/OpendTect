@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 #include <iostream>
+#include <string.h>
 
 #ifdef __win__
 # include "file.h"

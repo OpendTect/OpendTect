@@ -33,12 +33,12 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
-uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit ) 
+uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Editor",
 				 "Edit the unit properties",
 				 "110.0.1"))
     , unit_(unit)
-    , entrancename_(unit.code())		 
+    , entrancename_(unit.code())
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
@@ -50,16 +50,16 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     colfld_->attach( alignedBelow, unitdescfld_ );
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
-    Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange(); 
+    Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
     uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
     agestartfld_ = lblbox1->box();
-    agestartfld_->setNrDecimals( 3 ); 
+    agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
-    
+
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox( this, "" );
     agestopfld_ = lblbox2->box();
-    agestopfld_->setNrDecimals( 3 ); 
+    agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );
     lblbox2->attach( rightOf, lblbox1 );
 
@@ -147,7 +147,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 {
     getFromScreen();
     BufferString unnm( unitnmfld_->text() );
-    if ( unnm.isEmpty() || !strcmp( unnm, Strat::RefTree::sKeyNoCode() ) )
+    if ( unnm.isEmpty() || unnm == Strat::RefTree::sKeyNoCode() )
 	{ mErrRet( "Please specify a valid unit name", return false ) }
     else
     {
@@ -161,18 +161,18 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	Strat::UnitRefIter it( Strat::RT() );
 	while ( it.next() )
 	{
-	    if ( !strcmp( unit_.fullCode(), it.unit()->fullCode() ) 
-		    && it.unit() != &unit_ )
-	    { 
-		unit_.setCode( oldcode ); 
-		mErrRet( "Unit name already used", return false ) 
+	    if ( unit_.fullCode() == it.unit()->fullCode()
+	      && it.unit() != &unit_ )
+	    {
+		unit_.setCode( oldcode );
+		mErrRet( "Unit name already used", return false )
 	    }
 	}
     }
 
     if ( unit_.isLeaved() && lithids_.size() <= 0 )
-    { 
-	mErrRet( "Please specify at least one lithology", 
+    {
+	mErrRet( "Please specify at least one lithology",
 	    if ( !unitlithfld_->size() )
 		selLithCB( 0 );
 	    return false; );
@@ -186,7 +186,7 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 {
     uiStratLithoDlg lithdlg( this );
     lithdlg.go();
-} 
+}
 
 
 
@@ -316,7 +316,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
 
     const char* lithfailedmsg = lithos.add( newlith );
     if ( lithfailedmsg )
-	{ mErrRet( lithfailedmsg, return; ) } 
+	{ mErrRet( lithfailedmsg, return; ) }
 
     anychg_ = true;
     prevlith_ = 0;
@@ -451,7 +451,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		nmfld_;
     uiFillPattern*	fillfld_;
     uiColorInput*	colfld_;
-    bool& 		anychg_;
+    bool&		anychg_;
 
 };
 
@@ -568,7 +568,7 @@ void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, Color& col ) const
 
 
 
-static const char* unitcollbls[] = { "[Name]", "[Color]", 
+static const char* unitcollbls[] = { "[Name]", "[Color]",
 				     "Start(my)", "Stop(my)", 0 };
 static const int cNrEmptyRows = 2;
 
@@ -579,20 +579,20 @@ static const int cStopCol = 3;
 
 void uiStratUnitDivideDlg::uiDivideTable::popupMenu( CallBacker* cb )
 {
-    if ( currentRow() > 0 ) 
+    if ( currentRow() > 0 )
 	uiTable::popupMenu( cb );
 }
 
 
-uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p, 
-					    const Strat::LeavedUnitRef& unit ) 
+uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
+					    const Strat::LeavedUnitRef& unit )
     : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
 			     "Specify number and properties of the new units",
 			     mTODOHelpID))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")
-	    					      .rowgrow(true)
+						      .rowgrow(true)
 						      .defrowlbl("")
 						      .selmode(uiTable::Multi));
     table_->setColumnLabels( unitcollbls );
@@ -604,7 +604,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->selectionDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits));
     table_->setMinimumWidth( 450 );
-    
+
     if ( table_->nrRows() )
 	addUnitToTable( 0, rootunit_ );
 
@@ -623,7 +623,7 @@ void uiStratUnitDivideDlg::mouseClick( CallBacker* )
 }
 
 
-void uiStratUnitDivideDlg::resetUnits( CallBacker* cb ) 
+void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 {
     Interval<float> timerg = rootunit_.timeRange();
     ObjectSet<Strat::LeavedUnitRef> units;
@@ -640,11 +640,11 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	    unit.setCode( code );
 	}
 	Interval<float> rg;
-       	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
+	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
 	        timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
-	unit.setTimeRange( rg ); 
-	unit.setColor( unit.color() ); 
+	unit.setTimeRange( rg );
+	unit.setColor( unit.color() );
 	addUnitToTable( idx, unit );
     }
     deepErase( units );
@@ -653,8 +653,8 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 }
 
 
-void uiStratUnitDivideDlg::addUnitToTable( int irow, 
-					const Strat::LeavedUnitRef& unit ) 
+void uiStratUnitDivideDlg::addUnitToTable( int irow,
+					const Strat::LeavedUnitRef& unit )
 {
     table_->setText( RowCol(irow,cNameCol), unit.code() );
     table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
@@ -669,21 +669,21 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const char* code = table_->text( RowCol(idx,cNameCol) );
-	Strat::NodeUnitRef* par = 
-	    		const_cast<Strat::NodeUnitRef*>( rootunit_.upNode() );
-	Strat::LeavedUnitRef* un = 
-	    		new Strat::LeavedUnitRef( par, code );
+	Strat::NodeUnitRef* par =
+			const_cast<Strat::NodeUnitRef*>( rootunit_.upNode() );
+	Strat::LeavedUnitRef* un =
+			new Strat::LeavedUnitRef( par, code );
 	un->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
 	Interval<float> rg( table_->getfValue( RowCol(idx,cStartCol) ),
 			    table_->getfValue( RowCol(idx,cStopCol) )  );
-	un->setTimeRange( rg ); 
+	un->setTimeRange( rg );
 	units += un;
     }
 }
 
 
 bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
-       				       BufferString& errmsg ) const
+				       BufferString& errmsg ) const
 {
     for ( int idx=0; idx<units.size()-1; idx++ )
     {
@@ -693,15 +693,15 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
 	if ( !iscurunitrgok || !nextunit.timeRange().width() )
 	{
 	    errmsg = BufferString("Time-span for unit '",
-		    	!iscurunitrgok ? curunit.code() : nextunit.code(),
-		   	"' is equal to 0. \nPlease correct it." );
+			!iscurunitrgok ? curunit.code() : nextunit.code(),
+			"' is equal to 0. \nPlease correct it." );
 	    return false;
 	}
 	if ( curunit.timeRange().stop > nextunit.timeRange().start )
 	{
 	    errmsg = BufferString("Time overlap detected between units '")
-		    		.add(  curunit.code() )
-	   			.add( "' and '" )
+				.add(  curunit.code() )
+				.add( "' and '" )
 				.add( nextunit.code() )
 				.add( "'. \nPlease correct it." );
 	    return false;
@@ -722,7 +722,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<units.size(); idx++ )
     {
 	BufferString code( units[idx]->code() );
-	const char* fullcode = units[idx]->code();
+	const BufferString fullcode = units[idx]->code();
 	BufferString errmsg;
 	if ( code.isEmpty() )
 	{
@@ -733,12 +733,12 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    mPreventWrongChar( code.buf(), return false );
 	    units[idx]->setCode( code.buf() );
 	}
-	if ( errmsg.isEmpty() && strcmp( code.buf(), rootunit_.code() ) )
+	if ( errmsg.isEmpty() && code == rootunit_.code() )
 	{
 	    Strat::UnitRefIter it( Strat::RT() );
 	    while ( it.next() )
 	    {
-		if ( !strcmp(fullcode,it.unit()->fullCode()) 
+		if ( fullcode == it.unit()->fullCode()
 			&& it.unit() != &rootunit_ )
 		    errmsg += "Unit name already used. ";
 	    }
@@ -752,12 +752,12 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	{
 	    errmsg += "Please specify a new name for the unit number ";
 	    errmsg += idx+1;
-	    mErrRet( errmsg, deepErase( units); return false )	
+	    mErrRet( errmsg, deepErase( units); return false )
 	}
     }
     BufferString errmsg;
     if ( !areTimesOK( units, errmsg ) )
-    { 
+    {
 	if ( errmsg.isEmpty() )
 	    errmsg = "No valid times specified";
 
@@ -769,14 +769,14 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 
 
-uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, 
-						Strat::LeavedUnitRef& ur ) 
+uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
+						Strat::LeavedUnitRef& ur )
     : uiDialog(p,uiDialog::Setup("",
 		mNoDlgTitle,"110.0.3"))
-    , lvlid_(-1)		
-    , unit_(ur)	 			
+    , lvlid_(-1)
+    , unit_(ur)
 {
-    BufferString msg("Link Marker to "); msg += ur.code(); 
+    BufferString msg("Link Marker to "); msg += ur.code();
     setCaption( msg );
     BufferStringSet lvlnms;
     lvlnms.add( sNoLevelTxt );
@@ -810,9 +810,9 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
     {
 	BufferString msg( "This marker is already linked to " );
 	msg += lur->code();
-	BufferString movemsg( "Assign to " ); 
+	BufferString movemsg( "Assign to " );
 	movemsg += unit_.code(); movemsg += " only";
-	const int res = 
+	const int res =
 	    uiMSG().question(msg,"Assign to both", movemsg ,"Cancel");
 	if ( res == -1 )
 	    return false;

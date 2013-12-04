@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmddriverbasics.h"
 #include "cmdrecorder.h"
 #include "uimenu.h"
+#include <string.h>
 
 
 namespace CmdDrive
@@ -28,7 +29,7 @@ namespace CmdDrive
 	for ( int idx=0; idx<listobj->size(); idx++ ) \
 	{ \
 	    if ( mSearchKey(itemstr).isMatching(listobj->textOfItem(idx)) ) \
-	    	itmidxs += idx; \
+		itmidxs += idx; \
 	} \
         mParStrPre( objnm, itmidxs, 0, itemstr, itemnr, "string", ambicheck ); \
 	wildcardMan().check( mSearchKey(itemstr), \
@@ -140,13 +141,13 @@ bool ListClickCmd::act( const char* parstr )
     mParKeyStrInit( "list", parstr, parnext, keys, selnr );
     mParItemSelInit( "item", parnext, parnexxt, itemstr, itemnr, false );
     mParMouse( parnexxt, partail, clicktags, "Left" );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
-    
+
     mActivate( List, Activator(*uilist, itemidxs[0], clicktags) );
 
     return true;
@@ -191,7 +192,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 	    break; \
 	} \
     }
-	
+
 #define mHandleLeftRightClick() \
 { \
     if ( actclicktags_.isPresent("Check") && \
@@ -272,8 +273,8 @@ bool ListButtonCmd::act( const char* parstr )
 }
 
 
-static bool selectionEquals( const uiListBox& uilist, 
-			     const TypeSet<int>& selset ) 
+static bool selectionEquals( const uiListBox& uilist,
+			     const TypeSet<int>& selset )
 {
     for ( int idx=0; idx<uilist.size(); idx++ )
     {
@@ -292,15 +293,15 @@ bool ListSelectCmd::act( const char* parstr )
     mParItemSelInit( "last item", parnexxt, parnexxxt, itemstr2, itemnr2, true);
     mParOnOffInit( parnexxxt, partail, onoff );
     mParTail( partail );
-    
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
 
     if ( uilist->maxNrOfSelections() == 0 )
     {
-	mWinErrStrm << "This list allows no item selection" << std::endl; 
-	return false; 
+	mWinErrStrm << "This list allows no item selection" << std::endl;
+	return false;
     }
 
     mParListSelPre( "first item", uilist, itemstr1, itemnr1, itemidxs1, false );
@@ -352,7 +353,7 @@ bool ListSelectCmd::act( const char* parstr )
 	mWinWarnStrm << "Specified selection has been overruled" << std::endl;
     }
 
-    return true; 
+    return true;
 }
 
 
@@ -383,15 +384,15 @@ bool ListMenuCmd::act( const char* parstr )
     mParMouse( parnexxt, parnexxxt, clicktags, "Right" );
     mParPathStrInit( "menu", parnexxxt, parnexxxxt, menupath );
     mParOnOffInit( parnexxxxt, partail, onoff );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
-    
+
     prepareIntercept( menupath, onoff );
-    
+
     mActivate( List, Activator(*uilist, itemidxs[0], clicktags) );
 
     BufferString objnm = "List item "; objnm += itemidxs[0]+1;
@@ -403,8 +404,8 @@ bool NrListItemsCmd::act( const char* parstr )
 {
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "list", parnext, partail, keys, selnr );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
@@ -419,13 +420,13 @@ bool IsListItemOnCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "list", parnext, parnexxt, keys, selnr );
     mParItemSelInit( "item", parnexxt, partail, itemstr, itemnr, false );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
-    
+
     const int ison = uilist->maxNrOfSelections()<1 ? -1 :
 		     uilist->isSelected( itemidxs[0] ) ? 1 : 0;
 
@@ -446,7 +447,7 @@ bool IsListButtonOnCmd::act( const char* parstr )
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
     mListButtonCheck( uilist, itemstr, itemidxs[0] );
-    
+
     const int ison = uilist->isItemChecked(itemidxs[0]) ? 1 : 0;
 
     mParIdentPost( identname, ison, parnext );
@@ -460,14 +461,14 @@ bool CurListItemCmd::act( const char* parstr )
     mParKeyStrInit( "list", parnext, parnexxt, keys, selnr );
     mParFramed( parnexxt, parnexxxt, framed );
     mParExtraFormInit( parnexxxt, partail, form, "Number`Color" );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
 
     int curidx = -1;
-    for ( int idx=0; idx<uilist->size(); idx++ ) 
+    for ( int idx=0; idx<uilist->size(); idx++ )
     {
 	if ( !uilist->isSelected(idx) )
 	    continue;
@@ -498,8 +499,8 @@ bool GetListItemCmd::act( const char* parstr )
     mParKeyStrInit( "list", parnext, parnexxt, keys, selnr );
     mParItemSelInit( "item", parnexxt, parnexxxt, itemstr, itemnr, false );
     mParExtraFormInit( parnexxxt, partail, form, "Number`Color" );
-    mParTail( partail ); 
-    
+    mParTail( partail );
+
     mFindListTableObjs( "list", objsfound, uiListBox, keys, nrgrey );
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
@@ -652,8 +653,8 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
 	enter = edittext_ == uicombo->text();
     }
 
-    mWriteInputCmd( itemedited_, edittext_, enter ); 
-	    
+    mWriteInputCmd( itemedited_, edittext_, enter );
+
     if ( !enter )
 	mRefuseAndQuit();
 
@@ -675,7 +676,7 @@ void ListCmdComposer::reInit()
     stagenr_ = 0;
     selchanged_ = false;
     clickedidx_ = -1;
-    leftclicked_ = false; 
+    leftclicked_ = false;
     ctrlclicked_ = false;
     listcmdsflushed_ = false;
 }
@@ -713,7 +714,7 @@ void ListCmdComposer::storeListState()
 	    selecteditems_ += idx;
 	if ( uilist->isItemChecked(idx) )
 	    checkeditems_ += idx;
-    } 
+    }
 }
 
 
@@ -800,7 +801,7 @@ int ListCmdComposer::writeListSelect( bool differential, bool virtually )
 	    if ( curstate != oldstate )
 		lastidx = idx;
 	}
-	else 
+	else
 	{
 	    idx--;
 
@@ -925,7 +926,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	    notDone();
 	}
 
-	if ( ev.nraccepts_ ) 
+	if ( ev.nraccepts_ )
 	    return true;
 
 	const char* msgnext = getNextWord( ev.msg_, notifiername.buf() );
@@ -981,7 +982,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	if ( stagenr_ == 2 )
 	{
 	    if ( mMatchCI(notifiername,"doubleClicked") &&
-		 clickedidx_==itemidx ) 
+		 clickedidx_==itemidx )
 	    {
 		stagenr_ = 3;
 		return true;
@@ -1004,7 +1005,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	writeListSelect();
 
 	const bool listbutchange = mIsSet(ischecked,clickedidx_) !=
-	    			   mIsSet(waschecked,clickedidx_);
+				   mIsSet(waschecked,clickedidx_);
 
 	if ( ev.dynamicpopup_ )
 	{

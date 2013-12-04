@@ -359,7 +359,7 @@ bool createLink( const char* fnm, const char* linknm )
 #ifndef OD_NO_QT
 #ifdef __win__
     BufferString winlinknm( linknm );
-    if ( !strstr(linknm,".lnk")  )
+    if ( !firstOcc(linknm,".lnk")  )
 	winlinknm += ".lnk";
     return QFile::link( fnm, winlinknm.buf() );
 #else

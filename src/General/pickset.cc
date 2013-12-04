@@ -135,7 +135,7 @@ bool Location::fromString( const char* s, bool doxy, bool testdir )
 	else *text_ = s;
 
 	char* start = text_->buf();
-	char* stop = strchr( start, '"' );
+	char* stop = firstOcc( start, '"' );
 	if ( !stop )
 	{
 	    delete text_;

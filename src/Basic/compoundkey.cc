@@ -4,7 +4,7 @@
  * DATE     : 8-9-1995
  * FUNCTION : Unit IDs
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
@@ -25,7 +25,7 @@ char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
 
     while ( keynr > 0 )
     {
-	ptr = strchr( ptr, '.' );
+	ptr = firstOcc( ptr, '.' );
 	if ( !ptr ) return 0;
 	ptr++; keynr--;
     }
@@ -34,7 +34,7 @@ char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
     {
 	mDeclStaticString(bufstr);
 	bufstr = ptr; char* bufptr = bufstr.buf();
-	char* ptrend = strchr( bufptr, '.' );
+	char* ptrend = firstOcc( bufptr, '.' );
 	if ( ptrend ) *ptrend = '\0';
 	ptr = bufptr;
     }
@@ -51,7 +51,7 @@ int CompoundKey::nrKeys() const
     const char* ptr = impl_;
     while ( true )
     {
-	ptr = strchr(ptr,'.');
+	ptr = firstOcc(ptr,'.');
 	if ( !ptr )
 	    break;
 	nrkeys++;
@@ -75,7 +75,7 @@ void CompoundKey::setKey( int ikey, const char* s )
     char* ptr = fromKey( ikey );	// ptr="Y.Z"
     if ( !ptr ) return;
 
-    const BufferString lastpart( strchr(ptr,'.') ); // lastpart=".Z"
+    const BufferString lastpart( firstOcc(ptr,'.') ); // lastpart=".Z"
     *ptr = '\0';			// impl_="X."
 
     if ( s && *s )
@@ -115,7 +115,7 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 
 int MultiID::leafID() const
 {
-    const char* ptr = strrchr( impl_, '.' );
+    const char* ptr = lastOcc( impl_, '.' );
     return toInt( ptr ? ptr+1 : (const char*)impl_ );
 }
 

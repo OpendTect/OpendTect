@@ -4,7 +4,7 @@
  * DATE     : 18-8-2000
  * FUNCTION : Help viewing
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "helpview.h"
@@ -48,7 +48,7 @@ static od_istream getIStream( const char* fnm )
     {
 	BufferString msg( "Help file '" );
 	msg.add( fnm ).add( "' not available: \"" )
-	    	.add( strm.errMsg() ).add( "\"" );
+		.add( strm.errMsg() ).add( "\"" );
 	ErrMsg( msg );
     }
     return strm;
@@ -59,7 +59,7 @@ static const char* unScoped( const char* inp )
 {
     if ( !inp || !*inp ) return inp;
 
-    const char* ptr = strchr( inp, ':' );
+    const char* ptr = firstOcc( inp, ':' );
     return ptr ? ptr + 1 : inp;
 }
 
@@ -68,7 +68,7 @@ static BufferString getScope( const char* inp )
 {
     BufferString ret;
     BufferString winid( inp );
-    char* ptr = strchr( winid.buf(), ':' );
+    char* ptr = firstOcc( winid.buf(), ':' );
     if ( ptr )
     {
 	*ptr = '\0';
@@ -85,7 +85,7 @@ static BufferString getScope( const char* inp )
 
 
 BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
-       					      const char* docdir )
+					      const char* docdir )
 {
     if ( mIsInvalid(inpwinid) )
 	return BufferString( sMainIndex );
@@ -274,7 +274,7 @@ BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
     const char* fnm = getCreditsSpecificFileName( winid );
     if ( !fnm || !*fnm )
 	return BufferString( GetDocFileDir(sNotFoundHtml) );
-    
+
     FilePath fp( getCreditsFileName(winid) ); fp.setFileName( fnm );
     return BufferString( fp.fullPath() );
 }

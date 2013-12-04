@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "sorting.h"
 #include "typeset.h"
+#include <string.h>
 
 #define mUndefReplacement 0
 
@@ -27,7 +28,7 @@ namespace Stats
 
 /*!
 \brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
-  
+
   medianEvenHandling() is tied to OD_EVEN_MEDIAN_AVERAGE, OD_EVEN_MEDIAN_LOWMID,
   and settings dTect.Even Median.Average and dTect.Even Median.LowMid.
   When medianing over an even number of points, either take the low mid (<0),
@@ -35,17 +36,17 @@ namespace Stats
 */
 
 mExpClass(Algo) CalcSetup
-{ 
+{
 public:
-    			CalcSetup( bool weighted=false )
+			CalcSetup( bool weighted=false )
 			    : weighted_(weighted)
 			    , needextreme_(false)
 			    , needsums_(false)
-			    , needmed_(false) 
-			    , needvariance_(false) 
+			    , needmed_(false)
+			    , needvariance_(false)
 			    , needmostfreq_(false)	{}
 
-    CalcSetup&       	require(Type);
+    CalcSetup&	require(Type);
 
     static int		medianEvenHandling();
 
@@ -80,16 +81,16 @@ protected:
 /*!
 \brief Base class to calculate mean, min, max, etc.. can be used either as
 running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
-  
+
   The mostFrequent assumes the data contains integer classes. Then the class
   that is found most often will be the output. Weighting, again, assumes integer
   values. Beware that if you pass data that is not really class-data, the
   memory consumption can become large (and the result will be rather
   uninteresting).
-  
+
   The variance won't take the decreasing degrees of freedom into consideration
   when weights are provided.
-  
+
   The object is ready to use with int, float and double types. If other types
   are needed, you may need to specialise an isZero function for each new type.
 
@@ -111,7 +112,7 @@ public:
 
     inline bool		hasUndefs() const	{ return nrused_ != nradded_; }
     inline int		size( bool used=true ) const
-    			{ return used ? nrused_ : nradded_; }
+			{ return used ? nrused_ : nradded_; }
 
     inline bool		isEmpty() const		{ return size() == 0; }
 
@@ -127,10 +128,10 @@ public:
     inline double	rms() const;
     inline double	stdDev() const;
     inline double	normvariance() const;
-    virtual inline double variance() const; 
+    virtual inline double variance() const;
 
     inline T		clipVal(float ratio,bool upper) const;
-    			//!< require median; 0 <= ratio <= 1
+			//!< require median; 0 <= ratio <= 1
 
     TypeSet<T>		medvals_;
 
@@ -140,7 +141,7 @@ protected:
 
     CalcSetup		setup_;
 
-    int			nradded_; 
+    int			nradded_;
     int			nrused_;
     int			minidx_;
     int			maxidx_;
@@ -177,10 +178,10 @@ bool BaseCalc<T>::isZero( const T& val ) const
 
 /*!
 \brief Calculates mean, min, max etc., as running values.
-  
+
   The idea is that you simply add values and ask for a stat whenever needed.
   The clear() method resets the object and makes it able to work with new data.
-  
+
   Adding values can be doing with weight (addValue) or without (operator +=).
   You can remove a value; for Min or Max this has no effect as this would
   require buffering all data.
@@ -190,7 +191,7 @@ template <class T>
 mClass(Algo) RunCalc : public BaseCalc<T>
 {
 public:
-    			RunCalc( const CalcSetup& s )
+			RunCalc( const CalcSetup& s )
 			    : BaseCalc<T>(s) {}
 
     inline RunCalc<T>&	addValue(T data,T weight=1);
@@ -225,7 +226,7 @@ protected:
 
 /*!
 \brief RunCalc manager which buffers a part of the data.
- 
+
   Allows calculating running stats on a window only. Once the window is full,
   WindowedCalc will replace the first value added (fifo).
 */
@@ -239,7 +240,7 @@ public:
 			    , sz_(sz)
 			    , wts_(calc_.isWeighted() ? new T [sz] : 0)
 			    , vals_(new T [sz])	{ clear(); }
-			~WindowedCalc()	
+			~WindowedCalc()
 				{ delete [] vals_; delete [] wts_; }
     inline void		clear();
 
@@ -247,7 +248,7 @@ public:
     inline WindowedCalc& operator +=( T t )	{ return addValue(t); }
 
     inline int		getIndex(Type) const;
-    			//!< Only use for Min, Max or Median
+			//!< Only use for Min, Max or Median
     inline double	getValue(Type) const;
 
     inline T		count() const	{ return full_ ? sz_ : posidx_; }
@@ -306,7 +307,7 @@ double BaseCalc<T>::getValue( Stats::Type t ) const
 	case RMS:		return rms();
 	case StdDev:		return stdDev();
 	case Variance:		return variance();
-	case NormVariance:	return normvariance();			
+	case NormVariance:	return normvariance();
 	case Min:		return min();
 	case Max:		return max();
 	case Extreme:		return extreme();
@@ -391,7 +392,7 @@ inline double BaseCalc<T>::rms() const
 
 
 template <class T>
-inline double BaseCalc<T>::variance() const 
+inline double BaseCalc<T>::variance() const
 {
     if ( nrused_ < 2 ) return 0;
 
@@ -489,7 +490,7 @@ inline T BaseCalc<T>::mostFreq() const
 
 
 template <class T> inline
-T computeMedian( const T* data, int sz, int pol, int* idx_of_med ) 
+T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
@@ -520,8 +521,8 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 
 
 template <class T> inline
-T computeWeightedMedian( const T* data, const T* wts, int sz, 
-				int* idx_of_med ) 
+T computeWeightedMedian( const T* data, const T* wts, int sz,
+				int* idx_of_med )
 {
     if ( idx_of_med ) *idx_of_med = 0;
     if ( sz < 2 )
@@ -560,8 +561,8 @@ inline T BaseCalc<T>::median( int* idx_of_med ) const
     const int policy = setup_.medianEvenHandling();
     const int sz = medvals_.size();
     const T* vals = medvals_.arr();
-    return setup_.weighted_ ? 
-	  computeWeightedMedian( vals, medwts_.arr(), sz, idx_of_med ) 
+    return setup_.weighted_ ?
+	  computeWeightedMedian( vals, medwts_.arr(), sz, idx_of_med )
 	: computeMedian( vals, sz, policy, idx_of_med );
 }
 

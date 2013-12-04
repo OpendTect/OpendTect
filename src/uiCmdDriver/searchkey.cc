@@ -105,7 +105,8 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
 	return false;
     }
 
-    for ( int nameoffset=0; nameoffset<=strlen(nameptr); nameoffset++ )
+    for ( int nameoffset=0; nameoffset<=FixedString(nameptr).size();
+	    nameoffset++ )
     {
 	const int keyoffset = isspace(*(keyptr+1)) &&
 			      nameptr+nameoffset==orgnameptr ? 2 : 1;

@@ -52,11 +52,11 @@ void SetColorActivator::actCB( CallBacker* )
 
 bool ColorOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::Colour ) 
-    { 
-	mWinErrStrm << "Command requires open QColorDialog" << std::endl; 
-	return false; 
-    } 
+    if ( uiMainWin::activeModalType() != uiMainWin::Colour )
+    {
+	mWinErrStrm << "Command requires open QColorDialog" << std::endl;
+	return false;
+    }
 
     mParDQuoted( "color string", parstr, parextra, colorstr, true, true );
     if ( parstr != parextra )
@@ -68,7 +68,7 @@ bool ColorOkCmd::act( const char* parstr )
 			  << std::endl;
 	    return false;
 	}
-	if ( strchr(fms.buf(),' ') || strchr(fms.buf(),'\t') )
+	if ( firstOcc(fms.buf(),' ') || firstOcc(fms.buf(),'\t') )
 	{
 	    mParseErrStrm << "Color string should not contain white space"
 			  << std::endl;
@@ -100,7 +100,7 @@ bool ColorOkCmd::act( const char* parstr )
 	}
 
 	if ( mMatchCI(colorword, "Black") )
-	    col.set( 0, 0, 0 ); 
+	    col.set( 0, 0, 0 );
 	else if ( mMatchCI(colorword, "Blue") )
 	    col.set( 0, 0, 255 );
 	else if ( mMatchCI(colorword, "Brown") )
@@ -131,13 +131,13 @@ bool ColorOkCmd::act( const char* parstr )
 	    col.set( 255, 255, 255 );
 	else if ( mMatchCI(colorword, "Yellow") )
 	    col.set( 255, 255, 0 );
-	else 
+	else
 	{
 	    mParseErrStrm << "Color tag not in {Black, Blue, Brown, Cyan, "
 		          << "Green, Grey, Lilac, Lime, Magenta, Olive, "
 			  << "Orange, Purple, Pink, Red, White, Yellow]"
 			  << std::endl;
-	    return false; 
+	    return false;
 	}
     }
 
@@ -173,47 +173,47 @@ bool ColorOkCmd::act( const char* parstr )
 
 bool FileOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::File ) 
-    { 
-	mWinErrStrm << "Command requires open QFileDialog" << std::endl; 
-	return false; 
-    } 
-    
-    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false ); 
+    if ( uiMainWin::activeModalType() != uiMainWin::File )
+    {
+	mWinErrStrm << "Command requires open QFileDialog" << std::endl;
+	return false;
+    }
+
+    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false );
     StringProcessor(fpsetstr).makeDirSepIndep();
-    mGetEscConvertedFMS( fms, fpsetstr, true ); 
+    mGetEscConvertedFMS( fms, fpsetstr, true );
     mParTail( partail );
 
     uiFileDialog::setExternalFilenames( fms );
     mActivate( CloseQDlg, Activator(0) );
     mCheckExternalFilenamesErrMsg( true );
-    return true;	
+    return true;
 }
 
 
 bool SnapshotCmd::act( const char* parstr )
 {
-    mParDQuoted( "file path", parstr, parnext, fpstr, false, true ); 
+    mParDQuoted( "file path", parstr, parnext, fpstr, false, true );
     StringProcessor(fpstr).makeDirSepIndep();
-    mGetEscConvertedFMS( fms, fpstr, true ); 
-    
+    mGetEscConvertedFMS( fms, fpstr, true );
+
     int zoom = openQDlg() ? 2 : 1;
     const uiMainWin* grabwin = curWin();
 
-    BufferString zoomtag; 
-    const char* partail = getNextWord( parnext, zoomtag.buf() ); 
+    BufferString zoomtag;
+    const char* partail = getNextWord( parnext, zoomtag.buf() );
 
-    if ( mMatchCI(zoomtag,"ODMain") && applWin() ) 
+    if ( mMatchCI(zoomtag,"ODMain") && applWin() )
     {
 	grabwin = applWin();
-	zoom = 1; 
+	zoom = 1;
     }
-    else if ( mMatchCI(zoomtag,"Desktop") ) 
+    else if ( mMatchCI(zoomtag,"Desktop") )
 	zoom = 0;
-    else if ( !mMatchCI(zoomtag,"CurWin") ) 
+    else if ( !mMatchCI(zoomtag,"CurWin") )
 	partail = parnext;
 
-    mParTail( partail ); 
+    mParTail( partail );
 
     const char* writeexts = "*.bmp;;*.jpg;;*.jpeg;;*.png;;*.ppm;;*.xbm;;*.xpm";
     uiFileDialog tmpfiledlg( 0, false, 0, writeexts );

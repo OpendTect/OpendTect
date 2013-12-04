@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <ctype.h>
 #include <signal.h>
+#include <string.h>
 
 #include "filepath.h"
 #include "progressmeter.h"
@@ -39,8 +40,8 @@ class uiProgressViewer : public uiMainWin
 {
 public:
 
-    		uiProgressViewer(uiParent*,std::istream&,int);
-    		~uiProgressViewer();
+		uiProgressViewer(uiParent*,std::istream&,int);
+		~uiProgressViewer();
 
 protected:
 
@@ -215,7 +216,7 @@ void uiProgressViewer::helpFn( CallBacker* )
 void uiProgressViewer::saveFn( CallBacker* )
 {
     uiFileDialog dlg( this, false, GetProcFileName("log.txt"),
-	    	      "*.txt", "Save log" );
+		      "*.txt", "Save log" );
     dlg.setAllowAllExts( true );
     if ( dlg.go() )
     {

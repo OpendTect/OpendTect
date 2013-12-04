@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "msgh.h"
 #include <iostream>
+#include <string.h>
 
 
 extern int ODMain(int,char**);
@@ -58,10 +59,10 @@ int main( int argc, char** argv )
 	    if ( gLogFilesRedirectCode == 1 )
 		UsrMsg( msg );
 	}
-   
+
 	ret = ODMain( argc, argv );
     }
 
-   
+
     ExitProgram( ret );
 }

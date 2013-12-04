@@ -400,13 +400,6 @@ const char* StrmOper::getErrorMessage( const StreamData& sd )
 
 //---- StreamData ----
 
-StreamData& StreamData::operator =( const StreamData& sd )
-{
-    if ( this != &sd )
-	copyFrom( sd );
-    return *this;
-}
-
 
 void StreamData::close()
 {
@@ -433,26 +426,10 @@ bool StreamData::usable() const
 }
 
 
-void StreamData::copyFrom( const StreamData& sd )
-{
-    istrm = sd.istrm; ostrm = sd.ostrm;
-    fp_ = sd.fp_; ispipe_ = sd.ispipe_;
-    setFileName( sd.fname_ );
-}
-
-
 void StreamData::transferTo( StreamData& sd )
 {
-    sd.copyFrom( *this );
+    sd = *this;
     initStrms();
-}
-
-
-void StreamData::setFileName( const char* f )
-{
-    delete [] fname_;
-    fname_ = f ? new char [strlen(f)+1] : 0;
-    if ( fname_ ) strcpy( fname_, f );
 }
 
 

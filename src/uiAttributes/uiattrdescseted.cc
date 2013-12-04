@@ -806,8 +806,8 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
     if ( !isalnum(newnm[0]) )
 	mErrRetFalse( "Please start attribute name with a letter or number" );
 
-    if ( strchr(newnm,'!') || strchr(newnm,':') || strchr(newnm,';') ||
-	 strchr(newnm,'#') )
+    if ( firstOcc(newnm,'!') || firstOcc(newnm,':') || firstOcc(newnm,';') ||
+	 firstOcc(newnm,'#') )
 	mErrRetFalse( "Attribute name may not contain '!', '#', ';' or ':'." );
 
     if ( strlen(newnm) < 2 )

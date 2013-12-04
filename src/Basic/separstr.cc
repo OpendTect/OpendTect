@@ -7,18 +7,10 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include <string.h>
-#include <stdlib.h>
 #include "separstr.h"
-#include "convert.h"
-#include "string2.h"
 #include "keystrs.h"
-#include "fixedstring.h"
 #include "bufstringset.h"
-
-#ifdef __msvc__
-# include <iostream>
-#endif
+#include <string.h>
 
 
 SeparString& SeparString::operator =( const SeparString& ss )
@@ -103,7 +95,7 @@ const char* SeparString::findSeparator( const char* startptr ) const
     if ( !startptr )
 	return 0;
 
-    const char* ptr = strchr( startptr, sep_[0] );
+    const char* ptr = firstOcc( startptr, sep_[0] );
     if ( ptr && isEscapedChar(rep_.buf(), ptr)  )
 	return findSeparator( ptr+1 );
 

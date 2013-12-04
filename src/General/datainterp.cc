@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ibmformat.h"
 #include "separstr.h"
 #include "od_istream.h"
+#include <string.h>
 
 DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
 	"0 - auto",
@@ -101,7 +102,7 @@ void DataCharacteristics::dump( unsigned char& c1, unsigned char& c2 ) const
 {
     union _DC_union { unsigned char c;
 	struct bits { unsigned char islittle:1; unsigned char fmt:3;
-	    	      unsigned char zero:4; } b; };
+		      unsigned char zero:4; } b; };
     _DC_union dc; dc.c = 0;
 
     BinDataDesc::dump( c1, c2 );
@@ -380,7 +381,7 @@ mDefDIPIUc(od_int64,U4)
 #define mDefDIPF(inptyp,typ) \
 template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr, \
-       				    	inptyp f ) const \
+				    	inptyp f ) const \
 { *(((T##typ*)buf)+nr) = (T##typ)f; }
 
 mDefDIPF(float,F)
@@ -508,7 +509,7 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf, \
 #define mDefDIGIbm(rettyp,typ,fntyp) \
 template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, \
-       				    	od_int64 nr ) const \
+				    	od_int64 nr ) const \
 { return (rettyp)IbmFormat::as##fntyp( ((T##typ*)buf)+nr ); }
 
 mDefDIGIbm(float,S2,Short)

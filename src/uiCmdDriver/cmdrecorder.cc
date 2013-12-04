@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <sstream>
+#include <string.h>
 
 #include "ascstream.h"
 #include "oddirs.h"
@@ -37,7 +38,7 @@ namespace CmdDrive
 
 
 CmdRecorder::CmdRecorder( const uiMainWin& aw )
-    	: rec_(*this)
+	: rec_(*this)
 	, applwin_(&aw)
 	, outputfnm_(0)
 	, outputsd_(*new StreamData)
@@ -158,7 +159,7 @@ void CmdRecorder::stop( bool fatal )
 	{
 	    CmdComposer* comp = composers_[idx];
 	    if ( comp->greedy() && comp->tryToFinish() && !comp->done() )
-		comp->accept( dummy ); 
+		comp->accept( dummy );
 	}
 
 	if ( curcounter != outputcounter_ )
@@ -179,7 +180,7 @@ void CmdRecorder::stop( bool fatal )
     uiBaseObject::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
     uiAction::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
     uiMenu::removeInterceptor(
-	    			mCB(this,CmdRecorder,dynamicMenuInterceptor) ); 
+				mCB(this,CmdRecorder,dynamicMenuInterceptor) );
 
     recording_ = false;
     flush();
@@ -191,7 +192,7 @@ void CmdRecorder::dynamicMenuInterceptor( CallBacker* cb )
 {
     mDynamicCast( uiMenu*, dynamicpopupmenu_, cb );
     if ( dynamicpopupmenu_ )
-	dynamicpopupmenu_->doIntercept( false, 0 ); 
+	dynamicpopupmenu_->doIntercept( false, 0 );
 }
 
 
@@ -266,7 +267,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     do
     {
 	ObjectSet<const CallBacker> relatives;
-	csobjfinder.findNodes( curtag, curnode, &relatives ); 
+	csobjfinder.findNodes( curtag, curnode, &relatives );
 
 	for ( int idx=0; idx<curobjset.size(); idx++ )
 	{
@@ -294,7 +295,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 
 	    ObjectSet<const CallBacker> newobjset = curobjset;
 	    FileMultiString newkeystr;
-	    newkeystr += aliases[0]->buf(); 
+	    newkeystr += aliases[0]->buf();
 	    aliases.removeSingle( 0 );
 
 	    csobjfinder.selectNodes( newobjset, newkeystr );
@@ -538,7 +539,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 #endif
 	msgnext = msg;
     }
-	
+
     BufferString beginendword;
     const char* msgnexxt = getNextWord( msgnext, beginendword.buf() );
 
@@ -546,7 +547,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	ev.begin_ = true;
     else if ( mMatchCI(beginendword,"End") )
 	ev.begin_ = false;
-    else 
+    else
 	return;
 
     char* msgnexxxt;
@@ -626,13 +627,13 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 		    ev.dynamicpopup_ = true;
 		    ev.srcwin_ = winstack_.topWin();
 		    ev.menupath_ = pathfms.unescapedStr();
-		}	
+		}
 	    }
 	}
     }
     else if ( iscarrieronly )
     {
-	ev.srcwin_ = winstack_.topWin(); 
+	ev.srcwin_ = winstack_.topWin();
 	ev.openqdlg_ = true;
 	ev.qdlgtitle_ = msgtail;
 	openqdialog_ = true;
@@ -642,7 +643,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 
     dynamicpopupmenu_ = 0;
 
-    if ( !ev.srcwin_ ) 
+    if ( !ev.srcwin_ )
 	return;
 
     ObjectSet<CmdComposer> candidates = composers_;
@@ -665,7 +666,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     }
 
     winstack_.moveToTop( ev.srcwin_ );
-		
+
     if ( ev.openqdlg_ && !ev.begin_ )
 	openqdialog_ = false;
 
@@ -712,10 +713,10 @@ void CmdRecorder::insertWinAssertion( const CmdRecEvent& ev )
 	return;
 
     mDressNameString( winstr, sWinAssert );
-    
+
     ObjectSet<uiMainWin> ciwinlist, cswinlist;
-    SearchKey(winstr, true).getMatchingWindows( applWin(), cswinlist ); 
-    SearchKey(winstr,false).getMatchingWindows( applWin(), ciwinlist ); 
+    SearchKey(winstr, true).getMatchingWindows( applWin(), cswinlist );
+    SearchKey(winstr,false).getMatchingWindows( applWin(), ciwinlist );
 
     if ( cswinlist.size() > (ev.openqdlg_ && !ev.begin_ ? 0 : 1) )
     {

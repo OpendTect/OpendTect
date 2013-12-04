@@ -12,9 +12,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "basicmod.h"
-#include "gendefs.h"
+#include "bufstring.h"
 #include <stdio.h>
 #include <iosfwd>
 
@@ -30,18 +30,14 @@ mExpClass(Basic) StreamData
 {
 public:
 
-		StreamData() : fname_(0)	{ initStrms(); }
-		~StreamData()			{ delete [] fname_; }
-		StreamData( const StreamData& sd )
-		: fname_(0)			{ copyFrom( sd ); }
-    StreamData&	operator =(const StreamData&);
-    void	transferTo(StreamData&);	//!< retains fileName()
+		StreamData()			{ initStrms(); }
+    void	transferTo(StreamData&);	//!< retains file name
 
     void	close();
     bool	usable() const;
 
-    void	setFileName(const char*);
-    const char*	fileName() const { return fname_; } //!< Beware: may be NULL
+    void	setFileName( const char* fn )	{ fname_ = fn; }
+    const char*	fileName() const		{ return fname_; }
 
     FILE*	filePtr() const;
     std::ios*	streamPtr()const;
@@ -53,8 +49,7 @@ protected:
 
     FILE*	fp_;
     bool	ispipe_;
-    char*	fname_;
-    void	copyFrom(const StreamData&);
+    BufferString fname_;
 
 private:
 

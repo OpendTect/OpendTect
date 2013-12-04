@@ -115,7 +115,7 @@ void uiStratLvlList::removeAllCB( CallBacker* )
 	const Strat::Level* lvl = levelset.levels()[idx];
 	if ( lvl->id() >= 0 )
 	{
-	    levelset.remove( lvl->id() ); 
+	    levelset.remove( lvl->id() );
 	    anychange_ = true;
 	}
     }
@@ -166,13 +166,13 @@ void uiStratLvlList::editLevel( bool create )
     BufferString oldnm = create ? "" : box()->getText();
     uiStratLevelDlg newlvldlg( this );
     newlvldlg.setCaption( create ? "Create level" : "Edit level" );
-    Strat::Level* lvl = create ? 0 : lvls.get( oldnm ); 
+    Strat::Level* lvl = create ? 0 : lvls.get( oldnm );
     if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
     if ( newlvldlg.go() )
     {
 	BufferString nm; Color col;
 	newlvldlg.getLvlInfo( nm, col );
-	if ( !nm.isEmpty() && strcmp(oldnm,nm) && lvls.isPresent( nm ) )
+	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
 	    { uiMSG().error("Level name is empty or already exists"); return; }
 	if ( create )
 	    lvl = lvls.add( nm.buf(), col );

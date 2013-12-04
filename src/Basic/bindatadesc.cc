@@ -9,9 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bindatadesc.h"
 #include "string2.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "separstr.h"
 
 
 union _BDD_union
@@ -68,15 +66,14 @@ void BinDataDesc::set( const char* s )
 {
     if ( !s || !*s ) return;
 
-    const char* ptr = strchr( s, '`' );
-    isint_ = *s != 'F' && *s != 'f';
-    if ( !ptr ) return;
-
-    s = ptr + 1;
-    ptr = strchr( s, '`' );
-    issigned_ = *s == 'S' || *s == 's';
-    if ( ptr )
-	nrbytes_ = nearestByteCount( isint_, toInt( ptr+1 ) );
+    FileMultiString fms( s );
+    FixedString res = fms[0];
+    isint_ = *res != 'F' && *res != 'f';
+    res = fms[1];
+    issigned_ = *res == 'S' || *res == 's';
+    res = fms[2];
+    if ( !res.isEmpty() )
+	nrbytes_ = nearestByteCount( isint_, toInt( res ) );
 }
 
 
@@ -98,10 +95,10 @@ void BinDataDesc::toString( char* buf ) const
 {
     if ( !buf ) return;
 
-    sprintf( buf, "%s`%s`%d",
-		  isint_ ? "Integer" : "Float",
-		  issigned_ ? "Signed" : "Unsigned",
-		  (int)nrbytes_ );
+    FileMultiString fms;
+    fms.add( isint_ ? "Integer" : "Float" )
+	.add( issigned_ ? "Signed" : "Unsigned" )
+	.add( nrbytes_ );
 }
 
 

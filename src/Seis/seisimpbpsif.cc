@@ -22,15 +22,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
-    	: Executor("Importing BPSIF data")
-    	, datamgr_(*new SeisPSImpDataMgr(id))
-    	, curfileidx_(-1)
-    	, nrshots_(0)
-    	, nrrejected_(0)
-    	, nrrcvpershot_(-1)
-    	, binary_(false)
-    	, irregular_(false)
-    	, endofinput_(false)
+	: Executor("Importing BPSIF data")
+	, datamgr_(*new SeisPSImpDataMgr(id))
+	, curfileidx_(-1)
+	, nrshots_(0)
+	, nrrejected_(0)
+	, nrrcvpershot_(-1)
+	, binary_(false)
+	, irregular_(false)
+	, endofinput_(false)
 {
     if ( !filenm || !*filenm )
 	return;
@@ -39,7 +39,7 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
     if ( !fp.isAbsolute() )
 	fp.setPath( GetBaseDataDir() );
 
-    const char* ptr = strchr( filenm, '*' );
+    const char* ptr = firstOcc( filenm, '*' );
     if ( !ptr )
 	fnames_.add( fp.fullPath() );
     else
@@ -123,7 +123,7 @@ bool SeisImpBPSIF::readFileHeader()
 	if ( matchString(valstr,ln.buf()) )
 	{
 	    const char* nrstr = ln.buf() + 7;
-	    char* attrstr = strchr( ln.buf(), ':' );
+	    char* attrstr = firstOcc( ln.buf(), ':' );
 	    if ( !attrstr ) continue;
 	    *attrstr++ = '\0';
 	    char* subnrstr = ln.buf() + 9;
@@ -149,7 +149,7 @@ bool SeisImpBPSIF::readFileHeader()
 void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 {
     mSkipBlanks(attrstr);
-    char* ptr = strchr( attrstr, '=' );
+    char* ptr = firstOcc( attrstr, '=' );
     if ( !ptr ) ptr = attrstr;
     else	ptr++;
     mTrimBlanks(ptr);
@@ -299,7 +299,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
 	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
-		    		   nrrcvvals*sizeof(float) ) )
+				   nrrcvvals*sizeof(float) ) )
 	    return false;
 
 	SeisTrc* newtrc = new SeisTrc( tmpltrc );

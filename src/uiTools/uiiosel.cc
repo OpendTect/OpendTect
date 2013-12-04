@@ -388,7 +388,7 @@ void uiIOSelect::setLabelText( const char* s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar( int(strlen(s)+1) );
+	lbl_->setPrefWidthInChar( FixedString(s).size()+1 );
 	return lbl_->setText( s );
     }
     else if ( optbox_ )

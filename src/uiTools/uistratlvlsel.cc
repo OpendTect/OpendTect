@@ -56,8 +56,8 @@ uiStratLevelSel::~uiStratLevelSel()
 
 const Strat::Level* uiStratLevelSel::selected() const
 {
-    const char* seltxt = fld_->text();
-    if ( !seltxt || !*seltxt || (haveudf_ && !strcmp(seltxt,sNoLevelTxt)) )
+    const BufferString seltxt( fld_->text() );
+    if ( seltxt.isEmpty() || (haveudf_ && seltxt == sNoLevelTxt) )
 	return 0;
 
     return Strat::LVLS().get( seltxt );

@@ -40,12 +40,12 @@ static BufferString getHost( const char* dir )
     strm.getLine( line );
     if ( line.isEmpty() )
 	return ret;
-    const char* atptr = strchr( line.buf(), '@' );
+    const char* atptr = firstOcc( line.buf(), '@' );
     if ( !atptr )
 	return ret;
 
     ret = atptr + 1;
-    char* cptr = strchr( ret.buf(), ':' );
+    char* cptr = firstOcc( ret.buf(), ':' );
     if ( cptr ) *cptr = '\0';
     return ret;
 }
@@ -101,9 +101,9 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
     BufferString line;
     while ( strm.getLine(line) )
     {
-	char* nmptr = strchr( line.buf(), '/' );
+	char* nmptr = firstOcc( line.buf(), '/' );
 	if ( !nmptr ) continue;
-	nmptr++; char* endptr = strchr( nmptr, '/' );
+	nmptr++; char* endptr = firstOcc( nmptr, '/' );
 	if ( endptr ) *endptr = '\0';
 	if ( *nmptr )
 	    entries.add( nmptr );

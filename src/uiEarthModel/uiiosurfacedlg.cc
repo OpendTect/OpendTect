@@ -161,10 +161,10 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 
 #define mGet( ioobj, hor2d, hor3d, emfss, flt3d ) \
-    !strcmp(ioobj.group(),EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
-    (!strcmp(ioobj.group(),EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
-    (!strcmp(ioobj.group(),EMFaultStickSetTranslatorGroup::keyword()) ? emfss\
-								      : flt3d ))
+    (ioobj.group() == EMHorizon2DTranslatorGroup::keyword() ? hor2d : \
+    (ioobj.group() == EMHorizon3DTranslatorGroup::keyword() ? hor3d : \
+    (ioobj.group() == EMFaultStickSetTranslatorGroup::keyword()? emfss\
+							    : flt3d )))
 
 #define mGetHelpID(ioobj) \
     mGet( ioobj, "104.2.7", "104.2.6", "104.2.8", "104.2.9")
@@ -185,9 +185,9 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     ctio_.ctxt.forread = false;
     ctio_.setObj( 0 );
 
-    if ( !strcmp(ioobj.group(), EMFault3DTranslatorGroup::keyword() ) )
+    if ( ioobj.group() == EMFault3DTranslatorGroup::keyword() )
 	outfld = new uiIOObjSel( this, ctio_, "Output Fault" );
-    else if ( strcmp(ioobj.group(),EM::FaultStickSet::typeStr()) )
+    else if ( ioobj.group() == EM::FaultStickSet::typeStr() )
 	outfld = new uiIOObjSel( this, ctio_, "Output Surface" );
     else
 	outfld = new uiIOObjSel( this, ctio_, "Output Stickset" );
@@ -205,13 +205,13 @@ uiCopySurface::~uiCopySurface()
 
 CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 {
-    if ( !strcmp(ioobj.group(),EM::Horizon2D::typeStr()) )
+    if ( ioobj.group() == EM::Horizon2D::typeStr() )
 	return mMkCtxtIOObj( EMHorizon2D );
-    if ( !strcmp(ioobj.group(),EM::Horizon3D::typeStr()) )
+    if ( ioobj.group() == EM::Horizon3D::typeStr() )
 	return mMkCtxtIOObj( EMHorizon3D );
-    if ( !strcmp(ioobj.group(),EM::FaultStickSet::typeStr()) )
+    if ( ioobj.group() == EM::FaultStickSet::typeStr() )
 	return mMkCtxtIOObj( EMFaultStickSet );
-    if ( !strcmp(ioobj.group(),EM::Fault3D::typeStr()) )
+    if ( ioobj.group() == EM::Fault3D::typeStr() )
 	return mMkCtxtIOObj( EMFault3D );
     return 0;
 }
@@ -254,12 +254,12 @@ bool uiCopySurface::acceptOK( CallBacker* )
     mDynamicCastGet(Pos::Provider3D*,p3d,pf);
     if ( p3d )
 	surface->apply( *pf );
- 
+
     EM::SurfaceIOData outsd;
     outsd.use( *surface );
     EM::SurfaceIODataSelection outsdsel( outsd );
     outsdsel.setDefault();
- 
+
     mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
     if ( rp3d )
 	outsdsel.rg = rp3d->sampling().hrg;
@@ -274,7 +274,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
-    if ( File::exists(oldsetupname) ) 
+    if ( File::exists(oldsetupname) )
 	File::copy( oldsetupname, newsetupname );
 
     return true;

@@ -77,7 +77,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	const char* defstring = descpar->find( "Definition" );
 	if ( !defstring ) continue;
 	BufferString useref;
-	descpar->get( "UserRef", useref ); 
+	descpar->get( "UserRef", useref );
 	int inpidx=0;
 	while ( true )
 	{
@@ -92,7 +92,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 		     (storedids_[stridx].secondid_ == descid) )
 		    storedids_[stridx].userrefs_.addIfNew( useref );
 	    }
-	    inpidx++;	
+	    inpidx++;
 	}
     }
 }
@@ -105,7 +105,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
     {
 	IOPar* descpar = iopar.subselect( idx );
 	if ( !descpar ) continue;
-	const char* defstring = descpar->find( 
+	const char* defstring = descpar->find(
 					Attrib::DescSet::definitionStr() );
 	if ( !defstring ) continue;
 	BufferString attribnm;
@@ -179,11 +179,11 @@ void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
     if ( !par ) return;
     const char* defstring = par->find( "Definition" );
     BufferString defstr( defstring );
-    char* maindefstr = strstr( defstr.buf(), "id=" );
+    char* maindefstr = firstOcc( defstr.buf(), "id=" );
     maindefstr += 3;
 
     BufferString tempstr( maindefstr );
-    char* spaceptr = strchr( tempstr.buf(), ' ' );
+    char* spaceptr = firstOcc( tempstr.buf(), ' ' );
     BufferString finalpartstr( spaceptr );
     *maindefstr = '\0';
     const bool usequotes = hasSpace( key );
@@ -200,14 +200,14 @@ int uiStoredAttribReplacer::getOutPut( int descid )
 {
     IOPar* descpar = iopar_->subselect( descid );
     if ( !descpar ) return -1;
-    
+
     const char* defstring = descpar->find( "Definition" );
     BufferString defstr( defstring );
 
-    char* outputptr = strstr( defstr.buf(), "output=" );
+    char* outputptr = firstOcc( defstr.buf(), "output=" );
     outputptr +=7;
     BufferString outputstr( outputptr );
-    char* spaceptr = strchr( outputstr.buf(), ' ' );
+    char* spaceptr = firstOcc( outputstr.buf(), ' ' );
     if ( spaceptr )
 	*spaceptr ='\0';
     return toInt( outputstr );
@@ -222,15 +222,15 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
     const int output = getOutPut( storeentry.firstid_.asInt() );
     if ( output==0 )
     {
-	IOPar* inlpar = iopar_->subselect( storeentry.firstid_.asInt() ); 
+	IOPar* inlpar = iopar_->subselect( storeentry.firstid_.asInt() );
 	setStoredKey( inlpar, key );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
 	BufferString inlidstr; inlidstr+= storeentry.firstid_.asInt();
 	iopar_->mergeComp( *inlpar, inlidstr );
-	
-	IOPar* crlpar = iopar_->subselect( storeentry.secondid_.asInt()); 
+
+	IOPar* crlpar = iopar_->subselect( storeentry.secondid_.asInt());
 	setStoredKey( crlpar, key );
 	steerref = userref;
 	steerref += "_crline_dip";
@@ -240,15 +240,15 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
     }
     else
     {
-	IOPar* inlpar = iopar_->subselect( storeentry.secondid_.asInt()); 
+	IOPar* inlpar = iopar_->subselect( storeentry.secondid_.asInt());
 	setStoredKey( inlpar, key );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
 	BufferString inlidstr; inlidstr+= storeentry.secondid_.asInt();
 	iopar_->mergeComp( *inlpar, inlidstr );
-	
-	IOPar* crlpar = iopar_->subselect( storeentry.firstid_.asInt() ); 
+
+	IOPar* crlpar = iopar_->subselect( storeentry.firstid_.asInt() );
 	setStoredKey( crlpar, key );
 	steerref = userref;
 	steerref += "_crline_dip";
@@ -303,7 +303,7 @@ void uiStoredAttribReplacer::handleSingleInput()
 	{
 	    if ( !iopar_ ) return;
 	    IOPar* descpar =
-		iopar_->subselect( storedids_[seisidx].firstid_.asInt() ); 
+		iopar_->subselect( storedids_[seisidx].firstid_.asInt() );
 	    setStoredKey( descpar, dlg.getSeisKey() );
 	    descpar->set( "UserRef", dlg.getSeisRef() );
 	    BufferString idstr; idstr+= storedids_[seisidx].firstid_.asInt();
@@ -350,7 +350,7 @@ void uiStoredAttribReplacer::handleSingleInput()
 	}
 	else
 	    setSteerPar( storedids_[steeridx], dlg.getSteerKey(),
-		    	 dlg.getSteerRef() );
+			 dlg.getSteerRef() );
     }
 }
 
@@ -407,7 +407,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    else
 	    {
 		if ( !iopar_ ) return;
-		IOPar* descpar = iopar_->subselect( storedid.asInt() ); 
+		IOPar* descpar = iopar_->subselect( storedid.asInt() );
 		setStoredKey( descpar, dlg.getSeisKey() );
 		descpar->set( "UserRef", dlg.getSeisRef() );
 		BufferString idstr; idstr+= storedid.asInt();

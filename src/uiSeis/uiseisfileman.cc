@@ -49,7 +49,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 #define mHelpID is2d ? "103.1.11" : "103.1.0"
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID).nrstatusflds(1),
-	    	   SeisTrcTranslatorGroup::ioContext())
+		   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
 {
@@ -63,7 +63,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     }
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(
-	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
+				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
 				      : mCB(this,uiSeisFileMan,browsePush) );
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -100,13 +100,15 @@ uiSeisFileMan::~uiSeisFileMan()
 {
 }
 
+#define mIsOfTranslType(typ) \
+(FixedString(curioobj_->translator()) == typ##SeisTrcTranslator::translKey())
+
 
 void uiSeisFileMan::ownSelChg()
 {
     if ( !browsebut_ || !curioobj_ ) return;
-    
-    browsebut_->setSensitive( curimplexists_ && strcmp(curioobj_->translator(),
-		SEGYDirectSeisTrcTranslator::translKey() ) );
+
+    browsebut_->setSensitive( curimplexists_ && !mIsOfTranslType(SEGYDirect) );
 }
 
 
@@ -150,7 +152,7 @@ void uiSeisFileMan::mkFileInfo()
 
 	    txt.add("\n").add(zddef.userName()).add(" range ")
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
-		.add(" - ") mAddZValTxt(cs.zrg.stop) 
+		.add(" - ") mAddZValTxt(cs.zrg.stop)
 		.add(" [") mAddZValTxt(cs.zrg.step) .add("]");
 	}
     }
@@ -186,14 +188,14 @@ void uiSeisFileMan::mkFileInfo()
 		    txt += ZDomain::Depth().unitStr(true);
 		}
 
-		else 
+		else
 		{
 		    rg.start = 2 * zrg.start / topvavg.stop;
 		    rg.stop = 2 * zrg.stop / botvavg.start;
 		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
 		    rg.scale( mCast( float, ZDomain::Time().userFactor() ) );
 		    txt += "\nTime Range ";
-		    txt += ZDomain::Time().unitStr(true);  
+		    txt += ZDomain::Time().unitStr(true);
 		}
 
 		txt += ": ";
@@ -204,7 +206,7 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    if ( !strcmp(curioobj_->translator(),CBVSSeisTrcTranslator::translKey()) )
+    if ( mIsOfTranslType(CBVS) )
     {
 	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
 	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
@@ -242,7 +244,7 @@ double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     {
 	BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
 	if ( !File::exists(fullnm) ) break;
-	
+
 	totalsz += (double)File::getKbSize( fullnm );
 	nrfiles++;
     }

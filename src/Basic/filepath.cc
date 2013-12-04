@@ -12,8 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "msgh.h"
 #include "winutils.h"
-
 #include <time.h>
+#include <string.h>
 
 
 const char* FilePath::sPrefSep = ":";
@@ -83,14 +83,14 @@ FilePath& FilePath::set( const char* _fnm )
     mSkipBlanks( fnm );
     if ( !*fnm ) return *this;
 
-    const char* ptr = strchr( fnm, *sPrefSep );
+    const char* ptr = firstOcc( fnm, *sPrefSep );
     if ( ptr )
     {
-	const char* dsptr = strchr( fnm, *dirSep(Local) );
+	const char* dsptr = firstOcc( fnm, *dirSep(Local) );
 	if ( dsptr > ptr )
 	{
 	    prefix_ = fnm;
-	    *strchr( prefix_.buf(), *sPrefSep ) = '\0';
+	    *firstOcc( prefix_.buf(), *sPrefSep ) = '\0';
 	    fnm = ptr + 1;
 	}
     }
@@ -171,7 +171,7 @@ void FilePath::setExtension( const char* ext, bool replace )
     }
 
     BufferString& fname = *lvls_[lvls_.size()-1];
-    char* ptr = strrchr( fname.buf(), '.' );
+    char* ptr = lastOcc( fname.buf(), '.' );
     if ( ptr && replace )
 	strcpy( *ext ? ptr+1 : ptr, ext );
     else if ( *ext )
@@ -262,7 +262,7 @@ const char* FilePath::extension() const
     if ( lvls_.isEmpty() )
 	return 0;
 
-    const char* ret = strrchr( fileName().buf(), '.' );
+    const char* ret = lastOcc( fileName().buf(), '.' );
     if ( ret ) ret++;
     return ret;
 }

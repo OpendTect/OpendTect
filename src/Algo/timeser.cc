@@ -126,7 +126,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 
     wts = new float [width];
     for ( iwt=0; iwt<width; iwt++ )
-	wts[iwt] = (float) ( 0.5 * frac * 
+	wts[iwt] = (float) ( 0.5 * frac *
 				(1 + cos( M_PI * iwt / hwidth - M_PI )) );
 
     for ( ival=0; ival<sz; ival++ )
@@ -157,7 +157,7 @@ Compute z = x convolved with y; i.e.,
 {
     int ilx=ifx+lx-1, ily=ify+ly-1, ilz=ifz+lz-1, i, j, jlow, jhigh;
     float sum;
-    
+
     x -= ifx;  y -= ify;  z -= ifz;
     for ( i=ifz; i<=ilz; ++i )
     {
@@ -198,9 +198,9 @@ void Hilbert( int n, float* x, float* y )
 	h[hlen] = 0;
 	for ( i=1; i<=hlen; i++ )
 	{
-	    taper = (float) ( 0.54 + 0.46 * 
+	    taper = (float) ( 0.54 + 0.46 *
 				    cos( M_PI*(float)i / (float)(hlen) ) );
-	    h[hlen+i] = (float) ( taper * 
+	    h[hlen+i] = (float) ( taper *
 				( -(float)(i%2)*2.0 / (M_PI*(float)(i))) );
 	    h[hlen-i] = -h[hlen+i];
 	}

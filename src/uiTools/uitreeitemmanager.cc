@@ -128,7 +128,7 @@ bool uiTreeItem::isChecked() const
 { return uitreeviewitem_ ? uitreeviewitem_->isChecked() : false; }
 
 
-NotifierAccess* uiTreeItem::checkStatusChange() 
+NotifierAccess* uiTreeItem::checkStatusChange()
 { return uitreeviewitem_ ? &uitreeviewitem_->stateChanged : 0; }
 
 void uiTreeItem::expand()
@@ -161,7 +161,7 @@ const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 {
     return const_cast<uiTreeItem*>(this)->findChild(nm);
 }
-	
+
 
 const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 {
@@ -171,7 +171,7 @@ const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 
 uiTreeItem* uiTreeItem::findChild( const char* nm )
 {
-    if ( !strcmp( nm, name_ ) )
+    if ( name_ == nm )
 	return this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -187,7 +187,7 @@ uiTreeItem* uiTreeItem::findChild( const char* nm )
 
 void uiTreeItem::findChildren( const char* nm, ObjectSet<uiTreeItem>& set )
 {
-    if ( !strcmp(nm,name_) )
+    if ( name_ == nm )
 	set += this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -333,7 +333,7 @@ uiTreeItem* uiTreeItem::getChild( int idx )
 bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 			       bool below, bool downwards )
 {
-    if ( !strcmp(newitem->parentType(),typeid(*this).name()) )
+    if ( FixedString(newitem->parentType()) == typeid(*this).name() )
     {
 	mEnabSelChg( false )
 	children_ += newitem;
@@ -356,7 +356,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	    mEnabSelChg( true );
 	    return true;
 	}
- 
+
 	const bool itmisopen = item->isOpen();
 	if ( !below ) newitem->moveItemToTop();
 	item->setOpen( itmisopen );
@@ -367,7 +367,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	mEnabSelChg( true );
 	return true;
     }
- 
+
     if ( downwards )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -378,8 +378,8 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
     }
     else if ( parent_ )
 	return parent_->addChld( newitem, below, downwards );
- 
-    return false; 
+
+    return false;
 }
 
 
@@ -405,7 +405,7 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 
     if ( uitreeviewitem_ )
         uitreeviewitem_->removeItem( treeitem->getItem() );
-    
+
     delete children_.removeSingle( idx );
     mEnabSelChg( true )
 }
@@ -419,22 +419,22 @@ uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
     , disabanyclick_(false)
 {
     listview_->rightButtonClicked.notify(
-	    		mCB(this,uiTreeTopItem,rightClickCB) );
+			mCB(this,uiTreeTopItem,rightClickCB) );
     listview_->mouseButtonClicked.notify(
-	    		mCB(this,uiTreeTopItem,anyButtonClickCB) );
+			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.notify(
-	    		mCB(this,uiTreeTopItem,selectionChanged) );
+			mCB(this,uiTreeTopItem,selectionChanged) );
 }
 
 
 uiTreeTopItem::~uiTreeTopItem()
 {
     listview_->rightButtonClicked.remove(
-	    		mCB(this,uiTreeTopItem,rightClickCB) );
+			mCB(this,uiTreeTopItem,rightClickCB) );
     listview_->mouseButtonClicked.remove(
-	    		mCB(this,uiTreeTopItem,anyButtonClickCB) );
+			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.remove(
-	    		mCB(this,uiTreeTopItem,selectionChanged) );
+			mCB(this,uiTreeTopItem,selectionChanged) );
 }
 
 
@@ -522,7 +522,7 @@ uiTreeFactorySet::~uiTreeFactorySet()
 
 
 void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
-       				   int pol2d )
+				   int pol2d )
 {
     factories_ += ptr;
     placementidxs_ += placement;
@@ -536,11 +536,8 @@ void uiTreeFactorySet::remove( const char* nm )
     int index = -1;
     for ( int idx=0; idx<factories_.size(); idx++ )
     {
-	if ( !strcmp(nm,factories_[idx]->name()) )
-	{
-	    index=idx;
-	    break;
-	}
+	if ( FixedString(nm) == factories_[idx]->name() )
+	    { index = idx; break; }
     }
 
     if ( index<0 )

@@ -66,11 +66,11 @@ static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
-    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurvey::Util> >, 
+    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurvey::Util> >,
 			      utils, = 0 );
     if ( !utils )
     {
-	ManagedObjectSet<uiSurvey::Util>* newutils = 
+	ManagedObjectSet<uiSurvey::Util>* newutils =
 				    new ManagedObjectSet<uiSurvey::Util>;
 	*newutils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
 				      CallBack() );
@@ -190,7 +190,7 @@ class uiStartNewSurveySetup : public uiDialog
 {
 
 public:
-    			uiStartNewSurveySetup(uiParent*,const char*,
+			uiStartNewSurveySetup(uiParent*,const char*,
 						SurveyInfo&);
 
     bool		isOK();
@@ -220,7 +220,7 @@ protected:
 SurveyInfo::Pol2D pol2D() const
 {
     return has3D() ? ( has2D() ? SurveyInfo::Both2DAnd3D
-	    		       : SurveyInfo::No2D )
+			       : SurveyInfo::No2D )
 			       : SurveyInfo::Only2D;
 }
 
@@ -239,7 +239,7 @@ void zdomainChg( CallBacker* cb )
 
 uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
-    	: uiDialog(p,uiDialog::Setup("Create new survey",
+	: uiDialog(p,uiDialog::Setup("Create new survey",
 		    "Specify new survey parameters",mTODOHelpID))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
@@ -265,7 +265,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
     uiGroup* zdomaingrp = new uiGroup( this, "Domain group" );
     uiLabel* domainlbl = new uiLabel( zdomaingrp, "Domain" );
     zdomainfld_ = new uiCheckList( zdomaingrp, "Time", "Depth",
-	    			   uiCheckList::OneOnly );
+				   uiCheckList::OneOnly );
     zdomainfld_->attach( rightOf, domainlbl );
     zdomainfld_->changed.notify( mCB(this,uiStartNewSurveySetup,zdomainChg) );
     zdomaingrp->setHAlignObj( zdomainfld_ );
@@ -274,7 +274,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
     zunitgrp_ = new uiGroup( this, "Z unit group" );
     uiLabel* zunitlbl = new uiLabel( zunitgrp_, "Depth unit" );
     zunitfld_ = new uiCheckList( zunitgrp_, "Meter", "Feet",
-	    			 uiCheckList::OneOnly );
+				 uiCheckList::OneOnly );
     zunitfld_->attach( rightOf, zunitlbl );
     zunitgrp_->setHAlignObj( zunitfld_ );
     zunitgrp_->attach( alignedBelow, zdomaingrp );
@@ -288,7 +288,7 @@ bool uiStartNewSurveySetup::isOK()
 {
     BufferString survnm = survName();
     if ( survnm.isEmpty() )
-    	mErrRet( "Please enter a new survey name" )
+	mErrRet( "Please enter a new survey name" )
 
     char* str = survnm.buf();
     cleanupString( str, false, false, true );
@@ -369,7 +369,7 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
     int maxlen = 0;
     for ( int idx=0; idx<sipfld_->size(); idx++ )
     {
-	const int len = strlen( sipfld_->textOfItem(idx) );
+	const int len = FixedString( sipfld_->textOfItem(idx) ).size();
 	if ( len > maxlen ) maxlen = len;
     }
     sipfld_->setPrefWidthInChar( maxlen + 5 );
@@ -409,9 +409,9 @@ uiSurvey::uiSurvey( uiParent* p )
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
-    mDefineStaticLocalObject( int, sipidx2d, mUnusedVar = 
+    mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
-    mDefineStaticLocalObject( int, sipidxcp, mUnusedVar = 
+    mDefineStaticLocalObject( int, sipidxcp, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
@@ -431,19 +431,19 @@ uiSurvey::uiSurvey( uiParent* p )
     leftgrp->attach( leftOf, rightgrp );
 
     uiPushButton* newbut = new uiPushButton( leftgrp, "&New",
-	    			mCB(this,uiSurvey,newButPushed), false );
+				mCB(this,uiSurvey,newButPushed), false );
     newbut->attach( rightOf, dirfld_ );
     newbut->setPrefWidthInChar( 12 );
     rmbut_ = new uiPushButton( leftgrp, "&Remove",
-	    		       mCB(this,uiSurvey,rmButPushed), false );
+			       mCB(this,uiSurvey,rmButPushed), false );
     rmbut_->attach( alignedBelow, newbut );
     rmbut_->setPrefWidthInChar( 12 );
     editbut_ = new uiPushButton( leftgrp, "&Edit",
-	    			 mCB(this,uiSurvey,editButPushed), false );
+				 mCB(this,uiSurvey,editButPushed), false );
     editbut_->attach( alignedBelow, rmbut_ );
     editbut_->setPrefWidthInChar( 12 );
     uiPushButton* copybut = new uiPushButton( leftgrp, "C&opy",
-	    			 mCB(this,uiSurvey,copyButPushed), false );
+				 mCB(this,uiSurvey,copyButPushed), false );
     copybut->attach( alignedBelow, editbut_ );
     copybut->setPrefWidthInChar( 12 );
 
@@ -452,7 +452,7 @@ uiSurvey::uiSurvey( uiParent* p )
 				    mCB(this,uiSurvey,exportButPushed) );
     expbut->attach( alignedBelow, copybut );
     uiToolButton* impbut = new uiToolButton( leftgrp, "unpack",
-				    "Unpack survey from zip file", 
+				    "Unpack survey from zip file",
 				    mCB(this,uiSurvey,importButPushed) );
     impbut->attach( rightAlignedBelow, copybut );
 
@@ -472,7 +472,7 @@ uiSurvey::uiSurvey( uiParent* p )
     utilbutgrp->attach( centeredBelow, survmap_ );
 
     uiPushButton* drbut = new uiPushButton( leftgrp, "&Set Data Root",
-	    			mCB(this,uiSurvey,dataRootPushed), false );
+				mCB(this,uiSurvey,dataRootPushed), false );
     drbut->attach( centeredBelow, dirfld_ );
 
     uiSeparator* horsep1 = new uiSeparator( topgrp );
@@ -490,10 +490,10 @@ uiSurvey::uiSurvey( uiParent* p )
     infoleft->setFont( FontList().get(FontData::key(FontData::ControlSmall)) );
     inforight->setFont( FontList().get(FontData::key(FontData::ControlSmall)));
 
-    inllbl_ = new uiLabel( infoleft, "" ); 
+    inllbl_ = new uiLabel( infoleft, "" );
     crllbl_ = new uiLabel( infoleft, "" );
     arealbl_ = new uiLabel( infoleft, "" );
-    zlbl_ = new uiLabel( inforight, "" ); 
+    zlbl_ = new uiLabel( inforight, "" );
     binlbl_ = new uiLabel( inforight, "" );
     typelbl_ = new uiLabel( inforight, "" );
     inllbl_->setPrefWidthInChar( 40 );
@@ -560,7 +560,7 @@ bool uiSurvey::rootDirWritable() const
 
 
 void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
-       				const char* excludenm )
+				const char* excludenm )
 {
     BufferString basedir = dataroot;
     if ( basedir.isEmpty() )
@@ -729,7 +729,7 @@ void uiSurvey::newButPushed( CallBacker* )
 
     const BufferString orgdirname = newsurvinfo->getDirName().buf();
     const BufferString storagedir = FilePath( dataroot_ ).add( orgdirname )
-						       	    .fullPath();
+							    .fullPath();
     if ( !uiSurveyInfoEditor::copySurv(
 		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),0,
 				  dataroot_,orgdirname) )
@@ -852,16 +852,16 @@ void uiSurvey::exportButPushed( CallBacker* )
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     filepinput->setFilter( sZipFileMask );
-    uiLabel* sharfld = new uiLabel( &dlg, 
+    uiLabel* sharfld = new uiLabel( &dlg,
 			   "You can share surveys to Open Seismic Repository."
 			   "To know more " );
     sharfld->attach( leftAlignedBelow,  filepinput );
-    uiPushButton* osrbutton = new uiPushButton( &dlg, 
+    uiPushButton* osrbutton = new uiPushButton( &dlg,
 				    "Click here", mSCB(osrbuttonCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
-	
+
     FilePath exportzippath( filepinput->fileName() );
     BufferString zipext = exportzippath.extension();
     if ( zipext != "zip" )
@@ -897,7 +897,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 
     const int butidx = utilbuts_.indexOf( tb );
     if ( butidx < 0 ) { pErrMsg("Huh"); return; }
-    
+
     if ( butidx == 0 )
     {
 	uiConvertPos dlg( this, *cursurvinfo_ );
@@ -1057,13 +1057,13 @@ void uiSurvey::putToScreen()
 	    crlinfo.add( si.sampling(false).hrg.start.crl() );
 	    crlinfo.add( " - ").add( si.sampling(false).hrg.stop.crl() );
 	    crlinfo.add( "  step: " ).add( si.crlStep() );
-	    
+
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
 	    #define mAddDist(dist) \
 	    nr = (int)(dist*100+.5); bininfo += nr/100; \
 	    rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest
 
-	    int nr, rest;    
+	    int nr, rest;
 	    bininfo += "inl: "; mAddDist(inldist);
 	    bininfo += "  crl: "; mAddDist(crldist);
 	    float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
@@ -1075,7 +1075,7 @@ void uiSurvey::putToScreen()
 
 	#define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
 
-	const bool istime = si.zIsTime(); 
+	const bool istime = si.zIsTime();
 	mAdd2ZString( si.zRange(false).start );
 	zinfo += " - "; mAdd2ZString( si.zRange(false).stop );
 	zinfo += "  step: "; mAdd2ZString( si.zRange(false).step );

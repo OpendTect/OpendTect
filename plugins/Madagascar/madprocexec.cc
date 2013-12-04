@@ -37,7 +37,7 @@ ODMad::ProcExec::ProcExec( const IOPar& iop, std::ostream& reportstrm )
     , procstream_(*new StreamData)
     , plotstream_(*new StreamData)
     , progmeter_(0)
-    , trc_(0)      
+    , trc_(0)
 {
     parseEnumFlowStage( pars_.find( sKeyFlowStage() ), stage_ );
 }
@@ -83,7 +83,7 @@ bool ODMad::ProcExec::init()
 
 	std::cerr << "About to execute: " << comm << std::endl;
 	if ( stage_ == Start && ( inptyp == ODMad::ProcFlow::None
-		    		|| inptyp == ODMad::ProcFlow::SU ) )
+				|| inptyp == ODMad::ProcFlow::SU ) )
 	{
 	    BufferString cmd( comm + 1 );
 	    if ( inptyp == ODMad::ProcFlow::SU )
@@ -98,7 +98,7 @@ bool ODMad::ProcExec::init()
 	    return !system( cmd.buf() );
 	}
 
-	if ( !strcmp(comm,StreamProvider::sStdIO()) )
+	if ( FixedString(comm) == StreamProvider::sStdIO() )
 	    procstream_.ostrm = &std::cout;
 	else
 	    procstream_ = StreamProvider( comm ).makeOStream();
@@ -227,7 +227,7 @@ const char* ODMad::ProcExec::getProcString()
 	    pars_.set( sKeyCurProc(), curprocidx );
 	    break;
 	}
-	
+
 	if ( endproc )
 	{
 	    if ( outtyp == ODMad::ProcFlow::Madagascar )
@@ -236,7 +236,7 @@ const char* ODMad::ProcExec::getProcString()
 		ret += procflow.output().find( sKey::FileName() );
 	    }
 	    else
-	    {	    
+	    {
 		pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
 		pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 		ret += " | ";
@@ -264,7 +264,7 @@ const char* ODMad::ProcExec::getPlotString() const
 	return 0;
 
     FilePath fp( rsfroot, "bin" );
-    char* pipechar = strchr( plotcmd.buf(), '|' );
+    char* pipechar = firstOcc( plotcmd.buf(), '|' );
     if ( pipechar )
     {
 	BufferString tmp = pipechar + 2;

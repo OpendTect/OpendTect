@@ -16,8 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "od_istream.h"
 #include "od_ostream.h"
-#include <string.h>
-#include <stdlib.h>
 
 static const char* valsep_replacement = "\\:";
 static const char* newline_replacement = "#-NL-#";
@@ -92,7 +90,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
     if ( !isOK() || !keyword || !*keyword ) return;
 
     BufferString towrite = keyword;
-    char* ptr = strchr( towrite.buf(), mAscStrmKeyValSep );
+    char* ptr = firstOcc( towrite.buf(), mAscStrmKeyValSep );
     while ( ptr )
     {
 	BufferString tmp( ptr + 1 );
@@ -100,7 +98,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
 	towrite += valsep_replacement;
 	const od_int64 prevlen = towrite.size();
 	towrite += tmp;
-	ptr = strchr( towrite.buf() + prevlen, mAscStrmKeyValSep );
+	ptr = firstOcc( towrite.buf() + prevlen, mAscStrmKeyValSep );
     }
 
     strm_ << towrite;
@@ -116,7 +114,7 @@ bool ascostream::put( const char* keyword, const char* value )
 
     if ( value )
     {
-	const char* nlptr = strchr( value, '\n' );
+	const char* nlptr = firstOcc( value, '\n' );
 	if ( nlptr )
 	{
 	    BufferString str( value );
@@ -127,7 +125,7 @@ bool ascostream::put( const char* keyword, const char* value )
 		*ptr++ = '\0';
 		strm_ << startptr << newline_replacement;
 		startptr = ptr;
-		ptr = strchr( ptr, '\n' );
+		ptr = firstOcc( ptr, '\n' );
 	    }
 	    value += startptr - str.buf();
 	}
@@ -258,7 +256,7 @@ void ascistream::init( bool rdhead )
     removeTrailingBlanks(filetype_.buf());
     if ( filetype_.size() >= 4 )
     {
-	char* ptr = filetype_.buf() + strlen(filetype_) - 4;
+	char* ptr = filetype_.buf() + filetype_.size() - 4;
 	if ( caseInsensitiveEqual(ptr,"file",0) )
 	    *ptr = '\0';
 	removeTrailingBlanks(filetype_.buf());
@@ -325,7 +323,7 @@ bool ascistream::isOfFileType( const char* ftyp ) const
 
 const char* ascistream::version() const
 {
-    const char* vptr = strrchr( header_.buf(), 'V' );
+    const char* vptr = lastOcc( header_.buf(), 'V' );
     if ( vptr ) return vptr + 1;
     return "0.0";
 }
@@ -334,7 +332,7 @@ const char* ascistream::version() const
 int ascistream::majorVersion() const
 {
     BufferString v( version() );
-    char* ptr = strchr( v.buf(), '.' );
+    char* ptr = firstOcc( v.buf(), '.' );
     if ( ptr ) *ptr = '\0';
     return toInt( v.buf() );
 }
@@ -343,7 +341,7 @@ int ascistream::majorVersion() const
 int ascistream::minorVersion() const
 {
     BufferString v( version() );
-    char* ptr = strrchr( v.buf(), '.' );
+    char* ptr = lastOcc( v.buf(), '.' );
     return toInt( ptr ? ptr+1 : v.buf() );
 }
 

@@ -72,7 +72,7 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 	idy++;
     }
 
-    filters += ";;PDF (*.pdf);;PostScript (*.ps)"; 
+    filters += ";;PDF (*.pdf);;PostScript (*.ps)";
     filters_ = filters;
 }
 
@@ -81,7 +81,7 @@ const char* uiGraphicsSaveImageDlg::getExtension()
 {
     FilePath fp( fileinputfld_->fileName() );
     const BufferString ext( fp.extension() );
-    if ( ext == "pdf" || !strncmp(fileinputfld_->selectedFilter(),"PDF",3) )
+    if ( ext == "pdf" || matchStringCI("PDF",fileinputfld_->selectedFilter()) )
 	return "pdf";
 
     return uiSaveImageDlg::getExtension();
@@ -102,7 +102,7 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 
     if ( !filenameOK() ) return false;
     BufferString ext( getExtension() );
-    if ( ext == "pdf" ) 
+    if ( ext == "pdf" )
 	scene_->saveAsPDF(fileinputfld_->fileName(),(int)sizepix_.width(),
 			  (int)sizepix_.height(),dpifld_->box()->getValue());
     else if ( ext == "ps" || ext == "eps" )
@@ -110,7 +110,7 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 			  (int)sizepix_.height(),dpifld_->box()->getValue());
     else
 	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-	       		     (int)sizepix_.height(),dpifld_->box()->getValue());
+			     (int)sizepix_.height(),dpifld_->box()->getValue());
 
     if ( saveButtonChecked() )
 	writeToSettings();
@@ -142,7 +142,7 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 		useparsfld_->setValue( false );
 	}
 	aspectratio_ = (float) widthfld_->box()->getFValue() /
-	    		       heightfld_->box()->getFValue();
+			       heightfld_->box()->getFValue();
     }
     else
     {

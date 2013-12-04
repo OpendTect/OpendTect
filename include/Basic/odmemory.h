@@ -12,6 +12,7 @@ ________________________________________________________________________
 */
 
 #include "task.h"
+#include <string.h>
 
 
 namespace OD
@@ -33,9 +34,9 @@ template <class T>
 mClass(Basic) MemSetter : public ParallelTask
 {
 public:
-    		MemSetter();
-    		MemSetter(T*,T val,od_int64 sz);
-    		MemSetter(ValueSeries<T>&,T val,od_int64 sz);
+		MemSetter();
+		MemSetter(T*,T val,od_int64 sz);
+		MemSetter(ValueSeries<T>&,T val,od_int64 sz);
 
     void	setValue( const T& val )	{ val_ = val; }
     void	setTarget( T* ptr )		{ ptr_ = ptr; vs_ = 0; }
@@ -67,11 +68,11 @@ mClass(Basic) MemCopier : public ParallelTask
 {
 public:
 
-    		MemCopier();
-    		MemCopier(T*,const T*,od_int64 sz);
-    		MemCopier(T*,const ValueSeries<T>&,od_int64 sz);
-    		MemCopier(ValueSeries<T>&,const T*,od_int64 sz);
-    		MemCopier(ValueSeries<T>&,const ValueSeries<T>&,od_int64 sz);
+		MemCopier();
+		MemCopier(T*,const T*,od_int64 sz);
+		MemCopier(T*,const ValueSeries<T>&,od_int64 sz);
+		MemCopier(ValueSeries<T>&,const T*,od_int64 sz);
+		MemCopier(ValueSeries<T>&,const ValueSeries<T>&,od_int64 sz);
 
     void	setInput( const T* ptr )	{ inptr_ = ptr; invs_ = 0; }
     void	setInput( const ValueSeries<T>& vs ) {	inptr_ = vs.arr();
@@ -142,7 +143,7 @@ MemSetter<T>::MemSetter()
     : ptr_( 0 )
     , vs_( 0 )
     , sz_( -1 )
-{} 
+{}
 
 
 template <class T> inline
@@ -151,7 +152,7 @@ MemSetter<T>::MemSetter( T* ptr, T val, od_int64 sz )
     , vs_( 0 )
     , val_( val )
     , sz_( sz )
-{} 
+{}
 
 
 template <class T> inline

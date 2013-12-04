@@ -12,12 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "marchingcubes.h"
 #include "positionlist.h"
 #include "samplingdata.h"
+#include <string.h>
 
 #define mX	0
 #define mY	1
 #define mZ	2
 
-#define mBucketSize 16	
+#define mBucketSize 16
 
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
 {
@@ -64,9 +65,9 @@ public:
 protected:
 
     od_int64	nrIterations() const { return totalnr_; }
-    const char* message() const 
-    { 
-	return updatecoords_ ? "Triangulation: updating coordinates" 
+    const char* message() const
+    {
+	return updatecoords_ ? "Triangulation: updating coordinates"
 	    : "Triangulation: updating indices";
     }
 
@@ -76,7 +77,7 @@ protected:
 	const bool usetable = xrg_;
 	int idxs[3];
 
-	const MultiDimStorage<MarchingCubesModel>& models = 
+	const MultiDimStorage<MarchingCubesModel>& models =
 	    surface_.getSurface()->models_;
 
 	for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
@@ -202,7 +203,7 @@ void ExplicitMarchingCubesSurface::removeAll( bool deep )
 	if ( !coordindices_.isValidPos( idxs ) )
 	    return;
 
-	do 
+	do
 	{
 	    const int* ci = &coordindices_.getRef( idxs, 0 );
 	    for ( int dim=0; dim<3; dim++ )
@@ -264,7 +265,7 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 
     if ( !surface_ || surface_->models_.isEmpty() )
 	return true;
-    
+
     if ( !surface_->models_.size() )
 	return true;
 
@@ -295,14 +296,14 @@ bool ExplicitMarchingCubesSurface::update(
     removeBuckets( xbucketrg, ybucketrg, zbucketrg );
 
     Interval<int> xrg = Interval<int>( xbucketrg.start*mBucketSize,
-	    			       (xbucketrg.stop+1)*mBucketSize-1 );
+				       (xbucketrg.stop+1)*mBucketSize-1 );
     Interval<int> yrg = Interval<int>( ybucketrg.start*mBucketSize,
 	                               (ybucketrg.stop+1)*mBucketSize-1 );
     Interval<int> zrg = Interval<int>( zbucketrg.start*mBucketSize,
 	                               (zbucketrg.stop+1)*mBucketSize-1 );
 
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
-    updater.setLimits( xrg, yrg, zrg ); 
+    updater.setLimits( xrg, yrg, zrg );
 
     if ( !TaskRunner::execute( tr, updater ) )
 	return false;
@@ -315,10 +316,10 @@ bool ExplicitMarchingCubesSurface::update(
 
 void ExplicitMarchingCubesSurface::removeBuckets(
 					const Interval<int>& xbucketrg,
-			    		const Interval<int>& ybucketrg,
-			    		const Interval<int>& zbucketrg )
+					const Interval<int>& ybucketrg,
+					const Interval<int>& zbucketrg )
 {
-    for ( int idx=xbucketrg.start; idx<xbucketrg.stop+1; idx++ ) 
+    for ( int idx=xbucketrg.start; idx<xbucketrg.stop+1; idx++ )
     {
 	for ( int idy=ybucketrg.start; idy<ybucketrg.stop+1; idy++ )
 	{
@@ -355,7 +356,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     if ( !nrtableindices )
 	return true;
 
-    const int indicesbucket[] = { getBucketPos(pos[mX]), 
+    const int indicesbucket[] = { getBucketPos(pos[mX]),
 				  getBucketPos(pos[mY]),
 				  getBucketPos(pos[mZ]) };
 
@@ -499,7 +500,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 		const int i0 = coordindices[nrindices-1];
 		const int i1 = coordindices[nrindices-2];
 		const int i2 = coordindices[nrindices-3];
-		
+
 		//Should be locked
 		normallist_->set( i0, normal );
 		normallist_->set( i1, normal );
@@ -518,7 +519,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 {
     Interval<int> ranges[3];
-    if ( surface_->allchanged_ ) 
+    if ( surface_->allchanged_ )
     {
 	surface_->models_.getRange( mX, ranges[mX] );
 	surface_->models_.getRange( mY, ranges[mY] );

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmddriverbasics.h"
 
 #include "uimenu.h"
+#include <string.h>
 
 
 namespace CmdDrive
@@ -217,7 +218,7 @@ bool TableClickCmd::act( const char* parstr )
 {
     mParKeyStrInit( "table", parstr, parnext, keys, selnr );
     mParTableTag( parnext, parnexxt, tag, false );
-    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxt, parnexxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -325,7 +326,7 @@ bool TableFillCmd::act( const char* parstr )
 {
     mParKeyStrInit( "table", parstr, parnext, keys, selnr );
     mParTableTag( parnext, parnexxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxt, parnexxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -339,7 +340,7 @@ bool TableFillCmd::act( const char* parstr )
 
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
-    
+
     const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     if ( uitable->isTableReadOnly() ||
@@ -379,22 +380,22 @@ bool TableExecCmd::act( const char* parstr )
 {
     mParKeyStrInit( "table", parstr, parnext, keys, selnr );
     mParTableTag( parnext, parnexxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxt, parnexxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
     mRowColCheck( tag, itemnr2, parnexxxt, parnexxxxt );
-    
+
     mFindListTableObjs( "table", objsfound, uiTable, keys, nrgrey );
     mParKeyStrPre( "table", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiTable*, uitable, objsfound[0] );
 
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
-    
+
     const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
-    
+
     uiObject* localsearchenv = uitable->getCellObject(rc);
     if ( !localsearchenv )
     {
@@ -419,18 +420,18 @@ bool TableSelectCmd::act( const char* parstr )
     mParItemSelInit( BufferString("first ",tabletagstr[ColTag]), parnexxxt,
 		     parnexxxxt, itemstr12, itemnr12, tag1!=RowTag );
     mRowColCheck( tag1, itemnr12, parnexxxt, parnexxxxt );
-    
+
     bool newcelltag = false;
     TableTag tag2 = tag1;
     if ( tag1==RowTag || tag1==CellTag )
     {
 	BufferString argword;
-	const char* extraparstr = getNextWord( parnexxxxt, argword.buf() ); 
+	const char* extraparstr = getNextWord( parnexxxxt, argword.buf() );
 	if ( mMatchCI(argword,"Cell") )
 	{
 	    newcelltag = true;
 	    tag2 = CellTag;
-	    mSkipBlanks( extraparstr ); 
+	    mSkipBlanks( extraparstr );
 	    parnexxxxt = extraparstr;
 	}
     }
@@ -446,15 +447,15 @@ bool TableSelectCmd::act( const char* parstr )
     mRowColCheck( tag2, itemnr22, parnexxxxxt, parnexxxxxxt );
     mParOnOffInit( parnexxxxxxt, partail, onoff );
     mParTail( partail );
-    
+
     mFindListTableObjs( "table", objsfound, uiTable, keys, nrgrey );
     mParKeyStrPre( "table", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiTable*, uitable, objsfound[0] );
-    
+
     if ( uitable->maxNrOfSelections() == 0 )
     {
-	mWinErrStrm << "This table allows no selection at all" << std::endl; 
-	return false; 
+	mWinErrStrm << "This table allows no selection at all" << std::endl;
+	return false;
     }
 
     if ( !mIsUdf(itemnr21) )
@@ -499,12 +500,12 @@ bool TableSelectCmd::act( const char* parstr )
 		const int firstcol = tag2==RowHead ? 0 :
 				   ( tag2==RowTag  ? itemrcs12[0].col() :
 						     itemrcs11[0].col() );
-		
+
 		const int lastrow = tag2==ColHead ? nrrows-1 : itemrcs21[0].row();
 		const int lastcol = tag2==RowHead ? nrcols-1 :
 				  ( tag2==RowTag  ? itemrcs22[0].col() :
 						    itemrcs21[0].col() );
-				  
+
 		if ( firstrow <= lastrow )
 		    specified = row>=firstrow && row<=lastrow;
 		else
@@ -515,7 +516,7 @@ bool TableSelectCmd::act( const char* parstr )
 		else
 		    specified = specified && (col>=firstcol || col<=lastcol);
 	    }
-	    
+
 	    if ( !uitable->isRowHidden(row) && !uitable->isColumnHidden(col) )
 		unselcount[ mSelBehavior(uitable,0,row,col) ]++;
 
@@ -527,7 +528,7 @@ bool TableSelectCmd::act( const char* parstr )
 		continue;
 
 	    selset.headInsert( rc );
-	    
+
 	    if ( !uitable->isRowHidden(row) && !uitable->isColumnHidden(col) )
 	    {
 		unselcount[ mSelBehavior(uitable,0,row,col) ]--;
@@ -535,8 +536,8 @@ bool TableSelectCmd::act( const char* parstr )
 	    }
 	}
     }
-    
-    int nrselected = 0; 
+
+    int nrselected = 0;
     if ( mSelBehavior(uitable,false,true,true) )
     {
 	for ( int idx=0; idx<selcount.size(); idx++ )
@@ -564,7 +565,7 @@ bool TableSelectCmd::act( const char* parstr )
 	return false;
     }
 
-    
+
     if ( selset.equalToCurItemSel() )
     {
 	mWinWarnStrm << "Table already showed the specified selection"
@@ -573,7 +574,7 @@ bool TableSelectCmd::act( const char* parstr )
 
     mActivate( TableSelect, Activator(*uitable, selset.getSet()) );
 
-    if ( uitable->nrRows()==nrrows && uitable->nrCols()==nrcols 
+    if ( uitable->nrRows()==nrrows && uitable->nrCols()==nrcols
 				   && !selset.equalToCurItemSel() )
     {
 	mWinWarnStrm << "Specified selection has been overruled" << std::endl;
@@ -625,7 +626,7 @@ bool TableMenuCmd::act( const char* parstr )
 {
     mParKeyStrInit( "table", parstr, parnext, keys, selnr );
     mParTableTag( parnext, parnexxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxt, parnexxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxt, parnexxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -641,15 +642,15 @@ bool TableMenuCmd::act( const char* parstr )
 
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
-    
+
     const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
-    
+
     prepareIntercept( menupath, onoff );
 
     mActivate( Table, Activator(*uitable, rc, clicktags) );
-    
-    BufferString objnm = "Table cell ("; 
+
+    BufferString objnm = "Table cell (";
     objnm += rc.row()+1; objnm += ","; objnm += rc.col()+1; objnm += ")";
     return didInterceptSucceed( objnm );
 }
@@ -712,7 +713,7 @@ bool IsTableItemOnCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, false );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, partail,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -793,7 +794,7 @@ bool CurTableColCmd::act( const char* parstr )
     const int rownr = countRows( uitable, rc.row() ); \
     const int colnr = countCols( uitable, rc.col() ); \
     const int itemnr = (!rownr || !colnr) ? 0 : \
-		       (rownr-1) * countCols(uitable) + colnr; 
+		       (rownr-1) * countCols(uitable) + colnr;
 
 bool CurTableItemCmd::act( const char* parstr )
 {
@@ -826,7 +827,7 @@ bool GetTableRowCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, false );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -860,7 +861,7 @@ bool GetTableColCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, false );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -894,7 +895,7 @@ bool GetTableItemCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -938,7 +939,7 @@ bool NrTableMenuItemsCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -967,7 +968,7 @@ bool IsTableMenuItemOnCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -996,7 +997,7 @@ bool GetTableMenuItemCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "table", parnext, parnexxt, keys, selnr );
     mParTableTag( parnexxt, parnexxxt, tag, true );
-    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt, 
+    mParItemSelInit( tabletagstr[tag], parnexxxt, parnexxxxt,
 		     itemstr1, itemnr1, false );
     mParItemSelInit( tabletagstr[ColTag], parnexxxxt, parnexxxxxt,
 		     itemstr2, itemnr2, tag!=RowTag );
@@ -1058,10 +1059,10 @@ bool TableState::headInsert( const RowCol& rc )
 
 
 int TableState::remove( const RowCol& rc, int startidx )
-{ 
+{
     const int idx = indexOf( rc, startidx );
 
-    if ( idx >= 0 ) 
+    if ( idx >= 0 )
     {
 	if ( set_[idx].col() < 0 )
 	{
@@ -1076,7 +1077,7 @@ int TableState::remove( const RowCol& rc, int startidx )
 	    if ( rc.row()-step <= set_[idx].row() )
 		set_.removeSingle( idx );
 	}
-	else 
+	else
 	    set_.removeSingle( idx );
     }
 
@@ -1170,13 +1171,13 @@ mBodyTableStateEqualTo( mIsCellMatch(clickedrc, rc) )
 	} \
     } \
     return true; \
-} 
+}
 
 bool TableState::storeCurItemSel()
-mBodyStoreTableState( table_->isSelected(rc) ) 
+mBodyStoreTableState( table_->isSelected(rc) )
 
 bool TableState::setAll()
-mBodyStoreTableState( true ) 
+mBodyStoreTableState( true )
 
 
 //====== CmdComposers =========================================================
@@ -1200,7 +1201,7 @@ mBodyStoreTableState( true )
 	    if ( uitable->itemhiddenfunc(itmidx) ) \
 		continue; \
 	    const char* itmtxt = uitable->headerhiddenfunc() ? "*" : \
-	    			 mHdrText( uitable, textfunc, itmidx ); \
+				 mHdrText( uitable, textfunc, itmidx ); \
 	    if ( SearchKey(curitemname,false).isMatching(itmtxt) ) \
 	    { \
 		if ( SearchKey(curitemname,true).isMatching(itmtxt) ) \
@@ -1226,7 +1227,7 @@ mBodyStoreTableState( true )
 	{ \
 	    curitemsel = " \""; curitemsel += curitemname; curitemsel += "\""; \
 	} \
-    } 
+    }
 
 #define mGetTopHeaderItemSel( uitable, curitemrc, curitemsel, casedep ) \
     mGetHeaderItemSel( uitable, isTopHeaderHidden, nrCols, columnLabel, \
@@ -1251,7 +1252,7 @@ void TableCmdComposer::reInit()
     stagenr_ = 0;
     selchanged_ = false;
     clickedrc_ = RowCol(-2,-2);
-    leftclicked_ = false; 
+    leftclicked_ = false;
     ctrlclicked_ = false;
     tablecmdsflushed_ = false;
 }
@@ -1465,7 +1466,7 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 				      uitable, nrCols, isColumnHidden );
 
 		const bool allormultiplerows = firstrow!=lastrow ||
-					       firstvisrowidx==lastvisrowidx; 
+					       firstvisrowidx==lastvisrowidx;
 
 		const bool colhead = allormultiplerows && topmargin==0 &&
 				     bottommargin==uitable->nrRows()-1;
@@ -1475,7 +1476,7 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 		const RowCol firstrc( colhead ? -1 : firstrow,
 				      rowhead ? -1 : rc0.col()  );
 		const RowCol lastrc(  colhead ? -1 : lastrow,
-		       		      rowhead ? -1 : lastcol  );
+				      rowhead ? -1 : lastcol  );
 
 		const bool clear = !differential && !nrtableselects;
 		writeTableSelect( firstrc, lastrc, blockstate, clear );
@@ -1519,7 +1520,7 @@ void TableCmdComposer::writeTableSelect( const RowCol& firstrc,
 	if ( lastrc.row()>=0 && lastrc.col()>=0 )
 	    itemrg += rowsel2;
 
-	itemrg += colsel2; 
+	itemrg += colsel2;
     }
 
     const char* onoff = clear ? "" : ( blockstate ? " On" : " Off" );
@@ -1621,7 +1622,7 @@ bool TableCmdComposer::accept( const CmdRecEvent& ev )
 	    notDone();
 	}
 
-	if ( ev.nraccepts_ ) 
+	if ( ev.nraccepts_ )
 	    return true;
 
 	const char* msgnext = getNextWord( ev.msg_, notifiername.buf() );
@@ -1688,14 +1689,14 @@ bool TableCmdComposer::accept( const CmdRecEvent& ev )
 
 	    return true;
 	}
-	 
+
 	const bool notidouble = mMatchCI(notifiername, "doubleClicked")    ||
 				mMatchCI(notifiername, "rowDoubleClicked") ||
 				mMatchCI(notifiername, "columnDoubleClicked");
 
 	if ( stagenr_ == 2 )
 	{
-	    if ( notidouble && clickedrc_==cellrc ) 
+	    if ( notidouble && clickedrc_==cellrc )
 	    {
 		stagenr_ = 4;
 		return true;

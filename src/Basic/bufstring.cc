@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "string2.h"
 
-#include <string.h>
 #include <QString>
 
 
@@ -120,13 +119,13 @@ bool BufferString::matches( const char* s, bool caseinsens ) const
 
 bool BufferString::contains( char tofind ) const
 {
-    return isEmpty() ? false : (bool)strchr( buf(), tofind );
+    return isEmpty() ? false : firstOcc( buf(), tofind ) != 0;
 }
 
 
 bool BufferString::contains( const char* tofind ) const
 {
-    return isEmpty() ? false : (bool)strstr( buf(), tofind );
+    return isEmpty() ? false : (bool)firstOcc( buf(), tofind );
 }
 
 
@@ -267,7 +266,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
 
     const int fromlen = strlen( from );
 
-    char* ptrfound = strstr( buf(), from );
+    char* ptrfound = firstOcc( buf(), from );
     while ( ptrfound )
     {
 	BufferString rest( ptrfound + fromlen );
@@ -275,7 +274,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
 	add( to );
 	const int curpos = size();
 	add( rest );
-	ptrfound = strstr( buf()+curpos, from );
+	ptrfound = firstOcc( buf()+curpos, from );
     }
     return *this;
 }
@@ -768,7 +767,7 @@ void BufferStringSet::unCat( const char* inpstr, char sepchar )
 
     while ( *ptr )
     {
-	char* nlptr = strchr( ptr, sepchar );
+	char* nlptr = firstOcc( ptr, sepchar );
 	if ( nlptr )
 	    *nlptr++ = '\0';
 	add( ptr );

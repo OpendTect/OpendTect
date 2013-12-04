@@ -45,7 +45,7 @@ static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 
 
 uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
-       				  const uiStratSelUnits::Setup& su ) 
+				  const uiStratSelUnits::Setup& su )
     : uiGroup(p,"Stratigraphic Unit Selector")
     , topnode_(nur)
     , setup_(su)
@@ -320,8 +320,8 @@ void uiStratSelUnits::curChg( CallBacker* )
     {
 	const int selidx = combo_->currentItem();
 	if ( selidx < 0 ) return;
-	const char* nm = combo_->text();
-	if ( !strcmp(nm,sUsrNameRT) )
+	const BufferString nm = combo_->text();
+	if ( nm == sUsrNameRT )
 	    curunit_ = &topnode_;
 	else
 	    curunit_ = topnode_.find( nm );

@@ -63,7 +63,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     }
     else
     {
-	int butsz = strlen(itmtyp) + 8;
+	int butsz = FixedString(itmtyp).size() + 8;
 	if ( butsz < 20 ) butsz = 20;
 
 #undef mDefBut
@@ -174,10 +174,10 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     }
 
     edbut_ = new uiToolButton( this, "edit", setup_.edtt_,
-	    		mCB(this,uiBuildListFromList,edCB) );
+			mCB(this,uiBuildListFromList,edCB) );
     edbut_->attach( rightOf, deffld_ );
     rmbut_ = new uiToolButton( this, "trashcan", setup_.rmtt_,
-	    		mCB(this,uiBuildListFromList,rmCB) );
+			mCB(this,uiBuildListFromList,rmCB) );
     rmbut_->attach( alignedBelow, edbut_ );
 
     if ( setup_.withio_ )

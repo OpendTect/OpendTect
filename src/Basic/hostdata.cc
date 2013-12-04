@@ -72,7 +72,7 @@ void HostData::init( const char* nm )
 
     if ( !is_ip_adrr )
     {
-	char* dot = strstr( name_.buf(), "." );
+	char* dot = firstOcc( name_.buf(), '.' );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
     }
 }
@@ -98,16 +98,18 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 
 
 
-    const char* tail = strstr( dir, fromprefix );
+    const char* tail = firstOcc( dir, fromprefix );
     if ( !tail )
     {
 	BufferString frompreflow( fromprefix );
 	mTolower( frompreflow );
-	tail = strstr( dir, frompreflow );
+	tail = firstOcc( dir, frompreflow );
     }
 
-    if ( !tail ) return FilePath(dir_);
-    tail += strlen( fromprefix );
+    if ( !tail )
+	return FilePath(dir_);
+
+    tail += fromprefix.size();
 
     BufferString ret = toprefix;
     ret += tail;

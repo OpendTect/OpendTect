@@ -32,7 +32,8 @@ bool uiVisMenuItemHandler::shouldAddMenu() const
 {
     RefMan<visBase::DataObject> dataobj =
 	visserv_.getObject( menuhandler_.menuID() );
-    if ( !dataobj ) return false;
+    if ( !dataobj )
+	return false;
 
-    return !strcmp( classnm_, dataobj->getClassName() );
+    return FixedString(classnm_) == dataobj->getClassName();
 }

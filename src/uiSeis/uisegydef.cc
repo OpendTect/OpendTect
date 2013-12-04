@@ -104,7 +104,7 @@ SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 	const char* txt = multifld_->text();
 	mSkipBlanks(txt);
 	if ( *txt == '0' )
-	    spec.zeropad_ = strlen(txt);
+	    spec.zeropad_ = FixedString(txt).size();
 	if ( spec.zeropad_ == 1 ) spec.zeropad_ = 0;
     }
     return spec;
@@ -126,7 +126,7 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 	{
 	    if ( spec.isMultiFile() )
 	    {
-		if ( !strchr(spec.fname_.buf(),'*') )
+		if ( !spec.fname_.contains('*') )
 		    mErrRet("Please put a wildcard ('*') in the file name")
 	    }
 	    else if ( !File::exists(spec.fname_) )

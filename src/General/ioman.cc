@@ -16,7 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "iostrm.h"
 #include "iosubdir.h"
+#include "keystrs.h"
+#include "msgh.h"
 #include "oddirs.h"
+#include "od_ostream.h"
 #include "separstr.h"
 #include "settings.h"
 #include "staticstring.h"
@@ -24,10 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "timefun.h"
 #include "transl.h"
-#include "msgh.h"
-#include "od_ostream.h"
 
-#include <stdlib.h>
 
 IOMan* IOMan::theinst_	= 0;
 static const MultiID emptykey( "" );
@@ -453,9 +453,9 @@ IOObj* IOMan::get( const MultiID& k ) const
 	return 0;
 
     MultiID ky( k );
-    char* ptr = strchr( ky.buf(), '|' );
+    char* ptr = firstOcc( ky.buf(), '|' );
     if ( ptr ) *ptr = '\0';
-    ptr = strchr( ky.buf(), ' ' );
+    ptr = firstOcc( ky.buf(), ' ' );
     if ( ptr ) *ptr = '\0';
 
     if ( dirptr_ )
@@ -497,7 +497,7 @@ IOObj* IOMan::getLocal( const char* objname ) const
     if ( matchString("ID=<",objname) )
     {
 	BufferString oky( objname+4 );
-	char* ptr = strchr( oky.buf(), '>' );
+	char* ptr = firstOcc( oky.buf(), '>' );
 	if ( ptr ) *ptr = '\0';
 	return get( MultiID((const char*)oky) );
     }
@@ -745,8 +745,8 @@ int IOMan::levelOf( const char* dirnm ) const
 {
     if ( !dirnm ) return 0;
 
-    int lendir = strlen(dirnm);
-    int lenrootdir = strlen(rootdir_);
+    int lendir = FixedString(dirnm).size();
+    int lenrootdir = rootdir_.size();
     if ( lendir <= lenrootdir ) return 0;
 
     int lvl = 0;
@@ -754,7 +754,7 @@ int IOMan::levelOf( const char* dirnm ) const
     while ( ptr )
     {
 	ptr++; lvl++;
-	ptr = strchr( ptr, *FilePath::dirSep(FilePath::Local) );
+	ptr = firstOcc( ptr, *FilePath::dirSep(FilePath::Local) );
     }
     return lvl;
 }

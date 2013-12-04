@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		May 2006
+ Author:	K. Tingdahl
+ Date:		May 2006
 ___________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction("&Add"), 0 );
     if ( SI().has3D() )
 	mnu.insertItem( new uiAction("&Create from 3D ..."), 1 );
-    
+
     mnu.insertItem( new uiAction("&Generate 3D cube..."), 2 );
 
     const int mnuid = mnu.exec();
@@ -221,7 +221,7 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 
 
 void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
-{	
+{
     Attrib::SelSpec as;
     applMgr()->attrServer()->resetMenuItems();
     MenuItem* dummy =
@@ -290,7 +290,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 	if ( emptyidx<0 || displayedattribs.size()>1 )
 	{
 	    removeattritm_.createItems( displayedattribs );
-    	    mAddMenuItem( menu, &removeattritm_, true, false );
+	    mAddMenuItem( menu, &removeattritm_, true, false );
 	}
 	else
 	    mResetMenuItem( &removeattritm_ )
@@ -314,7 +314,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 	mResetMenuItem( &editcoltabitm_ );
     }
 }
-    
+
 
 void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 {
@@ -438,7 +438,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const int itmidx = editattritm_.itemIndex( mnuid );
 	BufferString curnm = editattritm_.getItem(itmidx)->text;
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
-	    					     : curnm.buf();
+						     : curnm.buf();
 	selectNewAttribute( attribnm );
     }
     else if ( removeattritm_.itemIndex(mnuid)!=-1 )
@@ -458,7 +458,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const int itmidx = attritm.itemIndex( mnuid );
 	BufferString curnm = attritm.getItem(itmidx)->text;
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
-	    					     : curnm.buf();
+						     : curnm.buf();
 	ObjectSet<uiTreeItem> itms; findChildren( attribnm, itms );
 	for ( int idx=0; idx<itms.size(); idx++ )
 	    itms[idx]->setChecked( show, true );
@@ -498,7 +498,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zDomain().userFactor()), 
+	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zDomain().userFactor()),
 			      mNINT32(curzrg_.stop*SI().zDomain().userFactor()) );
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
@@ -626,14 +626,14 @@ bool uiOD2DLineSetSubItem::init()
     }
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-	    	    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !s2d ) return false;
 
     PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
     if ( !applMgr()->seisServer()->get2DLineGeometry(s2d->lineSetID(),name_,
 	  *geometry) )
 	return false;
-    
+
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
@@ -645,9 +645,9 @@ bool uiOD2DLineSetSubItem::init()
 	msg += "change position range to view part of the data.";
 	uiMSG().warning( msg );
     }
-    
+
     s2d->setGeometry( *geometry );
-    if ( !newdisplay ) 
+    if ( !newdisplay )
     {
 	if ( !oldtrcnrrg.isUdf() )
 	    s2d->setTraceNrRange( oldtrcnrrg );
@@ -740,7 +740,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	CallBack dummy;
 	uiSliceSelDlg positiondlg( getUiParent(), curcs,
 				   maxcs, dummy, uiSliceSel::TwoD,
-	       			   scene->zDomainInfo() );
+				   scene->zDomainInfo() );
 	if ( !positiondlg.go() ) return;
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 
@@ -842,7 +842,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     }
     else
     {
-	const char* ptr = strchr( as.userRef(), '|' );
+	const char* ptr = firstOcc( as.userRef(), '|' );
 	if ( ptr ) // only to set correct userref in selspec
 	{
 	    LineKey lkusrref( as.userRef() );
@@ -1070,7 +1070,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 						 int component,
-       						 uiTaskRunner& tr )
+						 uiTaskRunner& tr )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,

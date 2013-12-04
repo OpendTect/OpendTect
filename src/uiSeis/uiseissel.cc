@@ -547,7 +547,7 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
     if ( is2D() )
     {
 	const char* ptr = "";
-	ptr = strchr( compnm.buf(), '|' );
+	ptr = firstOcc( compnm.buf(), '|' );
 	if ( ptr )
 	    { ptr++; mSkipBlanks(ptr); }
 	else
@@ -563,7 +563,7 @@ bool uiSeisSel::existingTyped() const
 {
     bool containscompnm = false;
     const char* ptr = "";
-    ptr = strchr( getInput(), '|' );
+    ptr = firstOcc( getInput(), '|' );
     if ( ptr )
 	containscompnm = true;
     return (!is2D() && !containscompnm) || isPS() ? uiIOObjSel::existingTyped()

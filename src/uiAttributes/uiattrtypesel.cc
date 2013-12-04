@@ -68,7 +68,7 @@ void uiAttrTypeSel::fill( BufferStringSet* selgrps )
 {
     setEmpty();
     const int forbiddendomtyp = (int)(SI().zIsTime() ? uiAttrDescEd::Depth
-	    					     : uiAttrDescEd::Time);
+						     : uiAttrDescEd::Time);
 
     for ( int iattr=0; iattr<uiAF().size(); iattr++ )
     {
@@ -209,26 +209,28 @@ void uiAttrTypeSel::attrSel( CallBacker* )
 }
 
 
-bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* attrnm ) const
+bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* anm ) const
 {
-    const char* grpnm = grpnms_.get( grpidx );
+    const char* grp = grpnms_.get( grpidx );
 
+    const FixedString grpnm( grp );
+    const FixedString attrnm( anm );
     if ( *grpnm == '<' )
-	return !strcmp(attrnm,"Similarity");
-    else if ( !strcmp(grpnm,"Basic") )
-	return !strcmp(attrnm,"Scaling");
-    else if ( !strcmp(grpnm,"Filters") )
-	return !strcmp(attrnm,"Frequency Filter");
-    else if ( !strcmp(grpnm,"Frequency") )
-	return !strcmp(attrnm,"Spectral Decomp");
-    else if ( !strcmp(grpnm,"Patterns") )
-	return !strcmp(attrnm,"FingerPrint");
-    else if ( !strcmp(grpnm,"Positions") )
-	return !strcmp(attrnm,"Position");
-    else if ( !strcmp(grpnm,"Statistics") )
-	return !strcmp(attrnm,"Volume Statistics");
-    else if ( !strcmp(grpnm,"Trace match") )
-	return !strcmp(attrnm,"Match delta");
+	return attrnm == "Similarity";
+    else if ( grpnm == "Basic" )
+	return attrnm == "Scaling";
+    else if ( grpnm == "Filters" )
+	return attrnm == "Frequency Filter";
+    else if ( grpnm == "Frequency" )
+	return attrnm == "Spectral Decomp";
+    else if ( grpnm == "Patterns" )
+	return attrnm == "FingerPrint";
+    else if ( grpnm == "Positions" )
+	return attrnm == "Position";
+    else if ( grpnm == "Statistics" )
+	return attrnm == "Volume Statistics";
+    else if ( grpnm == "Trace match" )
+	return attrnm == "Match delta";
 
     return false;
 }

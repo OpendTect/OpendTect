@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #ifdef __win__
 # include "winutils.h"
@@ -207,7 +206,7 @@ const char* OSCommand::extractHostName( const char* str, BufferString& hnm )
     if ( *ptr == '\\' && *(ptr+1) == '\\' )
     {
 	ptr += 2;
-	char* phnend = strchr( ptr, '\\' );
+	char* phnend = firstOcc( ptr, '\\' );
 	if ( phnend ) *phnend = '\0';
 	hnm = ptr;
 	rest += hnm.size() + 2;
@@ -223,7 +222,7 @@ const char* OSCommand::extractHostName( const char* str, BufferString& hnm )
 	if ( *(ptr+1) == '/' && *(ptr+2) == '/' )
 	{
 	    inp.add( "\nlooks like a URL. Not supported (yet)" );
-	    ErrMsg( inp ); rest += strlen(str);
+	    ErrMsg( inp ); rest += FixedString(str).size();
 	}
 	else
 	{
@@ -292,7 +291,7 @@ static const char* getCmd( const char* fnm )
 {
     BufferString execnm( fnm );
 
-    char* ptr = strchr( execnm.buf() , ':' );
+    char* ptr = firstOcc( execnm.buf() , ':' );
 
     if ( !ptr )
 	return fnm;
@@ -302,7 +301,7 @@ static const char* getCmd( const char* fnm )
     // if only one char before the ':', it must be a drive letter.
     if ( ptr == execnm.buf() + 1 )
     {
-	ptr = strchr( ptr , ' ' );
+	ptr = firstOcc( ptr , ' ' );
 	if ( ptr ) { *ptr = '\0'; args = ptr+1; }
     }
     else if ( ptr == execnm.buf()+2)
@@ -311,7 +310,7 @@ static const char* getCmd( const char* fnm )
 	if ( sep == '\"' || sep == '\'' )
 	{
 	    execnm=fnm+1;
-	    ptr = strchr( execnm.buf() , sep );
+	    ptr = firstOcc( execnm.buf() , sep );
 	    if ( ptr ) { *ptr = '\0'; args = ptr+1; }
 	}
     }

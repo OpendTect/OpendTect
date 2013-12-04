@@ -9,12 +9,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "nrbytes2string.h"
 #include "staticstring.h"
-#include "fixedstring.h"
 #include "survinfo.h"
 #include "undefval.h"
 #include "odcomplex.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
 
 #ifdef __win__
@@ -462,7 +462,7 @@ bool caseInsensitiveEqual( const char* str1, const char* str2, int nrchar )
 }
 
 
-static int getStringMatch( const char* str1, const char* str2, int ci )
+static bool getStringMatch( const char* str1, const char* str2, int ci )
 {
     if ( !str1 && !str2 ) return true;
     if ( !str1 || !str2 ) return false;
@@ -515,6 +515,49 @@ bool stringEndsWith( const char* str1, const char* str2 )
 { return getStringEndsWith( str1, str2, false ); }
 bool stringEndsWithCI( const char* str1, const char* str2 ) \
 { return getStringEndsWith( str1, str2, true ); }
+
+
+static const char* getLastOcc( const char* str, const char* tofind )
+{
+    if ( !str )
+	return 0;
+    if ( !tofind )
+	tofind = "";
+
+    const int slen = strlen( str );
+    const int flen = strlen( tofind );
+    if ( flen == 0 )
+	return str + slen;
+    else if ( flen == 1 )
+	return strrchr( str, *tofind );
+
+    BufferString srev( str ), frev( tofind );
+    for ( int idx=0; idx<slen/2; idx++ )
+	Swap( srev[idx], srev[slen-idx-1] );
+    for ( int idx=0; idx<flen/2; idx++ )
+	Swap( frev[idx], frev[flen-idx-1] );
+    char* ptr = strstr( srev.buf(), frev.buf() );
+    if ( !ptr )
+	return ptr;
+    return str + (slen - (ptr-srev.buf())) - flen;
+}
+
+const char* firstOcc( const char* str, char tofind )
+{ return str ? strchr(str,tofind) : 0; }
+char* firstOcc( char* str, char tofind )
+{ return str ? strchr(str,tofind) : 0; }
+const char* lastOcc( const char* str, char tofind )
+{ return str ? strrchr(str,tofind) : 0; }
+char* lastOcc( char* str, char tofind )
+{ return str ? strrchr(str,tofind) : 0; }
+const char* firstOcc( const char* str, const char* tofind )
+{ return str ? strstr(str,tofind?tofind:"") : 0; }
+char* firstOcc( char* str, const char* tofind )
+{ return str ? strstr(str,tofind?tofind:"") : 0; }
+const char* lastOcc( const char* str, const char* tofind )
+{ return getLastOcc( str, tofind ); }
+char* lastOcc( char* str, const char* tofind )
+{ return (char*)getLastOcc( str, tofind ); }
 
 
 const char* getNextWord( const char* strptr, char* wordbuf )
@@ -748,18 +791,7 @@ const char* toString( bool b )
 }
 
 
-const char* toString( float_complex c )
-{
-    mDeclStaticString( ret );
-    if ( mIsUdf(c) )
-	ret.set( "<undef>" );
-    else
-	ret.set( "(" ).add( c.real() ).add( "," ).add( c.imag() ).add( ")" );
-    return ret.buf();
-}
-
-
-float_complex float_complexFromString( const char* str,
+static float_complex float_complexFromString( const char* str,
 					char** pendptr )
 {
     float_complex ret = float_complex(0.f,0.f);
@@ -790,6 +822,33 @@ float_complex float_complexFromString( const char* str,
 
     return ret;
 }
+
+
+const char* toString( float_complex c )
+{
+    mDeclStaticString( ret );
+    if ( mIsUdf(c) )
+	ret.set( "<undef>" );
+    else
+	ret.set( "(" ).add( c.real() ).add( "," ).add( c.imag() ).add( ")" );
+    return ret.buf();
+}
+
+
+mConvDefFromStrToSimpleType( float_complex, float_complexFromString(s,&endptr) )
+
+namespace Conv
+{
+template <> void set( const char*& _to, const float_complex& c )
+{
+    _to = toString(c);
+}
+
+template <> void set( bool& _to, const float_complex& c )
+{
+    _to = !(mIsZero(c.real(),mDefEpsD) && mIsZero(c.imag(),mDefEpsD));
+}
+} // namespace Conv
 
 
 bool getFromString( bool& b, const char* s )

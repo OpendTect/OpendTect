@@ -180,7 +180,7 @@ const char* StringProcessor::findAssignment( const char* tokens ) const
     const char* ptr = constptr_;
     while ( *ptr && ptr<=endptr )
     {
-	if ( strchr(tokens, *ptr) )
+	if ( firstOcc(tokens, *ptr) )
 	    return ptr;
 
 	ptr++;
@@ -390,7 +390,7 @@ void StringProcessor::addCmdFileEscapes( const char* extraescapesymbols )
 	    if ( mIsSymbol(*(readptr+1)) )
 		*writeptr++ = '@';
 	}
-	else if ( strchr(extraescapesymbols, *readptr) )
+	else if ( firstOcc(extraescapesymbols, *readptr) )
 	{
 	    if ( *readptr == '<' )
 	    {
@@ -580,13 +580,14 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
     char* firstptr = bufcopy.buf();
     mTrimBlanks( firstptr );
 
-    const char* bracketptr = strchr( beginsymbols, *firstptr );
+    const char* bracketptr = firstOcc( beginsymbols, *firstptr );
     if ( !bracketptr )
 	return '\0';
 
     int bracketidx = (int) (bracketptr - beginsymbols);
-    char* lastptr = firstptr + strlen(firstptr) - 1;
-    if ( bracketidx>=strlen(endsymbols) || *lastptr!=endsymbols[bracketidx] )
+    char* lastptr = firstptr + FixedString(firstptr).size() - 1;
+    if ( bracketidx>=FixedString(endsymbols).size()
+	    || *lastptr!=endsymbols[bracketidx] )
 	return '\0';
 
     *firstptr = ' ';

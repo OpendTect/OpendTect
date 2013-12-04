@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	Jaap Glas
- Date: 		December 2009
+ Author:	Jaap Glas
+ Date:		December 2009
 ___________________________________________________________________
 
 -*/
@@ -220,7 +220,7 @@ mDefineKey( sKeyCreateNewInSeries, "Create new in series" );
 mDefineKey( sKeyMergeWithExisting, "Merge with existing" );
 mDefineKey( sKeyReplaceExisting,   "Replace existing" );
 
-#define mCurItem( combo, key ) ( !strcmp(combo->text(), key()) )
+#define mCurItem( combo, key ) ( FixedString(combo->text()) == key() )
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
@@ -235,10 +235,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
-	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
+				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     selbutidx_ = toolbar_->addButton( "selectsticks", "Select sticks",
-	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
+				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     toolbar_->addSeparator();
 
@@ -301,27 +301,27 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addObject( colorbut_ );
 
     settingsbutidx_ = toolbar_->addButton( "tools", "More transfer settings",
-	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
+				mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
     gobutidx_ = toolbar_->addButton( "gobutton", "Transfer selected sticks",
-	    			mCB(this,uiODFaultToolMan,transferSticksCB),
+				mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
     removalbutidx_ = toolbar_->addButton( "removesticks",
-	    			"Remove selected sticks",
-	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
+				"Remove selected sticks",
+				mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
     toolbar_->addSeparator();
 
 
     undobutidx_ = toolbar_->addButton( "undo", "Undo",
-	    			mCB(this,uiODFaultToolMan,undoCB), false );
+				mCB(this,uiODFaultToolMan,undoCB), false );
 
     redobutidx_ = toolbar_->addButton( "redo", "Redo",
-	    			mCB(this,uiODFaultToolMan,redoCB), false );
+				mCB(this,uiODFaultToolMan,redoCB), false );
 
     toolbar_->addSeparator();
 
@@ -990,7 +990,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     mDynamicCastGet( EM::FaultStickSet*, destfss, destfault );
     if ( !destfss )
-    	destfss = tmpfss;
+	destfss = tmpfss;
 
     const bool copy = mCurItem( transfercombo_, sKeyCopySelection );
 
@@ -1311,7 +1311,7 @@ void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
     const bool doflash = toolbar_->isSensitive() &&
 			 outputnamecombo_->sensitive() &&
 			 (name!=flashname_ || color!=flashcolor_);
-    
+
     flashname_ = name; flashcolor_ = color;
 
     if ( doflash )

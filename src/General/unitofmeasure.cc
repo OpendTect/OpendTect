@@ -125,7 +125,7 @@ bool UnitOfMeasure::isImperial() const
     for ( int idx=0; idx<needle.size(); idx++ )
     {
 	const char* haystack = (bool)usename[idx] ? unitnm : unitsymb;
-	if ( strstr(haystack,needle[idx]->buf()) )
+	if ( firstOcc(haystack,needle[idx]->buf()) )
 	    return true;
     }
 
@@ -231,13 +231,13 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "ft/s";
     break;
     case 'K' : case 'k':
-    	if ( matchStringCI("kg/m2s",nm) )
+	if ( matchStringCI("kg/m2s",nm) )
 	    return "m/s x kg/m3";
 	if ( matchStringCI("kg/m2us",nm) )
 	    return "kg/m3 / us/m";
     break;
     case 'G' : case 'g':
-    	if ( matchStringCI("G/cm2s",nm) )
+	if ( matchStringCI("G/cm2s",nm) )
 	    return "m/s x g/cc";
 	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
 	  || matchStringCI("GR/C",nm) )

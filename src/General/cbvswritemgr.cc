@@ -18,10 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 BufferString CBVSIOMgr::baseFileName( const char* fnm )
 {
     BufferString ret( fnm );
-    char* caretptr = strchr( ret.buf(), '^' );
+    char* caretptr = firstOcc( ret.buf(), '^' );
     if ( !caretptr ) return ret;
 
-    char* dotptr = strchr( caretptr, '.' );
+    char* dotptr = firstOcc( caretptr, '.' );
     BufferString ext( dotptr );
     *caretptr = '\0';
     ret += ext;
@@ -36,7 +36,7 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
     FilePath fp( basefname );
     BufferString fname = fp.fileName();
 
-    char* ptr = strrchr( fname.buf(), '.' );
+    char* ptr = lastOcc( fname.buf(), '.' );
     BufferString ext;
     if ( ptr )
 	{ ext = ptr; *ptr = '\0'; }
@@ -60,11 +60,11 @@ int CBVSIOMgr::getFileNr( const char* fnm )
 {
     if ( !fnm || !*fnm ) return 0;
 
-    const char* caretptr = strrchr( fnm, '^' );
+    const char* caretptr = lastOcc( fnm, '^' );
     if ( !caretptr ) return 0;
 
     BufferString nrstr( caretptr + 1 );
-    char* dotptr = strchr( nrstr.buf(), '.' );
+    char* dotptr = firstOcc( nrstr.buf(), '.' );
     if ( dotptr ) *dotptr = '\0';
 
     return toInt( nrstr.buf() );
@@ -108,9 +108,9 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 			    bool sf, CBVSIO::CoordPol cp )
 	: CBVSIOMgr(fnm)
 	, info_(i)
-    	, single_file(sf)
-    	, coordpol_(cp)
-    	, forcetrailers_(false)
+	, single_file(sf)
+	, coordpol_(cp)
+	, forcetrailers_(false)
 {
     const int totsamps = info_.nrsamples_;
     if ( totsamps < 1 ) return;
@@ -172,7 +172,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 std::ostream* CBVSWriteMgr::mkStrm()
 {
     BufferString* fname = new BufferString( single_file ? basefname_
-	    				  : getFileName(curnr_) );
+					  : getFileName(curnr_) );
     curnr_++;
     StreamData sd = StreamProvider((const char*)*fname).makeOStream();
 

@@ -9,9 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "timefun.h"
 #include "od_ostream.h"
-#include <limits.h>
-#include <stdlib.h>
-#include "task.h"
 
 
 static const char progress_symbols[] = ".:=|*#>}].:=|*#>}].:=|*#>}].:=|*#>}]";
@@ -102,13 +99,13 @@ void TextStreamProgressMeter::operator++()
     Threads::Locker lock( lock_ );
     addProgress( 1 );
 }
-	
+
 
 void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
     Threads::Locker lock( lock_ );
     if ( nrdone<=nrdone_ )
-    	return;
+	return;
 
     addProgress( (int)(nrdone-nrdone_) );
 }
@@ -182,9 +179,9 @@ void TextStreamProgressMeter::annotate( bool withrate )
     strm_ << od_endl;
 
     lastannotatednrdone_ = nrdone_;
-    oldtime_ = newtime; 
+    oldtime_ = newtime;
     nrdotsonline_ = 0;
-    
+
     // Adjust display speed if necessary
     if ( tdiff > -1 && tdiff < 5000 )
     {

@@ -7,10 +7,6 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <iostream>
 #include "strmprov.h"
 #include "datapack.h"
 #include "keystrs.h"
@@ -18,6 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "oscommand.h"
 #include "staticstring.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
 
 #ifdef __win__
 # include "winutils.h"

@@ -56,23 +56,8 @@ public:
 
 mGlobal(Basic) bool isUdfImpl(float_complex);
 mGlobal(Basic) const char* toString(float_complex);
-mGlobal(Basic) float_complex float_complexFromString(const char*,
-						     char** end=0);
 
-namespace Conv
-{
-
-mConvDefFromStrToFn( float_complex, float_complexFromString(s,&endptr) )
-
-template <>
-inline void set( const char*& _to, const float_complex& c )
-        { _to = toString(c); }
-template <>
-inline void set( bool& _to, const float_complex& c )
-	{ _to = !(mIsZero(c.real(),mDefEpsD) && mIsZero(c.imag(),mDefEpsD)); }
-
-
-}
+namespace Conv { mConvDeclFromStrToSimpleType(float_complex); }
 
 
 #endif

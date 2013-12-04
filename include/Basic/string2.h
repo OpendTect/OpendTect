@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include "undefval.h"
 #include "fixedstring.h"
-#include <string.h>
 #include <ctype.h>
 
 
@@ -46,6 +45,23 @@ mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
 mGlobal(Basic) const char* getNextWord(const char*,char*);
 	/*!< fills a buffer with the next word (delimited by whitespace).
 	     It returns a ptr just after the word. */
+
+	/*!> Replacement for strchr: const version */
+mGlobal(Basic) const char* firstOcc(const char*,char);
+	/*!> Replacement for strchr: non-const version */
+mGlobal(Basic) char* firstOcc(char*,char);
+	/*!> Replacement for strrchr: const version */
+mGlobal(Basic) const char* lastOcc(const char*,char);
+	/*!> Replacement for strrchr: non-const version */
+mGlobal(Basic) char* lastOcc(char*,char);
+	/*!> Replacement for strstr: const version */
+mGlobal(Basic) const char* firstOcc(const char*,const char*);
+	/*!> Replacement for strstr: non-const version */
+mGlobal(Basic) char* firstOcc(char*,const char*);
+	/*!> Replacement for (imaginary) strrstr: const version */
+mGlobal(Basic) const char* lastOcc(const char*,const char*);
+	/*!> Replacement for (imaginary) strrstr: non-const version */
+mGlobal(Basic) char* lastOcc(char*,const char*);
 
 	/*!> Fills string with string for an int.
 	     If you pass 0 for retbuf, then a static buffer is used. */

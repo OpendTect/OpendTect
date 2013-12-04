@@ -38,9 +38,9 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
     ynfld->activated.notify( mCB(this,uiScaler,typeSel) );
 
     DoubleInpSpec dis;
-    linearfld = new uiGenInput( this, "Shift/Factor", 
-	   			DoubleInpSpec().setName("Shift"),
-	   			DoubleInpSpec().setName("Factor") );
+    linearfld = new uiGenInput( this, "Shift/Factor",
+				DoubleInpSpec().setName("Shift"),
+				DoubleInpSpec().setName("Factor") );
 
     if ( !typefld )
 	ynfld->attach( leftOf, linearfld );
@@ -106,9 +106,9 @@ void uiScaler::setInput( const Scaler& sc )
 {
     ynfld->setChecked( !sc.isEmpty() );
 
-    const char* typ = sc.type();
+    const FixedString typ = sc.type();
     int typnr = 0;
-    if ( !strcmp(typ,sLinScaler) )
+    if ( typ == sLinScaler )
     {
 	const LinScaler& lsc = (const LinScaler&)sc;
 	linearfld->setValue( lsc.constant, 0 );
@@ -118,12 +118,12 @@ void uiScaler::setInput( const Scaler& sc )
     {
 	if ( !typefld ) return;
 
-	if ( !strcmp(typ,sLogScaler) )
+	if ( typ == sLogScaler )
 	{
 	    typnr = 1;
 	    basefld->setValue( ((const LogScaler&)sc).ten_ );
 	}
-	else if ( !strcmp(typ,sExpScaler) )
+	else if ( typ == sExpScaler )
 	{
 	    typnr = 2;
 	    basefld->setValue( ((const ExpScaler&)sc).ten_ );

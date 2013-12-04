@@ -44,7 +44,7 @@ static const char* filters[] =
 
 
 uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
-    : uiDialog(p,uiDialog::Setup( (desktop ? "Desktop grabber" : 
+    : uiDialog(p,uiDialog::Setup( (desktop ? "Desktop grabber" :
 					     "Window grabber"),
 				  (desktop ? "Specify image file" :
 					     "Specify window and image file"),
@@ -68,10 +68,10 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 				    .forread(false)
 				    .defseldir(dirname_)
 				    .directories(false)
-	   			    .allowallextensions(false) );
+				    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
     if ( windowfld_ )
-	fileinputfld_->attach( alignedBelow, windowfld_ ); 
+	fileinputfld_->attach( alignedBelow, windowfld_ );
     updateFilter();
 
     qualityfld_ = new uiSliderExtra( this,
@@ -84,7 +84,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
     infofld_ = new uiLabel( this, "Arrange your windows before confirming" );
     infofld_->attach( alignedBelow, qualityfld_ );
-    
+
     IOM().afterSurveyChange.notify( mCB(this,uiWindowGrabDlg,surveyChanged) );
 }
 
@@ -162,7 +162,7 @@ bool uiWindowGrabDlg::filenameOK() const
 
     if ( File::exists(filename) )
     {
-	BufferString msg = "The file "; msg += filename; 
+	BufferString msg = "The file "; msg += filename;
 	if ( !File::isWritable(filename) )
 	{
 	    msg += " is not writable";
@@ -178,8 +178,8 @@ bool uiWindowGrabDlg::filenameOK() const
 bool uiWindowGrabDlg::acceptOK( CallBacker* )
 {
     if ( !filenameOK() )
-       	return false;
-    
+	return false;
+
     FilePath filepath( fileinputfld_->fileName() );
     dirname_ = filepath.pathOnly();
     filename_ = filepath.fullPath();
@@ -200,10 +200,10 @@ const char* uiWindowGrabDlg::getExtension() const
 
     if ( ifmt < 0 )
     {
-	const char* selectedfilter = fileinputfld_->selectedFilter();
+	const FixedString selectedfilter = fileinputfld_->selectedFilter();
 	for ( ifmt=0; filters[ifmt]; ifmt++ )
 	{
-	    if ( !strcmp(selectedfilter,filters[ifmt]) )
+	    if ( selectedfilter == filters[ifmt] )
 		break;
 	}
     }

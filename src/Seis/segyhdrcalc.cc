@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "od_iostream.h"
 #include "settings.h"
+#include <string.h>
 
 
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
@@ -54,7 +55,7 @@ int SEGY::HdrCalcSet::indexOf( const char* nm ) const
 bool SEGY::HdrCalcSet::add( const char* dispstr )
 {
     BufferString str( dispstr );
-    char* ptrdef = strchr( str.buf(), '=' );
+    char* ptrdef = firstOcc( str.buf(), '=' );
     if ( !ptrdef ) return false;
     *ptrdef++ = '\0'; mTrimBlanks(ptrdef);
 

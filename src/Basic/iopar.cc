@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "oddirs.h"
 #include <stdio.h>
+#include <string.h>
 
 
 const int cMaxTypeSetItemsPerLine = 100;
@@ -229,16 +230,17 @@ IOPar* IOPar::subselect( int nr ) const
 }
 
 
-IOPar* IOPar::subselect( const char* key ) const
+IOPar* IOPar::subselect( const char* kystr ) const
 {
-    if ( !key ) return 0;
+    FixedString key( kystr );
+    if ( key.isEmpty() ) return 0;
 
     IOPar* iopar = new IOPar( name() );
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
 	const char* nm = keys_.get(idx).buf();
 	if ( !matchString(key,nm) ) continue;
-	nm += strlen(key);
+	nm += key.size();
 	if ( *nm == '.' && *(nm+1) )
 	    iopar->add( nm+1, vals_.get(idx) );
     }
@@ -260,15 +262,16 @@ void IOPar::removeSubSelection( int nr )
 }
 
 
-void IOPar::removeSubSelection( const char* key )
+void IOPar::removeSubSelection( const char* kystr )
 {
-    if ( !key ) return;
+    FixedString key( kystr );
+    if ( key.isEmpty() ) return;
 
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
 	const char* nm = keys_.get(idx).buf();
 	if ( !matchString(key,nm) ) continue;
-	nm += strlen(key);
+	nm += key.size();
 	if ( *nm == '.' && *(nm+1) )
 	    { remove( idx ); idx--; }
     }
@@ -1285,7 +1288,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 	char* startptr = valstr.buf();
 	while ( startptr && *startptr )
 	{
-	    char* nlptr = strchr( startptr, '\n' );
+	    char* nlptr = firstOcc( startptr, '\n' );
 	    if ( nlptr )
 		*nlptr = '\0';
 	    res += startptr;

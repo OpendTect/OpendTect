@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "settings.h"
 #include <math.h>
+#include <string.h>
 
 static const char* sKeySnapshot = "snapshot";
 
@@ -55,7 +56,7 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.9")
-	    	 .savebutton(true).savetext("Save settings on OK"))
+		 .savebutton(true).savetext("Save settings on OK"))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
@@ -70,7 +71,7 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
     }
 
     setSaveButtonChecked( true );
-    
+
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
 }
 
@@ -147,7 +148,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 				  BoolInpSpec(true,"Settings","Screen") );
     useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
     if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
- 
+
     pixwidthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
     pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
     pixwidthfld_->box()->setNrDecimals( 0 );
@@ -192,7 +193,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
-    
+
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, "Select filename",
@@ -200,7 +201,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 				    .forread(false)
 				    .defseldir(dirname_)
 				    .directories(false)
-	   			    .allowallextensions(false) );
+				    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
@@ -269,7 +270,7 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
 	fldranges_.stop = widthfld_->box()->getFValue();
 	updateSizes();
     }
-    
+
     setNotifiers( true );
 }
 
@@ -277,7 +278,7 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
 void uiSaveImageDlg::unitChg( CallBacker* )
 {
     setNotifiers( false );
- 
+
     const int sel = unitfld_->getIntValue();
     Geom::Size2D<float> size = !sel ? sizecm_ : sizeinch_;
 
@@ -346,7 +347,7 @@ void uiSaveImageDlg::fileSel( CallBacker* )
 {
     BufferString filename = fileinputfld_->fileName();
     if ( filename.isEmpty() ) return;
-    
+
     if ( !File::isDirectory(filename) )
 	addFileExtension( filename );
     fileinputfld_->setFileName( filename );
@@ -372,7 +373,7 @@ bool uiSaveImageDlg::filenameOK() const
 
     if ( File::exists(filename) )
     {
-	BufferString msg = "The file "; msg += filename; 
+	BufferString msg = "The file "; msg += filename;
 	if ( !File::isWritable(filename) )
 	{
 	    msg += " is not writable";
@@ -436,7 +437,7 @@ void uiSaveImageDlg::getSettingsPar( PtrMan<IOPar>& ctiopar,
 { ctiopar = settings_.subselect( typenm.buf() ); }
 
 
-void uiSaveImageDlg::fillPar( IOPar& par, bool is2d ) 
+void uiSaveImageDlg::fillPar( IOPar& par, bool is2d )
 {
     if ( !heightfld_ ) return;
     par.set( sKeyType(), is2d ? "2D" : "3D" );
@@ -451,7 +452,7 @@ void uiSaveImageDlg::fillPar( IOPar& par, bool is2d )
 bool uiSaveImageDlg::usePar( const IOPar& par )
 {
     if ( !heightfld_ ) return false;
-    
+
     setNotifiers( false );
 
     BufferString res;
@@ -528,7 +529,7 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     aspectratio_ = 1.0f;
     if ( mw )
 	aspectratio_ = mCast(float,mw->geometry().width())/
-	    	       mCast(float,mw->geometry().height());
+		       mCast(float,mw->geometry().height());
     createGeomInpFlds( 0 );
     useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
@@ -582,6 +583,6 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
     mDynamicCastGet(uiMainWin*,mw,parent());
     if ( !mw ) return false;
     mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-	    	   (int)sizepix_.height(),dpifld_->box()->getValue());
+		   (int)sizepix_.height(),dpifld_->box()->getValue());
     return true;
 }

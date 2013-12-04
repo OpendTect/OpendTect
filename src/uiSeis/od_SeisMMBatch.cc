@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 
 #include <iostream>
+#include <string.h>
 
 
 int main( int argc, char ** argv )

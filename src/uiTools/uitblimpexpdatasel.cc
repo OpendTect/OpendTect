@@ -229,9 +229,9 @@ void boxChg( CallBacker* )
 
 	ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
 	ObjectSet<uiSpinBox>* rowboxes = iform < rowboxes_.size()
-	    			       ? rowboxes_[iform] : 0;
+				       ? rowboxes_[iform] : 0;
 	ObjectSet<uiLineEdit>* kwinps = iform < kwinps_.size()
-	    			       ? kwinps_[iform] : 0;
+				       ? kwinps_[iform] : 0;
 	for ( int ifld=0; ifld<colboxes.size(); ifld++ )
 	{
 	    colboxes[ifld]->display( isselform && !isspec );
@@ -299,9 +299,9 @@ bool commit()
     {
 	ObjectSet<uiSpinBox>& colboxes = *colboxes_[formnr];
 	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > formnr
-	    			       ? rowboxes_[formnr] : 0;
+				       ? rowboxes_[formnr] : 0;
 	ObjectSet<uiLineEdit>* kwinps = kwinps_.size() > formnr
-	    			       ? kwinps_[formnr] : 0;
+				       ? kwinps_[formnr] : 0;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
 	    RowCol rc( 0, colboxes[idx]->getValue() );
@@ -352,7 +352,7 @@ bool commit()
     static int				defrow_;
     static int				defcol_;
     static void				initDefs()
-    					{ defrow_ = defcol_ = 1; }
+					{ defrow_ = defcol_ = 1; }
 
 };
 
@@ -365,7 +365,7 @@ class uiTableFormatDescFldsEd : public uiDialog
 {
 public:
 
-    				uiTableFormatDescFldsEd(uiTableImpDataSel*,
+				uiTableFormatDescFldsEd(uiTableImpDataSel*,
 							const char*);
 
     Table::FormatDesc&		desc()		{ return fd_; }
@@ -419,8 +419,8 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     if ( !lastelm_ ) return;
 
     eobfld_ = new uiGenInput( lastelm_->attachObj()->parent(),
-	    		      "Stop reading at",
-	    		      StringInpSpec(fd_.eobtoken_) );
+			      "Stop reading at",
+			      StringInpSpec(fd_.eobtoken_) );
     eobfld_->setWithCheck( true );
     eobfld_->setChecked( fd_.haveEOBToken() );
     eobfld_->attach( alignedBelow, lastelm_ );
@@ -446,7 +446,7 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
     ObjectSet<Table::TargetInfo>& infos = ishdr ? fd_.headerinfos_
 						: fd_.bodyinfos_;
     if ( infos.size() < 1 ) return;
-    
+
     ObjectSet<uiTableTargetInfoEd>& elms = ishdr ? hdrelems_ : bodyelems_;
 
     uiTableTargetInfoEd::initDefs();
@@ -459,7 +459,7 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 	if ( nrhdrlines_ != 0 )
 	{
 	    uiTableTargetInfoEd::choicegrp_ = new uiGroup( this,
-		    				"provide/read choice group" );
+						"provide/read choice group" );
 	    elemgrp_->attach( rightOf, uiTableTargetInfoEd::choicegrp_ );
 	}
     }
@@ -530,7 +530,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 			   "This survey only",
 			   "My user ID only", 0 };
     uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
-	    				 StringListInpSpec(strs) );
+					 StringListInpSpec(strs) );
     srcfld->attach( alignedBelow, dlg.inpFld() );
     if ( dlg.go() )
     {
@@ -606,28 +606,28 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 				      const char* hid )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
-    	, descChanged(this)
+	, descChanged(this)
 {
     const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
     const CallBack hdrchgcb = mCB(this,uiTableImpDataSel,hdrChg);
     hdrtypefld_ = new uiGenInput( this, "File header",
-	    			  StringListInpSpec(hdrtyps) );
+				  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
 
     uiToolButton* button = new uiToolButton( this, "openfmt",
-	    			"Selecting existing format",
+				"Selecting existing format",
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );
     button->attach( rightOf, hdrtypefld_ );
 
     int nrlns = fd_.nrHdrLines(); if ( nrlns < 1 ) nrlns = 1;
     hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
-	    			   IntInpSpec(nrlns) );
+				   IntInpSpec(nrlns) );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
     hdrlinesfld_->valuechanged.notify( hdrchgcb );
     hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
-	    			 StringInpSpec(fd_.eohtoken_) );
+				 StringInpSpec(fd_.eohtoken_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
     hdrtokfld_->valuechanged.notify( hdrchgcb );
 
@@ -714,7 +714,7 @@ bool uiTableImpDataSel::commitHdr()
 	    uiMSG().error( "Please enter the string marking the end-of-header");
 	    return false;
 	}
-	if ( strchr( tok.buf(), ' ' ) )
+	if ( tok.contains(' ') )
 	{
 	    uiMSG().error( "The end-of-header 'word' cannot contain spaces");
 	    return false;

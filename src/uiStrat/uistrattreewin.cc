@@ -67,7 +67,7 @@ uiStratTreeWin& StratTreeWin()
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
     , needsave_(false)
-    , istreedisp_(false)	
+    , istreedisp_(false)
     , repos_(*new Strat::RepositoryAccess())
     , tb_(0)
 {
@@ -98,8 +98,8 @@ void uiStratTreeWin::setNewRT()
     Strat::RefTree::getStdNames( opts );
 
     const bool nortpresent = RT().isEmpty();
-    BufferString dlgmsg( "Stratigraphy: " ); 
-    dlgmsg += nortpresent ? "select initial" : "select new"; 
+    BufferString dlgmsg( "Stratigraphy: " );
+    dlgmsg += nortpresent ? "select initial" : "select new";
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
@@ -124,7 +124,7 @@ void uiStratTreeWin::setNewRT()
 	}
 	else
 	{
-	    rt = new RefTree(); 
+	    rt = new RefTree();
 	    ls = new LevelSet();
 	}
 	Strat::setLVLS( ls );
@@ -155,7 +155,7 @@ void uiStratTreeWin::popUp() const
     self.raise();
 }
 
-    
+
 void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
@@ -166,23 +166,23 @@ void uiStratTreeWin::createMenu()
     expandmnuitem_->setPixmap( ioPixmap("collapse_tree") );
     mnu->insertSeparator();
     editmnuitem_ = new uiAction( mEditTxt(true),
-	    			   mCB(this,uiStratTreeWin,editCB) );
+				   mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setPixmap( ioPixmap("unlock") );
     savemnuitem_ = new uiAction( sSave(), mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setPixmap( ioPixmap("save") );
     resetmnuitem_ = new uiAction( "&Reset to last saved",
-	    			    mCB(this,uiStratTreeWin,resetCB));
+				    mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
     resetmnuitem_->setPixmap( ioPixmap("undo") );
     mnu->insertSeparator();
-    
+
     saveasmnuitem_ = new uiAction( sSaveAs(),
-	    			     mCB(this,uiStratTreeWin,saveAsCB) );
+				     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setPixmap( ioPixmap("saveas") );
-    menubar->insertItem( mnu );	    
+    menubar->insertItem( mnu );
 }
 
 #define mDefBut(but,fnm,cbnm,tt) \
@@ -245,13 +245,13 @@ void uiStratTreeWin::createGroups()
 
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
-    bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt(true) );
+    const bool expand = FixedString(expandmnuitem_->text()) == mExpandTxt(true);
     uitree_->expand( expand );
     expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
     expandmnuitem_->setIcon( expand ? ioPixmap("collapse_tree")
 				      : ioPixmap("expand_tree") );
     colexpbut_->setPixmap( expand ? ioPixmap("collapse_tree")
-	    			  : ioPixmap("expand_tree") );
+				  : ioPixmap("expand_tree") );
     colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
 }
 
@@ -273,13 +273,13 @@ void uiStratTreeWin::newCB( CallBacker* )
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
-    bool doedit = !strcmp( editmnuitem_->text(), mEditTxt(true) );
+    const bool doedit = FixedString(editmnuitem_->text()) == mEditTxt(true);
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
     editmnuitem_->setIcon( doedit ? ioPixmap("unlock")
 				    : ioPixmap("readonly") );
     lockbut_->setPixmap( doedit ? ioPixmap("unlock")
-	    			: ioPixmap("readonly") );
+				: ioPixmap("readonly") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
     setIsLocked( !doedit );
@@ -300,8 +300,8 @@ void uiStratTreeWin::setIsLocked( bool yn )
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    Strat::RefTree& bcktree = Strat::eRT(); 
-    //for the time beeing, get back the global tree, but we may want to have 
+    Strat::RefTree& bcktree = Strat::eRT();
+    //for the time beeing, get back the global tree, but we may want to have
     //a snapshot copy of the actual tree we are working on...
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
@@ -319,7 +319,7 @@ void uiStratTreeWin::saveCB( CallBacker* )
 	needsave_ = false;
     }
     else
-	uiMSG().error( "Can not find tree" ); 
+	uiMSG().error( "Can not find tree" );
 }
 
 
@@ -343,13 +343,13 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
     savedlg.go();
     if ( savedlg.uiResult() == 1 )
     {
-	const char* savetxt = saveloclist.getText();
+	const BufferString savetxt = saveloclist.getText();
 	Repos::Source src = Repos::Survey;
-	if ( !strcmp( savetxt, infolvltrs[1] ) )
+	if ( savetxt == infolvltrs[1] )
 	    src = Repos::Data;
-	else if ( !strcmp( savetxt, infolvltrs[2] ) )
+	else if ( savetxt == infolvltrs[2] )
 	    src = Repos::User;
-	else if ( !strcmp( savetxt, infolvltrs[3] ) )
+	else if ( savetxt == infolvltrs[3] )
 	    src = Repos::ApplSetup;
 
 	repos_.writeTree( Strat::RT(), src );
@@ -380,13 +380,13 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 bool uiStratTreeWin::closeOK()
 {
     const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
-    uitree_->setNoChg();	
+    uitree_->setNoChg();
     lvllist_->setNoChg();
     needsave_ = false;
 
     if ( needsave )
     {
-	int res = uiMSG().askSave( 
+	int res = uiMSG().askSave(
 	    "Stratigraphic framework has changed\n Do you want to save it?" );
 
 	if ( res == 1 )
@@ -422,7 +422,7 @@ void uiStratTreeWin::forceCloseCB( CallBacker* )
 
 void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 {
-    if ( cb) 
+    if ( cb)
 	uitree_->moveUnit( cb == moveunitupbut_ );
 
     moveunitupbut_->setSensitive( uitree_->canMoveUnit( true ) );
@@ -448,7 +448,7 @@ void uiStratTreeWin::manLiths( CallBacker* )
 void uiStratTreeWin::manConts( CallBacker* )
 {
     uiStratContentsDlg dlg( this );
-    dlg.go(); 
+    dlg.go();
     if ( dlg.anyChg() ) needsave_ = true;
 }
 
@@ -463,7 +463,7 @@ void uiStratTreeWin::changeLayerModelNumber( bool add )
 	if ( nrlayermodelwin == 1 )
 	    haschged = true;
     }
-    else 
+    else
     {
 	nrlayermodelwin --;
 	if ( nrlayermodelwin == 0 )

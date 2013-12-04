@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "oddirs.h"
 #include "timer.h"
-#include "sighndl.h" 
+#include "sighndl.h"
 
 namespace CmdDrive
 {
@@ -44,7 +44,7 @@ static const char* autoexecfnm = "autoexec.odcmd";
 
 
 uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
-    	: applwin_(*uiMain::theMain().topLevel())
+	: applwin_(*uiMain::theMain().topLevel())
 	, cmddlg_(0)
 	, settingsautoexec_(fullodmode)
 	, surveyautoexec_(fullodmode)
@@ -92,7 +92,7 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
     delete rec_;
     delete drv_;
 
-    if ( historec_ ) 
+    if ( historec_ )
     {
 	delete historec_;
 	SignalHandling::stopNotify( SignalHandling::Kill,
@@ -207,7 +207,7 @@ void uiCmdDriverMgr::commandLineParsing()
     uiMain::theMain().getCmdLineArgs( cmdline );
     for ( int idx=1; idx<cmdline.size(); idx++ )
     {
-	char* ptr = strchr( cmdline.get(idx).buf(), '=' );
+	char* ptr = firstOcc( cmdline.get(idx).buf(), '=' );
 	if ( !ptr )
 	    continue;
 
@@ -259,7 +259,7 @@ void uiCmdDriverMgr::initCmdLog( const char* cmdlognm )
     }
     else if ( *cmdlognm )
 	initCmdLog( "" );
-} 
+}
 
 
 void uiCmdDriverMgr::delayedStartCB( CallBacker* )
@@ -317,7 +317,7 @@ void uiCmdDriverMgr::autoStart()
 	handleSettingsAutoExec();
     else if ( scriptidx_ == -1 )
 	afterSurveyChg( 0 );
-    else if ( scriptidx_ < cmdlinescripts_.size() ) 
+    else if ( scriptidx_ < cmdlinescripts_.size() )
 	getCmdDlg()->autoStartGo( cmdlinescripts_.get(scriptidx_) );
     else if ( cmddlg_ )
 	cmddlg_->reject();

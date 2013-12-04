@@ -96,7 +96,7 @@ uiMadagascarBldPlotCmd::~uiMadagascarBldPlotCmd()
 void uiMadagascarBldPlotCmd::setPlotCmd( const char* cmd )
 {
     createplotcmd_ = cmd;
-    char* pipechar = strchr( createplotcmd_.buf(), '|' );
+    char* pipechar = firstOcc( createplotcmd_.buf(), '|' );
     if ( pipechar )
     {
 	viewplotcmd_ = pipechar + 2;

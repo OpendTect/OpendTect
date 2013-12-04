@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "msgh.h"
 #include "keystrs.h"
 #include "od_istream.h"
+#include <string.h>
 
 #ifndef __win__
 # include <dlfcn.h>
@@ -185,7 +186,7 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 	libnm += 3;
     ret += libnm;
 
-    char* ptr = strchr( ret.buf(), '.' );
+    char* ptr = firstOcc( ret.buf(), '.' );
     if ( ptr ) *ptr = '\0';
     ret += fnend;
 
@@ -232,7 +233,7 @@ void PluginManager::getDefDirs()
 
 static bool isALO( const char* fnm )
 {
-    const char* extptr = strrchr( fnm, '.' );
+    const char* extptr = lastOcc( fnm, '.' );
     if ( !extptr || !*extptr ) return false;
     return caseInsensitiveEqual( extptr+1, "alo", 0 );
 }
@@ -386,7 +387,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	BufferString fnm = dl.get(idx);
 	if ( !isALO(fnm) ) continue;
 
-	char* ptr = strchr( fnm.buf(), '.' );
+	char* ptr = firstOcc( fnm.buf(), '.' );
 	if ( ptr ) *ptr = '\0';
 	if ( fnm != prognm ) continue;
 

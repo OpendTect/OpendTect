@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainterp.h"
 #include "survinfo.h"
 #include "strmoper.h"
+#include <string.h>
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;
@@ -39,8 +40,8 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 	, survgeom_(i.geom_)
 	, auxnrbytes_(0)
 	, input_rectnreg_(false)
-    	, forcedlinestep_(0,0)
-    	, forcetrailer_(false)
+	, forcedlinestep_(0,0)
+	, forcetrailer_(false)
 {
     coordpol_ = coordpol;
     init( i );
@@ -60,7 +61,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
 	, auxinfosel_(cw.auxinfosel_)
 	, survgeom_(ci.geom_)
 	, auxnrbytes_(0)
-    	, forcedlinestep_(cw.forcedlinestep_)
+	, forcedlinestep_(cw.forcedlinestep_)
 {
     coordpol_ = cw.coordpol_;
     init( ci );
@@ -183,7 +184,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.write( (const char*)&sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
 	strm_.write( (const char*)&cinf.datatype, integersize );
-       	cinf.datachar.dump( dcdump[0], dcdump[1] );
+	cinf.datachar.dump( dcdump[0], dcdump[1] );
 	strm_.write( (const char*)dcdump, 4 );
 	strm_.write( (const char*)&info.sd_.start, sizeof(float) );
 	strm_.write( (const char*)&info.sd_.step, sizeof(float) );
@@ -212,9 +213,9 @@ void CBVSWriter::writeGeom()
     strm_.write( (const char*)&survgeom_.start.inl(), 2 * integersize );
     strm_.write( (const char*)&survgeom_.stop.inl(), 2 * integersize );
     strm_.write( (const char*)&survgeom_.step.inl(), 2 * integersize );
-    strm_.write( (const char*)&survgeom_.b2c.getTransform(true).a, 
+    strm_.write( (const char*)&survgeom_.b2c.getTransform(true).a,
 		    3*sizeof(double) );
-    strm_.write( (const char*)&survgeom_.b2c.getTransform(false).a, 
+    strm_.write( (const char*)&survgeom_.b2c.getTransform(false).a,
 		    3*sizeof(double) );
 }
 
@@ -319,7 +320,7 @@ int CBVSWriter::put( void** cdat, int offs )
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	const char* ptr = ((const char*)cdat[icomp])
-	    		+ offs * nrbytespersample_[icomp];
+			+ offs * nrbytespersample_[icomp];
 	if ( !StrmOper::writeBlock(strm_,ptr,cnrbytes_[icomp]) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
@@ -405,7 +406,7 @@ void CBVSWriter::doClose( bool islast )
 	errmsg_ = "Could not write CBVS trailer";
 	ErrMsg( errmsg_ );
     }
-    
+
     strm_.flush();
     if ( islast )
 	strmclosed_ = true;

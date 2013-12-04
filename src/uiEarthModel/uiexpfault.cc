@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 
 #define mGet( tp, fss, f3d ) \
-    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
@@ -72,7 +72,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     zbox_->attach( rightTo, coordfld_ );
 
     stickidsfld_ = new uiCheckList( this, "Stick index", "Node Index",
-	    			    uiCheckList::ChainAll );
+				    uiCheckList::ChainAll );
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
     stickidsfld_->attach( alignedBelow, coordfld_ );
     uiLabel* lbl = new uiLabel( this, "Write" );
@@ -86,7 +86,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     }
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
-	    		       uiFileInput::Setup().forread(false) );
+			       uiFileInput::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
@@ -175,7 +175,7 @@ bool uiExportFault::writeAscii()
 	for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	{
 	    const Coord3 crd = getCoord( emobj.ptr(), sectionid,
-		    			 stickidx, knotidx );
+					 stickidx, knotidx );
 	    if ( !crd.isDefined() )
 		continue;
 
@@ -203,7 +203,7 @@ bool uiExportFault::writeAscii()
 	    {
 		const int sticknr = stickNr( emobj.ptr(), sectionid, stickidx );
 
-    		bool pickedon2d =
+		bool pickedon2d =
 		    fss->geometry().pickedOn2DLine( sectionid, sticknr );
 		if ( pickedon2d && linenmfld_->isChecked() )
 		{
@@ -228,11 +228,12 @@ bool uiExportFault::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
 	mErrRet( "Please select the input fault" );
-    if ( !strcmp(outfld_->fileName(),"") )
+    const BufferString outfnm( outfld_->fileName() );
+    if ( outfnm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) && 
-			!uiMSG().askOverwrite("Output file exists. Overwrite?"))
+    if ( File::exists(outfnm)
+      && !uiMSG().askOverwrite("Output file exists. Overwrite?"))
 	return false;
 
     return writeAscii();

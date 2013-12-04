@@ -200,7 +200,7 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 # define mIttNotifyReleasing( var ) __itt_sync_releasing( &var )
 # define mIttNotifyCancel( var ) __itt_sync_cancel( &var )
 #else
-# define mSetupIttNotify( var, name ) 
+# define mSetupIttNotify( var, name )
 # define mDestroyIttNotify( var )
 # define mPrepareIttNotify( var )
 # define mIttNotifyAcquired( var )
@@ -253,7 +253,7 @@ Threads::Mutex::~Mutex()
 
 
 void Threads::Mutex::lock()
-{ 
+{
 #ifndef OD_NO_QT
     qmutex_->lock();
 #endif
@@ -357,7 +357,7 @@ void Threads::SpinLock::unLock()
 	}
 #else
 	lockingthread_.exchange( 0 );
-#endif 
+#endif
     }
 }
 
@@ -411,7 +411,7 @@ void Threads::ReadWriteLock::readLock()
     while ( status_==mWriteLocked )
 	statuscond_.wait();
 
-    nrreaders_++; 
+    nrreaders_++;
     statuscond_.unLock();
 }
 
@@ -422,7 +422,7 @@ bool Threads::ReadWriteLock::tryReadLock()
     if ( status_==mWriteLocked )
 	return false;
 
-    nrreaders_++; 
+    nrreaders_++;
     return true;
 }
 
@@ -452,8 +452,8 @@ void Threads::ReadWriteLock::writeLock()
 
     status_ = mWriteLocked;
 }
-    
-   
+
+
 bool Threads::ReadWriteLock::tryWriteLock()
 {
     Threads::MutexLocker lock( statuscond_ );
@@ -713,11 +713,11 @@ typedef void (*ThreadFunc)(void*);
 class ThreadBody : public QThread
 {
 public:
-    			ThreadBody( ThreadFunc func )
+			ThreadBody( ThreadFunc func )
 			    : func_( func )
 			{}
 
-    			ThreadBody( const CallBack& cb )
+			ThreadBody( const CallBack& cb )
 			    : func_( 0 )
 			    , cb_( cb )
 			{}
@@ -818,7 +818,7 @@ int Threads::getNrProcessors()
 	if ( envval && *envval )
 	{
 	    BufferString str( envval );
-	    char* ptr = strrchr(str.buf(),'%');
+	    char* ptr = lastOcc(str.buf(),'%');
 	    if ( ptr )
 		{ *ptr = '\0'; needauto = true; perc = toFloat(str.buf()); }
 	    else
@@ -836,7 +836,7 @@ int Threads::getNrProcessors()
 	nrproc = mNINT32(fnrproc);
     }
 
-    if ( DBG::isOn( DBG_MT ) ) 
+    if ( DBG::isOn( DBG_MT ) )
     {
 	BufferString msg;
 	if ( nrproc == 0 )

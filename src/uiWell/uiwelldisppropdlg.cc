@@ -31,11 +31,11 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "","107.2.0").savetext(sSaveAsDefault()).savebutton(true)
 					.savechecked(false)
-				       	.modal(false))
+					.modal(false))
 	, wd_(d)
 	, applyAllReq(this)
 	, savedefault_(false)
-	, is2ddisplay_(is2d)		     
+	, is2ddisplay_(is2d)
 {
     setCtrlStyle( LeaveOnly );
 
@@ -78,10 +78,10 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     {
 	propflds_[idx]->propChanged.notify(
 					mCB(this,uiWellDispPropDlg,propChg) );
-	if ( !strcmp( sKey::Log(), propflds_[idx]->props().subjectName() ) )
+	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log" 
-		    			    : is2d ? "Log 1" : "Left Log" );
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log"
+					    : is2d ? "Log 1" : "Left Log" );
 	    foundlog = true;
 	}
 	else
@@ -97,7 +97,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 }
 
 
-void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
+void uiWellDispPropDlg::setWDNotifiers( bool yn )
 {
     if ( !wd_ ) return;
 
@@ -170,19 +170,19 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 
 
 
-uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p, 
+uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 					        ObjectSet<Well::Data>& wds,
-       						bool is2ddisplay )
+						bool is2ddisplay )
 	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
 	, wds_(wds)
-	, wellselfld_(0)	 
+	, wellselfld_(0)
 {
     if ( wds_.size()>1 )
     {
 	BufferStringSet wellnames;
 	for ( int idx=0; idx< wds_.size(); idx++ )
 	    wellnames.addIfNew( wds_[idx]->name() );
-	
+
 	wellselfld_ = new uiLabeledComboBox( this, "Select Well" );
 	wellselfld_->box()->addItems( wellnames );
 	wellselfld_->box()->selectionChanged.notify(
@@ -216,7 +216,7 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	    BufferStringSet allmarkernms;
 	    for ( int idy=0; idy<wd_->markers().size(); idy++ )
 		allmarkernms.add( wd_->markers()[idy]->name() );
-	    
+
 	    mrkfld->setAllMarkerNames( allmarkernms );
 	    mrkfld->resetProps( prop.markers_ );
 	}
@@ -233,10 +233,10 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 }
 
 
-void uiMultiWellDispPropDlg::setWDNotifiers( bool yn ) 
+void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 {
     Well::Data* curwd = wd_;
-    for ( int idx=0; idx<wds_.size(); idx++ ) 
+    for ( int idx=0; idx<wds_.size(); idx++ )
     {
 	wd_ = wds_[idx];
 	if ( yn )

@@ -28,15 +28,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
-#include <string.h>
 #include "winutils.h"
 static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
     char* termchar = 0;
-    termchar = strstr( dirnm.buf(), "\\bin\\win" );
+    termchar = firstOcc( dirnm.buf(), "\\bin\\win" );
     if ( !termchar )
-	termchar = strstr( dirnm.buf(), "\\bin\\Win" );
+	termchar = firstOcc( dirnm.buf(), "\\bin\\Win" );
 
     if ( termchar )
 	*termchar = '\0';

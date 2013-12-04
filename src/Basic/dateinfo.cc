@@ -4,7 +4,7 @@
  * DATE     : 12-3-1996
  * FUNCTION : date info
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "dateinfo.h"
@@ -467,7 +467,7 @@ bool DateInfo::fromStdDateString( const char* inp )
     days_ = toInt( buf );
     if ( days_ > 0 ) days_--;
 
-    ptr = strrchr( ptr, ' ' );
+    ptr = lastOcc( ptr, ' ' );
     if ( !ptr ) return false;
     days1900_ = 0; setYear( toInt(ptr+1) );
 
@@ -480,13 +480,13 @@ bool DateInfo::fromNumString( const char* inp, bool yrfirst )
 {
     setUdf(); if ( !inp || !*inp ) return false;
     SeparString* ssptr = 0;
-    if ( strchr(inp,'-') )
+    if ( firstOcc(inp,'-') )
 	ssptr = new SeparString( inp, '-' );
-    else if ( strchr(inp,'/') )
+    else if ( firstOcc(inp,'/') )
 	ssptr = new SeparString( inp, '/' );
-    else if ( strchr(inp,'.') )
+    else if ( firstOcc(inp,'.') )
 	ssptr = new SeparString( inp, '.' );
-    else if ( strchr(inp,':') )
+    else if ( firstOcc(inp,':') )
 	ssptr = new SeparString( inp, ':' );
     else
 	return false;

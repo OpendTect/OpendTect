@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 
 #define mGet( tp, fss, f3d ) \
-    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetHelpID(tp) \
     mGet( tp, (is2d ? "104.1.4" : "104.1.3"), "104.1.0" )
 
-uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d ) 
+uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     : uiDialog(p,uiDialog::Setup(mGetTitle(type),"Specify parameters",
 				 mGetHelpID(type)))
     , ctio_(mGetCtio(type))
@@ -82,10 +82,10 @@ void uiImportFault::createUI()
 		.defseldir(GetDataDir()) );
     infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
 
-    if ( !isfss_ ) 
+    if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ascii" );
-    	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
+	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 
@@ -95,7 +95,7 @@ void uiImportFault::createUI()
 	formatfld_->attach( alignedBelow, typefld_ );
 
 	BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )
-	    					.add( sKeyInlCrlSep() ) 
+						.add( sKeyInlCrlSep() )
 						.add( sKeySlopeThres() );
 	stickselfld_ = new uiGenInput( this, "Stick selection",
 				    StringListInpSpec(stickselopt) );
@@ -107,7 +107,7 @@ void uiImportFault::createUI()
 	thresholdfld_->attach( rightOf, stickselfld_ );
 
 	BufferStringSet sticksortopt; sticksortopt.add( sKeyGeometric() )
-						  .add( sKeyIndexed() ) 
+						  .add( sKeyIndexed() )
 						  .add( sKeyFileOrder() );
 	sortsticksfld_ = new uiGenInput( this, "Stick sorting",
 					 StringListInpSpec(sticksortopt) );
@@ -115,7 +115,7 @@ void uiImportFault::createUI()
     }
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-	    				isfss_ ? (is2d_ ? "104.1.7" :"104.1.6")
+					isfss_ ? (is2d_ ? "104.1.7" :"104.1.6")
 					      : "104.1.2" );
     if ( !isfss_  )
 	dataselfld_->attach( alignedBelow, sortsticksfld_ );
@@ -164,7 +164,8 @@ void uiImportFault::stickSel( CallBacker* )
 {
     if ( !stickselfld_ ) return;
 
-    const bool showthresfld = !strcmp( stickselfld_->text(), sKeySlopeThres() );
+    const bool showthresfld
+	= FixedString(stickselfld_->text()) == sKeySlopeThres();
     const bool stickseldisplayed = stickselfld_->attachObj()->isDisplayed();
     thresholdfld_->display( stickseldisplayed && showthresfld );
 }
@@ -201,7 +202,7 @@ bool uiImportFault::handleLMKAscii()
     Conn* conn = new StreamConn( infld_->fileName(), true );
 
     PtrMan<Executor> exec =
-	transl->reader( *fault3d, conn, formatfld_->fileName() ); 
+	transl->reader( *fault3d, conn, formatfld_->fileName() );
 
     if ( !exec )
 	mErrRet( "Cannot import fault" );
@@ -267,16 +268,16 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 
     EM::FSStoFault3DConverter::Setup convsu;
     convsu.sortsticks_ = sortsticksfld_ &&
-			!strcmp( sortsticksfld_->text(), sKeyGeometric() ); 
-    if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeyInlCrlSep()) )
+			FixedString(sortsticksfld_->text()) == sKeyGeometric();
+    if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeyInlCrlSep() )
 	convsu.useinlcrlslopesep_ = true;
-    if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeySlopeThres()) )
+    if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeySlopeThres() )
 	convsu.stickslopethres_ = thresholdfld_->getdValue();
 
     EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
     const bool sortsticks = sortsticksfld_ &&
-			    !strcmp( sortsticksfld_->text(), sKeyIndexed() ); 
+			FixedString( sortsticksfld_->text() ) == sKeyIndexed();
     bool res = ascio.get( strm, *interfss, sortsticks, 0, false );
     if ( res )
     {

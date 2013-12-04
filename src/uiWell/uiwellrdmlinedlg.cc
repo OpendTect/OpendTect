@@ -45,8 +45,8 @@ static const char* sTypes[] = { "Top", "Bottom", 0 };
 
 uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
     : uiGroup(p, "Select wells in table" )
-    , withpos_(withpos)  
-    , wellsbox_(0), selwellsbox_(0), onlytopfld_(0)			   
+    , withpos_(withpos)
+    , wellsbox_(0), selwellsbox_(0), onlytopfld_(0)
 {
     uiGroup* selbuttons = new uiGroup( this, "select buttons" );
     uiGroup* movebuttons = new uiGroup( this, "move buttons" );
@@ -76,8 +76,8 @@ void uiWellSelGrp::createFields()
     {
 	selwellsbox_->setColumnLabel( 1, "Start at" );
 	selwellsbox_->setColumnWidth(1,90);
-	  
-	onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
+
+	onlytopfld_ = new uiGenInput( this, "Use only wells' top position",
 				      BoolInpSpec(true) );
 	onlytopfld_->valuechanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
 	onlytopfld_->attach( alignedBelow, selwellsbox_ );
@@ -97,7 +97,7 @@ void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
-	    				"Move left", cb );
+					"Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -109,11 +109,11 @@ void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWellSelGrp,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
-	    			    "Move Up", cb );
+				    "Move Up", cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-	    				"Move Down", cb );
+					"Move Down", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -139,7 +139,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	for ( int idx=0; idx<wellsbox_->size(); idx++ )
 	{
 	    if ( !wellsbox_->isSelected(idx) ) continue;
-	   
+
 	    int emptyrow = getFirstEmptyRow();
 	    if ( emptyrow == -1 )
 	    {
@@ -147,7 +147,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 		selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
 	    }
 	    selwellsbox_->setText( RowCol(emptyrow,0),
-		    		   wellsbox_->textOfItem(idx));
+				   wellsbox_->textOfItem(idx));
 	    uiComboBox* box = new uiComboBox( 0, "Type" );
 	    selwellsbox_->setCellObject( RowCol(emptyrow,1), box );
 	    box->addItems( sTypes );
@@ -160,7 +160,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	wellsbox_->setCurrentItem( lastusedidx<wellsbox_->size() ?
 				   lastusedidx : wellsbox_->size()-1 );
 	int selectidx = getFirstEmptyRow()-1<0 ?
-	    		selwellsbox_->nrRows()-1 : getFirstEmptyRow()-1;
+			selwellsbox_->nrRows()-1 : getFirstEmptyRow()-1;
 	selwellsbox_->selectRow( selectidx );
     }
     else if ( but == fromselect_ )
@@ -168,8 +168,8 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	int lastusedidx = 0;
 	for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
 	{
-	    if ( !selwellsbox_->isRowSelected(idx) ) continue;
-	    if ( !strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) )
+	    if ( !selwellsbox_->isRowSelected(idx)
+		|| FixedString(selwellsbox_->text(RowCol(idx,0))).isEmpty() )
 		continue;
 
 	    wellsbox_->addItem( selwellsbox_->text( RowCol(idx,0) ) );
@@ -184,14 +184,14 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	    selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
 
 	int selectidx;
-	
+
 	if ( lastusedidx<1 )
 	    selectidx = 0;
 	else if ( lastusedidx<selwellsbox_->nrRows() )
 	    selectidx = lastusedidx-1;
 	else
 	    selectidx = selwellsbox_->nrRows()-1;
-	
+
 	selwellsbox_->selectRow( selectidx );
     }
 
@@ -288,8 +288,9 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
     int index = selwellsbox_->currentRow();
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( !selwellsbox_->isRowSelected( index ) ) return;
-    
-    if ( !strcmp( selwellsbox_->text( RowCol(index,0) ), "" ) ) return;
+
+    if ( FixedString(selwellsbox_->text(RowCol(index,0))).isEmpty() )
+	return;
 
     mDynamicCastGet(uiComboBox*,box,
 		    selwellsbox_->getCellObject(RowCol(index,1)))
@@ -303,8 +304,8 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
 	selwellsbox_->selectRow( index-1 );
 	selwellsbox_->setCurrentCell( RowCol(index-1,0) );
     }
-    else if ( but == movedownward_ && index<selwellsbox_->nrRows() 
-	      && strcmp( selwellsbox_->text( RowCol(index+1,0) ), "" ) )
+    else if ( but == movedownward_ && index<selwellsbox_->nrRows()
+	      && !FixedString(selwellsbox_->text(RowCol(index+1,0))).isEmpty() )
     {
 	mInsertRow( index+2, text.buf(), value );
 	selwellsbox_->removeRow( index );
@@ -325,10 +326,10 @@ int uiWellSelGrp::getFirstEmptyRow()
 {
     for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
     {
-	if ( strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) ) continue;
-	return idx;
+	if ( FixedString(selwellsbox_->text(RowCol(idx,0))).isEmpty() )
+	    return idx;
     }
-    
+
     return -1;
 }
 

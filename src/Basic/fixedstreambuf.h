@@ -12,6 +12,7 @@ ________________________________________________________________________
 */
 
 #include <streambuf>
+#include <string.h>
 
 
 namespace std

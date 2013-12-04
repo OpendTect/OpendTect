@@ -66,12 +66,12 @@ bool Usage::Info::ID::getFrom( const char* str )
     BufferString buf( str );
 
     char* startptr = buf.buf();
-    char* ptr = strchr( startptr, '@' );
+    char* ptr = firstOcc( startptr, '@' );
     if ( !ptr ) return false;
     *ptr++ = '\0'; startptr = ptr;
     nr_ = atoll( startptr );
 
-    ptr = strchr( startptr, ':' );
+    ptr = firstOcc( startptr, ':' );
     if ( !ptr ) return false;
     *ptr = '\0';
     hostname_ = startptr;

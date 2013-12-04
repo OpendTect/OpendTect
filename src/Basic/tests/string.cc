@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include <string.h>
 
 #include <iostream>
 
@@ -141,6 +142,39 @@ static bool testBufferStringFns( bool quiet )
     mRunTest("BufferString unQuote",bs == "^XXYYZ+");
     bs.unEmbed( '^', '+' );
     mRunTest("BufferString unEmbed",bs == "XXYYZ");
+
+    return true;
+}
+
+
+#define mRunFirstOccTest(tofind,offs) \
+    mRunTest( BufferString("firstOcc ",tofind), \
+	    firstOcc(str,tofind)-str == offs)
+
+#define mRunLastOccTest(tofind,offs) \
+    mRunTest( BufferString("lastOcc ",tofind), \
+	    lastOcc(str,tofind)-str == offs)
+
+static bool testOccFns( bool quiet )
+{
+    const char* str = "[BEGIN] Tok1 Tok2 Tok1 Tok3 [END]";
+    const int len = FixedString(str).size();
+
+    mRunFirstOccTest('N',5);
+    mRunFirstOccTest("N",5);
+    mRunFirstOccTest("Tok1",8);
+    mRunFirstOccTest("",0);
+
+    mRunLastOccTest('N',len-3);
+    mRunLastOccTest("N",len-3);
+    mRunLastOccTest("Tok1",len-15);
+    mRunLastOccTest("",len);
+
+    mRunTest( "firstOcc non-exist", firstOcc(str,"Tok4") == 0 )
+    mRunTest( "firstOcc non-exist", firstOcc(str,'X') == 0 )
+    mRunTest( "lastOcc non-exist", lastOcc(str,"Tok4") == 0 )
+    mRunTest( "lastOcc non-exist", lastOcc(str,'X') == 0 )
+
     return true;
 }
 
@@ -159,6 +193,9 @@ int main( int narg, char** argv )
 	ExitProgram( 1 );
 
     if ( !testBufferStringFns(quiet) )
+	ExitProgram( 1 );
+
+    if ( !testOccFns(quiet) )
 	ExitProgram( 1 );
 
     BufferStringSet strs;

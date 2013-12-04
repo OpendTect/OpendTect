@@ -32,7 +32,7 @@ class uiSelExternalAttrInps : public uiDialog
 {
 public:
 uiSelExternalAttrInps( uiParent* p, DescSet* ads,
-		const BufferStringSet& indirinps, 
+		const BufferStringSet& indirinps,
 		const BufferStringSet& dirinps )
     : uiDialog(p,uiDialog::Setup("Specify inputs",
 		     "Network without attributes: definitions",
@@ -98,7 +98,7 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
 
     for ( int idx=0; idx<inps.size(); idx++ )
     {
-    	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
+	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
 	newctio->ctxt.forread = true;
 	newctio->ctxt.toselect.allowtransls_ =
 	    CBVSSeisTrcTranslator::translKey();
@@ -195,7 +195,7 @@ bool acceptOK( CallBacker* )
 protected:
 
     DescSet*			attrset;
-    ObjectSet<uiIOObjSel> 	sels;
+    ObjectSet<uiIOObjSel>	sels;
     int				nrindir;
 };
 
@@ -273,9 +273,9 @@ bool AttributeSetCreator::create()
 static void addGate( BufferString& defstr, const char* extdesc )
 {
     BufferString extstr( extdesc );
-    char* ptr = strchr( extstr.buf(), '[' );
+    char* ptr = firstOcc( extstr.buf(), '[' );
     BufferString gatestr( ptr ? ptr : "[-32,32]" );
-    ptr = strchr( gatestr.buf(), ']' );
+    ptr = firstOcc( gatestr.buf(), ']' );
     if ( ptr ) *(ptr+1) = '\0';
     defstr += " gate=";
     defstr += gatestr;
@@ -303,7 +303,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 	char* ptr = offs.buf();
 	mSkipBlanks(ptr);
 	offs = ptr;
-	ptr = strchr( offs.buf(), ' ' );
+	ptr = firstOcc( offs.buf(), ' ' );
 	if ( ptr ) *ptr = '\0';
 	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
@@ -313,10 +313,10 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 	defstr = "Similarity steering=No";
 	addGate( defstr, extdesc );
 	BufferString work( extdesc );
-	char* pos0ptr = strchr( work.buf(), '=' );
+	char* pos0ptr = firstOcc( work.buf(), '=' );
 	if ( pos0ptr ) pos0ptr++;
-	char* pos1ptr = pos0ptr ? strchr( pos0ptr, 'x' ) : 0;
-	char* ampptr = pos1ptr ? strchr( pos1ptr, '&' ) : 0;
+	char* pos1ptr = pos0ptr ? firstOcc( pos0ptr, 'x' ) : 0;
+	char* ampptr = pos1ptr ? firstOcc( pos1ptr, '&' ) : 0;
 
 	if ( !pos0ptr || !*pos0ptr || !pos1ptr )
 	    defstr += " pos0=-1,-1 pos1=1,1 extension=90";

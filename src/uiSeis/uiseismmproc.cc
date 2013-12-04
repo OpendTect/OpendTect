@@ -381,7 +381,7 @@ static int getSecs( const char* txt )
 {
     if ( !txt || !*txt ) return 0;
     BufferString bs( txt );
-    char* mid = strchr( bs.buf(), ':' );
+    char* mid = firstOcc( bs.buf(), ':' );
     if ( mid ) *mid++ = '\0';
 
     int secs=-1;
@@ -390,7 +390,7 @@ static int getSecs( const char* txt )
 	char* head = mid-1;
 	while ( *head != ' ' && head > bs.buf() ) head--;
 
-	char* tail = strchr( mid, ':' );
+	char* tail = firstOcc( mid, ':' );
 	if ( tail ) *tail++ = '\0';
 
 	secs = toInt( head ) * 3600;
@@ -568,7 +568,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	    continue;
 
 	BufferString hnm = lb ? lb->textOfItem( idx ) : hdl[0]->name();
-	char* ptr = strchr( hnm.buf(), ' ' );
+	char* ptr = firstOcc( hnm.buf(), ' ' );
 	if ( ptr ) *ptr = '\0';
 
 	const HostData* hd = hdl.find( hnm.buf() );
@@ -605,7 +605,7 @@ const char* uiSeisMMProc::curUsedMachName()
    mDeclStaticString( mach );
    mach = usedmachfld->box()->getText();
 
-   char* ptr = strstr( mach.buf(), " -:- ");
+   char* ptr = firstOcc( mach.buf(), " -:- ");
    if ( ptr ) *ptr='\0';
 
    return mach;

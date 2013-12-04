@@ -28,8 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #endif
 
-#include <ctype.h>
-#include <string.h>
 
 static const char* drvstr="/cygdrive/";
 
@@ -45,7 +43,7 @@ const char* getCleanUnxPath( const char* path )
     buf.replace( ';', ':' );
 
     char* ptr = buf.buf();
-    char* drivesep = strchr( ptr, ':' );
+    char* drivesep = firstOcc( ptr, ':' );
     if ( !drivesep )
 	{ ret = ptr; return ret; }
 
@@ -90,17 +88,17 @@ const char* getCleanWinPath( const char* path )
 
     bool isabs = *ptr == '/';
 
-    char* cygdrv = strstr( ptr, drvstr );
+    char* cygdrv = firstOcc( ptr, drvstr );
     if ( cygdrv )
     {
-	char* drv = cygdrv + strlen( drvstr );
+	char* drv = cygdrv + FixedString(drvstr).size();
 	char* buffer = ret.buf();
 
 	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
 	ret += ++drv;
     }
 
-    char* drivesep = strstr( ret.buf(), ":" );
+    char* drivesep = firstOcc( ret.buf(), ":" );
     if ( isabs && !drivesep )
     {
 	const char* cygdir =

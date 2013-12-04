@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmdfunction.h"
 #include "identifierman.h"
 #include "math.h"
+#include <string.h>
 
 
 namespace CmdDrive
@@ -45,7 +46,7 @@ const char* ExprInterpreter::errMsg() const
 }
 
 const char* ExprInterpreter::process( const char* exprstr, BufferString& val,
-       				      bool isargument )
+				      bool isargument )
 {
     exprstr_ = exprstr;
     mSkipBlanks( exprstr_ );
@@ -139,7 +140,7 @@ const char* ExprInterpreter::interpretSingleExpr( const char* parstr,
 
 		    if ( *parnext == ',' )
 		    {
-			parnext++; 
+			parnext++;
 			continue;
 		    }
 		    if ( *parnext == ')' )
@@ -208,7 +209,7 @@ const char* ExprInterpreter::interpretSingleExpr( const char* parstr,
 	mErrRet( parnext+1, "~If |x| was intended, use abs(x) instead" );
 
     if ( *parstr=='!' || *parstr=='+' || *parstr=='-' )
-    { 
+    {
 	BufferString valstr;
 	parnext = interpretSingleExpr( parstr+1, valstr );
 	if ( !parnext )
@@ -240,7 +241,7 @@ const char* ExprInterpreter::interpretSingleExpr( const char* parstr,
 
 
 enum InfixOperator {
-    	IfFalse=0, IfTrue=10, Or=20, And=30, Equal=40, NotEqual,
+	IfFalse=0, IfTrue=10, Or=20, And=30, Equal=40, NotEqual,
 	Less=50, LessEqual, Greater, GreaterEqual, Add=60, Subtract,
 	Multiply=70, Divide, IntDiv, Mod, Power=80 };
 
@@ -436,7 +437,7 @@ const char* ExprInterpreter::interpretCompositeExpr( const char* parstr,
 	{
 	    if ( mIsUdf(num0) )
 		res = num1 ? num0 : 0;
-	    else 
+	    else
 		res = mIsUdf(num1) ? num1 : !!num1;
 	}
 
@@ -497,7 +498,7 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
 				      BufferString& breakprefix ) const
 {
     breakprefix.setEmpty();
-    const int sz = mCast( int, endptr - exprstr_ ); 
+    const int sz = mCast( int, endptr - exprstr_ );
     if ( sz > 0 )
     {
 	breakprefix.setBufSize( sz+1 );

@@ -34,6 +34,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "strmoper.h"
 #include "posinfo.h"
 #include "od_istream.h"
+#include <string.h>
 
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
@@ -248,7 +249,7 @@ bool CBVSReader::readComps()
 	strm_.getBin( ucbuf, integersize );
 	BufferString bs; getText( iinterp_.get(ucbuf,0), bs );
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
-	
+
 	strm_.getBin( ucbuf, integersize );
 	    newinf->datatype = iinterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, 4 );
@@ -325,7 +326,7 @@ bool CBVSReader::readTrailer()
     char buf[40];
     strm_.getBin( buf, 3 ); buf[3] = '\0';
     if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
-    
+
     strm_.setPosition( -4-integersize, od_stream::End );
     strm_.getBin( buf, integersize );
     const int nrbytes = iinterp_.get( buf, 0 );
@@ -428,7 +429,7 @@ bool CBVSReader::goTo( const BinID& bid )
     std::streamoff so;
 #endif
     so = posnr * (info_.nrtrcsperposn_ < 2
-	    	      ? 1 : info_.nrtrcsperposn_);
+		      ? 1 : info_.nrtrcsperposn_);
     so *= auxnrbytes_ + bytespertrace_;
 
 #ifdef __win32__
@@ -447,7 +448,7 @@ int CBVSReader::getPosNr( const PosInfo::CubeDataPos& cdp,
 			  bool setcurrent ) const
 {
     int posnr = -1;
-    
+
     if ( lds_.isEmpty() )
 	return posnr;
 
@@ -618,7 +619,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	if ( samps->start )
 	    strm_.setPosition( samps->start*bps, od_stream::Rel );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
-		    		   (samps->stop-samps->start+1) * bps ) )
+				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
 	if ( samps->stop < info_.nrsamples_-1 )

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "od_ostream.h"
 #include "posimpexppars.h"
+#include <string.h>
 
 
 static const int cTxtHeadNrLines = 40;
@@ -250,7 +251,7 @@ void SEGY::TxtHeader::setText( const char* txt )
     char* ptr = bs.buf();
     for ( int iln=1; iln<=cTxtHeadNrLines; iln++ )
     {
-	char* endptr = strchr( ptr, '\n' );
+	char* endptr = firstOcc( ptr, '\n' );
 	if ( !endptr ) break;
 	*endptr = '\0';
 
@@ -492,7 +493,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryTracl(), nr2put );
     setEntryVal( EntryTracr(), seqnr_ );
     seqnr_++; lineseqnr_++;
-    if ( is2d ) 
+    if ( is2d )
 	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
     else
 	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
@@ -599,7 +600,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( delrt == 0 )
     {
 	delrt = - (short)entryVal( EntryLagA() ); // HRS and Petrel
-	mDefineStaticLocalObject( const bool, smt_bad_laga, 
+	mDefineStaticLocalObject( const bool, smt_bad_laga,
 				  = GetEnvVarYN("OD_SEGY_BAD_LAGA") );
 	if ( smt_bad_laga )
 	    delrt = -delrt;

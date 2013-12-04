@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "typeset.h"
 #include "ptrman.h"
 #include "staticstring.h"
-#include <stdlib.h>
-#include <string.h>
 
 
 Color::Color( unsigned char r_, unsigned char g_,
@@ -53,7 +51,7 @@ unsigned int Color::rgb() const
 { return col_; }
 
 
-unsigned int& Color::rgb() 
+unsigned int& Color::rgb()
 { return col_; }
 
 
@@ -162,7 +160,7 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
     int r_ = (int)r();
     int g_ = (int)g();
     int b_ = (int)b();
-    
+
     float fr = (float)r_ / 255;
     float fg = (float)g_ / 255;
     float fb = (float)b_ / 255;
@@ -270,10 +268,15 @@ static unsigned char getCompFromStrPart( const char* str )
 
 void Color::setStdStr( const char* str )
 {
-    if ( !str || !*str ) return;
-    const bool isnorm = *str == '#';
-    if ( isnorm ) str++;
-    const int len = strlen(str);
+    FixedString inp( str );
+    if ( inp.isEmpty() )
+	return;
+
+    const bool isnorm = inp.firstChar() == '#';
+    if ( isnorm ) inp = str + 1;
+    const int len = inp.size();
+    if ( len < 6 )
+	return;
 
     unsigned char r_ = getCompFromStrPart( str );
     unsigned char g_ = len > 2 ? getCompFromStrPart(str+2) : 255;
@@ -531,7 +534,7 @@ bool Color::fromDescription( const char* inp )
 	if ( caseInsensitiveEqual(cdd.nm_,inp) )
 	{
 	    *this = Color( (unsigned char) cdd.r_,
-		    	   (unsigned char) cdd.g_,
+			   (unsigned char) cdd.g_,
 			   (unsigned char) cdd.b_ );
 	    return true;
 	}
@@ -567,7 +570,7 @@ const TypeSet<Color>& Color::descriptionCenters()
 	{
 	    const ColorDescriptionData& cdd = cColDD[idx];
 	    *newcols += Color( (unsigned char) cdd.r_,
-		    	    (unsigned char) cdd.g_,
+			    (unsigned char) cdd.g_,
 			    (unsigned char) cdd.b_ );
 	}
 

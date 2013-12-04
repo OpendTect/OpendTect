@@ -42,7 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
-				  const NLAModel* n, const MultiID& mid, 
+				  const NLAModel* n, const MultiID& mid,
 				  bool usesinglehor )
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
     , ctio_( mkCtxtIOObjHor(ad.is2D()) )
@@ -66,7 +66,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 	createSingleHorUI();
     else
 	createTwoHorUI();
-    
+
     addStdFields();
 
     objSel(0);
@@ -103,14 +103,14 @@ void uiAttrTrcSelOut::createSingleHorUI()
 void uiAttrTrcSelOut::createTwoHorUI()
 {
     xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
-					    	    "Select extra options",
+						    "Select extra options",
 						    "104.4.1" ) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
-    
+
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top Horizon:");
     objfld_->attach( alignedBelow, attrfld_ );
-    
+
     ctio2_.ctxt.forread = true;
     obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom Horizon:" );
     obj2fld_->setInput( MultiID("") );
@@ -131,7 +131,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     }
 
     createCubeBoundsFlds( ads_.is2D() ? (uiParent*) uppgrp_
-	    			      : (uiParent*) xparsdlg_ );
+				      : (uiParent*) xparsdlg_ );
     createOutputFld( uppgrp_ );
 
     if ( !ads_.is2D() )
@@ -141,7 +141,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
 			new uiPushButton( uppgrp_, "Extra options", cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
     }
-    
+
     uppgrp_->setHAlignObj( attrfld_ );
 }
 
@@ -156,7 +156,7 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 	delete ctio2_.ioobj;
 	delete &ctio2_;
     }
-    
+
     delete ctioout_.ioobj;
     delete &ctioout_;
 }
@@ -166,8 +166,8 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around Horizons";
     gatefld_ = new uiGenInput( prnt, gatelabel,
-	    		FloatInpIntervalSpec().setName("Z Interval Start",0)
-	   				      .setName("Z Interval Stop",1) );
+			FloatInpIntervalSpec().setName("Z Interval Start",0)
+					      .setName("Z Interval Stop",1) );
     gatefld_->attach( alignedBelow, seissubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
@@ -199,7 +199,7 @@ void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
     seissubselfld_ = uiSeisSubSel::get( prnt,
 	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true) );
     seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
-	    					       : (uiGroup*)obj2fld_ );
+						       : (uiGroup*)obj2fld_ );
     mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
     if ( seis2dsubsel )
 	seis2dsubsel->singLineSel.notify(mCB(this,uiAttrTrcSelOut,singLineSel));
@@ -210,7 +210,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 {
     const char* outsidevallabel = "Value outside computed area";
     outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
-    outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_ 
+    outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_
 						   : (uiGroup*)seissubselfld_ );
     outsidevalfld_->setValue(0);
 }
@@ -235,8 +235,8 @@ void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
     const char* nrsamplabel = "Interpolate if hole is smaller than N traces";
-    nrsampfld_ = new uiGenInput( prnt, nrsamplabel, 
-	    			 IntInpSpec().setName("Interpolate") );
+    nrsampfld_ = new uiGenInput( prnt, nrsamplabel,
+				 IntInpSpec().setName("Interpolate") );
     nrsampfld_->attach( alignedBelow, interpfld_ );
 }
 
@@ -264,27 +264,27 @@ void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
     const char* mainhorlabel = "Main Horizon";
-    mainhorfld_ = new uiGenInput( prnt, mainhorlabel, 
-	    			 BoolInpSpec(true,"Top","Bottom") );
+    mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
+				 BoolInpSpec(true,"Top","Bottom") );
     mainhorfld_->attach( alignedBelow, widthfld_ );
 }
 
-   
+
 void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 {
     const char* choicelbl = "Define Z limits for the output cube";
     setcubeboundsfld_ = new uiGenInput ( prnt, choicelbl, BoolInpSpec(true) );
     setcubeboundsfld_->attach( alignedBelow,
-	    		       mainhorfld_ ? mainhorfld_ 
+			       mainhorfld_ ? mainhorfld_
 					   : nrsampfld_ ? nrsampfld_
-					   		: outsidevalfld_ );
+							: outsidevalfld_ );
     setcubeboundsfld_->setValue( false );
     setcubeboundsfld_->valuechanged.notify(
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
     cubeboundsfld_ = new uiGenInput ( prnt, "Z Range", FloatInpIntervalSpec()
-	    						.setName("Z Start",0)
-	   						.setName("Z Stop",1) );
+							.setName("Z Start",0)
+							.setName("Z Stop",1) );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
 }
 
@@ -294,7 +294,7 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
     ctioout_.ctxt.forread = false;
     ctioout_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
-	    		      uiSeisSel::Setup(ads_.is2D(),false)
+			      uiSeisSel::Setup(ads_.is2D(),false)
 			      .selattr(true).allowlinesetsel(false) );
     const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
@@ -358,20 +358,20 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	}
 
 	MultiID mid;
-	if ( desc )	
+	if ( desc )
 	    mid = MultiID( desc->getStoredID() );
-	if ( !desc || mid.isEmpty() )            //Could be 2D neural network 
-	{                                                                       
+	if ( !desc || mid.isEmpty() )            //Could be 2D neural network
+	{
 	    Desc* firststoreddsc = ads_.getFirstStored();
-	    if ( firststoreddsc )                                                               mid = MultiID( firststoreddsc->getStoredID(true) );             
-	}                                                                       
+	    if ( firststoreddsc )                                                               mid = MultiID( firststoreddsc->getStoredID(true) );
+	}
 
 	IOObj* lineobj = IOM().get( mid );
 	Seis2DLineSet s2d( *lineobj );
 
 	BufferString msg = "The selected horizon does not share the geometry"
 	" of the selected lineset. Please choose other input data or horizon.";
-	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() ) 
+	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() )
 	{
 	    uiMSG().error( msg );
 	    return false;
@@ -397,7 +397,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
 		outseisid );
-    
+
     BufferString outnm = outpfld_->getInput();
     if ( is2d )
     {
@@ -426,11 +426,11 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString typestr;
     subselpar->get( sKey::Type(), typestr );
-    const bool issubsel = strcmp( typestr.buf(), sKey::None() );
+    const bool issubsel = typestr != sKey::None();
     const bool usesamp = !is2d || issubsel;
     if ( !issubsel && !is2d )
 	subselpar->set( sKey::Type(), sKey::Range() );
-    
+
     if ( usesamp )
     {
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
@@ -466,9 +466,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     int nrsamp = 0;
     if ( interpfld_ && interpfld_->isChecked() )
-	nrsamp = interpfld_->getBoolValue() ? mUdf(int) 
-	    				   : nrsampfld_->getIntValue();
-    
+	nrsamp = interpfld_->getBoolValue() ? mUdf(int)
+					   : nrsampfld_->getIntValue();
+
     key = IOPar::compKey( sKey::Geometry(), "Interpolation Stepout" );
     iopar.set( key, nrsamp );
 
@@ -476,11 +476,11 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     {
 	key = IOPar::compKey( sKey::Geometry(), "Artificial Width" );
 	iopar.set( key, widthfld_->getfValue() );
-	
+
 	key = IOPar::compKey( sKey::Geometry(), "Leading Horizon" );
 	iopar.set( key, mainhorfld_->getBoolValue()? 1 : 2 );
     }
-    
+
     Interval<float> cubezbounds;
     cubezbounds = setcubeboundsfld_->getBoolValue()
 				? cubeboundsfld_->getFInterval()
@@ -493,7 +493,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     if ( is2d )
         Seis2DLineSet::invalidateCache();
-    
+
     return true;
 }
 
@@ -571,8 +571,8 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 
 void uiAttrTrcSelOut::objSel( CallBacker* cb )
 {
-    if ( !objfld_->commitInput() || 
-	 ( !usesinglehor_ && !obj2fld_->commitInput() ) ) 
+    if ( !objfld_->commitInput() ||
+	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
 	return;
 
     CubeSampling cs;
@@ -588,8 +588,8 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 
 void uiAttrTrcSelOut::interpSel( CallBacker* cb )
 {
-    nrsampfld_->display( interpfld_->isChecked() ? !interpfld_->getBoolValue() 
-	    				       : false );
+    nrsampfld_->display( interpfld_->isChecked() ? !interpfld_->getBoolValue()
+					       : false );
     if ( !addwidthfld_ )
 	return;
 

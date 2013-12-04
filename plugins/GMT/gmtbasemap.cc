@@ -301,7 +301,7 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 
     strm << res << std::endl;
     BufferString comm = res;
-    char* ptr = strstr( comm.buf(), " -R" );
+    char* ptr = firstOcc( comm.buf(), " -R" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
@@ -317,7 +317,7 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = strstr( comm.buf(), " -J" );
+    ptr = firstOcc( comm.buf(), " -J" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
@@ -333,10 +333,10 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = strstr( comm.buf(), ".ps" );
+    ptr = firstOcc( comm.buf(), ".ps" );
     if ( ptr )
     {
-	ptr = strstr( comm.buf(), ">>" );
+	ptr = firstOcc( comm.buf(), ">>" );
 	if ( ptr )
 	{
 	    BufferString temp = ptr;

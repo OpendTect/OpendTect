@@ -50,7 +50,7 @@ void OD::dumpMemInfo( IOPar& res )
 #ifdef __lux__
 static od_int64 getMemFromStr( char* str, const char* ky )
 {
-    char* ptr = strstr( str, ky );
+    char* ptr = firstOcc( str, ky );
     if ( !ptr ) return 0;
     ptr += strlen( ky );
     mSkipBlanks(ptr);

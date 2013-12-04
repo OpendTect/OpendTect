@@ -54,7 +54,7 @@ void ModalStatusActivator::actCB( CallBacker* cb )
     BufferStringSet startsignatures;
     uiMainWin::getModalSignatures( modalstat_.signatures_ );
 
-    do 
+    do
     {
 	startsignatures = modalstat_.signatures_;
 	modalstat_.activewin_ = uiMainWin::activeModalWindow();
@@ -117,11 +117,11 @@ CmdDriver::CmdDriver( uiMainWin& aw )
         , wcm_( new WildcardManager() )
 	, idm_( new IdentifierManager() )
 	, eip_( new ExprInterpreter(*this) )
-    	, logsd_(*new StreamData)
-    	, outfp_(*new FilePath)
-    	, outdir_(GetPersonalDir())
-    	, logfnm_(defaultLogFilename())
-    	, execthr_(0)
+	, logsd_(*new StreamData)
+	, outfp_(*new FilePath)
+	, outdir_(GetPersonalDir())
+	, logfnm_(defaultLogFilename())
+	, execthr_(0)
 	, executeFinished(this)
 	, interactRequest(this)
 {
@@ -268,7 +268,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	errmsg_ += "has "; errmsg_ += (-nrsubst); errmsg_ += " substitution "; \
 	errmsg_ += nrsubst<-1 ? "failures" : "failure"; \
 	errmsg_ += " at line "; errmsg_ += linenr; errmsg_ +=": '"; \
-       	errmsg_ += action; errmsg_ += "'"; \
+	errmsg_ += action; errmsg_ += "'"; \
 	return false; \
     } \
 }
@@ -279,7 +279,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
     if ( !tail || *tail ) \
     { \
 	errmsg_ += "has unexpected content at end of line "; \
-       	errmsg_ += linenr; errmsg_ += ": '"; \
+	errmsg_ += linenr; errmsg_ += ": '"; \
 	errmsg_ += action; errmsg_ += "'"; \
 	return false; \
     } \
@@ -355,7 +355,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	{ errmsg_ += "is invalid"; return false; }
 
     int linenr = 4;		// Header has four lines
-    int extralines = 0; 
+    int extralines = 0;
 
     enum FlowStackTag { IfTag, ElseTag, DefTag, DoTag, DoWhileTag, ForTag };
     TypeSet<int> flowstack, actidxstack;
@@ -424,12 +424,12 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	mCheckFlowStart( For );
 	mCheckFlowStart( Def );
 
-	mCheckFlow( ElseIf,   ==IfTag, true, false, "If" );	
-	mCheckFlow( Else,     ==IfTag, true, false, "If" );	
-	mCheckFlow( Fi,     <=ElseTag, true,  true, "If" );	
-	mCheckFlow( OdUntil,  ==DoTag, true,  true, "Do" );	
-	mCheckFlow( Od,  ==DoWhileTag, true,  true, "DoWhile" );	
-	mCheckFlow( Rof,     ==ForTag, true,  true, "For" );	
+	mCheckFlow( ElseIf,   ==IfTag, true, false, "If" );
+	mCheckFlow( Else,     ==IfTag, true, false, "If" );
+	mCheckFlow( Fi,     <=ElseTag, true,  true, "If" );
+	mCheckFlow( OdUntil,  ==DoTag, true,  true, "Do" );
+	mCheckFlow( Od,  ==DoWhileTag, true,  true, "DoWhile" );
+	mCheckFlow( Rof,     ==ForTag, true,  true, "For" );
 	mCheckFlow( Fed,     ==DefTag, true,  true, "Def" )
 	mCheckFlow( Break,    >=DoTag, false, true, "Do', 'DoWhile' or 'For" );
 	mCheckFlow( Continue, >=DoTag, false, true, "Do', 'DoWhile' or 'For" );
@@ -467,7 +467,7 @@ void CmdDriver::updateLogStrm()
 
 bool CmdDriver::execute()
 {
-    updateLogStrm(); 
+    updateLogStrm();
 
     mLogStrm << std::endl << "Command file: " << cmdfnm_ << std::endl
 	     << "Execution started at " << Time::getDateTimeString()
@@ -513,7 +513,7 @@ void CmdDriver::prepareForResume()
 {
     getModalStatus( curmodalstat_ );
 
-    bool activitydetected = false; 
+    bool activitydetected = false;
     int nrtimesinactive = 0;
 
     while ( true )
@@ -615,7 +615,7 @@ void CmdDriver::mkThread( CallBacker* )
 
     SetCursorActivator cursorsetter( MouseCursor::Forbidden );
     CallBack cb = mCB( &cursorsetter, SetCursorActivator, actCB );
-    mActivateInGUIThread( cb, true ); 
+    mActivateInGUIThread( cb, true );
 
     prepareForResume();
     prevmodalstat_ = curmodalstat_;
@@ -731,7 +731,7 @@ void CmdDriver::mkThread( CallBacker* )
 
     UnsetCursorActivator cursorunsetter;
     cb = mCB( &cursorunsetter, UnsetCursorActivator, actCB );
-    mActivateInGUIThread( cb, true ); 
+    mActivateInGUIThread( cb, true );
 
     Timer::timerStarts()->remove( mCB(this,CmdDriver,timerStartsCB) );
     Timer::timerStopped()->remove( mCB(this,CmdDriver,timerStoppedCB) );
@@ -769,7 +769,7 @@ void CmdDriver::setWait( float time, bool regular )
 	pendingwait_ += regtime - regularwait_;
 	regularwait_ = regtime;
     }
-    else 
+    else
 	pendingwait_ += time;
 }
 
@@ -797,7 +797,7 @@ void CmdDriver::setSleep( float time, bool regular )
 #define mCheckFuncProcExchange( nameword, token ) \
 \
     BufferString funcprocname( nameword ); \
-    char* parenthesisptr = strchr( funcprocname.buf(), '(' ); \
+    char* parenthesisptr = firstOcc( funcprocname.buf(), '(' ); \
     if ( parenthesisptr ) \
     { \
 	*parenthesisptr = '\0'; \
@@ -846,7 +846,7 @@ bool CmdDriver::doAction( const char* actstr )
 	doubtwinassert = true;
 	parstr = actstr;
     }
-    else if ( strchr(firstword,'(') && *assignptr=='(' )
+    else if ( firstword.contains('(') && *assignptr=='(' )
     {
 	firstword = "Call";
 	parstr = actstr;
@@ -859,7 +859,7 @@ bool CmdDriver::doAction( const char* actstr )
 	if ( *assignptr == '?' )
 	{
 	    otherargs = getNextWord( assignptr+1, firstword.buf() );
-	    if ( strchr(firstword, '(') )
+	    if ( firstword.contains('(') )
 	    {
 		mCheckFuncProcExchange( firstword, '=' );
 		firstword = "Call";
@@ -990,7 +990,7 @@ bool CmdDriver::waitForProcessing()
     if ( curmodalbalance == prevmodalbalance )
 	return false;
 
-    if ( wildmodalsignatures_.isSubsetOf(curmodalstat_.signatures_) ) 
+    if ( wildmodalsignatures_.isSubsetOf(curmodalstat_.signatures_) )
 	return true;
 
     if ( mIsUdf(wildmodalclosedstamp_) )
@@ -1005,7 +1005,7 @@ bool CmdDriver::waitForProcessing()
 	mWinWarnStrm << "No guarantee all processing stopped: add preceding "
 		     << "Wait-command if more patience needed" << std::endl;
 
-	wildmodalclosedstamp_ = -1; 
+	wildmodalclosedstamp_ = -1;
     }
     return false;
 }
@@ -1099,11 +1099,11 @@ void CmdDriver::getModalStatus( ModalStatus& modalstat )
 {
     ModalStatusActivator modalstatusinspector( modalstat );
     CallBack cb = mCB( &modalstatusinspector, ModalStatusActivator, actCB );
-    mActivateInGUIThread( cb, true ); 
+    mActivateInGUIThread( cb, true );
 }
 
 
-void CmdDriver::storeModalStatus() 
+void CmdDriver::storeModalStatus()
 {
     getModalStatus( curmodalstat_ );
 
@@ -1198,25 +1198,25 @@ void CmdDriver::forceQtToCatchUp()
     if ( windowlist.isEmpty() )
 	return;
 
-    ObjectSet<const CallBacker> objsfound; 
+    ObjectSet<const CallBacker> objsfound;
     ObjectFinder objfinder( *windowlist[0] );
-    objfinder.findNodes( ObjectFinder::CurWinTopGrp, &objsfound ); 
+    objfinder.findNodes( ObjectFinder::CurWinTopGrp, &objsfound );
 
     for ( int idx=0; idx<objsfound.size(); idx++ )
     {
 	const UIEntity uientity( objsfound[idx] );
 	uiObject* dummy = const_cast<uiObject*>( uientity.object() );
-	mDynamicCastGet( uiLabel*, uilbl, dummy ); 
+	mDynamicCastGet( uiLabel*, uilbl, dummy );
 	if ( uilbl && mSearchKey("").isMatching(uilbl->name()) )
 	{
-	    const bool olddispstate = dummy->isDisplayed(); 
+	    const bool olddispstate = dummy->isDisplayed();
 	    DisplayToggleActivator displaytoggler( *dummy );
 	    CallBack cb = mCB( &displaytoggler, DisplayToggleActivator, actCB );
 
-	    mActivateInGUIThread( cb, true ); 
-	    mBusyWaitUntil( dummy->visible()!=olddispstate ); 
-	    mActivateInGUIThread( cb, true ); 
-	    mBusyWaitUntil( dummy->visible()==olddispstate ); 
+	    mActivateInGUIThread( cb, true );
+	    mBusyWaitUntil( dummy->visible()!=olddispstate );
+	    mActivateInGUIThread( cb, true );
+	    mBusyWaitUntil( dummy->visible()==olddispstate );
 	    return;
 	}
     }
@@ -1276,7 +1276,7 @@ void CmdDriver::prepareIntercept( const FileMultiString& mnupath, int onoff,
 }
 
 
-bool CmdDriver::didInterceptSucceed( const char* objnm ) 
+bool CmdDriver::didInterceptSucceed( const char* objnm )
 {
     if ( interceptstatus_ == InterceptReady )
 	return true;
@@ -1332,7 +1332,7 @@ bool CmdDriver::verifyWinAssert( const char* newassertion )
 	mWinWarnStrm << "Oldest one assumed from " << windowlist.size()
 		     << " windows matching assertion: [" << winstr
 		     << "]" << std::endl;
-	winassertion_ += "#1"; 
+	winassertion_ += "#1";
     }
 
     if ( newassertion )
@@ -1402,7 +1402,7 @@ const char* CmdDriver::locateCmdMark( const char* actstr )
 
     if ( *actstr == '[' )
 	return actstr;
-    
+
     const char* assignptr = StringProcessor(actstr).findAssignment( "=~?(" );
 
     if ( !assignptr )
@@ -1413,7 +1413,7 @@ const char* CmdDriver::locateCmdMark( const char* actstr )
 
     BufferString firstword;
     getNextWord( actstr, firstword.buf() );
-    if ( *assignptr=='(' && !strchr(firstword,'(') )
+    if ( *assignptr=='(' && !firstword.contains('(') )
 	return actstr;
 
     if ( *assignptr != '?' )
@@ -1422,7 +1422,7 @@ const char* CmdDriver::locateCmdMark( const char* actstr )
     actstr = assignptr + 1;
     mSkipBlanks( actstr );
     getNextWord( actstr, firstword.buf() );
-    return strchr(firstword,'(') ? strchr(actstr,'(') : actstr;
+    return firstword.contains('(') ? firstOcc(actstr,'(') : actstr;
 }
 
 
@@ -1494,7 +1494,7 @@ bool CmdDriver::recover()
     }
 
     return false;
-} 
+}
 
 
 void CmdDriver::interactCB( CallBacker* )
@@ -1545,7 +1545,7 @@ void CmdDriver::moveActionIdx( int nrlines )
     }
 
     lastmove_ -= actionidx_;
-    while ( actionidx_<actions_.size() && !curactjumped_ ) 
+    while ( actionidx_<actions_.size() && !curactjumped_ )
     {
 	const char* cmdmark = locateCmdMark( actions_[actionidx_]->line_ );
 	BufferString cmdname;
@@ -1610,7 +1610,7 @@ bool CmdDriver::insertProcedure( int defidx )
     if ( defidx<0 || defidx>=actions_.size() )
 	return false;
 
-    const char* cmdmark = locateCmdMark( actions_[defidx]->line_ ); 
+    const char* cmdmark = locateCmdMark( actions_[defidx]->line_ );
     BufferString cmdname;
     getNextWord( cmdmark, cmdname.buf() );
     if ( !mMatchCI(cmdname, "Def") || actions_[defidx]->gotoidx_<0 )

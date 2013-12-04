@@ -30,7 +30,7 @@ namespace PreStack
 
 uiExportMute::uiExportMute( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Mute Function",
-	    			 "Specify output format", "103.2.6"))
+				 "Specify output format", "103.2.6"))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setCtrlStyle( DoAndStay );
@@ -38,11 +38,11 @@ uiExportMute::uiExportMute( uiParent* p )
     infld_ = new uiIOObjSel( this, ctio_, "Input Mute Def" );
 
     coordfld_ = new uiGenInput( this, "Write coordinates as",
-	   		        BoolInpSpec(true,"X/Y","Inl/Crl") );
+			        BoolInpSpec(true,"X/Y","Inl/Crl") );
     coordfld_->attach( alignedBelow, infld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
-	   		       uiFileInput::Setup().forread(false) );
+			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordfld_ );
 }
 
@@ -61,7 +61,7 @@ bool uiExportMute::writeAscii()
 	return false;
 
     PtrMan<MuteDefTranslator> tr =
-    	(MuteDefTranslator*)ctio_.ioobj->createTranslator();
+	(MuteDefTranslator*)ctio_.ioobj->createTranslator();
     if ( !tr ) return false;
 
     MuteDef mutedef;
@@ -78,7 +78,7 @@ bool uiExportMute::writeAscii()
     }
 
     const bool isxy = coordfld_->getBoolValue();
-    
+
     BufferString str;
     for ( int pos=0; pos<mutedef.size(); pos++ )
     {
@@ -97,13 +97,13 @@ bool uiExportMute::writeAscii()
 		*sdo.ostrm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << offsetvals[offsetidx] << '\t' << 
+	    *sdo.ostrm << '\t' << offsetvals[offsetidx] << '\t' <<
 		       mutedef.getFn( pos ).getValue( offsetvals[offsetidx] );
 
 	    *sdo.ostrm << '\n';
 	}
     }
-    
+
     sdo.close();
     return true;
 }
@@ -111,11 +111,12 @@ bool uiExportMute::writeAscii()
 
 bool uiExportMute::acceptOK( CallBacker* )
 {
-    if (!strcmp(outfld_->fileName(),"") )
+    const BufferString outfnm( outfld_->fileName() );
+    if ( outfnm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) && 
-	    		!uiMSG().askContinue("Output file exists. Continue?") )
+    if ( File::exists(outfnm)
+	    && !uiMSG().askContinue("Output file exists. Continue?") )
 	return false;
 
     if ( writeAscii() )

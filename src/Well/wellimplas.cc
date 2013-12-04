@@ -92,18 +92,18 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    {
 		ptr = getNextWord( ptr, wordbuf );
 		mSkipBlanks(ptr);
-		char* unstr = strchr( wordbuf, '(' );
+		char* unstr = firstOcc( wordbuf, '(' );
 		if ( unstr )
 		{
 		    *unstr++ = '\0';
-		    char* closeparptr = strchr( unstr, ')' );
+		    char* closeparptr = firstOcc( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
 		if ( lfi.depthcolnr < 0 && matchStringCI("dept",wordbuf) )
 		    lfi.depthcolnr = colnr;
 		else
 		{
-		    if ( colnr == 1 && ( !strcmp(wordbuf,"in:")
+		    if ( colnr == 1 && ( FixedString(wordbuf)=="in:"
 				    || isdigit(wordbuf[0]) || wordbuf[0] == '+'
 				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
 			mErrRet( "Invalid LAS-like file" )
@@ -144,7 +144,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		{
 		    // Possible HRS 'encoding'. Awful for user display.
 		    BufferString newnm =  lognm.buf() + 7;
-		    char* newptr = strstr( newnm.buf(), " - Type = " );
+		    char* newptr = firstOcc( newnm.buf(), " - Type = " );
 		    if ( !newptr )
 			lognm = newnm;
 		    else
@@ -213,12 +213,12 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 				     char*& info ) const
 {
     val1 = 0; val2 = 0; info = 0;
-    char* ptr = strchr( startptr, '.' );
+    char* ptr = firstOcc( startptr, '.' );
     if ( ptr ) *ptr++ = '\0';
     removeTrailingBlanks( startptr );
     if ( !ptr ) return;
 
-    info = strchr( ptr, ':' );
+    info = firstOcc( ptr, ':' );
     if ( info )
     {
 	*info++ = '\0';
@@ -292,7 +292,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     }
 
     return getLogData( strm, issel, lfi, istvd, addstartidx,
-	    		inplfi.lognms.size() + 1 );
+			inplfi.lognms.size() + 1 );
 }
 
 

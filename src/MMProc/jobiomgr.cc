@@ -210,7 +210,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }
 
 	    BufferString shrthostnm = hostnm;
-	    char* ptr = strchr( shrthostnm.buf(), '.' );
+	    char* ptr = firstOcc( shrthostnm.buf(), '.' );
 	    if ( ptr ) *ptr = '\0';
 #ifndef __win__
 	    if ( jhri_->hostdata_.isKnownAs(hostnm) ||

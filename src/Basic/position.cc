@@ -20,8 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <ctype.h>
 #include <math.h>
-#include <stdio.h>
-#include <string.h>
 
 #define mUdfIdx mUdf(IdxPair::IdxType)
 static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
@@ -57,7 +55,7 @@ const char* IdxPair::getUsrStr( const char* prefx, const char* sep,
 
 
 bool IdxPair::parseUsrStr( const char* str, const char* prefx,
-       				const char* sep, const char* postfx )
+				const char* sep, const char* postfx )
 {
     if ( !str || !*str )
 	return false;
@@ -71,13 +69,13 @@ bool IdxPair::parseUsrStr( const char* str, const char* prefx,
     if ( !*ptr1st )
 	return false;
 
-    char* ptr2nd = strstr( ptr1st, sep );
+    char* ptr2nd = firstOcc( ptr1st, sep );
     if ( !ptr2nd )
 	ptr2nd = ptr1st;
     else
 	*ptr2nd++ = '\0';
 
-    char* ptrpost = *postfx ? strstr( ptr2nd, postfx ) : 0;
+    char* ptrpost = *postfx ? firstOcc( ptr2nd, postfx ) : 0;
     if ( ptrpost )
 	*ptrpost = 0;
 
@@ -138,7 +136,7 @@ Coord Coord::normalize() const
     if ( sqabsval < 1e-16 )
 	return *this;
 
-    return *this / Math::Sqrt(sqabsval); 
+    return *this / Math::Sqrt(sqabsval);
 }
 
 
@@ -180,7 +178,7 @@ Coord::DistType  Coord::angle( const Coord& from, const Coord& to ) const
 
     const DistType ang = Math::ACos( cosang );
     return det<0 ? 2*M_PI - ang : ang;
-} 
+}
 
 
 const char* Coord::toString() const
@@ -203,11 +201,11 @@ bool Coord::fromString( const char* s )
     BufferString str( s );
     char* ptrx = str.buf(); mSkipBlanks( ptrx );
     if ( *ptrx == '(' ) ptrx++;
-    char* ptry = strchr( ptrx, ',' );
+    char* ptry = firstOcc( ptrx, ',' );
     if ( !ptry ) return false;
     *ptry++ = '\0';
     if ( !*ptry ) return false;
-    char* ptrend = strchr( ptry, ')' );
+    char* ptrend = firstOcc( ptry, ')' );
     if ( ptrend ) *ptrend = '\0';
 
     x = toDouble( ptrx );
@@ -238,9 +236,10 @@ const char* Coord3::toString() const
 
 bool Coord3::fromString( const char* str )
 {
-    if ( !str ) return false;
+    FixedString fs( str );
+    if ( fs.isEmpty() ) return false;
 
-    const char* endptr=str+strlen(str);
+    const char* endptr = str + fs.size();
 
     while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
 	str++;
@@ -291,7 +290,7 @@ const Coord3& Coord3::udf()
 
 
 Coord3Value::Coord3Value( double x, double y, double z, float v )
-    : coord(x,y,z), value(v) 	
+    : coord(x,y,z), value(v)
 {
 }
 
@@ -325,7 +324,7 @@ TrcKey::TrcKey( TrcKey::SurvID id, int linenr, int trcnr )
 
 const TrcKey& TrcKey::udf()
 {
-    mDefineStaticLocalObject( const TrcKey, udfkey, 
+    mDefineStaticLocalObject( const TrcKey, udfkey,
 	    (mUdf(SurvID), BinID::udf().lineNr(), BinID::udf().trcNr()) );
     return udfkey;
 }
@@ -418,7 +417,7 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
 	{ frelip.x /= step.first; frelip.y /= step.second; }
 
     const IdxPair relip( mRounded(IdxType,frelip.x),
-	    		 mRounded(IdxType,frelip.y) );
+			 mRounded(IdxType,frelip.y) );
     return IdxPair( start.first + relip.first * step.first,
 		    start.second + relip.second * step.second );
 }
@@ -430,7 +429,7 @@ Coord Pos::IdxPair2Coord::transformBackNoSnap( const Coord& coord ) const
 	return Coord::udf();
 
     double det = xtr.det( ytr );
-    if ( mIsZero(det,mDefEps) ) 
+    if ( mIsZero(det,mDefEps) )
 	return Coord::udf();
 
     const double x = coord.x - xtr.a;

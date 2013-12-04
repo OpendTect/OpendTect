@@ -157,8 +157,8 @@ bool Strat::RefTree::read( od_istream& strm )
 	    }
 	    else if ( keyw.count('.') > 1 )
 	    {
-		char* contnm = strchr( keyw.buf(), '.' ) + 1;
-		char* contkeyw = strchr( contnm, '.' );
+		char* contnm = firstOcc( keyw.buf(), '.' ) + 1;
+		char* contkeyw = firstOcc( contnm, '.' );
 		*contkeyw = '\0'; contkeyw++;
 		Content* c = contents_.getByName( contnm );
 		if ( c )
@@ -178,12 +178,12 @@ bool Strat::RefTree::read( od_istream& strm )
 	addLeavedUnit( astrm.keyWord(), astrm.value() );
     setToActualTypes();
 
-    const int propsforlen = strlen( sKeyPropsFor() );
+    const int propsforlen = FixedString(sKeyPropsFor()).size();
     while ( !atEndOfSection( astrm.next() ) )
     {
 	IOPar iop; iop.getFrom( astrm );
 	const char* iopnm = iop.name().buf();
-	if ( *iopnm != 'P' || strlen(iopnm) < propsforlen )
+	if ( *iopnm != 'P' || FixedString(iopnm).size() < propsforlen )
 	    break;
 
 	BufferString unnm( iopnm + propsforlen );

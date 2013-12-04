@@ -20,10 +20,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "iopar.h"
 #include <iostream>
+#include <string.h>
 
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
 #ifndef __win__
 # include <unistd.h>
 # include <errno.h>
@@ -35,6 +35,21 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <sys/timeb.h>
 # include <shlobj.h>
 #endif
+
+
+
+#define mConvDefFromStrToShortType(type,fn) \
+void set( type& _to, const char* const& s ) { _to = (type)fn(s); }
+
+mConvDefFromStrToShortType( short, atoi )
+mConvDefFromStrToShortType( unsigned short, atoi )
+mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
+mConvDefFromStrToSimpleType( double, strtod(s,&endptr) )
+mConvDefFromStrToSimpleType( float, strtof(s,&endptr) )
+
 
 
 static Threads::Lock& getEnvVarLock()
@@ -71,7 +86,7 @@ int initWinSock()
 
 
 const char* GetLocalHostName()
-{ 
+{
     mDefineStaticLocalObject( char, ret, [256] );
 #ifdef __win__
     initWinSock();
@@ -90,7 +105,7 @@ void SwapBytes( void* p, int n )
     if ( n < 2 ) return;
     n--;
     while ( nl < n )
-    { 
+    {
 	c = ptr[nl]; ptr[nl] = ptr[n]; ptr[n] = c;
 	nl++; n--;
     }
@@ -170,7 +185,7 @@ mExternC(Basic) void ForkProcess(void)
 int isProcessAlive( int pid )
 {
 #ifdef __win__
-    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, 
+    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE,
 				   GetPID() );
     return isBadHandle(hProcess) ? 0 : 1;
 #else
@@ -193,7 +208,7 @@ int ExitProgram( int ret )
     NotifyExitProgram( (PtrAllVoidFn)(-1) );
 
 // On Mac OpendTect crashes when calling the usual exit and shows error message
-// dyld: odmain bad address of lazy symbol pointer passed to 
+// dyld: odmain bad address of lazy symbol pointer passed to
 // stub_binding_helper
 // _Exit does not call registered exit functions and prevents crash
 #ifdef __mac__
@@ -315,7 +330,7 @@ mExtern(Basic) int SetEnvVar( const char* env, const char* val )
 {
     if ( !env || !*env )
 	return mC_False;
-    
+
     Threads::Locker lock( getEnvVarLock() );
 #ifdef __msvc__
     _putenv_s( env, val );
@@ -389,7 +404,7 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 
     argc = newargc;
     argv = newargv;
-    
+
     od_putProgInfo( argc, argv );
 }
 
@@ -400,8 +415,8 @@ static const char* getShortPathName( const char* path )
     return path;
 #else
     char fullpath[1024];
-    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) ); 
-    // get the fullpath to the exectuabe including the extension. 
+    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
+    // get the fullpath to the exectuabe including the extension.
     // Do not use argv[0] on Windows
     mDeclStaticString( shortpath );
     shortpath.setMinBufSize( 1025 );
@@ -428,10 +443,10 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 	    filepath.add( GetArgV()[0] );
 	    executable = filepath;
 	}
-	
+
 	res = getShortPathName( executable.fullPath() );
     }
-    
+
     return res;
 }
 

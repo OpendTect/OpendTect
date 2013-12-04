@@ -93,14 +93,14 @@ bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
     BufferString cmd;
     const char* errfilenm = GetProcFileName( "gmterr.err" );
     const char* shellnm = GetOSEnvVar( "SHELL" );
-    const bool needsbash = shellnm && *shellnm && !strstr(shellnm,"bash");
+    const bool needsbash = shellnm && *shellnm && !firstOcc(shellnm,"bash");
     if ( needsbash )
 	cmd += "bash -c \'";
 
     const char* commstr = comm.buf();
     if ( commstr && commstr[0] == '@' )
 	commstr++;
-    
+
     cmd += commstr;
     cmd += " 2> \"";
     cmd += errfilenm;
@@ -133,7 +133,7 @@ StreamData GMTPar::makeOStream( const BufferString& comm, std::ostream& strm )
     BufferString cmd;
     const char* errfilenm = GetProcFileName( "gmterr.err" );
     const char* shellnm = GetOSEnvVar( "SHELL" );
-    const bool needsbash = shellnm && *shellnm && !strstr(shellnm,"bash");
+    const bool needsbash = shellnm && *shellnm && !firstOcc(shellnm,"bash");
     const char* commptr = comm.buf();
     if ( needsbash )
     {

@@ -167,7 +167,7 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 	while ( ptr && *ptr )
 	{
 	    char* startptr = ptr;
-	    ptr = strchr( ptr, '\n' );
+	    ptr = firstOcc( ptr, '\n' );
 	    if ( ptr )
 	    {
 		*ptr++ = '\0';

@@ -83,26 +83,26 @@ bool RSFHeader::read( std::istream& istrm )
 	while ( istrm && nullcount < 3 )
 	{
 	    if ( idx >= 255 ) return false;
-		    
+
 	    char c;
 	    istrm.get( c );
 	    if ( c == '\n' ) { linebuf[idx] = '\0'; break; }
 	    else if ( !isspace(c) )
 		linebuf[idx++] = c;
-	    
+
 	    if ( c == sKeyRSFEndOfHeader[nullcount] )
 		nullcount++;
 	}
-	
+
 	if ( nullcount > 2 ) break;
-	
-	char* valstr = strchr( linebuf, '=' );
+
+	char* valstr = firstOcc( linebuf, '=' );
 	if ( !valstr ) continue;
-	
+
 	*valstr = '\0'; valstr++;
 	set( linebuf, valstr );
     }
-    
+
     if ( !size() ) return false;
 
     return true;
@@ -142,7 +142,7 @@ int RSFHeader::nrDims() const
 	dimnm += ++dim;
 	found = find( dimnm );
     }
-    return dim - 1;    
+    return dim - 1;
 }
 
 
@@ -356,8 +356,8 @@ bool TrcHeader::read( std::istream& istrm )
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
-    	if ( !istrm ) return false;
-    	
+	if ( !istrm ) return false;
+
 	static char buf[mbuflen];
 	trchdrdef_.isbinary_ ? istrm.read( buf, mbuflen ) : istrm >> buf;
 	(*this)[idx] = toInt( buf );
@@ -370,9 +370,9 @@ void TrcHeader::write( std::ostream& ostrm ) const
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
-    	//static char buf[mbuflen];
+	//static char buf[mbuflen];
 	const char* buf = toString( (*this)[idx] );
-    	//buf = toString( (*this)[idx] );
+	//buf = toString( (*this)[idx] );
 
 	trchdrdef_.isbinary_ ? ostrm.write( buf, mbuflen ) : ostrm << buf;
     }
@@ -399,7 +399,7 @@ bool TrcHdrStrm::initRead()
 
     const char* datasrc = rsfheader_->getDataSource();
     if ( datasrc != sKeyStdIn )
-    	sd_ = StreamProvider(datasrc).makeIStream();
+	sd_ = StreamProvider(datasrc).makeIStream();
     return true;
 }
 

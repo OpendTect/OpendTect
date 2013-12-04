@@ -24,13 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 
 
-uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type ) 
+uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
     : uiDialog(p,uiDialog::Setup( BufferString( type," selection" ),
 				  BufferString( "Select Input ",type,"(s)" ),
 				  "104.3.0").nrstatusflds(1) )
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type );
-    surfacefld_->objselGrp()->newStatusMsg.notify( 
+    surfacefld_->objselGrp()->newStatusMsg.notify(
 				mCB(this,uiMultiSurfaceReadDlg,statusMsg) );
     surfacefld_->singleSurfaceSelected.notify( mCB(this,uiDialog,accept) );
 }
@@ -50,21 +50,22 @@ bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
 
 
 // ***** uiMultiSurfaceRead *****
-uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
-    : uiIOSurface(p,true,type)
+uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
+    : uiIOSurface(p,true,typ)
     , singleSurfaceSelected(this)
 {
     ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_->ctxt, "", true );
     ioobjselgrp_->selectionChg.notify( mCB(this,uiMultiSurfaceRead,selCB) );
-    ioobjselgrp_->getListField()->doubleClicked.notify( 
+    ioobjselgrp_->getListField()->doubleClicked.notify(
 					mCB(this,uiMultiSurfaceRead,dClck) );
 
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
-    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword()) ||
-	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword()) ||
-         !strcmp(type,EMFault3DTranslatorGroup::keyword()) )
+    const FixedString type( typ );
+    if ( type == EMHorizon2DTranslatorGroup::keyword() ||
+	 type == EMFaultStickSetTranslatorGroup::keyword() ||
+         type == EMFault3DTranslatorGroup::keyword() )
     {
 	rgfld_->display( false, true );
     }
@@ -116,7 +117,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	return;
     }
 
-    if ( processInput() ) 
+    if ( processInput() )
     {
 	if ( !cb )
 	{
@@ -157,17 +158,17 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 
     if ( !errormsgstr.isEmpty() )
     {
-	if ( nrsel == 1  ) 
+	if ( nrsel == 1  )
 	    uiMSG().error( errormsgstr );
 	else
 	    uiMSG().error( "The following selections will not be loaded \n\n",
 			    errormsgstr );
     }
-   
+
 }
 
 
-void uiMultiSurfaceRead::getSurfaceSelection( 
+void uiMultiSurfaceRead::getSurfaceSelection(
 					EM::SurfaceIODataSelection& sel ) const
 {
     uiIOSurface::getSelection( sel );

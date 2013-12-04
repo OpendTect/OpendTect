@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 
 #include <stdio.h>
+#include <string.h>
 
 
 static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
@@ -57,8 +58,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     setDeleteOnClose( false );
 
     infld_ = new uiSurfaceRead( this,
-	    	     uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
-		     		    .withsubsel(true) );
+		     uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
+				    .withsubsel(true) );
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
@@ -67,7 +68,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
     settingsbutt_ = new uiPushButton( this, "Settings",
-	    			      mCB(this,uiExportHorizon, settingsCB),
+				      mCB(this,uiExportHorizon, settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
 
@@ -82,7 +83,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     transfld_->attach( alignedBelow, zfld_ );
 
     unitsel_ = new uiUnitSel( this, SI().zIsTime() ? PropertyRef::Time
-	    					   : PropertyRef::Dist,
+						   : PropertyRef::Dist,
 				    "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
@@ -90,11 +91,11 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, "Undefined value",
-	    		      StringInpSpec(sKey::FloatUdf()) );
+			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
-	    		       uiFileInput::Setup().forread(false) );
+			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );
@@ -270,42 +271,42 @@ bool uiExportHorizon::writeAscii()
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
 	    const EM::SectionID sectionid = hor->sectionID( sections[sidx] );
- 	    PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
- 	    while ( true )
- 	    {
- 		const EM::PosID posid = it->next();
- 		if ( posid.objectID()==-1 )
- 		    break;
- 
+	    PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
+	    while ( true )
+	    {
+		const EM::PosID posid = it->next();
+		if ( posid.objectID()==-1 )
+		    break;
+
 		const Coord3 crd = hor->getPos( posid );
- 		if ( !crd.isDefined() )
- 		    continue;
- 
- 		const BinID bid = SI().transform( crd );
- 		if ( first )
- 		{
- 		    first = false;
- 		    bbox.hrg.start = bbox.hrg.stop = bid;
- 		    bbox.zrg.start = bbox.zrg.stop = (float) crd.z;
- 		}
- 		else
- 		{
- 		    bbox.hrg.include( bid );
- 		    bbox.zrg.include( (float) crd.z );
- 		}
- 	    }
- 
- 	}
- 
- 	if ( !first && zatf->needsVolumeOfInterest() )
- 	{
- 	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
- 	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
- 	    {
- 		uiMSG().error( "Cannot load data for z-transform" );
- 		return false;
- 	    }
- 	}
+		if ( !crd.isDefined() )
+		    continue;
+
+		const BinID bid = SI().transform( crd );
+		if ( first )
+		{
+		    first = false;
+		    bbox.hrg.start = bbox.hrg.stop = bid;
+		    bbox.zrg.start = bbox.zrg.stop = (float) crd.z;
+		}
+		else
+		{
+		    bbox.hrg.include( bid );
+		    bbox.zrg.include( (float) crd.z );
+		}
+	    }
+
+	}
+
+	if ( !first && zatf->needsVolumeOfInterest() )
+	{
+	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
+	    {
+		uiMSG().error( "Cannot load data for z-transform" );
+		return false;
+	    }
+	}
     }
 
     const int nrattribs = hor->auxdata.nrAuxData();
@@ -313,7 +314,7 @@ bool uiExportHorizon::writeAscii()
     for ( int sidx=0; sidx<sections.size(); sidx++ )
     {
 	const int sectionidx = sections[sidx];
-	BufferString fname( basename ); 
+	BufferString fname( basename );
 	if ( writemultiple )
 	{
 	    FilePath fp( fname );
@@ -392,7 +393,7 @@ bool uiExportHorizon::writeAscii()
 
 	    if ( addzpos )
 	    {
-		if ( mIsUdf(crd.z) ) 
+		if ( mIsUdf(crd.z) )
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		{
@@ -433,7 +434,7 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 	mErrRet( "Please select output file" );
 
     if ( File::exists(outfld_->fileName()) &&
-	    	      !uiMSG().askOverwrite("Output file exists. Overwrite?") )
+		      !uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
     const bool res = writeAscii();
@@ -531,9 +532,9 @@ void uiExportHorizon::settingsCB( CallBacker* )
 	    uiMSG().error( "No name selected" );
 	    continue;
 	}
- 
+
 	gfname_ = namefld->text();
 	gfcomment_ = commentfld->text();
- 	return;
+	return;
     }
 }

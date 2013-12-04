@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimenu.h"
 #include "uitreeview.h"
+#include <string.h>
 
 namespace CmdDrive
 {
@@ -106,7 +107,7 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 
     mDisabilityCheck( "tree node", nodesfound.size(), disabledpath );
     return true;
-} 
+}
 
 
 int TreeCmd::countTreeItems( const uiTreeView& uilview,
@@ -200,7 +201,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
     if ( mMatchCI(tagstr,"PathCol") ) \
 	pathcol = true; \
     else if ( !isalpha(tagstr[0]) ) \
-	parnext = parstr; 
+	parnext = parstr;
 
 #define mParTreeTag( parstr, parnext, pathcol ) \
 \
@@ -350,7 +351,7 @@ bool TreeButtonCmd::act( const char* parstr )
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mTreeButtonCheck( nodesfound[0], pathstr );
     mParOnOffPre( "check-box", onoff, nodesfound[0]->isChecked(), true );
-    
+
     clicktags.add( "Check" );
     mActivate( Tree, Activator(*uilview,*nodesfound[0],clicktags) );
 
@@ -381,12 +382,12 @@ bool TreeExpandCmd::act( const char* parstr )
     }
 
     mParOnOffPre( "expander", onoff, nodesfound[0]->isOpen(), true )
-    
+
     BufferStringSet clicktags;
     clicktags.add( "Expand" );
     mActivate( Tree, Activator(*uilview,*nodesfound[0],clicktags) );
 
-    mParOnOffPost( "expander", onoff, nodesfound[0]->isOpen() ) 
+    mParOnOffPost( "expander", onoff, nodesfound[0]->isOpen() )
     return true;
 }
 
@@ -414,8 +415,8 @@ bool TreeMenuCmd::act( const char* parstr )
     prepareIntercept( menupath, onoff );
 
     mActivate( Tree, Activator(*uilview,*nodesfound[0],clicktags,columns[0]) );
-    
-    BufferString objnm("Column "); objnm += columns[0]+1; 
+
+    BufferString objnm("Column "); objnm += columns[0]+1;
     objnm += " of node \""; objnm += pathstr.unescapedStr(); objnm += "\"";
     return didInterceptSucceed( objnm );
 }
@@ -709,7 +710,7 @@ bool GetTreeItemCmd::act( const char* parstr )
     BufferString objnm("Column "); objnm += columns[0]+1; \
     objnm += " of node \""; objnm += pathstr.unescapedStr(); objnm += "\""; \
     if ( !didInterceptSucceed(objnm) ) \
-	return false; 
+	return false;
 
 bool NrTreeMenuItemsCmd::act( const char* parstr )
 {
@@ -1148,7 +1149,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
     if ( !treecmdsflushed_ )
     {
 	const bool treebutchange = mIsSet(ischecked,clickeditem_) !=
-	    			   mIsSet(waschecked,clickeditem_);
+				   mIsSet(waschecked,clickeditem_);
 
 	if ( stagenr_ == 5 )
 	    writeTreeExpand();
@@ -1172,7 +1173,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
     if ( stagenr_ != 3 )
     {
 	reInit();
-	if ( accepted ) 
+	if ( accepted )
 	    return accept( ev );
     }
 

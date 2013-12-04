@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 #include "varlenarray.h"
 #include "od_iostream.h"
+#include <string.h>
 
 static const float cMaxDistFromGeom = 1000.f;
 
@@ -47,7 +48,7 @@ Pos::IdxPairValueSet::IdxPairValueSet( int nv, bool ad )
 
 
 Pos::IdxPairValueSet::IdxPairValueSet( const IdxPairValueSet& s )
-    	: nrvals_(0)
+	: nrvals_(0)
 {
     *this = s;
 }
@@ -116,22 +117,22 @@ bool Pos::IdxPairValueSet::append( const IdxPairValueSet& vs )
 }
 
 
-void Pos::IdxPairValueSet::remove( const IdxPairValueSet& removepairs ) 
-{ 
-    SPos pos; 
-	 
-    while ( removepairs.next(pos, true ) ) 
-    { 
-	const IdxPair pair = removepairs.getIdxPair( pos ); 
-	SPos removepos = findOccurrence( pair ); 
-					 
-	while ( removepos.j>=0 ) 
-	{ 
-	    remove( removepos ); 
-	    removepos = findOccurrence( pair ); 
-	} 
-    } 
-} 
+void Pos::IdxPairValueSet::remove( const IdxPairValueSet& removepairs )
+{
+    SPos pos;
+
+    while ( removepairs.next(pos, true ) )
+    {
+	const IdxPair pair = removepairs.getIdxPair( pos );
+	SPos removepos = findOccurrence( pair );
+
+	while ( removepos.j>=0 )
+	{
+	    remove( removepos );
+	    removepos = findOccurrence( pair );
+	}
+    }
+}
 
 
 void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
@@ -193,7 +194,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	mSkipBlanks( firstchar );
 	if ( *firstchar == '"' )
 	{
-	    char* ptr = strchr( firstchar+1, '"' );
+	    char* ptr = firstOcc( firstchar+1, '"' );
 	    if ( !ptr ) continue;
 	    firstchar = ptr+1;
 	}
@@ -406,7 +407,7 @@ bool Pos::IdxPairValueSet::next( SPos& pos, bool skip_dup ) const
     else if ( pos.i >= frsts_.size() )
 	{ pos.i = pos.j = -1; return false; }
     else if ( pos.j < 0 )
-    	{ pos.j = 0; return true; }
+	{ pos.j = 0; return true; }
 
     const TypeSet<IdxType>& scnds = getScndSet(pos);
     if ( pos.j > scnds.size()-2 )
@@ -461,7 +462,7 @@ bool Pos::IdxPairValueSet::isValid( const IdxPair& ip ) const
 
 
 void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
-       			 int maxnrvals ) const
+			 int maxnrvals ) const
 {
     if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
 
@@ -477,7 +478,7 @@ void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
 	}
     }
 
-    if ( vs ) 
+    if ( vs )
 	setToUdf(vs,maxnrvals);
 }
 
@@ -786,7 +787,7 @@ bool Pos::IdxPairValueSet::insertVal( int validx )
 {
     if ( validx < 0 || validx >= nrvals_ )
 	return false;
-    
+
     const int oldnrvals = nrvals_;
     const_cast<int&>( nrvals_ ) = oldnrvals+1;
 
@@ -845,7 +846,7 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals, bool keepdata )
 		float* oldarr = oldvals->arr();
 		float* newarr = newvals->arr();
 		const int cpsz = (oldnrvals > nrvals_ ? nrvals_ : oldnrvals)
-		    		   * sizeof( float );
+				   * sizeof( float );
 		for ( int iscnd=0; iscnd<nrscnd; iscnd++ )
 		    memcpy( newarr+iscnd*nrvals_, oldarr+iscnd*oldnrvals, cpsz );
 	    }
@@ -1264,7 +1265,7 @@ bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
     {
 	if ( getIdxPair(pos) != dr )
 	    break;
-	
+
 	TypeSet<float> valofset;
 	get( pos, tmpip, valofset );
 	if ( valofset.size() == dr.size() )
@@ -1279,7 +1280,7 @@ bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
 	}
 	next( pos );
     }
-    
+
     return found;
 }
 
@@ -1320,7 +1321,7 @@ int Pos::IdxPairValueSet::nrDuplicateIdxPairs() const
 		ip = getIdxPair( pos );
 		if ( previp != ip )
 		    break;
-	    }	
+	    }
 	}
 
 	if ( !pos.isValid() )

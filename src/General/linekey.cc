@@ -33,7 +33,7 @@ BufferString LineKey::lineName() const
     BufferString ret( *this );
     if ( ret.isEmpty() ) return ret;
 
-    char* ptr = strchr( ret.buf(), '|' );
+    char* ptr = firstOcc( ret.buf(), '|' );
     if ( ptr ) *ptr = '\0';
     removeTrailingBlanks( ret.buf() );
     return ret;
@@ -45,7 +45,7 @@ BufferString LineKey::attrName() const
     const char* ptr = sKeyDefAttrib();
     if ( !isEmpty() )
     {
-	ptr = strchr( buf(), '|' );
+	ptr = firstOcc( buf(), '|' );
 	if ( ptr )
 	    { ptr++; mSkipBlanks(ptr); }
 	else

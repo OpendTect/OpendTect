@@ -982,7 +982,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     if( !ptr || !*ptr ) return;
     while ( 1 )
     {
-	char* nlptr = strchr( ptr, '\n' );
+	char* nlptr = firstOcc( ptr, '\n' );
 	if ( nlptr ) *nlptr = '\0';
 	txts += new BufferString( ptr );
 	if ( !nlptr ) break;
