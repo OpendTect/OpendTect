@@ -1,17 +1,17 @@
-#ifndef mmdefs_h
-#define mmdefs_h
- 
+#ifndef mmcommunicdefs_h
+#define mmcommunicdefs_h
+
 /*
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		Dec 2002
  RCS:		$Id$
 ________________________________________________________________________
 
-Defines for multimachine status tags and codes
- 
+Defines for MM job communication status tags and codes
+
 */
 
 
@@ -42,5 +42,6 @@ Defines for multimachine status tags and codes
 #define mRSP_WORK	'W'
 #define mRSP_STOP	'S'
 #define mRSP_PAUSE	'P'
+
 
 #endif

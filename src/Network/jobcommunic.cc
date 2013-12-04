@@ -4,7 +4,7 @@
  * DATE     : 9-5-2005
  * FUNCTION : Multi-machine batch communicator.
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobcommunic.h"
@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debug.h"
 #include "envvars.h"
 #include "hostdata.h"
-#include "mmdefs.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "strmdata.h"
@@ -22,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "msgh.h"
 
 #include <iostream>
+#include "mmcommunicdefs.h"
 
 
 JobCommunic::JobCommunic( const char* host, int port, int jid,
@@ -40,7 +40,7 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     , sdout_( sout )
     , lastsucces_( Time::getMilliSeconds() )
 {
-    socket_ = new TcpSocket(); 
+    socket_ = new TcpSocket();
     socket_->connectToHost( masterhost_, masterport_ );
     socket_->waitForConnected( -1 );
 }
@@ -48,18 +48,18 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
 
 bool JobCommunic::sendErrMsg_( const char* msg )
 {
-    return sendMsg( mERROR_MSG, -1, msg ); 
+    return sendMsg( mERROR_MSG, -1, msg );
 }
 
 
 bool JobCommunic::sendPID_( int pid )
-{ 
+{
     return sendMsg( mPID_TAG, pid );
 }
 
 
 bool JobCommunic::sendProgress_( int progress, bool immediate )
-{ 
+{
     if ( immediate ) return sendMsg( mPROC_STATUS, progress );
     return updateMsg( mPROC_STATUS, progress );
 }
@@ -81,7 +81,7 @@ bool JobCommunic::sendState_( State st, bool isexit, bool immediate )
 	case Timeout	: _stat = mSTAT_TIMEOUT; break;
 	default		: _stat = mSTAT_UNDEF; break;
     }
-   
+
 
     if ( immediate )
 	return sendMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
@@ -122,7 +122,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     if ( DBG::isOn(DBG_MM) )
     {
 	BufferString dbmsg("JobCommunic::sendMsg -- sending : ");
-	dbmsg += statstr;		
+	dbmsg += statstr;
 	DBG::message(dbmsg);
     }
 
@@ -138,7 +138,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     BufferString errbuf;
     BufferString inp;
     socket_->waitForReadyRead( 2000 );
-    socket_->read( inp ); 
+    socket_->read( inp );
     masterinfo = inp[0];
     bool ret = !inp.isEmpty();
     if ( !ret )
@@ -154,7 +154,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     else if ( masterinfo == mRSP_PAUSE )
 	pausereq_ = true;
 
-    else if ( masterinfo == mRSP_STOP ) 
+    else if ( masterinfo == mRSP_STOP )
     {
 	directMsg( "Exiting on request of Master." );
 	ExitProgram( -1 );
@@ -173,7 +173,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
 void JobCommunic::checkMasterTimeout()
 {
-    int elapsed = Time::passedSince( lastsucces_ );  
+    int elapsed = Time::passedSince( lastsucces_ );
 
     if ( elapsed > 0 && elapsed > failtimeout_ )
     {

@@ -20,12 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobdescprov.h"
 #include "jobinfo.h"
 #include "jobiomgr.h"
-#include "mmdefs.h"
 #include "msgh.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "timefun.h"
 #include "staticstring.h"
+#include "mmcommunicdefs.h"
 
 #include <iostream>
 

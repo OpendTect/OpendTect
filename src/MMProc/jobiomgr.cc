@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "jobinfo.h"
 #include "keystrs.h"
-#include "mmdefs.h"
 #include "oddirs.h"
 #include "queue.h"
 #include "separstr.h"
@@ -33,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "timefun.h"
 
+#include "mmcommunicdefs.h"
 #ifndef __win__
 # include <unistd.h>
 #endif
