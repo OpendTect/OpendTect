@@ -84,6 +84,12 @@ else
     setenv LD_LIBRARY_PATH ${qtdir}/lib
 endif
 
+if ( $?DYLD_LIBRARY_PATH ) then
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${DYLD_LIBRARY_PATH}
+else
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib
+endif
+
 
 if ( "$datadir" != "" ) then
     set args = "${args} --datadir ${datadir}"
