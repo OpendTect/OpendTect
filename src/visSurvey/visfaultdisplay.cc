@@ -117,6 +117,8 @@ FaultDisplay::FaultDisplay()
 
     if ( getMaterial() )
 	mAttachCB( getMaterial()->change, FaultDisplay::matChangeCB );
+
+    init();
 }
 
 

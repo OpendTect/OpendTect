@@ -63,9 +63,6 @@ MultiTextureSurveyObject::~MultiTextureSurveyObject()
 
 bool MultiTextureSurveyObject::init()
 {
-    if ( !visBase::DataObject::init() )
-        return false;
-
     resolution_ = 0;
     int resolutionfromsettings;
 

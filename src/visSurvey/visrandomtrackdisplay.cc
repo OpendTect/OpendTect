@@ -146,6 +146,8 @@ RandomTrackDisplay::RandomTrackDisplay()
 //    const int baselen = mNINT32((inlrange.width()+crlrange.width())/2);
     
 //  dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
+
+    init();
 }
 
 

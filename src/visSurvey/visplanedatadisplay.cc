@@ -172,6 +172,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     buttonkey = OD::ShiftButton;
     mSettUse( get, "dTect.MouseInteraction", sKeyPlaneKey(), buttonkey );
     dragger_->setTransDragKeys( false, buttonkey );
+
+    init();
 }
 
 

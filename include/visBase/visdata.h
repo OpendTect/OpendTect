@@ -146,8 +146,6 @@ protected:
     virtual osg::StateSet*	getStateSet();
     void			doAddNodeState(NodeState* ns);
 
-    virtual bool		init() { return true; }
-
     friend class		SelectionManager;
     friend class		Scene;
     virtual void		triggerSel()				{}
@@ -184,49 +182,28 @@ private:
 
 };
 
-#define _mCreateDataObj(clss) 					\
+#define mCreateDataObj(clss) 					\
 {								\
-    clss* ret = new clss;					\
-    if ( !ret )							\
-        return 0;						\
-    if ( !ret->init() || !ret->isOK() )				\
-        { ret->ref(); ret->unRef(); return 0; }			\
-    return ret;							\
+    return new clss;						\
 }								\
 								\
 private:							\
     static visBase::DataObject* createInternal();		\
-    clss(const clss&);						\
-    clss& operator =(const clss&);				\
+    clss& 			operator =(const clss&);	\
+    				clss(const clss&);		\
 public:								\
-    static void		initClass();				\
-    static const char*	getStaticClassName();			\
+                        	clss();                        	\
+    static void			initClass() {}			\
+    static const char*		getStaticClassName();		\
 								\
-    virtual const char*	getClassName() const; 			\
-protected:							\
-
-#define _mDeclConstr(clss)					\
-    clss();							\
-public:
-
-#define mCreateDataObj(clss) 					\
-    _mCreateDataObj(clss) 					\
-    _mDeclConstr(clss)
+    virtual const char*		getClassName() const
 
 
-#define mImplVisInitClass( clss ) \
-void clss::initClass()						\
-{								\
-}
-
-#define mCreateFactoryEntryNoInitClass( clss )			\
+#define mCreateFactoryEntry( clss )				\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
 { return clss::getStaticClassName(); }
 
-#define mCreateFactoryEntry( clss )				\
-mImplVisInitClass( clss );					\
-mCreateFactoryEntryNoInitClass( clss );		
 
 
 

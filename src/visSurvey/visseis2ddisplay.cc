@@ -88,6 +88,8 @@ Seis2DDisplay::Seis2DDisplay()
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
+
+    init();
 }
 
 
