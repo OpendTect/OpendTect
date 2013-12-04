@@ -299,7 +299,7 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 	return -1;
     const MouseEvent& mev = mevh.event();
     const float xsel = xax_->getVal( mev.pos().x );
-    int selidx = ceil( xsel ) - 1;
+    int selidx = (int)(ceil( xsel )) - 1;
     if ( selidx < 0 || selidx > layerModel().size() )
 	selidx = -1;
     return selidx;
@@ -673,7 +673,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	xax_->setBounds( Interval<float>((float)zoomwr_.left(),
 						(float)zoomwr_.right()) );
 	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
-			 		 (float)zoomwr_.bottom()) );
+					 (float)zoomwr_.bottom()) );
     }
 
     yax_->plotAxis(); xax_->plotAxis();
