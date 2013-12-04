@@ -210,12 +210,12 @@ void SynthDispParams::setOverlap( float ovlap )
 void SynthDispParams::fillPar( IOPar& par ) const
 {
     IOPar disppar, vdmapperpar, wvamapperpar;
-    disppar.set( FlatView::DataDispPars::sKeyColTab(), coltab_ );
-    disppar.set( FlatView::DataDispPars::sKeyOverlap(), overlap() );
+    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), coltab_ );
+    wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap() );
     vdMapper().fillPar( vdmapperpar );
     disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
     wvaMapper().fillPar( wvamapperpar );
-    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyWVA() );
+    disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
     par.mergeComp( disppar, sKeyDispPar() );
 }
 
@@ -227,8 +227,8 @@ void SynthDispParams::usePar( const IOPar& par )
 	return;
 
     float ovlap = 1.0f;
-    disppar->get( FlatView::DataDispPars::sKeyColTab(), coltab_ );
     disppar->get( FlatView::DataDispPars::sKeyOverlap(), ovlap );
+    disppar->get( FlatView::DataDispPars::sKeyColTab(), coltab_ );
     setOverlap( ovlap );
      PtrMan<IOPar> vdmapperpar =
 	 disppar->subselect( FlatView::DataDispPars::sKeyVD() );
@@ -242,11 +242,19 @@ void SynthDispParams::usePar( const IOPar& par )
     else
     {
 	 if ( vdmapperpar )
+	 {
 	     vdMapper().usePar( *vdmapperpar );
+	     vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), coltab_ );
+	 }
+
 	 PtrMan<IOPar> wvamapperpar =
 	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
 	 if ( wvamapperpar )
+	 {
 	     wvaMapper().usePar( *wvamapperpar );
+	     disppar->get( FlatView::DataDispPars::sKeyOverlap(), ovlap );
+	     setOverlap( ovlap );
+	 }
     }
 }
 
