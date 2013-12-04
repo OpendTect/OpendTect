@@ -1500,7 +1500,8 @@ bool ExtensionArray2DInterpol::usePar( const IOPar& par )
 }
 
 
-Extension2DInterpolExecutor::Extension2DInterpolExecutor( ExtensionArray2DInterpol& aie )
+Extension2DInterpolExecutor::Extension2DInterpolExecutor( 
+						ExtensionArray2DInterpol& aie )
     : Executor("2D Interpolation")
     , aie_(aie)
     , state_(0)
@@ -1528,7 +1529,8 @@ void Extension2DInterpolExecutor::createStateArr()
 	{
 	    const float val = aie_.arr_->get( irow, icol );
 	    const bool isudf = mIsUdf(val);
-	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;        }
+	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;        
+	}
     }   
 }
 
@@ -1573,7 +1575,8 @@ bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
 }
 
 
-bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, float& val )
+bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, 
+						   float& val )
 {
     float defs[12]; float wts[12]; int nrdefs = 0;
     if ( irow )
@@ -1759,12 +1762,13 @@ bool Extension2DInterpolExecutor::markBigHoles()
 void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 {
     for ( int irow = seedrow; 
-	    irow < aie_.nrrows_ && mA2DInterpNeedsReplace(irow,seedcol); 
-	    irow++ )
+	    seedcol < aie_.nrcols_ && irow < aie_.nrrows_ && 
+	    mA2DInterpNeedsReplace(irow,seedcol); irow++ )
 	state_[irow][seedcol] = cA2DStateKeepUdf;
 
     for ( int irow = seedrow - 1;
-	    irow > -1 && mA2DInterpNeedsReplace(irow,seedcol); irow-- )
+	    seedcol > -1 && irow > -1 && 
+	    mA2DInterpNeedsReplace(irow,seedcol); irow-- )
 	state_[irow][seedcol] = cA2DStateKeepUdf;
     
     if ( seedcol > 0 )
@@ -1775,19 +1779,20 @@ void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 }
 
 
-void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, int step)
+void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, 
+						int step)
 {
     for ( int irow = seedrow;
-	    irow < aie_.nrrows_ && state_[irow][seedcol] == cA2DStateKeepUdf;
-	    irow++ )
+		seedcol < aie_.nrcols_ && irow < aie_.nrrows_ && 
+		state_[irow][seedcol] == cA2DStateKeepUdf; irow++ )
     {
 	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
 	    floodFill4KeepUdf( irow, seedcol+step );
     }
     
     for ( int irow = seedrow - 1;
-	    irow > -1 && state_[irow][seedcol] == cA2DStateKeepUdf;
-	    irow-- )
+	    seedcol > -1 && irow > -1 && 
+	    state_[irow][seedcol] == cA2DStateKeepUdf; irow-- )
     {
 	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
 	    floodFill4KeepUdf( irow, seedcol+step );
@@ -1817,7 +1822,8 @@ int Extension2DInterpolExecutor::nextStep()
 		{
 		    for ( int icol=0; icol<aie_.nrcols_; icol++ )
 		    {
-			if ( state_[irow][icol] == cA2DStateMarkedForKeepUdf )                               floodFill4KeepUdf( irow, icol );
+			if ( state_[irow][icol] == cA2DStateMarkedForKeepUdf )
+			    floodFill4KeepUdf( irow, icol );
 		    }
 		}
 	    }
