@@ -1022,7 +1022,8 @@ void uiTreeViewItem::updateToolTips()
     for ( int idx=odqtobjects_.size()-1; idx>=0; idx-- )
     {
 	int column = 0;
-	while ( odqtobjects_.getODObject(idx)->updateToolTip(column++) );
+	while ( odqtobjects_.getODObject(idx)->updateToolTip(column++) )
+	{}
     }
 }
 
