@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
     , emid_(-1)
-    , uivisemobj_(0)  
+    , uivisemobj_(0)
     , faultdisplay_(0)
     mCommonInit
 {
@@ -226,7 +226,7 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
 	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
-    if ( !res ) 
+    if ( !res )
 	res = new uiODFaultSurfaceDataTreeItem( emid_, uivisemobj_, parenttype);
     return res;
 }
@@ -561,7 +561,7 @@ bool uiODFaultStickSetTreeItem::init()
 	    mCB(this,uiODFaultStickSetTreeItem,selChgCB) );
     faultsticksetdisplay_->deSelection()->notify(
 	    mCB(this,uiODFaultStickSetTreeItem,deSelChgCB) );
-    		
+
     return uiODDisplayTreeItem::init();
 }
 
@@ -665,7 +665,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	uiVisEMObject* uv, const char* parenttype )
     : uiODAttribTreeItem(parenttype)
-    , depthattribmnuitem_("Z values")  
+    , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save as Fault Data ...")
     , loadsurfacedatamnuitem_("Fault Data ...")
     , algomnuitem_("&Smooth")
@@ -683,34 +683,35 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     const bool islocked = visserv->isLocked( displayID() );
-    mDynamicCastGet( visSurvey::FaultDisplay*, fd, 
+    mDynamicCastGet( visSurvey::FaultDisplay*, fd,
 	    visserv->getObject(displayID()) );
 
-    const int nrsurfdata = fd && fd->emFault() ? 
+    const int nrsurfdata = fd && fd->emFault() ?
 				fd->emFault()->auxdata.auxDataList().size() : 0;
-	//applMgr()->EMServer()->nrAttributes( emid_ );
-    BufferString itmtxt = "Fault Data ("; 
+    BufferString itmtxt = "Fault Data (";
     itmtxt += nrsurfdata; itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
-    
+
+    //TODO: enable menus when they are ready
+#ifdef __debug__
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    !islocked && nrsurfdata>0, false );
-    if ( uivisemobj_ )
-    {
-	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
-    }
-    else
-    {
-	mResetMenuItem( &depthattribmnuitem_ );
-    }
+
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
+	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
 	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( menu, &algomnuitem_, false, false );
+#else
+    mResetMenuItem( &loadsurfacedatamnuitem_ );
+    mResetMenuItem( &depthattribmnuitem_ );
+    mResetMenuItem( &savesurfacedatamnuitem_ );
+    mResetMenuItem( &algomnuitem_ );
+#endif
 }
 
 
@@ -722,10 +723,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    uiMSG().message("Not complete yet");
-    return;
-    
-  /*const int visid = displayID();
+    const int visid = displayID();
     const int attribnr = attribNr();
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -766,22 +764,18 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
 	    return;
-	
+
 	TypeSet<float> shifts;
 	DataPointSet vals( false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
 	setDataPointSet( vals );
-	
-	//mDynamicCastGet( visSurvey::FaultDisplay*, visflt,
-	//	visserv->getObject(visid) );
-	//visflt->setAttribShift( attribnr, shifts );
-	
+
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
-    else
+    else if ( mnuid==algomnuitem_.id )
     {
-    } */
+    }
 }
 
 
@@ -803,10 +797,10 @@ BufferString uiODFaultSurfaceDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    
+
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return BufferString("Z values");
-    
+
     return uiODAttribTreeItem::createDisplayName();
 }
 
