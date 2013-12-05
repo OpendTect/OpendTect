@@ -2,28 +2,23 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : June 2013
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "callback.h"
-
+#include "testprog.h"
 #include "atomic.h"
-#include "commandlineparser.h"
-#include "keystrs.h"
 #include "signal.h"
-#include "debug.h"
 #include "thread.h"
-
-#include "od_iostream.h"
 #include <time.h>
 
 
 class ClassWithNotifier : public CallBacker
 {
 public:
-				ClassWithNotifier() : notifier( this ) {} 
+				ClassWithNotifier() : notifier( this ) {}
     Notifier<ClassWithNotifier>	notifier;
 };
 
@@ -36,116 +31,116 @@ public:
 			    if ( a ) mAttachCB( *a, NotifiedClass::callbackA);
 			}
 			~NotifiedClass() { detachAllNotifiers(); }
-    void 		callbackA(CallBacker*)
+    void		callbackA(CallBacker*)
 			{
 			    nrhits_++;
 			}
-    void 		callbackB(CallBacker*)
+    void		callbackB(CallBacker*)
 			{
 			    nrhits_--;
 			}
-    
+
     Threads::Atomic<int>	nrhits_;
 };
 
 #define mCheckTest( testname, condition ) \
 if ( !(condition) ) \
 { \
-    od_ostream::logStream() << testname << ": Failed\n"; \
+    od_cout() << testname << ": Failed\n"; \
     return false; \
 } \
 else if ( !quiet ) \
 { \
-    od_ostream::logStream() << testname << ": Pass\n"; \
+    od_cout() << testname << ": Pass\n"; \
 }
 
 
-bool testNormalOp( bool quiet )
+bool testNormalOp()
 {
     NotifiedClass notified;
     ClassWithNotifier notifier;
-    
+
     notifier.notifier.notifyIfNotNotified(
 				mCB(&notified, NotifiedClass,callbackA) );
     notifier.notifier.trigger();
     mCheckTest( "Normal callback after notifyIfNotNotified",
 	        notified.nrhits_==1 );
-    
+
     notifier.notifier.notifyIfNotNotified(
 			  mCB(&notified, NotifiedClass,callbackA) );
     notifier.notifier.notify( mCB(&notified, NotifiedClass,callbackA) );
-    
+
     notifier.notifier.trigger();
     mCheckTest( "Normal callback", notified.nrhits_==3 );
-    
+
     mCheckTest( "Return value of disable call", notifier.notifier.disable() );
     mCheckTest( "Return value of disable call on disabled notifier",
-	       	!notifier.notifier.disable() );
+		!notifier.notifier.disable() );
     notifier.notifier.trigger();
     mCheckTest( "Trigger disabled notifier", notified.nrhits_==3 );
-    
+
     mCheckTest( "Return value of enable call on disabled notifier",
 	       !notifier.notifier.enable() );
-    
+
     NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
     mCheckTest( "Notify-stopper on enabled notifier", notified.nrhits_==3 );
     delete stopper;
-    
+
     notifier.notifier.trigger();
     mCheckTest( "Removed notify-stopper on enabled notifier",
 	        notified.nrhits_==5 );
-    
+
     notifier.notifier.disable();
-    
+
     stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
     mCheckTest( "Notify-stopper on disabled notifier", notified.nrhits_==5 );
     delete stopper;
-    
+
     notifier.notifier.trigger();
     mCheckTest( "Removed notify-stopper on disabled notifier",
 	       notified.nrhits_==5 );
-    
+
     return true;
 }
 
 
-bool testAttach( bool quiet )
+bool testAttach()
 {
     ClassWithNotifier* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
     NotifiedClass* notified = new NotifiedClass( naccess );
-    
+
     notifier->notifier.trigger();
     mCheckTest( "Normal attached callback", notified->nrhits_==1);
-    
+
     delete notified;
-    
+
     mCheckTest( "Notifier shutdown subscription removal",
 	       !notifier->notifier.isShutdownSubscribed(notified) );
-    
+
     mCheckTest( "Notifier notification removal",
 	       !naccess->willCall(notified) );
-    
+
     notified = new NotifiedClass( naccess );
-    
+
     notifier->notifier.trigger();
-    
+
     mCheckTest( "Normal attached callback 2", notified->nrhits_==1);
-    
+
     delete notifier;
-    
+
     mCheckTest( "Callbacker notifier removal",
 	       !notified->isNotifierAttached(naccess) );
-    
+
     delete notified;
-    
+
     return true;
 }
 
 
-bool testEarlyDetach( bool quiet )
+bool testEarlyDetach()
 {
     ClassWithNotifier* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
@@ -167,7 +162,7 @@ bool testEarlyDetach( bool quiet )
 }
 
 
-bool testLateDetach( bool quiet )
+bool testLateDetach()
 {
     ClassWithNotifier* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
@@ -178,13 +173,13 @@ bool testLateDetach( bool quiet )
     delete notified;
 
     if ( !quiet )
-	od_ostream::logStream() << "Detaching deleted notifier: Pass\n";
+	od_cout() << "Detaching deleted notifier: Pass\n";
 
     return true;
 }
 
 
-bool testDetachBeforeRemoval( bool quiet )
+bool testDetachBeforeRemoval()
 {
     ClassWithNotifier* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
@@ -195,7 +190,7 @@ bool testDetachBeforeRemoval( bool quiet )
     delete notifier;
 
     if ( !quiet )
-	od_ostream::logStream() << "Detach before removal: Pass\n";
+	od_cout() << "Detach before removal: Pass\n";
 
     return true;
 }
@@ -371,15 +366,15 @@ bool crashed = false;
 
 void handler(int sig)
 {
-    od_ostream::logStream() << "Program crashed\n";
+    od_cout() << "Program crashed\n";
     exit( 1 );
 }
 
 
-bool testMulthThreadChaos( bool quiet )
+bool testMulthThreadChaos()
 {
-    od_ostream::logStream() << "Multithreaded chaos:";
-    od_ostream::logStream().flush();
+    od_cout() << "Multithreaded chaos:";
+    od_cout().flush();
 
     {
 	NotifierOwner notifierlist;
@@ -396,23 +391,22 @@ bool testMulthThreadChaos( bool quiet )
 	receiverslist.stop();
     } //All variables out of scope here
 
-    od_ostream::logStream() << " Pass\n";
+    od_cout() << " Pass\n";
     return true;
 }
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
 
-    CommandLineParser clparser;
-    const bool quiet = clparser.hasKey( sKey::Quiet() );
-    
-    if ( !testNormalOp( quiet ) || !testAttach( quiet ) ||
-	 !testLateDetach( quiet ) || !testEarlyDetach( quiet ) ||
-         !testDetachBeforeRemoval( quiet ) ||
-	 !testMulthThreadChaos( quiet ) )
+    if ( !testNormalOp()
+      || !testAttach()
+      || !testLateDetach()
+      || !testEarlyDetach()
+      || !testDetachBeforeRemoval()
+      || !testMulthThreadChaos() )
 	ExitProgram( 1 );
-    
-    ExitProgram( 0 );
+
+    return ExitProgram( 0 );
 }

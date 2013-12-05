@@ -2,37 +2,32 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : March 2013
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "commandlineparser.h"
+#include "testprog.h"
 #include "typeset.h"
-#include "keystrs.h"
 
-#include "od_iostream.h"
 
 #define mRunTest( test ) \
 if ( !(testparser.test) ) \
 { \
-    od_ostream::logStream() << "Test " << #test << " FAILED\n"; \
+    od_cout() << "Test " << #test << " FAILED\n"; \
     ExitProgram( 1 ); \
 } \
 else if ( !quiet ) \
 { \
-    od_ostream::logStream() << "Test " << #test << " - SUCCESS\n"; \
+    od_cout() << "Test " << #test << " - SUCCESS\n"; \
 }
-    
 
 
-int main( int narg, char** argv )
+
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    CommandLineParser parser;
-    
-    const bool quiet = parser.hasKey( sKey::Quiet() );
-    
+    mInitTestProg();
+
     const char* createkeystr = "--create";
     const char* createstr = createkeystr+2;
     const char* inbgkeystr = "--bg";
@@ -43,9 +38,9 @@ int main( int narg, char** argv )
     const char* dummystr = "dummy";
     const char* nonestr = "none";
     const char* fivestr = "5";
-    
+
     TypeSet<const char*> argv1;
-    argv1 += parser.getExecutable();
+    argv1 += clparser.getExecutable();
     argv1 += createkeystr;
     argv1 += fivestr;
     argv1 += file1str;
@@ -57,9 +52,9 @@ int main( int narg, char** argv )
     argv1 += "-.5"; //not a key
     argv1 += inbgkeystr;
     argv1 += "not_a_number";
-    
-    CommandLineParser testparser( argv1.size(), (char**) argv1.arr() );
-    
+
+    CommandLineParser testparser( argv1.size(), (char**)argv1.arr() );
+
     mRunTest( getExecutable()==argv1[0] );
     mRunTest( nrArgs()==argv1.size()-1 );
     mRunTest( isPresent(dummystr) );
@@ -75,12 +70,12 @@ int main( int narg, char** argv )
     mRunTest( isKeyValue(1)==false );
     mRunTest( isKeyValue(2)==false );
     mRunTest( isKeyValue(3)==false );
-    
+
     int createint;
     float createfloat;
     double createdouble;
     BufferString flagfile;
-    
+
     mRunTest( getVal(createstr,createint) && createint==5 );
     mRunTest( getVal(createstr,createfloat) && createfloat==5 );
     mRunTest( getVal(createstr,createdouble) && createdouble==5 );
@@ -93,29 +88,27 @@ int main( int narg, char** argv )
     testparser.getNormalArguments(normalargs);
     if ( normalargs.size()!=8 )
     {
-	od_ostream::logStream() << "getNormalArguments() - FAILED\n";
+	od_cout() << "getNormalArguments() - FAILED\n";
 	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
-	od_ostream::logStream() << "getNormalArguments() - SUCCESS\n";
+	od_cout() << "getNormalArguments() - SUCCESS\n";
     }
-    
+
     testparser.setKeyHasValue( createstr );
     mRunTest( isKeyValue(1) );
-    
+
     testparser.getNormalArguments(normalargs);
     if ( normalargs.size()!=7 )
     {
-	od_ostream::logStream() <<
-		"getNormalArguments() with 1 key with value - FAILED\n";
+	od_cout() << "getNormalArguments() with 1 key with value - FAILED\n";
 	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
-	od_ostream::logStream() <<
-		"getNormalArguments() with 1 key with value - SUCCESS\n";
+	od_cout() << "getNormalArguments() with 1 key with value - SUCCESS\n";
     }
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

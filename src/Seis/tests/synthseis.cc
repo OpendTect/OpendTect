@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "synthseis.h"
+#include "testprog.h"
 
 #include "ailayer.h"
 #include "batchprog.h"
@@ -14,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "factory.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "moddepmgr.h"
 #include "multiid.h"
 #include "ptrman.h"
@@ -23,8 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "survinfo.h"
 #include "wavelet.h"
-
-#include <iostream>
 
 static const char* sKeyWaveletID()	{ return "Wavelet"; }
 #define cStep 0.004f
@@ -69,7 +67,7 @@ void initTest( bool onespike, bool onemodel, float start_depth,
 }
 
 
-bool testSynthGeneration( bool quiet, od_ostream& strm, bool success,
+bool testSynthGeneration( od_ostream& strm, bool success,
 			  Seis::RaySynthGenerator& synthgen )
 {
     BufferString testname( "test Synthetic generation" );
@@ -79,7 +77,7 @@ bool testSynthGeneration( bool quiet, od_ostream& strm, bool success,
 }
 
 
-bool testTraceSize( bool quiet, od_ostream& strm, SeisTrc& trc )
+bool testTraceSize( od_ostream& strm, SeisTrc& trc )
 {
     BufferString testname( "test Trace size" );
     const StepInterval<float> zrg1( 0.028f, 0.688f, cStep );
@@ -96,7 +94,7 @@ bool testTraceSize( bool quiet, od_ostream& strm, SeisTrc& trc )
 }
 
 
-bool testSpike( bool quiet, od_ostream& strm, const SeisTrc& trc,
+bool testSpike( od_ostream& strm, const SeisTrc& trc,
 		const ReflectivitySpike& spike,	float scal, int nr )
 {
     BufferString testname( "test Spike ", nr, " is defined" );
@@ -115,7 +113,7 @@ bool testSpike( bool quiet, od_ostream& strm, const SeisTrc& trc,
 }
 
 
-bool testTracesAmplitudes( bool quiet, od_ostream& strm,
+bool testTracesAmplitudes( od_ostream& strm,
 			   Seis::RaySynthGenerator& synthgen, float scal )
 {
     BufferString testname( "test Traces amplitudes" );
@@ -136,7 +134,7 @@ bool testTracesAmplitudes( bool quiet, od_ostream& strm,
 	    for ( int idz=0; idz<refmodel.size(); idz++ )
 	    {
 		nr++;
-		if ( !testSpike(quiet,strm,trout,refmodel[idz],scal,nr) )
+		if ( !testSpike(strm,trout,refmodel[idz],scal,nr) )
 		    success = false;
 	    }
 	}
@@ -150,10 +148,9 @@ bool testTracesAmplitudes( bool quiet, od_ostream& strm,
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    od_init_test_program( GetArgC(), GetArgV() );
+    mInitBatchTestProg();
     OD::ModDeps().ensureLoaded( "Seis" );
     VrmsRayTracer1D::initClass();
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
 
     // Inputs
     TypeSet<ElasticModel> models;
@@ -200,14 +197,14 @@ bool BatchProgram::go( od_ostream& strm )
 	synthgen.enableFourierDomain( true );
 
 	TaskRunner* tr = new TaskRunner;
-	if ( !testSynthGeneration(quiet,strm,TaskRunner::execute(tr,synthgen),
+	if ( !testSynthGeneration(strm,TaskRunner::execute(tr,synthgen),
 				  synthgen) )
 	    return false;
 
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( nrmodels-1 );
 	SeisTrc stack = *rm.stackedTrc();
-	if ( !testTraceSize(quiet,strm,stack) ||
-	     !testTracesAmplitudes(quiet,strm,synthgen,scal) )
+	if ( !testTraceSize(strm,stack) ||
+	     !testTracesAmplitudes(strm,synthgen,scal) )
 	    return false;
     }
 

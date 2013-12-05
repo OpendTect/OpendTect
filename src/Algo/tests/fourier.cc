@@ -8,29 +8,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "fourier.h"
 
-#include "commandlineparser.h"
-#include "keystrs.h"
+#include "testprog.h"
 #include "math2.h"
 #include "threadlock.h"
 #include "threadwork.h"
 
-#include <iostream>
 
 static Threads::Lock streamlock( false );
 
 class FFTChecker : public Task
 {
 public:
-                FFTChecker(bool quiet,int sz )
-                    : quiet_(quiet)
-                    , sz_( sz )
-    		{}
+                FFTChecker(int sz )
+                    : sz_( sz )
+		{}
 
     bool	execute();
 
 private:
 
-    bool		quiet_;
     int			sz_;
 };
 
@@ -62,18 +58,18 @@ if ( (test)==true ) \
     if ( !quiet ) \
     { \
 	Threads::Locker lock( streamlock ); \
-	std::cout << testname << ": OK\n"; \
+	od_cout() << testname << ": OK\n"; \
     } \
 } \
 else \
 { \
     Threads::Locker lock( streamlock ); \
-    std::cout << testname << ": Failed\n"; \
+    od_cout() << testname << ": Failed\n"; \
     return false; \
 } \
 
 
-bool testForwardCC( bool quiet, const TypeSet<float_complex>& input )
+bool testForwardCC( const TypeSet<float_complex>& input )
 {
     TypeSet<float_complex> reference( input.size(), float_complex(0,0) );
 
@@ -120,8 +116,8 @@ bool FFTChecker::execute()
     TypeSet<float_complex> testdata( sz_, float_complex(0,0) );
     testdata[1] = float_complex(1,0);
 
-    if ( !testForwardCC( quiet_, testdata ) )
-    	return false;
+    if ( !testForwardCC( testdata ) )
+	return false;
 
     return true;
 }
@@ -130,9 +126,7 @@ bool FFTChecker::execute()
 
 int main( int argc, char** argv )
 {
-    od_init_test_program( argc, argv );
-
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     const int sizes[] = { 4, 8, 9, 22, 37, 182, 1111, 9873, 12345, -1};
 
@@ -143,12 +137,12 @@ int main( int argc, char** argv )
     {
         int sz = sizes[idx];
         workload += Threads::Work(
-                        *new FFTChecker(quiet,sz), true );
+                        *new FFTChecker(sz), true );
 
         const int fastsz = Fourier::FFTCC1D::getFastSize(sz);
 
         if ( fastsz != sz )
-            workload += Threads::Work(*new FFTChecker(quiet,fastsz), true );
+            workload += Threads::Work(*new FFTChecker(fastsz), true );
 
         idx++;
     }
@@ -158,4 +152,3 @@ int main( int argc, char** argv )
 
     return ExitProgram( 0 );
 }
-

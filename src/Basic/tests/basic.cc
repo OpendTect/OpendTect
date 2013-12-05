@@ -2,32 +2,30 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "commandlineparser.h"
-#include "keystrs.h"
+#include "testprog.h"
 
-#include "od_iostream.h"
 
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
     if ( !quiet ) \
     { \
-        od_ostream::logStream() << testname << ": OK\n"; \
+        od_cout() << testname << ": OK\n"; \
     } \
 } \
 else \
 { \
-    od_ostream::logStream() << testname << ": Failed\n"; \
+    od_cout() << testname << ": Failed\n"; \
     return false; \
 }
 
 
-bool testPointerCast( bool quiet )
+bool testPointerCast()
 {
     float val;
     float* ptr = &val;
@@ -42,7 +40,7 @@ bool testPointerCast( bool quiet )
 }
 
 
-bool testPointerAlignment( bool quiet )
+bool testPointerAlignment()
 {
     char buffer[] = { 0, 0, 0, 0, 1, 1, 1, 1 };
 
@@ -62,7 +60,7 @@ bool testPointerAlignment( bool quiet )
     {
     public:
 			IVal1Reference()
-        		{
+		{
                             charval_[0] = 0;
                             charval_[1] = 0;
                             charval_[2] = 0;
@@ -71,7 +69,7 @@ bool testPointerAlignment( bool quiet )
         char		charval_[4];
         int		intval_;
     }  val1ref;
-    
+
     mTest("Pointer alignment", ptr0_mod==ptr0 && ptr1_mod==ptr1 &&
                                ival0==0 && ival1 == val1ref.intval_ );
 
@@ -79,20 +77,16 @@ bool testPointerAlignment( bool quiet )
 }
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     // Main idea is to test things that are so basic they don't
     // really fit anywhere else.
 
-    if ( !testPointerCast(quiet) )
-	ExitProgram(1);
-
-
-    if ( !testPointerAlignment(quiet) )
+    if ( !testPointerCast()
+      || !testPointerAlignment() )
         ExitProgram( 1 );
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

@@ -6,12 +6,12 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "testprog.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "segydirecttr.h"
 #include "seiscbvs.h"
-#include "keystrs.h"
 #include "separstr.h"
 #include "bufstringset.h"
 
@@ -37,7 +37,7 @@ static int runIOM( const IOObjContext& ctxt,
 	if ( res && !strcmp(res,sKey::Steering()) )
 	    continue;
 
-	std::cout << ioobj.name() << " (" << translnm << ')' << std::endl;
+	od_cout() << ioobj.name() << " (" << translnm << ')' << od_endl;
 	ret++;
     }
     return ret;
@@ -50,16 +50,17 @@ static int runEntryList( const IOObjContext& ctxt )
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	const IODirEntry& de( *entrylist[idx] );
-	std::cout << de.name() << " (" << de.ioobj->translator()
-	    	  << ')' << std::endl;
+	od_cout() << de.name() << " (" << de.ioobj->translator()
+		  << ')' << od_endl;
     }
     return entrylist.size();
 }
 
-    
-int main( int narg, char** argv )
+
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
+
     od_Seis_initStdClasses();
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
@@ -69,24 +70,24 @@ int main( int narg, char** argv )
     allowedtransls.add( SEGYDirectSeisTrcTranslator::translKey() );
     ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
 
-    std::cout << "Via IOM():" << std::endl;
+    od_cout() << "Via IOM():" << od_endl;
     const int nritemsiom = runIOM( ctxt, allowedtransls );
-    std::cout << std::endl;
+    od_cout() << od_endl;
 
     FileMultiString fms( allowedtransls.get(0) );
     fms += allowedtransls.get(1);
     ctxt.toselect.allowtransls_ = fms;
     ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
 
-    std::cout << "Via EntryList:" << std::endl;
+    od_cout() << "Via EntryList:" << od_endl;
     const int nritemsel = runEntryList( ctxt );
-    std::cout << std::endl;
+    od_cout() << od_endl;
     if ( nritemsiom != nritemsel )
     {
-	std::cout << "Error: nr items from IOM=" << nritemsiom << ",\n"
-	          << "\t\tfrom EntryList=" << nritemsel << std::endl;
+	od_cout() << "Error: nr items from IOM=" << nritemsiom << ",\n"
+	          << "\t\tfrom EntryList=" << nritemsel << od_endl;
 	ExitProgram( 1 );
     }
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

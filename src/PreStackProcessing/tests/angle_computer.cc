@@ -4,9 +4,10 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$"; 
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
+#include "testprog.h"
 
 #include "ioman.h"
 #include "ioobj.h"
@@ -15,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "windowfunction.h"
-#include <iostream>
 
 
 #define mCheckVal(ofsidx,zidx,val) \
@@ -81,15 +81,16 @@ bool isFFTAngleOK(PreStack::Gather* angles)
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    od_init_test_program( GetArgC(), GetArgV() );
+    mInitBatchTestProg();
+
     OD::ModDeps().ensureLoaded( "Velocity" );
-    RefMan<PreStack::VelocityBasedAngleComputer> computer = 
+    RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
     PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
     if ( !velobj )
     {
-	std::cerr<<" Input data is not available.\n";
+	od_cout() << " Input data is not available.\n";
 	return false;
     }
 
@@ -102,20 +103,20 @@ bool BatchProgram::go( od_ostream& strm )
     computer->setTrcKey( TrcKey(BinID(426,800)) );
     if ( !computer->isOK() )
     {
-	std::cerr<<" Angle computer is not OK.\n";
+	od_cout() << " Angle computer is not OK.\n";
 	return false;
     }
 
     PtrMan<PreStack::Gather> angles = computer->computeAngles();
     if ( !angles )
     {
-	std::cerr << "Computer did not succeed in making angle data\n";
+	od_cout() << "Computer did not succeed in making angle data\n";
 	return false;
     }
 
     if ( !isRawAngleOK(angles) )
     {
-	std::cerr << "Angle computer computed wrong raw values\n";
+	od_cout() << "Angle computer computed wrong raw values\n";
 	return false;
     }
 
@@ -123,7 +124,7 @@ bool BatchProgram::go( od_ostream& strm )
     angles = computer->computeAngles();
     if ( !isMovingAverageAngleOK(angles) )
     {
-	std::cerr << "Angle computer computed wrong values after AVG filter\n";
+	od_cout() << "Angle computer computed wrong values after AVG filter\n";
 	return false;
     }
 
@@ -131,10 +132,9 @@ bool BatchProgram::go( od_ostream& strm )
     angles = computer->computeAngles();
     if ( !isFFTAngleOK(angles) )
     {
-	std::cerr << "Angle computer computed wrong values after FFT filter\n";
+	od_cout() << "Angle computer computed wrong values after FFT filter\n";
 	return false;
     }
 
     return true;
 }
-

@@ -2,36 +2,32 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Sep 2013
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
-
+#include "testprog.h"
 #include "math2.h"
-
 #include "genc.h"
-#include "keystrs.h"
-#include "commandlineparser.h"
 
-#include "od_iostream.h"
 
 #define mRunTest( func ) \
     if ( (func)==false ) \
     { \
-	od_ostream::logStream() << #func "\tfailed!\n"; \
+	od_cout() << #func "\tfailed!\n"; \
 	return false; \
     } \
     else if ( !quiet ) \
     { \
-	od_ostream::logStream() << #func "\tsuccess!\n"; \
+	od_cout() << #func "\tsuccess!\n"; \
     }
 
 #define mTestVal 100
 
 
-bool testBits( bool quiet )
+bool testBits()
 {
     mRunTest( Math::SetBits(0x0000, 0x0001, false )==0x0000 )
     mRunTest( Math::SetBits(0x0000, 0x0001, true )==0x0001 )
@@ -57,15 +53,12 @@ bool testBits( bool quiet )
     return true;
 }
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
 
-    CommandLineParser parser;
-    const bool quiet = parser.hasKey( sKey::Quiet() );
-
-    if ( !testBits( quiet ) )
+    if ( !testBits() )
 	ExitProgram( 1 );
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

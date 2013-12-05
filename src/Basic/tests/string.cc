@@ -8,13 +8,10 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "nrbytes2string.h"
-#include "commandlineparser.h"
-#include "keystrs.h"
+#include "testprog.h"
 #include "bufstringset.h"
 #include "iopar.h"
-#include <string.h>
 
-#include "od_iostream.h"
 
 #define mRunTest( desc, test ) \
 { \
@@ -22,20 +19,20 @@ static const char* rcsID mUsedVar = "$Id$";
     { \
 	if ( !quiet ) \
 	{ \
-	    od_ostream::logStream() << desc << ":"; \
-	    od_ostream::logStream() << " OK\n"; \
+	    od_cout() << desc << ":"; \
+	    od_cout() << " OK\n"; \
 	} \
     } \
     else \
     { \
-	od_ostream::logStream() << desc << ":"; \
-	od_ostream::logStream() << " Fail\n"; \
+	od_cout() << desc << ":"; \
+	od_cout() << " Fail\n"; \
 	return false; \
     } \
 }
 
 
-static bool testBytes2String( bool quiet )
+static bool testBytes2String()
 {
     NrBytesToStringCreator b2s;
     b2s.setUnitFrom( 100000, true ); //hundred thoughand
@@ -83,11 +80,10 @@ static bool testBytes2String( bool quiet )
 	valbfstr =  Conv::to<const char*>((double)val);\
 	valfmtstr = getStringFromDouble( val, buff, 15 );\
     }\
-    mRunTest( testname.buf(), valfmtstr && valbfstr && (valfmtstr ==valbfstr) &&\
-    ( strcmp( valbfstr.buf(),strval) == 0 ) );\
+    mRunTest( testname.buf(), valfmtstr ==valbfstr && valbfstr == strval );\
 }
 
-static bool testStringPrecisionInAscII( bool quiet )
+static bool testStringPrecisionInAscII()
 {
     mTestStringPrecision( 0, "0", true );
     mTestStringPrecision( 0.1, "0.1", true );
@@ -112,7 +108,7 @@ static bool testStringPrecisionInAscII( bool quiet )
 }
 
 
-static bool testBufferStringFns( bool quiet )
+static bool testBufferStringFns()
 {
     BufferString bs( "Tok1 Tok1 Tok2 Tok3 Tok4" );
     bs.replace( '4', '5' );
@@ -155,7 +151,7 @@ static bool testBufferStringFns( bool quiet )
     mRunTest( BufferString("lastOcc ",tofind), \
 	    lastOcc(str,tofind)-str == offs)
 
-static bool testOccFns( bool quiet )
+static bool testOccFns()
 {
     const char* str = "[BEGIN] Tok1 Tok2 Tok1 Tok3 [END]";
     const int len = FixedString(str).size();
@@ -180,22 +176,14 @@ static bool testOccFns( bool quiet )
 
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
 
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
-
-    if ( !testBytes2String(quiet) )
-	ExitProgram( 1 );
-
-    if ( !testStringPrecisionInAscII(quiet) )
-	ExitProgram( 1 );
-
-    if ( !testBufferStringFns(quiet) )
-	ExitProgram( 1 );
-
-    if ( !testOccFns(quiet) )
+    if ( !testBytes2String()
+      || !testStringPrecisionInAscII()
+      || !testBufferStringFns()
+      || !testOccFns() )
 	ExitProgram( 1 );
 
     BufferStringSet strs;
@@ -209,8 +197,8 @@ int main( int narg, char** argv )
     if ( !quiet )
     {
 	FixedString str( 0 );
-	od_ostream::logStream() << "Should be empty: '" << str << "'" << od_endl;
+	od_cout() << "Should be empty: '" << str << "'" << od_endl;
     }
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

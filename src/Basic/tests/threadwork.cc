@@ -2,28 +2,25 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Mahant Mothey
  * DATE     : April 2013
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
 #include "thread.h"
-#include "keystrs.h"
-#include "commandlineparser.h"
-#include "bufstring.h"
+#include "testprog.h"
 #include "math2.h"
 
-#include "od_iostream.h"
 
 #define mPrintTestResult( queuetypename, testname ) \
 {\
-    od_ostream::logStream() << queuetypename << "\"" testname "\" Failure\n";\
+    od_cout() << queuetypename << "\"" testname "\" Failure\n";\
     return false;\
 }\
 else if ( !quiet )\
 {\
-    od_ostream::logStream() << queuetypename << "\"" testname "\" Success\n";\
+    od_cout() << queuetypename << "\"" testname "\" Success\n";\
 }
 
 #define mAddWork( work, queueid ) \
@@ -45,7 +42,7 @@ for ( int idy=0; idy<worksize; idy++ )\
 class CallBackTestClass : public CallBacker
 {
 public:
-    			CallBackTestClass()
+			CallBackTestClass()
 			    : workload_(0)
 			    , maxworkload_(0)
 			    , nrfinished_(0)
@@ -54,7 +51,7 @@ public:
     void		reset() { maxworkload_=0; nrfinished_ = 0; }
 
     void		doTheWork(CallBacker*)
-    			{
+			{
 			    mutex_.lock();
 			    workload_++;
 			    maxworkload_ = mMAX(maxworkload_,workload_);
@@ -94,8 +91,8 @@ CallBackTestClass backgroundwork;
 class WorkManagerTester : public CallBacker
 {
 public:
-    
-    bool runCallBackTests( bool quiet )
+
+    bool runCallBackTests()
     {
 	Threads::WorkManager& workmanager = Threads::WorkManager::twm();
 	const int nrthreads = workmanager.nrThreads();
@@ -112,24 +109,24 @@ public:
 
 	for ( int idx=0; idx<queuetype.size(); idx++ )
 	{
-    	    int queueid = workmanager.addQueue( queuetype[idx], "Test" );	    
+	    int queueid = workmanager.addQueue( queuetype[idx], "Test" );
 	    const char* queuetypename = typenames.get(idx).buf();
 	    CallBackTestClass testwork;
-	    
+
 	    mAddWork( testwork, queueid );
 	    mAddMultipleJobs( backgroundwork, workmanager.cDefaultQueueID() );
 
 	    if ( queuetype[idx] == Threads::WorkManager::Manual )
 		workmanager.executeQueue( queueid );
 
-    	    workmanager.emptyQueue( queueid, true );
+	    workmanager.emptyQueue( queueid, true );
 
-    	    if ( testwork.nrfinished_ != 1 )
-    		mPrintTestResult( queuetypename,
+	    if ( testwork.nrfinished_ != 1 )
+		mPrintTestResult( queuetypename,
 				"Single work finished in emptyQueue." );
-	    
-    	    if ( workmanager.queueSize(queueid) > 0 )
-    		mPrintTestResult( queuetypename,
+
+	    if ( workmanager.queueSize(queueid) > 0 )
+		mPrintTestResult( queuetypename,
 			"Queue size after emptying the queue is zero." );
 
 	    testwork.reset();
@@ -137,17 +134,17 @@ public:
 	    mAddMultipleJobs( backgroundwork, workmanager.cDefaultQueueID() );
 	    if ( queuetype[idx] == Threads::WorkManager::Manual )
 		workmanager.executeQueue( queueid );
-	    
+
 	    workmanager.removeQueue( queueid, true );
 
-    	    if ( testwork.nrfinished_ != 1 )
-    		mPrintTestResult( queuetypename,
+	    if ( testwork.nrfinished_ != 1 )
+		mPrintTestResult( queuetypename,
 				"Work finished when queue is removed." );
 
 	    if ( queuetype[idx] == Threads::WorkManager::Manual )
 		continue;
 
-    	    queueid = workmanager.addQueue( queuetype[idx], "Test" );	    
+	    queueid = workmanager.addQueue( queuetype[idx], "Test" );
 
 	    testwork.reset();
 	    mAddMultipleJobs( testwork, queueid );
@@ -174,10 +171,10 @@ public:
 				"No pending work left after empty queue." );
 
 	    if ( queuetype[idx]==Threads::WorkManager::SingleThread )
-    	    {
+	    {
 		if ( testwork.maxworkload_>1 )
 		    mPrintTestResult( queuetypename,
-			    	"Only one thread for single threaded queue." );
+				"Only one thread for single threaded queue." );
 	    }
 
 	    testwork.reset();
@@ -201,8 +198,8 @@ public:
 
     bool trueFunc() { return true; }
     static bool falseFunc() { return false; }
-    
-    bool testWorkResults( bool quiet )
+
+    bool testWorkResults()
     {
 	Threads::WorkManager& workmanager = Threads::WorkManager::twm();
 
@@ -222,15 +219,14 @@ public:
 };
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
+
     WorkManagerTester tester;
-    const bool res = tester.runCallBackTests(quiet)
-		  && tester.testWorkResults(quiet);
+    const bool res = tester.runCallBackTests()
+		  && tester.testWorkResults();
 
     Threads::WorkManager::twm().shutdown();
-    ExitProgram( res ? 0 : 1 );
+    return ExitProgram( res ? 0 : 1 );
 }
-

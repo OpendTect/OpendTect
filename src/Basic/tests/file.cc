@@ -8,29 +8,26 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
+#include "testprog.h"
 #include "oddirs.h"
-#include "commandlineparser.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "od_istream.h"
-
-#include "od_iostream.h"
 
 #define mTest( testname, test ) \
 if ( !(test) ) \
 { \
-    od_ostream::logStream() << "Test " << testname << " FAILED\n"; \
+    od_cout() << "Test " << testname << " FAILED\n"; \
     return false; \
 } \
 else if ( !quiet ) \
 { \
-    od_ostream::logStream() << "Test " << testname << " - SUCCESS\n"; \
+    od_cout() << "Test " << testname << " - SUCCESS\n"; \
 }
 
 #define mRunTest( test ) \
 mTest( #test, test )
 
-bool testReadContent( bool quiet )
+bool testReadContent()
 {
     BufferString basedir = GetSoftwareDir( 0 );
 
@@ -55,7 +52,7 @@ bool testReadContent( bool quiet )
 }
 
 
-bool testIStream( const char* file, bool quiet )
+bool testIStream( const char* file )
 {
     od_istream invalidstream( "IUOIUOUOF");
     mTest( "isOK on open non-existing file", !invalidstream.isOK() );
@@ -81,30 +78,19 @@ bool testIStream( const char* file, bool quiet )
 }
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    CommandLineParser parser;
-
-    const bool quiet = parser.hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     BufferStringSet normalargs;
-    CommandLineParser().getNormalArguments(normalargs);
+    clparser.getNormalArguments(normalargs);
 
-    if ( !normalargs.size() )
-    {
-        od_ostream::logStream() << "No input file specified";
-        ExitProgram( 1 );
-    }
+    if ( normalargs.isEmpty() )
+	{ od_cout() << "No input file specified"; ExitProgram( 1 ); }
 
-
-    if ( !testReadContent(quiet) )
-        ExitProgram( 1 );
-
-    if ( !testIStream( normalargs.get(0).buf(), quiet ) )
+    if ( !testReadContent()
+      || !testIStream( normalargs.get(0).buf() ) )
 	ExitProgram( 1 );
 
-
-    ExitProgram(0);
+    return ExitProgram(0);
 }
-

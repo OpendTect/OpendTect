@@ -8,19 +8,17 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "od_iostream.h"
+#include "testprog.h"
 #include "file.h"
 #include "filepath.h"
-#include "commandlineparser.h"
-#include "keystrs.h"
-#include "od_iostream.h"
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
 
-#define mRetFail(s) { od_ostream::logStream() << "Failed " << s << od_endl; }
+#define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }
 
 #define mImplNumberTestFn(fnnm,decls,act,cond) \
-static bool fnnm( bool quiet ) \
+static bool fnnm() \
 { \
     od_istream strm( tmpfnm ); \
     decls; \
@@ -28,10 +26,10 @@ static bool fnnm( bool quiet ) \
     const bool isok = (cond); \
     if ( !quiet ) \
     { \
-	od_ostream::logStream() << #fnnm << "[" << #cond << "]" \
-    		  << (isok ? " OK" : " Fail") << od_endl; \
+	od_cout() << #fnnm << "[" << #cond << "]" \
+		  << (isok ? " OK" : " Fail") << od_endl; \
 	if ( strm.isBad() ) \
-		od_ostream::logStream() << "\terrmsg=" << strm.errMsg() << od_endl; \
+		od_cout() << "\terrmsg=" << strm.errMsg() << od_endl; \
     } \
     return isok; \
 }
@@ -54,17 +52,16 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 	   i == 123 && !strm.isOK() )
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     bool isok;
 #define mDoTest(strm,content,tstfn) \
     od_ostream strm( tmpfnm ); \
     strm << content; \
     strm.close(); \
-    isok = tstfn(quiet); \
+    isok = tstfn(); \
     File::remove( tmpfnm ); \
     if ( !isok ) \
 	ExitProgram( 1 )
@@ -77,5 +74,5 @@ int main( int narg, char** argv )
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

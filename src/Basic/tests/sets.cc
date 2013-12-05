@@ -2,60 +2,61 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "typeset.h"
 #include "objectset.h"
-#include "commandlineparser.h"
+#include "testprog.h"
 
-#include "od_iostream.h"
 
 class DataElem
 {
 public:
 
-    		DataElem( int i=0, float v=0 )
+		DataElem( int i=0, float v=0 )
 		    : id_(i), val_(v)	{}
     bool	operator ==( const DataElem& de ) const
-    		{ return id_ == de.id_; }
+		{ return id_ == de.id_; }
     bool	operator !=( const DataElem& de ) const
-    		{ return !(*this == de); }
+		{ return !(*this == de); }
     bool	operator <( const DataElem& de ) const
 		{ return val_ < de.val_; }
 
     int		id_;
     float	val_;
 
-    void	print() const	{ od_ostream::logStream() << '['<< id_<<": "<<val_<<']'; }
+    void	print() const	{ od_cout() << '['<< id_<<": "<<val_<<']'; }
 
 };
 
-#define mPrElems(msg ) { \
-    od_ostream::logStream() << msg << od_endl << '\t'; \
+#define mPrElems(msg ) if ( !quiet ) { \
+    od_cout() << msg << od_endl << '\t'; \
     for ( int idx=0; idx<des.size(); idx++ ) \
-	{ mPrintFunc; od_ostream::logStream() << " | "; } \
-    od_ostream::logStream() << od_endl; }
+	{ mPrintFunc; od_cout() << " | "; } \
+    od_cout() << od_endl; }
 
 #define mErrRet(msg ) \
 { \
+    if ( !quiet ) { \
     mPrElems("-> Failure ..." ) \
-    od_ostream::logStream() << msg << " failed.\n"; \
+    od_cout() << msg << " failed.\n"; } \
     return 1; \
 }
 
 #define mRetAllOK() \
-    od_ostream::logStream() << "All OK.\n" << od_endl; \
-    return 0; 
+    if ( !quiet ) { \
+    od_cout() << "All OK.\n" << od_endl; } \
+    return 0;
 
 #define mPrintFunc des[idx].print()
-	
+
 
 static int testTypeSetFind()
 {
-    od_ostream::logStream() << od_endl;
+    od_cout() << od_endl;
     TypeSet<DataElem> des( 6, DataElem() );
     des[0] = DataElem( 1, 0.1 );
     des[1] = DataElem( 2, 0.2 );
@@ -81,10 +82,10 @@ static int testTypeSetFind()
 
     if ( des.indexOf( des0, false, 2 ) != 0 )
 	mErrRet("backward indexOf with offset");
-    
+
     if ( !des.isPresent(des3) )
 	mErrRet("isPresent fails for 3rd element" );
-    
+
     if ( des.isPresent( DataElem(12,0.1) ) )
 	mErrRet("isPresent returns true for non-existing");
 
@@ -94,7 +95,7 @@ static int testTypeSetFind()
 
 static int testTypeSetSetFns()
 {
-    od_ostream::logStream() << od_endl;
+    od_cout() << od_endl;
     TypeSet<DataElem> des;
     des += DataElem( 1, 0.1 );
     des += DataElem( 2, 0.2 );
@@ -118,7 +119,7 @@ static int testTypeSetSetFns()
 	mErrRet("operator -=()" );
     des.insert( 2, des2 );
     if ( des.size() != 4 || des[0] != des0 || des[1] != des1 || des[2] != des2
-	    		 || des[3] != des3 )
+			 || des[3] != des3 )
 	mErrRet("insert()" );
 
     des.pop(); des.pop();
@@ -130,11 +131,11 @@ static int testTypeSetSetFns()
 }
 
 #undef mPrintFunc
-#define mPrintFunc od_ostream::logStream() << des[idx]
+#define mPrintFunc od_cout().addPtr( des[idx] )
 
 static int testObjSetFind()
 {
-    od_ostream::logStream() << od_endl;
+    od_cout() << od_endl;
     ObjectSet<DataElem> des;
     des += new DataElem( 1, 0.1 );
     des += new DataElem( 2, 0.2 );
@@ -146,7 +147,7 @@ static int testObjSetFind()
     DataElem* des4 = des[3];
 
     des.insertAt( des0, 3 );
-    
+
     mPrElems("testObjSetFind")
 
     if ( des.indexOf( des0 ) != 0 )
@@ -154,15 +155,15 @@ static int testObjSetFind()
 
     if ( !des.isPresent(des4) )
 	mErrRet("isPresent fails for 4th element" );
-    
+
     if ( des.isPresent( 0 ) )
 	mErrRet("isPresent returns true for non-existing");
-    
+
     des.swap( 0, 4 );
-    
+
     if ( des.indexOf( des4 ) != 0 )
 	mErrRet("indexOf swapped elem3 != 0");
-    
+
 
     mRetAllOK()
 }
@@ -203,14 +204,14 @@ static int testObjSetEqual()
 
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
 
     int res = testTypeSetFind();
     res += testTypeSetSetFns();
     res += testObjSetFind();
     res += testObjSetEqual();
 
-    ExitProgram( res );
+    return ExitProgram( res );
 }

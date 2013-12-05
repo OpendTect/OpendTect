@@ -8,16 +8,13 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "oscommand.h"
-#include "commandlineparser.h"
-#include "keystrs.h"
-
-#include "od_iostream.h"
+#include "testprog.h"
 
 
-#define mRetFail(s) { od_ostream::logStream() << "Failed " << s << od_endl; }
+#define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }
 
 
-static bool testCmds( bool quiet )
+static bool testCmds()
 {
 #ifdef __win__
     //TODO
@@ -36,13 +33,12 @@ static bool testCmds( bool quiet )
 }
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
 
-    if ( !testCmds(quiet) )
+    if ( !testCmds() )
 	ExitProgram( 1 );
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

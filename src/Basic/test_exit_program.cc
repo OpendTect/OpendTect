@@ -2,27 +2,21 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id: refcount.cc 30402 2013-06-21 07:20:27Z kristofer.tingdahl@dgbes.com $";
 
 #include "genc.h"
-#include "commandlineparser.h"
-#include "keystrs.h"
-
-#include <iostream>
+#include "testprog.h"
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-
-    CommandLineParser clparser;
-    const bool quiet = clparser.hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     if ( !quiet )
-	std::cout << "Exiting with return code 1\n";
+	od_cout() << "Exiting with return code 1" << od_endl;
 
     return ExitProgram( 1 );
 }

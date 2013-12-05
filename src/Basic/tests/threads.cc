@@ -2,39 +2,34 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
-
 #include "atomic.h"
-#include "genc.h"
-#include "keystrs.h"
-#include "string2.h"
-#include "commandlineparser.h"
+#include "testprog.h"
 #include "callback.h"
 #include "limits.h"
 
-#include "od_iostream.h"
 
 #define mPrintResult(func) \
 { \
-	if ( quiet ) \
-        { \
-	    od_ostream::logStream() << "\nData type in test: " << valtype; \
-	    od_ostream::logStream() << "\n====================\n"; \
-	} \
-	od_ostream::logStream() << "Atomic = " << atomic.get() << " in function: "; \
-	od_ostream::logStream() << func << " failed!\n"; \
-	stopflag = true; \
-	return false; \
+    if ( quiet ) \
+    { \
+	od_cout() << "\nData type in test: " << valtype; \
+	od_cout() << "\n====================\n"; \
+    } \
+    od_cout() << "Atomic = " << atomic.get() << " in function: "; \
+    od_cout() << func << " failed!\n"; \
+    stopflag = true; \
+    return false; \
 } \
 else \
 { \
-	od_ostream::logStream() << "Atomic = " << atomic.get() << " in function: "; \
-	od_ostream::logStream() << func << " OK\n"; \
+	od_cout() << "Atomic = " << atomic.get() << " in function: "; \
+	od_cout() << func << " OK\n"; \
 }
 
 #define mRunTest( func, finalval ) \
@@ -47,14 +42,14 @@ template <class T>
 class AtomicIncrementer : public CallBacker
 {
 public:
-    			AtomicIncrementer( Threads::Atomic<T>& val,
+			AtomicIncrementer( Threads::Atomic<T>& val,
 					   const bool& stopflag )
 			    : val_( val )
 			    , stopflag_( stopflag )
 			{}
 
     void		doRun(CallBacker*)
-			{ 
+			{
 			    while ( !stopflag_ )
 				val_++;
 			}
@@ -66,15 +61,15 @@ protected:
 
 
 template <class T>
-bool testAtomic( const char* valtype, bool quiet )
+bool testAtomic( const char* valtype )
 {
     bool stopflag = false;
     Threads::Atomic<T> atomic( 0 );
 
     if ( !quiet )
     {
-	od_ostream::logStream() << "\nData type in test: " << valtype;
-	od_ostream::logStream() << "\n====================\n";
+	od_cout() << "\nData type in test: " << valtype;
+	od_cout() << "\n====================\n";
     }
 
     T curval = 2;
@@ -94,10 +89,10 @@ bool testAtomic( const char* valtype, bool quiet )
     //Let's do some stress-test
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
-    
+
     Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun) );
     Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun) );
-    
+
     int count = 10000000;
     bool successfound = false, failurefound = false;
     curval = atomic.get();
@@ -107,14 +102,14 @@ bool testAtomic( const char* valtype, bool quiet )
 	    successfound = true;
 	else
 	    failurefound = true;
-	
+
 	if ( successfound && failurefound )
 	    break;
     }
-    
+
     if ( !successfound || !failurefound )
 	mPrintResult( "weakSetIfEqual stresstest");
-    
+
     count = 1000000000;
     successfound = false;
     failurefound = false;
@@ -126,13 +121,13 @@ bool testAtomic( const char* valtype, bool quiet )
 	    successfound = true;
 	else
 	    failurefound = true;
-	
+
 	if ( successfound && failurefound )
 	    break;
     }
-    
+
     BufferString message("strongSetIfEqual stresstest: nrattempts = ",
-	    		 toString(idx) );
+			 toString(idx) );
     message += ", successfound=";
     message += toString(successfound);
     message += ", failurefound=";
@@ -140,11 +135,11 @@ bool testAtomic( const char* valtype, bool quiet )
 
     if ( !successfound || !failurefound )
 	mPrintResult( message.buf() );
-    
+
     stopflag = true;
-    
+
     if ( !quiet )
-	od_ostream::logStream() << "\n";
+	od_cout() << "\n";
 
     return true;
 }
@@ -160,19 +155,19 @@ bool testAtomic( const char* valtype, bool quiet )
     { \
 	if ( !quiet ) \
 	{ \
-	    od_ostream::logStream() << desc << ":"; \
-	    od_ostream::logStream() << " OK\n"; \
+	    od_cout() << desc << ":"; \
+	    od_cout() << " OK\n"; \
 	} \
     } \
     else \
     { \
-	od_ostream::logStream() << desc << ":"; \
-	od_ostream::logStream() << " Fail\n"; \
+	od_cout() << desc << ":"; \
+	od_cout() << " Fail\n"; \
 	return false; \
     } \
 }
 
-bool testAtomicSetIfValueIs( bool quiet )
+bool testAtomicSetIfValueIs()
 {
     volatile int val = 0;
 
@@ -218,7 +213,7 @@ struct LockerTester : public CallBacker
 	canunlock_ = true;
 	canunlocklock_.signal( true );
 	canunlocklock_.unLock();
-	
+
 	thread_.waitForFinish();
     }
 
@@ -246,18 +241,18 @@ struct LockerTester : public CallBacker
     Threads::ConditionVar	hastriedlock_;
     Threads::ConditionVar	canunlocklock_;
 
-    				//Must be at bottom
+				//Must be at bottom
     Threads::Thread		thread_;
 };
 
 
 
 template <class T> inline
-bool testLock( bool quiet, bool testcount, const char* type )
+bool testLock( bool testcount, const char* type )
 {
     if ( !quiet )
     {
-	od_ostream::logStream() << "\n" << type << " tests\n====================\n";
+	od_cout() << "\n" << type << " tests\n====================\n";
     }
 
     {
@@ -348,7 +343,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 }
 
 
-bool testSimpleSpinLock( bool quiet )
+bool testSimpleSpinLock()
 {
     volatile int lock = 0;
     Threads::lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
@@ -368,16 +363,13 @@ bool testSimpleSpinLock( bool quiet )
 
 
 #define mRunTestWithType(thetype) \
-    if ( !testAtomic<thetype>( " " #thetype " ", quiet ) ) \
+    if ( !testAtomic<thetype>( " " #thetype " " ) ) \
 	ExitProgram( 1 );
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
-
-    CommandLineParser parser;
-    const bool quiet = parser.hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     mRunTestWithType(od_int64);
     mRunTestWithType(od_uint64);
@@ -394,17 +386,11 @@ int main( int narg, char** argv )
     mRunTestWithType(short);
     mRunTestWithType(unsigned short);
 
-    if ( !testAtomicSetIfValueIs(quiet))
-        ExitProgram( 1 );
-
-    if ( !testSimpleSpinLock(quiet) )
-        ExitProgram( 1 );
-
-    if ( !testLock<Threads::Mutex>( quiet, false, "Mutex" ) )
+    if ( !testAtomicSetIfValueIs()
+      || !testSimpleSpinLock()
+      || !testLock<Threads::Mutex>( false, "Mutex" )
+      || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
 	ExitProgram( 1 );
 
-    if ( !testLock<Threads::SpinLock>( quiet, true, "SpinLock" ) )
-	ExitProgram( 1 );
-
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

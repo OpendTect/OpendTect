@@ -9,24 +9,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ziputils.h"
 
-#include "commandlineparser.h"
+#include "testprog.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 
-#include "od_iostream.h"
 
 #define mRunTest(testname,command) \
 { \
 if ( !command ) \
 { \
-    od_ostream::logStream() << testname << " failed!\n" << err.buf(); \
+    od_cout() << testname << " failed!\n" << err.buf(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
     ExitProgram(1); \
 } \
 else if ( !quiet ) \
-    od_ostream::logStream() << testname << " Succeeded!\n"; \
+    od_cout() << testname << " Succeeded!\n"; \
 }
 
 
@@ -42,22 +40,20 @@ else if ( !quiet ) \
     if ( File::getFileSize(dest.fullPath()) != \
 					  File::getFileSize(src.fullPath()) ) \
     { \
-	od_ostream::logStream() << "Data integrety check failed!\n" \
+	od_cout() << "Data integrety check failed!\n" \
 			       << dest.fullPath(); \
 	File::remove( zipfilename.fullPath() ); \
 	File::removeDir( outputdir.fullPath() ); \
 	ExitProgram(1); \
     } \
     else if ( !quiet ) \
-	od_ostream::logStream() << "Data integrety check succeeded!\n"; \
+	od_cout() << "Data integrety check succeeded!\n"; \
 }
 
 
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
-    od_init_test_program( argc, argv );
-    CommandLineParser clparser;
-    const bool quiet = clparser.hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     BufferString basedir;
     clparser.getVal("datadir", basedir );
@@ -81,5 +77,5 @@ int main(int argc, char** argv)
     File::remove( zipfilename.fullPath() );
     File::removeDir( outputdir.fullPath() );
 
-    ExitProgram(0);
+    return ExitProgram(0);
 }

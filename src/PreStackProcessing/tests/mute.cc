@@ -4,10 +4,10 @@
  * DATE     : September 2013
 -*/
 
-static const char* rcsID mUsedVar = ""; 
+static const char* rcsID mUsedVar = "";
 
 #include "batchprog.h"
-#include "commandlineparser.h"
+#include "testprog.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "";
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
 #include "survinfo.h"
-#include <iostream>
 
 static const char* sKeyTestMute41()	{ return "Mute for V4.1"; }
 static const char* sKeyTestMute44()	{ return "Mute for V4.4"; }
@@ -33,8 +32,7 @@ if ( !mIsEqual(muteval,chkval,1e-5f) ) \
 }
 
 //check for Top Mute created in different versions
-bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid,
-				  bool quiet )
+bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 {
     IOObj* muteobj = IOM().get( muteid );
     if ( !muteobj )
@@ -131,34 +129,34 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid,
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    od_init_test_program( GetArgC(), GetArgV() );
+    mInitBatchTestProg();
+
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
-    const bool quiet = clparser_->hasKey( sKey::Quiet() );
-    
+
     MultiID muteid;
     if ( !pars().get(sKeyTestMute41(),muteid) )
     {
-	strm<<"Can not find mute for V4.1 in parameter file"<<od_newline;
+	strm << "Can not find mute for V4.1 in parameter file"<<od_newline;
 	return false;
     }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
 	return false;
-    
+
     if ( !pars().get(sKeyTestMute44(),muteid) )
     {
-	strm<<"Can not find mute for V4.4 in parameter file"<<od_newline;
+	strm << "Can not find mute for V4.4 in parameter file"<<od_newline;
 	return false;
     }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
 	return false;
-    
+
     if ( !pars().get(sKeyTestMute46(),muteid) )
     {
-	strm<<"Can not find mute for V4.6 in parameter file"<<od_newline;
+	strm << "Can not find mute for V4.6 in parameter file"<<od_newline;
 	return false;
     }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid,quiet) )
+    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
 	return false;
-   
+
     return true;
 };
