@@ -311,8 +311,9 @@ bool BatchProgram::initOutput()
     if ( hasviewprogress && res && res=="window" )
     {
 	BufferString cmd = "@";
+	cmd += "\"";
 	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
-	cmd += " ";
+	cmd += "\" ";
 
 	cmd += GetPID();
 	StreamProvider sp( cmd );

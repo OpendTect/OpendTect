@@ -521,9 +521,16 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
     bool dormt = false;
 
+
 #ifndef __msvc__
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
+
+# ifdef __debug__
+    comm += " --debug ";
+# else
+    comm += " --release ";
+# endif    
 
 # ifdef __win__ 
     comm += " --inxterm+askclose "; comm += procprognm_;

@@ -15,10 +15,8 @@ if ( $?DTECT_SCRIPT_VERBOSE ) then
     set echo=on
 endif
 
-if ( ! $?DTECT_APPL ) then
-    echo "$0 : Error : environment not initialized."
-    exit 1
-endif
+set SCRIPTDIR = `dirname "$0"`
+set DTECT_APPL = `dirname "$SCRIPTDIR"`
 
 eval `"$DTECT_APPL/bin/mksethdir"`
 if ( $binsubdir == luxia64 ) then
@@ -51,13 +49,13 @@ else if ( "$1" == "--inbg" ) then
     goto next_arg
 
 else if ( "$1" == "--debug" ) then
-    set bindir=$bindir/Debug
+    set bindir="$bindir/Debug"
     echo $bindir
     shift
     goto next_arg
 
 else if ( "$1" == "--release" ) then
-    set bindir=$bindir/Release
+    set bindir="$bindir/Release"
     echo $bindir
     shift
     goto next_arg
@@ -199,7 +197,7 @@ more_args:
 if ( "$1" != "" ) then
 
     set arg="$1"
-    set hasspacechar = `expr index "$arg" ' '`
+    set hasspacechar = `echo "$arg" | sed -n "s/[ ].*//p" | wc -c`
     if( ${hasspacechar} ) then
 	if ( "$argswithspaces" == "" ) then
 	    set argswithspaces="$arg"
