@@ -20,6 +20,7 @@ class uiComboBox;
 class uiGenInput;
 class uiCheckList;
 class uiFileInput;
+class od_ostream;
 
 
 /*! \brief Dialog for 2D horizon export */
@@ -46,7 +47,7 @@ protected:
     virtual bool	acceptOK(CallBacker*);
     void		horChg(CallBacker*);
     bool		doExport();
-    void		writeHeader(std::ostream&);
+    void		writeHeader(od_ostream&);
 };
 
 

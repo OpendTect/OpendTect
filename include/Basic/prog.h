@@ -17,11 +17,14 @@ ________________________________________________________________________
 
 #include "plugins.h"
 #include "debug.h"
+#include "od_ostream.h"
+
 
 #ifdef __msvc__
 # ifndef _CONSOLE
 #  include "winmain.h"
 # endif
 #endif
+
 
 #endif

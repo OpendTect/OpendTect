@@ -24,8 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 
@@ -37,9 +36,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 #include <stdio.h>
-#include <string.h>
+
 
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
+
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				      const ObjectSet<SurfaceInfo>& hinfos )
@@ -98,11 +98,6 @@ bool uiExport2DHorizon::doExport()
     if ( !linenms.size() )
 	mErrRet("Please select at least one line to proceed")
 
-    BufferString filenm = outfld_->fileName();
-    StreamData sd = StreamProvider( filenm ).makeOStream();
-    if ( !sd.usable() )
-	mErrRet("Cannot write to output file")
-
     const int horidx = horselfld_->currentItem();
     if ( horidx < 0 || horidx > hinfos_.size() )
 	mErrRet("Invalid Horizon")
@@ -142,8 +137,13 @@ bool uiExport2DHorizon::doExport()
     const float zfac = !optsfld_->isChecked(1) ? 1
 		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
     const bool wrlnms = optsfld_->isChecked( 0 );
-    char buf[180];
-    writeHeader( *sd.ostrm );
+    BufferString line( 180, false );
+
+    od_ostream strm( outfld_->fileName() );
+    if ( !strm.isOK() )
+	mErrRet("Cannot open output file")
+
+    writeHeader( strm );
     for ( int idx=0; idx< linenms.size(); idx++ )
     {
 	BufferString linename = linenms.get( idx );
@@ -165,18 +165,14 @@ bool uiExport2DHorizon::doExport()
 
 	    if ( zudf )
 	    {
-		if ( wrlnms )
-		{
-		    controlstr += "%16.2lf%16.2lf%8d%16s";
-		    sprintf( buf, controlstr.buf(), linename.buf(),
-			     pos.x, pos.y, trcnr, undefstr.buf() );
-		}
+		if ( !wrlnms )
+		    line.set( pos.x ).add( "\t" ).add( pos.y )
+			.add( "\t" ).add( undefstr );
 		else
 		{
-		    BufferString out;
-		    out += pos.x; out += "\t"; out += pos.y; out += "\t";
-		    out += undefstr;
-		    strcpy( buf, out.buf() );
+		    controlstr += "%16.2lf%16.2lf%8d%16s";
+		    sprintf( line.buf(), controlstr.buf(), linename.buf(),
+			     pos.x, pos.y, trcnr, undefstr.buf() );
 		}
 	    }
 	    else
@@ -185,30 +181,31 @@ bool uiExport2DHorizon::doExport()
 		if ( wrlnms )
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
-		    sprintf( buf, controlstr.buf(),
+		    sprintf( line.buf(), controlstr.buf(),
 			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
 		}
 		else
 		{
-		    BufferString out;
-		    out += pos.x; out += "\t"; out += pos.y; out += "\t";
-		    out += pos.z;
-		    strcpy( buf, out.buf() );
+		    line.set( pos.x ).add( "\t" ).add( pos.y )
+			.add( "\t" ).add( pos.z );
 		}
 	    }
 
-	    *sd.ostrm << buf << '\n';
-	    if ( sd.ostrm->bad() )
-		mErrRet("Error writing to the output file")
+	    strm << line << od_newline;
+	    if ( !strm.isOK() )
+	    {
+		BufferString msg( "Error writing to the output file." );
+		strm.addErrMsgTo( msg );
+		mErrRet(msg)
+	    }
 	}
     }
 
-    sd.close();
     return true;
 }
 
 
-void uiExport2DHorizon::writeHeader( std::ostream& strm )
+void uiExport2DHorizon::writeHeader( od_ostream& strm )
 {
     if ( headerfld_->getIntValue() == 0 )
 	return;
@@ -241,18 +238,19 @@ void uiExport2DHorizon::writeHeader( std::ostream& strm )
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
     }
 
-    strm << "# " << headerstr << '\n';
-    strm << "#-------------------" << '\n';
+    strm << "# " << headerstr << od_newline;
+    strm << "#-------------------" << od_endl;
 }
 
 
 bool uiExport2DHorizon::acceptOK( CallBacker* )
 {
-    if ( !strcmp(outfld_->fileName(),"") )
+    const BufferString outfnm( outfld_->fileName() );
+    if ( outfnm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( File::exists(outfld_->fileName()) &&
-		!uiMSG().askOverwrite("Output file exists. Overwrite?") )
+    if ( File::exists(outfnm) &&
+	!uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
     const bool res = doExport();

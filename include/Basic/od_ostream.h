@@ -19,6 +19,7 @@ class CompoundKey;
 class FixedString;
 
 
+
 /*!\brief OD class for stream write */
 
 mExpClass(Basic) od_ostream : public od_stream
@@ -71,6 +72,11 @@ public:
     static od_ostream&	logStream(); //!< used by ErrMsg and UsrMsg
 
 };
+
+
+//!< common access to the user log file, or std::cout in batch progs
+inline od_ostream& od_cout() { return od_ostream::logStream(); }
+
 
 template <class T>
 inline od_ostream& operator <<( od_ostream& s, const T& t )

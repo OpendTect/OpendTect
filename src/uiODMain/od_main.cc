@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "msgh.h"
 #include <iostream>
-#include <string.h>
 
 
 extern int ODMain(int,char**);
@@ -30,16 +29,16 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
-    const bool showversiononly = argv[1]
-	    && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"--version"));
-
 #if !defined(__win__) || defined(__msvc__)
     gLogFilesRedirectCode = 1;
     // Only od_main should make log files, not od_process_attrib and so forth
     // Didn't fancy putting anything about this in header files
     // Hence the global 'hidden' variable
 #endif
+
+    SetProgramArgs( argc, argv );
+    const FixedString argv1( argv[1] );
+    const bool showversiononly = argv1 == "-v" || argv1 == "--version";
 
     int ret = 0;
     if ( showversiononly )

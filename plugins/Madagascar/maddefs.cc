@@ -15,8 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "globexpr.h"
 #include "ptrman.h"
-#include <iostream>
-#include <string.h>
+#include "od_iostream.h"
+
 
 ODMad::ProgInfo& ODMad::PI()
 {
@@ -175,15 +175,15 @@ void ODMad::ProgInfo::search( const char* str,
     const GlobExpr ge( gestr, false );
     for ( int ityp=0; ityp<3; ityp++ )
     {
-    for ( int idx=0; idx<defs_.size(); idx++ )
-    {
-	const ProgDef* def = defs_[idx];
-	const BufferString& matchstr( ityp == 0 ? def->name_
-				   : (ityp == 1 ? def->shortdesc_
-						: def->comment_) );
-	if ( ge.matches(matchstr) && !res[def] )
-	    res += def;
-    }
+	for ( int idx=0; idx<defs_.size(); idx++ )
+	{
+	    const ProgDef* def = defs_[idx];
+	    const BufferString& matchstr( ityp == 0 ? def->name_
+				       : (ityp == 1 ? def->shortdesc_
+						    : def->comment_) );
+	    if ( ge.matches(matchstr) && !res[def] )
+		res += def;
+	}
     }
 }
 
@@ -191,39 +191,38 @@ void ODMad::ProgInfo::search( const char* str,
 
 void ODMad::ProgInfo::addEntry( const char* fnm )
 {
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() ) return;
-    ODMad::ProgDef* def = new ODMad::ProgDef;
-
-    char buf[mbuflen];
-    sd.istrm->getline( buf, mbuflen );
-    if ( strncmp(buf,"Program",7) )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	return;
 
-    char* ptr = buf; ptr += 8; // Skip 'Program '
+    ODMad::ProgDef* def = new ODMad::ProgDef;
+
+    BufferString line;
+    strm.getLine( line );
+    if ( !matchString("Program ",line.buf()) )
+	return;
+
+    char* ptr = line.buf(); ptr += 8; // Skip 'Program '
     char* word = ptr;
     mSkipNonBlanks( ptr );
-    if ( !*ptr ) { sd.close(); delete def; return; }
+    if ( !*ptr ) { delete def; return; }
     *ptr = '\0'; def->name_ = word;
 
     ptr += 3; def->shortdesc_ = ptr;
 
     bool buildingcomment = false;
     BufferString tmp;
-    while ( sd.istrm->getline( buf, mbuflen ) )
+    while ( strm.getLine(line) )
     {
-	if ( buf[0] != '[' )
+	if ( line[0] != '[' )
 	{
 	    if ( buildingcomment )
-	    {
-		tmp = buf; tmp += "\n";
-		def->comment_ += tmp;
-	    }
+		{ line += "\n"; def->comment_ += line; }
 	    continue;
 	}
 
-	const bool iscomment = !strcmp(buf,"[COMMENTS]");
-	const bool isparams = !strcmp(buf,"[PARAMETERS]");
+	const bool iscomment = line == "[COMMENTS]";
+	const bool isparams = line == "[PARAMETERS]";
 	if ( isparams )
 	    { def->comment_ += "\n\nParameters:\n"; }
 	    //TODO use PARAMETERS properly
@@ -231,19 +230,18 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	if ( buildingcomment )
 	    continue;
 
-	if ( !strcmp(buf,"[SYNOPSIS]") )
+	if ( line == "[SYNOPSIS]" )
 	{
-	    sd.istrm->getline( buf, mbuflen );
-	    def->synopsis_ = buf;
+	    strm.getLine( line );
+	    def->synopsis_ = line;
 	}
-	else if ( !strcmp(buf,"[DIRECTORY]") )
+	else if ( line == "[DIRECTORY]" )
 	{
-	    sd.istrm->getline( buf, mbuflen );
-	    groups_.addIfNew( buf );
-	    def->group_ = find( groups_, buf );
+	    strm.getLine( line );
+	    groups_.addIfNew( line );
+	    def->group_ = find( groups_, line );
 	}
     }
-    sd.close();
 
     if ( !def->group_ )
     {

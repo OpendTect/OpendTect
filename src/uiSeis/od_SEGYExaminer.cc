@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimain.h"
 #include "prog.h"
-#include <iostream>
-#include <string.h>
 
 #ifdef __win__
 #include "file.h"
@@ -31,49 +29,49 @@ int main( int argc, char ** argv )
     while ( argc > argidx
 	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
     {
-	if ( !strcmp(argv[argidx],"--ns") )
+	const FixedString arg( argv[argidx]+2 );
+#define mArgIs(s) arg == s
+	if ( mArgIs("ns") )
 	    { argidx++; su.fp_.ns_ = toInt( argv[argidx] ); }
-	else if ( !strcmp(argv[argidx],"--fmt") )
+	else if ( mArgIs("fmt") )
 	    { argidx++; su.fp_.fmt_ = toInt( argv[argidx] ); }
-	else if ( !strcmp(argv[argidx],"--nrtrcs") )
+	else if ( mArgIs("nrtrcs") )
 	    { argidx++; su.nrtrcs_ = toInt( argv[argidx] ); }
-	else if ( !strcmp(argv[argidx],"--filenrs") )
+	else if ( mArgIs("filenrs") )
 	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
-	else if ( !strcmp(argv[argidx],"--swapbytes") )
+	else if ( mArgIs("swapbytes") )
 	    { argidx++; su.fp_.byteswap_ = toInt( argv[argidx] ); }
-	else if ( !strcmp(argv[argidx],"--fg") )
+	else if ( mArgIs("fg") )
 	    dofork = false;
 	else
-	    { std::cerr << "Ignoring option: " << argv[argidx] << std::endl; }
+	    { od_cout() << "Ignoring option: " << argv[argidx] << od_endl; }
 
 	argidx++;
     }
 
     if ( argc <= argidx )
     {
-	std::cerr << "Usage: " << argv[0]
+	od_cout() << "Usage: " << argv[0]
 		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
 		     "\n\t[--fmt segy_format_number]"
 		     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
 		     "\n\t[--swapbytes 0_1_or_2]"
 		     "\n\tfilename\n"
-	     << "Note: filename must be with FULL path." << std::endl;
+		  << "Note: filename must be with FULL path." << od_endl;
 	ExitProgram( 1 );
     }
 
 #ifdef __debug__
-    std::cerr << argv[0] << " started with args:";
+    od_cout() << argv[0] << " started with args:";
     for ( int idx=1; idx<argc; idx++ )
-	std::cerr << ' ' << argv[idx];
-    std::cerr << std::endl;
+	od_cout() << ' ' << argv[idx];
+    od_cout() << od_endl;
 #endif
 
     if ( dofork )
 	ForkProcess();
 
     su.fs_.fname_ = argv[argidx];
-    //su.fs_.fname_.replace( (char)128, ' ' );
-    //ToDo : Is it Needed. 'char' takes values upto 127 ?
     su.fs_.fname_.replace( "+x+", "*" );
 
     uiMain app( argc, argv );

@@ -337,7 +337,7 @@ void FormatDesc::usePar( const IOPar& iopar )
 	    headerinfos_[idx]->usePar( *subpar );
     }
     delete subpar;
-    
+
     subpar = iopar.subselect( sKeyBody );
     if ( subpar && subpar->size() )
     {
@@ -389,7 +389,7 @@ public:
 
 struct BodyInfo
 {
-    		BodyInfo( const TargetInfo& ti, int specnr )
+		BodyInfo( const TargetInfo& ti, int specnr )
 		    : tarinf_(ti)
 		    , sel_(ti.selection_)
 		    , form_(ti.form(ti.selection_.form_))
@@ -413,7 +413,7 @@ struct BodyInfo
 
 struct HdrInfo : public BodyInfo
 {
-    		HdrInfo( const TargetInfo& ti, int specnr )
+		HdrInfo( const TargetInfo& ti, int specnr )
 		    : BodyInfo(ti,specnr)
 		    , found_(false)
 		    , row_(-1)
@@ -444,7 +444,7 @@ struct HdrInfo : public BodyInfo
 };
 
 AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
-    : ExportHandler(od_ostream::logStream())
+    : ExportHandler(od_cout())
     , aio_(const_cast<AscIO&>(aio))
     , ishdr_(hdr)
     , hdrready_(false)

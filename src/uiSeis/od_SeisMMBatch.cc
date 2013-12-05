@@ -25,19 +25,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "od_istream.h"
 
-#include <iostream>
-#include <string.h>
-
 
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
 
     OD::ModDeps().ensureLoaded( "uiSeis" );
-    const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
+    const FixedString arg1( argv[1] );
+    const int bgadd = arg1 == "-bg" ? 1 : 0;
     if ( argc+bgadd < 3 )
     {
-	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
+	od_cout() << "Usage: " << argv[0] << " program parfile" << od_endl;
 	ExitProgram( 1 );
     }
 
@@ -46,13 +44,13 @@ int main( int argc, char ** argv )
     od_istream strm( parfnm );
     if ( !strm.isOK() )
     {
-	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
+	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
 	ExitProgram( 1 );
     }
     IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
-	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
+	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
 	ExitProgram( 1 );
     }
     strm.close();

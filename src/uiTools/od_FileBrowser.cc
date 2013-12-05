@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 
 #include "prog.h"
-#include <iostream>
-#include <string.h>
 
 #ifdef __win__
 # include "file.h"
@@ -30,21 +28,23 @@ int main( int argc, char** argv )
 
     while ( argc > argidx )
     {
-	if ( !strcmp(argv[argidx],"--edit") )
+	const FixedString arg( argv[argidx]+2 );
+#define mArgIs(s) arg == #s
+	if ( mArgIs(edit) )
 	    edit = true;
-	else if ( !strcmp(argv[argidx],"--table") )
+	else if ( mArgIs(table) )
 	    table = true;
-	else if ( !strcmp(argv[argidx],"--maxlines") )
+	else if ( mArgIs(maxlines) )
 	    { argidx++; maxlines = toInt(argv[argidx]); }
-	else if ( !strcmp(argv[argidx],"--nofork") )
+	else if ( mArgIs(nofork) || mArgIs(fg) )
 	    dofork = false;
-	else if ( !strcmp(argv[argidx],"--log") )
+	else if ( mArgIs(log) )
 	    logview = true;
-	else if ( !strcmp(argv[argidx],"--help") )
+	else if ( mArgIs(h) || mArgIs(help) )
 	{
-	    std::cerr << "Usage: " << argv[0]
+	    od_cout() << "Usage: " << argv[0]
 		<< " [--edit|--table|--log|--maxlines nrlines] [filename]\n"
-		<< "Note: filename must be with FULL path." << std::endl;
+		<< "Note: filename must be with FULL path." << od_endl;
 	    ExitProgram( 0 );
 	}
 	argidx++;
@@ -54,9 +54,7 @@ int main( int argc, char** argv )
     if ( dofork )
 	ForkProcess();
 
-    BufferString fnm = argidx > 0 ? argv[argidx] : "";
-    //fnm.replace( (char)128, ' ' );
-    //ToDo : Is it Needed. 'char' takes values upto 127 ?
+    const BufferString fnm = argidx > 0 ? argv[argidx] : "";
 
     uiMain app( argc, argv );
 
