@@ -50,6 +50,13 @@ public:
     od_ostream&		add(od_uint32);
     od_ostream&		add(od_int64);
     od_ostream&		add(od_uint64);
+#ifdef __lux__
+    od_ostream&		add(long long);
+    od_ostream&		add(unsigned long long);
+#else
+    od_ostream&		add(long);
+    od_ostream&		add(unsigned long);
+#endif
     od_ostream&		add(float);
     od_ostream&		add(double);
 

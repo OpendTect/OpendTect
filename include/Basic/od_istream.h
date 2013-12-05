@@ -48,6 +48,13 @@ public:
     od_istream&		get(od_uint32&);
     od_istream&		get(od_int64&);
     od_istream&		get(od_uint64&);
+#ifdef __lux__
+    od_istream&		get(long long&);
+    od_istream&		get(unsigned long long&);
+#else
+    od_istream&		get(long&);
+    od_istream&		get(unsigned long&);
+#endif
     od_istream&		get(float&);
     od_istream&		get(double&);
 
