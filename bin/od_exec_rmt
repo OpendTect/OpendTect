@@ -18,8 +18,8 @@ if ( $?DTECT_SCRIPT_DEBUG ) then
     echo "od_exec_rmt $*"
 endif
 
-set SCRIPTDIR = `dirname $0`
-set DTECT_APPL  = `dirname ${SCRIPTDIR}`
+set SCRIPTDIR = `dirname "$0"`
+set DTECT_APPL  = `dirname "${SCRIPTDIR}"`
 
 if ( $#argv < 1 ) then
     echo "Usage: $0 remote_host [--rexec remote_shell_command]"
