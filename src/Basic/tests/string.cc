@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include <string.h>
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mRunTest( desc, test ) \
 { \
@@ -22,14 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
     { \
 	if ( !quiet ) \
 	{ \
-	    std::cout << desc << ":"; \
-	    std::cout << " OK\n"; \
+	    od_ostream::logStream() << desc << ":"; \
+	    od_ostream::logStream() << " OK\n"; \
 	} \
     } \
     else \
     { \
-	std::cout << desc << ":"; \
-	std::cout << " Fail\n"; \
+	od_ostream::logStream() << desc << ":"; \
+	od_ostream::logStream() << " Fail\n"; \
 	return false; \
     } \
 }
@@ -209,7 +209,7 @@ int main( int narg, char** argv )
     if ( !quiet )
     {
 	FixedString str( 0 );
-	std::cerr << "Should be empty: '" << str << "'" << std::endl;
+	od_ostream::logStream() << "Should be empty: '" << str << "'" << od_endl;
     }
 
     ExitProgram( 0 );
