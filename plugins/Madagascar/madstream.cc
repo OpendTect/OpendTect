@@ -572,14 +572,14 @@ const char* MadStream::errMsg() const
 }
 
 
-bool MadStream::putHeader( std::ostream& strm )
+bool MadStream::putHeader( od_ostream& strm )
 {
     if ( !headerpars_ ) mErrBoolRet( "Header parameters not found" );
 
     for ( int idx=0; idx<headerpars_->size(); idx++ )
     {
 	strm << "\t" << headerpars_->getKey(idx);
-	strm << "=" << headerpars_->getValue(idx) << std::endl;
+	strm << "=" << headerpars_->getValue(idx) << od_endl;
     }
 
     strm << sKeyRSFEndOfHeader;

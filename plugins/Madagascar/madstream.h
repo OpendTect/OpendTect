@@ -11,6 +11,7 @@
 #include "madagascarmod.h"
 #include "position.h"
 #include "strmdata.h"
+#include "od_iosfwd.h"
 
 class SeisTrcReader;
 class SeisTrcWriter;
@@ -33,7 +34,7 @@ public:
     const IOPar*		getHeaderPars()		{ return headerpars_; }
     bool			getNextTrace(float*);
     int				getNrSamples() const;
-    bool			putHeader(std::ostream&);
+    bool			putHeader(od_ostream&);
     bool			writeTraces(bool writetofile=true);
     SeisTrcBuf*			getTrcBuf() const	{ return stortrcbuf_; }
 

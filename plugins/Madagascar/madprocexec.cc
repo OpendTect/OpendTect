@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "madprocexec.h"
 #include "madprocflow.h"
 #include "madstream.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "progressmeter.h"
@@ -106,7 +107,8 @@ bool ODMad::ProcExec::init()
 	if ( !procstream_.usable() )
 	    mErrRet("Failed to create output stream")
 
-	if ( !madstream_->putHeader(*procstream_.ostrm) )
+        od_ostream procstrm(*procstream_.ostrm);
+	if ( !madstream_->putHeader(procstrm) )
 	    mErrRet("Failed to get RSF header")
 
 	if ( stage_ == Intermediate )
@@ -115,7 +117,8 @@ bool ODMad::ProcExec::init()
 	    plotcomm += getPlotString();
 	    std::cerr << "About to plot: " << plotcomm << std::endl;
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
-	    if ( !madstream_->putHeader(*plotstream_.ostrm) )
+            od_ostream plotstrm( *plotstream_.ostrm );
+	    if ( !madstream_->putHeader(plotstrm) )
 		mErrRet("Failed to put RSF header in plot stream")
 	}
 
