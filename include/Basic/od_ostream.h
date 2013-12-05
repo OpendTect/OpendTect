@@ -75,7 +75,7 @@ public:
 
 
 //!< common access to the user log file, or std::cout in batch progs
-inline od_ostream& od_cout() { return od_ostream::logStream(); }
+inline mGlobal(Basic) od_ostream& od_cout() { return od_ostream::logStream(); }
 
 
 template <class T>
