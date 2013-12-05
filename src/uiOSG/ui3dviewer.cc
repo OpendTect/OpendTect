@@ -224,6 +224,12 @@ void ui3DViewerBody::setupHUD()
     hudscene_->addObject( verthumbwheel_ );
     mAttachCB( verthumbwheel_->rotation, ui3DViewerBody::thumbWheelRotationCB);
 
+    distancethumbwheel_ = visBase::ThumbWheel::create();
+    hudscene_->addObject( distancethumbwheel_ );
+    mAttachCB( distancethumbwheel_->rotation,
+               ui3DViewerBody::thumbWheelRotationCB);
+
+
     if ( !axes_ )
     {
 	axes_ = visBase::Axes::create();
@@ -295,6 +301,8 @@ void ui3DViewerBody::setupView()
     osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
     handler->addThumbWheel( (osgGeo::ThumbWheel*) horthumbwheel_->osgNode() );
     handler->addThumbWheel( (osgGeo::ThumbWheel*) verthumbwheel_->osgNode() );
+    handler->addThumbWheel( (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode() );
+    
     view_->getSceneData()->addEventCallback( handler );
 
     // Camera projection must be initialized before computing home position
@@ -337,6 +345,14 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
     return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
 }
 
+#define mLongSideDistance	15
+#define mShortSideDistance	40
+
+#define mThumbWheelLen		100
+#define mThumbWheelWidth	15
+
+#define mZCoord			-1
+
 
 void ui3DViewerBody::reSizeEvent(CallBacker*)
 {
@@ -360,8 +376,16 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     hudview_->getCamera()->setProjectionMatrix(
 	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
-    horthumbwheel_->setPosition( true, 40, 15, 100, 15, -1 );
-    verthumbwheel_->setPosition( false, 15, 40, 100, 15, -1 );
+    horthumbwheel_->setPosition( true, mShortSideDistance+mThumbWheelLen/2,
+                                 mLongSideDistance+mThumbWheelWidth/2,
+                                 mThumbWheelLen, mThumbWheelWidth, mZCoord );
+    verthumbwheel_->setPosition( false, mLongSideDistance+mThumbWheelWidth/2,
+                                 mShortSideDistance+mThumbWheelLen/2,
+                                 mThumbWheelLen, mThumbWheelWidth, mZCoord );
+    distancethumbwheel_->setPosition( false,
+        mLongSideDistance+mThumbWheelWidth/2,
+        widget->height()-mShortSideDistance-mThumbWheelLen/2,
+        mThumbWheelLen, mThumbWheelWidth, mZCoord );
     const float offset = axes_->getLength() + 10;
     axes_->setPosition( widget->width()-offset, offset );
 }
@@ -377,6 +401,13 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
     else if ( caller==verthumbwheel_ )
     {
 	uiRotate( deltaangle, false );
+    }
+    else if ( caller==distancethumbwheel_ )
+    {
+        osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+        	static_cast<osgGeo::TrackballManipulator*>(
+                                                view_->getCameraManipulator() );
+        manip->changeDistance( deltaangle/M_PI );
     }
 }
 
@@ -609,6 +640,7 @@ void ui3DViewerBody::setBackgroundColor( const Color& col )
 
     horthumbwheel_->setBackgroundColor( col );
     verthumbwheel_->setBackgroundColor( col );
+    distancethumbwheel_->setBackgroundColor( col );
 }
 
 

@@ -128,6 +128,7 @@ protected:
     RefMan<visBase::Scene>				scene_;
     RefMan<visBase::ThumbWheel>				horthumbwheel_;
     RefMan<visBase::ThumbWheel>				verthumbwheel_;
+    RefMan<visBase::ThumbWheel>				distancethumbwheel_;
     osg::Group*						sceneroot_;
     osgViewer::CompositeViewer*				compositeviewer_;
     osgViewer::View*					view_;

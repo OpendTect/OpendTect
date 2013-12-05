@@ -21,10 +21,10 @@ mCreateFactoryEntry( visBase::ThumbWheel );
 namespace visBase
 {
     
-class ThumbWheelMess : public osg::NodeCallback
+class ThumbWheelMessenger : public osg::NodeCallback
 {
 public:
-		ThumbWheelMess( ThumbWheel* t )
+		ThumbWheelMessenger( ThumbWheel* t )
 		    : visthumbwheel_( t )
 		{}
     void	operator() (osg::Node* node, osg::NodeVisitor* nv )
@@ -41,7 +41,7 @@ public:
     void	detach() { visthumbwheel_ = 0; }
     
 protected:
-		~ThumbWheelMess()
+		ThumbWheelMessenger()
 		{
 		    
 		}
@@ -54,7 +54,7 @@ ThumbWheel::ThumbWheel()
 {
     setOsgNode( thumbwheel_ );
     thumbwheel_->ref();
-    messenger_ = new ThumbWheelMess( this );
+    messenger_ = new ThumbWheelMessenger( this );
     messenger_->ref();
     thumbwheel_->addRotateCallback( messenger_ );
 }
@@ -71,20 +71,26 @@ ThumbWheel::~ThumbWheel()
 void ThumbWheel::setPosition(bool horizontal, float x, float y, float len,
 			     float width, float zval)
 {
-    const osg::Vec2 min( x, y );
-    const osg::Vec2 max( horizontal ? x+len : x+width,
-			 horizontal ? y+width : y+len );
+    const osg::Vec2 min( horizontal ? x-len/2 : x-width/2,
+                        horizontal ? y-width/2 : y-len/2 );
+    const osg::Vec2 max( horizontal ? x+len/2 : x+width/2,
+			 horizontal ? y+width/2 : y+len/2 );
     
     thumbwheel_->setShape( horizontal ? 0 : 1, min, max, zval );
 }
 
 
-void ThumbWheel::setBackgroundColor( const Color& col )
+void ThumbWheel::setBackgroundColor( const Color& bgcol )
 {
-    osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
-    osg::Vec4 gray( 0.5f, 0.5f, 0.5f, 1.0f );
+    Color col = bgcol;
+    if ( col.average()>128 )
+        col.lighter( 0.7 );
+    else
+        col.lighter( 1.5 );
 
-    thumbwheel_->setBorderColor( (gray+osgcol)/2 );
+    osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
+
+    thumbwheel_->setBorderColor( osgcol );
 }
     
 

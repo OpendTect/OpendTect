@@ -47,6 +47,7 @@ public:
     void         	set( unsigned char r_, unsigned char g_,
 			     unsigned char b_, unsigned char t_=0 );
 
+    float		average() const { return ((float) r()+g()+b())/3.0f; }
     Color		complementaryColor() const;
     Color		operator*(float) const;
     void		lighter( float f=1.1 );

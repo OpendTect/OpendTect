@@ -22,7 +22,7 @@ namespace osgGeo { class ThumbWheel; }
 namespace visBase
 {
 
-class ThumbWheelMess;
+class ThumbWheelMessenger;
     
     
 mExpClass(visBase) ThumbWheel : public DataObject
@@ -32,9 +32,9 @@ public:
 				mCreateDataObj(ThumbWheel);
     
     void			setPosition(bool horizontal,
-					    float x, float y, float len,
-					    float width,float zval = 0);
-    
+                                    float center_x, float center_y, float len,
+                                    float width,float zval = 0);
+
     void			setBackgroundColor(const Color&);
 
     float			getAngle() const;
@@ -46,7 +46,7 @@ protected:
     				~ThumbWheel();
     
     osgGeo::ThumbWheel*	    	thumbwheel_;
-    ThumbWheelMess*		messenger_;
+    ThumbWheelMessenger*	messenger_;
 };
 
 } // namespace visBase
