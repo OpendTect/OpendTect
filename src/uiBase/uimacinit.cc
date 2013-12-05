@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimacinit.h"
 
-#include <QMacStyle>
 #include <CoreServices/CoreServices.h>
 #include <ApplicationServices/ApplicationServices.h>
 
