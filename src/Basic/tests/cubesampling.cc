@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "survinfo.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mDeclCubeSampling( cs, istart, istop, istep, \
 			       cstart, cstop, cstep, \
@@ -25,11 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mRetResult( funcname ) \
     { \
-	std::cerr << funcname << " failed" << std::endl; \
+	od_ostream::logStream() << funcname << " failed" << od_endl; \
 	return false; \
     } \
     else if ( !quiet ) \
-	std::cerr << funcname << " succeeded" << std::endl; \
+	od_ostream::logStream() << funcname << " succeeded" << od_endl; \
     return true;
 
 

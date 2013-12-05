@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "objectset.h"
 #include "commandlineparser.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 class DataElem
 {
@@ -29,25 +29,25 @@ public:
     int		id_;
     float	val_;
 
-    void	print() const	{ std::cerr << '['<< id_<<": "<<val_<<']'; }
+    void	print() const	{ od_ostream::logStream() << '['<< id_<<": "<<val_<<']'; }
 
 };
 
 #define mPrElems(msg ) { \
-    std::cerr << msg << std::endl << '\t'; \
+    od_ostream::logStream() << msg << od_endl << '\t'; \
     for ( int idx=0; idx<des.size(); idx++ ) \
-	{ mPrintFunc; std::cerr << " | "; } \
-    std::cerr << std::endl; }
+	{ mPrintFunc; od_ostream::logStream() << " | "; } \
+    od_ostream::logStream() << od_endl; }
 
 #define mErrRet(msg ) \
 { \
     mPrElems("-> Failure ..." ) \
-    std::cerr << msg << " failed.\n"; \
+    od_ostream::logStream() << msg << " failed.\n"; \
     return 1; \
 }
 
 #define mRetAllOK() \
-    std::cerr << "All OK.\n" << std::endl; \
+    od_ostream::logStream() << "All OK.\n" << od_endl; \
     return 0; 
 
 #define mPrintFunc des[idx].print()
@@ -55,7 +55,7 @@ public:
 
 static int testTypeSetFind()
 {
-    std::cerr << std::endl;
+    od_ostream::logStream() << od_endl;
     TypeSet<DataElem> des( 6, DataElem() );
     des[0] = DataElem( 1, 0.1 );
     des[1] = DataElem( 2, 0.2 );
@@ -94,7 +94,7 @@ static int testTypeSetFind()
 
 static int testTypeSetSetFns()
 {
-    std::cerr << std::endl;
+    od_ostream::logStream() << od_endl;
     TypeSet<DataElem> des;
     des += DataElem( 1, 0.1 );
     des += DataElem( 2, 0.2 );
@@ -130,11 +130,11 @@ static int testTypeSetSetFns()
 }
 
 #undef mPrintFunc
-#define mPrintFunc std::cerr << des[idx]
+#define mPrintFunc od_ostream::logStream() << des[idx]
 
 static int testObjSetFind()
 {
-    std::cerr << std::endl;
+    od_ostream::logStream() << od_endl;
     ObjectSet<DataElem> des;
     des += new DataElem( 1, 0.1 );
     des += new DataElem( 2, 0.2 );

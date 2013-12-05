@@ -14,19 +14,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "keystrs.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mRunTest(testname,command) \
 { \
 if ( !command ) \
 { \
-    std::cout << testname << " failed!\n" << err.buf(); \
+    od_ostream::logStream() << testname << " failed!\n" << err.buf(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
     ExitProgram(1); \
 } \
 else if ( !quiet ) \
-    std::cout << testname << " Succeeded!\n"; \
+    od_ostream::logStream() << testname << " Succeeded!\n"; \
 }
 
 
@@ -42,13 +42,14 @@ else if ( !quiet ) \
     if ( File::getFileSize(dest.fullPath()) != \
 					  File::getFileSize(src.fullPath()) ) \
     { \
-	std::cout << "Data integrety check failed!\n" << dest.fullPath(); \
+	od_ostream::logStream() << "Data integrety check failed!\n" \
+			       << dest.fullPath(); \
 	File::remove( zipfilename.fullPath() ); \
 	File::removeDir( outputdir.fullPath() ); \
 	ExitProgram(1); \
     } \
     else if ( !quiet ) \
-	std::cout << "Data integrety check succeeded!\n"; \
+	od_ostream::logStream() << "Data integrety check succeeded!\n"; \
 }
 
 

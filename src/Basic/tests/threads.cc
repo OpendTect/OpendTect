@@ -17,24 +17,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "callback.h"
 #include "limits.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mPrintResult(func) \
 { \
 	if ( quiet ) \
         { \
-	    std::cout << "\nData type in test: " << valtype; \
-	    std::cout << "\n====================\n"; \
+	    od_ostream::logStream() << "\nData type in test: " << valtype; \
+	    od_ostream::logStream() << "\n====================\n"; \
 	} \
-	std::cerr << "Atomic = " << atomic.get() << " in function: "; \
-	std::cerr << func << " failed!\n"; \
+	od_ostream::logStream() << "Atomic = " << atomic.get() << " in function: "; \
+	od_ostream::logStream() << func << " failed!\n"; \
 	stopflag = true; \
 	return false; \
 } \
 else \
 { \
-	std::cout << "Atomic = " << atomic.get() << " in function: "; \
-	std::cerr << func << " OK\n"; \
+	od_ostream::logStream() << "Atomic = " << atomic.get() << " in function: "; \
+	od_ostream::logStream() << func << " OK\n"; \
 }
 
 #define mRunTest( func, finalval ) \
@@ -73,8 +73,8 @@ bool testAtomic( const char* valtype, bool quiet )
 
     if ( !quiet )
     {
-	std::cout << "\nData type in test: " << valtype;
-	std::cout << "\n====================\n";
+	od_ostream::logStream() << "\nData type in test: " << valtype;
+	od_ostream::logStream() << "\n====================\n";
     }
 
     T curval = 2;
@@ -144,7 +144,7 @@ bool testAtomic( const char* valtype, bool quiet )
     stopflag = true;
     
     if ( !quiet )
-	std::cout << "\n";
+	od_ostream::logStream() << "\n";
 
     return true;
 }
@@ -160,14 +160,14 @@ bool testAtomic( const char* valtype, bool quiet )
     { \
 	if ( !quiet ) \
 	{ \
-	    std::cout << desc << ":"; \
-	    std::cout << " OK\n"; \
+	    od_ostream::logStream() << desc << ":"; \
+	    od_ostream::logStream() << " OK\n"; \
 	} \
     } \
     else \
     { \
-	std::cout << desc << ":"; \
-	std::cout << " Fail\n"; \
+	od_ostream::logStream() << desc << ":"; \
+	od_ostream::logStream() << " Fail\n"; \
 	return false; \
     } \
 }
@@ -257,7 +257,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 {
     if ( !quiet )
     {
-	std::cout << "\n" << type << " tests\n====================\n";
+	od_ostream::logStream() << "\n" << type << " tests\n====================\n";
     }
 
     {

@@ -12,12 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
-#include <iostream>
+#include "od_iostream.h"
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
 
-#define mRetFail(s) { std::cout << "Failed " << s << std::endl; }
+#define mRetFail(s) { od_ostream::logStream() << "Failed " << s << od_endl; }
 
 #define mImplNumberTestFn(fnnm,decls,act,cond) \
 static bool fnnm( bool quiet ) \
@@ -28,10 +28,10 @@ static bool fnnm( bool quiet ) \
     const bool isok = (cond); \
     if ( !quiet ) \
     { \
-	std::cout << #fnnm << "[" << #cond << "]" \
-    		  << (isok ? " OK" : " Fail") << std::endl; \
+	od_ostream::logStream() << #fnnm << "[" << #cond << "]" \
+    		  << (isok ? " OK" : " Fail") << od_endl; \
 	if ( strm.isBad() ) \
-		std::cout << "\terrmsg=" << strm.errMsg() << std::endl; \
+		od_ostream::logStream() << "\terrmsg=" << strm.errMsg() << od_endl; \
     } \
     return isok; \
 }

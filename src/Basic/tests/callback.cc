@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debug.h"
 #include "thread.h"
 
-#include <iostream>
+#include "od_iostream.h"
 #include <time.h>
 
 
@@ -51,12 +51,12 @@ public:
 #define mCheckTest( testname, condition ) \
 if ( !(condition) ) \
 { \
-    std::cout << testname << ": Failed\n"; \
+    od_ostream::logStream() << testname << ": Failed\n"; \
     return false; \
 } \
 else if ( !quiet ) \
 { \
-    std::cout << testname << ": Pass\n"; \
+    od_ostream::logStream() << testname << ": Pass\n"; \
 }
 
 
@@ -178,7 +178,7 @@ bool testLateDetach( bool quiet )
     delete notified;
 
     if ( !quiet )
-	std::cout << "Detaching deleted notifier: Pass\n";
+	od_ostream::logStream() << "Detaching deleted notifier: Pass\n";
 
     return true;
 }
@@ -195,7 +195,7 @@ bool testDetachBeforeRemoval( bool quiet )
     delete notifier;
 
     if ( !quiet )
-	std::cout << "Detach before removal: Pass\n";
+	od_ostream::logStream() << "Detach before removal: Pass\n";
 
     return true;
 }
@@ -371,15 +371,15 @@ bool crashed = false;
 
 void handler(int sig)
 {
-    std::cout << "Program crashed\n";
+    od_ostream::logStream() << "Program crashed\n";
     exit( 1 );
 }
 
 
 bool testMulthThreadChaos( bool quiet )
 {
-    std::cout << "Multithreaded chaos:";
-    std::cout.flush();
+    od_ostream::logStream() << "Multithreaded chaos:";
+    od_ostream::logStream().flush();
 
     {
 	NotifierOwner notifierlist;
@@ -396,7 +396,7 @@ bool testMulthThreadChaos( bool quiet )
 	receiverslist.stop();
     } //All variables out of scope here
 
-    std::cout << " Pass\n";
+    od_ostream::logStream() << " Pass\n";
     return true;
 }
 

@@ -14,16 +14,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "math2.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mPrintTestResult( queuetypename, testname ) \
 {\
-        std::cout << queuetypename << "\"" testname "\" Failure\n";\
-        return false;\
+    od_ostream::logStream() << queuetypename << "\"" testname "\" Failure\n";\
+    return false;\
 }\
 else if ( !quiet )\
 {\
-        std::cout << queuetypename << "\"" testname "\" Success\n";\
+    od_ostream::logStream() << queuetypename << "\"" testname "\" Success\n";\
 }
 
 #define mAddWork( work, queueid ) \

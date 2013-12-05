@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "debug.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 
 class ReferencedClass
@@ -40,12 +40,14 @@ deleted = false; \
 voiddo; \
 if ( !(test) || delstatus!=deleted || (rc>=0 && rc!=refclass->nrRefs() )) \
 { \
-std::cerr << "Test " << #voiddo << " " << #test << " FAILED\n"; \
-ExitProgram( 1 ); \
+    od_ostream::logStream() << "Test " << #voiddo << " " << #test \
+			    << " FAILED\n"; \
+    ExitProgram( 1 ); \
 } \
 else if ( !quiet ) \
 { \
-std::cerr << "Test " << #voiddo << " " << #test << " - SUCCESS\n"; \
+    od_ostream::logStream() << "Test " << #voiddo << " " << #test \
+			    << " - SUCCESS\n"; \
 }
 
 

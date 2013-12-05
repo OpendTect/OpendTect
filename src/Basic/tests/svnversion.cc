@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 
 int main( int narg, char** argv )
@@ -23,7 +23,7 @@ int main( int narg, char** argv )
 
     if ( svnversion<1 || !svnurl || !*svnurl )
     {
-	std::cerr << "Invalid svn revision. "
+	od_ostream::logStream() << "Invalid svn revision. "
 		"Cmake could probably not find svn command-client. "
 		"Take a look in CMakeModules/ODSubversion.cmake.\n";
 	ExitProgram( 1 );

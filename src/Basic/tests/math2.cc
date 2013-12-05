@@ -15,17 +15,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "commandlineparser.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mRunTest( func ) \
     if ( (func)==false ) \
     { \
-	std::cerr << #func "\tfailed!\n"; \
+	od_ostream::logStream() << #func "\tfailed!\n"; \
 	return false; \
     } \
     else if ( !quiet ) \
     { \
-	std::cerr << #func "\tsuccess!\n"; \
+	od_ostream::logStream() << #func "\tsuccess!\n"; \
     }
 
 #define mTestVal 100

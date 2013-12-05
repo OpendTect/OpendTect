@@ -11,17 +11,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "typeset.h"
 #include "keystrs.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mRunTest( test ) \
 if ( !(testparser.test) ) \
 { \
-    std::cerr << "Test " << #test << " FAILED\n"; \
+    od_ostream::logStream() << "Test " << #test << " FAILED\n"; \
     ExitProgram( 1 ); \
 } \
 else if ( !quiet ) \
 { \
-    std::cerr << "Test " << #test << " - SUCCESS\n"; \
+    od_ostream::logStream() << "Test " << #test << " - SUCCESS\n"; \
 }
     
 
@@ -93,12 +93,12 @@ int main( int narg, char** argv )
     testparser.getNormalArguments(normalargs);
     if ( normalargs.size()!=8 )
     {
-	std::cerr << "getNormalArguments() - FAILED\n";
+	od_ostream::logStream() << "getNormalArguments() - FAILED\n";
 	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
-	std::cerr << "getNormalArguments() - SUCCESS\n";
+	od_ostream::logStream() << "getNormalArguments() - SUCCESS\n";
     }
     
     testparser.setKeyHasValue( createstr );
@@ -107,12 +107,14 @@ int main( int narg, char** argv )
     testparser.getNormalArguments(normalargs);
     if ( normalargs.size()!=7 )
     {
-	std::cerr << "getNormalArguments() with 1 key with value - FAILED\n";
+	od_ostream::logStream() <<
+		"getNormalArguments() with 1 key with value - FAILED\n";
 	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
-	std::cerr << "getNormalArguments() with 1 key with value - SUCCESS\n";
+	od_ostream::logStream() <<
+		"getNormalArguments() with 1 key with value - SUCCESS\n";
     }
 
     ExitProgram( 0 );

@@ -11,10 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 #include "keystrs.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 
-#define mRetFail(s) { std::cout << "Failed " << s << std::endl; }
+#define mRetFail(s) { od_ostream::logStream() << "Failed " << s << od_endl; }
 
 
 static bool testCmds( bool quiet )

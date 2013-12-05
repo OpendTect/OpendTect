@@ -12,19 +12,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 #include "filepath.h"
 #include "keystrs.h"
+#include "od_istream.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
-#define mRunTest( test ) \
+#define mTest( testname, test ) \
 if ( !(test) ) \
 { \
-    std::cerr << "Test " << #test << " FAILED\n"; \
+    od_ostream::logStream() << "Test " << testname << " FAILED\n"; \
     return false; \
 } \
 else if ( !quiet ) \
 { \
-    std::cerr << "Test " << #test << " - SUCCESS\n"; \
+    od_ostream::logStream() << "Test " << testname << " - SUCCESS\n"; \
 }
+
+#define mRunTest( test ) \
+mTest( #test, test )
 
 bool testReadContent( bool quiet )
 {
@@ -51,6 +55,32 @@ bool testReadContent( bool quiet )
 }
 
 
+bool testIStream( const char* file, bool quiet )
+{
+    od_istream invalidstream( "IUOIUOUOF");
+    mTest( "isOK on open non-existing file", !invalidstream.isOK() );
+
+    od_istream stream( file );
+    mTest( "isOK on open existing file", stream.isOK() );
+
+
+    int i;
+    stream.get(i);
+    mTest( "Reading positive integer to int",
+            i==1 && stream.isOK() );
+
+    stream.get(i);
+    mTest( "Reading negative integer to int",
+           i==-1 && stream.isOK() );
+
+    stream.get(i);
+    mTest( "Reading float into integer",
+           stream.isOK() );
+
+    return true;
+}
+
+
 int main( int narg, char** argv )
 {
     od_init_test_program( narg, argv );
@@ -58,8 +88,21 @@ int main( int narg, char** argv )
 
     const bool quiet = parser.hasKey( sKey::Quiet() );
 
+    BufferStringSet normalargs;
+    CommandLineParser().getNormalArguments(normalargs);
+
+    if ( !normalargs.size() )
+    {
+        od_ostream::logStream() << "No input file specified";
+        ExitProgram( 1 );
+    }
+
+
     if ( !testReadContent(quiet) )
         ExitProgram( 1 );
+
+    if ( !testIStream( normalargs.get(0).buf(), quiet ) )
+	ExitProgram( 1 );
 
 
     ExitProgram(0);

@@ -10,19 +10,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 #include "keystrs.h"
 
-#include <iostream>
+#include "od_iostream.h"
 
 #define mTest( testname, test ) \
 if ( (test)==true ) \
 { \
     if ( !quiet ) \
     { \
-        std::cout << testname << ": OK\n"; \
+        od_ostream::logStream() << testname << ": OK\n"; \
     } \
 } \
 else \
 { \
-    std::cout << testname << ": Failed\n"; \
+    od_ostream::logStream() << testname << ": Failed\n"; \
     return false; \
 }
 
