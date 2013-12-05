@@ -238,8 +238,3 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 
 }; //namespace
 
-
-
-
-//#include "velocityfunctionsource.h"
-
