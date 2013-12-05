@@ -708,7 +708,8 @@ const char* uiTreeViewItem::text( int column ) const
 void uiTreeViewItem::translate()
 {
     int column = 0;
-    while ( translate(column++) );
+    while ( translate(column++) )
+    {}
 
     for ( int idx=0; idx<nrChildren(); idx++ )
 	getChild(idx)->translate();
