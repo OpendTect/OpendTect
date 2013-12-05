@@ -53,7 +53,7 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 
     if ( wholesubtree && !multisel )
     {
-	mParseErrStrm << "Command cannot select whole subtree" << std::endl;
+	mParseErrStrm << "Command cannot select whole subtree" << od_endl;
 	return false;
     }
 
@@ -91,7 +91,7 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 	{
 	    collapsedpath = true;
 	    mWinWarnStrm << "Tree node \"" << curpath.unescapedStr()
-			 << "\" not expanded" << std::endl;
+			 << "\" not expanded" << od_endl;
 	}
 	curitm = nodesfound[0];
 	BufferString curitmtxt = curitm->text();
@@ -208,7 +208,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
     mParTreeTagBase( parstr, parnext, pathcol ) \
     else \
     { \
-	mParseErrStrm << "Selection option not in [PathCol]" << std::endl; \
+	mParseErrStrm << "Selection option not in [PathCol]" << od_endl; \
 	return false; \
     }
 
@@ -330,7 +330,7 @@ void TreeActivator::actCB( CallBacker* cb )
     if ( !treenode->isCheckable() ) \
     { \
 	mWinErrStrm << "Tree node \"" << pathstr.unescapedStr() \
-		    << "\" has no button" << std::endl; \
+		    << "\" has no button" << od_endl; \
 	return false; \
     }
 
@@ -377,7 +377,7 @@ bool TreeExpandCmd::act( const char* parstr )
     if ( !nodesfound[0]->nrChildren() )
     {
 	mWinErrStrm << "Tree node \"" << pathstr.unescapedStr()
-		    << "\" has no expander" << std::endl;
+		    << "\" has no expander" << od_endl;
 	return false;
     }
 
@@ -444,7 +444,7 @@ bool NrTreeItemsCmd::act( const char* parstr )
 	     !curnode->isOpen() && curnode->nrChildren() )
 	{
 	    mWinWarnStrm << "Tree node \"" << pathstr.unescapedStr()
-			 << "\" not expanded" << std::endl;
+			 << "\" not expanded" << od_endl;
 	}
     }
     mParIdentPost( identname, countTreeItems(*uilview, curnode), parnext );
@@ -995,7 +995,7 @@ void TreeCmdComposer::writeTreeClick()
 
     insertWindowCaseExec( event, casedep );
     mRecOutStrm << "TreeClick" << dquotedkeystr << treenodesel << mousetag
-		<< std::endl;
+		<< od_endl;
 }
 
 
@@ -1007,7 +1007,7 @@ void TreeCmdComposer::writeTreeExpand()
 
     insertWindowCaseExec( event, casedep );
     mRecOutStrm << "TreeExpand" << dquotedkeystr << treenodesel << onoff
-		<< std::endl;
+		<< od_endl;
 }
 
 
@@ -1021,7 +1021,7 @@ void TreeCmdComposer::writeTreeButton()
 
     insertWindowCaseExec( event, casedep );
     mRecOutStrm << "TreeButton" << dquotedkeystr << treenodesel << mousetag
-		<< onoff << std::endl;
+		<< onoff << od_endl;
 }
 
 
@@ -1036,7 +1036,7 @@ void TreeCmdComposer::writeTreeMenu( const CmdRecEvent& menuevent )
 
     insertWindowCaseExec( event, casedep || menuevent.casedep_ );
     mRecOutStrm << "TreeMenu" << dquotedkeystr << treenodesel << mousetag
-		<< " \"" << menuevent.menupath_ << "\"" << onoff << std::endl;
+		<< " \"" << menuevent.menupath_ << "\"" << onoff << od_endl;
 }
 
 
@@ -1158,7 +1158,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
 	    if ( treebutchange )
 	    {
 		mRecOutStrm << "# TreeButtonMenu: Command not yet implemented"
-			    << std::endl;
+			    << od_endl;
 	    }
 	    writeTreeMenu( ev );
 	}

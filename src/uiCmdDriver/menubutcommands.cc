@@ -30,12 +30,12 @@ namespace CmdDrive
     const uiMenuBar* mbar = const_cast<uiMainWin*>(curWin())->menuBar(); \
     if ( !mbar ) \
     { \
-	mWinErrStrm << "Window has no menu bar" << std::endl; \
+	mWinErrStrm << "Window has no menu bar" << od_endl; \
 	return false; \
     } \
     if ( !mbar->isSensitive() && (greyOutsSkipped() || goingToChangeUiObj()) ) \
     { \
-	mWinErrStrm << "Menu bar is disabled" << std::endl; \
+	mWinErrStrm << "Menu bar is disabled" << od_endl; \
 	return false; \
     }
 
@@ -119,12 +119,12 @@ void MenuActivator::actCB( CallBacker* cb )
     const uiMenu* butmenu = UIEntity(entity).menu(); \
     if ( !butmenu ) \
     { \
-	mWinErrStrm << "This button has no menu" << std::endl; \
+	mWinErrStrm << "This button has no menu" << od_endl; \
 	return false; \
     } \
     if ( !butmenu->isEnabled() && (greyOutsSkipped() || goingToChangeUiObj()) )\
     { \
-	mWinErrStrm << "Button menu is disabled" << std::endl; \
+	mWinErrStrm << "Button menu is disabled" << od_endl; \
 	return false; \
     }
 
@@ -209,7 +209,7 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
 	buf = "This window offers no access to"; \
 \
     mWinWarnStrm << buf << " \"" << butnm \
-		 << "\"-button in title bar if intended" << std::endl; \
+		 << "\"-button in title bar if intended" << od_endl; \
 }
 
 #define mTitleBarButtonCheck( objsfound, keys, nrgrey ) \
@@ -259,7 +259,7 @@ bool ButtonCmd::act( const char* parstr )
     if ( butgrp && butgrp->isExclusive() && onoff<0 )
     {
 	mWinErrStrm << "An auto-exclusive button cannot be switched off"
-		    << std::endl;
+		    << od_endl;
 	return false;
     }
 
@@ -317,7 +317,7 @@ void ButtonActivator::actCB( CallBacker* cb )
     if ( keys.size() > 1 ) \
     { \
 	mWinErrStrm << "QDialog does not accept multiple search keys" \
-		    << std::endl; \
+		    << od_endl; \
         return false; \
     } \
     int butidx = 0; \
@@ -475,7 +475,7 @@ bool OkCancelCmd::act( const char* parstr )
 	if ( but && !but->sensitive() )
 	{
 	    mWinErrStrm << "The " << name() << "-button is currently disabled"
-			<< std::endl;
+			<< od_endl;
 	    return false;
 	}
 
@@ -487,7 +487,7 @@ bool OkCancelCmd::act( const char* parstr )
     }
 
     mWinWarnStrm << "Close-button used for lack of " << name() << "-button"
-		 << std::endl;
+		 << od_endl;
 	
     return CloseCmd(drv_).act( "" );
 }
@@ -533,7 +533,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
     if ( curWin() == applWin() )
     {
 	mWinErrStrm << "Using \"Close All\" is required to kill main window"
-		    << std::endl;
+		    << od_endl;
 	return false;
     }
 
@@ -569,7 +569,7 @@ bool CloseCmd::act( const char* parstr )
     if ( openQDlg() )
     {
 	mWinErrStrm << "Unable to close subwindows of open QDialog"
-		    << std::endl;
+		    << od_endl;
 	return false; 
     }
 
@@ -606,7 +606,7 @@ void MdiAreaCloseActivator::actCB( CallBacker* cb )
     else if ( !mMatchCI(newsize,"Normal") ) \
     { \
 	mParseErrStrm << "Size argument not in {Minimized, Normal, Maximized}" \
-		      << std::endl; \
+		      << od_endl; \
     }
 
 #define mParShowTagPre( objnm, isminimized, ismaximized, minnormmax ) \
@@ -616,7 +616,7 @@ void MdiAreaCloseActivator::actCB( CallBacker* cb )
     { \
 	mWinWarnStrm << "This " << objnm << " is already shown " \
 	    << (oldmnm<1 ? "minimized" : (oldmnm>1 ? "maximized" : "normal")) \
-	    << std::endl; \
+	    << od_endl; \
     }
 
 bool ShowCmd::actShowCurWin( const char* parstr )
@@ -917,11 +917,11 @@ bool MenuCmdComposer::accept( const CmdRecEvent& ev )
     if ( UIEntity(ev.object_).menu() )
     {
 	mRecOutStrm << "ButtonMenu \"" << ev.keystr_ << "\" \""
-		    << ev.menupath_ << "\"" << onoffstr << std::endl;
+		    << ev.menupath_ << "\"" << onoffstr << od_endl;
     }
     else
 	mRecOutStrm << "Menu \""
-		    << ev.menupath_ << "\"" << onoffstr << std::endl;
+		    << ev.menupath_ << "\"" << onoffstr << od_endl;
     return true;
 }
 
@@ -949,7 +949,7 @@ bool ButtonCmdComposer::accept( const CmdRecEvent& ev )
 	onoffstr = action->isChecked() ? " On" : " Off";
 
     insertWindowCaseExec( ev );
-    mRecOutStrm << "Button \"" << ev.keystr_ << "\"" << onoffstr << std::endl;
+    mRecOutStrm << "Button \"" << ev.keystr_ << "\"" << onoffstr << od_endl;
     return true;
 }
 
@@ -969,7 +969,7 @@ bool QMsgBoxButCmdComposer::accept( const CmdRecEvent& ev )
     mDressNameString( butname, sKeyStr );
 
     insertWindowCaseExec( ev );
-    mRecOutStrm << "Button \"" << butname << "\"" << std::endl;
+    mRecOutStrm << "Button \"" << butname << "\"" << od_endl;
     return true;
 }
 
@@ -985,11 +985,11 @@ bool CloseCmdComposer::accept( const CmdRecEvent& ev )
     insertWindowCaseExec( ev );
     if ( ev.srcwin_ == applWin() )
     {
-	mRecOutStrm << "Close All" << std::endl;
+	mRecOutStrm << "Close All" << od_endl;
 	rec_.stop();
     }
     else
-	mRecOutStrm << "Close" << std::endl;
+	mRecOutStrm << "Close" << od_endl;
 
     return true;
 }
@@ -1045,7 +1045,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
     {
 	insertWindowCaseExec( ev, titlecasedep );
 	mRecOutStrm << "Close \"" << ev.keystr_ << "\" \"" << curwintitle
-		    << "\"" << std::endl;
+		    << "\"" << od_endl;
     }
 
     return true;
@@ -1097,10 +1097,10 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
     if ( ev.similarobjs_ )
     {
 	mRecOutStrm << "Tab \"" << ev.keystr_ << "\" \"" << curtabname << "\""
-		    << std::endl;
+		    << od_endl;
     }
     else 
-	 mRecOutStrm << "Tab \"" << curtabname << "\"" << std::endl;
+	 mRecOutStrm << "Tab \"" << curtabname << "\"" << od_endl;
 
     return true;
 }

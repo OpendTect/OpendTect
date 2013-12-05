@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uicmddrivermod.h"
 #include "bufstringset.h"
-#include <iostream>
+#include "od_iostream.h"
 #include "separstr.h"
 #include "strmdata.h"
 #include "thread.h"
@@ -38,7 +38,7 @@ namespace CmdDrive
     class MenuTracer;
 
 #define mLogStrm \
-    if ( drv_.logStrmData().usable() ) *drv_.logStrmData().ostrm
+    if ( drv_.logStream().isOK() ) drv_.logStream()
 
 #define mTimeStrm \
     mLogStrm << "[" << Time::getTimeString() << "]\t"
@@ -125,7 +125,7 @@ public:
     static const char*	defaultLogFilename();
     const char*		logFileName() const		{ return logfnm_; }
     void		setLogFileName(const char* fnm)	{ logfnm_ = fnm; }
-    void		clearLog()			{ logsd_.close(); }
+    void		clearLog()			{ logstream_.close(); }
 
     enum		LogModeTag { LogBasic, LogNormal, LogAll };		
     void		setLogMode(LogModeTag tag)	{ logmode_ = tag; } 
@@ -192,7 +192,7 @@ protected:
     BufferString	cmdfnm_;
     BufferString	errmsg_;
     Threads::Thread*	execthr_;
-    StreamData&		logsd_;
+    od_ostream&		logstream_;
     FilePath&		outfp_;
 
     WildcardManager*	wcm_;
@@ -322,7 +322,7 @@ protected:
 
 public:
     			// interface for output stream macros
-    const StreamData&	logStrmData() const		    { return logsd_; }
+    od_ostream&		logStream()			 { return logstream_; }
     const char*		curWinTitle(int aliasnr=0) const;
 
     bool		streamBlocked(bool parse,const char* tag);

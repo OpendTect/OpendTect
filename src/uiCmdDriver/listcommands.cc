@@ -244,7 +244,7 @@ void ListActivator::actCB( CallBacker* cb )
     if ( !uilist->isItemCheckable(itemidx) ) \
     { \
 	mWinErrStrm << "List item \"" << itemstr << "\" has no button" \
-		    << std::endl; \
+		    << od_endl; \
 	return false; \
     }
 
@@ -300,8 +300,8 @@ bool ListSelectCmd::act( const char* parstr )
 
     if ( uilist->maxNrOfSelections() == 0 )
     {
-	mWinErrStrm << "This list allows no item selection" << std::endl;
-	return false;
+	mWinErrStrm << "This list allows no item selection" << od_endl;
+	return false; 
     }
 
     mParListSelPre( "first item", uilist, itemstr1, itemnr1, itemidxs1, false );
@@ -336,21 +336,21 @@ bool ListSelectCmd::act( const char* parstr )
     if ( uilist->maxNrOfSelections()==1 && selset.size()!=1 )
     {
 	mWinErrStrm << "This single-selection list does not allow "
-		    << selset.size() << " selected items" << std::endl;
+		    << selset.size() << " selected items" << od_endl;
 	return false;
     }
 
     if ( selectionEquals(*uilist,selset) )
     {
 	mWinWarnStrm << "List already showed the specified selection"
-		     << std::endl;
+		     << od_endl;
     }
 
     mActivate( ListSelect, Activator(*uilist, selset) );
 
     if ( uilist->size()==nritems && !selectionEquals(*uilist,selset) )
     {
-	mWinWarnStrm << "Specified selection has been overruled" << std::endl;
+	mWinWarnStrm << "Specified selection has been overruled" << od_endl;
     }
 
     return true;
@@ -646,7 +646,7 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
 			      namecasedep );
 	    insertWindowCaseExec( ev, namecasedep );
 	    mRecOutStrm << "Combo \"" << ev.keystr_ << "\" \""
-			<< curitemname << "\"" << std::endl;
+			<< curitemname << "\"" << od_endl;
 	    return true;
 	}
 
@@ -838,7 +838,7 @@ void ListCmdComposer::writeListSelect( int firstidx, int lastidx,
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, casedep1 || casedep2 );
     mRecOutStrm << "ListSelect \"" << ev.keystr_ << "\" " << itemrg
-		<< onoff << std::endl;
+		<< onoff << od_endl;
 }
 
 
@@ -866,7 +866,7 @@ void ListCmdComposer::writeListButton()
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, casedep );
     mRecOutStrm << "ListButton \"" << ev.keystr_ << "\" \"" << itemname
-		<< "\"" << mousetag << onoff << std::endl;
+		<< "\"" << mousetag << onoff << od_endl;
 }
 
 
@@ -886,7 +886,7 @@ void ListCmdComposer::writeListMenu( const CmdRecEvent& menuevent )
     insertWindowCaseExec( ev, menuevent.casedep_ || casedep );
     mRecOutStrm << "ListMenu \"" << ev.keystr_ << "\" \"" << itemname
 		<< "\"" << mousetag << " \"" << menuevent.menupath_
-		<< "\"" << onoff << std::endl;
+		<< "\"" << onoff << od_endl;
 }
 
 
@@ -902,7 +902,7 @@ void ListCmdComposer::writeListClick()
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, casedep );
     mRecOutStrm << "ListClick \"" << ev.keystr_ << "\" \"" << itemname
-		<< "\"" << mousetag << std::endl;
+		<< "\"" << mousetag << od_endl;
 }
 
 
@@ -1011,7 +1011,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	{
 	    if ( listbutchange )
 		mRecOutStrm << "# ListButtonMenu: Command not yet implemented"
-			    << std::endl;
+			    << od_endl;
 
 	    writeListMenu( ev );
 	}

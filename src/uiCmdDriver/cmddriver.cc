@@ -117,11 +117,11 @@ CmdDriver::CmdDriver( uiMainWin& aw )
         , wcm_( new WildcardManager() )
 	, idm_( new IdentifierManager() )
 	, eip_( new ExprInterpreter(*this) )
-	, logsd_(*new StreamData)
-	, outfp_(*new FilePath)
-	, outdir_(GetPersonalDir())
-	, logfnm_(defaultLogFilename())
-	, execthr_(0)
+    	, logstream_(*new od_ostream)
+    	, outfp_(*new FilePath)
+    	, outdir_(GetPersonalDir())
+    	, logfnm_(defaultLogFilename())
+    	, execthr_(0)
 	, executeFinished(this)
 	, interactRequest(this)
 {
@@ -184,8 +184,8 @@ CmdDriver::~CmdDriver()
     deepErase( activatorlist_ );
     deepErase( actions_ );
 
-    logsd_.close();
-    delete &logsd_;
+    logstream_.close();
+    delete &logstream_;
     delete &outfp_;
 
     if ( execthr_ )
@@ -448,7 +448,7 @@ void CmdDriver::logErrMsg()
 	return;
 
     updateLogStrm();
-    mLogStrm << std::endl << errmsg_ << std::endl << std::endl;
+    mLogStrm << od_newline << errmsg_ << od_newline << od_endl;
 }
 
 
@@ -459,9 +459,13 @@ void CmdDriver::updateLogStrm()
     else
 	outfp_.set(outdir_).add( logfnm_ );
 
-    BufferString prevlogfnm = logsd_.fileName();
-    if ( !logsd_.usable() || prevlogfnm!=outfp_.fullPath() )
-	logsd_ = StreamProvider(outfp_.fullPath()).makeOStream( false );
+    BufferString prevlogfnm = logstream_.fileName();
+
+    if ( !logstream_.isOK() || prevlogfnm!=outfp_.fullPath() )
+    {
+        logstream_.close();
+        logstream_.open( outfp_.fullPath() );
+    }
 }
 
 
@@ -469,9 +473,9 @@ bool CmdDriver::execute()
 {
     updateLogStrm();
 
-    mLogStrm << std::endl << "Command file: " << cmdfnm_ << std::endl
+    mLogStrm << od_newline << "Command file: " << cmdfnm_ << od_newline
 	     << "Execution started at " << Time::getDateTimeString()
-	     << std::endl << std::endl;
+	     << od_newline << od_endl;
 
     if ( execthr_ ) { execthr_->waitForFinish(); delete execthr_; }
 
@@ -586,8 +590,8 @@ void CmdDriver::exitApplCB( CallBacker* )
 {
     Threads::sleep( 0.3 );  // Assuming CmdDriver thread will sleep afterwards
 
-    mLogStrm << std::endl;
-    mTimeStrm << "EXIT" << std::endl;
+    mLogStrm << od_endl;
+    mTimeStrm << "EXIT" << od_endl;
 
     abort_ = true;
     applwin_ = 0;
@@ -630,7 +634,7 @@ void CmdDriver::mkThread( CallBacker* )
 	{
 	    storeModalStatus();
 
-	    mTimeStrm << "PAUSE" << std::endl;
+	    mTimeStrm << "PAUSE" << od_endl;
 	    if ( interactspec_ && interactspec_->wait_ )
 	    {
 		const CallBack icb( mCB(this,CmdDriver,interactCB) );
@@ -677,9 +681,9 @@ void CmdDriver::mkThread( CallBacker* )
 	lckr.unlockNow();
 
 	if ( actionidx_ && actstr[0]=='[' )
-	    mLogStrm << std::endl;
+	    mLogStrm << od_endl;
 
-	mTimeStrm << "ACT:  " << actstr << std::endl;
+	mTimeStrm << "ACT:  " << actstr << od_endl;
 
 	recoverystep_ = NoClue;
 	prepareforabort = true;
@@ -687,7 +691,7 @@ void CmdDriver::mkThread( CallBacker* )
 	BufferString substactstr;
 	const int nrsubst = idm_->substitute( actstr, substactstr );
 	if ( nrsubst )
-	    mTimeStrm << "$UB$: " << substactstr << std::endl;
+	    mTimeStrm << "$UB$: " << substactstr << od_endl;
 
 	curactjumped_ = false;
 	bool ok = false;
@@ -695,7 +699,7 @@ void CmdDriver::mkThread( CallBacker* )
 	if ( nrsubst < 0 )
 	{
 	    mParseErrStrm << "Failure at " << (-nrsubst) << " substitution"
-			  << (nrsubst<-1 ? "s" : "") << std::endl;
+			  << (nrsubst<-1 ? "s" : "") << od_endl;
 	}
 	else
 	    ok = doAction( substactstr );
@@ -707,7 +711,7 @@ void CmdDriver::mkThread( CallBacker* )
 
 	if ( !ok )
 	{
-	    mTimeStrm << "FAIL" << std::endl;
+	    mTimeStrm << "FAIL" << od_endl;
 
 	    if ( onError()==Recover && recover() )
 		continue;
@@ -715,7 +719,7 @@ void CmdDriver::mkThread( CallBacker* )
 	    break;
 	}
 	else
-	    mTimeStrm << "OK" << std::endl;
+	    mTimeStrm << "OK" << od_endl;
 
 	if ( !curactjumped_ )
 	    moveActionIdx( 1 );
@@ -724,8 +728,8 @@ void CmdDriver::mkThread( CallBacker* )
     if ( abort_ && prepareforabort )
 	prepareForAbort();
 
-    mLogStrm << std::endl;
-    mTimeStrm << ( abort_ ? "ABORT" : "END" ) << std::endl << std::endl;
+    mLogStrm << od_newline;
+    mTimeStrm << ( abort_ ? "ABORT" : "END" ) << od_newline << od_endl;
 
     uiMainWin::programActiveWindow( 0 );
 
@@ -810,7 +814,7 @@ void CmdDriver::setSleep( float time, bool regular )
 	    mParseErrStrm << "Expect '" << token << "'-operator in front of " \
 			  << (token=='?' ? "user-defined procedure: " \
 					 : "built-in function: ") \
-			  << funcprocname << std::endl; \
+			  << funcprocname << od_endl; \
 	    return false; \
 	} \
     }
@@ -870,7 +874,7 @@ bool CmdDriver::doAction( const char* actstr )
 		      !Command::isQuestionName(firstword,*this) )
 	    {
 		mParseErrStrm << "Command is not a question: "
-			      << firstword << std::endl;
+                                << firstword << od_endl;
 		return false;
 	    }
 	}
@@ -888,7 +892,7 @@ bool CmdDriver::doAction( const char* actstr )
 	    if ( !idm_->doesExist(name) && Command::isQuestionName(name,*this) )
 	    {
 		mParseErrStrm << "Expect '?'-operator in front of "
-			      << "question command: " << name << std::endl;
+			      << "question command: " << name << od_endl;
 		return false;
 	    }
 
@@ -908,7 +912,7 @@ bool CmdDriver::doAction( const char* actstr )
     {
 	mParseErrStrm << (firstword.isEmpty() ? "Missing command"
 					      : "Command not recognised: ")
-		      << firstword << std::endl;
+		      << firstword << od_endl;
 	return false;
     }
 
@@ -922,14 +926,14 @@ bool CmdDriver::doAction( const char* actstr )
 
     if ( !cmd->isOpenQDlgCommand() && openqdialog_ )
     {
-	mWinErrStrm << "Command not supported for open QDialog" << std::endl;
+	mWinErrStrm << "Command not supported for open QDialog" << od_endl;
 	return false;
     }
 
     if ( !cmd->isLocalEnvCommand() && localsearchenv_ )
     {
 	mParseErrStrm << "Keystring accepting command required in local "
-		      << "search environment" << std::endl;
+		      << "search environment" << od_endl;
 	return false;
     }
 
@@ -1003,7 +1007,7 @@ bool CmdDriver::waitForProcessing()
 	    return true;
 
 	mWinWarnStrm << "No guarantee all processing stopped: add preceding "
-		     << "Wait-command if more patience needed" << std::endl;
+		     << "Wait-command if more patience needed" << od_endl;
 
 	wildmodalclosedstamp_ = -1;
     }
@@ -1163,7 +1167,7 @@ void CmdDriver::finishActivate()
     if ( !interceptmenu_ && interceptstatus_!=NoInterception )
     {
 	mWinWarnStrm << "Unexpected popup menu clicked away. Item selection "
-		     << "needs \"Menu\"-variant of this command" << std::endl;
+		     << "needs \"Menu\"-variant of this command" << od_endl;
     }
     interceptmenu_ = false;
 }
@@ -1282,7 +1286,7 @@ bool CmdDriver::didInterceptSucceed( const char* objnm )
 	return true;
 
     if ( interceptstatus_ == NoInterception )
-	mWinErrStrm << objnm << " did not popup a menu" << std::endl;
+	mWinErrStrm << objnm << " did not popup a menu" << od_endl;
 
     return false;
 }
@@ -1322,7 +1326,7 @@ bool CmdDriver::verifyWinAssert( const char* newassertion )
 	    return true;
 
 	mWinErrStrm << "No window matching assertion [" << winassertion_
-		    << "]" << std::endl;
+		    << "]" << od_endl;
 	recoverystep_ = NextAssertion;
 	return false;
     }
@@ -1331,7 +1335,7 @@ bool CmdDriver::verifyWinAssert( const char* newassertion )
     {
 	mWinWarnStrm << "Oldest one assumed from " << windowlist.size()
 		     << " windows matching assertion: [" << winstr
-		     << "]" << std::endl;
+		     << "]" << od_endl;
 	winassertion_ += "#1";
     }
 
@@ -1349,7 +1353,7 @@ bool CmdDriver::verifyWinAssert( const char* newassertion )
 	return true;
 
     mWinErrStrm << "Current window does not match assertion ["
-		<< winassertion_ << "]" << std::endl;
+		<< winassertion_ << "]" << od_endl;
     recoverystep_ = CloseCurWin;
     return false;
 }
@@ -1433,7 +1437,7 @@ bool CmdDriver::recover()
 
     if ( recoverystep_ == NextCmd )
     {
-	mTimeStrm << "RECOVER: Command skipped" << std::endl;
+	mTimeStrm << "RECOVER: Command skipped" << od_endl;
 	moveActionIdx( 1 );
 	return true;
     }
@@ -1459,11 +1463,11 @@ bool CmdDriver::recover()
 	mParWinStrPre( newwinlist, oldwintitle, 0, false );
 	if ( newwinlist.size() >= oldwinlist.size() )
 	{
-	    mLogStrm << "failed" << std::endl;
+	    mLogStrm << "failed" << od_endl;
 	    return false;
 	}
 
-	mLogStrm << "successful" << std::endl;
+	mLogStrm << "successful" << od_endl;
 	pendingsleep_ += regularsleep_;
 	return true;
     }
@@ -1478,7 +1482,7 @@ bool CmdDriver::recover()
 	    if ( *cmdmark == '[' )
 	    {
 		mTimeStrm << "RECOVER: Jump to next window assertion"
-			  << std::endl;
+			  << od_endl;
 		return true;
 	    }
 

@@ -188,7 +188,7 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
 	if ( cellonly ) \
 	{ \
 	    mParseErrStrm << "This command does not support header selection" \
-			  << std::endl; \
+			  << od_endl; \
 	    return false; \
 	} \
 	tabletag = mMatchCI(tagstr,"RowHead") ? RowHead : ColHead; \
@@ -201,7 +201,7 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
     { \
 	mParseErrStrm << "Selection option not in " \
 		      << (cellonly ? "[Cell]" : "[RowHead, ColHead, Cell}") \
-		      << std::endl; \
+		      << od_endl; \
 	return false; \
     }
 
@@ -346,7 +346,7 @@ bool TableFillCmd::act( const char* parstr )
     if ( uitable->isTableReadOnly() ||
 	 uitable->isRowReadOnly(rc.row()) || uitable->isColumnReadOnly(rc.col()) )
     {
-	mWinErrStrm << "Table cell is read-only" << std::endl;
+	mWinErrStrm << "Table cell is read-only" << od_endl;
 	return false;
     }
 
@@ -399,7 +399,7 @@ bool TableExecCmd::act( const char* parstr )
     uiObject* localsearchenv = uitable->getCellObject(rc);
     if ( !localsearchenv )
     {
-	mWinErrStrm << "No UI-objects found in table cell" << std::endl;
+	mWinErrStrm << "No UI-objects found in table cell" << od_endl;
 	return false;
     }
 
@@ -454,8 +454,8 @@ bool TableSelectCmd::act( const char* parstr )
 
     if ( uitable->maxNrOfSelections() == 0 )
     {
-	mWinErrStrm << "This table allows no selection at all" << std::endl;
-	return false;
+	mWinErrStrm << "This table allows no selection at all" << od_endl;
+	return false; 
     }
 
     if ( !mIsUdf(itemnr21) )
@@ -546,7 +546,7 @@ bool TableSelectCmd::act( const char* parstr )
 	    {
 		mWinErrStrm << "This table only allows selection of whole "
 			    << mSelBehavior( uitable, "", "rows", "columns" )
-			    << std::endl;
+			    << od_endl;
 		return false;
 	    }
 	    if ( selcount[idx] > 0 )
@@ -561,7 +561,7 @@ bool TableSelectCmd::act( const char* parstr )
 	mWinErrStrm << "This single-selection table does not allow "
 		    << nrselected << " selected "
 		    << mSelBehavior( uitable, "cells", "rows", "columns" )
-		    << std::endl;
+		    << od_endl;
 	return false;
     }
 
@@ -569,7 +569,7 @@ bool TableSelectCmd::act( const char* parstr )
     if ( selset.equalToCurItemSel() )
     {
 	mWinWarnStrm << "Table already showed the specified selection"
-		     << std::endl;
+		     << od_endl;
     }
 
     mActivate( TableSelect, Activator(*uitable, selset.getSet()) );
@@ -577,7 +577,7 @@ bool TableSelectCmd::act( const char* parstr )
     if ( uitable->nrRows()==nrrows && uitable->nrCols()==nrcols
 				   && !selset.equalToCurItemSel() )
     {
-	mWinWarnStrm << "Specified selection has been overruled" << std::endl;
+	mWinWarnStrm << "Specified selection has been overruled" << od_endl;
     }
 
     return true;
@@ -1529,7 +1529,7 @@ void TableCmdComposer::writeTableSelect( const RowCol& firstrc,
     insertWindowCaseExec( ev, rowcasedep1 || colcasedep1 ||
 					     rowcasedep2 || colcasedep2 );
     mRecOutStrm << "TableSelect \"" << ev.keystr_ << "\""
-		<< itemrg << onoff << std::endl;
+		<< itemrg << onoff << od_endl;
 }
 
 
@@ -1544,7 +1544,7 @@ void TableCmdComposer::writeTableFill()
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, rowcasedep || colcasedep );
     mRecOutStrm << "TableFill \"" << ev.keystr_ << "\"" << rowsel << colsel
-		<< " " << inpptr << std::endl;
+		<< " " << inpptr << od_endl;
 }
 
 
@@ -1578,7 +1578,7 @@ void TableCmdComposer::writeTableMenu( const CmdRecEvent& menuevent )
     insertWindowCaseExec( ev, menuevent.casedep_ || rowcasedep || colcasedep );
     mRecOutStrm << "TableMenu \"" << ev.keystr_ << "\"" << rowsel << colsel
 		<< mousetag << " \"" << menuevent.menupath_ << "\""
-		<< onoff << std::endl;
+		<< onoff << od_endl;
 }
 
 
@@ -1597,7 +1597,7 @@ void TableCmdComposer::writeTableClick()
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, rowcasedep || colcasedep );
     mRecOutStrm << "TableClick \"" << ev.keystr_ << "\"" << rowsel << colsel
-		<< mousetag << std::endl;
+		<< mousetag << od_endl;
 }
 
 

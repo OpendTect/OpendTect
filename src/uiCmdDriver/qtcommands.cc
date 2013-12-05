@@ -44,7 +44,7 @@ void SetColorActivator::actCB( CallBacker* )
     if ( (parnext==parstr && !(optional)) || num##val<0 || num##val>255 ) \
     { \
 	mParseErrStrm << channelnm << "-channel requires single number " \
-		      << "between 0 and 255" << std::endl; \
+		      << "between 0 and 255" << od_endl; \
 	return false; \
     } \
     const unsigned char val( mCast(unsigned char,int(num##val+0.5)) );
@@ -52,11 +52,11 @@ void SetColorActivator::actCB( CallBacker* )
 
 bool ColorOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::Colour )
-    {
-	mWinErrStrm << "Command requires open QColorDialog" << std::endl;
-	return false;
-    }
+    if ( uiMainWin::activeModalType() != uiMainWin::Colour ) 
+    { 
+	mWinErrStrm << "Command requires open QColorDialog" << od_endl;
+	return false; 
+    } 
 
     mParDQuoted( "color string", parstr, parextra, colorstr, true, true );
     if ( parstr != parextra )
@@ -65,13 +65,13 @@ bool ColorOkCmd::act( const char* parstr )
 	if ( fms.size()!=3 && fms.size()!=4 )
 	{
 	    mParseErrStrm << "Color string must contain 3 or 4 channels"
-			  << std::endl;
+			  << od_endl;
 	    return false;
 	}
 	if ( firstOcc(fms.buf(),' ') || firstOcc(fms.buf(),'\t') )
 	{
 	    mParseErrStrm << "Color string should not contain white space"
-			  << std::endl;
+			  << od_endl;
 	    return false;
 	}
 	fms.setSepChar( ' ' );
@@ -95,7 +95,7 @@ bool ColorOkCmd::act( const char* parstr )
 	if ( colorword.isEmpty() )
 	{
 	    mParseErrStrm << "Need color tag or RGB-values to specify color"
-			  << std::endl;
+			  << od_endl;
 	    return false;
 	}
 
@@ -136,7 +136,7 @@ bool ColorOkCmd::act( const char* parstr )
 	    mParseErrStrm << "Color tag not in {Black, Blue, Brown, Cyan, "
 		          << "Green, Grey, Lilac, Lime, Magenta, Olive, "
 			  << "Orange, Purple, Pink, Red, White, Yellow]"
-			  << std::endl;
+			  << od_endl;
 	    return false;
 	}
     }
@@ -164,22 +164,23 @@ bool ColorOkCmd::act( const char* parstr )
 	} \
 	if ( !warn ) \
 	{ \
-	    mWinErrStrm << errmsg << std::endl; \
+	    mWinErrStrm << errmsg << od_endl; \
 	    return false; \
 	} \
-	mWinWarnStrm << errmsg << std::endl; \
+	mWinWarnStrm << errmsg << od_endl; \
     } \
 }
 
 bool FileOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::File )
-    {
-	mWinErrStrm << "Command requires open QFileDialog" << std::endl;
-	return false;
-    }
+    if ( uiMainWin::activeModalType() != uiMainWin::File ) 
+    { 
+	mWinErrStrm << "Command requires open QFileDialog" << od_endl;
+	return false; 
+    } 
+    
+    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false ); 
 
-    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false );
     StringProcessor(fpsetstr).makeDirSepIndep();
     mGetEscConvertedFMS( fms, fpsetstr, true );
     mParTail( partail );
@@ -264,16 +265,16 @@ bool QColorDlgCmdComposer::accept( const CmdRecEvent& ev )
     insertWindowCaseExec( ev );
     if ( msgnext == msgnexxt )
     {
-	mRecOutStrm << "Cancel" << std::endl;
+	mRecOutStrm << "Cancel" << od_endl;
     }
     else if ( msgnexxt == msgtail )
     {
 	mRecOutStrm << "ColorOk " << red << " " << green << " " << blue
-		    << std::endl;
+		    << od_endl;
     }
     else
 	mRecOutStrm << "ColorOk " << red << " " << green << " " << blue
-		    << " " << transparency <<  std::endl;
+		    << " " << transparency <<  od_endl;
 
     return true;
 }
@@ -302,10 +303,10 @@ bool QFileDlgCmdComposer::accept( const CmdRecEvent& ev )
 	    dressedfms += filepath;
 	}
 	mRecOutStrm << "FileOk \"" << dressedfms.unescapedStr() << "\""
-		    << std::endl;
+		    << od_endl;
     }
     else
-	mRecOutStrm << "Cancel" << std::endl;
+	mRecOutStrm << "Cancel" << od_endl;
 
     return true;
 }

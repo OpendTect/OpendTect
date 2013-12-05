@@ -252,7 +252,7 @@ protected:
     if ( (!optional && !parnext) || (emptycheck && parnext && !*argstr) ) \
     { \
 	mParseErrStrm << (parnext ? "Empty " : "No ") << argnm \
-		      << " specified" << std::endl; \
+		      << " specified" << od_endl; \
 	return false; \
     } \
     if ( !parnext ) \
@@ -264,7 +264,7 @@ protected:
     if ( mIsUdf(selnr) ) \
     { \
 	mParseErrStrm << "Non-zero integer required to disambiguate " \
-		      << argnm << ": \"" << str << "\"" << std::endl; \
+		      << argnm << ": \"" << str << "\"" << od_endl; \
 	return retfld; \
     }
 
@@ -280,19 +280,19 @@ protected:
     { \
 	if ( nrfound && overflow>0 ) \
 	    mWinErrStrm << "Impossible to select " << objnm << ": #" << selnr \
-			<< std::endl; \
+			<< od_endl; \
 \
 	BufferString dispstr = str; \
 	dispstr.replace( "\a", "*" ); \
 	mWinErrStrm << "Found " << nrfound \
 		    << (greyOutsSkipped() ? " enabled " : " ") << objnm \
 		    << "(s) defined by " << strnm << ": \"" << dispstr \
-		    << "\"" << std::endl; \
+		    << "\"" << od_endl; \
 \
 	if ( greyOutsSkipped() && overflow>0 && overflow<=nrgrey ) \
 	    mWinWarnStrm << "Did find " << nrgrey << " disabled " << objnm \
 			 << "(s) defined by " << strnm << ": \"" << dispstr \
-			 << "\"" << std::endl; \
+			 << "\"" << od_endl; \
 \
 	return retfld; \
     }
@@ -327,7 +327,7 @@ protected:
     { \
 	mWinErrStrm << (nrobjs>1 ? "Some s" : "S") << "elected " \
 		    << objnm << (nrobjs>1 ? "s are" : " is") \
-		    << " disabled for manipulation" << std::endl; \
+		    << " disabled for manipulation" << od_endl; \
 	return false; \
     }
 
@@ -390,7 +390,7 @@ protected:
 	else \
 	{ \
 	    mParseErrStrm << "Name or non-zero integer needed to select " \
-			  << objnm << std::endl; \
+			  << objnm << od_endl; \
 	    return false; \
 	} \
     }
@@ -421,14 +421,14 @@ protected:
     if ( onoff && !(checkable) ) \
     { \
 	mWinWarnStrm << "This " << objnm << " has no on/off switch" \
-		     << std::endl; \
+		     << od_endl; \
 	onoff = 0; \
     } \
 \
     if ( onoff == ((ischecked) ? 1 : -1) ) \
     { \
 	mWinErrStrm << "This " << objnm << " was switched " \
-		    << (onoff==1 ? "on" : "off") << " already" << std::endl; \
+		    << (onoff==1 ? "on" : "off") << " already" << od_endl; \
 	setRecoveryStep( CmdDriver::NextCmd ); \
 	return false; \
     } \
@@ -440,7 +440,7 @@ protected:
     { \
 	mWinWarnStrm << "Switching " << (onoff==1 ? "on" : "off") \
 		     << " this " << objnm << " has been overruled" \
-		     << std::endl; \
+		     << od_endl; \
     } \
 }
 
@@ -459,7 +459,7 @@ protected:
 	if ( extraparstr != parstr ) \
 	{ \
 	    mParseErrStrm << "FilePath-option expects double-quoted input " \
-			  << "string" << std::endl; \
+			  << "string" << od_endl; \
 	    return false; \
 	} \
 	const double inpnum = strtod( parstr, const_cast<char**>(&parnext) ); \
@@ -477,7 +477,7 @@ protected:
     if ( !optional && !inpstr ) \
     { \
 	mParseErrStrm << "Double-quoted string or numeric argument " \
-		      << "expected as input" << std::endl; \
+		      << "expected as input" << od_endl; \
 	return false; \
     }
 
@@ -489,7 +489,7 @@ protected:
     if ( parnext!=parstr && nrsteps<minval ) \
     { \
 	mParseWarnStrm << "Number of steps should be at least " << minval \
-		       << std::endl; \
+		       << od_endl; \
     } \
     if ( parnext==parstr || nrsteps<minval ) \
 	nrsteps = defval;
@@ -500,7 +500,7 @@ protected:
     if ( openQDlg() || curWin()!=prevwin ) \
     { \
 	mWinErrStrm << "Next step blocked by popped-up modal window" \
-		    << std::endl; \
+		    << od_endl; \
 	return false; \
     }
 
@@ -535,7 +535,7 @@ protected:
     if ( clicktags.isPresent("Right") || clicktags.isPresent("Double") ) \
     { \
 	mParseWarnStrm << "Double or Right mouse-click has no (lasting) " \
-		       << "effect on check-box" << std::endl; \
+		       << "effect on check-box" << od_endl; \
     }
 
 
@@ -547,13 +547,13 @@ protected:
     if ( !parnext || (!(prescan) && *exprInterpreter().errMsg()) ) \
     { \
 	mTimeStrm << "EVAL: " << exprInterpreter().breakPrefix(); \
-	mLogStrm << " ..." << std::endl; \
+	mLogStrm << " ..." << od_endl; \
 	if ( exprInterpreter().isParseError() ) \
 	{ \
-	    mParseErrStrm << exprInterpreter().errMsg() << std::endl; \
+	    mParseErrStrm << exprInterpreter().errMsg() << od_endl; \
 	} \
 	else \
-	    mWinErrStrm << exprInterpreter().errMsg() << std::endl; \
+	    mWinErrStrm << exprInterpreter().errMsg() << od_endl; \
 	\
 	return false; \
     } \
@@ -565,7 +565,7 @@ protected:
 	const char* quote = strproc.convertToDouble() ? "" : "\""; \
 	mLogStrm << " -->> " << identnm << (isarg ? "'" : "") \
 		 << (FixedString(identnm).isEmpty() ? "" : " = " ) \
-		 << quote << valstr << quote << std::endl; \
+		 << quote << valstr << quote << od_endl; \
     }
 
 #define mParIdentInit( parstr, parnext, identnm, allowdummy ) \
@@ -578,25 +578,25 @@ protected:
 	identnm = firstarg; \
     else \
     { \
-	mParseErrStrm << "Missing identifier" << std::endl; \
+	mParseErrStrm << "Missing identifier" << od_endl; \
 	return false; \
     } \
 \
     if ( parnext && *parnext == '[' ) \
     { \
 	mParseErrStrm << "If an array variable a[i] was intended, " \
-		      << "use index substitution a_$i$ instead" << std::endl; \
+		      << "use index substitution a_$i$ instead" << od_endl; \
 	return false; \
     } \
     if ( !parnext || firstarg!=identnm ) \
     { \
-	mParseErrStrm << "Invalid identifier: " << firstarg << std::endl; \
+	mParseErrStrm << "Invalid identifier: " << firstarg << od_endl; \
 	return false; \
     } \
     if ( identifierMan().isPredefined(identnm) ) \
     { \
 	mParseWarnStrm << "Reassigning a predefined identifier: " \
-		       << identnm << std::endl; \
+		       << identnm << od_endl; \
     }
 
 #define mParEscIdentPost( identnm, val, args, addesc ) \
@@ -612,7 +612,7 @@ protected:
     const char* quote = strproc.convertToDouble() ? "" : "\""; \
     mTimeStrm << "Q&A:  " << name() << (*args ? " " : "") << args \
 	      << " -->> " << identnm << " = " <<  quote << strproc.buf() \
-	      << quote << std::endl; \
+	      << quote << od_endl; \
 }
 
 #define mParIdentPost( identnm, val, args ) \
@@ -632,7 +632,7 @@ protected:
 	if ( !optional ) \
 	{ \
 	    mParseErrStrm << "Case-argument not in {Sensitive, Insensitive}" \
-			  << std::endl; \
+			  << od_endl; \
 	    return false; \
 	} \
 	parnext = parstr; \
@@ -704,7 +704,7 @@ protected:
     if ( (partail) && *(partail) ) \
     { \
 	mParseErrStrm << "Command line ends with unexpected argument(s): " \
-		      << (partail) << std::endl; \
+		      << (partail) << od_endl; \
 	return false; \
     }
 
@@ -750,7 +750,7 @@ protected:
     { \
 	mWinWarnStrm << "No object with key \"" << keys[errkeyidx] << "\" in " \
 		     << ( localSearchEnv() ? "local search environment" \
-					  : "current window" ) << std::endl; \
+					  : "current window" ) << od_endl; \
     } \
 }
 
@@ -785,7 +785,7 @@ protected:
 		     << (uilviewcloser ? "more closely" : "") \
 		     << " defined by key(s): \"" << keys.buf() \
 		     << "\". Possibly resembling a " << objnm \
-		     << ", but requiring a \"Tree\"-command" << std::endl; \
+		     << ", but requiring a \"Tree\"-command" << od_endl; \
     } \
     const int nrgrey = ObjectFinder::deleteGreys(objsfound, greyOutsSkipped());
 

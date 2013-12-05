@@ -40,7 +40,7 @@ namespace CmdDrive
     if ( !enter && !update ) \
     { \
 	mParseWarnStrm << "Holding is void without (valid) argument " \
-	    	       << "to update " << objnm << std::endl; \
+	    	       << "to update " << objnm << od_endl; \
     }
 
 bool InputCmd::act( const char* parstr )
@@ -67,7 +67,7 @@ bool InputCmd::act( const char* parstr )
     {
 	if ( uilined->isReadOnly() )
 	{
-	    mWinErrStrm << "This field is read-only" << std::endl;
+	    mWinErrStrm << "This field is read-only" << od_endl;
 	    return false;
 	}
 
@@ -197,7 +197,7 @@ bool SpinCmd::act( const char* parstr )
         if ( mIsEqual(uispin->getFValue(), oldvalue, uispin->fstep()/10) )
 	{
 	   mWinWarnStrm << "Unable to spin more than " << idx << " step(s) "
-			<< (dir>0 ? "up" : "down") << std::endl; 
+			<< (dir>0 ? "up" : "down") << od_endl;
 	   break;
 	}
     }
@@ -249,7 +249,7 @@ bool SliderCmd::act( const char* parstr )
     if ( parnexxt==parnext || finalfrac<0.0 || finalfrac>1.0 )
     {
 	mParseErrStrm << "Positioning a slider requires percentage between "
-	    	      << "0.0 and 100.0" << std::endl;
+	    	      << "0.0 and 100.0" << od_endl;
 	return false;
     }
     mParSteps( parnexxt, partail, nrsteps, 1, 1 );

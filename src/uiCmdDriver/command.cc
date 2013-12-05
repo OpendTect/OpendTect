@@ -339,7 +339,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	{
 	    mWinErrStrm << "No subitems in menu"
 		    << (level>0 ? " item \"" : "") << pathstr.unescapedStr()
-		    << (level>0 ? "\"" : "") << std::endl;
+		    << (level>0 ? "\"" : "") << od_endl;
 	    return false;
 	}
 
@@ -374,7 +374,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
     if ( curitem->getMenu() && goingToChangeUiObj() )
     {
 	mWinErrStrm << "No subitem specified for menu \"" << pathstr
-		    << "\"" << std::endl;
+		    << "\"" << od_endl;
 	return false;
     }
     mDisabilityCheck( "menu item", 1, disabledpath );

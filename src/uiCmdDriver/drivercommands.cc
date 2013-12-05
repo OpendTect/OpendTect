@@ -28,7 +28,7 @@ bool WinAssertCmd::act( const char* parstr )
     if ( !partail )
     {
 	mParseErrStrm << "Missing right bracket in window assertion"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
     BufferString dummywinstr = winassertion;
@@ -49,7 +49,7 @@ bool WindowCmd::act( const char* parstr )
 	return true;
 
     mWinErrStrm << "Cannot switch to window that has modal child"
-		<< std::endl;
+		<< od_endl;
     return false;
 }
 
@@ -123,7 +123,7 @@ bool SleepCmd::act( const char* parstr )
     if ( regular && time<0.0 )
     {
 	mParseErrStrm << "Regular sleep time must be a non-negative float"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -150,7 +150,7 @@ bool WaitCmd::act( const char* parstr )
     if ( regular && time<0.0 )
     {
 	mParseErrStrm << "Regular wait time must be a non-negative float"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -168,7 +168,7 @@ bool OnErrorCmd::act( const char* parstr )
     if ( mMatchCI(argword,"Continue") )
     {
 	mParseWarnStrm << "Continue-option no longer supported. "
-		       << "Use \"Try\"-command ('~') instead" << std::endl;
+		       << "Use \"Try\"-command ('~') instead" << od_endl;
 	setOnError( CmdDriver::Recover );
     }
     else if ( mMatchCI(argword,"Recover") )
@@ -178,7 +178,7 @@ bool OnErrorCmd::act( const char* parstr )
     else
     {
 	mParseErrStrm << "Argument not in {Stop, Recover}"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -189,7 +189,7 @@ bool OnErrorCmd::act( const char* parstr )
 
 bool OnOffCheckCmd::act( const char* parstr )
 {
-    mParseWarnStrm << "This obsolete command is skipped" << std::endl;
+    mParseWarnStrm << "This obsolete command is skipped" << od_endl;
     return true;
 }
 
@@ -215,7 +215,7 @@ bool GreyOutsCmd::act( const char* parstr )
     else
     {
 	mParseErrStrm << "Argument not in {Count, Skip}"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -256,7 +256,7 @@ bool LogModeCmd::act( const char* parstr )
     else
     {
 	mParseErrStrm << "Argument not in {Basic, Normal, All}"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -276,7 +276,7 @@ bool CommentCmd::act( const char* parstr )
 	mSkipBlanks( parstr );
 	txtstr = parstr;
 	mParseWarnStrm << "Missing double quotes (obsolete syntax)"
-		       << std::endl;
+		       << od_endl;
     }
     else
     {
@@ -284,7 +284,7 @@ bool CommentCmd::act( const char* parstr )
 	txtstr = fms.unescapedStr();
     }
 
-    mLogStrm << std::endl << txtstr << std::endl << std::endl;
+    mLogStrm << od_newline << txtstr << od_newline << od_endl;
     return true;
 }
 
@@ -342,7 +342,7 @@ bool GuideCmd::act( const char* parstr )
     if ( !userresume && !verifyWinState(winstr, winstatetyp) )
     {
 	mWinWarnStrm << "Guidance condition did not hold from start"
-		     << std::endl;
+		     << od_endl;
 	return true;
     }
 
@@ -395,7 +395,7 @@ bool TryCmd::act( const char* parstr )
 	return false;
 
     mTimeStrm << "TRY: " << parnext << " -->> " << (isdummy ? "" : identname)
-	      << (isdummy ? "" : " = ") << tryoutres << std::endl;
+	      << (isdummy ? "" : " = ") << tryoutres << od_endl;
 
     return true;
 }
@@ -414,7 +414,7 @@ bool EndCmd::act( const char* partail )
     double num; \
     if ( !StringProcessor(valstr).convertToDouble(&num) ) \
     { \
-	mParseErrStrm << name << " needs numerical result" << std::endl; \
+	mParseErrStrm << name << " needs numerical result" << od_endl; \
 	return false; \
     }
 
@@ -506,7 +506,7 @@ bool ForCmd::act( const char* parstr )
     char* assignptr = (char *) StringProcessor(altparstr).findAssignment();
     if ( !assignptr )
     {
-	mParseErrStrm << "Missing assignment symbol: '='" << std::endl;
+	mParseErrStrm << "Missing assignment symbol: '='" << od_endl;
 	return false;
     }
     BufferString otherargs = assignptr+1;
@@ -613,7 +613,7 @@ bool ContinueCmd::act( const char* partail )
     if ( missingchar ) \
     { \
 	mParseErrStrm << "Procedure " << typ << " ended while searching " \
-		      << "for '" << missingchar << "'-character" << std::endl; \
+		      << "for '" << missingchar << "'-character" << od_endl; \
 	return false; \
     } \
 \
@@ -629,13 +629,13 @@ bool ContinueCmd::act( const char* partail )
 	{ \
 	    mParseErrStrm << "Procedure " << typ << " contains '" \
 			  << *assignptr << "'-operator instead of " \
-			  << "'?'-operator" << std::endl; \
+			  << "'?'-operator" << od_endl; \
 	    return false; \
 	} \
 \
 	mParseErrStrm << (procname.isEmpty() ? "Missing procedure name" \
 					     : "Invalid procedure name: ") \
-		      << procname << std::endl; \
+		      << procname << od_endl; \
 	return false; \
     } \
 }
@@ -657,7 +657,7 @@ bool DefCmd::act( const char* parstr )
 	{
 	    mParseErrStrm << (param.isEmpty() ? "Empty formal parameter" :
 						"Invalid formal parameter: ")
-			  << param << std::endl;
+			  << param << od_endl;
 	    return false;
 	}
 
@@ -665,7 +665,7 @@ bool DefCmd::act( const char* parstr )
 	if ( ident.buf() != unscoped )
 	{
 	    mParseErrStrm << "A scope operator cannot precede a formal "
-			  << "parameter: " << param << std::endl;
+			  << "parameter: " << param << od_endl;
 	    return false;
 	}
 
@@ -674,7 +674,7 @@ bool DefCmd::act( const char* parstr )
 	    if ( param == parfms[idy] )
 	    {
 		mParseErrStrm << "Multiple occurrence of formal parameter: "
-			      << param << std::endl;
+			      << param << od_endl;
 		return false;
 	    }
 	}
@@ -707,7 +707,7 @@ bool CallCmd::act( const char* parstr )
 	mParseErrStrm << "Procedure \"" << procname << "\" with "
 		      << atoi(keyfms[1]) << " value and " << atoi(keyfms[2])
 		      << " variable parameter(s) has not been defined"
-		      << std::endl;
+		      << od_endl;
 	return false;
     }
 
@@ -731,12 +731,12 @@ bool CallCmd::act( const char* parstr )
 		if ( formalfms[idx] == "_dummyvar" )
 		{
 		    mParseWarnStrm << "Procedure did not define return "
-			<< "parameter to link: " << actualpar << std::endl;
+			<< "parameter to link: " << actualpar << od_endl;
 		}
 		else
 		{
 		    mTimeStrm << "LINK: " << formalfms[idx] << "' -> "
-			      << actualpar << std::endl;
+			      << actualpar << od_endl;
 		}
 	    }
 	}
@@ -767,7 +767,7 @@ bool ReturnCmd::act( const char* parstr )
 	if ( !identnm || FixedString(identnm)=="_dummyvar" )
 	{
 	    mParseErrStrm << "Procedure did not define parameter to assign "
-			  << "a return value" << std::endl;
+			  << "a return value" << od_endl;
 	    return false;
 	}
 
