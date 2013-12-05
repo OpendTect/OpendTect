@@ -30,7 +30,7 @@ public:
 			GMTFault(const IOPar& par)
 			    : GMTPar(par)	{}
 
-    bool		execute(std::ostream&,const char*);
+    bool		execute(od_ostream&,const char*);
     const char*		userRef() const;
     bool		fillLegendPar(IOPar&) const;
 

@@ -26,7 +26,7 @@ public:
 			GMTCoastline(const IOPar& par)
 			    : GMTPar(par) {}
 
-    virtual bool	execute(std::ostream&,const char*);
+    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		fillLegendPar(IOPar&) const;
 
@@ -35,7 +35,7 @@ protected:
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;
 
-    bool		makeLLRangeFile(const char*,std::ostream&);
+    bool		makeLLRangeFile(const char*,od_ostream&);
 };
 
 #endif

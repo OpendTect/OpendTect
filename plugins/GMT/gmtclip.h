@@ -28,7 +28,7 @@ public:
 			GMTClip(const IOPar& par)
 			    : GMTPar(par) {}
 
-    virtual bool	execute(std::ostream&,const char*);
+    virtual bool	execute(od_ostream&,const char*);
     virtual const char* userRef() const;
     bool		isStart() const;
     bool		fillLegendPar(IOPar&) const;

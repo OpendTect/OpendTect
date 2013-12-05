@@ -28,13 +28,13 @@ public:
 			GMTPar(const IOPar& par)
 			    : IOPar(par) {}
 
-    virtual bool	execute(std::ostream&,const char*)		=0;
+    virtual bool	execute(od_ostream&,const char*)		=0;
     virtual const char* userRef() const					=0;
     virtual bool	fillLegendPar(IOPar&) const	{ return false; }
 
     BufferString        fileName(const char*) const;
-    bool		execCmd(const BufferString&,std::ostream& errstrm);
-    StreamData		makeOStream(const BufferString&,std::ostream& errstrm);
+    bool		execCmd(const BufferString&,od_ostream& errstrm);
+    StreamData		makeOStream(const BufferString&,od_ostream& errstrm);
 };
 
 

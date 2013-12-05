@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 static const int cTitleBoxHeight = 4;
@@ -38,7 +38,7 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop )
 }
 
 
-bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
+bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
     FixedString maptitle = find( ODGMT::sKeyMapTitle() );
@@ -75,7 +75,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed to create Basemap")
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
 
     strm << "Posting title box ...  ";
     comm = "@pslegend "; comm += rangestr; comm += " -F -O -Dx";
@@ -90,7 +90,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
 
-    *sd.ostrm << "H 16 4 " << maptitle << std::endl;
+    *sd.ostrm << "H 16 4 " << maptitle.buf() << std::endl;
     *sd.ostrm << "G 0.5l" << std::endl;
     int scaleval = 1;
     get( ODGMT::sKeyMapScale(), scaleval );
@@ -103,7 +103,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 
     *sd.ostrm << std::endl;
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
@@ -122,7 +122,7 @@ GMTPar* GMTLegend::createInstance( const IOPar& iop )
 }
 
 
-bool GMTLegend::execute( std::ostream& strm, const char* fnm )
+bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 {
     strm << "Posting legends ...  ";
     bool hascolbar = false;
@@ -262,7 +262,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
@@ -292,14 +292,14 @@ const char* GMTCommand::userRef() const
 }
 
 
-bool GMTCommand::execute( std::ostream& strm, const char* fnm )
+bool GMTCommand::execute( od_ostream& strm, const char* fnm )
 {
-    strm << "Executing custom command" << std::endl;
+    strm << "Executing custom command" << od_endl;
     const char* res = find( ODGMT::sKeyCustomComm() );
     if ( !res || !*res )
 	mErrStrmRet("No command to execute")
 
-    strm << res << std::endl;
+    strm << res << od_endl;
     BufferString comm = res;
     char* ptr = firstOcc( comm.buf(), " -R" );
     if ( ptr )
@@ -349,7 +349,7 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
     if ( !execCmd(comm.buf(),strm) )
 	mErrStrmRet("... Failed")
 
-    strm << "... Done" << std::endl;
+    strm << "... Done" << od_endl;
     return true;
 }
 

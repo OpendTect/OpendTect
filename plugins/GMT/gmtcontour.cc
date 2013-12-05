@@ -25,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 
+#include "od_ostream.h"
+
 
 
 int GMTContour::factoryid_ = -1;
@@ -83,7 +85,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTContour::execute( std::ostream& strm, const char* fnm )
+bool GMTContour::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
@@ -118,7 +120,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !hor )
 	mErrStrmRet("Failed");
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     hor->ref();
     exec.erase();
 
@@ -133,7 +135,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	    mErrStrmRet("Failed");
 
 	exec.erase();
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
     }
 
     FilePath fp( fnm );
@@ -144,7 +146,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !makeCPT(cptfnm.buf()) )
 	mErrStrmRet("Failed")
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     strm << "Creating grid 100 X 100 ...  ";
     strm.flush();
     Coord spt1 = SI().transform( BinID(sd.rg.start.inl(),sd.rg.start.crl()) );
@@ -187,7 +189,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     hor->unRef();
     sdata.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     strm << "Regridding 25 X 25 ...  ";
     comm = "grdsample ";
     comm += grd100fnm; comm += " -I25 -G";
@@ -196,7 +198,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed")
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
 
     Pick::Set ps;
     BufferString finalgrd = fileName( fp.fullPath() );
@@ -212,7 +214,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
     }
 
     if ( drawcontour )
@@ -232,7 +234,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
     }
 
     strm << "Removing temporary grid files ...  ";
@@ -241,7 +243,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !dofill )
 	StreamProvider( cptfnm ).remove();
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 

@@ -21,9 +21,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinetr.h"
 #include "seis2dline.h"
 #include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
+
 
 #include <math.h>
 
@@ -63,7 +64,7 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
+bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
@@ -119,7 +120,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 
     if ( !postlabel )
     {
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
 	return true;
     }
 
@@ -208,7 +209,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
@@ -249,7 +250,7 @@ bool GMTRandLines::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
+bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
@@ -298,7 +299,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     sd.close();
     if ( !postlabel )
     {
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
 	return true;
     }
 
@@ -335,7 +336,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 

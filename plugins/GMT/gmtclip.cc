@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "picksettr.h"
 #include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 
 
 int GMTClip::factoryid_ = -1;
@@ -62,7 +62,7 @@ bool GMTClip::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTClip::execute( std::ostream& strm, const char* fnm )
+bool GMTClip::execute( od_ostream& strm, const char* fnm )
 {
     bool isstartofclipping = false;
     getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
@@ -75,7 +75,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
 	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
 	return true;
     }
 
@@ -104,7 +104,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
 	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 

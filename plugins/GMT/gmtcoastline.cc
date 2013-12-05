@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 DefineNameSpaceEnumNames(ODGMT,Resolution,2,"Resolutions")
@@ -58,7 +58,7 @@ bool GMTCoastline::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
+bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
 {
     bool drawcontour, dryfill, wetfill;
     Interval<float> mapdim;
@@ -113,12 +113,12 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed")
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
 
-bool GMTCoastline::makeLLRangeFile( const char* fnm, std::ostream& strm )
+bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
 {
     Interval<float> xrg, yrg;
     int zone;

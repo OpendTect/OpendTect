@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "od_ostream.h"
 #include <iostream>
 
 
@@ -87,7 +88,7 @@ BufferString GMTPar::fileName( const char* fnm ) const
 }
 
 
-bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
+bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
 {
     DBG::message( comm );
     BufferString cmd;
@@ -115,9 +116,9 @@ bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
 	    return false;
 
 	char buf[256];
-	strm << std::endl;
+	strm << od_endl;
 	while ( sd.istrm->getline(buf,256) )
-	    strm << buf << std::endl;
+	    strm << buf << od_endl;
 
 	sd.close();
 	return false;
@@ -127,7 +128,7 @@ bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
 }
 
 
-StreamData GMTPar::makeOStream( const BufferString& comm, std::ostream& strm )
+StreamData GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
 {
     DBG::message( comm );
     BufferString cmd;
@@ -157,9 +158,9 @@ StreamData GMTPar::makeOStream( const BufferString& comm, std::ostream& strm )
 	    return sd;
 
 	char buf[256];
-	strm << std::endl;
+	strm << od_endl;
 	while ( errsd.istrm->getline(buf,256) )
-	    strm << buf << std::endl;
+	    strm << buf << od_endl;
 
 	errsd.close();
     }

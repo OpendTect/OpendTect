@@ -72,7 +72,7 @@ bool BatchProgram::go( od_ostream& strm )
 		mErrFatalRet("Basemap parameters missing")
 	}
 
-	if ( !par->execute(strm.stdStream(),psfilenm) )
+	if ( !par->execute(strm,psfilenm) )
 	{
 	    BufferString msg = "Failed to post ";
 	    msg += iop->find( ODGMT::sKeyGroupName() );
@@ -103,7 +103,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     PtrMan<GMTPar> par = GMTPF().create( legendspar );
-    if ( !par || !par->execute(strm.stdStream(), psfilenm) )
+    if ( !par || !par->execute(strm, psfilenm) )
 	strm << "Failed to post legends";
 
     outputfp.setFileName( ".gmtcommands4" );

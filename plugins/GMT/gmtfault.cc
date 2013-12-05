@@ -33,6 +33,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "typeset.h"
 
+#include "od_ostream.h"
+
 
 int GMTFault::factoryid_ = -1;
 
@@ -68,8 +70,8 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
     return true;
 }
 
-#define mErrRet(s) { deepUnRef( flts_ ); strm << s << std::endl; return false; }
-bool GMTFault::execute( std::ostream& strm, const char* fnm )
+#define mErrRet(s) { deepUnRef( flts_ ); strm << s << od_endl; return false; }
+bool GMTFault::execute( od_ostream& strm, const char* fnm )
 {
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
@@ -187,7 +189,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     deepUnRef( flts_ );
     return true;
 }

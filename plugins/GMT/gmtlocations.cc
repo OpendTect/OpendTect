@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "od_ostream.h"
 #include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
@@ -166,7 +167,7 @@ bool GMTLocations::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTLocations::execute( std::ostream& strm, const char* fnm )
+bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
@@ -212,7 +213,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
@@ -259,7 +260,7 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
+bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
@@ -313,7 +314,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 
     sd.close();
 
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
 
@@ -379,7 +380,7 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 }
 
 
-bool GMTWells::execute( std::ostream& strm, const char* fnm )
+bool GMTWells::execute( od_ostream& strm, const char* fnm )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id) );
     BufferStringSet wellnms;
@@ -448,7 +449,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyPostLabel(), postlabel );
     if ( !postlabel )
     {
-	strm << "Done" << std::endl;
+	strm << "Done" << od_endl;
 	return true;
     }
 
@@ -483,6 +484,6 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
-    strm << "Done" << std::endl;
+    strm << "Done" << od_endl;
     return true;
 }
