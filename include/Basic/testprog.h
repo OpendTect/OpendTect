@@ -6,7 +6,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
- Date:		5-12-1995
+ Date:		Dec 2013
  RCS:		$Id$
 ________________________________________________________________________
 
@@ -14,7 +14,7 @@ ________________________________________________________________________
 
  The macro mInitTestProg() will take care of:
  1) Initialisation of program args
- 2) A file-scope variable 'const bool quiet': whether progress info is required
+ 2) A file-scope variable 'bool quiet': whether progress info is required
  3) A command line parser 'CommandLineParser clparser'
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "debug.h"
 #include "od_ostream.h"
+
 
 static bool quiet = true;
 
