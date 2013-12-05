@@ -19,7 +19,6 @@ const float SeisTrc::snapdist = 1e-3;
 
 SeisTrc::~SeisTrc()
 {
-    delete intpol_;
 }
 
 
@@ -33,7 +32,7 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& trc )
     info_ = trc.info_;
     copyDataFrom( trc, -1, false );
 
-    delete intpol_; intpol_ = 0;
+    intpol_ = 0;
     if ( trc.intpol_ )
 	intpol_ = new ValueSeriesInterpolator<float>( *trc.intpol_ );
 
@@ -51,33 +50,28 @@ bool SeisTrc::reSize( int sz, bool copydata )
 
 const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 {
-    mDefineStaticLocalObject( PtrMan<ValueSeriesInterpolator<float> >,
-			      defintpol, = 0 );
-    if ( !defintpol )
+    if ( !intpol_ )
     {
-	ValueSeriesInterpolator<float>* newdefintpol =
+	ValueSeriesInterpolator<float>* newintpol =
 				new ValueSeriesInterpolator<float>();
-	newdefintpol->snapdist_ = snapdist;
-	newdefintpol->smooth_ = true;
-	newdefintpol->extrapol_ = false;
-	newdefintpol->udfval_ = 0;
+	newintpol->snapdist_ = snapdist;
+	newintpol->smooth_ = true;
+	newintpol->extrapol_ = false;
+	newintpol->udfval_ = 0;
 
-	if ( !defintpol.setIfNull(newdefintpol) )
-	    delete newdefintpol;
-
+	if ( !intpol_.setIfNull(newintpol) )
+	    delete newintpol;
     }
 
-    ValueSeriesInterpolator<float>& ret
-	= const_cast<ValueSeriesInterpolator<float>&>(
-					intpol_ ? *intpol_ : *defintpol );
-    ret.maxidx_ = size() - 1;
-    return ret;
+    intpol_->maxidx_ = size()-1;
+
+    return *intpol_;
 }
 
 
 void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
 {
-    delete intpol_; intpol_ = intpol;
+    intpol_ = intpol;
 }
 
 

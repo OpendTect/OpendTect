@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "valseries.h"
 #include "mathfunc.h"
+#include "valseriesinterpol.h"
 
 class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
@@ -117,9 +118,9 @@ public:
 
 protected:
 
-    TraceData				data_;
-    SeisTrcInfo				info_;
-    ValueSeriesInterpolator<float>*	intpol_;
+    TraceData						data_;
+    SeisTrcInfo						info_;
+    mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
 
     bool		chkForSpecVal(int icomp,bool isnull) const;
 
