@@ -18,9 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datachar.h"
 #include "strmprov.h"
 #include "ptrman.h"
-#include <iostream>
+#include "od_iostream.h"
 #include <math.h>
 #include <ctype.h>
+
+#include <iostream>
 
 #include "prog.h"
 

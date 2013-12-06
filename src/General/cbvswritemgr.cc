@@ -121,7 +121,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
       || spec.nrsamplesperslab >= totsamps
       || spec.maxnrslabs < 2 )
     {
-	std::ostream* strm = mkStrm();
+	od_ostream* strm = mkStrm();
 	if ( !strm ) return;
 	CBVSWriter* wr = new CBVSWriter( strm, info_, pai, coordpol_ );
 	wr->forceTrailer( forcetrailers_ );
@@ -154,7 +154,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	inf.sd_.start = info_.sd_.start + startsamp * info_.sd_.step;
 	inf.nrsamples_ = endsamp - startsamp + 1;
 
-	std::ostream* strm = mkStrm();
+	od_ostream* strm = mkStrm();
 	if ( !strm )
 	    { cleanup(); return; }
 	CBVSWriter* wr = new CBVSWriter( strm, inf, pai, coordpol_ );
@@ -169,23 +169,22 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 }
 
 
-std::ostream* CBVSWriteMgr::mkStrm()
+od_ostream* CBVSWriteMgr::mkStrm()
 {
-    BufferString* fname = new BufferString( single_file ? basefname_
-					  : getFileName(curnr_) );
-    curnr_++;
-    StreamData sd = StreamProvider((const char*)*fname).makeOStream();
+    BufferString fname( single_file ? basefname_ : getFileName(curnr_++) );
 
-    if ( sd.usable() && sd.ostrm->good() )
-	fnames_ += fname;
+    od_ostream* res = new od_ostream( fname );
+
+    if ( res && res->isOK() )
+	fnames_.add( fname );
     else
     {
 	errmsg_ = "Cannot open '"; errmsg_ += *fname; errmsg_ += "' for write";
-	sd.close();
-	delete fname;
+	delete res;
+        return 0;
     }
 
-    return sd.ostrm;
+    return res;
 }
 
 
@@ -281,7 +280,7 @@ bool CBVSWriteMgr::put( void** data )
 	    }
 	    else
 	    {
-		std::ostream* strm = mkStrm();
+		od_ostream* strm = mkStrm();
 		if ( !strm ) return false;
 
 		if ( info_.geom_.fullyrectandreg )

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "seiscbvs.h"
 #include "systeminfo.h"
+#include "od_ostream.h"
 #include "uimsg.h"
 #include "od_strstream.h"
 
@@ -58,8 +59,9 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     }
 
     od_ostrstream strm;
+    od_ostream ostream( strm );
     strm << "The cube is available for work.\n\n";
-    tr->readMgr()->dumpInfo( strm, false );
+    tr->readMgr()->dumpInfo( ostream, false );
     uiMSG().message( strm.result() );
 
     return true;

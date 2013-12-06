@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
-#include <iosfwd>
 
 class CBVSWriter;
 
@@ -78,7 +77,7 @@ protected:
 
     const char*		errMsg_() const;
 
-    std::ostream*	mkStrm();
+    od_ostream*		mkStrm();
     void		cleanup();
 
 };

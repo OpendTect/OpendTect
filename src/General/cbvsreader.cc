@@ -421,21 +421,12 @@ bool CBVSReader::goTo( const BinID& bid )
     const int posnr = getPosNr( cdp, true );
     if ( posnr < 0 ) return false;
 
-    // Be careful: offsets can be larger than what fits in an int!
-#ifdef __win32__
-    od_int64 so;
-#else
-    std::streamoff so;
-#endif
+    od_stream::Pos so;
     so = posnr * (info_.nrtrcsperposn_ < 2
 		      ? 1 : info_.nrtrcsperposn_);
     so *= auxnrbytes_ + bytespertrace_;
 
-#ifdef __win32__
     toOffs( datastartfo_ + so );
-#else
-    toOffs( datastartfo_ + std::streampos(so) );
-#endif
 
     hinfofetched_ = false;
     idxatpos_ = 0;
@@ -503,8 +494,8 @@ bool CBVSReader::toNext()
 	updCurBinID();
     }
 
-    const std::streampos onetrcoffs = auxnrbytes_ + bytespertrace_;
-    std::streampos posadd = onetrcoffs;
+    const od_stream::Pos onetrcoffs = auxnrbytes_ + bytespertrace_;
+    od_stream::Pos posadd = onetrcoffs;
     toOffs( lastposfo_ + posadd );
     return true;
 }

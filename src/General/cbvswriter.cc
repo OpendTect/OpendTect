@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "datainterp.h"
 #include "survinfo.h"
-#include "strmoper.h"
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;
@@ -24,7 +23,7 @@ CBVSIO::~CBVSIO()
 }
 
 
-CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
+CBVSWriter::CBVSWriter( od_ostream* s, const CBVSInfo& i,
 			const PosAuxInfo* e, CoordPol coordpol )
 	: strm_(*s)
 	, auxinfo_(e)
@@ -47,7 +46,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 }
 
 
-CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
+CBVSWriter::CBVSWriter( od_ostream* s, const CBVSWriter& cw,
 			const CBVSInfo& ci )
 	: strm_(*s)
 	, auxinfo_(cw.auxinfo_)
@@ -71,7 +70,7 @@ void CBVSWriter::init( const CBVSInfo& i )
 {
     nrbytespersample_ = 0;
 
-    if ( !strm_.good() )
+    if ( !strm_.isOK() )
 	{ errmsg_ = "Cannot open file for write"; return; }
     if ( !survgeom_.fullyrectandreg && !auxinfo_ )
 	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
@@ -87,18 +86,19 @@ void CBVSWriter::init( const CBVSInfo& i )
 
     input_rectnreg_ = survgeom_.fullyrectandreg;
 
-    std::streampos cursp = strm_.tellp();
-    strm_.seekp( 8 );
+    const od_stream::Pos cursp = strm_.position();
+    strm_.setPosition( 8 );
     int nrbytes = (int)cursp;
-    strm_.write( (const char*)&nrbytes, integersize );
-    strm_.seekp( cursp );
+    strm_.addBin( &nrbytes, integersize );
+    strm_.setPosition( cursp );
 }
 
 
 CBVSWriter::~CBVSWriter()
 {
     close();
-    if ( &strm_ != &std::cout && &strm_ != &std::cerr ) delete &strm_;
+    delete &strm_;
+
     delete [] nrbytespersample_;
 }
 
@@ -113,28 +113,28 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     ucbuf[4] = version;
     putAuxInfoSel( ucbuf + 5 );
     ucbuf[6] = (unsigned char)coordpol_;
-    if ( !strm_.write((const char*)ucbuf,headstartbytes) )
+    if ( !strm_.addBin(ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
     int sz = info.stdtext_.size();
-    strm_.write( (const char*)&sz, integersize );
-    strm_.write( (const char*)info.stdtext_, sz );
+    strm_.addBin( &sz, integersize );
+    strm_.addBin( info.stdtext_, sz );
 
     writeComps( info );
-    geomsp_ = strm_.tellp();
+    geomsp_ = strm_.position();
     writeGeom();
-    strm_.write( (const char*)&info.seqnr_, integersize );
+    strm_.addBin( &info.seqnr_, integersize );
     BufferString bs( info.usertext_ );
 
-    std::streampos fo = strm_.tellp();
+    const od_stream::Pos fo = strm_.position();
     int len = bs.size();
     int endpos = (int)fo + len + 4;
     while ( endpos % 4 )
 	{ bs += " "; len++; endpos++; }
-    strm_.write( (const char*)&len, integersize );
-    strm_.write( (const char*)bs, len );
+    strm_.addBin( &len, integersize );
+    strm_.addBin( bs, len );
 
-    if ( !strm_.good() ) mErrRet("Could not write complete header");
+    if ( !strm_.isOK() ) mErrRet("Could not write complete header");
 }
 
 
@@ -168,7 +168,7 @@ void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
 void CBVSWriter::writeComps( const CBVSInfo& info )
 {
     nrcomps_ = info.compinfo_.size();
-    strm_.write( (const char*)&nrcomps_, integersize );
+    strm_.addBin( &nrcomps_, integersize );
 
     cnrbytes_ = new int [nrcomps_];
     nrbytespersample_ = new int [nrcomps_];
@@ -180,17 +180,17 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
     {
 	const BasicComponentInfo& cinf = *info.compinfo_[icomp];
 	int sz = cinf.name().size();
-	strm_.write( (const char*)&sz, integersize );
-	strm_.write( (const char*)cinf.name(), sz );
-	strm_.write( (const char*)&cinf.datatype, integersize );
+	strm_.addBin( &sz, integersize );
+	strm_.addBin( cinf.name(), sz );
+	strm_.addBin( &cinf.datatype, integersize );
 	cinf.datachar.dump( dcdump[0], dcdump[1] );
-	strm_.write( (const char*)dcdump, 4 );
-	strm_.write( (const char*)&info.sd_.start, sizeof(float) );
-	strm_.write( (const char*)&info.sd_.step, sizeof(float) );
-	strm_.write( (const char*)&info.nrsamples_, integersize );
+	strm_.addBin( dcdump, 4 );
+	strm_.addBin( &info.sd_.start, sizeof(float) );
+	strm_.addBin( &info.sd_.step, sizeof(float) );
+	strm_.addBin( &info.nrsamples_, integersize );
 	float a = 0, b = 1; // LinScaler( a, b ) - future use?
-	strm_.write( (const char*)&a, sizeof(float) );
-	strm_.write( (const char*)&b, sizeof(float) );
+	strm_.addBin( &a, sizeof(float) );
+	strm_.addBin( &b, sizeof(float) );
 
 	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
 	cnrbytes_[icomp] = info.nrsamples_ * nrbytespersample_[icomp];
@@ -207,14 +207,14 @@ void CBVSWriter::writeGeom()
 	nrxlines_ = (survgeom_.stop.crl() - survgeom_.start.crl())
 		  / survgeom_.step.crl() + 1;
     }
-    strm_.write( (const char*)&irect, integersize );
-    strm_.write( (const char*)&nrtrcsperposn_, integersize );
-    strm_.write( (const char*)&survgeom_.start.inl(), 2 * integersize );
-    strm_.write( (const char*)&survgeom_.stop.inl(), 2 * integersize );
-    strm_.write( (const char*)&survgeom_.step.inl(), 2 * integersize );
-    strm_.write( (const char*)&survgeom_.b2c.getTransform(true).a,
+    strm_.addBin( &irect, integersize );
+    strm_.addBin( &nrtrcsperposn_, integersize );
+    strm_.addBin( &survgeom_.start.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.stop.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.step.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.b2c.getTransform(true).a,
 		    3*sizeof(double) );
-    strm_.write( (const char*)&survgeom_.b2c.getTransform(false).a,
+    strm_.addBin( &survgeom_.b2c.getTransform(false).a,
 		    3*sizeof(double) );
 }
 
@@ -291,7 +291,7 @@ int CBVSWriter::put( void** cdat, int offs )
 {
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo mUnusedVar = strm_.tellp();
+    const od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
     getBinID();
@@ -320,11 +320,11 @@ int CBVSWriter::put( void** cdat, int offs )
     {
 	const char* ptr = ((const char*)cdat[icomp])
 			+ offs * nrbytespersample_[icomp];
-	if ( !StrmOper::writeBlock(strm_,ptr,cnrbytes_[icomp]) )
+	if ( !strm_.addBin(ptr,cnrbytes_[icomp]) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
 
-    if ( thrbytes_ && strm_.tellp() >= thrbytes_ )
+    if ( thrbytes_ && strm_.position() >= thrbytes_ )
 	file_lastinl_ = true;
 
     if ( nrtrcsperposn_status_ && trcswritten_ )
@@ -369,15 +369,15 @@ bool CBVSWriter::writeAuxInfo()
     {
 #define mDoWrAI(memb)  \
     if ( auxinfosel_.memb ) \
-	strm_.write( (const char*)&auxinfo_->memb, sizeof(auxinfo_->memb) );
+	strm_.addBin( &auxinfo_->memb, sizeof(auxinfo_->memb) );
 
 	mDoWrAI(startpos)
 	if ( coordpol_ == InTrailer )
 	    trailercoords_ += auxinfo_->coord;
 	else if ( coordpol_ == InAux && auxinfosel_.coord )
 	{
-	    strm_.write( (const char*)&auxinfo_->coord.x, sizeof(double) );
-	    strm_.write( (const char*)&auxinfo_->coord.y, sizeof(double) );
+	    strm_.addBin( &auxinfo_->coord.x, sizeof(double) );
+	    strm_.addBin( &auxinfo_->coord.y, sizeof(double) );
 	}
 	mDoWrAI(offset)
 	mDoWrAI(pick)
@@ -385,7 +385,7 @@ bool CBVSWriter::writeAuxInfo()
 	mDoWrAI(azimuth)
     }
 
-    return strm_.good();
+    return strm_.isOK();
 }
 
 
@@ -394,10 +394,10 @@ void CBVSWriter::doClose( bool islast )
     if ( strmclosed_ ) return;
 
     getRealGeometry();
-    std::streampos kp = strm_.tellp();
-    strm_.seekp( geomsp_ );
+    const od_stream::Pos kp = strm_.position();
+    strm_.setPosition( geomsp_ );
     writeGeom();
-    strm_.seekp( kp );
+    strm_.setPosition( kp );
 
     if ( !writeTrailer() )
     {
@@ -410,7 +410,7 @@ void CBVSWriter::doClose( bool islast )
     if ( islast )
 	strmclosed_ = true;
     else
-	strm_.seekp( kp );
+	strm_.setPosition( kp );
 }
 
 
@@ -444,48 +444,48 @@ void CBVSWriter::getRealGeometry()
 
 bool CBVSWriter::writeTrailer()
 {
-    std::streampos trailerstart = strm_.tellp();
+    const od_stream::Pos trailerstart = strm_.position();
 
     if ( coordpol_ == InTrailer )
     {
 	const int sz = trailercoords_.size();
-	strm_.write( (const char*)&sz, integersize );
+	strm_.addBin( &sz, integersize );
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    Coord c( trailercoords_[idx] );
-	    strm_.write( (const char*)(&c.x), sizeof(double) );
-	    strm_.write( (const char*)(&c.y), sizeof(double) );
+	    strm_.addBin( &c.x, sizeof(double) );
+	    strm_.addBin( &c.y, sizeof(double) );
 	}
     }
 
     if ( !survgeom_.fullyrectandreg )
     {
 	const int nrinl = lds_.size();
-	strm_.write( (const char*)&nrinl, integersize );
+	strm_.addBin( &nrinl, integersize );
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
 	    PosInfo::LineData& inlinf = *lds_[iinl];
-	    strm_.write( (const char*)&inlinf.linenr_, integersize );
+	    strm_.addBin( &inlinf.linenr_, integersize );
 	    const int nrcrl = inlinf.segments_.size();
-	    strm_.write( (const char*)&nrcrl, integersize );
+	    strm_.addBin( &nrcrl, integersize );
 
 	    for ( int icrl=0; icrl<nrcrl; icrl++ )
 	    {
 		PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
-		strm_.write( (const char*)&seg.start, integersize );
-		strm_.write( (const char*)&seg.stop, integersize );
-		strm_.write( (const char*)&seg.step, integersize );
+		strm_.addBin( &seg.start, integersize );
+		strm_.addBin( &seg.stop, integersize );
+		strm_.addBin( &seg.step, integersize );
 	    }
-	    if ( !strm_.good() ) return false;
+	    if ( !strm_.isOK() ) return false;
 	}
     }
 
-    int bytediff = (int)(strm_.tellp() - trailerstart);
-    strm_.write( (const char*)&bytediff, integersize );
+    int bytediff = (int)(strm_.position() - trailerstart);
+    strm_.addBin( &bytediff, integersize );
     unsigned char buf[4];
     PutIsLittleEndian( buf );
     buf[1] = 'B'; buf[2] = 'G'; buf[3] = 'd';
-    strm_.write( (const char*)buf, integersize );
+    strm_.addBin( buf, integersize );
 
     return true;
 }

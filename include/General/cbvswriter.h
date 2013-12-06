@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "posinfo.h"
-#include <iostream>
+#include "od_ostream.h"
 
 template <class T> class DataInterpreter;
 
@@ -38,12 +38,12 @@ mExpClass(General) CBVSWriter : public CBVSIO
 {
 public:
 
-			CBVSWriter(std::ostream*,const CBVSInfo&,
+			CBVSWriter(od_ostream*,const CBVSInfo&,
 				   const PosAuxInfo*,CoordPol cp=InAux);
 			//!< If info.posauxinfo has a true, the PosAuxInfo
 			//!< cannot be null. The relevant field(s) should then
 			//!< be filled before the first put() of any position
-			CBVSWriter(std::ostream*,const CBVSWriter&,
+			CBVSWriter(od_ostream*,const CBVSWriter&,
 				   const CBVSInfo&);
 			//!< For usage in CBVS pack
 			~CBVSWriter();
@@ -72,7 +72,7 @@ public:
 
 protected:
 
-    std::ostream&	strm_;
+    od_ostream&		strm_;
     unsigned long	thrbytes_;
     int			auxnrbytes_;
     bool		input_rectnreg_;
@@ -92,7 +92,7 @@ protected:
 
 private:
 
-    std::streampos	geomsp_; //!< file offset of geometry data
+    od_stream::Pos	geomsp_; //!< file offset of geometry data
     int			trcswritten_;
     BinID		prevbinid_;
     bool		file_lastinl_;
