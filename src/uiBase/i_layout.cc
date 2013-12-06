@@ -18,9 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "envvars.h"
 #include "timer.h"
-
-#include <stdio.h>
-#include <iostream>
+#include "od_ostream.h"
 
 #ifdef __debug__
 #define MAX_ITER	8000	//TODO: Increased from 2000 because of PEs
@@ -133,7 +131,7 @@ QSize i_LayoutMngr::minimumSize() const
 	    msg += vsz;
 	    msg += ").";
 
-	    std::cout << msg << std::endl;
+	    od_cout() << msg << od_endl;
 	}
 #endif
 	return QSize( hsz, vsz );
@@ -512,10 +510,10 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	std::cout << "(Re)sizing:" << NamedObject::name();
-	if ( isprefsz ) std::cout << " yes"; else
-	    { std::cout << " no " << hgrow << " ," << vgrow; }
-	std::cout << std::endl;
+	od_cout() << "(Re)sizing:" << NamedObject::name();
+	if ( isprefsz ) od_cout() << " yes"; else
+	    { od_cout() << " no " << hgrow << " ," << vgrow; }
+	od_cout() << od_endl;
     }
 #endif
 
@@ -554,12 +552,12 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	std::cout << "setGeometry called on: ";
-	std::cout << NamedObject::name() << std::endl;
+	od_cout() << "setGeometry called on: ";
+	od_cout() << NamedObject::name() << od_endl;
 
-	std::cout << "l: " << extRect.left() << " t: " << extRect.top();
-	std::cout << " hor: " << extRect.width();
-	std::cout << " ver: " << extRect.height() << std::endl;
+	od_cout() << "l: " << extRect.left() << " t: " << extRect.top();
+	od_cout() << " hor: " << extRect.width();
+	od_cout() << " ver: " << extRect.height() << od_endl;
 
     }
 #endif
@@ -580,13 +578,13 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 #ifdef __debug__
 	if ( lyoutdbg && !store2prefpos )
 	{
-	    std::cout << "setGeometry called with wrong size on: ";
-	    std::cout << NamedObject::name() << std::endl;
-	    std::cout << "Width should be " << mPos.hNrPics();
-	    std::cout << ", is " << extRect.width();
-	    std::cout << ". Height should be " << mPos.vNrPics();
-	    std::cout << ", is " << extRect.height();
-	    std::cout << std::endl;
+	    od_cout() << "setGeometry called with wrong size on: ";
+	    od_cout() << NamedObject::name() << od_endl;
+	    od_cout() << "Width should be " << mPos.hNrPics();
+	    od_cout() << ", is " << extRect.width();
+	    od_cout() << ". Height should be " << mPos.vNrPics();
+	    od_cout() << ", is " << extRect.height();
+	    od_cout() << od_endl;
 	}
 #endif
     }

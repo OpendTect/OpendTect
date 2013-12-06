@@ -49,7 +49,7 @@ int main( int argc, char** argv )
 {
     if ( argc < 2 )
     {
-	std::cerr << "Usage: " << argv[0] << " cbvs_file" << std::endl;
+	std::cerr << "Usage: " << argv[0] << " cbvs_file" << od_endl;
 	ExitProgram( 1 );
     }
     SetProgramArgs( argc, argv );
@@ -60,19 +60,19 @@ int main( int argc, char** argv )
     const BufferString fname = fp.fullPath();
     if ( !File::exists(fname) )
     {
-        std::cerr << fname << " does not exist" << std::endl;
+        std::cerr << fname << " does not exist" << od_endl;
         ExitProgram( 1 );
     }
 
-    std::cerr << "Browsing '" << fname << "'\n" << std::endl;
+    od_cout() << "Browsing '" << fname << "'\n" << od_endl;
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ std::cerr << tri->errMsg() << std::endl;  ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg() << od_endl;  ExitProgram( 1 ); }
 
-    std::cerr << "\n";
+    od_cout() << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
-    mgr.dumpInfo( std::cerr, true );
+    mgr.dumpInfo( od_cout(), true );
     const CBVSInfo& info = mgr.info();
     const int singinl = info.geom_.start.inl() == info.geom_.stop.inl()
 			? info.geom_.start.inl() : -999;
@@ -85,12 +85,12 @@ int main( int argc, char** argv )
     {
 	if ( singinl == -999 )
 	{
-	    std::cerr << "\nExamine In-line (" << info.geom_.start.inl()
+	    od_cout() << "\nExamine In-line (" << info.geom_.start.inl()
 		<< "-" << info.geom_.stop.inl();
 	    if ( step.inl() > 1 )
-		std::cerr << " [" << step.inl() << "]";
+		od_cout() << " [" << step.inl() << "]";
 	    int stopinl = info.geom_.start.inl() == 0 ? -1 : 0;
-	    std::cerr << ", " << stopinl << " to stop): ";
+	    od_cout() << ", " << stopinl << " to stop): ";
 	    getInt( bid.inl() );
 	    if ( bid.inl() == stopinl ) break;
 	}
@@ -100,7 +100,7 @@ int main( int argc, char** argv )
 	    if ( bid.inl()<info.geom_.start.inl() ||
 		 bid.inl()>info.geom_.stop.inl() )
 	    {
-		std::cerr << "Invalid inline" << std::endl;
+		od_cout() << "Invalid inline" << od_endl;
 		continue;
 	    }
 	}
@@ -109,26 +109,26 @@ int main( int argc, char** argv )
 	    const int ldidx = info.geom_.cubedata.indexOf( bid.inl() );
 	    if ( ldidx < 0 )
 	    {
-		std::cerr << "This inline is not present in the cube"
-		    	  << std::endl;
+		od_cout() << "This inline is not present in the cube"
+		    	  << od_endl;
 		continue;
 	    }
 	    const PosInfo::LineData& inlinf = *info.geom_.cubedata[ldidx];
-	    std::cerr << "Xline range available: ";
+	    od_cout() << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
 	    {
-		std::cerr << inlinf.segments_[idx].start << " - "
+		od_cout() << inlinf.segments_[idx].start << " - "
 		     << inlinf.segments_[idx].stop;
 		if ( idx < inlinf.segments_.size()-1 )
-		    std::cerr << " and ";
+		    od_cout() << " and ";
 	    }
-	    std::cerr << std::endl;
+	    od_cout() << od_endl;
 	}
 
 	if ( singinl == -999 )
-	    std::cerr << "X-line (0 for new in-line): ";
+	    od_cout() << "X-line (0 for new in-line): ";
 	else
-	    std::cerr << "X-line or trace number (0 to stop): ";
+	    od_cout() << "X-line or trace number (0 to stop): ";
 	getInt( bid.crl() );
 	if ( bid.crl() == 0 )
 	{
@@ -139,55 +139,55 @@ int main( int argc, char** argv )
 	}
 
 	if ( !tri->goTo( bid ) )
-	    { std::cerr << "Cannot find this position" << std::endl; continue; }
+	    { od_cout() << "Cannot find this position" << od_endl; continue; }
 	if ( !tri->read(trc) )
-	    { std::cerr << "Cannot read trace!" << std::endl; continue; }
+	    { od_cout() << "Cannot read trace!" << od_endl; continue; }
 
 	if ( !mIsZero(trc.info().pick,mDefEps)
 		&& !mIsUdf(trc.info().pick) )
-	    std::cerr << "Pick position: " << trc.info().pick << std::endl;
+	    od_cout() << "Pick position: " << trc.info().pick << od_endl;
 	if ( !mIsZero(trc.info().refnr,mDefEps)
 		&& !mIsUdf(trc.info().refnr) )
-	    std::cerr << "Reference number: " << trc.info().refnr
-		      << std::endl;
+	    od_cout() << "Reference number: " << trc.info().refnr
+		      << od_endl;
 	if ( !mIsZero(trc.info().offset,mDefEps)
 		&& !mIsUdf(trc.info().offset) )
-	    std::cerr << "Offset: " << trc.info().offset << std::endl;
+	    od_cout() << "Offset: " << trc.info().offset << od_endl;
 	if ( !mIsZero(trc.info().azimuth,mDefEps)
 		&& !mIsUdf(trc.info().azimuth) )
-	    std::cerr << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
-		      << std::endl;
+	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
+		      << od_endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{
-	    std::cerr << "Coordinate: " << trc.info().coord.toString();
+	    od_cout() << "Coordinate: " << trc.info().coord.toString();
 	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
 	    if ( b != trc.info().binid )
-		std::cerr << " --> " << b.toString();
-	    std::cerr << std::endl;
+		od_cout() << " --> " << b.toString();
+	    od_cout() << od_endl;
 	}
 
 	while ( true )
 	{
-	    std::cerr << "Print samples ( 1 - " << trc.size() << " )."
-		      << std::endl;
-	    std::cerr << "From (0 to stop): ";
+	    od_cout() << "Print samples ( 1 - " << trc.size() << " )."
+		      << od_endl;
+	    od_cout() << "From (0 to stop): ";
 	    getInt( samps.start );
 	    if ( samps.start < 1 ) break;
 
-	    std::cerr << "To: "; getInt( samps.stop );
-	    std::cerr << "Step: "; getInt( samps.step );
+	    od_cout() << "To: "; getInt( samps.stop );
+	    od_cout() << "Step: "; getInt( samps.step );
 	    if ( samps.step < 1 ) samps.step = 1;
 	    if ( samps.start < 1 ) samps.start = 1;
 	    if ( samps.stop > trc.size() ) samps.stop = trc.size();
-	    std::cerr << std::endl;
+	    od_cout() << od_endl;
 	    for ( int isamp=samps.start; isamp<=samps.stop; isamp+=samps.step )
 	    {
-		std::cerr << isamp << '\t';
+		od_cout() << isamp << '\t';
 		for ( int icomp=0; icomp<nrcomps; icomp++ )
-		    std::cout << trc.get( isamp-1, icomp )
+		    od_cout() << trc.get( isamp-1, icomp )
 			      << (icomp == nrcomps-1 ? '\n' : '\t');
 	    }
-	    std::cerr << std::endl;
+	    od_cout() << od_endl;
 	}
     }
 

@@ -68,7 +68,8 @@ BatchProgram::BatchProgram()
     , iopar_(new IOPar)
     , comm_(0)
     , clparser_(0)
-{}
+{
+}
 
 
 void BatchProgram::init()
@@ -283,7 +284,7 @@ bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
 
     if ( !sdout_.ostrm || cc_stdout )
-	std::cout << '\n' << msg << '\n' << std::endl;
+	od_cout() << '\n' << msg << '\n' << od_endl;
 
     return true;
 }

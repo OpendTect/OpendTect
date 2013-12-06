@@ -41,5 +41,5 @@ int main( int argc, char** argv )
 	    Threads::sleep( delayms*0.001 );
     }
 
-    ExitProgram( 0 ); return 0;
+    return ExitProgram( 0 );
 }

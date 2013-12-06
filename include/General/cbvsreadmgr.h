@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "datainterp.h"
-#include <iosfwd>
-class CBVSReader;
 class CBVSInfo;
+class CBVSReader;
 class CubeSampling;
+class od_ostream;
 
 
 /*!\brief Manager for reading CBVS file-packs.
@@ -70,7 +70,7 @@ public:
     int			pruneReaders(const CubeSampling&);
     			//!< returns number of readers left.
 
-    void		dumpInfo(std::ostream&,bool include_compinfo) const;
+    void		dumpInfo(od_ostream&,bool include_compinfo) const;
     const TypeSet<Coord>& trailerCoords() const;
     void		getPositions(TypeSet<BinID>&) const;
     void		getPositions(TypeSet<Coord>&) const;

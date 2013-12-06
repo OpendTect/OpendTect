@@ -29,10 +29,10 @@ int main( int argc, char** argv )
 {
     if ( argc < 1 )
     {
-	std::cerr << "Usage: " << argv[0]
+	od_cout() << "Usage: " << argv[0]
 	          << " inpfile\n";
-	std::cerr << "Format input: CBVS ; Format ouput: inl crl v [v ...]"
-		  << std::endl;
+	od_cout() << "Format input: CBVS ; Format ouput: inl crl v [v ...]"
+		  << od_endl;
 	ExitProgram( 1 );
     }
 
@@ -40,7 +40,7 @@ int main( int argc, char** argv )
     
     if ( !File::exists(fp.fullPath()) )
     {
-        std::cerr << fp.fullPath() << " does not exist" << std::endl;
+        od_cout() << fp.fullPath() << " does not exist" << od_endl;
         ExitProgram( 1 );
     }
     
@@ -54,7 +54,7 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ std::cerr << tri->errMsg() << std::endl; ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg() << od_endl; ExitProgram( 1 ); }
 
     fp.set( argv[2] ); 
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
@@ -62,7 +62,7 @@ int main( int argc, char** argv )
 
     StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )
-        { std::cerr << "Cannot open output file" << std::endl; ExitProgram(1); }
+        { od_cout() << "Cannot open output file" << od_endl; ExitProgram(1); }
 
     SeisTrc trc;
     int nrwr = 0;
@@ -78,15 +78,15 @@ int main( int argc, char** argv )
 	    {
 		if ( trc.get(isamp,icomp) > 10000 )
 		{
-		    std::cout<< trc.info().binid.inl << ' ' 
+		    od_cout() trc.info().binid.inl << ' ' 
 			     << trc.info().binid.crl << ' '
-			     << trc.get(isamp,icomp) << ' '<<'\n'<< std::endl;
+			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		else if (trc.get(isamp,icomp) < -10000 )
 		{
-		    std::cout << trc.info().binid.inl << ' ' 
+		    od_cout() << trc.info().binid.inl << ' ' 
 			     << trc.info().binid.crl << ' '
-			     << trc.get(isamp,icomp) << ' '<<'\n'<< std::endl;
+			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		nrlwr++;
 	    }
@@ -94,5 +94,5 @@ int main( int argc, char** argv )
 	nrwr++;
     }
 
-    ExitProgram( nrwr ? 0 : 1 ); return 0;
+    return ExitProgram( nrwr ? 0 : 1 );
 }

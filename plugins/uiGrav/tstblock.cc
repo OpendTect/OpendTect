@@ -1,4 +1,4 @@
-#include <iostream>
+#include "prog.h"
 #include "grav.h"
 
 
@@ -13,7 +13,7 @@ int main( int, char** )
     {
 	c3.x = -1000 + idx;
 	const double val = 1e12 * blk.calcValue(c3);
-	std::cout << c3.x << '\t' << val << std::endl;
+	od_cout() << c3.x << od_tab << val << od_endl;
     }
 
     return 0;

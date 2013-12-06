@@ -12,7 +12,6 @@ static const char* rcsID = "$Id$";
 #include "filepath.h"
 #include "file.h"
 
-#include <iostream>
 
 static const char* checkFile( const char* path, const char* subdir,
 				const char* fname )
@@ -50,13 +49,13 @@ int main( int argc, char** argv )
 {
     if ( argc < 2 )
     {
-	std::cerr << "Usage: " << argv[0] << " [filename] "<< std::endl;
+	od_cout << "Usage: " << argv[0] << " [filename] "<< od_endl;
 	return 1;
     }
 
     const char* result = SearchODFile( argv[1] );
     if ( !result || !*result ) return 1;
 
-    std::cout << result << std::endl;
+    od_cout << result << od_endl;
     return 0;
 }

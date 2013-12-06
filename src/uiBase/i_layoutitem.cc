@@ -17,8 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 
 #include "envvars.h"
-
-#include <iostream>
+#include "od_ostream.h"
 
 #ifdef __debug__
 # define MAX_ITER	2000
@@ -87,15 +86,15 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	std::cout << "Setting layout on: ";
+	od_cout() << "Setting layout on: ";
 	if( objLayouted() ) 
-	    std::cout << objLayouted()->name() << std::endl;
+	    od_cout() << objLayouted()->name() << od_endl;
 	else 
-	    std::cout << "Unknown" << std::endl;
+	    od_cout() << "Unknown" << od_endl;
 
-	std::cout << "l: " << mPos.left() << " t: " << mPos.top();
-	std::cout << " hor: " << mPos.hNrPics() << " ver: "
-	    		 << mPos.vNrPics() << std::endl;
+	od_cout() << "l: " << mPos.left() << " t: " << mPos.top();
+	od_cout() << " hor: " << mPos.hNrPics() << " ver: "
+	    		 << mPos.vNrPics() << od_endl;
     }
 #endif
 
@@ -131,12 +130,12 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
     {
 	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name() : "";
 
-	std::cout << "Init layout on:" << blnm;
-	std::cout << ": prf hsz: " << pref_h_nr_pics;
-	std::cout <<",  prf vsz: " << pref_v_nr_pics;
-	std::cout <<", mngr top: " << mngrTop;
-	std::cout <<", mngr left: " << mngrLeft;
-	std::cout <<",  layout mode: " << (int) lom << std::endl;
+	od_cout() << "Init layout on:" << blnm;
+	od_cout() << ": prf hsz: " << pref_h_nr_pics;
+	od_cout() <<",  prf vsz: " << pref_v_nr_pics;
+	od_cout() <<", mngr top: " << mngrTop;
+	od_cout() <<", mngr left: " << mngrLeft;
+	od_cout() <<",  layout mode: " << (int) lom << od_endl;
     }
 #endif
 

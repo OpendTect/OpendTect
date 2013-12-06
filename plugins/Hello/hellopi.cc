@@ -9,10 +9,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hellomod.h"
 
 #include "odplugin.h"
-#include <iostream>
+#include "od_ostream.h"
 
 mDefODInitPlugin(Hello)
 {
-    std::cout << "Hello world" << std::endl;
+    od_cout() << "Hello world" << od_endl;
     return 0; // All OK - no error messages
 }

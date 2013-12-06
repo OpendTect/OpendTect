@@ -8,12 +8,10 @@
 static const char* rcsID = "$Id$";
 
 #include "prog.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "bufstringset.h"
 #include "filepath.h"
 #include "timefun.h"
-#include <stdlib.h>
-#include <iostream>
 
 class Dep
 {
@@ -35,47 +33,37 @@ int main( int argc, char** argv )
 	{ html = true; arg1 = 2; }
     if ( argc-arg1+1 < 3 )
     {
-	std::cerr << "Usage: " << argv[0]
-	     << " [--html] input_ModDeps_file output_file" << std::endl;
+	od_cout() << "Usage: " << argv[0]
+	     << " [--html] input_ModDeps_file output_file" << od_endl;
 	ExitProgram( 1 );
     }
-    StreamProvider spin( argv[arg1] );
-    StreamData sdin = spin.makeIStream();
-    if ( !sdin.usable() )
-    {
-	std::cerr << argv[0] << ": Cannot open input stream" << std::endl;
-	ExitProgram( 1 );
-    }
-    else if ( sdin.istrm == &std::cin )
-	std::cout << "Using standard input." << std::endl;
-    std::istream& instrm = *sdin.istrm;
 
-    if ( !instrm )
+    od_istream instrm( argv[arg1] );
+    if ( !instrm.isOK() )
     {
-	std::cerr << "Bad ModDeps file" << std::endl;
-	ExitProgram( 1 );
+	od_cout() << argv[0] << ": Cannot open input stream" << od_endl;
+	return ExitProgram( 1 );
     }
-    StreamProvider spout( argv[arg1+1] );
-    StreamData sdout = spout.makeOStream();
-    if ( !sdout.usable() )
-    {
-	std::cerr << argv[0] << ": Cannot open output stream" << std::endl;
-	ExitProgram( 1 );
-    }
-    std::ostream& outstrm = *sdout.ostrm;
 
-    char linebuf[1024];
+    od_istream outstrm( argv[arg1] );
+    if ( !outstrm.isOK() )
+    {
+	od_cout() << argv[0] << ": Cannot open output stream" << od_endl;
+	return ExitProgram( 1 );
+    }
+
+    BufferString line;
     char wordbuf[256];
     ObjectSet<Dep> deps;
-    while ( instrm )
+    while ( instrm.isOK() )
     {
-	instrm.getline( linebuf, 1024 );
+	instrm.getLine( line );
 	char* bufptr = linebuf; 
 	mTrimBlanks(bufptr);
 	if ( ! *bufptr || *bufptr == '#' )
 	    continue;
 
-	char* nextptr = (char*)getNextWord(bufptr,wordbuf);
+	char* nextptr = (char*)getNextWord(line.buf(),wordbuf);
 	if ( ! wordbuf[0] ) continue;
 	od_int64 l = strlen( wordbuf );
 	if ( wordbuf[l-1] == ':' ) wordbuf[l-1] = '\0';
@@ -93,7 +81,7 @@ int main( int argc, char** argv )
 	    if ( !wordbuf[0] ) break;
 
 	    if ( wordbuf[1] != '.' || (wordbuf[0] != 'S' && wordbuf[0] != 'D') )
-		{ std::cerr << "Cannot handle dep=" << wordbuf << std::endl;
+		{ od_cout() << "Cannot handle dep=" << wordbuf << od_endl;
 		    ExitProgram(1); }
 
 	    filedeps.add( wordbuf );
@@ -113,7 +101,7 @@ int main( int argc, char** argv )
 
 	    Dep* depdep = find( deps, modnm );
 	    if ( !depdep )
-		{ std::cerr << "Cannot find dep=" << modnm << std::endl;
+		{ od_cout() << "Cannot find dep=" << modnm << od_endl;
 		    		ExitProgram(1); }
 
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
@@ -130,7 +118,7 @@ int main( int argc, char** argv )
 	for ( int idx=depmods.size()-1; idx>=0; idx-- )
 	    newdep->mods.add( depmods.get( idx ) );
     }
-    sdin.close();
+    instrm.close();
 
     if ( html )
     {
@@ -143,7 +131,7 @@ int main( int argc, char** argv )
 		<< " modules</h3></center>\n\n"
 		   "<TABLE align=\"center\" summary=\"Modules\""
 			   "WIDTH=\"75%\" BORDER=\"1\">"
-		<< std::endl;
+		<< od_endl;
 
 	BufferStringSet allmods;
 	for ( int idx=0; idx<deps.size(); idx++ )
@@ -158,11 +146,11 @@ int main( int argc, char** argv )
 	    outstrm << " <TD><b>" << nm << "</b></TD>\n <TD><a href=\""
 	    << nm << "/index.html\">Main Page</a></TD>\n <TD><a href=\""
 	    << nm << "/classes.html\">Class Index</a></TD>\n <TD><a href=\""
-	    << nm << "/hierarchy.html\">Class Hierarchy</a></TD>\n <TD><a href=\""
+	    << nm<<"/hierarchy.html\">Class Hierarchy</a></TD>\n <TD><a href=\""
 	    << nm << "/annotated.html\">Compound List</a></TD>\n</TR>\n\n";
 	}
 
-	outstrm << "\n</TABLE>\n\n<body>\n<html>" << std::endl;
+	outstrm << "\n</TABLE>\n\n<body>\n<html>" << od_endl;
     }
 
     else
@@ -174,16 +162,16 @@ int main( int argc, char** argv )
 	    outstrm << 'L' << dep.name << " :=";
 	    for ( int idep=0; idep<dep.mods.size(); idep++ )
 		outstrm << " -l" << (const char*)(*dep.mods[idep]);
-	    outstrm << std::endl;
+	    outstrm << od_endl;
 	    outstrm << 'I' << dep.name << " :=";
 	    for ( int idep=0; idep<dep.mods.size(); idep++ )
 		outstrm << ' ' << (const char*)(*dep.mods[idep]);
-	    outstrm << std::endl;
+	    outstrm << od_endl;
 
 	}
     }
 
 
     sdout.close();
-    ExitProgram( 0 ); return 0;
+    return ExitProgram( 0 );
 }

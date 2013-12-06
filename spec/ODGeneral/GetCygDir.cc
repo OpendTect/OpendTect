@@ -10,16 +10,13 @@ static const char* rcsID = "$Id$";
 #include "prog.h"
 #include "winutils.h"
 
-#include <iostream>
-
 
 int main( int argc, char** argv )
 {
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;
 
-    std::cout << cygdir << std::endl;
+    od_cout() << cygdir << od_endl;
 
-    return 0;
+    return ExitProgram( 0 );
 }
-

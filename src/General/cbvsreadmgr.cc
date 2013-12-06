@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datachar.h"
 #include "cubesampling.h"
 #include "strmprov.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -541,7 +541,7 @@ const char* CBVSReadMgr::check( const char* basefname )
 }
 
 
-static void putComps( std::ostream& strm,
+static void putComps( od_ostream& strm,
 		      const ObjectSet<BasicComponentInfo>& cinfo )
 {
     for ( int idx=0; idx<cinfo.size(); idx++ )
@@ -552,7 +552,7 @@ static void putComps( std::ostream& strm,
 }
 
 
-static void handleInlGap( std::ostream& strm, Interval<int>& inlgap )
+static void handleInlGap( od_ostream& strm, Interval<int>& inlgap )
 {
     if ( inlgap.start == inlgap.stop )
 	strm << "\nInline " << inlgap.start << " not present.";
@@ -564,7 +564,7 @@ static void handleInlGap( std::ostream& strm, Interval<int>& inlgap )
 }
 
 
-void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
+void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 {
     const int singinl = info().geom_.start.inl() == info().geom_.stop.inl()
 			? info().geom_.start.inl() : -999;
@@ -575,7 +575,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     strm << '\n';
 
     if ( info().nrtrcsperposn_ > 1 )
-	strm << info().nrtrcsperposn_ << " traces per position" << std::endl;
+	strm << info().nrtrcsperposn_ << " traces per position" << od_endl;
 
     strm << "The " << datastr
 	 << (info().geom_.fullyrectandreg ?
@@ -607,7 +607,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     strm << "\nZ start: " << info().sd_.start
 	 << " step: " << info().sd_.step << '\n';
     strm << "Number of samples: " << info().nrsamples_ << "\n\n";
-    strm << std::endl;
+    strm << od_endl;
 
 
     if ( !info().geom_.fullyrectandreg )
@@ -658,6 +658,6 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    else
 		strm << " not present.";
 	}
-	strm << std::endl << std::endl;
+	strm << od_newline << od_endl;
     }
 }

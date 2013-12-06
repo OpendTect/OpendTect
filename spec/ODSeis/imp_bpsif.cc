@@ -5,27 +5,27 @@
 -*/
 static const char* rcsID = "$Id$";
 
+#include "prog.h"
 #include "seisimpbpsif.h"
 #include "multiid.h"
-
-#include "prog.h"
 
 
 static int doWork( int argc, char** argv )
 {
     if ( argc < 3 )
     {
-	std::cerr << "Usage: " << argv[0] << " inp_BPSIF_file output_id [max_inl_offs]\n";
+	od_cout() << "Usage: " << argv[0]
+	    << " inp_BPSIF_file output_id [max_inl_offs]\n";
 	return 1;
     }
 
     SeisImpBPSIF imp( argv[1], MultiID(argv[2]) );
     const int maxinloffs = argc < 4 ? -1 : toInt(argv[3]);
     if ( maxinloffs > 0 )
-	std::cerr << "Max inl offset: " << maxinloffs << std::endl;
+	od_cout() << "Max inl offset: " << maxinloffs << od_endl;
     imp.setMaxInlOffset( argc < 4 ? -1 : toInt(argv[3]) );
 
-    return imp.execute( &std::cout ) ? 0 : 1;
+    return imp.execute( &od_cout().stdStream() ) ? 0 : 1;
 }
 
 
