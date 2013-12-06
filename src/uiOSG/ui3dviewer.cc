@@ -74,6 +74,34 @@ DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
 
 
+class TrackBallManipulatorMessenger : public osg::NodeCallback
+{
+public:
+    TrackBallManipulatorMessenger( ui3DViewerBody* t )
+        : viewerbody_( t )
+    {}
+    void	operator() (osg::Node* node, osg::NodeVisitor* nv )
+    {
+        if ( viewerbody_ && nv )
+        {
+            osgGeo::TrackballEventNodeVisitor* tnv =
+                (osgGeo::TrackballEventNodeVisitor*) nv;
+
+            viewerbody_->notifyManipulatorMovement(
+               tnv->_deltahorangle, tnv->_deltavertangle, tnv->_distfactor );
+        }
+    }
+    void	detach() { viewerbody_ = 0; }
+
+protected:
+    TrackBallManipulatorMessenger()
+    {
+        
+    }
+    ui3DViewerBody*	viewerbody_;
+};
+
+
 
 class uiDirectViewBody : public ui3DViewerBody
 {
@@ -153,7 +181,9 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , compositeviewer_( 0 )
     , axes_( 0 )
     , polygonselection_( 0 )
+    , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
 {
+    manipmessenger_->ref();
     sceneroot_->ref();
     viewport_->ref();
     eventfilter_.addEventType( uiEventFilter::KeyPress );
@@ -165,7 +195,10 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 
 
 ui3DViewerBody::~ui3DViewerBody()
-{			
+{
+    manipmessenger_->detach();
+    manipmessenger_->unref();
+
     handle_.destroyed.trigger(handle_);
     delete &printpar_;
     if ( compositeviewer_ )
@@ -207,10 +240,11 @@ void ui3DViewerBody::setupHUD()
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
-    hudcamera->addChild( hudscene_->osgNode() );
+    hudview_->setSceneData( hudscene_->osgNode() );
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
+        compositeviewer_->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
 	compositeviewer_->ref();
     }
 
@@ -277,6 +311,7 @@ void ui3DViewerBody::setupView()
 	new osgGeo::TrackballManipulator(
 	    osgGA::StandardManipulator::DEFAULT_SETTINGS );
 
+    manip->addMovementCallback( manipmessenger_ );
     manip->setBoundTraversalMask( visBase::cBBoxTraversalMask() );
     manip->setIntersectTraversalMask( visBase::cIntersectionTraversalMask() );
     manip->setAnimationTime( 0.5 );
@@ -751,6 +786,14 @@ void ui3DViewerBody::uiRotate( float angle, bool horizontal )
     mat.preMultTranslate( -center );
     mat.postMultTranslate( center );
     manip->setTransformation( eye*mat, center, up );
+}
+
+
+void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
+{
+    distancethumbwheel_->setAngle( df * M_PI+distancethumbwheel_->getAngle() );
+    horthumbwheel_->setAngle( dh + horthumbwheel_->getAngle() );
+    verthumbwheel_->setAngle( dv + verthumbwheel_->getAngle() );
 }
 
 

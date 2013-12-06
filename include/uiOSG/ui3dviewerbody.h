@@ -32,6 +32,7 @@ namespace visBase
 namespace osgGA { class GUIActionAdapter; }
 namespace osgViewer { class CompositeViewer; class View; }
 class ui3DViewer;
+class TrackBallManipulatorMessenger;
 
 namespace osg
 {
@@ -101,6 +102,9 @@ public:
     bool			isAxisShown() const;
     void			setAxisAnnotColor(const Color&);
     visBase::PolygonSelection*	getPolygonSelector() const;
+
+    void			notifyManipulatorMovement(float dh, float dv,
+                                                          float df );
 protected:
 
     void				setupHUD();
@@ -140,6 +144,7 @@ protected:
     uiEventFilter					eventfilter_;
     RefMan<visBase::Axes>				axes_;
     RefMan<visBase::PolygonSelection>			polygonselection_;
+    TrackBallManipulatorMessenger*			manipmessenger_;
 };
 
 #endif
