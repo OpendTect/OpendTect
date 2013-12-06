@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonoffset.h"
 #include "vislight.h"
 #include "viscamera.h"
+#include "threadwork.h"
 
 #include <osg/Group>
 #include <osg/Light>
@@ -77,6 +78,9 @@ Scene::Scene()
     osgsceneroot_->ref();
     setOsgNode( osgsceneroot_ );
     polygonoffset_->attachStateSet( osgsceneroot_->getOrCreateStateSet() );
+
+    updatequeueid_ = Threads::WorkManager::twm().addQueue(
+                                Threads::WorkManager::Manual, "Scene update" );
 }
 
 
@@ -92,15 +96,22 @@ void Scene::setCamera( visBase::Camera* cam )
     if ( camera_ )
     {
         pErrMsg( "Should not be set");
+        return;
     }
 
     camera_ = cam;
     camera_->ref();
+
+    mAttachCB( camera_->postDraw, Scene::runUpdateQueueCB );
 }
 
 
 Scene::~Scene()
 {
+    detachAllNotifiers();
+
+    Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
+
     camera_->unRef();
 
     if ( osgsceneroot_ )
@@ -111,6 +122,15 @@ Scene::~Scene()
     events_.unRef();
 
     light_->unRef();
+}
+
+
+void Scene::runUpdateQueueCB(CallBacker *)
+{
+    if ( !visualizationthread_ )
+        setVisualizationThread( Threads::currentThread() );
+    
+    Threads::WorkManager::twm().executeQueue( updatequeueid_ );
 }
 
 

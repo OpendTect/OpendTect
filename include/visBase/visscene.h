@@ -62,6 +62,8 @@ public:
 
     EventCatcher&	eventCatcher();
 
+    int			getUpdateQueueID() const	{return updatequeueid_;}
+
     void		setName(const char*);
 
     Notifier<Scene>	nameChanged;
@@ -76,11 +78,14 @@ protected:
     virtual		~Scene();
     EventCatcher&	events_;
 
+    virtual void	runUpdateQueueCB(CallBacker*);
+
     void		fillOffsetPar( IOPar& ) const;
 
 private:
 
     int			mousedownid_;
+    int			updatequeueid_;
 
     void		mousePickCB(CallBacker*);
 
