@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "prog.h"
 #include "uiclusterproc.h"
 #include "uimain.h"
-
 
 #include "commandlineparser.h"
 #include "envvars.h"
@@ -23,17 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "plugins.h"
-#include "prog.h"
-#include "strmprov.h"
-#include "strmdata.h"
 #include "survinfo.h"
 #include "od_iostream.h"
 
-#include <iostream>
 
 #define mPrintHelpMsg \
-    std::cerr << "Usage: " << argv[0] << " parfile [--dosubmit] [--nodelete]" \
-	    << std::endl;
+    od_cout() << "Usage: " << argv[0] << " parfile [--dosubmit] [--nodelete]" \
+	      << od_endl;
 
 int main( int argc, char ** argv )
 {
@@ -49,22 +45,22 @@ int main( int argc, char ** argv )
     if ( normalargs.isEmpty() )
     {
 	mPrintHelpMsg;
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
     }
     
     const BufferString parfilenm = normalargs.last()->buf();
     od_istream strm( parfilenm );
     if ( !strm.isOK() )
     {
-	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
-	ExitProgram( 1 );
+	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
+	return ExitProgram( 1 );
     }
 
     IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
-	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
-	ExitProgram( 1 );
+	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
+	return ExitProgram( 1 );
     }
 
     const char* res = iop.find( sKey::Survey() );
@@ -82,15 +78,14 @@ int main( int argc, char ** argv )
 	cp->show();
 
 	int ret = app.exec();
-	ExitProgram( ret );
+	return ExitProgram( ret );
     }
 
-    od_ostream logstrm( std::cout );
-    logstrm << "Merging output ..." << od_endl;
-    TextTaskRunner tr( logstrm );
+    od_cout() << "Merging output ..." << od_endl;
+    TextTaskRunner tr( od_cout() );
     BufferString msg;
     const bool result = uiClusterProc::mergeOutput( iop, &tr, msg, withdelete );
-    logstrm << msg << od_endl;
-    ExitProgram( result ? 0 : 1 );
-    return 0;
+    od_cout() << msg << od_endl;
+
+    return ExitProgram( result ? 0 : 1 );
 }

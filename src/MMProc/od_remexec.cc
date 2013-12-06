@@ -9,8 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "bufstring.h"
-#include "genc.h"
+#include "prog.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "remjobexec.h"
@@ -41,6 +40,7 @@ int main( int argc, char** argv )
 {
     if ( argc < 4 )
 	return 1;
+    SetProgramArgs( argc, argv );
 
     const char* remhost = argv[1];
     BufferString remhostaddress = System::hostAddress( remhost );
@@ -62,6 +62,5 @@ int main( int argc, char** argv )
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();
-    return 0;
+    return ExitProgram( 0 );
 }
-

@@ -28,6 +28,8 @@ int main( int argc, char** argv )
 
     RemCommHandler* handler = new RemCommHandler( 5050 );
     handler->listen();
-    app.exec();
+    const bool res = app.exec();
+
     delete handler;
+    return ExitProgram( res );
 }

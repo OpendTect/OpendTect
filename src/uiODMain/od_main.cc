@@ -10,7 +10,6 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
-#include "genc.h"
 #include "envvars.h"
 #include "odver.h"
 #include "msgh.h"
@@ -29,12 +28,6 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
-#if !defined(__win__) || defined(__msvc__)
-    gLogFilesRedirectCode = 1;
-    // Only od_main should make log files, not od_process_attrib and so forth
-    // Didn't fancy putting anything about this in header files
-    // Hence the global 'hidden' variable
-#endif
 
     SetProgramArgs( argc, argv );
     const FixedString argv1( argv[1] );
@@ -55,13 +48,17 @@ int main( int argc, char** argv )
 		"Please consult http://opendtect.org/OpendTect_license.txt.";
 
 	    std::cerr << msg << std::endl;
-	    if ( gLogFilesRedirectCode == 1 )
-		UsrMsg( msg );
+#if !defined(__win__) || defined(__msvc__)
+	    gLogFilesRedirectCode = 1;
+	    // Only od_main should make log files, not batch progs.
+	    // Didn't fancy putting anything about this in header files
+	    // Hence the global 'hidden' variable
+	    UsrMsg( msg );
+#endif
 	}
 
 	ret = ODMain( argc, argv );
     }
 
-
-    ExitProgram( ret );
+    return ExitProgram( ret );
 }

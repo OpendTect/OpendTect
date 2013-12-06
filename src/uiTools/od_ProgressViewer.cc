@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "prog.h"
+
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
 #include "uifont.h"
@@ -19,19 +21,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
-#include <iostream>
-#include <ctype.h>
-#include <signal.h>
-#include <string.h>
-
 #include "filepath.h"
 #include "progressmeter.h"
 #include "varlenarray.h"
 #include "oddirs.h"
-#include "prog.h"
 #include "sighndl.h"
-#include "strmprov.h"
 #include "timer.h"
+
+#include <string.h> // declares strlen
+#include <stdio.h> // defines EOF
+#include <iostream> // std::cin
 
 #define mBufLen 81
 
@@ -51,14 +50,14 @@ protected:
 
     uiToolBar*	tb_;
 
-    std::istream& strm;
+    std::istream& strm_;
     uiTextEdit*	txtfld;
     int		quitid_;
-    Timer*	tim;
-    int		ppid;
-    int		delay;
-    bool	newlineseen;
-    char	fullline[mBufLen];
+    Timer*	timer_;
+    int		ppid_;
+    int		delay_;
+    bool	newlineseen_;
+    char	fullline_[mBufLen];
 
     void	doWork(CallBacker*);
     bool	getChunk(char*, int);
@@ -71,13 +70,13 @@ protected:
 
 uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	: uiMainWin(p,"Progress",1)
-	, tim(0)
-	, strm(s)
-	, ppid(i)
-	, delay(0)
-	, newlineseen(false)
+	, timer_(0)
+	, strm_(s)
+	, ppid_(i)
+	, delay_(0)
+	, newlineseen_(false)
 {
-    fullline[0] = '\0';
+    fullline_[0] = '\0';
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
@@ -106,38 +105,38 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     if ( deswidth>txtfld->defaultWidth() )
 	txtfld->setPrefWidth( deswidth );
 
-    tim = new Timer( "Progress" );
-    tim->tick.notify( mCB(this,uiProgressViewer,doWork) );
-    tim->start( 50, true );
+    timer_ = new Timer( "Progress" );
+    timer_->tick.notify( mCB(this,uiProgressViewer,doWork) );
+    timer_->start( 50, true );
 }
 
 
 uiProgressViewer::~uiProgressViewer()
 {
-    delete tim;
+    delete timer_;
 }
 
 
 void uiProgressViewer::appendToText()
 {
-    txtfld->append( fullline );
+    txtfld->append( fullline_ );
     uiMain::theMain().flushX();
-    fullline[0] = '\0';
+    fullline_[0] = '\0';
 }
 
 
 void uiProgressViewer::doWork( CallBacker* )
 {
-    if ( strm.eof() || strm.fail() )
+    if ( strm_.eof() || strm_.fail() )
     {
 	appendToText();
-	statusBar()->message( fullline );
+	statusBar()->message( fullline_ );
 	tb_->setToolTip( quitid_, "Close" );
-	ppid = 0;
+	ppid_ = 0;
 	return;
     }
 
-    int orglen = strlen( fullline );
+    int orglen = strlen( fullline_ );
     static char buf[mBufLen];
     if ( getChunk( buf, mBufLen - orglen ) )
     {
@@ -148,23 +147,23 @@ void uiProgressViewer::doWork( CallBacker* )
 	    needappend = len + orglen >= mBufLen - 1;
 	else
 	{
-	    newlineseen = true;
+	    newlineseen_ = true;
 	    buf[len--] = '\0';
 	}
 
-	// cat buf to fullline
+	// cat buf to fullline_
 	for ( int idx=0; idx<len; idx++ )
-	    fullline[orglen+idx] = buf[idx];
-	fullline[orglen+len] = '\0';
+	    fullline_[orglen+idx] = buf[idx];
+	fullline_[orglen+len] = '\0';
 
 	if ( needappend )
 	    appendToText();
 
-	statusBar()->message( fullline );
+	statusBar()->message( fullline_ );
 
     }
 
-    tim->start( delay, true );
+    timer_->start( delay_, true );
 }
 
 
@@ -173,26 +172,26 @@ bool uiProgressViewer::getChunk( char* buf, int maxnr )
     int sz = 0;
     while ( 1 )
     {
-	int c = strm.peek();
+	int c = strm_.peek();
 	if ( c == EOF )
 	{
 	    if ( !sz ) return false;
 	    break;
 	}
 
-	strm.ignore( 1 );
+	strm_.ignore( 1 );
 	buf[sz] = (char)c;
 	sz++;
 
-	if ( !delay || (delay && isspace(buf[sz-1]))
+	if ( !delay_ || (delay_ && isspace(buf[sz-1]))
 	  || sz == maxnr || buf[sz-1] == '\n' )
 	    break;
 
     }
 
     buf[sz] = '\0';
-    if ( !newlineseen && fullline[0] == 'd' && fullline[1] == 'G' )
-	delay = 1;
+    if ( !newlineseen_ && fullline_[0] == 'd' && fullline_[1] == 'G' )
+	delay_ = 1;
 
     return true;
 }
@@ -200,8 +199,8 @@ bool uiProgressViewer::getChunk( char* buf, int maxnr )
 
 void uiProgressViewer::quitFn( CallBacker* )
 {
-    if ( ppid )
-	SignalHandling::stopProcess( ppid );
+    if ( ppid_ )
+	SignalHandling::stopProcess( ppid_ );
     uiMain::theMain().exit(0);
 }
 
@@ -220,10 +219,9 @@ void uiProgressViewer::saveFn( CallBacker* )
     dlg.setAllowAllExts( true );
     if ( dlg.go() )
     {
-	StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
-	if ( sd.usable() )
-	   *sd.ostrm << txtfld->text() << std::endl;
-	sd.close();
+	od_ostream strm( dlg.fileName() );
+	if ( strm.isOK() )
+	   strm << txtfld->text() << od_endl;
     }
 }
 
@@ -233,10 +231,10 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
 
     uiMain app( argc, argv );
-    int ppid = argc > 1 ? toInt(argv[1]) : 0;
+    const int ppid = argc > 1 ? toInt(argv[1]) : 0;
     uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );
 
     app.setTopLevel( pv );
     pv->show();
-    ExitProgram( app.exec() ); return 0;
+    return ExitProgram( app.exec() );
 }

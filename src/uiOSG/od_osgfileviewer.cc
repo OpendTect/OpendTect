@@ -6,8 +6,7 @@
 
 static const char* rcsID mUnusedVar = "$Id$";
 
-#include "genc.h"
-#include "bufstring.h"
+#include "prog.h"
 #include "file.h"
 
 # ifdef __msvc__
@@ -27,8 +26,6 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #include <osgDB/ReadFile>
 
-#include <iostream>
-
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
@@ -44,17 +41,12 @@ int main( int argc, char** argv )
     {
 	file = QFileDialog::getOpenFileName();
 	if ( file.isEmpty() )
-	{
-	    std::cout << "Please select a osg file.\n" ;
-	    return 1;
-	}
+	    { od_cout() << "Please select an osg file.\n" ; return 1; }
     }
 
     osg::Node* root = osgDB::readNodeFile( file.buf() );
     if ( !root )
-    {
-	return 1;
-    }
+	return ExitProgram( 1 );
 
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     viewer->setSceneData( root );
@@ -70,5 +62,5 @@ int main( int argc, char** argv )
 
     glw->show();
 
-    return app.exec();
+    return ExitProgram( app.exec() );
 }

@@ -10,9 +10,9 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 
+#include "prog.h"
 #include "uimsg.h"
 #include "uimain.h"
-#include <iostream>
 #include "commandlineparser.h"
 
 #ifdef __msvc__
@@ -26,15 +26,15 @@ int main( int argc, char** argv )
     CommandLineParser parser;
 
     if ( parser.nrArgs()<1 )
-	return 1;
+	return ExitProgram( 1 );
 
     int typ = 0; //Default is info
     if ( parser.hasKey( "warn" ) )
-    { typ = 1; }
+	typ = 1;
     else if ( parser.hasKey( "err" ) )
-    { typ = 2; }
+	typ = 2;
     else if ( parser.hasKey( "ask" ))
-    { typ = 3; }
+	typ = 3;
 
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
@@ -64,8 +64,8 @@ int main( int argc, char** argv )
     else if ( typ == 3 )
     {
 	msg = getYesNoString( uiMSG().askGoOn(msg) );
-	std::cout << msg << std::endl;
+	od_cout() << msg << od_endl;
     }
 
-    ExitProgram( 0 );
+    return ExitProgram( 0 );
 }

@@ -10,13 +10,9 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "issuereporter.h"
-
-#include "genc.h"
-
 #include "prog.h"
-#include <iostream>
-
 #include "QCoreApplication"
+
 
 int main( int argc, char** argv )
 {
@@ -26,17 +22,16 @@ int main( int argc, char** argv )
     System::IssueReporter reporter;
     if ( !reporter.parseCommandLine() )
     {
-	std::cerr << reporter.errMsg() << '\n';
-	ExitProgram( 1 );	
+	od_cout() << reporter.errMsg() << '\n';
+	return ExitProgram( 1 );	
     }
     
     if ( !reporter.send() )
     {
-	std::cerr << reporter.errMsg() << '\n';
-	return 1;
+	od_cout() << reporter.errMsg() << '\n';
+	return ExitProgram( 1 );	
     }
         
-    std::cerr << "Report submitted.\n";
-    
-    return 0;
+    od_cout() << "Report submitted.\n";
+    return ExitProgram( 0 );
 }

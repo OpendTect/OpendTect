@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "debug.h"
 #include "od_ostream.h"
+#include "genc.h"
 
 
 #ifdef __msvc__

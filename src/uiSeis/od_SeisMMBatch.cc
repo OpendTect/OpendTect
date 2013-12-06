@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
     if ( argc+bgadd < 3 )
     {
 	od_cout() << "Usage: " << argv[0] << " program parfile" << od_endl;
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
     }
 
     FilePath fp( argv[ 2 + bgadd ] );
@@ -45,13 +45,13 @@ int main( int argc, char ** argv )
     if ( !strm.isOK() )
     {
 	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
     }
     IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
 	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
     }
     strm.close();
 
@@ -71,5 +71,5 @@ int main( int argc, char ** argv )
     app.setTopLevel( smmp );
     smmp->show();
 
-    ExitProgram( app.exec() ); return 0;
+    return ExitProgram( app.exec() );
 }

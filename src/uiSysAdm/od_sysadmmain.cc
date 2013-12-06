@@ -21,5 +21,5 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
 
     int ret = ODSysAdmMain( argc, argv );
-    ExitProgram( ret );
+    return ExitProgram( ret );
 }

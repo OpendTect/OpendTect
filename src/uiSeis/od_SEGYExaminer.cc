@@ -58,7 +58,7 @@ int main( int argc, char ** argv )
 		     "\n\t[--swapbytes 0_1_or_2]"
 		     "\n\tfilename\n"
 		  << "Note: filename must be with FULL path." << od_endl;
-	ExitProgram( 1 );
+	return ExitProgram( 1 );
     }
 
 #ifdef __debug__
@@ -84,5 +84,6 @@ int main( int argc, char ** argv )
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
     app.setTopLevel( sgyex );
     sgyex->show();
-    ExitProgram( app.exec() ); return 0;
+
+    return ExitProgram( app.exec() );
 }

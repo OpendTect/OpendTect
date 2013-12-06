@@ -10,11 +10,8 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiissuereporter.h"
-
-#include "uimain.h"
-
 #include "prog.h"
-
+#include "uimain.h"
 #include "uimsg.h"
 
 
@@ -28,12 +25,11 @@ int main( int argc, char ** argv )
     if ( !dlg->reporter().parseCommandLine() )
     {
 	uiMSG().error( dlg->reporter().errMsg() );
-	ExitProgram( 1 );	
+	return ExitProgram( 1 );	
     }
     
     app.setTopLevel( dlg );
     dlg->show();
     
-    
-    ExitProgram( app.exec() );
+    return ExitProgram( app.exec() );
 }

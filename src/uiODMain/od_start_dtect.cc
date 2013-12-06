@@ -39,5 +39,5 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     ODInst::runInstMgrForUpdt();
-    ExecODMain( argc, argv );
+    return ExecODMain( argc, argv );
 }

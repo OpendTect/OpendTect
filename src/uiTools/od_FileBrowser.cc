@@ -45,7 +45,7 @@ int main( int argc, char** argv )
 	    od_cout() << "Usage: " << argv[0]
 		<< " [--edit|--table|--log|--maxlines nrlines] [filename]\n"
 		<< "Note: filename must be with FULL path." << od_endl;
-	    ExitProgram( 0 );
+	    return ExitProgram( 0 );
 	}
 	argidx++;
     }
@@ -71,5 +71,6 @@ int main( int argc, char** argv )
     uiTextFileDlg* dlg = new uiTextFileDlg( 0, tfsetup, fdsetup );
     app.setTopLevel( dlg );
     dlg->show();
-    ExitProgram( app.exec() ); return 0;
+
+    return ExitProgram( app.exec() );
 }
