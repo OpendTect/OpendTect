@@ -54,7 +54,7 @@ int main( int argc, char** argv )
     if ( dofork )
 	ForkProcess();
 
-    const BufferString fnm = argidx > 0 ? argv[argidx] : "";
+    BufferString fnm = argidx > 0 ? argv[argidx] : "";
 
     uiMain app( argc, argv );
 
