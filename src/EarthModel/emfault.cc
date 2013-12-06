@@ -118,7 +118,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 
 
 void FaultGeometry::removeSelectedSticks( bool addtohistory )
-{ while ( removeSelStick(0,addtohistory) ); }
+{ while ( removeSelStick(0,addtohistory) ) ; }
 
 
 void FaultGeometry::removeSelectedDoubles( bool addtohistory,

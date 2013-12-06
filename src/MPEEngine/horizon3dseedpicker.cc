@@ -419,14 +419,14 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     {
 	extender->reset();
 	extender->setStartPositions( addedpos );
-	while ( extender->nextStep()>0 );
+	while ( extender->nextStep()>0 ) ;
 
 	addedpos = extender->getAddedPositions();
 	addedpossrc = extender->getAddedPositionsSource();
 
 	adjuster->reset();
 	adjuster->setPositions(addedpos,&addedpossrc);
-	while ( adjuster->nextStep()>0 );
+	while ( adjuster->nextStep()>0 ) ;
 
 	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{

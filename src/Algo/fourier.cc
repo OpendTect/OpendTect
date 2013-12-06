@@ -4250,7 +4250,7 @@ int FFTCC1D::getFastSize( int nmin )
 int CC::npfao( int nmin, int nmax )
 {
     int i,j;
-    for (i=0; i<NTAB-1 && nctab[i].n<nmin; ++i);
+    for (i=0; i<NTAB-1 && nctab[i].n<nmin; ++i)
 	for (j=i+1; j<NTAB-1 && nctab[j].n<=nmax; ++j)
 	    if (nctab[j].c<nctab[i].c) i = j;
 

@@ -59,7 +59,7 @@ namespace CmdDrive
 { \
     if ( cleanup ) \
 	StringProcessor(name).cleanUp(); \
-    while ( mStripOuterBrackets(name, sDress) ); \
+    while ( mStripOuterBrackets(name, sDress) ) ; \
     StringProcessor(name).addCmdFileEscapes( \
 				StringProcessor::context##EscSymbols() ); \
 }
