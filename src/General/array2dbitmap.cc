@@ -249,25 +249,6 @@ static inline int gtPrettyBMVal( char c )
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
 
-bool A2DBitMapGenerator::dump( std::ostream& strm ) const
-{
-    const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
-    if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
-	return false;
-
-    const bool make_xpm = !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" );
-    if ( make_xpm && dumpXPM(strm) )
-	return true;
-
-    for ( int iy=0; iy<nrypix; iy++ )
-    {
-	strm << gtPrettyBMVal( bitmap_->get(0,iy) );
-	for ( int ix=1; ix<nrxpix; ix++ )
-	    strm << '\t' << gtPrettyBMVal( bitmap_->get(ix,iy) );
-	strm << std::endl;
-    }
-    return true;
-}
 
 //---
 
@@ -410,42 +391,6 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cWiggFill() );
     }
 }
-
-
-bool WVAA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
-{
-    const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
-
-
-    strm << "/* XPM */\nstatic char*wva[]={\n";
-    strm << '"' << nrxpix << ' ' << nrypix << ' ' << "5 1"
-		<< mXPMEndLn;
-    strm << "\"l c #0000ff" << mXPMEndLn;
-    strm << "\"r c #ff0000" << mXPMEndLn;
-    strm << "\"0 c #00ff00" << mXPMEndLn;
-    strm << "\"w c #000000" << mXPMEndLn;
-    strm << "\"e c #ffffff" << mXPMEndLn;
-
-
-    for ( int iy=0; iy<nrypix; iy++ )
-    {
-	strm << mXPMStartLn;
-	for ( int ix=0; ix<nrxpix; ix++ )
-	{
-	    char c = bitmap_->get( ix, iy );
-
-	    if ( c == WVAA2DBitMapGenPars::cWiggFill() )	    strm << 'w';
-	    else if ( c == WVAA2DBitMapGenPars::cZeroLineFill() )   strm << '0';
-	    else if ( c == WVAA2DBitMapGenPars::cLeftFill() )	    strm << 'I';
-	    else if ( c == WVAA2DBitMapGenPars::cRightFill() )	    strm << 'r';
-	    else						    strm << 'e';
-	}
-	strm << mXPMEndLn;
-    }
-
-    return true;
-}
-
 
 //---
 
@@ -716,59 +661,3 @@ static void getColValHex( int idx, char* ptr )
 }
 
 
-bool VDA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
-{
-    const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
-    const float fac = ((float)51) / (cNrFillSteps - 1);
-    char prevc = -1; int nrcols = 0;
-    for ( int idx=0; idx<cNrFillSteps; idx++ )
-    {
-	char c = (char)(fac * idx + .5);
-	if ( c != prevc ) nrcols++;
-	prevc = c;
-    }
-
-    strm << "/* XPM */\nstatic char*vd[]={\n";
-    strm << '"' << nrxpix << ' ' << nrypix << ' ' << nrcols+1 << " 1"
-		<< mXPMEndLn;
-    strm << '"' << ". c #00ff00" << mXPMEndLn;
-
-    char buf[7];
-    for ( int idx=0; idx<cNrFillSteps; idx++ )
-    {
-	char c = (char)(fac * idx + .5);
-	if ( c == prevc ) continue;
-	prevc = c;
-
-	if ( c < 26 )	c += 'a';
-	else		c += 'A' - 26;
-
-	getColValHex( idx, buf );
-	getColValHex( idx, buf+2 );
-	getColValHex( idx, buf+4 );
-	buf[6] = '\0';
-
-	strm << '"' << c << " c #" << buf << mXPMEndLn;
-    }
-
-    for ( int iy=0; iy<nrypix; iy++ )
-    {
-	strm << mXPMStartLn;
-	for ( int ix=0; ix<nrxpix; ix++ )
-	{
-	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitMapGenPars::cMinFill();
-	    if ( c < 0 || c >= cNrFillSteps )
-		strm << '.';
-	    else
-	    {
-		char out = (char)(fac * c + .5);
-		if ( out < 26 )	out += 'a';
-		else		out += 'A' - 26;
-		strm << out;
-	    }
-	}
-	strm << mXPMEndLn;
-    }
-
-    return true;
-}

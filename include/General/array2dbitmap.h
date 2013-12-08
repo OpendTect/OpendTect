@@ -196,7 +196,6 @@ public:
     void		setPixSizes(int,int);
 
     void		fill();
-    bool		dump(std::ostream&) const;
 
     A2DBitMapGenPars&		pars()		{ return pars_; }
     const A2DBitMapGenPars&	pars() const	{ return pars_; }
@@ -231,8 +230,6 @@ protected:
     float			scalewidth_;
 
     virtual void		doFill()		= 0;
-    virtual bool		dumpXPM(std::ostream&) const { return false; }
-
 };
 
 

@@ -77,8 +77,6 @@ protected:
 
     void			drawTrace(int);
     void			drawVal(int,int,float,float,float,float);
-
-    bool			dumpXPM(std::ostream&) const;
 };
 
 
@@ -140,8 +138,6 @@ protected:
     void			fillInterpPars(Interpolate::Applier2D<float>&,
 					       int,int);
     void			drawVal(int,int,float);
-
-    bool			dumpXPM(std::ostream&) const;
 
     TypeSet<int>		stripstodraw_;
 };
