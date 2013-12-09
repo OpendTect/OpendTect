@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
 
 
@@ -83,7 +84,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const float defvel = Well::getDefaultVelocity();
+	const float defvel = getGUIDefaultVelocity();
 	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
 				  FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );
@@ -231,8 +232,6 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     wd.info().surfacecoord = wcd.coord_;
     wd.info().uwid = wcd.uwi_;
     wd.info().groundelev = wcd.gl_;
-    float srd = mCast(float,SI().seismicReferenceDatum());
-    if ( zun_ ) srd = zun_->internalValue( srd );
 
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
     wd.track().addPoint( wcd.coord_, drg.start, 0 );
@@ -240,10 +239,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	Interval<float> zrg( -wcd.elev_+srd, wcd.td_-wcd.elev_+srd );
-	Interval<float> trg( zrg ); trg.scale( 1.f / vel_ );
-	d2t->add( 0, trg.start );
-	d2t->add( wcd.td_, trg.stop );
+	d2t->makeFromTrack(  wd.track(), vel_, wd.info().replvel );
 	wd.setD2TModel( d2t );
     }
 
@@ -313,7 +309,8 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     {
 	float survzstop = SI().zRange(false).stop;
 	if ( velfld_ )
-	    survzstop *= vel_;
+	    survzstop *= vel_ / 2.f;
+
 	wcd.td_ = survzstop - wcd.elev_;
     }
 
@@ -329,12 +326,12 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
-    vel_ = velfld_ ? velfld_->getfValue() : 1000;
-    if ( zinft_ && zun_ )
+    vel_ = velfld_ ? velfld_->getfValue() : getGUIDefaultVelocity();
+    if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
+
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
 	{ uiMSG().error("Please enter a valid velocity"); return false; }
-    vel_ /= 2; // TWT
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
 

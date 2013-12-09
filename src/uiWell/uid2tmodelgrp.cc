@@ -41,7 +41,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     if ( setup_.fileoptional_ )
     {
 	const BufferString velllbl( "Temporary model velocity", mZUnLbl );
-	const float vel = Well::getDefaultVelocity();
+	const float vel = getGUIDefaultVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
@@ -98,7 +98,12 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
-	d2t.makeFromTrack( wd.track(), velfld_->getfValue(), wd.info().replvel);
+	float vel = velfld_->getfValue();
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	if ( SI().zIsTime() && SI().depthsInFeet() && zun )
+	    vel = zun->internalValue( vel );
+
+	d2t.makeFromTrack( wd.track(), vel, wd.info().replvel );
     }
     else
     {
@@ -148,3 +153,10 @@ BufferString uiD2TModelGroup::dataSourceName() const
 
     return ret;
 }
+
+
+float getGUIDefaultVelocity()
+{
+    return SI().depthsInFeet() ? 8000.f : 2000.f;
+}
+

@@ -29,9 +29,9 @@ Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd )
     init();
 }
 
-    
+
 Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd,
-       						  const Well::Log& vel,
+						  const Well::Log& vel,
 						  const Well::Log* den,
 						  const Well::Log* svel )
     : wd_(wd)
@@ -116,7 +116,7 @@ void Well::ElasticModelComputer::setZrange( const Interval<float>& zrange,
 
 
 void Well::ElasticModelComputer::setExtractionPars( float zstep,
-       						    bool extractinistime )
+						    bool extractinistime )
 {
     zstep_ = zstep;
     extractintime_ = extractinistime;
@@ -151,7 +151,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
 	mErrRet( "Cannot extract logs" )
 
     const float convfact = SI().zDomain().isDepth() && SI().depthsInFeet()
-    			 ? mFromFeetFactorF : 1.0f;
+			 ? mFromFeetFactorF : 1.0f;
 
     emodel_.erase();
     const int nrsteps = ls_->nrZSamples();
@@ -198,7 +198,7 @@ bool Well::ElasticModelComputer::getLogUnits()
     }
 
     velpissonic_ = uomset_[mPVelIdx] &&
-       		   uomset_[mPVelIdx]->propType() == PropertyRef::Son;
+		   uomset_[mPVelIdx]->propType() == PropertyRef::Son;
 
     return true;
 }
@@ -217,11 +217,11 @@ bool Well::ElasticModelComputer::extractLogs()
     const Interval<float> zrange = zrange_;
 
     ls_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
-	   			zrgistime_, zstep_, true, Stats::UseAvg,
+				zrgistime_, zstep_, true, Stats::UseAvg,
 				inplogs_ );
 
     lsnearest_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
-	    			       zrgistime_, zstep_, true,
+				       zrgistime_, zstep_, true,
 				       Stats::TakeNearest, inplogs_ );
 
     if ( !ls_ || !lsnearest_ )
@@ -241,7 +241,7 @@ float Well::ElasticModelComputer::getLogVal( int logidx, int sampidx ) const
 {
     const float val = ls_->getLogVal( logidx, sampidx );
     const float valintp = !lsnearest_
-       			? mUdf(float)
+			? mUdf(float)
 			: lsnearest_->getLogVal( logidx, sampidx );
     return mIsUdf(val) ? valintp : val;
 }
