@@ -60,7 +60,7 @@ public:
     void		align();
 
     enum StereoType	{ None, RedCyan, QuadBuffer };
-    			DeclareEnumUtils(StereoType);
+			DeclareEnumUtils(StereoType);
     bool		setStereoType(StereoType);
     StereoType		getStereoType() const;
     void		setStereoOffset(float);
@@ -74,7 +74,6 @@ public:
     bool		rotAxisShown() const;
     void		toggleCameraType();
     bool		isCameraPerspective() const;
-    void		switchSeekMode();
 
     void		setBackgroundColor(const Color&);
     Color		getBackgroundColor() const;

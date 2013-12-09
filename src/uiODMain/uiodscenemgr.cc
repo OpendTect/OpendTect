@@ -526,14 +526,6 @@ void uiODSceneMgr::layoutScenes()
 }
 
 
-void uiODSceneMgr::seek( CallBacker* )
-{
-    const int sceneid = askSelectScene();
-    ui3DViewer* vwr = getSoViewer( sceneid );
-    if ( vwr ) vwr->switchSeekMode();
-}
-
-
 void uiODSceneMgr::toHomePos( CallBacker* )
 { mDoAllScenes(sovwr_,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )

@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keybindings.h"
 #include "keystrs.h"
-#include "math2.h"	
+#include "math2.h"
 #include "uicursor.h"
 #include "ptrman.h"
 #include "settings.h"
@@ -57,7 +57,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTabletEvent>
 #include <QPainter>
 
- 
+
 #define col2f(rgb) float(col.rgb())/255
 
 #include "uiobjbody.h"
@@ -108,11 +108,11 @@ class uiDirectViewBody : public ui3DViewerBody
 public:
 				uiDirectViewBody(ui3DViewer&,uiParent*);
 
-    const mQtclass(QWidget)* 	qwidget_() const;
-    
+    const mQtclass(QWidget)*	qwidget_() const;
 
-    virtual uiSize		minimumSize() const 
-    				{ return uiSize(200,200); }
+
+    virtual uiSize		minimumSize() const
+				{ return uiSize(200,200); }
 
 protected:
     void			updateActModeCursor();
@@ -235,7 +235,7 @@ void ui3DViewerBody::setupHUD()
 
     //we don't want the camera to grab event focus from the viewers main cam(s).
     hudcamera->setAllowEventFocus(false);
-    
+
     hudscene_ = visBase::DataObjectGroup::create();
 
     hudview_ = new osgViewer::View;
@@ -292,7 +292,7 @@ void ui3DViewerBody::setupView()
 
     if ( scene_ )
         scene_->setCamera( camera_ );
-    
+
     mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
     osgcamera->setGraphicsContext( getGraphicsContext() );
     osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
@@ -353,7 +353,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 {
     mDefineStaticLocalObject( Threads::Lock, lock, (true) );
     Threads::Locker locker ( lock );
-    mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>, 
+    mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>,
 			      viewer, = 0 );
     if ( !viewer )
     {
@@ -535,26 +535,26 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 
     if ( scene_ )
 	scene_->setPickable( !yn );
-    
+
     MouseCursor cursor;
     if ( yn )
     {
 	cursor.shape_ = MouseCursor::Bitmap;
-	
+
 	uiRGBArray* cursorimage = new uiRGBArray( true );
 	cursorimage->setSize( ROTATE_WIDTH, ROTATE_HEIGHT );
 	cursorimage->putFromBitmap( rotate_bitmap, rotate_mask_bitmap );
-	
+
 	cursor.image_ = cursorimage;
 	cursor.hotx_ = ROTATE_HOT_X;
 	cursor.hoty_ = ROTATE_HOT_Y;
-	
+
     }
     else
     {
 	cursor.shape_ = MouseCursor::Arrow;
     }
-    
+
     mQtclass(QCursor) qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
     qwidget()->setCursor( qcursor );
@@ -614,7 +614,7 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
 }
 
 
-void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir, 
+void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
 				  const osg::Vec3f& focusdir,
 				  bool usetruedir )
 {
@@ -631,7 +631,7 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
 
     const float diffangle = fabs(angletofocus) - M_PI_2;
     const int sign =
-    	usetruedir || mIsZero(diffangle,mEps) || diffangle < 0 ? 1 : -1;
+	usetruedir || mIsZero(diffangle,mEps) || diffangle < 0 ? 1 : -1;
     osg::Vec3f focalpoint = cam->position.getValue() +
 			 cam->focalDistance.getValue() * sign * focusdir;
     cam->pointAt( focalpoint, updir );
@@ -1008,21 +1008,15 @@ bool ui3DViewer::isCameraPerspective() const
 
 bool ui3DViewer::setStereoType( StereoType type )
 {
-    pErrMsg( "Not impl yet" ); 
-    return false;
-}
-
-
-void ui3DViewer::switchSeekMode()
-{
     pErrMsg( "Not impl yet" );
+    return false;
 }
 
 
 ui3DViewer::StereoType ui3DViewer::getStereoType() const
 {
     return None;
-} 
+}
 
 
 void ui3DViewer::setStereoOffset( float offset )
@@ -1033,7 +1027,7 @@ void ui3DViewer::setStereoOffset( float offset )
 
 float ui3DViewer::getStereoOffset() const
 {
-    pErrMsg( "Not impl yet" ); 
+    pErrMsg( "Not impl yet" );
     return 0;
 }
 
@@ -1211,7 +1205,7 @@ bool ui3DViewer::usePar( const IOPar& par )
     RefMan<visBase::Camera> camera = osgbody_->getVisCamera();
 
     bool res = camera->usePar( par ) == 1;
-    
+
     PtrMan<IOPar> survhomepospar = SI().pars().subselect( sKeyHomePos() );
     if ( !survhomepospar )
 	saveHomePos();

@@ -49,8 +49,8 @@ public:
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
-	    				 const char* nm=0);
-    				//!<Returns scene id
+					 const char* nm=0);
+				//!<Returns scene id
     void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
     const char*			getSceneName(int sceneid) const;
@@ -67,7 +67,6 @@ public:
     void			actMode(CallBacker* cb=0);
     void			viewMode(CallBacker* cb=0);
     Notifier<uiODSceneMgr>	viewModeChanged;
-    void			seek(CallBacker* cb=0);
 
     void			pageUpDownPressed(CallBacker*);
 
@@ -118,7 +117,7 @@ public:
     uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
 
     void			displayIn2DViewer(int visid,int attribid,
-	    					  bool wva);
+						  bool wva);
     void			remove2DViewer(int visid);
 
     void			updateTrees();
@@ -132,9 +131,9 @@ public:
 
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
-    int 			addRandomLineItem(int,int sceneid=-1);
-    int 			add2DLineSetItem(const MultiID&,const char*,
-	    						int,int);
+    int			addRandomLineItem(int,int sceneid=-1);
+    int			add2DLineSetItem(const MultiID&,const char*,
+							int,int);
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
@@ -147,7 +146,7 @@ public:
     void			setViewSelectMode(int);
 
     float			getHeadOnLightIntensity(int) const;
-    void 			setHeadOnLightIntensity(int,float);
+    void			setHeadOnLightIntensity(int,float);
 
 protected:
 
@@ -184,10 +183,10 @@ protected:
     public:
 				Scene(uiMdiArea*);
 				~Scene();
-       
+
 	uiDockWin*		dw_;
 	uiTreeView*		lv_;
-	uiMdiAreaWindow* 	mdiwin_;
+	uiMdiAreaWindow*	mdiwin_;
 	ui3DViewer*		sovwr_;
 	uiODTreeTop*		itemmanager_;
     };
