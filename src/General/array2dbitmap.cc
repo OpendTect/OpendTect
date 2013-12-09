@@ -651,13 +651,3 @@ void VDA2DBitMapGenerator::drawVal( int ix, int iy, float val )
     bitmap_->set( ix, iy, bmval );
 }
 
-
-static void getColValHex( int idx, char* ptr )
-{
-    int major = idx / 15;
-    int minor = idx % 16;
-    ptr[0] = mCast( char, major < 10 ? '0' + major : 'a' + major - 10 );
-    ptr[1] = mCast( char, minor < 10 ? '0' + minor : 'a' + minor - 10 );
-}
-
-
