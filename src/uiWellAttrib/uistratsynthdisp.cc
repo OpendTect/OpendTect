@@ -836,7 +836,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper = dispparsmapper;
     else
     {
-	const float cliprate = wva ? 0.0 : 0.025;
+	const float cliprate = wva ? 0.0f : 0.025f;
 	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
 	mapper.autosym0_ = true;
 	mapper.type_ = ColTab::MapperSetup::Auto;
