@@ -402,7 +402,7 @@ if(OD_MODULE_BATCHPROGS)
 
 endif( OD_MODULE_BATCHPROGS )
 
-foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} )
+foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} ${OD_BATCH_TEST_PROGS} )
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( TEST_NAME test_${TEST_NAME} )
 
@@ -410,13 +410,21 @@ foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} )
     set ( OD_TESTS_IGNORE_EXPERIMENTAL ${OD_TESTS_IGNORE_EXPERIMENTAL} ${TEST_NAME} PARENT_SCOPE )
 endforeach()
 
-foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
+foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
+
+    set ( PROGRAM_RUNTIMELIBS ${OD_RUNTIMELIBS} )
     #Add dep on Batch if there are batch-progs
-    if ( OD_USEBATCH )
-	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
-	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
+    set ( INDEX -1 )
+    if ( OD_BATCH_TEST_PROGS )
+	list ( FIND OD_BATCH_TEST_PROGS ${TEST_FILE} INDEX )
+	list( REMOVE_DUPLICATES ${PROGRAM_RUNTIMELIBS} )
+    endif()
+
+    if ( NOT (${INDEX} EQUAL -1) )
+	list( APPEND PROGRAM_RUNTIMELIBS "Batch" "Network" )
 	add_definitions( -D__prog__ )
     endif()
+
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST_NAME}.par )
     set ( TEST_NAME test_${TEST_NAME} )
@@ -431,7 +439,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
     target_link_libraries(
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
-	    ${OD_RUNTIMELIBS} )
+	    ${PROGRAM_RUNTIMELIBS} )
     if( OD_CREATE_LAUNCHERS )
 	    create_target_launcher( ${TEST_NAME}
 		RUNTIME_LIBRARY_DIRS
