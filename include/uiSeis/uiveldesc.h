@@ -105,6 +105,8 @@ public:
 
 protected:
 
+    void			fillDefault();
+
     void			selectionDoneCB(CallBacker*);
     void			updateEditButton();
     void			editCB(CallBacker*);

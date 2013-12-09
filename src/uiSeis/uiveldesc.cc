@@ -254,13 +254,6 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
 
-    setEmpty();
-    const char* res = SI().pars().find( sKeyDefVelCube );
-    if ( res && *res && IOObj::isKey(res) )
-	setInput( MultiID(res) );
-    else
-	setInput( "" );
-
     selectionDoneCB( 0 ); //sets the ranges
 }
 
@@ -308,6 +301,17 @@ void uiVelSel::setInput( const MultiID& mid )
     uiIOObjSel::setInput( mid );
     updateEditButton();
 }
+
+
+void uiVelSel::fillDefault()
+{
+    workctio_.destroyAll();
+    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
+        return;
+
+    workctio_.fillDefaultWithKey( sKeyDefVelCube );
+}
+
 
 
 void uiVelSel::selectionDoneCB( CallBacker* cb )
