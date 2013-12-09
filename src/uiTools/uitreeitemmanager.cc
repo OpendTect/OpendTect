@@ -418,9 +418,9 @@ uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
     , disabrightclick_(false)
     , disabanyclick_(false)
 {
-    listview_->rightButtonClicked.notify(
+    listview_->rightButtonPressed.notify(
 			mCB(this,uiTreeTopItem,rightClickCB) );
-    listview_->mouseButtonClicked.notify(
+    listview_->mouseButtonPressed.notify(
 			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.notify(
 			mCB(this,uiTreeTopItem,selectionChanged) );
@@ -429,9 +429,9 @@ uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
 
 uiTreeTopItem::~uiTreeTopItem()
 {
-    listview_->rightButtonClicked.remove(
+    listview_->rightButtonPressed.remove(
 			mCB(this,uiTreeTopItem,rightClickCB) );
-    listview_->mouseButtonClicked.remove(
+    listview_->mouseButtonPressed.remove(
 			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.remove(
 			mCB(this,uiTreeTopItem,selectionChanged) );
