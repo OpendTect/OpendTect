@@ -861,19 +861,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 
     refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
     double refdatum = refdatumfld_->getdValue();
-    float refdatumflt = refdatumfld_->getfValue();
-    if ( showdepthinft )
-    {
-	refdatum /= mFromFeetFactorD;
-	refdatumflt /= mFromFeetFactorF;
-    }
-    else
-    {
-	refdatum *= mFromFeetFactorD;
-	refdatumflt *= mFromFeetFactorF;
-    }
-/*    refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
-    refdatumflt *= showdepthinft ? mToFeetFactorF : mFromFeetFactorF;*/
+    refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
     refdatumfld_->setValue( refdatum );
 }
 
