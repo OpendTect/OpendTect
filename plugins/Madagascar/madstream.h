@@ -57,8 +57,8 @@ protected:
     IOPar*			headerpars_;
     BufferString&		errmsg_;
 
-    std::istream*		istrm_;
-    std::ostream*		ostrm_;
+    od_istream*			istrm_;
+    od_ostream*			ostrm_;
 
     SeisTrcReader*		seisrdr_;
     SeisTrcWriter*		seiswrr_;

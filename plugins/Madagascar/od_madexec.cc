@@ -18,7 +18,7 @@ bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "AttributeEngine" );
 
-    ODMad::ProcExec exec( pars(), strm.stdStream() );
+    ODMad::ProcExec exec( pars(), strm );
     if ( !exec.init() || !exec.execute() )
     {
 	BufferString cmd = "od_DispMsg --err ";

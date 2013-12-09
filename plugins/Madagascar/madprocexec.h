@@ -28,7 +28,7 @@ public:
     enum FlowStage	{ Start, Intermediate, Finish };
     			DeclareEnumUtils(FlowStage)
 
-    			ProcExec(const IOPar&,std::ostream&);
+    			ProcExec(const IOPar&,od_ostream&);
     			~ProcExec();
 
     const IOPar&	pars() const		{ return pars_; }
@@ -51,8 +51,7 @@ protected:
     FlowStage		stage_;
 //    ProcFlow&		procflow_;
     BufferString	errmsg_;
-    std::ostream&	strm_;
-    od_ostream		odstrm_;
+    od_ostream&		strm_;
     int			nrdone_;
     float*		trc_;
 

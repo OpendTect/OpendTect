@@ -91,13 +91,11 @@ MadStream::MadStream( IOPar& par )
 
 MadStream::~MadStream()
 {
-    if ( istrm_ && istrm_ != &std::cin )
-	delete istrm_;
+    deleteAndZeroPtr( istrm_ );
     if ( ostrm_ )
     {
 	ostrm_->flush();
-	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr )
-	    delete ostrm_;
+        deleteAndZeroPtr(ostrm_);
     }
 
     delete seisrdr_; delete seiswrr_;
@@ -172,7 +170,9 @@ void MadStream::initRead( IOPar* par )
 	inpstr += " form=ascii_float out=stdout";
 #endif
 	const char* str = inpstr.isEmpty() ? 0 : inpstr.buf();
-	istrm_ = StreamProvider(str).makeIStream().istrm;
+        std::istream* istrm = StreamProvider(str).makeIStream().istrm;
+
+	istrm_ = istrm ? new od_istream( *istrm ) : 0;
 
 	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
@@ -183,9 +183,9 @@ void MadStream::initRead( IOPar* par )
 	StreamData sd = StreamProvider(insrc).makeIStream();
 	if ( !sd.usable() ) mErrRet( "Cannot read RSF data file" );;
 
-	if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
+        deleteAndZeroPtr( istrm_ );
 
-	istrm_ = sd.istrm;
+	istrm_ = sd.istrm ? new od_istream( sd.istrm ) : 0;
 	headerpars_->set( sKeyIn, sKeyStdIn );
 	return;
     }
@@ -234,7 +234,7 @@ void MadStream::initWrite( IOPar* par )
 
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
-    istrm_ = &std::cin;
+    istrm_ = new od_istream( &std::cin );
     MultiID outpid;
     if ( !par->get(sKey::ID(),outpid) ) mErrRet( "Output data ID missing" );
 
@@ -512,10 +512,10 @@ void MadStream::fillHeaderParsFromStream()
     char linebuf[256];
     if ( !istrm_ ) return;
 
-    while ( *istrm_ )
+    while ( istrm_->isOK() )
     {
 	int idx = 0, nullcount = 0;
-	while( *istrm_ && nullcount<3 )
+	while( istrm_->isOK() && nullcount<3 )
 	{
 	    if ( idx >= 255 )
 		mErrRet("Error reading RSF header")
@@ -612,11 +612,11 @@ bool MadStream::getNextPos( BinID& bid )
 
 bool MadStream::getNextTrace( float* arr )
 {
-    if ( istrm_ && *istrm_ )
+    if ( istrm_ && istrm_->isOK() )
     {
 	const int nrsamps = getNrSamples();
 	readRSFTrace( arr, nrsamps );
-	return *istrm_;
+	return !istrm_->isBad();
     }
     else if ( seisrdr_ )
     {
@@ -663,7 +663,7 @@ void MadStream::readRSFTrace( float* arr, int nrsamps ) const
 {
     if ( isbinary_ )
     {
-	istrm_->read( (char*)arr, nrsamps*sizeof(float) );
+	istrm_->getBin( arr, nrsamps*sizeof(float) );
 	return;
     }
 

@@ -34,9 +34,9 @@ public:
     			DeclareEnumUtils(Format);
 
     bool		read(const char* fnm);
-    bool		read(std::istream&);
+    bool		read(od_istream&);
     bool		write(const char* fnm) const;
-    bool		write(std::ostream&) const;
+    bool		write(od_ostream&) const;
 
     int			nrDims() const;
 
@@ -114,8 +114,8 @@ public:
     bool		fillTrcInfo(SeisTrcInfo&) const;
     bool		useTrcInfo(const SeisTrcInfo&);
 
-    bool		read(std::istream&);
-    void		write(std::ostream&) const;
+    bool		read(od_istream&);
+    void		write(od_ostream&) const;
 
 protected:
 

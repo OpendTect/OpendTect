@@ -27,11 +27,10 @@ DefineEnumNames(ODMad::ProcExec,FlowStage,1,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
 
-ODMad::ProcExec::ProcExec( const IOPar& iop, std::ostream& reportstrm )
+ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
     : Executor("Madagascar processing")
     , pars_(*new IOPar(iop))
     , strm_(reportstrm)
-    , odstrm_(reportstrm)
     , nrdone_(0)
     , stage_(Start)
     , madstream_(0)
@@ -160,8 +159,8 @@ const char* ODMad::ProcExec::getProcString()
 
     if ( !curprocidx )
     {
-	pars_.write( odstrm_, IOPar::sKeyDumpPretty() );
-	progmeter_ = new TextStreamProgressMeter( odstrm_ );
+	pars_.write( strm_, IOPar::sKeyDumpPretty() );
+	progmeter_ = new TextStreamProgressMeter( strm_ );
 	progmeter_->setName( "Madagascar Processing:" );
 	progmeter_->setMessage( "Reading Traces..." );
     }
