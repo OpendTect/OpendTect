@@ -39,12 +39,6 @@ public:
 					     ZAxisTransform&,
 					     bool forward,
 					     bool stretchz);
-    			SeisZAxisStretcher( const IOObj& in,
-					     const IOObj& out,
-					     const CubeSampling& outcs,
-					     const MultiID& tdmodelmid,
-					     bool forward,
-					     bool stretchz );
 			~SeisZAxisStretcher();
 
     bool		isOK() const;

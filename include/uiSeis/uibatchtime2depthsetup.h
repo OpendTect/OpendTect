@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uibatchlaunch.h"
 
-class uiTimeDepthBase;
+class uiZAxisTransformSel;
 class uiSeisSel;
 class uiPosSubSel;
 
@@ -23,27 +23,27 @@ class uiPosSubSel;
 mClass(uiSeis) uiBatchTime2DepthSetup : public uiFullBatchDialog
 {
 public:
-    		uiBatchTime2DepthSetup(uiParent*);
+				uiBatchTime2DepthSetup(uiParent*);
 
 protected:
 
-    bool		fillPar(IOPar&);
-    bool		prepareProcessing();
-    void		dirChangeCB(CallBacker*);
-    void		updateZRangeCB(CallBacker*) {}
+    bool			fillPar(IOPar&);
+    bool			prepareProcessing();
+    void			dirChangeCB(CallBacker*);
+    void			updateZRangeCB(CallBacker*) {}
 
-    uiGenInput*		directionsel_;
+    uiGenInput*			directionsel_;
 
-    uiTimeDepthBase*	t2dfld_;
-    uiTimeDepthBase*	d2tfld_;
+    uiZAxisTransformSel*	t2dfld_;
+    uiZAxisTransformSel*	d2tfld_;
 
-    uiSeisSel*		inputtimesel_;
-    uiSeisSel*		inputdepthsel_;
+    uiSeisSel*			inputtimesel_;
+    uiSeisSel*			inputdepthsel_;
 
-    uiPosSubSel*	possubsel_;
+    uiPosSubSel*		possubsel_;
 
-    uiSeisSel*		outputtimesel_;
-    uiSeisSel*		outputdepthsel_;
+    uiSeisSel*			outputtimesel_;
+    uiSeisSel*			outputdepthsel_;
 };
 
 

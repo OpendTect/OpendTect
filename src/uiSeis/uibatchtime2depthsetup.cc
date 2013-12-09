@@ -34,10 +34,12 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     directionsel_->valuechanged.notify(
 	    mCB(this,uiBatchTime2DepthSetup,dirChangeCB));
 
-    t2dfld_ = new uiTime2Depth( uppgrp_ );
+    t2dfld_ = new uiZAxisTransformSel( uppgrp_, false, ZDomain::sKeyTime(),
+				   ZDomain::sKeyDepth(), true );
     t2dfld_->attach( alignedBelow, directionsel_ );
 
-    d2tfld_ = new uiDepth2Time( uppgrp_ );
+    d2tfld_ = new uiZAxisTransformSel( uppgrp_, false, ZDomain::sKeyDepth(),
+				      ZDomain::sKeyTime(), true );
     d2tfld_->attach( alignedBelow, directionsel_ );
 
     IOObjContext inputtimectxt = SeisTrcTranslatorGroup::ioContext();
@@ -107,14 +109,13 @@ void uiBatchTime2DepthSetup::dirChangeCB( CallBacker* )
 bool uiBatchTime2DepthSetup::prepareProcessing()
 {
     const bool istime2depth = directionsel_->getBoolValue();
-    PtrMan<IOObj> velioobj = 0;
+
     const IOObj* outioobj = 0;
     if ( istime2depth )
     {
 	if ( !t2dfld_->acceptOK() )
 	    return false;
 
-	velioobj = IOM().get( t2dfld_->selID() );
 	outioobj = outputdepthsel_->ioobj();
 	if ( !inputtimesel_->ioobj() || !outioobj )
 	    return false;
@@ -125,29 +126,29 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	if ( !d2tfld_->acceptOK() )
 	    return false;
 
-	velioobj = IOM().get( d2tfld_->selID() );
 	outioobj = outputtimesel_->ioobj();
 	if ( !inputdepthsel_->ioobj() || !outioobj )
 	    return false;
 	ZDomain::Time().set( outioobj->pars() );
     }
 
-    if ( velioobj )
-    {
-	ZDomain::Info zdinf( outioobj->pars() );
-	zdinf.setID( velioobj->key() );
-	outioobj->pars().mergeComp( zdinf.pars_, ZDomain::sKey() );
-    }
-
     IOM().commitChanges( *outioobj );
-    return velioobj ? true : false;
+    return true;
 }
 
 
 bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 {
     const bool istime2depth = directionsel_->getBoolValue();
-    const MultiID velsel = istime2depth ? t2dfld_->selID() : d2tfld_->selID();
+    RefMan<ZAxisTransform> trans = istime2depth
+    	? t2dfld_->getSelection()
+    	: d2tfld_->getSelection();
+
+    if ( !trans )
+	return false;
+
+    IOPar ztranspar;
+    trans->fillPar( ztranspar );
 
     const IOObj* input = istime2depth
 	? inputtimesel_->ioobj( true )
@@ -165,11 +166,16 @@ bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 
     par.set( ProcessTime2Depth::sKeyInputVolume(),  input->key() );
     possubsel_->fillPar( par );
-    par.set( SurveyInfo::sKeyZRange(), istime2depth
-	    ? t2dfld_->getZRange() : d2tfld_->getZRange() );
 
+    StepInterval<float> zrange;
+    if ( istime2depth )
+	t2dfld_->getTargetSampling( zrange );
+    else
+	d2tfld_->getTargetSampling( zrange );
+
+    par.set( SurveyInfo::sKeyZRange(), zrange );
     par.set( ProcessTime2Depth::sKeyOutputVolume(), output->key() );
-    par.set( ProcessTime2Depth::sKeyVelocityModel(), velsel );
+    par.mergeComp( ztranspar, ProcessTime2Depth::sKeyZTransPar() );
     par.setYN( ProcessTime2Depth::sKeyIsTimeToDepth(),
 	       directionsel_->getBoolValue() );
 

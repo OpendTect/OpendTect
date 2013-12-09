@@ -21,7 +21,7 @@ struct ProcessTime2Depth
 {
     static const char*	sKeyInputVolume()	{ return "Input volume"; }
     static const char*	sKeyOutputVolume()	{ return "Output volume"; }
-    static const char*	sKeyVelocityModel()	{ return "Velocity model"; }
+    static const char*	sKeyZTransPar()		{ return "ZTrans"; }
     static const char*	sKeyIsTimeToDepth()	{ return "Time to depth"; }
 };
 

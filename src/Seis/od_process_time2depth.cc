@@ -65,12 +65,28 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    MultiID velmid;
-    if ( !pars().get( ProcessTime2Depth::sKeyVelocityModel(), velmid) )
+    PtrMan<IOPar> ztranspar =
+    	pars().subselect( ProcessTime2Depth::sKeyZTransPar() );
+
+    if ( !ztranspar )
     {
-	strm << "Cannot read velocity volume id"; 
+	strm << "Cannot find tranformation parameters.";
 	return false;
     }
+
+    RefMan<ZAxisTransform> ztransform = ZAxisTransform::create( *ztranspar );
+    if ( !ztransform )
+    {
+	strm << "Cannot construct transform.";
+	return false;
+    }
+
+    if ( !ztransform->isOK() )
+    {
+	strm << "Velocity model is not usable";
+	return false;
+    }
+
 
     bool istime2depth;
     if ( !pars().getYN( ProcessTime2Depth::sKeyIsTimeToDepth(), istime2depth ) )
@@ -83,14 +99,14 @@ bool BatchProgram::go( od_ostream& strm )
     const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
 			veldesc.isVelocity();
 
-    PtrMan<SeisZAxisStretcher> exec = 0;
+    PtrMan<SeisZAxisStretcher> exec =
+    	new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
+			    	*ztransform, true, isvel );
     if ( isvel )
     {
 	strm << "\nDetected that the stretching will be done on velocities.\n"
 	        "Will stretch in z-domain and convert back to velocities.\n";
 
-	exec = new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-				       velmid, istime2depth, isvel );
 	//would we convert Thomsen? nothing prepared for this now
 	exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
 
@@ -102,21 +118,6 @@ bool BatchProgram::go( od_ostream& strm )
 		"RMS velocities are not present in Depth domain;\n"
 		"a conversion to interval velocities will thus be processed.\n";
 	}
-    }
-    else
-    {
-	RefMan<VelocityStretcher> ztransform = istime2depth
-	    ? (VelocityStretcher*) new Time2DepthStretcher
-	    : (VelocityStretcher*) new Depth2TimeStretcher;
-
-	if ( !ztransform->setVelData( velmid ) || !ztransform->isOK() )
-	{
-	    strm << "Velocity model is not usable";
-	    return false;
-	}
-
-	exec = new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-				       *ztransform, true, isvel );
     }
 
     exec->setName( "Time to depth conversion");

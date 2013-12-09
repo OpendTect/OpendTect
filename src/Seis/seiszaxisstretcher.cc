@@ -49,38 +49,6 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 }
 
 
-SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
-					const CubeSampling& outcs,
-					const MultiID& tdmodelmid,
-       					bool forward,
-					bool stretchz )
-    : seisreader_( 0 )
-    , seisreadertdmodel_( 0 )
-    , seiswriter_( 0 )
-    , sequentialwriter_( 0 )
-    , nrwaiting_( 0 )
-    , waitforall_( false )
-    , nrthreads_( 0 )
-    , curhrg_( false )
-    , outcs_( outcs )
-    , ztransform_( 0 )
-    , voiid_( -1 )
-    , ist2d_( forward )
-    , stretchz_( stretchz )
-    , isvrms_(false)
-{
-    ztransform_ = ist2d_
-	    		? (VelocityStretcher*) new Time2DepthStretcher
-			: (VelocityStretcher*) new Depth2TimeStretcher;
-
-    mDynamicCastGet( VelocityStretcher*, vstrans, ztransform_ )
-    if ( !vstrans->setVelData( tdmodelmid ) || !ztransform_->isOK() )
-	return;       
-
-    init( in, out );
-}
-
-
 void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 {
     if ( !ztransform_ )
