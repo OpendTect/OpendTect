@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "bufstringset.h"
 #include "typeset.h"
+#include "od_iosfwd.h"
 
 
 /*!
@@ -34,7 +35,7 @@ public:
     virtual void	getJob(int,IOPar&) const	= 0;
     virtual const char*	objType() const			= 0;
     virtual const char*	objName(int) const		= 0;
-    virtual void	dump(std::ostream&) const	= 0;
+    virtual void	dump(od_ostream&) const		= 0;
 
     const IOPar&	pars() const			{ return inpiopar_; }
 
@@ -62,7 +63,7 @@ public:
     virtual void	getJob(int,IOPar&) const;
     virtual const char*	objType() const		{ return objtyp_.buf(); }
     virtual const char*	objName(int) const;
-    virtual void	dump(std::ostream&) const;
+    virtual void	dump(od_ostream&) const;
 
     BufferString	objtyp_;
 
@@ -96,7 +97,7 @@ public:
     virtual void	getJob(int,IOPar&) const;
     virtual const char*	objType() const		{ return "inline"; }
     virtual const char*	objName(int) const;
-    virtual void	dump(std::ostream&) const;
+    virtual void	dump(od_ostream&) const;
 
     void		getRange(StepInterval<int>&) const;
     void		setNrInlsPerJob(const int nr)	{ ninlperjob_ = nr; }

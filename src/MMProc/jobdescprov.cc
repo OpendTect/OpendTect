@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "undefval.h"
-#include <iostream>
+#include "od_ostream.h"
 
 const char* InlineSplitJobDescProv::sKeyMaxInlRg()  
     { return "Maximum Inline Range"; }
@@ -60,13 +60,13 @@ const char* KeyReplaceJobDescProv::objName( int jid ) const
 }
 
 
-void KeyReplaceJobDescProv::dump( std::ostream& strm ) const
+void KeyReplaceJobDescProv::dump( od_ostream& strm ) const
 {
     strm << "\nKey-replace JobDescProv dump.\n"
 	    "The following jobs description keys are available:\n";
     for ( int idx=0; idx<names_.size(); idx++ )
 	strm << names_.get(idx) << ' ';
-    strm << std::endl;
+    strm << od_endl;
 }
 
 
@@ -209,7 +209,7 @@ const char* InlineSplitJobDescProv::objName( int jid ) const
 }
 
 
-void InlineSplitJobDescProv::dump( std::ostream& strm ) const
+void InlineSplitJobDescProv::dump( od_ostream& strm ) const
 {
     strm << "\nInline-split JobDescProv dump.\n";
     if ( !inls_ )
@@ -221,7 +221,7 @@ void InlineSplitJobDescProv::dump( std::ostream& strm ) const
 	for ( int idx=0; idx<inls_->size(); idx++ )
 	    strm << (*inls_)[idx] << ' ';
     }
-    strm << std::endl;
+    strm << od_endl;
 }
 
 
