@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include <iosfwd>
 
+class od_ostream;
 
 namespace Usage
 {
