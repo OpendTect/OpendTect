@@ -80,6 +80,12 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 					const Well::Data& wd ) const
 {
     const int sz = d2t.size();
+    if ( sz < 2 )
+    {
+	d2t.setEmpty();
+	return;
+    }
+
     TypeSet<float> dahs, times;
     mAllocVarLenArr( int, zidxs, sz );
 
