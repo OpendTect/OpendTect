@@ -49,10 +49,8 @@ else if ( "$1" == "--inbg" ) then
     goto next_arg
 
 else if ( "$1" == "--debug" ) then
-    if ( -e "$bindir/Debug/libBasic.so" ) then
-	set bindir="$bindir/Debug"
-	echo "Using debug bindir: $bindir"
-    endif
+    set bindir="$bindir/Debug"
+    echo "Using debug bindir: $bindir"
     shift
     goto next_arg
 
