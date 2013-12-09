@@ -61,7 +61,7 @@ public:
 
     ID			id() const	{ return id_; }
 
-    std::ostream&	dump(std::ostream&) const;
+    od_ostream&		dump(od_ostream&) const;
     BufferString&	dump(BufferString&) const;
 
     void		prepStart( const char* act=0 )

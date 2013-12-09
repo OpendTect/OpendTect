@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "callback.h"
 #include "genc.h"
 #include "ptrman.h"
-#include <iostream>
+#include "od_ostream.h"
 
 
 namespace Usage
@@ -44,8 +44,8 @@ bool Usage::Client::sendUsgInfo() const
     usginfo_.prepareForSend();
 
 #ifdef __debug__
-    std::cerr << "UsageInfo: ";
-    usginfo_.dump( std::cerr );
+    od_cout() <<  "UsageInfo: ";
+    usginfo_.dump( od_cout() );
 
     if ( usginfo_.withreply_ )
     {
@@ -53,10 +53,10 @@ bool Usage::Client::sendUsgInfo() const
 	usginfo_.withreply_ = false;
 	usginfo_.aux_ = "OK ";
 	usginfo_.aux_ += iret++;
-	std::cerr << "\t\tREPLY '" << usginfo_.aux_ << "'\n";
+	od_cout() << "\t\tREPLY '" << usginfo_.aux_ << "'\n";
     }
 
-    std::cerr << std::endl;
+    od_cout() << od_endl;
 #endif
 
     // only go here if send succeeded

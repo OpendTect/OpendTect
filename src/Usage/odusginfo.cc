@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odusginfo.h"
 #include "hostdata.h"
 #include "genc.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 static od_int64 usginfo_curid = 0;
@@ -98,10 +98,10 @@ void Usage::Info::prepareForSend()
 }
 
 
-std::ostream& Usage::Info::dump( std::ostream& strm ) const
+od_ostream& Usage::Info::dump( od_ostream& strm ) const
 {
     BufferString str; dump( str );
-    strm << str << std::endl;
+    strm << str << od_endl;
     return strm;
 }
 
