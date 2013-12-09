@@ -36,12 +36,16 @@ public:
 BulkHorizonAscIO( const Table::FormatDesc& fd, od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
+    , finishedreadingheader_(false)
 {}
 
 
 static Table::FormatDesc* getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkHorizon" );
+
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
@@ -55,17 +59,29 @@ bool isXY() const
 
 bool getData( BufferString& hornm, Coord3& crd )
 {
+    if ( !finishedreadingheader_ )
+    {
+	if ( !getHdrVals(strm_) )
+	    return false;
+	
+	udfval_ = getfValue( 0 );
+	finishedreadingheader_ = true;
+    }
+
+
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
     hornm = text( 0 );
-    crd.x = getdValue( 1 );
-    crd.y = getdValue( 2 );
-    crd.z = getfValue( 3 );
+    crd.x = getdValue( 1, udfval_ );
+    crd.y = getdValue( 2, udfval_ );
+    crd.z = getfValue( 3, udfval_ );
     return true;
 }
 
-    od_istream&	strm_;
+    od_istream&		strm_;
+    float		udfval_;
+    bool		finishedreadingheader_;
 };
 
 
