@@ -5,7 +5,7 @@ REM $Id$
 REM
 
 setlocal
-set args=""
+set args=
 set expret=0
 
 :parse_args
