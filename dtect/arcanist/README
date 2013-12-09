@@ -5,3 +5,6 @@ in the files, you have to run:
 
 For instance:
    arc liberate dgbarcanist
+
+After successfully running arc liberate, the __phutil_library_* files will have
+to be committed for the change to be distributed to other users.
