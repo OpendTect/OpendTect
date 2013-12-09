@@ -493,12 +493,6 @@ bool uiSurveyInfoEditor::doApply()
 	return false;
 
     double srd = refdatumfld_->getdValue( 0.0 );
-    if ( mIsUdf(srd) )
-    {
-	uiMSG().error( "Seismic Reference Datum must be set" );
-	return false;
-    }
-
     const bool showdepthinft = !depthdispfld_->getBoolValue();
     if ( showdepthinft && si_.zIsTime() )
 	srd *= mFromFeetFactorD;
@@ -860,7 +854,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
     if ( !needsupdate ) return;
 
     refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
-    double refdatum = refdatumfld_->getdValue();
+    double refdatum = refdatumfld_->getdValue( 0.0 );
     refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
     refdatumfld_->setValue( refdatum );
 }
