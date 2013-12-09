@@ -227,7 +227,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 						     .setName("Crl step",2) );
     crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
     zfld_ = new uiGenInput( rangegrp_, "Z range",
-		 	   DoubleInpIntervalSpec(true).setName("Z Start",0)
+			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
 						      .setName("Z step",2) );
     zfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
@@ -253,9 +253,13 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
+    double srd = si_.seismicReferenceDatum();
+    if ( depthinft && si_.zIsTime() )
+	srd *= mToFeetFactorD;
+
     refdatumfld_ = new uiGenInput( rangegrp_,
 			depthinft ? sKeySRDFeet : sKeySRDMeter,
-			DoubleInpSpec(si_.seismicReferenceDatum()) );
+			DoubleInpSpec(srd) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
@@ -472,7 +476,12 @@ bool uiSurveyInfoEditor::doApply()
     if ( !setSurvName() || !setRanges() )
 	return false;
 
-    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
+    double srd = refdatumfld_->getdValue( 0.0 );
+    const bool showdepthinft = !depthdispfld_->getBoolValue();
+    if ( showdepthinft && si_.zIsTime() )
+	srd *= mFromFeetFactorD;
+
+    si_.setSeismicReferenceDatum( srd );
     updatePar(0);
 
     if ( !mUseAdvanced() )

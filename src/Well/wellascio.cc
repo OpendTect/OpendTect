@@ -38,7 +38,7 @@ Table::FormatDesc* TrackAscIO::getDesc()
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( false );
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
-	   					   Table::Optional );
+						   Table::Optional );
     ti->setPropertyType( PropertyRef::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += ti;
@@ -126,7 +126,7 @@ bool TrackAscIO::getData( Data& wd, bool tosurf ) const
 Table::TargetInfo* gtDepthTI( bool withuns )
 {
     Table::TargetInfo* ti = new Table::TargetInfo( "Depth", FloatInpSpec(),
-	   					   Table::Required );
+						   Table::Required );
     if ( withuns )
     {
 	ti->setPropertyType( PropertyRef::Dist );
@@ -157,7 +157,7 @@ Table::FormatDesc* MarkerSetAscIO::getDesc()
 
 
 bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
-       				const Track& trck ) const
+				const Track& trck ) const
 {
     ms.erase();
 
@@ -229,7 +229,7 @@ void D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
-	    			PropertyRef::Time );
+				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
     fd->bodyinfos_ += ti;
@@ -244,7 +244,7 @@ void D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 
 
 static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
-       			    TypeSet<double>& rawtvals, const Data& wll )
+			    TypeSet<double>& rawtvals, const Data& wll )
 {
     const Track& trck = wll.track();
     int inputsz = rawzvals.size();
@@ -277,7 +277,7 @@ static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
     TypeSet<float> mds;
     TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
-    const double srd = mCast(float,SI().seismicReferenceDatum());
+    const double srd = SI().seismicReferenceDatum();
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
     // velocity above is controled by info().replvel
@@ -289,10 +289,10 @@ static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
 	istartz--;
 
     double curvel = ( zvals[istartz+1] - zvals[istartz] ) /
-       		    ( tvals[istartz+1] - tvals[istartz] );
+		    ( tvals[istartz+1] - tvals[istartz] );
     mds += trck.getDahForTVD(mCast(float,firstz));
     ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
-       				       mCast( double, wll.info().replvel );
+				       mCast( double, wll.info().replvel );
     // one SHOULD check here if this time corresponds to the time at the
     // same depth in the input file, i.e. is the computed replacement velocity
     // in line with the one stored in info() or input in the advanced import
@@ -303,15 +303,28 @@ static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
     for ( int idz=istartz; idz<inputsz; idz++ )
     {
 	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
-	   		      ( tvals[idz] - tvals[prevvelidx] );
+			      ( tvals[idz] - tvals[prevvelidx] );
 	if ( mIsEqual(curvel,newvel,1e-2) && (idz<inputsz-1) )
-	   continue;
+	    if ( mds.size() != 1 )
+		continue;
 
 	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
 	if ( !mIsUdf(dah) )
 	{
+	    const float prevdah = trck.getDahForTVD(
+					    mCast(float,zvals[prevvelidx]) );
+	    if ( !mIsEqual(mds[0],prevdah,1e-2f) )
+	    {
+		mds += prevdah;
+		ts += tvals[prevvelidx];
+	    }
+
 	    prevvelidx = idz;
 	    curvel = newvel;
+	}
+
+	if ( idz == inputsz-1 )
+	{
 	    mds += trck.getDahForTVD( mCast(float,zvals[idz]) );
 	    ts += tvals[idz];
 	}
@@ -364,12 +377,13 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	    if ( mIsUdf(crd) )
 		continue;
 
-	    zvals += crd.z;
+	    zvals += crd.z; tvals += tval;
 	}
 	else
+	{
 	    zvals += zval;
-
-	tvals += tval;
+	    tvals += tval;
+	}
     }
 
     return getTVDD2TModel( d2t, zvals, tvals, wll );
@@ -416,7 +430,7 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
 Table::TargetInfo* gtWellNameTI()
 {
     Table::TargetInfo* ti = new Table::TargetInfo( "Well identifier",
-	   					   Table::Required );
+						   Table::Required );
     ti->form(0).setName( "Name" );
     ti->add( new Table::TargetInfo::Form("UWI",StringInpSpec()) );
     return ti;
@@ -478,7 +492,7 @@ Table::FormatDesc* BulkD2TModelAscIO::getDesc()
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
-	    			PropertyRef::Time );
+				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
     fd->bodyinfos_ += ti;

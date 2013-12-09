@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uid2tmodelgrp.h"
 
 using namespace Well;
 
@@ -57,7 +58,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     {
 	const BufferString vellbl( "Temporary model velocity ",
 				   VelocityDesc::getVelUnit( true ));
-	const float vel = Well::getDefaultVelocity();
+	const float vel = getGUIDefaultVelocity();
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );
     }

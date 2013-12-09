@@ -238,8 +238,15 @@ void Well::Info::usePar( const IOPar& par )
 
 }
 
-
 float Well::getDefaultVelocity()
 {
-    return SI().depthsInFeet() ? 8000.f : 2000.f;
+    const float replvelm = 2000.f;
+    const float replvelft = 8000.f;
+    if ( SI().zInFeet() )
+	return replvelft;
+    else
+    {
+	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
+    }
 }
+
