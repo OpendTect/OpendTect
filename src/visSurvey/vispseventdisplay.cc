@@ -124,10 +124,8 @@ void PSEventDisplay::setEventManager( PreStack::EventManager* em )
 	eventman_->forceReload.notify(
 		mCB(this,PSEventDisplay,eventForceReloadCB) );
 	getMaterial()->setColor( eventman_->getColor() );
+	updateDisplay();
     }
-    
-    
-    updateDisplay();
 }
 
 
@@ -396,10 +394,11 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	BinIDValueSet locations( 0, false );
 	eventman_->getLocations( locations );
 	TypeSet<float> vals;
+	eventseeds_->removeAll();
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
 	{
 	    const BinID bid = locations.getBinID( locations.getPos(lidx) );
-	    ConstRefMan<PreStack::EventSet> eventset
+	    const PreStack::EventSet* eventset
 		    = eventman_->getEvents(bid, true );
 	    if ( !eventset )
 		return clearAll();
@@ -525,7 +524,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     do
     {
-	RefMan<PreStack::EventSet> eventset = eventman_ ?
+	PreStack::EventSet* eventset = eventman_ ?
 	    eventman_->getEvents( bid, true, false ) : 0;
 	if ( !eventset )
 	    continue;
@@ -540,8 +539,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    eventrg.start = eventrg.stop = eventidx;
 	}
 
-	pao->eventsets_ += eventset;
 	eventset->ref();
+	pao->eventsets_ += eventset;
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
 	{
 	    const PreStack::Event* event = eventset->events_[idx];
