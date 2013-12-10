@@ -107,8 +107,8 @@ public:
     bool			canResetManipulation() const;
     void			resetManipulation();
     void			acceptManipulation();
-    NotifierAccess*		getMovementNotifier() { return &slicemoving; }
-    NotifierAccess*		getManipulationNotifier() {return &slicemoving;}
+    NotifierAccess*		getMovementNotifier() { return &boxMoving; }
+    NotifierAccess*		getManipulationNotifier() { return &boxMoving; }
     BufferString		getManipulationString() const;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
@@ -127,7 +127,8 @@ public:
     CubeSampling		getCubeSampling(int attrib) const;
     CubeSampling		getCubeSampling(bool manippos,bool displayspace,
 	    					int attrib) const;
-    void			setCubeSampling(const CubeSampling&);
+    void			setCubeSampling(const CubeSampling&,
+	    					bool dragmode=false);
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*,
 					      TaskRunner*);
@@ -144,6 +145,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 	    			     		Coord3&,BufferString& val,
 	    					BufferString& info) const;
+    void			getObjectInfo(BufferString&) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int,int v=0) const;
     void			setColTabMapperSetup(int,
@@ -159,9 +161,7 @@ public:
     bool			canDuplicate() const		{ return true; }
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 
-    void			allowShading(bool yn ) { allowshading_ = yn; }
-
-    Notifier<VolumeDisplay>	slicemoving;
+    static bool			canUseVolRenShading();
 
     void			getChildren(TypeSet<int>&) const;
 
@@ -178,8 +178,14 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
 
+    bool			canEnableTextureInterpolation() const;
+    bool			textureInterpolationEnabled() const;
+    void			enableTextureInterpolation(bool);
+
 protected:
 				~VolumeDisplay();
+
+    Notifier<VolumeDisplay>	boxMoving;
 
     bool			updateSeedBasedSurface(int,TaskRunner* = 0);
     void			materialChange(CallBacker*);
@@ -214,6 +220,14 @@ protected:
     TypeSet<IsosurfaceSetting>	isosurfsettings_;
     TypeSet<char>		sections_;
 
+    void			draggerStartCB(CallBacker*);
+    void			draggerMoveCB(CallBacker*);
+    void			draggerFinishCB(CallBacker*);
+    void			updateDraggerLimits(bool dragmode=false);
+    bool			keepdraggerinsidetexture_;
+    CubeSampling		draggerstartcs_;
+    CubeSampling		texturecs_;
+
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
     void			setData(const Attrib::DataCubes*,
@@ -234,7 +248,6 @@ protected:
     DataPack::ID		cacheid_;
     const Attrib::DataCubes*	cache_;
     Attrib::SelSpec&		as_;
-    bool			allowshading_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
