@@ -64,8 +64,8 @@ public:
 						bool c110, bool c111 );
 
     static bool			getCornerSign(unsigned char model, int corner);
-    bool			writeTo(std::ostream&,bool binary=true) const;
-    bool			readFrom(std::istream&,bool binary=true);
+    bool			writeTo(od_ostream&,bool binary=true) const;
+    bool			readFrom(od_istream&,bool binary=true);
 
     static const unsigned char	cUdfAxisPos;
     static const unsigned char	cMaxAxisPos;
@@ -98,8 +98,8 @@ public:
     bool		getModel(const int* pos, unsigned char& model,
 	    			 unsigned char& submodel) const;
 
-    Executor*		writeTo(std::ostream&,bool binary=true) const;
-    Executor*		readFrom(std::istream&,
+    Executor*		writeTo(od_ostream&,bool binary=true) const;
+    Executor*		readFrom(od_istream&,
 	    			 const DataInterpreter<od_int32>*);
 
     MultiDimStorage<MarchingCubesModel>		models_;

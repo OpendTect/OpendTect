@@ -89,7 +89,7 @@ public:
 	if ( par.get( sKey::Color(), col ) )
 	    surface.setPreferredColor( col );
 
-	exec_ = surface.surface().readFrom(strm.stdStream(),int32interpreter_);
+	exec_ = surface.surface().readFrom(strm,int32interpreter_);
     }
 
     static const char* sKeyInt32DataChar()	{ return "Int32 format"; }
@@ -181,7 +181,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 
     par.putTo( astream );
 
-    exec_ = surface.surface().writeTo( strm.stdStream(), binary );
+    exec_ = surface.surface().writeTo( strm, binary );
 }
 
 int nextStep()

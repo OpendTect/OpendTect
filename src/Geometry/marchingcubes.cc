@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "datainterp.h"
 #include "executor.h"
-#include <iostream>
+#include "od_iostream.h"
 #include "position.h"
 #include "threadwork.h"
 
@@ -33,7 +33,7 @@ const double  mInitValue = 1e+10;
 class MarchingCubesSurfaceWriter: public Executor
 {
 public:
-    	MarchingCubesSurfaceWriter( std::ostream& strm, 
+    	MarchingCubesSurfaceWriter( od_ostream& strm,
 		const MarchingCubesSurface& s, bool binary )
 	    : Executor("MarchingCubes surface writer")
 	    , surface_( s )
@@ -81,7 +81,7 @@ public:
 	void    writeInt32( int val, char post )
 		{
 		    if ( binary_ )
-			strm_.write((const char*)&val,sizeof(val));
+			strm_.addBin( &val,sizeof(val));
 		    else
 			strm_ << val << post;
 		}
@@ -92,7 +92,7 @@ protected:
     int                 	nrdone_;
     int                 	totalnr_;
     const MarchingCubesSurface& surface_;
-    std::ostream&		strm_;
+    od_ostream&			strm_;
 };
 
 
@@ -100,7 +100,7 @@ protected:
 class MarchingCubesSurfaceReader : public Executor
 {
 public:
-MarchingCubesSurfaceReader( std::istream& strm, MarchingCubesSurface& s,
+MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
 			    const DataInterpreter<od_int32>* dt )
     : Executor("MarchingCubes surface writer")
     , surface_( s )
@@ -121,7 +121,7 @@ int nextStep()
 	    return Finished();
     }
 
-    if ( !strm_ )
+    if ( strm_.isBad() )
 	return ErrorOccurred();
 
     for ( int idx=0; idx<mWriteChunkSize; idx++ )
@@ -154,7 +154,7 @@ int readInt32()
     {
 	const int sz = dt_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm_.read(buf,sz);
+	strm_.getBin(buf,sz);
 	return dt_->get(buf,0);
     }
 
@@ -165,11 +165,11 @@ int readInt32()
 
 
 protected:
-    int                 	nrdone_;
-    int                 	totalnr_;
-    MarchingCubesSurface&	surface_;
-    std::istream&		strm_;
-    const DataInterpreter<od_int32>* dt_;
+    Threads::Atomic<int>       		nrdone_;
+    int                 		totalnr_;
+    MarchingCubesSurface&		surface_;
+    od_istream&				strm_;
+    const DataInterpreter<od_int32>*	dt_;
 };
 
 
@@ -326,23 +326,25 @@ bool MarchingCubesModel::getCornerSign( unsigned char model, int corner )
     return model&1;
 }
 
+#define mModelBinSize 5
 
-bool MarchingCubesModel::writeTo( std::ostream& strm,bool binary ) const
+
+bool MarchingCubesModel::writeTo( od_ostream& strm,bool binary ) const
 {
     if ( binary )
-	strm.write( (const char*) &model_, 5 );
+	strm.addBin( &model_, mModelBinSize );
     else
-	strm << (int) model_ << '\t' << (int) submodel_ << '\t' <<
-	        (int) axispos_[mX] << '\t' << (int) axispos_[mY]<< '\t' <<
-		(int) axispos_[mZ] <<'\n';
-    return strm;
+	strm << (int) model_ << od_tab << (int) submodel_ << od_tab <<
+	        (int) axispos_[mX] << od_tab << (int) axispos_[mY]<< od_tab <<
+		(int) axispos_[mZ] << od_newline;
+    return strm.isOK();
 }
 
 
-bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
+bool MarchingCubesModel::readFrom( od_istream& strm, bool binary )
 {
     if ( binary )
-	strm.read( (char*) &model_, 5 );
+	strm.getBin( &model_, mModelBinSize );
     else
     {
 	int res;
@@ -353,7 +355,7 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
 	strm >> res; axispos_[mZ] = mCast( unsigned char, res );
     }
 
-    return strm;
+    return !strm.isBad();
 }
 
 
@@ -425,13 +427,13 @@ bool MarchingCubesSurface::getModel(const int* pos, unsigned char& model,
 }
 
 
-Executor* MarchingCubesSurface::writeTo( std::ostream& strm, bool binary ) const
+Executor* MarchingCubesSurface::writeTo( od_ostream& strm, bool binary ) const
 {
     return new ::MarchingCubesSurfaceWriter( strm, *this, binary );
 }
 
 
-Executor* MarchingCubesSurface::readFrom( std::istream& strm,
+Executor* MarchingCubesSurface::readFrom( od_istream& strm,
 	const DataInterpreter<od_int32>* dt )
 {
     return new ::MarchingCubesSurfaceReader( strm, *this, dt );
