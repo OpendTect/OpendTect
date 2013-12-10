@@ -412,6 +412,8 @@ protected:
 
 void uiScalingAttrib::analyseCB( CallBacker* )
 {
+    if ( !ads_ && dpfids_.size() )
+	return uiMSG().error( "Not implemented for synthetic data." );
     Attrib::Desc* inpdesc = ads_->getDesc( inpfld->attribID() );
     Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
     if ( !inpdesc || !voldesc )

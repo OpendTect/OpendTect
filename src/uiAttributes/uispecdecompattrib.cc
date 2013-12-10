@@ -248,6 +248,9 @@ void uiSpecDecompAttrib::checkOutValSnapped() const
 
 void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 {
+    if ( !ads_ && dpfids_.size() )
+	return uiMSG().error( "Not implemented for synthetic data." );
+
     if ( inpfld_->attribID() == DescID::undef() )
     {
 	uiMSG().error( "Please, first, fill in the Input Data field" );
@@ -271,6 +274,8 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 
 void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 {
+    if ( !ads_ && dpfids_.size() )
+	return uiMSG().error( "Not implemented for synthetic data." );
     const int res = positiondlg_->uiResult();
     if ( !res )
 	return;
@@ -290,6 +295,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 
 void uiSpecDecompAttrib::getPrevSel()
 {
+    if ( !ads_ ) return;
     prevpar_.setEmpty();
     if ( !positiondlg_ )
 	return;
@@ -311,6 +317,7 @@ void uiSpecDecompAttrib::getPrevSel()
 
 void uiSpecDecompAttrib::setPrevSel()
 {
+    if ( !ads_ ) return;
     if ( !positiondlg_ )
     {
 	prevpar_.setEmpty();
@@ -341,7 +348,7 @@ void uiSpecDecompAttrib::setPrevSel()
 
 void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
 {                                                                               
-    if ( !ads_->is2D() ) return;
+    if ( !ads_ || !ads_->is2D() ) return;
 
     Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc ) return;
