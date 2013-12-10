@@ -59,12 +59,19 @@ public:
 //    void			setBlendColor(const Color&);
 //    const Color&		getBlendColor() const;
     const TypeSet<float>&	getHistogram() const;
-    void			setVolumeTransform(const Coord3& trans,
+
+    void			setTexVolumeTransform(const Coord3& trans,
 				    const Coord3& rotvec,double rotangle,
 				    const Coord3& scale);
-				/*!< Use this instead of parent transformation
+    void			setROIVolumeTransform(const Coord3& trans,
+				    const Coord3& rotvec,double rotangle,
+				    const Coord3& scale);
+				/*!< Use these instead of parent transformation
 				    node, because of normal rescaling issue at
 				    fixed function technique! */
+
+    bool			textureInterpolationEnabled() const;
+    void			enableTextureInterpolation(bool);
 
     void			setMaterial(Material*);
 
@@ -79,7 +86,6 @@ protected:
     void			clipData(TaskRunner*);
 
     void			updateVolumeSlicing();
-    void			setCustomShader(bool yn);
 
 //    unsigned char		dummytexture_;
 
