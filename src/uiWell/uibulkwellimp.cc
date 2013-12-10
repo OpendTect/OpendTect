@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
@@ -256,6 +257,7 @@ static IOObj* getWellIOObj( const char* nm, const char* uwi )
 
 // uiBulkLogImport
 HiddenParam<uiBulkLogImport,uiGenInput*> istvdflds( 0 );
+HiddenParam<uiBulkLogImport,uiGenInput*> udfflds( 0 );
 
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Bulk Log Import",mNoDlgTitle,"107.0.11"))
@@ -267,6 +269,12 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 					   BoolInpSpec(false,"TVDSS","MD") );
     istvdfld->attach( alignedBelow, inpfld_ );
     istvdflds.setParam( this, istvdfld );
+
+    const float defundefval = -999.25;
+    uiGenInput* udffld = new uiGenInput( this, "Undefined value in logs",
+			     FloatInpSpec(defundefval));
+    udffld->attach( alignedBelow, istvdfld );
+    udfflds.setParam( this, udffld );
 }
 
 
@@ -291,6 +299,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	LASImporter lasimp;
 	LASImporter::FileInfo info;
+	info.undefval = udfflds.getParam(this)->getfValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{
