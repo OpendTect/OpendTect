@@ -195,6 +195,10 @@ double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     {
 	int extranrfiles = 0;
 	const BufferString subfnm( dl.fullPath(idx) );
+	if ( File::isLink(subfnm.buf())
+		&& File::isDirectory(File::linkTarget(subfnm.buf())) )
+	    continue;
+
 	ret += getFileSize( subfnm, extranrfiles );
 	nrfiles += extranrfiles;
     }
