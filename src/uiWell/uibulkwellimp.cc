@@ -223,8 +223,13 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
 
     istvdfld_ = new uiGenInput( this, "Depth values are",
-				BoolInpSpec(false,"TVDSS","MD") );
+		    BoolInpSpec(false,"TVDSS","MD") );
     istvdfld_->attach( alignedBelow, inpfld_ );
+
+    const float defundefval = -999.25;
+    udffld_ = new uiGenInput( this, "Undefined value in logs",
+		    FloatInpSpec(defundefval));
+    udffld_->attach( alignedBelow, istvdfld_ );
 }
 
 
@@ -249,6 +254,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
+	info.undefval = udffld_->getfValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{

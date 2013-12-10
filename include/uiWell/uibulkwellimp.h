@@ -54,6 +54,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiGenInput*		istvdfld_;
+    uiGenInput*		udffld_;
 };
 
 
