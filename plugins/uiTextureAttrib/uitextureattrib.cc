@@ -257,6 +257,8 @@ protected:
 
 void uiTextureAttrib::analyseCB( CallBacker* )
 {
+    if ( !ads_ && dpfids_.size() )
+	return uiMSG().error( "Not implemented for synthetic data." );
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return;
