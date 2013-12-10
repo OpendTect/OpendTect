@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "position.h"
 
 
-namespace osgManipulator { class TabBoxDragger; }
+namespace osgGeo { class TabBoxDragger; }
 namespace osg { class ShapeDrawable; }
 
 
@@ -44,6 +44,7 @@ public:
 
     void			setBoxTransparency(float);
     				//!<Between 0 and 1
+    void			showScaleTabs(bool);
 
     void			setSpaceLimits(const Interval<float>&,
 					       const Interval<float>&,
@@ -75,7 +76,7 @@ protected:
     void				setOsgMatrix(const Coord3& worldscale,
 						     const Coord3& worldtrans);
 
-    osgManipulator::TabBoxDragger*	osgboxdragger_;
+    osgGeo::TabBoxDragger*		osgboxdragger_;
     osg::ShapeDrawable*			osgdraggerbox_;
     BoxDraggerCallbackHandler*		osgcallbackhandler_;
 

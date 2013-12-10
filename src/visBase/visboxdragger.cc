@@ -16,11 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "survinfo.h"
 
-#include <osgManipulator/TabBoxDragger>
-#include <osg/Switch>
+#include <osg/CullFace>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Version>
+
+#include <osgGeo/TabBoxDragger>
+
 
 mCreateFactoryEntry( visBase::BoxDragger );
 
@@ -192,7 +194,7 @@ BoxDragger::BoxDragger()
     , changed( this )
     , finished( this )
     , osgcallbackhandler_( 0 )
-    , osgboxdragger_( setOsgNode( new osgManipulator::TabBoxDragger() ) )
+    , osgboxdragger_( setOsgNode( new osgGeo::TabBoxDragger(12.0) ) )
 {
     osgboxdragger_->setupDefaultGeometry();
     osgboxdragger_->setHandleEvents( true );
@@ -200,30 +202,7 @@ BoxDragger::BoxDragger()
     osgcallbackhandler_ = new BoxDraggerCallbackHandler( *this );
     osgboxdragger_->addDraggerCallback( osgcallbackhandler_ );
 
-    for ( int idx=osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
-			 osgboxdragger_->getDragger(idx) );
-	if ( !tpd )
-	    continue;
-
-	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
-	{
-	    osgManipulator::Dragger* dragger = tpd->getDragger( idy );
-	    mDynamicCastGet( osgManipulator::Scale1DDragger*, s1dd, dragger );
-	    if ( s1dd )
-	    {
-		s1dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
-		s1dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
-	    }
-	    mDynamicCastGet( osgManipulator::Scale2DDragger*, s2dd, dragger );
-	    if ( s2dd )
-	    {
-		s2dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
-		s2dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
-	    }
-	}
-    }
+    showScaleTabs( true );
 
     osgboxdragger_->getOrCreateStateSet()->setAttributeAndModes(
 		    new osg::PolygonOffset(-1.0,-1.0),
@@ -252,6 +231,11 @@ BoxDragger::BoxDragger()
     geode->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     geode->setNodeMask( geode->getNodeMask() &
 	    		~visBase::cIntersectionTraversalMask() );
+
+    osg::ref_ptr<osg::CullFace> cullface = new osg::CullFace;
+    cullface->setMode( osg::CullFace::FRONT );
+    geode->getStateSet()->setAttributeAndModes( cullface,
+	    					osg::StateAttribute::ON );
 
     osgboxdragger_->addChild( geode );
 
@@ -282,6 +266,38 @@ void BoxDragger::setOsgMatrix( const Coord3& worldscale,
 void BoxDragger::setBoxTransparency( float transparency )
 {
     osgdraggerbox_->setColor( osg::Vec4(0.7,0.7,0.7,1.0-transparency) );
+}
+
+
+void BoxDragger::showScaleTabs( bool yn )
+{
+    const float tabopacity = yn ? 1.0 : 0.0;
+
+    for ( int idx=osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
+			 osgboxdragger_->getDragger(idx) );
+	if ( !tpd )
+	    continue;
+
+	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
+	{
+	    osgManipulator::Dragger* dragger = tpd->getDragger( idy );
+	    mDynamicCastGet( osgManipulator::Scale1DDragger*, s1dd, dragger );
+	    if ( s1dd )
+	    {
+		s1dd->setColor( osg::Vec4(0.0,0.7,0.0,tabopacity) );
+		s1dd->setPickColor( osg::Vec4(0.0,1.0,0.0,tabopacity) );
+	    }
+	    mDynamicCastGet( osgManipulator::Scale2DDragger*, s2dd, dragger );
+	    if ( s2dd )
+	    {
+		s2dd->setColor( osg::Vec4(0.0,0.7,0.0,tabopacity) );
+		s2dd->setPickColor( osg::Vec4(0.0,1.0,0.0,tabopacity) );
+	    }
+	}
+    }
+
 }
 
 
