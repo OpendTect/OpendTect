@@ -68,7 +68,7 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 					  const char* parenttype )
 {
     if ( as.id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() ||
-	 strcmp( as.defString(), sKeyVolumeProcessing() ) )
+	 FixedString(as.defString()) != sKeyVolumeProcessing() )
 	return 0;
 
     return new uiDataTreeItem( parenttype );

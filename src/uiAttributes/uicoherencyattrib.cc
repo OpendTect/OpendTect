@@ -78,7 +78,7 @@ void uiCoherencyAttrib::is1Sel( CallBacker* )
 
 bool uiCoherencyAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Coherency::attribName()) )
+    if ( desc.attribName() != Coherency::attribName() )
 	return false;
 
     mIfGetFloatInterval( Coherency::sKeyGate(), gate, tgfld->setValue(gate) );
@@ -107,7 +107,7 @@ bool uiCoherencyAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Coherency::attribName()) )
+    if ( desc.attribName() != Coherency::attribName() )
 	return false;
     
     mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );

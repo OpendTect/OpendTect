@@ -69,7 +69,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 
 bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Frequency::attribName()) )
+    if ( desc.attribName() != Frequency::attribName() )
 	return false;
 
     mIfGetFloatInterval( Frequency::gateStr(), gate, gatefld->setValue(gate) );
@@ -101,7 +101,7 @@ bool uiFrequencyAttrib::setOutput( const Attrib::Desc& desc )
 
 bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Frequency::attribName()) )
+    if ( desc.attribName() != Frequency::attribName() )
 	return false;
 
     mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
@@ -137,7 +137,7 @@ void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 bool uiFrequencyAttrib::areUIParsOK()
 {
-    if ( !strcmp( winfld->windowName(), "CosTaper" ) )
+    if ( FixedString(winfld->windowName()) == "CosTaper" )
     {
 	float paramval = winfld->windowParamValue();
 	if ( paramval<0 || paramval>1  )

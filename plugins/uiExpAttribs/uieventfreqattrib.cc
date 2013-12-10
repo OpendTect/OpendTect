@@ -33,7 +33,7 @@ uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 
 bool uiEventFreqAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),EventFreq::attribName()) )
+    if( desc.attribName() != EventFreq::attribName() )
 	return false;
     return true;
 }
@@ -55,7 +55,7 @@ bool uiEventFreqAttrib::setOutput( const Attrib::Desc& desc )
 
 bool uiEventFreqAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),EventFreq::attribName()) )
+    if( desc.attribName() != EventFreq::attribName() )
 	return false;
     return true;
 }

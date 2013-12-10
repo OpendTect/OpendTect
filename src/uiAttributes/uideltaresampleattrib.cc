@@ -39,7 +39,7 @@ uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
 
 bool uiDeltaResampleAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),DeltaResample::attribName()) )
+    if ( desc.attribName() != DeltaResample::attribName() )
 	return false;
 
     float period = 0;
@@ -61,7 +61,7 @@ bool uiDeltaResampleAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiDeltaResampleAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),DeltaResample::attribName()) )
+    if ( desc.attribName() != DeltaResample::attribName() )
 	return false;
 
     float val = periodfld_->isChecked() ? periodfld_->getfValue() : 0;

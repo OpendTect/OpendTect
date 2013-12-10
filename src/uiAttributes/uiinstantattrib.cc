@@ -68,7 +68,7 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Instantaneous::attribName()) )
+    if ( desc.attribName() != Instantaneous::attribName() )
 	return false;
 
     mIfGetFloat( Instantaneous::rotateAngle(), rotangle_, 
@@ -95,7 +95,7 @@ bool uiInstantaneousAttrib::setOutput( const Desc& desc )
 
 bool uiInstantaneousAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Instantaneous::attribName()) )
+    if ( desc.attribName() != Instantaneous::attribName() )
 	return false;
 
     mSetFloat( Instantaneous::rotateAngle(), phaserotfld->box()->getValue() );
@@ -120,7 +120,8 @@ bool uiInstantaneousAttrib::getOutput( Desc& desc )
 
 void uiInstantaneousAttrib::outputSelCB( CallBacker* )
 {
-    phaserotfld->display( !strcmp(rotphase,outstrs[outpfld->getIntValue()] ) );
+    const bool isrot = FixedString(rotphase) == outstrs[outpfld->getIntValue()];
+    phaserotfld->display( isrot );
 }
 
 

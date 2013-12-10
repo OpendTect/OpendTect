@@ -51,7 +51,7 @@ void uiCurvGrad::choiceSel( CallBacker* )
 
 bool uiCurvGrad::setParameters( const Desc& desc )
 {
-    if( strcmp(desc.attribName(),CurvGrad::attribName()) )
+    if( desc.attribName() != CurvGrad::attribName() )
 	return false;
 
     mIfGetEnum( sKey::Output(), attribute, attributefld_->setValue(attribute) );
@@ -73,7 +73,7 @@ bool uiCurvGrad::setInput( const Desc& desc )
 
 bool uiCurvGrad::getParameters( Desc& desc )
 {
-    if( strcmp(desc.attribName(),CurvGrad::attribName()) )
+    if( desc.attribName() != CurvGrad::attribName() )
 	return false;
 
     BinID stepout( stepoutfld_->getBinID() );
@@ -106,7 +106,7 @@ void uiCurvGrad::steerTypeSel( CallBacker* )
 	{
 	    LineKey inp( inputfld_->getInput() );
 	    LineKey steer( steertxt );
-	    if( strcmp(inp.lineName(), steer.lineName()) )
+	    if ( inp.lineName() != steer.lineName() )
 		steerfld_->clearInpField();
 	}
     }

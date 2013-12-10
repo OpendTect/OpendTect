@@ -259,7 +259,7 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 
 bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),FingerPrint::attribName()) )
+    if ( desc.attribName() != FingerPrint::attribName() )
 	return false;
 
     mIfGetBinID( FingerPrint::refposStr(), refpos,
@@ -364,7 +364,7 @@ bool uiFingerPrintAttrib::setInput( const Desc& desc )
 
 bool uiFingerPrintAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(), FingerPrint::attribName()) )
+    if ( desc.attribName() != FingerPrint::attribName() )
 	return false;
 
     mSetInt( FingerPrint::valreftypeStr(), refgrp_->selectedId() );
@@ -482,7 +482,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 {
     BufferStringSet userrefset;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
-	if ( strcmp( "", attribflds_[idx]->getInput() ) )
+	if ( !FixedString(attribflds_[idx]->getInput()).isEmpty() )
 	    userrefset.add( attribflds_[idx]->getInput() );
 
     advanceddlg_ = new uiFPAdvancedDlg( this, calcobj_, userrefset );

@@ -253,10 +253,9 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 
 BufferString uiAttrDescEd::zDepLabel( const char* pre, const char* post ) const
 {
-    BufferString lbl;
-    char zstr[6]; strcpy( zstr, zIsTime() ? "Time" : "Depth" );
+    BufferString lbl, zstr( zIsTime() ? "Time" : "Depth" );
     if ( pre )
-	{ lbl += pre; lbl += " "; zstr[0] = mCast( char, tolower( zstr[0] ) ); }
+	{ lbl += pre; lbl += " "; zstr[0] = (char)tolower(zstr[0]); }
 
     lbl += zstr;
     if ( post )
@@ -279,17 +278,15 @@ const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	if ( !strcmp( desc->errMsg(), "Parameter 'id' is not correct") &&   
-		desc->isStored() )                                          
-	{                                                                       
-	    errmsg_ = "Impossible to find stored data '"; 
-	    errmsg_ += desc->userRef();
-	    errmsg_ += "'. \n";
-	    errmsg_ += "Data might have been deleted or corrupted.\n";
-	    errmsg_ += "Please select valid stored data as input.";
-	}                                                                       
+	const BufferString derrmsg( desc->errMsg() );
+	if ( !desc->isStored() || derrmsg != "Parameter 'id' is not correct" )
+	    errmsg_ = derrmsg;
 	else
-	    errmsg_ = desc->errMsg();
+	{                                                                       
+	    errmsg_.set( "Cannot find stored data '" ).add( desc->userRef() ); 
+	    errmsg_.add( ".\nData might have been deleted or corrupted"
+			 ".\nPlease select valid stored data as input." );
+	}
     }
 
     const bool isuiok = areUIParsOK();

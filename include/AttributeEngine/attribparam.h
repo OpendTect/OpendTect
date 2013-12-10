@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "attribparambase.h"
 #include "datainpspec.h"
-#include <string.h>
 
 
 namespace Attrib
@@ -323,33 +322,23 @@ Interval<T> NumGateParam<T>::getValue() const
 
 
 template <class T>
-bool NumGateParam<T>::setCompositeValue( const char* gatestrvar )
+bool NumGateParam<T>::setCompositeValue( const char* gatestr )
 {
-    bool res = false;
-    const int gatestrsz = strlen( gatestrvar );
-    if ( gatestrvar[0] == '[' &&  gatestrvar[gatestrsz-1] == ']' )
-    {
-	int idx = 0;
-	for ( ; idx < gatestrsz; idx ++)
-	    if ( gatestrvar[idx] == ',' )
-		break;
+    if ( !gatestr || !*gatestr )
+	return false;
 
-	if ( idx<gatestrsz )
-	{
-	    ArrPtrMan<char> valuestr = new char[gatestrsz];
-	    strncpy( valuestr, &gatestrvar[1], idx - 1 );
-	    valuestr[idx-1] = 0;
-	    spec_->setText( valuestr, 0 );
+    BufferString rgstr( gatestr );
+    rgstr.unEmbed( '[', ']' );
+    if ( rgstr.isEmpty() )
+	return false;
+    char* ptrval2 = firstOcc( rgstr.buf(), ',' );
+    if ( !ptrval2 )
+	return false;
 
-	    strncpy( valuestr, &gatestrvar[idx+1], gatestrsz - idx - 2 );
-	    valuestr[gatestrsz - idx - 2] = 0;
-	    spec_->setText( valuestr, 1 );
-
-	    res = true;
-	}
-    }
-
-    return res;
+    *ptrval2++ = '\0';
+    spec_->setText( rgstr.buf(), 0 );
+    spec_->setText( ptrval2, 1 );
+    return true;
 }
 
 

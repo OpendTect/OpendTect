@@ -66,7 +66,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
     BufferString attribname;
     if ( !Attrib::Desc::getAttribName( definition, attribname ) || 
-	 strcmp(attribname.buf(), sAttribName()) )
+	 attribname != sAttribName() )
 	return false;
     
     BufferString midstring;

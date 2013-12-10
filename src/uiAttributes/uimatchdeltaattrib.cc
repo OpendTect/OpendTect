@@ -39,7 +39,7 @@ uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
 
 bool uiMatchDeltaAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),MatchDelta::attribName()) )
+    if ( desc.attribName() != MatchDelta::attribName() )
 	return false;
 
     mIfGetFloat( MatchDelta::maxshiftStr(), 
@@ -58,7 +58,7 @@ bool uiMatchDeltaAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiMatchDeltaAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),MatchDelta::attribName()) )
+    if ( desc.attribName() != MatchDelta::attribName() )
 	return false;
 
     mSetFloat( MatchDelta::maxshiftStr(), maxshiftfld_->getfValue() );

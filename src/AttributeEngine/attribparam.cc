@@ -58,27 +58,13 @@ void BinIDParam::setLimits( int mininl, int maxinl, int mincrl,int maxcrl )
 
 bool BinIDParam::setCompositeValue( const char* posstr )
 {
-    int posstrsz = strlen( posstr );
-
-    int idx = 0;
-    for ( ; idx < posstrsz; idx ++)
-	if ( posstr[idx] == ',' )
-	    break;
-
-    if ( idx>=posstrsz )
+    BufferString posbs( posstr );
+    char* ptrcrl = firstOcc( posbs.buf(), ',' );
+    if ( !ptrcrl )
 	return false;
+    *ptrcrl++ = '\0';
 
-    ArrPtrMan<char> valuestr = new char[posstrsz];
-    strncpy( valuestr, &posstr[0], idx  );
-    valuestr[idx] = 0;
-
-    if ( !spec_->setText(valuestr,0) )
-	return false;
-
-    strncpy( valuestr, &posstr[idx+1], posstrsz - idx - 1 );
-    valuestr[posstrsz - idx - 1] = 0;
-
-    if ( !spec_->setText(valuestr,1) )
+    if ( !spec_->setText(posbs.buf(),0) || !spec_->setText(ptrcrl,1) )
 	return false;
 
     return true;
@@ -145,9 +131,14 @@ mParamClone( BoolParam );
 
 bool BoolParam::setCompositeValue( const char* str )
 {
-    if ( !strcasecmp(str,"yes") || !strcasecmp(str,"true") )
+    if ( !str )
+	return false;
+
+    if ( caseInsensitiveEqual(str,"yes")
+       || caseInsensitiveEqual(str,"true") )
 	spec_->setValue( true );
-    else if ( !strcasecmp(str,"no") || !strcasecmp(str,"false") )
+    else if ( caseInsensitiveEqual(str,"no")
+	   || caseInsensitiveEqual(str,"false") )
 	spec_->setValue( false );
     else
 	return false;
@@ -188,11 +179,11 @@ mParamClone( EnumParam );
 void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec_)->addString(ne); }
 
-    
+
 BufferString EnumParam::getDefaultValue() const
 {
-    int strindex = getDefaultIntValue();  
-    const BufferStringSet& strings = 
+    int strindex = getDefaultIntValue();
+    const BufferStringSet& strings =
 	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
     if ( strindex < 0 || strindex >= strings.size() )
 	strindex = 0;
@@ -272,20 +263,17 @@ bool StringParam::setCompositeValue( const char* str_ )
 
 bool StringParam::getCompositeValue( BufferString& res ) const
 {
-    const char* txt = spec_->text(0);
-    if ( !txt ) return false;
-    const int sz = strlen(txt);
-    bool quote = false;
-    for ( int idx=0; idx<sz; idx++ )
+    res = spec_->text( 0 );
+    const char* ptr = res.buf();
+    bool havespace = false;
+    for ( ; *ptr; ptr++ )
     {
-	if ( isspace(txt[idx]) ) { quote = true; break; }
+	if ( isspace(*ptr) )
+	    { havespace = true; break; }
     }
 
-    res = "";
-
-    if ( quote ) res += "\"";
-    res += txt;
-    if ( quote ) res += "\"";
+    if ( havespace )
+	res.quote( '"' );
 
     return true;
 }

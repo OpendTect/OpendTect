@@ -585,88 +585,33 @@ void Desc::changeOutputDataType( int input, Seis::DataType ndt )
 }
 
 
-bool Desc::getAttribName( const char* defstr_, BufferString& res )
+bool Desc::getAttribName( const char* inpdefstr, BufferString& res )
 {
-    ArrPtrMan<char> defstr = new char [strlen(defstr_)+1];
-    strcpy( defstr, defstr_ );
-
-    int start = 0;
-    while ( start<strlen(defstr) && isspace(defstr[start]) ) start++;
-
-    if ( start>=strlen(defstr) ) return false;
-
-    int stop = start+1;
-    while ( stop<strlen(defstr) && !isspace(defstr[stop]) ) stop++;
-    defstr[stop] = 0;
-
-    res = &defstr[start];
+    BufferString defstr( inpdefstr );
+    char* startptr = defstr.buf();
+    mSkipBlanks( startptr );
+    if ( !*startptr )
+	return false;
+    char* stopptr = startptr;
+    mSkipNonBlanks( stopptr );
+    if ( isspace(*stopptr) ) *stopptr = '\0';
+    res = startptr;
     return true;
 }
 
 
-bool Desc::getParamString( const char* defstr, const char* key,
-			   BufferString& res )
+bool Desc::getParamString( const char* ds, const char* ky, BufferString& res )
 {
-    if ( !defstr || !key )
-	return 0;
+    if ( !ky || !*ky )
+	return false;
 
-    const int inpsz = strlen(defstr);
-    const int keysz = strlen(key);
-    bool inquotes = false;
-    for ( int idx=0; idx<inpsz; idx++ )
-    {
-	if ( !inquotes && defstr[idx] == '=' )
-	{
-	    int firstpos = idx - 1;
+    BufferStringSet keys, vals;
+    getKeysVals( ds, keys, vals, ky );
+    if ( keys.isEmpty() )
+	return false;
 
-	    while ( isspace(defstr[firstpos]) && firstpos >= 0 ) firstpos --;
-	    if ( firstpos < 0 ) continue;
-
-	    int lastpos = firstpos;
-
-	    while ( !isspace(defstr[firstpos]) && firstpos >= 0 ) firstpos --;
-	    firstpos++;
-
-	    if ( lastpos - firstpos + 1 == keysz )
-	    {
-		if ( !strncmp( &defstr[firstpos], key, keysz ) )
-		{
-		    firstpos = idx + 1;
-		    while ( isspace(defstr[firstpos]) && firstpos < inpsz )
-			firstpos ++;
-		    if ( firstpos == inpsz ) continue;
-
-		    bool hasquotes = false;
-		    if (defstr[firstpos] == '"')
-		    {
-			hasquotes = true;
-			if (firstpos == inpsz - 1)
-			    continue;
-			firstpos++;
-		    }
-		    lastpos = firstpos;
-
-		    while (( (hasquotes && defstr[lastpos] != '"')
-			    || (!hasquotes && !isspace(defstr[lastpos])) )
-			    &&  lastpos < inpsz)
-			lastpos ++;
-
-		    lastpos --;
-
-		    ArrPtrMan<char> tmpres = new char [lastpos-firstpos+2];
-		    strncpy( tmpres, &defstr[firstpos], lastpos-firstpos+1 );
-		    tmpres[lastpos-firstpos+1] = '\0';
-
-		    res = tmpres.ptr();
-		    return true;
-		}
-	    }
-	}
-	else if ( defstr[idx] == '"' )
-	    inquotes = !inquotes;
-    }
-
-    return false;
+    res = vals.get( 0 );
+    return true;
 }
 
 
@@ -744,57 +689,47 @@ bool Desc::isIdentifiedBy( const char* str ) const
 }
 
 
-void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
-			BufferStringSet& vals )
+void Desc::getKeysVals( const char* ds, BufferStringSet& keys,
+			BufferStringSet& vals, const char* targetky )
 {
-    const int len = strlen(defstr);
-    int spacepos = 0;
-    for ( int idx=0; idx<len; idx++ )
+    BufferString defstr( ds );
+    defstr.trimBlanks();
+    if ( defstr.isEmpty() )
+	return;
+
+    const FixedString onlyneedkey( targetky );
+    const bool havetarget = !onlyneedkey.isEmpty();
+    char* still2scan = defstr.buf();
+    while ( *still2scan )
     {
-	if ( defstr[idx] != '=')
-	    continue;
+	char* ptrval = firstOcc( still2scan, '=' );
+	if ( !ptrval )
+	    break;
 
-	spacepos = idx-1;
-	while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
-	if ( spacepos < 0 ) continue;
-	int lastpos = spacepos;
+	char* ptrkey = ptrval;
+	*ptrval++ = '\0';
+	while ( ptrkey != still2scan && !isspace(*ptrkey) )
+	    ptrkey--;
+	mSkipBlanks(ptrkey);
 
-	while ( !isspace(defstr[spacepos]) && spacepos >= 0 )
-	    spacepos --;
-
-	spacepos++;
-	ArrPtrMan<char> tmpkey = new char [lastpos-spacepos+2];
-	strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
-	tmpkey[lastpos-spacepos+1] = 0;
-	const char* tmp = tmpkey;
-	keys.add(tmp);
-
-	spacepos = idx+1;
-
-	if ( defstr[spacepos] == '"' )
-	{
-	    spacepos++;
-	    lastpos = spacepos;
-	    while ( spacepos<len && (defstr[spacepos] != '"') ) spacepos++;
-
-	    spacepos--;
-	}
+	still2scan = ptrval;
+	if ( *ptrval == '"' )
+	    { ptrval++; still2scan = firstOcc( ptrval, '"' ); }
 	else
+	    { mSkipNonBlanks(still2scan); }
+	if ( still2scan && *still2scan )
+	    *still2scan++ = '\0';
+
+	if ( *ptrkey )
 	{
-	    while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
-	    if ( spacepos >= len ) continue;
-	    lastpos = spacepos;
-
-	    while ( !isspace(defstr[spacepos]) && spacepos<len ) spacepos++;
-	    spacepos--;
+	    const bool doadd = !havetarget || onlyneedkey == ptrkey;
+	    if ( doadd )
+	    {
+		keys.add( ptrkey ); vals.add( ptrval );
+		if ( havetarget )
+		    break;
+	    }
 	}
-
-	ArrPtrMan<char> tmpval = new char [spacepos-lastpos+2];
-	strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
-	tmpval[spacepos-lastpos+1] = 0;
-	tmp = tmpval;
-	vals.add(tmp);
-	idx = spacepos;
     }
 }
 

@@ -810,7 +810,8 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	 firstOcc(newnm,'#') )
 	mErrRetFalse( "Attribute name may not contain '!', '#', ';' or ':'." );
 
-    if ( strlen(newnm) < 2 )
+    const FixedString fsnewnm( newnm );
+    if ( fsnewnm.size() < 2 )
 	mErrRetFalse( "Please enter a name of at least 2 characters." );
 
     TypeSet<DescID> ids;
@@ -818,7 +819,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	const Desc& ad = *attrset_->getDesc( ids[idx] );
-	if ( !strcmp(ad.userRef(),newnm) )
+	if ( fsnewnm == ad.userRef() )
 	{
 	    uiMSG().error( "The name you entered for the attribute already"
 			  " exists.\nPlease choose another name." );
@@ -1205,12 +1206,12 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
     for ( int idx=0; idx<adids.size(); idx++ )
     {
 	const Attrib::Desc* ad = attrset_->getDesc( adids[idx] );
-	const char* attrnm = ad->attribName();
+	const BufferString& attrnm = ad->attribName();
 	const char* usernm = ad->userRef();
 	for ( int idy=0; idy<desceds_.size(); idy++ )
 	{
-	    if ( !desceds_[idy] || strcmp(attrnm,desceds_[idy]->attribName()) )
-	    continue;
+	    if ( !desceds_[idy] || attrnm != desceds_[idy]->attribName() )
+		continue;
 
 	    TypeSet<EvalParam> tmp;
 	    desceds_[idy]->getEvalParams( tmp );

@@ -757,7 +757,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     else
 	usrnm_ = lk;
 
-    if ( ad && strcmp(ad->userRef(), usrnm_.buf() ) )
+    if ( ad && usrnm_ != ad->userRef() )
 	const_cast<Desc*>( ad )->setUserRef( usrnm_.buf() );
 
     return usrnm_.buf();
@@ -964,7 +964,7 @@ DescID uiImagAttrSel::imagID() const
     {
 	const Desc* desc = attrdata_.attrSet().getDesc( attribids[idx] );
 
-	if ( strcmp(desc->attribName(),Hilbert::attribName()) )
+	if ( desc->attribName() != Hilbert::attribName() )
 	    continue;
 
 	const Desc* inputdesc = desc->getInput( 0 );

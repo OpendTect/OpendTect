@@ -327,7 +327,7 @@ SyntheticData* StratSynth::getSynthetic( const char* nm )
 {
     for ( int idx=0; idx<synthetics().size(); idx ++ )
     {
-	if ( !strcmp( synthetics_[idx]->name(), nm ) )
+	if ( synthetics_[idx]->name() == nm )
 	    return synthetics_[idx];
     }
     return 0;

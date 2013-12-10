@@ -103,7 +103,7 @@ void uiDipFilterAttrib::aziSel( CallBacker* )
 
 bool uiDipFilterAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),DipFilter::attribName()) )
+    if ( desc.attribName() != DipFilter::attribName() )
 	return false;
 
     mIfGetInt( DipFilter::sizeStr(), size, szfld->box()->setValue(size) )
@@ -135,7 +135,7 @@ bool uiDipFilterAttrib::setInput( const Desc& desc )
 
 bool uiDipFilterAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),DipFilter::attribName()) )
+    if ( desc.attribName() != DipFilter::attribName() )
 	return false;
 
     mSetInt( DipFilter::sizeStr(), szfld->box()->getValue() );

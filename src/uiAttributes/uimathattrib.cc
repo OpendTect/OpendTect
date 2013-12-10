@@ -169,7 +169,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
     }
     else
 	for ( int idx=0; idx<nrvars_; idx++ )
-	    if ( strcmp( xtable_->rowLabel(idx), varnms.get(idx) ) )
+	    if ( FixedString(xtable_->rowLabel(idx)) != varnms.get(idx) )
 		setupOneRow( asd, idx, false );
 
     xtable_->display( nrvars_ );
@@ -204,7 +204,7 @@ void uiMathAttrib::setupOneRow( const uiAttrSelData& asd, int rowidx,
 
 bool uiMathAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Attrib::Math::attribName()) )
+    if ( desc.attribName() != Attrib::Math::attribName() )
 	return false;
 
     mIfGetString( Attrib::Math::expressionStr(), expression, 
@@ -261,7 +261,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 
 bool uiMathAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Attrib::Math::attribName()) )
+    if ( desc.attribName() != Attrib::Math::attribName() )
 	return false;
 
     mSetString( Attrib::Math::expressionStr(), inpfld_->text() );

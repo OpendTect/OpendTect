@@ -129,11 +129,10 @@ const float Convolve::prewitt2D[] =
 void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
-    bool isprewitt = !strcmp( kernel->getStringValue(0),
-			      kernelTypeStr(mKernelFunctionPrewitt) );
-    bool iswavelet = !strcmp( kernel->getStringValue(0),
-			      kernelTypeStr(mKernelFunctionWavelet) );
-    bool needsz = !(isprewitt || iswavelet);
+    const FixedString ktyp( kernel->getStringValue(0) );
+    const bool isprewitt = ktyp == kernelTypeStr(mKernelFunctionPrewitt);
+    const bool iswavelet = ktyp == kernelTypeStr(mKernelFunctionWavelet);
+    const bool needsz = !(isprewitt || iswavelet);
     desc.setParamEnabled(sizeStr(),needsz);
     desc.setParamEnabled(shapeStr(),needsz);
     desc.setParamEnabled(waveletStr(),iswavelet);
@@ -143,7 +142,7 @@ void Convolve::updateDesc( Desc& desc )
 }
 
 
-const char* Convolve::kernelTypeStr(int type)
+const char* Convolve::kernelTypeStr( int type )
 {
     if ( type==mKernelFunctionLowPass ) return "LowPass";
     if ( type==mKernelFunctionLaplacian ) return "Laplacian";

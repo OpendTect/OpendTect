@@ -161,7 +161,7 @@ void calcFingParsObject::findLineSetID( MultiID& linesetid ) const
     BufferString firstinp = reflist_->get(0);
     for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
     {
-	if ( !strcmp( firstinp, attrset_->desc(idxdesc)->userRef() ) )
+	if ( firstinp == attrset_->desc(idxdesc)->userRef() )
 	{
 	    Desc* dsc = attrset_->desc(idxdesc);
 	    const char* key = StorageProvider::keyStr();
@@ -264,8 +264,7 @@ EngineMan* calcFingParsObject::createEngineMan()
     {
 	for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
 	{
-	    if ( !strcmp( reflist_->get(idx),
-			  attrset_->desc(idxdesc)->userRef() ) )
+	    if ( reflist_->get(idx) == attrset_->desc(idxdesc)->userRef() )
 	    {
 		SelSpec sp( 0, attrset_->desc(idxdesc)->id() );
 		attribspecs += sp;
@@ -309,7 +308,7 @@ void calcFingParsObject::saveValsAndRanges( const TypeSet<float>& vals,
 	BufferString inp = reflist_->get(idx);
 	for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
 	{
-	    if ( !strcmp( inp, attrset_->desc(idxdesc)->userRef() ) )
+	    if ( inp == attrset_->desc(idxdesc)->userRef() )
 	    {
 		if ( vals.size() > index )
 		    values_ += vals[index];

@@ -70,7 +70,7 @@ void uiSimilaritybyAW::choiceSel( CallBacker* )
 
 bool uiSimilaritybyAW::setParameters( const Desc& desc )
 {
-    if( strcmp(desc.attribName(),SimilaritybyAW::attribName()) )
+    if( desc.attribName() != SimilaritybyAW::attribName() )
 	return false;
 
     mIfGetEnum( sKey::Output(), attribute,
@@ -101,7 +101,7 @@ bool uiSimilaritybyAW::setInput( const Desc& desc )
 
 bool  uiSimilaritybyAW::getParameters( Desc& desc )
 {
-    if( strcmp(desc.attribName(),SimilaritybyAW::attribName()) )
+    if( desc.attribName() != SimilaritybyAW::attribName() )
 	return false;
 
     mSetFloatInterval( SimilaritybyAW::refTimeGateStr(),
@@ -140,7 +140,7 @@ void uiSimilaritybyAW::steerTypeSel( CallBacker* )
 	{
             LineKey inp( inputfld_->getInput() );
 	    LineKey steer( steertxt );
-	    if( strcmp(inp.lineName(), steer.lineName()) )
+	    if( inp.lineName() != steer.lineName() )
 		steerfld_->clearInpField();
 	}
     }

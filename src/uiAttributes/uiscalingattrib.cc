@@ -168,7 +168,7 @@ void uiScalingAttrib::statsSel( CallBacker* )
 
 bool uiScalingAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Scaling::attribName()) )
+    if ( desc.attribName() != Scaling::attribName() )
 	return false;
 
     mIfGetEnum( Scaling::scalingTypeStr(), scalingtype,
@@ -252,7 +252,7 @@ bool uiScalingAttrib::setInput( const Desc& desc )
 
 bool uiScalingAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Scaling::attribName()) )
+    if ( desc.attribName() != Scaling::attribName() )
 	return false;
 
     mSetEnum( Scaling::scalingTypeStr(), typefld->getIntValue() );

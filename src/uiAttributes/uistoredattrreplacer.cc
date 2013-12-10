@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "linekey.h"
 #include "varlenarray.h"
+#include <string.h>
 
 #include "uiattrinpdlg.h"
 #include "uimsg.h"

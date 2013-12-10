@@ -97,7 +97,7 @@ void uiTutorialAttrib::actionSel( CallBacker* )
 
 bool uiTutorialAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Tutorial::attribName()) )
+    if( desc.attribName() != Tutorial::attribName() )
 	return false;
 
     mIfGetEnum( Tutorial::actionStr(), action,
@@ -126,7 +126,7 @@ bool uiTutorialAttrib::setInput( const Desc& desc )
 
 bool uiTutorialAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Tutorial::attribName()) )
+    if( desc.attribName() != Tutorial::attribName() )
 	return false;
 
     bool dosteer = false;
@@ -175,7 +175,7 @@ void uiTutorialAttrib::steerTypeSel( CallBacker* )
 	{                                                                       
 	    LineKey inp( inpfld_->getInput() );                                 
 	    LineKey steer( steertxt );                                          
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+	    if ( inp.lineName() != steer.lineName() )                   
 		steerfld_->clearInpField();
 	}
     }

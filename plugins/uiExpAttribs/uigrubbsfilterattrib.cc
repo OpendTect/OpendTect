@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
+#include <string.h>
 
 using namespace Attrib;
 
@@ -81,7 +82,7 @@ void uiGrubbsFilterAttrib::replaceTypChanged( CallBacker* )
 
 bool uiGrubbsFilterAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GrubbsFilter::attribName()) )
+    if( desc.attribName() != GrubbsFilter::attribName() )
 	return false;
 
     mIfGetFloat(GrubbsFilter::grubbsvalStr(),cogrubbsval,
@@ -103,7 +104,7 @@ bool uiGrubbsFilterAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiGrubbsFilterAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GrubbsFilter::attribName()) )
+    if( desc.attribName() != GrubbsFilter::attribName() )
 	return false;
 
     mSetFloat( GrubbsFilter::grubbsvalStr(), grubbsvalfld_->getfValue() );

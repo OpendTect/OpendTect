@@ -154,7 +154,7 @@ float uiSpecDecompAttrib::getOutputValue( int idx ) const
 
 bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),SpecDecomp::attribName()) )
+    if ( desc.attribName() != SpecDecomp::attribName() )
 	return false;
 
     mIfGetFloatInterval( SpecDecomp::gateStr(),gate, gatefld_->setValue(gate) );
@@ -191,7 +191,7 @@ bool uiSpecDecompAttrib::setOutput( const Desc& desc )
 
 bool uiSpecDecompAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),SpecDecomp::attribName()) )
+    if ( desc.attribName() != SpecDecomp::attribName() )
 	return false;
 
     mSetEnum( SpecDecomp::transformTypeStr(),typefld_->getBoolValue() ? 0 : 2 );
@@ -443,7 +443,7 @@ bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
 				       int seloutidx, int inpidx,
 				       DescID inpid ) const
 {
-    if ( strcmp(dsc->attribName(),attribnm) )
+    if ( dsc->attribName() != attribnm )
 	return false;
 
     if ( dsc->selectedOutput() != seloutidx )

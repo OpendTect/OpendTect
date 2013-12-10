@@ -142,17 +142,17 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
 void uiSimilarityAttrib::extSel( CallBacker* )
 {
-    const char* ext = extfld_->text();
+    const FixedString ext = extfld_->text();
     
-    const bool iscube = !strcmp(ext,extstrs3d[3]);
-    const bool iscross = !strcmp(ext,extstrs3d[4]);
-    const bool isalldir = !strcmp(ext,extstrs3d[5]);
-    const bool isdiag = !strcmp(ext,extstrs3d[6]);
+    const bool iscube = ext == extstrs3d[3];
+    const bool iscross = ext == extstrs3d[4];
+    const bool isalldir = ext == extstrs3d[5];
+    const bool isdiag = ext == extstrs3d[6];
     const bool needstepoutfld = iscube || iscross || isalldir || isdiag;
-    pos0fld_->display( !needstepoutfld);
+    pos0fld_->display( !needstepoutfld );
     pos1fld_->display( !needstepoutfld );
     stepoutfld_->display( needstepoutfld );
-    outpstatsfld_->display( strcmp(ext,extstrs3d[0]) );
+    outpstatsfld_->display( ext != extstrs3d[0] );
     if ( !iscross )
     {
 	dooutpstatsfld_->setValue( true );
@@ -160,7 +160,7 @@ void uiSimilarityAttrib::extSel( CallBacker* )
     }
 
     BufferString cursel = outpstatsfld_->text();
-    StringListInpSpec spec( !strcmp(ext,extstrs3d[3]) ? outpstrsext : outpstrs);
+    StringListInpSpec spec( iscube ? outpstrsext : outpstrs );
     outpstatsfld_->newSpec( spec, 0 );
     outpstatsfld_->setText( cursel );
 }
@@ -179,7 +179,7 @@ void uiSimilarityAttrib::outSel(CallBacker*)
 
 bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Similarity::attribName()) )
+    if ( desc.attribName() != Similarity::attribName() )
 	return false;
 
     mIfGetFloatInterval( Similarity::gateStr(), gate, gatefld_->setValue(gate) )
@@ -216,9 +216,8 @@ bool uiSimilarityAttrib::setInput( const Attrib::Desc& desc )
 bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 {
     const int selattr = desc.selectedOutput();
-    const char* ext = extfld_->text();
-    const bool mirrorext = !strcmp(ext,extstrs3d[1]) || 
-			   !strcmp(ext,extstrs3d[2]);
+    const FixedString ext = extfld_->text();
+    const bool mirrorext = ext == extstrs3d[1] || ext == extstrs3d[2];
     dooutpstatsfld_->setValue( selattr<5 );
     
     if ( selattr<5 )
@@ -238,12 +237,12 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 
 bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Similarity::attribName()) )
+    if ( desc.attribName() != Similarity::attribName() )
 	return false;
 
-    const char* ext = extfld_->text();
-    if ( !strcmp(ext,extstrs3d[3]) || !strcmp(ext,extstrs3d[4]) 
-	 || !strcmp(ext,extstrs3d[5]) || !strcmp(ext,extstrs3d[6]) )
+    const FixedString ext = extfld_->text();
+    if ( ext == extstrs3d[3] || ext == extstrs3d[4] 
+	 || ext == extstrs3d[5] || ext == extstrs3d[6] )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld_->getBinID() ); }
     else
     {
@@ -291,8 +290,8 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
     else
     {
 	selattr = outpstatsfld_->getIntValue();
-	const char* ext = extfld_->text();
-	if (selattr && (!strcmp(ext,extstrs3d[1]) || !strcmp(ext,extstrs3d[2])))
+	const FixedString ext = extfld_->text();
+	if (selattr && (ext == extstrs3d[1] || ext == extstrs3d[2]))
 	    selattr += 2;
     }
 
@@ -305,10 +304,9 @@ void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Similarity::gateStr() );
 
-    if ( !strcmp(extstrs3d[3],extfld_->text())
-	    || !strcmp(extstrs3d[4],extfld_->text())
-	    || !strcmp(extstrs3d[5],extfld_->text())
-	    || !strcmp(extstrs3d[6],extfld_->text()) )
+    const FixedString ext = extfld_->text();
+    if ( ext == extstrs3d[3] || ext == extstrs3d[4]
+      || ext == extstrs3d[5] || ext == extstrs3d[6] )
 	params += EvalParam( stepoutstr(), Similarity::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Similarity::pos0Str(),
@@ -330,7 +328,7 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
 	{
 	    LineKey inp( inpfld_->getInput() );
 	    LineKey steer( steertxt );
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )
+	    if ( inp.lineName() != steer.lineName() )
 		steerfld_->clearInpField();
 	}
     }

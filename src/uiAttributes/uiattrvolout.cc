@@ -468,10 +468,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
     tmpiop.setEmpty();
-    if ( strcmp( typestr.buf(), "" ) )
+    if ( !typestr.isEmpty() )
 	tmpiop.set( sKey::Type(), typestr );
 
-    const bool usecs = strcmp( typestr.buf(), "None" );
+    const bool usecs = typestr != "None";
     if ( usecs )
     {
 	cs.usePar( subselpar_ );

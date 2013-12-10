@@ -118,7 +118,7 @@ Frequency::Frequency( Desc& ds )
     samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
 			       mNINT32(gate_.stop/SI().zStep()));
 
-    if ( strcmp( windowtype_, "None") )
+    if ( windowtype_ != "None" )
 	window_ = new ArrayNDWindow( Array1DInfoImpl(samplegate_.width()+1),
 				     false, windowtype_, variable_ );
 }
@@ -354,7 +354,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 bool Frequency::checkInpAndParsAtStart()
 {
-    if ( !strcmp( windowtype_, "None" ) )
+    if ( windowtype_ == "None" )
 	return Provider::checkInpAndParsAtStart();
     else
 	return window_ && window_->isOK() && Provider::checkInpAndParsAtStart();

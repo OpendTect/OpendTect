@@ -86,17 +86,16 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 
 void uiSemblanceAttrib::extSel( CallBacker* )
 {
-    const char* ext = extfld->text();
-    
-    pos0fld->display( strcmp(ext,extstrs3d[3]) );
-    pos1fld->display( strcmp(ext,extstrs3d[3]) );
-    stepoutfld->display( !strcmp(ext,extstrs3d[3]) );
+    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
+    pos0fld->display( !isfullblock );
+    pos1fld->display( !isfullblock );
+    stepoutfld->display( isfullblock );
 }
 
 
 bool uiSemblanceAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Semblance::attribName()) )
+    if ( desc.attribName() != Semblance::attribName() )
 	return false;
 
     mIfGetFloatInterval( Semblance::gateStr(), gate, gatefld->setValue(gate) )
@@ -122,11 +121,11 @@ bool uiSemblanceAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Semblance::attribName()) )
+    if ( desc.attribName() != Semblance::attribName() )
 	return false;
 
-    const char* ext = extfld->text();
-    if ( !strcmp(ext,extstrs3d[3]) )
+    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
+    if ( isfullblock )
     {	mSetBinID( Semblance::stepoutStr(), stepoutfld->getBinID() ); }
     else
     {
@@ -135,7 +134,7 @@ bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
     }
 
     BufferStringSet strs( extstrs3d );
-    mSetEnum( Semblance::extensionStr(), strs.indexOf(ext) );
+    mSetEnum( Semblance::extensionStr(), strs.indexOf(extfld->text()) );
     mSetFloatInterval( Semblance::gateStr(), gatefld->getFInterval() );
     mSetBool( Semblance::steeringStr(), steerfld->willSteer() );
 
@@ -156,7 +155,8 @@ void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Semblance::gateStr() );
 
-    if ( !strcmp(extstrs3d[3],extfld->text()) )
+    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
+    if ( isfullblock )
 	params += EvalParam( stepoutstr(), Semblance::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Semblance::pos0Str(),

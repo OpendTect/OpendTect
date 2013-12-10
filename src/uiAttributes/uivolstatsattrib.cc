@@ -115,7 +115,7 @@ void uiVolumeStatisticsAttrib::stackstepChg( CallBacker* )
 
 bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),VolStats::attribName()) )
+    if ( desc.attribName() != VolStats::attribName() )
 	return false;
 
     mIfGetBool( VolStats::allowEdgeEffStr(), edgeeff,
@@ -142,7 +142,7 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 
 bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),VolStats::attribName()) )
+    if ( desc.attribName() != VolStats::attribName() )
 	return false;
 
     mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );

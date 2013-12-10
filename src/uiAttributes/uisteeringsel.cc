@@ -185,12 +185,12 @@ DescID uiSteeringSel::descID()
 
     if ( type==3 )
     {
-	const char* attribnm = "ConstantSteering";
+	const FixedString attribnm = "ConstantSteering";
 	for ( int idx=0; idx<descset_->size(); idx++ )
 	{
 	    const DescID descid = descset_->getID( idx );
 	    const Desc& desc = *descset_->getDesc( descid );
-	    if ( strcmp(attribnm,desc.attribName()) )
+	    if ( attribnm != desc.attribName() )
 		continue;
 
 	    float dip, azi;

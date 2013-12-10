@@ -131,7 +131,7 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds_[1] );
     if ( tap )
     {
-	bool costaper = !strcmp(tap->windowName(),"CosTaper");
+	const bool costaper = FixedString(tap->windowName()) == "CosTaper";
 	Interval<float> frg( freqfld_->freqRange() );
 	if ( costaper ) { frg.start-=5; frg.stop+=10; }
 	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
@@ -151,7 +151,7 @@ void uiFreqFilterAttrib::freqWinSel( CallBacker* )
 
 bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),FreqFilter::attribName()) )
+    if ( desc.attribName() != FreqFilter::attribName() )
 	return false;
 
     mIfGetEnum( FreqFilter::filtertypeStr(), filtertype, 
@@ -199,7 +199,7 @@ bool uiFreqFilterAttrib::setInput( const Desc& desc )
 
 bool uiFreqFilterAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),FreqFilter::attribName()) )
+    if ( desc.attribName() != FreqFilter::attribName() )
 	return false;
 
     const Interval<float> freqrg = freqfld_->freqRange();
@@ -217,7 +217,7 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( taper ) 
     {
 	Interval<float> freqresvar = taper->freqValues();
-	const bool istaper = !strcmp(winflds_[1]->windowName(),"CosTaper");
+	const bool istaper = FixedString(winflds_[1]->windowName())=="CosTaper";
 	freqresvar.start = istaper ? (freqresvar.start) : freqrg.start; 
 	freqresvar.stop = istaper ? (freqresvar.stop) : freqrg.stop; 
 	mSetFloat( FreqFilter::freqf1Str(), freqresvar.start );
@@ -257,7 +257,7 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     return false;
 bool uiFreqFilterAttrib::areUIParsOK()
 {
-    if ( !strcmp( winflds_[0]->windowName(), "CosTaper" ) )
+    if ( FixedString(winflds_[0]->windowName()) == "CosTaper" )
     {
 	float paramval = winflds_[0]->windowParamValue();
 	if ( paramval<0 || paramval>1  )

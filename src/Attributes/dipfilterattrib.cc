@@ -87,14 +87,13 @@ void DipFilter::updateDesc( Desc& desc )
     desc.setParamEnabled( maxaziStr(), filterazi );
 
     const ValParam* type = desc.getValParam( typeStr() );
-    if ( !strcmp(type->getStringValue(0),
-		filterTypeNamesStr(mFilterTypeLowPass)) )
+    const FixedString typstr( type->getStringValue(0) );
+    if ( typstr == filterTypeNamesStr(mFilterTypeLowPass) )
     {
 	desc.setParamEnabled( minvelStr(), false );
 	desc.setParamEnabled( maxvelStr(), true );
     }
-    else if ( !strcmp(type->getStringValue(0),
-		filterTypeNamesStr(mFilterTypeHighPass)) )
+    else if ( typstr == filterTypeNamesStr(mFilterTypeHighPass) )
     {
 	desc.setParamEnabled( minvelStr(), true );
 	desc.setParamEnabled( maxvelStr(), false );

@@ -67,7 +67,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 
 bool uiPositionAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Position::attribName()) )
+    if ( desc.attribName() != Position::attribName() )
 	return false;
 
     mIfGetFloatInterval( Position::gateStr(), gate, gatefld->setValue(gate) );
@@ -91,7 +91,7 @@ bool uiPositionAttrib::setInput( const Desc& desc )
 
 bool uiPositionAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Position::attribName()) )
+    if ( desc.attribName() != Position::attribName() )
 	return false;
 
     mSetFloatInterval( Position::gateStr(), gatefld->getFInterval() );
@@ -129,7 +129,7 @@ void uiPositionAttrib::steerTypeSel( CallBacker* )
 	{
 	    LineKey inp( inpfld->getInput() );
 	    LineKey steer( steertxt );
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )
+	    if ( inp.lineName() != steer.lineName() )
 		steerfld->clearInpField();
 	}	    
     }

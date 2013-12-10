@@ -66,7 +66,7 @@ void uiShiftAttrib::steerSel( CallBacker* )
 
 bool uiShiftAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Shift::attribName()) )
+    if ( desc.attribName() != Shift::attribName() )
 	return false;
 
     mIfGetBinID( Shift::posStr(), pos, stepoutfld_->setBinID(pos) );
@@ -88,7 +88,7 @@ bool uiShiftAttrib::setInput( const Desc& desc )
 
 bool uiShiftAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Shift::attribName()) )
+    if ( desc.attribName() != Shift::attribName() )
 	return false;
 
     const bool dosteering = dosteerfld_->getBoolValue();
@@ -125,7 +125,7 @@ void uiShiftAttrib::steerTypeSel( CallBacker* )
 	{                                                                       
 	    LineKey inp( inpfld_->getInput() );                                 
 	    LineKey steer( steertxt );                                          
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+	    if ( inp.lineName() != steer.lineName() )                   
 		steerfld_->clearInpField();
 	}
     }

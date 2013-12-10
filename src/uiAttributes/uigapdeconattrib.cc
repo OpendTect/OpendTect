@@ -136,7 +136,7 @@ void uiGapDeconAttrib::mixSel( CallBacker* )
 
 bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GapDecon::attribName()) )
+    if ( desc.attribName() != GapDecon::attribName() )
 	return false;
 
     mIfGetFloatInterval( GapDecon::gateStr(), gate, gatefld_->setValue(gate) )
@@ -183,7 +183,7 @@ bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),GapDecon::attribName()) )
+    if ( desc.attribName() != GapDecon::attribName() )
 	return false;
 
     mSetFloatInterval( GapDecon::gateStr(), gatefld_->getFInterval() );
@@ -389,7 +389,7 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 bool uiGapDeconAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
 				     int seloutidx, int inpidx, DescID inpid )
 {
-    if ( strcmp( dsc->attribName(), attribnm ) )
+    if ( dsc->attribName() != attribnm )
 	return false;
 
     if ( dsc->selectedOutput() != seloutidx )

@@ -135,7 +135,7 @@ void uiEventAttrib::outAmpSel( CallBacker* )
 
 bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Attrib::Event::attribName()) )
+    if ( desc.attribName() != Attrib::Event::attribName() )
 	return false;
 
     mIfGetBool( Attrib::Event::issingleeventStr(), issingleevent, 
@@ -173,7 +173,7 @@ bool uiEventAttrib::setOutput( const Attrib::Desc& desc )
 
 bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Attrib::Event::attribName()) )
+    if ( desc.attribName() != Attrib::Event::attribName() )
 	return false;
 
     mSetBool( Attrib::Event::issingleeventStr(), issinglefld->getBoolValue() );

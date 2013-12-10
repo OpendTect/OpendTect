@@ -144,7 +144,7 @@ if ( enumparam##var ) \
 if ( desc.getValParam(str) ) \
 { \
     BufferString var = desc.getValParam(str)->getStringValue(0); \
-    if ( !strcmp( var, "" ) )\
+    if ( var.isEmpty() ) \
 	var = desc.getValParam(str)->getDefaultStringValue(0); \
     setfunc;\
 }

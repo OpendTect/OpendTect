@@ -125,7 +125,7 @@ static void setFldInp( uiIOObjSel* fld, const char* str )
 
 bool uiConvolveAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Convolve::attribName()) )
+    if ( desc.attribName() != Convolve::attribName() )
 	return false;
 
     mIfGetEnum( Convolve::kernelStr(), kernel, kernelfld_->setValue(kernel) )
@@ -160,7 +160,7 @@ bool uiConvolveAttrib::setOutput( const Desc& desc )
 
 bool uiConvolveAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Convolve::attribName()) )
+    if ( desc.attribName() != Convolve::attribName() )
 	return false;
 
     const int typeval = kernelfld_->getIntValue();

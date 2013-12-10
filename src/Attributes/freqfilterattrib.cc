@@ -311,7 +311,7 @@ void FreqFilter::fftFilter( const DataHolder& output, int z0, int nrsamples )
     }
 
     FFTFilter filter( nrsamples, refstep_);
-    if ( strcmp(windowtype_,"None") )
+    if ( windowtype_ != "None" )
 	if ( !filter.setTimeTaperWindow(nrsamples,windowtype_,variable_) )
 	    return;
 

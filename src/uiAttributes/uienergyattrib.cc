@@ -56,7 +56,7 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
 
 bool uiEnergyAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Energy::attribName()) )
+    if ( desc.attribName() != Energy::attribName() )
 	return false;
 
     mIfGetFloatInterval( Energy::gateStr(), gate, gatefld_->setValue(gate) );
@@ -81,7 +81,7 @@ bool uiEnergyAttrib::setOutput( const Attrib::Desc& desc )
 
 bool uiEnergyAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Energy::attribName()) )
+    if ( desc.attribName() != Energy::attribName() )
 	return false;
 
     mSetFloatInterval( Energy::gateStr(), gatefld_->getFInterval() );

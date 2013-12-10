@@ -75,7 +75,7 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
 
 bool uiReferenceAttrib::setParameters( const Attrib::Desc& desc )
 {
-    return !strcmp(desc.attribName(),Reference::attribName());
+    return desc.attribName() == Reference::attribName();
 }
 
 
@@ -105,7 +105,7 @@ bool uiReferenceAttrib::getOutput( Desc& desc )
 
 bool uiReferenceAttrib::getParameters( Attrib::Desc& desc )
 {
-    return !strcmp(desc.attribName(),Reference::attribName());
+    return desc.attribName() == Reference::attribName();
 }
 
 
