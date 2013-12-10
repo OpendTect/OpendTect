@@ -543,20 +543,22 @@ VoxelConnectivityFilter::~VoxelConnectivityFilter()
 
 Task* VoxelConnectivityFilter::createTask()
 {
-    if ( !input_ || input_->nrCubes()<1 )
+    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !input || input->nrCubes()<1 )
     {
 	errmsg_ = "No input provided.";
 	return 0;
     }
 
-    if ( !output_ || output_->nrCubes()<1 )
+    if ( !output || output->nrCubes()<1 )
     {
 	errmsg_ = "No output provided.";
 	return 0;
     }
 
-    return new VoxelConnectivityFilterTask( *this, input_->getCube(0),
-					    output_->getCube(0) );
+    return new VoxelConnectivityFilterTask( *this, input->getCube(0),
+					    output->getCube(0) );
 }
 
 

@@ -65,10 +65,10 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     const char* definition = ss.defString();
 
     BufferString attribname;
-    if ( !Attrib::Desc::getAttribName( definition, attribname ) || 
+    if ( !Attrib::Desc::getAttribName( definition, attribname ) ||
 	 attribname != sAttribName() )
 	return false;
-    
+
     BufferString midstring;
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), midstring ) )
 	return false;
@@ -93,7 +93,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	{
 	    errmsg_ += " Reason given: ";
 	    errmsg_ += errmsg;
-	}   
+	}
 
 	return false;
     }
@@ -106,7 +106,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 						     DataPack::ID dpid,
-       						     TaskRunner* tr )
+						     TaskRunner* tr )
 {
     if ( !chain_ || !chain_->nrSteps() )
     {
@@ -115,13 +115,19 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     }
 
     ChainExecutor executor( *chain_ );
-    if ( !executor.setCalculationScope(cs) ) 
+    const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
+    const StepInterval<float> geometryzrg = geometry.zRange();
+
+    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
+			   geometryzrg.nearestIndex( cs.zrg.stop ),
+			   mNINT32(cs.zrg.step/geometryzrg.step) );
+    if ( !executor.setCalculationScope(cs.hrg,zrg) )
     {
 	errmsg_ = "Cannot calculate at this location";
 	return DataPack::cNoID();
     }
 
-    if ( !TaskRunner::execute( tr, executor ) )
+    if ( !TaskRunner::execute(tr,executor) )
     {
 	if ( executor.errMsg() )
 	    errmsg_ = executor.errMsg();
@@ -175,4 +181,4 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 }
 
 
-}; //namespace
+} // namespace VolProc

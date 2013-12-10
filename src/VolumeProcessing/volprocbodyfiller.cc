@@ -28,17 +28,17 @@ namespace VolProc
 
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sFactoryKeyword(), 
+    SeparString keys( BodyFiller::sFactoryKeyword(),
 	    VolProc::Step::factory().cSeparator() );
     keys += BodyFiller::sKeyOldType();
 
-    VolProc::Step::factory().addCreator( createInstance, keys, 
+    VolProc::Step::factory().addCreator( createInstance, keys,
 	    BodyFiller::sFactoryDisplayName() );
-}    
+}
 
 
 BodyFiller::BodyFiller()
-    : body_( 0 )  
+    : body_( 0 )
     , emobj_( 0 )
     , implicitbody_( 0 )
     , insideval_( mUdf(float) )
@@ -59,12 +59,12 @@ void BodyFiller::releaseData()
 {
     Step::releaseData();
 
-    if ( emobj_ ) emobj_->unRef();    
+    if ( emobj_ ) emobj_->unRef();
     emobj_ = 0;
-    
+
     delete implicitbody_;
     implicitbody_ = 0;
-    
+
     plgknots_.erase();
     plgbids_.erase();
 }
@@ -86,16 +86,16 @@ bool BodyFiller::setSurface( const MultiID& mid )
 	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
 	if ( !loader || !loader->execute() )
 	    return false;
-	
+
 	emid = EM::EMM().getObjectID( mid );
 	emobj = EM::EMM().getObject( emid );
     }
-    
+
     mDynamicCastGet( EM::Body*, newsurf, emobj.ptr() );
     if ( !newsurf ) return false;
-    
+
     emobj->ref();
-   
+
     mid_ = mid;
     body_ = newsurf;
     emobj_ = emobj;
@@ -118,29 +118,31 @@ void BodyFiller::setInsideOutsideValue( const float in, const float out )
 bool BodyFiller::computeBinID( const BinID& bid, int )
 {
     //ToDo: Interpolate values from Implicit version of Surface(array).
-    if ( !output_ || !output_->nrCubes() )
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !output || !output->nrCubes() )
 	return false;
 
     const bool flatbody = !implicitbody_;
     if ( flatbody && plgknots_.size()<2 )
 	return false;
-   
-    const int outputinlidx = output_->inlsampling_.nearestIndex( bid.inl() );
-    const int outputcrlidx = output_->crlsampling_.nearestIndex( bid.crl() );
-    const int outputzsz = output_->getZSz();
+
+    const int outputinlidx = output->inlsampling_.nearestIndex( bid.inl() );
+    const int outputcrlidx = output->crlsampling_.nearestIndex( bid.crl() );
+    const int outputzsz = output->getZSz();
     if ( outputinlidx<0 || outputcrlidx<0 )
 	return true;
 
-    const int inputinlidx = input_ 
-	? input_->inlsampling_.nearestIndex(bid.inl()) : 0;
-    const int inputcrlidx = input_
-	? input_->crlsampling_.nearestIndex(bid.crl()) : 0;
-    const bool useinput = input_ &&
-	inputinlidx>=0 && inputinlidx < input_->getCube(0).info().getSize(0) &&
-	inputcrlidx>=0 && inputcrlidx < input_->getCube(0).info().getSize(1);
-    const int inputzsz = useinput && input_
-	? input_->getCube(0).info().getSize(2) : 0;
- 
+    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
+    const int inputinlidx = input
+	? input->inlsampling_.nearestIndex(bid.inl()) : 0;
+    const int inputcrlidx = input
+	? input->crlsampling_.nearestIndex(bid.crl()) : 0;
+    const bool useinput = input &&
+	inputinlidx>=0 && inputinlidx < input->getCube(0).info().getSize(0) &&
+	inputcrlidx>=0 && inputcrlidx < input->getCube(0).info().getSize(1);
+    const int inputzsz = useinput && input
+	? input->getCube(0).info().getSize(2) : 0;
+
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside;
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
@@ -158,7 +160,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     {
 	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl() );
 	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl() );
-	
+
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
 	    bodycrlidx>=implicitbody_->arr_->info().getSize(1);
@@ -171,51 +173,41 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    val = outsideval_;
 	else
 	{
-	    const float z = (float) ( (output_->z0_+idx) * output_->zstep_ );
+	    const float z = (float) ( (output->z0_+idx) * output->zstep_ );
 	    if ( flatbody )
 		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
 							   : outsideval_;
 	    else
 	    {
-    		const int bodyzidx = implicitbody_->cs_.zrg.nearestIndex(z);
-    		if ( bodyzidx<0 || 
+		const int bodyzidx = implicitbody_->cs_.zrg.nearestIndex(z);
+		if ( bodyzidx<0 ||
 			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
-    		    val = outsideval_;
-    		else
-    		{
-    		    const float bodyval = implicitbody_->arr_->get( 
+		    val = outsideval_;
+		else
+		{
+		    const float bodyval = implicitbody_->arr_->get(
 			    bodyinlidx, bodycrlidx, bodyzidx);
-		    
-    		    if ( mIsUdf(bodyval) )
-    			val = mUdf(float);
-    		    else
-    			val = bodyval<implicitbody_->threshold_
-    			    ? insideval_ : outsideval_;
-    		}
+
+		    if ( mIsUdf(bodyval) )
+			val = mUdf(float);
+		    else
+			val = bodyval<implicitbody_->threshold_
+			    ? insideval_ : outsideval_;
+		}
 	    }
 	}
-	   
+
 	if ( mIsUdf(val) && useinput )
 	{
-	    const int inputidx = idx+output_->z0_-input_->z0_;
+	    const int inputidx = idx+output->z0_ - input->z0_;
 	    if ( inputidx>=0 && inputidx<inputzsz )
-		val = input_->getCube(0).get(inputinlidx,inputcrlidx,inputidx);
+		val = input->getCube(0).get(inputinlidx,inputcrlidx,inputidx);
 	}
 
-	output_->setValue( 0, outputinlidx, outputcrlidx, idx, val );
+	output->setValue( 0, outputinlidx, outputcrlidx, idx, val );
     }
 
     return true;
-}
-
-
-void BodyFiller::setOutput( Attrib::DataCubes* ni )
-{
-    if ( output_ ) 
-	output_->unRef();
-
-    output_ = ni;
-    if ( output_ ) output_->ref();
 }
 
 
@@ -224,7 +216,6 @@ void BodyFiller::fillPar( IOPar& par ) const
     Step::fillPar( par );
     par.set( sKeyMultiID(), mid_ );
     par.set( sKeyInsideOutsideValue(), insideval_, outsideval_ );
-    par.setYN( sKeyEnabled(), enabled_ );
 }
 
 
@@ -242,16 +233,14 @@ bool BodyFiller::usePar( const IOPar& par )
     if ( par.get(sKeyInsideOutsideValue(), inv, outv ) )
 	setInsideOutsideValue( inv, outv);
 
-    if ( !par.getYN(sKeyEnabled(), enabled_) )
-	return false;
-
     return true;
 }
 
 
 Task* BodyFiller::createTask()
 {
-    if ( !output_ || !body_ )
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !output || !body_ )
 	return 0;
 
     plgknots_.erase();
@@ -266,28 +255,29 @@ Task* BodyFiller::createTask()
     mDynamicCastGet( EM::PolygonBody*, plg, body_ );
     if ( !plg )
 	return 0;
-    
+
     const EM::SectionID sid = plg->sectionID( 0 );
     const Geometry::PolygonSurface* surf = plg->geometry().sectionGeometry(sid);
     if ( surf->nrPolygons()==1 )
 	surf->getCubicBezierCurve( 0, plgknots_, SI().zScale() );
     else
 	surf->getAllKnots( plgknots_ );
-    
+
     const int knotsz = plgknots_.size();
     if ( knotsz<2 )
 	return 0;
-    
+
     for ( int idx=0; idx<knotsz; idx++ )
     {
 	plgknots_[idx].z *= SI().zScale();
 	const BinID bid = SI().transform( plgknots_[idx] );
 	plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z);
-	
+
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
-	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = (float) plgknots_[idx].z;
+	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop
+				   = (float)plgknots_[idx].z;
 	}
 	else
 	{
@@ -295,7 +285,7 @@ Task* BodyFiller::createTask()
 	    flatpolygon_.zrg.include( (float) plgknots_[idx].z );
 	}
     }
-    
+
     if ( surf->nrPolygons()==1 )
     {
 	if ( !flatpolygon_.hrg.inlRange().width() )
@@ -306,17 +296,20 @@ Task* BodyFiller::createTask()
 	    plgdir_ = plgIsZSlice;
     }
     else
-	plgdir_ = plgIsOther;	
+	plgdir_ = plgIsOther;
 
-    epsilon_ = plgdir_ < 2 ? plgbids_[0].distTo(plgbids_[1])*0.01 
+    epsilon_ = plgdir_ < 2 ? plgbids_[0].distTo(plgbids_[1])*0.01
 			  : plgknots_[0].distTo(plgknots_[1])*0.01;
-    
-    return Step::createTask();    
+
+    return Step::createTask();
 }
 
 
 bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 {
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !output) return false;
+
     const Coord coord = SI().transform( bid );
     if ( plgdir_ < 2 ) //Inline or Crossline case
     {
@@ -330,19 +323,19 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 		    res.start = res.stop = z;
 		else
 		    res.include( z );
-		
+
 		count++;
 	    }
-	    
-	    z += output_->zstep_ * SI().zScale();
+
+	    z += output->zstep_ * SI().zScale();
 	}
-	
+
 	if ( count==1 )
 	{
-	    res.start -= 0.5 * output_->zstep_;
-	    res.stop += 0.5 * output_->zstep_;
+	    res.start -= 0.5 * output->zstep_;
+	    res.stop += 0.5 * output->zstep_;
 	}
-	
+
 	return count;
     }
     else
@@ -350,10 +343,10 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	TypeSet<Coord3> knots;
 	for ( int idx=0; idx<plgknots_.size(); idx++ )
 	    knots += Coord3( plgknots_[idx].x, plgknots_[idx].y, 0 );
-	
+
 	if ( !pointInPolygon( Coord3(coord,0), knots, epsilon_ ) )
 	    return false;
-	
+
 	if ( plgdir_==plgIsZSlice )
 	{
 	    for ( int idx=0; idx<plgknots_.size(); idx++ )
@@ -363,11 +356,11 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 		else
 		    res.include( plgknots_[idx].z );
 	    }
-	    
+
 	    if ( mIsZero( res.width(), 1e-3 ) )
 	    {
-		res.start -= 0.5 * output_->zstep_;
-		res.stop += 0.5 * output_->zstep_;
+		res.start -= 0.5 * output->zstep_;
+		res.stop += 0.5 * output->zstep_;
 	    }
 	}
 	else //It is a case hard to see on the display.
@@ -376,12 +369,12 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 		    plgknots_[2] - plgknots_[1] );
 	    if ( mIsZero(normal.z, 1e-4) ) //Should not happen case
 		return false;
-	    
+
 	    const Coord diff = coord - plgknots_[0].coord();
 	    const double z = plgknots_[0].z -
 		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
-	    res.start = z - 0.5 * output_->zstep_;
-	    res.stop = z + 0.5 * output_->zstep_;
+	    res.start = z - 0.5 * output->zstep_;
+	    res.stop = z + 0.5 * output->zstep_;
 	}
     }
 

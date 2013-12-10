@@ -1,4 +1,4 @@
-/*+
+    /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : April 2007
@@ -20,10 +20,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 bool BatchProgram::go( od_ostream& strm )
-{ 
+{
     OD::ModDeps().ensureLoaded( "VolumeProcessing" );
     OD::ModDeps().ensureLoaded( "Well" );
-    
+
     MultiID chainid;
     pars().get( VolProcessingTranslatorGroup::sKeyChainID(), chainid );
     PtrMan<IOObj> ioobj = IOM().get( chainid );
@@ -32,7 +32,7 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << "Could not find volume processing, ID: '" << chainid << "'\n";
 	return false;
     }
-    
+
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
     BufferString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain,ioobj,errmsg) )
@@ -68,10 +68,9 @@ bool BatchProgram::go( od_ostream& strm )
 
     const float zstep = chain->getZStep();
     HorSampling inputhrg = cs.hrg;
-    StepInterval<int> outputzrg( mNINT32(cs.zrg.start/zstep),
+    const StepInterval<int> outputzrg( mNINT32(cs.zrg.start/zstep),
 				 mNINT32(cs.zrg.stop/zstep),
-				 mNINT32(cs.zrg.step/zstep) );
-    if ( outputzrg.step<1 ) outputzrg.step = 1;
+				 mMIN(mNINT32(cs.zrg.step/zstep),1) );
     StepInterval<int> inputzrg = outputzrg;
 
     od_uint64 nrbytes = 0;
@@ -110,28 +109,28 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     strm << "Allocating " << getBytesString( nrbytes ) << " memory\n";
-    
-    if ( !pce->setCalculationScope(cs) )
+
+    if ( !pce->setCalculationScope(cs.hrg,outputzrg) )
     {
 	strm << "Could not set calculation scope!";
 	return false;
-    } 
+    }
 
     if ( !pce->go(strm) )
     {
 	strm << "Unexecutable Chain!";
 	return false;
-    }	
+    }
 
     ConstRefMan<Attrib::DataCubes> cube = pce->getOutput();
-    ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc() 
+    ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc()
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;
 
     //delete all internal volumes.
     pce = 0;
     chain = 0;
-   
+
     MultiID outputid;
     pars().get( "Output.0.Seismic.ID", outputid );
     PtrMan<IOObj> outputobj = IOM().get( outputid );
@@ -139,7 +138,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	strm << "Could not find output ID!";
 	return false;
-    }	
+    }
 
     bool docommit = false;
 
@@ -164,8 +163,14 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !IOM().commitChanges( *outputobj ) )
 	{
 	    strm << "Warning: Could not write velocity information to database"
-	            " for " << outputobj->name() << "\n\n";
+	                        " for " << outputobj->name() << "\n\n";
 	}
+    }
+
+    if ( !cube )
+    {
+	strm << "Could not retrieve output";
+	return false;
     }
 
     const TypeSet<int> indices( 1, 0 );

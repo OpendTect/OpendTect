@@ -36,7 +36,7 @@ static const char*	sKeyGradient()		{ return "Gradient"; }
 static const char*	sKeyUseGradient()	{ return "Use Gradient"; }
 static const char*	sKeyHorInterFiller()	{ return "HorInterFiller"; }
 
-    
+
 SurfaceLimitedFiller::SurfaceLimitedFiller()
     : fixedstartval_( 2000 )
     , fixedgradient_( mCast(float,SI().zDomain().userFactor()) )
@@ -66,7 +66,7 @@ void SurfaceLimitedFiller::initClass()
     sep += sFactoryKeyword();
     sep += sKeyHorInterFiller();
 
-    SurfaceLimitedFiller::factory().addCreator( createInstance, sep.buf(), 
+    SurfaceLimitedFiller::factory().addCreator( createInstance, sep.buf(),
 						sFactoryDisplayName() );
 }
 
@@ -75,15 +75,15 @@ SurfaceLimitedFiller::~SurfaceLimitedFiller()
 {
     releaseData();
 }
- 
+
 
 void SurfaceLimitedFiller::releaseData()
 {
     Step::releaseData();
-    
+
     deepUnRef( hors_ );
     deepErase( faults_ );
-    
+
     if ( starthorizon_ ) starthorizon_->unRef();
     if ( refhorizon_ ) refhorizon_->unRef();
     if ( gradhorizon_ ) gradhorizon_->unRef();
@@ -91,7 +91,7 @@ void SurfaceLimitedFiller::releaseData()
     starthorizon_ = 0;
     refhorizon_ = 0;
     gradhorizon_ = 0;
-}    
+}
 
 
 const MultiID* SurfaceLimitedFiller::getSurfaceID( int idx ) const
@@ -114,7 +114,7 @@ const MultiID* SurfaceLimitedFiller::getRefHorizonID() const
     if ( mid->isEmpty() ) \
 	return false; \
     targetmid = *mid; \
-    return true 
+    return true
 
 
 bool SurfaceLimitedFiller::setStartValueHorizon( const MultiID* mid )
@@ -142,7 +142,7 @@ bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
     for ( int idx=0; idx<hids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( hids[idx] );
-	if ( !ioobj )	
+	if ( !ioobj )
 	{
 	    errmsg_ = "Object does not exist, could not find entry for ID: ";
 	    errmsg_ += hids[idx];
@@ -154,7 +154,7 @@ bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
     }
 
     return side_.size();
-}    
+}
 
 
 EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
@@ -206,15 +206,15 @@ bool SurfaceLimitedFiller::prepareComp( int )
 
     if ( !userefz_ )
     {
-	if ( refhormid_.isEmpty() ) 
-	    return false; 
-    
-	EM::Horizon* hor = loadHorizon( refhormid_ ); 
-    	if ( !hor ) return false;
+	if ( refhormid_.isEmpty() )
+	    return false;
+
+	EM::Horizon* hor = loadHorizon( refhormid_ );
+	if ( !hor ) return false;
 
 	refhorizon_ = hor;
     }
-    
+
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
 	RefMan<EM::EMObject> emobj =
@@ -233,30 +233,33 @@ bool SurfaceLimitedFiller::prepareComp( int )
 	    hors_ += 0;
 	}
     }
-    
-    if ( !output_ || !output_->nrCubes() )
+
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !output || !output->nrCubes() )
 	return false;
 
-    return isOK(); 
+    return isOK();
 }
 
 
 bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 {
-    const Array3D<float>* inputarr = 
-	input_ && input_->nrCubes() ? &input_->getCube( 0 ) : 0;
+    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    const Array3D<float>* inputarr =
+	input && input->nrCubes() ? &input->getCube( 0 ) : 0;
 
-    const StepInterval<int> outputinlrg( output_->inlsampling_.start,
-	    output_->inlsampling_.atIndex( output_->getInlSz()-1 ),
-	    output_->inlsampling_.step );
+    const StepInterval<int> outputinlrg( output->inlsampling_.start,
+	    output->inlsampling_.atIndex( output->getInlSz()-1 ),
+	    output->inlsampling_.step );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
          (bid.inl()-outputinlrg.start)%outputinlrg.step )
 	return false;
 
-    const StepInterval<int> outputcrlrg( output_->crlsampling_.start,
-	    output_->crlsampling_.atIndex( output_->getCrlSz()-1 ),
-	    output_->crlsampling_.step );
+    const StepInterval<int> outputcrlrg( output->crlsampling_.start,
+	    output->crlsampling_.atIndex( output->getCrlSz()-1 ),
+	    output->crlsampling_.step );
 
     if ( !outputcrlrg.includes( bid.crl(), false ) ||
          (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
@@ -265,7 +268,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input_->inlsampling_.interval( input_->getInlSz() );
+	inputinlrg = input->inlsampling_.interval( input->getInlSz() );
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
 	     (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -274,19 +277,19 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input_->crlsampling_.interval( input_->getCrlSz() );
+	inputcrlrg = input->crlsampling_.interval( input->getCrlSz() );
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
 	     (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
     }
 
     const od_int64 bidsq = bid.toInt64();
-    const double fixedz = userefz_ ? refz_ : 
+    const double fixedz = userefz_ ? refz_ :
 	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z;
 
     double val0 = fixedstartval_;
     if ( !usestartval_ )
-    {	
+    {
 	EM::PosID pid(starthorizon_->id(), starthorizon_->sectionID(0), bidsq);
 	val0 = starthorizon_->auxdata.getAuxDataVal( 0, pid );
     }
@@ -314,30 +317,30 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     else if ( usebottomval_ )
     {
 	const StepInterval<float>& zrg = SI().zRange( true );
-	const double topdepth = horz.size() > 0 && !mIsUdf(horz[0]) ? 
+	const double topdepth = horz.size() > 0 && !mIsUdf(horz[0]) ?
 				horz[0] : zrg.start;
-	const double bottomdepth = horz.size() > 1 && !mIsUdf(horz[1]) ? 
+	const double bottomdepth = horz.size() > 1 && !mIsUdf(horz[1]) ?
 				   horz[1] : zrg.stop;
 	const double depth = bottomdepth - topdepth;
 	gradient = valrange_ / depth;
     }
-    
+
     const int inputinlidx = inputarr ? inputinlrg.nearestIndex( bid.inl() ) : -1;
     const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex( bid.crl() ) : -1;
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
-    const int outputmaxidx = output_->getZSz()-1;
+    const int outputmaxidx = output->getZSz()-1;
     const bool initok = !mIsUdf(val0) && !mIsUdf(gradient) && !mIsUdf(fixedz);
 
     for ( int idx=outputmaxidx; idx>=0; idx-- )
     {
-	const double curz = ( output_->z0_ + idx ) * output_->zstep_;
+	const double curz = ( output->z0_ + idx ) * output->zstep_;
 	bool cancalculate = allhordefined;
 	if ( allhordefined )
 	{
 	    for ( int idy=0; idy<horz.size(); idy++ )
-	    {	
-		if ( (horz[idy]>curz && side_[idy]==mBelow) || 
+	    {
+		if ( (horz[idy]>curz && side_[idy]==mBelow) ||
 		     (horz[idy]<curz && side_[idy]==mAbove) )
 		{
 		    cancalculate = false;
@@ -346,15 +349,14 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    }
 	}
 
-    	double value = mUdf(double);
-	if ( cancalculate && initok ) 
+	double value = mUdf(double);
+	if ( cancalculate && initok )
 	    value = val0 + ( curz - fixedz ) * gradient;
 	else if ( inputarr )
-	    value = (float) inputarr->get( inputinlidx, inputcrlidx, idx );
-	
-	output_->getCube(0).set( outputinlidx, outputcrlidx, idx, 
-				 (float) value );
-    } 
+	    value = (double)inputarr->get( inputinlidx, inputcrlidx, idx );
+
+	output->getCube(0).set( outputinlidx, outputcrlidx, idx, (float)value );
+    }
 
     return true;
 }
@@ -370,7 +372,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
 	BufferString midkey = sKeySurfaceID();
 	midkey += idx;
 	pars.set( midkey, surfacelist_[idx] );
-	
+
 	BufferString sidekey = sKeySurfaceFillSide();
 	sidekey += idx;
 	pars.set( sidekey, side_[idx] );
@@ -379,26 +381,26 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
     pars.setYN( sKeyUseStartValue(), usestartval_ );
     if ( usestartval_ )
 	pars.set( sKeyStartValue(), fixedstartval_ );
-    else 
+    else
     {
 	pars.set( sKeyStartValHorID(), starthormid_ );
 	pars.set( sKeyStartAuxDataID(), startauxdataidx_ );
     }
-    
+
     pars.setYN( sKeyUseGradValue(), usegradient_ );
     pars.setYN( sKeyGradType(), gradvertical_ );
     if ( usegradient_ )
 	pars.set( sKeyGradValue(), fixedgradient_ );
-    else 
+    else
     {
 	pars.set( sKeyGradHorID(), gradhormid_ );
 	pars.set( sKeyGradAuxDataID(), gradauxdataidx_ );
     }
-    
+
     pars.setYN( sKeyUseRefZ(), userefz_ );
     if ( userefz_ )
 	pars.set( sKeyRefZ(), refz_ );
-    else 
+    else
 	pars.set( sKeyRefHorID(), refhormid_ );
 }
 
@@ -436,7 +438,7 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
 	horids += bottomhorid;
 
     float bottomvalue = mUdf(float);
-    if ( !usegradient && pars.get(sKeyBotValue(),bottomvalue) && 
+    if ( !usegradient && pars.get(sKeyBotValue(),bottomvalue) &&
 	 !mIsUdf(bottomvalue) )
     {
 	valrange_ = bottomvalue - topvalue;
@@ -483,10 +485,10 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 
 	BufferString sidekey = sKeySurfaceFillSide();
 	sidekey += idx;
-	
+
 	int side;
 	pars.get( sidekey, side );
-	sides += mCast( char , side ); 
+	sides += mCast( char , side );
     }
 
     if ( !setSurfaces(horbds, sides) )
@@ -507,7 +509,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	if ( !pars.get(sKeyStartAuxDataID(),startauxdataidx_) )
 	    return false;
     }
-    
+
     pars.getYN( sKeyGradType(), gradvertical_ );
     pars.getYN( sKeyUseGradValue(), usegradient_ );
     if ( usegradient_ )
@@ -524,7 +526,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	if ( !pars.get(sKeyGradAuxDataID(),gradauxdataidx_) )
 	    return false;
     }
-    
+
     pars.getYN( sKeyUseRefZ(), userefz_ );
     if ( userefz_ )
 	pars.get( sKeyRefZ(), refz_ );
@@ -537,7 +539,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	if ( !setRefHorizon( &mid ) )
 	    return false;
     }
-    
+
     return true;
 }
 
@@ -561,7 +563,7 @@ bool SurfaceLimitedFiller::isOK() const
 
     if ( !userefz_ && !refhorizon_ )
 	return false;
-    
+
     return true;
 }
 

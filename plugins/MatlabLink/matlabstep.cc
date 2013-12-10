@@ -35,10 +35,8 @@ namespace VolProc
 class MatlabTask : public ParallelTask
 {
 public:
-MatlabTask( MatlabStep& step, const Array3D<float>& in, Array3D<float>& out )
-    : input_(in)
-    , output_(out)
-    , step_(step)
+MatlabTask( MatlabStep& step )
+    : step_(step)
     , mla_(0)
 {
 }
@@ -50,8 +48,6 @@ MatlabTask( MatlabStep& step, const Array3D<float>& in, Array3D<float>& out )
 
 protected:
 
-    const Array3D<float>&	input_;
-    Array3D<float>&		output_;
     MatlabStep&			step_;
     BufferString		message_;
 
@@ -116,21 +112,42 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
     step_.getParameters( names, values );
     mxArray* pars = createParameterArray( names, values );
 
+/* Single input (remove these lines when tested)
     ArrayNDCopier arrndcopier( input_ );
     arrndcopier.init( true );
     arrndcopier.execute();
     mxArray* mxarrin = arrndcopier.getMxArray();
+*/
 
     // for multiple inputs:
-    // int dims[1]; dims[0] = nrinputs;
-    // mxArray* mxarrin = mxCreateCellArray( 1,  dims );
+    mwSize dims[1]; dims[0] = step_.getNrInputs();
+    mxArray* mxarrin = mxCreateCellArray( 1, dims );
+    for ( int idx=0; idx<step_.getNrInputs(); idx++ )
+    {
+	const Attrib::DataCubes* input =
+	    step_.getInput( step_.getInputSlotID(idx) );
+	if ( !input )
+	{
+	    mxSetCell( mxarrin, idx, NULL );
+	    continue;
+	}
+
+	const Array3D<float>& inparr = input->getCube(0);
+	ArrayNDCopier arrndcopier( inparr );
+	arrndcopier.init( true );
+	arrndcopier.execute();
+	mxSetCell( mxarrin, mwSize(idx), arrndcopier.getMxArray() );
+    }
+
     mxArray* mxarrout = 0;
     (*fn)( 1, &mxarrout, pars, mxarrin );
 
     if ( !mxarrout )
 	mErrRet( "No MATLAB output generated" );
 
-    mxArrayCopier mxarrcopier( *mxarrout, output_ );
+    Array3D<float>& output =
+	step_.getOutput( step_.getOutputSlotID(0) )->getCube( 0 );
+    mxArrayCopier mxarrcopier( *mxarrout, output );
     mxarrcopier.init();
     mxarrcopier.execute();
 
@@ -151,6 +168,7 @@ static const char* sKeyParValues()	{ return "Parameter Values"; }
 
 // MatlabStep
 MatlabStep::MatlabStep()
+    : nrinputs_(-1)
 {}
 
 MatlabStep::~MatlabStep()
@@ -159,20 +177,25 @@ MatlabStep::~MatlabStep()
 
 Task* MatlabStep::createTask()
 {
-    if ( !input_ || input_->nrCubes()<1 )
+    for ( int idx=0; idx<getNrInputs(); idx++ )
     {
-	errmsg_ = "No input provided.";
-	return 0;
+	const Attrib::DataCubes* input = getInput( getInputSlotID(idx) );
+	if ( !input || input->nrCubes()<1 )
+	{
+	    getInputSlotName( getInputSlotID(idx), errmsg_ );
+	    errmsg_.add( " not provided." );
+	    return 0;
+	}
     }
 
-    if ( !output_ || output_->nrCubes()<1 )
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->nrCubes()<1 )
     {
 	errmsg_ = "No output provided.";
 	return 0;
     }
 
-    MatlabTask* task =
-	new MatlabTask( *this, input_->getCube(0), output_->getCube(0) );
+    MatlabTask* task = new MatlabTask( *this );
     if ( !task->init() )
     {
 	errmsg_ = task->message();
@@ -182,6 +205,13 @@ Task* MatlabStep::createTask()
 
     return task;
 }
+
+
+void MatlabStep::setNrInputs( int nrinp )
+{ nrinputs_ = nrinp; }
+
+int MatlabStep::getNrInputs() const
+{ return nrinputs_; }
 
 
 void MatlabStep::setSharedLibFileName( const char* fnm )

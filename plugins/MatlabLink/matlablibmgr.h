@@ -33,6 +33,8 @@ public:
     void*		getFunction(const char*) const;
     bool		getParameters(BufferStringSet& nms,
 				      BufferStringSet& values) const;
+    int			getNrInputs() const;
+    int			getNrOutputs() const;
     const char*		errMsg() const		{ return errmsg_; }
 
 protected:

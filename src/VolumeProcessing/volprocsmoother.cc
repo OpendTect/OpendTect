@@ -26,7 +26,7 @@ Smoother::Smoother()
 Smoother::~Smoother()
 {
     releaseData();
-}    
+}
 
 
 void Smoother::releaseData()
@@ -126,15 +126,16 @@ bool Smoother::usePar( const IOPar& pars )
 
 Task* Smoother::createTask()
 {
-    if ( !input_ || !output_ )
+    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    if ( !input || !output )
 	return 0;
 
     Smoother3D<float>* task = new Smoother3D<float>( *smoother_ );
-    task->setInput( input_->getCube( 0 ) );
-    task->setOutput( output_->getCube( 0 ) );
+    task->setInput( input->getCube(0) );
+    task->setOutput( output->getCube(0) );
 
     return task;
 }
 
-
-}; //namespace
+} // namespace VolProc

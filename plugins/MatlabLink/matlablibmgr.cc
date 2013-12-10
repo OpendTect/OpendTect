@@ -27,14 +27,17 @@ extern "C" {
     bool mclInitializeApplication(const char**,size_t);
     void mclTerminateApplication();
 
-    typedef bool (*initfn)();		// XX_cInitialize(void)
-    typedef void (*termfn)();		// XX_cTerminate(void)
+    typedef bool (*initfn)();			// XX_cInitialize(void)
+    typedef void (*termfn)();			// XX_cTerminate(void)
 
-    // mlfOd_getparameters
-    typedef bool (*getparfn)(int,mxArray**);
+    typedef bool (*getparfn)(int,mxArray**);	// mlfOd_getparameters
+    typedef bool (*getnrinfn)(int,mxArray**);	// mlfOd_getnrinputs
+    typedef bool (*getnroutfn)(int,mxArray**);	// mlfOd_getnroutputs
 };
 
 static const char* sGetParametersStr = "mlfOd_getparameters";
+static const char* sGetNrInputsStr = "mlfOd_getnrinputs";
+static const char* sGetNrOutputsStr = "mlfOd_getnroutputs";
 
 #endif
 
@@ -126,7 +129,7 @@ bool MatlabLibAccess::getParameters( BufferStringSet& names,
 
 	mxArray* vals = mxGetFieldByNumber( parsarr, 0, idx );
 	if ( !vals ) continue;
-	
+
 	str = mxGetScalar( vals );
 	values.add( str );
     }
@@ -134,13 +137,51 @@ bool MatlabLibAccess::getParameters( BufferStringSet& names,
     return res;
 }
 
+int MatlabLibAccess::getNrInputs() const
+{
+    const char* funcnm = sGetNrInputsStr;
+    getnrinfn fn = (getnrinfn)sla_->getFunction( funcnm );
+    if ( !fn )
+	return 1;
+
+    mxArray* mxarr = NULL;
+    const bool res = (*fn)( 1, &mxarr );
+    if ( !res )
+       mErrRet( BufferString("Function ",funcnm," returned false") );
+
+    const int nr = mCast(int,mxGetScalar(mxarr));
+    return nr;
+}
+
+
+int MatlabLibAccess::getNrOutputs() const
+{
+    const char* funcnm = sGetNrOutputsStr;
+    getnroutfn fn = (getnroutfn)sla_->getFunction( funcnm );
+    if ( !fn )
+	return 1;
+
+    mxArray* mxarr = NULL;
+    const bool res = (*fn)( 1, &mxarr );
+    if ( !res )
+       mErrRet( BufferString("Function ",funcnm," returned false") );
+
+    const int nr = mCast(int,mxGetScalar(mxarr));
+    return nr;
+}
+
 #else
-bool MatlabLibAccess::init()		{ return true; }
+bool MatlabLibAccess::init()
+{ errmsg_ = "This plugin has not been linked to MATLAB."; return false; }
 bool MatlabLibAccess::terminate()	{ return true; }
 bool MatlabLibAccess::getParameters( BufferStringSet& names,
 				     BufferStringSet& values ) const
 { return true; }
+int MatlabLibAccess::getNrInputs() const    { return 1; }
+int MatlabLibAccess::getNrOutputs() const   { return 1; }
 #endif
+
+
 
 
 void* MatlabLibAccess::getFunction( const char* funcnm ) const
@@ -195,7 +236,7 @@ bool MatlabLibMgr::load( const char* libfnm )
     const BufferString libnm = fp.fileName();
 
     MatlabLibAccess* mla = new MatlabLibAccess( libfnm );
-    if ( !mla->init() ) { delete mla; return false; }
+    if ( !mla->init() ) { errmsg_ = mla->errMsg(); delete mla; return false; }
 
     mlas_ += mla;
     libnms_.add( libnm );

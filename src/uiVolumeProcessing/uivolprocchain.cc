@@ -16,12 +16,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchain.h"
 #include "volproctrans.h"
 
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -31,7 +33,7 @@ namespace VolProc
 {
 
 const char* uiChain::sKeySettingKey()
-{ return "dTect.ProcessVolumeBuilderOnOK"; }   
+{ return "dTect.ProcessVolumeBuilderOnOK"; }
 
 mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
@@ -47,13 +49,66 @@ uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
 
 void uiStepDialog::addMultiInputFld()
 {
-    uiTable::Setup ts( 5, 1 );
-    ts.rowgrow(true).rowdesc("Input");
+    const int nrinp = step_->getNrInputs();
+    if ( nrinp == 0 )
+	return;
+
+    const int nrrows = nrinp==-1 ? 2 : nrinp;
+    uiTable::Setup ts( nrrows, 1 );
     multiinpfld_ = new uiTable( this, ts, "Step inputs" );
+    multiinpfld_->setColumnLabel( 0, "Input" );
+    initInputTable( nrinp );
+
+    const Chain::Web& web = step_->getChain().getWeb();
+    TypeSet<Chain::Connection> connections;
+    web.getConnections( step_->getID(), true, connections );
+    for ( int idx=0; idx<nrinp; idx++ )
+    {
+	Step::InputSlotID inpslotid = step_->getInputSlotID( idx );
+	Step::ID outputstepid = Step::cUndefID();
+	for ( int cidx=0; cidx<connections.size(); cidx++ )
+	{
+	    if ( connections[cidx].inputslotid_ == inpslotid )
+		outputstepid = connections[cidx].outputstepid_;
+	}
+
+	if ( outputstepid == Step::cUndefID() )
+	    continue;
+
+	Step* inputstep = step_->getChain().getStepFromID( outputstepid );
+	mDynamicCastGet(uiComboBox*,cb,
+		multiinpfld_->getCellObject(RowCol(idx,0)));
+	if ( inputstep && cb ) cb->setCurrentItem( inputstep->userName() );
+    }
 }
 
 
-void uiStepDialog::addNameFld( uiObject* alignobj )
+void uiStepDialog::initInputTable( int nr )
+{
+    if ( !multiinpfld_ ) return;
+
+    BufferStringSet stepnames;
+    getStepNames( stepnames );
+    multiinpfld_->clearTable();
+    for ( int idx=0; idx<nr; idx++ )
+    {
+	uiComboBox* cb = new uiComboBox( 0, "Steps" );
+	cb->addItems( stepnames );
+	multiinpfld_->setCellObject( RowCol(idx,0), cb );
+    }
+}
+
+
+void uiStepDialog::getStepNames( BufferStringSet& names ) const
+{
+    Chain& chain = step_->getChain();
+    for ( int idx=0; idx<chain.nrSteps(); idx++ )
+	if ( step_ != chain.getStep(idx) )
+	    names.add( chain.getStep(idx)->userName() );
+}
+
+
+void uiStepDialog::addNameFld( uiObject* alignobj, bool leftalign )
 {
     uiSeparator* sep = 0;
     if ( alignobj )
@@ -65,15 +120,48 @@ void uiStepDialog::addNameFld( uiObject* alignobj )
     if ( alignobj )
     {
 	namefld_->attach( ensureBelow, sep );
-	namefld_->attach( alignedBelow, alignobj );
+	namefld_->attach(
+	    leftalign ? leftAlignedBelow : alignedBelow, alignobj );
     }
 }
 
 
-void uiStepDialog::addNameFld( uiGroup* aligngrp )
+void uiStepDialog::addNameFld( uiGroup* aligngrp, bool leftalign )
 {
     uiObject* alignobj = aligngrp ? aligngrp->attachObj() : 0;
-    addNameFld( alignobj );
+    addNameFld( alignobj, leftalign );
+}
+
+
+void uiStepDialog::addConnectionFromMultiInput()
+{
+    for ( int idx=0; idx<step_->getNrInputs(); idx++ )
+    {
+	mDynamicCastGet(uiComboBox*,cb,
+		multiinpfld_->getCellObject(RowCol(idx,0)));
+	const char* stepnm = cb ? cb->text() : 0;
+	if ( !stepnm ) continue;
+
+	Step* outstep = step_->getChain().getStepFromName( stepnm );
+	if ( !outstep ) continue;
+
+	Chain::Connection connection( outstep->getID(), 0,
+				step_->getID(), step_->getInputSlotID(idx) );
+	step_->getChain().addConnection( connection );
+    }
+}
+
+
+void uiStepDialog::addDefaultConnection()
+{
+    const ObjectSet<Step>& steps = step_->getChain().getSteps();
+    const int curidx = steps.indexOf( step_ );
+    const Step* prevstep = curidx > 0 ? steps[curidx-1] : 0;
+    if ( !prevstep ) return;
+
+    Chain::Connection connection( prevstep->getID(), 0,
+	step_->getID(), step_->getInputSlotID(0) );
+    step_->getChain().addConnection( connection );
 }
 
 
@@ -87,6 +175,10 @@ bool uiStepDialog::acceptOK( CallBacker* )
     }
 
     step_->setUserName( nm.buf() );
+    if ( multiinpfld_ )
+	addConnectionFromMultiInput();
+    else
+	addDefaultConnection();
 
     return true;
 }
@@ -141,13 +233,13 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
     propertiesbutton_ = new uiToolButton( flowgrp, "settings",
-	    				  "Edit this step",
+					  "Edit this step",
 					  mCB(this,uiChain,propertiesCB) );
     propertiesbutton_->setName( "Settings" );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     removestepbutton_ = new uiToolButton( flowgrp, "trashcan",
-	    	"Remove step from flow", mCB(this,uiChain,removeStepPush) );
+		"Remove step from flow", mCB(this,uiChain,removeStepPush) );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
 
     flowgrp->setHAlignObj( steplist_ );
@@ -205,13 +297,17 @@ const MultiID& uiChain::storageID() const
 
 bool uiChain::acceptOK( CallBacker* )
 {
-    if ( chain_.nrSteps() && chain_.getStep( 0 ) &&
-	 chain_.getStep( 0 )->needsInput() )
+    const int nrsteps = chain_.nrSteps();
+    if ( nrsteps>0 && chain_.getStep(0) &&
+	 chain_.getStep(0)->needsInput() )
     {
 	if ( !uiMSG().askGoOn("The first step in the chain needs an input, "
                   "and can thus not be first. Proceed anyway?", true ) )
 	    return false;
     }
+
+    const Step* laststep = chain_.getStep( nrsteps-1 );
+    chain_.setOutputSlot( laststep->getID(), laststep->getOutputSlotID(0) );
 
     if ( !doSave() )
 	return false;

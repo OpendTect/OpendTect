@@ -22,21 +22,23 @@ namespace VolProc
 VolumeReader::~VolumeReader()
 {
     releaseData();
-}    
+}
 
 
 Task* VolumeReader::createTask()
 {
+    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    if ( !ioobj )
+    if ( !output || !ioobj )
 	return 0;
+
 
     TypeSet<int> components( 1, 0 );
     ObjectSet<Array3D<float> > arrays;
-    arrays += &output_->getCube(0);
+    arrays += &output->getCube(0);
 
     return new Seis::ParallelReader( *ioobj, components, arrays,
-				     output_->cubeSampling() );
+				     output->cubeSampling() );
 }
 
 
@@ -44,9 +46,8 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
 {
     mid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-
     return ioobj;
-}    
+}
 
 
 void VolumeReader::fillPar( IOPar& pars ) const

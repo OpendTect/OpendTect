@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitable.h"
 
 #include "file.h"
@@ -29,7 +30,7 @@ namespace VolProc
 uiStepDialog* uiMatlabStep::createInstance( uiParent* p, Step* step )
 {
     mDynamicCastGet(MatlabStep*,ms,step);
-    return ms ? new uiMatlabStep(p,ms) : 0; 
+    return ms ? new uiMatlabStep(p,ms) : 0;
 }
 
 uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
@@ -43,12 +44,18 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );
+    uiSeparator* sep = new uiSeparator( this, "File Separator", true );
+    sep->attach( stretchedBelow, filefld_ );
+
+    addMultiInputFld();
+    multiinpfld_->attach( alignedBelow, filefld_ );
+    multiinpfld_->attach( ensureBelow, sep );
 
     partable_ = new uiTable( this, uiTable::Setup(5,2), "Parameter table" );
     BufferStringSet lbls; lbls.add( "Parameter" ).add( "Value" );
     partable_->setColumnLabels( lbls );
     partable_->setColumnReadOnly( 0, true );
-    partable_->attach( alignedBelow, filefld_ );
+    partable_->attach( alignedBelow, multiinpfld_ );
 
     addNameFld( partable_ );
 
@@ -59,10 +66,12 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 	fileSelCB( 0 );
 	loadCB( 0 );
     }
-
-    BufferStringSet parnames, parvalues;
-    step->getParameters( parnames, parvalues );
-    fillTable( parnames, parvalues );
+    else
+    {
+	BufferStringSet parnames, parvalues;
+	step->getParameters( parnames, parvalues );
+	fillParTable( parnames, parvalues );
+    }
 }
 
 
@@ -95,14 +104,25 @@ void uiMatlabStep::loadCB( CallBacker* )
 
     BufferStringSet parnames, parvalues;
     mla->getParameters( parnames, parvalues );
-    fillTable( parnames, parvalues );
+    fillParTable( parnames, parvalues );
+
+    const int nrinputs = mla->getNrInputs();
+    if ( nrinputs < 0 )
+    {
+	uiMSG().error( "Cannot read number of inputs from input file" );
+	return;
+    }
+
+    mDynamicCastGet(MatlabStep*,step,step_)
+    if ( step ) step->setNrInputs( nrinputs );
+    initInputTable( nrinputs );
 
     fileloaded_ = true;
 }
 
 
-void uiMatlabStep::fillTable( const BufferStringSet& nms,
-			      const BufferStringSet& vals )
+void uiMatlabStep::fillParTable( const BufferStringSet& nms,
+				 const BufferStringSet& vals )
 {
     partable_->clearTable();
     partable_->setNrRows( nms.size() );

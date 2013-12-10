@@ -5,8 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Velocity)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS Velocity)
+set( OD_TEST_PROGS volprocchain.cc )
+set( OD_MODULE_SOURCES
 		initvolumeprocessing.cc
 		velocitygridder.cc
 		volprocchain.cc
@@ -18,6 +19,6 @@ SET(OD_MODULE_SOURCES
 		volprocsurfacelimitedfiller.cc
 		volprocvolreader.cc
 )
-SET(OD_MODULE_BATCHPROGS od_process_volume.cc )
+set( OD_MODULE_BATCHPROGS od_process_volume.cc )
 OD_INIT_MODULE()
 
