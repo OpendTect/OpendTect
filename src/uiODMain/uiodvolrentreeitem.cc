@@ -64,7 +64,16 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction("&Add"), 0 );
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
-	addChild( new uiODVolrenTreeItem(-1), true );
+    {
+	if ( nrChildren()>0 && !visSurvey::VolumeDisplay::canUseVolRenShading())
+	{
+	    uiMSG().message( "Can only display one volume per scene if one "
+			     "does not enable volume rendering to use OpenGL "
+			     "shading in the 'Look and Feel' settings." );
+	}
+	else
+	    addChild( new uiODVolrenTreeItem(-1), false );
+    }
 
     return true;
 }
