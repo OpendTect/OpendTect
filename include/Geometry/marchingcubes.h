@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "threadlock.h"
 
+#include "od_iosfwd.h"
+
 template <class T> class Array3D;
 template <class T> class DataInterpreter;
 
