@@ -103,19 +103,11 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
     : uiDlgGroup(p,"Texture")
     , survobj_(so)
 {
-    bool intpenabled = false; 
-    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
-    if ( mto )
-	intpenabled = mto->textureInterpolationEnabled();
-    else
-    {
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hor, survobj_ );
-	if ( hor ) 
-	    intpenabled = hor->textureInterpolationEnabled();
-	else
-	    return;
-    }
-    
+    if ( !so || !so->canEnableTextureInterpolation() )
+	return;
+
+    const bool intpenabled = so->textureInterpolationEnabled();
+
     textclasssify_ = new uiGenInput( this, "Data:   ", 
 	    BoolInpSpec(intpenabled,"Interpolation","Classification") );
     textclasssify_->valuechanged.notify( 
@@ -125,19 +117,8 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 
 void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 {
-    if ( !textclasssify_ )
-	return;
-    
-    const bool intp = textclasssify_->getBoolValue();
-    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
-    if ( mto  ) 
-     	mto->enableTextureInterpolation( intp );    
-    else
-    {
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hor, survobj_ );
-	if ( hor ) 
-	    hor->enableTextureInterpolation( intp );
-    }
+    if ( survobj_ && textclasssify_ )
+	survobj_->enableTextureInterpolation( textclasssify_->getBoolValue() );
 }
 
 
