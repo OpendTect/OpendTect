@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "fourier.h"
 #include "mouseevent.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 
 
 #define mDispVal(v)	20*Math::Log10(v+1)
@@ -294,19 +294,23 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     uiFileDialog dlg( this, false );
     if ( !dlg.go() ) return;
 
-    const char* fname = dlg.fileName();
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
+    od_ostream strm( dlg.fileName() );
+
+    if ( strm.isBad() )
     {
-	sdo.close();
-	uiMSG().error( "Cannot open output file" );
+        uiMSG().error( "Cannot open output file: ", dlg.fileName() );
 	return;
     }
 
-    disp_->dump( *sdo.ostrm, false );
+    disp_->dump( strm, false );
 
-    uiMSG().message( "Values written to: ", fname );
-    sdo.close();
+    if ( strm.isBad() )
+    {
+        uiMSG().error( "Cannot write values to: ", dlg.fileName() );
+        return;
+    }
+
+    uiMSG().message( "Values written to: ", dlg.fileName() );
 }
 
 

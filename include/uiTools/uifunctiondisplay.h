@@ -160,7 +160,7 @@ public:
     void			gatherInfo();
     void			draw();
 
-    void			dump(std::ostream&,bool y2) const;
+    void			dump(od_ostream&,bool y2) const;
 
 protected:
 

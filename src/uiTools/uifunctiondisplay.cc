@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicssaveimagedlg.h"
 #include "mouseevent.h"
 #include "axislayout.h"
-#include <iostream>
+#include "od_iostream.h"
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
@@ -670,12 +670,12 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 }
 
 
-void uiFunctionDisplay::dump( std::ostream& strm, bool y2 ) const
+void uiFunctionDisplay::dump( od_ostream& strm, bool y2 ) const
 {
     const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;
     const TypeSet<float>& yvals = y2 ? y2yvals_ : yvals_;
 
-    strm << std::fixed;
+    strm.stdStream() << std::fixed;
     for ( int idx=0; idx<xvals.size(); idx++ )
-	strm << xvals[idx] << '\t' << yvals[idx] << std::endl;
+	strm << xvals[idx] << od_tab << yvals[idx] << od_endl;
 }
