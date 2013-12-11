@@ -658,6 +658,25 @@ void ui3DViewerBody::viewAll( bool animate )
                                         view_->getCameraManipulator() );
 
     manip->viewAll( view_, animate );
+
+    requestRedraw();
+}
+
+
+void ui3DViewerBody::requestRedraw()
+{
+    if ( !view_ )
+	return;
+
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+    	static_cast<osgGeo::TrackballManipulator*>(
+                                               view_->getCameraManipulator() );
+
+    const bool animating = manip->isThrown() || manip->isAnimating();
+    if ( !animating )
+	view_->requestRedraw();
+
+    view_->requestContinuousUpdate( animating );
 }
 
 

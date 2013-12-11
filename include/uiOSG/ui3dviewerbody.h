@@ -117,6 +117,8 @@ protected:
 
     uiObject&				uiObjHandle();
 
+    void				requestRedraw();
+
     osg::Camera*			getOsgCamera();
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
