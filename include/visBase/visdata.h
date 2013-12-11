@@ -25,6 +25,7 @@ class BufferString;
 namespace visBase { class DataObject; class EventInfo; }
 
 namespace osg { class Node; }
+namespace osgViewer { class CompositeViewer; }
 
 
 #define mVisTrans visBase::Transformation
@@ -141,6 +142,10 @@ public:
 				//!<Call only once from initialization
     static bool			isVisualizationThread();
 
+    static void			requestSingleRedraw();
+
+    static void			setCommonViewer(osgViewer::CompositeViewer*);
+
 protected:
 
     virtual osg::StateSet*	getStateSet();
@@ -171,13 +176,14 @@ private:
     void			setOsgNodeInternal( osg::Node* t );
     void			updateOsgNodeData();
 
-    ObjectSet<NodeState>	nodestates_;
-    osg::Node*			osgnode_;
-    int				id_;
-    bool			ison_;
-    BufferString*		name_;
-    unsigned int		enabledmask_;
-    static const void*		visualizationthread_;
+    ObjectSet<NodeState>		nodestates_;
+    osg::Node*				osgnode_;
+    int					id_;
+    bool				ison_;
+    BufferString*			name_;
+    unsigned int			enabledmask_;
+    static const void*			visualizationthread_;
+    static osgViewer::CompositeViewer*	commonviewer_;
 };
 
 };

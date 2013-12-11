@@ -17,10 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Node>
 #include <osg/ValueObject>
 #include <osgDB/WriteFile>
+#include <osgViewer/CompositeViewer>
 
 using namespace visBase;
 
 const void* DataObject::visualizationthread_ = 0;
+osgViewer::CompositeViewer* DataObject::commonviewer_ = 0;
 
 
 void DataObject::enableTraversal( unsigned int tt, bool yn )
@@ -256,3 +258,23 @@ void DataObject::setVisualizationThread(const void* thread)
 
     visualizationthread_ = thread;
 }
+
+
+
+void DataObject::setCommonViewer( osgViewer::CompositeViewer* nv )
+{
+    commonviewer_ = nv;
+}
+
+
+void DataObject::requestSingleRedraw()
+{
+    if ( commonviewer_ && commonviewer_->getNumViews() )
+    {
+        commonviewer_->getView(0)->requestRedraw();
+    }
+}
+
+
+
+

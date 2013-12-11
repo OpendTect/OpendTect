@@ -363,6 +363,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 					visBase::cEventTraversalMask() );
 	viewer->setKeyEventSetsDone( 0 );
 	osgQt::setViewer( viewer.get() );
+        visBase::DataObject::setCommonViewer( viewer );
     }
 
     return viewer.get();
