@@ -158,8 +158,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl() );
-	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl() );
+	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl());
+	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl());
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -381,6 +381,4 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
     return true;
 }
 
-
-
-}; //namespace
+} // namespace VolProc

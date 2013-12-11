@@ -934,6 +934,9 @@ int Step::getNrInputs() const
 
 int Step::getInputSlotID( int idx ) const
 {
+    if ( !needsInput() )
+	return Step::cUndefSlotID();
+
     if ( idx<0 || idx>=getNrInputs() )
     {
 	pErrMsg("Invalid input slot");
