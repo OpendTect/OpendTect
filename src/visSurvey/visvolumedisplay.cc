@@ -880,9 +880,9 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 
 	const float eps = 1e-6;
 	if ( fabs(zstart-mNINT32(zstart)) < fabs(eps*zstart) ) 
-	    zstart = mNINT32(zstart);
+	    zstart = mCast(float,mNINT32(zstart));
 	if ( fabs(zstop-mNINT32(zstop)) < fabs(eps*zstop) ) 
-	    zstop = mNINT32(zstop);
+	    zstop = mCast(float,mNINT32(zstop));
     }
 
     info += float(zstart); info += "-"; info += float(zstop);
