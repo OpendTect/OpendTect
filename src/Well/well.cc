@@ -146,8 +146,8 @@ Well::Data::~Data()
     delete csmodel_;
     delete &markers_;
 
-    Strat::eLVLS().levelToBeRemoved.remove( 
-	    			mCB(this, Well::Data, levelToBeRemoved ) );
+    Strat::eLVLS().levelToBeRemoved.remove(
+				mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 
@@ -165,7 +165,7 @@ bool Well::Data::haveLogs() const
 
 void Well::Data::setD2TModel( D2TModel* d )
 {
-    if ( d2tmodel_ == d ) 
+    if ( d2tmodel_ == d )
 	return;
     delete d2tmodel_;
     d2tmodel_ = d;
@@ -174,7 +174,7 @@ void Well::Data::setD2TModel( D2TModel* d )
 
 void Well::Data::setCheckShotModel( D2TModel* d )
 {
-    if ( csmodel_ == d ) 
+    if ( csmodel_ == d )
 	return;
     delete csmodel_;
     csmodel_ = d;
@@ -243,8 +243,15 @@ void Well::Info::usePar( const IOPar& par )
 
 }
 
-
 float Well::getDefaultVelocity()
 {
-    return SI().depthsInFeet() ? 8000.f : 2000.f;
+    float replvelm = 2000.f;
+    float replvelft = 8000.f;
+    if ( SI().zInFeet() )
+	return replvelft;
+    else
+    {
+	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
+    }
 }
+

@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "unitofmeasure.h"
 
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
@@ -318,19 +317,11 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 				    float replvel )
 {
     setEmpty();
-    const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
-    float srd = mCast( float, SI().seismicReferenceDatum() );
-    float kb  = track.getKbElev();
-    if ( SI().zIsTime() && SI().depthsInFeet() && zun_ )
-    {
-	srd = zun_->internalValue( srd );
-	vel = zun_->internalValue( vel );
-	replvel = zun_->internalValue( replvel );
-    }
-
-    if ( mIsZero(srd,0.01f) ) srd = 0.f;
+    const float srd = mCast( float, SI().seismicReferenceDatum() );
+    const float kb  = track.getKbElev();
     const float bulkshift = mIsUdf( replvel ) ? 0.f
 			  : ( kb-srd )* ( (2.f / vel) - (2.f / replvel) );
+
     int idahofminz = 0;
     int idahofmaxz = track.size()-1;
     float tvdmin = 1e10;

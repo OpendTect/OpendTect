@@ -96,14 +96,12 @@ protected:
 			//!<Read legacy incorrect time-depth model!>
 };
 
-
 mGlobal(Well) float	getDefaultVelocity();
-			//!< If survey depth is in feet, it returns 8000
-			//!< otherwise 2000. Its purpose is to get nice values
-			//!< of velocity for use in UI or where we may need
-			//!< such functionality( eg. replacement velocity
-			//!< for wells ).
-
+			//!< If survey unit is depth-feet, it returns the
+			//!< equivalent of 8000 (ft/s), otherwise 2000 (m/s).
+			//!< Its purpose is to get nice values of velocity
+			//!< where we may need such functionality
+			//!< ( eg. replacement velocity for wells ).
 
 
 }; // namespace Well

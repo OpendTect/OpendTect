@@ -78,7 +78,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    BufferString zlbl = SI().depthsInFeet() ? " (ft) " : " (m) ";
+    BufferString zlbl = " ";
+    zlbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) ).add(" ");
     BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );
@@ -191,26 +192,23 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	"Surface coordinate (if different from first coordinate in track file)",
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
+    const bool zinfeet = SI().depthsInFeet();
+
     float dispval = info.replvel;
-    if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
-    else if ( SI().depthsInFeet() && !SI().zInFeet() )
-	dispval = mToFeetFactorF * info.replvel;
-    BufferString str = "Replacement velocity "; str += "(";
-    str += UnitOfMeasure::zUnitAnnot( false, true, false );
-    str += "/s)";
-    replvelfld = new uiGenInput( this, str, FloatInpSpec(dispval) );
+    if ( zinfeet && zun_ )
+	dispval = zun_->userValue( info.replvel );
+
+    BufferString lbl = "Replacement velocity ";
+    lbl.add("(").add( UnitOfMeasure::zUnitAnnot(false,true,false) ).add("/s)");
+    replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
-    if ( SI().depthsInFeet() && !mIsUdf(info.groundelev) && zun_ )
-	dispval = zun_->userValue( info.groundelev );
-    if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
-    gdelevfld = new uiGenInput( this, "Ground level elevation",
-				       FloatInpSpec(dispval) );
+    if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
+    lbl = "Ground level elevation ";
+    lbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) );
+    gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
-    zinftbox = new uiCheckBox( this, "Feet" );
-    zinftbox->attach( rightOf, gdelevfld );
-    zinftbox->setChecked( SI().depthsInFeet() );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
@@ -236,17 +234,18 @@ bool acceptOK( CallBacker* )
     if ( *coordfld->text() )
 	info.surfacecoord = coordfld->getCoord();
 
-    if ( SI().depthsInFeet() && !SI().zInFeet()
-	 && !mIsUdf(replvelfld->getfValue()) )
-	info.replvel = replvelfld->getfValue() * mFromFeetFactorF;
-    else
-	info.replvel = replvelfld->getfValue();
+    if ( *replvelfld->text() )
+    {
+	const float replvel = replvelfld->getfValue();
+	if ( !mIsUdf(replvel) && zun_ )
+	    info.replvel = zun_->internalValue( replvel );
+    }
 
     if ( *gdelevfld->text() )
     {
-	info.groundelev = gdelevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.groundelev) && zun_ )
-	    info.groundelev = zun_->internalValue( info.groundelev );
+	const float gdevel = gdelevfld->getfValue();
+	if ( !mIsUdf(gdevel)  && zun_ )
+	    info.groundelev = zun_->internalValue( gdevel );
     }
 
     info.uwid = idfld->text();

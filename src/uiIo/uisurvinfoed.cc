@@ -254,9 +254,13 @@ void uiSurveyInfoEditor::mkRangeGrp()
 	    		mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
+    double srd = si_.seismicReferenceDatum();
+    if ( depthinft && si_.zIsTime() )
+	srd *= mToFeetFactorD;
+
     refdatumfld_ = new uiGenInput( rangegrp_,
 	    		depthinft ? sKeySRDFeet : sKeySRDMeter,
-	    		DoubleInpSpec(si_.seismicReferenceDatum()) );
+	    		DoubleInpSpec(srd) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
@@ -488,7 +492,18 @@ bool uiSurveyInfoEditor::doApply()
     if ( !setSurvName() || !setRanges() )
 	return false;
 
-    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
+    double srd = refdatumfld_->getdValue( 0.0 );
+    if ( mIsUdf(srd) )
+    {
+	uiMSG().error( "Seismic Reference Datum must be set" );
+	return false;
+    }
+
+    const bool showdepthinft = !depthdispfld_->getBoolValue();
+    if ( showdepthinft && si_.zIsTime() )
+	srd *= mFromFeetFactorD;
+    si_.setSeismicReferenceDatum( srd );
+
     updatePar(0);
 
     if ( !mUseAdvanced() )
@@ -845,7 +860,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
     if ( !needsupdate ) return;
     
     refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
-    double refdatum = refdatumfld_->getdValue( 0.0 );
+    double refdatum = refdatumfld_->getdValue();
     refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
     refdatumfld_->setValue( refdatum );
 }

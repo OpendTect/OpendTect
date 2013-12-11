@@ -624,7 +624,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     TypeSet<float> mds;
     TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
-    const double srd = mCast(float,SI().seismicReferenceDatum());
+    const double srd = SI().seismicReferenceDatum();
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
     // velocity above is controled by info().replvel
@@ -652,22 +652,26 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
 			      ( tvals[idz] - tvals[prevvelidx] );
 	if ( mIsEqual(curvel,newvel,1e-2) && (idz<inputsz-1) )
-	{
-	    if ( mds.size() == 1 )
-	   continue;
-	}
+	    if ( mds.size() != 1 )
+		continue;
 
 	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
 	if ( !mIsUdf(dah) )
 	{
-	    if ( prevvelidx == 0 && mds.size() == 1 && inputsz > 1 )
+	    const float prevdah = trck.getDahForTVD(
+					    mCast(float,zvals[prevvelidx]) );
+	    if ( !mIsEqual(mds[0],prevdah,1e-2f) )
 	    {
-		mds += trck.getDahForTVD( mCast(float,zvals[1]) );
-		ts += tvals[1];
+		mds += prevdah;
+		ts += tvals[prevvelidx];
 	    }
 
 	    prevvelidx = idz;
 	    curvel = newvel;
+	}
+
+	if ( idz == inputsz-1 )
+	{
 	    mds += trck.getDahForTVD( mCast(float,zvals[idz]) );
 	    ts += tvals[idz];
 	}

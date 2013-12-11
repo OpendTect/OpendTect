@@ -569,8 +569,17 @@ void uiWellMan::mkFileInfo()
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt += "Reference Datum Elevation (KB):";
+	    txt += "Reference Datum Elevation (KB): ";
 	    txt += zun ? zun->userValue(rdelev) : rdelev;
+	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( "\n" );
+	}
+
+	const float td = track.dahRange().stop;
+	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
+	{
+	    txt += "Total Depth (TD): ";
+	    txt += zun ? zun->userValue(td) : td;
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.add( "\n" );
 	}
@@ -579,7 +588,7 @@ void uiWellMan::mkFileInfo()
 	const float srd = mCast(float,SI().seismicReferenceDatum());
 	if ( !mIsZero(srd,1e-4f) )
 	{
-	    txt.add( "Seismic Reference Datum (SRD) :" );
+	    txt.add( "Seismic Reference Datum (SRD): " );
 	    txt.add( srd );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.add( "\n" );
@@ -595,8 +604,8 @@ void uiWellMan::mkFileInfo()
 	const float replvel = info.replvel;
 	if ( !mIsUdf(replvel) )
 	{
-	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	     txt += replvel;
+	     txt += "Replacement velocity (from KB to SRD): ";
+	     txt += zun ? zun->userValue(replvel) : replvel;
 	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
 	     txt += "/s\n";
 	}
@@ -604,7 +613,7 @@ void uiWellMan::mkFileInfo()
 	const float groundelev = info.groundelev;
 	if ( !mIsUdf(groundelev) )
 	{
-	    txt += "Ground level elevation (GL)"; txt += ": ";
+	    txt += "Ground level elevation (GL): ";
 	    txt += zun ? zun->userValue(groundelev) : groundelev;
 	    txt += zun->symbol(); txt += "\n";
 	}

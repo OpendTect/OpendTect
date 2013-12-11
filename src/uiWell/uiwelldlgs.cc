@@ -814,8 +814,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     {
 	const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
 	const float tvdss = ( wd_.info().replvel * inval * 500.f / twtfac
-			      - mCast(float, SI().seismicReferenceDatum()) ) *
-			    zfac;
+			  - mCast(float, SI().seismicReferenceDatum()) ) * zfac;
 	const RowCol rc( row, getTVDSSCol() );
 	tbl_->setValue( rc, tvdss );
 	tbl_->setSelected( rc );
@@ -1170,9 +1169,9 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     Interval<float> usrzrg = lfi.zrg;
     if ( isft )
     {
-	if ( !mIsUdf(lfi.zrg.start) ) 
+	if ( !mIsUdf(lfi.zrg.start) )
 	    usrzrg.start *= mToFeetFactorF;
-	if ( !mIsUdf(lfi.zrg.stop) ) 
+	if ( !mIsUdf(lfi.zrg.stop) )
 	    usrzrg.stop *= mToFeetFactorF;
     }
     intvfld->setValue( usrzrg );
@@ -1190,9 +1189,9 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
-	if ( !mIsUdf(usrzrg.start) ) 
+	if ( !mIsUdf(usrzrg.start) )
 	    usrzrg.start *= mFromFeetFactorF;
-	if ( !mIsUdf(usrzrg.stop) ) 
+	if ( !mIsUdf(usrzrg.stop) )
 	    usrzrg.stop *= mFromFeetFactorF;
     }
     lfi.zrg.setFrom( usrzrg );

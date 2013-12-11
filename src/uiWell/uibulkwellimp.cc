@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uid2tmodelgrp.h"
 
 using namespace Well;
 
@@ -60,7 +61,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     {
 	const BufferString zlbl( SI().depthsInFeet() ? " (ft" : " (m", "/s)" );
 	const BufferString vellbl( "Temporary model velocity", zlbl );
-	const float vel = Well::getDefaultVelocity();
+	const float vel = getGUIDefaultVelocity();
 	uiGenInput* velocityfld = new uiGenInput( this, vellbl,
 							FloatInpSpec(vel) );
 	velocityfld->attach( alignedBelow, dataselfld_ );
@@ -452,7 +453,7 @@ void uiBulkMarkerImport::readFile( std::istream& istrm,
     if ( !fd ) return;
 
     BulkMarkerAscIO aio( *fd, istrm );
-    BufferString markernm, wellnm;  // wellnm can be UWI as well.
+    BufferString markernm, wellnm; // wellnm can be UWI as well
     float md = mUdf(float);
     while ( aio.get(wellnm,md,markernm) )
     {
