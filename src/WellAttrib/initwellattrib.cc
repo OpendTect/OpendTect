@@ -10,13 +10,11 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
-#include "uistratlayermodel.h"
-#include "uiwelllogattrib.h"
+#include "welllogattrib.h"
 
-mDefModInitFn(uiWellAttrib)
+mDefModInitFn(WellAttrib)
 {
     mIfNotFirstTime( return );
 
-    uiStratLayerModel::initClass();
-    uiWellLogAttrib::initClass();
+    Attrib::WellLog::initClass();
 }

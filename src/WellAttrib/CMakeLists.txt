@@ -9,10 +9,12 @@ SET(OD_MODULE_DEPS Well Attributes Strat )
 SET(OD_MODULE_SOURCES
 		createattriblog.cc
 		createlogcube.cc
+		initwellattrib.cc
 		stratseisevent.cc
 		stratsynth.cc
 		stratsynthexp.cc
 		wellhorpos.cc
+		welllogattrib.cc
 		welltiecshot.cc
 		welltied2tmodelmanager.cc
 		welltiedata.cc

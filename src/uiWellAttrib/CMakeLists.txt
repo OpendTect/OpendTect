@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 		uiwellattribpartserv.cc
 		uiwellattribxplot.cc
 		uiwellimpsegyvsp.cc
+		uiwelllogattrib.cc
 		uiwelllogextract.cc
 		uiwelltiecontrolview.cc
 		uiwelltiecheckshotedit.cc
