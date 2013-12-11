@@ -39,8 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
 #include "uiunitsel.h"
-
-#include <stdio.h>
+#include "od_ostream.h"
 
 
 static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
@@ -111,7 +110,7 @@ uiExportHorizon::~uiExportHorizon()
 #define mHdr1GFLineLen 102
 #define mDataGFLineLen 148
 
-static void initGF( std::ostream& strm, const char* hornm,
+static void initGF( od_ostream& strm, const char* hornm,
 		    const char* comment )
 {
     char gfbuf[mHdr1GFLineLen+2];
@@ -125,13 +124,13 @@ static void initGF( std::ostream& strm, const char* hornm,
     hnm = comment;
     sz = hnm.size(); if ( sz > 45 ) sz = 45;
     OD::memCopy( gfbuf+35, hnm.buf(), sz );
-    strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << std::endl;
+    strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << od_endl;
 }
 
 
 #define mGFUndefValue 3.4028235E+38
 
-static void writeGF( std::ostream& strm, const BinID& bid, float z,
+static void writeGF( od_ostream& strm, const BinID& bid, float z,
 		     float val, const Coord& crd, int segid )
 {
     char buf[mDataGFLineLen+2];
@@ -146,7 +145,7 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z,
 }
 
 
-void uiExportHorizon::writeHeader( std::ostream& strm )
+void uiExportHorizon::writeHeader( od_ostream& strm )
 {
     if ( headerfld_->getIntValue() == 0 )
 	return;
@@ -331,19 +330,19 @@ bool uiExportHorizon::writeAscii()
 	    }
 	}
 
-	StreamData sdo = StreamProvider( fname ).makeOStream();
-	if ( !sdo.usable() )
+        od_ostream stream( fname );
+
+	if ( stream.isBad() )
 	{
-	    sdo.close();
-	    mErrRet( "Cannot open output file" );
+            mErrRet( "Cannot open output file" );
 	}
 
 	if ( dogf )
-	    initGF( *sdo.ostrm, gfname_.buf(), gfcomment_.buf() );
+	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
 	else
 	{
-	    *sdo.ostrm << std::fixed;
-	    writeHeader( *sdo.ostrm );
+	    stream.stdStream() << std::fixed;
+	    writeHeader( stream );
 	}
 
 	const EM::SectionID sectionid = hor->sectionID( sectionidx );
@@ -373,31 +372,31 @@ bool uiExportHorizon::writeAscii()
 		const BinID bid = SI().transform( crd );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( *sdo.ostrm, bid, (float) crd.z, auxvalue, crd, sidx );
+		writeGF( stream, bid, (float) crd.z, auxvalue, crd, sidx );
 		continue;
 	    }
 
 	    if ( !doxy )
 	    {
 		const BinID bid = SI().transform( crd );
-		*sdo.ostrm << bid.inl() << '\t' << bid.crl();
+		stream << bid.inl() << od_tab << bid.crl();
 	    }
 	    else
 	    {
 		// ostreams print doubles awfully
 		str.setEmpty();
-		str += crd.x; str += "\t"; str += crd.y;
-		*sdo.ostrm << str;
+		str += crd.x; str += od_tab; str += crd.y;
+		stream << str;
 	    }
 
 	    if ( addzpos )
 	    {
 		if ( mIsUdf(crd.z) )
-		    *sdo.ostrm << '\t' << udfstr;
+		    stream << od_tab << udfstr;
 		else
 		{
-		    str = "\t"; str += crd.z;
-		    *sdo.ostrm << str;
+		    str = od_tab; str += crd.z;
+		    stream << str;
 		}
 	    }
 
@@ -405,19 +404,22 @@ bool uiExportHorizon::writeAscii()
 	    {
 		const float auxvalue = hor->auxdata.getAuxDataVal( idx, posid );
 		if ( mIsUdf(auxvalue) )
-		    *sdo.ostrm << '\t' << udfstr;
+		    stream << od_tab << udfstr;
 		else
 		{
-		    str = "\t"; str += auxvalue;
-		    *sdo.ostrm << str;
+		    str = od_tab; str += auxvalue;
+		    stream << str;
 		}
 	    }
 
-	    *sdo.ostrm << '\n';
+	    stream << od_newline;
 	}
 
-	if ( dogf ) *sdo.ostrm << "EOD";
-	sdo.close();
+	if ( dogf ) stream << "EOD";
+
+        stream.flush();
+        if ( stream.isBad() )
+            mErrRet( "Cannot write output file" );
     }
 
     if ( zatf && zatvoi>=0 )

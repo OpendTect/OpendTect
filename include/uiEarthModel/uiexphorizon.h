@@ -53,7 +53,7 @@ protected:
     void		attrSel(CallBacker*);
     void		settingsCB(CallBacker*);
     void		inpSel(CallBacker*);
-    void		writeHeader(std::ostream&);
+    void		writeHeader(od_ostream&);
     bool		writeAscii();
 
     FixedString		getZDomain() const;
