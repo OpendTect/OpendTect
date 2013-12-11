@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "sets.h"
 #include "threadlock.h"
-#include <string>
 
 /*!
   In any OO system callbacks to an unknown client must be possible. To be able
@@ -26,7 +25,7 @@ ________________________________________________________________________
   The following stuff makes sure that there is a nice empty base class with that
   role. And, the Capsule mechanism ensures that any class can be passed as
   argument.
-  
+
   There are some analogies with QT's signal/slot mechanism. We think our
   mechanism is more flexible in some ways, less in other ways (those we're not
   interested in).
@@ -47,7 +46,7 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 
 /*!
 \brief CallBacks object-oriented (object + method).
-  
+
   CallBack is nothing more than a function pointer + optionally an object to
   call it on. It may be null, in which case doCall() will simply do nothing.
   If you want to be able to send a CallBack, you must provide a 'sender'
@@ -97,8 +96,8 @@ public:
 		{}
 
     void	doCall(CallBacker*,const bool* enabledflag=0,
-	    		CallBacker* exclude=0);
-    		/*!<\param enabledflag: if non-null, content will be checked
+			CallBacker* exclude=0);
+		/*!<\param enabledflag: if non-null, content will be checked
 		  between each call, caling will stop if false.
 		     \note Will lock in the apropriate moment. */
 
@@ -108,7 +107,7 @@ public:
 		//!<\note Should be locked before calling
     void	removeWith(StaticCallBackFunction);
 		//!<\note Should be locked before calling
-    
+
     mutable Threads::Lock   lock_;
 };
 
@@ -127,8 +126,8 @@ public:
 
 			NotifierAccess(const NotifierAccess&);
 			NotifierAccess();
-    virtual 		~NotifierAccess();
-    
+    virtual		~NotifierAccess();
+
     void		notify(const CallBack&,bool first=false);
     void		notifyIfNotNotified(const CallBack&);
     void		remove(const CallBack&);
@@ -138,22 +137,22 @@ public:
     bool		isEnabled() const	{ return enabled_; }
     bool		enable( bool yn=true )	{ return doEnable(yn); }
     bool		disable()		{ return doEnable(false); }
-    
-    bool        	willCall(CallBacker*) const;
-    			/*!<\returns true if the callback list contains
+
+    bool	willCall(CallBacker*) const;
+			/*!<\returns true if the callback list contains
 			     CallBacker. */
 
-    
+
     CallBackSet		cbs_;
     CallBacker*		cber_;
 
     bool		isShutdownSubscribed(CallBacker*) const;
-    			//!<Only for debugging purposes, don't use
+			//!<Only for debugging purposes, don't use
 protected:
     void		addShutdownSubscription(CallBacker*);
     bool		removeShutdownSubscription(CallBacker*, bool wait);
 			//!<\returns false only if wait and no lock could be got
-    
+
 			/*!\returns previous status */
     inline bool		doEnable( bool yn=true )
 			{
@@ -161,7 +160,7 @@ protected:
 			    enabled_ = yn;
 			    return ret;
 			}
-    
+
     ObjectSet<CallBacker>	shutdownsubscribers_;
     mutable Threads::Lock	shutdownsubscriberlock_;
 
@@ -171,7 +170,7 @@ protected:
 
 /*!
   Class to help setup a callback handling.
-  
+
   What we have discovered is that the two things:
   - providing a notification of an event to the outside world
   - asking a notification of a certain object
@@ -182,30 +181,30 @@ protected:
   sending object just calls trigger(). Note that it is most used in the
   UI, but it is equally usable in batch stuff. In general, it provides a
   rigorous uncoupling.
-  
+
   Simply declare a Notifier<T> in the interface, like:
   \code
   Notifier<MyClass>	buttonClicked;
   \endcode
-  
+
   Then users of the class can issue:
-  
+
   \code
   mAttachCB( myclass.buttonClicked, TheClassOfThis::theMethodToBeCalle );
   \endcode
-  
-  The notifier is then attached, the connection will be remove when either the 
+
+  The notifier is then attached, the connection will be remove when either the
   notifier or the called object is deleted.
- 
+
   The callback is issued when you call the trigger() method, like:
   \code
   buttonClicked.trigger();
   \endcode
-  
+
   The notification can be temporary stopped using disable()/enable() pair,
   or by use of a NotifyStopper, which automatically restores the callback
-  when going out of scope.  
- 
+  when going out of scope.
+
   The best practice is to remove the callbacks in the destructor, as otherwise,
   you may get random crashes. Either, remove them one by one in the destructor,
   or call detachAllNotifiers(), which will remove notifiers that are attached
@@ -221,7 +220,7 @@ public:
     void		trigger( T& t )	{ trigger(&t); }
 
 			// Following functions are usually used by T class only:
-			Notifier( T* c ) 			{ cber_ = c; }
+			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
 			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
@@ -238,24 +237,24 @@ mExpClass(Basic) CallBacker
 public:
 			CallBacker();
 			CallBacker(const CallBacker&);
-    virtual 		~CallBacker();
-    
+    virtual		~CallBacker();
+
     void		attachCB(NotifierAccess&,const CallBack&);
-    			/*!<Adds cb to notifier, and makes sure
+			/*!<Adds cb to notifier, and makes sure
 			    it is removed later when object is
 			    deleted. */
     void		detachCB(NotifierAccess&,const CallBack&);
-    			/*!<\note Normally not needed if you don't
+			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
-    
+
     bool		isNotifierAttached(NotifierAccess*) const;
-    			//!<Only for debugging purposes, don't use
-    
+			//!<Only for debugging purposes, don't use
+
 protected:
     void		detachAllNotifiers();
 			//!<Call from the destructor of your inherited object
 private:
-    
+
     bool		notifyShutdown(NotifierAccess*,bool wait);
 			//!<\returns false only if wait and no lock could be got
 
@@ -272,13 +271,13 @@ detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
 
 /*!
 \brief Capsule class to wrap any class into a CallBacker.
-  
+
   Callback functions are defined as:
   void clss::func( CallBacker* )
   Sometimes you want to pass other info. For this purpose, you can use the
   CBCapsule class, which isA CallBacker, but contains T data. For convenience,
   the originating CallBacker* is included, so the 'caller' will still be
-  available. 
+  available.
 */
 
 template <class T>
@@ -287,7 +286,7 @@ mClass(Basic) CBCapsule : public CallBacker
 public:
     CBCapsule( T d, CallBacker* c )
     : data(d), caller(c)	{}
-    
+
     T			data;
     CallBacker*		caller;
 };
@@ -296,7 +295,7 @@ public:
 /*!
 \ingroup Basic
 \brief Unpacking data from capsule.
-  
+
   If you have a pointer to a capsule cb, this:
   \code
   mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
@@ -305,7 +304,7 @@ public:
   \code
   const uiMouseEvent& ev
   \endcode
-  
+
   If you're interested in the caller, you'll need to get the capsule itself:
   \code
   mCBCapsuleGet(const uiMouseEvent&,caps,cb)
@@ -313,7 +312,7 @@ public:
   would result in the availability of:
   \code
   CBCapsule<const uiMouseEvent&>* caps
-  \endcode  
+  \endcode
 */
 
 #define mCBCapsuleGet(T,var,cb) \
@@ -331,14 +330,14 @@ CallBacker* cber = cb##caps->caller
 
 /*!
 \brief Notifier with automatic capsule creation.
-  
+
   When non-callbacker data needs to be passed, you can put it in a capsule.
-  
+
   You'll need to define:
-  
+
   \code
   CNotifier<MyClass,const uiMouseEvent&>	mousepress;
-  \endcode  
+  \endcode
 */
 
 template <class T,class C>
@@ -365,10 +364,10 @@ public:
 
 /*!
 \brief Temporarily disables a Notifier.
-  
+
   Notifiers can be disabled. To do that temporarily, use NotifyStopper.
   If the Stopper goes out of scope, the callback is re-enabled. like:
-  
+
   void xxx:doSomething()
   {
       NotifyStopper stopper( a_notifier );
@@ -377,10 +376,10 @@ public:
   }
 */
 
-mExpClass(Basic) NotifyStopper 
+mExpClass(Basic) NotifyStopper
 {
 public:
-			NotifyStopper( NotifierAccess& na ) 
+			NotifyStopper( NotifierAccess& na )
 			    : oldst_(na.doEnable(false))
 			    , thenotif_(na)	{}
 
@@ -392,7 +391,7 @@ public:
 
 protected:
 
-    NotifierAccess& 	thenotif_;
+    NotifierAccess&	thenotif_;
     bool		oldst_;
 
 };
