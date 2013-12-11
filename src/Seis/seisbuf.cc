@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "strmprov.h"
 #include "arrayndimpl.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 void SeisTrcBuf::deepErase()
@@ -291,9 +291,9 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 {
     if ( isEmpty() ) return false;
 
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() ) return false;
-    std::ostream& strm = *sd.ostrm;
+    od_ostream strm( fnm );
+    if ( strm.isBad() )
+        return false;
 
     const SeisTrc& trc0 = *first();
     strm << trc0.info().sampling.start
@@ -302,7 +302,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 
     for ( int itrc=0; itrc<size(); itrc++ )
     {
-	strm << '\n';
+	strm << od_newline;
 	const SeisTrc& trc = *get( itrc );
 	if ( !is2d )
 	    strm << trc.info().binid.inl() << ' ' << trc.info().binid.crl();
@@ -321,8 +321,9 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	    strm << ' ' << trc.get( isamp, icomp );
     }
 
-    sd.close();
-    return true;
+    strm.flush();
+
+    return strm.isOK();
 }
 
 
