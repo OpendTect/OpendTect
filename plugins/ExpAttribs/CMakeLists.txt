@@ -9,6 +9,7 @@ SET(OD_MODULE_DEPS AttributeEngine)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	expattribspi.cc
+	fkfilterattrib.cc
 	curvgrad.cc
 	eventfreqattrib.cc
 	grubbsfilterattrib.cc

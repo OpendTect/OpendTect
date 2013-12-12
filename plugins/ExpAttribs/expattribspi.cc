@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "curvgrad.h"
 #include "eventfreqattrib.h"
+#include "fkfilterattrib.h"
 #include "grubbsfilterattrib.h"
 #include "similaritybyaw.h"
 
@@ -35,6 +36,7 @@ mDefODInitPlugin(ExpAttribs)
 {
     Attrib::CurvGrad::initClass();
     Attrib::EventFreq::initClass();
+    Attrib::FKFilter::initClass();
     Attrib::GrubbsFilter::initClass();
 
 #ifdef __debug__
