@@ -28,7 +28,7 @@ namespace osg { class Vec3f; class Array; class Referenced; }
 #define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
 #define mGetOsgVec4Arr(ptr) ((osg::Vec4Array*) ptr )
 
-#if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
+#if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS) || defined(uiOSG_EXPORTS) || defined(UIOSG_EXPORTS)
 //Only available in visBase
 #include <osg/Vec3>
 #include <osg/Vec3d>
