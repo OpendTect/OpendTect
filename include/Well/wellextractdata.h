@@ -46,8 +46,8 @@ class MarkerSet;
 mExpClass(Well) ZRangeSelector
 {
 public :
-    			ZRangeSelector() { setEmpty(); }
-    			ZRangeSelector(const ZRangeSelector&);
+			ZRangeSelector() { setEmpty(); }
+			ZRangeSelector(const ZRangeSelector&);
 
 
     enum		ZSelection { Markers, Depths, Times };
@@ -72,30 +72,30 @@ public :
 
     //set
     void		setTopMarker(const char* nm,float offset)
-			{ setMarker( true, nm, offset); } 
+			{ setMarker( true, nm, offset); }
     void		setBotMarker(const char* nm,float offset)
-			{ setMarker( false, nm, offset); } 
+			{ setMarker( false, nm, offset); }
     void		setFixedRange(Interval<float>,bool istime);
-    void		snapZRangeToSurvey(bool yn) 
-    			{ snapzrgtosurvey_ = yn; }
+    void		snapZRangeToSurvey(bool yn)
+			{ snapzrgtosurvey_ = yn; }
 
     //get
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
-	    				bool todah=true) const;
+					bool todah=true) const;
     Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
-	    				bool todah=true) const;
+					bool todah=true) const;
 
 
-    float		topOffset() const 	{ return above_; }
-    float		botOffset() const 	{ return below_; }
-    const char*		topMarker() const 	{ return topmrkr_; }
+    float		topOffset() const	{ return above_; }
+    float		botOffset() const	{ return below_; }
+    const char*		topMarker() const	{ return topmrkr_; }
     const char*		botMarker() const	{ return botmrkr_; }
-    Interval<float> 	getFixedRange() const 	{ return fixedzrg_; }
-    bool		isInTime() const 	{ return zselection_ == Times; }
+    Interval<float>	getFixedRange() const	{ return fixedzrg_; }
+    bool		isInTime() const	{ return zselection_ == Times; }
 
 protected:
 
-    Interval<float>	fixedzrg_; 
+    Interval<float>	fixedzrg_;
     BufferString	topmrkr_;
     BufferString	botmrkr_;
     float		above_;
@@ -107,7 +107,7 @@ protected:
     void		getLimitPos(const MarkerSet&,bool,float&,
 				    const Interval<float>&) const;
     void		snapZRangeToSurvey(Interval<float>&,bool,
-	    				  const D2TModel*,
+					  const D2TModel*,
 					  const Track&) const;
 };
 
@@ -119,8 +119,8 @@ protected:
 mExpClass(Well) ExtractParams : public ZRangeSelector
 {
 public:
-    			ExtractParams() { setEmpty(); }
-    			ExtractParams(const ExtractParams&);
+			ExtractParams() { setEmpty(); }
+			ExtractParams(const ExtractParams&);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -130,9 +130,9 @@ public:
 
     static const char*	sKeySamplePol();
     static const char*	sKeyZExtractInTime();
-    float 		getZStep() const;
+    float		getZStep() const;
 
-    float		zstep_; //can be in time 
+    float		zstep_; //can be in time
     bool		extractzintime_;
     Stats::UpscaleType	samppol_;
 };
@@ -159,11 +159,11 @@ public:
 
     const ObjectSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
-    				//!< Same size as ids()
+				//!< Same size as ids()
     const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
-    				//!< If selected, same size as ids()
+				//!< If selected, same size as ids()
     const ObjectSet<BufferStringSet>& logs() const { return logs_; }
-    				//!< If selected, same size as ids()
+				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
 protected:
@@ -213,7 +213,7 @@ public:
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
-    const char* 	errMsg() const 
+    const char*	errMsg() const
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
@@ -236,7 +236,7 @@ protected:
 
     void		getData(const Data&,DataPointSet&);
     bool		getPos(const Data&,float,BinIDValue&,int&,
-	    			Coord3&) const;
+				Coord3&) const;
     void		addPosns(DataPointSet&,const BinIDValue&,
 				 const Coord3&,float dah) const;
 };
@@ -270,7 +270,7 @@ public:
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
-	    				Stats::UpscaleType samppol); 
+					Stats::UpscaleType samppol);
 
 protected:
 
@@ -282,11 +282,11 @@ protected:
 
     void		getData(DataPointSet&,const Data&,const Track&);
     void		getGenTrackData(DataPointSet&,const Track&,const Log&,
-	    				int,int);
+					int,int);
     void		addValAtDah(float,const Log&,float,
-	    			    DataPointSet&,int,int) const;
+				    DataPointSet&,int,int) const;
     float		findNearest(const Track&,const BinIDValue&,
-	    			    float,float,float) const;
+				    float,float,float) const;
 };
 
 
@@ -362,33 +362,36 @@ public:
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(const char* lognm,int idx) const;
 
-    const char*		errMsg() const 
+    const char*		errMsg() const
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
-    int 		nrZSamples() const;
-    Interval<float> 	zRange() const 	{ return zrg_; } //can be in time
+    int		nrZSamples() const;
+    Interval<float>	zRange() const	{ return zrg_; } //can be in time
+
+    float		getThickness(int idz) const;
+			//!< Vertical thickness of a sample, not along hole
 
 protected:
-    void 		init (const Well::D2TModel*,const Interval<float>&,
-	    		    bool zrgintime,float zstep, bool extractintime,
+    void		init(const Well::D2TModel*,const Interval<float>&,
+			    bool zrgintime,float zstep, bool extractintime,
 			    Stats::UpscaleType samppol);
 
-    od_int64            	nrIterations() const;
+    od_int64	nrIterations() const;
 
     bool			doLog(int logidx);
-    bool 			doPrepare(int);
-    bool 			doWork(od_int64,od_int64,int);
+    bool			doPrepare(int);
+    bool			doWork(od_int64,od_int64,int);
 
-    const Well::D2TModel* 	d2t_;
+    const Well::D2TModel*	d2t_;
     const Well::Track&		track_;
     Interval<float>		zrg_;
-    float			zstep_; 
-    bool 			extrintime_;
+    float			zstep_;
+    bool			extrintime_;
     bool			zrgisintime_;
     ObjectSet<const Well::Log>	logset_;
     Array2DImpl<float>*		data_;
     BufferString		errmsg_;
-    Stats::UpscaleType 		samppol_;
+    Stats::UpscaleType		samppol_;
 };
 
 }; // namespace Well
