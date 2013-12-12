@@ -147,6 +147,9 @@ bool Well::ElasticModelComputer::computeFromLogs()
     if ( zrange_.isUdf() || mIsUdf(zstep_) )
 	mErrRet( "Please set the extraction range" )
 
+    zrange_.start += zstep_ / 2.f;
+    zrange_.stop -= zstep_ / 2.f;
+
     if ( !extractLogs() )
 	mErrRet( "Cannot extract logs" )
 
@@ -161,21 +164,24 @@ bool Well::ElasticModelComputer::computeFromLogs()
 	const float velp = getVelp( idl );
 	const float den = getDensity( idl );
 	const float svel = getSVel( idl );
-	const float thickness = !zrgistime_ ? dz : dz * velp;
+	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
+	if ( mIsUdf(thickness) )
+	    mErrRet( "Undefined thickness in LogSampler" )
 
 	ElasticLayer layer( thickness, velp, svel, den );
 	emodel_ += layer;
     }
 
-    if ( !emodel_.size() )
+    if ( emodel_.isEmpty() )
 	mErrRet( "Returning empty elastic model" )
 
     float startdepth = zrange_.start;
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
     if ( zrgistime_ )
     {
-	const float startdah = wd_.d2TModel()->getDah( startdepth, wd_.track());
-	startdepth = mCast(float,wd_.track().getPos( startdah ).z);
+	const float startdah = ls_->getDah(0);
+	startdepth = mCast(float,wd_.track().getPos( startdah ).z) -
+		     ls_->getThickness(0) / 2.f;
     }
 
     emodel_[0].thickness_ += ( startdepth - srddepth ) * convfact;
@@ -239,24 +245,30 @@ bool Well::ElasticModelComputer::extractLogs()
 
 float Well::ElasticModelComputer::getLogVal( int logidx, int sampidx ) const
 {
+    if ( logidx > ls_->nrZSamples() )
+	return mUdf(float);
+
     const float val = ls_->getLogVal( logidx, sampidx );
-    const float valintp = !lsnearest_
+    const float valintp = !lsnearest_ || logidx > lsnearest_->nrZSamples()
 			? mUdf(float)
 			: lsnearest_->getLogVal( logidx, sampidx );
     return mIsUdf(val) ? valintp : val;
 }
 
+#define mTestLogIdx(logidx) \
+{ \
+    if ( !inplogs_.validIdx(logidx) || !uomset_.validIdx(logidx) ) \
+	return mUdf(float); \
+\
+    const Well::Log* inplog = inplogs_[logidx]; \
+    if ( !inplog ) \
+	return mUdf(float); \
+}
 
 float Well::ElasticModelComputer::getVelp( int idx ) const
 {
     const int logidx = mPVelIdx;
-    if ( !inplogs_.validIdx(logidx) || !uomset_.validIdx(logidx) )
-	return mUdf(float);
-
-    const Well::Log* inplog = inplogs_[logidx];
-    if ( !inplog )
-	return mUdf(float);
-
+    mTestLogIdx(logidx);
     float logval = getLogVal( logidx, idx );
     const UnitOfMeasure* uom = uomset_[logidx];
     logval = uom ? uom->getSIValue( logval ) : logval;
@@ -268,13 +280,7 @@ float Well::ElasticModelComputer::getVelp( int idx ) const
 float Well::ElasticModelComputer::getDensity( int idx ) const
 {
     const int logidx = mDenIdx;
-    if ( !inplogs_.validIdx(logidx) || !uomset_.validIdx(logidx) )
-	return mUdf(float);
-
-    const Well::Log* inplog = inplogs_[logidx];
-    if ( !inplog )
-	return mUdf(float);
-
+    mTestLogIdx(logidx);
     const float logval = getLogVal( logidx, idx );
     const UnitOfMeasure* uom = uomset_[logidx];
     return uom ? uom->getSIValue( logval ) : logval;
@@ -284,13 +290,7 @@ float Well::ElasticModelComputer::getDensity( int idx ) const
 float Well::ElasticModelComputer::getSVel( int idx ) const
 {
     const int logidx = mSVelIdx;
-    if ( !inplogs_.validIdx(logidx) || !uomset_.validIdx(logidx) )
-	return mUdf(float);
-
-    const Well::Log* inplog = inplogs_[logidx];
-    if ( !inplog )
-	return mUdf(float);
-
+    mTestLogIdx(logidx);
     const float logval = getLogVal( logidx, idx );
     const UnitOfMeasure* uom = uomset_[logidx];
     return uom ? uom->getSIValue( logval ) : logval;

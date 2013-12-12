@@ -1082,22 +1082,12 @@ bool Well::LogSampler::doPrepare( int thread )
     } // zrg_ now matches the extraction domain
     zrgisintime_ = extrintime_;
 
-    float zstart = (float) mNINT32(zrg_.start/zstep_) * zstep_;
-    if ( zstart < zrg_.start-(zstep_*1e-2f) )
-	zstart += zstep_;
-
-    float zstop = (float) mNINT32(zrg_.stop/zstep_) * zstep_;
-    if ( zstop > zrg_.stop+(zstep_*1e-2f) )
-	zstop -= zstep_;
-
+    const int nrsamples = mNINT32( zrg_.width(true) / zstep_ );
+    zrg_.stop = zrg_.start + nrsamples * zstep_;
+    const StepInterval<float> zrgreg( zrg_.start, zrg_.stop, zstep_ );
     TypeSet<float> dahs;
     TypeSet<float> winsz;
-    zrg_.start = zstart;
-    zrg_.stop = zstop;
-    const StepInterval<float> zrgreg( zrg_.start + zstep_ / 2.f,
-				      zrg_.stop - zstep_ / 2.f,
-				      zstep_ );
-    for ( int idx=0; idx<=zrgreg.nrSteps(); idx++ )
+    for ( int idx=0; idx<=zrgreg.nrSteps()+1; idx++ )
     {
 	const float zmid = zrgreg.atIndex(idx);
 	const float ztop = zmid - zstep_/2.f;
@@ -1171,6 +1161,14 @@ float Well::LogSampler::getDah( int idz ) const
 {
     return data_ && ( idz < data_->info().getSize(1) ) ?
 				  data_->get( 0, idz ) : mUdf( float );
+}
+
+
+float Well::LogSampler::getThickness( int idz ) const
+{
+    const int winszidx = data_->info().getSize(0) - 1;
+    return data_ && ( idz < data_->info().getSize(1) ) ?
+				data_->get( winszidx, idz ) : mUdf( float );
 }
 
 
