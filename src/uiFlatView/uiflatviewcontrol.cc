@@ -122,6 +122,7 @@ void uiFlatViewControl::onFinalise( CallBacker* )
 void uiFlatViewControl::dataChangeCB( CallBacker* cb )
 {
     zoommgr_.reInit( getBoundingBoxes() );
+    zoomChanged.trigger();
 }
 
 

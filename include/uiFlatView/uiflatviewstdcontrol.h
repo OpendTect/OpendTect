@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiMenuHandler;
 class uiToolButton;
 class uiFlatViewColTabEd;
+class uiFlatViewThumbnail;
 class uiToolBar;
 
 /*!
@@ -41,6 +42,7 @@ public:
 			    , withsnapshot_(true)
 			    , withflip_(true)
 			    , withrubber_(true)
+			    , withcommontoolbar_(false)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -54,6 +56,7 @@ public:
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
+	mDefSetupMemb(bool,withcommontoolbar)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -78,8 +81,9 @@ protected:
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
 
-    uiFlatViewer&	vwr_;
-    uiFlatViewColTabEd*	ctabed_;
+    uiFlatViewer&		vwr_;
+    uiFlatViewColTabEd*		ctabed_;
+    uiFlatViewThumbnail*	thumbnail_;
 
     virtual void	finalPrepare();
     void		clearToolBar();
@@ -89,6 +93,7 @@ protected:
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
+    virtual void        zoomChgCB(CallBacker*);
     virtual void	editCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
@@ -96,12 +101,11 @@ protected:
     void		handDragging(CallBacker*);
     void		handDragged(CallBacker*);
     void		keyPressCB(CallBacker*);
-    void		panCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     void		stateCB(CallBacker*);
     void		translateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
-    void		vwChgCB(CallBacker*);
+    virtual void	vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
 
@@ -113,6 +117,7 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     BufferString	helpid_;
+    Setup		setup_;
 };
 
 #endif

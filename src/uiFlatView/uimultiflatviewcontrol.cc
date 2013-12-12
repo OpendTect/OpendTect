@@ -82,18 +82,20 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
 
-    toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
+    if ( !setup_.withcommontoolbar_ )
+    	toolbars_+=new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
 
-    parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
+    const int tbidx = setup_.withcommontoolbar_ ? 0 : ivwr;
+    parsbuts_ += new uiToolButton( toolbars_[tbidx],"2ddisppars",
 	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
 
-    toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
+    toolbars_[tbidx]->addButton( parsbuts_[ivwr] );
 
     vwr.setRubberBandingOn( !manip_ );
     vwr.appearance().annot_.editable_ = false;
-    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::vwChgCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::vwChgCB );
 
     reInitZooms();
 }

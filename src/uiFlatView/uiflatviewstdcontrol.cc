@@ -37,6 +37,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_,setup.withhanddrag_)
     , vwr_(vwr)
+    , setup_(setup)
     , ctabed_(0)
     , manip_(false)
     , mousepressed_(false)
@@ -46,6 +47,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , editbut_(0)
     , zoominbut_(0)
     , zoomoutbut_(0)
+    , thumbnail_(0)
 {
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 	    					    : uiToolBar::Top );
@@ -102,7 +104,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
     }
 
-    mAttachCB( zoomChanged, uiFlatViewStdControl::vwChgCB );
+    mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
     mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
 
     menu_.ref();
@@ -110,7 +112,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     mAttachCB( menu_.handlenotifier, uiFlatViewStdControl::handleMenuCB );
 
     if ( setup.withthumbnail_ )
-	new uiFlatViewThumbnail( this, vwr );
+	thumbnail_ = new uiFlatViewThumbnail( this, vwr );
 }
 
 
@@ -160,9 +162,15 @@ void uiFlatViewStdControl::dispChgCB( CallBacker* )
 }
 
 
-void uiFlatViewStdControl::vwChgCB( CallBacker* )
+void uiFlatViewStdControl::zoomChgCB( CallBacker* )
 {
     updatePosButtonStates();
+}
+
+
+void uiFlatViewStdControl::vwChgCB( CallBacker* )
+{
+    if ( thumbnail_ ) thumbnail_->draw();
 }
 
 
