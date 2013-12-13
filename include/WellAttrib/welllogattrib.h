@@ -41,11 +41,12 @@ public:
 			WellLog(Desc&);
 
     static const char*  attribName()		{ return "WellLog"; }
+    static const char*	keyStr()		{ return "id"; }
+    static const char*	logName()		{ return "logname"; }
 
 protected:
 			~WellLog() {}
     static Provider*    createInstance(Desc&);
-    static void         updateDefaults(Desc&);
 
     bool		allowParallelComputation() const;
     bool		getInputOutput(int input,TypeSet<int>& res) const;

@@ -24,10 +24,12 @@ mAttrDefCreateInstance(WellLog)
 
 void WellLog::initClass()
 {
-    mAttrStartInitClassWithDefaultsUpdate
+    mAttrStartInitClass
 
-    desc->setNrOutputs( Seis::UnknowData, 3 );
+    desc->addParam( new StringParam(keyStr()) );
+    desc->addParam( new StringParam(logName()) );
 
+    desc->setNrOutputs( Seis::UnknowData, 1 );
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
@@ -37,11 +39,6 @@ WellLog::WellLog( Desc& ds )
     : Provider(ds)
 {
     if ( !isOK() ) return;
-}
-
-
-void WellLog::updateDefaults( Desc& desc )
-{
 }
 
 
