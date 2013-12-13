@@ -32,11 +32,11 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     const BufferStringSet& factnms( setup_.is2d_
 	    ? Pos::Provider2D::factory().getNames(false)
 	    : Pos::Provider3D::factory().getNames(false) );
-    
+
     const BufferStringSet& factusrnms( setup_.is2d_
            ? Pos::Provider2D::factory().getNames(true)
            : Pos::Provider3D::factory().getNames(true) );
-    
+
     BufferStringSet nms;
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
@@ -60,7 +60,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	    continue;
 
 	uiPosProvGroup* grp = uiPosProvGroup::factory()
-	    			.create(nm,this,setup_,true);
+				.create(nm,this,setup_,true);
 	if ( !grp ) continue;
 
 	nms.add( factusrnms.get(idx).buf() );
@@ -86,7 +86,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	if ( !setup_.is2d_ )
 	{
 	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
-		    		"Set ranges to full survey",
+				"Set ranges to full survey",
 				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
 	}
@@ -191,6 +191,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     , prov_(0)
     , cs_(*new CubeSampling(false))
 {
+    txtfld_->setElemSzPol( uiObject::WideVar );
     iop_.set( sKey::Type(), sKey::None() );
     mkNewProv(false);
     butPush.notify( mCB(this,uiPosProvSel,doDlg) );
