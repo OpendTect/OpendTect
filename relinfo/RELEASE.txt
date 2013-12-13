@@ -2,6 +2,29 @@ OpendTect V4.6.x : Release info
 
 ----
 
+v4.6.0e: December 13, 2013
+  * Implemented SEG-Y import in batch mode
+  * Added degrees to angle transformation in prestack attribute
+  * Fix for crash while adding well log
+  * Fix for crash while gridding horizon 
+  * Fix for crash while editing well Time/Depth model
+  * Fix for crash Horizon tree item
+  * Fix for crash fault tree item
+  * Fix for crash while tracking horizon
+  * Fix for crash while generating 2D pickset in 2D survey
+  * Fix for crash while changing survey
+  * Fix for crash while evaluating attribute
+  * Fix for Crash while importing fault
+  * Fix for launching process window on Mac platform
+  * Fix for adding fault to tree
+  * Fix for displaying faults on horizons
+  * Fix for ascii time-depth model well import
+  * Fix for saving attribute logs to disk
+  * Fix for m-ft conversion of SeismicReferenceDatum
+  * Fix for exporting and importing crossplots
+  * Fix for importing LAS file
+  * Fix for loading multiple wells
+
 v4.6.0d: November 13, 2013
   * Introducing the new survey prepare dialog
   * Fix for crash in band pass filter when minimum and maximum frequencies
