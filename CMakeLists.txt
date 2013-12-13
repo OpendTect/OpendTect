@@ -49,12 +49,11 @@ set( OD_MODULES
 set( OD_PLUGINS
 	ExpAttribs
 	GMT
-#	GoogleTranslate
 	Hello
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
-	MatlabLink
+	MATLABLink
 	TextureAttrib
 	Tut
 	VoxelConnectivityFilter
@@ -68,7 +67,7 @@ set( OD_PLUGINS
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
-	uiMatlabLink
+	uiMATLABLink
 	uiTextureAttrib
 	uiTut
 	uiTutMadagascar
