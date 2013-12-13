@@ -24,7 +24,7 @@ class uiLabel;
 class uiListBox;
 class uiLabeledListBox;
 
-namespace Well { class MarkerSet; } 
+namespace Well { class MarkerSet; }
 
 /*! brief: UI facilities to extract well data with zrg and extraction methods!*/
 
@@ -40,9 +40,9 @@ public:
 				    , txtofmainfld_("Extract Between")
 				    {}
 
-	mDefSetupMemb(bool,withzintime) 
-	mDefSetupMemb(bool,withzvalsel) 
-	mDefSetupMemb(BufferString,txtofmainfld) 
+	mDefSetupMemb(bool,withzintime)
+	mDefSetupMemb(bool,withzvalsel)
+	mDefSetupMemb(BufferString,txtofmainfld)
     };
 
 			uiWellZRangeSelector(uiParent*,const Setup&);
@@ -74,7 +74,7 @@ protected:
 
     int			selidx_;
     float		ztimefac_;
-    Well::ZRangeSelector* params_;	
+    Well::ZRangeSelector* params_;
 
     virtual void	putToScreen();
     virtual void	getFromScreen(CallBacker*);
@@ -97,17 +97,17 @@ public:
 				    , withextractintime_(SI().zIsTime())
 				    {}
 
-	mDefSetupMemb(bool,withzstep) 
-	mDefSetupMemb(bool,withsampling) 
-	mDefSetupMemb(bool,withextractintime) 
-	mDefSetupMemb(float,defmeterstep) 
-	mDefSetupMemb(bool,singlelog) 
-	mDefSetupMemb(BufferString,prefpropnm) 
+	mDefSetupMemb(bool,withzstep)
+	mDefSetupMemb(bool,withsampling)
+	mDefSetupMemb(bool,withextractintime)
+	mDefSetupMemb(float,defmeterstep)
+	mDefSetupMemb(bool,singlelog)
+	mDefSetupMemb(BufferString,prefpropnm)
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);
 
-    Well::ExtractParams& params() 
+    Well::ExtractParams& params()
     			{ return static_cast<Well::ExtractParams&>(*params_); }
 
 protected:
@@ -141,6 +141,10 @@ public:
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
 
+    void		setSelLogNames(const BufferStringSet&);
+    void		setSelWellNames(const BufferStringSet&);
+    void		setSelWellIDs(const BufferStringSet&);
+
     void		update(); //call this when data changed
 
 protected:
@@ -151,7 +155,6 @@ protected:
 
     uiListBox*		wellsfld_;
     uiListBox*		logsfld_;
-    uiLabeledListBox*	welllslblfld_;
 
     void		init();
     void		onFinalise( CallBacker* );

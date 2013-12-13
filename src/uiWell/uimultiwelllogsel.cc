@@ -114,8 +114,6 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valuechanged.notify( cb );
 
-    setHAlignObj( zchoicefld_ );
-
     postFinalise().notify(mCB(this,uiWellZRangeSelector,onFinalise));
 }
 
@@ -389,20 +387,21 @@ void uiMultiWellLogSel::init()
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
 
-    welllslblfld_ = 0;
     wellsfld_ = 0;
     zchoicefld_->attach( ensureBelow, llbl );
 
+    uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	uiLabeledListBox* llbw = new uiLabeledListBox( this, "Wells", true );
+	llbw = new uiLabeledListBox( this, "Wells", true );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
 	llbl->attach( rightTo, llbw );
-	welllslblfld_ = llbw;
+	setHAlignObj( llbw );
     }
-    zchoicefld_->attach( alignedBelow, singlewid_ ? llbl : welllslblfld_ );
+
+    zchoicefld_->attach( alignedBelow, llbw ? llbw : llbl );
 }
 
 
@@ -483,6 +482,19 @@ void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 }
 
 
+void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& ids )
+{
+    BufferStringSet wellnms;
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(ids.get(idx)) );
+	if ( ioobj ) wellnms.add( ioobj->name() );
+    }
+
+    setSelWellNames( wellnms );
+}
+
+
 void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 {
     if ( singlewid_ && !wellobjs_.isEmpty() )
@@ -492,6 +504,12 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 }
 
 
-void uiMultiWellLogSel::getSelLogNames( BufferStringSet& lognms ) const
-{ logsfld_->getSelectedItems( lognms ); }
+void uiMultiWellLogSel::setSelWellNames( const BufferStringSet& nms )
+{ wellsfld_->setSelectedItems( nms ); }
+
+void uiMultiWellLogSel::getSelLogNames( BufferStringSet& nms ) const
+{ logsfld_->getSelectedItems( nms ); }
+
+void uiMultiWellLogSel::setSelLogNames( const BufferStringSet& nms )
+{ logsfld_->setSelectedItems( nms ); }
 
