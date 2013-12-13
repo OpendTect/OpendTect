@@ -9,7 +9,7 @@ SET( OD_MODULE_DEPS VolumeProcessing )
 SET( OD_IS_PLUGIN yes )
 SET( OD_MODULE_SOURCES
 	matlablibmgr.cc
-	matlabpi.cc
+	matlablinkpi.cc
 	matlabstep.cc
 )
 

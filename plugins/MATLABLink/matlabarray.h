@@ -20,7 +20,7 @@ ________________________________________________________________________
 template <class T> class ArrayND;
 
 
-mClass(MatlabLink) ArrayNDCopier : public ParallelTask
+mClass(MATLABLink) ArrayNDCopier : public ParallelTask
 {
 public:
 			ArrayNDCopier(const ArrayND<float>&);
@@ -41,7 +41,7 @@ protected:
 };
 
 
-mClass(MatlabLink) mxArrayCopier : public ParallelTask
+mClass(MATLABLink) mxArrayCopier : public ParallelTask
 {
 public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);

@@ -23,7 +23,7 @@ class uiTable;
 namespace VolProc
 {
 
-mExpClass(uiMatlabLink) uiMatlabStep : public uiStepDialog
+mExpClass(uiMATLABLink) uiMatlabStep : public uiStepDialog
 {
 public:
         mDefaultFactoryInstanciationBase(

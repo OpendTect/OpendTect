@@ -12,19 +12,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 
 
-mDefODPluginInfo(uiMatlabLink)
+mDefODPluginInfo(uiMATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB link",
 	"dGB Earth Sciences",
 	"=od",
-    	"A link to MATLAB."
+	"A link to MATLAB."
 	    "\nThis is the User interface of the link." ));
     return &retpi;
 }
 
 
-mDefODInitPlugin(uiMatlabLink)
+mDefODInitPlugin(uiMATLABLink)
 {
     VolProc::uiMatlabStep::initClass();
 

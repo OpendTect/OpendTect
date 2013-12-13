@@ -21,7 +21,7 @@ class BufferStringSet;
 class SharedLibAccess;
 
 
-mExpClass(MatlabLink) MatlabLibAccess
+mExpClass(MATLABLink) MatlabLibAccess
 {
 public:
 			MatlabLibAccess(const char* libfnm);
@@ -46,7 +46,7 @@ protected:
 };
 
 
-mExpClass(MatlabLink) MatlabLibMgr
+mExpClass(MATLABLink) MatlabLibMgr
 {
 public:
 			MatlabLibMgr();
@@ -73,6 +73,6 @@ protected:
     bool			inited_;
 };
 
-mGlobal(MatlabLink) MatlabLibMgr& MLM();
+mGlobal(MATLABLink) MatlabLibMgr& MLM();
 
 #endif

@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiODMain MatlabLink )
+SET(OD_MODULE_DEPS uiODMain MATLABLink )
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uimatlablinkpi.cc

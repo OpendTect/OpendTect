@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mExpClass(MatlabLink) MatlabStep : public Step
+mExpClass(MATLABLink) MatlabStep : public Step
 {
 public:
 			mDefaultFactoryInstantiation( Step,

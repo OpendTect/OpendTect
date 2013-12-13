@@ -10,19 +10,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "matlablinkmod.h"
 #include "matlabstep.h"
 
-mDefODPluginEarlyLoad(MatlabLink)
-mDefODPluginInfo(MatlabLink)
+mDefODPluginEarlyLoad(MATLABLink)
+mDefODPluginInfo(MATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB (base)",
 	"dGB Earth Sciences",
 	"=od",
-    	"MATLAB - base" ) );
+	"MATLAB - base" ) );
     return &retpi;
 }
 
 
-mDefODInitPlugin(MatlabLink)
+mDefODInitPlugin(MATLABLink)
 {
     VolProc::MatlabStep::initClass();
     return 0;
