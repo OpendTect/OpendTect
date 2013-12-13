@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 #include "timefun.h"
+
+class BufferStringSet;
 class Executor;
 
 
@@ -31,6 +33,9 @@ namespace File
     mGlobal(Basic) const char*	getCanonicalPath(const char*);
     mGlobal(Basic) const char*	getRelativePath(const char* reltodir,
 						const char* fnm);
+    mGlobal(Basic) void		makeRecursiveFileList(const char* dir,
+	    					      BufferStringSet& filelist,
+						      bool followlinks=false);
 
     mGlobal(Basic) bool		createLink(const char* from,const char* to);
     mGlobal(Basic) bool		isLink(const char*);

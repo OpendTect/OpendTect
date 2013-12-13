@@ -267,24 +267,10 @@ bool ZipHandler::initMakeZip( const char* destfnm,
 bool ZipHandler::getFileList( const char* src,
 			      BufferStringSet& filenames )
 {
-
-    DirList dlist( src, DirList::DirsOnly, 0 );
-    DirList flist( src, DirList::FilesOnly, 0 );
-
-    for( int idx=0; idx<dlist.size(); idx++ )
-    {
-	filenames.add( dlist.fullPath(idx) );
-	if ( !File::isLink(dlist.fullPath(idx)) )
-	    getFileList( dlist.fullPath(idx), filenames);
-        else
-            totalsize_ += File::getFileSize( dlist.fullPath(idx), false );
-    }
-
-    for( int idx=0; idx<flist.size(); idx++)
-    {
-	filenames.add( flist.fullPath(idx) );
-	totalsize_ += File::getFileSize( flist.fullPath(idx), false );
-    }
+    File::makeRecursiveFileList( src, filenames, false );
+    for( int idx=0; idx<filenames.size(); idx++ )
+	totalsize_ += File::getFileSize( filenames.get(idx) );
+    
     return true;
 }
 

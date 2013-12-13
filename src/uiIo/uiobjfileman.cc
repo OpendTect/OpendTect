@@ -176,29 +176,29 @@ void uiObjFileMan::selChg( CallBacker* cb )
 
 double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    nrfiles = File::exists(filenm) ? 1 : 0;
-    if ( nrfiles == 0 )
+    BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
+						     : filenm;
+    if ( !File::exists(actualfilenm.buf()) )
 	return 0;
 
-    double ret = (double)File::getKbSize( filenm );
-    if ( ret < 0 ) ret = -ret;
-
-    FilePath fp( filenm );
-    fp.setExtension( "" );
-    const BufferString dirnm = fp.fullPath();
-    if ( !File::isDirectory(dirnm) )
-	return ret;
-
-    DirList dl( dirnm );
-    nrfiles = 0;
-    for ( int idx=0; idx<dl.size(); idx++ )
+    double ret = (double)File::getKbSize( actualfilenm.buf() );
+    if ( !File::isDirectory(actualfilenm) )
     {
-	int extranrfiles = 0;
-	const BufferString subfnm( dl.fullPath(idx) );
-	ret += getFileSize( subfnm, extranrfiles );
-	nrfiles += extranrfiles;
+	nrfiles = 1;
+	FilePath dirnm( actualfilenm );
+	dirnm.setExtension( "" );
+	if ( !File::isDirectory(dirnm.fullPath()) )
+	    return ret;
+
+	actualfilenm = dirnm.fullPath();
     }
 
+    BufferStringSet filelist;
+    File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
+    for ( int idx=0; idx<filelist.size(); idx++ )
+	ret += File::getKbSize( filelist.get(idx) );
+
+    nrfiles += filelist.size();
     return ret;
 }
 
@@ -282,7 +282,7 @@ BufferString uiObjFileMan::getFileInfo()
 	BufferString fname( conn->fileName() );
 	FilePath fp( fname );
 	const bool isdir = File::isDirectory( fname );
-	int nrfiles = 1;
+	int nrfiles = 0;
 	const double totsz = getFileSize( fname, nrfiles );
 
 	txt += "Location: "; txt += fp.pathOnly();

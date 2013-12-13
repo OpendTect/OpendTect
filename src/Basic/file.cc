@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include <fstream>
 #endif
 
+#define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
 
@@ -49,13 +50,18 @@ public:
 			RecursiveCopier(const char* from,const char* to)
 			    : Executor("Copying Directory")
 			    , src_(from),dest_(to),fileidx_(0)
+			    , totalnr_(0),nrdone_(0)
 			    , msg_("Copying files")
-			{ makeFileList(src_); }
+			{ 
+			    makeRecursiveFileList(src_,filelist_,false);
+			    for ( int idx=0; idx<filelist_.size(); idx++ )
+				totalnr_ += getFileSize( filelist_.get(idx) );
+			}
 
-    od_int64		nrDone() const		{ return fileidx_; }
-    od_int64		totalNr() const		{ return filelist_.size(); }
+    od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
+    od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
     const char*		message() const		{ return msg_; }
-    const char*		nrDoneText() const	{ return "Files copied"; }
+    const char*		nrDoneText() const	{ return "MBytes copied"; }
 
 protected:
 
@@ -63,36 +69,14 @@ protected:
     void		makeFileList(const char*);
 
     int			fileidx_;
+    od_int64		totalnr_;
+    od_int64		nrdone_;
     BufferStringSet	filelist_;
     BufferString	src_;
     BufferString	dest_;
     BufferString	msg_;
 
 };
-
-
-
-void RecursiveCopier::makeFileList( const char* dir )
-{
-    DirList files( dir, DirList::FilesOnly );
-    QDir srcdir( src_.buf() );
-    for ( int idx=0; idx<files.size(); idx++ )
-    {
-	BufferString curfile( files.fullPath(idx) );
-	BufferString relpath( srcdir.relativeFilePath(curfile.buf()) );
-	filelist_.add( relpath );
-    }
-
-    DirList dirs( dir, DirList::DirsOnly );
-    for ( int idx=0; idx<dirs.size(); idx++ )
-    {
-	BufferString curdir( dirs.fullPath(idx) );
-	BufferString relpath( srcdir.relativeFilePath(curdir.buf()) );
-	filelist_.add( relpath );
-	if ( !File::isLink(curdir) )
-	    makeFileList( curdir );
-    }
-}
 
 
 #define mErrRet(s1,s2) { msg_ = s1; msg_ += s2; return ErrorOccurred(); }
@@ -105,34 +89,69 @@ int RecursiveCopier::nextStep()
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
 	    mErrRet("Cannot overwrite ",dest_)
-
-	if ( !File::createDir(dest_) )
+	if( !File::createDir(dest_) )
 	    mErrRet("Cannot create directory ",dest_)
     }
 
-    FilePath srcfile( src_, filelist_.get(fileidx_) );
-    FilePath destfile( dest_, filelist_.get(fileidx_) );
-    if ( File::isLink(srcfile.fullPath()) )
+    const BufferString& srcfile = *filelist_[fileidx_];
+    QDir srcdir( src_.buf() );
+    BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
+    const BufferString destfile = FilePath(dest_,relpath).fullPath();
+    if ( File::isLink(srcfile) )
     {
-	BufferString linkval = linkValue( srcfile.fullPath() );
-	if ( !createLink(linkval,destfile.fullPath()) )
-	    mErrRet("Cannot create symbolic link ",destfile.fullPath())
+	BufferString linkval = linkValue( srcfile );
+	if ( !createLink(linkval,destfile) )
+	    mErrRet("Cannot create symbolic link ",destfile)
     }
-    else if ( isDirectory(srcfile.fullPath()) )
+    else if ( isDirectory(srcfile) )
     {
-	if ( !File::createDir(destfile.fullPath()) )
-	    mErrRet("Cannot create directory ",destfile.fullPath())
+	if ( !File::createDir(destfile) )
+	    mErrRet("Cannot create directory ",destfile)
     }
-    else if ( !File::copy(srcfile.fullPath(),destfile.fullPath()) )
-	    mErrRet("Cannot create file ", destfile.fullPath())
+    else if ( !File::copy(srcfile,destfile) )
+	    mErrRet("Cannot create file ", destfile)
 
     fileidx_++;
+    nrdone_ += getFileSize( srcfile );
     return MoreToDo();
 }
 
 
 Executor* getRecursiveCopier( const char* from, const char* to )
 { return new RecursiveCopier( from, to ); }
+
+
+void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
+			    bool followlinks )
+{
+    DirList files( dir, DirList::FilesOnly );
+    for ( int idx=0; idx<files.size(); idx++ )
+    {
+	if ( !followlinks )
+	    filelist.add( files.fullPath(idx) );
+	else
+	    filelist.addIfNew( files.fullPath(idx) );
+    }
+
+    DirList dirs( dir, DirList::DirsOnly );
+    for ( int idx=0; idx<dirs.size(); idx++ )
+    {
+	BufferString curdir( dirs.fullPath(idx) );
+	if ( !followlinks )
+	    filelist.add( curdir );
+	else if ( !filelist.addIfNew(curdir) )
+	    continue;
+
+	if ( !File::isLink(curdir) )
+	    makeRecursiveFileList( curdir, filelist, followlinks );
+	else if ( followlinks )
+	{
+	    curdir = File::linkTarget( curdir );
+	    if ( !filelist.isPresent(curdir) )
+		makeRecursiveFileList( curdir, filelist, followlinks );
+	}
+    }
+}
 
 
 od_int64 getFileSize( const char* fnm, bool followlink )
