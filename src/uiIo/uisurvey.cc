@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "dirlist.h"
 #include "envvars.h"
+#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -142,17 +143,10 @@ bool copySurv()
         return false;
     }
 
-    const char* msg =
-	"An unknown amount of data needs to be copied."
-	"\nDuring the copy, OpendTect will freeze."
-	"\nDepending on the data transfer rate, this can take a long time!"
-	"\n\nDo you wish to continue?";
-    if ( !uiMSG().askContinue( msg ) )
-	return false;
-
+    uiTaskRunner tr( this );
     const BufferString fromdir = getTrueDir( inpdirnm_ );
-    MouseCursorChanger cc( MouseCursor::Wait );
-    if ( !File::copy( fromdir, newdirnm_ ) )
+    PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
+    if ( !tr.execute(*copier) )
 	{ uiMSG().error( "Cannot copy the survey data" ); return false; }
 
     File::makeWritable( newdirnm_, true, true );
