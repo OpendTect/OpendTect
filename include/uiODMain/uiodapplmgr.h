@@ -28,6 +28,7 @@ class uiSeisPartServer;
 class uiStratTreeWin;
 class uiTreeItem;
 class uiVisPartServer;
+class uiVolProcPartServer;
 class uiWellAttribPartServer;
 class uiWellPartServer;
 class uiODApplMgrDispatcher;
@@ -49,7 +50,7 @@ namespace Pick { class Set; }
 
   A big part of this class is dedicated to handling the events from the various
   part servers.
- 
+
  */
 
 mExpClass(uiODMain) uiODApplMgr : public CallBacker
@@ -60,7 +61,8 @@ public:
     uiVisPartServer*		visServer()		{ return visserv_; }
     uiSeisPartServer*		seisServer()		{ return seisserv_; }
     uiAttribPartServer*		attrServer()		{ return attrserv_; }
-    uiEMPartServer*		EMServer() 		{ return emserv_; }
+    uiVolProcPartServer*	volprocServer()		{ return volprocserv_; }
+    uiEMPartServer*		EMServer()		{ return emserv_; }
     uiEMAttribPartServer*	EMAttribServer()	{ return emattrserv_; }
     uiWellPartServer*		wellServer()		{ return wellserv_; }
     uiWellAttribPartServer*	wellAttribServer()	{ return wellattrserv_;}
@@ -74,11 +76,11 @@ public:
     // Survey menu operations
     static int			manageSurvey(uiParent* p=0);
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
-				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom, 
+				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
 				  Body, Props, ColTab };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
-    				//!< Not all combinations are available ...!
+				//!< Not all combinations are available ...!
     void			manPreLoad(ObjType);
 
     // Processing menu operations
@@ -87,9 +89,9 @@ public:
     bool			editNLA(bool is2d);
     void			createVol(bool is2d,bool multiattrib);
     void			doWellXPlot(CallBacker* =0);
-    				//!< This plots between well and attrib
+				//!< This plots between well and attrib
     void			doAttribXPlot(CallBacker* =0);
-    				//!< This plots between attribs.
+				//!< This plots between attribs.
     void			openCrossPlot(CallBacker* =0);
 				//!< Create crossplot from file
     void			createHorOutput(int,bool);
@@ -148,7 +150,7 @@ public:
 
     // Work. Don't use unless expert.
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
-    				{ return visdpsdispmgr_; }
+				{ return visdpsdispmgr_; }
     bool			getNewData(int visid,int attrib);
     bool			evaluateAttribute(int visid,int attrib);
     bool			evaluate2DAttribute(int visid, int attrib);
@@ -162,9 +164,9 @@ public:
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
-    void			manSurvCB(CallBacker*)	  { manageSurvey(); }
-    void			seisOut2DCB(CallBacker*)  { createVol(true,false); }
-    void			seisOut3DCB(CallBacker*)  { createVol(false,false); }
+    void			manSurvCB(CallBacker*);
+    void			seisOut2DCB(CallBacker*);
+    void			seisOut3DCB(CallBacker*);
     void			createVolProcOutput(CallBacker*);
     void			editAttr2DCB(CallBacker*)
 				    { editAttribSet(true); }
@@ -185,7 +187,7 @@ public:
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
     void			enableSceneManipulation(bool);
-    				/*!<Turns on/off viewMode and enables/disables
+				/*!<Turns on/off viewMode and enables/disables
 				    the possibility to go to actMode. */
 
     Notifier<uiODApplMgr>	getOtherFormatData;
@@ -217,6 +219,7 @@ protected:
     uiVisPartServer*		visserv_;
     uiNLAPartServer*		nlaserv_;
     uiAttribPartServer*		attrserv_;
+    uiVolProcPartServer*	volprocserv_;
     uiSeisPartServer*		seisserv_;
     uiEMPartServer*		emserv_;
     uiEMAttribPartServer*	emattrserv_;
@@ -256,6 +259,7 @@ protected:
     bool			handleVisServEv(int);
     bool			handleNLAServEv(int);
     bool			handleAttribServEv(int);
+    bool			handleVolProcServEv(int);
 
     void			surveyToBeChanged(CallBacker*);
     void			surveyChanged(CallBacker*);
@@ -267,7 +271,7 @@ protected:
     void			manStrat();
 
     void			createAndSetMapDataPack(int visid,int attrib,
-	    					const DataPointSet&,int colnr);
+						const DataPointSet&,int colnr);
 
     friend class		uiODApplService;
 

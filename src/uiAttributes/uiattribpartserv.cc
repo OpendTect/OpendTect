@@ -50,8 +50,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "settings.h"
-#include "volprocchain.h"
-#include "volproctrans.h"
 #include "zdomain.h"
 
 #include "uiattrdesced.h"
@@ -70,8 +68,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
-#include "uivolprocbatchsetup.h"
-#include "uivolprocchain.h"
 #include "uicrossattrevaluatedlg.h"
 
 #include <math.h>
@@ -98,7 +94,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , dirshwattrdesc_(0)
     , attrsetdlg_(0)
-    , volprocchaindlg_(0)
     , is2devsent_(false)
     , attrsetclosetim_("Attrset dialog close")
     , stored2dmnuitem_("&Stored 2D Data")
@@ -107,7 +102,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , steering3dmnuitem_("Steer&ing Cubes")
     , multcomp3d_("3D")
     , multcomp2d_("2D")
-    , volprocchain_( 0 )
     , dpsdispmgr_( 0 )
     , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
@@ -131,72 +125,12 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 uiAttribPartServer::~uiAttribPartServer()
 {
     delete attrsetdlg_;
-    if ( volprocchain_ ) volprocchain_->unRef();
-    delete volprocchaindlg_;
 
     deepErase( linesets2dstoredmnuitem_ );
     deepErase( linesets2dsteeringmnuitem_ );
     deepErase( attrxplotset_ );
     delete &eDSHolder();
     deepErase( attrxplotset_ );
-}
-
-
-void uiAttribPartServer::doVolProc( const MultiID* mid )
-{
-    if ( !volprocchain_ )
-    {
-	volprocchain_ = new VolProc::Chain;
-	volprocchain_->ref();
-    }
-
-    PtrMan<IOObj> ioobj = mid ? IOM().get( *mid ) : 0;
-    if ( ioobj )
-    {
-	BufferString errmsg;
-	if ( !VolProcessingTranslator::retrieve( *volprocchain_, ioobj,
-		errmsg ) )
-	{
-	    FileMultiString fms( "Cannot read volume builder setup" );
-	    if ( errmsg.buf() )
-		fms += errmsg;
-
-	    uiMSG().error( fms.buf() );
-	    volprocchain_->unRef();
-	    volprocchain_ = new VolProc::Chain;
-	    volprocchain_->ref();
-	}
-    }
-
-    if ( !volprocchaindlg_ )
-    {
-	volprocchaindlg_ = new VolProc::uiChain( parent(), *volprocchain_,true);
-	volprocchaindlg_->windowClosed.notify(
-		mCB(this,uiAttribPartServer,volprocchainDlgClosed) );
-    }
-    else
-	volprocchaindlg_->setChain( *volprocchain_ );
-
-    volprocchaindlg_->raise();
-    volprocchaindlg_->show();
-}
-
-
-void uiAttribPartServer::volprocchainDlgClosed( CallBacker* )
-{
-    if ( !volprocchaindlg_ || !volprocchaindlg_->saveButtonChecked() ||
-	 !volprocchain_ || volprocchaindlg_->uiResult()==0 )
-	return;
-
-    PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
-    createVolProcOutput( ioobj );
-}
-
-
-void uiAttribPartServer::createVolProcOutput( const IOObj* sel )
-{
-    VolProc::uiBatchSetup dlg( parent(), sel );
-    dlg.go();
 }
 
 

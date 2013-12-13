@@ -40,8 +40,8 @@ set( OD_MODULES
 	EMAttrib MPEEngine Well WellAttrib
 	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
-	uiVelocity uiVolumeProcessing uiPreStackProcessing
-	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
+	uiVelocity uiPreStackProcessing uiAttributes
+	uiVolumeProcessing uiEMAttrib uiMPE uiViewer2D uiWellAttrib
 	visBase visSurvey uiOSG uiVis
 	uiODMain
 )

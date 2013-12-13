@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiPreStackProcessing uiVolumeProcessing Attributes )
+SET(OD_MODULE_DEPS uiPreStackProcessing Attributes )
 SET(OD_MODULE_SOURCES
 		attribsetcreator.cc
 		inituiattributes.cc

@@ -7,10 +7,10 @@
 
 set(OD_MODULE_DEPS
 	uiVis
-	uiAttributes
+	uiVolumeProcessing
 	uiNLA
 	uiWellAttrib
-	uiEMAttrib 
+	uiEMAttrib
 	uiViewer2D
 )
 set(OD_MODULE_SOURCES

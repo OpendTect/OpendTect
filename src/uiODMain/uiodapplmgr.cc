@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 #include "uivispartserv.h"
 #include "uivisdatapointsetdisplaymgr.h"
+#include "uivolprocpartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "visfaultdisplay.h"
@@ -100,6 +101,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     visserv_ = new uiVisPartServer( applservice_ );
     visserv_->setMouseCursorExchange( &mousecursorexchange_ );
     attrserv_ = new uiAttribPartServer( applservice_ );
+    volprocserv_ = new uiVolProcPartServer( applservice_ );
 
     seisserv_ = new uiSeisPartServer( applservice_ );
     emserv_ = new uiEMPartServer( applservice_ );
@@ -118,7 +120,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	attrserv_->setAttrsNeedUpdt();
 	tmpprevsurvinfo_.refresh();
     }
-	
+
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
@@ -133,6 +135,7 @@ uiODApplMgr::~uiODApplMgr()
     delete pickserv_;
     delete nlaserv_;
     delete attrserv_;
+    delete volprocserv_;
     delete seisserv_;
     delete visserv_;
 
@@ -156,10 +159,16 @@ MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv_ ) nlaserv_->reset();
-    delete attrserv_; delete mpeserv_;
+    delete attrserv_;
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
+
+    delete volprocserv_;
+    volprocserv_ = new uiVolProcPartServer( applservice_ );
+
+    delete mpeserv_;
     mpeserv_ = new uiMPEPartServer( applservice_ );
+
     visserv_->deleteAllObjects();
     emserv_->removeUndo();
 }
@@ -209,6 +218,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; attrserv_ = 0;
+    delete volprocserv_; volprocserv_ = 0;
     delete mpeserv_; mpeserv_ = 0;
     delete wellserv_; wellserv_ = 0;
     if ( appl_.sceneMgrAvailable() )
@@ -231,6 +241,8 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 	attrserv_->setAttrsNeedUpdt();
 	tmpprevsurvinfo_.refresh();
     }
+
+    volprocserv_ = new uiVolProcPartServer( applservice_ );
 
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
@@ -290,7 +302,7 @@ void uiODApplMgr::editAttribSet( bool is2d )
 {
     enableMenusAndToolBars( false );
     enableSceneManipulation( false );
-    attrserv_->editSet( is2d ); 
+    attrserv_->editSet( is2d );
 }
 
 void uiODApplMgr::processTime2Depth( CallBacker* )
@@ -318,15 +330,15 @@ void uiODApplMgr::addTimeDepthScene()
 {
     uiDialog::Setup setup("Velocity model",
 		"Select velocity model to base scene on","0.4.4");
-    
+
     uiSingleGroupDlg dlg( &appl_, setup );
-    
+
     uiZAxisTransformSel* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
 				   ZDomain::sKeyDepth(), true )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
 				   ZDomain::sKeyTime(), true );
-    
+
     if ( !uitrans->isOK() )
     {
 	uiMSG().error("No suitable transforms found");
@@ -340,7 +352,7 @@ void uiODApplMgr::addTimeDepthScene()
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
-    
+
     StepInterval<float> zsampling;
     if ( !uitrans->getTargetSampling( zsampling ) )
     {
@@ -424,7 +436,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     {
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
-    } 
+    }
 
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
@@ -443,7 +455,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		PtrMan<Attrib::ExtAttribCalc> calc = 
+		PtrMan<Attrib::ExtAttribCalc> calc =
 			    Attrib::ExtAttrFact().create( 0, myas, false );
 		if ( !calc )
 		{
@@ -529,7 +541,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    visserv_->getDataTraceBids( visid, bids );
 	    attrserv_->setTargetSelSpec( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
-		    	    visserv_->getObject(visid) );
+			    visserv_->getObject(visid) );
 	    DataPack::ID cacheid = rdmtdisp->getDataPackID( attrib );
 	    if ( cacheid == DataPack::cNoID() )
 		useDefColTab( visid, attrib );
@@ -538,10 +550,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		PtrMan<Attrib::ExtAttribCalc> calc = 
+		PtrMan<Attrib::ExtAttribCalc> calc =
 			    Attrib::ExtAttrFact().create( 0, myas, false );
 
-		// TODO implement 
+		// TODO implement
 		break;
 	    }
 
@@ -618,7 +630,7 @@ void uiODApplMgr::calShiftAttribute( int attrib, const Attrib::SelSpec& as )
 	deepErase( dpsset );
 	return;
     }
-    
+
     dps->dataSet().add( siddef );
     if ( !dps->bivSet().setNrVals( dpsset.size()+2 ) )
     {
@@ -716,7 +728,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     }
 
     const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
-	    					    PosVecDataSet::NameExact );
+						    PosVecDataSet::NameExact );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
@@ -733,7 +745,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	if ( hd )
 	{
 	    TypeSet<float> shifts( 1,
-		    		   (float) visserv_->getTranslation(visid).z );
+				   (float) visserv_->getTranslation(visid).z );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -763,7 +775,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
 	const DataPack::ID dpid =
-	    	attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos);
+		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos);
 	visserv_->setDataPackID( visid, attrib, dpid );
     }
     else if ( format==uiVisPartServer::RandomPos )
@@ -786,7 +798,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-	    	    visserv_->getObject(visid))
+		    visserv_->getObject(visid))
     if ( !s2d ) return false;
 
     CubeSampling cs;
@@ -795,7 +807,7 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
-    uiTaskRunner uitr( &appl_ ); 
+    uiTaskRunner uitr( &appl_ );
     LineKey lk( s2d->name() );
     DataPack::ID dpid = attrserv_->create2DOutput( cs, lk, uitr );
     if ( dpid < 0 )
@@ -818,6 +830,8 @@ bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 	return handleNLAServEv(evid);
     else if ( aps == attrserv_ )
 	return handleAttribServEv(evid);
+    else if ( aps == volprocserv_ )
+	return handleVolProcServEv(evid);
     else if ( aps == emserv_ )
 	return handleEMServEv(evid);
     else if ( aps == emattrserv_ )
@@ -880,14 +894,14 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->getChildIds( -1, sceneids );
 
 	TypeSet<int> hordisplayids;
-	visserv_->findObject( typeid(visSurvey::HorizonDisplay), 
+	visserv_->findObject( typeid(visSurvey::HorizonDisplay),
 			      hordisplayids );
 
 	TypeSet<int> hor2ddisplayids;
 	visserv_->findObject( typeid(visSurvey::Horizon2DDisplay),
 			      hor2ddisplayids );
 
-	hordisplayids.append( hor2ddisplayids );	
+	hordisplayids.append( hor2ddisplayids );
 
 	for ( int idx=0; idx<hordisplayids.size(); idx++ )
 	{
@@ -971,10 +985,10 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
 	    visserv_->setObjectName( ids[idx],
-		    		     (const char*) emserv_->getName(emid) );
+				     (const char*) emserv_->getName(emid) );
 	}
 
-	if ( emserv_->getType(emid)==EM::Horizon3D::typeStr() || 
+	if ( emserv_->getType(emid)==EM::Horizon3D::typeStr() ||
 	     emserv_->getType(emid)==EM::Horizon2D::typeStr() )
 	{
 	    mpeserv_->saveSetup( mid );
@@ -1138,7 +1152,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     }
     else if ( evid == uiEMAttribPartServer::evStoreShiftHorizons() )
     {
-	const uiVisPartServer::AttribFormat format = 
+	const uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, -1 );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
@@ -1156,12 +1170,12 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		SI().zDomain().userFactor();
 	    BufferString shiftstr;
 	    getStringFromFloat( SI().zIsTime() ? "%g" : "%f", shift,
-		    		shiftstr.buf() );
+				shiftstr.buf() );
 	    if ( mIsZero(shift,1e-3) ) shiftstr = "0";
 	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
 	    auxdatanm += " ["; auxdatanm += shiftstr; auxdatanm += "]";
 	    emserv_->setAuxData( emid, data, auxdatanm, idx+2,
-		   		 emattrserv_->shiftRange().atIndex(idx) );
+				 emattrserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
 	    if ( !emserv_->storeAuxData( emid, dummy, false ) )
 		return false;
@@ -1283,7 +1297,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 
 	    horids += emserv_->getObjectID(horid);
 	}
-	
+
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
 			       pickserv_->selHorSampling() );
     }
@@ -1307,7 +1321,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	{
 	    PosInfo::Line2DData geom;
 	    seisserv_->get2DLineGeometry( pickserv_->lineSetID(), *lnms[idx],
-		   			  geom );
+					  geom );
 	    pickserv_->lineGeoms() += new PosInfo::Line2DData( geom );
 	}
     }
@@ -1326,7 +1340,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	                        visserv_->getObject(selobjvisid));\
     const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
     const int trackerid = mpeserv_->getTrackerID(emid); \
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid ); 
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
 
 bool uiODApplMgr::handleVisServEv( int evid )
 {
@@ -1356,7 +1370,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evShowSetupDlg() )
     {
 	mGetSelTracker( tracker );
-	const MPE::EMSeedPicker* seedpicker = tracker ? 
+	const MPE::EMSeedPicker* seedpicker = tracker ?
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
 	mpeserv_->showSetupDlg( emid, sid );
@@ -1375,7 +1389,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	    tracker->enable( false );
     }
     else if ( evid == uiVisPartServer::evColorTableChange() )
-	updateColorTable( visserv_->getEventObjId(), 
+	updateColorTable( visserv_->getEventObjId(),
 			  visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evLoadAttribDataInMPEServ() )
 	mpeserv_->fireLAttribData();
@@ -1383,7 +1397,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	storeEMObject();
     else if (evid == uiVisPartServer::evGetHeadOnIntensity() )
     {
-	visserv_->setHeadOnIntensity( sceneMgr().getHeadOnLightIntensity( 
+	visserv_->setHeadOnIntensity( sceneMgr().getHeadOnLightIntensity(
 		    visserv_->getEventObjId() ) );
     }
     else if (evid == uiVisPartServer::evSetHeadOnIntensity() )
@@ -1429,7 +1443,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Create new attrib set from NLA model's IOPar
 
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
-	       		       nlaserv_->getModel().versionNr() );
+			       nlaserv_->getModel().versionNr() );
 	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames() )
@@ -1456,7 +1470,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Query the server and make sure the relevant data is extracted
 	// Put data in the training and test posvec data sets
 
-	if ( !attrserv_->curDescSet(nlaserv_->is2DEvent()) ) 
+	if ( !attrserv_->curDescSet(nlaserv_->is2DEvent()) )
 	    { pErrMsg("Huh"); return false; }
 	ObjectSet<DataPointSet> dpss;
 	const bool dataextraction = nlaserv_->willDoExtraction();
@@ -1487,7 +1501,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	float vsn = mODMajorVersion + 0.1*mODMinorVersion;
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D(),
-		   		   vsn );
+				   vsn );
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
@@ -1509,7 +1523,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    return false;
 	attrset.fillPar( nlaserv_->modelPars() );
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
-	       		       nlaserv_->getModel().versionNr() );
+			       nlaserv_->getModel().versionNr() );
     }
     else if ( evid == uiNLAPartServer::evCr2DRandomSet() )
     {
@@ -1556,7 +1570,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evEvalAttrInit() )
     {
-	const uiVisPartServer::AttribFormat format = 
+	const uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
 	const bool alloweval = !( format==uiVisPartServer::None );
 	const bool allowstorage = format==uiVisPartServer::RandomPos;
@@ -1604,7 +1618,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
-	const uiVisPartServer::AttribFormat format = 
+	const uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
@@ -1656,6 +1670,12 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 }
 
 
+bool uiODApplMgr::handleVolProcServEv( int evid )
+{
+    return true;
+}
+
+
 bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -1664,7 +1684,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
     BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
     as.setObjectRef( savedusrref );
-    as.set2DFlag( attrserv_->is2DEvent() );  
+    as.set2DFlag( attrserv_->is2DEvent() );
     as.setUserRef( tmpset[0].userRef() );
     visserv_->setSelSpec( visid, attrib, as );
     BufferStringSet* refs = new BufferStringSet();
@@ -1688,13 +1708,13 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
     pl->fillPolyLine( coords );
     mDynamicCastGet(visBase::DataObject*,doobj,pl);
     visserv_->getChildIds( -1, sceneids );
-    
+
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	visserv_->addObject( doobj, sceneids[idx], true );
 	plids.addIfNew( doobj->id() );
     }
-    
+
     wellserv_->setPreviewIds(plids);
 }
 
@@ -1719,9 +1739,9 @@ void uiODApplMgr::storeEMObject()
 	return;
 
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
-	    			surface, visserv_->getObject(selectedids[0]) );
+				surface, visserv_->getObject(selectedids[0]) );
     if ( !surface ) return;
-    
+
     const EM::ObjectID emid = surface->getObjectID();
     MultiID mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -1731,7 +1751,7 @@ void uiODApplMgr::storeEMObject()
     TypeSet<int> ids;
     mid = emserv_->getStorageID( emid );
     visserv_->findObject( mid, ids );
-    
+
     for ( int idx=0; idx<ids.size(); idx++ )
 	visserv_->setObjectName( ids[idx], emserv_->getName(emid).buf() );
 
@@ -1740,6 +1760,8 @@ void uiODApplMgr::storeEMObject()
 }
 
 
+void uiODApplMgr::manSurvCB( CallBacker* )
+{ manageSurvey(); }
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )
@@ -1749,17 +1771,21 @@ void uiODApplMgr::launchRockPhysics( CallBacker* )
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
 void uiODApplMgr::doVolProcCB( CallBacker* )
-{ attrserv_->doVolProc( 0 ); }
+{ volprocserv_->doVolProc( 0 ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )
-{ attrserv_->doVolProc( &mid ); }
+{ volprocserv_->doVolProc( &mid ); }
 void uiODApplMgr::createVolProcOutput( CallBacker* )
-{ attrserv_->createVolProcOutput(); }
+{ volprocserv_->createVolProcOutput(0); }
 bool uiODApplMgr::editNLA( bool is2d )
 { return attrvishandler_.editNLA( is2d ); }
 void uiODApplMgr::createHorOutput( int tp, bool is2d )
 { attrvishandler_.createHorOutput( tp, is2d ); }
 void uiODApplMgr::createVol( bool is2d, bool multiattrib )
 { attrvishandler_.createVol( is2d, multiattrib ); }
+void uiODApplMgr::seisOut2DCB(CallBacker*)
+{ createVol(true,false); }
+void uiODApplMgr::seisOut3DCB(CallBacker*)
+{ createVol(false,false); }
 void uiODApplMgr::doWellXPlot( CallBacker* )
 { attrvishandler_.doXPlot(); }
 void uiODApplMgr::doAttribXPlot( CallBacker* )
