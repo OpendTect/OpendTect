@@ -210,12 +210,11 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 	add( newzooms ); return;
     }
 
+    const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
     bool found = false;
     for ( int idx=0; idx<viewerdata_[vieweridx]->zooms_.size(); idx++ )
     {
 	const Size zoom = viewerdata_[vieweridx]->zooms_[idx];
-	const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
-	
 	if ( mIsEqual(newzoom.width(),zoom.width(), eps.width() ) &&
 	     mIsEqual(newzoom.height(),zoom.height(), eps.height() ) )
 	{
@@ -229,8 +228,6 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 	for ( int idx=viewerdata_[vieweridx]->zooms_.size()-1; idx>=0; idx-- )
 	{
 	    const Size zoom = viewerdata_[vieweridx]->zooms_[idx];
-	    const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
-	    
 	    if ( newzoom.width() > zoom.width() + eps.width()
 		|| newzoom.height() > zoom.height() + eps.height() )
 		viewerdata_[vieweridx]->zooms_.removeSingle(idx);
