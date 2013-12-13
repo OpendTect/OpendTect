@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribdatapack.h"
+#include "attribfactory.h"
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -17,10 +18,110 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchain.h"
 #include "volproctrans.h"
 
+using namespace Attrib;
+
+mAttrDefCreateInstance(VolProcAttrib)
+
+void VolProcAttrib::initClass()
+{
+    mAttrStartInitClass
+    StringParam* setup = new StringParam( sKeySetup() );
+    desc->addParam( setup );
+
+    desc->addOutputDataType( Seis::UnknowData );
+    mAttrEndInitClass
+}
+
+
+VolProcAttrib::VolProcAttrib( Desc& ds )
+    : Provider(ds)
+    , chain_(0)
+    , executor_(0)
+{
+    const char* idstr = desc_.getValParam( sKeySetup() )->getStringValue();
+    setupmid_ = MultiID( idstr );
+}
+
+
+VolProcAttrib::~VolProcAttrib()
+{
+    if ( chain_ ) chain_->unRef();
+    delete executor_;
+}
+
+
+bool VolProcAttrib::allowParallelComputation() const
+{ return false; }
+
+
+void VolProcAttrib::prepareForComputeData()
+{
+    PtrMan<IOObj>  ioobj = IOM().get( setupmid_ );
+    if ( !ioobj )
+	return;
+
+    chain_ = new VolProc::Chain();
+    chain_->ref();
+    BufferString errmsg;
+    if ( !VolProcessingTranslator::retrieve(*chain_, ioobj, errmsg) )
+    {
+	chain_->unRef();
+	chain_ = 0;
+	errmsg_ = "Cannot read processing setup.";
+	if ( !errmsg.isEmpty() )
+	{
+	    errmsg_ += " Reason given: ";
+	    errmsg_ += errmsg;
+	}
+
+	return;
+    }
+
+    chain_->setStorageID( setupmid_ );
+
+    executor_ = new VolProc::ChainExecutor( *chain_ );
+    const CubeSampling cs = *getDesiredVolume();
+    const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
+    const StepInterval<float> geometryzrg = geometry.zRange();
+    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
+			   geometryzrg.nearestIndex( cs.zrg.stop ),
+			   mNINT32(cs.zrg.step/geometryzrg.step) );
+    if ( !executor_->setCalculationScope(cs.hrg,zrg) )
+    {
+	errmsg_ = "Cannot calculate at this location";
+	return;
+    }
+
+    if ( !executor_->execute() )
+    {
+	if ( executor_->errMsg() )
+	    errmsg_ = executor_->errMsg();
+	else
+	    errmsg_ = "Error while calculating.";
+    }
+}
+
+
+bool VolProcAttrib::computeData( const Attrib::DataHolder& output,
+				 const BinID& relpos, int z0, int nrsamples,
+				 int threadid ) const
+{
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	float outval = mUdf(float);
+	if ( !chain_ || !executor_ )
+	    setOutputValue( output, 0, idx, z0, outval );
+    }
+
+    return true;
+}
+
+
+
 namespace VolProc
 {
 
-
+// ExternalAttribCalculator
 void ExternalAttribCalculator::initClass()
 { Attrib::ExtAttrFact().addCreator( create, 0 ); }
 

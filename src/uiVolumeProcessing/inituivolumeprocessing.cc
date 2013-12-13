@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "coord.h"
 #include "uivelocitygridder.h"
+#include "uivolprocattrib.h"
 #include "uivolproclateralsmoother.h"
 #include "uivolprocbodyfiller.h"
 #include "uivolprocsmoother.h"
@@ -31,4 +32,6 @@ mDefModInitFn(uiVolumeProcessing)
     VolProc::uiSurfaceLimitedFiller::initClass();
     VolProc::uiVelocityGridder::initClass();
     VolProc::uiVolumeReader::initClass();
+
+    uiVolProcAttrib::initClass();
 }

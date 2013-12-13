@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefModInitFn(VolumeProcessing)
 {
     mIfNotFirstTime( return );
-    
+
     VolProcessingTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
 
@@ -35,4 +35,6 @@ mDefModInitFn(VolumeProcessing)
     VolProc::SurfaceLimitedFiller::initClass();
     VolProc::VelGriddingStep::initClass();
     VolProc::VolumeReader::initClass();
+
+    VolProcAttrib::initClass();
 }
