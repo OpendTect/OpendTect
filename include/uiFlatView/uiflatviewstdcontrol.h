@@ -42,7 +42,6 @@ public:
 			    , withsnapshot_(true)
 			    , withflip_(true)
 			    , withrubber_(true)
-			    , withcommontoolbar_(false)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -56,7 +55,6 @@ public:
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
-	mDefSetupMemb(bool,withcommontoolbar)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -117,7 +115,6 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     BufferString	helpid_;
-    Setup		setup_;
 };
 
 #endif

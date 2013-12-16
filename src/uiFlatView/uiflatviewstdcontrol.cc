@@ -37,7 +37,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_,setup.withhanddrag_)
     , vwr_(vwr)
-    , setup_(setup)
     , ctabed_(0)
     , manip_(false)
     , mousepressed_(false)
