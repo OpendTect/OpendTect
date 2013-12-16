@@ -27,10 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mouseevent.h"
 #include "pixmap.h"
 #include "texttranslator.h"
+#include "hiddenparam.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
     tb_->addButton( but );
+
+HiddenParam< uiFlatViewStdControl, uiFlatViewThumbnail* >	thumbnail_( 0 );
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
@@ -110,7 +113,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
 
     if ( setup.withthumbnail_ )
-	new uiFlatViewThumbnail( this, vwr );
+	thumbnail_.setParam( this, new uiFlatViewThumbnail( this, vwr ) );
 }
 
 
@@ -164,6 +167,8 @@ void uiFlatViewStdControl::dispChgCB( CallBacker* )
 void uiFlatViewStdControl::vwChgCB( CallBacker* )
 {
     updatePosButtonStates();
+    if ( thumbnail_.hasParam(this) )
+	thumbnail_.getParam(this)->draw();
 }
 
 
