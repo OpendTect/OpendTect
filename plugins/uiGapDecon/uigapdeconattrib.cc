@@ -562,19 +562,20 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     getInputMID(mid);
     CubeSampling prefcs;
     bool validprefcs = false;
-    if ( positiondlg_ )
+    if ( positiondlg_ && positiondlg_->posdlg_ )
     {
 	prefcs = positiondlg_->getCubeSampling();
 	validprefcs = true;
-	delete positiondlg_;
     }
+
+    delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
     if ( validprefcs ) positiondlg_->setPrefCS(&prefcs);
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
 
-    if ( positiondlg_->posdlg_->uiResult() == 1 )
+    if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
 	DescID inp0id = DescID::undef();
 	DescID inp1id = DescID::undef();
