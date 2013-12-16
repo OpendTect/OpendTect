@@ -22,15 +22,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeisIOObjInfo::uiSeisIOObjInfo( const IOObj& ioobj, bool errs )
-    	: sii(ioobj)
-    	, doerrs(errs)
+	: sii(ioobj)
+	, doerrs(errs)
 {
 }
 
 
 uiSeisIOObjInfo::uiSeisIOObjInfo( const MultiID& key, bool errs )
-    	: sii(key)
-    	, doerrs(errs)
+	: sii(key)
+	, doerrs(errs)
 {
 }
 
@@ -59,9 +59,8 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     }
 
     od_ostrstream strm;
-    od_ostream ostream( strm );
     strm << "The cube is available for work.\n\n";
-    tr->readMgr()->dumpInfo( ostream, false );
+    tr->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.result() );
 
     return true;
@@ -83,19 +82,19 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     {
 	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
 	if ( fsysname == "FAT32" )
-	{ 
+	{
 	    uiMSG().error( "Target directory has a FAT32 File System.\n"
 			   "Files larger than 4GB are not supported" );
 	    return false;
 	}
     }
 #endif
-	
+
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;
 	if ( !uiMSG().askContinue( "The output disk seems to be full.\n"
-		    		"Do you want to continue?" ) )
+				"Do you want to continue?" ) )
 	    return false;
     }
     else if ( szmb > avszmb )
