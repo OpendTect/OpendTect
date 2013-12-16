@@ -287,6 +287,5 @@ protected:
     friend class		uiODApplMgrAttrVisHandler;
 };
 
-
 #endif
 

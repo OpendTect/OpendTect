@@ -57,4 +57,5 @@ SET(OD_MODULE_SOURCES
 		uistoredattrreplacer.cc
 		uivolstatsattrib.cc
 )
+
 OD_INIT_MODULE()

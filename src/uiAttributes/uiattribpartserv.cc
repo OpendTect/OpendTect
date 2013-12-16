@@ -74,6 +74,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
+
 int uiAttribPartServer::evDirectShowAttr()	    { return 0; }
 int uiAttribPartServer::evNewAttrSet()		    { return 1; }
 int uiAttribPartServer::evAttrSetDlgClosed()	    { return 2; }
@@ -1740,3 +1741,4 @@ void uiAttribPartServer::setEvalBackupColTabMapper(
 
 const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
 { return evalmapperbackup_; }
+

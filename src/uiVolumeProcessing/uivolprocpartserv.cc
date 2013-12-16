@@ -101,3 +101,4 @@ void uiVolProcPartServer::fillPar( IOPar& ) const
 
 bool uiVolProcPartServer::usePar( const IOPar& )
 { return true; }
+

@@ -1762,6 +1762,7 @@ void uiODApplMgr::storeEMObject()
 
 void uiODApplMgr::manSurvCB( CallBacker* )
 { manageSurvey(); }
+
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )
@@ -1770,22 +1771,26 @@ void uiODApplMgr::launchRockPhysics( CallBacker* )
 { wellserv_->launchRockPhysics(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
+
 void uiODApplMgr::doVolProcCB( CallBacker* )
 { volprocserv_->doVolProc( 0 ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )
 { volprocserv_->doVolProc( &mid ); }
 void uiODApplMgr::createVolProcOutput( CallBacker* )
 { volprocserv_->createVolProcOutput(0); }
+
 bool uiODApplMgr::editNLA( bool is2d )
 { return attrvishandler_.editNLA( is2d ); }
 void uiODApplMgr::createHorOutput( int tp, bool is2d )
 { attrvishandler_.createHorOutput( tp, is2d ); }
 void uiODApplMgr::createVol( bool is2d, bool multiattrib )
 { attrvishandler_.createVol( is2d, multiattrib ); }
+
 void uiODApplMgr::seisOut2DCB(CallBacker*)
 { createVol(true,false); }
 void uiODApplMgr::seisOut3DCB(CallBacker*)
 { createVol(false,false); }
+
 void uiODApplMgr::doWellXPlot( CallBacker* )
 { attrvishandler_.doXPlot(); }
 void uiODApplMgr::doAttribXPlot( CallBacker* )
