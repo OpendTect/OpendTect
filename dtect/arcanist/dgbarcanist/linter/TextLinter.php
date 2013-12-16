@@ -114,7 +114,9 @@ final class TextLinter extends ArcanistLinter {
       }
     }
 
-    $this->lintSpaceAlignment($path);
+    if ( !$isphp ) {
+      $this->lintSpaceAlignment($path);
+    }
 
     if ($this->getEngine()->getCommitHookMode()) {
       $this->lintNoCommit($path);
@@ -178,12 +180,11 @@ final class TextLinter extends ArcanistLinter {
 	  'but the convention is '.$width.' characters.',
 	  $expandedline);
 
+	  if ($this->isMessageEnabled(self::LINT_LINE_WRAP)) {
+	    $this->stopAllLinters();
+	  }
 	}
       }
-    }
-
-    if ($this->isMessageEnabled(self::LINT_LINE_WRAP)) {
-      $this->stopAllLinters();
     }
   }
 
@@ -210,12 +211,11 @@ final class TextLinter extends ArcanistLinter {
         'Seems to contain local static variable, which is not allowed. '.
 	'Use mDefineStaticLocalObject macro instead.'
         );
-    }
 
-    if ( $this->isMessageEnabled(self::LINT_LOCAL_STATIC)) {
-      $this->stopAllLinters();
+      if ( $this->isMessageEnabled(self::LINT_LOCAL_STATIC)) {
+	$this->stopAllLinters();
+      }
     }
-
   }
 
 
@@ -228,10 +228,10 @@ final class TextLinter extends ArcanistLinter {
         "Files must end in a newline.",
         '',
         "\n");
-    }
 
-    if ($this->isMessageEnabled(self::LINT_EOF_NEWLINE)) {
-      $this->stopAllLinters();
+      if ($this->isMessageEnabled(self::LINT_EOF_NEWLINE)) {
+        $this->stopAllLinters();
+      }
     }
   }
 
@@ -259,10 +259,10 @@ final class TextLinter extends ArcanistLinter {
         'values between 32 and 126 inclusive, plus linefeed. Do not use UTF-8 '.
         'or other multibyte charsets.',
         $string);
-    }
 
-    if ($this->isMessageEnabled(self::LINT_BAD_CHARSET)) {
-      $this->stopAllLinters();
+      if ($this->isMessageEnabled(self::LINT_BAD_CHARSET)) {
+        $this->stopAllLinters();
+      }
     }
   }
 
@@ -283,13 +283,15 @@ final class TextLinter extends ArcanistLinter {
 	  'This file contains the string "'.$keyword.'", which is on the '.
 	  'list of words not allowed in the code' );
 	$hasbadword = false;
+
+	if ($this->isMessageEnabled(self::LINT_FORBIDDEN_WORD) ) {
+	  $this->stopAllLinters();
+	}
       }
     }
 
-    if ($this->isMessageEnabled(self::LINT_FORBIDDEN_WORD) ) {
-      $this->stopAllLinters();
-    }
   }
+
 
   protected function tab_collapse( $string, $tabstop ) {
     $changedline = $string;
@@ -298,7 +300,7 @@ final class TextLinter extends ArcanistLinter {
     $firstchar = 0;
     $last = $tabstop-1;
 
-    for ( $idx=$length-1; $idx>=$last; $idx-- ) {
+    for ( $idx=$length-1; $idx>=0; $idx-- ) {
 
       if ( ($idx+1)%$tabstop )
 	 continue;
@@ -313,13 +315,15 @@ final class TextLinter extends ArcanistLinter {
       }
 
       if ( $nrspaces<2 )
+      {
+	if ( $nrspaces==0 || $changedline[$idx+1]!=="\t" )
 	    continue;
+      }
 
       $lastchartocopy = $idx-$nrspaces;
       $copysize = $lastchartocopy + 1;
 
       $newstring = "";
-
       if ( $copysize>0 )
 	$newstring .= substr( $changedline, 0, $copysize );
 
@@ -345,7 +349,7 @@ final class TextLinter extends ArcanistLinter {
 		$line_idx + 1,
 		1,
 		self::LINT_SPACE_ALIGNMENT,
-		'This line is uses spaces in place for tabs',
+		'This line uses spaces in stead of tabs',
 		$line,
 		$changedline );
 	$change = true;
