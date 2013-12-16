@@ -41,7 +41,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Instantaneous)
-    
+
 void Instantaneous::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -73,7 +73,7 @@ Instantaneous::Instantaneous( Desc& ds )
     : Provider( ds )
     , sampgate1_( -1,1 )
     , sampgate2_( -2,2 )
-    , rotangle_(0)			
+    , rotangle_(0)
 {
     if ( !isOK() ) return;
 
@@ -98,10 +98,10 @@ bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 
 
 #define mGetRVal(sidx) getInputValue( *realdata_, realidx_, sidx, z0 )
-#define mGetIVal(sidx) - getInputValue( *imagdata_, imagidx_, sidx, z0 )
+#define mGetIVal(sidx) getInputValue( *imagdata_, imagidx_, sidx, z0 )
 
 
-bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 
+bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 				 int z0, int nrsamples, int threadid ) const
 {
     if ( !realdata_ || !imagdata_ ) return false;
@@ -110,12 +110,12 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
     {
 	if ( isOutputEnabled(mOutAmplitude) )
 	    setOutputValue( output, mOutAmplitude, idx, z0,
-		    	    calcAmplitude(idx,z0) );
+			    calcAmplitude(idx,z0) );
 	if ( isOutputEnabled(mOutPhase) )
 	    setOutputValue( output, mOutPhase, idx, z0, calcPhase(idx,z0) );
 	if ( isOutputEnabled(mOutFrequency) )
 	    setOutputValue( output, mOutFrequency, idx, z0,
-		    	    calcFrequency(idx,z0) );
+			    calcFrequency(idx,z0) );
 	if ( isOutputEnabled(mOutHilbert) )
 	    setOutputValue( output, mOutHilbert, idx, z0, mGetIVal(idx) );
 	if ( isOutputEnabled(mOutAmplitude1Der) )
@@ -243,7 +243,8 @@ float Instantaneous::calcRotPhase( int cursample, int z0, float angle ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
-    return (float) (real*cos( angle*M_PI/180 ) - imag*sin( angle*M_PI/180 ));
+    const float radians = Math::toRadians( angle );
+    return (float) (real*cos( radians ) - imag*sin( radians ));
 }
 
 
@@ -259,7 +260,7 @@ float Instantaneous::calcRMSAmplitude( int cursample, int z0 ) const
 	sumia2 += ia*ia;
 	nrsamples++;
     }
-    
+
     float dt = (nrsamples-1) * refstep_;
     if ( mIsZero( dt, 1e-6 ) ) dt = 1e-6;
     return Math::Sqrt( sumia2/dt );

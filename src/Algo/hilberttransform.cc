@@ -22,12 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 HilbertTransform::HilbertTransform()
     : info_(0)
     , forward_(true)
-    , nrsamples_(0)		    
+    , nrsamples_(0)
     , halflen_(30)
     , hilbwindow_(0)
     , startidx_(0)
     , convstartidx_(0)
-    , arrminnrsamp_(0)		  
+    , arrminnrsamp_(0)
 {}
 
 
@@ -60,7 +60,7 @@ bool HilbertTransform::isPossible( int sz ) const
 void HilbertTransform::setCalcRange( int startidx,int arrminnrsamp,
 			             int convstartidx )
 {
-    startidx_ = startidx; 
+    startidx_ = startidx;
     arrminnrsamp_ = arrminnrsamp;
     convstartidx_ = convstartidx;
 }
@@ -86,7 +86,7 @@ float* HilbertTransform::makeHilbWindow( int hlen )
 	h[hlen-i] = -h[hlen+i];
     }
     return h;
-} 
+}
 
 
 class Masker
@@ -153,7 +153,11 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     const int windowsz = halflen_ * 2 + 1;
     GenericConvolve( windowsz, -halflen_, hilbwindow_,
 		     szin, convstartidx_, masker,
-		     arrminnrsamp_, 0, outarr ); 
+		     arrminnrsamp_, 0, outarr );
+
+    for ( int idx=0; idx<szout; idx++ )
+	outarr[idx] *= -1.f;
+
     return true;
 }
 
@@ -179,7 +183,7 @@ bool HilbertTransform::transform( const ArrayND<float_complex>& in,
 }
 
 
-bool HilbertTransform::transform( const ArrayND<float>& real, 
+bool HilbertTransform::transform( const ArrayND<float>& real,
 				  ArrayND<float_complex>& img ) const
 {
     const int insize = real.info().getSize(0);
