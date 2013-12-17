@@ -28,11 +28,15 @@ static const float retrydelay = 0.001;
 
 bool StrmOper::resetSoftError( std::istream& strm, int& retrycount )
 {
-    if ( strm.good() || strm.eof() ) return true;
-    else if ( strm.bad() ) return false;
+    if ( strm.good() )
+	return true;
+    else if ( strm.eof() || strm.fail() )
+	return false;
+
     strm.clear();
     if ( retrycount > nrretries )
 	return false;
+
     Threads::sleep( retrydelay );
     retrycount++;
     return true;
@@ -41,12 +45,15 @@ bool StrmOper::resetSoftError( std::istream& strm, int& retrycount )
 
 bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
 {
-    if ( strm.good() ) return true;
-    else if ( strm.bad() ) return false;
-    strm.clear();
-    strm.flush();
+    if ( strm.good() )
+	return true;
+    else if ( strm.fail() )
+	return false;
+
+    strm.clear(); strm.flush();
     if ( retrycount > nrretries )
 	return false;
+
     Threads::sleep( retrydelay );
     retrycount++;
     return true;
@@ -55,45 +62,51 @@ bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
-    if ( strm.bad() || strm.eof() || !ptr ) return false;
-    strm.clear();
+    if ( strm.eof() || strm.fail() || !ptr )
+	return false;
+
+    if ( strm.bad() )
+	strm.clear();
 
     strm.read( (char*)ptr, nrbytes );
-    if ( strm.bad() ) return false;
 
     nrbytes -= strm.gcount();
     if ( nrbytes > 0 )
     {
-	if ( strm.eof() ) return false;
+	if ( strm.eof() )
+	    return false;
 
 	char* cp = (char*)ptr + strm.gcount();
 	int retrycount = 0;
 	while ( resetSoftError(strm,retrycount) )
 	{
 	    strm.read( cp, nrbytes );
-	    if ( strm.bad() || strm.eof() ) break;
+	    if ( strm.eof() )
+		break;
 
 	    nrbytes -= strm.gcount();
 	    if ( nrbytes == 0 )
-		{ strm.clear(); break; }
+		break;
 
 	    cp += strm.gcount();
 	}
     }
 
-    return nrbytes ? false : true;
+    return nrbytes > 0 ? false : true;
 }
 
 
 bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 			   od_uint64 nrbytes )
 {
-    if ( strm.bad() || !ptr ) return false;
+    if ( strm.fail() || !ptr ) return false;
 
     strm.clear();
     strm.write( (const char*)ptr, nrbytes );
-    if ( strm.good() ) return true;
-    if ( strm.bad() ) return false;
+    if ( strm.good() )
+	return true;
+    if ( strm.fail() )
+	return false;
 
     strm.flush();
     int retrycount = 0;
@@ -111,10 +124,10 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
-    if ( strm.bad() || strm.eof() )
+    if ( strm.fail() || strm.eof() )
 	return false;
 
-    if ( strm.fail() )
+    if ( strm.bad() )
     {
 	Threads::sleep( retrydelay );
 	strm.clear();
@@ -148,6 +161,21 @@ static void addToBS( BufferString& bs, char* partbuf, int& pos, char ch )
     }
 }
 
+
+static void removeLastIfCR( BufferString& bs )
+{
+    const int sz = bs.size();
+    if ( sz < 1 )
+	return;
+
+    if ( bs[sz-1] == '\r' )
+    {
+	if ( sz == 1 )
+	    bs.setEmpty();
+	else
+	    bs[sz-1] = '\0';
+    }
+}
 
 #define mIsQuote() (ch == '\'' || ch == '"')
 
@@ -187,6 +215,8 @@ bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
     if ( bs && bufidx )
 	{ partbuf[bufidx] = '\0'; bs->add( partbuf ); }
 
+    if ( bs )
+	removeLastIfCR( *bs );
     return !strm.bad();
 }
 
@@ -211,6 +241,9 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 
     if ( bs && bufidx )
 	{ partbuf[bufidx] = '\0'; *bs += partbuf; }
+
+    if ( bs )
+	removeLastIfCR( *bs );
 
     return !strm.bad();
 }
