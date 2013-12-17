@@ -23,10 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "rcollinebuilder.h"
 
+#include "hiddenparam.h"
+
+
 namespace MPE 
 {
 
 mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
+
+static HiddenParam<ObjectEditor,int> nrusersmanager( 0 );
 
 
 ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
@@ -172,6 +177,29 @@ bool ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
 
 
 void ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
+
+
+void ObjectEditor::addUser() 
+{
+    int nruser = nrusersmanager.getParam( this );
+    nruser++;
+    nrusersmanager.setParam( this, nruser );
+}
+
+
+void ObjectEditor::removeUser() 
+{
+    int nruser = nrusersmanager.getParam( this );
+    nruser--;
+    nrusersmanager.setParam( this, nruser );
+}
+
+
+int ObjectEditor::nrUsers() const
+{
+    const int nruser = nrusersmanager.getParam( this );
+    return nruser;
+}
 
 
 void ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const

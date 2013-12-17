@@ -60,6 +60,10 @@ public:
     bool		getSnapAfterEdit() const;
     void		setSnapAfterEdit(bool yn);
 
+    void		addUser();
+    void		removeUser();		
+    int			nrUsers()   const;	
+
     virtual const
     BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
     			/*!<\returns a list with names of the different
