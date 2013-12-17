@@ -1,0 +1,13 @@
+# Known generated files
+*mod.h
+about.html
+svnversion.h
+odversion.h
+develdefs.cmake
+
+#Platform dependent files
+# Windows
+
+# Linux
+
+# Mac
