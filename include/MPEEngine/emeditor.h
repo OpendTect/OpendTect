@@ -59,6 +59,10 @@ public:
     bool		getSnapAfterEdit() const;
     void		setSnapAfterEdit(bool yn);
 
+    void		addUser()		{ nrusers++; }
+    void		removeUser()		{ nrusers--; }
+    int			nrUsers()   const	{ return nrusers; }
+
     virtual const
     BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
     			/*!<\returns a list with names of the different
@@ -154,6 +158,8 @@ protected:
     TypeSet<EM::PosID>			alongmovingnodes;
     TypeSet<Coord3>			alongmovingnodesstart;
     TypeSet<float>			alongmovingnodesfactors;
+    
+    int					nrusers;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;

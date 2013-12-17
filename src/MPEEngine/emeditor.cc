@@ -35,6 +35,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     , movingnode( -1,-1,-1 )
     , snapafteredit( true )
     , interactionline( 0 )
+    , nrusers(0)
 {
     emobject.ref();
 }

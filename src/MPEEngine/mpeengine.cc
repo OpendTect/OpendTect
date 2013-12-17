@@ -712,8 +712,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     {
 	if ( editors_[idx]->emObject().id()==id )
 	{
-	    if ( create )
-		editors_[idx]->ref();
+	    if ( create ) editors_[idx]->addUser();
 	    return editors_[idx];
 	}
     }
@@ -729,6 +728,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 
     editors_ += editor;
     editor->ref();
+    editor->addUser();
     return editor;
 }
 
@@ -738,9 +738,12 @@ void Engine::removeEditor( const EM::ObjectID& objid )
     ObjectEditor* editor = getEditor( objid, false );
     if ( editor )
     {
-	if ( editor->nrRefs() == 1 )
+	editor->removeUser();
+	if ( editor->nrUsers() == 0 )
+	{
 	    editors_ -= editor;
-	editor->unRef();
+	    editor->unRef();
+	}
     }
 }
 
