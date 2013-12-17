@@ -134,7 +134,7 @@ void FFTFilter::buildFreqTaperWin()
     {
 	const int f1idx = mCast( int, cutfreq1_ / df_ );
 	const float var = 1.f - ( cutfreq2_ - cutfreq1_ ) /
-	   		  	( df_ * taperhp2lp - cutfreq1_ );
+			  	( df_ * taperhp2lp - cutfreq1_ );
 	ArrayNDWindow* highpasswin;
 	mSetTaperWin( highpasswin, 2 * ( taperhp2lp - f1idx ), var )
 	for ( int idx=0; idx<taperhp2lp; idx++ )
@@ -151,13 +151,13 @@ void FFTFilter::buildFreqTaperWin()
     {
 	const int f4idx = mCast( int, cutfreq4_ / df_ );
 	const float var = 1.f - ( cutfreq4_ - cutfreq3_ ) /
-	    		  	( cutfreq4_ - df_ * taperhp2lp );
+			  	( cutfreq4_ - df_ * taperhp2lp );
 	ArrayNDWindow* lowpasswin;
 	mSetTaperWin( lowpasswin, 2 * ( f4idx - taperhp2lp ), var )
 	for ( int idx=taperhp2lp; idx<nyqfreqidx; idx++ )
 	{
 	    const float taperval = idx < f4idx
-	       			 ? lowpasswin->getValues()[f4idx-idx-1]
+				 ? lowpasswin->getValues()[f4idx-idx-1]
 				 : 0.f;
 	    freqwindow_->setValue( idx, taperval );
 	    freqwindow_->setValue( fftsz_-idx-1, taperval );
@@ -184,7 +184,7 @@ bool FFTFilter::setTimeTaperWindow( int sz, BufferString wintype, float var )
     fft_->setInput(inp);\
     fft_->setOutput(outp);\
     if (!fft_->run(true))\
-    	return false;\
+	return false;\
 }
 
 
@@ -248,7 +248,7 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
     hilbert.setDir( true );\
     hilbert.init();\
     if (!hilbert.transform(inp,outp) )\
-    	return false;\
+	return false;\
 }
 
 
@@ -271,8 +271,7 @@ bool FFTFilter::apply( Array1DImpl<float>& outp )
 
     Array1DImpl<float_complex> ctrace( sz_ );
     for ( int idx=0; idx<sz_; idx++ )
-	ctrace.set( idx, float_complex( inp->get( idx ),
-		    -1.f * hilberttrace.get( idx ) ) );
+	ctrace.set( idx, float_complex(inp->get(idx),hilberttrace.get(idx)) );
 
     if ( !apply(ctrace,false) )
 	return false;
@@ -419,7 +418,7 @@ void FFTFilter::restoreUdf( Array1DImpl<float_complex>& outp ) const
 	    const float realval = replacerealval ? mUdf(float)
 						 : outp[idx].real();
 	    const float imagval = replaceimagval ? mUdf(float)
-	       					 : outp[idx].imag();
+						 : outp[idx].imag();
 	    outp.set( idx, float_complex( realval, imagval ) );
 	}
     }
@@ -507,7 +506,7 @@ bool FFTFilter::restoreTrend( Array1DImpl<float>& outp, bool isimag ) const
     {
 	const float trendval = trend->get( idx );
 	const float outval = mIsUdf(trendval) ? mUdf(float)
-	    				      : trendval + outp[idx];
+					      : trendval + outp[idx];
 	outp.set( idx, outval );
     }
 

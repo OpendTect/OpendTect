@@ -16,18 +16,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
+#include "odmemory.h"
 #include "valseries.h"
 
 
 HilbertTransform::HilbertTransform()
     : info_(0)
     , forward_(true)
-    , nrsamples_(0)		    
+    , nrsamples_(0)
     , halflen_(30)
     , hilbwindow_(0)
     , startidx_(0)
     , convstartidx_(0)
-    , arrminnrsamp_(0)		  
+    , arrminnrsamp_(0)
 {}
 
 
@@ -60,7 +61,7 @@ bool HilbertTransform::isPossible( int sz ) const
 void HilbertTransform::setCalcRange( int startidx,int arrminnrsamp,
 			             int convstartidx )
 {
-    startidx_ = startidx; 
+    startidx_ = startidx;
     arrminnrsamp_ = arrminnrsamp;
     convstartidx_ = convstartidx;
 }
@@ -77,16 +78,18 @@ bool HilbertTransform::init()
 float* HilbertTransform::makeHilbWindow( int hlen )
 {
     float* h = new float[hlen*2+1];
-    h[hlen] = 0;
-    for ( int i=1; i<=hlen; i++ )
+    OD::memZero( h, (hlen*2+1)*sizeof(float) );
+    const double hlend = mCast(double,hlen);
+    for ( int i=1; i<=hlen; i+=2 )
     {
-	const float taper = (float) ( 0.54 + 0.46 * cos( M_PI*(float)i /
-														 (float)(hlen)) );
-	h[hlen+i] = taper * (float) ( ( -(float)(i%2)*2.0 / (M_PI*(float)(i))) );
-	h[hlen-i] = -h[hlen+i];
+	const double pii = M_PI * mCast(double,i);
+	const double taper = ( 0.54 + 0.46 * cos( pii / hlend ) );
+	const float win = mCast( float, 2. * taper / pii );
+	h[hlen-i] = -win;
+	h[hlen+i] = win;
     }
     return h;
-} 
+}
 
 
 class Masker
@@ -153,7 +156,8 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     const int windowsz = halflen_ * 2 + 1;
     GenericConvolve( windowsz, -halflen_, hilbwindow_,
 		     szin, convstartidx_, masker,
-		     arrminnrsamp_, 0, outarr ); 
+		     arrminnrsamp_, 0, outarr );
+
     return true;
 }
 
@@ -179,7 +183,7 @@ bool HilbertTransform::transform( const ArrayND<float_complex>& in,
 }
 
 
-bool HilbertTransform::transform( const ArrayND<float>& real, 
+bool HilbertTransform::transform( const ArrayND<float>& real,
 				  ArrayND<float_complex>& img ) const
 {
     const int insize = real.info().getSize(0);
