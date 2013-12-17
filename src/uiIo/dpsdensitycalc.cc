@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
-       				    ArrayND<float>& freqdata )
+				    ArrayND<float>& freqdata )
     : ParallelTask( "Calclulating Density" )
     , dps_( dps )
     , freqdata_( freqdata )
@@ -29,6 +29,9 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
     freqdata_.setAll( (float)0 );
 }
 
+
+const char* DPSDensityCalcND::nrDoneText() const
+{ return "Points done"; }
 
 od_int64 DPSDensityCalcND::nrIterations() const
 { return dps_.size(); }
@@ -86,7 +89,7 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
 	    continue;
 
 	TypeSet<int> indexs;
-	
+
 	if ( !getPositions(indexs,mCast(int,rid)) ) continue;
 
 	if ( !setFreqValue(indexs.arr()) ) continue;

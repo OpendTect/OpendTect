@@ -1,3 +1,6 @@
+#ifndef dpsdensitycalc_h
+#define dpsdensitycalc_h
+
 /*+
 ________________________________________________________________________
 
@@ -28,8 +31,9 @@ public:
 						 const ObjectSet<AxisParam>&,
 						 ArrayND<float>&);
 
-    od_int64			nrDone() const		{ return nrdone_; }
     od_int64			nrIterations() const;
+    od_int64			nrDone() const		{ return nrdone_; }
+    const char*			nrDoneText() const;
 
     bool			getPositions(TypeSet<int>&,int);
     bool			setFreqValue(const int*);
@@ -45,3 +49,4 @@ protected:
     float				getVal(int colid,int rowid) const;
 };
 
+#endif
