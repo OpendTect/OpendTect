@@ -38,7 +38,7 @@ int Counter::elapsed() const
 
 int getMilliSeconds()
 {
-    QTime daystart;
+    QTime daystart(0,0,0,0);
     return daystart.msecsTo( QTime::currentTime() );
 }
 
