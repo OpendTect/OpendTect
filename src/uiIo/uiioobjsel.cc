@@ -791,7 +791,8 @@ void uiIOObjSel::obtainIOObj()
     }
 
     IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioob = (*IOM().dirPtr())[ inp.buf() ];
+    const IOObj* ioob = IOM().dirPtr()->get( inp.buf(),
+	    			workctio_.ctxt.trgroup->userName() );
     workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
 }
@@ -808,14 +809,15 @@ void uiIOObjSel::processInput()
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
     IOM().to( workctio_.ctxt.getSelKey() );
-    return (*IOM().dirPtr())[nm];
+    return IOM().dirPtr()->get( nm, workctio_.ctxt.trgroup->userName() );
 }
 
 
 MultiID uiIOObjSel::validKey() const
 {
     IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioob = (*IOM().dirPtr())[ getInput() ];
+    const IOObj* ioob = IOM().dirPtr()->get( getInput(),
+	    			workctio_.ctxt.trgroup->userName() );
 
     if ( ioob && workctio_.ctxt.validIOObj(*ioob) )
 	return ioob->key();

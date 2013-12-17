@@ -59,16 +59,6 @@ IOObjInfo::IOObjInfo( const MultiID& id )
 }
 
 
-IOObjInfo::IOObjInfo( const char* ioobjnm )
-    : ioobj_(0)
-    , reader_(0)
-{
-    mGoToEMDir();
-    ioobj_ = IOM().getLocal( ioobjnm );
-    setType();
-}
-
-
 IOObjInfo::IOObjInfo( const IOObjInfo& sii )
     : type_(sii.type_)
     , reader_(0)
@@ -287,7 +277,7 @@ void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
     const IODir& iodir = *IOM().dirPtr();
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	const IOObj* ioobj = iodir[idx];
+	const IOObj* ioobj = iodir.get( idx );
 	if ( objectTypeOfIOObjGroup(ioobj->group()) == reqtyp )
 	    ids += ioobj->key();
     }

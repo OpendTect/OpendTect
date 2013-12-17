@@ -154,12 +154,14 @@ void uiBulkTrackImport::addD2T( BufferString& errmsg )
 void uiBulkTrackImport::write( BufferStringSet& errors )
 {
     // TODO: Check if name exists, ask user to overwrite or give new name
-    PtrMan<CtxtIOObj> ctxt = mMkCtxtIOObj( Well );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
 	Well::Data* wd = wells_[idx];
-	PtrMan<IOObj> ioobj = IOM().getLocal( wd->name() );
-	if ( !ioobj ) ioobj = mkEntry( *ctxt, wd->name() );
+	PtrMan<IOObj> ioobj = IOM().getLocal( wd->name(),
+					      ctio->ctxt.trgroup->userName() );
+	if ( !ioobj )
+	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )
 	{
 	    errors.add(

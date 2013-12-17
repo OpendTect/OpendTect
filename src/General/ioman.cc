@@ -99,7 +99,7 @@ void IOMan::init()
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
 			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = (*dirPtr())[MultiID(dd->id)];
+	const IOObj* dirioobj = dirPtr()->get( MultiID(dd->id) );
 	if ( dirioobj )
 	{
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
@@ -111,7 +111,7 @@ void IOMan::init()
 		const BufferString trsegystr( "SEG-Y" );
 		for ( int iobj=0; iobj<seisiodir.size(); iobj++ )
 		{
-		    const IOObj& subioobj = *seisiodir[iobj];
+		    const IOObj& subioobj = *seisiodir.get( iobj );
 		    if ( seisstr != subioobj.group() ||
 			 trsegystr == subioobj.translator() ) continue;
 
@@ -170,7 +170,7 @@ void IOMan::init()
 	IOSubDir* iosd = new IOSubDir( dd->dirnm );
 	iosd->key_ = dd->id;
 	iosd->dirnm_ = rootdir_;
-	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
+	const IOObj* previoobj = prevdd ? dirPtr()->get( MultiID(prevdd->id) )
 					: dirPtr()->main();
 	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
 	dirPtr()->objs_.insertAfter( iosd, idxof );
@@ -460,7 +460,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 
     if ( dirptr_ )
     {
-	const IOObj* ioobj = (*dirptr_)[ky];
+	const IOObj* ioobj = dirptr_->get( ky );
 	if ( ioobj ) return ioobj->clone();
     }
 
@@ -476,11 +476,11 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
     const IOObj* ioobj = 0;
     for ( int idx=0; idx<dirptr_->size(); idx++ )
     {
-	if ( (*dirptr_)[idx]->group()==tgname )
+	if ( dirptr_->get(idx)->group()==tgname )
 	{
 	    if ( onlyifsingle && ioobj ) return 0;
 
-	    ioobj = (*dirptr_)[idx];
+	    ioobj = dirptr_->get( idx );
 	    if ( first && !onlyifsingle ) break;
 	}
     }
@@ -489,7 +489,7 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 }
 
 
-IOObj* IOMan::getLocal( const char* objname ) const
+IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 {
     if ( !objname || !*objname )
 	return 0;
@@ -504,7 +504,7 @@ IOObj* IOMan::getLocal( const char* objname ) const
 
     if ( dirptr_ )
     {
-	const IOObj* ioobj = (*dirptr_)[objname];
+	const IOObj* ioobj = dirptr_->get( objname, trgrpnm );
 	if ( ioobj ) return ioobj->clone();
     }
 
@@ -564,7 +564,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	{
 	    CtxtIOObj ctio( ctxt );
 	    IOM().to( ctio.ctxt.getSelKey() );
-	    const IOObj* ioob = (*(const IODir*)(dirPtr()))[res.buf()];
+	    const IOObj* ioob = dirPtr()->get( res.buf() );
 	    if ( ioob )
 		res = ioob->key();
 	    else if ( mknew )
@@ -679,7 +679,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	return;
     to( ctio.ctxt.getSelKey() );
 
-    const IOObj* ioobj = (*dirPtr())[ ctio.ctxt.name() ];
+    const IOObj* ioobj = dirPtr()->get( ctio.ctxt.name(),
+	    				ctio.ctxt.trgroup->userName() );
     ctio.ctxt.fillTrGroup();
     if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
 	ioobj = 0;
@@ -717,7 +718,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	    delete tmptr;
 	}
 
-	dirPtr()->mkUniqueName( iostrm );
+	dirPtr()->ensureUniqueName( *iostrm );
 	const BufferString uniqnm( iostrm->name() );
 	int ifnm = 0;
 	while ( true )
@@ -727,7 +728,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 		break;
 	    ifnm++;
 	    iostrm->setName( BufferString(uniqnm,ifnm) );
-	    dirPtr()->mkUniqueName( iostrm );
+	    dirPtr()->ensureUniqueName( *iostrm );
 	}
 
 	iostrm->updateCreationPars();

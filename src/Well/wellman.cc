@@ -125,7 +125,7 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     IODir iodir( MultiID("100050") );
     if ( nm && *nm )
     {
-	const IOObj* ioobj = iodir[nm];
+	const IOObj* ioobj = iodir.get( nm, "Well" );
 	if ( ioobj ) return ioobj->clone();
     }
 

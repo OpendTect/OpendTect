@@ -1313,7 +1313,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
-	PtrMan<IOObj> ioobj = IOM().getLocal( item->text );
+	PtrMan<IOObj> ioobj = IOM().getLocal( item->text, 0 );
 	if ( ioobj )
 	{
 	    attribid = eDSHolder().getDescSet( false, true )

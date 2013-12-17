@@ -187,7 +187,7 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
 
     if ( ioobj.group() == EMFault3DTranslatorGroup::keyword() )
 	outfld = new uiIOObjSel( this, ctio_, "Output Fault" );
-    else if ( ioobj.group() == EM::FaultStickSet::typeStr() )
+    else if ( ioobj.group() != EM::FaultStickSet::typeStr() )
 	outfld = new uiIOObjSel( this, ctio_, "Output Surface" );
     else
 	outfld = new uiIOObjSel( this, ctio_, "Output Stickset" );

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iodir.h"
 #include "ioobj.h"
+#include "transl.h"
 #include "filepath.h"
 
 
@@ -88,7 +89,8 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     const char* nm = ctio.name().buf();
 
     IOM().to( ctio.ctxt.getSelKey() );
-    const IOObj* existioobj = (*IOM().dirPtr())[nm];
+    const IOObj* existioobj = IOM().dirPtr()->get( nm,
+	    				ctio.ctxt.trgroup->userName() );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );

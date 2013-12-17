@@ -313,9 +313,9 @@ void uiImportHorizon2D::addHor( CallBacker* )
 
     const char* hornm = dlg.text();
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    if ( IOM().getLocal(hornm) )
+    if ( IOM().getLocal(hornm,0) )
     {
-	uiMSG().error( "Failed to add: a Horizon already exists with name ",
+	uiMSG().error( "Failed to add: a surface already exists with name ",
 			hornm );
 	return;
     }
@@ -398,7 +398,7 @@ bool uiImportHorizon2D::doImport()
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString nm = hornms.get( idx );
-	PtrMan<IOObj> ioobj = IOM().getLocal( nm );
+	PtrMan<IOObj> ioobj = IOM().getLocal( nm, "2D Horizon" );
 	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
 	EM::EMObject* emobj = em.getObject(id);
 	if ( emobj )

@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "iopar.h"
 #include "ioman.h"
-#include "iodir.h"
 #include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -168,7 +167,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	if ( res && *res )
 	{
 	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
-	    const IOObj* tryioobj_ = (*IOM().dirPtr())[ res ];
+	    const IOObj* tryioobj_ = IOM().getLocal( res, 0 );
 	    if ( !tryioobj_ )
 		res = 0;
 	    else

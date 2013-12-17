@@ -46,19 +46,23 @@ public:
     const IOObj*	main() const;
     const char*		dirName() const		{ return dirname_; }
 
-    const ObjectSet<IOObj>& getObjs() const { return objs_; }
-    int			size() const		  { return objs_.size(); }
-    const IOObj*	operator[](const MultiID&) const;
-    const IOObj*	operator[]( const char* str ) const;
-    const IOObj*	operator[]( int idx ) const	{ return objs_[idx]; }
-    const IOObj*	operator[]( IOObj* o ) const	{ return objs_[o]; }
+    int			size() const		{ return objs_.size(); }
+    int			isEmpty() const		{ return objs_.isEmpty(); }
+    const IOObj*	get( int idx ) const	{ return objs_[idx]; }
+    const ObjectSet<IOObj>& getObjs() const	{ return objs_; }
+
+    bool		isPresent(const MultiID&) const;
+    int			indexOf(const MultiID&) const;
+    const IOObj*	get(const MultiID&) const;
+    const IOObj*	get(const char* nm,const char* trgrpnm=0) const;
+    			// Without trgrpnm, just returns first
 
     bool		addObj(IOObj*,bool immediate_store=true);
 			    //!< after call, IOObj is mine
     bool		commitChanges(const IOObj*);
 			    //!< after call, assume pointer will be invalid
     bool		permRemove(const MultiID&);
-    bool		mkUniqueName(IOObj*);
+    bool		ensureUniqueName(IOObj&);
 
     static IOObj*	getObj(const MultiID&);
     static IOObj*	getMain(const char*);
@@ -83,6 +87,8 @@ private:
 
     bool		build();
     bool		wrOmf(od_ostream&) const;
+    IOObj*		get( int idx )		{ return objs_[idx]; }
+    IOObj*		get(const MultiID&);
 
     MultiID		newKey() const;
 

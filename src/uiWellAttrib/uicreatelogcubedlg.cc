@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 #include "createlogcube.h"
-#include "iodir.h"
 #include "ioman.h"
 #include "seiscbvs.h"
 #include "survinfo.h"
@@ -94,7 +93,8 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 	    ctio->ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
 
 	    IOM().to( ctio->ctxt.getSelKey() );
-	    const IOObj* presentobj = (*IOM().dirPtr())[ cbvsnm.buf() ];
+	    const IOObj* presentobj = IOM().getLocal( cbvsnm.buf(),
+					    ctio->ctxt.trgroup->userName() );
 	    if ( presentobj )
 	    {
 		BufferString msg( cbvsnm ); msg += " is already present ";

@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismerge.h"
 #include "seistrctr.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -53,7 +53,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const char* nm = ioobjnms.get(idx).buf();
-	const IOObj* ioobj = (*IOM().dirPtr())[nm];
+	const IOObj* ioobj = IOM().getLocal( nm,
+					ctio_.ctxt.trgroup->userName() );
         ioobjids_ += new MultiID( ioobj ? (const char*)ioobj->key() : "" );
     }
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Input Cubes", true );

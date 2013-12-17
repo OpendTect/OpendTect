@@ -262,7 +262,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 
 IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 {
-    IOObj* ioobj = IOM().getLocal( wellnm );
+    IOObj* ioobj = IOM().getLocal( wellnm, "Well" );
     if ( ioobj )
     {
 	if ( overwritepol_ == 0 )

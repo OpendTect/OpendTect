@@ -90,7 +90,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     {
 	delete lset_; lset_ = 0;
 	IOM().to( MultiID("100010") );
-	IOObj* ioobj = IOM().getLocal( lsnm );
+	IOObj* ioobj = IOM().getLocal( lsnm, 0 );
 	if ( ioobj )
 	{
 	    lset_ = new Seis2DLineSet( *ioobj );

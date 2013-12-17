@@ -220,12 +220,11 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
     }
     else
     {
-	IOObj* lioobj = IOM().getLocal( newnm );
+	IOObj* lioobj = IOM().getLocal( newnm, ioobj->group() );
 	if ( lioobj )
 	{
-	    BufferString msg( "This name is already used by a " );
-	    msg += lioobj->translator();
-	    msg += " object";
+	    BufferString msg( "This name is already used by a ",
+		    		lioobj->translator(), " object" );
 	    delete lioobj;
 	    uiMSG().error( msg );
 	    return false;

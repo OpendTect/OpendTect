@@ -433,7 +433,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     TypeSet<Coord> surfcoords;
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
-	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx) );
+	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );
 	Well::Data data;
 	Well::Reader rdr( ioobj->fullUserExpr(true), data );
 	if ( !rdr.getInfo() )

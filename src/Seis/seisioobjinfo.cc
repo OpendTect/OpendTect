@@ -56,7 +56,7 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
     	: ioobj_(0)
 {
     mGoToSeisDir();
-    ioobj_ = IOM().getLocal( ioobjnm );
+    ioobj_ = IOM().getLocal( ioobjnm, 0 );
     setType();
 }
 

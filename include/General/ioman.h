@@ -42,7 +42,7 @@ public:
 
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
-    IOObj*		getLocal(const char* objname) const;
+    IOObj*		getLocal(const char* objname,const char* tgname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
 	    			   bool onlyifsingle=false) const;
     IOObj*		getIfOnlyOne( const char* trgroupname )

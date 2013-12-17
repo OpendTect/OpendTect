@@ -319,7 +319,7 @@ void CtxtIOObj::fillIfOnlyOne()
     int ivalid = -1;
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	if ( ctxt.validIOObj(*iodir[idx]) )
+	if ( ctxt.validIOObj(*iodir.get(idx)) )
 	{
 	    if ( ivalid >= 0 )
 		return;
@@ -329,7 +329,7 @@ void CtxtIOObj::fillIfOnlyOne()
     }
 
     if ( ivalid >= 0 )
-	setObj( iodir[ivalid]->clone() );
+	setObj( iodir.get(ivalid)->clone() );
 }
 
 

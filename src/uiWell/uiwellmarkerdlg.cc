@@ -648,7 +648,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 bool uiMarkerDlg::getKey( MultiID& mid ) const
 {
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
-    IOObj* obj = IOM().getLocal( track_.name() );
+    IOObj* obj = IOM().getLocal( track_.name(), "Well" );
     if ( !obj )
 	return false;
 

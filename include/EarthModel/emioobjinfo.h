@@ -39,7 +39,6 @@ public:
 			IOObjInfo(const IOObj*);
 			IOObjInfo(const IOObj&);
 			IOObjInfo(const MultiID&);
-			IOObjInfo(const char* ioobjnm);
 			IOObjInfo(const IOObjInfo&);
 			~IOObjInfo();
     IOObjInfo&		operator =(const IOObjInfo&);

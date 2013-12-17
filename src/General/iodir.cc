@@ -178,28 +178,51 @@ IOObj* IODir::getObj( const MultiID& ky )
 }
 
 
-const IOObj* IODir::operator[]( const char* ky ) const
+const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->name() == ky )
-	    return ioobj;
+	{
+	    if ( !trgrpnm || ioobj->group() == trgrpnm )
+		return ioobj;
+	}
     }
     return 0;
 }
 
 
-const IOObj* IODir::operator[]( const MultiID& ky ) const
+int IODir::indexOf( const MultiID& ky ) const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->key() == ky )
-	    return ioobj;
+	    return idx;
     }
 
-    return 0;
+    return -1;
+}
+
+
+bool IODir::isPresent( const MultiID& ky ) const
+{
+    return indexOf( ky ) >= 0;
+}
+
+
+IOObj* IODir::get( const MultiID& ky )
+{
+    const int idxof = indexOf( ky );
+    return idxof < 0 ? 0 : objs_[idxof];
+}
+
+
+const IOObj* IODir::get( const MultiID& ky ) const
+{
+    const int idxof = indexOf( ky );
+    return idxof < 0 ? 0 : objs_[idxof];
 }
 
 
@@ -253,8 +276,9 @@ bool IODir::commitChanges( const IOObj* ioobj )
 {
     if ( ioobj->isSubdir() )
     {
-	IOObj* obj = (IOObj*)(*this)[ioobj->key()];
-	if ( obj != ioobj ) obj->copyFrom( ioobj );
+	IOObj* obj = get( ioobj->key() );
+	if ( obj != ioobj )
+	    obj->copyFrom( ioobj );
 	return doWrite();
     }
 
@@ -288,33 +312,33 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	reRead();
 	if ( isBad() ) return false;
     }
-    if ( ioobj->key().isEmpty() || (*this)[ioobj->key()] )
+
+    if ( ioobj->key().isEmpty() || objs_[ioobj] || isPresent(ioobj->key()) )
 	ioobj->setKey( newKey() );
 
-    mkUniqueName( ioobj );
+    ensureUniqueName( *ioobj );
     objs_ += ioobj;
     setDirName( *ioobj, dirName() );
+
     return persist ? doWrite() : true;
 }
 
 
-bool IODir::mkUniqueName( IOObj* ioobj )
+bool IODir::ensureUniqueName( IOObj& ioobj )
 {
-    if ( (*this)[ioobj->name()] )
+    BufferString nm( ioobj.name() );
+
+    int nr = 1;
+    while ( get(nm.buf(),ioobj.translator().buf()) )
     {
-	int nr = 1;
-	BufferString nm;
-
-	do {
-	    nr++;
-	    nm = ioobj->name();
-	    nm += " "; nm += nr;
-	} while ( (*this)[nm] );
-
-	ioobj->setName( nm );
-	return true;
+	nr++;
+	nm.set( ioobj.name() ).add( " (" ).add( nr ).add( ")" );
     }
-    return false;
+    if ( nr == 1 )
+	return false;
+
+    ioobj.setName( nm );
+    return true;
 }
 
 
