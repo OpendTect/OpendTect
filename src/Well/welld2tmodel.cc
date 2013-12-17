@@ -123,7 +123,7 @@ bool Well::D2TModel::getVelocityBoundsForDah( float dh, const Track& track,
 					Interval<float>& times ) const
 {
     const int idah = getVelocityIdx( dh, track );
-    if ( idah < 0 )
+    if ( idah <= 0 )
 	return false;
 
     depths.start = track.getPos(dah_[idah-1]).z;
@@ -148,7 +148,7 @@ bool Well::D2TModel::getVelocityBoundsForTwt( float twt, const Track& track,				
 					      Interval<float>& times ) const
 {
     const int idah = getVelocityIdx( twt, track, false );
-    if ( idah < 0 )
+    if ( idah <= 0 )
 	return false;
 
     depths.start = track.getPos(dah_[idah-1]).z;
@@ -217,7 +217,7 @@ bool Well::D2TModel::getOldVelocityBoundsForDah( float dh, const Track& track,
 {
     const int dtsize = size();
     const int idah = getVelocityIdx( dh, track );
-    if ( idah < 0 )
+    if ( idah <= 0 )
 	return false;
 
     depths.start = track.getPos( dah_[idah-1] ).z;
@@ -268,7 +268,7 @@ bool Well::D2TModel::getOldVelocityBoundsForTwt( float twt, const Track& track,
 {
     const int dtsize = size();
     const int idah = getVelocityIdx( twt, track, false );
-    if ( idah < 0 )
+    if ( idah <= 0 )
 	return false;
 
     depths.start = track.getPos( dah_[idah-1] ).z;
