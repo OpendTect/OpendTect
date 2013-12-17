@@ -172,8 +172,8 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     }
     else
     {
-	if ( arrowitem2_ ) arrowitem1_->setVisible( false );
-	if ( axis2nm_ ) axis1nm_->setVisible( false );
+	if ( arrowitem2_ ) arrowitem2_->setVisible( false );
+	if ( axis2nm_ ) axis2nm_->setVisible( false );
     }
 
     if ( !annot.title_.isEmpty() && annot.title_ != " " )
