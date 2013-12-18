@@ -129,7 +129,7 @@ void uiFlatViewStdControl::finalPrepare()
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	MouseEventHandler& mevh =
-	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
+	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
 	mAttachCB( mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
 	if ( withhanddrag_ )
 	{

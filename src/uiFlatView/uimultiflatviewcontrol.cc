@@ -35,8 +35,6 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     parsbuts_ += parsbut_;
     toolbars_ += tb_;
-
-    finalPrepare();
 }
 
 
