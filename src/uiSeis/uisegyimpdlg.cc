@@ -338,6 +338,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->scfmtfld->getScaler() );
     Seis::SelData* sd = transffld_->getSelData();
+    if ( !sd ) return false;
     if ( is2d )
     {
 	if ( linenm && *linenm )
@@ -346,6 +347,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	    sd->lineKey().setAttrName( attrnm );
 	wrr->setSelData( sd->clone() );
     }
+
     rdr->setSelData( sd );
 
     PtrMan<SeisImporter> imp = new SeisImporter( rdr, *wrr, setup_.geom_ );
