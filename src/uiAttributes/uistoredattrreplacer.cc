@@ -177,12 +177,14 @@ static bool hasSpace( const char* txt )
 
 void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
 {
-    if ( !par ) return;
+    if ( !par || !key ) return;
     const char* defstring = par->find( "Definition" );
     BufferString defstr( defstring );
     char* maindefstr = firstOcc( defstr.buf(), "id=" );
-    maindefstr += 3;
+    if ( !maindefstr )
+	return;
 
+    maindefstr += 3;
     BufferString tempstr( maindefstr );
     char* spaceptr = firstOcc( tempstr.buf(), ' ' );
     BufferString finalpartstr( spaceptr );
