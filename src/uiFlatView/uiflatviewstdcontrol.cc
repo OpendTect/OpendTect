@@ -131,7 +131,7 @@ void uiFlatViewStdControl::finalPrepare()
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	MouseEventHandler& mevh =
-	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
+	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
 	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
 	if ( withhanddrag_ )
 	{
