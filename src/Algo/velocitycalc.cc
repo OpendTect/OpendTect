@@ -102,7 +102,8 @@ float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 }
 
 
-float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz, 				 float z, bool targetistime )
+float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz, 				 
+				 float z, bool targetistime )
 {
     const float* zinvals = targetistime ? dpths : times;
     const float* zoutvals = targetistime ? times : dpths;
@@ -772,6 +773,9 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
 
 
 #define mComputeDixImpl( first_t, first_v, timefetch ) \
+    if ( !Vrms || !Vint ) \
+	return false; \
+\
     if ( !nrvels ) \
 	return true; \
  \
