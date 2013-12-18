@@ -120,7 +120,8 @@ float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 }
 
 
-float TimeDepthModel::convertTo( const float* dpths, const float* times, int sz, 				 float z, bool targetistime )
+float TimeDepthModel::convertTo( const float* dpths, const float* times, 
+				 int sz, float z, bool targetistime )
 {
     const float* zinvals = targetistime ? dpths : times;
     const float* zoutvals = targetistime ? times : dpths;
@@ -458,9 +459,10 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	    if ( z<=zvals[0] )
 	    {
 		const double dz = z-zvals[0];
-		zrev = (float) ( time ? firstvel_>0 ? (sd_.start+dz*2/firstvel_) 
-					  : (sd_.start)
-					  : (sd_.start+dz*firstvel_/2) );
+		zrev = (float) 
+			( time ? firstvel_>0 ? (sd_.start+dz*2/firstvel_) 
+					     : (sd_.start)
+					     : (sd_.start+dz*firstvel_/2) );
 	    }
 	    else if ( z > zvals[inpsz-1] )
 	    {
@@ -790,6 +792,9 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
 
 
 #define mComputeDixImpl( first_t, first_v, timefetch ) \
+    if ( !Vrms || !Vint ) \
+	return false; \
+\
     if ( !nrvels ) \
 	return true; \
  \
