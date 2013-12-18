@@ -345,6 +345,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->scfmtfld->getScaler() );
     Seis::SelData* sd = transffld_->getSelData();
+    if ( !sd ) return false;
     if ( is2d )
     {
 	if ( linenm && *linenm )

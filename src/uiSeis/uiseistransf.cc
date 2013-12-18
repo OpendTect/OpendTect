@@ -122,7 +122,7 @@ void uiSeisTransfer::setSteering( bool yn )
 Seis::SelData* uiSeisTransfer::getSelData() const
 {
     IOPar iop;
-    selfld->fillPar( iop );
+    if ( !selfld->fillPar(iop) ) return 0;
     return Seis::SelData::get( iop );
 }
 
