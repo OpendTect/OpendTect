@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
-#include "task.h"
+#include "paralleltask.h"
 
 namespace Fourier { class CC; };
 
@@ -29,7 +29,7 @@ The time sampling determines the frequency distribution
 mExpClass(Algo) ReflectivitySampler : public ParallelTask
 {
 public:
-    			ReflectivitySampler(const ReflectivityModel&,
+			ReflectivitySampler(const ReflectivityModel&,
 				const StepInterval<float>& timesampling,
 				TypeSet<float_complex>& freqreflectivities,
 				bool usenmotime=false);
@@ -39,7 +39,7 @@ public:
 				/*<! In addition to frequency domain! */
     void			doTimeReflectivities();
 
-    				/*<! Available after execution */
+				/*<! Available after execution */
     TypeSet<float_complex>&	reflectivities(bool time) const;
     void			getTimeReflectivities(TypeSet<float>&) const;
 

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistransform.h"
 #include "visnormals.h"
-#include "task.h"
+#include "paralleltask.h"
 
 #include <osg/Array>
 
@@ -83,12 +83,12 @@ Coordinates::~Coordinates()
 {
 
     mGetOsgVec3Arr(osgcoords_)->unref();
-    
+
     if ( transformation_ ) transformation_->unRef();
 }
 
 
-void Coordinates::copyFrom( const Coordinates& nc ) 
+void Coordinates::copyFrom( const Coordinates& nc )
 {
     Threads::MutexLocker lock( mutex_ );
     Threads::MutexLocker nclock( nc.mutex_ );
@@ -191,7 +191,7 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
     return;
 	/*
     Threads::MutexLocker lock( mutex_ );
-    
+
     coords_->point.insertSpace( idx, 1 );
     for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
     {
@@ -208,7 +208,7 @@ Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
     const float* scenepos =
 	mGetOsgArrPtr(const osg::Vec3*,osgcoords_)[idx].ptr();
-    
+
     Coord3 res( scenepos[0], scenepos[1], scenepos[2] );
     if ( res.isDefined() )
     {
@@ -228,7 +228,7 @@ bool Coordinates::isDefined( int idx ) const
 	return false;
 
     const float* coord = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
-    
+
     return !mIsUdf(coord[2]) && !mIsUdf(coord[1]) && !mIsUdf(coord[0]);
 }
 
@@ -252,7 +252,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
     Coord3 postoset = pos;
     if ( !scenespace && postoset.isDefined() && transformation_ )
 	transformation_->transform( postoset );
-    
+
     if ( idx>=mGetOsgVec3Arr(osgcoords_)->size() )
 	mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
 
@@ -314,7 +314,7 @@ void Coordinates::removeAfter( int idx )
 	if ( unusedcoords_[idy]>idx )
 	    unusedcoords_.removeSingle(idy--);
     }
-    
+
     dirty();
 }
 
@@ -390,7 +390,7 @@ void Coordinates::dirty() const
     if ( osgcoords_ && osgcoords_->getNumElements()> 0 )
 	osgcoords_->dirty();
 }
-    
+
 CoinFloatVertexAttribList::CoinFloatVertexAttribList(Coordinates& c, Normals* n)
     : coords_( c )
     , normals_( n )
@@ -399,20 +399,20 @@ CoinFloatVertexAttribList::CoinFloatVertexAttribList(Coordinates& c, Normals* n)
     if ( normals_ ) normals_->ref();
 }
 
-    
+
 CoinFloatVertexAttribList::~CoinFloatVertexAttribList()
 {
     coords_.unRef();
     if ( normals_ ) normals_->unRef();
 }
-    
+
 
 int CoinFloatVertexAttribList::size() const
 {
     return coords_.size();
 }
-    
-    
+
+
 bool CoinFloatVertexAttribList::setSize(int sz,bool cpdata)
 {
     if ( sz>size() )
@@ -424,18 +424,18 @@ bool CoinFloatVertexAttribList::setSize(int sz,bool cpdata)
     {
 	coords_.removeAfter( sz-1 );
     }
-    
+
     return true;
 }
 
-    
+
  void	CoinFloatVertexAttribList::setCoord(int idx,const float* pos)
 {
     const Coord3 coord( pos[0], pos[1], pos[2] );
     coords_.setPos( idx, coord );
 }
-    
-    
+
+
 void	CoinFloatVertexAttribList::getCoord( int idx, float* res ) const
 {
     const Coord3 coord = coords_.getPos( idx );
@@ -444,29 +444,29 @@ void	CoinFloatVertexAttribList::getCoord( int idx, float* res ) const
     res[2] = (float) coord.z;
 }
 
-    
+
 void CoinFloatVertexAttribList::setNormal( int idx, const float* pos )
 {
     if ( !normals_ )
 	return;
-    
+
     const Coord3 coord( pos[0], pos[1], pos[2] );
     normals_->setNormal( idx, coord );
 }
-    
-    
+
+
 void	CoinFloatVertexAttribList::getNormal( int idx, float* res ) const
 {
     if ( !normals_ )
 	return;
-    
+
     const Coord3 coord = normals_->getNormal( idx );
     res[0] = (float) coord.x;
     res[1] = (float) coord.y;
     res[2] = (float) coord.z;
 }
 
-    
+
 void CoinFloatVertexAttribList::setTCoord(int,const float*)
 {}
 
@@ -474,7 +474,7 @@ void CoinFloatVertexAttribList::setTCoord(int,const float*)
 void CoinFloatVertexAttribList::getTCoord(int,float*) const
 {}
 
-	
+
 
 CoordListAdapter::CoordListAdapter( Coordinates& c )
     : coords_( c )
@@ -487,7 +487,7 @@ CoordListAdapter::~CoordListAdapter()
 {
     coords_.unRef();
 }
-    
+
 
 int CoordListAdapter::nextID( int previd ) const
 { return coords_.nextID( previd ); }

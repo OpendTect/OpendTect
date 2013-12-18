@@ -11,6 +11,7 @@ if ( NOT DEFINED WIN32 )
 endif()
 set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
+	    batchjobdispatch.cc
 	    beachballdata.cc
 	    bidvsetarrayadapter.cc
 	    conn.cc

@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "sorting.h"
-#include "task.h"
 #include "thread.h"
+#include "paralleltask.h"
 #include "valseries.h"
 
 /*!
@@ -41,6 +41,7 @@ public:
     bool		doPrepare(int nrthreads);
 
 protected:
+
     void		computeEnergyMute();
     bool		doWork(od_int64,od_int64,int);
     int			minThreadSize() const { return 200; }
@@ -56,6 +57,7 @@ protected:
 
     int				threadsinenergycalc_;
     Threads::ConditionVar*	lock_;
+
 };
 
 

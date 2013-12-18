@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "general.h"
 #include "ptrman.h"
-#include "task.h"
 #include "thread.h"
+#include "paralleltask.h"
 
 
 #define mDoSort(extra_var,extra_action,sztype) \

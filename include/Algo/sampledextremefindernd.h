@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "dataclipper.h"
 #include "thread.h"
+#include "paralleltask.h"
 
 /*!
 \brief Finds all local maximas/minimas in an ArrayND.

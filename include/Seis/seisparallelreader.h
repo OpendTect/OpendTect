@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "fixedstring.h"
 #include "sets.h"
-#include "task.h"
+#include "paralleltask.h"
 
 class BinIDValueSet;
 class CubeSampling;

@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "emposid.h"
 #include "enums.h"
 #include "horsampling.h"

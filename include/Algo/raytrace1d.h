@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
 #include "survinfo.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "velocitycalc.h"
 
 template <class T> class Array2DImpl;

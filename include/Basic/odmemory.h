@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 */
 
-#include "task.h"
+#include "paralleltask.h"
 
 template <class T> class ValueSeries;
 

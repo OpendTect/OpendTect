@@ -13,10 +13,10 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
-#include "task.h"
 #include "thread.h"
 #include "ranges.h"
 #include "coord.h"
+#include "paralleltask.h"
 
 
 /*!
@@ -35,8 +35,8 @@ protected:
     od_int64		nrIterations() const { return sz_; }
     bool		doWork( od_int64, od_int64, int );
     virtual float	getMaxSqDistToLine(int& idx, int start,
-	    				   int stop ) const		= 0;
-    			/*!<Give the index of the point that is furthest from
+					   int stop ) const		= 0;
+			/*!<Give the index of the point that is furthest from
 			    the line from start to stop.
 			    \returns the squre of the largest distance */
     void		findInSegment( int, int );
@@ -49,7 +49,7 @@ protected:
     bool			finished_;
     int				nrwaiting_;
     int				nrthreads_;
-    
+
 
     int				sz_;
     const float			epssq_;
@@ -63,8 +63,8 @@ protected:
 mExpClass(Algo) BendPointFinder2D : public BendPointFinderBase
 {
 public:
-    		BendPointFinder2D(const TypeSet<Coord>&, float eps);
-    		BendPointFinder2D(const Coord*, int size, float eps);
+		BendPointFinder2D(const TypeSet<Coord>&, float eps);
+		BendPointFinder2D(const Coord*, int size, float eps);
 protected:
     float	getMaxSqDistToLine(int& idx, int start, int stop ) const;
 
@@ -79,7 +79,7 @@ protected:
 mExpClass(Algo) BendPointFinder3D : public BendPointFinderBase
 {
 public:
-    		BendPointFinder3D(const TypeSet<Coord3>&,
+		BendPointFinder3D(const TypeSet<Coord3>&,
 				  const Coord3& scale, float eps);
 protected:
     float	getMaxSqDistToLine(int& idx, int start, int stop ) const;

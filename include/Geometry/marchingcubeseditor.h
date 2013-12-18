@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "coord.h"
 
 class MarchingCubesSurface;
@@ -29,7 +29,7 @@ The modification of the implicit representation is guided by:
 
 NewImplicitShape = OriginalShape + Kernel * factor
 
-The Kernel is a scalar field (values between 0 and 255) represents the shape of 
+The Kernel is a scalar field (values between 0 and 255) represents the shape of
 the movement, and the factor is set by from the outside.
 
 */
@@ -38,28 +38,28 @@ the movement, and the factor is set by from the outside.
 mExpClass(Geometry) MarchingCubesSurfaceEditor : public ParallelTask
 {
 public:
-    			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
+			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
     virtual		~MarchingCubesSurfaceEditor();
 
     bool		setKernel(const Array3D<unsigned char>&,
-	    			  int xpos, int ypos, int zpos );
-    			//!<Kernel becomes mine
+				  int xpos, int ypos, int zpos );
+			//!<Kernel becomes mine
 
     bool		setFactor(int); //!<a value of 255 is one voxel if
-    					//!<the kernel is 255
+					//!<the kernel is 255
     int			getFactor() const { return factor_; }
 
     const Coord3&	getCenterNormal() const;
 
     virtual bool	affectedVolume(Interval<int>& xrg,
-	    			       Interval<int>& yrg,
+				       Interval<int>& yrg,
 				       Interval<int>& zrg) const;
 
     Notifier<MarchingCubesSurfaceEditor>	shapeChange;
-    
+
 protected:
     void			reportShapeChange(bool kernelchange);
-    				/*!<Should be called by inheriting class
+				/*!<Should be called by inheriting class
 				    if it has changed kernel size or
 				    kernel position. */
 

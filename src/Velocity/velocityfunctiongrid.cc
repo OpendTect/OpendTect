@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
-#include "task.h"
+#include "paralleltask.h"
 
 namespace Vel
 {
@@ -67,7 +67,7 @@ bool GriddedFunction::fetchSources()
     if ( !velfuncs.size() ) //no perfect fit
     {
 	const Coord workpos = SI().transform( bid_ );
-	if ( gridder_ && (!gridder_->setGridPoint( workpos ) || 
+	if ( gridder_ && (!gridder_->setGridPoint( workpos ) ||
 	     !gridder_->init()) )
 	    return false;
 
@@ -131,7 +131,7 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 
     if ( ng.getPoints() )
     {
-	//Hack to hope for a better randomization 
+	//Hack to hope for a better randomization
 	for ( int idx=0; idx<3; idx++ )
 	{
 	    if ( gridder_->setPoints( *ng.getPoints() ) )
@@ -146,8 +146,8 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 
 
 ConstRefMan<Function>
-GriddedFunction::getInputFunction( const BinID& bid, int& funcsource ) 
-{ 
+GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
+{
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
@@ -427,7 +427,7 @@ bool GriddedSource::initGridder()
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
 	if ( func->getGridder() )
 	{
-	    //Hack to hope for a better randomization 
+	    //Hack to hope for a better randomization
             for ( int idy=0; idy<3; idy++ )
 	    {
 		if ( func->getGridder()->setPoints( gridsourcecoords_ ) )
@@ -548,7 +548,7 @@ GriddedFunction* GriddedSource::createFunction( const BinID& binid )
 	delete res;
 	return 0;
     }
-    
+
     return res;
 }
 

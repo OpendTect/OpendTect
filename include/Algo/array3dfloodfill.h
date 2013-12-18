@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "arrayndimpl.h"
 #include "multidimstorage.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "thread.h"
 #include "varlenarray.h"
 

@@ -14,18 +14,18 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "math2.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "statruncalc.h"
 
 namespace Stats
 {
 
 /*!
-\brief Stats computation running in parallel. 
-  
-  The difference with the running values (Stats::RunCalc) is that you have to 
-  pass the entire data array prior to the execution. 
-  
+\brief Stats computation running in parallel.
+
+  The difference with the running values (Stats::RunCalc) is that you have to
+  pass the entire data array prior to the execution.
+
   It also works with optional weights.
 */
 
@@ -33,25 +33,25 @@ template <class T>
 mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
 {
 public:
-				ParallelCalc(const CalcSetup& s,const T* data, 
+				ParallelCalc(const CalcSetup& s,const T* data,
 					     int sz,const T* weights = 0)
 				    : BaseCalc<T>(s){setValues(data,sz,weights);}
 
 				ParallelCalc( const CalcSetup& s )
 				    : BaseCalc<T>(s) { setValues(0,0,0); }
 
-    inline void 		setValues(const T* inp,int sz,const T* wght=0);
+    inline void		setValues(const T* inp,int sz,const T* wght=0);
 
     const char*                 errMsg() const
 				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
-    virtual inline double 	variance() const;
+    virtual inline double	variance() const;
 
     using BaseCalc<T>::medvals_;
 
 protected:
 
-    od_int64 			nrIterations() const    { return nradded_;}
+    od_int64			nrIterations() const    { return nradded_;}
 
     inline bool                 doPrepare(int);
     inline bool                 doWork(od_int64,od_int64,int);
@@ -61,7 +61,7 @@ protected:
 
     mutable Threads::Barrier    barrier_;
 
-    const T* 			data_;
+    const T*			data_;
     const T*                    weights_;
 
     T                           meanval_;
@@ -89,7 +89,7 @@ protected:
 
 
 template <class T>
-inline void ParallelCalc<T>::setValues( const T* data, int sz, const T* wght ) 
+inline void ParallelCalc<T>::setValues( const T* data, int sz, const T* wght )
 {
     this->clear();
     nradded_ = sz;
@@ -98,7 +98,7 @@ inline void ParallelCalc<T>::setValues( const T* data, int sz, const T* wght )
 }
 
 
-template <class T> 
+template <class T>
 inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
@@ -114,7 +114,7 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 }
 
 
-template <class T> 
+template <class T>
 inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 {
     T sum_w = 0;
@@ -144,7 +144,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	idx ++;
 
 	if ( mIsUdf( val ) )
-	    continue; 
+	    continue;
 
 	sum_x += val;
 	sum_xx += val*val;
@@ -261,7 +261,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 }
 
 
-template <class T> 
+template <class T>
 inline bool ParallelCalc<T>::doFinish( bool success )
 {
     if ( !success )
@@ -304,7 +304,7 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 }
 
 
-template <class T> 
+template <class T>
 inline double ParallelCalc<T>::variance() const
 {
     return setup_.weighted_ ? variance_w_ : variance_ ;

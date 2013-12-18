@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "odcomplex.h"
 #include "arraynd.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "rowcol.h"
 
 #if defined(__msvc__) && (defined(ALGO_EXPORTS) || defined(Algo_EXPORTS))
@@ -48,7 +48,7 @@ public:
     void			setCorrelate( bool yn )	{ correlate_ = yn; }
 				/*!<If true, the convolution will be replaced
 				    by a correllation. */
-    od_int64             	nrIterations() const;
+    od_int64	nrIterations() const;
 
 protected:
     bool		doWork(od_int64,od_int64,int);
@@ -92,7 +92,7 @@ template <> inline
 od_int64 Convolver2D<float>::nrIterations() const
 {
     return shouldFFT()
-        ? 1 
+        ? 1
         : z_->info().getTotalSz();
 }
 
@@ -177,8 +177,8 @@ template <class T> inline
 od_int64 Convolver2D<T>::nrIterations() const
 {
     return shouldFFT()
-	? 1 
-	: z_->info().getTotalSz(); 
+	? 1
+	: z_->info().getTotalSz();
 }
 
 

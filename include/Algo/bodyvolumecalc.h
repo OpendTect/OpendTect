@@ -14,8 +14,7 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "task.h"
-#include "threadlock.h"
+#include "paralleltask.h"
 
 class CubeSampling;
 template <class T> class Array3D;
@@ -28,10 +27,10 @@ template <class T> class Array3D;
 mExpClass(Algo) BodyVolumeCalculator: public ParallelTask
 {
 public:
-    			BodyVolumeCalculator(const CubeSampling& cs,
+			BodyVolumeCalculator(const CubeSampling& cs,
 					     const Array3D<float>& arr,
-   					     float threshold,
-   					     float velocityinmeter);
+					     float threshold,
+					     float velocityinmeter);
     float		getVolume() const	{ return volsum_; }
 			//unit in meter^3
 

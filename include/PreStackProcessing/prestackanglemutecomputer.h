@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 #include "prestackprocessingmod.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "ranges.h"
 #include "horsampling.h"
 #include "prestackanglemute.h"
@@ -34,23 +34,23 @@ class MuteDef;
 */
 
 mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask
-    						, public AngleMuteBase
+						, public AngleMuteBase
 {
 public:
-    				AngleMuteComputer();
+				AngleMuteComputer();
 				~AngleMuteComputer();
 
     mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
     {
 	MultiID			outputmutemid_;
-	HorSampling 		hrg_;
+	HorSampling		hrg_;
     };
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
-    void                	fillPar(IOPar&) const;
-    bool                	usePar(const IOPar&);
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 
-    od_int64			nrIterations() const; 
+    od_int64			nrIterations() const;
     bool			doPrepare(int);
     bool			doWork(od_int64 start, od_int64 stop,int);
     bool			doFinish(bool success);
@@ -58,8 +58,8 @@ public:
     const char*                 message() const { return "Computing mutes..."; }
     const char*			errMsg() const;
 
-    AngleMuteCompPars&  	params();
-    const AngleMuteCompPars&  	params() const;
+    AngleMuteCompPars&	params();
+    const AngleMuteCompPars&	params() const;
 
 protected:
 

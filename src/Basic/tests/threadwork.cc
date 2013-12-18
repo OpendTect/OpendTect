@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
 #include "thread.h"
+#include "atomic.h"
 #include "testprog.h"
 #include "math2.h"
 

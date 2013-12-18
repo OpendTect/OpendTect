@@ -14,7 +14,7 @@ ________________________________________________________________________
 */
 
 #include "arraynd.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "math2.h"
 
 /*!
@@ -28,18 +28,18 @@ public:
     inline		Convolver3D();
 
     inline void		setX(const Array3D<T>&,
-	    		     int first0=0,int first1=0, int first2=0);
+			     int first0=0,int first1=0, int first2=0);
     inline void		setY(const Array3D<T>&,
-	    		     int first0=0,int first1=0, int first2=0);
+			     int first0=0,int first1=0, int first2=0);
     inline void		setZ(Array3D<T>& z )		{ z_ = &z; }
     void		setNormalize( bool n )		{ normalize_ = n; }
-    			/*!<If true, the sum will be divided by
+			/*!<If true, the sum will be divided by
 			    the sum of Y.*/
     void		setCorrelate( bool yn )		{ correlate_ = yn; }
-    			/*!<If true, the convolution will be replaced by a
+			/*!<If true, the convolution will be replaced by a
 			   correllation. */
     void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
-    			//!<Default is false
+			//!<Default is false
 
     virtual bool	executeParallel(bool);
 
@@ -96,7 +96,7 @@ void Convolver3D<T>::setX( const Array3D<T>& x,
 
 template <class T> inline
 void Convolver3D<T>::setY( const Array3D<T>& y, int first0, int first1,
-       			   int first2 )
+			   int first2 )
 {
     y_ = &y;
     yshift0_ = first0;
@@ -246,7 +246,7 @@ bool Convolver3D<T>::doFFT()
     //TODO
     return false;
 }
-	
+
 
 template <class T> inline
 bool Convolver3D<T>::shouldFFT() const

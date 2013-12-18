@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "cubesampling.h"
 
 class TaskRunner;
@@ -29,7 +29,7 @@ third is z.
 mExpClass(Algo) ZAxisTransformer : public ParallelTask
 {
 public:
-    			ZAxisTransformer(ZAxisTransform&,bool forward = true);
+			ZAxisTransformer(ZAxisTransform&,bool forward = true);
 			~ZAxisTransformer();
     void		setInterpolate(bool yn);
     bool		getInterpolate() const;
@@ -37,7 +37,7 @@ public:
     void		setOutputRange(const CubeSampling&);
     const CubeSampling&	getOutputRange() const	{ return outputcs_; }
     Array3D<float>*	getOutput(bool transfer);
-    			/*!<\param transfer specifies whether the caller will
+			/*!<\param transfer specifies whether the caller will
 			                    take over the array.  */
     bool		loadTransformData(TaskRunner* =0);
 

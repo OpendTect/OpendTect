@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
+#include "paralleltask.h"
 
 namespace VolProc
 {
@@ -27,7 +28,7 @@ class VelGriddingStepTask;
 class VelGriddingFromFuncTask : public ParallelTask
 {
 public:
-    			VelGriddingFromFuncTask( VelGriddingStepTask& );
+			VelGriddingFromFuncTask( VelGriddingStepTask& );
 			~VelGriddingFromFuncTask();
 
     bool		isOK() const;
@@ -51,7 +52,7 @@ protected:
 class VelGriddingFromVolumeTask : public ParallelTask
 {
 public:
-    			VelGriddingFromVolumeTask( VelGriddingStepTask& );
+			VelGriddingFromVolumeTask( VelGriddingStepTask& );
 			~VelGriddingFromVolumeTask();
 
     od_int64		nrIterations() const;
@@ -73,12 +74,12 @@ protected:
 class VelGriddingStepTask : public SequentialTask
 {
 public:
-    				VelGriddingStepTask(VelGriddingStep&);
+				VelGriddingStepTask(VelGriddingStep&);
     int				nextStep();
 
     BinID			getNextBid();
     bool			report1Done();
-    				//!<Returns false if process should continue
+				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
     const char*			nrDoneText() const    { return "CDPs gridded"; }
@@ -88,7 +89,7 @@ public:
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
     const TypeSet<BinIDValueSet::SPos>& definedPos() const
-    							{ return definedpos_;}
+							{ return definedpos_;}
 
 protected:
     int				nrdone_;
@@ -567,7 +568,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	{
 	    errmsg_ = "Cannot create a velocity source of type ";
 	    errmsg_.add( sourcetype.buf() ).add( ". " )
-	    	   .add( Vel::FunctionSource::factory().errMsg() );
+		   .add( Vel::FunctionSource::factory().errMsg() );
 	    return false;
 	}
 
@@ -596,7 +597,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	gridder = Gridder2D::factory().create( nm.buf() );
 	if ( !gridder )
 	    return false;
-	
+
 	if ( !gridder->usePar( *velgridpar ) )
 	{
 	    delete gridder;

@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "task.h"
+#include "paralleltask.h"
 
 #include "threadwork.h"
 #include "thread.h"
@@ -214,7 +214,7 @@ int SequentialTask::doStep()
     if ( progressmeter_ )
     {
 	mUpdateProgressMeter;
-	
+
 	if ( res<1 )
 	    progressmeter_->setFinished();
     }
@@ -242,12 +242,12 @@ bool SequentialTask::execute()
 class ParallelTaskRunner : public CallBacker
 {
 public:
-    		ParallelTaskRunner()
+		ParallelTaskRunner()
 		    : task_( 0 )					{}
 
     void	set( ParallelTask* task, od_int64 start, od_int64 stop,
-	    	     int threadidx )
-    		{
+		     int threadidx )
+		{
 		    task_ = task;
 		    start_ = start;
 		    stop_ = stop;
@@ -394,7 +394,7 @@ bool ParallelTask::executeParallel( bool parallel )
 	const od_int64 stop = start + threadsize-1;
 	runners[nrtasks].set( this, start, stop, idx );
 	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
-	
+
 	nrtasks++;
 	start = stop+1;
     }
@@ -424,7 +424,7 @@ int ParallelTask::maxNrThreads() const
     const od_int64 res = nrIterations();
     if ( res>INT_MAX )
         return INT_MAX;
-    
+
     return (int) res;
 }
 
@@ -435,7 +435,7 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
     if ( nrthreads==1 ) return totalnr;
 
     const od_int64 idealnrperthread =
-    	mNINT64((float) (totalnr/(od_int64) nrthreads));
+	mNINT64((float) (totalnr/(od_int64) nrthreads));
     const od_int64 nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;
@@ -461,7 +461,7 @@ bool TaskRunner::execute( TaskRunner* tr, Task& task )
 {
     if ( tr )
 	return tr->execute( task );
-    
+
     return task.execute();
 }
 

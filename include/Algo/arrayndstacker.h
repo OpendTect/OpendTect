@@ -3,19 +3,19 @@
 
 /*+
 
-________________________________________________________________________ 
+________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
   Author:        Arnaud Huck
   Date:		 Nov 2013
-  RCS:		 $Id: 
-________________________________________________________________________ 
- 
+  RCS:		 $Id:
+________________________________________________________________________
+
 -*/
 
 #include "algomod.h"
 #include "arraynd.h"
-#include "task.h"
+#include "paralleltask.h"
 
 /*!
 \brief Gently stacks ArrayND by summation along the secondary axis

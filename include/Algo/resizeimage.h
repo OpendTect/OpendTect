@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "task.h"
+#include "paralleltask.h"
 
 namespace OD { class RGBImage; };
 
@@ -30,6 +30,7 @@ public:
     void	setLanczosSize(int);	//default is 2;
 
 protected:
+
     od_int64			nrIterations() const;
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
@@ -40,12 +41,12 @@ protected:
     const OD::RGBImage&		input_;
     const unsigned char*	inputimage_;
     bool			inputowner_;
-    int 			inputsize_[2];
+    int			inputsize_[2];
 
     OD::RGBImage&		output_;
     unsigned char*		outputimage_;
     bool			outputowner_;
-    int 			outputsize_[2];
+    int			outputsize_[2];
 
     double			support0_;
     double			support1_;
@@ -55,5 +56,6 @@ protected:
     double			factor1_;
     char			nrcomponents_;
 };
+
 
 #endif

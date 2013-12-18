@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "visosg.h"
 #include "iopar.h"
-#include "task.h"
+#include "paralleltask.h"
 
 #include <osg/Material>
 #include <osg/Array>
@@ -495,8 +495,8 @@ void Material::fillPar( IOPar& iopar ) const
     iopar.set( sKeyShininess(), getShininess() );
     iopar.set( sKeyTransparency(), getTransparency() );
 }
-    
-    
+
+
 void Material::createOsgColorArray( int size )
 {
     if ( osgcolorarray_ )

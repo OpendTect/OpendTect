@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "task.h"
+#include "paralleltask.h"
 
 namespace Threads { class Mutex; }
 
@@ -50,7 +50,7 @@ public:
 
 protected:
     bool			doWork(od_int64 start,od_int64 stop,
-	    			       int threadid);
+				       int threadid);
     od_int64			nrIterations() const;
 
     unsigned char*		indexcache_;

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "transform.h"
-
+#include "paralleltask.h"
 #include "factory.h"
 
 
@@ -35,17 +35,17 @@ public:
 
     static CC*		createDefault();
 
-    			CC();
-    void		setNormalization(bool yn); 
+			CC();
+    void		setNormalization(bool yn);
     static float	getNyqvist(float samplespacing);
     static float	getDf(float samplespacing,int nrsamples);
     static void		getFrequencies(float samplespacing,int nrsamples,
-	    			       TypeSet<float>&);
+				       TypeSet<float>&);
     bool		isFast(int sz) const;
     virtual int		getFastSize(int sz) const;
 			/*!<Returns a size that is equal or larger than sz */
-    
-    
+
+
     static void pfarc(int isign,int n,const float* rz,float_complex* cz);
     static void pfacr(int isign,int n,const float_complex*,float* rz);
     static int npfaro(int nmin, int nmax);
@@ -53,7 +53,7 @@ public:
 
 protected:
     static void pfacc(char dir,int sz,int step,float_complex* signal);
-    /*!<Prime number size FFT where the signal has a sampling not equal to 1, 
+    /*!<Prime number size FFT where the signal has a sampling not equal to 1,
       i.e. every Nth value should be used.
       \param dir 1 for forward, -1 for backwards
       \param sz Length of signal
@@ -89,7 +89,7 @@ protected:
 
     protected:
 
-	bool            	dopfa_;
+	bool	dopfa_;
 	char			direction_;
 	int			higheststart_;
 	bool			normalize_;
@@ -106,17 +106,17 @@ protected:
 mExpClass(Algo) FFTCC1D
 {
 public:
-    			FFTCC1D();
+			FFTCC1D();
 			FFTCC1D(const FFTCC1D&);
 			//!<Not implemented, just here to make linker complain
 
-    			~FFTCC1D()			{ cleanUp(); }
-    bool		setSize(int); 
-    			//!<the size of fft to be calculated
+			~FFTCC1D()			{ cleanUp(); }
+    bool		setSize(int);
+			//!<the size of fft to be calculated
     void		setSample(int smp)		{ sample_ = smp; }
-    			//!<step of the data from input	
+			//!<step of the data from input
     void		setDir(bool forward)		{ forward_ = forward; }
-    void		setNormalization(bool yn)	{ normalize_ = yn; } 
+    void		setNormalization(bool yn)	{ normalize_ = yn; }
     bool		run(float_complex* data);
 
     static int		getFastSize(int sz);
@@ -126,7 +126,7 @@ protected:
     void		cleanUp();
     bool		getSizeFactors();
     bool		doFactor2() const;
-    			//!<ret true means the whole FFT is over
+			//!<ret true means the whole FFT is over
     bool		doFactor4() const;
     void		doFactor3() const;
     void		doFactor5() const;

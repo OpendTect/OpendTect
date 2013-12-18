@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "position.h"
 #include "sets.h"
-#include "task.h"
+#include "paralleltask.h"
 
 
 namespace PreStack
@@ -48,20 +48,20 @@ public:
     virtual bool		setOutputInterest(const BinID& relbid,bool);
     bool			getOutputInterest(const BinID& relbid) const;
     DataPack::ID		getOutput(const BinID& relbid) const;
-    
+
     virtual bool		prepareWork();
     virtual const char*		errMsg() const { return 0; }
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
     virtual bool		doWork(od_int64 start,od_int64 stop,int)= 0;
-    				/*!<If nrIterations is not overridden, start and
+				/*!<If nrIterations is not overridden, start and
 				    stop will refer to offsets that should
 				    be processed. */
 
     int				nrOffsets() const;
     virtual od_int64		nrIterations() const { return nrOffsets(); }
-    				/*!<If algorithms cannot be done in parallel
+				/*!<If algorithms cannot be done in parallel
 				    with regards to offsets, override function
 				    and return 1. doWork() will then be called
 				    with start=stop=0 and you can do whatever
@@ -72,10 +72,10 @@ public:
     virtual			~Processor();
 
 protected:
-    				Processor( const char* nm );
+				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
     static int			getRelBidOffset(const BinID& relbid,
-	    					const BinID& stepout);
+						const BinID& stepout);
     static void			freeArray(ObjectSet<Gather>&);
 
     BinID			outputstepout_;
@@ -133,9 +133,9 @@ protected:
 mExpClass(PreStackProcessing) ProcessManager : public CallBacker
 {
 public:
-    				ProcessManager();
-    				~ProcessManager();
-				
+				ProcessManager();
+				~ProcessManager();
+
 				//Setup
     int				nrProcessors() const;
     Processor*			getProcessor(int);
@@ -153,14 +153,14 @@ public:
 
 				//Runtime
     bool			reset();
-    				//!<Call when you are about to process new data
+				//!<Call when you are about to process new data
     bool			prepareWork();
     BinID			getInputStepout() const;
-    				//!<Only after prepareWork
+				//!<Only after prepareWork
     virtual bool		wantsInput(const BinID& relbid) const;
-    				//!<Only after prepareWork
+				//!<Only after prepareWork
     void			setInput(const BinID& relbid,DataPack::ID);
-    				//!<Only after prepareWork
+				//!<Only after prepareWork
 
     bool			process();
 

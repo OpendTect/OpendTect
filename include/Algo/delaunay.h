@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "coord.h"
 #include "odmemory.h"
 #include "typeset.h"
-#include "task.h"
 #include "thread.h"
 #include "trigonometry.h"
 class od_ostream;
@@ -27,7 +26,7 @@ class od_ostream;
 \brief Reference: "Parallel Incremental Delaunay Triangulation",
 by Kohout J.2005.
 
-   For the triangulation, it will skip undefined or duplicated points, all the 
+   For the triangulation, it will skip undefined or duplicated points, all the
    points should be in random order. We use Kohout's pessimistic method to
    triangulate. The problem is that the pessimistic method only give a 10% speed
    increase, while the locks slows it down. The parallel code is thus
@@ -37,20 +36,20 @@ by Kohout J.2005.
 mExpClass(Algo) DAGTriangleTree
 {
 public:
-    			DAGTriangleTree();
-    			DAGTriangleTree(const DAGTriangleTree&);
+			DAGTriangleTree();
+			DAGTriangleTree(const DAGTriangleTree&);
     virtual		~DAGTriangleTree();
     DAGTriangleTree&	operator=(const DAGTriangleTree&);
 
     static bool		computeCoordRanges(const TypeSet<Coord>&,
-	    		    Interval<double>&,Interval<double>&);
+			    Interval<double>&,Interval<double>&);
 
     bool		setCoordList(const TypeSet<Coord>* OD);
     bool		setCoordList(TypeSet<Coord>*,OD::PtrPolicy);
     const TypeSet<Coord>& coordList() const { return *coordlist_; }
 
     bool		setBBox(const Interval<double>& xrg,
-	    			const Interval<double>& yrg);
+				const Interval<double>& yrg);
 
     bool		isOK() const { return triangles_.size(); }
 
@@ -58,30 +57,30 @@ public:
 
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord&, int& dupid);
-    
+
     const Coord		getInitCoord(int vetexidx) const;
     bool		getTriangle(const Coord&,int& dupid,
-	    			    TypeSet<int>& vertexindices) const;
-    			/*!<search triangle contains the point.return crds. */
+				    TypeSet<int>& vertexindices) const;
+			/*!<search triangle contains the point.return crds. */
     bool		getCoordIndices(TypeSet<int>&) const;
-    			/*!<Coord indices are sorted in threes, i.e
+			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
     bool		getSurroundingIndices(TypeSet<int>&) const;
-    			/*!Points on the edge of the geometry shape. */
+			/*!Points on the edge of the geometry shape. */
 
     bool		getConnections(int pointidx,TypeSet<int>&) const;
     bool		getWeights(int pointidx,const TypeSet<int>& conns,
 				   TypeSet<double>& weights,
 				   bool normailze=true) const;
-    			/*!Calculate inverse distance weight for each conns.*/
+			/*!Calculate inverse distance weight for each conns.*/
     bool		getConnectionAndWeights(int ptidx,TypeSet<int>& conns,
-	    				     TypeSet<double>& weights,
+					     TypeSet<double>& weights,
 					     bool normailze=true) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
     void		dumpTo(od_ostream&) const;
-    			//!<Dumps all triangles to stream;
+			//!<Dumps all triangles to stream;
     void		dumpTriangulationToIV(od_ostream&) const;
 
 
@@ -100,14 +99,14 @@ protected:
     static int		cInitVertex2()	{ return -4; }
 
     char	searchTriangle(const Coord& pt,int start,int& t0,
-	    		       int& dupid) const;
+			       int& dupid) const;
     char	searchFurther(const Coord& pt,int& nti0,int& dupid) const;
 
     void	splitTriangleInside(int ci,int ti);
-    		/*!ci is assumed to be inside the triangle ti. */
+		/*!ci is assumed to be inside the triangle ti. */
     void	legalizeTriangles(TypeSet<char>& v0s,TypeSet<char>& v1s,
 			TypeSet<int>& tis);
-    		/*!Check neighbor triangle of the edge v0-v1 in ti, 
+		/*!Check neighbor triangle of the edge v0-v1 in ti,
 		   where v0, v1 are local vetex indices 0, 1, 2. */
 
     int		getNeighbor(int v0,int v1,int ti) const;
@@ -139,8 +138,8 @@ protected:
 
     mutable Threads::ReadWriteLock	coordlock_;
 
-    Coord				initialcoords_[3]; 
-    					/*!<-2,-3,-4 are their indices.*/
+    Coord				initialcoords_[3];
+					/*!<-2,-3,-4 are their indices.*/
 };
 
 
@@ -153,7 +152,7 @@ mExpClass(Algo) DelaunayTriangulator : public ParallelTask
 public:
 			DelaunayTriangulator(DAGTriangleTree&);
 			~DelaunayTriangulator();
-	
+
     bool		isDataRandom()		{ return israndom_; }
     void		dataIsRandom(bool yn)	{ israndom_ = yn; }
     void		setCalcScope(const Interval<int>& rg);
@@ -188,21 +187,21 @@ then apply inverse distance to calculate weights.
 mExpClass(Algo) Triangle2DInterpolator
 {
 public:
-    			Triangle2DInterpolator(const DAGTriangleTree&);
+			Triangle2DInterpolator(const DAGTriangleTree&);
 
-			/*The vertices are indices from the DAGTriangleTree 
+			/*The vertices are indices from the DAGTriangleTree
 			  coordlist, corresponding to the weights.*/
     bool		computeWeights(const Coord&,TypeSet<int>& vertices,
-	    			       TypeSet<float>& weights,
+				       TypeSet<float>& weights,
 				       double maxdist=mUdf(double),
 				       bool dointerpolate=true);
-    			/*If don't do interpolate, nearest node will be taken.*/
+			/*If don't do interpolate, nearest node will be taken.*/
 
 protected:
 
     bool			setFromAzimuth(const TypeSet<int>& tmpvertices,
-	    				       const Coord&,
-					       TypeSet<int>& vertices, 
+					       const Coord&,
+					       TypeSet<int>& vertices,
 					       TypeSet<float>& weights);
     const DAGTriangleTree&	triangles_;
     TypeSet<int>		corner0_;
@@ -218,12 +217,12 @@ protected:
 };
 
 
-/*Simple polyon triangulation, does not work if you have holes inside it. 
+/*Simple polyon triangulation, does not work if you have holes inside it.
   return each triangle with three indicies in order. */
 inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
 {
     const int nrknots = knots.size();
-    if ( nrknots < 3 ) 
+    if ( nrknots < 3 )
       return false;
 
     /* Make sure it is a counter-clockwise polygon in ci */
@@ -235,48 +234,48 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
     TypeSet<int> ci;
     if ( 0<area )
     {
-    	for ( int idx=0; idx<nrknots; idx++ ) 
+	for ( int idx=0; idx<nrknots; idx++ )
 	    ci += idx;
     }
     else
     {
-    	for( int idx=0; idx<nrknots; idx++ ) 
+	for( int idx=0; idx<nrknots; idx++ )
 	    ci += (nrknots-1-idx);
     }
 
     /*Triangulate: three consecutive vertices (idx0,idx,idx1) in polygon,
       remove cursize-2 Vertices, creating 1 triangle every time */
     int cursize = nrknots;
-    int errcheck = 2*cursize; 
+    int errcheck = 2*cursize;
 
     for( int idx=cursize-1; cursize>2; )
     {
 	if ( 0 >= (errcheck--) )
-  	    return false;
+	    return false;
 
-	const int idx0 = cursize<=idx ? 0 : idx; 
+	const int idx0 = cursize<=idx ? 0 : idx;
 	idx = cursize<=idx0+1 ? 0 : idx0+1;
 	const int idx1 = cursize<=idx+1 ? 0 : idx+1;
 
 	const Coord& pos0 = knots[ci[idx0]];
-    	const Coord& pos = knots[ci[idx]];
-    	const Coord& pos1 = knots[ci[idx1]];
-    	if ( (((pos.x-pos0.x)*(pos1.y-pos0.y)) - 
-	      ((pos.y-pos0.y)*(pos1.x-pos0.x)))<0 ) 
-      	    continue;
+	const Coord& pos = knots[ci[idx]];
+	const Coord& pos1 = knots[ci[idx1]];
+	if ( (((pos.x-pos0.x)*(pos1.y-pos0.y)) -
+	      ((pos.y-pos0.y)*(pos1.x-pos0.x)))<0 )
+	    continue;
 
 	bool isvalid = true;
-    	for ( int idy=0; idy<cursize; idy++ )
-    	{
-	    if( (idy==idx0) || (idy==idx) || (idy==idx1) ) 
+	for ( int idy=0; idy<cursize; idy++ )
+	{
+	    if( (idy==idx0) || (idy==idx) || (idy==idx1) )
 		continue;
-	    
-	    if ( pointInTriangle2D(knots[ci[idy]],pos0,pos,pos1,0.0) ) 
+
+	    if ( pointInTriangle2D(knots[ci[idy]],pos0,pos,pos1,0.0) )
 	    {
 		isvalid = false;
 		break;
 	    }
-    	}
+	}
 
 	if ( isvalid )
 	{
@@ -285,9 +284,9 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
 	  res += ci[idx1];
 
 	  /* remove idx from remaining polygon */
-	  for( int i=idx, j=idx+1; j<cursize; i++, j++ ) 
-	      ci[i] = ci[j]; 
-	  
+	  for( int i=idx, j=idx+1; j<cursize; i++, j++ )
+	      ci[i] = ci[j];
+
 	  cursize--;
 	  errcheck = 2*cursize;
 	}

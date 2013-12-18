@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "odcomplex.h"
 #include "ranges.h"
-#include "task.h"
+#include "paralleltask.h"
 
 namespace Fourier { class CC; };
 
@@ -28,10 +28,10 @@ namespace Fourier { class CC; };
 mExpClass(Algo) FourierInterpolBase
 {
 public:
-    void                	setTargetDomain(bool fourier);
+    void	setTargetDomain(bool fourier);
 				/*!<Default is time-domain */
 protected:
-    				FourierInterpolBase(); 
+				FourierInterpolBase();
 				~FourierInterpolBase();
 
     Fourier::CC*                fft_;
@@ -42,19 +42,20 @@ protected:
 \brief Fourier interpolation for 1D datasets.
 */
 
-mExpClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol1D : public ParallelTask
+				  , public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct(Algo) Point
     {
-       				Point(float_complex v,float x)
-				    : val_(v), pos_(x) {}		    
+				Point(float_complex v,float x)
+				    : val_(v), pos_(x) {}
 
-	float_complex 		val_; 
-	float 			pos_; 
+	float_complex		val_;
+	float			pos_;
 
-	inline bool operator 	== (const Point& p) const 
+	inline bool operator	== (const Point& p) const
 						{ return pos_ == p.pos_; }
     };
 
@@ -63,8 +64,8 @@ public:
 
 				~FourierInterpol1D();
 
-    const Array1DImpl<float_complex>* getOutput() const 	
-    				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+    const Array1DImpl<float_complex>* getOutput() const
+				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
 
 protected:
     od_int64			nrIterations() const	{ return pts_.size(); }
@@ -86,19 +87,20 @@ protected:
 \brief Fourier interpolation for 2D datasets.
 */
 
-mExpClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol2D : public ParallelTask
+				  , public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct(Algo) Point
     {
-       				Point(float_complex v,float x,float y)
-				    : val_(v), xpos_(x) , ypos_(y) {}		    
+				Point(float_complex v,float x,float y)
+				    : val_(v), xpos_(x) , ypos_(y) {}
 
-	float_complex 		val_; 
-	float 			xpos_, ypos_; 
+	float_complex		val_;
+	float			xpos_, ypos_;
 
-	inline bool operator 	== (const Point& p) const 
+	inline bool operator	== (const Point& p) const
 				{ return xpos_ == p.xpos_ && ypos_ == p.ypos_; }
     };
 
@@ -108,8 +110,8 @@ public:
 
 				~FourierInterpol2D();
 
-    const Array2DImpl<float_complex>* getOutput() const 	
-    				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+    const Array2DImpl<float_complex>* getOutput() const
+				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
 
 protected:
     od_int64			nrIterations() const	{ return pts_.size(); }
@@ -131,23 +133,24 @@ protected:
 \brief Fourier interpolation for 3D datasets.
 */
 
-mExpClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase
+mExpClass(Algo) FourierInterpol3D : public ParallelTask
+				  , public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct(Algo) Point
     {
-       				Point(float_complex v,float x,float y,float z)
-				    : val_(v), xpos_(x) , ypos_(y) , zpos_(z) {}		    
+				Point(float_complex v,float x,float y,float z)
+				    : val_(v), xpos_(x) , ypos_(y) , zpos_(z) {}
 
-	float_complex 		val_; 
-	float 			xpos_, ypos_, zpos_; 
+	float_complex		val_;
+	float			xpos_, ypos_, zpos_;
 
-	inline bool operator 	== (const Point& p) const 
-				{ 
-				    return xpos_ == p.xpos_ 
-				      	&& ypos_ == p.ypos_ 
-				      	&& zpos_ == p.zpos_; 
+	inline bool operator	== (const Point& p) const
+				{
+				    return xpos_ == p.xpos_
+					&& ypos_ == p.ypos_
+					&& zpos_ == p.zpos_;
 				}
     };
 
@@ -158,8 +161,8 @@ public:
 
 				~FourierInterpol3D();
 
-    const Array3DImpl<float_complex>* getOutput() const 	
-    				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+    const Array3DImpl<float_complex>* getOutput() const
+				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
 
 protected:
     od_int64			nrIterations() const	{ return pts_.size(); }
@@ -176,6 +179,5 @@ protected:
     ObjectSet< Array3DImpl<float_complex> > arrs_;
 };
 
+
 #endif
-
-

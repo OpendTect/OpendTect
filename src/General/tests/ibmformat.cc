@@ -10,8 +10,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ibmformat.h"
 #include "testprog.h"
 #include "math2.h"
-#include "task.h"
 #include "limits.h"
+#include "paralleltask.h"
 
 
 bool testFloatIndex( int origin, float target )

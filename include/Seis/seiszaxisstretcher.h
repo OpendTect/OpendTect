@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "cubesampling.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "thread.h"
 
 class IOObj;
@@ -33,7 +33,7 @@ class ZAxisTransform;
 mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
 {
 public:
-    			SeisZAxisStretcher( const IOObj& in,
+			SeisZAxisStretcher( const IOObj& in,
 					     const IOObj& out,
 					     const CubeSampling& outcs,
 					     ZAxisTransform&,
@@ -76,7 +76,7 @@ protected:
     CubeSampling			outcs_;
     HorSampling				curhrg_;
     ZAxisTransform*			ztransform_;
-    int 				voiid_;
+    int				voiid_;
     bool				ist2d_;
     bool				is2d_;
     bool				stretchz_;

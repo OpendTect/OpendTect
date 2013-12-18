@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "executor.h"
+#include "paralleltask.h"
 #include "horsampling.h"
 #include "multiid.h"
 #include "positionlist.h"
@@ -61,18 +62,18 @@ public:
 
     bool		isCrossing(const BinID&,float,const BinID&,float) const;
     bool		getIntersection(const BinID&,float,const BinID&,float,
-	    				BinID&,float&,
+					BinID&,float&,
 					const StepInterval<int>* trcrg=0,
                                         bool snappositive=true) const;
     bool		getHorCrossings(const BinIDValueSet&,
-	    				Interval<float>& topzvals,
+					Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
     bool		getHorTerminalPos( const EM::Horizon& hor,
 					   BinID& pos1bid, float& pos1z,
 					   BinID& pos2bid, float& pos2z ) const;
     bool		getImage(const BinID& srcbid,float srcz,
-	    			 const Interval<float>& tophorzvals,
+				 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,
 				 const StepInterval<int>& trcrg,BinID& imgbid,
 				 float& imgz,bool forward) const;
@@ -84,22 +85,22 @@ public:
     bool                includes(const BinID&) const;
     bool		isOK() const;
     bool		isOnFault(const BinID&,float z,float threshold) const;
-    			// threshold dist in measured in BinID units
+			// threshold dist in measured in BinID units
 
-    enum Act		{ AllowCrossing=0, ForbidCrossing=1, 
+    enum Act		{ AllowCrossing=0, ForbidCrossing=1,
 			  ForbidCrossHigher=2, ForbidCrossLower=3 };
     static void		getAllActNames(BufferStringSet&);
     static const char*	sKeyFaultAct()	{ return "Fault Act"; }
 
 protected:
 
-    			~FaultTrace() {}
+			~FaultTrace() {}
 
     void		computeTraceSegments();
     Coord		getIntersection(const BinID&,float,
-	    				const BinID&,float) const;
+					const BinID&,float) const;
     bool		handleUntrimmed(const BinIDValueSet&,Interval<float>&,
-	    				const BinID&,const BinID&,bool) const;
+					const BinID&,const BinID&,bool) const;
 
     bool		isinl_;
     bool		editedoncrl_;
@@ -118,7 +119,7 @@ public:
 
 
 /*!
-\brief FaultTrace holder 
+\brief FaultTrace holder
 */
 
 mExpClass(EarthModel) FaultTrcHolder
@@ -142,13 +143,13 @@ public:
 
 
 /*!
-\brief FaultTrace extractor 
+\brief FaultTrace extractor
 */
 
 mExpClass(EarthModel) FaultTraceExtractor : public ParallelTask
 {
 public:
-    			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
+			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
     const char*		message() const;
@@ -171,7 +172,7 @@ protected:
 mExpClass(EarthModel) FaultTraceExtractor3D : public FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor3D(const EM::Fault&,FaultTrcHolder&);
+			FaultTraceExtractor3D(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor3D();
 
 protected:
@@ -188,7 +189,7 @@ protected:
 mExpClass(EarthModel) FaultTraceExtractor2D : public FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
+			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
 					      const PosInfo::Line2DKey&);
 			~FaultTraceExtractor2D();
 
@@ -215,7 +216,7 @@ public:
 			~FaultTrcDataProvider();
 
     bool		init(const TypeSet<MultiID>&,const HorSampling&,
-	    		     TaskRunner* tr=0);
+			     TaskRunner* tr=0);
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
@@ -227,7 +228,7 @@ public:
     const FaultTrace*	getFaultTrace(int,int,bool) const;
     const FaultTrace*	getFaultTrace2D(int fltidx,int stickidx) const;
     bool		isCrossingFault(const BinID& b1,float z1,
-	    				const BinID& b2,float z2) const;
+					const BinID& b2,float z2) const;
     bool		getFaultZVals(const BinID&,TypeSet<float>&) const;
     bool		isOnFault(const BinID&,float z,float threshold) const;
 

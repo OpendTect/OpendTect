@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "seissingtrcproc.h"
 #include "settings.h"
+#include "paralleltask.h"
 
 #include "uiclusterjobprov.h"
 #include "uilabel.h"

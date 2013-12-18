@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "smoother2d.h"
 #include "survinfo.h"
+#include "paralleltask.h"
 
 
 namespace VolProc

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trigonometry.h"
 #include "thread.h"
 #include "vistransform.h"
-#include "task.h"
+#include "paralleltask.h"
 
 #include <osg/Array>
 
@@ -87,7 +87,7 @@ Normals::~Normals()
 {
     delete &mutex_;
     if ( transformation_ ) transformation_->unRef();
-    
+
     osgnormals_->unref();
 }
 
@@ -194,7 +194,7 @@ void Normals::removeNormal(int idx)
 	pErrMsg("Invalid index");
 	return;
     }
-    
+
     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
 
     if ( idx==nrnormals-1 )

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "task.h"
+#include "paralleltask.h"
 #include "valseries.h"
 #include "genericnumer.h"
 #include "typeset.h"
@@ -29,16 +29,16 @@ mClass(Algo) Smoother1D : public ParallelTask
 {
 public:
 
-    				Smoother1D();
-    				Smoother1D(const Smoother1D&);
+				Smoother1D();
+				Smoother1D(const Smoother1D&);
 
     bool			operator==(const Smoother1D<T>&) const;
 
     void			setInput(const T*,int sz);
     void			setOutput(T*);
-    				/*!Must be at least the size of input.*/
+				/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
-	    				  int lenght );
+					  int lenght );
     int				getWindowLength() const {return window_.size();}
     const char*			getWindowName() const{return windowname_.buf();}
     float			getWindowParam() const{return windowparam_;}

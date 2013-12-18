@@ -9,12 +9,12 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 -*/
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
 
 #include "threadwork.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "thread.h"
 #include "ranges.h"
 
@@ -33,10 +33,10 @@ namespace visBase
 
 class HorizonTileRenderPreparer: public ParallelTask
 {
-public: 
-    HorizonTileRenderPreparer( HorizonSection& hrsection, 
+public:
+    HorizonTileRenderPreparer( HorizonSection& hrsection,
 			       const osg::CullStack* cs, char res );
-    
+
     ~HorizonTileRenderPreparer()
     { delete [] permutation_; }
 
@@ -75,8 +75,8 @@ public:
 
 class HorizonSectionTilePosSetup: public ParallelTask
 {
-public:    
-    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
+public:
+    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles,
 	const Geometry::BinIDSurface& geo,
 	StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat,
 	int ssz, char lowresidx);
@@ -93,7 +93,7 @@ protected:
 
     int					nrcrdspertileside_;
     char				lowestresidx_;
-    ObjectSet<HorizonSectionTile> 	hrtiles_;
+    ObjectSet<HorizonSectionTile>	hrtiles_;
     const Geometry::BinIDSurface&	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;

@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "task.h"
+#include "paralleltask.h"
 
 #include "enums.h"
 #include "factory.h"
@@ -35,7 +35,7 @@ public:
 				mDefineFactoryInClass(Array2DInterpol,factory);
 
     enum FillType		{ HolesOnly, ConvexHull, Full };
-    				DeclareEnumUtils(FillType);
+				DeclareEnumUtils(FillType);
 
     void			setFillType(FillType);
     FillType			getFillType() const;
@@ -50,8 +50,8 @@ public:
     bool			isClassification() const;
 
     void			setMask(const Array2D<bool>*,
-	    				OD::PtrPolicy = OD::UsePtr );
-    				/*!<If mask is set, interpolation will only
+					OD::PtrPolicy = OD::UsePtr );
+				/*!<If mask is set, interpolation will only
 				    occur where mask has 'true' values. If array
 				    is larger than mask, values are assumed to
 				    be 'false' outside the mask.
@@ -63,7 +63,7 @@ public:
 
     virtual const char*		infoMsg() const		{ return 0; }
 
-    mExpClass(Algo) ArrayAccess 
+    mExpClass(Algo) ArrayAccess
     {
     public:
 	virtual			~ArrayAccess()				{}
@@ -76,10 +76,10 @@ public:
 
     virtual bool		nothingToFill() const	{ return false; }
     virtual bool		setArray(Array2D<float>&,TaskRunner* =0);
-    				//!<Set AFTER all settings 
+				//!<Set AFTER all settings
     virtual bool		canUseArrayAccess() const { return false; }
     virtual bool		setArray(ArrayAccess&,TaskRunner* =0);
-    				//!<Set AFTER all settings 
+				//!<Set AFTER all settings
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -90,22 +90,22 @@ protected:
 		Array2DInterpol();
     bool	doPrepare(int);
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
-	    		       TaskRunner*) const;
-    		/*!<Fills shouldinterpol with true or false depending on if a
+			       TaskRunner*) const;
+		/*!<Fills shouldinterpol with true or false depending on if a
 		    certain node should be interpolated or not, based on
 		    filltype and maxholesize. If isdef is zero, the information
 		    will be extracted from the grid. Both isdef and
 		    shouldinterpol arrays refers to positions on the grid by
 		    row=idx/nrcols_,col=idx%nrcols_ */
     bool	isDefined(int idx) const;
-    		/*!<idx refers to positions on the grid by
+		/*!<idx refers to positions on the grid by
 		    row=idx/nrcols_,col=idx%nrcols_ */
     virtual void setFrom(od_int64 target, const od_int64* sources,
 			const float* weights, int nrsrc);
-    		/*!<For convenience, inheriting obj may set arr_ directly. */
+		/*!<For convenience, inheriting obj may set arr_ directly. */
     void	floodFillArrFrom(int seed, const bool* isdef,
-	    			 bool* shouldinterpol) const;
-    		/*!<Floodfills 'false' into shouldinterpol from position seed.
+				 bool* shouldinterpol) const;
+		/*!<Floodfills 'false' into shouldinterpol from position seed.
 		    Floodfill will stop when bumping into defined values, as
 		    provided in isdef. */
     void	excludeBigHoles( const bool* isdef, bool* shouldinterpol )const;

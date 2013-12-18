@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 #include "velocitymod.h"
 #include "cubesampling.h"
-#include "task.h"
 #include "thread.h"
+#include "paralleltask.h"
 #include "veldesc.h"
 
 class IOObj;
