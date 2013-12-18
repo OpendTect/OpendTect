@@ -251,7 +251,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    float real = redata_->series(realidx_) ?
 			    getInputValue( *redata_, realidx_, samp, z0 ) : 0;
 	    float imag = imdata_->series(imagidx_) ?
-			    -getInputValue( *imdata_, imagidx_, samp, z0 ) : 0;
+			    getInputValue( *imdata_, imagidx_, samp, z0 ) : 0;
 
 	    if ( mIsUdf(real) ) real = 0;
 	    if ( mIsUdf(imag) ) imag = 0;
