@@ -327,7 +327,7 @@ bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
     if ( arr() )
     {
 	void* srcptr = trc_.data().getComponent(icomp_)->data();
-	memcpy( seistrcarr.arr(), srcptr, trcsz*sizeof(float) );
+	OD::memCopy( seistrcarr.arr(), srcptr, trcsz*sizeof(float) );
 	return true;
     }
 
