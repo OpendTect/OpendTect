@@ -174,13 +174,13 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 		float crlpos = (idz - (crlsz/2)) * distcrl_;
 		float place = s - re.get(idy,idz)->z0_ + idx + 
-		    	     (inlpos*inldip)/refstep_ + (crlpos*crldip)/refstep_;
+			 (inlpos*inldip)/refstep_ + (crlpos*crldip)/refstep_;
 		    
 		float real = 
 		    interp.value( *(re.get(idy,idz)->series(realidx_)), place );
 
 		float imag =  
-		   -interp.value( *(im.get(idy,idz)->series(imagidx_)), place );
+		   interp.value( *(im.get(idy,idz)->series(imagidx_)), place );
 		
 		realsum += real;
 		imagsum += imag;
@@ -258,18 +258,20 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	if ( needinterp_ )
 	{
 	    float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
-	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
+	    extras0 =
+		(extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
 	    if ( !is2d )
 		extras1 =
 		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep_;
-	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep_;
+	    extras2 =
+		(extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep_;
 	}
 
 	while ( curdip <= maxdip_ && !is2d )
 	{
 	    float coh = calc1( cursamp + extras0,
-		    		cursamp + extras1 + (curdip * distinl_)/refstep_,
-				samplegate, *inputdata_[0], *inputdata_[1] );
+			       cursamp + extras1 + (curdip * distinl_)/refstep_,
+			       samplegate, *inputdata_[0], *inputdata_[1] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
 	    curdip += ddip_;
@@ -285,8 +287,8 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	while ( curdip <= maxdip_ )
 	{
 	    float coh = calc1( cursamp + extras0,
-		    		cursamp + extras2 + (curdip * distcrl_)/refstep_,
-				samplegate, *inputdata_[0], *inputdata_[2] );
+			       cursamp + extras2 + (curdip * distcrl_)/refstep_,
+			       samplegate, *inputdata_[0], *inputdata_[2] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
 	    curdip += ddip_;
@@ -377,9 +379,9 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 
 	const DataHolder* datac = inputs_[0]->getData( relpos, idx );
 	const DataHolder* datai = is2d ? 0 :
-	   inputs_[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
+	   inputs_[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx);
 	const DataHolder* datax =
-	   inputs_[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
+	   inputs_[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx);
 	if ( !datac || (!datai&&!is2d) || !datax )
 	    return false;
 
