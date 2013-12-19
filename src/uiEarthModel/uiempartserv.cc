@@ -120,6 +120,8 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impfltdlg_; impfltdlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
+    delete impfltstickdlg_; impfltstickdlg_ = 0;
+    delete expfltstickdlg_; expfltstickdlg_ = 0;
     deepErase( variodlgs_ );
 }
 
