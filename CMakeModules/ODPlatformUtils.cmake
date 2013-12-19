@@ -40,6 +40,11 @@ if(UNIX) #Apple an Linux
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	endif()
 
+	if ( CMAKE_OSX_SYSROOT MATCHES "MacOSX10.9.sdk" )
+	    message( FATAL_ERROR "OpendTect does not work with MacOSX10.9 SDK. "
+				 "Please use MacOSX10.8 SDK instead." )
+	endif()
+
 	set ( OD_SET_TARGET_PROPERTIES 1 )
 
 	#For some versions of XCode
