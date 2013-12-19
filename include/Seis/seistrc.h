@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
+template <class T> class Array1D;
 
 /*!
 \ingroup Seis
@@ -71,16 +72,16 @@ public:
 			{ data_.zero( icomp ); }
     bool		reSize(int,bool copydata);
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
-	    			     bool forcefloats=false);
+				     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
 
     static const float	snapdist; //!< Default 1e-4
-    			//!< relative distance from a sample below which no
-    			//!< interpolation is done. 99.9% chance default is OK.
+			//!< relative distance from a sample below which no
+			//!< interpolation is done. 99.9% chance default is OK.
 
     const ValueSeriesInterpolator<float>& interpolator() const;
     void		setInterpolator(ValueSeriesInterpolator<float>*);
-    			//!< becomes mine
+			//!< becomes mine
 
     inline float	startPos() const
 			{ return info_.sampling.start; }
@@ -100,21 +101,21 @@ public:
     SampleGate		sampleGate(const Interval<float>&,bool check) const;
 
     SeisTrc*		getRelTrc(const ZGate&,float sr=mUdf(float)) const;
-    			//!< Resample around pick. No pick: returns null.
-    			//!< ZGate is relative to pick
+			//!< Resample around pick. No pick: returns null.
+			//!< ZGate is relative to pick
     SeisTrc*		getExtendedTo(const ZGate&,bool usetrcvals=true) const;
-    			//!< Extends (or shrinks) trace to ZGate
-    			//!< Added values can be first/last value of input,
-    			//!< or zeros
+			//!< Extends (or shrinks) trace to ZGate
+			//!< Added values can be first/last value of input,
+			//!< or zeros
 
     bool		isWriteReady(const SamplingData<float>&,int ns) const;
     void		getWriteReady(SeisTrc&,SamplingData<float>&,int&) const;
     static bool		getWriteReady(SamplingData<float>&,int& nrsamples,
-	    				    bool inward_only=true);
-    			// returns whether any change was made
+					    bool inward_only=true);
+			// returns whether any change was made
 
     static const char*	sKeyExtTrcToSI()
-    			{ return "Extend Traces To Survey Z Range"; }
+			{ return "Extend Traces To Survey Z Range"; }
 
 protected:
 
@@ -141,7 +142,7 @@ mExpClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
-    		SeisTrcValueSeries( const SeisTrc& t, int c )
+		SeisTrcValueSeries( const SeisTrc& t, int c )
 		    : trc_(const_cast<SeisTrc&>(t))
 		    , icomp_(c)			{}
 
@@ -173,7 +174,7 @@ mExpClass(Seis) SeisTrcFunction : public FloatMathFunction
 {
 public:
 
-    		SeisTrcFunction(const SeisTrc& trc, int icomp)
+		SeisTrcFunction(const SeisTrc& trc, int icomp)
 		    : trc_(trc), icomp_(icomp)			{}
 
     float	getValue( float z ) const { return trc_.getValue(z,icomp_); }
