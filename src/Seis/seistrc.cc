@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 #include "iopar.h"
 #include "valseriesinterpol.h"
+#include "arraynd.h"
 #include <math.h>
 #include <float.h>
 
