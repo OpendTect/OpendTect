@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiszaxisstretcher.h"
 
+#include "arrayndimpl.h"
 #include "genericnumer.h"
 #include "ioman.h"
 #include "posinfo.h"
@@ -231,10 +232,19 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    {                                                                   
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
 		SamplingData<double> inputsd( intrc.info().sampling );          
-		mAllocVarLenArr( float, vintarr, insz );                        
-		if ( !mIsVarLenArrOK(vintarr) ) return false;                                   
+		mAllocVarLenArr( float, vintarr, insz );
+		if ( !mIsVarLenArrOK(vintarr) ) return false;
+		
+		float* vrmsarr = tmpseistrcvsin.arr();
+		PtrMan<Array1DImpl<float> > inparr = 0;
+		if ( !vrmsarr )
+		{
+		    inparr = new Array1DImpl<float>( insz );
+		    tmpseistrcvsin.copytoArray( *inparr );
+		    vrmsarr = inparr->arr();
+		}
 
-		computeDix( tmpseistrcvsin.arr(), inputsd, insz, vintarr );
+		computeDix( vrmsarr, inputsd, insz, vintarr );
 
 		for ( int ids=0; ids<insz; ids++ )
 		    intrc.set( ids, vintarr[ids], 0 );
