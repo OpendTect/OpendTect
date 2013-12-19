@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "debug.h"
 #include "gendefs.h"
 #include <algorithm>
 #include <vector>
@@ -195,12 +196,18 @@ bool VectorAccess<T,I>::setSize( I sz, T val )
 }
 
 #ifdef __debug__
+
 #define mImplOperator \
-    return v_.at(idx); \
-    //throws exception
+    try { return v_.at(idx); } \
+    catch ( std::out_of_range ) \
+    { DBG::forceCrash(true); } \
+    return v_[(typename std::vector<T>::size_type)idx]
+
 #else
+
 #define mImplOperator \
     return v_[(typename std::vector<T>::size_type)idx]
+
 #endif
 
 
