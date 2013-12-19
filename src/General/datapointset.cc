@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include <iostream>
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
