@@ -399,13 +399,13 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
 	{
 	    const BinID bid = locations.getBinID( locations.getPos(lidx) );
-	    ConstRefMan<PreStack::EventSet> eventset
+	    const PreStack::EventSet* eventset
 		    = eventman_->getEvents(bid, true );
 	    if ( !eventset )
 		return clearAll();
 
 	    const int size = eventset->events_.size();
-	    
+	    eventmarkerset_->clearMarkers();
 	    for ( int idx=0; idx<size; idx++ )
 	    {
 		const PreStack::Event* psevent = eventset->events_[idx];
@@ -591,7 +591,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pao->lines_->addPoint( pos );
 	    }
 
-	    const int size = pao->lines_->getCoordinates()->size();
+	    const int size = pao->lines_ ? pao->lines_->getCoordinates()->size()
+					 : 0;
 	    if ( doline && size > 0 )
 	    {
 		Geometry::RangePrimitiveSet* ps =
