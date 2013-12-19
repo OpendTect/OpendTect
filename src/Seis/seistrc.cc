@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "errh.h"
 #include "valseriesinterpol.h"
+#include "arraynd.h"
 #include <math.h>
 #include <float.h>
 

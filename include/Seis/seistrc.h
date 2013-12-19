@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
+template <class T> class Array1D;
 
 /*!
 \ingroup Seis
