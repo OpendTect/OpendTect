@@ -368,12 +368,14 @@ public:
   Notifiers can be disabled. To do that temporarily, use NotifyStopper.
   If the Stopper goes out of scope, the callback is re-enabled. like:
 
+  \code
   void xxx:doSomething()
   {
       NotifyStopper stopper( a_notifier );
       // Doing things that would otherwise trigger Notifier.
       // On exit, Notifier gets re-enabled automatically.
   }
+  \endcode
 */
 
 mExpClass(Basic) NotifyStopper
