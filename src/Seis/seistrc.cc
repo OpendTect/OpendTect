@@ -318,5 +318,25 @@ float* SeisTrcValueSeries::arr()
 }
 
 
+bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
+{
+    const int trcsz = trc_.size();
+    if ( seistrcarr.info().getSize(0) != trcsz )
+	return false;
+
+    if ( arr() )
+    {
+	void* srcptr = trc_.data().getComponent(icomp_)->data();
+	memcpy( seistrcarr.arr(), srcptr, trcsz*sizeof(float) );
+	return true;
+    }
+
+    for ( int idx=0; idx<trcsz; idx++ )
+	seistrcarr.set( idx, trc_.get(idx,icomp_) );
+
+    return true;
+}
+
+
 const float* SeisTrcValueSeries::arr() const
 { return const_cast<SeisTrcValueSeries*>( this )->arr(); }

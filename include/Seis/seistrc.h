@@ -152,6 +152,8 @@ public:
     float*	arr();
     const float* arr() const;
 
+    bool	copytoArray(Array1D<float>&);
+
     inline ValueSeries<float>*	clone() const;
 
 protected:

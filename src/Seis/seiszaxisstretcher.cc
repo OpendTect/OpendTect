@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiszaxisstretcher.h"
 
+#include "arrayndimpl.h"
 #include "genericnumer.h"
 #include "ioman.h"
 #include "posinfo.h"
@@ -176,7 +177,8 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
 	if ( is2d_ && seisreader_ && seisreader_->selData() )
-	    sampler->setLineName( seisreader_->selData()->lineKey().lineName() );
+	    sampler->setLineName( 
+			seisreader_->selData()->lineKey().lineName() );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
@@ -199,10 +201,19 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    {                                                                   
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
 		SamplingData<double> inputsd( intrc.info().sampling );          
-		mAllocVarLenArr( float, vintarr, insz );                        
-		if ( !mIsVarLenArrOK(vintarr) ) return false;                                   
+		mAllocVarLenArr( float, vintarr, insz );
+		if ( !mIsVarLenArrOK(vintarr) ) return false;
+		
+		float* vrmsarr = tmpseistrcvsin.arr();
+		PtrMan<Array1DImpl<float> > inparr = 0;
+		if ( !vrmsarr )
+		{
+		    inparr = new Array1DImpl<float>( insz );
+		    tmpseistrcvsin.copytoArray( *inparr );
+		    vrmsarr = inparr->arr();
+		}
 
-		computeDix( tmpseistrcvsin.arr(), inputsd, insz, vintarr );
+		computeDix( vrmsarr, inputsd, insz, vintarr );
 
 		for ( int ids=0; ids<insz; ids++ )
 		    intrc.set( ids, vintarr[ids], 0 );
@@ -281,7 +292,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		    if ( idx!=insz )
 		    {
 			float prevtwt = twt[idx];
-		    	float prevdepth = depths[idx] = prevtwt * inputvs[idx] / 2;
+		    	float prevdepth = depths[idx] = prevtwt*inputvs[idx]/2;
 			idx++;
 		    	for ( ; idx<insz; idx++ )
 		    	{
@@ -558,7 +569,8 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
 
     curhrg_ = outcs_.hrg;
     curhrg_.start.inl() = inl;
-    curhrg_.stop.inl() = curhrg_.start.inl() + curhrg_.step.inl() * (chunksize-1);
+    curhrg_.stop.inl() = curhrg_.start.inl() + curhrg_.step.inl() * 
+			 (chunksize-1);
     if ( curhrg_.stop.inl()>outcs_.hrg.stop.inl() )
 	curhrg_.stop.inl() = outcs_.hrg.stop.inl();
 
