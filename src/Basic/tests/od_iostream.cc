@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 #include "file.h"
 #include "filepath.h"
+#include "ptrman.h"
+#include "strmprov.h"
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
@@ -52,6 +54,22 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 	   i == 123 && !strm.isOK() )
 
 
+bool testPipeInput()
+{
+    FixedString message = "OpendTect rules";
+    const BufferString command( "@echo \"", message, "\"");
+    StreamData streamdata = StreamProvider( command ).makeIStream();
+    mRunStandardTest( streamdata.istrm,  "Creation of standard stream");
+    PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
+
+    BufferString streaminput;
+    mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
+    mRunStandardTest( streaminput==message, "Pipe content check" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -73,6 +91,9 @@ int main( int argc, char** argv )
     mDoTest(strm5,"123\n-0.0e-22\n888",testIfFNumberIs0);
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
+
+    if ( !testPipeInput() )
+	ExitProgram( 1 );
 
     return ExitProgram( 0 );
 }

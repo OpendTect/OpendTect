@@ -36,5 +36,18 @@ static bool quiet = true;
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
 
+#define mRunStandardTest( test, desc ) \
+if ( (test) ) \
+{ \
+    if ( !quiet ) \
+	od_ostream::logStream() << desc << " - SUCCESS \n"; \
+} \
+else \
+{ \
+    od_ostream::logStream() << desc << " - FAIL \n"; \
+    return false; \
+}
+
+
 
 #endif
