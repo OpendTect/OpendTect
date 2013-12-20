@@ -329,7 +329,7 @@ mExtern(Basic) double GetEnvVarDVal( const char* env, double defltval )
 mExtern(Basic) float GetEnvVarFVal( const char* env, float defltval )
 {
     const char* s = GetEnvVar( env );
-    return s ? atof(s) : defltval;
+    return s ? mCast( float, atof(s) ) : defltval;
 }
 
 
