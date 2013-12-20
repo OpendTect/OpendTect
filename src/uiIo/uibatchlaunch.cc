@@ -507,7 +507,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     BufferString fname = "window";
 
     IOPar& workiop( const_cast<IOPar&>( iop ) );
-    workiop.set( "Log file", fname );
+    workiop.set( sKey::LogFile(), fname );
 
     FilePath parfp( fnm );
     if ( !parfp.nrLevels() )
