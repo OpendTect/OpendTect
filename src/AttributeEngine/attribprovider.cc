@@ -374,7 +374,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	    desiredvolume_->hrg.start.crl() =
 		desiredvolume_->hrg.start.crl() < ndv.hrg.start.crl() ?
 		desiredvolume_->hrg.start.crl() : ndv.hrg.start.crl();
-	    desiredvolume_->zrg.start = desiredvolume_->zrg.start < ndv.zrg.start?
+	    desiredvolume_->zrg.start = 
+		desiredvolume_->zrg.start < ndv.zrg.start?
 		desiredvolume_->zrg.start : ndv.zrg.start;
 	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zrg.stop ?
 		desiredvolume_->zrg.stop : ndv.zrg.stop;
@@ -389,7 +390,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	{
 	    if ( outputinterest_[idy]<1 ) continue;
 
-	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() : false;
+	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() 
+					 : false;
 	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
 		inputs_[idx]->setDesiredVolume( inputcs );
 	}
@@ -599,16 +601,19 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	{
 	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
 	    {
-		currentbid_.inl() = is2D() ? 0 : desiredvolume_->hrg.start.inl();
+		currentbid_.inl() = is2D() ? 0 
+					   : desiredvolume_->hrg.start.inl();
 		currentbid_.crl() = desiredvolume_->hrg.start.crl();
 	    }
 	    else
 	    {
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
-		if ( prevbid.crl() +step.crl() <= desiredvolume_->hrg.stop.crl() )
+		if ( prevbid.crl() +step.crl() <= 
+		     desiredvolume_->hrg.stop.crl() )
 		    currentbid_.crl() = prevbid.crl() +step.crl();
-		else if ( prevbid.inl() +step.inl() <= desiredvolume_->hrg.stop.inl())
+		else if ( prevbid.inl() +step.inl() <= 
+			  desiredvolume_->hrg.stop.inl())
 		{
 		    currentbid_.inl() = prevbid.inl() +step.inl();
 		    currentbid_.crl() = desiredvolume_->hrg.start.crl();
@@ -836,7 +841,8 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
-	dir.inl() *= step.inl()/abs(step.inl()); dir.crl() *= step.crl()/abs(step.crl());
+	dir.inl() *= step.inl()/abs(step.inl()); 
+	dir.crl() *= step.crl()/abs(step.crl());
 	const BinID lastbid = currentbid_ - desbufferstepout_*step;
 	linebuffer_->removeBefore(lastbid, dir);
     // in every direction...
@@ -1030,6 +1036,13 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	    }
 	    else
 		valptr = new ConvMemValueSeries<float>( nrsamples,outputformat);
+
+	    if ( !valptr )
+	    {
+		errmsg_ = "Failed to allocate memory. "
+			  "Probably the data you are loading is too big.";
+		return 0;
+	    }
 
 	    outdata->replace( idx, valptr );
 	}
@@ -1278,7 +1291,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_, zrgsamp.stop*refstep_ ));
+    zrg.include(Interval<float>( zrgsamp.start*refstep_, 
+				 zrgsamp.stop*refstep_ ));
     
     res.zrg.start += zrg.start;
     res.zrg.stop += zrg.stop;
@@ -1732,7 +1746,8 @@ void Provider::stdPrepSteering( const BinID& so )
 
 float Provider::zFactor() const
 {
-    return (float) ( zIsTime() ?  ZDomain::Time() : ZDomain::Depth() ).userFactor();
+    return (float) ( zIsTime() ?  ZDomain::Time() 
+			       : ZDomain::Depth() ).userFactor();
 }
 
 

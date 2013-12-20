@@ -264,7 +264,8 @@ bool StorageProvider::checkInpAndParsAtStart()
 	}
 	else
 	{
-	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl() = lineidx;
+	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl() 
+					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    if ( !lset->getRanges( lineidx, trcrg, zrg ) )
 		mErrRet("Cannot get needed trace range from 2D line set")
@@ -458,8 +459,10 @@ void StorageProvider::updateStorageReqs( bool )
 {
     if ( !mscprov_ ) return;
 
-    mscprov_->setStepout( desbufferstepout_.inl(), desbufferstepout_.crl(), false );
-    mscprov_->setStepout( reqbufferstepout_.inl(), reqbufferstepout_.crl(), true );
+    mscprov_->setStepout( desbufferstepout_.inl(), desbufferstepout_.crl(), 
+			  false );
+    mscprov_->setStepout( reqbufferstepout_.inl(), reqbufferstepout_.crl(), 
+			  true );
 }
 
 
@@ -660,8 +663,8 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef(); errmsg_ += "'";
-	errmsg_ += " has no desired volume\n";
+	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef(); 
+	errmsg_ += "'"; errmsg_ += " has no desired volume\n";
 	return false;
     }
     
@@ -690,7 +693,8 @@ bool StorageProvider::computeData( const DataHolder& output,
     const SeisTrc* trc = 0;
     
     if ( isondisc_)
-	trc = mscprov_->get( relpos.inl()/bidstep.inl(), relpos.crl()/bidstep.crl() );
+	trc = mscprov_->get( relpos.inl()/bidstep.inl(), 
+			     relpos.crl()/bidstep.crl() );
     else
 	trc = getTrcFromPack( relpos, 0 );
 
@@ -744,6 +748,15 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 					     const DataHolder& data ) const
 {
+    if ( !trc || data.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
+    {
+	if ( !data.series(idx) )
+	    return false;
+    }
+
     const int z0 = data.z0_;
     float extrazfromsamppos = 0;
     BoolTypeSet isclass( outputinterest_.size(), true );
