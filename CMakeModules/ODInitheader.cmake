@@ -16,43 +16,38 @@ macro( OD_CREATE_INIT_HEADER )
     string ( TOLOWER ${OD_MODULE_NAME} OD_MODULE_NAME_LOWER )
 
     if ( OD_IS_PLUGIN )
-	set ( INCLUDEDIR ${CMAKE_BINARY_DIR}/plugins/${OD_MODULE_NAME} )
+	set ( INITHEADER_DIR ${CMAKE_BINARY_DIR}/plugins/${OD_MODULE_NAME} )
     else ()
 	if ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    set ( INCLUDEDIR ${CMAKE_BINARY_DIR}/include/${OD_MODULE_NAME} )
+	    set ( INITHEADER_DIR ${CMAKE_BINARY_DIR}/include/${OD_MODULE_NAME} )
 	else()
-	    if ( EXISTS ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-		set ( INCLUDEDIR ${CMAKE_BINARY_DIR}/spec/${OD_MODULE_NAME} )
-	    endif()
+	    set ( INITHEADER_DIR ${CMAKE_BINARY_DIR}/spec/${OD_MODULE_NAME} )
 	endif()
     endif ()
 
-    if ( EXISTS ${INCLUDEDIR} )
-	set ( INITHEADER ${INCLUDEDIR}/${OD_MODULE_NAME_LOWER}mod.h )
+    set ( INITHEADER ${INITHEADER_DIR}/${OD_MODULE_NAME_LOWER}mod.h )
 
+    if ( WIN32 )
+	set ( DEPSHEADER ${INITHEADER_DIR}/${OD_MODULE_NAME_LOWER}deps.h )
+	set ( EXPORTHEADER ${OD_MODULE_NAME_LOWER}export.h )
+	if ( EXISTS ${INITHEADER_DIR}/${EXPORTHEADER} )
+	    set ( EXPORTFILEHEADER "#include \"${EXPORTHEADER}\"" )
 
-	if ( WIN32 )
-	    set ( DEPSHEADER ${INCLUDEDIR}/${OD_MODULE_NAME_LOWER}deps.h )
-	    set ( EXPORTHEADER ${OD_MODULE_NAME_LOWER}export.h )
-	    if ( EXISTS ${INCLUDEDIR}/${EXPORTHEADER} )
-		set ( EXPORTFILEHEADER "#include \"${EXPORTHEADER}\"" )
-
-		set ( INSTANTIATESOURCE "instantiate${OD_MODULE_NAME_LOWER}export.cc" )
-		configure_file( ${OpendTect_DIR}/CMakeModules/templates/instantiateexport.cc.in 
-			    "${CMAKE_CURRENT_BINARY_DIR}/${INSTANTIATESOURCE}" )
-		list ( APPEND OD_MODULE_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${INSTANTIATESOURCE} )
-	    endif()
-
-	    foreach ( DEP ${OD_MODULE_DEPS} )
-		string ( TOLOWER ${DEP} DEPLOWER )
-		set ( MODFILEHEADER "${MODFILEHEADER}${OD_LINESEP}#include \"${DEPLOWER}deps.h\"" )
-	    endforeach()
-
-	    configure_file( ${OpendTect_DIR}/CMakeModules/templates/moddeps.h.in 
-			${DEPSHEADER} )
+	    set ( INSTANTIATESOURCE "instantiate${OD_MODULE_NAME_LOWER}export.cc" )
+	    configure_file( ${OpendTect_DIR}/CMakeModules/templates/instantiateexport.cc.in 
+			"${CMAKE_CURRENT_BINARY_DIR}/${INSTANTIATESOURCE}" )
+	    list ( APPEND OD_MODULE_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${INSTANTIATESOURCE} )
 	endif()
 
-	configure_file( ${OpendTect_DIR}/CMakeModules/templates/moduleheader.h.in 
-			${INITHEADER} )
-    endif ()
+	foreach ( DEP ${OD_MODULE_DEPS} )
+	    string ( TOLOWER ${DEP} DEPLOWER )
+	    set ( MODFILEHEADER "${MODFILEHEADER}${OD_LINESEP}#include \"${DEPLOWER}deps.h\"" )
+	endforeach()
+
+	configure_file( ${OpendTect_DIR}/CMakeModules/templates/moddeps.h.in 
+		    ${DEPSHEADER} )
+    endif()
+
+    configure_file( ${OpendTect_DIR}/CMakeModules/templates/moduleheader.h.in 
+		    ${INITHEADER} )
 endmacro()
