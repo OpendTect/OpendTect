@@ -1035,6 +1035,13 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	    else
 		valptr = new ConvMemValueSeries<float>( nrsamples,outputformat);
 
+	    if ( !valptr )
+	    {
+		errmsg_ = "Failed to allocate memory. "
+			  "Probably the data you are loading is too big.";
+		return 0;
+	    }
+
 	    outdata->replace( idx, valptr );
 	}
     }

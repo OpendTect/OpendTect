@@ -744,6 +744,15 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 					     const DataHolder& data ) const
 {
+    if ( !trc || data.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
+    {
+	if ( !data.series(idx) )
+	    return false;
+    }
+
     const int z0 = data.z0_;
     float extrazfromsamppos = 0;
     BoolTypeSet isclass( outputinterest_.size(), true );
