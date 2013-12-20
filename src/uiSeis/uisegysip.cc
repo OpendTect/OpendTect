@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uimain.h"
 #include "segyscanner.h"
 #include "segytr.h"
 #include "segyhdr.h"
@@ -77,20 +78,24 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
     return new uiSEGYSIPMgrDlg( this, p, su );
 }
 
-#define mErrRet(s) { uiMSG().error(s); return; }
+#define mShowErr(s) \
+    uiMainWin* mw = uiMSG().setMainWin( uiMain::theMain().topLevel() ); \
+    uiMSG().error(s); \
+    uiMSG().setMainWin(mw);
 
 static void showReport( const SEGY::Scanner& scanner )
 {
     const BufferString fnm( GetProcFileName("SEGY_survey_scan.txt" ) );
     StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() )
-	mErrRet("Cannot open temporary file in Proc directory")
+    {	mShowErr("Cannot open temporary file in Proc directory"); return; }
     IOPar iop; 
     scanner.getReport( iop );
     if ( !iop.write(*sd.ostrm,IOPar::sKeyDumpPretty()) )
     {
 	sd.close();
-	mErrRet("Cannot write to temporary file in Proc directory")
+	mShowErr("Cannot write to temporary file in Proc directory"); 
+	return;
     }
 
     sd.close();
@@ -115,7 +120,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 
     const char* errmsg = scanner->posInfoDetector().getSurvInfo(cs.hrg,crd);
     if ( errmsg && *errmsg )
-	{ uiMSG().error( errmsg ); return false; }
+	{ mShowErr( errmsg ); return false; }
 
     cs.zrg = scanner->zRange();
     const SEGYSeisTrcTranslator* tr = scanner->translator();
