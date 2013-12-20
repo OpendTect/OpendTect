@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
+#include "posinfo2dsurv.h"
 #include "ranges.h"
 #include "rowcol.h"
 #include "od_iosfwd.h"
@@ -159,6 +160,7 @@ protected:
     BufferStringSet	sectionnames_;
     BufferStringSet	linenames_;
     BufferStringSet	linesets_;
+    TypeSet<PosInfo::Line2DKey> l2dkeys_;
     TypeSet<Pos::GeomID>	geomids_;
     TypeSet<EM::SectionID> sectionids_;
     TypeSet<EM::SectionID> sectionsel_;

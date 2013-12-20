@@ -36,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "od_iostream.h"
 #include "survinfo.h"
-#include "posinfo2dsurv.h"
 #include "filepath.h"
 #include <limits.h>
 
@@ -266,6 +265,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		    ? S2DPOS().getLineSet(l2dkey.lsID()) : sKeyUndefLineSet() );
 	    linenames_.add(S2DPOS().hasLine(l2dkey.lineID(),l2dkey.lsID())
 		    ? S2DPOS().getLineName(l2dkey.lineID()) : sKeyUndefLine() );
+	    l2dkeys_ += l2dkey;
 
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -305,6 +305,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    {
 		lineids.removeSingle( idx );
 		linenames_.removeSingle( idx );
+		l2dkeys_.removeSingle( idx );
 		continue;
 	    }
 	    idx++;
@@ -886,8 +887,10 @@ int dgbSurfaceReader::nextStep()
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	const PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey(
-		linesets_[rowindex_]->buf(), linenames_[rowindex_]->buf() );
+	const PosInfo::Line2DKey l2dky =
+	    l2dkeys_.validIdx(rowindex_) ? l2dkeys_[rowindex_]
+			: S2DPOS().getLine2DKey( linesets_[rowindex_]->buf(),
+						 linenames_[rowindex_]->buf() );
 	if ( !l2dky.isOK() )
 	     return ErrorOccurred();
 
@@ -1272,6 +1275,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( !surface_->sectionGeometry(sectionid) )
 		createSection( sectionid );
 
+	    if ( l2dkeys_.validIdx(rowindex_) )
+		rc.row() = l2dkeys_[rowindex_].lineID();
 	    surface_->setPos( sectionid, rc.toInt64(), pos, false );
 	}
 
