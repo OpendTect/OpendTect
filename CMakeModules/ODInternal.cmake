@@ -6,7 +6,26 @@
 #_______________________________________________________________________________
 
 #Configure odversion.h
-configure_file ( ${OpendTect_DIR}/include/Basic/odversion.h.in ${OpendTect_DIR}/include/Basic/odversion.h )
+configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
+		 ${CMAKE_BINARY_DIR}/include/Basic/odversion.h )
+
+if ( NOT (CMAKE_BUILD_DIR STREQUAL CMAKE_SOURCE_DIR ) )
+    if ( UNIX )
+	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                            ${CMAKE_SOURCE_DIR}/relinfo
+			    ${CMAKE_BINARY_DIR}/relinfo )
+    else()
+	    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
+                            ${CMAKE_SOURCE_DIR}/relinfo
+			    ${CMAKE_BINARY_DIR}/relinfo )
+    endif()
+
+    #Copy data as we generate stuff into the data directory, and that cannot
+    #be in the source-dir
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
+		    ${CMAKE_SOURCE_DIR}/data
+		    ${CMAKE_BINARY_DIR}/data )
+endif()
 
 file(GLOB CMAKE_FILES CMakeModules/*.cmake )
 file(GLOB TEMPLATE_FILES CMakeModules/templates/*.in )
@@ -50,7 +69,7 @@ if( UNIX )
     OD_CURRENT_MONTH( MONTH )
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/about.html.in
-		    ${CMAKE_SOURCE_DIR}/doc/about.html @ONLY )
+		    ${CMAKE_BINARY_DIR}/doc/about.html @ONLY )
 endif()
 
 file( GLOB FLEXNETFILES doc/*.html )

@@ -27,7 +27,7 @@ else()
     set ( MY_WC_URL "" )
 endif()
 
-set ( INC_DIR ${CMAKE_SOURCE_DIR}/include/Basic )
+set ( INC_DIR ${CMAKE_BINARY_DIR}/include/Basic )
 set ( INC_FILE ${INC_DIR}/svnversion.h )
 
 if ( NOT EXISTS ${INC_FILE} )

@@ -7,7 +7,7 @@
 
 macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in
-		    ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake
+		    ${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/develdefs.cmake
 		    @ONLY )
 endmacro()
 

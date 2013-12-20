@@ -513,7 +513,8 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
 
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	CallBack* cb, int queueid, bool firstinline,
-	bool ignoreduplicates )
+	bool ignoreduplicates,
+	bool forcedifferentthread )
        					  
 {
     if ( queueid<0 )
@@ -557,7 +558,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 		thread->assignTask( newtask, thecb, queueid );
 		return;
 	    }
-	    else if ( isWorkThread() )
+	    else if ( !forcedifferentthread && isWorkThread() )
 	    {
 		queueworkload_[queueidx]++;
 		lock.unLock();

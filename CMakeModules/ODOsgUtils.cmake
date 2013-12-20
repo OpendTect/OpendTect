@@ -9,6 +9,7 @@
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
 if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
+     (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) AND
     ((NOT DEFINED osgGeo_DIR) OR
 	(osgGeo_DIR STREQUAL "") OR
 	(osgGeo_DIR MATCHES "-NOTFOUND")) AND
@@ -50,7 +51,7 @@ if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
     endif()
 endif()
 
-if ( osgGeo_DIR MATCHES "external/osgGeo" )
+if ( osgGeo_DIR MATCHES "${CMAKE_SOURCE_DIR}/external/osgGeo" )
     if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
 	 (CMAKE_GENERATOR STREQUAL "Ninja") )
 	add_custom_target( osgGeo ALL COMMAND ${CMAKE_COMMAND}

@@ -63,7 +63,12 @@ public:
 
     void			addWork(const Work&,CallBack* finished,
 	    				int queueid, bool putfirstinline,
-					bool discardduplicates=false);
+					bool discardduplicates=false,
+					bool forcedifferentthread=false);
+				/*!<\param forcedifferentthread will force
+					work to be put on the queue, even if it
+					could be done directly in current
+					thread. */
 
     bool			addWork(TypeSet<Work>&, int queueid = -1,
 	    				bool firstinline = false);

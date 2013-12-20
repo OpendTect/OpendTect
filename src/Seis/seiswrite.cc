@@ -28,7 +28,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Survey;
 
-#define mCurLineKey (lkp_ ? lkp_->lineKey() : (seldata_ ? seldata_->lineKey():""))
+#define mCurLineKey (lkp_ \
+    ? lkp_->lineKey() \
+    : (seldata_ ? seldata_->lineKey():""))
+
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 
@@ -522,7 +525,8 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 		Task* task =
 		    new SeisSequentialWriterTask( *this, *writer_, trcs[idy] );
 		Threads::WorkManager::twm().addWork( Threads::Work(*task,true),
-						     0, queueid_, false );
+						     0, queueid_, false, false,
+						     true );
 	    }
 
 	    found = true;
