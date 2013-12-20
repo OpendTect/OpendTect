@@ -22,11 +22,11 @@ ________________________________________________________________________
   When slices are to be taken from a CubeSampling, they should be ordered
   as follows:
  
-  Dir |   Dim1    Dim2
-  ----|---------------
-  Inl |   Crl     Z
-  Crl |   Inl     Z
-  Z   |   Inl     Crl
+  Dir |   Dim1  |  Dim2
+  ----|---------|------
+  Inl |   Crl   |  Z
+  Crl |   Inl   |  Z
+  Z   |   Inl   |  Crl
 
   See also the direction() and dimension() free functions.
 */
