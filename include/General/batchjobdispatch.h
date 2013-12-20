@@ -73,7 +73,8 @@ public:
 
 protected:
 
-    virtual bool	launch()				= 0;
+    virtual bool	init()				{ return true; }
+    virtual bool	launch()			= 0;
 
     JobSpec		jobspec_;
     BufferString	logspec_;
@@ -94,7 +95,7 @@ mExpClass(General) SingleJobDispatcher : public JobDispatcher
 {
 public:
 
-			SingleJobDispatcher()		{}
+			SingleJobDispatcher();
     virtual		~SingleJobDispatcher()		{}
 
     virtual const char*	description() const;
@@ -106,7 +107,12 @@ public:
 
 protected:
 
+    virtual bool	init();
     virtual bool	launch();
+
+    BufferString	parfnm_;
+    bool		inwin_;
+    bool		tostdio_;
 
 };
 
