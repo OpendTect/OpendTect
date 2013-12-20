@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilineedit.h"
 #include "uilistbox.h"
 #include "uimathexpression.h"
+#include "uimathpropeddlg.h"
 #include "uimsg.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
@@ -173,6 +174,7 @@ void uiEditPropRef::unitSel( CallBacker* )
     curunit_ = newun;
 }
 
+/*
 static const int cMaxNrVars = 6;
 class uiEditPropRefMathDef : public uiDialog
 {
@@ -310,13 +312,19 @@ void getMathExpr()
     MathExpression*	expr_;
     ObjectSet<uiLabeledComboBox> unflds_;
 };
-
+*/
 
 void uiEditPropRef::setForm( CallBacker* )
 {
-    uiEditPropRefMathDef dlg( this, pr_, curunit_ );
+    PropertyRefSelection prsel;
+    for ( int idx=0; idx<PROPS().size(); idx++ )
+	prsel+= PROPS()[idx];
+
+    MathProperty mathprop( pr_ );
+
+    uiMathPropEdDlg dlg( parent(), mathprop, prsel );
     if ( dlg.go() )
-	deffld_->setText( dlg.formfld_->text() );
+	deffld_->setText( dlg.formulaStr() );
 }
 
 

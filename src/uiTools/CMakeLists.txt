@@ -51,6 +51,7 @@ SET(OD_MODULE_SOURCES
 		uimarkerstyle.cc
 		uimathexpression.cc
 		uimathexpressionvariable.cc
+		uimathpropeddlg.cc
 		uinotsaveddlg.cc
 		uiobjdisposer.cc
 		uiobjectitemview.cc
