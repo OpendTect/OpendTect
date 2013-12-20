@@ -574,16 +574,17 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
+	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);
+	if ( !auxdata || !auxdata->poly_.validIdx(selectedidxs[ids]) ) continue;
+
 	if ( curcs_.nrInl() == 1 )
 	{
 	    bid.inl() = curcs_.hrg.start.inl();
-	    bid.crl() = 
-		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+	    bid.crl() = mNINT32(auxdata->poly_[selectedidxs[ids]].x);
 	}
 	else if ( curcs_.nrCrl() == 1 )
 	{
-	    bid.inl() = 
-		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
+	    bid.inl() = mNINT32(auxdata->poly_[selectedidxs[ids]].x);
 	    bid.crl() = curcs_.hrg.start.crl();
 	}
 
