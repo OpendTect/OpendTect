@@ -180,6 +180,9 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
     if ( visscene && scn.sovwr_->getPolygonSelector() )
 	visscene->setPolygonSelector( scn.sovwr_->getPolygonSelector() );
+    if ( visscene && scn.sovwr_->getSceneColTab() )
+	visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
+
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;

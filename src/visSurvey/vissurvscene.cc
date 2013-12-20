@@ -126,10 +126,6 @@ void Scene::setup()
     addInlCrlZObject( annot_ );
     updateAnnotationText();
 
-    scenecoltab_ = visBase::SceneColTab::create();
-    addUTMObject( scenecoltab_ );
-    scenecoltab_->turnOn( false );
-
     topimg_ = visBase::TopBotImage::create();
     topimg_->setName( "TopImage");
     addUTMObject( topimg_ );
@@ -1097,6 +1093,12 @@ void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
 	mTryAlloc(coordselector_,
 		  visBase::PolygonCoord3Selector(*polyselector_));
     }
+}
+
+
+void Scene::setSceneColTab( visBase::SceneColTab* sct )
+{
+    scenecoltab_ = sct;
 }
 
 

@@ -24,6 +24,7 @@ namespace visBase
     class Camera;
     class PolygonSelection;
     class Scene;
+    class SceneColTab;
     class Transformation;
     class ThumbWheel;
     class DataObjectGroup;
@@ -102,7 +103,7 @@ public:
     bool			isAxisShown() const;
     void			setAxisAnnotColor(const Color&);
     visBase::PolygonSelection*	getPolygonSelector() const;
-
+    visBase::SceneColTab* 	getSceneColTab() const;
     void			notifyManipulatorMovement(float dh, float dv,
                                                           float df );
 protected:
@@ -147,6 +148,7 @@ protected:
     RefMan<visBase::Axes>				axes_;
     RefMan<visBase::PolygonSelection>			polygonselection_;
     TrackBallManipulatorMessenger*			manipmessenger_;
+    RefMan<visBase::SceneColTab>			visscenecoltab_;
 };
 
 #endif

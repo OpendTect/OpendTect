@@ -118,6 +118,7 @@ public:
     void			setPolygonSelector(visBase::PolygonSelection*);
     const Selector<Coord3>*	getSelector() const;	/*! May be NULL */
     visBase::SceneColTab*	getSceneColTab()     { return scenecoltab_; }
+    void			setSceneColTab(visBase::SceneColTab*);
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;

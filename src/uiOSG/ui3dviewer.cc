@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "visaxes.h"
+#include "visscenecoltab.h"
 
 #include "uiobjbody.h"
 #include "viscamera.h"
@@ -43,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "vispolygonselection.h"
 #include "visscene.h"
+#include "viscolortab.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "vistext.h"
@@ -181,6 +183,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , compositeviewer_( 0 )
     , axes_( 0 )
     , polygonselection_( 0 )
+    , visscenecoltab_( 0 )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
 {
     manipmessenger_->ref();
@@ -279,6 +282,15 @@ void ui3DViewerBody::setupHUD()
 	hudscene_->addObject( polygonselection_ );
 	polygonselection_->setHUDCamera( vishudcam );
     }
+
+    if ( !visscenecoltab_ )
+    {
+	visscenecoltab_ = visBase::SceneColTab::create();
+	hudscene_->addObject( visscenecoltab_ );
+	visscenecoltab_->setAnnotFont( FontData() );
+	visscenecoltab_->turnOn( false );
+	visscenecoltab_->setPos( visBase::SceneColTab::Left );
+    }
 }
 
 
@@ -336,7 +348,8 @@ void ui3DViewerBody::setupView()
     osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
     handler->addThumbWheel( (osgGeo::ThumbWheel*) horthumbwheel_->osgNode() );
     handler->addThumbWheel( (osgGeo::ThumbWheel*) verthumbwheel_->osgNode() );
-    handler->addThumbWheel( (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode() );
+    handler->addThumbWheel(
+			 (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode() );
     
     view_->getSceneData()->addEventCallback( handler );
 
@@ -424,6 +437,9 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
         mThumbWheelLen, mThumbWheelWidth, mZCoord );
     const float offset = axes_->getLength() + 10;
     axes_->setPosition( widget->width()-offset, offset );
+    
+    if ( visscenecoltab_ )
+	visscenecoltab_->setWindowSize( widget->width(), widget->height() );
 }
 
 
@@ -477,6 +493,10 @@ visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector() const
     return polygonselection_;
 }
 
+visBase::SceneColTab* ui3DViewerBody::getSceneColTab() const
+{
+    return visscenecoltab_;
+}
 
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
@@ -1148,6 +1168,12 @@ bool ui3DViewer::rotAxisShown() const
 visBase::PolygonSelection* ui3DViewer::getPolygonSelector() const
 {
     return osgbody_->getPolygonSelector();
+}
+
+
+visBase::SceneColTab* ui3DViewer::getSceneColTab() const
+{
+    return osgbody_->getSceneColTab();
 }
 
 

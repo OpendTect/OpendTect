@@ -202,6 +202,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
 	scene_->setMarkerSize( oldmarkersize_ );
 	scene_->setMarkerColor( oldmarkercolor_ );
         scene_->setAnnotColor( annotcolor_ );
+	scene_->getSceneColTab()->setLegendColor( annotcolor_ );
 	scene_->getPolygonOffset()->setUnits( oldunits_ );
 	scene_->getPolygonOffset()->setFactor( oldfactor_ );
     }

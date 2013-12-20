@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p, 
 				        visBase::SceneColTab* coltab )				        
     : uiDialog(p,uiDialog::Setup("Color Bar Properties",
-				 "Change color bar position and size",mNoHelpID))
+			    "Change color bar position and size",mNoHelpID))
     , scenecoltab_(coltab)
 {
     setCtrlStyle( LeaveOnly );
@@ -40,8 +40,8 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     hfld->attach( rightOf, wfld );
 
     BufferStringSet positms;
-    positms.add( "Bottom Left" ).add( "Bottom Right" )
-	   .add( "Top Left" ).add( "Top Right" );
+    positms.add( "Left" ).add( "Right" )
+	   .add( "Top" ).add( "Bottom" );
     posfld_ = new uiGenInput( this, "Position", StringListInpSpec(positms) );
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
@@ -64,5 +64,9 @@ void uiSceneColorbarMgr::sizeChangedCB( CallBacker* )
 void uiSceneColorbarMgr::posChangedCB( CallBacker* )
 {
     scenecoltab_->setPos( (visBase::SceneColTab::Pos)posfld_->getIntValue() );
+    NotifyStopper ns1( widthfld_->valueChanging );
+    NotifyStopper ns2( heightfld_->valueChanging );
+    widthfld_->setValue( scenecoltab_->getSize().width() );
+    heightfld_->setValue( scenecoltab_->getSize().height() );
 }
 
