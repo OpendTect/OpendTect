@@ -156,6 +156,8 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+    if ( !marker )
+	return;
     marker->setCenterPos( loc.pos_ );
     marker->setDirection( loc.dir_ );
     BufferString dipvaluetext;
@@ -170,6 +172,8 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 Coord3 PickSetDisplay::getPosition( int loc ) const 
 {
     mDynamicCastGet( visBase::Marker*, marker, group_->getObject(loc) );
+    if ( !marker )
+	return Coord3();
     return marker->centerPos();
 }
 
@@ -177,6 +181,8 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 ::Sphere PickSetDisplay::getDirection( int loc ) const 
 {
     mDynamicCastGet( visBase::Marker*, marker, group_->getObject(loc) );
+    if ( !marker )
+	return ::Sphere();
     return marker->getDirection();
 }
 
