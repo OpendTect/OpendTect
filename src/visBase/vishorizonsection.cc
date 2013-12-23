@@ -137,6 +137,7 @@ HorizonSection::HorizonSection()
     , nrhorsectnrres_( 0 )
     , osghorizon_( new osg::Group )
     , forceupdate_( false )
+    , displaygeometrytype_( 0 )
     , hordatahandler_( new HorizonSectionDataHandler( this ) )
     , hortexturehandler_( new HorizonTextureHandler( this ) )
     , hortilescreatorandupdator_( new HorTilesCreatorAndUpdator(this) )
@@ -385,6 +386,7 @@ void HorizonSection::setDisplayGeometryType( int dispgeometrytype )
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->setDisplayGeometryType(
 	    dispgeometrytype );
+    displaygeometrytype_ = dispgeometrytype;
 }
 
 

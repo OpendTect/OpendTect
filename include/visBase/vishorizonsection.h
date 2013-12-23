@@ -114,6 +114,10 @@ public:
     void			updatePrimitiveSets();
     void			turnOsgOn( bool );
     void			setDisplayGeometryType( int type );
+				/*!< 0 is triangle--surface, 1 is line--grid */
+    int				displayGeometryType() const
+				{ return displaygeometrytype_ ; }
+				/*!< 0 is triangle--surface, 1 is line--grid */
     void			updateTiles();
 
 protected:
@@ -177,6 +181,8 @@ protected:
 
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		  updatedtileresolutions_;
+    int				displaygeometrytype_;
+				/*!< 0:triangle--surface,1:line--grid */
 
 };
 
