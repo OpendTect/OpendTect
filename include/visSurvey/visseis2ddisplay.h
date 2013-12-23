@@ -43,8 +43,10 @@ namespace visSurvey
 mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
-    static Seis2DDisplay*	create()
-				mCreateDataObj(Seis2DDisplay);
+				Seis2DDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,Seis2DDisplay,
+				    "Seis2DDisplay", sFactoryKeyword() );
 
     void			setLineInfo(const MultiID& lid,const char* lnm);
     const char*			getLineName() const;
@@ -132,8 +134,9 @@ public:
 
     virtual void		annotateNextUpdateStage(bool yn);
 
+
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
 protected:
 				~Seis2DDisplay();

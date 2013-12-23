@@ -48,8 +48,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mMaxImageSize 300000000	// 32767
 
-mCreateFactoryEntry( visSurvey::Seis2DDisplay );
-
 using namespace Attrib;
 
 namespace visSurvey
@@ -88,7 +86,6 @@ Seis2DDisplay::Seis2DDisplay()
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
-
     init();
 }
 
@@ -645,7 +642,7 @@ void Seis2DDisplay::updateLineNamePos()
 
 SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
 {
-    Seis2DDisplay* s2dd = create();
+    Seis2DDisplay* s2dd = new Seis2DDisplay;
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
@@ -1140,64 +1137,36 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
 }
 
 
-int Seis2DDisplay::usePar( const IOPar& par )
+bool Seis2DDisplay::usePar( const IOPar& par )
 {
-    int textureid = -1;
-    if ( par.get(sKeyTextureID(),textureid) )
+    if ( !MultiTextureSurveyObject::usePar( par ) )
+	return false;
+
+    Interval<int> trcnrrg;
+    if ( par.get( sKeyTrcNrRange(), trcnrrg ) )
     {
-	int res =  visBase::VisualObjectImpl::usePar( par );
-	if ( res != 1 ) return res;
-
-	DataObject* text = visBase::DM().getObject( textureid );
-	if ( !text ) return 0;
-
-/* OSG-TODO: Is this legacy going to be supported any longer?
-	if ( typeid(*text)!=typeid(visBase::Texture2) ) return -1;
-
-	RefMan<visBase::Texture2> texture =
-	    reinterpret_cast<visBase::Texture2*>(text);
-
-	channels_->setColTabMapperSetup( 0,
-		texture->getColorTab().colorMapper().setup_ );
-	channels_->getChannels2RGBA()->setSequence( 0,
-	    texture->getColorTab().colorSeq().colors() );
-*/
-
-	Attrib::SelSpec as;
-	as.usePar( par );
-	setSelSpec( 0, as );
-    }
-    else //new format
-    {
-	int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
-	if ( res!=1 ) return res;
-
-	Interval<int> trcnrrg;
-	if ( par.get( sKeyTrcNrRange(), trcnrrg ) )
+	for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
 	{
-	    for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
+	    if ( trcdisplayinfo_.alltrcnrs_[idx]>=trcnrrg.start )
 	    {
-		if ( trcdisplayinfo_.alltrcnrs_[idx]>=trcnrrg.start )
-		{
-		    trcdisplayinfo_.rg_.start = idx;
-		    break;
-		}
-	    }
-
-	    for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
-	    {
-		if ( trcdisplayinfo_.alltrcnrs_[idx]<=trcnrrg.start )
-		{
-		    trcdisplayinfo_.rg_.stop = idx;
-		    break;
-		}
+		trcdisplayinfo_.rg_.start = idx;
+		break;
 	    }
 	}
 
-	bool showlinename = false;
-	par.getYN( sKeyShowLineName(), showlinename );
-	showLineName( showlinename );
+	for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
+	{
+	    if ( trcdisplayinfo_.alltrcnrs_[idx]<=trcnrrg.start )
+	    {
+		trcdisplayinfo_.rg_.stop = idx;
+		break;
+	    }
+	}
     }
+
+    bool showlinename = false;
+    par.getYN( sKeyShowLineName(), showlinename );
+    showLineName( showlinename );
 
     par.get( sKeyZRange(), trcdisplayinfo_.zrg_ );
 
@@ -1223,7 +1192,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
     }
     linename_->text()->setText( linename.buf() );
 
-    return 1;
+    return true;
 }
 
 }; // namespace visSurvey
