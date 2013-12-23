@@ -31,9 +31,10 @@ mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
 public:
-    static PointSetDisplay*     create()
-				mCreateDataObj(PointSetDisplay);
-    				~PointSetDisplay();
+				PointSetDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PointSetDisplay,
+				    "PointSetDisplay", sFactoryKeyword() );
 
     void			setPointSize(int);
     int				getPointSize() const;
@@ -59,6 +60,8 @@ public:
 
 protected:
 
+protected:
+				~PointSetDisplay();
     DataPointSetDisplayProp*	dpsdispprop_;
     visBase::PointSet*		pointset_;
     DataPointSet*		data_;

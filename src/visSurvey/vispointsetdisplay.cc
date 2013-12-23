@@ -17,9 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 
 
-mCreateFactoryEntry( visSurvey::PointSetDisplay );
-
-
 namespace visSurvey {
 
 
