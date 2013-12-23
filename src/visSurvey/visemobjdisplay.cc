@@ -561,6 +561,9 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 void EMObjectDisplay::fillPar( IOPar& par ) const
 {
+    visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
+
     if ( emobject_ && !emobject_->isFullyLoaded() )
 	par.set( sKeySections(), displayedSections() );
 
@@ -577,17 +580,16 @@ void EMObjectDisplay::fillPar( IOPar& par ) const
     }
 
     par.set( sKeyPosAttrShown(), posattribs_ );
-    fillSOPar( par );
 }
 
 
-int EMObjectDisplay::usePar( const IOPar& par )
+bool EMObjectDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) ||
+	 !par.get(sKeyEarthModelID(),parmid_) )
 
-    if ( !par.get(sKeyEarthModelID(),parmid_) )
-	return -1;
+	 return false;
 
     PtrMan<IOObj> ioobj = IOM().get( parmid_ );
     if ( !ioobj )
@@ -622,7 +624,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     par.get( sKeyPosAttrShown(), parposattrshown_ );
 
-    return useSOPar( par );
+    return true;
 }
 
 
@@ -644,7 +646,6 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	emobject_->getPosAttrMarkerStyle(attrib).color_ );
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
-    markerset->setScreenSize( (float) 3* lineStyle()->width_ );
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
 
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);

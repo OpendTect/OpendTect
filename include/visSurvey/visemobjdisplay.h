@@ -108,7 +108,7 @@ public:
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();
 
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
 
     NotifierAccess*		getMovementNotifier()	{ return &hasmoved; }
     Notifier<EMObjectDisplay>	changedisplay;
@@ -118,6 +118,7 @@ public:
     virtual void		doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj )	=0;
+
 
 protected:
     				~EMObjectDisplay();
