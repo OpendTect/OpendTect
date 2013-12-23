@@ -84,7 +84,8 @@ int DataManager::getID( const osg::Node* node ) const
     {
 	for ( int idx=0; idx<objects_.size(); idx++ )
 	{
-	    if ( objects_[idx]->osgNode()==node ) return objects_[idx]->id();
+	    if ( objects_[idx]->osgNode(true)==node )
+		return objects_[idx]->id();
 	}
     }
 

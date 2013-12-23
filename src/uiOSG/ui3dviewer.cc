@@ -305,7 +305,7 @@ void ui3DViewerBody::setupView()
     if ( scene_ )
         scene_->setCamera( camera_ );
 
-    mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
+    mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode(true) );
     osgcamera->setGraphicsContext( getGraphicsContext() );
     osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
     osgcamera->setViewport( viewport_ );
@@ -346,10 +346,13 @@ void ui3DViewerBody::setupView()
     manip->setMinimumDistance( 0 );
 
     osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
-    handler->addThumbWheel( (osgGeo::ThumbWheel*) horthumbwheel_->osgNode() );
-    handler->addThumbWheel( (osgGeo::ThumbWheel*) verthumbwheel_->osgNode() );
+
     handler->addThumbWheel(
-			 (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode() );
+		(osgGeo::ThumbWheel*) horthumbwheel_->osgNode(true) );
+    handler->addThumbWheel(
+		 (osgGeo::ThumbWheel*) verthumbwheel_->osgNode(true) );
+    handler->addThumbWheel(
+		 (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode(true) );
     
     view_->getSceneData()->addEventCallback( handler );
 

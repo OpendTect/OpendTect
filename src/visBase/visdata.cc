@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visselman.h"
 #include "vismaterial.h"
 
-#include <osg/Node>
+#include <osg/Switch>
 #include <osg/ValueObject>
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
@@ -43,8 +43,7 @@ bool DataObject::isTraversalEnabled( unsigned int tt ) const
 
 FixedString DataObject::name() const
 {
-    osg::ref_ptr<const osg::Node> osgnode = osgNode();
-    if ( osgnode ) return osgnode->getName().c_str();
+    if ( osgnode_ ) return osgnode_->getName().c_str();
 
     return !name_ || name_->isEmpty() ? 0 : name_->buf();
 }
@@ -69,6 +68,7 @@ DataObject::DataObject()
     , name_( 0 )
     , enabledmask_( cAllTraversalMask() )
     , osgnode_( 0 )
+    , osgoffswitch_( 0 )
     , ison_( true )
 {
     DM().addObject( this );
@@ -80,6 +80,7 @@ DataObject::~DataObject()
     DM().removeObject( this );
     delete name_;
     if ( osgnode_ ) osgnode_->unref();
+    if ( osgoffswitch_ ) osgoffswitch_->unref();
     while ( nodestates_.size() )
 	removeNodeState( nodestates_[0] );
 }
@@ -120,7 +121,7 @@ NodeState* DataObject::getNodeState( int idx )
 
 osg::StateSet* DataObject::getStateSet()
 {
-    return osgNode() ? osgNode()->getOrCreateStateSet() : 0;
+    return osgnode_ ? osgnode_->getOrCreateStateSet() : 0;
 }
 
 
@@ -145,24 +146,54 @@ int DataObject::getID( const osg::Node* node )
 }
 
 
-
 bool DataObject::turnOn( bool yn )
 {
-    const bool res = isOn();
+    const bool wason = ison_;
+
+    if ( wason == yn )
+	return wason;
+
     ison_ = yn;
 
-    updateNodemask();
+    if ( !osgoffswitch_ )
+    {
+	osgoffswitch_ = new osg::Switch;
+	osgoffswitch_->ref();
+	osgoffswitch_->setAllChildrenOff();
+    }
 
+    if ( ison_ )
+    {
+	osgoffswitch_->removeChildren( 0, osgoffswitch_->getNumChildren() );
 
-    return res;
+	osg::Node::ParentList parents = osgoffswitch_->getParents();
+	for ( unsigned int idx=0; idx<parents.size(); idx++ )
+	{
+	    if ( osgnode_ )
+		parents[idx]->replaceChild( osgoffswitch_, osgnode_ );
+	    else
+		parents[idx]->removeChild( osgoffswitch_ );
+	}
+    }
+    else if ( osgnode_ )
+    {
+	osg::Node::ParentList parents = osgnode_->getParents();
+	for ( unsigned int idx=0; idx<parents.size(); idx++ )
+	    parents[idx]->replaceChild( osgnode_, osgoffswitch_ );
+
+	osgoffswitch_->addChild( osgnode_ );
+
+    }
+
+    requestSingleRedraw();
+    return wason;
 }
 
 
 void DataObject::updateNodemask()
 {
-    if ( osgNode() )
-	osgNode()->setNodeMask( ison_ ? enabledmask_ :  cNoTraversalMask() );
-
+    if ( osgnode_ )
+	osgnode_->setNodeMask( enabledmask_ );
 }
 
 
@@ -184,6 +215,18 @@ bool DataObject::isPickable() const
 }
 
 
+osg::Node* DataObject::osgNode( bool skipswitch )
+{
+    return ison_ || skipswitch ? osgnode_ : osgoffswitch_;
+}
+
+
+const osg::Node* DataObject::osgNode( bool skipswitch ) const
+{
+    return const_cast<DataObject*>(this)->osgNode( skipswitch );
+}
+
+
 void DataObject::setOsgNodeInternal( osg::Node* osgnode )
 {
     //Do this reverse order as osgnode may be a child of osgnode_
@@ -191,6 +234,13 @@ void DataObject::setOsgNodeInternal( osg::Node* osgnode )
     if ( osgnode_ ) osgnode_->unref();
     osgnode_ = osgnode;
     updateOsgNodeData();
+
+    if ( osgoffswitch_ )
+    {
+	osgoffswitch_->removeChildren( 0, osgoffswitch_->getNumChildren() );
+	if ( !ison_ && osgnode_ )
+	    osgoffswitch_->addChild( osgnode_ );
+    }
 }
 
 

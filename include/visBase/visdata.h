@@ -24,7 +24,7 @@ class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
 
-namespace osg { class Node; }
+namespace osg { class Switch; class Node; }
 namespace osgViewer { class CompositeViewer; }
 
 
@@ -73,8 +73,8 @@ public:
     FixedString			name() const;
     virtual void		setName(const char*);
 
-    osg::Node*			osgNode()		{ return osgnode_; }
-    const osg::Node*		osgNode() const		{ return osgnode_; }
+    osg::Node*			osgNode(bool skipswitch=false);
+    const osg::Node*		osgNode(bool skipswitch=false) const;
 
     void			enableTraversal(unsigned int mask,bool yn=true);
     bool			isTraversalEnabled(unsigned int mask) const;
@@ -178,6 +178,7 @@ private:
 
     ObjectSet<NodeState>		nodestates_;
     osg::Node*				osgnode_;
+    osg::Switch*			osgoffswitch_;
     int					id_;
     bool				ison_;
     BufferString*			name_;
