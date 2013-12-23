@@ -113,6 +113,9 @@ void MarkerSet::removeMarker( int idx )
     if ( normals_ ) normals_->removeNormal( idx );
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
+    if ( coords_ ) coords_->dirty();
+    markerset_->forceRedraw( true );
+    
 }
 
 
@@ -303,6 +306,7 @@ void MarkerSet::addPos( const Coord3& crd )
 {
     if ( coords_ )
 	coords_->addPos( crd );
+    markerset_->forceRedraw( true );
     
 }
 
@@ -311,6 +315,7 @@ void MarkerSet::setPos( int idx, const Coord3& crd )
 {
     if ( coords_ )
 	coords_->setPos( idx, crd );
+    markerset_->forceRedraw( true );
 }
 
 

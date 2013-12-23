@@ -387,7 +387,7 @@ void Coordinates::setAllPositions( const Coord3 pos, int sz, int start )
 
 void Coordinates::dirty() const
 {
-    if ( osgcoords_ && osgcoords_->getNumElements()> 0 )
+    if ( osgcoords_  ) 
 	osgcoords_->dirty();
 }
 
