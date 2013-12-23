@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visosg.h"
 #include "iopar.h"
 #include "paralleltask.h"
+#include "visdata.h"
 
 #include <osg/Material>
 #include <osg/Array>
@@ -350,6 +351,7 @@ void Material::updateOsgColor( int idx )
 	 colarr[idx] = diffuse;
     }
 
+    visBase::DataObject::requestSingleRedraw();
 }
 
 
