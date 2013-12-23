@@ -74,6 +74,19 @@ DataObject* DataManager::getObject( int id )
 }
 
 
+void DataManager::fillPar( IOPar& par ) const
+{
+    par.set( sKeyFreeID(), freeid_ );
+}
+
+
+bool DataManager::usePar( const IOPar& par )
+{
+    return par.get( sKeyFreeID(), freeid_ );
+}
+
+
+
 const DataObject* DataManager::getObject( int id ) const
 { return const_cast<DataManager*>(this)->getObject(id); }
 

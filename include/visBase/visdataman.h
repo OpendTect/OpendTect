@@ -49,6 +49,11 @@ public:
     const DataObject*	getIndexedObject(int idx) const;
 
     SelectionManager&	selMan() { return selman_; }
+ 
+    void		fillPar(IOPar&) const;
+			//Only saves freeid_
+    bool		usePar(const IOPar&);
+			//Only restores freeid_
 
     Notifier<DataManager>	removeallnotify;
 
