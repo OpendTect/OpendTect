@@ -40,8 +40,10 @@ mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl,
 {
 public:
 
-    static PreStackDisplay*	create()
-				mCreateDataObj( PreStackDisplay );
+				PreStackDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PreStackDisplay,
+				    "PreStackDisplay", sFactoryKeyword() );
 
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);
@@ -100,9 +102,10 @@ public:
     void			otherObjectsMoved( 
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
+
      
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
     static const char*		sKeyParent()	{ return "Parent"; }
     static const char*		sKeyFactor()	{ return "Factor"; }

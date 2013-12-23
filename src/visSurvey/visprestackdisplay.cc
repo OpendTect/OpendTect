@@ -37,8 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
-mCreateFactoryEntry( visSurvey::PreStackDisplay );
-
 #define mDefaultWidth ((SI().inlDistance() + SI().crlDistance() ) * 100)
 
 static const char* sKeyMultiID()	{ return "Data ID"; }
@@ -573,6 +571,15 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( !section_ ) return;
     section_->ref();
 
+    if ( section_->id() > id() )
+    {
+	pErrMsg("The display restore order is wrong. The section id has to be \
+		  lower than PreStack id so that it can be restored earlier \
+		  than PreStack display in the sessions." );
+	return;
+    }
+    
+
     if ( ioobj_ && !reader_ )
     	reader_ = SPSIOPF().get3DReader( *ioobj_ );
 
@@ -704,6 +711,15 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 
     seis2d_ = s2d;
     seis2d_->ref();
+
+    if ( seis2d_->id() > id() )
+    {
+	pErrMsg("The display restore order is wrong. The Seis2d display id \
+		has to be lower than PreStack id so that it can be restored \
+		earlier than PreStack display in the sessions." );
+	return false;
+    }
+
      if ( ioobj_ && !reader_ )
 	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->name() );
 
@@ -929,8 +945,8 @@ void PreStackDisplay::fillPar( IOPar& par ) const
     if ( !section_ && !seis2d_ )
 	return;
 
-    SurveyObject::fillSOPar( par );
     VisualObjectImpl::fillPar( par );
+    SurveyObject::fillPar( par );
 
     if ( section_ )
     {
@@ -958,32 +974,29 @@ void PreStackDisplay::fillPar( IOPar& par ) const
 }
 
 
-int PreStackDisplay::usePar( const IOPar& par )
+bool PreStackDisplay::usePar( const IOPar& par )
 {
-   int res =  VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    res = SurveyObject::useSOPar( par );
-    if ( res!=1 ) return res;
+    if ( !VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	 return false;
 
     int parentid = -1;
     if ( !par.get( sKeyParent(), parentid ) )
     {
     	if ( !par.get( "Seis2D ID", parentid ) )
 	    if ( !par.get( "Section ID", parentid ) )
-		return -1;
+		return false;
     }
 
     visBase::DataObject* parent = visBase::DM().getObject( parentid );
-    if ( !parent )
-	return 0;
+    if ( !parent ) return false;
 
     MultiID mid;
     if ( !par.get( sKeyMultiID(), mid ) ) 
     {
 	if ( !par.get("PreStack MultiID",mid) ) 
 	{
-	    return -1;
+	    return false;
 	}
     }
     
@@ -992,7 +1005,7 @@ int PreStackDisplay::usePar( const IOPar& par )
     mDynamicCastGet( PlaneDataDisplay*, pdd, parent );
     mDynamicCastGet( Seis2DDisplay*, s2d, parent );
     if ( !pdd && !s2d )
-	return -1;
+	return false;
     
     if ( pdd )
     {	
@@ -1001,11 +1014,11 @@ int PreStackDisplay::usePar( const IOPar& par )
 	if ( !par.get( sKey::Position(), bid ) )
 	{
 	    if ( !par.get("PreStack BinID",bid) )
-		return -1;
+		return false;
 	}
 
 	if ( !setPosition( bid ) )
-	    return -1;
+	    return false;
     }
 
     if ( s2d )
@@ -1014,7 +1027,7 @@ int PreStackDisplay::usePar( const IOPar& par )
 	if ( !par.get( sKeyTraceNr(), tnr ) )
 	{
 	    if ( !par.get( "Seis2D TraceNumber", tnr ) )
-		return -1;
+		return false;
 	}
 
 	setSeis2DDisplay( s2d, tnr );
@@ -1040,7 +1053,7 @@ int PreStackDisplay::usePar( const IOPar& par )
 	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
     }
 
-    return 1;
+    return true;
 }
 
 
