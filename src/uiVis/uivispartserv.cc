@@ -81,9 +81,13 @@ int uiVisPartServer::evGetHeadOnIntensity()	    { return 21; }
 int uiVisPartServer::evSetHeadOnIntensity()	    { return 22; }
 
 
-
-const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
-const char* uiVisPartServer::sKeyWorkArea()		{ return "Work Area"; }
+const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
+const char* uiVisPartServer::sKeyWorkArea()	    { return "Work Area"; }
+static const char* sKeyNumberScenes()	       { return "Number of Scene";}
+static const char* sKeySceneID()	             { return "Scene ID"; }
+static const char* sceneprefix()	                { return "Scene"; }
+static const char* sKeyPolygonSelMode()   { return "Polygon Select Mode"; }
+static const char* sKeyPolygonSelType()   { return "Polygon Select Type"; }
 
 
 static const int cResetManipIdx = 800;
@@ -1065,8 +1069,11 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
     for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
     {
 	visSurvey::Scene* scene = scenes_[sceneidx];
-	scene->getPolySelection()->setSelectionType(
-		    (visBase::PolygonSelection::SelectionType) seltype_ );
+	if ( scene->getPolySelection() )
+	{
+	    scene->getPolySelection()->setSelectionType(
+	    (visBase::PolygonSelection::SelectionType) seltype_ );
+	}
     }
 
     selectionmode_ = mode;
@@ -1311,6 +1318,9 @@ bool uiVisPartServer::setWorkingArea()
 
 bool uiVisPartServer::usePar( const IOPar& par )
 {
+    if ( !visBase::DM().usePar( par ) )
+	return false;
+
     BufferString res;
     if ( par.get( sKeyWorkArea(), res ) )
     {
@@ -1322,9 +1332,34 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	zrg.start = toFloat(fms[4]); zrg.stop = toFloat(fms[5]);
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
+    else
+	return false;
 
-    pErrMsg("Not implemented yet.");
+    int nrscenes( 0 );
+    if ( !par.get( sKeyNumberScenes(), nrscenes ) )
+	return false;
 
+    for ( int idx=0; idx<nrscenes; idx++ )
+    {
+	IOPar sceneidpar;
+	BufferString key( sceneprefix(), idx );
+	int sceneid = -1;
+	BufferString scenekey = sceneidpar.compKey( key.buf(),sKeySceneID() );
+	if ( !par.get( scenekey, sceneid ) )
+	    continue;
+
+	if ( visBase::DM().getObject( sceneid ) )
+	    continue;
+
+	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
+	newscene->setID( sceneid );
+	addScene( newscene );
+
+	IOPar* scenepar = par.subselect( key.buf() );
+	if ( !scenepar )
+	    continue;
+	newscene->usePar( *scenepar );
+    }
 
     mpetools_->initFromDisplay();
 
@@ -1353,11 +1388,9 @@ void uiVisPartServer::calculateAllAttribs()
 
 void uiVisPartServer::fillPar( IOPar& par ) const
 {
-    TypeSet<int> storids;
+    visBase::DM().fillPar( par );
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	storids += scenes_[idx]->id();
-
+    par.set( sKeyNumberScenes(), scenes_.size() );
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
     fms += cs.hrg.start.inl();
@@ -1368,7 +1401,15 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     fms += cs.zrg.stop;
     par.set( sKeyWorkArea(), fms );
 
-    //visBase::DM().fillPar( par, storids );
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	IOPar scenepar;
+	BufferString key( sceneprefix(), idx );
+	scenepar.set( sKeySceneID(), scenes_[idx]->id() );
+	scenes_[idx]->fillPar( scenepar );
+	par.mergeComp( scenepar, key.buf() );
+    }
+
 }
 
 
@@ -1636,8 +1677,6 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
 	resetManipulation(id);
 	return true;
     }
-
-
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
 
@@ -1660,6 +1699,7 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
     eventobjid_ = id;
     eventattrib_ = attrib;
     return sendEvent( evGetNewData() );
+
 }
 
 
