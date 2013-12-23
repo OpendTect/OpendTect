@@ -1165,17 +1165,13 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    float shift =
-		emattrserv_->shiftRange().atIndex(idx) *
-		SI().zDomain().userFactor();
+	    const float shift = emattrserv_->shiftRange().atIndex(idx);
+	    float usrshift = shift * SI().zDomain().userFactor();
+	    if ( mIsZero(usrshift,1e-3) ) usrshift = 0.f;
 	    BufferString shiftstr;
-	    getStringFromFloat( SI().zIsTime() ? "%g" : "%f", shift,
-				shiftstr.buf() );
-	    if ( mIsZero(shift,1e-3) ) shiftstr = "0";
-	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
-	    auxdatanm += " ["; auxdatanm += shiftstr; auxdatanm += "]";
-	    emserv_->setAuxData( emid, data, auxdatanm, idx+2,
-				 emattrserv_->shiftRange().atIndex(idx) );
+	    shiftstr.set( usrshift ).embed( '[', ']' );
+	    BufferString nm( emattrserv_->getAttribBaseNm(), " ", shiftstr );
+	    emserv_->setAuxData( emid, data, nm, idx+2, shift );
 	    BufferString dummy;
 	    if ( !emserv_->storeAuxData( emid, dummy, false ) )
 		return false;

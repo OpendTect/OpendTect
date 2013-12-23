@@ -2077,11 +2077,7 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
     if ( binary_ )
 	strm.addBin( &val, sizeof(val) );
     else
-    {
-	char str[255];
-	getStringFromDouble("%.17g", val, str );
-	strm << str << post;
-    }
+	strm << toString(val) << post;
 
     return strm.isOK();
 }

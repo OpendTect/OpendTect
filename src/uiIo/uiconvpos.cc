@@ -36,10 +36,10 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     mangrp = new uiGroup( this, "Manual group" );
     uiGroup* inlcrlgrp = new uiGroup( mangrp, "InlCrl group" );
     const Interval<int> intv( -mUdf(int), mUdf(int) );
-    inlfld = new uiGenInput( inlcrlgrp, "In-line", 
+    inlfld = new uiGenInput( inlcrlgrp, "In-line",
 		IntInpSpec(0,intv).setName("Inl-field") );
     inlfld->setElemSzPol( uiObject::Small );
-    crlfld = new uiGenInput( inlcrlgrp, "Cross-line", 
+    crlfld = new uiGenInput( inlcrlgrp, "Cross-line",
 		IntInpSpec(0,intv).setName("Crl-field") );
     crlfld->setElemSzPol( uiObject::Small );
     crlfld->attach( alignedBelow, inlfld );
@@ -48,8 +48,8 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     xfld = new uiGenInput( xygrp, "X-coordinate",
 			   DoubleInpSpec().setName("X-field") );
     xfld->setElemSzPol( uiObject::Small );
-    yfld = new uiGenInput( xygrp, "Y-coordinate", 
-	    		   DoubleInpSpec().setName("Y-field") );
+    yfld = new uiGenInput( xygrp, "Y-coordinate",
+			   DoubleInpSpec().setName("Y-field") );
     yfld->setElemSzPol( uiObject::Small );
     yfld->attach( alignedBelow, xfld );
 
@@ -58,7 +58,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 			uiToolButton::LeftArrow, "Convert (X,Y) to Inl/Crl",
 			mCB(this,uiConvertPos,getBinID) );
     uiToolButton* docoordbut = new uiToolButton( butgrp,
-	    		uiToolButton::RightArrow, "Convert Inl/Crl to (X,Y)",
+			uiToolButton::RightArrow, "Convert Inl/Crl to (X,Y)",
 			mCB(this,uiConvertPos,getCoord) );
     docoordbut->attach( rightTo, dobinidbut );
     butgrp->attach( centeredRightOf, inlcrlgrp );
@@ -81,7 +81,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 	           BoolInpSpec(true,"X/Y to I/C","I/C to X/Y") );
     isxy2bidfld->attach( alignedBelow, outfilefld );
     uiPushButton* pb = new uiPushButton( filegrp, "Go",
-	    			mCB(this,uiConvertPos,convFile), true );
+				mCB(this,uiConvertPos,convFile), true );
     pb->attach( alignedBelow, isxy2bidfld );
     filegrp->setHAlignObj( inpfilefld );
     filegrp->attach( alignedBelow, ismanfld );
@@ -173,10 +173,8 @@ void uiConvertPos::convFile( CallBacker* )
 	{
 	    BinID bid( mNINT32(c.x), mNINT32(c.y) );
 	    c = SI().transform( bid );
-	    getStringFromDouble( 0, c.x, buf );
-	    ostream << buf << ' ';
-	    getStringFromDouble( 0, c.y, buf );
-	    ostream << buf << linebuf << '\n';
+	    ostream << toString(c.x) << ' '; // keep on sep line: toString()
+	    ostream << toString(c.y) << linebuf << '\n';
 	}
 	nrln++;
     }
@@ -184,5 +182,3 @@ void uiConvertPos::convFile( CallBacker* )
     getStringFromInt(nrln,buf);
     uiMSG().message( "Total number of converted lines: ", buf );
 }
-
-

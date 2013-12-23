@@ -43,8 +43,8 @@ static void prBidCoord( std::ostream& strm, const Pos::IdxPair2Coord& b2c,
 			const BinID& bid)
 {
     Coord coord = b2c.transform( bid );
-    BufferString bs( getStringFromDouble("%lg",coord.x) );
-    bs += " "; bs += getStringFromDouble("%lg",coord.y);
+    BufferString bs( toString(coord.x) );
+    bs += " "; bs += toString(coord.y);
     strm << "Coords." << bid.inl << "/" << bid.crl << ": " << bs << std::endl;
 }
 

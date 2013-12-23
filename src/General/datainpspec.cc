@@ -151,7 +151,7 @@ void DataInpSpec::setType( DataType t )
 const char* DataInpSpec::name( int idx ) const
 {
     const int nmidx = nameidxs_.indexOf( idx );
-    if ( nmidx < 0 ) 
+    if ( nmidx < 0 )
 	return 0;
     return names_.get( nmidx );
 }
@@ -186,7 +186,7 @@ DataInpSpec* StringInpSpec::clone() const
 
 
 const char* StringInpSpec::text() const
-{ 
+{
     if ( isUndef() ) return "";
     return (const char*) str_;
 }
@@ -278,7 +278,7 @@ void BoolInpSpec::setTrueFalseTxt( bool tf, const char* txt )
 }
 
 
-bool BoolInpSpec::checked() const 
+bool BoolInpSpec::checked() const
 { return yn_; }
 
 
@@ -444,7 +444,7 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
     if ( idx > 1 || (s.is2d_ && !s.wantcoords_ && idx == 1) ) \
 	s.offs_ = f; \
     else if ( s.wantcoords_  ) \
-       	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
+	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
     else if ( !s.is2d_ && idx == 0 ) \
       s.binid_.inl() = mNINT32(f); \
     else \
@@ -530,14 +530,12 @@ float PositionInpSpec::getOffset( float udfval ) const
 const char* PositionInpSpec::text( int idx ) const
 {
     mDeclStaticString( ret );
-
-    const float v = getVal( setup_, idx );
-    getStringFromFloat( 0, v, ret.buf() );
+    ret.set( getVal(setup_,idx) );
     return ret.buf();
 }
 
 
-bool PositionInpSpec::setText( const char* s, int idx ) 
+bool PositionInpSpec::setText( const char* s, int idx )
 {
     setVal( setup_, idx, toFloat(s) );
     return true;

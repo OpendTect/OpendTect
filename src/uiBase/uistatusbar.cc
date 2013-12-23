@@ -11,13 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
-#include "uimain.h" 
-#include "uiparentbody.h" 
+#include "uimain.h"
+#include "uiparentbody.h"
 
 #include "uibody.h"
 
-#include <qstatusbar.h> 
-#include <qlabel.h> 
+#include <qstatusbar.h>
+#include <qlabel.h>
 #include <qtooltip.h>
 
 mUseQtnamespace
@@ -26,15 +26,18 @@ class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
 {
 friend class		uiStatusBar;
 public:
-                        uiStatusBarBody( uiStatusBar& hndl, 
-					 uiMainWin* parnt, const char* nm,  
-					 QStatusBar& sb) 
+                        uiStatusBarBody( uiStatusBar& hndl,
+					 uiMainWin* parnt, const char* nm,
+					 QStatusBar& sb)
 			    : uiBodyImpl<uiStatusBar,QStatusBar>
 				( hndl, parnt, sb )
 			{}
 
+    int			size() const
+			{ return qthing()->children().size(); }
+
     void		message( const char* msg, int idx, int msecs )
-			{ 
+			{
 			    if ( !msgs.isEmpty() )
 			    {
 #ifdef __debug__
@@ -42,7 +45,7 @@ public:
 				    pErrMsg("No auto-erase for SB with fields");
 #endif
 				if ( idx > 0 && idx < msgs.size() && msgs[idx] )
-				    msgs[idx]->setText(msg); 
+				    msgs[idx]->setText(msg);
 				else msgs[0]->setText(msg);
 			    }
 			    else if ( msg && *msg )
@@ -52,7 +55,7 @@ public:
 			}
 
     void		setBGColor( int idx, const Color& col )
-			{ 
+			{
 			    QWidget* widget = 0;
 			    if ( msgs.size()>0 && msgs[0] )
 			    {
@@ -60,11 +63,11 @@ public:
 				    widget = msgs[idx];
 				else widget = msgs[0];
 			    }
-			    else 
+			    else
 				widget = qthing();
 
 			    const QColor qcol(col.r(),col.g(),
-				    			col.b());
+							col.b());
 			    QPalette palette;
 			    palette.setColor( widget->backgroundRole(), qcol );
 			    widget->setPalette(palette);
@@ -79,7 +82,7 @@ public:
 				    widget = msgs[idx];
 				else widget = msgs[0];
 			    }
-			    else 
+			    else
 				widget = qthing();
 
 			    const QBrush& qbr =
@@ -109,7 +112,7 @@ public:
 			}
 
     void		repaint()
-			    { 
+			    {
 				qthing()->repaint();
 				for( int idx=0; idx<msgs.size(); idx++)
 				    if (msgs[idx]) msgs[idx]->repaint();
@@ -118,7 +121,7 @@ public:
 protected:
 
     virtual const QWidget*	managewidg_() const
-    							{ return qwidget(); }
+							{ return qwidget(); }
 
     ObjectSet<QLabel>		msgs;
 
@@ -137,20 +140,34 @@ uiStatusBar::~uiStatusBar()
 }
 
 
-uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm, 
-				      QStatusBar& sb)	
+uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm,
+				      QStatusBar& sb)
 {
     body_= new uiStatusBarBody( *this, parnt, nm, sb );
 
 #ifndef __mac__ //TODO: Bugfix for gripper on Mac
-    sb.setSizeGripEnabled( false ); 
+    sb.setSizeGripEnabled( false );
 #endif
 
-    return *body_; 
+    return *body_;
 }
 
 
-void uiStatusBar::message( const char* msg, int fldidx, int msecs ) 
+int uiStatusBar::nrFields() const
+{
+    return body_->size();
+}
+
+
+void uiStatusBar::setEmpty( int startat )
+{
+    const int nrflds = nrFields();
+    for ( int idx=startat; idx<nrflds; idx++ )
+	body_->message( "", idx, -1 );
+}
+
+
+void uiStatusBar::message( const char* msg, int fldidx, int msecs )
 {
     body_->message( msg, fldidx, msecs );
     body_->repaint();

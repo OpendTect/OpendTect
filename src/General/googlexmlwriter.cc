@@ -133,7 +133,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 					  const LatLong& ll, const char* nm,
-       					  const char* desc )
+					  const char* desc )
 {
     if ( !isOK() ) return; mDeclIconStNm;
 
@@ -141,10 +141,9 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 	   << "\t\t<name>" << nm << "</name>\n";
     if ( desc && *desc )
 	strm() << "\t\t<description>" << desc << "</description>\n";
-    char lngstr[255]; getStringFromDouble(0,ll.lng_, lngstr );
+    const BufferString latstr( toString(ll.lat_) ), lngstr( toString(ll.lng_) );
     strm() << "\t\t<LookAt>\n"
 	      "\t\t\t<longitude>" << lngstr << "</longitude>\n";
-    char latstr[255]; getStringFromDouble(0,ll.lat_, latstr );
     strm() << "\t\t\t<latitude>" << latstr << "</latitude>\n";
     strm() << "\t\t\t<altitude>0</altitude>\n"
 	"\t\t\t<range>500</range>\n"
@@ -163,7 +162,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
 
 void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 				     const TypeSet<Coord>& crds,
-       				     const char* nm )
+				     const char* nm )
 {
     if ( !isOK() ) return; mDeclIconStNm;
 
@@ -212,7 +211,7 @@ void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm, const Color& col,
 
 void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 				     const TypeSet<Coord>& coords, float hght,
-       				     const SurveyInfo* si )
+				     const SurveyInfo* si )
 {
     if ( !isOK() ) return; mDeclPolyStNm;
     if ( !si ) si = &SI();

@@ -67,9 +67,6 @@ public:
     char*		buf();		//!< Allocation of min length guaranteed
     inline const char*	buf() const	{ return buf_ ? buf_ : empty().buf_; }
     inline const char*	str() const;	//!<\returns null pointer if empty
-    char*		bufEnd()	{ return buf()+size(); }
-			/*!<Use with care, allocation beyond min length is not
-			    guaranteed. */
     inline		operator const char*() const	{ return buf(); }
     inline char&	operator []( int idx )		{ return buf()[idx]; }
     inline const char&	operator []( int idx ) const	{ return buf()[idx]; }

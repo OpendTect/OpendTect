@@ -65,7 +65,7 @@ static int doWork( int argc, char** argv )
     if ( argc < 3 )
     {
 	std::cerr << "Usage: LineSet_ID output_ascii_filenm [udfval]"
-	    	  << std::endl;
+		  << std::endl;
 	return 1;
     }
 
@@ -135,9 +135,8 @@ static int doWork( int argc, char** argv )
 
 	    outstrm << linenm.buf() << '\t'
 		    << linedata.posns[posidx].nr_ << '\t';
-	    outstrm << getStringFromDouble( 0, linedata.posns[posidx].coord_.x )
-		    << '\t';
-	    outstrm << getStringFromDouble( 0, linedata.posns[posidx].coord_.y);
+	    outstrm << toString( linedata.posns[posidx].coord_.x ) << '\t';
+	    outstrm << toString( linedata.posns[posidx].coord_.y );
 	    bid.crl = linedata.posns[posidx].nr_;
 	    for ( int horidx=0; horidx<horizons.size(); horidx++ )
 	    {
@@ -147,7 +146,7 @@ static int doWork( int argc, char** argv )
 		if ( bid.inl>=0 )
 		    crd = hor->getPos( hor->sectionID(0), bid.getSerialized() );
 		const float val = mIsUdf(crd.z) ? udfval : crd.z;
-		outstrm << '\t' << getStringFromFloat(0,val);
+		outstrm << '\t' << toString(val);
 	    }
 	    outstrm << std::endl;
 	}

@@ -499,15 +499,9 @@ void uiHorizonSetupGroup::initEventGroup()
 			    : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
     evfld_->setValue( fldidx );
 
-    Interval<float> srchintv(
-	    horadj_->permittedZRange().start * SI().zDomain().userFactor(),
-	    horadj_->permittedZRange().stop * SI().zDomain().userFactor() );
-
-    char str[255];
-    getStringFromFloat("%.5f",srchintv.start, str);
-    srchgatefld_->setText( str, 0 );
-    getStringFromFloat("%.5f",srchintv.stop, str);
-    srchgatefld_->setText( str, 1 );
+    Interval<float> srchintv( horadj_->permittedZRange() );
+    srchintv.scale( SI().zDomain().userFactor() );
+    srchgatefld_->setValue( srchintv );
 
     thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
     extriffailfld_->setValue( !horadj_->removesOnFailure() );
@@ -522,11 +516,7 @@ void uiHorizonSetupGroup::initSimiGroup()
 	    horadj_->similarityWindow().start * SI().zDomain().userFactor(),
 	    horadj_->similarityWindow().stop * SI().zDomain().userFactor() );
 
-    char str[255];
-    getStringFromFloat("%.5f",simiintv.start, str );
-    compwinfld_->setText( str, 0 );
-    getStringFromFloat("%.5f",simiintv.stop, str );
-    compwinfld_->setText( str, 1 );
+    compwinfld_->setValue( simiintv );
 
     simithresholdfld_->setValue( horadj_->similarityThreshold() );
 }

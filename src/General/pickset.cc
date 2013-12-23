@@ -208,7 +208,7 @@ void Location::toString( BufferString& str, bool forexport ) const
     {
 	BufferString txt( *text_ );
 	txt.replace( newlinechar, pipechar );
-	str = "\""; str += txt; str += "\"\t";
+	str.set( "\"" ).add( txt ).add( "\"\t" );
     }
 
     Coord3 usepos( pos_ );
@@ -225,35 +225,17 @@ void Location::toString( BufferString& str, bool forexport ) const
 	usepos.z = usepos.z * SI().showZ2UserFactor();
     }
 
-#define mSetFormat( val ) \
-    fmt = val<1e-1 ? "%le" : ((val>=1e-1 && val<1e8) ? "%lf" : "%lg")
-
-    str.setMinBufSize( str.size()+1024 );
-    const char* fmt = 0;
-
-    mSetFormat(usepos.x);
-    getStringFromDouble( fmt, usepos.x, str.bufEnd() );
-    mSetFormat(usepos.y);
-    str += "\t"; getStringFromDouble( fmt, usepos.y, str.bufEnd() );
-    mSetFormat(usepos.z);
-    str += "\t"; getStringFromDouble( fmt, usepos.z, str.bufEnd() );
-
+    str.add( usepos.x ).add( "\t" ).add( usepos.y ).add( "\t" ).add( usepos.z );
     if ( hasDir() )
-    {
-	str += "\t"; getStringFromDouble( 0, dir_.radius, str.bufEnd() );
-	str += "\t"; getStringFromDouble( 0, dir_.theta, str.bufEnd() );
-	str += "\t"; getStringFromDouble( 0, dir_.phi, str.bufEnd() );
-    }
+	str.add( "\t" ).add( dir_.radius ).add( "\t" ).add( dir_.theta )
+	    .add( "\t" ).add( dir_.phi );
 }
 
 
 bool Location::getText( const char* idkey, BufferString& val ) const
 {
-    if ( !text_ )
-    {
-	val = "";
-	return false;
-    }
+    if ( !text_ || !*text_ )
+	{ val.setEmpty(); return false; }
 
     SeparString sepstr( *text_, '\'' );
     const int strsz = sepstr.size();

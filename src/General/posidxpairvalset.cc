@@ -260,12 +260,8 @@ bool Pos::IdxPairValueSet::putTo( od_ostream& strm ) const
 	const IdxPair ip( getFrst(pos), getScnd(pos) );
 	const float* vals = getVals(pos);
 	strm << ip.first << od_tab << ip.second;
-	char str[255];
 	for ( int idx=0; idx<nrvals_; idx++ )
-	{
-	    getStringFromFloat( 0, vals[idx], str );
-	    strm << od_tab << str;
-	}
+	    strm << od_tab << toString( vals[idx] );
 	strm << od_newline;
     }
     strm.flush();
@@ -1198,12 +1194,8 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
 	    if ( nrvals_ )
 	    {
 		const float* v = vals.arr() + iscnd*nrvals_;
-		char str[255];
 		for ( int idx=0; idx<nrvals_; idx++ )
-		{
-		    getStringFromFloat( 0, v[idx], str );
-		    fms += str;
-		}
+		    fms += v[idx];
 	    }
 	}
 	if ( ky && *ky )
