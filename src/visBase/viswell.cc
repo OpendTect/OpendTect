@@ -848,7 +848,7 @@ void Well::fillPar( IOPar& par ) const
 }
 
 
-int Well::usePar( const IOPar& par )
+bool Well::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;

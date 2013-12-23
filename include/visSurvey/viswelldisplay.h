@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ranges.h"
 #include "welllogdisp.h"
+#include "factory.h"
 
 class BaseMapObject;
 class LineStyle;
@@ -55,8 +56,10 @@ mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
 {
 public:
-    static WellDisplay*		create()
-				mCreateDataObj(WellDisplay);
+				WellDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,WellDisplay,
+				    "WellDisplay", sFactoryKeyword() );
 
     bool			setMultiID(const MultiID&);
     MultiID			getMultiID() const 	{ return wellid_; }
@@ -138,12 +141,12 @@ public:
     const ZAxisTransform*	getZAxisTransform() const;
     
     virtual void                fillPar(IOPar&) const;
-    virtual int                 usePar(const IOPar&);
+    virtual bool                usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
 
-protected:
 
-    virtual			~WellDisplay();
+protected:
+				~WellDisplay();
 
     BaseMapObject*		createBaseMapObject();
     void			setWell(visBase::Well*);

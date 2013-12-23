@@ -189,7 +189,7 @@ public:
     void			setLogTubeDisplay(Side side,bool yn);
 
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar& par);
+    bool			usePar(const IOPar& par);
     int				markersize_;
     
     static const char*		linestylestr();

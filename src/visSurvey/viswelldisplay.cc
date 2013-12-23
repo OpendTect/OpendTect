@@ -44,8 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetDispPar(param) wd->displayProperties().param
 
 
-mCreateFactoryEntry( visSurvey::WellDisplay );
-
 namespace visSurvey
 {
 
@@ -962,36 +960,37 @@ void WellDisplay::dataTransformCB( CallBacker* )
 void WellDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
 
     par.set( sKeyEarthModelID, wellid_ );
 
     mGetWD(return);
     wd->displayProperties().fillPar( par );
 
-    fillSOPar( par );
 }
 
 
-int WellDisplay::usePar( const IOPar& par )
+bool WellDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	  !visSurvey::SurveyObject::usePar( par ) )
+	  return false;
 
     MultiID newmid;
     if ( !par.get(sKeyEarthModelID,newmid) )
-	return -1;
+	return false;
 
     if ( !setMultiID(newmid) )
     {
 	return 1;
     }
 
-    mGetWD(return -1);
+    mGetWD(return false);
     wd->displayProperties().usePar( par );
     displayLeftLog();
     displayRightLog();
 
-    return useSOPar( par );
+    return true;
 }
 
 } // namespace visSurvey

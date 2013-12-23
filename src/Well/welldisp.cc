@@ -64,6 +64,8 @@ static const char* sKeyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Right Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
+static const char* sKeyLeftLogStyle = "Left Log Style";
+static const char* sKeyRightLogStyle = "Right Log Style";
 
 
 Well::DisplayProperties::DisplayProperties( const char* subjname )
@@ -237,6 +239,8 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
                iscoltabflipped_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyLeftLogStyle),style_);
+
 }
 
 
@@ -264,6 +268,7 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
                iscoltabflipped_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyRightLogStyle),style_);
 }
 
 
@@ -290,6 +295,7 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
                iscoltabflipped_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyLeftLogStyle),style_);
 }
 
 
@@ -317,6 +323,8 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
                iscoltabflipped_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyRightLogStyle),style_);
+
 }
 
 
