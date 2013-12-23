@@ -83,8 +83,6 @@ static const char* scenestr = "Scene ";
     for ( int idx=0; idx<scenes_.size(); idx++ ) \
 	scenes_[idx]->memb->fn( arg )
 
-
-
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
@@ -308,10 +306,21 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    removeScene( scn.mdiwin_->mainObject() );
 	    continue;
 	}
+	if ( scn.sovwr_->getPolygonSelector() )
+	{
+	    visBase::DataObject* obj = 
+		visBase::DM().getObject( scn.sovwr_->sceneID() );
+	    mDynamicCastGet( visSurvey::Scene*,visscene,obj );
+	    if ( visscene )
+		visscene->setPolygonSelector(scn.sovwr_->getPolygonSelector());
+	}
+	visServ().turnSelectionModeOn( false );
 
 	BufferString title( scenestr );
 	title += vwridx_;
 	scn.mdiwin_->setTitle( title );
+	visServ().setObjectName( scn.sovwr_->sceneID(), title );
+
 	scn.sovwr_->display( true );
 	scn.sovwr_->showRotAxis( true );
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
@@ -331,7 +340,9 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 	menuMgr().updateAxisMode( true );
     }
+
     rebuildTrees();
+    
 }
 
 
@@ -768,6 +779,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
+
     for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
 	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
