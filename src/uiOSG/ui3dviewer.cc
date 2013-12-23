@@ -39,7 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiobjbody.h"
 #include "viscamera.h"
-//#include "viscamerainfo.h"
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "vispolygonselection.h"
@@ -71,6 +70,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdatagroup.h"
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
+static const char* sKeyManipCenter()	{ return "Manipulator Center"; }
+static const char* sKeyManipDistance()	{ return "Manipulator Distance"; }
+static const char* preOdHomePosition()	{return "Home position.Aspect ratio";}
+static const char* sKeyHomePos()	{ return "Home position"; }
+static const char* sKeyCameraRotation() { return "Camera Rotation"; }
+
 
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
@@ -185,6 +190,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , polygonselection_( 0 )
     , visscenecoltab_( 0 )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
+    , setinitialcamerapos_( true )
 {
     manipmessenger_->ref();
     sceneroot_->ref();
@@ -353,7 +359,7 @@ void ui3DViewerBody::setupView()
 		 (osgGeo::ThumbWheel*) verthumbwheel_->osgNode(true) );
     handler->addThumbWheel(
 		 (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode(true) );
-    
+
     view_->getSceneData()->addEventCallback( handler );
 
     // Camera projection must be initialized before computing home position
@@ -440,7 +446,7 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
         mThumbWheelLen, mThumbWheelWidth, mZCoord );
     const float offset = axes_->getLength() + 10;
     axes_->setPosition( widget->width()-offset, offset );
-    
+
     if ( visscenecoltab_ )
 	visscenecoltab_->setWindowSize( widget->width(), widget->height() );
 }
@@ -503,6 +509,13 @@ visBase::SceneColTab* ui3DViewerBody::getSceneColTab() const
 
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
+    
+    if ( eventfilter_.getCurrentEventType()== 
+	uiEventFilter::Show && setinitialcamerapos_ )
+    {
+	viewAll( false );
+    }
+
     if ( eventfilter_.getCurrentEventType()==uiEventFilter::Resize ||
 	 eventfilter_.getCurrentEventType()==uiEventFilter::Show )
     {
@@ -615,17 +628,6 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
 void ui3DViewerBody::align()
 {
-    /*
-    SoCamera* cam = getCamera();
-    if ( !cam ) return;
-    osg::Vec3f dir;
-    cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), dir );
-
-    osg::Vec3f focalpoint = cam->position.getValue() +
-				cam->focalDistance.getValue() * dir;
-				osg::Vec3f upvector( dir[0], dir[1], 1 );
-    cam->pointAt( focalpoint, upvector );
-    */
 }
 
 
@@ -682,7 +684,6 @@ void ui3DViewerBody::viewAll( bool animate )
                                         view_->getCameraManipulator() );
 
     manip->viewAll( view_, animate );
-
     requestRedraw();
 }
 
@@ -701,6 +702,7 @@ void ui3DViewerBody::requestRedraw()
 	view_->requestRedraw();
 
     view_->requestContinuousUpdate( animating );
+
 }
 
 
@@ -795,18 +797,10 @@ void ui3DViewerBody::toggleCameraType()
 }
 
 
-void ui3DViewerBody::setHomePos()
+void ui3DViewerBody::setHomePos(const IOPar& homepos)
 {
-    if ( !camera_ ) return;
-
-    PtrMan<IOPar> homepospar =
-	SI().pars().subselect( ui3DViewer::sKeyHomePos() );
-    if ( !homepospar )
-	return;
-
-    camera_->usePar( *homepospar );
+    homepos_ = homepos;  
 }
-
 
 
 void ui3DViewerBody::resetToHomePosition()
@@ -915,6 +909,73 @@ float ui3DViewerBody::getCameraZoom() const
 }
 
 
+void ui3DViewerBody::fillCameraPos( IOPar& par ) const
+{
+    const osgGeo::TrackballManipulator* manip = 
+	 static_cast<osgGeo::TrackballManipulator*>(
+	 view_->getCameraManipulator() );
+
+    const osg::Quat quat = manip->getRotation();
+    const double distance = manip->getDistance();
+    const osg::Vec3d center = manip->getCenter();
+
+    par.set( sKeyCameraRotation(), quat.x(), quat.y(), quat.z(), quat.w() );
+    par.set( sKeyManipCenter(), Conv::to<Coord3>( center ) );
+    par.set( sKeyManipDistance(), distance );
+}
+
+
+bool ui3DViewerBody::useCameraPos( const IOPar& par )
+{
+    if ( par.isEmpty() ) return false;
+
+    const PtrMan<IOPar> survhomepospar = SI().pars().subselect( sKeyHomePos() );
+    if ( !survhomepospar )
+	  fillCameraPos( homepos_ );
+
+    double x( 0 ), y( 0 ), z( 0 ), w( 0 );
+    double distance( 0 );
+    Coord3 center;
+    if ( !par.get ( sKeyCameraRotation(), x,y,z,w ) ||
+	 !par.get( sKeyManipCenter(), center ) ||
+	 !par.get( sKeyManipDistance(), distance ) )
+	return false;
+    
+    osgGeo::TrackballManipulator* manip = 
+	static_cast<osgGeo::TrackballManipulator*>( 
+	view_->getCameraManipulator() );
+
+    if ( !manip ) return false;
+
+    manip->setCenter( Conv::to<osg::Vec3d>( center ) );
+    manip->setRotation( osg::Quat( x, y, z, w ) );
+    manip->setDistance( distance );
+    setinitialcamerapos_ =  false;
+
+    return true;
+
+}
+
+
+void ui3DViewerBody::toHomePos()
+{
+    useCameraPos( homepos_ );
+}
+
+void ui3DViewerBody::saveHomePos()
+{
+    homepos_.setEmpty();
+    fillCameraPos( homepos_ );
+
+    if ( SI().getPars().isPresent( preOdHomePosition() ) )
+    {
+	SI().getPars().removeSubSelection( sKeyHomePos() );
+    }
+
+    SI().getPars().mergeComp( homepos_, sKeyHomePos() );
+    SI().savePars();
+}
+
 //------------------------------------------------------------------------------
 
 
@@ -927,7 +988,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 {
     PtrMan<IOPar> homepospar = SI().pars().subselect( sKeyHomePos() );
     if ( homepospar )
-	homepos_ = *homepospar;
+	osgbody_->setHomePos( *homepospar) ;
 
     setViewMode( false );  // switches between view & interact mode
 
@@ -1135,23 +1196,13 @@ void ui3DViewer::align()
 
 void ui3DViewer::toHomePos()
 {
-    RefMan<visBase::Camera> camera = osgbody_->getVisCamera();
-    if ( !camera ) return;
-
-    camera->usePar( homepos_ );
+    osgbody_->toHomePos();
 }
 
 
 void ui3DViewer::saveHomePos()
 {
-    RefMan<visBase::Camera> camera = osgbody_->getVisCamera();
-
-    if ( !camera ) return;
-
-    camera->fillPar( homepos_ );
-    homepos_.removeWithKey( sKey::Type() );
-    SI().getPars().mergeComp( homepos_, sKeyHomePos() );
-    SI().savePars();
+    osgbody_->saveHomePos();
 }
 
 
@@ -1206,20 +1257,14 @@ void ui3DViewer::savePropertySettings() const
 void ui3DViewer::fillPar( IOPar& par ) const
 {
     par.set( sKeySceneID(), getScene()->id() );
-
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
-
     par.set( sKeyStereo(), toString( getStereoType() ) );
     float offset = getStereoOffset();
     par.set( sKeyStereoOff(), offset );
-
     par.setYN( sKeyPersCamera(), isCameraPerspective() );
 
-    RefMan<visBase::Camera> camera = osgbody_->getVisCamera();
+    osgbody_->fillCameraPos( par );
 
-    camera->fillPar( par );
-
-    par.mergeComp( homepos_, sKeyHomePos() );
 }
 
 
@@ -1248,18 +1293,11 @@ bool ui3DViewer::usePar( const IOPar& par )
 
     PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
 
-    if ( homepos && homepos_.isEmpty() )
-	homepos_ = *homepos;
+    if ( homepos && osgbody_->isHomePosEmpty() )
+	osgbody_->setHomePos( *homepos );
 
-    RefMan<visBase::Camera> camera = osgbody_->getVisCamera();
-
-    bool res = camera->usePar( par ) == 1;
-
-    PtrMan<IOPar> survhomepospar = SI().pars().subselect( sKeyHomePos() );
-    if ( !survhomepospar )
-	saveHomePos();
-
-    return res;
+    osgbody_->useCameraPos( par );
+    return true;
 }
 
 

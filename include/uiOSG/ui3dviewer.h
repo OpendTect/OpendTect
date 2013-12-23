@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "enums.h"
 
-class uiSoViewerBody;
+
 class ui3DViewerBody;
 class BufferStringSet;
 
@@ -27,7 +27,6 @@ namespace visBase { class Scene; class PolygonSelection; class SceneColTab; };
 
 mExpClass(uiOSG) ui3DViewer : public uiObject
 {
-friend class		uiSoViewerBody;
 friend class		ui3DViewerBody;
 
 public:
@@ -99,10 +98,10 @@ public:
     visBase::SceneColTab*	getSceneColTab() const;
 
 private:
+
     static const char* sKeySceneID()    { return "Scene ID"; }
     static const char* sKeyAnimate()	{ return "Animate"; }
     static const char* sKeyBGColor()    { return "Background color"; }
-    static const char* sKeyHomePos()    { return "Home position"; }
     static const char* sKeyStereo()     { return "Stereo viewing"; }
     static const char* sKeyQuadBuf()    { return "Quad buffer"; }
     static const char* sKeyStereoOff()  { return "Stereo offset"; }
@@ -113,7 +112,6 @@ private:
 
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
-    IOPar		homepos_;
 };
 
 

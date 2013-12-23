@@ -32,6 +32,8 @@ namespace visBase
 
 namespace osgGA { class GUIActionAdapter; }
 namespace osgViewer { class CompositeViewer; class View; }
+namespace osgGeo { class TrackballManipulator; }
+
 class ui3DViewer;
 class TrackBallManipulatorMessenger;
 
@@ -67,7 +69,7 @@ public:
     Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
 
-    void			setHomePos();
+    void			setHomePos(const IOPar&);
     void			resetToHomePosition();
 
     void			toggleCameraType();
@@ -106,6 +108,12 @@ public:
     visBase::SceneColTab* 	getSceneColTab() const;
     void			notifyManipulatorMovement(float dh, float dv,
                                                           float df );
+    void			toHomePos();
+    void			saveHomePos();
+    bool			isHomePosEmpty() { return homepos_.isEmpty(); }
+    void			fillCameraPos(IOPar&) const;
+    bool			useCameraPos(const IOPar&);
+
 protected:
 
     void				setupHUD();
@@ -148,6 +156,9 @@ protected:
     RefMan<visBase::Axes>				axes_;
     RefMan<visBase::PolygonSelection>			polygonselection_;
     TrackBallManipulatorMessenger*			manipmessenger_;
+
+    bool			    			setinitialcamerapos_;
+    IOPar						homepos_;
     RefMan<visBase::SceneColTab>			visscenecoltab_;
 };
 
