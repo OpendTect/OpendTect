@@ -188,7 +188,7 @@ int VisualObjectImpl::childIndex( const osg::Node* nn ) const
 }
 
 
-int VisualObjectImpl::usePar( const IOPar& iopar )
+bool VisualObjectImpl::usePar( const IOPar& iopar )
 {
     if ( material_ )
     {
@@ -201,7 +201,7 @@ int VisualObjectImpl::usePar( const IOPar& iopar )
     if ( iopar.getYN(sKeyIsOn(),isonsw) )
 	turnOn( isonsw );
 
-    return 1;
+    return true;
 }
 
 

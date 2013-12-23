@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace visSurvey {
 
+mImplFactory( SurveyObject, SurveyObject::factory );
 
 SurveyObject::SurveyObject()
     : scene_(0)
@@ -38,6 +39,21 @@ SurveyObject::~SurveyObject()
     deepErase(userrefs_);
     set3DSurvGeom( 0 );
 }
+
+
+void SurveyObject::doRef()
+{
+    mDynamicCastGet( visBase::DataObject*, dobj, this );
+    dobj->ref();
+}
+
+
+void SurveyObject::doUnRef()
+{
+    mDynamicCastGet( visBase::DataObject*, dobj, this );
+    dobj->unRef();
+}
+
 
 float SurveyObject::sDefMaxDist()	{ return 10; }
 
@@ -152,8 +168,10 @@ int SurveyObject::getUpdateStageNr() const
 { return updatestagenr_; }
 
 
-void SurveyObject::fillSOPar( IOPar& par ) const
+void SurveyObject::fillPar( IOPar& par ) const
 {
+    par.set( sKey::Type(), factoryKeyword() );
+
     if ( s3dgeom_ )
 	par.set( sKeySurvey(), s3dgeom_->getName() );
 
@@ -162,6 +180,9 @@ void SurveyObject::fillSOPar( IOPar& par ) const
     for ( int attrib=nrattribs-1; attrib>=0; attrib-- )
     {
 	IOPar attribpar;
+	if( !getSelSpec( attrib ) )
+	    continue;
+	    
 	getSelSpec( attrib )->fillPar( attribpar );
 
 	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
@@ -192,25 +213,11 @@ void SurveyObject::fillSOPar( IOPar& par ) const
 	par.mergeComp( attribpar, key );
     }
 
-    /* TODO: Save in own par
-
-    const visBase::TextureChannel2RGBA* tc2rgba =
-	const_cast<SurveyObject*>(this)->getChannels2RGBA();
-    mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		     tc2rgba );
-
-        if ( tc2rgba && !cttc2rgba )
-    {
-	par.set( sKeyTC2RGBA(), tc2rgba->id() );
-	saveids += tc2rgba->id();
-    }
-     */
-
     par.set( sKeyNrAttribs(), nrattribs );
 }
 
 
-int SurveyObject::useSOPar( const IOPar& par )
+bool SurveyObject::usePar( const IOPar& par )
 {
     locked_ = false;
     par.getYN( sKeyLocked(), locked_ );
@@ -229,7 +236,7 @@ int SurveyObject::useSOPar( const IOPar& par )
 	if ( tc2rgba )
 	{
 	    if ( !setChannels2RGBA( tc2rgba ) )
-		return -1;
+		return false;
 	}
     }
 
@@ -295,7 +302,7 @@ int SurveyObject::useSOPar( const IOPar& par )
 	setAttribTransparency( attribnr, mCast(unsigned char,trans) );
     }
 
-    return 1;
+    return true;
 }
     
     

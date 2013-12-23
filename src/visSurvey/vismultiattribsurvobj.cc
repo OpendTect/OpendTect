@@ -459,6 +459,8 @@ int MultiTextureSurveyObject::selectedTexture( int attrib ) const
 
 void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 {
+    visSurvey::SurveyObject::fillPar( par );
+    visBase::VisualObjectImpl::fillPar( par );
     par.set( sKeyResolution(), resolution_ );
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
@@ -506,19 +508,23 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
      */
 
     par.set( sKeyNrAttribs(), as_.size() );
-    fillSOPar( par );
+
 }
 
 
-int MultiTextureSurveyObject::usePar( const IOPar& par )
+bool MultiTextureSurveyObject::usePar( const IOPar& par )
 {
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	return false;
+
     par.get( sKeyResolution(), resolution_ );
 
     bool ison = true;
     par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
     turnOn( ison );
 
-    return useSOPar( par );
+    return true;
 }
 
 

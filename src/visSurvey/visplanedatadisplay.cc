@@ -43,8 +43,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransformdatapack.h"
 
 
-mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
-
 namespace visSurvey {
 
 class PlaneDataDisplayBaseMapObject : public BaseMapObject
@@ -1255,7 +1253,8 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 
 SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 {
-    PlaneDataDisplay* pdd = create();
+    PlaneDataDisplay* pdd = new PlaneDataDisplay();
+
     pdd->setOrientation( orientation_ );
     pdd->setCubeSampling( getCubeSampling(false,true,0) );
 
@@ -1284,19 +1283,13 @@ void PlaneDataDisplay::fillPar( IOPar& par ) const
 
     par.set( sKeyOrientation(), getOrientationString( orientation_) );
     getCubeSampling( false, true ).fillPar( par );
-
-    /*TODO: Save gridlines-settings
-    const int gridlinesid = gridlines_->id();
-    par.set( sKeyGridLinesID(), gridlinesid );
-    if ( !saveids.isPresent(gridlinesid) ) saveids += gridlinesid;
-     */
 }
 
 
-int PlaneDataDisplay::usePar( const IOPar& par )
+bool PlaneDataDisplay::usePar( const IOPar& par )
 {
-    const int res =  MultiTextureSurveyObject::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !MultiTextureSurveyObject::usePar( par ) )
+	return false;
 
     Orientation orientation = Inline;
     FixedString orstr = par.find( sKeyOrientation() );
@@ -1311,26 +1304,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	setCubeSampling( cs );
     }
 
-    pErrMsg("Implement gridlines setting");
-/*
-    int gridlinesid;
-    if ( par.get(sKeyGridLinesID(),gridlinesid) )
-    { 
-        DataObject* dataobj = visBase::DM().getObject( gridlinesid );
-        if ( !dataobj ) return 0;
-        mDynamicCastGet(visBase::GridLines*,gl,dataobj)
-        if ( !gl ) return -1;
-	removeChild( gridlines_->getInventorNode() );
-	gridlines_->unRef();
-	gridlines_ = gl;
-	gridlines_->ref();
-	gridlines_->setPlaneCubeSampling( cs );
-	int childidx = childIndex( channels_->getInventorNode() );
-	insertChild( childidx, gridlines_->getInventorNode() );
-    }
- */
-
-    return 1;
+    return true;
 }
 
 
@@ -1412,6 +1386,5 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     texturerect_->setTextureGrowth( growth );
     texturerect_->setTextureShift( -startdif - growth*0.5 );
 }
-
 
 } // namespace visSurvey

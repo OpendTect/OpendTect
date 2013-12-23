@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "survinfo.h"
 #include "vissurvscene.h"
+#include "factory.h"
 
 
 class BaseMap;
@@ -57,6 +58,10 @@ namespace visSurvey
 mExpClass(visSurvey) SurveyObject
 {
 public:
+    void			doRef();
+    void			doUnRef();
+
+    mDefineFactoryInClass( SurveyObject, factory );
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
     const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_;}
@@ -117,7 +122,7 @@ public:
     virtual bool		canDuplicate() const	{ return false;}
     virtual SurveyObject*	duplicate(TaskRunner*) const	{ return 0; }
 
-    virtual MultiID		getMultiID() const	{ return MultiID(-1); }
+    virtual MultiID		getMultiID() const { return MultiID::udf(); }
 
     virtual void		showManipulator(bool yn)	{}
     virtual bool		isManipulatorShown() const	{ return false;}
@@ -309,8 +314,8 @@ public:
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotifier()	{ return 0; }
-    void	 		fillSOPar(IOPar&) const;
-    int				useSOPar(const IOPar&);
+    virtual void	 	fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
@@ -353,6 +358,7 @@ protected:
 
     const Survey::Geometry3D*	s3dgeom_;
     BufferString		survname_; //Only from IOPar
+
 };
 
 } // namespace visSurvey

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "ranges.h"
 #include "enums.h"
+#include "factory.h"
 
 template <class T> class Array2D;
 namespace visBase
@@ -52,14 +53,17 @@ mExpClass(visSurvey) PlaneDataDisplay :
     				public visSurvey::MultiTextureSurveyObject
 {
 public:
+				PlaneDataDisplay();
+			
+				mDefaultFactoryInstantiation(
+				    visSurvey::SurveyObject,
+				    PlaneDataDisplay, "PlaneDataDisplay",
+				    sFactoryKeyword() );
 
     bool			isInlCrl() const { return true; }
 
     enum Orientation		{ Inline=0, Crossline=1, Zslice=2 };
     				DeclareEnumUtils(Orientation);
-
-    static PlaneDataDisplay*	create()
-				mCreateDataObj(PlaneDataDisplay);
 
     void			setOrientation(Orientation);
     Orientation			getOrientation() const { return orientation_; }
@@ -147,12 +151,12 @@ public:
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
 
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
 
     void			setDisplayTransformation(const mVisTrans*);
 
-protected:
 
+protected:
 				~PlaneDataDisplay();
 
     BaseMapObject*		createBaseMapObject();

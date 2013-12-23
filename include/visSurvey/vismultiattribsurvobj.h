@@ -93,7 +93,7 @@ public:
     int				selectedTexture(int attrib) const;
 
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
     virtual bool                canBDispOn2DViewer() const	{ return true; }
     bool			canEnableTextureInterpolation() const
 				{ return channels_; }

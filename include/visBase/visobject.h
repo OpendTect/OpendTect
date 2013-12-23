@@ -99,7 +99,7 @@ public:
     static const char*	sKeyMaterial();
     static const char*	sKeyIsOn();
 
-    virtual int		usePar(const IOPar&);
+    virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
 protected:
