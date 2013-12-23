@@ -51,8 +51,6 @@ static const char* rcsID mUsedVar = "$Id$";
 /* OSG-TODO: replace dragger_ with not yet available OSG RandomTrackDragger */
 
 
-mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
-
 namespace visSurvey
 {
 
@@ -137,7 +135,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
-
 //    dragger_->setLimits(
 //	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
 //	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
@@ -1019,7 +1016,7 @@ bool RandomTrackDisplay::isGeometryLocked() const
 
 SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
 {
-    RandomTrackDisplay* rtd = create();
+    RandomTrackDisplay* rtd = new RandomTrackDisplay;
 
     rtd->setDepthInterval( getDataTraceRange() );
     TypeSet<BinID> positions;
@@ -1054,11 +1051,12 @@ void RandomTrackDisplay::fillPar( IOPar& par ) const
 }
 
 
-int RandomTrackDisplay::usePar( const IOPar& par )
+bool RandomTrackDisplay::usePar( const IOPar& par )
 {
+    if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
+	return false;
+
     par.getYN( sKeyLockGeometry(), lockgeometry_ );
-    const int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
-    if ( res != 1 ) return res;
 
     Interval<float> intv;
     if ( par.get( sKeyDepthInterval(), intv ) )
@@ -1078,7 +1076,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    addKnot( pos );
     }
 
-    return 1;
+    return true;
 }
 
 
@@ -1281,7 +1279,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 void RandomTrackDisplay::setPickPos( const Coord3& pos )
 {
     polyline_->addPoint( pos );
-    markerset_->getCoordinates()->addPos( pos );
+    markerset_->addPos( pos );
 }
   
 

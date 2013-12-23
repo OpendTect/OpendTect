@@ -48,8 +48,11 @@ mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 
 {
 public:
-    static RandomTrackDisplay*	create()
-				mCreateDataObj(RandomTrackDisplay);
+				RandomTrackDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,RandomTrackDisplay,
+				    "RandomTrackDisplay", sFactoryKeyword() );
+
     int				nameNr() const { return namenr_; }
     				/*!<\returns a number that is unique for 
 				     this rtd, and is present in its name. */
@@ -135,7 +138,7 @@ public:
     virtual bool		allowsPicks() const		{ return true; }
 
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
 
     bool			canBDispOn2DViewer() const	{ return true; }
     TypeSet<BinID>*             getPath()		{ return &trcspath_; }
@@ -158,6 +161,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     virtual void		annotateNextUpdateStage(bool yn);
+
 				
 protected:
 				~RandomTrackDisplay();
