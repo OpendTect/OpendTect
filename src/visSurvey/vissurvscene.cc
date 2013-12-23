@@ -41,6 +41,7 @@ mCreateFactoryEntry( visSurvey::Scene );
 
 namespace visSurvey {
 
+
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
@@ -53,7 +54,12 @@ const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
-    //static const char* sKeyShowColTab()	{ return "Show ColTab"; }
+static const char* sKeyShowColTab()	{ return "Show ColTab"; }
+
+static const char* sKeySceneID()	{ return "Scene ID"; }
+static const char* sKeyChildID()	{ return "ID"; }
+static const char* sKeyNrChild()	{ return "Number of Child"; }
+static const char* childfix()		{ return "Child"; }
 
 
 Scene::Scene()
@@ -788,7 +794,7 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     }
 
     markerset_->clearMarkers();
-    markerset_->getCoordinates()->addPos( displaypos );
+    markerset_->addPos( displaypos );
     markerset_->turnMarkerOn( 0, true );
 }
 
@@ -895,37 +901,8 @@ const Color& Scene::cDefaultMarkerColor()
 }
 
 
-void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Scene::fillPar( IOPar& par ) const
 {
-    pErrMsg("Not implemented");
-
-    /*
-    visBase::Scene::fillOffsetPar( par );
-
-    int kid = 0;
-    int nrkids = 0;    
-    for ( ; kid<size(); kid++ )
-    {
-	if ( getObject(kid)==annot_ ||
-	     (markerset_ && getObject(kid)==markerset_) ||
-	     getObject(kid)==inlcrl2disptransform_ ||
-	     getObject(kid)==polyselector_ ) continue;
-
-	const visBase::DataObject* dobj = getObject( kid );
-	if ( !dobj )
-	    continue;
-
-	const int objid = dobj->id();
-	if ( !saveids.isPresent(objid) )
-	    saveids += objid;
-
-	BufferString key = kidprefix(); key += nrkids;
-	par.set( key, objid );
-	nrkids++;
-    }
-
-    par.set( nokidsstr(), nrkids );
-    
     par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
     par.setYN( sKeyShowGrid(), isAnnotGridShown() );
@@ -955,7 +932,27 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKey::Scale(), zscale_ );
     par.set( sKeyTopImageID(), topimg_->id() );
     par.set( sKeyBotImageID(), botimg_->id() );
-     */
+
+    int nrchilds( 0 );
+    for ( int idx=0;  idx<size(); idx++ )
+    {
+	BufferString childkey( childfix(), nrchilds );
+	mDynamicCastGet(const visSurvey::SurveyObject*,survobj, getObject(idx));
+	if ( !survobj )
+	    continue;
+	IOPar childpar;
+	nrchilds++;
+
+	mDynamicCastGet( const visBase::DataObject*, dobj, survobj );
+	const int objid = dobj ? dobj->id() : -1;
+
+	childpar.set( sKeyChildID(), objid );
+	survobj->fillPar( childpar );
+	par.mergeComp(childpar, childkey.buf() );
+    }
+
+    par.set( sKeyNrChild(), nrchilds );
+
 }
 
 
@@ -974,18 +971,10 @@ void Scene::removeAll()
 }
 
 
-int Scene::usePar( const IOPar& par )
+bool Scene::usePar( const IOPar& par )
 {
     removeAll();
     setup();
-
-    pErrMsg("Not impl.");
-
-    /*
-
-    appallowshad_ = true;
-    if ( !par.getYN( sKeyAppAllowShading(), appallowshad_ ) )
-	par.getYN( "Allow shading", appallowshad_ ); //Old key
 
     ZDomain::Info zdomaininfo( ZDomain::SI() ); 
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
@@ -1015,12 +1004,74 @@ int Scene::usePar( const IOPar& par )
 	}
     }
 
-    int res = visBase::Scene::usePar( par );
-    if ( res!=1 ) return res;
+    int nrchilds( 0 );
+    par.get( sKeyNrChild(), nrchilds );
 
-    bool ctshown = false;
+    TypeSet<int> childids;
+    for ( int idx=0; idx<nrchilds; idx++ )
+    {
+	BufferString key( childfix(), idx );
+	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
+
+	int sessionobjid = -1;
+	if ( chldpar->get( sKeyChildID(), sessionobjid ) )
+	{
+	    childids += sessionobjid;
+	}
+    }    
+
+    sort( childids );
+
+    for ( int chld=0; chld<childids.size(); chld++ )
+    {
+	BufferString key( childfix(), chld );
+	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
+	
+	BufferString surobjtype;
+	if ( !chldpar->get( sKey::Type(), surobjtype ) )
+	    continue;
+
+	if ( visBase::DM().getObject(childids[chld]) )
+	{
+	    pErrMsg("Hmmm");
+		continue;
+	}
+
+	visSurvey::SurveyObject* survobj = 
+	    SurveyObject::factory().create( surobjtype );
+
+	if ( !survobj )
+	    continue;
+
+	survobj->doRef();
+	
+	RefMan<visBase::VisualObject> dobj = 0;
+	mDynamicCast( visBase::VisualObject*, dobj, survobj );
+	if ( !dobj )
+	{
+	    survobj->doUnRef();
+	    continue;
+	}
+
+	dobj->setID( childids[chld] );
+	if ( !survobj->usePar( *chldpar ) )
+	{
+	    survobj->doUnRef();
+	    continue;
+	}
+
+	addObject( dobj );
+
+	survobj->doUnRef();
+    }
+
+/* below three lines are not working due to Ranojay did
+    some changes in creation of scenecoltab_.
+    waiting for him to solve it  */
+
+  /*  bool ctshown = false;
     par.getYN( sKeyShowColTab(), ctshown );
-    scenecoltab_->turnOn( ctshown );
+    scenecoltab_->turnOn( ctshown );*/
 
     bool txtshown = true;
     par.getYN( sKeyShowAnnot(), txtshown );
@@ -1041,20 +1092,15 @@ int Scene::usePar( const IOPar& par )
     showAnnot( cubeshown );
 
     float zstretch = curzstretch_;
-    if ( !par.get( sKeyZStretch(), zstretch ) )
-	par.get( "ZScale", zstretch ); //Old format, can be removed in 3.6
+    par.get( sKeyZStretch(), zstretch );
 
     if ( zstretch != curzstretch_ )
-	setZStretch( zstretch );
+    {
+	setTempZStretch( 1.0f );
+	setFixedZStretch( zstretch );
+    }
 
-
-    res = getImageFromPar( par,sKeyTopImageID(), topimg_ );
-    if ( res != 1 ) return res;
-    res = getImageFromPar( par, sKeyBotImageID(), botimg_ );
-    if ( res != 1 ) return res;
-
-     */
-    return 1;
+    return true;
 }
 
 
@@ -1116,7 +1162,6 @@ void Scene::savePropertySettings()
     Settings::common().set( sKeyAnnotFont(), font );
     Settings::common().write();
 }
-
 
 } // namespace visSurvey
 

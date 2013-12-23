@@ -192,11 +192,11 @@ public:
 				    system cannot do it, or the user has
 				    disabled it. */
 
-    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
     static const char*		sKeyZStretch();
-
+ 
 protected:
     				~Scene();
 
@@ -254,7 +254,6 @@ protected:
     static const char*		sKeyAppAllowShading();
     static const char*		sKeyTopImageID();
     static const char*		sKeyBotImageID();
-
 };
 
 }; // namespace visSurvey
