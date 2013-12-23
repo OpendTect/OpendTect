@@ -84,6 +84,9 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 
     const HorizonSectionTile* gluetile = 
 	thisres <= neighborres ? thistile : neighbortile ;
+    if ( gluetile->txunit_< 0 )
+	return;
+    
     const char highestres = thisres <= neighborres ? thisres : neighborres;
 
     if ( thisres == neighborres ) return;

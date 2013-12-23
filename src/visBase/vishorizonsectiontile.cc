@@ -262,6 +262,7 @@ void HorizonSectionTile::ensureGlueTesselated()
 	if ( tileglue )
 	{
 	    datalock_.lock();
+	    tileglue->setDisplayTransformation( hrsection_.transformation_ );
 	    tileglue->buildGlue( this, neighbors_[nb], isright );
 	    datalock_.unLock();
 	}
@@ -459,6 +460,9 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
     
     osg::Vec2f origin = Conv::to<osg::Vec2f>( origincrd );  
     osg::Vec2f opposite = Conv::to<osg::Vec2f>( oppositecrd ); 
+
+    if ( (opposite - origin) == osg::Vec2f( 0.0, 0.0 ) )
+	return;
 
     std::vector<osgGeo::LayeredTexture::TextureCoordData> tcdata;
     const osgGeo::LayeredTexture* texture = hrsection_.getOsgTexture();

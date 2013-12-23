@@ -47,8 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 
 
-mCreateFactoryEntry( visSurvey::HorizonDisplay );
-
 namespace visSurvey
 {
 
@@ -59,6 +57,7 @@ const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
 const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
 const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
+const char* HorizonDisplay::sKeyGeometryType()  { return "Geometry Type"; }
 const char* HorizonDisplay::sKeyIntersectLineMaterialID() 
 { return "Intsectline material id"; }
 
@@ -77,6 +76,7 @@ HorizonDisplay::HorizonDisplay()
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
+    , displaygeometrytype_( 0 )
 {
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -866,10 +866,19 @@ bool HorizonDisplay::hasDepth( int channel ) const
 Coord3 HorizonDisplay::getTranslation() const
 {
     if ( !translation_ ) return Coord3(0,0,0);
-    Coord3 zshift = translation_->getTranslation();
-    mVisTrans::transformBack( transformation_, zshift );
 
-    return zshift;
+    const Coord3 current = translation_->getTranslation();
+
+    Coord3 origin( 0, 0, 0 );
+    Coord3 shift( current );
+    shift  *= -1;
+
+    mVisTrans::transformBack( transformation_, origin );
+    mVisTrans::transformBack( transformation_, shift );
+
+    const Coord3 translation = origin - shift;
+
+    return translation;
 }
 
 
@@ -889,7 +898,8 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     }
 
     Coord3 origin( 0, 0, 0 );
-    Coord3 aftershift( nt ); aftershift.z *= -1;
+    Coord3 aftershift( nt );
+    aftershift.z *= -1;
 
     mVisTrans::transform( transformation_, origin );
     mVisTrans::transform( transformation_, aftershift );
@@ -970,13 +980,18 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setResolution( resolution_-1, tr );
 
     surf->setMaterial( 0 );
-    addChild( surf->osgNode() );
+    surf->setDisplayGeometryType( displaygeometrytype_ );
+
+    if ( translation_ )
+	translation_->addObject( surf );
+    else
+	addChild( surf->osgNode() );
+
     surf->turnOn( !displayonlyatsections_ );
 
     sections_ += surf;
     sids_ += sid;
     hasmoved.trigger();
-
     return addEdgeLineDisplay( sid );
 
 }
@@ -1119,6 +1134,11 @@ int HorizonDisplay::getResolution() const
 }
 
 
+int HorizonDisplay::getDisplayGeometryType() const
+{
+    return sections_.size() ? sections_[0]->displayGeometryType() : 0;
+}
+
 void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 {
     resolution_ = (char)res;
@@ -1126,6 +1146,13 @@ void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 	sections_[idx]->setResolution( resolution_-1, tr );
 }
 
+
+void HorizonDisplay::setDisplayGeometryType( int geometrytype )
+{
+    displaygeometrytype_ = geometrytype;
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->setDisplayGeometryType( geometrytype );
+}
 
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 {
@@ -1400,7 +1427,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	markerset->setDisplayTransformation(transformation_); \
 	markerset->setMaterial( 0 ); \
 	markerset->setMarkerHeightRatio( 1.0f );\
-	markerset->getCoordinates()->addPos( curline[0] ); \
+	markerset->addPos( curline[0] ); \
 	points->addObject( markerset ); \
     } \
     else \
@@ -1839,6 +1866,7 @@ void HorizonDisplay::updateIntersectionLines(
 	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[lineidx];
 
 	line->getCoordinates()->removeAfter(-1);
+
 	while ( pointgroup->size()>1 ) pointgroup->removeObject( 1 );
 	int cii = 0;
 
@@ -2011,7 +2039,6 @@ void HorizonDisplay::otherObjectsMoved(
 
 void HorizonDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par );
     EMObjectDisplay::fillPar( par );
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
@@ -2024,6 +2051,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyWireFrame(), usesWireframe() );
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
+    par.set( sKeyGeometryType(), getDisplayGeometryType() );
 
     /* TODO: Implement something here
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
@@ -2056,16 +2084,16 @@ void HorizonDisplay::fillPar( IOPar& par ) const
 }
 
 
-int HorizonDisplay::usePar( const IOPar& par )
+bool HorizonDisplay::usePar( const IOPar& par )
 {
-    int res = EMObjectDisplay::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !EMObjectDisplay::usePar( par ) )
+	 return false;
 
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
     if ( !par.get(sKeyEarthModelID(),parmid_) )
-	return -1;
+	return false;
 
     par.get( sKeyRowRange(), parrowrg_ );
     par.get( sKeyColRange(), parcolrg_ );
@@ -2085,6 +2113,9 @@ int HorizonDisplay::usePar( const IOPar& par )
     par.get( sKeyShift(), shift.z );
     setTranslation( shift );
 
+    int displayGeometrytype =  0;
+    par.get( sKeyGeometryType(), displayGeometrytype );
+    setDisplayGeometryType( displayGeometrytype );
 
     int intersectlinematid;
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
@@ -2103,7 +2134,7 @@ int HorizonDisplay::usePar( const IOPar& par )
     else
 	setIntersectLineMaterial( 0 );
 
-    return 1;
+    return true;
 }
 
 

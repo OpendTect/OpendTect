@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "visemobjdisplay.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "factory.h"
 
 namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
@@ -34,8 +35,11 @@ namespace visSurvey
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 {
 public:
-    static HorizonDisplay*	create()
-				mCreateDataObj( HorizonDisplay );
+				HorizonDisplay();
+				mDefaultFactoryInstantiation( 
+    			        visSurvey::SurveyObject,HorizonDisplay, 
+				"HorizonDisplay", sFactoryKeyword() );
+
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -119,6 +123,10 @@ public:
     int				nrResolutions() const;
     BufferString		getResolutionName(int) const;
     int				getResolution() const;
+    int				getDisplayGeometryType() const;
+				/*!< 0 is triangle--surface, 1 is line--grid */
+    void			setDisplayGeometryType(int);
+				/*!< 0 is triangle--surface, 1 is line--grid */
     void			setResolution(int,TaskRunner*);
     				/*!< 0 is automatic */
 
@@ -156,7 +164,7 @@ public:
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
 
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
     bool                        canBDispOn2DViewer() const      { return true; }
     bool                        isVerticalPlane() const		{ return false;}
@@ -178,6 +186,7 @@ public:
     void			doOtherObjectsMoved(
 	    				const ObjectSet<const SurveyObject>&,
 					int whichobj );
+
 
 protected:
     				~HorizonDisplay();
@@ -254,6 +263,8 @@ protected:
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
+    int					displaygeometrytype_;
+					/*!< 0:triangle--surface,1:line--grid */
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();
@@ -263,6 +274,7 @@ protected:
     static const char*			sKeyRowRange();
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();
+    static const char*			sKeyGeometryType();
 };
 
 
