@@ -30,8 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "zaxistransform.h"
 
-mCreateFactoryEntry( visSurvey::Horizon2DDisplay );
-
 
 namespace visSurvey
 {
@@ -143,6 +141,8 @@ void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
     EMObjectDisplay::setLineStyle( lst );
     for ( int idx=0; idx<lines_.size(); idx++ )
 	lines_[idx]->setLineStyle( lst );
+
+    drawstyle_->setLineStyle( lst );
 }
 
 
@@ -576,7 +576,7 @@ void Horizon2DDisplay::fillPar( IOPar& par ) const
 }
 
 
-int Horizon2DDisplay::usePar( const IOPar& par )
+bool Horizon2DDisplay::usePar( const IOPar& par )
 {
     return visSurvey::EMObjectDisplay::usePar( par );
 }

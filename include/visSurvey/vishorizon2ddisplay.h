@@ -30,8 +30,11 @@ class Seis2DDisplay;
 mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 {
 public:
-    static Horizon2DDisplay*	create()
-				mCreateDataObj(Horizon2DDisplay);
+				Horizon2DDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,Horizon2DDisplay,
+				    "Horizon2DDisplay", sFactoryKeyword() );
+
     void			setDisplayTransformation(const mVisTrans*);
 
     void			getMousePosInfo(const visBase::EventInfo& e,
@@ -53,6 +56,7 @@ public:
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
+
 
 protected:
     friend			class Horizon2DDisplayUpdater;
@@ -84,11 +88,12 @@ protected:
     void			zAxisTransformChg(CallBacker*);
 
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
     ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
+    LineStyle					linestyle_;
 };
 
 
