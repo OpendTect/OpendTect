@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vislocationdisplay.h"
 
-class SoSeparator;
 namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
 
 namespace visSurvey
@@ -32,9 +31,11 @@ namespace visSurvey
 mExpClass(visSurvey) PickSetDisplay : public LocationDisplay
 {
 public:
-    static PickSetDisplay*	create()
-				mCreateDataObj(PickSetDisplay);
-    				~PickSetDisplay();
+
+				PickSetDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PickSetDisplay,
+				    "PickSetDisplay", sFactoryKeyword() );
 
     void			getPickingMessage(BufferString&) const;
 
@@ -46,11 +47,12 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
+
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
 protected:
-
+				~PickSetDisplay();
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;

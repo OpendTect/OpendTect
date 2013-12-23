@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visevent.h"
 #include "zaxistransform.h"
 
-mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
 namespace visSurvey {
 
@@ -232,16 +231,16 @@ void PickSetDisplay::fillPar( IOPar& par ) const
 }
 
 
-int PickSetDisplay::usePar( const IOPar& par )
+bool PickSetDisplay::usePar( const IOPar& par )
 {
-    int res =  visSurvey::LocationDisplay::usePar( par );
-    if ( res != 1 ) return res;
+    if ( !visSurvey::LocationDisplay::usePar( par ) )
+	 return false;
 
     bool showbody = false;
     par.getYN( sKeyDisplayBody(), showbody );
     displayBody( showbody );
 
-    return 1;
+    return true;
 }
 
 }; // namespace visSurvey
