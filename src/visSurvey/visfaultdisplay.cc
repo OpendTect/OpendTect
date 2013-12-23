@@ -47,8 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannels.h"
 
 
-mCreateFactoryEntry( visSurvey::FaultDisplay );
-
 namespace visSurvey
 {
 
@@ -600,6 +598,8 @@ bool FaultDisplay::arePanelsDisplayedInFull() const
 
 void FaultDisplay::fillPar( IOPar& par ) const
 {
+    visSurvey::MultiTextureSurveyObject::fillPar( par );
+
     par.set( sKeyEarthModelID(), getMultiID() );
     par.set( sKeyTriProjection(), triangulateAlg() );
 
@@ -619,8 +619,11 @@ void FaultDisplay::fillPar( IOPar& par ) const
 }
 
 
-int FaultDisplay::usePar( const IOPar& par )
+bool FaultDisplay::usePar( const IOPar& par )
 {
+    if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
+	return false;
+
     MultiID newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
@@ -658,7 +661,7 @@ int FaultDisplay::usePar( const IOPar& par )
 	setLineStyle( ls );
     }
 
-    return 1;
+    return true;
 }
 
 

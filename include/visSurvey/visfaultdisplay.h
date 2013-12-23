@@ -53,8 +53,12 @@ class HorizonDisplay;
 mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
 {
 public:
-    static FaultDisplay*	create()
-				mCreateDataObj(FaultDisplay);
+				FaultDisplay();
+
+				mDefaultFactoryInstantiation( 
+				visSurvey::SurveyObject,FaultDisplay,
+				"FaultDisplay", sFactoryKeyword() );
+
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
@@ -97,7 +101,7 @@ public:
     bool			arePanelsDisplayedInFull() const;
 
     virtual void                fillPar(IOPar&) const;
-    virtual int                 usePar(const IOPar&);
+    virtual bool                usePar(const IOPar&);
 
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
