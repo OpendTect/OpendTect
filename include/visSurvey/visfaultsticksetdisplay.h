@@ -44,8 +44,13 @@ mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl,
 			     public SurveyObject
 {
 public:
-    static FaultStickSetDisplay* create()
-				mCreateDataObj(FaultStickSetDisplay);
+				FaultStickSetDisplay();
+
+				mDefaultFactoryInstantiation(
+				visSurvey::SurveyObject,
+				FaultStickSetDisplay, "FaultStickSetDisplay",
+				sFactoryKeyword() );
+
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
@@ -97,10 +102,9 @@ public:
 					BufferString& info) const;
 
     virtual void                fillPar(IOPar&) const;
-    virtual int                 usePar(const IOPar&);
+    virtual bool                usePar(const IOPar&);
 
 protected:
-
     virtual			~FaultStickSetDisplay();
 
     void   			otherObjectsMoved(

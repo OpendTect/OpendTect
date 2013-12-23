@@ -38,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 #include "visdrawstyle.h"
 
-mCreateFactoryEntry( visSurvey::FaultStickSetDisplay );
 
 namespace visSurvey
 {
@@ -534,7 +533,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-  /*  fsseditor_->setSowingPivot( disp2world(viseditor_->sower().pivotPos()) );
+ /*   fsseditor_->setSowingPivot( disp2world(viseditor_->sower().pivotPos()) );
     if ( viseditor_->sower().accept(eventinfo) )
 	return;*/
 
@@ -1190,7 +1189,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	if ( fss->isStickSelected(sip->sticknr_) )
 	    groupidx = 1;
 
-	knotmarkersets_[groupidx]->getCoordinates()->addPos( sip->pos_ );
+	knotmarkersets_[groupidx]->addPos( sip->pos_ );
     }
 
     if ( !showmanipulator_ || !stickselectmode_ )
@@ -1214,8 +1213,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
 	const MarkerStyle3D& style = emfss_->getPosAttrMarkerStyle(0);
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->
-	    getCoordinates()->addPos( emfss_->getPos(pid) );
+	knotmarkersets_[groupidx]->addPos( emfss_->getPos(pid) );
     }
 }
 
@@ -1242,14 +1240,20 @@ void FaultStickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 void FaultStickSetDisplay::fillPar( IOPar& par ) const
 {
+    visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
     par.set( sKey::Color(), (int) getColor().rgb() );
 }
 
 
-int FaultStickSetDisplay::usePar( const IOPar& par )
+bool FaultStickSetDisplay::usePar( const IOPar& par )
 {
+    if ( !visBase::VisualObjectImpl::usePar( par ) || 
+	 !visSurvey::SurveyObject::usePar( par ) )
+	return false;
+
     MultiID newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
@@ -1271,7 +1275,7 @@ int FaultStickSetDisplay::usePar( const IOPar& par )
     par.get( sKey::Color(), (int&) col.rgb() );
     setColor( col );
 
-    return 1;
+    return true;
 }
 
 } // namespace visSurvey
