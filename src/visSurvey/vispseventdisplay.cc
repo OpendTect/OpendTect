@@ -24,8 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 
  
-mCreateFactoryEntry( visSurvey::PSEventDisplay );
-
 namespace visSurvey
 {
 
@@ -412,7 +410,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		if ( !psevent->sz_ )
 		    continue;
 		Coord3 pos( bid.inl(), bid.crl(), psevent->pick_[0] );
-		eventmarkerset_->getCoordinates()->addPos( pos );
+		eventmarkerset_->addPos( pos );
 
 		TypeSet<float> offsets;
 		TypeSet<float> picks;
@@ -581,7 +579,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pos.y += offset.y;
 		}
 
-		pao->markerset_->getCoordinates()->addPos( pos );
+		pao->markerset_->addPos( pos );
 
 		if ( markercolor_ != Single )
 		    values += value;

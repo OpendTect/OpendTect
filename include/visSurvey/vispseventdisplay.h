@@ -36,8 +36,11 @@ mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
 {
 public:
-    static PSEventDisplay*	create()
-				mCreateDataObj( PSEventDisplay );
+				PSEventDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PSEventDisplay,
+				    "PSEventDisplay", sFactoryKeyword() );
+
     bool			isInlCrl() const { return true; }
 
     void			setEventManager(PreStack::EventManager*);
@@ -76,9 +79,9 @@ public:
     const char**		displayModeNames()const;
     bool			hasParents() const;
 
+
 protected:
     void			clearAll();
-
     				~PSEventDisplay();
     void			otherObjectsMoved( const ObjectSet<
 	    				const SurveyObject>&, int whichobj );
