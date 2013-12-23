@@ -448,7 +448,7 @@ void Annotation::fillPar( IOPar& par ) const
 }
 
 
-int Annotation::usePar( const IOPar& par )
+bool Annotation::usePar( const IOPar& par )
 {
     BufferString key;
     for ( int idx=0; idx<8; idx++ )
@@ -458,7 +458,7 @@ int Annotation::usePar( const IOPar& par )
 
 	double x, y, z;
 	if ( !par.get( key, x, y, z ) )
-	    return -1;
+	    return false;
 
 	setCorner( idx, x, y, z );
     }
@@ -482,7 +482,7 @@ int Annotation::usePar( const IOPar& par )
     par.getYN( showscalestr(), yn );
     showScale( yn );
 
-    return 1;
+    return true;
 }
 
 }; //namespace

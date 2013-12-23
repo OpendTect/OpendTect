@@ -75,7 +75,7 @@ public:
 
     void		setText( int dim, const char * );
     void		fillPar( IOPar& ) const;
-    int			usePar( const IOPar& );
+    bool		usePar( const IOPar& );
 
     void		setDisplayTransformation(const mVisTrans*);
 

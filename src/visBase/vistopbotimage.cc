@@ -117,7 +117,7 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 }
 
 
-int TopBotImage::usePar( const IOPar& iopar )
+bool TopBotImage::usePar( const IOPar& iopar )
 {
     Coord3 ltpos;
     Coord3 brpos;
@@ -127,7 +127,7 @@ int TopBotImage::usePar( const IOPar& iopar )
    
     setPos( ltpos, brpos, (float) ltpos.z );  
     setImageFilename( filenm_ );
-    return 1;
+    return true;
 }
 
 } //namespace visBase

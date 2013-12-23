@@ -43,7 +43,7 @@ public:
     void			setTransparency(float); // 0-1
     float			getTransparency() const; // returns value 0-1
     void			fillPar(IOPar&) const;
-    int				usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
 protected:
     				~TopBotImage();
