@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visrandompos2body.h"
 #include "vistransform.h"
 
-mCreateFactoryEntry( visSurvey::RandomPosBodyDisplay );
 
 namespace visSurvey
 {
@@ -172,14 +171,16 @@ NotifierAccess* RandomPosBodyDisplay::materialChange()
 void RandomPosBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
     par.set( sKeyPSEarthModelID(), getMultiID() );
 }
 
 
-int RandomPosBodyDisplay::usePar( const IOPar& par )
+bool RandomPosBodyDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	return false;
 
     MultiID newmid;
     if ( par.get(sKeyPSEarthModelID(),newmid) )
@@ -196,8 +197,10 @@ int RandomPosBodyDisplay::usePar( const IOPar& par )
 
 	if ( emobject ) setEMID( emobject->id() );
     }
+    else
+	return false;
 
-    return 1;
+    return true;
 }
 
 

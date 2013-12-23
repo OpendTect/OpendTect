@@ -32,9 +32,10 @@ mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject
 {
 public:
-
-    static RandomPosBodyDisplay* create()
-				mCreateDataObj(RandomPosBodyDisplay);
+				RandomPosBodyDisplay();
+				mDefaultFactoryInstantiation( 
+				 visSurvey::SurveyObject,RandomPosBodyDisplay,
+				 "RandomPosBodyDisplay", sFactoryKeyword() );
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
@@ -55,6 +56,7 @@ public:
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
     const char*			errMsg() const { return errmsg_.str(); }
+
 protected:
 
     static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
@@ -62,7 +64,7 @@ protected:
     
     bool			updateVisFromEM();
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
 
     const mVisTrans*		transform_;
     visBase::RandomPos2Body*	displaybody_;
