@@ -34,8 +34,10 @@ mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 {
 public:
-    static MarchingCubesDisplay*create()
-				mCreateDataObj(MarchingCubesDisplay);
+			    MarchingCubesDisplay();
+			    mDefaultFactoryInstantiation( 
+				visSurvey::SurveyObject,MarchingCubesDisplay,
+				"MarchingCubesDisplay", sFactoryKeyword() );
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return true; }
@@ -91,10 +93,11 @@ public:
 
 protected:
 
+protected:
     virtual			~MarchingCubesDisplay();
     bool			updateVisFromEM(bool onlyshape,TaskRunner*);
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
     void			materialChangeCB(CallBacker*);
 
     void			getMousePosInfo(const visBase::EventInfo& ei,

@@ -32,8 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "positionlist.h"
 
 
-mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
-
 namespace visSurvey
 {
 
@@ -545,6 +543,7 @@ Color MarchingCubesDisplay::getColor() const
 void MarchingCubesDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
 
     IOPar attribpar;
@@ -573,10 +572,11 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 }
 
 
-int MarchingCubesDisplay::usePar( const IOPar& par )
+bool MarchingCubesDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	 return false;
 
     MultiID newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
@@ -622,7 +622,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 	}
     }
 
-    return 1;
+    return true;
 }
 
 
