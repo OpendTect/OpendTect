@@ -522,7 +522,8 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 		Task* task =
 		    new SeisSequentialWriterTask( *this, *writer_, trcs[idy] );
 		Threads::WorkManager::twm().addWork( Threads::Work(*task,true),
-						     0, queueid_, false );
+						     0, queueid_, false, false,
+						     true );
 	    }
 
 	    found = true;
