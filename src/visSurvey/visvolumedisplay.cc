@@ -53,7 +53,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mVisMCSurf visBase::MarchingCubesSurface
 #define mDefaultBoxTransparency 0.75
 
-mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
 
 namespace visSurvey {
@@ -1179,7 +1178,7 @@ bool VolumeDisplay::allowsPicks() const
 
 visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 {
-    VolumeDisplay* vd = create();
+    VolumeDisplay* vd = new VolumeDisplay;
 
     TypeSet<int> children;
     vd->getChildren( children );
@@ -1337,22 +1336,20 @@ bool VolumeDisplay::isOn() const
 
 void VolumeDisplay::fillPar( IOPar& par ) const
 {
+    visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
     const CubeSampling cs = getCubeSampling(false,true,0);
     cs.fillPar( par );
 
     pErrMsg( "Not implemented" );
-    fillSOPar( par );
 }
 
 
-int VolumeDisplay::usePar( const IOPar& par )
+bool VolumeDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-
-    pErrMsg( "Not implemented" );
-
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	return false;
 
     PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
     if ( texturepar ) //old format (up to 4.0)
@@ -1364,20 +1361,14 @@ int VolumeDisplay::usePar( const IOPar& par )
 	sequence.usePar(*texturepar );
 	setColTabMapperSetup( 0, mappersetup, 0 );
 	setColTabSequence( 0, sequence, 0 );
-	if ( !as_.usePar(par) ) return -1;
-    }
-    else
-    {
-	res = useSOPar( par );
-	if ( res!=1 )
-	    return res;
+	if ( !as_.usePar(par) ) return false;
     }
 
     int volid;
     if ( par.get(sKeyVolumeID(),volid) )
     {
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
-	if ( !dataobj ) return 0;
+	if ( !dataobj ) return false;
 /*
 	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
 	if ( !vr ) return -1;
@@ -1465,7 +1456,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	}
     }
 
-    return 1;
+    return true;
 }
 
 

@@ -48,8 +48,11 @@ mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:
-    static VolumeDisplay*	create()
-				mCreateDataObj(VolumeDisplay);
+				VolumeDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,VolumeDisplay,
+				    "VolumeDisplay", sFactoryKeyword() );
+
     bool			isInlCrl() const { return true; }
 
     static int			cInLine() 		{ return 2; }
@@ -171,7 +174,7 @@ public:
     void			setRightHandSystem(bool yn);
 
     virtual void		fillPar(IOPar&) const;
-    virtual int			usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
 
     bool			writeVolume( const char* filenm ) const;
