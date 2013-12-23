@@ -62,7 +62,6 @@ FlatViewer::FlatViewer()
     rectangle_->setTextureChannels( channels_ );
     addChild( rectangle_->osgNode() );
 
-    setMaterial( gridlinematerial_ );
     gridlinematerial_->setColor( Color( 0, 0, 0 ) );
 
     x1gridlines_->ref();
