@@ -31,9 +31,10 @@ mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 				    public visSurvey::SurveyObject
 {
 public:
-    static PolyLineDisplay*	create()
-    				mCreateDataObj(PolyLineDisplay);
-    				~PolyLineDisplay();
+				PolyLineDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PolyLineDisplay,
+				    "PolyLineDisplay", sFactoryKeyword() );
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void                        fillPolyLine(const Coord3&);
@@ -44,6 +45,8 @@ public:
 
 protected:
 
+protected:
+				~PolyLineDisplay();
     visBase::PolyLine*		polyline_;
 };
     

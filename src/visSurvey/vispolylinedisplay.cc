@@ -12,8 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolyline.h"
 
 
-mCreateFactoryEntry( visSurvey::PolyLineDisplay );
-
 namespace visSurvey
 {
     
