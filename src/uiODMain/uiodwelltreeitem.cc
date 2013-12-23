@@ -122,7 +122,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == cNewWellIdx )
     {
-	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
+	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	wd->setupPicking(true);
 	BufferString wellname;
 	Color color;
@@ -252,7 +252,7 @@ bool uiODWellTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
+	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	displayid_ = wd->id();
 	visserv_->addObject( wd, sceneID(), true );
 	if ( !wd->setMultiID(mid) )

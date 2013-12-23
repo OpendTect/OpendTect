@@ -79,7 +79,7 @@ public:
 
 
 #define mMkPars(txt,fun) \
-    visSurvey::HorizonDisplay::getStaticClassName(), \
+    visSurvey::HorizonDisplay::sFactoryKeyword(), \
     *a->applMgr().visServer(),txt,mCB(this,uiHorAttribPIMgr,fun)
 
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
@@ -92,7 +92,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mMkPars("&Contour Display",doContours),"Add",995)
 	, horvolmnuitemhndlr_(
 		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
-	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
+	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::sFactoryKeyword(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {

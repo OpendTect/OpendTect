@@ -272,7 +272,7 @@ bool uiODBodyDisplayTreeItem::init()
 	if ( emplg )
 	{
 	    visSurvey::PolygonBodyDisplay* plg =
-		visSurvey::PolygonBodyDisplay::create();
+		new visSurvey::PolygonBodyDisplay;
 	    plg_ = plg;
 	    plg_->ref();
 	    if ( !plg_->setEMID( emid_ ) )
@@ -288,7 +288,7 @@ bool uiODBodyDisplayTreeItem::init()
 	else if ( emmcs ) 
 	{
 	    visSurvey::MarchingCubesDisplay* mcd =
-		visSurvey::MarchingCubesDisplay::create();
+		new visSurvey::MarchingCubesDisplay;
 	    mcd_ = mcd;
 	    mcd_->ref();
 	    uiTaskRunner taskrunner( getUiParent() );
@@ -305,7 +305,7 @@ bool uiODBodyDisplayTreeItem::init()
 	else if ( emrpb )
 	{
 	    visSurvey::RandomPosBodyDisplay* rpb = 
-		visSurvey::RandomPosBodyDisplay::create();
+		new visSurvey::RandomPosBodyDisplay;
 	    rpb_ = rpb;
 	    rpb_->ref();
 	    if ( !rpb_->setEMID( emid_ ) )

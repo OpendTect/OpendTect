@@ -227,7 +227,7 @@ void uiODPSEventsTreeItem::updateDisplay()
 {
     if ( !eventdisplay_ )
     {
-	eventdisplay_ = visSurvey::PSEventDisplay::create();
+	eventdisplay_ = new visSurvey::PSEventDisplay;
 	eventdisplay_->ref();
         uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visserv->addObject( eventdisplay_, sceneID(), false );

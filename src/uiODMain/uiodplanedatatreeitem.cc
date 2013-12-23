@@ -124,7 +124,7 @@ bool uiODPlaneDataTreeItem::init()
     if ( displayid_==-1 )
     {
 	RefMan<visSurvey::PlaneDataDisplay> pdd =
-			visSurvey::PlaneDataDisplay::create();
+	    new visSurvey::PlaneDataDisplay;
 	displayid_ = pdd->id();
 	if ( type_ == RGBA )
 	{

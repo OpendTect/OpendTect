@@ -169,10 +169,10 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     visSurvey::EMObjectDisplay* emod = 0;
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
     if ( hor3d )
-	emod = visSurvey::HorizonDisplay::create();
+	emod = new visSurvey::HorizonDisplay;
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
     if ( hor2d )
-	emod = visSurvey::Horizon2DDisplay::create();
+	emod = new visSurvey::Horizon2DDisplay;
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     if ( emod )
@@ -682,9 +682,8 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
 
-    mAddMenuItem( menu, &makepermnodemnuitem_,
-	          emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode()),
-		  false );
+    mAddMenuItem( menu, &makepermnodemnuitem_, emobj->isPosAttrib(
+	empid,EM::EMObject::sTemporaryControlNode()), false );
 
     mAddMenuItem( menu, &removecontrolnodemnuitem_,
 	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode()),

@@ -271,7 +271,7 @@ bool uiODPickSetTreeItem::init()
 {
     if ( displayid_ == -1 )
     {
-	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
+	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
 	visserv_->addObject( psd, sceneID(), true );
 	if ( set_.disp_.pixsize_>100 )
@@ -394,7 +394,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	emps->setName( set_.name() );
 	
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =
-	    visSurvey::RandomPosBodyDisplay::create();
+	    new visSurvey::RandomPosBodyDisplay;
 
 	npsd->setSelectable( false );
 	npsd->setEMID( emps->id() );

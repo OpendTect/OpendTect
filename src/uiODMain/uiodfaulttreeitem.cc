@@ -237,7 +237,7 @@ bool uiODFaultTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::FaultDisplay* fd = visSurvey::FaultDisplay::create();
+	visSurvey::FaultDisplay* fd = new visSurvey::FaultDisplay;
 	displayid_ = fd->id();
 	faultdisplay_ = fd;
 	faultdisplay_->ref();
@@ -536,7 +536,7 @@ bool uiODFaultStickSetTreeItem::init()
     if ( displayid_==-1 )
     {
 	visSurvey::FaultStickSetDisplay* fd =
-				    visSurvey::FaultStickSetDisplay::create();
+				    new visSurvey::FaultStickSetDisplay;
 	displayid_ = fd->id();
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();

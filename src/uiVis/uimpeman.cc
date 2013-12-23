@@ -578,7 +578,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     if ( !create ) return 0;
 
-    visSurvey::MPEDisplay* mpedisplay = visSurvey::MPEDisplay::create();
+    visSurvey::MPEDisplay* mpedisplay = new visSurvey::MPEDisplay;
 
     visserv->addObject( mpedisplay, scene->id(), false ); // false or true?
     mpedisplay->setDraggerTransparency( 0 ); // to do: check 0

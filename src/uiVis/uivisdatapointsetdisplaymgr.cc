@@ -393,7 +393,7 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	    continue;
 
 	RefMan<visSurvey::PointSetDisplay> display =
-	    visSurvey::PointSetDisplay::create();
+	    new visSurvey::PointSetDisplay;
 	if ( !display )
 	    continue;
 
@@ -478,7 +478,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	    continue;
 
 	RefMan<visSurvey::PointSetDisplay> display =
-	    visSurvey::PointSetDisplay::create();
+	    new visSurvey::PointSetDisplay;
 	if ( !display )
 	    continue;
 

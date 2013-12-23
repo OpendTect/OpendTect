@@ -1700,7 +1700,7 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 
     TypeSet<int> plids;
     TypeSet<int> sceneids;
-    visSurvey::PolyLineDisplay* pl = visSurvey::PolyLineDisplay::create();
+    visSurvey::PolyLineDisplay* pl = new visSurvey::PolyLineDisplay;
     pl->fillPolyLine( coords );
     mDynamicCastGet(visBase::DataObject*,doobj,pl);
     visserv_->getChildIds( -1, sceneids );

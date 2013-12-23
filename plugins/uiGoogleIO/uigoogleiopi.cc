@@ -71,10 +71,10 @@ public:
 
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
-    , psmnuitmhandler_(visSurvey::PickSetDisplay::getStaticClassName(),
+    , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
 	    		*a.applMgr().visServer(),"Export to &Google KML ...",
     			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
-    , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::getStaticClassName(),
+    , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
 	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
     			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {

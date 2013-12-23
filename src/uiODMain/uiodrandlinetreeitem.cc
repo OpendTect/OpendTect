@@ -346,7 +346,7 @@ bool uiODRandomLineTreeItem::init()
     visSurvey::RandomTrackDisplay* rtd = 0;
     if ( displayid_==-1 )
     {
-	rtd = visSurvey::RandomTrackDisplay::create();
+	rtd = new visSurvey::RandomTrackDisplay;
 	if ( type_ == RGBA )
 	{
 	    rtd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );

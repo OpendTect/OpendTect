@@ -159,7 +159,7 @@ bool uiODVolrenTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::VolumeDisplay* display = visSurvey::VolumeDisplay::create();
+	visSurvey::VolumeDisplay* display = new visSurvey::VolumeDisplay;
 	visserv_->addObject(display,sceneID(),true);
 	displayid_ = display->id();
     }
@@ -570,7 +570,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	isosurface->ref();
 
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
-	    visSurvey::MarchingCubesDisplay::create();
+	    new visSurvey::MarchingCubesDisplay;
 
 	BufferString newname = "Iso ";
 	newname += vd->isoValue( isosurface );

@@ -275,7 +275,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !pdd && !s2d )
 	mErrReturn( "Display panel is not set." )
 
-    visSurvey::PreStackDisplay* viewer = visSurvey::PreStackDisplay::create();
+    visSurvey::PreStackDisplay* viewer = new visSurvey::PreStackDisplay;
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, false );

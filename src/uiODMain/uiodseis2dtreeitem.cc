@@ -498,8 +498,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zDomain().userFactor()),
-			      mNINT32(curzrg_.stop*SI().zDomain().userFactor()) );
+	Interval<int> intzrg(mNINT32(curzrg_.start*SI().zDomain().userFactor()),
+			    mNINT32(curzrg_.stop*SI().zDomain().userFactor()));
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
 	if ( !dlg.go() ) return;
@@ -616,7 +616,7 @@ bool uiOD2DLineSetSubItem::init()
 	mDynamicCastGet(uiOD2DLineSetTreeItem*,lsitm,parent_)
 	if ( !lsitm ) return false;
 
-	visSurvey::Seis2DDisplay* s2d = visSurvey::Seis2DDisplay::create();
+	visSurvey::Seis2DDisplay* s2d = new visSurvey::Seis2DDisplay;
 	visserv_->addObject( s2d, sceneID(), true );
 	s2d->setLineInfo( lsitm->lineSetID(), name_ );
 	displayid_ = s2d->id();
@@ -699,8 +699,8 @@ void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject(displayid_))
     if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
 
-    mAddMenuOrTBItem( istb, 0, menu, &linenmitm_, true, s2d->lineNameShown() );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false );
+    mAddMenuOrTBItem(istb, 0, menu, &linenmitm_, true, s2d->lineNameShown());
+    mAddMenuOrTBItem(istb, menu, &displaymnuitem_, &positionitm_, true, false);
 }
 
 
@@ -751,7 +751,8 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	    s2d->setZRange( newzrg );
 	}
 
-	const Interval<int> ntrcnrrg( newcs.hrg.start.crl(), newcs.hrg.stop.crl() );
+	const Interval<int> ntrcnrrg(
+	    newcs.hrg.start.crl(), newcs.hrg.stop.crl() );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    if ( !s2d->getUpdateStageNr() )

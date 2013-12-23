@@ -63,7 +63,7 @@ public:
 
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
-	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
+	, wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
 		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
 			      mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
