@@ -87,7 +87,7 @@ public:
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&) const;
-    virtual int                 usePar(const IOPar&);
+    virtual bool                usePar(const IOPar&);
 
     int				getPickIdx(visBase::DataObject*) const;
 

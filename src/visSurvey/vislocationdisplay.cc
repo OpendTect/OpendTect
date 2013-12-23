@@ -945,6 +945,7 @@ void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
 void LocationDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
 
     const int setidx = picksetmgr_->indexOf( *set_ );
     par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
@@ -953,14 +954,14 @@ void LocationDisplay::fillPar( IOPar& par ) const
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
 
-    fillPar( par );
 }
 
 
-int LocationDisplay::usePar( const IOPar& par )
+bool LocationDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	 return false;
 
     int markertype = 0;
     int pixsize = 3;
@@ -976,7 +977,7 @@ int LocationDisplay::usePar( const IOPar& par )
 	setSetMgr( &Pick::SetMgr::getMgr(setmgr.buf()) );
 
     if ( !par.get(sKeyID(),storedmid_) )
-	return -1;
+	return false;
 
     const int setidx = picksetmgr_ ? picksetmgr_->indexOf( storedmid_ ) : -1;
     if ( setidx==-1 )
@@ -1000,7 +1001,7 @@ int LocationDisplay::usePar( const IOPar& par )
     else
 	setSet( &picksetmgr_->get( storedmid_ ) );
 
-    return usePar( par );
+    return true;
 }
 
 
