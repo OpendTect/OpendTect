@@ -28,8 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 
-mCreateFactoryEntry( visSurvey::MPEDisplay );
-
 namespace visSurvey {
 
 MPEDisplay::MPEDisplay()
@@ -728,6 +726,7 @@ void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
 void MPEDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
 
     /* TODO?
     mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
@@ -746,10 +745,11 @@ void MPEDisplay::fillPar( IOPar& par ) const
 }
 
 
-int MPEDisplay::usePar( const IOPar& par )
+bool MPEDisplay::usePar( const IOPar& par )
 {
-    const int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+	 return false;
 
     int tc2vdid;
     if ( par.get( sKeyTC2VolData(), tc2vdid ) )
@@ -757,7 +757,7 @@ int MPEDisplay::usePar( const IOPar& par )
 	RefMan<visBase::DataObject> dataobj =
 	    visBase::DM().getObject( tc2vdid );
 	if ( !dataobj )
-	    return 0;
+	    return false;
 
 	mDynamicCastGet(visBase::TextureChannel2VolData*, tc2vd, dataobj.ptr());
 	if ( tc2vd )
@@ -777,7 +777,7 @@ int MPEDisplay::usePar( const IOPar& par )
     turnOn( true );
     showBoxDragger( dispboxdragger );
     
-    return 1;
+    return true;
 }
 
 

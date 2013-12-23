@@ -46,11 +46,11 @@ mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl,
 		    public visSurvey::SurveyObject
 {
 public:
+		    MPEDisplay();
+		    mDefaultFactoryInstantiation( 
+			visSurvey::SurveyObject,MPEDisplay,
+			"MPEDisplay", sFactoryKeyword() );
 
-	// general methods
-    static MPEDisplay*        create()
-	    	    mCreateDataObj(MPEDisplay);
-  
     bool            isInlCrl() const	{ return true; }
     bool            isOn() const;
 
@@ -64,7 +64,7 @@ public:
     float           getDraggerTransparency() const;
     
     void            setPlaneOrientation(int orient);
-    int       getPlaneOrientation() const;
+    int		    getPlaneOrientation() const;
 
     bool            getPlanePosition(CubeSampling&) const;
     void            moveMPEPlane(int nrsteps);    
@@ -106,7 +106,7 @@ public:
     virtual float       maxDist() const;
 
     virtual void	fillPar(IOPar&) const;
-    virtual int		usePar( const IOPar&);
+    virtual bool	usePar( const IOPar&);
 
     NotifierAccess*	getMovementNotifier();
     
@@ -168,9 +168,9 @@ public:
     bool		isAttribEnabled(int attrib) const;
 
     const char*		errMsg() const { return errmsg_.str(); }
+
     
 protected:
-    
     			~MPEDisplay();
     CubeSampling	getBoxPosition() const;
     void		setPlanePosition(const CubeSampling&);
