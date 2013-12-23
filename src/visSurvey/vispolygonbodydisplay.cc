@@ -31,8 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistristripset.h"
 #include "vispolygonoffset.h"
 
-mCreateFactoryEntry( visSurvey::PolygonBodyDisplay );
-
 namespace visSurvey
 {
 
@@ -401,7 +399,8 @@ NotifierAccess* PolygonBodyDisplay::materialChange()
 
 void PolygonBodyDisplay::matChangeCB(CallBacker*)
 {
-    bodydisplay_->updateMaterialFrom( getMaterial() );
+    if ( bodydisplay_ )
+        bodydisplay_->updateMaterialFrom( getMaterial() );
 }
 
 
@@ -451,14 +450,17 @@ bool PolygonBodyDisplay::isBodyDisplayed() const
 void PolygonBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
+    visSurvey::SurveyObject::fillPar( par );
     par.set( sKeyEMPolygonSurfID(), getMultiID() );
 }
 
 
-int PolygonBodyDisplay::usePar( const IOPar& par )
+bool PolygonBodyDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
+	 !visSurvey::SurveyObject::usePar( par ) )
+
+	 return false;
 
     MultiID newmid;
     if ( par.get(sKeyEMPolygonSurfID(),newmid) )
@@ -476,7 +478,7 @@ int PolygonBodyDisplay::usePar( const IOPar& par )
 	if ( emobject ) setEMID( emobject->id() );
     }
 
-    return 1;
+    return true;
 }
 
 

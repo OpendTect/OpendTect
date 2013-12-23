@@ -47,9 +47,10 @@ mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
 			    public SurveyObject
 {
 public:
-    static PolygonBodyDisplay*	create()
-				mCreateDataObj(PolygonBodyDisplay);
-
+				PolygonBodyDisplay();
+				mDefaultFactoryInstantiation( 
+				    visSurvey::SurveyObject,PolygonBodyDisplay,
+				    "PolygonBodyDisplay", sFactoryKeyword() );
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
 
@@ -76,7 +77,7 @@ public:
     bool			areIntersectionsDisplayed() const;
 
     virtual void                fillPar(IOPar&) const;
-    virtual int                 usePar(const IOPar&);
+    virtual bool                usePar(const IOPar&);
 
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
@@ -92,6 +93,7 @@ public:
 
 protected:
 
+protected:
     virtual			~PolygonBodyDisplay();
     void			otherObjectsMoved(
 	    			    const ObjectSet<const SurveyObject>&,
