@@ -56,7 +56,6 @@ const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 static const char* sKeyShowColTab()	{ return "Show ColTab"; }
 
-static const char* sKeySceneID()	{ return "Scene ID"; }
 static const char* sKeyChildID()	{ return "ID"; }
 static const char* sKeyNrChild()	{ return "Number of Child"; }
 static const char* childfix()		{ return "Child"; }
@@ -81,6 +80,8 @@ Scene::Scene()
     , basemap_( 0 )
     , basemapcursor_( 0 )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , ctshownusepar_( false )
+    , usepar_( false )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -1065,13 +1066,7 @@ bool Scene::usePar( const IOPar& par )
 	survobj->doUnRef();
     }
 
-/* below three lines are not working due to Ranojay did
-    some changes in creation of scenecoltab_.
-    waiting for him to solve it  */
-
-  /*  bool ctshown = false;
-    par.getYN( sKeyShowColTab(), ctshown );
-    scenecoltab_->turnOn( ctshown );*/
+    par.getYN( sKeyShowColTab(), ctshownusepar_ );
 
     bool txtshown = true;
     par.getYN( sKeyShowAnnot(), txtshown );
@@ -1100,6 +1095,7 @@ bool Scene::usePar( const IOPar& par )
 	setFixedZStretch( zstretch );
     }
 
+    usepar_ = true;
     return true;
 }
 
@@ -1145,6 +1141,12 @@ void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
 void Scene::setSceneColTab( visBase::SceneColTab* sct )
 {
     scenecoltab_ = sct;
+    if ( usepar_ && scenecoltab_ )
+    {
+	scenecoltab_->turnOn( ctshownusepar_ );
+	usepar_ = false;
+    }
+    
 }
 
 
