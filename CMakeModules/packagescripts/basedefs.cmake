@@ -7,21 +7,20 @@
 #OpenDtect libraries
 set( LIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel General
 	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
-	     PreStackProcessing EMAttrib ExpAttribs SoOD Well WellAttrib uiAttributes uiBase uiCoin
+	     PreStackProcessing EMAttrib ExpAttribs SoOD Well WellAttrib uiAttributes uiBase uiOSG
 	     uiEarthModel uiEMAttrib uiExpAttribs uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
 	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver )
 
-set( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid 
+set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
 	      od_process_prestack od_process_segyio od_process_time2depth
 	      od_process_velocityconv od_process_volume od_ProgressViewer od_DispMsg
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
 	      od_ReportIssue od_uiReportIssue )
-set( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
-	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
-	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
+set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
+	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     TextureAttrib uiTextureAttrib )
 #Only for windows base package
 set( WINEXECLIST od_start_dtect od_main_console )
@@ -37,6 +36,5 @@ else()
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
     set( ODSCRIPTS od_* mksethdir mac_term macterm.in )
 endif()
-
 
 set( PACK "base" )
