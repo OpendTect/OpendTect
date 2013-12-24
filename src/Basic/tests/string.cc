@@ -68,15 +68,13 @@ static bool testBytes2String()
     BufferString valbfstr;\
     if ( isfloat )\
     {\
-	testname = "Float precision ";\
-	testname += val;\
+	testname.set( "Float precision " ).add( val ); \
 	valfmtstr = getStringFromFloat( val, buff, 7 );\
 	valbfstr =  Conv::to<const char*>((float)val);\
     }\
     else\
     {\
-	testname = "Double precision ";\
-	testname += val;\
+	testname.set( "Double precision " ).add( val ); \
 	valbfstr =  Conv::to<const char*>((double)val);\
 	valfmtstr = getStringFromDouble( val, buff, 15 );\
     }\
@@ -174,6 +172,41 @@ static bool testOccFns()
     return true;
 }
 
+#define mDefVarDef(typ,nm,val) \
+    const typ##VarDef nm = { val, #val }
+
+#define mPrNumb(var,maxsz) \
+    str = toString( var.v_, maxsz ); \
+    od_cout() << var.desc_ << ' ' << maxsz << ": \"" << str << '"' << od_endl
+
+static bool testFToStringFns()
+{
+    if ( quiet ) return true;
+
+    struct floatVarDef { float v_; const char* desc_; };
+    struct doubleVarDef { double v_; const char* desc_; };
+    mDefVarDef( float, f1, 0.1234567f );
+    mDefVarDef( float, f2, 0.1234567e10f );
+    mDefVarDef( float, f3, 1.234567e-8f );
+    mDefVarDef( float, f4, -1.234567e-8f );
+    mDefVarDef( double, d1, 0.123456789 );
+    mDefVarDef( double, d2, 0.123456789e10 );
+    mDefVarDef( double, d3, 1.23456789e-8 );
+    mDefVarDef( double, d4, -1.23456789e-8 );
+
+    BufferString str;
+    mPrNumb(f1,6); mPrNumb(f1,8); mPrNumb(f1,10); mPrNumb(f1,12);
+    mPrNumb(f2,6); mPrNumb(f2,8); mPrNumb(f2,10); mPrNumb(f2,12);
+    mPrNumb(f3,6); mPrNumb(f3,8); mPrNumb(f3,10); mPrNumb(f3,12);
+    mPrNumb(f4,6); mPrNumb(f4,8); mPrNumb(f4,10); mPrNumb(f4,12);
+    mPrNumb(d1,6); mPrNumb(d1,8); mPrNumb(d1,10); mPrNumb(d1,12);
+    mPrNumb(d2,6); mPrNumb(d2,8); mPrNumb(d2,10); mPrNumb(d2,12);
+    mPrNumb(d3,6); mPrNumb(d3,8); mPrNumb(d3,10); mPrNumb(d3,12);
+    mPrNumb(d4,6); mPrNumb(d4,8); mPrNumb(d4,10); mPrNumb(d4,12);
+
+    return true;
+}
+
 
 
 int main( int argc, char** argv )
@@ -183,7 +216,8 @@ int main( int argc, char** argv )
     if ( !testBytes2String()
       || !testStringPrecisionInAscII()
       || !testBufferStringFns()
-      || !testOccFns() )
+      || !testOccFns()
+      || !testFToStringFns() )
 	ExitProgram( 1 );
 
     BufferStringSet strs;

@@ -219,54 +219,53 @@ static void truncFloatStr( float val, char* str )
     }
 }
 
+
 const char* getStringFromFloat( float actualval, char* str, int nrdigits )
 {
-    if ( nrdigits<=0 || nrdigits>7 ) nrdigits = 7;
+    if ( !actualval )
+	return "0";
+    const bool isneg = actualval < 0;
+    const float val = isneg ? -actualval : actualval;
+    if ( mIsUdf(val) )
+	return "1e30";
+
+    if ( nrdigits<=0 || nrdigits>7 )
+	nrdigits = 7;
 
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.buf();
-    const bool isneg = actualval < 0;
-    const float val = isneg ? -actualval : actualval;
-    char* bufptr;
+    char* bufptr = ret;
+    if ( isneg ) *bufptr++ = '-';
+    BufferString usedformat =  "%.";
+    bool decimalformat = val < 1e8 && val > 1e-6;
+    if ( decimalformat )
+    {
+	int nonfractionsize ( 0 ) ;
+	if ( val !=0.0 )
+	    nonfractionsize = abs(((int) log10( val ))+1);
 
-    if ( mIsUdf(val) )
-	strcpy( ret, "1e30" );
+	int fractionsize = nrdigits-nonfractionsize;
+	if ( fractionsize<0 ) fractionsize = 0;
+
+	usedformat += fractionsize;
+	usedformat += "f";
+    }
     else
     {
-	bufptr = ret;
-	if ( isneg ) *bufptr++ = '-';
-	BufferString usedformat =  "%.";
-	bool decimalformat = val >= 0 && val < 1e8;
-	if ( decimalformat )
-	{
-	    int nonfractionsize ( 0 ) ;
-	    if ( val !=0.0 )
-		nonfractionsize = abs(((int) log10( val ))+1);
-
-	    int fractionsize = nrdigits-nonfractionsize;
-	    if ( fractionsize<0 ) fractionsize = 0;
-
-	    usedformat += fractionsize;
-	    usedformat += "f";
-	}
+	if ( nrdigits>0 )
+	    usedformat += (nrdigits-1);
 	else
-	{
-	    if ( nrdigits>0 )
-		usedformat += (nrdigits-1);
-	    else
-		usedformat += 0;
+	    usedformat += 0;
 
-	    usedformat += "e";
-	}
-
-	sprintf( bufptr, usedformat.buf(), val );
-
-	if ( decimalformat )
-	    truncFloatStr( actualval, ret );
-
-	prettyNumber( ret, true );
-
+	usedformat += "e";
     }
+
+    sprintf( bufptr, usedformat.buf(), val );
+
+    if ( decimalformat )
+	truncFloatStr( actualval, ret );
+
+    prettyNumber( ret, true );
 
     return ret ;
 
@@ -761,6 +760,46 @@ const char* toString( unsigned short i )
 
 const char* toString( unsigned char c )
 { return toString( ((unsigned short)c) ); }
+
+template <class T>
+static const char* toStringLimImpl( T val, int maxtxtwdth, const char* fmt )
+{
+    FixedString simptostr = toString(val);
+    if ( maxtxtwdth < 1 || simptostr.size() <= maxtxtwdth )
+	return simptostr;
+
+    mDeclStaticString( ret );
+    if ( mIsUdf(val) )
+	ret.set( "1e30" );
+    else
+    {
+	const BufferString fullfmt( "%", maxtxtwdth-5, fmt );
+	sprintf( ret.buf(), fullfmt.buf(), val );
+    }
+
+    const int retsz = ret.size();
+    if ( retsz > maxtxtwdth )
+    {
+	char* eptr = firstOcc( ret.buf(), 'e' );
+	if ( !eptr ) firstOcc( ret.buf(), 'E' );
+	if ( !eptr )
+	    ret[maxtxtwdth-1] = '\0'; // huh? just do someting about the size...
+	else
+	{
+	    const int diff = retsz - maxtxtwdth;
+	    while ( true )
+		{ *(eptr-diff) = *eptr; if ( !*eptr) break; eptr++; }
+	}
+    }
+
+    return ret.buf();
+}
+
+const char* toString( double d, int mw )
+{ return toStringLimImpl( d, mw, "lg" ); }
+
+const char* toString( float f, int mw )
+{ return toStringLimImpl( f, mw, "g" ); }
 
 
 const char* toString( const char* str )
