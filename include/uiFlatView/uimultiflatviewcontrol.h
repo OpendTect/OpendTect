@@ -44,7 +44,7 @@ protected:
     ObjectSet<uiToolButton> parsbuts_;
     ObjectSet<FlatView::AuxData> zoomboxes_;
 
-    bool		handleUserClick();
+    bool		handleUserClick(int vwridx);
     bool		iszoomcoupled_;
     bool		drawzoomboxes_;
 

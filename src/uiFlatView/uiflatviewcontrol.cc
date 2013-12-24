@@ -58,11 +58,10 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
     zoommgr_.setNrViewers( vwrs_.size() );
     mAttachCB( vwr.dataChanged, uiFlatViewControl::dataChangeCB );
 
-    uiGraphicsView& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
-	mAttachCB( cnvs.rubberBandUsed, uiFlatViewControl::rubBandCB );
+	mAttachCB(vwr.rgbCanvas().rubberBandUsed,uiFlatViewControl::rubBandCB);
 
-    MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
+    MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1, true );
     mAttachCB( mevh.movement, uiFlatViewControl::mouseMoveCB );
     mAttachCB( mevh.buttonReleased, uiFlatViewControl::usrClickCB );
 
@@ -311,9 +310,25 @@ void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 }
 
 
-MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
+MouseEventHandler& uiFlatViewControl::mouseEventHandler( int idx, bool ofscene )
 {
-    return vwrs_[vieweridx]->rgbCanvas().scene().getMouseEventHandler();
+    uiGraphicsView& canvas = vwrs_[idx]->rgbCanvas();
+    return ofscene ? canvas.scene().getMouseEventHandler()
+		   : canvas.getNavigationMouseEventHandler();
+}
+
+
+int uiFlatViewControl::getViewerIdx( const MouseEventHandler* meh,bool ofscene )
+{
+    if ( !meh ) return -1;
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	const MouseEventHandler* imeh = &mouseEventHandler( idx, ofscene );
+	if ( imeh==meh && imeh->hasEvent() ) return idx;
+    }
+
+    return -1;
 }
 
 
@@ -334,34 +349,27 @@ void uiFlatViewControl::addSizesToZoomMgr()
 
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	if ( !mouseEventHandler(idx).hasEvent() )
-	    continue;
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh || !meh->hasEvent() ) return;
 
-	const MouseEvent& ev = mouseEventHandler(idx).event();
-	uiWorld2Ui w2u;
-	vwrs_[idx]->getWorld2Ui(w2u);
-	const uiWorldPoint wp = w2u.transform( ev.pos() );
-	vwrs_[idx]->getAuxInfo( wp, infopars_ );
-	CBCapsule<IOPar> caps( infopars_, this );
-	infoChanged.trigger( &caps );
-    }
+    const int idx = getViewerIdx( meh, true );
+    if ( idx<0 ) return;
+    uiWorld2Ui w2u;
+    vwrs_[idx]->getWorld2Ui(w2u);
+    const uiWorldPoint wp = w2u.transform( meh->event().pos() );
+    vwrs_[idx]->getAuxInfo( wp, infopars_ );
+    CBCapsule<IOPar> caps( infopars_, this );
+    infoChanged.trigger( &caps );
 }
 
 
 void uiFlatViewControl::usrClickCB( CallBacker* cb )
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	if ( !mouseEventHandler( idx ).hasEvent() )
-	    continue;
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh || !meh->hasEvent() || meh->isHandled() )
+	return;
 
-	if ( mouseEventHandler(idx).isHandled() )
-	    return;
-
-	mouseEventHandler(idx).setHandled( handleUserClick() );
-    }
+    meh->setHandled( handleUserClick(getViewerIdx(meh,true)) );
 }
 
 

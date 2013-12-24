@@ -40,7 +40,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , ctabed_(0)
     , manip_(false)
     , mousepressed_(false)
-    , menu_(*new uiMenuHandler(&vwr,-1))
+    , menu_(*new uiMenuHandler(0,-1))
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
     , editbut_(0)
@@ -128,8 +128,7 @@ void uiFlatViewStdControl::finalPrepare()
     updatePosButtonStates();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	MouseEventHandler& mevh =
-	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
+	MouseEventHandler& mevh = mouseEventHandler( idx, false );
 	mAttachCB( mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
 	if ( withhanddrag_ )
 	{
@@ -173,21 +172,16 @@ void uiFlatViewStdControl::vwChgCB( CallBacker* )
 }
 
 
-void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
+void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	if ( !vwrs_[idx]->rgbCanvas().
-		getNavigationMouseEventHandler().hasEvent() )
-	    continue;
+    mDynamicCastGet( const MouseEventHandler*, meh, cb );
+    if ( !meh || !meh->hasEvent() ) return;
 
-	const MouseEvent& ev =
-	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().event();
-	if ( mIsZero(ev.angle(),0.01) )
-	    continue;
+    const MouseEvent& ev = meh->event();
+    if ( mIsZero(ev.angle(),0.01) )
+	return;
 
-	zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
-    }
+    zoomCB( ev.angle()<0 ? zoominbut_ : zoomoutbut_ );
 }
 
 
@@ -266,7 +260,7 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh ) return;
 
-    const int vwridx = getViewerIdx( meh );
+    const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     const uiFlatViewer* vwr = vwrs_[vwridx];
     mousedownpt_ = meh->event().pos();
@@ -279,7 +273,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh ) return;
 
-    const int vwridx = getViewerIdx( meh );
+    const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     uiFlatViewer* vwr = vwrs_[vwridx];
     const uiGraphicsView& canvas = vwr->rgbCanvas();
@@ -309,21 +303,6 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
     mousepressed_ = false;
-}
-
-
-int uiFlatViewStdControl::getViewerIdx( const MouseEventHandler* meh )
-{
-    if ( !meh ) return -1;
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	const MouseEventHandler* imeh =
-	    &vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
-	if ( imeh==meh && imeh->hasEvent() ) return idx;
-    }
-
-    return -1;
 }
 
 
@@ -396,10 +375,9 @@ void uiFlatViewStdControl::translateCB( CallBacker* )
 }
 
 
-bool uiFlatViewStdControl::handleUserClick()
+bool uiFlatViewStdControl::handleUserClick( int vwridx )
 {
-    //TODO and what about multiple viewers?
-    const MouseEvent& ev = mouseEventHandler(0).event();
+    const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	  !ev.altStatus() )
     {

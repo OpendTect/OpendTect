@@ -58,7 +58,7 @@ protected:
     Server&		server_;
 
     bool 		checkIfInside(double,double);
-    bool 		handleUserClick();
+    bool		handleUserClick(int vwridx);
    
     void                applyProperties(CallBacker*);
     void 		keyPressCB(CallBacker*);

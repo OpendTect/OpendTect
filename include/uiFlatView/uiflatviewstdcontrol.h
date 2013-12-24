@@ -87,7 +87,6 @@ protected:
     void		clearToolBar();
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,uiFlatViewer&);
-    int                 getViewerIdx(const MouseEventHandler*);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
@@ -107,7 +106,7 @@ protected:
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
 
-    virtual bool	handleUserClick();
+    virtual bool	handleUserClick(int vwridx);
 
     uiMenuHandler&      menu_;
     MenuItem           	propertiesmnuitem_;

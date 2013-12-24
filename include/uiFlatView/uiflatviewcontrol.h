@@ -87,7 +87,13 @@ protected:
 
     uiFlatViewPropDlg*  propdlg_;
 
-    MouseEventHandler&	mouseEventHandler(int);
+    MouseEventHandler&	mouseEventHandler(int vwridx,bool ofscene);
+			//!< Returns MouseEventHandler of uiGraphicsScene if
+			//!< ofscene is true else returns that of uiGraphicsView
+    int			getViewerIdx(const MouseEventHandler*,bool ofscene);
+			//!< ofscene should be true while passing
+			//!< MouseEventHandler of uiGraphicsScene and false
+			//!< while passing MouseEventHandler of uiGraphicsView.
 
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
@@ -104,7 +110,7 @@ protected:
     virtual void	handDragged(CallBacker*)	{}
     virtual void	mouseMoveCB(CallBacker*);
     virtual void	usrClickCB(CallBacker*);
-    virtual bool	handleUserClick()		{ return false; }
+    virtual bool	handleUserClick(int vwridx)	{ return false; }
     
     virtual void	doPropertiesDialog(int vieweridx=0, bool dowva=true);
     virtual void	propDlgClosed(CallBacker*);

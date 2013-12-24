@@ -136,18 +136,17 @@ void uiMultiFlatViewControl::reInitZooms()
 void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh ) return;
+    if ( !meh || !meh->hasEvent() ) return;
 
-    const int vwridx = getViewerIdx(meh);
+    const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     activevwr_ = vwrs_[vwridx];
 
-    const MouseEvent& ev = 
-	activevwr_->rgbCanvas().getNavigationMouseEventHandler().event();
+    const MouseEvent& ev = meh->event();
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+    zoomCB( ev.angle()<0 ? zoominbut_ : zoomoutbut_ );
 }
 
 
@@ -205,7 +204,7 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 }
 
 
-bool uiMultiFlatViewControl::handleUserClick()
+bool uiMultiFlatViewControl::handleUserClick( int vwridx )
 {
     return true;
 }

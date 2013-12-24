@@ -80,9 +80,9 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 }
 
 
-bool uiControlView::handleUserClick()
+bool uiControlView::handleUserClick( int vwridx )
 {
-    const MouseEvent& ev = mouseEventHandler(0).event();
+    const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() 
