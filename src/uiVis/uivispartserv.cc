@@ -86,8 +86,6 @@ const char* uiVisPartServer::sKeyWorkArea()	    { return "Work Area"; }
 static const char* sKeyNumberScenes()	       { return "Number of Scene";}
 static const char* sKeySceneID()	             { return "Scene ID"; }
 static const char* sceneprefix()	                { return "Scene"; }
-static const char* sKeyPolygonSelMode()   { return "Polygon Select Mode"; }
-static const char* sKeyPolygonSelType()   { return "Polygon Select Type"; }
 
 
 static const int cResetManipIdx = 800;
