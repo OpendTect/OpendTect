@@ -179,7 +179,6 @@ macro(OD_SETUP_OSG)
     endif()
 
     list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
-message( "ext osg libs : ${OD_MODULE_EXTERNAL_LIBS}" )
 
 endmacro(OD_SETUP_OSG)
 
