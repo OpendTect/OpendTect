@@ -328,9 +328,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
 		      float p0, float p1, float p2,
 		      bool posperiodic = false )
 {
-    const Array3DInfo& size 
-	= mPolyRetDownCastRef( const Array3DInfo , array.info() );
-
+    const Array3DInfo& size = array.info();
     int intpos0 = mNINT32( p0 );
     float dist0 = p0 - intpos0;
     int prevpos0 = intpos0;
