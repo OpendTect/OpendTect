@@ -54,13 +54,12 @@ public:
 
 mExpClass(Algo) LinScaler : public Scaler
 {
-#define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
 			LinScaler( double c=0, double f=1 )
 			: constant(c), factor(f)	{}
 			LinScaler( double x0, double y0, double x1, double y1 );
     void		set( double x0, double y0, double x1, double y1 );
-    virtual cloneTp*	clone() const
+    virtual LinScaler*	clone() const
 			{ return new LinScaler(constant,factor); }
     inline bool		isEmpty() const;
 
@@ -79,8 +78,6 @@ public:
     
     double		constant;
     double		factor;
-
-#undef cloneTp
 };
 
 inline bool LinScaler::isEmpty() const
@@ -95,12 +92,11 @@ inline bool LinScaler::isEmpty() const
 
 mExpClass(Algo) LogScaler : public Scaler
 {
-#define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
 			LogScaler( bool powerof10=true )
 			: ten_(powerof10)		{}
     const char*		type() const			{ return sLogScaler; }
-    virtual cloneTp*	clone() const
+    virtual LogScaler*	clone() const
 			{ return new LogScaler(ten_); }
 
     double		scale(double) const;
@@ -111,7 +107,6 @@ public:
 			{ return ten_==b.ten_; }
     
     bool		ten_;
-#undef cloneTp
 };
 
 
@@ -121,12 +116,11 @@ public:
 
 mExpClass(Algo) ExpScaler : public Scaler
 {
-#define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
 			ExpScaler( bool powerof10=true )
 			: ten_(powerof10)		{}
     const char*		type() const			{ return sExpScaler; }
-    virtual cloneTp*	clone() const
+    virtual ExpScaler*	clone() const
 			{ return new ExpScaler(ten_); }
 
     double		scale(double) const;
@@ -138,7 +132,6 @@ public:
 			{ return ten_==b.ten_; }
     
     bool		ten_;
-#undef cloneTp
 };
 
 
@@ -156,13 +149,12 @@ public:
 
 mExpClass(Algo) AsymptScaler : public Scaler
 {
-#define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:
 			AsymptScaler( double c=0, double w=1, double l=0.95 )
 			: center_(c), width_(w), linedge_(l), factor(1)
 						{ set(c,w,l); }
     const char*		type() const		{ return sAsymptScaler; }
-    virtual cloneTp*	clone() const
+    virtual AsymptScaler*	clone() const
 			{ return new AsymptScaler(center_,width_,linedge_); }
 
     double		scale(double) const;
@@ -187,7 +179,6 @@ protected:
     double		linedge_;
 
     double		factor;
-#undef cloneTp
 };
 
 

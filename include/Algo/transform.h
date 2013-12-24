@@ -23,7 +23,8 @@ template <class T> class ArrayND;
 
 
 /*!
-\brief Lets any 1D orthogonal transform (GenericTransformND::GenericTransform1D)be extended to ND. Most transform fftw can be implemented as a subclass of
+\brief Lets any 1D orthogonal transform (GenericTransformND::GenericTransform1D)
+be extended to ND. Most transform fftw can be implemented as a subclass of
 GenericTransformND.
 */
 
@@ -56,7 +57,7 @@ public:
     			//SequentialTask::execute can be used as well
 
 			~GenericTransformND();
-mProtected:
+protected:
     virtual bool		setup();			
     int				nextStep();
 
@@ -107,7 +108,7 @@ mProtected:
 	virtual bool	init() { return true; }
 	virtual bool	run(bool parallel)				= 0;
 
-    mProtected:
+    protected:
 				
     				Transform1D();
 

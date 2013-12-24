@@ -129,8 +129,6 @@ typedef Interval<int>	SampleGate;
 typedef Interval<float> ZGate;
 
 
-#define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
-
 /*!
 \brief Interval with step.
 */
@@ -155,7 +153,7 @@ public:
     virtual bool	hasStep() const		{ return true; }
 
     inline
-    virtual cloneTp*	clone() const;
+    virtual StepInterval<T>*	clone() const;
     inline void		set(const T& start,const T& stop,const T& step);
 
     template <class X>
@@ -478,7 +476,7 @@ bool BasicInterval<T>::includes( const X& t, bool allowrev ) const
 
 
 template <class T> template <class X> inline
-bool BasicInterval<T>::includes( const BasicInterval<X>& t, bool allowrev ) const
+bool BasicInterval<T>::includes( const BasicInterval<X>& t, bool allowrev )const
 {
     return includes( t.start, allowrev ) && includes( t.stop, allowrev );
 }
@@ -626,7 +624,7 @@ bool StepInterval<T>::isUdf() const
 
 
 template <class T> inline
-cloneTp* StepInterval<T>::clone() const	
+StepInterval<T>* StepInterval<T>::clone() const	
 { return new StepInterval<T>( *this ); }
 
 
@@ -780,8 +778,5 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 
 mDefFltisCompat(float)
 mDefFltisCompat(double)
-
-
-#undef cloneTp
 
 #endif

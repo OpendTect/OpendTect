@@ -138,25 +138,15 @@ RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 #define mDeg2RadF		0.017453292519943292f
 #define mRad2DegF		57.295779513082323f
 
+# define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
+# define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 
 #ifdef __msvc__
 # include "msvcdefs.h"
 #else
 # define dll_export
 # define dll_import
-
-
 # define mMaxFilePathLength	255
-
-# define mPolyRet(base,clss)	clss
-# define mTFriend(T,clss)	template <class T> friend class clss
-# define mTTFriend(T,C,clss)	template <class T, class C> friend class clss
-# define mProtected		protected
-# define mPolyRetDownCast(clss,var)	var
-# define mPolyRetDownCastRef(clss,var)	var
-# define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
-# define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
-
 #endif
 
 #define mTODOHelpID	"0.0.0"

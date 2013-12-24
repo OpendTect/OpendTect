@@ -43,16 +43,4 @@ ________________________________________________________________________
 
 # define mMaxFilePathLength		_MAX_PATH
 
-# define mPolyRet(base,clss)		base
-# define mTFriend(T,clss)
-# define mTTFriend(T,C,clss)
-# define mProtected			public
-# define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
-# define mPolyRetDownCastRef(clss,var)	*(dynamic_cast<clss*>(&var))
-# define mDynamicCast(typ,out,in) \
-	 out = dynamic_cast< typ >( in );
-# define mDynamicCastGet(typ,out,in) \
-	 typ mDynamicCast(typ,out,in)
-
-
 #endif

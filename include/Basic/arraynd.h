@@ -18,9 +18,9 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "ptrman.h"
 
-#define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
-#define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
-#define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
+#define mPolyArray1DInfoTp Array1DInfo
+#define mPolyArray2DInfoTp Array2DInfo
+#define mPolyArray3DInfoTp Array3DInfo
 
 /*!
 \brief An ArrayND is an array with a given number of dimensions and a size.
@@ -114,7 +114,7 @@ public:
     T		getND(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
-    T				value(od_int64 i) const	{ return get( (int) i); }
+    T				value(od_int64 i) const	{ return get( (int) i);}
     bool			writable() const	{ return true; }
     void			setValue(od_int64 i,T t){ set( (int) i,t); }
     virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
