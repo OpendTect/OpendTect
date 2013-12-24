@@ -245,6 +245,9 @@ protected:
     bool			userwantsshading_; //from settings
     CubeSampling		cs_;
 
+    bool			ctshownusepar_;
+    bool			usepar_;
+
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();
     static const char*		sKeyShowGrid();
