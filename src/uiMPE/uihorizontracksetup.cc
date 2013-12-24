@@ -500,7 +500,7 @@ void uiHorizonSetupGroup::initEventGroup()
     evfld_->setValue( fldidx );
 
     Interval<float> srchintv( horadj_->permittedZRange() );
-    srchintv.scale( SI().zDomain().userFactor() );
+    srchintv.scale( mCast(float,SI().zDomain().userFactor()) );
     srchgatefld_->setValue( srchintv );
 
     thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
