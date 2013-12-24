@@ -155,7 +155,7 @@ macro(OD_SETUP_OSG)
 			    list( APPEND ARGS ${OSG_DIR}/lib/${OSGLIBNAME} )
 			endif()
 			list( GET ARGS 0 FILENM )
-			OD_INSTALL_LIBRARY( ${FILENM} )
+			OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
 		    elseif( WIN32 )
@@ -179,6 +179,7 @@ macro(OD_SETUP_OSG)
     endif()
 
     list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
+message( "ext osg libs : ${OD_MODULE_EXTERNAL_LIBS}" )
 
 endmacro(OD_SETUP_OSG)
 
