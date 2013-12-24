@@ -163,19 +163,23 @@ int VisualObjectImpl::addChild( osg::Node* nn )
     if ( !nn )
 	return -1;
 
-    return osgroot_->addChild( nn );
+    const int res = osgroot_->addChild( nn );
+    requestSingleRedraw();
+    return res;
 }
 
 
 void VisualObjectImpl::insertChild( int pos, osg::Node* nn )
 {
     osgroot_->insertChild( pos, nn );
+    requestSingleRedraw();
 }
 
 
 void VisualObjectImpl::removeChild( osg::Node* nn )
 {
     osgroot_->removeChild( nn );
+    requestSingleRedraw();
 }
 
 
