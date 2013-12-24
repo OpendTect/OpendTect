@@ -53,6 +53,7 @@ void Transformation::reset()
     currot_ = curso_ = osg::Quat( 0.0, 0.0, 0.0, 1.0 );
     curscale_ = osg::Vec3d( 1.0, 1.0, 1.0 );
     node_->setMatrix( osg::Matrix::identity() );
+    requestSingleRedraw();
     return;
 }
 
@@ -64,6 +65,7 @@ Transformation& Transformation::operator *= (const Transformation& nt)
     {
 	osg::Matrix mt = node_->getMatrix()*mtrf->getMatrix();
 	node_->setMatrix( mt );
+	requestSingleRedraw();
     }
     return *this;
 }
@@ -97,6 +99,7 @@ void Transformation::updateMatrix()
     mat *= osg::Matrix::rotate( currot_ );
     mat *= osg::Matrix::translate( curtrans_ );
     node_->setMatrix( mat );
+    requestSingleRedraw();
 }
 
 
@@ -125,6 +128,7 @@ void Transformation::updateNormalizationMode()
 	node_->getOrCreateStateSet()->setMode( GL_RESCALE_NORMAL,
 					       osg::StateAttribute::ON );
     }
+    requestSingleRedraw();
 }
 
 
