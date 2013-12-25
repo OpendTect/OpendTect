@@ -524,8 +524,7 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
     case 5:
 	dc.fmt_ = DataCharacteristics::Ieee;
 	dc.setInteger( false );
-	if ( isRev1() )
-	    dc.littleendian_ = false;
+	dc.littleendian_ = filepars_.byteswap_;
     break;
     default:
 	dc.setInteger( false );
