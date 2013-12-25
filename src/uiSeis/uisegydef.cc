@@ -336,7 +336,8 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 
     if ( forread || enabbyteswapwrite )
     {
-	int bs = 0; iop->get( SEGY::FilePars::sKeyByteSwap(), bs );
+	int bs = 0;
+	if ( iop ) iop->get( SEGY::FilePars::sKeyByteSwap(), bs );
 	const char* strs[] = { "No", "Only data", "All", 0 };
 	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
 	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
