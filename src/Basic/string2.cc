@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "undefval.h"
 #include "odcomplex.h"
-#include <ctype.h>
+#include "keystrs.h"
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
@@ -23,21 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
-void removeTrailingBlanks( char* str )
-{
-    if ( !str || ! *str ) return;
-
-    char* endptr = str + strlen(str) - 1;
-    while( isspace(*endptr) )
-    {
-	*endptr = '\0';
-	if ( str == endptr ) break;
-	endptr--;
-    }
-}
 
 
-const char* getStringFromInt( od_int32 val, char* str )
+static const char* getStringFromInt( od_int32 val, char* str )
 
 {
     mDeclStaticString( retstr );
@@ -47,7 +35,7 @@ const char* getStringFromInt( od_int32 val, char* str )
 }
 
 
-const char* getStringFromUInt( od_uint32 val, char* str )
+static const char* getStringFromUInt( od_uint32 val, char* str )
 {
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.buf();
@@ -89,7 +77,7 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 }
 
 
-const char* getStringFromInt64( od_int64 val, char* str )
+static const char* getStringFromInt64( od_int64 val, char* str )
 {
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.buf();
@@ -100,7 +88,7 @@ const char* getStringFromInt64( od_int64 val, char* str )
 }
 
 
-const char* getStringFromUInt64( od_uint64 val, char* str )
+static const char* getStringFromUInt64( od_uint64 val, char* str )
 {
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.buf();
@@ -109,77 +97,173 @@ const char* getStringFromUInt64( od_uint64 val, char* str )
 }
 
 
-const char* getStringFromDouble( const char* fmt, double actualval, char* str )
+static void rmSingleCharFromString( char* ptr )
 {
-    if ( !fmt )
-	return getStringFromDouble( actualval, str );
-
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
-    const bool isneg = actualval < 0;
-    const double val = isneg ? -actualval : actualval;
-    char* bufptr;
-
-    if ( mIsUdf(val) )
-	strcpy( ret, "1e30" );
-    else
+    while ( *ptr )
     {
-	bufptr = ret;
-	if ( isneg ) *bufptr++ = '-';
-
-	sprintf( bufptr, fmt, val );
-	prettyNumber( ret, true );
+	*ptr = *(ptr+1);
+	ptr++;
     }
-    return ret;
 }
 
 
-const char* getStringFromDouble( double actualval, char* str, int nrdigits )
+static void cleanupMantissa( char* ptrdot, char* ptrend )
 {
-    if ( nrdigits<=0 || nrdigits>15 ) nrdigits = 15;
-
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
-    const bool isneg = actualval < 0;
-    const double val = isneg ? -actualval : actualval;
-    char* bufptr;
-
-    if ( mIsUdf(val) )
-	strcpy( ret, "1e30" );
+    if ( ptrend )
+	ptrend--;
     else
+	ptrend = ptrdot + FixedString(ptrdot).size() - 1;
+
+    while ( ptrend > ptrdot && *ptrend == '0' )
     {
-	bufptr = ret;
-	if ( isneg ) *bufptr++ = '-';
-	BufferString usedformat =  "%.";
-	bool decimalformat = val >=0 && val < 1e8;
-
-	if ( decimalformat )
-	{
-	    int nonfractionsize ( 0 ) ;
-	    if ( val !=0.0 )
-		nonfractionsize = abs(((int) log10( val ))+1);
-
-	    int fractionsize = nrdigits-nonfractionsize;
-	    if ( fractionsize<0 ) fractionsize = 0;
-
-	    usedformat += fractionsize;
-	    usedformat += "f";
-	}
-	else
-	{
-	    if ( nrdigits>0 )
-		usedformat += (nrdigits-1);
-	    else
-		usedformat += 0;
-
-		usedformat += "e";
-	}
-
-	sprintf( bufptr, usedformat.buf(), val );
-	prettyNumber( ret, true );
+	rmSingleCharFromString( ptrend );
+	ptrend--;
     }
 
-    return ret;
+    if ( *(ptrdot+1) == '\0' || *(ptrdot+1) == 'E' )
+	rmSingleCharFromString( ptrdot );
+}
+
+
+static int findUglyRoundOff( char* str )
+{
+    char* ptrdot = firstOcc( str, '.' );
+    if ( !ptrdot )
+	return -1;
+
+    char* ptrend = firstOcc( ptrdot, 'E' );
+    if ( !ptrend )
+    {
+	ptrend = firstOcc( ptrdot, 'e' );
+	if ( !ptrend )
+	    ptrend = ptrdot + FixedString(ptrdot).size();
+    }
+
+    const int matchstrsz = 3;
+    if ( ptrend - ptrdot < matchstrsz )
+	return -1;
+
+    char* ptr = ptrdot + 1;
+    while ( *ptr == '0' )
+	ptr++;
+    if ( !*ptr || ptrend - ptr < matchstrsz )
+	return -1;
+
+    ptr++;
+    char* hit = firstOcc( ptr, "000" );
+    if ( !hit )
+    {
+	hit = firstOcc( ptr, "999" );
+	if ( !hit )
+	    return -1;
+    }
+
+    int nrdec = hit - ptrdot;
+    if ( *hit == '9' ) nrdec--;
+    if ( nrdec < 0 ) nrdec = 0;
+    return nrdec;
+}
+
+
+#define mSetStrTo0(str,ret) { *str = '0'; *(str+1) = '\0'; ret; }
+
+static void finalCleanupNumberString( char* str )
+{
+    // We don't need any '+'
+    char* ptr = firstOcc( str, '+' );
+    while ( ptr )
+    {
+	rmSingleCharFromString( ptr );
+	ptr = firstOcc( str, '+' );
+    }
+
+    if ( !*str )
+	mSetStrTo0(str,return)
+
+    char* ptrdot = firstOcc( str, '.' );
+    if ( !ptrdot ) return;
+
+    char* ptrexp = firstOcc( str, 'E' );
+    if ( !ptrexp )
+    {
+	ptrexp = firstOcc( str, 'e' );
+	if ( ptrexp )
+	    *ptrexp = 'E';
+    }
+    if ( ptrexp == str )
+	mSetStrTo0(str,return)
+
+    cleanupMantissa( ptrdot, ptrexp );
+    if ( !*str )
+	mSetStrTo0(str,return)
+
+    char* ptrend = firstOcc( str, 'E' );
+    if ( !ptrend )
+	ptrend = str + FixedString(str).size() - 1;
+    if ( ptrexp )
+    {
+	char* ptrlast = ptrexp-1;
+	while ( *ptrlast == '0' )
+	    rmSingleCharFromString( ptrlast );
+    }
+
+    if ( !*str )
+	mSetStrTo0(str,return)
+}
+
+
+template <class T>
+static const char* getStringFromFPNumber( T inpval )
+{
+    mDeclStaticString( retstr );
+    char* str = retstr.buf();
+
+    if ( !inpval )
+	mSetStrTo0(str,return str)
+
+    const bool isneg = inpval < 0;
+    const float val = isneg ? -inpval : inpval;
+    if ( mIsUdf(val) )
+	return sKey::FloatUdf();
+
+
+    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
+    const BufferString fmt( "%.8", fmtend );
+
+    if ( isneg ) *str = '-';
+    sprintf( isneg ? str+1 : str, fmt.buf(), val );
+
+    const int nrdec = findUglyRoundOff( str );
+    if ( nrdec >= 0 )
+    {
+	const BufferString newfmt( "%.", nrdec, fmtend );
+	sprintf( isneg ? str+1 : str, newfmt.buf(), val );
+    }
+
+    finalCleanupNumberString( str );
+
+    return str;
+}
+
+
+const char* getYesNoString( bool yn )
+{
+    const char* strs[] = { "Yes", "No" };
+    return yn ? strs[0] : strs[1];
+}
+
+
+void removeTrailingBlanks( char* str )
+{
+    if ( !str || ! *str ) return;
+
+    char* endptr = str + strlen(str) - 1;
+    while( isspace(*endptr) )
+    {
+	*endptr = '\0';
+	if ( str == endptr ) break;
+	endptr--;
+    }
 }
 
 
@@ -188,119 +272,6 @@ const char* getBytesString( od_uint64 sz )
     NrBytesToStringCreator converter;
     converter.setUnitFrom( sz );
     return converter.getString( sz, 0 );
-}
-
-
-static void truncFloatStr( float val, char* str )
-{
-    const int len = strlen( str );
-    int pos = val < 0 ? 10 : 9;
-
-    if ( len > pos )
-    {
-	char c = str[pos];
-	str[pos--] = '\0';
-	while ( true )
-	{
-	    if ( pos < 0 )
-	    {
-		/* We ran into a number like 9.999 */
-		sprintf( str, "%d", mNINT32(val) );
-		return;
-	    }
-	    if ( !isdigit(c) ) { pos--; continue; }
-	    if ( c != '9' ) break;
-
-	    c = str[pos];
-	    str[pos] = c == '9' ? 0 : c + 1;
-
-	    pos--;
-	}
-    }
-}
-
-
-const char* getStringFromFloat( float actualval, char* str, int nrdigits )
-{
-    if ( !actualval )
-	return "0";
-    const bool isneg = actualval < 0;
-    const float val = isneg ? -actualval : actualval;
-    if ( mIsUdf(val) )
-	return "1e30";
-
-    if ( nrdigits<=0 || nrdigits>7 )
-	nrdigits = 7;
-
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
-    char* bufptr = ret;
-    if ( isneg ) *bufptr++ = '-';
-    BufferString usedformat =  "%.";
-    bool decimalformat = val < 1e8 && val > 1e-6;
-    if ( decimalformat )
-    {
-	int nonfractionsize ( 0 ) ;
-	if ( val !=0.0 )
-	    nonfractionsize = abs(((int) log10( val ))+1);
-
-	int fractionsize = nrdigits-nonfractionsize;
-	if ( fractionsize<0 ) fractionsize = 0;
-
-	usedformat += fractionsize;
-	usedformat += "f";
-    }
-    else
-    {
-	if ( nrdigits>0 )
-	    usedformat += (nrdigits-1);
-	else
-	    usedformat += 0;
-
-	usedformat += "e";
-    }
-
-    sprintf( bufptr, usedformat.buf(), val );
-
-    if ( decimalformat )
-	truncFloatStr( actualval, ret );
-
-    prettyNumber( ret, true );
-
-    return ret ;
-
-}
-
-
-const char* getStringFromFloat( const char* fmt, float actualval, char* str )
-{
-    if ( !fmt )
-	return getStringFromFloat( actualval, str );
-
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
-    const bool isneg = actualval < 0;
-    const float val = isneg ? -actualval : actualval;
-    char* bufptr;
-
-    if ( mIsUdf(val) )
-	strcpy( ret, "1e30" );
-    else
-    {
-	bufptr = ret;
-	if ( isneg ) *bufptr++ = '-';
-
-	sprintf( bufptr, fmt, val );
-	prettyNumber( ret, true );
-    }
-    return ret;
-}
-
-
-const char* getYesNoString( bool yn )
-{
-    const char* strs[] = { "Yes", "No" };
-    return yn ? strs[0] : strs[1];
 }
 
 
@@ -574,45 +545,6 @@ const char* getNextWord( const char* strptr, char* wordbuf )
 }
 
 
-void prettyNumber( char* str, bool is_double )
-{
-    if ( !str ) return;
-    if ( !*str ) { *str = '0'; *(str+1) = '\0'; return; }
-
-    char ret[255]; char* ptrret = ret;
-
-    /* find '.' and copy to end or 'E' */
-    char* ptr = strrchr( str, '.' );
-    if ( !ptr ) return;
-    char* ptre = ptr; char* ptrb = ptrret;
-    while ( *ptre && *ptre != 'e' && *ptre != 'E' ) *ptrb++ = *ptre++;
-    *ptrb-- = '\0';
-
-    /* If '.' at end of the mantissa, remove it */
-    if ( ptre == ptr+1 )
-    {
-	if ( ptr == str )
-	    { *ptr++ = '0'; *ptr = '\0'; }
-	else
-	    do { *ptr++ = *ptre; } while( *ptre++ );
-	return;
-    }
-
-    /* Remove trailing '0' and '.', stop when '.' found */
-    while ( ptrb >= ptrret && ( *ptrb == '0' || *ptrb == '.' ) )
-    {
-	*ptrb = '\0';
-	if ( *ptrb-- == '.' ) break;
-    }
-
-    /* copy to string */
-    ptrb = ptrret;
-    while ( *ptrb ) *ptr++ = *ptrb++;
-    while ( *ptre ) *ptr++ = *ptre++;
-    *ptr = '\0';
-}
-
-
 const char* getRankPostFix( int nr )
 {
     if ( nr < 0 ) nr = -nr;
@@ -747,10 +679,10 @@ const char* toString( od_uint64 i )
 { return getStringFromUInt64(i, 0); }
 
 const char* toString( float f )
-{ return getStringFromFloat( f ); }
+{ return getStringFromFPNumber( f ); }
 
 const char* toString( double d )
-{ return getStringFromDouble( d ); }
+{ return getStringFromFPNumber( d ); }
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }
@@ -982,13 +914,10 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( "f");
 
     mDeclStaticString( ret );
-    getStringFromFloat( formatstr, fsz, ret.buf() );
+    sprintf( ret.buf(), formatstr, fsz );
 
     if ( withunit )
-    {
-	ret.add( " " );
-	ret.add( getUnitString() );
-    }
+	ret.add( " " ).add( getUnitString() );
 
     return FixedString( ret.str() );
 }

@@ -1432,11 +1432,8 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 	    else
 	    {
-		char str[255];
-		getStringFromDouble( 0, pos.x, str );
-		strm << str << od_tab;
-		getStringFromDouble( 0, pos.y, str );
-		strm << str;
+		strm << pos.x << od_tab; // keep sep from next line
+		strm << pos.y;
 	    }
 
 	    float z = (float) pos.z;

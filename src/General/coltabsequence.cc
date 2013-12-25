@@ -655,8 +655,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	    if ( !seq.isSys() )
 	    {
 		IOPar iop; seq.fillPar( iop );
-		char str[255];
-		getStringFromInt(newidx,str);
+		BufferString str; str.set( newidx );
 		setts.mergeComp( iop, str );
 		newidx++;
 	    }
@@ -692,8 +691,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	if ( seq.isSys() )
 	{
 	    IOPar iop; seq.fillPar( iop );
-	    char str[255];
-	    getStringFromInt(newidx,str);
+	    BufferString str; str.set( newidx );
 	    iopar.mergeComp( iop, str );
 	    newidx++;
 	}

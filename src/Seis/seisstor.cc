@@ -53,9 +53,7 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, is2d_(is_2d)
 	, psioprov_(0)
 {
-    char str[255];
-    getStringFromInt(IOObj::tmpID(),str);
-    IOStream iostrm( "_tmp_SeisStoreAccess", str );
+    IOStream iostrm( "_tmp_SeisStoreAccess", toString(IOObj::tmpID()) );
     iostrm.setGroup( !isps ? mTranslGroupName(SeisTrc)
 		   : (is2d_ ? mTranslGroupName(SeisPS2D)
 		   :	     mTranslGroupName(SeisPS3D)) );

@@ -188,8 +188,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
-	    char str[255]; getStringFromInt(filepars_.fmt_, str );
-	    addWarn( cSEGYWarnBadFmt, str );
+	    addWarn( cSEGYWarnBadFmt, toString(filepars_.fmt_) );
 	    filepars_.fmt_ = 1;
 	}
     }

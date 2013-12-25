@@ -934,8 +934,8 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     dpfids_ = ids;
 
     //make sure the default stored data is not used
-    const char* str = getStringFromInt( attribID().asInt(), 0 );
-    if ( *str == '#') return;
+    BufferString str( toString(attribID().asInt()) );
+    if ( *str == '#') return; //TODO what on earth is this???
 
     const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );
     if ( !inpdesc || inpdesc->isStored() )

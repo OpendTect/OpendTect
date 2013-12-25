@@ -179,6 +179,5 @@ void uiConvertPos::convFile( CallBacker* )
 	nrln++;
     }
 
-    getStringFromInt(nrln,buf);
-    uiMSG().message( "Total number of converted lines: ", buf );
+    uiMSG().message( "Total number of converted lines: ", toString(nrln) );
 }

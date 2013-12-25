@@ -12,11 +12,68 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
+/* Functions making sure you don't need <string.h>
+
+   (1) First try if BufferString can already do the job
+   (2) toString(XX) for all simple types
+   (3) toXX from const char* for most used simple types
+   (4) Replacement for strchr and strstr: firstOcc()
+   (5) Various construction-, manipulation- and matching functions
+
+ */
+
 #include "basicmod.h"
 #include "commondefs.h"
 #include "undefval.h"
 #include "fixedstring.h"
 #include <ctype.h>
+
+mGlobal(Basic) const char* toString(od_int32);
+mGlobal(Basic) const char* toString(od_uint32);
+mGlobal(Basic) const char* toString(od_int64);
+mGlobal(Basic) const char* toString(od_uint64);
+mGlobal(Basic) const char* toString(float);
+mGlobal(Basic) const char* toString(float,int maxtxtwdth);
+mGlobal(Basic) const char* toString(double);
+mGlobal(Basic) const char* toString(double,int maxtxtwdth);
+mGlobal(Basic) const char* toString(short);
+mGlobal(Basic) const char* toString(unsigned short);
+mGlobal(Basic) const char* toString(const char*);
+mGlobal(Basic) const char* toString(unsigned char);
+mGlobal(Basic) const char* toString(signed char);
+mGlobal(Basic) const char* toString(bool);
+
+mGlobal(Basic) bool getFromString(int&,const char*,int udf=mUdf(int));
+mGlobal(Basic) bool getFromString(float&,const char*,float udf=mUdf(float));
+mGlobal(Basic) bool getFromString(double&,const char*,double udf=mUdf(double));
+mGlobal(Basic) bool getFromString(BufferString&,const char*);
+mGlobal(Basic) bool getFromString(bool&,const char*);
+mGlobal(Basic) bool yesNoFromString(const char*);
+
+inline bool toBool( const char* s, bool defval=true )
+{ return s && *s ? yesNoFromString(s) : defval; }
+
+inline float toFloat( const char* s, float defval=0 )
+{ float ret = defval; getFromString( ret, s, ret ); return ret; }
+
+inline double toDouble( const char* s, double defval=0 )
+{ double ret = defval; getFromString( ret, s, ret ); return ret; }
+
+inline int toInt( const char* s, int defval=0 )
+{ int ret = defval; getFromString( ret, s, ret ); return ret; }
+
+
+/*!\brief Advances given pointer to first non-whitespace */
+#define mSkipBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
+
+/*!\brief Advances given pointer to first whitespace  */
+#define mSkipNonBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
+
+/*!\brief Advances to first whitespace and removes trailing whitespace */
+#define mTrimBlanks(ptr) \
+    { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
 
 
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
@@ -63,39 +120,11 @@ mGlobal(Basic) const char* lastOcc(const char*,const char*);
 	/*!> Replacement for (imaginary) strrstr: non-const version */
 mGlobal(Basic) char* lastOcc(char*,const char*);
 
-	/*!> Fills string with string for an int.
-	     If you pass 0 for retbuf, then a static buffer is used. */
-mGlobal(Basic) const char* getStringFromInt(od_int32,char* retbuf);
-mGlobal(Basic) const char* getStringFromUInt(od_uint32,char* retbuf);
-mGlobal(Basic) const char* getStringFromInt64(od_int64,char* retbuf);
-mGlobal(Basic) const char* getStringFromUInt64(od_uint64,char* retbuf);
-
-mGlobal(Basic) const char* getStringFromDouble(const char* fmt,double,
-					       char* retbuf);
-	/*!< Normally, pass null for fmt. Then it will do removal of
-	     trailing zeros and use %lf in more cases than std.
-	     If you pass 0 for retbuf, then a static buffer is used. */
-mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0,
-					       int nrdigits=15);
-	/*!< Prints a double with the requested nr of digits.
-	     Use the returned string result immediately.*/
-mGlobal(Basic) const char* getStringFromFloat(const char* fmt,float,
-					      char* retbuf);
-	/*!< is like getStringFromDouble, with special %f treatment. */
-mGlobal(Basic) const char* getStringFromFloat(float,char* retbuf=0,
-	/*>Prints a float with the requested nr of digits.
-		    Use the returned string result immediately.*/
-					      int nrdigits=7);
-mGlobal(Basic) void prettyNumber(char*,bool is_float);
-	/*!< removes unwanted zeros and dots from a floating point in string. */
-
 mGlobal(Basic) const char* getYesNoString(bool);
 	/*!< returns ptr to static buffer with "yes" or "No". */
 mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
 	/*!< returns ptr to static buffer with "m" or "ft" */
 
-mGlobal(Basic) bool yesNoFromString(const char*);
-	/*!< returns 1 or 0 by inspecting string */
 mGlobal(Basic) const char* getRankPostFix(int);
 	/*!< returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
 mGlobal(Basic) const char* getBytesString(od_uint64);
@@ -113,53 +142,6 @@ mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=0);
 	/*!<Returns a string with an area and its unit, depending on survey and
 	    area size, unit is ft^2, m^2, km^2 or mile^2. */
-
-mGlobal(Basic) const char* toString(od_int32);
-mGlobal(Basic) const char* toString(od_uint32);
-mGlobal(Basic) const char* toString(od_int64);
-mGlobal(Basic) const char* toString(od_uint64);
-mGlobal(Basic) const char* toString(float);
-mGlobal(Basic) const char* toString(float,int maxtxtwdth);
-mGlobal(Basic) const char* toString(double);
-mGlobal(Basic) const char* toString(double,int maxtxtwdth);
-mGlobal(Basic) const char* toString(short);
-mGlobal(Basic) const char* toString(unsigned short);
-mGlobal(Basic) const char* toString(const char*);
-mGlobal(Basic) const char* toString(unsigned char);
-mGlobal(Basic) const char* toString(signed char);
-mGlobal(Basic) const char* toString(bool);
-
-mGlobal(Basic) bool getFromString(int&,const char*,int udf=mUdf(int));
-mGlobal(Basic) bool getFromString(float&,const char*,float udf=mUdf(float));
-mGlobal(Basic) bool getFromString(double&,const char*,double udf=mUdf(double));
-mGlobal(Basic) bool getFromString(BufferString&,const char*);
-mGlobal(Basic) bool getFromString(bool&,const char*);
-
-
-inline bool toBool( const char* s, bool defval=true )
-{ return s && *s ? yesNoFromString(s) : defval; }
-
-inline float toFloat( const char* s, float defval=0 )
-{ float ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline double toDouble( const char* s, double defval=0 )
-{ double ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline int toInt( const char* s, int defval=0 )
-{ int ret = defval; getFromString( ret, s, ret ); return ret; }
-
-
-/*!\brief Advances given pointer to first non-whitespace */
-#define mSkipBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
-
-/*!\brief Advances given pointer to first whitespace  */
-#define mSkipNonBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
-
-/*!\brief Advances to first whitespace and removes trailing whitespace */
-#define mTrimBlanks(ptr) \
-    { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
 
 
 #endif

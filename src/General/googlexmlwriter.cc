@@ -173,15 +173,11 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 	      "\t\t\t<tessellate>1</tessellate>\n"
 	      "\t\t\t<coordinates>\n";
 
-    char str[255];
     for ( int idx=0; idx<crds.size(); idx++ )
     {
 	const LatLong ll( SI().latlong2Coord().transform(crds[idx]) );
-
-	getStringFromDouble( 0, ll.lng_, str );
-	strm() << str << ',';
-	getStringFromDouble( 0, ll.lat_, str );
-	strm() << str << ",0 ";
+	strm() << ll.lng_ << ','; // keep sep from next line
+	strm() << ll.lat_ << ",0 ";
     }
 
     strm() << "\t\t\t</coordinates>\n"
@@ -226,14 +222,11 @@ void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 		"\t\t\t\t<LinearRing>\n"
 		"\t\t\t\t\t<coordinates>\n";
 
-    char str[255];
     for ( int idx=0; idx<coords.size(); idx++ )
     {
 	const LatLong ll( si->latlong2Coord().transform(coords[idx]) );
-	getStringFromDouble( 0, ll.lng_, str );
-	strm() << "\t\t\t\t\t\t" << str;
-	getStringFromDouble( 0, ll.lat_, str );
-	strm() << ',' << str << ',' << hght << '\n';
+	strm() << "\t\t\t\t\t\t" << ll.lng_; // keep sep from next line
+	strm() << ',' << ll.lat_ << ',' << hght << '\n';
     }
     strm() <<	"\t\t\t\t\t</coordinates>\n"
 		"\t\t\t\t</LinearRing>\n"

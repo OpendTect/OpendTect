@@ -432,10 +432,7 @@ bool IODir::doWrite() const
 MultiID IODir::newKey() const
 {
     MultiID id = key_;
-    ((IODir*)this)->curid_++;
-    char str[255];
-    getStringFromInt( curid_, str );
-    id += str;
-
+    const_cast<IODir*>(this)->curid_++;
+    id += toString( curid_ );
     return id;
 }

@@ -60,48 +60,55 @@ static bool testBytes2String()
     return true;
 }
 
-#define mTestStringPrecision( val, strval, isfloat )\
-{\
-    char buff[255];\
-    BufferString valfmtstr;\
-    BufferString testname;\
-    BufferString valbfstr;\
-    if ( isfloat )\
-    {\
-	testname.set( "Float precision " ).add( val ); \
-	valfmtstr = getStringFromFloat( val, buff, 7 );\
-	valbfstr =  Conv::to<const char*>((float)val);\
-    }\
-    else\
-    {\
-	testname.set( "Double precision " ).add( val ); \
-	valbfstr =  Conv::to<const char*>((double)val);\
-	valfmtstr = getStringFromDouble( val, buff, 15 );\
-    }\
-    mRunTest( testname.buf(), valfmtstr ==valbfstr && valbfstr == strval );\
+
+template <class T>
+static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
+{
+    BufferString valfmtstr = toString( val );
+    BufferString testname( flt ? "Float precision " : "Double precision ", val);
+    BufferString valbfstr( Conv::to<const char*>( val ) );
+
+    mRunTest( testname.buf(), valfmtstr==valbfstr && valbfstr==strval );
+
+    return true;
 }
+
+
+#define mTestStringPrecisionF(val,strval) \
+    fval = (float)val; \
+    if ( !doTestStringPrecisionInAscII(fval,strval,true) ) return false
+#define mTestStringPrecisionD(val,strval) \
+    dval = (double)val; \
+    if ( !doTestStringPrecisionInAscII(dval,strval,false) ) return false
+
 
 static bool testStringPrecisionInAscII()
 {
-    mTestStringPrecision( 0, "0", true );
-    mTestStringPrecision( 0.1, "0.1", true );
-    mTestStringPrecision( 0.05, "0.05", true );
-    mTestStringPrecision( 0.001, "0.001", true );
-    mTestStringPrecision( 0.023, "0.023", true );
-    //mTestStringPrecision( 0.0001, "0.0001", true );
-    mTestStringPrecision( 0.00001, "0", true );
-    mTestStringPrecision( 12.3456785, "12.34568", true );
-    mTestStringPrecision( 123.4567852, "123.4568", true );
-    mTestStringPrecision( 1234.567352, "1234.567", true );
-    mTestStringPrecision( 12345.67352, "12345.67", true );
-    mTestStringPrecision( 123456.7552, "123456.8", true );
-    mTestStringPrecision( 0.00001, "0.00001", false );
-    mTestStringPrecision( 0.10010001002030415,"0.1001000100203", false );
-    mTestStringPrecision( 12.32568023782987356,"12.3256802378299", false );
-    mTestStringPrecision( 123.2568023782987353,"123.256802378299", false );
-    mTestStringPrecision( 1232.568023782927357,"1232.56802378293", false );
-    mTestStringPrecision( 12325.68023782981352,"12325.6802378298", false );
-    mTestStringPrecision( 123256.8023782984888,"123256.802378298", false );
+    float fval; double dval;
+    mTestStringPrecisionF( 0, "0" );
+    mTestStringPrecisionF( 0.1f, "0.1" );
+    mTestStringPrecisionF( 0.05f, "0.05" );
+    mTestStringPrecisionF( 0.001f, "0.001" );
+    mTestStringPrecisionF( 0.023f, "0.023" );
+    mTestStringPrecisionF( 0.0001f, "0.0001" );
+    mTestStringPrecisionF( 0.00001f, "1e-05" );
+    mTestStringPrecisionF( 0.00000001f, "1e-08" );
+    mTestStringPrecisionF( 12.345, "12.345" );
+    mTestStringPrecisionF( -123456., "-123456" );
+    mTestStringPrecisionF( -1.2345e11, "-1.2345E11" );
+    mTestStringPrecisionF( 1.2345e11, "1.2345E11" );
+    mTestStringPrecisionD( 0, "0" );
+    mTestStringPrecisionD( 0.1, "0.1" );
+    mTestStringPrecisionD( 0.05, "0.05" );
+    mTestStringPrecisionD( 0.001, "0.001" );
+    mTestStringPrecisionF( 0.023, "0.023" );
+    mTestStringPrecisionD( 0.0001, "0.0001" );
+    mTestStringPrecisionD( 0.00001, "1e-05" );
+    mTestStringPrecisionD( 0.00000001, "1e-08" );
+    mTestStringPrecisionD( 12.345, "12.345" );
+    mTestStringPrecisionD( -123456., "-123456" );
+    mTestStringPrecisionD( -1.2345e11, "-1.2345E11" );
+    mTestStringPrecisionD( 1.2345e11, "1.2345E11" );
     return true;
 }
 
@@ -179,7 +186,7 @@ static bool testOccFns()
     str = toString( var.v_, maxsz ); \
     od_cout() << var.desc_ << ' ' << maxsz << ": \"" << str << '"' << od_endl
 
-static bool testFToStringFns()
+static bool testLimFToStringFns()
 {
     if ( quiet ) return true;
 
@@ -217,7 +224,7 @@ int main( int argc, char** argv )
       || !testStringPrecisionInAscII()
       || !testBufferStringFns()
       || !testOccFns()
-      || !testFToStringFns() )
+      || !testLimFToStringFns() )
 	ExitProgram( 1 );
 
     BufferStringSet strs;

@@ -1830,8 +1830,7 @@ bool dgbSurfaceWriter::writeInt64( od_ostream& strm, od_int64 val,
 	strm.addBin( &val, sizeof(val) );
     else
     {
-	BufferString valstr;
-	getStringFromInt64(val,valstr.buf());
+	BufferString valstr; valstr = val;
 	int len = valstr.size();
 	for ( int idx=20; idx>len; idx-- )
 	    strm << '0';

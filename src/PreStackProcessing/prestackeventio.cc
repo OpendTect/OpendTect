@@ -949,16 +949,11 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 #define mWriteFixedCharVal( val, post ) \
 { \
     unsigned int uval = abs(val); \
-    BufferString valstr; \
-    getStringFromInt64(uval,valstr.buf() ); \
+    BufferString valstr( toString(uval) ); \
     const int len = valstr.size(); \
     int totlen = 11; \
     if ( val<0 ) \
-    { \
-	strm << '-'; \
-	totlen = 10; \
-    } \
-		 \
+	{ strm << '-'; totlen = 10; } \
     for ( int idy=totlen; idy>len; idy-- ) \
 	strm << '0'; \
     strm << valstr.buf() << post; \
