@@ -120,7 +120,7 @@ static void cleanupMantissa( char* ptrdot, char* ptrend )
 	ptrend--;
     }
 
-    if ( *(ptrdot+1) == '\0' || *(ptrdot+1) == 'E' )
+    if ( *(ptrdot+1) == '\0' || *(ptrdot+1) == 'e' )
 	rmSingleCharFromString( ptrdot );
 }
 
@@ -131,10 +131,10 @@ static int findUglyRoundOff( char* str )
     if ( !ptrdot )
 	return -1;
 
-    char* ptrend = firstOcc( ptrdot, 'E' );
+    char* ptrend = firstOcc( ptrdot, 'e' );
     if ( !ptrend )
     {
-	ptrend = firstOcc( ptrdot, 'e' );
+	ptrend = firstOcc( ptrdot, 'E' );
 	if ( !ptrend )
 	    ptrend = ptrdot + FixedString(ptrdot).size();
     }
@@ -183,12 +183,12 @@ static void finalCleanupNumberString( char* str )
     char* ptrdot = firstOcc( str, '.' );
     if ( !ptrdot ) return;
 
-    char* ptrexp = firstOcc( str, 'E' );
+    char* ptrexp = firstOcc( str, 'e' );
     if ( !ptrexp )
     {
-	ptrexp = firstOcc( str, 'e' );
+	ptrexp = firstOcc( str, 'E' );
 	if ( ptrexp )
-	    *ptrexp = 'E';
+	    *ptrexp = 'e';
     }
     if ( ptrexp == str )
 	mSetStrTo0(str,return)
@@ -197,7 +197,7 @@ static void finalCleanupNumberString( char* str )
     if ( !*str )
 	mSetStrTo0(str,return)
 
-    char* ptrend = firstOcc( str, 'E' );
+    char* ptrend = firstOcc( str, 'e' );
     if ( !ptrend )
 	ptrend = str + FixedString(str).size() - 1;
     if ( ptrexp )
@@ -694,28 +694,29 @@ const char* toString( unsigned char c )
 { return toString( ((unsigned short)c) ); }
 
 template <class T>
-static const char* toStringLimImpl( T val, int maxtxtwdth, const char* fmt )
+static const char* toStringLimImpl( T val, int maxtxtwdth )
 {
     FixedString simptostr = toString(val);
     if ( maxtxtwdth < 1 || simptostr.size() <= maxtxtwdth )
 	return simptostr;
 
     mDeclStaticString( ret );
+    char* str = ret.buf();
     if ( mIsUdf(val) )
 	ret.set( "1e30" );
     else
     {
-	const BufferString fullfmt( "%", maxtxtwdth-5, fmt );
-	sprintf( ret.buf(), fullfmt.buf(), val );
+	const BufferString fullfmt( "%", maxtxtwdth-5, "g" );
+	sprintf( str, fullfmt.buf(), val );
     }
 
     const int retsz = ret.size();
     if ( retsz > maxtxtwdth )
     {
-	char* eptr = firstOcc( ret.buf(), 'e' );
-	if ( !eptr ) firstOcc( ret.buf(), 'E' );
+	char* eptr = firstOcc( str, 'e' );
+	if ( !eptr ) firstOcc( str, 'E' );
 	if ( !eptr )
-	    ret[maxtxtwdth-1] = '\0'; // huh? just do someting about the size...
+	    str[maxtxtwdth-1] = '\0';
 	else
 	{
 	    const int diff = retsz - maxtxtwdth;
@@ -724,14 +725,15 @@ static const char* toStringLimImpl( T val, int maxtxtwdth, const char* fmt )
 	}
     }
 
-    return ret.buf();
+    finalCleanupNumberString( str );
+    return str;
 }
 
 const char* toString( double d, int mw )
-{ return toStringLimImpl( d, mw, "lg" ); }
+{ return toStringLimImpl( d, mw ); }
 
 const char* toString( float f, int mw )
-{ return toStringLimImpl( f, mw, "g" ); }
+{ return toStringLimImpl( f, mw ); }
 
 
 const char* toString( const char* str )

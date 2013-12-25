@@ -95,8 +95,8 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionF( 0.00000001f, "1e-08" );
     mTestStringPrecisionF( 12.345, "12.345" );
     mTestStringPrecisionF( -123456., "-123456" );
-    mTestStringPrecisionF( -1.2345e11, "-1.2345E11" );
-    mTestStringPrecisionF( 1.2345e11, "1.2345E11" );
+    mTestStringPrecisionF( -1.2345e11, "-1.2345e11" );
+    mTestStringPrecisionF( 1.2345e11, "1.2345e11" );
     mTestStringPrecisionD( 0, "0" );
     mTestStringPrecisionD( 0.1, "0.1" );
     mTestStringPrecisionD( 0.05, "0.05" );
@@ -107,8 +107,8 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionD( 0.00000001, "1e-08" );
     mTestStringPrecisionD( 12.345, "12.345" );
     mTestStringPrecisionD( -123456., "-123456" );
-    mTestStringPrecisionD( -1.2345e11, "-1.2345E11" );
-    mTestStringPrecisionD( 1.2345e11, "1.2345E11" );
+    mTestStringPrecisionD( -1.2345e11, "-1.2345e11" );
+    mTestStringPrecisionD( 1.2345e11, "1.2345e11" );
     return true;
 }
 
