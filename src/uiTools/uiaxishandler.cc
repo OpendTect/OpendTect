@@ -33,7 +33,7 @@ static const float logof2 = logf(2);
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
     : NamedObject(su.name_)
-    , mDefInitList  
+    , mDefInitList
     , scene_(scene)
     , setup_(su)
     , height_(su.height_)
@@ -77,7 +77,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 	{ rg_.start -= rg_.step * 1.5f; rg_.stop += rg_.step * 1.5f; }
     fsteps = (rg_.stop - rg_.start) / rg_.step;
     if ( fsteps > 50 )
-    	rg_.step /= (fsteps / 50);
+	rg_.step /= (fsteps / 50);
 
     rgisrev_ = rg_.start > rg_.stop;
     rgwidth_ = rg_.width();
@@ -117,11 +117,10 @@ void uiAxisHandler::reCalc()
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
 	float pos = annotrg.start + idx * rg_.step;
-	if ( mIsZero( pos, setup_.epsaroundzero_ ) ) 
+	if ( mIsZero( pos, setup_.epsaroundzero_ ) )
 	    pos = 0;
-	BufferString posstr( "", pos );
-	strs_.add( posstr ); //TODO honor the setup_.maxnumberdigitsprecision_
-			     // see D1678
+	const BufferString posstr( toString(pos,setup_.maxnrchars_) );
+	strs_.add( posstr );
 	float relpos = pos - rg_.start;
 	if ( rgisrev_ ) relpos = -relpos;
 	relpos /= rgwidth_;
@@ -150,7 +149,7 @@ void uiAxisHandler::newDevSize()
 void uiAxisHandler::updateDevSize()
 {
     setNewDevSize( (int)(isHor() ? scene_->width() : scene_->height()),
-	    	   (int)(isHor() ? scene_->height() : scene_->width() ));
+		   (int)(isHor() ? scene_->height() : scene_->width() ));
 }
 
 
@@ -252,7 +251,7 @@ Interval<int> uiAxisHandler::pixRange() const
 void uiAxisHandler::createAnnotItems()
 {
     if ( !annottxtitmgrp_ && setup_.noaxisannot_ ) return;
-    
+
     if ( !annottxtitmgrp_ && !setup_.noaxisannot_ )
     {
 	annottxtitmgrp_ = new uiGraphicsItemGroup();
@@ -269,7 +268,7 @@ void uiAxisHandler::createAnnotItems()
     }
     else if ( annotlineitmgrp_ )
 	annotlineitmgrp_->removeAll( true );
-    
+
     if ( setup_.noaxisannot_ ) return;
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
@@ -293,7 +292,7 @@ void uiAxisHandler::createGridLines()
 	    gridlineitmgrp_->removeAll( true );
 
 	if ( setup_.nogridline_ && setup_.noaxisannot_ ) return;
-	
+
 	Interval<int> toplot( 0, pos_.size()-1 );
 	for ( int idx=0; idx<pos_.size(); idx++ )
 	{
@@ -313,13 +312,13 @@ void uiAxisHandler::plotAxis()
 {
     drawAxisLine();
 
-    if ( setup_.nogridline_ ) 
+    if ( setup_.nogridline_ )
     {
 	if ( gridlineitmgrp_ )
 	    gridlineitmgrp_->removeAll( true );
     }
-    
-    createAnnotItems();  
+
+    createAnnotItems();
 
     if ( !setup_.noaxisannot_ && !name().isEmpty() )
 	drawName();
@@ -346,7 +345,7 @@ void uiAxisHandler::drawAxisLine()
 	const int startpix = pixBefore();
 	const int endpix = devsz_-pixAfter();
 	const int pixpos = setup_.side_ == uiRect::Top
-	    		 ? edgepix : height_ - edgepix;
+			 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
 		    new uiLineItem(startpix,pixpos,endpix,pixpos) );
@@ -360,7 +359,7 @@ void uiAxisHandler::drawAxisLine()
 	const int startpix = pixAfter();
 	const int endpix = devsz_ - pixBefore();
 	const int pixpos = setup_.side_ == uiRect::Left
-	    		 ? edgepix : width_ - edgepix;
+			 ? edgepix : width_ - edgepix;
 
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
@@ -381,7 +380,7 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
 	return;
     const Interval<int> ypixrg( yah.pixRange() );
     const Interval<float> yvalrg( yah.getVal(ypixrg.start),
-	    			  yah.getVal(ypixrg.stop) );
+				  yah.getVal(ypixrg.stop) );
     Interval<int> xpixrg( xah.pixRange() );
     Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
     if ( extxvalrg )
@@ -405,9 +404,9 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
     else
     {
 	const float xx0 = xvalrg.start; const float yx0 = lp.getValue( xx0 );
- 	const float xx1 = xvalrg.stop; const float yx1 = lp.getValue( xx1 );
+	const float xx1 = xvalrg.stop; const float yx1 = lp.getValue( xx1 );
 	const float yy0 = yvalrg.start; const float xy0 = lp.getXValue( yy0 );
- 	const float yy1 = yvalrg.stop; const float xy1 = lp.getXValue( yy1 );
+	const float yy1 = yvalrg.stop; const float xy1 = lp.getXValue( yy1 );
 	const bool yx0ok = yvalrg.includes( yx0,true );
 	const bool yx1ok = yvalrg.includes( yx1,true );
 	const bool xy0ok = xvalrg.includes( xy0,true );
@@ -465,8 +464,8 @@ void uiAxisHandler::annotAtEnd( const char* txt )
     }
     else
     {
-	xpix = setup_.side_ == uiRect::Left  ? edgepix + 5 
-	    				     : width_ - edgepix - 5;
+	xpix = setup_.side_ == uiRect::Left  ? edgepix + 5
+					     : width_ - edgepix - 5;
 	ypix = pixBefore() + 5;
 	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
 		Alignment::VCenter );
@@ -490,9 +489,9 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	const int y0 = istop ? edgepix : height_ - edgepix; 
-	const int y1 = istop ? ( inside ? y0+ticSz()+calcwdth_ : y0-ticSz() ) 
-			     : ( inside ? y0-ticSz()-calcwdth_ : y0+ticSz() ); 
+	const int y0 = istop ? edgepix : height_ - edgepix;
+	const int y1 = istop ? ( inside ? y0+ticSz()+calcwdth_ : y0-ticSz() )
+			     : ( inside ? y0-ticSz()-calcwdth_ : y0+ticSz() );
 
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
@@ -541,7 +540,7 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
     int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
     if ( hndlr )
 	endpix = setup_.side_ == uiRect::Left || setup_.side_ == uiRect::Bottom
-	    	? hndlr->pixAfter() : hndlr->pixBefore();
+		? hndlr->pixAfter() : hndlr->pixBefore();
     const int startpix = pixToEdge();
 
     uiLineItem* lineitem = new uiLineItem();
@@ -565,7 +564,7 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
 }
 
 
-void uiAxisHandler::drawName() 
+void uiAxisHandler::drawName()
 {
     if ( !nameitm_ )
 	nameitm_ = scene_->addItem( new uiTextItem(name()) );
@@ -597,7 +596,7 @@ void uiAxisHandler::drawName()
     nameitm_->setPos( pt );
     nameitm_->setAlignment( al );
     nameitm_->setZValue( setup_.zval_ );
-    Color col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
+    Color col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_
 						    : setup_.nmcolor_;
     nameitm_->setTextColor( col );
 }

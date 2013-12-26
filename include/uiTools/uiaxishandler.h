@@ -59,14 +59,14 @@ public:
 			    , nogridline_(false)
 			    , noannotpos_(false)
 			    , annotinside_(false)
-			    , ticsz_(2)	
+			    , ticsz_(2)
 			    , width_(w)
 			    , height_(h)
-			    , maxnumberdigitsprecision_(0)	
-			    , epsaroundzero_(1e-100)	
-			    , islog_(false)	
+			    , maxnrchars_(0)
+			    , epsaroundzero_(1e-100)
+			    , islog_(false)
 			    , zval_(4)
-			    , nmcolor_(Color::NoColor())  	      
+			    , nmcolor_(Color::NoColor())
 			    {}
 
 	mDefSetupMemb(uiRect::Side,side)
@@ -82,7 +82,7 @@ public:
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(BufferString,name)
-	mDefSetupMemb(int,maxnumberdigitsprecision)
+	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(int,zval)
 	mDefSetupMemb(Color,nmcolor)
@@ -95,7 +95,7 @@ public:
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
 
-    void		setName(const char*);	
+    void		setName(const char*);
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}
@@ -118,7 +118,7 @@ public:
     void		annotAtEnd(const char*);
 
     const Setup&	setup() const	{ return setup_; }
-    Setup&		setup() 	{ return setup_; }
+    Setup&		setup()	{ return setup_; }
     StepInterval<float>	range() const	{ return rg_; }
     bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
     int			pixToEdge(bool withborder=true) const;
@@ -127,9 +127,9 @@ public:
     Interval<int>	pixRange() const;
 
 			//!< Call this when appropriate
-    void		newDevSize(); 
+    void		newDevSize();
     void		updateDevSize(); //!< resized from sceme
-    void		setNewDevSize(int,int); //!< resized by yourself 
+    void		setNewDevSize(int,int); //!< resized by yourself
 
     void		createAnnotItems();
     void		createGridLines();

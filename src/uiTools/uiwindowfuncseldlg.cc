@@ -41,12 +41,12 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     setStretch( 2, 2 );
 
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
-		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop, 
+		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop,
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
 
     uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
     asu.style( LineStyle::None );
-    asu.maxnumberdigitsprecision_ = 3;
+    asu.maxnrchars_ = 8;
     asu.epsaroundzero_ = 1e-3;
     asu.border_ = uiBorder(10,10,10,10);
 
@@ -58,9 +58,9 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     yax_ = new uiAxisHandler( &scene(), asu );
     yax_->setRange( StepInterval<float>(0,1,0.25),0 );
 
-    xax_->setBegin( yax_ ); 		yax_->setBegin( xax_ );
-    xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
-    xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
+    xax_->setBegin( yax_ );		yax_->setBegin( xax_ );
+    xax_->setBounds( su.xaxrg_ );	yax_->setBounds( su.yaxrg_ );
+    xax_->setName( su.xaxname_ );	yax_->setName( su.yaxname_ );
 
     reSize.notify( mCB( this, uiFunctionDrawer, draw ) );
 }
@@ -84,13 +84,13 @@ uiFunctionDrawer::~uiFunctionDrawer()
 
 void uiFunctionDrawer::setFrame()
 {
-    uiRect borderrect( xax_->getPix( xax_->range().start ), 
-	    	       yax_->getPix( yax_->range().stop ), 
-		       xax_->getPix( xax_->range().stop ), 
+    uiRect borderrect( xax_->getPix( xax_->range().start ),
+		       yax_->getPix( yax_->range().stop ),
+		       xax_->getPix( xax_->range().stop ),
 		       yax_->getPix( yax_->range().start ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
-	    mCast(float,borderrect.left()), mCast(float,borderrect.top()), 
+	    mCast(float,borderrect.left()), mCast(float,borderrect.top()),
 	    mCast(float,borderrect.width()), mCast(float,borderrect.height()) );
     else
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
@@ -116,7 +116,7 @@ void uiFunctionDrawer::draw( CallBacker* )
 
     if ( !selitemsidx_.size() && functions_.size() )
 	selitemsidx_ += 0;
-    
+
     for ( int idx=0; idx<selitemsidx_.size(); idx++ )
     {
 	const int selidx = selitemsidx_[idx];
@@ -164,7 +164,7 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     funclistfld_->attach( topBorder, 0 );
     funclistfld_->setMultiSelect();
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
-    
+
     view_ = new uiFunctionDrawer( this, su );
     view_->attach( rightOf, funclistfld_ );
 }
@@ -209,7 +209,7 @@ void uiFuncSelDraw::removeItem( int idx )
 void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 {
     funclistselChged.trigger();
-    
+
     TypeSet<int> selecteditems;
     funclistfld_->getSelectedItems( selecteditems );
 
@@ -218,38 +218,38 @@ void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 }
 
 
-void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc, 					bool withcolor )
-{ 
-    if ( !mfunc ) return; 
+void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,					bool withcolor )
+{
+    if ( !mfunc ) return;
     mathfunc_ += mfunc;
 
     const int curidx = funclistfld_->size();
-    const Color& col = withcolor ? Color::stdDrawColor( curidx ) 
+    const Color& col = withcolor ? Color::stdDrawColor( curidx )
 				 : Color::Black();
     colors_ += col;
     funclistfld_->addItem( fcname, col );
 
-    uiFunctionDrawer::DrawFunction* drawfunction = 
+    uiFunctionDrawer::DrawFunction* drawfunction =
 			new uiFunctionDrawer::DrawFunction( mfunc );
-    drawfunction->color_ = colors_[curidx];  
+    drawfunction->color_ = colors_[curidx];
     view_->addFunction( drawfunction );
 }
 
 
 void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
-{ 
+{
     return funclistfld_->getSelectedItems( selitems );
 }
 
 
 bool uiFuncSelDraw::isSelected( int idx) const
-{ 
+{
     return funclistfld_->isSelected(idx);
 }
 
 
-void uiFuncSelDraw::setSelected( int idx ) 
-{ 
+void uiFuncSelDraw::setSelected( int idx )
+{
     funclistfld_->setSelected(idx);
 }
 
@@ -263,14 +263,14 @@ const char* uiFuncSelDraw::getCurrentListName() const
 
 
 
-uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname, 
+uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 					float variable )
     : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
     , variable_(variable)
-    , funcdrawer_(0)			 
+    , funcdrawer_(0)
 {
     setCtrlStyle( LeaveOnly );
-  
+
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );
     funcnames_ = WINFUNCS().getNames();
@@ -282,7 +282,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     }
 
     funcdrawer_->funclistselChged.notify(mCB(this,uiWindowFuncSelDlg,funcSelChg));
-    
+
     BufferString tapertxt( "Taper Length (%)" );
     varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
@@ -298,19 +298,19 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
     NotifyStopper nsf( funcdrawer_->funclistselChged );
     bool isvartappresent = false;
 
-    TypeSet<int> selitems; 
+    TypeSet<int> selitems;
     funcdrawer_->getSelectedItems( selitems );
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const BufferString& winname = funcnames_[selitems[idx]]->buf();
- 	WindowFunction* wf = getWindowFuncByName( winname );
+	WindowFunction* wf = getWindowFuncByName( winname );
 	if ( wf && wf->hasVariable() )
 	{
 	    isvartappresent = true;
 	    float prevvariable = variable_;
 	    variable_ = mIsUdf(variable_) ? 0.05f : varinpfld_->getfValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
-		variable_ = prevvariable; 
+		variable_ = prevvariable;
 	    wf->setVariable( 1.0f - variable_ );
 	    varinpfld_->setValue( variable_ *100 );
 	}
@@ -337,7 +337,7 @@ void uiWindowFuncSelDlg::setVariable( float variable )
     if ( variable_ > 1 )
     {
 	varinpfld_->setValue( prevvariable * 100 );
-	variable_ = prevvariable; 
+	variable_ = prevvariable;
     }
     else
 	varinpfld_->setValue( variable_ * 100 );
@@ -350,7 +350,7 @@ void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm, float variable )
 {
     variable_ = variable;
     funcdrawer_->setAsCurrent( nm );
-    funcSelChg(0); 
+    funcSelChg(0);
 }
 
 
