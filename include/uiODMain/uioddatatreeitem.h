@@ -18,6 +18,9 @@ ________________________________________________________________________
 #include "factory.h"
 
 class uiMenuHandler;
+class uiStatsDisplayWin;
+class uiAmplSpectrum;
+class uiFKSpectrum;
 namespace Attrib { class SelSpec; };
 namespace ColTab { class Sequence; };
 
@@ -88,6 +91,10 @@ protected:
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
+
+    uiStatsDisplayWin*		statswin_;
+    uiAmplSpectrum*		ampspectrumwin_;
+    uiFKSpectrum*		fkspectrumwin_;
 };
 
 #endif

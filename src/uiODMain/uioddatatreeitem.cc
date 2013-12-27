@@ -39,6 +39,9 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem("")
     , parenttype_(parenttype)
     , menu_(0)
+    , statswin_(0)
+    , ampspectrumwin_(0)
+    , fkspectrumwin_(0)
     , movemnuitem_("&Move")
     , movetotopmnuitem_("to &top")
     , movetobottommnuitem_("to &bottom")
@@ -74,6 +77,10 @@ uiODDataTreeItem::~uiODDataTreeItem()
 	menu_->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
+
+    delete statswin_;
+    delete ampspectrumwin_;
+    delete fkspectrumwin_;
 
     uiVisPartServer* visserv = applMgr()->visServer();
     MenuHandler* tb = visserv->getToolBarHandler();
@@ -248,8 +255,6 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
 			  true, false )
-	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
-			  true, false )
     }
     else
 	mResetMenuItem( &amplspectrumitem_ )
@@ -386,13 +391,13 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( mnuid==statisticsitem_.id )
 	{
 	    uiStatsDisplay::Setup su; su.countinplot( false );
-	    uiStatsDisplayWin* dwin =
+	    delete statswin_;
+	    statswin_ =
 		new uiStatsDisplayWin( applMgr()->applService().parent(), su,
 				       1, false );
-	    dwin->statsDisplay()->setDataPackID( dpid, dmid );
-	    dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	    dwin->setDeleteOnClose( true );
-	    dwin->show();
+	    statswin_->statsDisplay()->setDataPackID( dpid, dmid );
+	    statswin_->setDataName( DPM(dmid).nameOf(dpid)  );
+	    statswin_->show();
 	    menu->setIsHandled( true );
 	}
 	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
@@ -402,19 +407,19 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    {
 		if ( mnuid==amplspectrumitem_.id )
 		{
-		    uiAmplSpectrum* asd = new uiAmplSpectrum(
-					    applMgr()->applService().parent() );
-		    asd->setDeleteOnClose( true );
-		    asd->setDataPackID( dpid, dmid );
-		    asd->show();
+		    delete ampspectrumwin_;
+		    ampspectrumwin_ =
+			new uiAmplSpectrum( applMgr()->applService().parent() );
+		    ampspectrumwin_->setDataPackID( dpid, dmid );
+		    ampspectrumwin_->show();
 		}
 		else
 		{
-		    uiFKSpectrum* fks = new uiFKSpectrum(
-					    applMgr()->applService().parent() );
-		    fks->setDeleteOnClose( true );
-		    fks->setDataPackID( dpid, dmid );
-		    fks->show();
+		    delete fkspectrumwin_;
+		    fkspectrumwin_ =
+			new uiFKSpectrum( applMgr()->applService().parent() );
+		    fkspectrumwin_->setDataPackID( dpid, dmid );
+		    fkspectrumwin_->show();
 		}
 	    }
 
