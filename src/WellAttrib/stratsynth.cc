@@ -1332,9 +1332,7 @@ void SyntheticData::removePack()
 {
     const DataPack::FullID dpid = datapackid_;
     DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-    const DataPack* dp = DPM(packmgrid).obtain( DataPack::getID(dpid) );
-    if ( dp )
-	DPM(packmgrid).release( dp->id() );
+    DPM(packmgrid).release( dpid.ID(1) );
 }
 
 
@@ -1358,7 +1356,7 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 {
     useGenParams( sgp );
     DataPackMgr::ID pmid = DataPackMgr::FlatID();
-    DPM( pmid ).add( &dp );
+    DPM( pmid ).addAndObtain( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
@@ -1391,7 +1389,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 {
     useGenParams( sgp );
     DataPackMgr::ID pmid = DataPackMgr::CubeID();
-    DPM( pmid ).add( &dp );
+    DPM( pmid ).addAndObtain( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
     ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
