@@ -26,6 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsel.h"
 #include "pixmap.h"
+#include "hiddenparam.h"
+
+static HiddenParam<uiODDataTreeItem,uiStatsDisplayWin*> statwins( 0 );
+static HiddenParam<uiODDataTreeItem,uiAmplSpectrum*> amplspecwins( 0 );
+static HiddenParam<uiODDataTreeItem,uiFKSpectrum*> fkswins( 0 );
 
 //TODO:remove when Flattened scene ok for 2D Viewer
 #include "emhorizonztransform.h"
@@ -63,6 +68,9 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     moveupmnuitem_.iconfnm = "uparrow";
     movedownmnuitem_.iconfnm = "downarrow";
     movetobottommnuitem_.iconfnm = "tobottom";
+    statwins.setParam( this, 0 );
+    fkswins.setParam( this, 0 );
+    amplspecwins.setParam( this, 0 );
 }
 
 
@@ -79,6 +87,15 @@ uiODDataTreeItem::~uiODDataTreeItem()
     MenuHandler* tb = visserv->getToolBarHandler();
     tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
+    uiFKSpectrum* prevfks = fkswins.getParam( this );
+    fkswins.removeParam( this );
+    delete prevfks;
+    uiAmplSpectrum* prevas = amplspecwins.getParam( this );
+    amplspecwins.removeParam( this );
+    delete prevas;
+    uiStatsDisplayWin* prevdwin = statwins.getParam( this );
+    statwins.removeParam( this );
+    delete prevdwin;
 }
 
 /*
@@ -386,14 +403,17 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	if ( mnuid==statisticsitem_.id )
 	{
+	    uiStatsDisplayWin* prevdwin = statwins.getParam( this );
+	    statwins.removeParam( this );
+	    delete prevdwin;
 	    uiStatsDisplay::Setup su; su.countinplot( false );
 	    uiStatsDisplayWin* dwin =
 		new uiStatsDisplayWin( applMgr()->applService().parent(), su,
 				       1, false );
 	    dwin->statsDisplay()->setDataPackID( dpid, dmid );
 	    dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	    dwin->setDeleteOnClose( true );
 	    dwin->show();
+	    statwins.setParam( this, dwin );
 	    menu->setIsHandled( true );
 	}
 	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
@@ -403,19 +423,25 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    {
 		if ( mnuid==amplspectrumitem_.id )
 		{
-		    uiAmplSpectrum* asd = new uiAmplSpectrum(
+		    uiAmplSpectrum* prevas = amplspecwins.getParam( this );
+		    amplspecwins.removeParam( this );
+		    delete prevas;
+		    uiAmplSpectrum* aswin = new uiAmplSpectrum(
 					    applMgr()->applService().parent() );
-		    asd->setDeleteOnClose( true );
-		    asd->setDataPackID( dpid, dmid );
-		    asd->show();
+		    aswin->setDataPackID( dpid, dmid );
+		    aswin->show();
+		    amplspecwins.setParam( this, aswin );
 		}
 		else
 		{
+		    uiFKSpectrum* prevfks = fkswins.getParam( this );
+		    fkswins.removeParam( this );
+		    delete prevfks;
 		    uiFKSpectrum* fks = new uiFKSpectrum(
 					    applMgr()->applService().parent() );
-		    fks->setDeleteOnClose( true );
 		    fks->setDataPackID( dpid, dmid );
 		    fks->show();
+		    fkswins.setParam( this, fks );
 		}
 	    }
 
