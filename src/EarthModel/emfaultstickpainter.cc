@@ -214,7 +214,8 @@ bool FaultStickPainter::addPolyLine()
 		    BinID extrbid1, extrbid2;
 		    if ( cs_.defaultDir() == CubeSampling::Inl )
 		    { 
-			extrbid1.inl() = extrbid2.inl() = cs_.hrg.inlRange().start;
+			extrbid1.inl() = extrbid2.inl() =
+					cs_.hrg.inlRange().start;
 			extrbid1.crl() = cs_.hrg.crlRange().start;
 			extrbid2.crl() = cs_.hrg.crlRange().stop;
 		    }
@@ -222,7 +223,8 @@ bool FaultStickPainter::addPolyLine()
 		    {
 			extrbid1.inl() = cs_.hrg.inlRange().start;
 			extrbid2.inl() = cs_.hrg.inlRange().stop;
-			extrbid1.crl() = extrbid2.crl() = cs_.hrg.crlRange().start;
+			extrbid1.crl() = extrbid2.crl() =
+					 cs_.hrg.crlRange().start;
 		    }
 
 		    Coord extrcoord1, extrcoord2;
@@ -242,10 +244,10 @@ bool FaultStickPainter::addPolyLine()
 			{
 			    if ( cs_.defaultDir() == CubeSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).crl(), pos.z );
+				       SI().transform(pos.coord()).crl(),pos.z);
 			    else if ( cs_.defaultDir() == CubeSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).inl(), pos.z );
+				       SI().transform(pos.coord()).inl(),pos.z);
 			}
 		    }
 		}
@@ -336,12 +338,9 @@ void FaultStickPainter::removePolyLine()
     for ( int markidx=sectionmarkerlines_.size()-1; markidx>=0; markidx-- )
     {
 	ObjectSet<StkMarkerInfo>* markerlines = sectionmarkerlines_[markidx];
-	if ( !markerlines->size() ) continue;
-
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
 	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
-	}
+	deepErase( *markerlines );
     }
 
     deepErase( sectionmarkerlines_ );
@@ -407,8 +406,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 }
 
 
-FlatView::AuxData* FaultStickPainter::getAuxData(
-							 const EM::PosID* pid )
+FlatView::AuxData* FaultStickPainter::getAuxData( const EM::PosID* pid )
 {
     if ( pid->objectID() != emid_ )
 	return 0;

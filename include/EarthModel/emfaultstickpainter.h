@@ -53,8 +53,15 @@ public:
     bool		hasDiffActiveStick(const EM::PosID*);
     FlatView::AuxData*	getAuxData(const EM::PosID*);
 
-    	mStruct(EarthModel) StkMarkerInfo
+	mStruct(EarthModel)	StkMarkerInfo
 	{
+				StkMarkerInfo()
+					: marker_(0)
+					, stickid_(-1)
+				{}
+				~StkMarkerInfo()
+				{ delete marker_; }
+
 	    FlatView::AuxData*	marker_;
 	    int			stickid_;
 	};
