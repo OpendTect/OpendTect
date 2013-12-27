@@ -118,17 +118,13 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 
 uiODViewer2D* uiODViewer2DMgr::find2DViewer( int visid )
 {
-    uiODViewer2D* curvwr = 0;
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	if ( viewers2d_[idx]->visid_ != visid )
-	    continue;
-
-	curvwr = viewers2d_[idx];
-	break;
+	if ( viewers2d_[idx]->visid_ == visid )
+    	    return viewers2d_[idx];
     }
 
-    return curvwr;
+    return 0;
 }
 
 
