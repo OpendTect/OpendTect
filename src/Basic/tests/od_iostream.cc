@@ -57,7 +57,7 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 bool testPipeInput()
 {
     FixedString message = "OpendTect rules";
-    const BufferString command( "@echo \"", message, "\"");
+    const BufferString command( "@echo ", message );
     StreamData streamdata = StreamProvider( command ).makeIStream();
     mRunStandardTest( streamdata.istrm,  "Creation of standard stream");
     PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
