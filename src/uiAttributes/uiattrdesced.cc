@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescsetman.h"
 #include "attribparam.h"
 #include "attribprovider.h"
+#include "attribstorprovider.h"
+#include "attribfactory.h"
 #include "iopar.h"
 #include "survinfo.h"
 
@@ -184,7 +186,8 @@ uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const char* txt )
 }
 
 
-uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd, const char* txt )
+uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
+				       const char* txt )
 {
     return new uiAttrSel( this, txt, asd );
 }
@@ -320,4 +323,44 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
 }
 
 
+bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
+				 DataPack::FullID& inpdpfid ) const
+{
+    LineKey lk( inpfld->getInput() );
+    for ( int idx=0; idx<dpfids_.size(); idx++ )
+    {
+	DataPack::FullID dpfid = dpfids_[idx];
+	BufferString dpnm = DataPackMgr::nameOf( dpfid );
+	if ( lk.lineName() == dpnm )
+	{
+	    inpdpfid = dpfid;
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
+{
+    if ( !dpfids_.size() )
+    {
+	pErrMsg( "No datapacks present to form Desc" );
+	return 0;
+    }
+
+    DataPack::FullID inpdpfid;
+    if ( !getInputDPID(inpfld,inpdpfid) )
+	return 0;
+
+
+    BufferString dpidstr( "#" );
+    dpidstr.add( inpdpfid.buf() );
+    Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
+    Attrib::ValParam* param =
+	inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
+    param->setValue( dpidstr.buf() );
+    return inpdesc;
+}
 

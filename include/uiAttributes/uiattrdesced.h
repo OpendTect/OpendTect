@@ -161,6 +161,8 @@ protected:
     uiAttrSel*		createInpFld(bool is2d,const char* txt=0);
     uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
     uiImagAttrSel*	createImagInpFld(bool is2d);
+    bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
+    Desc*		getInputDescFromDP(uiAttrSel*) const;
 
     BufferString        helpid_;
     BufferString	attrnm_;
