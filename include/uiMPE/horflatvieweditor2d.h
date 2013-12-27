@@ -85,7 +85,7 @@ protected:
     	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
 	    FlatView::AuxData*	marker_;
-	    int			merkerid_;
+	    int			markerid_;
 	    EM::SectionID	sectionid_;
 	};
 

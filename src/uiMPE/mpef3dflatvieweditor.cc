@@ -112,7 +112,7 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
-	editor_->enablePolySel( markeridinfo_[idx]->merkerid_, meh_ );
+	editor_->enablePolySel( markeridinfo_[idx]->markerid_, meh_ );
 }
 
 
@@ -183,7 +183,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
-	if ( markeridinfo_[idx]->merkerid_ == edidauxdataid )
+	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
 	{ 
 	    selstickid = markeridinfo_[idx]->stickid_;
 	    break;
@@ -425,7 +425,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
-	if ( markeridinfo_[idx]->merkerid_ == edidauxdataid )
+	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
 	{ 
 	    stickid = markeridinfo_[idx]->stickid_;
 	    break;
@@ -566,7 +566,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 void Fault3DFlatViewEditor::cleanActStkContainer()
 {
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
-	editor_->removeAuxData( markeridinfo_[idx]->merkerid_ );
+	editor_->removeAuxData( markeridinfo_[idx]->markerid_ );
 
     if ( markeridinfo_.size() )
 	deepErase( markeridinfo_ );
@@ -587,14 +587,14 @@ void Fault3DFlatViewEditor::fillActStkContainer()
 
     for ( int idx=0; idx<dispdstkmrkinfos.size(); idx++ )
     {
-	StkMarkerIdInfo* merkeridinfo = new  StkMarkerIdInfo;
-	merkeridinfo->merkerid_ = editor_->addAuxData(
+	StkMarkerIdInfo* markeridinfo = new  StkMarkerIdInfo;
+	markeridinfo->markerid_ = editor_->addAuxData(
 			    dispdstkmrkinfos[idx]->marker_, true );
-	merkeridinfo->stickid_ = dispdstkmrkinfos[idx]->stickid_;
-	editor_->enableEdit( merkeridinfo->merkerid_, false, true, false );
-	editor_->enablePolySel( merkeridinfo->merkerid_, meh_ );
+	markeridinfo->stickid_ = dispdstkmrkinfos[idx]->stickid_;
+	editor_->enableEdit( markeridinfo->markerid_, false, true, false );
+	editor_->enablePolySel( markeridinfo->markerid_, meh_ );
 
-	markeridinfo_ += merkeridinfo;
+	markeridinfo_ += markeridinfo;
     }
 }
 
@@ -606,7 +606,7 @@ int Fault3DFlatViewEditor::getStickId( int markerid ) const
 
     for ( int stkmkridx=0; stkmkridx<markeridinfo_.size(); stkmkridx++ )
     {
-	if ( markeridinfo_[stkmkridx]->merkerid_ == markerid )
+	if ( markeridinfo_[stkmkridx]->markerid_ == markerid )
 	{
 	    return markeridinfo_[stkmkridx]->stickid_;
 	}

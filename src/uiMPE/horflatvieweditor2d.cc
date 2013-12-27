@@ -175,7 +175,7 @@ void HorizonFlatViewEditor2D::setMouseEventHandler( MouseEventHandler* meh )
     }
 
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
-	editor_->enablePolySel( markeridinfos_[idx]->merkerid_, mehandler_ );
+	editor_->enablePolySel( markeridinfos_[idx]->markerid_, mehandler_ );
 }
 
 
@@ -492,7 +492,7 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 void HorizonFlatViewEditor2D::cleanAuxInfoContainer()
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
-	editor_->removeAuxData( markeridinfos_[idx]->merkerid_ );
+	editor_->removeAuxData( markeridinfos_[idx]->markerid_ );
 
     if ( markeridinfos_.size() )
 	deepErase( markeridinfos_ );
@@ -507,12 +507,12 @@ void HorizonFlatViewEditor2D::fillAuxInfoContainer()
     for ( int idx=0; idx<disphormrkinfos.size(); idx++ )
     {
 	Hor2DMarkerIdInfo* markeridinfo = new Hor2DMarkerIdInfo;
-	markeridinfo->merkerid_ = editor_->addAuxData(
+	markeridinfo->markerid_ = editor_->addAuxData(
 					disphormrkinfos[idx]->marker_, true );
 	markeridinfo->marker_ = disphormrkinfos[idx]->marker_;
 	markeridinfo->sectionid_ = disphormrkinfos[idx]->sectionid_;
-	editor_->enableEdit( markeridinfo->merkerid_, false, false, false );
-	editor_->enablePolySel( markeridinfo->merkerid_, mehandler_ );
+	editor_->enableEdit( markeridinfo->markerid_, false, false, false );
+	editor_->enablePolySel( markeridinfo->markerid_, mehandler_ );
 
 	markeridinfos_ += markeridinfo;
     }
@@ -535,7 +535,7 @@ FlatView::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
     {
-	if ( markeridinfos_[idx]->merkerid_ == markid )
+	if ( markeridinfos_[idx]->markerid_ == markid )
 	    return markeridinfos_[idx]->marker_;
     }
 
@@ -547,7 +547,7 @@ EM::SectionID HorizonFlatViewEditor2D::getSectionID( int markid )
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
     {
-	if ( markeridinfos_[idx]->merkerid_ == markid )
+	if ( markeridinfos_[idx]->markerid_ == markid )
 	    return markeridinfos_[idx]->sectionid_;
     }
 

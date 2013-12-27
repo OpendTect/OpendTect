@@ -61,7 +61,7 @@ protected:
 
 	mStruct(uiMPE) StkMarkerIdInfo
 	{
-	    int	    merkerid_;
+	    int	    markerid_;
 	    int	    stickid_;
 	};
 

@@ -80,7 +80,7 @@ protected:
     	mStruct(uiMPE) Hor3DMarkerIdInfo
 	{
 	    FlatView::AuxData*	marker_;
-	    int			merkerid_;
+	    int			markerid_;
 	    EM::SectionID	sectionid_;
 	};
 
