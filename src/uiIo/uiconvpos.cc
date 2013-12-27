@@ -139,7 +139,6 @@ void uiConvertPos::getBinID( CallBacker* )
 
 void uiConvertPos::convFile( CallBacker* )
 {
-    char buf[255];
     const BufferString inpfnm = inpfilefld->fileName();
 
     od_istream istream( inpfnm );
