@@ -423,7 +423,6 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
 void dsSel( CallBacker* )
 {
     lnmsfld_->setEmpty();
-    selGrp()->processInput();
     if ( !ioObj() ) return;
 
     SeisIOObjInfo sii( *ioObj() );
