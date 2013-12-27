@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
