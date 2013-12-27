@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs.h"
 #include "seiscubeprov.h"
 #include "seisioobjinfo.h"
+#include "seispacketinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
@@ -204,6 +205,15 @@ bool StorageProvider::checkInpAndParsAtStart()
     if ( !isondisc_ )
     {
 	storedvolume_.zrg.start = 0;	//cover up for synthetics
+	DataPack::FullID fid( getDPID() );
+	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), true );
+	mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
+	if ( !stbdtp ) return false;
+	SeisPacketInfo si;
+	stbdtp->trcBuf().fill( si );
+	storedvolume_.hrg.setInlRange( si.inlrg );
+	storedvolume_.hrg.setCrlRange( si.crlrg );
+	storedvolume_.zrg = si.zrg;
 	return true;
     }
 
@@ -723,7 +733,7 @@ bool StorageProvider::computeData( const DataHolder& output,
 }
 
 
-SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
+DataPack::FullID StorageProvider::getDPID() const
 {
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     BufferString bstring = lk.lineName();
@@ -732,7 +742,14 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 	return 0;
 
     DataPack::FullID fid( linenm+1 );
-    DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
+    return fid;
+}
+
+
+SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
+{
+    DataPack::FullID fid( getDPID() );
+    DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), true );
     mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
     if ( !stbdtp )
 	return 0;

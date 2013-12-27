@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "datachar.h"
+#include "datapack.h"
 class BufferStringSet;
 class SeisMSCProvider;
 class SeisTrc;
@@ -72,6 +73,7 @@ protected:
 
     //From memory (in Attrib::DataPacks)
     SeisTrc*		getTrcFromPack(const BinID&,int) const;
+    DataPack::FullID	getDPID() const;
 
     void		setReqBufStepout(const BinID&,bool wait=false);
     void		setDesBufStepout(const BinID&,bool wait=false);
