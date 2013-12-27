@@ -23,11 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "datapackbase.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
+#include "flatposdata.h"
 #include "seisbuf.h"
+#include "seistrc.h"
 #include "seisioobjinfo.h"
+#include "seisbufadapters.h"
 #include "survinfo.h"
 #include "volstatsattrib.h"
 
@@ -358,31 +362,36 @@ bool uiScalingAttrib::areUIParsOK()
 class uiSelectPositionDlg : public uiDialog
 {
 public:
+
+    enum DataType		{ Stored2D=0, Stored3D=1, DataPack2D=2,
+				  DataPack3D=3 };
+
+uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
+    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpID))
+    , attribnm_(0)
+    , linesfld_(0)
+    , subvolfld_(0)
+    , dpfid_(dpfid)
+{
+    const int dpmid = dpfid.ID( 0 );
+    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::CubeID() )
+    {
+	pErrMsg( "Only Flat & Cube DataPacks supported" );
+	return;
+    }
+
+    const bool is2d = dpmid==DataPackMgr::FlatID();
+    createSelFields( is2d ? DataPack2D : DataPack3D );
+}
+
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpID)) 
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
+    , mid_(mid)
 {
-    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
-	    			IntInpSpec(50) );
-    
-    if ( is2d )
-    {
-	SeisIOObjInfo objinfo( mid );
-	BufferStringSet linenames;
-	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
-	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
-	
-	linesfld_->attach( alignedBelow, nrtrcfld_ );
-    }
-    else
-    {
-	subvolfld_ = new uiSelSubvol( this, false );
-	subvolfld_->attach( alignedBelow, nrtrcfld_ );
-    }
+    createSelFields( is2d ? Stored2D : Stored3D );
 }
 
 int nrTrcs()
@@ -402,7 +411,69 @@ CubeSampling subVol() const
 
 protected:
 
+void createSelFields( DataType type )
+{
+    IntInpSpec nrtrcinpspec( 50 );
+    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+				nrtrcinpspec );
+    
+    if ( type==uiSelectPositionDlg::Stored2D )
+    {
+	SeisIOObjInfo objinfo( mid_ );
+	BufferStringSet linenames;
+	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
+	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( linenames.get(idx) );
+	
+	linesfld_->attach( alignedBelow, nrtrcfld_ );
+    }
+    else if ( type==uiSelectPositionDlg::DataPack2D )
+    {
+	DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
+	mDynamicCastGet(FlatDataPack*,fdp,dp);
+	Interval<int> trcrglimits( 0, fdp->size(true) );
+	nrtrcinpspec.setLimits( trcrglimits );
+	nrtrcfld_->setValue( fdp->size(true) );
+	DPM( dpfid_.ID(0)).release( dpfid_.ID(1) );
+    }
+    else
+    {
+	subvolfld_ = new uiSelSubvol( this, false );
+	subvolfld_->attach( alignedBelow, nrtrcfld_ );
+	CubeSampling cs;
+	if ( type==uiSelectPositionDlg::DataPack3D )
+	{
+	    DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
+	    mDynamicCastGet(CubeDataPack*,cdp,dp);
+	    cs = cdp->sampling();
+	    DPM( dpfid_.ID(0)).release( dpfid_.ID(1) );
+	}
+	else if ( type==uiSelectPositionDlg::Stored3D )
+	{
+	    SeisIOObjInfo seisinfo( mid_ );
+	    seisinfo.getRanges( cs );
+	}
+
+	subvolfld_->setSampling( cs );
+    }
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( !nrtrcfld_->dataInpSpec()->isInsideLimits() )
+    {
+	uiMSG().error("Number of traces specified is more than in the dataset");
+	return false;
+    }
+
+    return true;
+}
+
     BufferString	attribnm_;
+    DataPack::FullID	dpfid_;
+    MultiID		mid_;
     
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
@@ -412,14 +483,15 @@ protected:
 
 void uiScalingAttrib::analyseCB( CallBacker* )
 {
-    if ( !ads_ && dpfids_.size() )
-	return uiMSG().error( "Not implemented for synthetic data." );
-    Attrib::Desc* inpdesc = ads_->getDesc( inpfld->attribID() );
+    Attrib::Desc* inpdesc = !ads_ ? getInputDescFromDP( inpfld )
+				  : ads_->getDesc( inpfld->attribID() );
     Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
     if ( !inpdesc || !voldesc )
 	return;
 
-    PtrMan<Attrib::DescSet> descset = ads_->optimizeClone( inpfld->attribID() );
+    PtrMan<Attrib::DescSet> descset =
+	ads_ ? ads_->optimizeClone( inpfld->attribID() )
+	     : new DescSet( is2D() );
     if ( !descset )
 	return;
     
@@ -436,50 +508,85 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     desc.setUserRef( "Examine-GainCorrection" );
     desc.updateParams();
 
+    inpdesc->setDescSet( descset );
+    descset->addDesc( inpdesc );
     Attrib::DescID attribid = descset->addDesc( voldesc );
-
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-
     TypeSet<SelSpec> attribspecs;
     SelSpec sp( 0, attribid );
     sp.set( desc );
     attribspecs += sp;
-
     aem->setAttribSet( descset );
     aem->setAttribSpecs( attribspecs );
-    LineKey lk( inpdesc->getStoredID(true) );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-
-    if ( !ioobj )
-	return uiMSG().error( "Select a valid input" );
-
-    SeisIOObjInfo seisinfo( ioobj );
-    CubeSampling cs;
     
-    uiSelectPositionDlg subseldlg( this, ioobj->key(), seisinfo.is2D(),
-	    			   lk.attrName() );
-    subseldlg.go();
-
+    CubeSampling cs( false );
+    const bool isinpindp = dpfids_.size();
     TypeSet<BinID> bidset;
-    if ( seisinfo.is2D() )
+    int nrtrcs = 0;
+    if ( !isinpindp )
     {
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
-	cs.hrg.setCrlRange( trcrg );
-	cs.hrg.setInlRange( Interval<int>(0,0) );
-	cs.zrg = zrg;
-	aem->setLineKey( subseldlg.lineKey() );
+	LineKey lk( inpdesc->getStoredID(true) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+	if ( !ioobj )
+	    return uiMSG().error( "Select a valid input" );
+
+	uiSelectPositionDlg subseldlg( this, ioobj->key(), is2D(),
+				       lk.attrName() );
+	if ( !subseldlg.go() )
+	    return;
+
+	if ( is2D() )
+	{
+	    SeisIOObjInfo seisinfo( ioobj );
+	    StepInterval<int> trcrg;
+	    StepInterval<float> zrg;
+	    seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
+	    cs.hrg.setCrlRange( trcrg );
+	    cs.hrg.setInlRange( Interval<int>(0,0) );
+	    cs.zrg = zrg;
+	    aem->setLineKey( subseldlg.lineKey() );
+	}
+	else
+	    cs = subseldlg.subVol();
+	nrtrcs = subseldlg.nrTrcs();
     }
     else
     {
-	cs = subseldlg.subVol();
-	seisinfo.getRanges( cs );
+	DataPack::FullID dpfid;
+	getInputDPID( inpfld, dpfid );
+	uiSelectPositionDlg subseldlg( this, dpfid );
+	if ( !subseldlg.go() )
+	    return;
+	if ( dpfid.ID(0)==DataPackMgr::CubeID() )
+	    cs = subseldlg.subVol();
+	else
+	{
+	    DataPack* dp = DPM(dpfid.ID(0)).obtain( dpfid.ID(1) );
+	    mDynamicCastGet(FlatDataPack*,fdp,dp);
+	    if ( !fdp )
+	    {
+		pErrMsg( "No FlatDataPack found" );
+		return;
+	    }
+
+	    StepInterval<double> dtrcrg = fdp->posData().range( true );
+	    Interval<int> trcrg( mCast(int,dtrcrg.start),
+				 mCast(int,dtrcrg.stop) );
+	    cs.hrg.setCrlRange( trcrg );
+	    cs.hrg.setInlRange( Interval<int>(0,0) );
+
+	    StepInterval<double> dzrg = fdp->posData().range( false );
+	    StepInterval<float> zrg( mCast(float,dzrg.start),
+				     mCast(float,dzrg.stop),
+				     mCast(float,dzrg.step) );
+	    cs.zrg = zrg;
+	    DPM(dpfid.ID(0)).release( dpfid.ID(1) );
+	}
+	nrtrcs = subseldlg.nrTrcs();
     }
 
-    const int nrtrcs = subseldlg.nrTrcs();
     if ( nrtrcs <= 0 )
-	return uiMSG().error( "Select proper number of traces" );
+	return uiMSG().error( "Number of traces cannot be zero or negative" );
 
     cs.hrg.getRandomSet( nrtrcs, bidset );
     aem->setCubeSampling( cs );
