@@ -118,15 +118,12 @@ macro(OD_SETUP_QT)
 			endif()
 			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} ${BUILD_TYPE} )
 		    elseif( WIN32 )
-			list( APPEND ARGS ${QTDIR}/bin/${QLIBNAME}.dll )
-			list( APPEND ARGS ${QLIB} )
+			OD_INSTALL_LIBRARY( ${QTDIR}/bin/${QLIBNAME}.dll ${BUILD_TYPE} )
+			install( PROGRAMS ${QLIB}
+				 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+				 CONFIGURATIONS ${BUILD_TYPE} )
 		    endif()
 		endforeach()
-		if( WIN32 )
-		    install( PROGRAMS ${ARGS}
-			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
-			     CONFIGURATIONS ${BUILD_TYPE} )
-		endif()
 	    endforeach()
 	endif()
     endif()

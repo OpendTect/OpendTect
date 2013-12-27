@@ -161,19 +161,14 @@ macro(OD_SETUP_OSG)
 		    elseif( WIN32 )
 			file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
 			if ( EXISTS ${DLLFILE} )
-			    list( APPEND ARGS ${DLLFILE} )
-			endif()
-			if ( EXISTS ${LIB} )
-			    list( APPEND ARGS ${LIB} )
+			    OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
+			    install( PROGRAMS ${LIB}
+				DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+				CONFIGURATIONS ${BUILD_TYPE} )
 			endif()
 		    endif()
 		endforeach()
 
-		if ( WIN32 )
-		    install( PROGRAMS ${ARGS}
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
-			CONFIGURATIONS ${BUILD_TYPE} )
-		endif()
 	    endforeach()
 	endif()
     endif()
