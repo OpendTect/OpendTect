@@ -13,16 +13,38 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "uigroup.h"
 #include "cubesampling.h"
 #include "linekey.h"
 #include "multiid.h"
+#include "datapackbase.h"
 
 class uiLabeledSpinBox;
 class uiSpinBox;
 class uiLabeledComboBox;
 class uiToolButton;
+class uiSlider;
+class uiComboBox;
+class uiGenInput;
 class PickRetriever;
+class FlatDataPack;
 namespace PosInfo { class Line2DData; }
+
+class uiFlatDPPosSel : public uiGroup
+{
+public:
+				uiFlatDPPosSel(uiParent*,
+					       const DataPack::FullID&);
+				~uiFlatDPPosSel();
+    double			getPos() const;
+protected:
+    uiSlider*			possldr_;
+    uiComboBox*			altdimnmflds_;
+    uiGenInput*			posvalfld_;
+    FlatDataPack*		fdp_;
+
+    void			sldrPosChangedCB(CallBacker*);
+};
 
 mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
 {                                                                               
@@ -48,6 +70,9 @@ protected:
     StepInterval<float>		zrg_;
     uiToolButton*		getposbut_;
     PickRetriever*		pickretriever_;
+public:
+				uiTrcPositionDlg(uiParent*,
+						 const DataPack::FullID&);
 };
 
 #endif

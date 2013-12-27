@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstringset.h"
 #include "ioobj.h"
+#include "hiddenparam.h"
+#include "flatposdata.h"
 #include "pickretriever.h"
 #include "posinfo2d.h"
 #include "position.h"
@@ -21,10 +23,134 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surv2dgeom.h"
 
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uispinbox.h"
+#include "uislider.h"
 #include "uitoolbutton.h"
+
+uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
+    : uiGroup(p)
+    , altdimnmflds_( 0 )
+    , possldr_( 0 )
+    , posvalfld_( 0 )
+{
+    DataPack* dp = DPM( dpfid.ID(0) ).obtain( dpfid.ID(1) );
+    mDynamicCast(FlatDataPack*,fdp_,dp);
+    if ( !fdp_ )
+    {
+	pErrMsg( "Have no flatdatapack, Cannot construct the class" );
+	return;
+    }
+
+    BufferStringSet altdimnms;
+    fdp_->getAltDim0Keys( altdimnms );
+    altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
+    altdimnmflds_->selectionChanged.notify(
+	    mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
+    possldr_ = new uiSlider( this );
+    possldr_->valueChanged.notify( mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
+    StepInterval<double> posdatarg = fdp_->posData().range( true );
+    StepInterval<float> floatrg( mCast(float,posdatarg.start),
+				 mCast(float,posdatarg.stop),
+				 mCast(float,posdatarg.step) );
+    possldr_->setInterval( floatrg );
+    possldr_->attach( rightOf, altdimnmflds_ );
+    posvalfld_ = new uiGenInput( this, "", DoubleInpSpec() );
+    posvalfld_->attach( rightOf, possldr_ );
+    sldrPosChangedCB( 0 );
+}
+
+
+uiFlatDPPosSel::~uiFlatDPPosSel()
+{
+    DPM( DataPackMgr::FlatID() ).release( fdp_ );
+}
+
+
+double uiFlatDPPosSel::getPos() const
+{
+    if ( !posvalfld_ ) return -1.0;
+    StepInterval<double> x1rg = fdp_->posData().range( true );
+    const int idx = x1rg.getIndex( possldr_->getValue() );
+    const double posval = fdp_->getAltDim0Value( 0, idx );
+    return posval;
+}
+
+void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
+{
+    if ( !posvalfld_ ) return;
+    StepInterval<double> x1rg = fdp_->posData().range( true );
+    const int idx = x1rg.getIndex( possldr_->getValue() );
+    const double posval =
+	fdp_->getAltDim0Value( altdimnmflds_->currentItem(), idx );
+    posvalfld_->setValue( posval );
+}
+
+
+static HiddenParam<uiTrcPositionDlg,uiFlatDPPosSel*> fdpposflds( 0 );
+
+uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
+    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7")
+			     .modal(false) )
+    , linesfld_( 0 )
+    , trcnrfld_( 0 )
+    , inlfld_( 0 )
+    , crlfld_( 0 )
+    , pickretriever_( 0 )
+{
+    const int dpmid = dpfid.ID( 0 );
+    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::CubeID() )
+    {
+	pErrMsg( "Only Flat & Cube DataPacks supported" );
+	return;
+    }
+
+    DataPack* dp = DPM( dpmid ).obtain( dpfid.ID(1) );
+    if ( dpmid == DataPackMgr::FlatID() )
+    {
+	uiFlatDPPosSel* fdpposfld = new uiFlatDPPosSel( this, dpfid );
+	fdpposflds.setParam( this, fdpposfld );
+	mDynamicCastGet(FlatDataPack*,fdp,dp);
+	if ( !fdp )
+	{
+	    pErrMsg( "Could not find Flat DataPack" );
+	    DPM( dpmid ).release( dpfid.ID(1) );
+	    return;
+	}
+
+	StepInterval<double> x2rg = fdp->posData().range( false );
+	StepInterval<float> fzrg( mCast(float,x2rg.start),
+				  mCast(float,x2rg.stop),
+				  mCast(float,x2rg.step) );
+	zrg_ = fzrg;
+    }
+    else if ( dpmid == DataPackMgr::CubeID() )
+    {
+	mDynamicCastGet(CubeDataPack*,cdp,dp);
+	if ( !cdp )
+	{
+	    pErrMsg( "Could not find Cube DataPack" );
+	    DPM( dpmid ).release( dpfid.ID(1) );
+	    return;
+	}
+
+	CubeSampling cs = cdp->sampling();
+	BufferString str = "Compute attribute at position:";
+	inlfld_ = new uiLabeledSpinBox( this, str );
+	crlfld_ = new uiSpinBox( this );
+	crlfld_->attach( rightTo, inlfld_ );
+	inlfld_->box()->setInterval( cs.hrg.inlRange() );
+	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
+	crlfld_->setInterval( cs.hrg.crlRange() );
+	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
+	DPM( DataPackMgr::CubeID() ).release( dpfid.ID(1) );
+	zrg_ = cs.zrg;
+    }
+
+    DPM( dpmid ).release( dpfid.ID(1) );
+}
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
@@ -37,6 +163,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
     , crlfld_( 0 )
     , mid_( mid )
 {
+    fdpposflds.setParam( this, 0 );
     if ( is2d )
     {
 	BufferStringSet linenames;
@@ -81,7 +208,8 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 
 uiTrcPositionDlg::~uiTrcPositionDlg()
 {
-    pickretriever_->finished()->remove(
+    if ( pickretriever_ )
+	pickretriever_->finished()->remove(
 	    			mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
 }
 
@@ -152,9 +280,11 @@ LineKey uiTrcPositionDlg::getLineKey() const
 CubeSampling uiTrcPositionDlg::getCubeSampling() const
 {
     CubeSampling cs;
-    if ( trcnrfld_ )
+    uiFlatDPPosSel* fdpposfld = fdpposflds.getParam( this );
+    if ( trcnrfld_ || fdpposfld )
     {
-	int trcnr = trcnrfld_->box()->getValue();
+	int trcnr = fdpposfld ? mCast(int,fdpposfld->getPos() )
+			      : trcnrfld_->box()->getValue();
 	cs.hrg.set( cs.hrg.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );
     }
     else
