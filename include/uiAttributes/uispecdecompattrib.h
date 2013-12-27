@@ -69,6 +69,8 @@ protected:
 	    				  Attrib::DescID&) const;
     Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
 	    			      const char*,int,int,BufferString) const;
+    Attrib::Desc*	createNewDescFromDP(Attrib::DescSet*,const char* atrnm,
+					    const char* userefstr) const;
     void		fillInSDDescParams(Attrib::Desc*) const;
     bool		passStdCheck(const Attrib::Desc*,const char*,
 	    			     int seloutidx,int inpidx,
