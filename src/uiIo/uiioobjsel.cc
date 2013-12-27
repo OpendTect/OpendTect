@@ -406,7 +406,10 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     }
     else
     {
-	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
+	int idx = listfld_->currentItem();
+	if ( !listfld_->isSelected(idx) )
+	    idx = listfld_->nextSelected();
+	PtrMan<IOObj> ioobj = getIOObj( idx );
 	ctio_.setObj( ioobj ? ioobj->clone() : 0 );
 	if ( cb && nmfld_ )
 	    nmfld_->setText( ioobj ? ioobj->name() : "" );
