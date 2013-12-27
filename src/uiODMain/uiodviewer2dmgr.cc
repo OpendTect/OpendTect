@@ -71,8 +71,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	curvwr = &addViewer2D( visid );
-	curvwr->winClosed.notify(
-		mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB) );
+	mAttachCB( curvwr->winClosed, uiODViewer2DMgr::viewer2DWinClosedCB );
     }
     else
     {
