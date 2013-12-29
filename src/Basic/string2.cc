@@ -377,7 +377,7 @@ bool isAlphaNumString( const char* str, bool allowspace )
 }
 
 
-void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
+void cleanupString( char* str, bool spaceallow, bool fsepallow, bool dotallow )
 {
     if ( !str )
 	return;
@@ -395,7 +395,7 @@ void cleanupString( char* str, bool spaceallow, bool slashallow, bool dotallow )
 	    case '+':	case '-':		dorepl = false;	break;
 	    default:						break;
 	    }
-	    if ( slashallow )
+	    if ( fsepallow )
 	    {
 		if ( *str == *sDirSep )
 		    dorepl = false;
