@@ -139,13 +139,13 @@ void SEGY::FileSpec::getMultiFromString( const char* str )
 {
     FileMultiString fms( str );
     const int len = fms.size();
-    nrs_.start = len > 0 ? toInt( fms[0] ) : mUdf(int);
+    nrs_.start = len > 0 ? fms.getIValue( 0 ) : mUdf(int);
     if ( len > 1 )
-	nrs_.stop = toInt( fms[1] );
+	nrs_.stop = fms.getIValue( 1 );
     if ( len > 2 )
-	nrs_.step = toInt( fms[2] );
+	nrs_.step = fms.getIValue( 2 );
     if ( len > 3 )
-	zeropad_ = toInt( fms[3] );
+	zeropad_ = fms.getIValue( 3 );
 }
 
 

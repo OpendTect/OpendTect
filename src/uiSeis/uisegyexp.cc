@@ -274,7 +274,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     {
 	setupnm += " ("; setupnm += attrnm_; setupnm += ")";
 	BufferString clnattrnm( attrnm_ );
-	cleanupString( clnattrnm.buf(), false, false, true );
+	cleanupString( clnattrnm.getCStr(), false, false, true );
 	newfnm += "_"; newfnm += clnattrnm;
     }
     newfnm += "."; newfnm += ext;

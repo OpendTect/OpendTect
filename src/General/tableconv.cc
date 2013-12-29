@@ -31,10 +31,10 @@ bool Table::ImportHandler::atEnd() const
 void Table::ImportHandler::addToCol( char c )
 {
     if ( colpos_ < col_.bufSize()-1 )
-	*(col_.buf() + colpos_) = c;
+	*(col_.getCStr() + colpos_) = c;
     else
     {
-	*(col_.buf() + colpos_) = '\0';
+	*(col_.getCStr() + colpos_) = '\0';
 	char buf[3]; buf[0] = c; buf[1] = ' '; buf[2] = '\0';
 	col_ += buf;
     }
@@ -249,7 +249,7 @@ void Table::WSExportHandler::addVal( int col, const char* inpval )
        }
        else
        {
-	   char* ptr = val.buf();
+	   char* ptr = val.getCStr();
 	   while ( *ptr )
 	   {
 	       if ( *ptr == ' ' || *ptr == '\t' )

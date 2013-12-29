@@ -556,8 +556,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
     BufferString levelname;
-    if ( curSS().getLevel() ) levelname = curSS().getLevel()->name();
-    if ( levelname.isEmpty() || matchString( "--", levelname) )
+    if ( curSS().getLevel() )
+	levelname = curSS().getLevel()->name();
+    if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
     {
 	uiMSG().error( "Please select a Stratigraphic Level.\n"
 		"The scaling tool compares the amplitudes there\n"

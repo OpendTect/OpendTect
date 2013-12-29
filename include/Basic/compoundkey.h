@@ -26,25 +26,25 @@ mExpClass(Basic) CompoundKey
 public:
 
     inline		CompoundKey( const char* s=0 )	{ if ( s ) impl_ = s; }
-    inline		CompoundKey( const CompoundKey& ck ) 
+    inline		CompoundKey( const CompoundKey& ck )
 			: impl_(ck.impl_)	{}
     inline CompoundKey&	operator=( const char* s )
-    						{ impl_ = s; return *this;}
+						{ impl_ = s; return *this;}
     inline CompoundKey&	operator+=( const char* );
     inline bool		operator==( const char* s ) const
-    						{ return impl_ == s; }
+						{ return impl_ == s; }
     inline bool		operator==( const CompoundKey& oth ) const
 						{ return impl_ == oth.impl_; }
     inline bool		operator!=( const char* s ) const
-    						{ return impl_ != s; }
+						{ return impl_ != s; }
     inline bool		operator!=(const CompoundKey& u) const
 						{ return impl_ != u.impl_; }
     inline void		setEmpty()		{ impl_.setEmpty(); }
     inline bool		isEmpty() const		{ return impl_.isEmpty();}
-    inline char*	buf()			{ return impl_.buf(); }
+    inline char*	getCStr()		{ return impl_.getCStr(); }
     inline const char*	buf() const		{ return impl_.buf(); }
     inline		operator const char*() const
-    						{ return buf(); }
+						{ return buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;

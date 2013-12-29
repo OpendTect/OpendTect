@@ -44,7 +44,7 @@ FixedString selstr( "Select" );
 
 static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
-    				  "Between Horizons", 0 };
+				  "Between Horizons", 0 };
 
 
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly )
@@ -57,8 +57,8 @@ uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly )
     nmfld_ = new uiGenInput( this,
 		BufferString("Name for new ",aspoly ? "Polygon" : "PickSet") );
     colsel_ = new uiColorInput( this,
-	    		      uiColorInput::Setup(getRandStdDrawColor()).
-	   		      lbltxt("Color") );
+			      uiColorInput::Setup(getRandStdDrawColor()).
+			      lbltxt("Color") );
     colsel_->attach( alignedBelow, nmfld_ );
 }
 
@@ -73,16 +73,11 @@ Pick::Set* uiCreatePicks::getPickSet() const
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; } 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiCreatePicks::acceptOK( CallBacker* )
 {
-    BufferString res = nmfld_->text();
-    char* ptr = res.buf(); mTrimBlanks(ptr);
-    if ( !*ptr )
-	mErrRet( "Please enter a name" )
-
-    name_ = ptr;
+    name_.set( nmfld_->text() ).trimBlanks();
     return true;
 }
 
@@ -140,7 +135,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );
     mRestorCursor();
-    
+
     const od_int64 dpssize = dps_->size();
     if ( dpssize>50000 )
     {
@@ -159,7 +154,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
 
-    return true;   
+    return true;
 }
 
 
@@ -181,7 +176,7 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 
 
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
-       				  const BufferStringSet& lsets,
+				  const BufferStringSet& lsets,
 				  const TypeSet<BufferStringSet>& lnms )
     : uiCreatePicks(p)
     , geomfld_(0)
@@ -199,16 +194,16 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	horselfld_->box()->addItem( selstr );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
-		    				    uiGenRandPicks2D,hor1Sel));
+						    uiGenRandPicks2D,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( selstr );
 	horsel2fld_->addItems( hornms_ );
 	horsel2fld_->selectionChanged.notify( mCB(this,
-		    				 uiGenRandPicks2D,hor2Sel) );
+						 uiGenRandPicks2D,hor2Sel) );
     }
 
     linesetfld_ = new uiGenInput( this, "Line Set",
-	    			  StringListInpSpec(lsets) );
+				  StringListInpSpec(lsets) );
     linesetfld_->attach( alignedBelow, nrfld_ );
     linesetfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,lineSetSel) );
 
@@ -239,7 +234,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 
 
 void uiGenRandPicks2D::hor1Sel( CallBacker* cb )
-{    
+{
     horSel( horselfld_->box(), horsel2fld_ );
 }
 
@@ -256,7 +251,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     const char* curnm = tosel->text();
     const int idx = hornms_.indexOf( nm );
     BufferStringSet hornms( hornms_ );
-    
+
     if ( idx >= 0 ) hornms.removeSingle( idx );
 
     tosel->setEmpty();

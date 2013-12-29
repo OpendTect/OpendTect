@@ -86,7 +86,7 @@ const char* ElasticFormula::parseVariable( int idx, float& val ) const
 
     val = mUdf( float );
     const char* var = variables_.get( idx );
-    getFromString( val, var );
+    getFromString( val, var, mUdf(float) );
 
     return var;
 }

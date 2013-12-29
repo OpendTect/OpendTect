@@ -72,7 +72,7 @@ static int doWork( int argc, char** argv )
     PtrMan<IOObj> ioobj = IOM().get( argv[1] );
     if ( !ioobj ) return prError( "No lineset found" );
 
-    const float udfval = argc==4 ? toFloat(argv[3] ) : mUdf(float);
+    const float udfval = argc==4 ? toFloat(argv[3]) : mUdf(float);
 
     Seis2DLineSet s2dls( *ioobj );
     PosInfo::LineSet2DData lsdata;

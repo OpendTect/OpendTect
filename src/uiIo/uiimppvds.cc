@@ -52,7 +52,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, "First row contains",
-	    			BoolInpSpec(false,"Data","Column names") );
+				BoolInpSpec(false,"Data","Column names") );
     row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
@@ -146,7 +146,8 @@ bool getLine()
     {
 	coord_.x = getdValue( 0 ); coord_.y = getdValue( 1 );
 	if ( formOf(false,0) == 1 && coord_.isDefined() )
-	    coord_ = SI().transform( BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
+	    coord_ = SI().transform(
+				BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
     }
     else
     {
@@ -166,14 +167,9 @@ bool getLine()
     datavals_.erase();
     for ( int icol=0; icol<datacols_.size(); icol++ )
     {
-	int linecol = datacols_[icol];
-	if ( linecol >= fullline_.size() )
-	    datavals_ += mUdf(float);
-	else
-	{
-	    float val = toFloat( fullline_.get( datacols_[icol] ).buf() );
-	    datavals_ += val;
-	}
+	const int linecol = datacols_[icol];
+	datavals_ += linecol < fullline_.size()
+		   ? fullline_.get( datacols_[icol] ).toFloat() : mUdf(float);
     }
 
     rownr_++;
@@ -244,7 +240,7 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
     BufferString errmsg;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool isok = dps.dataSet().putTo( ioobj.fullUserExpr(false), errmsg,
-	    				   false);
+					   false);
     MouseCursorManager::restoreOverride();
     if ( !isok )
 	mErrRet(errmsg)

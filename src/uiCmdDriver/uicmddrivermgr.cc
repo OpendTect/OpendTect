@@ -207,7 +207,7 @@ void uiCmdDriverMgr::commandLineParsing()
     uiMain::theMain().getCmdLineArgs( cmdline );
     for ( int idx=1; idx<cmdline.size(); idx++ )
     {
-	char* ptr = firstOcc( cmdline.get(idx).buf(), '=' );
+	char* ptr = cmdline.get(idx).find( '=' );
 	if ( !ptr )
 	    continue;
 

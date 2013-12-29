@@ -117,7 +117,7 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
 		return true;
 
 	    BufferString wildcard( nameptr );
-	    *(wildcard.buf()+nameoffset) = '\0';
+	    *(wildcard.getCStr()+nameoffset) = '\0';
 	    wildcardlist_.add( wildcard );
 	    return true;
 	}

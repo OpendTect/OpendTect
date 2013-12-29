@@ -180,13 +180,13 @@ void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
     if ( !par || !key ) return;
     const char* defstring = par->find( "Definition" );
     BufferString defstr( defstring );
-    char* maindefstr = firstOcc( defstr.buf(), "id=" );
+    char* maindefstr = defstr.find( "id=" );
     if ( !maindefstr )
 	return;
 
     maindefstr += 3;
     BufferString tempstr( maindefstr );
-    char* spaceptr = firstOcc( tempstr.buf(), ' ' );
+    char* spaceptr = tempstr.find( ' ' );
     BufferString finalpartstr( spaceptr );
     *maindefstr = '\0';
     const bool usequotes = hasSpace( key );
@@ -207,13 +207,13 @@ int uiStoredAttribReplacer::getOutPut( int descid )
     const char* defstring = descpar->find( "Definition" );
     BufferString defstr( defstring );
 
-    char* outputptr = firstOcc( defstr.buf(), "output=" );
+    char* outputptr = defstr.find( "output=" );
     outputptr +=7;
     BufferString outputstr( outputptr );
-    char* spaceptr = firstOcc( outputstr.buf(), ' ' );
+    char* spaceptr = outputstr.find( ' ' );
     if ( spaceptr )
 	*spaceptr ='\0';
-    return toInt( outputstr );
+    return outputstr.toInt();
 }
 
 void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,

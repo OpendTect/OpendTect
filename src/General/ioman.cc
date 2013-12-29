@@ -453,9 +453,9 @@ IOObj* IOMan::get( const MultiID& k ) const
 	return 0;
 
     MultiID ky( k );
-    char* ptr = firstOcc( ky.buf(), '|' );
+    char* ptr = firstOcc( ky.getCStr(), '|' );
     if ( ptr ) *ptr = '\0';
-    ptr = firstOcc( ky.buf(), ' ' );
+    ptr = firstOcc( ky.getCStr(), ' ' );
     if ( ptr ) *ptr = '\0';
 
     if ( dirptr_ )
@@ -491,15 +491,16 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 
 IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 {
-    if ( !objname || !*objname )
+    const FixedString fsobjnm( objname );
+    if ( fsobjnm.isEmpty() )
 	return 0;
 
-    if ( matchString("ID=<",objname) )
+    if ( fsobjnm.startsWith("ID=<") )
     {
 	BufferString oky( objname+4 );
-	char* ptr = firstOcc( oky.buf(), '>' );
+	char* ptr = oky.find( '>' );
 	if ( ptr ) *ptr = '\0';
-	return get( MultiID((const char*)oky) );
+	return get( MultiID(oky.buf()) );
     }
 
     if ( dirptr_ )
@@ -680,7 +681,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
     to( ctio.ctxt.getSelKey() );
 
     const IOObj* ioobj = dirPtr()->get( ctio.ctxt.name(),
-	    				ctio.ctxt.trgroup->userName() );
+					ctio.ctxt.trgroup->userName() );
     ctio.ctxt.fillTrGroup();
     if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
 	ioobj = 0;
@@ -805,7 +806,7 @@ bool SurveyDataTreePreparer::prepDirData()
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     dd->desc_.replace( ':', ';' );
-    cleanupString( dd->dirname_.buf(), false, false, false );
+    cleanupString( dd->dirname_.getCStr(), false, false, false );
 
     int nr = dd->selkey_.ID( 0 );
     if ( nr <= 200000 )

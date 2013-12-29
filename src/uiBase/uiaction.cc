@@ -282,7 +282,7 @@ void uiAction::doTranslate()
     BufferString txt( *toolTip() ? toolTip() : text() );
     txt.trimBlanks();
     txt.remove( '&' );
-    if ( txt.isEmpty() || isNumberString(txt.buf()) )
+    if ( txt.isEmpty() || txt.isNumber() )
 	return;
 
     mAttachCB(TrMgr().tr()->ready, uiAction::translationReadyCB );

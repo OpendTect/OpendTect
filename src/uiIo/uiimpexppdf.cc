@@ -52,7 +52,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     inpfld_->valuechanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
     varnmsfld_ = new uiGenInput( this, "Output variable names",
-	    			 StringInpSpec(), StringInpSpec() );
+				 StringInpSpec(), StringInpSpec() );
     varnmsfld_->attach( alignedBelow, inpfld_ );
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
@@ -130,9 +130,9 @@ Sampled2DProbDenFunc* getPDF()
 	    sd1.start = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyYBinWidth) )
 	    sd1.step = astrm.getFValue();
-	else if ( matchString(sKeyFirstXBin,astrm.keyWord()) )
+	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstXBin) )
 	    { cols_are_0 = true; break; }
-	else if ( matchString(sKeyFirstYBin,astrm.keyWord()) )
+	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstYBin) )
 	    { cols_are_0 = false; break; }
     }
     if ( nr0 < 0 || nr1 < 0 )
@@ -193,7 +193,7 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 }
 
 
-static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld, 
+static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
 			  StepInterval<float>& rg, int& sz )
 {
     rg = rgfld->getFInterval(); sz = szfld->getIntValue();

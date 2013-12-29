@@ -38,7 +38,7 @@ static void getGrps( BufferStringSet& grps )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );
-	char* dotptr = lastOcc( fnm.buf(), '.' );
+	char* dotptr = fnm.find( '.' );
 	if ( (needdot && !dotptr) || (!needdot && dotptr) )
 	    continue;
 	if ( dotptr )
@@ -148,12 +148,14 @@ void uiSettings::getChanges()
     for ( int irow=0; irow<sz; irow++ )
     {
 	BufferString kybuf = tbl_->text( RowCol(irow,0) );
-	char* ky = kybuf.buf();
-	mTrimBlanks(ky); if ( !*ky ) continue;
+	kybuf.trimBlanks();
+	if ( kybuf.isEmpty() )
+	    continue;
 	BufferString valbuf = tbl_->text( RowCol(irow,1) );
-	char* val = valbuf.buf();
-	mTrimBlanks(val); if ( !*val ) continue;
-	workpar->set( ky, val );
+	valbuf.trimBlanks();
+	if ( valbuf.isEmpty() )
+	    continue;
+	workpar->set( kybuf, valbuf );
     }
 
     if ( !orgPar().isEqual(*workpar,true) )

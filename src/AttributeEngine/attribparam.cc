@@ -59,7 +59,7 @@ void BinIDParam::setLimits( int mininl, int maxinl, int mincrl,int maxcrl )
 bool BinIDParam::setCompositeValue( const char* posstr )
 {
     BufferString posbs( posstr );
-    char* ptrcrl = firstOcc( posbs.buf(), ',' );
+    char* ptrcrl = posbs.find( ',' );
     if ( !ptrcrl )
 	return false;
     *ptrcrl++ = '\0';

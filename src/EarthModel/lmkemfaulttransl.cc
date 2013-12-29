@@ -175,11 +175,11 @@ int lmkEMFault3DReader::nextStep()
     {
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
-	int inl = toInt( str.buf() );
+	int inl = str.toInt();
 
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
-	int crl = toInt( str.buf() );
+	int crl = str.toInt();
 
 	Coord coord = SI().transform( BinID(inl, crl ));
 
@@ -190,20 +190,20 @@ int lmkEMFault3DReader::nextStep()
     {
 	BufferString str(&buffer[xinterval.start-1]);
 	str[xinterval.width()+1] = 0;
-	pos.x = toDouble( str.buf() );
+	pos.x = str.toDouble();
 
 	str = &buffer[yinterval.start-1];
 	str[yinterval.width()+1] = 0;
-	pos.y = toDouble( str.buf() );
+	pos.y = str.toDouble();
     }
 
     BufferString str = &buffer[zinterval.start-1];
     str[zinterval.width()+1] = 0;
-    pos.z = toDouble( str.buf() );
+    pos.z = str.toDouble();
 
     str = &buffer[pointtypeinterval.start-1];
     str[pointtypeinterval.width()+1] = 0;
-    int pt = toInt( str.buf() );
+    int pt = str.toInt();
 
     float zfac = 0.001;
     if ( domainunitinterval.start != -1 )

@@ -28,7 +28,7 @@ namespace CmdDrive
 #define mParEnterHold( objnm, parstr, parnext, enter, update ) \
 \
     BufferString enterword; \
-    const char* parnext = getNextWord( parstr, enterword.buf() ); \
+    const char* parnext = getNextWord( parstr, enterword.getCStr() ); \
     mSkipBlanks( parnext ); \
 \
     bool enter = true; \
@@ -40,7 +40,7 @@ namespace CmdDrive
     if ( !enter && !update ) \
     { \
 	mParseWarnStrm << "Holding is void without (valid) argument " \
-	    	       << "to update " << objnm << od_endl; \
+		       << "to update " << objnm << od_endl; \
     }
 
 bool InputCmd::act( const char* parstr )
@@ -76,7 +76,7 @@ bool InputCmd::act( const char* parstr )
 	if ( inpstr && uifileinp )
 	{
 	    StringProcessor(inpbs).makeDirSepIndep();
-	    inpstr = inpbs.buf(); 
+	    inpstr = inpbs.buf();
 	}
 
 	mActivate( Input, Activator(*uilined,inpstr,enter) );
@@ -125,7 +125,7 @@ bool GetInputCmd::act( const char* parstr )
     mDynamicCastGet( const uiSpinBox*, uispin, objsfound[0] );
     mDynamicCastGet( const uiComboBox*, uicombo, objsfound[0] );
 
-    BufferString inptxt; 
+    BufferString inptxt;
     if ( uilined )
 	inptxt = uilined->getvalue_();
     if ( uispin )
@@ -133,7 +133,7 @@ bool GetInputCmd::act( const char* parstr )
     if ( uicombo )
 	inptxt = uicombo->text();
 
-    mDynamicCastGet( const uiFileInput*, uifileinp, 
+    mDynamicCastGet( const uiFileInput*, uifileinp,
 		     uilined ? uilined->parent() : 0 );
 
     const char* filepath = uifileinp ? uifileinp->fileName() : "";
@@ -245,16 +245,16 @@ bool SliderCmd::act( const char* parstr )
     mParKeyStrInit( "slider", parstr, parnext, keys, selnr );
 
     char* parnexxt;
-    const float finalfrac = (float) strtod( parnext, &parnexxt) / 100; 
+    const float finalfrac = (float) strtod( parnext, &parnexxt) / 100;
     if ( parnexxt==parnext || finalfrac<0.0 || finalfrac>1.0 )
     {
 	mParseErrStrm << "Positioning a slider requires percentage between "
-	    	      << "0.0 and 100.0" << od_endl;
+		      << "0.0 and 100.0" << od_endl;
 	return false;
     }
     mParSteps( parnexxt, partail, nrsteps, 1, 1 );
     mParTail( partail );
-    
+
     mFindObjects( objsfound, uiSlider, keys, nrgrey );
     mParKeyStrPre( "slider", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiSlider*, uislider, objsfound[0] );
@@ -296,7 +296,7 @@ bool GetSliderCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "slider", parnext, parnexxt, keys, selnr );
     mParExtraFormInit( parnexxt, partail, form,
-	    				  "Value`Minimum`Maximum`Percentage" );
+					  "Value`Minimum`Maximum`Percentage" );
     mParTail( partail );
 
     mFindObjects( objsfound, uiSlider, keys, nrgrey );
@@ -320,7 +320,7 @@ bool GetSliderCmd::act( const char* parstr )
 
 
 void InputCmdComposer::init()
-{ 
+{
     textchanged_ = false;
     bursteventnames_.add( "textChanged" );
 }
@@ -337,7 +337,7 @@ bool InputCmdComposer::accept( const CmdRecEvent& ev )
     {
 	textchanged_ = true;
 	notDone();
-	return true; 
+	return true;
     }
 
     if ( ignoreflag_ || !ev.begin_ )
@@ -349,14 +349,14 @@ bool InputCmdComposer::accept( const CmdRecEvent& ev )
     else if ( !mMatchCI(ev.msg_, "returnPressed") )
 	return true;
 
-    mDynamicCastGet( const uiLineEdit*, uilined, ev.object_ ); 
+    mDynamicCastGet( const uiLineEdit*, uilined, ev.object_ );
     mWriteInputCmd( textchanged_, uilined->getvalue_(), enter );
     return true;
 }
 
 
 void SpinCmdComposer::init()
-{ 
+{
     pendingsteps_ = 0;
     pendinginput_ = mUdf(float);
     bursteventnames_.add( "valueChanging" );
@@ -408,7 +408,7 @@ bool SpinCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( !mIsUdf(pendinginput_) )
     {
-	mRecOutStrm << "Input \"" << ev.keystr_ << "\" " << pendinginput_ 
+	mRecOutStrm << "Input \"" << ev.keystr_ << "\" " << pendinginput_
 		    << enterword << std::endl;
     }
     else if ( pendingsteps_ )

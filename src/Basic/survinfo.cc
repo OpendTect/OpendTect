@@ -325,23 +325,23 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.inl() = toInt(fms[0]);
-	    si->cs_.hrg.stop.inl() = toInt(fms[1]);
-	    si->cs_.hrg.step.inl() = toInt(fms[2]);
+	    si->cs_.hrg.start.inl() = fms.getIValue( 0 );
+	    si->cs_.hrg.stop.inl() = fms.getIValue( 1 );
+	    si->cs_.hrg.step.inl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.crl() = toInt(fms[0]);
-	    si->cs_.hrg.stop.crl() = toInt(fms[1]);
-	    si->cs_.hrg.step.crl() = toInt(fms[2]);
+	    si->cs_.hrg.start.crl() = fms.getIValue( 0 );
+	    si->cs_.hrg.stop.crl() = fms.getIValue( 1 );
+	    si->cs_.hrg.step.crl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyZRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.zrg.start = toFloat(fms[0]);
-	    si->cs_.zrg.stop = toFloat(fms[1]);
-	    si->cs_.zrg.step = toFloat(fms[2]);
+	    si->cs_.zrg.start = fms.getFValue( 0 );
+	    si->cs_.zrg.stop = fms.getFValue( 1 );
+	    si->cs_.zrg.step = fms.getFValue( 2 );
 	    if ( Values::isUdf(si->cs_.zrg.step)
 	      || mIsZero(si->cs_.zrg.step,mDefEps) )
 		si->cs_.zrg.step = 0.004;
@@ -422,7 +422,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	setTr( rdytr_, val );
     else if ( keyw == sKeyLatLongAnchor )
 	ll2c_.fromString( val );
-    else if ( matchString("Set Point",(const char*)keyw) )
+    else if ( keyw.startsWith("Set Point") )
     {
 	const char* ptr = firstOcc( (const char*)keyw, '.' );
 	if ( !ptr ) return;
@@ -443,7 +443,7 @@ void SurveyInfo::updateDirName()
 	return;
 
     dirname_ = name();
-    cleanupString( dirname_.buf(), false, false, true );
+    cleanupString( dirname_.getCStr(), false, false, true );
 }
 
 
@@ -864,7 +864,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& tr, const char* str )
 {
     FileMultiString fms( str );
-    tr.a = toDouble(fms[0]); tr.b = toDouble(fms[1]); tr.c = toDouble(fms[2]);
+    tr.a = fms.getDValue(0); tr.b = fms.getDValue(1); tr.c = fms.getDValue(2);
 }
 
 

@@ -70,7 +70,7 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 {
     if ( !ioobj )
 	{ bs = "No object to store set in data base"; return false; }
-    
+
     PtrMan<RandomLineSetTranslator> tr
 	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
     if ( !tr )
@@ -92,7 +92,7 @@ static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 	return;
 
     FileMultiString fms = astrm.value();
-    zrg.start = toFloat( fms[0] ); zrg.stop = toFloat( fms[1] );
+    zrg.start = fms.getFValue( 0 ); zrg.stop = fms.getFValue( 1 );
     astrm.next();
 
     if ( astrm.hasKeyword(sKey::Name()) )
@@ -152,12 +152,12 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString loc( astrm.keyWord() );
-	    char* ptr = loc.buf();
+	    char* ptr = loc.getCStr();
 	    mSkipBlanks(ptr); mSkipNonBlanks(ptr);
 	    if ( *ptr )
 	    {
 		*ptr++ = '\0'; mSkipBlanks(ptr);
-		rl->addNode( BinID(toInt(loc.buf()),toInt(ptr)) );
+		rl->addNode( BinID(loc.toInt(),toInt(ptr)) );
 	    }
 	    astrm.next();
 	}

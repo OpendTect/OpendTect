@@ -99,7 +99,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    char* closeparptr = firstOcc( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
-		if ( lfi.depthcolnr < 0 && matchStringCI("dept",wordbuf) )
+		if ( lfi.depthcolnr < 0
+			&& FixedString(wordbuf).startsWith("dept") )
 		    lfi.depthcolnr = colnr;
 		else
 		{
@@ -140,11 +141,11 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    if ( newptr && *newptr )
 			lognm = newptr;
 		}
-		if ( matchString("Name = ",lognm.buf()) )
+		if ( lognm.startsWith("Name = ") )
 		{
 		    // Possible HRS 'encoding'. Awful for user display.
-		    BufferString newnm =  lognm.buf() + 7;
-		    char* newptr = firstOcc( newnm.buf(), " - Type = " );
+		    BufferString newnm = lognm.buf() + 7;
+		    char* newptr = newnm.find( " - Type = " );
 		    if ( !newptr )
 			lognm = newnm;
 		    else
@@ -153,7 +154,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
-		if ( lognm.isEmpty() || matchStringCI("Run",lognm.buf()) )
+		if ( lognm.isEmpty() || lognm.startsWith("Run") )
 		    lognm = keyw;
 		lfi.lognms += new BufferString( lognm );
 	    }

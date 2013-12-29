@@ -11,16 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include "iopar.h"
 #include "general.h"
-#include "globexpr.h"
 #include "arrayndimpl.h"
 #include "string2.h"
+#include "globexpr.h"
 
 #include <QString>
 
-
-BufferString::BufferString( const FixedString& s )
-    : mBufferStringSimpConstrInitList
-{ assignTo( s.str() ); }
 
 
 BufferString::BufferString( int sz, bool mknull )
@@ -63,30 +59,23 @@ BufferString::~BufferString()
 }
 
 
-bool BufferString::operator==( const char* s ) const
-{
-    if ( !s || !(*s) ) return isEmpty();
-    if ( isEmpty() ) return false;
-
-    const char* ptr = buf_;
-    while ( *s && *ptr )
-	if ( *ptr++ != *s++ ) return false;
-
-    return *ptr == *s;
-}
-
-
-char* BufferString::buf()
+const char* BufferString::gtBuf() const
 {
     if ( !buf_ )
-	init();
+	const_cast<BufferString*>(this)->init();
 
     return buf_;
 }
 
 
-bool BufferString::isEmpty() const
-{ return !buf_ || !(*buf_); }
+char* BufferString::find( char c )
+{ return firstOcc( getCStr(), c ); }
+char* BufferString::findLast( char c )
+{ return lastOcc( getCStr(), c ); }
+char* BufferString::find( const char* s )
+{ return firstOcc( getCStr(), s ); }
+char* BufferString::findLast( const char* s )
+{ return lastOcc( getCStr(), s ); }
 
 
 BufferString& BufferString::setEmpty()
@@ -97,37 +86,6 @@ BufferString& BufferString::setEmpty()
 	buf_[0] = 0;
     return *this;
 }
-
-
-bool BufferString::isEqual( const char* s, bool caseinsens ) const
-{
-    return caseinsens ? caseInsensitiveEqual(buf(),s,0) : (*this == s);
-}
-
-
-bool BufferString::isStartOf( const char* s, bool caseinsens ) const
-{
-    return caseinsens ? matchStringCI(buf(),s) : matchString(buf(),s);
-}
-
-
-bool BufferString::matches( const char* s, bool caseinsens ) const
-{
-    return GlobExpr(s,!caseinsens).matches( buf() );
-}
-
-
-bool BufferString::contains( char tofind ) const
-{
-    return isEmpty() ? false : firstOcc( buf(), tofind ) != 0;
-}
-
-
-bool BufferString::contains( const char* tofind ) const
-{
-    return isEmpty() ? false : (bool)firstOcc( buf(), tofind );
-}
-
 
 
 BufferString& BufferString::assignTo( const char* s )
@@ -175,9 +133,6 @@ BufferString& BufferString::addTab()
 BufferString& BufferString::addNewLine()
 { return add( "\n" ); }
 
-unsigned int BufferString::size() const
-{ return buf_ ? strlen(buf_) : 0; }
-
 
 void BufferString::setBufSize( unsigned int newlen )
 {
@@ -224,31 +179,12 @@ void BufferString::setMinBufSize( unsigned int newlen )
 }
 
 
-int BufferString::count( char tocount ) const
-{
-    int ret = 0;
-
-    if ( !isEmpty() )
-    {
-	const char* ptr = buf();
-	while ( *ptr )
-	{
-	    if ( *ptr == tocount )
-		ret++;
-	    ptr++;
-	}
-    }
-
-    return ret;
-}
-
-
 BufferString& BufferString::replace( char from, char to )
 {
     if ( isEmpty() || from == to )
 	return *this;
 
-    char* ptr = buf();
+    char* ptr = getCStr();
     while ( *ptr )
     {
 	if ( *ptr == from )
@@ -266,7 +202,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
 
     const int fromlen = strlen( from );
 
-    char* ptrfound = firstOcc( buf(), from );
+    char* ptrfound = find( from );
     while ( ptrfound )
     {
 	BufferString rest( ptrfound + fromlen );
@@ -274,7 +210,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
 	add( to );
 	const int curpos = size();
 	add( rest );
-	ptrfound = firstOcc( buf()+curpos, from );
+	ptrfound = firstOcc( getCStr()+curpos, from );
     }
     return *this;
 }
@@ -285,8 +221,8 @@ BufferString& BufferString::remove( char torem )
     if ( isEmpty() )
 	return *this;
 
-    char* chckpos = buf();
-    char* writepos = chckpos;
+    char* writepos = getCStr();
+    const char* chckpos = writepos;
 
     while ( *chckpos )
     {
@@ -307,7 +243,7 @@ BufferString& BufferString::trimBlanks()
     if ( isEmpty() )
 	return *this;
 
-    char* memstart = buf();
+    char* memstart = getCStr();
     char* ptr = memstart;
     mSkipBlanks( ptr );
     removeTrailingBlanks( ptr );
@@ -391,11 +327,35 @@ BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
 }
 
 
+BufferString& BufferString::toLower()
+{
+    char* ptr = getCStr();
+    while ( *ptr )
+    {
+	*ptr = tolower(*ptr);
+        ptr++;
+    }
+    return *this;
+}
+
+
+BufferString& BufferString::toUpper()
+{
+    char* ptr = getCStr();
+    while ( *ptr )
+    {
+	*ptr = toupper(*ptr);
+        ptr++;
+    }
+    return *this;
+}
+
+
 BufferString& BufferString::embed( char s, char e )
 {
     char sbuf[2]; sbuf[0] = s; sbuf[1] = '\0';
     char ebuf[2]; ebuf[0] = e; ebuf[1] = '\0';
-    *this = BufferString( sbuf, buf(), ebuf );
+    *this = BufferString( sbuf, str(), ebuf );
     return *this;
 }
 
@@ -405,7 +365,7 @@ BufferString& BufferString::unEmbed( char s, char e )
     if ( isEmpty() )
 	return *this;
 
-    char* bufptr = buf();
+    char* bufptr = getCStr();
     char* startptr = bufptr;
     if ( *startptr == s )
 	startptr++;
@@ -431,19 +391,11 @@ BufferString& BufferString::unEmbed( char s, char e )
 }
 
 
-bool BufferString::operator >( const char* s ) const
-{ return s && buf_ ? strcmp(buf_,s) > 0 : (bool) buf_; }
-
-
-bool BufferString::operator <( const char* s ) const
-{ return s && buf_ ? strcmp(buf_,s) < 0 : (bool) s; }
-
-
-static BufferString emptystr( 1, true );
+static BufferString emptybufferstring( 1, true );
 
 const BufferString& BufferString::empty()
 {
-    return emptystr;
+    return emptybufferstring;
 }
 
 
@@ -516,7 +468,7 @@ int BufferStringSet::indexOf( const GlobExpr& ge ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( ge.matches( (*this)[idx]->buf() ) )
+	if ( ge.matches( (*this)[idx]->str() ) )
 	    return idx;
     }
     return -1;
@@ -526,12 +478,12 @@ int BufferStringSet::indexOf( const GlobExpr& ge ) const
 // Levenshtein distance
 static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 {
-    const char* s1 = bs.buf();
-    const char* s2 = s;
-    const int len1 = strlen( s1 );
-    const int len2 = strlen( s2 );
+    const int len1 = bs.size();
+    const int len2 = FixedString(s).size();
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
+    const char* s1 = bs.str();
+    const char* s2 = s;
 
     Array2DImpl<int> d( len1+1, len2+1 );
 
@@ -696,7 +648,7 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 	{
 	    BufferString* newbs = new BufferString( get(idx) );
 	    const int len = newbs->size();
-	    char* buf = newbs->buf();
+	    char* buf = newbs->getCStr();
 	    for ( int ich=0; ich<len; ich++ )
 		buf[ich] = (char) toupper(buf[ich]);
 	    uppcasebss += newbs;
@@ -763,11 +715,11 @@ BufferString BufferStringSet::cat( char sepchar ) const
 void BufferStringSet::unCat( const char* inpstr, char sepchar )
 {
     BufferString str( inpstr );
-    char* ptr = str.buf();
+    char* ptr = str.getCStr();
 
     while ( *ptr )
     {
-	char* nlptr = firstOcc( ptr, sepchar );
+	char* nlptr = ::firstOcc( ptr, sepchar );
 	if ( nlptr )
 	    *nlptr++ = '\0';
 	add( ptr );

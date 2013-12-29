@@ -63,7 +63,7 @@ bool IdxPair::parseUsrStr( const char* str, const char* prefx,
 	{ *this = udf(); return true; }
 
     BufferString bs( str );
-    char* ptr1st = bs.buf(); mSkipBlanks( ptr1st );
+    char* ptr1st = bs.getCStr(); mSkipBlanks( ptr1st );
     while ( *prefx && *ptr1st && *prefx == *ptr1st )
 	{ prefx++; ptr1st++; }
     if ( !*ptr1st )
@@ -199,7 +199,7 @@ bool Coord::fromString( const char* s )
 	{ *this = udf(); return true; }
 
     BufferString str( s );
-    char* ptrx = str.buf(); mSkipBlanks( ptrx );
+    char* ptrx = str.getCStr(); mSkipBlanks( ptrx );
     if ( *ptrx == '(' ) ptrx++;
     char* ptry = firstOcc( ptrx, ',' );
     if ( !ptry ) return false;

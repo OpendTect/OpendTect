@@ -35,8 +35,9 @@ static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {
     mDeclStaticString( vret );
-    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute(),"V" );
-    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute();
+    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute(), "V" );
+    return vertical ? vret.str() : (is2d ? sAttribute2D().str()
+					 : sKey::Attribute().str());
 }
 
 
@@ -44,8 +45,8 @@ void DataPackCommon::dumpInfo( IOPar& iop ) const
 {
     iop.set( "Source type", sourceType() );
     iop.set( "Attribute.ID", descID().asInt() );
-    BufferString isstoredstr = IOPar::compKey( sKey::Attribute(), sKey::Stored() );
-    iop.set( isstoredstr.buf(), descID().isStored() );
+    iop.set( IOPar::compKey(sKey::Attribute(),sKey::Stored()),
+	     descID().isStored() );
     iop.set( "Vertical", isVertical() );
 }
 
@@ -54,7 +55,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
     , cube_(dc)
-    , cubeidx_( cubeidx )	       
+    , cubeidx_( cubeidx )
     , arr2dsl_(0)
     , arr2dsource_(0)
     , usemultcubes_( cubeidx == -1 )
@@ -66,7 +67,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
 	dir_ = CubeSampling::Crl;
     else
 	dir_ = CubeSampling::Z;
-	
+
     if ( usemultcubes_ )
     {
 	createA2DSFromMultCubes();
@@ -74,7 +75,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     }
     else
 	createA2DSFromSingCube( cubeidx );
-    
+
     arr2dsl_->init();
 
     setPosData();
@@ -120,7 +121,7 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
     arr2dsl_->setDimMap( 0, dim0 );
     arr2dsl_->setDimMap( 1, dim1 );
 }
-	
+
 
 void Flat3DDataPack::createA2DSFromMultCubes()
 {
@@ -137,13 +138,13 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 	for ( int id1=0; id1<dim1sz; id1++ )
 	{
 	    float val = isvert ? cube_.getCube(id0).get( 0, 0, id1 )
-			       : dir_==CubeSampling::Inl 
-			       		? cube_.getCube(id1).get( 0, id0, 0 )
-			       		: cube_.getCube(id1).get( id0, 0, 0 );
+			       : dir_==CubeSampling::Inl
+					? cube_.getCube(id1).get( 0, id0, 0 )
+					: cube_.getCube(id1).get( id0, 0, 0 );
 	    arr2dsource_->set( id0, id1, val );
 	}
     }
-    
+
     arr2dsl_ = new Array2DSlice<float>( *arr2dsource_ );
     arr2dsl_->setDimMap( 0, 0 );
     arr2dsl_->setDimMap( 1, 1 );
@@ -225,7 +226,7 @@ void Flat3DDataPack::setPosData()
     {
 	StepInterval<int> cubeintv( 0, cube_.nrCubes(), 1 );
 	bool isvert = cs.nrZ() > 1;
-	posdata_.setRange( true, 
+	posdata_.setRange( true,
 	    isvert ? mStepIntvD(cubeintv)
 		   : dir_==CubeSampling::Inl ? mStepIntvD(cs.hrg.crlRange())
 					     : mStepIntvD(cs.hrg.inlRange()) );
@@ -293,7 +294,7 @@ const char* Flat3DDataPack::dimName( bool dim0 ) const
 	else
 	    return dim0 ? mKeyInl : mKeyCube;
     }
-    
+
     return dim0 ? (dir_==CubeSampling::Inl ? mKeyCrl : mKeyInl)
 		: (dir_==CubeSampling::Z ? mKeyCrl : "Z");
 }
@@ -319,7 +320,7 @@ double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 
     if ( usemultcubes_ && cube_.cubeSampling().nrZ() > 1 )
 	return i0;	//TODO: now returning cube idx, what else can we do?
-    
+
     const Coord3 c( getCoord(i0,0) );
     return ikey == 1 ? c.x : c.y;
 }
@@ -328,7 +329,7 @@ double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 c( getCoord(i0,i1) );
-    
+
     BinID bid = SI().transform( c );
     iop.set( mKeyX, c.x );
     iop.set( mKeyY, c.y );
@@ -370,7 +371,7 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 
 
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
-       				    bool usesingtrc, int component )
+				    bool usesingtrc, int component )
     : Flat2DDataPack( did )
     , usesingtrc_( usesingtrc )
     , dataholderarr_( 0 )
@@ -380,7 +381,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     mTryAlloc( dataholderarr_, Data2DArray( dh ) );
     if ( !dataholderarr_ )
 	return;
-    
+
     dataholderarr_->ref();
 
     if ( !dataholderarr_->isOK() )
@@ -526,7 +527,7 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     int trcinfoidx = usesingtrc_ ? 0 : i0;
     if ( trcinfoidx<0 || trcinfoidx>= dataholderarr_->trcinfoset_.size() )
 	return;
-    
+
     const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
     iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zDomain().userFactor() );
@@ -582,9 +583,9 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 
 
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
-       					  TypeSet<BinID>* path )
+					  TypeSet<BinID>* path )
     : Flat2DDataPack(did)
-    , path_(0)  
+    , path_(0)
 {
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
@@ -593,8 +594,8 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
     sb.copyInto(*seisbuf_);
 
     const int nrtrcs = seisbuf_->size();
-    const int arrsz0 = path ? path->size() : nrtrcs; 
-    const int nrsamp = nrtrcs ? seisbuf_->get(0)->size() : 0; 
+    const int arrsz0 = path ? path->size() : nrtrcs;
+    const int nrsamp = nrtrcs ? seisbuf_->get(0)->size() : 0;
     arr2d_ = new Array2DImpl<float>( arrsz0, nrsamp );
     fill2DArray( path );
     setPosData( path );
@@ -611,17 +612,17 @@ FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 
 void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 {
-    const int nrtrcs = seisbuf_->size(); 
+    const int nrtrcs = seisbuf_->size();
     if ( nrtrcs<1 || ( path && path->size()<nrtrcs ) ) return;
 
-    const int nrpos = path ? path->size() : nrtrcs; 
+    const int nrpos = path ? path->size() : nrtrcs;
     float* pos = new float[nrpos]; pos[0] = 0;
     Coord prevcrd; int x0arridx = -1;
     for ( int idx=0; idx<nrpos; idx++ )
     {
-	x0arridx++;	
+	x0arridx++;
 	const Coord crd = path ? SI().transform( (*path)[idx] )
-	    		 : seisbuf_->get(idx)->info().coord; 
+			 : seisbuf_->get(idx)->info().coord;
 	if ( x0arridx > 0 )
 	{
 	    float distnnm1 = (float) prevcrd.distTo(crd);
@@ -631,12 +632,12 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
     }
 
     const int nrsamp = seisbuf_->get(0)->size();
-    const StepInterval<float> zrg = 
+    const StepInterval<float> zrg =
 			seisbuf_->get(0)->info().sampling.interval( nrsamp );
     posdata_.setX1Pos( pos, nrpos, 0 );
     posdata_.setRange( false, mStepIntvD(zrg) );
 }
-    
+
 
 double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
@@ -671,14 +672,14 @@ void FlatRdmTrcsDataPack::fill2DArray( TypeSet<BinID>* path )
 {
     if ( !seisbuf_ ) return;
     if ( seisbuf_->isEmpty() || !arr2d_ ) return;
-    
+
     const int nrtrcs = seisbuf_->size();
     if ( path && path->size()<nrtrcs ) return;
-    
+
     const int nrsamp = seisbuf_->get(0)->size();
     const int arrsz0 = path ? path->size() : nrtrcs;
     int x0arridx = -1;
-    
+
     for ( int idt=0; idt<arrsz0; idt++ )
     {
 	const int trcidx = path ? seisbuf_->find( (*path)[idt] ) : idt;

@@ -31,11 +31,12 @@ bool LineKey::operator ==( const LineKey& lk ) const
 BufferString LineKey::lineName() const
 {
     BufferString ret( *this );
-    if ( ret.isEmpty() ) return ret;
+    ret.trimBlanks();
+    if ( ret.isEmpty() )
+	return ret;
 
-    char* ptr = firstOcc( ret.buf(), '|' );
+    char* ptr = ret.find( '|' );
     if ( ptr ) *ptr = '\0';
-    removeTrailingBlanks( ret.buf() );
     return ret;
 }
 

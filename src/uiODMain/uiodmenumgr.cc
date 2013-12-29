@@ -364,7 +364,7 @@ void uiODMenuMgr::fillManMenu()
 			"man_attrs" );
     mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, "Color Tables ...", mManColTabMnuItm,
-		       sKey::EmptyString() );
+		       uiIcon::None() );
     mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
 			"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
@@ -389,7 +389,7 @@ void uiODMenuMgr::fillManMenu()
 		 mManPDFMnuItm, "man_prdfs" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 			"man_seis" );
-    mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, "" )
+    mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, uiIcon::None())
     mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
 			"man_strat" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt" )
@@ -527,7 +527,7 @@ void uiODMenuMgr::fillAnalMenu()
     layermodelmnu_ = new uiMenu(
 			&appl_, "&Layer Modeling", "stratlayermodeling" );
     layermodelmnu_->insertItem( new uiAction( "&Basic ...",
-	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
+	mCB(&applMgr(),uiODApplMgr,doLayerModeling), uiIcon::None() ) );
     analmnu_->insertItem( layermodelmnu_ );
 }
 

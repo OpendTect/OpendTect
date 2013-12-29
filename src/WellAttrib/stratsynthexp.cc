@@ -64,7 +64,7 @@ od_int64 StratSynthExporter::totalNr() const
 #define mSkipInitialBlanks( str ) \
 { \
 BufferString copystr = str.buf(); \
-char* strptr = copystr.buf(); \
+char* strptr = copystr.getCStr(); \
 mSkipBlanks( strptr ); \
 str = strptr; \
 }
@@ -79,7 +79,7 @@ void StratSynthExporter::prepareWriter()
 	synthnm += prefixstr_.buf();
 	synthnm += "_";
     }
-    
+
     synthnm += sds_[cursdidx_]->name();
 
     mSkipInitialBlanks( postfixstr_ );

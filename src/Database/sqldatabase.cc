@@ -24,7 +24,7 @@ class mQSqlDatabase
 {
 public:
 
-    		mQSqlDatabase(int)		{}
+		mQSqlDatabase(int)		{}
     static int	addDatabase(const char*)	{ return 0; }
     void	setHostName(const char*)	{}
     void	setDatabaseName(const char*)	{}
@@ -111,7 +111,7 @@ bool SqlDB::Access::isOpen() const
 BufferString SqlDB::Access::errMsg() const
 {
     BufferString err( qdb_->lastError().text().toLatin1().data() );
-    removeTrailingBlanks( err.buf() );
+    err.trimBlanks();
     return err;
 }
 

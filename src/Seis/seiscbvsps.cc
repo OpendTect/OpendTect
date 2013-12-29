@@ -59,7 +59,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString filenm = dl.get( idx );
-	char* str = filenm.buf();
+	char* str = filenm.getCStr();
 	int cidx = 0;
 	while ( cidx < filenm.size() && str[cidx] != '.')
 	    cidx++;
@@ -106,7 +106,7 @@ void SeisCBVSPSIO::close()
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
     BufferString fnm( lnm );
-    cleanupString( fnm.buf(), false, false, false );
+    cleanupString( fnm.getCStr(), false, false, false );
 
     FilePath fp( dirnm_, fnm );
     fp.setExtension( "cbvs" );
@@ -120,11 +120,11 @@ int SeisCBVSPSIO::getInlNr( const char* filenm )
 {
     FilePath fp( filenm );
     BufferString fnm( fp.fileName() );
-    char* ptr = fnm.buf();
+    char* ptr = fnm.getCStr();
     while ( *ptr && !isdigit(*ptr) ) ptr++;
     while ( *ptr && isdigit(*ptr) ) ptr++;
     *ptr = '\0';
-    return fnm.isEmpty() ? -1 : toInt( fnm.buf() );
+    return fnm.isEmpty() ? -1 : fnm.toInt();
 }
 
 

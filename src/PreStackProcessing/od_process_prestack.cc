@@ -45,7 +45,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !parversion_.isEmpty() )
     {
-	const float vsn = toFloat( parversion_.buf() );
+	const float vsn = parversion_.toFloat();
 	if ( vsn < 3.2 )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }
@@ -87,7 +87,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<IOObj> setupioobj = IOM().get( setupmid ); 
+    PtrMan<IOObj> setupioobj = IOM().get( setupmid );
     if ( !setupioobj )
     {
 	errorMsg("\nCannot create setup object");
@@ -95,7 +95,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     mDeclareAndTryAlloc( PreStack::ProcessManager*, procman,
-	    		 PreStack::ProcessManager );
+			 PreStack::ProcessManager );
 
     if ( !procman )
     {
@@ -104,13 +104,13 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     BufferString errmsg;
-    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj, errmsg ) ) 
-    { 
+    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj, errmsg ) )
+    {
 	errorMsg( errmsg.buf() );
 	delete procman;
 	return false;
-    } 
-    
+    }
+
     if ( geomtype==Seis::LinePS && linekey.isEmpty() )
     {
 	errorMsg("\nNo linekey set" );
@@ -250,10 +250,10 @@ bool BatchProgram::go( od_ostream& strm )
 	bool paused = false;
 
 	if ( pauseRequested() )
-	{ 
+	{
 	    paused = true;
 	    mSetCommState(Paused);
-	    Threads::sleep( pause_sleep_time );  
+	    Threads::sleep( pause_sleep_time );
 	    continue;
 	}
 
@@ -392,7 +392,7 @@ bool BatchProgram::go( od_ostream& strm )
 		{
 		    if ( bids[idx].inl()<=obsoleteline )
 		    {
-			bids.removeSingle( idx ); 
+			bids.removeSingle( idx );
 			DPM( DataPackMgr::FlatID() ).release(
 			    gathers.removeSingle(idx) );
 		    }

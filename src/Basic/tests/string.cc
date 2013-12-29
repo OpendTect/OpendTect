@@ -64,11 +64,10 @@ static bool testBytes2String()
 template <class T>
 static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
 {
-    BufferString valfmtstr = toString( val );
+    const BufferString bstostring = toString( val );
     BufferString testname( flt ? "Float precision " : "Double precision ", val);
-    BufferString valbfstr( Conv::to<const char*>( val ) );
 
-    mRunTest( testname.buf(), valfmtstr==valbfstr && valbfstr==strval );
+    mRunTest( testname.buf(), bstostring == strval );
 
     return true;
 }
@@ -148,33 +147,33 @@ static bool testBufferStringFns()
 }
 
 
-#define mRunFirstOccTest(tofind,offs) \
-    mRunTest( BufferString("firstOcc ",tofind), \
-	    firstOcc(str,tofind)-str == offs)
+#define mRunBSFindTest(tofind,offs) \
+    mRunTest( BufferString("BufferString::find ",tofind), \
+	    offs == str.find(tofind) - str.buf() )
 
-#define mRunLastOccTest(tofind,offs) \
-    mRunTest( BufferString("lastOcc ",tofind), \
-	    lastOcc(str,tofind)-str == offs)
+#define mRunBSFindLastTest(tofind,offs) \
+    mRunTest( BufferString("BufferString::findLast ",tofind), \
+	    offs == str.findLast(tofind) - str.buf() )
 
 static bool testOccFns()
 {
-    const char* str = "[BEGIN] Tok1 Tok2 Tok1 Tok3 [END]";
-    const int len = FixedString(str).size();
+    const BufferString str = "[BEGIN] Tok1 Tok2 Tok1 Tok3 [END]";
+    const unsigned int len = str.size();
 
-    mRunFirstOccTest('N',5);
-    mRunFirstOccTest("N",5);
-    mRunFirstOccTest("Tok1",8);
-    mRunFirstOccTest("",0);
+    mRunBSFindTest('N',5);
+    mRunBSFindTest("N",5);
+    mRunBSFindTest("Tok1",8);
+    mRunBSFindTest("",0);
 
-    mRunLastOccTest('N',len-3);
-    mRunLastOccTest("N",len-3);
-    mRunLastOccTest("Tok1",len-15);
-    mRunLastOccTest("",len);
+    mRunBSFindLastTest('N',len-3);
+    mRunBSFindLastTest("N",len-3);
+    mRunBSFindLastTest("Tok1",len-15);
+    mRunBSFindLastTest("",len);
 
-    mRunTest( "firstOcc non-exist", firstOcc(str,"Tok4") == 0 )
-    mRunTest( "firstOcc non-exist", firstOcc(str,'X') == 0 )
-    mRunTest( "lastOcc non-exist", lastOcc(str,"Tok4") == 0 )
-    mRunTest( "lastOcc non-exist", lastOcc(str,'X') == 0 )
+    mRunTest( "contains exist (char)", str.contains('k') )
+    mRunTest( "contains exist (str)", str.contains("N]") )
+    mRunTest( "contains non-exist (char)", !str.contains("Tok4") )
+    mRunTest( "contains non-exist (str)", !str.contains('X') )
 
     return true;
 }

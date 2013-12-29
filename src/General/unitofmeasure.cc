@@ -158,13 +158,13 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	if ( sz < 3 ) continue;
 	BufferString ptypestr = fms[0];
 	BufferString symb = fms[1];
-	double fac = toDouble( fms[2] );
+	double fac = fms.getDValue( 2 );
 	PropertyRef::StdType stdtype;
 	PropertyRef::parseEnumStdType( ptypestr, stdtype );
 	UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
 	if ( sz > 3 )
 	{
-	    double shft = toDouble( fms[3] );
+	    double shft = fms.getDValue( 3 );
 	    un.setScaler( LinScaler(shft,fac) );
 	}
 	un.setSource( src );
@@ -214,7 +214,9 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 
 const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 {
-    if ( !nm || !*nm ) return 0;
+    const FixedString fsnm( nm );
+    if ( fsnm.isEmpty() )
+	return 0;
 
     switch ( *nm )
     {
@@ -226,21 +228,24 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	else if ( caseInsensitiveEqual(nm,"F/S",0)
 	       || caseInsensitiveEqual(nm,"F/SEC",0) )
 	    return "ft/s";
-	else if ( (stringEndsWithCI("/S",nm) || stringEndsWithCI("/SEC",nm))
-		    && (matchStringCI("FT",nm) || matchStringCI("FEET",nm)) )
+	else if ( (fsnm.endsWith("/S",CaseInsensitive)
+		    || fsnm.endsWith("/SEC",CaseInsensitive))
+		&& (fsnm.startsWith("FT",CaseInsensitive)
+		    || fsnm.startsWith("FEET",CaseInsensitive)) )
 	    return "ft/s";
     break;
     case 'K' : case 'k':
-	if ( matchStringCI("kg/m2s",nm) )
+	if ( fsnm.startsWith("kg/m2s",CaseInsensitive) )
 	    return "m/s x kg/m3";
-	if ( matchStringCI("kg/m2us",nm) )
+	if ( fsnm.startsWith("kg/m2us",CaseInsensitive) )
 	    return "kg/m3 / us/m";
     break;
     case 'G' : case 'g':
-	if ( matchStringCI("G/cm2s",nm) )
+	if ( fsnm.startsWith("G/cm2s",CaseInsensitive) )
 	    return "m/s x g/cc";
-	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
-	  || matchStringCI("GR/C",nm) )
+	if ( fsnm.startsWith("G/C",CaseInsensitive)
+	  || fsnm.startsWith("GM/C",CaseInsensitive)
+	  || fsnm.startsWith("GR/C",CaseInsensitive) )
 	    return "g/cc";
     break;
     case 'P' : case 'p':
@@ -248,9 +253,10 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "%";
     break;
     case 'U' : case 'u':
-	if ( matchStringCI("USEC/F",nm) || matchStringCI("US/F",nm) )
+	if ( fsnm.startsWith("USEC/F",CaseInsensitive)
+	  || fsnm.startsWith("US/F",CaseInsensitive) )
 	    return "us/ft";
-	else if ( matchStringCI("USEC/M",nm) )
+	else if ( fsnm.startsWith("USEC/M",CaseInsensitive) )
 	    return "us/m";
     break;
     }
@@ -276,23 +282,26 @@ const UnitOfMeasure* UnitOfMeasureRepository::get( PropertyRef::StdType typ,
 const UnitOfMeasure* UnitOfMeasureRepository::findBest(
 	const ObjectSet<const UnitOfMeasure>& uns, const char* nm ) const
 {
-    if ( !nm || !*nm ) return 0;
+    const FixedString fsnm( nm );
+    if ( fsnm.isEmpty() )
+	return 0;
 
-    if ( matchStringCI( "FRAC", nm ) || matchStringCI( "DEC", nm ) ||
-	 matchStringCI( "UNITLESS", nm ) )
+    if ( fsnm.startsWith( "FRAC", CaseInsensitive )
+      || fsnm.startsWith( "DEC", CaseInsensitive )
+      || fsnm.startsWith( "UNITLESS", CaseInsensitive ) )
 	nm = "Fraction";
 
-    if ( matchStringCI( "RAT", nm ) )
+    if ( fsnm.startsWith( "RAT", CaseInsensitive ) )
 	nm = "Ratio";
 
     for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( caseInsensitiveEqual(uns[idx]->name().buf(),nm,0) )
+	if ( uns[idx]->name().isEqual(nm,CaseInsensitive) )
 	    return uns[idx];
     }
     for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( caseInsensitiveEqual(uns[idx]->symbol(),nm,0) )
+	if ( FixedString(uns[idx]->symbol()).isEqual(nm,CaseInsensitive) )
 	    return uns[idx];
     }
 

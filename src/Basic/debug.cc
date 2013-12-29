@@ -214,7 +214,7 @@ void message( const char* msg )
     if ( dbglogstrm )
 	*dbglogstrm.ptr() << msg_ << od_endl;
     else
-	std::cerr << msg_ << std::endl;
+	std::cerr << msg_.buf() << std::endl;
 }
 
 

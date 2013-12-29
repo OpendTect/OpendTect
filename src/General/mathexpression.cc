@@ -665,7 +665,7 @@ BufferString MathExpressionParser::varNameOf( const char* str, int* shift )
     if ( shift ) *shift = 0;
 
     BufferString varnm( str );
-    char* ptr = varnm.buf();
+    char* ptr = varnm.getCStr();
     while ( *ptr && *ptr != '[' ) ptr++;
     if ( !*ptr ) return varnm;
     *ptr++ = '\0';
@@ -684,7 +684,8 @@ MathExpression::VarType MathExpressionParser::varTypeOf( const char* varnm )
 {
     const BufferString vnm( varnm );
 
-    if ( vnm.isEqual("this",true) || vnm.isEqual("out",true) )
+    if ( vnm.isEqual("this",CaseInsensitive)
+      || vnm.isEqual("out",CaseInsensitive) )
 	return MathExpression::Recursive;
 
     if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && isdigit(vnm[1]) )

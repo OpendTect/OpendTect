@@ -117,11 +117,11 @@ CmdDriver::CmdDriver( uiMainWin& aw )
         , wcm_( new WildcardManager() )
 	, idm_( new IdentifierManager() )
 	, eip_( new ExprInterpreter(*this) )
-    	, logstream_(*new od_ostream)
-    	, outfp_(*new FilePath)
-    	, outdir_(GetPersonalDir())
-    	, logfnm_(defaultLogFilename())
-    	, execthr_(0)
+	, logstream_(*new od_ostream)
+	, outfp_(*new FilePath)
+	, outdir_(GetPersonalDir())
+	, logfnm_(defaultLogFilename())
+	, execthr_(0)
 	, executeFinished(this)
 	, interactRequest(this)
 {
@@ -262,7 +262,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
     BufferString temp; \
     int nrsubst = idm_->substitute( action, temp ); \
     action = temp; \
-    nextword = getNextWord( action, temp.buf() ); \
+    nextword = getNextWord( action, temp.getCStr() ); \
     if ( nrsubst < 0 ) \
     { \
 	errmsg_ += "has "; errmsg_ += (-nrsubst); errmsg_ += " substitution "; \
@@ -375,7 +375,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	    while ( strm.isOK() )
 	    {
 		strm.getLine( line );
-		char* lineptr = line.buf();
+		char* lineptr = line.getCStr();
 		mTrimBlanks( lineptr );
 		if ( !*lineptr )
 		    break;
@@ -392,7 +392,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	actptr = StringProcessor(actptr).nextAction( action );
 	mSkipBlanks( actptr );
 	BufferString firstword;
-	const char* nextword = getNextWord( action, firstword.buf() );
+	const char* nextword = getNextWord( action, firstword.getCStr() );
 
 	if ( firstword.isEmpty() || firstword[0]=='#' )
 	    continue;
@@ -416,7 +416,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 
 	const char* cmdmark = locateCmdMark( action );
 	BufferString cmdname;
-	getNextWord( cmdmark, cmdname.buf() );
+	getNextWord( cmdmark, cmdname.getCStr() );
 
 	mCheckFlowStart( If );
 	mCheckFlowStart( Do );
@@ -801,7 +801,7 @@ void CmdDriver::setSleep( float time, bool regular )
 #define mCheckFuncProcExchange( nameword, token ) \
 \
     BufferString funcprocname( nameword ); \
-    char* parenthesisptr = firstOcc( funcprocname.buf(), '(' ); \
+    char* parenthesisptr = funcprocname.find( '(' ); \
     if ( parenthesisptr ) \
     { \
 	*parenthesisptr = '\0'; \
@@ -835,7 +835,7 @@ bool CmdDriver::doAction( const char* actstr )
 {
     mSkipBlanks( actstr );
     BufferString firstword;
-    const char* parstr = getNextWord( actstr, firstword.buf() );
+    const char* parstr = getNextWord( actstr, firstword.getCStr() );
 
     bool doubtwinassert = mAtCtrlFlowAction() && !mMatchCI(firstword, "Def")
 					      && !mMatchCI(firstword, "Fed");
@@ -862,7 +862,7 @@ bool CmdDriver::doAction( const char* actstr )
 
 	if ( *assignptr == '?' )
 	{
-	    otherargs = getNextWord( assignptr+1, firstword.buf() );
+	    otherargs = getNextWord( assignptr+1, firstword.getCStr() );
 	    if ( firstword.contains('(') )
 	    {
 		mCheckFuncProcExchange( firstword, '=' );
@@ -886,7 +886,7 @@ bool CmdDriver::doAction( const char* actstr )
 	else if ( *assignptr == '=' )
 	{
 	    BufferString name;
-	    getNextWord( assignptr+1, name.buf() );
+	    getNextWord( assignptr+1, name.getCStr() );
 	    mCheckFuncProcExchange( name, '?' );
 
 	    if ( !idm_->doesExist(name) && Command::isQuestionName(name,*this) )
@@ -1416,7 +1416,7 @@ const char* CmdDriver::locateCmdMark( const char* actstr )
 	return locateCmdMark( assignptr+1 );
 
     BufferString firstword;
-    getNextWord( actstr, firstword.buf() );
+    getNextWord( actstr, firstword.getCStr() );
     if ( *assignptr=='(' && !firstword.contains('(') )
 	return actstr;
 
@@ -1425,7 +1425,7 @@ const char* CmdDriver::locateCmdMark( const char* actstr )
 
     actstr = assignptr + 1;
     mSkipBlanks( actstr );
-    getNextWord( actstr, firstword.buf() );
+    getNextWord( actstr, firstword.getCStr() );
     return firstword.contains('(') ? firstOcc(actstr,'(') : actstr;
 }
 
@@ -1487,7 +1487,7 @@ bool CmdDriver::recover()
 	    }
 
 	    BufferString firstword;
-	    getNextWord( cmdmark, firstword.buf() );
+	    getNextWord( cmdmark, firstword.getCStr() );
 	    if ( mMatchCI(firstword, "Def") )
 		jump();
 	    else if ( mAtCtrlFlowAction() || *cmdmark=='(' )
@@ -1553,7 +1553,7 @@ void CmdDriver::moveActionIdx( int nrlines )
     {
 	const char* cmdmark = locateCmdMark( actions_[actionidx_]->line_ );
 	BufferString cmdname;
-	getNextWord( cmdmark, cmdname.buf() );
+	getNextWord( cmdmark, cmdname.getCStr() );
 
 	if ( mMatchCI(cmdname, "ElseIf") || mMatchCI(cmdname, "Else") )
 	{
@@ -1616,7 +1616,7 @@ bool CmdDriver::insertProcedure( int defidx )
 
     const char* cmdmark = locateCmdMark( actions_[defidx]->line_ );
     BufferString cmdname;
-    getNextWord( cmdmark, cmdname.buf() );
+    getNextWord( cmdmark, cmdname.getCStr() );
     if ( !mMatchCI(cmdname, "Def") || actions_[defidx]->gotoidx_<0 )
 	return false;
 

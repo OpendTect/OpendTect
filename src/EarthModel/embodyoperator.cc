@@ -31,42 +31,42 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-#define mInsideVal	-1    
-#define mOutsideVal	1    
-#define mOnBodyVal	0    
+#define mInsideVal	-1
+#define mOutsideVal	1
+#define mOnBodyVal	0
 
 class BodyOperatorArrayFiller: public ParallelTask
 {
 public:
-BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1, 
-	const StepInterval<int>& inlrg, const StepInterval<int>& crlrg, 
-	const StepInterval<float>& zrg,	BodyOperator::Action act, 
-	Array3D<float>& arr ) 
+BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
+	const StepInterval<int>& inlrg, const StepInterval<int>& crlrg,
+	const StepInterval<float>& zrg,	BodyOperator::Action act,
+	Array3D<float>& arr )
     : arr_( arr )
     , b0_( b0 )
     , b1_( b1 )
-    , inlrg_( inlrg )	       
-    , crlrg_( crlrg )	       
+    , inlrg_( inlrg )
+    , crlrg_( crlrg )
     , zrg_( zrg )
-    , action_( act )		 
+    , action_( act )
 {}
 
 od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
 const char* message() const { return "Calculating implicit body operation"; }
-		       
+
 protected:
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )    
+bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
-    { 
- 	int p[3];	
+    {
+	int p[3];
 	arr_.info().getArrayPos( idx, p );
-    
+
 	const int inl = inlrg_.atIndex(p[0]);
 	const int crl = crlrg_.atIndex(p[1]);
 	const float z = zrg_.atIndex(p[2]);
-	
+
 	int id0[3], id1[3];
 	id0[0] = b0_.cs_.inlIdx( inl );
 	id0[1] = b0_.cs_.crlIdx( crl );
@@ -74,23 +74,23 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	id1[0] = b1_.cs_.inlIdx( inl );
 	id1[1] = b1_.cs_.crlIdx( crl );
 	id1[2] = b1_.cs_.zIdx( z );
-	
+
 	char pos0 = mOutsideVal, pos1 = mOutsideVal;
-	float v0 = b0_.threshold_+mOutsideVal, v1 = b1_.threshold_+mOutsideVal; 
+	float v0 = b0_.threshold_+mOutsideVal, v1 = b1_.threshold_+mOutsideVal;
 	if ( b0_.arr_->info().validPos(id0[0],id0[1],id0[2]) )
 	{
 	    v0 = b0_.arr_->get( id0[0], id0[1], id0[2] );
-	    pos0 = (v0<b0_.threshold_) ? mInsideVal 
+	    pos0 = (v0<b0_.threshold_) ? mInsideVal
 		 : (v0>b0_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
 
 	if ( b1_.arr_->info().validPos(id1[0],id1[1],id1[2]) )
 	{
 	    v1 = b1_.arr_->get( id1[0], id1[1], id1[2] );
-	    pos1 = (v1<b1_.threshold_) ? mInsideVal 
+	    pos1 = (v1<b1_.threshold_) ? mInsideVal
 		 : (v1>b1_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
-		
+
 	const float val = getVal( pos0, pos1, v0, v1 );
 	arr_.set( p[0], p[1], p[2], val );
 	addToNrDone( 1 );
@@ -113,14 +113,14 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    {
 		res = useval ? b1_.threshold_-v1 : mOutsideVal;
 	    }
-	    else 
+	    else
 	    {
 		res = useval ? (mMAX(v0,v1)) : mInsideVal;
 	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
-	    if ( action_==BodyOperator::Union ) 
+	    if ( action_==BodyOperator::Union )
 	    {
 		res = useval ? v0 : mInsideVal;
 	    }
@@ -164,7 +164,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	}
 	else if ( p1==mOnBodyVal )
 	{
-    	    res = mOnBodyVal;
+	    res = mOnBodyVal;
 	}
 	else
 	{
@@ -197,7 +197,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    {
 		res = mOnBodyVal;
 	    }
-	    else 
+	    else
 	    {
 		res = useval ? v0 : mOutsideVal;
 	    }
@@ -235,7 +235,7 @@ Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 {
     planes_.erase();
-    
+
     const TypeSet<Coord3>& crds = tree_.coordList();
     tree_.getSurfaceTriangles( tri_ );
 
@@ -290,10 +290,10 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 
 	    const double fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
 		planes_[pl].D_;
-	    if ( mIsZero(planes_[pl].C_,1e-3) ) 
+	    if ( mIsZero(planes_[pl].C_,1e-3) )
 	    {
 		if ( mIsZero(fv,1e-3) )
-		{ 
+		{
 		    for ( int pidx=0; pidx<3; pidx++ )
 		    {
 			const Coord3 dir = v[(pidx+1)%3]-v[pidx];
@@ -311,13 +311,13 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 			else
 			{
 			    Line3 edge( v[pidx], dir );
-    			    double te, tv;
-    			    vtln.closestPoint(edge,tv,te);
-    			    if ( te<=1 && te>=0 )
-    			    {
-    				pos.z = v[pidx].z+te*dir.z;
-    				mSetSegment();
-    			    }
+			    double te, tv;
+			    vtln.closestPoint(edge,tv,te);
+			    if ( te<=1 && te>=0 )
+			    {
+				pos.z = v[pidx].z+te*dir.z;
+				mSetSegment();
+			    }
 			}
 		    }
 		}
@@ -331,8 +331,8 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		}
 		else
 		{
-		    if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
-			 pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
+		    if ( pointOnEdge3D( pos, v[0], v[1], 1e-3 ) ||
+			 pointOnEdge3D( pos, v[1], v[2], 1e-3 ) ||
 			 pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
 		    {
 			mSetSegment();
@@ -340,22 +340,22 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		}
 	    }
 	}
-	
+
 	if ( nrintersections )
 	{
-    	    for ( int zidx=0; zidx<zsz; zidx++ )
-    	    {
-    		const float curz = zrg_.atIndex( zidx );
+	    for ( int zidx=0; zidx<zsz; zidx++ )
+	    {
+		const float curz = zrg_.atIndex( zidx );
 		const float val = curz<segment.start ? segment.start-curz :
-		    ( curz>segment.stop ? curz-segment.stop : 
-		      (nrintersections>2 ? 0 : 
-		      -mMIN(curz-segment.start, segment.stop-curz)) );		
+		    ( curz>segment.stop ? curz-segment.stop :
+		      (nrintersections>2 ? 0 :
+		      -mMIN(curz-segment.start, segment.stop-curz)) );
 		arr_.set( inlidx, crlidx, zidx, val );
 	    }
 	}
-	else 
+	else
 	{
-    	    for ( int zidx=0; zidx<zsz; zidx++ )
+	    for ( int zidx=0; zidx<zsz; zidx++ )
 		arr_.set( inlidx, crlidx, zidx, mOutsideVal );
 	}
 
@@ -401,7 +401,7 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 	const int crlidx = idx % crlsz;
 	const BinID bid( inlrg_.atIndex(inlidx), crlrg_.atIndex(crlidx) );
 	Coord3 pos( SI().transform(bid), 0 );
-    	    
+
 	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
 	    pos.z = zrg_.atIndex( zidx );
@@ -414,52 +414,52 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 
 		const float pv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
 		    planes_[pl].C_*pos.z + planes_[pl].D_;
-    	
-		const float bpv= planes_[pl].A_*bodycenter.x + 
-		    planes_[pl].B_*bodycenter.y + 
+
+		const float bpv= planes_[pl].A_*bodycenter.x +
+		    planes_[pl].B_*bodycenter.y +
 		    planes_[pl].C_*bodycenter.z + planes_[pl].D_;
-	   
+
 	       if ( pv*bpv>0 || mIsZero(bpv,1e-3) )
 		   continue;
 	       else if ( pv*bpv<0 )
 		   val = 1;
-	       else 
+	       else
 	       {
 		   for ( int pi=0; pi<planesize; pi++ )
 		   {
 		       if ( pi==pl )
 			   continue;
 
-		       float piv = planes_[pi].A_*pos.x + planes_[pi].B_*pos.y 
+		       float piv = planes_[pi].A_*pos.x + planes_[pi].B_*pos.y
 			   + planes_[pi].C_*pos.z + planes_[pi].D_;
 		       if ( !mIsZero(piv,1e-3) )
 			   continue;
 
 		       Coord3 v[3];
-    		       for ( int pidx=0; pidx<3; pidx++ )
-    			   v[pidx] = crds[tri_[3*pi+pidx]];
-   
-		       if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) || 
-   			       pointOnEdge3D( pos, v[0], v[1], 1e-3 ) || 
-   			       pointOnEdge3D( pos, v[1], v[2], 1e-3 ) || 
-   			       pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
-   		       {
-   			   val = 0;
+		       for ( int pidx=0; pidx<3; pidx++ )
+			   v[pidx] = crds[tri_[3*pi+pidx]];
+
+		       if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) ||
+			       pointOnEdge3D( pos, v[0], v[1], 1e-3 ) ||
+			       pointOnEdge3D( pos, v[1], v[2], 1e-3 ) ||
+			       pointOnEdge3D( pos, v[2], v[0], 1e-3 ) )
+		       {
+			   val = 0;
 			   break;
-   		       }
+		       }
 		   }
 
 		   if ( val!=0 )
 		       val = 1;
 		}
 	    }
-    
+
 	    arr_.set( inlidx, crlidx, zidx, val );
 	}
     }
 
     return true;
-}*/ 
+}*/
 
 
 BodyOperator::BodyOperator()
@@ -468,7 +468,7 @@ BodyOperator::BodyOperator()
     , inputbody0_( 0 )
     , inputbody1_( 0 )
     , id_( getFreeID() )
-    , action_( Union )			       
+    , action_( Union )
 {}
 
 
@@ -570,7 +570,7 @@ bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 	   return getChildOprt(!idx)->getChildOprt( freeid, res );
    }
 
-    return false; 
+    return false;
 }
 
 
@@ -581,7 +581,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     if ( !oprt )
     {
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
-	const char* translt = IOM().get( mid )->translator();
+	const BufferString translt = IOM().get( mid )->translator();
 	EM::EMObject* obj = 0;
 	if ( translt==polygonEMBodyTranslator::sKeyUserName() )
 	{
@@ -598,16 +598,16 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 
 	if ( !obj ) return 0;
 	obj->ref();
-	
+
 	obj->setMultiID( mid );
 	if ( !obj->loader() || !obj->loader()->execute() )
 	{
 	    obj->unRef();
 	    return 0;
 	}
-	
+
 	mDynamicCastGet( Body*, embody, obj );
-	if ( !embody ) 
+	if ( !embody )
 	{
 	    obj->unRef();
 	    return 0;
@@ -621,7 +621,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 	delete body;
 	body = 0;
     }
-	
+
     return body;
 }
 
@@ -633,7 +633,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     if ( !b0 ) return false;
 
     ImplicitBody* b1 = getOperandBody( false, tr );
-    if ( !b1 ) 
+    if ( !b1 )
     {
 	delete b0;
 	return false;
@@ -668,19 +668,19 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     const StepInterval<float>& zrg1 = b1->cs_.zrg;
 
     //If action is Minus, make the new cube the same size as body0.
-    StepInterval<int> newinlrg( inlrg0.start, inlrg0.stop, 
-	    			mMIN( inlrg0.step, inlrg1.step ) );
-    StepInterval<int> newcrlrg( crlrg0.start, crlrg0.stop, 
-	    			mMIN( crlrg0.step, crlrg1.step ) );
+    StepInterval<int> newinlrg( inlrg0.start, inlrg0.stop,
+				mMIN( inlrg0.step, inlrg1.step ) );
+    StepInterval<int> newcrlrg( crlrg0.start, crlrg0.stop,
+				mMIN( crlrg0.step, crlrg1.step ) );
     StepInterval<float> newzrg(zrg0.start,zrg0.stop,mMIN(zrg0.step,zrg1.step));
     if ( action_==Union )
     {
 	newinlrg.start = mMIN( inlrg0.start, inlrg1.start );
 	newinlrg.stop = mMAX( inlrg0.stop, inlrg1.stop );
-	
+
 	newcrlrg.start = mMIN( crlrg0.start, crlrg1.start );
 	newcrlrg.stop = mMAX( crlrg0.stop, crlrg1.stop );
-	
+
 	newzrg.start = mMIN( zrg0.start, zrg1.start );
 	newzrg.stop = mMAX( zrg0.stop, zrg1.stop );
     }
@@ -688,15 +688,15 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     {
 	newinlrg.start = mMAX( inlrg0.start, inlrg1.start );
 	newinlrg.stop = mMIN( inlrg0.stop, inlrg1.stop );
-	
+
 	newcrlrg.start = mMAX( crlrg0.start, crlrg1.start );
 	newcrlrg.stop = mMIN( crlrg0.stop, crlrg1.stop );
-	
+
 	newzrg.start = mMAX( zrg0.start, zrg1.start );
 	newzrg.stop = mMIN( zrg0.stop, zrg1.stop );
     }
 
-    if ( newinlrg.start>newinlrg.stop || newcrlrg.start>newcrlrg.stop || 
+    if ( newinlrg.start>newinlrg.stop || newcrlrg.start>newcrlrg.stop ||
 	 newzrg.start>newzrg.stop )
     {
 	res = 0;
@@ -729,9 +729,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 	delete b1;
 	return false;
     }
-   
+
     BodyOperatorArrayFiller arrfiller( *b0, *b1, newinlrg, newcrlrg, newzrg,
-	    				action_, *arr );
+					action_, *arr );
     arrfiller.execute();
 
     res->arr_ = arr;
@@ -741,7 +741,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     res->cs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
     res->cs_.zrg = newzrg;
 
-    return true;    
+    return true;
 }
 
 
@@ -750,15 +750,15 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 {
     if ( bodypts.size()<3 )
 	return 0;
-    
+
     StepInterval<int> inlrg( 0, 0, SI().inlStep() );
     StepInterval<int> crlrg( 0, 0, SI().crlStep() );
     StepInterval<float> zrg( 0, 0, SI().zStep() );
-    
+
     for ( int idx=0; idx<bodypts.size(); idx++ )
     {
 	const BinID bid = SI().transform( bodypts[idx].coord() );
-	
+
 	if ( !idx )
 	{
 	    inlrg.start = inlrg.stop = bid.inl();
@@ -772,22 +772,22 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	    zrg.include( (float) bodypts[idx].z );
 	}
     }
-    
+
     if ( inlrg.start-inlrg.step>=0 ) inlrg.start -= inlrg.step;
     if ( crlrg.start-crlrg.step>=0 ) crlrg.start -= crlrg.step;
     if ( zrg.start-zrg.step>=0 ) zrg.start -= zrg.step;
     if ( inlrg.stop+inlrg.step<=SI().inlRange(true).stop )
-    	inlrg.stop += inlrg.step;
+	inlrg.stop += inlrg.step;
 
     if ( crlrg.stop+crlrg.step<=SI().crlRange(true).stop )
 	crlrg.stop += crlrg.step;
 
     if ( zrg.stop+zrg.step<=SI().zRange(true).stop )
-    	zrg.stop += zrg.step;
-    
-    mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>( 
+	zrg.stop += zrg.step;
+
+    mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>(
 		inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
-    if ( !arr ) return 0; 
+    if ( !arr ) return 0;
 
     mDeclareAndTryAlloc(ImplicitBody*,res,ImplicitBody);
     if ( !res )
@@ -795,28 +795,28 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	delete arr;
 	return 0;
     }
-    
+
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
-    
+
     TypeSet<Coord3> pts = bodypts;
     const int zscale = SI().zDomain().userFactor();
     if ( zscale != 1 )
     {
-    	for ( int idx=0; idx<bodypts.size(); idx++ )
-    	    pts[idx].z *= zscale;
+	for ( int idx=0; idx<bodypts.size(); idx++ )
+	    pts[idx].z *= zscale;
     }
 
     DAGTetrahedraTree dagtree;
     if ( !dagtree.setCoordList( pts, false ) )
 	return 0;
-    
+
     ParallelDTetrahedralator triangulator( dagtree );
     if ( TaskRunner::execute( tr, triangulator ) )
     {
 	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
-    	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-    	if ( TaskRunner::execute( tr, *extract ) )
+	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
+	if ( TaskRunner::execute( tr, *extract ) )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
@@ -824,9 +824,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	    res->cs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
 	    res->cs_.hrg.step = BinID(inlrg.step, crlrg.step);
 	    res->cs_.zrg = zrg;
-	
+
 	    cursorchanger.restore();
-    	    return res;
+	    return res;
 	}
     }
 
@@ -836,12 +836,12 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 
 bool BodyOperator::usePar( const IOPar& par )
 {
-    
+
     par.get( sKeyBodyID0(), inputbody0_ );
     par.get( sKeyBodyID1(), inputbody1_ );
-    
+
     if( (inputbodyop0_ && !inputbodyop0_->usePar(par)) ||
-   	(inputbodyop1_ && !inputbodyop1_->usePar(par)) )
+	(inputbodyop1_ && !inputbodyop1_->usePar(par)) )
 	return false;
 
     if ( !par.get( sKeyID(), id_ ) )
@@ -861,11 +861,11 @@ void BodyOperator::fillPar( IOPar& par )
 {
     if ( inputbodyop0_ )  inputbodyop0_->fillPar(par);
     if ( inputbodyop1_ )  inputbodyop1_->fillPar(par);
-    
+
     par.set( sKeyBodyID0(), inputbody0_ );
     par.set( sKeyBodyID1(), inputbody1_ );
     par.set( sKeyID(), id_ );
-    
+
     const int act = action_==Union ? 0 : (action_==IntSect ? 1 : 2);
     par.set( sKeyAction(), act );
 }

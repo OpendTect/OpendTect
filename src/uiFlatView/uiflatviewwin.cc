@@ -48,7 +48,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 }
 
 
-void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) 
+void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
@@ -65,14 +65,14 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
-	float val = *vdvalstr ? toFloat( vdvalstr ) : mUdf(float);
+	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
-	float val = *wvavalstr ? toFloat( wvavalstr ) : mUdf(float);
+	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
 	mesg += " ("; mesg += wvastr; mesg += ")";
@@ -80,11 +80,11 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     float val;
     if ( pars.get(sKey::Offset(),val) )
-    { 
+    {
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
 
-	mAddSep(); mesg += "Offs="; mesg += val; 
+	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
 
@@ -100,7 +100,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
     else
     {
-    	valstr = pars.find( "X" );
+	valstr = pars.find( "X" );
 	if ( !valstr ) valstr = pars.find( "X-coordinate" );
 	if ( valstr && *valstr )
 	    { mAddSep(); mesg += "X="; mesg += valstr; }
@@ -171,7 +171,7 @@ void uiFlatViewMainWin::setInitialSize( int w, int h )
 void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 {
     mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg; 
+    BufferString mesg;
     makeInfoMsg( mesg, pars );
     statusBar()->message( mesg.buf() );
 }

@@ -23,10 +23,10 @@ ________________________________________________________________________
  */
 
 #include "basicmod.h"
+#include "plftypes.h"
 #include "commondefs.h"
-#include "undefval.h"
-#include "fixedstring.h"
 #include <ctype.h>
+namespace OD { class String; }
 
 mGlobal(Basic) const char* toString(od_int32);
 mGlobal(Basic) const char* toString(od_uint32);
@@ -42,11 +42,11 @@ mGlobal(Basic) const char* toString(const char*);
 mGlobal(Basic) const char* toString(unsigned char);
 mGlobal(Basic) const char* toString(signed char);
 mGlobal(Basic) const char* toString(bool);
+mGlobal(Basic) const char* toString(const OD::String&);
 
-mGlobal(Basic) bool getFromString(int&,const char*,int udf=mUdf(int));
-mGlobal(Basic) bool getFromString(float&,const char*,float udf=mUdf(float));
-mGlobal(Basic) bool getFromString(double&,const char*,double udf=mUdf(double));
-mGlobal(Basic) bool getFromString(BufferString&,const char*);
+mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
+mGlobal(Basic) bool getFromString(float&,const char*,float udfval);
+mGlobal(Basic) bool getFromString(double&,const char*,double udfval);
 mGlobal(Basic) bool getFromString(bool&,const char*);
 mGlobal(Basic) bool yesNoFromString(const char*);
 
@@ -79,10 +79,10 @@ inline int toInt( const char* s, int defval=0 )
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
 					 int match_nrchars=-1);
 	/*!< stricmp with option to compare part, default is all */
-mGlobal(Basic) bool matchString(const char* startstring,
+mGlobal(Basic) bool stringStartsWith(const char* startstring,
 				const char* maybebigger);
 	/*!< checks whether a string is the start of another string. */
-mGlobal(Basic) bool matchStringCI(const char*,const char*);
+mGlobal(Basic) bool stringStartsWithCI(const char*,const char*);
 	/*!< is a case insensitive version of matchString */
 mGlobal(Basic) bool stringEndsWith(const char* endstring,
 				   const char* maybebigger);

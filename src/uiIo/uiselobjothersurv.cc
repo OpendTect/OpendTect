@@ -25,17 +25,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 
-static BufferStringSet getSurvList() 
+static BufferStringSet getSurvList()
 {
     BufferStringSet bss; bss.erase();
     const char* basedir = GetBaseDataDir();
-    if ( basedir ) 
+    if ( basedir )
     {
 	PtrMan<DirList> dirlist = new DirList( basedir, DirList::DirsOnly );
 	for ( int idx=0; idx<dirlist->size(); idx++ )
 	{
-	    const char* dirnm = dirlist->get( idx );
-	    if ( matchString("_New_Survey_",dirnm) )
+	    const BufferString& dirnm = dirlist->get( idx );
+	    if ( dirnm.startsWith("_New_Survey_") )
 		continue;
 
 	    const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName());
@@ -51,7 +51,7 @@ static BufferStringSet getSurvList()
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
     : uiSelectFromList(p,uiSelectFromList::Setup("Select Survey",getSurvList()))
-    , ctio_(ctio)		 
+    , ctio_(ctio)
 {
     othersurveyrootdir_.setEmpty();
 }
@@ -69,11 +69,11 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     const char* basedir = GetBaseDataDir();
     if ( !basedir ) return false;
     othersurveyrootdir_ = FilePath(basedir,selFld()->getText()).fullPath();
-    if ( !File::exists( othersurveyrootdir_ ) ) 
-    { 
+    if ( !File::exists( othersurveyrootdir_ ) )
+    {
 	othersurveyrootdir_.setEmpty();
-	uiMSG().error( "Survey doesn't seem to exist" ); 
-	return false; 
+	uiMSG().error( "Survey doesn't seem to exist" );
+	return false;
     }
 
     setDirToOtherSurvey();

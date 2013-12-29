@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 BufferString CBVSIOMgr::baseFileName( const char* fnm )
 {
     BufferString ret( fnm );
-    char* caretptr = firstOcc( ret.buf(), '^' );
+    char* caretptr = ret.find( '^' );
     if ( !caretptr ) return ret;
 
     char* dotptr = firstOcc( caretptr, '.' );
@@ -36,7 +36,7 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
     FilePath fp( basefname );
     BufferString fname = fp.fileName();
 
-    char* ptr = lastOcc( fname.buf(), '.' );
+    char* ptr = fname.findLast( '.' );
     BufferString ext;
     if ( ptr )
 	{ ext = ptr; *ptr = '\0'; }
@@ -64,10 +64,10 @@ int CBVSIOMgr::getFileNr( const char* fnm )
     if ( !caretptr ) return 0;
 
     BufferString nrstr( caretptr + 1 );
-    char* dotptr = firstOcc( nrstr.buf(), '.' );
+    char* dotptr = nrstr.find( '.' );
     if ( dotptr ) *dotptr = '\0';
 
-    return toInt( nrstr.buf() );
+    return nrstr.toInt();
 }
 
 

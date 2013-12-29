@@ -78,8 +78,8 @@ void DataCharacteristics::set( const char* s )
     FileMultiString fms( s );
     const int sz = fms.size();
     if ( sz > 3 )
-	fmt_ = matchStringCI( "ibm", fms[1] ) ? DataCharacteristics::Ibm
-					     : DataCharacteristics::Ieee;
+	fmt_ = FixedString(fms[1]).startsWith("ibm",CaseInsensitive)
+	     ? DataCharacteristics::Ibm : DataCharacteristics::Ieee;
     if ( sz > 4 )
 	littleendian_ = toBool( fms[4], true );
 }
@@ -381,7 +381,7 @@ mDefDIPIUc(od_int64,U4)
 #define mDefDIPF(inptyp,typ) \
 template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr, \
-				    	inptyp f ) const \
+					inptyp f ) const \
 { *(((T##typ*)buf)+nr) = (T##typ)f; }
 
 mDefDIPF(float,F)
@@ -509,7 +509,7 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf, \
 #define mDefDIGIbm(rettyp,typ,fntyp) \
 template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, \
-				    	od_int64 nr ) const \
+					od_int64 nr ) const \
 { return (rettyp)IbmFormat::as##fntyp( ((T##typ*)buf)+nr ); }
 
 mDefDIGIbm(float,S2,Short)

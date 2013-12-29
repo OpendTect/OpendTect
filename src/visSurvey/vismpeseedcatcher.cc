@@ -91,8 +91,8 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
-    if ( typestr==EM##typekey##TranslatorGroup::keyword() ) \
-	legalclick = legalclick || (condition); 
+    if ( EM##typekey##TranslatorGroup::keyword()==typestr ) \
+	legalclick = legalclick || (condition);
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
     mDynamicCastGet( PlaneDataDisplay*, plane, dataobj ); \
@@ -110,7 +110,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
     if ( !mped || !mped->isDraggerShown() || !mped->getPlanePosition(cs) ) \
 	mped = 0; \
     bool legalclick = !mped; \
-    mCheckTracker( typ, Horizon3D, legalclick, cs.nrZ()!=1 ); 
+    mCheckTracker( typ, Horizon3D, legalclick, cs.nrZ()!=1 );
 
 #define mCheckSeis2DDisplay( typ, dataobj, seis2ddisp, legalclick ) \
     mDynamicCastGet( Seis2DDisplay*, seis2ddisp, dataobj ); \
@@ -130,7 +130,7 @@ bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
     mCheckPlaneDataDisplay( trackertype, dataobj, plane, legalclick1 );
     if ( plane && legalclick1 )
 	return true;
-    
+
     mCheckMPEDisplay( trackertype, dataobj, mpedisplay, cs, legalclick2 );
     if ( mpedisplay && legalclick2 )
 	return true;
@@ -151,7 +151,7 @@ const MPEClickInfo& MPEClickCatcher::info() const
 { return info_; }
 
 
-MPEClickInfo& MPEClickCatcher::info() 
+MPEClickInfo& MPEClickCatcher::info()
 { return info_; }
 
 
@@ -173,7 +173,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
     if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
 	return;
-    
+
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
@@ -185,7 +185,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     {
 	const int visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	if ( !dataobj ) 
+	if ( !dataobj )
 	    continue;
 	info().setObjID( visid );
 
@@ -208,7 +208,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
 	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	    continue;
-	    
+
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtdisp, dataobj );
 	if ( rtdisp )
 	{
@@ -231,11 +231,11 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		attrib--;
 		datapackid = plane->getDataPackID( attrib );
 		unsigned char transpar = plane->getAttribTransparency( attrib );
-		if ( (datapackid > DataPack::cNoID()) && 
+		if ( (datapackid > DataPack::cNoID()) &&
 		     plane->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
-	    
+
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
 
@@ -267,8 +267,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		unsigned char transpar =
 		    seis2ddisp->getAttribTransparency( attrib );
 		datapackid = seis2ddisp->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) && 
-		     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) ) 
+		if ( (datapackid > DataPack::cNoID()) &&
+		     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
 
@@ -286,7 +286,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    }
 	    info().setObjDataSelSpec(
 		   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
-		   	? *as : newas );
+			? *as : newas );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setObjLineName( seis2ddisp->name() );
 	    click.trigger();
@@ -299,14 +299,14 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 }
 
 
-void MPEClickCatcher::sendUnderlying2DSeis( 
+void MPEClickCatcher::sendUnderlying2DSeis(
 				    const visSurvey::EMObjectDisplay* emod,
 				    const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
-    if ( !emobj ) 
+    if ( !emobj )
 	return;
-    
+
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
     EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
@@ -330,7 +330,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
     for ( int idx=0; idx<seis2dinscene.size(); idx++ )
     {
-	visBase::DataObject* dataobj = 
+	visBase::DataObject* dataobj =
 				visBase::DM().getObject( seis2dinscene[idx] );
 	if ( !dataobj )
 	    continue;
@@ -338,14 +338,14 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick );
 	if ( !seis2ddisp )
 	    continue;
-	
+
 	if ( !l2dkey.isOK() )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
 		transformation_->transform( pos );
 	    float disttoseis2d = seis2ddisp->calcDist( pos );
-	    
+
 	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
 	    {
 		mindisttoseis2d = disttoseis2d;
@@ -375,8 +375,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    unsigned char transpar =
 		seis2dclosest->getAttribTransparency( attrib );
 	    datapackid = seis2dclosest->getDataPackID( attrib );
-	    if ( (datapackid > DataPack::cNoID()) && 
-		 seis2dclosest->isAttribEnabled(attrib) && (transpar<198) ) 
+	    if ( (datapackid > DataPack::cNoID()) &&
+		 seis2dclosest->isAttribEnabled(attrib) && (transpar<198) )
 		break;
 	}
 
@@ -403,21 +403,21 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 }
 
 
-void MPEClickCatcher::sendUnderlyingPlanes( 
+void MPEClickCatcher::sendUnderlyingPlanes(
 				    const visSurvey::EMObjectDisplay* emod,
 				    const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
-    if ( !emobj ) 
+    if ( !emobj )
 	return;
-    
+
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
     const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
 					    eventinfo.pickedobjids,clickedpos);
     Coord3 nodepos = emobj->getPos( nodepid );
     info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
-    
+
     if ( !nodepos.isDefined() )
     {
 	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
@@ -430,17 +430,17 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
     TypeSet<int> mpedisplays;
     visBase::DM().getIDs( typeid(visSurvey::MPEDisplay), mpedisplays );
-    
+
     CubeSampling trkplanecs(false);
     for ( int idx=0; idx<mpedisplays.size(); idx++ )
     {
-	visBase::DataObject* dataobj = 
+	visBase::DataObject* dataobj =
 				visBase::DM().getObject( mpedisplays[idx] );
 	if ( !dataobj )
 	    continue;
 
 	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick );
-	if ( mpedisplay && cs.hrg.includes(nodebid) && 
+	if ( mpedisplay && cs.hrg.includes(nodebid) &&
 	     cs.zrg.includes(nodepos.z,false) )
 	{
 	    info().setLegalClick( legalclick );
@@ -455,10 +455,10 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
     TypeSet<int> planesinscene;
     visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );
-    
+
     for ( int idx=0; idx<planesinscene.size(); idx++ )
     {
-	visBase::DataObject* dataobj = 
+	visBase::DataObject* dataobj =
 				visBase::DM().getObject( planesinscene[idx] );
 	if ( !dataobj )
 	    continue;
@@ -476,7 +476,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );
 	    info().setObjCS( cs );
-	    
+
 	    DataPack::ID datapackid = DataPack::cNoID();
 	    int attrib = plane->nrAttribs();
 	    while ( attrib )
@@ -484,11 +484,11 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 		attrib--;
 		unsigned char transpar = plane->getAttribTransparency( attrib );
 		datapackid = plane->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) && 
+		if ( (datapackid > DataPack::cNoID()) &&
 		     plane->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
-	    
+
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
 	    allowPickBasedReselection();
@@ -533,7 +533,7 @@ bool MPEClickCatcher::moreToSow() const
 
 
 void MPEClickCatcher::stopSowing()
-{ 
+{
     if ( editor_ )
 	editor_->sower().stopSowing();
 }
@@ -613,7 +613,7 @@ const Attrib::Data2DHolder* MPEClickInfo::getObjLineData() const
 
 void MPEClickInfo::clear()
 {
-    legalclick_ = false; 
+    legalclick_ = false;
     ctrlclicked_ = false;
     shiftclicked_ = false;
     altclicked_ = false;

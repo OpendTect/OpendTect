@@ -81,7 +81,7 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 {
     if ( !basnm || !*basnm ) basnm = altbasnm;
     tfname = basnm;
-    cleanupString( tfname.buf(), false, false, true );
+    cleanupString( tfname.getCStr(), false, false, true );
     tfname += ".par";
     tfname = GetProcFileName( tfname );
 }
@@ -466,7 +466,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    if ( !strm.isOK() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
 	    ascistream aistrm( strm, true );
-	    if ( aistrm.fileType()!=sKey::Pars() )
+	    if ( sKey::Pars() != aistrm.fileType() )
 	    {
 		uiMSG().error(BufferString(fnm," is not a parameter file"));
 		return false;

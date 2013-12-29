@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "keyenum.h"
 
-static const char* nms[] = 
+static const char* nms[] =
 {
 	"----",
 	"Left Mouse",
@@ -52,12 +52,12 @@ mImplButtonStateFunc( altKeyboardButton, AltButton );
 OD::ButtonState OD::stateOf( const char* nmstr )
 {
     FixedString nm( nmstr );
-   
+
     if ( nm.isEmpty() ) return OD::NoButton;
 
     for ( int idx=0; nms[idx]; idx++ )
     {
-	if ( nms[idx]==nm )
+	if ( nm == nms[idx] )
 	    return (OD::ButtonState)(transtbl[idx]);
     }
 

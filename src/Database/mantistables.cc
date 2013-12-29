@@ -51,8 +51,8 @@ void SqlDB::BugTextTableEntry::init()
 
 void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 {
-    removeTrailingBlanks( desc.buf() );
-    if ( description_.isEqual( desc, true ) )
+    desc.trimBlanks();
+    if ( description_.isEqual( desc, CaseInsensitive ) )
 	return;
 
     addToHistory( "description" );
@@ -62,8 +62,8 @@ void SqlDB::BugTextTableEntry::setDescription( BufferString& desc )
 
 void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 {
-    removeTrailingBlanks( reproduce.buf() );
-    if ( stepsreproduce_.isEqual( reproduce, true ) )
+    reproduce.trimBlanks();
+    if ( stepsreproduce_.isEqual( reproduce, CaseInsensitive ) )
 	return;
 
     addToHistory( "steps_to_reproduce" );
@@ -73,8 +73,8 @@ void SqlDB::BugTextTableEntry::setStepsReproduce( BufferString& reproduce )
 
 void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
 {
-    removeTrailingBlanks( reporter.buf() );
-    if ( reporter_.isEqual( reporter, true ) )
+    reporter.trimBlanks();
+    if ( reporter_.isEqual( reporter, CaseInsensitive ) )
 	return;
 
     //TODO
@@ -98,7 +98,7 @@ void SqlDB::BugTextTableEntry::addToHistory( const char* fldnmptr )
 	history->type_ = 6;
     else if ( fldnm=="steps_to_reproduce" )
 	history->type_ = 8;
-    else 
+    else
     {
 	history=0;
 	delete history;
@@ -121,9 +121,9 @@ const char* SqlDB::BugTableEntry::sKeySevere()
 const char* SqlDB::BugTableEntry::sKeyMinor()
 { return "Minor"; }
 int	    SqlDB::BugTableEntry::cStatusNew() { return 10; }
-int 	    SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
-int 	    SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
-int 	    SqlDB::BugTableEntry::cStatusResolved() { return 80; }
+int	    SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
+int	    SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
+int	    SqlDB::BugTableEntry::cStatusResolved() { return 80; }
 int	    SqlDB::BugTableEntry::cStatusClosed() { return 90; }
 int	    SqlDB::BugTableEntry::cResolutionOpen() { return 10; }
 int	    SqlDB::BugTableEntry::cResolutionFixed() { return 20; }
@@ -267,7 +267,7 @@ void SqlDB::BugTableEntry::setResolution( int resolution )
 
 void SqlDB::BugTableEntry::setPlatform( const char* plf )
 {
-    if ( platform_.isEqual( plf, true ) )
+    if ( platform_.isEqual( plf, CaseInsensitive ) )
 	return;
 
     addToHistory( "platform", platform_, plf );
@@ -277,7 +277,7 @@ void SqlDB::BugTableEntry::setPlatform( const char* plf )
 
 void SqlDB::BugTableEntry::setSummary( BufferString& summary )
 {
-    removeTrailingBlanks( summary.buf() );
+    summary.trimBlanks();
     if ( summary_.isEqual( summary ) )
 	return;
 

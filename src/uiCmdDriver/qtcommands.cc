@@ -52,11 +52,11 @@ void SetColorActivator::actCB( CallBacker* )
 
 bool ColorOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::Colour ) 
-    { 
+    if ( uiMainWin::activeModalType() != uiMainWin::Colour )
+    {
 	mWinErrStrm << "Command requires open QColorDialog" << od_endl;
-	return false; 
-    } 
+	return false;
+    }
 
     mParDQuoted( "color string", parstr, parextra, colorstr, true, true );
     if ( parstr != parextra )
@@ -90,7 +90,7 @@ bool ColorOkCmd::act( const char* parstr )
     BufferString colorword;
     if ( parnext == parstr )
     {
-	const char* partemp = getNextWord( parstr, colorword.buf() );
+	const char* partemp = getNextWord( parstr, colorword.getCStr() );
 	parnexxxt = const_cast<char*>( partemp );
 	if ( colorword.isEmpty() )
 	{
@@ -173,13 +173,13 @@ bool ColorOkCmd::act( const char* parstr )
 
 bool FileOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::File ) 
-    { 
+    if ( uiMainWin::activeModalType() != uiMainWin::File )
+    {
 	mWinErrStrm << "Command requires open QFileDialog" << od_endl;
-	return false; 
-    } 
-    
-    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false ); 
+	return false;
+    }
+
+    mParDQuoted( "file path set", parstr, partail, fpsetstr, false, false );
 
     StringProcessor(fpsetstr).makeDirSepIndep();
     mGetEscConvertedFMS( fms, fpsetstr, true );
@@ -202,7 +202,7 @@ bool SnapshotCmd::act( const char* parstr )
     const uiMainWin* grabwin = curWin();
 
     BufferString zoomtag;
-    const char* partail = getNextWord( parnext, zoomtag.buf() );
+    const char* partail = getNextWord( parnext, zoomtag.getCStr() );
 
     if ( mMatchCI(zoomtag,"ODMain") && applWin() )
     {
@@ -253,7 +253,7 @@ bool QColorDlgCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString qcolordlgword;
-    const char* msgnext = getNextWord( ev.msg_, qcolordlgword.buf() );
+    const char* msgnext = getNextWord( ev.msg_, qcolordlgword.getCStr() );
     char* msgnexxt;
     char* msgtail;
 
@@ -289,7 +289,7 @@ bool QFileDlgCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString qfiledlgword;
-    const char* msgnext = getNextWord( ev.msg_, qfiledlgword.buf() );
+    const char* msgnext = getNextWord( ev.msg_, qfiledlgword.getCStr() );
 
     insertWindowCaseExec( ev );
     if ( *msgnext )

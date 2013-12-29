@@ -381,7 +381,7 @@ static int getSecs( const char* txt )
 {
     if ( !txt || !*txt ) return 0;
     BufferString bs( txt );
-    char* mid = firstOcc( bs.buf(), ':' );
+    char* mid = bs.find( ':' );
     if ( mid ) *mid++ = '\0';
 
     int secs=-1;
@@ -568,7 +568,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	    continue;
 
 	BufferString hnm = lb ? lb->textOfItem( idx ) : hdl[0]->name();
-	char* ptr = firstOcc( hnm.buf(), ' ' );
+	char* ptr = hnm.find( ' ' );
 	if ( ptr ) *ptr = '\0';
 
 	const HostData* hd = hdl.find( hnm.buf() );
@@ -605,7 +605,7 @@ const char* uiSeisMMProc::curUsedMachName()
    mDeclStaticString( mach );
    mach = usedmachfld->box()->getText();
 
-   char* ptr = firstOcc( mach.buf(), " -:- ");
+   char* ptr = mach.find( " -:- ");
    if ( ptr ) *ptr='\0';
 
    return mach;

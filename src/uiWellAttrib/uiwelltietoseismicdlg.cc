@@ -55,12 +55,12 @@ static const char*  helpid = "107.4.1";
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
 
-const WellTie::Setup& uiTieWin::Setup() const 
+const WellTie::Setup& uiTieWin::Setup() const
 {
     return server_.data().setup();
 }
 
-uiTieWin::uiTieWin( uiParent* p, Server& wts ) 
+uiTieWin::uiTieWin( uiParent* p, Server& wts )
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 			    .withhanddrag(true)
 			    .deleteonclose(false))
@@ -74,8 +74,8 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     server_.setTaskRunner( new uiTaskRunner( p ) );
-    
-    mGetWD(return) 
+
+    mGetWD(return)
     BufferString title( "Tie ");
     title += wd->name(); title += " to "; title += Setup().seisnm_;
     setCaption( title );
@@ -124,14 +124,14 @@ void uiTieWin::usePar( const IOPar& par )
 
 void uiTieWin::displayUserMsg( CallBacker* )
 {
-    BufferString msg = "To correlate synthetic to seismic, "; 
-    msg += "choose your tracking mode, "; 
-    msg += "pick one or more synthetic events "; 
-    msg += "and link them with the seismic events. "; 
-    msg += "Each synthetic event must be coupled with a seismic event. "; 
+    BufferString msg = "To correlate synthetic to seismic, ";
+    msg += "choose your tracking mode, ";
+    msg += "pick one or more synthetic events ";
+    msg += "and link them with the seismic events. ";
+    msg += "Each synthetic event must be coupled with a seismic event. ";
     msg += "Once you are satisfied with the picking, push the ";
     msg += "'Apply Changes' button to compute a new depth/time model ";
-    msg += "and to re-extract the data.\n"; 
+    msg += "and to re-extract the data.\n";
     msg += "Repeat the picking operation if needed.\n";
     msg += "To cross-check your operation, press the 'Display additional ";
     msg += "information' button.\n\n";
@@ -184,11 +184,11 @@ void uiTieWin::reDrawAll( CallBacker* )
     toolbar_->addButton( pm, tip, mCB(this,uiTieWin,func) )
 void uiTieWin::addToolBarTools()
 {
-    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
+    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
     mAddButton( "z2t", editD2TPushed, "View/Edit Model" );
     mAddButton( "save", saveDataPushed, "Save Data" );
     mAddButton( "snapshot", snapshotCB, "Get snapshot" );
-}    
+}
 
 
 void uiTieWin::addControls()
@@ -226,12 +226,12 @@ void uiTieWin::drawFields()
     horSepar->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, "&Ok/Save",
-	      		mCB(this,uiTieWin,acceptOK), true );
+			mCB(this,uiTieWin,acceptOK), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
     uiPushButton* infobut = new uiPushButton( this, "Info",
-	      		mCB(this,uiTieWin,displayUserMsg), false );
+			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
     uiToolButton* helpbut = new uiToolButton( this, "contexthelp", "Help",
@@ -240,7 +240,7 @@ void uiTieWin::drawFields()
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, sCancel(),
-	      		mCB(this,uiTieWin,rejectOK), true );
+			mCB(this,uiTieWin,rejectOK), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );
 }
@@ -259,12 +259,12 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     server_.pickMgr().getEventTypes( eventtypes );
     for ( int idx=0; idx<eventtypes.size(); idx++)
 	eventtypefld_->box()->addItem( eventtypes[idx]->buf() );
-    
+
     eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
-    
+
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
-    
+
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
@@ -274,12 +274,12 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	   mCB(this,uiTieWin,undoPushed), true );
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
-    
+
     clearpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
 	   mCB(this,uiTieWin,clearPicks), true );
     clearpicksbut_->setSensitive( false );
     clearpicksbut_->attach( rightOf, undobut_ );
-    
+
     clearlastpicksbut_ = new uiPushButton( taskgrp, "&Clear last pick",
 	   mCB(this,uiTieWin,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
@@ -289,7 +289,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( hCentered );
-    
+
     matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
 	               mCB(this,uiTieWin,matchHorMrks), true );
     matchhormrksbut_->attach( rightOf, infobut_ );
@@ -304,7 +304,7 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
-    
+
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
@@ -362,9 +362,9 @@ void uiTieWin::infoPushed( CallBacker* )
 
 void uiTieWin::editD2TPushed( CallBacker* cb )
 {
-    Well::Data* wd = server_.wd(); 
+    Well::Data* wd = server_.wd();
     if ( !wd || !wd->haveD2TModel() ) return;
-    
+
     uiD2TModelDlg d2tmdlg( this, *wd, false );
     if ( d2tmdlg.go() )
     {
@@ -434,7 +434,7 @@ void uiTieWin::checkIfPick( CallBacker* )
 bool uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
-    	mErrRetYN( "Cannot go back to previous model" );
+	mErrRetYN( "Cannot go back to previous model" );
 
     server_.updateExtractionRange();
     doWork( cb );
@@ -442,10 +442,10 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 
     if ( infodlg_ )
 	infodlg_->dtmodelChanged(0);
-    
+
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
-    return true;	    
+    return true;
 }
 
 
@@ -453,7 +453,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 {
     PickSetMgr& pmgr = server_.pickMgr();
     mGetWD(return false)
-    if ( !wd || !wd->markers().size() ) 
+    if ( !wd || !wd->markers().size() )
 	mErrRetYN( "No Well marker found" )
 
     BufferString msg("No horizon loaded, do you want to load some ?");
@@ -466,8 +466,8 @@ bool uiTieWin::matchHorMrks( CallBacker* )
     }
     pmgr.clearAllPicks();
     uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpID) );
-    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same", 
-				BoolInpSpec(true,"Name","Regional marker") ); 
+    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same",
+				BoolInpSpec(true,"Name","Regional marker") );
     matchdlg.go();
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
@@ -507,7 +507,7 @@ bool uiTieWin::acceptOK( CallBacker* )
 	    mErrRetYN("Cannot write new depth/time model")
 
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
-	    Well::MGR().reload( server_.wellID() ); 
+	    Well::MGR().reload( server_.wellID() );
     }
 
     return false;
@@ -538,13 +538,13 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 				     "107.4.2").modal(false))
 	, server_(server)
 	, selidx_(0)
-    	, crosscorr_(0)
+	, crosscorr_(0)
 	, wvltdraw_(0)
 	, redrawNeeded(this)
 	, data_(server_.data())
 {
     setCtrlStyle( LeaveOnly );
-    
+
     uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
@@ -560,7 +560,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     const int initwvltsz = data_.initwvlt_.size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
-	    			   SI().zDomain().userFactor() );
+				   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)",
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
@@ -576,16 +576,16 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );
-    
+
     uiGroup* markergrp =  new uiGroup( this, "User Z Range Group" );
     markergrp->attach( centeredAbove, viewersgrp );
     horSepar->attach( ensureBelow, markergrp );
 
     const char* choice[] = { "Markers", "Times", "Depths (MD)", 0 };
-    choicefld_ = new uiGenInput( markergrp, "Compute Data between", 
-	    				StringListInpSpec(choice) );
+    choicefld_ = new uiGenInput( markergrp, "Compute Data between",
+					StringListInpSpec(choice) );
     choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,zrgChanged) );
-    
+
     markernames_.add( Well::ExtractParams::sKeyDataStart() );
     mGetWD(return)
     if ( wd && wd->haveMarkers() )
@@ -603,12 +603,12 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false), 0 };
 
     zrangeflds_ += new uiGenInput( markergrp, "",
-	    			   slis.setName(markernms[0]),
-				   slis.setName(markernms[1]) ); 
+				   slis.setName(markernms[0]),
+				   slis.setName(markernms[1]) );
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
     const int maxtwtval = mNINT32( server_.data().getTraceRange().stop *
-	    			   SI().zDomain().userFactor() );
+				   SI().zDomain().userFactor() );
     zrangeflds_ += new uiGenInput( markergrp, "",
 	    IntInpIntervalSpec().setLimits(StepInterval<int>(0,maxtwtval,1)));
 
@@ -662,7 +662,7 @@ void uiInfoDlg::fillPar( IOPar& par ) const
 }
 
 
-void uiInfoDlg::usePar( const IOPar& par ) 
+void uiInfoDlg::usePar( const IOPar& par )
 {
     bool isinitwvltactive;
     par.getYN( sKeyInfoIsInitWvltActive, isinitwvltactive );
@@ -706,8 +706,8 @@ void uiInfoDlg::putToScreen()
 	{
 	    if ( !topmarkr )
 	    {
-		if ( !matchString(startmrknm_,
-			    	  Well::ZRangeSelector::sKeyDataStart()) )
+		if ( !startmrknm_.startsWith(
+				  Well::ZRangeSelector::sKeyDataStart()) )
 		    uiMSG().warning(
 			    "Top marker from setup could not be retrieved." );
 
@@ -716,8 +716,8 @@ void uiInfoDlg::putToScreen()
 
 	    if ( !basemarkr )
 	    {
-		if ( !matchString(stopmrknm_,
-			    	  Well::ZRangeSelector::sKeyDataEnd()) )
+		if ( !stopmrknm_.startsWith(
+				  Well::ZRangeSelector::sKeyDataEnd()) )
 		    uiMSG().warning(
 			    "Base marker from setup could not be retrieved." );
 
@@ -741,7 +741,7 @@ void uiInfoDlg::putToScreen()
     {
 	Interval<float> zrg = zrg_;
 	const float scalefact = selidx_ == mTwtFldIdx
-	    		      ? SI().zDomain().userFactor()
+			      ? SI().zDomain().userFactor()
 			      : zrginft_ ? mToFeetFactorF : 1.f;
 	zrg.scale( scalefact );
 	if ( zrg.width(false) < (float)mMinWvltLength )
@@ -932,7 +932,7 @@ bool uiInfoDlg::updateZrg()
 				mCast( int, timerg.stop * zfact ) );
 	zrangeflds_[mTwtFldIdx]->setValue( timergms );
     }
-    
+
     if( zrangeflds_[mDahFldIdx] )
     {
 	if ( zrginft_ )
@@ -991,7 +991,7 @@ bool uiInfoDlg::computeNewWavelet()
     }
 
     const int zrgsz = mCast( int, zrg_.width(false) *
-	   			  SI().zDomain().userFactor() ) + 1;
+				  SI().zDomain().userFactor() ) + 1;
     const int wvltlgth = zrgsz < reqwvltlgthsz ? zrgsz : reqwvltlgthsz;
     if ( !server_.computeEstimatedWavelet(wvltlgth) )
 	mErrRetYN( server_.errMSG() )

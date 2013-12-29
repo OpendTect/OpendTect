@@ -35,7 +35,7 @@ class uiBuildPROPS : public uiBuildListFromList
 public:
 			uiBuildPROPS(uiParent*,PropertyRefSet&,bool);
 
-    PropertyRefSet& 	props_;
+    PropertyRefSet&	props_;
     bool		allowmath_;
 
     virtual const char*	avFromDef(const char*) const;
@@ -86,7 +86,7 @@ class uiEditPropRef : public uiDialog
 {
 public:
 
-	    		uiEditPropRef(uiParent*,PropertyRef&,bool,bool);
+			uiEditPropRef(uiParent*,PropertyRef&,bool,bool);
     bool		acceptOK(CallBacker*);
 
     PropertyRef&	pr_;
@@ -108,7 +108,7 @@ public:
 
 
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
-       				bool supportform )
+				bool supportform )
     : uiDialog(p,uiDialog::Setup("Property definition",
 		BufferString(isadd?"Add '":"Edit '",
 		    PropertyRef::toString(pr.stdType()),"' property"),
@@ -122,11 +122,11 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     for ( int idx=0; idx<pr_.aliases().size(); idx++ )
 	ss += pr_.aliases().get(idx);
     aliasfld_ = new uiGenInput( this, "Aliases (e.g. 'abc, uvw*xyz')",
-	   			StringInpSpec(ss.buf()) );
+				StringInpSpec(ss.buf()) );
     aliasfld_->attach( alignedBelow, namefld_ );
 
     colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
-	    				.lbltxt("Default display color") );
+					.lbltxt("Default display color") );
     colfld_->attach( alignedBelow, aliasfld_ );
     rgfld_ = new uiGenInput( this, "Typical value range",
 			     FloatInpIntervalSpec() );
@@ -261,13 +261,13 @@ void rockPhysReq( CallBacker* )
 	    else
 		cbb.setText( "-" );
 	}
-	
+
 	unflds_[unflds_.size()-1]->box()->setText( formulaunit.buf() );
     }
 }
 
-void formSet( CallBacker* c ) 
-{                                                                               
+void formSet( CallBacker* c )
+{
     getMathExpr();
     int nrvars = expr_ ? expr_->nrUniqueVarNames() : 0;
     for ( int idx=0; idx<nrvars; idx++ )
@@ -275,35 +275,35 @@ void formSet( CallBacker* c )
 	if ( idx >= unflds_.size()-1 )
 	    return;
 
-	BufferString lbl( "Choose unit for", expr_->uniqueVarName(idx) );	
+	BufferString lbl( "Choose unit for", expr_->uniqueVarName(idx) );
     }
 
     for ( int idx=0; idx<unflds_.size()-1; idx++ )
     {
-	BufferString lblstr( "Choose unit for ", 
+	BufferString lblstr( "Choose unit for ",
 			     idx<nrvars ? expr_->uniqueVarName(idx)
-			     		: "                         " );
+					: "                         " );
 	unflds_[idx]->label()->setText( lblstr.buf() );
 	unflds_[idx]->display( idx<nrvars );
     }
 }
 
 
-void getMathExpr()                                               
-{                                                                               
-    delete expr_; expr_ = 0;                                                    
-    if ( !formfld_ ) return;                                                    
+void getMathExpr()
+{
+    delete expr_; expr_ = 0;
+    if ( !formfld_ ) return;
 
-    const BufferString inp( formfld_->text() );                                 
-    if ( inp.isEmpty() ) return;                                                
-	    
-    MathExpressionParser mep( inp );                                            
-    expr_ = mep.parse();                                                        
-		    
-    if ( !expr_ )                                                               
-	uiMSG().warning( 
+    const BufferString inp( formfld_->text() );
+    if ( inp.isEmpty() ) return;
+
+    MathExpressionParser mep( inp );
+    expr_ = mep.parse();
+
+    if ( !expr_ )
+	uiMSG().warning(
 		BufferString("The provided expression cannot be used:\n",
-		    	     mep.errMsg()) );
+			     mep.errMsg()) );
 }
 
 
@@ -356,15 +356,15 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     pr_.disp_.range_ = vintv;
 
     BufferString defvalstr( deffld_->text() );
-    char* ptr = defvalstr.buf(); mTrimBlanks(ptr);
-    if ( !*ptr )
+    defvalstr.trimBlanks();
+    if ( defvalstr.isEmpty() )
 	{ delete pr_.disp_.defval_; pr_.disp_.defval_ = 0; }
     else
     {
-	if ( withform_ && isNumberString(ptr) )
-	    pr_.disp_.defval_ = new ValueProperty( pr_, toFloat(ptr) );
+	if ( withform_ && defvalstr.isNumber() )
+	    pr_.disp_.defval_ = new ValueProperty( pr_, defvalstr.toFloat() );
 	else
-	    pr_.disp_.defval_ = new MathProperty( pr_, ptr );
+	    pr_.disp_.defval_ = new MathProperty( pr_, defvalstr );
     }
 
     return true;
@@ -491,7 +491,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
-	    				"Manage available properties",
+					"Manage available properties",
 					mCB(this,uiSelectPropRefs,manPROPS) );
     if ( llb )
 	manpropsbut->attach( centeredRightOf, llb );

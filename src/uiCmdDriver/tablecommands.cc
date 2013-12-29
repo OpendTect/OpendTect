@@ -181,7 +181,7 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
 \
     TableTag tabletag = RowTag; \
     BufferString tagstr; \
-    const char* parnext = getNextWord( parstr, tagstr.buf() ); \
+    const char* parnext = getNextWord( parstr, tagstr.getCStr() ); \
 \
     if ( mMatchCI(tagstr,"RowHead") || mMatchCI(tagstr,"ColHead") ) \
     { \
@@ -426,7 +426,7 @@ bool TableSelectCmd::act( const char* parstr )
     if ( tag1==RowTag || tag1==CellTag )
     {
 	BufferString argword;
-	const char* extraparstr = getNextWord( parnexxxxt, argword.buf() );
+	const char* extraparstr = getNextWord( parnexxxxt, argword.getCStr() );
 	if ( mMatchCI(argword,"Cell") )
 	{
 	    newcelltag = true;
@@ -455,7 +455,7 @@ bool TableSelectCmd::act( const char* parstr )
     if ( uitable->maxNrOfSelections() == 0 )
     {
 	mWinErrStrm << "This table allows no selection at all" << od_endl;
-	return false; 
+	return false;
     }
 
     if ( !mIsUdf(itemnr21) )
@@ -1625,7 +1625,7 @@ bool TableCmdComposer::accept( const CmdRecEvent& ev )
 	if ( ev.nraccepts_ )
 	    return true;
 
-	const char* msgnext = getNextWord( ev.msg_, notifiername.buf() );
+	const char* msgnext = getNextWord( ev.msg_, notifiername.getCStr() );
 	cellrc.row() = strtol( msgnext, &msgnexxt, 0 );
 	cellrc.col() = strtol( msgnexxt, &msgnexxxt, 0 );
 

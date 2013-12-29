@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "msgh.h"
 #include "winutils.h"
+#include "fixedstring.h"
 #include <time.h>
 #include <string.h>
 
@@ -90,7 +91,7 @@ FilePath& FilePath::set( const char* _fnm )
 	if ( dsptr > ptr )
 	{
 	    prefix_ = fnm;
-	    *firstOcc( prefix_.buf(), *sPrefSep ) = '\0';
+	    *firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
 	    fnm = ptr + 1;
 	}
     }
@@ -171,7 +172,7 @@ void FilePath::setExtension( const char* ext, bool replace )
     }
 
     BufferString& fname = *lvls_[lvls_.size()-1];
-    char* ptr = lastOcc( fname.buf(), '.' );
+    char* ptr = lastOcc( fname.getCStr(), '.' );
     if ( ptr && replace )
 	strcpy( *ext ? ptr+1 : ptr, ext );
     else if ( *ext )
@@ -275,7 +276,7 @@ const BufferString& FilePath::fileName() const
 BufferString FilePath::baseName() const
 {
     BufferString ret = fileName();
-    char* ptr = ret.buf();
+    char* ptr = ret.getCStr();
     while ( *ptr && *ptr != '.' ) ptr++;
     if ( !*ptr ) return ret;
     *ptr++ = '\0';

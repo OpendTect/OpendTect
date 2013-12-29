@@ -18,8 +18,8 @@ bool Strat::Content::getApearanceFrom( const char* str )
     if ( fms.size() < 3 )
 	return false;
 
-    pattern_.type_ = toInt( fms[0] );
-    pattern_.opt_ = toInt( fms[1] );
+    pattern_.type_ = fms.getIValue( 0 );
+    pattern_.opt_ = fms.getIValue( 1 );
     color_.setStdStr( fms[2] );
     return true;
 }
@@ -58,7 +58,7 @@ const Strat::Lithology& Strat::Lithology::undef()
     {
 	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
 	newudf->color() = Color::LightGrey();
-	
+
 	if ( !udf.setIfNull(newudf) )
 	    delete newudf;
     }
@@ -81,7 +81,7 @@ Strat::Lithology::Lithology( const char* fstr )
     FileMultiString fms( fstr );
     const int sz = fms.size();
     setName( fms[0] );
-    const_cast<ID&>(id_) = toInt(fms[1]);
+    const_cast<ID&>(id_) = fms.getIValue( 1 );
     porous_ = *fms[2] == 'P';
     if ( sz > 3 )
 	color_.setStdStr( fms[3] );

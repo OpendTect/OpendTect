@@ -247,7 +247,7 @@ enum InfixOperator {
 
 #define mMatchOperator( opstr, parstr, optag ) \
 \
-    if ( matchString(opstr, parstr) ) \
+    if ( fs##parstr.startsWith(opstr) ) \
     { \
 	parstr += strlen( opstr ); \
 	ops += optag; \
@@ -315,6 +315,7 @@ const char* ExprInterpreter::interpretCompositeExpr( const char* parstr,
 	parstr = parnext;
 	mSkipBlanks( parnext );
 
+	const FixedString fsparnext( parnext );
 	     mMatchOperator( "||", parnext, Or )
 	else mMatchOperator( "&&", parnext, And )
 	else mMatchOperator( "==", parnext, Equal )
@@ -502,9 +503,9 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
     if ( sz > 0 )
     {
 	breakprefix.setBufSize( sz+1 );
-	strncpy( breakprefix.buf(), exprstr_, sz );
-	*( breakprefix.buf()+sz ) = '\0';
-	removeTrailingBlanks( breakprefix.buf() );
+	strncpy( breakprefix.getCStr(), exprstr_, sz );
+	*( breakprefix.getCStr()+sz ) = '\0';
+	removeTrailingBlanks( breakprefix.getCStr() );
     }
 }
 

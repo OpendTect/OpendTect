@@ -217,7 +217,7 @@ void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
     {
 	BufferString attrnm( attrsfld_->getText() );
 	const int nmsz = attrnm.size();
-	char* ptrattrnm = attrnm.buf();
+	char* ptrattrnm = attrnm.getCStr();
 	if ( attrnm[0] == '[' && attrnm[nmsz-1] == ']' )
 	{
 	    ptrattrnm[nmsz-1] = '\0';

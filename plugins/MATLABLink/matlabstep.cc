@@ -75,7 +75,7 @@ static mxArray* createParameterArray( const BufferStringSet& names,
 
     for ( int idx=0; idx<nrfields; idx++ )
     {
-	const double val = toDouble( values.get(idx) );
+	const double val = values.get(idx).toDouble();
 	mxArray* valuearr = mxCreateDoubleScalar( val );
 	mxSetFieldByNumber( parsarr, 0, idx, valuearr );
     }

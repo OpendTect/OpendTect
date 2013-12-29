@@ -162,7 +162,7 @@ bool Desc::parseDefStr( const char* defstr )
 
     BufferString outputstr;
     bool res = getParamString( defstr, "output", outputstr );
-    selectOutput( res ? toInt(outputstr.buf()) : 0 );
+    selectOutput( res ? outputstr.toInt() : 0 );
 
     BufferStringSet keys, vals;
     getKeysVals( defstr, keys, vals );
@@ -588,7 +588,7 @@ void Desc::changeOutputDataType( int input, Seis::DataType ndt )
 bool Desc::getAttribName( const char* inpdefstr, BufferString& res )
 {
     BufferString defstr( inpdefstr );
-    char* startptr = defstr.buf();
+    char* startptr = defstr.getCStr();
     mSkipBlanks( startptr );
     if ( !*startptr )
 	return false;
@@ -670,7 +670,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	if ( *str == '[' && *(str+lk.size()-1) == ']' )
 	{
 	    lk = str + 1;
-	    lk.buf()[ lk.size()-1 ] = '\0';
+	    lk.getCStr()[ lk.size()-1 ] = '\0';
 	    if ( userref_ == lk )
 		return true;
 	}
@@ -699,7 +699,7 @@ void Desc::getKeysVals( const char* ds, BufferStringSet& keys,
 
     const FixedString onlyneedkey( targetky );
     const bool havetarget = !onlyneedkey.isEmpty();
-    char* still2scan = defstr.buf();
+    char* still2scan = defstr.getCStr();
     while ( *still2scan )
     {
 	char* ptrval = firstOcc( still2scan, '=' );

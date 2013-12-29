@@ -22,7 +22,7 @@ static void chckYPlural( BufferString& str )
 {
     const int len = str.size();
     if ( len < 3 ) return;
-    char* ptr = str.buf() + len - 2;
+    char* ptr = str.getCStr() + len - 2;
     if ( *ptr == 'y' )
     {
 	*ptr = '\0';

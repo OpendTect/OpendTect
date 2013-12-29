@@ -301,7 +301,7 @@ bool ListSelectCmd::act( const char* parstr )
     if ( uilist->maxNrOfSelections() == 0 )
     {
 	mWinErrStrm << "This list allows no item selection" << od_endl;
-	return false; 
+	return false;
     }
 
     mParListSelPre( "first item", uilist, itemstr1, itemnr1, itemidxs1, false );
@@ -929,7 +929,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	if ( ev.nraccepts_ )
 	    return true;
 
-	const char* msgnext = getNextWord( ev.msg_, notifiername.buf() );
+	const char* msgnext = getNextWord( ev.msg_, notifiername.getCStr() );
 	itemidx = strtol( msgnext, &msgnexxt, 0 );
 
 	if ( mMatchCI(notifiername, "itemEntered") && !ev.begin_ )

@@ -38,12 +38,7 @@ void Repos::FileProvider::getFname( BufferString& res, bool withdot ) const
 {
     res = withdot ? "." : "";
     res += basenm_;
-    char* ptr = res.buf();
-    while ( *ptr )
-    {
-	if ( isupper(*ptr) ) *ptr = (char) tolower(*ptr);
-	ptr++;
-    }
+    res.toLower();
 }
 
 

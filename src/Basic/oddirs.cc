@@ -65,9 +65,8 @@ const char* SurveyInfo::surveyFileName()
 
 void SurveyInfo::setSurveyName( const char* newnm )
 {
-    mSkipBlanks( newnm );
     cur_survey_name = newnm;
-    removeTrailingBlanks( cur_survey_name.buf() );
+    cur_survey_name.trimBlanks();
 }
 
 
@@ -81,14 +80,14 @@ const char* SurveyInfo::curSurveyName()
 	return 0;
 
     strm.getLine( cur_survey_name );
-    char* ptr = cur_survey_name.buf();
-    mTrimBlanks( ptr );
-    if ( !*ptr ) return 0;
+    cur_survey_name.trimBlanks();
+    if ( cur_survey_name.isEmpty() )
+	return 0;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
 	mPrDebug( "SurveyInfo::curSurveyName", cur_survey_name );
 
-    return cur_survey_name;
+    return cur_survey_name.buf();
 }
 
 

@@ -254,7 +254,7 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
     inp = FilePath( inp ).fileName();
     if ( inp.isEmpty() ) return;
 
-    char* ptr = inp.buf();
+    char* ptr = inp.getCStr();
     if ( convertfld->isChecked() )
     {
 	// convert underscores to spaces
@@ -266,7 +266,7 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
     }
 
     // remove .cbvs extension
-    ptr = lastOcc( inp.buf(), '.' );
+    ptr = inp.find( '.' );
     if ( ptr && *(ptr+1) == 'c' && *(ptr+2) == 'b' && *(ptr+3) == 'v'
 	 && *(ptr+4) == 's' )
 	*(ptr) = '\0';

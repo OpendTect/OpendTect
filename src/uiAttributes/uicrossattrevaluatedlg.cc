@@ -30,19 +30,19 @@ using namespace Attrib;
 
 static const StepInterval<int> cSliceIntv(2,30,1);
 
-uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p, 
-	uiAttribDescSetEd& uads, bool store ) 
+uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
+	uiAttribDescSetEd& uads, bool store )
     : uiDialog(p,uiDialog::Setup("Cross attributes evaluation","Settings",
 		"101.3.1").modal(false).oktext("Accept").canceltext(""))
     , calccb(this)
     , showslicecb(this)
     , initpar_(*new IOPar)
-    , seldesc_(0)  
+    , seldesc_(0)
     , enabstore_(store)
     , haspars_(false)
     , attrset_(*new DescSet(*uads.getSet()))
     , paramsfld_(0)
-    , srcid_(-1,true)  
+    , srcid_(-1,true)
 {
     if ( !uads.curDesc() )
 	return;
@@ -56,7 +56,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     BufferStringSet paramnms;
     uads.getUiAttribParamGrps( pargrp, grps_, paramnms, userattnms_ );
     if ( grps_.isEmpty() ) return;
-    
+
     haspars_ = true;
 
     uiGroup* grp = new uiGroup( this, "Attr-Params" );
@@ -86,7 +86,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
     sliderfld = new uiSliderExtra( this, "Slice", "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->sldr()->valueChanged.notify( 
+    sliderfld->sldr()->valueChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,sliderMove) );
     sliderfld->sldr()->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
@@ -148,7 +148,7 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
     attrset_.addDesc( newad ); \
     SelSpec as; \
     as.set( *newad ); \
-    as.setObjectRef( srcad.userRef() ) 
+    as.setObjectRef( srcad.userRef() )
 
 
 void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
@@ -171,7 +171,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     TypeSet<TypeSet<DescID> > ancestorids;//for each selected
     TypeSet<TypeSet<int> > aids;//index of children
     getSelDescIDs( ancestorids, aids );
-  
+
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int selsz = seldeschildids_.size();
     const int nrsteps = nrstepsfld->box()->getValue();
@@ -186,7 +186,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	    for ( int pi=0; pi<ancestorids[ci].size(); pi++ )
 	    {
 	        Desc* ds = !pi ? attrset_.getDesc(seldeschildids_[ci]) :
-		    		 attrset_.getDesc(ancestorids[ci][pi-1] );
+				 attrset_.getDesc(ancestorids[ci][pi-1] );
 		if ( !ds ) return;
 
 		mSetSelSpecAndLbl(*ds);
@@ -195,7 +195,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
 	mSetSelSpecAndLbl(srcad);
 	srcspecids_ += newad->id();
-	specs_ += as; 
+	specs_ += as;
 
 	/*reset dependency*/
 	for ( int ci=0; ci<selsz; ci++ )
@@ -204,7 +204,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	    const int lastpidx = aids[ci].size()-1;
 	    for ( int pi=0; pi<lastpidx; pi++ )
 	    {
-		attrset_.desc(didx+1)->setInput( aids[ci][pi], 
+		attrset_.desc(didx+1)->setInput( aids[ci][pi],
 			attrset_.desc(didx));
 		didx++;
 	    }
@@ -237,13 +237,13 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
 
 void uiCrossAttrEvaluateDlg::getSelDescIDs(
-	TypeSet<TypeSet<DescID> >& ancestorids, TypeSet<TypeSet<int> >& aids ) 
+	TypeSet<TypeSet<DescID> >& ancestorids, TypeSet<TypeSet<int> >& aids )
 {
     seldeschildids_.erase();
-    
+
     TypeSet<int> attrselected;
     attrnmsfld_->getSelectedItems( attrselected );
-    
+
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int sel = paramsfld_->currentItem();
     for ( int idx=0; idx<attrselected.size(); idx++ )
@@ -251,11 +251,11 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
 	const char* userattnm = userattnms_[sel].get(attrselected[idx]).buf();
 	for ( int idy=0; idy<attrset_.size(); idy++ )
 	{
-	    if ( !attrset_.desc(idy) || attrset_.desc(idy)==&srcad ) 
+	    if ( !attrset_.desc(idy) || attrset_.desc(idy)==&srcad )
 		continue;
 
 	    BufferString anm = attrset_.desc(idy)->userRef();
-	    if ( !anm.isEqual(userattnm,true) ) 
+	    if ( !anm.isEqual(userattnm,CaseInsensitive) )
 		continue;
 
 	    seldeschildids_ += attrset_.desc(idy)->id();
@@ -298,7 +298,7 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 }
 
 
-BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const 
+BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const
 {
     const int sliceidx = sliderfld->sldr()->getIntValue();
     return defstr_.get(sliceidx);

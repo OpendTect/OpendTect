@@ -190,7 +190,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 
     while ( strm.getLine( line ) )
     {
-	char* firstchar = line.buf();
+	char* firstchar = line.getCStr();
 	mSkipBlanks( firstchar );
 	if ( *firstchar == '"' )
 	{
@@ -1218,7 +1218,7 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
     {
 	setEmpty();
 	fms = res;
-	setNrVals( toInt(fms[0]), false );
+	setNrVals( fms.getIValue(0), false );
 	allowdup_ = *fms[1] == 'D';
     }
 
@@ -1234,15 +1234,15 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
 	if ( !*res ) continue;
 
 	fms = res;
-	dr.first = toInt( fms[0] );
+	dr.first = fms.getIValue( 0 );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
 	for ( int iscnd=0; iscnd<nrpos; iscnd++ )
 	{
 	    int fmsidx = 1 + iscnd * (nrvals_ + 1);
-	    dr.second = toInt( fms[fmsidx] );
+	    dr.second = fms.getIValue( fmsidx );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
-		dr.value(ival) = toFloat( fms[fmsidx+ival] );
+		dr.value(ival) = fms.getFValue( fmsidx+ival );
 	    add( dr );
 	}
     }

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "fixedstring.h"
 #include "sqlquery.h"
+#include "convert.h"
 
 class DateInfo;
 class Price;
@@ -32,7 +33,7 @@ class Access;
 mExpClass(Database) DatabaseColumnBase
 {
 public:
-    			DatabaseColumnBase( DatabaseTable& dobj,
+			DatabaseColumnBase( DatabaseTable& dobj,
 			    const char* columnname,const char* columntype );
     virtual		~DatabaseColumnBase()	{}
 
@@ -40,7 +41,7 @@ public:
     virtual const char*	selectString() const;
     virtual const char*	columnType() const	{ return columntype_; }
     virtual const char*	columnOptions() const	{ return columnoptions_; }
-    void 		setColumnOptions(const char* n){ columnoptions_=n; }
+    void		setColumnOptions(const char* n){ columnoptions_=n; }
     virtual bool	isDBTypeOK(const char*) const;
     virtual const char* createColumnQuery() const;
 
@@ -55,21 +56,21 @@ protected:
 
 
 /*!
-\brief SQL Database column 
+\brief SQL Database column
 */
 
 #define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
 mExpClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase		\
 {									\
 public:									\
-    		clssnm( ::SqlDB::DatabaseTable& dobj,	\
+		clssnm( ::SqlDB::DatabaseTable& dobj,	\
 				    const char* columnname )		\
-    		    : ::SqlDB::DatabaseColumnBase( dobj, columnname,	\
-			    		  "VARCHAR(50)" )		\
+		    : ::SqlDB::DatabaseColumnBase( dobj, columnname,	\
+					  "VARCHAR(50)" )		\
 		{}							\
- 									\
+									\
     bool	parse(const ::SqlDB::Query& q,int column,enmcls::enm& e) const \
-    		{ return enmcls::parseEnum( q.data(column).buf(), e ); }\
+		{ return enmcls::parseEnum( q.data(column).buf(), e ); }\
     const char*	dataString(const enmcls::enm& e) const			\
 		{ return enmcls::toString( e ); }			\
 }
@@ -98,14 +99,14 @@ public:
 mExpClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
 {
 public:
-    		IDDatabaseColumn(DatabaseTable& dobj)
+		IDDatabaseColumn(DatabaseTable& dobj)
 		    : DatabaseColumn<int>( dobj, sKey(), "INT(11)" )
 		{ setColumnOptions("NOT NULL AUTO_INCREMENT"); }
 
     static const char*	sKey()	{ return "id"; }
 
     const char*	dataString(const int&) const { return 0; }
-    		//The id should be automatically inserted
+		//The id should be automatically inserted
 };
 
 
@@ -116,7 +117,7 @@ public:
 mExpClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
-    		StringDatabaseColumn( DatabaseTable& dobj,
+		StringDatabaseColumn( DatabaseTable& dobj,
 			const char* columnname, int maxsize=-1);
 };
 
@@ -128,7 +129,7 @@ public:
 mExpClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
 public:
-    		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
+		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
     const char*	selectString() const;
     bool	parse(const Query&,int column,time_t&) const;
     const char*	dataString(const time_t&) const { return 0; }
@@ -142,7 +143,7 @@ public:
 mExpClass(Database) DateDatabaseColumn : public DatabaseColumnBase
 {
 public:
-    		DateDatabaseColumn( DatabaseTable& dobj,
+		DateDatabaseColumn( DatabaseTable& dobj,
 				    const char* columnname );
     bool	parse( const Query&, int column, DateInfo& ) const;
     const char*	dataString(const DateInfo&) const;
@@ -156,7 +157,7 @@ public:
 mExpClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
 {
 public:
-    		PriceDatabaseColumn( DatabaseTable& dobj,
+		PriceDatabaseColumn( DatabaseTable& dobj,
 				    const char* columnname );
     bool	parse( const Query&, int column, Price& ) const;
     const char*	dataString(const Price&) const;
@@ -172,12 +173,12 @@ and a timestamp will tell which row that is the current.
 mExpClass(Database) DatabaseTable
 {
 public:
-    			DatabaseTable(const char* tablename);
-    			~DatabaseTable();
+			DatabaseTable(const char* tablename);
+			~DatabaseTable();
 
     enum TableStatus	{ OK, MinorError, MajorError, AccessError };
     TableStatus		getTableStatus(Access&, BufferString& errmsg) const;
-    			//!<Checks that all columns exist and are of right type
+			//!<Checks that all columns exist and are of right type
     bool		fixTable(Access&, BufferString& errmsg) const;
 
     virtual const char*	tableName() const { return tablename_; }
@@ -192,12 +193,12 @@ public:
     bool		parseTimeStamp(const Query& q,int col, time_t&) const;
 
     bool		searchTable( Access&,int entryid, bool onlylatest,
-	    			     TypeSet<int>& rowids,
-	   			     BufferString& errmsg );
+				     TypeSet<int>& rowids,
+				     BufferString& errmsg );
 
     bool		insertRow( Access&,const BufferStringSet& cols,
-	    			const BufferStringSet& vals, int entryid,
-	   			int& rowid, BufferString& errmsg );
+				const BufferStringSet& vals, int entryid,
+				int& rowid, BufferString& errmsg );
 
 protected:
     TableStatus		checkTable(bool fix,Access&,BufferString& errmsg) const;

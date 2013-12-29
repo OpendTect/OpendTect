@@ -70,15 +70,15 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     }
 
     addbut_ = new uiPushButton( rightgrp, "&Add",
-	    			mCB(this,uiGMTMainWin,addCB), true );
+				mCB(this,uiGMTMainWin,addCB), true );
     addbut_->setToolTip( "Add to current flow" );
-    addbut_->attach( alignedBelow, tabstack_ ); 
+    addbut_->attach( alignedBelow, tabstack_ );
     editbut_ = new uiPushButton( rightgrp, "&Replace",
-	    			mCB(this,uiGMTMainWin,editCB), true );
+				mCB(this,uiGMTMainWin,editCB), true );
     editbut_->setToolTip( "Update current item in flow" );
     editbut_->attach( rightOf, addbut_ );
     resetbut_ = new uiPushButton( rightgrp, "Re&set",
-	    			mCB(this,uiGMTMainWin,resetCB), true );
+				mCB(this,uiGMTMainWin,resetCB), true );
     resetbut_->setToolTip( "Reset input fields" );
     resetbut_->attach( rightOf, editbut_ );
 
@@ -95,11 +95,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", false );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
-	    			"Move current item up", butpushcb );
+				"Move current item up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
-	    			 "Move current item down", butpushcb );
+				 "Move current item down", butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
-	    			"Remove current item from flow", butpushcb );
+				"Remove current item from flow", butpushcb );
     bgrp->attach( centeredBelow, llb );
 
 
@@ -112,11 +112,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     filefld_->attach( ensureLeftOf, sep );
 
     createbut_ = new uiPushButton( uppgrp_, "&Create Map",
-	    			   mCB(this,uiGMTMainWin,createPush), true );
+				   mCB(this,uiGMTMainWin,createPush), true );
     createbut_->attach( alignedBelow, filefld_ );
 
     viewbut_ = new uiPushButton( uppgrp_, "&View Map",
-	    			 mCB(this,uiGMTMainWin,viewPush), true );
+				 mCB(this,uiGMTMainWin,viewPush), true );
     viewbut_->attach( rightTo, createbut_ );
 
     flowgrp_->attach( leftTo, rightgrp );
@@ -126,9 +126,9 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
     toolbar->addButton( "newflow", "New flow",
-	    		mCB(this,uiGMTMainWin,newFlow) );
+			mCB(this,uiGMTMainWin,newFlow) );
     toolbar->addButton( "openflow", "Open Flow",
-	    		mCB(this,uiGMTMainWin,openFlow) );
+			mCB(this,uiGMTMainWin,openFlow) );
     toolbar->addButton( "saveflow", "Save Current Flow",
 			mCB(this,uiGMTMainWin,saveFlow) );
 
@@ -297,10 +297,10 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
     }
 
-    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
+    const FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
     {
-	if ( tabname == overlaygrps_[idx]->name() )
+	if ( tabname == overlaygrps_[idx]->name().buf() )
 	{
 	    overlaygrps_[idx]->usePar( *pars_[selidx] );
 	    tabstack_->setCurrentPage( overlaygrps_[idx] );

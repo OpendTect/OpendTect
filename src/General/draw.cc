@@ -95,7 +95,7 @@ void clss::fromString( const char* s ) \
 { \
     FileMultiString fms( s ); \
     parseEnumType( fms[0], type_ ); \
-    par = toInt(fms[1]); \
+    par = fms.getIValue( 1 ); \
     FileMultiString colfms( fms.from(2) ); \
     color_.use( colfms ); \
 }
@@ -150,7 +150,7 @@ bool MarkerStyle3D::isVisible() const
 
 
 LineStyle::LineStyle( Type t, int w, Color c )
-    : type_(t), width_(w), color_(c)        
+    : type_(t), width_(w), color_(c)
 {}
 
 

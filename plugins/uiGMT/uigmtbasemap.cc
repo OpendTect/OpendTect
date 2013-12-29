@@ -31,17 +31,17 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     titlefld_ = new uiGenInput( this, "Map title", StringInpSpec("Basemap") );
 
     xrgfld_ = new uiGenInput( this, "X range",
-	    		      IntInpIntervalSpec(false) );
+			      IntInpIntervalSpec(false) );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     xrgfld_->attach( alignedBelow, titlefld_ );
 
     yrgfld_ = new uiGenInput( this, "Y range",
-	    		      IntInpIntervalSpec(false) );
+			      IntInpIntervalSpec(false) );
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
     resetbut_ = new uiPushButton( this, "&Reset to Survey",
-	    			  mCB(this,uiGMTBaseMapGrp,resetCB), true );
+				  mCB(this,uiGMTBaseMapGrp,resetCB), true );
     resetbut_->attach( rightTo, yrgfld_ );
 
     xdimfld_ = new uiGenInput( this, "Map Width (cm)", FloatInpSpec() );
@@ -60,7 +60,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     scalefld_->attach( rightTo, ydimfld_ );
 
     lebelintvfld_ = new uiGenInput( this, "Label interval (X/Y)",
-	    			    IntInpIntervalSpec(false) );
+				    IntInpIntervalSpec(false) );
     lebelintvfld_->attach( alignedBelow, xdimfld_ );
 
     gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
@@ -248,7 +248,7 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 	{
 	    BufferString linestr( str.buf() + cTitleBoxWidth * sdx );
 	    if ( sdx < nrstr )
-		*( linestr.buf() + cTitleBoxWidth ) = '\0';
+		*( linestr.getCStr() + cTitleBoxWidth ) = '\0';
 
 	    remset.add( linestr );
 	}
@@ -297,6 +297,6 @@ bool uiGMTBaseMapGrp::usePar( const IOPar& par )
     }
 
     remarkfld_->setText( remarks.buf() );
-    
+
     return true;
 }

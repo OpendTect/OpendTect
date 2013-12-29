@@ -144,10 +144,10 @@ bool Color::use( const char* str )
     const int sz = fms.size();
     if ( sz < 3 ) return false;
 
-    unsigned char r_ = (unsigned char)toInt( fms[0] );
-    unsigned char g_ = (unsigned char)toInt( fms[1] );
-    unsigned char b_ = (unsigned char)toInt( fms[2] );
-    unsigned char t_ = sz > 3 ? (unsigned char)toInt( fms[3] ) : 0;
+    unsigned char r_ = (unsigned char)fms.getIValue( 0 );
+    unsigned char g_ = (unsigned char)fms.getIValue( 1 );
+    unsigned char b_ = (unsigned char)fms.getIValue( 2 );
+    unsigned char t_ = sz > 3 ? (unsigned char)fms.getIValue( 3 ) : 0;
     set( r_, g_, b_, t_ );
 
     return true;

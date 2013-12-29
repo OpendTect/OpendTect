@@ -337,9 +337,8 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     for ( int irow=0; ; irow++ )
     {
-	BufferString txtinp( tbl_->text(RowCol(irow,0) ) );
-	char* wellnm = txtinp.buf(); mTrimBlanks(wellnm);
-	if ( !*wellnm ) break;
+	BufferString wellnm( tbl_->text(RowCol(irow,0) ) );
+	if ( wellnm.trimBlanks().isEmpty() ) break;
 
 	uiSMWCData wcd( wellnm );
 	if ( !getWellCreateData(irow,wellnm,wcd) )

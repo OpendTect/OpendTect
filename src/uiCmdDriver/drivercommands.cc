@@ -64,7 +64,7 @@ bool IsWindowCmd::act( const char* parstr )
     mParDisambiguator( "window name", wintitle, selnr );
 
     BufferString winprop;
-    const char* partail = getNextWord( parnexxt, winprop.buf() );
+    const char* partail = getNextWord( parnexxt, winprop.getCStr() );
 
     BufferString answer;
     if ( winprop.isEmpty() || mMatchCI(winprop, "Existent") ||
@@ -112,7 +112,7 @@ bool SleepCmd::act( const char* parstr )
     double time = strtod( parstr, &parnext );
 
     BufferString sleeptype;
-    const char* partail = getNextWord( parnext, sleeptype.buf() );
+    const char* partail = getNextWord( parnext, sleeptype.getCStr() );
     bool regular = false;
 
     if ( mMatchCI(sleeptype, "Regular") )
@@ -139,7 +139,7 @@ bool WaitCmd::act( const char* parstr )
     double time = strtod( parstr, &parnext );
 
     BufferString waittype;
-    const char* partail = getNextWord( parnext, waittype.buf() );
+    const char* partail = getNextWord( parnext, waittype.getCStr() );
     bool regular = false;
 
     if ( mMatchCI(waittype, "Regular") )
@@ -163,7 +163,7 @@ bool WaitCmd::act( const char* parstr )
 bool OnErrorCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.buf() );
+    const char* partail = getNextWord( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Continue") )
     {
@@ -206,7 +206,7 @@ bool CaseCmd::act( const char* parstr )
 bool GreyOutsCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.buf() );
+    const char* partail = getNextWord( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Skip") )
 	skipGreyOuts( true );
@@ -245,7 +245,7 @@ bool IsMatchCmd::act( const char* parstr )
 bool LogModeCmd::act( const char* parstr )
 {
     BufferString argword;
-    const char* partail = getNextWord( parstr, argword.buf() );
+    const char* partail = getNextWord( parstr, argword.getCStr() );
 
     if ( mMatchCI(argword,"Basic") )
 	drv_.setLogMode( CmdDriver::LogBasic );
@@ -313,7 +313,7 @@ bool GuideCmd::act( const char* parstr )
     mParDQuoted( "text", parstr, parnext, txtstr, false, false );
 
     BufferString winstatetag;
-    const char* parnexxt = getNextWord( parnext, winstatetag.buf() );
+    const char* parnexxt = getNextWord( parnext, winstatetag.getCStr() );
 
     WinStateType winstatetyp = NoState;
 
@@ -520,7 +520,7 @@ bool ForCmd::act( const char* parstr )
 
     BufferString tostepword, toexpr, stepexpr, newexpr;
 
-    const char* parnexxt = getNextWord( partail, tostepword.buf() );
+    const char* parnexxt = getNextWord( partail, tostepword.getCStr() );
     if ( mMatchCI(tostepword, "To") )
     {
 	mParExpr( false, "", parnexxt, parnexxxt, todummy, true );
@@ -529,7 +529,7 @@ bool ForCmd::act( const char* parstr )
     }
 
     stepexpr = 1;
-    parnexxt = getNextWord( partail, tostepword.buf() );
+    parnexxt = getNextWord( partail, tostepword.getCStr() );
     if ( mMatchCI(tostepword, "Step") )
     {
 	mParExpr( false, "", parnexxt, parnexxxt, stepdummy, true );
@@ -618,7 +618,7 @@ bool ContinueCmd::act( const char* partail )
     } \
 \
     BufferString procname = keyfms[0]; \
-    removeTrailingBlanks( procname.buf() ); \
+    removeTrailingBlanks( procname.getCStr() ); \
     const StringProcessor strproc( procname ); \
     BufferString ident; \
     const char* endptr = strproc.parseIdentifier( ident ); \
@@ -647,7 +647,7 @@ bool DefCmd::act( const char* parstr )
     for ( int idx=0; idx<parfms.size(); idx++ )
     {
 	BufferString param = parfms[idx];
-	removeTrailingBlanks( param.buf() );
+	removeTrailingBlanks( param.getCStr() );
 	if ( param == "_dummyvar" )
 	    continue;
 
@@ -661,8 +661,8 @@ bool DefCmd::act( const char* parstr )
 	    return false;
 	}
 
-	mUnscope( ident.buf(), unscoped );
-	if ( ident.buf() != unscoped )
+	mUnscope( ident.getCStr(), unscoped );
+	if ( ident.getCStr() != unscoped )
 	{
 	    mParseErrStrm << "A scope operator cannot precede a formal "
 			  << "parameter: " << param << od_endl;
@@ -681,7 +681,7 @@ bool DefCmd::act( const char* parstr )
     }
 
     parfms += curActionIdx();
-    identifierMan().set( keyfms.buf(), parfms.buf() );
+    identifierMan().set( keyfms.getCStr(), parfms.getCStr() );
 
     jump();
     return true;
@@ -716,7 +716,7 @@ bool CallCmd::act( const char* parstr )
     for ( int idx=0; idx<actualfms.size(); idx++ )
     {
 	BufferString actualpar = actualfms[idx];
-	removeTrailingBlanks( actualpar.buf() );
+	removeTrailingBlanks( actualpar.getCStr() );
 	if ( idx>0 && idx<=atoi(keyfms[1]) )
 	{
 	    mParExpr( true, formalfms[idx], actualpar, dummy, valstr, false );

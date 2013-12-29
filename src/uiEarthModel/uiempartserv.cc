@@ -1306,7 +1306,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
     {
 	const IOObj* ioobj = ioobjs[idx];
 	if ( ioobj->translator() != "dGB" ) continue;
-	if ( groupstr==ioobj->group() )
+	if ( ioobj->group() == groupstr  )
 	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
     }
 }

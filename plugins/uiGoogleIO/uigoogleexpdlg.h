@@ -17,12 +17,12 @@ class uiFileInput;
 
 #define mImplFileNameFld(nm) \
     BufferString deffnm( nm ); \
-    cleanupString( deffnm.buf(), false, false, true ); \
+    cleanupString( deffnm.getCStr(), false, false, true ); \
     FilePath deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
     uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
     fiinpsu.forread( false ).filter( "*.kml" ); \
     fnmfld_ = new uiFileInput( this, "Output file", fiinpsu )
-    
+
 
 #define mCreateWriter(typ,survnm) \
     const BufferString fnm( fnmfld_->fileName() ); \

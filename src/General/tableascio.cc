@@ -246,7 +246,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	{
 	    curfmsidx++;
 	    elem.keyword_ = res;
-	    elem.pos_.col() = toInt( fms[curfmsidx] );
+	    elem.pos_.col() = fms.getIValue( curfmsidx );
 	}
 
 	selection_.elems_ += elem;
@@ -323,7 +323,7 @@ void FormatDesc::usePar( const IOPar& iopar )
     if ( res && *res )
     {
 	FileMultiString fms( res );
-	eohtokencol_ = toInt( fms[0] ); eohtoken_ = fms[1];
+	eohtokencol_ = fms.getIValue( 0 ); eohtoken_ = fms[1];
     }
 
     res = iopar.find( sKeyBodyEndToken );
@@ -748,7 +748,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     mDeclStaticString( bufstr );
     bufstr = sval;
     sval = bufstr.buf();
-    char* ptr = bufstr.buf() + bufstr.size() - 1;
+    char* ptr = bufstr.getCStr() + bufstr.size() - 1;
     while ( ptr>sval && !isdigit(*ptr) && *ptr != '.' )
 	ptr--;
     *(ptr+1) = '\0';

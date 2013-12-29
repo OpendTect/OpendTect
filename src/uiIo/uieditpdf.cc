@@ -199,14 +199,13 @@ bool uiEditProbDenFunc::getValsFromScreen( bool* chgd )
 	idxs[1] = nrdims_ == 1 ? 0 : rowidx;
 	for ( int icol=0; icol<nrcols; icol++ )
 	{
-	    BufferString bstbltxt = tbl_->text( RowCol(irow,icol) );
-	    char* tbltxt = bstbltxt.buf();
-	    mTrimBlanks(tbltxt);
-	    if ( !*tbltxt )
+	    BufferString tbltxt = tbl_->text( RowCol(irow,icol) );
+	    tbltxt.trimBlanks();
+	    if ( tbltxt.isEmpty() )
 		mErrRet("Please fill all cells - or use 'Cancel'")
 
 	    idxs[0] = nrdims_ == 1 ? rowidx : icol;
-	    const float tblval = toFloat( tbltxt );
+	    const float tblval = tbltxt.toFloat();
 	    data.setND( idxs, tblval );
 	    if ( chgd )
 	    {
@@ -250,7 +249,7 @@ uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
     disp_->setVals( xvals, yvals, sz );
 }
 
-    uiFunctionDisplay* 	disp_;
+    uiFunctionDisplay*	disp_;
 
 };
 
@@ -365,7 +364,7 @@ void uiEditProbDenFunc::setToolTips()
     mDeclSzVars;
 #define mMkTT(dim) \
     BufferString tt( pdf_.dimName(dim) ); \
-    if ( nrdims_ > 2 ) { mAddDim2Str(tt); } 
+    if ( nrdims_ > 2 ) { mAddDim2Str(tt); }
 
     if ( nrdims_ > 1 )
     {

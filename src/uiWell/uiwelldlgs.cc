@@ -1381,7 +1381,7 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 	const Well::Log& log = wd.logs().getLog(idx);
 	if ( !logsel_.isPresent( log.name() ) ) continue;
 	BufferString lognm( log.name() );
-	cleanupString( lognm.buf(), 0, 0, 0 );
+	cleanupString( lognm.getCStr(), 0, 0, 0 );
 	lognm.replace( '+', '_' );
 	lognm.replace( '-', '_' );
 	strm << od_tab << lognm;
@@ -1498,17 +1498,15 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
 
 bool uiNewWellDlg::acceptOK( CallBacker* )
 {
-    BufferString tmp( text() );
-    char* ptr = tmp.buf();
-    mTrimBlanks(ptr);
-    if ( !*ptr )
+    BufferString newnm( text() );
+    if ( newnm.trimBlanks().isEmpty() )
 	mErrRet( "Please enter a name" )
 
-    if ( nms_->isPresent(ptr) )
+    if ( nms_->isPresent(newnm) )
 	mErrRet( "Please specify a new name.\n"
 		 "Wells can be removed in 'Manage wells'" )
 
-    name_ = ptr;
+    name_ = newnm;
     return true;
 }
 

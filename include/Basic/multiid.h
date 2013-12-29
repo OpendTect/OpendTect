@@ -53,7 +53,7 @@ public:
 			{ return impl_ == s; }
 
     inline int		ID( int idx ) const
-			{ return toInt(key(idx).buf()); }
+			{ return key(idx).toInt(); }
     inline void		setID( int idx, int i )
 			{ setKey( idx, toString(i) ); }
     int			leafID() const;
@@ -63,7 +63,7 @@ public:
 
     static const MultiID& udf();
     inline bool		isUdf() const
-    			{ return *this == udf(); }
+			{ return *this == udf(); }
 
 };
 

@@ -65,7 +65,7 @@ public :
 				const ZDomain::Def&);
 
     void		setTrace(const SeisTrc&);
-  
+
 protected:
 
     bool		is2d_;
@@ -163,7 +163,7 @@ float uiSeisBrowser::curZ() const
 }
 
 
-void uiSeisBrowser::setZ( float z ) 
+void uiSeisBrowser::setZ( float z )
 {
     if ( mIsUdf(z) ) return;
 
@@ -192,7 +192,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(su.geom_), &emsg );
-	if ( seislineset.datatype(index) == sKey::Steering() )
+	if ( sKey::Steering() == seislineset.datatype(index) )
 	    compnr_ = 1;
     }
     else
@@ -232,14 +232,14 @@ void uiSeisBrowser::createMenuAndToolBar()
     mAddButton( "leftarrow",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow",rightArrowPush,"Move right",false );
     showwgglbutidx_ = mAddButton( "vd",dispTracesPush,
-	    			  "Display current traces",false );
+				  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
     {
 	selcompnmfld_ = new uiComboBox( uitb_, compnms_, "Component name" );
 	uitb_->addObject( selcompnmfld_ );
 	selcompnmfld_->setCurrentItem( compnr_ );
-	selcompnmfld_->selectionChanged.notify( 
+	selcompnmfld_->selectionChanged.notify(
 					mCB(this,uiSeisBrowser,chgCompNrCB) );
     }
 }
@@ -251,8 +251,8 @@ void uiSeisBrowser::createTable()
     const int nrcols = 2*stepout_ + 1;
     tbl_ = new uiTable( this, uiTable::Setup( nrrows, nrcols )
 			     .selmode(uiTable::Multi)
-    			     .manualresize( true ), "Seismic data" );
-    
+			     .manualresize( true ), "Seismic data" );
+
     tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
     tbl_->setStretch( 1, 1 );
     tbl_->setPrefHeight( 400 );
@@ -438,7 +438,7 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
     posfld_ = new uiGenInput( this, "New Position", inpspec.setName("Inline",0)
-	    					    .setName("Crossline",1) );
+						    .setName("Crossline",1) );
 }
 
 bool acceptOK( CallBacker* )
@@ -461,13 +461,13 @@ bool acceptOK( CallBacker* )
 
 bool uiSeisBrowser::goTo( const BinID& bid )
 {
-    return doSetPos( bid, true ); 
+    return doSetPos( bid, true );
 }
 
 
 void uiSeisBrowser::infoPush( CallBacker* )
 {
-    const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
+    const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_
 					      : *tbuf_.get(tbl_->currentCol());
     if ( !infovwr_ )
     {
@@ -489,7 +489,7 @@ void uiSeisBrowser::trcselectionChanged( CallBacker* )
 {
     if ( infovwr_ )
     {
-	const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
+	const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_
 				      : *tbuf_.get(tbl_->currentCol());
 	infovwr_->setTrace( trc );
     }
@@ -551,14 +551,14 @@ void uiSeisBrowser::commitChanges()
     for ( RowCol pos(0,0); pos.col()<tbuf_.size(); pos.col()++)
     {
         SeisTrc& trc = *tbuf_.get( pos.col() );
-	for ( pos.row()=0; pos.row()<nrsamples_; pos.row()++) 
-     	{
+	for ( pos.row()=0; pos.row()<nrsamples_; pos.row()++)
+	{
 	    const float tableval = tbl_->getfValue( pos );
 	    const float trcval = trc.get( pos.row(), compnr_ );
 	    const float diff = tableval - trcval;
-   	    if ( !mIsZero(diff,1e-6) )
+	    if ( !mIsZero(diff,1e-6) )
 	    {
- 	 	trc.set( pos.row(), tableval, compnr_ );
+	 	trc.set( pos.row(), tableval, compnr_ );
 		changed[pos.col()] = true;
 	    }
 	}
@@ -631,7 +631,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
 
     BufferString errmsg;
     tri_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-	               		        Seis::is2D(setup.geom_), &errmsg );
+			        Seis::is2D(setup.geom_), &errmsg );
 
     SeisIOObjInfo seisinfo( ioobj.ptr() );
     CubeSampling cs;
@@ -687,10 +687,10 @@ int nextStep()
     if ( nrdone_ == 0 && !init() )
 	return ErrorOccurred();
 
-    if ( tri_->read(trc_) ) 
+    if ( tri_->read(trc_) )
     {
 	const int chgidx = tbufchgdtrcs_.find( trc_.info().binid, is2d_ );
-	const bool res = chgidx<0 ? tro_->write( trc_ ) 
+	const bool res = chgidx<0 ? tro_->write( trc_ )
 				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
 	if ( !res )
 	{
@@ -744,7 +744,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
 
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-		    		    IOM().nameOf(setup_.id_), compnr_ );
+				    IOM().nameOf(setup_.id_), compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (tbuf_.isEmpty()) )
@@ -806,17 +806,17 @@ void uiSeisBrowser::chgCompNrCB( CallBacker* )
 uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 					    bool is2d, const ZDomain::Def& zd )
     : uiAmplSpectrum(p)
-    , is2d_(is2d)  
-    , zdomdef_(zd)  
+    , is2d_(is2d)
+    , zdomdef_(zd)
 {
     setDeleteOnClose( true );
     setCaption( "Trace information" );
 
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
-    PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) ); 
+    PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) );
     coordfld_ = new uiGenInput( valgrp, "Coordinate",
-	   			coordinpspec.setName("X",0).setName("Y",0) );
+				coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
     BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );

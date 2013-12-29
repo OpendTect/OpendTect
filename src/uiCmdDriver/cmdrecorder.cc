@@ -526,10 +526,10 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     CmdRecEvent ev;
     mCBCapsuleUnpackWithCaller( const char*, msg, caller, cb );
 
-    const char* msgnext = getNextWord( msg, ev.idstr_.buf() );
+    const char* msgnext = getNextWord( msg, ev.idstr_.getCStr() );
     mSkipBlanks ( msgnext );
 
-    const bool iscarrieronly = isNumberString( ev.idstr_, true );
+    const bool iscarrieronly = ev.idstr_.isNumber( true );
     if ( !iscarrieronly )
     {
 #ifdef __lux32__
@@ -541,7 +541,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     }
 
     BufferString beginendword;
-    const char* msgnexxt = getNextWord( msgnext, beginendword.buf() );
+    const char* msgnexxt = getNextWord( msgnext, beginendword.getCStr() );
 
     if ( mMatchCI(beginendword,"Begin") )
 	ev.begin_ = true;
@@ -556,7 +556,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     ev.msg_ = msgnexxxt;
 
     BufferString keyword;
-    const char* msgtail = getNextWord( msgnexxxt, keyword.buf() );
+    const char* msgtail = getNextWord( msgnexxxt, keyword.getCStr() );
     mSkipBlanks ( msgtail );
 
     if ( !iscarrieronly )
@@ -767,9 +767,9 @@ void CmdRecorder::flush()
     bufstr_.setBufSize( mMAX(sz+nrchars+1, 2*bufsize_) );
 
     for ( int idx=0; idx<nrchars; idx++ )
-	bufstr_.buf()[sz++] = bufstream_.str()[idx];
+	bufstr_.getCStr()[sz++] = bufstream_.str()[idx];
 
-    bufstr_.buf()[sz] = '\0';
+    bufstr_[sz] = '\0';
 
     bufstream_.str( "" );
     bufstream_.clear();
@@ -805,7 +805,7 @@ void CmdRecorder::flush()
     }
 
     if ( nrvoidchars )
-	memmove( bufstr_.buf(), bufstr_.buf()+nrvoidchars, sz-nrvoidchars+1 );
+	memmove( bufstr_.getCStr(), bufstr_.buf()+nrvoidchars,sz-nrvoidchars+1);
 }
 
 

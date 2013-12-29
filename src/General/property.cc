@@ -117,8 +117,8 @@ void RangeProperty::setDef( const char* defstr )
     else
     {
 	FileMultiString fms( defstr );
-	rg_.start = toFloat( fms[0] );
-	rg_.stop = toFloat( fms[1] );
+	rg_.start = fms.getFValue( 0 );
+	rg_.stop = fms.getFValue( 1 );
     }
 }
 
@@ -329,7 +329,7 @@ void MathProperty::ensureGoodVariableName( char* nm )
 static bool isMathMatch( const BufferString& reqnm, const char* str )
 {
     BufferString depnm( str );
-    MathProperty::ensureGoodVariableName( depnm.buf() );
+    MathProperty::ensureGoodVariableName( depnm.getCStr() );
     return depnm == reqnm;
 }
 
@@ -343,7 +343,7 @@ const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
     else if ( caseInsensitiveEqual(nm,"xpos") )
 	return &xposprop;
 
-    BufferString reqnm( nm ); ensureGoodVariableName( reqnm.buf() );
+    BufferString reqnm( nm ); ensureGoodVariableName( reqnm.getCStr() );
     const Property* ret = 0;
     for ( int idx=0; idx<ps.size(); idx++ )
     {

@@ -1677,7 +1677,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	BufferStringSet errmsgs;
 	BufferString versionstr;
 	float versionnr = iopar.get( sKey::Version(), versionstr )
-				? toFloat( versionstr.buf() ) : 0 ;
+				? versionstr.toFloat() : 0 ;
 	if ( isstored && versionnr<4.05 )	//backward compatibility v<4.1.1
 	{
 	    DescSet* adsnonstored = eDSHolder().getDescSet( is2d, false );

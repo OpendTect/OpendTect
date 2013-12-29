@@ -199,10 +199,10 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
     BufferString line;
     strm.getLine( line );
-    if ( !matchString("Program ",line.buf()) )
+    if ( !line.startsWith("Program ") )
 	return;
 
-    char* ptr = line.buf(); ptr += 8; // Skip 'Program '
+    char* ptr = line.getCStr(); ptr += 8; // Skip 'Program '
     char* word = ptr;
     mSkipNonBlanks( ptr );
     if ( !*ptr ) { delete def; return; }

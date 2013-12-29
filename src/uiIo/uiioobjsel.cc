@@ -322,10 +322,9 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	if ( !ioobj )
 	{
 	    BufferString nm = del[idx]->name();
-	    char* ptr = nm.buf();
-	    mSkipBlanks( ptr );
-	    dispnms_.add( ptr );
-	    ioobjnms_.add( ptr );
+	    nm.trimBlanks();
+	    dispnms_.add( nm );
+	    ioobjnms_.add( nm );
 	    ioobjids_ += new MultiID( udfmid );
 	}
 	else
@@ -795,7 +794,7 @@ void uiIOObjSel::obtainIOObj()
 
     IOM().to( workctio_.ctxt.getSelKey() );
     const IOObj* ioob = IOM().dirPtr()->get( inp.buf(),
-	    			workctio_.ctxt.trgroup->userName() );
+				workctio_.ctxt.trgroup->userName() );
     workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
 }
@@ -820,7 +819,7 @@ MultiID uiIOObjSel::validKey() const
 {
     IOM().to( workctio_.ctxt.getSelKey() );
     const IOObj* ioob = IOM().dirPtr()->get( getInput(),
-	    			workctio_.ctxt.trgroup->userName() );
+				workctio_.ctxt.trgroup->userName() );
 
     if ( ioob && workctio_.ctxt.validIOObj(*ioob) )
 	return ioob->key();

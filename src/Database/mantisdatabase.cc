@@ -291,7 +291,7 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
     while ( query().next() )
     {
 	usernames_.add( query().data(0) );
-	userids_.add( toInt(query().data(1).buf()) );
+	userids_.add( query().data(1).toInt() );
     }
 
     if ( username_.isEmpty() )
@@ -304,7 +304,7 @@ bool SqlDB::MantisDBMgr::fillUsersInfo()
     for ( int idx=0; idx<usernames_.size(); idx++ )
     {
 	BufferString unm = usernames_.get( idx );
-	if ( username_.isEqual( unm, true ) )
+	if ( username_.isEqual( unm, CaseInsensitive ) )
 	{
 	    isexist = true;
 	    break;
@@ -341,7 +341,7 @@ bool SqlDB::MantisDBMgr::fillProjectsInfo()
     projectnms_.erase();
     while ( query().next() )
     {
-	projectids_.add( toInt(query().data(0).buf()) );
+	projectids_.add( query().data(0).toInt() );
 	projectnms_.add( query().data(1) );
     }
 
@@ -366,8 +366,6 @@ void SqlDB::MantisDBMgr::getProjnm( int projid, BufferString& projnm ) const
 
 bool SqlDB::MantisDBMgr::fillVersionsByProject()
 {
-//    const char* vers = GetFullODVersion();
-//    const float ver = toFloat( vers ) - 1;
     const float ver = 4.5 - 1;
     errmsg_.setEmpty();
     for ( int pidx=0; pidx<projectIDs().size(); pidx++ )
@@ -430,7 +428,7 @@ bool SqlDB::MantisDBMgr::fillAttachedFilesInfo()
 
 	while ( query().next() )
 	{
-	    attachids_.add( toInt(query().data(0).buf()) );
+	    attachids_.add( query().data(0).toInt() );
 	    attachfilenms_.add( query().data(1) );
 	}
 
@@ -1104,7 +1102,7 @@ int SqlDB::MantisDBMgr::getMaxBugIDFromBugTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return toInt( querystr );
+    return querystr.toInt();
 }
 
 
@@ -1119,7 +1117,7 @@ int SqlDB::MantisDBMgr::getMaxBugIDFromBugTextTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return toInt( querystr );
+    return querystr.toInt();
 }
 
 
@@ -1134,7 +1132,7 @@ int SqlDB::MantisDBMgr::getMaxNoteIDFromBugNoteTextTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return toInt( querystr );
+    return querystr.toInt();
 }
 
 
@@ -1149,7 +1147,7 @@ int SqlDB::MantisDBMgr::getMaxNoteIDFromBugNoteTable() const
     while ( query().next() )
 	querystr = query().data(0);
 
-    return toInt( querystr );
+    return querystr.toInt();
 }
 
 
@@ -1173,8 +1171,8 @@ void SqlDB::MantisDBMgr::parseVersion( const BufferString& fullver,
 				       BufferString& patchver )
 {
     const char* buf = fullver.buf();
-    char* numbuf = numver.buf();
-    char* patchbuf = patchver.buf();
+    char* numbuf = numver.getCStr();
+    char* patchbuf = patchver.getCStr();
     bool ispatch = false;
     while ( *buf )
     {
@@ -1208,7 +1206,7 @@ void SqlDB::MantisDBMgr::editVersions( const BufferStringSet& versions,
     for ( int idx=0; idx<versions.size(); idx++ )
     {
 	BufferString str( versions.get( idx ) );
-	char* ver = str.buf();
+	char* ver = str.getCStr();
 	if ( !ver || !*ver ) continue;
 
 	int found = 0;

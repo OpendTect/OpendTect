@@ -261,11 +261,11 @@ int lmkEMStickSetReader::nextStep()
     {
 	BufferString str(&buffer[lineidinterval.start-1]);
 	str[lineidinterval.width()+1] = 0;
-	int inl = toInt( str );
+	int inl = str.toInt();
 
 	str = &buffer[traceinterval.start-1];
 	str[traceinterval.width()+1] = 0;
-	int crl = toInt( str );
+	int crl = str.toInt();
 
 	Coord coord = SI().transform( BinID(inl, crl ));
 
@@ -276,20 +276,20 @@ int lmkEMStickSetReader::nextStep()
     {
 	BufferString str(&buffer[xinterval.start-1]);
 	str[xinterval.width()+1] = 0;
-	pos.x = toDouble( str );
+	pos.x = str.toDouble();
 
 	str = &buffer[yinterval.start-1];
 	str[yinterval.width()+1] = 0;
-	pos.y = toDouble( str );
+	pos.y = str.toDouble();
     }
 
     BufferString str = &buffer[zinterval.start-1];
     str[zinterval.width()+1] = 0;
-    pos.z = toDouble( str );
+    pos.z = str.toDouble();
 
     str = &buffer[pointtypeinterval.start-1];
     str[pointtypeinterval.width()+1] = 0;
-    int pt = toInt( str );
+    int pt = str.toInt();
 
     if ( domainunitinterval.start!=-1 )
     {

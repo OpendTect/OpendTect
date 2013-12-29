@@ -593,7 +593,7 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
 bool Seis2DLineSet::renameFiles( const char* newlsnm )
 {
     BufferString cleannm( newlsnm );
-    cleanupString( cleannm.buf(), false, false, false );
+    cleanupString( cleannm.getCStr(), false, false, false );
     if ( fname_.isEmpty() )
 	return false;
 

@@ -45,15 +45,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
-    	: ioobj_(ioobj ? ioobj->clone() : 0)		{ setType(); }
+	: ioobj_(ioobj ? ioobj->clone() : 0)		{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
-    	: ioobj_(ioobj.clone())				{ setType(); }
+	: ioobj_(ioobj.clone())				{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
-    	: ioobj_(IOM().get(id))				{ setType(); }
+	: ioobj_(IOM().get(id))				{ setType(); }
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
-    	: ioobj_(0)
+	: ioobj_(0)
 {
     mGoToSeisDir();
     ioobj_ = IOM().getLocal( ioobjnm, 0 );
@@ -62,7 +62,7 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
-    	: geomtype_(sii.geomtype_)
+	: geomtype_(sii.geomtype_)
 	, bad_(sii.bad_)
 {
     ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
@@ -81,8 +81,8 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
     {
 	delete ioobj_;
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
-    	geomtype_ = sii.geomtype_;
-    	bad_ = sii.bad_;
+	geomtype_ = sii.geomtype_;
+	bad_ = sii.bad_;
     }
     return *this;
 }
@@ -266,7 +266,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
     if ( isgood )
     {
 	ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
-	    	= sttr->componentInfo();
+		= sttr->componentInfo();
 	for ( int idx=0; idx<comps.size(); idx++ )
 	{
 	    int thisbps = (int)comps[idx]->datachar.nrBytes();
@@ -309,14 +309,14 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 
 #define mGetZDomainGE \
     const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
-	    					 : o2d.zdomky_.buf() )
+						 : o2d.zdomky_.buf() )
 #define mChkOpts \
    if ( o2d.steerpol_ != 2 ) \
     { \
 	const char* lndt = lset->datatype(idx); \
 	const char* attrnm = lset->attribute(idx); \
-	const bool issteer = (lndt && lndt==sKey::Steering()) || \
-				(!lndt && attrnm==sKey::Steering()); \
+	const bool issteer = (lndt && sKey::Steering()==lndt) || \
+				(!lndt && sKey::Steering()==attrnm); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
@@ -407,7 +407,7 @@ bool SeisIOObjInfo::getRanges( const LineKey& lk, StepInterval<int>& trcrg,
     return lset->getRanges( lidx, trcrg, zrg );
 }
 
-	
+
 BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
 					     const char* ioobjnm )
 {

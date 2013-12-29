@@ -86,19 +86,19 @@ public:
 			//!< The composite key: (a,b) -> a.b
     static const char*	compKey(const char*,int);
 			//!< The composite key where int will be --> string
-    static const char*	compKey( const char* ky1, const FixedString& ky2 )
+    static const char*	compKey( const char* ky1, const OD::String& ky2 )
 			{ return compKey(ky1,ky2.str()); }
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
     IOPar*		subselect(int) const;
 			//!< returns iopar with key that start with number.
-    IOPar*		subselect( const FixedString& fs ) const
+    IOPar*		subselect( const OD::String& fs ) const
 			{ return subselect( fs.str() ); }
     void		removeSubSelection(const char*);
 			//!< removes with key that start with <str>.
     void		removeSubSelection(int);
 			//!< removes with key that start with number.
-    void		removeSubSelection( const FixedString& fs )
+    void		removeSubSelection( const OD::String& fs )
 			{ removeSubSelection( fs.str() ); }
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
@@ -180,7 +180,7 @@ public:
 			/*!< replaces when key already exists, otherwise adds */
     void		add(const char* ky,const char* val);
 			/*!< unsafe: does not check for duplicate keys */
-    void		add( const char* ky, const FixedString& val )
+    void		add( const char* ky, const OD::String& val )
 			{ add( ky, val.str() ); }
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
@@ -226,18 +226,12 @@ public:
     void		set(const char*,const MultiID&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
-    void		set(const char*,const FixedString&);
-    void		set(const char*,const FixedString&,
-					const FixedString&);
-    void		set(const char*,const FixedString&,
-					const FixedString&,
-					const FixedString&);
-    void		set(const char*,const BufferString&);
-    void		set(const char*,const BufferString&,
-					const BufferString&);
-    void		set(const char*,const BufferString&,
-					const BufferString&,
-					const BufferString&);
+    void		set(const char*,const OD::String&);
+    void		set(const char*,const OD::String&,
+					const OD::String&);
+    void		set(const char*,const OD::String&,
+					const OD::String&,
+					const OD::String&);
     void		set(const char*,const BufferStringSet&);
     template <class T>
     void		set(const char*,const Interval<T>&);

@@ -117,10 +117,10 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     if ( !strm.getAll(filecont) )
 	mErrRet
 
-    total = getMemFromStr( filecont.buf(), "MemTotal:" );
-    free = getMemFromStr( filecont.buf(), "MemFree:" );
-    free += getMemFromStr( filecont.buf(), "Cached:" );
-    swapfree = getMemFromStr( filecont.buf(), "SwapFree:" );
+    total = getMemFromStr( filecont.getCStr(), "MemTotal:" );
+    free = getMemFromStr( filecont.getCStr(), "MemFree:" );
+    free += getMemFromStr( filecont.getCStr(), "Cached:" );
+    swapfree = getMemFromStr( filecont.getCStr(), "SwapFree:" );
 
 #endif
 #ifdef __mac__

@@ -84,7 +84,7 @@ void setZUnit( CallBacker* cb=0 )
 
 const PropertyRef& PropertyRef::thickness()
 {
-    mDefineStaticLocalObject( PtrMan<PropRef_ThickRef_Man>, ptm, 
+    mDefineStaticLocalObject( PtrMan<PropRef_ThickRef_Man>, ptm,
 			      = new PropRef_ThickRef_Man );
     return *ptm->ref_;
 }
@@ -178,8 +178,8 @@ void PropertyRef::usePar( const IOPar& iop )
     sz = fms.size();
     if ( sz > 1 )
     {
-	disp_.range_.start = toFloat( fms[0] );
-	disp_.range_.stop = toFloat( fms[1] );
+	disp_.range_.start = fms.getFValue( 0 );
+	disp_.range_.stop = fms.getFValue( 1 );
 	if ( sz > 2 )
 	{
 	    disp_.unit_ = fms[2];
@@ -510,14 +510,14 @@ int PropertyRefSelection::find( const char* nm ) const
 }
 
 
-PropertyRefSelection PropertyRefSelection::subselect(                           
-					PropertyRef::StdType type ) const       
-{                                                                               
+PropertyRefSelection PropertyRefSelection::subselect(
+					PropertyRef::StdType type ) const
+{
     PropertyRefSelection subsel;
     subsel.erase();
-    for ( int idx=0; idx<size(); idx++ )                                        
-	if ( (*this)[idx] && (*this)[idx]->hasType( type ) )                    
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] && (*this)[idx]->hasType( type ) )
 	    subsel += (*this) [idx];
 
-    return subsel; 
+    return subsel;
 }

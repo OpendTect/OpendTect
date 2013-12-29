@@ -59,12 +59,9 @@ static int getExitStatus( const char* logfile, BufferString& msg )
 	    break;
 
     msg = ptr;
-    ptr = firstOcc( msg.buf(), "finished with code" );
+    ptr = msg.find( "finished with code" );
     if ( !ptr )
-    {
-	msg.setEmpty();
-	return -1;
-    }
+	{ msg.setEmpty(); return -1; }
 
     ptr += 19;
     *(ptr + 1) = '\0';

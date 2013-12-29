@@ -73,25 +73,23 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
 
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( linenm && *linenm == '#' )
+    BufferString linenm = lk.lineName();
+    if (  linenm.firstChar() == '#' )
     {
-	DataPack::FullID fid( linenm+1 );
+	DataPack::FullID fid( linenm.buf()+1 );
 	if ( !DPM(fid).haveID( fid ) )
 	    desc.setErrMsg( "Cannot find data in memory" );
-
 	return;
     }
 
-    const MultiID key( lk.lineName() );
+    const MultiID key( linenm );
     const BufferString attrnm = lk.attrName();
-    
+
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
     {
-//	desc.setErrMsg( rdr.errMsg() );
+//	TODO desc.setErrMsg( rdr.errMsg() );
 	return;
     }
 
@@ -128,7 +126,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 		for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
 		    desc.addOutputDataType( (Seis::DataType)
 					transl->componentInfo()[0]->datatype );
-	    } 
+	    }
 	}
 	else
 	{
@@ -274,7 +272,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	}
 	else
 	{
-	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl() 
+	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl()
 					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    if ( !lset->getRanges( lineidx, trcrg, zrg ) )
@@ -345,7 +343,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		    if ( !trc ) continue; // should not happen
 
 		    registerNewPosInfo( trc, startpos, firstcheck,
-			    		advancefurther );
+					advancefurther );
 		}
 	    }
 	}
@@ -396,7 +394,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
     if ( res.hrg.step.dir>1 )\
     {\
 	float remain = ( possiblevolume_->hrg.start.dir - res.hrg.start.dir ) %\
-	    		res.hrg.step.dir;\
+			res.hrg.step.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
 	    res.hrg.start.dir = possiblevolume_->hrg.start.dir + \
 				mNINT32(remain +0.5) *res.hrg.step.dir;\
@@ -405,7 +403,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
 bool StorageProvider::getPossibleVolume( int, CubeSampling& globpv )
 {
-    if ( !possiblevolume_ ) 
+    if ( !possiblevolume_ )
 	possiblevolume_ = new CubeSampling;
 
     *possiblevolume_ = storedvolume_;
@@ -469,9 +467,9 @@ void StorageProvider::updateStorageReqs( bool )
 {
     if ( !mscprov_ ) return;
 
-    mscprov_->setStepout( desbufferstepout_.inl(), desbufferstepout_.crl(), 
+    mscprov_->setStepout( desbufferstepout_.inl(), desbufferstepout_.crl(),
 			  false );
-    mscprov_->setStepout( reqbufferstepout_.inl(), reqbufferstepout_.crl(), 
+    mscprov_->setStepout( reqbufferstepout_.inl(), reqbufferstepout_.crl(),
 			  true );
 }
 
@@ -497,7 +495,7 @@ bool StorageProvider::setMSCProvSelData()
 	return setTableSelData();
 
     if ( is2d )
-	return set2DRangeSelData(); 
+	return set2DRangeSelData();
 
     if ( !desiredvolume_ )
     {
@@ -519,16 +517,16 @@ bool StorageProvider::setMSCProvSelData()
 	return false;
 
     CubeSampling cs;
-    cs.hrg.start.inl() = 
+    cs.hrg.start.inl() =
 	    desiredvolume_->hrg.start.inl() < storedvolume_.hrg.start.inl() ?
 	    storedvolume_.hrg.start.inl() : desiredvolume_->hrg.start.inl();
-    cs.hrg.stop.inl() = 
+    cs.hrg.stop.inl() =
 	    desiredvolume_->hrg.stop.inl() > storedvolume_.hrg.stop.inl() ?
 	    storedvolume_.hrg.stop.inl() : desiredvolume_->hrg.stop.inl();
-    cs.hrg.stop.crl() = 
+    cs.hrg.stop.crl() =
 	    desiredvolume_->hrg.stop.crl() > storedvolume_.hrg.stop.crl() ?
 	    storedvolume_.hrg.stop.crl() : desiredvolume_->hrg.stop.crl();
-    cs.hrg.start.crl() = 
+    cs.hrg.start.crl() =
 	    desiredvolume_->hrg.start.crl() < storedvolume_.hrg.start.crl() ?
 	    storedvolume_.hrg.start.crl() : desiredvolume_->hrg.start.crl();
     cs.zrg.start = desiredvolume_->zrg.start < storedvolume_.zrg.start ?
@@ -537,12 +535,12 @@ bool StorageProvider::setMSCProvSelData()
 		     storedvolume_.zrg.stop : desiredvolume_->zrg.stop;
 
     reader.setSelData( haveseldata ? seldata_->clone()
-	   			   : new Seis::RangeSelData(cs) );
+				   : new Seis::RangeSelData(cs) );
 
     SeisTrcTranslator* transl = reader.seisTranslator();
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !outputinterest_[idx] ) 
+	if ( !outputinterest_[idx] )
 	    transl->componentInfo()[idx]->destidx = -1;
     }
 
@@ -567,7 +565,7 @@ bool StorageProvider::setTableSelData()
     if ( !transl ) return false;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !outputinterest_[idx] && transl->componentInfo().size()>idx ) 
+	if ( !outputinterest_[idx] && transl->componentInfo().size()>idx )
 	    transl->componentInfo()[idx]->destidx = -1;
     }
     return true;
@@ -656,28 +654,28 @@ bool StorageProvider::checkDesiredVolumeOK()
 
     mInitErrMsg();
     mAdd2ErrMsg(inlwrong,"Inline",
-	    	storedvolume_.hrg.start.inl(),storedvolume_.hrg.stop.inl())
+		storedvolume_.hrg.start.inl(),storedvolume_.hrg.stop.inl())
     mAdd2ErrMsg(crlwrong,"Crossline",
-	    	storedvolume_.hrg.start.crl(),storedvolume_.hrg.stop.crl())
+		storedvolume_.hrg.start.crl(),storedvolume_.hrg.stop.crl())
     mAdd2ErrMsg(zwrong,"Z",storedvolume_.zrg.start,storedvolume_.zrg.stop)
     if ( zstepwrong )
 	errmsg_ = "Z-Step is not correct. The maximum resampling allowed is a"
-		  " factor 100. Probably the data belongs to a different" 
+		  " factor 100. Probably the data belongs to a different"
 		  " Z-Domain";
     return false;
 }
 
 
-bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg, 
+bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 				   StepInterval<float>zrg )
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef(); 
+	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef();
 	errmsg_ += "'"; errmsg_ += " has no desired volume\n";
 	return false;
     }
-    
+
     const bool trcrgwrong =
 	desiredvolume_->hrg.start.crl() > trcrg.stop
      || desiredvolume_->hrg.stop.crl() < trcrg.start;
@@ -701,9 +699,9 @@ bool StorageProvider::computeData( const DataHolder& output,
 {
     const BinID bidstep = getStepoutStep();
     const SeisTrc* trc = 0;
-    
+
     if ( isondisc_)
-	trc = mscprov_->get( relpos.inl()/bidstep.inl(), 
+	trc = mscprov_->get( relpos.inl()/bidstep.inl(),
 			     relpos.crl()/bidstep.crl() );
     else
 	trc = getTrcFromPack( relpos, 0 );
@@ -762,7 +760,7 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 }
 
 
-bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
+bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 					     const DataHolder& data ) const
 {
     if ( !trc || data.isEmpty() )
@@ -783,7 +781,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	extrazfromsamppos = getExtraZFromSampInterval( z0, data.nrsamples_ );
 	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
     }
-    
+
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
@@ -796,7 +794,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    {
 		compidx++;
 		const int compnr = desc_.is2D() ? idy : compidx;
-		const float val = trcrange.includes(curt,false) ? 
+		const float val = trcrange.includes(curt,false) ?
 		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compnr)
 				  : trc->getValue(curt, compnr) )
 		   : mUdf(float);
@@ -909,7 +907,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
 	}
     }
-} 
+}
 
 
 void StorageProvider::checkClassType( const SeisTrc* trc,
@@ -991,7 +989,7 @@ bool StorageProvider::useInterTrcDist() const
 	return true;
 
     if ( getDesc().is2D() )
-    {                                                                           
+    {
 	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
 	const BufferString attrnm = lk.attrName();
 	const MultiID key( lk.lineName() );
@@ -1007,7 +1005,7 @@ bool StorageProvider::useInterTrcDist() const
 		if ( lineidx<0 ) return false;
 		IOPar linepars = rdr.lineSet()->getInfo( lineidx );
 		FixedString fname = linepars.find( sKey::FileName() );
-		FilePath fp( fname ); 
+		FilePath fp( fname );
 		if ( !fp.isAbsolute() )
 		    fp.setPath( IOObjContext::getDataDirName(
 							IOObjContext::Seis) );
@@ -1018,7 +1016,7 @@ bool StorageProvider::useInterTrcDist() const
 
 		BufferStringSet compnms;
 		tmptransl->getComponentNames( compnms );
-		if ( compnms.size()>=2 
+		if ( compnms.size()>=2
 		    && compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
 		{
 		    const_cast<Attrib::StorageProvider*>(this)
@@ -1027,9 +1025,9 @@ bool StorageProvider::useInterTrcDist() const
 		}
 	    }
 	}
-    }                                                                           
+    }
 
-    return false; 
+    return false;
 }
 
 

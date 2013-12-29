@@ -21,7 +21,7 @@ ________________________________________________________________________
 
   When slices are to be taken from a CubeSampling, they should be ordered
   as follows:
- 
+
   Dir |   Dim1  |  Dim2
   ----|---------|------
   Inl |   Crl   |  Z
@@ -35,23 +35,25 @@ mExpClass(Basic) CubeSampling
 {
 public:
 
-    			CubeSampling( bool settoSI=true )
-			: hrg(settoSI)		{ init(settoSI); }
+			CubeSampling()
+			    : hrg(true)		{ init( true ); }
+			CubeSampling( bool settoSI )
+			    : hrg(settoSI)	{ init( settoSI ); }
 
     enum Dir		{ Z, Inl, Crl };
     Dir			defaultDir() const;
-    			//!< 'flattest' direction, i.e. direction with
-    			//!< smallest size. If equal, prefer Inl then Crl then Z
+			//!< 'flattest' direction, i.e. direction with
+			//!< smallest size. If equal, prefer Inl then Crl then Z
     void		getDefaultNormal(Coord3&) const;
     bool		isFlat() const; //!< is one of directions size 1?
 
     void		init(bool settoSI=true);
-    			//!< Sets hrg.init and zrg to survey values or zeros
+			//!< Sets hrg.init and zrg to survey values or zeros
     inline void		setEmpty()		{ init(false); }
     void		set2DDef();
-    			//!< Sets to survey zrange and hrg.set2DDef
+			//!< Sets to survey zrange and hrg.set2DDef
     void		normalise();
-    			//!< Makes sure start<stop and steps are non-zero
+			//!< Makes sure start<stop and steps are non-zero
 
     HorSampling		hrg;
     StepInterval<float>	zrg;
@@ -64,7 +66,7 @@ public:
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
     od_int64		totalNr() const;
     inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
-    						      : (d == Crl ? nrCrl()
+						      : (d == Crl ? nrCrl()
 							          : nrZ()); }
     inline float	zAtIndex( int idx ) const
 						{ return zrg.atIndex(idx); }
@@ -72,17 +74,17 @@ public:
     bool		isDefined() const;
     bool		includes(const CubeSampling&) const;
     bool		getIntersection(const CubeSampling&,
-	    				CubeSampling&) const;
-    			//!< Returns false if intersection is empty
+					CubeSampling&) const;
+			//!< Returns false if intersection is empty
     void		include(const BinID&,float z);
     void		include(const CubeSampling&);
     void		limitTo(const CubeSampling&,bool ignoresteps=false);
     void		limitToWithUdf(const CubeSampling&);
-    			/*!< handles undef values + returns reference cube 
+			/*!< handles undef values + returns reference cube
 			     nearest limit if the 2 cubes do not intersect */
 
     void		snapToSurvey();
-    			/*!< Checks if it is on valid bids and sample positions.
+			/*!< Checks if it is on valid bids and sample positions.
 			     If not, it will expand until it is */
 
     bool		operator==( const CubeSampling& cs ) const;
@@ -101,7 +103,7 @@ inline CubeSampling::Dir direction( CubeSampling::Dir slctype, int dimnr )
 	return slctype;
     else if ( dimnr == 1 )
 	return slctype == CubeSampling::Inl ? CubeSampling::Crl
-	    				    : CubeSampling::Inl;
+					    : CubeSampling::Inl;
     else
 	return slctype == CubeSampling::Z ? CubeSampling::Crl : CubeSampling::Z;
 }

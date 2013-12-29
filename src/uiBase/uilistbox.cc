@@ -598,9 +598,9 @@ bool uiListBox::isPresent( const char* txt ) const
     for ( int idx=0; idx<sz; idx++ )
     {
 	BufferString itmtxt( body_->item(idx)->text() );
-	char* ptr = itmtxt.buf();
-	mSkipBlanks( ptr );
-	if ( !strcmp(txt,ptr) ) return true;
+	itmtxt.trimBlanks();
+	if ( itmtxt == txt )
+	    return true;
     }
     return false;
 }
@@ -978,7 +978,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
 
     BufferStringSet txts;
     BufferString s( txt );
-    char* ptr = s.buf();
+    char* ptr = s.getCStr();
     if( !ptr || !*ptr ) return;
     while ( 1 )
     {
@@ -992,7 +992,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     if ( txts.size() < 1 ) return;
 
     bool last1st = pos > RightTop && pos < BelowLeft;
-    ptr = last1st ? txts[txts.size()-1]->buf() : txts[0]->buf();
+    ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
 
     uiLabel* labl = new uiLabel( this, ptr );
     lbls += labl;

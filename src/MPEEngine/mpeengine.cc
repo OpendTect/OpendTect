@@ -436,10 +436,8 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
 			    const Attrib::SelSpec& clickedss ) const
 {
-    bool setupssisstoed = matchString( Attrib::StorageProvider::attribName(),
-				       setupss.defString() );
     return setupss.id().asInt()==clickedss.id().asInt() &&
-	setupssisstoed==clickedss.id().isStored() &&
+	setupss.isStored()==clickedss.id().isStored() &&
 	setupss.isNLA()==clickedss.isNLA() &&
 	BufferString(setupss.defString())==
 	   BufferString(clickedss.defString()) &&
@@ -451,13 +449,10 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 {
     for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	bool asisstored = matchString( Attrib::StorageProvider::attribName(),
-				       as.defString() );
-
 	if ( attribcachespecs_[idx]->attrsel_.is2D()	   != as.is2D()  ||
 	     attribcachespecs_[idx]->attrsel_.isNLA()	   != as.isNLA() ||
 	     attribcachespecs_[idx]->attrsel_.id().asInt() != as.id().asInt() ||
-	     attribcachespecs_[idx]->attrsel_.id().isStored() != asisstored )
+	     attribcachespecs_[idx]->attrsel_.id().isStored() != as.isStored() )
 	    continue;
 
 	if ( !as.is2D() )

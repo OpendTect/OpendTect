@@ -263,7 +263,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     }
 
     useglobfld_ = new uiGenInput( this, "A priori weights",
-	    			  BoolInpSpec(false,"Constant","Variable") );
+				  BoolInpSpec(false,"Constant","Variable") );
     if ( prenormfld_ )
 	useglobfld_->attach( alignedBelow, prenormfld_ );
 
@@ -280,8 +280,9 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	fldtxt.add( IOM().nameOf(id) ).add( "'" );
 
 	float scl = 1;
-	const char* res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
-	if ( res && *res ) scl = toFloat( res );
+	FixedString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
+	if ( !res.isEmpty() )
+	    scl = res.toFloat();
 	uiGenInput* fld = new uiGenInput( this, fldtxt, FloatInpSpec(scl) );
 	fld->attach( alignedBelow, alobj );
 	sclflds_ += fld;
@@ -291,7 +292,8 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	os->setInput( MultiID(res) );
 	os->attach( alignedBelow, alobj );
 	apflds_ += os;
-	if ( res && *res ) havevariable = true;
+	if ( !res.isEmpty() )
+	    havevariable = true;
 
 	alobj = fld;
     }
@@ -413,7 +415,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 {
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
-	    				emsg );
+					emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
     const int nrvars = pdf->nrDims();
@@ -509,7 +511,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
-	    				emsg );
+					emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )

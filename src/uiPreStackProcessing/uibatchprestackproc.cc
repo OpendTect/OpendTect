@@ -71,7 +71,7 @@ void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
     {
 	parfilename += "_";
 	parfilename += outputsel_->ioobj(true)->name();
-	cleanupString( parfilename.buf(), false, false, false );
+	cleanupString( parfilename.getCStr(), false, false, false );
     }
 
     setParFileNmDef( parfilename );

@@ -102,8 +102,8 @@ void LinScaler::fromString( const char* str )
     if ( !str || ! *str ) return;
     FileMultiString fms = str;
     const int sz = fms.size();
-    if ( sz > 0 ) constant = toDouble( fms[0] );
-    if ( sz > 1 ) factor = toDouble( fms[1] );
+    if ( sz > 0 ) constant = fms.getDValue( 0 );
+    if ( sz > 1 ) factor = fms.getDValue( 1 );
 }
 
 
@@ -206,9 +206,9 @@ void AsymptScaler::fromString( const char* str )
     if ( !str || ! *str ) return;
     FileMultiString fms = str;
     const int sz = fms.size();
-    if ( sz > 0 ) center_ = toDouble( fms[0] );
-    if ( sz > 1 ) width_ = toDouble( fms[1] );
-    if ( sz > 2 ) linedge_ = toDouble( fms[2] );
+    if ( sz > 0 ) center_ = fms.getDValue( 0 );
+    if ( sz > 1 ) width_ = fms.getDValue( 1 );
+    if ( sz > 2 ) linedge_ = fms.getDValue( 2 );
 
     set( center_, width_, linedge_ );
 }

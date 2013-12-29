@@ -163,7 +163,7 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
     {
 	mAllocVarLenArr( char, fullline, linelen+1 );
 	BufferString inptxt( text() );
-	char* ptr = inptxt.buf();
+	char* ptr = inptxt.getCStr();
 	while ( ptr && *ptr )
 	{
 	    char* startptr = ptr;

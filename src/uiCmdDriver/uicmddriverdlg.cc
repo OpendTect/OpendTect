@@ -57,7 +57,7 @@ uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
     }
     if ( cols )
 	rows++;
-    
+
     infofld_ = new uiTextEdit( this, "Info", true );
     infofld_->setPrefHeightInChar( mMIN(rows+1,20) );
     infofld_->setText( ispec.infotext_ );
@@ -106,10 +106,10 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
     cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, "Select script to" );
     cmdoptionfld_->box()->selectionChanged.notify(
-	    				  mCB(this,uiCmdDriverDlg,selChgCB) );
+					  mCB(this,uiCmdDriverDlg,selChgCB) );
 
     tooltipfld_ = new uiCheckBox( this, "ToolTipNameGuide",
-	    			  mCB(this,uiCmdDriverDlg,toolTipChangeCB) );
+				  mCB(this,uiCmdDriverDlg,toolTipChangeCB) );
     tooltipfld_->attach( rightOf, cmdoptionfld_ );
     tooltipfld_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
     toolTipChangeCB(0);
@@ -137,7 +137,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.forread(false)
 			.confirmoverwrite(false)
 			.withexamine(true)
-	   		.examstyle(uiFileInput::Setup::Log)
+			.examstyle(uiFileInput::Setup::Log)
 			.displaylocalpath(true) );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 
@@ -278,7 +278,7 @@ static bool isRefToDataDir( uiFileInput& fld, bool base=false )
     FilePath fp( fld.fileName() );
     BufferString dir = base ? GetBaseDataDir() : GetDataDir();
     dir += FilePath::dirSep(FilePath::Local);
-    return matchString( dir.buf(), fp.fullPath() );
+    return dir.isStartOf( fp.fullPath() );
 }
 
 
@@ -362,7 +362,7 @@ void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 	pausebut_->setText( "-Interrupting-" );
 	drv_.pause( true );
     }
-} 
+}
 
 
 void uiCmdDriverDlg::interactCB( CallBacker* cb )
@@ -407,7 +407,7 @@ void uiCmdDriverDlg::selectAbortCB( CallBacker* )
 
     pausebut_->setText( "&Pause" );
     pausebut_->setSensitive( false );
-} 
+}
 
 
 void uiCmdDriverDlg::executeFinished()
@@ -462,7 +462,7 @@ void uiCmdDriverDlg::selectStopRecordCB( CallBacker* )
     rec_.stop();
     inpfld_->setFileName( outfld_->fileName() );
     refreshDisplay( true, true );
-} 
+}
 
 
 void uiCmdDriverDlg::beforeSurveyChg()
@@ -477,7 +477,7 @@ void uiCmdDriverDlg::afterSurveyChg()
 {
     setDefaultSelDirs();
 
-    const bool untouchedlog = logproposal_==logfld_->fileName(); 
+    const bool untouchedlog = logproposal_==logfld_->fileName();
     if ( logfldsurveycheck_ && !drv_.nowExecuting() && untouchedlog )
 	setDefaultLogFile();
 }

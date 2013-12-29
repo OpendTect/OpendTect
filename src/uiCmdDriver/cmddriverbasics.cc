@@ -66,7 +66,7 @@ const char* StringProcessor::parseBracketed( BufferString& unbracketedstr,
     }
 
     unbracketedstr.setBufSize( mCast(unsigned int, stop - start + 1) );
-    char* ptrbuf = unbracketedstr.buf();
+    char* ptrbuf = unbracketedstr.getCStr();
     while ( start != stop )
 	*ptrbuf++ = *start++;
     *ptrbuf = '\0';
@@ -104,7 +104,7 @@ int StringProcessor::removeNumAppendix()
 {
     mReturnRetIfReadOnly( 0 );
 
-    char* wicketptr = bufstr_->buf() + bufstr_->size();
+    char* wicketptr = bufstr_->getCStr() + bufstr_->size();
 
     while ( *wicketptr!='#' || isEscapedSymbol(wicketptr) )
     {
@@ -131,7 +131,7 @@ bool StringProcessor::removeTokenAppendix( char token )
 {
     mReturnRetIfReadOnly( 0 );
 
-    char* tokenptr = bufstr_->buf() + bufstr_->size() - 1;
+    char* tokenptr = bufstr_->getCStr() + bufstr_->size() - 1;
 
     if ( !*bufstr_->buf() || *tokenptr!=token || isEscapedSymbol(tokenptr) )
 	return false;
@@ -165,7 +165,7 @@ const char* StringProcessor::nextAction( BufferString& action ) const
 	    while ( *ptr ) ptr++;
     }
 
-    *( action.buf() + (ptr-constptr_) ) = '\0';
+    *( action.getCStr() + (ptr-constptr_) ) = '\0';
     return *ptr ? ptr+1 : ptr;
 }
 
@@ -216,9 +216,9 @@ bool StringProcessor::convertToInt( int* val ) const
     StringProcessor(unescapedstr).removeCmdFileEscapes();
 
     char* remnant = 0;
-    const int num = strtol( unescapedstr.buf(), &remnant, 0 );
+    const int num = strtol( unescapedstr.getCStr(), &remnant, 0 );
 
-    if ( !remnant || *remnant || remnant==unescapedstr.buf() )
+    if ( !remnant || *remnant || remnant==unescapedstr.getCStr() )
 	return false;
 
     if ( val )
@@ -246,7 +246,7 @@ bool StringProcessor::convertToDouble( double* val ) const
     StringProcessor(unescapedstr).removeCmdFileEscapes();
 
     char* remnant = 0;
-    const double num = strtod( unescapedstr.buf(), &remnant );
+    const double num = strtod( unescapedstr.getCStr(), &remnant );
 
     if ( !remnant || *remnant || remnant==unescapedstr.buf() )
 	return false;
@@ -274,8 +274,8 @@ char StringProcessor::preParseProcedure( FileMultiString& keyfms,
     parfms.setEmpty();
 
     BufferString bufcopy = constptr_;
-    char* startptr = bufcopy.buf();
-    char* endptr = bufcopy.buf();
+    char* startptr = bufcopy.getCStr();
+    char* endptr = bufcopy.getCStr();
 
     int nestdepth = 0;
     int stagenr = 0;
@@ -358,11 +358,11 @@ void StringProcessor::makeDirSepIndep( int startpos )
     const char* winsep = FilePath::dirSep( FilePath::Windows );
     const char* unixsep = FilePath::dirSep( FilePath::Unix );
 
-    char* ptr = bufstr_->buf();
+    char* ptr = bufstr_->getCStr();
     if ( startpos>0 && startpos<bufstr_->size() )
 	ptr += startpos;
 
-    while ( ptr>=bufstr_->buf() && (*ptr!='"' || isEscapedSymbol(ptr)) )
+    while ( ptr>=bufstr_->getCStr() && (*ptr!='"' || isEscapedSymbol(ptr)) )
 	ptr--;
 
     while ( *(++ptr) && (*ptr!='"' || isEscapedSymbol(ptr)) )
@@ -379,7 +379,7 @@ void StringProcessor::addCmdFileEscapes( const char* extraescapesymbols )
 
     bufstr_->setBufSize( 2*bufstr_->size()+1 );
 
-    char* writeptr = bufstr_->buf();
+    char* writeptr = bufstr_->getCStr();
     BufferString readcopy( writeptr );
     const char* readptr = readcopy.buf();
 
@@ -421,7 +421,7 @@ void StringProcessor::removeCmdFileEscapes()
 {
     mReturnIfReadOnly();
 
-    char* writeptr = bufstr_->buf();
+    char* writeptr = bufstr_->getCStr();
     const char* readptr = writeptr;
 
     while ( *readptr )
@@ -516,7 +516,7 @@ void StringProcessor::removeExtraSpace()
 {
     mReturnIfReadOnly();
 
-    char* writeptr = bufstr_->buf();
+    char* writeptr = bufstr_->getCStr();
     const char* readptr = writeptr;
 
     while ( *readptr )
@@ -538,7 +538,7 @@ void StringProcessor::capitalize( bool yn )
 {
     mReturnIfReadOnly();
 
-    char* ptr = bufstr_->buf();
+    char* ptr = bufstr_->getCStr();
 
     while ( *ptr )
     {
@@ -552,7 +552,7 @@ void StringProcessor::removeTrailingDots()
 {
     mReturnIfReadOnly();
 
-    char* ptr = bufstr_->buf() + bufstr_->size();
+    char* ptr = bufstr_->getCStr() + bufstr_->size();
     while ( ptr != bufstr_->buf() )
     {
 	ptr--;
@@ -576,8 +576,8 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 {
     mReturnRetIfReadOnly( '\0' );
 
-    BufferString bufcopy = bufstr_->buf();
-    char* firstptr = bufcopy.buf();
+    BufferString bufcopy = *bufstr_;
+    char* firstptr = bufcopy.getCStr();
     mTrimBlanks( firstptr );
 
     const char* bracketptr = firstOcc( beginsymbols, *firstptr );

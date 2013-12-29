@@ -46,7 +46,7 @@ const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
 
 
 Well::IO::IO( const char* f )
-    	: basenm_(f)
+	: basenm_(f)
 {
     FilePath fp( basenm_ );
     fp.setExtension( 0, true );
@@ -127,7 +127,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 
 Well::Reader::Reader( const char* f, Well::Data& w )
 	: Well::IO(f)
-    	, wd(w)
+	, wd(w)
 {
 }
 
@@ -193,7 +193,7 @@ bool Well::Reader::getInfo( od_istream& strm ) const
 	{
 	    const float readsurfelev = astrm.getFValue(); //needed for old files
 	    wd.info().srdelev = mIsUdf(readsurfelev ) ? 0  :
-	       			    -1.f * readsurfelev;
+				    -1.f * readsurfelev;
 	}
 	else if ( astrm.hasKeyword(Well::Info::sKeySRD()) )
 	    wd.info().srdelev = astrm.getFValue();
@@ -352,12 +352,12 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	readLogData( *log, strm, bintype );
 	if ( log->isEmpty() )
 	    continue;
-	
+
 	const bool valinmtr = SI().zInFeet() && (version < 4.195);
 
 	ret.start = valinmtr ? (log->dah(0) * mToFeetFactorF) : log->dah(0);
 	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactorF )
-	    		    : log->dah( log->size()-1 );
+			    : log->dah( log->size()-1 );
 	break;
     }
 
@@ -452,7 +452,7 @@ bool Well::Reader::addLog( od_istream& strm ) const
 	return false;
 
     readLogData( *newlog, strm, bintype );
-    
+
     if ( SI().zInFeet() && version < 4.195 )
     {
 	for ( int idx=0; idx<newlog->size(); idx++ )
@@ -477,7 +477,7 @@ bool Well::Reader::addLog( od_istream& strm ) const
 
 
 void Well::Reader::readLogData( Well::Log& wl, od_istream& strm,
-       				int bintype ) const
+				int bintype ) const
 {
 
     float v[2];
@@ -515,7 +515,7 @@ bool Well::Reader::getMarkers( od_istream& strm ) const
 	return false;
 
     ascistream astrm( strm, false );
-    
+
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
@@ -533,9 +533,9 @@ bool Well::Reader::getMarkers( od_istream& strm ) const
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
-	float val = toFloat( bs.buf() );
+	const float val = bs.toFloat();
 	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
-						      : val ); 
+						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );

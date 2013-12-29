@@ -39,7 +39,7 @@ ________________________________________________________________________
 
 namespace MPE
 {
-    
+
 HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
     : editor_(ed)
@@ -85,7 +85,7 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
 void HorizonFlatViewEditor2D::setCubeSampling( const CubeSampling& cs )
 {
     curcs_ = cs;
-    horpainter_->setCubeSampling( cs ); 
+    horpainter_->setCubeSampling( cs );
 }
 
 
@@ -166,7 +166,7 @@ void HorizonFlatViewEditor2D::setMouseEventHandler( MouseEventHandler* meh )
 	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
 	{
 	    int trackeridx = MPE::engine().getTrackerByObject( emid_ );
-	    
+
 	    if ( MPE::engine().getTracker(trackeridx) )
 		MPE::engine().setActiveTracker( emid_ );
 	}
@@ -347,14 +347,13 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
     {
 	newatsel = *trackedatsel;
 
-	if ( matchString(Attrib::StorageProvider::attribName(),
-		    	 trackedatsel->defString()) )
+	if ( trackedatsel->isStored() )
 	{
 	    LineKey lk( trackedatsel->userRef() );
 	    if ( lk.attrName().isEmpty() )
 		lk.setAttrName( LineKey::sKeyDefAttrib() );
 	    newatsel.setUserRef( lk.attrName().isEmpty()
-		    		 ? LineKey::sKeyDefAttrib()
+				 ? LineKey::sKeyDefAttrib()
 				 : lk.attrName().buf() );
 	}
     }
@@ -420,7 +419,7 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
 }
 
 
-bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd, 
+bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 					       const EMTracker& trker,
 					       EMSeedPicker& seedpicker,
 					       const FlatDataPack& dp ) const
@@ -438,14 +437,14 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 
     if ( dp.id() > DataPack::cNoID() )
 	MPE::engine().setAttribData( *as, dp.id() );
-    
+
     if ( !h2dsp || !h2dsp->canAddSeed(*as) )
 	return false;
-    
+
     h2dsp->setLine( lsetid_, linenm_ );
     if ( !h2dsp->startSeedPick() )
 	return false;
-    
+
     return true;
 }
 

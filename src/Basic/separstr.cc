@@ -40,7 +40,7 @@ const char* SeparString::getEscaped( const char* str, char sep ) const
 
     retstr_.setBufSize( 2*strlen(str) + 1 );
 
-    char* writeptr = retstr_.buf();
+    char* writeptr = retstr_.getCStr();
     while ( *str )
     {
 	if ( *str=='\\' || *str==sep )
@@ -63,7 +63,7 @@ const char* SeparString::getUnescaped( const char* startptr,
 				       (int)(nextsep - startptr);
     retstr_.setBufSize( len + 1 );
 
-    char* writeptr = retstr_.buf();
+    char* writeptr = retstr_.getCStr();
     while ( *startptr && startptr!=nextsep )
     {
 	if ( *startptr == '\\' )

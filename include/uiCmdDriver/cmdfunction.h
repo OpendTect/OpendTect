@@ -33,7 +33,7 @@ public:
     static void		initStandardFunctions();
     static BufferString	factoryKey(const char* name);
 
-    			Function(const CmdDriver& cmddrv)
+			Function(const CmdDriver& cmddrv)
 			    : drv_(cmddrv)
 			{}
     virtual		~Function()					{}
@@ -63,17 +63,17 @@ mExpClass(uiCmdDriver) funkey##Func : public parentclass \
 { \
 public: \
 			funkey##Func(const CmdDriver& cmddrv) \
-    			    : parentclass(cmddrv) \
-    			{ \
+			    : parentclass(cmddrv) \
+			{ \
 			    name_ = keyWord(); \
-			    *name_.buf() = mCast(char,tolower(*name_.buf())); \
+			    *name_.getCStr() = mCast(char,tolower(*name_.buf())); \
 			} \
 \
     static const char*	keyWord()			{ return #funkey; } \
     virtual const char* name() const			{ return name_; } \
 protected: \
     BufferString	name_;
-    
+
 
 #define mStartDeclFunClass(funkey,parentclass) \
 \
@@ -83,9 +83,9 @@ public: \
 			     BufferString& res) const; \
 \
     static Function*	createInstance(const CmdDriver& cmddrv) \
-    			{ return new funkey##Func(cmddrv); } \
+			{ return new funkey##Func(cmddrv); } \
     static void		initClass() \
-    			{ factory().addCreator( createInstance, \
+			{ factory().addCreator( createInstance, \
 						createFactoryKey(keyWord()) ); }
 
 #define mEndDeclFunClass \

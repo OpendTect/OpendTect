@@ -172,7 +172,7 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
     int lnr = 16;
     while ( lnr < 35 )
     {
-	char* ptr = buf.buf();
+	char* ptr = buf.getCStr();
 	int idx = 0;
 	while ( *infotxt && *infotxt != '\n' && ++idx < 75 )
 	    *ptr++ = *infotxt++;
@@ -247,7 +247,7 @@ void SEGY::TxtHeader::setText( const char* txt )
     clearText();
 
     BufferString bs( txt );
-    char* ptr = bs.buf();
+    char* ptr = bs.getCStr();
     for ( int iln=1; iln<=cTxtHeadNrLines; iln++ )
     {
 	char* endptr = firstOcc( ptr, '\n' );

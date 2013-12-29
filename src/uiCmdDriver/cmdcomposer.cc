@@ -70,7 +70,7 @@ BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
     classifiers.insertAt( classifier, 0 );
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
     {
-	if ( classifiers[idx]->name()==classifiername )
+	if ( classifiername == classifiers[idx]->name() )
 	    delete classifiers.removeSingle( idx );
     }
 
@@ -176,7 +176,7 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 	    if ( ev.begin_ )
 		// in case accept(ev) was called tail-recursively
 		stackwasempty_ = refnrstack_.isEmpty();
-	    else 
+	    else
 	    {
 		done_ = !isvoidevent && refnrstack_.isEmpty();
 		return true;
@@ -236,7 +236,7 @@ void CmdComposer::addToEventList( const CmdRecEvent& ev )
 {
     mDynamicCastGet( uiObject*, uiobj, ev.object_ );
     if ( eventlist_.isEmpty() && uiobj )
-	uiobj->closed.notify( mCB(this,CmdComposer,objClosed) ); 
+	uiobj->closed.notify( mCB(this,CmdComposer,objClosed) );
 
     eventlist_ += new CmdRecEvent( ev );
 
@@ -284,7 +284,7 @@ int CmdComposer::eventNameIdx( const BufferStringSet& eventnames,
     while ( msgptr && *msgptr )
     {
 	BufferString nextword;
-	msgptr = getNextWord( msgptr, nextword.buf() );
+	msgptr = getNextWord( msgptr, nextword.getCStr() );
 	const int idx = eventnames.indexOf(nextword);
 	if ( idx >= 0 )
 	    return idx;
@@ -296,7 +296,7 @@ int CmdComposer::eventNameIdx( const BufferStringSet& eventnames,
 void CmdComposer::insertWindowCaseExec( const CmdRecEvent& event,
 					bool casedep ) const
 {
-    rec_.insertWinAssertion( event ); 
+    rec_.insertWinAssertion( event );
 
     if ( Timer::setUserWaitFlag(false) )
     {
@@ -315,7 +315,7 @@ void CmdComposer::insertWindowCaseExec( const CmdRecEvent& event,
 bool CmdComposer::tryToFinish()
 {
     for ( int count=refnrstack_.size()-1; count>=0; count-- )
-    {	
+    {
 	for ( int idx=eventlist_.size()-1; idx>=0; idx-- )
 	{
 	    if ( eventlist_[idx]->refnr_==refnrstack_[0] )

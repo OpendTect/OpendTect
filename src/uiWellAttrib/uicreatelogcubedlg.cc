@@ -64,7 +64,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     BufferStringSet wids; BufferStringSet lognms;
     welllogsel_->getSelWellIDs( wids );
     welllogsel_->getSelLogNames( lognms );
-    if ( wids.isEmpty() ) 
+    if ( wids.isEmpty() )
 	mErrRet("No well selected",return false);
 
     BufferString suffix = savefld_->text();
@@ -97,28 +97,27 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 					    ctio->ctxt.trgroup->userName() );
 	    if ( presentobj )
 	    {
-		BufferString msg( cbvsnm ); msg += " is already present ";
+		BufferString msg( cbvsnm, " is already present" );
 
-		if (FixedString(presentobj->translator())!=ctio->ctxt.deftransl)
+		if ( ctio->ctxt.deftransl == presentobj->translator() )
 		{
-		    msg += "as another type";
-		    msg += "\n and won't be created";
+		    msg.add( " as another type\nand won't be created");
 		    mErrRet( msg, continue );
 		}
 
-		msg += ". \nOverwrite?";
+		msg.add( ".\nOverwrite?" );
 		if ( !uiMSG().askOverwrite(msg) )
 		    continue;
 	    }
 
-	    ctio->setName( cbvsnm ); 
+	    ctio->setName( cbvsnm );
 	    ctio->fillObj();
-	    logdatas += new LogCubeCreator::LogCubeData( lognm, *ctio ); 
+	    logdatas += new LogCubeCreator::LogCubeData( lognm, *ctio );
 	}
 	if ( logdatas.isEmpty() )
 	    return false;
 
-	lcr.setInput( logdatas, nrtrcs, extractparams ); 
+	lcr.setInput( logdatas, nrtrcs, extractparams );
 	uiTaskRunner* tr = new uiTaskRunner( this );
 	if ( !TaskRunner::execute( tr, lcr ) || lcr.errMsg() )
 	    mErrRet( lcr.errMsg(), return false );

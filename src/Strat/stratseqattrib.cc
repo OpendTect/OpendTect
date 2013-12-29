@@ -101,7 +101,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	if ( sz > 1 )
 	{
 	    lsa->transform_ = LaySeqAttrib::parseEnumTransform( fms[0] );
-	    lsa->transformval_ = toFloat( fms[1] );
+	    lsa->transformval_ = fms.getFValue( 1 );
 	    if ( lsa->transform_==LaySeqAttrib::Log && lsa->transformval_<0 )
 		mSetUdf( lsa->transformval_ );
 	}
@@ -153,7 +153,7 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
-	if ( lm.propertyRefs()[idx] && 
+	if ( lm.propertyRefs()[idx] &&
 		lm.propertyRefs()[idx]->name() == attr_.prop_.name() )
 	    { validx_ = idx; break; }
     }
@@ -308,7 +308,7 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 
 	const float thickness = lay->thickness();
 	const float propval =  isthick ? thickness
-	    			       : lay->value( validx_ );
+				       : lay->value( validx_ );
 
 	if ( mIsUdf(propval) || mIsUdf(thickness) || thickness < 1e-5f ||
 	     (propisvel && propval < 1e-5f) )

@@ -29,7 +29,7 @@ static const char* getStringFromInt( od_int32 val, char* str )
 
 {
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
+    char* ret = str ? str : retstr.getCStr();
     sprintf( ret, "%d", val );
     return ret;
 }
@@ -38,7 +38,7 @@ static const char* getStringFromInt( od_int32 val, char* str )
 static const char* getStringFromUInt( od_uint32 val, char* str )
 {
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
+    char* ret = str ? str : retstr.getCStr();
     sprintf( ret, "%du", val );
     return ret;
 }
@@ -80,7 +80,7 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 static const char* getStringFromInt64( od_int64 val, char* str )
 {
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
+    char* ret = str ? str : retstr.getCStr();
     const bool isneg = val < 0 ? 1 : 0;
     if ( isneg ) val = -val;
     mkUIntStr( ret, (od_uint64)val, isneg );
@@ -91,7 +91,7 @@ static const char* getStringFromInt64( od_int64 val, char* str )
 static const char* getStringFromUInt64( od_uint64 val, char* str )
 {
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
+    char* ret = str ? str : retstr.getCStr();
     mkUIntStr( ret, val, 0 );
     return ret;
 }
@@ -216,7 +216,7 @@ template <class T>
 static const char* getStringFromFPNumber( T inpval )
 {
     mDeclStaticString( retstr );
-    char* str = retstr.buf();
+    char* str = retstr.getCStr();
 
     if ( !inpval )
 	mSetStrTo0(str,return str)
@@ -432,7 +432,7 @@ bool caseInsensitiveEqual( const char* str1, const char* str2, int nrchar )
 }
 
 
-static bool getStringMatch( const char* str1, const char* str2, int ci )
+static bool getStringStartsWith( const char* str1, const char* str2, int ci )
 {
     if ( !str1 && !str2 ) return true;
     if ( !str1 || !str2 ) return false;
@@ -451,10 +451,10 @@ static bool getStringMatch( const char* str1, const char* str2, int ci )
 }
 
 
-bool matchString( const char* str1, const char* str2 )
-{ return getStringMatch( str1, str2, false ); }
-bool matchStringCI( const char* str1, const char* str2 )
-{ return getStringMatch( str1, str2, true ); }
+bool stringStartsWith( const char* str1, const char* str2 )
+{ return getStringStartsWith( str1, str2, false ); }
+bool stringStartsWithCI( const char* str1, const char* str2 )
+{ return getStringStartsWith( str1, str2, true ); }
 
 
 static bool getStringEndsWith( const char* str1, const char* str2, int ci )
@@ -506,7 +506,7 @@ static const char* getLastOcc( const char* str, const char* tofind )
 	Swap( srev[idx], srev[slen-idx-1] );
     for ( int idx=0; idx<flen/2; idx++ )
 	Swap( frev[idx], frev[flen-idx-1] );
-    char* ptr = strstr( srev.buf(), frev.buf() );
+    const char* ptr = strstr( srev.buf(), frev.buf() );
     if ( !ptr )
 	return ptr;
     return str + (slen - (ptr-srev.buf())) - flen;
@@ -658,7 +658,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 	val += ")";
 
     mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.buf();
+    char* ret = str ? str : retstr.getCStr();
     strcpy( ret, val.buf() );
 
     return ret;
@@ -693,6 +693,9 @@ const char* toString( unsigned short i )
 const char* toString( unsigned char c )
 { return toString( ((unsigned short)c) ); }
 
+const char* toString( const OD::String& ods )
+{ return ods.buf(); }
+
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
 {
@@ -701,7 +704,7 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 	return simptostr;
 
     mDeclStaticString( ret );
-    char* str = ret.buf();
+    char* str = ret.getCStr();
     if ( mIsUdf(val) )
 	ret.set( "1e30" );
     else
@@ -742,16 +745,10 @@ const char* toString( const char* str )
 }
 
 
-const char* toString( const FixedString& fs )
-{
-    return fs.buf();
-}
-
-
 const char* toString( signed char c )
 {
     mDeclStaticString( retstr );
-    char* buf = retstr.buf();
+    char* buf = retstr.getCStr();
     buf[0] = (char)c; buf[1] = '\0';
     return buf;
 }
@@ -786,11 +783,11 @@ static float_complex float_complexFromString( const char* str,
     if ( bufidx )
 	{ buf[bufidx] = '\0'; fcstr.add( buf ); }
 
-    char* ptrfcstr = fcstr.buf();
+    const char* ptrfcstr = fcstr.buf();
     if ( !*ptrfcstr )
 	return ret;
 
-    Coord c; c.fromString( fcstr.buf() );
+    Coord c; c.fromString( ptrfcstr );
     ret = float_complex( (float)c.x, (float)c.y );
 
     return ret;
@@ -834,13 +831,6 @@ bool getFromString( bool& b, const char* s )
 
     b = false;
     return false;
-}
-
-
-bool getFromString( BufferString& res, const char* s )
-{
-    res = s;
-    return true;
 }
 
 
@@ -916,7 +906,7 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( "f");
 
     mDeclStaticString( ret );
-    sprintf( ret.buf(), formatstr, fsz );
+    sprintf( ret.getCStr(), formatstr, fsz );
 
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );
@@ -936,36 +926,4 @@ FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
     return units[(int) unit];
-}
-
-
-bool FixedString::operator==( const char* s ) const
-{
-    if ( ptr_ == s )
-	return true;
-    else if ( !ptr_ || !s )
-	return false;
-
-    return !strcmp( ptr_, s );
-}
-
-
-bool FixedString::operator==( const BufferString& s ) const
-{
-    return FixedString::operator==( s.buf() );
-}
-
-
-int FixedString::size() const
-{
-    return ptr_ ? strlen( ptr_ ) : 0;
-}
-
-
-std::ostream& operator <<( std::ostream& strm, const FixedString& fs )
-{
-    const char* tostrm = fs.str();
-    if ( tostrm )
-	strm << tostrm;
-    return strm;
 }

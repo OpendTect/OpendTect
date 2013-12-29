@@ -157,9 +157,10 @@ bool GMTArray2DInterpol::doFinish( bool success )
 					|| fsvalstr == sKeyGMTUdf )
 		continue;
 
-	    int row, col; float val;
-	    if ( getFromString(row, rowstr) && getFromString(col, colstr)
-					    && getFromString(val, valstr) )
+	    const int row = fsrowstr.toInt();
+	    const int col = fscolstr.toInt();
+	    const float val = fsvalstr.toFloat();
+	    if ( !mIsUdf(row) && !mIsUdf(col) && !mIsUdf(val) )
 		arr_->set( row, col, val );
 	}
 

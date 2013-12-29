@@ -24,7 +24,7 @@ namespace Table
 mExpClass(General) ImportHandler
 {
 public:
-    			ImportHandler( od_istream& strm )
+			ImportHandler( od_istream& strm )
 			    : strm_(strm)
 			    , colpos_(0)	{}
     virtual		~ImportHandler()	{}
@@ -36,8 +36,7 @@ public:
     const char*		errMsg() const		{ return col_.buf(); }
 
     virtual void	newRow()		{}
-    virtual void	newCol()		{ *col_.buf() = '\0';
-						  colpos_ = 0; }
+    virtual void	newCol()		{ col_.setEmpty(); colpos_ = 0;}
 
     char		readNewChar() const;
     bool		atEnd() const;
@@ -56,7 +55,7 @@ protected:
 mExpClass(General) ExportHandler
 {
 public:
-    			ExportHandler( od_ostream& strm )
+			ExportHandler( od_ostream& strm )
 			    : strm_(strm)		{}
     virtual		~ExportHandler()		{}
 
@@ -68,9 +67,9 @@ public:
     static bool		isNumber(const char*);
 
     BufferString	prepend_;
-    			//!< Before first record. Add newline if needed
+			//!< Before first record. Add newline if needed
     BufferString	append_;
-    			//!< After last record
+			//!< After last record
 
 protected:
 
@@ -85,7 +84,7 @@ protected:
 mExpClass(General) Converter : public Executor
 {
 public:
-    			Converter( ImportHandler& i, ExportHandler& o )
+			Converter( ImportHandler& i, ExportHandler& o )
 			    : Executor("Data import")
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0), selcolnr_(-1), atend_(false)

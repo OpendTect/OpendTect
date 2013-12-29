@@ -146,7 +146,7 @@ bool Strat::RefTree::read( od_istream& strm )
 	    else
 		liths_.add( lith );
 	}
-	else if ( matchString(sKeyContents,keyw.buf()) )
+	else if ( keyw.startsWith(sKeyContents) )
 	{
 	    if ( keyw == sKeyContents )
 	    {
@@ -157,7 +157,7 @@ bool Strat::RefTree::read( od_istream& strm )
 	    }
 	    else if ( keyw.count('.') > 1 )
 	    {
-		char* contnm = firstOcc( keyw.buf(), '.' ) + 1;
+		char* contnm = keyw.find( '.' ) + 1;
 		char* contkeyw = firstOcc( contnm, '.' );
 		*contkeyw = '\0'; contkeyw++;
 		Content* c = contents_.getByName( contnm );

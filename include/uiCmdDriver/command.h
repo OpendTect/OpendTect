@@ -405,7 +405,7 @@ protected:
 #define mParOnOffInit( parstr, parnext, onoff ) \
 \
     BufferString onoffword; \
-    const char* parnext = getNextWord( parstr, onoffword.buf() ); \
+    const char* parnext = getNextWord( parstr, onoffword.getCStr() ); \
     mSkipBlanks( parnext ); \
 \
     int onoff = 0; \
@@ -448,7 +448,7 @@ protected:
 #define mParInputStr( objnm, parstr, parnext, inpstr, optional ) \
 \
     BufferString filepathword; \
-    const char* extraparstr = getNextWord( parstr, filepathword.buf() ); \
+    const char* extraparstr = getNextWord( parstr, filepathword.getCStr() ); \
     mSkipBlanks( extraparstr ); \
     if ( !mMatchCI(filepathword,"FilePath") ) \
         extraparstr = parstr; \
@@ -507,10 +507,10 @@ protected:
 
 #define mMatchMouseTag( tag, mousetagptr, clicktags ) \
 \
-    if ( matchStringCI(tag, mousetagptr) ) \
+    if ( FixedString(mousetagptr).startsWith(tag) ) \
     { \
-	    clicktags.add( tag ); \
-	    mousetagptr += strlen( tag ); \
+	clicktags.add( tag ); \
+	mousetagptr += strlen( tag ); \
     }
 
 #define mParMouse( parstr, parnext, clicktags, defaulttag ) \
@@ -571,7 +571,7 @@ protected:
 #define mParIdentInit( parstr, parnext, identnm, allowdummy ) \
 \
     BufferString firstarg, identnm; \
-    const char* parnext = getNextWord( parstr, firstarg.buf() ); \
+    const char* parnext = getNextWord( parstr, firstarg.getCStr() ); \
     if ( firstarg != "_dummyvar" ) \
 	parnext = StringProcessor(parstr).parseIdentifier( identnm ); \
     else if ( allowdummy ) \
@@ -622,7 +622,7 @@ protected:
 #define mParCase( parstr, parnext, casesensitive, optional ) \
 \
     BufferString argword; \
-    const char* parnext = getNextWord( parstr, argword.buf() ); \
+    const char* parnext = getNextWord( parstr, argword.getCStr() ); \
     bool casesensitive = false; \
 \
     if ( mMatchCI(argword,"Sensitive") ) \
@@ -642,7 +642,7 @@ protected:
 \
     BufferString formword; \
     FileMultiString fms( extrastr ); \
-    const char* parnext = getNextWord( parstr, formword.buf() ); \
+    const char* parnext = getNextWord( parstr, formword.getCStr() ); \
     FormTag form = NoForm; \
     if ( mMatchCI(formword,"Text") ) \
 	form = Text; \
@@ -690,7 +690,7 @@ protected:
 #define mParFramed( parstr, parnext, framed ) \
 \
     BufferString frameword; \
-    const char* parnext = getNextWord( parstr, frameword.buf() ); \
+    const char* parnext = getNextWord( parstr, frameword.getCStr() ); \
     bool  framed = true; \
     if ( mMatchCI(frameword,"Selected") ) \
 	framed = false; \

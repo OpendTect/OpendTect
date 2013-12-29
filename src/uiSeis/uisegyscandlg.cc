@@ -117,7 +117,7 @@ void uiSEGYScanDlg::outputNameChangeCB( CallBacker* )
     {
 	parfilename += "_";
 	parfilename += outfld_->ioobj(true)->name();
-	cleanupString( parfilename.buf(), false, false, false );
+	cleanupString( parfilename.getCStr(), false, false, false );
     }
 
     parfilename += ".par";

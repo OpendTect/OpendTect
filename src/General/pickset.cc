@@ -91,7 +91,7 @@ void Location::unSetText( const char* key )
     SeparString sepstr( *text_, '\'' );
     for ( int idx=0; idx<sepstr.size(); idx+=2 )
     {
-	if ( key!=sepstr[idx] )
+	if ( sepstr[idx] != key )
 	    continue;
 
 	SeparString copy( 0, '\'' );
@@ -134,7 +134,7 @@ bool Location::fromString( const char* s, bool doxy, bool testdir )
 	if ( !text_ ) text_ = new BufferString( s );
 	else *text_ = s;
 
-	char* start = text_->buf();
+	char* start = text_->getCStr();
 	char* stop = firstOcc( start, '"' );
 	if ( !stop )
 	{
@@ -155,7 +155,7 @@ bool Location::fromString( const char* s, bool doxy, bool testdir )
     }
 
     BufferString bufstr( s );
-    char* str = bufstr.buf();
+    char* str = bufstr.getCStr();
     mSkipBlanks(str);
 
     double xread = getNextVal( str );
@@ -243,7 +243,7 @@ bool Location::getText( const char* idkey, BufferString& val ) const
 
     for ( int idx=0; idx<strsz; idx+=2 )
     {
-	if ( idkey!=sepstr[idx] )
+	if ( sepstr[idx] != idkey )
 	    continue;
 
 	val = sepstr[idx+1];

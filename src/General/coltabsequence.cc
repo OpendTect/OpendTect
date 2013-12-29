@@ -382,7 +382,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
     {
 	const FileMultiString fms( res );
 	if ( fms.size() > 1 && col.use( fms.from(1) ) )
-	    *px = toFloat(fms[0]);
+	    *px = fms.getFValue( 0 );
     }
 
     return true;
@@ -577,7 +577,7 @@ int ColTab::SeqMgr::indexOf( const char* nm ) const
 	if ( seqs_[idx]->name() == nm )
 	    return idx;
     for ( int idx=0; idx<seqs_.size(); idx++ )
-	if ( seqs_[idx]->name().isEqual(nm,true) )
+	if ( seqs_[idx]->name().isEqual(nm,CaseInsensitive) )
 	    return idx;
     return -1;
 }

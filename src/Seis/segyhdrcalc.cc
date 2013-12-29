@@ -54,11 +54,11 @@ int SEGY::HdrCalcSet::indexOf( const char* nm ) const
 bool SEGY::HdrCalcSet::add( const char* dispstr )
 {
     BufferString str( dispstr );
-    char* ptrdef = firstOcc( str.buf(), '=' );
+    char* ptrdef = str.find( '=' );
     if ( !ptrdef ) return false;
     *ptrdef++ = '\0'; mTrimBlanks(ptrdef);
 
-    removeTrailingBlanks( str.buf() );
+    removeTrailingBlanks( str.getCStr() );
     const int heidx = hdef_.indexOf( str );
     if ( heidx < 0 ) return false;
 

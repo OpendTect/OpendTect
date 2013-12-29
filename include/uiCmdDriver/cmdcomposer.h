@@ -57,7 +57,7 @@ public:
     mDefineFactory1ParamInClass( CmdComposer, CmdRecorder&, factory );
     static void		initStandardComposers();
     static BufferString	factoryKey(const CallBacker* caller,
-	    			   const char* extrakey=0);
+				   const char* extrakey=0);
 
 			CmdComposer(CmdRecorder&);
 			~CmdComposer();
@@ -65,16 +65,16 @@ public:
     virtual const char*	name()				= 0;
 
     virtual bool	greedy() const;
-    virtual bool	accept(const CmdRecEvent&); 		
+    virtual bool	accept(const CmdRecEvent&);
     virtual void	updateInternalState()		{};
     virtual bool	tryToFinish();
     bool		stateUpdateNeeded()		{ return updateflag_; }
-    bool		done() const 			{ return done_; }
+    bool		done() const			{ return done_; }
 
     bool		traceSrcWin(CmdRecEvent&) const;
 
     void		objClosed(CallBacker*)		{ objclosed_ = true; }
-    void		testCB(CallBacker*); 
+    void		testCB(CallBacker*);
 
 protected:
 
@@ -122,7 +122,7 @@ mExpClass(mod) cmdkey##CmdComposer : public parentclass \
 public: \
 			cmdkey##CmdComposer(CmdRecorder& cmdrec) \
 			    : parentclass(cmdrec) \
-    			{ init(); } \
+			{ init(); } \
 \
     static const char*	keyWord()			{ return #cmdkey; } \
     virtual const char* name()				{ return keyWord(); } \
@@ -137,7 +137,7 @@ public: \
     static CmdComposer*	createInstance(CmdRecorder& cmdrec) \
 			{ return new cmdkey##CmdComposer(cmdrec); } \
     static void		initClass() \
-    			{ factory().addCreator( createInstance, \
+			{ factory().addCreator( createInstance, \
 			    createFactoryKey(new callerclass##Classifier(), \
 					     keyWord()) ); }
 
@@ -165,13 +165,13 @@ public: \
 #define mCompleteAndQuitIfEventNested( ev, notifierstr ) \
 \
     if ( quitflag_ ) \
-    	return true; \
+	return true; \
     else if ( ev.begin_ && !stackwasempty_ && \
 	      stringEndsWithCI(notifierstr,ev.msg_) ) \
     { \
 	ignoreflag_ = false; \
 	quitflag_ = true; \
-    } 
+    }
 
 
 #define mNotifyTest( objclass, uiobject, notifiername ) \
@@ -185,7 +185,7 @@ public: \
 #define mGetInputString( inpptr, txt, haschanged ) \
 \
     BufferString inpstr; \
-    char* inpptr = inpstr.buf(); \
+    char* inpptr = inpstr.getCStr(); \
     if ( haschanged ) \
     { \
 	inpstr = " "; inpstr += txt; \
@@ -203,7 +203,7 @@ public: \
 	{ \
 	    mDressUserInputString( inpstr, sInputStr ); \
 	    inpstr += "\" "; \
-	    inpptr = inpstr.buf(); \
+	    inpptr = inpstr.getCStr(); \
 	    *inpptr = '"'; \
 	} \
     }
@@ -217,7 +217,7 @@ public: \
 	mRecOutStrm << "Input \"" << eventlist_[0]->keystr_ << "\" " \
 		    << inpptr << (enter ? "Enter" : "Hold") << std::endl; \
     } \
-} 
+}
 
 
 #define mGetItemName( uiobj,sizefunc,textfunc,curitemidx,curitemname,casedep ) \

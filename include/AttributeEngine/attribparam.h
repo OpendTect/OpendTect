@@ -331,7 +331,7 @@ bool NumGateParam<T>::setCompositeValue( const char* gatestr )
     rgstr.unEmbed( '[', ']' );
     if ( rgstr.isEmpty() )
 	return false;
-    char* ptrval2 = firstOcc( rgstr.buf(), ',' );
+    char* ptrval2 = rgstr.find( ',' );
     if ( !ptrval2 )
 	return false;
 

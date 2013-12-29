@@ -81,7 +81,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     sd.istrm->getline( buf, 40, ' ' );
     BufferString rangestr = buf;
     sd.close(); sp.remove();
-    *( rangestr.buf() + rangestr.size() - 1 ) = '\0';
+    *( rangestr.getCStr() + rangestr.size() - 1 ) = '\0';
     BufferString comm = "pscoast "; comm += rangestr;
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
     const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution()) );
@@ -102,7 +102,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
 	comm += " -S"; comm += wetcolstr;
     }
     if ( dryfill )
-    {	
+    {
 	Color drycol;
 	get( ODGMT::sKeyDryFillColor(), drycol );
 	BufferString drycolstr;
@@ -136,7 +136,7 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     comm += zone; comm += "/1:1 -I -F -C 1> \"";
     BufferString tmpfilenm = FilePath::getTempName("dat");
     comm += tmpfilenm; comm += "\"";
-    
+
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) return false;
 

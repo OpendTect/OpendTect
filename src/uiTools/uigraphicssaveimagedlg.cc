@@ -81,7 +81,9 @@ const char* uiGraphicsSaveImageDlg::getExtension()
 {
     FilePath fp( fileinputfld_->fileName() );
     const BufferString ext( fp.extension() );
-    if ( ext == "pdf" || matchStringCI("PDF",fileinputfld_->selectedFilter()) )
+    if ( ext == "pdf"
+      || FixedString(fileinputfld_->selectedFilter())
+			.startsWith("PDF",CaseInsensitive) )
 	return "pdf";
 
     return uiSaveImageDlg::getExtension();

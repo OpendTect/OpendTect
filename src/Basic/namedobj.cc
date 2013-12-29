@@ -3,9 +3,9 @@
  * AUTHOR   : A.H. Bril
  * DATE     : 21-9-1995
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
- 
+
 #include "namedobj.h"
 #include "string2.h"
 #include <ctype.h>
@@ -65,9 +65,8 @@ void NamedObject::setName( const char* nm )
 	{ linkedto_->setName(nm); return; }
     else if ( !nm )
 	nm = "";
-    mSkipBlanks(nm);
     *name_ = nm;
-    removeTrailingBlanks( name_->buf() );
+    name_->trimBlanks();
 }
 
 
@@ -75,18 +74,19 @@ void NamedObject::setCleanName( const char* nm )
 {
     if ( !name_ )
 	{ linkedto_->setCleanName(nm); return; }
-    else if ( !nm || !*nm )
-	{ setName( "" ); return; }
-    mSkipBlanks(nm);
-    if ( !*nm )
-	{ setName( "" ); return; }
 
-    BufferString uidstr( nm );
-    char* ptr = uidstr.buf();
-    removeTrailingBlanks(ptr);
+    BufferString clnnm( nm );
+    clnnm.trimBlanks();
+    if ( clnnm.isEmpty() )
+	{ setName( clnnm ); return; }
+
+    char* ptr = clnnm.getCStr();
     char* startptr = ptr;
-    if ( *ptr == '!' || *ptr == '#' || *ptr == '$' ) *ptr = '_';
-    else if ( *ptr == '\\' ) startptr++;
+    if ( *ptr == '!' || *ptr == '#' || *ptr == '$' )
+	*ptr = '_';
+    else if ( *ptr == '\\' )
+	startptr++;
+
     ptr++;
     while ( *ptr )
     {

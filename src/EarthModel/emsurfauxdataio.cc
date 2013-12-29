@@ -32,13 +32,13 @@ const char* dgbSurfDataWriter::sKeyAttrName()	    { return "Attribute"; }
 const char* dgbSurfDataWriter::sKeyIntDataChar()    { return "Int data"; }
 const char* dgbSurfDataWriter::sKeyInt64DataChar()  { return "Long long data"; }
 const char* dgbSurfDataWriter::sKeyFloatDataChar()  { return "Float data"; }
-const char* dgbSurfDataWriter::sKeyFileType() 	    {return "Surface aux data";}
-const char* dgbSurfDataWriter::sKeyShift() 	    { return "Shift"; }
+const char* dgbSurfDataWriter::sKeyFileType()	    {return "Surface aux data";}
+const char* dgbSurfDataWriter::sKeyShift()	    { return "Shift"; }
 
 
 dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 				    const HorSampling* sel, bool binary,
-       				    const char* filename )
+				    const char* filename )
     : Executor("Aux data writer")
     , stream_(0)
     , chunksize_(100)
@@ -59,15 +59,15 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	BufferString dc;
 
 	int idummy;
-	DataCharacteristics(idummy).toString( dc.buf() );
+	DataCharacteristics(idummy).toString( dc.getCStr() );
 	par.set( sKeyIntDataChar(), dc );
 
 	od_int64 lldummy;
-	DataCharacteristics(lldummy).toString( dc.buf() );
+	DataCharacteristics(lldummy).toString( dc.getCStr() );
 	par.set( sKeyInt64DataChar(), dc );
 
 	float fdummy;
-	DataCharacteristics(fdummy).toString( dc.buf() );
+	DataCharacteristics(fdummy).toString( dc.getCStr() );
 	par.set( sKeyFloatDataChar(), dc );
     }
 
@@ -144,7 +144,7 @@ int dgbSurfDataWriter::nextStep()
 	    }
 
 	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
-	    const Geometry::BinIDSurface* meshsurf = 
+	    const Geometry::BinIDSurface* meshsurf =
 				surf_.geometry().sectionGeometry( sectionid );
 
 	    const int nrnodes = meshsurf->nrKnots();
@@ -221,7 +221,7 @@ bool dgbSurfDataWriter::writeFloat( float val )
 { mWriteData(); }
 
 
-od_int64 dgbSurfDataWriter::nrDone() const 
+od_int64 dgbSurfDataWriter::nrDone() const
 { return nrdone_; }
 
 
@@ -277,17 +277,17 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 
 	if ( !par.get(dgbSurfDataWriter::sKeyInt64DataChar(),dc) )
 	{
-	    error_ = true; 
+	    error_ = true;
 	    errmsg_ = "Error in reading data characteristics (int64)";
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
 	int64interpreter_ = new DataInterpreter<od_int64>( writtendatachar );
-					     
+
 	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
 	    error_ = true;
-	    errmsg_ = "Error in reading data characteristics (float)"; 
+	    errmsg_ = "Error in reading data characteristics (float)";
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
@@ -313,7 +313,7 @@ const char* dgbSurfDataReader::dataName() const
 }
 
 
-float dgbSurfDataReader::shift() const 
+float dgbSurfDataReader::shift() const
 { return shift_; }
 
 
@@ -411,7 +411,7 @@ bool dgbSurfDataReader::readFloat( float& res )
 { mReadData(floatinterpreter_) }
 
 
-od_int64 dgbSurfDataReader::nrDone() const 
+od_int64 dgbSurfDataReader::nrDone() const
 { return nrdone_; }
 
 

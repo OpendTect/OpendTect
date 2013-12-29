@@ -190,7 +190,7 @@ DescID uiSteeringSel::descID()
 	{
 	    const DescID descid = descset_->getID( idx );
 	    const Desc& desc = *descset_->getDesc( descid );
-	    if ( attribnm != desc.attribName() )
+	    if ( desc.attribName() != attribnm )
 		continue;
 
 	    float dip, azi;

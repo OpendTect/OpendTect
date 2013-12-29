@@ -247,7 +247,7 @@ bool ButtonCmd::act( const char* parstr )
     mParKeyStrInit( "button", parstr, parnext, keys, selnr );
     mParOnOffInit( parnext, partail, onoff );
     mParTail( partail );
-   
+
     mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mTitleBarButtonCheck( objsfound, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
@@ -276,12 +276,12 @@ bool ButtonCmd::act( const char* parstr )
     if ( checkbox )
 	mParOnOffPre( "check-box", onoff, checkbox->isChecked(), true );
     if ( toolbut )
-	mParOnOffPre( "tool-button", onoff, toolbut->isOn(), 
+	mParOnOffPre( "tool-button", onoff, toolbut->isOn(),
 		      toolbut->isToggleButton() );
     if ( action )
 	mParOnOffPre( "tool-button", onoff, action->isChecked(),
 		      action->isCheckable() );
-    
+
     if ( uibut )
 	mActivate( Button, Activator(*uibut) );
     if ( action )
@@ -333,7 +333,7 @@ void ButtonActivator::actCB( CallBacker* cb )
 \
 	butidx++; \
     } \
-} 
+}
 
 #define mExitQDlg( retval ) \
 { \
@@ -366,7 +366,7 @@ bool IsButtonOnCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParKeyStrInit( "button", parnext, partail, keys, selnr );
     mParTail( partail );
-   
+
     mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
@@ -413,7 +413,7 @@ bool GetButtonCmd::act( const char* parstr )
     mParKeyStrInit( "button", parnext, parnexxt, keys, selnr );
     mParExtraFormInit( parnexxt, partail, form, "Color" )
     mParTail( partail );
-   
+
     mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiButton*, uibut, objsfound[0] );
@@ -446,7 +446,7 @@ bool GetButtonCmd::actQDlgButton( const char* parstr )
 
 
 static int getOkCancelRetVal( bool ok )
-{ 
+{
     if ( uiMainWin::activeModalType() != uiMainWin::Message )
 	return ok ? 1 : 0;
 
@@ -470,7 +470,7 @@ bool OkCancelCmd::act( const char* parstr )
     if ( dlg )
     {
 	uiDialog::Button buttyp = ok ? uiDialog::OK : uiDialog::CANCEL;
-    	const uiButton* but = const_cast<uiDialog*>(dlg)->button( buttyp );
+	const uiButton* but = const_cast<uiDialog*>(dlg)->button( buttyp );
 
 	if ( but && !but->sensitive() )
 	{
@@ -488,7 +488,7 @@ bool OkCancelCmd::act( const char* parstr )
 
     mWinWarnStrm << "Close-button used for lack of " << name() << "-button"
 		 << od_endl;
-	
+
     return CloseCmd(drv_).act( "" );
 }
 
@@ -497,7 +497,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
 {
     bool closeall = false;
     BufferString closetag;
-    const char* partail = getNextWord( parstr, closetag.buf() );
+    const char* partail = getNextWord( parstr, closetag.getCStr() );
 
     if ( mMatchCI(closetag, "All") )
 	closeall = true;
@@ -565,19 +565,19 @@ bool CloseCmd::act( const char* parstr )
     const char* parnext = extraparstr==parstr ? extraparnext : parstr;
     mParWinStrInit( "subwindow", parnext, partail, winstr, winselnr, false );
     mParTail( partail );
-    
+
     if ( openQDlg() )
     {
 	mWinErrStrm << "Unable to close subwindows of open QDialog"
 		    << od_endl;
-	return false; 
+	return false;
     }
 
     mFindObjects( objsfound, uiMdiArea, keys, nrgrey );
     mParKeyStrPre( "workspace", objsfound, nrgrey, keys, keyselnr );
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
-    
+
     mActivate( MdiAreaClose, Activator(*mdiarea,subwinnames.get(0)) );
     return true;
 }
@@ -597,7 +597,7 @@ void MdiAreaCloseActivator::actCB( CallBacker* cb )
 \
     int minnormmax = 1; \
     BufferString newsize; \
-    const char* parnext = getNextWord( parstr, newsize.buf() ); \
+    const char* parnext = getNextWord( parstr, newsize.getCStr() ); \
 \
     if ( mMatchCI(newsize,"Maximized") ) \
 	minnormmax = 2; \
@@ -638,7 +638,7 @@ ShowActivator::ShowActivator( const uiMainWin& uimw, int minnormax )
 
 
 void ShowActivator::actCB( CallBacker* cb )
-{ 
+{
     if ( actminnormax_ > 1 )
 	actmainwin_.showMaximized();
     else if ( actminnormax_ < 1 )
@@ -660,7 +660,7 @@ bool ShowCmd::act( const char* parstr )
     mParWinStrInit( "subwindow", parnext, parnexxt, winstr, winselnr, false );
     mParShowTagInit( parnexxt, partail, minnormmax );
     mParTail( partail );
-    
+
     mFindObjects( objsfound, uiMdiArea, keys, nrgrey );
     mParKeyStrPre( "workspace", objsfound, nrgrey, keys, keyselnr );
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
@@ -669,7 +669,7 @@ bool ShowCmd::act( const char* parstr )
     const uiMdiAreaWindow* mdiwin = mdiarea->getWindow( subwinnames.get(0) );
     mParShowTagPre( "subwindow", mdiwin ? mdiwin->isMinimized() : false,
 		    mdiwin ? mdiwin->isMaximized() : false, minnormmax );
-    
+
     mActivate( MdiAreaShow, Activator(*mdiarea,*subwinnames[0],minnormmax) );
 
     return true;
@@ -712,7 +712,7 @@ bool IsShownCmd::actIsCurWinShown( const char* parstr )
     mParShowTagInit( parnext, partail, minnormmax );
     mParTail( partail );
 
-    mGetShowStatus( answer, curWin(), minnormmax ); 
+    mGetShowStatus( answer, curWin(), minnormmax );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -732,7 +732,7 @@ bool IsShownCmd::act( const char* parstr )
     mParWinStrInit( "subwindow", parnexxt, parnexxxt, winstr, winselnr, false );
     mParShowTagInit( parnexxxt, partail, minnormmax );
     mParTail( partail );
-    
+
     mFindObjects( objsfound, uiMdiArea, keys, nrgrey );
     mParKeyStrPre( "workspace", objsfound, nrgrey, keys, keyselnr );
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
@@ -762,7 +762,7 @@ bool IsShownCmd::act( const char* parstr )
     } \
     mParStrPre( "tab", tabidxs, nrgreytabs, tabstr, tabnr, "name", true ); \
     mDisabilityCheck( "tab", 1, !uitabbar->isTabEnabled(tabidxs[0]) ); \
-    wildcardMan().check( mSearchKey(tabstr), tabtexts.get(tabidxs[0]) ); 
+    wildcardMan().check( mSearchKey(tabstr), tabtexts.get(tabidxs[0]) );
 
 bool TabCmd::act( const char* parstr )
 {
@@ -961,9 +961,9 @@ bool QMsgBoxButCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( ev.begin_ )
 	return true;
-    
+
     BufferString qmsgboxbutword;
-    const char* msgnext = getNextWord( ev.msg_, qmsgboxbutword.buf() );
+    const char* msgnext = getNextWord( ev.msg_, qmsgboxbutword.getCStr() );
     mSkipBlanks ( msgnext );
     mGetAmpFilteredStr( butname, msgnext );
     mDressNameString( butname, sKeyStr );
@@ -1004,14 +1004,14 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
 	return true;
 
     BufferString actword;
-    const char* msgnext = getNextWord( ev.msg_, actword.buf() );
+    const char* msgnext = getNextWord( ev.msg_, actword.getCStr() );
 
     char* msgnexxt;
     const int curwinidx = strtol( msgnext, &msgnexxt, 0 );
 
-    BufferStringSet subwinnames; 
+    BufferStringSet subwinnames;
     mDynamicCastGet(const uiMdiArea*,mdiarea,ev.object_);
-    mdiarea->getWindowNames( subwinnames ); 
+    mdiarea->getWindowNames( subwinnames );
 
     BufferString curwintitle = subwinnames.get( curwinidx );
     mDressNameString( curwintitle, sWinName );
@@ -1031,7 +1031,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
 		if ( idx == curwinidx )
 		    selnr = nrmatches;
 	    }
-	    else 
+	    else
 		titlecasedep = true;
 	}
     }
@@ -1074,7 +1074,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 	if ( !uitabs->isTabEnabled(idx) )
 	    continue;
 
-	mGetAmpFilteredStr( tabtxt, uitabs->textOfTab(idx) ); 
+	mGetAmpFilteredStr( tabtxt, uitabs->textOfTab(idx) );
 	if ( SearchKey(curtabname,false).isMatching(tabtxt) )
 	{
 	    if ( SearchKey(curtabname,true).isMatching(tabtxt) )
@@ -1083,7 +1083,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 		if ( idx == uitabs->currentTabId() )
 		    selnr = nrmatches;
 	    }
-	    else 
+	    else
 		namecasedep = true;
 	}
     }
@@ -1099,7 +1099,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 	mRecOutStrm << "Tab \"" << ev.keystr_ << "\" \"" << curtabname << "\""
 		    << od_endl;
     }
-    else 
+    else
 	 mRecOutStrm << "Tab \"" << curtabname << "\"" << od_endl;
 
     return true;

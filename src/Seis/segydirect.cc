@@ -50,7 +50,7 @@ PosKeyList()
 
 void setFDS( const FileDataSet* fds )
 {
-    fds_ = fds; 
+    fds_ = fds;
 }
 
 od_int64 size() const { return fds_->size(); }
@@ -60,7 +60,7 @@ bool key( od_int64 nr, Seis::PosKey& pk ) const
     bool usable;
     if ( !fds_ || !fds_->getDetails( nr, pk, usable ) )
 	return false;
-    
+
     if ( !usable )
     {
 	pk = Seis::PosKey::undef();
@@ -96,7 +96,7 @@ bool key( od_int64 nr, Seis::PosKey& pk ) const
 
 FileDataSet::TrcIdx find( const Seis::PosKey& pk,
 			  const Seis::PosIndexer& idxer,
-       			  bool chkoffs ) const
+			  bool chkoffs ) const
 {
     const od_int64 nr = idxer.findFirst( pk, chkoffs );
     return fds_->getFileIndex( nr );
@@ -313,7 +313,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	indexer_ = new Seis::PosIndexer( *keylist_, false, true );
 
 	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
-		    		  int64interp, floatinterp ) )
+				  int64interp, floatinterp ) )
 	    mErrRet( readerror );
     }
 
@@ -340,7 +340,7 @@ const IOPar* SEGY::DirectDef::segyPars() const
 #define mSetDc( par, type, string ) \
 { \
     type dummy; \
-    DataCharacteristics(dummy).toString( dc.buf() ); \
+    DataCharacteristics(dummy).toString( dc.getCStr() ); \
 }\
     par.set( string, dc )
 
@@ -376,9 +376,9 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     fds_->segyPars().putTo( astrm );
 
     offsetstart_ = strm.position();
-    
+
     //Reserve space for offsets, which are written at the end
-    datastart_ = textparstart_ = cubedatastart_ = indexstart_ = 0; 
+    datastart_ = textparstart_ = cubedatastart_ = indexstart_ = 0;
 
     mWriteOffsets;
 
@@ -389,7 +389,7 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 }
 
 
-bool SEGY::DirectDef::writeFootersToFile() 
+bool SEGY::DirectDef::writeFootersToFile()
 {
     if ( !outstream_ )
 	return false;
@@ -452,7 +452,7 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 	{
 	    const BinID bid( inl, crls[idy] );
 	    const FileDataSet::TrcIdx tidx = keylist_->find( Seis::PosKey(bid),
-		    					    *indexer_, false );
+							    *indexer_, false );
 	    if ( tidx.isValid() )
 		cdf.add( bid );
 	}
@@ -488,7 +488,7 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
     mDeclStaticString( ret );
-    BufferString nm( unm ); cleanupString( nm.buf(), 1, 1, 1 );
+    BufferString nm( unm ); cleanupString( nm.getCStr(), 1, 1, 1 );
     FilePath fp( dirnm, nm );
     fp.setExtension( "sgydef" );
     ret = fp.fullPath();
@@ -512,7 +512,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 	{ delete ioobj_; ioobj_ = 0; msg_ = "Line name not specified"; return; }
 
     scanner_ = new SEGY::Scanner( sgyfile, is2d_ ? Seis::LinePS :
-	    			 (isvol_ ? Seis::Vol : Seis::VolPS), segypar );
+				 (isvol_ ? Seis::Vol : Seis::VolPS), segypar );
 }
 
 SEGY::FileIndexer::~FileIndexer()

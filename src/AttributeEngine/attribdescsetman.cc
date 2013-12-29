@@ -24,7 +24,7 @@ DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
     , unsaved_(false)
     , ads_(ads)
     , is2d_(is2d)
-    , attrsetid_("") 
+    , attrsetid_("")
     , destrondel_(destr)
 {
     if ( !ads_ )
@@ -49,7 +49,7 @@ void DescSetMan::setDescSet( DescSet* newads )
     if ( !ads_ )
 	{ ads_ = newads; return; }
     if ( !newads )
-    	{ inpselhist_.setEmpty(); ads_ = newads; return; }
+	{ inpselhist_.setEmpty(); ads_ = newads; return; }
 
     // Remove invalid entries
     fillHist();
@@ -64,7 +64,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 {
     for ( int ikey=0; ikey<selhist.size(); ikey++ )
     {
-	const int id = toInt( selhist.getValue(ikey) );
+	const int id = selhist.getValue(ikey).toInt();
 	if ( id < 0 ) continue;
 
 	const Desc* desc = ads_->getDesc( DescID(id,false) );

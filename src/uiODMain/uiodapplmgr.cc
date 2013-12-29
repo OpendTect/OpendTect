@@ -988,8 +988,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 				     (const char*) emserv_->getName(emid) );
 	}
 
-	if ( emserv_->getType(emid)==EM::Horizon3D::typeStr() ||
-	     emserv_->getType(emid)==EM::Horizon2D::typeStr() )
+	if ( FixedString(emserv_->getType(emid))==EM::Horizon3D::typeStr() ||
+	     FixedString(emserv_->getType(emid))==EM::Horizon2D::typeStr() )
 	{
 	    mpeserv_->saveSetup( mid );
 	}

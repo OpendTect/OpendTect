@@ -113,7 +113,7 @@ bool FaultStickPainter::addPolyLine()
 
 	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    StepInterval<int> colrg = fss->colRange( rc.row() ); 
+	    StepInterval<int> colrg = fss->colRange( rc.row() );
 
 	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	    stickauxdata->poly_.erase();
@@ -131,9 +131,9 @@ bool FaultStickPainter::addPolyLine()
 	    {
 		const MultiID* lset =
 			    emfss->geometry().pickedMultiID( sid, rc.row() );
-		const char* lnm = emfss->geometry().pickedName( sid, rc.row() );
+		FixedString lnm = emfss->geometry().pickedName( sid, rc.row() );
 
-		if ( !is2d_ || !matchString(lnm,linenm_) ||
+		if ( !is2d_ || !lnm.isStartOf(linenm_) ||
 		     !lset || *lset!=lsetid_ )
 		    continue;
 	    }
@@ -171,13 +171,13 @@ bool FaultStickPainter::addPolyLine()
 
 			stickauxdata->poly_ +=
 			    FlatView::Point( flatposdata_->position(true,idx),
-				    	     pos.z );
+					     pos.z );
 		    }
 		}
 		else
 		{
 		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			  rc.col()+=colrg.step ) 
+			  rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
@@ -189,7 +189,7 @@ bool FaultStickPainter::addPolyLine()
 	    }
 	    else
 	    {
-		Coord3 editnormal( 0, 0, 1 ); 
+		Coord3 editnormal( 0, 0, 1 );
 		// Let's assume cs default dir. is 'Z'
 
 		if ( cs_.defaultDir() == CubeSampling::Inl )
@@ -198,8 +198,8 @@ bool FaultStickPainter::addPolyLine()
 		    editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
 
 		const Coord3 nzednor = editnormal.normalize();
-		const Coord3 stkednor = 
-		    	emfss->geometry().getEditPlaneNormal(sid,rc.row());
+		const Coord3 stkednor =
+			emfss->geometry().getEditPlaneNormal(sid,rc.row());
 
 		const bool equinormal =
 		    mIsEqual(nzednor.x,stkednor.x,.001) &&
@@ -213,7 +213,7 @@ bool FaultStickPainter::addPolyLine()
 		{
 		    BinID extrbid1, extrbid2;
 		    if ( cs_.defaultDir() == CubeSampling::Inl )
-		    { 
+		    {
 			extrbid1.inl() = extrbid2.inl() =
 					cs_.hrg.inlRange().start;
 			extrbid1.crl() = cs_.hrg.crlRange().start;
@@ -232,7 +232,7 @@ bool FaultStickPainter::addPolyLine()
 		    extrcoord2 = SI().transform( extrbid2 );
 
 		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			    			rc.col()+=colrg.step )
+						rc.col()+=colrg.step )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
 			BinID knotbinid = SI().transform( pos );
@@ -253,8 +253,8 @@ bool FaultStickPainter::addPolyLine()
 		}
 		else
 		{
-		    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; 
-			    				rc.col()+=colrg.step )
+		    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+							rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
@@ -350,7 +350,7 @@ void FaultStickPainter::removePolyLine()
 void FaultStickPainter::fssChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -368,15 +368,15 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 		for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
 		{
 		    if ( !sectionmarkerlines_[oidx] ) continue;
-		    ObjectSet<StkMarkerInfo>& stmkrinfos = 
+		    ObjectSet<StkMarkerInfo>& stmkrinfos =
 						*sectionmarkerlines_[oidx];
-		    
+
 		    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
 		    {
 			if ( !stmkrinfos[iidx] ) continue;
 
 			stmkrinfos[iidx]->marker_->linestyle_.color_ =
-			    				emfss->preferredColor();
+							emfss->preferredColor();
 			viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
 		    }
 		}
@@ -442,7 +442,7 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
 
     for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
     {
-	LineStyle& linestyle = 
+	LineStyle& linestyle =
 	    (*sectionmarkerlines_[0])[stkidx]->marker_->linestyle_;
 	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "filepath.h"
 #include "staticstring.h"
+#include "fixedstring.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -167,11 +168,11 @@ bool OSCommand::set( const char* inp, bool lookforhostname )
 	hname_.setEmpty();
 
     BufferString inpcomm( inp );
+    inpcomm.trimBlanks();
     if ( inpcomm.isEmpty() )
 	return false;
 
-    char* ptr = inpcomm.buf();
-    mSkipBlanks( ptr );
+    char* ptr = inpcomm.getCStr();
     if ( *ptr == '@' )
 	ptr++;
     mSkipBlanks( ptr );
@@ -198,7 +199,7 @@ const char* OSCommand::extractHostName( const char* str, BufferString& hnm )
 
     mSkipBlanks( str );
     BufferString inp( str );
-    char* ptr = inp.buf();
+    char* ptr = inp.getCStr();
     const char* rest = str;
 
 #ifdef __win__
@@ -400,6 +401,6 @@ void OSCommand::mkOSCmd( bool forread, BufferString& cmd ) const
     if ( hname_.isEmpty() || __iswin__ )
 	cmd = mFullCommandStr;
     else
-	sprintf( cmd.buf(), "%s %s %s",
+	sprintf( cmd.getCStr(), "%s %s %s",
 			    remexec_.buf(), hname_.buf(), comm_.buf() );
 }

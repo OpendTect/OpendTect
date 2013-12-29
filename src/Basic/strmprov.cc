@@ -476,7 +476,7 @@ void StreamProvider::set( const char* inp )
     else if ( workstr == sStdIO() || workstr == sStdErr() )
 	{ fname_ = workstr; return; }
 
-    char* pwork = workstr.buf();
+    const char* pwork = workstr.buf();
     if ( *pwork == '@' )
 	{ iscomm_ = true; pwork++; }
 

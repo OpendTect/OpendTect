@@ -210,7 +210,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }
 
 	    BufferString shrthostnm = hostnm;
-	    char* ptr = firstOcc( shrthostnm.buf(), '.' );
+	    char* ptr = shrthostnm.find( '.' );
 	    if ( ptr ) *ptr = '\0';
 #ifndef __win__
 	    if ( jhri_->hostdata_.isKnownAs(hostnm) ||
@@ -271,10 +271,10 @@ void JobIOHandler::socketCB( CallBacker* cb )
 	const bool ok = readTag( tag, statstr, data );
 	if ( ok )
 	{
-	    getFromString( jobid, statstr[0] );
-	    getFromString(status, statstr[1] );
+	    jobid = statstr.getIValue( 0 );
+	    status = statstr.getIValue( 1 );
 	    hostnm = statstr[2];
-	    getFromString( procid, statstr[3] );
+	    procid = statstr.getIValue( 3 );
 	    errmsg = statstr[4];
 
 	    char response = getRespFor( jobid, hostnm );
@@ -584,7 +584,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     cmd.addFlag( "-jobid", ji.descnr_ );
 
     FilePath riopfp( remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
-    const bool winstyle = machine.isWin() && rshcomm == FixedString("rcmd");
+    const bool winstyle = machine.isWin() && FixedString(rshcomm) == "rcmd";
     cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
 #endif
 }

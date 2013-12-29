@@ -46,7 +46,7 @@ public:
 	BufferString action( actiontype );
 	if ( !withcancel ) setCancelText( 0 );
 
-	*action.buf() = mCast( char, toupper( *action.buf() ) );
+	action[0] = mCast( char, toupper( action[0] ) );
 	const BufferString txt( action.buf(), " now" );
 	setOkText( txt.buf() );
 
@@ -82,7 +82,7 @@ public:
 	    ? prompter_.objects_[activebutton_]->dataptr_
 	    : 0;
     }
-    bool 				isSaveAs() const
+    bool				isSaveAs() const
     {
 	return prompter_.objects_.validIdx(activebutton_)
 	    ? prompter_.objects_[activebutton_]->issaveas_
@@ -109,7 +109,7 @@ NotSavedPrompter::NotSavedPrompter()
     , dlg_( 0 )
     , queueid_(
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
-	   					"NotSavedPrompter" ) )
+						"NotSavedPrompter" ) )
 {
     mAttachCB( Threads::WorkManager::twm().isShuttingDown,
 	       NotSavedPrompter::closeQueueCB );
@@ -124,7 +124,7 @@ void NotSavedPrompter::closeQueueCB( CallBacker* cb )
 
 
 bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
-       				  const char* actiontype )
+				  const char* actiontype )
 {
     promptSaving.trigger();
     if ( !objects_.size() )

@@ -116,7 +116,7 @@ static void initGF( od_ostream& strm, const char* hornm,
     char gfbuf[mHdr1GFLineLen+2];
     gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
-    cleanupString( hnm.buf(), false, false, false );
+    cleanupString( hnm.getCStr(), false, false, false );
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;

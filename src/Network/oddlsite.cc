@@ -24,17 +24,19 @@ static const char* sKeyTimeOut = "Download.Timout";
 ODDLSite::ODDLSite( const char* h, float t )
     : timeout_(t)
     , databuf_(0)
-    , islocal_(h && matchString("DIR=",h))
+    , host_(h)
     , isfailed_(false)
     , issecure_(false)
 {
-    if ( !h ) h = "opendtect.org";
+    islocal_ = host_.startsWith( "DIR=" );
+    if ( host_.isEmpty() )
+	host_ = "opendtect.org";
     int stroffs = 0;
     if ( islocal_ )
 	stroffs = 4;
-    else if ( matchString("http://",h) )
+    else if ( host_.startsWith("http://") )
 	stroffs = 7;
-    else if ( matchString("https://",h) )
+    else if ( host_.startsWith("https://") )
 	{ stroffs = 8; issecure_ = true; }
     host_ = h + stroffs;
 

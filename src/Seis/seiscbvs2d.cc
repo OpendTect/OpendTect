@@ -324,7 +324,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    else
 		fnm = iop.name();
 	    fnm += ".cbvs";
-	    cleanupString( fnm.buf(), false, true, true );
+	    cleanupString( fnm.getCStr(), false, true, true );
 	}
 	const char* prevfnm = previop ? previop->find(sKey::FileName()) : 0;
 	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );

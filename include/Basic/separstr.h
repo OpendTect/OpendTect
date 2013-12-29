@@ -35,7 +35,7 @@ mExpClass(Basic) SeparString
 public:
 
 			SeparString( const char* escapedstr=0, char separ=',' )
-			{ initSep( separ ); initRep( escapedstr ); } 
+			{ initSep( separ ); initRep( escapedstr ); }
 			SeparString( const SeparString& ss )
 			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
 
@@ -61,7 +61,7 @@ public:
 
     SeparString&	add(const BufferStringSet&);	//!< Concatenation
     SeparString&	add(const SeparString&);	//!< Concatenation
-    SeparString&	add(const char* unescapedstr);		
+    SeparString&	add(const char* unescapedstr);
     template <class T>
     inline SeparString&	add( T t )
 			{ return add( toString(t) ); }
@@ -72,7 +72,7 @@ public:
     inline		operator const char*() const
 						{ return buf(); }
 
-    inline char*	buf()			{ return rep_.buf(); }
+    inline char*	getCStr()		{ return rep_.getCStr(); }
 							//!< Output escaped
     inline const char*	buf() const		{ return rep_.buf(); }
 							//!< Output escaped
@@ -82,7 +82,7 @@ public:
 							//!< Output escaped
 
     inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
-    			/*!< Use with care! Distinction between separ-chars
+			/*!< Use with care! Distinction between separ-chars
 			     and escaped separ-chars will get lost. */
 
     inline char		sepChar() const		{ return *sep_; }
@@ -116,7 +116,7 @@ mExpClass(Basic) FileMultiString : public SeparString
 public:
 
 			FileMultiString(const char* escapedstr=0)
-			    : SeparString(escapedstr, separator() )	{} 
+			    : SeparString(escapedstr, separator() )	{}
     template <class T>	FileMultiString( const T& t )
 			    : SeparString(t,separator())		{}
 

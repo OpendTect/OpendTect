@@ -104,7 +104,7 @@ void startCB( CallBacker* cb )
 
     uiParent* par = tb ? tb->parent() : &StratTreeWin();
     const char* settres = Settings::common().find(
-	    			uiStratLayerModel::sKeyModeler2Use());
+				uiStratLayerModel::sKeyModeler2Use());
     BufferString modnm( settres );
     int defmodnr = -1;
     bool givechoice = nms.size() > 1;
@@ -292,18 +292,18 @@ void initEditing()
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(p,"",1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
-    , elpropsel_(0)				   
+    , elpropsel_(0)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , analtb_(0)
     , lmp_(*new uiStratLayerModelLMProvider)
     , needtoretrievefrpars_(false)
     , automksynth_(true)
     , nrmodels_(0)
-    , newModels(this)				   
-    , levelChanged(this)				   
+    , newModels(this)
+    , levelChanged(this)
     , waveletChanged(this)
-    , saveRequired(this) 
-    , retrieveRequired(this) 
+    , saveRequired(this)
+    , retrieveRequired(this)
 {
     setDeleteOnClose( true );
 
@@ -338,11 +338,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
-	   		    mCB(this,uiStratLayerModel,xPlotReq) );
+			    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
 	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
     synthdisp_->synthsChanged.notify(
-	    	mCB(this,uiStratLayerModel,syntheticsChangedCB) );
+		mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
@@ -352,7 +352,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     uiToolBar* helptb = new uiToolBar( this, "Help toolbar", uiToolBar::Right );
     uiToolButtonSetup htbsu( "contexthelp", "Help",
-	    		     mCB(this,uiStratLayerModel,helpCB) );
+			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
 
     uiSplitter* hspl;
@@ -389,9 +389,9 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     synthdisp_->control()->infoChanged.notify(
 	    mCB(this,uiStratLayerModel,infoChanged) );
     moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
-    moddisp_->rangeChanged.notify( 
+    moddisp_->rangeChanged.notify(
 			    mCB(this,uiStratLayerModel,modDispRangeChanged));
-    moddisp_->infoChanged.notify( 
+    moddisp_->infoChanged.notify(
 			    mCB(this,uiStratLayerModel,infoChanged));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
@@ -588,7 +588,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
     if ( dlg.errMsg() )
-	{ uiMSG().error( dlg.errMsg() ); return; } 
+	{ uiMSG().error( dlg.errMsg() ); return; }
     const char* lvlnm = modtools_->selLevel();
     if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
     dlg.go();
@@ -606,7 +606,7 @@ void uiStratLayerModel::wvltChg( CallBacker* cb )
 void uiStratLayerModel::modDispRangeChanged( CallBacker* )
 {
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
-    if ( vwr ) 
+    if ( vwr )
 	synthdisp_->setZDataRange( vwr->getSelDataRange( false ) , true );
 }
 
@@ -656,7 +656,7 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 	if ( !allowcncl && res < 0 )
 	{
 	    uiMSG().error( "Sorry, you cannot cancel right now."
-		    	   "Please save or discard your work" );
+			   "Please save or discard your work" );
 	    continue;
 	}
 	if ( res < 1 )
@@ -678,9 +678,9 @@ bool uiStratLayerModel::saveGenDesc() const
 
     const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
     bool rv = false;
-    
+
     MouseCursorChanger mcch( MouseCursor::Wait );
-    
+
     fillWorkBenchPars( desc_.getWorkBenchParams() );
 
     od_ostream strm( fnm );
@@ -722,11 +722,11 @@ bool uiStratLayerModel::openGenDesc()
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
     strm.close();
-    
+
     //Before calculation
     if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
 	return false;
-    
+
     if ( !rv )
 	return false;
 
@@ -735,7 +735,7 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->descHasChanged();
 
     delete elpropsel_; elpropsel_ = 0;
-    
+
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
@@ -763,7 +763,7 @@ bool uiStratLayerModel::openGenDesc()
 	if ( !exportLayerModelGDI( fnm ) )
 	    return false;
     }
-    
+
     //Before calculation
     if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
     setWinTitle();
@@ -789,7 +789,7 @@ void uiStratLayerModel::seqSel( CallBacker* )
 static bool getCleanSyntheicName( BufferString& sdnm )
 {
     if ( sdnm.isEmpty() ) return false;
-    char* cleansdnm = sdnm.buf();
+    char* cleansdnm = sdnm.getCStr();
     if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
     cleansdnm++;
     int idx = 0;
@@ -990,7 +990,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 
     uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
     synthdisp_->setUseEdited( usefr );
-    if ( parschanged ) 
+    if ( parschanged )
     {
 	synthdisp_->setForceUpdate( true );
 	useSyntheticsPars( desc_.getWorkBenchParams() );
@@ -1061,11 +1061,11 @@ bool uiStratLayerModel::useDisplayPars( const IOPar& par )
 {
     if ( !modtools_->usePar( par ) )
 	return false;
-    
+
     return true;
 }
 
-    
+
 
 void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 {
@@ -1080,7 +1080,7 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 }
 
 
-bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
+bool uiStratLayerModel::useSyntheticsPars( const IOPar& par )
 {
     if ( !synthdisp_->prepareElasticModel() )
 	return false;
@@ -1132,7 +1132,7 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	}
 	statusBar()->message( msg.buf() );
     }
-} 
+}
 
 
 bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
@@ -1163,7 +1163,7 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
 	const int inlnb = SI().inlRange(true).stop + SI().inlStep();
 	astrm.put( "Inline", inlnb );
 	const int crlnb = SI().crlRange(true).stop +
-	   		  SI().crlStep() * ( iwell + 1 );
+			  SI().crlStep() * ( iwell + 1 );
 	astrm.put( "Crossline", crlnb );
 	FileMultiString fms;
 	fms += inlnb; fms += crlnb; fms += inlnb; fms += crlnb;
@@ -1177,7 +1177,7 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
 	    BufferString propnm = layerModel().propertyRefs()[ival]->name();
-	    cleanupString( propnm.buf(), false, false, true );
+	    cleanupString( propnm.getCStr(), false, false, true );
 	    astrm.put( "Quantity", propnm );
 	}
 	astrm.newParagraph();
@@ -1193,7 +1193,7 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
 	    if ( unitnm == prevunitnm )
 	    {
 		const int idx = lithnms.isPresent(lith) ?
-		   		lithnms.indexOf(lith) : lithnms.size();
+				lithnms.indexOf(lith) : lithnms.size();
 		if ( lithnms.isPresent(lith) )
 		    nrliths[idx]++;
 		else

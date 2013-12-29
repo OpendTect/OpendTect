@@ -115,8 +115,8 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 
     if ( iserr )
     {
-	const char* spaceptr = firstOcc( nm, ' ' );
-	if ( spaceptr && matchStringCI("directory",spaceptr+1) )
+	const FixedString fsspace = firstOcc( nm, ' ' );
+	if ( fsspace.startsWith(" directory",CaseInsensitive) )
 	    return 0;
     }
     return 0;
@@ -185,7 +185,7 @@ bool TranslatorGroup::hasConnType( const char* c ) const
     FixedString ct( c );
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
-	if ( templs_[idx]->connType()==ct)
+	if ( ct == templs_[idx]->connType() )
 	    return true;
     }
 
@@ -221,7 +221,7 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
     // Now try to match only given string - may be part of full name
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
-	if ( matchString(nm,gtNm(templs_[idx],usr).buf()) )
+	if ( gtNm(templs_[idx],usr).startsWith(nm) )
 	{
 	    if ( tr ) // more than one match
 		return 0;

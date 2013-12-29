@@ -239,7 +239,9 @@ IOPar* IOPar::subselect( const char* kystr ) const
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
 	const char* nm = keys_.get(idx).buf();
-	if ( !matchString(key,nm) ) continue;
+	if ( !key.isStartOf(nm) )
+	    continue;
+
 	nm += key.size();
 	if ( *nm == '.' && *(nm+1) )
 	    iopar->add( nm+1, vals_.get(idx) );
@@ -270,7 +272,9 @@ void IOPar::removeSubSelection( const char* kystr )
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
 	const char* nm = keys_.get(idx).buf();
-	if ( !matchString(key,nm) ) continue;
+	if ( !key.isStartOf(nm) )
+	    continue;
+
 	nm += key.size();
 	if ( *nm == '.' && *(nm+1) )
 	    { remove( idx ); idx--; }
@@ -281,7 +285,7 @@ void IOPar::removeSubSelection( const char* kystr )
 void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 {
     BufferString key( ky );
-    char* ptr = key.buf() + key.size()-1;
+    char* ptr = key.getCStr() + key.size()-1;
     while ( ptr != key.buf() && *ptr == '.' )
 	*ptr = '\0';
 
@@ -948,43 +952,22 @@ void IOPar::set( const char* keyw, const SeparString& ss )
 }
 
 
-void IOPar::set( const char* keyw, const BufferString& bs )
-{
-    set( keyw, bs.buf() );
-}
-
-
-void IOPar::set( const char* keyw, const BufferString& bs1,
-				   const BufferString& bs2 )
-{
-    set( keyw, bs1.buf(), bs2.buf() );
-}
-
-
-void IOPar::set( const char* keyw, const BufferString& bs1,
-				   const BufferString& bs2,
-				   const BufferString& bs3 )
-{
-    set( keyw, bs1.buf(), bs2.buf(), bs3.buf() );
-}
-
-
-void IOPar::set( const char* keyw, const FixedString& fs )
+void IOPar::set( const char* keyw, const OD::String& fs )
 {
     set( keyw, fs.buf() );
 }
 
 
-void IOPar::set( const char* keyw, const FixedString& fs1,
-				   const FixedString& fs2 )
+void IOPar::set( const char* keyw, const OD::String& fs1,
+				   const OD::String& fs2 )
 {
     set( keyw, fs1.buf(), fs2.buf() );
 }
 
 
-void IOPar::set( const char* keyw, const FixedString& fs1,
-				   const FixedString& fs2,
-				   const FixedString& fs3 )
+void IOPar::set( const char* keyw, const OD::String& fs1,
+				   const OD::String& fs2,
+				   const OD::String& fs3 )
 {
     set( keyw, fs1.buf(), fs2.buf(), fs3.buf() );
 }
@@ -1127,7 +1110,7 @@ void IOPar::getFrom( const char* str )
     setEmpty();
 
     BufferString buf = str;
-    char* ptrstart = buf.buf();
+    char* ptrstart = buf.getCStr();
     char* ptr = ptrstart;
 
     mAdvanceSep( ptr, startsep )
@@ -1153,7 +1136,7 @@ void IOPar::getParsFrom( const char* str )
     setEmpty();
 
     BufferString buf = str;
-    char* ptrstart = buf.buf();
+    char* ptrstart = buf.getCStr();
     char* ptr = ptrstart;
     mAdvanceSep( ptr, startsep )
 
@@ -1285,7 +1268,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 	res += (haveval ? " : " : "");
 
 	BufferString valstr( vals_.get(idx) );
-	char* startptr = valstr.buf();
+	char* startptr = valstr.getCStr();
 	while ( startptr && *startptr )
 	{
 	    char* nlptr = firstOcc( startptr, '\n' );

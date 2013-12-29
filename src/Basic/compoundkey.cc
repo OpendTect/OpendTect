@@ -33,7 +33,7 @@ char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
     if ( parttobuf )
     {
 	mDeclStaticString(bufstr);
-	bufstr = ptr; char* bufptr = bufstr.buf();
+	bufstr = ptr; char* bufptr = bufstr.getCStr();
 	char* ptrend = firstOcc( bufptr, '.' );
 	if ( ptrend ) *ptrend = '\0';
 	ptr = bufptr;
@@ -109,7 +109,7 @@ CompoundKey CompoundKey::upLevel() const
 
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
-    return nrKeys() < ky.nrKeys() && matchString( impl_, ky.impl_ );
+    return nrKeys() < ky.nrKeys() && impl_.isStartOf( ky.impl_ );
 }
 
 

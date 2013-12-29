@@ -68,12 +68,9 @@ static BufferString getScope( const char* inp )
 {
     BufferString ret;
     BufferString winid( inp );
-    char* ptr = firstOcc( winid.buf(), ':' );
+    char* ptr = winid.find( ':' );
     if ( ptr )
-    {
-	*ptr = '\0';
-	ret = winid;
-    }
+	{ *ptr = '\0'; ret = winid; }
 
     if ( ret.isEmpty() )
 	ret = sODDir;

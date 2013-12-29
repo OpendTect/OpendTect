@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "bufstring.h"
+#include "fixedstring.h"
 
 class DataInpSpec;
 class BufferStringSet;
@@ -23,20 +24,20 @@ namespace Attrib
 
 /*!
 \brief A parameter that is used by an attribute.
-  
+
   Each attribute has a definition string that defines how the attribute is
   computed. The definition string has the format:
-  
+
   AttribNameWithoutSpaces param1=value1 param2=value2,value3
-  
+
   The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
 mExpClass(AttributeEngine) Param
 {
 public:
-    				Param(const char* key);
-    				Param(const Param&);
+				Param(const char* key);
+				Param(const Param&);
     virtual			~Param() {}
 
     virtual Param*		clone() const		= 0;
@@ -56,19 +57,19 @@ public:
 
     FixedString			getKey() const		  { return key_.buf(); }
 
-    				/*!Set all values from one composite string.*/
-    virtual bool		setCompositeValue(const char*) 
+				/*!Set all values from one composite string.*/
+    virtual bool		setCompositeValue(const char*)
 				{ return false; }
-    				/*!Set all values from multiple strings.*/
+				/*!Set all values from multiple strings.*/
     virtual bool		setValues(BufferStringSet&)
 				{ return false; }
     virtual bool		getCompositeValue(BufferString&) const	=0;
-    				/*!<Put all values into one string. */
-    
-    virtual BufferString	getDefaultValue() const	  { return ""; } 
+				/*!<Put all values into one string. */
+
+    virtual BufferString	getDefaultValue() const	  { return ""; }
     void			setKey(const char* newkey)    { key_ = newkey; }
 
-    virtual void		fillDefStr(BufferString&) const		=0;			
+    virtual void		fillDefStr(BufferString&) const		=0;
 
 protected:
 
@@ -93,9 +94,9 @@ protected:
 mExpClass(AttributeEngine) ValParam : public Param
 {
 public:
-    				ValParam(const char* key,DataInpSpec*);
-    				ValParam(const ValParam&);
-    				~ValParam(); 
+				ValParam(const char* key,DataInpSpec*);
+				ValParam(const ValParam&);
+				~ValParam();
 
     virtual ValParam*		clone() const;
 
@@ -131,9 +132,9 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
-    virtual BufferString	getDefaultValue() const	{ return ""; } 
-    virtual void   	        fillDefStr(BufferString&) const;
-    
+    virtual BufferString	getDefaultValue() const	{ return ""; }
+    virtual void	        fillDefStr(BufferString&) const;
+
 protected:
     DataInpSpec*		spec_;
 

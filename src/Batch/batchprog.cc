@@ -131,7 +131,7 @@ void BatchProgram::init()
     }
 
     ascistream aistrm( odstrm, true );
-    if ( aistrm.fileType()!=sKey::Pars() )
+    if ( sKey::Pars() != aistrm.fileType() )
     {
 	BufferString errmsg( clparser_->getExecutableName(),
 			    ": Input file ",parfilnm);

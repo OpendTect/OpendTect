@@ -49,7 +49,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     {
 	uiPushButton* but = new uiPushButton( this,
 				"&Find from created cube",
-	       			mCB(this,uiGetFileForAttrSet,srchDir), false );
+				mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
     infofld = new uiTextEdit( this, "Attribute info", true );
@@ -84,11 +84,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     BufferString version;
     float versionnr = 0;
     if ( iop.get( "dTect", version ) )
-    {
-	const char* ptr = version.buf();
-	ptr +=1;
-	versionnr = toFloat( ptr );
-    }
+	versionnr = toFloat( version.buf()+1 );
 
     if ( !isattrset_ )
     {

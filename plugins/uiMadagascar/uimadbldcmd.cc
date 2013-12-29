@@ -33,7 +33,7 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     ret = cmd; // resize to fit
 
     mSkipBlanks( cmd );
-    char* retptr = ret.buf();
+    char* retptr = ret.getCStr();
     *retptr = '\0';
     if ( wantprog )
 	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++;
@@ -78,7 +78,7 @@ uiMadagascarBldPlotCmd::uiMadagascarBldPlotCmd( uiParent* p )
     for ( int idx=0; idx<defs.size(); idx++ )
     {
 	const ODMad::ProgDef& def = *defs[idx];
-	if ( matchStringCI("plot",def.group_->buf())
+	if ( def.group_->startsWith("plot",CaseInsensitive)
 	  && def.synopsis_.contains("in.rsf") )
 	    cmdlist_.add( def.name_ );
     }
@@ -96,7 +96,7 @@ uiMadagascarBldPlotCmd::~uiMadagascarBldPlotCmd()
 void uiMadagascarBldPlotCmd::setPlotCmd( const char* cmd )
 {
     createplotcmd_ = cmd;
-    char* pipechar = firstOcc( createplotcmd_.buf(), '|' );
+    char* pipechar = createplotcmd_.find( '|' );
     if ( pipechar )
     {
 	viewplotcmd_ = pipechar + 2;

@@ -43,7 +43,7 @@ public:
     virtual		~uiComboBoxBody()
 			    { delete &messenger_; }
 
-    virtual int 	nrTxtLines() const		{ return 1; }
+    virtual int	nrTxtLines() const		{ return 1; }
 
 protected:
 
@@ -113,7 +113,7 @@ int uiComboBox::indexOf( const char* str ) const
     const FixedString inputstr( str );
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( textOfItem(idx)==inputstr )
+	if ( inputstr == textOfItem(idx) )
 	    return idx;
     }
 

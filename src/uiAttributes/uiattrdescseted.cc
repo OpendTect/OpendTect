@@ -463,7 +463,7 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 {
     BufferString newnmbs( attrnmfld_->text() );
-    char* newnm = newnmbs.buf();
+    char* newnm = newnmbs.getCStr();
     mSkipBlanks( newnm );
     removeTrailingBlanks( newnm );
     if ( checkuref && !validName(newnm) ) return 0;
@@ -834,7 +834,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 {
     BufferString usertypednm( attrnmfld_->text() );
-    char* ptr = usertypednm.buf();
+    char* ptr = usertypednm.getCStr();
     mTrimBlanks( ptr );
     const BufferString newnm( ptr );
 

@@ -244,13 +244,13 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	    {
 		if ( logidx == -1 )
 		    logidx = ipropidx;
-		if ( lognm.isStartOf(propref.name(),true) )
+		if ( lognm.isStartOf(propref.name(),CaseInsensitive) )
 		{
 		    logidx = ipropidx;
 		    break;
 		}
 	    }
-	    else if ( !uom && lognm.isStartOf(propref.name(),true) )
+	    else if ( !uom && lognm.isStartOf(propref.name(),CaseInsensitive) )
 	    {
 		logidx = ipropidx;
 		break;
@@ -262,7 +262,8 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 		    if ( logidxalt == -1 )
 			logidxalt = ipropidx;
 		}
-		else if ( !uom && lognm.isStartOf(altpropref->name(),true) )
+		else if ( !uom
+			&& lognm.isStartOf(altpropref->name(),CaseInsensitive) )
 		{
 		    logidxalt = ipropidx;
 		}

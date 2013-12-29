@@ -105,9 +105,9 @@ bool SeisImpBPSIF::readFileHeader()
 	BufferString* lineread = new BufferString;
 	if ( !StrmOper::readLine(*cursd_.istrm,lineread) )
 	    return false;
-	else if ( matchString("#BINARY",lineread->buf()) )
+	else if ( lineread->startsWith("#BINARY") )
 	    { binary_ = true; nrrcvpershot_ = toInt(lineread->buf()+9); }
-	else if ( matchString("#----",lineread->buf()) )
+	else if ( lineread->startsWith("#----") )
 	    { delete lineread; break; }
 
 	hdrlines_ += lineread;
@@ -120,16 +120,16 @@ bool SeisImpBPSIF::readFileHeader()
     for ( int idx=0; idx<hdrlines_.size(); idx++ )
     {
 	BufferString ln = hdrlines_.get( idx );
-	if ( matchString(valstr,ln.buf()) )
+	if ( ln.startsWith(valstr) )
 	{
 	    const char* nrstr = ln.buf() + 7;
-	    char* attrstr = firstOcc( ln.buf(), ':' );
+	    char* attrstr = ln.find( ':' );
 	    if ( !attrstr ) continue;
 	    *attrstr++ = '\0';
-	    char* subnrstr = ln.buf() + 9;
+	    char* subnrstr = ln.getCStr() + 9;
 	    removeTrailingBlanks( subnrstr );
-	    if ( FixedString(subnrstr)=="0" || FixedString(subnrstr)=="1"
-	      || FixedString(subnrstr)=="2" )
+	    const FixedString fssubnrstr = FixedString(subnrstr);
+	    if ( fssubnrstr == "0" || fssubnrstr == "1" || fssubnrstr == "2" )
 		continue; // coordinates
 
 	    addAttr( *nrstr == '1' ? shotattrs_ : rcvattrs_, attrstr );
@@ -202,7 +202,7 @@ int SeisImpBPSIF::readAscii()
 	return fileEnded();
     else
     {
-	int nrpos = addTrcsAscii( tmpltrc, rcvdata.buf() );
+	int nrpos = addTrcsAscii( tmpltrc, rcvdata.getCStr() );
 	if ( nrrcvpershot_ < 0 )
 	    nrrcvpershot_ = nrpos;
 	else if ( nrpos == 0 )

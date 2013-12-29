@@ -11,74 +11,66 @@ ________________________________________________________________________
 
 */
 
-#include "gendefs.h"
-#include <iosfwd>
+#include "basicmod.h"
+#include "odstring.h"
 
 
 
-/*!
-\brief Class that holds a text string, and provides basic services around it.
+/*!\brief OD::String that holds an existing text string.
+
 The string is assumed to be owned by someone else or be static. In any case, it
 is assumed be be alive and well for the lifetime of the FixedString.
+
+The FixedString is a light-weight, shallow adapter; it never changes the
+underlying string.
+
 */
 
-mExpClass(Basic) FixedString
+mExpClass(Basic) FixedString : public OD::String
 {
 public:
 
     inline		FixedString( const char* p = 0 )
-			    : ptr_(p)		{}
-
+			    : str_(p)		{}
+    inline FixedString&	operator=( const FixedString& fs )
+						{ str_ = fs.str_; return *this;}
     inline FixedString&	operator=( const char* p )
-						{ ptr_ = p; return *this; }
-
-    bool		operator==(const char*) const;
-    bool		operator==(const BufferString&) const;
-    inline bool		operator!=( const BufferString& bs ) const
-						{ return !(*this == bs); }
-    inline bool		operator!=( const char* s ) const
-						{ return !(*this == s); }
-    inline bool		operator==( const FixedString& fs ) const
-						{ return *this == fs.ptr_;}
-    inline bool		operator!=( const FixedString& fs ) const
-						{ return *this != fs.ptr_;}
-
-    inline bool		isNull() const		{ return !ptr_; }
-    inline bool		isEmpty() const		{ return !ptr_ || !*ptr_; }
-    int			size() const;
-
-    inline		operator const char*() const
-						{ return buf(); }
-    inline		operator bool() const	{ return !isEmpty(); }
-    inline bool		operator!() const	{ return isEmpty(); }
-
-    inline const char*	buf() const		{ return ptr_ ? ptr_ : ""; }
-    inline const char*	str() const		{ return isEmpty() ? 0 : ptr_; }
-    inline char		firstChar() const	{ return ptr_ ? *ptr_ : '\0'; }
-
-    FixedString&	operator=(const BufferString&);
+						{ str_ = p; return *this; }
+    FixedString&	operator=(const OD::String&);
 				//!< Not impl - on purpose: too dangerous
+    inline		operator const char*() const	{ return buf(); }
+
+    inline bool		operator==( const FixedString& fs ) const
+						{ return isEqual(fs.str_);}
+    inline bool		operator!=( const FixedString& fs ) const
+						{ return !isEqual(fs.str_);}
+    inline bool		operator==( const char* s ) const
+						{ return isEqual(s);}
+    inline bool		operator!=( const char* s ) const
+						{ return !isEqual(s);}
+    inline bool		operator==( const OD::String& s ) const
+						{ return isEqual(s.str()); }
+    inline bool		operator!=( const OD::String& s ) const
+						{ return !isEqual(s.str()); }
+    bool		operator==(const BufferString&) const;
+    bool		operator!=(const BufferString&) const;
+
+    inline		operator bool() const	{ return !isNull(); }
+    inline bool		operator !() const	{ return isNull(); }
+    inline bool		isNull() const		{ return !str_; }
+    inline char		firstChar() const	{ return str_ ? *str_ : '\0'; }
+
+    static const FixedString& empty();
+
 
 protected:
 
-    const char*	ptr_;
+    inline const char*	gtBuf() const	{ return str_ ? str_ : ""; }
+    inline const char*	gtStr() const	{ return !str_ || !*str_ ? 0 : str_; }
+
+    const char*	str_;
 
 };
-
-
-inline bool operator==( const char* s, const FixedString& fs )
-{
-    return fs == s;
-}
-
-
-inline bool operator!=( const char* s, const FixedString& fs )
-{
-    return fs != s;
-}
-
-
-mGlobal(Basic) const char* toString(const FixedString&);
 
 
 namespace Values
@@ -91,23 +83,19 @@ public:
 
     static FixedString	val()				{ return FixedString();}
     static bool		hasUdf()			{ return true; }
-    static bool		isUdf(const FixedString& s)	{return s.isEmpty();}
-    static void		setUdf(FixedString& s)		{ s = FixedString(); }
+    static bool		isUdf( const FixedString& s )	{ return s.isEmpty(); }
+    static void		setUdf( FixedString& s )	{ s = FixedString(); }
 
 };
 
 }
 
 
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const FixedString&);
-
-
-
 #ifndef __win__
 
-// Avoid silent conversion BufferString -> FixedString as it is dangerous.
+// Avoid silent conversion general OD::String -> FixedString as it is dangerous.
 void OD_Undef_FixedString_eq_bs_finder();
-inline FixedString& FixedString::operator=(const BufferString&)
+inline FixedString& FixedString::operator=(const OD::String&)
 { OD_Undef_FixedString_eq_bs_finder(); return *this; }
 
 #endif

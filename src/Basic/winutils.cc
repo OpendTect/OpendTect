@@ -29,7 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-static const char* drvstr="/cygdrive/";
+static const char* cygdrvstr="/cygdrive/";
+static const int cygdrvstrlen=10;
 
 const char* getCleanUnxPath( const char* path )
 {
@@ -37,19 +38,19 @@ const char* getCleanUnxPath( const char* path )
 
     mDeclStaticString( ret );
 
-    BufferString buf; buf = path;
+    BufferString buf = path;
     buf.trimBlanks();
     buf.replace( '\\' , '/' );
     buf.replace( ';', ':' );
 
-    char* ptr = buf.buf();
-    char* drivesep = firstOcc( ptr, ':' );
+    char* drivesep = buf.find( ':' );
     if ( !drivesep )
-	{ ret = ptr; return ret; }
+	{ ret = buf; return ret.buf(); }
 
     *drivesep = '\0';
 
-    ret = drvstr;
+    ret = cygdrvstr;
+    char* ptr = buf.getCStr();
     *ptr = (char)tolower(*ptr);
     ret += ptr;
     ret += ++drivesep;
@@ -76,7 +77,7 @@ const char* getCleanWinPath( const char* path )
     ret.replace( ';', ':' );
 
     BufferString buf( ret );
-    char* ptr = buf.buf();
+    char* ptr = buf.getCStr();
 
     mTrimBlanks( ptr );
 
@@ -88,17 +89,16 @@ const char* getCleanWinPath( const char* path )
 
     bool isabs = *ptr == '/';
 
-    char* cygdrv = firstOcc( ptr, drvstr );
+    char* cygdrv = firstOcc( ptr, cygdrvstr );
     if ( cygdrv )
     {
-	char* drv = cygdrv + FixedString(drvstr).size();
-	char* buffer = ret.buf();
-
+	char* buffer = ret.getCStr();
+	char* drv = cygdrv + cygdrvstrlen;
 	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
 	ret += ++drv;
     }
 
-    char* drivesep = firstOcc( ret.buf(), ":" );
+    char* drivesep = ret.find( ":" );
     if ( isabs && !drivesep )
     {
 	const char* cygdir =

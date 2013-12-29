@@ -1670,7 +1670,7 @@ od_int64 dgbSurfaceWriter::totalNr() const
 #define mSetDc( type, string ) \
 { \
     type dummy; \
-    DataCharacteristics(dummy).toString( dc.buf() ); \
+    DataCharacteristics(dummy).toString( dc.getCStr() ); \
 }\
     versionpar.set( string, dc )
 

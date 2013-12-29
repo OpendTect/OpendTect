@@ -171,7 +171,7 @@ bool uiExport2DHorizon::doExport()
 		else
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%16s";
-		    sprintf( line.buf(), controlstr.buf(), linename.buf(),
+		    sprintf( line.getCStr(), controlstr.buf(), linename.buf(),
 			     pos.x, pos.y, trcnr, undefstr.buf() );
 		}
 	    }
@@ -181,7 +181,7 @@ bool uiExport2DHorizon::doExport()
 		if ( wrlnms )
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
-		    sprintf( line.buf(), controlstr.buf(),
+		    sprintf( line.getCStr(), controlstr.buf(),
 			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
 		}
 		else

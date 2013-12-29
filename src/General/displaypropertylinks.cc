@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gendefs.h"
 #include "displaypropertylinks.h"
 #include "ptrman.h"
+#include "fixedstring.h"
 
 mImplFactory1Param(DisplayPropertyLink,ObjectSet<DisplayPropertyHolder>&,
 		   DisplayPropertyLink::factory);
@@ -54,7 +55,7 @@ bool DisplayPropertyLink::addHolder( DisplayPropertyHolder* dph )
 	return false;
 
     holders_ += dph;
-    
+
     return syncNow( holders_[0], dph );
 }
 
@@ -183,7 +184,7 @@ int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
     Threads::Locker lckr( lock_ );
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
     {
-	if ( propertylinks_[idx]->type()!=lnktype )
+	if ( lnktype != propertylinks_[idx]->type() )
 	    continue;
 
 	//If we have at least one holder in common, we can combine them
@@ -239,7 +240,7 @@ void DisplayLinkManager::removeDisplayPropertyLink( int id )
 
 
 const DisplayPropertyLink*
-    DisplayLinkManager::getDisplayPropertyLink( int id ) const 
+    DisplayLinkManager::getDisplayPropertyLink( int id ) const
 { return const_cast<DisplayLinkManager*>(this)->getDisplayPropertyLink( id ); }
 
 

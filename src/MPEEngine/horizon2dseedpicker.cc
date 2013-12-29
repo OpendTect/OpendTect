@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 
 
-namespace MPE 
+namespace MPE
 {
 
 Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
@@ -61,9 +61,9 @@ bool Horizon2DSeedPicker::canSetSectionID() const
 
 
 bool Horizon2DSeedPicker::setSectionID( const EM::SectionID& sid )
-{ 
-    sectionid_ = sid; 
-    return true; 
+{
+    sectionid_ = sid;
+    return true;
 }
 
 
@@ -81,10 +81,8 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
     {
-	bool isstored = matchString( Attrib::StorageProvider::attribName(),
-				     neededattribs[idx]->defString() );
 	if ( neededattribs[idx]->id().asInt()==as.id().asInt() &&
-	     isstored==as.id().isStored() )
+	     neededattribs[idx]->isStored()==as.id().isStored() )
 	    return true;
     }
     return false;
@@ -107,7 +105,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 	return false;
 
     const PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey(
-	    				ioobj->name(), linename_ );
+					ioobj->name(), linename_ );
     if ( !l2dky.isOK() )
 	return false;
 
@@ -149,10 +147,10 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
 #define mGetHorAndColrg(hor,colrg,escval) \
     mGetHorizon(hor,escval); \
     if ( sectionid_<0 || !l2dkey_.isOK() ) \
-    	return escval; \
+	return escval; \
     const StepInterval<int> colrg = \
-    	hor->geometry().colRange( sectionid_, l2dkey_ ); 
-	
+	hor->geometry().colRange( sectionid_, l2dkey_ );
+
 bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 				   const Coord3& seedkey )
 {
@@ -186,7 +184,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 
     col = closestcol;
     RowCol rc( hor->geometry().lineIndex(l2dkey_), col );
-	
+
     const EM::PosID pid( hor->id(), sectionid_, rc.toInt64() );
     bool res = true;
 
@@ -236,7 +234,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 {
     mGetHorAndColrg(hor,colrg,-1);
-    int col = 0; 
+    int col = 0;
     int nrneighbors = 0;
 
     for ( int idx=-1; idx<=1; idx+=2 )
@@ -247,7 +245,7 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 	    col += idx*colrg.step;
 	    const Coord3 pos = hor->getPos( sectionid_, l2dkey_, col );
 	    if ( Coord(pos).isDefined() )
-	    {	
+	    {
 		if ( pos.isDefined() )
 		    nrneighbors++;
 		break;
@@ -260,7 +258,7 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 
 bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 				      bool retrack )
-{ 
+{
     addrmseed_.trigger();
 
     if ( blockpicking_ )
@@ -276,7 +274,7 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	hor->unSetPos( pid, true );
 
     seedlist_.erase();
-    const bool res = environment ? 
+    const bool res = environment ?
 		     retrackOnActiveLine(rc.col(),true,!retrack) : true;
 
     surfchange_.trigger();
@@ -284,13 +282,13 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 }
 
 
-bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol, 
+bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 					       bool startwasdefined,
-					       bool eraseonly ) 
+					       bool eraseonly )
 {
     mGetHorAndColrg(hor,colrg,false);
-    
-    trackbounds_.erase();   
+
+    trackbounds_.erase();
     junctions_.erase();
 
     if ( colrg.includes(startcol,false) )
@@ -323,7 +321,7 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 
 
 void Horizon2DSeedPicker::extendSeedListEraseInBetween(
-					    bool wholeline, int startcol, 
+					    bool wholeline, int startcol,
 					    bool startwasdefined, int step )
 {
     mGetHorAndColrg(hor,colrg, );
@@ -353,7 +351,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 
 	    break;
 	}
-	
+
 	const EM::PosID pid( hor->id(), sectionid_, currc.toInt64() );
 
 	// Skip if survey coordinates undefined
@@ -362,7 +360,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 
 	curpid = pid;
 	curdefined = hor->isDefined(curpid);
-	
+
 	// running into a seed point
 	if ( hor->isPosAttrib( curpid, EM::EMObject::sSeedNode() ) )
 	{
@@ -372,7 +370,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 		trackbounds_ += curpid;
 	    else
 		seedlist_ += curpid;
-	    
+
 	    if ( wholeline )
 		continue;
 
@@ -419,7 +417,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     mDynamicCastGet( Horizon2DExtender*, extender2d, extender );
     if ( !extender2d )
 	return false;
-    
+
     extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
     extender->setExtBoundary( getTrackBox() );
     extender2d->setLine2DKey( l2dkey_ );
@@ -461,7 +459,7 @@ bool Horizon2DSeedPicker::doesModeUseSetup() const
 
 
 bool Horizon2DSeedPicker::reTrack()
-{ 
+{
     seedlist_.erase();
     const bool res = retrackOnActiveLine( Values::Undef<int>::val() , false );
     surfchange_.trigger();
@@ -511,7 +509,7 @@ bool Horizon2DSeedPicker::stopSeedPick(bool)
 int MPE::Horizon2DSeedPicker::nrSeeds() const
 {
     mGetHorizon(hor,false);
-    const TypeSet<EM::PosID>* seednodelist = 
+    const TypeSet<EM::PosID>* seednodelist =
 			      hor->getPosAttribList( EM::EMObject::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
@@ -571,7 +569,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     {
 	const Coord3 startpos = hor->getPos( seedlist_[ sortidx[vtx] ] );
 	const Coord3 endpos = hor->getPos( seedlist_[ sortidx[vtx+1] ] );
-	
+
 	double totarclen = 0.0;
 	Coord prevpos = startpos;
 	rc.col() = sortval[vtx];
@@ -579,7 +577,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	{
 	    rc.col() += colrg.step;
 	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
-	    if ( !curpos.isDefined() ) 
+	    if ( !curpos.isDefined() )
 		continue;
 	    totarclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
@@ -591,14 +589,14 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	for ( ; rc.col()<sortval[vtx+1]; rc.col() += colrg.step  )
 	{
 	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
-	    if ( !curpos.isDefined() ) 
+	    if ( !curpos.isDefined() )
 		continue;
 	    arclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
-	    
+
 	    const double frac = arclen / totarclen;
 	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
-	    const Coord3 interpos( curpos, curz ); 
+	    const Coord3 interpos( curpos, curz );
 	    const EM::PosID interpid( hor->id(), sectionid_, rc.toInt64() );
 	    hor->setPos( interpid, interpos, true );
 	    hor->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );

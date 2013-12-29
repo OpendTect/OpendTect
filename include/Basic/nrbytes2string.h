@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "string2.h"
+#include "fixedstring.h"
 
 
 

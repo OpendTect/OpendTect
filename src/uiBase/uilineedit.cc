@@ -95,10 +95,7 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
 
 const char* uiLineEdit::getvalue_() const
 {
-    BufferString res( body_->text() );
-    char* ptr = res.buf();
-    mTrimBlanks(ptr);
-    result_ = ptr;
+    result_.set( body_->text() ).trimBlanks();
     return result_.buf();
 }
 

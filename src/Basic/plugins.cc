@@ -186,7 +186,7 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 	libnm += 3;
     ret += libnm;
 
-    char* ptr = firstOcc( ret.buf(), '.' );
+    char* ptr = firstOcc( ret.getCStr(), '.' );
     if ( ptr ) *ptr = '\0';
     ret += fnend;
 
@@ -387,7 +387,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	BufferString fnm = dl.get(idx);
 	if ( !isALO(fnm) ) continue;
 
-	char* ptr = firstOcc( fnm.buf(), '.' );
+	char* ptr = firstOcc( fnm.getCStr(), '.' );
 	if ( ptr ) *ptr = '\0';
 	if ( fnm != prognm ) continue;
 

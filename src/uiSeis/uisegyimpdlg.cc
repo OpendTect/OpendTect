@@ -218,7 +218,7 @@ bool doImp( const FilePath& fp )
 	const int newlen = fullfnm.size();
 	const int lnmlen = (newlen - orglen + 1) / nrtok;
 	BufferString lnm( fullfnm.buf() + lnmoffs );
-	*(lnm.buf() + lnmlen) = '\0';
+	*(lnm.getCStr() + lnmlen) = '\0';
 
 	IOObj* newioobj = getSubstIOObj( fullfnm );
 	if ( !doWork( newioobj, lnm, idx > dl.size()-2, nofails ) )

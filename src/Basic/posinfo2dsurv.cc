@@ -306,9 +306,10 @@ mIdxTyp PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
 }
 
 
-mIdxTyp PosInfo::Survey2D::getLineID( const char* linenm ) const
+mIdxTyp PosInfo::Survey2D::getLineID( const char* lnm ) const
 {
-    if ( !linenm || !*linenm )
+    FixedString linenm( lnm );
+    if ( linenm.isEmpty() )
 	return Line2DKey::udf().lineID();
 
     for ( int idx=0; idx<lineindex_.size(); idx++ )
@@ -501,7 +502,7 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
     int itry = 1;
     while ( true )
     {
-	cleanupString( clnnm.buf(), false, false, false );
+	cleanupString( clnnm.getCStr(), false, false, false );
 	FilePath fp( inpfp, clnnm );
 	if ( !File::exists(fp.fullPath()) )
 	    break;
@@ -697,7 +698,7 @@ int PosInfo::Survey2D::getLineIdx( int lineid ) const
 void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
 {
     BufferString cleannm( newlnm );
-    cleanupString( cleannm.buf(), false, false, false );
+    cleanupString( cleannm.getCStr(), false, false, false );
 
     int lidx = lineindex_.indexOf( oldlnm );
     if ( lidx < 0 ) return;
@@ -816,7 +817,7 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
     {
 	lsindex_.setKey( lsidx, newlsnm );
 	BufferString cleannm( newlsnm );
-	cleanupString( cleannm.buf(), false, false, false );
+	cleanupString( cleannm.getCStr(), false, false, false );
 	FilePath newfp( basefp_, cleannm.buf() );
 	File::rename( dirnm, newfp.fullPath() );
 	FileMultiString lspar( cleannm.buf() );
@@ -840,7 +841,7 @@ PosInfo::Line2DKey PosInfo::Survey2D::getLine2DKey( const char* linesetnm,
 const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
 {
     BufferString cleannm( lsnm );
-    cleanupString( cleannm.buf(), false, false, false );
+    cleanupString( cleannm.getCStr(), false, false, false );
     mDeclStaticString( ret );
     ret = FilePath(basefp_,cleannm,sIdxFilename).fullPath();
     return ret.buf();
@@ -851,9 +852,9 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
 					      const char* linenm ) const
 {
     BufferString cllsnm( lsnm );
-    cleanupString( cllsnm.buf(), false, false, false );
+    cleanupString( cllsnm.getCStr(), false, false, false );
     BufferString cllnm( linenm );
-    cleanupString( cllnm.buf(), false, false, false );
+    cleanupString( cllnm.getCStr(), false, false, false );
 
     PosInfo::Line2DKey l2dky = getLine2DKey( lsnm, linenm );
     if ( !l2dky.isOK() )

@@ -63,7 +63,7 @@ void Strat::UnitRef::doUse( const char* str, int* id )
     if ( sz > 1 )
     {
 	if ( id )
-	    *id = toInt( fms[nr] );
+	    *id = fms.getIValue( nr );
 	nr++;
     }
     desc_ = fms[nr];

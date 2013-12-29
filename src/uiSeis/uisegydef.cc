@@ -1010,7 +1010,7 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	if ( !coordsspecfnmbox_->isChecked() )
 	    { fnm = "ext="; fnm.add( coordsextfld_->text() ); }
 	iop.get( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
-	const bool isext = matchString( "ext=", fnm );
+	const bool isext = fnm.startsWith( "ext=" );
 	coordsspecfnmbox_->setChecked( !isext );
 	if ( isext )
 	    coordsextfld_->setText( fnm.buf() + 4 );

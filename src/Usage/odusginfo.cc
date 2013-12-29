@@ -65,7 +65,7 @@ bool Usage::Info::ID::getFrom( const char* str )
 {
     BufferString buf( str );
 
-    char* startptr = buf.buf();
+    char* startptr = buf.getCStr();
     char* ptr = firstOcc( startptr, '@' );
     if ( !ptr ) return false;
     *ptr++ = '\0'; startptr = ptr;

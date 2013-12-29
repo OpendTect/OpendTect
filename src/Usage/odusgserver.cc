@@ -41,7 +41,7 @@ Usage::Server::Server( const IOPar* inpars, od_ostream& strm )
     if ( pars_.isEmpty() )
     {
 	logstrm_ << "Cannot start OpendTect Usage server (" << rcsPrStr
-	    	 << "):\n";
+		 << "):\n";
 	if ( inpars )
 	    logstrm_ << "No input parameters" << od_newline;
 	else
@@ -76,7 +76,7 @@ const char* Usage::Server::setupFileName( const char* admnm )
     if ( admnm && *admnm )
     {
 	BufferString clnadmnm( admnm );
-	cleanupString( clnadmnm.buf(), false, false, false );
+	cleanupString( clnadmnm.getCStr(), false, false, false );
 	ret += "_"; ret += clnadmnm;
     }
     return ret.buf();

@@ -90,7 +90,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
     if ( !isOK() || !keyword || !*keyword ) return;
 
     BufferString towrite = keyword;
-    char* ptr = firstOcc( towrite.buf(), mAscStrmKeyValSep );
+    char* ptr = firstOcc( towrite.getCStr(), mAscStrmKeyValSep );
     while ( ptr )
     {
 	BufferString tmp( ptr + 1 );
@@ -98,7 +98,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
 	towrite += valsep_replacement;
 	const od_int64 prevlen = towrite.size();
 	towrite += tmp;
-	ptr = firstOcc( towrite.buf() + prevlen, mAscStrmKeyValSep );
+	ptr = firstOcc( towrite.getCStr() + prevlen, mAscStrmKeyValSep );
     }
 
     strm_ << towrite;
@@ -118,7 +118,7 @@ bool ascostream::put( const char* keyword, const char* value )
 	if ( nlptr )
 	{
 	    BufferString str( value );
-	    char* startptr = str.buf();
+	    char* startptr = str.getCStr();
 	    char* ptr = startptr + (nlptr - value);
 	    while ( ptr )
 	    {
@@ -137,7 +137,7 @@ bool ascostream::put( const char* keyword, const char* value )
 }
 
 
-bool ascostream::put( const char* keyword, const FixedString& value )
+bool ascostream::put( const char* keyword, const OD::String& value )
 {
     return put( keyword, value.buf() );
 }
@@ -253,13 +253,13 @@ void ascistream::init( bool rdhead )
       || !strm_.getLine(timestamp_) )
 	return;
 
-    removeTrailingBlanks(filetype_.buf());
+    filetype_.trimBlanks();
     if ( filetype_.size() >= 4 )
     {
-	char* ptr = filetype_.buf() + filetype_.size() - 4;
+	char* ptr = filetype_.getCStr() + filetype_.size() - 4;
 	if ( caseInsensitiveEqual(ptr,"file",0) )
 	    *ptr = '\0';
-	removeTrailingBlanks(filetype_.buf());
+	filetype_.trimBlanks();
     }
 
     next();
@@ -268,7 +268,7 @@ void ascistream::init( bool rdhead )
 
 bool ascistream::hasStandardHeader() const
 {
-    return matchString( "dTect", header_.buf() );
+    return header_.startsWith( "dTect" );
 }
 
 
@@ -281,7 +281,7 @@ ascistream& ascistream::next()
     if ( !strm_.getLine(lineread) )
 	return *this;
 
-    char* linebuf = lineread.buf();
+    char* linebuf = lineread.getCStr();
     if ( linebuf[0] == '\0' || ( linebuf[0]=='-' && linebuf[1]=='-' ) )
 	return next();
     if ( linebuf[0] == mAscStrmParagraphMarker[0] )
@@ -317,7 +317,7 @@ ascistream& ascistream::next()
 
 bool ascistream::isOfFileType( const char* ftyp ) const
 {
-    return matchStringCI( ftyp, filetype_.buf() );
+    return filetype_.startsWith( ftyp, CaseInsensitive );
 }
 
 
@@ -332,16 +332,16 @@ const char* ascistream::version() const
 int ascistream::majorVersion() const
 {
     BufferString v( version() );
-    char* ptr = firstOcc( v.buf(), '.' );
+    char* ptr = firstOcc( v.getCStr(), '.' );
     if ( ptr ) *ptr = '\0';
-    return toInt( v.buf() );
+    return v.toInt();
 }
 
 
 int ascistream::minorVersion() const
 {
     BufferString v( version() );
-    char* ptr = lastOcc( v.buf(), '.' );
+    char* ptr = lastOcc( v.getCStr(), '.' );
     return toInt( ptr ? ptr+1 : v.buf() );
 }
 

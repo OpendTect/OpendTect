@@ -387,7 +387,7 @@ void uiObject::translate()
 
     BufferString txt( *toolTip() ? toolTip() : name().buf() );
     txt.trimBlanks();
-    if ( txt.isEmpty() || isNumberString(txt.buf()) )
+    if ( txt.isEmpty() || txt.isNumber() )
 	return;
 
     mAttachCB(TrMgr().tr()->ready, uiObject::trlReady );

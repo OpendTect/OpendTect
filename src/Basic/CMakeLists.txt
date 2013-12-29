@@ -63,6 +63,7 @@ set( OD_MODULE_SOURCES
 	    odimage.cc
 	    odinst.cc
 	    odmemory.cc
+	    odstring.cc
 	    odver.cc
 	    oscommand.cc
 	    plugins.cc

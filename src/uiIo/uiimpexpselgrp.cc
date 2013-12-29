@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "";
 static const char* sKeyFileType = "CrossPlot Selection";
 static const char* sKeyNrSelGrps = "Nr of Selection Groups";
 static const char* sKeySelGrp()		{ return "SelectionGrps"; }
-static const char* sKeyIdxFileName() 	{ return "index.txt"; }
+static const char* sKeyIdxFileName()	{ return "index.txt"; }
 
 
 class SGSelGrpManager
@@ -64,9 +64,9 @@ bool renameSelGrpSet( const char* oldnm, const char* newnm )
 	return false;
 
     BufferString oldclnnm( oldnm );
-    cleanupString( oldclnnm.buf(), false, false, false );
+    cleanupString( oldclnnm.getCStr(), false, false, false );
     BufferString newclnnm( oldnm );
-    cleanupString( newclnnm.buf(), false, false, false );
+    cleanupString( newclnnm.getCStr(), false, false, false );
 
     FilePath newfp( basefp_.fullPath(), newclnnm );
     FilePath oldfp( basefp_.fullPath(), oldclnnm );
@@ -238,15 +238,15 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
     }
 
     infobut_ = new uiToolButton( this, "info", "Info",
-	    			 mCB(this,uiSGSelGrp,showInfo) );
+				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
     delbut_ = new uiToolButton( this, "trashcan", "Delete Selection-Groups",
-	    		        mCB(this,uiSGSelGrp,delSelGrps) );
+			        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
 
     renamebut_ = new uiToolButton( this, "renameobj", "Rename Selection-Groups",
-	    			   mCB(this,uiSGSelGrp,renameSelGrps) );
+				   mCB(this,uiSGSelGrp,renameSelGrps) );
     renamebut_->attach( alignedBelow, delbut_ );
 
     fillListBox();
@@ -323,7 +323,7 @@ void uiSGSelGrp::renameSelGrps( CallBacker* )
 	const int idx = nms.indexOf( listfld_->getText() );
 	if ( mIsUdf(idx) || idx < 0 || !dlg.getName() )
 	    return;
-	SGM().renameSelGrpSet( listfld_->getText(), dlg.getName() ); 
+	SGM().renameSelGrpSet( listfld_->getText(), dlg.getName() );
 	fillListBox();
     }
 }
@@ -342,7 +342,7 @@ bool uiSGSelGrp::fillListBox()
 }
 
 
-bool uiSGSelGrp::getCurSelGrpSet( ObjectSet<SelectionGrp>& selgrps ) 
+bool uiSGSelGrp::getCurSelGrpSet( ObjectSet<SelectionGrp>& selgrps )
 {
     SelGrpImporter imp( getCurFileNm() );
     selgrps = imp.getSelections();
@@ -370,7 +370,7 @@ const char* uiSGSelGrp::selGrpSetNm() const
 BufferString uiSGSelGrp::getCurFileNm() const
 {
     BufferString cleannm( forread_ ? listfld_->getText() : nmfld_->text() );
-    cleanupString( cleannm.buf(), false, false, false ); 
+    cleanupString( cleannm.getCStr(), false, false, false );
     return FilePath(SGM().basePath(),cleannm).fullPath();
 }
 
@@ -406,7 +406,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 
     int nrselgrps = 0;
     IOPar par( astrm );
-    
+
     if ( par.hasKey(sKeyNrSelGrps) )
 	par.get( sKeyNrSelGrps, nrselgrps );
     if ( par.hasKey(IOPar::compKey(sKey::Attribute(),"X")) )
@@ -503,7 +503,7 @@ bool acceptOK( CallBacker* )
 	ret = selgrp_->getCurSelGrpSet( selgrpset_ );
     else
 	SGM().addSelGrpSet( selgrp_->selGrpSetNm() );
-    
+
     selgrpsetnm_ = selgrp_->selGrpSetNm();
     filenm_ =  selgrp_->getCurFileNm();
     xname_ = selgrp_->xName();
@@ -515,18 +515,18 @@ bool acceptOK( CallBacker* )
 
 const ObjectSet<SelectionGrp>& selGrpSet() const	{ return selgrpset_; }
 
-const char* selGrSetNm() const 				{ return selgrpsetnm_; }
+const char* selGrSetNm() const				{ return selgrpsetnm_; }
 const BufferString& selGrpFileNm() const		{ return filenm_;}
 
-const char* xName() const 				{ return xname_; }
-const char* yName() const 				{ return yname_; }
-const char* y2Name() const 				{ return y2name_; }
+const char* xName() const				{ return xname_; }
+const char* yName() const				{ return yname_; }
+const char* y2Name() const				{ return y2name_; }
 
 protected:
 
     ObjectSet<SelectionGrp>	selgrpset_;
-    uiSGSelGrp* 		selgrp_;
-    
+    uiSGSelGrp*		selgrp_;
+
     BufferString		filenm_;
     BufferString		xname_;
     BufferString		yname_;
@@ -545,7 +545,7 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
 {
     inpfld_ = new uiGenInput( this, "Cross-plot Selections" );
     selbut_ = new uiPushButton( this, "Select ..", mCB(this,uiSGSel,selectSGCB),
-	    			false );
+				false );
     selbut_->attach( rightTo, inpfld_ );
 }
 
@@ -578,7 +578,7 @@ const char* uiSGSel::selGrpSetNm() const
 }
 
 
-const char* uiSGSel::selGrpFileNm() 
+const char* uiSGSel::selGrpFileNm()
 {
     if ( !isOK() )
 	return 0;
@@ -587,7 +587,7 @@ const char* uiSGSel::selGrpFileNm()
     if ( selgrpfilenm_.isEmpty() )
     {
 	BufferString cleannm( inpfld_->text() );
-	cleanupString( cleannm.buf(), false, false, false );
+	cleanupString( cleannm.getCStr(), false, false, false );
 	return FilePath(SGM().basePath(),cleannm).fullPath();
 	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }
@@ -618,18 +618,18 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     xselfld_ = xselfld->box();
     xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
-   
+
     uiLabeledComboBox* yselfld =
 	new uiLabeledComboBox( this, plotter.axisHandler(1)->name() );
     yselfld_ = yselfld->box();
     yselfld->attach( alignedBelow, xselfld );
     yselfld_->display( false, false );
-    
+
     ychkfld_ = new uiCheckBox( this, "Import Y1",
-	    		       mCB(this,uiReadSelGrp,fldCheckedCB) );
+			       mCB(this,uiReadSelGrp,fldCheckedCB) );
     ychkfld_->attach( rightTo, yselfld );
     ychkfld_->display( false, false );
-    
+
     if ( hasy2 )
     {
 	uiLabeledComboBox* y2selfld =
@@ -698,7 +698,7 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     ychkfld_->display( false );
     ychkfld_->setChecked( true );
     yselfld_->setSensitive( true );
-    
+
     if ( y2selfld_ )
     {
 	ychkfld_->display( true );
@@ -787,12 +787,12 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
     {
 	actselarea.worldrect_ =
 	    ((yaxis == 2) && hasalt) ? selarea.altworldrect_
-			 	     : selarea.worldrect_;
+				     : selarea.worldrect_;
 	actselarea.altworldrect_ =
 	    ((yaxis == 2) && hasalt) ? selarea.worldrect_
-			 	     : selarea.altworldrect_;
+				     : selarea.altworldrect_;
     }
-    else 
+    else
     {
 	uiWorldRect rect = selarea.worldrect_;
 	uiWorldRect altrect = hasalt ? selarea.altworldrect_
@@ -830,7 +830,7 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 {
     mGetAxisVals;
     bool hasalt = !selarea.altyaxisnm_.isEmpty();
- 
+
     if ( xaxis == 0 )
     {
 	actselarea.worldpoly_ = ((yaxis) == 2 && hasalt)
@@ -838,7 +838,7 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	actselarea.altworldpoly_ = ((yaxis == 2) && hasalt)
 	    ? selarea.worldpoly_ : selarea.altworldpoly_;
     }
-    else 
+    else
     {
 	ODPolygon<double> worldpoly,altworldpoly;
 	TypeSet< Geom::Point2D<double> > pts = selarea.worldpoly_.data();
@@ -852,9 +852,9 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	   ptval += altpts[idx].y;
 	   const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
 	   const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
-	   
+
 	   worldpoly.add( Geom::Point2D<double>(ptval[xaxis], ptval[yaxisnr]) );
-	   
+
 	   if (hasalt && actselarea.axistype_==SelectionArea::Both)
 	       altworldpoly.add( Geom::Point2D<double>(ptval[xaxis],
 				 ptval[y2axis]) );
@@ -909,7 +909,7 @@ bool uiReadSelGrp::adjustSelectionGrps()
 		selimportfailed = true;
 		continue;
 	    }
-	   
+
 	    if ( selarea.isrectangle_ )
 		fillRectangle( selarea, actselarea );
 	    else
@@ -984,7 +984,7 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
     if ( File::exists(outfld_->selGrpFileNm()) )
     {
 	if ( !uiMSG().askOverwrite("Selected selections already present, "
-			      	   "Do you want to overwrite?") )
+				   "Do you want to overwrite?") )
 	    return false;
     }
 

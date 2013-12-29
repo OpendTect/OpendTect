@@ -224,7 +224,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	if ( lioobj )
 	{
 	    BufferString msg( "This name is already used by a ",
-		    		lioobj->translator(), " object" );
+				lioobj->translator(), " object" );
 	    delete lioobj;
 	    uiMSG().error( msg );
 	    return false;
@@ -247,7 +247,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 		chiostrm.setExt( tr->defExtension() );
 
 	    BufferString cleannm( chiostrm.name() );
-	    cleanupString( cleannm.buf(), true, false, true );
+	    cleanupString( cleannm.getCStr(), true, false, true );
 	    chiostrm.setName( cleannm );
 	    chiostrm.genDefaultImpl();
 	    chiostrm.setName( newnm );
@@ -261,7 +261,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    {
 		if ( newnm.contains('/') || newnm.contains('\\') )
 		{
-		    cleanupString(newnm.buf(),false,false,true);
+		    cleanupString(newnm.getCStr(),false,false,true);
 		    chiostrm.setName( newnm );
 		    chiostrm.genDefaultImpl();
 		    deffp.set( chiostrm.fileName() );

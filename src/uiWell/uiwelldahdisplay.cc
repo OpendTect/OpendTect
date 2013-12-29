@@ -294,7 +294,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     {
 	TypeSet<uiPoint> ptsforspikes;
 	const bool isreflectivity =
-	    ld.dahobj_->name().isEqual( "Reflectivity", true );
+	    ld.dahobj_->name().isEqual( "reflectivity", CaseInsensitive );
 	if ( isreflectivity )
 	{
 	    ptsforspikes.setCapacity( 3 * sz );

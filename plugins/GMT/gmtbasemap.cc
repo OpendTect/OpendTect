@@ -287,7 +287,7 @@ const char* GMTCommand::userRef() const
     BufferString* str = new BufferString( "GMT Command: " );
     const char* res = find( ODGMT::sKeyCustomComm() );
     *str += res;
-    *( str->buf() + 25 ) = '\0';
+    *( str->getCStr() + 25 ) = '\0';
     return str->buf();
 }
 
@@ -301,11 +301,11 @@ bool GMTCommand::execute( od_ostream& strm, const char* fnm )
 
     strm << res << od_endl;
     BufferString comm = res;
-    char* ptr = firstOcc( comm.buf(), " -R" );
+    char* ptr = firstOcc( comm.getCStr(), " -R" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
-	ptr = oldstr.buf();
+	ptr = oldstr.getCStr();
 	ptr++;
 	while ( ptr && *ptr != ' ' )
 	    ptr++;
@@ -317,11 +317,11 @@ bool GMTCommand::execute( od_ostream& strm, const char* fnm )
 	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = firstOcc( comm.buf(), " -J" );
+    ptr = comm.find( " -J" );
     if ( ptr )
     {
 	BufferString oldstr( ptr );
-	ptr = oldstr.buf();
+	ptr = oldstr.getCStr();
 	ptr++;
 	while ( ptr && *ptr != ' ' )
 	    ptr++;
@@ -333,10 +333,10 @@ bool GMTCommand::execute( od_ostream& strm, const char* fnm )
 	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = firstOcc( comm.buf(), ".ps" );
+    ptr = comm.find( ".ps" );
     if ( ptr )
     {
-	ptr = firstOcc( comm.buf(), ">>" );
+	ptr = comm.find( ">>" );
 	if ( ptr )
 	{
 	    BufferString temp = ptr;
@@ -352,4 +352,3 @@ bool GMTCommand::execute( od_ostream& strm, const char* fnm )
     strm << "... Done" << od_endl;
     return true;
 }
-

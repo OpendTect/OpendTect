@@ -44,7 +44,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	auxcmd_ = auxcmd;
 
     BufferString str = cmd;
-    char* buf = str.buf();
+    char* buf = str.getCStr();
     mSkipBlanks( cmd );
     cmd = getNextWord( cmd, buf );
     if ( !buf || !*buf ) return;
@@ -88,8 +88,8 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		    break;
 		}
 
-		cmd = getNextWord( cmd, newbuf.buf() );
-		if ( !newbuf.buf() || !*newbuf.buf() ) break;
+		cmd = getNextWord( cmd, newbuf.getCStr() );
+		if ( !*newbuf.buf() ) break;
 
 		strcat( buf, " " );
 		strcat( buf, newbuf.buf() );
@@ -107,7 +107,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    BufferString filenm( startquote ? rsfstr + 2 : rsfstr + 1 );
 	    if ( startquote )
 	    {
-		char* endquote = lastOcc( filenm.buf(), '"' );
+		char* endquote = filenm.findLast( '"' );
 		if ( endquote )
 		    *endquote = '\0';
 	    }
@@ -173,12 +173,12 @@ const char* ODMad::Proc::getSummary() const
     BufferString* str = new BufferString( getCommand() );
     if ( !auxcmd_.isEmpty() )
     {
-	*( str->buf() + 20 ) = '\0';
+	*( str->getCStr() + 20 ) = '\0';
 	*str += " | ";
 	*str += auxcmd_;
     }
 
-    *( str->buf() + 40 ) = '\0';
+    *( str->getCStr() + 40 ) = '\0';
     return str->buf();
 }
 

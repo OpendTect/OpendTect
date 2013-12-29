@@ -270,7 +270,7 @@ bool ZipHandler::getFileList( const char* src,
     File::makeRecursiveFileList( src, filenames, false );
     for( int idx=0; idx<filenames.size(); idx++ )
 	totalsize_ += File::getFileSize( filenames.get(idx) );
-    
+
     return true;
 }
 
@@ -1054,7 +1054,7 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	const od_uint16 hfnmsz
 		= *mCast(od_uint16*,headerbuff+mLFnmLengthCentral);
 	BufferString headerfnm( (int)(hfnmsz+1), false );
-	istrm_->getBin( headerfnm.buf(), hfnmsz );
+	istrm_->getBin( headerfnm.getCStr(), hfnmsz );
 	headerfnm[hfnmsz] = '\0';
 	od_uint16 xtrafldlength = *mCast( od_uint16*,
                                           headerbuff + mLExtraFldLengthCentral);

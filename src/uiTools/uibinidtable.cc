@@ -24,7 +24,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
     , withz_(withz)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
-	    					.rowgrow(true)
+						.rowgrow(true)
 						.defrowlbl(true)
 						.selmode(uiTable::Multi),
 			  "BinID Table" );
@@ -73,11 +73,11 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
 
-	bid.inl() = toInt(inlstr);
-	bid.crl() = toInt(crlstr);
+	bid.inl() = inlstr.toInt();
+	bid.crl() = inlstr.toInt();
 	if ( !SI().isReasonable(bid) )
 	{
-	    Coord c( toDouble(inlstr), toDouble(crlstr) );
+	    Coord c( inlstr.toDouble(), crlstr.toDouble() );
 	    if ( SI().isReasonable(c) )
 		bid = SI().transform(c);
 	    else
@@ -106,6 +106,6 @@ void uiBinIDTable::setZRange( const Interval<float>& zrg )
 
 void uiBinIDTable::getZRange( Interval<float>& zrg ) const
 {
-    zrg.setFrom( withz_ ? zfld_->getFInterval() 
-	    		: (Interval<float>)SI().zRange(false) );
+    zrg.setFrom( withz_ ? zfld_->getFInterval()
+			: (Interval<float>)SI().zRange(false) );
 }

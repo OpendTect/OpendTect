@@ -24,6 +24,7 @@ class Coord3;
 class TrcKey;
 class IdxPair;
 class MultiID;
+class FixedString;
 class BufferString;
 template<class T> class TypeSet;
 template<class T> class Interval;
@@ -32,6 +33,8 @@ template<class T> class StepInterval;
 
 typedef od_int32	Index_Type;
 typedef od_int32	Index_Delta_Type;
+
+enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
 
 
 namespace Pos

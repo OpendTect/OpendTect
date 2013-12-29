@@ -318,7 +318,7 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
 
-    const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
+    const float vnr = parversion_.isEmpty() ? 0 : parversion_.toFloat();
 
     if ( clParser().nrArgs() )
     {

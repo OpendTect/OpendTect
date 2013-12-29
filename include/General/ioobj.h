@@ -64,7 +64,7 @@ public:
     virtual bool		isBad() const			= 0;
     virtual void		copyFrom(const IOObj*)		= 0;
     virtual bool		hasConnType( const char* s ) const
-				{ return s && s==connType(); }
+				{ return connType() == s; }
 
     virtual FixedString		connType() const		= 0;
     virtual Conn*		getConn(bool forread) const	= 0;

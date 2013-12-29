@@ -92,7 +92,7 @@ void TcpSocket::read( int& val ) const
 {
     BufferString buf;
     read( buf );
-    getFromString( val, buf.buf() );
+    val = buf.toInt();
 }
 
 
@@ -112,31 +112,31 @@ int TcpSocket::write( const char* str )
 }
 
 
-int TcpSocket::write( const IOPar& par ) 
+int TcpSocket::write( const IOPar& par )
 {
     BufferString buf;
     par.putTo( buf );
-    return write( buf.buf() ); 
+    return write( buf.buf() );
 }
 
 
-int TcpSocket::write( const int& val ) 
+int TcpSocket::write( const int& val )
 {
     BufferString buf;
     buf = val;
-    return write( buf.buf() ); 
+    return write( buf.buf() );
 }
 
 
-int TcpSocket::write( bool yn ) 
+int TcpSocket::write( bool yn )
 {
     BufferString buf;
     buf = toString(yn);
-    return write( buf.buf() ); 
+    return write( buf.buf() );
 }
 
 
-int TcpSocket::writedata( const char* data, int nr ) 
+int TcpSocket::writedata( const char* data, int nr )
 {
     int ret = qtcpsocket_->write( data, nr );
     qtcpsocket_->flush();

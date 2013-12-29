@@ -266,7 +266,7 @@ const char* ODMad::ProcExec::getPlotString() const
 	return 0;
 
     FilePath fp( rsfroot, "bin" );
-    char* pipechar = firstOcc( plotcmd.buf(), '|' );
+    char* pipechar = plotcmd.find( '|' );
     if ( pipechar )
     {
 	BufferString tmp = pipechar + 2;

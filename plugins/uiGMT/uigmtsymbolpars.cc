@@ -38,12 +38,12 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     setHAlignObj( lcb );
 
     sizefld_ = new uiGenInput( this, "Size (cm)",
-	    		       FloatInpSpec( usewellsymbols_ ? 0.5f : 0.2f ) );
+			       FloatInpSpec( usewellsymbols_ ? 0.5f : 0.2f ) );
     sizefld_->setElemSzPol( uiObject::Small );
     sizefld_->attach( rightTo, lcb );
 
     outcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
-	    				 .lbltxt("Outline color") );
+					 .lbltxt("Outline color") );
     outcolfld_->attach( alignedBelow, lcb );
     if ( !usewellsymbols_ )
     {
@@ -87,7 +87,7 @@ void uiGMTSymbolPars::fillShapes()
 	    BufferString shapekey = ODGMT::ShapeNames()[idx];
 	    if ( shapekey.isEmpty() ) break;
 
-	    shapekey.buf()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
+	    shapekey.getCStr()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
 	    shapefld_->insertItem( ioPixmap(shapekey), "", idx );
 	}
     }

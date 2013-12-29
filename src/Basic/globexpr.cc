@@ -16,7 +16,7 @@ void GlobExpr::set( const char* str )
     errmsg_ = 0;
 
     // remove possible trailing backslash
-    char* ptr = expr_.buf();
+    char* ptr = expr_.getCStr();
     while ( *ptr )
     {
 	if ( !*(ptr+1) && *ptr == '\\' )
@@ -27,7 +27,7 @@ void GlobExpr::set( const char* str )
 
 
 bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
-       			bool ci )
+			bool ci )
 {
     errmsg = 0;
     if ( !t || !*t ) return !*p;

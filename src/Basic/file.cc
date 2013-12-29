@@ -52,7 +52,7 @@ public:
 			    , src_(from),dest_(to),fileidx_(0)
 			    , totalnr_(0),nrdone_(0)
 			    , msg_("Copying files")
-			{ 
+			{
 			    makeRecursiveFileList(src_,filelist_,false);
 			    for ( int idx=0; idx<filelist_.size(); idx++ )
 				totalnr_ += getFileSize( filelist_.get(idx) );
@@ -613,7 +613,7 @@ const char* linkValue( const char* linknm )
 #else
     mDeclStaticString( ret );
     ret.setMinBufSize( 1024 );
-    const int len = readlink( linknm, ret.buf(), 1024 );
+    const int len = readlink( linknm, ret.getCStr(), 1024 );
     if ( len < 0 )
 	return linknm;
 

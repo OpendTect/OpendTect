@@ -64,15 +64,15 @@ int uiVisPartServer::evDeSelection()	            { return 2; }
 int uiVisPartServer::evGetNewData()		    { return 3; }
 int uiVisPartServer::evMouseMove()		    { return 4; }
 int uiVisPartServer::evInteraction()		    { return 5; }
-int uiVisPartServer::evSelectAttrib()	   	    { return 6; }
+int uiVisPartServer::evSelectAttrib()		    { return 6; }
 int uiVisPartServer::evViewAll()		    { return 9; }
-int uiVisPartServer::evToHomePos()	   	    { return 10; }
-int uiVisPartServer::evPickingStatusChange() 	    { return 11; }
-int uiVisPartServer::evViewModeChange()	  	    { return 12; }
-int uiVisPartServer::evShowSetupDlg()	  	    { return 13; }
-int uiVisPartServer::evLoadPostponedData()   	    { return 14; }
-int uiVisPartServer::evToggleBlockDataLoad() 	    { return 15; }
-int uiVisPartServer::evDisableSelTracker()  	    { return 16; }
+int uiVisPartServer::evToHomePos()		    { return 10; }
+int uiVisPartServer::evPickingStatusChange()	    { return 11; }
+int uiVisPartServer::evViewModeChange()		    { return 12; }
+int uiVisPartServer::evShowSetupDlg()		    { return 13; }
+int uiVisPartServer::evLoadPostponedData()	    { return 14; }
+int uiVisPartServer::evToggleBlockDataLoad()	    { return 15; }
+int uiVisPartServer::evDisableSelTracker()	    { return 16; }
 int uiVisPartServer::evColorTableChange()	    { return 17; }
 int uiVisPartServer::evLoadAttribDataInMPEServ()    { return 18; }
 int uiVisPartServer::evPostponedLoadingData()	    { return 19; }
@@ -120,8 +120,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , seltype_( (int) visBase::PolygonSelection::Off )
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
-    , mapperrgeditinact_(false)	  
-    , dirlightdlg_(0)			  
+    , mapperrgeditinact_(false)
+    , dirlightdlg_(0)
     , mousecursorexchange_( 0 )
     , objectaddedremoved(this)
     , selectionmode_( Polygon )
@@ -137,9 +137,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     toolbar_.createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
     toolbar_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
-    visBase::DM().selMan().selnotifier.notify( 
+    visBase::DM().selMan().selnotifier.notify(
 	mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifier.notify( 
+    visBase::DM().selMan().deselnotifier.notify(
 	mCB(this,uiVisPartServer,deselectObjCB) );
 
     vismgr_ = new uiVisModeMgr(this);
@@ -195,7 +195,7 @@ void uiVisPartServer::setMouseCursorExchange( MouseCursorExchange* mce )
 void uiVisPartServer::mouseCursorCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const MouseCursorExchange::Info&, info,
-	    			caller, cb );
+				caller, cb );
     if ( caller==this )
 	return;
 
@@ -245,7 +245,7 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-bool uiVisPartServer::clickablesInScene( const char* trackertype, 
+bool uiVisPartServer::clickablesInScene( const char* trackertype,
 					 int sceneid ) const
 {
     TypeSet<int> sceneobjids;
@@ -265,7 +265,7 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 	    }
 	}
     }
-    
+
     uiMSG().warning( "The scene yet contains no object on which seeds\n"
 		     "for a '", trackertype, "' can be picked." );
     return false;
@@ -472,7 +472,7 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
 	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
-	 
+
     }
 }
 
@@ -573,7 +573,7 @@ int uiVisPartServer::addAttrib( int id )
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return -1;
-    
+
     return so->addAttrib() ? so->nrAttribs()-1 : -1;
 }
 
@@ -582,7 +582,7 @@ void uiVisPartServer::removeAttrib( int id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
-    
+
     so->removeAttrib( attrib );
     selattrib_ = -1;
 }
@@ -601,7 +601,7 @@ void uiVisPartServer::getAttribPosName(int id, int attrib,
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
-    
+
     return so->getChannelName( attrib, res );
 }
 
@@ -638,7 +638,7 @@ void uiVisPartServer::setAttribTransparency( int id, int attrib,
 					     unsigned char nv )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) 
+    if ( so )
 	so->setAttribTransparency( attrib, nv );
 }
 
@@ -690,7 +690,7 @@ const Attrib::DataCubes* uiVisPartServer::getCachedData(
 }
 
 
-bool uiVisPartServer::setCubeData( int id, int attrib, 
+bool uiVisPartServer::setCubeData( int id, int attrib,
 				   const Attrib::DataCubes* attribdata )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -793,7 +793,7 @@ void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
     if ( so )
 	so->getDataTraceBids( bids );
 }
-	
+
 
 Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 {
@@ -836,8 +836,8 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 
 
 const ColTab::MapperSetup*
-    uiVisPartServer::getColTabMapperSetup( int id, int attrib, 
-	    				   int version ) const
+    uiVisPartServer::getColTabMapperSetup( int id, int attrib,
+					   int version ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getColTabMapperSetup( attrib, version ) : 0;
@@ -845,7 +845,7 @@ const ColTab::MapperSetup*
 
 
 void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
-					    const ColTab::MapperSetup& ms ) 
+					    const ColTab::MapperSetup& ms )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so ) return;
@@ -857,7 +857,7 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
     {
 	if ( mapperrgeditinact_ )
-	    mapperrgeditinact_ = false; 
+	    mapperrgeditinact_ = false;
 	else
 	    multirgeditwin_->setColTabMapperSetup( attrib, ms );
     }
@@ -1011,7 +1011,7 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
 {
     if ( yn==viewmode_ ) return;
     viewmode_ = yn;
-    workmode_ = viewmode_ ? uiVisPartServer::View 
+    workmode_ = viewmode_ ? uiVisPartServer::View
 			  : uiVisPartServer::Interactive;
     updateDraggers();
     if ( notify )
@@ -1025,12 +1025,12 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
 bool uiVisPartServer::isViewMode() const { return viewmode_; }
 
 
-void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm, 
+void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm,
 	bool notify )
 {
     if ( wm==workmode_ ) return;
     workmode_ = wm;
-    viewmode_ = ( workmode_ == uiVisPartServer::View ) 
+    viewmode_ = ( workmode_ == uiVisPartServer::View )
 	? true : false;
     updateDraggers();
     if ( notify )
@@ -1041,7 +1041,7 @@ void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm,
 }
 
 
-uiVisPartServer::WorkMode uiVisPartServer::getWorkMode() const 
+uiVisPartServer::WorkMode uiVisPartServer::getWorkMode() const
 { return workmode_; }
 
 
@@ -1132,11 +1132,11 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 {
     int typesetidx;
     typesetidx = getTypeSetIdx( selid != -1 ? selid : refid );
-    
+
     if ( doclean && displayids_.size()>typesetidx )
     {
 	for ( int idx=0; idx<displayids_[typesetidx].size(); idx++ )
-	    if ( isOn( displayids_[typesetidx][idx] ) 
+	    if ( isOn( displayids_[typesetidx][idx] )
 		 && displayids_[typesetidx][idx] != selid )
 		   // later: include check if displayid is a sub-item of selid
 		turnOn(displayids_[typesetidx][idx], false);
@@ -1180,15 +1180,15 @@ void uiVisPartServer::updateDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
-	    bool isdraggeron = selected.isPresent(obj->id()) && 
-		(workmode_ == uiVisPartServer::Interactive); 
+	    bool isdraggeron = selected.isPresent(obj->id()) &&
+		(workmode_ == uiVisPartServer::Interactive);
 
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
 	    if ( so ) so->showManipulator(isdraggeron && !so->isLocked() );
 	}
     }
 }
-    
+
 
 
 void uiVisPartServer::setZStretch()
@@ -1271,7 +1271,7 @@ uiWorkAreaDlg( uiParent* p )
 {
     selfld_ = new uiSelSubvol( this, false );
     fullbut_ = new uiToolButton( this, "exttofullsurv",
-	    			"Set ranges to full survey",
+				"Set ranges to full survey",
 				 mCB(this,uiWorkAreaDlg,fullPush) );
     fullbut_->attach( rightOf, selfld_ );
 }
@@ -1325,9 +1325,9 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	FileMultiString fms(res);
 	CubeSampling cs;
 	HorSampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
-	hs.start.inl() = toInt(fms[0]); hs.stop.inl() = toInt(fms[1]);
-	hs.start.crl() = toInt(fms[2]); hs.stop.crl() = toInt(fms[3]);
-	zrg.start = toFloat(fms[4]); zrg.stop = toFloat(fms[5]);
+	hs.start.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
+	hs.start.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
+	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
     else
@@ -1448,7 +1448,7 @@ bool uiVisPartServer::canDuplicate( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->canDuplicate();
-}    
+}
 
 
 int uiVisPartServer::duplicateObject( int id, int sceneid )
@@ -1512,7 +1512,7 @@ bool uiVisPartServer::isPicking() const
     if ( isViewMode() )
 	return false;
 
-    if ( mpetools_ && mpetools_->isSeedPickingOn() ) 
+    if ( mpetools_ && mpetools_->isSeedPickingOn() )
 	return true;
 
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
@@ -1544,7 +1544,7 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
     if ( sel.size()!=1 ) return;
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));
     if ( so && so->isPicking() )
-	so->getPickingMessage( str ); 
+	so->getPickingMessage( str );
 }
 
 
@@ -1597,7 +1597,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     if ( !scene ) return;
 
     const int idx = scene->getFirstIdx( id );
-    if ( idx!=-1 ) 
+    if ( idx!=-1 )
     {
 	scene->removeObject( idx );
 	objectaddedremoved.trigger();
@@ -1623,7 +1623,7 @@ void uiVisPartServer::removeSelection()
 		    "remove selected part of ";
 		msg += getObjectName( selobjectid );
 		msg += "?";
-		
+
 		if ( uiMSG().askContinue(msg.buf()) )
 		{
 		    uiTaskRunner taskrunner( appserv().parent() );
@@ -1640,7 +1640,7 @@ bool uiVisPartServer::hasAttrib( int id ) const
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->getAttributeFormat() != visSurvey::SurveyObject::None;
 }
-    
+
 
 bool uiVisPartServer::selectAttrib( int id, int attrib )
 {
@@ -1668,7 +1668,7 @@ void uiVisPartServer::setUserRefs( int id, int attrib,
 
 
 bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
-       				       bool ignorelocked )
+				       bool ignorelocked )
 {
     if ( !ignorelocked && isLocked(id) )
     {
@@ -1736,7 +1736,7 @@ void uiVisPartServer::setColor( int id, const Color& col )
 bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
 {
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
-	    		"*.osg", dlgtitle );
+			"*.osg", dlgtitle );
     if ( filedlg.go() )
     {
 	visBase::DataObject* obj = visBase::DM().getObject( id );
@@ -1843,7 +1843,7 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     if ( vo && vo->rightClickedEventInfo() )
 	pickedpos = vo->rightClickedEventInfo()->worldpickedpos;
 
-    showMenu( id, uiMenuHandler::fromScene(), 
+    showMenu( id, uiMenuHandler::fromScene(),
 	      dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
 }
 
@@ -1873,7 +1873,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     visBase::DataObject* dobj = visBase::DM().getObject( oldsel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
-    {    
+    {
 	if ( so->isManipulated() )
 	{
 	    if ( isLocked(oldsel) )
@@ -1966,13 +1966,13 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    mAddMenuItemCond( menu, &resetmanipmnuitem_, 
-	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
+    mAddMenuItemCond( menu, &resetmanipmnuitem_,
+		      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
 
     MenuItemHolder* baseitem = menu->findItem( "&Display" );
     if ( !baseitem ) baseitem = menu;
-    mAddMenuItemCond( baseitem, &changematerialmnuitem_, true, false, 
+    mAddMenuItemCond( baseitem, &changematerialmnuitem_, true, false,
 		      so->allowMaterialEdit() );
 
     resmnuitem_.id = -1;
@@ -2003,7 +2003,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     const int id = menu->menuID();
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
-    
+
     if ( mnuid==resetmanipmnuitem_.id )
     {
 	resetManipulation( id );
@@ -2071,22 +2071,22 @@ void uiVisPartServer::initMPEStuff()
 			getObject(emobjids[idx]))
 	emod->updateFromMPE();
     }
-    
+
     mpetools_->initFromDisplay();
 }
 
 
 void uiVisPartServer::fireLoadAttribDataInMPEServ()
-{ 
+{
     eventmutex_.lock();
-    sendEvent( evLoadAttribDataInMPEServ() ); 
+    sendEvent( evLoadAttribDataInMPEServ() );
 }
 
 
 void uiVisPartServer::fireFromMPEManStoreEMObject()
-{ 
+{
     eventmutex_.lock();
-    sendEvent( evFromMPEManStoreEMObject() ); 
+    sendEvent( evFromMPEManStoreEMObject() );
 }
 
 
@@ -2133,7 +2133,7 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
 						     dpmid );
     multirgeditwin_->setDeleteOnClose( false );
-    multirgeditwin_->rangeChange.notify( 
+    multirgeditwin_->rangeChange.notify(
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
 
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
@@ -2162,7 +2162,7 @@ void uiVisPartServer::lock( int id, bool yn )
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
 
-    const bool isdraggeron = selected.isPresent(id) && 
+    const bool isdraggeron = selected.isPresent(id) &&
 	( workmode_ == uiVisPartServer::Interactive );
     so->showManipulator( isdraggeron && !so->isLocked() );
 }
@@ -2194,7 +2194,7 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 }
 
 
-bool uiVisPartServer::sceneColorbarDisplayed() 
+bool uiVisPartServer::sceneColorbarDisplayed()
 {
     return scenes_.size()>0 && scenes_[0]
 	? scenes_[0]->getSceneColTab()->isOn() : false;
@@ -2216,8 +2216,8 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
     mapperrgeditinact_ = true;
 
     mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
-    setColTabMapperSetup( mapperrgeditordisplayid_, obj->activeAttrbID(), 
-	    		  obj->activeMapperSetup() );
+    setColTabMapperSetup( mapperrgeditordisplayid_, obj->activeAttrbID(),
+			  obj->activeMapperSetup() );
     eventmutex_.lock();
     eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();

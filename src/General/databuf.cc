@@ -131,8 +131,9 @@ BufferString DataBuffer::getString() const
     {
 	const size_t totsz = (size_t)( nelem_ * bytes_ + 1 );
 	ret.setBufSize( totsz );
-	OD::memCopy( ret.buf(), data_, totsz-1 );
-	(ret.buf())[totsz-1] = '\0';
+	char* retptr = ret.getCStr();
+	OD::memCopy( retptr, data_, totsz-1 );
+	retptr[totsz-1] = '\0';
     }
     return ret;
 }

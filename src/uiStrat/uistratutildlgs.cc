@@ -151,7 +151,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	{ mErrRet( "Please specify a valid unit name", return false ) }
     else
     {
-	mPreventWrongChar( unnm.buf(), return false );
+	mPreventWrongChar( unnm.getCStr(), return false );
     }
 
     const char* oldcode = unit_.code();
@@ -303,7 +303,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    mPreventWrongChar( nm.buf(), return );
+    mPreventWrongChar( nm.getCStr(), return );
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -434,7 +434,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
 bool acceptOK( CallBacker* )
 {
     BufferString nm( nmfld_->text() );
-    cleanupString( nm.buf(), true, true, true );
+    cleanupString( nm.getCStr(), true, true, true );
     if ( nm.isEmpty() )
     {
 	uiMSG().error( "Please enter a valid name" );
@@ -730,7 +730,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    mPreventWrongChar( code.buf(), return false );
+	    mPreventWrongChar( code.getCStr(), return false );
 	    units[idx]->setCode( code.buf() );
 	}
 	if ( errmsg.isEmpty() && code == rootunit_.code() )

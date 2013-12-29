@@ -91,7 +91,7 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     if ( errmsg_ ) return false;
 
     BufferString buf( headstartbytes, false );
-    char* ptr = buf.buf();
+    char* ptr = buf.getCStr();
     strm_.getBin( ptr, headstartbytes );
 
     DataCharacteristics dc;
@@ -116,7 +116,7 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     strm_.getBin( ptr, 2 * integersize );
     info_.seqnr_ = iinterp_.get( ptr, 0 );
     getText( iinterp_.get(ptr,1), info_.usertext_ );
-    removeTrailingBlanks( info_.usertext_.buf() );
+    removeTrailingBlanks( info_.usertext_.getCStr() );
 
     datastartfo_ = strm_.position();
 
@@ -174,7 +174,7 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
     {
 	if ( txt.bufSize() <= nrchar )
 	    txt.setBufSize(nrchar+1);
-	strm_.getBin( txt.buf(), nrchar );
+	strm_.getBin( txt.getCStr(), nrchar );
 	txt[nrchar] = '\0';
     }
 }

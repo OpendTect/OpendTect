@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 -*/
 
+#include "string2.h"
 #include "undefval.h"
 #include "fixedstring.h"
-#include "string2.h"
 
 #ifdef __msvc__
 # include "msvcdefs.h"

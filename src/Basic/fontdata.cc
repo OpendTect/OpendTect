@@ -49,7 +49,7 @@ static bool defaultitalic = false;
 const char* FontData::defaultFamily()		{ return defaultfamily; }
 int FontData::defaultPointSize()		{ return defaultpointsize; }
 FontData::Weight FontData::defaultWeight()	{ return defaultweight; }
-bool FontData::defaultItalic() 			{ return defaultitalic; }
+bool FontData::defaultItalic()			{ return defaultitalic; }
 
 void FontData::setDefaultFamily( const char* f)	{ defaultfamily = f; }
 void FontData::setDefaultPointSize( int ps )	{ defaultpointsize = ps; }
@@ -65,10 +65,10 @@ bool FontData::getFrom( const char* s )
     if ( nr < 1 ) return false;
 
     family_ = fms[0];
-    if ( nr > 1 ) pointsize_ = toInt( fms[1] );
+    if ( nr > 1 ) pointsize_ = fms.getIValue( 1 );
     if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
-    
+
     return true;
 }
 

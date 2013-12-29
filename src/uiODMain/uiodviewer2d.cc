@@ -132,7 +132,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	else if ( dp2ddh )
 	    treetp_->updCubeSamling( dp2ddh->getCubeSampling(), true );
     }
-    
+
     viewwin()->start();
 }
 
@@ -143,7 +143,7 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     const bool setpack = ( !wva ? ddp.wva_.show_ : ddp.vd_.show_ );
     if ( !slicepos_ || !setpack ) return;
-    
+
     const CubeSampling cs = slicepos_->getCubeSampling();
     const bool newcs = ( cs != cs_ );
     const DataPack::ID othrdpid = newcs ? createDataPack(!wva)
@@ -162,13 +162,13 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;		
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
-	
+
 	TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
 	{ vwr.setPack( wva, packid, true, isnew ); continue; }
-	
+
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
 	for ( int idx=0; idx<ids.size(); idx++ )
@@ -183,7 +183,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 		break;
 	    }
 	}
-	
+
 	dpm.obtain( packid, false );
 	vwr.setPack( wva, packid, false, isnew );
 	if ( isnew || setforotherdisp )
@@ -193,7 +193,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 
 
 void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
-{    
+{
     bool wantdock = false;
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
     uiParent* controlparent = 0;
@@ -201,13 +201,13 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     {
 	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( &appl_,
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
-	       					  .withhanddrag(true) );
+						  .withhanddrag(true) );
 	mAttachCB( fvmw->windowClosed, uiODViewer2D::winCloseCB );
 
 	if ( needslicepos )
 	{
-    	    slicepos_ = new uiSlicePos2DView( fvmw );
-    	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
+	    slicepos_ = new uiSlicePos2DView( fvmw );
+	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
 	viewwin_ = fvmw;
@@ -258,10 +258,10 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     lv->setFixedColumnWidth( uiODViewer2DMgr::cColorColumn(), 40 );
 
     treetp_ = new uiODVw2DTreeTop( lv, &appl_.applMgr(), this, tifs_ );
-    
+
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
-    
+
     for ( int idx=0; idx < tifs_->nrFactories(); idx++ )
     {
 	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
@@ -275,7 +275,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     }
 
     sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
-    
+
     for ( int iidx=0; iidx<idxs.size(); iidx++ )
     {
 	const int fidx = idxs[iidx];
@@ -293,16 +293,16 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
     if ( !tb ) return;
 
     polyseltbid_ = tb->addButton( "polygonselect", "Polygon Selection mode",
-	    			  mCB(this,uiODViewer2D,selectionMode), true );
+				  mCB(this,uiODViewer2D,selectionMode), true );
     uiMenu* polymnu = new uiMenu( tb, "PoluMenu" );
 
     uiAction* polyitm = new uiAction( "Polygon",
-	    			      mCB(this,uiODViewer2D,handleToolClick) );
+				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
     polyitm->setIcon( ioPixmap("polygonselect") );
 
     uiAction* rectitm = new uiAction( "Rectangle",
-	    			      mCB(this,uiODViewer2D,handleToolClick) );
+				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
     rectitm->setIcon( ioPixmap("rectangleselect") );
 
@@ -314,7 +314,7 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
 
 void uiODViewer2D::createViewWinEditors()
-{   
+{
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
@@ -322,7 +322,7 @@ void uiODViewer2D::createViewWinEditors()
 	adeditor->setSelActive( false );
 	auxdataeditors_ += adeditor;
     }
-} 
+}
 
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
@@ -403,7 +403,7 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 	const DataPack::ID dpid = vwr.packID(!wva);
 	if ( dpid != DataPack::cNoID() ) return dpid;
     }
-    return createDataPack( wva ); 
+    return createDataPack( wva );
 }
 
 
@@ -423,9 +423,9 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
 	return;
 
     viewstdcontrol_->toolBar()->setIcon( polyseltbid_, ispolyselect_ ?
-	    			"polygonselect" : "rectangleselect" );
+				"polygonselect" : "rectangleselect" );
     viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, ispolyselect_ ?
-	    		"Polygon Selection mode" : "Rectangle Selection mode" );
+			"Polygon Selection mode" : "Rectangle Selection mode" );
 
     if ( auxdataeditors_.isEmpty() )
 	return;
@@ -470,9 +470,9 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     BufferString info;
     if ( !fromcs )
     {
-    	appl_.applMgr().visServer()->getObjectInfo( visid_, info );
-    	if ( info.isEmpty() )
-    	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
+	appl_.applMgr().visServer()->getObjectInfo( visid_, info );
+	if ( info.isEmpty() )
+	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
     }
     else
     {
@@ -587,14 +587,14 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     Coord3 mousepos( Coord3::udf() );
     mCBCapsuleUnpack(IOPar,pars,cb);
 
-    const char* valstr = pars.find( "X" );
-    if ( !valstr ) valstr = pars.find( "X-coordinate" );
-    if ( valstr && *valstr ) mousepos.x = toDouble( valstr );
+    FixedString valstr = pars.find( "X" );
+    if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
+    if ( !valstr.isEmpty() ) mousepos.x = valstr.toDouble();
     valstr = pars.find( "Y" );
-    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-    if ( valstr && *valstr ) mousepos.y = toDouble( valstr );
+    if ( valstr.isEmpty() ) valstr = pars.find( "Y-coordinate" );
+    if ( !valstr.isEmpty() ) mousepos.y = valstr.toDouble();
     valstr = pars.find( "Z" );
-    if ( valstr && *valstr ) mousepos.z = toDouble(valstr)/1000.;
+    if ( !valstr.isEmpty() ) mousepos.z = valstr.toDouble()/1000.;
 
     if ( mousecursorexchange_ && mousepos.isDefined() )
     {

@@ -34,11 +34,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 
-static int getWellIndex( const FixedString& wellnm )
+static int getWellIndex( const char* wellnm )
 {
     for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
     {
-	if ( Well::MGR().wells()[idx]->name()==wellnm )
+	if ( Well::MGR().wells()[idx]->name() == wellnm )
 	    return idx;
     }
     return -1;
@@ -47,7 +47,7 @@ static int getWellIndex( const FixedString& wellnm )
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const BufferStringSet& wellnames,
-					    const Attrib::DescSet* attrib , 
+					    const Attrib::DescSet* attrib ,
 					    const NLAModel* mdl,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
@@ -59,7 +59,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     , attribfld_(0)
     , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
 {
-    uiWellExtractParams::Setup wsu; 
+    uiWellExtractParams::Setup wsu;
     wsu.withzstep_ = true; wsu.withzintime_ = false;
     wsu.defmeterstep_ = 0.15;
     wsu.withextractintime_ = false;
@@ -67,7 +67,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 
     datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
     datasetup_.nlamodel_ = mdl;
-    attribfld_ = datasetup_.attrib_ ? 
+    attribfld_ = datasetup_.attrib_ ?
 			      new uiAttrSel( this, *datasetup_.attrib_ )
 			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
@@ -162,17 +162,17 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	datasetup_.tr_ = tr;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
 	Well::Data* wd = Well::MGR().wells()[ wellidx ];
-	if ( !wd ) 
+	if ( !wd )
 	    continue;
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
-		
+
 	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
 	if ( !ioobj ) mErrRet("Cannot find well in object manager")
 
 	BufferString fname( ioobj->fullUserExpr(true) );
 	Well::Writer wtr( fname, *wd );
-     
+
 	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(),
 					       sellogidx_ + 1 );
 	od_ostream strm( logfnm );

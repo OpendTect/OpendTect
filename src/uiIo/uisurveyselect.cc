@@ -31,21 +31,21 @@ static bool checkIfDataDir( const char* path )
 
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
-       				      const char* dataroot )
+				      const char* dataroot )
     : uiDialog(p,uiDialog::Setup("Survey Selection",
 				 "Select Survey",mNoHelpID))
-    
+
 {
     datarootfld_ = new uiFileInput( this, "Data Root",
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
     setDataRoot( dataroot );
-    datarootfld_->valuechanged.notify( 
+    datarootfld_->valuechanged.notify(
 		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
     surveylistfld_ = new uiListBox( this, "Survey list", false, 10 );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
-    surveylistfld_->selectionChanged.notify( 
+    surveylistfld_->selectionChanged.notify(
 		mCB(this,uiSurveySelectDlg,surveySelCB) );
 
     surveyfld_ = new uiGenInput( this, "Name" );
@@ -90,9 +90,9 @@ void uiSurveySelectDlg::fillSurveyList()
 	uiMSG().error( "Selected directory is not a valid Data Root" );
 	return;
     }
-    
+
     BufferStringSet surveylist;
-    uiSurvey::getSurveyList( surveylist, getDataRoot() );  
+    uiSurvey::getSurveyList( surveylist, getDataRoot() );
     surveylistfld_->setEmpty();
     surveylistfld_->addItems( surveylist );
 }
@@ -146,7 +146,7 @@ static BufferString makeFullSurveyPath( const char* survnm,
 					const char* dataroot )
 {
     BufferString surveyname( survnm );
-    cleanupString( surveyname.buf(), false, false, true );
+    cleanupString( surveyname.getCStr(), false, false, true );
     return FilePath(dataroot,surveyname).fullPath();
 }
 
@@ -163,7 +163,7 @@ bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
 	fullpath = makeFullSurveyPath( input, dataroot_ );
 	return fullpath.isEmpty() ? false : true;
     }
-   
+
     BufferString path( fp.pathOnly() ), survnm( fp.fileName() );
     const bool isdatadir = checkIfDataDir( path );
     fullpath = makeFullSurveyPath( survnm, path );

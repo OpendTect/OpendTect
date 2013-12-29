@@ -814,15 +814,14 @@ int Threads::getNrProcessors()
 
 	bool needauto = !havesett;
 	float perc = 100;
-	const char* envval = GetEnvVar( "OD_NR_PROCESSORS" );
-	if ( envval && *envval )
+	BufferString envval = GetEnvVar( "OD_NR_PROCESSORS" );
+	if ( !envval.isEmpty() )
 	{
-	    BufferString str( envval );
-	    char* ptr = lastOcc(str.buf(),'%');
+	    char* ptr = envval.find( '%' );
 	    if ( ptr )
-		{ *ptr = '\0'; needauto = true; perc = toFloat(str.buf()); }
+		{ *ptr = '\0'; needauto = true; perc = envval.toFloat(); }
 	    else
-		{ needauto = false; nrproc = toInt(envval); }
+		{ needauto = false; nrproc = envval.toInt(); }
 	    haveenv = true;
 	}
 

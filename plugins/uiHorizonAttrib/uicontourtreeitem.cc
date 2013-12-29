@@ -77,13 +77,13 @@ class uiContourTreeItemContourGenerator : public ParallelTask
 public:
 
 				uiContourTreeItemContourGenerator(
-    					uiContourTreeItem* p,
+					uiContourTreeItem* p,
 				        const Array2D<float>* field);
 				~uiContourTreeItemContourGenerator()
 				{ if ( labels_ ) labels_->unRef(); }
 
     visBase::Text2*		getLabels() { return labels_; }
-    const TypeSet<double>& 	getAreas() const { return areas_; }
+    const TypeSet<double>&	getAreas() const { return areas_; }
 
     const char*			nrDoneText() const
                                 { return "Contours created"; }
@@ -111,7 +111,7 @@ private:
     int						nrcontours_;
     Threads::Atomic<od_int64>			totalnrshapes_;
     uiContourTreeItem*				uicitem_;
-    Threads::Mutex 				mutex_;
+    Threads::Mutex				mutex_;
     uiContourTreeItemContourData		contourdata_;
 				// from construction source
     const Array2D<float>*	field_;
@@ -346,7 +346,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
     labels_->setDisplayTransformation( displaytrans_ );
 
     uicitem_->lines_->getCoordinates()->setPositions(
- 		      contourdata_.contourcoords_.arr(),
+		      contourdata_.contourcoords_.arr(),
 		      contourdata_.contourcoords_.size(), 0, true );
 
     for ( int idx=0; idx<contourdata_.contourprimitivesets_.size(); idx++ )
@@ -397,7 +397,7 @@ class uiContourParsDlg : public uiDialog
 public:
 
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
-       		  const StepInterval<float>& intv, const LineStyle& ls,
+		  const StepInterval<float>& intv, const LineStyle& ls,
 		  int sceneid )
     : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,"104.3.2")
 		 .nrstatusflds(1))
@@ -456,7 +456,7 @@ StepInterval<float> getContourInterval() const
     StepInterval<float> res = intvfld_->getFStepInterval();
     if ( iszval_ )
 	res.scale( 1.0f/zfac_ );
-    
+
     return res;
 }
 
@@ -604,7 +604,7 @@ void uiContourTreeItem::checkCB(CallBacker*)
 
     const bool display = newstatus && hordisp &&
 				!hordisp->getOnlyAtSectionsDisplay();
-    
+
     if ( lines_ ) lines_->turnOn( display );
     if ( labels_ ) labels_->turnOn( display && showlabels_ );
 
@@ -697,7 +697,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         getZVSAreaValues( zvals, areas );
 
         uiDialog dlg( ODMainWin(), uiDialog::Setup("Countour areas", 0,
-                    				   mNoHelpID ) );
+				   mNoHelpID ) );
         dlg.setCancelText( 0 );
 
         RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
@@ -1070,8 +1070,8 @@ void uiContourTreeItem::updateZShift()
 	labels_->text(idx)->setPosition( pos );
 	BufferString txt;
 	labels_->text(idx)->getText( txt );
-	float labelval = toFloat( txt.buf() );
-	labelval += deltaz * SI().zDomain().userFactor(); 
+	float labelval = txt.toFloat();
+	labelval += deltaz * SI().zDomain().userFactor();
 	labels_->text(idx)->setText( toString( (int)labelval ) );
     }
 

@@ -72,18 +72,11 @@ void HostData::init( const char* nm )
 
     if ( !is_ip_adrr )
     {
-	char* dot = firstOcc( name_.buf(), '.' );
+	char* dot = name_.find( '.' );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
     }
 }
 
-
-#define mTolower(bs) \
-    { \
-	char* ptr=bs.buf(); \
-	for ( unsigned int idx=0; idx<bs.size(); idx++, ptr++ ) \
-	    { *ptr = (char) tolower(*ptr); } \
-    }
 
 static FilePath getReplacePrefix( const FilePath& dir_,
 		const FilePath& fromprefix_, const FilePath& toprefix_ )
@@ -96,14 +89,11 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
     BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
 
-
-
-    const char* tail = firstOcc( dir, fromprefix );
+    const char* tail = dir.find( fromprefix );
     if ( !tail )
     {
-	BufferString frompreflow( fromprefix );
-	mTolower( frompreflow );
-	tail = firstOcc( dir, frompreflow );
+	fromprefix.toLower();
+	tail = dir.find( fromprefix );
     }
 
     if ( !tail )

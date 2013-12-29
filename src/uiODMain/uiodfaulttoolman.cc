@@ -701,7 +701,7 @@ BufferStringSet& uiODFaultToolMan::getOutputItems()
 
 static int removeSerialNumber( BufferString& objname )
 {
-    char* lastptr = objname.buf() + objname.size() - 1;
+    char* lastptr = objname.getCStr() + objname.size() - 1;
     char* ptr = lastptr;
 
     while ( ptr>=objname.buf() && isdigit(*ptr) )

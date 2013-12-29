@@ -24,31 +24,34 @@ ________________________________________________________________________
 mExpClass(Basic) HorSampling
 {
 public:
-			HorSampling( bool settoSI=true ) { init(settoSI); }
+
+			HorSampling()			{ init( true ); }
+			HorSampling( bool settoSI )	{ init( settoSI ); }
+
     HorSampling&	set(const Interval<int>& inlrg,
-	    		    const Interval<int>& crlrg);
+			    const Interval<int>& crlrg);
 			    //!< steps copied if available
     void		get(Interval<int>& inlrg,Interval<int>& crlrg) const;
 			    //!< steps filled if available
-			
+
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
     void		setInlRange(const Interval<int>&);
     void		setCrlRange(const Interval<int>&);
 
     bool		includes( const HorSampling& hs,
-	    			  bool ignoresteps=false ) const;
+				  bool ignoresteps=false ) const;
     inline bool		includes( const BinID& bid ) const
 			{ return inlOK(bid.inl()) && crlOK(bid.crl()); }
     inline bool		inlOK( int inl ) const
-			{ return inl >= start.inl() && inl <= stop.inl() && 
+			{ return inl >= start.inl() && inl <= stop.inl() &&
 			    (step.inl() ? !( (inl-start.inl()) % step.inl() )
 				      : inl==start.inl()); }
 
     inline bool		crlOK( int crl ) const
-			{ return crl >= start.crl() && crl <= stop.crl() && 
+			{ return crl >= start.crl() && crl <= stop.crl() &&
 			    (step.crl() ? !( (crl-start.crl()) % step.crl() )
-			     	      : crl==start.crl()); }
+				      : crl==start.crl()); }
 
     inline void		include( const BinID& bid )
 			{ includeInl(bid.inl()); includeCrl(bid.crl()); }
@@ -62,7 +65,7 @@ public:
 				 nearest limit if HS's do not intersect */
 
     inline int		inlIdx( int inl ) const
-			{ return step.inl() ? (inl-start.inl()) / step.inl() 
+			{ return step.inl() ? (inl-start.inl()) / step.inl()
 					  : (inl==start.inl() ? 0 : -1); }
     inline int		crlIdx( int crl ) const
 			{ return step.crl() ? (crl-start.crl()) / step.crl()
@@ -98,10 +101,10 @@ public:
 				 expand until it is */
 
     bool		operator==( const HorSampling& hs ) const
-			{ return hs.start==start && hs.stop==stop 
-			    			 && hs.step==step; }
+			{ return hs.start==start && hs.stop==stop
+						 && hs.step==step; }
     bool		operator!=( const HorSampling& hs ) const
-    			{ return !(*this==hs); }
+			{ return !(*this==hs); }
 
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
@@ -122,15 +125,15 @@ public:
 mExpClass(Basic) HorSamplingIterator
 {
 public:
-    		HorSamplingIterator() : hrg_( true ) { reset(); }
-    		HorSamplingIterator( const HorSampling& hs )
+		HorSamplingIterator() : hrg_( true ) { reset(); }
+		HorSamplingIterator( const HorSampling& hs )
 		    : hrg_(hs)	{ reset(); }
 
     void	setSampling( const HorSampling& hs )
 		{ hrg_ = hs; reset(); }
 
     void	reset(bool nextisfirstpos=true)	{ firstpos_ = nextisfirstpos; }
-    		/*!<If nextisfirstpos, the next call to next will automatically
+		/*!<If nextisfirstpos, the next call to next will automatically
 		    be hrg_.start. */
     bool	next(BinID&);
 

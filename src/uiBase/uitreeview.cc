@@ -717,7 +717,7 @@ bool uiTreeViewItem::translate( int column )
 
     BufferString txt( *toolTip(column) ? toolTip(column) : text(column) );
     txt.trimBlanks();
-    if ( txt.isEmpty() || isNumberString(txt.buf()) )
+    if ( txt.isEmpty() || txt.isNumber() )
 	return true;
 
     if ( translateids_.isEmpty() )

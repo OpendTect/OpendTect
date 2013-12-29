@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 
-namespace MPE 
+namespace MPE
 {
 
 HorizonFlatViewEditor::HorizonFlatViewEditor( FlatView::AuxDataEditor* ed )
@@ -119,7 +119,7 @@ void HorizonFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 
 
 void HorizonFlatViewEditor::setSeedPickingStatus( bool yn )
-{ seedpickingon_ = yn; } 
+{ seedpickingon_ = yn; }
 
 
 void HorizonFlatViewEditor::mouseMoveCB( CallBacker* )
@@ -150,10 +150,10 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    
+
     if ( !seedpicker || !seedpicker->canAddSeed() ) return;
-    
-    if ( !seedpicker->canSetSectionID() || 
+
+    if ( !seedpicker->canSetSectionID() ||
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
 
@@ -196,11 +196,11 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     emobj->setBurstAlert( true );
 
     const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
-    
+
     bool action = doTheSeed( *emobj, *seedpicker, clickedcrd, mouseevent );
-    
+
     engine().updateFlatCubesContainer( newactivevol, trackerid, action );
-    
+
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
     const int currentevent = EM::EMM().undo().currentEventID();
@@ -235,7 +235,7 @@ bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
 {
     const Attrib::SelSpec* as = 0;
     as = picinvd ? vdselspec_ : wvaselspec_;
-    
+
     if ( trker.is2D() )
     {
 	MPE::engine().setActive2DLine( lsetid_, linenm_ );
@@ -294,9 +294,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
     if ( trackedatsel )
     {
 	newatsel = *trackedatsel;
-	if ( tracker.is2D() &&
-		matchString(Attrib::StorageProvider::attribName(),
-		    	    trackedatsel->defString()) )
+	if ( tracker.is2D() && trackedatsel->isStored() )
 	{
 	    LineKey lk( trackedatsel->userRef() );
 	    newatsel.setUserRef( lk.attrName().isEmpty() ?
@@ -329,7 +327,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	      (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
 	{
 	    uiMSG().error( "Saved setup has different attribute. \n"
-		    	   "Either change setup attribute or change\n"
+			   "Either change setup attribute or change\n"
 			   "display attribute you want to track on" );
 	    return false;
 	}
@@ -362,8 +360,8 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 }
 
 
-bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk, 
-				       const Coord3& crd, 
+bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk,
+				       const Coord3& crd,
 				       const MouseEvent& mev ) const
 {
     EM::PosID pid;
@@ -371,7 +369,7 @@ bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk,
 
     const bool ctrlshiftclicked =  mev.ctrlStatus() && mev.shiftStatus();
     bool addseed = !posidavlble || ( posidavlble && !mev.ctrlStatus() &&
-	    			     !mev.shiftStatus() );
+				     !mev.shiftStatus() );
 
     if ( addseed )
     {
@@ -430,7 +428,7 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,&emobj);
 
 	if ( !hor2d ) return false;
-	
+
 	bid.inl() = hor2d->geometry().lineIndex( linenm_ );
 	bid.crl() = pos.nr_;
     }

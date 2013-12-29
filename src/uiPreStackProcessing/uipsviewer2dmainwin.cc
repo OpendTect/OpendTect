@@ -51,14 +51,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static int sStartNrViewers = 8;
 
-namespace PreStackView 
+namespace PreStackView
 {
-    
+
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
     , posdlg_(0)
     , control_(0)
-    , slicepos_(0)	 
+    , slicepos_(0)
     , seldatacalled_(this)
     , axispainter_(0)
     , cs_(false)
@@ -94,9 +94,9 @@ void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 
 void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
-    if ( slicepos_ ) 
+    if ( slicepos_ )
 	cs_ = slicepos_->getCubeSampling();
-    if ( posdlg_ ) 
+    if ( posdlg_ )
 	posdlg_->setCubeSampling( cs_ );
 
     setUpView();
@@ -155,7 +155,7 @@ void uiViewer2DMainWin::preprocessingCB( CallBacker* )
     if ( !preprocmgr_ )
 	preprocmgr_ = new PreStack::ProcessManager();
     uiPSPreProcessingDlg ppdlg( this, *preprocmgr_,
-	    			mCB(this,uiViewer2DMainWin,applyPreProcCB) );
+				mCB(this,uiViewer2DMainWin,applyPreProcCB) );
     ppdlg.go();
 }
 
@@ -224,7 +224,7 @@ void uiViewer2DMainWin::displayMutes()
 	uiObjectItem* item = mainViewer()->getItem( gidx );
 	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
 	if ( !gd ) continue;
-	
+
 	gd->getUiFlatViewer()->handleChange( FlatView::Viewer::Auxdata );
 	for ( int muteidx=0; muteidx<mutes_.size(); muteidx++ )
 	{
@@ -270,7 +270,7 @@ void uiViewer2DMainWin::clearAuxData()
 void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 {
     uiIOObjSelDlg mutesel( this, *mMkCtxtIOObj(MuteDef),
-	    		   "Select Mute for display", true );
+			   "Select Mute for display", true );
     if ( mutesel.go() )
     {
 	clearAuxData();
@@ -298,8 +298,8 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 }
 
 
-PreStack::Gather* uiViewer2DMainWin::getAngleGather( 
-					    const PreStack::Gather& gather, 
+PreStack::Gather* uiViewer2DMainWin::getAngleGather(
+					    const PreStack::Gather& gather,
 					    const PreStack::Gather& angledata,
 					    const Interval<int>& anglerange )
 {
@@ -322,7 +322,7 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     ManagedObjectSet<PointBasedMathFunction> vals;
     for ( int zidx=0; zidx<zsize; zidx++ )
     {
-	vals += new PointBasedMathFunction( 
+	vals += new PointBasedMathFunction(
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::None );
 
@@ -486,7 +486,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 
     if ( !control_ )
     {
-	uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_, *fv ); 
+	uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_, *fv );
 	ctrl->posdlgcalled_.notify(
 			    mCB(this,uiViewer2DMainWin,posDlgPushed));
 	ctrl->datadlgcalled_.notify(
@@ -506,7 +506,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
 	{
-	    tb->addObject( 
+	    tb->addObject(
 		new uiToolButton( tb, "mute", "Load Mute",
 		    mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
 
@@ -521,8 +521,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 		    adtbsu.istoggle( true );
 		    tb->addObject( new uiToolButton(tb,adtbsu) );
 		}
-		
-		tb->addObject( 
+
+		tb->addObject(
 		    new uiToolButton( tb, "contexthelp", "Help",
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
 	    }
@@ -749,7 +749,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 	}
     }
 
-    if ( slicepos_ ) 
+    if ( slicepos_ )
 	slicepos_->setCubeSampling( cs_ );
 
     setUpView();
@@ -916,7 +916,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     PreStack::Gather* gather = new PreStack::Gather;
     MultiID mid = gatherinfo.mid_;
     BinID bid = gatherinfo.bid_;
-    if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0)) 
+    if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0))
 	|| (!is2d_ && gather->readFrom(mid,bid)) )
     {
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
@@ -958,7 +958,7 @@ uiSyntheticViewer2DMainWin::uiSyntheticViewer2DMainWin( uiParent* p,
 }
 
 
-void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms) 
+void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms)
 {
     TypeSet<PSViewAppearance> oldapps = appearances_;
     appearances_.erase();
@@ -1091,7 +1091,7 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 	}
     }
 
-    if ( slicepos_ ) 
+    if ( slicepos_ )
 	slicepos_->setCubeSampling( cs_ );
 
     setUpView();
@@ -1141,7 +1141,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 		selbids.isPresent( gatherinfos_[idx].bid_ );
 	}
     }
-    
+
     cs_.hrg.setCrlRange( trcrg );
     cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
@@ -1174,7 +1174,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	ppgatherid = getPreProcessedID( ginfo );
 
     gd->setVDGather( ginfo.vddpid_<0 ? ppgatherid>=0 ? ppgatherid
-	    					     : ginfo.wvadpid_
+						     : ginfo.wvadpid_
 				     : ginfo.vddpid_ );
     gd->setWVAGather( ginfo.vddpid_>=0 ? ppgatherid>=0 ? ppgatherid
 						       : ginfo.wvadpid_
@@ -1322,10 +1322,10 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	{
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
 	    FixedString datanm( DPM(DataPackMgr::FlatID()).nameOf(id) );
-	    if ( vddatapack && datanm == vddatapack->name() &&
+	    if ( vddatapack && vddatapack->name() == datanm &&
 		 app_.ddpars_.vd_.show_ )
 		vwr.usePack( false, id, false );
-	    if ( wvadatapack && datanm == wvadatapack->name() &&
+	    if ( wvadatapack && wvadatapack->name() == datanm &&
 		 app_.ddpars_.wva_.show_ )
 		vwr.usePack( true, id, false );
 	}
@@ -1380,7 +1380,7 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
-	    	relbid.inl()++ )
+		relbid.inl()++ )
     {
 	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 		relbid.crl()++ )
@@ -1438,7 +1438,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
 	preprocmgr_->setInput( relbid,
 			       inputginfo.vddpid_>=0 ? inputginfo.wvadpid_
-			       			     : inputginfo.vddpid_ );
+						     : inputginfo.vddpid_ );
     }
 }
 

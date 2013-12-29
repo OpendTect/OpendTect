@@ -54,14 +54,14 @@ bool BatchProgram::go( od_ostream& strm )
     float vsn = 0;
     if ( !parversion_.isEmpty() )
     {
-	vsn = toFloat( parversion_.buf() );
+	vsn = parversion_.toFloat();
 	if ( vsn < 3.2 )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
-    
+
     const int process_id = GetPID();
     Attrib::Processor* proc = 0;
     const char* tempdir = pars().find(sKey::TmpStor());
@@ -76,14 +76,14 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
-	    			  SeisJobExecProv::sKeyWorkLS() );
+				  SeisJobExecProv::sKeyWorkLS() );
 
     const char* selspec = pars().find( "Output.1.In-line range" );
     if ( selspec && *selspec )
     {
 	FileMultiString fms( selspec );
-	int lnr = toInt( fms[0] );
-	if ( lnr == toInt( fms[1] ) )
+	const int lnr = fms.getIValue( 0 );
+	if ( lnr == fms.getIValue(1) )
 	    strm << "Calculating for in-line " << lnr << '.' << od_newline;
     }
     strm << od_newline;
@@ -120,7 +120,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    BufferString fdesc("Output directory for '");
 	    fdesc += ioobj->name(); fdesc += "'";
 	    mRetFileProb(fdesc,dirnm,
-		    	 isdir ? "is not writeable" : "does not exist")
+			 isdir ? "is not writeable" : "does not exist")
 	}
 
 	strm << " of '" << ioobj->name() << "'.\n" << od_endl;
@@ -193,10 +193,10 @@ bool BatchProgram::go( od_ostream& strm )
 	bool paused = false;
 
 	if ( pauseRequested() )
-	{ 
+	{
 	    paused = true;
 	    mSetCommState(Paused);
-	    Threads::sleep( pause_sleep_time );  
+	    Threads::sleep( pause_sleep_time );
 	}
 	else
 	{
@@ -240,7 +240,7 @@ bool BatchProgram::go( od_ostream& strm )
 					     ": ",proc->message()) )
 		break;
 	    }
-	    
+
 	    if ( res >= 0 )
 	    {
 		nriter++;

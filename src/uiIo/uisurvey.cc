@@ -284,7 +284,7 @@ bool uiStartNewSurveySetup::isOK()
     if ( survnm.isEmpty() )
 	mErrRet( "Please enter a new survey name" )
 
-    char* str = survnm.buf();
+    char* str = survnm.getCStr();
     cleanupString( str, false, false, true );
     const BufferString storagedir = FilePath(dataroot_).add(str).fullPath();
     if ( File::exists(storagedir) )

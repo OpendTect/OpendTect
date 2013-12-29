@@ -489,12 +489,12 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 	{
 	    FileMultiString fms( res + 2 );
 	    const int sz = fms.size();
-	    int tmp = toInt( fms[0] );
+	    int tmp = fms.getIValue( 0 );
 	    if ( tmp > 0 )
 		brickspec_.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
 	    if ( sz > 1 )
 	    {
-		tmp = toInt( fms[1] );
+		tmp = fms.getIValue( 1 );
 		if ( tmp > 0 )
 		    brickspec_.maxnrslabs = tmp;
 	    }

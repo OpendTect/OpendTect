@@ -295,7 +295,7 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
     if ( unnm == sKeyIDNew )
 	return size();
 
-    const int seqnr = fetchSeqNr( unnm.buf() );
+    const int seqnr = fetchSeqNr( unnm.getCStr() );
     int nrfound = 0;
     for ( int idx=0; idx<size(); idx++ )
     {

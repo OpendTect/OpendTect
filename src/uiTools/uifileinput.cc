@@ -135,7 +135,7 @@ void uiFileInput::setFileName( const char* s )
     {
 	BufferString fname = fileName();
 	BufferString seldir = FilePath(defseldir_).fullPath();
-	if ( matchString(seldir,fname) )
+	if ( fname.startsWith(seldir) )
 	{
 	    const char* ptr = fname.buf() + seldir.size();
 	    if ( *ptr=='\\' || *ptr=='/' )

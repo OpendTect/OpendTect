@@ -26,8 +26,8 @@ class MultiCubeSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			MultiCubeSeisPSIOProvider()
-			    	: SeisPSIOProvider("MultiCube")
-    			{}
+				: SeisPSIOProvider("MultiCube")
+			{}
     SeisPS3DReader*	make3DReader( const char* fnm, int ) const
 			{ return new MultiCubeSeisPSReader(fnm); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const
@@ -91,8 +91,8 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
-	const float offs = toFloat( fms[0] );
-	const int comp = fmssz > 1 ? toInt( fms[1] ) : 0;
+	const float offs = fms.getFValue( 0 );
+	const int comp = fmssz > 1 ? fms.getIValue( 1 ) : 0;
 
 	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
 	rdr->setComponent( comp );

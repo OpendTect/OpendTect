@@ -43,7 +43,7 @@ bool LatLong::fromString( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptrlat = str.buf(); mSkipBlanks( ptrlat );
+    char* ptrlat = str.getCStr(); mSkipBlanks( ptrlat );
     if ( *ptrlat == '[' ) ptrlat++;
     char* ptrlng = firstOcc( ptrlat, ',' );
     if ( !ptrlng ) return false;
@@ -153,7 +153,7 @@ bool LatLong2Coord::fromString( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptr = firstOcc( str.buf(), '=' );
+    char* ptr = str.find( '=' );
     if ( !ptr ) return false;
     *ptr++ = '\0';
     Coord c; LatLong l;

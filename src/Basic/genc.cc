@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "threadlock.h"
 #include "od_iostream.h"
+#include "convert.h"
 #include "iopar.h"
 #include <iostream>
 #include <string.h>
@@ -251,7 +252,7 @@ static void loadEntries( const char* fnm, IOPar* iop=0 )
     BufferString line;
     while ( strm.getLine(line) )
     {
-	char* nmptr = line.buf();
+	char* nmptr = line.getCStr();
 	mSkipBlanks(nmptr);
 	if ( !*nmptr || *nmptr == '#' )
 	    continue;
@@ -407,7 +408,7 @@ mExternC(Basic) int AreProgramArgsSet(void)
 
 mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 {
-    getcwd( initialdir.buf(), initialdir.minBufSize() );
+    getcwd( initialdir.getCStr(), initialdir.minBufSize() );
 
     argc = newargc;
     argv = newargv;

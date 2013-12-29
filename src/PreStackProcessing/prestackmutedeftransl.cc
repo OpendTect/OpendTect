@@ -42,8 +42,8 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
 		 ioobj->createTranslator());
     if ( !tr )
-    	{ bs = "Selected object is not a Mute Definition"; return false; }
-    
+	{ bs = "Selected object is not a Mute Definition"; return false; }
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -96,8 +96,8 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     }
 
     if ( atEndOfSection(astrm) ) astrm.next();
-    if ( atEndOfSection(astrm) ) astrm.next(); //skip for anextraparagraph that 
-    					//was inserted between version 4.4 & 4.6
+    if ( atEndOfSection(astrm) ) astrm.next(); //skip for anextraparagraph that
+					//was inserted between version 4.4 & 4.6
     if ( atEndOfSection(astrm) )
 	return "Input file contains no Mute Definition locations";
 
@@ -133,7 +133,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    {
 		it = (*val == 'S' ? PointBasedMathFunction::Snap
 		   : (*val == 'P' ? PointBasedMathFunction::Poly
-			    	  : PointBasedMathFunction::Linear));
+				  : PointBasedMathFunction::Linear));
 		extrapol = *(val+1) != 'N';
 	    }
 	    astrm.next();
@@ -146,7 +146,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
-	    char* ptr1stval = val.buf();
+	    char* ptr1stval = val.getCStr();
 	    mSkipBlanks(ptr1stval);
 	    char* ptr2ndval = ptr1stval;
 	    mSkipNonBlanks( ptr2ndval );

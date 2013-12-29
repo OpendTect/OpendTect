@@ -162,7 +162,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	    auxdata_ += 0;
 	}
     }
-    
+
     if ( !auxdata_[sectionidx] )
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
@@ -200,15 +200,15 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-    { 
-	horizon_.setErrMsg( "Cannot find surface" ); 
-	return 0; 
+    {
+	horizon_.setErrMsg( "Cannot find surface" );
+	return 0;
     }
 
-    PtrMan<EMSurfaceTranslator> tr = 
+    PtrMan<EMSurfaceTranslator> tr =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-    { 
+    {
 	horizon_.setErrMsg( tr ? tr->errMsg() : "Cannot find Translator" );
 	return 0;
     }
@@ -222,7 +222,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     {
 	if ( selidx>=0 && selidx != validx ) continue;
 
-	BufferString filenm = getFileName( *ioobj, 
+	BufferString filenm = getFileName( *ioobj,
 					   sel.sd.valnames[validx]->buf() );
 	if ( filenm.isEmpty() ) continue;
 
@@ -244,7 +244,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
     const int maxnrfiles = 100000; // just a big number to make this loop end
     for ( int idx=0; idx<maxnrfiles; idx++ )
     {
-	BufferString fnm = 
+	BufferString fnm =
 	    dgbSurfDataWriter::createHovName( conn->fileName(), idx );
 	if ( !File::exists(fnm.buf()) )
 	    return fnm;
@@ -258,9 +258,9 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-    { 
-	horizon_.setErrMsg( "Cannot find surface" ); 
-	return 0; 
+    {
+	horizon_.setErrMsg( "Cannot find surface" );
+	return 0;
     }
 
     bool binary = true;
@@ -323,7 +323,7 @@ BufferString
 	    { gap++; continue; }
 
 	EM::dgbSurfDataReader rdr( fnm.buf() );
-	if ( rdr.dataName()==attrnm )
+	if ( attrnm == rdr.dataName() )
 	    break;
     }
 
@@ -336,7 +336,7 @@ bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
     const BufferString fnm = getFileName( ioobj, attrnm );
     return !fnm.isEmpty() ? File::remove( fnm ) : false;
 }
- 
+
 
 BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
 {
@@ -394,7 +394,7 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
 	{
 	    posid.setSubID( RowCol(row,col).toInt64() );
 	    const float val = arr2d.get( rowrg.getIndex(row),
-		    			 colrg.getIndex(col) );
+					 colrg.getIndex(col) );
 	    setAuxDataVal( dataidx, posid, val );
 	}
     }

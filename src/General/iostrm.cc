@@ -191,7 +191,7 @@ void IOStream::genFileName()
     fname_ = name();
     FilePath fp( fname_ );
     const bool isabs = fp.isAbsolute();
-    cleanupString( fname_.buf(), false, isabs, true );
+    cleanupString( fname_.getCStr(), false, isabs, true );
     const int extsz = extension_.size();
     const int neededsz = fname_.size() + extsz;
     if ( neededsz >= mMaxFilePathLength )
@@ -260,14 +260,14 @@ bool IOStream::getFrom( ascistream& stream )
     if ( kw=="Multi" )
     {
 	FileMultiString fms( stream.value() );
-	fnrs_.start = toInt(fms[0]);
-	fnrs_.stop = toInt(fms[1]);
-	fnrs_.step = toInt(fms[2]);
+	fnrs_.start = fms.getIValue( 0 );
+	fnrs_.stop = fms.getIValue( 1 );
+	fnrs_.step = fms.getIValue( 2 );
 	if ( fnrs_.step == 0 ) fnrs_.step = 1;
 	if ( ( fnrs_.start < fnrs_.stop && fnrs_.step < 0 )
 	  || ( fnrs_.stop < fnrs_.start && fnrs_.step > 0 ) )
 	    Swap( fnrs_.start, fnrs_.stop );
-	padzeros_ = toInt(fms[3]);
+	padzeros_ = fms.getIValue( 3 );
 	curfnr_ = fnrs_.start;
 	stream.next();
     }

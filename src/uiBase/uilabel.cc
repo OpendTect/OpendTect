@@ -32,7 +32,7 @@ public:
 			{
 			    int nrl = 1;
 			    BufferString str = text();
-			    char* txt = str.buf();
+			    const char* txt = str.buf();
 			    while ( txt && *txt )
 				{ if ( *txt == '\n' ) nrl++; txt++; }
 

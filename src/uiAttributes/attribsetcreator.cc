@@ -273,9 +273,9 @@ bool AttributeSetCreator::create()
 static void addGate( BufferString& defstr, const char* extdesc )
 {
     BufferString extstr( extdesc );
-    char* ptr = firstOcc( extstr.buf(), '[' );
+    char* ptr = extstr.find( '[' );
     BufferString gatestr( ptr ? ptr : "[-32,32]" );
-    ptr = firstOcc( gatestr.buf(), ']' );
+    ptr = gatestr.find( ']' );
     if ( ptr ) *(ptr+1) = '\0';
     defstr += " gate=";
     defstr += gatestr;
@@ -284,36 +284,38 @@ static void addGate( BufferString& defstr, const char* extdesc )
 
 Desc* AttributeSetCreator::getDesc( const char* extdesc )
 {
-    if ( ! extdesc || !*extdesc ) return 0;
+    const FixedString fsextdesc( extdesc );
+    if ( fsextdesc.isEmpty() )
+	return 0;
 
     BufferString defstr;
-    if ( matchStringCI("Energy",extdesc) )
+    if ( fsextdesc.startsWith("Energy",CaseInsensitive) )
     {
 	defstr = "Energy";
 	addGate( defstr, extdesc );
 	defstr += "output=0";
     }
-    else if ( matchStringCI("Reference time",extdesc) )
+    else if ( fsextdesc.startsWith("Reference time",CaseInsensitive) )
     {
 	defstr = "Reference output=2";
     }
-    else if ( matchStringCI("Sample",extdesc) )
+    else if ( fsextdesc.startsWith("Sample",CaseInsensitive) )
     {
 	BufferString offs = extdesc + 7;
-	char* ptr = offs.buf();
+	char* ptr = offs.getCStr();
 	mSkipBlanks(ptr);
 	offs = ptr;
-	ptr = firstOcc( offs.buf(), ' ' );
+	ptr = offs.find( ' ' );
 	if ( ptr ) *ptr = '\0';
 	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
     }
-    else if ( matchStringCI("Similarity",extdesc) )
+    else if ( fsextdesc.startsWith("Similarity",CaseInsensitive) )
     {
 	defstr = "Similarity steering=No";
 	addGate( defstr, extdesc );
 	BufferString work( extdesc );
-	char* pos0ptr = firstOcc( work.buf(), '=' );
+	char* pos0ptr = work.find( '=' );
 	if ( pos0ptr ) pos0ptr++;
 	char* pos1ptr = pos0ptr ? firstOcc( pos0ptr, 'x' ) : 0;
 	char* ampptr = pos1ptr ? firstOcc( pos1ptr, '&' ) : 0;

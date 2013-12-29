@@ -34,8 +34,7 @@ DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
     if ( mystr == cdstr )
 	return DataColDef::Exact;
 
-    if ( matchString(mystr.buf(),cdstr.buf())
-      || matchString(cdstr.buf(),mystr.buf()) )
+    if ( mystr.startsWith(cdstr.buf()) || cdstr.startsWith(mystr.buf()) )
 	return DataColDef::Start;
 
     return DataColDef::None;
@@ -283,12 +282,12 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 static const UnitOfMeasure* parseColName( const char* inp, BufferString& nm )
 {
     nm = inp;
-    char* ptrstart = lastOcc( nm.buf(), '(' );
+    char* ptrstart = nm.findLast( '(' );
     const UnitOfMeasure* ret = 0;
     if ( ptrstart && ptrstart != nm.buf() && *(ptrstart-1) == ' ' )
     {
 	BufferString unsymb = ptrstart + 1;
-	char* ptrend = firstOcc( unsymb.buf(), ')' );
+	char* ptrend = unsymb.find( ')' );
 	if ( ptrend )
 	{
 	    *ptrend = '\0';

@@ -308,7 +308,7 @@ bool Seis2DDataSet::remove( Pos::GeomID geomid )
 bool Seis2DDataSet::renameFiles( const char* newnm )
 {
     BufferString cleannm( newnm );
-    cleanupString( cleannm.buf(), false, false, false );
+    cleanupString( cleannm.getCStr(), false, false, false );
     if ( fname_.isEmpty() )
 	return false;
 
