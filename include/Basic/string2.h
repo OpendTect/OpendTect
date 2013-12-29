@@ -93,7 +93,7 @@ mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 mGlobal(Basic) void removeTrailingBlanks(char*);
 	/*!< bluntly puts a '\0' on trailing white space. */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
-	/*!< replaces whitespace, slashes, and/or dots with underscores. */
+	/*!< replaces whitespace, file separators, dots -> underscores. */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 	/*!< tells whether a string holds a parseable number */
 mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);

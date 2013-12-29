@@ -1381,7 +1381,7 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 	const Well::Log& log = wd.logs().getLog(idx);
 	if ( !logsel_.isPresent( log.name() ) ) continue;
 	BufferString lognm( log.name() );
-	cleanupString( lognm.getCStr(), 0, 0, 0 );
+	cleanupString( lognm.getCStr(), false, false, false );
 	lognm.replace( '+', '_' );
 	lognm.replace( '-', '_' );
 	strm << od_tab << lognm;

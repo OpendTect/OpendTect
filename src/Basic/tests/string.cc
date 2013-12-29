@@ -143,6 +143,19 @@ static bool testBufferStringFns()
     bs.unEmbed( '^', '+' );
     mRunTest("BufferString unEmbed",bs == "XXYYZ");
 
+#define mSetBSToInit() bs = "\nXX$.YY/:\\ Z\t"
+    mSetBSToInit(); bs.clean( BufferString::OnlyAlphaNum );
+    mRunTest("BufferString clean OnlyAlphaNum",bs == "_XX__YY____Z_");
+    mSetBSToInit(); bs.clean( BufferString::AllowDots );
+    mRunTest("BufferString clean AllowDots",bs == "_XX_.YY____Z_");
+    mSetBSToInit(); bs.clean( BufferString::NoSpaces );
+    mRunTest("BufferString clean NoSpaces",
+	    bs == (__iswin__ ? "_XX_.YY_:\\_Z_" : "_XX_.YY/___Z_"));
+    mSetBSToInit(); bs.clean( BufferString::NoFileSeps );
+    mRunTest("BufferString clean NoFileSeps",bs == "\nXX_.YY___ Z\t");
+    mSetBSToInit(); bs.clean( BufferString::NoSpecialChars );
+    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY/__ Z\t");
+
     return true;
 }
 

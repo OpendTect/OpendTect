@@ -123,6 +123,10 @@ public:
     inline BufferString& quote( char q='\'' )		{ return embed(q,q); }
     inline BufferString& unQuote( char q='\'' )		{ return unEmbed(q,q); }
 
+    enum CleanType	{ OnlyAlphaNum, AllowDots,
+			  NoSpaces, NoFileSeps, NoSpecialChars };
+    BufferString&	clean(CleanType ct=OnlyAlphaNum);
+
     static const BufferString& empty();
 
 protected:

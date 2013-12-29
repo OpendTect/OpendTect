@@ -391,6 +391,15 @@ BufferString& BufferString::unEmbed( char s, char e )
 }
 
 
+BufferString& BufferString::clean( BufferString::CleanType ct )
+{
+    cleanupString( getCStr(), ct > NoSpaces,
+			      ct == NoSpaces || ct == NoSpecialChars,
+			      ct != OnlyAlphaNum );
+    return *this;
+}
+
+
 static BufferString emptybufferstring( 1, true );
 
 const BufferString& BufferString::empty()

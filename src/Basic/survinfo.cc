@@ -443,7 +443,7 @@ void SurveyInfo::updateDirName()
 	return;
 
     dirname_ = name();
-    cleanupString( dirname_.getCStr(), false, false, true );
+    dirname_.clean( BufferString::AllowDots );
 }
 
 
