@@ -292,7 +292,7 @@ static const char* getCmd( const char* fnm )
 {
     BufferString execnm( fnm );
 
-    char* ptr = firstOcc( execnm.buf() , ':' );
+    char* ptr = execnm.find( ':' );
 
     if ( !ptr )
 	return fnm;
@@ -311,7 +311,7 @@ static const char* getCmd( const char* fnm )
 	if ( sep == '\"' || sep == '\'' )
 	{
 	    execnm=fnm+1;
-	    ptr = firstOcc( execnm.buf() , sep );
+	    ptr = execnm.find( sep );
 	    if ( ptr ) { *ptr = '\0'; args = ptr+1; }
 	}
     }

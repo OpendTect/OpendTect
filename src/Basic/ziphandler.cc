@@ -579,7 +579,8 @@ bool ZipHandler::setLocalFileHeaderForLink()
     od_int32 linksize = GetFileSize( filehandle, NULL );
     od_int32 bytesread;
     BufferString linkvalue( linksize, true );
-    ReadFile( filehandle, linkvalue.buf(), linksize, (LPDWORD)&bytesread, NULL);
+    ReadFile( filehandle, linkvalue.getCStr(), linksize,
+	    (LPDWORD)&bytesread, NULL);
     CloseHandle( filehandle );
 #else
     BufferString linkvalue = File::linkValue( srcfile_ );

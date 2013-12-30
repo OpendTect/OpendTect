@@ -33,9 +33,9 @@ static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
     char* termchar = 0;
-    termchar = firstOcc( dirnm.buf(), "\\bin\\win" );
+    termchar = dirnm.find( "\\bin\\win" );
     if ( !termchar )
-	termchar = firstOcc( dirnm.buf(), "\\bin\\Win" );
+	termchar = dirnm.find( "\\bin\\Win" );
 
     if ( termchar )
 	*termchar = '\0';
