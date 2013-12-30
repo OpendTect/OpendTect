@@ -23,13 +23,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "horizongridder.h"
 #include "survinfo.h"
 
 #include "uiarray1dinterpol.h"
 #include "uiarray2dinterpol.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uihorsavefieldgrp.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -202,7 +205,8 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()), (float) pos.z );
+		arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()),
+			  (float) pos.z );
 	    }
 	}
 
@@ -324,3 +328,270 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 
     return false;
 }
+
+
+mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory);
+
+uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
+    : uiGroup(p,"Horizon3D Interpolation")
+{
+    methodgrps_.allowNull( true );
+
+    const char* scopes[] = { "Full survey", "Bounding box", "Convex hull",
+			     "Only holes", 0 };
+    filltypefld_ = new uiGenInput( this, "Scope", StringListInpSpec(scopes) );
+    filltypefld_->setText( scopes[2] );
+
+    PositionInpSpec::Setup setup;
+    PositionInpSpec spec( setup );
+    stepfld_ = new uiGenInput( this, "Inl/Crl Step", spec );
+    stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
+    stepfld_->attach( alignedBelow, filltypefld_ );
+
+    maxholeszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    maxholeszfld_->setWithCheck( true );
+    maxholeszfld_->attach( alignedBelow, stepfld_ );
+
+    const BufferStringSet& methods = uiHor3DInterpol::factory().getNames(false);
+    methodsel_ = new uiGenInput( this, "Algorithm",
+	    	StringListInpSpec(uiHor3DInterpol::factory().getNames(true) ) );
+    methodsel_->attach( alignedBelow, maxholeszfld_ );
+    methodsel_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,methodSelCB) );
+
+    for ( int idx=0; idx<methods.size(); idx++ )
+    {
+	uiHor3DInterpol* methodgrp = uiHor3DInterpol::factory().create(
+					methods[idx]->buf(), this, true );
+	if ( methodgrp )
+	    methodgrp->attach( alignedBelow, methodsel_ );
+
+	methodgrps_ += methodgrp;
+    }
+
+    methodSelCB( 0 );
+}
+
+
+void uiHor3DInterpolSel::methodSelCB( CallBacker* )
+{
+    const int selidx = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
+    for ( int idx=0; idx<methodgrps_.size(); idx++ )
+    {
+	if ( methodgrps_[idx] )
+	    methodgrps_[idx]->display( idx==selidx );
+    }
+}
+
+
+bool uiHor3DInterpolSel::fillPar( IOPar& iopar ) const
+{
+    return true;
+}
+
+
+bool uiHor3DInterpolSel::usePar( const IOPar& iopar )
+{
+    return true;
+}
+
+
+uiHor3DInterpol::uiHor3DInterpol( uiParent* p )
+    : uiGroup(p,"Horizon Interpolation")
+{
+}
+
+
+void uiInvDistHor3DInterpol::initClass()
+{
+    uiHor3DInterpol::factory().addCreator( create,
+	    	uiInvDistHor3DInterpol::sFactoryKeyword() );
+}
+
+
+uiHor3DInterpol* uiInvDistHor3DInterpol::create( uiParent* p )
+{
+    return new uiInvDistHor3DInterpol( p );
+}
+
+
+uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
+    : uiHor3DInterpol(p)
+{
+    fltselfld_ = new uiFaultParSel( this, false );
+
+    radiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
+    radiusfld_->setWithCheck( true );
+    radiusfld_->setChecked( true );
+    radiusfld_->checked.notify( mCB(this,uiInvDistHor3DInterpol,useRadiusCB) );
+    radiusfld_->attach( alignedBelow, fltselfld_ );
+
+    parbut_ = new uiPushButton( this, "&Parameters", 
+		    	mCB(this,uiInvDistHor3DInterpol,doParamDlg),
+			false );
+    parbut_->attach( rightOf, radiusfld_ );
+
+
+    setHAlignObj( radiusfld_ );
+    useRadiusCB( 0 );
+}
+
+
+void uiInvDistHor3DInterpol::useRadiusCB( CallBacker* )
+{
+    parbut_->display( radiusfld_->isChecked() );
+}
+
+
+void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
+{
+    uiInvDistInterpolPars dlg( this, cornersfirst_, stepsz_, nrsteps_ );
+    if ( !dlg.go() ) return;
+
+    cornersfirst_ = dlg.isCornersFirst();
+    stepsz_ = dlg.stepSize();
+    nrsteps_ = dlg.nrSteps();
+}
+
+
+bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
+{
+    const bool hasradius = radiusfld_->isChecked();
+    const float radius = hasradius ? radiusfld_->getfValue(0) : mUdf(float);
+    if ( hasradius && (mIsUdf(radius) || radius<=0) )
+    {
+	uiMSG().error(
+		"Please enter a positive value for the search radius\n"
+		"(or uncheck the field)" );
+	return false;
+    }
+
+    const TypeSet<MultiID>& selfaultids = fltselfld_->selFaultIDs();
+    par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
+    for ( int idx=0; idx<selfaultids.size(); idx++ )
+	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
+		 selfaultids[idx] );
+
+    par.set( InvDistHor3DGridder::sKeySearchRadius(), radius );
+    if ( hasradius )
+    {
+	par.set( InvDistHor3DGridder::sKeySearchRadius(), radius );
+	par.set( InvDistHor3DGridder::sKeyStepSize(), stepsz_ );
+	par.set( InvDistHor3DGridder::sKeyNrSteps(), nrsteps_ );
+    }
+
+    return true;
+}
+
+
+bool uiInvDistHor3DInterpol::usePar( const IOPar& iopar )
+{
+    return true;
+}
+
+
+void uiTriangulationHor3DInterpol::initClass()
+{
+    uiHor3DInterpol::factory().addCreator( create,
+	    uiTriangulationHor3DInterpol::sFactoryKeyword() );
+}
+
+
+uiHor3DInterpol* uiTriangulationHor3DInterpol::create( uiParent* p )
+{ return new uiTriangulationHor3DInterpol( p ); }
+
+
+uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol(uiParent* p)
+    : uiHor3DInterpol(p)
+{
+    fltselfld_ = new uiFaultParSel( this, false );
+
+    useneighborfld_ = new uiCheckBox( this, "Use nearest neighbor" );
+    useneighborfld_->setChecked( false );
+    useneighborfld_->activated.notify(
+	    	mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
+    useneighborfld_->attach( alignedBelow, fltselfld_ );
+    
+    maxdistfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    maxdistfld_->setWithCheck( true );
+    maxdistfld_->attach( alignedBelow, useneighborfld_ );
+
+    setHAlignObj( useneighborfld_ );
+    useNeighborCB( 0 );
+}
+
+
+void uiTriangulationHor3DInterpol::useNeighborCB( CallBacker* )
+{
+    maxdistfld_->display( !useneighborfld_->isChecked() );
+}
+
+
+bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
+{
+    bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
+    const float maxdist = maxdistfld_->getfValue();
+    if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
+    {
+	uiMSG().error( "Maximum distance must be > 0. " );
+	return false;
+    }
+
+    const TypeSet<MultiID>& selfaultids = fltselfld_->selFaultIDs();
+    par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
+    for ( int idx=0; idx<selfaultids.size(); idx++ )
+	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
+		 selfaultids[idx] );
+
+    par.set( TriangulationHor3DGridder::sKeyDoInterpolation(),
+	     !useneighborfld_->isChecked() );
+    if ( usemax )
+	par.set( TriangulationHor3DGridder::sKeyMaxDistance(), maxdist );
+
+    return true;
+}
+
+
+bool uiTriangulationHor3DInterpol::usePar( const IOPar& iopar )
+{
+    return true;
+}
+
+
+void uiExtensionHor3DInterpol::initClass()
+{
+    uiHor3DInterpol::factory().addCreator( create,
+	    uiExtensionHor3DInterpol::sFactoryKeyword() );
+}
+
+
+uiHor3DInterpol* uiExtensionHor3DInterpol::create( uiParent* p )
+{ return new uiExtensionHor3DInterpol( p ); }
+
+
+uiExtensionHor3DInterpol::uiExtensionHor3DInterpol( uiParent* p )
+    : uiHor3DInterpol(p)
+{
+    nrstepsfld_ = new uiGenInput( this, "Number of steps", IntInpSpec(20) );
+    setHAlignObj( nrstepsfld_ );
+}
+
+
+bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
+{
+    if ( nrstepsfld_->getIntValue()<1 )
+    {
+	uiMSG().error( "Nr steps must be > 0." );	
+	return false;
+    }
+
+    par.set( ExtensionHor3DGridder::sKeyNrSteps(), nrstepsfld_->getIntValue() );
+    return true;
+}
+
+
+bool uiExtensionHor3DInterpol::usePar( const IOPar& iopar )
+{
+    return true;
+}
+
+

@@ -70,6 +70,11 @@ public:
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    static const char*	sKeySearchRadius();
+    static const char*	sKeyCornersFirst();
+    static const char*	sKeyStepSize();
+    static const char*	sKeyNrSteps();
+
 protected:
 
     bool		initFromArray(TaskRunner*);
@@ -90,12 +95,35 @@ public:
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    static const char*	sKeyDoInterpolation();
+    static const char*	sKeyMaxDistance();
+
 protected:
 
     bool		initFromArray(TaskRunner*);
     void		setFrom(od_int64 target, const od_int64* sources,
 	                        const float* weights, int nrsrc);
 };
+
+
+mExpClass(EarthModel) ExtensionHor3DGridder
+	: public ExtensionArray2DInterpol, public HorizonGridder
+{
+public:
+
+			mDefaultFactoryInstantiation( Array2DInterpol,
+				ExtensionHor3DGridder,
+				"Extension", sFactoryKeyword() )
+
+    bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+    static const char*	sKeyNrSteps();
+
+protected:
+
+};
+
 
 
 #endif

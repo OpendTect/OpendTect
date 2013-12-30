@@ -158,6 +158,11 @@ bool HorizonGridder::usePar( const IOPar& par )
 }
 
 
+const char* InvDistHor3DGridder::sKeySearchRadius() { return "Search Radius"; }
+const char* InvDistHor3DGridder::sKeyCornersFirst() { return "Corners First"; }
+const char* InvDistHor3DGridder::sKeyStepSize()	{ return "Step Size"; }
+const char* InvDistHor3DGridder::sKeyNrSteps() { return "Nr Steps"; }
+
 bool InvDistHor3DGridder::initFromArray( TaskRunner* tr )
 {
     if ( !InverseDistanceArray2DInterpol::initFromArray(tr) )
@@ -199,10 +204,34 @@ bool InvDistHor3DGridder::fillPar( IOPar& par ) const
 
 bool InvDistHor3DGridder::usePar( const IOPar& par )
 {
-    return InverseDistanceArray2DInterpol::usePar(par)
-	&& HorizonGridder::usePar(par);
+    if ( !InverseDistanceArray2DInterpol::usePar(par)
+	    || !HorizonGridder::usePar(par) )
+	return false;
+
+    float radius;
+    par.get( sKeySearchRadius(), radius );
+    setSearchRadius( radius );
+    if ( !mIsUdf(radius) )
+    {
+	bool cornersfirst;
+	int stepsz, nrsteps;
+	if ( par.getYN(sKeyCornersFirst(),cornersfirst) )
+	    setCornersFirst( cornersfirst );
+	if ( par.get(sKeyStepSize(),stepsz) )
+	    setStepSize( stepsz );
+	if ( par.get(sKeyNrSteps(),nrsteps) )
+	    setNrSteps( nrsteps );
+    }
+
+    return true;
 }
 
+
+const char* TriangulationHor3DGridder::sKeyDoInterpolation()
+{ return "Do Interpolation"; }
+
+const char* TriangulationHor3DGridder::sKeyMaxDistance()
+{ return "Max Distance"; }
 
 bool TriangulationHor3DGridder::initFromArray( TaskRunner* tr )
 {
@@ -245,6 +274,39 @@ bool TriangulationHor3DGridder::fillPar( IOPar& par ) const
 
 bool TriangulationHor3DGridder::usePar( const IOPar& par )
 {
-    return TriangulationArray2DInterpol::usePar(par)
-	&& HorizonGridder::usePar(par);
+    if ( !TriangulationArray2DInterpol::usePar(par)
+	    || !HorizonGridder::usePar(par) )
+	return false;
+
+    bool dointerpolation;
+    int maxdist;
+    if ( par.getYN(sKeyDoInterpolation(),dointerpolation) )
+	doInterpolation( dointerpolation );
+    if ( par.get(sKeyMaxDistance(),maxdist) )
+	setMaxDistance( maxdist );
+
+    return true;
+}
+
+
+const char* ExtensionHor3DGridder::sKeyNrSteps() { return "Nr Steps"; }
+
+bool ExtensionHor3DGridder::fillPar( IOPar& par ) const
+{
+    return ExtensionArray2DInterpol::fillPar(par)
+	&& HorizonGridder::fillPar(par);
+}
+
+
+bool ExtensionHor3DGridder::usePar( const IOPar& par )
+{
+    if ( !ExtensionArray2DInterpol::usePar(par)
+	    || !HorizonGridder::usePar(par) )
+	return false;
+
+    int nrsteps;
+    if ( par.get(sKeyNrSteps(),nrsteps) )
+	setNrSteps( nrsteps );
+    
+    return true;
 }

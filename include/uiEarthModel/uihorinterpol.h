@@ -14,14 +14,18 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "factory.h"
 #include "uidialog.h"
+#include "uigroup.h"
 
+class uiCheckBox;
 class uiGenInput;
 namespace EM { class Horizon; }
 
+class uiFaultParSel;
 class uiHorSaveFieldGrp;
 class uiArray1DInterpolSel;
 class uiArray2DInterpolSel;
 class uiIOObjSel;
+class uiHor3DInterpol;
 
 
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
@@ -51,6 +55,123 @@ protected:
 
     EM::Horizon*		horizon_;
 };
+
+
+mExpClass(uiEarthModel) uiHor3DInterpolSel : public uiGroup
+{
+public:
+				uiHor3DInterpolSel(uiParent*,
+						   bool musthandlefaults);
+				~uiHor3DInterpolSel() {}
+
+    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+
+protected:
+
+    void			methodSelCB(CallBacker*);
+
+    uiGenInput*			filltypefld_;
+    uiGenInput*			maxholeszfld_;
+    uiGenInput*			stepfld_;
+    uiGenInput*			methodsel_;
+
+    ObjectSet<uiHor3DInterpol>	methodgrps_;
+};
+
+
+mExpClass(uiEarthModel) uiHor3DInterpol : public uiGroup
+{
+public:
+    mDefineFactory1ParamInClass(uiHor3DInterpol,uiParent*,factory);
+
+    virtual			~uiHor3DInterpol()	{}
+
+    virtual bool		fillPar(IOPar&) const	{ return false; }
+    virtual bool		usePar(const IOPar&)	{ return false; }
+
+    virtual bool		canHandleFaults() const { return false; }
+
+protected:
+				uiHor3DInterpol(uiParent*);
+};
+
+
+mExpClass(uiEarthModel) uiInvDistHor3DInterpol : public uiHor3DInterpol
+{
+public:
+				uiInvDistHor3DInterpol(uiParent*);
+
+    static void			initClass();
+    static uiHor3DInterpol*	create(uiParent*);
+    static const char*		sFactoryKeyword() { return "Inverse Distance"; }
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual bool		canHandleFaults() const { return true; }
+
+protected:
+
+    void			useRadiusCB(CallBacker*);
+    void			doParamDlg(CallBacker*);
+
+    uiGenInput*			radiusfld_;
+    uiButton*			parbut_;
+    uiFaultParSel*		fltselfld_;
+
+    bool			cornersfirst_;
+    int				stepsz_;
+    int				nrsteps_;
+};
+
+
+mExpClass(uiEarthModel) uiTriangulationHor3DInterpol : public uiHor3DInterpol
+{
+public:
+				uiTriangulationHor3DInterpol(uiParent*);
+
+    static void			initClass();
+    static uiHor3DInterpol*	create(uiParent*);
+    static const char*		sFactoryKeyword() { return "Triangulation"; }
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual bool		canHandleFaults() const { return true; }
+
+protected:
+
+    void			useNeighborCB(CallBacker*);
+    
+    uiGenInput*			maxdistfld_;
+    uiCheckBox*			useneighborfld_;
+    uiFaultParSel*		fltselfld_;
+};
+
+
+mExpClass(uiEarthModel) uiExtensionHor3DInterpol : public uiHor3DInterpol
+{
+public:
+				uiExtensionHor3DInterpol(uiParent*);
+
+    static void			initClass();
+    static uiHor3DInterpol*	create(uiParent*);
+    static const char*		sFactoryKeyword()	{ return "Extension"; }
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual bool		canHandleFaults() const { return true; }
+
+protected:
+
+    void			useNeighborCB(CallBacker*);
+
+    uiGenInput*			nrstepsfld_;
+
+};
+
 
 
 #endif

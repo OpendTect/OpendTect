@@ -499,31 +499,34 @@ bool uiExtensionArray2DInterpol::acceptOK()
 }
 
 
-class uiInvDistA2DInterpolPars : public uiDialog
-{
-public:
-
-uiInvDistA2DInterpolPars( uiInverseDistanceArray2DInterpol* p )
+uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
+					      int stepsz, int nrsteps )
     : uiDialog(p,Setup("Inverse distance - parameters",
-		"Inverse distance with search radius","104.0.13") )
-    , a2di_(*p)
+		       "Inverse distance with search radius","104.0.13") )
 {
     cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
-					BoolInpSpec(a2di_.cornersfirst_) );
+					BoolInpSpec(cornersfirst) );
 
-    stepsizefld_ = new uiGenInput( this, "Step size",
-	    			   IntInpSpec(a2di_.stepsz_) );
+    stepsizefld_ = new uiGenInput( this, "Step size", IntInpSpec(stepsz) );
     stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
 
-    nrstepsfld_ = new uiGenInput( this, "[Nr steps]",
-	    			  IntInpSpec(a2di_.nrsteps_) );
+    nrstepsfld_ = new uiGenInput( this, "[Nr steps]", IntInpSpec(nrsteps) );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool uiInvDistInterpolPars::isCornersFirst() const
+{ return cornersfirstfld_->getBoolValue(); }
+
+int uiInvDistInterpolPars::stepSize() const
+{ return stepsizefld_->getIntValue(); }
+
+int uiInvDistInterpolPars::nrSteps() const
+{ return nrstepsfld_->getIntValue(); }
+
+bool uiInvDistInterpolPars::acceptOK( CallBacker* )
 {
-    const int stepsize = stepsizefld_->getIntValue( 0 );
-    const int nrsteps = nrstepsfld_->getIntValue( 0 );
+    const int stepsize = stepsizefld_->getIntValue();
+    const int nrsteps = nrstepsfld_->getIntValue();
 
     if ( mIsUdf(stepsize) || stepsize<1 )
     {
@@ -536,24 +539,18 @@ bool acceptOK( CallBacker* )
 	return false;
     }
 
-    a2di_.cornersfirst_ = cornersfirstfld_->getBoolValue();
-    a2di_.stepsz_ = stepsize;
-    a2di_.nrsteps_ = nrsteps;
     return true;
 }
-
-    uiInverseDistanceArray2DInterpol&	a2di_;
-    uiGenInput*				cornersfirstfld_;
-    uiGenInput*				stepsizefld_;
-    uiGenInput*				nrstepsfld_;
-
-};
 
 
 void uiInverseDistanceArray2DInterpol::doParamDlg( CallBacker* )
 {
-    uiInvDistA2DInterpolPars dlg( this );
-    dlg.go();
+    uiInvDistInterpolPars dlg( this, cornersfirst_, stepsz_, nrsteps_ );
+    if ( !dlg.go() ) return;
+
+    cornersfirst_ = dlg.isCornersFirst();
+    stepsz_ = dlg.stepSize();
+    nrsteps_ = dlg.nrSteps();
 }
 
 

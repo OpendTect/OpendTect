@@ -85,6 +85,26 @@ protected:
 };
 
 
+mExpClass(uiTools) uiInvDistInterpolPars : public uiDialog
+{
+public:
+
+			uiInvDistInterpolPars(uiParent* p,bool cornersfirst,
+					      int stepsz,int nrsteps);
+    bool		isCornersFirst() const;
+    int			stepSize() const;
+    int			nrSteps() const;
+
+protected:
+
+    bool		acceptOK(CallBacker*);
+
+    uiGenInput*		cornersfirstfld_;
+    uiGenInput*		stepsizefld_;
+    uiGenInput*		nrstepsfld_;
+};
+
+
 mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 {
 public:
