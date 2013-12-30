@@ -104,7 +104,7 @@ int Shape::getMaterialBinding() const
 
 void Shape::setRenderMode( RenderMode mode )
 {
-    osg::StateSet* stateset = osgNode()->getOrCreateStateSet();
+    osg::StateSet* stateset = getStateSet();
     if ( !stateset )
 	return;
 
@@ -154,10 +154,25 @@ int Shape::usePar( const IOPar& par )
 //=============================================================================
 
 
-class ShapeNodeCallbackHandler: public osg::NodeCallback
+class VertexShape::TextureCallbackHandler :
+				public osgGeo::LayeredTexture::Callback
 {
 public:
-    ShapeNodeCallbackHandler( VertexShape& vtxshape )
+    TextureCallbackHandler( VertexShape& vtxshape )
+	: vtxshape_( vtxshape )
+    {}
+
+    virtual void requestRedraw() const		{ vtxshape_.forceRedraw(); }
+
+protected:
+    VertexShape&		vtxshape_;
+};
+
+
+class VertexShape::NodeCallbackHandler: public osg::NodeCallback
+{
+public:
+    NodeCallbackHandler( VertexShape& vtxshape )
 	: vtxshape_( vtxshape )
     {}
 
@@ -173,13 +188,15 @@ protected:
     osgGeo::LayeredTexture* laytex = \
 		vtxshape_.channels_ ? vtxshape_.channels_->getOsgTexture() : 0;
 
-void ShapeNodeCallbackHandler::operator()( osg::Node* node,
-					   osg::NodeVisitor* nv )
+void VertexShape::NodeCallbackHandler::operator()( osg::Node* node,
+						   osg::NodeVisitor* nv )
 {
     mGetLayeredTexture( laytex );
 
     if ( laytex && nv->getVisitorType()==osg::NodeVisitor::UPDATE_VISITOR )
     {
+	vtxshape_.forceRedraw( false );
+
 	if ( vtxshape_.needstextureupdate_ || laytex->needsRetiling() )
 	    updateTexture();
 
@@ -201,7 +218,7 @@ void ShapeNodeCallbackHandler::operator()( osg::Node* node,
 }
 
 
-void ShapeNodeCallbackHandler::updateTexture()
+void VertexShape::NodeCallbackHandler::updateTexture()
 {
     mGetLayeredTexture( laytex );
 
@@ -238,7 +255,7 @@ void ShapeNodeCallbackHandler::updateTexture()
 			mGetOsgVec2Arr(vtxshape_.texturecoords_->osgArray()) );
     }
 
-    vtxshape_.needstextureupdate_ = false;
+    vtxshape_.setUpdateVar( vtxshape_.needstextureupdate_ , false );
 }
 
 
@@ -255,8 +272,10 @@ void ShapeNodeCallbackHandler::updateTexture()
     , primitivetype_( Geometry::PrimitiveSet::Other ) \
     , useosgsmoothnormal_( false ) \
     , channels_( 0 ) \
-    , osgcallbackhandler_( 0 ) \
-    , needstextureupdate_( false )
+    , needstextureupdate_( false ) \
+    , nodecallbackhandler_( 0 ) \
+    , texturecallbackhandler_( 0 ) \
+    , isredrawing_( false )
 
 
 VertexShape::VertexShape()
@@ -291,12 +310,13 @@ void VertexShape::setMaterial( Material* mt )
 void VertexShape::setupOsgNode()
 {
     node_ = new osg::Group;	// Needed because pushStateSet() applied in
-    node_->ref();		// osgcallbackhandler_ has no effect on geodes
+    node_->ref();		// nodecallbackhandler_ has no effect on geodes
     setOsgNode( node_ );
-    osgcallbackhandler_ = new ShapeNodeCallbackHandler( *this );
-    osgcallbackhandler_->ref();
-    node_->setUpdateCallback( osgcallbackhandler_ );
-    node_->setCullCallback( osgcallbackhandler_ );
+    nodecallbackhandler_ = new NodeCallbackHandler( *this );
+    nodecallbackhandler_->ref();
+    node_->setCullCallback( nodecallbackhandler_ );
+    texturecallbackhandler_ = new TextureCallbackHandler( *this );
+    texturecallbackhandler_->ref();
 
     if ( geode_ )
     {
@@ -374,11 +394,15 @@ VertexShape::~VertexShape()
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,VertexShape,materialChangeCB) );
 
-    if ( osgcallbackhandler_ )
+    setTextureChannels( 0 );
+    if ( texturecallbackhandler_ )
+	texturecallbackhandler_->unref();
+
+    forceRedraw( false );
+    if ( nodecallbackhandler_ )
     {
-	node_->removeUpdateCallback( osgcallbackhandler_ );
-	node_->removeCullCallback( osgcallbackhandler_ );
-	osgcallbackhandler_->unref();
+	node_->setCullCallback( 0 );
+	nodecallbackhandler_->unref();
     }
 
     if ( geode_ ) geode_->unref();
@@ -467,13 +491,41 @@ if ( osggeom_ )
 );
 
 mDefSetGetItem( VertexShape, TextureCoords, texturecoords_,
-		needstextureupdate_=true , needstextureupdate_=true );
+		setUpdateVar(needstextureupdate_,true),
+		setUpdateVar(needstextureupdate_,true) );
 
 
 void VertexShape::setTextureChannels( TextureChannels* channels )
 {
+    if ( channels_ && texturecallbackhandler_ )
+	channels_->getOsgTexture()->removeCallback( texturecallbackhandler_ );
+
     channels_ = channels;
-    needstextureupdate_ = true;
+
+    if ( channels_ && texturecallbackhandler_ )
+	channels_->getOsgTexture()->addCallback( texturecallbackhandler_ );
+
+    setUpdateVar( needstextureupdate_, true );
+}
+
+
+void VertexShape::forceRedraw( bool yn )
+{
+    Threads::Locker lckr( redrawlock_, Threads::Locker::WriteLock );
+    if ( isredrawing_!=yn && nodecallbackhandler_ )
+    {
+	isredrawing_ = yn;
+	node_->setUpdateCallback( yn ? nodecallbackhandler_ : 0 );
+    }
+}
+
+
+void VertexShape::setUpdateVar( bool& variable, bool yn )
+{
+    if ( !variable && yn )
+	forceRedraw( true );
+
+    variable = yn;
 }
     
 

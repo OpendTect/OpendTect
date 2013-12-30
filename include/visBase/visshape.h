@@ -71,11 +71,10 @@ protected:
 };
 
 
-class ShapeNodeCallbackHandler;
-
 mExpClass(visBase) VertexShape : public Shape
 {
-    friend class ShapeNodeCallbackHandler;
+    class TextureCallbackHandler;
+    class NodeCallbackHandler;
 
 public:
     static VertexShape*	create()
@@ -129,6 +128,8 @@ public:
 
     void		setTextureChannels(TextureChannels*);
 
+    void		forceRedraw(bool=true);
+
 protected:
     			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
 				     bool creategeode );
@@ -138,6 +139,11 @@ protected:
 
     virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
     virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
+
+    void		setUpdateVar(bool& var,bool yn);
+			//! Will trigger redraw request if necessary
+
+    bool		needstextureupdate_;	// Only set via setUpdateVar(.)
 
     Normals*		normals_;
     Coordinates*	coords_;
@@ -154,8 +160,10 @@ protected:
     BindType		normalbindtype_;
 
     RefMan<TextureChannels>	channels_;
-    ShapeNodeCallbackHandler*	osgcallbackhandler_;
-    bool			needstextureupdate_;
+    NodeCallbackHandler*	nodecallbackhandler_;
+    TextureCallbackHandler*	texturecallbackhandler_;
+    Threads::Lock		redrawlock_;
+    bool			isredrawing_;
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 

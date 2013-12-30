@@ -305,14 +305,14 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 	}
     }
 
-    horsection_->forceupdate_ =  false;
+    horsection_->setUpdateVar( horsection_->forceupdate_,  false );
 
     HorizonSectionTilePosSetup task( newtiles, *horsection_->geometry_, 
 	rrg, crg, horsection_->hordatahandler_->getZAxistransform(), 
 	horsection_->nrcoordspertileside_, horsection_->lowestresidx_ );
     TaskRunner::execute( tr, task );
 
-    horsection_->forceupdate_ =  true;
+    horsection_->setUpdateVar( horsection_->forceupdate_,  true );
     horsection_->tesselationlock_ = false;
 
 }
@@ -356,7 +356,7 @@ void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 	if ( tileptrs[idx] )
 	    tileptrs[idx]->updatePrimitiveSets();
     }
-    horsection_->forceupdate_ = false;
+    horsection_->setUpdateVar( horsection_->forceupdate_, false );
 }
 
 

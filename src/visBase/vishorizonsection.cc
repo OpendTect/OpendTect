@@ -30,14 +30,29 @@ mCreateFactoryEntry( visBase::HorizonSection );
 namespace visBase
 {
 
-class HorizonSectionOsgCallBack : public osg::NodeCallback
+class HorizonSection::TextureCallbackHandler :
+				    public osgGeo::LayeredTexture::Callback
 {
 public:
-    HorizonSectionOsgCallBack( HorizonSection* section );
+    TextureCallbackHandler( HorizonSection& section )
+	: horsection_( section )
+    {}
+
+    virtual void requestRedraw() const		{ horsection_.forceRedraw(); }
+
+protected:
+    HorizonSection&		horsection_;
+};
+
+
+class HorizonSection::NodeCallbackHandler : public osg::NodeCallback
+{
+public:
+    NodeCallbackHandler( HorizonSection* section );
     virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
 
 protected:
-    const osg::Vec3 getPrjectionDirection( const osgUtil::CullVisitor* );
+    const osg::Vec3 getProjectionDirection( const osgUtil::CullVisitor* );
     bool eyeChanged( const osg::Vec3 );
 
     HorizonSection* hrsection_;
@@ -46,7 +61,7 @@ protected:
 };
 
 
-HorizonSectionOsgCallBack::HorizonSectionOsgCallBack(
+HorizonSection::NodeCallbackHandler::NodeCallbackHandler(
 						HorizonSection* hrsection )
     : hrsection_( hrsection )
     , projectiondirection_( osg::Vec3( 0,0,0 ) )
@@ -55,11 +70,13 @@ HorizonSectionOsgCallBack::HorizonSectionOsgCallBack(
 }
 
 
-void HorizonSectionOsgCallBack::operator()(osg::Node* node,
-					   osg::NodeVisitor* nv)
+void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
+						      osg::NodeVisitor* nv )
 {
     if( nv->getVisitorType()==osg::NodeVisitor::UPDATE_VISITOR )
     {
+	hrsection_->forceRedraw( false );
+
 	if ( hrsection_->getOsgTexture()->needsRetiling() )
 	{
 	    hrsection_->hortexturehandler_->updateTileTextureOrigin();
@@ -68,7 +85,7 @@ void HorizonSectionOsgCallBack::operator()(osg::Node* node,
     else if( nv->getVisitorType()==osg::NodeVisitor::CULL_VISITOR )
     {
 	osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
-	const osg::Vec3 projectiondirection = getPrjectionDirection( cv );
+	const osg::Vec3 projectiondirection = getProjectionDirection( cv );
 
 	if ( hrsection_->getOsgTexture()->getSetupStateSet() )
 	    cv->pushStateSet( hrsection_->getOsgTexture()->getSetupStateSet() );
@@ -82,8 +99,11 @@ void HorizonSectionOsgCallBack::operator()(osg::Node* node,
 	    hrsection_->updateAutoResolution( cs );
 	    hrsection_->updatePrimitiveSets();
 	    projectiondirection_ = projectiondirection;
-	    initialtimes_ = initialtimes_<cMinInitialTimes ?
-		initialtimes_+1 : initialtimes_;
+	    if ( initialtimes_ < cMinInitialTimes )
+	    {
+		initialtimes_++;
+		hrsection_->forceRedraw( true );
+	    }
 	}
 
 	traverse( node,nv );
@@ -93,8 +113,8 @@ void HorizonSectionOsgCallBack::operator()(osg::Node* node,
 }
 
 
-const osg::Vec3 HorizonSectionOsgCallBack::getPrjectionDirection(
-					const osgUtil::CullVisitor* cv )
+const osg::Vec3 HorizonSection::NodeCallbackHandler::getProjectionDirection(
+					    const osgUtil::CullVisitor* cv )
 {
     osg::Vec3 projectiondirection( 0, 0, 0 );
     if( !cv ) return projectiondirection;
@@ -110,12 +130,15 @@ const osg::Vec3 HorizonSectionOsgCallBack::getPrjectionDirection(
 }
 
 
-bool HorizonSectionOsgCallBack::eyeChanged(const osg::Vec3 projectiondirection)
+bool HorizonSection::NodeCallbackHandler::eyeChanged( const osg::Vec3 projdir )
 {
-    bool retval = projectiondirection != projectiondirection_ ? true : false;
+    bool retval = projdir!=projectiondirection_ ? true : false;
     initialtimes_ = retval ? 0 : initialtimes_;
     return retval;
 }
+
+
+//===========================================================================
 
 
 HorizonSection::HorizonSection() 
@@ -141,11 +164,19 @@ HorizonSection::HorizonSection()
     , hordatahandler_( new HorizonSectionDataHandler( this ) )
     , hortexturehandler_( new HorizonTextureHandler( this ) )
     , hortilescreatorandupdator_( new HorTilesCreatorAndUpdator(this) )
+    , nodecallbackhandler_( 0 )
+    , texturecallbackhandler_( 0 )
+    , isredrawing_( false )
 {
     setLockable();
     osghorizon_->ref();
-    osghorizon_->setCullCallback( new HorizonSectionOsgCallBack( this ) );
-    osghorizon_->setUpdateCallback( osghorizon_->getCullCallback() );
+
+    nodecallbackhandler_ = new NodeCallbackHandler( this );
+    nodecallbackhandler_->ref();
+    osghorizon_->setCullCallback( nodecallbackhandler_ );
+    texturecallbackhandler_ = new TextureCallbackHandler( *this );
+    texturecallbackhandler_->ref();
+    hortexturehandler_->getOsgTexture()->addCallback( texturecallbackhandler_ );
 
     addChild( osghorizon_ );
 
@@ -158,7 +189,14 @@ HorizonSection::HorizonSection()
 
 HorizonSection::~HorizonSection()
 {
-    osghorizon_->setUpdateCallback(NULL);
+    hortexturehandler_->getOsgTexture()->removeCallback(
+						    texturecallbackhandler_ );
+    texturecallbackhandler_->unref();
+
+    forceRedraw( false );
+    osghorizon_->setCullCallback( 0 );
+    nodecallbackhandler_->unref();
+
     osghorizon_->unref();
     hortexturehandler_->unRef();
 
@@ -185,6 +223,26 @@ HorizonSection::~HorizonSection()
    
     hordatahandler_->unRef();
     hortilescreatorandupdator_->unRef();
+}
+
+
+void HorizonSection::forceRedraw( bool yn )
+{
+    Threads::Locker lckr( redrawlock_, Threads::Locker::WriteLock );
+    if ( isredrawing_ != yn )
+    {
+	isredrawing_ = yn;
+	osghorizon_->setUpdateCallback( yn ? nodecallbackhandler_ : 0 );
+    }
+}
+
+
+void HorizonSection::setUpdateVar( bool& variable, bool yn )
+{
+    if ( !variable && yn )
+	forceRedraw( true );
+
+    variable = yn;
 }
 
 
@@ -538,7 +596,7 @@ void HorizonSection::setResolution( char res, TaskRunner* tr )
 {
     desiredresolution_ = res;
     hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tr );
-    forceupdate_ = true;
+    setUpdateVar( forceupdate_, true );
 }
 
 
@@ -573,7 +631,7 @@ void HorizonSection::updateTiles()
 	tileptrs->addTileGlueTesselator();
     }
 
-    forceupdate_ = true;
+    setUpdateVar( forceupdate_, true );
     updatedtiles_.erase();
     updatedtileresolutions_.setEmpty();
 

@@ -49,6 +49,9 @@ namespace visBase
 
 mExpClass(visBase) HorizonSection : public VisualObjectImpl
 {
+    class TextureCallbackHandler;
+    class NodeCallbackHandler;
+
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);
 
@@ -120,12 +123,13 @@ public:
 				/*!< 0 is triangle--surface, 1 is line--grid */
     void			updateTiles();
 
+    void			forceRedraw(bool=true);
+
 protected:
     				~HorizonSection();
     friend class		HorizonSectionTile;			
     friend class		HorizonTileRenderPreparer;
     friend class		TileResolutionData;
-    friend class		HorizonSectionOsgCallBack;
     friend class		HorizonSectionDataHandler;
     friend class                HorizonTextureHandler;
     friend class		HorTilesCreatorAndUpdator;
@@ -140,6 +144,11 @@ protected:
     void			configSizeParameters();
     void			updateAutoResolution( const osg::CullStack* );
 
+    void			setUpdateVar(bool& var,bool yn);
+				//! Will trigger redraw request if necessary
+
+    bool			forceupdate_;	// Only set via setUpdateVar(.)
+
 
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
@@ -153,6 +162,12 @@ protected:
     HorizonSectionDataHandler*  hordatahandler_;
     HorizonTextureHandler*	hortexturehandler_;
     HorTilesCreatorAndUpdator*	hortilescreatorandupdator_;
+
+    NodeCallbackHandler*	nodecallbackhandler_;
+    TextureCallbackHandler*	texturecallbackhandler_;
+    Threads::Lock		redrawlock_;
+    bool			isredrawing_;
+
 
     Array2DImpl<HorizonSectionTile*> tiles_;
     bool			usewireframe_;
@@ -177,7 +192,6 @@ protected:
     TypeSet<int>		normalsidesize_;
 
     osg::Group*		    	osghorizon_;
-    bool			forceupdate_;
 
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		  updatedtileresolutions_;
