@@ -81,7 +81,7 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 {
     if ( !basnm || !*basnm ) basnm = altbasnm;
     tfname = basnm;
-    cleanupString( tfname.getCStr(), false, false, true );
+    tfname.clean( BufferString::AllowDots );
     tfname += ".par";
     tfname = GetProcFileName( tfname );
 }

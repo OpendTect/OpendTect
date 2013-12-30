@@ -247,7 +247,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 		chiostrm.setExt( tr->defExtension() );
 
 	    BufferString cleannm( chiostrm.name() );
-	    cleanupString( cleannm.getCStr(), true, false, true );
+	    cleannm.clean( BufferString::NoFileSeps );
 	    chiostrm.setName( cleannm );
 	    chiostrm.genDefaultImpl();
 	    chiostrm.setName( newnm );
@@ -261,7 +261,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    {
 		if ( newnm.contains('/') || newnm.contains('\\') )
 		{
-		    cleanupString(newnm.getCStr(),false,false,true);
+		    newnm.clean( BufferString::AllowDots );
 		    chiostrm.setName( newnm );
 		    chiostrm.genDefaultImpl();
 		    deffp.set( chiostrm.fileName() );

@@ -238,8 +238,8 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 
     for ( int idx=0; idx<mp->nrInputs(); idx++ )
     {
-	char* cleanvarnm = const_cast<char*>(fm->vardefs_[idx]->name().buf());
-	cleanupString( cleanvarnm, false, false, false );
+	BufferString cleanvarnm = fm->vardefs_[idx]->name();
+	cleanvarnm.clean();
 	ret.replace( mp->inputName(idx), cleanvarnm );
 
 	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
@@ -252,9 +252,8 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 			   toString(cstflds_[idx]->getCstVal()) );
 	else
 	{
-	    char* cleancstnm = const_cast<char*>(
-					fm->constdefs_[idx]->name().buf());
-	    cleanupString( cleancstnm, false, false, false );
+	    BufferString cleancstnm = fm->constdefs_[idx]->name();
+	    cleancstnm.clean();
 	    ret.replace( mp->constName( idx ), cleancstnm );
 	}
     }

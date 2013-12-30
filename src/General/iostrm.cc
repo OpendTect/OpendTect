@@ -191,7 +191,8 @@ void IOStream::genFileName()
     fname_ = name();
     FilePath fp( fname_ );
     const bool isabs = fp.isAbsolute();
-    cleanupString( fname_.getCStr(), false, isabs, true );
+    fname_.clean( isabs ? BufferString::NoSpaces
+			: BufferString::AllowDots );
     const int extsz = extension_.size();
     const int neededsz = fname_.size() + extsz;
     if ( neededsz >= mMaxFilePathLength )

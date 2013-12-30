@@ -278,7 +278,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 
     FilePath fpnm( fltfullnm_ );
     BufferString filenm( fpnm.fileName() );
-    cleanupString( filenm.getCStr(), false, false, false );
+    filenm.clean();
 
     if ( act==Remove )
     {

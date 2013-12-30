@@ -593,7 +593,7 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
 bool Seis2DLineSet::renameFiles( const char* newlsnm )
 {
     BufferString cleannm( newlsnm );
-    cleanupString( cleannm.getCStr(), false, false, false );
+    cleannm.clean();
     if ( fname_.isEmpty() )
 	return false;
 
@@ -760,12 +760,18 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 	    StepInterval<int> trg; StepInterval<float> zrg;
 	    if ( getRanges(iln,trg,zrg) )
 	    {
-		if ( cs.hrg.start.crl() > trg.start ) cs.hrg.start.crl() =trg.start;
-		if ( cs.hrg.stop.crl() < trg.stop ) cs.hrg.stop.crl() = trg.stop;
-		if ( cs.hrg.step.crl() > trg.step ) cs.hrg.step.crl() = trg.step;
-		if ( cs.zrg.start > zrg.start ) cs.zrg.start = zrg.start;
-		if ( cs.zrg.stop < zrg.stop ) cs.zrg.stop = zrg.stop;
-		if ( cs.zrg.step > zrg.step ) cs.zrg.step = zrg.step;
+		if ( cs.hrg.start.crl() > trg.start )
+		    cs.hrg.start.crl()=trg.start;
+		if ( cs.hrg.stop.crl() < trg.stop )
+		    cs.hrg.stop.crl() = trg.stop;
+		if ( cs.hrg.step.crl() > trg.step )
+		    cs.hrg.step.crl() = trg.step;
+		if ( cs.zrg.start > zrg.start )
+		    cs.zrg.start = zrg.start;
+		if ( cs.zrg.stop < zrg.stop )
+		    cs.zrg.stop = zrg.stop;
+		if ( cs.zrg.step > zrg.step )
+		    cs.zrg.step = zrg.step;
 	    }
 	}
     }

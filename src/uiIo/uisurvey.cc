@@ -284,9 +284,8 @@ bool uiStartNewSurveySetup::isOK()
     if ( survnm.isEmpty() )
 	mErrRet( "Please enter a new survey name" )
 
-    char* str = survnm.getCStr();
-    cleanupString( str, false, false, true );
-    const BufferString storagedir = FilePath(dataroot_).add(str).fullPath();
+    survnm.clean( BufferString::AllowDots );
+    const BufferString storagedir = FilePath(dataroot_).add(survnm).fullPath();
     if ( File::exists(storagedir) )
     {
 	BufferString errmsg( "A survey called ", survnm, " already exists\n" );

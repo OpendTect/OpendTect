@@ -17,7 +17,7 @@ class uiFileInput;
 
 #define mImplFileNameFld(nm) \
     BufferString deffnm( nm ); \
-    cleanupString( deffnm.getCStr(), false, false, true ); \
+    deffnm.clean( BufferString::AllowDots ); \
     FilePath deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
     uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
     fiinpsu.forread( false ).filter( "*.kml" ); \

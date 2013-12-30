@@ -76,7 +76,7 @@ const char* Usage::Server::setupFileName( const char* admnm )
     if ( admnm && *admnm )
     {
 	BufferString clnadmnm( admnm );
-	cleanupString( clnadmnm.getCStr(), false, false, false );
+	clnadmnm.clean();
 	ret += "_"; ret += clnadmnm;
     }
     return ret.buf();

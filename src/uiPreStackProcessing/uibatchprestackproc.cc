@@ -48,7 +48,8 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
 		       uiSeisSel::Setup( is2d ? Seis::LinePS : Seis::VolPS ));
     outputsel_->attach( alignedBelow, possubsel_ );
-    outputsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,outputNameChangeCB));
+    outputsel_->selectionDone.notify(
+				 mCB(this,uiBatchProcSetup,outputNameChangeCB));
 
     uppgrp_->setHAlignObj( possubsel_ );
 
@@ -71,7 +72,7 @@ void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
     {
 	parfilename += "_";
 	parfilename += outputsel_->ioobj(true)->name();
-	cleanupString( parfilename.getCStr(), false, false, false );
+	parfilename.clean();
     }
 
     setParFileNmDef( parfilename );

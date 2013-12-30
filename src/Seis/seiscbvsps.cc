@@ -106,7 +106,7 @@ void SeisCBVSPSIO::close()
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
     BufferString fnm( lnm );
-    cleanupString( fnm.getCStr(), false, false, false );
+    fnm.clean();
 
     FilePath fp( dirnm_, fnm );
     fp.setExtension( "cbvs" );

@@ -1177,7 +1177,7 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
 	    BufferString propnm = layerModel().propertyRefs()[ival]->name();
-	    cleanupString( propnm.getCStr(), false, false, true );
+	    propnm.clean( BufferString::AllowDots );
 	    astrm.put( "Quantity", propnm );
 	}
 	astrm.newParagraph();

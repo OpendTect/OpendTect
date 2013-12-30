@@ -73,7 +73,8 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	else
 	    attobj = outfld_->attachObj();
 
-	outfld_->selectionDone.notify( mCB(this,uiSEGYScanDlg,outputNameChangeCB));
+	outfld_->selectionDone.notify(
+				    mCB(this,uiSEGYScanDlg,outputNameChangeCB));
 
 	if ( Seis::is2D(setup_.geom_) )
 	{
@@ -117,7 +118,7 @@ void uiSEGYScanDlg::outputNameChangeCB( CallBacker* )
     {
 	parfilename += "_";
 	parfilename += outfld_->ioobj(true)->name();
-	cleanupString( parfilename.getCStr(), false, false, false );
+	parfilename.clean();
     }
 
     parfilename += ".par";

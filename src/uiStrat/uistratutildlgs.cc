@@ -434,7 +434,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
 bool acceptOK( CallBacker* )
 {
     BufferString nm( nmfld_->text() );
-    cleanupString( nm.getCStr(), true, true, true );
+    nm.clean( BufferString::NoSpecialChars );
     if ( nm.isEmpty() )
     {
 	uiMSG().error( "Please enter a valid name" );

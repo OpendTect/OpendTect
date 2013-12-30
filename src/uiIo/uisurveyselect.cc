@@ -146,7 +146,7 @@ static BufferString makeFullSurveyPath( const char* survnm,
 					const char* dataroot )
 {
     BufferString surveyname( survnm );
-    cleanupString( surveyname.getCStr(), false, false, true );
+    surveyname.clean( BufferString::AllowDots );
     return FilePath(dataroot,surveyname).fullPath();
 }
 

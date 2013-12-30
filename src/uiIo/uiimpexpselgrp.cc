@@ -64,9 +64,9 @@ bool renameSelGrpSet( const char* oldnm, const char* newnm )
 	return false;
 
     BufferString oldclnnm( oldnm );
-    cleanupString( oldclnnm.getCStr(), false, false, false );
+    oldclnnm.clean();
     BufferString newclnnm( oldnm );
-    cleanupString( newclnnm.getCStr(), false, false, false );
+    newclnnm.clean();
 
     FilePath newfp( basefp_.fullPath(), newclnnm );
     FilePath oldfp( basefp_.fullPath(), oldclnnm );
@@ -370,7 +370,7 @@ const char* uiSGSelGrp::selGrpSetNm() const
 BufferString uiSGSelGrp::getCurFileNm() const
 {
     BufferString cleannm( forread_ ? listfld_->getText() : nmfld_->text() );
-    cleanupString( cleannm.getCStr(), false, false, false );
+    cleannm.clean();
     return FilePath(SGM().basePath(),cleannm).fullPath();
 }
 
@@ -587,7 +587,7 @@ const char* uiSGSel::selGrpFileNm()
     if ( selgrpfilenm_.isEmpty() )
     {
 	BufferString cleannm( inpfld_->text() );
-	cleanupString( cleannm.getCStr(), false, false, false );
+	cleannm.clean();
 	return FilePath(SGM().basePath(),cleannm).fullPath();
 	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }

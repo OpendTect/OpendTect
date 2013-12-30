@@ -621,7 +621,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 const char* uiSurveyInfoEditor::dirName() const
 {
     mDeclStaticString( ret ); ret = survnmfld_->text();
-    cleanupString( ret.getCStr(), false, false, true );
+    ret.clean( BufferString::AllowDots );
     return ret.buf();
 }
 

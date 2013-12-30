@@ -116,7 +116,7 @@ static void initGF( od_ostream& strm, const char* hornm,
     char gfbuf[mHdr1GFLineLen+2];
     gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
-    cleanupString( hnm.getCStr(), false, false, false );
+    hnm.clean();
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
@@ -138,7 +138,7 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
     const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
     const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl(), gfval, bid.inl(),
+	  crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl(), gfval, bid.inl(),
 	     "" );
     buf[96] = buf[97] = 'X';
     strm << buf;

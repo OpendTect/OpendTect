@@ -806,7 +806,7 @@ bool SurveyDataTreePreparer::prepDirData()
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     dd->desc_.replace( ':', ';' );
-    cleanupString( dd->dirname_.getCStr(), false, false, false );
+    dd->dirname_.clean();
 
     int nr = dd->selkey_.ID( 0 );
     if ( nr <= 200000 )
