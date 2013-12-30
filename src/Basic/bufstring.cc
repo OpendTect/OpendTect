@@ -50,7 +50,9 @@ BufferString::BufferString( const BufferString& bs )
 
 BufferString::BufferString( const QString& qstr )
     : mBufferStringSimpConstrInitList
-{ add( qstr ); }
+{
+    add( qstr );
+}
 
 
 BufferString::~BufferString()
@@ -124,14 +126,34 @@ BufferString& BufferString::add( const QString& qstr )
 }
 
 
+BufferString& BufferString::add( float f, int maxnrchars )
+{
+    return add( toString( f, maxnrchars ) );
+}
+
+
+BufferString& BufferString::add( double d, int maxnrchars )
+{
+    return add( toString( d, maxnrchars ) );
+}
+
+
 BufferString& BufferString::addSpace()
-{ return add( " " ); }
+{
+    return add( " " );
+}
+
 
 BufferString& BufferString::addTab()
-{ return add( "\t" ); }
+{
+    return add( "\t" );
+}
+
 
 BufferString& BufferString::addNewLine()
-{ return add( "\n" ); }
+{
+    return add( "\n" );
+}
 
 
 void BufferString::setBufSize( unsigned int newlen )
