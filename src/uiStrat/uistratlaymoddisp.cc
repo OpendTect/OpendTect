@@ -244,7 +244,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 
     const uiBorder border( 10 );
     uiAxisHandler::Setup xahsu( uiRect::Top );
-    xahsu.border( border ).nogridline( true ).annotinint(true);
+    xahsu.border( border ).nogridline( true ); // was: .annotinint(true);
     xax_ = new uiAxisHandler( &scene(), xahsu );
     uiAxisHandler::Setup yahsu( uiRect::Left );
     const BufferString zlbl( "Depth (", SI().depthsInFeet() ? "ft" : "m", ")" );
