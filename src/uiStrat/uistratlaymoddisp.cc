@@ -378,7 +378,7 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 
 void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
 {
-    const int selidx = getClickedModelNr();
+    const int selidx = getClickedModelNr()-1;
     if ( selidx < 0 ) return;
 
     MouseEventHandler& mevh = gv_->getMouseEventHandler();
@@ -496,7 +496,7 @@ void uiStratSimpleLayerModelDisp::removeLayers( Strat::LayerSequence& seq,
 
 void uiStratSimpleLayerModelDisp::doubleClicked( CallBacker* )
 {
-    const int selidx = getClickedModelNr();
+    const int selidx = getClickedModelNr()-1;
     if ( selidx < 0 ) return;
 
     // Should we do something else than edit?
