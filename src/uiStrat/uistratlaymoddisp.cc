@@ -358,7 +358,7 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 	return -1;
     const MouseEvent& mev = mevh.event();
     const float xsel = xax_->getVal( mev.pos().x );
-    int selidx = ceil( xsel ) - 1;
+    int selidx = mCast( int, ceil(xsel)-1 );
     if ( selidx < 0 || selidx > layerModel().size() )
 	selidx = -1;
     return selidx;
