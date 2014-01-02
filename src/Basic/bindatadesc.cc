@@ -91,14 +91,13 @@ void BinDataDesc::dump( unsigned char& c, unsigned char&  b ) const
 }
 
 
-void BinDataDesc::toString( char* buf ) const
+void BinDataDesc::toString( BufferString& buf ) const
 {
-    if ( !buf ) return;
-
     FileMultiString fms;
     fms.add( isint_ ? "Integer" : "Float" )
 	.add( issigned_ ? "Signed" : "Unsigned" )
 	.add( nrbytes_ );
+    buf = fms;
 }
 
 

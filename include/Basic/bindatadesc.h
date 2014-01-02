@@ -73,8 +73,7 @@ public:
 
 			// dump/restore
     virtual int		maxStringifiedSize() const	{ return 18; }
-    virtual void	toString(char*) const;
-			//!< Into a buffer allocated by client!
+    virtual void	toString(BufferString&) const;
     virtual void	set(const char*);
     virtual void	dump(unsigned char&,unsigned char&) const;
     virtual void	set(unsigned char,unsigned char);

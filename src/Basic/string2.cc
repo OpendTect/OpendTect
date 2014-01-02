@@ -158,7 +158,7 @@ static int findUglyRoundOff( char* str )
 	    return -1;
     }
 
-    int nrdec = hit - ptrdot;
+    int nrdec = mCast( int, hit - ptrdot );
     if ( *hit == '9' ) nrdec--;
     if ( nrdec < 0 ) nrdec = 0;
     return nrdec;

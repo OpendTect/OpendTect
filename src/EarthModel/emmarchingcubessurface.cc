@@ -165,7 +165,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     {
 	BufferString dcs;
 	od_int32 dummy;
-	DataCharacteristics(dummy).toString( dcs.getCStr() );
+	DataCharacteristics(dummy).toString( dcs );
 	par.set(MarchingCubesSurfaceReader::sKeyInt32DataChar(),
 		dcs.buf() );
     }

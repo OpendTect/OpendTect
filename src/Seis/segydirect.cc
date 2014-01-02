@@ -340,7 +340,7 @@ const IOPar* SEGY::DirectDef::segyPars() const
 #define mSetDc( par, type, string ) \
 { \
     type dummy; \
-    DataCharacteristics(dummy).toString( dc.getCStr() ); \
+    DataCharacteristics(dummy).toString( dc ); \
 }\
     par.set( string, dc )
 

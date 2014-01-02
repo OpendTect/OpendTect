@@ -112,17 +112,14 @@ void DataCharacteristics::dump( unsigned char& c1, unsigned char& c2 ) const
 }
 
 
-void DataCharacteristics::toString( char* buf ) const
+void DataCharacteristics::toString( BufferString& buf ) const
 {
-    if ( !buf ) return;
-
     BinDataDesc::toString( buf );
 
     FileMultiString fms( buf );
     fms += isIeee() ? "IEEE" : "IBMmf";
     fms += getYesNoString( littleendian_ );
-
-    strcpy( buf, (const char*)fms );
+    buf = fms;	  
 }
 
 

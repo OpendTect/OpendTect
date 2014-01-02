@@ -1400,7 +1400,7 @@ const char* EventPatchWriter::errMsg() const
 #define mSetDc( type, string ) \
 { \
     type dummy; \
-    DataCharacteristics(dummy).toString( dc.getCStr() ); \
+    DataCharacteristics(dummy).toString( dc ); \
 }\
     par.set( string, dc.buf() )
 

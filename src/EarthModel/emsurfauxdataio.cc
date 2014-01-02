@@ -59,15 +59,15 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	BufferString dc;
 
 	int idummy;
-	DataCharacteristics(idummy).toString( dc.getCStr() );
+	DataCharacteristics(idummy).toString( dc );
 	par.set( sKeyIntDataChar(), dc );
 
 	od_int64 lldummy;
-	DataCharacteristics(lldummy).toString( dc.getCStr() );
+	DataCharacteristics(lldummy).toString( dc );
 	par.set( sKeyInt64DataChar(), dc );
 
 	float fdummy;
-	DataCharacteristics(fdummy).toString( dc.getCStr() );
+	DataCharacteristics(fdummy).toString( dc );
 	par.set( sKeyFloatDataChar(), dc );
     }
 
