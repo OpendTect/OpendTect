@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "basemap.h"
 #include "dataclipper.h"
 #include "draw.h"
-#include "coordvalue.h"
 #include "iopar.h"
 #include "executor.h"
 #include "ptrman.h"
@@ -241,7 +240,7 @@ void WellDisplay::fillLogParams(
 {
     mGetWD(return);
     lp.cliprate_	= mGetLogPar( side, cliprate_ );
-    lp.col_	 	= mGetLogPar( side, color_);
+    lp.col_		= mGetLogPar( side, color_);
     lp.fillname_	= mGetLogPar( side, fillname_ );
     lp.fillrange_	= mGetLogPar( side, fillrange_ );
     lp.isdatarange_	= mGetLogPar( side, isdatarange_ );
@@ -251,9 +250,9 @@ void WellDisplay::fillLogParams(
     lp.islogarithmic_	= mGetLogPar( side, islogarithmic_ );
     lp.logwidth_	= mGetLogPar( side, logwidth_ );
     lp.name_		= mGetLogPar( side, name_ );
-    lp.ovlap_	 	= mGetLogPar( side, repeatovlap_ );
+    lp.ovlap_		= mGetLogPar( side, repeatovlap_ );
     lp.range_		= mGetLogPar( side, range_ );
-    lp.repeat_	 	= mGetLogPar( side, repeat_);
+    lp.repeat_		= mGetLogPar( side, repeat_);
     lp.seqname_		= mGetLogPar( side, seqname_ );
     lp.size_		= mGetLogPar( side, size_ );
     lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
@@ -458,8 +457,8 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     float minval=mUdf(float), maxval=-mUdf(float);
     float minvalF=mUdf(float), maxvalF=-mUdf(float);
 
-    TypeSet<Coord3Value> crdvals;
-    TypeSet<Coord3Value> crdvalsF;
+    TypeSet<visBase::Well::Coord3Value> crdvals;
+    TypeSet<visBase::Well::Coord3Value> crdvalsF;
 
     for ( int idx=0; idx<longSize; idx++ )
     {
@@ -479,8 +478,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	    val = lp.range_.limitValue( val );
 	    minval = getminVal(minval,val);
 	    maxval = getmaxVal(maxval,val);
-	    Coord3Value cv( pos, val );
-	    crdvals += cv;
+	    crdvals += visBase::Well::Coord3Value( pos, val );
 	}
 
 	if( isfilled && logszf !=0 && idx < logszf )
@@ -498,8 +496,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 		continue;
 	    minvalF = getminVal(minvalF,valF);
 	    maxvalF = getmaxVal(maxvalF,valF);
-	    Coord3Value cvf( pos, valF );
-	    crdvalsF += cvf;
+	    crdvalsF += visBase::Well::Coord3Value( pos, valF );
 	}
 
     }

@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
-#include "coordvalue.h"
 
 #include <osg/Switch>
 #include <osg/Node>
@@ -568,7 +567,7 @@ Coord3 Well::getPos( const TypeSet<Coord3Value>& crdvals, int idx ) const
 {
     mGetCoordVal(cv,crdvals,idx);
 
-    Coord3 crd = cv.coord;
+    Coord3 crd = cv.first;
     if ( zaxistransform_ )
 	crd.z = zaxistransform_->transform( crd );
     if ( mIsUdf(crd.z) )
@@ -586,7 +585,7 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 {
     mGetCoordVal(cv,crdvals,idx);
 
-    float val = (float) scaler.scale( cv.value );
+    float val = (float) scaler.scale( cv.second );
     if ( val < 0 || mIsUdf(val) ) val = 0;
     if ( val > 100 ) val = 100;
     if ( sclog ) mSclogval(val);

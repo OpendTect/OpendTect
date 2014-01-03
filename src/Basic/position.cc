@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "position.h"
 #include "binidvalue.h"
-#include "coordvalue.h"
 #include "posidxpair2coord.h"
 
 #include "bufstring.h"
@@ -286,18 +285,6 @@ bool Coord3::isSameAs( const Coord3& pos, const Coord3& eps ) const
 const Coord3& Coord3::udf()
 {
    return udfcoord3;
-}
-
-
-Coord3Value::Coord3Value( double x, double y, double z, float v )
-    : coord(x,y,z), value(v)
-{
-}
-
-
-Coord3Value::Coord3Value( const Coord3& c, float v )
-    : coord(c), value(v)
-{
 }
 
 

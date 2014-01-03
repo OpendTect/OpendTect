@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "visobject.h"
 
-class Coord3Value;
 class LineStyle;
 class TaskRunner;
 class VisColorTab;
@@ -44,16 +43,17 @@ class Text;
 class Transformation;
 class MarkerSet;
 
-/*! \brief
-Base class for well display
-*/
+
+/*! \brief Base class for well display */
 
 mExpClass(visBase) Well : public VisualObjectImpl
 {
 public:
 
+    typedef std::pair<Coord3,float> Coord3Value;
+
     static Well*		create()
-    				mCreateDataObj(Well);
+				mCreateDataObj(Well);
 
     enum			Side { Left=0, Right };
 
@@ -62,20 +62,20 @@ public:
     mStruct(visBase) BasicParams
     {
 				BasicParams(){}
-	const char* 		name_;
-	Color 			col_;    
-	int 			size_;    
+	const char*		name_;
+	Color			col_;
+	int			size_;
     };
-    
+
     //Well
     mStruct(visBase) TrackParams : public BasicParams
     {
 				TrackParams()
 				{}
-	Coord3* 		toppos_;
-	Coord3* 		botpos_;
-	bool 			isdispabove_;
-	bool 			isdispbelow_;
+	Coord3*		toppos_;
+	Coord3*		botpos_;
+	bool			isdispabove_;
+	bool			isdispbelow_;
 	FontData		font_;
     };
 
@@ -86,17 +86,17 @@ public:
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
 
-    
+
     //Markers
     mStruct(visBase) MarkerParams : public BasicParams
     {
 				MarkerParams()
 				{}
-	int			shapeint_; 
-	int			cylinderheight_; 
+	int			shapeint_;
+	int			cylinderheight_;
 	FontData		font_;
-	Color			namecol_;			
-	Coord3* 		pos_;
+	Color			namecol_;
+	Coord3*		pos_;
     };
 
     void			setMarkerSetParams(const MarkerParams&);
@@ -119,41 +119,41 @@ public:
     {
 				LogParams()
 				{}
-	float               	cliprate_;
+	float	cliprate_;
 	bool			isdatarange_;
 	bool			islinedisplayed_;
-	bool                	islogarithmic_;
-	bool  			issinglcol_;
-	bool 			isleftfilled_;
-	bool 			isrightfilled_;
+	bool	islogarithmic_;
+	bool			issinglcol_;
+	bool			isleftfilled_;
+	bool			isrightfilled_;
 	bool			isblock_;
-	int                 	logwidth_;
-	int                 	logidx_;
+	int	logwidth_;
+	int	logidx_;
 	Well::Side              side_;
-	Interval<float> 	range_;
-	Interval<float> 	valrange_;
-	bool 			sclog_; 
+	Interval<float>	range_;
+	Interval<float>	valrange_;
+	bool			sclog_;
 	bool			iscoltabflipped_;
 
-	int                 	filllogidx_;
-	const char*        	fillname_;
-	Interval<float>     	fillrange_;
-	Interval<float> 	valfillrange_;
-	const char* 		seqname_;
+	int	filllogidx_;
+	const char*	fillname_;
+	Interval<float>	fillrange_;
+	Interval<float>	valfillrange_;
+	const char*		seqname_;
 
-	int                 	repeat_;
-	float               	ovlap_;
-	Color               	seiscolor_;
+	int	repeat_;
+	float	ovlap_;
+	Color	seiscolor_;
 	LogStyle		style_;
     };
 
     const LineStyle&		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
-    void 			initializeData(const LogParams&,int);
-    float 			getValue(const TypeSet<Coord3Value>&,int,bool,
-	    				 const LinScaler&) const;
-    Coord3 			getPos(const TypeSet<Coord3Value>&,int) const;
+    void			initializeData(const LogParams&,int);
+    float			getValue(const TypeSet<Coord3Value>&,int,bool,
+					 const LinScaler&) const;
+    Coord3			getPos(const TypeSet<Coord3Value>&,int) const;
     void			setLogColor(const Color&,Side);
     const Color&		logColor(Side) const;
     const Color&		logFillColor(int) const;
@@ -169,14 +169,14 @@ public:
     void			showLog(bool,Side);
     bool			logsShown() const;
     void			showLogName(bool);
-    bool			logNameShown() const; 
+    bool			logNameShown() const;
     void			setLogStyle(int,Side);
     void			setLogFill(bool,Side);
     void			setLogBlock(bool,int);
     void			setOverlapp(float,Side);
     void			setRepeat( int,Side );
     void			removeLogs();
-    void 			setTrackProperties(Color&,int);
+    void			setTrackProperties(Color&,int);
     void			setLogFillColorTab(const LogParams&,Side);
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -191,7 +191,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar& par);
     int				markersize_;
-    
+
     static const char*		linestylestr();
     static const char*		showwelltopnmstr();
     static const char*		showwellbotnmstr();
@@ -219,7 +219,7 @@ protected:
     bool			showmarkers_;
     bool			showlogs_;
     float			constantlogsizefac_;
-    
+
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
     bool			displaytube_[2];
