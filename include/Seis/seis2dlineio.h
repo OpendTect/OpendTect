@@ -87,7 +87,8 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //! Translator mechanism is only used for selection etc.
 
 mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoD,SeisTrc) public:
+{			isTranslator(TwoD,SeisTrc) 
+public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
 
@@ -104,11 +105,11 @@ mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 
 
 mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoDData,SeisTrc) public:
-			TwoDDataSeisTrcTranslator( const char* s1, const char* s2 )
+{			isTranslator(TwoDData,SeisTrc) 
+public:
+			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}
 
-    const char*		defExtension() const		{ return "2ds"; }
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }

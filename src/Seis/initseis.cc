@@ -27,7 +27,7 @@ defineTranslatorGroup(SeisTrc,sKeySeisTrcTranslatorGroup);
 defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
-defineTranslator(TwoDData,SeisTrc,"2D Data");
+defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
 defineTranslator(SEGYDirect,SeisTrc,"SEGYDirect");
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 
