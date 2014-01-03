@@ -72,18 +72,13 @@ void TwoDDataConverter::fillIOParsFrom2DSFile( const ObjectSet<IOObj>&
 BufferString TwoDDataConverter::getAttrFolderPath( const IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc);
-    if ( !IOM().to(iocontext.getSelKey()) ) return false;
+    if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
     ctio.ctxt.deftransl.add( "TwoD DataSet" );
     ctio.ctxt.setName( iop.getValue( iop.indexOf( sKey::Attribute() ) ) );
     if ( ctio.fillObj() == 0 ) return 0;
-    IOObj* ioobj = ctio.ioobj;
-    BufferString ret;
-    if ( ioobj ) 
-	ret.add( ioobj->fullUserExpr() );
-    
-    delete ioobj;
-    return ret;
+    PtrMan<IOObj> ioobj = ctio.ioobj;
+    return BufferString( ioobj ? ioobj->fullUserExpr() : "" );
 }
 
 

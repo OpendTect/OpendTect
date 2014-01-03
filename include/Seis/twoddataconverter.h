@@ -14,9 +14,13 @@ ________________________________________________________________________
 
 
 #include "seismod.h"
+#include "bufstring.h"
+#include "objectset.h"
 
 class IOObj;
+class IOPar;
 class BufferStringSet;
+
 mExpClass(Seis) TwoDDataConverter
 {
 public:
