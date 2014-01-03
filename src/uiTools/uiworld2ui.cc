@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiworld2ui.h"
 
-#include "posgeom.h"
 #include "ranges.h"
 #include "axislayout.h"
 #include "survinfo.h"
@@ -28,6 +27,10 @@ World2UiData::World2UiData( uiSize s, const uiWorldRect& w )
 World2UiData::World2UiData( const uiWorldRect& w, uiSize s )
     : sz(s), wr(w)
 {}
+
+
+inline static Coord crd( const Geom::Point2D<double>& p )
+{ return Coord(p.x,p.y); }
 
 
 bool World2UiData::operator ==( const World2UiData& w2ud ) const
@@ -240,14 +243,14 @@ uiWorldPoint uiWorld2Ui::worldPerPixel() const
 void uiWorld2Ui::getWorldXRange( float& xmin, float& xmax ) const
 {
     xmax=(float) wrdrect_.right();  xmin=(float) wrdrect_.left();
-    if ( xmin > xmax ) Swap( xmax, xmin ); 
+    if ( xmin > xmax ) Swap( xmax, xmin );
 }
 
 
 void uiWorld2Ui::getWorldYRange( float& ymin, float& ymax ) const
 {
     ymax=(float) wrdrect_.top();  ymin=(float) wrdrect_.bottom();
-    if ( ymin > ymax ) Swap( ymax, ymin ); 
+    if ( ymin > ymax ) Swap( ymax, ymin );
 }
 
 
