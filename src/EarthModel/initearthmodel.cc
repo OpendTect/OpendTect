@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfaceposprov.h"
 #include "emsurfacetr.h"
+#include "horizongridder.h"
 #include "lmkemfaulttransl.h"
 #include "zdomain.h"
 
@@ -60,6 +61,10 @@ mDefModInitFn(EarthModel)
     Pos::EMSurfaceProvider3D::initClass();
     Pos::EMSurfaceProvider2D::initClass();
     Pos::EMImplicitBodyProvider::initClass();
+
+    InvDistHor3DGridder::initClass();
+    TriangulationHor3DGridder::initClass();
+    ExtensionHor3DGridder::initClass();
 
     ZDomain::Def::add( new ZDomain::Def("Time-Flattened","Time","ms",1000) );
     ZDomain::Def::add( new ZDomain::Def("Depth-Flattened","Depth","",1) );

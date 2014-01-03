@@ -17,9 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "survinfo.h"
 
+const char* HorizonGridder::sKeyMethod()	{ return "Method"; }
 const char* HorizonGridder::sKeyNrFaults()	{ return "Nr Faults"; }
 const char* HorizonGridder::sKeyFaultID()	{ return "Fault ID"; }
 
+
+mImplFactory( HorizonGridder, HorizonGridder::factory );
 
 HorizonGridder::HorizonGridder()
     : fltdataprov_(0)
@@ -33,10 +36,14 @@ void HorizonGridder::setFaultIds( const TypeSet<MultiID>& mids )
 { faultids_ = mids; }
 
 
-bool HorizonGridder::init( const HorSampling& hs, TaskRunner* tr )
+void HorizonGridder::setHorSampling( const HorSampling& hs )
+{
+    hs_ = hs;
+}
+
+bool HorizonGridder::init( TaskRunner* tr )
 {
     infomsg_ = "";
-    hs_ = hs;
     if ( !fltdataprov_ && !faultids_.isEmpty() )
 	fltdataprov_ = new FaultTrcDataProvider();
 
@@ -128,6 +135,12 @@ bool HorizonGridder::setFrom( float* data, od_int64 target,
 }
 
 
+bool HorizonGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+{
+    return true;
+}
+
+
 bool HorizonGridder::fillPar( IOPar& par ) const
 {
     par.set( sKeyNrFaults(), faultids_.size() );
@@ -158,28 +171,27 @@ bool HorizonGridder::usePar( const IOPar& par )
 }
 
 
-const char* InvDistHor3DGridder::sKeySearchRadius() { return "Search Radius"; }
-const char* InvDistHor3DGridder::sKeyCornersFirst() { return "Corners First"; }
-const char* InvDistHor3DGridder::sKeyStepSize()	{ return "Step Size"; }
-const char* InvDistHor3DGridder::sKeyNrSteps() { return "Nr Steps"; }
+void InvDistHor3DGridder::setHorSampling( const HorSampling& hs )
+{
+    HorizonGridder::setHorSampling( hs );
+    setRowStep( SI().inlDistance() * hs.step.inl() );
+    setColStep( SI().crlDistance() * hs.step.crl() );
+    setOrigin( hs.start );
+}
+
+
+bool InvDistHor3DGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+{
+    return setArray( arr, tr );
+}
+
 
 bool InvDistHor3DGridder::initFromArray( TaskRunner* tr )
 {
     if ( !InverseDistanceArray2DInterpol::initFromArray(tr) )
 	return false;
 
-    HorSampling hs( true );
-    if ( origin_.row() != -1 )
-    {
-	hs.start = origin_;
-	const int inlstep = mNINT32(rowstep_/SI().inlDistance());
-	const int crlstep = mNINT32(colstep_/SI().crlDistance());
-	hs.step = BinID( inlstep, crlstep );
-	hs.stop.inl() = origin_.row() + inlstep*(nrrows_-1);
-	hs.stop.crl() = origin_.col() + crlstep*(nrcols_-1);
-    }
-
-    return HorizonGridder::init( hs, tr );
+    return HorizonGridder::init( tr );
 }
 
 
@@ -204,52 +216,33 @@ bool InvDistHor3DGridder::fillPar( IOPar& par ) const
 
 bool InvDistHor3DGridder::usePar( const IOPar& par )
 {
-    if ( !InverseDistanceArray2DInterpol::usePar(par)
-	    || !HorizonGridder::usePar(par) )
-	return false;
-
-    float radius;
-    par.get( sKeySearchRadius(), radius );
-    setSearchRadius( radius );
-    if ( !mIsUdf(radius) )
-    {
-	bool cornersfirst;
-	int stepsz, nrsteps;
-	if ( par.getYN(sKeyCornersFirst(),cornersfirst) )
-	    setCornersFirst( cornersfirst );
-	if ( par.get(sKeyStepSize(),stepsz) )
-	    setStepSize( stepsz );
-	if ( par.get(sKeyNrSteps(),nrsteps) )
-	    setNrSteps( nrsteps );
-    }
-
-    return true;
+    return InverseDistanceArray2DInterpol::usePar(par)
+	&& HorizonGridder::usePar(par);
 }
 
 
-const char* TriangulationHor3DGridder::sKeyDoInterpolation()
-{ return "Do Interpolation"; }
+void TriangulationHor3DGridder::setHorSampling( const HorSampling& hs )
+{
+    HorizonGridder::setHorSampling( hs );
+    setRowStep( SI().inlDistance() * hs.step.inl() );
+    setColStep( SI().crlDistance() * hs.step.crl() );
+    setOrigin( hs.start );
+}
 
-const char* TriangulationHor3DGridder::sKeyMaxDistance()
-{ return "Max Distance"; }
+
+bool TriangulationHor3DGridder::setArray2D( Array2D<float>& arr,
+					    TaskRunner* tr )
+{
+    return setArray( arr, tr );
+}
+
 
 bool TriangulationHor3DGridder::initFromArray( TaskRunner* tr )
 {
     if ( !TriangulationArray2DInterpol::initFromArray(tr) )
 	return false;
 
-    HorSampling hs( true );
-    if ( origin_.row() != -1 )
-    {
-	hs.start = origin_;
-	const int inlstep = mNINT32(rowstep_/SI().inlDistance());
-	const int crlstep = mNINT32(colstep_/SI().crlDistance());
-	hs.step = BinID( inlstep, crlstep );
-	hs.stop.inl() = origin_.row() + inlstep*(nrrows_-1);
-	hs.stop.crl() = origin_.col() + crlstep*(nrcols_-1);
-    }
-
-    return HorizonGridder::init( hs, tr );
+    return HorizonGridder::init( tr );
 }
 
 
@@ -274,22 +267,25 @@ bool TriangulationHor3DGridder::fillPar( IOPar& par ) const
 
 bool TriangulationHor3DGridder::usePar( const IOPar& par )
 {
-    if ( !TriangulationArray2DInterpol::usePar(par)
-	    || !HorizonGridder::usePar(par) )
-	return false;
-
-    bool dointerpolation;
-    int maxdist;
-    if ( par.getYN(sKeyDoInterpolation(),dointerpolation) )
-	doInterpolation( dointerpolation );
-    if ( par.get(sKeyMaxDistance(),maxdist) )
-	setMaxDistance( mCast(float,maxdist) );
-
-    return true;
+    return TriangulationArray2DInterpol::usePar(par)
+	&& HorizonGridder::usePar(par);
 }
 
 
-const char* ExtensionHor3DGridder::sKeyNrSteps() { return "Nr Steps"; }
+void ExtensionHor3DGridder::setHorSampling( const HorSampling& hs )
+{
+    HorizonGridder::setHorSampling( hs );
+    setRowStep( SI().inlDistance() * hs.step.inl() );
+    setColStep( SI().crlDistance() * hs.step.crl() );
+    setOrigin( hs.start );
+}
+
+
+bool ExtensionHor3DGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+{
+    return setArray( arr, tr );
+}
+
 
 bool ExtensionHor3DGridder::fillPar( IOPar& par ) const
 {
@@ -300,13 +296,6 @@ bool ExtensionHor3DGridder::fillPar( IOPar& par ) const
 
 bool ExtensionHor3DGridder::usePar( const IOPar& par )
 {
-    if ( !ExtensionArray2DInterpol::usePar(par)
-	    || !HorizonGridder::usePar(par) )
-	return false;
-
-    int nrsteps;
-    if ( par.get(sKeyNrSteps(),nrsteps) )
-	setNrSteps( nrsteps );
-    
-    return true;
+    return ExtensionArray2DInterpol::usePar(par)
+	&& HorizonGridder::usePar(par);
 }

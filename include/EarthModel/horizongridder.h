@@ -28,11 +28,16 @@ class TaskRunner;
 mExpClass(EarthModel) HorizonGridder
 {
 public:
+    mDefineFactoryInClass(HorizonGridder,factory);
 
     const char*		infoMsg() const	{ return infomsg_.buf(); }
 
     void		setFaultIds(const TypeSet<MultiID>&);
 
+    virtual void	setHorSampling(const HorSampling&);
+    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+
+    static const char*	sKeyMethod();
     static const char*	sKeyNrFaults();
     static const char*	sKeyFaultID();
     
@@ -50,7 +55,7 @@ protected:
     HorSampling		hs_;
     TypeSet<MultiID>	faultids_;
 
-    bool		init(const HorSampling&,TaskRunner*);
+    bool		init(TaskRunner*);
     bool		blockSrcPoints(const float*,const od_int64*,int,
 	    			       ObjectSet< TypeSet<int> >&) const;
     bool		setFrom(float*,od_int64,const od_int64*,
@@ -63,17 +68,15 @@ mExpClass(EarthModel) InvDistHor3DGridder
 {
 public:
 
-			mDefaultFactoryInstantiation( Array2DInterpol,
+			mDefaultFactoryInstantiation( HorizonGridder,
 				InvDistHor3DGridder,
-				"InvDistWithFaults", sFactoryKeyword() )
+				"Inverse Distance", sFactoryKeyword() )
+
+    virtual void	setHorSampling(const HorSampling&);
+    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-
-    static const char*	sKeySearchRadius();
-    static const char*	sKeyCornersFirst();
-    static const char*	sKeyStepSize();
-    static const char*	sKeyNrSteps();
 
 protected:
 
@@ -88,15 +91,15 @@ mExpClass(EarthModel) TriangulationHor3DGridder
 {
 public:
 
-			mDefaultFactoryInstantiation( Array2DInterpol,
+			mDefaultFactoryInstantiation( HorizonGridder,
 				TriangulationHor3DGridder,
-				"TriangulationWithFaults", sFactoryKeyword() )
+				"Triangulation", sFactoryKeyword() )
+
+    virtual void	setHorSampling(const HorSampling&);
+    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-
-    static const char*	sKeyDoInterpolation();
-    static const char*	sKeyMaxDistance();
 
 protected:
 
@@ -111,14 +114,15 @@ mExpClass(EarthModel) ExtensionHor3DGridder
 {
 public:
 
-			mDefaultFactoryInstantiation( Array2DInterpol,
+			mDefaultFactoryInstantiation( HorizonGridder,
 				ExtensionHor3DGridder,
 				"Extension", sFactoryKeyword() )
 
+    virtual void	setHorSampling(const HorSampling&);
+    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-
-    static const char*	sKeyNrSteps();
 
 protected:
 

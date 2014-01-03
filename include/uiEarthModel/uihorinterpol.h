@@ -23,9 +23,9 @@ namespace EM { class Horizon; }
 class uiFaultParSel;
 class uiHorSaveFieldGrp;
 class uiArray1DInterpolSel;
-class uiArray2DInterpolSel;
 class uiIOObjSel;
 class uiHor3DInterpol;
+class uiHor3DInterpolSel;
 
 
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
@@ -44,11 +44,11 @@ protected:
 
     bool			acceptOK(CallBacker*);
 
-    bool			interpolate3D();
+    bool			interpolate3D(const IOPar&);
     bool			interpolate2D();
     bool			is2d_;
     uiIOObjSel*			inputhorsel_;
-    uiArray2DInterpolSel*	interpol2dsel_;
+    uiHor3DInterpolSel*		interpolhor3dsel_;
     uiArray1DInterpolSel*	interpol1dsel_;
     uiGenInput*			geometrysel_;
     uiHorSaveFieldGrp*          savefldgrp_;
@@ -63,6 +63,9 @@ public:
 				uiHor3DInterpolSel(uiParent*,
 						   bool musthandlefaults);
 				~uiHor3DInterpolSel() {}
+
+    BinID			getStep() const;
+    void			setStep(const BinID&);
 
     bool			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

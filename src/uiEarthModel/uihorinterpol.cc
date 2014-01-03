@@ -44,7 +44,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
-    , interpol2dsel_( 0 )
+    , interpolhor3dsel_( 0 )
     , interpol1dsel_( 0 )
     , savefldgrp_( 0 )
     , finished(this)
@@ -63,23 +63,14 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     if ( !is2d )
     {
-	const char* scopes[] = { "Full survey", "Bounding box",
-				     "Convex hull", "Only holes", 0 };
-	geometrysel_ = new uiGenInput( this, "Scope",
-				       StringListInpSpec(scopes) );
-	geometrysel_->setText( scopes[2] );
-
 	if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
-	interpol2dsel_ =
-	    new uiArray2DInterpolSel( this, false, true, false, 0, true);
-	interpol2dsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
-	interpol2dsel_->attach( alignedBelow, geometrysel_ );
+	interpolhor3dsel_ = new uiHor3DInterpolSel( this, false );
 	mDynamicCastGet(EM::Horizon3D*,hor3d,hor);
 	if ( hor3d )
 	{
 	    RowCol rc = hor3d->geometry().step();
 	    BinID step( rc.row(), rc.col() );
-	    interpol2dsel_->setStep( step );
+	    interpolhor3dsel_->setStep( step );
 	}
     }
     else
@@ -101,8 +92,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     }
     else
     {
-	sep->attach( stretchedBelow, interpol2dsel_ );
-	savefldgrp_->attach( alignedBelow, interpol2dsel_ );
+	sep->attach( stretchedBelow, interpolhor3dsel_ );
+	savefldgrp_->attach( alignedBelow, interpolhor3dsel_ );
     }
     savefldgrp_->attach( ensureBelow, sep );
 }
@@ -122,30 +113,18 @@ const char* uiHorizonInterpolDlg::helpID() const
 
 #define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
-bool uiHorizonInterpolDlg::interpolate3D()
+bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
-    PtrMan<Array2DInterpol> interpolator = interpol2dsel_->getResult();
+    FixedString method = par.find( HorizonGridder::sKeyMethod() );
+    if ( method.isNull() )
+	mErrRet("Huh? No methods found in the paramaters")
+
+    HorizonGridder* interpolator = HorizonGridder::factory().create( method );
     if ( !interpolator )
-	return false;
+	mErrRet("Selected method not found")
 
-    Array2DInterpol::FillType filltype;
-    switch ( geometrysel_->getIntValue() )
-    {
-	case 0:
-	    filltype = Array2DInterpol::Full;
-	    savefldgrp_->setFullSurveyArray( true );
-	    break;
-	case 1:
-	    filltype = Array2DInterpol::Full;
-	    break;
-	case 2:
-	    filltype = Array2DInterpol::ConvexHull;
-	    break;
-	default:
-	    filltype = Array2DInterpol::HolesOnly;
-    }
-
-    interpolator->setFillType( filltype );
+    if ( !interpolator->usePar(par) )
+	mErrRet( "Incomplete parameters" )
 
     if ( !savefldgrp_->acceptOK(0) ) 
 	return false;
@@ -168,18 +147,15 @@ bool uiHorizonInterpolDlg::interpolate3D()
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 
-	BinID steps = interpol2dsel_->getStep();
+	BinID steps = interpolhor3dsel_->getStep();
 	StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
 	rowrg.step = steps.inl();
 	StepInterval<int> colrg = hor3d->geometry().colRange();
 	colrg.step = steps.crl();
 	
-	interpolator->setRowStep( SI().inlDistance()*steps.inl() );
-	interpolator->setColStep( SI().crlDistance()*steps.crl() );
-	
 	HorSampling hs( false );
 	hs.set( rowrg, colrg );
-	interpolator->setOrigin( hs.start );
+	interpolator->setHorSampling( hs );
 
 	Array2DImpl<float>* arr =
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
@@ -210,14 +186,15 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    }
 	}
 
-	if ( !interpolator->setArray(*arr,&tr) )
+	if ( !interpolator->setArray2D(*arr,&tr) )
 	{
 	    BufferString msg( "Cannot setup interpolation on section " );
 	    msg += sid;
 	    ErrMsg( msg ); continue;
 	}
 
-	if ( !TaskRunner::execute( &tr, *interpolator ) )
+	mDynamicCastGet(Task*,task,interpolator);
+	if ( !TaskRunner::execute(&tr,*task) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -284,8 +261,9 @@ bool uiHorizonInterpolDlg::interpolate2D()
 
 bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 {
+    IOPar par;
     const bool isok = is2d_ ? interpol1dsel_->acceptOK()
-			    : interpol2dsel_->acceptOK();
+			    : interpolhor3dsel_->fillPar( par );
     if ( !isok )
 	return false;
 
@@ -310,7 +288,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     
     if ( !is2d_ )
     {
-	if ( !interpolate3D() )
+	if ( !interpolate3D(par) )
 	    return false;
     }
     else
@@ -348,7 +326,8 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
     stepfld_->attach( alignedBelow, filltypefld_ );
 
-    maxholeszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    BufferString titletext( "Keep holes larger than ", SI().getXYUnitString() );
+    maxholeszfld_ = new uiGenInput( this, titletext.buf(), FloatInpSpec() );
     maxholeszfld_->setWithCheck( true );
     maxholeszfld_->attach( alignedBelow, stepfld_ );
 
@@ -383,13 +362,46 @@ void uiHor3DInterpolSel::methodSelCB( CallBacker* )
 }
 
 
-bool uiHor3DInterpolSel::fillPar( IOPar& iopar ) const
+BinID uiHor3DInterpolSel::getStep() const
 {
-    return true;
+    return stepfld_->getBinID();
 }
 
 
-bool uiHor3DInterpolSel::usePar( const IOPar& iopar )
+void uiHor3DInterpolSel::setStep( const BinID& steps )
+{
+    stepfld_->setValue( steps );
+}
+
+
+bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
+{
+    Array2DInterpol::FillType filltype;
+    const int selfilltype = filltypefld_->getIntValue();
+    if ( selfilltype == 0 || selfilltype == 1 )
+	filltype = Array2DInterpol::Full;
+    else if ( selfilltype == 2 )
+	filltype = Array2DInterpol::ConvexHull;
+    else
+	filltype = Array2DInterpol::HolesOnly;
+
+    par.set( Array2DInterpol::sKeyFillType(), filltype );
+    if ( maxholeszfld_->isChecked() )
+	par.set( Array2DInterpol::sKeyMaxHoleSz(),
+		 maxholeszfld_->getIntValue() );
+
+    const BinID step = stepfld_->getBinID();
+    par.set( Array2DInterpol::sKeyRowStep(), step.inl() );
+    par.set( Array2DInterpol::sKeyColStep(), step.crl() );
+
+    const int methodidx = methodsel_->getIntValue( 0 );
+    const uiHor3DInterpol* methodgrp = methodgrps_[methodidx];
+    par.set( HorizonGridder::sKeyMethod(), methodsel_->text() );
+    return methodgrp->fillPar( par );
+}
+
+
+bool uiHor3DInterpolSel::usePar( const IOPar& par )
 {
     return true;
 }
@@ -416,10 +428,14 @@ uiHor3DInterpol* uiInvDistHor3DInterpol::create( uiParent* p )
 
 uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     : uiHor3DInterpol(p)
+    , nrsteps_(mUdf(int))
+    , cornersfirst_(false)
+    , stepsz_(1)
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    radiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
+    BufferString titletext( "Search radius ", SI().getXYUnitString() );
+    radiusfld_ = new  uiGenInput( this, titletext.buf(), FloatInpSpec() );
     radiusfld_->setWithCheck( true );
     radiusfld_->setChecked( true );
     radiusfld_->checked.notify( mCB(this,uiInvDistHor3DInterpol,useRadiusCB) );
@@ -471,12 +487,12 @@ bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
 		 selfaultids[idx] );
 
-    par.set( InvDistHor3DGridder::sKeySearchRadius(), radius );
+    par.set( InverseDistanceArray2DInterpol::sKeySearchRadius(), radius );
     if ( hasradius )
     {
-	par.set( InvDistHor3DGridder::sKeySearchRadius(), radius );
-	par.set( InvDistHor3DGridder::sKeyStepSize(), stepsz_ );
-	par.set( InvDistHor3DGridder::sKeyNrSteps(), nrsteps_ );
+	par.set( InverseDistanceArray2DInterpol::sKeySearchRadius(), radius );
+	par.set( InverseDistanceArray2DInterpol::sKeyStepSize(), stepsz_ );
+	par.set( InverseDistanceArray2DInterpol::sKeyNrSteps(), nrsteps_ );
     }
 
     return true;
@@ -542,10 +558,10 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
 		 selfaultids[idx] );
 
-    par.set( TriangulationHor3DGridder::sKeyDoInterpolation(),
+    par.set( TriangulationArray2DInterpol::sKeyDoInterpol(),
 	     !useneighborfld_->isChecked() );
     if ( usemax )
-	par.set( TriangulationHor3DGridder::sKeyMaxDistance(), maxdist );
+	par.set( TriangulationArray2DInterpol::sKeyMaxDistance(), maxdist );
 
     return true;
 }
@@ -584,7 +600,8 @@ bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
 	return false;
     }
 
-    par.set( ExtensionHor3DGridder::sKeyNrSteps(), nrstepsfld_->getIntValue() );
+    par.set( ExtensionArray2DInterpol::sKeyNrSteps(),
+	     nrstepsfld_->getIntValue() );
     return true;
 }
 

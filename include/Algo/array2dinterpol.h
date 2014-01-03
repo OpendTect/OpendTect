@@ -86,6 +86,15 @@ public:
 
     const char*	message() const { return "Gridding"; }
 
+    static const char*		sKeyFillType();
+    static const char*		sKeyRowStep();
+    static const char*		sKeyColStep();
+    static const char*		sKeyOrigin();
+    static const char*		sKeyNrRows();
+    static const char*		sKeyNrCols();
+    static const char*		sKeyNrCells();
+    static const char*		sKeyMaxHoleSz();
+
 protected:
 		Array2DInterpol();
     bool	doPrepare(int);

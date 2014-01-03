@@ -78,6 +78,11 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
+    static const char*	sKeySearchRadius();
+    static const char*	sKeyCornersFirst();
+    static const char*	sKeyStepSize();
+    static const char*	sKeyNrSteps();
+
 protected:
     virtual bool	doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
@@ -151,6 +156,9 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
+    static const char*	sKeyDoInterpol();
+    static const char*	sKeyMaxDistance();
+
 protected:
     int		minThreadSize() const		{ return 10000; }
     bool	doWork(od_int64,od_int64,int);
@@ -180,7 +188,7 @@ protected:
 
 
 /*!
-\brief Array 2D interpolator that works by extending the data into the udf areas.
+\brief Array 2D interpolator that works by extending the data into udf areas.
 */
 
 mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
@@ -199,6 +207,8 @@ public:
 
     bool	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
+
+    static const char*	sKeyNrSteps();
 
 protected:
 

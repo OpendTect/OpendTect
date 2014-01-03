@@ -21,20 +21,33 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mPolygonType int
  
-static const char* sKeyFillType()		{ return "Fill Type"; }
-static const char* sKeyRowStep() 		{ return "Row Step"; }
-static const char* sKeyColStep() 		{ return "Col Step"; }
-static const char* sKeyOrigin() 		{ return "Origin"; }
-static const char* sKeyNrRows() 		{ return "Nr of Rows"; }
-static const char* sKeyNrCols() 		{ return "Nr of Cols"; }
-static const char* sKeyNrCells() 		{ return "Nr of Cells"; }
-static const char* sKeyMaxHoleSz() 		{ return "Max Hole Size"; }
-static const char* sKeySearchRadius() 		{ return "Search Radius"; }
-static const char* sKeyStepSize() 		{ return "Step Size"; }
-static const char* sKeyNrSteps() 		{ return "Nr of Steps"; }
-static const char* sKeyCornersFirst() 		{ return "Corners First"; }
-static const char* sKeyDoInterpol() 		{ return "Do Interpolation"; }
-static const char* sKeyMaxDistance() 		{ return "Maximum Distance"; }
+const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
+const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
+const char* Array2DInterpol::sKeyColStep()	{ return "Col Step"; }
+const char* Array2DInterpol::sKeyOrigin()	{ return "Origin"; }
+const char* Array2DInterpol::sKeyNrRows()	{ return "Nr of Rows"; }
+const char* Array2DInterpol::sKeyNrCols()	{ return "Nr of Cols"; }
+const char* Array2DInterpol::sKeyNrCells()	{ return "Nr of Cells"; }
+const char* Array2DInterpol::sKeyMaxHoleSz()	{ return "Max Hole Size"; }
+
+const char* InverseDistanceArray2DInterpol::sKeySearchRadius()
+{ return "Search Radius"; }
+const char* InverseDistanceArray2DInterpol::sKeyCornersFirst()
+{ return "Corners First"; }
+const char* InverseDistanceArray2DInterpol::sKeyStepSize()
+{ return "Step Size"; }
+const char* InverseDistanceArray2DInterpol::sKeyNrSteps()
+{ return "Nr of Steps"; }
+
+const char* TriangulationArray2DInterpol::sKeyDoInterpol()
+{ return "Do Interpolation"; }
+const char* TriangulationArray2DInterpol::sKeyMaxDistance()
+{ return "Maximum Distance"; }
+
+const char* ExtensionArray2DInterpol::sKeyNrSteps()
+{ return "Nr of Steps"; }
+
+
 
 DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
@@ -1527,7 +1540,7 @@ void Extension2DInterpolExecutor::createStateArr()
 	{
 	    const float val = aie_.arr_->get( irow, icol );
 	    const bool isudf = mIsUdf(val);
-	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;        
+	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;
 	}
     }   
 }
@@ -1820,7 +1833,7 @@ int Extension2DInterpolExecutor::nextStep()
 		{
 		    for ( int icol=0; icol<aie_.nrcols_; icol++ )
 		    {
-			if ( state_[irow][icol] == cA2DStateMarkedForKeepUdf )                               
+			if ( state_[irow][icol] == cA2DStateMarkedForKeepUdf )
 			    floodFill4KeepUdf( irow, icol );
 		    }
 		}
