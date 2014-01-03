@@ -408,17 +408,22 @@ bool saveCopy( const char* from, const char* to )
 }
 
 
-bool copy( const char* from, const char* to )
+bool copy( const char* from, const char* to, BufferString* errmsg )
 {
 #ifndef OD_NO_QT
 
     if ( isDirectory(from) || isDirectory(to)  )
-	return copyDir( from, to );
+	return copyDir( from, to, errmsg );
 
     if ( exists(to) && !isDirectory(to) )
 	File::remove( to );
 
-    return QFile::copy( from, to );
+    QFile qfile( from );
+    bool ret = qfile.copy( to );
+    if ( !ret && errmsg )
+	errmsg->add( qfile.errorString() );
+
+    return ret;
 
 #else
     pFreeFnErrMsg(not_implemented_str,"copy");
@@ -427,7 +432,7 @@ bool copy( const char* from, const char* to )
 }
 
 
-bool copyDir( const char* from, const char* to )
+bool copyDir( const char* from, const char* to, BufferString* errmsg )
 {
     if ( !from || !exists(from) || !to || !*to || exists(to) )
 	return false;
@@ -435,6 +440,8 @@ bool copyDir( const char* from, const char* to )
 #ifndef OD_NO_QT
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
+    if ( !res && errmsg )
+	errmsg->add( copier->message() );
 #else
 
     BufferString cmd;

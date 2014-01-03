@@ -54,12 +54,14 @@ namespace File
 
     mGlobal(Basic) bool		createDir(const char*); 
     mGlobal(Basic) bool		rename(const char* oldname,const char* newname);
-    mGlobal(Basic) bool		copy(const char* from,const char* to);
+    mGlobal(Basic) bool		copy(const char* from,const char* to,
+				     BufferString* errmsg=0);
     mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 	    					   const char* to);
     mGlobal(Basic) bool		remove(const char*);
     mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
-    mGlobal(Basic) bool		copyDir(const char* from,const char* to);
+    mGlobal(Basic) bool		copyDir(const char* from,const char* to,
+					BufferString* errmsg=0);
     mGlobal(Basic) bool		removeDir(const char*);
     mGlobal(Basic) bool		changeDir(const char* path);
 
