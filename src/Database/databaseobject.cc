@@ -108,7 +108,7 @@ bool DateDatabaseColumn::parse( const Query& query, int column,
     if ( datestr.size()!=3 )
 	return false;
 
-    int year, month, day;
+    int year=0, month=0, day=0;
     if ( !getFromString( year, datestr[0], mUdf(int) )  ||
 	 !getFromString( month, datestr[1], mUdf(int) ) ||
 	 !getFromString( day, datestr[2], mUdf(int) ) )

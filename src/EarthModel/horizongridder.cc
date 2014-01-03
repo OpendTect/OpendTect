@@ -283,7 +283,7 @@ bool TriangulationHor3DGridder::usePar( const IOPar& par )
     if ( par.getYN(sKeyDoInterpolation(),dointerpolation) )
 	doInterpolation( dointerpolation );
     if ( par.get(sKeyMaxDistance(),maxdist) )
-	setMaxDistance( maxdist );
+	setMaxDistance( mCast(float,maxdist) );
 
     return true;
 }

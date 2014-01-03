@@ -996,7 +996,7 @@ bool Scene::usePar( const IOPar& par )
     }
     else
     {
-	CubeSampling cs; float zscale;
+	CubeSampling cs; float zscale=0.0f;
 	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
 	{
 	    setCubeSampling( cs );

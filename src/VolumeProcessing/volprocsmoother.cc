@@ -106,7 +106,7 @@ bool Smoother::usePar( const IOPar& pars )
 	return false;
 
     BufferString opname;
-    float winparam, inlstepout, crlstepout, zstepout;
+    float winparam=0.0f, inlstepout=0.0f, crlstepout=0.0f, zstepout=0.0f;
 
     if ( !pars.get( smoother_->sKeyWinFunc(), opname ) ||
 	 !pars.get( smoother_->sKeyWinParam(), winparam ) ||

@@ -372,7 +372,7 @@ bool LateralSmoother::usePar( const IOPar& pars )
     if ( !Step::usePar( pars ) )
 	return false;
 
-    bool ismedian, isweighted;
+    bool ismedian, isweighted=true;
     if ( !pars.getYN( sKeyIsMedian(), ismedian ) ||
 	 !pars.get( sKey::StepOutInl(), pars_.stepout_.row() ) ||
 	 !pars.get( sKey::StepOutCrl(), pars_.stepout_.col() ) ||

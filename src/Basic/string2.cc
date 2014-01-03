@@ -222,7 +222,7 @@ static const char* getStringFromFPNumber( T inpval )
 	mSetStrTo0(str,return str)
 
     const bool isneg = inpval < 0;
-    const float val = isneg ? -inpval : inpval;
+    const float val = mCast( float, isneg ? -inpval : inpval );
     if ( mIsUdf(val) )
 	return sKey::FloatUdf();
 
