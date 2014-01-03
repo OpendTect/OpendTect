@@ -681,8 +681,6 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( istb ) return;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    const bool islocked = visserv->isLocked( displayID() );
     mDynamicCastGet( visSurvey::FaultDisplay*, fd,
 	    visserv->getObject(displayID()) );
 
@@ -694,6 +692,8 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     //TODO: enable menus when they are ready
 #ifdef __debug__
+    const bool islocked = visserv->isLocked( displayID() );
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    !islocked && nrsurfdata>0, false );
 
