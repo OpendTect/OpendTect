@@ -134,7 +134,7 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
     if ( !argv_.validIdx( validx ) || isKey(validx) )
 	return false;
 
-    val.set( argv_[validx] );
+    val.set( argv_[validx]->buf() );
     return true;
 }
 
