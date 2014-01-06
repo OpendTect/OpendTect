@@ -438,10 +438,10 @@ const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
 
 void uiSeisSel::fillDefault()
 {
-    workctio_.destroyAll();
-    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
-        return;
+    if ( !setup_.filldef_ || workctio_.ioobj || !workctio_.ctxt.forread )
+	return;
 
+    workctio_.destroyAll();
     if ( Seis::isPS(seissetup_.geom_) )
 	workctio_.fillDefault();
     else

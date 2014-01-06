@@ -352,10 +352,10 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 
 void uiSteerCubeSel::fillDefault()
 {
-    workctio_.destroyAll();
-    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
+    if ( !setup_.filldef_ || workctio_.ioobj || !workctio_.ctxt.forread )
 	return;
 
+    workctio_.destroyAll();
     if ( Seis::isPS(seissetup_.geom_) )
 	workctio_.fillDefault();
     else
