@@ -44,9 +44,6 @@ public:
     virtual bool		getBoundingBox(Coord3& min,Coord3& max) const;
     virtual void		setSceneEventCatcher( EventCatcher* )	{}
 
-    void			setPickable(bool);
-    bool			isPickable() const;
-
     void			setSelectable(bool yn)	{ isselectable=yn; }
     bool			selectable() const 	{ return isselectable; }
     NotifierAccess*		selection() 		{ return &selnotifier; }

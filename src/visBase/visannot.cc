@@ -51,7 +51,7 @@ Annotation::Annotation()
 
     annotcolor_ = Color::White();
 
-    setPickable( false );
+    setPickable( false, false );
 
 	osg::Vec3f ptr[8];
 	

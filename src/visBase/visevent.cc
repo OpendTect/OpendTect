@@ -38,6 +38,8 @@ EventInfo::EventInfo()
     : worldpickedpos( Coord3::udf() )
     , localpickedpos( Coord3::udf() )
     , displaypickedpos( Coord3::udf() )
+    , pickdepth( mUdf(double) )
+    , mousepos( Coord::udf() )
     , buttonstate_( OD::NoButton )
     , tabletinfo( 0 )
     , type( Any )
@@ -73,6 +75,7 @@ EventInfo& EventInfo::operator=( const EventInfo& eventinfo )
     displaypickedpos = eventinfo.displaypickedpos;
     localpickedpos = eventinfo.localpickedpos;
     worldpickedpos = eventinfo.worldpickedpos;
+    pickdepth = eventinfo.pickdepth;
     key = eventinfo.key;
     mousepos = eventinfo.mousepos;
 
@@ -119,12 +122,131 @@ public:
     void	initKeyMap();
 
 protected:
+    void	traverse(EventInfo&,unsigned int mask,osgViewer::View*) const;
+
     EventCatcher&				eventcatcher_;
     bool					ishandled_;
 
     typedef std::map<int,OD::KeyboardKey>	KeyMap;
     KeyMap					keymap_;
 };
+
+
+void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
+				  osgViewer::View* view ) const
+{
+    if ( !view || !eventinfo.mousepos.isDefined() )
+	return;
+
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
+	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
+				eventinfo.mousepos.x, eventinfo.mousepos.y );
+
+    const float frustrumPixelRadius = 1.0f;
+    osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
+	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
+				    eventinfo.mousepos.x-frustrumPixelRadius,
+				    eventinfo.mousepos.y-frustrumPixelRadius,
+				    eventinfo.mousepos.x+frustrumPixelRadius,
+				    eventinfo.mousepos.y+frustrumPixelRadius );
+
+    polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
+				       osgUtil::PolytopeIntersector::DimOne );
+
+    const osg::Camera* camera = view->getCamera();
+    const osg::Matrix MVPW = camera->getViewMatrix() *
+			     camera->getProjectionMatrix() *
+			     camera->getViewport()->computeWindowMatrix();
+
+    osg::Matrix invMVPW; invMVPW.invert( MVPW );
+
+    const osg::Vec3 startpos = lineintersector->getStart() * invMVPW;
+    const osg::Vec3 stoppos = lineintersector->getEnd() * invMVPW;
+    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
+    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
+    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
+
+    osgUtil::IntersectionVisitor iv( lineintersector.get() );
+    iv.setTraversalMask( mask );
+    view->getCamera()->accept( iv );
+    bool linehit = lineintersector->containsIntersections();
+    const osgUtil::LineSegmentIntersector::Intersection linepick =
+				    lineintersector->getFirstIntersection();
+
+    iv.setIntersector( polyintersector.get() );
+    view->getCamera()->accept( iv );
+    bool polyhit = polyintersector->containsIntersections();
+    const osgUtil::PolytopeIntersector::Intersection polypick =
+				    polyintersector->getFirstIntersection();
+
+    if ( linehit && polyhit )
+    {
+	BufferString bs;
+	const osg::Plane triangleplane( linepick.getWorldIntersectNormal(),
+					linepick.getWorldIntersectPoint() );
+
+	const int sense = triangleplane.distance(startpos)<0.0 ? -1 : 1;
+
+	linehit = false;
+	const double epscoincide = 1e-6 * (stoppos-startpos).length();
+	bool partlybehindplane = false;
+
+	// Prefer lines/points over triangles if they fully coincide
+	for ( int idx=polypick.numIntersectionPoints-1; idx>=0; idx-- )
+	{
+	    osg::Vec3 polypos = polypick.intersectionPoints[idx];
+	    if ( polypick.matrix.valid() )
+		polypos = polypos * (*polypick.matrix);
+
+	    const double dist = sense * triangleplane.distance(polypos);
+
+	    if ( dist >= epscoincide )	// partly in front of plane
+		break;
+
+	    if ( dist <= -epscoincide )
+		partlybehindplane = true;
+
+	    if ( !idx && partlybehindplane )
+	    {
+		linehit = true;
+		polyhit = false;
+	    }
+	}
+    }
+
+    if ( linehit || polyhit )
+    {
+	const osg::NodePath& nodepath = linehit ? linepick.nodePath
+						: polypick.nodePath;
+
+	osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
+	for ( ; it!=nodepath.rend(); it++ )
+	{
+	    const int objid = DataObject::getID( *it );
+	    if ( objid>=0 )
+		eventinfo.pickedobjids += objid;
+	}
+
+	osg::Vec3 pickpos = linehit ? linepick.localIntersectionPoint
+				    : polypick.localIntersectionPoint;
+
+	eventinfo.localpickedpos = Conv::to<Coord3>( pickpos );
+
+	const osg::ref_ptr<osg::RefMatrix> mat = linehit ? linepick.matrix
+							 : polypick.matrix;
+	if ( mat.valid() )
+	    pickpos = pickpos * (*mat);
+
+	eventinfo.displaypickedpos = Conv::to<Coord3>( pickpos );
+	eventinfo.pickdepth =
+		eventinfo.mouseline.closestPoint( eventinfo.displaypickedpos );
+
+	Coord3& pos( eventinfo.worldpickedpos );
+	pos = eventinfo.displaypickedpos;
+	for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
+	    eventcatcher_.utm2display_[idx]->transformBack( pos );
+    }
+}
 
 
 bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
@@ -134,6 +256,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	return false;
 
     EventInfo eventinfo;
+    bool isactivepickevent = true;
 
     if ( ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN )
     {
@@ -154,6 +277,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     {
 	eventinfo.type = MouseMovement;
 	eventinfo.dragging = false;
+	isactivepickevent = false;
     }
     else if ( ea.getEventType() == osgGA::GUIEventAdapter::PUSH )
     {
@@ -203,113 +327,31 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     eventinfo.mousepos.x = ea.getX();
     eventinfo.mousepos.y = ea.getY(); 
 
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
-	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-					     ea.getX(), ea.getY() );
-
-    const float frustrumPixelRadius = 1.0f;
-    osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
-	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
-	    ea.getX()-frustrumPixelRadius, ea.getY()-frustrumPixelRadius,
-	    ea.getX()+frustrumPixelRadius, ea.getY()+frustrumPixelRadius );
-
-    polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
-	    			       osgUtil::PolytopeIntersector::DimOne );
-
     mDynamicCastGet( osgViewer::View*, view, &aa );
 
-    if ( view )
+    EventInfo passiveinfo( eventinfo );
+    EventInfo activeinfo( eventinfo );
+
+    traverse( passiveinfo, cPassiveIntersecTraversalMask(), view );
+    traverse( activeinfo, cActiveIntersecTraversalMask(), view );
+
+    const EventInfo* foremostinfoptr = &eventinfo;
+
+    if ( !isactivepickevent && !mIsUdf(passiveinfo.pickdepth) )
     {
-	const osg::Camera* camera = view->getCamera();
-	const osg::Matrix MVPW = camera->getViewMatrix() *
-				 camera->getProjectionMatrix() *
-				 camera->getViewport()->computeWindowMatrix();
-
-	osg::Matrix invMVPW; invMVPW.invert( MVPW );
-
-	const osg::Vec3 startpos = lineintersector->getStart() * invMVPW;
-	const osg::Vec3 stoppos = lineintersector->getEnd() * invMVPW;
-	const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
-	const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
-	eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
-
-	osgUtil::IntersectionVisitor iv( lineintersector.get() );
-	iv.setTraversalMask( cIntersectionTraversalMask() );
-	view->getCamera()->accept( iv );
-	bool linehit = lineintersector->containsIntersections();
-	const osgUtil::LineSegmentIntersector::Intersection linepick =
-				    lineintersector->getFirstIntersection();
-
-	iv.setIntersector( polyintersector.get() );
-	view->getCamera()->accept( iv );
-	bool polyhit = polyintersector->containsIntersections();
-	const osgUtil::PolytopeIntersector::Intersection polypick =
-				    polyintersector->getFirstIntersection();
-
-	if ( linehit && polyhit )
+	if ( mIsUdf(activeinfo.pickdepth) ||
+	     passiveinfo.pickdepth <= activeinfo.pickdepth )
 	{
-	    BufferString bs;
-	    const osg::Plane triangleplane( linepick.getWorldIntersectNormal(),
-					    linepick.getWorldIntersectPoint() );
-
-	    const int sense = triangleplane.distance(startpos)<0.0 ? -1 : 1;
-
-	    linehit = false;
-	    const double epscoincide = 1e-6 * (stoppos-startpos).length();
-	    bool partlybehindplane = false;
-
-	    // Prefer lines/points over triangles if they fully coincide
-	    for ( int idx=polypick.numIntersectionPoints-1; idx>=0; idx-- )
-	    {
-		osg::Vec3 polypos = polypick.intersectionPoints[idx];
-		if ( polypick.matrix.valid() )
-		    polypos = polypos * (*polypick.matrix);
-
-		const double dist = sense * triangleplane.distance(polypos);
-
-		if ( dist >= epscoincide )	// partly in front of plane
-		    break;
-
-		if ( dist <= -epscoincide )
-		    partlybehindplane = true;
-
-		if ( !idx && partlybehindplane )
-		{
-		    linehit = true;
-		    polyhit = false;
-		}
-	    }
+	    foremostinfoptr = &passiveinfo;
 	}
+    }
 
-	if ( linehit || polyhit )
+    if ( isactivepickevent && !mIsUdf(activeinfo.pickdepth) )
+    {
+	if ( mIsUdf(passiveinfo.pickdepth) ||
+	     activeinfo.pickdepth <= passiveinfo.pickdepth )
 	{
-	    const osg::NodePath& nodepath = linehit ? linepick.nodePath
-						    : polypick.nodePath;
-
-	    osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
-	    for ( ; it!=nodepath.rend(); it++ )
-	    {
-		const int objid = DataObject::getID( *it );
-		if ( objid>=0 )
-		    eventinfo.pickedobjids += objid;
-	    }
-
-	    osg::Vec3 pickpos = linehit ? linepick.localIntersectionPoint
-					: polypick.localIntersectionPoint;
-
-	    eventinfo.localpickedpos = Conv::to<Coord3>( pickpos );
-
-	    const osg::ref_ptr<osg::RefMatrix> mat = linehit ? linepick.matrix
-							     : polypick.matrix;
-	    if ( mat.valid() )
-		pickpos = pickpos * (*mat);
-
-	    eventinfo.displaypickedpos = Conv::to<Coord3>( pickpos );
-
-	    Coord3& pos( eventinfo.worldpickedpos );
-	    pos = eventinfo.displaypickedpos;
-	    for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
-		eventcatcher_.utm2display_[idx]->transformBack( pos );
+	    foremostinfoptr = &activeinfo;
 	}
     }
 
@@ -318,11 +360,11 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     if ( eventcatcher_.eventType()==Any ||
 	 eventcatcher_.eventType()==eventinfo.type )
     {
-	eventcatcher_.eventhappened.trigger( eventinfo, &eventcatcher_ );
+	eventcatcher_.eventhappened.trigger( *foremostinfoptr, &eventcatcher_ );
     }
 
     if ( !ishandled_ )
-	eventcatcher_.nothandled.trigger( eventinfo, &eventcatcher_ );
+	eventcatcher_.nothandled.trigger( *foremostinfoptr, &eventcatcher_ );
 
     const bool res = ishandled_;
     ishandled_ = true;

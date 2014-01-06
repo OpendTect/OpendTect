@@ -35,18 +35,7 @@ VisualObject::VisualObject( bool issel )
 
 
 VisualObject::~VisualObject()
-{
-
-}
-
-
-void VisualObject::setPickable( bool yn )
-{ enableTraversal( visBase::cIntersectionTraversalMask(), yn ); }
-
-
-bool VisualObject::isPickable() const
-{ return isTraversalEnabled( visBase::cIntersectionTraversalMask() ); }
-
+{}
 
 
 VisualObjectImpl::VisualObjectImpl( bool issel )

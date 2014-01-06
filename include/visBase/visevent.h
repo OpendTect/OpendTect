@@ -56,8 +56,10 @@ public:
 
     Line3			mouseline;
     				/*!< The line projected from the mouse-position
-				     into the scene. Line is in worldcoords.
+				     into the scene. Line is in display coords.
 				*/
+    double			pickdepth;
+				//!< Mouseline parameter value of picked pos
 
     bool			pressed;
 				/*!< Only set if type == MouseClick or Keyboard

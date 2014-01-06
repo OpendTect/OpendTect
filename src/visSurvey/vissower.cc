@@ -309,9 +309,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	Scene* scene = STM().currentScene();
 	if ( scene && transformation_ && eventinfo.displaypickedpos.isDefined())
 	{
-	    const double t = eventinfo.mouseline.closestPoint(
-						eventinfo.displaypickedpos );
-	    furrowpos = eventinfo.mouseline.getPoint( t-0.01 );
+	    furrowpos = eventinfo.mouseline.getPoint(eventinfo.pickdepth-0.01);
 	    scene->getTempZStretchTransform()->transformBack( furrowpos );
 	    transformation_->transformBack( furrowpos );
 	}

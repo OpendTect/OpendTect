@@ -203,15 +203,17 @@ bool DataObject::isOn() const
 }
 
 
-void DataObject::setPickable( bool yn )
+void DataObject::setPickable( bool actively, bool passively )
 {
-    enableTraversal( cEventTraversalMask(), yn );
+    enableTraversal( cActiveIntersecTraversalMask(), actively );
+    enableTraversal( cPassiveIntersecTraversalMask(), passively );
 }
 
 
-bool DataObject::isPickable() const
+bool DataObject::isPickable( bool actively ) const
 {
-    return isTraversalEnabled( cEventTraversalMask() );
+    return actively ? isTraversalEnabled( cActiveIntersecTraversalMask() )
+		    : isTraversalEnabled( cPassiveIntersecTraversalMask() );
 }
 
 

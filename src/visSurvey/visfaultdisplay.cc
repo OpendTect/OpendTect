@@ -89,7 +89,7 @@ FaultDisplay::FaultDisplay()
     , drawstyle_( new visBase::DrawStyle )
 {
     activestickmarker_->ref();
-    activestickmarker_->setPickable( false );
+    activestickmarker_->setPickable( false, false );
 
     if ( !activestickmarker_->getMaterial() )
 	activestickmarker_->setMaterial( new visBase::Material );

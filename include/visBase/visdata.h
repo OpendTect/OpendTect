@@ -46,8 +46,12 @@ class NodeState;
 inline unsigned int cNoTraversalMask()			{ return 0; }
 inline unsigned int cAllTraversalMask()			{ return 0xFFFFFFFF; }
 inline unsigned int cEventTraversalMask() 		{ return 0x00000001; }
-inline unsigned int cIntersectionTraversalMask()	{ return 0x00000002; }
-inline unsigned int cBBoxTraversalMask()		{ return 0x00000004; }
+inline unsigned int cBBoxTraversalMask()		{ return 0x00000002; }
+
+inline unsigned int cActiveIntersecTraversalMask()	{ return 0x00000004; }
+inline unsigned int cPassiveIntersecTraversalMask()	{ return 0x00000008; }
+inline unsigned int cIntersectionTraversalMask()
+{ return cActiveIntersecTraversalMask() | cPassiveIntersecTraversalMask(); }
 
 
 /*!\brief
@@ -86,8 +90,10 @@ public:
     virtual bool		turnOn(bool yn);
     virtual bool		isOn() const;
 
-    bool			isPickable() const;
-    void			setPickable(bool yn);
+    bool			isPickable(bool actively=true) const;
+    void			setPickable(bool actively,bool passively=true);
+				/*!<actively: mouse click/drag, key press, etc.
+				    passively: hovering (e.g. status info) */
 
     virtual bool		rightClickable() const 	{ return selectable(); }
     virtual bool		selectable() const	{ return false; }
