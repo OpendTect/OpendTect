@@ -52,7 +52,7 @@ public:
     inline Point2D<T>		operator-(const Point2D<T>&) const;
     inline Point2D<T>		operator*(const T factor) const;
     inline Point2D<T>		operator/(const T den) const;
-    
+
     inline void			swapXY();
 
     inline bool			isDefined() const;
@@ -62,9 +62,9 @@ public:
     inline T			sqDistTo(const Point2D<T>&) const;
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
-    
-    T 				x;
-    T 				y;
+
+    T				x;
+    T				y;
 };
 
 
@@ -93,8 +93,8 @@ public:
 
 protected:
 
-    T 	width_;
-    T 	height_;
+    T	width_;
+    T	height_;
 
 };
 
@@ -140,24 +140,24 @@ public:
 
     inline bool		operator >(const Rectangle<T>&) const;
 
-    inline T 		width() const;
-    inline T 		height() const;
+    inline T		width() const;
+    inline T		height() const;
 
-    inline T 		left() const;
-    inline T 		top() const;
-    inline T 		right() const;
-    inline T 		bottom() const;
-    inline void 	setLeft(T val);
-    inline void 	setTop(T val);
-    inline void 	setRight(T val);
-    inline void 	setBottom(T val);
+    inline T		left() const;
+    inline T		top() const;
+    inline T		right() const;
+    inline T		bottom() const;
+    inline void	setLeft(T val);
+    inline void	setTop(T val);
+    inline void	setRight(T val);
+    inline void	setBottom(T val);
 
     bool		checkCorners(bool leftislow=true,
 				     bool topislow=true) const;
-    			//!\returns if the corners are consistent
+			//!\returns if the corners are consistent
     void		sortCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
-    inline void 	zero();
+    inline void	zero();
 
     inline Rectangle<T>& operator+=(const Point2D<T>&); // shifts
     inline Rectangle<T>& operator-=(const Point2D<T>&);
@@ -223,9 +223,9 @@ template <class T>
 mClass(Basic) PosRectangle : public Rectangle<T>
 {
 public:
-			PosRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
+			PosRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 )
 			: Rectangle<T>(l,t,r,b)		{}
-			PosRectangle( Point2D<T> tl, Point2D<T> br ) 
+			PosRectangle( Point2D<T> tl, Point2D<T> br )
 			: Rectangle<T>(tl,br)		{}
 
     inline bool		isOutside( const Point2D<T>& p, T eps ) const
@@ -267,7 +267,7 @@ Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
 
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
-{ x = xx ; y = yy; }  
+{ x = xx ; y = yy; }
 
 template <class T> template <class TT> inline
 void Point2D<T>::setXY( TT xx, TT yy )
@@ -349,13 +349,12 @@ Point2D<T> Point2D<T>::operator /( const T den ) const
 template <class T> inline
 bool Point2D<T>::isDefined() const
 { return !mIsUdf(x) && !mIsUdf(y); }
-    
-    
+
+
 template <class T> inline
 void Point2D<T>::swapXY()
 {
-    T tmp;
-    mSWAP( x, y, tmp );
+    Swap( x, y );
 }
 
 
@@ -384,7 +383,7 @@ T Point2D<T>::sqDistTo( const Point2D<T>& pt ) const
 
 
 template <class T> inline
-Size2D<T>::Size2D( T w , T h ) 
+Size2D<T>::Size2D( T w , T h )
 { width_=w; height_=h; }
 
 
@@ -449,20 +448,20 @@ Size2D<T>& Size2D<T>::operator -=( const Size2D<T>& s )
 
 
 template <class T> inline
-Rectangle<T>::Rectangle( T l, T t, T r, T b ) 
-    : topleft_( Point2D<T>(l,t)) 
+Rectangle<T>::Rectangle( T l, T t, T r, T b )
+    : topleft_( Point2D<T>(l,t))
     , bottomright_( Point2D<T>(r,b) )
 {}
 
 
 template <class T> inline
-Rectangle<T>::Rectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
+Rectangle<T>::Rectangle( const Point2D<T>& tl, const Point2D<T>& br )
     : topleft_( tl ) , bottomright_( br )
 {}
 
 
 template <class T> inline
-Rectangle<T>::Rectangle( const Point2D<T>& tl, const Size2D<T>& sz ) 
+Rectangle<T>::Rectangle( const Point2D<T>& tl, const Size2D<T>& sz )
     : topleft_( tl ) , bottomright_( tl.x+sz.width(), tl.y+sz.height() )
 {}
 
@@ -498,10 +497,10 @@ Point2D<T> Rectangle<T>::bottomRight() const
 
 
 template <class T> inline
-Point2D<T> Rectangle<T>::centre() const 		
+Point2D<T> Rectangle<T>::centre() const
 {
     return Point2D<T>( (topleft_.x+bottomright_.x)/2,
-		       (topleft_.y+bottomright_.y)/2 ); 
+		       (topleft_.y+bottomright_.y)/2 );
 }
 
 
@@ -604,11 +603,11 @@ bool Rectangle<T>::checkCorners( bool leftislow, bool topislow ) const
 {
     if ( leftislow == (left() > right()) ) return false;
     if ( topislow  == (top() > bottom()) ) return false;
-    
+
     return true;
 }
-    
-    
+
+
 template <class T> inline
 void Rectangle<T>::sortCorners( bool leftislow, bool topislow )
 {
@@ -648,18 +647,18 @@ Rectangle<T>& Rectangle<T>::operator -=( const Size2D<T>& sz )
 
 
 template <class T> inline
-void Rectangle<T>::swapHor() 
-{ 
-    T t = topleft_.x; 
+void Rectangle<T>::swapHor()
+{
+    T t = topleft_.x;
     topleft_.x = bottomright_.x;
     bottomright_.x =  t;
 }
 
 
 template <class T> inline
-void Rectangle<T>::swapVer() 
-{ 
-    T t = topleft_.y; 
+void Rectangle<T>::swapVer()
+{
+    T t = topleft_.y;
     topleft_.y = bottomright_.y;
     bottomright_.y =  t;
 }
@@ -745,25 +744,25 @@ inline T fwiderPos( T x1, T x2, T f )
 
 
 template <class T>
-PixRectangle<T>::PixRectangle( T l , T t, T r, T b ) 
-    : Rectangle<T>(l,t,r,b)		
+PixRectangle<T>::PixRectangle( T l , T t, T r, T b )
+    : Rectangle<T>(l,t,r,b)
 {}
 
 
 template <class T>
-PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
+PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Point2D<T>& br )
     : Rectangle<T>(tl,br)
 {}
 
 
 template <class T>
-PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Size2D<T>& sz ) 
+PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Size2D<T>& sz )
     : Rectangle<T>(tl,sz)
 {}
 
 
 template <class T>
-PixRectangle<T>::PixRectangle( const Rectangle<T>& r ) 
+PixRectangle<T>::PixRectangle( const Rectangle<T>& r )
     : Rectangle<T>( r )
 {}
 
@@ -859,14 +858,14 @@ inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
     }
 }
 
-    
+
 template <class T>
 inline void Rectangle<T>::translate(const Point2D<T> & trans )
 {
     topleft_ += trans;
     bottomright_ += trans;
 }
-    
+
 
 template <class T>
 inline void Rectangle<T>::include( const Rectangle<T>& r )

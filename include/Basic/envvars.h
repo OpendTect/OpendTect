@@ -35,9 +35,9 @@ mGlobal(Basic) const char* GetOSEnvVar(const char*);
 		    \note Will return a pointer to a threadsafe static buffer.
 			   Please copy if you want to keep result after next
 			   call to this function. */
-mGlobal(Basic) int SetEnvVar(const char* env,const char* val);
+mGlobal(Basic) void SetEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
-mGlobal(Basic) int WriteEnvVar(const char* env,const char* val);
+mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 		/*!< Writes environment variable to .od/envvars for user
 		     or data/Envvars for SysAdm */
 

@@ -38,12 +38,11 @@ Wavelet1DAttrib::Wavelet1DAttrib( Parameters* param)
     , maxwaveletlen( (Wavelet1DAttrib::WaveletLen) ((int) param->maxwaveletlen))
     , wavelet( (WaveletTransform::WaveletType) ((int) param->wavelet) )
     , AttribCalc( new Wavelet1DAttrib::Task( *this ) )
-{ 
+{
     param->fillDefStr( desc );
     delete param;
 
-    WaveletLen tmp;
-    if ( maxwaveletlen<minwaveletlen ) mSWAP(minwaveletlen, maxwaveletlen, tmp);
+    if ( maxwaveletlen<minwaveletlen ) Swap(minwaveletlen, maxwaveletlen);
     scalelen = intpow( 2, maxwaveletlen );
     dsg = Interval<int>( -(scalelen-1), (scalelen-1) );
 
@@ -56,7 +55,7 @@ Wavelet1DAttrib::Wavelet1DAttrib( Parameters* param)
 
 
 Wavelet1DAttrib::~Wavelet1DAttrib()
-{  ; }
+{}
 
 
 int Wavelet1DAttrib::Task::nextStep()
@@ -90,7 +89,7 @@ int Wavelet1DAttrib::Task::nextStep()
     const int nrscales = isPower( len, 2 ) + 1;
     ArrPtrMan<float> spectrum =  new float[nrscales];
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)
-    spectrum[1] = fabs(transformed.get(1)); // scale 1 
+    spectrum[1] = fabs(transformed.get(1)); // scale 1
 
     for ( int idx=0; idx<nrtimes; idx++ )
     {
@@ -188,18 +187,18 @@ int Wavelet1DAttrib::Task::nextStep()
 }
 
 
-AttribCalc::Task*  Wavelet1DAttrib::Task::clone() const 
+AttribCalc::Task*  Wavelet1DAttrib::Task::clone() const
 { return new Wavelet1DAttrib::Task(calculator); }
 
 
-bool Wavelet1DAttrib::Task::Input::set(const BinID& pos, 
+bool Wavelet1DAttrib::Task::Input::set(const BinID& pos,
 	const ObjectSet<AttribProvider>& inp, const TypeSet<int>& inpattrib,
 			     const TypeSet<float*>&)
 {
-    trc = inp[0]->getTrc( pos.inl, pos.crl ); 
+    trc = inp[0]->getTrc( pos.inl, pos.crl );
 
     attrib = inp[0]->attrib2component( inpattrib[0] );
     return trc ? true : false;
-} 
+}
 
 

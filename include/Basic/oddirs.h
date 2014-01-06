@@ -37,8 +37,8 @@ mGlobal(Basic) const char* GetProcFileName(const char*);
 
     /* Functions delivering files/directies in the 'sytem' scope */
 
-mGlobal(Basic) const char* GetSoftwareDir(int acceptnone);
-/*!< Directory of the installed software = $DTECT_[WIN]APPL 
+mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
+/*!< Directory of the installed software = $DTECT_[WIN]APPL
 
  GetSoftwareDir returns the full path of the root of the release.
  If no DTECT_[WIN]APPL set, the location will be determined from argv[0] or
@@ -46,14 +46,14 @@ mGlobal(Basic) const char* GetSoftwareDir(int acceptnone);
 
  If acceptnone is false, program will terminate if none is found.
 */
-    
+
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */
 
 mGlobal(Basic) const char* GetApplSetupDir(void);
 /*!< Directory with setup files and scripts overruling current software
      release's default setup files.
-    
+
     Tied to environment DTECT_[WIN]APPL_SETUP. If
     the environment is not set (see GetEnvVar), this function returns null.
 */
@@ -66,7 +66,7 @@ typedef enum
     ODSetupLoc_SWDirOnly
 } ODSetupLocType;
 
-mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
+mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,bool acceptnone);
 /*!< Returns the name of the "data" subdir of the release or the
      site setup directory.
      If acceptnone is false, program will terminate if none is found.
@@ -75,7 +75,7 @@ mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
 #define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly,0)
 
 mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
-					 int acceptnone);
+					 bool acceptnone);
 /*!< Returns the name of a file in the "data" subdir of the release or the
      appl setup directory.
 
@@ -109,7 +109,7 @@ mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 
 mGlobal(Basic) const char* GetExecScript(int remote);
 /*!< Location of launch script for external programs
-  
+
   In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
 */
 #define		mGetExecScript()	GetExecScript(0)

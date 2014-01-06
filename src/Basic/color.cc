@@ -285,14 +285,12 @@ void Color::setStdStr( const char* str )
 
     if ( !isnorm )
     {
-	unsigned char tmp;
-
 	if ( len > 6 )
-	    { mSWAP( r_, t_, tmp ); mSWAP( g_, b_, tmp ) }
+	    { Swap( r_, t_ ); Swap( g_, b_ ); }
 	else if ( len > 4 )
-	    mSWAP( r_, b_, tmp )
+	    Swap( r_, b_ );
 	else if ( len > 2 )
-	    mSWAP( r_, g_, tmp )
+	    Swap( r_, g_ );
     }
 
     set( r_, g_, b_, len > 6 ? t_ : t() );

@@ -196,7 +196,7 @@ mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 }
 
 
-mExternC(Basic) const char* GetSoftwareDir( int acceptnone )
+mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 {
     mDeclStaticString( res );
 
@@ -249,7 +249,7 @@ mExternC(Basic) const char* GetApplSetupDir()
 
 
 mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
-						 int acceptnone )
+						 bool acceptnone )
 {
     const char* basedir;
     if ( lt > ODSetupLoc_ApplSetupPref )
@@ -266,7 +266,7 @@ mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 
 
 mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
-				const char* fnm, int acceptnone )
+				const char* fnm, bool acceptnone )
 {
     mDeclStaticString( filenm );
 

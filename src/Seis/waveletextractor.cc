@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
-            
+
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id$ 
+ RCS:           $Id$
  ________________________________________________________________________
-                   
--*/   
+
+-*/
 
 #include "waveletextractor.h"
 
@@ -43,7 +43,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
 {
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
-    
+
     initWavelet( ioobj );
     seisrdr_ = new SeisTrcReader( &ioobj );
 }
@@ -172,7 +172,7 @@ int WaveletExtractor::nextStep()
 	if ( !getSignalInfo(trc,startsample,signalsz) )
 	    return MoreToDo();
 
-	if ( processTrace(trc,startsample,signalsz) ) 
+	if ( processTrace(trc,startsample,signalsz) )
 	    nrusedtrcs_++;
     }
 
@@ -205,7 +205,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     bvis.get( pos, bid, z1 );
 
     if ( !isbetweenhor_ )
-      	z2 = z1;
+	z2 = z1;
     else
     {
 	bvis.next( pos );
@@ -214,7 +214,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 	    return false;
     }
 
-    if ( z2 < z1 ) { float tmp; mSWAP( z1, z2, tmp ); }
+    if ( z2 < z1 ) Swap( z1, z2 );
 
     if( !trc.dataPresent(z1 + extz.start) || !trc.dataPresent(z2 + extz.stop) )
 	return false;
@@ -272,16 +272,16 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 
     removeBias<float,float>( &temp );
     normalisation( temp );
-   
+
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	timedomsignal.set( idx, temp.arr()[idx] );
-    
+
     fft_->setInput( timedomsignal.getData() );
     fft_->setOutput( freqdomsignal.getData() );
     fft_->run( true );
-    
+
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
@@ -381,7 +381,7 @@ bool WaveletExtractor::rotateWavelet()
 
 
 bool WaveletExtractor::taperWavelet()
-{ 
+{
     Array1DImpl<float> taperwvlt( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
 	taperwvlt.set( idx, wvlt_.samples()[idx] );
@@ -390,7 +390,7 @@ bool WaveletExtractor::taperWavelet()
     window.apply( &taperwvlt );
     WaveletAttrib::muteZeroFrequency( taperwvlt );
     for ( int samp=0; samp<wvltsize_; samp++ )
-    	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
+	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
 
     return true;
 }

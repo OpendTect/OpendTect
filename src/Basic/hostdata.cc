@@ -140,7 +140,7 @@ HostDataList::HostDataList( bool readhostfile )
 	bhfnm = GetEnvVar("DTECT_BATCH_HOSTS_FILENAME");
 
     BufferString fname( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,
-				bhfnm.buf(),mC_True) );
+				bhfnm.buf(),true) );
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 

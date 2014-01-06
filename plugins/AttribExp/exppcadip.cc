@@ -27,7 +27,7 @@ PCADipAttrib::PCADipAttrib( Parameters* params )
     , stepout( params->stepout )
     , fraction( params->fraction )
     , AttribCalc( new PCADipAttrib::Task( *this ) )
-{ 
+{
     params->fillDefStr( desc );
     delete params;
     AttribInputSpec* spec = new AttribInputSpec;
@@ -47,7 +47,7 @@ bool PCADipAttrib::init()
     crldist = common->crldist*common->stepoutstep.crl;
 
     return AttribCalc::init();
-} 
+}
 
 
 AttribCalc::Task* PCADipAttrib::Task::clone()const
@@ -70,7 +70,7 @@ void PCADipAttrib::Task::set( float t1_, int nrtimes_, float step_,
 
 float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 					     const int* crlines,
-				 	     const int* timepos,
+					     const int* timepos,
 					     const int* indexes,
 					     int first, int last,
 					     double& ev0,
@@ -103,7 +103,7 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 	int t = timepos[orgpos];
 
 	if ( dprint ) printf("%d\t%d\t%d\n", inl, crl, t );
-	
+
 	inl_sum += inl;
 	crl_sum += crl;
 	t_sum += t;
@@ -126,7 +126,7 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
     float cov11 = nrobs*crl_crl_sum - crl_sum*crl_sum;
     float cov21 = nrobs*crl_t_sum - crl_sum*t_sum;
-    
+
     float cov02 = cov20;
 
     float cov12 = cov21;
@@ -170,14 +170,14 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
     ev0 = mUndefValue; ev1 = mUndefValue; ev2 = mUndefValue;
 
-    if ( !mIsZero(cov00,mDefEps)+!mIsZero(cov10,mDefEps)+!mIsZero(cov20,mDefEps) > 1 )
+    if ( !mIsZero(cov00,mDefEps)
+       + !mIsZero(cov10,mDefEps) + !mIsZero(cov20,mDefEps) > 1 )
     {
-	float tmp;
-	if ( mIsZero( cov00 ,mDefEps) )
+	if ( mIsZero(cov00,mDefEps) )
 	{
-	    mSWAP( cov00, cov20, tmp );
-	    mSWAP( cov01, cov21, tmp );
-	    mSWAP( cov02, cov22, tmp );
+	    Swap( cov00, cov20 );
+	    Swap( cov01, cov21 );
+	    Swap( cov02, cov22 );
 	 }
 
 	 cov11-=cov10*cov01/cov00;
@@ -191,17 +191,17 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
     float c1, c2;
 
-    if ( !mIsZero(cov11,mDefEps) || !mIsZero(cov12,mDefEps) != 2 )	
+    if ( !mIsZero(cov11,mDefEps) || !mIsZero(cov12,mDefEps) != 2 )
     {
 	c1 = cov11;
 	c2 = cov12;
-    }	
-    else 
+    }
+    else
     {
 	c1 = cov21;
 	c2 = cov22;
     }
-    
+
     if ( mIsZero(c1,mDefEps) )
     {
 	ev2 = 0;
@@ -217,16 +217,16 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 	ev1 = 1;
 	ev2 = - c1 / c2;
     }
-    
+
     if ( !mIsZero(cov00,mDefEps) )
 	ev0 = (-ev1*cov01 - ev2*cov02)/ cov00;
     else
 	ev0 = 1;
-   
+
     float length = Math::Sqrt(ev0*ev0+ev1*ev1+ev2*ev2);
-    ev0 /= length;     
-    ev1 /= length;     
-    ev2 /= length;     
+    ev0 /= length;
+    ev1 /= length;
+    ev2 /= length;
 
     return eigmax/(1+eigmin);
 }
@@ -243,23 +243,23 @@ bool PCADipAttrib::Task::Input::set( const BinID& pos,
 	trcs = new Array2DImpl<SeisTrc*>( stepout.inl*2+1, stepout.crl*2+1 );
 
     for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
-    { 
+    {
 	for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
 	{
-	    SeisTrc* trc = inputproviders[0]->getTrc( 	pos.inl + idx, 
+	    SeisTrc* trc = inputproviders[0]->getTrc(	pos.inl + idx,
 							pos.crl + idy );
 	    trcs->set(idx+stepout.inl, idy+stepout.crl,trc);
 	}
     }
-   
-    attribute = inputproviders[0]->attrib2component( inputattribs[0] ); 
+
+    attribute = inputproviders[0]->attrib2component( inputattribs[0] );
     return true;
 }
 
 
 int PCADipAttrib::Task::nextStep()
 {
-    const PCADipAttrib::Task::Input* inp = 
+    const PCADipAttrib::Task::Input* inp =
 			(const PCADipAttrib::Task::Input*) input;
 
     const BinID stepout = calculator.stepout;
@@ -273,7 +273,7 @@ int PCADipAttrib::Task::nextStep()
     const int sg2 = sg.start*sg.start;
     const int limit = stepout2.inl*stepout2.inl*sg2;
 
-    const int nrtraces = inlsz*crlsz; 
+    const int nrtraces = inlsz*crlsz;
     const double dmaxweight = Math::Sqrt( (double)(stepout2.inl+stepout2.inl+sg2) );
     const int maxweight = mNINT32(dmaxweight);
     const int maxnrsamples = nrtraces * (sg.width()+1)*maxweight;
@@ -365,7 +365,7 @@ int PCADipAttrib::Task::nextStep()
 						     idc+stepout.crl);
 		    float d = trc ? trc->getValue(curt+ inpstep*(idt),attribute)
 				  : 0;
-		
+
 		    for ( int idy=0; idy<weight; idy++ )
 		    {
 			data[pos] = d;

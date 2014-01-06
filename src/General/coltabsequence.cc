@@ -345,12 +345,10 @@ void ColTab::Sequence::flipColor()
     int last = size() - 1;
     for ( ; first!=last && first<last; )
     {
-	unsigned char uctmp;
-	float ftmp;
-	mSWAP( r_[first], r_[last], uctmp );
-	mSWAP( g_[first], g_[last], uctmp );
-	mSWAP( b_[first], b_[last], uctmp );
-	mSWAP( x_[first], x_[last], ftmp );
+	Swap( r_[first], r_[last] );
+	Swap( g_[first], g_[last] );
+	Swap( b_[first], b_[last] );
+	Swap( x_[first], x_[last] );
 
 	first++;
 	last--;

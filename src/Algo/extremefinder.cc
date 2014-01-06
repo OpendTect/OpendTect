@@ -158,7 +158,7 @@ int BisectionExtremeFinder1D::nextStep()
     return -1;
 }
 
-   
+
 #define TINY 1.0e-25
 #define SHIFT(a, b, c, d ) (a)=(b); (b)=(c); (c)=(d);
 #define SIGN(a,b) ((b) > 0.0 ? fabs(a) : -fabs(a))
@@ -194,7 +194,7 @@ ExtremeFinder1D::ExtremeFinder1D( const FloatMathFunction& func, bool max,
 
 
 void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
-       			       const Interval<float>* linterval )
+			       const Interval<float>* linterval )
 {
     if ( linterval )
     {
@@ -215,12 +215,10 @@ void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
 
     float fa = mGetFuncVal( ax_ );
     float fb = mGetFuncVal( bx_ );
-    if ( fb>fa )
+    if ( fb > fa )
     {
-	float ddummy;
-	mSWAP( ax_, bx_, ddummy );
-	float fdummy;
-	mSWAP(fb,fa,fdummy);
+	Swap( ax_, bx_ );
+	Swap( fb, fa );
     }
 
     cx_=bx_+GOLD*(bx_-ax_);
@@ -309,7 +307,7 @@ int ExtremeFinder1D::nextStep()
     while ( true )
     {
 	const float xm = 0.5f*(a_+b_);
-	const float tol1 = (float)( tol_*fabs(x_)*mDefEps );   
+	const float tol1 = (float)( tol_*fabs(x_)*mDefEps );
 	const float tol2 = 2*tol1;
 	if ( fabs(x_-xm)<= (tol2-0.5*(b_-a_)))
 	    return 0;
@@ -383,7 +381,7 @@ int ExtremeFinder1D::nextStep()
     }
 }
 
-   
+
 ExtremeFinderND::ExtremeFinderND( const FloatMathFunctionND& func, bool max,
 				  int itermax )
     : p_( new float[func.getNrDim()] )

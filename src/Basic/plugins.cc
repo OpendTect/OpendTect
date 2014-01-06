@@ -50,7 +50,7 @@ extern "C" {
 
     int LoadPlugin( const char* libnm )
     {
-	return PIM().load( libnm ) ? mC_True : mC_False;
+	return PIM().load( libnm ) ? 1 : 0;
     }
 };
 

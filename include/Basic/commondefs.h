@@ -16,21 +16,21 @@ ________________________________________________________________________
 
 #include "plfdefs.h"
 
+#define mCast(tp,v)		((tp)(v))
 
-#ifdef __cpp__
-template <class RT> inline
-RT roundOff( double x ) { return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
+template <class RT>
+inline RT roundOff( double x )	{ return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
 
-template <class RT> inline
-RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
-#endif
+template <class RT>
+inline RT roundOff( float x )	{ return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
+
+template <class T>
+inline void Swap( T& a, T& b )	{ T tmp = a; a = b; b = tmp; }
 
 #define mRounded(typ,x)		roundOff<typ>( x )
 #define mNINT32(x)		mRounded( od_int32, x )
 #define mNINT64(x)		mRounded( od_int64, x )
-#define mCast(tp,v)		((tp)(v))
 
-#define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 #define mMaxLimited(v,lim)	( (v)<(lim) ? (v) : (lim) )
@@ -44,9 +44,6 @@ RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 #define mDefEpsF		(1e-10f)
 #define mDefEpsD		(1e-10)
 #define mDefEps			mDefEpsD
-
-# define mC_True	1
-# define mC_False	0
 
 #ifndef M_PI
 # define M_PI		3.14159265358979323846
@@ -116,8 +113,6 @@ RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
 #define mFromFeetFactorD	0.3048
 #define mToFeetFactorF		3.2808399f
 #define mToFeetFactorD		3.28083989501312336
-#define mToSqMileFactor		0.3861			//km^2 to mile^2
-#define mMileToFeetFactor	5280
 #define mToPercent(f)		(mIsUdf(f) ? f : f*100)
 #define mFromPercent(p)		(mIsUdf(p) ? p : p*0.01)
 #define mDeg2RadD		0.017453292519943292

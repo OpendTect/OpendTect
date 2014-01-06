@@ -686,18 +686,17 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 	}
     }
 
-    int tmp;
     for ( int d=sz/2; d>0; d=d/2 )
 	for ( int i=d; i<sz; i++ )
 	    for ( int j=i-d;
 		  j>=0 && bss->get(idxs[j]) > bss->get(idxs[j+d]); j-=d )
-		mSWAP( idxs[j+d], idxs[j], tmp )
+		Swap( idxs[j+d], idxs[j] );
 
     if ( !asc )
     {
 	const int hsz = sz/2;
 	for ( int idx=0; idx<hsz; idx++ )
-	    mSWAP( idxs[idx], idxs[sz-idx-1], tmp )
+	    Swap( idxs[idx], idxs[sz-idx-1] );
     }
     return idxs;
 }

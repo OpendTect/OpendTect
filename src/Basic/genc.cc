@@ -334,10 +334,10 @@ mExtern(Basic) float GetEnvVarFVal( const char* env, float defltval )
 }
 
 
-mExtern(Basic) int SetEnvVar( const char* env, const char* val )
+mExtern(Basic) void SetEnvVar( const char* env, const char* val )
 {
     if ( !env || !*env )
-	return mC_False;
+	return;
 
     Threads::Locker lock( getEnvVarLock() );
 #ifdef __msvc__
@@ -345,8 +345,6 @@ mExtern(Basic) int SetEnvVar( const char* env, const char* val )
 #else
     setenv( env, val, 1 );
 #endif
-
-    return mC_True;
 }
 
 
@@ -363,10 +361,10 @@ static bool writeEntries( const char* fnm, const IOPar& iop )
 }
 
 
-mExtern(Basic) int WriteEnvVar( const char* env, const char* val )
+mExtern(Basic) bool WriteEnvVar( const char* env, const char* val )
 {
     if ( !env || !*env )
-	return 0;
+	return false;
 
     Threads::Locker lock( getEnvVarLock() );
 

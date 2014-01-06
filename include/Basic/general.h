@@ -20,10 +20,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #define FileNameString	BufferString
 
-template <class T>
-inline void Swap( T& a, T& b ) { T tmp = a; a = b; b = tmp; }
-
-
 //! Defines policy for 2D and 3D Data type
 enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 
@@ -52,24 +48,24 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 \brief Define members in setup classes (see e.g. uidialog.h)
 
   Usage typically like:
-  
+
   class SomeClass
   {
   public:
- 
+
 	  class Setup
 	  {
 		  Setup()
 		  : withformat_(true)	//!< Can user select storage?
 		  , withstep_(true)	//!< Can user specify steps?
 		  , title_("")		//!< Title for plots
-		 		 {}
+				 {}
 
 		 mDefSetupMemb(bool,withformat)
 		 mDefSetupMemb(bool,withstep)
 		 mDefSetupMemb(BufferString,title)
 	  }
-	
+
 	 SomeClass(const Setup&);
 	 // etc.
   };
@@ -94,13 +90,13 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
   for ( int idx=0; idx<sz; idx++ )
   ptr[idx] /= 5;
   \endcode
-  
+
   You can do:
   \code
-  
+
   mPointerOperation( float, ptr, /= 5, sz, ++ );
   \endcode
-  
+
   This will expand to :
   \code
   {

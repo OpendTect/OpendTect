@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
+#define mToSqMileFactor	0.3861 // km^2 to mile^2
+
 
 
 static const char* getStringFromInt( od_int32 val, char* str )
