@@ -66,10 +66,10 @@ template<>
 mClass(Basic) Undef<od_int16>
 {
 public:
-    static od_int16	val()			{ return -32767; }
+    static od_int16	val()			{ return 32766; }
     static bool		hasUdf()		{ return false; }
-    static bool		isUdf( od_int32 i )	{ return i == -32767; }
-    static void		setUdf( od_int32& i )	{ i = -32767; }
+    static bool		isUdf( od_int16 i )	{ return i == 32766; }
+    static void		setUdf( od_int16& i )	{ i = 32766; }
 };
 
 
