@@ -32,7 +32,7 @@ bool testPointerCast()
 
     void* voidptr = ptr;
 
-    float* newptr = mCastPtr(float,voidptr);
+    float* newptr = reinterpret_cast<float*>(voidptr);
 
     mTest( "Pointer cast", newptr==ptr );
 
@@ -47,8 +47,8 @@ bool testPointerAlignment()
     char* ptr0 = buffer;
     char* ptr1 = buffer+1;
 
-    od_uint32* iptr0 = mCastPtr( od_uint32, ptr0 );
-    od_uint32* iptr1 = mCastPtr( od_uint32, ptr1 );
+    od_uint32* iptr0 = reinterpret_cast<od_uint32*>( ptr0 );
+    od_uint32* iptr1 = reinterpret_cast<od_uint32*>( ptr1 );
 
     od_uint32 ival0 = *iptr0;
     od_uint32 ival1 = *iptr1;
