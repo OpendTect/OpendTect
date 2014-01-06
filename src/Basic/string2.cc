@@ -49,11 +49,7 @@ static const char* getStringFromUInt( od_uint32 val, char* str )
 static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 {
     if ( !val )
-    {
-	buf[0] = '0';
-	buf[1] = 0;
-	return;
-    }
+	{ buf[0] = '0'; buf[1] = '\0'; return; }
 
     /* Fill the string with least significant first, i.e. reversed: */
     char* pbuf = buf;
@@ -139,7 +135,7 @@ static int findUglyRoundOff( char* str )
 	    ptrend = ptrdot + FixedString(ptrdot).size();
     }
 
-    const int matchstrsz = 3;
+    const int matchstrsz = 3; // length of below "000" and "999" strings
     if ( ptrend - ptrdot < matchstrsz )
 	return -1;
 
@@ -158,7 +154,7 @@ static int findUglyRoundOff( char* str )
 	    return -1;
     }
 
-    int nrdec = mCast( int, hit - ptrdot );
+    int nrdec = int( hit - ptrdot );
     if ( *hit == '9' ) nrdec--;
     if ( nrdec < 0 ) nrdec = 0;
     return nrdec;
@@ -169,7 +165,7 @@ static int findUglyRoundOff( char* str )
 
 static void finalCleanupNumberString( char* str )
 {
-    // We don't need any '+'
+    // We don't need any '+'s - remove them
     char* ptr = firstOcc( str, '+' );
     while ( ptr )
     {
@@ -180,23 +176,35 @@ static void finalCleanupNumberString( char* str )
     if ( !*str )
 	mSetStrTo0(str,return)
 
-    char* ptrdot = firstOcc( str, '.' );
-    if ( !ptrdot ) return;
-
     char* ptrexp = firstOcc( str, 'e' );
     if ( !ptrexp )
     {
 	ptrexp = firstOcc( str, 'E' );
 	if ( ptrexp )
-	    *ptrexp = 'e';
+	    *ptrexp = 'e'; // so we'll never have 'E', always 'e'
     }
     if ( ptrexp == str )
 	mSetStrTo0(str,return)
+    else if ( ptrexp )
+    {
+	// Remove leading '0's in exponent
+	char* ptrexpval = ptrexp + 1;
+	if ( *ptrexpval == '-' )
+	    ptrexpval++;
+	while ( *ptrexpval == '0' )
+	    rmSingleCharFromString( ptrexpval );
+	if ( !*ptrexpval ) // there were only zeros after the 'e'
+	    *ptrexp = '\0';
+    }
+
+    char* ptrdot = firstOcc( str, '.' );
+    if ( !ptrdot ) return;
 
     cleanupMantissa( ptrdot, ptrexp );
     if ( !*str )
 	mSetStrTo0(str,return)
 
+    // Remove trailing '0's in mantissa
     char* ptrend = firstOcc( str, 'e' );
     if ( !ptrend )
 	ptrend = str + FixedString(str).size() - 1;
@@ -222,10 +230,9 @@ static const char* getStringFromFPNumber( T inpval )
 	mSetStrTo0(str,return str)
 
     const bool isneg = inpval < 0;
-    const float val = mCast( float, isneg ? -inpval : inpval );
+    const T val = isneg ? -inpval : inpval;
     if ( mIsUdf(val) )
 	return sKey::FloatUdf();
-
 
     const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
     const BufferString fmt( "%.8", fmtend );
@@ -700,22 +707,44 @@ template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
 {
     FixedString simptostr = toString(val);
-    if ( maxtxtwdth < 1 || simptostr.size() <= maxtxtwdth )
+    const int simpsz = simptostr.size();
+    if ( maxtxtwdth < 1 || simpsz <= maxtxtwdth )
 	return simptostr;
+
+    if ( mIsUdf(val) || mIsUdf(-val) )
+	return sKey::FloatUdf();
 
     mDeclStaticString( ret );
     char* str = ret.getCStr();
-    if ( mIsUdf(val) )
-	ret.set( "1e30" );
-    else
+
+    // First try to simply remove digits from mantissa
+    BufferString numbstr( simptostr );
+    char* ptrdot = numbstr.find( '.' );
+    if ( ptrdot )
     {
-	const BufferString fullfmt( "%", maxtxtwdth-5, "g" );
-	sprintf( str, fullfmt.buf(), val );
+	char* ptrend = firstOcc( ptrdot, 'e' );
+	if ( !ptrend )
+	    ptrend = ptrdot + FixedString(ptrdot).size();
+	const int nrcharsav = int(ptrend - ptrdot);
+	if ( nrcharsav >= simpsz - maxtxtwdth )
+	{
+	    for ( int irm=simpsz - maxtxtwdth; irm>0; irm--)
+		rmSingleCharFromString( --ptrend );
+	    if ( numbstr[maxtxtwdth-1] == '.' )
+		numbstr[maxtxtwdth-1] = '\0';
+	    ret = numbstr;
+	    return ret.buf();
+	}
     }
+
+    // Nope. We have no choice: use the 'g' format
+    const BufferString fullfmt( "%", maxtxtwdth-4, "g" );
+    sprintf( str, fullfmt.buf(), val );
 
     const int retsz = ret.size();
     if ( retsz > maxtxtwdth )
     {
+	// Damn. Cut off no matter how necessary it is ...
 	char* eptr = firstOcc( str, 'e' );
 	if ( !eptr ) firstOcc( str, 'E' );
 	if ( !eptr )
