@@ -1,5 +1,5 @@
-#ifndef twoddataconverter_h
-#define twoddataconverter_h
+#ifndef twodseisdataconverterfromod4tood5format_h
+#define twodseisdataconverterfromod4tood5format_h
 
 /*+
 ________________________________________________________________________
@@ -21,15 +21,22 @@ class IOObj;
 class IOPar;
 class BufferStringSet;
 
-mExpClass(Seis) TwoDDataConverter
+/*!
+/brief DO NOT USE THIS CLASS. 
+       It is a highly specialized class for 2D Seismic data management 
+       during the transition from OD4 to OD5.
+*/
+
+mExpClass(Seis) TwoDSeisDataConverterFromOD4ToOD5Format
 {
 public:
-			    TwoDDataConverter()	    {}
 
-    bool		    convert2DDataToNewFormat(BufferString& errmsg);
+    bool		    convertSeisData(BufferString& errmsg);
 protected:
+			    TwoDSeisDataConverterFromOD4ToOD5Format()	    {}
+			    ~TwoDSeisDataConverterFromOD4ToOD5Format();
 
-    void		    createListOfLinesetIOObjs(ObjectSet<IOObj>&) const;
+    void		    makeListOfLineSets(ObjectSet<IOObj>&) const;
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
     bool		    copyDataAndAddToDelList(BufferStringSet&,

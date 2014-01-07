@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "twoddataconverter.h"
+#include "TwoDDataConverter.h"
 
 #include "bufstringset.h"
 #include "file.h"
@@ -20,10 +20,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 
 
-bool TwoDDataConverter::convert2DDataToNewFormat( BufferString& errmsg )
+
+TwoDSeisDataConverterFromOD4ToOD5Format::
+    ~TwoDSeisDataConverterFromOD4ToOD5Format()
+{ deepErase( all2dseisiopars_ ); }
+
+
+bool TwoDSeisDataConverterFromOD4ToOD5Format::convertSeisData( 
+							  BufferString& errmsg )
 {
     ObjectSet<IOObj> allioobjsof2ddata;
-    createListOfLinesetIOObjs( allioobjsof2ddata );
+    makeListOfLineSets( allioobjsof2ddata );
     fillIOParsFrom2DSFile( allioobjsof2ddata );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
@@ -34,8 +41,8 @@ bool TwoDDataConverter::convert2DDataToNewFormat( BufferString& errmsg )
 }
 
 
-void TwoDDataConverter::createListOfLinesetIOObjs
-					   ( ObjectSet<IOObj>& ioobjlist ) const
+void TwoDSeisDataConverterFromOD4ToOD5Format::makeListOfLineSets( 
+					    ObjectSet<IOObj>& ioobjlist ) const
 {
     BufferStringSet lsnms; TypeSet<MultiID> lsids;
     SeisIOObjInfo::get2DLineInfo( lsnms, &lsids );
@@ -52,8 +59,8 @@ void TwoDDataConverter::createListOfLinesetIOObjs
 }
 
 
-void TwoDDataConverter::fillIOParsFrom2DSFile( const ObjectSet<IOObj>& 
-								     ioobjlist )
+void TwoDSeisDataConverterFromOD4ToOD5Format::fillIOParsFrom2DSFile(
+					    const ObjectSet<IOObj>& ioobjlist )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
     {
@@ -69,20 +76,22 @@ void TwoDDataConverter::fillIOParsFrom2DSFile( const ObjectSet<IOObj>&
 }
 
 
-BufferString TwoDDataConverter::getAttrFolderPath( const IOPar& iop ) const
+BufferString TwoDSeisDataConverterFromOD4ToOD5Format::getAttrFolderPath( 
+							const IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc);
     if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
     ctio.ctxt.deftransl.add( "TwoD DataSet" );
     ctio.ctxt.setName( iop.getValue( iop.indexOf( sKey::Attribute() ) ) );
-    if ( ctio.fillObj() == 0 ) return 0;
+    if ( ctio.fillObj() == 0 ) return BufferString::empty();
     PtrMan<IOObj> ioobj = ctio.ioobj;
     return BufferString( ioobj ? ioobj->fullUserExpr() : "" );
 }
 
 
-void TwoDDataConverter::getCBVSFilePaths( BufferStringSet& filepaths )
+void TwoDSeisDataConverterFromOD4ToOD5Format::getCBVSFilePaths( 
+						    BufferStringSet& filepaths )
 {
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
 	filepaths.add( SeisCBVS2DLineIOProvider::getFileName( 
@@ -102,7 +111,7 @@ void TwoDDataConverter::getCBVSFilePaths( BufferStringSet& filepaths )
     }
 
 
-bool TwoDDataConverter::copyDataAndAddToDelList( 
+bool TwoDSeisDataConverterFromOD4ToOD5Format::copyDataAndAddToDelList( 
 	BufferStringSet& oldfilepaths, BufferStringSet& filestobedeleted,
 	BufferString& errmsg )
 {
@@ -126,7 +135,8 @@ bool TwoDDataConverter::copyDataAndAddToDelList(
 }
 
 
-void TwoDDataConverter::update2DSFiles( ObjectSet<IOObj>& ioobjlist ) 
+void TwoDSeisDataConverterFromOD4ToOD5Format::update2DSFiles( 
+						   ObjectSet<IOObj>& ioobjlist )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
     {
@@ -162,7 +172,8 @@ void TwoDDataConverter::update2DSFiles( ObjectSet<IOObj>& ioobjlist )
 }
 
 
-void TwoDDataConverter::removeDuplicateData( BufferStringSet& oldfilepath )
+void TwoDSeisDataConverterFromOD4ToOD5Format::removeDuplicateData( 
+						  BufferStringSet& oldfilepath )
 {
     for ( int idx=0; idx<oldfilepath.size(); idx++ )
 	File::remove( oldfilepath.get(idx) );
