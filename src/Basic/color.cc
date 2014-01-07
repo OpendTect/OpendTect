@@ -80,8 +80,25 @@ Color Color::operator*( float f ) const
 void Color::lighter( float f )
 {
     if ( f < 0 ) f = -f;
-    set( getUChar(r()*f), getUChar(g()*f),
-	 getUChar(b()*f) );
+
+    float newred = r()*f;
+    float newgreen = g()*f;
+    float newblue = b()*f;
+
+    float overflow = 0;
+    int nroverflows = 0;
+    if ( newred>255 ) { overflow += (newred-255); nroverflows++; }
+    if ( newgreen>255 ) { overflow += (newgreen-255); nroverflows++; }
+    if ( newblue>255 ) { overflow += (newblue-255); nroverflows++; }
+
+    if ( overflow && nroverflows<3 )
+    {
+	if ( newred<255 ) newred += overflow/(3-nroverflows);
+	if ( newgreen<255 ) newgreen += overflow/(3-nroverflows);
+	if ( newblue<255 ) newblue += overflow/(3-nroverflows);
+    }
+
+    set( getUChar(newred), getUChar(newgreen), getUChar(newblue) );
 }
 
 void Color::setRgb( unsigned int rgb_  )
