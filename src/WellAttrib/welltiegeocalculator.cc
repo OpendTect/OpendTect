@@ -244,7 +244,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	return;
 
     TypeSet<float> sdpts, svals;
-    mGetIdxArr(int,idxs,sz);
+    mGetIdxArr( int, idxs, sz );
     if ( !idxs) return;
     sort_coupled( dpts.arr(), idxs, sz );
     for ( int idx=0; idx<sz; idx++ )

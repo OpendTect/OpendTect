@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "mmprocmod.h"
 #include "callback.h"
-#include "general.h"
+#include "bufstring.h"
 
 class CommandString;
 class FilePath;
@@ -64,7 +64,7 @@ mExpClass(MMProc) JobIOMgr : public CallBacker
 public:
     enum		Mode { Work, Pause, Stop };
 
-    			JobIOMgr(int firstport=19345,int niceval=19);
+			JobIOMgr(int firstport=19345,int niceval=19);
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
@@ -72,7 +72,7 @@ public:
 
 
     bool		startProg(const char*,IOPar&,const FilePath&,
-	    			  const JobInfo&,const char*);
+				  const JobInfo&,const char*);
 
     void		setNiceNess( int n )		{ niceval_ = n; }
     void		reqModeForJob(const JobInfo&,Mode);
@@ -87,9 +87,9 @@ protected:
     BufferString	msg_;
     int			niceval_;
 
-    bool 		mkIOParFile(FilePath&,const FilePath& basefnm,
+    bool		mkIOParFile(FilePath&,const FilePath& basefnm,
 				    const HostData&,const IOPar&);
-    void 		mkCommand(CommandString&,const HostData&,
+    void		mkCommand(CommandString&,const HostData&,
 				  const char* progname,const FilePath& basefp,
 				  const FilePath& iopfp,const JobInfo&,
 				  const char* rshcomm);

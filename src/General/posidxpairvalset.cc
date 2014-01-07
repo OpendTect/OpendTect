@@ -143,7 +143,7 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
     if ( maxsz == 0 )
 	{ setEmpty(); return; }
 
-    mGetIdxArr(od_int64,idxs,orgsz);
+    mGetIdxArr( od_int64, idxs, orgsz );
     if ( !idxs )
 	{ setEmpty(); return; }
 

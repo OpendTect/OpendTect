@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "task.h"
+#include "genc.h"
 #include "objectset.h"
 #include "callback.h"
 #include "bufstringset.h"
@@ -40,12 +41,12 @@ mExpClass(Basic) WorkManager : public CallBacker
 public:
 
 				//Interface from outside world
-    				WorkManager(int nrthreads=-1);
+				WorkManager(int nrthreads=-1);
 				~WorkManager();
 
-    enum QueueType 		{ MultiThread, SingleThread, Manual };
+    enum QueueType		{ MultiThread, SingleThread, Manual };
     int				addQueue(QueueType type,const char* name);
-    				/*!<Manual queues will not be executed
+				/*!<Manual queues will not be executed
 				    automaticall, only at executeQueue.
 				    \returns queid
 				    \param name is for debugging
@@ -54,15 +55,15 @@ public:
     int				queueSize(int queueid) const;
     void			emptyQueue(int queueid,bool finishall);
     void			removeQueue(int queueid,bool finishall);
-    				/*!<Removes queue. If finishall is true,
+				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
     bool			executeQueue(int queueid);
-    				/*!<Runs all jobs in a que. Only for manual
+				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
     void			addWork(const Work&,CallBack* finished,
-	    				int queueid, bool putfirstinline,
+					int queueid, bool putfirstinline,
 					bool discardduplicates=false,
 					bool forcedifferentthread=false);
 				/*!<\param forcedifferentthread will force
@@ -71,19 +72,19 @@ public:
 					thread. */
 
     bool			addWork(TypeSet<Work>&, int queueid = -1,
-	    				bool firstinline = false);
-    
+					bool firstinline = false);
+
     bool			executeWork( Work*, int sz, int queueid = -1,
 					bool firstinline = false );
-    				//!<Returns when finished with all
-    bool			removeWork(const Work&);	
-    				/*!< Removes the task from queue
+				//!<Returns when finished with all
+    bool			removeWork(const Work&);
+				/*!< Removes the task from queue
 				     and stop it if allready running.
 				    \returns true if the task was removed
 				    before it had started.*/
 
     const Work*			getWork(CallBacker*) const;
-    				/*!When a work is sumbmitted with a
+				/*!When a work is sumbmitted with a
 				   callback, the callback is called with a
 				   callbacker. If called from the callback and
 				   the callbacker is non-zero, a pointer to the
@@ -93,11 +94,11 @@ public:
 
     int				nrThreads() const { return threads_.size(); }
     int				nrFreeThreads() const;
-    				//!<Valid right now, may change any time
+				//!<Valid right now, may change any time
     bool			isWorkThread() const;
 
     Notifier<WorkManager>	isidle;
-    
+
     static Threads::WorkManager&	twm();
 
     Notifier<WorkManager>	isShuttingDown;
@@ -177,7 +178,7 @@ public:
     bool		operator==(const Work&) const;
 
     inline bool		isOK() const;
-    inline bool        	doRun();
+    inline bool	doRun();
 
 protected:
 

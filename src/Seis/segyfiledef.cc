@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "keystrs.h"
 #include "separstr.h"
+#include "staticstring.h"
 
 namespace SEGY
 {
@@ -61,9 +62,9 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
 	replstr += numbstr;
     }
 
-    static FileNameString ret; ret = fname_;
+    mDeclStaticString(ret); ret = fname_;
     ret.replace( "*", replstr.buf() );
-    return ret.buf();
+    return ret.str();
 }
 
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "general.h"
+#include "gendefs.h"
 #include "atomic.h"
 
 #define mImpPtrManPointerAccess( type ) \
@@ -66,7 +66,7 @@ template <class T>
 mClass(Basic) PtrMan : public PtrManBase<T>
 {
 public:
-    			PtrMan(const PtrMan<T>&);
+			PtrMan(const PtrMan<T>&);
 			//!<Don't use
     inline		PtrMan(T* = 0);
     PtrMan<T>&		operator=( T* p );
@@ -85,7 +85,7 @@ template <class T>
 mClass(Basic) ConstPtrMan : public PtrManBase<T>
 {
 public:
-    			ConstPtrMan(const ConstPtrMan<T>&);
+			ConstPtrMan(const ConstPtrMan<T>&);
 			//Don't use
     inline		ConstPtrMan(const T* = 0);
     ConstPtrMan<T>&	operator=(const T* p);
@@ -109,7 +109,7 @@ public:
     ArrPtrMan<T>&		operator=( T* p );
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//!<Don't use
-			
+
 				mImpPtrManPointerAccess( T )
 private:
 
@@ -123,7 +123,7 @@ template <class T>
 mClass(Basic) ConstArrPtrMan : public PtrManBase<T>
 {
 public:
-    			ConstArrPtrMan(const ConstArrPtrMan<T>&);
+			ConstArrPtrMan(const ConstArrPtrMan<T>&);
 			//Don't use
     inline		ConstArrPtrMan(const T* = 0);
     ConstArrPtrMan<T>&	operator=(const T* p);
@@ -145,7 +145,7 @@ public:
     inline		RefMan(const RefMan<T>&);
     inline		RefMan(T* = 0);
     inline RefMan<T>&	operator=( T* p )
-    			{ this->set( p, true ); return *this; }
+			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
 			mImpPtrManPointerAccess( T )
 
@@ -153,7 +153,7 @@ private:
 
     static void		ref(T* p) { p->ref(); }
     static void		unRef(T* p) { if ( p ) p->unRef(); }
-    
+
 };
 
 
@@ -172,7 +172,7 @@ public:
 private:
     static void		ref(T* p) { p->ref(); }
     static void		unRef(T* p) { if ( p ) p->unRef(); }
-    
+
 };
 
 //Implementations below
@@ -191,7 +191,7 @@ void PtrManBase<T>::set( T* p, bool doerase )
 {
     if ( setfunc_ && p )
 	setfunc_(p);
-    
+
     T* oldptr = ptr_.exchange(p);
     if ( doerase )
 	deletefunc_( oldptr );
@@ -332,7 +332,7 @@ RefMan<T>::RefMan( const RefMan<T>& p )
     : PtrManBase<T>( ref, unRef, p.ptr() )
 {}
 
-    
+
 template <class T> inline
 RefMan<T>::RefMan( T* p )
     : PtrManBase<T>( ref, unRef, p )
@@ -352,7 +352,7 @@ ConstRefMan<T>::ConstRefMan( const ConstRefMan<T>& p )
     : PtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
 {}
 
-    
+
 template <class T> inline
 ConstRefMan<T>::ConstRefMan( const T* p )
     : PtrManBase<T>( ref, unRef, const_cast<T*>(p) )

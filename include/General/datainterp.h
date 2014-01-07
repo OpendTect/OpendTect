@@ -14,7 +14,7 @@ ________________________________________________________________________
 */
 
 #include "datachar.h"
-#include "general.h"
+#include "gendefs.h"
 class od_istream;
 
 

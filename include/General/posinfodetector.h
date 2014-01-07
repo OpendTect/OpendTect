@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posinfo.h"
 #include "coord.h"
+#include "bufstring.h"
 class HorSampling;
 class BinIDSorting;
 class BinIDSortingAnalyser;
@@ -61,8 +62,8 @@ public:
 	mDefSetupMemb(bool,reqsorting)
     };
 
-    			Detector(const Setup&);
-    			~Detector();
+			Detector(const Setup&);
+			~Detector();
 
     bool		is2D() const		{ return setup_.is2d_; }
     bool		isPS() const		{ return setup_.isps_; }
@@ -82,7 +83,7 @@ public:
     int			nrPositions( bool uniq=true ) const
 			{ return uniq ? nruniquepos_ : nrpos_; }
 
-    			// available after finish()
+			// available after finish()
     Coord		minCoord() const	{ return mincoord_; }
     Coord		maxCoord() const	{ return maxcoord_; }
     BinID		start() const		{ return start_; }
@@ -102,7 +103,7 @@ public:
     bool		inlSorted() const;
     bool		crlSorted() const;
     void		getCubeData(CubeData&) const;
-    			//!< if crlSorted(), inl and crl are swapped
+			//!< if crlSorted(), inl and crl are swapped
     const char*		getSurvInfo(HorSampling&,Coord crd[3]) const;
 
     StepInterval<int>	getRange(bool inldir=false) const;

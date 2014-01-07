@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "typeset.h"
 #include "coord.h"
+#include "bufstring.h"
 #include "od_iosfwd.h"
 
 
@@ -89,12 +90,12 @@ public:
     int			nearestIdx( const Coord& crd ) const
 						{ return gtIndex(crd); }
     int			nearestIdx(const Coord&,
-	    			   const Interval<int>& trcnrrg) const;
+				   const Interval<int>& trcnrrg) const;
 
     bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       float* dist=0) const;
+			       float* dist=0) const;
     bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       float threshold_distance) const;
+			       float threshold_distance) const;
     bool		getPos(int trcnr,Line2DPos&) const;
 
     void                dump(od_ostream&,bool pretty=true) const;
@@ -108,7 +109,7 @@ public:
 protected:
 
     StepInterval<float> zrg_;
-    BufferString	lnm_;			
+    BufferString	lnm_;
     TypeSet<Line2DPos>  posns_;
 
     int			gtIndex(int,bool&) const;

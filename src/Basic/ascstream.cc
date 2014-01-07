@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
 #include "string2.h"
-#include "general.h"
 #include "timefun.h"
 #include "convert.h"
 #include "odver.h"

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "general.h"
 #include "refcount.h"
 #include "bufstring.h"
 #include "bufstringset.h"

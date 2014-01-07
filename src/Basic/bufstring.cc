@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "fixedstring.h"
 #include "iopar.h"
-#include "general.h"
 #include "arrayndimpl.h"
 #include "string2.h"
 #include "globexpr.h"
@@ -317,7 +316,7 @@ BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
     {
 	const int newsz = cursz + nrtopad + strsz + 1;
 	setBufSize( newsz );
-	mPointerOperation( char, buf_+cursz, = ' ', atidx, ++ );
+	mDoArrayPtrOperation( char, buf_+cursz, = ' ', atidx, ++ );
 	buf_[atidx] = '\0';
 	cursz = newsz;
     }
@@ -666,7 +665,7 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
     const int sz = size();
     if ( sz < 1 ) return 0;
 
-    mGetIdxArr(int,idxs,sz)
+    mGetIdxArr( int, idxs, sz );
     if ( !idxs || sz < 2 )
 	return idxs;
 

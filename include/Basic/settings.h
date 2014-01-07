@@ -41,28 +41,28 @@ public:
 
     bool			write(bool read_before=true) const;
 				//!< read_before should be true: this is the
-    				//!< protection against another update being
-    				//!< screwed by this one
+				//!< protection against another update being
+				//!< screwed by this one
     bool			reRead()	{ return doRead(false); }
 				//!< Needed in case you know that the file has
-    				//!< been changed by user or external routine.
-    				//!< It's not likely that you'll need this.
+				//!< been changed by user or external routine.
+				//!< It's not likely that you'll need this.
 
     static Settings*		fetchExternal(const char* settings_name,
 					      const char* dtect_user,
 					      const char* usr_settings_dir);
-    				//!< for sysadm purposes
+				//!< for sysadm purposes
 
 protected:
 
 				Settings( const char* fnm )
-				    : fname(fnm)		{}
+				    : fname_(fnm)		{}
 				~Settings()			{}
 
-    FileNameString		fname;
+    BufferString		fname_;
 
     static Settings*		doFetch(const char*,const char*,const char*,
-	    				bool);
+					bool);
     bool			doRead(bool);
 };
 

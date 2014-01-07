@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datachar.h"
 #include "iopar.h"
+#include "genc.h"
 #include "ibmformat.h"
 #include "separstr.h"
 #include "od_istream.h"
@@ -119,7 +120,7 @@ void DataCharacteristics::toString( BufferString& buf ) const
     FileMultiString fms( buf );
     fms += isIeee() ? "IEEE" : "IBMmf";
     fms += getYesNoString( littleendian_ );
-    buf = fms;	  
+    buf = fms;
 }
 
 

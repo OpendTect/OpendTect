@@ -31,19 +31,18 @@ If you don't want to use the help system, simply pass null ('0').
 */
 
 #define mNoDlgTitle	""
+#define mTODOHelpID	"0.0.0"
+#define mNoHelpID	"-"
 
 
 mExpClass(uiBase) uiDialog : public uiMainWin
-{ 	
+{
     // impl: uimainwin.cc
     friend class	uiDialogBody;
 
 public:
 
-    /*!\brief description of properties of dialog.
-
-	see general.h for background on Setup classes.
-     */
+    /*!\brief description of properties of dialog. */
 
     mExpClass(uiBase) Setup
     {
@@ -95,17 +94,17 @@ public:
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;
 
-    int			go(); 
+    int			go();
     int			goMinimized();
 
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
     void		done(int ret=0);
-    			//!< 0=Cancel, 1=OK, other=user defined
+			//!< 0=Cancel, 1=OK, other=user defined
 
-    void		setHSpacing( int ); 
-    void		setVSpacing( int ); 
-    void		setBorder( int ); 
+    void		setHSpacing( int );
+    void		setVSpacing( int );
+    void		setBorder( int );
 
     void		setCaption( const char* txt );
     void		setModal(bool yn);
@@ -113,7 +112,7 @@ public:
 
     uiButton*		button( Button but );
     void		setButtonText( Button but, const char* txt );
-    
+
     enum CtrlStyle	{ DoAndLeave, DoAndStay, LeaveOnly, DoAndProceed };
 			//! On construction, it's (of course) DoAndLeave
     void		setCtrlStyle(CtrlStyle);
@@ -126,7 +125,7 @@ public:
     void		enableSaveButton( const char* txt="Save defaults" );
 			//! 0: cancel; 1: OK
     int			uiResult() const;
-    			
+
 
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
@@ -143,15 +142,15 @@ public:
 
     void		showMinMaxButtons();
     void		showAlwaysOnTop();
-    static int		titlePos();			
+    static int		titlePos();
     static void		setTitlePos( int p );
 			// -1 = left, 0 = center, 1 = right
 
 protected:
 
-    virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject 
-    virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept 
-    virtual bool        doneOK(int)	     { return true; } //!< confirm exit 
+    virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject
+    virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept
+    virtual bool        doneOK(int)	     { return true; } //!< confirm exit
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;

@@ -13,7 +13,7 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
-#include "general.h"
+#include "bufstring.h"
 
 /*!
 \brief Glob-expression matching like UNIX shells

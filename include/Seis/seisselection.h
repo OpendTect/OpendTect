@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "ranges.h"
 #include "binid.h"
+#include "bufstring.h"
 class LineKey;
 namespace Pos { class Provider; }
 
@@ -75,7 +76,7 @@ public:
   Especially (2) is very useful: an entire inl or crl can be skipped from input.
   The return value of selRes is inl_result + 256 * crl_result.
   If you're not interested in all that, just use isOK().
-  
+
  */
 
 mExpClass(Seis) SelData
@@ -90,7 +91,7 @@ public:
     static SelData*	get(const IOPar&);	//!< fully filled
     static SelData*	get(const Pos::Provider&); //!< filled; some defaults
     virtual SelData*	clone() const		= 0;
-    virtual void	copyFrom(const SelData&) = 0;	
+    virtual void	copyFrom(const SelData&) = 0;
 
     bool		isAll() const		{ return isall_; }
     void		setIsAll( bool yn=true ) { isall_ = yn; }
@@ -104,32 +105,32 @@ public:
     virtual Interval<int> crlRange() const;
     virtual bool	setCrlRange(Interval<int>) { return false; }
     virtual int		expectedNrTraces(bool for2d=false,
-	    				 const BinID* step=0) const = 0;
+					 const BinID* step=0) const = 0;
 
     virtual void	fillPar(IOPar&) const		= 0;
     virtual void	usePar(const IOPar&)		= 0;
     static void		removeFromPar(IOPar&);
 
     virtual void	extendZ(const Interval<float>&)	= 0;
-    virtual void 	extendH(const BinID& stepout,
-	    			const BinID* stepoutstep=0);
+    virtual void	extendH(const BinID& stepout,
+				const BinID* stepoutstep=0);
     virtual void	include(const SelData&)		= 0;
 
-    			// Interesting in some 2D situations:
+			// Interesting in some 2D situations:
     inline LineKey&	lineKey()		{ return linekey_; }
     inline const LineKey& lineKey() const	{ return linekey_; }
     inline Pos::GeomID  geomID() const	{ return geomid_; }
 
 protected:
 
-    			SelData();
+			SelData();
 
     bool		isall_;
     LineKey&		linekey_;	//!< 2D only
     Pos::GeomID		geomid_;
 
     int			tracesInSI() const;
-    virtual void 	doExtendH(BinID stepout,BinID stepoutstep) = 0;
+    virtual void	doExtendH(BinID stepout,BinID stepoutstep) = 0;
 };
 
 

@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "gendefs.h"
-#include "general.h"
 #include "ptrman.h"
 #include "thread.h"
 #include "paralleltask.h"

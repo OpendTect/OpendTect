@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mPolygonType int
- 
+
 const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
 const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
 const char* Array2DInterpol::sKeyColStep()	{ return "Col Step"; }
@@ -57,9 +57,9 @@ mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 class Extension2DInterpolExecutor : public Executor
 {
 public:
-    		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
+		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
 		~Extension2DInterpolExecutor()  { deleteStateArr(); }
-			
+
     int		nextStep();
     const char*	message() const		{ return curmsg_; }
     od_int64	nrDone() const		{ return curlvl_ + 1; }
@@ -77,16 +77,16 @@ protected:
     void	handleAdjCol(int,int,int);
     bool	doInterpolate(int,int);
     bool	interpExtension(int,int,float&);
-    
+
     short**	state_;
     int		curlvl_;
     float	diagdist_;
     const char*	curmsg_;
-    
+
     ExtensionArray2DInterpol&	aie_;
 };
 
-									    
+
 Array2DInterpol::Array2DInterpol()
     : arr_(0)
     , arrsetter_(0)
@@ -156,7 +156,7 @@ void Array2DInterpol::setMask( const Array2D<bool>* mask, OD::PtrPolicy policy )
 	if ( mask ) mask_ = new Array2DImpl<bool>( *mask );
 	maskismine_ = true;
     }
-    else 
+    else
     {
 	mask_ = mask;
 	maskismine_ = policy==OD::TakeOverPtr;
@@ -229,8 +229,8 @@ void Array2DInterpol::getNodesToFill( const bool* def,
     }
 
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
-	    		    nrcells_ );
-    
+			    nrcells_ );
+
     TaskRunner::execute( tr, setter );
 
     if ( filltype_==ConvexHull )
@@ -244,7 +244,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    int idx = icol;
 	    for ( int irow=0; irow<nrrows_; irow++, idx+=nrcols_ )
 	    {
-		if ( def[idx] ) 
+		if ( def[idx] )
 		{
 		    poly.add( Geom::Point2D<mPolygonType>(irow,icol) );
 		    mUpdateRange( irow, icol );
@@ -347,7 +347,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    for ( irow=thisrowrg.start; irow<=thisrowrg.stop;
 		    irow++, idx+= nrcols_ )
 	    {
-		if ( def[idx] ) 
+		if ( def[idx] )
 		    continue;
 
 		shouldinterpol[idx] = true;
@@ -370,11 +370,11 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	for ( int irow=1; irow<nrrows_-1; irow++ )
 	{
 	    int idx = irow*nrcols_;
-	    if ( !def[idx] ) 
+	    if ( !def[idx] )
 		floodFillArrFrom( idx, def, shouldinterpol );
 
 	    idx = (irow+1)*nrcols_-1;
-	    if ( !def[idx] ) 
+	    if ( !def[idx] )
 		floodFillArrFrom( idx, def, shouldinterpol );
 	}
     }
@@ -508,7 +508,7 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
     {
 	mDoLoop( const float val = ptr[sources[idx]] );
 	ptr[target] = isclassification_
-	    ? (float) calc.mostFreq() 
+	    ? (float) calc.mostFreq()
 	    : (float) calc.average();
     }
     else
@@ -537,7 +537,7 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 
 
 void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
-				 	bool* shouldinterpol ) const
+					bool* shouldinterpol ) const
 {
     shouldinterpol[seed] = false;
 
@@ -675,7 +675,7 @@ bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr ); 
+    return initFromArray( tr );
 }
 
 
@@ -685,7 +685,7 @@ bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr ); 
+    return initFromArray( tr );
 }
 
 
@@ -910,7 +910,7 @@ bool InverseDistanceArray2DInterpol::fillPar( IOPar& par ) const
     return true;
 }
 
-bool InverseDistanceArray2DInterpol::usePar( const IOPar& par ) 
+bool InverseDistanceArray2DInterpol::usePar( const IOPar& par )
 {
     Array2DInterpol::usePar( par );
     par.get( sKeySearchRadius(), searchradius_ );
@@ -925,7 +925,7 @@ class InvDistArr2DGridFindSources : public ParallelTask
 {
 public:
     InvDistArr2DGridFindSources( const bool* def, const bool* nodestofill,
-	    			 int nrrows, int nrcols,
+				 int nrrows, int nrcols,
 				 TypeSet<od_int64>& res,
 				 TypeSet<od_int64>& nrs,
 				 int stepsize, bool cornersfirst )
@@ -1043,7 +1043,7 @@ public:
 	if ( !cornersfirst_ )
 	{
 	    sort_coupled( nrsourceslist_.arr(), res_.arr(),
-		    	  nrsourceslist_.size() );
+			  nrsourceslist_.size() );
 	}
 
 	return true;
@@ -1142,7 +1142,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 	    continue;
 	}
 
-	//find all nodes within stepsize_ from defined nodes, and order 
+	//find all nodes within stepsize_ from defined nodes, and order
 	//by nr of defined nrnodes inside -stepsize to stepsize
 	addedwithcursuport_.erase();
 	InvDistArr2DGridFindSources finder( curdefined_, nodestofill_,
@@ -1202,7 +1202,7 @@ void InverseDistanceArray2DInterpol::reportDone( od_int64 idx )
 
 TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     : triangulation_( 0 )
-    , triangleinterpolator_( 0 )  
+    , triangleinterpolator_( 0 )
     , curdefined_( 0 )
     , nodestofill_( 0 )
     , totalnr_( -1 )
@@ -1263,8 +1263,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     if ( !curdefined_ )
 	return false;
 
-    int idx = 0;
-    mPointerOperation( bool, curdefined_, = isDefined( idx++ ), nrcells_, ++ );
+    for ( int idx=0; idx<nrcells_; idx++ )
+	curdefined_[idx] = isDefined( idx );
 
     delete [] nodestofill_;
     mTryAlloc( nodestofill_, bool[nrcells_] );
@@ -1276,7 +1276,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     totalnr_ = 0;
     const bool* ptr = curdefined_;
     const bool* stopptr = curdefined_+nrcells_;
-    idx = 0;
+    int idx = 0;
     const bool* nodestofillptr = nodestofill_;
     Interval<int> xrg, yrg;
     bool rgset = false;
@@ -1369,10 +1369,10 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
     if ( !TaskRunner::execute( tr, triangulator ) )
 	return false;
-    
+
     if ( triangleinterpolator_ )
 	delete triangleinterpolator_;
-    
+
     triangleinterpolator_ = new Triangle2DInterpolator( *triangulation_ );
 
     return true;
@@ -1434,13 +1434,13 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	    if ( !triangleinterpolator_->computeWeights( crd, vertices,
 			weights, maxdistance_, dointerpolation_ ) )
 		return false;
-	 
+
 	    const int sz = vertices.size();
 	    if ( !sz ) continue;
-	    
+
 	    for ( int vidx=0; vidx<sz; vidx++ )
 		usedindices += coordlistindices_[vertices[vidx]];
-	    
+
 	    setFrom( curnode, usedindices.arr(), weights.arr(), sz );
 	}
     }
@@ -1511,7 +1511,7 @@ bool ExtensionArray2DInterpol::usePar( const IOPar& par )
 }
 
 
-Extension2DInterpolExecutor::Extension2DInterpolExecutor( 
+Extension2DInterpolExecutor::Extension2DInterpolExecutor(
 						ExtensionArray2DInterpol& aie )
     : Executor("2D Interpolation")
     , aie_(aie)
@@ -1533,7 +1533,7 @@ void Extension2DInterpolExecutor::createStateArr()
 	if ( !state_[idx] )
 	    deleteStateArr();
     }
-    
+
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
     {
 	for ( int icol=0; icol<aie_.nrcols_; icol++ )
@@ -1542,14 +1542,14 @@ void Extension2DInterpolExecutor::createStateArr()
 	    const bool isudf = mIsUdf(val);
 	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;
 	}
-    }   
+    }
 }
 
 
 void Extension2DInterpolExecutor::deleteStateArr()
 {
     if ( !state_ ) return;
-    
+
     for ( int idx=0; idx<aie_.nrrows_; idx++ )
 	delete [] state_[idx];
 
@@ -1568,7 +1568,7 @@ bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
 	return true;
     }
 
-    return false;	
+    return false;
 }
 
 
@@ -1586,7 +1586,7 @@ bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
 }
 
 
-bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, 
+bool Extension2DInterpolExecutor::interpExtension( int irow, int icol,
 						   float& val )
 {
     float defs[12]; float wts[12]; int nrdefs = 0;
@@ -1625,7 +1625,7 @@ bool Extension2DInterpolExecutor::interpExtension( int irow, int icol,
 	if ( icol < aie_.nrcols_-2 && mA2DIsValidInterpPoint(irow,icol+1) )
 	    mA2DInterpAdd( irow, icol+2, 2 * aie_.colstep_ );
     }
-    
+
     if ( nrdefs < 2 )
 	return false;
 
@@ -1636,7 +1636,7 @@ bool Extension2DInterpolExecutor::interpExtension( int irow, int icol,
 	sumval += defs[idx] * wt;
 	sumwt += wt;
     }
-    
+
     val = sumval / sumwt;
     return true;
 }
@@ -1653,7 +1653,7 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 	    if ( state_[aie_.nrrows_-1][icol] == cA2DStateNeedInterp )
 		floodFill4KeepUdf( aie_.nrrows_-1, icol );
 	}
-	
+
 	for ( int irow=1; irow<aie_.nrrows_-1; irow++ )
 	{
 	    if ( state_[irow][0] == cA2DStateNeedInterp )
@@ -1677,7 +1677,7 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 		{
 		    poly.add( mGeomPoint(irow,icol) );
 		    inside[icol] = irow;
-		    
+
 		    for ( int jrow=aie_.nrrows_-1; jrow>irow; jrow-- )
 		    {
 			if ( state_[jrow][icol] == cA2DStateDefined )
@@ -1692,29 +1692,29 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 	}
 
 	poly.convexHull();
-	
+
 	for ( int icol=0; icol<aie_.nrcols_; icol++ )
 	{
 	    if ( inside[icol] < 0 )
 		continue;
-	    
+
 	    for ( int dir=-1; dir<=1; dir+=2 )
 	    {
-		for ( int irow=inside[icol]; irow>=0 && irow<aie_.nrrows_; 
-			irow+=dir)                
+		for ( int irow=inside[icol]; irow>=0 && irow<aie_.nrrows_;
+			irow+=dir)
 		{
 		    if ( state_[irow][icol] == cA2DStateKeepUdf )
 		    {
 			if ( !poly.isInside( mGeomPoint(irow,icol),
 				    true, 0 ) )
-			    break;			
-			
+			    break;
+
 			state_[irow][icol] = cA2DStateNeedInterp;
 		    }
 		}
- 	    }
+	    }
 	}
-    }    
+    }
 }
 
 
@@ -1737,7 +1737,7 @@ bool Extension2DInterpolExecutor::markBigHoles()
 		}
 
 		nrtobeinterp = 0;
- 	    }
+	    }
 	}
     }
 
@@ -1760,8 +1760,8 @@ bool Extension2DInterpolExecutor::markBigHoles()
 	    }
 	}
     }
-    
-    return havebighole;    
+
+    return havebighole;
 }
 
 
@@ -1772,42 +1772,42 @@ bool Extension2DInterpolExecutor::markBigHoles()
 
 void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 {
-    for ( int irow = seedrow; 
-	    seedcol < aie_.nrcols_ && irow < aie_.nrrows_ && 
+    for ( int irow = seedrow;
+	    seedcol < aie_.nrcols_ && irow < aie_.nrrows_ &&
 	    mA2DInterpNeedsReplace(irow,seedcol); irow++ )
 	state_[irow][seedcol] = cA2DStateKeepUdf;
 
     for ( int irow = seedrow - 1;
-	    seedcol > -1 && irow > -1 && 
+	    seedcol > -1 && irow > -1 &&
 	    mA2DInterpNeedsReplace(irow,seedcol); irow-- )
 	state_[irow][seedcol] = cA2DStateKeepUdf;
-    
+
     if ( seedcol > 0 )
 	handleAdjCol( seedrow, seedcol, -1 );
 
     if ( seedcol < aie_.nrcols_-1 )
-	handleAdjCol( seedrow, seedcol, 1 );    
+	handleAdjCol( seedrow, seedcol, 1 );
 }
 
 
-void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, 
+void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol,
 						int step)
 {
     for ( int irow = seedrow;
-	    seedcol < aie_.nrcols_ && irow < aie_.nrrows_ && 
+	    seedcol < aie_.nrcols_ && irow < aie_.nrrows_ &&
 	    state_[irow][seedcol] == cA2DStateKeepUdf; irow++ )
     {
 	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
 	    floodFill4KeepUdf( irow, seedcol+step );
     }
-    
+
     for ( int irow = seedrow - 1;
-	    seedcol > -1 && irow > -1 && 
+	    seedcol > -1 && irow > -1 &&
 	    state_[irow][seedcol] == cA2DStateKeepUdf; irow-- )
     {
 	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
 	    floodFill4KeepUdf( irow, seedcol+step );
-    }    
+    }
 }
 
 
@@ -1818,12 +1818,12 @@ int Extension2DInterpolExecutor::nextStep()
 	curmsg_ = "Memory full";
 	return Executor::ErrorOccurred();
     }
-    
+
     if ( mIsUdf(diagdist_) )
     {
-	diagdist_ = Math::Sqrt( aie_.colstep_*aie_.colstep_ + 
+	diagdist_ = Math::Sqrt( aie_.colstep_*aie_.colstep_ +
 				aie_.rowstep_ * aie_.rowstep_ );
-	
+
 	adjustInitialStates();
 	if ( aie_.maxholesize_ > 0 )
 	{
@@ -1839,7 +1839,7 @@ int Extension2DInterpolExecutor::nextStep()
 		}
 	    }
 	}
-	
+
 	curmsg_ = "Interpolating";
 	return Executor::MoreToDo();
     }
@@ -1847,7 +1847,7 @@ int Extension2DInterpolExecutor::nextStep()
     curlvl_++;
     if ( aie_.getNrSteps() > 0 && aie_.getNrSteps() <= curlvl_ )
 	return Executor::Finished();
-    
+
     bool haveinterpolated = false;
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
     {
@@ -1858,14 +1858,14 @@ int Extension2DInterpolExecutor::nextStep()
 		haveinterpolated = true;
 	}
     }
-    
+
     if ( !haveinterpolated )
     {
 	curmsg_ = "Finished";
 	return Executor::Finished();
     }
-    
-    return Executor::MoreToDo();    
+
+    return Executor::MoreToDo();
 }
 
 

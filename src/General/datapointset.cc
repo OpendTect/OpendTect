@@ -20,8 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
 #define mAddMembs(is2d,mini) \
-    	  is2d_(is2d) \
-    	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
+	  is2d_(is2d) \
+	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
 	, minimal_(mini)
 
 
@@ -119,7 +119,7 @@ void DataPointSet::DataRow::setGroup( unsigned short newgrp )
 DataPointSet::DataPointSet( bool is2d, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(is2d,mini)
+	, mAddMembs(is2d,mini)
 {
     initPVDS();
 }
@@ -130,7 +130,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 			    bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(is2d,mini)
+	, mAddMembs(is2d,mini)
 {
     initPVDS();
     init( pts, dcds );
@@ -141,7 +141,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 			    const BufferStringSet& nms, bool is2d, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(is2d,mini)
+	, mAddMembs(is2d,mini)
 {
     initPVDS();
     ObjectSet<DataColDef> dcds;
@@ -153,10 +153,10 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 DataPointSet::DataPointSet( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
-       			    const ::Pos::Filter* filt, bool mini )
+			    const ::Pos::Filter* filt, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(prov.is2D(),mini)
+	, mAddMembs(prov.is2D(),mini)
 {
     initPVDS();
     for ( int idx=0; idx<dcds.size(); idx++ )
@@ -204,7 +204,7 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(is2d,mini)
+	, mAddMembs(is2d,mini)
 {
     initPVDS();
     data_.pars() = pdvs.pars();
@@ -248,7 +248,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(dps.is2d_,dps.minimal_)
+	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_.copyStructureFrom( dps.data_ );
     const int typ = filt.is2D() != dps.is2d_ ? -1 : (dps.is2d_ ? 1 : 0);
@@ -278,7 +278,7 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 DataPointSet::DataPointSet( const DataPointSet& dps )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAddMembs(dps.is2d_,dps.minimal_)
+	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_ = dps.data_;
     bvsidxs_ = dps.bvsidxs_;
@@ -388,7 +388,7 @@ DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
     FixedString nm( nmstr );
     if ( nm.isEmpty() )
 	return -1;
-    
+
     const int nrcols = nrCols();
     for ( int idx=0; idx<nrcols; idx++ )
     {
@@ -496,14 +496,14 @@ const float* DataPointSet::getValues( DataPointSet::RowID rid ) const
     return const_cast<DataPointSet*>(this)->getValues( rid );
 }
 
-    
+
 unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 {
     if ( minimal_ ) return 0;
     mChkRowID(rid,0);
     int selgrp, grp;
     getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
-	    	    selgrp, grp );
+		    selgrp, grp );
     return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
 }
 
@@ -512,7 +512,7 @@ int DataPointSet::selGroup( DataPointSet::RowID rid ) const
 {
     int grp,selgrp;
     getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
-	    	    selgrp, grp );
+		    selgrp, grp );
     return selgrp;
 }
 
@@ -539,7 +539,7 @@ void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
     if ( minimal_ ) return;
     mChkRowID(rid,);
     short grp = (short)group( rid );
-    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = 
+    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] =
 				  mCast( float, getCompacted( selgrp, grp) );
 }
 
@@ -656,7 +656,7 @@ void DataPointSet::randomSubselect( int maxsz )
 
 DataPointSet* DataPointSet::getSubselected( int maxsz,
 			const TypeSet<int>* outcols, bool allowudf,
-       			const ObjectSet<Interval<float> >* rgs ) const
+			const ObjectSet<Interval<float> >* rgs ) const
 {
     const int mysz = size();
     const int mynrcols = nrCols();
@@ -679,9 +679,9 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 			    dataSet().coldefs_[ nrfixedcols_ + colnr ] );
     }
     DataPointSet* ret = new DataPointSet( TypeSet<DataRow>(), cds, is2D(),
-	    				  isMinimal() );
+					  isMinimal() );
 
-    mGetIdxArr(RowID,idxs,mysz);
+    mGetIdxArr( RowID, idxs, mysz );
     if ( !idxs ) { delete ret; return 0; }
 
     const int nrcols = outcols->size();
@@ -778,7 +778,7 @@ else \
     res = dz * SI().zDomain().userFactor(); \
     if ( SI().xyInFeet() ) \
 	res *= mToFeetFactorF; \
-} 
+}
 
 
 DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,

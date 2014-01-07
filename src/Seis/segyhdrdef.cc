@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segythdef.h"
 #include "ibmformat.h"
 #include "settings.h"
+#include "genc.h"
 #include <string.h>
 
 static const char* sKeyBytesFor = "Nr bytes for ";

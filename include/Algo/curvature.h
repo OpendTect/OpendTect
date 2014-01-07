@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "general.h"
+#include "gendefs.h"
 
 /*!
 \brief Class to calculate curvature from 9 regularly sampled points.
@@ -29,7 +29,7 @@ public:
     mExpClass(Algo) Setup
     {
 	public:
-	    		Setup();
+			Setup();
 
 			mDefSetupMemb(bool,mean);
 			mDefSetupMemb(bool,gaussian);
@@ -42,9 +42,9 @@ public:
 			mDefSetupMemb(bool,curvedness );
     };
 
-    			Curvature(const Setup&);
+			Curvature(const Setup&);
 
-    		bool	set(double v00,double v01,double v02,
+		bool	set(double v00,double v01,double v02,
 			    double v10,double v11,double v12,
 			    double v20,double v21,double v22,
 			    double dist01=1, double d10=1,

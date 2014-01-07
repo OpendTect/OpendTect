@@ -23,27 +23,21 @@ class IOStreamProducer : public IOObjProducer
 		{ return FixedString(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
 		{ return new IOStream(nm,ky,fd); }
+
+    static int	factoryid_;
 };
 
-int IOStream::prodid_ = IOObj::addProducer( new IOStreamProducer );
+int IOStreamProducer::factoryid_ = IOObj::addProducer( new IOStreamProducer );
 
 
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	: IOObj(nm,uid)
-	, readcmd_(&fname_)
-	, writecmd_(0)
 	, padzeros_(0)
 	, fnrs_(0,0,1)
 	, iscomm_(false)
 	, curfnr_(0)
 {
     if ( mkdef ) genFileName();
-}
-
-
-IOStream::~IOStream()
-{
-    delete writecmd_;
 }
 
 
@@ -55,7 +49,10 @@ FixedString IOStream::connType() const
 
 bool IOStream::isBad() const
 {
-    return !iscomm_ && fname_.isEmpty();
+    if ( fname_.isEmpty() || fname_ == "?" )
+	return true;
+
+    return iscomm_ && writecmd_.isEmpty();
 }
 
 
@@ -70,9 +67,7 @@ void IOStream::copyFrom( const IOObj* obj )
 	hostname_ = iosobj->hostname_;
 	padzeros_ = iosobj->padzeros_;
 	fname_ = iosobj->fname_;
-	writecmd_ = iosobj->writecmd_
-	    ? new FileNameString(*iosobj->writecmd_)
-	    : 0;
+	writecmd_ = iosobj->writecmd_;
 	iscomm_ = iosobj->iscomm_;
 	fnrs_ = iosobj->fnrs_;
 	curfnr_ = iosobj->curfnr_;
@@ -172,7 +167,7 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
 
 Conn* IOStream::getConn( bool forread ) const
 {
-    if ( !iscomm_ && fname_ == "?" )
+    if ( isBad() )
 	const_cast<IOStream*>(this)->genFileName();
 
     const BufferString implnm( getExpandedName(forread) );
@@ -188,11 +183,13 @@ Conn* IOStream::getConn( bool forread ) const
 
 void IOStream::genFileName()
 {
+    iscomm_ = false;
+    writecmd_.setEmpty();
+
     fname_ = name();
     FilePath fp( fname_ );
     const bool isabs = fp.isAbsolute();
-    fname_.clean( isabs ? BufferString::NoSpaces
-			: BufferString::AllowDots );
+    fname_.clean( isabs ? BufferString::NoSpaces : BufferString::AllowDots );
     const int extsz = extension_.size();
     const int neededsz = fname_.size() + extsz;
     if ( neededsz >= mMaxFilePathLength )
@@ -205,16 +202,12 @@ void IOStream::genFileName()
     }
 
     if ( extsz > 0 )
-    {
-        fname_ += ".";
-        fname_ += extension_;
-    }
+	fname_.add( "." ).add( extension_ );
 }
 
 
 void IOStream::setReader( const char* str )
 {
-    if ( !str ) return;
     iscomm_ = true;
     fname_ = str;
 }
@@ -222,43 +215,46 @@ void IOStream::setReader( const char* str )
 
 void IOStream::setWriter( const char* str )
 {
-    if ( !str ) return;
     iscomm_ = true;
-    if ( !writecmd_ ) writecmd_ = new FileNameString( str );
-    else if ( *writecmd_ == str ) return;
-    *writecmd_ = str;
+    writecmd_ = str;
 }
 
 
 void IOStream::setFileName( const char* str )
 {
-    iscomm_ = false;
+
     StreamProvider sp = StreamProvider( str );
-    if ( !sp.isCommand() )
-	fname_ = sp.fullName();
+    if ( sp.isCommand() )
+    {
+	const char* rwcmd = sp.command();
+	setReader( rwcmd ); setWriter( rwcmd );
+    }
     else
     {
-	setReader( sp.command() );
-	setWriter( sp.command() );
+	iscomm_ = false;
+	writecmd_.setEmpty();
+	fname_ = sp.fullName();
     }
 }
 
+
+#define mStrmNext() stream.next(); kw = stream.keyWord() + 1;
 
 
 bool IOStream::getFrom( ascistream& stream )
 {
     FixedString kw = stream.keyWord() + 1;
-    if ( kw=="Hostname" )
+    if ( kw == "Hostname" )
     {
 	hostname_ = stream.value();
-	stream.next();
+	mStrmNext()
     }
-    if ( kw=="Extension" )
+    if ( kw == "Extension" )
     {
 	extension_ = stream.value();
-	stream.next();
+	mStrmNext()
     }
-    if ( kw=="Multi" )
+    if ( kw == "Multi" )
     {
 	FileMultiString fms( stream.value() );
 	fnrs_.start = fms.getIValue( 0 );
@@ -270,21 +266,22 @@ bool IOStream::getFrom( ascistream& stream )
 	    Swap( fnrs_.start, fnrs_.stop );
 	padzeros_ = fms.getIValue( 3 );
 	curfnr_ = fnrs_.start;
-	stream.next();
+	mStrmNext()
     }
 
     fname_ = stream.value();
-    if ( kw=="Name" )
-	iscomm_ = false;
-    else if ( kw=="Reader" )
+    if ( kw == "Name" )
     {
-	iscomm_ = true;
-	stream.next();
-	if ( !writecmd_ ) writecmd_ = new FileNameString( stream.value() );
-	else *writecmd_ = stream.value();
+	iscomm_ = false;
+	writecmd_.setEmpty();
+    }
+    else if ( kw == "Reader" )
+    {
+	mStrmNext()
+	setWriter( stream.value() );
     }
     else
-	return false;
+	genFileName();
 
     stream.next();
     return true;
@@ -310,8 +307,7 @@ bool IOStream::putTo( ascostream& stream ) const
     if ( iscomm_ )
     {
 	stream.put( "$Reader", fname_ );
-	stream.put( "$Writer", writecmd_ ? *writecmd_ : fname_ );
-	return true;
+	stream.put( "$Writer", writecmd_ );
     }
     else
     {
@@ -327,10 +323,9 @@ bool IOStream::putTo( ascostream& stream ) const
 	}
 
 	stream.put( "$Name", cleanfnm.buf() + offs );
-	return true;
     }
 
-    //return false;
+    return true;
 }
 
 
@@ -348,7 +343,7 @@ StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
 {
     BufferString ret;
 
-    FileNameString nm( iscomm_ && !fr ? writer() : (const char*)fname_ );
+    BufferString nm( iscomm_ && !fr ? writer() : (const char*)fname_ );
 
     const bool hasast = firstOcc( nm, '*' );
     const bool doins = fillwc && isMulti() && (hasast || firstOcc(nm,'%'));

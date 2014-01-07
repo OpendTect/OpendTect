@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "envvars.h"
 #include "oscommand.h"
+#include "genc.h"
 
 #include <signal.h>
 
@@ -289,7 +290,7 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 	{ stopProcess( pid, friendly ); return; }
 
 #ifdef __win__
-    pFreeFnErrMsg( "Not impl: stopRemote() for Windows", 
+    pFreeFnErrMsg( "Not impl: stopRemote() for Windows",
 		   "SignalHandling::stopRemote" );
 #else
 

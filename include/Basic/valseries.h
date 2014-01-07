@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "general.h"
+#include "gendefs.h"
 #include "odmemory.h"
 
 #ifdef __debug__

@@ -15,16 +15,16 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 class uiComboBox;
-namespace Well { class Marker; class MarkerSet; } 
+namespace Well { class Marker; class MarkerSet; }
 
 
 /*!\brief Select one or two markers (i.e. a range) */
 
-mDefClass(uiWell) uiWellMarkerSel : public uiGroup
+mExpClass(uiWell) uiWellMarkerSel : public uiGroup
 {
 public:
 
-    mDefClass(uiWell) Setup
+    mExpClass(uiWell) Setup
     {
     public:
 			Setup(bool one,const char* sel_txt=0);
@@ -50,7 +50,7 @@ public:
     const char*		getText(bool top=true) const;
     int			getType(bool top=true) const;
 				//!< -1=udf/before-first, 0=marker, 1=after-last
-    				//!< only useful if setup.withudf
+				//!< only useful if setup.withudf
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;

@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "cubicbeziercurve.h"
+#include "bufstring.h"
 
 
 #define mRetErr( msg, retval ) { errmsg()=msg; return retval; }
@@ -171,7 +172,7 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
 
 bool CubicBezierCurve::insertPosition( GeomPosID param, const Coord3& np )
 {
-    if ( !np.isDefined() ) 
+    if ( !np.isDefined() )
 	mRetErr("Cannot insert undefined position", false );
 
     const int idx = getIndex(param);
@@ -249,11 +250,11 @@ Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
 
     const Coord3 dir = getTangent(pid,true);
     if ( !dir.isDefined() ) return dir;
-    
-    if ( before ) 
+
+    if ( before )
 	return basepos-dir.normalize()*directioninfluence;
     else
-    	return basepos+dir.normalize()*directioninfluence;
+	return basepos+dir.normalize()*directioninfluence;
 }
 
 
@@ -351,7 +352,7 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
 
     if ( positions.size()==3 )
 	diff = 1;
-   
+
     const Coord3& c0 = positions[idx0];
     const Coord3& c1 = positions[idx1];
 

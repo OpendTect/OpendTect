@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiproxydlg.h"
 #include "uislider.h"
 #include "oddlsite.h"
+#include "genc.h"
 
 
 static BufferString gtWinTitle( const ODDLSite& dlsite )
@@ -69,7 +70,7 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
     proxybut_->setPrefWidthInChar( 21 );
     proxybut_->activated.notify( mCB(this,uiHandleDLSiteFail,proxyButCB) );
     proxybut_->attach( rightOf, lcb );
-    
+
     timeoutfld_ = new uiSlider( this, "Timeout" );
     timeoutfld_->setInterval( StepInterval<float>(1,60,1) );
     timeoutfld_->setTickMarks( uiSlider::Below );

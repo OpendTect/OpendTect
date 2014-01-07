@@ -210,9 +210,10 @@ bool MarchingCubesSurfaceEditor::doWork( od_int64 start, od_int64 stop, int )
     const int* origptr = originalsurface_->getData()+start;
     unsigned const char* kernelptr = kernel_->getData()+start;
 
-    mPointerOperation( int, changedsurface_->getData()+start,
-	    = *origptr + (factor_*(*kernelptr)>>8), stop-start+1,
-	    ++; kernelptr++; origptr++; addToNrDone(1) );
+    mDoArrayPtrOperation( int, changedsurface_->getData()+start,
+	    = *origptr + (factor_*(*kernelptr)>>8);
+	    kernelptr++; origptr++; addToNrDone(1),
+	    stop-start+1, ++ );
 
     return true;
 }

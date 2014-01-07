@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "general.h"
+#include "gendefs.h"
 #include "ptrman.h"
 
 
@@ -32,7 +32,7 @@ public:
     inline			BasicInterval();
     inline			BasicInterval(const T& start,const T& stop);
     inline BasicInterval<T>&	operator=(const BasicInterval<T>&);
-    
+
     inline void			set(const T& start,const T& stop);
     inline bool			isEqual(const BasicInterval<T>& i,
 					const T& eps) const;
@@ -42,13 +42,13 @@ public:
     inline BasicInterval<T>&	operator+=(const BasicInterval<T>&);
     template <class X>
     const BasicInterval<T>&	setFrom(const BasicInterval<X>&);
-    
+
     inline T			width(bool allowrev=true) const;
     inline T			center() const;
     inline float		getfCenter() const;
     inline void			shift(const T& len);
     inline void			widen(const T& len,bool allowrev=true);
-    
+
     inline T			atIndex(int,const T& step) const;
     template <class X>
     inline int			getIndex(const X&,const T& step) const;
@@ -65,7 +65,7 @@ public:
 				  stop  = i.limitValue(stop); }
     template <class X>
     inline X			limitValue(const X&) const;
-    
+
     template <class X>
     inline bool			overlaps(const BasicInterval<X>&,
 					 bool allrev=true) const;
@@ -77,21 +77,21 @@ public:
     template <class X>
     inline bool			includes(const Interval<X>&,
 					 bool allowrev=true) const;
-    
+
     template <class X>
-    inline float        	pos(X val,bool limit=true,
+    inline float	pos(X val,bool limit=true,
 				    bool allowrev=true) const;
 				/*!<\returns a value between 0 and 1 if val is
 				 between start and stop. */
     inline void			include(const T&, bool allowrev=true);
     inline void			include(const BasicInterval<T>&,
 					bool allowrev=true);
-    
+
     T				start;
     T				stop;
-    
+
     static BasicInterval<T>	udf(){return BasicInterval<T>(mUdf(T),mUdf(T));}
-    
+
     inline bool			isRev() const		{ return start > stop; }
 };
 
@@ -107,13 +107,13 @@ template <class T>
 mClass(Basic) Interval : public BasicInterval<T>
 {
 public:
-    inline		Interval() : BasicInterval<T>() 		{}
+    inline		Interval() : BasicInterval<T>()		{}
     inline virtual	~Interval()					{}
     inline		Interval(const T& start,const T& stop);
     inline		Interval(const BasicInterval<T>& b );
     inline
     virtual Interval<T>* clone() const;
-    
+
     virtual bool inline	isUdf() const;
 
     inline virtual void	scale(const T&);
@@ -182,12 +182,12 @@ public:
     inline T		snappedCenter() const;
 
     inline bool		isCompatible(const StepInterval<T>&,
-	    			     float eps=mDefEps) const;
+				     float eps=mDefEps) const;
 			/*!< epsilon refers to the steps,
-			  	i.e eps=0.1 allows b to be 0.1 steps apart.
+				i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
     inline T		snapStep(const T& inpstep) const;
-    			/*!<Snaps inpstep to a positive multiple of step. */
+			/*!<Snaps inpstep to a positive multiple of step. */
 
      T			step;
 
@@ -195,14 +195,14 @@ public:
 
 
 /*!
-\brief Class to store ranges in N dimensions. 
+\brief Class to store ranges in N dimensions.
 */
 
 template <class T>
 mClass(Basic) IntervalND
 {
 public:
-    				IntervalND( int ndim_ )
+				IntervalND( int ndim_ )
 				    : ranges (new Interval<T>[ndim_] )
 				    , ndim( ndim_ )
 				    , isset( false ) {}
@@ -214,7 +214,7 @@ public:
 
     const Interval<T>&		getRange(int dim) const { return ranges[dim]; }
     template <class X> inline
-    void 			setRange(const X& val);
+    void			setRange(const X& val);
     template <class X> inline
     void			setRange(const X& start,const X& stop);
     template <class X> inline
@@ -223,7 +223,7 @@ public:
     template <class X> inline
     bool			includes(const X& val,bool allowrev) const;
     inline bool			intersects(const IntervalND<T>&,
-	    				   bool allowrev) const;
+					   bool allowrev) const;
 
 protected:
 
@@ -394,7 +394,7 @@ BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
 { start = t1; stop = t2; }
 
 template <class T> inline
-Interval<T>* Interval<T>::clone() const		
+Interval<T>* Interval<T>::clone() const
 { return new Interval<T>( *this ); }
 
 
@@ -553,7 +553,7 @@ X BasicInterval<T>::limitValue( const X& t ) const
     if ( (!isrev&&t<start) || (isrev&&t>start) ) return start;
     return t;
 }
-		
+
 
 // ---------------- Interval ------------------------
 
@@ -624,7 +624,7 @@ bool StepInterval<T>::isUdf() const
 
 
 template <class T> inline
-StepInterval<T>* StepInterval<T>::clone() const	
+StepInterval<T>* StepInterval<T>::clone() const
 { return new StepInterval<T>( *this ); }
 
 

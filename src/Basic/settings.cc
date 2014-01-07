@@ -4,7 +4,7 @@
  * DATE     : 4-11-1995
  * FUNCTION : Default user settings
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "settings.h"
@@ -50,7 +50,7 @@ Settings& Settings::fetch( const char* key )
 	    return *settlist[idx];
 
     Settings* newsett = doFetch( key, GetSoftwareUser(), GetSettingsDir(),
-	    			 false );
+				 false );
     if ( !newsett )
     {
 	if ( mIsCommon(key) )
@@ -59,7 +59,7 @@ Settings& Settings::fetch( const char* key )
     }
 
     newsett->setName( settkey );
-    newsett->fname = getFileName( key, GetSoftwareUser(), GetSettingsDir() );
+    newsett->fname_ = getFileName( key, GetSoftwareUser(), GetSettingsDir() );
     settlist += newsett;
     return *newsett;
 }
@@ -105,10 +105,10 @@ static void handleLegacyPar( Settings& setts, const char* key,
 
 bool Settings::doRead( bool ext )
 {
-    const bool empty_initially = File::isEmpty(fname);
+    const bool empty_initially = File::isEmpty(fname_);
     const bool iscommon = name() == sKeyCommon;
 
-    SafeFileIO sfio( fname, false );
+    SafeFileIO sfio( fname_, false );
     if ( empty_initially || !sfio.open(true) )
     {
 	if ( ext ) return false;
@@ -119,7 +119,7 @@ bool Settings::doRead( bool ext )
 	bool okaftercopy = false;
 	if ( File::exists(tmplfname) )
 	{
-	    File::copy( tmplfname, fname );
+	    File::copy( tmplfname, fname_ );
 	    if ( sfio.open(true) )
 		okaftercopy = true;
 	}
@@ -135,7 +135,7 @@ bool Settings::doRead( bool ext )
     if ( !stream.isOfFileType( sKeyDeflt ) )
     {
 	BufferString emsg = "User settings file '";
-	emsg += fname;
+	emsg += fname_;
 	emsg += "' seems to be corrupted.";
 	sfio.closeFail();
 	return false;
@@ -153,7 +153,7 @@ bool Settings::doRead( bool ext )
 	set( "Font.def.Graphics small", "Helvetica`10`Normal`No" );
 	set( "Font.def.Graphics medium", "Helvetica`12`Normal`No" );
 	set( "Font.def.Fixed width", "Courier`12`Normal`No" );
-#endif 
+#endif
 	write( false );
     }
     else if ( iscommon && stream.majorVersion() < 3 )
@@ -175,7 +175,7 @@ bool Settings::write( bool do_merge ) const
 	me->merge( dup );
     }
 
-    SafeFileIO sfio( fname );
+    SafeFileIO sfio( fname_ );
     if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot open user settings file for write" );

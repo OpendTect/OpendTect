@@ -61,7 +61,7 @@ void BendPoints2Coords::init( const TypeSet<Coord>& crds,
     }
 
     TypeSet<int> nrs( inpnrs, sz );
-    mGetIdxArr(int,idxs,sz)
+    mGetIdxArr( int, idxs, sz );
     if ( !idxs ) return;
     sort_coupled( nrs.arr(), idxs, sz );
 

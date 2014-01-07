@@ -13,10 +13,9 @@ ________________________________________________________________________
 -*/
 
 
-#ifndef general_h
 #include "basicmod.h"
-#include "general.h"
-#endif
+#include "bufstring.h"
+
 
 /*!\brief Concatenated short keys separated by dots.
 Used for Object identifiers in the Object Manager, or stratigraphic IDs. */
@@ -75,4 +74,3 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
 
 
 #endif
-

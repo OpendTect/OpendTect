@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "position.h"
 #include "callback.h"
+#include "bufstring.h"
 
 class BufferStringSet;
 class MenuItem;
@@ -24,19 +25,19 @@ class MenuHandler;
 mExpClass(General) MenuItemHolder : public CallBacker
 {
 public:
-    				MenuItemHolder();
+				MenuItemHolder();
     virtual			~MenuItemHolder();
     Notifier<MenuItemHolder>	removal;
-    				/*!< triggers when class is deleted */
+				/*!< triggers when class is deleted */
 
     virtual void		addItem(MenuItem*,bool manage=false);
-    				/*!<\param manage specified wether the class
+				/*!<\param manage specified wether the class
 				  will delete the item when it's not
 				  needed any longer. Mostly used
 				  when doing: \code
 				  item->addItem(new MenuItem("Menu text"),true);
 				  \endcode.
-				
+
 				  Each item will get a unique id, that is
 				  the mechanism to see which item was
 				  selected in the menu. */
@@ -58,7 +59,7 @@ protected:
     friend			class MenuHandler;
     void			itemIsDeletedCB(CallBacker*);
     virtual void		assignItemID(MenuItem&);
-    				/*!< Get a unique id for this item. */
+				/*!< Get a unique id for this item. */
 
     MenuItemHolder*		parent_;
 
@@ -72,29 +73,29 @@ private:
 mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
-    				MenuItem(const char* text=0,int placement=-1);
+				MenuItem(const char* text=0,int placement=-1);
     void			createItems(const BufferStringSet&);
 
     BufferString		text;
-    				/*< The text that should be on the item. */
+				/*< The text that should be on the item. */
     int				placement;
-    				/*!< Gives the system an indication where in the
+				/*!< Gives the system an indication where in the
 				     menu the item should be placed. Items will
 				     be placed in increasing order of placement.				*/
     int				id;
-    				/*!< This item's unique id. */
+				/*!< This item's unique id. */
     bool			checkable;
-    				/*!< If true, a check-mark can be placed */
+				/*!< If true, a check-mark can be placed */
     bool			checked;
-    				/*!< If true, a check-mark will be put infront
+				/*!< If true, a check-mark will be put infront
 				    of the items text */
     bool			enabled;
-    				/*!< If false, the item will be visble, but
+				/*!< If false, the item will be visble, but
 				    not selectable. */
     BufferString		iconfnm;
-    				//*!< Filename of icon
+				//*!< Filename of icon
     BufferString		tooltip;
-    				//*!< Tooltip if item is used in toolbar
+				//*!< Tooltip if item is used in toolbar
 };
 
 
@@ -166,16 +167,16 @@ inserted into the menu.
     }
     \endcode
 */
-    
+
 mExpClass(General) MenuHandler : public MenuItemHolder
 {				mRefCountImpl(MenuHandler);
 public:
-    				MenuHandler( int id );
+				MenuHandler( int id );
 
     virtual bool		executeMenu()				= 0;
 
     int				menuID() const { return id_; }
-    				/*<Each menu has an unique id where the
+				/*<Each menu has an unique id where the
 				   that identifies it. */
     void			setMenuID( int newid ) { id_=newid; }
 
@@ -183,20 +184,20 @@ public:
     Notifier<MenuHandler>	createnotifier;
     CNotifier<MenuHandler,int>	handlenotifier;
     bool			isHandled() const;
-    				/*!< Should be called as the first thing
+				/*!< Should be called as the first thing
 				     from callbacks that is triggered from
 				     uiMenuHandler::handlenotifier. If
 				     isHandled() returns true, the callback
 				     should return immediately. */
     void			setIsHandled(bool);
-    				/*!<Should be called from callbacks that
+				/*!<Should be called from callbacks that
 				    are triggered from
 				    uiMenuHandler::handlenotifier
 				    if they have found the menu id they are
 				    looking for.  */
 
     int				queueID() const { return queueid_; }
-    				/*!<After a menu is executed, it will
+				/*!<After a menu is executed, it will
 				    execute a queue, identified by this id. */
 
 protected:
@@ -224,21 +225,21 @@ public:
 					int placement=-1);
 			~MenuItemHandler();
     bool		doadd_;
-    			/*!<Item is added if true AND shouldAddMenu() retuns
+			/*!<Item is added if true AND shouldAddMenu() retuns
 			    true. Default is true. */
     bool		isenabled_;
-    			/*!<Item is enabled if true AND shouldBeEnabled() retuns
+			/*!<Item is enabled if true AND shouldBeEnabled() retuns
 			    true. Default is true. */
     bool		ischecked_;
-    			/*!<Item is checked if true OR shouldBeChecked() retuns
+			/*!<Item is checked if true OR shouldBeChecked() retuns
 			    true. Default is false. */
 
     void		setIcon(const char* fnm);
-    
+
 protected:
 
-    virtual void	createMenuCB(CallBacker*);	
-    virtual void	handleMenuCB(CallBacker*);	
+    virtual void	createMenuCB(CallBacker*);
+    virtual void	handleMenuCB(CallBacker*);
 
     virtual bool	shouldAddMenu() const			{ return true; }
     virtual bool	shouldBeEnabled() const			{ return true;}
@@ -285,7 +286,7 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
     else \
 	mResetMenuItem( item ) } \
 
-//Macro that can poplulate both a toolbar and a menu. 
+//Macro that can poplulate both a toolbar and a menu.
 #define mAddMenuOrTBItem( istoolbar, tbparent, popupparent, item, enab, check )\
     mAddMenuItem( \
 	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \

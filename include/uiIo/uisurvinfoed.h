@@ -37,7 +37,7 @@ public:
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
 					   bool isnew=false);
     bool		isOK() const		{ return topgrp_; }
-    			//!<Must be checked before 'go'
+			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
@@ -46,18 +46,18 @@ public:
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
     static bool		copySurv(const char* frompath,const char* fromdirnm,
-	    			 const char* topath,const char* todirnm);
+				 const char* topath,const char* todirnm);
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
 
     Notifier<uiSurveyInfoEditor> survParChanged;
-    			
+
 protected:
 
     SurveyInfo&		si_;
     BufferString	orgdirname_;
     BufferString	orgstorepath_;
-    const FileNameString rootdir_;
+    const BufferString	rootdir_;
     bool		isnew_;
     IOPar*		impiop_;
     uiSurvInfoProvider*	lastsip_;
@@ -105,7 +105,7 @@ protected:
     bool		setCoords();
     bool		setRelation();
     bool		doApply();
-    
+
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
     void		updatePar(CallBacker*);

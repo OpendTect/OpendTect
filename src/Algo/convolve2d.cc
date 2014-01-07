@@ -55,8 +55,8 @@ bool Convolver2D<float>::doPrepare( int )
  \
 	const float* xptr = realdomain->getData(); \
  \
-	mPointerOperation( float, (float*) freqdomain, = *xptr, \
-			   totalsz*2, += 2; xptr++ ); \
+	mDoArrayPtrOperation( float, (float*)freqdomain, = *xptr; xptr++, \
+				totalsz*2, += 2 ); \
 	fft_->setInput( freqdomain ); \
 	fft_->setOutput( freqdomain ); \
 	fft_->setDir( true ); \
@@ -83,8 +83,8 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
     const float_complex* xfptr = xf_;
     const float_complex* yfptr = yf_;
 
-    mPointerOperation( float_complex, zf_, = *xfptr * *yfptr, totalsz,
-			++; xfptr++; yfptr++ );
+    mDoArrayPtrOperation( float_complex, zf_,
+			  = (*xfptr) * (*yfptr); xfptr++; yfptr++, totalsz, ++ );
 
     fft_->setInput( zf_ );
     fft_->setOutput( zf_ );
@@ -93,8 +93,8 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
 
     const float* zfptr_real = (float*) zf_;
 
-    mPointerOperation( float, z_->getData(), = *zfptr_real, totalsz,
-		       ++; zfptr_real += 2 );
+    mDoArrayPtrOperation( float, z_->getData(), = *zfptr_real; zfptr_real += 2,
+			  totalsz, ++ );
 
     return true;
 }

@@ -501,7 +501,7 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
 	quickSort( valarr, sz );
     else
     {
-	mGetIdxArr(int,idxs,sz)
+	mGetIdxArr( int, idxs, sz );
 	quickSort( valarr, idxs, sz );
 	*idx_of_med = idxs[ mididx ];
 	delete [] idxs;
@@ -528,7 +528,7 @@ T computeWeightedMedian( const T* data, const T* wts, int sz,
 	return sz < 1 ? mUdf(T) : data[0];
 
     T* valarr = const_cast<T*>( data );
-    mGetIdxArr(int,idxs,sz)
+    mGetIdxArr( int, idxs, sz );
     quickSort( valarr, idxs, sz );
     T* wtcopy = new T[sz];
     OD::memCopy( wtcopy, wts, sz*sizeof(T) );

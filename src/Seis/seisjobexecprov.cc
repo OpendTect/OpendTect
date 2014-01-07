@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "cubesampling.h"
 #include "separstr.h"
+#include "genc.h"
 
 const char* SeisJobExecProv::sKeySeisOutIDKey()	{ return "Output Seismics Key";}
 const char* SeisJobExecProv::sKeyOutputLS()	{ return "Output Line Set"; }

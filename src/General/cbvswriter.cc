@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cbvswriter.h"
 #include "cubesampling.h"
 #include "datainterp.h"
+#include "genc.h"
 #include "survinfo.h"
 
 const int CBVSIO::integersize = 4;

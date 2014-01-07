@@ -13,6 +13,7 @@
 
 #include "wellattribmod.h"
 #include "binidvalset.h"
+#include "bufstring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
 namespace Well { class Data; class ExtractParams; }
@@ -24,12 +25,12 @@ mExpClass(WellAttrib) AttribLogExtractor
 public:
 				AttribLogExtractor(const Well::Data& wd)
 				    : wd_(&wd)
-				    , bidset_(BinIDValueSet(2,true))  
+				    , bidset_(BinIDValueSet(2,true))
 				    {}
 
     const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
-    const TypeSet<float>& 	depths() const  	{ return depths_; }
-    const BinIDValueSet& 	bidset() const		{ return bidset_; } 
+    const TypeSet<float>&	depths() const  	{ return depths_; }
+    const BinIDValueSet&	bidset() const		{ return bidset_; }
 
     bool                        extractData(Attrib::EngineMan&,TaskRunner* t=0);
     bool                        fillPositions(const StepInterval<float>&);
@@ -40,7 +41,7 @@ protected:
 
     const Well::Data*		wd_;
     TypeSet<BinIDValueSet::SPos> positions_;
-    BinIDValueSet 		bidset_; 
+    BinIDValueSet		bidset_;
     TypeSet<float>		depths_;
 };
 
@@ -57,7 +58,7 @@ public:
 				    : nlamodel_(0)
 				    , attrib_(attr)
 				    , tr_(0)
-				    , extractparams_(wep)	    
+				    , extractparams_(wep)
 				    {}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
@@ -67,16 +68,16 @@ public:
 	mDefSetupMemb(const Well::ExtractParams*,extractparams)
 	mDefSetupMemb(TaskRunner*,tr) //optional
     };
-    
+
 
 				AttribLogCreator(const Setup& su, int& selidx)
 				    : setup_(su)
 				    , extractor_(0)
-				    , sellogidx_(selidx)	   
+				    , sellogidx_(selidx)
 				    {}
 				~AttribLogCreator() {}
 
-    bool 			doWork(Well::Data&,BufferString&);
+    bool			doWork(Well::Data&,BufferString&);
 
 protected:
 

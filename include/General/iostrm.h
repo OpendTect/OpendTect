@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 
 -*/
- 
+
 #include "generalmod.h"
 #include "streamconn.h"
 #include "ioobj.h"
@@ -28,14 +28,13 @@ mExpClass(General) IOStream : public IOObj
 public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
-    virtual		~IOStream();
     bool		isBad() const;
     bool		isCommand() const		{ return iscomm_; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool forread=true) const;
     const char*		getExpandedName(bool forread,
-	    				bool fillwildcard=true) const;
+					bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
 
     FixedString		connType() const;
@@ -73,8 +72,7 @@ public:
     void		genFileName();
 
     const char*		reader() const			{ return fname_; }
-    const char*		writer() const
-			{ return writecmd_ ? (const char*)(*writecmd_) : 0; }
+    const char*		writer() const			{ return writecmd_; }
     void		setReader(const char*);
     void		setWriter(const char*);
 
@@ -92,26 +90,20 @@ protected:
     bool		putTo(ascostream&) const;
 
     BufferString	hostname_;
-    int			nrfiles_;
-    FileNameString	fname_;
-
-    BufferString	extension_;
-    FileNameString*	readcmd_;
-    FileNameString*	writecmd_;
+    BufferString	fname_;
+    BufferString	writecmd_;
     bool		iscomm_;
+    int			nrfiles_;
     int			padzeros_;
     StepInterval<int>	fnrs_;
     int			curfnr_;
-    int			nrretries_;
-    int			retrydelay_;
+    BufferString	extension_;
 
     StreamProvider*	getStreamProv(bool,bool f=true) const;
-    void		getDev(ascistream&);
-    bool		validNr() const
-			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }
     bool		implDo(bool,bool) const;
+    inline bool		validNr() const
+			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }
 
-    static int		prodid_; //!< for factory implementation
 };
 
 

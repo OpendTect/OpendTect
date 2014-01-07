@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "generalmod.h"
 #include "multiid.h"
 #include "objectset.h"
@@ -55,7 +55,7 @@ public:
     int			indexOf(const MultiID&) const;
     const IOObj*	get(const MultiID&) const;
     const IOObj*	get(const char* nm,const char* trgrpnm=0) const;
-    			// Without trgrpnm, just returns first
+			// Without trgrpnm, just returns first
 
     bool		addObj(IOObj*,bool immediate_store=true);
 			    //!< after call, IOObj is mine
@@ -74,7 +74,7 @@ public:
 private:
 
     ObjectSet<IOObj>	objs_;
-    FileNameString	dirname_;
+    BufferString	dirname_;
     MultiID		key_;
     bool		isok_;
     mutable int		curid_;

@@ -19,6 +19,7 @@ static const char* rcsPrStr = "$Revision$ $Date$";
 #include "od_iostream.h"
 #include "thread.h"
 #include "timefun.h"
+#include "genc.h"
 #include "staticstring.h"
 
 const char* Usage::Server::sKeyPort()		{ return "Port"; }

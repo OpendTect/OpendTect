@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "draw.h"
 #include "envvars.h"
+#include "genc.h"
 #include "iopar.h"
 #include "vismaterial.h"
 #include "valseries.h"
@@ -141,7 +142,7 @@ void VolumeRenderScalarField::enableTextureInterpolation( bool yn )
    Flipped signs of y and z dimensions. */
 
 static osg::Matrix getLocatorMatrix( const Coord3& trans, const Coord3& rotvec,
-				     double rotangle, const Coord3& scale ) 
+				     double rotangle, const Coord3& scale )
 {
     Coord3 fabsscale( fabs(scale.x), -fabs(scale.y), -fabs(scale.z) );
 
@@ -155,7 +156,7 @@ static osg::Matrix getLocatorMatrix( const Coord3& trans, const Coord3& rotvec,
 
 void VolumeRenderScalarField::setTexVolumeTransform( const Coord3& trans,
 				    const Coord3& rotvec, double rotangle,
-				    const Coord3& scale ) 
+				    const Coord3& scale )
 {
     osg::Matrix mat = getLocatorMatrix( trans, rotvec, rotangle, scale );
 
@@ -173,7 +174,7 @@ void VolumeRenderScalarField::setTexVolumeTransform( const Coord3& trans,
 
 void VolumeRenderScalarField::setROIVolumeTransform( const Coord3& trans,
 				    const Coord3& rotvec, double rotangle,
-				    const Coord3& scale ) 
+				    const Coord3& scale )
 {
     osg::Matrix mat = getLocatorMatrix( trans, rotvec, rotangle, scale );
     osgvoltile_->setLocator( new osgVolume::Locator(mat) );

@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 
 #include "generalmod.h"
 #include "namedobj.h"
@@ -44,11 +44,11 @@ public:
     IOObj*		get(const MultiID&) const;
     IOObj*		getLocal(const char* objname,const char* tgname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
-	    			   bool onlyifsingle=false) const;
+				   bool onlyifsingle=false) const;
     IOObj*		getIfOnlyOne( const char* trgroupname )
 			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
-    			//!< if interested in nrpresent pass valid address
+			//!< if interested in nrpresent pass valid address
     IOObj*		getFromPar(const IOPar&,const char* basekey,
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
@@ -60,11 +60,11 @@ public:
     const char*		rootDir() const		{ return rootdir_; }
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
-    			//!< if keystr is not an IOObj key, will return keystr
+			//!< if keystr is not an IOObj key, will return keystr
 
     bool		to(const MultiID&,bool force_reread=false);
     bool		toRoot(bool force_reread=false)
-    			{ return to(0,force_reread); }
+			{ return to(0,force_reread); }
 
     void		getEntry(CtxtIOObj&,bool newistmp=false);
 				//!< will create a new entry if necessary
@@ -91,12 +91,12 @@ public:
 			       //!< Example: "Geostatistical data"
 
 	bool		operator ==( const CustomDirData& cdd ) const
-	    		{ return selkey_ == cdd.selkey_; }
+			{ return selkey_ == cdd.selkey_; }
     };
 
     static const MultiID& addCustomDataDir(const CustomDirData&);
-    			//!< Need to do this only once per OD run
-    			//!< At survey change, dir will automatically be added
+			//!< Need to do this only once per OD run
+			//!< At survey change, dir will automatically be added
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
@@ -110,16 +110,17 @@ public:
 private:
 
     enum State		{ Bad, NeedInit, Good };
+
+    BufferString	rootdir_;
     State		state_;
     IODir*		dirptr_;
     int			curlvl_;
-    FileNameString	rootdir_;
-    bool		survchgblocked_;
     BufferString	msg_;
+    bool		survchgblocked_;
 
     void		init();
 			IOMan(const char* rd=0);
-    			~IOMan();
+			~IOMan();
 
     static IOMan*	theinst_;
     static void		setupCustomDataDirs(int);
@@ -143,7 +144,7 @@ public:
 
     void		setChangeSurveyBlocked( bool yn )
 					{ survchgblocked_ = yn; }
-    bool		changeSurveyBlocked() const		
+    bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
     void		applClosing()	{ applicationClosing.trigger(); }
     static bool		newSurvey(SurveyInfo* newsi=0);
@@ -153,11 +154,12 @@ public:
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
     static void		surveyParsChanged();
-    			/*! Triggers the post-survey change notifiers */
+			/*! Triggers the post-survey change notifiers */
 
 };
 
+
 mGlobal(General) IOMan&	IOM();
 
-#endif
 
+#endif

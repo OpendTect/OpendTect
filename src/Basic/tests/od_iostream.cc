@@ -39,7 +39,7 @@ static bool fnnm() \
 
 mImplNumberTestFn( testIfNumberIsNormal, int i; float f,
 	   strm >> i >> f,
-	   i == 123 && mIsEqual(f,44.5,1e-8) )
+	   i == 123 && mIsEqual(f,44.5f,1e-8) )
 
 mImplNumberTestFn( testIfNumberIsBad, int i; float f,
 	   strm >> i >> f,

@@ -13,7 +13,7 @@ ________________________________________________________________________
 */
 
 #include "generalmod.h"
-#include "general.h"
+#include "gendefs.h"
 
 
 /*!\brief Raw binary data access.  */
