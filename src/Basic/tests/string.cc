@@ -155,8 +155,11 @@ static bool testBufferStringFns()
     mSetBSToInit(); bs.clean( BufferString::NoFileSeps );
     mRunTest("BufferString clean NoFileSeps",bs == "\nXX_.YY___ Z\t");
     mSetBSToInit(); bs.clean( BufferString::NoSpecialChars );
+#ifndef __win__
     mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY/__ Z\t");
-
+#else
+    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY_:\\ Z\t");
+#endif
     return true;
 }
 
