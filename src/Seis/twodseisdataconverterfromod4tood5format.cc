@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "TwoDDataConverter.h"
+#include "twodseisdataconverterfromod4tood5format.h"
 
 #include "bufstringset.h"
 #include "file.h"
