@@ -66,7 +66,7 @@ SET(OD_MODULE_SOURCES
 	seiszaxisstretcher.cc
 	synthseis.cc
 	timedepthconv.cc
-	twoddataconverter.cc
+	twodseisdataconverterfromod4tood5format.cc
 	wavelet.cc
 	waveletattrib.cc
 	waveletextractor.cc
