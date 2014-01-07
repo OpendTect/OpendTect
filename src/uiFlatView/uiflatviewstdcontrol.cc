@@ -117,8 +117,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
 uiFlatViewStdControl::~uiFlatViewStdControl()
 {
-    menu_.unRef();
     detachAllNotifiers();
+    menu_.unRef();
     delete ctabed_; ctabed_ = 0;
 }
 
