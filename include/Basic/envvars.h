@@ -24,8 +24,9 @@ mGlobal(Basic) const char* GetEnvVar(const char*);
 		     \note Will return a pointer to a threadsafe static buffer.
 			   Please copy if you want to keep result after next
 			   call to this function.*/
-mGlobal(Basic) int GetEnvVarYN(const char*, int defltval=0);
-/*!< Returns defltval if not set, 0 if set to 0 or "no", otherwise 1 */
+mGlobal(Basic) bool GetEnvVarYN(const char*,bool defltval=false);
+/*!< Returns defltval if not set, false if set to 0, "no" or "false",
+     otherwise true */
 mGlobal(Basic) int GetEnvVarIVal(const char*,int defltval);
 mGlobal(Basic) double GetEnvVarDVal(const char*,double defltval);
 mGlobal(Basic) float GetEnvVarFVal(const char*,float defltval);

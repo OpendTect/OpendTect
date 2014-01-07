@@ -303,34 +303,35 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 }
 
 
-mExtern(Basic) int GetEnvVarYN( const char* env, int defaultval )
+mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 {
     const char* s = GetEnvVar( env );
     if ( !s )
 	return defaultval;
 
-    return *s == '0' || *s == 'n' || *s == 'N' ? 0 : 1;
+    return *s == '0' || *s == 'n' || *s == 'N' ||
+	   *s == 'f' || *s == 'F' ? 0 : 1;
 }
 
 
 mExtern(Basic) int GetEnvVarIVal( const char* env, int defltval )
 {
     const char* s = GetEnvVar( env );
-    return s ? atoi(s) : defltval;
+    return toInt( s, defltval );
 }
 
 
 mExtern(Basic) double GetEnvVarDVal( const char* env, double defltval )
 {
     const char* s = GetEnvVar( env );
-    return s ? atof(s) : defltval;
+    return toDouble( s, defltval );
 }
 
 
 mExtern(Basic) float GetEnvVarFVal( const char* env, float defltval )
 {
     const char* s = GetEnvVar( env );
-    return s ? mCast( float, atof(s) ) : defltval;
+    return toFloat( s, defltval );
 }
 
 
