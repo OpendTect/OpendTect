@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visseis2ddisplay.h"
 
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visevent.h"

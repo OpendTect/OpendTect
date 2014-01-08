@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "viscolortab.h"
 #include "vistexturechannel2rgba.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "vistexturechannels.h"

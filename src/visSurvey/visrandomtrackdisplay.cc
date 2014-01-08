@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "ptrman.h"
 
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visevent.h"

@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zdomain.h"
 
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"

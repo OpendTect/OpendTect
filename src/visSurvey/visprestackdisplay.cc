@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "survinfo.h"
 
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
@@ -585,14 +584,6 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     	reader_ = SPSIOPF().get3DReader( *ioobj_ );
 
     const int ctid = pdd->getColTabID(0);
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
-    if ( vct )
-    {
-	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
-	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
-    }
-
     const bool offsetalonginl = 
 	section_->getOrientation()==PlaneDataDisplay::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
@@ -728,14 +719,6 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     if ( trcnr_<0 ) return false;
 
     const int ctid = s2d->getColTabID(0);
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
-    if ( vct )
-    {
-	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
-	flatviewer_->handleChange( FlatView::Viewer::DisplayPars );
-    }
-
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); 
     basedirection_ = SI().binID2Coord().transformBackNoSnap( 
 	    seis2d_->getNormal(trcnr_) ) - orig; 

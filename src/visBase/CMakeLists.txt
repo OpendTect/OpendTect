@@ -14,10 +14,6 @@ SET(OD_MODULE_SOURCES
 	   visaxes.cc
 	   visboxdragger.cc
 	   viscamera.cc
-	   viscolorseq.cc
-	   viscolortab.cc
-	   viscolortabindexer.cc
-	   viscoltabmod.cc
 	   viscoord.cc
 	   visdata.cc
 	   visdatagroup.cc
