@@ -14,14 +14,19 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "fourier.h"
+#include "hiddenparam.h"
 #include "hilberttransform.h"
+#include "phase.h"
 #include "wavelet.h"
+
+HiddenParam<WaveletAttrib,int> centersample_(0);
 
 
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
-	, wvltsz_(0)  
+	, wvltsz_(0)
 {
+    centersample_.setParam( this, wvlt.centerSample() );
     setNewWavelet( wvlt );
 }
 
@@ -35,6 +40,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
     wvltsz_ = wvlt.size();
     delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
     memcpy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
+    centersample_.setParam( this, wvlt.centerSample() );
 }
 
 
@@ -58,30 +64,28 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
     hilbert.setDir( true );
     hilbert.init();
     hilbert.transform( *wvltarr_, hilb );
-} 
-
-
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
-{
-    Array1DImpl<float_complex> cindata( wvltsz_ );
-    for ( int sampidx=0; sampidx<wvltsz_; sampidx++ )
-	cindata.set( sampidx, wvltarr_->get( sampidx ) );
-
-    Array1DImpl<float_complex> coutdata( wvltsz_ );
-    mDoFFT( true, cindata, coutdata, wvltsz_ );
-    for ( int idx=0; idx<wvltsz_; idx++ )
-    {
-	float re = coutdata.get(idx).real();
-	float im = coutdata.get(idx).imag();
-	float ph = (re*re+im*im) ? atan2( im, re )  : 0;
-	phase.set( idx, degree ? (float) (180*ph/M_PI) : ph );
-    }
-
-    unwrapPhase( wvltsz_, 1, phase.arr() );
 }
 
 
-//TODO put this in algo :
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
+{
+    Array1DImpl<float> cindata( wvltsz_ );
+    const int centeridx = centersample_.getParam( this );
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	int idy = idx;
+	idy += idx < wvltsz_ - centeridx ? centeridx : centeridx-wvltsz_;
+	cindata.set( idx, wvltarr_->get( idy ) );
+    }
+
+    Phase phasecomputer( cindata );
+    phasecomputer.setUnitDeg( indegrees );
+    if ( phasecomputer.calculate() )
+	phase = phasecomputer.getPhase();
+}
+
+
+//DONE put this in algo :
 void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
 {
     if ( w == 0 )
@@ -159,7 +163,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	ctimearr.set( idx + padshift, timedata.get(idx) );
-    
+
     mDoFFT( true, ctimearr, cfreqarr, padsz );
 
     bool isoddpadsz = ( padsz%2 !=0 );
@@ -178,4 +182,4 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );
-} 
+}
