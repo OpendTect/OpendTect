@@ -185,10 +185,10 @@ void uiDataPointSetCrossPlotter::reSizeDrawCB( CallBacker* )
     {
 	trmsg_ = "Calculating Density";
 	timer_.start( 1200, true );
+	return;
     }
 
     reDrawCB( 0 );
-    return;
 }
 
 
