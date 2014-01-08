@@ -82,6 +82,7 @@ public:
     const char*		dimName(bool) const;
     Coord3		getCoord(int,int) const;
     void		getAltDim0Keys(BufferStringSet&) const;
+    bool		isAltDim0InInt(const char* key) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
     bool		posDataIsCoord() const		{ return false; }
