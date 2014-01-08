@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include <callback.h>
-#include <threadlock.h>
+#include "callback.h"
+#include "threadlock.h"
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -23,7 +23,7 @@ QT_BEGIN_NAMESPACE
 Qt's signal/slot mechanism.
 */
 
-class Export_Basic i_QPtrImpl : public QObject, public CallBacker
+class i_QPtrImpl : public QObject, public CallBacker
 {
     Q_OBJECT
 
