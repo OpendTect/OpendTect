@@ -41,6 +41,7 @@ set(OD_MODULE_SOURCES
 	    muter.cc
 	    pca.cc
 	    posfilter.cc
+	    positionlist.cc
 	    probdenfunc.cc
 	    raytrace1d.cc
 	    resizeimage.cc
@@ -52,6 +53,8 @@ set(OD_MODULE_SOURCES
 	    timeser.cc
 	    transform.cc
 	    trigonometry.cc
+	    undefarray.cc
+	    undo.cc
 	    valseriesevent.cc
 	    valseriestracker.cc
 	    veldesc.cc

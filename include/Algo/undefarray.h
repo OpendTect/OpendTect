@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 #include "ptrman.h"
@@ -36,7 +36,7 @@ inline bool filterUndef(const ValueSeries<T>& input,ValueSeries<T>& output,int);
 by a BinDataDesc.
 */
 
-mExpClass(Basic) UndefArrayHandler
+mExpClass(Algo) UndefArrayHandler
 {
 public:
 		UndefArrayHandler(const BinDataDesc& desc);

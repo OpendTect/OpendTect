@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "refcount.h"
 #include "position.h"
 #include "typeset.h"
@@ -21,7 +21,7 @@ ________________________________________________________________________
 \brief Base class for vertex attribute list.
 */
 
-mExpClass(Basic) FloatVertexAttribList
+mExpClass(Algo) FloatVertexAttribList
 { mRefCountImpl(FloatVertexAttribList)
 public:
     
@@ -48,7 +48,7 @@ class Coord3;
 \brief Use Coord3ListImpl instead.
 */
 
-mExpClass(Basic) Coord3List
+mExpClass(Algo) Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -72,7 +72,7 @@ public:
 \brief Use Coord2ListImpl instead.
 */
 
-mExpClass(Basic) Coord2List
+mExpClass(Algo) Coord2List
 { mRefCountImplNoDestructor(Coord2List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -92,7 +92,7 @@ public:
 \brief A list of Coord where each coord has a unique id.
 */
 
-mExpClass(Basic) Coord2ListImpl : public Coord2List
+mExpClass(Algo) Coord2ListImpl : public Coord2List
 { 
 public:			
     			Coord2ListImpl();
@@ -115,7 +115,7 @@ protected:
 \brief A list of Coord3 where each coord has a unique id. 
 */
 
-mExpClass(Basic) Coord3ListImpl : public Coord3List
+mExpClass(Algo) Coord3ListImpl : public Coord3List
 {
 public:
     			Coord3ListImpl();

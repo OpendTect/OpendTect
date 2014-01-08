@@ -9,7 +9,6 @@ set( OD_USEQT Core)
 set( OD_USEBREAKPAD Yes)
 set( OD_USEZLIB Yes)
 set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
-set( OD_NIGHTLY_TEST_PROGS zip.cc )
 set( OD_TEST_PROGS
 		basic.cc
 		callback.cc
@@ -45,7 +44,6 @@ set( OD_MODULE_SOURCES
 	    enums.cc
 	    executor.cc
 	    factory.cc
-	    fontdata.cc
 	    file.cc
 	    filesystemwatcher.cc
 	    filepath.cc
@@ -71,7 +69,6 @@ set( OD_MODULE_SOURCES
 	    posinfo2d.cc
 	    posinfo2dsurv.cc
 	    position.cc
-	    positionlist.cc
 	    progressmeter.cc
 	    repos.cc
 	    rowcol.cc
@@ -91,13 +88,8 @@ set( OD_MODULE_SOURCES
 	    threadwork.cc
 	    timefun.cc
 	    timer.cc
-	    undefarray.cc
-	    undo.cc
 	    winutils.cc
-	    zdomain.cc
-	    ziputils.cc
-	    ziparchiveinfo.cc 
-	    ziphandler.cc )
+	    zdomain.cc)
 
 set ( OD_MODULE_PROGS test_exit_program.cc )
 

@@ -9,6 +9,7 @@ set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
+set( OD_NIGHTLY_TEST_PROGS zip.cc )
 set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
 	    batchjobdispatch.cc
@@ -29,6 +30,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    elasticpropsel.cc
 	    flatauxdataeditor.cc
 	    flatview.cc
+	    fontdata.cc
 	    geom2dascio.cc
 	    geometryio.cc
 	    googlexmlwriter.cc
@@ -70,7 +72,12 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    unitofmeasure.cc
 	    usrinputobj.cc
 	    variogramcomputers.cc
-	    zaxistransformdatapack.cc )
+	    zaxistransformdatapack.cc
+	    ziparchiveinfo.cc 
+	    ziphandler.cc
+	    ziputils.cc )
+
+set (OD_USEQT Core) # for the zip*.cc only
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )

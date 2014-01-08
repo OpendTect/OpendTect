@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "gendefs.h"
 
 /*!
@@ -22,7 +22,7 @@ ________________________________________________________________________
   facilitates giving unique change stamps.
 */
 
-mClass(Basic) ChangeTracker
+mClass(Algo) ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
@@ -75,7 +75,7 @@ protected:
 
 
 /*!
-\ingroup Basic
+\ingroup Algo
 \brief Macro to use when there is no direct access to data members.
 
   chtr = the change tracker

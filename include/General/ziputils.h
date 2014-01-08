@@ -12,7 +12,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-#include "basicmod.h"
+#include "generalmod.h"
 #include "bufstringset.h"
 #include "executor.h"
 #include "ziphandler.h"
@@ -22,7 +22,7 @@ ________________________________________________________________________
 \brief Zip Utilities
 */
 
-mExpClass(Basic) ZipUtils
+mExpClass(General) ZipUtils
 {
 public:
 				ZipUtils(const char* filelistnm=0);
@@ -82,7 +82,7 @@ protected:
 should not use it directly instead use ZipUtils::makeZip.
 */
 
-mExpClass(Basic) Zipper : public Executor
+mExpClass(General) Zipper : public Executor
 {
 public:
 				Zipper(const char*,const BufferStringSet&, 
@@ -112,7 +112,7 @@ should instead use ZipUtils::UnZipArchive() to unzip complete archive or
 ZipUtils::UnZipFile() to take one file out of zip archive.
 */
 
-mExpClass(Basic) UnZipper : public Executor
+mExpClass(General) UnZipper : public Executor
 {
 public:
 				UnZipper(const char*,const char*);

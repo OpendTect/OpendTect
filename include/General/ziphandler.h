@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "generalmod.h"
 #include "bufstringset.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
@@ -24,7 +24,7 @@ class ZipArchiveInfo;
 \brief Zip file information.
 */
 
-mExpClass(Basic) ZipFileInfo
+mExpClass(General) ZipFileInfo
 {
     
 public:
@@ -50,7 +50,7 @@ public:
 \brief Handles zipping and unzipping of files.
 */
 
-mExpClass(Basic) ZipHandler
+mExpClass(General) ZipHandler
 {
 public:
 

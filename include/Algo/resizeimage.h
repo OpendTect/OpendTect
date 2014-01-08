@@ -41,12 +41,12 @@ protected:
     const OD::RGBImage&		input_;
     const unsigned char*	inputimage_;
     bool			inputowner_;
-    int			inputsize_[2];
+    int				inputsize_[2];
 
     OD::RGBImage&		output_;
     unsigned char*		outputimage_;
     bool			outputowner_;
-    int			outputsize_[2];
+    int				outputsize_[2];
 
     double			support0_;
     double			support1_;
@@ -55,6 +55,7 @@ protected:
     double			factor0_;
     double			factor1_;
     char			nrcomponents_;
+
 };
 
 

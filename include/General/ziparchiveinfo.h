@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "generalmod.h"
 #include "objectset.h"
 #include "bufstring.h"
 
@@ -24,7 +24,7 @@ class ZipFileInfo;
 \brief Gives information of zip archives.
 */
 
-mExpClass(Basic) ZipArchiveInfo
+mExpClass(General) ZipArchiveInfo
 {
 public:
 

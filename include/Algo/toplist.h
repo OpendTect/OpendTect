@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
 #include "typeset.h"
 
 #include <utility>
@@ -23,7 +24,7 @@ identifier of where the value comes from or something like that.
 */
 
 template <class VT, class AVT>
-mClass(Basic) TopList
+mClass(Algo) TopList
 {
 public:
 			TopList( int maxsize )

@@ -6,22 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/07/2000
-
  RCS:           $Id$
-
 ______________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "generalmod.h"
 #include "enums.h"
 #include "bufstring.h"
 
-/*!
-\brief Data needed to make an actual font.
-*/
+/*!\brief Data needed to make an actual font. */
 
-mExpClass(Basic) FontData
+mExpClass(General) FontData
 {			
 public:    
 
