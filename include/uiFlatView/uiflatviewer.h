@@ -43,6 +43,7 @@ public:
     void		setInitialSize(uiSize);
     void		setRubberBandingOn(bool);
 
+    bool		isAnnotInInt(const char* annotnm) const;
     int			getAnnotChoices(BufferStringSet&) const;
     void		setAnnotChoice(int);
 
