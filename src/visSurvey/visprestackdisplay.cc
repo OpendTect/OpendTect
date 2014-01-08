@@ -72,7 +72,8 @@ PreStackDisplay::PreStackDisplay()
     setMaterial( 0 );
     
     flatviewer_->ref();
-    flatviewer_->setPickable( false );
+    flatviewer_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
+				  false);
     flatviewer_->setSelectable( false );
     flatviewer_->appearance().setGeoDefaults( true );
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );

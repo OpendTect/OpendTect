@@ -52,6 +52,7 @@ inline unsigned int cActiveIntersecTraversalMask()	{ return 0x00000004; }
 inline unsigned int cPassiveIntersecTraversalMask()	{ return 0x00000008; }
 inline unsigned int cIntersectionTraversalMask()
 { return cActiveIntersecTraversalMask() | cPassiveIntersecTraversalMask(); }
+inline unsigned int cDraggerIntersecTraversalMask()	{ return 0x00000010; }
 
 
 /*!\brief

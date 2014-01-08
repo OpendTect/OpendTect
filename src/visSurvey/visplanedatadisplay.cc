@@ -488,7 +488,7 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
 void PlaneDataDisplay::showManipulator( bool yn )
 {
     dragger_->turnOn( yn );
-    texturerect_->setPickable( !yn );
+    texturerect_->enableTraversal(visBase::cDraggerIntersecTraversalMask(),!yn);
 }
 
 

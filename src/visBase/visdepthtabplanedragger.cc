@@ -199,7 +199,7 @@ void DepthTabPlaneDragger::initOsgDragger()
 
 #if OSG_MIN_VERSION_REQUIRED(3,1,3)
     osgdragger_ = new osgGeo::TabPlaneDragger( 12.0 );
-    osgdragger_->setIntersectionMask( cIntersectionTraversalMask() );
+    osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     osgdragger_->setActivationMouseButtonMask(
 	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
 #else
@@ -265,8 +265,8 @@ void DepthTabPlaneDragger::initOsgDragger()
     geode->getStateSet()->setAttributeAndModes(
 		    new osg::PolygonOffset(1.0,1.0),
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
-    geode->setNodeMask( geode->getNodeMask() &
-			~visBase::cIntersectionTraversalMask() );
+    geode->setNodeMask( Math::SetBits( geode->getNodeMask(),
+			    visBase::cDraggerIntersecTraversalMask(), false) );
 
     osgdraggerplane_ = new osg::Switch();
     osgdraggerplane_->addChild( geode.get() );
