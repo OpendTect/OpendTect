@@ -178,6 +178,7 @@ FlatView::Annotation::AxisData::AxisData()
     , sampling_( mUdf(float), mUdf(float) )
     , showannot_( false )
     , showgridlines_( false )
+    , annotinint_( false )
     , factor_( 1 )
 {}
 
@@ -566,9 +567,15 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	if ( usedefs )
 	    useStoredDefaults( fdp->category() );
 
+	BufferStringSet altdimnms;
+	fdp->getAltDim0Keys( altdimnms );
 	FlatView::Annotation& annot = appearance().annot_;
 	if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
-	    annot.x1_.name_ = fdp->dimName( true );
+	{
+	    const int selannot = altdimnms.indexOf( fdp->dimName( true ) );
+	    if ( selannot>=0 )
+		setAnnotChoice( selannot );
+	}
 	if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
 	    annot.x2_.name_ = fdp->dimName( false );
     }

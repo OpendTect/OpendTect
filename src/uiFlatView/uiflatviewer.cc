@@ -130,6 +130,7 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
+    axesdrawer_.setWorldCoords( wr_ );
     axesdrawer_.update();
     
     if ( !wr_.checkCorners( !appearance().annot_.x1_.reversed_,
@@ -287,6 +288,14 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 }
 
 
+bool uiFlatViewer::isAnnotInInt( const char* annotnm ) const
+{
+    const FlatDataPack* fdp = pack( false );
+    if ( !fdp ) fdp = pack( true );
+    return fdp ? fdp->isAltDim0InInt( annotnm ) : false;
+}
+
+
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
     const FlatDataPack* fdp = pack( false );
@@ -306,14 +315,19 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    BufferStringSet bss; getAnnotChoices( bss );
-    if ( mIsUdf(sel) || bss.isEmpty() || ( !bss.validIdx(sel) ||
-	 bss.get(sel) == appearance().annot_.x1_.name_) )
+    BufferStringSet choices; getAnnotChoices( choices );
+    if ( !choices.validIdx(sel) )
 	return;
 
-    if ( !mIsUdf(sel) )
-	appearance().annot_.x1_.name_ = bss.get( sel );
+    const BufferString& selannotnm = choices.get( sel );
+    FlatView::Annotation::AxisData& x1axdata = appearance().annot_.x1_;
+    if ( selannotnm == x1axdata.name_ )
+	return;
 
+    appearance().annot_.x1_.name_ = selannotnm;
+    const bool isannotinint = isAnnotInInt( selannotnm );
+    appearance().annot_.x1_.annotinint_ = isannotinint;
+    axesdrawer_.setAnnotInInt( true, isannotinint );
     axesdrawer_.altdim0_ = sel;
 }
 

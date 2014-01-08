@@ -60,28 +60,33 @@ public:
     void		setZValue(int nv);
     void		turnOn(bool);
 
-    void		setAnnotInside(bool yn) { inside_ = yn; update(); }
-    void		enableAxisLine(bool yn)	{ drawaxisline_=yn; update(); }
-    void		enableGridLines(bool yn){ drawgridlines_=yn; update(); }
+    void		setAnnotInside(bool yn) { inside_ = yn; reDraw(); }
+    void		enableAxisLine(bool yn) { drawaxisline_=yn; reDraw(); }
+    void		enableGridLines(bool yn){ drawgridlines_=yn; reDraw(); }
+    void		setAnnotInInt(bool yn)	{ annotinint_=yn; }
 
     void		enableMask(bool yn);
-    void		setTextFactor(int n)	{ txtfactor_ = n; update(); }
+    void		setTextFactor(int n)	{ txtfactor_ = n; reDraw(); }
     			// Values displayed along axis are multiplied by this
     			// factor.
-    void		setLineStyle(const LineStyle& lst) {ls_=lst; update(); }
+    void		setLineStyle(const LineStyle& lst) {ls_=lst; reDraw(); }
     void		setGridLineStyle(const LineStyle& gls)
-			{ gridls_ = gls; update(); }
+			{ gridls_ = gls; reDraw(); }
     void		setFontData(const FontData&);
     
 protected:
     
-    void			update();
+    void			reDraw();
+    void			drawAtPos(float worldpos, bool drawgrid,
+					  int& curtextitm,int& curlineitm);
+    int				getNrAnnotChars() const;
     
     bool			inside_;
     bool			isx_;
     bool			istop_;
     bool			drawaxisline_;
     bool			drawgridlines_;
+    bool			annotinint_;
     
     uiGraphicsScene&		scene_;
     uiGraphicsItemGroup*	itmgrp_;
@@ -114,7 +119,7 @@ public:
 
     virtual void        setZvalue(int z);
     virtual void	setViewRect(const uiRect&);
-    void		setWorldCoords(const uiWorldRect&);
+    virtual void	setWorldCoords(const uiWorldRect&);
     void		setWorldCoords(const StepInterval<float>& xrg,
 				       const StepInterval<float>& yrg);
 
@@ -134,6 +139,9 @@ public:
     void		setXLineStyle(const LineStyle&);
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
+    void		setAnnotInInt( bool xaxis, bool dowant )
+			{ xaxis ? xaxis_->setAnnotInInt(dowant)
+				: yaxis_->setAnnotInInt(dowant); }
 
     NotifierAccess&	layoutChanged();
 
@@ -163,6 +171,7 @@ protected:
     uiRectItem*			bottommask_;
     uiRectItem*			leftmask_;
     uiRectItem*			rightmask_;
+
     void			updateFontSizeCB(CallBacker*);
 };
 

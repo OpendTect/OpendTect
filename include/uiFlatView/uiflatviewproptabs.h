@@ -196,7 +196,6 @@ protected:
 
 	int		getSelAnnot() const;
 	void		setSelAnnot(int);
-
     protected:
 
 	FlatView::Annotation::AxisData&	ad_;

@@ -72,6 +72,7 @@ public:
 
     Coord3		getCoord(int,int) const			= 0;
     void		getAltDim0Keys(BufferStringSet&) const;
+    bool		isAltDim0InInt(const char* key) const;
     double		getAltDim0Value(int,int) const		= 0;
     void		getAuxInfo(int,int,IOPar&) const	= 0;
 
@@ -151,6 +152,7 @@ public:
     const char*		dimName(bool) const;
 
     Coord3		getCoord(int,int) const;
+    bool		isAltDim0InInt(const char* key) const;
     void		getAltDim0Keys(BufferStringSet&) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;

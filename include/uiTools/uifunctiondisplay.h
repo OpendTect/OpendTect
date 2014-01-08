@@ -76,6 +76,8 @@ public:
 				    , closepolygon_(true)
 				    , drawliney_(true)
 				    , useyscalefory2_(false)
+				    , xannotinint_(false)
+				    , yannotinint_(false)
 				    , drawliney2_(true) {}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
@@ -115,6 +117,8 @@ public:
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(bool,fixdrawrg)		
+	mDefSetupMemb(bool,xannotinint)
+	mDefSetupMemb(bool,yannotinint)
 
 	Setup&		drawline( bool yn )
 			{ drawliney_ = drawliney2_ = yn; return *this; }

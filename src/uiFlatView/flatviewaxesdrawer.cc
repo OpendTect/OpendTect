@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "datapackbase.h"
 #include "uigraphicsview.h"
+#include "uiflatviewer.h"
 
 #define mRemoveAnnotItem( item )\
 { view_.scene().removeItem( item ); delete item; item = 0; }
@@ -64,6 +65,8 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 void FlatView::AxesDrawer::update()
 {
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
+    setAnnotInInt( true, annot.x1_.annotinint_ );
+    setAnnotInInt( false, annot.x2_.annotinint_ );
     enableXAxis( annot.x1_.showannot_ );
     enableYAxis( annot.x2_.showannot_ );
     xaxis_->enableGridLines( annot.x1_.showgridlines_ );
@@ -197,3 +200,37 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     setZvalue( uiGraphicsSceneAxisMgr::getZvalue() );
 }
 
+
+void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
+{
+    bool usewva = !vwr_.isVisible( false );
+    const FlatDataPack* fdp = vwr_.pack( usewva );
+    if ( !fdp )
+	{ usewva = !usewva; fdp = vwr_.pack( usewva ); }
+    if ( !fdp || mIsUdf(altdim0_) )
+    {
+	uiGraphicsSceneAxisMgr::setWorldCoords( wr );
+	return;
+    }
+
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    StepInterval<double> dim0rg1 = fdp->posData().range( true );
+    const double altdim0start = fdp->getAltDim0Value( altdim0_, 0 );
+    const double altdim0stop =
+	fdp->getAltDim0Value( altdim0_,dim0rg1.nrSteps() );
+    const double altdimdiff = altdim0stop - altdim0start;
+    const double altdim0step =
+	mIsZero(altdimdiff,mDefEps) || mIsZero(dim0rg1.nrSteps(),mDefEps)
+	? 1.0 : altdimdiff/dim0rg1.nrSteps();
+    StepInterval<double> dim0rg2( altdim0start, altdim0stop, altdim0step );
+    if ( uivwr )
+    {
+	const float startindex = dim0rg1.getfIndex( wr.left() );
+	const float stopindex = dim0rg1.getfIndex( wr.right() );
+	dim0rg2.start = altdim0start + dim0rg2.step*startindex;
+	dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
+    }
+
+    xaxis_->setWorldCoords( Interval<double>(dim0rg2.start, dim0rg2.stop) );
+    yaxis_->setWorldCoords( Interval<double>( wr.top(), wr.bottom() ) );
+}

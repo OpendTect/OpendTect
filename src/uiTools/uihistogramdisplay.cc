@@ -25,8 +25,8 @@ ________________________________________________________________________
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p, 
 					uiHistogramDisplay::Setup& su,
        					bool withheader	)
-    : uiFunctionDisplay( p, su.fillbelow( true ).
-	    		       yrg(Interval<float>(0,mUdf(float))) )
+    : uiFunctionDisplay( p, su.fillbelow( true ).yannotinint(true).
+			    yrg(Interval<float>(0,mUdf(float))) )
     , rc_(*new Stats::ParallelCalc<float>(Stats::CalcSetup(false)
 					    .require(Stats::Min)
 					    .require(Stats::Max)

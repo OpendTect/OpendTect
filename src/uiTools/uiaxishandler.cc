@@ -89,13 +89,38 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 void uiAxisHandler::setBounds( Interval<float> rg )
 {
     const bool isrev = rg.start > rg.stop;
-    AxisLayout<float> al( rg );
+    AxisLayout<float> al( rg, setup_.annotinint_ );
     if ( (!isrev && (al.sd_.start < rg.start))
       || ( isrev && (al.sd_.start > rg.start)) )
 	al.sd_.start += al.sd_.step;
-    setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step), &al.sd_.start );
+    setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),&al.sd_.start);
 }
 
+
+#define sDefNrDecimalPlaces 3
+
+int uiAxisHandler::getNrAnnotChars() const
+{
+    const int widthlogval = mIsZero(rg_.width(),mDefEps)
+	? 0 : mNINT32( Math::Log10(fabs(rg_.width())) );
+    const int startlogval = mIsZero(rg_.start,mDefEps)
+	? 0 : mNINT32( Math::Log10(fabs(rg_.start)) );
+    const int stoplogval = mIsZero(rg_.stop,mDefEps)
+	? 0 : mNINT32( Math::Log10(fabs(rg_.stop)) );
+    int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
+    // number of chars needed for pre decimal part for maximum value
+    if ( nrofpredecimalchars < 1 )
+	nrofpredecimalchars = 1;
+    int nrofpostdecimalchars = sDefNrDecimalPlaces - widthlogval;
+    // number of chars needed for decimal places on the basis of range
+    if ( setup_.annotinint_ || nrofpostdecimalchars < 0 )
+	nrofpostdecimalchars = 0;
+    else
+	nrofpostdecimalchars += 1; // +1 for the decimal itself
+    const int nrannotchars = nrofpredecimalchars + nrofpostdecimalchars;
+    return setup_.maxnrchars_ && nrannotchars>setup_.maxnrchars_
+		? setup_.maxnrchars_ : nrannotchars;
+}
 
 void uiAxisHandler::reCalc()
 {
@@ -114,12 +139,21 @@ void uiAxisHandler::reCalc()
 
     int rgwdth = 0;
     const int nrsteps = annotrg.nrSteps();
+    const int reqnrchars = getNrAnnotChars();
+    if ( !mIsEqual(rg_.start,annotstart_,annotrg.step/100.f) &&
+	 (!setup_.annotinint_ ||
+	  mIsEqual(rg_.start,mNINT32(rg_.start),1e-4)) )
+    {
+	pos_ += 0.0f;
+	strs_.add( toString(rg_.start,rg_.start<0 ? reqnrchars+1 : reqnrchars));
+    }
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
 	float pos = annotrg.start + idx * rg_.step;
 	if ( mIsZero( pos, setup_.epsaroundzero_ ) )
 	    pos = 0;
-	const BufferString posstr( toString(pos,setup_.maxnrchars_) );
+	const BufferString posstr( toString(pos,pos<0 ? reqnrchars+1
+						      : reqnrchars) );
 	strs_.add( posstr );
 	float relpos = pos - rg_.start;
 	if ( rgisrev_ ) relpos = -relpos;
@@ -130,6 +164,15 @@ void uiAxisHandler::reCalc()
 	const int wdth = font.width( posstr );
 	if ( idx == 0 || rgwdth < wdth )
 	    rgwdth = wdth;
+    }
+
+    if ( !mIsEqual(rg_.stop, annotrg.start+ nrsteps*annotrg.step,
+		   annotrg.step/100.f) &&
+	 (!setup_.annotinint_ ||
+	  mIsEqual(rg_.stop,mNINT32(rg_.stop),1e-4)) )
+    {
+	pos_ += 1.0f;
+	strs_.add( toString(rg_.stop,rg_.stop<0 ? reqnrchars+1 : reqnrchars) );
     }
     if ( !setup_.noaxisannot_ )
 	calcwdth_ += isHor() ? font.height() : rgwdth;

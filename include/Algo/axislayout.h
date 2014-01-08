@@ -28,20 +28,24 @@ mClass(Algo) AxisLayout
 {
 public:
 			// Have layout calculated
-			AxisLayout( const Interval<T>& dr )
+			AxisLayout( const Interval<T>& dr, bool yn=false )
+			    : annotinint_(yn)
 			    { setDataRange(dr); }
     void		setDataRange(const Interval<T>&);
 
     SamplingData<T>	sd_;
     T			stop_;
+    bool		annotinint_;
 
     				// Init with explicit layout
 			AxisLayout( T start=0, T st_op=1,
 				    T step=1 )
-			    : sd_(start,step), stop_(st_op)	{}
+			    : sd_(start,step), stop_(st_op)
+			    , annotinint_(false)	{}
 			AxisLayout( const StepInterval<T>& rg )
 			    : sd_(rg.start,rg.step)
-			    , stop_(rg.stop)			{}
+			    , stop_(rg.stop)
+			    , annotinint_(false)    {}
 
 			// Returns 'modulo' end with this sd_ and stop_
     T			findEnd(T datastop) const;
@@ -83,6 +87,14 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     else                        scstep = 20;
 
     sd_.step = (T) ( scstep / stepfac );
+    if ( annotinint_ )
+    {
+	int istep = mNINT32( sd_.step );
+	if ( istep == 0 )
+	    istep = 1;
+	sd_.step = istep;
+    }
+
     if ( wdth > 1e-30 )
     {
 	const T fidx = (T) ( rev

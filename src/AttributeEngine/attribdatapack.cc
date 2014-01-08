@@ -300,6 +300,13 @@ const char* Flat3DDataPack::dimName( bool dim0 ) const
 }
 
 
+bool Flat3DDataPack::isAltDim0InInt( const char* keystr ) const
+{
+    FixedString key( keystr );
+    return key == mKeyInl || key == mKeyCrl;
+}
+
+
 void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     if ( usemultcubes_ && cube_.cubeSampling().nrZ() > 1 )
@@ -354,6 +361,15 @@ void Flat2DDataPack::dumpInfo( IOPar& iop ) const
 {
     ::FlatDataPack::dumpInfo( iop );
     DataPackCommon::dumpInfo( iop );
+}
+
+
+bool Flat2DDataPack::isAltDim0InInt( const char* keystr ) const
+{
+    FixedString key( keystr );
+    return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||
+	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
+	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl);
 }
 
 
@@ -491,8 +507,9 @@ void Flat2DDHDataPack::setPosData()
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
 	    Coord crd = dataholderarr_->trcinfoset_[idx]->coord;
-	    pos[idx] = (float) (pos[idx-1] +
-				   dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd ));
+	    pos[idx] =
+		(float) (pos[idx-1] +
+		dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd ));
 	    prevcrd = crd;
 	}
 

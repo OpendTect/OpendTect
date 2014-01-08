@@ -59,6 +59,7 @@ public:
 			    , nogridline_(false)
 			    , noannotpos_(false)
 			    , annotinside_(false)
+			    , annotinint_(false)
 			    , ticsz_(2)
 			    , width_(w)
 			    , height_(h)
@@ -78,6 +79,7 @@ public:
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)
 	mDefSetupMemb(bool,annotinside)
+	mDefSetupMemb(bool,annotinint)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
@@ -172,6 +174,7 @@ protected:
     void		drawGridLine(int);
     void		annotPos(int,const char*,const LineStyle&);
     void		drawName();
+    int			getNrAnnotChars() const;
 
 };
 

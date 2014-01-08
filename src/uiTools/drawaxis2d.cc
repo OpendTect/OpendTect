@@ -34,6 +34,7 @@ uiGraphicsSceneAxis::uiGraphicsSceneAxis( uiGraphicsScene& scene)
     , drawaxisline_( true )
     , drawgridlines_( true )
     , mask_( 0 )
+    , annotinint_( false )
 {
     itmgrp_ = new uiGraphicsItemGroup;
     scene_.addItem( itmgrp_ );
@@ -58,7 +59,7 @@ void uiGraphicsSceneAxis::setPosition(bool isx,bool istoporleft,bool isinside)
     isx_ = isx;
     istop_ = istoporleft;
     
-    update();
+    reDraw();
 }
 
 
@@ -88,21 +89,21 @@ void uiGraphicsSceneAxis::enableMask( bool yn )
 void uiGraphicsSceneAxis::setViewRect( const uiRect& uir )
 {
     viewrect_ = uir;
-    update();
+    reDraw();
 }
 
 
 void uiGraphicsSceneAxis::setWorldCoords( const Interval<double>& rg )
 {
     rg_ = rg;
-    update();
+    reDraw();
 }
 
 
 void uiGraphicsSceneAxis::setFontData( const FontData& fnt )
 {
     fontdata_ = fnt;
-    update();
+    reDraw();
 }
 
 
@@ -124,44 +125,75 @@ else \
 } \
 cur##nm##itm++
 
+#define sDefNrDecimalPlaces 3
 
-void uiGraphicsSceneAxis::update()
+int uiGraphicsSceneAxis::getNrAnnotChars() const
 {
-    SamplingData<double> axis =
-    	AxisLayout<double>( Interval<double>(rg_.start ,rg_.stop) ).sd_;
-    
-    
-    Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
-			 	isx_ ? viewrect_.right() : viewrect_.bottom() );
-    Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
-			       isx_ ? viewrect_.bottom() : viewrect_.right() );
+    const int widthlogval = mIsZero(rg_.width(),mDefEps)
+				? 0 : mNINT32( Math::Log10(fabs(rg_.width())) );
+    const int startlogval = mIsZero(rg_.start,mDefEps)
+				? 0 : mNINT32( Math::Log10(fabs(rg_.start)) );
+    const int stoplogval = mIsZero(rg_.stop,mDefEps)
+				? 0 : mNINT32( Math::Log10(fabs(rg_.stop)) );
+    int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
+    // number of chars needed for pre decimal part for maximum value
+    if ( nrofpredecimalchars < 1 )
+	nrofpredecimalchars = 1;
+    int nrofpostdecimalchars = sDefNrDecimalPlaces - widthlogval;
+    // number of chars needed for decimal places on the basis of range
+    if ( annotinint_ || nrofpostdecimalchars < 0 )
+	nrofpostdecimalchars = 0;
+    else
+	nrofpostdecimalchars += 1; // +1 for the decimal itself
+    return nrofpredecimalchars + nrofpostdecimalchars;
+}
 
+
+void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
+				     int& curtextitm, int& curlineitm )
+{
+    Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
+			  isx_ ? viewrect_.right() : viewrect_.bottom() );
+    Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
+			  isx_ ? viewrect_.bottom() : viewrect_.right() );
     const int ticklen = fontdata_.pointSize();
-    
     const int baseline = istop_ ? datarg.start : datarg.stop;
     const int bias = inside_==istop_ ? ticklen : -ticklen;
-    
     const int ticklinestart = baseline + bias;
     const int ticklinestop = baseline;
+
+    BufferString txt = toString( worldpos * txtfactor_, getNrAnnotChars() );
+    const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
+    float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
     
-    int curtextitm = 0;
-    int curlineitm = 0;
+    mGetItem( uiLineItem, line, tickline );
     
-     
-    if ( drawaxisline_ )
+    Geom::Point2D<float> tickstart( axispos, mCast(float,ticklinestart) );
+    Geom::Point2D<float> tickstop( axispos, mCast(float,ticklinestop) );
+
+    if ( !isx_ )
     {
-	mGetItem( uiLineItem, line, line );
-		
-	uiPoint start( axisrg.start, baseline );
-	uiPoint stop( axisrg.stop, baseline );
+	tickstart.swapXY();
+	tickstop.swapXY();
+    }
+
+    tickline->setLine( tickstart, tickstop );
+    tickline->setPenStyle( ls_ );
+
+    if ( drawgridlines_ && drawgrid )
+    {
+	mGetItem( uiLineItem, line, gridline );
+	Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start));
+	Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop) );
+
 	if ( !isx_ )
 	{
-	    start.swapXY();
-	    stop.swapXY();
+	    gridstart.swapXY();
+	    gridstop.swapXY();
 	}
 	
-	line->setLine( start, stop );
-	line->setPenStyle( ls_ );
+	gridline->setLine( gridstart, gridstop );
+	gridline->setPenStyle( gridls_ );
     }
     
     Alignment al;
@@ -175,59 +207,59 @@ void uiGraphicsSceneAxis::update()
 	al.set( Alignment::VCenter );
 	al.set( bias<0 ? Alignment::Right : Alignment::Left );
     }
+
+    mGetItem( uiTextItem, text, label );
+    label->setAlignment( al );
+    label->setText( txt );
+    label->setFontData( fontdata_ );
+    label->setPos( tickstart );
+    label->setTextColor( ls_.color_ );
+}
+
+
+void uiGraphicsSceneAxis::reDraw()
+{
+    AxisLayout<double> al( Interval<double>(rg_.start ,rg_.stop), annotinint_ );
+    SamplingData<double> axis = al.sd_;
+    Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
+				isx_ ? viewrect_.right() : viewrect_.bottom() );
+    Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
+			       isx_ ? viewrect_.bottom() : viewrect_.right() );
+    const int baseline = istop_ ? datarg.start : datarg.stop;
+    int curtextitm = 0;
+    int curlineitm = 0;
+    if ( drawaxisline_ )
+    {
+	mGetItem( uiLineItem, line, line );
+
+	uiPoint start( axisrg.start, baseline );
+	uiPoint stop( axisrg.stop, baseline );
+	if ( !isx_ )
+	{
+	    start.swapXY();
+	    stop.swapXY();
+	}
+
+	line->setLine( start, stop );
+	line->setPenStyle( ls_ );
+    }
     
-    BufferString txt;
     const float fnrsteps = (float) ( rg_.width(false)/axis.step );
     const int nrsteps = mNINT32( fnrsteps )+2;
+    if ( !mIsEqual(rg_.start,axis.start,axis.step/100.f) &&
+	 (!annotinint_ || mIsEqual(rg_.start,mNINT32(rg_.start),1e-4)) )
+	drawAtPos( rg_.start, false, curtextitm, curlineitm );
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
 	if ( !rg_.includes(worldpos,true) )
 	    continue;
-	
-	txt = worldpos * txtfactor_;
-	const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
-	float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
-	
-	mGetItem( uiLineItem, line, tickline );
-	
-	Geom::Point2D<float> tickstart( axispos, mCast(float,ticklinestart) );
-	Geom::Point2D<float> tickstop( axispos, mCast(float,ticklinestop) );
-	
-	if ( !isx_ )
-	{
-	    tickstart.swapXY();
-	    tickstop.swapXY();
-	}
-	
-	tickline->setLine( tickstart, tickstop );
-	tickline->setPenStyle( ls_ );
-	
-	if ( drawgridlines_ )
-	{
-	    mGetItem( uiLineItem, line, gridline );
-	    Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start));
-	    Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop) );
-	    
-	    if ( !isx_ )
-	    {
-		gridstart.swapXY();
-		gridstop.swapXY();
-	    }
-	    
-	    gridline->setLine( gridstart, gridstop );
-	    gridline->setPenStyle( gridls_ );
-	}
-	
-
-	mGetItem( uiTextItem, text, label );
-	label->setAlignment( al );
-	label->setText( txt );
-	label->setFontData( fontdata_ );
-	label->setPos( tickstart );
-	label->setTextColor( ls_.color_ );
+	drawAtPos( worldpos, true, curtextitm, curlineitm );
     }
     
+    if ( !mIsEqual(rg_.stop,axis.atIndex(nrsteps-1),axis.step/100.f) &&
+	 (!annotinint_ || mIsEqual(rg_.stop,mNINT32(rg_.stop),1e-4)) )
+	drawAtPos( rg_.stop, false, curtextitm, curlineitm );
     while ( curlineitm<lines_.size() )
 	itmgrp_->remove( lines_.pop(), true );
     
@@ -292,7 +324,8 @@ void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
     topmask_->setRect( fullrect.left(), fullrect.top(),
 		      fullrect.width(), viewrect.top()-fullrect.top() );
     bottommask_->setRect( fullrect.left(), viewrect.bottom(),
-			 fullrect.width(), fullrect.bottom()-viewrect.bottom()+1);
+			 fullrect.width(),
+			 fullrect.bottom()-viewrect.bottom()+1);
     leftmask_->setRect( fullrect.left(), fullrect.top(),
 		       viewrect.left()-fullrect.left(), fullrect.height() );
     rightmask_->setRect( viewrect.right(), fullrect.top(),

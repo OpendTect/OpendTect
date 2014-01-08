@@ -64,7 +64,8 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     for ( int idx=0; idx<sz; idx++ )
     {
 	trc = get( idx ); bid = trc->info().binid;
-	spi.inlrg.include( bid.inl(), false ); spi.crlrg.include( bid.crl(), false);
+	spi.inlrg.include( bid.inl(), false );
+	spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling;
 	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
 	     !mIsZero(trcsd.step,mDefEps) )
@@ -229,7 +230,8 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     {
 	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
 	    return idx;
-	else if ( is2d && ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl())
+	else if ( is2d &&
+		  ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl() )
 	    return idx;
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -491,6 +493,14 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
     }
 }
 
+
+bool SeisTrcBufDataPack::isAltDim0InInt( const char* keystr ) const
+{
+    FixedString key( keystr );
+    return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||
+	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
+	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl);
+}
 
 
 void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const

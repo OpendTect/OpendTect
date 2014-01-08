@@ -120,6 +120,7 @@ public:
 	bool			showannot_;
 	bool			showgridlines_;
 	bool			reversed_;
+	bool			annotinint_;
 	int			factor_;
 
 	void			showAll(bool yn);
@@ -386,6 +387,9 @@ public:
     virtual AuxData*		removeAuxData(int idx)			= 0;
     void			removeAuxDatas(ObjectSet<AuxData>&);
     void			removeAllAuxData();
+    virtual void		setAnnotChoice(int selannot)		{}
+    virtual int			getAnnotChoice(BufferStringSet&) const
+				{ return -1; }
 
 protected:
 

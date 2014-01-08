@@ -81,9 +81,11 @@ public:
 
     virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
-    virtual void		getAltDim0Keys(BufferStringSet&) const {}
+    virtual void		getAltDim0Keys(BufferStringSet&) const	{}
     				//!< First one is 'default'
     virtual double		getAltDim0Value(int ikey,int idim0) const;
+    virtual bool		isAltDim0InInt(const char* key) const
+				{ return false; }
 
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
 

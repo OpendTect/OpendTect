@@ -42,7 +42,6 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     {
 	uiHistogramDisplay::Setup fsu;
 	fsu.annoty( setup_.vertaxis_ );
-	fsu.annoty( setup_.vertaxis_ );
 	histgramdisp_ = new uiHistogramDisplay( this, fsu );
     }
 

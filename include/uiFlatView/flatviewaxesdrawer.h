@@ -37,6 +37,7 @@ public:
     void		update();
     void                setZvalue(int z);
     void        	setViewRect(const uiRect&);
+    void		setWorldCoords(const uiWorldRect&);
 
 protected:
 

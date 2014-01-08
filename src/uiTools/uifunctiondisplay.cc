@@ -58,11 +58,13 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
     asu.border_ = setup_.border_;
     asu.epsaroundzero_ = setup_.epsaroundzero_;
+    asu.annotinint_ = setup_.xannotinint_;
     xax_ = new uiAxisHandler( &scene(), asu );
     asu.noaxisline( setup_.noyaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noygridline_ );
     asu.side( uiRect::Left );
+    asu.annotinint_ = setup_.yannotinint_;
     yax_ = new uiAxisHandler( &scene(), asu );
     asu.noaxisline( setup_.noy2axis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );
