@@ -1,17 +1,17 @@
-#_______________________Pmake___________________________________________________
+#_______________________CMake___________________________________________________
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_USEQT Core)
-set( OD_USEBREAKPAD Yes)
-set( OD_USEZLIB Yes)
+set( OD_USEQT Core )
+set( OD_USEBREAKPAD Yes )
+set( OD_USEZLIB Yes )
 set( QT_MOC_HEADERS
-	qfilesystemcomm.h
 	qtimercomm.h
 )
+
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
@@ -28,6 +28,7 @@ set( OD_TEST_PROGS
 	threads.cc
 	threadwork.cc
 )
+
 set( OD_MODULE_SOURCES
 	arrayndinfo.cc
 	arrayndslice.cc
@@ -48,7 +49,6 @@ set( OD_MODULE_SOURCES
 	executor.cc
 	factory.cc
 	file.cc
-	filesystemwatcher.cc
 	filepath.cc
 	genc.cc
 	globexpr.cc
