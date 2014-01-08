@@ -14,6 +14,7 @@ set(QT_MOC_HEADERS i_qaction.h
 		i_qlineedit.h
 		i_qlistbox.h
 		i_qmdiarea.h
+		i_qptr.h
 		i_qslider.h
 		i_qspinbox.h
 		i_qsystemtrayicon.h
@@ -27,6 +28,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
 		inituibase.cc
 		pixmap.cc
+		qptr.cc
 		uiaction.cc
 		uibutton.cc
 		uibuttongroup.cc

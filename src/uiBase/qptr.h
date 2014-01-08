@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
-#include "basicmod.h"
 
 class NotifierAccess;
 class i_QPtrImpl;
@@ -26,7 +25,7 @@ mFDQtclass(QObject);
 when the QObject goes out of scope.
 */
 
-mExpClass(Basic) QObjPtr
+class QObjPtr
 {
 public:
 				QObjPtr(mQtclass(QObject)* = 0);
