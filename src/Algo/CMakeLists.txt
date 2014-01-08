@@ -39,6 +39,7 @@ set(OD_MODULE_SOURCES timeser.c
 	    mathfunc.cc
 	    muter.cc
 	    pca.cc
+	    phase.cc
 	    posfilter.cc
 	    probdenfunc.cc
 	    raytrace1d.cc
