@@ -583,7 +583,6 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( ioobj_ && !reader_ )
     	reader_ = SPSIOPF().get3DReader( *ioobj_ );
 
-    const int ctid = pdd->getColTabID(0);
     const bool offsetalonginl = 
 	section_->getOrientation()==PlaneDataDisplay::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
@@ -718,7 +717,6 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     setTraceNr( trcnr );
     if ( trcnr_<0 ) return false;
 
-    const int ctid = s2d->getColTabID(0);
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); 
     basedirection_ = SI().binID2Coord().transformBackNoSnap( 
 	    seis2d_->getNormal(trcnr_) ) - orig; 
