@@ -37,6 +37,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "linekey.h"
 #include "keystrs.h"
 #include "posinfo2d.h"

@@ -31,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
+#include "iodir.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"

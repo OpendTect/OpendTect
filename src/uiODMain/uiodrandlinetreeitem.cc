@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodrandlinetreeitem.h"
 
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "mousecursor.h"
 #include "ptrman.h"
 #include "randomlinetr.h"

@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "oscommand.h"
 #include "survinfo.h"

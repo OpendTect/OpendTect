@@ -92,7 +92,7 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 	int istep = mNINT32( sd_.step );
 	if ( istep == 0 )
 	    istep = 1;
-	sd_.step = istep;
+	sd_.step = (T)istep;
     }
 
     if ( wdth > 1e-30 )

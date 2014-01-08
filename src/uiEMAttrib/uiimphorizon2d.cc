@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "horizon2dscanner.h"
+#include "ioman.h"
 #include "randcolor.h"
 #include "seis2dline.h"
 #include "strmdata.h"

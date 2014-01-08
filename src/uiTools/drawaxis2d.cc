@@ -248,18 +248,18 @@ void uiGraphicsSceneAxis::reDraw()
     const int nrsteps = mNINT32( fnrsteps )+2;
     if ( !mIsEqual(rg_.start,axis.start,axis.step/100.f) &&
 	 (!annotinint_ || mIsEqual(rg_.start,mNINT32(rg_.start),1e-4)) )
-	drawAtPos( rg_.start, false, curtextitm, curlineitm );
+	drawAtPos( mCast(float,rg_.start), false, curtextitm, curlineitm );
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
 	if ( !rg_.includes(worldpos,true) )
 	    continue;
-	drawAtPos( worldpos, true, curtextitm, curlineitm );
+	drawAtPos( mCast(float,worldpos), true, curtextitm, curlineitm );
     }
     
     if ( !mIsEqual(rg_.stop,axis.atIndex(nrsteps-1),axis.step/100.f) &&
 	 (!annotinint_ || mIsEqual(rg_.stop,mNINT32(rg_.stop),1e-4)) )
-	drawAtPos( rg_.stop, false, curtextitm, curlineitm );
+	drawAtPos( mCast(float,rg_.stop), false, curtextitm, curlineitm );
     while ( curlineitm<lines_.size() )
 	itmgrp_->remove( lines_.pop(), true );
     
