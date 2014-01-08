@@ -25,6 +25,7 @@ SET(OD_MODULE_SOURCES
 	segytr.cc
 	seis2dline.cc
 	seis2ddata.cc
+	seis2ddatafmtconverter.cc
 	seis2dlineio.cc
 	seis2dto3d.cc
 	seisbayesclass.cc
@@ -66,7 +67,6 @@ SET(OD_MODULE_SOURCES
 	seiszaxisstretcher.cc
 	synthseis.cc
 	timedepthconv.cc
-	twodseisdataconverterfromod4tood5format.cc
 	wavelet.cc
 	waveletattrib.cc
 	waveletextractor.cc

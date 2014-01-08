@@ -6,7 +6,6 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "twodseisdataconverterfromod4tood5format.h"
 
 #include "bufstringset.h"
 #include "file.h"
@@ -19,29 +18,62 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
 
-
-
-TwoDSeisDataConverterFromOD4ToOD5Format::
-    ~TwoDSeisDataConverterFromOD4ToOD5Format()
-{ deepErase( all2dseisiopars_ ); }
-
-
-bool TwoDSeisDataConverterFromOD4ToOD5Format::convertSeisData( 
-							  BufferString& errmsg )
+class OD_2DLineSetTo2DDataSetConverter
 {
-    ObjectSet<IOObj> allioobjsof2ddata;
-    makeListOfLineSets( allioobjsof2ddata );
-    fillIOParsFrom2DSFile( allioobjsof2ddata );
-    BufferStringSet filepathsofold2ddata, filestobedeleted;
-    getCBVSFilePaths( filepathsofold2ddata );
-    copyDataAndAddToDelList( filepathsofold2ddata,filestobedeleted, errmsg );
-    update2DSFiles( allioobjsof2ddata );
-    removeDuplicateData( filestobedeleted );
-    return errmsg.isEmpty() ? true : false;
+public:
+
+			    OD_2DLineSetTo2DDataSetConverter()	    {}
+			    ~OD_2DLineSetTo2DDataSetConverter();
+
+    void		    doConversion();
+
+protected:
+
+    void		    makeListOfLineSets(ObjectSet<IOObj>&) const;
+    void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
+    void		    getCBVSFilePaths(BufferStringSet&);
+    bool		    copyDataAndAddToDelList(BufferStringSet&,
+						    BufferStringSet&,
+						    BufferString&);
+    void		    update2DSFiles(ObjectSet<IOObj>& ioobjlist);
+    void		    removeDuplicateData(BufferStringSet&);
+    
+
+    BufferString	    getAttrFolderPath(const IOPar&) const;
+
+    	    
+    ObjectSet<IOPar>	    all2dseisiopars_;
+};
+
+
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets();
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets()
+{
+    mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
+    converter.doConversion();
 }
 
 
-void TwoDSeisDataConverterFromOD4ToOD5Format::makeListOfLineSets( 
+OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
+{ deepErase( all2dseisiopars_ ); }
+
+
+void OD_2DLineSetTo2DDataSetConverter::doConversion()
+{
+    ObjectSet<IOObj> all2dsfiles;
+    makeListOfLineSets( all2dsfiles );
+    fillIOParsFrom2DSFile( all2dsfiles );
+    BufferStringSet filepathsofold2ddata, filestobedeleted;
+    getCBVSFilePaths( filepathsofold2ddata );
+    BufferString errmsg;
+    copyDataAndAddToDelList( filepathsofold2ddata, filestobedeleted, errmsg );
+    update2DSFiles( all2dsfiles );
+    removeDuplicateData( filestobedeleted );
+    return;
+}
+
+
+void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets( 
 					    ObjectSet<IOObj>& ioobjlist ) const
 {
     BufferStringSet lsnms; TypeSet<MultiID> lsids;
@@ -59,7 +91,7 @@ void TwoDSeisDataConverterFromOD4ToOD5Format::makeListOfLineSets(
 }
 
 
-void TwoDSeisDataConverterFromOD4ToOD5Format::fillIOParsFrom2DSFile(
+void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 					    const ObjectSet<IOObj>& ioobjlist )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
@@ -76,7 +108,7 @@ void TwoDSeisDataConverterFromOD4ToOD5Format::fillIOParsFrom2DSFile(
 }
 
 
-BufferString TwoDSeisDataConverterFromOD4ToOD5Format::getAttrFolderPath( 
+BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath( 
 							const IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc);
@@ -90,7 +122,7 @@ BufferString TwoDSeisDataConverterFromOD4ToOD5Format::getAttrFolderPath(
 }
 
 
-void TwoDSeisDataConverterFromOD4ToOD5Format::getCBVSFilePaths( 
+void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths( 
 						    BufferStringSet& filepaths )
 {
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
@@ -111,7 +143,7 @@ void TwoDSeisDataConverterFromOD4ToOD5Format::getCBVSFilePaths(
     }
 
 
-bool TwoDSeisDataConverterFromOD4ToOD5Format::copyDataAndAddToDelList( 
+bool OD_2DLineSetTo2DDataSetConverter::copyDataAndAddToDelList( 
 	BufferStringSet& oldfilepaths, BufferStringSet& filestobedeleted,
 	BufferString& errmsg )
 {
@@ -135,7 +167,7 @@ bool TwoDSeisDataConverterFromOD4ToOD5Format::copyDataAndAddToDelList(
 }
 
 
-void TwoDSeisDataConverterFromOD4ToOD5Format::update2DSFiles( 
+void OD_2DLineSetTo2DDataSetConverter::update2DSFiles( 
 						   ObjectSet<IOObj>& ioobjlist )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
@@ -172,7 +204,7 @@ void TwoDSeisDataConverterFromOD4ToOD5Format::update2DSFiles(
 }
 
 
-void TwoDSeisDataConverterFromOD4ToOD5Format::removeDuplicateData( 
+void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData( 
 						  BufferStringSet& oldfilepath )
 {
     for ( int idx=0; idx<oldfilepath.size(); idx++ )
