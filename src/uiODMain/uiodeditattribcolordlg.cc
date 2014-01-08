@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
-#include "viscolortab.h"
 
 
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,

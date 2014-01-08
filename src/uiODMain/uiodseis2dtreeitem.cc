@@ -42,7 +42,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
-#include "viscolortab.h"
 
 
 static const char* sKeyUnselected = "<Unselected>";
