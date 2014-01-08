@@ -113,7 +113,7 @@ protected:
     void			modEd(CallBacker*);
     void			modDispRangeChanged(CallBacker*);
     void			syntheticsChangedCB(CallBacker*);
-    void			zoomChg(CallBacker*);
+    void			viewChgedCB(CallBacker*);
     void			wvltChg(CallBacker*);
     void			modSelChg(CallBacker*);
     void			genModels(CallBacker*);

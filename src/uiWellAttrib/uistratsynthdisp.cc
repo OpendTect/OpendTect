@@ -68,7 +68,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , selectedtraceaux_(0)
     , levelaux_(0)
     , wvltChanged(this)
-    , zoomChanged(this)
     , viewChanged(this)
     , modSelChanged(this)
     , synthsChanged(this)
@@ -177,6 +176,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     app.annot_.title_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
+    app.annot_.x1_.annotinint_ = true;
     app.annot_.x2_.name_ = "TWT (s)";
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
@@ -187,7 +187,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     fvsu.withedit(false).withthumbnail(false).withcoltabed(false)
 	.tba((int)uiToolBar::Right ).withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
-    control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
     displayPostStackSynthetic( currentwvasynthetic_, true );
     displayPostStackSynthetic( currentvdsynthetic_, false );
@@ -617,13 +616,6 @@ void uiStratSynthDisp::viewChg( CallBacker* )
 {
     setAbsoluteViewRect( curView(false) );
     viewChanged.trigger();
-}
-
-
-void uiStratSynthDisp::zoomChg( CallBacker* )
-{
-    setAbsoluteViewRect( curView(false) );
-    zoomChanged.trigger();
 }
 
 

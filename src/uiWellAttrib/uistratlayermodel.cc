@@ -379,8 +379,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
     gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
-    synthdisp_->zoomChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
-    synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,zoomChg) );
+    synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,viewChgedCB) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->dispParsChanged.notify(
 	    mCB(this,uiStratLayerModel,synthDispParsChangedCB) );
@@ -537,7 +536,7 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 }
 
 
-void uiStratLayerModel::zoomChg( CallBacker* )
+void uiStratLayerModel::viewChgedCB( CallBacker* )
 {
     uiWorldRect wr( mUdf(double), 0, 0, 0 );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
@@ -597,7 +596,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 
 void uiStratLayerModel::wvltChg( CallBacker* cb )
 {
-    zoomChg( cb );
+    viewChgedCB( cb );
     levelChg( 0 );
     waveletChanged.trigger();
 }

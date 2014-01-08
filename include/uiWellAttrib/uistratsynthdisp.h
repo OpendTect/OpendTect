@@ -77,7 +77,6 @@ public:
     uiFlatViewer*	viewer()		{ return vwr_; }
 
     Notifier<uiStratSynthDisp>	wvltChanged;
-    Notifier<uiStratSynthDisp>	zoomChanged;
     Notifier<uiStratSynthDisp>	viewChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
@@ -188,7 +187,6 @@ protected:
     void 		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
-    void		zoomChg(CallBacker*);
     void		viewChg(CallBacker*);
     void		parsChangedCB(CallBacker*);
     void		syntheticRemoved(CallBacker*);
