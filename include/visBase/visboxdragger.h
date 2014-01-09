@@ -63,6 +63,24 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
+    void			setPlaneTransDragKeys(bool depth,int keys);
+				/*!<\param depth tells whether the setting
+				    for in-depth or in-plane translation
+				    of the box planes should be changed.
+				    \param keys combination of OD::ButtonState
+				    \note only shift/ctrl/alt are used. */
+
+
+    int				getPlaneTransDragKeys(bool depth) const;
+				/*!<\param depth tells whether the setting
+				    for in-depth or in-plane translation
+				    of the box should be returned.
+				    \returns combination of OD::ButtonState */
+
+    void			useInDepthTranslationForResize(bool);
+    bool			isInDepthTranslationUsedForResize() const;
+
+
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;
     Notifier<BoxDragger>	changed;
@@ -84,6 +102,7 @@ protected:
     Interval<float>			spaceranges_[3];
 
     bool				selectable_;
+    bool				useindepthtransforresize_;
 };
 
 };

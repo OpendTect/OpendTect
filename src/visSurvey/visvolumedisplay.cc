@@ -136,6 +136,18 @@ VolumeDisplay::VolumeDisplay()
     CubeSampling sics = SI().sampling( true );
     CubeSampling cs = getInitCubeSampling( sics );
     setCubeSampling( cs );
+
+    int buttonkey = OD::NoButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyVolDepthKey(), buttonkey );
+    boxdragger_->setPlaneTransDragKeys( true, buttonkey );
+    buttonkey = OD::ShiftButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyVolPlaneKey(), buttonkey );
+    boxdragger_->setPlaneTransDragKeys( false, buttonkey );
+
+    bool useindepthtransforresize = true;
+    mSettUse( getYN, "dTect.MouseInteraction", sKeyInDepthVolResize(),
+	      useindepthtransforresize );
+    boxdragger_->useInDepthTranslationForResize( useindepthtransforresize );
 }
 
 
@@ -307,7 +319,7 @@ void VolumeDisplay::getChildren( TypeSet<int>&res ) const
 void VolumeDisplay::showManipulator( bool yn )
 {
     boxdragger_->turnOn( yn );
-    scalarfield_->setPickable( !yn );
+    scalarfield_->enableTraversal(visBase::cDraggerIntersecTraversalMask(),!yn);
 }
 
 
@@ -344,7 +356,21 @@ void VolumeDisplay::draggerStartCB( CallBacker* )
 
 void VolumeDisplay::draggerMoveCB( CallBacker* )
 {
-    setCubeSampling( getCubeSampling(true,true,0), true );
+    CubeSampling cs = getCubeSampling(true,true,0);
+    cs.snapToSurvey();
+
+    const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
+			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
+			 (cs.zrg.start + cs.zrg.stop)/2.0 );
+
+    const Coord3 width( cs.hrg.stop.inl() - cs.hrg.start.inl(),
+			cs.hrg.stop.crl() - cs.hrg.start.crl(),
+			cs.zrg.stop - cs.zrg.start );
+
+    boxdragger_->setCenter( center );
+    boxdragger_->setWidth( width );
+
+    setCubeSampling( cs, true );
     if ( keepdraggerinsidetexture_ )
     {
 	boxdragger_->setBoxTransparency( 1.0 );
@@ -519,10 +545,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& desiredcs,
 
     const Coord3 step( cs.hrg.step.inl(), cs.hrg.step.crl(), cs.zrg.step );
 
-    boxdragger_->setCenter( center );
-    boxdragger_->setWidth( width );
     updateDraggerLimits( dragmode );
-
     mSetVolumeTransform( ROIVolume, center, width, trans, scale );
 
     if ( dragmode )
@@ -539,6 +562,9 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& desiredcs,
 	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->touch( false );
     }
+
+    boxdragger_->setCenter( center );
+    boxdragger_->setWidth( width );
 }
 
 

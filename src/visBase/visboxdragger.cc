@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ranges.h"
 #include "iopar.h"
 #include "survinfo.h"
+#include "mouseevent.h"
 
 #include <osg/CullFace>
 #include <osg/Geode>
@@ -45,7 +46,8 @@ public:
 protected:
 
     void			adjustPolygonOffset(bool start);
-    void			constrain(bool translated);
+    void			constrain(Coord3 center,Coord3 scale,
+					  bool translated);
 
     BoxDragger&			dragger_;
     osg::Matrix			initialosgmatrix_;
@@ -64,10 +66,12 @@ bool BoxDraggerCallbackHandler::receive(
 
     mDynamicCastGet( const osgManipulator::Scale1DCommand*, s1d, &cmd );
     mDynamicCastGet( const osgManipulator::Scale2DCommand*, s2d, &cmd );
+    mDynamicCastGet( const osgManipulator::TranslateInLineCommand*,
+		     translatedinline, &cmd );
     mDynamicCastGet( const osgManipulator::TranslateInPlaneCommand*,
 		     translatedinplane, &cmd );
 
-    if ( !s1d && !s2d && !translatedinplane )
+    if ( !s1d && !s2d && !translatedinline && !translatedinplane )
     {
 	dragger_.osgboxdragger_->setMatrix( initialosgmatrix_ );
 	return true;
@@ -80,7 +84,19 @@ bool BoxDraggerCallbackHandler::receive(
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
     {
-	constrain( translatedinplane );
+	Coord3 scale = dragger_.width();
+	Coord3 center = dragger_.center();
+	if ( translatedinline && dragger_.useindepthtransforresize_ )
+	{
+	    if ( dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx()%2 )
+		scale -= center - initialcenter_;
+	    else
+		scale += center - initialcenter_;
+
+	    center = 0.5 * (initialcenter_+center);
+	}
+
+	constrain( center, scale, translatedinplane );
 	dragger_.motion.trigger();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
@@ -127,11 +143,9 @@ void BoxDraggerCallbackHandler::adjustPolygonOffset( bool start )
 }
 
 
-void BoxDraggerCallbackHandler::constrain( bool translated )
+void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
+					   bool translated )
 {
-    Coord3 scale = dragger_.width();
-    Coord3 center = dragger_.center();
-
     for ( int dim=0; dim<3; dim++ )
     {
 	if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
@@ -195,6 +209,7 @@ BoxDragger::BoxDragger()
     , finished( this )
     , osgcallbackhandler_( 0 )
     , osgboxdragger_( setOsgNode( new osgGeo::TabBoxDragger(12.0) ) )
+    , useindepthtransforresize_( false )
 {
     osgboxdragger_->setupDefaultGeometry();
     osgboxdragger_->setHandleEvents( true );
@@ -209,7 +224,7 @@ BoxDragger::BoxDragger()
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
 
 #if OSG_MIN_VERSION_REQUIRED(3,1,3)
-    osgboxdragger_->setIntersectionMask( cIntersectionTraversalMask() );
+    osgboxdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     osgboxdragger_->setActivationMouseButtonMask(
 				osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON |
 				osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON );
@@ -229,8 +244,8 @@ BoxDragger::BoxDragger()
 		    new osg::PolygonOffset(1.0,1.0),
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     geode->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-    geode->setNodeMask( geode->getNodeMask() &
-	    		~visBase::cIntersectionTraversalMask() );
+    geode->setNodeMask( Math::SetBits( geode->getNodeMask(),
+			    visBase::cDraggerIntersecTraversalMask(), false ) );
 
     osg::ref_ptr<osg::CullFace> cullface = new osg::CullFace;
     cullface->setMode( osg::CullFace::FRONT );
@@ -422,6 +437,52 @@ bool BoxDragger::isDraggerBorderShown() const
 
     return false;
 }
+
+
+void BoxDragger::setPlaneTransDragKeys( bool depth, int ns )
+{
+    int mask = osgGA::GUIEventAdapter::NONE;
+
+    if ( ns & OD::ControlButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( ns & OD::ShiftButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( ns & OD::AltButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+
+    if ( depth )
+	osgboxdragger_->set1DTranslateModKeyMaskOfPlanes( mask );
+    else
+	osgboxdragger_->set2DTranslateModKeyMaskOfPlanes( mask );
+}
+
+
+int BoxDragger::getPlaneTransDragKeys( bool depth ) const
+{
+    const int mask = depth ? osgboxdragger_->get1DTranslateModKeyMaskOfPlanes()
+			   : osgboxdragger_->get2DTranslateModKeyMaskOfPlanes();
+
+    int state = OD::NoButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_CTRL )
+	state |= OD::ControlButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_SHIFT )
+	state |= OD::ShiftButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_ALT )
+	state |= OD::AltButton;
+
+    return (OD::ButtonState) state;
+}
+
+
+void BoxDragger::useInDepthTranslationForResize( bool yn )
+{ useindepthtransforresize_ = yn; }
+
+
+bool BoxDragger::isInDepthTranslationUsedForResize() const
+{ return useindepthtransforresize_; }
 
 
 }; // namespace visBase

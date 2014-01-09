@@ -185,6 +185,11 @@ public:
     bool			textureInterpolationEnabled() const;
     void			enableTextureInterpolation(bool);
 
+    static const char*		sKeyVolDepthKey()	{ return "VolDepthKey";}
+    static const char*		sKeyVolPlaneKey()	{ return "VolPlaneKey";}
+    static const char*		sKeyInDepthVolResize()
+						{ return "InDepthVolResize"; }
+
 protected:
 				~VolumeDisplay();
 
