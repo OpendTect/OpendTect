@@ -306,14 +306,20 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    removeScene( scn.mdiwin_->mainObject() );
 	    continue;
 	}
-	if ( scn.sovwr_->getPolygonSelector() )
+
+	visBase::DataObject* obj = 
+	    visBase::DM().getObject( scn.sovwr_->sceneID() );
+	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
+
+	if ( visscene )
 	{
-	    visBase::DataObject* obj = 
-		visBase::DM().getObject( scn.sovwr_->sceneID() );
-	    mDynamicCastGet( visSurvey::Scene*,visscene,obj );
-	    if ( visscene )
+	    if ( scn.sovwr_->getPolygonSelector() )
 		visscene->setPolygonSelector(scn.sovwr_->getPolygonSelector());
+	    if ( scn.sovwr_->getSceneColTab() )
+		visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
 	}
+
+	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
 	visServ().turnSelectionModeOn( false );
 
 	BufferString title( scenestr );
