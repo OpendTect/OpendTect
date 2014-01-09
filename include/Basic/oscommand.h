@@ -16,6 +16,25 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
+/*!\brief Specifies how to execute a command */
+
+
+mExpClass(Basic) OSCommandExecPars
+{
+public:
+			OSCommandExecPars()
+			    : inprogresswindow_(true)
+			    , prioritylevel_(-1)		{}
+
+    bool		inprogresswindow_;
+			    //!< if not, to logfile (if any)
+    BufferString	logfname_;
+			    //!< only when !inprogresswindow_
+    float		prioritylevel_;
+			    //!< -1=lowest, 0=normal, 1=highest (administrator)
+};
+
+
 /*!\brief Can execute OS commands.
 
 Executes command without opening pipe.
