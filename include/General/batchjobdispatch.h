@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "factory.h"
+#include "oscommand.h"
 #include "iopar.h"
 
 
@@ -28,13 +29,14 @@ public:
     enum ProcType	{ Attrib, AttribEM, Grid2D, PreStack, SEGY, T2D,
 			  VelConv, Vol };
 
-    			JobSpec(ProcType);
-    			JobSpec( const char* pnm=0, bool isodprog=true )
+			JobSpec(ProcType);
+			JobSpec( const char* pnm=0, bool isodprog=true )
 			    : prognm_(pnm), isodprog_(isodprog)		{}
 
     BufferString	prognm_;
     bool		isodprog_;
     IOPar		pars_;
+    OSCommandExecPars	execpars_;	//!< may be ignored by dispatcher
 
 };
 
@@ -43,8 +45,6 @@ public:
 
   Subclasses are expected to be ranging from simple single-prcess starters to
   elaborate cluster-based job splitting monsters.
-
-  Feedback to the user, if any, us left to the subclass to provide.
 
  */
 
@@ -57,14 +57,13 @@ public:
     virtual		~JobDispatcher()		{}
 
     virtual const char*	description() const		= 0;
+    virtual bool	ignoresExecPars() const		{ return false; }
     virtual bool	isSuitedFor(const JobSpec&,
 			    BufferString* whynot=0) const = 0;
+
     virtual bool	isAlwaysLocal() const		{ return true; }
     void		setRemoteHost( const char* rh )	{ remotehost_ = rh; }
 				//!< only used when !isAlwaysLocal()
-    virtual bool	hasLog() const		{ return true; }
-    void		setLog( const char* logspec )	{ logspec_ = logspec; }
-    const char*		logSpec() const			{ return logspec_; }
 
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
@@ -77,19 +76,13 @@ protected:
     virtual bool	launch()			= 0;
 
     JobSpec		jobspec_;
-    BufferString	logspec_;
     BufferString	remotehost_;
     BufferString	errmsg_;
 
 };
 
 
-/*!\brief kicks off unattended batch jobs without GUI.
- 
-  To get a sort-of UI you can specify "window" as log.
-  Default is "Std-IO", which starts the batch program in a terminal.
-
- */
+/*!\brief kicks off unattended batch jobs. */
 
 mExpClass(General) SingleJobDispatcher : public JobDispatcher
 {
@@ -102,8 +95,6 @@ public:
     virtual bool	isSuitedFor(const JobSpec&,
 			    BufferString* whynot=0) const { return true; }
     virtual bool	isAlwaysLocal() const		{ return false; }
-    virtual bool	hasLog() const			{ return true; }
-
 
 protected:
 
@@ -111,7 +102,6 @@ protected:
     virtual bool	launch();
 
     BufferString	parfnm_;
-    bool		inwin_;
     bool		tostdio_;
 
 };

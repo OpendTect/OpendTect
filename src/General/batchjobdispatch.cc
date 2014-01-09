@@ -46,7 +46,7 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
     if ( !init() )
 	return false;
 
-    jobspec_.pars_.update( sKey::LogFile(), logspec_ );
+    jobspec_.pars_.update( sKey::LogFile(), jobspec_.execpars_.logfname_ );
     jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
     jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
 
@@ -55,8 +55,7 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 
 
 Batch::SingleJobDispatcher::SingleJobDispatcher()
-    : inwin_(true)
-    , tostdio_(false)
+    : tostdio_(true)
 {
 }
 
@@ -70,37 +69,40 @@ const char* Batch::SingleJobDispatcher::description() const
 bool Batch::SingleJobDispatcher::init()
 {
     const BufferString prognm = FilePath( jobspec_.prognm_ ).fileName();
-    inwin_ = logspec_ == "window";
     tostdio_ = false;
-    if ( !inwin_ )
+    BufferString& logfnm = jobspec_.execpars_.logfname_;
+    bool alreadyhavelogfnm = !logfnm.isEmpty();
+    if ( !jobspec_.execpars_.inprogresswindow_ )
     {
-	StreamProvider sp( logspec_ );
+	StreamProvider sp( jobspec_.execpars_.logfname_ );
 	FixedString spnm( sp.fullName() );
-	if ( logspec_.isEmpty() || spnm == StreamProvider::sStdIO()
-				|| spnm == StreamProvider::sStdErr() )
+	if ( !alreadyhavelogfnm
+	  || spnm==StreamProvider::sStdIO() || spnm==StreamProvider::sStdErr() )
 	{
-	    logspec_ = StreamProvider::sStdIO();
+	    logfnm = StreamProvider::sStdIO();
 	    tostdio_ = true;
+	    alreadyhavelogfnm = false;
 	}
     }
 
     FilePath parfp;
-    if ( logspec_.isEmpty() || inwin_ || tostdio_ )
+    if ( !alreadyhavelogfnm )
 	parfp.set( GetProcFileName( prognm ) );
     else
     {
-	parfp.set( logspec_ );
+	parfp.set( logfnm );
 	if ( !parfp.isAbsolute() )
 	    parfp.setPath( GetProcFileName(0) );
-	logspec_ = parfp.fullPath();
+	logfnm = parfp.fullPath();
     }
     parfp.setExtension( ".par" );
     parfnm_ = parfp.fullPath();
-    if ( !tostdio_ )
+
+    if ( !alreadyhavelogfnm && !tostdio_ )
     {
 	FilePath logfp( parfnm_ );
 	logfp.setExtension( "_log.txt" );
-	logspec_ = logfp.fullPath();
+	logfnm = logfp.fullPath();
     }
 
     return true;
@@ -126,9 +128,17 @@ bool Batch::SingleJobDispatcher::launch()
 
     BufferString cmd;
     if ( jobspec_.isodprog_ )
+    {
 	cmd.set( GetExecScript( true ) ).add( remotehost_ ).add( " --rexec " )
-	    .add( OSCommand::defaultRemExec() ).add( " --inbg --nice 19 " );
+	    .add( OSCommand::defaultRemExec() ).add( " --inbg " );
+	if ( !__iswin__ && jobspec_.execpars_.prioritylevel_ )
+	{
+	    const float fnicelvl = jobspec_.execpars_.prioritylevel_ * 19;
+	    cmd.add( "--nice " ).add( mNINT32(fnicelvl) ).add( " " );
+	}
+    }
     cmd.add( basiccmd );
+
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
     return oscomm.execute( cmd );
 }
