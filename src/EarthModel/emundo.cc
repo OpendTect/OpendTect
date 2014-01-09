@@ -23,6 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* EM::SetPosUndoEvent::savedposstr = "Pos";
 
 
+#define mReturnObjectID(eventtype,varname) \
+    mDynamicCastGet( const eventtype*, varname, curev ); \
+    if ( varname ) \
+	return varname->getObjectID();
+
+
 EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
 {
     const int curidx = indexOf( forredo ? currenteventid_ + 1 
@@ -31,8 +37,12 @@ EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
         return -1;
 
     const UndoEvent* curev = events_[curidx];
-    mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
-    return emundoev ? emundoev->getObjectID() : -1;
+    mReturnObjectID( SetPosUndoEvent, setposundoev );
+    mReturnObjectID( SetAllHor3DPosUndoEvent, setallundoev );
+    mReturnObjectID( SetPosAttribUndoEvent, setposattrundoev );
+    mReturnObjectID( PosIDChangeEvent, posidundoev );
+    mReturnObjectID( SetPrefColorEvent, setprefcolundoev );
+    return -1;
 }
 
 
