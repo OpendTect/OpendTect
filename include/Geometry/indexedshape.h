@@ -1,6 +1,6 @@
 #ifndef indexedshape_h
 #define indexedshape_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -25,32 +25,32 @@ class TaskRunner;
 
 namespace Geometry
 {
-    
+
 mExpClass(Geometry) PrimitiveSet
 { mRefCountImplNoDestructor(PrimitiveSet);
 
 public:
-    enum 	PrimitiveType{Points,Lines,Triangles,
+    enum	PrimitiveType{Points,Lines,Triangles,
 			      LineStrips,TriangleStrip,TriangleFan,Other};
 		DeclareEnumUtils(PrimitiveType);
-    
+
     virtual int			size() const				= 0;
-    virtual int			get(int) const 				= 0;
+    virtual int			get(int) const				= 0;
     virtual int			indexOf(const int)			= 0;
     virtual void		append( int )				= 0;
     virtual void		append(const int*,int num)		= 0;
     virtual void		setEmpty()				= 0;
     virtual void		getAll(TypeSet<int>&,bool) const;
-    
+
     virtual PrimitiveType	getPrimitiveType() const;
     virtual void		setPrimitiveType(PrimitiveType tp);
-    
+
 protected:
 				PrimitiveSet();
     PrimitiveType		primitivetype_;
 };
 
-    
+
 mExpClass(Geometry) IndexedPrimitiveSet : public PrimitiveSet
 {
 public:
@@ -58,11 +58,11 @@ public:
 				/*!<Set large if you will have larger indices
 				    than 65535 */
     virtual int			pop()				= 0;
-    virtual int			set(int,int) 			= 0;
+    virtual int			set(int,int)			= 0;
     virtual void		set(const int*,int num)		= 0;
 };
-   
-    
+
+
 mExpClass(Geometry) RangePrimitiveSet : public PrimitiveSet
 {
 public:
@@ -72,18 +72,18 @@ public:
     virtual int			indexOf(const int)		= 0;
     virtual void		getAll(TypeSet<int>&,bool) const;
 };
-    
-    
+
+
 mExpClass(Geometry) PrimitiveSetCreator
 {
 public:
-    virtual 			~PrimitiveSetCreator() {}
-    
+    virtual			~PrimitiveSetCreator() {}
+
     static PrimitiveSet*	create(bool indexed,bool large = false);
 				/*!<Set large if you will have larger indices
 				 than 65535 */
     static void			setCreator(PrimitiveSetCreator*);
-    
+
 protected:
     virtual PrimitiveSet*	doCreate(bool indexed,bool large)	= 0;
 
@@ -99,16 +99,16 @@ public:
     enum	Type { Points, Lines, Triangles, TriangleStrip, TriangleFan };
     enum	SetType { IndexSet = 0, RangeSet };
 
-    		IndexedGeometry(Type,Coord3List* coords=0,Coord3List* normals=0,
+		IndexedGeometry(Type,Coord3List* coords=0,Coord3List* normals=0,
 				Coord3List* texturecoords=0,
 				SetType settype =IndexSet, bool large = false);
 		/*!<If coords or normals are given, used indices will be
 		    removed when object deleted or removeAll is called. If
-		    multiple geometries are sharing the coords/normals, 
-		    this is probably not what you want. The bool "large:true" 
-		    indicates creating a geometry set by uint primitive 
+		    multiple geometries are sharing the coords/normals,
+		    this is probably not what you want. The bool "large:true"
+		    indicates creating a geometry set by uint primitive
 		    set type, otherwise set by ushort type*/
-    virtual 	~IndexedGeometry();
+    virtual	~IndexedGeometry();
 
     void	removeAll(bool deep);
 		/*!<deep will remove all things from lists (coords,normals++).
@@ -151,30 +151,28 @@ protected:
 mExpClass(Geometry) IndexedShape
 {
 public:
-    virtual 		~IndexedShape();
+    virtual		~IndexedShape();
 
     virtual void	setCoordList(Coord3List* cl,Coord3List* nl=0,
-	    			     Coord3List* texturecoords=0,
+				     Coord3List* texturecoords=0,
 				     bool createnew = true);
     virtual bool	needsUpdate() const			{ return true; }
     virtual bool	update(bool forceall,TaskRunner* =0)	{ return true; }
 
     virtual void	setRightHandedNormals(bool) {}
     virtual void	removeAll(bool deep);
-    			/*!<deep will remove all things from lists
+			/*!<deep will remove all things from lists
 			    (coords,normals++). Non-deep will just leave them
 			    there */
 
 
-    virtual bool	createsNormals() const 		{ return false; }
-    virtual bool	createsTextureCoords() const 	{ return false; }
+    virtual bool	createsNormals() const		{ return false; }
+    virtual bool	createsTextureCoords() const	{ return false; }
 
     const ObjectSet<IndexedGeometry>&	getGeometry() const;
     ObjectSet<IndexedGeometry>&	getGeometry();
-    //const Coord3List*	coordList() const ;
-    //Coord3List*	coordList();
-    const Coord3List*	coordList() const 	{ return coordlist_; }
-    Coord3List*		coordList()	 	{ return coordlist_; }
+    const Coord3List*	coordList() const	{ return coordlist_; }
+    Coord3List*		coordList()		{ return coordlist_; }
 
     const Coord3List*	normalCoordList() const { return normallist_; }
     Coord3List*		normalCoordList()	{ return normallist_; }
@@ -185,7 +183,7 @@ public:
     int			getVersion() const	{ return version_; }
 
 protected:
-    			IndexedShape();
+			IndexedShape();
 
     Threads::Lock		geometrieslock_;
     ObjectSet<IndexedGeometry>	geometries_;
@@ -196,7 +194,7 @@ protected:
     bool			righthandednormals_;
 
     void			addVersion();
-    				/*!<Should be called every time object is
+				/*!<Should be called every time object is
 				    changed. */
 private:
 
@@ -211,7 +209,7 @@ mExpClass(Geometry) ExplicitIndexedShape : public IndexedShape
 					 , public CallBacker
 {
 public:
-    			ExplicitIndexedShape()	{}
+			ExplicitIndexedShape()	{}
 			~ExplicitIndexedShape()	{}
 
     const Coord3List*	normalCoordList() const	{ return normallist_; }
@@ -220,7 +218,7 @@ public:
     const Coord3List*	textureCoordList() const{ return texturecoordlist_; }
     Coord3List*		textureCoordList()	{ return texturecoordlist_; }
 
-    int			addGeometry(IndexedGeometry* ig);		
+    int			addGeometry(IndexedGeometry* ig);
     void		removeFromGeometries(const IndexedGeometry* ig);
     void		removeFromGeometries(int geoidx);
 };
