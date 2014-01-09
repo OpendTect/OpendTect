@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "mousecursor.h"
 #include "ptrman.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"

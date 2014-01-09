@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "randcolor.h"
 #include "seis2dline.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"

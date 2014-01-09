@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
 #include "rowcol.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "timer.h"
 #include "varlenarray.h"

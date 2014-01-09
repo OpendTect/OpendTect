@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
 #include "oddirs.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "timer.h"
 

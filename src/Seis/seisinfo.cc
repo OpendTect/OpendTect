@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posauxinfo.h"
 #include "survinfo.h"
 #include "strmprov.h"
-#include "strmdata.h"
 #include "file.h"
 #include "iopar.h"
 #include "cubesampling.h"

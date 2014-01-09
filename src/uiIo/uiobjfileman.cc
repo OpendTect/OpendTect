@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "keystrs.h"
 #include "streamconn.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "systeminfo.h"
@@ -210,8 +209,8 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
     {
         const bool doGb = filesz > 1048576;
 	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
-	szstr = nr/100; 
-	const int rest = nr%100; 
+	szstr = nr/100;
+	const int rest = nr%100;
 	szstr += rest < 10 ? ".0" : "."; szstr += rest;
 	szstr += doGb ? " GB" : " MB";
     }
@@ -232,10 +231,10 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 {
     timestamp = File::timeLastModified( fname );
     FilePath fp( fname );
-    fp.setExtension( "" );          
-    const BufferString dirnm = fp.fullPath();           
+    fp.setExtension( "" );
+    const BufferString dirnm = fp.fullPath();
     if ( File::isDirectory(dirnm) )
-    	getTimeLastModified( dirnm, timestamp );
+	getTimeLastModified( dirnm, timestamp );
 }
 
 
@@ -245,16 +244,16 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
     const FixedString ftimestamp = File::timeLastModified( fname );
     if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
 	timestamp = ftimestamp;
-    
+
     if ( !File::isDirectory(fname) ) return;
-    
+
     DirList dl( fname );
     BufferString subtimestamp;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString subfnm( dl.fullPath(idx) );
 	getTimeLastModified( subfnm, subtimestamp );
-	
+
 	if ( Time::isEarlier( timestamp, subtimestamp ) )
 	    timestamp = subtimestamp;
     }

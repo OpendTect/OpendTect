@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "plugins.h"
 #include "strmprov.h"
-#include "strmdata.h"
 #include "survinfo.h"
 #include "od_istream.h"
 

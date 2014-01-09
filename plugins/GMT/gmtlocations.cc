@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "welldata.h"
 #include "wellreader.h"
@@ -56,7 +55,7 @@ bool GMTWellSymbol::usePar( const IOPar& par )
 
 const GMTWellSymbolRepository& GMTWSR()
 {
-    mDefineStaticLocalObject( PtrMan<GMTWellSymbolRepository>, inst,  
+    mDefineStaticLocalObject( PtrMan<GMTWellSymbolRepository>, inst,
 			      = new GMTWellSymbolRepository );
     return *inst;
 }

@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "od_iostream.h"
 

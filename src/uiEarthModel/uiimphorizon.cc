@@ -47,7 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"

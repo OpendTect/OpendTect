@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "gmtbasemap.h"
 #include "keystrs.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "od_iostream.h"

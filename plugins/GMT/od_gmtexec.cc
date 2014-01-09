@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "timefun.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "moddepmgr.h"
 
