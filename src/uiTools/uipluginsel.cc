@@ -167,11 +167,8 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     ArrPtrMan<int> sortindices = piusrnms.getSortIndexes();
 
-    const float rowspercol = maxlen / 10.f;
     const int nrplugins = piusrnms.size();
-    int nrcols = 2;
-    if ( nrcols < 1 ) nrcols = 1;
-    if ( nrcols > 3 ) nrcols = 3;
+    const int nrcols = 2;
     int nrows = nrplugins / nrcols;
     if ( nrplugins % nrcols )
 	nrows++;
