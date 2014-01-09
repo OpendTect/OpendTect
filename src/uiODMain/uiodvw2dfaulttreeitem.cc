@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiodvw2dfaulttreeitem.h"
 
 #include "uiempartserv.h"
+#include "uiflatviewmainwin.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -119,14 +120,7 @@ uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
 
 uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 {
-    NotifierAccess* deselnotify = faultview_ ? faultview_->deSelection() : 0;
-    if ( deselnotify )
-	deselnotify->remove( mCB(this,uiODVw2DFaultTreeItem,deSelCB) );
-
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj )
-	emobj->change.remove( mCB(this,uiODVw2DFaultTreeItem,emobjChangeCB) );
-
+    detachAllNotifiers();
     viewer2D()->dataMgr()->removeObject( faultview_ );
 }
 
@@ -167,6 +161,11 @@ bool uiODVw2DFaultTreeItem::init()
 
     if ( displayid_ < 0 )
 	viewer2D()->dataMgr()->addObject( faultview_ );
+
+    mDynamicCastGet(uiFlatViewMainWin*,fwmainwin,viewer2D()->viewwin());
+    if( fwmainwin )
+	mAttachCB( fwmainwin->editModeToggled,
+		   uiODVw2DFaultTreeItem::enableKnotsCB );
 
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
@@ -209,6 +208,12 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
     }
 }
 
+
+void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
+{
+    if ( viewer2D()->dataMgr()->selectedId() == faultview_->id() )
+	faultview_->selected();
+}
 
 
 bool uiODVw2DFaultTreeItem::select()

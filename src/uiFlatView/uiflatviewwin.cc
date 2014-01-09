@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
-#include "uiflatviewcontrol.h"
+#include "uiflatviewstdcontrol.h"
 #include "uiflatviewer.h"
 #include "uistatusbar.h"
 #include "unitofmeasure.h"
@@ -139,6 +139,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 				      const uiFlatViewMainWin::Setup& setup )
     : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
+    , editModeToggled(this)
 {
     createViewers( setup.nrviewers_ );
     setDeleteOnClose( setup.deleteonclose_ );
@@ -150,6 +151,9 @@ void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
     if ( !fvc ) return;
 
     fvc->infoChanged.notify(mCB(this,uiFlatViewMainWin,displayInfo) );
+    mDynamicCastGet(uiFlatViewStdControl*,fvstdc,fvc);
+    if ( fvstdc ) fvstdc->editPushed()->notify(
+			mCB(this,uiFlatViewMainWin,editModeToggledCB) );
 }
 
 
@@ -174,6 +178,12 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
     BufferString mesg;
     makeInfoMsg( mesg, pars );
     statusBar()->message( mesg.buf() );
+}
+
+
+void uiFlatViewMainWin::editModeToggledCB( CallBacker* )
+{
+    editModeToggled.trigger();
 }
 
 

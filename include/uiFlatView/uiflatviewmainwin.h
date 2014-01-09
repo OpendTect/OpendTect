@@ -50,13 +50,15 @@ public:
 
     void		addControl(uiFlatViewControl*);
     void		displayInfo(CallBacker*);
+    void		editModeToggledCB(CallBacker*);
     void		setInitialSize(int w,int h);
 
     virtual uiMainWin*	dockParent()	{ return this; }
     virtual uiParent*	viewerParent()	{ return this; }
 
-};
+    Notifier<uiFlatViewMainWin>		editModeToggled;
 
+};
 
 #endif
 

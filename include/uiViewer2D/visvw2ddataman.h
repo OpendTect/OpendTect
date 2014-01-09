@@ -17,13 +17,9 @@ ________________________________________________________________________
 #include "factory.h"
 #include "emposid.h"
 
-
 class Vw2DDataObject;
-
 class uiFlatViewWin; 
 class uiFlatViewAuxDataEditor;
-
-
 
 mExpClass(uiViewer2D) Vw2DDataManager : public CallBacker
 {
@@ -41,6 +37,7 @@ public:
     Vw2DDataObject*		getObject(int id);
 
     void			setSelected(Vw2DDataObject*);
+    int				selectedId()	{ return selectedid_; }
 
     void			usePar(const IOPar&,uiFlatViewWin*,
 				    const ObjectSet<uiFlatViewAuxDataEditor>&);

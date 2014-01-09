@@ -36,7 +36,7 @@ public:
 
     void		draw();
     void		enablePainting(bool yn);
-    void		selected(bool enabled=true);
+    void		selected();
 
     NotifierAccess*     deSelection()			{ return &deselted_; }
 

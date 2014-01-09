@@ -36,8 +36,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , lsetid_( 0 )
     , abouttorepaint_( this )
     , repaintdone_( this )
-    , linenabled_( true )
-    , knotenabled_( true )
+    , linenabled_(true)
+    , knotenabled_(false)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )

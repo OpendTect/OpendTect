@@ -190,7 +190,7 @@ void FlatView::Annotation::AxisData::showAll( bool yn )
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
-    , editable_(true)
+    , editable_(false)
     , allowuserchange_(true)
     , allowuserchangereversedaxis_(true)
 {

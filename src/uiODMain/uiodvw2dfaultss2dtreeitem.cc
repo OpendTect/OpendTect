@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
+#include "uiflatviewmainwin.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -127,17 +128,10 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
 
 uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
 {
-    NotifierAccess* deselnotify = fssview_ ? fssview_->deSelection() : 0;
-    if ( deselnotify )
-	deselnotify->remove( mCB(this,uiODVw2DFaultSS2DTreeItem,deSelCB) );
-
+    detachAllNotifiers();
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
-    {
-	emobj->change.remove(
-		mCB(this,uiODVw2DFaultSS2DTreeItem,emobjChangeCB) );
 	emobj->unRef();
-    }
 
     viewer2D()->dataMgr()->removeObject( fssview_ );
 }
@@ -188,6 +182,11 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     if ( displayid_ < 0 ) 
 	viewer2D()->dataMgr()->addObject( fssview_ );
 
+    mDynamicCastGet(uiFlatViewMainWin*,fwmainwin,viewer2D()->viewwin());
+    if( fwmainwin )
+	mAttachCB( fwmainwin->editModeToggled,
+		   uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
+
     return true;
 }
 
@@ -223,6 +222,13 @@ void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 	    }
 	default: break;
     }
+}
+
+
+void uiODVw2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
+{
+    if ( viewer2D()->dataMgr()->selectedId() == fssview_->id() )
+	fssview_->selected();
 }
 
 

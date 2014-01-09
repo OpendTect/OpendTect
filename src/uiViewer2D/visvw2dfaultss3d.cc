@@ -134,19 +134,20 @@ void VW2DFaultSS3D::enablePainting( bool yn )
 }
 
 
-void VW2DFaultSS3D::selected( bool enabled )
+void VW2DFaultSS3D::selected()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( fsseds_[ivwr] )
 	{
 	    uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	    if ( enabled )
+	    const bool iseditable = vwr.appearance().annot_.editable_;
+	    if ( iseditable )
 		fsseds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
 		fsseds_[ivwr]->setMouseEventHandler( 0 );
-	    fsseds_[ivwr]->enableKnots( true && enabled );
+	    fsseds_[ivwr]->enableKnots( iseditable );
 	}
     }
 }

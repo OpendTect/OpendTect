@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-mImplFactory3Param(Vw2DDataObject,const EM::ObjectID&,uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
+mImplFactory3Param(Vw2DDataObject,const EM::ObjectID&,uiFlatViewWin*,
+	const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
 
 Vw2DDataManager::Vw2DDataManager()
     : selectedid_( -1 )
@@ -101,14 +102,14 @@ void Vw2DDataManager::setSelected( Vw2DDataObject* sobj )
     if ( sobj->id() == selectedid_ )
 	return;
 
-    deSelect( selectedid_ );
+    const int sobjid = sobj->id();
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects_[idx]->id()==sobj->id() )
-	{
-	    selectedid_ = sobj->id();
-	    break;
-	}
+	const int objid = objects_[idx]->id();
+	if ( objid == sobjid )
+	    selectedid_ = sobjid;
+	else
+	    deSelect( objid );
     }
 }
 

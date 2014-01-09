@@ -39,7 +39,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItemFactory
+				: public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
@@ -63,7 +64,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-			{ return typeid(uiODVw2DFaultSS2DParentTreeItem).name(); }
+			{return typeid(uiODVw2DFaultSS2DParentTreeItem).name();}
     bool		isSelectable() const			{ return true; }
 
     void		deSelCB(CallBacker*);
@@ -74,6 +75,7 @@ protected:
     int			cPixmapWidth()				{ return 16; }
     int			cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
+    void		enableKnotsCB(CallBacker*);
 
     EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;

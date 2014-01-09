@@ -142,9 +142,13 @@ void VW2DFault::selected()
 	if ( faulteds_[ivwr] )
 	{
 	    uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	    faulteds_[ivwr]->setMouseEventHandler(
-		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    faulteds_[ivwr]->enableKnots( true );
+	    const bool iseditable = vwr.appearance().annot_.editable_;
+	    if ( iseditable )
+		faulteds_[ivwr]->setMouseEventHandler(
+			&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    else
+		faulteds_[ivwr]->setMouseEventHandler( 0 );
+	    faulteds_[ivwr]->enableKnots( iseditable );
 	}
     }
 }
