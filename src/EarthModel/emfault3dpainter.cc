@@ -36,7 +36,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , abouttorepaint_(this)
     , repaintdone_(this)
     , linenabled_(true)
-    , knotenabled_(true)
+    , knotenabled_(false)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )

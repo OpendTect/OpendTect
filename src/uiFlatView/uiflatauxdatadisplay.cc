@@ -172,7 +172,11 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     {
 	const int styleidx = mMIN(idx,nrmarkerstyles-1);
 	if ( styleidx < 0 )
+	{
+	    if ( idx < markeritems_.size() )
+		markeritems_[idx]->setVisible( false );
 	    continue;
+	}
 
 	const MarkerStyle2D& style = markerstyles_[styleidx];
 	if ( !style.isVisible() )

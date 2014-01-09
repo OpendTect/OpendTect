@@ -101,14 +101,14 @@ void Vw2DDataManager::setSelected( Vw2DDataObject* sobj )
     if ( sobj->id() == selectedid_ )
 	return;
 
-    deSelect( selectedid_ );
+    const int sobjid = sobj->id();
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects_[idx]->id()==sobj->id() )
-	{
-	    selectedid_ = sobj->id();
-	    break;
-	}
+	const int objid = objects_[idx]->id();
+	if ( objid == sobjid )
+	    selectedid_ = sobjid;
+	else
+	    deSelect( objid );
     }
 }
 
