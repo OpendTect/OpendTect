@@ -63,8 +63,10 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     if ( !is2d )
     {
-	if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
 	interpolhor3dsel_ = new uiHor3DInterpolSel( this, false );
+	if ( inputhorsel_ )
+	    interpolhor3dsel_->attach( alignedBelow, inputhorsel_ );
+
 	mDynamicCastGet(EM::Horizon3D*,hor3d,hor);
 	if ( hor3d )
 	{
@@ -347,6 +349,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 	methodgrps_ += methodgrp;
     }
 
+    setHAlignObj( methodsel_ );
     methodSelCB( 0 );
 }
 

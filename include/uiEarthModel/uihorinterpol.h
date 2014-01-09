@@ -50,7 +50,6 @@ protected:
     uiIOObjSel*			inputhorsel_;
     uiHor3DInterpolSel*		interpolhor3dsel_;
     uiArray1DInterpolSel*	interpol1dsel_;
-    uiGenInput*			geometrysel_;
     uiHorSaveFieldGrp*          savefldgrp_;
 
     EM::Horizon*		horizon_;
@@ -165,7 +164,7 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    virtual bool		canHandleFaults() const { return true; }
+    virtual bool		canHandleFaults() const { return false; }
 
 protected:
 
