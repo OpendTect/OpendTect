@@ -77,7 +77,7 @@ FlatView::ZoomMgr::Point FlatView::ZoomMgr::initialCenter( int vieweridx ) const
 
 void FlatView::ZoomMgr::init( const Geom::PosRectangle<double>& wr )
 {
-    TypeSet< Geom::PosRectangle<double> > wrr( 1, wr );
+    TypeSet<Geom::PosRectangle<double> > wrr( 1, wr );
     init( wrr );
 }
 
