@@ -76,7 +76,7 @@ protected:
     bool		getVelocityBoundsForTwt(float twt,const Track&,
 					  Interval<double>& depths,
 					  Interval<float>& times) const;
-			/*!<Gives index of next dtpoint at or after dah!>*/
+			/*!<Gives index of next dtpoint at or after dah.*/
     int			getVelocityIdx(float pos,const Track&,
 				       bool posisdah=true) const;
 
@@ -87,11 +87,11 @@ protected:
     bool		getOldVelocityBoundsForDah(float d_ah,const Track&,
 					     Interval<double>& depths,
 					     Interval<float>& times) const;
-			//!<Read legacy incorrect time-depth model!>
+			//!<Read legacy incorrect time-depth model.
     bool		getOldVelocityBoundsForTwt(float twt,const Track&,
 					     Interval<double>& depths,
 					     Interval<float>& times) const;
-			//!<Read legacy incorrect time-depth model!>
+			//!<Read legacy incorrect time-depth model.
 };
 
 mGlobal(Well) float	getDefaultVelocity();
