@@ -75,27 +75,14 @@ FlatView::ZoomMgr::Point FlatView::ZoomMgr::initialCenter( int vieweridx ) const
 { return viewerdata_[vieweridx]->center_; }
 
 
-void FlatView::ZoomMgr::init( const Geom::Rectangle<double>& wr )
+void FlatView::ZoomMgr::init( const Geom::PosRectangle<double>& wr )
 {
-    TypeSet<Geom::Rectangle<double> > wrr( 1, wr );
+    TypeSet< Geom::PosRectangle<double> > wrr( 1, wr );
     init( wrr );
 }
 
 
-void FlatView::ZoomMgr::init(const TypeSet<Geom::PosRectangle<double> >& wrs)
-{
-    TypeSet<Geom::Rectangle<double> > rects;
-    for ( int idx=0; idx<wrs.size(); idx++ )
-    {
-	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[idx]);
-	rects += wr;
-    }
-
-    init( rects );
-}
-
-
-void FlatView::ZoomMgr::init( const TypeSet<Geom::Rectangle<double> >& wrs )
+void FlatView::ZoomMgr::init( const TypeSet<Geom::PosRectangle<double> >& wrs )
 {
     if ( viewerdata_.size()!=wrs.size() )
     {
@@ -114,27 +101,14 @@ void FlatView::ZoomMgr::init( const TypeSet<Geom::Rectangle<double> >& wrs )
 }
 
 
-void FlatView::ZoomMgr::reInit( const Geom::Rectangle<double>& wr )
+void FlatView::ZoomMgr::reInit( const Geom::PosRectangle<double>& wr )
 {
-    TypeSet<Geom::Rectangle<double> > wrr( 1, wr );
+    TypeSet<Geom::PosRectangle<double> > wrr( 1, wr );
     reInit( wrr );
 }
 
 
-void FlatView::ZoomMgr::reInit( const TypeSet<Geom::PosRectangle<double> >& wrs )
-{
-    TypeSet<Geom::Rectangle<double> > rects;
-    for ( int idx=0; idx<wrs.size(); idx++ )
-    {
-	mDynamicCastGet(const Geom::Rectangle<double>&,wr,wrs[idx]);
-	rects += wr;
-    }
-
-    reInit( rects );
-}
-
-
-void FlatView::ZoomMgr::reInit( const TypeSet<Geom::Rectangle<double> >& wrs )
+void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 {
     if ( viewerdata_.size()!=wrs.size() )
     {
@@ -177,10 +151,10 @@ void FlatView::ZoomMgr::add( const TypeSet<FlatView::ZoomMgr::Size>& newzooms )
 
     if ( current_.isPresent(-1) )
     {
-	TypeSet<Geom::Rectangle<double> > rectangles;
+	TypeSet<Geom::PosRectangle<double> > rectangles;
 	for ( int idx=0; idx<newzooms.size(); idx++ )
 	{
-	    rectangles += Geom::Rectangle<double>(
+	    rectangles += Geom::PosRectangle<double>(
 		-newzooms[idx].width()/2,newzooms[idx].height()/2,
 		newzooms[idx].width()/2,-newzooms[idx].height()/2 );
 	}

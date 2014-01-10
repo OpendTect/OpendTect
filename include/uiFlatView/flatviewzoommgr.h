@@ -36,15 +36,12 @@ public:
 
     void		setNrViewers(int);
 
-    void		init(const Geom::Rectangle<double>&);
-    void		reInit(const Geom::Rectangle<double>&);
+    void		init(const Geom::PosRectangle<double>&);
+    void		reInit(const Geom::PosRectangle<double>&);
 			//!< Will try to keep as many zooms as possible
 
-    void		init(const TypeSet<Geom::Rectangle<double> >&);
-    void		reInit(const TypeSet<Geom::Rectangle<double> >&);
-
     void		init(const TypeSet<Geom::PosRectangle<double> >&);
-    void                reInit(const TypeSet<Geom::PosRectangle<double> >&);
+    void		reInit(const TypeSet<Geom::PosRectangle<double> >&);
 
     void		add(const TypeSet<Size>&);
 			//!< Will put this Size at the right place
