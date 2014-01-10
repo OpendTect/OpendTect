@@ -3,8 +3,8 @@
 #include "testprog.h"
 #include <string.h>
 
-#define mArrSz 10000000
-#define mNrRuns 100
+#define mArrSz 200000000
+#define mNrRuns 5
 
 
 int main( int argc, char** argv )
