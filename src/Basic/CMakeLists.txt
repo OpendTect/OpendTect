@@ -19,6 +19,7 @@ set( OD_TEST_PROGS
 	cubesampling.cc
 	file.cc
 	math2.cc
+	memcopying.cc
 	od_iostream.cc
 	oscommand.cc
 	refcount.cc
