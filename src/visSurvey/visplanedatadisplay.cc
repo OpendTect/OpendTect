@@ -1107,7 +1107,8 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
 }
 
 
-const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(int attrib)
+const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(
+						int attrib ) const
 { 
     return displaycache_.validIdx(attrib) ? displaycache_[attrib] : 0; 
 } 

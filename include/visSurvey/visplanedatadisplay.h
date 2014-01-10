@@ -142,7 +142,7 @@ public:
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
    
-    const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
+    const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib) const;
     float			getDisplayMinDataStep(bool x0) const;
 
     virtual void		annotateNextUpdateStage(bool yn);
