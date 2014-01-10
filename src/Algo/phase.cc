@@ -107,7 +107,7 @@ bool Phase::extract()
 
 	if ( val > max && idx < sz/2 ) //only scanning the positive frequencies
 	{
-	    domfreqidx_ = idx;
+	    domfreqidx_ = mCast(float,idx);
 	    max = val;
 	}
 
@@ -132,12 +132,13 @@ bool Phase::unWrap( float wrapparam )
 	return false;
     }
 
-    float prevph = phase_.get( domfreqidx_ );
-    float domval = std::abs( cfreq_.get(domfreqidx_) );
+    const int domfreqidx = mNINT32(domfreqidx_);
+    float prevph = phase_.get( domfreqidx );
+    float domval = std::abs( cfreq_.get(domfreqidx) );
     float prevdph = 0.f;
     const float pibyw = mCast(float, wrapparam/M_PI );
     int phcount = 0;
-    for ( int idx=domfreqidx_+1; idx<sz; idx++ )
+    for ( int idx=domfreqidx+1; idx<sz; idx++ )
     {
 	const float val = std::abs( cfreq_.get(idx) );
 	const float ph = phase_.get(idx);
@@ -155,10 +156,10 @@ bool Phase::unWrap( float wrapparam )
 	phase_.set( idx, prevph );
     }
 
-    prevph = phase_.get( domfreqidx_ );
-    domval = std::abs( cfreq_.get(domfreqidx_) );
+    prevph = phase_.get( domfreqidx );
+    domval = std::abs( cfreq_.get(domfreqidx) );
     prevdph = 0.f;
-    for ( int idx=domfreqidx_-1;idx>=0; idx-- )
+    for ( int idx=domfreqidx-1;idx>=0; idx-- )
     {
 	const float val = std::abs( cfreq_.get(idx) );
 	const float ph = phase_.get(idx);
@@ -179,7 +180,7 @@ bool Phase::unWrap( float wrapparam )
     if ( phcount != 0 )
 	avgphase_ /= mCast(float,phcount);
     else
-	avgphase_ = phase_.get( domfreqidx_ );
+	avgphase_ = phase_.get( domfreqidx );
 
     return true;
 }
