@@ -436,11 +436,9 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
 	const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
 	const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
-	if ( hordisp )
+	if ( canhavewireframe )
 	    mAddMenuItem( trackmnu, &wireframemnuitem_,
 			  true, haswireframe );
-	wireframemnuitem_.enabled = canhavewireframe;
-	if ( !wireframemnuitem_.enabled ) wireframemnuitem_.checked = false;
        
 	const TypeSet<EM::PosID>* seeds =
 	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
