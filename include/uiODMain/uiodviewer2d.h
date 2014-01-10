@@ -62,7 +62,7 @@ public:
     const Attrib::SelSpec&	selSpec( bool wva ) const
     				{ return wva ? wvaselspec_ : vdselspec_; }
     DataPack::ID		getDataPackID(bool wva) const;
-    				/*!Returns DataPack::ID of specified display if
+    				/*!<Returns DataPack::ID of specified display if
 				it has a valid one. Returns DataPack::ID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
