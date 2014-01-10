@@ -10,9 +10,7 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 
-
 -*/
-
 
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
@@ -45,8 +43,8 @@ class Scene;
 /*!\brief Used for displaying an inline, crossline or timeslice.
 
     A PlaneDataDisplay object is the front-end object for displaying an inline,
-    crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
-    setting the requested orientation of the slice.
+    crossline or timeslice.  Use setOrientation(Orientation) for setting the
+    requested orientation of the slice.
 */
 
 mExpClass(visSurvey) PlaneDataDisplay :
