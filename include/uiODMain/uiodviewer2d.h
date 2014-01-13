@@ -115,9 +115,8 @@ protected:
     bool			ispolyselect_;
 
     DataPack::ID                createDataPack(bool wva) const;
-    				//!<Creates DataPack by getting CubeSampling
-    				//!<from uislicepos_ and corresponding
-    				//!<Attrib::SelSpec.
+    				//!<Creates DataPack using CubeSampling from
+    				//!<slicepos_ and corresponding Attrib::SelSpec.
 
     virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);
