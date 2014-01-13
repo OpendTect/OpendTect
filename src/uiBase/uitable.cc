@@ -543,7 +543,8 @@ void uiTable::setCurrentCell( const RowCol& rc, bool noselection )
 {
     mBlockCmdRec;
     if ( noselection )
-	body_->setCurrentCell( rc.row(), rc.col(), QItemSelectionModel::NoUpdate );
+	body_->setCurrentCell( rc.row(), rc.col(),
+			       QItemSelectionModel::NoUpdate );
     else
 	body_->setCurrentCell( rc.row(), rc.col() );
 }
