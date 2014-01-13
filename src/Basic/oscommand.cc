@@ -466,7 +466,9 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 	    ret = doExecute( true, false );
 	}
 	else
+	{
 	    pErrMsg( "Non-OD program should not be run in hidden mode" );
+	}
     }
   
     return ret;
