@@ -62,6 +62,7 @@ public:
     const char*		get() const;
 
     bool		execute(bool inconsole=false,bool inbg=false) const;
+    bool		execute(OSCommandExecPars,bool) const;
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
@@ -80,7 +81,36 @@ protected:
 #ifdef __win__
     void		mkConsoleCmd(BufferString& comm) const;
 #endif
+};
 
+/*!\brief A single interface to launch commands/processes and OpendTect programs
+
+*/
+
+mExpClass(Basic) CommandLauncher
+{
+public:
+			CommandLauncher(const char* cmd,const char* par);
+			~CommandLauncher();
+			 
+    bool		execute(const OSCommandExecPars&
+			     pars=OSCommandExecPars(), bool isODprogram=true);
+
+    int			getProcessID() const;
+    const char*		errorMsg() const { return errmsg_; }
+
+protected:
+    
+    bool		doExecute(bool inwindow, bool waitforfinish);
+
+    void		makeFullCommand();
+    void		makeConsoleCommand();
+
+    BufferString	command_;
+    BufferString	parameters_;
+    BufferString	fullcommand_;
+    int			processid_;
+    BufferString	errmsg_;
 };
 
 //! Execute command on local host

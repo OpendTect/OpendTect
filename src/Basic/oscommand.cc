@@ -11,11 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "oddirs.h"
+#include "od_ostream.h"
 #include "filepath.h"
 #include "staticstring.h"
 #include "fixedstring.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <QProcess>
 
 #ifdef __win__
 # include "winutils.h"
@@ -32,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 BufferString OSCommand::defremexec_( "ssh" );
 
-
+//#define __USE_QPROCESS__ 1
 
 bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 {
@@ -273,18 +275,21 @@ bool OSCommand::execute( bool inconsole, bool inbg ) const
 }
 
 
+bool OSCommand::execute( OSCommandExecPars pars, bool isodprog ) const
+{
+    CommandLauncher cl( comm_, "" );
+    return cl.execute( pars, isodprog );
+}
+
 #ifdef __win__
 
 void OSCommand::mkConsoleCmd( BufferString& comm ) const
 {
-    const BufferString fnm(
+    const BufferString batchfnm(
 		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
-
-    FILE *fp = fopen( fnm, "wt" );
-    fprintf( fp, "@echo off\n%s\npause\n", comm.buf() );
-    fclose( fp );
-
-    comm = fnm;
+    od_ostream batchstream( batchfnm );
+    batchstream << "@echo off\n" << comm_.buf() << "\npause\n";
+    comm = batchfnm;
 }
 
 
@@ -403,4 +408,162 @@ void OSCommand::mkOSCmd( bool forread, BufferString& cmd ) const
     else
 	sprintf( cmd.getCStr(), "%s %s %s",
 			    remexec_.buf(), hname_.buf(), comm_.buf() );
+}
+
+
+// CommandLauncher
+
+CommandLauncher::CommandLauncher( const char* command, const char* param )
+    : command_(command)
+    , parameters_(param)
+    , processid_(0)
+{
+    makeFullCommand();
+}
+
+
+CommandLauncher::~CommandLauncher()
+{}
+
+
+void CommandLauncher::makeFullCommand()
+{
+    FilePath cmdfp( command_ );
+    fullcommand_.add( cmdfp.isAbsolute() ? command_ 
+				: FilePath(GetBinPlfDir(),command_).fullPath() )
+				  .add( " " ).add( parameters_ );
+}
+
+
+bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
+{
+    if ( fullcommand_.isEmpty() )
+    { errmsg_ = "Command is empty"; return false; }
+
+    bool ret = false;
+    if ( isODprogram )
+    {
+	if ( pars.inprogresswindow_ )
+	{
+	    // TODO: Handle new progress window mechanism;
+	}
+	else if ( pars.logfname_.isEmpty() )
+	{
+	    ret = doExecute( true, false );
+	}
+	else //hidden
+	    ret = doExecute( false, false );
+    }
+    else
+    {
+	if ( pars.inprogresswindow_ )
+	{
+	   ret = doExecute( true, false );
+	}
+	else if ( pars.logfname_.isEmpty() )
+	{
+	    makeConsoleCommand();
+	    ret = doExecute( true, false );
+	}
+	else
+	    pErrMsg( "Non-OD program should not be run in hidden mode" );
+    }
+  
+    return ret;
+}
+
+
+void CommandLauncher::makeConsoleCommand()
+{
+#ifndef __win__
+    return;
+#else
+    const BufferString batchfnm(
+		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
+    od_ostream batchstream( batchfnm );
+    batchstream << "@echo off\n" << fullcommand_.buf() << "\npause\n";
+    fullcommand_ = batchfnm;
+#endif
+}
+
+
+bool CommandLauncher::doExecute( bool inwindow, bool waitforfinish )
+{
+    if ( fullcommand_.isEmpty() )
+	return false;
+
+#ifdef __USE_QPROCESS__
+    
+    QProcess qprocess;
+    qprocess.startDetached( QString(fullcommand_) );
+    if ( !qprocess.waitForFinished() )
+        return false;
+    
+    return true;
+
+#else
+
+#ifndef __win__
+
+    const char* comm = fullcommand_.buf();
+    if ( *comm == '@' )
+	comm++;
+    if ( !*comm )
+	return false;
+    
+    BufferString oscmd( comm );
+    if ( waitforfinish )
+	oscmd += "&";
+    int res = system( oscmd );
+    return !res;
+
+#else
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(STARTUPINFO));
+    ZeroMemory( &pi, sizeof(pi) );
+    si.cb = sizeof(STARTUPINFO);
+
+    if ( !inwindow )
+    {
+	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+	si.wShowWindow = SW_HIDE;
+    }
+
+    //Start the child process.
+    int res = CreateProcess( NULL,	// No module name (use command line).
+			     fullcommand_.getCStr(),
+			     NULL,	// Process handle not inheritable.
+			     NULL,	// Thread handle not inheritable.
+			     FALSE,	// Set handle inheritance to FALSE.
+			     0,		// Creation flags.
+			     NULL,	// Use parent's environment block.
+			     NULL,	// Use parent's starting directory.
+			     &si, &pi );
+    
+    if ( res )
+    {
+	if ( waitforfinish )  WaitForSingleObject( pi.hProcess, INFINITE );
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+	processid_ = pi.dwProcessId;
+    }
+    else
+    {
+	char *errmsg = 0;
+	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		       FORMAT_MESSAGE_FROM_SYSTEM,
+		       0, GetLastError(), 0, (char*)&errmsg, 1024, NULL) ;
+
+	errmsg_ = errmsg;
+	LocalFree(errmsg);
+    }
+
+    return res;
+
+#endif
+#endif
 }
