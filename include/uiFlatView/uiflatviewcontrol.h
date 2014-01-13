@@ -109,6 +109,7 @@ protected:
     virtual void	handDragging(CallBacker*)	{}
     virtual void	handDragged(CallBacker*)	{}
     virtual void	mouseMoveCB(CallBacker*);
+    virtual void	keyPressCB(CallBacker*)		{}
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
     

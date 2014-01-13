@@ -64,6 +64,8 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
     MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1, true );
     mAttachCB( mevh.movement, uiFlatViewControl::mouseMoveCB );
     mAttachCB( mevh.buttonReleased, uiFlatViewControl::usrClickCB );
+    mAttachCB( vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
+		uiFlatViewControl::keyPressCB );
 
     viewerAdded.trigger();
 }
@@ -82,6 +84,8 @@ void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
     MouseEventHandler& mevh = cnvs.scene().getMouseEventHandler();
     mDetachCB( mevh.movement, uiFlatViewControl::mouseMoveCB );
     mDetachCB( mevh.buttonReleased, uiFlatViewControl::usrClickCB );
+    mDetachCB( vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
+		uiFlatViewControl::keyPressCB );
 }
 
 

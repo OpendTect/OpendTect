@@ -54,11 +54,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
     if ( setup.withstates_ )
-    {
 	mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode");
-	mAttachCB( vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed,
-		   uiFlatViewStdControl::keyPressCB );
-    }
 
     vwr_.setRubberBandingOn( !manip_ );
 
@@ -418,11 +414,12 @@ void uiFlatViewStdControl::coltabChg( CallBacker* )
 }
 
 
-void uiFlatViewStdControl::keyPressCB( CallBacker* )
+void uiFlatViewStdControl::keyPressCB( CallBacker* cb )
 {
-    const KeyboardEvent& ev = 
-	vwr_.rgbCanvas().getKeyboardEventHandler().event();
-    if ( ev.key_ == OD::Escape )
+    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
+    if ( !keh || !keh->hasEvent() ) return;
+
+    if ( keh->event().key_ == OD::Escape )
 	stateCB( 0 );
 }
 
