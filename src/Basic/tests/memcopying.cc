@@ -19,7 +19,7 @@ static bool testSpeed()
 	      << "Processors: " << Threads::getNrProcessors() << od_newline
 	      << od_endl;
 
-    for ( int arrsz=100; arrsz<=1000; arrsz+=50 )
+    for ( int arrsz=10; arrsz<=mTotNrElems; arrsz*=10 )
     {
 	float* vals = new float [arrsz];
 	float* copy = new float [arrsz];
@@ -30,6 +30,15 @@ static bool testSpeed()
 
 	for ( int irun=0; irun<nrruns; irun++ )
 	{
+	    for ( int idx=0; idx<arrsz; idx++ )
+		copy[idx] = vals[idx];
+	}
+
+	int mPrTime( "SimpleLoop" );
+
+	prevms = Time::getMilliSeconds();
+	for ( int irun=0; irun<nrruns; irun++ )
+	{
 	    const float* curptr = vals;
 	    float* cpptr = copy;
 	    for ( const float* stopptr = vals + arrsz; curptr != stopptr;
@@ -37,7 +46,13 @@ static bool testSpeed()
 		*cpptr = *curptr;
 	}
 
-	int mPrTime( "PtrLoop" );
+	mPrTime( "PtrLoop" );
+
+	prevms = Time::getMilliSeconds();
+	for ( int irun=0; irun<nrruns; irun++ )
+	    OD::sysMemCopy( copy, vals, arrsz * sizeof(float) );
+
+	mPrTime( "OD::sysMemCopy" );
 
 	prevms = Time::getMilliSeconds();
 	for ( int irun=0; irun<nrruns; irun++ )
@@ -104,10 +119,8 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    /*
     if ( !testCopySet() )
 	ExitProgram( 1 );
-	*/
     if ( !testSpeed() )
 	ExitProgram( 1 );
 
