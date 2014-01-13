@@ -138,8 +138,7 @@ bool CC::CC1D::doPrepare( int nrthreads )
 	}
 
 	const int lastsample = higheststart_ + ( sz_ - 1 ) * sampling_;
-	MemCopier<mCplxType> copier( coutput_, cinput_, lastsample+1 );
-	copier.execute();
+	OD::memCopy( coutput_, cinput_, (lastsample+1)*sizeof(mCplxType) );
     }
 
     if ( !dopfa_ )

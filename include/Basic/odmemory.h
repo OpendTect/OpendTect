@@ -25,10 +25,15 @@ namespace OD
 
 // 1M operations min per thread
 #define mODMemMinThreadSize 1048576
+ 
+namespace OD
+{
+    mGlobal(Basic) template <class T> void memValueSet(T*,T,od_int64);
+}
 
+/*!\brief Sets large amounts of values to a constant using multiple threads.
 
-/*!
-\brief Sets large amounts of values to a constant using multiple threads.
+  For simple initializations, use OD::memValueSet.
 */
 
 template <class T>
@@ -60,9 +65,12 @@ protected:
 };
 
 
-/*!
-\brief ValueSeries Copier
-*/
+/*!\brief ValueSeries Copier
+
+  For ordinary copying of arrays, use OD::memCopy. It will autonmatically
+  switch to parallel execution if necessary.
+
+ */
 
 template <class T>
 mClass(Basic) MemCopier : public ParallelTask
@@ -303,10 +311,12 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
+
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
-    OD::memCopy( outptr_+start, inptr_+start, size * sizeof(T) );
+    OD::sysMemCopy( outptr_+start, inptr_+start, size * sizeof(T) );
     return true;
 }
 
@@ -369,6 +379,34 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 
     return true;
 }
+
+
+//! size determined exprimentally on different Linux and Windows systems
+#define cMinMemValSetParallelSize 400
+
+namespace OD
+{
+
+mGlobal(Basic) template <class T>
+inline void memValueSet( T* arr, T val , od_int64 sz )
+{
+    if ( !arr || sz<=0 )
+	return;
+
+    if ( sz > cMinMemValSetParallelSize )
+    {
+	MemSetter<T> msetter( arr, val, sz );
+	msetter.execute();
+    }
+    else
+    {
+	const T* stopptr = arr + sz + 1;
+	for ( T* curptr=arr; curptr!=stopptr; curptr++ )
+	    *curptr = val;
+    }
+}
+
+} // namespace OD
 
 
 #endif

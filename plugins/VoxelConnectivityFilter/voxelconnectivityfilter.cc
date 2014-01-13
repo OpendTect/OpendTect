@@ -109,8 +109,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     if ( !statusarr_ )
 	return false;
 
-    MemSetter<int> memsetter( statusarr_, mUnassignedValue, size );
-    return memsetter.execute();
+    OD::memValueSet( statusarr_, mUnassignedValue, size );
 }
 
 #define mTestValue( val )  if ( !mIsUdf(val) && currange.includes( val, false ))

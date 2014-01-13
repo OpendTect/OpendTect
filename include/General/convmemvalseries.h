@@ -98,11 +98,7 @@ ValueSeries<T>*	ConvMemValueSeries<T>::clone() const
     ConvMemValueSeries<T>* res = new ConvMemValueSeries( size_,
 	    interpreter_.dataChar(), undefhandler_ );
     if ( storArr() )
-    {
-	MemCopier<char> copier( res->storArr(), storArr(),
-		size_ * interpreter_.nrBytes() );
-	copier.execute();
-    }
+	OD::memCopy( res->storArr(), storArr(), size_ * interpreter_.nrBytes());
 
     return res;
 }

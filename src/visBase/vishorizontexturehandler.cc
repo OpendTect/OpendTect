@@ -286,22 +286,13 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     versiondata.allowNull( true );
     const int nrcells = nrrows*nrcols;
 
-    MemSetter<float> memsetter;
-    memsetter.setSize( nrcells );
-    memsetter.setValue( mUdf(float) );
-
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	float* vals = new float[nrcells];
 	if ( !vals )
-	{
-	    deepEraseArr( versiondata );
-	    return;
-	}
+	    { deepEraseArr( versiondata ); return; }
 
-	memsetter.setTarget( vals );
-	memsetter.execute();
-
+	OD::memValueSet( vals, mUdf(float), nrcells );
 	versiondata += vals;
     }
 

@@ -118,8 +118,7 @@ void DataBuffer::zero()
     if ( data_ )
     {
 	od_int64 sz = nelem_; sz *= bytes_;
-	MemSetter<unsigned char> msetter( data_, 0, sz );
-	msetter.execute();
+	OD::memZero( data_, sz );
     }
 }
 

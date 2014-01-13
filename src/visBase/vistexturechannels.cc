@@ -446,8 +446,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	    mDeclareAndTryAlloc(unsigned char*, newdata,
 				unsigned char[nrelements] );
 	    if ( !newdata ) return false;
-	    MemCopier<unsigned char> copier( newdata, data, nrelements );
-	    copier.execute();
+	    OD::memCopy( newdata, data, nrelements*sizeof(unsigned char) );
 	    mappeddata_.replace( version, newdata );
 	}
 	else
@@ -807,13 +806,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	if ( !useddata )
 	    return false;
 
-	MemCopier<float> copier( newdata, data, nrelements );
-	if ( !copier.execute() )
-	{
-	    delete [] newdata;
-	    return false;
-	}
-
+	OD::memCopy( newdata, data, nrelements * sizeof(float) );
 	cp = OD::TakeOverPtr;
 	useddata = newdata;
     }

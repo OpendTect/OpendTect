@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsysmem.h"
 #include "odmemory.h"
 #include "nrbytes2string.h"
+#include "thread.h"
 
 #ifdef __lux__
 # include "od_istream.h"
@@ -32,6 +33,14 @@ static od_int64 swapfree;
 #include <string.h>
 
 
+void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
+{
+    memcpy( dest, org, (size_t)sz );
+}
+
+#define mExecNonParallel(sz) (sz < 1000000 || Threads::getNrProcessors() < 4)
+
+
 void OD::memCopy( void* dest, const void* org, od_int64 sz )
 {
     if ( sz <= 0 )
@@ -41,7 +50,27 @@ void OD::memCopy( void* dest, const void* org, od_int64 sz )
     else if ( !org )
 	{ pFreeFnErrMsg("org null","OD::memCopy"); return; }
 
-    memcpy( dest, org, (size_t)sz );
+    if ( mExecNonParallel(sz) )
+	memcpy( dest, org, (size_t)sz );
+    else
+    {
+	if ( sz % 8 == 0 )
+	{
+	    MemCopier<od_int64> mcp( (od_int64*)dest, (const od_int64*)org,
+		    			(size_t)(sz/8) );
+	    mcp.execute();
+	}
+	else if ( sz % 4 == 0 )
+	{
+	    MemCopier<int> mcp( (int*)dest, (const int*)org, (size_t)(sz/4) );
+	    mcp.execute();
+	}
+	else
+	{
+	    MemCopier<char> mcp( (char*)dest, (const char*)org, (size_t)sz );
+	    mcp.execute();
+	}
+    }
 }
 
 
@@ -52,20 +81,20 @@ void OD::memSet( void* data, char setto, od_int64 sz )
     else if ( !data )
 	{ pFreeFnErrMsg("data null","OD::memSet"); return; }
 
-    memset( data, (int)setto, (size_t)sz );
+    if ( mExecNonParallel(sz) )
+	memset( data, (int)setto, (size_t)sz );
+    else
+    {
+	MemSetter<char> msetter( (char*)data, setto, (size_t)sz );
+	msetter.execute();
+    }
 }
 
 
 void OD::memZero( void* data, od_int64 sz )
 {
-    if ( sz <= 0 )
-	return;
-    else if ( !data )
-	{ pFreeFnErrMsg("data null","OD::memZero"); return; }
-
-    memset( data, '\0', (size_t)sz );
+    OD::memSet( data, '\0', sz );
 }
-
 
 
 void OD::dumpMemInfo( IOPar& res )

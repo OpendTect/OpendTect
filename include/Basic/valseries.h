@@ -401,11 +401,7 @@ void ArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 template <class RT, class AT>
 void ArrayValueSeries<RT,AT>::setAll( RT val )
 {
-    if ( cursize_<=0 )
-	return;
-
-    MemSetter<AT> setter( ptr_, (AT) val, cursize_ );
-    setter.execute();
+    OD::memValueSet( ptr_, (AT)val, cursize_ );
 }
 
 
@@ -453,7 +449,6 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
     ptrs_.allowNull( true );
     if ( setSize( mavs.cursize_ ) && ptrs_.size() == mavs.ptrs_.size() )
     {
-	MemCopier<AT> cpier;
 	for ( int idx=0; idx<ptrs_.size(); idx++ )
 	{
 	    const od_int64 nextstart = ((od_int64) idx+1)*chunksize_;
@@ -463,11 +458,7 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
 		od_int64 diff = nextstart-cursize_;
 		curchunksize -= diff;
 	    }
-
-	    cpier.setInput( mavs.ptrs_[idx] );
-	    cpier.setOutput( ptrs_[idx] );
-	    cpier.setSize( curchunksize );
-	    cpier.execute();
+	    OD::memCopy( ptrs_[idx], mavs.ptrs_[idx], curchunksize*sizeof(AT) );
 	}
     }
 }

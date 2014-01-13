@@ -393,17 +393,17 @@ void ArrayND<T>::setAll( T val )
 */
 
 template <class T>
-mClass(Basic) ArrayNDGetAll : public ParallelTask
+mClass(Basic) ArrayNDDataExtracter : public ParallelTask
 {
 public:
-		ArrayNDGetAll( T* ptr, const ArrayND<T>& arr )
+		ArrayNDDataExtracter( T* ptr, const ArrayND<T>& arr )
 		    : ptr_( ptr )
 		    , arr_( arr )
 		    , totalnr_( arr.info().getTotalSz() )
 		    , vs_( 0 )
 		{}
 
-		ArrayNDGetAll( ValueSeries<T>& vs, const ArrayND<T>& arr )
+		ArrayNDDataExtracter( ValueSeries<T>& vs, const ArrayND<T>& arr)
 		    : ptr_( vs.arr() )
 		    , arr_( arr )
 		    , totalnr_( arr.info().getTotalSz() )
@@ -450,12 +450,14 @@ public:
 		}
 
     od_int64	nrIterations() const { return totalnr_; }
+
 protected:
 
     od_int64		totalnr_;
     const ArrayND<T>&	arr_;
     T*			ptr_;
     ValueSeries<T>*	vs_;
+
 };
 
 
@@ -463,10 +465,7 @@ template <class T> inline
 void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
 {
     if ( vs.arr() )
-    {
-	getAll( vs.arr() );
-	return;
-    }
+	{ getAll( vs.arr() ); return; }
 
     const od_int64 totalsz = info().getTotalSz();
     if ( !totalsz )
@@ -474,13 +473,12 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
 
     const ValueSeries<T>* stor = getStorage();
     if ( stor )
-    {
 	stor->getValues( vs, totalsz );
-	return;
+    else
+    {
+	ArrayNDDataExtracter<T> extr( vs, *this );
+	extr.execute();
     }
-
-    ArrayNDGetAll<T> getter( vs, *this );
-    getter.execute();
 }
 
 
@@ -491,26 +489,24 @@ void ArrayND<T>::getAll( T* ptr ) const
     if ( !totalsz )
 	return;
 
-    const T* tp = getData();
-    if ( tp )
+    const T* tdata = getData();
+    if ( tdata )
+	OD::memCopy( ptr, tdata, totalsz * sizeof(T) );
+    else
     {
-	MemCopier<T> cpier( ptr, tp, totalsz );
-	cpier.execute();
-	return;
+	const ValueSeries<T>* stor = getStorage();
+	if ( stor )
+	{
+	    MemCopier<T> cpier( ptr, *stor, totalsz );
+	    cpier.execute();
+	}
+	else
+	{
+	    ArrayNDDataExtracter<T> extr( ptr, *this );
+	    extr.execute();
+	}
     }
-
-    const ValueSeries<T>* stor = getStorage();
-    if ( stor )
-    {
-	MemCopier<T> cpier( ptr, *stor, totalsz );
-	cpier.execute();
-	return;
-    }
-
-    ArrayNDGetAll<T> getter( ptr, *this );
-    getter.execute();
 }
 
 
 #endif
-
