@@ -135,12 +135,13 @@ void uiToolBar::setLabel( const char* lbl )
 }
 
 #define mGetAction( conststatement, erraction ) \
-conststatement uiAction* action = const_cast<uiToolBar*>(this)->findAction( id ); \
-if ( !action ) \
-{ \
-    pErrMsg("Action not found"); \
-    erraction; \
-}
+    conststatement uiAction* action = \
+			const_cast<uiToolBar*>(this)->findAction( id ); \
+    if ( !action ) \
+    { \
+	pErrMsg("Action not found"); \
+	erraction; \
+    }
 
 
 void uiToolBar::turnOn( int id, bool yn )
