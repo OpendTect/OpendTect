@@ -239,7 +239,7 @@ void HorizonSection::forceRedraw( bool yn )
 
 void HorizonSection::setUpdateVar( bool& variable, bool yn )
 {
-    if ( !variable && yn )
+    if ( yn )
 	forceRedraw( true );
 
     variable = yn;
