@@ -18,17 +18,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "helpview.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
+#include "batchjobdispatch.h"
 
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
-    
+
     HelpViewer::init();
-    
+
     ElasticPropSelectionTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
-    
+
     dgbPreLoadsTranslator::initClass();
     dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
@@ -48,4 +49,6 @@ mDefModInitFn(General)
 
     Currency::repository_ += new Currency( "EUR", 100 );
     Currency::repository_ += new Currency( "USD", 100 );
+
+    Batch::SingleJobDispatcher::initClass();
 }

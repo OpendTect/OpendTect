@@ -96,6 +96,8 @@ public:
 			    BufferString* whynot=0) const { return true; }
     virtual bool	isAlwaysLocal() const		{ return false; }
 
+    static const char*	sFactoryKey()		{ return "Single Process"; }
+
 protected:
 
     virtual bool	init();
@@ -103,6 +105,11 @@ protected:
 
     BufferString	parfnm_;
     bool		tostdio_;
+
+public:
+
+    static void		initClass();
+    static JobDispatcher* create() { return new SingleJobDispatcher; }
 
 };
 

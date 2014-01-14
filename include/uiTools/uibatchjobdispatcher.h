@@ -71,11 +71,14 @@ mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 {
 public:
 
-			uiSingleBatchJobDispatcherLauncher()
-			    : uiBatchJobDispatcherLauncher("Single process") {}
+			uiSingleBatchJobDispatcherLauncher();
 
     virtual const char*	getInfo() const;
     virtual bool	go(uiParent*,const Batch::JobSpec&);
+
+    static void		initClass();
+    static uiBatchJobDispatcherLauncher* create()
+			{ return new uiSingleBatchJobDispatcherLauncher; }
 
 };
 

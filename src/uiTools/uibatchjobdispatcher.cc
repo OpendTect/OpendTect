@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mImplFactory(uiBatchJobDispatcherLauncher,uiBatchJobDispatcherLauncher::factory)
 
 
+
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool opt )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(*new Batch::JobSpec)
@@ -87,12 +88,25 @@ bool uiBatchJobDispatcherSel::start()
 }
 
 
+uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher()
+    : uiBatchJobDispatcherLauncher(Batch::SingleJobDispatcher::sFactoryKey())
+{
+}
+
+
 const char* uiSingleBatchJobDispatcherLauncher::getInfo() const
 {
     Batch::SingleJobDispatcher sjd;
     mDeclStaticString( ret );
     ret = sjd.description();
     return ret.buf();
+}
+
+
+void uiSingleBatchJobDispatcherLauncher::initClass()
+{
+    uiBatchJobDispatcherLauncher::factory().addCreator( create,
+			Batch::SingleJobDispatcher::sFactoryKey() );
 }
 
 

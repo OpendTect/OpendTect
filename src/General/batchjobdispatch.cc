@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
+
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
 {
     switch ( pt )
@@ -141,4 +142,10 @@ bool Batch::SingleJobDispatcher::launch()
 
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
     return oscomm.execute( cmd );
+}
+
+
+void Batch::SingleJobDispatcher::initClass()
+{
+    JobDispatcher::factory().addCreator( create, sFactoryKey() );
 }
