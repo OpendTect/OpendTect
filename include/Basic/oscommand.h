@@ -26,11 +26,11 @@ public:
 			    : inprogresswindow_(true)
 			    , prioritylevel_(-1)		{}
 
-    bool		inprogresswindow_;
+    mDefSetupClssMemb(OSCommandExecPars,bool,inprogresswindow);
 			    //!< if not, to logfile (if any)
-    BufferString	logfname_;
+    mDefSetupClssMemb(OSCommandExecPars,BufferString,logfname);
 			    //!< only when !inprogresswindow_
-    float		prioritylevel_;
+    mDefSetupClssMemb(OSCommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
 };
 
@@ -92,7 +92,7 @@ mExpClass(Basic) CommandLauncher
 public:
 			CommandLauncher(const char* cmd,const char* par);
 			~CommandLauncher();
-			 
+
     bool		execute(const OSCommandExecPars&
 			     pars=OSCommandExecPars(), bool isODprogram=true);
 
@@ -100,7 +100,7 @@ public:
     const char*		errorMsg() const { return errmsg_; }
 
 protected:
-    
+
     bool		doExecute(bool inwindow, bool waitforfinish);
 
     void		makeFullCommand();
