@@ -23,10 +23,15 @@ macro(OD_SETUP_QT)
     list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
     find_package( Qt5Core QUIET )
     if ( Qt5Core_FOUND )
-	cmake_minimum_required( VERSION 2.8.9 )
-	set( CMAKE_AUTOMOC ON )
-
 	find_package( Qt5 REQUIRED ${OD_USEQT} )
+
+	if( QT_MOC_HEADERS )
+	    foreach( HEADER ${QT_MOC_HEADERS} )
+		list( APPEND QT_MOC_INPUT
+		      ${CMAKE_SOURCE_DIR}/src/${OD_MODULE_NAME}/${HEADER} )
+	    endforeach()
+	    QT5_WRAP_CPP( QT_MOC_OUTFILES ${QT_MOC_INPUT} )
+	endif( QT_MOC_HEADERS )
 
 	foreach ( QTMOD ${OD_USEQT} )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH ${Qt5${QTMOD}_INCLUDE_DIRS} )
