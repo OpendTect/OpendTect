@@ -117,8 +117,10 @@ private:
     int			curlvl_;
     BufferString	msg_;
     bool		survchgblocked_;
+    mutable Threads::Lock lock_;
 
     void		init();
+    void		reInit(bool dotrigger);
 			IOMan(const char* rd=0);
 			~IOMan();
 

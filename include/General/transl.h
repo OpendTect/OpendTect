@@ -78,6 +78,7 @@ public:
     static const ObjectSet<TranslatorGroup>& groups()	{ return getGroups(); }
     static TranslatorGroup&	getGroup(const char* nm,bool usr=true);
     static bool			hasGroup(const char* nm,bool usr=true);
+    static void			clearSelHists();
 
     				// Called from macros
     bool			add(Translator*);

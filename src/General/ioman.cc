@@ -46,6 +46,7 @@ IOMan::IOMan( const char* rd )
 	, dirptr_(0)
 	, survchgblocked_(false)
 	, state_(IOMan::NeedInit)
+	, lock_(Threads::Lock(false))
 	, newIODir(this)
 	, entryRemoved(this)
 	, surveyToBeChanged(this)
@@ -188,6 +189,35 @@ void IOMan::init()
 }
 
 
+void IOMan::reInit( bool dotrigger )
+{
+    if ( dotrigger && !IOM().isBad() ) 
+	IOM().surveyToBeChanged.trigger();
+
+    if ( IOM().changeSurveyBlocked() ) 
+    { 
+	IOM().setChangeSurveyBlocked(false); 
+	return; 
+    } 
+
+    StreamProvider::unLoadAll();
+    TranslatorGroup::clearSelHists();
+    init();
+
+    if ( !IOM().isBad() ) 
+    { 
+	SurveyInfo::setSurveyName( SI().getDirName() ); 
+	setupCustomDataDirs(-1); 
+	if ( dotrigger ) 
+	{
+	    IOM().surveyChanged.trigger(); 
+	    IOM().afterSurveyChange.trigger(); 
+	} 
+    }
+
+}
+
+
 IOMan::~IOMan()
 {
     delete dirptr_;
@@ -200,56 +230,8 @@ bool IOMan::isReady() const
 }
 
 
-#define mDestroyInst(dotrigger) \
-    if ( dotrigger && !IOM().isBad() ) \
-	IOM().surveyToBeChanged.trigger(); \
-    if ( IOM().changeSurveyBlocked() ) \
-    { \
-	IOM().setChangeSurveyBlocked(false); \
-	return false; \
-    } \
-    StreamProvider::unLoadAll(); \
-    CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs_; \
-    CallBackSet sccbs = IOM().surveyChanged.cbs_; \
-    CallBackSet asccbs = IOM().afterSurveyChange.cbs_; \
-    CallBackSet rmcbs = IOM().entryRemoved.cbs_; \
-    CallBackSet dccbs = IOM().newIODir.cbs_; \
-    CallBackSet apccbs = IOM().applicationClosing.cbs_; \
-    delete IOMan::theinst_; \
-    IOMan::theinst_ = 0; \
-    clearSelHists();
-
-#define mFinishNewInst(dotrigger) \
-    IOM().surveyToBeChanged.cbs_ = s2bccbs; \
-    IOM().surveyChanged.cbs_ = sccbs; \
-    IOM().afterSurveyChange.cbs_ = asccbs; \
-    IOM().entryRemoved.cbs_ = rmcbs; \
-    IOM().newIODir.cbs_ = dccbs; \
-    IOM().applicationClosing.cbs_ = apccbs; \
-    if ( !IOM().isBad() ) \
-    { \
-	SurveyInfo::setSurveyName( SI().getDirName() ); \
-	setupCustomDataDirs(-1); \
-	if ( dotrigger ) \
-	{ \
-	    IOM().surveyChanged.trigger(); \
-	    IOM().afterSurveyChange.trigger(); \
-	} \
-    }
-
-
-static void clearSelHists()
-{
-    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
-    for ( int idx=0; idx<grps.size(); idx++ )
-	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
-}
-
-
 bool IOMan::newSurvey( SurveyInfo* newsi )
 {
-    mDestroyInst( true );
-
     SurveyInfo::deleteInstance();
     if ( !newsi )
 	SurveyInfo::setSurveyName( "" );
@@ -259,19 +241,17 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
 	SurveyInfo::pushSI( newsi );
     }
 
-    mFinishNewInst( true );
+    IOMan().reInit( true );
     return !IOM().isBad();
 }
 
 
 bool IOMan::setSurvey( const char* survname )
 {
-    mDestroyInst( true );
-
     SurveyInfo::deleteInstance();
     SurveyInfo::setSurveyName( survname );
 
-    mFinishNewInst( true );
+    IOMan().reInit( true );
     return !IOM().isBad();
 }
 
@@ -375,14 +355,14 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
     SurveyInfo::setSurveyName( "" ); // force user-set of survey
 
-    mDestroyInst( false );
-    mFinishNewInst( false );
+    IOMan().reInit( false );
     return true;
 }
 
 
 bool IOMan::setRootDir( const char* dirnm )
 {
+    Threads::Locker lock( lock_ );
     if ( !dirnm || rootdir_==dirnm ) return true;
     if ( !File::isDirectory(dirnm) ) return false;
     rootdir_ = dirnm;
@@ -415,6 +395,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
+    Threads::Locker lock( lock_ );
     const bool issamedir = dirptr_ && ky == dirptr_->key();
     if ( !forcereread && issamedir )
 	return true;
@@ -450,6 +431,7 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
 IOObj* IOMan::get( const MultiID& k ) const
 {
+    Threads::Locker lock( lock_ );
     if ( !IOObj::isKey(k) )
 	return 0;
 
@@ -472,6 +454,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
+    Threads::Locker lock( lock_ );
     if ( isBad() || !tgname ) return 0;
 
     const IOObj* ioobj = 0;
@@ -519,6 +502,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 
 IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
+    Threads::Locker lock( lock_ );
     if ( !ctxt.trgroup ) return 0;
 
     IOM().to( ctxt.getSelKey() );
@@ -547,6 +531,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 			  const IOObjContext& ctxt,
 			  bool mknew, BufferString& errmsg ) const
 {
+    Threads::Locker lock( lock_ );
     BufferString basekey( bky );
     if ( !basekey.isEmpty() ) basekey.add( "." );
     BufferString iopkey( basekey );
@@ -645,6 +630,7 @@ const MultiID& IOMan::key() const
 
 bool IOMan::setDir( const char* dirname )
 {
+    Threads::Locker lock( lock_ );
     if ( !dirname ) dirname = rootdir_;
 
     IODir* newdirptr = new IODir( dirname );
@@ -676,6 +662,7 @@ static const char* getTranslDirNm( const Translator* tr )
 
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 {
+    Threads::Locker lock( lock_ );
     ctio.setObj( 0 );
     if ( ctio.ctxt.name().isEmpty() )
 	return;
@@ -746,6 +733,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
 int IOMan::levelOf( const char* dirnm ) const
 {
+    Threads::Locker lock( lock_ );
     if ( !dirnm ) return 0;
 
     int lendir = FixedString(dirnm).size();
@@ -765,6 +753,7 @@ int IOMan::levelOf( const char* dirnm ) const
 
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
+    Threads::Locker lock( lock_ );
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
     return dirPtr() ? dirPtr()->commitChanges( clone ) : false;
@@ -773,6 +762,7 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 
 bool IOMan::permRemove( const MultiID& ky )
 {
+    Threads::Locker lock( lock_ );
     if ( !dirPtr() || !dirPtr()->permRemove(ky) )
 	return false;
 

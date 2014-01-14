@@ -140,6 +140,13 @@ bool TranslatorGroup::hasGroup( const char* nm, bool user )
 }
 
 
+void TranslatorGroup::clearSelHists()
+{
+    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
+    for ( int idx=0; idx<grps.size(); idx++ )
+	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
+}
+
 
 TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 {
