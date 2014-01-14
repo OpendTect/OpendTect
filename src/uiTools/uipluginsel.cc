@@ -35,8 +35,14 @@ static const char* sKeyPDF3D = "3D PDF Generation";
 static const char* sKeyPetrelConn = "ARK CLS Petrel Connector";
 static const char* sKeyXField2D = "XField2D";
 static const char* sKeyCLAS = "Computer Log Analysis Software";
+
 static const char* sKeyStochInv = "MPSI Stochastic Inversion";
 static const char* sKeyDetInv = "MPSI Deterministic Inversion";
+static const char* sKey2dErrGrid = "MPSI 2D Error Grid ";
+static const char* sKey3dModelBuilder = "MPSI 3D Model Builder";
+static const char* sKeyMPSIUtilities = "MPSI Utilities";
+static const char* sKeyMPSINettoGross = "MPSI Net to Gross";
+
 static const char* sKeySCI = "Seismic Coloured Inversion";
 static const char* sKeySFE = "Seismic Feature Enhancement";
 static const char* sKeySNP = "Seismic Net Pay";
@@ -213,6 +219,13 @@ bool uiPluginSel::rejectOK( CallBacker* )
 	    dontloadlist += PIM().userName( pluginnms_.get(idx) );
     }
 
+    if ( dontloadlist.indexOf(sKeyDetInv) >= 0 )
+	dontloadlist.add( sKey2dErrGrid ).add( sKey3dModelBuilder )
+		    .add( sKeyMPSIUtilities ).add( sKeyMPSINettoGross );
+    
+    if ( dontloadlist.indexOf(sKeyStochInv) >= 0 )
+	dontloadlist.add( sKeyMPSIUtilities ).add( sKeyMPSINettoGross );
+    
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
     Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
 
