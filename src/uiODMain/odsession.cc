@@ -28,6 +28,7 @@ const char* ODSession::attr3dprefix()	{ return "3D.Attribs"; }
 const char* ODSession::attr2dstoredprefix()  { return "2D.Stored.Attribs"; }
 const char* ODSession::attr3dstoredprefix()  { return "3D.Stored.Attribs"; }
 const char* ODSession::nlaprefix()	{ return "NLA"; }
+const char* ODSession::seisprefix()	{ return "Seis"; }
 const char* ODSession::trackprefix()	{ return "Tracking"; }
 const char* ODSession::pluginprefix()	{ return "Plugins"; }
 const char* ODSession::vwr2dprefix()	{ return "2D.Viewer"; }
@@ -44,6 +45,7 @@ ODSession::ODSession()
 
 void ODSession::clear()
 {
+    seispars_.setEmpty();
     vispars_.setEmpty();
     scenepars_.setEmpty();
     attrpars_.setEmpty();				//backward comp 2.4
@@ -62,6 +64,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 {
     if ( &sess != this )
     {
+	seispars_ = sess.seispars_;
 	vispars_ = sess.vispars_;
 	scenepars_ = sess.scenepars_;
 	attrpars_ = sess.attrpars_;		//backward comp 2.4
@@ -82,6 +85,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 bool ODSession::operator==( const ODSession& sess ) const
 {
     return vispars_ == sess.vispars_
+	&& seispars_ == sess.seispars_
 	&& attrpars_ == sess.attrpars_		//backward comp 2.4
 	&& attrpars2d_ == sess.attrpars2d_
 	&& attrpars3d_ == sess.attrpars3d_
@@ -99,50 +103,55 @@ bool ODSession::operator==( const ODSession& sess ) const
 
 bool ODSession::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> vissubpars = par.subselect(visprefix());
+    PtrMan<IOPar> seissubpars = par.subselect( seisprefix() );
+    if ( seissubpars )
+	seispars_ = *seissubpars;
+
+    PtrMan<IOPar> vissubpars = par.subselect( visprefix() );
     if ( !vissubpars ) return false;
     vispars_ = *vissubpars;
 
-    PtrMan<IOPar> scenesubpars = par.subselect(sceneprefix());
+    PtrMan<IOPar> scenesubpars = par.subselect( sceneprefix() );
     if ( scenesubpars )
         scenepars_ = *scenesubpars;
 
-    PtrMan<IOPar> attrsubpars = par.subselect(attrprefix());
+    PtrMan<IOPar> attrsubpars = par.subselect( attrprefix() );
     if ( attrsubpars )
 	attrpars_ = *attrsubpars;		//backward comp 2.4
 
-    PtrMan<IOPar> attr2dsubpars = par.subselect(attr2dprefix());
+    PtrMan<IOPar> attr2dsubpars = par.subselect( attr2dprefix() );
     if ( attr2dsubpars )
 	attrpars2d_ = *attr2dsubpars;
 
-    PtrMan<IOPar> attr3dsubpars = par.subselect(attr3dprefix());
+    PtrMan<IOPar> attr3dsubpars = par.subselect( attr3dprefix() );
     if ( attr3dsubpars )
 	attrpars3d_ = *attr3dsubpars;
     
-    PtrMan<IOPar> attr2dstoredsubpars = par.subselect(attr2dstoredprefix());
+    PtrMan<IOPar> attr2dstoredsubpars = par.subselect( attr2dstoredprefix() );
     if ( attr2dstoredsubpars )
 	attrpars2dstored_ = *attr2dstoredsubpars;
 
-    PtrMan<IOPar> attr3dstoredsubpars = par.subselect(attr3dstoredprefix());
+    PtrMan<IOPar> attr3dstoredsubpars = par.subselect( attr3dstoredprefix() );
     if ( attr3dstoredsubpars )
 	attrpars3dstored_ = *attr3dstoredsubpars;
     
-    PtrMan<IOPar> nlasubpars = par.subselect(nlaprefix());
+    PtrMan<IOPar> nlasubpars = par.subselect( nlaprefix() );
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
 
-    PtrMan<IOPar> mpesubpars = par.subselect(trackprefix());
+    PtrMan<IOPar> mpesubpars = par.subselect( trackprefix() );
     if ( mpesubpars )
 	mpepars_ = *mpesubpars;
 
-    PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix());
+    PtrMan<IOPar> pluginsubpars = par.subselect( pluginprefix() );
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
 
-    PtrMan<IOPar> vwr2dsubpars = par.subselect(vwr2dprefix());
+    PtrMan<IOPar> vwr2dsubpars = par.subselect( vwr2dprefix() );
     if ( vwr2dsubpars )
         vwr2dpars_ = *vwr2dsubpars;
 
+    mAddVersionNr(seispars_);
     mAddVersionNr(vispars_);
     mAddVersionNr(scenepars_);
     mAddVersionNr(attrpars_);
@@ -160,6 +169,7 @@ bool ODSession::usePar( const IOPar& par )
 
 void ODSession::fillPar( IOPar& par ) const
 {
+    par.mergeComp( seispars_, seisprefix() );
     par.mergeComp( vispars_, visprefix() );
     par.mergeComp( scenepars_, sceneprefix() );
     par.mergeComp( attrpars_, attrprefix() );	//backward comp 2.4

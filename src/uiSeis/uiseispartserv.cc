@@ -14,9 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "posinfo2d.h"
+#include "posinfo2dsurv.h"
 #include "ptrman.h"
 #include "seisselection.h"
 #include "seistrctr.h"
@@ -25,12 +28,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "posinfo2d.h"
-#include "survinfo.h"
-#include "posinfo2dsurv.h"
+#include "seispreload.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisioobjinfo.h"
+#include "strmprov.h"
+#include "survinfo.h"
 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -357,4 +360,34 @@ void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
 {
     mGet2DLineSet(;)
     lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
+}
+
+
+void uiSeisPartServer::fillPar( IOPar& par ) const
+{
+    BufferStringSet ids;
+    StreamProvider::getPreLoadedIDs( ids );
+    for ( int iobj=0; iobj<ids.size(); iobj++ )
+    {
+	const MultiID id( ids.get(iobj).buf() );
+	IOPar iop;
+	Seis::PreLoader spl( id ); spl.fillPar( iop );
+	const BufferString parkey( "PreLoad.", iobj );
+	par.mergeComp( iop, parkey );
+    }
+}
+
+
+bool uiSeisPartServer::usePar( const IOPar& par )
+{
+    StreamProvider::unLoadAll();
+    PtrMan<IOPar> plpar = par.subselect( "PreLoad" );
+    if ( !plpar ) return true;
+
+    IOPar newpar;
+    newpar.mergeComp( *plpar, "Seis" );
+    
+    uiTaskRunner uitr( parent() );
+    Seis::PreLoader::load( newpar, &uitr );
+    return true;
 }

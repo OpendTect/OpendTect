@@ -15,13 +15,10 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "ioman.h"
-
 
 class BufferStringSet;
 class CubeSampling;
+class IOPar;
 class SeisTrcBuf;
 class uiFlatViewWin;
 
@@ -73,6 +70,9 @@ public:
     void		importWavelets();
     void		exportWavelets();
     void		manageWavelets();
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 

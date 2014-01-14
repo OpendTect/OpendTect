@@ -26,6 +26,7 @@ public:
     			ODSession();
     virtual		~ODSession()		{}
 
+    IOPar&		seispars()		{ return seispars_; }
     IOPar&		vispars() 		{ return vispars_; }
     IOPar&		attrpars(bool,bool);
     IOPar&		nlapars() 		{ return nlapars_; }
@@ -48,6 +49,7 @@ public:
 
 protected:
 
+    IOPar		seispars_;
     IOPar		vispars_;
     IOPar		scenepars_;
     IOPar		attrpars_;
@@ -62,6 +64,7 @@ protected:
 
     BufferString	versionnr_;
 
+    static const char*	seisprefix();
     static const char*	visprefix();
     static const char*	sceneprefix();
     static const char*	attrprefix();

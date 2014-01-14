@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipluginsel.h"
+#include "uiseispartserv.h"
 #include "uisetdatadir.h"
 #include "uisplashscreen.h"
 #include "uistrattreewin.h"
@@ -489,6 +490,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
 bool uiODMain::updateSession()
 {
     cursession_->clear();
+    applMgr().seisServer()->fillPar( cursession_->seispars() );
     applMgr().visServer()->fillPar( cursession_->vispars() );
     applMgr().attrServer()->fillPar( cursession_->attrpars(true,false),
 				     true, false );
@@ -518,6 +520,7 @@ void uiODMain::doRestoreSession()
     restoringsess_ = true;
 
     sessionRestoreEarly.trigger();
+    applMgr().seisServer()->usePar( cursession_->seispars() );
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
