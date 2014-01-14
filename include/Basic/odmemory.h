@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 */
 
+#include "commondefs.h"
 #include "paralleltask.h"
 
 template <class T> class ValueSeries;
@@ -28,7 +29,7 @@ namespace OD
  
 namespace OD
 {
-    mGlobal(Basic) template <class T> void memValueSet(T*,T,od_int64);
+    template <class T> mGlobal(Basic) void memValueSet(T*,T,od_int64);
 }
 
 /*!\brief Sets large amounts of values to a constant using multiple threads.
@@ -387,7 +388,7 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 namespace OD
 {
 
-mGlobal(Basic) template <class T>
+template <class T> 
 inline void memValueSet( T* arr, T val , od_int64 sz )
 {
     if ( !arr || sz<=0 )
