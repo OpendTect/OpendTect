@@ -177,7 +177,6 @@ if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
     elseif( ${OD_PLFSUBDIR} STREQUAL "lux32" )
 	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libstdc++.so.6 Release )
 	OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libjpeg.so.62 Release )
     endif()
 endif()
 
