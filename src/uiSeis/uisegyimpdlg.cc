@@ -19,11 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisioobjinfo.h"
 #include "uiseparator.h"
 #include "uifileinput.h"
-#include "uilabel.h"
+#include "uibatchjobdispatcher.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
-#include "uibatchlaunch.h"
 #include "segyhdr.h"
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
@@ -40,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "zdomain.h"
 #include "segybatchio.h"
+#include "batchjobdispatch.h"
 #include "keystrs.h"
 
 
@@ -48,7 +48,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 			const uiSEGYReadDlg::Setup& su, IOPar& iop )
     : uiSEGYReadDlg(p,su,iop)
     , morebut_(0)
-    , inbatchfld_(0)
+    , batchfld_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
 {
     ctio_.ctxt.forread = false;
@@ -81,9 +81,9 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     if ( setup_.geom_ != Seis::Line )
     {
-	inbatchfld_ = new uiGenInput( outgrp, "Execute in Batch mode",
-					BoolInpSpec(false) );
-	inbatchfld_->attach( alignedBelow, seissel_ );
+	batchfld_ = new uiBatchJobDispatcherSel( outgrp, true );
+	batchfld_->attach( alignedBelow, seissel_ );
+	batchfld_->setJobSpec( Batch::JobSpec(Batch::JobSpec::SEGY) );
     }
     else
     {
@@ -298,17 +298,21 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
     transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
 
-    if ( inbatchfld_ && inbatchfld_->getBoolValue() )
+    if ( batchfld_ && batchfld_->wantBatch() )
     {
-	IOPar batchpars( pars_ );
+	uiMSG().warning( "Just implemented in new design."
+			 "\nIf nothing happens, try non-batch." );
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_ = pars_;
+
 	IOPar outpars;
 	transffld_->fillPar( outpars );
 	seissel_->fillPar( outpars );
-	batchpars.mergeComp( outpars, sKey::Output() );
-	batchpars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
-	batchpars.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
-	uiBatchLaunch dlg( this, batchpars, 0, SEGY::IO::sProgname(), false );
-	return dlg.go();
+	js.pars_.mergeComp( outpars, sKey::Output() );
+
+	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
+	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	return batchfld_->start();
     }
 
     if ( is2d )

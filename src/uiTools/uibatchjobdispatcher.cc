@@ -38,25 +38,33 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool opt )
 	    uidispatchers_ += dl;
     }
 
-    selfld_ = new uiGenInput( this, "Batch execution" );
+    selfld_ = new uiGenInput( this, "Batch execution", StringListInpSpec() );
     selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg) );
     if ( opt )
     {
 	selfld_->setWithCheck( true );
 	selfld_->setChecked( false );
 	selfld_->checked.notify( mCB(this,uiBatchJobDispatcherSel,fldChck) );
-	optsbut_ = new uiPushButton( this, "&Options",
-			mCB(this,uiBatchJobDispatcherSel,optsPush), false );
-	optsbut_->attach( rightOf, selfld_ );
     }
+    optsbut_ = new uiPushButton( this, "&Options",
+		    mCB(this,uiBatchJobDispatcherSel,optsPush), false );
+    optsbut_->attach( rightOf, selfld_ );
 
-    setJobSpec( jobspec_ );
+    setHAlignObj( selfld_ );
+
+    postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
 }
 
 
 uiBatchJobDispatcherSel::~uiBatchJobDispatcherSel()
 {
     delete &jobspec_;
+}
+
+
+void uiBatchJobDispatcherSel::initFlds( CallBacker* )
+{
+    setJobSpec( jobspec_ );
 }
 
 
@@ -149,14 +157,7 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 
 uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher()
     : uiBatchJobDispatcherLauncher(Batch::SingleJobDispatcher::sFactoryKey())
-    , execpars_(*new OSCommandExecPars)
 {
-}
-
-
-uiSingleBatchJobDispatcherLauncher::~uiSingleBatchJobDispatcherLauncher()
-{
-    delete &execpars_;
 }
 
 
@@ -199,9 +200,10 @@ bool acceptOK( CallBacker* )
 };
 
 
-void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
+void uiSingleBatchJobDispatcherLauncher::editOptions(
+				uiBatchJobDispatcherSel* p )
 {
-    uiSingleBatchJobDispatcherPars dlg( p, execpars_ );
+    uiSingleBatchJobDispatcherPars dlg( p, p->jobSpec().execpars_ );
     dlg.go();
 }
 

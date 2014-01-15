@@ -18,6 +18,7 @@ class uiSeisSel;
 class CtxtIOObj;
 class uiCheckBox;
 class uiSeisTransfer;
+class uiBatchJobDispatcherSel;
 
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
@@ -39,7 +40,7 @@ protected:
     uiSeisTransfer*	transffld_;
     uiSeisSel*		seissel_;
     uiCheckBox*		morebut_;
-    uiGenInput*		inbatchfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     virtual bool	doWork(const IOObj&);
 

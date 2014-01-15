@@ -19,6 +19,7 @@ class uiGenInput;
 class uiButton;
 class OSCommandExecPars;
 namespace Batch { class JobSpec; }
+class uiBatchJobDispatcherSel;
 
 
 /*!\brief launches the UI of a Batch::JobDispatcher */
@@ -30,9 +31,9 @@ public:
 			uiBatchJobDispatcherLauncher( const char* nm )
 			    : NamedObject(nm)			{}
 
-    virtual bool	canHandle( const Batch::JobSpec& )	{ return true; }
+    virtual bool	canHandle( const Batch::JobSpec& )	{ return false;}
     virtual bool	hasOptions() const			{ return false;}
-    virtual void	editOptions(uiParent*)			{}
+    virtual void	editOptions(uiBatchJobDispatcherSel*)	{}
     virtual const char*	getInfo() const				= 0;
     virtual bool	go(uiParent*,const Batch::JobSpec&)	= 0;
 
@@ -47,13 +48,14 @@ mExpClass(uiTools) uiBatchJobDispatcherSel : public uiGroup
 {
 public:
 
-			uiBatchJobDispatcherSel(uiParent*,bool isoptional=false);
+			uiBatchJobDispatcherSel(uiParent*,bool optional=false);
 			~uiBatchJobDispatcherSel();
 
     void		setJobSpec(const Batch::JobSpec&);
 			//!< must be done at every change
 			//!< the spec will determine what user can select
 
+    Batch::JobSpec&	jobSpec()		{ return jobspec_; };
     const char*		selected() const;
     const char*		selectedInfo() const;
 
@@ -72,6 +74,7 @@ protected:
 
     int			selIdx() const;
 
+    void		initFlds(CallBacker*);
     void		selChg(CallBacker*);
     void		fldChck(CallBacker*);
     void		optsPush(CallBacker*);
@@ -87,21 +90,16 @@ mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 public:
 
 			uiSingleBatchJobDispatcherLauncher();
-			~uiSingleBatchJobDispatcherLauncher();
 
+    virtual bool	canHandle( const Batch::JobSpec& )	{ return true; }
     virtual const char*	getInfo() const;
-    virtual bool	hasOptions() const		{ return true; }
-    virtual void	editOptions(uiParent*);
+    virtual bool	hasOptions() const			{ return true; }
+    virtual void	editOptions(uiBatchJobDispatcherSel*);
     virtual bool	go(uiParent*,const Batch::JobSpec&);
 
     static void		initClass();
     static uiBatchJobDispatcherLauncher* create()
 			{ return new uiSingleBatchJobDispatcherLauncher; }
-
-protected:
-
-    OSCommandExecPars&	execpars_;
-
 
 };
 

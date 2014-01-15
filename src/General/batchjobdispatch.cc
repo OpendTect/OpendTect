@@ -24,7 +24,7 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
     switch ( pt )
     {
 #define mHandlePTCase(typ,pnm) \
-	case typ: prognm_ = "od_process_" #pnm
+	case typ: prognm_ = "od_process_" #pnm ; break
 	mHandlePTCase(Attrib,attrib);
 	mHandlePTCase(AttribEM,attrib_em);
 	mHandlePTCase(Grid2D,2dgrid);
@@ -102,8 +102,8 @@ bool Batch::SingleJobDispatcher::init()
     if ( !alreadyhavelogfnm && !tostdio_ )
     {
 	FilePath logfp( parfnm_ );
-	logfp.setExtension( "_log.txt" );
-	logfnm = logfp.fullPath();
+	logfp.setExtension( 0 );
+	logfnm.set( logfp.fullPath() ).add( "_log.txt" );
     }
 
     return true;
@@ -118,16 +118,13 @@ bool Batch::SingleJobDispatcher::launch()
     jobspec_.pars_.putTo( astrm );
     parstrm.close();
 
-    BufferString basiccmd( jobspec_.prognm_, " ", parfnm_ );
     if ( remotehost_.isEmpty() )
     {
-	if ( jobspec_.isodprog_ )
-	    return ExecODProgram( jobspec_.prognm_, parfnm_ );
-
-	return ExecOSCmd( basiccmd, tostdio_, true );
+	CommandLauncher cl( jobspec_.prognm_, parfnm_ );
+	return cl.execute( jobspec_.execpars_, jobspec_.isodprog_ );
     }
 
-    BufferString cmd;
+    BufferString cmd( jobspec_.prognm_, " ", parfnm_ );
     if ( jobspec_.isodprog_ )
     {
 	cmd.set( GetExecScript( true ) ).add( remotehost_ ).add( " --rexec " )
@@ -138,7 +135,7 @@ bool Batch::SingleJobDispatcher::launch()
 	    cmd.add( "--nice " ).add( mNINT32(fnicelvl) ).add( " " );
 	}
     }
-    cmd.add( basiccmd );
+
 
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
     return oscomm.execute( jobspec_.execpars_, jobspec_.isodprog_ );
