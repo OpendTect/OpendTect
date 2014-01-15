@@ -38,7 +38,8 @@ void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
     memcpy( dest, org, (size_t)sz );
 }
 
-#define mExecNonParallel(sz) (sz < 1000000 || Threads::getNrProcessors() < 4)
+#define mExecNonParallel(sz) \
+    (sz < (2 * mODMemMinThreadSize) || Threads::getNrProcessors() < 4)
 
 
 void OD::memCopy( void* dest, const void* org, od_int64 sz )

@@ -3,7 +3,7 @@
 #include "testprog.h"
 #include "thread.h"
 
-#define mTotNrElems 1000000000
+#define mTotNrElems 100000000
 
 #define mPrTime(s) \
 	curms = Time::getMilliSeconds(); \
