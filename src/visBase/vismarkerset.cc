@@ -302,7 +302,7 @@ int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,
 }
 
 
-const int MarkerSet::addPos( const Coord3& crd, bool draw )
+int MarkerSet::addPos( const Coord3& crd, bool draw )
 {
     int index ( 0 );
     if ( coords_ )
