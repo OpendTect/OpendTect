@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipluginsel.h"
+#include "uiseispartserv.h"
 #include "uisetdatadir.h"
 #include "uisplashscreen.h"
 #include "uistrattreewin.h"
@@ -320,8 +321,8 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     if ( !dlg.go() )
 	{ delete ctio->ioobj; delete ctio; ctio = 0; }
     else
-    { 
-	delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone(); 
+    {
+	delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone();
         const MultiID id( ctio->ioobj ? ctio->ioobj->key() : MultiID("") );
 	cursessid_ = id;
     }
@@ -400,10 +401,10 @@ uiODMainAutoSessionDlg( uiODMain* p )
     ODSession::getStartupData( douse, id );
 
     usefld_ = new uiGenInput( this, "Auto-load sessions",
-	    		      BoolInpSpec(douse,"Enabled","Disabled") );
+			      BoolInpSpec(douse,"Enabled","Disabled") );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, "Use one for this survey",
-	    		      BoolInpSpec( !id.isEmpty() ) );
+			      BoolInpSpec( !id.isEmpty() ) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
@@ -414,7 +415,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
     lbl_->attach( centeredLeftOf, selgrp_ );
 
     loadnowfld_ = new uiGenInput( this, "Load selected session now",
-	    			  BoolInpSpec(true) );
+				  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, selgrp_ );
 
     postFinalise().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
@@ -498,18 +499,19 @@ void uiODMain::restoreSession( const IOObj* ioobj )
 bool uiODMain::updateSession()
 {
     cursession_->clear();
+    applMgr().seisServer()->fillPar( cursession_->seispars() );
     applMgr().visServer()->fillPar( cursession_->vispars() );
     applMgr().attrServer()->fillPar( cursession_->attrpars(true,false),
-	    			     true, false );
+				     true, false );
     applMgr().attrServer()->fillPar( cursession_->attrpars(true, true),
-	    			     true, true );
+				     true, true );
     applMgr().attrServer()->fillPar( cursession_->attrpars(false, false),
-	    			     false, false );
+				     false, false );
     applMgr().attrServer()->fillPar( cursession_->attrpars(false, true),
-	    			     false, true );
+				     false, true );
     sceneMgr().getScenePars( cursession_->scenepars() );
     if ( applMgr().nlaServer()
-      && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) ) 
+      && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
 	return false;
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
     viewer2DMgr().fillPar( cursession_->vwr2dpars() );
@@ -527,6 +529,7 @@ void uiODMain::doRestoreSession()
     restoringsess_ = true;
 
     sessionRestoreEarly.trigger();
+    applMgr().seisServer()->usePar( cursession_->seispars() );
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
@@ -555,7 +558,7 @@ void uiODMain::doRestoreSession()
     {
 	MouseCursorManager::restoreOverride();
 	uiMSG().error( "An error occurred while reading session file.\n"
-		       "A new scene will be launched" );	
+		       "A new scene will be launched" );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
@@ -571,7 +574,7 @@ void uiODMain::handleStartupSession()
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id == "" ) 
+    if ( !douse || id == "" )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );
@@ -593,7 +596,7 @@ void uiODMain::memTimerCB( CallBacker* )
     Threads::Locker locker( memtimerlock, Threads::Locker::DontWaitForLock );
     if ( !locker.isLocked() )
 	return;
-	
+
     od_int64 tot, free;
     OD::getSystemMemory( tot, free );
 
@@ -704,7 +707,7 @@ bool uiODMain::closeOK()
     bool askedanything = false;
     if ( !askStore(askedanything,"Close OpendTect") )
     {
-	uiMSG().message("closing cancelled");
+	uiMSG().message("Closing cancelled");
 	return false;
     }
 

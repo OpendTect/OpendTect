@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsession.h"
 
 #include "ascstream.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -18,6 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 #include "uitextedit.h"
+
+
+HiddenParam<ODSession,IOPar> seispars_(0);
 
 
 const char* ODSession::visprefix()	{ return "Vis"; }
@@ -39,11 +43,15 @@ ODSession::ODSession()
 {
     versionnr_ = mODMajorVersion; versionnr_ += ".";
     versionnr_ += mODMinorVersion;
+
+    seispars_.setParam( this, IOPar() );
 }
 
 
 void ODSession::clear()
 {
+    seispars_.setParam( this, IOPar() );
+
     vispars_.setEmpty();
     scenepars_.setEmpty();
     attrpars_.setEmpty();				//backward comp 2.4
@@ -62,6 +70,9 @@ ODSession& ODSession::operator=( const ODSession& sess )
 {
     if ( &sess != this )
     {
+	const IOPar& inseispars = seispars_.getParam( &sess );
+	seispars_.setParam( this, inseispars );
+
 	vispars_ = sess.vispars_;
 	scenepars_ = sess.scenepars_;
 	attrpars_ = sess.attrpars_;		//backward comp 2.4
@@ -81,7 +92,11 @@ ODSession& ODSession::operator=( const ODSession& sess )
 
 bool ODSession::operator==( const ODSession& sess ) const
 {
+    const IOPar& myseispars = seispars_.getParam( this );
+    const IOPar& inseispars = seispars_.getParam( &sess );
+
     return vispars_ == sess.vispars_
+	&& myseispars == inseispars
 	&& attrpars_ == sess.attrpars_		//backward comp 2.4
 	&& attrpars2d_ == sess.attrpars2d_
 	&& attrpars3d_ == sess.attrpars3d_
@@ -93,56 +108,61 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& versionnr_ == sess.versionnr_
 	&& vwr2dpars_ == sess.vwr2dpars_;
 }
-   
+
 #define mAddVersionNr(iopar) \
     iopar.add( sKey::Version(), versionnr_ );
 
 bool ODSession::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> vissubpars = par.subselect(visprefix());
+    PtrMan<IOPar> seissubpars = par.subselect( "Seis" );
+    if ( seissubpars )
+	seispars_.setParam( this, *seissubpars );
+
+    PtrMan<IOPar> vissubpars = par.subselect( visprefix() );
     if ( !vissubpars ) return false;
     vispars_ = *vissubpars;
 
-    PtrMan<IOPar> scenesubpars = par.subselect(sceneprefix());
+    PtrMan<IOPar> scenesubpars = par.subselect( sceneprefix() );
     if ( scenesubpars )
         scenepars_ = *scenesubpars;
 
-    PtrMan<IOPar> attrsubpars = par.subselect(attrprefix());
+    PtrMan<IOPar> attrsubpars = par.subselect( attrprefix() );
     if ( attrsubpars )
 	attrpars_ = *attrsubpars;		//backward comp 2.4
 
-    PtrMan<IOPar> attr2dsubpars = par.subselect(attr2dprefix());
+    PtrMan<IOPar> attr2dsubpars = par.subselect( attr2dprefix() );
     if ( attr2dsubpars )
 	attrpars2d_ = *attr2dsubpars;
 
-    PtrMan<IOPar> attr3dsubpars = par.subselect(attr3dprefix());
+    PtrMan<IOPar> attr3dsubpars = par.subselect( attr3dprefix() );
     if ( attr3dsubpars )
 	attrpars3d_ = *attr3dsubpars;
-    
-    PtrMan<IOPar> attr2dstoredsubpars = par.subselect(attr2dstoredprefix());
+
+    PtrMan<IOPar> attr2dstoredsubpars = par.subselect( attr2dstoredprefix() );
     if ( attr2dstoredsubpars )
 	attrpars2dstored_ = *attr2dstoredsubpars;
 
-    PtrMan<IOPar> attr3dstoredsubpars = par.subselect(attr3dstoredprefix());
+    PtrMan<IOPar> attr3dstoredsubpars = par.subselect( attr3dstoredprefix() );
     if ( attr3dstoredsubpars )
 	attrpars3dstored_ = *attr3dstoredsubpars;
-    
-    PtrMan<IOPar> nlasubpars = par.subselect(nlaprefix());
+
+    PtrMan<IOPar> nlasubpars = par.subselect( nlaprefix() );
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
 
-    PtrMan<IOPar> mpesubpars = par.subselect(trackprefix());
+    PtrMan<IOPar> mpesubpars = par.subselect( trackprefix() );
     if ( mpesubpars )
 	mpepars_ = *mpesubpars;
 
-    PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix());
+    PtrMan<IOPar> pluginsubpars = par.subselect( pluginprefix() );
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
 
-    PtrMan<IOPar> vwr2dsubpars = par.subselect(vwr2dprefix());
+    PtrMan<IOPar> vwr2dsubpars = par.subselect( vwr2dprefix() );
     if ( vwr2dsubpars )
         vwr2dpars_ = *vwr2dsubpars;
 
+    mAddVersionNr(seispars());
     mAddVersionNr(vispars_);
     mAddVersionNr(scenepars_);
     mAddVersionNr(attrpars_);
@@ -160,6 +180,8 @@ bool ODSession::usePar( const IOPar& par )
 
 void ODSession::fillPar( IOPar& par ) const
 {
+    const IOPar& myseispars = seispars_.getParam( this );
+    par.mergeComp( myseispars, "Seis" );
     par.mergeComp( vispars_, visprefix() );
     par.mergeComp( scenepars_, sceneprefix() );
     par.mergeComp( attrpars_, attrprefix() );	//backward comp 2.4
@@ -172,6 +194,10 @@ void ODSession::fillPar( IOPar& par ) const
     par.mergeComp( pluginpars_, pluginprefix() );
     par.mergeComp( vwr2dpars_, vwr2dprefix() );
 }
+
+
+IOPar& ODSession::seispars()
+{ return const_cast<IOPar&>( seispars_.getParam(this) ); }
 
 
 IOPar& ODSession::attrpars( bool is2d, bool isstored )
