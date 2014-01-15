@@ -241,7 +241,7 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
 	SurveyInfo::pushSI( newsi );
     }
 
-    IOMan().reInit( true );
+    IOM().reInit( true );
     return !IOM().isBad();
 }
 
@@ -251,7 +251,7 @@ bool IOMan::setSurvey( const char* survname )
     SurveyInfo::deleteInstance();
     SurveyInfo::setSurveyName( survname );
 
-    IOMan().reInit( true );
+    IOM().reInit( true );
     return !IOM().isBad();
 }
 
@@ -355,7 +355,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
     SurveyInfo::setSurveyName( "" ); // force user-set of survey
 
-    IOMan().reInit( false );
+    IOM().reInit( false );
     return true;
 }
 
