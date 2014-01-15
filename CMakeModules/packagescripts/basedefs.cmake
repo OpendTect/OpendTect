@@ -38,5 +38,8 @@ else()
     set( ODSCRIPTS od_* mksethdir mac_term macterm.in )
 endif()
 
+if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+    set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 libjpeg.so.62 )
+endif()
 
 set( PACK "base" )
