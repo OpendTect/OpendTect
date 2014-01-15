@@ -481,7 +481,10 @@ void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
     hordatahandler_->setZAxisTransform( zt );
 
     if ( geometry_ )
-	surfaceChangeCB( 0 );
+    {
+	CBCapsule<const TypeSet<GeomPosID>*> caps( 0, geometry_ );
+	surfaceChangeCB( &caps );
+    }
 }
 
 
