@@ -470,7 +470,6 @@ void TileResolutionData::tesselateCell( int idxthis )
     const int spacing = section.spacing_[resolution_];
     const int nrroworcol = section.nrcoordspertileside_/spacing;
     const int resnrroworcol = resolution_ == 0 ? nrroworcol : nrroworcol +1 ;
-    const bool usewireframe = sectile_->usewireframe_;
 
     const int idxright = idxthis + 1;
     const int idxbottom = idxthis + resnrroworcol;
