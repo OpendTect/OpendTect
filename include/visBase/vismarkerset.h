@@ -109,8 +109,9 @@ public:
 			quality of marker visualization. */
 
      int		size() const; 
-    void		addPos(const Coord3&);
-    void		setPos(int, const Coord3&);
+    const int		addPos(const Coord3&, bool draw = true);
+    void		setPos(int, const Coord3&,bool draw = true);
+    void		forceRedraw(bool);
 
 protected:
     void		materialChangeCB(CallBacker*);

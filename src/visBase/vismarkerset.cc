@@ -302,22 +302,33 @@ int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,
 }
 
 
-void MarkerSet::addPos( const Coord3& crd )
+const int MarkerSet::addPos( const Coord3& crd, bool draw )
 {
+    int index ( 0 );
     if ( coords_ )
-	coords_->addPos( crd );
-    markerset_->forceRedraw( true );
+	index = coords_->addPos( crd );
     
+    if ( draw && markerset_ )
+        markerset_->forceRedraw( true );
+
+    return index;
 }
 
 
-void MarkerSet::setPos( int idx, const Coord3& crd )
+void MarkerSet::setPos( int idx, const Coord3& crd, bool draw )
 {
     if ( coords_ )
 	coords_->setPos( idx, crd );
-    markerset_->forceRedraw( true );
+    if ( draw && markerset_ )
+	markerset_->forceRedraw( true );
 }
 
+
+void MarkerSet::forceRedraw( bool yn )
+{
+    if ( markerset_ )
+	markerset_->forceRedraw( yn );
+}
 
 int MarkerSet::size() const
 {

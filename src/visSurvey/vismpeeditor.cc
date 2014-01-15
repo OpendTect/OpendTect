@@ -302,7 +302,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     marker->setMinimumScale( 0 );
     marker->setMaximumScale( 25.5f );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
-    marker->getCoordinates()->addPos( Coord3( 0, 0, 0 ) );
+    marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );
     dragger->setSize( markersize_ );
     dragger->setOwnShape( marker,false );

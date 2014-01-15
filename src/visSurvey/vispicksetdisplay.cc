@@ -140,15 +140,7 @@ bool PickSetDisplay::setBodyDisplay()
 
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
-    markerset_->getCoordinates()->setPos( idx, loc.pos_ );
-    // below should do later
-    //BufferString dipvaluetext;
-    //loc.getText( "Dip", dipvaluetext );
-    //SeparString dipstr( dipvaluetext );
-    //const float inldip = dipstr.getFValue( 0 );
-    //const float crldip = dipstr.getFValue( 1 );
-    //markerset_->setDip( inldip, crldip );
-    //markerset_->setDirection( loc.dir );
+    markerset_->setPos( idx, loc.pos_, false );
 }
 
 
@@ -172,6 +164,9 @@ void PickSetDisplay::locChg( CallBacker* cb )
 {
     LocationDisplay::locChg( cb );
     setBodyDisplay();
+
+    if ( markerset_ )
+	markerset_->forceRedraw( true );
 }
 
 
@@ -179,11 +174,18 @@ void PickSetDisplay::setChg( CallBacker* cb )
 {
     LocationDisplay::setChg( cb );
     setBodyDisplay();
+
+    if ( markerset_ )
+	markerset_->forceRedraw( true );
+    
 }
 
 
 void PickSetDisplay::dispChg( CallBacker* cb )
 {
+    if ( !markerset_ )
+	return;
+    
     const int oldpixsz = (int)(markerset_->getScreenSize() + .5);
     if ( oldpixsz != set_->disp_.pixsize_ )
     {
@@ -200,6 +202,9 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
 
     LocationDisplay::dispChg( cb );
+
+    markerset_->forceRedraw( true );
+
 }
 
 

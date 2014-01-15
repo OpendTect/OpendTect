@@ -1189,8 +1189,10 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	if ( fss->isStickSelected(sip->sticknr_) )
 	    groupidx = 1;
 
-	knotmarkersets_[groupidx]->addPos( sip->pos_ );
+	knotmarkersets_[groupidx]->addPos( sip->pos_, false );
     }
+
+    knotmarkersets_[groupidx]->forceRedraw( true );
 
     if ( !showmanipulator_ || !stickselectmode_ )
 	return;
@@ -1213,8 +1215,11 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
 	const MarkerStyle3D& style = emfss_->getPosAttrMarkerStyle(0);
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->addPos( emfss_->getPos(pid) );
+	knotmarkersets_[groupidx]->addPos( emfss_->getPos(pid), false );
     }
+    
+    knotmarkersets_[groupidx]->forceRedraw( true );
+
 }
 
 

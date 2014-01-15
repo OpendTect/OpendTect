@@ -410,7 +410,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		if ( !psevent->sz_ )
 		    continue;
 		Coord3 pos( bid.inl(), bid.crl(), psevent->pick_[0] );
-		eventmarkerset_->addPos( pos );
+		eventmarkerset_->addPos( pos, false );
 
 		TypeSet<float> offsets;
 		TypeSet<float> picks;
@@ -424,6 +424,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
+	    eventmarkerset_->forceRedraw( true );
 	}
 
 	if (  markercolor_ == Single )
@@ -579,7 +580,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pos.y += offset.y;
 		}
 
-		pao->markerset_->addPos( pos );
+		pao->markerset_->addPos( pos, false );
 
 		if ( markercolor_ != Single )
 		    values += value;
@@ -588,6 +589,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		if ( doline )
 		    pao->lines_->addPoint( pos );
 	    }
+
+	    pao->markerset_->forceRedraw( true );
 
 	    const int size = pao->lines_ ? pao->lines_->getCoordinates()->size()
 					 : 0;

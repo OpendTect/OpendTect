@@ -658,9 +658,10 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	    pErrMsg("Undefined point.");
 	}
 
-        markerset->getCoordinates()->setPos( idx, pos);
+        markerset->setPos( idx, pos, false );
     }
 
+    markerset->forceRedraw( true );
     markerset->getCoordinates()->removeAfter( pids->size()-1 );
 }
 
