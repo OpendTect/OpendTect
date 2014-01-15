@@ -62,7 +62,7 @@ public:
     const char*		get() const;
 
     bool		execute(bool inconsole=false,bool inbg=false) const;
-    bool		execute(OSCommandExecPars,bool) const;
+    bool		execute(const OSCommandExecPars&,bool) const;
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
@@ -93,8 +93,8 @@ public:
 			CommandLauncher(const char* cmd,const char* par);
 			~CommandLauncher();
 
-    bool		execute(const OSCommandExecPars&
-			     pars=OSCommandExecPars(), bool isODprogram=true);
+    bool		execute(const OSCommandExecPars& pars
+	    			=OSCommandExecPars(),bool isODprogram=true);
 
     int			getProcessID() const;
     const char*		errorMsg() const { return errmsg_; }

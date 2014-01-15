@@ -3,7 +3,8 @@
 #include "testprog.h"
 #include "thread.h"
 
-#define mTotNrElems 100000000
+static od_int64 cTotNrElems = 100000000;
+static od_int64 cTotNrOpers = 1000000000;
 
 #define mPrTime(s) \
 	curms = Time::getMilliSeconds(); \
@@ -15,15 +16,15 @@ static bool testSpeed()
     if ( quiet )
 	return true;
 
-    od_cout() << "\nTotal number of floats: " << mTotNrElems << od_newline
+    od_cout() << "\nTotal number of floats: " << cTotNrElems << od_newline
 	      << "Processors: " << Threads::getNrProcessors() << od_newline
 	      << od_endl;
 
-    for ( int arrsz=10; arrsz<=mTotNrElems; arrsz*=10 )
+    for ( int arrsz=10; arrsz<=cTotNrElems; arrsz*=10 )
     {
 	float* vals = new float [arrsz];
 	float* copy = new float [arrsz];
-	const int nrruns = mTotNrElems / arrsz;
+	const int nrruns = cTotNrOpers / arrsz;
 	od_cout() << "Arrsz=" << arrsz << " (" << nrruns << " runs)" << od_endl;
 
 	int prevms = Time::getMilliSeconds();
@@ -73,15 +74,15 @@ static bool testSpeed()
 
 static bool testCopySet()
 {
-    float* vals = new float [mTotNrElems];
-    float* copy = new float [mTotNrElems];
-    for ( int idx=0; idx<mTotNrElems; idx++ )
+    float* vals = new float [cTotNrElems];
+    float* copy = new float [cTotNrElems];
+    for ( int idx=0; idx<cTotNrElems; idx++ )
 	vals[idx] = idx * 0.01f + 1.0f;
 
     if ( !quiet )
 	od_cout() << "Testing copy size: ";
 
-    for ( int arrsz=10; arrsz<=mTotNrElems; arrsz*=10 )
+    for ( int arrsz=10; arrsz<=cTotNrElems; arrsz*=10 )
     {
 	if ( !quiet )
 	    { od_cout() << arrsz << ' '; od_cout().flush(); }
@@ -118,6 +119,12 @@ static bool testCopySet()
 int main( int argc, char** argv )
 {
     mInitTestProg();
+    const bool largemem = clparser.hasKey( "largemem" );
+    if ( largemem )
+	cTotNrElems *= 10;
+    const bool smallmem = clparser.hasKey( "smallmem" );
+    if ( smallmem )
+	cTotNrElems /= 10;
 
     if ( !testCopySet() )
 	ExitProgram( 1 );

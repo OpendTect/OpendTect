@@ -25,7 +25,7 @@ namespace OD
 
 
 // 1M operations min per thread
-#define mODMemMinThreadSize 1048576
+#define mODMemMinThreadSize 131072
  
 namespace OD
 {

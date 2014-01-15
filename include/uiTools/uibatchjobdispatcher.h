@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uidialog.h"
 #include "uigroup.h"
 #include "factory.h"
 class uiGenInput;
+class uiButton;
+class OSCommandExecPars;
 namespace Batch { class JobSpec; }
 
 
@@ -30,6 +31,8 @@ public:
 			    : NamedObject(nm)			{}
 
     virtual bool	canHandle( const Batch::JobSpec& )	{ return true; }
+    virtual bool	hasOptions() const			{ return false;}
+    virtual void	editOptions(uiParent*)			{}
     virtual const char*	getInfo() const				= 0;
     virtual bool	go(uiParent*,const Batch::JobSpec&)	= 0;
 
@@ -51,15 +54,27 @@ public:
 			//!< must be done at every change
 			//!< the spec will determine what user can select
 
+    const char*		selected() const;
+    const char*		selectedInfo() const;
+
     bool		wantBatch() const;	//! can be false if isoptional
     bool		start();
+
+    Notifier<uiBatchJobDispatcherSel> selectionChange;
 
 protected:
 
     uiGenInput*		selfld_;
+    uiButton*		optsbut_;
 
     Batch::JobSpec&	jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
+
+    int			selIdx() const;
+
+    void		selChg(CallBacker*);
+    void		fldChck(CallBacker*);
+    void		optsPush(CallBacker*);
 
 };
 
@@ -72,13 +87,21 @@ mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 public:
 
 			uiSingleBatchJobDispatcherLauncher();
+			~uiSingleBatchJobDispatcherLauncher();
 
     virtual const char*	getInfo() const;
+    virtual bool	hasOptions() const		{ return true; }
+    virtual void	editOptions(uiParent*);
     virtual bool	go(uiParent*,const Batch::JobSpec&);
 
     static void		initClass();
     static uiBatchJobDispatcherLauncher* create()
 			{ return new uiSingleBatchJobDispatcherLauncher; }
+
+protected:
+
+    OSCommandExecPars&	execpars_;
+
 
 };
 

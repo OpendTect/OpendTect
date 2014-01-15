@@ -27,10 +27,9 @@ class DataHolder;
 mExpClass(AttributeEngine) DataHolderArray : public Array3D<float>
 {
 public:
-			DataHolderArray(const ObjectSet<DataHolder>&,
-					bool manageset);//type_ 0
+			DataHolderArray(const ObjectSet<DataHolder>&);//type_ 0
 			DataHolderArray(const ObjectSet<DataHolder>& dh, 
-				int sidx,int dim0sz,int dim1sz,bool manageset);
+				int sidx,int dim0sz,int dim1sz);
 
 			~DataHolderArray();
 
@@ -42,7 +41,6 @@ protected:
 
     Array3DInfoImpl	info_;
     ObjectSet<DataHolder> dh_;
-    bool		manageset_;
     char		type_;
     int			seriesidx_;	
 };

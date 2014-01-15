@@ -275,7 +275,7 @@ bool OSCommand::execute( bool inconsole, bool inbg ) const
 }
 
 
-bool OSCommand::execute( OSCommandExecPars pars, bool isodprog ) const
+bool OSCommand::execute( const OSCommandExecPars& pars, bool isodprog ) const
 {
     CommandLauncher cl( comm_, "" );
     return cl.execute( pars, isodprog );

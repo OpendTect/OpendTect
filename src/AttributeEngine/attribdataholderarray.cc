@@ -16,10 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
-DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh,
-				  bool manageset )
+DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
     : dh_(dh)
-    , manageset_(manageset)
     , type_(1)
 {
     const int nrdh = dh_.size();
@@ -39,10 +37,9 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh,
 
 
 DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh, int sidx,
-	int dim0sz, int dim1sz, bool manageset )
+				    int dim0sz, int dim1sz )
     : dh_(dh)
     , seriesidx_(sidx)
-    , manageset_(manageset)
     , type_(0)
 {
     const int nrdh = dh_.size();
@@ -54,8 +51,6 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh, int sidx,
 
 DataHolderArray::~DataHolderArray()
 {
-    if ( manageset_ )
-	deepErase( dh_ );
 }
 
 

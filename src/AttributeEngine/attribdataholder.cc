@@ -317,7 +317,7 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 {
     dh.ref();
 
-    DataHolderArray array3d( dh.dataset_, false );
+    DataHolderArray array3d( dh.dataset_ );
     const int nrseries = array3d.info().getSize( 0 );
     const int nrdh = array3d.info().getSize( 1 );
     const int nrsamples = array3d.info().getSize( 2 );

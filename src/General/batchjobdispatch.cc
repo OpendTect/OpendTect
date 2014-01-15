@@ -141,7 +141,7 @@ bool Batch::SingleJobDispatcher::launch()
     cmd.add( basiccmd );
 
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
-    return oscomm.execute( cmd );
+    return oscomm.execute( jobspec_.execpars_, jobspec_.isodprog_ );
 }
 
 
