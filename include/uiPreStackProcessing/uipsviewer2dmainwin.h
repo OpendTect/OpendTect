@@ -208,7 +208,7 @@ protected:
     TypeSet<GatherInfo>		gatherinfos_;
     PreStackView::uiPSMultiPropDlg* pspropdlg_;
 
-    void		doPropertiesDialog(int vieweridx,bool dowva);
+    void		doPropertiesDialog(int vieweridx);
 
     void		applyProperties(CallBacker*);
     void		gatherPosCB(CallBacker*);

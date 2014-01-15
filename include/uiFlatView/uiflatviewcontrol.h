@@ -113,7 +113,7 @@ protected:
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
     
-    virtual void	doPropertiesDialog(int vieweridx=0, bool dowva=true);
+    virtual void	doPropertiesDialog(int vieweridx=0);
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);
     virtual void	saveProperties(FlatView::Viewer&);

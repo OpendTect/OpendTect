@@ -1356,7 +1356,7 @@ void uiViewer2DControl::gatherDataCB( CallBacker* )
 }
 
 
-void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
+void uiViewer2DControl::doPropertiesDialog( int vieweridx )
 {
     int ivwr = 0;
     for ( ivwr=0; ivwr<vwrs_.size(); ivwr++ )
@@ -1364,7 +1364,7 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
 	if ( vwrs_[ivwr]->pack( true ) || vwrs_[ivwr]->pack( false ) )
 	    break;
     }
-    return uiFlatViewControl::doPropertiesDialog( ivwr, dowva );
+    return uiFlatViewControl::doPropertiesDialog( ivwr );
 }
 
 uiViewer2DControl::~uiViewer2DControl()

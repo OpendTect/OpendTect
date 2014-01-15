@@ -249,7 +249,7 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 }
 
 
-void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
+void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 {
     //TODO what if more than one viewer? Also functions below
     uiFlatViewer& vwr = *vwrs_[vieweridx];
