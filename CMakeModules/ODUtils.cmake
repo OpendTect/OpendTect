@@ -89,6 +89,17 @@ macro ( OD_INSTALL_LIBRARY SOURCE CONFIGURATION )
     endif()
 endmacro()
 
+macro ( OD_INSTALL_SYSTEM_LIBRARY SOURCE CONFIGURATION )
+    get_filename_component( PATH ${SOURCE} REALPATH )
+    get_filename_component( FILENAME ${SOURCE} NAME )
+    if ( ${CONFIGURATION} STREQUAL "Debug" )
+	install( PROGRAMS ${PATH} DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+		 RENAME ${FILENAME} CONFIGURATIONS Debug )
+    else()
+	install( PROGRAMS ${PATH} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+		 RENAME ${FILENAME} CONFIGURATIONS Release )
+    endif()
+endmacro()
 
 #Takes a library variable with both _RELEASE and _DEBUG variants, and constructs
 # a variable that combinse both
