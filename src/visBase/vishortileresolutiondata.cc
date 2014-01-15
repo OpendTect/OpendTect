@@ -106,10 +106,12 @@ void TileResolutionData::setDisplayGeometryType( int dispgeometrytype )
 {
     osgswitch_->setAllChildrenOff();
     osgswitch_->setValue( Triangle, true );
+    osgswitch_->setValue( Line, true );
     if ( dispgeometrytype != Triangle ) 
     {
 	osgswitch_->setValue( dispgeometrytype, true );
     }
+    
     dispgeometrytype_ = dispgeometrytype;
 }
 
@@ -153,6 +155,8 @@ void TileResolutionData::setAllVertices( const TypeSet<Coord3>& positions )
 
 void TileResolutionData::calcNormals( bool allownormalinvalid )
 {
+    if ( !normals_ ) return;
+    
     const HorizonSection& hrsection = sectile_->hrsection_;
 
     int valididx = 0;
@@ -174,8 +178,12 @@ void TileResolutionData::calcNormals( bool allownormalinvalid )
 	const int sz = invalidnormals_.size();
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    computeNormal( invalidnormals_[idx],
-		(*mGetOsgVec3Arr(normals_))[invalidnormals_[idx]]);
+	    valididx = 
+		invalidnormals_[idx] - hrsection.normalstartidx_[resolution_];
+	    
+	    if ( valididx <0 || valididx > normals_->getNumElements() )
+		return;
+	    computeNormal( valididx, (*mGetOsgVec3Arr(normals_))[valididx]);
 	}
     }
 
@@ -203,7 +211,15 @@ void TileResolutionData::dirtyGeometry()
 osg::BoundingBox& TileResolutionData::updateBBox()
 {
     bbox_.init();
-    bbox_.expandBy( osgswitch_->computeBound() );
+    for ( int idx =0; idx<vertices_->size(); idx++ )
+    {
+	const osg::Vec3Array* arr = 
+	    dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
+	const osg::Vec3f coord = arr->at( idx );
+	if( coord[2] != mUdf(float) )
+	    bbox_.expandBy( coord );
+    }
+
     return bbox_;
 }
 
@@ -233,6 +249,7 @@ void TileResolutionData::setSingleVertex( int row, int col,
 
     if ( !newdefined )
     {
+	vertices_->getPos( coordidx)[2] = 1e30;
 	(*arr)[coordidx][2] =  1e30;
     }
     else
@@ -243,21 +260,22 @@ void TileResolutionData::setSingleVertex( int row, int col,
 	bbox_.expandBy((*arr)[coordidx]);
     }
 
-    char newstatus = cShouldRetesselate;
-    if ( olddefined && !newdefined )
+
+    if ( newdefined && !olddefined )
     {
-	newstatus = cMustRetesselate;
+	nrdefinedvertices_ ++;
+    }
+    else if ( !newdefined && olddefined )
+    {
+	nrdefinedvertices_--;
 	dohide = true;
     }
 
-    if ( newdefined && !olddefined )
-	nrdefinedvertices_ ++;
-    else if ( !newdefined && olddefined )
-	nrdefinedvertices_--;
+    needsretesselation_ = cShouldRetesselate;
 
-    if ( newstatus>needsretesselation_ ) 
-	needsretesselation_ = newstatus;
-
+    if ( dohide )
+	hideFromDisplay();
+    
     setInvalidNormal( row, col );
 }
 
@@ -267,6 +285,13 @@ void TileResolutionData::setSingleVertex( int row, int col,
     wireframesps_->clear();\
     linesps_->clear();\
     pointsps_->clear();\
+
+
+void TileResolutionData::hideFromDisplay()
+{
+    mClearPrimitiveSet;
+   
+}
 
 
 bool TileResolutionData::tesselateResolution( bool onlyifabsness )
@@ -469,17 +494,17 @@ void TileResolutionData::tesselateCell( int idxthis )
 	{
 	    if ( !rightbottomisdef )
 	    {
-		mAddLineIndexes( linesps_,idxthis, idxbottom );
-		if ( usewireframe )
-		    mAddLineIndexes( wireframesps_,idxthis, idxbottom  );
+		mAddLineIndexes( wireframesps_,idxthis, idxbottom  );
+		if ( section.displaysTrackingLine() )
+		    mAddLineIndexes( linesps_,idxthis, idxbottom );
 	    }
 	    else 
 	    {
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
 					      idxrightbottom, idxbottom );
-		mAddLineIndexes( linesps_, idxthis, idxbottom );
-		if ( usewireframe )
-		    mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		if ( section.displaysTrackingLine() )
+		    mAddLineIndexes( linesps_, idxthis, idxbottom );
 	    }
 
 	}
@@ -494,25 +519,25 @@ void TileResolutionData::tesselateCell( int idxthis )
 					      idxright, idxbottom );
 		mAddClockwiseTriangleIndexes( trianglesps_, idxbottom, 
 					      idxright, idxrightbottom );
-		mAddLineIndexes( linesps_, idxthis, idxright );
-		mAddLineIndexes( linesps_, idxthis, idxbottom );
-		if ( usewireframe )
+		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		if ( section.displaysTrackingLine() )
 		{
-		    mAddLineIndexes( wireframesps_, idxthis, idxright );
-		    mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		    mAddLineIndexes( linesps_, idxthis, idxright );
+		    mAddLineIndexes( linesps_, idxthis, idxbottom );
 		}
 	    }
 	    else if ( !rightbottomisdef ) 
 	    {
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis, 
 					      idxright, idxbottom );
-		if ( usewireframe )
+		if ( section.displaysTrackingLine() )
 		{
-		    mAddLineIndexes( wireframesps_, idxthis, idxright );
-		    mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		    mAddLineIndexes( linesps_, idxthis, idxright );
+		    mAddLineIndexes( linesps_, idxthis, idxbottom );
 		}
-		mAddLineIndexes( linesps_, idxthis, idxright );
-		mAddLineIndexes( linesps_, idxthis, idxbottom );
+		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
 	    }
 	}
 	else if ( !bottomisdef )
@@ -521,15 +546,15 @@ void TileResolutionData::tesselateCell( int idxthis )
 	    {
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
 					      idxright, idxrightbottom );
-		mAddLineIndexes( linesps_,idxthis, idxright );
-		if ( usewireframe )
-		    mAddLineIndexes( wireframesps_, idxthis, idxright );
+		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		if ( section.displaysTrackingLine() )
+		     mAddLineIndexes( linesps_,idxthis, idxright );
 	    }
 	    else 
 	    {
-		mAddLineIndexes( linesps_,idxthis, idxright );
-		if ( usewireframe )
-		    mAddLineIndexes( wireframesps_, idxthis, idxright );
+		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		if ( section.displaysTrackingLine() )
+		    mAddLineIndexes( linesps_,idxthis, idxright );
 	    }
 	}
     }
@@ -628,7 +653,7 @@ void TileResolutionData::computeNormal( int nmidx,osg::Vec3& normal )
 
 void TileResolutionData::buildOsgGeometres()
 {
-    for ( int idx = Triangle; idx< WireFrame; idx++) // 4 type geometries
+    for ( int idx = Triangle; idx<= WireFrame; idx++) // 4 type geometries
     {
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 	osg::ref_ptr<osg::Geometry> geom = new osg::Geometry;
@@ -656,6 +681,7 @@ void TileResolutionData::buildOsgGeometres()
 void TileResolutionData::initVertices()
 {
     const int coordsize = nrverticesperside_*nrverticesperside_;
+    vertices_->setAllPositions( Coord3( 1e30, 1e30, 1e30 ), coordsize, 0 );
     osg::Vec3Array* normals = mGetOsgVec3Arr( normals_ );
     normals->resize( coordsize );
     std::fill( normals->begin(), normals->end(), osg::Vec3f( 0, 0, -1 ) );

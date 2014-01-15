@@ -58,6 +58,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    ZAxisTransform*		getZAxisTransform() { return zaxistransform_; }
 
     //Texture information
     void                        useChannel(bool);
@@ -107,7 +108,10 @@ public:
 
     void			useWireframe(bool);
     bool			usesWireframe() const;
-    
+
+    void			displaysTrackingLine(bool);
+    bool			displaysTrackingLine() const;
+
     char	 		nrResolutions() const;
     char 			currentResolution() const;
     void			setResolution(char,TaskRunner*);
@@ -121,7 +125,6 @@ public:
     int				displayGeometryType() const
 				{ return displaygeometrytype_ ; }
 				/*!< 0 is triangle--surface, 1 is line--grid */
-    void			updateTiles();
 
     void			forceRedraw(bool=true);
 
@@ -134,6 +137,7 @@ protected:
     friend class                HorizonTextureHandler;
     friend class		HorTilesCreatorAndUpdator;
     friend class		HorizonSectionTileGlue;
+    friend class		HorizonSectionTilePosSetup;
 
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
@@ -171,6 +175,7 @@ protected:
 
     Array2DImpl<HorizonSectionTile*> tiles_;
     bool			usewireframe_;
+    bool			displaytrackingline_;
 
     const mVisTrans*		transformation_;
 				
@@ -192,6 +197,7 @@ protected:
     TypeSet<int>		normalsidesize_;
 
     osg::Group*		    	osghorizon_;
+    ZAxisTransform*		zaxistransform_;
 
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		  updatedtileresolutions_;

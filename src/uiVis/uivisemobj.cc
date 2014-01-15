@@ -263,9 +263,12 @@ void uiVisEMObject::setUpConnections()
     showonlyatsectionsmnuitem_.text = "&Only at sections";
     showfullmnuitem_.text = "&In full";
     showbothmnuitem_.text = "&At sections and in full";
+    showsurfacegridmnuitem_.text = "&Surface Grid";
+
     showonlyatsectionsmnuitem_.checkable = true;
     showfullmnuitem_.checkable = true;
     showbothmnuitem_.checkable = true;
+    showsurfacegridmnuitem_ .checkable = true;
 
     MenuHandler* menu = visserv_->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
@@ -398,7 +401,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
 
     const bool atsect = emod->getOnlyAtSectionsDisplay();
-    bool infull, both = false;
+    bool infull, both, showgrid = false;
     if ( hor2ddisp )
 	infull = !emod->getOnlyAtSectionsDisplay();
     else
@@ -407,13 +410,22 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 			!hordisp->displaysIntersectionLines();
 	both = !emod->getOnlyAtSectionsDisplay() &&
 			hordisp->displaysIntersectionLines();
+	showgrid = !emod->getOnlyAtSectionsDisplay() &&
+			hordisp->displaysSurfaceGrid();
     }
+
+    if ( hordisp )
+    { mAddMenuItem( displaymnuitem, &showsurfacegridmnuitem_, true, showgrid); }
+    else
+    { mResetMenuItem( &showsurfacegridmnuitem_ ); }
 
     mAddMenuItem( displaymnuitem, &showonlyatsectionsmnuitem_, true,
 	    	  atsect );
     mAddMenuItem( displaymnuitem, &showfullmnuitem_, true, infull );
     if ( hordisp )
-    { mAddMenuItem( displaymnuitem, &showbothmnuitem_, true, both ); }
+    { 
+	mAddMenuItem( displaymnuitem, &showbothmnuitem_, true, both ); 
+    }
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
@@ -517,6 +529,15 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	setOnlyAtSectionsDisplay( false );
 	if ( hordisp ) hordisp->displayIntersectionLines( true );
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid == showsurfacegridmnuitem_.id )
+    {
+	if ( hordisp )
+	{
+	    bool showgrid = hordisp->displaysSurfaceGrid();
+	    hordisp->displaysSurfaceGrid( !showgrid );
+	}
 	menu->setIsHandled( true );
     }
     else if ( mnuid==changesectionnamemnuitem_.id )

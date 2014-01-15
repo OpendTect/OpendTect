@@ -104,6 +104,7 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 		initialtimes_++;
 		hrsection_->forceRedraw( true );
 	    }
+
 	}
 
 	traverse( node,nv );
@@ -167,6 +168,8 @@ HorizonSection::HorizonSection()
     , nodecallbackhandler_( 0 )
     , texturecallbackhandler_( 0 )
     , isredrawing_( false )
+    , zaxistransform_( 0 )
+    , displaytrackingline_( false )
 {
     setLockable();
     osghorizon_->ref();
@@ -435,6 +438,17 @@ void HorizonSection::useWireframe( bool yn )
 }
 
 
+bool HorizonSection::displaysTrackingLine() const
+{ return displaytrackingline_; }
+
+
+void HorizonSection::displaysTrackingLine( bool yn )
+{
+    displaytrackingline_ = yn;
+}
+
+
+
 void HorizonSection::setDisplayGeometryType( int dispgeometrytype )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
@@ -471,14 +485,17 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 
 	hortilescreatorandupdator_->createAllTiles( tr );
     else
+    {
 	hortilescreatorandupdator_->updateTiles( gpids, tr );
+    }
 }
-
 
 void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
 {
     if (!hordatahandler_) return;
     hordatahandler_->setZAxisTransform( zt );
+
+    zaxistransform_ = zt;
 
     if ( geometry_ )
     {
@@ -614,31 +631,6 @@ void HorizonSection::updatePrimitiveSets()
     hortilescreatorandupdator_->updateTilesPrimitiveSets();
 }
 
-
-void HorizonSection::updateTiles()
-{
-    if ( !updatedtiles_.size() )
-	return;
-
-    for ( int idx = 0; idx<updatedtiles_.size(); idx++ )
-    {
-	HorizonSectionTile* tileptrs = updatedtiles_[idx];
-	tileptrs->addTileTesselator( updatedtileresolutions_[idx] );
-	tileptrs->setDisplayGeometryType( Triangle );
-    }
-
-    for ( int idx = 0; idx<updatedtiles_.size(); idx++ )
-    {
-	HorizonSectionTile* tileptrs = updatedtiles_[idx];
-	tileptrs->glueneedsretesselation_ = true;
-	tileptrs->addTileGlueTesselator();
-    }
-
-    setUpdateVar( forceupdate_, true );
-    updatedtiles_.erase();
-    updatedtileresolutions_.setEmpty();
-
-}
 
 }; // namespace visBase
 

@@ -43,6 +43,7 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     , nrdefinedvertices_( 0 )
     , origin_( origin )
     , hrsection_( section )
+    , updatenewpoint_( false )
     , dispgeometrytype_( Triangle )
     , righttileglue_( new HorizonSectionTileGlue )
     , bottomtileglue_( new HorizonSectionTileGlue )
@@ -213,9 +214,9 @@ void HorizonSectionTile::updateBBox()
 {
     if ( !needsupdatebbox_ )
 	return;
-    bbox_.init();
     if ( tileresolutiondata_[0] )
     {
+	bbox_.init();
 	bbox_.expandBy( tileresolutiondata_[0]->updateBBox() );
     }
     needsupdatebbox_ = false;
@@ -337,7 +338,14 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	return;
 
     datalock_.lock();
-    tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
+    if ( updatenewpoint_ )
+    {
+	tileresolutiondata_[res]->tesselateResolution( false );
+	updatenewpoint_ =  false;
+    }
+    else 
+        tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
+
     datalock_.unLock();
 }
 
@@ -437,19 +445,20 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
     bool dohide( false );
     const int spacing = hrsection_.spacing_[res];
 
-    if ( row%spacing || col%spacing ) return;
-
     const int tilerow = row/spacing;
     const int tilecol = col/spacing;
 
     datalock_.lock();
-    tileresolutiondata_[res]->setSingleVertex( tilerow, tilecol, pos,dohide );
+
+    tileresolutiondata_[res]->setSingleVertex( tilerow, tilecol, pos, dohide );
     datalock_.unLock();
 
     if ( dohide )
 	setActualResolution( -1 );
 
+    needsupdatebbox_ = true;
     glueneedsretesselation_ = true;
+    updatenewpoint_ = true;
    
 }
 

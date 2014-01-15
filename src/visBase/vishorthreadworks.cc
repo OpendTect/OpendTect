@@ -123,17 +123,23 @@ int TileGlueTesselator::nextStep()
 
 
 HorizonSectionTilePosSetup::HorizonSectionTilePosSetup( 
-    ObjectSet<HorizonSectionTile> tiles, const Geometry::BinIDSurface& geo,
-    StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat,
-    int ssz, char lowresidx )
+    ObjectSet<HorizonSectionTile> tiles, HorizonSection* horsection,
+    StepInterval<int>rrg,StepInterval<int>crg )
     : hrtiles_( tiles )
-    , geo_( geo )  
     , rrg_( rrg )
-    , crg_( crg )			 	
-    , zaxistransform_( zat )
-    , nrcrdspertileside_( ssz )
-    , lowestresidx_( lowresidx )	
+    , crg_( crg )
+    , geo_( 0 )
+    , horsection_( horsection )
 {
+
+    if ( horsection_ )
+    {
+	zaxistransform_ = horsection_->getZAxisTransform();
+	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
+	lowestresidx_ = horsection_->lowestresidx_;
+	geo_ = new Geometry::BinIDSurface( *horsection_->geometry_ );
+    }
+    
     if ( zaxistransform_ ) zaxistransform_->ref();
     setName( BufferString( "Creating horizon surface..." ) );
 }
@@ -142,12 +148,18 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
+    if ( geo_ )
+	delete geo_;
+    
 }
 
 
 bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, 
 					 int threadid )
 {
+    if ( !geo_ )
+	return false;
+    
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const RowCol& origin = hrtiles_[idx]->origin_;
@@ -158,14 +170,14 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 	    const int row = origin.row() + rowidx*rrg_.step;
 	    const bool rowok = rrg_.includes(row, false);
 	    const StepInterval<int> colrg( 
-		mMAX(geo_.colRange(row).start, crg_.start),
-		mMIN(geo_.colRange(row).stop, crg_.stop), crg_.step );
+		mMAX(geo_->colRange(row).start, crg_.start),
+		mMIN(geo_->colRange(row).stop, crg_.stop), crg_.step );
 
 	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
 	    {
 		const int col = origin.col() + colidx*colrg.step;
 		Coord3 pos = rowok && colrg.includes(col, false)
-		    ? geo_.getKnot(RowCol(row,col),false) 
+		    ? geo_->getKnot(RowCol(row,col),false) 
 		    : Coord3::udf();
 		if ( zaxistransform_ ) 
 		    pos.z = zaxistransform_->transform( pos );		
@@ -182,4 +194,16 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 
     return true;
 }
+
+
+bool HorizonSectionTilePosSetup::doFinish( bool sucess )
+{
+    if ( sucess && horsection_ )
+    {
+	horsection_->forceupdate_ =  true;
+    }
+    
+    return sucess;
+}
+
 

@@ -123,10 +123,8 @@ public:
     int				nrResolutions() const;
     BufferString		getResolutionName(int) const;
     int				getResolution() const;
-    int				getDisplayGeometryType() const;
-				/*!< 0 is triangle--surface, 1 is line--grid */
-    void			setDisplayGeometryType(int);
-				/*!< 0 is triangle--surface, 1 is line--grid */
+    bool			displaysSurfaceGrid() const;
+    void			displaysSurfaceGrid(bool);
     void			setResolution(int,TaskRunner*);
     				/*!< 0 is automatic */
 
@@ -155,6 +153,9 @@ public:
 
     bool			usesWireframe() const;
     void			useWireframe(bool);
+
+    bool			displaysTrackingLine() const;
+    void			displaysTrackingLine(bool);
 
     void			setEdgeLineRadius(float);
     float			getEdgeLineRadius() const;
@@ -224,8 +225,6 @@ protected:
 				    visBase::VertexShape*, int&,
 				    visBase::DataObjectGroup*) const;
 
-    void			emMovementCB(CallBacker*);
-
 
     bool				allowshading_;
     mVisTrans*				translation_;
@@ -263,8 +262,8 @@ protected:
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
-    int					displaygeometrytype_;
-					/*!< 0:triangle--surface,1:line--grid */
+    bool				displaysurfacegrid_;
+    bool				displaytrackingline_;
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();
@@ -274,7 +273,7 @@ protected:
     static const char*			sKeyRowRange();
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();
-    static const char*			sKeyGeometryType();
+    static const char*			sKeySurfaceGrid();
 };
 
 

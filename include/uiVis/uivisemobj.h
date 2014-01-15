@@ -101,6 +101,7 @@ protected:
     MenuItem		showonlyatsectionsmnuitem_;
     MenuItem		showfullmnuitem_;
     MenuItem		showbothmnuitem_;
+    MenuItem		showsurfacegridmnuitem_;
     MenuItem		changesectionnamemnuitem_;
     bool		showedtexture_;
 

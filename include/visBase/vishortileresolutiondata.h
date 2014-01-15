@@ -55,8 +55,8 @@ public:
     ~TileResolutionData();
 
     void		setAllVertices(const TypeSet<Coord3>&);
-    void		setSingleVertex(int row, int col, 
-					const Coord3& pos, bool& dohide);
+    void		setSingleVertex(int row, int col,const Coord3& pos,
+					bool& dohide);
     void		setDisplayTransformation( const mVisTrans* t ); 
     void		setTexture(const unsigned int unit, osg::Array* arr,
 				    osg::StateSet* stateset);
@@ -130,6 +130,7 @@ private:
     void			buildPointGeometry(int idx);
     void			setInvalidNormal(int row,int col);
     bool			setVerticesFromHighestResolution();
+    void			hideFromDisplay();
 
 
 };

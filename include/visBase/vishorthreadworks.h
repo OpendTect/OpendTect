@@ -76,10 +76,8 @@ public:
 class HorizonSectionTilePosSetup: public ParallelTask
 {
 public:
-    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles,
-	const Geometry::BinIDSurface& geo,
-	StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat,
-	int ssz, char lowresidx);
+    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
+	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
 
     ~HorizonSectionTilePosSetup();
 
@@ -90,13 +88,15 @@ public:
 protected:
 
     bool doWork(od_int64, od_int64, int);
+    bool doFinish(bool);
 
     int					nrcrdspertileside_;
     char				lowestresidx_;
     ObjectSet<HorizonSectionTile>	hrtiles_;
-    const Geometry::BinIDSurface&	geo_;
+    const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
+    HorizonSection*			horsection_;
 };
 
 

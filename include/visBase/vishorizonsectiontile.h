@@ -139,6 +139,7 @@ protected:
     ObjectSet<TileResolutionData>tileresolutiondata_;
     osg::Switch*		osgswitchnode_;
     Threads::Mutex		datalock_;
+    bool			updatenewpoint_;
 
 };
 

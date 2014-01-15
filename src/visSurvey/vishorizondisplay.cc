@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vismpe.h"
 #include "vishorizonsection.h"
+#include "vishorizonsectiondef.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
@@ -56,7 +57,7 @@ const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
 const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
 const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
-const char* HorizonDisplay::sKeyGeometryType()  { return "Geometry Type"; }
+const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
 const char* HorizonDisplay::sKeyIntersectLineMaterialID() 
 { return "Intsectline material id"; }
 
@@ -75,7 +76,8 @@ HorizonDisplay::HorizonDisplay()
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
-    , displaygeometrytype_( 0 )
+    , displaysurfacegrid_( false )
+    , displaytrackingline_( false )
 {
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -104,7 +106,6 @@ HorizonDisplay::HorizonDisplay()
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
     setIntersectLineMaterial( linemat );
-    mAttachCB( *getMovementNotifier(), HorizonDisplay::emMovementCB );
 }
 
 
@@ -142,13 +143,6 @@ HorizonDisplay::~HorizonDisplay()
 
     deepErase( shifts_ );
 
-}
-
-
-void HorizonDisplay::emMovementCB( CallBacker* )
-{
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->updateTiles();
 }
 
 
@@ -911,6 +905,20 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 }
 
 
+bool HorizonDisplay::displaysTrackingLine() const 
+{ return displaytrackingline_; }
+
+
+void HorizonDisplay::displaysTrackingLine( bool yn )
+{
+    displaytrackingline_ = yn;
+
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->displaysTrackingLine( yn );
+
+}
+
+
 bool HorizonDisplay::usesWireframe() const { return useswireframe_; }
 
 
@@ -979,7 +987,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setResolution( resolution_-1, tr );
 
     surf->setMaterial( 0 );
-    surf->setDisplayGeometryType( displaygeometrytype_ );
 
     if ( translation_ )
 	translation_->addObject( surf );
@@ -991,6 +998,9 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     sections_ += surf;
     sids_ += sid;
     hasmoved.trigger();
+
+    displaysSurfaceGrid( displaysurfacegrid_ );
+
     return addEdgeLineDisplay( sid );
 
 }
@@ -1030,7 +1040,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 		   pointgroup->getObject( 0 ) );
 	if ( material )
 	    pointgroup->removeObject( 0 );
-	//pointgroup->inserObject( 0, intersectionlinematerial_ );
+	//pointgroup->insertObject( 0, intersectionlinematerial_ );
     }
 }
 
@@ -1133,9 +1143,10 @@ int HorizonDisplay::getResolution() const
 }
 
 
-int HorizonDisplay::getDisplayGeometryType() const
+bool HorizonDisplay::displaysSurfaceGrid() const
 {
-    return sections_.size() ? sections_[0]->displayGeometryType() : 0;
+    return ( sections_.size() && 
+	     sections_[0]->displayGeometryType() == WireFrame ) ? true : false;
 }
 
 void HorizonDisplay::setResolution( int res, TaskRunner* tr )
@@ -1146,9 +1157,10 @@ void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 }
 
 
-void HorizonDisplay::setDisplayGeometryType( int geometrytype )
+void HorizonDisplay::displaysSurfaceGrid( bool yn )
 {
-    displaygeometrytype_ = geometrytype;
+    displaysurfacegrid_ = yn;
+    int geometrytype = yn ? WireFrame : Triangle ;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setDisplayGeometryType( geometrytype );
 }
@@ -2005,7 +2017,16 @@ void HorizonDisplay::updateSectionSeeds(
 					markerset->getCoordinates();
 	    if ( markercoords->size() )
 	    {
-		const Coord3 markerpos = markercoords->getPos( idy );
+		Coord3 markerpos = markercoords->getPos( idy );
+		if ( transformation_ )
+		     mVisTrans::transform( transformation_,  markerpos );
+
+		if ( zaxistransform_ )
+		{
+		    markerset->turnMarkerOn( idy,false );
+		    continue;
+		}
+
 		for ( int idz=0; idz<planelist.size(); idz++ )
 		{
 		    const float dist =
@@ -2050,7 +2071,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyWireFrame(), usesWireframe() );
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
-    par.set( sKeyGeometryType(), getDisplayGeometryType() );
+    par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
     /* TODO: Implement something here
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
@@ -2112,9 +2133,9 @@ bool HorizonDisplay::usePar( const IOPar& par )
     par.get( sKeyShift(), shift.z );
     setTranslation( shift );
 
-    int displayGeometrytype =  0;
-    par.get( sKeyGeometryType(), displayGeometrytype );
-    setDisplayGeometryType( displayGeometrytype );
+    bool displaysurfacegrid =  false;
+    par.getYN( sKeySurfaceGrid(), displaysurfacegrid );
+    displaysSurfaceGrid( displaysurfacegrid );
 
     int intersectlinematid;
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )

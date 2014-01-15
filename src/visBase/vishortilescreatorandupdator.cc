@@ -34,80 +34,77 @@ HorTilesCreatorAndUpdator::HorTilesCreatorAndUpdator(HorizonSection* horsection)
 HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 {}
 
-#define mGetRowColIdx()\
-{\
-    rc.row() /= rrg.step; rc.col() /= crg.step;\
-    tilerowidx = rc.row()/tilesidesize;\
-    tilerow = rc.row()%tilesidesize;\
-    if ( tilerowidx==nrrowsz && !tilerow )\
-    {\
-	tilerowidx--;\
-	tilerow = tilesidesize;\
-    }\
-    tilecolidx = rc.col()/tilesidesize;\
-    tilecol = rc.col()%tilesidesize;\
-    if ( tilecolidx==nrcolsz && !tilecol )\
-    {\
-	tilecolidx--;\
-	tilecol = tilesidesize;\
-    }\
-}\
-
 
 void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 				      TaskRunner* tr )
 {
     if (!horsection_) return;
-
     mDefineRCRange( horsection_,-> );
 
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return;
     
     horsection_->tesselationlock_ = true;
-
     updateTileArray( rrg, crg );
-    
+
     const int nrrowsz = horsection_->tiles_.info().getSize(0);
     const int nrcolsz = horsection_->tiles_.info().getSize(1);
     
-
-    const char lowestresidx = horsection_->lowestresidx_;
-    const char desiredresolution = horsection_->desiredresolution_;
-    const int tileres = desiredresolution!=-1 ? desiredresolution : 0;
-
-    const Array2DImpl<HorizonSectionTile*> tiles = horsection_->tiles_;
+    ObjectSet<HorizonSectionTile> fullupdatetiles;
+    ObjectSet<HorizonSectionTile> oldupdatetiles;
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
-	int tilerow( 0 ), tilecol( 0 ), tilerowidx( 0 ), tilecolidx( 0 );
 	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
 	RowCol rc = absrc - horsection_->origin_; 
 	const int tilesidesize = horsection_->tilesidesize_;
 
-	mGetRowColIdx();
+	rc.row() /= rrg.step; rc.col() /= crg.step;
+	int tilerowidx = rc.row()/tilesidesize;
+	int tilerow = rc.row()%tilesidesize;
+	if ( tilerowidx==nrrowsz && !tilerow )
+	{
+	    tilerowidx--;
+	    tilerow = horsection_->nrcoordspertileside_;
+	}
+
+	int tilecolidx = rc.col()/tilesidesize;
+	int tilecol = rc.col()%tilesidesize;
+	if ( tilecolidx==nrcolsz && !tilecol )
+	{
+	    tilecolidx--;
+	    tilecol = horsection_->nrcoordspertileside_;
+	}
 
 	/*If we already set work area and the position is out of the area,
 	  we will skip the position. */
 	if ( tilerowidx>=nrrowsz || tilecolidx>=nrcolsz )
-	     continue;
+	    continue;
 
 	const Coord3 pos = horsection_->geometry_->getKnot(absrc,false);
-	HorizonSectionTile* tile = 
-	    horsection_->tiles_.get( tilerowidx, tilecolidx );
-
-	if ( !tile ) return;
-
-	for ( int res=0; res<=lowestresidx; res++ )
+	
+	bool addoldtile = false;
+	HorizonSectionTile* tile = horsection_->tiles_.get( 
+	    tilerowidx, tilecolidx );
+	if ( !tile ) 
+	{
+	    tile = createOneTile( tilerowidx, tilecolidx );
+	    fullupdatetiles += tile;
+	}
+	else if ( fullupdatetiles.indexOf(tile)==-1 )
+	{
+	    for ( int res=0; res<=horsection_->lowestresidx_; res++ )
+	    {
 		tile->setAllNormalsInvalid( res, false );
-
-	tile->setPos( tilerow, tilecol, pos, tileres );
-
-	 if ( horsection_->updatedtiles_.indexOf(tile)==-1 )
-	 {
-	    horsection_->updatedtiles_ += tile;		    
-	    horsection_->updatedtileresolutions_ += tileres;
-	 }
+	        tile->setPos( tilerow, tilecol, pos, res );
+	    }
+	    if ( horsection_->desiredresolution_!=-1 )
+	    {
+		addoldtile = true;
+		if ( oldupdatetiles.indexOf(tile)==-1 )
+		    oldupdatetiles += tile;		    
+	    }
+	}
 
 	for ( int rowidx=-1; rowidx<=1; rowidx++ ) //Update neighbors
 	{
@@ -120,22 +117,60 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 		if ( (!rowidx && !colidx) || nbcol<0 || nbcol>=nrcolsz )
 		    continue;
 
-		HorizonSectionTile* nbtile = tiles.get( nbrow, nbcol );
-		if ( !nbtile )
+		HorizonSectionTile* nbtile = horsection_->tiles_.get(
+		    nbrow, nbcol );
+		if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
 		    continue;
 
-		nbtile->setPos( tilerow-rowidx*tilesidesize,
-		    tilecol-colidx*tilesidesize, pos, tileres );
-
-		if ( horsection_->updatedtiles_.indexOf(nbtile) ==-1 )
+		for ( int res=0; res<=horsection_->lowestresidx_; res++ )
 		{
-		    horsection_->updatedtiles_ += nbtile;
-		    horsection_->updatedtileresolutions_ += tileres;
+		    nbtile->setPos( tilerow-rowidx*tilesidesize,
+			tilecol-colidx*tilesidesize, pos, res );
 		}
+
+		if ( !addoldtile || 
+		    rowidx+colidx>=0 || 
+		    horsection_->desiredresolution_==-1  || 
+		    oldupdatetiles.indexOf(nbtile)!=-1 )
+		    continue;
+	    
+		if ( (!tilecol && !rowidx && colidx==-1) || 
+			(!tilerow && rowidx==-1 && 
+			 ((!tilecol && colidx==-1) || !colidx)) )
+		    oldupdatetiles += nbtile;
 	    }
 	}
-
     }
+
+    horsection_->setUpdateVar( horsection_->forceupdate_,  false );
+    
+    HorizonSectionTilePosSetup task( fullupdatetiles, horsection_,rrg, crg );
+    TaskRunner::execute( tr, task );
+
+    for ( int idx = 0; idx< fullupdatetiles.size(); idx++ )
+    {
+	fullupdatetiles[idx]->addTileGlueTesselator();
+    }
+    
+
+    //Only for fixed resolutions, which won't be tesselated at render.
+    if ( oldupdatetiles.size() )
+    {
+	TypeSet<Threads::Work> work;
+	for ( int idx=0; idx<oldupdatetiles.size(); idx++ )
+	{
+	    TileTesselator* tt = new TileTesselator( 
+		oldupdatetiles[idx], horsection_->desiredresolution_ );
+	    work += Threads::Work( *tt, true );
+	}
+
+	Threads::WorkManager::twm().addWork( work,
+	       Threads::WorkManager::cDefaultQueueID() );
+    }
+   horsection_->tesselationlock_ = true;
+
+   horsection_->setUpdateVar( horsection_->forceupdate_,  true );
+
 }
 
 
@@ -307,9 +342,7 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
 
-    HorizonSectionTilePosSetup task( newtiles, *horsection_->geometry_, 
-	rrg, crg, horsection_->hordatahandler_->getZAxistransform(), 
-	horsection_->nrcoordspertileside_, horsection_->lowestresidx_ );
+    HorizonSectionTilePosSetup task( newtiles, horsection_,rrg, crg );
     TaskRunner::execute( tr, task );
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  true );
