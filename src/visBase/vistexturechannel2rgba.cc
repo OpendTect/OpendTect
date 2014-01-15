@@ -158,7 +158,9 @@ int ColTabTextureChannel2RGBA::maxNrChannels() const
 ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 {
     deepErase( coltabs_ );
-    deepErase( osgcolsequences_ );
+    for ( int idx=0; idx<osgcolsequences_.size(); idx++ )
+	osgcolsequences_[idx]->unref();
+    osgcolsequences_.erase();
     deepErase( osgcolseqarrays_ );
 }
 
@@ -186,7 +188,7 @@ void ColTabTextureChannel2RGBA::update()
 	    {
 		const osgGeo::ColorSequence* colseq = proc->getColorSequence();
 		const int colseqidx = osgcolsequences_.indexOf( colseq );
-		delete osgcolsequences_.removeSingle( colseqidx );
+		osgcolsequences_.removeSingle(colseqidx)->unref();
 		delete osgcolseqarrays_.removeSingle( colseqidx );
 		laytex_->removeProcess( proc );
 	    }
@@ -212,7 +214,10 @@ void ColTabTextureChannel2RGBA::update()
 		    TypeSet<unsigned char>* ts = new TypeSet<unsigned char>();
 		    getColors( channel, *ts );
 		    osgcolseqarrays_ += ts;
-		    osgcolsequences_ += new osgGeo::ColorSequence( ts->arr() );
+		    osgGeo::ColorSequence* colseq =
+					new osgGeo::ColorSequence( ts->arr() );
+		    colseq->ref();
+		    osgcolsequences_ += colseq;
 
 		    proc->setColorSequence( osgcolsequences_[procidx] );
 
