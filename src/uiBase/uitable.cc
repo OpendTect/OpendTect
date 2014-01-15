@@ -609,9 +609,9 @@ bool uiTable::isTableReadOnly() const
 { return istablereadonly_; }
 
 
-static Qt::ItemFlags flags = Qt::ItemIsSelectable |
+static Qt::ItemFlags std_flags = Qt::ItemIsSelectable |
 			     Qt::ItemIsEditable | Qt::ItemIsEnabled;
-static Qt::ItemFlags flags_ro = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+static Qt::ItemFlags std_flags_ro = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
 void uiTable::setColumnReadOnly( int col, bool yn )
 {
@@ -620,7 +620,7 @@ void uiTable::setColumnReadOnly( int col, bool yn )
     {
 	QTableWidgetItem* itm = body_->getItem( RowCol(row,col),
 							  true );
-	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+	if ( itm ) itm->setFlags( yn ? std_flags_ro : std_flags );
     }
 }
 
@@ -629,7 +629,7 @@ void uiTable::setCellReadOnly( const RowCol& rc, bool yn )
 {
     mBlockCmdRec;
     QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
-    if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+    if ( itm ) itm->setFlags( yn ? std_flags_ro : std_flags );
 }
 
 
@@ -647,7 +647,7 @@ void uiTable::setRowReadOnly( int row, bool yn )
     {
 	QTableWidgetItem* itm = body_->getItem( RowCol(row,col),
 							  true );
-	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+	if ( itm ) itm->setFlags( yn ? std_flags_ro : std_flags );
     }
 }
 
