@@ -534,13 +534,6 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
     setFldVals( 0 );
-    uiSeparator* sep = new uiSeparator( this );
-    sep->attach( ensureBelow, fileinputfld_ );
-    uiLabel* warninglbl =
-	new uiLabel( this, "Do not place this dialog over the window \n"
-			   "for which snapshot has to be taken" );
-    warninglbl->attach( alignedBelow, fileinputfld_ );
-    warninglbl->attach( ensureBelow, sep );
     updateFilter();
 }
 

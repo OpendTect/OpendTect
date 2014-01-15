@@ -1235,22 +1235,60 @@ void uiMainWin::copyToClipBoard( CallBacker* )
 }
 
 
+
+class ImageSaver : public CallBacker
+{
+public:
+
+ImageSaver()
+{
+    timer_.tick.notify( mCB(this,ImageSaver,shootImageCB) );
+}
+
+void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
+{
+    qwinid_ = qwid;
+    fname_ = fnm;
+    width_ = w;
+    height_ = h;
+    res_ = r;
+    timer_.start( 500, true );
+}
+
+
+protected:
+void shootImageCB( CallBacker* )
+{
+    const QPixmap snapshot = QPixmap::grabWindow( qwinid_ );
+
+    QImage image = snapshot.toImage();
+    image = image.scaledToWidth( width_ );
+    image = image.scaledToHeight( height_ );
+    image.setDotsPerMeterX( (int)(res_/0.0254) );
+    image.setDotsPerMeterY( (int)(res_/0.0254) );
+    image.save( fname_ );
+    timer_.stop();
+}
+
+    int		width_;
+    int		height_;
+    int		res_;
+    QString	fname_;
+    WId		qwinid_;
+    Timer	timer_;
+};
+
 void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 {
-    QString fname( fnm );
-
     QWidget* qwin = qWidget();
     if ( !qwin )
 	qwin = body_;
-    const QPixmap snapshot = QPixmap::grabWindow( qwin->winId() );
-
-    QImage image = snapshot.toImage();
-    image = image.scaledToWidth( width );
-    image = image.scaledToHeight( height );
-    image.setDotsPerMeterX( (int)(res/0.0254) );
-    image.setDotsPerMeterY( (int)(res/0.0254) );
-    image.save( fname );
+    WId wid = qwin->winId();
+    mDefineStaticLocalObject( ImageSaver, imagesaver, );
+    imagesaver.setImageProp( wid, fnm, width, height, res );
 }
+
+
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
 
