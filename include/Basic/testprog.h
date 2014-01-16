@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "debug.h"
 #include "od_ostream.h"
 
+# ifdef __win__
+#  include "winmain.h"
+# endif 
+
 
 static bool quiet = true;
 
