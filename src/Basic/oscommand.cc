@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 BufferString OSCommand::defremexec_( "ssh" );
+static const char* sODProgressViewerProgName = "od_ProgressViewer";
 
 //#define __USE_QPROCESS__ 1
 
@@ -432,6 +433,9 @@ void CommandLauncher::makeFullCommand()
     fullcommand_.add( cmdfp.isAbsolute() ? command_ 
 				: FilePath(GetBinPlfDir(),command_).fullPath() )
 				  .add( " " ).add( parameters_ );
+
+    odprogressviewer_ =
+	FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath();
 }
 
 
@@ -445,25 +449,38 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
     {
 	if ( pars.inprogresswindow_ )
 	{
-	    // TODO: Handle new progress window mechanism;
+	    FilePath tempfp( FilePath::getTempName("txt") );
+	    fullcommand_.add( ">" ).add( tempfp.fullPath() );
+	    BufferString finalcmd( __iswin__ ? "cmd /c " : "", fullcommand_ );
+	    ret = doExecute( finalcmd, false, pars.waitforfinish_ );
+	    if ( !ret )
+		return false;
+	    
+	    odprogressviewer_.add( " --logfile " ).add( tempfp.fullPath() )
+			    .add( " --pid " ).add( getProcessID() );
+	    if ( !doExecute(odprogressviewer_,true,false) )
+	    { errmsg_ = "Failed to launch progress"; return false; }
 	}
 	else if ( pars.logfname_.isEmpty() )
 	{
-	    ret = doExecute( true, false );
+	    ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
 	}
-	else //hidden
-	    ret = doExecute( false, false );
+	else
+	{
+	    fullcommand_.add( ">" ).add( pars.logfname_ );
+	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
+	}
     }
     else
     {
 	if ( pars.inprogresswindow_ )
 	{
-	   ret = doExecute( true, false );
+	   ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
 	}
 	else if ( pars.logfname_.isEmpty() )
 	{
 	    makeConsoleCommand();
-	    ret = doExecute( true, false );
+	    ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
 	}
 	else
 	{
@@ -489,25 +506,23 @@ void CommandLauncher::makeConsoleCommand()
 }
 
 
-bool CommandLauncher::doExecute( bool inwindow, bool waitforfinish )
+bool CommandLauncher::doExecute( const char* comm, bool inwindow,
+				 bool waitforfinish )
 {
     if ( fullcommand_.isEmpty() )
 	return false;
 
 #ifdef __USE_QPROCESS__
-    
     QProcess qprocess;
     qprocess.startDetached( QString(fullcommand_) );
     if ( !qprocess.waitForFinished() )
         return false;
     
     return true;
-
 #else
 
 #ifndef __win__
 
-    const char* comm = fullcommand_.buf();
     if ( *comm == '@' )
 	comm++;
     if ( !*comm )
@@ -537,7 +552,7 @@ bool CommandLauncher::doExecute( bool inwindow, bool waitforfinish )
 
     //Start the child process.
     int res = CreateProcess( NULL,	// No module name (use command line).
-			     fullcommand_.getCStr(),
+			     const_cast<char*>( comm ),
 			     NULL,	// Process handle not inheritable.
 			     NULL,	// Thread handle not inheritable.
 			     FALSE,	// Set handle inheritance to FALSE.

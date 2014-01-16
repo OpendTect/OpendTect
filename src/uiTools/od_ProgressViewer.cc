@@ -21,10 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
+#include "commandlineparser.h"
 #include "filepath.h"
 #include "progressmeter.h"
 #include "varlenarray.h"
 #include "oddirs.h"
+#include "od_istream.h"
 #include "sighndl.h"
 #include "timer.h"
 
@@ -54,7 +56,7 @@ protected:
     uiTextEdit*	txtfld;
     int		quitid_;
     Timer*	timer_;
-    int		ppid_;
+    int		pid_;
     int		delay_;
     bool	newlineseen_;
     char	fullline_[mBufLen];
@@ -72,7 +74,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	: uiMainWin(p,"Progress",1)
 	, timer_(0)
 	, strm_(s)
-	, ppid_(i)
+	, pid_(i)
 	, delay_(0)
 	, newlineseen_(false)
 {
@@ -132,7 +134,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	appendToText();
 	statusBar()->message( fullline_ );
 	tb_->setToolTip( quitid_, "Close" );
-	ppid_ = 0;
+	pid_ = 0;
 	return;
     }
 
@@ -199,8 +201,8 @@ bool uiProgressViewer::getChunk( char* buf, int maxnr )
 
 void uiProgressViewer::quitFn( CallBacker* )
 {
-    if ( ppid_ )
-	SignalHandling::stopProcess( ppid_ );
+    if ( pid_ )
+	SignalHandling::stopProcess( pid_ );
     uiMain::theMain().exit(0);
 }
 
@@ -229,12 +231,18 @@ void uiProgressViewer::saveFn( CallBacker* )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-
+    CommandLineParser cl( argc, argv );
+    int pid = 0;
+    cl.getVal( "pid", pid );
+    if ( pid == 0 )
+	pid = argc > 1 ? toInt(argv[1]) : 0;
+    BufferString logfile;
+    cl.getVal( "logfile", logfile );
+    od_istream istrm( logfile.isEmpty() ? std::cin : od_istream(logfile)  );
     uiMain app( argc, argv );
-    const int ppid = argc > 1 ? toInt(argv[1]) : 0;
-    uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );
-
+    uiProgressViewer* pv = new uiProgressViewer( 0, istrm.stdStream(), pid );
     app.setTopLevel( pv );
     pv->show();
+   
     return ExitProgram( app.exec() );
 }

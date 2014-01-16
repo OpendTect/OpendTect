@@ -24,7 +24,8 @@ mExpClass(Basic) OSCommandExecPars
 public:
 			OSCommandExecPars()
 			    : inprogresswindow_(true)
-			    , prioritylevel_(-1)		{}
+			    , prioritylevel_(-1)
+			    , waitforfinish_(false)		{}
 
     mDefSetupClssMemb(OSCommandExecPars,bool,inprogresswindow);
 			    //!< if not, to logfile (if any)
@@ -32,6 +33,8 @@ public:
 			    //!< only when !inprogresswindow_
     mDefSetupClssMemb(OSCommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
+    mDefSetupClssMemb(OSCommandExecPars,bool,waitforfinish);
+			    //!< wait till the child program finishes
 };
 
 
@@ -96,12 +99,13 @@ public:
     bool		execute(const OSCommandExecPars& pars
 	    			=OSCommandExecPars(),bool isODprogram=true);
 
-    int			getProcessID() const;
+    int			getProcessID() const { return processid_; }
     const char*		errorMsg() const { return errmsg_; }
 
 protected:
 
-    bool		doExecute(bool inwindow, bool waitforfinish);
+    bool		doExecute(const char* comm, 
+				    bool inwindow, bool waitforfinish);
 
     void		makeFullCommand();
     void		makeConsoleCommand();
@@ -109,6 +113,7 @@ protected:
     BufferString	command_;
     BufferString	parameters_;
     BufferString	fullcommand_;
+    BufferString	odprogressviewer_;
     int			processid_;
     BufferString	errmsg_;
 };
