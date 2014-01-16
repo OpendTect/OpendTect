@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "pixmap.h"
 #include "staticstring.h"
+#include "uistring.h"
 
 #include <qlabel.h>
 
@@ -23,47 +24,48 @@ class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
-                        uiLabelBody( uiLabel& hndle, uiParent* parnt,
-				     const char* txt )
-			    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,txt)
-			{}
+		uiLabelBody( uiLabel& hndle, uiParent* parnt,
+			     const uiString& txt )
+		    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,
+						     txt.getOriginalString())
+		{}
 
     virtual int	nrTxtLines() const
-			{
-			    int nrl = 1;
-			    BufferString str = text();
-			    const char* txt = str.buf();
-			    while ( txt && *txt )
-				{ if ( *txt == '\n' ) nrl++; txt++; }
+		{
+		    int nrl = 1;
+		    BufferString str = text();
+		    const char* txt = str.buf();
+		    while ( txt && *txt )
+			{ if ( *txt == '\n' ) nrl++; txt++; }
 
-			    return nrl;
-			}
+		    return nrl;
+		}
 
 };
 
 
-uiLabel::uiLabel( uiParent* p, const char* txt )
-    : uiObject(p,txt,mkbody(p,txt))
+uiLabel::uiLabel( uiParent* p, const uiString& txt )
+    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
 {
     init( txt, 0 );
 }
 
 
-uiLabel::uiLabel( uiParent* p, const char* txt, uiGroup* grp )
-    : uiObject(p,txt,mkbody(p,txt))
+uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
+    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
 {
     init( txt, grp ? grp->attachObj() : 0 );
 }
 
 
-uiLabel::uiLabel( uiParent* p, const char* txt, uiObject* buddy )
-    : uiObject(p,txt,mkbody(p,txt))
+uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
+    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
 {
     init( txt, buddy );
 }
 
 
-void uiLabel::init( const char* txt, uiObject* buddy )
+void uiLabel::init( const uiString& txt, uiObject* buddy )
 {
     setText( txt );
     setTextSelectable( true );
@@ -73,21 +75,22 @@ void uiLabel::init( const char* txt, uiObject* buddy )
 	body_->setBuddy( buddy->body()->qwidget() );
 	buddy->attach( rightOf, this );
     }
+
     setStretch( 0, 0 );
 }
 
 
-uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
+uiLabelBody& uiLabel::mkbody( uiParent* p, const uiString& txt )
 {
     body_= new uiLabelBody( *this, p, txt );
     return *body_;
 }
 
 
-void uiLabel::setText( const char* txt )
+void uiLabel::setText( const uiString& txt )
 {
-    body_->setText( QString(txt) );
-    setName( txt );
+    body_->setText( txt.getQtString() );
+    setName( txt.getOriginalString() );
 }
 
 

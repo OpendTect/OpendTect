@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 #include "draw.h"
+#include "uistring.h"
 
 class uiGroup;
 class uiLabelBody;
@@ -24,9 +25,9 @@ mExpClass(uiBase) uiLabel : public uiObject
 {
 public:
 
-                        uiLabel(uiParent*,const char*);
-                        uiLabel(uiParent*,const char*,uiObject*);
-                        uiLabel(uiParent*,const char*,uiGroup*);
+			uiLabel(uiParent*,const uiString&);
+			uiLabel(uiParent*,const uiString&,uiObject*);
+			uiLabel(uiParent*,const uiString&,uiGroup*);
 
 /*! \brief set text on label
 
@@ -35,7 +36,7 @@ public:
     Therefore, reserve enough space for it with setPrefWidthInChar.
 
 */
-    virtual void        setText(const char*);
+    virtual void	setText(const uiString&);
     const char*         text() const;
     void		setTextSelectable(bool yn=true);
     void		setPixmap(const ioPixmap&);
@@ -49,10 +50,10 @@ public:
 
 private:
 
-    void		init(const char* txt,uiObject* buddy);
+    void		init(const uiString& txt,uiObject* buddy);
 
     uiLabelBody*	body_;
-    uiLabelBody&	mkbody(uiParent*,const char*);
+    uiLabelBody&	mkbody(uiParent*,const uiString&);
 
 };
 
