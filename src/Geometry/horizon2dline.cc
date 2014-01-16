@@ -568,16 +568,21 @@ bool Horizon2DLine::isDefined( GeomPosID pid ) const
 
 Coord3 Horizon2DLine::getPosition( GeomPosID pid ) const
 {
-    const RowCol rc = RowCol::fromInt64( pid );
-    const int rowidx = rowIndex( rc.row() );
-    return getKnot( RowCol(rowidx,rc.col()) );
+    //const RowCol rc = RowCol::fromInt64( pid );
+    //const int rowidx = rowIndex( rc.row() );
+    //return getKnot( RowCol(rowidx,rc.col()) );
+
+     return getKnot( RowCol::fromInt64( pid ) );
 }
+
 
 bool Horizon2DLine::setPosition( GeomPosID pid, const Coord3& pos )
 {
-    const RowCol rc = RowCol::fromInt64( pid );
-    const int rowidx = rowIndex( rc.row() );
-    return setKnot( RowCol(rowidx,rc.col()), pos );
+    //const RowCol rc = RowCol::fromInt64( pid );
+    //const int rowidx = rowIndex( rc.row() );
+    //return setKnot( RowCol(rowidx,rc.col()), pos );
+
+    return setKnot( RowCol::fromInt64( pid ), pos );
 }
 
 
