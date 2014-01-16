@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
+#include "separstr.h"
+
 class uiCheckBox;
 
 mExpClass(uiTools) uiPluginSel : public uiDialog
@@ -31,6 +33,13 @@ protected:
     ObjectSet<uiCheckBox>	cbs_;
     bool			rejectOK(CallBacker*);
 
+    void			checkCB(CallBacker*);
+    int				getPluginIndex(const char*,
+						ObjectSet<uiCheckBox>&);
+    void			setChecked(const char*, bool);
+    const char*			getLibName(const char*,
+					    const TypeSet<SeparString>&) const;
+    void			makeList(BufferStringSet&);
 };
 
 

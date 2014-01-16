@@ -42,12 +42,13 @@ static const char* sKey2dErrGrid = "MPSI 2D Error Grid ";
 static const char* sKey3dModelBuilder = "MPSI 3D Model Builder";
 static const char* sKeyMPSIUtilities = "MPSI Utilities";
 static const char* sKeyMPSINettoGross = "MPSI Net to Gross";
+static const char* sKeyVolAn = "MPSI Volumetrics & Connectivity";
+
 
 static const char* sKeySCI = "Seismic Coloured Inversion";
 static const char* sKeySFE = "Seismic Feature Enhancement";
 static const char* sKeySNP = "Seismic Net Pay";
 static const char* sKeySSB = "Seismic Spectral Blueing";
-static const char* sKeyVolAn = "MPSI Volumetrics & Connectivity";
 static const char* sKeyCCB = "CCB [dGB]";
 static const char* sKeySSIS = "SSIS [dGB]";
 static const char* sKeyHC = "Horizon Cube [dGB]";
@@ -68,7 +69,8 @@ static bool shouldisplayinUI( const char* picreatorname, const char* dispnm )
 			       displaynm == sKeyuidGBCommon ||
 			       displaynm == sKeydGBMVA      ||
 			       displaynm == sKeydGBPreStack ||
-			       displaynm == sKeyHCSl;
+			       displaynm == sKeyHCSl	    ||
+			       displaynm == sKeyVolAn;
 
     const bool iscommercial = creatorname == sKeydGBName   || 
 			      creatorname == sKeyARKCLSLTD ||
@@ -78,8 +80,8 @@ static bool shouldisplayinUI( const char* picreatorname, const char* dispnm )
 			      creatorname == sKeySitfal;
 
     const bool shoulddisplay = ( displaynm == sKeyStochInv ||
-				 displaynm == sKeyDetInv   ||
-				 displaynm == sKeyVolAn    || !rejectdisplay );
+				 displaynm == sKeyDetInv   || !rejectdisplay );
+				 
 
     return shoulddisplay && iscommercial;
 }
@@ -102,12 +104,10 @@ const char* getCommercialName( const char* piname )
 	pluginname =
 	mMkUIName( "Computer Log Analysis Software - CLAS", "SITFAL" );
     if ( pluginname == sKeyStochInv )
-	pluginname = mMkUIName( "Stochastic Inversion", "Earthworks & ARK CLS");
+	pluginname = mMkUIName( "Stochastic Inversion", "Earthworks && ARK CLS");
     if ( pluginname == sKeyDetInv )
 	pluginname =
-	mMkUIName( "Deterministic Inversion", "Earthworks & ARK CLS" );
-    if ( pluginname == sKeyVolAn )
-	pluginname = mMkUIName( "Volumetric Analysis", "Earthworks & ARK CLS" );
+	mMkUIName( "Deterministic Inversion", "Earthworks && ARK CLS" );
     if ( pluginname == sKeySCI || pluginname == sKeySFE ||
 	 pluginname == sKeySNP || pluginname == sKeySSB )	
 	pluginname = mMkUIName( pluginname, "ARK CLS" );
@@ -119,15 +119,15 @@ const char* getCommercialName( const char* piname )
 	pluginname =
 	mMkUIName("Sequence Stratigraphic Interpretation System - SSIS","dGB");
     if ( pluginname == sKeyHC )
-	pluginname = mMkUIName( "HorizonCube - HC", "dGB" );
+	pluginname = mMkUIName( "HorizonCube", "dGB" );
     if ( pluginname == sKeyVMB )
 	pluginname = mMkUIName( "Velocity Model Building - VMB", "dGB" );
     if ( pluginname == sKeyDS )
-	pluginname = mMkUIName( "Dip Steering - DS", "dGB" );
+	pluginname = mMkUIName( "Dip Steering", "dGB" );
     if ( pluginname == sKeyNN )
-	pluginname = mMkUIName( "Neural Networks - NN", "dGB" );
+	pluginname = mMkUIName( "Neural Networks", "dGB" );
     if ( pluginname == sKeySynthRock )
-	pluginname = mMkUIName( "SynthRock - SR", "dGB" );
+	pluginname = mMkUIName( "SynthRock", "dGB" );
     if ( pluginname == sKeyWCP )
 	pluginname = mMkUIName( "Well Correlation Panel - WCP", "dGB" );
 
@@ -171,41 +171,52 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	}
     }
 
-    ArrPtrMan<int> sortindices = piusrnms.getSortIndexes();
-
     const int nrplugins = piusrnms.size();
-    const int nrcols = 2;
-    int nrows = nrplugins / nrcols;
-    if ( nrplugins % nrcols )
-	nrows++;
-
     uiLabel* lbl = new uiLabel( this, "Please select the plugins to load");
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
     grp->attach( centeredBelow, lbl );
-
+    CallBack cllbk( mCB(this,uiPluginSel,checkCB) );
+    TypeSet<SeparString> stringset;
+    pluginnms_.erase();
+    BufferStringSet list;
+    makeList( list );
+    ObjectSet<uiCheckBox> cbs;
     for ( int idx=0; idx<nrplugins; idx++ )
     {
-	const int realidx = sortindices[idx];
-	const int colnr = idx / nrows;
-	const int rownr = idx - colnr * nrows;
-
-	BufferString uinm = getCommercialName(piusrnms.get( realidx ));
-	uiCheckBox* cb = new uiCheckBox( grp, uinm );
-
-	PluginManager::Data& pdata = *pimdata[pluginidx[realidx]];
-	pluginnms_.add( pdata.name_ );
-	BufferString dispnm = piusrnms.get( realidx );
+	BufferString uinm = getCommercialName(piusrnms.get( idx ));
+	PluginManager::Data& pdata = *pimdata[pluginidx[idx]];
+	SeparString ss;
+	ss.add( uinm ).add( pdata.name_ );
+	stringset += ss;
+	uiCheckBox* cb = new uiCheckBox( grp, uinm, cllbk );
+	BufferString dispnm = piusrnms.get( idx );
 	cb->setChecked( dontloadlist.indexOf( dispnm )==-1 );
-	cbs_ += cb;
-	if ( colnr != nrcols - 1 )
-	    cb->setPrefWidthInChar( maxlen+5.f );
-	if ( idx == 0 ) continue;
+	cb->setPrefWidthInChar( maxlen+5.f );
+	cbs += cb;
+    }
 
-	if ( rownr == 0 )
-	    cb->attach( rightOf, cbs_[(colnr-1)*nrows] );
+    for ( int idx=0; idx<list.size(); idx++ )
+    {
+	const BufferString& nm = list.get(idx);
+	const int lidx = getPluginIndex( nm, cbs );
+	if ( lidx < 0 )
+	    continue;
+	cbs_ += cbs[lidx];
+    }
+
+    const char* name = getLibName(cbs_[0]->text(),stringset);
+    if ( name )
+	pluginnms_.add( name ); 
+    for ( int idx=1; idx<cbs_.size(); idx++ )
+    {
+	if ( idx < nrplugins/2 )
+	    cbs_[idx]->attach( alignedBelow, cbs_[ idx-1] );
 	else
-	    cb->attach( alignedBelow, cbs_[idx-1] );
+	    cbs_[idx]->attach( rightOf, cbs_[(idx-nrplugins/2)] );
+	const char* name = getLibName(cbs_[idx]->text(),stringset);
+	if ( name )
+	    pluginnms_.add( name ); 
     }
 }
 
@@ -224,7 +235,8 @@ bool uiPluginSel::rejectOK( CallBacker* )
 		    .add( sKeyMPSIUtilities ).add( sKeyMPSINettoGross );
     
     if ( dontloadlist.indexOf(sKeyStochInv) >= 0 )
-	dontloadlist.add( sKeyMPSIUtilities ).add( sKeyMPSINettoGross );
+	dontloadlist.add( sKeyMPSIUtilities ).add( sKeyMPSINettoGross )
+		    .add( sKeyVolAn );
     
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
     Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
@@ -233,3 +245,118 @@ bool uiPluginSel::rejectOK( CallBacker* )
 
     return true;
 }
+
+
+int uiPluginSel::getPluginIndex( const char* pinm,
+				 ObjectSet<uiCheckBox>& cbs )
+{
+    const FixedString uinm = pinm;
+    for( int idx=0; idx<cbs.size(); idx++ )
+    {
+	if ( uinm == cbs[idx]->text() )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+void uiPluginSel::setChecked( const char* pinm, bool yn )
+{
+    const int idx = getPluginIndex( pinm, cbs_ );
+    if ( idx >= 0 )
+	cbs_[idx]->setChecked( yn );
+}
+
+
+void uiPluginSel::checkCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiCheckBox*,checkbox,cb);
+    if ( !checkbox )
+	return;
+
+    const char* ds = "Dip Steering (dGB)";
+    const char* hc = "HorizonCube (dGB)";
+    const char* ssis = "Sequence Stratigraphic Interpretation System"
+		       " - SSIS (dGB)";
+    const char* wcp = "Well Correlation Panel - WCP (dGB)";
+    
+    const char* si = "Stochastic Inversion (Earthworks && ARK CLS)" ;
+    const char* di = "Deterministic Inversion (Earthworks && ARK CLS)";
+
+    const FixedString dispnm = checkbox->text();
+    if ( dispnm == si && checkbox->isChecked() )
+	setChecked( di, true );
+    else if ( dispnm == di )
+    {
+	if( !checkbox->isChecked() )
+	    setChecked( si, false );
+    }
+    else if ( dispnm == ds ) 
+    {
+	if ( !checkbox->isChecked() )
+	{
+	    setChecked( hc, false );
+	    setChecked( ssis, false );
+	}
+    }
+    else if ( dispnm == hc )
+    {
+	if ( checkbox->isChecked() )
+	    setChecked( ds, true  );
+	else
+	    setChecked( ssis, false );
+    }
+    else if ( dispnm == ssis )
+    {
+	if ( checkbox->isChecked() )
+	{
+	    setChecked( ds, true );
+	    setChecked( hc, true );
+	}
+    }
+}
+
+
+const char* uiPluginSel::getLibName( const char* usrnm, 
+				  const TypeSet<SeparString>& stringset ) const
+{
+    for ( int idx=0; idx<stringset.size(); idx++ )
+    {
+	const SeparString& ss = stringset[idx];
+	const FixedString fs = ss[0];
+	if ( fs == usrnm )
+	    return ss[1];
+    }
+
+    return 0;
+}
+
+
+void uiPluginSel::makeList( BufferStringSet& list )
+{
+
+#define mMkName( nm, vennm ) \
+    list.add( BufferString( nm ).add(" (").add(vennm).add(")").buf() );
+        
+    mMkName( "Dip Steering", "dGB" );
+    mMkName( "HorizonCube", "dGB" );
+    mMkName( "Sequence Stratigraphic Interpretation System - SSIS","dGB");
+    mMkName( "Neural Networks", "dGB" );
+    mMkName( "Well Correlation Panel - WCP", "dGB" );
+    mMkName( "Common Contour Binning - CCB", "dGB" );
+    mMkName( "Velocity Model Building - VMB", "dGB" );
+    mMkName( "SynthRock", "dGB" );
+    mMkName( sKeySCI, "ARK CLS" );
+    mMkName( sKeySSB, "ARK CLS" );
+    mMkName( sKeySFE, "ARK CLS" );
+    mMkName( sKeySNP, "ARK CLS" );
+    mMkName( "Workstation Access", "ARK CLS" );
+    mMkName( "PDF3D", "ARK CLS" );
+    mMkName( "Deterministic Inversion", "Earthworks && ARK CLS" );
+    mMkName( "Stochastic Inversion", "Earthworks && ARK CLS");
+    mMkName( "Computer Log Analysis Software - CLAS", "SITFAL" );
+    mMkName( "XField2D", "ARKeX" );
+    mMkName( "Petrel Connector", "ARK CLS" );
+}
+
