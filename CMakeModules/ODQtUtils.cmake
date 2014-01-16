@@ -42,6 +42,10 @@ macro(OD_SETUP_QT)
 	list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
 	list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
     else() # Use Qt4
+	if ( WIN32 )
+	    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+	endif( WIN32 )
+
 	set( ENV{QTDIR} ${QTDIR} )
 	set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 	find_package(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
