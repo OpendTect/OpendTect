@@ -1275,8 +1275,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( !surface_->sectionGeometry(sectionid) )
 		createSection( sectionid );
 
-	    if ( l2dkeys_.validIdx(rowindex_) )
-		rc.row() = l2dkeys_[rowindex_].lineID();
+	    //  if ( l2dkeys_.validIdx(rowindex_) )
+	    //rc.row() = l2dkeys_[rowindex_].lineID();
 	    surface_->setPos( sectionid, rc.toInt64(), pos, false );
 	}
 
