@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpol.h"
 #include "arrayndimpl.h"
 #include "ptrman.h"
-#include "simpnumer.h"
 
 
 DefineEnumNames(Wavelet1DAttrib, WaveletLen,0,"WaveletLen")
@@ -68,7 +67,7 @@ int Wavelet1DAttrib::Task::nextStep()
     const int scalelen =  calculator.scalelen;
 
     int len = nrtimes + scalelen;
-    while ( !isPower( len, 2 ) ) len++;
+    while ( !exactPower(len,2) ) len++;
 
     Array1DImpl<float> signal( len );
     int off = (len-nrtimes)/2;
@@ -86,7 +85,7 @@ int Wavelet1DAttrib::Task::nextStep()
     transform.init();
     transform.transform( signal, transformed );
 
-    const int nrscales = isPower( len, 2 ) + 1;
+    const int nrscales = exactPower( len, 2 ) + 1;
     ArrPtrMan<float> spectrum =  new float[nrscales];
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)
     spectrum[1] = fabs(transformed.get(1)); // scale 1

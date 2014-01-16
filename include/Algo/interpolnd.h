@@ -45,7 +45,7 @@ Input:
     od_int64 sz = IntPower( 2, N );
     for ( od_int64 ipt=0; ipt<sz; ipt++ )
     {
-    	TypeSet<int> idxs( N, 0 );
+	TypeSet<int> idxs( N, 0 );
 	od_int64 bits = ipt;
 	for ( int idim=0; idim<nrdims; idim++ )
 	{
@@ -86,7 +86,7 @@ inline T linearRegND( int N, const T* v, const T* pos )
     else
     {
 	const int lowerN = N-1;
-	const od_int64 nlowerpts = Math::IntPowerOf( ((od_int64)2), lowerN );
+	const od_int64 nlowerpts = intpow( ((od_int64)2), lowerN );
 	float* lowerv = new float [nlowerpts];
 	const float lastpos = pos[lowerN];
 	for ( od_int64 idx=0; idx<nlowerpts; idx++ )

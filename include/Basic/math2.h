@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 namespace Math
 {
-    
+
 /*! Takes curflags, sets/clears the bits in flag, and returns
     the composite value.*/
 mGlobal(Basic) unsigned int SetBits( unsigned int curflags,
@@ -75,7 +75,7 @@ mGlobal(Basic) float_complex Sqrt(const float_complex&);
 mGlobal(Basic) float Exp(float);
 
 mGlobal(Basic) float toDB(float);
-    
+
 mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
 mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
 mGlobal(Basic) unsigned int Abs(int i);
@@ -105,10 +105,23 @@ mGlobal(Basic) double Exp(double);
 mGlobal(Basic) double Sqrt(double);
 mGlobal(Basic) double toDB(double);
 
-mGlobal(Basic) int IntPowerOf(int,int);
-mGlobal(Basic) od_int64 IntPowerOf(od_int64,int);
-
 } // namespace Math
+
+
+template <class iT,class iPOW> inline
+iT intpow( iT i, iPOW p )
+{
+    iT ret = 1;
+    while ( p )
+    {
+	if ( p > 0 )
+	    { ret *= i; p--; }
+	else
+	    { ret /= i; p++; }
+    }
+    return ret;
+}
+
 
 
 #endif

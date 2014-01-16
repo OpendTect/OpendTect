@@ -23,14 +23,14 @@ else \
 
 
 #define mTestCommonSI( si1, si2, expected ) \
-testname = "computeCommonStepInterval<"; \
+testname = "getCommonStepInterval<"; \
 testname.add( tp ).add( ">(" #si1 "," #si2 ")" ); \
 mTest( testname.buf(),  \
-       computeCommonStepInterval( si1, si2 )==expected ) \
-testname = "computeCommonStepInterval<"; \
+       getCommonStepInterval( si1, si2 )==expected ) \
+testname = "getCommonStepInterval<"; \
 testname.add( tp ).add( ">(" #si2 "," #si1 ")" ); \
 mTest( testname.buf(),  \
-      computeCommonStepInterval( si2, si1 )==expected )
+      getCommonStepInterval( si2, si1 )==expected )
 
 template <class T>
 bool testComputeCommonStepInterval( const char* tp )

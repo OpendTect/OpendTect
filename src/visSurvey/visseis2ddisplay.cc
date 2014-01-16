@@ -64,7 +64,7 @@ Seis2DDisplay::Seis2DDisplay()
     , panelstrip_( visBase::TexturePanelStrip::create() )
     , linename_( visBase::Text2::create() )
     , geomchanged_(this)
-    , maxtrcnrrg_(INT_MAX,INT_MIN,1)
+    , maxtrcnrrg_(0,mUdf(int),1)
     , datatransform_(0)
     , voiidx_(-1)
     , prevtrcidx_(0)
@@ -81,7 +81,7 @@ Seis2DDisplay::Seis2DDisplay()
     linename_->ref();
     addChild( linename_->osgNode() );
     linename_->addText();
-    
+
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
@@ -102,7 +102,7 @@ Seis2DDisplay::~Seis2DDisplay()
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
-    
+
     panelstrip_->unRef();
     setZAxisTransform( 0,0 );
 }
@@ -148,7 +148,6 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     geometry_ = geometry;
     const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.positions();
     const int tracestep = geometry.trcNrRange().step;
-    maxtrcnrrg_.set( INT_MAX, INT_MIN, tracestep );
 
     const int possz = linepositions.size();
     trcdisplayinfo_.alltrcnrs_.erase();
@@ -156,9 +155,13 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     trcdisplayinfo_.alltrcnrs_.setCapacity( possz );
     trcdisplayinfo_.alltrcpos_.setCapacity( possz );
 
+    maxtrcnrrg_.set( 0, mUdf(int), tracestep );
     for ( int idx=0; idx<possz; idx++ )
     {
-	maxtrcnrrg_.include( linepositions[idx].nr_, false );
+	if ( idx == 0 )
+	    maxtrcnrrg_.start = maxtrcnrrg_.stop = linepositions[idx].nr_;
+	else
+	    maxtrcnrrg_.include( linepositions[idx].nr_, false );
 	trcdisplayinfo_.alltrcnrs_ += linepositions[idx].nr_;
 	trcdisplayinfo_.alltrcpos_ += linepositions[idx].coord_;
     }
@@ -167,7 +170,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 					       : geometry_.zRange().step;
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zRange() );
-	    
+
     updateRanges( false, true );
     geomchanged_.trigger();
 }
@@ -203,7 +206,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 	trcdisplayinfo_.zrg_.stop = trcdisplayinfo_.zrg_.start +
 				    (mMaxImageSize-1)*trcdisplayinfo_.zrg_.step;
     }
-    
+
     updatePanelStripZRange();
     geomchanged_.trigger();
 }
@@ -231,7 +234,7 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 {
     StepInterval<float> maxzrg = getMaxZRange( true );
     Interval<int> samplerg( maxzrg.nearestIndex(trcdisplayinfo_.zrg_.start),
-	    		    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.stop) );
+			    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.stop) );
     return samplerg;
 }
 
@@ -340,9 +343,9 @@ const Attrib::Data2DArray* Seis2DDisplay::getCache( int attrib ) const
 
 void Seis2DDisplay::setData( int attrib,
 			     const Attrib::Data2DArray& data2dh,
-       			     TaskRunner* tr )
+			     TaskRunner* tr )
 {
-    if ( data2dh.isEmpty() ) 
+    if ( data2dh.isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, tr );
 	channels_->turnOn( false );
@@ -374,14 +377,14 @@ void Seis2DDisplay::setData( int attrib,
 	    const int nrsamples = slice2d.info().getSize(1);
 	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
 	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	    if ( slice2d.info().getSize(0)==nrdisplaytraces && 
+	    if ( slice2d.info().getSize(0)==nrdisplaytraces &&
 		 nrsamples==nrdisplaysamples )
 	    {
 		usedarr = &slice2d;
 	    }
 	    else
 	    {
-		mTryAlloc( tmparr, 
+		mTryAlloc( tmparr,
 		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
 		usedarr = tmparr;
 		const int startidx = trcdisplayinfo_.rg_.start;
@@ -461,13 +464,13 @@ void Seis2DDisplay::setData( int attrib,
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
 	    {
-	        Array1DSlice<float> traceslice( slice2d );    
+	        Array1DSlice<float> traceslice( slice2d );
 		traceslice.setDimMap( 0, 1 );
 		traceslice.setPos( 0, crlidx );
 		if ( !traceslice.init() )
 		{
 		    pErrMsg( "Error reading array for Z-axis transformation." );
-		    continue; 
+		    continue;
 		}
 
 		const int startidx = trcdisplayinfo_.rg_.start + crlidx;
@@ -475,16 +478,16 @@ void Seis2DDisplay::setData( int attrib,
 		outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		SampledFunctionImpl<float,ValueSeries<float> >
-		    inputfunc( traceslice, slice2d.info().getSize(1), 
+		    inputfunc( traceslice, slice2d.info().getSize(1),
 			    sd.start, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
 		if ( tmparr->getData() )
 		{
-    		    float* outputptr = tmparr->getData() +
-			tmparr->info().getOffset( crlidx, 0 );	
-    		    reSample( inputfunc, outpsampler, outputptr, zsz );
+		    float* outputptr = tmparr->getData() +
+			tmparr->info().getOffset( crlidx, 0 );
+		    reSample( inputfunc, outpsampler, outputptr, zsz );
 		}
 		else
 		{
@@ -510,7 +513,7 @@ void Seis2DDisplay::setData( int attrib,
 
 	//We are only interested in the global, permanent storage
 	if ( stor && stor!=data2dh.dataset_->getStorage() )
-	    stor = 0; 
+	    stor = 0;
 
 	if ( !stor )
 	{
@@ -531,7 +534,7 @@ void Seis2DDisplay::setData( int attrib,
 	    usedarr->getAll( *stor );
 
 	channels_->setSize( 1, sz0, sz1 );
-	channels_->setUnMappedVSData(attrib, seriesidx, stor, 
+	channels_->setUnMappedVSData(attrib, seriesidx, stor,
 			ownsstor ? OD::TakeOverPtr : OD::UsePtr, tr);
     }
 
@@ -593,7 +596,7 @@ void Seis2DDisplay::updatePanelStripZRange()
 {
     panelstrip_->setZRange( trcdisplayinfo_.zrg_ );
     const Interval<float> mapping(0.0f,
-	    			  mCast(float,trcdisplayinfo_.zrg_.nrSteps()));
+				  mCast(float,trcdisplayinfo_.zrg_.nrSteps()));
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
@@ -667,7 +670,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     Coord3 xytpos;
     mVisTrans::transform( scene_ ? scene_->getUTM2DisplayTransform() : 0,
 			 pos, xytpos );
-    
+
     int trcidx; float mindist;
     getNearestTrace( xytpos, trcidx, mindist );
     if ( mindist<0 || mIsUdf(mindist) )
@@ -690,12 +693,12 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
 void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 {
-    if ( transformation_ ) 
+    if ( transformation_ )
 	transformation_->unRef();
 
     transformation_ = tf;
     transformation_->ref();
-    
+
     panelstrip_->setDisplayTransformation( transformation_ );
     linename_->setDisplayTransformation( transformation_ );
 }
@@ -839,7 +842,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     {
 	if ( cache_[attrib]->trcinfoset_[idx]->nr != trcnr )
 	    continue;
-	
+
 	const int sampidx =
 	    cache_[attrib]->trcinfoset_[idx]->sampling.nearestIndex( pos.z );
 	if ( cache_[attrib]->dataset_->info().validPos( version, idx, sampidx ))
@@ -850,7 +853,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	    return true;
 	}
     }
-	
+
     return false;
 }
 
@@ -965,7 +968,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
     if ( trcidx<0 ) return;
 
     const Coord& crd = geometry_.positions()[trcidx].coord_;
-    pos.x = crd.x; pos.y = crd.y; 
+    pos.x = crd.x; pos.y = crd.y;
 }
 
 

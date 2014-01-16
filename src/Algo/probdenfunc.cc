@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "staticstring.h"
 #include "od_iostream.h"
-#include <math.h>
 
 static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
@@ -392,7 +391,7 @@ float Sampled1DProbDenFunc::gtAvgPos() const
     if ( !cumbins_ ) fillCumBins();
     const int sz = size( 0 );
     const float avgpos = findAveragePos( getData().getData(), sz,
-	    				 cumbins_[sz-1] );
+					 cumbins_[sz-1] );
     return sd_.atIndex( avgpos );
 }
 
@@ -656,7 +655,7 @@ const char* SampledNDProbDenFunc::dimName( int dim ) const
     if ( dim >= 0 && dim < dimnms_.size() )
 	return dimnms_.get( dim ).buf();
 
-    mDeclStaticString( ret ); 
+    mDeclStaticString( ret );
     ret = "Dim";
     ret += dim;
     return ret.buf();
@@ -702,7 +701,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 	relpos[idim] = fidx - idx; idxs[idim] = idx;
     }
 
-    const od_int64 nrpts = Math::IntPowerOf( 2, nrdims );
+    const od_int64 nrpts = intpow( ((od_int64)2), nrdims );
     float* hcvals = new float[nrpts];
     for ( od_int64 ipt=0; ipt<nrpts; ipt++ )
     {

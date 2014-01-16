@@ -46,7 +46,7 @@ unsigned int Math::SetBits( unsigned int curflags, unsigned int mask, bool yn)
 {
     if ( yn )
         return curflags | mask;
-    
+
     return (~mask) & curflags;
 }
 
@@ -58,34 +58,6 @@ bool Math::AreBitsSet( unsigned int curflags, unsigned int mask, bool all )
 	return res == mask;
 
     return res>0;
-}
-
-
-int Math::IntPowerOf( int numb, int to )
-{
-    int ret = 1;
-    while ( to != 0 )
-    {
-	if ( to > 0 )
-	    { ret *= numb; to--; }
-	else
-	    { ret /= numb; to++; }
-    }
-    return ret;
-}
-
-
-od_int64 Math::IntPowerOf( od_int64 numb, int to )
-{
-    od_int64 ret = 1;
-    while ( to != 0 )
-    {
-	if ( to > 0 )
-	    { ret *= numb; to--; }
-	else
-	    { ret /= numb; to++; }
-    }
-    return ret;
 }
 
 

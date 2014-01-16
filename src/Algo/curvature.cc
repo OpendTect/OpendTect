@@ -3,14 +3,13 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2003
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "curvature.h"
 #include "math2.h"
-#include "math.h"
-#include "simpnumer.h"
+
 
 Curvature::Setup::Setup()
     : mean_( false )
@@ -58,7 +57,7 @@ bool Curvature::set( double z1, double z2, double z3,
     const double dist0_2 = dist0*dist0;
     const double dist1_2 = dist1*dist1;
 
-    // Coefficient a and b are not identical to Robert's article. These are taken from Jo Wood's PhD thesis, 19?? 
+    // Coefficient a and b are not identical to Robert's article. These are taken from Jo Wood's PhD thesis, 19??
     const double a = ((z1+z3+z4+z6+z7+z9)/2-(z2+z5+z8)) / (3*dist0_2);
     const double b = ((z1+z2+z3+z7+z8+z9)/2-(z4+z5+z6)) / (3*dist1_2);
     const double c = (z3+z7-z1-z9) / (4*dist0*dist1);
@@ -86,10 +85,10 @@ bool Curvature::set( double z1, double z2, double z3,
     {
 	const double tmp = Math::Sqrt( mean_*mean_ - gaussian_ );
 
-	//This is not identical to Robert's article, as K_max should be the 
+	//This is not identical to Robert's article, as K_max should be the
 	//the value that is furtherst away from zero, and K_min should be the
 	//value that is closest to zero. 8th May 2009, KT.
-    
+
 	max_ = mean_;
 	min_ = mean_;
 	if ( mean_>=0 )
@@ -120,7 +119,7 @@ bool Curvature::set( double z1, double z2, double z3,
     {
 	const double e2plusd2 = e2+d2;
 	const bool nocalc = mIsZero( e2plusd2, mDefEps );
-	
+
 	if ( setup_.dip_ )
 	{
 	    dip_ = nocalc

@@ -295,7 +295,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 {
     int len = nrsamples + scalelen_;
-    while ( !isPower( len, 2 ) ) len++;
+    while ( !exactPower(len,2) ) len++;
 
     Array1DImpl<float> inputdata( len );
     if ( !redata_->series(realidx_) ) return false;
@@ -313,7 +313,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     if ( !dwt.run(false) )
 	return false;
 
-    const int nrscales = isPower( len, 2 ) + 1;
+    const int nrscales = exactPower( len, 2 ) + 1;
     ArrPtrMan<float> spectrum =  new float[nrscales];
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)
     spectrum[1] = fabs(transformed.get(1)); // scale 1

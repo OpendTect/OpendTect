@@ -16,26 +16,31 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "typeset.h"
 #include "undefval.h"
+#include "ranges.h"
 #include "math2.h"
-#include <math.h>
-#include <limits.h>
-#include <ranges.h>
 
 
-/*!>Handles roundoff errors when looking for the previous sample in an array.*/
+/*!> Finds the lower index of the bin for interpolation. Makes sure that a
+  range eps outside the array is snapped into position. */
 
-
-inline int getPrevSample( float target, int size, float& relpos )
+namespace Interpolate
 {
-    int sampl = (int) target;
-    relpos = target-sampl;
-    if ( sampl==-1 && mIsEqual(relpos,1,1e-3) )
-    { sampl = 0; relpos = 0; }
-    else if ( sampl==size-1 && mIsZero(relpos,1e-3) )
-    { sampl = size-2; relpos = 1; }
 
-    return sampl;
+inline int getArrIdxPosition( const float farridx, const int arrsz,
+			      float& relpos, const float eps=1e-4 )
+{
+    int arridx = (int)farridx;
+    relpos = farridx - arridx;
+
+    if ( arridx==-1 && mIsEqual(relpos,1,1e-4) )
+	{ arridx = 0; relpos = 0; }
+    else if ( arridx==arrsz-1 && mIsZero(relpos,1e-4) )
+	{ arridx = arrsz-2; relpos = 1; }
+
+    return arridx;
 }
+
+} // namespace Interpolate
 
 
 /*!Computes the greatest common divisor from two intigers. Uses the algorithm
@@ -45,17 +50,17 @@ template <class T> inline
 T greatestCommonDivisor( T val0, T val1 )
 {
     T shift = 0;
-    
+
     if ( !val0 ) return val1;
     if ( !val1 ) return val0;
-    
+
     while ( (val0&1)==0  &&  (val1&1)==0 )
     {
 	val0 >>= 1;
 	val1 >>= 1;
 	shift++;
     }
-    
+
     do
     {
 	if ((val0 & 1) == 0)
@@ -67,132 +72,121 @@ T greatestCommonDivisor( T val0, T val1 )
 	else
 	    val1 = (val1-val0) >> 1;
     } while ( val0 );
-    
+
     return val1 << shift;
 }
 
-/*!Compute a StepInterval where all samples of both input StepInterval's 
+
+/*!> Computes a StepInterval where all samples of both input StepInterval's
    are present. */
 
 template <class T> inline
-StepInterval<T> computeCommonStepInterval( const StepInterval<T>& a,
-				    const StepInterval<T>& b )
+StepInterval<T> getCommonStepInterval( const StepInterval<T>& a,
+					const StepInterval<T>& b )
 {
     const T start = mMIN( a.start, b.start );
-    
+
     T step = greatestCommonDivisor( a.step, b.step );
     step = greatestCommonDivisor( step, (T) Math::Abs(a.start-b.start) );
 
     const T stop = mMAX( a.start+((T)a.nrSteps())*a.step,
-	    		 b.start+((T)b.nrSteps())*b.step );
+			 b.start+((T)b.nrSteps())*b.step );
     return StepInterval<T>( start, stop, step );
 }
 
 
-/*!>
- intpow returns the integer power of an arbitary value. Faster than
- pow( double, double ), more general than IntPowerOf(double,int).
-*/
-
-template <class T> inline
-T intpow( T x, char y)
-{
-    T res = 1; while ( y ) { res *= x; y--; }
-    return res;
-}
-
-
-/*!>
- isPower determines whether a value is a power of a base, i.e. if
-val=base^pow.
- If that is the case, isPower returns pow, if not, it returns zero.
+/*!> exactPower determines whether a value is a power of a base, i.e. if
+val=base^pow. If that is the case, exactPower returns pow, if not,
+it returns zero.
 */
 
 
-inline
-int isPower( int val, int base )
+template <class iT>
+inline iT exactPower( iT val, iT base )
 {
     if ( val==base ) return 1;
 
     if ( val%base )
 	return 0;
 
-    int res = isPower( val/base, base );
+    iT res = exactPower( val/base, base );
     if ( res ) return 1 + res;
 
     return 0;
 }
 
 
-inline
-int nextPower( int val, int base )
+template <class iT>
+inline iT nextPower( iT val, iT base )
 {
-    int res = 1;
+    iT res = 1;
     while ( res<val ) res *= base;
     return res;
 }
 
-inline int getPow2Sz(int actsz, bool above=true, int minsz=1, int maxsz=INT_MAX)
+
+template <class iT>
+inline iT getPow2Sz( iT actsz, const bool above=true,
+		     iT minsz=1, iT maxsz=0 )
 {
     char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
-    int sz = actsz;
+    iT sz = actsz;
     while ( sz>1 )
     {
 	if ( above && !npowextra && sz % 2 )
 	    npowextra = 1;
 	sz /= 2; npow++;
     }
-    
+
     sz = intpow( 2, npow + npowextra );
     if ( sz<minsz ) sz = minsz;
-    if ( sz>maxsz ) sz = maxsz;
+    if ( maxsz && sz>maxsz ) sz = maxsz;
     return sz;
 }
 
 
-inline int nextPower2( int nr, int minnr, int maxnr )
+template <class iT>
+inline iT nextPower2( iT nr, iT minnr, iT maxnr )
 {
     if ( nr>maxnr )
 	return maxnr;
-    
-    int newnr = minnr;
+
+    iT newnr = minnr;
     while ( nr > newnr )
 	newnr *= 2;
-    
+
     return newnr;
 }
 
 
 /*!>
- Find number of blocks when given total number of samples, the base size for  
+ Find number of blocks when given total number of samples, the base size for
  each block and the number of samples overlaped between two blocks.
  */
 
-
-inline
-int nrBlocks( int totalsamples, int basesize, int overlapsize )
+template <class iT>
+inline iT nrBlocks( iT totalsamples, iT basesize, iT overlapsize )
 {
-    int res = 0;
+    iT res = 0;
     while ( totalsamples>basesize )
     {
 	res++;
 	totalsamples = totalsamples - basesize + overlapsize;
     }
-    
+
     return res+1;
 }
 
 
 /*!
-\brief Taper an indexable array from 1 to taperfactor. If lowpos is less 
-than highpos, the samples array[0] to array[lowpos] will be set to zero. 
+\brief Taper an indexable array from 1 to taperfactor. If lowpos is less
+than highpos, the samples array[0] to array[lowpos] will be set to zero.
 If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
 will be set to zero. The taper can be either cosine or linear.
 */
 
-mExpClass(Algo) Taper
+namespace Taper
 {
-public:
     enum Type { Cosine, Linear };
 };
 
@@ -214,14 +208,14 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
 	pos += inc;
     }
 
-    int tapersz = abs( highpos - lowpos ); 
+    int tapersz = abs( highpos - lowpos );
     float taperfactor = type == Taper::Cosine ? M_PI : 0;
     float taperfactorinc = ( type == Taper::Cosine ? M_PI : 1 ) / tapersz;
-				
+
 
     while ( pos != highpos )
     {
-	array[pos] *= type == Taper::Cosine ? .5 + .5 * cos( taperfactor ) 
+	array[pos] *= type == Taper::Cosine ? .5 + .5 * cos( taperfactor )
 					    : taperfactor;
 	pos += inc;
 	taperfactor += taperfactorinc;
@@ -243,7 +237,7 @@ template <class T>
 inline T sampledGradient( T ym2, T ym1, T y0_, T y1_, T y2 )
 {
     bool um1 = Values::isUdf(ym1), u0 = Values::isUdf(y0_),
-    		u1 = Values::isUdf(y1_);
+		u1 = Values::isUdf(y1_);
 
     if ( Values::isUdf(ym2) || Values::isUdf(y2) )
     {
@@ -311,7 +305,7 @@ inline float variance( const X& x, int sz )
 
 
 /*!>
-solve3DPoly - finds the roots of the equation 
+solve3DPoly - finds the roots of the equation
 
     z^3+a*z^2+b*z+c = 0
 
@@ -321,7 +315,7 @@ Algorithms taken from NR, page 185.
 
 */
 
-inline int solve3DPoly( double a, double b, double c, 
+inline int solve3DPoly( double a, double b, double c,
 			 double& root0,
 			 double& root1,
 			 double& root2 )
@@ -331,7 +325,7 @@ inline int solve3DPoly( double a, double b, double c,
     const double r = (2*a2*a-9*a*b+27*c)/54;
     const double q3 = q*q*q;
     const double r2 = r*r;
-    
+
 
     const double minus_a_through_3 = -a/3;
 
@@ -342,7 +336,7 @@ inline int solve3DPoly( double a, double b, double c,
 	const double twopi = M_2PI;
 
 
-	root0 = minus_twosqrt_q*cos(theta/3)+minus_a_through_3; 
+	root0 = minus_twosqrt_q*cos(theta/3)+minus_a_through_3;
 	root1=minus_twosqrt_q*cos((theta-twopi)/3)+minus_a_through_3;
 	root2=minus_twosqrt_q*cos((theta+twopi)/3)+minus_a_through_3;
 	return 3;
@@ -363,7 +357,7 @@ inline int solve3DPoly( double a, double b, double c,
     root2 = complex_double( 0.5*(A+B)+minus_a_through_3,
 			   -sqrt3_through_2*(A-B));
     */
-			     
+
 
     return 1;
 }
@@ -401,7 +395,7 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
     for ( int idx=0; idx<samplesz; idx++ )
     {
 	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 ) 
+	if ( arridx<0 )
 	    arridx = -arridx;
 
 	if ( !holdsClassValue(vals[arridx],maxclss) )
@@ -445,9 +439,9 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
     for ( int idx=0; idx<samplesz; idx++ )
     {
 	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 ) 
+	if ( arridx<0 )
 	    arridx = -arridx;
-	
+
 	if ( !isSigned8BitesValue(vals[arridx]) )
 	    return false;
     }

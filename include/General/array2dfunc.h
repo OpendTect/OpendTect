@@ -26,7 +26,7 @@ mClass(General) Array2DFunc : public MathXYFunction<RT,PT>
 {
 public:
     inline void		set( const Array2D<T>& t, bool hasudfs )
-    			{
+			{
 			    arr_ = &t;
 			    xsize_ = arr_->info().getSize(0);
 			    ysize_ = arr_->info().getSize(1);
@@ -50,65 +50,65 @@ template <class RT,class PT,class T> inline
 RT Array2DFunc<RT,PT,T>::getValue( PT x, PT y ) const
 {
     float xrelpos;
-    const int prevxsample = getPrevSample( x, xsize_, xrelpos );
-    if ( prevxsample<0 || prevxsample>=xsize_-1 ) return mUdf(RT);
+    const int ix0 = Interpolate::getArrIdxPosition( x, xsize_, xrelpos );
+    if ( ix0<0 || ix0>=xsize_-1 ) return mUdf(RT);
 
     float yrelpos;
-    const int prevysample = getPrevSample( y, ysize_, yrelpos );
-    if ( prevysample<0  || prevysample>=ysize_-1) return mUdf(RT);
+    const int iy0 = Interpolate::getArrIdxPosition( y, ysize_, yrelpos );
+    if ( iy0<0  || iy0>=ysize_-1) return mUdf(RT);
 
-    if ( xsize_<4 || ysize_<4 || !prevxsample || !prevysample ||
-	 prevxsample>=xsize_-2 || prevysample>=ysize_-2 )
+    if ( xsize_<4 || ysize_<4 || !ix0 || !iy0 ||
+	 ix0>=xsize_-2 || iy0>=ysize_-2 )
     {
 	if ( hasudfs_ )
 	{
 	    return Interpolate::linearReg2DWithUdf<T>(
-				arr_->get( prevxsample, prevysample ),
-				arr_->get( prevxsample, prevysample+1 ),
-				arr_->get( prevxsample+1, prevysample ),
-				arr_->get( prevxsample+1, prevysample+1),
+				arr_->get( ix0, iy0 ),
+				arr_->get( ix0, iy0+1 ),
+				arr_->get( ix0+1, iy0 ),
+				arr_->get( ix0+1, iy0+1),
 				xrelpos, yrelpos );
 	}
 
 	return Interpolate::linearReg2D<T>(
-			    arr_->get( prevxsample, prevysample ),
-			    arr_->get( prevxsample, prevysample+1 ),
-			    arr_->get( prevxsample+1, prevysample ),
-			    arr_->get( prevxsample+1, prevysample+1 ),
+			    arr_->get( ix0, iy0 ),
+			    arr_->get( ix0, iy0+1 ),
+			    arr_->get( ix0+1, iy0 ),
+			    arr_->get( ix0+1, iy0+1 ),
 			    xrelpos, yrelpos );
     }
 
     if ( hasudfs_ )
     {
 	return Interpolate::polyReg2DWithUdf<T>(
-		arr_->get( prevxsample-1, prevysample ),
-		arr_->get( prevxsample-1, prevysample+1 ),
-		arr_->get( prevxsample, prevysample-1 ),
-		arr_->get( prevxsample, prevysample ),
-		arr_->get( prevxsample, prevysample+1 ),
-		arr_->get( prevxsample, prevysample+2 ),
-		arr_->get( prevxsample+1, prevysample-1 ),
-		arr_->get( prevxsample+1, prevysample ),
-		arr_->get( prevxsample+1, prevysample+1 ),
-		arr_->get( prevxsample+1, prevysample+2 ),
-		arr_->get( prevxsample+2, prevysample ),
-		arr_->get( prevxsample+2, prevysample+1 ),
+		arr_->get( ix0-1, iy0 ),
+		arr_->get( ix0-1, iy0+1 ),
+		arr_->get( ix0, iy0-1 ),
+		arr_->get( ix0, iy0 ),
+		arr_->get( ix0, iy0+1 ),
+		arr_->get( ix0, iy0+2 ),
+		arr_->get( ix0+1, iy0-1 ),
+		arr_->get( ix0+1, iy0 ),
+		arr_->get( ix0+1, iy0+1 ),
+		arr_->get( ix0+1, iy0+2 ),
+		arr_->get( ix0+2, iy0 ),
+		arr_->get( ix0+2, iy0+1 ),
 		xrelpos, yrelpos );
     }
-    
 
-    return Interpolate::polyReg2D<T>( arr_->get( prevxsample-1, prevysample ),
-	    arr_->get( prevxsample-1, prevysample+1 ),
-	    arr_->get( prevxsample, prevysample-1 ),
-	    arr_->get( prevxsample, prevysample ),
-	    arr_->get( prevxsample, prevysample+1 ),
-	    arr_->get( prevxsample, prevysample+2 ),
-	    arr_->get( prevxsample+1, prevysample-1 ),
-	    arr_->get( prevxsample+1, prevysample ),
-	    arr_->get( prevxsample+1, prevysample+1 ),
-	    arr_->get( prevxsample+1, prevysample+2 ),
-	    arr_->get( prevxsample+2, prevysample ),
-	    arr_->get( prevxsample+2, prevysample+1 ),
+
+    return Interpolate::polyReg2D<T>( arr_->get( ix0-1, iy0 ),
+	    arr_->get( ix0-1, iy0+1 ),
+	    arr_->get( ix0, iy0-1 ),
+	    arr_->get( ix0, iy0 ),
+	    arr_->get( ix0, iy0+1 ),
+	    arr_->get( ix0, iy0+2 ),
+	    arr_->get( ix0+1, iy0-1 ),
+	    arr_->get( ix0+1, iy0 ),
+	    arr_->get( ix0+1, iy0+1 ),
+	    arr_->get( ix0+1, iy0+2 ),
+	    arr_->get( ix0+2, iy0 ),
+	    arr_->get( ix0+2, iy0+1 ),
 	    xrelpos, yrelpos );
 }
 

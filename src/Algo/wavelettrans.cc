@@ -175,7 +175,7 @@ const float WaveletTransform::coiflet5[31] =
 					-0.000041340484, -0.000021315014,
 					 0.000003734597,  0.000002063806,
 					-0.000000167408, -0.000000095158};
- 
+
 const float WaveletTransform::symmlet4[9] =
 				{ 0.0,  -0.107148901418, -0.041910965125,
 					 0.703739068656,  1.136658243408,
@@ -257,13 +257,13 @@ const float WaveletTransform::vaidyanathan[25] =
 					 0.250184129505,  0.045799334111};
 
 
-void WaveletTransform::getInfo( WaveletType wt, int& len, 
+void WaveletTransform::getInfo( WaveletType wt, int& len,
 				TypeSet<float>& wavelet )
 {
     const float* wc = 0;
     len = 0;
     wavelet.erase();
-    
+
     switch ( wt )
     {
 	case WaveletTransform::Haar:
@@ -286,34 +286,34 @@ void WaveletTransform::getInfo( WaveletType wt, int& len,
 		len = 18;	wc = WaveletTransform::daub18;		break;
 	case WaveletTransform::Daubechies20:
 		len = 20;	wc = WaveletTransform::daub20;		break;
-	case WaveletTransform::Beylkin:	
-		len = 18;  	wc = WaveletTransform::beylkin;		break;
-	case WaveletTransform::Coiflet1:	
+	case WaveletTransform::Beylkin:
+		len = 18;	wc = WaveletTransform::beylkin;		break;
+	case WaveletTransform::Coiflet1:
 		len = 6;	wc = WaveletTransform::coiflet1;	break;
-	case WaveletTransform::Coiflet2:	
-		len = 12;	wc = WaveletTransform::coiflet2; 	break;
-	case WaveletTransform::Coiflet3:	
-		len = 18;	wc = WaveletTransform::coiflet3; 	break;
-	case WaveletTransform::Coiflet4:	
-		len = 24;	wc = WaveletTransform::coiflet4; 	break;
-	case WaveletTransform::Coiflet5:	
-		len = 30;	wc = WaveletTransform::coiflet5; 	break;
-	case WaveletTransform::Symmlet4:	
-		len = 8;	wc = WaveletTransform::symmlet4; 	break;
-	case WaveletTransform::Symmlet5:	
-		len = 10;	wc = WaveletTransform::symmlet5; 	break;
-	case WaveletTransform::Symmlet6:	
-		len = 12;	wc = WaveletTransform::symmlet6; 	break;
-	case WaveletTransform::Symmlet7:	
-		len = 14;	wc = WaveletTransform::symmlet7; 	break;
-	case WaveletTransform::Symmlet8:	
-		len = 16;	wc = WaveletTransform::symmlet8; 	break;
-	case WaveletTransform::Symmlet9:	
-		len = 18;	wc = WaveletTransform::symmlet9; 	break;
+	case WaveletTransform::Coiflet2:
+		len = 12;	wc = WaveletTransform::coiflet2;	break;
+	case WaveletTransform::Coiflet3:
+		len = 18;	wc = WaveletTransform::coiflet3;	break;
+	case WaveletTransform::Coiflet4:
+		len = 24;	wc = WaveletTransform::coiflet4;	break;
+	case WaveletTransform::Coiflet5:
+		len = 30;	wc = WaveletTransform::coiflet5;	break;
+	case WaveletTransform::Symmlet4:
+		len = 8;	wc = WaveletTransform::symmlet4;	break;
+	case WaveletTransform::Symmlet5:
+		len = 10;	wc = WaveletTransform::symmlet5;	break;
+	case WaveletTransform::Symmlet6:
+		len = 12;	wc = WaveletTransform::symmlet6;	break;
+	case WaveletTransform::Symmlet7:
+		len = 14;	wc = WaveletTransform::symmlet7;	break;
+	case WaveletTransform::Symmlet8:
+		len = 16;	wc = WaveletTransform::symmlet8;	break;
+	case WaveletTransform::Symmlet9:
+		len = 18;	wc = WaveletTransform::symmlet9;	break;
 	case WaveletTransform::Symmlet10:
 		len = 20;	wc = WaveletTransform::symmlet10;	break;
 	case WaveletTransform::Vaidyanathan:
-		len = 24;	wc = WaveletTransform::vaidyanathan; 	break;
+		len = 24;	wc = WaveletTransform::vaidyanathan;	break;
     }
 
     for ( int idx=0; idx<len; idx++ )
@@ -338,7 +338,7 @@ bool DWT::setup()
 
     return true;
 }
-	
+
 
 bool DWT::FilterWT1D::init()
 {
@@ -419,7 +419,7 @@ void CWT::CWTWavelets::createWavelet( WaveletType wt, int nrsamples,
 
 
 void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
-       					    TypeSet<float>& wavelet )
+					    TypeSet<float>& wavelet )
 {
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -434,7 +434,7 @@ void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
 
 
 void CWT::CWTWavelets::createMexhatWavelet( int nrsamples, float scale,
-       					    TypeSet<float>& wavelet )
+					    TypeSet<float>& wavelet )
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -447,7 +447,7 @@ void CWT::CWTWavelets::createMexhatWavelet( int nrsamples, float scale,
 
 
 void CWT::CWTWavelets::createGaussWavelet( int nrsamples, float scale,
-       					   TypeSet<float>& wavelet )
+					   TypeSet<float>& wavelet )
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -506,7 +506,7 @@ void CWT::setWavelet( WaveletType wt )
 bool CWT::isPossible( int sz ) const
 {
     if ( sz < 4 ) return false;
-    return isPower( sz, 2 );
+    return exactPower( sz, 2 ) > 0;
 }
 
 
@@ -543,11 +543,11 @@ bool CWT::setInputInfo( const ArrayNDInfo& ni )
 bool CWT::init()
 {
     if ( inited_ ) return true;
-    
+
     const int nrsamp = info_->getSize( 0 );
     const int nrsteps = freqrg_.nrSteps()+1;
-    
-    for ( int idx=0; idx<nrsteps; idx++ ) 
+
+    for ( int idx=0; idx<nrsteps; idx++ )
     {
 	if ( !outfreqidxs_.isPresent(idx) )
 	    continue;
@@ -563,7 +563,7 @@ bool CWT::init()
 
 
 bool CWT::transform( const ArrayND<float_complex>& inp,
-		     ArrayND<float>& outp ) 
+		     ArrayND<float>& outp )
 {
     const int ndim = inp.info().getNDim();
     if ( ndim > 1 ) return false;
@@ -583,7 +583,7 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
 
     const int nrsteps = freqrg_.nrSteps()+1;
     arr2d->setSize( nrsamples, nrsteps );
-    for ( int idx=0; idx<nrsteps; idx++ ) 
+    for ( int idx=0; idx<nrsteps; idx++ )
     {
 	if ( !outfreqidxs_.isPresent(idx) )
 	    continue;

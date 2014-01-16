@@ -258,8 +258,7 @@ void ChainExecutor::computeComputationScope( Step::ID stepid,
 	if ( stepoutputzrg.isUdf() )
 	    stepoutputzrg = requiredzrg;
 	else
-	    stepoutputzrg =
-		computeCommonStepInterval( stepoutputzrg, requiredzrg );
+	    stepoutputzrg = getCommonStepInterval( stepoutputzrg, requiredzrg );
 
     }
 }
