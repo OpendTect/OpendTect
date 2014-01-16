@@ -28,6 +28,9 @@ macro ( create_package PACKAGE_NAME )
 		message( FATAL_ERROR "Failed to create MacOS link" )
 	    endif()
 	endif()
+    if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+	copy_unix_systemlibs()
+    endif()
 
         copy_thirdpartylibs()
         set( LIBLIST ${LIBLIST};${PLUGINS} )
@@ -137,6 +140,17 @@ macro( copy_thirdpartylibs )
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
 		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
 endmacro( copy_thirdpartylibs )
+
+macro( copy_unix_systemlibs )
+    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+    message( "Copying ${OD_PLFSUBDIR} system libraries" )
+    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
+    if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+	foreach( SYSLIB ${SYSTEMLIBS} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${SYSLIB} ${COPYTODIR} )
+	endforeach()
+    endif()
+endmacro( copy_unix_systemlibs )
 
 
 macro( create_basepackages PACKAGE_NAME )

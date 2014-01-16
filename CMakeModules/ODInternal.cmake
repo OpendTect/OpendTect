@@ -168,6 +168,18 @@ install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION bin )
 install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mac_term DESTINATION bin )
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION bin )
 
+#Installing unix syatem libraries
+if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
+	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
+	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libjpeg.so.62 Release )
+    elseif( ${OD_PLFSUBDIR} STREQUAL "lux32" )
+	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libstdc++.so.6 Release )
+	OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
+    endif()
+endif()
+
 add_custom_target( sources ${CMAKE_COMMAND}
 		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 		   -P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake
