@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "uiprogressbar.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
-#include <iostream>
 
 
 static int getExitStatus( const char* logfile, BufferString& msg )
@@ -65,7 +64,7 @@ static int getExitStatus( const char* logfile, BufferString& msg )
 
     ptr += 19;
     *(ptr + 1) = '\0';
-    return atoi(ptr);
+    return toInt(ptr);
 }
 
 

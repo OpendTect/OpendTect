@@ -342,7 +342,7 @@ char StringProcessor::preParseProcedure( FileMultiString& keyfms,
 
     if ( stagenr == 3 )
     {
-	keyfms += parfms.size() - atoi(keyfms[2]);
+	keyfms += parfms.size() - toInt(keyfms[2]);
 	mAddToFMS( parfms, startptr, endptr, false );
 	return 0;
     }

@@ -29,8 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "ziputils.h"
 
-#include <stdlib.h>
-
 #ifdef __win__
 # include "winutils.h"
 #endif

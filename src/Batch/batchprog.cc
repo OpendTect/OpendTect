@@ -28,11 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "debug.h"
 
-#ifndef __msvc__
-# include <unistd.h>
-# include <stdlib.h>
-#endif
-
 #include <iostream>
 
 #ifndef __win__

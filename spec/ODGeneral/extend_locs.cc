@@ -11,7 +11,6 @@ static const char* rcsID = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "stats.h"
-#include <stdlib.h>
 #include <iostream>
 
 
@@ -20,7 +19,7 @@ int main( int argc, char** argv )
     if ( argc != 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " input_locs output_locs"
-	    	  << std::endl;
+		  << std::endl;
 	ExitProgram( 1 );
     }
     StreamProvider spin( argv[1] );
@@ -35,7 +34,7 @@ int main( int argc, char** argv )
     std::istream& instrm = *sdin.istrm;
 
     Stats::RandGen::init();
- 
+
     if ( !instrm )
     {
 	std::cerr << "Bad locations file" << std::endl;

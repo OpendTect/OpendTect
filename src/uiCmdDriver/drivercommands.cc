@@ -625,7 +625,7 @@ bool ContinueCmd::act( const char* partail )
     if ( !endptr || *endptr ) \
     { \
 	const char* assignptr = strproc.findAssignment( "=~" ); \
-	if ( endptr && assignptr && !atoi(keyfms[1]) ) \
+	if ( endptr && assignptr && !toInt(keyfms[1]) ) \
 	{ \
 	    mParseErrStrm << "Procedure " << typ << " contains '" \
 			  << *assignptr << "'-operator instead of " \
@@ -705,7 +705,7 @@ bool CallCmd::act( const char* parstr )
     {
 	BufferString procname = keyfms[0];
 	mParseErrStrm << "Procedure \"" << procname << "\" with "
-		      << atoi(keyfms[1]) << " value and " << atoi(keyfms[2])
+		      << toInt(keyfms[1]) << " value and " << toInt(keyfms[2])
 		      << " variable parameter(s) has not been defined"
 		      << od_endl;
 	return false;
@@ -717,7 +717,7 @@ bool CallCmd::act( const char* parstr )
     {
 	BufferString actualpar = actualfms[idx];
 	removeTrailingBlanks( actualpar.getCStr() );
-	if ( idx>0 && idx<=atoi(keyfms[1]) )
+	if ( idx>0 && idx<=toInt(keyfms[1]) )
 	{
 	    mParExpr( true, formalfms[idx], actualpar, dummy, valstr, false );
 	    evalfms += valstr;
@@ -747,11 +747,11 @@ bool CallCmd::act( const char* parstr )
 
     for ( int idx=0; idx<actualfms.size(); idx++ )
     {
-	const bool islink = !idx || idx>atoi(keyfms[1]);
+	const bool islink = !idx || idx>toInt(keyfms[1]);
 	identifierMan().set( formalfms[idx], evalfms[idx], islink );
     }
 
-    if ( !insertProcedure(atoi(formalfms[formalfms.size()-1])) )
+    if ( !insertProcedure(toInt(formalfms[formalfms.size()-1])) )
 	{ pErrMsg( "Huh? Corrupted command action sequence!" ); }
 
     return true;

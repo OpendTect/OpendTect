@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "uilayout.h"
 #include "color.h"
 
-#include <stdlib.h>
-
 mFDQtclass(QWidget)
 mFDQtclass(QString)
 class MouseCursor;

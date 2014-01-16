@@ -821,7 +821,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		    if ( displaytransform_ )
 			displaytransform_->transformBack( pos );
 		    if ( nm )
-			pos.z += atof(nm) / scene_->zDomainInfo().userFactor();
+			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
 
 		    zdragoffset = (float) ( pos.z - dragpos.z );
 		}
@@ -1217,7 +1217,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
 	knotmarkersets_[groupidx]->addPos( emfss_->getPos(pid), false );
     }
-    
+
     knotmarkersets_[groupidx]->forceRedraw( true );
 
 }
@@ -1255,7 +1255,7 @@ void FaultStickSetDisplay::fillPar( IOPar& par ) const
 
 bool FaultStickSetDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) || 
+    if ( !visBase::VisualObjectImpl::usePar( par ) ||
 	 !visSurvey::SurveyObject::usePar( par ) )
 	return false;
 

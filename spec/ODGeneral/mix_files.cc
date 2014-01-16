@@ -2,7 +2,6 @@ static const char* rcsID = "$Id$";
 
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
 
 #define maxlnlen 100000
 

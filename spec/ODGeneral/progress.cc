@@ -1,7 +1,6 @@
 static const char* rcsID = "$Id$";
 
 #include <iostream>
-#include <stdlib.h>
 #include "progressmeter.h"
 #include "thread.h"
 #include "prog.h"

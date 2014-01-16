@@ -49,8 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include <stdlib.h>
-#include <iostream>
+
 
 static const char* outlsfilename = "outls.2ds";
 
