@@ -138,7 +138,7 @@ inline iT getPow2Sz( iT actsz, const bool above=true,
 	sz /= 2; npow++;
     }
 
-    sz = intpow( 2, npow + npowextra );
+    sz = Math::IntPowerOf( 2, npow + npowextra );
     if ( sz<minsz ) sz = minsz;
     if ( maxsz && sz>maxsz ) sz = maxsz;
     return sz;

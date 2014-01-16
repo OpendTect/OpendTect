@@ -701,7 +701,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 	relpos[idim] = fidx - idx; idxs[idim] = idx;
     }
 
-    const od_int64 nrpts = intpow( ((od_int64)2), nrdims );
+    const od_int64 nrpts = Math::IntPowerOf( ((od_int64)2), nrdims );
     float* hcvals = new float[nrpts];
     for ( od_int64 ipt=0; ipt<nrpts; ipt++ )
     {

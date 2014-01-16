@@ -79,7 +79,7 @@ bool Curvature::set( double z1, double z2, double z3,
 	mean_ = (a*(1+e2)+b*(1+d2)-cde) / pow((1+d2+e2),powval);
 
     if ( setup_.gaussian_ || dominmax )
-	gaussian_ = (4*a*b-c2) / intpow(1+d2+e2,2);
+	gaussian_ = (4*a*b-c2) / Math::IntPowerOf(1+d2+e2,2);
 
     if ( dominmax )
     {
@@ -105,7 +105,7 @@ bool Curvature::set( double z1, double z2, double z3,
 
     if ( setup_.mostposneg_ )
     {
-	const double tmp = Math::Sqrt( intpow(a-b,2) + c2 );
+	const double tmp = Math::Sqrt( Math::IntPowerOf(a-b,2) + c2 );
 	mostpos_ = a+b+tmp;
 	mostneg_ = a+b-tmp;
     }

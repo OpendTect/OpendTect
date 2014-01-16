@@ -42,8 +42,6 @@ mGlobal(Basic) bool AreBitsSet( unsigned int curflags,
 /*!\returns 0 for for infinite, NaN, and that sort of crap */
 mGlobal(Basic) bool IsNormalNumber(float);
 
-mGlobal(Basic) float IntPowerOf(float,int);
-
 /*! PowerOf(-2,2) returns -4. This may be mathematically
   incorrect, it delivers continuity with negative numbers */
 mGlobal(Basic) float PowerOf(float,float);
@@ -95,7 +93,6 @@ inline float	degFromNorth( float azimuth )
 mGlobal(Basic) int LCMOf(int,int); /*! <Lowest Common Multiple. */
 mGlobal(Basic) int HCFOf(int,int); /*! <Highest Common Factor. */
 mGlobal(Basic) bool IsNormalNumber(double);
-mGlobal(Basic) double IntPowerOf(double,int);
 mGlobal(Basic) double PowerOf(double,double);
 mGlobal(Basic) double ASin(double);
 mGlobal(Basic) double ACos(double);
@@ -105,11 +102,8 @@ mGlobal(Basic) double Exp(double);
 mGlobal(Basic) double Sqrt(double);
 mGlobal(Basic) double toDB(double);
 
-} // namespace Math
-
-
 template <class iT,class iPOW> inline
-iT intpow( iT i, iPOW p )
+iT IntPowerOf( iT i, iPOW p )
 {
     iT ret = 1;
     while ( p )
@@ -122,7 +116,11 @@ iT intpow( iT i, iPOW p )
     return ret;
 }
 
+mGlobal(Basic) double IntPowerOf(double,int);
+mGlobal(Basic) float IntPowerOf(float,int);
+
+
+} // namespace Math
 
 
 #endif
-

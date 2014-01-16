@@ -70,11 +70,8 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
     do
     {
 	float posproduct = 1;
-
 	for ( int idx=0; idx<ndim; idx++ )
-	{
-	    posproduct *= intpow( pos[idx], mCast(char,coeffiter[idx]) );
-	}
+	    posproduct *= Math::IntPowerOf( pos[idx], coeffiter[idx] );
 
 	res += posproduct * coeffs.getND( coeffiter.getPos() );
     } while ( coeffiter.next() );
@@ -221,9 +218,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	    {
 		int coeff = 1;
 		for ( int idx=0; idx<ndim; idx++ )
-		{
-		    coeff *= intpow( positer[idx], mCast(char,powiter[idx]) );
-		}
+		    coeff *= Math::IntPowerOf( positer[idx], powiter[idx] );
 
 		poscoeffs.set( row, col, (T)coeff );
 		col++;

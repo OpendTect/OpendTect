@@ -37,7 +37,7 @@ public:
     T			stop_;
     bool		annotinint_;
 
-    				// Init with explicit layout
+				// Init with explicit layout
 			AxisLayout( T start=0, T st_op=1,
 				    T step=1 )
 			    : sd_(start,step), stop_(st_op)

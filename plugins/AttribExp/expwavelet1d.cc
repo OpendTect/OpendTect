@@ -42,7 +42,7 @@ Wavelet1DAttrib::Wavelet1DAttrib( Parameters* param)
     delete param;
 
     if ( maxwaveletlen<minwaveletlen ) Swap(minwaveletlen, maxwaveletlen);
-    scalelen = intpow( 2, maxwaveletlen );
+    scalelen = Math::IntPowerOf( 2, maxwaveletlen );
     dsg = Interval<int>( -(scalelen-1), (scalelen-1) );
 
     AttribInputSpec* spec = new AttribInputSpec;
@@ -94,7 +94,8 @@ int Wavelet1DAttrib::Task::nextStep()
     {
 	for ( int scale=2; scale<nrscales; scale++ )
 	{
-	    int scalepos = intpow(2,scale-1) + ((idx+off) >> (nrscales-scale));
+	    int scalepos = Math::IntPowerOf(2,scale-1)
+			 + ((idx+off) >> (nrscales-scale));
 	    spectrum[scale] = fabs(transformed.get(scalepos));
 	}
 

@@ -322,7 +322,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     {
         for ( int scale=2; scale<nrscales; scale++ )
         {
-            int scalepos = intpow( 2,mCast(char,scale-1) ) +
+            int scalepos = Math::IntPowerOf( 2,mCast(char,scale-1) ) +
 					( (idx+off) >> (nrscales-scale) );
             spectrum[scale] = fabs(transformed.get(scalepos));
 
