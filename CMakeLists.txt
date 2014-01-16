@@ -6,7 +6,10 @@
 #_______________________________________________________________________________
 
 cmake_minimum_required ( VERSION 2.8.5 )
-cmake_policy( SET CMP0020 OLD )
+
+if ( CMAKE_VERSION VERSION_GREATER 2.8.10 )
+    cmake_policy( SET CMP0020 OLD )
+endif()
 
 set( OpendTect_VERSION_MAJOR 4 )
 set( OpendTect_VERSION_MINOR 7 )
