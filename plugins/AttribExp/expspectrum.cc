@@ -14,12 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genericnumer.h"
 #include "arrayndalgo.h"
 
-#include <stdio.h>
 
 TraceSpectrumAttrib::TraceSpectrumAttrib( Parameters* param )
     : windowtype( (ArrayNDWindow::WindowType) ((int) param->window) )
     , AttribCalc( new TraceSpectrumAttrib::Task( *this ) )
-{ 
+{
 
     AttribInputSpec* spec = new AttribInputSpec;
     spec->setDesc(
@@ -120,21 +119,21 @@ AttribCalc::Task* TraceSpectrumAttrib::Task::clone() const
 { return new TraceSpectrumAttrib::Task(calculator); }
 
 
-bool TraceSpectrumAttrib::Task::Input::set(const BinID& pos, 
+bool TraceSpectrumAttrib::Task::Input::set(const BinID& pos,
 	const ObjectSet<AttribProvider>& inp, const TypeSet<int>& attrib,
 			     const TypeSet<float*>&)
 {
-    realtrc = inp[0]->getTrc( pos.inl, pos.crl ); 
+    realtrc = inp[0]->getTrc( pos.inl, pos.crl );
 
     if ( calculator.nrInputs() == 2 )
     {
 	imagtrc = inp[1]->getTrc( pos.inl, pos.crl );
 	if ( !imagtrc ) return false;
-	imattrib = inp[1]->attrib2component( attrib[1] ); 
+	imattrib = inp[1]->attrib2component( attrib[1] );
     }
 
-    reattrib = inp[0]->attrib2component( attrib[0] ); 
+    reattrib = inp[0]->attrib2component( attrib[0] );
     return realtrc;
-} 
+}
 
 

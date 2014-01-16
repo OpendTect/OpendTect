@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linear.h"
 #include "genericnumer.h"
 #include "spectrogram.h"
-#include "stdio.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "valseries.h"

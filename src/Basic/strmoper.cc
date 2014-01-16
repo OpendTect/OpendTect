@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 #include <iostream>
+#include <stdio.h>
 #include <limits.h>
 
 static const unsigned int nrretries = 4;
@@ -446,8 +447,9 @@ void StreamData::close()
 	    delete ostrm;
     }
 
-    if ( fp_ && fp_ != stdin && fp_ != stdout && fp_ != stderr )
-	{ if ( ispipe_ ) pclose(fp_); else fclose(fp_); }
+    if ( fileptr_
+	&& fileptr_ != stdin && fileptr_ != stdout && fileptr_ != stderr )
+	{ if ( ispipe_ ) pclose((FILE*)fileptr_); else fclose((FILE*)fileptr_); }
 
     initStrms();
 }
@@ -455,7 +457,7 @@ void StreamData::close()
 
 bool StreamData::usable() const
 {
-    return ( istrm || ostrm ) && ( !ispipe_ || fp_ );
+    return ( istrm || ostrm ) && ( !ispipe_ || fileptr_ );
 }
 
 
@@ -466,9 +468,9 @@ void StreamData::transferTo( StreamData& sd )
 }
 
 
-FILE* StreamData::filePtr() const
+void* StreamData::filePtr() const
 {
-    return const_cast<FILE*>( fp_ );
+    return const_cast<void*>( fileptr_ );
 }
 
 

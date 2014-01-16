@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 
 #include <math.h>
-#include <stdio.h>
 
 
 
@@ -23,17 +22,17 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
     const RowCol tmprc(rc);
     const TypeSet<RowCol>& clockwisedirs = RowCol::clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
-    const float selfangle =  selfidx!=-1 ? selfidx * (float) M_PI_4 
+    const float selfangle =  selfidx!=-1 ? selfidx * (float) M_PI_4
 			     : atan2( (float)col(), (float)-row() );
     const int rcidx =  clockwisedirs.indexOf(tmprc);
-    const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4 
+    const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4
 			     : atan2( (float)tmprc.col(), (float)-tmprc.row() );
     const double twopi = M_2PI;
     float anglediff = rcangle-selfangle;
     if ( anglediff<0 ) anglediff = (float)( anglediff + twopi );
     else if ( anglediff>twopi )
 	anglediff = (float)( anglediff - twopi );
-    
+
     return anglediff;
 }
 

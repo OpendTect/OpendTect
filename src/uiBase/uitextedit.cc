@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QToolTip>
+#include <stdio.h> // for EOF
 
 mUseQtnamespace
 

@@ -32,7 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
-#include <stdio.h>
 
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d

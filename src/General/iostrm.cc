@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "staticstring.h"
-#include <string.h>
 
 class IOStreamProducer : public IOObjProducer
 {
@@ -349,16 +348,17 @@ StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
     const bool doins = fillwc && isMulti() && (hasast || firstOcc(nm,'%'));
     if ( doins )
     {
-	char numb[80], numbstr[80]; numbstr[0] = '\0';
-	sprintf( numb, "%d", curfnr_ );
+	BufferString numbstr( "", curfnr_ );
 	if ( padzeros_ )
 	{
-	    int len = strlen( numb );
+	    BufferString padded;
+	    int len = numbstr.size();
 	    for ( int idx=len; idx<padzeros_; idx++ )
-		strcat( numbstr, "0" );
+		padded.add( "0" );
+	    padded.add( numbstr );
+	    numbstr = padded;
 	}
-	strcat( numbstr, numb );
-	nm.replace( hasast ? "*" : "%", numbstr );
+	nm.replace( hasast ? "*" : "%", numbstr.buf() );
     }
 
     StreamProvider* sp = new StreamProvider( hostname_, nm, iscomm_ );

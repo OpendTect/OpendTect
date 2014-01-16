@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "axislayout.h"
 
 #include <math.h>
-#include <stdio.h>
+
 
 static const float logof2 = logf(2);
 

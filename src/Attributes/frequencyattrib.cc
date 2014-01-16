@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odcomplex.h"
 
 #include <iostream>
-#include <stdio.h>
 #include <math.h>
 
 
@@ -33,7 +32,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Frequency)
-    
+
 void Frequency::initClass()
 {
     mAttrStartInitClassWithDescAndDefaultsUpdate
@@ -100,7 +99,7 @@ Frequency::Frequency( Desc& ds )
     , fftisinit_(false)
     , fftsz_(-1)
     , window_(0)
-    , variable_(0)	       
+    , variable_(0)
     , signal_(0)
     , timedomain_(0)
     , freqdomain_(0)
@@ -114,7 +113,7 @@ Frequency::Frequency( Desc& ds )
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
     mGetBool( dumptofile_, dumptofileStr() );
-    
+
     samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
 			       mNINT32(gate_.stop/SI().zStep()));
 
@@ -149,11 +148,11 @@ Frequency::~Frequency()
 	}
     }
 
-    delete window_; 
-    delete signal_; 
-    delete timedomain_; 
-    delete freqdomain_; 
-    delete fft_; 
+    delete window_;
+    delete signal_;
+    delete timedomain_;
+    delete freqdomain_;
+    delete fft_;
 }
 
 
@@ -207,7 +206,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     {
 	myself->fftsz_ = myself->fft_->getFastSize((samplegate_.width()+1)*3);
 	myself->fft_->setInputInfo(Array1DInfoImpl(fftsz_));
-    	myself->fft_->setDir(true);
+	myself->fft_->setDir(true);
 
 	myself->df_ = Fourier::CC::getDf( refstep_, fftsz_ );
 	myself->signal_ = new Array1DImpl<float_complex>(samplegate_.width()+1);
@@ -215,7 +214,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	myself->freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
 	myself->fftisinit_ = true;
     }
-    
+
     const int sz = samplegate_.width()+1;
     for ( int idx=0; idx<fftsz_; idx++)
 	myself->timedomain_->set( idx, 0 );
@@ -244,7 +243,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	TypeSet<float> freqdomainpower( fftsz_, 0 );
 	fft_->setInput( timedomain_->getData() );
-	fft_->setOutput( myself->freqdomain_->getData() ); 
+	fft_->setOutput( myself->freqdomain_->getData() );
 	if ( !fft_->run( true ) )
 	    return false;
 
@@ -265,7 +264,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 		BufferString dump;
 		BinID pos = currentbid_;
 		dump += pos.inl(); dump += " "; dump += pos.crl(); dump += " ";
-		dump += cursample*refstep_; dump += " "; 
+		dump += cursample*refstep_; dump += " ";
 		dump += df_*idy; dump += " "; dump += val2; dump += "\n";
 		myself->dumpset_.add( dump );
 	    }
@@ -278,7 +277,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	ArrayValueSeries<float,float> arr( freqdomainpower.arr(), false );
 	FreqFunc func( arr, fftsz_ );
-	float exactpos = findExtreme( func, false, mCast(float,maxnr-1), 
+	float exactpos = findExtreme( func, false, mCast(float,maxnr-1),
 						      mCast(float,maxnr+1) );
 	if ( !mIsUdf(exactpos) )
 	    maxval = func.getValue( exactpos );
@@ -323,7 +322,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    float freq = idy * df_;
 	    float hf = height*freq;
 
-	    if ( idy>maxnr ) 
+	    if ( idy>maxnr )
 	    {
 		sa += height;
 		aqf += hf;

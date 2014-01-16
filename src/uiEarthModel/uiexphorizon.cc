@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uit2dconvsel.h"
 #include "uiunitsel.h"
 #include "od_ostream.h"
+#include <stdio.h> // for sprintf
 
 
 static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };

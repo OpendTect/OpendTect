@@ -586,17 +586,18 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     BufferString cmd;
     mkOSCmd( true, cmd );
 
-    sd.fp_ = popen( cmd, "r" );
+    sd.fileptr_ = popen( cmd, "r" );
     sd.ispipe_ = true;
 
-    if ( sd.fp_ )
+    if ( sd.fileptr_ )
     {
 #ifdef __msvc__
-	std::filebuf* fb = new std::filebuf( sd.fp_ );
+	std::filebuf* fb = new std::filebuf( (FILE*)sd.fileptr_ );
 	sd.istrm = new std::istream( fb );
 #else
 # if __GNUC__ > 2
-	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp_, std::ios_base::in );
+	mStdIOFileBuf* stdiofb
+		    = new mStdIOFileBuf( (FILE*)sd.fileptr_, std::ios_base::in );
 	sd.istrm = new std::istream( stdiofb );
 # else
 	sd.istrm = new std::ifstream( fileno(sd.fp) );
@@ -643,17 +644,18 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     BufferString cmd;
     mkOSCmd( false, cmd );
 
-    sd.fp_ = popen( cmd, "w" );
+    sd.fileptr_ = popen( cmd, "w" );
     sd.ispipe_ = true;
 
-    if ( sd.fp_ )
+    if ( sd.fileptr_ )
     {
 #ifdef __msvc__
-	std::filebuf* fb = new std::filebuf( sd.fp_ );
+	std::filebuf* fb = new std::filebuf( (FILE*)sd.fileptr_ );
 	sd.ostrm = new std::ostream( fb );
 #else
 # if __GNUC__ > 2
-	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp_,std::ios_base::out );
+	mStdIOFileBuf* stdiofb
+		    = new mStdIOFileBuf( (FILE*)sd.fileptr_,std::ios_base::out );
 	sd.ostrm = new std::ostream( stdiofb );
 # else
 	sd.ostrm = new std::ofstream( fileno(sd.fp) );

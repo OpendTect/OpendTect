@@ -18,8 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndalgo.h"
 #include "attribdescsetproc.h"
 
-#include <stdio.h>
-
 
 PCADipAttrib::PCADipAttrib( Parameters* params )
     : sg( params->samplegate )
@@ -92,7 +90,6 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
 
     const int nrobs = last - first +1;
-    bool dprint = false;
 
     for ( int idy=first; idy<=last; idy++ )
     {
@@ -101,8 +98,6 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 	int inl = inlines[orgpos];
 	int crl = crlines[orgpos];
 	int t = timepos[orgpos];
-
-	if ( dprint ) printf("%d\t%d\t%d\n", inl, crl, t );
 
 	inl_sum += inl;
 	crl_sum += crl;

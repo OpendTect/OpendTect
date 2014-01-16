@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
-#include <stdio.h>
 #include <iosfwd>
 
 
@@ -39,25 +38,25 @@ public:
     void	setFileName( const char* fn )	{ fname_ = fn; }
     const char*	fileName() const		{ return fname_; }
 
-    FILE*	filePtr() const;
     std::ios*	streamPtr()const;
 
     std::istream* istrm;
     std::ostream* ostrm;
+    void*	filePtr() const; // returns FILE*
 
 protected:
 
-    FILE*	fp_;
+    void*	fileptr_;
     bool	ispipe_;
     BufferString fname_;
 
 private:
 
-    inline void	initStrms() { istrm = 0; ostrm = 0; fp_ = 0; ispipe_ = false; }
+    inline void	initStrms()
+		{ istrm = 0; ostrm = 0; fileptr_ = 0; ispipe_ = false; }
     friend class StreamProvider;
 
 };
 
 
 #endif
-
