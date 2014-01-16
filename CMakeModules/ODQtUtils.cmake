@@ -41,10 +41,11 @@ macro(OD_SETUP_QT)
 	list( REMOVE_DUPLICATES OD_QT_LIBS )
 	list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
 	list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
-    else() # Use Qt4
+
 	if ( WIN32 )
-	    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+	    set ( CMAKE_CXX_FLAGS "/WD4481 ${CMAKE_CXX_FLAGS}" )
 	endif( WIN32 )
+    else() # Use Qt4
 
 	set( ENV{QTDIR} ${QTDIR} )
 	set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
@@ -134,7 +135,13 @@ macro(OD_SETUP_QT)
 		    endif()
 		endforeach()
 	    endforeach()
+
 	endif()
+
+	if ( WIN32 )
+	    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+	endif( WIN32 )
+
     endif()
 endmacro( OD_SETUP_QT )
 
