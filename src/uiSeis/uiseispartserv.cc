@@ -14,9 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "posinfo2d.h"
 #include "ptrman.h"
 #include "seisselection.h"
 #include "seistrctr.h"
@@ -25,12 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "posinfo2d.h"
-#include "survinfo.h"
-#include "surv2dgeom.h"
+#include "seispreload.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisioobjinfo.h"
+#include "strmprov.h"
+#include "survinfo.h"
+#include "surv2dgeom.h"
 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -61,6 +64,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivelocityvolumeconversion.h"
 
 
+static const char* sKeyPreLoad()	{ return "PreLoad"; }
+
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
 {
@@ -74,29 +79,29 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
     if ( opt == 0 )
-	dlg = new uiSeisImpCBVS( appserv().parent() );
+	dlg = new uiSeisImpCBVS( parent() );
     else if ( opt == 9 )
-	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( appserv().parent() ); 
+	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
     else if ( opt < 5 )
     {
 	if ( !forread )
-	    dlg = new uiSEGYExp( appserv().parent(),
-		    		 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
+	    dlg = new uiSEGYExp( parent(),
+				 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
 	else
 	{
 	    const bool isdirect = !(opt % 2);
 	    uiSEGYRead::Setup su( isdirect ? uiSEGYRead::DirectDef
-		    			   : uiSEGYRead::Import );
+					   : uiSEGYRead::Import );
 	    if ( isdirect )
 		su.geoms_ -= Seis::Line;
-	    new uiSEGYRead( appserv().parent(), su );
+	    new uiSEGYRead( parent(), su );
 	}
     }
     else
     {
 	const Seis::GeomType gt( Seis::geomTypeOf( !(opt%2), opt > 6 ) );
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
-	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
+	dlg = new uiSeisIOSimple( parent(), gt, forread );
     }
 
 
@@ -112,35 +117,35 @@ bool uiSeisPartServer::exportSeis( int opt )
 
 void uiSeisPartServer::manageSeismics( bool is2d )
 {
-    uiSeisFileMan dlg( appserv().parent(), is2d );
+    uiSeisFileMan dlg( parent(), is2d );
     dlg.go();
 }
 
 
 void uiSeisPartServer::managePreLoad()
 {
-    uiSeisPreLoadMgr dlg( appserv().parent() );
+    uiSeisPreLoadMgr dlg( parent() );
     dlg.go();
 }
 
 
 void uiSeisPartServer::importWavelets()
 {
-    uiSeisWvltImp dlg( appserv().parent() );
+    uiSeisWvltImp dlg( parent() );
     dlg.go();
 }
 
 
 void uiSeisPartServer::exportWavelets()
 {
-    uiSeisWvltExp dlg( appserv().parent() );
+    uiSeisWvltExp dlg( parent() );
     dlg.go();
 }
 
 
 void uiSeisPartServer::manageWavelets()
 {
-    uiSeisWvltMan dlg( appserv().parent() );
+    uiSeisWvltMan dlg( parent() );
     dlg.go();
 }
 
@@ -149,7 +154,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     uiSeisSel::Setup setup(Seis::Line); setup.selattr( with_attr );
-    uiSeisSelDlg dlg( appserv().parent(), *ctio, setup );
+    uiSeisSelDlg dlg( parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 
     mid = dlg.ioObj()->key();
@@ -171,7 +176,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
     Seis2DLineSet lineset( fnm );
 
 
-void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
+void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
 					 BufferString& setname )
 {
     mGet2DLineSet(;)
@@ -186,7 +191,7 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
     objinfo.ioObjInfo().getLineNames( linenames );
 
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
-    uiSelectFromList dlg( appserv().parent(), setup );
+    uiSelectFromList dlg( parent(), setup );
     dlg.setHelpID("50.0.17");
     if ( dlg.selFld() )
     {
@@ -293,7 +298,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 
     lineset.getCubeSampling( cs, lidx );
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
-    uiTaskRunner dlg( appserv().parent() );
+    uiTaskRunner dlg( parent() );
     return TaskRunner::execute( &dlg, *exec );
 }
 
@@ -318,28 +323,28 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 
 void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 {
-    uiSeisRandTo2DLineDlg dlg( appserv().parent(), &rln );
+    uiSeisRandTo2DLineDlg dlg( parent(), &rln );
     dlg.go();
 }
 
 
 void uiSeisPartServer::resortSEGY() const
 {
-    uiResortSEGYDlg dlg( appserv().parent() );
+    uiResortSEGYDlg dlg( parent() );
     dlg.go();
 }
 
 
 void uiSeisPartServer::processTime2Depth() const
 {
-    uiBatchTime2DepthSetup dlg( appserv().parent() );
+    uiBatchTime2DepthSetup dlg( parent() );
     dlg.go();
 }
 
 
 void uiSeisPartServer::processVelConv() const
 {
-    Vel::uiBatchVolumeConversion dlg( appserv().parent() );
+    Vel::uiBatchVolumeConversion dlg( parent() );
     dlg.go();
 }
 
@@ -349,4 +354,34 @@ void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
 {
     mGet2DLineSet(;)
     lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
+}
+
+
+void uiSeisPartServer::fillPar( IOPar& par ) const
+{
+    BufferStringSet ids;
+    StreamProvider::getPreLoadedIDs( ids );
+    for ( int iobj=0; iobj<ids.size(); iobj++ )
+    {
+	const MultiID id( ids.get(iobj).buf() );
+	IOPar iop;
+	Seis::PreLoader spl( id ); spl.fillPar( iop );
+	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), iobj );
+	par.mergeComp( iop, parkey );
+    }
+}
+
+
+bool uiSeisPartServer::usePar( const IOPar& par )
+{
+    StreamProvider::unLoadAll();
+    PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
+    if ( !plpar ) return true;
+
+    IOPar newpar;
+    newpar.mergeComp( *plpar, "Seis" );
+
+    uiTaskRunner uitr( parent() );
+    Seis::PreLoader::load( newpar, &uitr );
+    return true;
 }

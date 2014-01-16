@@ -23,16 +23,17 @@ ________________________________________________________________________
 mExpClass(uiODMain) ODSession
 {
 public:
-    			ODSession();
+			ODSession();
     virtual		~ODSession()		{}
 
-    IOPar&		vispars() 		{ return vispars_; }
+    IOPar&		seispars();
+    IOPar&		vispars()		{ return vispars_; }
     IOPar&		attrpars(bool,bool);
-    IOPar&		nlapars() 		{ return nlapars_; }
-    IOPar&		mpepars() 		{ return mpepars_; }
-    IOPar&		scenepars() 		{ return scenepars_; }
+    IOPar&		nlapars()		{ return nlapars_; }
+    IOPar&		mpepars()		{ return mpepars_; }
+    IOPar&		scenepars()		{ return scenepars_; }
     IOPar&		vwr2dpars()		{ return vwr2dpars_; }
-    IOPar&		pluginpars() 		{ return pluginpars_; }
+    IOPar&		pluginpars()		{ return pluginpars_; }
 
     void		clear();
     ODSession&		operator =(const ODSession&);
@@ -90,35 +91,35 @@ public:
 mExpClass(uiODMain) ODSessionTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(ODSession)
+			mDefEmptyTranslatorBaseConstructor(ODSession)
 
     virtual const char*	read(ODSession&,Conn&)		= 0;
-    			//!< returns err msg or null on success
+			//!< returns err msg or null on success
     virtual const char*	write(const ODSession&,Conn&)	= 0;
-    			//!< returns err msg or null on success
+			//!< returns err msg or null on success
     virtual const char*	warningMsg() const		{ return ""; }
 
     static bool		retrieve(ODSession&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
     static bool		store(const ODSession&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
 
     static const char*	keyword();
 
 };
-    
+
 
 mExpClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,ODSession)
+			mDefEmptyTranslatorConstructor(dgb,ODSession)
 
     const char*		read(ODSession&,Conn&);
-    			//!< returns err msg or null on success
+			//!< returns err msg or null on success
     const char*		write( const ODSession&,Conn&);
-    			//!< returns err msg or null on success
+			//!< returns err msg or null on success
     const char*		warningMsg() const	{ return warningmsg; }
 
     BufferString	warningmsg;
@@ -137,7 +138,7 @@ Session manager
 mExpClass(uiODMain) uiSessionMan : public uiObjFileMan
 {
 public:
-    				uiSessionMan(uiParent*);
+				uiSessionMan(uiParent*);
 				~uiSessionMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSessionMan);

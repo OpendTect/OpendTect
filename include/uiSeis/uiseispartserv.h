@@ -23,6 +23,7 @@ ________________________________________________________________________
 class BufferString;
 class BufferStringSet;
 class CubeSampling;
+class IOPar;
 class MultiID;
 class SeisTrcBuf;
 class uiPopupMenu;
@@ -75,6 +76,9 @@ public:
     void		importWavelets();
     void		exportWavelets();
     void		manageWavelets();
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 
