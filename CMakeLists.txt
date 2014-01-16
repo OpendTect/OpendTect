@@ -7,7 +7,8 @@
 
 cmake_minimum_required ( VERSION 2.8.5 )
 
-if ( CMAKE_VERSION VERSION_GREATER 2.8.10 )
+if ( CMAKE_VERSION VERSION_LESS 2.8.11 )
+else()
     cmake_policy( SET CMP0020 OLD )
 endif()
 
