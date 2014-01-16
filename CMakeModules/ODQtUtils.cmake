@@ -43,7 +43,7 @@ macro(OD_SETUP_QT)
 	list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
 
 	if ( WIN32 )
-	    set ( CMAKE_CXX_FLAGS "/WD4481 ${CMAKE_CXX_FLAGS}" )
+	    set ( CMAKE_CXX_FLAGS "/wd4481 ${CMAKE_CXX_FLAGS}" )
 	endif( WIN32 )
     else() # Use Qt4
 
