@@ -98,15 +98,15 @@ uiString& uiString::operator=( const char* str )
 }
 
 
-uiString uiString::arg( const uiString& arg ) const
+uiString uiString::arg( const uiString& newarg ) const
 {
-    return uiString( qstring_->arg( arg.getQtString() ), originalstring_ );
+    return uiString( qstring_->arg( newarg.getQtString() ), originalstring_ );
 }
 
 
-uiString uiString::arg( const char* arg ) const
+uiString uiString::arg( const char* newarg ) const
 {
-    return uiString( qstring_->arg( arg ), originalstring_ );
+    return uiString( qstring_->arg( newarg ), originalstring_ );
 }
 
 
