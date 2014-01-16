@@ -202,8 +202,16 @@ void IOMan::reInit( bool dotrigger )
 
     StreamProvider::unLoadAll();
     TranslatorGroup::clearSelHists();
-    init();
 
+    delete dirptr_; dirptr_ = 0;
+    survchgblocked_ = false;
+    state_ = IOMan::NeedInit;
+
+    rootdir_ = GetDataDir();
+    if ( !File::isDirectory(rootdir_) )
+	rootdir_ = GetBaseDataDir();
+
+    init();
     if ( !IOM().isBad() ) 
     { 
 	SurveyInfo::setSurveyName( SI().getDirName() ); 
