@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "oddirs.h"
 #include "hostdata.h"
@@ -332,12 +333,12 @@ MultiID SeisJobExecProv::tempStorID() const
     FilePath fp( iopar_.find(sKey::TmpStor()) );
 
     // Is there already an entry?
-    IOM().to( ctio_.ctxt.getSelKey() );
-    IODirEntryList el( IOM().dirPtr(), ctio_.ctxt );
+    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const IODirEntryList el( iodir, ctio_.ctxt );
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )
     {
-	const IOObj* ioobj = el[idx]->ioobj;
+	const IOObj* ioobj = el[idx]->ioobj_;
 	if ( !ioobj ) continue;
 	mDynamicCastGet(const IOStream*,iostrm,ioobj)
 	if ( !iostrm || !iostrm->isMulti() ) continue;

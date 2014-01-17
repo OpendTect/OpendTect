@@ -26,9 +26,8 @@ class TranslatorGroup;
 mExpClass(General) IODirEntry : public NamedObject
 {
 public:
-			IODirEntry(IOObj*);
-    IOObj*		ioobj;
-
+			IODirEntry(const IOObj*);
+    const IOObj*	ioobj_;
 };
 
 
@@ -37,22 +36,25 @@ public:
 mExpClass(General) IODirEntryList : public ObjectSet<IODirEntry>
 {
 public:
-			IODirEntryList(IODir*,const IOObjContext&);
-			IODirEntryList(IODir*,const TranslatorGroup*,
+			IODirEntryList(const IODir&,const IOObjContext&);
+			//!<IODir is expected to remain alive
+			IODirEntryList(const IODir&,const TranslatorGroup*,
 					bool maychgdir,
 					const char* translator_globexpr=0);
+			//!<IODir is expected to remain alive
 			~IODirEntryList();
     const char*		name() const	{ return name_; }
 
-    void		fill(IODir*,const char* nmfiltglobexpr=0);
+    void		fill(const IODir&,const char* nmfiltglobexpr=0);
+			//!<IODir is expected to remain alive
     void		setSelected(const MultiID&);
     void		sort();
     void		setCurrent( int idx )	{ cur_ = idx; }
-    IODirEntry*		current() const	
+    const IODirEntry*	current() const	
     			{ return cur_ < 0 || cur_ >= size() ? 0
 			    	: (*(IODirEntryList*)this)[cur_]; }
-    IOObj*		selected()
-			{ return current() ? current()->ioobj : 0 ; }
+    const IOObj*	selected() const
+			{ return current() ? current()->ioobj_ : 0 ; }
     void		removeWithTranslator(const char*);
     int			indexOf(const char*) const;
     int			indexOf( const IODirEntry* e ) const

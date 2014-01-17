@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uitoolbutton.h"
 #include "wavelet.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "ctxtioobj.h"
 #include "survinfo.h"
@@ -119,13 +120,13 @@ void uiSeisWaveletSel::selChg( CallBacker* )
 void uiSeisWaveletSel::rebuildList()
 {
     IOObjContext ctxt( mIOObjContext(Wavelet) );
-    IOM().to( ctxt.getSelKey() );
-    IODirEntryList dil( IOM().dirPtr(), ctxt );
+    const IODir iodir( ctxt.getSelKey() );
+    const IODirEntryList dil( iodir, ctxt );
     nms_.erase(); deepErase( ids_ );
     for ( int idx=0; idx<dil.size(); idx ++ )
     {
-	nms_.add( dil[idx]->ioobj->name() );
-	ids_ += new MultiID( dil[idx]->ioobj->key() );
+	nms_.add( dil[idx]->ioobj_->name() );
+	ids_ += new MultiID( dil[idx]->ioobj_->key() );
     }
 
     BufferString curwvlt( nmfld_->text() );

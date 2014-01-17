@@ -314,8 +314,7 @@ void CtxtIOObj::fillIfOnlyOne()
 {
     ctxt.fillTrGroup();
 
-    IOM().to( ctxt.getSelKey() );
-    const IODir& iodir = *IOM().dirPtr();
+    const IODir iodir( ctxt.getSelKey() );
     int ivalid = -1;
     for ( int idx=0; idx<iodir.size(); idx++ )
     {

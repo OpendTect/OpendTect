@@ -23,6 +23,7 @@ class IOObj;
 class IOObjContext;
 class IOSubDir;
 class SurveyInfo;
+class SurveyDataTreePreparer;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -53,14 +54,14 @@ public:
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
 
-    IODir*		dirPtr()		{ return dirptr_; }
-    const IODir*	dirPtr() const		{ return dirptr_; }
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
+
+    MultiID		createNewKey(const MultiID& dirkey);
 
     bool		to(const MultiID&,bool force_reread=false);
     bool		toRoot(bool force_reread=false)
@@ -132,8 +133,7 @@ private:
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
 
-    friend class	IOObj;
-    friend class	IODir;
+    friend class	SurveyDataTreePreparer;
     friend mGlobal(General)	IOMan&	IOM();
 
 public:

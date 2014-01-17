@@ -306,19 +306,18 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    IOM().to( MultiID(0) );
-    IOM().to( ctio_.ctxt.getSelKey() );
-    IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
+    const IODir iodir ( ctio_.ctxt.getSelKey() );
+    IODirEntryList del( iodir, ctio_.ctxt );
     BufferString nmflt = filtfld_->text();
     if ( !nmflt.isEmpty() && nmflt != "*" )
-	del.fill( IOM().dirPtr(), nmflt );
+	del.fill( iodir, nmflt );
 
     ioobjnms_.erase();
     dispnms_.erase();
     deepErase( ioobjids_ );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj;
+	const IOObj* ioobj = del[idx]->ioobj_;
 	if ( !ioobj )
 	{
 	    BufferString nm = del[idx]->name();
@@ -329,7 +328,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	}
 	else
 	{
-	    const MultiID ky( del[idx]->ioobj->key() );
+	    const MultiID ky( del[idx]->ioobj_->key() );
 	    ioobjids_ += new MultiID( ky );
 	    ioobjnms_.add( ioobj->name() );
 	    BufferString dispnm;
@@ -791,10 +790,10 @@ void uiIOObjSel::obtainIOObj()
 			      && workctio_.ioobj->name()==inp.buf() )
 	    return;
     }
-
-    IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioob = IOM().dirPtr()->get( inp.buf(),
-				workctio_.ctxt.trgroup->userName() );
+    
+    const IODir iodir( workctio_.ctxt.getSelKey() );
+    const IOObj* ioob = iodir.get( inp.buf(), 
+				   workctio_.ctxt.trgroup->userName() );
     workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
 }
@@ -810,16 +809,16 @@ void uiIOObjSel::processInput()
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    IOM().to( workctio_.ctxt.getSelKey() );
-    return IOM().dirPtr()->get( nm, workctio_.ctxt.trgroup->userName() );
+    const IODir iodir ( workctio_.ctxt.getSelKey() );
+    return iodir.get( nm, workctio_.ctxt.trgroup->userName() );
 }
 
 
 MultiID uiIOObjSel::validKey() const
 {
-    IOM().to( workctio_.ctxt.getSelKey() );
-    const IOObj* ioob = IOM().dirPtr()->get( getInput(),
-				workctio_.ctxt.trgroup->userName() );
+    const IODir iodir( workctio_.ctxt.getSelKey() );
+    const IOObj* ioob = iodir.get( getInput(),
+				   workctio_.ctxt.trgroup->userName() );
 
     if ( ioob && workctio_.ctxt.validIOObj(*ioob) )
 	return ioob->key();

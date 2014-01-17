@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "ioobj.h"
 
@@ -123,14 +124,14 @@ const IOObj* uiSeisMultiCubePS::createdIOObj() const
 
 void uiSeisMultiCubePS::fillEntries()
 {
-    IOM().to( ctio_.ctxt.getSelKey() );
-    IODirEntryList del( IOM().dirPtr(), SeisTrcTranslatorGroup::ioContext() );
+    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const IODirEntryList del( iodir, SeisTrcTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IODirEntry& de = *del[idx];
-	if ( !de.ioobj || !de.ioobj->isReadDefault() ) continue;
+	if ( !de.ioobj_ || !de.ioobj_->isReadDefault() ) continue;
 
-	entries_ += new uiSeisMultiCubePSEntry( de.ioobj->clone() );
+	entries_ += new uiSeisMultiCubePSEntry( de.ioobj_->clone() );
     }
 }
 

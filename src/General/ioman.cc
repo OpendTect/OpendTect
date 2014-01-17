@@ -89,7 +89,7 @@ void IOMan::init()
     state_ = Good;
     curlvl_ = 0;
 
-    if ( dirPtr()->key() == MultiID("-1") ) return;
+    if ( dirptr_->key().isUdf() ) return;
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
@@ -101,7 +101,7 @@ void IOMan::init()
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
 			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = dirPtr()->get( MultiID(dd->id) );
+	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id) );
 	if ( dirioobj )
 	{
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
@@ -172,10 +172,10 @@ void IOMan::init()
 	IOSubDir* iosd = new IOSubDir( dd->dirnm );
 	iosd->key_ = dd->id;
 	iosd->dirnm_ = rootdir_;
-	const IOObj* previoobj = prevdd ? dirPtr()->get( MultiID(prevdd->id) )
-					: dirPtr()->main();
-	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
-	dirPtr()->objs_.insertAfter( iosd, idxof );
+	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id) )
+					: dirptr_->main();
+	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
+	dirptr_->objs_.insertAfter( iosd, idxof );
 
 	prevdd = dd;
 	needwrite = true;
@@ -183,7 +183,7 @@ void IOMan::init()
 
     if ( needwrite )
     {
-	dirPtr()->doWrite();
+	dirptr_->doWrite();
 	to( emptykey, true );
     }
 }
@@ -234,7 +234,7 @@ IOMan::~IOMan()
 
 bool IOMan::isReady() const
 {
-    return isBad() || !dirptr_ ? false : dirptr_->key() != MultiID("-1");
+    return isBad() || !dirptr_ ? false : !dirptr_->key().isUdf();
 }
 
 
@@ -401,6 +401,16 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 }
 
 
+MultiID IOMan::createNewKey( const MultiID& dirkey )
+{
+    Threads::Locker lock( lock_ );
+    if ( !to( dirkey, true ) )
+	return MultiID::udf();
+
+    return dirptr_->newKey();
+}
+
+
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
     Threads::Locker lock( lock_ );
@@ -559,7 +569,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	{
 	    CtxtIOObj ctio( ctxt );
 	    IOM().to( ctio.ctxt.getSelKey() );
-	    const IOObj* ioob = dirPtr()->get( res.buf() );
+	    const IOObj* ioob = dirptr_->get( res.buf(), 0 );
 	    if ( ioob )
 		res = ioob->key();
 	    else if ( mknew )
@@ -676,7 +686,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	return;
     to( ctio.ctxt.getSelKey() );
 
-    const IOObj* ioobj = dirPtr()->get( ctio.ctxt.name(),
+    const IOObj* ioobj = dirptr_->get( ctio.ctxt.name(),
 					ctio.ctxt.trgroup->userName() );
     ctio.ctxt.fillTrGroup();
     if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
@@ -715,7 +725,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	    delete tmptr;
 	}
 
-	dirPtr()->ensureUniqueName( *iostrm );
+	dirptr_->ensureUniqueName( *iostrm );
 	const BufferString uniqnm( iostrm->name() );
 	int ifnm = 0;
 	while ( true )
@@ -725,14 +735,14 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 		break;
 	    ifnm++;
 	    iostrm->setName( BufferString(uniqnm,ifnm) );
-	    dirPtr()->ensureUniqueName( *iostrm );
+	    dirptr_->ensureUniqueName( *iostrm );
 	}
 
 	iostrm->updateCreationPars();
 	ioobj = iostrm;
 
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
-	dirPtr()->addObj( (IOObj*)ioobj );
+	dirptr_->addObj( (IOObj*)ioobj );
     }
 
     ctio.setObj( ioobj->clone() );
@@ -764,14 +774,14 @@ bool IOMan::commitChanges( const IOObj& ioobj )
     Threads::Locker lock( lock_ );
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
-    return dirPtr() ? dirPtr()->commitChanges( clone ) : false;
+    return dirptr_ ? dirptr_->commitChanges( clone ) : false;
 }
 
 
 bool IOMan::permRemove( const MultiID& ky )
 {
     Threads::Locker lock( lock_ );
-    if ( !dirPtr() || !dirPtr()->permRemove(ky) )
+    if ( !dirptr_ || !dirptr_->permRemove(ky) )
 	return false;
 
     CBCapsule<MultiID> caps( ky, this );
@@ -828,7 +838,7 @@ bool SurveyDataTreePreparer::prepSurv()
     IOM().toRoot();
     if ( IOM().isBad() )
 	{ errmsg_ = "Can't go to root of survey"; return false; }
-    IODir* topdir = IOM().dirPtr();
+    IODir* topdir = IOM().dirptr_;
     if ( !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
 
@@ -839,7 +849,7 @@ bool SurveyDataTreePreparer::prepSurv()
     ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
-    if ( !IOM().dirPtr()->addObj(IOMan::getIOSubDir(dirdata_),true) )
+    if ( !IOM().dirptr_->addObj(IOMan::getIOSubDir(dirdata_),true) )
 	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
     return true;
 }
@@ -847,9 +857,9 @@ bool SurveyDataTreePreparer::prepSurv()
 
 bool SurveyDataTreePreparer::createDataTree()
 {
-    if ( !IOM().dirPtr() ) { errmsg_ = "Invalid current survey"; return false; }
+    if ( !IOM().dirptr_ ) { errmsg_ = "Invalid current survey"; return false; }
 
-    FilePath fp( IOM().dirPtr()->dirName() );
+    FilePath fp( IOM().dirptr_->dirName() );
     fp.add( dirdata_.dirname_ );
     const BufferString thedirnm( fp.fullPath() );
     bool dircreated = false;

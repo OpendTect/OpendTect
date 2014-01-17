@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "file.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iodirentry.h"
@@ -1484,11 +1485,11 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
 {
     nms_ = new BufferStringSet;
     IOObjContext ctxt( WellTranslatorGroup::ioContext() );
-    IOM().to( ctxt.getSelKey() );
-    IODirEntryList del( IOM().dirPtr(), ctxt );
+    const IODir iodir( ctxt.getSelKey() );
+    const IODirEntryList del( iodir, ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj;
+	const IOObj* ioobj = del[idx]->ioobj_;
 	if ( ioobj )
 	    nms_->add( ioobj->name() );
     }

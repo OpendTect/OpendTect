@@ -153,13 +153,28 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 }
 
 
+#define mGetParentDirKey(key, dirkey) \
+    if ( key.nrKeys()<2 ) \
+    { \
+	pErrMsg("This code has to be checked by Bert!"); \
+	dirkey = MultiID(); \
+    } \
+    else \
+    { \
+	dirkey = key.upLevel(); \
+    }
+
+
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
-    if ( ky.isEmpty() && IOM().dirPtr() )
-	ky = IOM().dirPtr()->newKey();
+    if ( ky.isEmpty() )
+    {
+	pFreeFnErrMsg( "IOObj : Empty key given", "IOObj::produce" );
+	return 0;
+    }
 
     const ObjectSet<const IOObjProducer>& prods = getProducers();
     for ( int idx=0; idx<prods.size(); idx++ )
@@ -194,6 +209,9 @@ IOObj* IOObj::clone() const
     if ( isSubdir() )
 	return new IOSubDir( *((IOSubDir*)this) );
 
+    if ( key().isEmpty() )
+	return 0;
+
     IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
 	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
@@ -203,7 +221,12 @@ IOObj* IOObj::clone() const
 
 
 void IOObj::acquireNewKey()
-{ key_ = IOM().dirPtr()->newKey(); }
+{
+    MultiID dirkey;
+    mGetParentDirKey( key_, dirkey );
+
+    key_ = IOM().createNewKey( dirkey );
+}
 
 
 bool IOObj::isKey( const char* ky )

@@ -124,11 +124,11 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom);
-    const MultiID mid = iocontext.getSelKey();
-    if ( !IOM().to(mid,true) )
+    const IODir iodir( iocontext.getSelKey() );
+    if ( iodir.isBad() )
 	return false;
-	
-    const ObjectSet<IOObj> objs = IOM().dirPtr()->getObjs();
+
+    const ObjectSet<IOObj>& objs = iodir.getObjs();
     GeomFileReader gfr( objs, geometries );
     return TaskRunner::execute( tr, gfr );
 }

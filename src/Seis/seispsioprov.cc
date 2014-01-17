@@ -53,16 +53,16 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     if ( ioobj.pars().find(SeisPSIOProvider::sKeyCubeID) )
 	return;
 
-    IOM().to( ioobj.key() );
+    IODir iodir( ioobj.key() );
     BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
     IOX* iox = new IOX( nm );
     iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
     iox->acquireNewKey();
     ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
-    IOM().dirPtr()->commitChanges( &ioobj );
+    iodir.commitChanges( &ioobj );
     iox->setOwnKey( ioobj.key() );
-    IOM().dirPtr()->addObj( iox, true );
+    iodir.addObj( iox, true );
 }
 
 
@@ -306,7 +306,8 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		    newtrc->data().getInterpreter(0)->dataChar() );
 	    for ( int itrc=1; itrc<nrtrcnrs; itrc++ )
 	    {
-		PtrMan<SeisTrc> rdtrc = psrdr_->getTrace( curbinid_, trcnrs_[itrc] );
+		PtrMan<SeisTrc> rdtrc = 
+		    psrdr_->getTrace( curbinid_, trcnrs_[itrc] );
 		newtrc->data().addComponent( trcsz, dc, !rdtrc );
 		if ( rdtrc )
 		{

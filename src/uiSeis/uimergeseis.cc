@@ -38,8 +38,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 				 "103.1.2"))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    IOM().to( ctio_.ctxt.getSelKey() );
-    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

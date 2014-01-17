@@ -159,8 +159,7 @@ void uiSeis2DLineNameSel::fillAll( CallBacker* )
 
 void uiSeis2DLineNameSel::fillWithAll()
 {
-    IOM().to( mIOObjContext(SeisTrc).getSelKey() );
-    const IODir& iodir = *IOM().dirPtr();
+    const IODir iodir( mIOObjContext(SeisTrc).getSelKey() );
     const ObjectSet<IOObj>& objs = iodir.getObjs();
     for ( int idx=0; idx<objs.size(); idx++ )
 	addLineNames( objs[idx]->key() );

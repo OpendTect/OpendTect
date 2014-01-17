@@ -208,8 +208,8 @@ void uiWellSelGrp::fillListBox()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
-    IOM().to( ctio->ctxt.getSelKey() );
-    IODirEntryList entrylist( IOM().dirPtr(), ctio->ctxt );
+    const IODir iodir ( ctio->ctxt.getSelKey() );
+    IODirEntryList entrylist( iodir, ctio->ctxt );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {

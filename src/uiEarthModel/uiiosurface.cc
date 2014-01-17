@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -539,12 +540,12 @@ public:
 		    "Available for 2D lines",mNoHelpID))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
-	IOM().to( ctio->ctxt.getSelKey() );
-	IODirEntryList entlst( IOM().dirPtr(), ctio->ctxt );
+	const IODir iodir( ctio->ctxt.getSelKey() );
+	const IODirEntryList entlst( iodir, ctio->ctxt );
 
 	for ( int idx=0; idx<entlst.size(); idx++ )
 	{
-	    const IOObj* obj = entlst[idx]->ioobj;
+	    const IOObj* obj = entlst[idx]->ioobj_;
 	    if ( !obj ) continue;
 
 	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj->key());

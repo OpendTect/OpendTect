@@ -193,8 +193,9 @@ bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
     BufferString midstr( SI().pars().find(key) );
     if ( midstr.isEmpty() )
     {
-	const IODir* iodir = IOM().dirPtr();
-	ObjectSet<IOObj> ioobjs = iodir->getObjs();
+	const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
+	const IODir iodir ( ctxt.getSelKey() );
+	const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 	int nrod3d = 0;
 	int def3didx = 0;
 	for ( int idx=0; idx<ioobjs.size(); idx++ )

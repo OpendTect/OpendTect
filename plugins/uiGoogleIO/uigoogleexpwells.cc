@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "oddirs.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -46,15 +47,15 @@ uiGoogleExportWells::~uiGoogleExportWells()
 
 void uiGoogleExportWells::initWin( CallBacker* )
 {
-    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
-    IODirEntryList del( IOM().dirPtr(), WellTranslatorGroup::ioContext() );
+    const IODir iodir( WellTranslatorGroup::ioContext().getSelKey() );
+    const IODirEntryList del( iodir, WellTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	IODirEntry* de = del[idx];
-	if ( de && de->ioobj )
+	const IODirEntry* de = del[idx];
+	if ( de && de->ioobj_ )
 	{
 	    selfld_->addItem( de->name() );
-	    wellids_ += new MultiID( de->ioobj->key() );
+	    wellids_ += new MultiID( de->ioobj_->key() );
 	}
     }
 }

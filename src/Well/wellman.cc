@@ -121,8 +121,8 @@ int Well::Man::gtByKey( const MultiID& key ) const
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    IOM().to( MultiID("100050") );
-    IODir iodir( MultiID("100050") );
+    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id );
+    const IODir iodir( mid );
     if ( nm && *nm )
     {
 	const IOObj* ioobj = iodir.get( nm, "Well" );
@@ -132,11 +132,11 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     if ( uwi && *uwi )
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-	IODirEntryList del( IOM().dirPtr(), ctio->ctxt );
+	const IODirEntryList del( iodir, ctio->ctxt );
 	Well::Data data;
 	for ( int idx=0; idx<del.size(); idx++ )
 	{
-	    const IOObj* ioobj = del[idx]->ioobj;
+	    const IOObj* ioobj = del[idx]->ioobj_;
 	    if ( !ioobj ) continue;
 
 	    Well::Reader rdr( ioobj->fullUserExpr(), data );

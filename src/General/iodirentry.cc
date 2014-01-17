@@ -19,15 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-IODirEntry::IODirEntry( IOObj* iob )
+IODirEntry::IODirEntry( const IOObj* iob )
     : NamedObject("")
-    , ioobj(iob)
+    , ioobj_(iob)
 {
-    setName( ioobj ? ioobj->name() : ".." );
+    setName( ioobj_ ? ioobj_->name() : ".." );
 }
 
 
-IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
+IODirEntryList::IODirEntryList( const IODir& id, const TranslatorGroup* tr,
 				bool maycd, const char* f )
     : ctxt(*new IOObjContext(tr))
     , cur_(-1)
@@ -38,7 +38,7 @@ IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 }
 
 
-IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
+IODirEntryList::IODirEntryList( const IODir& id, const IOObjContext& ct )
     : ctxt(*new IOObjContext(ct))
     , cur_(-1)
     , maycd_(false)
@@ -54,16 +54,20 @@ IODirEntryList::~IODirEntryList()
 }
 
 
-void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
+void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 {
-    if ( !iodir ) { pErrMsg("Can't fill IODirEntryList. No iodir"); return; }
+    if ( iodir.isBad() )
+    {
+	pErrMsg("Bad iodir" );
+	return;
+    }
 
     deepErase(*this);
-    name_ = iodir->main() ? (const char*)iodir->main()->name() : "Objects";
-    const ObjectSet<IOObj>& ioobjs = iodir->getObjs();
+    name_ = iodir.main() ? (const char*)iodir.main()->name() : "Objects";
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 
     int curset = 0;
-    if ( maycd_ && FilePath(iodir->dirName()) != FilePath(IOM().rootDir()) )
+    if ( maycd_ && FilePath(iodir.dirName()) != FilePath(IOM().rootDir()) )
     {
         *this += new IODirEntry( 0 );
 	curset++;
@@ -87,7 +91,7 @@ void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
 	if ( ctxt.validIOObj(*ioobj) )
 	{
 	    if ( !ge || ge->matches(ioobj->name()) )
-		*this += new IODirEntry( const_cast<IOObj*>(ioobj) );
+		*this += new IODirEntry( ioobj );
 	}
     }
 
@@ -107,14 +111,14 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
     {
 	IODirEntry* entry = (*this)[idx];
 	MultiID iokey( iniokey );
-	if ( !entry->ioobj )
+	if ( !entry->ioobj_ )
 	{
 	    if ( iokey.isEmpty() )
 		matches = true;
 	}
 	else
 	{
-	    if ( iokey == entry->ioobj->key() )
+	    if ( iokey == entry->ioobj_->key() )
 		matches = true;
 	    else
 	    {
@@ -122,7 +126,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 		{
 		    iokey = iokey.upLevel();
 		    if ( iokey.isEmpty() ) break;
-		    if ( iokey == entry->ioobj->key() )
+		    if ( iokey == entry->ioobj_->key() )
 			matches = true;
 		}
 	    }
@@ -143,7 +147,7 @@ void IODirEntryList::removeWithTranslator( const char* trnm )
     for ( int idx=0; idx<size(); idx++ )
     {
 	IODirEntry* entry = (*this)[idx];
-	if ( entry->ioobj && nm == entry->ioobj->translator() )
+	if ( entry->ioobj_ && nm == entry->ioobj_->translator() )
 	{
 	    if ( idx == cur_ )
 		cur_--;

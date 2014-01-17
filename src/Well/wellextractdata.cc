@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "filepath.h"
 #include "strmprov.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -74,8 +75,8 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    IOM().to( ctio->ctxt.getSelKey() );
-    direntries_ = new IODirEntryList( IOM().dirPtr(), ctio->ctxt );
+    iodir_ = new IODir( ctio->ctxt.getSelKey() );
+    direntries_ = new IODirEntryList( *iodir_, ctio->ctxt );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? "Gathering information" : "No wells";
 }
@@ -86,6 +87,8 @@ Well::InfoCollector::~InfoCollector()
     deepErase( infos_ );
     deepErase( markers_ );
     deepErase( logs_ );
+    delete direntries_;
+    delete iodir_;
 }
 
 
@@ -94,7 +97,7 @@ int Well::InfoCollector::nextStep()
     if ( curidx_ >= totalnr_ )
 	return ErrorOccurred();
 
-    IOObj* ioobj = (*direntries_)[curidx_]->ioobj;
+    const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( wr.getInfo() )

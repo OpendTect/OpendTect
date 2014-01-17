@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceiodata.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -42,15 +43,15 @@ uiSurfaceSel::~uiSurfaceSel()
 
 void uiSurfaceSel::getFullList()
 {
-    IOM().to( ctxt_.getSelKey(), true );
-    IODirEntryList del( IOM().dirPtr(), ctxt_ );
+    const IODir iodir( ctxt_.getSelKey() );
+    const IODirEntryList del( iodir, ctxt_ );
 
     names_.erase();
     mids_.erase();
     listfld_->setEmpty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj;
+	const IOObj* ioobj = del[idx]->ioobj_;
 	if ( !ioobj ) continue;
 
 	mids_ += ioobj->key();
@@ -114,15 +115,15 @@ void uiSurface2DSel::setLineSetID( const MultiID& mid )
 {
     linesetid_ = mid;
     
-    IOM().to( ctxt_.getSelKey(), true );
-    IODirEntryList del( IOM().dirPtr(), ctxt_ );
+    const IODir iodir( ctxt_.getSelKey() );
+    const IODirEntryList del( iodir, ctxt_ );
 
     names_.erase();
     mids_.erase();
     listfld_->setEmpty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj;
+	const IOObj* ioobj = del[idx]->ioobj_;
 	if ( !ioobj ) continue;
 
 	EM::IOObjInfo eminfo( ioobj->key() );

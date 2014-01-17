@@ -88,9 +88,8 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     }
     const char* nm = ctio.name().buf();
 
-    IOM().to( ctio.ctxt.getSelKey() );
-    const IOObj* existioobj = IOM().dirPtr()->get( nm,
-	    				ctio.ctxt.trgroup->userName() );
+    const IODir iodir( ctio.ctxt.getSelKey() );
+    const IOObj* existioobj = iodir.get( nm, ctio.ctxt.trgroup->userName() );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );

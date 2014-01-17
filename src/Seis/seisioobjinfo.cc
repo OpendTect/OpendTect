@@ -588,11 +588,9 @@ void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 				   TypeSet<MultiID>* setids,
 				   TypeSet<BufferStringSet>* linenames )
 {
-    mGoToSeisDir();
-    if ( !IOM().dirPtr() )
-	return;
-
-    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];

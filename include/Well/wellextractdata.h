@@ -25,6 +25,7 @@ ________________________________________________________________________
 class DataPointSet;
 class IODirEntryList;
 class IOObj;
+class IODir;
 template <class T> class Array2DImpl;
 
 
@@ -173,6 +174,7 @@ protected:
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
     IODirEntryList*		direntries_;
+    const IODir*		iodir_;
     int				totalnr_;
     int				curidx_;
     BufferString		curmsg_;
@@ -362,7 +364,7 @@ public:
     float		getLogVal(int logidx,int idz) const;
     float		getLogVal(const char* lognm,int idx) const;
     float		getThickness(int idz) const;
-				//!< Vertical thickness of a sample, not along hole
+			//!< Vertical thickness of a sample, not along hole
 
     const char*		errMsg() const
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }

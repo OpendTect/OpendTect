@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "survinfo.h"
@@ -267,13 +268,14 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 void uiSeisWvltMerge::reloadWvlts()
 {
     deepErase( wvltset_ ); deepErase( namelist_ ); stackedwvlt_ = 0;
-    IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
+    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const IODirEntryList del( iodir, ctio_.ctxt );
     if ( del.size() < 2 ) 
     { uiMSG().error( "not enough wavelets available" ); return; }
 
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
-	const IOObj* ioobj = del[delidx]->ioobj;
+	const IOObj* ioobj = del[delidx]->ioobj_;
 	if ( !ioobj ) continue;
 	Wavelet* wvlt = Wavelet::get( ioobj );
 	if ( !wvlt ) continue;

@@ -1297,11 +1297,12 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    const IODir iodir( 
+	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::keyword()
         : EMHorizon3DTranslatorGroup::keyword();
-    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
@@ -1331,9 +1332,11 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     }
 
     BinID bid;
-    for ( bid.inl()=hs.start.inl(); bid.inl()<=hs.stop.inl(); bid.inl()+=hs.step.inl() )
+    for ( bid.inl()=hs.start.inl(); bid.inl()<=hs.stop.inl(); 
+	  bid.inl()+=hs.step.inl() )
     {
-	for ( bid.crl()=hs.start.crl(); bid.crl()<=hs.stop.crl(); bid.crl()+=hs.step.crl() )
+	for ( bid.crl()=hs.start.crl(); bid.crl()<=hs.stop.crl(); 
+	      bid.crl()+=hs.step.crl() )
 	{
 	    const EM::SubID subid = bid.toInt64();
 	    TypeSet<Coord3> z1pos, z2pos;
@@ -1349,7 +1352,8 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	    if ( !hor3d2 )
 	    {
 		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		    bivs.add( bid, (float) z1pos[posidx].z, (float) z1pos[posidx].z );
+		    bivs.add( bid, (float) z1pos[posidx].z, 
+			      (float) z1pos[posidx].z );
 	    }
 	    else
 	    {
@@ -1368,7 +1372,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 		{
 		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
 		    {
-			float dist_ = (float) ( z2pos[z2idx].z - z1pos[z1idx].z );
+			float dist_ = (float) (z2pos[z2idx].z - z1pos[z1idx].z);
 			if ( fabs(dist_) < dist )
 			{
 			    zintv.start = (float) z1pos[z1idx].z;

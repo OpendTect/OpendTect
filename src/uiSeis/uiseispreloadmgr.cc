@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iodirentry.h"
@@ -281,12 +282,12 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     ctio_.ctxt.toselect.allowtransls_ = "2D";
-    IOM().to( ctio_.ctxt.getSelKey() );
-    IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
+    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const IODirEntryList del( iodir, ctio_.ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	if ( del[idx]->ioobj )
-	    { ctio_.setObj( del[idx]->ioobj->clone() ); break; }
+	if ( del[idx]->ioobj_ )
+	    { ctio_.setObj( del[idx]->ioobj_->clone() ); break; }
     }
 
     lssel_ = new uiIOObjSel( this, ctio_ );

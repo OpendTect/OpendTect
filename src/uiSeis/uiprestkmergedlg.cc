@@ -170,8 +170,8 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 
 void uiPreStackMergeDlg::fillListBox()
 {
-    IOM().to( inctio_.ctxt.getSelKey() );
-    IODirEntryList entrylist( IOM().dirPtr(), inctio_.ctxt );
+    const IODir iodir( inctio_.ctxt.getSelKey() );
+    IODirEntryList entrylist( iodir, inctio_.ctxt );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {

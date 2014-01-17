@@ -17,8 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 
-#define mGoToEMDir() \
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) )
 
 namespace EM
 {
@@ -273,8 +271,8 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 
 void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
 {
-    mGoToEMDir();
-    const IODir& iodir = *IOM().dirPtr();
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
+    const IODir iodir( mid );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
 	const IOObj* ioobj = iodir.get( idx );

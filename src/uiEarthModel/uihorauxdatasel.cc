@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainpspec.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "iodirentry.h"
 #include "uibutton.h"
@@ -111,12 +112,12 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    IOM().to( allhorio->ctxt.getSelKey() );
-    IODirEntryList horlist( IOM().dirPtr(), allhorio->ctxt );
+    const IODir iodir( allhorio->ctxt.getSelKey() );
+    const IODirEntryList horlist( iodir, allhorio->ctxt );
 	
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
-	const IOObj* obj = horlist[idx]->ioobj;
+	const IOObj* obj = horlist[idx]->ioobj_;
 	EM::IOObjInfo eminfo( obj->key() ); 
 	BufferStringSet attrnms;
 	eminfo.getAttribNames( attrnms );
