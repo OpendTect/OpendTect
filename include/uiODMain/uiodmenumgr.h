@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 
 class DirList;
+class MeasureToolMan;
 class uiODFaultToolMan;
 class uiODHelpMenuMgr;
 class uiMenu;
@@ -56,15 +57,15 @@ public:
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
 
     uiMenu*		getBaseMnu(uiODApplMgr::ActType);
-    			//! < Within Survey menu
+			//! < Within Survey menu
     uiMenu*		getMnu(bool imp,uiODApplMgr::ObjType);
-    			//! < Within Survey - Import or Export
+			//! < Within Survey - Import or Export
 
     uiToolBar*		dtectTB()		{ return dtecttb_; }
     uiToolBar*		coinTB()		{ return cointb_; }
     uiToolBar*		manTB()			{ return mantb_; }
 
-    			// Probably not needed by plugins
+			// Probably not needed by plugins
     void		updateStereoMenu();
     void		updateViewMode(bool);
     void		updateAxisMode(bool);
@@ -113,6 +114,7 @@ protected:
     uiToolBar*		mantb_;
 
     uiODFaultToolMan*	faulttoolman_;
+    MeasureToolMan*	measuretoolman_;
 
     void		fillSurveyMenu();
     void		fillImportMenu();
@@ -147,7 +149,7 @@ protected:
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
     void		create2D3DMnu(uiMenu*,const char*,int,int,
-	    			      const char* pm=0);
+				      const char* pm=0);
 
     uiAction*		stereooffitm_;
     uiAction*		stereoredcyanitm_;
@@ -167,7 +169,7 @@ protected:
     void		showLogFile();
     void		mkViewIconsMnu();
     void		addIconMnuItems(const DirList&,uiMenu*,
-	    				BufferStringSet&);
+					BufferStringSet&);
 };
 
 
