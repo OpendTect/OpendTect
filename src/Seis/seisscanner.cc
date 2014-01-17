@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "statrand.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "conn.h"
 #include "math2.h"
 

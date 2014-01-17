@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "strmprov.h"
 #include "progressmeter.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include <iostream>
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }

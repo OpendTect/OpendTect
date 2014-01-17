@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "seissingtrcproc.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "thread.h"
 #include "timefun.h"
 
@@ -672,8 +672,8 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
 	jobprov->preparePreSet( jobrunner->curJobIOPar(),
 				SeisJobExecProv::sKeyOutputLS() );
 	jobrunner->curJobIOPar().set(
-		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName()),
-		    lsfnm );
+		IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName()),
+		lsfnm );
     }
 }
 

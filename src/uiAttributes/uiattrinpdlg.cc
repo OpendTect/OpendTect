@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 

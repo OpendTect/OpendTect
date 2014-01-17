@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "timefun.h"
 #include "bufstring.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QDateTime>
 #include <QTime>

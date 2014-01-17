@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "filepath.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QDir>
 

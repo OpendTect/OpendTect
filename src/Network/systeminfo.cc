@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iostrm.h"
 #include "oddirs.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QHostAddress>
 #include <QHostInfo>

@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidsorting.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
@@ -20,7 +20,7 @@ bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
 
     if ( is2d )
     {
-	if ( !mIsUdf(cur.inl()) && !mIsUdf(cur.inl()) && prev.inl() != cur.inl() )
+	if ( !mIsUdf(cur.inl()) && !mIsUdf(cur.inl()) && prev.inl()!=cur.inl() )
 	    return true;
 
 	return (crlupw && prev.crl() <= cur.crl())

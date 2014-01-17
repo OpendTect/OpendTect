@@ -20,7 +20,7 @@ static const char* rcsPrStr = "$Revision$ $Date$";
 #include "thread.h"
 #include "timefun.h"
 #include "genc.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 const char* Usage::Server::sKeyPort()		{ return "Port"; }
 const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }

@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include <time.h>
 
 	//  0   1   2   3    4    5    6    7    8    9   10   11   12

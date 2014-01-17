@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "texttranslator.h"
 #include "settings.h"
 #include "timer.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QEvent>
 

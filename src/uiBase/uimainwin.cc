@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "pixmap.h"
 #include "settings.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "strmprov.h"
 #include "texttranslator.h"
 #include "thread.h"

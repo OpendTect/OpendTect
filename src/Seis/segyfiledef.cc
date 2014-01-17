@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 namespace SEGY
 {

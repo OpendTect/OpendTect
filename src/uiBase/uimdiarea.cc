@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QApplication>
 #include <QCloseEvent>

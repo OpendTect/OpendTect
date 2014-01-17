@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }

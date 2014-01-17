@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "oscommand.h"
 #include "settings.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "bufstringset.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")

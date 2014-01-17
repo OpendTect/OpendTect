@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "compoundkey.h"
 #include "iopar.h"
 #include "ascstream.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>

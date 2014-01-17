@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 uiFileInput::Setup::Setup( const char* filenm )

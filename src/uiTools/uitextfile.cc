@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "tableconvimpl.h"
 #include "uistrings.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "od_iostream.h"
 
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)

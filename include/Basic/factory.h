@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "ptrman.h"
 #include "typeset.h"
 
@@ -35,7 +35,7 @@ public:
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
     
-    BufferString&		errMsg() const { return errmsgs_.getString(); }
+    BufferString&		errMsg() const { return errmsgs_.getObject(); }
     				//!<Threadsafe, as each thread will have
     				//!<a different string returned.
     
@@ -160,8 +160,8 @@ variable is needed in the creation.
   \endcode
   
   that will create a static function that returns an instance to
-  Factory1Param<ClassName,ParamExpClass>. The static function must be implemented
-  in a src-file with the macro.
+  Factory1Param<ClassName,ParamExpClass>. The static function must be
+  implemented in a src-file with the macro.
   
   \code
   mImplFactory1Param( ClassName, ParamExpClass, FunctionName );

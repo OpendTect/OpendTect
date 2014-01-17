@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "typeset.h"
 #include "ptrman.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 Color::Color( unsigned char r_, unsigned char g_,

@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }

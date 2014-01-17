@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "safefileio.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";

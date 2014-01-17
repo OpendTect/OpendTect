@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "uistring.h"
 
 #include <qlabel.h>

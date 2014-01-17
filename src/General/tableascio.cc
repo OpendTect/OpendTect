@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "keystrs.h"
 #include "file.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "od_iostream.h"
 
 namespace Table

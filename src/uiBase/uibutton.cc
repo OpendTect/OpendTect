@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "pixmap.h"
 #include "settings.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 #include <QCheckBox>

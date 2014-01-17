@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "separstr.h"
 #include "bufstringset.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include "uimain.h"
 #include "uimainwin.h"

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "envvars.h"
 #include "oscommand.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -597,7 +597,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 #else
 # if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb
-		    = new mStdIOFileBuf( (FILE*)sd.fileptr_, std::ios_base::in );
+		    = new mStdIOFileBuf( (FILE*)sd.fileptr_, std::ios_base::in);
 	sd.istrm = new std::istream( stdiofb );
 # else
 	sd.istrm = new std::ifstream( fileno(sd.fp) );
@@ -655,7 +655,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 #else
 # if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb
-		    = new mStdIOFileBuf( (FILE*)sd.fileptr_,std::ios_base::out );
+		    = new mStdIOFileBuf( (FILE*)sd.fileptr_,std::ios_base::out);
 	sd.ostrm = new std::ostream( stdiofb );
 # else
 	sd.ostrm = new std::ofstream( fileno(sd.fp) );

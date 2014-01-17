@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "transl.h"
 #include "keystrs.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 static ObjectSet<const IOObjProducer>& getProducers()

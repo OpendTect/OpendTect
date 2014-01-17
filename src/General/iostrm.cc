@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "file.h"
 #include "filepath.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 class IOStreamProducer : public IOObjProducer
 {

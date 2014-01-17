@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 static const char* nladatatyps[] = { "Training data", "Test data",
 		"Misclassified training data", "Misclassified test data", 0 };

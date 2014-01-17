@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpolnd.h"
 #include "idxable.h"
 #include "statrand.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "od_iostream.h"
 
 static const float snappos = 1e-5;

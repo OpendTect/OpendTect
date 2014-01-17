@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "ascstream.h"
 #include "od_iostream.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 namespace WellTie
 {

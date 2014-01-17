@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
 #include "strmdata.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "genc.h"
 
 #include "bufstring.h"
@@ -449,7 +449,7 @@ void StreamData::close()
 
     if ( fileptr_
 	&& fileptr_ != stdin && fileptr_ != stdout && fileptr_ != stderr )
-	{ if ( ispipe_ ) pclose((FILE*)fileptr_); else fclose((FILE*)fileptr_); }
+	{ if ( ispipe_ ) pclose((FILE*)fileptr_); else fclose((FILE*)fileptr_);}
 
     initStrms();
 }

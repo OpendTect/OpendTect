@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "texttranslator.h"
 #include "odqtobjset.h"
 #include "pixmap.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>

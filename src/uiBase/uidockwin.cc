@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uiparentbody.h"
 
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include <QDockWidget>
 
 mUseQtnamespace

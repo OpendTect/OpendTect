@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_qspinbox.h"
 #include "mouseevent.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "uiobjbody.h"
 #include "uivirtualkeyboard.h"
 

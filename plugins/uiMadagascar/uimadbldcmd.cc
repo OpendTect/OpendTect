@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "maddefs.h"
 #include "madproc.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 static const char* sKeyAll = "All";
 static const char* sKeySrchRes = "Search results";

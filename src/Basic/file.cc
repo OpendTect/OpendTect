@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "bufstringset.h"
 #include "dirlist.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "winutils.h"
 #include "executor.h"
 #include "ptrman.h"

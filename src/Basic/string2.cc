@@ -8,7 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "nrbytes2string.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "survinfo.h"
 #include "undefval.h"
 #include "odcomplex.h"

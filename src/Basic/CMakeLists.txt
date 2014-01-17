@@ -80,7 +80,6 @@ set( OD_MODULE_SOURCES
 	separstr.cc
 	settings.cc
 	sighndl.cc
-	staticstring.cc
 	string2.cc
 	strmoper.cc
 	strmprov.cc

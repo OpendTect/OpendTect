@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainpspec.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 const char* DataInpSpec::valuestr = "Val";

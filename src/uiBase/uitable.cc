@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivirtualkeyboard.h"
 #include "convert.h"
 #include "bufstringset.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "debug.h"
 #include "string2.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #ifdef __win_
 # include <windows.h>
 # include <shlobj.h>
@@ -295,7 +295,8 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
         FALSE,				// Set handle inheritance to FALSE.
         0,				// Creation flags.
         NULL,				// Use parent's environment block.
-        const_cast<char*>( runin ),	// Use parent's starting directory if runin is NULL.
+	const_cast<char*>( runin ),	// Use parent's starting directory if
+					// runin is NULL.
         &si, &pi );
 
     if ( res )

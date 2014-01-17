@@ -8,7 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 char* CompoundKey::fromKey( int keynr ) const

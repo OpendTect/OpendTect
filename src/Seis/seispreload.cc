@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ioman.h"
 #include "strmprov.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "cbvsio.h"
 
 const char* Seis::PreLoader::sKeyLines()	{ return "Lines"; }

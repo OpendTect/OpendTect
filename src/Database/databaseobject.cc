@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "dateinfo.h"
 #include "separstr.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "price.h"
 #include "sqlquery.h"
 

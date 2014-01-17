@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "separstr.h"
 #include "settings.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "timefun.h"

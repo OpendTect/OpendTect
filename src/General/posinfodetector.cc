@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidsorting.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "staticstring.h"
+#include "perthreadrepos.h"
 
 
 PosInfo::Detector::Detector( const Setup& su )
@@ -351,7 +351,7 @@ void PosInfo::Detector::addPos()
 	if ( curseg.step && stp != curseg.step )
 	{
 	    curline.segments_ += PosInfo::LineData::Segment(
-				    curcbo_.binid_.crl(), curcbo_.binid_.crl(), 0 );
+				curcbo_.binid_.crl(), curcbo_.binid_.crl(), 0 );
 	    curseg_++;
 	}
 	else
@@ -362,7 +362,7 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float dist = ( float ) curcbo_.coord_.distTo( prevcbo_.coord_ );
+	    const float dist = (float) curcbo_.coord_.distTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
 		distrg_.start = distrg_.stop = dist;
 	    else
@@ -570,8 +570,10 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     else
     {
-	iop.set( "Inlines", getStepRangeStr(start_.inl(),stop_.inl(),step_.inl()) );
-	iop.set( "Crosslines", getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()));
+	iop.set( "Inlines",
+		getStepRangeStr(start_.inl(),stop_.inl(),step_.inl()) );
+	iop.set( "Crosslines",
+		getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()));
 	iop.setYN( "Gaps in inlines", inlirreg_ );
 	iop.setYN( "Gaps in crosslines", crlirreg_ );
     }
