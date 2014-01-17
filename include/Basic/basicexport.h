@@ -17,11 +17,14 @@ ________________________________________________________________________
 #  include "posidxpairvalue.h"
 #  include "binid.h"
 #  include "geometry.h"
+#  include "perthreadrepos.h"
+#  include "bufstring.h"
 
 mExportTemplClassInst( Basic ) Pos::ValueIdxPair<BinID,float>;
 mExportTemplClassInst( Basic ) Pos::IdxPairValues<BinID,float>;
 mExportTemplClassInst( Basic ) Pos::IdxPairValues<Pos::IdxPair,float>;
 mExportTemplClassInst( Basic ) Geom::Point2D<double>;
+mExportTemplClassInst( Basic ) PerThreadObjectRepository<BufferString>;
 
 # endif
 #endif
