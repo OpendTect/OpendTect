@@ -8,18 +8,14 @@
 SET(OD_USEQT Network)
 SET(OD_MODULE_DEPS General)
 
-SET(QT_MOC_HEADERS 
-	qlocalservercomm.h
-	qlocalsocketcomm.h
+SET(QT_MOC_HEADERS
 	qnetworkaccessconn.h
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
-SET(OD_MODULE_SOURCES 
+SET(OD_MODULE_SOURCES
 		cvsaccess.cc
 		issuereporter.cc
 		jobcommunic.cc
-		localserver.cc
-		localsocket.cc
 		oddlsite.cc
 		odnetworkaccess.cc
 		odnetworkreply.cc
