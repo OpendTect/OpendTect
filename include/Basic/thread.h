@@ -72,6 +72,8 @@ protected:
 #ifdef __debug__
     const void*			lockingthread_;
     int				count_;
+public:
+    int				getCount() const { return count_; }
 #endif
 };
 
