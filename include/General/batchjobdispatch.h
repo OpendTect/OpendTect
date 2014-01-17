@@ -26,8 +26,8 @@ mExpClass(General) JobSpec
 {
 public:
 
-    enum ProcType	{ Attrib, AttribEM, Grid2D, PreStack, SEGY, T2D,
-			  VelConv, Vol };
+    enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D, PreStack, SEGY,
+			  T2D, VelConv, Vol };
 
 			JobSpec(ProcType);
 			JobSpec( const char* pnm=0, bool isodprog=true )
@@ -57,13 +57,9 @@ public:
     virtual		~JobDispatcher()		{}
 
     virtual const char*	description() const		= 0;
+    virtual bool	isSuitedFor(const char* prognm) const = 0;
+    virtual bool	canHandle(const JobSpec&) const;
     virtual bool	ignoresExecPars() const		{ return false; }
-    virtual bool	isSuitedFor(const JobSpec&,
-			    BufferString* whynot=0) const = 0;
-
-    virtual bool	isAlwaysLocal() const		{ return true; }
-    void		setRemoteHost( const char* rh )	{ remotehost_ = rh; }
-				//!< only used when !isAlwaysLocal()
 
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
@@ -92,11 +88,13 @@ public:
     virtual		~SingleJobDispatcher()		{}
 
     virtual const char*	description() const;
-    virtual bool	isSuitedFor(const JobSpec&,
-			    BufferString* whynot=0) const { return true; }
-    virtual bool	isAlwaysLocal() const		{ return false; }
+    virtual bool	isSuitedFor(const char*) const	{ return true; }
 
-    static const char*	sFactoryKey()		{ return "Single Process"; }
+    void		setRemoteHost( const char* rh )	{ remotehost_ = rh; }
+				//!< only used when !isAlwaysLocal()
+
+    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
+	    			 "Single Process","Single Process");
 
 protected:
 
@@ -104,12 +102,8 @@ protected:
     virtual bool	launch();
 
     BufferString	parfnm_;
+    BufferString	remotehost_;
     bool		tostdio_;
-
-public:
-
-    static void		initClass();
-    static JobDispatcher* create() { return new SingleJobDispatcher; }
 
 };
 

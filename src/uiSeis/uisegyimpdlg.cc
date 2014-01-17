@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisioobjinfo.h"
 #include "uiseparator.h"
 #include "uifileinput.h"
-#include "uibatchjobdispatcher.h"
+#include "uibatchjobdispatchersel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -39,7 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "zdomain.h"
 #include "segybatchio.h"
-#include "batchjobdispatch.h"
 #include "keystrs.h"
 
 
@@ -81,9 +80,12 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     if ( setup_.geom_ != Seis::Line )
     {
-	batchfld_ = new uiBatchJobDispatcherSel( outgrp, true );
+	batchfld_ = new uiBatchJobDispatcherSel( outgrp, true,
+						 Batch::JobSpec::SEGY );
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
+	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	batchfld_->attach( alignedBelow, seissel_ );
-	batchfld_->setJobSpec( Batch::JobSpec(Batch::JobSpec::SEGY) );
     }
     else
     {
@@ -303,15 +305,13 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	uiMSG().warning( "Just implemented in new design."
 			 "\nIf nothing happens, try non-batch." );
 	Batch::JobSpec& js = batchfld_->jobSpec();
-	js.pars_ = pars_;
+	js.pars_.merge( pars_ );
 
 	IOPar outpars;
 	transffld_->fillPar( outpars );
 	seissel_->fillPar( outpars );
 	js.pars_.mergeComp( outpars, sKey::Output() );
 
-	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
-	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	return batchfld_->start();
     }
 

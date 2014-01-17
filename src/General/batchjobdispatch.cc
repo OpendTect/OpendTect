@@ -33,15 +33,25 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
 	mHandlePTCase(T2D,time2depth);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
+	default: break;
     }
+}
+
+
+bool Batch::JobDispatcher::canHandle( const JobSpec& js ) const
+{
+    return isSuitedFor( js.prognm_ );
 }
 
 
 bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 {
-    BufferString reason;
-    if ( !isSuitedFor(js,&reason) )
-	{ errmsg_.set( "Cannot launch job:\n" ).add( reason ); return false; }
+    if ( !canHandle(js) )
+    {
+	errmsg_.set( "Batch job is not suited for " )
+		.add( factoryDisplayName() ).add( " execution" );
+	return false;
+    }
 
     jobspec_ = js;
     if ( !init() )
@@ -63,7 +73,7 @@ Batch::SingleJobDispatcher::SingleJobDispatcher()
 
 const char* Batch::SingleJobDispatcher::description() const
 {
-    return "The job will be executed on one computer, as a whole.";
+    return "The job will be executed on one computer, in a single process.";
 }
 
 
@@ -139,10 +149,4 @@ bool Batch::SingleJobDispatcher::launch()
 
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
     return oscomm.execute( jobspec_.execpars_, jobspec_.isodprog_ );
-}
-
-
-void Batch::SingleJobDispatcher::initClass()
-{
-    JobDispatcher::factory().addCreator( create, sFactoryKey() );
 }

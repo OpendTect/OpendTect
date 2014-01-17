@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dinterpol.h"
 #include "uiraytrace1d.h"
 #include "uiraytrace1d.h"
-#include "uibatchjobdispatcher.h"
+#include "uibatchjobdispatcherlauncher.h"
 
 mDefModInitFn(uiTools)
 {

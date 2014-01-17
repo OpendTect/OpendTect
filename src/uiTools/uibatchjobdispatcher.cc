@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uibatchjobdispatcher.h"
+#include "uibatchjobdispatchersel.h"
+#include "uibatchjobdispatcherlauncher.h"
 
 #include "batchjobdispatch.h"
 
@@ -18,14 +19,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uimsg.h"
 
-mImplFactory(uiBatchJobDispatcherLauncher,uiBatchJobDispatcherLauncher::factory)
 
-
-
-uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool opt )
+uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
+					  Batch::JobSpec::ProcType proctyp )
     : uiGroup(p,"Batch job dispatcher selector")
-    , jobspec_(*new Batch::JobSpec)
+    , jobspec_(proctyp)
     , optsbut_(0)
+    , selfld_(0)
+    , dobatchbox_(0)
     , selectionChange(this)
 {
     Factory<uiBatchJobDispatcherLauncher>& fact
@@ -34,42 +35,65 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool opt )
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	uiBatchJobDispatcherLauncher* dl = fact.create( nms.get(idx) );
-	if ( dl )
+	if ( dl && (proctyp == Batch::JobSpec::NonODBase
+		  || dl->isSuitedFor(jobspec_.prognm_)) )
 	    uidispatchers_ += dl;
     }
 
-    selfld_ = new uiGenInput( this, "Batch execution", StringListInpSpec() );
-    selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg) );
-    if ( opt )
+    if ( uidispatchers_.isEmpty() )
+	{ pErrMsg("Huh? No dispatcher launchers at all" ); return; }
+
+    BufferString optionsbuttxt( "&Options" );
+    const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
+    uiObject* optattachobj = 0;
+    if ( uidispatchers_.size() == 1 )
     {
-	selfld_->setWithCheck( true );
-	selfld_->setChecked( false );
-	selfld_->checked.notify( mCB(this,uiBatchJobDispatcherSel,fldChck) );
+	if ( !optional )
+	    optionsbuttxt.set( "Batch execution &Options" );
+	else
+	{
+	    dobatchbox_ = new uiCheckBox( this, "Execute in &Batch" );
+	    dobatchbox_->activated.notify( fldchkcb );
+	    optattachobj = dobatchbox_;
+	}
     }
+    else
+    {
+	selfld_ = new uiGenInput( this, "Batch execution", StringListInpSpec());
+	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
+	if ( optional )
+	{
+	    selfld_->setWithCheck( true );
+	    selfld_->setChecked( false );
+	    selfld_->checked.notify( fldchkcb );
+	}
+	optattachobj = selfld_->attachObj();
+    }
+
     optsbut_ = new uiPushButton( this, "&Options",
 		    mCB(this,uiBatchJobDispatcherSel,optsPush), false );
-    optsbut_->attach( rightOf, selfld_ );
+    if ( optattachobj )
+	optsbut_->attach( rightOf, optattachobj );
 
-    setHAlignObj( selfld_ );
+    setHAlignObj( optattachobj ? optattachobj : (uiObject*)optsbut_ );
 
     postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
-}
-
-
-uiBatchJobDispatcherSel::~uiBatchJobDispatcherSel()
-{
-    delete &jobspec_;
 }
 
 
 void uiBatchJobDispatcherSel::initFlds( CallBacker* )
 {
     setJobSpec( jobspec_ );
+    fldChck( 0 );
 }
 
 
 void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
 {
+    jobspec_ = js;
+    if ( !selfld_ )
+	return;
+
     BufferStringSet nms;
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
@@ -81,32 +105,40 @@ void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
     selfld_->newSpec( StringListInpSpec(nms), 0 );
     if ( !oldsel.isEmpty() )
 	selfld_->setText( oldsel );
-
-    jobspec_ = js;
 }
 
 
 bool uiBatchJobDispatcherSel::wantBatch() const
 {
-    return !selfld_->isCheckable() || selfld_->isChecked();
+    if ( noLaunchersAvailable() )
+	return false;
+
+    if ( selfld_ )
+	return !selfld_->isCheckable() || selfld_->isChecked();
+
+    return dobatchbox_ ? dobatchbox_->isChecked() : true;
 }
 
 
 const char* uiBatchJobDispatcherSel::selected() const
 {
-    return selfld_->text();
+    const int selidx = selIdx();
+    return selidx < 0 ? "" : uidispatchers_[selidx]->name();
 }
 
 
 int uiBatchJobDispatcherSel::selIdx() const
 {
+    if ( !selfld_ )
+	return optsbut_ ? 0 : -1;
+
     const BufferString cursel = selfld_->text();
     if ( cursel.isEmpty() )
 	{ pErrMsg("No dispatchers available"); return -1; }
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( uidispatchers_[idx]->name() == cursel )
+	if ( cursel == uidispatchers_[idx]->name() )
 	    return idx;
     }
 
@@ -135,15 +167,15 @@ bool uiBatchJobDispatcherSel::start()
 void uiBatchJobDispatcherSel::selChg( CallBacker* )
 {
     const int selidx = selIdx();
-    if ( selidx < 0 ) return;
-    optsbut_->display( uidispatchers_[selidx]->hasOptions() );
+    optsbut_->display( selidx < 0 ? false
+	    			  : uidispatchers_[selidx]->hasOptions() );
     fldChck( 0 );
 }
 
 
 void uiBatchJobDispatcherSel::fldChck( CallBacker* )
 {
-    optsbut_->setSensitive( selfld_->isChecked() );
+    optsbut_->setSensitive( wantBatch() );
 }
 
 
@@ -155,9 +187,14 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 }
 
 
-uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher()
-    : uiBatchJobDispatcherLauncher(Batch::SingleJobDispatcher::sFactoryKey())
+// --- Launcher stuff
+
+mImplFactory(uiBatchJobDispatcherLauncher,uiBatchJobDispatcherLauncher::factory)
+
+
+bool uiBatchJobDispatcherLauncher::canHandle( const Batch::JobSpec& js ) const
 {
+    return isSuitedFor( js.prognm_ );
 }
 
 
@@ -167,13 +204,6 @@ const char* uiSingleBatchJobDispatcherLauncher::getInfo() const
     mDeclStaticString( ret );
     ret = sjd.description();
     return ret.buf();
-}
-
-
-void uiSingleBatchJobDispatcherLauncher::initClass()
-{
-    uiBatchJobDispatcherLauncher::factory().addCreator( create,
-			Batch::SingleJobDispatcher::sFactoryKey() );
 }
 
 
