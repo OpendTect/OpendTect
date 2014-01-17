@@ -204,18 +204,18 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	cbs_ += cbs[lidx];
     }
 
-    const char* name = getLibName(cbs_[0]->text(),stringset);
-    if ( name )
-	pluginnms_.add( name ); 
-    for ( int idx=1; idx<cbs_.size(); idx++ )
+    const int nrrows = nrplugins % 2 == 0 ? (nrplugins/2) : (nrplugins/2) + 1;
+    for ( int idx=0; idx<cbs_.size(); idx++ )
     {
-	if ( idx < nrplugins/2 )
+	const char* piname = getLibName(cbs_[idx]->text(),stringset);
+	if ( piname )
+	    pluginnms_.add( piname ); 
+	if( idx == 0 )
+	    continue;
+	if ( idx < nrrows )
 	    cbs_[idx]->attach( alignedBelow, cbs_[ idx-1] );
 	else
-	    cbs_[idx]->attach( rightOf, cbs_[(idx-nrplugins/2)] );
-	const char* name = getLibName(cbs_[idx]->text(),stringset);
-	if ( name )
-	    pluginnms_.add( name ); 
+	    cbs_[idx]->attach( rightOf, cbs_[(idx-nrrows)] );
     }
 }
 
@@ -278,7 +278,6 @@ void uiPluginSel::checkCB( CallBacker* cb )
     const char* hc = "HorizonCube (dGB)";
     const char* ssis = "Sequence Stratigraphic Interpretation System"
 		       " - SSIS (dGB)";
-    const char* wcp = "Well Correlation Panel - WCP (dGB)";
     
     const char* si = "Stochastic Inversion (Earthworks && ARK CLS)" ;
     const char* di = "Deterministic Inversion (Earthworks && ARK CLS)";
