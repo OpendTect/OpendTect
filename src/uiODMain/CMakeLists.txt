@@ -15,6 +15,7 @@ set(OD_MODULE_DEPS
 )
 set(OD_MODULE_SOURCES
 	inituiodmain.cc
+	measuretoolman.cc
 	odsession.cc
 	uiodapplmgr.cc
 	uiodapplmgraux.cc

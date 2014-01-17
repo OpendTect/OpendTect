@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
     (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-    Author:        Nageswara
-    Date:          July 2008
-    RCS:           $Id$
+    Author:	Nanne Hemstra
+    Date:	July 2008
+    RCS:	$Id$
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ class LineStyle;
 class uiGenInput;
 class uiSelLineStyle;
 
-mClass(Annotations) uiMeasureDlg : public uiDialog
+mClass(uiTools) uiMeasureDlg : public uiDialog
 {
 public:
 				uiMeasureDlg(uiParent*);

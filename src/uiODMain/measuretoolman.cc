@@ -25,8 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "pickset.h"
 
-namespace Annotations
-{
 
 MeasureToolMan::MeasureToolMan( uiODMain& appl )
     : appl_(appl)
@@ -48,7 +46,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     appl.sceneMgr().activeSceneChanged.notify(
 			mCB(this,MeasureToolMan,sceneChanged) );
     visBase::DM().selMan().selnotifier.notify(
-	    		mCB(this,MeasureToolMan,objSelected) );
+			mCB(this,MeasureToolMan,objSelected) );
     IOM().surveyChanged.notify( mCB(this,MeasureToolMan,surveyChanged) );
     picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
@@ -94,10 +92,10 @@ void MeasureToolMan::manageDlg( bool show )
 	    measuredlg_->lineStyleChange.notify(
 				mCB(this,MeasureToolMan,lineStyleChangeCB) );
 	    measuredlg_->velocityChange.notify(
-		    		mCB(this,MeasureToolMan,velocityChangeCB) );
+				mCB(this,MeasureToolMan,velocityChangeCB) );
 	    measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB));
-	    measuredlg_->windowClosed.notify( 
-		    		mCB(this,MeasureToolMan,dlgClosed) );
+	    measuredlg_->windowClosed.notify(
+				mCB(this,MeasureToolMan,dlgClosed) );
 	    lineStyleChangeCB(0);
 	}
 
@@ -146,7 +144,7 @@ void MeasureToolMan::sceneAdded( CallBacker* cb )
 
 void MeasureToolMan::addScene( int sceneid )
 {
-    visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
+    visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay();
     psd->ref();
 
     Pick::Set* ps = new Pick::Set( "Measure picks" );
@@ -269,7 +267,7 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	Pick::Set* ps = displayobjs_[idx]->getSet();
 	if ( !ps ) continue;
 
-      	LineStyle ls( measuredlg_->getLineStyle() );
+	LineStyle ls( measuredlg_->getLineStyle() );
 	ps->disp_.color_ = ls.color_;
 	ps->disp_.pixsize_ = ls.width_;
 	picksetmgr_.reportDispChange( this, *ps );
@@ -285,5 +283,3 @@ void MeasureToolMan::surveyChanged( CallBacker* )
     picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
 
-
-} // namespace Annotations

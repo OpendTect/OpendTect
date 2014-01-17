@@ -10,10 +10,8 @@ SET( OD_IS_PLUGIN yes)
 SET( OD_USECOIN 1)
 SET( OD_MODULE_SOURCES
 	annotationspi.cc
-	measuretoolman.cc
 	treeitem.cc
 	uiarrowdlg.cc
-	uimeasuredlg.cc
 	uiscalebaritem.cc
 	visannotimage.cc
 	visarrow.cc

@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "measuretoolman.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsysmem.h"
@@ -53,6 +54,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , dTectTBChanged(this)
     , dTectMnuChanged(this)
     , helpmgr_(0)
+    , measuretoolman_(0)
     , inviewmode_(false)
 {
     surveymnu_ = appl_.menuBar()->addMenu( new uiMenu("&Survey") );
@@ -85,6 +87,7 @@ uiODMenuMgr::~uiODMenuMgr()
     delete appl_.removeToolBar( mantb_ );
     delete helpmgr_;
     delete faulttoolman_;
+    delete measuretoolman_;
 }
 
 
@@ -104,6 +107,10 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillDtectTB( appman );
     fillCoinTB( sceneman );
     fillManTB();
+
+#ifdef __debug__
+    measuretoolman_ = new MeasureToolMan( appl_ );
+#endif
 }
 
 

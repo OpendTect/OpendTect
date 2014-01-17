@@ -20,10 +20,7 @@ class uiODMain;
 namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
 
-namespace Annotations
-{
-
-mClass(Annotations) MeasureToolMan : public CallBacker
+mClass(uiODMain) MeasureToolMan : public CallBacker
 {
 public:
 			MeasureToolMan(uiODMain&);
@@ -40,8 +37,8 @@ protected:
     void		lineStyleChangeCB(CallBacker*);
     void		clearCB(CallBacker*);
     void		velocityChangeCB(CallBacker*);
-    void		dlgClosed(CallBacker*); 
-    void		manageDlg(bool); 
+    void		dlgClosed(CallBacker*);
+    void		manageDlg(bool);
     void		surveyChanged(CallBacker*);
     void		update();
     int			getActiveSceneID() const;
@@ -55,7 +52,5 @@ protected:
     uiMeasureDlg*	measuredlg_;
     int			butidx_;
 };
-
-} // namespace Annotations
 
 #endif

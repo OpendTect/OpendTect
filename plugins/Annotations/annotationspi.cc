@@ -9,9 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "measuretoolman.h"
 #include "odplugin.h"
-#include "measuretoolman.h"
 #include "treeitem.h"
 #include "uiodscenemgr.h"
 
@@ -38,9 +36,7 @@ mDefODPluginInfo(Annotations)
 mDefODInitPlugin(Annotations)
 {
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
-	    			new Annotations::TreeItemFactory, 10000 );
-
-    new Annotations::MeasureToolMan( *ODMainWin() );
+				new Annotations::TreeItemFactory, 10000 );
 
     Annotations::ImageDisplay::initClass();
     Annotations::Image::initClass();
