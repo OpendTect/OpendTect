@@ -88,9 +88,8 @@ static bool shouldisplayinUI( const char* picreatorname, const char* dispnm )
 
 const char* getCommercialName( const char* piname )
 {
-    BufferString bs;
 #define mMkUIName( nm, vennm ) \
-    bs.add( nm ).add(" (").add(vennm).add(")").buf();
+    BufferString( nm ).add(" (").add(vennm).add(")").buf();
 
     static BufferString pluginname;
     pluginname = piname;
@@ -114,7 +113,7 @@ const char* getCommercialName( const char* piname )
     if (  pluginname == sKeyWSA )
 	pluginname = mMkUIName( "Workstation Access", "ARK CLS" );
     if ( pluginname == sKeyCCB )
-	pluginname = mMkUIName( "Common Contour Binning - CCB", "dGB" );
+	pluginname = mMkUIName( "Fluid Contact Finder - CCB", "dGB" );
     if ( pluginname == sKeySSIS )
 	pluginname =
 	mMkUIName("Sequence Stratigraphic Interpretation System - SSIS","dGB");
@@ -344,7 +343,7 @@ void uiPluginSel::makeList( BufferStringSet& list )
     mMkName( "Sequence Stratigraphic Interpretation System - SSIS","dGB");
     mMkName( "Neural Networks", "dGB" );
     mMkName( "Well Correlation Panel - WCP", "dGB" );
-    mMkName( "Common Contour Binning - CCB", "dGB" );
+    mMkName( "Fluid Contact Finder - CCB", "dGB" );
     mMkName( "Velocity Model Building - VMB", "dGB" );
     mMkName( "SynthRock", "dGB" );
     mMkName( sKeySCI, "ARK CLS" );
