@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
+#include "threadwork.h"
 
 #ifdef __lux__
 # include "od_istream.h"
@@ -82,7 +83,7 @@ void OD::memSet( void* data, char setto, od_int64 sz )
     else if ( !data )
 	{ pFreeFnErrMsg("data null","OD::memSet"); return; }
 
-    if ( mExecNonParallel(sz) )
+    if ( mExecNonParallel(sz) || !Threads::WorkManager::twm().nrFreeThreads() )
 	memset( data, (int)setto, (size_t)sz );
     else
     {
