@@ -65,6 +65,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivelocityvolumeconversion.h"
 
 
+static const char* sKeyPreLoad()	{ return "PreLoad"; }
+
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
 {
@@ -80,17 +82,17 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     if ( opt == 0 )
 	dlg = new uiSeisImpCBVS( parent() );
     else if ( opt == 9 )
-	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() ); 
+	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
     else if ( opt < 5 )
     {
 	if ( !forread )
 	    dlg = new uiSEGYExp( parent(),
-		    		 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
+				 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
 	else
 	{
 	    const bool isdirect = !(opt % 2);
 	    uiSEGYRead::Setup su( isdirect ? uiSEGYRead::DirectDef
-		    			   : uiSEGYRead::Import );
+					   : uiSEGYRead::Import );
 	    if ( isdirect )
 		su.geoms_ -= Seis::Line;
 	    new uiSEGYRead( parent(), su );
@@ -175,7 +177,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
     Seis2DLineSet lineset( fnm );
 
 
-void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
+void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
 					 BufferString& setname )
 {
     mGet2DLineSet(;)
@@ -373,7 +375,7 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 	const MultiID id( ids.get(iobj).buf() );
 	IOPar iop;
 	Seis::PreLoader spl( id ); spl.fillPar( iop );
-	const BufferString parkey( "PreLoad.", iobj );
+	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), iobj );
 	par.mergeComp( iop, parkey );
     }
 }
@@ -382,12 +384,12 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 bool uiSeisPartServer::usePar( const IOPar& par )
 {
     StreamProvider::unLoadAll();
-    PtrMan<IOPar> plpar = par.subselect( "PreLoad" );
+    PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
     if ( !plpar ) return true;
 
     IOPar newpar;
     newpar.mergeComp( *plpar, "Seis" );
-    
+
     uiTaskRunner uitr( parent() );
     Seis::PreLoader::load( newpar, &uitr );
     return true;
