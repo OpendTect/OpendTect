@@ -24,12 +24,12 @@ static bool testSpeed()
     {
 	float* vals = new float [arrsz];
 	float* copy = new float [arrsz];
-	const int nrruns = cTotNrOpers / arrsz;
+	const od_int64 nrruns = cTotNrOpers / arrsz;
 	od_cout() << "Arrsz=" << arrsz << " (" << nrruns << " runs)" << od_endl;
 
 	int prevms = Time::getMilliSeconds();
 
-	for ( int irun=0; irun<nrruns; irun++ )
+	for ( od_int64 irun=0; irun<nrruns; irun++ )
 	{
 	    for ( int idx=0; idx<arrsz; idx++ )
 		copy[idx] = vals[idx];

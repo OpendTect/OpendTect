@@ -401,7 +401,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
 
     const bool atsect = emod->getOnlyAtSectionsDisplay();
-    bool infull, both, showgrid = false;
+    bool infull, both = false, showgrid = false;
     if ( hor2ddisp )
 	infull = !emod->getOnlyAtSectionsDisplay();
     else
