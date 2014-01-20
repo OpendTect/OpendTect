@@ -64,14 +64,14 @@ public:
 			//!< returns !isBad()
     const char*		get() const;
 
-    bool		execute(bool inconsole=false,bool inbg=false) const;
-    bool		execute(const OSCommandExecPars&,bool) const;
+    bool		hasHostName() const	{ return !hname_.isEmpty(); }
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
 
     static const char*	extractHostName(const char*,BufferString&);
 			//!< returns remaining part
+    void		prepareOSCommnd(BufferString&) const;
 
 protected:
 
@@ -81,9 +81,6 @@ protected:
     static BufferString	defremexec_;
 
     void		mkOSCmd(bool,BufferString&) const;
-#ifdef __win__
-    void		mkConsoleCmd(BufferString& comm) const;
-#endif
 };
 
 /*!\brief A single interface to launch commands/processes and OpendTect programs
@@ -93,7 +90,8 @@ protected:
 mExpClass(Basic) CommandLauncher
 {
 public:
-			CommandLauncher(const char* cmd,const char* par);
+			CommandLauncher(const OSCommand&);
+			CommandLauncher(const char* cmd);
 			~CommandLauncher();
 
     bool		execute(const OSCommandExecPars& pars
@@ -106,14 +104,14 @@ protected:
 
     bool		doExecute(const char* comm, 
 				    bool inwindow, bool waitforfinish);
-
+    bool		executeRemote();
     void		makeFullCommand();
-    void		makeConsoleCommand();
-
+    
+    const OSCommand&	oscommand_;
     BufferString	command_;
-    BufferString	parameters_;
     BufferString	fullcommand_;
     BufferString	odprogressviewer_;
+    BufferString	logfile_;
     int			processid_;
     BufferString	errmsg_;
 };

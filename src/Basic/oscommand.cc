@@ -40,10 +40,12 @@ static const char* sODProgressViewerProgName = "od_ProgressViewer";
 bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 {
     OSCommand oscmd( comm );
-    if ( oscmd.isBad() )
-	return false;
-
-    return oscmd.execute( inconsole, inbg );
+    CommandLauncher cl( comm );
+    OSCommandExecPars pars;
+    pars.waitforfinish_ = !inbg;
+    pars.inprogresswindow_ = inconsole;
+    //pars.logfname ? // get from comm ?
+    return cl.execute( pars, true );
 }
 
 
@@ -260,39 +262,7 @@ const char* OSCommand::get() const
     return ret.buf();
 }
 
-
-bool OSCommand::execute( bool inconsole, bool inbg ) const
-{
-    BufferString cmd;
-
 #ifdef __win__
-    if ( inconsole )
-	mkConsoleCmd( cmd );
-    else
-#endif
-	mkOSCmd( true, cmd );
-
-    return doExecOSCmd( cmd, inconsole, inbg );
-}
-
-
-bool OSCommand::execute( const OSCommandExecPars& pars, bool isodprog ) const
-{
-    CommandLauncher cl( comm_, "" );
-    return cl.execute( pars, isodprog );
-}
-
-#ifdef __win__
-
-void OSCommand::mkConsoleCmd( BufferString& comm ) const
-{
-    const BufferString batchfnm(
-		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
-    od_ostream batchstream( batchfnm );
-    batchstream << "@echo off\n" << comm_.buf() << "\npause\n";
-    comm = batchfnm;
-}
-
 
 static const char* getCmd( const char* fnm )
 {
@@ -412,11 +382,26 @@ void OSCommand::mkOSCmd( bool forread, BufferString& cmd ) const
 }
 
 
+void OSCommand::prepareOSCommnd( BufferString& finalcmd ) const
+{
+    mkOSCmd( true, finalcmd );
+}
+
+
 // CommandLauncher
 
-CommandLauncher::CommandLauncher( const char* command, const char* param )
-    : command_(command)
-    , parameters_(param)
+CommandLauncher::CommandLauncher(const OSCommand& cmd)
+    : oscommand_(cmd)
+    , command_(oscommand_.command())
+    , processid_(0)
+{
+    makeFullCommand();
+}
+
+
+CommandLauncher::CommandLauncher( const char* command )
+    : oscommand_(*new OSCommand(command))
+    , command_(oscommand_.command())
     , processid_(0)
 {
     makeFullCommand();
@@ -429,34 +414,36 @@ CommandLauncher::~CommandLauncher()
 
 void CommandLauncher::makeFullCommand()
 {
-    FilePath cmdfp( command_ );
-    fullcommand_.add( cmdfp.isAbsolute() ? command_ 
-				: FilePath(GetBinPlfDir(),command_).fullPath() )
-				  .add( " " ).add( parameters_ );
-
+    oscommand_.prepareOSCommnd( fullcommand_ );
+    FilePath cmdfp( fullcommand_ );
+    fullcommand_ = BufferString( cmdfp.isAbsolute() ? fullcommand_ 
+			: FilePath(GetBinPlfDir(),fullcommand_).fullPath() );
     odprogressviewer_ =
 	FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath();
+
 }
 
 
 bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 {
-    if ( fullcommand_.isEmpty() )
+    if ( oscommand_.isBad() || command_.isEmpty() )
     { errmsg_ = "Command is empty"; return false; }
+
+    if ( oscommand_.hasHostName() )
+	return executeRemote();
 
     bool ret = false;
     if ( isODprogram )
     {
 	if ( pars.inprogresswindow_ )
 	{
-	    FilePath tempfp( FilePath::getTempName("txt") );
-	    fullcommand_.add( ">" ).add( tempfp.fullPath() );
-	    BufferString finalcmd( __iswin__ ? "cmd /c " : "", fullcommand_ );
-	    ret = doExecute( finalcmd, false, pars.waitforfinish_ );
+	    logfile_ = FilePath::getTempName("txt");
+	    fullcommand_.add( " >" ).add( logfile_ );
+	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
 	    if ( !ret )
 		return false;
 	    
-	    odprogressviewer_.add( " --logfile " ).add( tempfp.fullPath() )
+	    odprogressviewer_.add( " --logfile " ).add( logfile_ )
 			    .add( " --pid " ).add( getProcessID() );
 	    if ( !doExecute(odprogressviewer_,true,false) )
 	    { errmsg_ = "Failed to launch progress"; return false; }
@@ -467,7 +454,8 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 	}
 	else
 	{
-	    fullcommand_.add( ">" ).add( pars.logfname_ );
+	    logfile_ = pars.logfname_;
+	    fullcommand_.add( " >" ).add( logfile_ );
 	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
 	}
     }
@@ -477,32 +465,20 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 	{
 	   ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
 	}
-	else if ( pars.logfname_.isEmpty() )
+	else if ( !pars.logfname_.isEmpty() )
 	{
-	    makeConsoleCommand();
-	    ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
+	    logfile_ = pars.logfname_;
+	    fullcommand_.add( " >" ).add( logfile_ );
+	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
 	}
-	else
+	else 
 	{
+	    //No Log file No Window ? do nothing
 	    pErrMsg( "Non-OD program should not be run in hidden mode" );
 	}
     }
   
     return ret;
-}
-
-
-void CommandLauncher::makeConsoleCommand()
-{
-#ifndef __win__
-    return;
-#else
-    const BufferString batchfnm(
-		FilePath(FilePath::getTempDir(),"odtmp.bat").fullPath() );
-    od_ostream batchstream( batchfnm );
-    batchstream << "@echo off\n" << fullcommand_.buf() << "\npause\n";
-    fullcommand_ = batchfnm;
-#endif
 }
 
 
@@ -542,12 +518,30 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
     ZeroMemory(&si, sizeof(STARTUPINFO));
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
-
+    
+    unsigned int FLAG = 0;
+   
     if ( !inwindow )
     {
+	SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = NULL;
+	sa.bInheritHandle = TRUE;       
+
+	HANDLE hlog = CreateFile( logfile_,
+				  FILE_APPEND_DATA,
+				  FILE_SHARE_WRITE | FILE_SHARE_READ,
+				  &sa,
+				  OPEN_ALWAYS,
+				  FILE_ATTRIBUTE_NORMAL,
+				  NULL );
+	
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
 	si.wShowWindow = SW_HIDE;
+	si.hStdError = hlog;
+	si.hStdOutput = hlog;
+	FLAG = CREATE_NO_WINDOW;
     }
 
     //Start the child process.
@@ -555,8 +549,8 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 			     const_cast<char*>( comm ),
 			     NULL,	// Process handle not inheritable.
 			     NULL,	// Thread handle not inheritable.
-			     FALSE,	// Set handle inheritance to FALSE.
-			     0,		// Creation flags.
+			     !inwindow,	// Set handle inheritance to FALSE.
+			     FLAG,	// Creation flags.
 			     NULL,	// Use parent's environment block.
 			     NULL,	// Use parent's starting directory.
 			     &si, &pi );
@@ -584,3 +578,11 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 #endif
 #endif
 }
+
+
+bool CommandLauncher::executeRemote()
+{
+    //TODO
+    return true;
+}
+
