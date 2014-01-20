@@ -9,13 +9,14 @@ ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class LineStyle;
 class uiGenInput;
 class uiSelLineStyle;
 
-mClass(uiTools) uiMeasureDlg : public uiDialog
+mExpClass(uiTools) uiMeasureDlg : public uiDialog
 {
 public:
 				uiMeasureDlg(uiParent*);
