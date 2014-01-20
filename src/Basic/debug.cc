@@ -514,7 +514,7 @@ void CrashDumper::sendDump( const char* filename )
 	return;
 
     const BufferString cmd( sendappl_, " --binary ", filename );
-    ExecOSCmd( cmd, true, true );
+    OS::ExecCommand( cmd, OS::RunInBG );
 }
 
 

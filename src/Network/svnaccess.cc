@@ -68,7 +68,7 @@ bool SVNAccess::isOK() const
     //TODO
 #else
     const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
-    hostreachable = ExecOSCmd(cmd);
+    hostreachable = OS::ExecCommand(cmd);
 #endif
     return havesvn_ && hostreachable;
 }
@@ -106,7 +106,7 @@ bool SVNAccess::update( const char* fnm )
 
     mGetReqFnm();
     const BufferString cmd( "@svn update ", reqfnm, sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -130,7 +130,7 @@ bool SVNAccess::lock( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -156,7 +156,7 @@ bool SVNAccess::add( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -192,7 +192,7 @@ bool SVNAccess::remove( const BufferStringSet& fnms )
 	return true;
 
     cmd.add( sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -235,7 +235,7 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
     }
 
     cmd.add( sRedirect );
-    const bool res = ExecOSCmd(cmd);
+    const bool res = OS::ExecCommand(cmd);
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
@@ -254,7 +254,7 @@ bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
     const BufferString tofnm( tofp.fullPath() );
     BufferString cmd( "@svn rename '", fromfnm, "' '" );
     cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -272,7 +272,7 @@ bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
 
     BufferString cmd( "@svn move '", fromfnm, "' '" );
     cmd.add( tofnm ).add( "." ).add( sRedirect );
-    return ExecOSCmd(cmd);
+    return OS::ExecCommand(cmd);
 }
 
 
@@ -291,7 +291,7 @@ void SVNAccess::diff( const char* fnm, BufferString& res ) const
     BufferString cmd( "@svn diff ", reqfnm, " > " );
     mGetTmpFnm("svndiff",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !ExecOSCmd(cmd) )
+    if ( !OS::ExecCommand(cmd) )
 	mRetRmTempFile()
 
     od_istream strm( tmpfnm );

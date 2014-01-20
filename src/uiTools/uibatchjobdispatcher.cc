@@ -168,7 +168,7 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
 {
     const int selidx = selIdx();
     optsbut_->display( selidx < 0 ? false
-	    			  : uidispatchers_[selidx]->hasOptions() );
+				  : uidispatchers_[selidx]->hasOptions() );
     fldChck( 0 );
 }
 
@@ -213,7 +213,7 @@ class uiSingleBatchJobDispatcherPars : public uiDialog
 {
 public:
 
-uiSingleBatchJobDispatcherPars( uiParent* p, OSCommandExecPars& pars )
+uiSingleBatchJobDispatcherPars( uiParent* p, OS::CommandExecPars& pars )
     : uiDialog(p,Setup("Batch execution parameters",mNoDlgTitle,mTODOHelpID))
     , pars_(pars)
 {
@@ -225,7 +225,7 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    OSCommandExecPars& pars_;
+    OS::CommandExecPars& pars_;
 
 };
 

@@ -21,12 +21,10 @@ static bool testCmds()
 #else
 #   define mMkCmd(s) BufferString(s,redir)
     const BufferString redir( quiet ? " >/dev/null" : "| head -10" );
-    if ( !ExecOSCmd(mMkCmd("ls -l"),true) )
-	mRetFail( "ExecOSCmd in console" );
-    if ( !ExecOSCmd(mMkCmd("ls -l"),false) )
-	mRetFail( "ExecOSCmd not in console" );
-    if ( !ExecODProgram(mMkCmd("od_glxinfo"),"") )
-	mRetFail( "ExecODProgram" );
+    if ( !OS::ExecCommand(mMkCmd("ls -l"),OS::Wait4Finish) )
+	mRetFail( "OS::ExecCommand wait4finish" );
+    if ( !OS::ExecCommand(mMkCmd("ls -l"),OS::RunInBG) )
+	mRetFail( "OS::ExecCommand not wait4finish" );
 #endif
 
     return true;

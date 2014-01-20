@@ -775,7 +775,7 @@ void uiMainWin::provideHelp( const char* winid )
     else
     {
 	BufferString cmd( browser, " ", fnm );
-	ExecOSCmd( cmd, true );
+	OS::ExecCommand( cmd, OS::RunInBG );
     }
 }
 

@@ -15,14 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "fixedstring.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <QProcess>
 
 #ifdef __win__
 # include "winutils.h"
 # include "od_istream.h"
 # include <windows.h>
+#include <stdlib.h>
 
 # ifdef __msvc__
 #  define popen _popen
@@ -32,142 +31,30 @@ static const char* rcsID mUsedVar = "$Id$";
 # endif
 #endif
 
-BufferString OSCommand::defremexec_( "ssh" );
+BufferString OS::MachineCommand::defremexec_( "ssh" );
 static const char* sODProgressViewerProgName = "od_ProgressViewer";
 
-//#define __USE_QPROCESS__ 1
 
-bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
+OS::MachineCommand::MachineCommand( const char* comm )
+    : remexec_(defremexec_)
 {
-    OSCommand oscmd( comm );
-    CommandLauncher cl( comm );
-    OSCommandExecPars pars;
-    pars.waitforfinish_ = !inbg;
-    pars.inprogresswindow_ = inconsole;
-    //pars.logfname ? // get from comm ?
-    return cl.execute( pars, true );
+    setFromSingleStringRep( comm, false );
 }
 
 
-static bool doExecOSCmd( const char* comm, bool inconsole, bool inbg )
-{
-    if ( !comm || !*comm )
-	return false;
-    if ( *comm == '@' )
-	comm++;
-    if ( !*comm )
-	return false;
-
-#ifndef __win__
-
-    BufferString oscmd( comm );
-    if ( inbg )
-	oscmd += "&";
-    int res = system( oscmd );
-    return !res;
-
-#else
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof(STARTUPINFO);
-
-    if ( !inconsole )
-    {
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-	si.wShowWindow = SW_HIDE;
-    }
-
-   //Start the child process.
-    int res = CreateProcess( NULL,	// No module name (use command line).
-        const_cast<char*>( comm ),
-        NULL,				// Process handle not inheritable.
-        NULL,				// Thread handle not inheritable.
-        FALSE,				// Set handle inheritance to FALSE.
-        0,				// Creation flags.
-        NULL,				// Use parent's environment block.
-        NULL,			// Use parent's starting directory.
-        &si, &pi );
-
-    if ( res )
-    {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-    }
-    else
-    {
-	char *ptr = NULL;
-	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM,
-	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
-
-	fprintf(stderr, "\nError: %s\n", ptr);
-	LocalFree(ptr);
-    }
-
-    return res;
-
-#endif
-}
-
-
-bool ExecODProgram( const char* prognm, const char* filenm, int nicelvl,
-		    const char* args )
-{
-    const bool scriptinbg = __iswin__ || __ismac__;
-
-#ifdef __win__
-
-    BufferString cmd( prognm );
-    if ( filenm && *filenm )
-	cmd.add( " \"" ).add( filenm ).add( "\"" );
-    cmd.add( args );
-
-    return ExecOSCmd( cmd, true, scriptinbg );
-
-#else
-
-    BufferString cmd( mGetExecScript(), " --inbg" );
-#ifdef __debug__
-    cmd.add( " --debug" );
-#endif
-    if ( nicelvl )
-	cmd.add( " --nice " ).add( nicelvl );
-
-    cmd.add( " " ).add( prognm );
-    if ( filenm && *filenm )
-    {
-	const FilePath fp( filenm );
-	cmd.add( " \'" ).add( fp.fullPath(FilePath::Unix) ).add( "\'" );
-    }
-    if ( args && *args )
-	cmd.add( " " ).add( args );
-
-    return ExecOSCmd( cmd, true, scriptinbg );
-
-#endif
-
-}
-
-
-
-OSCommand::OSCommand( const char* comm, const char* hostnm )
+OS::MachineCommand::MachineCommand( const char* comm, const char* hostnm )
     : hname_(hostnm)
     , remexec_(defremexec_)
 {
-    set( comm, hname_.isEmpty() );
+    setFromSingleStringRep( comm, true );
 }
 
 
-bool OSCommand::set( const char* inp, bool lookforhostname )
+bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
+						 bool ignorehostname )
 {
     comm_.setEmpty();
-    if ( lookforhostname )
+    if ( !ignorehostname )
 	hname_.setEmpty();
 
     BufferString inpcomm( inp );
@@ -181,20 +68,21 @@ bool OSCommand::set( const char* inp, bool lookforhostname )
     mSkipBlanks( ptr );
     comm_ = ptr;
 
-    if ( lookforhostname )
-    {
-	const char* realcmd = extractHostName( comm_, hname_ );
-	mSkipBlanks( realcmd );
-	if ( *realcmd == '@' ) realcmd++;
-	BufferString tmp( realcmd );
-	comm_ = tmp;
-    }
+    BufferString hnm;
+    const char* realcmd = extractHostName( comm_, hnm );
+    if ( !ignorehostname )
+	hname_ = hnm;
+    mSkipBlanks( realcmd );
+    if ( *realcmd == '@' ) realcmd++;
+    BufferString tmp( realcmd );
+    comm_ = tmp;
 
     return !isBad();
 }
 
 
-const char* OSCommand::extractHostName( const char* str, BufferString& hnm )
+const char* OS::MachineCommand::extractHostName( const char* str,
+						 BufferString& hnm )
 {
     hnm.setEmpty();
     if ( !str )
@@ -242,7 +130,7 @@ const char* OSCommand::extractHostName( const char* str, BufferString& hnm )
 }
 
 
-const char* OSCommand::get() const
+const char* OS::MachineCommand::getSingleStringRep() const
 {
     mDeclStaticString( ret );
     ret.setEmpty();
@@ -259,6 +147,7 @@ const char* OSCommand::get() const
 
     return ret.buf();
 }
+
 
 #ifdef __win__
 
@@ -348,7 +237,7 @@ static const char* getCmd( const char* fnm )
 
     if ( !File::exists( interpfp.fullPath() ) )
     {
-	interpfp.set( GetSoftwareDir(0) );
+	interpfp.set( GetSoftwareDir(true) );
 	interpfp.add("bin").add("win").add("sys").add(interp);
     }
 
@@ -369,146 +258,117 @@ static const char* getCmd( const char* fnm )
 # define mFullCommandStr comm_.buf()
 #endif
 
-void OSCommand::mkOSCmd( bool forread, BufferString& cmd ) const
+BufferString OS::MachineCommand::getLocalCommand() const
 {
+    BufferString ret;
 	    //TODO handle hname_ != local host on Windows correctly
     if ( hname_.isEmpty() || __iswin__ )
-	cmd = mFullCommandStr;
+	ret = mFullCommandStr;
     else
-	sprintf( cmd.getCStr(), "%s %s %s",
-			    remexec_.buf(), hname_.buf(), comm_.buf() );
+	ret.set( remexec_ ).add( " " ).add( hname_ ).add( " " ).add( comm_ );
+    return ret;
 }
 
 
-void OSCommand::prepareOSCommnd( BufferString& finalcmd ) const
+// OS::CommandLauncher
+
+OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
+    : odprogressviewer_(FilePath(GetBinPlfDir(),sODProgressViewerProgName)
+			    .fullPath())
 {
-    mkOSCmd( true, finalcmd );
+    set( mc );
 }
 
 
-// CommandLauncher
-
-CommandLauncher::CommandLauncher(const OSCommand& cmd)
-    : oscommand_(cmd)
-    , command_(oscommand_.command())
-    , processid_(0)
+void OS::CommandLauncher::reset()
 {
-    makeFullCommand();
+    processid_ = 0;
+    errmsg_.setEmpty();
+    monitorfnm_.setEmpty();
+    progvwrcmd_.setEmpty();
 }
 
 
-CommandLauncher::CommandLauncher( const char* command )
-    : oscommand_(*new OSCommand(command))
-    , command_(oscommand_.command())
-    , processid_(0)
+void OS::CommandLauncher::set( const OS::MachineCommand& cmd )
 {
-    makeFullCommand();
+    machcmd_ = cmd;
+    reset();
 }
 
 
-CommandLauncher::~CommandLauncher()
-{}
 
-
-void CommandLauncher::makeFullCommand()
+bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 {
-    oscommand_.prepareOSCommnd( fullcommand_ );
-    FilePath cmdfp( fullcommand_ );
-    fullcommand_ = BufferString( cmdfp.isAbsolute() ? fullcommand_
-			: FilePath(GetBinPlfDir(),fullcommand_).fullPath() );
-    odprogressviewer_ =
-	FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath();
+    reset();
+    if ( machcmd_.isBad() )
+	{ errmsg_ = "Command is invalid"; return false; }
 
-}
-
-
-bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
-{
-    if ( oscommand_.isBad() || command_.isEmpty() )
-    { errmsg_ = "Command is empty"; return false; }
-
-    if ( oscommand_.hasHostName() )
-	return executeRemote();
+    BufferString localcmd = machcmd_.getLocalCommand();
+    if ( localcmd.isEmpty() )
+	{ errmsg_ = "Empty command to execute"; return false; }
 
     bool ret = false;
-    if ( isODprogram )
+    if ( pars.isconsoleuiprog_ )
     {
-	if ( pars.inprogresswindow_ )
-	{
-	    logfile_ = FilePath::getTempName("txt");
-	    fullcommand_.add( " >" ).add( logfile_ );
-	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
-	    if ( !ret )
-		return false;
+	const FilePath fp( GetSoftwareDir(true), "bin" );
+	const BufferString scrcmd( fp.fullPath(), "od_exec_consoleui.",
+				   __iswin__ ? "bat " : "scr " );
+	localcmd.insertAt( 0, scrcmd );
+    }
 
-	    odprogressviewer_.add( " --logfile " ).add( logfile_ )
-			    .add( " --pid " ).add( getProcessID() );
-	    if ( !doExecute(odprogressviewer_,true,false) )
-	    { errmsg_ = "Failed to launch progress"; return false; }
-	}
-	else if ( pars.logfname_.isEmpty() )
+    if ( pars.needmonitor_ )
+    {
+	monitorfnm_ = pars.monitorfnm_;
+	if ( monitorfnm_.isEmpty() )
 	{
-	    ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
-	}
-	else
-	{
-	    logfile_ = pars.logfname_;
-	    fullcommand_.add( " >" ).add( logfile_ );
-	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
+	    monitorfnm_ = FilePath::getTempName("txt");
+	    localcmd.add( " >" ).add( monitorfnm_ );
 	}
     }
-    else
+
+    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish );
+    if ( !ret )
+	return false;
+
+    if ( !monitorfnm_.isEmpty() )
     {
-	if ( pars.inprogresswindow_ )
-	{
-	   ret = doExecute( fullcommand_, true, pars.waitforfinish_ );
-	}
-	else if ( !pars.logfname_.isEmpty() )
-	{
-	    logfile_ = pars.logfname_;
-	    fullcommand_.add( " >" ).add( logfile_ );
-	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
-	}
-	else
-	{
-	    //No Log file No Window ? do nothing
-	    pErrMsg( "Non-OD program should not be run in hidden mode" );
-	}
+	progvwrcmd_.set( odprogressviewer_ )
+	    .add( " --logfile " ).add( monitorfnm_ )
+	    .add( " --pid " ).add( processID() );
+	if ( !doExecute(progvwrcmd_,false) )
+	    ErrMsg("Cannot launch progress viewer");
+			// sad ... but the process has been launched
     }
 
     return ret;
 }
 
 
-bool CommandLauncher::doExecute( const char* comm, bool inwindow,
-				 bool waitforfinish )
+bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
 {
-    if ( fullcommand_.isEmpty() )
-	return false;
+    if ( *comm == '@' )
+	comm++;
+    if ( !*comm )
+	{ errmsg_.set( "Command is empty" ); return false; }
 
 #ifdef __USE_QPROCESS__
     QProcess qprocess;
-    qprocess.startDetached( QString(fullcommand_) );
+    qprocess.startDetached( QString(comm) );
     if ( !qprocess.waitForFinished() )
         return false;
 
     return true;
 #else
 
-#ifndef __win__
-
-    if ( *comm == '@' )
-	comm++;
-    if ( !*comm )
-	return false;
+# ifndef __win__
 
     BufferString oscmd( comm );
-    if ( waitforfinish )
+    if ( !wt4finish )
 	oscmd += "&";
     int res = system( oscmd );
     return !res;
 
-#else
+# else
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -519,6 +379,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 
     unsigned int FLAG = 0;
 
+    const bool inwindow = false; // TODO inwindow - what does it do? remove?
     if ( !inwindow )
     {
 	SECURITY_ATTRIBUTES sa;
@@ -555,7 +416,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 
     if ( res )
     {
-	if ( waitforfinish )  WaitForSingleObject( pi.hProcess, INFINITE );
+	if ( wt4finish )  WaitForSingleObject( pi.hProcess, INFINITE );
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
 	processid_ = pi.dwProcessId;
@@ -573,14 +434,26 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 
     return res;
 
+# endif
+
 #endif
-#endif
+
 }
 
 
-bool CommandLauncher::executeRemote()
+bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp )
 {
-    //TODO
-    return true;
+    const OS::MachineCommand mc( cmd );
+    OS::CommandLauncher cl( mc );
+    OS::CommandExecPars cp( false );
+    cp.launchtype( ltyp );
+    return cl.execute( cp );
 }
 
+
+bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
+{
+    const FilePath fp( GetBinPlfDir(), prognm );
+    const BufferString cmd( fp.fullPath(), " ", args );
+    return OS::ExecCommand( cmd, ltyp );
+}

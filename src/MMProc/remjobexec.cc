@@ -28,7 +28,7 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
     , isconnected_(false)
 {
     socket_.connectToHost( host_, port );
-    socket_.connected.notify( mCB(this,RemoteJobExec,connectedCB) ); 
+    socket_.connected.notify( mCB(this,RemoteJobExec,connectedCB) );
     socket_.waitForConnected( 2000 );
     ckeckConnection();
 }
@@ -43,7 +43,7 @@ RemoteJobExec::~RemoteJobExec()
 
 
 bool RemoteJobExec::launchProc() const
-{ 
+{
     if ( !par_.isEmpty() )
 	return socket_.write( par_ );
 
@@ -74,5 +74,5 @@ void RemoteJobExec::uiErrorMsg( const char* msg )
 {
     BufferString cmd = FilePath( GetBinPlfDir(), "od_DispMsg" ).fullPath();
     cmd.add( " --err " ).add( msg );
-    ExecOSCmd( cmd.buf() );
+    OS::ExecCommand( cmd );
 }

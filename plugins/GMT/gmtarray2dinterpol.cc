@@ -116,7 +116,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     BufferString cmd( "@grdmath " );
     cmd.add( path ).add( " " ).add( defundefpath_ )
        .add( " OR = " ).add( path_ );
-    if ( !ExecOSCmd(cmd) )
+    if ( !OS::ExecCommand(cmd) )
 	return false;
 
     File::remove( defundefpath_ );

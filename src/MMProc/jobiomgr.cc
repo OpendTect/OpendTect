@@ -390,7 +390,7 @@ bool JobIOMgr::startProg( const char* progname,
     }
 
     const BufferString cmdbs( cmd.string() );
-    if ( !ExecOSCmd(cmdbs,false,true) ) // in background
+    if ( !OS::ExecCommand(cmdbs,OS::RunInBG) )
     {
 	iohdlr_.removeJobDesc( machine.name(), ji.descnr_ );
 	mErrRet( BufferString("Failed to submit command '", cmdbs, "'") )

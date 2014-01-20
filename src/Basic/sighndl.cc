@@ -296,10 +296,7 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 
     BufferString cmd( "kill ", friendly ? "-TERM " : "-9 " );
     cmd.add( pid ).add( " > /dev/null" );
-    CommandLauncher cl( OSCommand(cmd,mach) );
-    OSCommandExecPars ep;
-    ep.inprogresswindow(false).prioritylevel(1).waitforfinish(true);
-    cl.execute( ep, false );
+    OS::ExecCommand( cmd, OS::RunInBG );
 
 #endif
 }

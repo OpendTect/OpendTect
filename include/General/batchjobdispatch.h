@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Batch
 {
 
-/*!\brief the data we need to specify a batch job. */
+/*!\brief the data we need to specify an OD batch job. */
 
 mExpClass(General) JobSpec
 {
@@ -30,21 +30,24 @@ public:
 			  T2D, VelConv, Vol };
 
 			JobSpec(ProcType);
-			JobSpec( const char* pnm=0, bool isodprog=true )
-			    : prognm_(pnm), isodprog_(isodprog)		{}
+			JobSpec( const char* pnm=0 )
+			    : prognm_(pnm), execpars_(true)		{}
 
     BufferString	prognm_;
-    bool		isodprog_;
+    BufferString	clargs_;
     IOPar		pars_;
-    OSCommandExecPars	execpars_;	//!< may be ignored by dispatcher
+    OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
 
 };
 
 
-/*!\brief Base class (with factory) for methods to kick-off a batch job.
+/*!\brief Base class (with factory) for methods to kick-off an OD batch job.
 
   Subclasses are expected to be ranging from simple single-prcess starters to
   elaborate cluster-based job splitting monsters.
+
+  isSuitedFor() determines whether a certain type of dispatcher can handle any
+  job for this program. canHandle() decides on the whole JobSpec.
 
  */
 
@@ -59,7 +62,6 @@ public:
     virtual const char*	description() const		= 0;
     virtual bool	isSuitedFor(const char* prognm) const = 0;
     virtual bool	canHandle(const JobSpec&) const;
-    virtual bool	ignoresExecPars() const		{ return false; }
 
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
@@ -72,13 +74,12 @@ protected:
     virtual bool	launch()			= 0;
 
     JobSpec		jobspec_;
-    BufferString	remotehost_;
     BufferString	errmsg_;
 
 };
 
 
-/*!\brief kicks off unattended batch jobs. */
+/*!\brief kicks off OD batch jobs in a single process. */
 
 mExpClass(General) SingleJobDispatcher : public JobDispatcher
 {
@@ -90,11 +91,12 @@ public:
     virtual const char*	description() const;
     virtual bool	isSuitedFor(const char*) const	{ return true; }
 
+    void		setParFileName( const char* s )	{ parfnm_ = s; }
     void		setRemoteHost( const char* rh )	{ remotehost_ = rh; }
-				//!< only used when !isAlwaysLocal()
+    void		setRemoteExec( const char* re )	{ remoteexec_ = re; }
 
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
-	    			 "Single Process","Single Process");
+				 "Single Process","Single Process");
 
 protected:
 
@@ -103,7 +105,7 @@ protected:
 
     BufferString	parfnm_;
     BufferString	remotehost_;
-    bool		tostdio_;
+    BufferString	remoteexec_;
 
 };
 

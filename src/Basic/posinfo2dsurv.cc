@@ -98,7 +98,7 @@ const PosInfo::Survey2D& S2DPOS()
 #define mErrRet(s1,s2,s3) \
 { \
     BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
-    ExecOSCmd( cmd, false, false ); \
+    OS::ExecCommand( cmd ); \
     return; \
 }
 

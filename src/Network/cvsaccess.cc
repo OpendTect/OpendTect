@@ -75,7 +75,7 @@ bool CVSAccess::hostOK() const
     return true; //TODO
 #else
     const BufferString cmd( "@ping -q -c 1 -W 2 ", host_, sRedirect );
-    return ExecOSCmd( cmd );
+    return OS::ExecCommand( cmd  );
 #endif
 }
 
@@ -118,7 +118,7 @@ bool CVSAccess::update( const char* fnm )
 
     mGetReqFnm();
     const BufferString cmd( "cvs update ", reqfnm, sRedirect );
-    return ExecOSCmd( cmd );
+    return OS::ExecCommand( cmd );
 }
 
 
@@ -142,7 +142,7 @@ bool CVSAccess::edit( const BufferStringSet& fnms )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return ExecOSCmd( cmd );
+    return OS::ExecCommand( cmd );
 }
 
 
@@ -169,7 +169,7 @@ bool CVSAccess::add( const BufferStringSet& fnms, bool bin )
 	cmd.add( " \"" ).add( reqfnm ).add( "\"" );
     }
     cmd.add( sRedirect );
-    return ExecOSCmd( cmd );
+    return OS::ExecCommand( cmd );
 }
 
 
@@ -205,7 +205,7 @@ bool CVSAccess::remove( const BufferStringSet& fnms )
 	return true;
 
     cmd.add( sRedirect );
-    return ExecOSCmd( cmd );
+    return OS::ExecCommand( cmd );
 }
 
 
@@ -248,7 +248,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
     }
 
     cmd.add( sRedirect );
-    const bool res = ExecOSCmd( cmd );
+    const bool res = OS::ExecCommand( cmd );
     if ( havetmpfile )
 	File::remove( tmpfnm );
     return res;
@@ -315,7 +315,7 @@ void CVSAccess::getEditTxts( const char* fnm, BufferStringSet& edtxts ) const
     BufferString cmd( "@cvs editors ", reqfnm, " > " );
     mGetTmpFnm("cvseditors",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !ExecOSCmd(cmd) )
+    if ( !OS::ExecCommand(cmd) )
 	mRetRmTempFile()
 
     od_istream strm( tmpfnm );
@@ -347,7 +347,7 @@ void CVSAccess::diff( const char* fnm, BufferString& res ) const
     BufferString cmd( "@cvs diff ", reqfnm, " > " );
     mGetTmpFnm("cvsdiff",fnm);
     cmd.add( "\"" ).add( tmpfnm ).add( "\" 2> /dev/null" );
-    if ( !ExecOSCmd(cmd) )
+    if ( !OS::ExecCommand(cmd) )
 	mRetRmTempFile()
 
     od_istream strm( tmpfnm );

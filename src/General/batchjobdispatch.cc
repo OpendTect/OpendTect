@@ -20,6 +20,7 @@ mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
+    : execpars_(true)
 {
     switch ( pt )
     {
@@ -57,7 +58,6 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
     if ( !init() )
 	return false;
 
-    jobspec_.pars_.update( sKey::LogFile(), jobspec_.execpars_.logfname_ );
     jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
     jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
 
@@ -66,7 +66,6 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 
 
 Batch::SingleJobDispatcher::SingleJobDispatcher()
-    : tostdio_(true)
 {
 }
 
@@ -79,42 +78,19 @@ const char* Batch::SingleJobDispatcher::description() const
 
 bool Batch::SingleJobDispatcher::init()
 {
-    const BufferString prognm = FilePath( jobspec_.prognm_ ).fileName();
-    tostdio_ = false;
-    BufferString& logfnm = jobspec_.execpars_.logfname_;
-    bool alreadyhavelogfnm = !logfnm.isEmpty();
-    if ( !jobspec_.execpars_.inprogresswindow_ )
+    if ( parfnm_.isEmpty() )
     {
-	StreamProvider sp( jobspec_.execpars_.logfname_ );
-	FixedString spnm( sp.fullName() );
-	if ( !alreadyhavelogfnm
-	  || spnm==StreamProvider::sStdIO() || spnm==StreamProvider::sStdErr() )
-	{
-	    logfnm = StreamProvider::sStdIO();
-	    tostdio_ = true;
-	    alreadyhavelogfnm = false;
-	}
+	const BufferString prognm = FilePath( jobspec_.prognm_ ).fileName();
+	FilePath parfp( GetProcFileName(prognm) );
+	parfp.setExtension( ".par" );
+	parfnm_.set( parfp.fullPath() );
     }
 
-    FilePath parfp;
-    if ( !alreadyhavelogfnm )
-	parfp.set( GetProcFileName( prognm ) );
-    else
-    {
-	parfp.set( logfnm );
-	if ( !parfp.isAbsolute() )
-	    parfp.setPath( GetProcFileName(0) );
-	logfnm = parfp.fullPath();
-    }
-    parfp.setExtension( ".par" );
-    parfnm_ = parfp.fullPath();
-
-    if ( !alreadyhavelogfnm && !tostdio_ )
-    {
-	FilePath logfp( parfnm_ );
-	logfp.setExtension( 0 );
-	logfnm.set( logfp.fullPath() ).add( "_log.txt" );
-    }
+    FilePath fp( parfnm_ );
+    fp.setExtension( 0 );
+    BufferString logfnm( fp.fullPath() );
+    logfnm.add( "_log.txt" );
+    jobspec_.pars_.update( sKey::LogFile(), logfnm );
 
     return true;
 }
@@ -128,28 +104,11 @@ bool Batch::SingleJobDispatcher::launch()
     jobspec_.pars_.putTo( astrm );
     parstrm.close();
 
-    if ( remotehost_.isEmpty() )
-    {
-	BufferString cmd( jobspec_.prognm_, " ", parfnm_ );
-	OSCommand oscmd( cmd );
-	CommandLauncher cl( oscmd );
-	return cl.execute( jobspec_.execpars_, jobspec_.isodprog_ );
-    }
-
-    BufferString cmd( jobspec_.prognm_, " ", parfnm_ );
-    if ( jobspec_.isodprog_ )
-    {
-	cmd.set( GetExecScript( true ) ).add( remotehost_ ).add( " --rexec " )
-	    .add( OSCommand::defaultRemExec() ).add( " --inbg " );
-	if ( !__iswin__ && jobspec_.execpars_.prioritylevel_ )
-	{
-	    const float fnicelvl = jobspec_.execpars_.prioritylevel_ * 19;
-	    cmd.add( "--nice " ).add( mNINT32(fnicelvl) ).add( " " );
-	}
-    }
-
-
-    OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
-    CommandLauncher cl( oscomm );
-    return cl.execute( jobspec_.execpars_, jobspec_.isodprog_ );
+    BufferString cmd( "\"", jobspec_.prognm_, "\" " );
+    cmd.add( jobspec_.clargs_ ).add( "\"" ).add( parfnm_ ).add( "\"" );
+    OS::MachineCommand mc( cmd, remotehost_ );
+    if ( !remoteexec_.isEmpty() )
+	mc.setRemExec( remoteexec_ );
+    OS::CommandLauncher cl( mc );
+    return cl.execute( jobspec_.execpars_ );
 }

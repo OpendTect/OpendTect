@@ -996,7 +996,8 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	cmd += ". This is a hidden file"; \
     else \
 	cmd += " Please check the file permission"; \
-    ExecOSCmd( cmd.buf(), true ); } \
+    OS::ExecCommand( cmd ); \
+}
 
 void SurveyInfo::savePars( const char* basedir ) const
 {

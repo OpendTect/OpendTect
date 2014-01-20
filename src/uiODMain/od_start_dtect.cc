@@ -31,7 +31,7 @@ static bool ExecODMain( int argc, char** argv )
 {
     BufferString cmd( "od_main " );
     cmd += getCmdLine( argc, argv );
-    return ExecOSCmd( cmd, true, true );
+    return OS::ExecCommand( cmd, OS::RunInBG );
 }
 
 

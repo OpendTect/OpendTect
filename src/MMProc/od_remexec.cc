@@ -32,7 +32,7 @@ static BufferString createCmdLine( int argc, char** argv )
 static int executeLocal( int argc, char** argv )
 {
     const BufferString cmdline = createCmdLine( argc, argv );
-    return ExecOSCmd( cmdline, false, true );
+    return OS::ExecCommand( cmdline, OS::RunInBG );
 }
 
 

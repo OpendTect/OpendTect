@@ -392,7 +392,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
 #endif
 
-    if ( !ExecOSCmd(comm,true,true) )
+    if ( !OS::ExecCommand( comm, OS::RunInBG ) )
 	uiMSG().error( "Could not execute command:\n", comm );
 
     return false;

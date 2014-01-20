@@ -250,7 +250,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
     if ( !dormt )
     {
-	const bool canstart = ExecODProgram( progname_, parfname_, nicelvl_ );
+	const bool canstart = ExecODProgram( progname_, parfname_ );
 	if ( !canstart )
 	    uiMSG().error( "Cannot start batch program" );
 	return canstart;
@@ -291,7 +291,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #endif
 
     comm.add( " \"" ).add( parfname_ ).add( "\"" );
-    const bool startok = ExecOSCmd( comm, false, true );
+    const bool startok = OS::ExecCommand( comm, OS::RunInBG );
     if ( !startok )
 	uiMSG().error( BufferString( "Error executing:\n", comm ) );
     return startok;
@@ -547,7 +547,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     dormt = true;
 #endif
 
-    if ( !ExecOSCmd(comm,false,dormt) )
+    if ( !OS::ExecCommand(comm,OS::RunInBG) )
 	{ uiMSG().error( "Cannot start batch program" ); return false; }
     return true;
 }
@@ -563,7 +563,7 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
     comm.add( multiprognm_ ).add( " " ).add( procprognm_ )
 	.add( " \"" ).add( fnm ).add( "\"" );
 
-    if ( !ExecOSCmd(comm,true,true) )
+    if ( !OS::ExecCommand(comm,OS::RunInBG) )
 	{ uiMSG().error( "Cannot start multi-machine program" ); return false; }
 
     return true;

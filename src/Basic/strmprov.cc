@@ -101,7 +101,7 @@ static const char* mkUnLinked( const char* fnm )
 
 static inline const char* remExecCmd()
 {
-    return OSCommand::defaultRemExec();
+    return OS::MachineCommand::defaultRemExec();
 }
 
 
@@ -483,7 +483,7 @@ void StreamProvider::set( const char* inp )
     mSkipBlanks( pwork );
     fname_ = pwork;
 
-    workstr = OSCommand::extractHostName( fname_.buf(), hostname_ );
+    workstr = OS::MachineCommand::extractHostName( fname_.buf(), hostname_ );
     pwork = workstr.buf();
     mSkipBlanks( pwork );
     if ( *pwork == '@' )
@@ -670,7 +670,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 void StreamProvider::mkOSCmd( bool forread, BufferString& cmd ) const
 {
     if ( iscomm_ )
-	cmd = OSCommand( fname_, hostname_ ).get();
+	cmd = OS::MachineCommand( fname_, hostname_ ).getSingleStringRep();
     else
     {
 	char buf[mCmdBufSz];

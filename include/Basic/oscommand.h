@@ -16,40 +16,52 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
+namespace OS
+{
+
+
+enum LaunchType	{ Wait4Finish, RunInBG };
+
+
 /*!\brief Specifies how to execute a command */
 
 
-mExpClass(Basic) OSCommandExecPars
+mExpClass(Basic) CommandExecPars
 {
 public:
-			OSCommandExecPars()
-			    : inprogresswindow_(true)
-			    , prioritylevel_(-1)
-			    , waitforfinish_(false)		{}
+			CommandExecPars( bool isodprog=true )
+			    : needmonitor_(isodprog)
+			    , prioritylevel_(isodprog ? -1 : 0)
+			    , launchtype_(isodprog?RunInBG:Wait4Finish)
+			    , isconsoleuiprog_(false)	{}
 
-    mDefSetupClssMemb(OSCommandExecPars,bool,inprogresswindow);
-			    //!< if not, to logfile (if any)
-    mDefSetupClssMemb(OSCommandExecPars,BufferString,logfname);
-			    //!< only when !inprogresswindow_
-    mDefSetupClssMemb(OSCommandExecPars,float,prioritylevel);
+    mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
+    mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
+			    //!< will be generated is needed but empty
+
+    mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
+
+    mDefSetupClssMemb(CommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
-    mDefSetupClssMemb(OSCommandExecPars,bool,waitforfinish);
-			    //!< wait till the child program finishes
+
+    mDefSetupClssMemb(CommandExecPars,bool,isconsoleuiprog);
+			    //!< program uses text-based stdin console input
+			    //!< if true, will ignore monitor settings
 };
 
 
-/*!\brief Can execute OS commands.
+/*!\brief Encapsulates an actual command to execute + the machine to run it on
 
-Executes command without opening pipe.
 The default remote execution command is ssh.
 
  */
 
-mExpClass(Basic) OSCommand
+mExpClass(Basic) MachineCommand
 {
 public:
 
-			OSCommand(const char* comm=0,const char* hnm=0);
+			MachineCommand(const char* comm=0);
+			MachineCommand(const char* comm,const char* hnm);
 
     inline const char*	command() const			{ return comm_; }
     inline void		setCommand( const char* cm )	{ comm_ = cm; }
@@ -60,9 +72,10 @@ public:
 
     inline bool		isBad() const		{ return comm_.isEmpty(); }
 
-    bool		set(const char*,bool lookforhostname=true);
-			//!< returns !isBad()
-    const char*		get() const;
+    bool		setFromSingleStringRep(const char*,
+						bool ignorehostname=false);
+						//!< returns !isBad()
+    const char*		getSingleStringRep() const;
 
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
 
@@ -71,57 +84,60 @@ public:
 
     static const char*	extractHostName(const char*,BufferString&);
 			//!< returns remaining part
-    void		prepareOSCommnd(BufferString&) const;
+    BufferString	getLocalCommand() const;
 
 protected:
 
     BufferString	comm_;
     BufferString	hname_;
     BufferString	remexec_;
+
     static BufferString	defremexec_;
 
-    void		mkOSCmd(bool,BufferString&) const;
 };
 
-/*!\brief A single interface to launch commands/processes and OpendTect programs
 
-*/
+/*!\brief Launches machine commands */
 
 mExpClass(Basic) CommandLauncher
 {
 public:
-			CommandLauncher(const OSCommand&);
-			CommandLauncher(const char* cmd);
-			~CommandLauncher();
+			CommandLauncher(const MachineCommand&);
 
-    bool		execute(const OSCommandExecPars& pars
-	    			=OSCommandExecPars(),bool isODprogram=true);
+    void		set(const MachineCommand&);
 
-    int			getProcessID() const { return processid_; }
-    const char*		errorMsg() const { return errmsg_; }
+    bool		execute(const CommandExecPars& pars);
+
+    int			processID() const	{ return processid_; }
+    const char*		monitorFileName() const	{ return monitorfnm_; }
+    const char*		errorMsg() const	{ return errmsg_; }
 
 protected:
 
-    bool		doExecute(const char* comm, 
-				    bool inwindow, bool waitforfinish);
-    bool		executeRemote();
-    void		makeFullCommand();
-    
-    const OSCommand&	oscommand_;
-    BufferString	command_;
-    BufferString	fullcommand_;
-    BufferString	odprogressviewer_;
-    BufferString	logfile_;
+    void		reset();
+    bool		doExecute(const char* comm,bool wait4finish);
+
+    MachineCommand	machcmd_;
+    BufferString	monitorfnm_;
     int			processid_;
+    BufferString	progvwrcmd_;
     BufferString	errmsg_;
+
+    const BufferString	odprogressviewer_;
+
 };
 
-//! Execute command on local host
-mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsole=false,bool inbg=false);
 
-//! Execute od program via the startup script
-mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* filenm,
-				  int nicelvl=19,const char* args=0);
+/*! convenience function; for specific options use the CommandLauncher */
+mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish);
+
+
+} // namespace OS
+
+
+/*! convenience function executing a program from the OD bindir */
+mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* args=0,
+				  OS::LaunchType lt=OS::RunInBG);
 
 
 #endif

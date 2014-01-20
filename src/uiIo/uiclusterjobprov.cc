@@ -275,7 +275,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";
 	comm += " --dosubmit "; comm += parfnm;
-	if ( !ExecOSCmd(comm,false,true) )
+	if ( !OS::ExecCommand(comm,OS::RunInBG) )
 	    { uiMSG().error( "Cannot start batch program" ); return false; }
     }
 

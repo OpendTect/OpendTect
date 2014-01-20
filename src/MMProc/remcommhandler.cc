@@ -56,7 +56,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 
     BufferString cmd;
     mkCommand( par, cmd );
-    if ( !ExecOSCmd( cmd, false, true ) )
+    if ( !OS::ExecCommand( cmd, OS::RunInBG ) )
 	mErrRet( "Command Execution failed" );
 }
 
@@ -98,7 +98,7 @@ void RemCommHandler::uiErrorMsg( const char* msg )
 {
     BufferString cmd = FilePath( GetBinPlfDir(), "od_DispMsg" ).fullPath();
     cmd.add( " --err ").add( msg );
-    ExecOSCmd( cmd.buf() );
+    OS::ExecCommand( cmd );
 }
 
 

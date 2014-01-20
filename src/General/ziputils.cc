@@ -107,7 +107,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
     cmd.add( "\" -d \"" ).add( dest ).add( "\"");
     if ( needfilelist_ )
 	cmd.add( " > " ).add( "\"" ).add( filelistname_ ).add( "\"" );
-    res = ExecOSCmd( cmd );
+    res = OS::ExecCommand( cmd );
 #else
     BufferString cmd( "unzip -o ", src );
     cmd.add( " -d " ).add( dest ).add( " > " )

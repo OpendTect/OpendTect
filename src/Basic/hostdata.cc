@@ -221,7 +221,7 @@ bool HostDataList::readHostFile( const char* fname )
     }
 
     if ( foundrsh )
-	OSCommand::setDefaultRemExec( rshcomm_ );
+	OS::MachineCommand::setDefaultRemExec( rshcomm_ );
 
     while ( !atEndOfSection(astrm.next()) )
     {

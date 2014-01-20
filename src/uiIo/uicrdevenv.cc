@@ -180,14 +180,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     char shortpath[1024];
     GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
-    ExecOSCmd( cmd, true, false );
 #else
     fp.add( "od_cr_dev_env" );
     BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-    ExecOSCmd( cmd, false, false );
 #endif
+    OS::ExecCommand( cmd );
 
     BufferString cmakefile =
 			FilePath(workdirnm).add("CMakeLists.txt").fullPath();

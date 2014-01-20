@@ -140,7 +140,7 @@ void ODInst::startInstManagement()
     mDefCmd();
     const BufferString curpath = File::getCurrentPath();
     File::changeDir( installerdir.pathOnly() );
-    ExecOSCmd( cmd, true, true );
+    OS::ExecCommand( cmd, OS::RunInBG );
     File::changeDir( curpath.buf() );
 #else
     FilePath installerdir( getInstallerPlfDir() );
@@ -172,8 +172,9 @@ BufferString ODInst::getInstallerPlfDir()
 
 bool ODInst::runInstMgrForUpdt()
 {
-    mDefCmd(false); cmd.add( " --updcheck_report" );
-    return ExecOSCmd( cmd, false, true );
+    mDefCmd(false);
+    cmd.add( " --updcheck_report" );
+    return OS::ExecCommand( cmd, OS::Wait4Finish );
 }
 
 
