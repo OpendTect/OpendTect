@@ -49,6 +49,8 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
 {
     sowingline_->ref();
     sowingline_->setMaterial( new visBase::Material );
+    sowingline_->setLineStyle( LineStyle(LineStyle::Solid,1) );
+    sowingline_->setPickable( false, false );
     addChild( sowingline_->osgNode() );
     reInitSettings();
 }
@@ -123,10 +125,10 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     if ( mode_ != Idle )
 	mReturnHandled( false );
 
-    //Scene* scene = STM().currentScene();
- /*   if ( scene && scene->getPolySelection()->getSelectionType() !=
+    Scene* scene = STM().currentScene();
+    if ( scene && scene->getPolySelection()->getSelectionType() !=
 	    					visBase::PolygonSelection::Off )
-	mReturnHandled( false );*/
+	mReturnHandled( false );
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	mReturnHandled( false );
@@ -447,6 +449,7 @@ void Sower::reset()
     for ( int idx=sowingline_->size()-1; idx>=0; idx-- )
 	sowingline_->removePoint( idx );
 
+    sowingline_->dirtyCoordinates();
     deepErase( eventlist_ );
     mousecoords_.erase();
 
