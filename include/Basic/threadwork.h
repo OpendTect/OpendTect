@@ -62,8 +62,9 @@ public:
 				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
-    void			addWork(const Work&,CallBack* finished,
-					int queueid, bool putfirstinline,
+    void			addWork(const Work&,CallBack* finished =0,
+					int queueid=cDefaultQueueID(),
+					bool putfirstinline=false,
 					bool discardduplicates=false,
 					bool forcedifferentthread=false);
 				/*!<\param forcedifferentthread will force
