@@ -148,9 +148,7 @@ bool ExecODProgram( const char* prognm, const char* filenm, int nicelvl,
     if ( args && *args )
 	cmd.add( " " ).add( args );
 
-    OSCommand oscmd( cmd );
-    return oscmd.execute( true, scriptinbg );
-
+    return ExecOSCmd( cmd, true, scriptinbg );
 
 #endif
 
@@ -416,7 +414,7 @@ void CommandLauncher::makeFullCommand()
 {
     oscommand_.prepareOSCommnd( fullcommand_ );
     FilePath cmdfp( fullcommand_ );
-    fullcommand_ = BufferString( cmdfp.isAbsolute() ? fullcommand_ 
+    fullcommand_ = BufferString( cmdfp.isAbsolute() ? fullcommand_
 			: FilePath(GetBinPlfDir(),fullcommand_).fullPath() );
     odprogressviewer_ =
 	FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath();
@@ -442,7 +440,7 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
 	    if ( !ret )
 		return false;
-	    
+
 	    odprogressviewer_.add( " --logfile " ).add( logfile_ )
 			    .add( " --pid " ).add( getProcessID() );
 	    if ( !doExecute(odprogressviewer_,true,false) )
@@ -471,13 +469,13 @@ bool CommandLauncher::execute( const OSCommandExecPars& pars, bool isODprogram )
 	    fullcommand_.add( " >" ).add( logfile_ );
 	    ret = doExecute( fullcommand_, false, pars.waitforfinish_ );
 	}
-	else 
+	else
 	{
 	    //No Log file No Window ? do nothing
 	    pErrMsg( "Non-OD program should not be run in hidden mode" );
 	}
     }
-  
+
     return ret;
 }
 
@@ -493,7 +491,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
     qprocess.startDetached( QString(fullcommand_) );
     if ( !qprocess.waitForFinished() )
         return false;
-    
+
     return true;
 #else
 
@@ -503,7 +501,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 	comm++;
     if ( !*comm )
 	return false;
-    
+
     BufferString oscmd( comm );
     if ( waitforfinish )
 	oscmd += "&";
@@ -518,15 +516,15 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
     ZeroMemory(&si, sizeof(STARTUPINFO));
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
-    
+
     unsigned int FLAG = 0;
-   
+
     if ( !inwindow )
     {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(sa);
 	sa.lpSecurityDescriptor = NULL;
-	sa.bInheritHandle = TRUE;       
+	sa.bInheritHandle = TRUE;
 
 	HANDLE hlog = CreateFile( logfile_,
 				  FILE_APPEND_DATA,
@@ -535,7 +533,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 				  OPEN_ALWAYS,
 				  FILE_ATTRIBUTE_NORMAL,
 				  NULL );
-	
+
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
 	si.wShowWindow = SW_HIDE;
@@ -554,7 +552,7 @@ bool CommandLauncher::doExecute( const char* comm, bool inwindow,
 			     NULL,	// Use parent's environment block.
 			     NULL,	// Use parent's starting directory.
 			     &si, &pi );
-    
+
     if ( res )
     {
 	if ( waitforfinish )  WaitForSingleObject( pi.hProcess, INFINITE );
