@@ -204,18 +204,18 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	cbs_ += cbs[lidx];
     }
 
-    const char* pname = getLibName(cbs_[0]->text(),stringset);
-    if ( pname )
-	pluginnms_.add( pname ); 
-    for ( int idx=1; idx<cbs_.size(); idx++ )
+    const int nrrows = nrplugins % 2 == 0 ? (nrplugins/2) : (nrplugins/2) + 1;
+    for ( int idx=0; idx<cbs_.size(); idx++ )
     {
-	if ( idx < nrplugins/2 )
-	    cbs_[idx]->attach( alignedBelow, cbs_[ idx-1] );
-	else
-	    cbs_[idx]->attach( rightOf, cbs_[(idx-nrplugins/2)] );
 	const char* piname = getLibName(cbs_[idx]->text(),stringset);
 	if ( piname )
 	    pluginnms_.add( piname ); 
+	if( idx == 0 )
+	    continue;
+	if ( idx < nrrows )
+	    cbs_[idx]->attach( alignedBelow, cbs_[ idx-1] );
+	else
+	    cbs_[idx]->attach( rightOf, cbs_[(idx-nrrows)] );
     }
 }
 
