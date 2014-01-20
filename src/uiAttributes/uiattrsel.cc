@@ -288,7 +288,6 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
     attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec());
-    attr2dfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     attr2dfld_->attach( alignedBelow, storoutfld_ );
 
     filtfld_ = new uiGenInput( this, "Filter", "*" );
