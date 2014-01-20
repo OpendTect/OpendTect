@@ -107,6 +107,8 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     if ( deswidth>txtfld->defaultWidth() )
 	txtfld->setPrefWidth( deswidth );
 
+    windowClosed.notify( mCB(this,uiProgressViewer,quitFn) );
+
     timer_ = new Timer( "Progress" );
     timer_->tick.notify( mCB(this,uiProgressViewer,doWork) );
     timer_->start( 50, true );

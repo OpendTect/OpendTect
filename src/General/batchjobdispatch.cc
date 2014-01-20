@@ -130,7 +130,9 @@ bool Batch::SingleJobDispatcher::launch()
 
     if ( remotehost_.isEmpty() )
     {
-	CommandLauncher cl( jobspec_.prognm_, parfnm_ );
+	BufferString cmd( jobspec_.prognm_, " ", parfnm_ );
+	OSCommand oscmd( cmd );
+	CommandLauncher cl( oscmd );
 	return cl.execute( jobspec_.execpars_, jobspec_.isodprog_ );
     }
 
@@ -148,5 +150,6 @@ bool Batch::SingleJobDispatcher::launch()
 
 
     OSCommand oscomm( cmd, jobspec_.isodprog_ ? "" : remotehost_.buf() );
-    return oscomm.execute( jobspec_.execpars_, jobspec_.isodprog_ );
+    CommandLauncher cl( oscomm );
+    return cl.execute( jobspec_.execpars_, jobspec_.isodprog_ );
 }
