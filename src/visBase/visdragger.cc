@@ -16,8 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 
 #include <osg/Switch>
-#include <osgManipulator/Translate1DDragger>
-#include <osgManipulator/Translate2DDragger>
+#include <osgGeo/Draggers>
 #include <osg/MatrixTransform>
 #include <osg/AutoTransform>
 #include <osg/ShapeDrawable>
@@ -126,6 +125,7 @@ void DraggerBase::initDragger( osgManipulator::Dragger* d )
 	cbhandler_->ref();
 	osgdragger_->setHandleEvents(true);
 	osgdragger_->addDraggerCallback( cbhandler_ );
+	osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     }
  }
 
@@ -185,27 +185,24 @@ bool Dragger::selectable() const { return true; }
 
 void Dragger::setDraggerType( Type tp )
 {
-    osgManipulator::Dragger* dragger( 0 );
-
-    switch ( tp )
+    if ( tp==Translate1D )
     {
-	case Translate1D:
-	    dragger = new osgManipulator::Translate1DDragger;
-	    is2dtranslate_ = false;
-	    break;
-	case Translate2D:
-	    dragger = new osgManipulator::Translate2DDragger;
-	    is2dtranslate_ = true;
-	    break;
-	case Translate3D:
-	case Scale3D:
-	    pErrMsg("Not impl");
-    };
-
-    if ( !dragger )
-	return;
-
-    initDragger( dragger );
+	osgGeo::Translate1DDragger* dragger = new osgGeo::Translate1DDragger;
+	dragger->setInactivationModKeyMask( ~0 );
+	initDragger( dragger );
+	is2dtranslate_ = false;
+    }
+    else if ( tp==Translate2D )
+    {
+	osgGeo::Translate2DDragger* dragger = new osgGeo::Translate2DDragger;
+	dragger->setInactivationModKeyMask( ~0 );
+	initDragger( dragger );
+	is2dtranslate_ = true;
+    }
+    else if ( tp==Translate3D || tp==Scale3D )
+    {
+	pErrMsg("Not impl");
+    }
 }
 
 
