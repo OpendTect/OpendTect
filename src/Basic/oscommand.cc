@@ -387,7 +387,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
 	sa.lpSecurityDescriptor = NULL;
 	sa.bInheritHandle = TRUE;
 
-	HANDLE hlog = CreateFile( logfile_,
+	HANDLE hlog = CreateFile( monitorfnm_,
 				  FILE_APPEND_DATA,
 				  FILE_SHARE_WRITE | FILE_SHARE_READ,
 				  &sa,
