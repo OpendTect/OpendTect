@@ -352,11 +352,7 @@ Export_Basic od_ostream& logMsgStrm()
 
     if ( !strm )
     {
-#	ifdef __win__
-	    strm = &od_ostream::nullStream();
-#	else
-	    strm = new od_ostream( std::cerr );
-#	endif
+	strm = new od_ostream( std::cerr );
 	if ( !errmsg.isEmpty() )
 	    *strm << errmsg;
     }
