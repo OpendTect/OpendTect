@@ -388,9 +388,9 @@ mExternC(Basic) const char* GetSubversionUrl(void)
 
 
 
-int argc = -1;
-BufferString initialdir;
-char** argv = 0;
+static int argc = -1;
+static BufferString initialdir;
+static char** argv = 0;
 
 
 mExternC(Basic) char** GetArgV(void)
@@ -405,6 +405,19 @@ mExternC(Basic) int AreProgramArgsSet(void)
 { return GetArgC()!=-1; }
 
 
+#ifndef __win__
+static void insertInPath( const char* envkey, const char* dir, const char* sep )
+{
+    BufferString pathval( GetEnvVar(envkey) );
+    if ( pathval.isEmpty() )
+	pathval.set( dir );
+    else
+	pathval.insertAt( 0, BufferString(dir,sep) );
+    SetEnvVar( envkey, pathval.buf() );
+}
+#endif
+
+
 mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 {
     getcwd( initialdir.getCStr(), initialdir.minBufSize() );
@@ -413,6 +426,16 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
     argv = newargv;
 
     od_putProgInfo( argc, argv );
+
+#ifndef __win__
+    FilePath fp( GetFullExecutablePath() );
+    const BufferString execdir( fp.pathOnly() );
+    insertInPath( "PATH", execdir.buf(), ":" );
+    insertInPath( "path", execdir.buf(), " " );
+#endif
+
+    // Set this so that scripts run from the program have it available
+    SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
 }
 
 
@@ -456,4 +479,3 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     return res;
 }
-
