@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "drawaxis2d.h"
+#include "uigraphicssceneaxismgr.h"
 
 #include "draw.h"
 #include "axislayout.h"
@@ -125,7 +125,7 @@ else \
 } \
 cur##nm##itm++
 
-#define sDefNrDecimalPlaces 3
+#define mDefNrDecimalPlaces 3
 
 int uiGraphicsSceneAxis::getNrAnnotChars() const
 {
@@ -136,16 +136,12 @@ int uiGraphicsSceneAxis::getNrAnnotChars() const
     const int stoplogval = mIsZero(rg_.stop,mDefEps)
 				? 0 : mNINT32( Math::Log10(fabs(rg_.stop)) );
     int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
-    // number of chars needed for pre decimal part for maximum value
     if ( nrofpredecimalchars < 1 )
 	nrofpredecimalchars = 1;
-    int nrofpostdecimalchars = sDefNrDecimalPlaces - widthlogval;
-    // number of chars needed for decimal places on the basis of range
+    int nrofpostdecimalchars = mDefNrDecimalPlaces - widthlogval;
     if ( annotinint_ || nrofpostdecimalchars < 0 )
 	nrofpostdecimalchars = 0;
-    else
-	nrofpostdecimalchars += 1; // +1 for the decimal itself
-    return nrofpredecimalchars + nrofpostdecimalchars;
+    return nrofpredecimalchars + nrofpostdecimalchars + 1;
 }
 
 
@@ -276,12 +272,16 @@ var->setPenStyle( lst )
 
 uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     : view_( view )
-    , xaxis_( new uiGraphicsSceneAxis( view.scene() ) )
-    , yaxis_( new uiGraphicsSceneAxis( view.scene() ) )
+    , xaxis_( new uiAxisHandler(&view.scene(),
+				uiAxisHandler::Setup(uiRect::Top)
+				.fixedborder(true).nogridline(true)) )
+    , yaxis_( new uiAxisHandler(&view.scene(),
+				uiAxisHandler::Setup(uiRect::Left)
+				.fixedborder(true)) )
     , uifont_( uiFontList::getInst().get(FontData::key(FontData::GraphicsMed)) )
 {
-    xaxis_->setPosition( true, true, false );
-    yaxis_->setPosition( false, true, false );
+    xaxis_->setBegin( yaxis_ );
+    yaxis_->setBegin( xaxis_ );
 
     updateFontSizeCB( 0 );
     LineStyle lst; lst.type_ = LineStyle::None;
@@ -302,10 +302,10 @@ uiGraphicsSceneAxisMgr::~uiGraphicsSceneAxisMgr()
 }
 
 
-void uiGraphicsSceneAxisMgr::setZvalue( int z )
+void uiGraphicsSceneAxisMgr::setZValue( int z )
 {
-    xaxis_->setZValue( z+1 );
-    yaxis_->setZValue( z+1 );
+    xaxis_->setup().zval( z+1 );
+    yaxis_->setup().zval( z+1 );
     
     topmask_->setZValue( z );
     bottommask_->setZValue( z );
@@ -316,8 +316,8 @@ void uiGraphicsSceneAxisMgr::setZvalue( int z )
 
 void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
 {
-    xaxis_->setViewRect( viewrect );
-    yaxis_->setViewRect( viewrect );
+    xaxis_->updateDevSize();
+    yaxis_->updateDevSize();
     
     const uiRect fullrect = view_.getViewArea();
     
@@ -333,51 +333,47 @@ void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
 }
 
 
-void uiGraphicsSceneAxisMgr::setXFactor( int xf )
+void uiGraphicsSceneAxisMgr::setBorder( const uiBorder& border )
 {
-    xaxis_->setTextFactor( xf );
-}
-
-
-void uiGraphicsSceneAxisMgr::setYFactor( int yf )
-{
-    yaxis_->setTextFactor( yf );
+    xaxis_->setBorder( border );
+    yaxis_->setBorder( border );
 }
 
 
 void uiGraphicsSceneAxisMgr::setWorldCoords( const uiWorldRect& wr )
 {
-    xaxis_->setWorldCoords( Interval<double>(wr.left(),wr.right()) );
-    yaxis_->setWorldCoords( Interval<double>( wr.top(), wr.bottom() ) );
+    xaxis_->setBounds( Interval<float>(wr.left(),wr.right()) );
+    yaxis_->setBounds( Interval<float>( wr.bottom(), wr.top() ) );
+    updateScene();
 }
 
 
 void uiGraphicsSceneAxisMgr::setXLineStyle( const LineStyle& xls )
 {
-    xaxis_->setLineStyle( xls );
+    xaxis_->setup().style_ = xls;
 }
 
 
 void uiGraphicsSceneAxisMgr::setYLineStyle( const LineStyle& yls )
 {
-    yaxis_->setLineStyle( yls );
+    yaxis_->setup().style_ = yls;
 }
 
 
-int uiGraphicsSceneAxisMgr::getZvalue() const
+int uiGraphicsSceneAxisMgr::getZValue() const
 {
     return topmask_->getZValue();
 }
 
 
-int uiGraphicsSceneAxisMgr::getNeededWidth()
+int uiGraphicsSceneAxisMgr::getNeededWidth() const
 {
-    const int nrchars = 11;
+    const int nrchars = xaxis_->getNrAnnotCharsForDisp() + 5;
     return nrchars*uifont_.avgWidth();
 }
 
 
-int uiGraphicsSceneAxisMgr::getNeededHeight()
+int uiGraphicsSceneAxisMgr::getNeededHeight() const
 {
     return uifont_.height()+2;
 }
@@ -390,28 +386,27 @@ NotifierAccess& uiGraphicsSceneAxisMgr::layoutChanged()
 void uiGraphicsSceneAxisMgr::updateFontSizeCB( CallBacker* )
 {
     const FontData& fontdata = uifont_.fontData();
-    xaxis_->setFontData( fontdata );
-    yaxis_->setFontData( fontdata );
+    xaxis_->setup().fontdata_ = fontdata;
+    yaxis_->setup().fontdata_ = fontdata;
 }
 
 
 void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
 {
-    xaxis_->setGridLineStyle( gls );
-    yaxis_->setGridLineStyle( gls );
+    xaxis_->setup().gridlinestyle_ = gls;
+    yaxis_->setup().gridlinestyle_ = gls;
 }
 
 
 void uiGraphicsSceneAxisMgr::setAnnotInside( bool yn )
 {
-    xaxis_->setAnnotInside( yn );
-    yaxis_->setAnnotInside( yn );
+    xaxis_->setup().annotinside_ = yn;
+    yaxis_->setup().annotinside_ = yn;
 }
 
 
 void uiGraphicsSceneAxisMgr::enableAxisLine( bool yn )
 {
-    xaxis_->enableAxisLine( yn ); 
-    yaxis_->enableAxisLine( yn ); 
+    xaxis_->setup().noaxisline( !yn );
+    yaxis_->setup().noaxisline( !yn );
 }
-

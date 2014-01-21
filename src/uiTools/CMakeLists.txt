@@ -9,7 +9,6 @@ SET( OD_MODULE_DEPS uiBase Network )
 SET( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc
-	drawaxis2d.cc
 	uiamplspectrum.cc
 	uiapplserv.cc
 	uiarray2dchg.cc
@@ -39,6 +38,7 @@ SET( OD_MODULE_SOURCES
 	uigeninput_impl.cc
 	uigeninputdlg.cc
 	uigraphicssaveimagedlg.cc
+	uigraphicssceneaxismgr.cc
 	uigraphicsview.cc
 	uigridder2d.cc
 	uihandledlsitefail.cc

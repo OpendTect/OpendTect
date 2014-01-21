@@ -67,7 +67,7 @@ void uiWellStratDisplay::draw()
     
     drawer_.xAxis()->setNewDevSize( width(), height() );
     drawer_.yAxis()->setNewDevSize( height(), width() );
-    drawer_.yAxis()->plotAxis();
+    drawer_.yAxis()->updateScene();
     zdata_.zrg_.sort( false );
     drawer_.setZRange( zdata_.zrg_ );
     drawer_.drawColumns();

@@ -29,6 +29,7 @@ FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
     , arrowitem1_(0)
     , arrowitem2_(0)
     , titletxt_(0)
+    , extraborder_(0)
 {}
 
 
@@ -62,21 +63,23 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 }
 
 
-void FlatView::AxesDrawer::update()
+void FlatView::AxesDrawer::updateScene()
 {
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     setAnnotInInt( true, annot.x1_.annotinint_ );
     setAnnotInInt( false, annot.x2_.annotinint_ );
     enableXAxis( annot.x1_.showannot_ );
     enableYAxis( annot.x2_.showannot_ );
-    xaxis_->enableGridLines( annot.x1_.showgridlines_ );
-    yaxis_->enableGridLines( annot.x2_.showgridlines_ );
+    xaxis_->setup().nogridline( !annot.x1_.showgridlines_ );
+    yaxis_->setup().nogridline( !annot.x2_.showgridlines_ );
+    updateViewRect();
+    uiGraphicsSceneAxisMgr::updateScene();
 }
 
 
-void FlatView::AxesDrawer::setZvalue( int z )
+void FlatView::AxesDrawer::setZValue( int z )
 {
-    uiGraphicsSceneAxisMgr::setZvalue( z );
+    uiGraphicsSceneAxisMgr::setZValue( z );
     if ( rectitem_ ) rectitem_->setZValue( z+1 );
     if ( axis1nm_ ) axis1nm_->setZValue( z+1 );
     if ( arrowitem1_ ) arrowitem1_->setZValue( z+1 );
@@ -86,8 +89,44 @@ void FlatView::AxesDrawer::setZvalue( int z )
 }
 
 
-void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
+uiBorder FlatView::AxesDrawer::getAnnotBorder() const
 {
+    int l = extraborder_.left();
+    int r = extraborder_.right();
+    int t = extraborder_.top();
+    int b = extraborder_.bottom();
+    const FlatView::Annotation& annot  = vwr_.appearance().annot_;
+    const int axisheight = getNeededHeight();
+    const int axiswidth = getNeededWidth();
+    if ( annot.haveTitle() ) t += axisheight;
+    if ( annot.haveAxisAnnot(false) )
+    { l += axiswidth; r += 5; }
+    if ( annot.haveAxisAnnot(true) )
+    { b += axisheight;	t += axisheight; }
+    uiBorder annotborder(l,t,r,b);
+    return annotborder;
+}
+
+
+uiRect FlatView::AxesDrawer::getViewRect() const
+{
+    const uiBorder annotborder( getAnnotBorder() );
+    return annotborder.getRect( view_.getSceneRect() );
+}
+
+
+void FlatView::AxesDrawer::setExtraBorder( const uiBorder& border )
+{
+    extraborder_ = border;
+}
+
+
+void FlatView::AxesDrawer::updateViewRect()
+{
+    uiBorder annotborder = getAnnotBorder();
+    uiRect viewrect = view_.getSceneRect();
+    uiRect rect = annotborder.getRect( viewrect );
+    setBorder( annotborder );
     uiGraphicsSceneAxisMgr::setViewRect( rect );
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
@@ -197,7 +236,7 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     else if ( titletxt_ )
 	titletxt_->setVisible( false );
 
-    setZvalue( uiGraphicsSceneAxisMgr::getZvalue() );
+    setZValue( uiGraphicsSceneAxisMgr::getZValue() );
 }
 
 
@@ -231,6 +270,7 @@ void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
     }
 
-    xaxis_->setWorldCoords( Interval<double>(dim0rg2.start, dim0rg2.stop) );
-    yaxis_->setWorldCoords( Interval<double>( wr.top(), wr.bottom() ) );
+    xaxis_->setBounds( Interval<float>(dim0rg2.start, dim0rg2.stop) );
+    yaxis_->setBounds( Interval<float>( wr.bottom(), wr.top() ) );
+    uiGraphicsSceneAxisMgr::updateScene();
 }

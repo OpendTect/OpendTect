@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id$
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "uigeom.h"
 #include "uifont.h"
+#include "uiaxishandler.h"
 
 class uiGraphicsScene;
 class uiGraphicsView;
@@ -25,6 +26,7 @@ class uiGraphicsItemGroup;
 class uiRectItem;
 class uiTextItem;
 class uiLineItem;
+class uiBorder;
 
 /*!\brief To draw simple axes for a 2D coordinate system.
   
@@ -47,6 +49,8 @@ class uiLineItem;
   3) Call the actual draw functions
 */
 
+
+//Deprecated . Now FlatView Axis Drawing handled by uiAxisHandler
 mExpClass(uiTools) uiGraphicsSceneAxis
 {
 public:
@@ -117,32 +121,31 @@ public:
 			uiGraphicsSceneAxisMgr(uiGraphicsView&);
     virtual		~uiGraphicsSceneAxisMgr();
 
-    virtual void        setZvalue(int z);
-    virtual void	setViewRect(const uiRect&);
+    virtual void	setZValue(int z);
     virtual void	setWorldCoords(const uiWorldRect&);
     void		setWorldCoords(const StepInterval<float>& xrg,
 				       const StepInterval<float>& yrg);
+    void		setViewRect(const uiRect&);
 
-    void		enableXAxis(bool yn) { xaxis_->turnOn(yn); }
-    void		enableYAxis(bool yn) { yaxis_->turnOn(yn); }
+    void		enableXAxis(bool yn) { xaxis_->setVisible(yn); }
+    void		enableYAxis(bool yn) { yaxis_->setVisible(yn); }
 
-    int                 getZvalue() const;
-    int			getNeededWidth();
-    int			getNeededHeight();
+    int			getZValue() const;
+    int			getNeededWidth() const;
+    int			getNeededHeight() const;
 
     void		setAnnotInside(bool yn);
     void		enableAxisLine(bool yn);
-    void		setXFactor(int n); // Values displayed along x-axis are
-    					   // multiplied by this factor.
-    void		setYFactor(int n); // Values displayed along y-axis are
-    					   // multiplied by this factor.
+    void		setBorder(const uiBorder&);
     void		setXLineStyle(const LineStyle&);
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
     void		setAnnotInInt( bool xaxis, bool dowant )
-			{ xaxis ? xaxis_->setAnnotInInt(dowant)
-				: yaxis_->setAnnotInInt(dowant); }
+			{ xaxis ? xaxis_->setup().annotinint(dowant)
+				: yaxis_->setup().annotinint(dowant); }
 
+    virtual void	updateScene()
+			{ xaxis_->updateScene(); yaxis_->updateScene(); }
     NotifierAccess&	layoutChanged();
 
 protected:
@@ -162,8 +165,8 @@ protected:
 			    \returns 		the actual display pos is
 			 */
 
-    uiGraphicsSceneAxis*	xaxis_;
-    uiGraphicsSceneAxis*	yaxis_;
+    uiAxisHandler*		xaxis_;
+    uiAxisHandler*		yaxis_;
 
     uiFont&			uifont_;
     uiGraphicsView&		view_;

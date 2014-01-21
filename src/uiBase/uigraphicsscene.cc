@@ -408,8 +408,8 @@ void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 uiRect uiGraphicsScene::sceneRect()
 {
     QRectF qrect = odgraphicsscene_->sceneRect();
-    return uiRect( (int)qrect.x(), (int)qrect.y(),
-		   (int)qrect.width(), (int)qrect.height() );
+    return uiRect( (int)qrect.left(), (int)qrect.top(),
+		   (int)qrect.right(), (int)qrect.bottom() );
 }
 
 
@@ -546,7 +546,8 @@ void uiGraphicsObjectScene::setLayoutPos( const uiPoint& pt )
 
 const uiPoint uiGraphicsObjectScene::layoutPos() const
 {
-    return uiPoint(mNINT32(layoutitem_->pos().x()),mNINT32(layoutitem_->pos().y()));
+    return uiPoint( mNINT32(layoutitem_->pos().x()),
+		    mNINT32(layoutitem_->pos().y()) );
 }
 
 

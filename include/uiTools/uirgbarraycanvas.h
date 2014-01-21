@@ -60,7 +60,7 @@ public:
     void		beforeDraw();
     void		beforeDraw(int w,int h);
     void 		setPixMapPos(int x,int y);
-    void		draw();
+    void		updatePixmap();
 
 protected:
 

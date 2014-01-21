@@ -62,14 +62,14 @@ void uiRGBArrayCanvas::setDrawArr( bool yn )
 
 void uiRGBArrayCanvas::beforeDraw()
 {
-    beforeDraw( width(), height() );
+    beforeDraw( scene().width(), scene().height() );
 }
 
 
 void uiRGBArrayCanvas::beforeDraw( int w, int h )
 {
     const uiSize totsz( w, h ); 
-    const int unusedpix = 1;
+    const int unusedpix = 0;
     arrarea_ = border_.getRect( totsz, unusedpix );
     const int xsz = arrarea_.width() + 1;
     const int ysz = arrarea_.height() + 1;
@@ -102,7 +102,7 @@ void uiRGBArrayCanvas::removePixmap()
 }
 
 
-void uiRGBArrayCanvas::draw()
+void uiRGBArrayCanvas::updatePixmap()
 {
     if ( !dodraw_ )
 	return;

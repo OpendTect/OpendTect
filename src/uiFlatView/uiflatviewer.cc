@@ -18,16 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "bufstringset.h"
-#include "drawaxis2d.h"
+#include "uigraphicssceneaxismgr.h"
 #include "flatposdata.h"
 #include "flatviewaxesdrawer.h"
 #include "threadwork.h"
 #include "mousecursor.h"
 
-#define mBitMapZ	0
-#define mAuxDataZ	100
-#define mAxisZStart	200
-#define mAnnotZ		300
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
@@ -65,9 +61,9 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
     reportedchanges_ += All;
-    bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
+    bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
-    axesdrawer_.setZvalue( mAxisZStart );
+    axesdrawer_.setZValue( annotZVal() );
     axesdrawer_.setWorldCoords( wr_ );
     mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer::reSizeCB );
 }
@@ -91,31 +87,20 @@ uiFlatViewer::~uiFlatViewer()
 
 void uiFlatViewer::reSizeCB( CallBacker* cb )
 {
-    axesdrawer_.setViewRect( getViewRect() );
+    axesdrawer_.updateScene();
     updateTransforms();
+}
+
+
+uiBorder uiFlatViewer::getAnnotBorder() const
+{
+    return axesdrawer_.getAnnotBorder();
 }
 
 
 uiRect uiFlatViewer::getViewRect() const
 {
-    const FlatView::Annotation& annot = appearance().annot_;
-    int l = extraborders_.left();
-    int r = extraborders_.right();
-    int t = extraborders_.top();
-    int b = extraborders_.bottom();
-
-    const int axisheight = axesdrawer_.getNeededHeight();
-    const int axiswidth = axesdrawer_.getNeededWidth();
-    
-    if ( annot.haveTitle() ) t += axisheight;
-    if ( annot.haveAxisAnnot(false) ) 
-	{ l += axiswidth; r += 2; }
-    if ( annot.haveAxisAnnot(true) )
-	{ b += axisheight;  t += axisheight; }
-    
-    const uiBorder annotborder(l,t,r,b);
-
-    return annotborder.getRect( view_->getSceneRect() );
+    return axesdrawer_.getViewRect();
 }
 
 
@@ -131,8 +116,6 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
     axesdrawer_.setWorldCoords( wr_ );
-    axesdrawer_.update();
-    
     if ( !wr_.checkCorners( !appearance().annot_.x1_.reversed_,
 			    appearance().annot_.x2_.reversed_ ) )
     {
@@ -176,6 +159,9 @@ void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
     extraborders_.setRight( rghtbt.width() );
     extraborders_.setTop( lfttp.height() );
     extraborders_.setBottom( rghtbt.height() );
+    uiBorder border( lfttp.width(), lfttp.height(), rghtbt.width(),
+		     rghtbt.height() );
+    axesdrawer_.setExtraBorder( border );
 }
 
 
@@ -376,7 +362,7 @@ void uiFlatViewer::addAuxData( FlatView::AuxData* a )
 	return;
     }
 
-    uiad->getDisplay()->setZValue( mAuxDataZ );
+    uiad->getDisplay()->setZValue( auxDataZVal() );
     worldgroup_->add( uiad->getDisplay() );
     uiad->setViewer( this );
     auxdata_ += uiad;
@@ -407,3 +393,5 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     yseldatarange_ = yrg;
     viewChanged.trigger();
 }
+
+

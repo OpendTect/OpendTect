@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "drawaxis2d.h"
+#include "uigraphicssceneaxismgr.h"
 
 class uiGraphicsView;
 class uiGraphicsScene;
@@ -34,10 +34,13 @@ public:
 			~AxesDrawer();
 
     int			altdim0_;
-    void		update();
-    void                setZvalue(int z);
-    void        	setViewRect(const uiRect&);
+    void		updateScene();
+    void		setZValue(int z);
+    void		updateViewRect();
+    uiRect		getViewRect() const;
     void		setWorldCoords(const uiWorldRect&);
+    void		setExtraBorder(const uiBorder&);
+    uiBorder		getAnnotBorder() const;
 
 protected:
 
@@ -48,6 +51,7 @@ protected:
     uiTextItem*		titletxt_;
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
+    uiBorder		extraborder_;
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 
 };

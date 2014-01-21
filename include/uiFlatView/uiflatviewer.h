@@ -58,6 +58,7 @@ public:
     void		getWorld2Ui(uiWorld2Ui&) const;
     uiRect		getViewRect() const;
     			/*!<The rectangle onto which wr_ is projected */
+    uiBorder		getAnnotBorder() const;
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
     void		setExtraFactor( float f )	{ extfac_ = f; }
@@ -90,6 +91,9 @@ public:
     void		setSelDataRanges(Interval<double>,Interval<double>);
     const Interval<double>& getSelDataRange(bool forx) const
 			{ return forx ? xseldatarange_ : yseldatarange_; } 
+    static int		bitMapZVal()			{ return 0; }
+    static int		auxDataZVal()			{ return 100; }
+    static int		annotZVal()			{ return 200; }
 
 protected:
 

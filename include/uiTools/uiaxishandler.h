@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
+#include "fontdata.h"
 
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
@@ -60,6 +61,7 @@ public:
 			    , noannotpos_(false)
 			    , annotinside_(false)
 			    , annotinint_(false)
+			    , fixedborder_(false)
 			    , ticsz_(2)
 			    , width_(w)
 			    , height_(h)
@@ -80,14 +82,17 @@ public:
 	mDefSetupMemb(bool,nogridline)
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(bool,annotinint)
+	mDefSetupMemb(bool,fixedborder)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
+	mDefSetupMemb(LineStyle,gridlinestyle)
 	mDefSetupMemb(BufferString,name)
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(int,zval)
 	mDefSetupMemb(Color,nmcolor)
+	mDefSetupMemb(FontData,fontdata)
 
 	Setup&		noannot( bool yn )
 			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
@@ -116,7 +121,7 @@ public:
     int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
 
-    void		plotAxis(); //!< draws gridlines if appropriate
+    void		updateScene(); //!< update gridlines if appropriate
     void		annotAtEnd(const char*);
 
     const Setup&	setup() const	{ return setup_; }
@@ -133,9 +138,11 @@ public:
     void		updateDevSize(); //!< resized from sceme
     void		setNewDevSize(int,int); //!< resized by yourself
 
-    void		createAnnotItems();
-    void		createGridLines();
+    void		updateAnnotations();
+    void		updateGridLines();
     uiLineItem*		getFullLine(int pix);
+    int			getNrAnnotCharsForDisp() const;
+    void		setVisible(bool);
 
 protected:
 
@@ -170,16 +177,16 @@ protected:
     float		rgwidth_;
 
     int			ticSz() const;
-    void		drawAxisLine();
+    void		updateAxisLine();
     void		drawGridLine(int);
     void		annotPos(int,const char*,const LineStyle&);
-    void		drawName();
-    int			getNrAnnotChars() const;
+    void		updateName();
 
+    bool		doPlotExtreme(float val1, float val2) const;
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal(uiTools) void drawLine(uiLineItem&,const LineParameters<float>&,
+mGlobal(uiTools) void setLine(uiLineItem&,const LineParameters<float>&,
 			const uiAxisHandler& xah,const uiAxisHandler& yah,
 			const Interval<float>* xvalrg = 0);
 

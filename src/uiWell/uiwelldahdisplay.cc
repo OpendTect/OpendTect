@@ -68,9 +68,9 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 
 void uiWellDahDisplay::DahObjData::plotAxis()
 {
-    xax_.plotAxis();  yax_.plotAxis();
+    xax_.updateScene();  yax_.updateScene();
     if ( xaxprcts_ )
-	xaxprcts_->plotAxis();
+	xaxprcts_->updateScene();
 }
 
 

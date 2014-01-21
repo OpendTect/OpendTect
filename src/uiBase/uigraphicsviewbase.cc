@@ -188,7 +188,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 	const int sceneborder = handle_.getSceneBorder();
 #if defined(__win__) && !defined(__msvc__)
 	QSize newsz = ev->size();
-	handle_.scene_->setSceneRect( sceneborder, sceneborder,
+	handle_.scene_->setSceneRect( sceneborder,sceneborder,
 				      newsz.width()-2*sceneborder,
 				      newsz.height()-2*sceneborder );
 #else
@@ -258,10 +258,16 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , scrollBarUsed(this) 
     , scene_(0)
     , selectedarea_(0)
-    , sceneborder_(5)		      
-    , enabscrollzoom_(true)
+    , sceneborder_(0)
+    , enabscrollzoom_(false)
     , isctrlpressed_(false)
 {
+    setScrollBarPolicy( true, enabscrollzoom_
+				? uiGraphicsViewBase::ScrollBarAsNeeded
+				: uiGraphicsViewBase::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, enabscrollzoom_
+				? uiGraphicsViewBase::ScrollBarAsNeeded
+				: uiGraphicsViewBase::ScrollBarAlwaysOff );
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );
     getMouseEventHandler().buttonReleased.notify(

@@ -676,7 +676,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 					 (float)zoomwr_.bottom()) );
     }
 
-    yax_->plotAxis(); xax_->plotAxis();
+    yax_->updateScene(); xax_->updateScene();
     if ( vrg_.width() == 0 )
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();

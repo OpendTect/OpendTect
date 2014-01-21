@@ -543,5 +543,5 @@ void uiObjectItemViewAxisPainter::plotAxis( CallBacker* )
 {
     setAxisRelations();
     if ( zax_ )
-	zax_->plotAxis();
+	zax_->updateScene();
 }

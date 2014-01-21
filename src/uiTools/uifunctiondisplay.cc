@@ -273,10 +273,10 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
     yax_->updateDevSize();
     if ( havey2 ) y2ax_->updateDevSize();
 
-    xax_->plotAxis();
-    yax_->plotAxis();
+    xax_->updateScene();
+    yax_->updateScene();
     if ( havey2 )
-	y2ax_->plotAxis();
+	y2ax_->updateScene();
 }
 
 

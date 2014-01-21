@@ -67,7 +67,7 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 	{ double tmp = br.left(); br.setLeft(br.right()); br.setRight(tmp); } \
     if ( wr.bottom() > wr.top() ) \
 	{ double tmp = br.top(); br.setTop(br.bottom()); br.setBottom(tmp); } \
-    uiWorld2Ui w2u( br, uiSize(width(),height()) );
+    uiWorld2Ui w2u( br, uiSize(scene_->width(),scene_->height()) );
 
 void uiFlatViewThumbnail::draw()
 {
@@ -85,7 +85,7 @@ void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
 				       mCast(float,uibr.width()),
 				       mCast(float,uibr.height()) );
     else
-	bgrectitem_->setRect( uibr.left(),uibr.top(),uibr.width(),uibr.height() );
+	bgrectitem_->setRect(uibr.left(),uibr.top(),uibr.width(),uibr.height());
 
     uiRect uiwr;
     getUiRect( feedbackwr_ ? *feedbackwr_ : wr , uiwr );

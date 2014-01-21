@@ -403,7 +403,7 @@ void uiStratDrawer::updateAxis()
 {
     xax_->updateDevSize();
     yax_->updateDevSize();
-    yax_->plotAxis();
+    yax_->updateScene();
 }
 
 
@@ -543,8 +543,10 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[unidx];
 	Interval<float> unitrg = unit.zrg_;
-	if ( ( ( !rg.includes(unitrg.start,true) && !rg.includes(unitrg.stop,true) )
-	    && ( !unitrg.includes(rg.start,true) && !unitrg.includes(rg.stop,true) ) )
+	if ( ( ( !rg.includes(unitrg.start,true) &&
+		 !rg.includes(unitrg.stop,true) )
+	    && ( !unitrg.includes(rg.start,true) &&
+		 !unitrg.includes(rg.stop,true) ) )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 

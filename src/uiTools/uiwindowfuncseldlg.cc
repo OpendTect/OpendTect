@@ -70,8 +70,8 @@ void uiFunctionDrawer::setUpAxis()
 {
     xax_->updateDevSize();
     yax_->updateDevSize();
-    xax_->plotAxis();
-    yax_->plotAxis();
+    xax_->updateScene();
+    yax_->updateScene();
 }
 
 
@@ -218,7 +218,8 @@ void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 }
 
 
-void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,					bool withcolor )
+void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
+				 bool withcolor )
 {
     if ( !mfunc ) return;
     mathfunc_ += mfunc;
@@ -281,7 +282,8 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 
-    funcdrawer_->funclistselChged.notify(mCB(this,uiWindowFuncSelDlg,funcSelChg));
+    funcdrawer_->funclistselChged.notify(
+	    mCB(this,uiWindowFuncSelDlg,funcSelChg) );
 
     BufferString tapertxt( "Taper Length (%)" );
     varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
@@ -308,7 +310,8 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 	{
 	    isvartappresent = true;
 	    float prevvariable = variable_;
-	    variable_ = mIsUdf(variable_) ? 0.05f : varinpfld_->getfValue(0)/100;
+	    variable_ = mIsUdf(variable_) ? 0.05f
+					  : varinpfld_->getfValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
 		variable_ = prevvariable;
 	    wf->setVariable( 1.0f - variable_ );

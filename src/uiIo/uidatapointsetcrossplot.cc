@@ -1271,13 +1271,13 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
     if ( withaxis )
     {
 	if ( x_.axis_ )
-	    x_.axis_->plotAxis();
+	    x_.axis_->updateScene();
 
 	if ( y_.axis_ )
-	    y_.axis_->plotAxis();
+	    y_.axis_->updateScene();
 
 	if ( y2_.axis_ )
-	    y2_.axis_->plotAxis();
+	    y2_.axis_->updateScene();
 
 	if ( !x_.axis_ || !y_.axis_ )
 	{
@@ -1285,7 +1285,7 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 		new ioPixmap( arrarea_.width(),arrarea_.height());
 	    pixmap->fill( Color::White() );
 	    setPixmap( *pixmap );
-	    draw();
+	    updatePixmap();
 	    return;
 	}
     }
@@ -1718,7 +1718,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 	new ioPixmap( arrarea_.width(), arrarea_.height() );
     pixmap->convertFromRGBArray( rgbarr_ );
     setPixmap( *pixmap );
-    draw();
+    updatePixmap();
 }
 
 
@@ -1769,7 +1769,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     PtrMan<ioPixmap> pixmap = new ioPixmap( arrarea_.width(),arrarea_.height());
     pixmap->fill( Color::White() );
     setPixmap( *pixmap );
-    draw();
+    updatePixmap();
 
     int itmidx = 0;
     usedxpixrg_ = Interval<int>(0,0);
@@ -1850,5 +1850,5 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
 	regrlineitm_->setZValue( 4 );
     }
 
-    drawLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
+    setLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
 }
