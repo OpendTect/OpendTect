@@ -63,6 +63,9 @@ public:
     virtual bool	isSuitedFor(const char* prognm) const = 0;
     virtual bool	canHandle(const JobSpec&) const;
 
+    JobSpec&		jobSpec()			{ return jobspec_; }
+    const JobSpec&	jobSpec() const			{ return jobspec_; }
+
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
 
@@ -91,21 +94,20 @@ public:
     virtual const char*	description() const;
     virtual bool	isSuitedFor(const char*) const	{ return true; }
 
-    void		setParFileName( const char* s )	{ parfnm_ = s; }
-    void		setRemoteHost( const char* rh )	{ remotehost_ = rh; }
-    void		setRemoteExec( const char* re )	{ remoteexec_ = re; }
-
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
 				 "Single Process","Single Process");
+
+    static void		getDefParFilename(const char* prognm,BufferString&);
+    			// will be used if you do not use setParFileName
+
+    BufferString	parfnm_;
+    BufferString	remotehost_;
+    BufferString	remoteexec_;
 
 protected:
 
     virtual bool	init();
     virtual bool	launch();
-
-    BufferString	parfnm_;
-    BufferString	remotehost_;
-    BufferString	remoteexec_;
 
 };
 

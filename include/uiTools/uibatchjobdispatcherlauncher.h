@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 
 class uiBatchJobDispatcherSel;
-namespace Batch { class JobSpec; }
+namespace Batch { class JobSpec; class SingleJobDispatcher; }
 
 
 /*!\brief launches the UI of a Batch::JobDispatcher */
@@ -46,6 +46,9 @@ mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 {
 public:
 
+    			uiSingleBatchJobDispatcherLauncher();
+    			~uiSingleBatchJobDispatcherLauncher();
+
     virtual bool	isSuitedFor(const char*) const		{ return true; }
     virtual bool	hasOptions() const			{ return true; }
     virtual const char*	getInfo() const;
@@ -55,6 +58,8 @@ public:
     mDefaultFactoryInstantiation(uiBatchJobDispatcherLauncher,
 	    			 uiSingleBatchJobDispatcherLauncher,
 				 "Single Process","Single Process");
+
+    Batch::SingleJobDispatcher&	sjd_;
 
 };
 

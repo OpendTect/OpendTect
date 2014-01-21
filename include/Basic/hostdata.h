@@ -70,6 +70,7 @@ public:
     			//!< true if name or an alias matches
     void		addAlias(const char*);
     			//!< only adds if !isKnownAs
+    BufferString	getFullDispString() const;
 
     bool		isWin() const 		{ return iswin_; }
     FilePath::Style	pathStyle() const
@@ -168,6 +169,7 @@ public:
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
 
+    void		fill(BufferStringSet&,bool inclocalhost=true) const;
     void		dump(od_ostream&) const;
 
 protected:

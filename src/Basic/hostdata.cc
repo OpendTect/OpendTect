@@ -56,6 +56,15 @@ void HostData::addAlias( const char* nm )
 }
 
 
+BufferString HostData::getFullDispString() const
+{
+    BufferString ret( name() );
+    for ( int idx=0; idx<nrAliases(); idx++ )
+	ret.add( " / " ).add( alias(idx) );
+    return ret;
+}
+
+
 void HostData::init( const char* nm )
 {
     name_ = nm;
@@ -122,12 +131,14 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     return FilePath(ret);
 }
 
+
 FilePath HostData::convPath( PathType pt, const FilePath& fp,
 			     const HostData* from ) const
 {
     if ( !from ) from = &localHost();
     return getReplacePrefix( fp, from->prefixFilePath(pt), prefixFilePath(pt) );
 }
+
 
 HostDataList::HostDataList( bool readhostfile )
 	: realaliases_(false)
@@ -160,7 +171,7 @@ HostDataList::HostDataList( bool readhostfile )
 		while ( *al )
 		{
 		    if ( !newhd->isKnownAs(*al) )
-			newhd->aliases_ += new BufferString(*al);
+			newhd->aliases_.add( *al );
 		    al++;
 		}
 		*this += newhd;
@@ -438,5 +449,20 @@ HostData* HostDataList::findHost( const char* nm ) const
 	if ( (*this)[idx]->isKnownAs(nm) )
 	    { ret = (*this)[idx]; break; }
     }
+    if ( !ret )
+    {
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    if ( (*this)[idx]->getFullDispString() == nm )
+		{ ret = (*this)[idx]; break; }
+	}
+    }
     return const_cast<HostData*>( ret );
+}
+
+
+void HostDataList::fill( BufferStringSet& bss, bool inclocalhost ) const
+{
+    for ( int idx=(inclocalhost?0:1); idx<size(); idx++ )
+	bss.add( (*this)[idx]->getFullDispString() );
 }

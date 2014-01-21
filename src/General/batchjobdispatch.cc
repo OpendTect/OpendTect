@@ -76,15 +76,21 @@ const char* Batch::SingleJobDispatcher::description() const
 }
 
 
+void Batch::SingleJobDispatcher::getDefParFilename( const char* prognm,
+						    BufferString& fnm )
+{
+    if ( !prognm || !*prognm )
+	prognm = "batchprog";
+    FilePath parfp( GetProcFileName(prognm) );
+    parfp.setExtension( ".par" );
+    fnm.set( parfp.fullPath() );
+}
+
+
 bool Batch::SingleJobDispatcher::init()
 {
     if ( parfnm_.isEmpty() )
-    {
-	const BufferString prognm = FilePath( jobspec_.prognm_ ).fileName();
-	FilePath parfp( GetProcFileName(prognm) );
-	parfp.setExtension( ".par" );
-	parfnm_.set( parfp.fullPath() );
-    }
+	getDefParFilename( jobspec_.prognm_, parfnm_ );
 
     FilePath fp( parfnm_ );
     fp.setExtension( 0 );

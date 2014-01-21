@@ -13,8 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchjobdispatcherlauncher.h"
 
 #include "batchjobdispatch.h"
+#include "hostdata.h"
 
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uidialog.h"
 #include "uibutton.h"
 #include "uimsg.h"
@@ -198,34 +199,66 @@ bool uiBatchJobDispatcherLauncher::canHandle( const Batch::JobSpec& js ) const
 }
 
 
-const char* uiSingleBatchJobDispatcherLauncher::getInfo() const
+uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher()
+    : sjd_(*new Batch::SingleJobDispatcher)
 {
-    Batch::SingleJobDispatcher sjd;
-    mDeclStaticString( ret );
-    ret = sjd.description();
-    return ret.buf();
 }
 
 
-#include "uilabel.h"
+uiSingleBatchJobDispatcherLauncher::~uiSingleBatchJobDispatcherLauncher()
+{
+    delete &sjd_;
+}
+
+
+const char* uiSingleBatchJobDispatcherLauncher::getInfo() const
+{
+    return sjd_.description();
+}
+
 
 class uiSingleBatchJobDispatcherPars : public uiDialog
 {
 public:
 
-uiSingleBatchJobDispatcherPars( uiParent* p, OS::CommandExecPars& pars )
+uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
+				OS::CommandExecPars& pars )
     : uiDialog(p,Setup("Batch execution parameters",mNoDlgTitle,mTODOHelpID))
-    , pars_(pars)
+    , sjd_(sjd)
+    , execpars_(pars)
 {
-    new uiLabel( this, "TODO: implement" );
+    BufferStringSet hnms; HostDataList hdl;
+    hdl.fill( hnms, false );
+    remhostfld_ = new uiGenInput( this, "Execute remote",
+	    			  StringListInpSpec(hnms) );
+    remhostfld_->setWithCheck( true ); remhostfld_->setChecked( false );
+
+    BufferString defparfnm;
+    Batch::SingleJobDispatcher::getDefParFilename( sjd_.jobSpec().prognm_,
+	    					   defparfnm );
+    uiFileInput::Setup fsu( defparfnm );
+    fsu.filter( "*.par" ).withexamine( true )
+	.forread( false ).confirmoverwrite( false );
+    parfnmfld_ = new uiFileInput( this, "Job Parameter File", fsu );
 }
 
 bool acceptOK( CallBacker* )
 {
+    if ( remhostfld_->isChecked() )
+	sjd_.remotehost_.set( remhostfld_->text() );
+    else
+	sjd_.remotehost_.setEmpty();
+
+    sjd_.parfnm_ = parfnmfld_->fileName();
+
     return true;
 }
 
-    OS::CommandExecPars& pars_;
+    Batch::SingleJobDispatcher&	sjd_;
+    OS::CommandExecPars&	execpars_;
+
+    uiGenInput*			remhostfld_;
+    uiFileInput*		parfnmfld_;
 
 };
 
@@ -233,7 +266,7 @@ bool acceptOK( CallBacker* )
 void uiSingleBatchJobDispatcherLauncher::editOptions(
 				uiBatchJobDispatcherSel* p )
 {
-    uiSingleBatchJobDispatcherPars dlg( p, p->jobSpec().execpars_ );
+    uiSingleBatchJobDispatcherPars dlg( p, sjd_, p->jobSpec().execpars_ );
     dlg.go();
 }
 
@@ -241,10 +274,9 @@ void uiSingleBatchJobDispatcherLauncher::editOptions(
 bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p,
 					     const Batch::JobSpec& js )
 {
-    Batch::SingleJobDispatcher sjd;
-    if ( !sjd.go(js) )
+    if ( !sjd_.go(js) )
     {
-	const char* errmsg = sjd.errMsg();
+	const char* errmsg = sjd_.errMsg();
 	uiMSG().error( errmsg ? errmsg : "Cannot start batch program" );
 	return false;
     }

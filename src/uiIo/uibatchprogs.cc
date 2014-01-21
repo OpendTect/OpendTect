@@ -68,8 +68,10 @@ class BatchProgInfo
 {
 public:
 
+    enum UIType			{ NoUI, TxtUI, HasUI };
+
 				BatchProgInfo( const char* nm )
-				: name(nm), issys(false), inxterm(true) {}
+				: name(nm), issys(false), uitype_(NoUI) {}
 				~BatchProgInfo()	 { deepErase(args); }
 
     BufferString		name;
@@ -77,7 +79,7 @@ public:
     BufferString		comments;
     BufferString		exampleinput;
     bool			issys;
-    bool			inxterm;
+    UIType			uitype_;
 
 };
 
@@ -149,8 +151,13 @@ void BatchProgInfoList::getEntries( const char* fnm )
 		    bpi->comments += "\n";
 		bpi->comments += astrm.value();
 	    }
-	    else if ( astrm.hasKeyword("Xterm") )
-		bpi->inxterm = astrm.getYN();
+	    else if ( astrm.hasKeyword("UI") )
+	    {
+		char firstchar = *astrm.value();
+		bpi->uitype_ = firstchar=='T'	? BatchProgInfo::TxtUI
+			     : (firstchar=='Y'	? BatchProgInfo::HasUI
+						: BatchProgInfo::NoUI);
+	    }
 	}
 
 	if ( bpi ) *this += bpi;
@@ -302,98 +309,48 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
     const int selidx = progfld->box()->currentItem();
     const BatchProgInfo& bpi = *pil[selidx];
+    ObjectSet<uiGenInput>& inplst = *inps[selidx];
 
-#ifndef __msvc__
+    BufferString prognm = progfld->box()->text();
+    if ( prognm.isEmpty() )
+	return false;
 
-    BufferString comm( "@" );
-    comm += mGetExecScript();
-
-    if ( bpi.inxterm )
-	comm += " --inxterm+askclose ";
-    if ( bpi.issys )
-	comm += "--sys ";
-
-    const char* progtxt = progfld->box()->text();
-    if ( progtxt && *progtxt && *progtxt != '[' )
+    int firstinp = 0;
+    if ( prognm.firstChar() == '[' )
     {
-	comm += "\"";
-	FilePath progfp( progfld->box()->text() );
-	comm += progfp.fullPath( FilePath::Unix );
-	comm += "\"";
+	prognm = inplst[0]->text();
+	firstinp = 1;
     }
 
-    ObjectSet<uiGenInput>& inplst = *inps[selidx];
-    for ( int iinp=0; iinp<inplst.size(); iinp++ )
+    BufferString args;
+    for ( int iinp=firstinp; iinp<inplst.size(); iinp++ )
     {
 	uiGenInput* inp = inplst[iinp];
-	mDynamicCastGet(uiFileInput*,finp,inp)
 	BufferString val;
+	mDynamicCastGet(uiFileInput*,finp,inp)
 	if ( finp )
 	{
-	    val = "\"";
-
-	    FilePath argfp( finp->fileName() );
-	    BufferString arg = argfp.fullPath( FilePath::Unix );
-	    arg.replace(' ','%');
-	    val += arg;
-
-	    val += "\"";
+	    val = finp->fileName();
+	    val.quote( '"' );
 	}
-	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
+	else
+	{
 	    val = inp->text();
-	else
-	    { val = "'"; val += inp->text(); val += "'"; }
-
-	comm += " ";
-	comm += val;
-    }
-
-#else
-
-    FilePath fp( GetBinPlfDir() );
-
-    const char* progtxt = progfld->box()->text();
-    if ( progtxt && *progtxt && *progtxt != '[' )
-	fp.add( progfld->box()->text() );
-
-    const bool isanotherprog = progtxt && *progtxt == '[';
-    ObjectSet<uiGenInput>& inplst = *inps[selidx];
-    int startfldidx = 0;
-    if ( isanotherprog && !inplst.isEmpty() )
-    {
-	fp.add( inplst[0]->text() );
-	startfldidx = 1;
-    }
-
-    BufferString comm = fp.fullPath();
-    for ( int iinp=startfldidx; iinp<inplst.size(); iinp++ )
-    {
-	uiGenInput* inp = inplst[iinp];
-	mDynamicCastGet(uiFileInput*,finp,inp)
-	BufferString val;
-	if ( finp )
-	{
-	    val = "\"";
-
-	    FilePath argfp( finp->fileName() );
-	    BufferString arg = argfp.fullPath( FilePath::Windows );
-	    val += arg;
-
-	    val += "\"";
+	    if ( bpi.args[iinp]->type == BatchProgPar::QWord )
+		val.quote( '\'' );
 	}
-	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
-		  val = inp->text();
-	else
-	    { val = "'"; val += inp->text(); val += "'"; }
 
-	if ( !val.isEmpty() )
-	{ comm += " "; comm += val; }
+	args.add( " " ).add( val );
     }
 
-#endif
-
-    if ( !OS::ExecCommand( comm, OS::RunInBG ) )
-	uiMSG().error( "Could not execute command:\n", comm );
+    OS::CommandExecPars execpars( true );
+    execpars.launchtype( OS::RunInBG )
+	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
+	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI );
+    OS::MachineCommand mc( BufferString(prognm," ",args) );
+    OS::CommandLauncher cl( mc );
+    if ( !cl.execute( execpars ) )
+	uiMSG().error( "Could not execute command:\n", mc.command() );
 
     return false;
 }

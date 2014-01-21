@@ -37,7 +37,7 @@ public:
 
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
-			    //!< will be generated if needed but empty
+			    //!< when empty, will be generated (if needed)
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
 
