@@ -184,6 +184,9 @@ uiPluginSel::uiPluginSel( uiParent* p )
     for ( int idx=0; idx<nrplugins; idx++ )
     {
 	BufferString uinm = getCommercialName(piusrnms.get( idx ));
+	if ( !list.isPresent(uinm) )
+	    continue;
+
 	PluginManager::Data& pdata = *pimdata[pluginidx[idx]];
 	SeparString ss;
 	ss.add( uinm ).add( pdata.name_ );
