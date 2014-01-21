@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uidialog.h"
 #include "uibutton.h"
+#include "uislider.h"
 #include "uimsg.h"
 
 
@@ -30,15 +31,17 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , dobatchbox_(0)
     , selectionChange(this)
 {
-    Factory<uiBatchJobDispatcherLauncher>& fact
+    Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
     const BufferStringSet& nms = fact.getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	uiBatchJobDispatcherLauncher* dl = fact.create( nms.get(idx) );
+	uiBatchJobDispatcherLauncher* dl = fact.create( nms.get(idx), jobspec_ );
 	if ( dl && (proctyp == Batch::JobSpec::NonODBase
 		  || dl->isSuitedFor(jobspec_.prognm_)) )
 	    uidispatchers_ += dl;
+	else
+	    delete dl;
     }
 
     if ( uidispatchers_.isEmpty() )
@@ -98,8 +101,9 @@ void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
     BufferStringSet nms;
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( uidispatchers_[idx]->canHandle( js ) )
-	    nms.add( uidispatchers_[idx]->name() );
+	uiBatchJobDispatcherLauncher* dl = uidispatchers_[idx];
+	if ( dl->canHandleJobSpec() )
+	    nms.add( dl->name() );
     }
 
     const BufferString oldsel = selfld_->text();
@@ -161,7 +165,7 @@ bool uiBatchJobDispatcherSel::start()
     if ( selidx < 0 ) return false;
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
-    return dl->go( this, jobspec_ );
+    return dl->go( this );
 }
 
 
@@ -190,17 +194,20 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 
 // --- Launcher stuff
 
-mImplFactory(uiBatchJobDispatcherLauncher,uiBatchJobDispatcherLauncher::factory)
+mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
+		   uiBatchJobDispatcherLauncher::factory)
 
 
-bool uiBatchJobDispatcherLauncher::canHandle( const Batch::JobSpec& js ) const
+bool uiBatchJobDispatcherLauncher::canHandleJobSpec() const
 {
-    return isSuitedFor( js.prognm_ );
+    return isSuitedFor( jobspec_.prognm_ );
 }
 
 
-uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher()
-    : sjd_(*new Batch::SingleJobDispatcher)
+uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher(
+							Batch::JobSpec& js )
+    : uiBatchJobDispatcherLauncher(js)
+    , sjd_(*new Batch::SingleJobDispatcher)
 {
 }
 
@@ -217,39 +224,61 @@ const char* uiSingleBatchJobDispatcherLauncher::getInfo() const
 }
 
 
+static const float cPrioBound = 19.0f; // happens to be UNIX choice
+
+
 class uiSingleBatchJobDispatcherPars : public uiDialog
 {
 public:
 
 uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
-				OS::CommandExecPars& pars )
-    : uiDialog(p,Setup("Batch execution parameters",mNoDlgTitle,mTODOHelpID))
+				Batch::JobSpec& js )
+    : uiDialog(p,Setup("Batch execution parameters", BufferString(
+		    "Options for '",js.prognm_,"' program"),
+			mTODOHelpID))
     , sjd_(sjd)
-    , execpars_(pars)
+    , execpars_(js.execpars_)
+    , remhostfld_(0)
 {
     BufferStringSet hnms; HostDataList hdl;
     hdl.fill( hnms, false );
-    remhostfld_ = new uiGenInput( this, "Execute remote",
-	    			  StringListInpSpec(hnms) );
-    remhostfld_->setWithCheck( true ); remhostfld_->setChecked( false );
+    if ( hnms.size() > 1 )
+    {
+	remhostfld_ = new uiGenInput( this, "Execute remote",
+				      StringListInpSpec(hnms) );
+	remhostfld_->setWithCheck( true );
+	remhostfld_->setChecked( false );
+    }
 
-    BufferString defparfnm;
-    Batch::SingleJobDispatcher::getDefParFilename( sjd_.jobSpec().prognm_,
-	    					   defparfnm );
-    uiFileInput::Setup fsu( defparfnm );
-    fsu.filter( "*.par" ).withexamine( true )
+    BufferString parfnm( sjd_.parfnm_ );
+    if ( parfnm.isEmpty() )
+	Batch::SingleJobDispatcher::getDefParFilename( js.prognm_, parfnm );
+    uiFileInput::Setup fsu( parfnm );
+    fsu.filter( "*.par" ).withexamine( false )
 	.forread( false ).confirmoverwrite( false );
     parfnmfld_ = new uiFileInput( this, "Job Parameter File", fsu );
+    if ( remhostfld_ )
+	parfnmfld_->attach( alignedBelow, remhostfld_ );
+
+    uiSliderExtra::Setup ssu( "Job Priority (if available)" );
+    // ssu.withedit( true );
+    uiSliderExtra* sle = new uiSliderExtra( this, ssu );
+    sle->attach( alignedBelow, parfnmfld_ );
+    priofld_ = sle->sldr();
+    priofld_->setInterval( -cPrioBound, cPrioBound, 1.0f );
+    priofld_->setTickMarks( uiSlider::NoMarks );
+    priofld_->setValue( execpars_.prioritylevel_ * cPrioBound );
 }
 
 bool acceptOK( CallBacker* )
 {
-    if ( remhostfld_->isChecked() )
+    if ( remhostfld_ && remhostfld_->isChecked() )
 	sjd_.remotehost_.set( remhostfld_->text() );
     else
 	sjd_.remotehost_.setEmpty();
 
     sjd_.parfnm_ = parfnmfld_->fileName();
+    execpars_.prioritylevel_ = priofld_->getValue() / cPrioBound;
 
     return true;
 }
@@ -259,22 +288,21 @@ bool acceptOK( CallBacker* )
 
     uiGenInput*			remhostfld_;
     uiFileInput*		parfnmfld_;
+    uiSlider*			priofld_;
 
 };
 
 
-void uiSingleBatchJobDispatcherLauncher::editOptions(
-				uiBatchJobDispatcherSel* p )
+void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
 {
-    uiSingleBatchJobDispatcherPars dlg( p, sjd_, p->jobSpec().execpars_ );
+    uiSingleBatchJobDispatcherPars dlg( p, sjd_, jobspec_ );
     dlg.go();
 }
 
 
-bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p,
-					     const Batch::JobSpec& js )
+bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
 {
-    if ( !sjd_.go(js) )
+    if ( !sjd_.go(jobspec_) )
     {
 	const char* errmsg = sjd_.errMsg();
 	uiMSG().error( errmsg ? errmsg : "Cannot start batch program" );

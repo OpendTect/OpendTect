@@ -25,16 +25,22 @@ mExpClass(uiTools) uiBatchJobDispatcherLauncher
 {
 public:
 
+			uiBatchJobDispatcherLauncher( Batch::JobSpec& js )
+			    : jobspec_(js)			{}
+
     virtual bool	isSuitedFor(const char* prognm) const	{ return false;}
-    virtual bool	canHandle(const Batch::JobSpec&) const;
+    virtual bool	canHandleJobSpec() const;
     virtual bool	hasOptions() const			{ return false;}
-    virtual void	editOptions(uiBatchJobDispatcherSel*)	{}
+    virtual void	editOptions(uiParent*)			{}
     virtual const char*	getInfo() const				= 0;
-    virtual bool	go(uiParent*,const Batch::JobSpec&)	= 0;
+    virtual bool	go(uiParent*)				= 0;
 
     const char*		name() const { return factoryDisplayName(); }
 
-    mDefineFactoryInClass(uiBatchJobDispatcherLauncher,factory);
+    mDefineFactory1ParamInClass(uiBatchJobDispatcherLauncher,
+			Batch::JobSpec&,factory);
+
+    Batch::JobSpec&	jobspec_;
 
 };
 
@@ -46,18 +52,18 @@ mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 {
 public:
 
-    			uiSingleBatchJobDispatcherLauncher();
-    			~uiSingleBatchJobDispatcherLauncher();
+			uiSingleBatchJobDispatcherLauncher(Batch::JobSpec&);
+			~uiSingleBatchJobDispatcherLauncher();
 
     virtual bool	isSuitedFor(const char*) const		{ return true; }
     virtual bool	hasOptions() const			{ return true; }
     virtual const char*	getInfo() const;
-    virtual void	editOptions(uiBatchJobDispatcherSel*);
-    virtual bool	go(uiParent*,const Batch::JobSpec&);
+    virtual void	editOptions(uiParent*);
+    virtual bool	go(uiParent*);
 
-    mDefaultFactoryInstantiation(uiBatchJobDispatcherLauncher,
-	    			 uiSingleBatchJobDispatcherLauncher,
-				 "Single Process","Single Process");
+    mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
+			    uiSingleBatchJobDispatcherLauncher,
+			    Batch::JobSpec&,"Single Process","Single Process");
 
     Batch::SingleJobDispatcher&	sjd_;
 

@@ -22,6 +22,7 @@ mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
     : execpars_(true)
 {
+    execpars_.needmonitor_ = true;
     switch ( pt )
     {
 #define mHandlePTCase(typ,pnm) \
