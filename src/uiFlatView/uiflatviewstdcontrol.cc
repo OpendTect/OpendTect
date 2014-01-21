@@ -194,14 +194,8 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr )
     const int vwridx = vwrs_.indexOf( &vwr );
     if ( vwridx < 0 ) return;
 
-    uiRect viewrect = vwr.getViewRect();
-    uiSize newrectsz = viewrect.size();
     if ( zoomin )
-    {
 	zoommgr_.forward( vwridx );
-	newrectsz.setWidth( mNINT32(newrectsz.width()*zoommgr_.fwdFac()) );
-	newrectsz.setHeight( mNINT32(newrectsz.height()*zoommgr_.fwdFac()));
-    }
     else
     {
 	if ( zoommgr_.atStart(vwridx) )
@@ -209,44 +203,16 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr )
 	zoommgr_.back( vwridx );
     }
 
-    Geom::Point2D<double> centre;
-    Geom::Size2D<double> newsz;
-    if (!vwr.rgbCanvas().getNavigationMouseEventHandler().hasEvent() || !zoomin)
-    {
-	newsz = zoommgr_.current( vwridx );
-	centre = vwr.curView().centre();
-    }
-    else
-    {
-	uiWorld2Ui w2ui;
-	vwr.getWorld2Ui( w2ui );
-	const Geom::Point2D<int> viewevpos =
-	    vwr.rgbCanvas().getCursorPos();
-	uiRect selarea( viewevpos.x-(newrectsz.width()/2),
-			viewevpos.y-(newrectsz.height()/2),
-			viewevpos.x+(newrectsz.width()/2),
-			viewevpos.y+(newrectsz.height()/2) );
-	int hoffs = 0;
-	int voffs = 0;
-	if ( viewrect.left() > selarea.left() )
-	    hoffs = viewrect.left() - selarea.left();
-	if ( viewrect.right() < selarea.right() )
-	    hoffs = viewrect.right() - selarea.right();
-	if ( viewrect.top() > selarea.top() )
-	    voffs = viewrect.top() - selarea.top();
-	if ( viewrect.bottom() < selarea.bottom() )
-	    voffs = viewrect.bottom() - selarea.bottom();
+    uiWorld2Ui w2ui;
+    vwr.getWorld2Ui( w2ui );
 
-	selarea += uiPoint( hoffs, voffs );
-	uiWorldRect wr = w2ui.transform( selarea );
-	centre = wr.centre();
-	newsz = wr.size();
-    }
+    const MouseEventHandler& meh =
+	vwr.rgbCanvas().getNavigationMouseEventHandler();
+    Geom::Point2D<double> mousepos = meh.hasEvent() ?
+	w2ui.transform( meh.event().pos() ) : vwr.curView().centre();
+    Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
 
-    if ( zoommgr_.atStart(vwridx) )
-	centre = zoommgr_.initialCenter( vwridx );
-
-    setNewView( centre, newsz );
+    setNewView( mousepos, newsz );
 }
 
 
@@ -286,10 +252,9 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     newwr.translate( startwpt-curwpt );
 
     uiWorldRect bb = vwr->boundingBox();
-    uiWorldRect oldwr = vwr->curView();
-    Geom::Point2D<double> newcentre = newwr.centre();
-    Geom::Size2D<double> cursize = oldwr.size();
-    newwr = getNewWorldRect( newcentre, cursize, oldwr, bb );
+    Geom::Point2D<double> oldcentre = vwr->curView().centre();
+    Geom::Size2D<double> size = newwr.size();
+    newwr = getNewWorldRect( oldcentre, size, newwr, bb );
     
     vwr->setView( newwr );    
 }

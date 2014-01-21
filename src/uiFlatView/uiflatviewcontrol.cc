@@ -148,18 +148,19 @@ bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
 }
 
 
-uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
-						Geom::Size2D<double>& sz,
+uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& mousepos,
+						Geom::Size2D<double>& newsz,
 						const uiWorldRect& cv,
 						const uiWorldRect& bb ) const
 {
-    const bool havepan = havePan( cv.centre(), centre, cv.size() );
-    const bool havezoom = haveZoom( cv.size(), sz );
-    if ( !havepan && !havezoom ) return cv;
+    const bool havezoom = haveZoom( cv.size(), newsz );
+    const bool havepan = havePan( mousepos, cv.centre(), cv.size() );
+    if ( !havezoom && !havepan ) return cv;
 
-    uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz,bb)
-	    				: getZoomOrPanRect(centre,sz,bb) );
-    centre = wr.centre(); sz = wr.size();
+    uiWorldRect wr( havepan && havezoom
+		? getZoomAndPanRect(mousepos,newsz,cv,bb)
+		: getZoomOrPanRect(mousepos,newsz,cv,bb) );
+    mousepos = wr.centre(); newsz = wr.size();
 
     if ( cv.left() > cv.right() ) wr.swapHor();
     if ( cv.bottom() > cv.top() ) wr.swapVer();
@@ -171,12 +172,12 @@ uiTabStackDlg* uiFlatViewControl::propDialog()
 { return propdlg_; }
 
 
-void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
+void uiFlatViewControl::setNewView( Geom::Point2D<double>& mousepos,
 				    Geom::Size2D<double>& sz )
 {
     uiWorldRect br = vwrs_[0]->boundingBox();
     br.sortCorners();
-    const uiWorldRect wr = getNewWorldRect( centre,sz, vwrs_[0]->curView(),br );
+    const uiWorldRect wr = getNewWorldRect(mousepos,sz,vwrs_[0]->curView(),br);
     vwrs_[0]->setView( wr );
     zoommgr_.add( sz );
 
@@ -184,37 +185,39 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 }
 
 
-uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
-						Geom::Size2D<double> sz,
-       						const uiWorldRect& bbox	)
+uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double>mousepos,
+						  Geom::Size2D<double> newsz,
+						  const uiWorldRect& view,
+						  const uiWorldRect& bbox )
 {
     //TODO we should have a different policy for requests outside
-    return getZoomOrPanRect( centre, sz, bbox );
+    return getZoomOrPanRect( mousepos, newsz, view, bbox );
 }
 
 
-uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
-						 Geom::Size2D<double> sz,
-						 const uiWorldRect& inputbb )
+uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> mousepos,
+						 Geom::Size2D<double> newsz,
+						 const uiWorldRect& view,
+						 const uiWorldRect& bbox )
 {
-    uiWorldRect bb( inputbb );
-    if ( bb.left() > bb.right() ) bb.swapHor();
-    if ( bb.bottom() > bb.top() ) bb.swapVer();
+    uiWorldRect cv( view ); cv.sortCorners(true,false);
+    uiWorldRect bb( bbox ); bb.sortCorners(true,false);
 
-    if ( sz.width() > bb.width() )
-	sz.setWidth( bb.width() );
-    if ( sz.height() > bb.height() )
-	sz.setHeight( bb.height() );
-    const double hwdth = sz.width() * .5;
-    const double hhght = sz.height() * .5;
+    if ( newsz.width() > bb.width() ) newsz.setWidth( bb.width() );
+    if ( newsz.height() > bb.height() ) newsz.setHeight( bb.height() );
 
-    if ( centre.x - hwdth < bb.left() )		centre.x = bb.left() + hwdth;
-    if ( centre.y - hhght < bb.bottom() )	centre.y = bb.bottom() + hhght;
-    if ( centre.x + hwdth > bb.right() )	centre.x = bb.right() - hwdth;
-    if ( centre.y + hhght > bb.top() )		centre.y = bb.top() - hhght;
+    const double lwdth = newsz.width() * (mousepos.x-cv.left())/cv.width();
+    const double bhght = newsz.height() * (mousepos.y-cv.bottom())/cv.height();
+    const double rwdth = newsz.width() * (cv.right()-mousepos.x)/cv.width();
+    const double thght = newsz.height() * (cv.top()-mousepos.y)/cv.height();
 
-    return uiWorldRect( centre.x - hwdth, centre.y + hhght,
-			centre.x + hwdth, centre.y - hhght );
+    if ( mousepos.x - lwdth < bb.left() )      mousepos.x = bb.left() + lwdth;
+    if ( mousepos.y - bhght < bb.bottom() )    mousepos.y = bb.bottom() + bhght;
+    if ( mousepos.x + rwdth > bb.right() )     mousepos.x = bb.right() - rwdth;
+    if ( mousepos.y + thght > bb.top() )       mousepos.y = bb.top() - thght;
+
+    return uiWorldRect( mousepos.x - lwdth, mousepos.y + thght,
+			mousepos.x + rwdth, mousepos.y - bhght );
 }
 
 
@@ -266,7 +269,6 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
     }
 
     propdlg_->show();
-    propdlg_->raise();
 }
 
 

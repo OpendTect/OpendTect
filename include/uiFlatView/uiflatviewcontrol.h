@@ -37,10 +37,11 @@ public:
 
     TypeSet<uiWorldRect>getBoundingBoxes() const;
     			//!< Returns bounding boxes of all viewers.
-    virtual void	setNewView(Geom::Point2D<double>& centre,
-	    			   Geom::Size2D<double>& size );
-    			//!< retains uiWorldRect's LR/TB swapping
-    			//!< Changes the input to the actual new values
+    virtual void	setNewView(Geom::Point2D<double>& mousepos,
+				   Geom::Size2D<double>& newsize);
+			/*!< Pass centre instead of mousepos if there is no
+			MouseEvent. Retains uiWorldRect's LR/TB swapping while
+			changing the input to the actual new values. */
     virtual void	flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
 
@@ -61,16 +62,25 @@ public:
     Notifier<uiFlatViewControl>  zoomChanged;
 
     uiRect			getViewRect(const uiFlatViewer*);
-    static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
-						  Geom::Size2D<double>,
+    static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>mousepos,
+						  Geom::Size2D<double> newsz,
+						  const uiWorldRect& view,
 						  const uiWorldRect& bbox);
-    static uiWorldRect		getZoomOrPanRect(Geom::Point2D<double>,
-						 Geom::Size2D<double>,
+    static uiWorldRect		getZoomOrPanRect(Geom::Point2D<double> mousepos,
+						 Geom::Size2D<double> newsz,
+						 const uiWorldRect& view,
 						 const uiWorldRect& bbox);
-    uiWorldRect			getNewWorldRect(Geom::Point2D<double>& centre,
-						Geom::Size2D<double>& sz,
-						const uiWorldRect& curview,
+				/*!< If size of view and newsz differ,
+				zooms in/out the uiWorldRect represented by
+				view. Returns the resulting uiWorldRect after
+				shifting it such that it falls inside the
+				bounding box.*/
+    uiWorldRect			getNewWorldRect(Geom::Point2D<double>& mousepos,
+						Geom::Size2D<double>& newsz,
+						const uiWorldRect& view,
 						const uiWorldRect& bbox) const;
+				/*!< Pass centre instead of mousepos if there
+  				  is no MouseEvent.*/
     uiTabStackDlg*		propDialog();
     const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
 
