@@ -441,19 +441,24 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
 }
 
 
-bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp )
+static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog )
 {
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( false );
+    OS::CommandExecPars cp( isodprog );
     cp.launchtype( ltyp );
     return cl.execute( cp );
 }
 
 
+bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp )
+{
+    return doExecOSCmd( cmd, ltyp, false );
+}
+
+
 bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
 {
-    const FilePath fp( GetBinPlfDir(), prognm );
-    const BufferString cmd( fp.fullPath(), " ", args );
-    return OS::ExecCommand( cmd, ltyp );
+    const BufferString cmd( prognm, " ", args );
+    return doExecOSCmd( cmd, ltyp, true );
 }

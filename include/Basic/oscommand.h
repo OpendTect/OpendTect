@@ -30,14 +30,14 @@ mExpClass(Basic) CommandExecPars
 {
 public:
 			CommandExecPars( bool isodprog=true )
-			    : needmonitor_(isodprog)
+			    : needmonitor_(false)
 			    , prioritylevel_(isodprog ? -1 : 0)
 			    , launchtype_(isodprog?RunInBG:Wait4Finish)
 			    , isconsoleuiprog_(false)	{}
 
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
-			    //!< will be generated is needed but empty
+			    //!< will be generated if needed but empty
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
 
