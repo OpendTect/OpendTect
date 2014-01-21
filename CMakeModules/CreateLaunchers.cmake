@@ -269,8 +269,6 @@ function(create_default_target_launcher _targetname)
 
 	set(VCPROJNAME "${CMAKE_BINARY_DIR}/ALL_BUILD")
 	_launcher_produce_vcproj_user()
-
-	_launcher_create_target_launcher()
 endfunction()
 
 function(create_target_launcher _targetname)
