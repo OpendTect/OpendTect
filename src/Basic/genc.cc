@@ -432,6 +432,11 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
     const BufferString execdir( fp.pathOnly() );
     insertInPath( "PATH", execdir.buf(), ":" );
     insertInPath( "path", execdir.buf(), " " );
+# ifdef __mac__
+    insertInPath( "DYLD_LIBRARY_PATH", execdir.buf(), ":" );
+# else
+    insertInPath( "LD_LIBRARY_PATH", execdir.buf(), ":" );
+# endif
 #endif
 
     // Set this so that scripts run from the program have it available
