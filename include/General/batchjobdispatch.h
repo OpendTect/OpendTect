@@ -63,21 +63,25 @@ public:
     virtual bool	isSuitedFor(const char* prognm) const = 0;
     virtual bool	canHandle(const JobSpec&) const;
 
-    JobSpec&		jobSpec()			{ return jobspec_; }
-    const JobSpec&	jobSpec() const			{ return jobspec_; }
-
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
 
     mDefineFactoryInClass(JobDispatcher,factory);
+
+    bool		writeParFile() const;
+    static void		getDefParFilename(const char* prognm,BufferString&);
+    void		setToDefParFileName()
+				{ getDefParFilename( jobspec_.prognm_, parfnm_ ); }
+
+    JobSpec		jobspec_;
+    BufferString	parfnm_;
 
 protected:
 
     virtual bool	init()				{ return true; }
     virtual bool	launch()			= 0;
 
-    JobSpec		jobspec_;
-    BufferString	errmsg_;
+    mutable BufferString errmsg_;
 
 };
 
@@ -97,10 +101,6 @@ public:
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
 				 "Single Process","Single Process");
 
-    static void		getDefParFilename(const char* prognm,BufferString&);
-    			// will be used if you do not use setParFileName
-
-    BufferString	parfnm_;
     BufferString	remotehost_;
     BufferString	remoteexec_;
 

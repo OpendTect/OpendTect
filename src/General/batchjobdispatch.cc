@@ -66,6 +66,34 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 }
 
 
+void Batch::JobDispatcher::getDefParFilename( const char* prognm,
+						BufferString& fnm )
+{
+    if ( !prognm || !*prognm )
+	prognm = "batchprog";
+    FilePath parfp( GetProcFileName(prognm) );
+    parfp.setExtension( ".par" );
+    fnm.set( parfp.fullPath() );
+}
+
+
+bool Batch::JobDispatcher::writeParFile() const
+{
+    od_ostream parstrm( parfnm_ );
+    ascostream astrm( parstrm );
+    astrm.putHeader( "Parameters" );
+    jobspec_.pars_.putTo( astrm );
+    const bool ret = parstrm.isOK();
+    parstrm.close();
+    if ( !ret )
+    {
+	errmsg_.set( "Cannot write parameter file:\n" ).add( parfnm_ );
+	parstrm.addErrMsgTo( errmsg_ );
+    }
+    return ret;
+}
+
+
 Batch::SingleJobDispatcher::SingleJobDispatcher()
 {
 }
@@ -74,17 +102,6 @@ Batch::SingleJobDispatcher::SingleJobDispatcher()
 const char* Batch::SingleJobDispatcher::description() const
 {
     return "The job will be executed on one computer, in a single process.";
-}
-
-
-void Batch::SingleJobDispatcher::getDefParFilename( const char* prognm,
-						    BufferString& fnm )
-{
-    if ( !prognm || !*prognm )
-	prognm = "batchprog";
-    FilePath parfp( GetProcFileName(prognm) );
-    parfp.setExtension( ".par" );
-    fnm.set( parfp.fullPath() );
 }
 
 
@@ -105,14 +122,12 @@ bool Batch::SingleJobDispatcher::init()
 
 bool Batch::SingleJobDispatcher::launch()
 {
-    od_ostream parstrm( parfnm_ );
-    ascostream astrm( parstrm );
-    astrm.putHeader( "Parameters" );
-    jobspec_.pars_.putTo( astrm );
-    parstrm.close();
+    if ( !writeParFile() )
+	return false;
 
-    BufferString cmd( "\"", jobspec_.prognm_, "\" " );
-    cmd.add( jobspec_.clargs_ ).add( "\"" ).add( parfnm_ ).add( "\"" );
+    BufferString cmd( jobspec_.prognm_, " ", jobspec_.clargs_ );
+    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\'' );
+    cmd.add( qtdparfnm );
     OS::MachineCommand mc( cmd, remotehost_ );
     if ( !remoteexec_.isEmpty() )
 	mc.setRemExec( remoteexec_ );

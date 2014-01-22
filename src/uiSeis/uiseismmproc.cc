@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseismmproc.h"
+#include "uiseismmjobdispatch.h"
 #include "uiseisioobjinfo.h"
 #include "seisjobexecprov.h"
 #include "jobrunner.h"
@@ -49,6 +50,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+
+
+bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
+{
+    return FixedString(pnm) == "od_process_attrib";
+}
+
+bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
+{
+    return isSuitedFor( js.prognm_ );
+		//TODO should be looking inside js.pars_
+}
 
 
 static const char* outlsfilename = "outls.2ds";
