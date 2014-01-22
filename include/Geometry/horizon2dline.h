@@ -1,6 +1,6 @@
 #ifndef horizon2dline_h
 #define horizon2dline_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -30,49 +30,50 @@ namespace Geometry
 mExpClass(Geometry) Horizon2DLine : public RowColSurface
 {
 public:
-    			Horizon2DLine();
-    			Horizon2DLine(int lineid,const TypeSet<Coord>&,
+			Horizon2DLine();
+			Horizon2DLine(int lineid,const TypeSet<Coord>&,
 				      int start,int step);
-    			Horizon2DLine(const Horizon2DLine&);
-    			~Horizon2DLine();
+			Horizon2DLine(const Horizon2DLine&);
+			~Horizon2DLine();
 
     Horizon2DLine*	clone() const;
     bool		isEmpty() const { return rows_.isEmpty(); }
 
     bool		addRow(const PosInfo::Line2DKey&,const TypeSet<Coord>&,
-	    		       int start,int step);
-    			/*!<\returns id of new path. */
+			       int start,int step);
+			/*!<\returns id of new path. */
     bool		addRow(Pos::GeomID geomid,const TypeSet<Coord>&,
-	    		       int start,int step);
-    			/*!<\returns id of new path. */
+			       int start,int step);
+			/*!<\returns id of new path. */
     bool		addUdfRow(const PosInfo::Line2DKey&,int start,int stop,
-	    			  int step);
-    			/*!<\returns id of new path. */
+				  int step);
+			/*!<\returns id of new path. */
     bool		addUdfRow(Pos::GeomID geomid,int start,int stop,
 								   int step);
-    			/*!<\returns id of new path. */
-    
+			/*!<\returns id of new path. */
+
     void		setRow(const PosInfo::Line2DKey&,const TypeSet<Coord>&,
-	    		       int start,int step);
+			       int start,int step);
     void		setRow(Pos::GeomID geomid,const TypeSet<Coord>&,
-	    		       int start,int step);
+			       int start,int step);
     bool		reassignRow(const PosInfo::Line2DKey& from,
-	    			    const PosInfo::Line2DKey& to);
+				    const PosInfo::Line2DKey& to);
     bool		reassignRow(Pos::GeomID from,Pos::GeomID to);
 
     void		syncRow(const PosInfo::Line2DKey&,
-	    			const PosInfo::Line2DData&);
+				const PosInfo::Line2DData&);
     void		syncRow(Pos::GeomID Geomid,
 				const PosInfo::Line2DData&);
 
     void		removeRow(const PosInfo::Line2DKey&);
     void		removeRow(Pos::GeomID Geomid);
 
-    void		removeCols(const PosInfo::Line2DKey&,int start,int stop);
+    void		removeCols(const PosInfo::Line2DKey&,int start,
+				   int stop);
     void		removeCols(Pos::GeomID Geomid,int start,int stop);
 
-    int 		getRowIndex(const PosInfo::Line2DKey&) const;
-    int		 	getRowIndex(Pos::GeomID Geomid) const;
+    int			getRowIndex(const PosInfo::Line2DKey&) const;
+    int			getRowIndex(Pos::GeomID Geomid) const;
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int rowindex) const;
@@ -84,21 +85,23 @@ public:
     Interval<float>	zRange(Pos::GeomID geomid) const;
 
     void		geometry(const PosInfo::Line2DKey&,
-	    			 PosInfo::Line2DData&) const;
+				 PosInfo::Line2DData&) const;
     void		geometry(Pos::GeomID geomid,
 				 PosInfo::Line2DData&)const;
 
     Coord3		getKnot(const RowCol& rc) const; // rc.row() = rowindex
     bool		setKnot(const RowCol&,const Coord3&);
+
     bool		isKnotDefined(const RowCol&) const;
-    Coord3		computePosition(const PosInfo::Line2DKey&,int trcnr) const;
+    Coord3		computePosition(const PosInfo::Line2DKey&,
+					int trcnr) const;
     Coord3		computePosition(Pos::GeomID geomid,int trcnr) const;
 
     virtual void	trimUndefParts();
     bool		hasSupport(const RowCol&) const;
     void		checkSupport(bool yn)	{ checksupport_ = yn; }
     bool		checksSupport() const	{ return checksupport_; }
-    
+
     bool		setPosition(GeomPosID pid,const Coord3& pos);
     Coord3		getPosition(GeomPosID pid) const;
     bool		isDefined(GeomPosID pid) const;

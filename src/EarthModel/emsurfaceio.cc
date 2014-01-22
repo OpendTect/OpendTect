@@ -1222,6 +1222,9 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
     const SectionID sectionid = sectionids_[sectionindex_];
     const int cubezidx = sectionsel_.indexOf( sectionid );
 
+    mDynamicCastGet(Horizon2D*,hor2d,surface_);
+    const bool hor2dok = hor2d && l2dkeys_.validIdx(rowindex_);
+
     for ( ; colindex<nrcols+colstoskip; colindex++ )
     {
 	rc.col() = firstcol+colindex*colstep;
@@ -1275,9 +1278,11 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( !surface_->sectionGeometry(sectionid) )
 		createSection( sectionid );
 
-	    //  if ( l2dkeys_.validIdx(rowindex_) )
-	    //rc.row() = l2dkeys_[rowindex_].lineID();
-	    surface_->setPos( sectionid, rc.toInt64(), pos, false );
+	    RowCol myrc( rc );
+	    if ( hor2dok )
+		myrc.row() = hor2d->geometry().sectionGeometry(
+			sectionid )->getRowIndex( l2dkeys_[rowindex_] );
+	    surface_->setPos( sectionid, myrc.toInt64(), pos, false );
 	}
 
 	if ( cube_ )
