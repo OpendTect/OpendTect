@@ -143,11 +143,19 @@ protected:
 
 #undef mImplArr
 
+#ifdef __win32__
 #define mChunkSize	0x20000000
+#else
+#define mChunkSize	0x800000000
+#endif
 
 
 /*!
-\brief Valueseries that allocates its data in smaller chunks (default is 512MB).By doing this, it performs better in environments where the memory is fragmented(i.e. windows 32 bit).
+\brief Valueseries that allocates its data in smaller chunks. By doing this, 
+it performs better in environments where the memory is fragmented 
+(i.e. windows 32 bit).
+Default chunk size for windows 32 bit is 512MB and for all other platforms 
+default is 32 GB.
 */
 
 template <class RT, class AT>
@@ -181,7 +189,7 @@ public:
 protected:
     ObjectSet<AT>	ptrs_;
     od_int64		cursize_;
-    const unsigned int	chunksize_;
+    const od_int64	chunksize_;
 };
 
 
