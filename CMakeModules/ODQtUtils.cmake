@@ -39,7 +39,7 @@ macro(OD_SETUP_QT)
 
 	    if ( NOT DEFINED QT_LIBRARY_DIR )
 		get_target_property(QT_LIBRARY Qt5::${QTMOD} LOCATION )
-		get_filename_component( QT_LIBRARY_DIR ${QT_LIBRARY} DIRECTORY )
+		get_filename_component( QT_LIBRARY_DIR ${QT_LIBRARY} PATH )
 	    endif()
 	endforeach()
 
