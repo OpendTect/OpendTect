@@ -38,6 +38,7 @@ public:
     const Array3DInfo&	info() const		{ return info_; }
 
     virtual void	getAll(float*) const;
+    virtual void	getAll(ValueSeries<float>& vs) const;
 
 protected:
 

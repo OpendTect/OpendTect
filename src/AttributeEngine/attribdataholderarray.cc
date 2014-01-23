@@ -123,4 +123,10 @@ void DataHolderArray::getAll( float* ptr ) const
 }
 
 
+void DataHolderArray::getAll( ValueSeries<float>& vs ) const
+{
+    ArrayND<float>::getAll( vs );
+}
+
+
 } // namespace Attrib
