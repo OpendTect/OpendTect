@@ -35,7 +35,6 @@ The next 8 bytes are reserved for 2 integers:
 #include "posinfo.h"
 #include "od_istream.h"
 
-
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
     strm.getBin( buf, sizeof(auxinf.memb) ); \
     auxinf.memb = finterp_.get( buf, 0 )
@@ -131,8 +130,8 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     if ( geom.fullyrectandreg )
     {
 	geom.cubedata.erase();
-	geom.cubedata.generate( geom.start, geom.stop, geom.step );
-	lds_.generate( geom.start, geom.stop, geom.step );
+	geom.cubedata.generate( geom.start, geom.stop, geom.step, true );
+	lds_.generate( geom.start, geom.stop, geom.step, true );
     }
     geom.reCalcBounds();
 
@@ -297,7 +296,19 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     if ( info_.geom_.step.inl() == 0 ) info_.geom_.step.inl() = 1;
     info_.geom_.step.crl() = iinterp_.get( buf, 7 );
     if ( info_.geom_.step.crl() == 0 ) info_.geom_.step.crl() = 1;
+    if ( info_.geom_.step.inl()<0 )
+    {
+	const int startinl = info_.geom_.start.inl();
+	info_.geom_.start.inl() = info_.geom_.stop.inl();
+	info_.geom_.stop.inl() = startinl;
+    }
 
+    if ( info_.geom_.step.crl()<0 )
+    {
+	const int startcrl = info_.geom_.start.crl();
+	info_.geom_.start.crl() = info_.geom_.stop.crl();
+	info_.geom_.stop.crl() = startcrl;
+    }
     strm_.getBin( buf, 6*sizeof(double) );
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.a = dinterp_.get( buf, 0 ); xtr.b = dinterp_.get( buf, 1 );
@@ -349,13 +360,16 @@ bool CBVSReader::readTrailer()
 	if ( nrinl < 0 ) mErrRet("File trailer corrupt")
 	if ( nrinl == 0 ) mErrRet("No traces in file")
 
+	StepInterval<int> inlrg, crlrg;
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
 	    strm_.getBin( buf, 2 * integersize );
 	    PosInfo::LineData* iinf
 		= new PosInfo::LineData( iinterp_.get( buf, 0 ) );
 	    if ( !iinl )
-		hs_.start.inl() = hs_.stop.inl() = iinf->linenr_;
+		inlrg.start = inlrg.stop = iinf->linenr_;
+	    else
+		inlrg.include( iinf->linenr_, true );
 
 	    const int nrseg = iinterp_.get( buf, 1 );
 	    PosInfo::LineData::Segment crls;
@@ -368,15 +382,15 @@ bool CBVSReader::readTrailer()
 		crls.step = iinterp_.get(buf,2);
 		iinf->segments_ += crls;
 
-		if ( !iinl && !iseg )
-		    hs_.start.crl() = hs_.stop.crl() = crls.start;
-		else
-		    hs_.include( BinID(iinf->linenr_,crls.start) );
-		hs_.include( BinID(iinf->linenr_,crls.stop) );
+		if ( !iseg )
+		    crlrg = crls;
+		crlrg.include( crls, true );
 	    }
 	    lds_ += iinf;
 	}
 
+	hs_.setInlRange( inlrg );
+	hs_.setCrlRange( crlrg );
 	info_.geom_.start = hs_.start;
 	info_.geom_.stop = hs_.stop;
     }

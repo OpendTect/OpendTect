@@ -232,7 +232,8 @@ void CBVSWriter::newSeg( bool newinl )
 
     if ( !trcswritten_ ) prevbinid_ = curbinid_;
 
-    int newstep = forcedlinestep_.crl() ? forcedlinestep_.crl() : SI().crlStep();
+    int newstep = forcedlinestep_.crl() ? forcedlinestep_.crl()
+					: SI().crlStep();
     if ( newinl )
     {
 	if ( goodgeom && lds_.size() )
@@ -321,6 +322,7 @@ int CBVSWriter::put( void** cdat, int offs )
     {
 	const char* ptr = ((const char*)cdat[icomp])
 			+ offs * nrbytespersample_[icomp];
+
 	if ( !strm_.addBin(ptr,cnrbytes_[icomp]) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
@@ -428,6 +430,8 @@ void CBVSWriter::getRealGeometry()
     survgeom_.start.inl() = rg.start; survgeom_.stop.inl() = rg.stop;
     cd.getCrlRange( rg ); survgeom_.step.crl() = rg.step;
     survgeom_.start.crl() = rg.start; survgeom_.stop.crl() = rg.stop;
+    if ( cd.isCrlReversed() )
+	survgeom_.step.crl() *= -1;
 
     if ( !cd.haveCrlStepInfo() )
 	survgeom_.step.crl() = SI().crlStep();

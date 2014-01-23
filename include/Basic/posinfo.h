@@ -111,9 +111,9 @@ public:
     virtual int		indexOf(int inl,int* newidx=0) const;
     			//!< newidx only filled if not null and -1 is returned
     bool		includes(int inl,int crl) const;
-    bool		getInlRange(StepInterval<int>&) const;
+    bool		getInlRange(StepInterval<int>&,bool sorted=true) const;
     			//!< Returns whether fully regular.
-    bool		getCrlRange(StepInterval<int>&) const;
+    bool		getCrlRange(StepInterval<int>&,bool sorted=true) const;
     			//!< Returns whether fully regular.
 
     bool		isValid(const CubeDataPos&) const;
@@ -124,11 +124,13 @@ public:
     bool		haveInlStepInfo() const		{ return size() > 1; }
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
+    bool		isCrlReversed() const;
 
     void		limitTo(const HorSampling&);
     void		merge(const CubeData&,bool incl);
     				//!< incl=union, !incl=intersection
-    void		generate(BinID start,BinID stop,BinID step);
+    void		generate(BinID start,BinID stop,BinID step,
+				 bool allowreversed=false);
 
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;

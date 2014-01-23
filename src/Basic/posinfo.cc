@@ -173,19 +173,25 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 }
 
 
-void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step )
+void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
+				  bool allowreversed )
 {
     erase();
 
-    if ( start.inl() > stop.inl() ) Swap( start.inl(), stop.inl() );
-    if ( start.crl() > stop.crl() ) Swap( start.crl(), stop.crl() );
-    if ( step.inl() < 0 ) step.inl() = -step.inl();
-    if ( step.crl() < 0 ) step.crl() = -step.crl();
+    if ( !allowreversed )
+    {
+	if ( start.inl() > stop.inl() ) Swap( start.inl(), stop.inl() );
+	if ( start.crl() > stop.crl() ) Swap( start.crl(), stop.crl() );
+	if ( step.inl() < 0 ) step.inl() = -step.inl();
+	if ( step.crl() < 0 ) step.crl() = -step.crl();
+    }
 
-    for ( int iln=start.inl(); iln<=stop.inl(); iln+=step.inl() )
+    const bool isinlrev = step.inl()<0;
+    for ( int iln=start.inl(); isinlrev ? iln>=stop.inl() : iln<=stop.inl();
+	      iln+=step.inl() )
     {
 	LineData* ld = new LineData( iln );
-	ld->segments_ += LineData::Segment( start.crl(), stop.crl(), step.crl() );
+	ld->segments_ += LineData::Segment( start.crl(), stop.crl(),step.crl());
 	*this += ld;
     }
 }
@@ -357,7 +363,8 @@ bool PosInfo::CubeData::includes( int lnr, int crl ) const
 }
 
 
-bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg ) const
+bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
+				     bool wantsorted ) const
 {
     const int sz = size();
     if ( sz < 1 ) return false;
@@ -387,12 +394,13 @@ bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg ) const
 	prevlnr = newlnr;
     }
 
-    rg.sort( true );
+    rg.sort( wantsorted );
     return isreg;
 }
 
 
-bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg ) const
+bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg,
+				     bool wantsorted ) const
 {
     const int sz = size();
     if ( sz < 1 ) return false;
@@ -432,7 +440,7 @@ bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg ) const
 	}
     }
 
-    rg.sort( true );
+    rg.sort( wantsorted );
     return isreg;
 }
 
@@ -557,6 +565,37 @@ PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
     curld->merge( *ld, true );
     delete ld;
     return *this;
+}
+
+
+bool PosInfo::CubeData::isCrlReversed() const
+{
+    const int sz = size();
+    if ( sz < 1 )
+	return false;
+    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    {
+	const PosInfo::LineData& ld = *(*this)[ilnr];
+	if ( ld.segments_.size() >= 2 )
+	{
+	    if ( ld.segments_[0].start==ld.segments_[1].start )
+	    {
+		BufferString msg( "Two segemnts in line nr " );
+		msg += ld.linenr_; msg += " have same start"; 
+		pErrMsg( msg );
+		continue;
+	    }
+	    return ld.segments_[0].start > ld.segments_[1].start;
+	}
+	else
+	{
+	    if ( ld.segments_[0].start==ld.segments_[0].stop )
+		continue;
+	    return ld.segments_[0].start > ld.segments_[0].stop;
+	}
+    }
+
+    return false;
 }
 
 
