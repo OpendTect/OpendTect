@@ -225,6 +225,12 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
     pickretriever_->addScene( newscene );
+    if ( isSoloMode() )
+    {
+	TypeSet<int> dispids;
+	displayids_ += dispids;
+    }
+
     nrsceneschange_.trigger();
     return newscene->id();
 }
@@ -235,6 +241,10 @@ void uiVisPartServer::removeScene( int sceneid )
     visSurvey::Scene* scene = getScene( sceneid );
     if ( scene )
     {
+	const int typesetidx = scenes_.indexOf(scene);
+	if ( displayids_.validIdx(typesetidx) )
+	    displayids_.removeSingle( typesetidx );
+
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
 	pickretriever_->removeScene( scene );
 	scene->unRef();
@@ -408,8 +418,10 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {
-	int typesetidx = scenes_.indexOf(scene);
-	displayids_[typesetidx] += dobj->id();
+	const int typesetidx = scenes_.indexOf(scene);
+	if ( displayids_.validIdx(typesetidx) )
+	    displayids_[typesetidx] += dobj->id();
+
 	turnOn( dobj->id(), true, true );
     }
 }
