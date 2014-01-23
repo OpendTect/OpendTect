@@ -66,3 +66,40 @@ IF ( BUILD_DOCUMENTATION )
   endif()
 endif()
 
+if ( WIN32 )
+    option( BUILD_USERDOC "Build user documentation" OFF )
+endif()
+
+if ( BUILD_USERDOC )
+    if ( WIN32 )
+        set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
+	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
+	find_program( MADCAP_FLARE_EXEC madbuild.exe
+ 		  HINTS "C:/Program Files (x86)/MadCap Software/MadCap Flare V9/Flare.app"
+		  DOC "Madcap Flare Executable"
+             	  NO_DEFAULT_PATH )
+
+	if ( NOT EXISTS ${MADCAP_FLARE_EXEC} )
+	    message ( FATAL_ERROR "Madcap flare executable not found" )
+	endif()
+
+	if ( NOT EXISTS ${USERDOC_PROJECT} )
+	    message ( FATAL_ERROR "Cannot find ${USERDOC_PROJECT}" )
+	endif()
+
+	set ( USER $ENV{USERNAME} )
+	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} DIRECTORY )
+	get_filename_component ( USERDOC_NAME ${USERDOC_PROJECT} NAME_WE )
+
+	set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
+
+	add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
+			    -project "${USERDOC_PROJECT}"
+			    -target ${USERDOC_TARGET}
+			    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${USERDOC_OUTPUT_DIR} ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME} 
+			    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			    COMMENT "Building user documentation" )
+    endif( WIN32 )
+
+endif( BUILD_USERDOC )
+

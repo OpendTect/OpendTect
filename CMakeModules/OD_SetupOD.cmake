@@ -12,7 +12,7 @@ SET( INCLUDES
     CreateLaunchers
     ODAloFile
     ODInitheader
-    ODDoxygen
+    ODDocumentation
     ODPackages
     ODTesting
     ODIttNotifyUtils
