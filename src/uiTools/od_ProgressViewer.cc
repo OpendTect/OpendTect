@@ -226,23 +226,21 @@ int main( int argc, char** argv )
 
     CommandLineParser cl( argc, argv );
     cl.setKeyHasValue( "pid" );
-    cl.setKeyHasValue( "logfile" );
+    cl.setKeyHasValue( "inpfile" );
     cl.setKeyHasValue( "delay" );
 
     int pid = -1;
     cl.getVal( "pid", pid );
-
     int delay = 1;
     cl.getVal( "delay", delay );
-
-    BufferString logfile;
-    cl.getVal( "logfile", logfile );
-    if ( logfile.isEmpty() )
-	logfile = od_stream::sStdIO();
+    BufferString inpfile;
+    cl.getVal( "inpfile", inpfile );
+    if ( inpfile.isEmpty() )
+	inpfile = od_stream::sStdIO();
 
     uiMain app( argc, argv );
 
-    od_istream istrm( logfile );
+    od_istream istrm( inpfile );
     uiProgressViewer* pv = new uiProgressViewer( 0, istrm, pid );
     pv->setDelayInMs( delay );
 

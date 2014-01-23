@@ -333,7 +333,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( !monitorfnm_.isEmpty() )
     {
 	progvwrcmd_.set( odprogressviewer_ )
-	    .add( " --logfile " ).add( monitorfnm_ )
+	    .add( " --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
 	if ( !doExecute(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
