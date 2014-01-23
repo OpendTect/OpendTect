@@ -37,6 +37,8 @@ public:
     float		get(int,int,int) const;
     const Array3DInfo&	info() const		{ return info_; }
 
+    virtual void	getAll(float*) const;
+
 protected:
 
     Array3DInfoImpl	info_;

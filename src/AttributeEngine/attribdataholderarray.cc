@@ -93,4 +93,34 @@ float DataHolderArray::get( int i0, int i1, int i2 ) const
    }
 }
 
+
+void DataHolderArray::getAll( float* ptr ) const
+{
+    if ( !ptr )
+	return;
+
+    const int nrseries = info_.getSize( 0 );
+    const int nrdataholders = info_.getSize( 1 );
+    const int nrsamples = info_.getSize( 2 );
+    
+    for ( int dhidx=0; dhidx<nrdataholders; dhidx++ )
+    {
+	for ( int seridx=0; seridx<nrseries; seridx++ )
+	{
+	    const ValueSeries<float>* valser = dh_[dhidx]->series( seridx );
+	    if ( !valser )
+		continue;
+
+	    const float* srcptr = valser->arr();
+	    if ( srcptr ) 
+		OD::sysMemCopy( ptr, srcptr, nrsamples*sizeof(float) );
+	    else 
+		valser->getValues( ptr, nrsamples );
+
+	    ptr += nrsamples;
+	}
+    }
+}
+
+
 } // namespace Attrib

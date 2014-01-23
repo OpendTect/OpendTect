@@ -156,8 +156,8 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
     const int extrazem3 =
 	(int)(leftem3*1e-3)%(int)(refzstep*SI().zDomain().userFactor());
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	return (float) (extrazem3 * 1e-3 + extrazem7 *
-											(SI().zIsTime() ? 1e-7 : 1e-4));
+	return (float) (extrazem3 * 1e-3 + extrazem7 * 
+					    (SI().zIsTime() ? 1e-7 : 1e-4));
 
     return 0;
 }
@@ -317,48 +317,13 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 {
     dh.ref();
 
-    DataHolderArray array3d( dh.dataset_ );
-    const int nrseries = array3d.info().getSize( 0 );
-    const int nrdh = array3d.info().getSize( 1 );
-    const int nrsamples = array3d.info().getSize( 2 );
-
-    mTryAlloc( dataset_, Array3DImpl<float>(nrseries, nrdh, nrsamples) );
-    if ( dataset_ )
+    const DataHolderArray array3d( dh.dataset_ );
+    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
+    
+    if ( !dataset_ || !dataset_->isOK() )
     {
-	float* ptr = dataset_->getData();
-	bool canusevalseries = ptr;
-
-	for ( int idx=0; idx<nrdh && canusevalseries; idx++ )
-	{
-	    for ( int idy=0; idy<nrseries; idy++ )
-	    {
-		ValueSeries<float>* valser = dh.dataset_[idx]->series(idy);
-		if ( valser )
-		{
-		    valser->getValues( ptr, nrsamples );
-		    ptr += nrsamples;
-		}
-		else
-		{
-		    canusevalseries = false;
-		    break;
-		}
-	    }
-	}
-
-	if ( !canusevalseries )
-	{
-	    delete dataset_;
-	    dataset_ = 0;
-	    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
-	}
-
-	if ( !dataset_ || !dataset_->isOK() )
-	{
-	    delete dataset_;
-	    dataset_ = 0;
-	}
-
+	delete dataset_;
+	dataset_ = 0;
     }
 
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
