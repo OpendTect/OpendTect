@@ -31,7 +31,7 @@ mExpClass(Basic) CommandExecPars
 public:
 			CommandExecPars( bool isodprog=true )
 			    : needmonitor_(false)
-			    , prioritylevel_(isodprog ? -1 : 0)
+			    , prioritylevel_(isodprog ? -1.0f : 0.0f)
 			    , launchtype_(isodprog?RunInBG:Wait4Finish)
 			    , isconsoleuiprog_(false)	{}
 

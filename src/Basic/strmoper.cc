@@ -133,7 +133,7 @@ bool StrmOper::peekChar( std::istream& strm, char& ch )
 	strm.clear();
     }
 
-    ch = strm.peek();
+    ch = (char)strm.peek();
     return ch != EOF;
 }
 
