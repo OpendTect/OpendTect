@@ -36,21 +36,21 @@ mGlobal(Basic) const char* GetLocalHostName(void);
 mGlobal(Basic) const char* GetLocalIP(void);
 		/*!< returns local IP Address */
 #endif
-    
-    
+
+
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
-    
+
 mGlobal(Basic) char** GetArgV(void);
-    
+
 mGlobal(Basic) int GetArgC(void);
 
-mGlobal(Basic) int AreProgramArgsSet(void);
-    
+mGlobal(Basic) bool AreProgramArgsSet(void);
+
 mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
-    
-mGlobal(Basic) int isProcessAlive(int pid);
+
+mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 
 mGlobal(Basic) int ExitProgram( int ret );
@@ -72,8 +72,8 @@ mGlobal(Basic) void SwapBytes(void*,int nbytes);
 
 mGlobal(Basic) int InSysAdmMode(void);
 		/*!< returns 0 unless in sysadm mode */
-    
-    
+
+
 mGlobal(Basic) int GetSubversionRevision(void);
 		/*!< Returns Subversion revision number */
 
@@ -81,15 +81,15 @@ mGlobal(Basic) const char* GetSubversionUrl(void);
 		/*!< Returns Subversion url */
 
 mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
-    
+
 mGlobal( Basic ) void ForkProcess(void);
-    
-    
+
+
 mGlobal( Basic ) int InSysAdmMode(void);
 mGlobal( Basic ) void SetInSysAdmMode(void);
 
 
-inline void EmptyFunction() 			{}
+inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 }

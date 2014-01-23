@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <sstream>
 #include <string.h>
 
+const char* od_stream::sStdIO()	{ return StreamProvider::sStdIO(); }
+
 
 od_istream& od_istream::nullStream()
 {
@@ -304,6 +306,12 @@ bool od_istream::open( const char* fnm )
 }
 
 
+bool od_istream::reOpen()
+{
+    return noclose_ ? true : open( fileName() );
+}
+
+
 bool od_ostream::open( const char* fnm, bool useexist )
 {
     od_ostream strm( fnm, useexist );
@@ -528,9 +536,9 @@ bool od_istream::getWord( BufferString& bs, bool allownl )
 }
 
 
-bool od_istream::getLine( BufferString& bs )
+bool od_istream::getLine( BufferString& bs, bool* newline_found )
 {
-    return StrmOper::readLine( stdStream(), &bs );
+    return StrmOper::readLine( stdStream(), &bs, newline_found );
 }
 
 

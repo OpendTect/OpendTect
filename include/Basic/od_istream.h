@@ -39,6 +39,7 @@ public:
     od_istream&		operator =( const od_istream& s )
 			    { od_stream::operator =(s); return *this; }
     bool		open(const char*);
+    bool		reOpen();
 
     od_istream&		get(char&);
     od_istream&		get(unsigned char&);
@@ -71,7 +72,7 @@ public:
     od_istream&		get(void*); //!< does nothing + pErrMsg
 
     bool		getWord(BufferString&,bool allowgotonextline=true);
-    bool		getLine(BufferString&);
+    bool		getLine(BufferString&,bool* newline_found=0);
     bool		getAll(BufferString&);
 
     bool		getBin(void*,Count nrbytes);

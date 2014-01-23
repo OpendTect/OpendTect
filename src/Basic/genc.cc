@@ -183,15 +183,15 @@ mExternC(Basic) void ForkProcess(void)
 
 #define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
 
-int isProcessAlive( int pid )
+bool isProcessAlive( int pid )
 {
 #ifdef __win__
     HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE,
 				   GetPID() );
-    return isBadHandle(hProcess) ? 0 : 1;
+    return !isBadHandle(hProcess);
 #else
     const int res = kill( pid, 0 );
-    return res == 0 ? 1 : 0;
+    return res == 0;
 #endif
 }
 
@@ -401,7 +401,7 @@ mExternC(Basic) int GetArgC(void)
 { return argc; }
 
 
-mExternC(Basic) int AreProgramArgsSet(void)
+mExternC(Basic) bool AreProgramArgsSet(void)
 { return GetArgC()!=-1; }
 
 

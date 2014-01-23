@@ -44,7 +44,7 @@ but it will make the stream !isOK(). There is no difference for write.
 Therefore, rule of thumb is: use isOK() for loop control, isBad() as a return
 value. If you know that the file should contain more data than the last read,
 then isOK() will be your choice anyway.
- 
+
  */
 
 
@@ -82,19 +82,21 @@ public:
 
     void			addErrMsgTo(BufferString&) const;
     static od_stream*		create(const char*,bool forread,
-	    				BufferString& errmsg);
-    				//!< returns null on failure, never a bad stream
+					BufferString& errmsg);
+				//!< returns null on failure, never a bad stream
+    static const char*		sStdIO();
+				//!< pass this as filename to get cin or cout
 
 protected:
 
-    			od_stream();
-    			od_stream(const char*,bool,bool editmode=false);
-    			od_stream(const FilePath&,bool,bool editmode=false);
-    			od_stream(std::ostream*);
-    			od_stream(std::ostream&);
-    			od_stream(std::istream*);
-    			od_stream(std::istream&);
-    			od_stream(const od_stream&);
+			od_stream();
+			od_stream(const char*,bool,bool editmode=false);
+			od_stream(const FilePath&,bool,bool editmode=false);
+			od_stream(std::ostream*);
+			od_stream(std::ostream&);
+			od_stream(std::istream*);
+			od_stream(std::istream&);
+			od_stream(const od_stream&);
     od_stream&		operator=(const od_stream&);
 
     StreamData&		sd_;

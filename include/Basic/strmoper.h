@@ -30,7 +30,8 @@ namespace StrmOper
 					    bool allowreadingnewlines=false);
     mGlobal(Basic) bool		readWord(std::istream&,bool maycrossnewline,
 					BufferString* b=0);
-    mGlobal(Basic) bool		readLine(std::istream&,BufferString* b=0);
+    mGlobal(Basic) bool		readLine(std::istream&,BufferString* b=0,
+					 bool* newline_found=0);
     mGlobal(Basic) bool		readFile(std::istream&,BufferString&);
 
     mGlobal(Basic) od_int64	tell(std::istream&);

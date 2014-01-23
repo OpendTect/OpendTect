@@ -12,17 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "genc.h"
 
+#include <iostream>
+#include <stdio.h>
+#include <limits.h>
+
 #include "bufstring.h"
 #include "thread.h"
 #ifdef __win__
 # include "winstreambuf.h"
-# include <stdio.h>
 # define pclose _pclose
 #endif
-
-#include <iostream>
-#include <stdio.h>
-#include <limits.h>
 
 static const unsigned int nrretries = 4;
 static const float retrydelay = 0.001;
@@ -125,7 +124,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
-    if ( strm.fail() || strm.eof() )
+    if ( strm.eof() )
 	return false;
 
     if ( strm.bad() )
@@ -134,8 +133,8 @@ bool StrmOper::peekChar( std::istream& strm, char& ch )
 	strm.clear();
     }
 
-    ch = (char)strm.peek();
-    return strm.good();
+    ch = strm.peek();
+    return ch != EOF;
 }
 
 
@@ -222,10 +221,10 @@ bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
 }
 
 
-bool StrmOper::readLine( std::istream& strm, BufferString* bs )
+bool StrmOper::readLine( std::istream& strm, BufferString* bs, bool* nlfound )
 {
-    if ( bs )
-	bs->setEmpty();
+    if ( bs ) bs->setEmpty();
+    if ( nlfound ) *nlfound = false;
 
     char ch;
     if ( !readChar(strm,ch,true) )
@@ -239,6 +238,9 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 	if ( !readChar(strm,ch,true) )
 	    break;
     }
+
+    if ( nlfound )
+	*nlfound = ch == '\n';
 
     if ( bs && bufidx )
 	{ partbuf[bufidx] = '\0'; *bs += partbuf; }

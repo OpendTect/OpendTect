@@ -30,61 +30,66 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "timer.h"
 
-#include <string.h> // declares strlen
-#include <stdio.h> // defines EOF
-#include <iostream> // std::cin
 
-#define mBufLen 81
+static const char* sStopAndQuit = "Stop process and Quit";
+static const char* sQuitOnly = "Close this window";
 
 
 class uiProgressViewer : public uiMainWin
 {
 public:
 
-		uiProgressViewer(uiParent*,std::istream&,int);
+		uiProgressViewer(uiParent*,od_istream&,int);
 		~uiProgressViewer();
+
+    void	setDelayInMs( int d )		{ delay_ = d; }
 
 protected:
 
+    uiTextEdit*	txtfld;
+    uiToolBar*	tb_;
+    int		quittbid_;
+
+    int		pid_;
+    int		delay_;
+
+    od_istream& strm_;
+    BufferString curline_;
+    Timer*	timer_;
+    od_stream::Pos nrcharsread_;
+
+    inline bool	haveProcess() const		{ return pid_ > 0; }
+    inline bool	processEnded() const		{ return pid_ == 0; }
+
+    void	doWork(CallBacker*);
     void	quitFn(CallBacker*);
     void	helpFn(CallBacker*);
     void	saveFn(CallBacker*);
 
-    uiToolBar*	tb_;
-
-    std::istream& strm_;
-    uiTextEdit*	txtfld;
-    int		quitid_;
-    Timer*	timer_;
-    int		pid_;
-    int		delay_;
-    bool	newlineseen_;
-    char	fullline_[mBufLen];
-
-    void	doWork(CallBacker*);
-    bool	getChunk(char*, int);
+    void	handleProcessStatus();
     void	appendToText();
+    void	addChar(char);
 };
 
 
 #define mAddButton(fnm,txt,fn) \
     tb_->addButton( fnm, txt, mCB(this,uiProgressViewer,fn), false );
 
-uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
+uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
 	: uiMainWin(p,"Progress",1)
 	, timer_(0)
 	, strm_(s)
-	, pid_(i)
-	, delay_(0)
-	, newlineseen_(false)
+	, pid_(pid)
+	, delay_(1)
+	, nrcharsread_(0)
 {
-    fullline_[0] = '\0';
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
     tb_ = new uiToolBar( this, "ToolBar" );
-    quitid_ = mAddButton( "stop", "Stop process and Quit", quitFn );
-    mAddButton( "saveflow", "Save log", saveFn );
+    quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit : sQuitOnly,
+			    quitFn );
+    mAddButton( "saveflow", "Save text to a file", saveFn );
     mAddButton( "contexthelp", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
@@ -96,15 +101,14 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
     mAllocVarLenArr( char, str, nrchars+1 );
     OD::memSet( str, ' ', nrchars );
-    str[nrchars] = 0;
+    str[nrchars] = '\0';
 
     int deswidth = fnt.width( str );
-
     const int desktopwidth = uiMain::theMain().desktopSize().hNrPics();
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
 
-    if ( deswidth>txtfld->defaultWidth() )
+    if ( deswidth > txtfld->defaultWidth() )
 	txtfld->setPrefWidth( deswidth );
 
     windowClosed.notify( mCB(this,uiProgressViewer,quitFn) );
@@ -123,87 +127,73 @@ uiProgressViewer::~uiProgressViewer()
 
 void uiProgressViewer::appendToText()
 {
-    txtfld->append( fullline_ );
+    if ( curline_.isEmpty() )
+	return;
+
+    txtfld->append( curline_ );
     uiMain::theMain().flushX();
-    fullline_[0] = '\0';
+    curline_.setEmpty();
+}
+
+
+
+void uiProgressViewer::handleProcessStatus()
+{
+    if ( haveProcess() && !isProcessAlive(pid_) )
+    {
+	statusBar()->message( "Processing finished" );
+	tb_->setToolTip( quittbid_, sQuitOnly );
+	pid_ = 0;
+    }
+}
+
+
+void uiProgressViewer::addChar( char c )
+{
+    if ( !c )
+	return;
+
+    if ( c == '\n' )
+	appendToText();
+    else
+    {
+	char buf[2]; buf[0] = c; buf[1] = '\0';
+	curline_.add( buf );
+    }
+
+    nrcharsread_++;
 }
 
 
 void uiProgressViewer::doWork( CallBacker* )
 {
-    if ( strm_.eof() || strm_.fail() )
+    if ( strm_.isOK() )
     {
-	appendToText();
-	statusBar()->message( fullline_ );
-	tb_->setToolTip( quitid_, "Close" );
-	pid_ = 0;
-	return;
-    }
-
-    int orglen = strlen( fullline_ );
-    static char buf[mBufLen];
-    if ( getChunk( buf, mBufLen - orglen ) )
-    {
-	int len = buf[1] ? strlen( buf ) : 1;
-
-	bool needappend = buf[len-1] == '\n';
-	if ( !needappend )
-	    needappend = len + orglen >= mBufLen - 1;
-	else
-	{
-	    newlineseen_ = true;
-	    buf[len--] = '\0';
-	}
-
-	// cat buf to fullline_
-	for ( int idx=0; idx<len; idx++ )
-	    fullline_[orglen+idx] = buf[idx];
-	fullline_[orglen+len] = '\0';
-
-	if ( needappend )
-	    appendToText();
-
-	statusBar()->message( fullline_ );
-
-    }
-
-    timer_->start( delay_, true );
-}
-
-
-bool uiProgressViewer::getChunk( char* buf, int maxnr )
-{
-    int sz = 0;
-    while ( 1 )
-    {
-	int c = strm_.peek();
-	if ( c == EOF )
-	{
-	    if ( !sz ) return false;
-	    break;
-	}
-
+	addChar( strm_.peek() );
 	strm_.ignore( 1 );
-	buf[sz] = (char)c;
-	sz++;
+    }
+    else
+    {
+	handleProcessStatus();
+	if ( !haveProcess() )
+	{
+	    appendToText();
+	    statusBar()->message( processEnded() ? "Processing ended" : "" );
+	    return;
+	}
 
-	if ( !delay_ || (delay_ && isspace(buf[sz-1]))
-	  || sz == maxnr || buf[sz-1] == '\n' )
-	    break;
-
+	strm_.reOpen();
+	strm_.ignore( nrcharsread_ );
     }
 
-    buf[sz] = '\0';
-    if ( !newlineseen_ && fullline_[0] == 'd' && fullline_[1] == 'G' )
-	delay_ = 1;
-
-    return true;
+    statusBar()->message( curline_ );
+    timer_->start( delay_, true );
 }
 
 
 void uiProgressViewer::quitFn( CallBacker* )
 {
-    if ( pid_ )
+    if ( haveProcess() )
 	SignalHandling::stopProcess( pid_ );
     uiMain::theMain().exit(0);
 }
@@ -233,18 +223,30 @@ void uiProgressViewer::saveFn( CallBacker* )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+
     CommandLineParser cl( argc, argv );
-    int pid = 0;
+    cl.setKeyHasValue( "pid" );
+    cl.setKeyHasValue( "logfile" );
+    cl.setKeyHasValue( "delay" );
+
+    int pid = -1;
     cl.getVal( "pid", pid );
-    if ( pid == 0 )
-	pid = argc > 1 ? toInt(argv[1]) : 0;
+
+    int delay = 1;
+    cl.getVal( "delay", delay );
+
     BufferString logfile;
     cl.getVal( "logfile", logfile );
-    od_istream istrm( logfile.isEmpty() ? std::cin : od_istream(logfile)  );
+    if ( logfile.isEmpty() )
+	logfile = od_stream::sStdIO();
+
     uiMain app( argc, argv );
-    uiProgressViewer* pv = new uiProgressViewer( 0, istrm.stdStream(), pid );
+
+    od_istream istrm( logfile );
+    uiProgressViewer* pv = new uiProgressViewer( 0, istrm, pid );
+    pv->setDelayInMs( delay );
+
     app.setTopLevel( pv );
     pv->show();
-   
     return ExitProgram( app.exec() );
 }
