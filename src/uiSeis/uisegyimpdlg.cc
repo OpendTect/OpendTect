@@ -302,8 +302,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {
-	uiMSG().warning( "Just implemented in new design."
-			 "\nIf nothing happens, try non-batch." );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.merge( pars_ );
 
