@@ -167,6 +167,8 @@ void uiProgressViewer::addChar( char c )
 
 void uiProgressViewer::doWork( CallBacker* )
 {
+    int restartdelay = delay_;
+
     if ( strm_.isOK() )
     {
 	addChar( strm_.peek() );
@@ -184,10 +186,12 @@ void uiProgressViewer::doWork( CallBacker* )
 
 	strm_.reOpen();
 	strm_.ignore( nrcharsread_ );
+	restartdelay = mMAX(delay_,200);
+			// Makes sure we're not re-opening *all* the time
     }
 
     statusBar()->message( curline_ );
-    timer_->start( delay_, true );
+    timer_->start( restartdelay, true );
 }
 
 
