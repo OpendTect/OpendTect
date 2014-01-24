@@ -427,9 +427,6 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     if ( !osgcamera )
 	return;
 
-    const double aspectratio = static_cast<double>(widget->width())/
-	static_cast<double>(widget->height());
-
     hudview_->getCamera()->setProjectionMatrix(
 	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
