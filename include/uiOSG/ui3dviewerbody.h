@@ -83,6 +83,7 @@ public:
     void			viewPlaneInl();
     void			viewPlaneCrl();
     void			viewPlaneN();
+    void			viewPlaneYZ();
 
     void			uiRotate(float angle,bool horizontal);
     void			uiZoom(float rel,const osg::Vec3f* dir=0);

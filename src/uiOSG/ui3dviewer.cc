@@ -146,6 +146,7 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     eventfilter_.attachToQObj( glw );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
+
     setStretch(2,2);
 
     setupHUD();
@@ -217,6 +218,7 @@ ui3DViewerBody::~ui3DViewerBody()
     }
     viewport_->unref();
     sceneroot_->unref();
+    detachAllNotifiers();
 }
 
 #define mMainCameraOrder    0
@@ -428,8 +430,6 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     const double aspectratio = static_cast<double>(widget->width())/
 	static_cast<double>(widget->height());
 
-    osgcamera->setProjectionMatrixAsPerspective( 45.0f, aspectratio,
-						  1.0f, 10000.0f );
     hudview_->getCamera()->setProjectionMatrix(
 	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
@@ -468,6 +468,7 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
         	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
         manip->changeDistance( deltaangle/M_PI );
+
     }
 }
 
@@ -640,30 +641,15 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
 
 
 void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
-				  const osg::Vec3f& focusdir,
+				  const osg::Vec3f& viewdir,
 				  bool usetruedir )
 {
-    /*
-    osg::Camera* cam = getOsgCamera();
-    if ( !cam ) return;
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
 
-    osg::Vec3f dir;
-    cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), dir );
-
-#define mEps 1e-6
-    const float angletofocus = Math::ACos( dir.dot(focusdir) );
-    if ( mIsZero(angletofocus,mEps) ) return;
-
-    const float diffangle = fabs(angletofocus) - M_PI_2;
-    const int sign =
-	usetruedir || mIsZero(diffangle,mEps) || diffangle < 0 ? 1 : -1;
-    osg::Vec3f focalpoint = cam->position.getValue() +
-			 cam->focalDistance.getValue() * sign * focusdir;
-    cam->pointAt( focalpoint, updir );
-
-    cam->position = focalpoint + cam->focalDistance.getValue() * sign *focusdir;
-    viewAll();
-    */
+    manip->viewAll( view_, viewdir, updir,true );
+    requestRedraw();
 }
 
 
@@ -681,8 +667,9 @@ void ui3DViewerBody::viewAll( bool animate )
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
         static_cast<osgGeo::TrackballManipulator*>(
                                         view_->getCameraManipulator() );
-
+    
     manip->viewAll( view_, animate );
+
     requestRedraw();
 }
 
@@ -733,19 +720,15 @@ Color ui3DViewerBody::getBackgroundColor() const
 
 void ui3DViewerBody::viewPlaneN()
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), true );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,-1,0), true );
 }
 
 
-void ui3DViewerBody::viewPlaneZ()
+void ui3DViewerBody::viewPlaneYZ()
 {
-    osg::Camera* cam = getOsgCamera();
-    if ( !cam ) return;
-
-    osg::Vec3f curdir;
-    //cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), curdir );
-    //setCameraPos( curdir, osg::Vec3f(0,0,-1), true );
+    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true );
 }
+
 
 
 static void getInlCrlVec( osg::Vec3f& vec, bool inl )
@@ -754,11 +737,31 @@ static void getInlCrlVec( osg::Vec3f& vec, bool inl )
     const Pos::IdxPair2Coord::DirTransform& xtr = b2c.getTransform(true);
     const Pos::IdxPair2Coord::DirTransform& ytr = b2c.getTransform(false);
     const float det = xtr.det( ytr );
+
     if ( inl )
-	vec = osg::Vec3f( ytr.c/det, -xtr.c/det, 0 );
+	vec = osg::Vec3f( -ytr.c/det, xtr.c/det, 0 );
     else
-	vec = osg::Vec3f( -ytr.b/det, xtr.b/det, 0 );
+	vec = osg::Vec3f( ytr.b/det, -xtr.b/det, 0 );
     vec.normalize();
+
+}
+
+
+void ui3DViewerBody::viewPlaneZ()
+{
+    const osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+
+    if ( !manip ) return;
+    osg::Vec3d eye,center,up;
+    manip->getTransformation( eye,center,up );
+    
+    osg::Vec3 updir = center- eye;
+    updir.normalize();
+    
+   setCameraPos( updir, osg::Vec3d(0,0,1) , true );
+
 }
 
 
@@ -792,7 +795,15 @@ bool ui3DViewerBody::isCameraOrthographic() const
 
 void ui3DViewerBody::toggleCameraType()
 {
-    //TODO
+    osgGeo::TrackballManipulator* manip = 
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+    
+    if ( !manip ) return;
+    
+    manip->setProjectionAsPerspective(  !manip->isCameraPerspective() );
+
+    requestRedraw();
 }
 
 
@@ -921,6 +932,7 @@ void ui3DViewerBody::fillCameraPos( IOPar& par ) const
     par.set( sKeyCameraRotation(), quat.x(), quat.y(), quat.z(), quat.w() );
     par.set( sKeyManipCenter(), Conv::to<Coord3>( center ) );
     par.set( sKeyManipDistance(), distance );
+
 }
 
 
@@ -949,6 +961,9 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
     manip->setCenter( Conv::to<osg::Vec3d>( center ) );
     manip->setRotation( osg::Quat( x, y, z, w ) );
     manip->setDistance( distance );
+
+    requestRedraw();
+
     setinitialcamerapos_ =  false;
 
     return true;
@@ -1096,10 +1111,8 @@ void ui3DViewer::viewPlane( PlaneType type )
 	    case Z: osgbody_->viewPlaneZ(); break;
 	    case Inl: osgbody_->viewPlaneInl(); break;
 	    case Crl: osgbody_->viewPlaneCrl(); break;
-	    case YZ: osgbody_->viewPlaneN(); osgbody_->viewPlaneZ(); break;
+	    case YZ:osgbody_->viewPlaneYZ(); break;
     }
-
-    viewAll();
 }
 
 
