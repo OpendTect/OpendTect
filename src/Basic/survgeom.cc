@@ -87,6 +87,7 @@ bool Geometry::exists( const TrcKey& tk )
 
 GeometryManager::GeometryManager()
 {
+    hasduplnms_ = hasDuplicateLineNames();
 }
 
 
@@ -165,6 +166,19 @@ Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 }
 
 
+Geometry::ID GeometryManager::getGeomID( const char* lnnm, 
+                                         const char* lsnm ) const
+{
+    if ( !hasduplnms_ )
+        return getGeomID( lnnm );
+        
+    BufferString newlnm = lsnm;
+    newlnm.add( "-" );
+    newlnm.add( lnnm );
+    return getGeomID( newlnm.buf() );
+}
+
+
 const char* GeometryManager::getName( Geometry::ID geomid ) const
 {
     mGetConstGeom(geom,geomid);
@@ -191,7 +205,6 @@ bool GeometryManager::fetchFrom2DGeom()
 {
     PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
 				       .create(sKey::TwoD());
-    const bool makenewlinenames = hasDuplicateLineNames();
     BufferStringSet lsnames;
     S2DPOS().getLineSets( lsnames );
     for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
@@ -209,7 +222,7 @@ bool GeometryManager::fetchFrom2DGeom()
 		continue;
 	    }
 
-	    if ( makenewlinenames )
+	    if ( hasduplnms_ )
 	    {
 		BufferString newlnm = lsnames.get( lsidx );
 		newlnm.add( "-" );

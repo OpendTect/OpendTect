@@ -86,6 +86,10 @@ public:
 
     Geometry::ID		getGeomID(const TrcKey&) const;
     Geometry::ID		getGeomID(const char* survname) const;
+    Geometry::ID		getGeomID(const char* lnm,
+                                          const char* lsnm) const;
+                                /*! Use only if you are converting 
+                                    od4 geometries to od5 geometries */
     const char*			getName(Geometry::ID) const;
     
     Coord			toCoord(const TrcKey&) const;
@@ -110,12 +114,14 @@ protected:
 
     void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
-    bool			hasDuplicateLineNames();
 
     int				indexOf(Geometry::ID) const;
+    bool			hasDuplicateLineNames();
 
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
+
+    bool                        hasduplnms_;
 
 };
 
