@@ -484,9 +484,8 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
-    const int sizx = info.getSize(0);
-    const int sizy = info.getSize(1);
-    if ( !ix.inundef_ && !iy.inundef_ && ix.nearest_<sizx && iy.nearest_<sizy )
+
+    if ( info.validPos(ix.nearest_,iy.nearest_) )
     {
 	const float val = arr.get( ix.nearest_, iy.nearest_ );
 	iop.set( iswva ? "WVA Value" : "VD Value", val );
