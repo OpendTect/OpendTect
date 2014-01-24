@@ -479,9 +479,9 @@ void PSAttrib::prepPriorToBoundsCalc()
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
     if ( !anglecomp_ && propcalc_ )
     {
-	int gathertype;
+	int gathertype = 0;
 	mGetEnum( gathertype, gathertypeStr() );
-	int xaxisunit;
+	int xaxisunit = 0;
 	mGetEnum( xaxisunit, xaxisunitStr() );
 	propcalc_->setScaler( getXscaler( gathertype == PSAttrib::Off,
 					  xaxisunit == PSAttrib::Deg ) );
