@@ -507,7 +507,8 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 		crd.y += vals[1];
 	    }
 
-	    strm << '\t' << toString(crd.x) << '\t' << toString(crd.y);
+	    strm << '\t' << toString(crd.x);
+	    strm << '\t' << toString(crd.y);
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )
