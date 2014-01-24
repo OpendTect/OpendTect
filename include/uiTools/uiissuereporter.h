@@ -18,13 +18,9 @@ ________________________________________________________________________
 #include "issuereporter.h"
 
 class uiTextEdit;
-class uiPushButton;
+class uiGenInput;
 
-/*! \brief 
- 
-
-*/
-
+/*! \brief reports issues to opendtect.org. Usually crash reports. */
 
 mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
 { 	
@@ -44,10 +40,11 @@ protected:
     void			getReport(BufferString&) const;
     
     uiTextEdit*			commentfld_;
-    uiPushButton*		viewreportbut_;
+    uiGenInput*			emailfld_;
     
     System::IssueReporter	reporter_;
     BufferString		filename_;
+
 };
 
 

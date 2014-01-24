@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uitextedit.h"
 #include "uibutton.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "safefileio.h"
 
@@ -22,28 +23,38 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup( "Error reporter", 0, mNoHelpID ) )
+    : uiDialog( p, uiDialog::Setup("Problem reporter",mNoDlgTitle,mNoHelpID) )
 {
-    uiLabel* label = new uiLabel( this,
-     "OpendTect has stopped working, and an error report has been created.\n"
-     "Do you want to send it to dGB Earth Sciences for analysis?\n\n"
-     "It is also appreciated if you give some details on what you were\n"
-     "working on when this happened.\n"
-     "You can also give your e-mail if we are allowed to contact you for\n"
-     "further questions" );
-    
-    commentfld_ = new uiTextEdit( this );
-    commentfld_->attach( alignedBelow, label );
-    
-    uiLabel* commentlabel mUnusedVar = new uiLabel( this, "Details (voluntary)",
-						    commentfld_);
-    
-    viewreportbut_ = new uiPushButton( this, "View report",
+    uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
+    lblgrp->setFrame( true );
+    uiLabel* plealbl = new uiLabel( lblgrp,
+		"OpendTect has stopped working.\n\n"
+		"An error report has been created,\n"
+		"which we would like to use for analysis.\n\n"
+		"You would be helping us immensely by giving us\n"
+		"as much detail as you wish on what you were doing\n"
+		"when this problem occurred.\n\n"
+		"For feedback and/or updates on this issue,\n"
+		"do please also leave your e-mail address\n" );
+    plealbl->setAlignment( Alignment::HCenter );
+    uiButton* vrbut = new uiPushButton( this, "View report",
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
-    viewreportbut_->attach( alignedBelow, commentfld_ );
-    
-    setCancelText( "Do not send" );
-    setOkText( "Send" );
+    vrbut->attach( centeredRightOf, lblgrp );
+
+    uiGroup* usrinpgrp = new uiGroup( this, "User input group" );
+    commentfld_ = new uiTextEdit( usrinpgrp );
+    commentfld_->setPrefWidthInChar( 60 );
+    commentfld_->setPrefHeightInChar( 8 );
+    new uiLabel( usrinpgrp, "[Details you wish to share]", commentfld_ );
+    emailfld_ = new uiGenInput( usrinpgrp, "[E-mail address]" );
+    emailfld_->attach( alignedBelow, commentfld_ );
+    emailfld_->setStretch( 2, 1 );
+
+    usrinpgrp->setHAlignObj( emailfld_ );
+    usrinpgrp->attach( alignedBelow, lblgrp );
+
+    setCancelText( "Do &Not Send" );
+    setOkText( "&Send Report" );
 }
 	       
 
@@ -63,8 +74,7 @@ void uiIssueReporterDlg::viewReportCB( CallBacker* )
 
 void uiIssueReporterDlg::getReport( BufferString& res ) const
 {
-    res.setEmpty();
-    
+    res.set( "From: " ).add( emailfld_->text() );
     res.add( "\n\nDetails:\n\n" ).add( commentfld_->text() );
     res.add( "\n\nReport:\n\n" ).add( reporter_.getReport() );
 }
@@ -72,43 +82,32 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
-    BufferString report;
-    getReport( report );
-    
+    BufferString report; getReport( report );
     reporter_.getReport() = report;
-    
-    if ( !reporter_.send() )
+
+    if ( reporter_.send() )
+	uiMSG().message( "The report was successfully sent."
+		"\n\nThank you for your contribution to OpendTect!" );
+    else
     {
 	SafeFileIO outfile( filename_, false );
 	if ( outfile.open( false ) )
 	{
-	    bool success = true;
 	    std::ostream& outstream = outfile.ostrm();
-	    if ( outstream )
-	    {
-		outstream << report.buf();
-		success = outstream;
-	    }
-	    else
-		success = false;
-	    
-	    if ( success )
+	    outstream << report;
+	    if ( outstream.good() )
 		outfile.closeSuccess();
 	    else
 		outfile.closeFail();
 	}
 		
-	BufferString msg =
-	    "The report could not be sent automatically.\n"
-	    "You can still send it manually by sending an e-mail \n"
-	    "with the file ";
-	msg.add( filename_ ).add( " to support@opendtect.org." );
+	const BufferString msg(
+		"The report could not be sent automatically.\n"
+		"You can still send it manually by e-mail.\n"
+		"Please send the file:\n\n", filename_ ,
+		"\n\nto support@opendtect.org." );
 	uiMSG().error( msg );
-	return true;
     }
-    
-    uiMSG().message( "The report was successfully sent.\nThe development crew"
-		    " want to thank you for your help!" );		    
-    
+
     return true;
 }
