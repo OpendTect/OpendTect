@@ -129,12 +129,14 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
     if ( !posns_.validIdx(posidx) )
 	return -1;
 
-    if ( nrrg.includes(posns_[posidx].nr_,false) )
+    if ( nrrg.includes(posns_[posidx].nr_,true) )
 	return posidx;
 
-    double sqd0 = pos.sqDistTo(posns_[nrrg.start].coord_);
-    double sqd1 = pos.sqDistTo(posns_[nrrg.stop].coord_);
-    return sqd0 < sqd1 ? nrrg.start : nrrg.stop;
+    const int posstartidx = posns_.indexOf( nrrg.start );
+    const int posstopidx = posns_.indexOf( nrrg.stop );
+    double sqd0 = pos.sqDistTo(posns_[posstartidx].coord_);
+    double sqd1 = pos.sqDistTo(posns_[posstopidx].coord_);
+    return sqd0 < sqd1 ? posstartidx : posstopidx;
 }
 
 

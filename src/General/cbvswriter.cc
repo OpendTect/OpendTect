@@ -428,6 +428,8 @@ void CBVSWriter::getRealGeometry()
     survgeom_.start.inl = rg.start; survgeom_.stop.inl = rg.stop;
     cd.getCrlRange( rg ); survgeom_.step.crl = rg.step;
     survgeom_.start.crl = rg.start; survgeom_.stop.crl = rg.stop;
+    if ( cd.isCrlReversed() )
+	survgeom_.step.crl *= -1;
 
     if ( !cd.haveCrlStepInfo() )
 	survgeom_.step.crl = SI().crlStep();

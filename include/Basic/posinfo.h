@@ -125,6 +125,7 @@ public:
     bool		haveInlStepInfo() const		{ return size() > 1; }
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
+    bool		isCrlReversed() const;
 
     void		limitTo(const HorSampling&);
     void		merge(const CubeData&,bool incl);

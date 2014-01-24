@@ -574,6 +574,37 @@ PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
 }
 
 
+bool PosInfo::CubeData::isCrlReversed() const
+{
+    const int sz = size();
+    if ( sz < 1 )
+	return false;
+    for ( int ilnr=0; ilnr<sz; ilnr++ )
+    {
+	const PosInfo::LineData& ld = *(*this)[ilnr];
+	if ( ld.segments_.size() >= 2 )
+	{
+	    if ( ld.segments_[0].start==ld.segments_[1].start )
+	    {
+		BufferString msg( "Two segemnts in line nr " );
+		msg += ld.linenr_; msg += " have same start"; 
+		pErrMsg( msg );
+		continue;
+	    }
+	    return ld.segments_[0].start > ld.segments_[1].start;
+	}
+	else
+	{
+	    if ( ld.segments_[0].start==ld.segments_[0].stop )
+		continue;
+	    return ld.segments_[0].start > ld.segments_[0].stop;
+	}
+    }
+
+    return false;
+}
+
+
 bool PosInfo::CubeData::haveCrlStepInfo() const
 {
     const int sz = size();
