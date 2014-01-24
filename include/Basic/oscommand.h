@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 
-
 namespace OS
 {
 
@@ -115,16 +114,16 @@ public:
 protected:
 
     void		reset();
-    bool		doExecute(const char* comm,bool wait4finish);
+    bool		doExecute(const char* comm,bool wait4finish,
+							bool incosole = false);
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
+    bool		needsmonitor_;
     int			processid_;
     BufferString	progvwrcmd_;
     BufferString	errmsg_;
-
     const BufferString	odprogressviewer_;
-
 };
 
 

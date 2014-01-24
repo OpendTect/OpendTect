@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "fixedstring.h"
-#include <QProcess>
 
 #ifdef __win__
 # include "winutils.h"
@@ -286,6 +285,7 @@ void OS::CommandLauncher::reset()
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
+    needsmonitor_ = false;
 }
 
 
@@ -314,11 +314,13 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	const BufferString scrcmd( fp.fullPath(), "od_exec_consoleui.",
 				   __iswin__ ? "bat " : "scr " );
 	localcmd.insertAt( 0, scrcmd );
+	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
     }
 
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
+	needsmonitor_ = pars.needmonitor_;
 	if ( monitorfnm_.isEmpty() )
 	{
 	    monitorfnm_ = FilePath::getTempName("txt");
@@ -335,6 +337,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	progvwrcmd_.set( odprogressviewer_ )
 	    .add( " --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
+	
+	needsmonitor_ = false;
 	if ( !doExecute(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
@@ -344,21 +348,13 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
-bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
+bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
+								bool inconsole )
 {
     if ( *comm == '@' )
 	comm++;
     if ( !*comm )
 	{ errmsg_.set( "Command is empty" ); return false; }
-
-#ifdef __USE_QPROCESS__
-    QProcess qprocess;
-    qprocess.startDetached( QString(comm) );
-    if ( !qprocess.waitForFinished() )
-        return false;
-
-    return true;
-#else
 
 # ifndef __win__
 
@@ -377,10 +373,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
 
-    unsigned int FLAG = 0;
-
-    const bool inwindow = false; // TODO inwindow - what does it do? remove?
-    if ( !inwindow )
+    if ( needsmonitor_ )
     {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(sa);
@@ -397,18 +390,19 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
 
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-	si.wShowWindow = SW_HIDE;
 	si.hStdError = hlog;
 	si.hStdOutput = hlog;
-	FLAG = CREATE_NO_WINDOW;
     }
+
+    const bool HINH = !monitorfnm_.isEmpty();
+    DWORD FLAG = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
 
     //Start the child process.
     int res = CreateProcess( NULL,	// No module name (use command line).
 			     const_cast<char*>( comm ),
 			     NULL,	// Process handle not inheritable.
 			     NULL,	// Thread handle not inheritable.
-			     !inwindow,	// Set handle inheritance to FALSE.
+			     HINH,	// Set handle inheritance.
 			     FLAG,	// Creation flags.
 			     NULL,	// Use parent's environment block.
 			     NULL,	// Use parent's starting directory.
@@ -435,9 +429,6 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish )
     return res;
 
 # endif
-
-#endif
-
 }
 
 

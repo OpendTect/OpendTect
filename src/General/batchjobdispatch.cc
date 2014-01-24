@@ -126,11 +126,14 @@ bool Batch::SingleJobDispatcher::launch()
 	return false;
 
     BufferString cmd( jobspec_.prognm_, " ", jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\'' );
+    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
     cmd.add( qtdparfnm );
     OS::MachineCommand mc( cmd, remotehost_ );
     if ( !remoteexec_.isEmpty() )
 	mc.setRemExec( remoteexec_ );
     OS::CommandLauncher cl( mc );
+    BufferString logfile;
+    jobspec_.pars_.get( sKey::LogFile(), logfile );
+    jobspec_.execpars_.monitorfnm( logfile );
     return cl.execute( jobspec_.execpars_ );
 }
