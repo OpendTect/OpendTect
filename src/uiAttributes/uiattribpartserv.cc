@@ -1370,8 +1370,13 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     BufferString bfs;
     if ( attribid.asInt() != SelSpec::cAttribNotSel().asInt() )
     {
-	DSHolder().getDescSet(is2d,isstored)->getDesc(attribid)->getDefStr(bfs);
-	as.setDefString(bfs.buf());
+	const Attrib::DescSet* attrset = DSHolder().getDescSet(is2d, isstored);
+	const Attrib::Desc* desc = attrset ? attrset->getDesc( attribid ) : 0;
+	if ( desc  )
+	{
+	    desc->getDefStr( bfs );
+	    as.setDefString( bfs.buf() );
+	}
     }
 
     if ( isnla )
