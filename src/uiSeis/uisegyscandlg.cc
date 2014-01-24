@@ -22,10 +22,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseislinesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uibatchlaunch.h"
 #include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
+#include "uibatchjobdispatchersel.h"
 
 #include "segyfiledef.h"
 #include "segyfiledata.h"
@@ -43,7 +43,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , indexer_(0)
     , forsurvsetup_(ss)
     , outfld_(0)
-    , parfilefld_(0)
     , lnmfld_(0)
 {
     uiObject* attobj = 0;
@@ -73,9 +72,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	else
 	    attobj = outfld_->attachObj();
 
-	outfld_->selectionDone.notify(
-				    mCB(this,uiSEGYScanDlg,outputNameChangeCB));
-
 	if ( Seis::is2D(setup_.geom_) )
 	{
 	    outfld_->setConfirmOverwrite( false );
@@ -83,10 +79,14 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	    lnmfld_->attach( alignedBelow, outfld_ );
 	}
 
-	parfilefld_ = new uiGenInput( this, "Parameter file",
-		StringInpSpec( GetProcFileName("scan_segy.par" ) ) );
-	parfilefld_->attach( alignedBelow,
-		lnmfld_ ? (uiObject*) lnmfld_ : (uiObject*) outfld_ );
+	batchfld_ = new uiBatchJobDispatcherSel( this, false,
+						 Batch::JobSpec::SEGY );
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_.set( SEGY::IO::sKeyTask(), Seis::isPS(setup_.geom_)
+		? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol() );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	batchfld_->attach( alignedBelow,
+		lnmfld_ ? lnmfld_->attachObj() : outfld_->attachObj() );
     }
 
     if ( attobj )
@@ -96,8 +96,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
     }
-
-    outputNameChangeCB( 0 );
 }
 
 
@@ -105,24 +103,6 @@ uiSEGYScanDlg::~uiSEGYScanDlg()
 {
     delete scanner_;
     delete indexer_;
-}
-
-
-void uiSEGYScanDlg::outputNameChangeCB( CallBacker* )
-{
-    if ( !outfld_ )
-	return;
-
-    BufferString parfilename = "scan_segy";
-    if ( outfld_->ioobj(true) )
-    {
-	parfilename += "_";
-	parfilename += outfld_->ioobj(true)->name();
-	parfilename.clean();
-    }
-
-    parfilename += ".par";
-    parfilefld_->setText( GetProcFileName( parfilename ) );
 }
 
 
@@ -139,7 +119,6 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
-    const bool isps = Seis::isPS( setup_.geom_ );
     BufferString pathnm, lnm;
 
     if ( outfld_ )
@@ -189,25 +168,19 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 
     if ( outfld_ )
     {
-	pars_.set( SEGY::IO::sKeyTask(), isps ? SEGY::IO::sKeyIndexPS()
-					      : SEGY::IO::sKeyIndex3DVol() );
-	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
-	pars_.set( sKey::Output(), outfld_->key(true) );
-	pars_.set( sKey::LineName(), lnm );
-	uiBatchLaunch launcher( this, pars_, 0, SEGY::IO::sProgname(), false );
-	launcher.setParFileName( parfilefld_->text() );
-
-	return launcher.go();
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_.merge( pars_ );
+	js.pars_.set( sKey::Output(), outfld_->key(true) );
+	js.pars_.set( sKey::LineName(), lnm );
+	return batchfld_->start();
     }
-    else
-    {
-	exec = scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
 
-	if ( setup_.rev_ == uiSEGYRead::Rev0 )
-	    scanner_->setForceRev0( true );
-	if ( forsurvsetup_ )
-	    scanner_->setRichInfo( true );
-    }
+    exec = scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
+
+    if ( setup_.rev_ == uiSEGYRead::Rev0 )
+	scanner_->setForceRev0( true );
+    if ( forsurvsetup_ )
+	scanner_->setRichInfo( true );
 
     uiTaskRunner tr( parent_ );
     bool rv = TaskRunner::execute( &tr, *exec );

@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace SEGY { class Scanner; class FileIndexer; }
 class uiSeisSel;
 class uiSeis2DLineSel;
+class uiBatchJobDispatcherSel;
 
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
@@ -35,14 +36,12 @@ public :
 
 protected:
 
-    void		outputNameChangeCB(CallBacker*);
-
     SEGY::FileIndexer*	indexer_;
     SEGY::Scanner*	scanner_;
     bool		forsurvsetup_;
 
     uiSeisSel*		outfld_;
-    uiGenInput*		parfilefld_;
+    uiBatchJobDispatcherSel* batchfld_;
     uiSeis2DLineSel*	lnmfld_;
 
     virtual bool	doWork(const IOObj&);

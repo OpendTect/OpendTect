@@ -74,7 +74,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 	optattachobj = selfld_->attachObj();
     }
 
-    optsbut_ = new uiPushButton( this, "&Options",
+    optsbut_ = new uiPushButton( this, optionsbuttxt,
 		    mCB(this,uiBatchJobDispatcherSel,optsPush), false );
     if ( optattachobj )
 	optsbut_->attach( rightOf, optattachobj );
