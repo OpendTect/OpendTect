@@ -21,12 +21,18 @@ mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
 
 Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
     : execpars_(true)
+    , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
+}
+
+
+const char* Batch::JobSpec::progNameFor( ProcType pt )
+{
     switch ( pt )
     {
 #define mHandlePTCase(typ,pnm) \
-	case typ: prognm_ = "od_process_" #pnm ; break
+	case typ: return "od_process_" # pnm
 	mHandlePTCase(Attrib,attrib);
 	mHandlePTCase(AttribEM,attrib_em);
 	mHandlePTCase(Grid2D,2dgrid);
@@ -35,7 +41,7 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
 	mHandlePTCase(T2D,time2depth);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
-	default: break;
+	default: pFreeFnErrMsg("progNameFor","Switch case not added"); return 0;
     }
 }
 

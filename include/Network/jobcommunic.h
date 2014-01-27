@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "networkmod.h"
 #include "bufstring.h"
 #include "genc.h"
-#include "thread.h"
 #include "callback.h"
 
 class Socket;
@@ -36,7 +35,7 @@ class TcpSocket;
     { \
 	bool ret = fn; \
 	if ( ret ) return true; \
-	Threads::sleep(1); \
+	sleepSeconds(1); \
     } \
     stillok_ = false; \
     directMsg("Lost connection with master[2]. Exiting."); \
@@ -46,8 +45,8 @@ class TcpSocket;
 
 /*! \brief Multi-machine socket communicator
  *  Handles the communication between a client and the master, from
- *  the client's point of view. 
- */ 
+ *  the client's point of view.
+ */
 mExpClass(Network) JobCommunic : public CallBacker
 {
 public:
@@ -62,7 +61,7 @@ public:
 
     State		state()	const	{ return stat_; }
     void		setState( State s ) { stat_ = s; }
-			
+
     bool		updateState()
 			    {
 				bool ret = sendState_(stat_,false,false);
@@ -70,7 +69,7 @@ public:
 			    }
     bool		updateProgress( int p )
 			    { bool ret = sendProgress_(p,false); mReturn(ret) }
-			    
+
     bool		sendState(  bool isexit=false )
 			    { mTryMaxtries( sendState_(stat_,isexit,true) ) }
     bool		sendProgress( int p )
@@ -82,7 +81,7 @@ public:
     bool		sendPID( int pid )
 			    { mTryMaxtries( sendPID_(pid) ) }
 
-    bool                pauseRequested() const 
+    bool                pauseRequested() const
 			    { return pausereq_; }
     void		disConnect();
 
@@ -93,11 +92,11 @@ protected:
     bool		stillok_;
     State		stat_;
     BufferString	errmsg_;
-    int 		jobid_;
+    int		jobid_;
     bool		pausereq_;
     StreamData&		sdout_;
 
-    TcpSocket*		socket_; 
+    TcpSocket*		socket_;
 
     bool		sendState_( State, bool isexit, bool immediate );
     bool		sendProgress_( int, bool immediate );
@@ -105,7 +104,7 @@ protected:
     bool		sendErrMsg_( const char* msg );
 
     void		alarmHndl( CallBacker* ); //!< time-out
-private:    
+private:
 
     bool		updateMsg( char tag, int, const char* msg=0 );
     bool		sendMsg( char tag, int, const char* msg=0 );
@@ -123,10 +122,10 @@ private:
 
     int			timestamp_;
     int			nrattempts_;
-    int 		maxtries_;
-    int 		socktimeout_;
+    int		maxtries_;
+    int		socktimeout_;
     int			failtimeout_;
-    int 		min_time_between_update_;
+    int		min_time_between_update_;
     int			lastsucces_;
 };
 

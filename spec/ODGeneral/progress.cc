@@ -2,7 +2,6 @@ static const char* rcsID = "$Id$";
 
 #include <iostream>
 #include "progressmeter.h"
-#include "thread.h"
 #include "prog.h"
 
 
@@ -37,7 +36,7 @@ int main( int argc, char** argv )
 	else		++progressmeter;
 
 	if ( delayms )
-	    Threads::sleep( delayms*0.001 );
+	    sleepSeconds( delayms*0.001 );
     }
 
     return ExitProgram( 0 );

@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistype.h"
 #include "survinfo.h"
-#include "thread.h"
 #include "moddepmgr.h"
 
 #include <iostream>
@@ -56,7 +55,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
-    Threads::sleep( startup_wait );
+    sleepSeconds( startup_wait );
 
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
@@ -253,7 +252,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    paused = true;
 	    mSetCommState(Paused);
-	    Threads::sleep( pause_sleep_time );
+	    sleepSeconds( pause_sleep_time );
 	    continue;
 	}
 

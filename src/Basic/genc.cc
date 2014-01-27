@@ -484,3 +484,10 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     return res;
 }
+
+
+mExternC(Basic) void sleepSeconds( double secs )
+{
+    if ( secs > 0 )
+	Threads::sleep( secs );
+}

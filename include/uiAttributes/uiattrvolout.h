@@ -13,14 +13,15 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 #include "multiid.h"
-
-namespace Attrib { class CurrentSel; class DescID; class DescSet; };
+#include "bufstringset.h"
 
 class CtxtIOObj;
 class IOObj;
 class NLAModel;
+namespace Attrib	{ class CurrentSel; class DescID; class DescSet; };
+namespace Batch		{ class JobSpec; }
 
 class uiAttrSel;
 class uiGenInput;
@@ -28,11 +29,12 @@ class uiIOObjSel;
 class uiMultiAttribSel;
 class uiSeisSel;
 class uiSeisTransfer;
+class uiBatchJobDispatcherSel;
 
 
 /*! \brief Dialog for creating volume output */
 
-mExpClass(uiAttributes) uiAttrVolOut : public uiFullBatchDialog
+mExpClass(uiAttributes) uiAttrVolOut : public uiDialog
 {
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
@@ -51,7 +53,7 @@ protected:
     CtxtIOObj&		ctio_;
     Attrib::CurrentSel&	sel_;
     IOPar&		subselpar_;
-    Attrib::DescSet& 	ads_;
+    Attrib::DescSet&	ads_;
     MultiID		nlaid_;
     const NLAModel*	nlamodel_;
 
@@ -61,15 +63,18 @@ protected:
     uiSeisSel*		objfld_;
     uiIOObjSel*		datastorefld_;
     uiGenInput*		offsetfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
 
-    bool		prepareProcessing();
-    bool		fillPar(IOPar&);
 
+    Batch::JobSpec&	jobSpec();
+    bool		prepareProcessing();
+    bool		fillPar();
+    Attrib::DescSet*	getFromToDoFld(TypeSet<Attrib::DescID>&,int&);
+    bool		acceptOK(CallBacker*);
     void		attrSel(CallBacker*);
-    void		singLineSel(CallBacker*);
     void		psSelCB(CallBacker*);
     void		addNLA(Attrib::DescID&);
 

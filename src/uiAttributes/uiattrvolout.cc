@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
+#include "uibatchjobdispatchersel.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -48,28 +49,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "survinfo.h"
 
-using namespace Attrib;
-
 const char* uiAttrVolOut::sKeyMaxCrlRg()  { return "Maximum Crossline Range"; }
 const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 
-uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
+uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiFullBatchDialog(p,Setup("Process"))
-    , ctio_(mkCtxtIOObj(ad))
+    : uiDialog(p,Setup("Create Seismic Output","","101.2.0"))
+    , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
-    , sel_(*new CurrentSel)
-    , ads_(*new DescSet(ad))
+    , sel_(*new Attrib::CurrentSel)
+    , ads_(*new Attrib::DescSet(ad))
     , nlamodel_(n)
     , nlaid_(id)
     , todofld_(0)
     , attrselfld_(0)
     , datastorefld_(0)
 {
-    setHelpID( "101.2.0" );
-
     const bool is2d = ad.is2D();
     setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute" );
 
@@ -78,54 +75,51 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
+	todofld_ = new uiAttrSel( this, "Quantity to output", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
-	attrselfld_ = new uiMultiAttribSel( uppgrp_, attrdata.attrSet() );
+	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
 
-    transffld_ = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
+    transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
 		.fornewentry(!is2d).withstep(false).multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
 	transffld_->attach( centeredBelow, attrselfld_ );
 
-    if ( transffld_->selFld2D() )
-	transffld_->selFld2D()->singLineSel.notify(
-				mCB(this,uiAttrVolOut,singLineSel) );
-
     ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
 
-    objfld_ = new uiSeisSel( uppgrp_, ctio_, su );
+    objfld_ = new uiSeisSel( this, ctio_, su );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
 
+    uiGroup* botgrp = objfld_;
     if ( multioutput && !is2d )
     {
-	uiCheckBox* cb = new uiCheckBox( uppgrp_, "Create Prestack DataStore" );
+	uiCheckBox* cb = new uiCheckBox( this, "Create Prestack DataStore" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
 	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
-	datastorefld_ = new uiIOObjSel( uppgrp_, ctxt, "Output data store" );
+	datastorefld_ = new uiIOObjSel( this, ctxt, "Output data store" );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 10, 10 );
-	offsetfld_ = new uiGenInput( uppgrp_, "Offset (start/step)",
+	offsetfld_ = new uiGenInput( this, "Offset (start/step)",
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
 	psSelCB( cb );
+	botgrp = offsetfld_;
     }
 
-    uppgrp_->setHAlignObj( transffld_ );
-
-    addStdFields( false, false, !is2d );
-    if ( is2d && singmachfld_ ) singmachfld_->setSensitive( false );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::Attrib );
+    batchfld_->attach( alignedBelow, botgrp );
 }
 
 
@@ -139,9 +133,9 @@ uiAttrVolOut::~uiAttrVolOut()
 }
 
 
-CtxtIOObj& uiAttrVolOut::mkCtxtIOObj( const Attrib::DescSet& ad )
+Batch::JobSpec& uiAttrVolOut::jobSpec()
 {
-    return *uiSeisSel::mkCtxtIOObj( Seis::geomTypeOf(ad.is2D(),false), false );
+    return batchfld_->jobSpec();
 }
 
 
@@ -152,14 +146,6 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 
     datastorefld_->setSensitive( box->isChecked() );
     offsetfld_->setSensitive( box->isChecked() );
-}
-
-
-void uiAttrVolOut::singLineSel( CallBacker* )
-{
-    if ( !transffld_->selFld2D() ) return;
-
-    setMode( transffld_->selFld2D()->isSingLine() ? Single : Multi );
 }
 
 
@@ -183,7 +169,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	mSetObjFld("")
 	if ( is2d )	//it could be 2D neural network
 	{
-	    Desc* firststoreddsc = ads_.getFirstStored();
+	    Attrib::Desc* firststoreddsc = ads_.getFirstStored();
 	    if ( firststoreddsc )
 	    {
 		const LineKey lk( firststoreddsc->getValParam(
@@ -229,9 +215,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    transffld_->setInput( *ioobj );
 	}
     }
-
-    setParFileNmDef( todofld_->getInput() );
-    singLineSel(0);
 }
 
 
@@ -308,7 +291,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    IOM().commitChanges( *ctio_.ioobj );
 	}
 
-	Desc* seldesc = ads_.getDesc( todofld_->attribID() );
+	Attrib::Desc* seldesc = ads_.getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
 	    uiMultOutSel multoutdlg( this, *seldesc );
@@ -362,67 +345,76 @@ bool uiAttrVolOut::prepareProcessing()
 }
 
 
-bool uiAttrVolOut::fillPar( IOPar& iop )
+Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
+		TypeSet<Attrib::DescID>& outdescids, int& nrseloutputs )
 {
-    DescSet* clonedset = 0;
-    TypeSet<DescID> outdescids;
+    Attrib::DescID nlamodel_id(-1, false);
+    if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
+    {
+	if ( !nlaid_ || !(*nlaid_) )
+	{
+	    uiMSG().message("NN needs to be stored before creating volume");
+	    return 0;
+	}
+	addNLA( nlamodel_id );
+    }
+
+    Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
+					    : todofld_->attribID();
+
+    Attrib::Desc* seldesc = ads_.getDesc( targetid );
+    if ( seldesc )
+    {
+	const bool is2d = todofld_->is2D();
+	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
+	if ( multoiid != Attrib::DescID::undef() )
+	{
+	    uiAttrSelData attrdata( ads_ );
+	    Attrib::SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_,
+				is2d, Attrib::DescID::undef(), false, false );
+	    TypeSet<Attrib::SelSpec> targetspecs;
+	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
+				is2d, attrinf, &ads_, this, targetspecs ))
+		return 0;
+	    for ( int idx=0; idx<targetspecs.size(); idx++ )
+		outdescids += targetspecs[idx].id();
+	}
+    }
+    const int outdescidsz = outdescids.size();
+    Attrib::DescSet* ret = outdescidsz ? ads_.optimizeClone( outdescids )
+			    : ads_.optimizeClone( targetid );
+    if ( !ret )
+	return 0;
+
+    nrseloutputs = seloutputs_.size() ? seloutputs_.size()
+				      : outdescidsz ? outdescidsz : 1;
+    if ( !seloutputs_.isEmpty() )
+	//TODO make use of the multiple targetspecs (pre-stack for inst)
+	ret->createAndAddMultOutDescs( targetid, seloutputs_,
+					     seloutnms_, outdescids );
+    else if ( outdescids.isEmpty() )
+	outdescids += targetid;
+
+    return ret;
+}
+
+
+bool uiAttrVolOut::fillPar()
+{
+    IOPar& iop = jobSpec().pars_;
+
+    Attrib::DescSet* clonedset = 0;
+    TypeSet<Attrib::DescID> outdescids;
     int nrseloutputs = 1;
 
     if ( todofld_ )
-    {
-	DescID nlamodel_id(-1, false);
-	if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
-	{
-	    if ( !nlaid_ || !(*nlaid_) )
-	    {
-		uiMSG().message("NN needs to be stored before creating volume");
-		return false;
-	    }
-	    addNLA( nlamodel_id );
-	}
-
-	DescID targetid = nlamodel_id.isValid() ? nlamodel_id
-						: todofld_->attribID();
-
-	Desc* seldesc = ads_.getDesc( targetid );
-	if ( seldesc )
-	{
-	    const bool is2d = todofld_->is2D();
-	    DescID multoiid = seldesc->getMultiOutputInputID();
-	    if ( multoiid != DescID::undef() )
-	    {
-		uiAttrSelData attrdata( ads_ );
-		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d,
-				 DescID::undef(), false, false );
-		TypeSet<Attrib::SelSpec> targetspecs;
-		if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
-				    is2d, attrinf, &ads_, this, targetspecs ))
-		    return false;
-		for ( int idx=0; idx<targetspecs.size(); idx++ )
-		    outdescids += targetspecs[idx].id();
-	    }
-	}
-	const int outdescidsz = outdescids.size();
-	clonedset = outdescidsz ? ads_.optimizeClone( outdescids )
-				: ads_.optimizeClone( targetid );
-	if ( !clonedset ) return false;
-
-	nrseloutputs = seloutputs_.size() ? seloutputs_.size()
-					  : outdescidsz ? outdescidsz : 1;
-	if ( clonedset && seloutputs_.size() )
-	    //TODO make use of the multiple targetspecs (pre-stack for inst)
-	    clonedset->createAndAddMultOutDescs( targetid, seloutputs_,
-						 seloutnms_, outdescids );
-	else if ( outdescids.isEmpty() )
-	    outdescids += targetid;
-    }
+	clonedset = getFromToDoFld( outdescids, nrseloutputs );
     else
     {
 	attrselfld_->getSelIds( outdescids );
-	clonedset = ads_.optimizeClone( outdescids );
 	nrseloutputs = outdescids.size();
+	clonedset = ads_.optimizeClone( outdescids );
     }
-
     if ( !clonedset )
 	return false;
 
@@ -431,16 +423,17 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        iop.add( IOPar::compKey(SeisTrcStorOutput::attribkey(),nm),
+        iop.add( IOPar::compKey(Attrib::SeisTrcStorOutput::attribkey(),nm),
 		 attrpar.getValue(idx) );
     }
 
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
-    const BufferString keybase = IOPar::compKey( Output::outputstr(), 0 );
+    const BufferString keybase = IOPar::compKey(Attrib::Output::outputstr(),0);
     const BufferString attribkey =
-	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey() );
+	IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
 
-    iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), nrseloutputs );
+    iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()),
+		nrseloutputs );
     if ( nrseloutputs != outdescids.size() ) return false;
 
     for ( int idx=0; idx<nrseloutputs; idx++ )
@@ -452,7 +445,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( is2d )
 	{ outseisid += "|"; outseisid += objfld_->attrNm(); }
 
-    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid);
+    iop.set( IOPar::compKey(keybase,Attrib::SeisTrcStorOutput::seisidkey()),
+			    outseisid);
 
     transffld_->scfmtfld->updateIOObj( ctio_.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
@@ -494,7 +488,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     Scaler* sc = transffld_->scfmtfld->getScaler();
     if ( sc )
     {
-	iop.set( IOPar::compKey(keybase,Output::scalekey()), sc->toString() );
+	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()),
+				sc->toString() );
 	delete sc;
     }
 
@@ -509,11 +504,11 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( is2d )
     {
 	MultiID ky;
-	DescSet descset(true);
+	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
 	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
 
-	Desc* desc = nlamodel_ ? descset.getFirstStored()
+	Attrib::Desc* desc = nlamodel_ ? descset.getFirstStored()
 			      : ads_.getDesc( todofld_->attribID() );
 	if ( desc )
 	{
@@ -546,7 +541,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     if ( usecs )
     {
-	EngineMan::getPossibleVolume( *clonedset, cs, linename, outdescids[0] );
+	Attrib::EngineMan::getPossibleVolume( *clonedset, cs, linename,
+						outdescids[0] );
 	iop.set( sKeyMaxInlRg(),
 		 cs.hrg.start.inl(), cs.hrg.stop.inl(), cs.hrg.step.inl() );
 	iop.set( sKeyMaxCrlRg(),
@@ -554,22 +550,28 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
     delete clonedset;
 
-    FilePath fp( ctio_.ioobj->fullUserExpr() );
-    fp.setExtension( "proc" );
-    iop.write( fp.fullPath(), sKey::Pars() );
     return true;
 }
 
 
-void uiAttrVolOut::addNLA( DescID& id )
+void uiAttrVolOut::addNLA( Attrib::DescID& id )
 {
     BufferString defstr("NN specification=");
     defstr += nlaid_;
 
     BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
+    Attrib::EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
     if ( errmsg.size() )
         uiMSG().error( errmsg );
+}
+
+
+bool uiAttrVolOut::acceptOK( CallBacker* )
+{
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    return batchfld_->start();
 }

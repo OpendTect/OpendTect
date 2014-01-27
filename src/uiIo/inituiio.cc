@@ -40,7 +40,7 @@ bool go( uiParent* p )
 }
 mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			    uiMMBatchJobDispatcherLauncher,
-			    Batch::JobSpec&,"Multi-Machine","Multi-Machine");
+			    Batch::JobSpec&,"Multi-Machine","Multi-Job/Machine");
 
     Batch::MMJobDispatcher jd_;
 

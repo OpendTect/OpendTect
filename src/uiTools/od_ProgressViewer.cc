@@ -179,7 +179,10 @@ void uiProgressViewer::doWork( CallBacker* )
 	handleProcessStatus();
 	if ( !haveProcess() )
 	{
-	    appendToText();
+	    sleepSeconds( 1 );
+	    strm_.reOpen();
+	    strm_.getAll( curline_ );
+	    txtfld->setText( curline_ );
 	    statusBar()->message( processEnded() ? "Processing ended" : "" );
 	    return;
 	}

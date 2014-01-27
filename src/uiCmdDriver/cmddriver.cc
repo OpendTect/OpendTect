@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "timefun.h"
 #include "timer.h"
+#include "genc.h"
 
 #include "uicursor.h"
 #include "uilabel.h"
@@ -92,7 +93,7 @@ bool ModalStatus::operator!=( const ModalStatus& ms ) const
     const float maxsleep = 1.28; \
     while ( applwin_ && !(condition) ) \
     { \
-	Threads::sleep( minsleep ); \
+	sleepSeconds( minsleep ); \
 	if ( minsleep < maxsleep ) \
 	    minsleep *= 2; \
     } \

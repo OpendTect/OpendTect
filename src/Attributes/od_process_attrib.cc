@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisjobexecprov.h"
 #include "seis2dline.h"
 #include "separstr.h"
-#include "thread.h"
 #include "jobcommunic.h"
 #include "moddepmgr.h"
 
@@ -179,7 +178,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
-    Threads::sleep( startup_wait );
+    sleepSeconds( startup_wait );
 
     const char* attrtypstr = pars().find( "Attributes.Type" );
     const bool is2d = attrtypstr && *attrtypstr == '2';
@@ -196,7 +195,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    paused = true;
 	    mSetCommState(Paused);
-	    Threads::sleep( pause_sleep_time );
+	    sleepSeconds( pause_sleep_time );
 	}
 	else
 	{

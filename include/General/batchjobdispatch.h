@@ -33,6 +33,8 @@ public:
 			JobSpec( const char* pnm=0 )
 			    : prognm_(pnm), execpars_(true)		{}
 
+    static const char*	progNameFor(ProcType);
+
     BufferString	prognm_;
     BufferString	clargs_;
     IOPar		pars_;

@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
-#include "thread.h"
 #include "timefun.h"
 
 #include "mmcommunicdefs.h"
@@ -331,7 +330,7 @@ JobIOMgr::JobIOMgr( int firstport, int niceval )
     , niceval_(niceval)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
-	{ Threads::sleep( 0.1 ); }
+	{ sleepSeconds( 0.1 ); }
 
     if ( mDebugOn )
     {

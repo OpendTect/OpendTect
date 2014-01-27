@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "hostdata.h"
 #include "oddirs.h"
-#include "thread.h"
 #include "msgh.h"
 
 
@@ -235,7 +234,7 @@ bool SafeFileIO::waitForLock() const
 
     for ( int idx=0; havelock && idx<lockretries_; idx++ )
     {
-	Threads::sleep( lockwaitincr_ );
+	sleepSeconds( lockwaitincr_ );
 	havelock = haveLock();
     }
 

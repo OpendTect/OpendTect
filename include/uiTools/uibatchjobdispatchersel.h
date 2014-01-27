@@ -32,9 +32,10 @@ public:
 					Batch::JobSpec::ProcType pt
 						=Batch::JobSpec::NonODBase);
 
-    void		setJobSpec(const Batch::JobSpec&);
+    void		jobSpecUpdated();
 			//!< must be done at every change
 			//!< the spec will determine what user can select
+    void		setJobSpec(const Batch::JobSpec&);
 
     Batch::JobSpec&	jobSpec()		{ return jobspec_; };
     const char*		selected() const;

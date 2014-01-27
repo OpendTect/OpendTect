@@ -73,12 +73,16 @@ mGlobal(Basic) void SwapBytes(void*,int nbytes);
 mGlobal(Basic) int InSysAdmMode(void);
 		/*!< returns 0 unless in sysadm mode */
 
+mGlobal(Basic) void sleepSeconds(double);
+		/*!< puts current thread to sleep for (fraction of) seconds */
+
 
 mGlobal(Basic) int GetSubversionRevision(void);
 		/*!< Returns Subversion revision number */
 
 mGlobal(Basic) const char* GetSubversionUrl(void);
 		/*!< Returns Subversion url */
+
 
 mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
 

@@ -87,7 +87,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 
 void uiBatchJobDispatcherSel::initFlds( CallBacker* )
 {
-    setJobSpec( jobspec_ );
+    jobSpecUpdated();
     fldChck( 0 );
 }
 
@@ -95,6 +95,12 @@ void uiBatchJobDispatcherSel::initFlds( CallBacker* )
 void uiBatchJobDispatcherSel::setJobSpec( const Batch::JobSpec& js )
 {
     jobspec_ = js;
+    jobSpecUpdated();
+}
+
+
+void uiBatchJobDispatcherSel::jobSpecUpdated()
+{
     if ( !selfld_ )
 	return;
 

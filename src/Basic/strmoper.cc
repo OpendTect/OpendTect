@@ -37,7 +37,7 @@ bool StrmOper::resetSoftError( std::istream& strm, int& retrycount )
     if ( retrycount > nrretries )
 	return false;
 
-    Threads::sleep( retrydelay );
+    sleepSeconds( retrydelay );
     retrycount++;
     return true;
 }
@@ -54,7 +54,7 @@ bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
     if ( retrycount > nrretries )
 	return false;
 
-    Threads::sleep( retrydelay );
+    sleepSeconds( retrydelay );
     retrycount++;
     return true;
 }
@@ -129,7 +129,7 @@ bool StrmOper::peekChar( std::istream& strm, char& ch )
 
     if ( strm.bad() )
     {
-	Threads::sleep( retrydelay );
+	sleepSeconds( retrydelay );
 	strm.clear();
     }
 

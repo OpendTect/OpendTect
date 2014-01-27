@@ -21,6 +21,7 @@ void Batch::MMJobDispatcher::addDef( Batch::MMProgDef* pd )
 
 Batch::MMJobDispatcher::MMJobDispatcher()
 {
+    jobspec_.execpars_.needmonitor( false );
 }
 
 
@@ -106,8 +107,10 @@ bool Batch::MMJobDispatcher::launch()
 
     BufferString cmd( progdefs_[pdidx]->mmprognm_, " ", jobspec_.clargs_ );
     BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\'' );
-    cmd.add( jobspec_.prognm_ ).add( qtdparfnm );
+    cmd.add( jobspec_.prognm_ ).add( " " ).add( qtdparfnm );
     OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
-    return cl.execute( jobspec_.execpars_ );
+    OS::CommandExecPars ep( jobspec_.execpars_ );
+    ep.needmonitor( false ).launchtype( OS::RunInBG ).isconsoleuiprog( false );
+    return cl.execute( ep );
 }

@@ -32,8 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "seissingtrcproc.h"
 #include "perthreadrepos.h"
-#include "thread.h"
 #include "timefun.h"
+#include "genc.h"
 
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -54,7 +54,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {
-    return FixedString(pnm) == "od_process_attrib";
+    return FixedString(pnm) ==
+		Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib );
 }
 
 bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
@@ -771,7 +772,7 @@ static void rmTmpSeis( SeisJobExecProv* jp )
 
     while ( !removed && count-- > 0 )
     {
-	Threads::sleep( 1 );
+	sleepSeconds( 1 );
 	removed = jp->removeTempSeis();
     }
 
