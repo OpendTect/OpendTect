@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 
 namespace EM
@@ -183,6 +184,13 @@ IOPar* IOObjInfo::getPars() const
 }
 
 
+const char* IOObjInfo::getMessage() const
+{
+    mGetReader;
+    return reader_ ? reader_->message() : "";
+}
+
+
 bool IOObjInfo::getLineSets( BufferStringSet& linesets ) const
 {
     mGetReaderRet
@@ -211,6 +219,25 @@ bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 	trcranges.add( reader_->lineTrcRanges(idx) );
     return true;
 }
+
+
+bool IOObjInfo::hasGeomIDs() const
+{
+    mGetReaderRet
+    const IOPar* iop = reader_->pars();
+    if ( !iop )
+	return false;
+
+    return reader_->pars()->hasKey(sKey::GeomID());
+}
+
+
+int IOObjInfo::getParsOffsetInFile() const
+{
+    mGetReaderRet
+    return reader_->getParsOffset();
+}
+
 
 
 #define mErrRet(s) { errmsg = s; return false; }
@@ -340,7 +367,7 @@ int IOObjInfo::nrSticks() const
 
     Interval<float> rowrange;
     reader_->pars()->get( "Row range", rowrange );
-    return (int)rowrange.width();
+    return (int)rowrange.width() + 1;
 }
 
 } // namespace EM

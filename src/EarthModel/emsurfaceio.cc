@@ -123,6 +123,7 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
     readlinenames_ = 0;
     linestrcrgs_ = 0;
     nrrows_ = 0;
+    parsoffset_ = -1;
 
     sectionnames_.allowNull();
     linenames_.allowNull();
@@ -176,6 +177,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 
 	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
+	parsoffset_ = mCast(int,strm.position());
 	ascistream parstream( strm, false );
 	parstream.next();
 	par_ = new IOPar( parstream );
@@ -375,7 +377,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( version_==1 )
 	return parseVersion1( *par_ );
 
-    if ( is2d && linesets_.isEmpty() )
+    if ( is2d && linesets_.isEmpty() && geomids_.isEmpty() )
     {
 	msg_ = "No geometry found for this horizon";
 	return false;
@@ -487,11 +489,11 @@ BufferString dgbSurfaceReader::sectionName( int idx ) const
 
 
 int dgbSurfaceReader::nrLines() const
-{ return linenames_.size(); }
+{ return linenames_.size() == 0 ? geomids_.size() : linenames_.size(); }
 
 
 BufferString dgbSurfaceReader::lineName( int idx ) const
-{ return linenames_.get( idx ); }
+{ return linenames_.validIdx(idx) ? linenames_.get( idx ) : ""; }
 
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
@@ -597,6 +599,10 @@ const IOPar* dgbSurfaceReader::pars() const
 {
     return par_;
 }
+
+
+int dgbSurfaceReader::getParsOffset() const
+{ return parsoffset_; }
 
 
 od_int64 dgbSurfaceReader::nrDone() const
@@ -873,9 +879,14 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-	if ( (!linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_))
-	  || (linesets_.get(rowindex_)==sKeyUndefLineSet() ||
-	      linenames_.get(rowindex_)==sKeyUndefLine()) )
+        const bool validrowidx  = linesets_.validIdx(rowindex_) && 
+                                  linenames_.validIdx(rowindex_);
+        const bool validids = linesets_.get(rowindex_)!=sKeyUndefLineSet() &&
+	                      linenames_.get(rowindex_)!=sKeyUndefLine();
+        const bool validgeomids = geomids_.validIdx(rowindex_) && 
+                                  geomids_[rowindex_] > 0;
+
+	if ( (!validrowidx || !validids) && !validgeomids )
 	{
 	    const int res = skipRow( strm );
 	    if ( res==ErrorOccurred() )
@@ -887,16 +898,29 @@ int dgbSurfaceReader::nextStep()
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	const PosInfo::Line2DKey l2dky =
+	if ( geomids_.validIdx(rowindex_) )
+	{
+	    const Pos::GeomID geomid = geomids_[rowindex_];
+	    if ( geomid < 0 )
+	     return ErrorOccurred();
+
+	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
+			    geomid, firstcol+noofcoltoskip,
+			    firstcol+nrcols+noofcoltoskip-1, colstep );
+	}
+	else if ( linesets_.validIdx(rowindex_) )
+	{
+	    const PosInfo::Line2DKey l2dky =
 	    l2dkeys_.validIdx(rowindex_) ? l2dkeys_[rowindex_]
 			: S2DPOS().getLine2DKey( linesets_[rowindex_]->buf(),
 						 linenames_[rowindex_]->buf() );
-	if ( !l2dky.isOK() )
-	     return ErrorOccurred();
+	    if ( !l2dky.isOK() )
+		return ErrorOccurred();
+	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
+				    l2dky, firstcol+noofcoltoskip,
+				    firstcol+nrcols+noofcoltoskip-1, colstep );
 
-	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
-		l2dky, firstcol+noofcoltoskip,
-		firstcol+nrcols+noofcoltoskip-1, colstep );
+	}
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);

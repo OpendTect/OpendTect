@@ -69,7 +69,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
+FixedString EMAnyHorizonTranslatorGroup::keyword()     { return "Any Horizon"; }
 mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
 				       ctxt->toselect.allowtransls_=mDGBKey)
 
@@ -85,7 +85,7 @@ FixedString EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
 mDefSimpleTranslatorSelector(EMFault3D,keyword())
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-FixedString EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
+FixedString EMFaultStickSetTranslatorGroup::keyword(){ return "FaultStickSet"; }
 mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
@@ -151,7 +151,8 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 #define mImplLoopStart \
     if ( gap > 100 ) break; \
-    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basefnm.buf(),nr).buf() )
+    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName( \
+                                                      basefnm.buf(),nr).buf() )
 
 
 bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
@@ -282,6 +283,7 @@ bool dgbEMSurfaceTranslator::prepRead()
     {
 	sd_.linenames.add( reader_->lineName(idx) );
 	sd_.linesets.add( reader_->lineSet(idx) );
+	sd_.geomids_.add( reader_->lineGeomID(idx) );
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
 	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
 	    sd_.trcranges += reader_->lineTrcRanges(idx);

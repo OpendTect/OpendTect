@@ -62,6 +62,8 @@ public:
     StepInterval<int>	getInlRange() const;
     StepInterval<int>	getCrlRange() const;
     IOPar*		getPars() const;
+    int			getParsOffsetInFile() const;
+    const char*		getMessage() const;
 
     // Surface
     inline bool		isSurface() const	{ return type_ != Body; }
@@ -79,6 +81,7 @@ public:
     bool		getLineSets(BufferStringSet&) const;
     bool		getLineNames(BufferStringSet&) const;
     bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
+    bool		hasGeomIDs() const;
 
     // Body
     bool		getBodyRange(CubeSampling&) const;

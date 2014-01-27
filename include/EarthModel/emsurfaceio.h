@@ -98,6 +98,7 @@ public:
     StepInterval<int>	lineTrcRanges( int idx ) const;
     int			stratLevelID() const;
     const IOPar*	pars() const;
+    int			getParsOffset() const;
 
     virtual od_int64	nrDone() const;
     virtual const char*	nrDoneText() const;
@@ -212,6 +213,7 @@ protected:
     DataInterpreter<od_int64>* int64interpreter_;
     TypeSet<od_int64>	rowoffsets_;
     TypeSet<od_int64>	sectionoffsets_;
+    int			parsoffset_;
 
 //Version 1 stuff
     bool		readVersion1Row(od_istream&,int,int);
