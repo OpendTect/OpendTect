@@ -194,11 +194,10 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 	NotifyStopper ns( vwrs_[idx]->viewChanged );
 	vwrs_[idx]->setView( newwr );
 
-	if ( !havezoom )
-	    havezoom = haveZoom( oldwr.size(), newwr.size() );
+	if ( haveZoom(oldwr.size(),newwr.size()) )
+	    { zoommgr_.add( newwr.size(), idx ); havezoom = true; }
     }
 
-    addSizesToZoomMgr();
     if ( havezoom )
 	zoomChanged.trigger();
 }

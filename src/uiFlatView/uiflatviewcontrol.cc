@@ -342,17 +342,6 @@ uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
 { return vwr->getViewRect(); }
 
 
-void uiFlatViewControl::addSizesToZoomMgr()
-{
-    TypeSet<FlatView::ZoomMgr::Size> sizes;
-    
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	sizes += vwrs_[idx]->curView().size();
-    
-    zoommgr_.add( sizes );
-}
-
-
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
