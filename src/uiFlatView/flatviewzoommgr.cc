@@ -75,6 +75,15 @@ FlatView::ZoomMgr::Point FlatView::ZoomMgr::initialCenter( int vieweridx ) const
 { return viewerdata_[vieweridx]->center_; }
 
 
+void FlatView::ZoomMgr::setFwdFac( double fac )
+{
+    if ( mIsZero(fac,mDefEps) || fac<0 || fac>=1 )
+	{ pErrMsg("Fwdfac should be greater than 0 and less than 1"); return; }
+
+    fwdfac_ = fac;
+}
+
+
 void FlatView::ZoomMgr::init( const Geom::PosRectangle<double>& wr )
 {
     TypeSet<Geom::PosRectangle<double> > wrr( 1, wr );
@@ -220,37 +229,26 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::current( int vieweridx ) const
 }
 
 
-void FlatView::ZoomMgr::back( int vieweridx ) const
+void FlatView::ZoomMgr::back( int vieweridx, bool usefwdfac ) const
 {
-    if ( vieweridx == -1 )
-    {
-	for ( int idx=0; idx<viewerdata_.size(); idx++ )
-	    back( idx );
-	return;
-    }
-    
     int& cur = current_[vieweridx];
-    if ( cur > 0 ) cur--;
+    if ( !usefwdfac && cur>0 )
+	{ cur--; return; }
+
+    FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
+    newsize.setWidth( newsize.width() / fwdfac_ );
+    newsize.setHeight( newsize.height() / fwdfac_ );
+    const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
 }
 
 
-void FlatView::ZoomMgr::forward( int vieweridx ) const
+void FlatView::ZoomMgr::forward( int vieweridx, bool usefwdfac ) const
 {
-    if ( vieweridx == -1 )
-    {
-	for ( int idx=0; idx<viewerdata_.size(); idx++ )
-	    forward( idx );
-	return;
-    }
-
     int& cur = current_[vieweridx];
     if ( cur < 0 ) return;
 
-    if ( cur < nrZooms(vieweridx)-1 )
-    {
-	cur++;
-	return;
-    }
+    if ( !usefwdfac && cur<nrZooms(vieweridx)-1 )
+	{ cur++; return; }
     
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
     newsize.setWidth( newsize.width() * fwdfac_ );
@@ -267,5 +265,6 @@ void FlatView::ZoomMgr::toStart( int vieweridx ) const
 	return;
     }
 
-    if ( !current_.isPresent(-1) ) current_.setAll( 0 );
+    if ( !current_.isPresent(-1) )
+	current_.setAll( 0 );
 }

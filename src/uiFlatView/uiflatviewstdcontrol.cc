@@ -194,21 +194,23 @@ void uiFlatViewStdControl::doZoom( bool zoomin, uiFlatViewer& vwr )
     const int vwridx = vwrs_.indexOf( &vwr );
     if ( vwridx < 0 ) return;
 
+    const MouseEventHandler& meh =
+	vwr.rgbCanvas().getNavigationMouseEventHandler();
+    const bool hasmouseevent = meh.hasEvent();
+
     if ( zoomin )
-	zoommgr_.forward( vwridx );
+	zoommgr_.forward( vwridx, true );
     else
     {
 	if ( zoommgr_.atStart(vwridx) )
 	    return;
-	zoommgr_.back( vwridx );
+	zoommgr_.back( vwridx, hasmouseevent );
     }
 
     uiWorld2Ui w2ui;
     vwr.getWorld2Ui( w2ui );
 
-    const MouseEventHandler& meh =
-	vwr.rgbCanvas().getNavigationMouseEventHandler();
-    Geom::Point2D<double> mousepos = meh.hasEvent() ?
+    Geom::Point2D<double> mousepos = hasmouseevent ?
 	w2ui.transform( meh.event().pos() ) : vwr.curView().centre();
     Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
 
