@@ -378,7 +378,8 @@ void Seis2DDisplay::setData( int attrib,
 	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
 	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
 	    if ( slice2d.info().getSize(0)==nrdisplaytraces &&
-		 nrsamples==nrdisplaysamples )
+		 nrsamples==nrdisplaysamples &&
+		 data2dh.trcinfoset_[0]->nr==trcdisplayinfo_.alltrcnrs_[0] )
 	    {
 		usedarr = &slice2d;
 	    }
