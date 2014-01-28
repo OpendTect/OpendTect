@@ -29,9 +29,9 @@ class uiVisPartServer;
 mExpClass(uiVis) uiVisEMObject : public CallBacker
 {
 public:
-    			uiVisEMObject(uiParent*,int displayid,
+			uiVisEMObject(uiParent*,int displayid,
 				      uiVisPartServer* );
-    			uiVisEMObject(uiParent*,const EM::ObjectID&,int sceneid,
+			uiVisEMObject(uiParent*,const EM::ObjectID&,int sceneid,
 				      uiVisPartServer*);
 			~uiVisEMObject();
     bool		isOK() const;
@@ -50,8 +50,8 @@ public:
     EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
 
     void		checkTrackingStatus();
-    			/*!< Checks if there is a tracker for this object and
-			     turns on wireframe, singlecolor and full res if
+			/*!< Checks if there is a tracker for this object and
+			     turns on singlecolor and full res if
 			     a tracker if found. */
 
     static const char*	trackingmenutxt();
@@ -85,11 +85,10 @@ protected:
     uiMenuHandler&	nodemenu_;
     uiMenuHandler&	edgelinemenu_;
     uiMenuHandler&	interactionlinemenu_;
-    
+
     int			displayid_;
 
     MenuItem		singlecolmnuitem_;
-    MenuItem		wireframemnuitem_;
     MenuItem		editmnuitem_;
     MenuItem		removesectionmnuitem_;
     MenuItem		seedsmenuitem_;

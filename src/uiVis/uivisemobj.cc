@@ -64,7 +64,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     const MultiID mid = emod->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    
+
     uiTaskRunner dlg( uiparent_ );
     if ( !EM::EMM().getObject(emid) )
     {
@@ -177,17 +177,17 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     if ( emod )
     {
-     	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
 	ZAxisTransform* zt = const_cast<ZAxisTransform*>(
 		scene->getZAxisTransform() );
-    	emod->setZAxisTransform( zt, 0 );
-	
-    	uiTaskRunner dlg( uiparent_ );
-    	if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
-	    
+	emod->setZAxisTransform( zt, 0 );
+
+	uiTaskRunner dlg( uiparent_ );
+	if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
+
 	    visserv_->addObject( emod, sceneid, true );
-    	displayid_ = emod->id();
-    	setDepthAsAttrib( 0 );
+	displayid_ = emod->id();
+	setDepthAsAttrib( 0 );
     }
 
     setUpConnections();
@@ -252,8 +252,6 @@ void uiVisEMObject::setUpConnections()
     showseedsmnuitem_.text = "&Show";
     seedpropmnuitem_.text = "&Properties ...";
     lockseedsmnuitem_.text = "&Lock";
-    wireframemnuitem_.text = "&Wireframe";
-    wireframemnuitem_.checkable = true;
     editmnuitem_.text = "&Edit";
     editmnuitem_.checkable = true;
     removesectionmnuitem_.text ="Remove &section";
@@ -420,11 +418,11 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     { mResetMenuItem( &showsurfacegridmnuitem_ ); }
 
     mAddMenuItem( displaymnuitem, &showonlyatsectionsmnuitem_, true,
-	    	  atsect );
+		  atsect );
     mAddMenuItem( displaymnuitem, &showfullmnuitem_, true, infull );
     if ( hordisp )
-    { 
-	mAddMenuItem( displaymnuitem, &showbothmnuitem_, true, both ); 
+    {
+	mAddMenuItem( displaymnuitem, &showbothmnuitem_, true, both );
     }
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
@@ -446,14 +444,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 //	mAddMenuItem( trackmnu, &editmnuitem_, enabmenu,
 //		      emod->isEditingEnabled() );
 
-	const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
-	const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
-	if ( hordisp )
-	    mAddMenuItem( trackmnu, &wireframemnuitem_,
-			  true, haswireframe );
-	wireframemnuitem_.enabled = canhavewireframe;
-	if ( !wireframemnuitem_.enabled ) wireframemnuitem_.checked = false;
-       
 	const TypeSet<EM::PosID>* seeds =
 	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
 	showseedsmnuitem_.text =
@@ -462,9 +452,9 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
 		      !visserv_->isTrackingSetupActive(), false );
-	lockseedsmnuitem_.text = 
-	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ? 
-	    "Un&lock" : "&Lock" ;	
+	lockseedsmnuitem_.text =
+	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
+	    "Un&lock" : "&Lock" ;
 	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );
@@ -474,7 +464,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
     MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
     if ( !toolsmnuitem ) toolsmnuitem = menu;
-    mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_, 
+    mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_,
 	          emobj->canSetSectionName() && sid!=-1, false );
     mAddMenuItem( toolsmnuitem, &removesectionmnuitem_, false, false );
     if ( emobj->nrSections()>1 && sid!=-1 )
@@ -497,7 +487,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     mDynamicCastGet(uiMenuHandler*,uimenu,caller);
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod || mnuid==-1 || !menu || 
+    if ( !emod || mnuid==-1 || !menu ||
 	 menu->isHandled() || menu->menuID()!=displayid_ )
 	return;
 
@@ -557,11 +547,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==wireframemnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	if ( hordisp ) hordisp->useWireframe( !hordisp->usesWireframe() );
-    }
     else if ( mnuid==showseedsmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -576,7 +561,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==lockseedsmnuitem_.id )
     {
-	emobj->lockPosAttrib( EM::EMObject::sSeedNode(), 
+	emobj->lockPosAttrib( EM::EMObject::sSeedNode(),
 			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
 	menu->setIsHandled( true );
     }
@@ -610,7 +595,7 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 	bool usetexture = false;
 	if ( yn )
 	    showedtexture_ = hordisp->shouldUseTexture();
-	else 
+	else
 	    usetexture = showedtexture_;
 
 	hordisp->useTexture( usetexture );
