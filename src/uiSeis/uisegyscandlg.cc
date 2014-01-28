@@ -81,6 +81,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
 	batchfld_ = new uiBatchJobDispatcherSel( this, false,
 						 Batch::JobSpec::SEGY );
+	batchfld_->setJobName( "scan SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), Seis::isPS(setup_.geom_)
 		? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol() );

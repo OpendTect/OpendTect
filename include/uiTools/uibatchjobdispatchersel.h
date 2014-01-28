@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiButton;
 class uiCheckBox;
+class uiComboBox;
 
 class uiBatchJobDispatcherLauncher;
 
@@ -33,9 +34,8 @@ public:
 						=Batch::JobSpec::NonODBase);
 
     void		jobSpecUpdated();
-			//!< must be done at every change
-			//!< the spec will determine what user can select
     void		setJobSpec(const Batch::JobSpec&);
+    void		setJobName(const char*);
 
     Batch::JobSpec&	jobSpec()		{ return jobspec_; };
     const char*		selected() const;
@@ -51,6 +51,7 @@ protected:
     uiGenInput*		selfld_;
     uiCheckBox*		dobatchbox_;
     uiButton*		optsbut_;
+    uiComboBox*		jobnmfld_;
 
     Batch::JobSpec	jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;

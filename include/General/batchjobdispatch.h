@@ -51,6 +51,12 @@ public:
   isSuitedFor() determines whether a certain type of dispatcher can handle any
   job for this program. canHandle() decides on the whole JobSpec.
 
+  Every job will sooner or later be written to a par file. We want to have user
+  select job names, not par file names. Thus, there are both job names and
+  the actual parameter file full path.
+  Par files are written to, and expected to be in the 'Proc' directory. If that
+  is the case, than job name <-> par file goes both ways.
+
  */
 
 mExpClass(General) JobDispatcher
@@ -70,10 +76,16 @@ public:
 
     mDefineFactoryInClass(JobDispatcher,factory);
 
-    bool		writeParFile() const;
     static void		getDefParFilename(const char* prognm,BufferString&);
     void		setToDefParFileName()
-				{ getDefParFilename( jobspec_.prognm_, parfnm_ ); }
+				{ getDefParFilename(jobspec_.prognm_,parfnm_); }
+
+    static void		getJobNames(BufferStringSet&);
+    static BufferString	getJobName(const char*);
+    void		setJobName(const char*);
+    BufferString	jobName() const	{ return getJobName(parfnm_.buf()); }
+
+    bool		writeParFile() const;
 
     JobSpec		jobspec_;
     BufferString	parfnm_;

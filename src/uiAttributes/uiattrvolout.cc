@@ -217,6 +217,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    transffld_->setInput( *ioobj );
 	}
     }
+
+    batchfld_->setJobName( todofld_->getInput() );
 }
 
 

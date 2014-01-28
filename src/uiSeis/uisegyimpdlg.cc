@@ -82,6 +82,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     {
 	batchfld_ = new uiBatchJobDispatcherSel( outgrp, true,
 						 Batch::JobSpec::SEGY );
+	batchfld_->setJobName( "import SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
 	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );

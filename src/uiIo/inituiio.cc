@@ -24,25 +24,13 @@ public:
 
 uiMMBatchJobDispatcherLauncher( Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js) {}
-bool isSuitedFor( const char* pnm ) const { return jd_.isSuitedFor(pnm); }
-bool canHandle( const Batch::JobSpec& js ) const { return jd_.canHandle(js); }
-const char* getInfo() const { return jd_.description(); }
-bool go( uiParent* p )
-{
-    if ( !jd_.go(jobspec_) )
-    {
-	const char* errmsg = jd_.errMsg();
-	uiMSG().error( errmsg ? errmsg
-			      : "Cannot Muti-Machine processing program" );
-	return false;
-    }
-    return true;
-}
-mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
-			    uiMMBatchJobDispatcherLauncher,
-			    Batch::JobSpec&,"Multi-Machine","Multi-Job/Machine");
 
-    Batch::MMJobDispatcher jd_;
+mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
+			uiMMBatchJobDispatcherLauncher,
+			Batch::JobSpec&,"Multi-Machine","Multi-Job/Machine");
+
+    virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
+    Batch::MMJobDispatcher		jd_;
 
 };
 

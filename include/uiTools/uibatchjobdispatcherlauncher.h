@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "factory.h"
 
 class uiBatchJobDispatcherSel;
-namespace Batch { class JobSpec; class SingleJobDispatcher; }
+namespace Batch {
+    class JobSpec; class JobDispatcher; class SingleJobDispatcher; }
 
 
 /*!\brief launches the UI of a Batch::JobDispatcher */
@@ -26,21 +27,31 @@ mExpClass(uiTools) uiBatchJobDispatcherLauncher
 public:
 
 			uiBatchJobDispatcherLauncher( Batch::JobSpec& js )
-			    : jobspec_(js)			{}
+			    : jobspec_(js)		{}
 
-    virtual bool	isSuitedFor(const char* prognm) const	{ return false;}
+    virtual bool	isSuitedFor(const char* prognm) const;
     virtual bool	canHandleJobSpec() const;
-    virtual bool	hasOptions() const			{ return false;}
-    virtual void	editOptions(uiParent*)			{}
-    virtual const char*	getInfo() const				= 0;
-    virtual bool	go(uiParent*)				= 0;
+    virtual bool	hasOptions() const		{ return false;}
+    virtual void	editOptions(uiParent*)		{}
+    virtual const char*	getInfo() const;
+    virtual bool	go(uiParent*);
+
+    Batch::JobSpec&	jobSpec()			{ return jobspec_; }
+    const Batch::JobSpec& jobSpec() const		{ return jobspec_; }
+    Batch::JobDispatcher& dispatcher()			{ return gtDsptchr(); }
+    const Batch::JobDispatcher& dispatcher() const
+    { return const_cast<uiBatchJobDispatcherLauncher*>(this)->gtDsptchr(); }
 
     const char*		name() const { return factoryDisplayName(); }
 
     mDefineFactory1ParamInClass(uiBatchJobDispatcherLauncher,
 			Batch::JobSpec&,factory);
 
+protected:
+
     Batch::JobSpec&	jobspec_;
+
+    virtual Batch::JobDispatcher& gtDsptchr()	= 0;
 
 };
 
@@ -55,17 +66,17 @@ public:
 			uiSingleBatchJobDispatcherLauncher(Batch::JobSpec&);
 			~uiSingleBatchJobDispatcherLauncher();
 
-    virtual bool	isSuitedFor(const char*) const		{ return true; }
     virtual bool	hasOptions() const			{ return true; }
-    virtual const char*	getInfo() const;
     virtual void	editOptions(uiParent*);
-    virtual bool	go(uiParent*);
 
     mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			    uiSingleBatchJobDispatcherLauncher,
 			    Batch::JobSpec&,"Single Process","Single Process");
 
-    Batch::SingleJobDispatcher&	sjd_;
+protected:
+
+    virtual Batch::JobDispatcher&	gtDsptchr();
+    Batch::SingleJobDispatcher&		sjd_;
 
 };
 

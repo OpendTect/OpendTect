@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oscommand.h"
 #include "oddirs.h"
 #include "ascstream.h"
+#include "dirlist.h"
 #include "ioman.h"
 
 
@@ -76,10 +77,44 @@ void Batch::JobDispatcher::getDefParFilename( const char* prognm,
 						BufferString& fnm )
 {
     if ( !prognm || !*prognm )
-	prognm = "batchprog";
+	prognm = "batchjob";
     FilePath parfp( GetProcFileName(prognm) );
     parfp.setExtension( ".par" );
+    const BufferString filename = parfp.fileName();
+    if ( filename.startsWith("od_") )
+    {
+	BufferString newfnm = filename.buf() + 3;
+	parfp.setFileName( newfnm );
+    }
     fnm.set( parfp.fullPath() );
+}
+
+
+void Batch::JobDispatcher::getJobNames( BufferStringSet& nms )
+{
+    DirList dl( GetProcFileName(0), DirList::FilesOnly, "*.par" );
+    for ( int idx=0; idx<dl.size(); idx++ )
+	nms.add( getJobName(dl.get(idx)) );
+}
+
+
+BufferString Batch::JobDispatcher::getJobName( const char* inp )
+{
+    FilePath parfp( inp );
+    parfp.setExtension( 0 );
+    BufferString ret( parfp.fileName() );
+    ret.replace( '_', ' ' );
+    return ret;
+}
+
+
+void Batch::JobDispatcher::setJobName( const char* inp )
+{
+    BufferString nm( inp );
+    nm.clean( BufferString::AllowDots );
+    FilePath parfp( GetProcFileName(nm) );
+    parfp.setExtension( ".par" );
+    parfnm_.set( parfp.fullPath() );
 }
 
 
