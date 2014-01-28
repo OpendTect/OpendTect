@@ -54,18 +54,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {
-    return FixedString(pnm) ==
-		Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib );
+    FixedString prognm = pnm;
+    return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib );
 }
 
 bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
 {
     return isSuitedFor( js.prognm_ );
-		//TODO should be looking inside js.pars_
 }
 
 
 static const char* outlsfilename = "outls.2ds";
+
+#define mRetInvJobSpec(s) \
+    { \
+	new uiLabel( this, s ); \
+	setOkText( "Dismiss" ); setCancelText( "" ); return; \
+    }
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
@@ -88,11 +93,16 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	, timer(0)
 	, nrcyclesdone(0)
 {
-    MultiID outid = iop.find( SeisJobExecProv::outputKey(iop) );
+    const char* idres = iop.find( SeisJobExecProv::outputKey(iop) );
+    if ( !idres )
+	mRetInvJobSpec( "Cannot find the output ID in the job specification."
+	"\nThis may mean the job is not fit for Multi-Job/Machine execution" )
+
+    const MultiID outid( idres );
     outioobjinfo = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo->isOK() )
-	{ setOkText( "Output cube not found in Object Management" );
-	    setCancelText( "" ); return; }
+	mRetInvJobSpec( BufferString("Cannot find output cube (", idres,
+		    	") in object management." ) );
 
     const int nrhosts = hdl.size();
     const bool multihost = nrhosts > 1;
