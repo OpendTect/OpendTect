@@ -270,7 +270,9 @@ void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
     }
 
-    xaxis_->setBounds( Interval<float>(dim0rg2.start, dim0rg2.stop) );
-    yaxis_->setBounds( Interval<float>( wr.bottom(), wr.top() ) );
+    xaxis_->setBounds( Interval<float>(mCast(float,dim0rg2.start),
+				       mCast(float,dim0rg2.stop)) );
+    yaxis_->setBounds( Interval<float>( mCast(float,wr.bottom()),
+					mCast(float,wr.top()) ) );
     uiGraphicsSceneAxisMgr::updateScene();
 }

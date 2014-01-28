@@ -342,8 +342,10 @@ void uiGraphicsSceneAxisMgr::setBorder( const uiBorder& border )
 
 void uiGraphicsSceneAxisMgr::setWorldCoords( const uiWorldRect& wr )
 {
-    xaxis_->setBounds( Interval<float>(wr.left(),wr.right()) );
-    yaxis_->setBounds( Interval<float>( wr.bottom(), wr.top() ) );
+    xaxis_->setBounds( Interval<float>(mCast(float,wr.left()),
+				       mCast(float,wr.right())) );
+    yaxis_->setBounds( Interval<float>( mCast(float,wr.bottom()),
+					mCast(float,wr.top()) ) );
     updateScene();
 }
 
