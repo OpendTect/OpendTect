@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldisp.h"
 #include "wellmarker.h"
 
-
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 #define mDelNot wd_->tobedeleted
 
@@ -76,8 +75,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
-	propflds_[idx]->propChanged.notify(
-					mCB(this,uiWellDispPropDlg,propChg) );
+	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
 	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log"
@@ -93,7 +91,13 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     applbut->attach( centeredBelow, ts_ );
 
     setWDNotifiers( true );
-    windowClosed.notify( mCB(this,uiWellDispPropDlg,onClose) );
+    mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
+}
+
+
+uiWellDispPropDlg::~uiWellDispPropDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -169,7 +173,6 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 }
 
 
-
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 					        ObjectSet<Well::Data>& wds,
 						bool is2ddisplay )
@@ -185,8 +188,8 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 
 	wellselfld_ = new uiLabeledComboBox( this, "Select Well" );
 	wellselfld_->box()->addItems( wellnames );
-	wellselfld_->box()->selectionChanged.notify(
-		    mCB(this,uiMultiWellDispPropDlg,wellSelChg) );
+	mAttachCB( wellselfld_->box()->selectionChanged,
+		   uiMultiWellDispPropDlg::wellSelChg );
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }

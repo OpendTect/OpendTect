@@ -29,7 +29,8 @@ mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
-						    bool is2ddisplay=false);
+						  bool is2ddisplay=false);
+				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
