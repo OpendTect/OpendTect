@@ -34,7 +34,7 @@ public:
     BufferString		getVarName() const;
 
     const char*			getInput() const;
-    void                        setUnit(const char*);
+    virtual void		setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     float			getCstVal() const;
     bool			isCst() const;
@@ -45,9 +45,9 @@ protected:
     void			selChg(CallBacker*);
 
     const int			idx_;			//needed?
-    uiLabeledComboBox*         	inpfld_;
-    uiLabeledComboBox*         	unfld_;
-    uiGenInput*         	cstvalfld_;
+    uiLabeledComboBox*	inpfld_;
+    uiLabeledComboBox*	unfld_;
+    uiGenInput* cstvalfld_;
     const BufferStringSet&      posinpnms_;
     BufferString		varnm_;
 };

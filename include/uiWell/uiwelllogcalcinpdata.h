@@ -30,9 +30,11 @@ public:
 			~uiWellLogCalcInpData();
 
     virtual void	use(const MathExpression*);
+    virtual void	setUnit(const char*);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);
     void		restrictLogChoice(const PropertyRef::StdType&);
+    void		resetLogRestriction();
 
     const Well::LogSet* wls_;
 
@@ -41,6 +43,7 @@ protected:
     uiCheckBox*		udfbox_;
 
     Well::Log*          convertedlog_;
+    bool		forceunit_;
 
     void		inputSel(CallBacker*);
     void		vwLog(CallBacker*);
