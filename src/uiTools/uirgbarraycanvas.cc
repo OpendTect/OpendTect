@@ -62,7 +62,7 @@ void uiRGBArrayCanvas::setDrawArr( bool yn )
 
 void uiRGBArrayCanvas::beforeDraw()
 {
-    beforeDraw( scene().width(), scene().height() );
+    beforeDraw( mNINT32(scene().width()), mNINT32(scene().height()) );
 }
 
 

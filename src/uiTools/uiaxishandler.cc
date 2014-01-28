@@ -64,16 +64,27 @@ void uiAxisHandler::setName( const char* nm )
     reCalc();
 }
 
-bool uiAxisHandler::doPlotExtreme( float val1, float val2 ) const
+bool uiAxisHandler::doPlotExtreme( float plottedxtrmval, bool isstart ) const
 {
+    const float actxtrmval = isstart ? rg_.start : rg_.stop;
+    if (setup_.annotinint_ )
+	return false;
     const uiFont& uifont = uiFontList::getInst().get(setup_.fontdata_.family());
     const int reqnrchars = getNrAnnotCharsForDisp();
-    const float val1pospix = getRelPosPix( (val1-rg_.start)/rgwidth_ );
-    const float val2pospix = getRelPosPix( (val2-rg_.start)/rgwidth_ );
-    const int val1endpix = val1pospix + (reqnrchars/2)*uifont.avgWidth();
-    const int val2startpix = val2pospix - (reqnrchars/2)*uifont.avgWidth();
-    return ( !mIsEqual(val1,val2,rg_.step/100.f) && (!setup_.annotinint_ ||
-	      mIsEqual(val1,mNINT32(val1),1e-4)) ) && val1endpix<val2startpix;
+    const int actxtrmvalpospix = getPix( actxtrmval );
+    const int plottedxtrmvalpospix = getPix( plottedxtrmval );
+    const float halftxtwidth =
+	isHor() ? ( (float)reqnrchars/2) * uifont.avgWidth()
+		: uifont.height()/2 ;
+    const bool ismin = (isstart && !rgisrev_) || (rgisrev_ && !isstart);
+    const int fac = ismin ? 1 : -1;
+    const int actxtrmvalendpix = actxtrmvalpospix + fac*mNINT32( halftxtwidth );
+    const int plottedxtrmvalendpix =
+	plottedxtrmvalpospix - fac*mNINT32( halftxtwidth );
+    const bool doesannotcoincide =
+	ismin ? actxtrmvalendpix > plottedxtrmvalendpix
+	      : actxtrmvalendpix < plottedxtrmvalendpix;
+    return !doesannotcoincide;
 }
 
 void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
@@ -151,16 +162,21 @@ void uiAxisHandler::reCalc()
 	calcwdth_ += font.height();
 
     int rgwdth = 0;
-    const int nrsteps = annotrg.nrSteps();
+    int nrsteps = annotrg.nrSteps();
+    if ( !rg_.includes(annotrg.atIndex(nrsteps),false) )
+	nrsteps--;
     const int reqnrchars = getNrAnnotCharsForDisp();
-    if ( doPlotExtreme(rg_.start,annotstart_) )
+    if ( doPlotExtreme(annotstart_,true) )
     {
 	pos_ += 0.0f;
 	strs_.add( toString(rg_.start,rg_.start<0 ? reqnrchars+1 : reqnrchars));
     }
+
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
-	float pos = annotrg.start + idx * rg_.step;
+	float pos = annotrg.atIndex( idx );
+	if ( !rg_.includes(pos,rgisrev_) )
+	    continue;
 	if ( mIsZero( pos, setup_.epsaroundzero_ ) )
 	    pos = 0;
 	const BufferString posstr( toString(pos,pos<0 ? reqnrchars+1
@@ -177,7 +193,7 @@ void uiAxisHandler::reCalc()
 	    rgwdth = wdth;
     }
 
-    if ( doPlotExtreme(rg_.stop, annotrg.start + nrsteps*annotrg.step) )
+    if ( doPlotExtreme(annotrg.atIndex(nrsteps),false) )
     {
 	pos_ += 1.0f;
 	strs_.add( toString(rg_.stop,rg_.stop<0 ? reqnrchars+1 : reqnrchars) );

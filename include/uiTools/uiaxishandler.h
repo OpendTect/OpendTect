@@ -182,7 +182,7 @@ protected:
     void		annotPos(int,const char*,const LineStyle&);
     void		updateName();
 
-    bool		doPlotExtreme(float val1, float val2) const;
+    bool		doPlotExtreme(float plottextrmval,bool isstart) const;
 };
 
 //! draws line not outside box defined by X and Y value ranges

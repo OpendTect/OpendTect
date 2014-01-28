@@ -67,7 +67,8 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 	{ double tmp = br.left(); br.setLeft(br.right()); br.setRight(tmp); } \
     if ( wr.bottom() > wr.top() ) \
 	{ double tmp = br.top(); br.setTop(br.bottom()); br.setBottom(tmp); } \
-    uiWorld2Ui w2u( br, uiSize(scene_->width(),scene_->height()) );
+    uiWorld2Ui w2u( br, uiSize(mNINT32(scene_->width()), \
+			       mNINT32(scene_->height())) );
 
 void uiFlatViewThumbnail::draw()
 {
