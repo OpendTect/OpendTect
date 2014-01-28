@@ -1573,6 +1573,9 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 float Provider::getInputValue( const DataHolder& input, int inputidx,
 			       int sampleidx, int z0 ) const
 {
+    if ( inputidx<0 || inputidx>=input.nrSeries() )
+	return mUdf(float);
+
     float extraz = 0;
     if ( needinterp_ )
     {
