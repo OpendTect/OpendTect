@@ -119,6 +119,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::Attrib );
+    IOPar& iop = jobSpec().pars_;
+    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, botgrp );
 }
 
@@ -427,7 +429,6 @@ bool uiAttrVolOut::fillPar()
 		 attrpar.getValue(idx) );
     }
 
-    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     const BufferString keybase = IOPar::compKey(Attrib::Output::outputstr(),0);
     const BufferString attribkey =
 	IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
