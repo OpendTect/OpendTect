@@ -105,17 +105,20 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 }
 
 
-#define mInsertItemNoIcon( txt, func ) \
-{ \
-    uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func));\
-    filemnu->insertItem( itm ); \
-}
-
-#define mInsertItem( txt, func, fnm ) \
+#define mInsertMnuItem( mnu, txt, func, fnm ) \
 { \
     uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func),fnm);\
-    filemnu->insertItem( itm ); \
+    mnu->insertItem( itm ); \
 }
+
+#define mInsertMnuItemNoIcon( mnu, txt, func ) \
+{ \
+    uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func));\
+    mnu->insertItem( itm ); \
+}
+
+#define mInsertItem( txt, func, fnm ) mInsertMnuItem(filemnu,txt,func,fnm)
+#define mInsertItemNoIcon( txt, func ) mInsertMnuItemNoIcon(filemnu,txt,func)
 
 void uiAttribDescSetEd::createMenuBar()
 {
@@ -129,13 +132,15 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItem( "&Save set ...", savePush, "save" );
     mInsertItem( "&Save set as ...", saveAsPush, "saveas" );
     mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
-    mInsertItemNoIcon( "&Change input ...", changeInput );
+    mInsertItemNoIcon( "&Change attribute input(s) ...", changeInput );
     filemnu->insertSeparator();
     mInsertItem( "Open &Default set ...", defaultSet, "defset" );
-    mInsertItem( "&Import set ...", importSet, "impset" );
-    mInsertItemNoIcon( "Import set from &file ...", importFile );
-    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set" );
+    uiMenu* impmnu = new uiMenu( this, "&Import" );
+    mInsertMnuItem( impmnu, "From other &Survey ...", importSet, "impset" );
+    mInsertMnuItemNoIcon( impmnu, "From &File ...", importFile );
+    mInsertItem( "&Reconstruct from job file ...", job2Set, "job2set" );
 
+    filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
 }
 
