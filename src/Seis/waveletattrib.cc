@@ -15,12 +15,14 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "fourier.h"
 #include "hilberttransform.h"
+#include "phase.h"
 #include "wavelet.h"
 
 
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
 	, wvltsz_(0)
+	, centersample_(wvlt.centerSample())
 {
     setNewWavelet( wvlt );
 }
@@ -35,6 +37,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
     wvltsz_ = wvlt.size();
     delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
     OD::memCopy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
+    centersample_ = wvlt.centerSample();
 }
 
 
@@ -61,51 +64,21 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
 }
 
 
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree ) const
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
 {
-    Array1DImpl<float_complex> cindata( wvltsz_ );
-    for ( int sampidx=0; sampidx<wvltsz_; sampidx++ )
-	cindata.set( sampidx, wvltarr_->get( sampidx ) );
-
-    Array1DImpl<float_complex> coutdata( wvltsz_ );
-    mDoFFT( true, cindata, coutdata, wvltsz_ );
+    Array1DImpl<float> cindata( wvltsz_ );
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
-	float re = coutdata.get(idx).real();
-	float im = coutdata.get(idx).imag();
-	float ph = (re*re+im*im) ? atan2( im, re )  : 0;
-	phase.set( idx, degree ? (float) (180*ph/M_PI) : ph );
+	int idy = idx;
+	idy += idx < wvltsz_ - centersample_ ? centersample_
+					     : centersample_ - wvltsz_;
+	cindata.set( idx, wvltarr_->get(idy) );
     }
 
-    unwrapPhase( wvltsz_, 1, phase.arr() );
-}
-
-
-//TODO put this in algo :
-void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
-{
-    if ( w == 0 )
-	{ pFreeFnErrMsg("wrapping parameter is zero",
-			"WaveletAttrib::unwrapPhase"); return; }
-
-    mAllocVarLenArr( float, dphase, nrsamples );
-    mAllocVarLenArr( float, temp, nrsamples );
-
-    float pibyw = (float) M_PI/w;
-
-    temp[0] = phase[0];
-    dphase[0] = 0;
-    for ( int idx=1; idx<nrsamples; idx++ )
-    {
-	dphase[idx] = fabs( phase[idx] - phase[idx-1] );
-	if ( fabs( dphase[idx] - dphase[idx-1] ) >= pibyw )
-	    dphase[idx] = dphase[idx-1];
-
-	temp[idx] = temp[idx-1] + dphase[idx];
-    }
-
-    for ( int idx=1; idx<nrsamples; idx++ )
-	phase[idx] = temp[idx];
+    Phase phasecomputer( cindata );
+    phasecomputer.setUnitDeg( indegrees );
+    if ( phasecomputer.calculate() )
+	phase = phasecomputer.getPhase();
 }
 
 

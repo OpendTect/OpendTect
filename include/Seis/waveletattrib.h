@@ -21,14 +21,14 @@ template <class T> class Array1DImpl;
 mExpClass(Seis) WaveletAttrib
 {
 public:
-    			WaveletAttrib(const Wavelet&);
+			WaveletAttrib(const Wavelet&);
 			~WaveletAttrib();
 
     void		setNewWavelet(const Wavelet&);
     void		getHilbert(Array1DImpl<float>&) const;
     void		getPhase(Array1DImpl<float>&,bool degree=false) const;
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
-    			//frequency array will be resized to padfac*array size )
+			//frequency array will be resized to padfac*array size )
     void		applyFreqWindow(const ArrayNDWindow&, int padfac,
 					Array1DImpl<float>&);
 
@@ -39,6 +39,7 @@ protected:
 
     Array1DImpl<float>* wvltarr_;
     int			wvltsz_;
+    int			centersample_;
 };
 
 #endif

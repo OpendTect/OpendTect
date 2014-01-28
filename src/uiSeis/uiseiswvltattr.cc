@@ -265,8 +265,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    , wvltsz_(wvlt.size())
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
-    float maxfreq = 0.5f/wvlt.sampleRate();
-    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
+    const float maxfreq = 1.f / wvlt.sampleRate();
     freqrange_.set( 0, maxfreq );
 
     for ( int iattr=0; iattr<3; iattr++ )
@@ -317,9 +316,37 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 
     wvltattr_->getFrequency( *attrarrays_[1], mPaddFac );
     wvltattr_->getPhase( *attrarrays_[2], true );
+    float maxval = -1.f;
+    for ( int idx=attrarrays_[1]->info().getSize(0)/2; idx>=0; idx-- )
+    {
+	if ( attrarrays_[1]->get(idx) > maxval )
+	    maxval = attrarrays_[1]->get(idx);
+    }
+    int idxnoamp = mUdf(int);
+    maxval /= 1000.f; // noise detection threshold
+    for ( int idx=attrarrays_[1]->info().getSize(0)/2; idx>=0; idx-- )
+    {
+	if ( attrarrays_[1]->get(idx) > maxval )
+	{
+	    idxnoamp = idx;
+	    break;
+	}
+    }
+    const float maxfreq = freqrange_.stop * mCast(float,idxnoamp) /
+			  mCast(float,attrarrays_[1]->info().getSize(0));
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
+    {
+	const int sz =	attrarrays_[idx]->info().getSize(0);
 	attrdisps_[idx]->setVals( idx==0 ? timerange_ : freqrange_,
-				  attrarrays_[idx]->arr(),
-				  idx==1 ? mPadSz : wvltsz_ );
+				  attrarrays_[idx]->arr(), sz );
+    }
+
+    const float freqstep = SI().zIsTime() ? 10.f : 5.f;
+    const StepInterval<float> freqrg( 0.f, maxfreq, freqstep );
+    attrdisps_[1]->xAxis()->setRange( freqrg );
+    attrdisps_[2]->xAxis()->setRange( freqrg );
+
+    const StepInterval<float> phaserg( -180.f, 180.f, 45.f );
+    attrdisps_[2]->yAxis(false)->setRange( phaserg );
 }

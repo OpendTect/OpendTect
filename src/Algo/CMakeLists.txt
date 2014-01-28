@@ -40,6 +40,7 @@ set(OD_MODULE_SOURCES
 	    mathfunc.cc
 	    muter.cc
 	    pca.cc
+	    phase.cc
 	    posfilter.cc
 	    positionlist.cc
 	    probdenfunc.cc
