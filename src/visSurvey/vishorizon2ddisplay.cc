@@ -43,8 +43,10 @@ Horizon2DDisplay::Horizon2DDisplay()
 
 Horizon2DDisplay::~Horizon2DDisplay()
 {
+    setZAxisTransform( 0, 0 );
+
     for ( int idx=0; idx<sids_.size(); idx++ )
-    	removeSectionDisplay( sids_[idx] );
+	removeSectionDisplay( sids_[idx] );
 
     removeEMStuff();
 }
@@ -134,7 +136,7 @@ const visBase::PointSet* Horizon2DDisplay::getPointSet(
 
 void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 {
-    // TODO: set the draw style correctly after properly implementing 
+    // TODO: set the draw style correctly after properly implementing
     // different line styles. Only SOLID is supported now.
     //EMObjectDisplay::drawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
 
@@ -183,7 +185,7 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 }
 
 
-bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z, 
+bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 				     const LineRanges& linergs )
 {
     if ( rc.row()<linergs.trcrgs.size() && rc.row()<linergs.zrgs.size() )
@@ -191,7 +193,7 @@ bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 	for ( int idx=0; idx<linergs.trcrgs[rc.row()].size(); idx++ )
 	{
 	    if ( idx<linergs.zrgs[rc.row()].size() &&
-		 linergs.zrgs[rc.row()][idx].includes(z,true) && 
+		 linergs.zrgs[rc.row()][idx].includes(z,true) &&
 		 linergs.trcrgs[rc.row()][idx].includes(rc.col(),true) )
 		return true;
 	}
@@ -206,7 +208,7 @@ public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
 		visBase::VertexShape* shape, visBase::PointSet* points,
-       		const ZAxisTransform* zaxt, const BufferStringSet& linenames )
+		const ZAxisTransform* zaxt, const BufferStringSet& linenames )
     : surf_( rcs )
     , lines_( shape )
     , points_( points )
@@ -280,10 +282,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		if ( positions.size() )
 		    sendPositions( positions );
 	    }
-	    else 
+	    else
 	    {
-    		if ( zaxt_ )
-    		    pos.z = zaxt_->transform2D( linenm, rc.col(), zval ); 
+		if ( zaxt_ )
+		    pos.z = zaxt_->transform2D( linenm, rc.col(), zval );
 		if ( !mIsUdf(pos.z) )
 		positions += pos;
 		else if ( positions.size() )
@@ -359,12 +361,12 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     if ( !emobject_ ) return;
     const EM::SectionID sid = emobject_->sectionID( idx );
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
-	    	    emobject_->sectionGeometry(sid));
+		    emobject_->sectionGeometry(sid));
 
     visBase::PolyLine3D* pl = lines_[idx];
     visBase::PointSet* ps = points_[idx];
-   
-    if ( !ps ) 
+
+    if ( !ps )
     {
 	ps = visBase::PointSet::create();
 	ps->ref();
@@ -377,7 +379,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     BufferStringSet linenames;
     EM::IOObjInfo info( emobject_->multiID() );
     info.getLineNames( linenames );
-	
+
     LineRanges linergs;
     mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
     const bool redo = h2d && zaxistransform_ && linenames.isEmpty();
@@ -391,16 +393,16 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
-		const Geometry::Horizon2DLine* ghl = 
+		const Geometry::Horizon2DLine* ghl =
 		    emgeo.sectionGeometry( h2d->sectionID(idy) );
 		if ( ghl )
-		{ 
-	    	    linergs.trcrgs += TypeSet<Interval<int> >();
-    		    linergs.zrgs += TypeSet<Interval<float> >();
-    		    const int ridx = linergs.trcrgs.size()-1;
-		    
-    		    linergs.trcrgs[ridx] += ghl->colRange( l2dkey );
-    		    linergs.zrgs[ridx] += ghl->zRange( l2dkey );
+		{
+		    linergs.trcrgs += TypeSet<Interval<int> >();
+		    linergs.zrgs += TypeSet<Interval<float> >();
+		    const int ridx = linergs.trcrgs.size()-1;
+
+		    linergs.trcrgs[ridx] += ghl->colRange( l2dkey );
+		    linergs.zrgs[ridx] += ghl->zRange( l2dkey );
 		}
 	    }
 	}
@@ -434,7 +436,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 
     mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
     if ( !h2d ) return;
-    
+
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
     {
@@ -457,7 +459,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
-		const float maxdist = 
+		const float maxdist =
 			(float) ( 0.1 * sp0.distTo(sp1) / trcrg.width() );
 		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
 		    continue;
