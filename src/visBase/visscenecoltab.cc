@@ -31,7 +31,7 @@ SceneColTab::SceneColTab()
     , osgcolorbar_(new osgGeo::ScalarBar)
     , flipseq_(false)
     , width_(20)
-    , height_(200)
+    , height_(250)
     , horizontal_(false)
 {
     addChild( osgcolorbar_ );

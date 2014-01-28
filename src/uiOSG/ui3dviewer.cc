@@ -296,7 +296,7 @@ void ui3DViewerBody::setupHUD()
 	hudscene_->addObject( visscenecoltab_ );
 	visscenecoltab_->setAnnotFont( FontData() );
 	visscenecoltab_->turnOn( false );
-	visscenecoltab_->setPos( visBase::SceneColTab::Left );
+	visscenecoltab_->setPos( visBase::SceneColTab::Bottom );
     }
 }
 
