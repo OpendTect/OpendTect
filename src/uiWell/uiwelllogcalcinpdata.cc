@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogcalc.h"
 #include "uiwelllogdisplay.h"
 
+#include "hiddenparam.h"
 #include "welllogset.h"
 #include "welllog.h"
 #include "separstr.h"
@@ -30,17 +31,20 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
 
+HiddenParam<uiWellLogCalcInpData,int>      doforceunitmanager( 0 );
+
 uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
     : uiMathExpressionVariable(inpgrp,p->lognms_,fieldnr)
     , wls_(&p->wls_)
     , convertedlog_(0)
 {
-    inpfld_->box()->selectionChanged.notify( 
+    doforceunitmanager.setParam( this,0);
+    inpfld_->box()->selectionChanged.notify(
 				    mCB( this,uiWellLogCalcInpData,inputSel ) );
     inpfld_->box()->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
     uiToolButton* tb = new uiToolButton( this, "view_log", "Display this log",
-	    			mCB(this,uiWellLogCalcInpData,vwLog) );
+				mCB(this,uiWellLogCalcInpData,vwLog) );
     tb->attach( rightOf, inpfld_ );
     unfld_->attach( ensureRightOf, tb );
 
@@ -58,6 +62,8 @@ uiWellLogCalcInpData::~uiWellLogCalcInpData()
 
 void uiWellLogCalcInpData::use( const MathExpression* expr )
 {
+    doforceunitmanager.setParam( this,0);
+
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     if ( idx_ >= nrvars )
 	{ display( false ); return; }
@@ -97,8 +103,8 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
     if ( !inpdata.wl_ )
     {
 	BufferString errmsg = "This well has no valid log to use as input,\n";
-        errmsg += "the well log has to be of the adequate property type.\n";	
-	errmsg += "Use well manager to either import or create your logs";      
+        errmsg += "the well log has to be of the adequate property type.\n";
+	errmsg += "Use well manager to either import or create your logs";
 	uiMSG().error( errmsg );
 	return false;
     }
@@ -117,7 +123,7 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 	const float valinsi = logun
 		? logun->getSIValue( initialval ) : initialval;
 	const float convertedval = convertun
-	    	? convertun->getUserValueFromSI( valinsi ) : valinsi;
+		? convertun->getUserValueFromSI( valinsi ) : valinsi;
 	convertedlog_->valArr()[idx] = convertedval;
     }
 
@@ -128,7 +134,7 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 
 void uiWellLogCalcInpData::inputSel( CallBacker* )
 {
-    if ( !unfld_ ) return;
+    if ( !unfld_ || doforceunitmanager.getParam(this) ) return;
     const Well::Log* wl = getLog();
     if ( !wl ) return;
 
@@ -172,12 +178,33 @@ void uiWellLogCalcInpData::restrictLogChoice( const PropertyRef::StdType& type )
     if ( !wls_ ) return;
     PropertyRef property( "dummy", type );
     BufferStringSet lognms;
-    TypeSet<int> propidx;                                                   
+    TypeSet<int> propidx;
     TypeSet<int> isaltpropref;
     uiWellLogCalc::getSuitableLogs( *wls_, lognms, propidx, isaltpropref,
-	    			    property, 0 );
+				    property, 0 );
     const_cast<BufferStringSet&>(posinpnms_) = lognms;
     inpfld_->box()->setEmpty();
     inpfld_->box()->addItems( lognms );
     inpfld_->box()->addItem( "Constant" );
+}
+
+
+void uiWellLogCalcInpData::resetLogRestriction()
+{
+    if ( !wls_ ) return;
+    BufferStringSet lognms;
+    for ( int idlog=0; idlog<wls_->size(); idlog++ )
+	lognms.add( wls_->getLog(idlog).name() );
+
+    const_cast<BufferStringSet&>(posinpnms_) = lognms;
+    inpfld_->box()->setEmpty();
+    inpfld_->box()->addItems( lognms );
+    inpfld_->box()->addItem( "Constant" );
+}
+
+
+void uiWellLogCalcInpData::forceUnit( const char* s )
+{
+    doforceunitmanager.setParam( this,1);
+    uiMathExpressionVariable::setUnit(s);
 }

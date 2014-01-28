@@ -237,15 +237,26 @@ void uiWellLogCalc::formSet( CallBacker* c )
     getMathExpr();
     nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;
     int truevaridx = 0;	//should always be ==idx if inputunits_.size, safety.
+    bool needsreset = false;
+    if ( c )	//then formula has been filled in by hand, prev sets are reset
+    {
+	needsreset = inputtypes_.size();
+	inputtypes_.erase();
+	inputunits_.setEmpty();
+    }
+
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
 	const bool isinpcst = inpdataflds_[idx]->isCst();
 	if ( inputtypes_.size()>truevaridx && !isinpcst )
 	    inpdataflds_[idx]->restrictLogChoice( inputtypes_[truevaridx] );
+	else if ( !isinpcst && needsreset )
+	    inpdataflds_[idx]->resetLogRestriction();
+
 	inpdataflds_[idx]->use( expr_ );
 	if ( inputunits_.size()>truevaridx && !isinpcst )
 	{
-	    inpdataflds_[idx]->setUnit( inputunits_.get(truevaridx).buf() );
+	    inpdataflds_[idx]->forceUnit( inputunits_.get(truevaridx).buf() );
 	    truevaridx++;
 	}
     }

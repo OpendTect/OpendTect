@@ -31,9 +31,11 @@ public:
 			~uiWellLogCalcInpData();
 
     virtual void	use(const MathExpression*);
+    void		forceUnit(const char*);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);
     void		restrictLogChoice(const PropertyRef::StdType&);
+    void		resetLogRestriction();
 
     const Well::LogSet* wls_;
 
