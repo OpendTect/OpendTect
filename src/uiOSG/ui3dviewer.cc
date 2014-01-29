@@ -844,13 +844,18 @@ void ui3DViewerBody::viewPlaneZ()
 	view_->getCameraManipulator() );
 
     if ( !manip ) return;
-    osg::Vec3d eye,center,up;
-    manip->getTransformation( eye,center,up );
-    
-    osg::Vec3 updir = center- eye;
-    updir.normalize();
-    
-   setCameraPos( updir, osg::Vec3d(0,0,1) , true );
+
+    osg::Vec3d oldeye, center, oldup;
+    manip->getTransformation( oldeye, center, oldup );
+    const osg::Vec3f oldviewdir = center-oldeye;
+    const osg::Vec3f viewplanenormal = oldviewdir^oldup;
+
+    const osg::Vec3f newviewdir(0,0,1);
+    osg::Vec3 newup = newviewdir^viewplanenormal;
+
+    newup.normalize();
+
+    setCameraPos( newup, osg::Vec3d(0,0,1) , true );
 
 }
 
