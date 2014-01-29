@@ -13,12 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiprestackprocessingmod.h"
-#include "uibatchlaunch.h"
-
-
+#include "uidialog.h"
 class CtxtIOObj;
 class uiSeisSel;
 class uiPosSubSel;
+class uiBatchJobDispatcherSel;
+
 
 namespace PreStack
 {
@@ -26,15 +26,16 @@ class uiProcSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
-mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiFullBatchDialog
+mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiDialog
 {
 public:
-    		uiBatchProcSetup(uiParent*,bool is2d );
-		~uiBatchProcSetup();
+
+			uiBatchProcSetup(uiParent*,bool is2d);
+			~uiBatchProcSetup();
 
 protected:
 
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     bool		prepareProcessing();
     void		outputNameChangeCB(CallBacker*);
 
@@ -48,10 +49,14 @@ protected:
     CtxtIOObj&		outputctxt_;
     uiSeisSel*		outputsel_;
     bool		is2d_;
+
+    uiBatchJobDispatcherSel* batchfld_;
+
+    bool		acceptOK(CallBacker*);
+
 };
 
 }; //namespace
 
 
 #endif
-

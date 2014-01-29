@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipossubsel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
+#include "uibatchjobdispatchersel.h"
 #include "uiprestackprocessorsel.h"
 #include "prestackprocessor.h"
 
@@ -22,38 +23,34 @@ namespace PreStack
 {
 
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
-    : uiFullBatchDialog( p,
-	uiFullBatchDialog::Setup("Pre stack processing")
-	.procprognm("od_process_prestack" ) )
+    : uiDialog(p,Setup("Pre-Stack Processing",mNoDlgTitle,"103.2.10"))
     , outputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    false ) )
     , inputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    true ) )
     , is2d_( is2d )
 {
-    setTitleText( "Prestack processing" );
-    setHelpID( "103.2.10" );
-
-    chainsel_ = new uiProcSel( uppgrp_, "Setup", 0 );
+    chainsel_ = new uiProcSel( this, "Setup", 0 );
 
     inputctxt_.ctxt.forread = true;
-    inputsel_ = new uiSeisSel( uppgrp_,
+    inputsel_ = new uiSeisSel( this,
 	       inputctxt_,uiSeisSel::Setup( is2d ? Seis::LinePS : Seis::VolPS));
     inputsel_->attach( alignedBelow, chainsel_ );
 
-    possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(is2d,false) );
+    possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(is2d,false) );
     possubsel_->attach( alignedBelow, inputsel_ );
 
     outputctxt_.ctxt.forread = false;
-    outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
+    outputsel_ = new uiSeisSel( this, outputctxt_,
 		       uiSeisSel::Setup( is2d ? Seis::LinePS : Seis::VolPS ));
     outputsel_->attach( alignedBelow, possubsel_ );
     outputsel_->selectionDone.notify(
 				 mCB(this,uiBatchProcSetup,outputNameChangeCB));
 
-    uppgrp_->setHAlignObj( possubsel_ );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::PreStack );
+    batchfld_->attach( alignedBelow, outputsel_ );
 
-    addStdFields( false, true );
     outputNameChangeCB( 0 );
 }
 
@@ -67,15 +64,9 @@ uiBatchProcSetup::~uiBatchProcSetup()
 
 void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
 {
-    BufferString parfilename = "od_process_prestack";
-    if ( outputsel_->ioobj(true) )
-    {
-	parfilename += "_";
-	parfilename += outputsel_->ioobj(true)->name();
-	parfilename.clean();
-    }
-
-    setParFileNmDef( parfilename );
+    const IOObj* ioobj = outputsel_->ioobj( true );
+    if ( ioobj )
+	batchfld_->setJobName( ioobj->name() );
 }
 
 
@@ -109,8 +100,10 @@ bool uiBatchProcSetup::prepareProcessing()
 }
 
 
-bool uiBatchProcSetup::fillPar( IOPar& par )
+bool uiBatchProcSetup::fillPar()
 {
+    IOPar& par = batchfld_->jobSpec().pars_;
+
     if ( !inputctxt_.ioobj || !outputctxt_.ioobj )
 	return false;
 
@@ -130,4 +123,11 @@ bool uiBatchProcSetup::fillPar( IOPar& par )
     return true;
 }
 
-};
+
+bool uiBatchProcSetup::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
+}
+
+
+} // namespace PreStack
