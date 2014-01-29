@@ -30,7 +30,7 @@ public:
 
 protected:
     void			updateActModeCursor();
-    osgGA::GUIActionAdapter&    getActionAdapter();
+    osgViewer::GraphicsWindow&	getGraphicsWindow();
     osg::GraphicsContext*       getGraphicsContext();
 
 						

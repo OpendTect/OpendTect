@@ -179,9 +179,11 @@ public:
 
     Notifier<uiEventFilter>	eventhappened;
     EventType			getCurrentEventType() const;
-				//Only set when notifier is triggered.
+				//!<Only set when notifier is triggered.
+    QEvent*			getCurrentEvent();
+				//!<Only set when notifier is triggered.
     const QEvent*		getCurrentEvent() const;
-				//Only set when notifier is triggered.
+				//!<Only set when notifier is triggered.
 
     void			setBlockEvent(bool yn);
     bool			getBlockEvent() const;

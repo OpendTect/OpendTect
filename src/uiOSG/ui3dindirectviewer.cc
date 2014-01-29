@@ -140,25 +140,47 @@ void GraphicsWindowQt::setCursor( MouseCursor cursor )
 
     switch ( cursor )
     {
-    case NoCursor: _currentCursor = Qt::BlankCursor; break;
-    case RightArrowCursor: case LeftArrowCursor: _currentCursor = Qt::ArrowCursor; break;
-    case InfoCursor: _currentCursor = Qt::SizeAllCursor; break;
-    case DestroyCursor: _currentCursor = Qt::ForbiddenCursor; break;
-    case HelpCursor: _currentCursor = Qt::WhatsThisCursor; break;
-    case CycleCursor: _currentCursor = Qt::ForbiddenCursor; break;
-    case SprayCursor: _currentCursor = Qt::SizeAllCursor; break;
-    case WaitCursor: _currentCursor = Qt::WaitCursor; break;
-    case TextCursor: _currentCursor = Qt::IBeamCursor; break;
-    case CrosshairCursor: _currentCursor = Qt::CrossCursor; break;
-    case HandCursor: _currentCursor = Qt::OpenHandCursor; break;
-    case UpDownCursor: _currentCursor = Qt::SizeVerCursor; break;
-    case LeftRightCursor: _currentCursor = Qt::SizeHorCursor; break;
-    case TopSideCursor: case BottomSideCursor: _currentCursor = Qt::UpArrowCursor; break;
-    case LeftSideCursor: case RightSideCursor: _currentCursor = Qt::SizeHorCursor; break;
-    case TopLeftCorner: _currentCursor = Qt::SizeBDiagCursor; break;
-    case TopRightCorner: _currentCursor = Qt::SizeFDiagCursor; break;
-    case BottomRightCorner: _currentCursor = Qt::SizeBDiagCursor; break;
-    case BottomLeftCorner: _currentCursor = Qt::SizeFDiagCursor; break;
+    case NoCursor:
+	_currentCursor = Qt::BlankCursor; break;
+    case RightArrowCursor:
+    case LeftArrowCursor:
+	_currentCursor = Qt::ArrowCursor; break;
+    case InfoCursor:
+	_currentCursor = Qt::SizeAllCursor; break;
+    case DestroyCursor:
+	_currentCursor = Qt::ForbiddenCursor; break;
+    case HelpCursor:
+	_currentCursor = Qt::WhatsThisCursor; break;
+    case CycleCursor:
+	_currentCursor = Qt::ForbiddenCursor; break;
+    case SprayCursor:
+	_currentCursor = Qt::SizeAllCursor; break;
+    case WaitCursor:
+	_currentCursor = Qt::WaitCursor; break;
+    case TextCursor:
+	_currentCursor = Qt::IBeamCursor; break;
+    case CrosshairCursor:
+	_currentCursor = Qt::CrossCursor; break;
+    case HandCursor:
+	_currentCursor = Qt::OpenHandCursor; break;
+    case UpDownCursor:
+	_currentCursor = Qt::SizeVerCursor; break;
+    case LeftRightCursor:
+	_currentCursor = Qt::SizeHorCursor; break;
+    case TopSideCursor:
+    case BottomSideCursor:
+	_currentCursor = Qt::UpArrowCursor; break;
+    case LeftSideCursor:
+    case RightSideCursor:
+	_currentCursor = Qt::SizeHorCursor; break;
+    case TopLeftCorner:
+	_currentCursor = Qt::SizeBDiagCursor; break;
+    case TopRightCorner:
+	_currentCursor = Qt::SizeFDiagCursor; break;
+    case BottomRightCorner:
+	_currentCursor = Qt::SizeBDiagCursor; break;
+    case BottomLeftCorner:
+	_currentCursor = Qt::SizeFDiagCursor; break;
     default: break;
     };
     if ( qwidget_ ) qwidget_->setCursor( _currentCursor );
@@ -326,7 +348,8 @@ void OsgIndirectViewWidget<T>::resizeEvent( QResizeEvent* qre )
 {
     const QSize& qsize = qre->size();
     gw_->resized( this->x(), this->y(), qsize.width(), qsize.height() );
-    gw_->getEventQueue()->windowResize( this->x(), this->y(), qsize.width(), qsize.height() );
+    gw_->getEventQueue()->windowResize( this->x(), this->y(),
+					qsize.width(), qsize.height() );
     gw_->requestRedraw();
 }
 
@@ -336,7 +359,8 @@ void OsgIndirectViewWidget<T>::moveEvent( QMoveEvent* qme )
 {
     const QPoint& qpos = qme->pos();
     gw_->resized( qpos.x(), qpos.y(), this->width(), this->height() );
-    gw_->getEventQueue()->windowResize( qpos.x(), qpos.y(), this->width(), this->height() );
+    gw_->getEventQueue()->windowResize( qpos.x(), qpos.y(),
+					this->width(), this->height() );
 }
 
 
@@ -656,6 +680,10 @@ ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
     graphicswin_ = new GraphicsWindowIndirect( widget );
     graphicswin_->ref();
     setStretch(2,2);
+
+    setupHUD();
+    setupView();
+    setupTouch();
 }
 
 
@@ -669,7 +697,7 @@ const QWidget* ui3DIndirectViewBody::qwidget_() const
 { return graphicswin_->getWidget(); }
 
 
-osgGA::GUIActionAdapter& ui3DIndirectViewBody::getActionAdapter()
+osgViewer::GraphicsWindow& ui3DIndirectViewBody::getGraphicsWindow()
 {
     return *graphicswin_;
 }

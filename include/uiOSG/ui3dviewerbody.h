@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "visosg.h"
 #include "uieventfilter.h"
 
+class QGestureEvent;
+
 namespace visBase
 {
     class Axes;
@@ -30,8 +32,8 @@ namespace visBase
     class DataObjectGroup;
 }
 
-namespace osgGA { class GUIActionAdapter; }
-namespace osgViewer { class CompositeViewer; class View; }
+
+namespace osgViewer { class CompositeViewer; class View; class GraphicsWindow; }
 namespace osgGeo { class TrackballManipulator; }
 
 class ui3DViewer;
@@ -115,14 +117,17 @@ public:
     void			fillCameraPos(IOPar&) const;
     bool			useCameraPos(const IOPar&);
 
-protected:
 
+
+protected:
+    void				setupTouch();
     void				setupHUD();
     void				setupView();
     void				qtEventCB(CallBacker*);
+    void				handleGestureEvent(QGestureEvent*);
 
     static osgViewer::CompositeViewer*	getCompositeViewer();
-    virtual osgGA::GUIActionAdapter&	getActionAdapter()	= 0;
+    virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
 
     uiObject&				uiObjHandle();

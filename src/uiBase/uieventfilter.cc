@@ -30,7 +30,7 @@ public:
     static QEvent::Type			translate(uiEventFilter::EventType);
 
 					//Set at the events
-    const QEvent*			currentevent_;
+    QEvent*				currentevent_;
     bool				blockevent_;
 
     TypeSet<QEvent::Type>		eventtypes_;
@@ -80,6 +80,10 @@ void uiEventFilter::setBlockEvent(bool yn)
 
 bool uiEventFilter::getBlockEvent() const
 { return impl_->blockevent_; }
+
+
+QEvent* uiEventFilter::getCurrentEvent()
+{ return impl_->currentevent_; }
 
 
 const QEvent* uiEventFilter::getCurrentEvent() const

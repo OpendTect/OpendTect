@@ -55,6 +55,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_layoutitem.h"
 
 #include <QTabletEvent>
+#include <QGestureEvent>
+#include <QGesture>
 #include <QPainter>
 
 
@@ -122,7 +124,7 @@ public:
 
 protected:
     void			updateActModeCursor();
-    osgGA::GUIActionAdapter&	getActionAdapter() {return *graphicswin_.get();}
+    osgViewer::GraphicsWindow&	getGraphicsWindow(){return *graphicswin_.get();}
     osg::GraphicsContext*	getGraphicsContext(){return graphicswin_.get();}
 
     bool			mousebutdown_;
@@ -146,11 +148,11 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     eventfilter_.attachToQObj( glw );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
-
     setStretch(2,2);
 
     setupHUD();
     setupView();
+    setupTouch();
 }
 
 const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
@@ -198,6 +200,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     eventfilter_.addEventType( uiEventFilter::KeyPress );
     eventfilter_.addEventType( uiEventFilter::Resize );
     eventfilter_.addEventType( uiEventFilter::Show );
+    eventfilter_.addEventType( uiEventFilter::Gesture );
 
     mAttachCB( eventfilter_.eventhappened, ui3DViewerBody::qtEventCB );
 }
@@ -298,6 +301,12 @@ void ui3DViewerBody::setupHUD()
 	visscenecoltab_->turnOn( false );
 	visscenecoltab_->setPos( visBase::SceneColTab::Bottom );
     }
+}
+
+
+void ui3DViewerBody::setupTouch()
+{
+    qwidget()->grabGesture(Qt::PinchGesture);
 }
 
 
@@ -404,6 +413,82 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
     return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
 }
 
+
+osgGA::GUIEventAdapter::TouchPhase
+    translateQtGestureState( Qt::GestureState state )
+{
+    osgGA::GUIEventAdapter::TouchPhase touchPhase;
+    switch ( state )
+    {
+	case Qt::GestureStarted:
+	    touchPhase = osgGA::GUIEventAdapter::TOUCH_BEGAN;
+	    break;
+	case Qt::GestureUpdated:
+	    touchPhase = osgGA::GUIEventAdapter::TOUCH_MOVED;
+	    break;
+	case Qt::GestureFinished:
+	case Qt::GestureCanceled:
+	    touchPhase = osgGA::GUIEventAdapter::TOUCH_ENDED;
+	    break;
+	default:
+	    touchPhase = osgGA::GUIEventAdapter::TOUCH_UNKNOWN;
+    };
+
+    return touchPhase;
+}
+
+
+void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
+{
+    bool accept = false;
+
+    if ( QPinchGesture* pinch =
+	    static_cast<QPinchGesture *>(qevent->gesture(Qt::PinchGesture) ) )
+    {
+	const QPointF qcenter = pinch->centerPoint();
+	const osg::Vec2 center( qcenter.x(), qcenter.y() );
+	const float angle = pinch->rotationAngle();
+	const float scale = pinch->scaleFactor();
+
+	//We don't have absolute positions of the two touches, only a scale and
+	//rotation. Hence we create pseudo-coordinates which are reasonable, and
+	//centered around the real position
+	const float radius = (qwidget()->width()+qwidget()->height())/4;
+	const osg::Vec2 vector(scale*cos(angle)*radius,scale*sin(angle)*radius);
+	const osg::Vec2 p0 = center+vector;
+	const osg::Vec2 p1 = center-vector;
+
+	osg::ref_ptr<osgGA::GUIEventAdapter> event = 0;
+	const osgGA::GUIEventAdapter::TouchPhase touchPhase =
+		translateQtGestureState( pinch->state() );
+	if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_BEGAN )
+	{
+	    event = getGraphicsWindow().getEventQueue()->touchBegan(0 ,
+					    touchPhase, p0[0], p0[1] );
+	}
+	else if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_MOVED )
+	{
+	    event = getGraphicsWindow().getEventQueue()->touchMoved( 0,
+					    touchPhase, p0[0], p0[1] );
+	}
+	else
+	{
+	    event = getGraphicsWindow().getEventQueue()->touchEnded( 0,
+					    touchPhase, p0[0], p0[1], 1 );
+	}
+
+	if ( event )
+	{
+	    event->addTouchPoint( 1, touchPhase, p1[0], p1[1] );
+	    accept = true;
+	}
+    }
+
+    if ( accept )
+	qevent->accept();
+}
+
+
 #define mLongSideDistance	15
 #define mShortSideDistance	40
 
@@ -506,7 +591,15 @@ visBase::SceneColTab* ui3DViewerBody::getSceneColTab() const
 
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
-    
+    if ( eventfilter_.getCurrentEventType()==
+	uiEventFilter::Gesture )
+    {
+	QGestureEvent* gestureevent =
+	    static_cast<QGestureEvent*> ( eventfilter_.getCurrentEvent() );
+
+	handleGestureEvent( gestureevent );
+    }
+
     if ( eventfilter_.getCurrentEventType()== 
 	uiEventFilter::Show && setinitialcamerapos_ )
     {
@@ -1027,6 +1120,7 @@ uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
     osgbody_ = direct
 	? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )
 	: (ui3DViewerBody*) new ui3DIndirectViewBody( *this, parnt );
+
 
     return *osgbody_;
 }
