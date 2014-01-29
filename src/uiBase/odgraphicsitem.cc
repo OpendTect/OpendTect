@@ -332,6 +332,13 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 }
 
 
+void ODViewerTextItem::setText( const char* t )
+{
+    prepareGeometryChange();
+    text_ = t;
+}
+
+
 QPointF ODViewerTextItem::getAlignment() const
 {
     float movex = 0, movey = 0;

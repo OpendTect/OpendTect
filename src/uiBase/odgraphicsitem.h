@@ -58,7 +58,8 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    static void 		drawMarker(QPainter&,MarkerStyle2D::Type,float,float);
+    static void 		drawMarker(QPainter&,MarkerStyle2D::Type,
+					   float,float);
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const Color& col )
@@ -118,7 +119,8 @@ public:
 			    , val_( Qt::AlignTop )
 			{}
     
-    void		setText(const char* t) { text_ = t; }
+    void		setText(const char*);
+
     QRectF		boundingRect() const;
     
     void		setFont( const QFont& f ) { font_ = f; }
