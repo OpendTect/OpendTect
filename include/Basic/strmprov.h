@@ -25,27 +25,28 @@ class BufferStringSet;
 /*!
 \brief Provides I/O stream for file or system command.
 
-  StreamProvider provides a stream with requested source attached:
-   - starting with '@' --> OS command
-   - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
+To specify a command, start with '@'. Hostname may be added as in OSCommand.
 
-  Thus:
-   - dgb1:@handle_data
-	Executable handle_data on remote host dgb1 will get/put on stdin/stdout.
-   - \\winserv\foo\bar
-	File \foo\bar on remote host winserv.
-   - foo.bar
-	File foo.bar in current directory.
+Examples:
+ - dgb1:@handle_data
+   @dgb1:handle_data
+   @dgb1:@handle_data
+   @\\dgb1:handle_data
+	Executable handle_data on remote host dgb1 that gets/puts data to/from
+	stdin/stdout.
+ - foo.bar
+	File foo.bar in current directory (whatever that may be!).
+ - C:\\tmp\xx.txt
+   /tmp/xx.txt
 
-  A null string or StreamProvider::sStdIO will select std input and output.
-  Empty string and invalid strings will make isBad() return true.
+  Files on remote servers are not supported.
+
 */
 
 mExpClass(Basic) StreamProvider
 {
 public:
-		StreamProvider(const char* nm="");
-		StreamProvider(const char* hostnm,const char* fnm,bool iscomm);
+		StreamProvider(const char* nm=0);
     void	set(const char*);
 
     inline bool	isBad() const			{ return fname_.isEmpty(); }
@@ -67,22 +68,22 @@ public:
 		    //!< see makeOStream remark
 
     const char*	fullName() const;
-    const char*	hostName() const		{ return hostname_.buf(); }
-    const char*	fileName() const		{ return fname_.buf(); }
-    const char*	command() const			{ return fname_.buf(); }
+    const char*	fileName() const	{ return fname_.buf(); }
+    const char*	command() const		{ return fileName(); }
+    const char*	hostName() const	{ return hostname_.buf(); }
 
-    void	setHostName( const char* hname ) { hostname_ = hname; }
-    void	setFileName( const char* fn )	{ fname_ = fn; }
-    void	setCommand( const char* fn )	{ fname_ = fn; }
+    void	setFileName( const char* fn );
+    void	setCommand(const char* cmd, const char* hostnm=0);
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 
+    bool	isFile() const			{ return !iscomm_; }
     bool	isCommand() const		{ return iscomm_; }
-    bool	isNormalFile() const;
 
     static const char*	sStdIO();
     static const char*	sStdErr();
 
+    // Pre-load interface
     static bool		isPreLoaded(const char*,bool isid);
 			    //!< If isid, a single hit will return true
     static bool		preLoad(const char*,TaskRunner&,const char* id);
@@ -101,11 +102,11 @@ public:
 protected:
 
     BufferString	fname_;
-    BufferString	hostname_;
     bool		iscomm_;
+    BufferString	hostname_;
 
     static StreamData	makePLIStream(int);
-    void		mkOSCmd(bool forread,BufferString&) const;
+    void		mkOSCmd(BufferString&) const;
 
     static void		sendCBMsg(const CallBack*,const char*);
 

@@ -63,7 +63,6 @@ void IOStream::copyFrom( const IOObj* obj )
     mDynamicCastGet(const IOStream*,iosobj,obj)
     if ( iosobj )
     {
-	hostname_ = iosobj->hostname_;
 	padzeros_ = iosobj->padzeros_;
 	fname_ = iosobj->fname_;
 	writecmd_ = iosobj->writecmd_;
@@ -237,17 +236,13 @@ void IOStream::setFileName( const char* str )
 }
 
 
-#define mStrmNext() stream.next(); kw = stream.keyWord() + 1;
+#define mStrmNext() { stream.next(); kw = stream.keyWord() + 1; }
 
 
 bool IOStream::getFrom( ascistream& stream )
 {
     FixedString kw = stream.keyWord() + 1;
-    if ( kw == "Hostname" )
-    {
-	hostname_ = stream.value();
-	mStrmNext()
-    }
+
     if ( kw == "Extension" )
     {
 	extension_ = stream.value();
@@ -289,8 +284,6 @@ bool IOStream::getFrom( ascistream& stream )
 
 bool IOStream::putTo( ascostream& stream ) const
 {
-    if ( !hostname_.isEmpty() )
-	stream.put( "$Hostname", hostname_ );
     if ( !extension_.isEmpty() )
 	stream.put( "$Extension", extension_ );
     if ( isMulti() )
@@ -340,12 +333,10 @@ const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
 
 StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
 {
-    BufferString ret;
-
     BufferString nm( iscomm_ && !fr ? writer() : (const char*)fname_ );
 
-    const bool hasast = firstOcc( nm, '*' );
-    const bool doins = fillwc && isMulti() && (hasast || firstOcc(nm,'%'));
+    const bool hasast = nm.contains( '*' );
+    const bool doins = fillwc && isMulti() && (hasast || nm.contains('%'));
     if ( doins )
     {
 	BufferString numbstr( "", curfnr_ );
@@ -361,11 +352,12 @@ StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
 	nm.replace( hasast ? "*" : "%", numbstr.buf() );
     }
 
-    StreamProvider* sp = new StreamProvider( hostname_, nm, iscomm_ );
+    StreamProvider* sp = iscomm_ ? new StreamProvider( BufferString("@",nm))
+				 : new StreamProvider( nm );
     if ( !sp || sp->isBad() )
 	{ delete sp; return 0; }
 
-    if ( hostname_.isEmpty() && !iscomm_ )
+    if ( !iscomm_ )
 	sp->addPathIfNecessary( fullDirName() );
 
     if ( fr && doins && padzeros_ && !iscomm_ && !sp->exists(fr) )
