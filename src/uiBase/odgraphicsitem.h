@@ -118,7 +118,12 @@ public:
 			    , val_( Qt::AlignTop )
 			{}
     
-    void		setText(const char* t) { text_ = t; }
+    void		setText(const char* t) 
+			{ 
+			    prepareGeometryChange();
+			    text_ = t;
+			}
+
     QRectF		boundingRect() const;
     
     void		setFont( const QFont& f ) { font_ = f; }
