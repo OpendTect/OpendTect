@@ -1221,7 +1221,7 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
 	const int idx = panelidx2 + (panelidx1<panelidx2 ? 1-cnt : cnt );
 	const Coord pos = cnt ? tdi.alltrcpos_[tdi.alljoints_[idx]] : projpos2;
 
-	const double dist = pos.distTo( projcoords.last() );
+	const float dist = pos.distTo( projcoords.last() );
 	if ( dist > mDefEps )
 	{
 	    projcoords += Coord3( pos, 0.0 );
@@ -1232,7 +1232,7 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
     for ( int idx=0; idx<projcoords.size(); idx++ )
     {
 	const float totalarclen = arclen.last();
-	const float frac = totalarclen ? arclen[idx]/totalarclen : 0.5;
+	const float frac = totalarclen ? arclen[idx]/totalarclen : 0.5f;
 	projcoords[idx].z = projpos1.z*(1.0-frac) + projpos2.z*frac;
     }
 }
