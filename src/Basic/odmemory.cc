@@ -59,7 +59,7 @@ void OD::memCopy( void* dest, const void* org, od_int64 sz )
 	if ( sz % 8 == 0 )
 	{
 	    MemCopier<od_int64> mcp( (od_int64*)dest, (const od_int64*)org,
-		    			(size_t)(sz/8) );
+					(size_t)(sz/8) );
 	    mcp.execute();
 	}
 	else if ( sz % 4 == 0 )
@@ -142,9 +142,9 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
 {
 #ifdef __lux__
 
-    od_istream strm( "/proc/meminfo" );
+    std::ifstream stdstrm( "/proc/meminfo" );
+    od_istream strm( stdstrm );
     BufferString filecont;
-
     if ( !strm.getAll(filecont) )
 	mErrRet
 
