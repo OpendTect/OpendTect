@@ -188,14 +188,14 @@ void Dragger::setDraggerType( Type tp )
     if ( tp==Translate1D )
     {
 	osgGeo::Translate1DDragger* dragger = new osgGeo::Translate1DDragger;
-	dragger->setInactivationModKeyMask( ~0 );
+	dragger->setInactivationModKeyMask( mCast(unsigned int,~0) );
 	initDragger( dragger );
 	is2dtranslate_ = false;
     }
     else if ( tp==Translate2D )
     {
 	osgGeo::Translate2DDragger* dragger = new osgGeo::Translate2DDragger;
-	dragger->setInactivationModKeyMask( ~0 );
+	dragger->setInactivationModKeyMask( mCast(unsigned int,~0) );
 	initDragger( dragger );
 	is2dtranslate_ = true;
     }
