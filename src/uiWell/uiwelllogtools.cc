@@ -60,7 +60,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
     if ( wellids.isEmpty() ) mErrRet( "Please select at least one well" )
 
-    ObjectSet<uiWellLogToolWin::LogData> logdatas; 
+    ObjectSet<uiWellLogToolWin::LogData> logdatas;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wid = wellids[idx]->buf();
@@ -70,14 +70,14 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	Well::Data wd; Well::Reader wr( nm, wd );  wr.get();
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
-	uiWellLogToolWin::LogData* ldata = 
+	uiWellLogToolWin::LogData* ldata =
 	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel(), &wd.track());
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
-	if ( !ldata->setSelectedLogs( lognms ) ) 
+	if ( !ldata->setSelectedLogs( lognms ) )
 	    { delete ldata; continue; }
-	ldata->wellid_ = wid; 
+	ldata->wellid_ = wid;
 
 	logdatas += ldata;
     }
@@ -114,10 +114,11 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 
 
 
-uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls, 
+uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls,
 				    const Well::D2TModel* d2t,
-       				    const Well::Track* track )
+				    const Well::Track* track )
     : logs_(*new Well::LogSet)
+    , wellname_(*new BufferString)
 {
     d2t_ = d2t ? new Well::D2TModel(*d2t) : 0;
     track_ = track ? new Well::Track(*track) : 0;
@@ -130,6 +131,7 @@ uiWellLogToolWin::LogData::~LogData()
 {
     deepErase( outplogs_ );
     delete &logs_;
+    delete &wellname_;
     delete d2t_;
 }
 
@@ -154,8 +156,8 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 	    if ( !dahrg_.includes( wl->dah( dahidx ), true ) )
 		wl->remove( dahidx );
 	}
-	inplogs_ += wl; 
-	nrsel++; 
+	inplogs_ += wl;
+	nrsel++;
     }
     return nrsel;
 }
@@ -170,7 +172,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiGroup* displaygrp = new uiGroup( this, "Well display group" );
     displaygrp->setHSpacing( 0 );
     zdisplayrg_ = logdatas_[0]->dahrg_;
-    uiGroup* wellgrp; uiGroup* prevgrp = 0; uiLabel* wellnm; 
+    uiGroup* wellgrp; uiGroup* prevgrp = 0; uiLabel* wellnm;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	LogData& logdata = *logdatas_[idx];
@@ -213,7 +215,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const char* txt = " Threshold ( Grubbs number )"; 
+    const char* txt = " Threshold ( Grubbs number )";
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
@@ -222,8 +224,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 
     const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
     replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,"Replace spikes by");
-    replacespikefld_->box()->selectionChanged.notify( 
-	    			mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
+    replacespikefld_->box()->selectionChanged.notify(
+				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
     replacespikevalfld_ = new uiGenInput( actiongrp, 0, FloatInpSpec() );
@@ -286,7 +288,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
     gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size (samples)" );
-    StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10) 
+    StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10)
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
     gatefld_->setValue( act > 2 ? 1 : 300 );
@@ -330,10 +332,10 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 		}
 	    }
 	    ls.add( outplog );
-	    needsave_ = true; 
+	    needsave_ = true;
 	}
     }
-    close(); return true; 
+    close(); return true;
 }
 
 
@@ -341,28 +343,40 @@ bool uiWellLogToolWin::rejectOK( CallBacker* )
 { close(); return true; }
 
 
+#define mAddErrMsg( msg, well ) \
+{ \
+    if ( emsg.isEmpty() ) \
+	emsg.set( msg ); \
+    else \
+	emsg.add( "\n" ).add( msg ); \
+	emsg.add( " at well " ).add( well ); \
+    continue; \
+}
+
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-    bool succeed = false;
+    BufferString emsg;
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
-	LogData& ld = *logdatas_[idldata]; deepErase( ld.outplogs_ );
+	LogData& ld = *logdatas_[idldata];
+	deepErase( ld.outplogs_ );
+	const BufferString wllnm = ld.wellname_;
 	for ( int idlog=0; idlog<ld.inplogs_.size(); idlog++ )
 	{
 	    const Well::Log& inplog = *ld.inplogs_[idlog];
 	    Well::Log* outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
-	    const int gate = gatefld_->getValue(); 
+	    const int gate = gatefld_->getValue();
 	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) ) continue;
 
 	    ld.outplogs_ += outplog;
 	    const float* inp = inplog.valArr();
 	    float* outp = outplog->valArr();
 	    if ( act == 0 )
-	    { 
+	    {
 		Stats::Grubbs sgb;
-		const float cutoff_grups = mCast( float, 
+		const float cutoff_grups = mCast( float,
 					    thresholdfld_->box()->getValue() );
 		TypeSet<int> grubbsidxs;
 		mAllocVarLenArr( float, gatevals, gate )
@@ -375,7 +389,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 			    gatevals[winidx]= outp[idx+winidx-gate/2];
 
 			int idxtofix;
-			cutoffval = sgb.getMax( mVarLenArr(gatevals), 
+			cutoffval = sgb.getMax( mVarLenArr(gatevals),
 						gate, idxtofix ) ;
 			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
 			{
@@ -396,7 +410,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    else if ( spkact == 1 )
 		    {
 			float dah = outplog->dah( gridx );
-			grval = outplog->getValue( dah, true ); 
+			grval = outplog->getValue( dah, true );
 		    }
 		}
 	    }
@@ -414,7 +428,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const float deftimestep = 0.001f;
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
-		ls.execute();
+		if ( !ls.execute() )
+		    mAddErrMsg( "Could not resample the logs", wllnm )
+
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
 		for ( int idz=0; idz<size; idz++ )
@@ -427,10 +443,16 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		else if ( freqfld_->filterType() == FFTFilter::LowPass )
 		    filter.setLowPass( freqrg.stop );
 		else
+		{
+		    if ( freqrg.isRev() )
+			mAddErrMsg( "Taper start frequency must be larger"
+				    " than stop frequency", wllnm )
+
 		    filter.setBandPass( freqrg.start, freqrg.stop );
-		
+		}
+
 		if ( !filter.apply(logvals) )
-		    continue;
+		    mAddErrMsg( "Could not apply the FFT Filter", wllnm )
 
 		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
 						PointBasedMathFunction::EndVal);
@@ -456,12 +478,13 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		sm.setOutput( outp );
 		const int winsz = gatefld_->getValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
-		sm.execute();
+		if ( !sm.execute() )
+		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
 	    }
 	    else if ( act == 3 )
 	    {
 		Interval<float> rg;
-		float rate = gate/(float)100;
+		const float rate = gate / 100.f;
 		DataClipSampler dcs( sz );
 		dcs.add( outp, sz );
 		rg = dcs.getRange( rate );
@@ -472,9 +495,11 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		}
 	    }
 	}
-	succeed = true;
     }
-    okbut_->setSensitive( succeed );
+    okbut_->setSensitive( emsg.isEmpty() );
+    if ( !emsg.isEmpty() )
+	uiMSG().error( emsg );
+
     displayLogs();
 }
 

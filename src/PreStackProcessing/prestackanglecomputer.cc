@@ -29,7 +29,7 @@ DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 {
 	"None",
 	"Moving-Average",
-	"Low-pass frequency filter", 
+	"Low-pass frequency filter",
 	0
 };
 
@@ -83,7 +83,7 @@ void AngleComputer::setSmoothingPars( const IOPar& smpar )
 
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
-	float freqf3; 
+	float freqf3;
 	smpar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
 	float freqf4;
 	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
@@ -113,7 +113,7 @@ void AngleComputer::setNoSmoother()
 
 
 void AngleComputer::setMovingAverageSmoother( float length, BufferString win,
-       					      float param )
+					      float param )
 {
     iopar_.set( sKeySmoothType(), TimeAverage );
     iopar_.set( sKeyWinLen(), length );
@@ -131,8 +131,8 @@ void AngleComputer::setFFTSmoother( float freqf3, float freqf4 )
 }
 
 
-void AngleComputer::fftDepthSmooth(::FFTFilter& filter, 
-				   Array2D<float>& angledata ) 
+void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
+				   Array2D<float>& angledata )
 {
     const RayTracer1D* rt = curRayTracer();
     if ( !rt )
@@ -181,7 +181,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
 	    angles.set( zidx, anglevals.getValue( zidx*deftimestep ) );
-	
+
 	filter.apply( angles );
 	PointBasedMathFunction anglevalsindepth( PointBasedMathFunction::Linear,
 					    PointBasedMathFunction::EndVal );
@@ -209,7 +209,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 }
 
 
-void AngleComputer::fftTimeSmooth(::FFTFilter& filter, 
+void AngleComputer::fftTimeSmooth(::FFTFilter& filter,
 				  Array2D<float>& angledata )
 {
     const StepInterval<double> zrange = outputsampling_.range( false );
@@ -250,6 +250,9 @@ void AngleComputer::fftSmoothing( Array2D<float>& angledata )
     if ( mIsUdf(freqf3) || mIsUdf(freqf4) )
 	return;
 
+    if ( freqf3 > freqf4 )
+    { pErrMsg("f3 must be <= f4"); Swap( freqf3, freqf4 ); }
+
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
     const bool survintime = SI().zDomain().isTime();
@@ -274,7 +277,7 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
     const int zsize = outputsampling_.nrPts( false );
     const float zstep = mCast( float, outputsampling_.range( false ).step );
     const int filtersz = !mIsUdf(smoothinglength)
-       		       ? mNINT32( smoothinglength/zstep )
+		       ? mNINT32( smoothinglength/zstep )
 		       : mUdf(int);
 
     Smoother1D<float> sm;
@@ -312,7 +315,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     rt->getTDModel( 0, td );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	anglevals += new PointBasedMathFunction( 
+	anglevals += new PointBasedMathFunction(
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::ExtraPolGradient );
 
@@ -376,7 +379,7 @@ Gather* AngleComputer::computeAngleData()
 
     if ( !fillandInterpArray(angledata) )
 	return 0;
-    
+
     int smtype;
     iopar_.get( sKeySmoothType(), smtype );
 
@@ -405,12 +408,12 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
     if ( velsource_ ) velsource_->unRef();
     velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );
     if ( velsource_ ) velsource_->ref();
-    
+
     return velsource_;
 }
 
 
-bool VelocityBasedAngleComputer::checkAndConvertVelocity( 
+bool VelocityBasedAngleComputer::checkAndConvertVelocity(
 			    const float* inpvel, const VelocityDesc& veldesc,
 			    const StepInterval<float>& zrange, float* outvel )
 {
@@ -420,21 +423,21 @@ bool VelocityBasedAngleComputer::checkAndConvertVelocity(
 	TypeSet<float> zvals( nrzvals, mUdf(float) );
 	for ( int idx=0; idx<nrzvals; idx++ )
 	    zvals[idx] = zrange.atIndex( idx );
-	
+
 	if ( !computeVint(inpvel,zrange.start,zvals.arr(),nrzvals,outvel) )
 	    return false;
     }
     else if ( veldesc.type_ == VelocityDesc::RMS &&
 	      !computeDix(inpvel,zrange,nrzvals,outvel) )
 	      return false;
-    
+
     return true;
 }
 
 
-bool VelocityBasedAngleComputer::createElasticModel( 
-					    const StepInterval<float>& zrange, 
-					    const float* pvel ) 
+bool VelocityBasedAngleComputer::createElasticModel(
+					    const StepInterval<float>& zrange,
+					    const float* pvel )
 {
     elasticmodel_.setEmpty();
     const bool zit =  SI().zDomain().isTime();
@@ -450,15 +453,15 @@ bool VelocityBasedAngleComputer::createElasticModel(
 	if ( firstidx < 0 )
 	    firstidx = 0;
 
-	firstlayerthickness = 
+	firstlayerthickness =
 		zit ? (zrange.atIndex(firstidx+1)-srddepth)*pvel[firstidx]/2.0f
 		    :  zrange.atIndex(firstidx+1)-srddepth;
     }
-    else 
-	firstlayerthickness = 
-		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f 
+    else
+	firstlayerthickness =
+		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f
 		    :  zrange.start+zrange.step-srddepth;
-    
+
     ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx], svel, den );
     elasticmodel_ += firstlayer;
 
@@ -484,13 +487,13 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
 	SI().geomManager().getGeometry( trcid_.geomid_ );
-    
+
     if ( geom && geom->is2D() )
     {
 	pErrMsg( "Only 3D is supported at this time" );
 	return 0;
     }
-    
+
     RefMan<Vel::FunctionSource> source = velsource_;
     if ( !source )
 	return 0;
@@ -499,7 +502,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 	source->getFunction( BinID(trcid_.lineNr(),trcid_.trcNr()) );
     if ( !func )
 	return 0;
-    
+
     VelocityDesc veldesc = func->getDesc();
     if ( !veldesc.isVelocity() )
 	return 0;
@@ -513,7 +516,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     vel.setCapacity( zsize );
     for( int idx=0; idx<zsize; idx++ )
 	vel += func->getVelocity( zrange.atIndex(idx) );
-    
+
     if ( veldesc.type_ != VelocityDesc::Interval )
     {
 	mAllocVarLenArr( float, velocityvalues, zsize );
@@ -532,7 +535,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 
 const ElasticModel& ModelBasedAngleComputer::ModelTool
 					   ::elasticModel() const
-{ return rt_ ? rt_->getModel() : *em_; } 
+{ return rt_ ? rt_->getModel() : *em_; }
 
 
 ModelBasedAngleComputer::ModelBasedAngleComputer()
@@ -543,7 +546,7 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 
 void ModelBasedAngleComputer::setElasticModel( const TraceID& trcid,
 					       bool block, bool pvelonly,
-       					       ElasticModel& em	)
+					       ElasticModel& em	)
 {
     if ( block )
     {
@@ -561,7 +564,7 @@ void ModelBasedAngleComputer::setElasticModel( const TraceID& trcid,
 }
 
 
-void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em, 
+void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em,
 					       const TraceID& trcid,
 					       bool block, bool pvelonly )
 {
