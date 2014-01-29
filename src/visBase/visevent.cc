@@ -181,13 +181,11 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
     if ( linehit && polyhit )
     {
-	BufferString bs;
 	const osg::Plane triangleplane( linepick.getWorldIntersectNormal(),
 					linepick.getWorldIntersectPoint() );
 
 	const int sense = triangleplane.distance(startpos)<0.0 ? -1 : 1;
 
-	linehit = false;
 	const double epscoincide = 1e-6 * (stoppos-startpos).length();
 	bool partlybehindplane = false;
 
@@ -201,23 +199,23 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 	    const double dist = sense * triangleplane.distance(polypos);
 
 	    if ( dist >= epscoincide )	// partly in front of plane
+	    {
+		linehit = false;
 		break;
+	    }
 
 	    if ( dist <= -epscoincide )
 		partlybehindplane = true;
 
 	    if ( !idx && partlybehindplane )
-	    {
-		linehit = true;
 		polyhit = false;
-	    }
 	}
     }
 
     if ( linehit || polyhit )
     {
-	const osg::NodePath& nodepath = linehit ? linepick.nodePath
-						: polypick.nodePath;
+	const osg::NodePath& nodepath = polyhit ? polypick.nodePath
+						: linepick.nodePath;
 
 	osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
 	for ( ; it!=nodepath.rend(); it++ )
