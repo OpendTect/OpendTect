@@ -114,6 +114,12 @@ public:
 					    bool usemaxrange,int& trcnr1st,
 					    int& trcnr2nd,float& frac ) const;
 
+    Coord3			projectOnNearestPanel(const Coord3& pos,
+						      int* nearestpanelidx=0);
+    void			getLineSegmentProjection(
+					const Coord3 pos1,const Coord3 pos2,
+					TypeSet<Coord3>& projectedcoords);
+
     Coord			getCoord(int trcnr) const;
     virtual Coord3		getNormal( const Coord3& c ) const
 				{ return SurveyObject::getNormal( c ); }
@@ -180,6 +186,7 @@ protected:
     {
 	TypeSet<int>		alltrcnrs_;
 	TypeSet<Coord>		alltrcpos_;
+	TypeSet<int>		alljoints_;
 	Interval<int>		rg_;
 	int			size_;
 	StepInterval<float>	zrg_;

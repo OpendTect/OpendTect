@@ -545,28 +545,44 @@ void Seis2DDisplay::setData( int attrib,
 
 void Seis2DDisplay::updatePanelStripPath()
 {
-    BendPointFinder2D finder(
-		trcdisplayinfo_.alltrcpos_.arr() + trcdisplayinfo_.rg_.start,
-		trcdisplayinfo_.size_, 1.0 );
+    TraceDisplayInfo& tdi = trcdisplayinfo_;
+    BendPointFinder2D finder( tdi.alltrcpos_.arr(), tdi.alltrcpos_.size(), 1.0);
     finder.execute();
-    const TypeSet<int>& bendpoints = finder.bendPoints();
+
+    const TypeSet<int>& bends = finder.bendPoints();
+    tdi.alljoints_.erase();
+
+    for ( int idx=0; idx<bends.size(); idx++ )
+    {
+	if ( bends[idx]>tdi.rg_.start && tdi.alljoints_.last()<tdi.rg_.start )
+	    tdi.alljoints_ += tdi.rg_.start;
+
+	if ( bends[idx]>tdi.rg_.stop && tdi.alljoints_.last()<tdi.rg_.stop )
+	    tdi.alljoints_ += tdi.rg_.stop;
+
+	tdi.alljoints_ += bends[idx];
+    }
 
     TypeSet<int> knots;
-    knots += trcdisplayinfo_.rg_.start + bendpoints[0];
 
-    for ( int idx=1; idx<bendpoints.size(); idx++ )
+    for ( int idx=0; idx<tdi.alljoints_.size(); idx++ )
     {
-	const int start = trcdisplayinfo_.rg_.start + bendpoints[idx-1];
-	const int stop = trcdisplayinfo_.rg_.start + bendpoints[idx];
-	for ( int posidx=start+1; posidx<stop; posidx++ )
+	if ( !tdi.rg_.includes(tdi.alljoints_[idx],true) )
+	    continue;
+
+	if ( !knots.isEmpty() )
 	{
-	    const Coord pos = trcdisplayinfo_.alltrcpos_[posidx];
-	    const double d0 = pos.distTo( trcdisplayinfo_.alltrcpos_[posidx-1]);
-	    const double d1 = pos.distTo( trcdisplayinfo_.alltrcpos_[posidx+1]);
-	    if ( (d0+d1)>0.0 && fabs(d0-d1)/(d0+d1)>0.1 )
-		knots += posidx;
+	    for ( int posidx=tdi.alljoints_[idx-1]+1;
+		  posidx<tdi.alljoints_[idx]; posidx++ )
+	    {
+		const Coord pos = tdi.alltrcpos_[posidx];
+		const double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
+		const double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		if ( (d0+d1)>0.0 && fabs(d0-d1)/(d0+d1)>0.1 )
+		    knots += posidx;
+	    }
 	}
-	knots += trcdisplayinfo_.rg_.start + bendpoints[idx];
+	knots += tdi.alljoints_[idx];
     }
 
     TypeSet<Coord> path;
@@ -576,8 +592,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     for ( int idx=0; idx<knots.size(); idx++ )
     {
-	path += trcdisplayinfo_.alltrcpos_[knots[idx]];
-	mapping += mCast(float,knots[idx] - trcdisplayinfo_.rg_.start);
+	path += tdi.alltrcpos_[knots[idx]];
+	mapping += mCast( float, knots[idx]-tdi.rg_.start );
     }
 
     panelstrip_->setPath( path );
@@ -586,7 +602,7 @@ void Seis2DDisplay::updatePanelStripPath()
     if ( getUpdateStageNr() )
     {
 	panelstrip_->setPathTextureShift(
-		    updatestageinfo_.oldtrcrgstart_-trcdisplayinfo_.rg_.start );
+			    updatestageinfo_.oldtrcrgstart_-tdi.rg_.start );
     }
 
     updateLineNamePos();
@@ -868,6 +884,7 @@ int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
     return  geometry_.positions()[trcidx].nr_;
 }
 
+
 Coord3 Seis2DDisplay::getNearestSubPos( const Coord3& pos,
 					bool usemaxrange ) const
 {
@@ -1118,6 +1135,106 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
     }
 
     return 0;
+}
+
+
+Coord3 Seis2DDisplay::projectOnNearestPanel( const Coord3& pos,
+					     int* nearestpanelidxptr )
+{
+    float mindist2 = MAXFLOAT;
+    int nearestpanelidx = -1;
+    Coord projpos = Coord::udf();
+
+    const TraceDisplayInfo& tdi = trcdisplayinfo_;
+    for ( int idx=0; idx<tdi.alljoints_.size()-1; idx++ )
+    {
+	const Coord posa = tdi.alltrcpos_[tdi.alljoints_[idx]];
+	const Coord posb = tdi.alltrcpos_[tdi.alljoints_[idx+1]];
+
+	const float dist2a = (float) posa.sqDistTo( pos );
+	const float dist2b = (float) posb.sqDistTo( pos );
+	const float dist2c = (float) posa.sqDistTo( posb );
+
+	if ( dist2b >= dist2a+dist2c )
+	{
+	    if ( mindist2 > dist2a )
+	    {
+		mindist2 = dist2a;
+		nearestpanelidx = idx;
+		projpos = posa;
+	    }
+	    continue;
+	}
+
+	if ( dist2a >= dist2b+dist2c )
+	{
+	    if ( mindist2 > dist2b )
+	    {
+		mindist2 = dist2b;
+		nearestpanelidx = idx;
+		projpos = posb;
+	    }
+	    continue;
+	}
+
+	const float dista = Math::Sqrt( dist2a );
+	const float distb = Math::Sqrt( dist2b );
+	const float distc = Math::Sqrt( dist2c );
+	const float sp = (dista + distb + distc) / 2;
+	const float height2 = 4*sp*(sp-dista)*(sp-distb)*(sp-distc) / dist2c;
+
+	if ( mindist2 > height2 )
+	{
+	    mindist2 = height2;
+	    nearestpanelidx = idx;
+	    const float frac = Math::Sqrt( dist2a - height2 ) / distc;
+	    projpos = posa*(1.0-frac) + posb*frac;
+	}
+    }
+
+    if ( nearestpanelidxptr )
+	*nearestpanelidxptr = nearestpanelidx;
+
+    return Coord3( projpos, pos.z );
+}
+
+
+void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
+					      const Coord3 pos2,
+					      TypeSet<Coord3>& projcoords )
+{
+    const TraceDisplayInfo& tdi = trcdisplayinfo_;
+    int panelidx1, panelidx2;
+    const Coord3 projpos1 = projectOnNearestPanel( pos1, &panelidx1 );
+    const Coord3 projpos2 = projectOnNearestPanel( pos2, &panelidx2 );
+
+    projcoords.erase();
+    if ( !projpos1.isDefined() || !projpos2.isDefined() )
+	return;
+
+    projcoords += projpos1;
+    TypeSet<float> arclen;
+    arclen += 0.0;
+
+    for ( int cnt=abs(panelidx2-panelidx1); cnt>=0; cnt-- )
+    {
+	const int idx = panelidx2 + (panelidx1<panelidx2 ? 1-cnt : cnt );
+	const Coord pos = cnt ? tdi.alltrcpos_[tdi.alljoints_[idx]] : projpos2;
+
+	const double dist = pos.distTo( projcoords.last() );
+	if ( dist > mDefEps )
+	{
+	    projcoords += Coord3( pos, 0.0 );
+	    arclen += arclen.last() + dist;
+	}
+    }
+
+    for ( int idx=0; idx<projcoords.size(); idx++ )
+    {
+	const float totalarclen = arclen.last();
+	const float frac = totalarclen ? arclen[idx]/totalarclen : 0.5;
+	projcoords[idx].z = projpos1.z*(1.0-frac) + projpos2.z*frac;
+    }
 }
 
 
