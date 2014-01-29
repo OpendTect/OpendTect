@@ -37,7 +37,7 @@ public:
 					bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
 
-    FixedString		connType() const;
+    const char*		connType() const;
     Conn*		getConn(bool) const;
 
     bool		implExists(bool forread) const;
@@ -62,9 +62,7 @@ public:
     void		setConnNr( int nr )
 			{ curfnr_ = nr; }
 
-    const char*		hostName() const		{ return hostname_; }
-    void		setHostName( const char* hn )	{ hostname_ = hn; }
-    FixedString		fileName() const		{ return fname_.buf(); }
+    const char*		fileName() const		{ return fname_; }
     const char*		subDirName() const		{ return dirName(); }
     const char*		fullDirName() const;
     void		setFileName(const char*);
@@ -89,7 +87,6 @@ protected:
     bool		getFrom(ascistream&);
     bool		putTo(ascostream&) const;
 
-    BufferString	hostname_;
     BufferString	fname_;
     BufferString	writecmd_;
     bool		iscomm_;

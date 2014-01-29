@@ -35,7 +35,7 @@ public:
     bool        implSetReadOnly(bool) const { return false; }
     bool	removeQuery() const	{ return true; }
 
-    FixedString	connType() const	{ return ""; }
+    const char*	connType() const	{ return 0; }
     Conn*	getConn( bool forread ) const { return 0; }
 
     void	genDefaultImpl()	{}

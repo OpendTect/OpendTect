@@ -205,8 +205,10 @@ const char* uiFileInput::fileName() const
 {
     mDeclStaticString( fname );
     fname = text();
-    if ( fname.isEmpty() )
+    fname.trimBlanks();
+    if ( fname.isEmpty() || fname.firstChar() == '@' )
 	return fname;
+
 #ifdef __win__
     if ( fname.size() == 2 )
 	fname += "\\";

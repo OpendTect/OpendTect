@@ -536,12 +536,20 @@ void StreamProvider::addPathIfNecessary( const char* path )
 }
 
 
+#define mGetRetSD( retsd ) \
+    StreamData retsd; \
+    if ( iscomm_ ) \
+	retsd.setFileName( BufferString("@",fname_) ); \
+    else \
+	retsd.setFileName( mkUnLinked(fname_.buf()) ); \
+    if ( isBad() ) \
+	return retsd
+
+
 StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 {
-    StreamData retsd;
-    retsd.setFileName( iscomm_ ? fname_.buf() : mkUnLinked(fname_.buf()) );
-    if ( isBad() )
-	return retsd;
+    mGetRetSD( retsd );
+
     if ( fname_ == sStdIO() || fname_ == sStdErr() )
 	{ retsd.istrm = &std::cin; return retsd; }
 
@@ -604,10 +612,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 
 StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 {
-    StreamData retsd;
-    retsd.setFileName( iscomm_ ? fname_.buf() : mkUnLinked(fname_.buf()) );
-    if ( isBad() )
-	return retsd;
+    mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() )
 	{ retsd.ostrm = &std::cout; return retsd; }

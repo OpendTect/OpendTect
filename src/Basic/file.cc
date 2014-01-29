@@ -187,12 +187,14 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 
 bool exists( const char* fnm )
 {
-#ifndef OD_NO_QT
-    return QFile::exists( fnm );
-#else
-    od_istream strm( fnm );
+    if ( !fnm )
+	return false;
 
-    return strm.isOK();
+#ifndef OD_NO_QT
+    return (*fnm == '@' && *(fnm+1)) || QFile::exists( fnm );
+    // support, like od_istream, commands. These start with '@'.
+#else
+    return od_istream(fnm).isOK();
 #endif
 }
 
@@ -338,7 +340,7 @@ bool isExecutable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    HANDLE handle = CreateFileA( fnm, 
+    HANDLE handle = CreateFileA( fnm,
 				 GENERIC_READ | GENERIC_WRITE,
 				 0,
 				 0,

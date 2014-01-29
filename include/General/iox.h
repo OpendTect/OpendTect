@@ -34,7 +34,7 @@ public:
     bool		implExists(bool) const;
     bool		implShouldRemove() const	{ return false; }
 
-    FixedString		connType() const;
+    const char*		connType() const;
     Conn*		getConn(bool) const;
     IOObj*		getIOObj() const;
 
@@ -53,4 +53,3 @@ protected:
 
 
 #endif
-

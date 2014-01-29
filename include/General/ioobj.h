@@ -66,7 +66,7 @@ public:
     virtual bool		hasConnType( const char* s ) const
 				{ return connType() == s; }
 
-    virtual FixedString		connType() const		= 0;
+    virtual const char*		connType() const		= 0;
     virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual const BufferString&	translator() const	       {return transl_;}

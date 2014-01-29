@@ -42,7 +42,9 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 	mHandlePTCase(T2D,time2depth);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
-	default: pFreeFnErrMsg("progNameFor","Switch case not added"); return 0;
+	default:
+	    pFreeFnErrMsg("switch case not added","Batch::JobSpec::progNameFor");
+	    return 0;
     }
 }
 

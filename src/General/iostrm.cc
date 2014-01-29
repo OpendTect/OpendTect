@@ -40,7 +40,7 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 }
 
 
-FixedString IOStream::connType() const
+const char* IOStream::connType() const
 {
     return StreamConn::sType();
 }
@@ -48,7 +48,7 @@ FixedString IOStream::connType() const
 
 bool IOStream::isBad() const
 {
-    if ( fname_.isEmpty() || fname_ == "?" )
+    if ( fname_.isEmpty() )
 	return true;
 
     return iscomm_ && writecmd_.isEmpty();
