@@ -59,12 +59,14 @@ public:
 			/*!< Goes on and on. Multiplies current size by fwdfac_
 			to get new size if usefwdfac is true or if there is no
 			zoom larger than this one. */
+
     bool		atStart(int vieweridx=-1) const;
 			/*!< If vieweridx is not specified, returns true only
 			if all viewers are at start. */
     void		toStart(int vieweridx=-1) const;
 			/*!< If vieweridx is not specified, all viewers will be
 			back to initial zoom. */
+
     int			nrZooms(int vieweridx=0) const;
     Size		initialSize(int vieweridx=0) const;
     Point               initialCenter(int vieweridx=0) const;
