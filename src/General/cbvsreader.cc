@@ -587,7 +587,7 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 	    for ( int icrl=0; icrl<inlinf.segments_.size(); icrl++ )
 	    {
 		const StepInterval<int>& seg = inlinf.segments_[icrl];
-		if ( !inlmatches || !seg.includes(bid.crl,false) )
+		if ( !inlmatches || !seg.includes(bid.crl,true) )
 		    arridx += seg.nrSteps() + 1;
 		else
 		{
