@@ -213,9 +213,9 @@ uiVisEMObject::~uiVisEMObject()
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( emod && emod->getEditor() )
     {
-	emod->getEditor()->noderightclick.remove(
+	emod->getEditor()->nodeRightClick.remove(
 		mCB(this,uiVisEMObject,nodeRightClick) );
-	emod->getEditor()->interactionlinerightclick.remove(
+	emod->getEditor()->interactionLineRightClick.remove(
 		mCB(this,uiVisEMObject,interactionLineRightClick) );
     }
 
@@ -296,10 +296,10 @@ void uiVisEMObject::connectEditor()
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( emod && emod->getEditor() )
     {
-	emod->getEditor()->noderightclick.notifyIfNotNotified(
+	emod->getEditor()->nodeRightClick.notifyIfNotNotified(
 		mCB(this,uiVisEMObject,nodeRightClick) );
 
-	emod->getEditor()->interactionlinerightclick.notifyIfNotNotified(
+	emod->getEditor()->interactionLineRightClick.notifyIfNotNotified(
 		mCB(this,uiVisEMObject,interactionLineRightClick) );
 
 	//interactionlinemenu_.setID( emod->getEditor()->lineID() );
