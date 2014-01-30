@@ -30,18 +30,19 @@ namespace visSurvey
 
 MPEEditor::MPEEditor()
     : visBase::VisualObjectImpl( false )
-    , noderightclick( this )
+    , nodeRightClick( this )
     , emeditor_( 0 )
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , markersize_( 10 )
     , interactionlinedisplay_( 0 )
-    , interactionlinerightclick( this )
+    , interactionLineRightClick( this )
     , activedragger_( EM::PosID::udf() )
     , activenodematerial_( 0 )
     , nodematerial_( 0 )
     , isdragging_( false )
     , draggerinmotion_( false )
+    , draggingStarted( this )
 {
     nodematerial_ = new visBase::Material;
     nodematerial_->ref();
@@ -352,7 +353,7 @@ void MPEEditor::updateNodePos( int idx, const Coord3& pos )
 
 
 void MPEEditor::interactionLineRightClickCB( CallBacker* )
-{ interactionlinerightclick.trigger(); }
+{ interactionLineRightClick.trigger(); }
 
 	
 bool MPEEditor::clickCB( CallBacker* cb )
@@ -381,7 +382,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
     if ( OD::rightMouseButton(eventinfo.buttonstate_) )
     {
 	rightclicknode_ = nodeidx;
-	noderightclick.trigger();
+	nodeRightClick.trigger();
 	eventcatcher_->setHandled();
 	return false;
     }
@@ -415,6 +416,7 @@ void MPEEditor::dragStart( CallBacker* cb )
 
     if ( emeditor_ ) emeditor_->startEdit(activedragger_);
     isdragging_ = true;
+    draggingStarted.trigger();
 }
 
 
@@ -438,6 +440,12 @@ void MPEEditor::dragStop( CallBacker* cb )
 	emeditor_->finishEdit();
 	isdragging_ = false;
     }
+}
+
+
+EM::PosID MPEEditor::getActiveDragger() const
+{
+    return isdragging_ ? activedragger_ : EM::PosID::udf();
 }
 
 

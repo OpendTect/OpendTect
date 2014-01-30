@@ -61,13 +61,13 @@ public:
     void		turnOnMarker(EM::PosID,bool on);
     bool		allMarkersDisplayed() const;
 
-    Notifier<MPEEditor>		noderightclick;
+    Notifier<MPEEditor>		nodeRightClick;
     				/*!<\ the clicked position can be retrieved
 				      with getNodePosID(getRightClickNode) */
     int				getRightClickNode() const;
     EM::PosID			getNodePosID(int idx) const;
 
-    Notifier<MPEEditor>		interactionlinerightclick;
+    Notifier<MPEEditor>		interactionLineRightClick;
     int				interactionLineID() const;
 				/*!<\returns the visual id of the line, or -1
 				     if it does not exist. */
@@ -91,6 +91,8 @@ public:
     EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
 
     bool			isDragging() const	{ return isdragging_; }
+    EM::PosID			getActiveDragger() const;
+    Notifier<MPEEditor>		draggingStarted;
 
     Sower&			sower()			{ return *sower_; }
 

@@ -118,6 +118,7 @@ protected:
 
 
     void			mouseCB(CallBacker*);
+    void			draggingStartedCB(CallBacker*);
     void			stickSelectCB(CallBacker*);
     void			emChangeCB(CallBacker*);
     void			polygonFinishedCB(CallBacker*);
