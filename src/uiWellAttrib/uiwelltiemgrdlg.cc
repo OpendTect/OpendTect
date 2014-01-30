@@ -86,14 +86,14 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     uiGroup* seisgrp = new uiGroup( this, "Seismic selection group" );
     seisgrp->attach( ensureBelow, sep );
     seisgrp->attach( alignedBelow, wellfld_ );
-    
+
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
     is2d_ = has3d ? false : true;
 
     if ( has2d && has3d )
     {
-	BufferStringSet seistypes; 
+	BufferStringSet seistypes;
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
 	typefld_ = new uiGenInput( seisgrp, "Seismic",
@@ -128,26 +128,27 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	seis3dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
 
-    seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_ 
+    seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_
 				    : (uiGroup*)seis2dfld_ ?
 				    seis2dfld_ : seis3dfld_ );
 
     sep = new uiSeparator( this, "Seismic2Log Sep" );
     sep->attach( stretchedBelow, seisgrp );
-    
+
     uiGroup* logsgrp = new uiGroup( this, "Log selection group" );
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    logsfld_ = new uiWellElasticPropSel( logsgrp ); 
+    logsfld_ = new uiWellElasticPropSel( logsgrp );
+    logsfld_->setAltPropRefPreferred( true );
 
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
     used2tmbox_->attach( alignedBelow, logsfld_ );
 
     const char** corrs = WellTie::Setup::CorrTypeNames();
-    cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs, 
-	    				WellTie::Setup::sKeyCSCorrType());
+    cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs,
+					WellTie::Setup::sKeyCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
     logsgrp->setHAlignObj( cscorrfld_ );
 
@@ -158,7 +159,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
     uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
-	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
+				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
     seisSelChg(0);
@@ -193,7 +194,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     const char* nm = Well::IO::getMainFileName( *wllctio_.ioobj );
     if ( !nm || !*nm ) return;
 
-    wd_ = new Well::Data; 
+    wd_ = new Well::Data;
     Well::Reader wr( nm, *wd_ );
     wr.get();
 
@@ -473,7 +474,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     WellTie::Setup::parseEnumCorrType( cscorrfld_->box()->text(),
-	    			       wtsetup_.corrtype_ );
+				       wtsetup_.corrtype_ );
 
     if ( !wvltfld_->getWavelet() )
 	mErrRet("Please select a valid wavelet")
@@ -494,7 +495,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	return false;
 
     Server* server = new Server( wtsetup_ );
-    if ( server->errMSG() ) 
+    if ( server->errMSG() )
 	{ uiMSG().error( server->errMSG() ); delete server; return false; }
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
@@ -533,10 +534,10 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 	if ( welltiedlgset_[idx] == win )
 	{
 	    welltiedlgset_.removeSingle(idx);
-	    WellTie::Writer wtr( 
-		    	Well::IO::getMainFileName( win->Setup().wellid_) );
+	    WellTie::Writer wtr(
+			Well::IO::getMainFileName( win->Setup().wellid_) );
 	    IOPar par; win->fillPar( par );
-	    wtr.putIOPar( par, uiTieWin::sKeyWinPar() ); 
+	    wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 	}
     }
 }

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "elasticprop.h"
 #include "elasticpropsel.h"
+#include "hiddenparam.h"
 #include "unitofmeasure.h"
 #include "property.h"
 #include "welldata.h"
@@ -39,7 +40,7 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 {
     typefld_ = new uiComboBox( this, BufferString(pr.name()," type") );
     typefld_->selectionChanged.notify(
-	   		       mCB( this, uiPropSelFromList, updateSelCB ) );
+			       mCB( this, uiPropSelFromList, updateSelCB ) );
     typelbl_ = new uiLabel( this, pr.name(), typefld_ );
 
     unfld_ = new uiUnitSel( this, propref_.stdType(), 0, false, true );
@@ -147,11 +148,19 @@ const PropertyRef& uiPropSelFromList::propRef() const
 }
 
 
+HiddenParam<uiWellPropSel,int> preferaltpropref_(0);
+
+
+void uiWellPropSel::setAltPropRefPreferred( bool preferaltpropref )
+{
+    preferaltpropref_.setParam( this, preferaltpropref ? 1 : 0 );
+}
 
 uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
     , proprefsel_(prs)
 {
+    preferaltpropref_.setParam( this, 0 );
     initFlds();
 }
 
@@ -245,34 +254,39 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 
 	int logidx = -1;
 	int logidxalt = -1;
+	const bool preferaltpropref = preferaltpropref_.getParam(this);
+	const PropertyRef& proptomatch = preferaltpropref && altpropref
+				       ? *altpropref : propref;
+	const PropertyRef* altproptomatch = altpropref
+			  ? ( preferaltpropref ? &propref : altpropref ) : 0;
 	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
 	{
 	    BufferString lognm = logs.getLog(propidx[ipropidx]).name();
 	    const char* uomlbl = logs.getLog(propidx[ipropidx]).unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
-	    if ( uom && uom->propType() == propref.stdType() )
+	    if ( uom && uom->propType() == proptomatch.stdType() )
 	    {
 		if ( logidx == -1 )
 		    logidx = ipropidx;
-		if ( lognm.isStartOf(propref.name(),true) )
+		if ( lognm.isStartOf(proptomatch.name(),true) )
 		{
 		    logidx = ipropidx;
 		    break;
 		}
 	    }
-	    else if ( !uom && lognm.isStartOf(propref.name(),true) )
+	    else if ( !uom && lognm.isStartOf(proptomatch.name(),true) )
 	    {
 		logidx = ipropidx;
 		break;
 	    }
-	    else if ( altpropref )
+	    else if ( altproptomatch )
 	    {
-		if ( uom && uom->propType() == altpropref->stdType() )
+		if ( uom && uom->propType() == altproptomatch->stdType() )
 		{
 		    if ( logidxalt == -1 )
 			logidxalt = ipropidx;
 		}
-		else if ( !uom && lognm.isStartOf(altpropref->name(),true) )
+		else if ( !uom && lognm.isStartOf(altproptomatch->name(),true) )
 		{
 		    logidxalt = ipropidx;
 		}
@@ -313,7 +327,7 @@ bool uiWellPropSel::isOK() const
 }
 
 
-bool uiWellPropSel::setLog( const PropertyRef::StdType tp, 
+bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
 				const char* nm, bool usealt,
 				const UnitOfMeasure* uom, int idx )
 {
@@ -358,7 +372,7 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 	if ( propflds_[idx] && propflds_[idx]->getLabel() )
 	{
 	    BufferString lblnm = BufferString(
-		    			propflds_[idx]->getLabel()->text() );
+					propflds_[idx]->getLabel()->text() );
 	    if ( lblnm == bfs )
 		return propflds_[idx];
 	}
@@ -380,8 +394,8 @@ uiPropSelFromList* uiWellPropSel::getPropSelFromListByIndex( int idx )
 uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 				const PropertyRefSelection& prs )
     : uiWellPropSel(p,prs)
-    , logscreated(this) 
-{ 
+    , logscreated(this)
+{
     for ( int idx=0; idx<propflds_.size(); idx ++ )
     {
 	uiToolButton* createbut = new uiToolButton( this, "newlog",
@@ -425,7 +439,7 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 	logscreated.trigger();
 	propflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
     }
-} 
+}
 
 
 void uiWellPropSelWithCreate::viewLogPushed( CallBacker* cb )
