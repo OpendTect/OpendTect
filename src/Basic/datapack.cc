@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "od_ostream.h"
 #include "atomic.h"
+#include "debug.h"
 
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
@@ -24,11 +25,43 @@ float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 Threads::Lock DataPackMgr::mgrlistlock_;
 
+Threads::Atomic<int> curid( DataPack::cNoID() );
+
 
 DataPack::ID DataPack::getNewID()
 {
-    mDefineStaticLocalObject( Threads::Atomic<int>, curid, (1) );
-    return curid++;
+    return ++curid;
+}
+
+
+void DataPack::setManager( const DataPackMgr* mgr )
+{
+    Threads::Locker lock ( nruserslock_ );
+    if ( manager_ && mgr )
+    {
+	if ( manager_!=mgr )
+	    DBG::forceCrash( false );
+
+	return;
+    }
+
+    manager_ = mgr;
+}
+
+
+void DataPack::release()
+{
+    const_cast<DataPackMgr*>(manager_)->release( this );
+}
+
+
+DataPack* DataPack::obtain()
+{
+    Threads::Locker lock( nruserslock_ );
+    if ( !manager_ ) return 0;
+    nrusers_++;
+
+    return this;
 }
 
 
@@ -155,6 +188,10 @@ void DataPackMgr::add( DataPack* dp )
 {
     if ( !dp ) return;
 
+    Threads::Locker usrlock( dp->nruserslock_ );
+    dp->setManager( this );
+    usrlock.unlockNow();
+
     mGetWriteLocker( rwlock_, lckr );
     packs_ += dp;
     lckr.unlockNow();
@@ -168,6 +205,7 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 
     Threads::Locker lckr( dp->nruserslock_ );
     dp->nrusers_++;
+    dp->setManager( this );
     lckr.unlockNow();
 
     mGetWriteLocker( rwlock_, rwlckr );
@@ -225,23 +263,31 @@ void DataPackMgr::release( DataPack::ID dpid )
     DataPack* pack = const_cast<DataPack*>( packs_[idx] );
     Threads::Locker usrslckr( pack->nruserslock_ );
     pack->nrusers_--;
-    usrslckr.unlockNow();
+
     if ( pack->nrusers_>0 )
 	return;
 
     //We should be unlocked during callback
     //to avoid deadlocks
+    usrslckr.unlockNow();
     lckr.unlockNow();
 
     packToBeRemoved.trigger( pack );
 
     mGetWriteLocker( rwlock_, wrlckr );
+    usrslckr.reLock();
+
+    if ( pack->nrusers_>0 )
+	return;
 
     //We lost our lock, so idx may have changed.
     if ( !packs_.isPresent( pack ) )
 	{ pErrMsg("Double delete detected"); }
 
-    packs_.removeSingle( idx );
+    pack->setManager( 0 );
+    usrslckr.unlockNow();
+
+    packs_ -= pack;
     delete pack;
 }
 

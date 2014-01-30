@@ -204,8 +204,8 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	storedvolume_.zrg.start = 0;	//cover up for synthetics
 	DataPack::FullID fid( getDPID() );
-	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), true );
-	mDynamicCastGet(SeisTrcBufDataPack*,stbdtp, dtp)
+	DataPackRef<SeisTrcBufDataPack> stbdtp =
+				DPM(fid).obtain( DataPack::getID(fid), false );
 	if ( !stbdtp ) return false;
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );

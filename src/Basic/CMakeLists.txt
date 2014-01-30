@@ -17,6 +17,7 @@ set( OD_TEST_PROGS
 	callback.cc
 	commandlineparser.cc
 	cubesampling.cc
+	datapack.cc
 	file.cc
 	math2.cc
 	memcopying.cc

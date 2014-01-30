@@ -43,11 +43,13 @@ public:
 			    : NamedObject("<?>")
 			    , category_(categry)
 			    , nrusers_( 0 )
+			    , manager_( 0 )
 			    , id_(getNewID())	{}
 			DataPack( const DataPack& dp )
 			    : NamedObject( dp.name().buf() )
 			    , category_( dp.category_ )
 			    , nrusers_( 0 )
+			    , manager_( 0 )
 			    , id_(getNewID())	{}
     virtual		~DataPack()		{}
 
@@ -65,13 +67,18 @@ public:
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
+    void		release();
+    DataPack*		obtain();
+
 protected:
 
+    void			setManager(const DataPackMgr*);
     const ID			id_;
     const BufferString		category_;
     mutable int			nrusers_;
     mutable Threads::Lock	nruserslock_;
     mutable Threads::Lock	updatelock_;
+    const DataPackMgr*		manager_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
     static float	sKb2MbFac();	//!< 1 / 1024
@@ -214,11 +221,58 @@ public:
 };
 
 
+/*!Releases a datapack when it goes out of scope. Can be used to hold a
+   datapack as a local variable where there are multiple return points.
+ Example of usage:
+
+ \code
+     DataPackRef<FlatDataPack> fdp = DPM(DataPackMgr::FlatID).obtain( id );
+
+     if ( fdp )
+     {
+	if ( fpd->data().info().getTotalSize()== 0 )
+	    return; //release is called automatically;
+	if ( mIsUdf(fpd->data().get(0,0) )
+	    return; //release is called automatically;
+
+	fpd->data().set(0,0,0);
+     }
+
+ \endcode
+ */
+
+template <class T>
+mClass(Basic) DataPackRef
+{
+public:
+			DataPackRef(DataPack* p);
+			//!<Assumes p is obtained
+			DataPackRef(const DataPackRef<T>&);
+			~DataPackRef()	{ releaseNow(); }
+
+    DataPackRef<T>&	operator=(const DataPackRef<T>&);
+
+    void		releaseNow();
+
+			operator bool() const		{ return ptr_; }
+    const T*		operator->() const		{ return ptr_; }
+    T*			operator->()			{ return ptr_; }
+    const T*		ptr() const			{ return ptr_; }
+    T*			ptr()				{ return ptr_; }
+    DataPack*		dataPack()			{ return dp_; }
+    const DataPack*	dataPack() const		{ return dp_; }
+
+private:
+
+    DataPack*		dp_;
+    T*			ptr_;
+};
+
+
 mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::ID);
 		//!< will create a new mgr if needed
 mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
-
 
 #define mObtainDataPack( var, type, mgrid, newid ) \
 { \
@@ -240,6 +294,50 @@ mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 #define mObtainDataPackToLocalVar( var, type, mgrid, newid ) \
 type var = 0; \
 mObtainDataPack( var, type, mgrid, newid ); \
+
+//Implementations
+template <class T> inline
+DataPackRef<T>::DataPackRef(DataPack* p) : dp_(p), ptr_( 0 )
+{
+    mDynamicCast(T*, ptr_, dp_ );
+}
+
+
+template <class T> inline
+DataPackRef<T>::DataPackRef(const DataPackRef<T>& dpr)
+    : ptr_( dpr.ptr_ )
+    , dp_( dpr.dp_ )
+{
+    if ( dp_ ) dp_->obtain();
+}
+
+
+template <class T> inline
+DataPackRef<T>& DataPackRef<T>::operator=(const DataPackRef<T>& dpr)
+{
+    releaseNow();
+    ptr_ = dpr.ptr_;
+    dp_ = dpr.dp_;
+
+    if ( dp_ ) dp_->obtain();
+    return *this;
+}
+
+
+template <class T> inline
+void DataPackRef<T>::releaseNow()
+{
+    ptr_ = 0;
+    if ( dp_ )
+    {
+	dp_->release();
+	dp_ = 0;
+    }
+}
+
+
+
+
 
 #endif
 
