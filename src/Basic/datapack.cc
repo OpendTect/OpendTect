@@ -228,22 +228,31 @@ void DataPackMgr::release( DataPack::ID dpid )
     DataPack* pack = const_cast<DataPack*>( packs_[idx] );
     Threads::Locker usrslckr( pack->nruserslock_ );
     pack->nrusers_--;
-    usrslckr.unlockNow();
     if ( pack->nrusers_>0 )
 	return;
 
     //We should be unlocked during callback
     //to avoid deadlocks
+    usrslckr.unlockNow();
     lckr.unlockNow();
 
     packToBeRemoved.trigger( pack );
 
     mGetWriteLocker( rwlock_, wrlckr );
+    usrslckr.reLock();
+
+    if ( pack->nrusers_>0 )
+	return; //Cancel delete, as someone now wants it!
 
     //We lost our lock, so idx may have changed.
-    if ( !packs_.isPresent( pack ) ) pErrMsg("Double delete detected");
+    idx = packs_.indexOf(pack);
+    
+    if ( !packs_.validIdx(idx) ) pErrMsg("Double delete detected");
+    else packs_.removeSingle( idx );
 
-    packs_.removeSingle( idx );
+    //We cannot delete it while it is locked.
+    usrslckr.unlockNow();
+    
     delete pack;
 }
 
