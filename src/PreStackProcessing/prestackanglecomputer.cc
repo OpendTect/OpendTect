@@ -243,6 +243,9 @@ void AngleComputer::fftSmooth( Array2D<float>& angledata )
     if ( mIsUdf(freqf3) || mIsUdf(freqf4) )
 	return;
 
+    if ( freqf3 > freqf4 )
+    { pErrMsg("f3 must be <= f4"); Swap( freqf3, freqf4 ); }
+
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
     const bool survintime = SI().zDomain().isTime();

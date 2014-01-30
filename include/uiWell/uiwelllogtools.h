@@ -36,7 +36,7 @@ namespace Well { class Data; class Log; class LogSet; class D2TModel; class Trac
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
 {
-public:	
+public:
 
     mStruct(uiWell) LogData
     {
@@ -46,7 +46,7 @@ public:
 				~LogData();
 
 	MultiID			wellid_;
-	const char*		wellname_;
+	BufferString	wellname_;
 	Interval<float>		dahrg_;
 
 	int			setSelectedLogs(BufferStringSet&);
@@ -59,7 +59,7 @@ public:
 	ObjectSet<const Well::Log> inplogs_;
 	ObjectSet<Well::Log>	outplogs_;
 
-	const Well::D2TModel* 	d2t_;
+	const Well::D2TModel*	d2t_;
 	const Well::Track*	track_;
 
 	friend class		uiWellLogToolWin;
@@ -68,7 +68,7 @@ public:
 				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&);
 				~uiWellLogToolWin();
 
-    bool                	needSave() const        { return needsave_; }
+    bool	needSave() const        { return needsave_; }
 
     void			getLogDatas(ObjectSet<LogData>& lds) const
 				{ lds = logdatas_; }

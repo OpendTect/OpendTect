@@ -33,11 +33,9 @@ FFTFilter::FFTFilter( int sz, float step )
     , freqwindow_(0)
     , trendreal_(0)
     , trendimag_(0)
-    , cutfreq1_(mUdf(float))
-    , cutfreq2_(mUdf(float))
-    , cutfreq3_(mUdf(float))
-    , cutfreq4_(mUdf(float))
 {
+    MemSetter<float> initfreq( cutfreq_, mUdf(float), 4 );
+    initfreq.execute();
     sz_ = mMAX( sz, mMINNRSAMPLES );
     fftsz_ = fft_->getFastSize( 3 * sz_ );
     df_ = Fourier::CC::getDf( step, fftsz_ );
@@ -60,16 +58,22 @@ FFTFilter::~FFTFilter()
 
 void FFTFilter::setLowPass( float cutf3, float cutf4 )
 {
-    cutfreq3_ = cutf3;
-    cutfreq4_ = cutf4;
+    if ( cutf3 > cutf4 )
+	{ pErrMsg( "f3 must be <= f4"); Swap( cutf3, cutf4 ); }
+
+    cutfreq_[2] = cutf3;
+    cutfreq_[3] = cutf4;
     buildFreqTaperWin();
 }
 
 
 void FFTFilter::setHighPass( float cutf1, float cutf2 )
 {
-    cutfreq1_ = cutf1;
-    cutfreq2_ = cutf2;
+    if ( cutf1 > cutf2 )
+	{ pErrMsg( "f1 must be <= f2"); Swap( cutf1, cutf2 ); }
+
+    cutfreq_[0] = cutf1;
+    cutfreq_[1] = cutf2;
     buildFreqTaperWin();
 }
 
@@ -77,10 +81,15 @@ void FFTFilter::setHighPass( float cutf1, float cutf2 )
 void FFTFilter::setBandPass( float cutf1, float cutf2,
 			     float cutf3, float cutf4 )
 {
-    cutfreq1_ = cutf1;
-    cutfreq2_ = cutf2;
-    cutfreq3_ = cutf3;
-    cutfreq4_ = cutf4;
+    cutfreq_[0] = cutf1; cutfreq_[1] = cutf2;
+    cutfreq_[2] = cutf3; cutfreq_[3] = cutf4;
+    if ( cutfreq_[0] > cutfreq_[1] || cutfreq_[1] > cutfreq_[2] ||
+	 cutfreq_[2] > cutfreq_[3] )
+    {
+	pErrMsg( "The tapering frequencies are not ordered correctly" );
+	std::sort( cutfreq_, cutfreq_ + 4 );
+    }
+
     buildFreqTaperWin();
 }
 
@@ -128,50 +137,67 @@ void FFTFilter::buildFreqTaperWin()
     else if ( isHighPass() )
 	taperhp2lp = nyqfreqidx;
     else
-	taperhp2lp = mCast(int, ( cutfreq2_ + cutfreq3_ ) / ( 2.f * df_ ) );
+	taperhp2lp = mCast(int, ( cutfreq_[1] + cutfreq_[2] ) / ( 2.f * df_ ) );
 
+    bool needreset = false;
     if ( dohighpasstaperwin )
     {
-	const int f1idx = mCast( int, cutfreq1_ / df_ );
-	const float var = 1.f - ( cutfreq2_ - cutfreq1_ ) /
-			  	( df_ * taperhp2lp - cutfreq1_ );
-	ArrayNDWindow* highpasswin;
-	mSetTaperWin( highpasswin, 2 * ( taperhp2lp - f1idx ), var )
-	for ( int idx=0; idx<taperhp2lp; idx++ )
+	const int f1idx = mCast( int, cutfreq_[0] / df_ );
+	const float var = 1.f - ( cutfreq_[1] - cutfreq_[0] ) /
+				( df_ * taperhp2lp - cutfreq_[0] );
+	if ( taperhp2lp > f1idx && var >= 0.f && var <= 1.f )
 	{
-	    const float taperval = idx < f1idx ? 0.f
-				 : highpasswin->getValues()[idx-f1idx];
-	    freqwindow_->setValue( idx, taperval );
-	    freqwindow_->setValue( fftsz_-idx-1, taperval );
+	    ArrayNDWindow* highpasswin;
+	    mSetTaperWin( highpasswin, 2 * ( taperhp2lp - f1idx ), var )
+	    for ( int idx=0; idx<taperhp2lp; idx++ )
+	    {
+		const float taperval = idx < f1idx ? 0.f
+				     : highpasswin->getValues()[idx-f1idx];
+		freqwindow_->setValue( idx, taperval );
+		freqwindow_->setValue( fftsz_-idx-1, taperval );
+	    }
+	    delete highpasswin;
 	}
-	delete highpasswin;
+	else
+	    needreset = true;
     }
 
     if ( dolowpasstaperwin )
     {
-	const int f4idx = mCast( int, cutfreq4_ / df_ );
-	const float var = 1.f - ( cutfreq4_ - cutfreq3_ ) /
-			  	( cutfreq4_ - df_ * taperhp2lp );
-	ArrayNDWindow* lowpasswin;
-	mSetTaperWin( lowpasswin, 2 * ( f4idx - taperhp2lp ), var )
-	for ( int idx=taperhp2lp; idx<nyqfreqidx; idx++ )
+	const int f4idx = mCast( int, cutfreq_[3] / df_ );
+	const float var = 1.f - ( cutfreq_[3] - cutfreq_[2] ) /
+				( cutfreq_[3] - df_ * taperhp2lp );
+	if ( taperhp2lp < f4idx && var >= 0.f && var <= 1.f )
 	{
-	    const float taperval = idx < f4idx
-				 ? lowpasswin->getValues()[f4idx-idx-1]
-				 : 0.f;
-	    freqwindow_->setValue( idx, taperval );
-	    freqwindow_->setValue( fftsz_-idx-1, taperval );
+	    ArrayNDWindow* lowpasswin;
+	    mSetTaperWin( lowpasswin, 2 * ( f4idx - taperhp2lp ), var )
+	    for ( int idx=taperhp2lp; idx<nyqfreqidx; idx++ )
+	    {
+		const float taperval = idx < f4idx
+				     ? lowpasswin->getValues()[f4idx-idx-1]
+				     : 0.f;
+		freqwindow_->setValue( idx, taperval );
+		freqwindow_->setValue( fftsz_-idx-1, taperval );
+	    }
+	    delete lowpasswin;
 	}
-	delete lowpasswin;
+	else
+	    needreset = true;
+    }
+
+    if ( needreset )
+    {
+	delete freqwindow_;
+	freqwindow_ = 0;
     }
 }
 
 
 bool FFTFilter::setTimeTaperWindow( int sz, BufferString wintype, float var )
 {
-    delete timewindow_;
+    if ( timewindow_ ) delete timewindow_;
     timewindow_ = new ArrayNDWindow( Array1DInfoImpl( sz ),
-	    			     false, wintype, var );
+				     false, wintype, var );
     return timewindow_->isOK();
 }
 
@@ -308,15 +334,15 @@ FFTFilter::Type FFTFilter::getFilterType() const
 
 bool FFTFilter::isLowPass() const
 {
-    return mIsUdf(cutfreq1_) && mIsUdf(cutfreq2_) &&
-          !mIsUdf(cutfreq3_) && !mIsUdf(cutfreq4_);
+    return mIsUdf(cutfreq_[0]) && mIsUdf(cutfreq_[1]) &&
+          !mIsUdf(cutfreq_[2]) && !mIsUdf(cutfreq_[3]);
 }
 
 
 bool FFTFilter::isHighPass() const
 {
-    return !mIsUdf(cutfreq1_) && !mIsUdf(cutfreq2_) &&
-            mIsUdf(cutfreq3_) && mIsUdf(cutfreq4_);
+    return !mIsUdf(cutfreq_[0]) && !mIsUdf(cutfreq_[1]) &&
+            mIsUdf(cutfreq_[2]) && mIsUdf(cutfreq_[3]);
 }
 
 
