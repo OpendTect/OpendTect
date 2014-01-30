@@ -140,6 +140,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( ensureBelow, sep );
 
     logsfld_ = new uiWellElasticPropSel( logsgrp );
+    logsfld_->setAltPropRefPreferred( true );
 
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );

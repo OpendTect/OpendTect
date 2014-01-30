@@ -141,6 +141,7 @@ const PropertyRef& uiPropSelFromList::propRef() const
 uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
     , proprefsel_(prs)
+    , preferaltpropref_(false)
 {
     initFlds();
 }
@@ -235,35 +236,40 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 
 	int logidx = -1;
 	int logidxalt = -1;
+	const PropertyRef& proptomatch = preferaltpropref_ && altpropref
+				       ? *altpropref : propref;
+	const PropertyRef* altproptomatch = altpropref
+			  ? ( preferaltpropref_ ? &propref : altpropref ) : 0;
 	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
 	{
 	    BufferString lognm = logs.getLog(propidx[ipropidx]).name();
 	    const char* uomlbl = logs.getLog(propidx[ipropidx]).unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
-	    if ( uom && uom->propType() == propref.stdType() )
+	    if ( uom && uom->propType() == proptomatch.stdType() )
 	    {
 		if ( logidx == -1 )
 		    logidx = ipropidx;
-		if ( lognm.isStartOf(propref.name(),CaseInsensitive) )
+		if ( lognm.isStartOf(proptomatch.name(),CaseInsensitive) )
 		{
 		    logidx = ipropidx;
 		    break;
 		}
 	    }
-	    else if ( !uom && lognm.isStartOf(propref.name(),CaseInsensitive) )
+	    else if ( !uom &&
+		      lognm.isStartOf(proptomatch.name(),CaseInsensitive) )
 	    {
 		logidx = ipropidx;
 		break;
 	    }
-	    else if ( altpropref )
+	    else if ( altproptomatch )
 	    {
-		if ( uom && uom->propType() == altpropref->stdType() )
+		if ( uom && uom->propType() == altproptomatch->stdType() )
 		{
 		    if ( logidxalt == -1 )
 			logidxalt = ipropidx;
 		}
-		else if ( !uom
-			&& lognm.isStartOf(altpropref->name(),CaseInsensitive) )
+		else if ( !uom &&
+		       lognm.isStartOf(altproptomatch->name(),CaseInsensitive) )
 		{
 		    logidxalt = ipropidx;
 		}
