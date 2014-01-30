@@ -16,10 +16,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "fontdata.h"
 
-#include <osgGeo/ScalarBar>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osgSim/ColorRange>
+#include <osg/Version>
+
+#if OSG_MIN_VERSION_REQUIRED(3,2,2)
+# include <osgSim/ScalarBar>
+# define mScalarBarType osgSim::ScalarBar
+#else
+# include <osgGeo/ScalarBar>
+# define mScalarBarType osgGeo::ScalarBar
+#endif
+
+#define mScalarBar static_cast<mScalarBarType*>(osgcolorbar_)
 
 mCreateFactoryEntry( visBase::SceneColTab );
 
@@ -28,16 +38,16 @@ namespace visBase
 
 SceneColTab::SceneColTab()
     : VisualObjectImpl(false)
-    , osgcolorbar_(new osgGeo::ScalarBar)
+    , osgcolorbar_(new mScalarBarType)
     , flipseq_(false)
     , width_(20)
     , height_(250)
     , horizontal_(false)
 {
     addChild( osgcolorbar_ );
-    osgcolorbar_->setOrientation( osgGeo::ScalarBar::VERTICAL );
-    osgcolorbar_->setTitle( "" );
-    osgcolorbar_->setNumLabels( 5 );
+    mScalarBar->setOrientation( mScalarBarType::VERTICAL );
+    mScalarBar->setTitle( "" );
+    mScalarBar->setNumLabels( 5 );
     
     setSize( width_, height_ );
     setColTabSequence( ColTab::Sequence("") );
@@ -54,17 +64,17 @@ void SceneColTab::setLegendColor( const Color& col )
 {
 #define col2f(rgb) float(col.rgb())/255
 
-    osgGeo::ScalarBar::TextProperties tp = osgcolorbar_->getTextProperties();
+    mScalarBarType::TextProperties tp = mScalarBar->getTextProperties();
     tp._color = osg::Vec4( col2f(r), col2f(g), col2f(b), 1.0f );
-    osgcolorbar_->setTextProperties( tp );
+    mScalarBar->setTextProperties( tp );
 }
 
 
 void SceneColTab::setAnnotFont( const FontData& fd )
 {
-    osgGeo::ScalarBar::TextProperties tp;
+    mScalarBarType::TextProperties tp;
     tp._characterSize = fd.pointSize();
-    osgcolorbar_->setTextProperties( tp );
+    mScalarBar->setTextProperties( tp );
 }
 
 
@@ -81,8 +91,8 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 void SceneColTab::setOrientation( bool horizontal )
 {
     horizontal_ = horizontal;
-    osgcolorbar_->setOrientation( horizontal_ ? osgGeo::ScalarBar::HORIZONTAL
-					      : osgGeo::ScalarBar::VERTICAL );
+    mScalarBar->setOrientation( horizontal_ ? mScalarBarType::HORIZONTAL
+					      : mScalarBarType::VERTICAL );
 }
 
 
@@ -99,8 +109,8 @@ void SceneColTab::setSize( int w, int h )
     width_ = horizontal_ ? w : h;
     height_ = horizontal_ ? h : w;
     aspratio_ = mCast(float,height_) / mCast(float,width_);
-    osgcolorbar_->setAspectRatio( aspratio_ );
-    osgcolorbar_->setWidth(  width_ );
+    mScalarBar->setAspectRatio( aspratio_ );
+    mScalarBar->setWidth(  width_ );
     setPos( getPos() );
 }
 
@@ -133,7 +143,7 @@ void SceneColTab::setPos( Pos pos )
 
 void SceneColTab::setPos( float x, float y )
 {
-    osgcolorbar_->setPosition( osg::Vec3( horizontal_? x : x+height_,y,0.0f) );
+    mScalarBar->setPosition( osg::Vec3( horizontal_? x : x+height_,y,0.0f) );
 }
 
 
@@ -175,7 +185,7 @@ void SceneColTab::updateSequence()
 	new osgSim::ColorRange(
 	rg_.start, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop, colors );
    
-    osgcolorbar_->setScalarsToColors( osgcolorrange );
+    mScalarBar->setScalarsToColors( osgcolorrange );
 }
 
 
