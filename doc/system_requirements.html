@@ -6,8 +6,10 @@
   - Contents:	OpendTect system requirements
   - RCS:	$Id$
  -->
-
-<body bgcolor="#eeeeee"><title>OpendTect System requirements</title>
+  <head>
+  <title>OpendTect System requirements</title>
+  </head>
+<body bgcolor="#eeeeee">
 <div align='right' id="google_translate_element"></div><script> function googleTranslateElementInit() { new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element'); } </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <center><br>
@@ -23,8 +25,8 @@
 OpendTect needs good hardware with up-to-date drivers - especially for 3D graphics. You can run on:
 
 <ol>
-<li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000, XP, Vista, 7, 8 - 32 or 64 bits)
-<li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.5) and up
+  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (XP, Vista, 7, 8 - 32 or 64 bits)</li>
+  <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.5) and up</li>
 </ol>
 <br>
 
@@ -40,7 +42,7 @@ OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> 
 Main stream and high-end GPUs within the series are recommended, since low-level GPUs keep showing poor performances through the generations.<br>
 Shading functionaly requires special GPU features, present in the cards listed above. Nevertheless, under Linux, only nVidia provides drivers capable of using the shading feature. If you can't see any colors on graphic elements, try disabling shading (Utilities-Look and Feel).
 
-<font size=-1>
+<font size="-1">
 <h4>Background</h4>
 OpendTect will attempt to use 'shading' - this means that some
 calculations are done on the graphics card. Unfortunately, not all cards
@@ -51,8 +53,8 @@ the system almost stops.
 
 There are two settings for the user to cope with this:
 <ul>
-<li>Do you want shading if the card reports that it is capable of it?
-<li>If so, do you also want it for volume rendering?
+  <li>Do you want shading if the card reports that it is capable of it?</li>
+  <li>If so, do you also want it for volume rendering?</li>
 </ul>
 Some cards (Like some ATI cards) support shading well but things go bad for
 volume rendering.
@@ -91,8 +93,8 @@ recommend 3+ GHz multi-core for a good working environment. Note that OpendTect 
 
 A modern Linux distribution is required. <b>Minimum</b>:
 <ul>
-<li><a href="http://www.novell.com/linux">SuSE</a> or <a href="http://opensuse.org">OpenSuSE</a> 10.0
-<li><a href="http://www.redhat.com">Red Hat</a> Enterprise 5 (or the free <a href="http://www.centos.org">CentOS</a> counterpart)
+  <li><a href="http://www.novell.com/linux">SuSE</a> or <a href="http://opensuse.org">OpenSuSE</a> 10.0</li>
+  <li><a href="http://www.redhat.com">Red Hat</a> Enterprise 5 (or the free <a href="http://www.centos.org">CentOS</a> counterpart)</li>
 </ul>
 Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>. 
 <p>
@@ -105,7 +107,7 @@ available. OpendTect is known to work under <a href="http://www.debian.org">Debi
 Minimum is Mac OS X (10.5) - thus Mac/Intel. Mac/PowerPC support is not available. A 3-button mouse is highly recomended.
 
 <a name=win><h3>MS Windows</h3></a>
-Windows 2000, XP, Vista, 7 and 8 are supported and both 32 and 64 bits releases are available.
+Windows XP, Vista, 7 and 8 are supported and both 32 and 64 bits releases are available.
 
 <br><a name=recommendations><h2>Recommendations</h2></a>
 
@@ -117,28 +119,28 @@ Use nVidia or maybe ATI-based cards. At least these manufacturers have
 good drivers for all cards. For nVidia, you may want to avoid the 
 'professional' series. This can be a waste of money (but may just give 
 you that little bit extra you want, too). In doubt, buy the top gaming 
-card(s) you can find.
+  card(s) you can find.</li>
 
 <li><b>CPU</b><br>
 Choose 64 bits. Many processors, high speeds. The more the better. 
 OpendTect will automatically use multiple threads in many situations. It 
 depends on the type of attribute, display, etc. but we put a lot of 
 effort in getting time-consuming tasks multi-threaded. We are well aware 
-that the number of processors will grow steadily.
+  that the number of processors will grow steadily.</li>
 
 <li><b>Memory</b><br>
 Buy as much memory as you can afford (and that will fit in the 
 computer). The big clients for example use nothing less than 64 GB. 
 OpendTect doesn't have a lot of tricks to minimize memory consumption; 
 we figure that memory gets cheaper by the day so we greedily use memory 
-for our purposes (we try to not waste it, though).
+  for our purposes (we try to not waste it, though).</li>
 
 <li><b>Disk storage</b><br>
 This is usually under-valued, but it's very often the crucial 
 performance component. RAID can speed up disks considerably. If you can, 
 work on local disks. I've seen many examples of the total performance 
 being miserable just because the data needed to stream through 
-(relatively) slow networks.
+  (relatively) slow networks.</li>
 </ol>
 
 
