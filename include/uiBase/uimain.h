@@ -66,6 +66,7 @@ public:
     static void		processEvents(int msec=3000);
 
     static KeyboardEventHandler& keyboardEventHandler();
+    static int		getDPI();
 
 protected:
 

@@ -36,9 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 #include <math.h>
 
-#if !defined( __win__ ) && !defined( __mac__ )
-# include <QX11Info>
-#endif
 
 mUseQtnamespace
 
@@ -392,12 +389,7 @@ double uiGraphicsScene::height() const
 
 int uiGraphicsScene::getDPI() const
 {
-// TODO: move to Basic
-#if defined( __win__ ) || defined( __mac__ )
-    return 100;
-#else
-    return QX11Info::appDpiX();
-#endif
+    return uiMain::getDPI();
 }
 
 
@@ -426,8 +418,8 @@ void uiGraphicsScene::copyToClipBoard()
 	    			QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
-    image->setDotsPerMeterX( (int)(getDPI()/0.0254) );
-    image->setDotsPerMeterY( (int)(getDPI()/0.0254) );
+    image->setDotsPerMeterX( (int)(uiMain::getDPI()/0.0254) );
+    image->setDotsPerMeterY( (int)(uiMain::getDPI()/0.0254) );
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];

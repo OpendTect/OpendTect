@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
@@ -59,6 +60,7 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
+    , aspectratio_(1.0f)
     , settings_( Settings::fetch(sKeySnapshot) )
 {
     if ( withclipbrd )
@@ -188,7 +190,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->attach( alignedBelow, unitfld_ );
 
     dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
-    dpifld_->box()->setInterval( maximum_dpi_range );
+    dpifld_->box()->setInterval( StepInterval<int>(1,screendpi_,1) );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
@@ -306,7 +308,6 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 void uiSaveImageDlg::dpiChg( CallBacker* )
 {
     setNotifiers( false );
-    screendpi_ = mCast( float, dpifld_->box()->getValue() );
     updateSizes();
     setNotifiers( true );
 }
@@ -320,19 +321,20 @@ void uiSaveImageDlg::updateSizes()
 	return;
 
     const int sel = unitfld_->getIntValue();
+    const float dpi = mCast( float, dpifld_->box()->getValue() );
     if ( !sel )
     {
 	sizecm_.setWidth( width );
 	sizecm_.setHeight( height );
 	sCm2Inch( sizecm_, sizeinch_ );
-	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpi );
     }
     else if ( sel == 1 )
     {
 	sizeinch_.setWidth( width );
 	sizeinch_.setHeight( height );
 	sInch2Cm( sizeinch_, sizecm_ );
-	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpi );
     }
 
     pixwidthfld_->box()->setValue( sizepix_.width() );
@@ -478,10 +480,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
-    {
-	screendpi_ = mCast( float, dpi );
 	dpifld_->box()->setValue( dpi );
-    }
 
     res.setEmpty();
     par.get( sKeyFileType(), res );
@@ -513,7 +512,8 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
     sizepix_.setWidth( mCast(float,width) );
     sizepix_.setHeight( mCast(float,height) );
-    sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
+    const float dpi = dpifld_->box()->getValue();
+    sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
 }
@@ -523,7 +523,7 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,false)
 {
     enableSaveButton( 0 );
-    screendpi_ = 90;
+    screendpi_ = uiMain::getDPI();
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;
     if ( mw )
@@ -534,6 +534,8 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     dpifld_->box()->setValue( screendpi_ );
     setFldVals( 0 );
     updateFilter();
+    lockfld_->setChecked( true );
+    lockfld_->setSensitive( false );
 }
 
 
