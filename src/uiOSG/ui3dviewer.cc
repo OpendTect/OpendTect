@@ -878,13 +878,17 @@ void ui3DViewerBody::viewPlaneCrl()
 
 bool ui3DViewerBody::isCameraPerspective() const
 {
-    return !camera_->isOrthogonal();
+    osgGeo::TrackballManipulator* manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+
+    return !manip ? true : manip->isCameraPerspective();
 }
 
 
 bool ui3DViewerBody::isCameraOrthographic() const
 {
-    return camera_->isOrthogonal();
+    return !isCameraPerspective();
 }
 
 
