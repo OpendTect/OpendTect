@@ -507,6 +507,13 @@ void uiMain::flushX()
 { if ( app_ ) app_->flush(); }
 
 
+int uiMain::getDPI()
+{
+    const int xdpi = QApplication::desktop()->physicalDpiX();
+    const int ydpi = QApplication::desktop()->physicalDpiY();
+    return xdpi > ydpi ? ydpi : xdpi;
+}
+
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { if ( app_ ) app_->processEvents( QEventLoop::AllEvents, msec ); }

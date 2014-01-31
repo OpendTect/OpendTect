@@ -76,7 +76,6 @@ public:
     double			width() const;
     double			height() const;
 
-    int				getDPI() const;
     void			saveAsImage(const char*,int,int,int);
     void			saveAsPDF(const char*,int w,int h,int r);
     void			saveAsPS(const char*,int w,int h,int r);

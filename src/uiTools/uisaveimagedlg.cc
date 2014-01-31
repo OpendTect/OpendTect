@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
@@ -53,13 +54,16 @@ static StepInterval<float> maximum_pixel_size_range(1,99999,1);
 static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 
-uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
+uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.9")
 		 .savebutton(true).savetext("Save settings on OK"))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
+    , withuseparsfld_(withparsfld)
+    , useparsfld_(0)
+    , aspectratio_(1.0f)
     , settings_( Settings::fetch(sKeySnapshot) )
 {
     if ( withclipbrd )
@@ -95,7 +99,7 @@ void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
     dpifld_->display( disp );
     unitfld_->display( disp );
     lockfld_->display( disp );
-    useparsfld_->display( disp );
+    if ( useparsfld_ ) useparsfld_->display( disp );
     fileinputfld_->display( disp );
     pixlable_->display( disp );
 }
@@ -144,16 +148,22 @@ void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 
 void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 {
-    useparsfld_ = new uiGenInput( this, "Get size from",
-				  BoolInpSpec(true,"Settings","Screen") );
-    useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
-    if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
+    if ( withuseparsfld_ )
+    {
+	useparsfld_ = new uiGenInput( this, "Get size from",
+				      BoolInpSpec(true,"Settings","Screen") );
+	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
+	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
+    }
 
     pixwidthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
     pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
     pixwidthfld_->box()->setNrDecimals( 0 );
     pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
-    pixwidthfld_->attach( alignedBelow, useparsfld_ );
+    if ( useparsfld_ )
+	pixwidthfld_->attach( alignedBelow, useparsfld_ );
+    else
+	pixwidthfld_->attach( alignedBelow, fldabove );
 
     pixheightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
     pixheightfld_->box()->setInterval( maximum_pixel_size_range );
@@ -189,7 +199,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->attach( alignedBelow, unitfld_ );
 
     dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
-    dpifld_->box()->setInterval( maximum_dpi_range );
+    dpifld_->box()->setInterval( StepInterval<int>(1,screendpi_,1) );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
@@ -307,7 +317,6 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 void uiSaveImageDlg::dpiChg( CallBacker* )
 {
     setNotifiers( false );
-    screendpi_ = mCast( float, dpifld_->box()->getValue() );
     updateSizes();
     setNotifiers( true );
 }
@@ -321,19 +330,20 @@ void uiSaveImageDlg::updateSizes()
 	return;
 
     const int sel = unitfld_->getIntValue();
+    const float dpi = mCast( float, dpifld_->box()->getValue() );
     if ( !sel )
     {
 	sizecm_.setWidth( width );
 	sizecm_.setHeight( height );
 	sCm2Inch( sizecm_, sizeinch_ );
-	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpi );
     }
     else if ( sel == 1 )
     {
 	sizeinch_.setWidth( width );
 	sizeinch_.setHeight( height );
 	sInch2Cm( sizeinch_, sizecm_ );
-	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpi );
     }
 
     pixwidthfld_->box()->setValue( sizepix_.width() );
@@ -479,10 +489,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
-    {
-	screendpi_ = mCast( float, dpi );
 	dpifld_->box()->setValue( dpi );
-    }
 
     res.setEmpty();
     par.get( sKeyFileType(), res );
@@ -514,26 +521,29 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
     sizepix_.setWidth( mCast(float,width) );
     sizepix_.setHeight( mCast(float,height) );
-    sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
+    const float dpi = dpifld_->box()->getValue();
+    sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
 }
 
 
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
-    : uiSaveImageDlg(p,false)
+    : uiSaveImageDlg(p,true,false)
 {
     enableSaveButton( 0 );
-    screendpi_ = 90;
+    screendpi_ = mCast(float,uiMain::getDPI());
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;
     if ( mw )
 	aspectratio_ = mCast(float,mw->geometry().width())/
 		       mCast(float,mw->geometry().height());
-    createGeomInpFlds( 0 );
-    useparsfld_->display( false, true );
+    createGeomInpFlds( cliboardselfld_ );
+    if ( useparsfld_ ) useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
     setFldVals( 0 );
+    lockfld_->setChecked( true );
+    lockfld_->setSensitive( false );
     updateFilter();
 }
 
@@ -572,9 +582,15 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
 
 bool uiSaveWinImageDlg::acceptOK( CallBacker* )
 {
-    if ( !filenameOK() ) return false;
     mDynamicCastGet(uiMainWin*,mw,parent());
     if ( !mw ) return false;
+    if ( cliboardselfld_->isChecked() )
+    {
+	mw->copyToClipBoard();
+	return true;
+    }
+
+    if ( !filenameOK() ) return false;
     mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
 		   (int)sizepix_.height(),dpifld_->box()->getValue());
     return true;

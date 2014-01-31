@@ -181,6 +181,7 @@ public:
     void		saveImage(const char* fnm,int w,int h,int res);
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
+    void		copyToClipBoard();
 
 protected:
 
@@ -192,7 +193,7 @@ protected:
     void		saveSettings();
     void		readSettings();
 
-    void		copyToClipBoard(CallBacker*);
+    void		copyToClipBoardCB(CallBacker*);
 
     uiMainWinBody*	body_;
     uiParent*		parent_;

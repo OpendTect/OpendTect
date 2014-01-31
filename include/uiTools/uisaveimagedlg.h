@@ -28,7 +28,8 @@ class uiLabeledSpinBox;
 mExpClass(uiTools) uiSaveImageDlg : public uiDialog
 {
 public:
-			uiSaveImageDlg(uiParent*,bool withclipbrd = true);
+			uiSaveImageDlg(uiParent*,bool withclipbrd = true,
+				       bool withuseparsfld = true);
 
     Notifier<uiSaveImageDlg>	sizesChanged;
 
@@ -63,6 +64,7 @@ protected:
     BufferString	selfilter_;
     Settings&		settings_;
     Interval<float>	fldranges_;
+    bool		withuseparsfld_;
 
     void		getSettingsPar(PtrMan<IOPar>&,BufferString);
     void		setSizeInPix(int width, int height);

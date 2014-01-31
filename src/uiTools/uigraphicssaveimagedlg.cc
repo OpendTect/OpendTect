@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigraphicsscene.h"
 #include "uifileinput.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uispinbox.h"
 #include "uibutton.h"
@@ -28,8 +29,9 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     : uiSaveImageDlg(p)
     , scene_(scene)
 {
-    screendpi_ = mCast( float, scene->getDPI() );
+    screendpi_ = mCast( float, uiMain::getDPI() );
     createGeomInpFlds( cliboardselfld_ );
+    dpifld_->box()->setInterval( StepInterval<int>(0,screendpi_,1) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     PtrMan<IOPar> ctiopar;
@@ -52,6 +54,8 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     postFinalise().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
     unitChg(0);
+    lockfld_->setChecked( true );
+    lockfld_->setSensitive( false );
 }
 
 
@@ -134,8 +138,6 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 {
     if ( useparsfld_->getBoolValue() )
     {
-	lockfld_->setChecked( false );
-	lockfld_->setSensitive( true );
 	PtrMan<IOPar> ctiopar;
 	getSettingsPar( ctiopar, BufferString("2D") );
 	if ( ctiopar.ptr() )
@@ -148,10 +150,8 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
     }
     else
     {
-	lockfld_->setChecked( true );
-	lockfld_->setSensitive( false );
 	aspectratio_ = (float) ( scene_->width() / scene_->height() );
 	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
-	dpifld_->box()->setValue( scene_->getDPI() );
+	dpifld_->box()->setValue( screendpi_ );
     }
 }

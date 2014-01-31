@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
@@ -699,7 +700,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->setWindowIconText(
 	    setup.caption_.isEmpty() ? "OpendTect" : setup.caption_.buf() );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
 
 
@@ -718,7 +719,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
 
 
@@ -732,7 +733,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , ctrlCPressed(this)
     , caption_(nm)
 {
-    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoard) );
+    ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
 
 
@@ -1217,24 +1218,10 @@ void uiMainWin::translate()
 }
 
 
-void uiMainWin::copyToClipBoard( CallBacker* )
+void uiMainWin::copyToClipBoardCB( CallBacker* )
 {
-    const WId desktopwinid = QApplication::desktop()->winId();
-    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
-    QWidget* qwin = qApp->activeModalWidget();
-    if ( !qwin )
-	qwin = body_;
-
-    const int width = qwin->frameGeometry().width();
-    const int height = qwin->frameGeometry().height();
-    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
-    QImage image = snapshot.toImage();
-
-    QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setImage( image );
+    copyToClipBoard();
 }
-
-
 
 class ImageSaver : public CallBacker
 {
@@ -1245,6 +1232,18 @@ ImageSaver()
     timer_.tick.notify( mCB(this,ImageSaver,shootImageCB) );
 }
 
+
+void setImageProp( WId qwid, int w, int h, int r )
+{
+    qwinid_ = qwid;
+    width_ = w;
+    height_ = h;
+    res_ = r;
+    copytoclipboard_ = true;
+    timer_.start( 500, true );
+}
+
+
 void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
 {
     qwinid_ = qwid;
@@ -1252,6 +1251,7 @@ void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
     width_ = w;
     height_ = h;
     res_ = r;
+    copytoclipboard_ = false;
     timer_.start( 500, true );
 }
 
@@ -1266,17 +1266,40 @@ void shootImageCB( CallBacker* )
     image = image.scaledToHeight( height_ );
     image.setDotsPerMeterX( (int)(res_/0.0254) );
     image.setDotsPerMeterY( (int)(res_/0.0254) );
-    image.save( fname_ );
+    if ( copytoclipboard_ )
+    {
+	QClipboard* clipboard = QApplication::clipboard();
+	clipboard->clear();
+	clipboard->setImage( image );
+    }
+    else
+	image.save( fname_ );
     timer_.stop();
 }
 
     int		width_;
     int		height_;
     int		res_;
+    bool	copytoclipboard_;
     QString	fname_;
     WId		qwinid_;
     Timer	timer_;
 };
+
+
+void uiMainWin::copyToClipBoard()
+{
+    QWidget* qwin = qWidget();
+    if ( !qwin )
+	qwin = body_;
+    WId wid = qwin->winId();
+    const int width = qwin->frameGeometry().width();
+    const int height = qwin->frameGeometry().height();
+    const int dpi = uiMain::getDPI();
+    mDefineStaticLocalObject( ImageSaver, imagesaver, );
+    imagesaver.setImageProp( wid, width, height, dpi );
+}
+
 
 void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 {
