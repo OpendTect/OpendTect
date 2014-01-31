@@ -151,6 +151,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 					WellTie::Setup::sKeyCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
     logsgrp->setHAlignObj( cscorrfld_ );
+    used2tmbox_->setChecked( true );
 
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
@@ -251,7 +252,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
 {
     const bool useexistingmdl = used2tmbox_->isChecked();
-    const bool havecs = wd_->haveCheckShotModel();
+    const bool havecs = wd_ && wd_->haveCheckShotModel();
     cscorrfld_->display( !useexistingmdl && havecs );
 }
 
