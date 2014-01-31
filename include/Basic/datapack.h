@@ -221,8 +221,12 @@ public:
 };
 
 
-/*!Releases a datapack when it goes out of scope. Can be used to hold a
-   datapack as a local variable where there are multiple return points.
+/*! Provides safe&easy access to DataPack subclass.
+  
+  Obtains the pack, and releases it when it goes out of scope. Typically used
+  to hold a datapack as a local variable. Will also work when there are
+  multiple return points.
+
  Example of usage:
 
  \code
@@ -230,14 +234,13 @@ public:
 
      if ( fdp )
      {
-	if ( fpd->data().info().getTotalSize()== 0 )
+	if ( fdp->info().getTotalSize()== 0 )
 	    return; //release is called automatically;
-	if ( mIsUdf(fpd->data().get(0,0) )
+	if ( mIsUdf(fdp->get(0,0) )
 	    return; //release is called automatically;
 
-	fpd->data().set(0,0,0);
+	fdp->set(0,0,0);
      }
-
  \endcode
  */
 
