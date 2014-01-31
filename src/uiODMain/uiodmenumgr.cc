@@ -123,7 +123,7 @@ uiPopupMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 
 void uiODMenuMgr::updateStereoMenu()
 {
-    ui3DViewer::StereoType type = 
+    ui3DViewer::StereoType type =
 			(ui3DViewer::StereoType)sceneMgr().getStereoType();
     stereooffitm_->setChecked( type == ui3DViewer::None );
     stereoredcyanitm_->setChecked( type == ui3DViewer::RedCyan );
@@ -180,7 +180,7 @@ void uiODMenuMgr::enableActButton( bool yn )
 void uiODMenuMgr::fillSurveyMenu()
 {
     mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm,
-	    	       "survey" )
+		       "survey" )
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession" );
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
@@ -256,7 +256,7 @@ void uiODMenuMgr::fillImportMenu()
     impseis->insertItem( impseissimple );
     uiPopupMenu* impcbvsseis = new uiPopupMenu( &appl_, "&CBVS" );
     mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impcbvsseis, "&From other survey ...", 
+    mInsertItem( impcbvsseis, "&From other survey ...",
 					   mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
@@ -350,16 +350,16 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
-    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm, 
-	    		"man_attrs" );
+    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm,
+			"man_attrs" );
     mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body" );
     mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
-	    		"manxplot" );
+			"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
-    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm, 
-	    		"man_fltss" );
+    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
+			"man_fltss" );
     if ( SI().survDataType() == SurveyInfo::No2D )
-	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm, 
+	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
 			"man_hor" )
     else
     {
@@ -372,14 +372,14 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, "&Layer properties ...", mManPropsMnuItm,
 			"man_props" );
     mInsertPixmapItem( manmnu_, "&PickSets/Polygons ...", mManPickMnuItm,
-	    		"man_picks" );
+			"man_picks" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
-	    		"man_seis" );
+			"man_seis" );
     mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, "" )
     mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
-	    		"man_strat" )
+			"man_strat" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt" )
     mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll"  )
     manmnu_->insertSeparator();
@@ -445,9 +445,9 @@ void uiODMenuMgr::fillProcMenu()
     }
 
     create2D3DMnu( csoitm, "&Between horizons", mCompBetweenHor2DMnuItm,
-	    	   mCompBetweenHor3DMnuItm, "betweenhors" );
+		   mCompBetweenHor3DMnuItm, "betweenhors" );
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
-	    	   mCompAlongHor3DMnuItm, "alonghor" );
+		   mCompAlongHor3DMnuItm, "alonghor" );
     mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
     csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
@@ -479,7 +479,7 @@ void uiODMenuMgr::fillAnalMenu()
     }
     else
     {
-       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm, attrpm)
+	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
     }
 
@@ -497,18 +497,18 @@ void uiODMenuMgr::fillAnalMenu()
     analmnu_->insertItem( crsplot );
 
     analwellmnu_ = new uiPopupMenu( &appl_, "&Wells", "well" );
-    analwellmnu_->insertItem( new uiMenuItem( "&Edit logs ...", 
+    analwellmnu_->insertItem( new uiMenuItem( "&Edit logs ...",
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...", 
+	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
     analwellmnu_->insertItem( new uiMenuItem( "&Rock Physics ...",
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
     analmnu_->insertItem( analwellmnu_ );
 
-    layermodelmnu_ = new uiPopupMenu( 
-	    		&appl_, "&Layer Modeling", "stratlayermodeling" ); 
-    layermodelmnu_->insertItem( new uiMenuItem( "&Basic ...", 
+    layermodelmnu_ = new uiPopupMenu(
+			&appl_, "&Layer Modeling", "stratlayermodeling" );
+    layermodelmnu_->insertItem( new uiMenuItem( "&Basic ...",
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
     analmnu_->insertItem( layermodelmnu_ );
 }
@@ -519,7 +519,7 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
 
     addtimedepthsceneitm_ = new uiMenuItem( "Dummy",
-	    				    mCB(this,uiODMenuMgr,handleClick) );
+					    mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
 
     mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
@@ -593,9 +593,9 @@ void uiODMenuMgr::fillViewMenu()
 
     mInsertStereoItem( stereooffitm_, "&Off", true, mStereoOffMnuItm )
     mInsertStereoItem( stereoredcyanitm_, "&Red/Cyan", false,
-	    		mStereoRCMnuItm )
+			mStereoRCMnuItm )
     mInsertStereoItem( stereoquadbufitm_, "&Quad buffer", false,
-	    		mStereoQuadMnuItm )
+			mStereoQuadMnuItm )
 
     stereooffsetitm_ = new uiMenuItem( "&Stereo offset ...",
 				mCB(this,uiODMenuMgr,handleClick) );
@@ -678,7 +678,7 @@ void uiODMenuMgr::fillUtilMenu()
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
 	    mInsertItem( instmgrmnu, "Installation &Manager ...",
-		    	 mInstMgrMnuItem );
+			 mInstMgrMnuItem );
 	if ( !aitfixed )
 	    mInsertItem( instmgrmnu, "&Auto-update policy ...",
 			 mInstAutoUpdPolMnuItm );
@@ -773,11 +773,11 @@ void uiODMenuMgr::fillManTB()
     //mAddTB(mantb_,"man_body","Manage body",false,manBody);
     mAddTB(mantb_,"man_wvlt","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat","Manage Stratigraphy",false,manStrat);
- 
+
     if ( SI().survDataType() == SurveyInfo::Both2DAnd3D )
 	mAddPopUp( "Seismics Menu", "2D Seismics", "3D Seismics",
 		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
- 
+
     if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
@@ -800,12 +800,12 @@ static bool sIsPolySelect = true;
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
     actviewid_ = cointb_->addButton( "altpick", "Switch view mode",
-	    		mCB(this,uiODMenuMgr,toggViewMode), false );
+			mCB(this,uiODMenuMgr,toggViewMode), false );
     mAddTB(cointb_,"home","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all","View all",false,viewAll);
     cameraid_ = mAddTB(cointb_,"perspective",
-	    	       "Switch to orthographic camera",false,switchCameraType);
+		       "Switch to orthographic camera",false,switchCameraType);
     mAddTB(cointb_,"seek","Seek: Change camera rotation point",false,seek);
 
     curviewmode_ = ui3DViewer::Inl;
@@ -837,13 +837,17 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = -1;
     }
 
-    mAddTB( cointb_, "dir-light", "Set directional light", false, 
+    mAddTB( cointb_, "dir-light", "Set directional light", false,
 	    doDirectionalLight);
-    
+
     axisid_ = mAddTB(cointb_,"axis","Display orientation axis",
-	    	     true,showRotAxis);
+		     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar", "Display color bar",
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
+    uiPopupMenu* colbarmnu = new uiPopupMenu( &appl_, "ColorBar Menu" );
+    mAddMnuItm( colbarmnu, "Settings ...", dispColorBar, "disppars", 0 );
+    cointb_->setButtonMenu( coltabid_, colbarmnu );
+
     mAddTB(cointb_,"snapshot","Take snapshot",false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect",
 	"Polygon Selection mode", mCB(this,uiODMenuMgr,selectionMode), true );
@@ -883,7 +887,7 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
     }
 
     if ( !itm ) return;
-   
+
     int itmid = itm->id();
     BufferString pm( "cube_inl" );
     BufferString tt( "View Inline" );
@@ -894,10 +898,10 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 		curviewmode_ = ui3DViewer::Crl; break;
 	case 2: pm = "cube_z"; tt = "View Z";
 		curviewmode_ = ui3DViewer::Z; break;
-	case 3: pm = "view_N"; tt = "View North"; 
+	case 3: pm = "view_N"; tt = "View North";
 		curviewmode_ = ui3DViewer::Y; break;
-	case 4: pm = "view_NZ"; tt = "View North Z"; 
-		curviewmode_ = ui3DViewer::YZ; break; 
+	case 4: pm = "view_NZ"; tt = "View North Z";
+		curviewmode_ = ui3DViewer::YZ; break;
     }
 
     cointb_->setPixmap( viewselectid_, pm );
@@ -933,7 +937,7 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
     }
 
     cointb_->setPixmap( polyselectid_, sIsPolySelect ?
-	    		"polygonselect" : "rectangleselect" );
+			"polygonselect" : "rectangleselect" );
     cointb_->setToolTip( polyselectid_, sIsPolySelect ?
 			"Polygon Selection mode" : "Rectangle Selection mode" );
 }
@@ -946,10 +950,18 @@ void uiODMenuMgr::removeSelection( CallBacker* )
 }
 
 
-void uiODMenuMgr::dispColorBar( CallBacker* )
+void uiODMenuMgr::dispColorBar( CallBacker* cb )
 {
-    appl_.applMgr().visServer()->displaySceneColorbar(
-	    cointb_->isOn(coltabid_) );
+    uiVisPartServer& visserv = *appl_.applMgr().visServer();
+
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    if ( itm && itm->id()==0 )
+    {
+	visserv.manageSceneColorbar( sceneMgr().askSelectScene() );
+	return;
+    }
+
+    visserv.displaySceneColorbar( cointb_->isOn(coltabid_) );
 }
 
 
@@ -958,7 +970,7 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
     cointb_->setToolTip(cameraid_,perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
     cointb_->setPixmap( cameraid_, perspective ? "perspective"
-	    				       : "orthographic" );
+					       : "orthographic" );
 }
 
 
@@ -1000,7 +1012,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
-    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;			
+    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
@@ -1029,8 +1041,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
-    case mManBodyMnuItm:		mDoOp(Man,Body,0); break;		
-    case mManPropsMnuItm:		mDoOp(Man,Props,0); break;		
+    case mManBodyMnuItm:		mDoOp(Man,Body,0); break;
+    case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
@@ -1044,22 +1056,22 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;
-    case mExitMnuItm: 		appl_.exit(); break;
-    case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
-    case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;
-    case mEdit3DAttrMnuItm: 	applMgr().editAttribSet(false); break;
+    case mExitMnuItm:		appl_.exit(); break;
+    case mEditAttrMnuItm:	applMgr().editAttribSet(); break;
+    case mEdit2DAttrMnuItm:	applMgr().editAttribSet(true); break;
+    case mEdit3DAttrMnuItm:	applMgr().editAttribSet(false); break;
     case mSeisOutMnuItm:	applMgr().createVol( SI().has2D() ); break;
-    case mSeisOut2DMnuItm: 	applMgr().createVol(true); break;
-    case mSeisOut3DMnuItm: 	applMgr().createVol(false); break;
-    case mCreateSurf2DMnuItm: 	applMgr().createHorOutput(0,true); break;
-    case mCreateSurf3DMnuItm: 	applMgr().createHorOutput(0,false); break;
+    case mSeisOut2DMnuItm:	applMgr().createVol(true); break;
+    case mSeisOut3DMnuItm:	applMgr().createVol(false); break;
+    case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
+    case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
     case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
-    case mReStartMnuItm: 	applMgr().reStartProc(); break;
+    case mReStartMnuItm:	applMgr().reStartProc(); break;
     case mProcSettingsItm:	applMgr().setProcSettings(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
@@ -1067,23 +1079,23 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
-    case mCascadeMnuItm: 	sceneMgr().cascade(); break;
-    case mTileAutoMnuItm: 	sceneMgr().tile(); break;
-    case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
-    case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
+    case mCascadeMnuItm:	sceneMgr().cascade(); break;
+    case mTileAutoMnuItm:	sceneMgr().tile(); break;
+    case mTileHorMnuItm:	sceneMgr().tileHorizontal(); break;
+    case mTileVerMnuItm:	sceneMgr().tileVertical(); break;
     case mScenePropMnuItm:	sceneMgr().setSceneProperties(); break;
     case mBaseMapMnuItm:	applMgr().showBaseMap(); break;
-    case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
-    case mZScaleMnuItm: 	applMgr().setZStretch(); break;
-    case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
-    case mPluginsMnuItm: 	applMgr().pluginMan(); break;
-    case mPosconvMnuItm:	applMgr().posConversion(); break;	
+    case mWorkAreaMnuItm:	applMgr().setWorkingArea(); break;
+    case mZScaleMnuItm:	applMgr().setZStretch(); break;
+    case mBatchProgMnuItm:	applMgr().batchProgs(); break;
+    case mPluginsMnuItm:	applMgr().pluginMan(); break;
+    case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
-    case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
-    case mShwLogFileMnuItm: 	showLogFile(); break;
-    case mSettFontsMnuItm: 	applMgr().setFonts(); break;
-    case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
+    case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
+    case mShwLogFileMnuItm:	showLogFile(); break;
+    case mSettFontsMnuItm:	applMgr().setFonts(); break;
+    case mSettMouseMnuItm:	sceneMgr().setKeyBindings(); break;
 
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
@@ -1092,7 +1104,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	uiLooknFeelSettings dlg( &appl_, "Set Look and Feel Settings" );
 	if ( dlg.go() && dlg.isChanged() )
 	    uiMSG().message("Your new settings will become active\nthe next "
-		    	    "time OpendTect is started.");
+			    "time OpendTect is started.");
     } break;
 
     case mDumpDataPacksMnuItm: {
@@ -1130,13 +1142,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mSettShortcutsMnuItm:	applMgr().manageShortcuts(); break;
 
-    case mStereoOffsetMnuItm: 	applMgr().setStereoOffset(); break;
-    case mStereoOffMnuItm: 
-    case mStereoRCMnuItm : 
+    case mStereoOffsetMnuItm:	applMgr().setStereoOffset(); break;
+    case mStereoOffMnuItm:
+    case mStereoRCMnuItm :
     case mStereoQuadMnuItm :
     {
-	const int type = id == mStereoRCMnuItm ? 1 
-	    				: (id == mStereoQuadMnuItm ? 2 : 0 );
+	const int type = id == mStereoRCMnuItm ? 1
+					: (id == mStereoQuadMnuItm ? 2 : 0 );
 	sceneMgr().setStereoType( type );
 	updateStereoMenu();
     } break;
@@ -1206,8 +1218,8 @@ void uiODMenuMgr::manSeis( CallBacker* )
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
-mDefManCBFn(Body)    
-mDefManCBFn(Props)    
+mDefManCBFn(Body)
+mDefManCBFn(Props)
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
 mDefManCBFn(PDF)
