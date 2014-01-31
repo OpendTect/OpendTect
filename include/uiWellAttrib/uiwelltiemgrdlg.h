@@ -78,7 +78,8 @@ protected:
     bool		initSetup();
     void		saveWellTieSetup(const MultiID&,
 	    				 const WellTie::Setup&) const;
-    
+
+    void		onFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void		extractWvltDone(CallBacker*);

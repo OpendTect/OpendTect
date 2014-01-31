@@ -162,8 +162,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    seisSelChg(0);
-    postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
+    postFinalise().notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
 }
 
 
@@ -176,7 +175,14 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 	delete extractwvltdlg_;
 
     delWins();
+}
 
+
+void uiTieWinMGRDlg::onFinalise( CallBacker* )
+{
+    seisSelChg( 0 );
+    wellSelChg( 0 );
+    used2tmbox_->setChecked( true );
 }
 
 
@@ -248,10 +254,11 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
     }
 }
 
+
 void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
 {
     const bool useexistingmdl = used2tmbox_->isChecked();
-    const bool havecs = wd_->haveCheckShotModel();
+    const bool havecs = wd_ && wd_->haveCheckShotModel();
     cscorrfld_->display( !useexistingmdl && havecs );
 }
 
