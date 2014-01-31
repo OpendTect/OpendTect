@@ -766,8 +766,9 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !data.series(idx) )
-	    return false;
+        if ( outputinterest_[idx] )
+	    if ( !data.series(idx) )
+	        return false;
     }
 
     const int z0 = data.z0_;
