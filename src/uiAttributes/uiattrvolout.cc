@@ -82,7 +82,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
 
     transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
-		.fornewentry(!is2d).withstep(false).multiline(true) );
+		.fornewentry(!is2d).withstep(!is2d).multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
