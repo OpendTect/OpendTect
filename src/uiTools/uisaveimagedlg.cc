@@ -512,7 +512,7 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
     sizepix_.setWidth( mCast(float,width) );
     sizepix_.setHeight( mCast(float,height) );
-    const float dpi = mCast(int,dpifld_->box()->getValue());
+    const float dpi = mCast(float,dpifld_->box()->getValue());
     sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
