@@ -190,7 +190,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->attach( alignedBelow, unitfld_ );
 
     dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
-    dpifld_->box()->setInterval( StepInterval<int>(1,screendpi_,1) );
+    dpifld_->box()->setInterval( StepInterval<int>(1,mCast(int,screendpi_),1) );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
@@ -512,7 +512,7 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
     sizepix_.setWidth( mCast(float,width) );
     sizepix_.setHeight( mCast(float,height) );
-    const float dpi = dpifld_->box()->getValue();
+    const float dpi = mCast(int,dpifld_->box()->getValue());
     sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
