@@ -16,10 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visscenecoltab.h"
 
 
-uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p, 
-				        visBase::SceneColTab* coltab )				        
-    : uiDialog(p,uiDialog::Setup("Color Bar Properties",
-			    "Change color bar position and size",mNoHelpID))
+uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
+					visBase::SceneColTab* coltab )
+    : uiDialog(p,uiDialog::Setup("Color Bar Settings",mNoDlgTitle,mNoHelpID))
     , scenecoltab_(coltab)
 {
     setCtrlStyle( LeaveOnly );
@@ -48,7 +47,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     posfld_->valuechanged.notify(
 			mCB(this,uiSceneColorbarMgr,posChangedCB) );
 }
-	
+
 
 uiSceneColorbarMgr::~uiSceneColorbarMgr()
 {
@@ -57,7 +56,7 @@ uiSceneColorbarMgr::~uiSceneColorbarMgr()
 
 void uiSceneColorbarMgr::sizeChangedCB( CallBacker* )
 {
-    scenecoltab_->setSize( widthfld_->getValue(), heightfld_->getValue() ); 
+    scenecoltab_->setSize( widthfld_->getValue(), heightfld_->getValue() );
 }
 
 

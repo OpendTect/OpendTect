@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -237,7 +237,7 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
     , menu_(0)
     , propitem_("&Properties ...")
     , imageitem_("&Top/Bottom image ...")
-    , coltabitem_("&Scene color table ...")
+    , coltabitem_("&Scene color bar ...")
     , dumpivitem_("&Export scene ...")
 {
     propitem_.iconfnm = "disppars";
@@ -248,8 +248,10 @@ uiODSceneTreeItem::~uiODSceneTreeItem()
 {
     if ( menu_ )
     {
-	menu_->createnotifier.remove( mCB(this,uiODSceneTreeItem,createMenuCB) );
-	menu_->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	menu_->createnotifier.remove(
+		mCB(this,uiODSceneTreeItem,createMenuCB) );
+	menu_->handlenotifier.remove(
+		mCB(this,uiODSceneTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
 
@@ -268,8 +270,10 @@ bool uiODSceneTreeItem::init()
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
 	menu_->ref();
-	menu_->createnotifier.notify( mCB(this,uiODSceneTreeItem,createMenuCB) );
-	menu_->handlenotifier.notify( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	menu_->createnotifier.notify(
+		mCB(this,uiODSceneTreeItem,createMenuCB) );
+	menu_->handlenotifier.notify(
+		mCB(this,uiODSceneTreeItem,handleMenuCB) );
     }
 
     MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
@@ -324,7 +328,8 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     {
 	ObjectSet<ui3DViewer> viewers;
 	ODMainWin()->sceneMgr().getSoViewers( viewers );
-	uiScenePropertyDlg dlg( getUiParent(), viewers, viewers.indexOf(viewer()) );
+	uiScenePropertyDlg dlg( getUiParent(), viewers,
+				viewers.indexOf(viewer()) );
 	dlg.go();
     }
     else if ( mnuid==imageitem_.id )

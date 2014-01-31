@@ -872,6 +872,10 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 		     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar", "Display color bar",
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
+    uiMenu* colbarmnu = new uiMenu( &appl_, "ColorBar Menu" );
+    mAddMnuItm( colbarmnu, "Settings ...", dispColorBar, "disppars", 0 );
+    cointb_->setButtonMenu( coltabid_, colbarmnu );
+
     mAddTB(cointb_,"snapshot","Take snapshot",false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect",
 	"Polygon Selection mode", mCB(this,uiODMenuMgr,selectionMode), true );
@@ -975,10 +979,18 @@ void uiODMenuMgr::removeSelection( CallBacker* )
 }
 
 
-void uiODMenuMgr::dispColorBar( CallBacker* )
+void uiODMenuMgr::dispColorBar( CallBacker* cb )
 {
-    appl_.applMgr().visServer()->displaySceneColorbar(
-	    cointb_->isOn(coltabid_) );
+    uiVisPartServer& visserv = *appl_.applMgr().visServer();
+
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( itm && itm->getID()==0 )
+    {
+	visserv.manageSceneColorbar( sceneMgr().askSelectScene() );
+	return;
+    }
+
+    visserv.displaySceneColorbar( cointb_->isOn(coltabid_) );
 }
 
 
