@@ -31,7 +31,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 {
     screendpi_ = mCast( float, uiMain::getDPI() );
     createGeomInpFlds( cliboardselfld_ );
-    dpifld_->box()->setInterval( StepInterval<int>(0,screendpi_,1) );
+    dpifld_->box()->setInterval( StepInterval<int>(0,mCast(int,screendpi_),1) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     PtrMan<IOPar> ctiopar;
