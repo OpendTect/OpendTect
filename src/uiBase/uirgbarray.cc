@@ -26,13 +26,28 @@ uiRGBArray::uiRGBArray( bool walpha )
 
 uiRGBArray::uiRGBArray( const OD::RGBImage& image )
 {
-    mDynamicCastGet( const uiRGBArray*, input, &image );
+    mDynamicCastGet(const uiRGBArray*,input,&image);
     if ( !input )
-	{ pErrMsg( "Not supported. Go ahead and implement"); }
-    
-    qimg_ = new QImage( input->qImage() );
-    qimg_->detach();
+    {
+	pErrMsg( "Cannot copy image that's not uiRGBArray");
+	qimg_ = new QImage;
+	withalpha_ = true;
+    }
+    else
+    {
+	qimg_ = new QImage( input->qImage() );
+	qimg_->detach();
+	withalpha_ = input->withalpha_;
+    }
 }
+
+
+uiRGBArray::uiRGBArray( const char* fnm )
+    : qimg_(new QImage(fnm))
+{
+    withalpha_ = qimg_->hasAlphaChannel();
+}
+
 
 uiRGBArray::~uiRGBArray()
 { 
@@ -50,6 +65,15 @@ bool uiRGBArray::setSize( int d0, int d1 )
 	    				  : QImage::Format_RGB32 );
 
     return true;
+}
+
+
+bool uiRGBArray::reSize( int d0, int d1 )
+{
+    if ( qimg_->width() != d0 || qimg_->height() != d1 )
+	*qimg_ = qimg_->scaled( d0, d1 );
+
+    return qimg_->width() == d0 && qimg_->height() == d1;
 }
 
 

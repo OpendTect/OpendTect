@@ -21,19 +21,24 @@ mFDQtclass(QImage)
 mExpClass(uiBase) uiRGBArray : public OD::RGBImage
 {
 public:
+
                         uiRGBArray(bool withalpha);
 			uiRGBArray(const OD::RGBImage&);
+                        uiRGBArray(const char* filename);
     virtual		~uiRGBArray();
 
-    char		nrComponents() const { return withalpha_ ? 4 : 3; }
-    bool                setSize(int,int);
-    int			getSize(bool xdir) const;
-    Color		get(int,int) const;
-    bool		set(int,int,const Color&);
+    virtual Color	get(int,int) const;
+    virtual bool	set(int,int,const Color&);
+
+    virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
+    virtual int		getSize(bool xdir) const;
+    virtual bool	setSize(int,int);	//!< destroys whatever is there
+
+    bool                reSize(int,int);	//!< inter/extrapolates
     void		clear(const Color&);
 
-    const mQtclass(QImage&)	qImage() const	{ return *qimg_; } ;
-    mQtclass(QImage&)		qImage()	{ return *qimg_; } ;
+    const mQtclass(QImage&) qImage() const	{ return *qimg_; } ;
+    mQtclass(QImage&)	qImage()		{ return *qimg_; } ;
 
 protected:
 
@@ -42,5 +47,5 @@ protected:
 
 };
 
-#endif
 
+#endif
