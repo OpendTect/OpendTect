@@ -10,24 +10,23 @@
 
 set SCRIPTDIR = `dirname "$0"`
 set DTECT_APPL  = `dirname "${SCRIPTDIR}"`
+setenv XAPPLRESDIR	"$DTECT_APPL/data"
+unsetenv QTDIR
+
+if ( `uname` == "Darwin" ) then
+    "$DTECT_APPL/bin/mac_term" -e $*
+    exit $status
+endif
 
 set xtermcmd=xterm
 which xterm >&! /dev/null
 set result=$status
-if ( $result == 0 ) set xtermcmd=`which xterm` >&! /dev/null
-
-if ( ! -x $xtermcmd ) set result=1
-
-if ( $result != 0 ) then
-    set xtermcmd=/usr/bin/X11/xterm
-    if ( $HDIR == mac ) then
-	set xtermcmd="$DTECT_APPL/bin/mac_term"
-    else
-	set xtermcmd="$xtermcmd -bg lightyellow -fg black -geometry 80x25"
-    endif
+if ( $result == 0 ) then
+	set xtermcmd=`which xterm` >&! /dev/null
 endif
 
-setenv XAPPLRESDIR	"$DTECT_APPL/data"
-unsetenv QTDIR
+if ( ! -x $xtermcmd ) then
+    set xtermcmd=/usr/bin/X11/xterm
+endif
 
-$xtermcmd -e $*
+$xtermcmd -bg blue -fg yellow -geometry 80x25 -fn "-*-fixed-*-r-*-*-20-*-*-*-*-*-*-*" -e $*
