@@ -266,6 +266,7 @@ public:
 				{ return getVal(did,rid,userunits); }
     void			setUnsavedChg( bool chg )
 				{ unsavedchgs_ = chg; }
+    int				nrPosCols() const;
 };
 
 
