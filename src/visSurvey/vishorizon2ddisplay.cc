@@ -359,13 +359,8 @@ protected:
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
     if ( !emobject_ ) return;
-    const EM::SectionID sid = emobject_->sectionID( idx );
-    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
-		    emobject_->sectionGeometry(sid));
 
-    visBase::PolyLine3D* pl = lines_[idx];
-    visBase::PointSet* ps = points_[idx];
-
+    visBase::PointSet* ps = points_.validIdx(idx) ? points_[idx] : 0;
     if ( !ps )
     {
 	ps = visBase::PointSet::create();
@@ -408,7 +403,11 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	}
     }
 
+    const EM::SectionID sid = emobject_->sectionID( idx );
+    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
+		    emobject_->sectionGeometry(sid));
     const LineRanges* lrgs = redo ? &linergs : lineranges;
+    visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
     Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
 				     zaxistransform_, linenames );
     updater.execute();
