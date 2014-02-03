@@ -57,8 +57,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    const NLAModel* n, MultiID id )
 	: uiFullBatchDialog(p,Setup("Process"))
 	, ctio_(mkCtxtIOObj(ad))
-    	, subselpar_(*new IOPar)
-    	, sel_(*new CurrentSel)
+	, subselpar_(*new IOPar)
+	, sel_(*new CurrentSel)
 	, ads_(const_cast<DescSet&>(ad))
 	, nlamodel_(n)
 	, nlaid_(id)
@@ -74,7 +74,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld_ = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
-	    	.fornewentry(!is2d).withstep(false).multiline(true) );
+		.fornewentry(!is2d).withstep(!is2d).multiline(true) );
     transffld_->attach( alignedBelow, todofld_ );
     if ( transffld_->selFld2D() )
 	transffld_->selFld2D()->singLineSel.notify(
@@ -83,7 +83,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
     su.selattr( true ).allowlinesetsel( false );
-    
+
     objfld_ = new uiSeisSel( uppgrp_, ctio_, su );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
@@ -206,7 +206,7 @@ bool uiAttrVolOut::prepareProcessing()
 		"No attribute name given. Do you want to continue? "
 		"Click on 'Yes' if you want 'Seis' as attribute name. "
 		"Click on 'No' to provide another name." );
-	    if ( !res ) return false; 
+	    if ( !res ) return false;
 	}
 
 	if ( attrnm.isEmpty() )
@@ -220,8 +220,8 @@ bool uiAttrVolOut::prepareProcessing()
 	if ( (!singline && lnms.size()) || (singline && lnms.isPresent(lnm)) )
 	{
 	    const bool rv = uiMSG().askGoOn( "Output attribute already exists.",
-		    			     "Overwrite", "Cancel" );
-	    if ( !rv ) return false; 
+					     "Overwrite", "Cancel" );
+	    if ( !rv ) return false;
 	}
     }
 
@@ -272,9 +272,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( nlamodel_ && todofld_->outputNr() >= 0 )
     {
 	if ( !nlaid_ || !(*nlaid_) )
-	{ 
-	    uiMSG().message( "NN needs to be stored before creating volume" ); 
-	    return false; 
+	{
+	    uiMSG().message( "NN needs to be stored before creating volume" );
+	    return false;
 	}
 	addNLA( nlamodel_id );
     }
@@ -337,13 +337,13 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     //Subselectio_n type and geometry will have an extra level key: 'Subsel
     if ( tmpiop.get( sKey::Type(), typestr ) )
 	tmpiop.removeWithKey( sKey::Type() );
-    
+
     CubeSampling::removeInfo( tmpiop );
     iop.mergeComp( tmpiop, keybase );
     tmpiop.setEmpty();
     if ( strcmp( typestr.buf(), "" ) )
 	tmpiop.set( sKey::Type(), typestr );
-    
+
     bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
     {
@@ -387,7 +387,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
 
 	Desc* desc = nlamodel_ ? descset.getFirstStored()
-	    		      : ads_.getDesc( todofld_->attribID() );
+			      : ads_.getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
@@ -440,7 +440,7 @@ void uiAttrVolOut::addNLA( DescID& id )
     defstr += nlaid_;
 
     BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(), 
+    EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
     if ( errmsg.size() )
