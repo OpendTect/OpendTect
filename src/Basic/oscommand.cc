@@ -310,10 +310,11 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     bool ret = false;
     if ( pars.isconsoleuiprog_ )
     {
-	const FilePath fp( GetSoftwareDir(true), "bin" );
-	const BufferString scrcmd( fp.fullPath(), "od_exec_consoleui.",
+	FilePath fp( GetSoftwareDir(true), "bin" );
+	const BufferString scrcmd( "od_exec_consoleui.",
 				   __iswin__ ? "bat " : "scr " );
-	localcmd.insertAt( 0, scrcmd );
+	fp.add( scrcmd );
+	localcmd.insertAt( 0, fp.fullPath() );
 	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
     }
 
@@ -337,7 +338,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	progvwrcmd_.set( odprogressviewer_ )
 	    .add( " --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
-	
+
 	needsmonitor_ = false;
 	if ( !doExecute(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
