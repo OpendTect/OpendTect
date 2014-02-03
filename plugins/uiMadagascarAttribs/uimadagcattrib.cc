@@ -26,18 +26,18 @@ uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,mNoHelpID)
 {
     inpfld_ = createInpFld( is2d, "Input Data");
-    
+
     smoothzradiusfld_ = new uiGenInput( this, "Z smoothing radius (samples)",
-	    			   	IntInpSpec(0) );
+					IntInpSpec(0) );
     smoothzradiusfld_->attach( alignedBelow, inpfld_ );
 
     uiStepOutSel::Setup setup( is2d );
-    setup.seltxt( "smoothing stepout" ).allowneg( false );
+    setup.seltxt( "Smoothing stepout" ).allowneg( false );
     smoothradiusfld_ = new uiStepOutSel( this, setup );
     smoothradiusfld_->attach( alignedBelow, smoothzradiusfld_ );
-    
+
     nrrepeatfld_ = new uiGenInput( this, "Repeat AGC scaling", IntInpSpec(0) );
-    nrrepeatfld_->attach( alignedBelow, smoothzradiusfld_ );
+    nrrepeatfld_->attach( alignedBelow, smoothradiusfld_ );
 
     setHAlignObj( inpfld_ );
 }
