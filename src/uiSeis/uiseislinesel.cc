@@ -225,7 +225,7 @@ void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 
 
 uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
-       					const uiSeis2DMultiLineSel::Setup& su )
+					const uiSeis2DMultiLineSel::Setup& su )
     : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,"103.1.13") )
     , setup_(su)
     , ctio_(c)
@@ -251,7 +251,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
     }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
-	   			  setup_.withstep_, "Trace" );
+				  setup_.withstep_, "Trace" );
     trcrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );
@@ -297,12 +297,15 @@ void uiSeis2DMultiLineSelDlg::setAll( bool yn )
 { lnmsfld_->selectAll( yn ); }
 
 void uiSeis2DMultiLineSelDlg::setSelection( const BufferStringSet& sellines,
-       				const TypeSet<StepInterval<int> >* rgs	)
-{ 
+				const TypeSet<StepInterval<int> >* rgs	)
+{
     if ( rgs && rgs->size() != sellines.size() )
 	return;
 
     lnmsfld_->clearSelection();
+    if ( !sellines.isEmpty() )
+	lnmsfld_->setCurrentItem( sellines.get(0) );
+
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const int selidx = lnmsfld_->indexOf( sellines.get(idx) );
@@ -328,7 +331,7 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
 
     SeisIOObjInfo oinf( lsetobj );
     BufferStringSet lnms;
-    oinf.getLineNames( lnms );   
+    oinf.getLineNames( lnms );
     lnmsfld_->setEmpty();
     maxtrcrgs_.erase();
     trcrgs_.erase();
@@ -339,7 +342,7 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
     BufferString selattrnm = linesetfld_ ? linesetfld_->attrNm() : "";
 
     StepInterval<float> maxzrg( mUdf(float), -mUdf(float), 1 );;
-    
+
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	const char* lnm = lnms.get(idx).buf();
@@ -373,7 +376,7 @@ void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
 
 	if ( !maxnrtrcs )
 	    continue;
-	
+
 	lnmsfld_->addItem( lnm );
 	maxtrcrgs_ += globtrcrg;
 	trcrgs_ += globtrcrg;
@@ -463,14 +466,17 @@ bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
     : uiCompoundParSel(p,"LineSet/LineName","Select")
     , setup_(*new uiSeis2DMultiLineSel::Setup(setup))
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
+    , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,true))
     , isall_(true)
 {
     if ( !setup.lbltxt_.isEmpty() ) txtfld_->setTitleText( setup.lbltxt_ );
     butPush.notify( mCB(this,uiSeis2DMultiLineSel,doDlg) );
-    ctio_.ctxt.deftransl = "2D";
-    if ( setup_.filldef_ )
+    if ( !setup_.filldef_ )
+    {
+	ctio_.destroyAll();
+	ctio_.ctxt.deftransl = "2D";
 	ctio_.fillDefault();
+    }
 
     updateFromLineset();
 }
