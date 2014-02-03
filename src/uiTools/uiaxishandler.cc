@@ -590,7 +590,7 @@ void uiAxisHandler::drawName()
 	namepos -= FontList().get().height()/2; //shift due to rotation
 	pt.x = (int) (isleft ? namepos : width_ - namepos);
 	pt.y = ( height_+nameitm_->getTextSize().width() ) / 2;
-	al.set( isleft ? Alignment::Left : Alignment::Left );
+	al.set( isleft ? Alignment::Left : Alignment::Right );
 
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
