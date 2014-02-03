@@ -1113,7 +1113,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
     }
 
     if ( mIsTrcNr(dcid) )
-	return dps_.pos( drid ).nr_;
+	return mCast(float,dps_.pos( drid ).nr_);
     else if ( mIsZ(dcid) )
     {
 	const float val = dps_.z( drid );
