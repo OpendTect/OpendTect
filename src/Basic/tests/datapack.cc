@@ -55,7 +55,7 @@ bool testDataPack()
     {
 	//Note, this is not a standard way to create the ref, but I need to
 	//send them out of scope by will
-	PtrMan<DataPackRef<BufferString> > faultyref =
+	PtrMan<ConstDataPackRef<BufferString> > faultyref =
 	    new DataPackRef<BufferString>( dpm.obtain(id) );
 
 	mRunStandardTest( dpc->nrUsers()==2, "Nr users after second obtain");

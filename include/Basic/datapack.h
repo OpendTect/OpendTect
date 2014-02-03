@@ -220,6 +220,30 @@ public:
 
 };
 
+template <class T>
+mClass(Basic) ConstDataPackRef
+{
+public:
+				ConstDataPackRef(const DataPack* p);
+				//!<Assumes p is obtained
+				ConstDataPackRef(const ConstDataPackRef<T>&);
+    virtual			~ConstDataPackRef()		{ releaseNow();}
+
+    ConstDataPackRef<T>&	operator=(const ConstDataPackRef<T>&);
+
+    void			releaseNow();
+
+				operator bool() const		{ return ptr_; }
+    const T*			operator->() const		{ return ptr_; }
+    const T&			operator*() const		{ return *ptr_;}
+    const T*			ptr() const			{ return ptr_; }
+    const DataPack*		dataPack() const		{ return dp_; }
+
+protected:
+
+    DataPack*			dp_;
+    T*				ptr_;
+};
 
 /*! Provides safe&easy access to DataPack subclass.
   
@@ -241,34 +265,34 @@ public:
 
 	fdp->set(0,0,0);
      }
+     ConstDataPackRef<FlatDataPack> cdp = DPM(DataPackMgr::FlatID).obtain( id );
+
+     if ( cdp )
+     {
+	if ( cdp->info().getTotalSize()== 0 )
+	    return; //release is called automatically;
+	if ( mIsUdf(cdp->get(0,0) )
+	    return; //release is called automatically;
+     }
  \endcode
  */
 
 template <class T>
-mClass(Basic) DataPackRef
+mClass(Basic) DataPackRef : public ConstDataPackRef<T>
 {
 public:
 			DataPackRef(DataPack* p);
 			//!<Assumes p is obtained
 			DataPackRef(const DataPackRef<T>&);
-			~DataPackRef()	{ releaseNow(); }
 
     DataPackRef<T>&	operator=(const DataPackRef<T>&);
 
     void		releaseNow();
 
-			operator bool() const		{ return ptr_; }
-    const T*		operator->() const		{ return ptr_; }
     T*			operator->()			{ return ptr_; }
-    const T*		ptr() const			{ return ptr_; }
+    T&			operator*()			{ return ptr_;}
     T*			ptr()				{ return ptr_; }
     DataPack*		dataPack()			{ return dp_; }
-    const DataPack*	dataPack() const		{ return dp_; }
-
-private:
-
-    DataPack*		dp_;
-    T*			ptr_;
 };
 
 
@@ -300,14 +324,16 @@ mObtainDataPack( var, type, mgrid, newid ); \
 
 //Implementations
 template <class T> inline
-DataPackRef<T>::DataPackRef(DataPack* p) : dp_(p), ptr_( 0 )
+ConstDataPackRef<T>::ConstDataPackRef(const DataPack* p)
+    : dp_(const_cast<DataPack*>(p) )
+    , ptr_( 0 )
 {
     mDynamicCast(T*, ptr_, dp_ );
 }
 
 
 template <class T> inline
-DataPackRef<T>::DataPackRef(const DataPackRef<T>& dpr)
+ConstDataPackRef<T>::ConstDataPackRef(const ConstDataPackRef<T>& dpr)
     : ptr_( dpr.ptr_ )
     , dp_( dpr.dp_ )
 {
@@ -316,7 +342,8 @@ DataPackRef<T>::DataPackRef(const DataPackRef<T>& dpr)
 
 
 template <class T> inline
-DataPackRef<T>& DataPackRef<T>::operator=(const DataPackRef<T>& dpr)
+ConstDataPackRef<T>&
+ConstDataPackRef<T>::operator=(const ConstDataPackRef<T>& dpr)
 {
     releaseNow();
     ptr_ = dpr.ptr_;
@@ -328,7 +355,7 @@ DataPackRef<T>& DataPackRef<T>::operator=(const DataPackRef<T>& dpr)
 
 
 template <class T> inline
-void DataPackRef<T>::releaseNow()
+void ConstDataPackRef<T>::releaseNow()
 {
     ptr_ = 0;
     if ( dp_ )
@@ -339,7 +366,24 @@ void DataPackRef<T>::releaseNow()
 }
 
 
+template <class T> inline
+DataPackRef<T>::DataPackRef(DataPack* p)
+    : ConstDataPackRef<T>( p )
+{ }
 
+
+template <class T> inline
+DataPackRef<T>::DataPackRef(const DataPackRef<T>& dpr)
+    : ConstDataPackRef<T>( dpr )
+{ }
+
+
+template <class T> inline
+DataPackRef<T>& DataPackRef<T>::operator=(const DataPackRef<T>& dpr)
+{
+    ConstDataPackRef<T>::operator=(dpr);
+    return *this;
+}
 
 
 #endif
