@@ -5,28 +5,37 @@
 # $Id: od_exec 32691 2013-12-09 08:26:16Z kristofer.tingdahl@dgbes.com $
 #
 # starts a console program with textural user interaction
+# has to be done from a script because we don't know whether xterm will be in
+# the executable path
 #_______________________________________________________________________________
 
 
 set SCRIPTDIR = `dirname "$0"`
-set DTECT_APPL  = `dirname "${SCRIPTDIR}"`
-setenv XAPPLRESDIR	"$DTECT_APPL/data"
+set DTECT_APPL = `dirname "${SCRIPTDIR}"`
+setenv XAPPLRESDIR "$DTECT_APPL/data"
 unsetenv QTDIR
 
 if ( `uname` == "Darwin" ) then
+
     "$DTECT_APPL/bin/mac_term" -e $*
-    exit $status
-endif
+    set fnm="/tmp/od_exec_$$.term"
+    cat $DTECT_APPL/bin/macterm.in | sed -e "s%__termcmd__%$*%" > $fnm
 
-set xtermcmd=xterm
-which xterm >&! /dev/null
-set result=$status
-if ( $result == 0 ) then
+else
+
+    set xtermcmd=xterm
+    which xterm >&! /dev/null
+    set result=$status
+    if ( $result == 0 ) then
 	set xtermcmd=`which xterm` >&! /dev/null
-endif
+    endif
 
-if ( ! -x $xtermcmd ) then
-    set xtermcmd=/usr/bin/X11/xterm
-endif
+    if ( ! -x $xtermcmd ) then
+	# our last hope
+	set xtermcmd=/usr/bin/X11/xterm
+    endif
 
-$xtermcmd -bg blue -fg yellow -geometry 80x25 -fn "-*-fixed-*-r-*-*-20-*-*-*-*-*-*-*" -e $*
+    $xtermcmd -bg blue -fg yellow -geometry 80x25 \
+		-fn "-*-fixed-*-r-*-*-20-*-*-*-*-*-*-*" -e $*
+
+endif
