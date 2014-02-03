@@ -217,7 +217,8 @@ bool uiArray2DInterpolSel::acceptOK()
 	 (mIsUdf( maxholeszfld_->getfValue() ) ||
 	  maxholeszfld_->getfValue()<=0 ) )
     {
-	uiMSG().error("Maximum hole size not set or is less or equal to zero");
+	uiMSG().error(
+		tr("Maximum hole size not set or is less or equal to zero"));
 	return false;
     }
 

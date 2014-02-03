@@ -49,11 +49,14 @@ public:
     Alignment::HPos	alignment() const;
 
 private:
+    void		translate();
 
     void		init(const uiString& txt,uiObject* buddy);
 
     uiLabelBody*	body_;
     uiLabelBody&	mkbody(uiParent*,const uiString&);
+
+    uiString		text_;
 
 };
 

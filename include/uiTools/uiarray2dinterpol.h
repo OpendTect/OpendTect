@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "factory.h"
 #include "position.h"
+#include "uistring.h"
 
 class Array2DInterpol;
 class uiCheckBox;
@@ -24,7 +25,7 @@ class uiArray2DInterpol;
 
 
 mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
-{
+{ mTextTranslationClass(uiArray2DInterpolSel)
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
 

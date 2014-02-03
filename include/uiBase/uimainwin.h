@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiparent.h"
 #include "mousecursor.h"
+#include "uistring.h"
 
 mFDQtclass(QWidget)
 class uiDockWin;
@@ -26,6 +27,7 @@ class uiMenu;
 class uiStatusBar;
 class uiToolBar;
 class BufferStringSet;
+class BufferString;
 
 /*!
 \brief User interface main window.
@@ -161,8 +163,10 @@ public:
     static void		getModalSignatures(BufferStringSet&);
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
 					   bool visibleonly=true);
-    static const char*	uniqueWinTitle(const char* txt,
-	    			       mQtclass(QWidget*) forwindow=0);
+
+    static uiString	uniqueWinTitle(const uiString&,
+				       mQtclass(QWidget*) forwindow=0,
+				       BufferString* addendum = 0);
 
     void		translate();
 

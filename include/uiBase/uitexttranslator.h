@@ -1,5 +1,5 @@
-#ifndef texttranslator_h
-#define texttranslator_h
+#ifndef uitexttranslator_h
+#define uitexttranslator_h
 
 /*+
 ________________________________________________________________________
@@ -13,11 +13,11 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
+#include "uibasemod.h"
 #include "callback.h"
 
 
-mExpClass(General) TextTranslator : public CallBacker
+mExpClass(uiBase) TextTranslator : public CallBacker
 {
 public:
 
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mExpClass(General) TextTranslateMgr
+mExpClass(uiBase) TextTranslateMgr
 {
 public:
 				TextTranslateMgr()
@@ -67,7 +67,7 @@ protected:
 };
 
 
-mGlobal(General) TextTranslateMgr& TrMgr();
+mGlobal(uiBase) TextTranslateMgr& TrMgr();
 
 #endif
 

@@ -89,8 +89,16 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const uiString& txt )
 
 void uiLabel::setText( const uiString& txt )
 {
-    body_->setText( txt.getQtString() );
-    setName( txt.getOriginalString() );
+    text_ = txt;
+    body_->setText( text_.getQtString() );
+    setName( text_.getOriginalString() );
+}
+
+
+void uiLabel::translate()
+{
+    text_.update( true, true );
+    body_->setText( text_.getQtString() );
 }
 
 

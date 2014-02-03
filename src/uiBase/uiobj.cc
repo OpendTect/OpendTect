@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 
 #include "color.h"
-#include "texttranslator.h"
+#include "uitexttranslator.h"
 #include "settings.h"
 #include "timer.h"
 #include "perthreadrepos.h"

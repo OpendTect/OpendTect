@@ -308,11 +308,3 @@ BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
 
     return url;
 }
-
-#include "texttranslator.h"
-mGlobal( General )  TextTranslateMgr& TrMgr()
-{
-    mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
-    if ( !trmgr ) trmgr = new TextTranslateMgr();
-    return *trmgr;
-}

@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "perthreadrepos.h"
 #include "strmprov.h"
-#include "texttranslator.h"
+#include "uitexttranslator.h"
 #include "thread.h"
 #include "timer.h"
 
@@ -596,7 +596,10 @@ void uiMainWinBody::readSettings()
 
 
 void uiMainWinBody::setWindowTitle( const char* txt )
-{ QMainWindow::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) );}
+{
+    QMainWindow::setWindowTitle(
+		uiMainWin::uniqueWinTitle(txt,this,0).getQtString() );
+}
 
 
 #define mExecMutex( statements ) \
@@ -1119,22 +1122,26 @@ void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 }
 
 
-const char* uiMainWin::uniqueWinTitle( const char* txt,
-				       QWidget* forwindow )
+uiString uiMainWin::uniqueWinTitle( const uiString& txt,
+				    QWidget* forwindow,
+				    BufferString* outputaddendum )
 {
-    mDeclStaticString( wintitle );
+    QString wintitle;
     const QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
     for ( int count=1; true; count++ )
     {
 	bool unique = true;
-	wintitle = txt;
+	wintitle = txt.getQtString();
+
 	if ( wintitle.isEmpty() )
 	    wintitle = "<no title>";
 
 	if ( count>1 )
 	{
-	    wintitle += "  {"; wintitle += count ; wintitle += "}" ;
+	    BufferString addendum( "  {", toString(count), "}" );
+	    wintitle += addendum.buf();
+	    if ( outputaddendum ) *outputaddendum = addendum;
 	}
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
@@ -1149,7 +1156,8 @@ const char* uiMainWin::uniqueWinTitle( const char* txt,
 
 	if ( unique ) break;
     }
-    return wintitle;
+
+    return uiString(wintitle,0);
 }
 
 

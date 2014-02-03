@@ -66,11 +66,13 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( !nm || !*nm ) nm = "Select color";
 
-    const char* wintitle = uiMainWin::uniqueWinTitle( nm );
-    const int refnr = beginCmdRecEvent( wintitle );
+    BufferString addendum;
+    const uiString wintitle = uiMainWin::uniqueWinTitle( nm, 0, &addendum );
+    BufferString utfwintitle( nm, addendum );
+    const int refnr = beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
-    qdlg.setWindowTitle( QString(wintitle) );
+    qdlg.setWindowTitle( wintitle.getQtString() );
     if ( withtransp )
     {
         qdlg.setOption( QColorDialog::ShowAlphaChannel );

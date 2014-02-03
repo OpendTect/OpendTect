@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "uibasemod.h"
 
+#include "objectset.h"
+
 mFDQtclass( QString )
 
 /*!String that is able to hold wide character strings for the user interface.
@@ -41,7 +43,7 @@ mExpClass(uiBase) uiString
 {
 public:
 			uiString(const uiString&);
-			uiString(const char* = 0);
+			uiString(const char* original = 0);
 			/*!<String is assumed to stay alive as it will be used
 			    for the originalstring_. */
 			uiString(const FixedString&);
@@ -51,6 +53,8 @@ public:
 			uiString(const QString&,
 				 const char* originalstring=0);
 			~uiString();
+
+    bool		isEmpty() const;
 
     uiString&		operator=(const uiString&);
     uiString&		operator=(const char*);
@@ -65,13 +69,49 @@ public:
     uiString		arg(const char*) const;
     uiString		arg(const uiString&) const;
 
-    mQtclass(const QString&)	getQtString() const	  { return *qstring_; }
+    const mQtclass(QString&)	getQtString() const;
     const char*			getOriginalString() const;
 
 private:
-    mQtclass(QString*)		qstring_;
+
+    void			addArgument(uiString*);
+
+    ObjectSet<uiString>		arguments_;
+
+    mQtclass(QString)*		qstring_;
     const char*			originalstring_;
+    const char*			translationcontext_;
+    const char*			translationdisambiguation_;
+    int				translationpluralnumber_;
+
+public: // Expert usage
+    void		setTranslationContext(const char*);
+			//!<\note String is assumed to remain in mem.
+    void		setTranslationDisambiguation(const char*);
+			//!<\note String is assumed to remain in mem
+    void		setTranslationPluralNr(int);
+			//!<If translation depends on plural, give current nr
+
+    void		update(bool translate=true,
+				bool replaceargs=true);
+			/*!<Updates internal qstrig from originalstring_
+			 and the other translation settings using the
+			 current language. Call is normally only needed
+			 if global translation language has changed. */
+			uiString(const char* text,
+				 const char* context,
+				 const char* disambiguation,
+				 int pluralnr);
+
+
 };
+
+#define mTextTranslationClass(clss) \
+private: \
+ static inline uiString tr( const char* text, const char* disambiguation = 0,  \
+ int pluralnr=-1 ) \
+ { return uiString( text, #clss, disambiguation, pluralnr ); }
+
 
 #endif
 

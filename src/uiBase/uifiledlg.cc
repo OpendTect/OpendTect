@@ -172,15 +172,18 @@ int uiFileDialog::go()
 	}
     }
 
-    const char* wintitle = uiMainWin::uniqueWinTitle( caption_ );
-    int refnr = beginCmdRecEvent( wintitle );
+    BufferString addendum;
+    const uiString wintitle =
+	uiMainWin::uniqueWinTitle( caption_, 0, &addendum );
+    const BufferString utfwintitle( caption_, addendum );
+    int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
-    fd->setWindowTitle( QString(wintitle) );
+    fd->setWindowTitle( wintitle.getQtString() );
     fd->setConfirmOverwrite( confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
