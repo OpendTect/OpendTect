@@ -49,12 +49,14 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , thumbnail_(0)
 {
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
-	    					    : uiToolBar::Top );
+						    : uiToolBar::Top );
     if ( setup.tba_ > 0 )
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
     if ( setup.withstates_ )
+    {
 	mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode");
+    }
 
     vwr_.setRubberBandingOn( !manip_ );
 
@@ -244,12 +246,12 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
 	 !mousepressed_ || !withhanddrag_ )
 	return;
-    
+
     const uiPoint curpt = meh->event().pos();
     const uiWorld2Ui w2ui( mousedownwr_, vwr->getViewRect().size() );
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
     const uiWorldPoint curwpt = w2ui.transform( curpt );
-    
+
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt );
 
@@ -257,8 +259,8 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     Geom::Point2D<double> oldcentre = vwr->curView().centre();
     Geom::Size2D<double> size = newwr.size();
     newwr = getNewWorldRect( oldcentre, size, newwr, bb );
-    
-    vwr->setView( newwr );    
+
+    vwr->setView( newwr );
 }
 
 
@@ -297,7 +299,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	vwrs_[idx]->rgbCanvas().setDragMode( 
+	vwrs_[idx]->rgbCanvas().setDragMode(
 		!manip_ ? uiGraphicsViewBase::RubberBandDrag
 		        : uiGraphicsViewBase::ScrollHandDrag);
 	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
@@ -315,7 +317,7 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 	mode = uiGraphicsViewBase::NoDrag;
     else
 	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
-	    	      : uiGraphicsViewBase::RubberBandDrag;
+		      : uiGraphicsViewBase::RubberBandDrag;
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
