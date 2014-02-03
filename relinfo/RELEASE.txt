@@ -2,7 +2,12 @@ OpendTect V4.6.x : Release info
 
 ----
 
+v4.6.0g: February 3, 2014
+  * Fix for 2D steering data display issues
+
 v4.6.0f: January 16, 2014
+  * Displaying only commercial plugin names in auto-load plugin selection
+    window at startup
   * Fix for calculation of Hilbert transform
   * Fix for crash while checking parameters in GapDecon attribute
   * Fix for crash while reading new well depth to time data
