@@ -285,7 +285,7 @@ void OS::CommandLauncher::reset()
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
-    needsmonitor_ = false;
+    redirectoutput_ = false;
 }
 
 
@@ -310,22 +310,21 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     bool ret = false;
     if ( pars.isconsoleuiprog_ )
     {
-	FilePath fp( GetSoftwareDir(true), "bin" );
-	const BufferString scrcmd( "od_exec_consoleui.",
-				   __iswin__ ? "bat " : "scr " );
-	fp.add( scrcmd );
+#ifndef __win__
+	FilePath fp( GetSoftwareDir(true), "bin", "od_exec_consoleui.scr " );
 	localcmd.insertAt( 0, fp.fullPath() );
+#endif
 	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
     }
 
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
-	needsmonitor_ = pars.needmonitor_;
 	if ( monitorfnm_.isEmpty() )
 	{
 	    monitorfnm_ = FilePath::getTempName("txt");
-	    localcmd.add( " >" ).add( monitorfnm_ );
+	    redirectoutput_ = true;
+	    localcmd.add( __iswin__ ? "" : BufferString(" >",monitorfnm_) );
 	}
     }
 
@@ -339,7 +338,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    .add( " --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
 
-	needsmonitor_ = false;
+	redirectoutput_ = false;
 	if ( !doExecute(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
@@ -374,7 +373,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
 
-    if ( needsmonitor_ )
+    if ( redirectoutput_ )
     {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(sa);

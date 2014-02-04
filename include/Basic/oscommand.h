@@ -119,7 +119,7 @@ protected:
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
-    bool		needsmonitor_;
+    bool		redirectoutput_;
     int			processid_;
     BufferString	progvwrcmd_;
     BufferString	errmsg_;
