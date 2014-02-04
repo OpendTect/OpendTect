@@ -196,8 +196,8 @@ Returns true, if changes are accepted.
     UserInputObj*	element(int idx); 
     uiObject*		rightObj();			//!< for attaching
     int			nrElements() const; 
-    void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol=p; }
-    uiObject::SzPolicy	elemSzPol() const		{ return elemszpol; }
+    void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol_=p;}
+    uiObject::SzPolicy	elemSzPol() const		{ return elemszpol_; }
     void		setToolTip(const char*,int ielem=0);
 
     virtual const char*	titleText();
@@ -206,13 +206,13 @@ Returns true, if changes are accepted.
     void 		setChecked(bool yn);
     bool		isChecked();
     bool		isCheckable()
-    			{ return cbox ? true : false; }
+			{ return cbox_ ? true : false; }
 
     virtual bool 	isSingleLine() const		{ return true; }
 
-    void		setWithCheck( bool yn=true )	{ withchk = yn; }
+    void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
     void		setWithSelect( bool yn=true ) 
-			{ selText = yn ? "&Select" : "" ; }
+			{ selText_ = yn ? "&Select" : "" ; }
 
     void		setNrDecimals(int nrdec,int fldnr=0);
 
@@ -223,17 +223,17 @@ Returns true, if changes are accepted.
 
 protected:
 
-    ObjectSet<uiGenInputInputFld>	flds;
-    TypeSet<uiGenInputFieldIdx>&	idxes;
+    ObjectSet<uiGenInputInputFld>	flds_;
+    TypeSet<uiGenInputFieldIdx>&	idxes_;
 
-    bool		finalised;
+    bool		finalised_;
 
-    BufferString	selText;
-    bool		withchk;
+    BufferString	selText_;
+    bool		withchk_;
 
-    uiLabel*		labl;
-    uiCheckBox*		cbox;
-    uiPushButton*	selbut;
+    uiLabel*		labl_;
+    uiCheckBox* 	cbox_;
+    uiPushButton*	selbut_;
 
                         //! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
@@ -259,9 +259,9 @@ private:
     bool		rdonly_;
     bool		rdonlyset_;
 
-    ObjectSet<DataInpSpec> inputs;
+    ObjectSet<DataInpSpec> inputs_;
 
-    uiObject::SzPolicy	elemszpol;
+    uiObject::SzPolicy	elemszpol_;
 
     DataInpSpec* 	getInputSpecAndIndex(const int,int&) const;
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;

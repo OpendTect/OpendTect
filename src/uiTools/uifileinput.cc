@@ -112,7 +112,7 @@ uiFileInput::~uiFileInput()
 void uiFileInput::isFinalised( CallBacker* )
 {
     if ( examinebut_ )
-	examinebut_->attach( rightOf, selbut );
+	examinebut_->attach( rightOf, selbut_ );
 }
 
 

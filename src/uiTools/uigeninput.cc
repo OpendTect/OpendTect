@@ -424,7 +424,7 @@ typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
 /*!
 
 creates a new InpFld and attaches it rightTo the last one already present in
-'flds', except if this is a position: in this case it will be alignedBelow it.
+'flds_', except if this is a position: in this case it will be alignedBelow it.
 
 */
 uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
@@ -488,14 +488,14 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	{ pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
     const bool ispos = desc.type().form() == DataType::position;
-    uiObject* other= flds.size() ? flds[ flds.size()-1 ]->mainObj() : 0;
+    uiObject* other= flds_.size() ? flds_[ flds_.size()-1 ]->mainObj() : 0;
     if ( other )
 	fld->mainObj()->attach( ispos ? alignedBelow : rightTo, other );
 
-    flds += fld;
+    flds_ += fld;
 
     for( int idx=0; idx<fld->nElems(); idx++ )
-	idxes += uiGenInputFieldIdx( flds.size()-1, idx );
+	idxes_ += uiGenInputFieldIdx( flds_.size()-1, idx );
 
     return *fld;
 }
@@ -505,22 +505,22 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
 #define mInitStdMembs \
     : uiGroup(p,disptxt) \
-    , finalised(false) \
-    , idxes(*new TypeSet<uiGenInputFieldIdx>) \
-    , selText(""), withchk(false) \
-    , labl(0), cbox(0), selbut(0) \
+    , finalised_(false) \
+    , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
+    , selText_(""), withchk_(false) \
+    , labl_(0), cbox_(0), selbut_(0) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
-    , elemszpol( uiObject::Undef )
+    , elemszpol_( uiObject::Undef )
 
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     mInitStdMembs
 { 
-    inputs += new StringInpSpec( inputStr );
+    inputs_ += new StringInpSpec( inputStr );
     if ( disptxt && *disptxt )
-	inputs[0]->setName( disptxt );
+	inputs_[0]->setName( disptxt );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -529,10 +529,10 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
 			const DataInpSpec& inp1 )
     mInitStdMembs
 {
-    inputs += inp1.clone();
-    const bool inputhasnm = inputs[0]->name() && *inputs[0]->name();
+    inputs_ += inp1.clone();
+    const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( disptxt && *disptxt && !inputhasnm )
-	inputs[0]->setName( disptxt );
+	inputs_[0]->setName( disptxt );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -541,8 +541,8 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1 , const DataInpSpec& inp2 )
     mInitStdMembs
 {
-    inputs += inp1.clone();
-    inputs += inp2.clone();
+    inputs_ += inp1.clone();
+    inputs_ += inp2.clone();
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -552,93 +552,98 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp3 )
     mInitStdMembs
 {
-    inputs += inp1.clone();
-    inputs += inp2.clone();
-    inputs += inp3.clone();
+    inputs_ += inp1.clone();
+    inputs_ += inp2.clone();
+    inputs_ += inp3.clone();
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
 uiGenInput::~uiGenInput()
 {
-    deepErase( flds );
-    deepErase( inputs ); // doesn't hurt
-    delete &idxes;
+    deepErase( flds_ );
+    deepErase( inputs_ ); // doesn't hurt
+    delete &idxes_;
 }
 
 
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
-    inputs += inp.clone();
+    inputs_ += inp.clone();
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
 const DataInpSpec* uiGenInput::dataInpSpec( int nr ) const
 { 
-    if ( finalised ) 
-	return( nr >= 0 && nr<flds.size() && flds[nr] ) ? &flds[nr]->spec(): 0;
-    return ( nr<inputs.size() && inputs[nr] ) ? inputs[nr] : 0;
+    if ( finalised_ )
+    {
+	return ( nr >= 0 && nr<flds_.size() && flds_[nr] )
+	    ? &flds_[nr]->spec()
+	    : 0;
+    }
+
+    return ( nr<inputs_.size() && inputs_[nr] ) ? inputs_[nr] : 0;
 }
 
 
 bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 {
-    return ( nr >= 0 && nr<flds.size() && flds[nr] ) 
-	    ? flds[nr]->update(nw) : false; 
+    return ( nr >= 0 && nr<flds_.size() && flds_[nr] )
+	    ? flds_[nr]->update(nw) : false;
 }
 
 
 void uiGenInput::updateSpecs()
 {
-    if ( !finalised )
+    if ( !finalised_ )
 	{ pErrMsg("Nothing to update. Not finalised yet."); return; }
 
-    for( int idx=0; idx < flds.size(); idx++ )
-	flds[idx]->updateSpec();
+    for( int idx=0; idx < flds_.size(); idx++ )
+	flds_[idx]->updateSpec();
 }
 
 
 void uiGenInput::doFinalise( CallBacker* )
 {
-    if ( finalised )		return;
-    if ( inputs.isEmpty() )
+    if ( finalised_ )		return;
+    if ( inputs_.isEmpty() )
     	{ pErrMsg("Knurft: No inputs"); return; }
 
-    uiObject* lastElem = createInpFld( *inputs[0] ).mainObj();
+    uiObject* lastElem = createInpFld( *inputs_[0] ).mainObj();
     setHAlignObj( lastElem );
 
-    if ( withchk )
+    if ( withchk_ )
     {
-	cbox = new uiCheckBox( this, name() );
-	cbox->attach( leftTo, lastElem );
-	cbox->activated.notify( mCB(this,uiGenInput,checkBoxSel) );
+	cbox_ = new uiCheckBox( this, name() );
+	cbox_->attach( leftTo, lastElem );
+	cbox_->activated.notify( mCB(this,uiGenInput,checkBoxSel) );
 	setChecked( checked_ );
     }
     else if ( *name() ) 
     {
-	labl = new uiLabel( this, name() );
-	labl->attach( leftTo, lastElem );
-	labl->setAlignment( Alignment::Right );
+	labl_ = new uiLabel( this, name() );
+	labl_->attach( leftTo, lastElem );
+	labl_->setAlignment( Alignment::Right );
     }
 
-    for( int i=1; i<inputs.size(); i++ )
-	lastElem = createInpFld( *inputs[i] ).mainObj();
+    for( int i=1; i<inputs_.size(); i++ )
+	lastElem = createInpFld( *inputs_[i] ).mainObj();
 
-    if ( !selText.isEmpty() )
+    if ( !selText_.isEmpty() )
     {
-	selbut = new uiPushButton( this, selText, false );
-	selbut->setName( BufferString(selText," ",name()) );
-	selbut->activated.notify( mCB(this,uiGenInput,doSelect_) );
-	selbut->attach( rightOf, lastElem );
+	selbut_ = new uiPushButton( this, selText_, false );
+	selbut_->setName( BufferString(selText_," ",name()) );
+	selbut_->activated.notify( mCB(this,uiGenInput,doSelect_) );
+	selbut_->attach( rightOf, lastElem );
     }
 
-    deepErase( inputs ); // have been copied to fields.
-    finalised = true;
+    deepErase( inputs_ ); // have been copied to fields.
+    finalised_ = true;
 
     if ( rdonlyset_) setReadOnly( rdonly_ );
 
-    if ( withchk ) checkBoxSel(0);	// sets elements (non-)sensitive
+    if ( withchk_ ) checkBoxSel(0);	// sets elements (non-)sensitive
 }
 
 
@@ -650,26 +655,30 @@ void uiGenInput::displayField( bool yn, int elemnr, int fldnr )
 	return;
     }
 
-    for ( int idx=0; idx<flds.size(); idx++ )
+    for ( int idx=0; idx<flds_.size(); idx++ )
     {
 	if ( fldnr >= 0 && fldnr != idx ) continue;
 
-	flds[idx]->display( yn, elemnr );
+	flds_[idx]->display( yn, elemnr );
     }
 }
 
 
 void uiGenInput::setReadOnly( bool yn, int nr )
 {
-    if ( !finalised ) { rdonly_ = yn; rdonlyset_=true; return; }
+    if ( !finalised_ ) { rdonly_ = yn; rdonlyset_=true; return; }
 
     if ( nr >= 0  ) 
-	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->setReadOnly(yn); return; }
+    {
+	if ( nr<flds_.size() && flds_[nr] )
+	    flds_[nr]->setReadOnly(yn);
+	return;
+    }
 
     rdonly_ = yn; rdonlyset_=true;
 
-    for( int idx=0; idx<flds.size(); idx++ )
-	flds[idx]->setReadOnly( yn );
+    for( int idx=0; idx<flds_.size(); idx++ )
+	flds_[idx]->setReadOnly( yn );
 }
 
 
@@ -682,24 +691,24 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 	return;
     }
 
-    for ( int idx=0; idx<flds.size(); idx++ )
+    for ( int idx=0; idx<flds_.size(); idx++ )
     {
 	if ( fldnr >= 0 && fldnr != idx ) continue;
 
-	flds[idx]->setSensitive( yn, elemnr );
+	flds_[idx]->setSensitive( yn, elemnr );
     }
 }
 
 
 void uiGenInput::setEmpty( int nr )
 {
-    if ( !finalised )
+    if ( !finalised_ )
     	{ pErrMsg("Nothing to set empty. Not finalised yet."); return; }
 
-    for( int idx=0; idx < flds.size(); idx++ )
+    for( int idx=0; idx<flds_.size(); idx++ )
     {
 	if ( nr < 0 || idx == nr )
-	    flds[idx]->setEmpty();
+	    flds_[idx]->setEmpty();
     }
 }
 
@@ -707,17 +716,17 @@ void uiGenInput::setEmpty( int nr )
 int uiGenInput::nrElements() const
 {
     int ret = 0;
-    if ( finalised ) 
+    if ( finalised_ )
     {
-	for( int idx=0; idx<flds.size(); idx++ )
-	    if ( flds[idx] )
-		ret  += flds[idx]->nElems();
+	for( int idx=0; idx<flds_.size(); idx++ )
+	    if ( flds_[idx] )
+		ret  += flds_[idx]->nElems();
     }
     else
     {
-	for( int idx=0; idx<inputs.size(); idx++ )
-	    if ( inputs[idx] )
-		ret += inputs[idx]->nElems();
+	for( int idx=0; idx<inputs_.size(); idx++ )
+	    if ( inputs_[idx] )
+		ret += inputs_[idx]->nElems();
     }
 
     return ret;
@@ -764,16 +773,16 @@ void uiGenInput::setValue( const BinIDValue& b )
 
 UserInputObj* uiGenInput::element( int nr )
 { 
-    if ( !finalised ) return 0; 
-    return nr<idxes.size() && flds[idxes[nr].fldidx]
-	    ? flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
+    if ( !finalised_ ) return 0;
+    return nr<idxes_.size() && flds_[idxes_[nr].fldidx]
+	    ? flds_[idxes_[nr].fldidx]->element(idxes_[nr].subidx) : 0;
 }
 
 
 uiObject* uiGenInput::rightObj()
 {
-    if ( flds.isEmpty() ) return 0;
-    uiGenInputInputFld& fld = *flds[flds.size()-1];
+    if ( flds_.isEmpty() ) return 0;
+    uiGenInputInputFld& fld = *flds_[flds_.size()-1];
     const int nelem = fld.nElems();
     if ( nelem < 1 ) return 0;
     return fld.elemObj(nelem-1);
@@ -783,32 +792,32 @@ uiObject* uiGenInput::rightObj()
 DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
 {
     int inpidx=0; idx=nr;
-    while(  idx>=0 && inpidx<inputs.size() && inputs[inpidx]
-	    && idx>=inputs[inpidx]->nElems() )
+    while(  idx>=0 && inpidx<inputs_.size() && inputs_[inpidx]
+	    && idx>=inputs_[inpidx]->nElems() )
     {
-	idx -= inputs[inpidx]->nElems();
+	idx -= inputs_[inpidx]->nElems();
 	inpidx++;
     }
 
-    return inpidx>=inputs.size() || !inputs[inpidx] ? 0
-	 : const_cast<DataInpSpec*>( inputs[inpidx] );
+    return inpidx>=inputs_.size() || !inputs_[inpidx] ? 0
+	 : const_cast<DataInpSpec*>( inputs_[inpidx] );
 }
 
 
 uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr,
 							int& idx ) const
 {
-    if ( nr < 0 || nr >= idxes.size() ) return 0;
+    if ( nr < 0 || nr >= idxes_.size() ) return 0;
 
-    idx = idxes[nr].subidx;
-    return const_cast<uiGenInputInputFld*>( flds[idxes[nr].fldidx] );
+    idx = idxes_[nr].subidx;
+    return const_cast<uiGenInputInputFld*>( flds_[idxes_[nr].fldidx] );
 }
 
 
 bool uiGenInput::isUndef( int nr ) const 
 { 
     int elemidx=0;
-    if ( !finalised ) 
+    if ( !finalised_ )
     {
 	DataInpSpec* dis = getInputSpecAndIndex(nr, elemidx);
 
@@ -827,7 +836,7 @@ Coord uiGenInput::getCoord( int nr, double udfval ) const
     if ( !dis || dis->type().form() != DataType::position )
 	return Coord( getdValue(nr*2,udfval), getdValue(nr*2+1,udfval));
 
-    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
     return reinterpret_cast<const PositionInpSpec*>(dis)->getCoord( udfval );
 }
@@ -839,7 +848,7 @@ BinID uiGenInput::getBinID( int nr, int udfval ) const
     if ( !dis || dis->type().form() != DataType::position )
 	return BinID( getIntValue(nr*2,udfval), getIntValue(nr*2+1,udfval));
 
-    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
     return reinterpret_cast<const PositionInpSpec*>(dis)->getBinID( udfval );
 }
@@ -851,7 +860,7 @@ float uiGenInput::getOffset( int nr, float udfval ) const
     if ( !dis || dis->type().form() != DataType::position )
 	return getfValue(nr,udfval);
 
-    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
     return reinterpret_cast<const PositionInpSpec*>(dis)->getOffset( udfval );
 }
@@ -863,7 +872,7 @@ int uiGenInput::getTrcNr( int nr, int udfval ) const
     if ( !dis || dis->type().form() != DataType::position )
 	return getIntValue(nr,udfval);
 
-    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
     return reinterpret_cast<const PositionInpSpec*>(dis)->getTrcNr( udfval );
 }
@@ -876,7 +885,7 @@ fntyp uiGenInput::getfn( int nr, fntyp undefVal ) const \
     if ( isUndef(nr) ) return undefVal; \
     int elemidx=0; \
 \
-    if ( !finalised ) \
+    if ( !finalised_ ) \
     { \
 	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
 	return dis ? dis->getfn(elemidx) : undefVal; \
@@ -889,7 +898,7 @@ fntyp uiGenInput::getfn( int nr, fntyp undefVal ) const \
 void uiGenInput::setfn( fntyp var, int nr ) \
 { \
     int elemidx =0; \
-    if ( !finalised ) \
+    if ( !finalised_ ) \
     {\
 	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
 	if ( dis ) dis->setfn( var, elemidx ); \
@@ -910,8 +919,8 @@ mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 const char* uiGenInput::titleText()
 { 
-    if ( labl ) return labl->text(); 
-    if ( cbox ) return cbox->text(); 
+    if ( labl_ ) return labl_->text();
+    if ( cbox_ ) return cbox_->text();
     return 0;
 }
 
@@ -919,15 +928,15 @@ const char* uiGenInput::titleText()
 void uiGenInput::setTitleText( const char* txt )
 { 
     setName( txt );	//If object is not finalized
-    if ( labl ) labl->setText( txt );
-    if ( cbox ) cbox->setText( txt ); 
+    if ( labl_ ) labl_->setText( txt );
+    if ( cbox_ ) cbox_->setText( txt );
 }
 
 
 void uiGenInput::setChecked( bool yn )
 {
     checked_ = yn; 
-    if ( cbox ) cbox->setChecked( yn ); 
+    if ( cbox_ ) cbox_->setChecked( yn );
 }
 
 
@@ -937,15 +946,15 @@ bool uiGenInput::isChecked()
 
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
-    if ( !cbox ) return;
+    if ( !cbox_ ) return;
 
-    checked_ = cbox->isChecked();
-    const bool elemsens = cbox->sensitive() && cbox->isChecked();
+    checked_ = cbox_->isChecked();
+    const bool elemsens = cbox_->sensitive() && cbox_->isChecked();
 
-    for ( int idx=0; idx<flds.size(); idx++ )
-	flds[idx]->setSensitive( elemsens );
+    for ( int idx=0; idx<flds_.size(); idx++ )
+	flds_[idx]->setSensitive( elemsens );
 
-    if ( selbut ) selbut->setSensitive( elemsens );
+    if ( selbut_ ) selbut_->setSensitive( elemsens );
     checked.trigger(this);
 }
 
@@ -964,9 +973,9 @@ void uiGenInput::doClear( CallBacker* )
 
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )
 {
-    if ( !flds.validIdx(fldnr) ) return;
+    if ( !flds_.validIdx(fldnr) ) return;
 
-    mDynamicCastGet(uiTextInputFld*,textinp,flds[fldnr])
+    mDynamicCastGet(uiTextInputFld*,textinp,flds_[fldnr])
     if ( !textinp ) return;
     mDynamicCastGet(uiLineEdit*,lineedit,textinp->mainObj())
     if ( !lineedit ) return;
