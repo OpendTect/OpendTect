@@ -89,7 +89,7 @@ public:
 
     };
 
-    enum		Button { OK, SAVE, CANCEL, HELP, CREDITS, TRANSLATE };
+    enum		Button { OK, SAVE, CANCEL, HELP, CREDITS };
 
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;

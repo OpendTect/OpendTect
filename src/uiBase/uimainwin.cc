@@ -1407,7 +1407,6 @@ protected:
     uiPushButton*	cnclbut_;
     uiToolButton*	helpbut_;
     uiToolButton*	creditsbut_;
-    uiToolButton*	translatebut_;
 
     uiCheckBox*		savebutcb_;
     uiToolButton*	savebuttb_;
@@ -1435,7 +1434,7 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     , dlggrp_(0)
     , setup_(s)
     , okbut_(0), cnclbut_(0), savebutcb_(0),  savebuttb_(0)
-    , helpbut_(0), creditsbut_(0), translatebut_(0)
+    , helpbut_(0), creditsbut_(0)
     , titlelbl_(0), result_(0)
     , initchildrendone_(false)
 {
@@ -1558,9 +1557,6 @@ void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
     case uiDialog::CREDITS:
 	if ( creditsbut_ ) creditsbut_->setSensitive(yn);
     break;
-    case uiDialog::TRANSLATE:
-	if ( translatebut_ ) translatebut_->setSensitive(yn);
-    break;
     }
 }
 
@@ -1577,7 +1573,6 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
     break;
     case uiDialog::HELP:	return helpbut_; break;
     case uiDialog::CREDITS:	return creditsbut_; break;
-    case uiDialog::TRANSLATE:	return translatebut_; break;
     }
 
     return 0;
@@ -1683,20 +1678,12 @@ uiObject* uiDialogBody::createChildren()
 			shwhid ? hid.buf() : "Help on this window",
 			mCB(this,uiDialogBody,provideHelp) );
 	helpbut_->setPrefWidthInChar( 5 );
-	if ( TrMgr().tr() && TrMgr().tr()->enabled() )
-	{
-	    translatebut_ = new uiToolButton( centralwidget_,
-		TrMgr().tr()->getIcon(),
-		"Translate", mCB(this,uiDialogBody,doTranslate) );
-	    translatebut_->attach( rightOf, helpbut_ );
-	}
+
 	if ( dlg.haveCredits() )
 	{
 	    creditsbut_ = new uiToolButton( centralwidget_, "credits",
 		    "Show credits", mCB(this,uiDialogBody,showCredits) );
 	    creditsbut_->setPrefWidthInChar( 5 );
-	    creditsbut_->attach( rightOf,
-				 translatebut_ ? translatebut_ : helpbut_);
 	}
     }
 
@@ -1734,6 +1721,25 @@ uiObject* uiDialogBody::createChildren()
 }
 
 
+static const int hborderdist = 1;
+static const int vborderdist = 5;
+
+static void attachButton( uiObject* but, uiObject*& prevbut,
+			  uiObject* lowestobj )
+{
+    if ( !but ) return;
+
+    but->attach( ensureBelow, lowestobj );
+    but->attach( bottomBorder, vborderdist );
+    if ( prevbut )
+	but->attach( leftOf, prevbut );
+    else
+	but->attach( rightBorder, hborderdist );
+
+    prevbut = but;
+}
+
+
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
     uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
@@ -1741,6 +1747,27 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     uiObject* exitbut = okbut_ ? okbut_ : cnclbut_;
     uiObject* centerbut = helpbut_;
     uiObject* extrabut = savebuttb_;
+
+    if ( GetEnvVarYN("DTECT_NEW_BUTTON_LAYOUT") )
+    {
+	uiObject* prevbut = 0;
+	attachButton( rightbut, prevbut, lowestobj );
+	attachButton( leftbut, prevbut, lowestobj );
+	attachButton( helpbut_, prevbut, lowestobj );
+	attachButton( creditsbut_, prevbut, lowestobj );
+
+	uiObject* savebut = savebutcb_;
+	if ( !savebut ) savebut = savebuttb_;
+	if ( savebut )
+	{
+	    savebut->attach( ensureBelow, lowestobj );
+	    savebut->attach( bottomBorder, vborderdist );
+	    savebut->attach( leftBorder, hborderdist );
+	}
+
+	return;
+    }
+
 
     if ( !okbut_ || !cnclbut_ )
     {
@@ -1759,12 +1786,12 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	extrabut = 0;
     }
 
-    const int hborderdist = 1;
-    const int vborderdist = 5;
 
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
     but->attach( bottomBorder, vborderdist )
+
+
 
     if ( leftbut )
     {
@@ -1813,10 +1840,8 @@ void uiDialogBody::provideHelp( CallBacker* )
 
 void uiDialogBody::doTranslate( CallBacker* )
 {
-    setButtonSensitive( uiDialog::TRANSLATE, false );
     mDynamicCastGet( uiDialog&, dlg, handle_ );
     dlg.translate();
-    setButtonSensitive( uiDialog::TRANSLATE, true );
 }
 
 
@@ -1855,7 +1880,6 @@ void uiDialog::setButtonText( Button but, const char* txt )
         case SAVE	: enableSaveButton( txt ); break;
         case HELP	: pErrMsg("set help txt but"); break;
         case CREDITS	: pErrMsg("set credits txt but"); break;
-        case TRANSLATE	: pErrMsg("set transl txt but"); break;
     }
 }
 
