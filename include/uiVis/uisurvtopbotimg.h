@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
-#include "color.h"
 
 class uiSurvTopBotImageGrp;
 namespace visSurvey { class Scene; }
@@ -34,7 +33,7 @@ protected:
     uiSurvTopBotImageGrp*	botfld_;
 
     void		setOn(bool,bool);
-    void		setCoord(bool,const Coord&, const Coord&);
+    void		setCoord(bool,const Coord3&, const Coord3&);
     void		setTransparency(bool,float);
     void		newFile(bool,const char*);
 

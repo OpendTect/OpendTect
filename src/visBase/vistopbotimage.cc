@@ -57,10 +57,10 @@ TopBotImage::~TopBotImage()
 }
 
 
-void TopBotImage::setPos( const Coord& c1, const Coord& c2, float z )
+void TopBotImage::setPos( const Coord3& c1, const Coord3& c2 )
 {
-    pos0_ = Coord3( c1.x, c1.y, z );
-    pos1_ = Coord3( c2.x, c2.y, z );
+    pos0_ = c1;
+    pos1_ = c2;
     updateCoords();
 }
 
@@ -125,7 +125,7 @@ bool TopBotImage::usePar( const IOPar& iopar )
     iopar.get( sKeyBottomRightCoord(), brpos );
     iopar.get( sKeyFileNameStr(), filenm_  );
    
-    setPos( ltpos, brpos, (float) ltpos.z );  
+    setPos( ltpos, brpos );  
     setImageFilename( filenm_ );
     return true;
 }

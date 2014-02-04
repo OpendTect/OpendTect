@@ -25,38 +25,69 @@ class uiSurvTopBotImageGrp : public uiGroup
 {
 public:
 
-uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
+uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
+			const StepInterval<float>& zrng )
     : uiGroup(p,istop?"Top img grp":"Bot img grp")
     , dlg_(p)
     , istop_(istop)
     , img_(p->scene_->getTopBotImage(istop))
+    , zrng_(zrng)
 {
     uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
     fnmfld_ = new uiFileInput( this, istop_ ? "Top image" : "Bottom image", su);
     fnmfld_->setWithCheck( true );
     fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
-    fnmfld_->checked.notify( mCB(this,uiSurvTopBotImageGrp,onOff) );
+    mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );
+    fnmfld_->setChecked( img_->isOn() );
 
+#define mAddCoordchgCB( notif ) \
+     mAttachCB( notif, uiSurvTopBotImageGrp::coordChg );
+    
+    uiSliderExtra::Setup slsu( "Vertical position (Z)" );
+    slsu.withedit( true );
+    slsu.isvertical( true );
+    slsu.sldrsize( 100 );
+    zposfld_ = new uiSliderExtra( this, slsu );
+    zposfld_->sldr()->setInverted( true );
+    zposfld_->sldr()->setScale( zrng_.step, zrng_.start );
+    zposfld_->sldr()->setInterval( zrng_ );
+    zposfld_->attach( rightOf, fnmfld_ );
+    zposfld_->sldr()->setValue( istop_ ? zrng_.start : zrng_.stop );
+    mAddCoordchgCB( zposfld_->sldr()->valueChanged );
+    
     const Coord mincrd = SI().minCoord(true);
     const Coord maxcrd = SI().maxCoord(true);
     tlfld_ = new uiGenInput( this, "NorthWest (TopLeft) Coordinate",
 	    		     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
-    tlfld_->attach( alignedBelow, fnmfld_ );
-    tlfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,coordChg) );
+    tlfld_->attach( leftAlignedBelow, fnmfld_ );
+    mAddCoordchgCB( tlfld_->valuechanged );
+    
     brfld_ = new uiGenInput( this, "SouthEast (BottomRight) Coordinate",
 	    		     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
     brfld_->attach( alignedBelow, tlfld_ );
-    brfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,coordChg) );
-
+    mAddCoordchgCB( brfld_->valuechanged );
+    
     transpfld_ = new uiSliderExtra( this,
-	    	uiSliderExtra::Setup("Transparency"), "Transparency slider" );
+	    		    uiSliderExtra::Setup("Transparency").sldrsize(150)
+			    , "Transparency slider" );
     transpfld_->attach( alignedBelow, brfld_ );
     transpfld_->sldr()->setMinValue( 0 );
     transpfld_->sldr()->setMaxValue( 100 );
     transpfld_->sldr()->setStep( 1 );
-    transpfld_->sldr()->valueChanged.notify(
-				mCB(this,uiSurvTopBotImageGrp,transpChg) );
+    mAttachCB( transpfld_->sldr()->valueChanged,
+	       uiSurvTopBotImageGrp::transpChg );
+  
+    mAttachCB( postFinalise(), uiSurvTopBotImageGrp::finalisedCB ); 
+}
 
+~uiSurvTopBotImageGrp()
+{
+    detachAllNotifiers();
+}
+
+
+void finalisedCB( CallBacker* cb )
+{
     fillCurrent();
 }
 
@@ -70,8 +101,8 @@ void fillCurrent()
 	tlfld_->setValue( img_->topLeft() );
 	brfld_->setValue( img_->bottomRight() );
 	transpfld_->sldr()->setValue( img_->getTransparency()*100 );
+	zposfld_->sldr()->setValue( mCast(float,img_->topLeft().z) );
     }
-    
 }
 
 void newFile( CallBacker* )
@@ -86,13 +117,14 @@ void onOff( CallBacker* cb  )
     tlfld_->display( ison );
     brfld_->display( ison );
     transpfld_->display( ison );
-    coordChg( cb );
-    transpChg( cb );
+    zposfld_->display( ison );
 }
 
 void coordChg( CallBacker* cb )
 {
-    dlg_->setCoord( istop_, tlfld_->getCoord(), brfld_->getCoord() );
+    const Coord3 tlcoord( tlfld_->getCoord(), zposfld_->sldr()->getValue() );
+    const Coord3 brcoord( brfld_->getCoord(), zposfld_->sldr()->getValue() );
+    dlg_->setCoord( istop_, tlcoord, brcoord );
 }
 
 void transpChg( CallBacker* )
@@ -110,7 +142,8 @@ void transpChg( CallBacker* )
     uiGenInput*		tlfld_;
     uiGenInput*		brfld_;
     uiSliderExtra*	transpfld_;
-
+    uiSliderExtra*	zposfld_;
+    const StepInterval<float>&	 zrng_;
 };
 
 
@@ -123,10 +156,12 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 {
     setCtrlStyle( LeaveOnly );
 
-    topfld_ = new uiSurvTopBotImageGrp( this, true );
+    topfld_ = new uiSurvTopBotImageGrp( this, true,
+					scene_->getCubeSampling().zrg );
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, topfld_ );
-    botfld_ = new uiSurvTopBotImageGrp( this, false );
+    botfld_ = new uiSurvTopBotImageGrp( this, false,
+					scene_->getCubeSampling().zrg );
     botfld_->attach( alignedBelow, topfld_ );
     botfld_->attach( ensureBelow, sep );
 }
@@ -145,12 +180,10 @@ void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 }
 
 
-void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord& tl,
-				     const Coord& br  )
+void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord3& tl,
+						 const Coord3& br  )
 {
-    const CubeSampling& cs = scene_->getCubeSampling();
-    scene_->getTopBotImage(istop)->setPos( tl, br,
-	istop ? cs.zrg.start : cs.zrg.stop );
+    scene_->getTopBotImage(istop)->setPos( tl, br );
 }
 
 

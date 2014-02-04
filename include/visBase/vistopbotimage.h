@@ -32,10 +32,9 @@ public:
 				mCreateDataObj(TopBotImage);
 
     void			setDisplayTransformation(const mVisTrans*);
-    void			setPos(const Coord& tl,const Coord& br,
-				       float z);
-    const Coord&		topLeft() const	    { return pos0_.coord(); }
-    const Coord&		bottomRight() const { return pos1_.coord(); }
+    void			setPos(const Coord3& tl,const Coord3& br);
+    const Coord3&		topLeft() const	    { return pos0_; }
+    const Coord3&		bottomRight() const { return pos1_; }
 
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
