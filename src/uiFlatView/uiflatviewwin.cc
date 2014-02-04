@@ -152,8 +152,9 @@ void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
 
     fvc->infoChanged.notify(mCB(this,uiFlatViewMainWin,displayInfo) );
     mDynamicCastGet(uiFlatViewStdControl*,fvstdc,fvc);
-    if ( fvstdc ) fvstdc->editPushed()->notify(
-			mCB(this,uiFlatViewMainWin,editModeToggledCB) );
+    if ( fvstdc && fvstdc->editPushed() )
+	fvstdc->editPushed()->notify(
+		mCB(this,uiFlatViewMainWin,editModeToggledCB) );
 }
 
 
