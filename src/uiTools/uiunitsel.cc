@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
-       		      bool symb, bool withempty )
+		      bool symb, bool withempty )
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
     , symbolsdisp_(symb)
@@ -130,7 +130,7 @@ const char* uiUnitSel::getUnitName() const
 }
 
 
-template <class T> static float gtUserValue( const UnitOfMeasure* uom, T val )
+template <class T> static T gtUserValue( const UnitOfMeasure* uom, T val )
 {
     if ( mIsUdf(val) )
 	return val;
@@ -138,7 +138,7 @@ template <class T> static float gtUserValue( const UnitOfMeasure* uom, T val )
 }
 
 
-template <class T> static float gtIntnValue( const UnitOfMeasure* uom, T val )
+template <class T> static T gtIntnValue( const UnitOfMeasure* uom, T val )
 {
     if ( mIsUdf(val) )
 	return val;
@@ -198,7 +198,7 @@ void uiUnitSel::update()
     for ( int idx=0; idx<units_.size(); idx++ )
     {
 	const char* disp = symbolsdisp_ ? units_[idx]->symbol()
-	    				: units_[idx]->name().buf();
+					: units_[idx]->name().buf();
 	inpfld_->addItem( disp );
     }
 
