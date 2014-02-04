@@ -42,6 +42,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
 
+mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
+
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
@@ -55,7 +57,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , treetp_(0)
     , polyseltbid_(-1)
     , ispolyselect_(true)
-    , winClosed(this)
+    , viewWinAvailable(this)
+    , viewWinClosed(this)
+    , dataChanged(this)
     , mousecursorexchange_(0)
     , marker_(0)
 {
@@ -64,6 +68,8 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
+
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -189,6 +195,8 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	if ( isnew || setforotherdisp )
 	    vwr.setPack( !wva, packid, true, isnew );
     }
+
+    dataChanged.trigger( this );
 }
 
 
@@ -240,6 +248,8 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     createPolygonSelBut( viewstdcontrol_->toolBar() );
     viewwin_->addControl( viewstdcontrol_ );
     createViewWinEditors();
+
+    viewWinAvailable.trigger( this );
 }
 
 
@@ -333,7 +343,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     deepErase( auxdataeditors_ );
     removeAvailablePacks();
 
-    winClosed.trigger();
+    viewWinClosed.trigger();
 }
 
 

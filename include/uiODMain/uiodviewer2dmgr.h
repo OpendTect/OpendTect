@@ -27,7 +27,7 @@ public:
     uiODViewer2D*		find2DViewer(int visid);
 
     void			displayIn2DViewer(int visid,int attribid,
-	    					  bool wva);
+						  bool wva);
     void			remove2DViewer(int visid);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
@@ -42,7 +42,7 @@ public:
 
 protected:
 
-    				uiODViewer2DMgr(uiODMain*);
+				uiODViewer2DMgr(uiODMain*);
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(int visid);
@@ -56,7 +56,7 @@ protected:
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
-    void			viewer2DWinClosedCB(CallBacker*);
+    void			viewWinClosedCB(CallBacker*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

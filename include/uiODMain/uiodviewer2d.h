@@ -41,28 +41,30 @@ public:
 				uiODViewer2D(uiODMain&,int visid);
 				~uiODViewer2D();
 
+    mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
+
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
 
-    uiFlatViewWin* 		viewwin() 		{ return viewwin_; }
-    const uiFlatViewWin* 	viewwin() const		{ return viewwin_; }
+    uiFlatViewWin*		viewwin()		{ return viewwin_; }
+    const uiFlatViewWin*	viewwin() const		{ return viewwin_; }
     Vw2DDataManager*		dataMgr()		{ return datamgr_; }
     const Vw2DDataManager*	dataMgr() const		{ return datamgr_; }
 
-    uiODVw2DTreeTop*		treeTop() 		{ return treetp_; }
+    uiODVw2DTreeTop*		treeTop()		{ return treetp_; }
 
     const uiTreeFactorySet*	uiTreeItemFactorySet() const { return tifs_; }
-    
-    const ObjectSet<uiFlatViewAuxDataEditor>&	dataEditor()	
-    				{ return auxdataeditors_; }
-    
+
+    const ObjectSet<uiFlatViewAuxDataEditor>&	dataEditor()
+				{ return auxdataeditors_; }
+
     Attrib::SelSpec&		selSpec( bool wva )
-    				{ return wva ? wvaselspec_ : vdselspec_; }
+				{ return wva ? wvaselspec_ : vdselspec_; }
     const Attrib::SelSpec&	selSpec( bool wva ) const
-    				{ return wva ? wvaselspec_ : vdselspec_; }
+				{ return wva ? wvaselspec_ : vdselspec_; }
     DataPack::ID		getDataPackID(bool wva) const;
-    				/*!<Returns DataPack::ID of specified display if
+				/*!<Returns DataPack::ID of specified display if
 				it has a valid one. Returns DataPack::ID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
@@ -71,10 +73,10 @@ public:
 				{ linesetid_ = lsetid; }
     const MultiID&		lineSetID() const
 				{ return linesetid_; }
-    uiFlatViewStdControl*	viewControl() 
-    				{ return viewstdcontrol_; }
-    uiSlicePos2DView*		slicePos() 
-    				{ return slicepos_; }
+    uiFlatViewStdControl*	viewControl()
+				{ return viewstdcontrol_; }
+    uiSlicePos2DView*		slicePos()
+				{ return slicepos_; }
     uiODMain&			appl_;
 
     int				visid_;
@@ -83,14 +85,16 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     virtual void                setWinTitle(bool fromcs=false);
-    				//!<If fromcs is true, window title is
-    				//!<obtained from CubeSampling. 
+				//!<If fromcs is true, window title is
+				//!<obtained from CubeSampling.
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
-    static const char*		sKeyPos() 	 { return "Position"; }
+    static const char*		sKeyPos()	 { return "Position"; }
 
-    Notifier<uiODViewer2D>	winClosed;
+    Notifier<uiODViewer2D>	viewWinAvailable;
+    Notifier<uiODViewer2D>	viewWinClosed;
+    Notifier<uiODViewer2D>	dataChanged;
 
 protected:
 
@@ -115,8 +119,8 @@ protected:
     bool			ispolyselect_;
 
     DataPack::ID                createDataPack(bool wva) const;
-    				//!<Creates DataPack using CubeSampling from
-    				//!<slicepos_ and corresponding Attrib::SelSpec.
+				//!<Creates DataPack using CubeSampling from
+				//!<slicepos_ and corresponding Attrib::SelSpec.
 
     virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);

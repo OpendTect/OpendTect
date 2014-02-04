@@ -54,7 +54,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
-{ 
+{
     delete tifs2d_; delete tifs3d_;
     deepErase( viewers2d_ );
 }
@@ -71,7 +71,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	curvwr = &addViewer2D( visid );
-	mAttachCB( curvwr->winClosed, uiODViewer2DMgr::viewer2DWinClosedCB );
+	mAttachCB( curvwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else
     {
@@ -90,10 +90,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     FlatView::DataDispPars& ddp =
 	curvwr->viewwin()->viewer().appearance().ddpars_;
-    if ( isnewvwr ) 
+    if ( isnewvwr )
     {
-    	visServ().fillDispPars( visid, attribid, ddp, dowva );
-    	visServ().fillDispPars( visid, attribid, ddp, !dowva );
+	visServ().fillDispPars( visid, attribid, ddp, dowva );
+	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     }
 
@@ -105,7 +105,7 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-	    		visServ().getObject(visid));
+			visServ().getObject(visid));
     if ( s2d )
 	vwr->setLineSetID(  s2d->lineSetID() );
 
@@ -120,14 +120,14 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int visid )
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	if ( viewers2d_[idx]->visid_ == visid )
-    	    return viewers2d_[idx];
+	    return viewers2d_[idx];
     }
 
     return 0;
 }
 
 
-void uiODViewer2DMgr::viewer2DWinClosedCB( CallBacker* cb )
+void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 {
     mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
     if ( vwr2d )
@@ -159,7 +159,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 	vwrpar.set( sKeyVisID(), viewers2d_[idx]->visid_ );
 	bool wva = vwr2d.viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );
-	vwrpar.set( sKeyAttrID(), vwr2d.selSpec(wva).id().asInt() ); 
+	vwrpar.set( sKeyAttrID(), vwr2d.selSpec(wva).id().asInt() );
 	vwr2d.fillPar( vwrpar );
 
 	iop.mergeComp( vwrpar, toString( idx ) );
@@ -167,7 +167,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 }
 
 
-void uiODViewer2DMgr::usePar( const IOPar& iop ) 
+void uiODViewer2DMgr::usePar( const IOPar& iop )
 {
     deepErase( viewers2d_ );
 
@@ -179,7 +179,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    if ( !idx ) continue;
 	    break;
 	}
-	int visid; bool wva; int attrid; 
+	int visid; bool wva; int attrid;
 	if ( vwrpar->get( sKeyVisID(), visid ) &&
 		vwrpar->get( sKeyAttrID(), attrid ) &&
 		    vwrpar->getYN( sKeyWVA(), wva ) )
