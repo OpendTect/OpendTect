@@ -55,7 +55,7 @@ public:
     };
 
 
-    			SeisImporter(Reader*,SeisTrcWriter&,Seis::GeomType);
+			SeisImporter(Reader*,SeisTrcWriter&,Seis::GeomType);
 				//!< Reader becomes mine. Has to be non-null.
     virtual		~SeisImporter();
 
@@ -87,14 +87,10 @@ protected:
     int				nrread_;
     int				nrwritten_;
     int				nrskipped_;
-    bool			crlsorted_;
-    Executor*			postproc_;
 
-    bool			needInlCrlSwap() const;
     bool			sortingOk(const SeisTrc&);
     int				doWrite(SeisTrc&);
     int				readIntoBuf();
-    Executor*			mkPostProc();
 
     friend			class SeisImporterWriterTask;
     void			reportWrite(const char*);
