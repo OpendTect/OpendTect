@@ -92,7 +92,7 @@ void uiVisColTabEd::mapperChangeCB( CallBacker* )
 			survobj_->getColTabMapperSetup( channel_, version_ );
 
     uicoltab_.setMapperSetup( ms, true );
-    if ( survobj_->getScene() )
+    if ( survobj_->getScene() && ms )
 	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
 }
 
