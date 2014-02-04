@@ -147,7 +147,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
 	Coord cvec = posns[1].coord_ - posns[0].coord_;
-	float angle = (float) atan2( cvec.y, cvec.x );
+	float angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
 	float dy = sin( angle );
 	float dx = cos( angle );
 	angle = Math::toDegrees( angle );
@@ -172,7 +172,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	{
 	    pos = posns[nrtrcs-1].coord_;
 	    cvec = posns[nrtrcs-2].coord_ - pos;
-	    angle = (float) atan2( cvec.y, cvec.x );
+	    angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
 	    dy = sin( angle );
 	    dx = cos( angle );
 	    angle = Math::toDegrees( angle );
@@ -197,7 +197,8 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 		if ( tdx > 4 && tdx < posns.size()-5 )
 		{
 		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
-		    angle = Math::toDegrees( (float) atan2( cvec.y, cvec.x ) );
+		    angle = mCast( float,
+			   Math::toDegrees( Math::Atan2( cvec.y, cvec.x ) ) );
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
@@ -321,7 +322,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 
 	Coord posc = SI().transform( rdl->nodePosition(0) );
 	Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
-	float angle = (float) atan2( cvec.y, cvec.x );
+	float angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
 	angle = Math::toDegrees( angle );

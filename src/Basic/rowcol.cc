@@ -22,16 +22,16 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
     const RowCol tmprc(rc);
     const TypeSet<RowCol>& clockwisedirs = RowCol::clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
-    const float selfangle =  selfidx!=-1 ? selfidx * (float) M_PI_4
-			     : atan2( (float)col(), (float)-row() );
+    const float selfangle =  selfidx!=-1 ? selfidx * M_PI_4f
+			  : Math::Atan2( (float)col(), (float)-row() );
     const int rcidx =  clockwisedirs.indexOf(tmprc);
-    const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4
-			     : atan2( (float)tmprc.col(), (float)-tmprc.row() );
-    const double twopi = M_2PI;
-    float anglediff = rcangle-selfangle;
-    if ( anglediff<0 ) anglediff = (float)( anglediff + twopi );
-    else if ( anglediff>twopi )
-	anglediff = (float)( anglediff - twopi );
+    const float rcangle = rcidx!=-1 ? rcidx * M_PI_4f
+			: Math::Atan2( (float)tmprc.col(),(float)-tmprc.row() );
+    float anglediff = rcangle - selfangle;
+    if ( anglediff < 0 )
+	anglediff += M_2PIf;
+    else if ( anglediff > M_2PIf )
+	anglediff -= M_2PIf;
 
     return anglediff;
 }
@@ -39,10 +39,11 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
 
 float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 {
-    const float twopi = M_2PIf;
     float anglediff = -clockwiseAngleTo(rc);
-    if ( anglediff<0 ) anglediff += twopi;
-    else if ( anglediff>twopi ) anglediff -= twopi;
+    if ( anglediff < 0 )
+	anglediff += M_2PIf;
+    else if ( anglediff > M_2PIf )
+	anglediff -= M_2PIf;
 
     return anglediff;
 }
@@ -51,7 +52,7 @@ float RowCol::counterClockwiseAngleTo(const RowCol& rc) const
 float RowCol::angleTo(const RowCol& rc) const
 {
     const float anglediff = clockwiseAngleTo(rc);
-    return (float)( anglediff>M_PI ? M_PI*2-anglediff : anglediff );
+    return anglediff > M_PIf ? M_2PIf-anglediff : anglediff;
 }
 
 

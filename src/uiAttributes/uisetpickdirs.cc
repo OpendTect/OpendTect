@@ -83,8 +83,8 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", asd );
     if ( dirinpfld_ )
 	phifld_->attach( alignedBelow, dirinpfld_ );
-    thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])", 
-	    		      asd );
+    thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])",
+			      asd );
     thetafld_->attach( alignedBelow, phifld_ );
 
     postFinalise().notify( mCB(this,uiSetPickDirs,dirinpSel) );
@@ -150,10 +150,10 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	return false;
 
     bool success = extractDipOrAngl( dps );
-    if ( !success ) 
+    if ( !success )
 	mErrRet( "Cannot calculate attributes at these positions" );
 
-    //remark: removed possibility of variable vector length (radius = 1) 
+    //remark: removed possibility of variable vector length (radius = 1)
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	float phi = 0;
@@ -166,13 +166,13 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    SeparString dipvaluetext;
 
 	    if ( mIsUdf(inldip) || mIsUdf(crldip) )
-	    	inldip = crldip = 0;
-		
+		inldip = crldip = 0;
+
 	    dipvaluetext += toString( inldip );
 	    dipvaluetext += toString( crldip );
 	    phi = calcPhi( inldip, crldip );
 	    theta = calcTheta( inldip, crldip );
-	
+
 	    const char* key = "Dip";
 	    ps_[idx].setText( key, dipvaluetext.buf() );
 	}
@@ -188,10 +188,10 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    else
 	    { phi = 0; theta = 0; }
 	}
-	
+
 	ps_[idx].dir_ = Sphere( 1, theta, phi );
     }
- 
+
     ps_.disp_.markertype_ = MarkerStyle3D::Plane;
     Pick::Mgr().reportChange( this, ps_ );
     Pick::Mgr().reportDispChange( this, ps_ );
@@ -242,15 +242,15 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 
     if ( !createdset_ )
 	createdset_ = ads_->isEmpty() || usesteering_
-	    			? new DescSet(ads_->is2D() )
-    				: new DescSet( *ads_ );
+				? new DescSet(ads_->is2D() )
+				: new DescSet( *ads_ );
 
     if ( !createdset_->getDesc( ids[0] ) && usesteering_ )
 	*createdset_ = *( Attrib::DSHolder().getDescSet( ads_->is2D(), true ) );
 
     mSetColDef(0)
     mSetColDef(1)
-  
+
     return true;
 }
 
@@ -328,13 +328,13 @@ bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
 
 float uiSetPickDirs::calcPhi( float inldip, float crldip )
 {
-    const float azi = atan2( inldip, crldip );
+    const float azi = Math::Atan2( inldip, crldip );
 
     const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
     const double xcrl = b2c.getTransform(true).c;
     double ycrl = b2c.getTransform(false).c;
 
-    const float angN = (float) atan2( xcrl, ycrl );
+    const float angN = mCast(float, Math::Atan2( xcrl, ycrl ) );
 
     float phi;
     if ( SI().isClockWise() )
@@ -342,7 +342,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
     else
 	phi = azi + angN;
 
-    if ( phi < 0 ) phi += 2*M_PI;
+    if ( phi < 0 ) phi += M_2PIf;
     return phi;
 }
 
@@ -350,7 +350,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
 float uiSetPickDirs::calcTheta( float inldip, float crldip )
 {
     const float poldip = Math::Sqrt( inldip*inldip + crldip*crldip );
-    
+
     float theta = (float) atan( poldip * velocity_ * 1e-6 );
     return theta;
 }
@@ -358,8 +358,8 @@ float uiSetPickDirs::calcTheta( float inldip, float crldip )
 
 void uiSetPickDirs::wrapPhi( float& phi )
 {
-    int nrcycles = (int)( phi / (2*M_PI) );
-    phi -= (float) (nrcycles * 2*M_PI);
+    int nrcycles = (int)( phi / M_2PIf );
+    phi -= (float) ( nrcycles * M_2PIf );
 }
 
 
@@ -369,7 +369,7 @@ void uiSetPickDirs::wrapTheta( float& theta )
     if ( val == val )
 	theta = atan( val );
     else
-	theta = M_PI/2;
+	theta = M_PI_2f;
 }
 
 

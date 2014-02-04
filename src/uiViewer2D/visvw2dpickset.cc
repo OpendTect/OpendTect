@@ -36,7 +36,7 @@ mCreateVw2DFactoryEntry( VW2DPickSet );
 VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
-    , pickset_(0) 					  
+    , pickset_(0)
     , deselected_(this)
     , isownremove_(false)
 {
@@ -47,20 +47,20 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
     {
 	editors_ += const_cast<uiFlatViewAuxDataEditor*>(editors[idx]);
 	viewers_ += &editors[idx]->getFlatViewer();
-    	picks_ += viewers_[idx]->createAuxData( "Picks" );
-	
-    	viewers_[idx]->addAuxData( picks_[idx] );
-    	viewers_[idx]->appearance().annot_.editable_ = false; 
-    	mAttachCB( viewers_[idx]->dataChanged, VW2DPickSet::dataChangedCB );
-    	mAttachCB( viewers_[idx]->viewChanged, VW2DPickSet::dataChangedCB );
-	
-    	auxids_ += editors_[idx]->addAuxData( picks_[idx], true );
-    	editors_[idx]->enableEdit( auxids_[idx], true, true, true );
-    	editors_[idx]->enablePolySel( auxids_[idx], true );
-    	mAttachCB( editors_[idx]->removeSelected, VW2DPickSet::pickRemoveCB );
-    	mAttachCB( editors_[idx]->movementFinished, VW2DPickSet::pickAddChgCB );
+	picks_ += viewers_[idx]->createAuxData( "Picks" );
+
+	viewers_[idx]->addAuxData( picks_[idx] );
+	viewers_[idx]->appearance().annot_.editable_ = false;
+	mAttachCB( viewers_[idx]->dataChanged, VW2DPickSet::dataChangedCB );
+	mAttachCB( viewers_[idx]->viewChanged, VW2DPickSet::dataChangedCB );
+
+	auxids_ += editors_[idx]->addAuxData( picks_[idx], true );
+	editors_[idx]->enableEdit( auxids_[idx], true, true, true );
+	editors_[idx]->enablePolySel( auxids_[idx], true );
+	mAttachCB( editors_[idx]->removeSelected, VW2DPickSet::pickRemoveCB );
+	mAttachCB( editors_[idx]->movementFinished, VW2DPickSet::pickAddChgCB );
     }
-    
+
     mAttachCB( Pick::Mgr().setChanged, VW2DPickSet::dataChangedCB );
     mAttachCB( Pick::Mgr().locationChanged, VW2DPickSet::dataChangedCB );
 }
@@ -70,8 +70,8 @@ VW2DPickSet::~VW2DPickSet()
 {
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
-    	viewers_[ivwr]->removeAuxData( picks_[ivwr] );
-    	editors_[ivwr]->removeAuxData( auxids_[ivwr] );
+	viewers_[ivwr]->removeAuxData( picks_[ivwr] );
+	editors_[ivwr]->removeAuxData( auxids_[ivwr] );
     }
     deepErase( picks_ );
     detachAllNotifiers();
@@ -86,10 +86,10 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 
     FlatView::Point newpt = editor->getSelPtPos();
     const Coord3 crd = getCoord( newpt );
-    if ( !crd.isDefined() ) 
+    if ( !crd.isDefined() )
 	return;
     // Add
-    if ( !pickset_ ) 
+    if ( !pickset_ )
 	return;
     (*pickset_) += Pick::Location( crd );
     const int locidx = pickset_->size()-1;
@@ -115,7 +115,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	const int locidx = selpts[idx];
 	if ( !picks_[editoridx]->poly_.validIdx(locidx) )
 	    continue;
-        
+
 	const int pickidx = picksetidxs_[locidx];
 	picksetidxs_.removeSingle( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
@@ -123,14 +123,14 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	pickset_->removeSingle( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
-    
+
     isownremove_ = false;
 }
 
 
 MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 {
-    MarkerStyle2D style( MarkerStyle2D::Square, ps.disp_.pixsize_, 
+    MarkerStyle2D style( MarkerStyle2D::Square, ps.disp_.pixsize_,
 			 ps.disp_.color_ );
     switch( ps.disp_.markertype_ )
     {
@@ -156,7 +156,7 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 	    style.type_ = MarkerStyle2D::Square;
 	    break;
 	default:
-    	    style.type_ = MarkerStyle2D::Circle;
+	    style.type_ = MarkerStyle2D::Circle;
     }
 
     return style;
@@ -187,7 +187,7 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	    z = cs.zrg.start;
 	}
 
-	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ? 
+	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ?
 	    Coord3( SI().transform(bid), z ) : Coord3::udf();
     }
 
@@ -231,7 +231,7 @@ void VW2DPickSet::drawAll()
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
     mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
     if ( !dp3d && !dprdm ) return;
-    
+
     const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;
 
     if ( dp3d )
@@ -244,49 +244,50 @@ void VW2DPickSet::drawAll()
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
 	uiFlatViewer& vwr = *viewers_[ivwr];
-    	const uiWorldRect& curvw = vwr.curView();
-    	const float zdiff = (float) curvw.height();
-    	const float nrzpixels = mCast(float,vwr.getViewRect().vNrPics());
-    	const float zfac = nrzpixels / zdiff;
-    	const float xdiff = (float) ( curvw.width() *
+	const uiWorldRect& curvw = vwr.curView();
+	const float zdiff = (float) curvw.height();
+	const float nrzpixels = mCast(float,vwr.getViewRect().vNrPics());
+	const float zfac = nrzpixels / zdiff;
+	const float xdiff = (float) ( curvw.width() *
 		( oninl ? SI().crlDistance() : SI().inlDistance() ) );
-    	const float nrxpixels = mCast(float,vwr.getViewRect().hNrPics());
-    	const float xfac = nrxpixels / xdiff;
+	const float nrxpixels = mCast(float,vwr.getViewRect().hNrPics());
+	const float xfac = nrxpixels / xdiff;
 
-	FlatView::AuxData* picks = picks_[ivwr];	
-    	picks->poly_.erase();
-    	picks->markerstyles_.erase();
-    	MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
-    	const int nrpicks = picksetidxs_.size();
-    	for ( int idx=0; idx<nrpicks; idx++ )
-    	{
-    	    const int pickidx = picksetidxs_[idx];
-    	    const Coord3& pos = (*pickset_)[pickidx].pos_;
-    	    const BinID bid = SI().transform(pos);
-    	    if ( dp3d )
-    	    {
-    		BufferString dipval;
-    		(*pickset_)[pickidx].getText( "Dip" , dipval );
-    		SeparString dipstr( dipval );
-    		const float dip = oninl ? dipstr.getFValue( 1 )
+	FlatView::AuxData* picks = picks_[ivwr];
+	picks->poly_.erase();
+	picks->markerstyles_.erase();
+	MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
+	const int nrpicks = picksetidxs_.size();
+	for ( int idx=0; idx<nrpicks; idx++ )
+	{
+	    const int pickidx = picksetidxs_[idx];
+	    const Coord3& pos = (*pickset_)[pickidx].pos_;
+	    const BinID bid = SI().transform(pos);
+	    if ( dp3d )
+	    {
+		BufferString dipval;
+		(*pickset_)[pickidx].getText( "Dip" , dipval );
+		SeparString dipstr( dipval );
+		const float dip = oninl ? dipstr.getFValue( 1 )
 					: dipstr.getFValue( 0 );
-    		const float depth = (dip/1000000) * zfac;
-    		markerstyle.rotation_ =
-    		    mIsUdf(dip) ? 0 : Math::toDegrees( atan2f(2*depth,xfac) );
-    		FlatView::Point point( (oninl ? bid.crl() : bid.inl()), pos.z );
-    		picks->poly_ += point;
-    	    }
-    	    else if ( dprdm )
-    	    {
-    		const FlatPosData& flatposdata = dprdm->posData();
-    		const int bidindex = dprdm->pathBIDs()->indexOf(bid);
-    		const double bidpos = flatposdata.position( true, bidindex );
-    		FlatView::Point point( bidpos, pos.z );
-    		picks->poly_ += point;
-    	    }
-    	    picks->markerstyles_ += markerstyle;
-    	}
-    	vwr.handleChange( FlatView::Viewer::Auxdata );
+		const float depth = (dip/1000000) * zfac;
+		markerstyle.rotation_ =
+			    mIsUdf(dip) ? 0
+			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
+		FlatView::Point point( (oninl ? bid.crl() : bid.inl()), pos.z );
+		picks->poly_ += point;
+	    }
+	    else if ( dprdm )
+	    {
+		const FlatPosData& flatposdata = dprdm->posData();
+		const int bidindex = dprdm->pathBIDs()->indexOf(bid);
+		const double bidpos = flatposdata.position( true, bidindex );
+		FlatView::Point point( bidpos, pos.z );
+		picks->poly_ += point;
+	    }
+	    picks->markerstyles_ += markerstyle;
+	}
+	vwr.handleChange( FlatView::Viewer::Auxdata );
     }
 }
 
@@ -303,8 +304,8 @@ void VW2DPickSet::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
-    	picks_[ivwr]->enabled_ = yn;
-    	viewers_[ivwr]->handleChange( FlatView::Viewer::Auxdata );
+	picks_[ivwr]->enabled_ = yn;
+	viewers_[ivwr]->handleChange( FlatView::Viewer::Auxdata );
     }
 }
 
@@ -331,7 +332,7 @@ void VW2DPickSet::triggerDeSel()
 bool VW2DPickSet::fillPar( IOPar& iop ) const
 {
     Vw2DDataObject::fillPar( iop );
-    iop.set( sKeyMID(), pickSetID() ); 
+    iop.set( sKeyMID(), pickSetID() );
     return true;
 }
 

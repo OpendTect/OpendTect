@@ -176,7 +176,7 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     if ( mIsUdf(num) ) \
     { \
 	res = num; \
-       	return true; \
+	return true; \
     } \
     if ( errcondition ) \
     { \
@@ -225,16 +225,17 @@ mDefRandFunc( RandG, getNormal(0,1) );
 bool Atan2Func::eval( const BufferStringSet& args, BufferString& res ) const
 {
     mCheckNrArgs( 2, args, res );
-    mGetNumArg( 0, num0, args, res ); 
-    mGetNumArg( 1, num1, args, res ); 
+    mGetNumArg( 0, num0, args, res );
+    mGetNumArg( 1, num1, args, res );
 
-    if ( !num0 && !num1 )
+    const double angle = Math::Atan2( num0, num1 );
+    if ( mIsUdf(angle) )
     {
 	res = name(); res += "-function does not allow both arguments zero";
 	return false;
     }
 
-    res = mIsUdf(num0) ? num0 : ( mIsUdf(num1) ? num1 : atan2(num0,num1) );
+    res = angle;
     return true;
 }
 
@@ -370,7 +371,7 @@ bool StrSelFunc::eval( const BufferStringSet& args, BufferString& res ) const
 
     if ( args.size() != 3 )
 	stoppos = startpos;
-    
+
     const char* prefix = args.size()==3 ? "First character" : "Character";
     mCheckPosRange( prefix, startpos, len, args , res );
     mCheckPosRange( "Last character", stoppos, len, args , res );
@@ -425,7 +426,7 @@ bool SepStrSelFunc::eval( const BufferStringSet& args, BufferString& res ) const
 
     if ( args.size() != 3 )
 	stoppos = startpos;
-    
+
     const char* prefix = args.size()==3 ? "First substring" : "Substring";
     mCheckPosRange( prefix, startpos, len, args , res );
     mCheckPosRange( "Last substring", stoppos, len, args , res );

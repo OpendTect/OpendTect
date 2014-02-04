@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-namespace Attrib 
+namespace Attrib
 {
 
 mAttrDefCreateInstance( CurvGrad )
@@ -45,10 +45,10 @@ void CurvGrad::initClass()
     BoolParam* steer = new BoolParam( sKey::Steering() );
     steer->setDefaultValue ( true );
     desc->addParam( steer );
-    
+
     desc->addOutputDataType ( Seis::UnknowData );
     desc->addInput( InputSpec("Curvature Data", true) );
-    
+
     InputSpec steeringspec( "Steering Data", false );
     steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
@@ -59,7 +59,7 @@ void CurvGrad::initClass()
 
 void CurvGrad::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled_ = 
+    desc.inputSpec(1).enabled_ =
 	desc.getValParam(sKey::Steering())->getBoolValue();
 }
 
@@ -89,7 +89,7 @@ CurvGrad::CurvGrad( Desc& desc )
 	    posandsteeridx_.steeridx_ += steeridx;
 	}
     }
-    
+
     inputdata_.allowNull( true );
 }
 
@@ -114,7 +114,7 @@ bool CurvGrad::getInputData( const BinID& relpos, int zintv )
 {
     if( inputdata_.isEmpty() )
 	inputdata_ += 0;
-    
+
     const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
     if( !inpdata ) return false;
     inputdata_.replace( 0, inpdata );
@@ -128,7 +128,7 @@ bool CurvGrad::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
     {
-        if( posandsteeridx_.steeridx_[idx]==0 ) 
+	if( posandsteeridx_.steeridx_[idx]==0 )
 	    continue;
 
         const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
@@ -148,7 +148,7 @@ const BinID* CurvGrad::desStepout( int inp, int out ) const
 bool CurvGrad::computeData( const DataHolder& output,
 	const BinID& relpos, int z0, int nrsamples, int threadid ) const
 {
-    if ( dataidx_<0 ) 
+    if ( dataidx_<0 )
 	return false;
 
     for (int idx=0; idx<nrsamples; idx++ )
@@ -158,26 +158,26 @@ bool CurvGrad::computeData( const DataHolder& output,
 
 	float* inpvolume_ = new float [inlsize*crlsize*sizeof(float)];
 	for( int iter=0; iter<inlsize*crlsize; iter++ )
-	    *(inpvolume_+iter) = 0;	
-	
+	    *(inpvolume_+iter) = 0;
+
 	for( int posidx=0; posidx<inputdata_.size(); posidx++ )
 	{
 	    const int posidx_true_ = posandsteeridx_.steeridx_[posidx];
 	    if( !inputdata_[posidx_true_] ) continue;
-		
+
 	    float shift = 0;
-	    shift = steeringdata_ ?	
+	    shift = steeringdata_ ?
 		getInputValue( *steeringdata_, posidx_true_, idx, z0) : 0;
-	    shift = (mIsUdf(shift) ? 0 : shift );			
+	    shift = (mIsUdf(shift) ? 0 : shift );
 	    if( shift<sampgate_.start || shift>sampgate_.stop )
 		shift = 0;
 
-	    const int sampidx = idx + mNINT32(shift);	            
-	    const float val = getInputValue( 
+	    const int sampidx = idx + mNINT32(shift);
+	    const float val = getInputValue(
 		    *inputdata_[posidx_true_], dataidx_, sampidx, z0 );
 
-	    if( !mIsUdf(val) ) 
-		*(inpvolume_+posidx) = val;			
+	    if( !mIsUdf(val) )
+		*(inpvolume_+posidx) = val;
 	}
 
 	const float outval_ = calCurvGrad(inpvolume_);
@@ -194,21 +194,21 @@ float CurvGrad::calCurvGrad( float *inpvolume_ ) const
     const int inlsteo = mMAX(stepout_.inl(), stepout_.crl());
     const int crlstep = mMAX(stepout_.inl(), stepout_.crl());
     const int crlsize = 2 * crlstep + 1;
-    
+
     int centralpos = inlsteo*crlsize;
     centralpos += crlstep;
 
     // crossline) direction
-    float data_xb = *(inpvolume_+centralpos-crlstep);
-    float data_xf = *(inpvolume_+centralpos+crlstep);
+    const float data_xb = *(inpvolume_+centralpos-crlstep);
+    const float data_xf = *(inpvolume_+centralpos+crlstep);
 
     // inline direction
-    float data_yb = *(inpvolume_+centralpos-inlsteo*crlsize);
-    float data_yf = *(inpvolume_+centralpos+inlsteo*crlsize);
+    const float data_yb = *(inpvolume_+centralpos-inlsteo*crlsize);
+    const float data_yf = *(inpvolume_+centralpos+inlsteo*crlsize);
 
-    float crlcg = (float)(0.5 * (data_xf - data_xb) / crlstep);
-    float inlcg = (float)(0.5 * (data_yf - data_yb) / inlsteo);
-    float cgazim = Math::toDegrees( atan2(crlcg, inlcg) );
+    const float crlcg = (float)(0.5 * (data_xf - data_xb) / crlstep);
+    const float inlcg = (float)(0.5 * (data_yf - data_yb) / inlsteo);
+    const float cgazim = Math::toDegrees( Math::Atan2( crlcg, inlcg ) );
 
     //adjust the sign
     const int sign = data_xf*data_xb<=0 || data_yf*data_yb<=0 ? -1 : 1;

@@ -33,7 +33,7 @@ TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 
 	int nrazi = mNINT32((dipidx ? perimeter : M_PI)/dradius);
 	//!< No +1 since it's comes back to 0 when angle is 2*PI
-	//!< The dipidx ? stuff is to avoid multiples 
+	//!< The dipidx ? stuff is to avoid multiples
 	if ( !nrazi ) nrazi = 1;
 	const double dazi = (dipidx ? twopi : M_PI)/nrazi;
 
@@ -49,7 +49,7 @@ TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 
 
 Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
-       		 	      bool checkforundefs )
+			      bool checkforundefs )
 {
     const int nrvectors = vectors.size();
     TypeSet<Coord3> ownvectors;
@@ -91,7 +91,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
     PCA pca(3);
     for ( int idx=0; idx<nrusedvectors; idx++ )
 	pca.addSample( usedvectors[idx] );
-    
+
     if ( !pca.calculate() )
 	return udfcrd3;
 
@@ -157,7 +157,7 @@ Coord3 Quaternion::rotate( const Coord3& v ) const
 
     return (iqvec.dot(v))*iqvec+s_*qvv+qvv.cross(iqvec);
 }
-    
+
 
 Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
@@ -259,7 +259,7 @@ bool Line2::operator==( const Line2& line ) const
 }
 
 
-#define mRetUdf return Coord( mUdf(double), mUdf(double) ) 
+#define mRetUdf return Coord( mUdf(double), mUdf(double) )
 Coord Line2::direction() const
 {
     if ( mIsUdf(slope_) )
@@ -330,7 +330,7 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
     }
 
     if ( !checkinlimits )
-    	return pos;
+	return pos;
 
     bool inlimits1 = true;
     if ( !mIsUdf(start_.x) && !mIsUdf(stop_.x) )
@@ -412,7 +412,7 @@ bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
     {
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
 	    return false;
-	
+
 	line.slope_ = 0;
 	line.isvertical_ = false;
 	line.yintcpt_ = point.y;
@@ -509,7 +509,7 @@ double Line3::closestPoint( const Coord3& point ) const
 
 
 void Line3::closestPoint( const Line3& line, double& t_this,
-       			  double& t_line ) const
+			  double& t_line ) const
 {
     const Coord3 dir0 = direction( false );
     const Coord3 dir1 = line.direction( false );
@@ -550,13 +550,13 @@ bool Line3::intersectWith( const Plane3& b, double& t ) const
 
 Coord3 Line3::getPoint( double t ) const
 {
-    return Coord3( x0_+alpha_*t, y0_+beta_*t, z0_+gamma_*t ); 
+    return Coord3( x0_+alpha_*t, y0_+beta_*t, z0_+gamma_*t );
 }
 
 
 Plane3::Plane3() {}
 
-							     
+
 Plane3::Plane3( double A, double B, double C, double D )
     : A_( A )
     , B_( B )
@@ -665,7 +665,7 @@ bool Plane3::operator==(const Plane3& b ) const
     const bool a_iszero = mIsZero(a_len,mDefEps);
     const bool b_iszero = mIsZero(b_len,mDefEps);
 
-    if ( a_iszero||b_iszero) 
+    if ( a_iszero||b_iszero)
     {
 	if ( a_iszero&&b_iszero )
 	    return true;
@@ -705,13 +705,13 @@ double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
     const Line3 linetoplane( point, norm );
 
     Coord3 p0;
-    if ( intersectWith( linetoplane, p0 ) ) 
+    if ( intersectWith( linetoplane, p0 ) )
     {
 	const Coord3 diff = point-p0;
 	return whichside ? diff.dot(norm) : diff.abs();
     }
-    else 
-        return 0;	
+    else
+	return 0;
 }
 
 
@@ -734,9 +734,9 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     const Coord3 dir = normal0.cross( normal1 );
     if ( mIsZero(dir.abs(),mDefEps) )
 	return false;
-    
-    res.alpha_ = dir.x; 
-    res.beta_ = dir.y; 
+
+    res.alpha_ = dir.x;
+    res.beta_ = dir.y;
     res.gamma_ = dir.z;
 
     double deter;
@@ -744,24 +744,24 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     {
 	deter = dir.x;
 	res.x0_ = 0;
-	res.y0_ = (-D_*b.C_+C_*b.D_)/deter; 
+	res.y0_ = (-D_*b.C_+C_*b.D_)/deter;
 	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;
 	return true;
     }
     else if ( !mIsZero(dir.y,mDefEps) )
     {
 	deter = -dir.y;
-	res.y0_ = 0; 
+	res.y0_ = 0;
 	res.x0_ = (-D_*b.C_+C_*b.D_)/deter;
 	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;;
 	return true;
     }
     else
-    {   
+    {
 	deter = dir.z;
-    	res.x0_ = (-D_*b.B_+B_*b.D_)/deter;
-    	res.y0_ = (-A_*b.D_+D_*b.A_)/deter;
-    	res.z0_ = 0;
+	res.x0_ = (-D_*b.B_+B_*b.D_)/deter;
+	res.y0_ = (-A_*b.D_+D_*b.A_)/deter;
+	res.z0_ = 0;
     }
 
     return true;
@@ -800,7 +800,7 @@ Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
     }
     else
 	v0 = pt-origin_;
-	
+
     const double len = v0.abs();
     if ( !len )
 	return Coord( 0, 0 );
@@ -818,7 +818,7 @@ Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
     return origin_ + vec10_*coord.x + vec01_*coord.y;
 }
 
-	
+
 Sphere cartesian2Spherical( const Coord3& crd, bool math )
 {
     double theta, phi;
@@ -826,12 +826,12 @@ Sphere cartesian2Spherical( const Coord3& crd, bool math )
     if ( math )
     {
 	theta = rad ? Math::ACos( (crd.z / rad) ) : 0;
-	phi = atan2( crd.y, crd.x );
+	phi = Math::Atan2( crd.y, crd.x );
     }
     else
     {
 	theta = rad ? Math::ASin( (crd.z / rad) ) : 0;
-	phi = atan2( crd.x, crd.y );
+	phi = Math::Atan2( crd.x, crd.y );
     }
 
     return Sphere( (float)rad, (float)theta, (float)phi );

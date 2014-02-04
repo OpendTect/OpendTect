@@ -304,7 +304,7 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
     offset = (float) rcv.distTo( src );
-    azimuth = (float) atan2( rcv.y - src.y, rcv.x - src.x );
+    azimuth = mCast(float, Math::Atan2( rcv.y - src.y, rcv.x - src.x ) );
     if ( setpos )
     {
 	coord.x = .5 * (rcv.x + src.x);

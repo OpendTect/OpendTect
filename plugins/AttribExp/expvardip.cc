@@ -44,7 +44,7 @@ MinVarianceDipAttrib::MinVarianceDipAttrib( Parameters* params )
     , fast( params->fast )
     , stepout( params->size/2, params->size/2 )
     , AttribCalc( new MinVarianceDipAttrib::Task( *this ) )
-{ 
+{
     params->fillDefStr( desc );
     delete params;
     AttribInputSpec* spec = new AttribInputSpec;
@@ -71,10 +71,10 @@ bool MinVarianceDipAttrib::init()
     crldist = common->crldist*common->stepoutstep.crl;
 
     return AttribCalc::init();
-} 
+}
 
 
-AttribCalc::Task* MinVarianceDipAttrib::Task::clone() const 
+AttribCalc::Task* MinVarianceDipAttrib::Task::clone() const
 { return new MinVarianceDipAttrib::Task(calculator); }
 
 
@@ -106,10 +106,10 @@ bool MinVarianceDipAttrib::Task::Input::set( const BinID& pos,
 	trcs = new Array2DImpl<SeisTrc*>( sz, sz );
 
     for ( int idx=-hsz; idx<=hsz; idx++ )
-    { 
+    {
 	for ( int idy=-hsz; idy<=hsz; idy++ )
 	{
-	    SeisTrc* trc = inputproviders[0]->getTrc( 	pos.inl + idx, 
+	    SeisTrc* trc = inputproviders[0]->getTrc(	pos.inl + idx,
 							pos.crl + idy );
 	    if ( !trc ) return false;
 	    trcs->set( idx + hsz, idy + hsz, trc);
@@ -119,12 +119,12 @@ bool MinVarianceDipAttrib::Task::Input::set( const BinID& pos,
     if ( !calculator.constantvel )
     {
 	veltrc = inputproviders[1]->getTrc( pos.inl, pos.crl );
-	if ( !veltrc ) 
+	if ( !veltrc )
 	    return 0;
 
 	velattrib = inputproviders[1]->attrib2component( inputattribs[1] );
     }
-    
+
     dataattrib = inputproviders[0]->attrib2component( inputattribs[0] );
     return true;
 }
@@ -132,9 +132,9 @@ bool MinVarianceDipAttrib::Task::Input::set( const BinID& pos,
 
 int MinVarianceDipAttrib::Task::nextStep()
 {
-    const MinVarianceDipAttrib::Task::Input* inp = 
+    const MinVarianceDipAttrib::Task::Input* inp =
 			(const MinVarianceDipAttrib::Task::Input*) input;
-    const int sz = calculator.sz; 
+    const int sz = calculator.sz;
     const int hsz = sz/2;
     const int hsz2 = hsz*hsz;
     const SeisTrc* veltrc = inp->veltrc;
@@ -147,15 +147,15 @@ int MinVarianceDipAttrib::Task::nextStep()
 
     const int dataattrib = inp->dataattrib;
     const int velattrib = inp->velattrib;
- 
+
     const int resolution = calculator.resolution;
-    float deltaangle = M_PI / resolution;
+    float deltaangle = M_PIf / resolution;
 
     for ( int idx=0; idx<nrtimes; idx++ )
     {
 	const float curt = t1 + idx*step;
 	float velocity = veltrc ? veltrc->getValue( curt, velattrib )
-				: calculator.velocity; 
+				: calculator.velocity;
 
         for ( int idi=0; idi<sz; idi++ )
         {
@@ -199,7 +199,7 @@ int MinVarianceDipAttrib::Task::nextStep()
 			float qic = q * cos(angle1);
 
 
-			float rho = atan2( qic, p ); 
+			float rho = Math::Atan2( qic, p );
 			float r = Math::Sqrt( qic*qic + p*p );
 
 			float crl = r*cos(angle0+rho);
@@ -210,7 +210,7 @@ int MinVarianceDipAttrib::Task::nextStep()
 			if ( !calculator.fast )
 			    val = Array3DInterpolate( indata,
 						      hsz+inl/inldist,
-					 	      hsz+crl/crldist,
+						      hsz+crl/crldist,
 						      hsz+qz/velocity/inpstep);
 			else
 			    val = trcs.get(hsz+mNINT32(inl/inldist),
@@ -222,7 +222,7 @@ int MinVarianceDipAttrib::Task::nextStep()
 
 			nrsamples ++;
 		    }
-		}	
+		}
 
 		float var = (sqsum - sum * sum / nrsamples)/ (nrsamples -1);
 
@@ -248,14 +248,14 @@ int MinVarianceDipAttrib::Task::nextStep()
 	float winl = cosa1*vcrl;	// sin( angle0+M_PI/2) = cos(angle0)
 	float wz = sin(minangle1);
 
-	float ncrl = (vinl*wz-winl*vz); 	// The planes normal vector
+	float ncrl = (vinl*wz-winl*vz); // The planes normal vector
 	float ninl = (-vcrl*wz+wcrl*vz);
-	float nz = (vcrl*winl-wcrl*vinl); 
+	float nz = (vcrl*winl-wcrl*vinl);
 
 	const float dipfact = calculator.dipFactor();
-	if ( inldips ) inldips[idx] = ninl/-nz/velocity*dipfact;	
+	if ( inldips ) inldips[idx] = ninl/-nz/velocity*dipfact;
 	if ( crldips ) crldips[idx] = ncrl/-nz/velocity*dipfact;
     }
-		
+
     return 0;
 }

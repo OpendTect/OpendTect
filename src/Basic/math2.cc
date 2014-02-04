@@ -111,3 +111,28 @@ int Math::HCFOf( int num1, int num2 )
 
 unsigned int Math::Abs( int i )		    { return abs(i); }
 od_uint64 Math::Abs( od_int64 i )	    { return llabs(i); }
+
+
+float Math::Atan2( float y, float x )
+{
+    if ( mIsUdf(x) || mIsUdf(y) || (mIsZero(x,mDefEpsF) && mIsZero(y,mDefEpsF)))
+	return mUdf(float);
+
+    return atan2 ( y, x );
+}
+
+
+float Math::Atan2( float_complex val )
+{
+    return Atan2( val.imag(), val.real() );
+}
+
+
+double Math::Atan2( double y, double x )
+{
+    if ( mIsUdf(x) || mIsUdf(y) || (mIsZero(x,mDefEps) && mIsZero(y,mDefEps)) )
+	return mUdf(double);
+
+    return atan2 ( y, x );
+}
+

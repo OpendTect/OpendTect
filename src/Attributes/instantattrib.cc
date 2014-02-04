@@ -184,11 +184,7 @@ float Instantaneous::calcAmplitude2Der( int cursample, int z0 ) const
 
 float Instantaneous::calcPhase( int cursample, int z0 ) const
 {
-    const float real = mGetRVal( cursample );
-    const float imag = mGetIVal( cursample );
-    if ( mIsZero(real,mDefEps) ) return M_PI/2;
-    mCheckRetUdf( real, imag );
-    return atan2(imag,real);
+    return Math::Atan2( mGetIVal( cursample ), mGetRVal( cursample ) );
 }
 
 

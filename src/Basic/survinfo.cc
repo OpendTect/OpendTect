@@ -1056,7 +1056,7 @@ float SurveyInfo::angleXInl() const
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
-    return (float) atan2( ydiff, xdiff );
+    return mCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 
 

@@ -88,7 +88,7 @@ Callout::Callout()
     rotdragger_->turnOn(true); //To create switch internally
     rotdragger_->doAxisRotate();
     addChild( rotdragger_->getInventorNode() );
-    rotfeedback_->setVertexOrdering( 
+    rotfeedback_->setVertexOrdering(
 	   visBase::VertexShape::cClockWiseVertexOrdering() );
     rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
     rotdragger_->changed.notify( mCB( this, Callout, dragChanged ));
@@ -102,7 +102,7 @@ Callout::Callout()
     rotfeedbackactive_->ref();
     rotfeedbackactive_->removeSwitch();
     rotfeedbackactive_->replaceShape( rotfeedback_->getShape() );
-    
+
     rotfeedback_->setVertexOrdering( 0 );
     rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
     rotfeedbackactive_->setCoordinates( rotfeedback_->getCoordinates() );
@@ -120,7 +120,7 @@ Callout::Callout()
 
     faceset_->removeSwitch();
     anchor_->addObject( faceset_ );
-    
+
     faceset_->getCoordinates()->setPos( mPickPosIdx, Coord3(0,0,0) );
     faceset_->setVertexOrdering( 0 );
     faceset_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
@@ -177,7 +177,7 @@ Sphere Callout::getDirection() const
     textpos.z *= zscale_;
 
     Sphere res;
-    res.theta = (float) atan2( textpos.x, textpos.z );
+    res.theta = mCast(float, Math::Atan2( textpos.x, textpos.z ) );
     res.radius = (float) textpos.abs();
 
     Quaternion phi( 0, 0, 0, 0 );
@@ -210,7 +210,7 @@ void Callout::setPick( const Pick::Location& loc )
     fronttext_->setPosition( Coord3(textpos.x,textpos.z, mTextLift ));
 
     const Quaternion rot1( Coord3( 0,0,1 ), loc.dir_.phi );
-    static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
+    const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
 
     rotation_->set( rot1*rot2 );
     rotdragger_->set( rot1 );
@@ -252,9 +252,7 @@ void Callout::dragChanged( CallBacker* cb )
     {
 	isdragging_ = true;
 	const Quaternion rot1 = rotdragger_->get();
-
-	static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
-
+	const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 )
 	rotation_->set( rot1*rot2 );
     }
     else if ( cb==translationdragger_ )
@@ -288,7 +286,7 @@ void Callout::setActiveFeedbackMaterial( visBase::Material* mat )
 {
     rotfeedbackactive_->setMaterial( mat );
     mDynamicCastGet( SoSeparator*, sep,
-	   	     translationdragger_->getShape("translatorActive") );
+		     translationdragger_->getShape("translatorActive") );
     if ( !sep )
 	return;
 
@@ -307,7 +305,7 @@ void Callout::setFeedbackMaterial( visBase::Material* mat )
 {
     rotfeedback_->setMaterial( mat );
     mDynamicCastGet( SoSeparator*, sep,
-	    	     translationdragger_->getShape("translator") );
+		     translationdragger_->getShape("translator") );
     if ( !sep )
 	return;
 
@@ -347,7 +345,7 @@ void Callout::setScale( visBase::Transformation* nt )
     scale_->ref();
     insertChild( insertidx, scale_->getInventorNode() );
 }
-    
+
 
 void Callout::displayMarker( bool yn )
 {
@@ -420,7 +418,7 @@ void Callout::updateCoords()
 	const Coord3& dragcorner = dragcorner11 ? c11 : c01;
 
 	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
-	if ( dragcorner11 ) 
+	if ( dragcorner11 )
 	    rotfeedbackradius_ = fronttext_->getFontData().pointSize()/1.5f;
 	else
 	    rotfeedbackradius_ = -fronttext_->getFontData().pointSize()/1.5f;
@@ -451,7 +449,7 @@ void Callout::updateCoords()
 void Callout::updateArrow()
 {
     Interval<double> xrange, yrange;
-    if ( faceset_->getCoordinates()->size(false) != 
+    if ( faceset_->getCoordinates()->size(false) !=
 	 faceset_->getCoordinates()->size(true) )
 	return;
 
@@ -489,7 +487,7 @@ void Callout::updateArrow()
 		    faceset_->getCoordinates()->getPos( nextidx );
 
 		const float sqdist = (float) (pickpos.sqDistTo(pos) +
-		    		     pickpos.sqDistTo(nextpos));
+				     pickpos.sqDistTo(nextpos));
 
 		if ( !idx || sqdist<minsqdist )
 		{
@@ -511,7 +509,7 @@ void Callout::updateArrow()
 }
 
 
-#define mArrowAngle (M_PI/8)
+#define mArrowAngle (M_PIf/8.f)
 
 
 void Callout::setupRotFeedback()
@@ -546,7 +544,7 @@ void Callout::setupRotFeedback()
     int ci = 0, cii=0;
 
     float curangle = -(angleperstep*nrsteps)/2;
-    float arrowangle = (float) (curangle - mArrowAngle);
+    float arrowangle = curangle - mArrowAngle;
 
     Quaternion rot( Coord3( 0, 0, 1 ), arrowangle );
     rotfeedback_->getCoordinates()->setPos( ci++,
@@ -594,7 +592,7 @@ void Callout::setupRotFeedback()
 	}
 
 	for ( int idy=0; idy<=circlepos.size(); idy++ )
-    	{
+	{
 	    const int index = idy%circlepos.size();
 	    rotfeedback_->setCoordIndex( cii++, partstart+index );
 	    rotfeedback_->setCoordIndex( cii++,
@@ -617,7 +615,7 @@ void Callout::setupRotFeedback()
     rotfeedback_->getCoordinates()->setPos( ci++,
 	    rotfeedbackpos_+rot.rotate( center ) );
 
-    curangle += (float) mArrowAngle-angleperstep;
+    curangle += mArrowAngle - angleperstep;
     rot.setRotation( Coord3( 0, 0, 1 ), curangle );
 
     topidx =  ci;
@@ -733,7 +731,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
 	if ( call->getAnchor()==cb )
 	{ child = idx; break; }
     }
-	    
+
     if ( child<0 )
 	return;
 
@@ -808,7 +806,7 @@ void CalloutDisplay::showManipulator( bool yn )
 	callout->displayMarker( yn );
     }
 }
-	
+
 
 bool CalloutDisplay::isManipulatorShown() const
 {
@@ -830,7 +828,7 @@ int CalloutDisplay::isMarkerClick(const TypeSet<int>& path) const
 	mDynamicCastGet( Callout*, callout, group_->getObject(idx) );
 	if ( !callout )
 	    continue;
-	
+
 	if ( path.isPresent(callout->getMarkerID()) )
 	    return idx;
     }

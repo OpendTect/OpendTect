@@ -21,7 +21,7 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 {
     SeisTrcValueSeries stvs( trc, curcomp < 0 ? 0 : curcomp );
     ValueSeriesEvFinder<float,float> evf( stvs, trc.size() - 1,
-	    				  trc.info().sampling );
+					  trc.info().sampling );
     return evf.find( typ, tg, occ );
 }
 
@@ -194,7 +194,10 @@ mStartCompLoop
     else
     {
 	for ( int idx=0; idx<sz; idx++ )
-	    mtrc().set( idx, (float) (trc.get( idx, icomp ) / sqrtacorr), icomp );
+	{
+	    const float data = mCast(float,trc.get( idx, icomp ) ) / sqrtacorr;
+	    mtrc().set( idx, data, icomp );
+	}
     }
 
 mEndCompLoop
@@ -349,9 +352,10 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
     ArrPtrMan<float> quadtrc = new float[ quadsz ];
     Hilbert( quadsz, trcdata, quadtrc );
 
-    float q = quadtrc[mHalfHilbertLength];
-    float d = trcdata[mHalfHilbertLength];
-    return d*d + q*q ? atan2( q, d ) : 0;
+    const float q = quadtrc[mHalfHilbertLength];
+    const float d = trcdata[mHalfHilbertLength];
+    const float angle = Math::Atan2( q, d );
+    return (q*q+d*d)<mDefEpsF || mIsUdf(angle) ? 0.f : angle;
 }
 
 
@@ -391,7 +395,7 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 	acorr2 += val2 * val2;
 	ccorr += val1 * val2;
     }
- 
+
     return ccorr / Math::Sqrt( acorr1 * acorr2 );
 }
 

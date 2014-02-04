@@ -153,7 +153,7 @@ void MPEEditor::turnOnMarker( EM::PosID pid, bool on )
 {
     const int mkidx = posids_.indexOf( pid );
     if ( mkidx<0 )
-    	return;
+	return;
 
     draggermarkers_[mkidx]->turnOn( on );
 }
@@ -166,7 +166,7 @@ bool MPEEditor::allMarkersDisplayed() const
 	if ( !draggermarkers_[idx]->isOn() )
 	    return false;
     }
-    
+
     return true;
 }
 
@@ -225,7 +225,7 @@ void MPEEditor::removeDragger( int idx )
     draggers_[idx]->motion.remove(mCB(this,MPEEditor,dragMotion));
     draggers_[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
     removeChild( draggers_[idx]->osgNode() );
-  
+
     draggers_.removeSingle(idx,false)->unRef();
     posids_.removeSingle(idx,false);
     draggermarkers_.removeSingle(idx,false);
@@ -246,7 +246,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 
     if ( !translate1D && !translate2D && !translate3D )
 	return;
-	        
+
     visBase::Dragger* dragger = visBase::Dragger::create();
     dragger->ref();
     dragger->setDisplayTransformation( transformation_ );
@@ -267,12 +267,13 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	const Coord3 desnormal =
 	    emeditor_->translation2DNormal(pid).normalize();
 	const float dotproduct = (float) defnormal.dot(desnormal);
-	
+
 	Coord3 rotationaxis( 0, 0, 1 );
 	float angle = 0;
 	if ( !mIsEqual( dotproduct, 1, 1e-3 ) )
 	{
-	    const float zaxisangle = (float) atan2( desnormal.y, desnormal.x ); 
+	    const float zaxisangle =
+		mCast(float, Math::Atan2( desnormal.y, desnormal.x ) );
 	    Quaternion rotation( defnormal, zaxisangle );
 	    rotation *= Quaternion( Coord3(0,0,1), -Math::ACos(dotproduct) );
 	    rotation.getRotation( rotationaxis, angle );
@@ -280,7 +281,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 
 	dragger->setRotation( rotationaxis, angle );
     }
-    else 
+    else
     {
 	dragger->setDraggerType( visBase::Dragger::Translate1D );
 	const Coord3 defori( 1, 0, 0 );
@@ -355,7 +356,7 @@ void MPEEditor::updateNodePos( int idx, const Coord3& pos )
 void MPEEditor::interactionLineRightClickCB( CallBacker* )
 { interactionLineRightClick.trigger(); }
 
-	
+
 bool MPEEditor::clickCB( CallBacker* cb )
 {
     if ( eventcatcher_->isHandled() || !isOn() )
@@ -433,7 +434,7 @@ void MPEEditor::dragMotion( CallBacker* cb )
 void MPEEditor::dragStop( CallBacker* cb )
 {
     if ( emeditor_ )
-    { 
+    {
 	const int idx = draggers_.indexOf( (visBase::Dragger*) cb );
         NotifyStopper cbstop( draggers_[idx]->motion );
 	draggers_[idx]->setPos( emeditor_->getPosition( activedragger_ ) );
@@ -495,7 +496,7 @@ void MPEEditor::setupInteractionLineDisplay()
     }
 
     interactionlinedisplay_->setEdgeLineSet(edgelineset);
-} 
+}
 
 
 void MPEEditor::extendInteractionLine( const EM::PosID& pid )

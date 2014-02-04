@@ -26,7 +26,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(DipFilter)
-    
+
 void DipFilter::initClass()
 {
     mAttrStartInitClassWithDescAndDefaultsUpdate
@@ -62,7 +62,7 @@ void DipFilter::initClass()
     minazi->setLimits( Interval<float>(-180,180) );
     minazi->setDefaultValue(0);
     desc->addParam( minazi );
-    
+
     FloatParam* maxazi = new FloatParam( maxaziStr() );
     maxazi->setLimits( Interval<float>(-180,180) );
     maxazi->setDefaultValue( 30 );
@@ -131,7 +131,7 @@ DipFilter::DipFilter( Desc& ds )
 
     maxvel_ = SI().zIsTime() ? mUdf(float) : 90;
     inputdata_.allowNull(true);
-    
+
     mGetEnum( type_, typeStr() );
     mGetInt( size_, sizeStr() );
     if ( size_%2 == 0 )
@@ -151,7 +151,7 @@ DipFilter::DipFilter( Desc& ds )
     {
 	mGetFloat( minazi_, minaziStr() );
 	mGetFloat( maxazi_, maxaziStr() );
-    
+
 	aziaperture_ = maxazi_-minazi_;
 	while ( aziaperture_ > 180 ) aziaperture_ -= 360;
 	while ( aziaperture_ < -180 ) aziaperture_ += 360;
@@ -182,7 +182,7 @@ bool DipFilter::initKernel()
 {
     if ( mIsZero( refstep_, 1e-7 ) || mIsUdf(refstep_) )
     {
- 	pErrMsg("No reference step" );
+	pErrMsg("No reference step" );
 	return false;
     }
 
@@ -206,9 +206,10 @@ bool DipFilter::initKernel()
 		float kt = kti * refstep_;
 
                 const float velocity = fabs(spatialdist/kt);
-		const float dipangle = fabs(mRad2DegF *atan2( kt, spatialdist));
+		const float angle = Math::Atan2( kt, spatialdist );
+		const float dipangle = fabs( Math::toDegrees( angle ) );
 		const float val = zIsTime() ? velocity : dipangle;
-		const float azimuth = mRad2DegF * atan2( ki, kc );
+		const float azimuth = Math::toDegrees( Math::Atan2( ki, kc ) );
 
 		float factor = 1;
 		if ( kii || kci || kti )
@@ -223,7 +224,7 @@ bool DipFilter::initKernel()
 
 			    factor = taper( 1-ratio );
 			}
-			else 
+			else
 			{
 			    factor = 0;
 			}
@@ -237,7 +238,7 @@ bool DipFilter::initKernel()
 			    ratio /= taperlen_;
 			    factor = taper( ratio );
 			}
-			else 
+			else
 			{
 			    factor = 0;
 			}
@@ -248,7 +249,7 @@ bool DipFilter::initKernel()
 			{
 			    float htaperlen = taperlen_/2;
 			    float ratio = (val - valrange_.start)
-				   	  / valrange_.width();
+					  / valrange_.width();
 
 			    if ( ratio > (1-htaperlen))
 			    {
@@ -269,7 +270,7 @@ bool DipFilter::initKernel()
 		    }
 
 		    if ( ( kii || kci ) && filterazi_
-			    		&& !mIsZero(factor,mDefEps) )
+					&& !mIsZero(factor,mDefEps) )
 		    {
 			float htaperlen = taperlen_/2;
 			float diff = azimuth - azi_;
@@ -319,7 +320,7 @@ bool DipFilter::getInputData( const BinID& relpos, int index )
 {
     while ( inputdata_.size()< (1+stepout_.inl()*2) * (1+stepout_.crl()*2) )
 	inputdata_ += 0;
-    
+
     int idx = 0;
 
     const BinID bidstep = inputs_[0]->getStepoutStep();

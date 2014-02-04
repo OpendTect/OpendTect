@@ -41,7 +41,7 @@ DiscFilterAttrib::DiscFilterAttrib( Parameters* param )
     , fast( param->fast )
     , stepout( param->radius, param->radius )
     , AttribCalc( new DiscFilterAttrib::Task( *this ) )
-{ 
+{
     param->fillDefStr( desc );
     delete param;
 
@@ -97,7 +97,7 @@ bool DiscFilterAttrib::init()
     crldist = common->crldist*common->stepoutstep.crl;
 
     return AttribCalc::init();
-} 
+}
 
 
 AttribCalc::Task* DiscFilterAttrib::Task::clone() const
@@ -120,7 +120,8 @@ void DiscFilterAttrib::Task::set( float t1_, int nrtimes_, float step_,
     max = outp_[mDiscFilterMax];
     max = outp_[mDiscFilterMostFreq];
 
-    indata.setSize( calculator.radius*2+1, calculator.radius*2+1, calculator.radius*2+1 );
+    indata.setSize( calculator.radius*2+1, calculator.radius*2+1,
+		    calculator.radius*2+1 );
 
 }
 
@@ -137,10 +138,10 @@ bool DiscFilterAttrib::Task::Input::set( const BinID& pos,
 
     int nrtrcs = 0;
     for ( int idx=-radius; idx<=radius; idx++ )
-    { 
+    {
 	for ( int idy=-radius; idy<=radius; idy++ )
 	{
-	    SeisTrc* trc = inputproviders[0]->getTrc( 	pos.inl + idx, 
+	    SeisTrc* trc = inputproviders[0]->getTrc(	pos.inl + idx,
 							pos.crl + idy );
 
 	    if ( !calculator.fast && !trc ) return false;
@@ -176,10 +177,10 @@ bool DiscFilterAttrib::Task::Input::set( const BinID& pos,
 
 int DiscFilterAttrib::Task::nextStep()
 {
-    const DiscFilterAttrib::Task::Input* inp = 
+    const DiscFilterAttrib::Task::Input* inp =
 			(const DiscFilterAttrib::Task::Input*) input;
 
-    const int radius = calculator.radius; 
+    const int radius = calculator.radius;
     const int sz = radius*2+1;
     const int radius2 = radius*radius;
     const SeisTrc* inldiptrc = inp->inldiptrc;
@@ -207,15 +208,15 @@ int DiscFilterAttrib::Task::nextStep()
 
 	if ( dttrc ) break;
     }
-	
+
 
     const float inpstep = dttrc->info().sampling.step;
- 
+
     for ( int idx=0; idx<nrtimes; idx++ )
     {
 	const float curt = t1 + idx*step;
 	float velocity = veltrc ? veltrc->getValue( curt, velattrib )
-				: calculator.velocity; 
+				: calculator.velocity;
 
 	if ( !calculator.fast )
 	{
@@ -233,12 +234,14 @@ int DiscFilterAttrib::Task::nextStep()
 	    }
 	}
 
-	float inldip = inldiptrc ? inldiptrc->getValue(curt,inldipattrib) : 0;
-	float crldip = crldiptrc ? crldiptrc->getValue(curt,crldipattrib) : 0;
+	const float inldip = inldiptrc
+			   ? inldiptrc->getValue(curt,inldipattrib) : 0;
+	const float crldip = crldiptrc
+			   ? crldiptrc->getValue(curt,crldipattrib) : 0;
 
-	float angle0 = atan2( crldip, -inldip );
-	float poldip = Math::Sqrt(inldip*inldip+crldip*crldip);
-	float angle1 = atan(poldip*velocity/calculator.dipFactor());
+	const float angle0 = Math::Atan2( crldip, -inldip );
+	const float poldip = Math::Sqrt(inldip*inldip+crldip*crldip);
+	const float angle1 = atan( poldip*velocity/calculator.dipFactor() );
 
 	stat.clear();
 
@@ -255,7 +258,7 @@ int DiscFilterAttrib::Task::nextStep()
 		float qic = q * cos(angle1);
 
 
-		float rho = atan2( qic, p ); 
+		float rho = Math::Atan2( qic, p );
 		float r = Math::Sqrt( qic*qic + p*p );
 
 		float crl = r*cos(angle0+rho);
@@ -278,12 +281,12 @@ int DiscFilterAttrib::Task::nextStep()
 
 		    if ( trc )
 		    {
-			val = trc->getValue(curt+qz/velocity,dataattrib); 
+			val = trc->getValue(curt+qz/velocity,dataattrib);
 			stat += val;
 		    }
 		}
 	    }
-	}	
+	}
 
 	if ( avg )	avg[idx] = stat.mean();
 	if ( med )	med[idx] = stat.median();
@@ -294,6 +297,6 @@ int DiscFilterAttrib::Task::nextStep()
 	if ( mostfreq )	mostfreq[idx] = stat.mostFreq();
 
     }
-		
+
     return 0;
 }

@@ -186,7 +186,7 @@ void uiDirectionalPlot::drawGrid()
 	{
 	    const float rad = (.2f + .2f*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
-								 mNINT32(rad)) );
+							     mNINT32(rad)) );
 	    ci->setZValue( 1 );
 	    equicircles_ += ci;
 	    ci->setPenStyle( setup_.equils_ );
@@ -226,7 +226,7 @@ void uiDirectionalPlot::drawScale()
 
     delete scalearcitm_; scalearcitm_ = 0;
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
-	    			Angle::usrdeg2rad(150.F) );
+				Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
     scalearcitm_ = scene().addItem(
 	    new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
@@ -321,7 +321,7 @@ void uiDirectionalPlot::drawDirAnnot()
 			   : (idx==2 ?	 "S"
 			   :		 "W"));
 	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
-		    			  : Alignment::HCenter,
+					  : Alignment::HCenter,
 		          isew ? Alignment::VCenter
 			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
@@ -463,7 +463,7 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 	    else
 	    {
 		float relpos = (spd.val_-valrg_.start)
-		    	     / (valrg_.stop-valrg_.start);
+			     / (valrg_.stop-valrg_.start);
 		if ( relpos < 0 ) relpos = 0;
 		if ( relpos > 1 ) relpos = 1;
 		col = colseq_->color(relpos);
@@ -505,7 +505,7 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
     uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
-    const float ang = atan2( (float)-relpos.y, (float)relpos.x );
+    const float ang = Math::Atan2( (float)-relpos.y, (float)relpos.x );
     cursector_ = data_.sector( ang, Angle::Rad );
     if ( setup_.curissel_ )
     {
@@ -523,7 +523,7 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r,
-	    	Angle::convert( data_.setup_.angletype_, ang, Angle::Rad ) );
+		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad ) );
 }
 
 

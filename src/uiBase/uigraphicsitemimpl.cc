@@ -88,11 +88,11 @@ QGraphicsItem* uiObjectItem::mkQtObj()
 
 void uiObjectItem::setObjectSize( int szx, int szy )
 {
-    if ( grp_ ) 
+    if ( grp_ )
     {
 	grp_->setSize( uiSize( szx, szy ) );
     }
-    else if ( obj_ ) 
+    else if ( obj_ )
     {
 	obj_->qwidget()->setMinimumSize( szx, szy );
 	obj_->qwidget()->setMaximumSize( szx, szy );
@@ -103,7 +103,7 @@ void uiObjectItem::setObjectSize( int szx, int szy )
 const uiSize uiObjectItem::objectSize() const
 {
     return ( obj_ ? uiSize(obj_->qwidget()->size().width(),
-			   obj_->qwidget()->size().height() )  
+			   obj_->qwidget()->size().height() )
 		  : uiSize(0,0) );
 }
 
@@ -582,7 +582,7 @@ void uiTextItem::setAlignment( const Alignment& al )
 	    qtextitem_->setHAlignment( Qt::AlignLeft );
 	    break;
     }
-    
+
     switch ( al.vPos() )
     {
 	case Alignment::Bottom:
@@ -767,8 +767,8 @@ void uiArrowItem::update()
     setArrowSize( mNINT32(arrsz) );
     setPos( headpos_ );
     const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );
-    const float ang = Math::toDegrees( atan2((float)relvec.y,(float)relvec.x) );
-    setRotation( ang );
+    const float ang = Math::Atan2( (float)relvec.y, (float)relvec.x);
+    setRotation( Math::toDegrees(ang) );
 }
 
 
@@ -826,7 +826,7 @@ void uiCurvedItem::drawTo( const SplineSpec& ss )
 			  QPointF(ss.end_.x,ss.end_.y) );
     else
 	qppath_->quadTo( QPointF(ss.cp1_.x,ss.cp1_.y),
-	       		 QPointF(ss.end_.x,ss.end_.y) );
+			 QPointF(ss.end_.x,ss.end_.y) );
     qpathitem_->setPath( *qppath_ );
 }
 

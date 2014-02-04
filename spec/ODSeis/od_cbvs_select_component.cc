@@ -34,13 +34,13 @@ static int doWork( int argc, char** argv )
     }
 
     FilePath fp( argv[2] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -61,7 +61,7 @@ static int doWork( int argc, char** argv )
 	for ( int idx=0; idx<nrincomp; idx++ )
 	    ci[idx]->destidx = idx == selcomp ? idx : -1;
 
-    fp.set( argv[3] ); 
+    fp.set( argv[3] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
@@ -81,8 +81,8 @@ static int doWork( int argc, char** argv )
 	    {
 		float inldip = trc.get(idx,0);
 		float crldip = trc.get(idx,1);
-		outtrc.set( idx, selcomp == -2 ? atan2(inldip,crldip)
-			       : sqrt( inldip*inldip + crldip*crldip ), 0 );
+		outtrc.set( idx, selcomp == -2 ? Math::Atan2(inldip,crldip)
+			   : Math::Sqrt( inldip*inldip + crldip*crldip ), 0 );
 	    }
 	}
 
@@ -90,7 +90,7 @@ static int doWork( int argc, char** argv )
 	    outtrc.info() = trc.info();
 
 	if ( !nrwr && !tro->initWrite(
-		    	new StreamConn(fname,Conn::Write),outtrc) )
+			new StreamConn(fname,Conn::Write),outtrc) )
 	    { std::cerr << "Cannot start write!" << std::endl; return 1; }
 
 	if ( !tro->write(outtrc) )

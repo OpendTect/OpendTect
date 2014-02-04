@@ -49,12 +49,12 @@ void ODGraphicsPointItem::paint( QPainter* painter,
     if ( option->state & QStyle::State_Selected )
     {
 	painter->setPen( QPen(option->palette.text(),1.0,
-		    	 		Qt::DashLine) );
+					Qt::DashLine) );
 	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
-	
+
 
 void ODGraphicsPointItem::drawPoint( QPainter* painter )
 {
@@ -72,7 +72,7 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 	mSetPt( 0, 2 ); mSetPt( 0, -2 );
     }
 
-    for ( int idx=0; idx<13; idx++ )	
+    for ( int idx=0; idx<13; idx++ )
 	painter->drawPoint( pts[idx] );
 }
 
@@ -99,8 +99,8 @@ void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 
 QRectF ODGraphicsMarkerItem::boundingRect() const
 {
-    return QRectF( -mstyle_->size_, -mstyle_->size_, 
-	    	             2*mstyle_->size_, 2*mstyle_->size_ );
+    return QRectF( -mstyle_->size_, -mstyle_->size_,
+			     2*mstyle_->size_, 2*mstyle_->size_ );
 }
 
 
@@ -134,7 +134,7 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( option->state & QStyle::State_Selected )
     {
 	painter->setPen( QPen(option->palette.text(),1.0,
-		    			Qt::DashLine) );
+					Qt::DashLine) );
 	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
@@ -149,7 +149,7 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	case MarkerStyle2D::Square:
 	    painter.drawRect( QRectF(-szx, -szy, 2*szx, 2*szy) );
 	    break;
-	
+
 	case MarkerStyle2D::Target:
 	    szx /=2;
 	    szy /=2;
@@ -220,7 +220,7 @@ void ODGraphicsArrowItem::paint( QPainter* painter,
     if (option->state & QStyle::State_Selected)
     {
 	painter->setPen( QPen(option->palette.text(),1.0,
-		    			Qt::DashLine) );
+					Qt::DashLine) );
 	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
@@ -234,7 +234,7 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
     QPoint qpointtail( -arrowsz_, 0 );
     QPoint qpointhead( 0, 0 );
     painter.drawLine( qpointtail.x(), qpointtail.y(), qpointhead.x(),
-	    	      qpointhead.y() ); 
+		      qpointhead.y() );
     if ( arrowstyle_.hasHead() )
 	drawArrowHead( painter, qpointhead, qpointtail );
     if ( arrowstyle_.hasTail() )
@@ -261,8 +261,8 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 
     // In UI, Y is positive downward
     const QPoint relvec( qpt.x() - comingfrom.x(),
-	    			   comingfrom.y() - qpt.y() );
-    const double ang( atan2((double)relvec.y(),(double)relvec.x()) );
+				   comingfrom.y() - qpt.y() );
+    const double ang( Math::Atan2((double)relvec.y(),(double)relvec.x()) );
 
     const ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
     if ( headstyle.handedness_ == ArrowHeadStyle::TwoHanded )
@@ -313,8 +313,8 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 double ODGraphicsArrowItem::getAddedAngle( double ang, float ratiopi )
 {
     ang += ratiopi * M_PI;
-    while ( ang < -M_PI ) ang += 2 * M_PI;
-    while ( ang > M_PI ) ang -= 2 * M_PI;
+    while ( ang < -M_PI ) ang += M_2PI;
+    while ( ang > M_PI ) ang -= M_2PI;
     return ang;
 }
 
@@ -342,7 +342,7 @@ void ODViewerTextItem::setText( const char* t )
 QPointF ODViewerTextItem::getAlignment() const
 {
     float movex = 0, movey = 0;
-    
+
     switch ( hal_ )
     {
         case Qt::AlignRight:
@@ -352,7 +352,7 @@ QPointF ODViewerTextItem::getAlignment() const
             movex = -0.5f;
             break;
     }
-    
+
     switch ( val_ )
     {
         case Qt::AlignBottom:
@@ -362,7 +362,7 @@ QPointF ODViewerTextItem::getAlignment() const
             movey = -0.5f;
             break;
     }
-    
+
     return QPointF( movex, movey );
 }
 
@@ -370,11 +370,11 @@ QPointF ODViewerTextItem::getAlignment() const
 QRectF ODViewerTextItem::boundingRect() const
 {
     const QPointF alignment = getAlignment();
-    
+
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( QString(text_.buf()) );
     const float txtheight = qfm.height();
-    
+
     const float movex = alignment.x() * txtwidth;
     const float movey = alignment.y() * txtheight;
 
@@ -392,36 +392,36 @@ void ODViewerTextItem::paint( QPainter* painter,
 {
     if ( option )
 	painter->setClipRect( option->exposedRect );
-    
+
     QPointF paintpos( 0, 0 );
-    
+
     paintpos = painter->worldTransform().map( paintpos );
 
     painter->save();
     painter->resetTransform();
-    
+
     const QString text( text_.buf() );
-    
+
     const QPointF alignment = getAlignment();
-    
+
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( text );
     const float txtheight = qfm.height();
-    
+
     const float movex = alignment.x() * txtwidth;
     const float movey = alignment.y() * txtheight;
-    
+
     painter->setPen( pen() );
     painter->setFont( font_ );
-    
+
     //Nice for debugging
     //painter->drawPoint( paintpos.x(), paintpos.y() );
-    
+
     painter->drawText(
 	    QPointF(paintpos.x() + movex, paintpos.y()+movey+txtheight), text );
-		  
+
     painter->restore();
-    
+
     //Nice for debugging
     //painter->drawRect( boundingRect() );
 }
@@ -464,17 +464,17 @@ void ODGraphicsPolyLineItem::paint( QPainter* painter,
 			       QWidget* widget )
 {
     const QTransform trans = painter->worldTransform();
-    
+
     QPolygonF paintpolygon( qpolygon_.size() );
     for ( int idx=qpolygon_.size()-1; idx>=0; idx-- )
 	paintpolygon[idx] = trans.map( qpolygon_[idx] );
-    
+
     painter->save();
     painter->resetTransform();
 
-    
+
     painter->setPen( pen() );
-    
+
     if ( closed_ )
     {
 	painter->setBrush( brush() );
@@ -482,9 +482,9 @@ void ODGraphicsPolyLineItem::paint( QPainter* painter,
     }
     else
     {
-    	painter->drawPolyline( paintpolygon );
+	painter->drawPolyline( paintpolygon );
     }
-    
+
     painter->restore();
 }
 
@@ -499,7 +499,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
 
 ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
 {
-    
+
 }
 
 #if QT_VERSION>=0x040700
@@ -567,14 +567,14 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 {
     if ( updateResolution( painter ) )
 	wantsData.trigger();
-    
+
     const QTransform worldtrans = painter->worldTransform();
-    
+
     imagelock_.lock();
-    
+
     const QPointF pix00 = worldtrans.map( QPointF(0,0) );
     const QPointF pix11 = worldtrans.map( QPointF(1,1) );
-    
+
     const bool revx = pix00.x()>pix11.x();
     const bool revy = pix00.y()>pix11.y();
 
@@ -594,7 +594,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	    else
 	    {
 		mImage2Pixmap( dynamicimage_, dynamicpixmap_ );
-		
+
 		dynamicrev_[0] = false;
 		dynamicrev_[1] = false;
 	    }
@@ -603,7 +603,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	{
 	    dynamicpixmap_ = 0;
 	}
-	   
+
 	dynamicpixmapbbox_ = dynamicimagebbox_;
 	updatedynpixmap_ = false;
     }
@@ -626,13 +626,13 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	    if ( basemirror )
 	    {
 		mImage2Pixmap( baseimage_.mirrored( revx, revy ), basepixmap_ );
-		
+
 		baserev_[0] = revx;
 		baserev_[1] = revy;
 	    }
 	    else
 	    {
-	    	mImage2Pixmap( baseimage_, basepixmap_ );
+		mImage2Pixmap( baseimage_, basepixmap_ );
 		baserev_[0] = false;
 		baserev_[1] = false;
 	    }
@@ -669,9 +669,9 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
     const QRectF wantedwr = projectedwr.intersected( bbox_ );
     if ( !wantedwr.isValid() )
 	return false;
-    
+
     const QSize wantedscreensz =
-    	painter->worldTransform().mapRect(wantedwr).toRect().size();
+	painter->worldTransform().mapRect(wantedwr).toRect().size();
 
     if ( wantedwr==wantedwr_ && wantedscreensz==wantedscreensz_)
 	return false;
