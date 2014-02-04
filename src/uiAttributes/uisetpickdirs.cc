@@ -55,7 +55,6 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, dirinpfld_( 0 )
 	, phifld_( 0 )
 	, steerfld_( 0 )
-	, steerctio_( 0 )
 	, usesteering_( true )
 	, createdset_( 0 )
 	, velocity_(vel)
@@ -74,9 +73,8 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	dirinpfld_ = new uiGenInput( this, "Direction from", 
 			BoolInpSpec(true,"Steering cube","Attributes") );
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
-    	steerctio_ = uiSteerCubeSel::mkCtxtIOObj( is2d, true );
-	steerfld_ = new uiSteerCubeSel( this, *steerctio_,
-					DSHolder().getDescSet(is2d,true), is2d);
+	steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
+					is2d );
 	steerfld_->attach( alignedBelow, dirinpfld_ );
     }
 
@@ -97,8 +95,6 @@ uiSetPickDirs::~uiSetPickDirs()
 {
     delete ads_;
     delete createdset_;
-    if ( steerctio_ )
-	{ steerctio_->destroyAll(); delete steerctio_; }
 }
 
 
@@ -382,13 +378,13 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
     desc->setHidden( true );
     desc->selectOutput( dipnr );
-    LineKey linekey( steerctio_->ioobj->key() );
+    LineKey linekey( steerfld_->ioobj(true)->key() );
     if ( createdset_->is2D() )
 	linekey.setAttrName( "Steering" );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
-    BufferString userref = steerctio_->ioobj->name();
+    BufferString userref = steerfld_->ioobj(true)->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
     desc->setUserRef( userref );
     desc->updateParams();

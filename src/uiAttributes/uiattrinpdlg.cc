@@ -31,8 +31,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 		       issteer ? "Select Steering input"
 			       : "Select Seismic input",
 				 "101.1.2"))
-    , ctio_(getCtxtIO(is2d))
-    , ctiosteer_(*uiSteerCubeSel::mkCtxtIOObj(is2d,true))
     , multiinpcube_(true)
     , is2d_(is2d)
     , seisinpfld_(0)
@@ -51,7 +49,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
 
-    uiSeisSel::Setup sssu( is2d, false );
     BufferString seltext = issteer ? "Input Steering cube" : "Input Seismics";
     if ( prevrefnm )
     {
@@ -59,17 +56,19 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 	seltext += prevrefnm;
 	seltext += "')";
     }
-    sssu.seltxt( seltext.buf() );
-    sssu.steerpol( issteer ? uiSeisSel::Setup::OnlySteering
-			   : uiSeisSel::Setup::NoSteering );
+
     if ( issteer )
     {
-	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
+	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, seltext.buf() );
 	steerinpfld_->attach( alignedBelow, txtfld );
     }
     else
     {
-	seisinpfld_ = new uiSeisSel( this, ctio_, sssu );
+	uiSeisSel::Setup sssu( is2d, false );
+	sssu.seltxt( seltext.buf() );
+	const IOObjContext& ioctxt =
+	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
+	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
 	seisinpfld_->attach( alignedBelow, txtfld );
     }
 
@@ -82,8 +81,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
 	       hassteer ? (hasseis ? "Select Seismic & Steering input"
 			: "Select Steering input") : "Select Seismic input",
 				 "101.1.2"))
-    , ctio_(getCtxtIO(is2d))
-    , ctiosteer_(*uiSteerCubeSel::mkCtxtIOObj(is2d,true))
     , multiinpcube_(false)
     , is2d_(is2d)
     , seisinpfld_(0)
@@ -92,27 +89,18 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )
     {
-	sssu.steerpol( uiSeisSel::Setup::NoSteering );
 	sssu.seltxt( "Input Seismics" );
-	seisinpfld_ = new uiSeisSel( this, ctio_, sssu );
+	const IOObjContext& ioctxt =
+	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
+	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
     }
 
     if ( hassteer )
     {
-	sssu.steerpol( uiSeisSel::Setup::OnlySteering );
-	sssu.seltxt( "Input Steering" );
-	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
+	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, "Input Steering" );
 	if ( hasseis )
 	    steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }
-}
-
-
-CtxtIOObj& uiAttrInpDlg::getCtxtIO( bool is2d )
-{
-    IOM().setRootDir( GetDataDir() ); 
-    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() ); 
-    return *uiSeisSel::mkCtxtIOObj( is2d?Seis::Line:Seis::Vol, true );
 }
 
 
@@ -136,8 +124,6 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
 
 uiAttrInpDlg::~uiAttrInpDlg()
 {
-    delete ctio_.ioobj; delete &ctio_;
-    delete ctiosteer_.ioobj; delete &ctiosteer_;
 }
 
 
@@ -155,37 +141,33 @@ const char* uiAttrInpDlg::getSteerRef() const
 
 const char* uiAttrInpDlg::getSeisKey() const
 {
-    static LineKey lk;
-    if ( !ctio_.ioobj )
+    LineKey lk;
+    const IOObj* ioobj = seisinpfld_->ioobj( true );
+    if ( !ioobj )
 	return 0;
-    lk.setLineName( ctio_.ioobj->key() );
+
+    lk.setLineName( ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( seisinpfld_->attrNm() );
-    else
-    {
-	mDeclStaticString( buf );
-	buf = lk.lineName();
-	return buf;
-    }
 
-    return lk;
+    mDeclStaticString( buf );
+    buf = is2D() ? lk : lk.lineName();
+    return buf;
 }
 
 
 const char* uiAttrInpDlg::getSteerKey() const
 {
     static LineKey lk;
-    if ( !ctiosteer_.ioobj )
+    const IOObj* ioobj = steerinpfld_->ioobj( true );
+    if ( !ioobj )
 	return 0;
-    lk.setLineName( ctiosteer_.ioobj->key() );
+
+    lk.setLineName( ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( steerinpfld_->attrNm() );
-    else
-    {
-	mDeclStaticString( buf );
-	buf = lk.lineName();
-	return buf;
-    }
 
-    return lk;
+    mDeclStaticString( buf );
+    buf = is2D() ? lk : lk.lineName();
+    return buf;
 }

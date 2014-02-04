@@ -112,7 +112,7 @@ protected:
     virtual uiIOObjRetDlg* mkDlg();
     void		mkOthDomBox();
 
-    const char*		getDefaultKey(Seis::GeomType) const;
+    virtual const char* getDefaultKey(Seis::GeomType) const;
 };
 
 
@@ -139,6 +139,21 @@ protected:
     void		attrNmSel(CallBacker*);
     const char*		getDataType();
     void		getComponentNames(BufferStringSet&) const;
+};
+
+
+mExpClass(uiSeis) uiSteerCubeSel : public uiSeisSel
+{
+public:
+
+				uiSteerCubeSel(uiParent*,bool is2d,
+					       bool forread=true,
+					       const char* txt="Steering Data");
+
+protected:
+
+    virtual const char*		getDefaultKey(Seis::GeomType gt) const;
+
 };
 
 

@@ -24,7 +24,7 @@ class CtxtIOObj;
 class uiAttrSel;
 class uiGenInput;
 class DataPointSet;
-class uiSteerCubeSel;
+class uiSteerAttrSel;
 namespace Pick { class Set; }
 
 /*! \brief */
@@ -44,13 +44,12 @@ protected:
     const Attrib::DescSet*	ads_;
     Attrib::DescSet*		createdset_;
     const NLAModel*		nlamdl_;
-    CtxtIOObj*			steerctio_;
     bool			usesteering_;
 
     uiAttrSel*			phifld_;
     uiAttrSel*			thetafld_;
     uiGenInput*			dirinpfld_;
-    uiSteerCubeSel*		steerfld_;
+    uiSteerAttrSel*		steerfld_;
     float			velocity_;
 
     void			dirinpSel(CallBacker*);

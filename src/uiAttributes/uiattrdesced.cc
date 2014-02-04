@@ -142,7 +142,7 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 }
 
 
-void uiAttrDescEd::fillInp( uiSteerCubeSel* fld, Attrib::Desc& desc, int inp )
+void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inp )
 {
     if ( inp >= desc.nrInputs() )
 	return;
@@ -229,7 +229,7 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 }
 
 
-void uiAttrDescEd::putInp( uiSteerCubeSel* inpfld, const Attrib::Desc& ad, 
+void uiAttrDescEd::putInp( uiSteerAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );

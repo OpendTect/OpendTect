@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class uiTextEdit;
 class uiSeisSel;
-class CtxtIOObj;
 class BufferStringSet;
 
 
@@ -44,13 +43,10 @@ protected:
     uiSeisSel*		seisinpfld_;
     uiSeisSel*		steerinpfld_;
 
-    CtxtIOObj&		ctio_;
-    CtxtIOObj&		ctiosteer_;
     bool		multiinpcube_;
     bool		is2d_;
 
     bool		acceptOK(CallBacker*);
-    CtxtIOObj& 		getCtxtIO(bool);
 
 };
 

@@ -682,3 +682,30 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
     dlg->usePar( dlgiopar_ );
     return dlg;
 }
+
+// uiSteerCubeSel
+
+static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
+						   const char* txt )
+{
+    uiSeisSel::Setup sssu( is2d, false );
+    sssu.selattr( is2d ).wantSteering().seltxt( txt );
+    if ( !forread && is2d ) sssu.allowlinesetsel( false );
+    return sssu;
+}
+
+
+uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
+				const char* txt )
+	: uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
+		    mkSeisSelSetupForSteering(is2d,forread,txt))
+{
+}
+
+
+const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
+{
+    BufferString defkey = uiSeisSel::getDefaultKey( gt );
+    return IOPar::compKey( defkey, sKey::Steering() );
+}
+

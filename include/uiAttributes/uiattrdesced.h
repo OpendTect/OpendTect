@@ -26,7 +26,7 @@ class uiAttrSel;
 class uiAttrSelData;
 class uiImagAttrSel;
 class uiSteeringSel;
-class uiSteerCubeSel;
+class uiSteerAttrSel;
 
 using namespace Attrib;
 
@@ -142,10 +142,10 @@ protected:
     void		fillOutput(Desc&,int selout);
     void		fillInp(uiAttrSel*,Desc&,int);
     void		fillInp(uiSteeringSel*,Desc&,int);
-    void		fillInp(uiSteerCubeSel*,Desc&,int);
+    void		fillInp(uiSteerAttrSel*,Desc&,int);
     
     void		putInp(uiAttrSel*,const Desc&,int inpnr);
-    void		putInp(uiSteerCubeSel*,const Desc&,int inpnr);
+    void		putInp(uiSteerAttrSel*,const Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
     bool                needInputUpdate() const		{ return needinpupd_; }

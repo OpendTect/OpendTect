@@ -21,16 +21,12 @@ class uiGenInput;
 class uiLabel;
 namespace Attrib { class Desc; class DescSet; class SelSpec; }
 
-
-mExpClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
+mExpClass(uiAttributes) uiSteerAttrSel : public uiSteerCubeSel
 {
 public:
 
-				uiSteerCubeSel(uiParent*,CtxtIOObj&,
-				       const Attrib::DescSet*,bool is2d,
-				       const char* txt="Steering Data");
-				uiSteerCubeSel(uiParent*,CtxtIOObj&,
-					       Seis::GeomType,
+				uiSteerAttrSel(uiParent*,
+					       const Attrib::DescSet*,bool is2d,
 					       const char* txt="Steering Data");
 
     inline Attrib::DescID	inlDipID() const	{ return getDipID(0); }
@@ -45,13 +41,9 @@ public:
 				/* inl=true: AttribSelSpec for inline comp
 				   inl=false: AttribSelSpec for crossline comp*/
 
-    static const IOObjContext&	ioContext(bool is2d,bool forread);
-    static CtxtIOObj*		mkCtxtIOObj(bool is2d,bool forread);
-
 protected:
 
     Attrib::DescID		getDipID(int) const;
-    void			fillDefault();
 
     uiAttrSelData		attrdata_;
 };
@@ -86,13 +78,12 @@ public:
 protected:
 
     const Attrib::DescSet*	descset_;
-    CtxtIOObj&			ctio_;
 
     uiLabel*			nosteerlbl_;
     uiGenInput*			typfld_;
     uiGenInput*			dirfld_;
     uiGenInput*			dipfld_;
-    uiSteerCubeSel*		inpfld_;
+    uiSteerAttrSel*		inpfld_;
 
     bool			is2d_;
     bool			notypechange_;
