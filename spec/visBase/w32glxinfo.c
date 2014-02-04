@@ -783,7 +783,7 @@ main(int argc, char** argv)
 
     DestroyWindow(hWnd);
 
-    while(( getchar()) != '\n');
+    //while(( getchar()) != '\n');
 
     return msg.wParam;
 
