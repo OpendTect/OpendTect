@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "stratlevel.h"
 #include "bufstringset.h"
+#include "idxable.h"
 #include "keystrs.h"
 
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
@@ -54,7 +55,7 @@ ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
 Well::Marker* Well::MarkerSet::gtByName( const char* mname ) const
 {
     const int idx = indexOf( mname );
-    return  idx < 0 ? 0 : const_cast<Well::Marker*>((*this)[idx]); 
+    return  idx < 0 ? 0 : const_cast<Well::Marker*>((*this)[idx]);
 }
 
 
@@ -84,7 +85,7 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 }
 
 
-bool Well::MarkerSet::insertNew( Well::Marker* newmrk ) 
+bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 {
     if ( !newmrk || isPresent(newmrk->name().buf()) )
 	{ delete newmrk; return false; }
@@ -102,25 +103,111 @@ bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 }
 
 
-void Well::MarkerSet::append( const ObjectSet<Well::Marker>& ms )
+void Well::MarkerSet::addCopy( const ObjectSet<Well::Marker>& ms,
+				int idx, float dah )
 {
-    const size_type sz = ms.size();
-    for ( size_type idx=0; idx<sz; idx++ )
+    Well::Marker* newwm = new Marker( *ms[idx] );
+    newwm->setDah( dah );
+    insertNew( newwm );
+}
+
+
+void Well::MarkerSet::addSameWell( const ObjectSet<Well::Marker>& ms )
+{
+    const int mssz = ms.size();
+    for ( int idx=0; idx<mssz; idx++ )
     {
 	if ( !isPresent(ms[idx]->name()) )
 	    insertNew( new Well::Marker( *ms[idx] ) );
     }
-
 }
 
 
-Well::Marker* Well::MarkerSet::gtByLvlID(int lvlid) const
+void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms )
+{
+    if ( ms.isEmpty() )
+	return;
+
+	// Any new (i.e. not present in this set) markers there?
+    TypeSet<int> myidxs;
+    const int mssz = ms.size();
+    bool havenew = false;
+    for ( int msidx=0; msidx<mssz; msidx++ )
+    {
+	const int myidx = indexOf( ms[msidx]->name() );
+	myidxs += myidx;
+	if ( myidx < 0 )
+	    havenew = true;
+    }
+    if ( !havenew )
+	return; // no? then we're cool already. Nothing to do.
+
+	// First first and last common markers.
+    int msidxfirstmatch = -1; int msidxlastmatch = -1;
+    for ( int msidx=0; msidx<myidxs.size(); msidx++ )
+    {
+	if ( myidxs[msidx] >= 0 )
+	{
+	    msidxlastmatch = msidx;
+	    if ( msidxfirstmatch < 0 )
+		msidxfirstmatch = msidx;
+	}
+    }
+    if ( msidxfirstmatch < 0 ) // what can we do? let's hope dahs are compatible
+	{ addSameWell( ms ); return; }
+
+	// Add the markers above and below
+    float edgediff = ms[msidxfirstmatch]->dah()
+			- (*this)[ myidxs[msidxfirstmatch] ]->dah();
+    for ( int msidx=0; msidx<msidxfirstmatch; msidx++ )
+	addCopy( ms, msidx, ms[msidx]->dah() - edgediff );
+
+    edgediff = ms[msidxlastmatch]->dah()
+			- (*this)[ myidxs[msidxlastmatch] ]->dah();
+    for ( int msidx=msidxlastmatch+1; msidx<mssz; msidx++ )
+	addCopy( ms, msidx, ms[msidx]->dah() - edgediff );
+
+    if ( msidxfirstmatch == msidxlastmatch )
+	return;
+
+	// There are new markers in the middle. Set up positioning framework.
+    TypeSet<float> xvals, yvals;
+    for ( int msidx=msidxfirstmatch; msidx<=msidxlastmatch; msidx++ )
+    {
+	const int myidx = myidxs[msidx];
+	if ( myidx >= 0 )
+	{
+	    xvals += (*this)[myidx]->dah();
+	    yvals += ms[msidx]->dah();
+	}
+    }
+
+	// Now add the new markers at a good place.
+    const int nrpts = xvals.size();
+    for ( int msidx=msidxfirstmatch+1; msidx<msidxlastmatch; msidx++ )
+    {
+	if ( myidxs[msidx] >= 0 )
+	    continue;
+
+	int loidx;
+	const float msdah = ms[msidx]->dah();
+	if ( IdxAble::findFPPos(yvals,nrpts,msdah,msidxfirstmatch,loidx) )
+	    continue; // Two markers in ms at same pos. Ignore this one.
+
+	const float relpos = (msdah - yvals[loidx])
+			   / (yvals[loidx+1]-yvals[loidx]);
+	addCopy( ms, msidx, relpos*xvals[loidx+1] + (1-relpos)*xvals[loidx] );
+    }
+}
+
+
+Well::Marker* Well::MarkerSet::gtByLvlID( int lvlid ) const
 {
     if ( lvlid<=0 ) return 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
-	Well::Marker* mrk = const_cast<Well::Marker*>((*this)[idmrk]); 
- 	if ( mrk && mrk->levelID() == lvlid )
+	Well::Marker* mrk = const_cast<Well::Marker*>((*this)[idmrk]);
+	if ( mrk && mrk->levelID() == lvlid )
 	    return mrk;
     }
     return 0;
@@ -156,7 +243,7 @@ void Well::MarkerSet::fillPar( IOPar& iop ) const
 }
 
 
-void Well::MarkerSet::usePar( const IOPar& iop ) 
+void Well::MarkerSet::usePar( const IOPar& iop )
 {
     setEmpty();
 

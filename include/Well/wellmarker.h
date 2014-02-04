@@ -27,7 +27,7 @@ class Track;
 /*!
 \brief Marker, should be attached to Strat level.
 
-  Can be unattached, then uses the fallback name and color. 
+  Can be unattached, then uses the fallback name and color.
 */
 
 mExpClass(Well) Marker : public ::NamedObject
@@ -57,8 +57,8 @@ public:
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }
-    bool                operator > (const Marker& dm) const 
-    			{ return dah_ >= dm.dah_; }
+    bool                operator > (const Marker& dm) const
+			{ return dah_ >= dm.dah_; }
 
 protected:
 
@@ -74,36 +74,42 @@ protected:
 mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
-    			MarkerSet()			{}
+			MarkerSet()			{}
 
     virtual ObjectSet<Marker>& operator +=(Marker*);
 
-    const Marker* 	getByName(const char* nm) const { return gtByName(nm); }
-    Marker* 		getByName(const char* nm) 	{ return gtByName(nm); }
-    const Marker* 	getByLvlID(int id) const	{ return gtByLvlID(id);}
-    Marker* 		getByLvlID(int id) 		{ return gtByLvlID(id);}
+    const Marker*	getByName(const char* nm) const { return gtByName(nm); }
+    Marker*		getByName(const char* nm)	{ return gtByName(nm); }
+    const Marker*	getByLvlID(int id) const	{ return gtByLvlID(id);}
+    Marker*		getByLvlID(int id)		{ return gtByLvlID(id);}
     int			getIdxAbove(float z,const Well::Track* trck=0) const;
-    			//!< is trck provided, compares TVDs
+			//!< is trck provided, compares TVDs
 
-    bool		isPresent(const char* n) const 	{ return getByName(n); }
-    int			indexOf(const char*) const;		  
+    bool		isPresent(const char* n) const	{ return getByName(n); }
+    int			indexOf(const char*) const;
     bool		insertNew(Well::Marker*); //becomes mine
-    virtual void	append(const ObjectSet<Marker>&);
+    void		addSameWell(const ObjectSet<Marker>&);
+    void		mergeOtherWell(const ObjectSet<Marker>&);
 
     int			indexOf( const Marker* m ) const
-			{ return ObjectSet<Marker>::indexOf(m); }	
+			{ return ObjectSet<Marker>::indexOf(m); }
     bool		isPresent( const Marker* m ) const
-			{ return ObjectSet<Marker>::isPresent(m); }	
+			{ return ObjectSet<Marker>::isPresent(m); }
 
     void		getNames(BufferStringSet&) const;
     void		getColors(TypeSet<Color>&) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
+    virtual void	append( const ObjectSet<Marker>& ms )
+							{ mergeOtherWell(ms); }
+
 protected:
 
-    Marker* 		gtByName(const char*) const;
-    Marker* 		gtByLvlID(int) const;
+    Marker*		gtByName(const char*) const;
+    Marker*		gtByLvlID(int) const;
+    void		addCopy(const ObjectSet<Marker>&,int,float);
+
 };
 
 
@@ -112,14 +118,14 @@ protected:
 mExpClass(Well) MarkerRange
 {
 public:
-    			MarkerRange(const MarkerSet&,
+			MarkerRange(const MarkerSet&,
 				    Interval<int> idxrg=Interval<int>(-1,-1));
 
     inline int		size() const		{ return rg_.width(false) + 1; }
     bool		isValid() const;
 
     inline bool		isIncluded( int i ) const
-    						{ return rg_.includes(i,false);}
+						{ return rg_.includes(i,false);}
     bool		isIncluded(const char*) const;
     bool		isIncluded(float z) const;
     void		getNames(BufferStringSet&) const;
