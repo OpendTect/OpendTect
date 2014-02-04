@@ -214,9 +214,9 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     bool havedata = pars.show_;
     if ( havedata && showdisplayfield_ )
     {
-	const char* nm = dataName();
+	const BufferString nm = dataName();
 	if ( dispfld_->isPresent( nm ) )
-	    dispfld_->setText( dataName() );
+	    dispfld_->setText( nm );
 	else
 	    havedata = false;
     }
@@ -364,9 +364,10 @@ uiFVWVAPropTab::~uiFVWVAPropTab()
 }
 
 
-const char* uiFVWVAPropTab::dataName() const
+BufferString uiFVWVAPropTab::dataName() const
 {
-    return vwr_.pack(true) ? vwr_.pack(true)->name().buf() : "";
+    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(true);
+    return dp ? dp->name() : sKey::EmptyString();
 }
 
 
@@ -467,9 +468,10 @@ uiFVVDPropTab::~uiFVVDPropTab()
 }
 
 
-const char* uiFVVDPropTab::dataName() const
+BufferString uiFVVDPropTab::dataName() const
 {
-    return vwr_.pack(false) ? vwr_.pack(false)->name().buf() : "";
+    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(false);
+    return dp ? dp->name() : sKey::EmptyString();
 }
 
 

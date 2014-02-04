@@ -281,7 +281,7 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 	    return;
     }
 
-    const FlatDataPack* dp = editor_->viewer().pack( !pickinvd );
+    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
     if ( !dp ) return;
 
     const uiRect datarect( editor_->getMouseArea() );

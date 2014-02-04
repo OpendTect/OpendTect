@@ -224,11 +224,9 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 	return;
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
-    
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
 
+    ConstDataPackRef<FlatDataPack> dp =
+		editor_->viewer().obtainPack( false, true );
     if ( !dp ) return;
 
     const FlatPosData& pd = dp->posData();
@@ -270,10 +268,8 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
 			const Geom::Point2D<int>& mousepos,
 			IndexInfo& ix, IndexInfo& iy, Coord3& worldpos ) const
 {
-    const FlatDataPack* dp = editor_->viewer().pack( false );
-    if ( !dp )
-	dp = editor_->viewer().pack( true );
-
+    ConstDataPackRef<FlatDataPack> dp =
+		editor_->viewer().obtainPack( false, true );
     if ( !dp ) return false;
 
     const uiRect datarect( editor_->getMouseArea() );

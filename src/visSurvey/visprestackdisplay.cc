@@ -274,7 +274,7 @@ bool PreStackDisplay::updateData()
 	return true;
     }
 
-    const bool haddata = flatviewer_->pack( false );
+    const bool haddata = flatviewer_->hasPack( false );
     PreStack::Gather* gather = new PreStack::Gather;
 
 	DataPack::ID displayid = DataPack::cNoID();
@@ -460,7 +460,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
 	    			     basedirection_.y*SI().crlDistance()).abs();
 
-    const FlatDataPack* fdp = flatviewer_->pack( false );
+    ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
     if ( fdp )
     {
 	offsetrange_.setFrom( fdp->posData().range( true ) );
@@ -845,7 +845,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !flatviewer_  ) 
 	return;
 
-    const FlatDataPack* fdp = flatviewer_->pack(false);
+    ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
     if ( !fdp ) return;
 
     const FlatPosData& posdata = fdp->posData();

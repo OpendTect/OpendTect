@@ -336,13 +336,19 @@ public:
 			{ addPack( id, obs ); usePack( wva, id, usedefs ); }
     void		clearAllPacks();
 
-    const FlatDataPack*	pack( bool wva ) const
-			{ return wva ? wvapack_ : vdpack_; }
-    DataPack::ID	packID( bool wva ) const
-			{ return pack(wva) ? pack(wva)->id()
-			    		   : ::DataPack::cNoID(); }
-    const TypeSet< ::DataPack::ID>&	availablePacks() const
-							{ return ids_; }
+    const FlatDataPack* obtainPack(bool wva,bool checkother=false) const;
+			/*!< Obtains DataPack before returning the pointer. Has
+			 to be released after it is used. For convenience use
+			 ConstDataPackRef which releases the DataPack in its
+			 destructor.
+			 \param checkother if true, the datapack of other
+			 display (i.e. variable density or wiggles) is returned
+			 if the specified display has no datapack. */
+    bool		hasPack(bool wva) const
+			{ return packID(wva)!=DataPack::cNoID(); }
+    DataPack::ID	packID(bool wva) const;
+
+    const TypeSet< ::DataPack::ID>&	availablePacks() const	{ return ids_; }
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
@@ -395,13 +401,18 @@ protected:
 
     TypeSet< ::DataPack::ID>	ids_;
     BoolTypeSet			obs_;
-    const FlatDataPack*		wvapack_;
-    const FlatDataPack*		vdpack_;
     Appearance*			defapp_;
     DataPackMgr&		dpm_;
     FlatView_CB_Rcvr*		cbrcvr_;
+    mutable Threads::Lock	lock_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
+
+private:
+
+    const FlatDataPack*		wvapack_;
+    const FlatDataPack*		vdpack_;
+
 };
 
 } // namespace FlatView

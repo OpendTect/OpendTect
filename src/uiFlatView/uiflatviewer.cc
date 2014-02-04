@@ -174,8 +174,7 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    const FlatDataPack* dp = pack( wva );
-    if ( !dp ) dp = pack( !wva );
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
     if ( !dp ) return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
@@ -236,9 +235,8 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 
 void uiFlatViewer::setViewToBoundingBox()
 {
-    setView( pack(true) ? getBoundingBox(true) : getBoundingBox(false) );
+    setView( hasPack(true) ? getBoundingBox(true) : getBoundingBox(false) );
 }
-
 
 
 #define mAddToQueue( work ) \
@@ -276,16 +274,14 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
 bool uiFlatViewer::isAnnotInInt( const char* annotnm ) const
 {
-    const FlatDataPack* fdp = pack( false );
-    if ( !fdp ) fdp = pack( true );
+    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
     return fdp ? fdp->isAltDim0InInt( annotnm ) : false;
 }
 
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    const FlatDataPack* fdp = pack( false );
-    if ( !fdp ) fdp = pack( true );
+    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )

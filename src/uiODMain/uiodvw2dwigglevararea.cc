@@ -37,7 +37,6 @@ ________________________________________________________________________
 
 uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
     : uiODVw2DTreeItem( "Wiggle" )
-    , dpid_(DataPack::cNoID())
     , dummyview_(0)
     , menu_(0)
     , selattrmnuitem_("Select &Attribute")
@@ -72,14 +71,10 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* fdpw = vwr.pack( true );
-    if ( fdpw )
-	dpid_ = fdpw->id();
-    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
+    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(false) &&
 	    			   viewer2D()->selSpec(true).id().isValid() );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
@@ -108,7 +103,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    if ( !vwr.pack(true) )
+    if ( !vwr.hasPack(true) )
     {
 	if ( !isChecked() ) return;
 	const DataPack::ID dpid = viewer2D()->getDataPackID( true );
@@ -127,12 +122,10 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 	return;
 
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* fdpw = vwr.pack( true );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(false) &&
 				   viewer2D()->selSpec(true).id().isValid() );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
-    if ( fdpw )	dpid_ = fdpw->id();
 }
 
 
@@ -176,15 +169,13 @@ void uiODVW2DWiggleVarAreaTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 {
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* dp = vwr.pack( false );
-    if ( !dp )
-	dp = vwr.pack( true );
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
     if ( !dp ) return;
     
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
     MenuItem* subitem = 0;
@@ -221,17 +212,15 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
 
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* dp = vwr.pack( true );
-    if ( !dp )
-	dp = vwr.pack( false );
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
     if ( !dp ) return false;
 
     DataPack::ID newid = DataPack::cNoID();
 
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
 
 
     bool dousemulticomp = false;

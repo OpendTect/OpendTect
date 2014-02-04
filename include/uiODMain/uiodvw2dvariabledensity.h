@@ -43,9 +43,7 @@ protected:
 				{ return typeid(uiODVw2DTreeTop).name(); }
     bool			isSelectable() const            { return true; }
 
-    DataPack::ID		dpid_;
     VW2DSeis*			dummyview_;
-    
     uiMenuHandler*		menu_;
     MenuItem			selattrmnuitem_;
    
@@ -59,7 +57,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory
+				: public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }

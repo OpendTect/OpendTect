@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabmapper.h"
 #include "datapackbase.h"
 
-
 namespace FlatView
 {
 
@@ -451,7 +450,7 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    const FlatDataPack* dp = pack( iswva );
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( iswva );
     if ( !dp )
     {
 	iswva ? iop.removeWithKey( "Wiggle/VA data" )
@@ -509,13 +508,31 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
 {
     if ( ids_.isPresent(id) ) return;
-
     ids_ += id;
     obs_ += obs;
     dpm_.obtain( id, obs );
     if ( obs )
 	dpm_.packToBeRemoved.notifyIfNotNotified(
 		mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
+}
+
+
+const FlatDataPack* FlatView::Viewer::obtainPack(
+				bool wva, bool checkother ) const
+{
+    Threads::Locker locker( lock_ );
+    const FlatDataPack* res = wva ? wvapack_ : vdpack_;
+    if ( !res && checkother )
+	res = wva ? vdpack_ : wvapack_;
+    dpm_.addAndObtain( const_cast<FlatDataPack*>(res) );
+    return res;
+}
+
+
+DataPack::ID FlatView::Viewer::packID( bool wva ) const
+{
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva );
+    return dp ? dp->id() : ::DataPack::cNoID();
 }
 
 
@@ -532,9 +549,10 @@ void FlatView::Viewer::removePack( DataPack::ID id )
     const int idx = ids_.indexOf( id );
     if ( idx < 0 ) return;
 
-    if ( wvapack_ && wvapack_->id() == id )
+    if ( hasPack(true) && packID(true)==id )
 	usePack( true, DataPack::cNoID(), false );
-    if ( vdpack_ && vdpack_->id() == id )
+
+    if ( hasPack(false) && packID(false)==id )
 	usePack( false, DataPack::cNoID(), false );
 
     // Construction necessary because the release could trigger a new removePack
@@ -560,35 +578,33 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     else
 	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.obtain( id, true );
 
-    const FlatDataPack* fdp = wva ? wvapack_ : vdpack_;
-    if ( fdp )
-    {
-	if ( usedefs )
-	    useStoredDefaults( fdp->category() );
+    ConstDataPackRef<FlatDataPack> fdp = obtainPack( wva );
+    if ( !fdp ) return;
 
-	BufferStringSet altdimnms;
-	fdp->getAltDim0Keys( altdimnms );
-	FlatView::Annotation& annot = appearance().annot_;
-	if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
-	{
-	    const int selannot = altdimnms.indexOf( fdp->dimName( true ) );
-	    if ( selannot>=0 )
-		setAnnotChoice( selannot );
-	}
-	if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
-	    annot.x2_.name_ = fdp->dimName( false );
+    if ( usedefs )
+	useStoredDefaults( fdp->category() );
+
+    BufferStringSet altdimnms;
+    fdp->getAltDim0Keys( altdimnms );
+    FlatView::Annotation& annot = appearance().annot_;
+    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
+    {
+	const int selannot = altdimnms.indexOf( fdp->dimName( true ) );
+	if ( selannot>=0 )
+	    setAnnotChoice( selannot );
     }
-    if ( id != DataPack::cNoID() )
-	handleChange( BitmapData );
+    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
+	annot.x2_.name_ = fdp->dimName( false );
+
+    handleChange( BitmapData );
 }
 
 
 bool FlatView::Viewer::isVisible( bool wva ) const
 {
-    if ( wva )
-	return wvapack_ && appearance().ddpars_.wva_.show_;
-    else
-        return vdpack_ && appearance().ddpars_.vd_.show_;
+    if ( !hasPack(wva) ) return false;
+    const FlatView::DataDispPars& ddp = appearance().ddpars_;
+    return wva ? ddp.wva_.show_ : ddp.vd_.show_;
 }
 
 
@@ -626,12 +642,10 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
-    const bool wva = isVisible(true);
-    const FlatDataPack* dp = pack(wva) ? pack(wva) : pack(!wva);
+    const bool wva = appearance().ddpars_.wva_.show_;
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
     if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
-
-    const FlatPosData& pd = dp->posData();
-    return pd.range( forx1 );
+    return dp->posData().range( forx1 );
 }
 
 

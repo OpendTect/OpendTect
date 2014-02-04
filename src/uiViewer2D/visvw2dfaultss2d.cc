@@ -49,16 +49,15 @@ void VW2DFaultSS2D::setEditors()
 
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
-	const FlatDataPack* fdp = viewerwin_->viewer( ivwr ).pack( true );
-	if ( !fdp )
-	    fdp = viewerwin_->viewer( ivwr ).pack( false );
+	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
+	ConstDataPackRef<FlatDataPack>	fdp = vwr.obtainPack( true );
 	if ( !fdp )
 	{
 	    fsseds_ += 0;
 	    continue;
 	}
 
-	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp);
+	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
 	if ( !dp2ddh )
 	{
 	    fsseds_ += 0;
@@ -94,13 +93,11 @@ void VW2DFaultSS2D::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	const FlatDataPack* fdp = vwr.pack( true );
-	if ( !fdp )
-	    fdp = vwr.pack( false );
+	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
+	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
 	if ( !fdp ) continue;
 
-	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp);
+	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
 	if ( !dp2ddh ) continue;
 
 	if ( fsseds_[ivwr] )

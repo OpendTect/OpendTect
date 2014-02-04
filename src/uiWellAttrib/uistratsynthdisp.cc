@@ -652,7 +652,7 @@ float uiStratSynthDisp::centralTrcShift() const
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
     mDefineStaticLocalObject( Threads::Lock, lock, (true) );
-    Threads::Locker locker ( lock );
+    Threads::Locker locker( lock );
 
     mDefineStaticLocalObject( uiWorldRect, timewr, );
     timewr = vwr_->curView();
@@ -684,8 +684,7 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 
 const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 {
-    const FlatDataPack* dp = vwr_->pack( true );
-    mDynamicCastGet(const SeisTrcBufDataPack*,tbdp,dp)
+    ConstDataPackRef<SeisTrcBufDataPack> tbdp = vwr_->obtainPack( true, true );
     if ( !tbdp )
     {
 	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
@@ -753,7 +752,7 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 						     bool wva )
 {
-    const bool hadpack = vwr_->pack( wva );
+    const bool hadpack = vwr_->hasPack( wva );
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) );
     vwr_->removeAllAuxData();

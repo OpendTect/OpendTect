@@ -458,13 +458,8 @@ void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
     if ( !applMgr()->visServer()->isPicking() )
 	return;
 
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( 0 );
-    const FlatDataPack* fdp = vwr.pack( true );
-    if ( !fdp )
-	fdp = vwr.pack( false );
-    if ( !fdp ) return;
-
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( 0 );
+    ConstDataPackRef<Attrib::Flat3DDataPack> dp3d = vwr.obtainPack(true,true);
     if ( !dp3d ) return;
 
     if ( MPE::engine().activeVolume() != dp3d->cube().cubeSampling() )

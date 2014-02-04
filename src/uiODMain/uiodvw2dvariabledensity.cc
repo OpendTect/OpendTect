@@ -42,7 +42,6 @@ ________________________________________________________________________
 
 uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     : uiODVw2DTreeItem( "VD" )
-    , dpid_(DataPack::cNoID())
     , dummyview_(0)
     , menu_(0)
     , selattrmnuitem_("Select &Attribute")
@@ -77,14 +76,10 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* fdpv = vwr.pack( false );
-    if ( fdpv )
-	dpid_ = fdpv->id();
-    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
+    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
 	    			   viewer2D()->selSpec(false).id().isValid() );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
@@ -95,7 +90,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
 
-    if ( fdpv )
+    if ( vwr.hasPack(false) )
     {
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
@@ -122,7 +117,7 @@ bool uiODVW2DVariableDensityTreeItem::select()
 void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    if ( !vwr.pack(false) )
+    if ( !vwr.hasPack(false) )
     {
 	if ( !isChecked() ) return;
 	const DataPack::ID dpid = viewer2D()->getDataPackID( false );
@@ -143,22 +138,20 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     displayMiniCtab(0);
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* fdpv = vwr.pack( false );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 
     uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
 				   viewer2D()->selSpec(false).id().isValid() );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
-    if ( fdpv )	dpid_ = fdpv->id();
 
-    if ( !fdpv )
+    if ( !vwr.hasPack(false) )
 	displayMiniCtab(0);
     else
     {
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
 
-	ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
+	ColTab::Sequence seq( ddp.vd_.ctab_ );
 	displayMiniCtab( &seq );
     }
 }
@@ -219,16 +212,13 @@ void uiODVW2DVariableDensityTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 {
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* dp = vwr.pack( true );
-    if ( !dp )
-	dp = vwr.pack( false );
-
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return;
 
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp)
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     MenuItem* subitem = 0;
@@ -265,17 +255,14 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     
     uiAttribPartServer* attrserv = applMgr()->attrServer();
 
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* dp = vwr.pack( true );
-    if ( !dp )
-	dp = vwr.pack( false );
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return false;
 
     DataPack::ID newid = DataPack::cNoID();
-
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp);
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
 
     bool dousemulticomp = false;
     if ( dp3d || dprdm )
@@ -336,12 +323,15 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 
 	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
 		    						       true );
-	    if ( !ds ) return false;
+	    if ( !ds )
+		return false;
+
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
 
 	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	    if ( !targetdesc ) return false;
+	    if ( !targetdesc )
+		return false;
 
 	    BufferString defstring;
 	    targetdesc->getDefStr( defstring );

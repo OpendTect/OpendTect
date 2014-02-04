@@ -99,7 +99,7 @@ void FlatViewer::handleChange( unsigned int dt)
 	    }
 	case BitmapData:
 	    {
-		const FlatDataPack* dp = pack( false );
+		ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
 		if ( !dp )
 		    channels_->turnOn( false );
 		else
@@ -189,11 +189,12 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 
 const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
 {
-    const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
-    if ( !posdata )
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
+    if ( !dp )
 	return SamplingData<float>( 0, 1 );
 
-    Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    Interval<float> range;
+    range.setFrom( dp->posData().range( x1 ) );
     AxisLayout<float> layout( range );
     return layout.sd_;
 }
@@ -215,10 +216,10 @@ void FlatViewer::updateGridLines( bool x1 )
     	x2gridlines_->getMaterial()->setColor( markcolor );
     }
 
-    const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
     PolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
 
-    if ( !posdata || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
+    if ( !dp || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
 	 (!x1 && !appearance().annot_.x2_.showgridlines_ ) )
     {
 	gridlines->turnOn( false );
@@ -228,7 +229,7 @@ void FlatViewer::updateGridLines( bool x1 )
     gridlines->removeAllPrimitiveSets();
     gridlines->getCoordinates()->setEmpty();
 
-    Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    Interval<float> range; range.setFrom( dp->posData().range( x1 ) );
     range.sort();
     const float rgwidth = !range.width() ? 1 : range.width();
     SamplingData<float> sd = x1 ? appearance().annot_.x1_.sampling_
@@ -296,8 +297,9 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 	return range;
  
     DataClipper clipper;
-    if ( (wva && wvapack_) || (!wva && vdpack_) )
-    	clipper.putData( wva ? wvapack_->data() : vdpack_->data() );
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva );
+    if ( dp )
+	clipper.putData( dp->data() );
     clipper.fullSort();
 
     Interval<float> res;

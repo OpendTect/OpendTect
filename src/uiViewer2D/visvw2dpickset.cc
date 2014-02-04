@@ -165,10 +165,8 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 
 Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 {
-    const FlatDataPack* fdp = viewers_[0]->pack( true );
-    if ( !fdp )	fdp = viewers_[0]->pack( false );
-
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
+    ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
     if ( dp3d )
     {
 	const CubeSampling cs = dp3d->cube().cubeSampling();
@@ -227,12 +225,11 @@ void VW2DPickSet::updateSetIdx( const TypeSet<BinID>& bids )
 
 void VW2DPickSet::drawAll()
 {
-    const FlatDataPack* fdp = viewers_[0]->pack( true );
-    if ( !fdp )	fdp = viewers_[0]->pack( false );
+    ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
     if ( !fdp || !pickset_ ) return;
 
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
     if ( !dp3d && !dprdm ) return;
     
     const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;

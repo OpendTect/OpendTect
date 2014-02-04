@@ -264,8 +264,7 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
     //if ( !seedpickingon_ ) return;
 
     bool pickinvd = true;
-
-    const FlatDataPack* dp = editor_->viewer().pack( !pickinvd );
+    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
     if ( !dp ) return;
 
     const uiRect datarect( editor_->getMouseArea() );

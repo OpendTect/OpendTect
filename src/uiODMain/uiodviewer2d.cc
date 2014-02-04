@@ -396,7 +396,7 @@ void uiODViewer2D::setPos( const CubeSampling& cs )
 DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 {
     const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.pack(wva) )
+    if ( vwr.hasPack(wva) )
 	return vwr.packID(wva);
     else if ( wvaselspec_ == vdselspec_ )
     {
@@ -505,9 +505,9 @@ void uiODViewer2D::usePar( const IOPar& iop )
     CubeSampling cs; if ( cspar ) cs.usePar( *cspar );
     if ( viewwin()->nrViewers() > 0 )
     {
+	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	const DataPack* dp = viewwin()->viewer(0).pack( iswva );
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp)
+	ConstDataPackRef<Attrib::Flat3DDataPack> dp3d = vwr.obtainPack(iswva);
 	if ( dp3d ) setPos( cs );
     }
 

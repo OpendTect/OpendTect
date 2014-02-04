@@ -72,7 +72,7 @@ uiGatherDisplay::~uiGatherDisplay()
 void uiGatherDisplay::setVDGather( int vdid )
 {
     gatherpainter_->setVDGather( vdid );
-    const FlatDataPack* dp = viewer_->pack( false );
+    ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( false );
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
@@ -85,7 +85,7 @@ void uiGatherDisplay::setVDGather( int vdid )
 void uiGatherDisplay::setWVAGather( int wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
-    const FlatDataPack* dp = viewer_->pack( true );
+    ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( true );
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
@@ -99,7 +99,8 @@ BinID uiGatherDisplay::getBinID() const
 { return gatherpainter_->getBinID(); }
 
 
-void uiGatherDisplay::setPosition( const BinID& bid, const Interval<double>* zrg )
+void uiGatherDisplay::setPosition( const BinID& bid,
+				   const Interval<double>* zrg )
 {
     bid_ = bid;
     if ( zrg )

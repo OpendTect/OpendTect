@@ -300,11 +300,9 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
 void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
-    const FlatDataPack* fdp = vwr.pack( true );
-    if ( !fdp ) fdp = vwr.pack( false );
+    ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
 
     BufferString cat( "General" );
-
     if ( fdp )
     {
 	cat = fdp->category();

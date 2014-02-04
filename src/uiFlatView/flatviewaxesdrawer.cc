@@ -48,9 +48,7 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 						    BufferString* txt ) const
 {
     bool usewva = !vwr_.isVisible( false );
-    const FlatDataPack* fdp = vwr_.pack( usewva );
-    if ( !fdp )
-	{ usewva = !usewva; fdp = vwr_.pack( usewva ); }
+    ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
 
     const FlatPosData& pd = fdp->posData();
     IndexInfo idxinfo( pd.indexInfo( true, pos ) );
@@ -243,9 +241,7 @@ void FlatView::AxesDrawer::updateViewRect()
 void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     bool usewva = !vwr_.isVisible( false );
-    const FlatDataPack* fdp = vwr_.pack( usewva );
-    if ( !fdp )
-	{ usewva = !usewva; fdp = vwr_.pack( usewva ); }
+    ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
     if ( !fdp || mIsUdf(altdim0_) )
     {
 	uiGraphicsSceneAxisMgr::setWorldCoords( wr );

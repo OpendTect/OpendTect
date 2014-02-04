@@ -62,9 +62,9 @@ protected:
     			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
 				const char*,bool showdisplayfield=true);
 
-    FlatView::DataDispPars& ddpars_;
+    FlatView::DataDispPars&	ddpars_;
     virtual FlatView::DataDispPars::Common& commonPars()	= 0;
-    virtual const char*	dataName() const			= 0;
+    virtual BufferString	dataName() const		= 0;
 
     uiComboBox*		dispfld_;
     uiGenInput*		useclipfld_;
@@ -109,7 +109,7 @@ protected:
 
     FlatView::DataDispPars::WVA& pars_;
     virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
-    virtual const char*	dataName() const;
+    virtual BufferString	 dataName() const;
 
     uiGenInput*		overlapfld_;
     uiGenInput*		midlinefld_;
@@ -145,7 +145,7 @@ protected:
     FlatView::DataDispPars::VD&		pars_;
     ColTab::Sequence			ctab_;
     virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
-    virtual const char*	dataName() const;
+    virtual BufferString		dataName() const;
 
     uiColorTableGroup*	uicoltab_;
     uiLabel*		uicoltablbl_;

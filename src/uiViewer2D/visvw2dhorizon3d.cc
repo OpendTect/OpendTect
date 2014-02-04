@@ -44,17 +44,16 @@ void Vw2DHorizon3D::setEditors()
     deepErase( horeds_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
-	const FlatDataPack* fdp = viewerwin_->viewer( ivwr ).pack( true );
-	if ( !fdp )
-	    fdp = viewerwin_->viewer( ivwr ).pack( false );
+	ConstDataPackRef<FlatDataPack> fdp =
+		viewerwin_->viewer(ivwr).obtainPack( true, true );
 	if ( !fdp )
 	{
 	    horeds_ += 0;
 	    continue;
 	}
 
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
 	if ( !(dp3d||dprdm) )
 	{
 	    horeds_ += 0;
@@ -111,13 +110,11 @@ void Vw2DHorizon3D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	const FlatDataPack* fdp = vwr.pack( true );
-	if ( !fdp )
-	    fdp = vwr.pack( false );
+	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
 	if ( !fdp ) continue;
 
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp)
+	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
 	if ( !(dp3d||dprdm) ) continue;
 
 	if ( horeds_[ivwr] )

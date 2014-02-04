@@ -1301,8 +1301,10 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     propChanged.trigger();
     //const int selannot = pspropdlg_->selectedAnnot();
 
-    const FlatDataPack* vddatapack = vwrs_[actvwridx]->pack( false );
-    const FlatDataPack* wvadatapack = vwrs_[actvwridx]->pack( true );
+    ConstDataPackRef<FlatDataPack> vddatapack =
+		vwrs_[actvwridx]->obtainPack( false );
+    ConstDataPackRef<FlatDataPack> wvadatapack =
+		vwrs_[actvwridx]->obtainPack( true );
     for( int ivwr=0; ivwr<vwridxs.size(); ivwr++ )
     {
 	const int vwridx = vwridxs[ivwr];
@@ -1361,16 +1363,18 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx )
     int ivwr = 0;
     for ( ivwr=0; ivwr<vwrs_.size(); ivwr++ )
     {
-	if ( vwrs_[ivwr]->pack( true ) || vwrs_[ivwr]->pack( false ) )
+	if ( vwrs_[ivwr]->hasPack(true) || vwrs_[ivwr]->hasPack(false) )
 	    break;
     }
     return uiFlatViewControl::doPropertiesDialog( ivwr );
 }
 
+
 uiViewer2DControl::~uiViewer2DControl()
 {
     delete pspropdlg_;
 }
+
 
 DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
