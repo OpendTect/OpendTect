@@ -195,7 +195,7 @@ mStartCompLoop
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    const float data = mCast(float,trc.get( idx, icomp ) ) / sqrtacorr;
+	    const float data = mCast(float,trc.get( idx, icomp ) / sqrtacorr );
 	    mtrc().set( idx, data, icomp );
 	}
     }
