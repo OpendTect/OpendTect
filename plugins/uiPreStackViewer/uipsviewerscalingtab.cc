@@ -57,9 +57,10 @@ void uiViewer3DScalingTab::dispChgCB( CallBacker* )
 }
 
 
-const char* uiViewer3DScalingTab::dataName() const
+BufferString uiViewer3DScalingTab::dataName() const
 {
-    return vwr_.pack(false) ? vwr_.pack(false)->name().buf() : "";
+    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack( false );
+    return dp ? dp->name() : sKey::EmptyString();
 }
 
 

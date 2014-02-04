@@ -686,8 +686,8 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
     int nrsaved = 0;
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const FlatDataPack* dp = viewers2d_[idx]->viewer().pack( false );
-	mDynamicCastGet( const PreStack::Gather*, gather, dp );
+	ConstDataPackRef<PreStack::Gather> gather =
+	    		viewers2d_[idx]->viewer().obtainPack( false );
 	if ( !gather )
 	    continue;
 

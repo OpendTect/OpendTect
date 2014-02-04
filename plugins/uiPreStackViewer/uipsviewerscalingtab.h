@@ -44,7 +44,7 @@ protected:
     bool			applyButPushedCB(CallBacker*);
     bool			settingCheck();
 
-    virtual const char* 	dataName() const;
+    virtual BufferString 	dataName() const;
     void                	dispSel(CallBacker*);
     void			dispChgCB(CallBacker*);
     virtual void		handleFieldDisplay(bool) {}
