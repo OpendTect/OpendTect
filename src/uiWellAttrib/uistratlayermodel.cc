@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratsynth.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "unitofmeasure.h"
 
 #include "uielasticpropsel.h"
 #include "uiobjdisposer.h"
@@ -409,6 +410,7 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &lmp_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
+    UnitOfMeasure::saveCurrentDefaults();
 }
 
 

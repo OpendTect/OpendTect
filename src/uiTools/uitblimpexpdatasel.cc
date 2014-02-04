@@ -98,6 +98,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
+	else
+	    unitfld_->setUnit();
     }
 
     postFinalise().notify( boxcb );
@@ -189,7 +191,7 @@ void addBoxes( int iform, int ifld )
 	if ( rowspinbox )
 	{
 	    if ( isrc )
-		rowspinbox->setValue( rc.row() + 1 ); // Users tend to start at 1
+		rowspinbox->setValue( rc.row()+1 ); // Users tend to start at 1
 	    else
 		kwinp->setText( tinf_.selection_.elems_[ifld].keyword_ );
 	}

@@ -14,8 +14,58 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "debug.h"
+#include "ioman.h"
 
 static const char* filenamebase = "UnitsOfMeasure";
+static const char* sKeyUOM = "UOM";
+
+
+class UnitOfMeasureCurDefsMgr : public CallBacker
+{
+public:
+
+UnitOfMeasureCurDefsMgr() : iop_(crNew())
+{
+    IOM().surveyToBeChanged.notify( mCB(this,UnitOfMeasureCurDefsMgr,oldSrv) );
+    IOM().surveyChanged.notify( mCB(this,UnitOfMeasureCurDefsMgr,newSrv) );
+}
+
+~UnitOfMeasureCurDefsMgr()
+{ delete iop_; }
+
+void oldSrv( CallBacker* )
+{ UnitOfMeasure::saveCurrentDefaults(); }
+
+void newSrv( CallBacker* )
+{ delete iop_; iop_ = crNew(); }
+
+static IOPar* crNew()
+{
+    IOPar* ret = SI().pars().subselect( sKeyUOM );
+    if ( !ret ) ret = new IOPar;
+    ret->setName( "Current Units of Measure" );
+    return ret;
+}
+
+    IOPar*	iop_;
+
+};
+
+static UnitOfMeasureCurDefsMgr* uomcurdefsmgr_ = 0;
+	// shld be static class member but not sure about initialization then
+
+IOPar& UnitOfMeasure::currentDefaults()
+{
+    if ( !uomcurdefsmgr_ )
+	uomcurdefsmgr_ = new UnitOfMeasureCurDefsMgr;
+    return *uomcurdefsmgr_->iop_;
+}
+
+void UnitOfMeasure::saveCurrentDefaults()
+{
+    SI().getPars().mergeComp( currentDefaults(), sKeyUOM );
+    SI().savePars();
+}
 
 
 UnitOfMeasureRepository& UoMR()
@@ -342,4 +392,20 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
 	    return candidates[idx];
     }
     return 0;
+}
+
+
+const UnitOfMeasure* UnitOfMeasureRepository::getCurDefaultFor(
+		const char* ky ) const
+{
+    const char* res = UnitOfMeasure::currentDefaults().find( ky );
+    return res && *res ? get( res ) : 0;
+}
+
+
+const UnitOfMeasure* UnitOfMeasureRepository::getDefault( const char* ky,
+					PropertyRef::StdType st ) const
+{
+    const UnitOfMeasure* ret = getCurDefaultFor( ky );
+    return ret ? ret : getInternalFor( st );
 }

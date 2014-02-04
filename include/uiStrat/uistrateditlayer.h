@@ -29,8 +29,6 @@ public:
 					 const Strat::LayerSequence&,
 					 bool editable=true);
 
-    void		getUnits(ObjectSet<const UnitOfMeasure>&) const;
-
 protected:
 
     bool			editable_;

@@ -73,14 +73,6 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 }
 
 
-void uiStratEditLayer::getUnits( ObjectSet<const UnitOfMeasure>& uns ) const
-{
-    uns.allowNull(true);
-    for ( int idx=0; idx<valflds_.size(); idx++ )
-	uns += valflds_[idx]->getUnit();
-}
-
-
 bool uiStratEditLayer::acceptOK( CallBacker* )
 {
     if ( !editable_ )

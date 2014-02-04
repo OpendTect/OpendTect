@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "unitofmeasure.h"
 #include "survinfo.h"
+#include "ioman.h"
 
 
 uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
@@ -23,9 +24,13 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
     , symbolsdisp_(symb)
+    , tblkey_(txt)
     , selChange(this)
-    , withempty_(withempty)		     
+    , withempty_(withempty)
 {
+    if ( tblkey_.isEmpty() )
+	tblkey_ = PropertyRef::StdTypeNames()[proptype_];
+
     inpfld_ = new uiComboBox( this, "Units" );
     if ( symbolsdisp_ )
 	inpfld_->setHSzPol( uiObject::Small );
@@ -39,6 +44,23 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
     }
 
     update();
+    usePar( lastUsed() );
+}
+
+
+void uiUnitSel::setKey( const char* newky )
+{
+    if ( tblkey_ == newky )
+	return;
+
+    tblkey_ = newky;
+    usePar( lastUsed() );
+}
+
+
+IOPar& uiUnitSel::lastUsed()
+{
+    return UnitOfMeasure::currentDefaults();
 }
 
 
@@ -47,7 +69,7 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
     if ( !un )
     {
 	if ( !withempty_ )
-	un = UoMR().getInternalFor( proptype_ );
+	    un = UoMR().getInternalFor( proptype_ );
 	else
 	{
 	    inpfld_->setCurrentItem( 0 );
@@ -63,9 +85,8 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
 void uiUnitSel::setUnit( const char* unitnm )
 {
     if ( !unitnm || !*unitnm )
-	{ const UnitOfMeasure* un = 0; setUnit( un ); return; }
-
-    if ( inpfld_->isPresent(unitnm) )
+	{ const UnitOfMeasure* un = 0; setUnit( un ); }
+    else if ( inpfld_->isPresent(unitnm) )
 	inpfld_->setCurrentItem( unitnm );
     else
     {
@@ -78,10 +99,18 @@ void uiUnitSel::setUnit( const char* unitnm )
 		{ inpfld_->setCurrentItem( withempty_ ? idx+1 : idx ); break; }
 	}
     }
+    fillPar( lastUsed() );
 }
 
 
 const UnitOfMeasure* uiUnitSel::getUnit() const
+{
+    fillPar( lastUsed() );
+    return gtUnit();
+}
+
+
+const UnitOfMeasure* uiUnitSel::gtUnit() const
 {
     int selidx = inpfld_->currentItem();
     if ( withempty_ ) selidx -= 1;
@@ -91,12 +120,40 @@ const UnitOfMeasure* uiUnitSel::getUnit() const
 
 const char* uiUnitSel::getUnitName() const
 {
+    fillPar( lastUsed() );
+
     int selidx = inpfld_->currentItem();
     if ( selidx < 0 || (withempty_ && selidx == 0) )
 	return 0;
 
     return inpfld_->text();
 }
+
+
+template <class T> static float gtUserValue( const UnitOfMeasure* uom, T val )
+{
+    if ( mIsUdf(val) )
+	return val;
+    return uom ? uom->getUserValueFromSI( val ) : val;
+}
+
+
+template <class T> static float gtIntnValue( const UnitOfMeasure* uom, T val )
+{
+    if ( mIsUdf(val) )
+	return val;
+    return uom ? uom->getSIValue( val ) : val;
+}
+
+
+float uiUnitSel::getUserValue( float val ) const
+{ return gtUserValue( getUnit(), val ); }
+double uiUnitSel::getUserValue( double val ) const
+{ return gtUserValue( getUnit(), val ); }
+float uiUnitSel::getInternalValue( float val ) const
+{ return gtIntnValue( getUnit(), val ); }
+double uiUnitSel::getInternalValue( double val ) const
+{ return gtIntnValue( getUnit(), val ); }
 
 
 void uiUnitSel::setPropType( PropertyRef::StdType typ )
@@ -106,6 +163,26 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 
     proptype_ = typ;
     update();
+    usePar( lastUsed() );
+}
+
+
+void uiUnitSel::fillPar( IOPar& iop, const char* altkey ) const
+{
+    const UnitOfMeasure* un = gtUnit();
+    iop.update( altkey ? altkey : tblkey_.buf(), un ? un->name().buf() : 0 );
+}
+
+
+bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
+{
+    const char* res = iop.find( altkey ? altkey : tblkey_.buf() );
+    if ( res && *res )
+    {
+	setUnit( res );
+	return true;
+    }
+    return false;
 }
 
 

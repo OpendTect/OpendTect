@@ -30,18 +30,18 @@ public:
     float		getValue(bool internal=true) const;
     void		setValue(float val,bool isinternal=true);
     const char*		getUnitName() const;
-    const UnitOfMeasure* getUnit() const	{ return curuom_; }
+    const UnitOfMeasure* getUnit() const;
     void		setUnit(const UnitOfMeasure* uom=0);
     void		setUnitName(const char*);
 
-    void		setReadOnly(bool); //!< will allow user to select unit!
+    void		setReadOnly(bool); //!< will still allow unit selection
     const char*		propName() const;
 
 protected:
 
     uiGenInput*		valfld_;
     uiUnitSel*		unfld_;
-    const UnitOfMeasure* curuom_;
+    const UnitOfMeasure* prevuom_;
 
     void		unChg(CallBacker*);
 

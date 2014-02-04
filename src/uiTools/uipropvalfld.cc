@@ -19,55 +19,54 @@ static const char* rcsID mUsedVar = "$Id$";
 uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
 			float defval, const UnitOfMeasure* defunit )
     : uiGroup(p,BufferString(pr.name()," input"))
-    , curuom_(0)
+    , prevuom_(0)
 {
-    valfld_ = new uiGenInput( this, pr.name(), FloatInpSpec(defval) );
+    valfld_ = new uiGenInput( this, pr.name(), FloatInpSpec() );
     unfld_ = new uiUnitSel( this, pr.stdType() );
-    unfld_->setUnit( defunit );
+    if ( defunit )
+	unfld_->setUnit( defunit );
     unfld_->selChange.notify( mCB(this,uiPropertyValFld,unChg) );
     unfld_->setName( BufferString(pr.name()," unit") );
-    curuom_ = unfld_->getUnit();
-    if ( curuom_ && !mIsUdf(defval) )
-	valfld_->setValue( curuom_->userValue(defval) );
+    valfld_->setValue( unfld_->getUserValue(defval) );
     unfld_->attach( rightOf, valfld_ );
     setHAlignObj( valfld_ );
+    prevuom_ = unfld_->getUnit();
 }
 
 
 void uiPropertyValFld::unChg( CallBacker* )
 {
     const UnitOfMeasure* newuom = unfld_->getUnit();
-    if ( newuom == curuom_ )
+    if ( newuom == prevuom_ )
 	return;
-    float val = valfld_->getfValue();
-    if ( curuom_ )
-	val = curuom_->internalValue( val );
 
-    curuom_ = newuom;
+    float val = valfld_->getfValue();
+    if ( prevuom_ )
+	val = prevuom_->internalValue( val );
+
+    prevuom_ = newuom;
     setValue( val, true );
 }
 
 
 void uiPropertyValFld::setValue( float val, bool isinternal )
 {
-    if ( isinternal && curuom_ )
-	val = curuom_->userValue( val );
+    if ( isinternal )
+	val = unfld_->getUserValue( val );
     valfld_->setValue( val );
 }
 
 
 float uiPropertyValFld::getValue( bool internal ) const
 {
-    float val = valfld_->getfValue();
-    if ( !mIsUdf(val) && internal && curuom_ )
-	val = curuom_->internalValue( val );
-    return val;
+    const float val = valfld_->getfValue();
+    return internal ? unfld_->getInternalValue( val ) : val;
 }
 
 
 const char* uiPropertyValFld::getUnitName() const
 {
-    return curuom_->name();
+    return unfld_->getUnitName();
 }
 
 

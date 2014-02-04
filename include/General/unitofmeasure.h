@@ -82,6 +82,13 @@ public:
     static const char*	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
     static const char*	zUnitAnnot(bool time,bool symbol,bool withparens);
 
+    static IOPar&	currentDefaults();
+			//!< just a list of key -> unit of measure
+			//!< key can be property name or whatever seems good
+    static void		saveCurrentDefaults();
+			//!< store as a user setting on Survey level
+			//!< this will be done automatically at survey changes
+
 protected:
 
     BufferString	symbol_;
@@ -121,7 +128,9 @@ public:
     const ObjectSet<const UnitOfMeasure>& all() const	{ return entries; }
     void		getRelevant(PropertyRef::StdType,
 				    ObjectSet<const UnitOfMeasure>&) const;
+    const UnitOfMeasure* getCurDefaultFor(const char* key) const;
     const UnitOfMeasure* getInternalFor(PropertyRef::StdType) const;
+    const UnitOfMeasure* getDefault(const char* key,PropertyRef::StdType) const;
 
     bool		add(const UnitOfMeasure&);
 			//!< returns false when already present

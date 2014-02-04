@@ -477,7 +477,6 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
     unfld_ = new uiUnitSel( this, pr.stdType(), 0, true );
-    unfld_->setUnit( pr.disp_.unit_ );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );
@@ -742,10 +741,12 @@ bool uiBasicLayerSequenceGenDesc::laygenEditReq()
 
     uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree(),
 				  desc_.propSelection() );
-    const bool chgd = dlg.go() ? dlg.anychg_ : false;
-    if ( chgd )
+    if ( !dlg.go() )
+	return false;
+
+    if ( dlg.anychg_ )
 	rebuildDispUnits();
-    return chgd;
+    return dlg.anychg_;
 }
 
 
