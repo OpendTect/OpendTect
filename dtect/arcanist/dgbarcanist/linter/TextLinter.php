@@ -268,7 +268,7 @@ final class TextLinter extends ArcanistLinter {
 
   protected function lintForbiddenStrings($path) {
 
-    $bad = array( 'sqrt(' );
+    $bad = array( 'sqrt(', 'atan2(' );
     //$bad = array( 'sqrt', 'std::ostream', 'std::istream' );
 
     $data = $this->getData( $path );
