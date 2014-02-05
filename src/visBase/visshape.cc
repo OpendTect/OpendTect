@@ -713,7 +713,7 @@ public:
     void		setRange( const Interval<int>& rg )
     {
 	element_->setFirst( rg.start );
-	element_->setCount( rg.width()+1 );
+	element_->setCount( rg.width(false)+1 );
     }
     
     Interval<int>	getRange() const
@@ -728,52 +728,6 @@ public:
     void		setEmpty(){};
 
     osg::ref_ptr<osg::DrawArrays> element_;
-};
-    
-    
-    
-
-class CoinIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet
-{
-public:
-    virtual void	setEmpty() { indices_.erase(); }
-    virtual void	append( int index ) { indices_ += index; }
-    virtual int		pop()
-    			{
-			    const int idx = size()-1;
-			    if ( idx<0 ) return mUdf(int);
-			    const int res = indices_[idx];
-			    indices_.removeSingle(idx);
-			    return res;
-			}
-    
-    virtual int		size() const { return indices_.size(); }
-    virtual int		get(int pos) const { return indices_[pos]; }
-    virtual int		set(int pos,int index)
-			{ return indices_[pos] = index; }
-    virtual void	set( const int* ptr,int num)
-    {
-	indices_ = TypeSet<int>( ptr, num );
-    }
-    
-    virtual void	append( const int* ptr, int num )
-    { indices_.append( ptr, num ); }
-    
-    TypeSet<int>	indices_;
-};
-    
-    
-class CoinRangePrimitiveSet : public Geometry::RangePrimitiveSet
-{
-public:
-		   	CoinRangePrimitiveSet() : rg_(mUdf(int), mUdf(int) ) {}
-    
-    int			size() const 			{ return rg_.width()+1;}
-    int			get(int idx) const 		{ return rg_.start+idx;}
-    void		setRange(const Interval<int>& rg) { rg_ = rg; }
-    Interval<int>	getRange() const 		{ return rg_; }
-    
-    Interval<int>	rg_;
 };
     
 
