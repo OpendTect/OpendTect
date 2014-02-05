@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipluginsel.h"
 #include "uiseispartserv.h"
 #include "uisetdatadir.h"
-#include "uisplashscreen.h"
 #include "uistrattreewin.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
@@ -86,17 +85,11 @@ uiODMain* ODMainWin()
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
-
-    //PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
     uiDialog::setTitlePos( -1 );
 
     uiODMain* odmain = new uiODMain( *new uiMain(argc,argv) );
-    ioPixmap pm( mGetSetupFileName("splash") );
-  //  uiSplashScreen splash( pm );
-  //  splash.show();
-  //  splash.showMessage( "Loading plugins ..." );
     manODMainWin( odmain );
 
     bool dodlg = true;
@@ -114,9 +107,7 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
- //   splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
-   // splash.finish( odmain );
 
     odmain->go();
     delete odmain;
@@ -155,7 +146,6 @@ uiODMain::uiODMain( uiMain& a )
       || (IOM().isBad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
 
-    // TODO uncomment when transfer to S2DPOS() is complete
     OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 
     applmgr_ = new uiODApplMgr( *this );
@@ -480,7 +470,6 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     cursession_ = &sess;
     doRestoreSession();
     cursession_ = &lastsession_; lastsession_.clear();
-    //ctabed_->updateColTabList();
     timer_.start( 200, true );
     sceneMgr().setToViewMode( true );
     sceneMgr().updateTrees();
