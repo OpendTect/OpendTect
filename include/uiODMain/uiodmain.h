@@ -26,6 +26,7 @@ class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
 class uiODViewer2DMgr;
+class uiToolBar;
 class uiVisColTabEd;
 
 
@@ -53,23 +54,24 @@ public:
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
     uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
+    uiToolBar*		colTabToolBar()	{ return ctabtb_; }
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
     Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis
     Notifier<uiODMain>	sessionRestore;	//!< Get data from pars
     IOPar&		sessionPars();	//!< On session save or restore
-    					//!< notification, to get/put data
+					//!< notification, to get/put data
 
     Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
 
     bool		askStore(bool& askedanything,const char* actiontype);
-    			/*!< Asks user if session, picksets or attributesets
+			/*!< Asks user if session, picksets or attributesets
 			     need to be stored. */
     bool		askStoreAttribs(bool,bool& askedanything);
-    			/*!< Asks user if attributesets (2D or 3D ) 
+			/*!< Asks user if attributesets (2D or 3D )
 			  need to be stored. */
-    bool		hasSessionChanged(); /*!< Compares current session with 
-    						  last saved. */
+    bool		hasSessionChanged(); /*!< Compares current session with
+						  last saved. */
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
     void		autoSession(); //!< pops up the auto session dlg
@@ -82,6 +84,7 @@ protected:
     uiODSceneMgr*	scenemgr_;
     uiODViewer2DMgr*	viewer2dmgr_;
     uiVisColTabEd*	ctabed_;
+    uiToolBar*		ctabtb_;
     uiMain&		uiapp_;
     ODSession*		cursession_;
     ODSession&		lastsession_;

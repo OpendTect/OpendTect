@@ -127,6 +127,7 @@ uiODMain::uiODMain( uiMain& a )
     , scenemgr_(0)
     , ctabed_(0)
     , ctabwin_(0)
+    , ctabtb_(0)
     , timer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
     , lastsession_(*new ODSession)
@@ -268,6 +269,7 @@ bool uiODMain::buildUI()
     else
     {
 	uiColorTableToolBar* tb = new uiColorTableToolBar( this );
+	ctabtb_ = tb;
 	ctabed_ = new uiVisColTabEd( *tb );
 	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
 	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
