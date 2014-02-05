@@ -40,7 +40,7 @@ include( OD_SetupOD )
 include( ODInternal )
 
 set( OD_MODULES
-	Basic Algo General Database
+	Basic Algo General
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
 	NLA AttributeEngine Velocity
