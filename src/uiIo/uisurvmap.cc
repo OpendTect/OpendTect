@@ -92,7 +92,7 @@ void uiSurveyBoxObject::update()
     for ( int idx=0; idx<vertices_.size(); idx++ )
     {
         cpt[idx] = transform_->transform( uiWorldPoint(mapcnr[idx].x,
-		    				      mapcnr[idx].y) );
+						      mapcnr[idx].y) );
 	vertices_[idx]->setPos( cpt[idx] );
     }
 
@@ -119,7 +119,7 @@ void uiSurveyBoxObject::update()
 uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     : uiBaseMapObject(bmo)
     , angleline_(0),anglelabel_(0)
-{   
+{
     ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
     arrowstyle.linestyle_.width_ = 3;
     arrow_ = new uiArrowItem;
@@ -157,27 +157,25 @@ void uiNorthArrowObject::update()
     if ( !survinfo_ || !transform_ )
 	{ setVisibility( false ); return; }
 
-    static const float halfpi = M_PI * .5;
-    static const float quartpi = M_PI * .25;
-
     float mathang = survinfo_->angleXInl();
+    if ( mIsUdf(mathang) ) return;
 
 	    // To [0,pi]
-    if ( mathang < 0 )			mathang += M_PI;
-    if ( mathang > M_PI )		mathang -= M_PI;
+    if ( mathang < 0 )			mathang += M_PIf;
+    if ( mathang > M_PIf )		mathang -= M_PIf;
 	    // Find angle closest to N, not necessarily X vs inline
-    if ( mathang < quartpi )		mathang += halfpi;
-    if ( mathang > halfpi+quartpi )	mathang -= halfpi;
+    if ( mathang < M_PI_4f )		mathang += M_PI_2f;
+    if ( mathang > M_PI_2f+M_PI_4f )	mathang -= M_PI_2f;
 
     float usrang = Angle::rad2usrdeg( mathang );
     if ( usrang > 180 ) usrang = 360 - usrang;
 
-    const bool northisleft = mathang < halfpi;
+    const bool northisleft = mathang < M_PI_2f;
     const int arrowlen = 30;
     const int sideoffs = 10;
     const int yarrowtop = 20;
 
-    float dx = arrowlen * tan( halfpi-mathang );
+    float dx = arrowlen * tan( M_PI_2f-mathang );
     const int dxpix = mNINT32( dx );
     float worldxmin, worldxmax;
     transform_->getWorldXRange( worldxmin, worldxmax );
@@ -207,7 +205,7 @@ void uiNorthArrowObject::update()
 		angtxt += iusrang;
 	}
     }
-	
+
     anglelabel_->setPos( mCast(float,lastx), mCast(float,yarrowtop) );
     anglelabel_->setText( angtxt );
     setVisibility( true );

@@ -20,13 +20,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include <math.h>
 
-#ifndef M_PI
-# define M_PI           3.14159265358979323846
-#endif
-
-#ifndef M_PIl
-# define M_PIl          3.1415926535897932384626433832795029L
-#endif
 
 namespace Angle
 {
@@ -46,7 +39,7 @@ inline void getFullCircle( Type typ, T& t )
 
 //! User degrees are from North, clockwise
 template <class T>
-inline T deg2usrdeg( T deg )
+inline T deg2usrdeg( T deg ) //Make sure deg is defined, otherwise, dead loop
 {
     T usrdeg = 90 - deg;
     while ( usrdeg >= 360 ) usrdeg -= 360;
@@ -82,7 +75,7 @@ inline T usrdeg2rad( T udeg )
 template <class T>
 inline T convert( Type inptyp, T val, Type outtyp )
 {
-    if ( inptyp == outtyp )
+    if ( inptyp == outtyp || mIsUdf(val) )
 	return val;
 
     switch ( inptyp )
