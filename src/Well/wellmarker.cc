@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellmarker.h"
 #include "welltrack.h"
+#include "wellextractdata.h"
 #include "iopar.h"
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -40,6 +41,25 @@ Color Well::Marker::color() const
 	    return lvl->color();
     }
     return color_;
+}
+
+
+void Well::MarkerSet::fillWithAll( TaskRunner* tr )
+{
+    setEmpty();
+
+    Well::InfoCollector ic( false, true, false );
+    if ( tr )
+	tr->execute( ic );
+    else
+	ic.execute();
+
+    if ( ic.markers().isEmpty() )
+	return;
+
+    *this = *ic.markers()[0];
+    for ( int idx=1; idx<ic.markers().size(); idx++ )
+	append( *ic.markers()[idx] );
 }
 
 

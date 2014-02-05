@@ -98,36 +98,40 @@ int Well::InfoCollector::nextStep()
 	return ErrorOccurred();
 
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
-    Well::Data wd;
-    Well::Reader wr( ioobj->fullUserExpr(true), wd );
-    if ( wr.getInfo() )
+    ids_ += new MultiID( ioobj->key() );
+
+    if ( dologs_ || domrkrs_ || dotracks_ )
     {
-	ids_ += new MultiID( ioobj->key() );
-	infos_ += new Well::Info( wd.info() );
-	if ( dologs_ )
+	Well::Data wd;
+	Well::Reader wr( ioobj->fullUserExpr(true), wd );
+	if ( wr.getInfo() )
 	{
-	    BufferStringSet* newlognms = new BufferStringSet;
-	    wr.getLogInfo( *newlognms );
-	    logs_ += newlognms;
-	}
-	if ( domrkrs_ )
-	{
-	    Well::MarkerSet* newset = new Well::MarkerSet;
-	    markers_ += newset;
-	    if ( wr.getMarkers() )
-		deepCopy( *newset, wd.markers() );
-	}
-	if ( dotracks_ )
-	{
-	    wr.getTrack();
-	    const Well::Track& trk = wd.track();
-	    if ( mIsUdf(trackstvdrg_.start) )
-		trackstvdrg_.setFrom( trk.zRange() );
-	    else
+	    infos_ += new Well::Info( wd.info() );
+	    if ( dologs_ )
 	    {
-		Interval<float> tvdrg( trk.zRange() );
-		if ( !mIsUdf( tvdrg.start ) )
-		    trackstvdrg_.include( tvdrg );
+		BufferStringSet* newlognms = new BufferStringSet;
+		wr.getLogInfo( *newlognms );
+		logs_ += newlognms;
+	    }
+	    if ( domrkrs_ )
+	    {
+		Well::MarkerSet* newset = new Well::MarkerSet;
+		markers_ += newset;
+		if ( wr.getMarkers() )
+		    deepCopy( *newset, wd.markers() );
+	    }
+	    if ( dotracks_ )
+	    {
+		wr.getTrack();
+		const Well::Track& trk = wd.track();
+		if ( mIsUdf(trackstvdrg_.start) )
+		    trackstvdrg_.setFrom( trk.zRange() );
+		else
+		{
+		    Interval<float> tvdrg( trk.zRange() );
+		    if ( !mIsUdf( tvdrg.start ) )
+			trackstvdrg_.include( tvdrg );
+		}
 	    }
 	}
     }

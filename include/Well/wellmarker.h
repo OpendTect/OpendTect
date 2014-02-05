@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "manobjectset.h"
 
+class TaskRunner;
+
 
 namespace Well
 {
@@ -74,7 +76,9 @@ protected:
 mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
+
 			MarkerSet()			{}
+    void		fillWithAll(TaskRunner* tr=0);
 
     virtual ObjectSet<Marker>& operator +=(Marker*);
 

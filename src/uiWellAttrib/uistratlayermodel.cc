@@ -868,15 +868,10 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     seqdisp_->prepareDesc();
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
     uiTaskRunner tr( this );
-    if ( !tr.execute(ex) )
+    if ( !tr.execute(ex) || !newmodl->isValid() )
 	{ delete newmodl; return; }
 
     // transaction succeeded, we move to the new model - period.
-    if ( !newmodl->isValid() )
-    {
-	delete newmodl;
-	return uiMSG().error("Layer model is empty" );
-    }
 
     lmp_.setBaseModel( newmodl );
     handleNewModel();
