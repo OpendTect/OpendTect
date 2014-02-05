@@ -866,15 +866,18 @@ LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
 
 
 
-bool LinearVelTransform::usePar( const IOPar& iop )
+bool LinearVelTransform::usePar( const IOPar& par )
 {
-    iop.get( lineartranskey, startvel_, dv_ );
-    return true;
+    if ( !ZAxisTransform::usePar( par ) )
+	return false;
+
+    return par.get( lineartranskey, startvel_, dv_ );
 }
 
 
 void LinearVelTransform::fillPar( IOPar& par ) const
 {
+    ZAxisTransform::fillPar( par );
     par.set( lineartranskey, startvel_, dv_ );
 }
 

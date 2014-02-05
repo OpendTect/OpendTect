@@ -149,6 +149,10 @@ bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 
     IOPar ztranspar;
     trans->fillPar( ztranspar );
+    if ( !ztranspar.find( sKey::Name() ) )
+    {
+	pErrMsg("No name is set");
+    }
 
     const IOObj* input = istime2depth
 	? inputtimesel_->ioobj( true )
