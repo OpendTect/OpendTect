@@ -37,7 +37,7 @@ mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp())
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.10")
-	
+
 {
     inpfld = createInpFld(  is2d, "Input attribute" );
 
@@ -52,7 +52,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 
     steerfld = new uiSteeringSel( this, 0, is2d );
     steerfld->steertypeSelected_.notify(
-	    			mCB(this,uiPositionAttrib,steerTypeSel) );
+				mCB(this,uiPositionAttrib,steerTypeSel) );
     steerfld->attach( alignedBelow, gatefld );
 
     operfld = new uiGenInput( this, "Operator", StringListInpSpec(opstrs) );
@@ -72,7 +72,7 @@ bool uiPositionAttrib::setParameters( const Desc& desc )
 
     mIfGetFloatInterval( Position::gateStr(), gate, gatefld->setValue(gate) );
     mIfGetBinID( Position::stepoutStr(), stepout,
-	    	 stepoutfld->setBinID(stepout) );
+		 stepoutfld->setBinID(stepout) );
     mIfGetEnum( Position::operStr(), oper, operfld->setValue(oper) );
 
     return true;
@@ -120,17 +120,18 @@ void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-void uiPositionAttrib::steerTypeSel( CallBacker* )                      
+void uiPositionAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld->willSteer() && !inpfld->isEmpty() )              
+    if ( is2D() && steerfld->willSteer() && !inpfld->isEmpty() )
     {
 	const char* steertxt = steerfld->text();
 	if ( steertxt )
 	{
 	    LineKey inp( inpfld->getInput() );
 	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName() )
+	    if ( inp.lineName() != steer.lineName()
+	      && inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
 		steerfld->clearInpField();
-	}	    
+	}
     }
 }

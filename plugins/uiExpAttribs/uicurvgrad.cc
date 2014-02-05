@@ -106,7 +106,8 @@ void uiCurvGrad::steerTypeSel( CallBacker* )
 	{
 	    LineKey inp( inputfld_->getInput() );
 	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName() )
+	    if ( inp.lineName() != steer.lineName()
+		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ))
 		steerfld_->clearInpField();
 	}
     }

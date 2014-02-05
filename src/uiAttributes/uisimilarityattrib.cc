@@ -55,7 +55,7 @@ static const char* outpstrs[] =
 
 static const char* outpstrsext[] =
 {
-    	"Average",
+	"Average",
 	"Median",
 	"Variance",
 	"Min",
@@ -81,15 +81,15 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			      FloatInpIntervalSpec().setName("Z start",0)
-			      			    .setName("Z stop",1) );
+						    .setName("Z stop",1) );
 
     gatefld_->attach( alignedBelow, inpfld_ );
 
     extfld_ = new uiGenInput( this, "Extension",
-	    		     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
+			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld_->attach( alignedBelow, gatefld_ );
-    
+
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Trace positions" ).allowneg( true );
     pos0fld_ = new uiStepOutSel( this, setup );
@@ -110,10 +110,10 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
     BufferString mdlbl = "Maximum dip";
     mdlbl += zIsTime() ? " (us/m)" : " (mm/m)";
-    maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() ); 
-    maxdipfld_->attach( alignedBelow, steerfld_ );                   
-										
-    BufferString ddlbl = "Delta dip";                                 
+    maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() );
+    maxdipfld_->attach( alignedBelow, steerfld_ );
+
+    BufferString ddlbl = "Delta dip";
     ddlbl += zIsTime() ? " (us/m)" : " (mm/m)";
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
@@ -143,7 +143,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 void uiSimilarityAttrib::extSel( CallBacker* )
 {
     const FixedString ext = extfld_->text();
-    
+
     const bool iscube = ext == extstrs3d[3];
     const bool iscross = ext == extstrs3d[4];
     const bool isalldir = ext == extstrs3d[5];
@@ -183,7 +183,7 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     mIfGetFloatInterval( Similarity::gateStr(), gate, gatefld_->setValue(gate) )
-    mIfGetBinID( Similarity::stepoutStr(), stepout, 
+    mIfGetBinID( Similarity::stepoutStr(), stepout,
 	         stepoutfld_->setBinID(stepout) )
     mIfGetBinID( Similarity::pos0Str(), pos0, pos0fld_->setBinID(pos0) )
     mIfGetBinID( Similarity::pos1Str(), pos1, pos1fld_->setBinID(pos1) )
@@ -192,7 +192,7 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloat( Similarity::maxdipStr(), maxdip, maxdipfld_->setValue(maxdip));
     mIfGetFloat( Similarity::ddipStr(), ddip, deltadipfld_->setValue(ddip) );
     mIfGetBool( Similarity::browsedipStr(), bdip,
-	    	steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
+		steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
 
     extSel(0);
     steerTypeSel(0);
@@ -219,7 +219,7 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
     const FixedString ext = extfld_->text();
     const bool mirrorext = ext == extstrs3d[1] || ext == extstrs3d[2];
     dooutpstatsfld_->setValue( selattr<5 );
-    
+
     if ( selattr<5 )
     {
 	if ( selattr>0 && mirrorext )
@@ -241,7 +241,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     const FixedString ext = extfld_->text();
-    if ( ext == extstrs3d[3] || ext == extstrs3d[4] 
+    if ( ext == extstrs3d[3] || ext == extstrs3d[4]
 	 || ext == extstrs3d[5] || ext == extstrs3d[6] )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld_->getBinID() ); }
     else
@@ -328,7 +328,8 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
 	{
 	    LineKey inp( inpfld_->getInput() );
 	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName() )
+	    if ( inp.lineName() != steer.lineName()
+		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ))
 		steerfld_->clearInpField();
 	}
     }
