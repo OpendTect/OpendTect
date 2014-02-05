@@ -682,8 +682,11 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     SeparString bs( txt, ':' );
     if ( bs.size() < 3 ) return "";
 
-    const DescID attrid( toInt(bs[0]), toBool(bs[1],true) );
+    const int id = toInt( bs[0] );
+    const bool isstored = toBool( bs[1], true );
+    const DescID attrid( id, isstored );
     const int outnr = toInt( bs[2] );
+
     if ( !attrid.isValid() )
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
