@@ -118,14 +118,15 @@ void uiShiftAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 void uiShiftAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
-    {                                                                           
-	const char* steertxt = steerfld_->text();                               
-	if ( steertxt )                                                         
-	{                                                                       
-	    LineKey inp( inpfld_->getInput() );                                 
-	    LineKey steer( steertxt );                                          
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
+    {
+	const char* steertxt = steerfld_->text();
+	if ( steertxt )
+	{
+	    LineKey inp( inpfld_->getInput() );
+	    LineKey steer( steertxt );
+	    if ( strcmp( inp.lineName(), steer.lineName() )
+		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
 		steerfld_->clearInpField();
 	}
     }

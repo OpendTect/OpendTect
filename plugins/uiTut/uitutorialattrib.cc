@@ -44,8 +44,8 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    actionfld_ = new uiGenInput( this, "Action", 
-	    			StringListInpSpec(actionstr) );
+    actionfld_ = new uiGenInput( this, "Action",
+				StringListInpSpec(actionstr) );
     actionfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     actionfld_->attach( alignedBelow, inpfld_ );
 
@@ -60,7 +60,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
     steerfld_->steertypeSelected_.notify(
-	    			mCB(this,uiTutorialAttrib,steerTypeSel) );
+				mCB(this,uiTutorialAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, smoothdirfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
@@ -104,8 +104,8 @@ bool uiTutorialAttrib::setParameters( const Desc& desc )
 	        actionfld_->setValue(action) );
     mIfGetFloat( Tutorial::factorStr(), factor, factorfld_->setValue(factor) );
     mIfGetFloat( Tutorial::shiftStr(), shift, shiftfld_->setValue(shift) );
-    mIfGetBool( Tutorial::horsmoothStr(), horsmooth, 
-	    	smoothdirfld_->setValue(horsmooth) );
+    mIfGetBool( Tutorial::horsmoothStr(), horsmooth,
+		smoothdirfld_->setValue(horsmooth) );
     mIfGetBool( Tutorial::weaksmoothStr(), weaksmooth,
                 smoothstrengthfld_->setValue(weaksmooth) );
     mIfGetBinID( Tutorial::stepoutStr(), stepout,
@@ -133,23 +133,23 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
     mSetEnum( Tutorial::actionStr(), actionfld_->getIntValue() );
     if ( actionfld_->getIntValue() == 0 )
     {
-    	mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
-    	mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
+	mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
+	mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
     }
     else if (actionfld_->getIntValue() == 2 )
     {
-    	mSetBool( Tutorial::horsmoothStr(), smoothdirfld_->getBoolValue() );
+	mSetBool( Tutorial::horsmoothStr(), smoothdirfld_->getBoolValue() );
 	if ( smoothdirfld_->getBoolValue() )
 	{
 	    BinID stepout( stepoutfld_->getBinID() );
 	    if ( stepout == BinID(0,0) )
 		stepout.inl = stepout.crl = mUdf(int);
-    	    mSetBinID( Tutorial::stepoutStr(), stepout );
+	    mSetBinID( Tutorial::stepoutStr(), stepout );
 	    dosteer = steerfld_->willSteer();
 	}
 	else
 	    mSetBool( Tutorial::weaksmoothStr(),
-		    		smoothstrengthfld_->getBoolValue() );
+				smoothstrengthfld_->getBoolValue() );
     }
 
     mSetBool( Tutorial::steeringStr(), dosteer );
@@ -166,16 +166,17 @@ bool uiTutorialAttrib::getInput( Desc& desc )
 }
 
 
-void uiTutorialAttrib::steerTypeSel( CallBacker* )                              
-{                                                                               
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )              
-    {                                                                           
-	const char* steertxt = steerfld_->text();                               
-	if ( steertxt )                                                         
-	{                                                                       
-	    LineKey inp( inpfld_->getInput() );                                 
-	    LineKey steer( steertxt );                                          
-	    if ( strcmp( inp.lineName(), steer.lineName() ) )                   
+void uiTutorialAttrib::steerTypeSel( CallBacker* )
+{
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
+    {
+	const char* steertxt = steerfld_->text();
+	if ( steertxt )
+	{
+	    LineKey inp( inpfld_->getInput() );
+	    LineKey steer( steertxt );
+	    if ( strcmp( inp.lineName(), steer.lineName() )
+		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ))
 		steerfld_->clearInpField();
 	}
     }
