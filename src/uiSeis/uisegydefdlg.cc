@@ -82,7 +82,8 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 
     int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
     nrtrcexfld_ = new uiGenInput( this, "Number of traces to examine",
-			      IntInpSpec(nrex).setName("Traces to Examine") );
+			    IntInpSpec(nrex).setLimits(Interval<int>(1,10000))
+					    .setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );
     nrtrcexfld_->attach( ensureBelow, sep );
     savenrtrcsbox_ = new uiCheckBox( this, "Save as default" );
