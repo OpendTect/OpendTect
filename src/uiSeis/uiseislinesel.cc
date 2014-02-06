@@ -224,7 +224,7 @@ void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 
 
 uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
-       					const uiSeis2DMultiLineSel::Setup& su )
+					const uiSeis2DMultiLineSel::Setup& su )
     : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,"103.1.13") )
     , setup_(su)
     , ctio_(c)
@@ -250,7 +250,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
     }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
-	   			  setup_.withstep_, "Trace" );
+				  setup_.withstep_, "Trace" );
     trcrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );
@@ -296,12 +296,15 @@ void uiSeis2DMultiLineSelDlg::setAll( bool yn )
 { lnmsfld_->selectAll( yn ); }
 
 void uiSeis2DMultiLineSelDlg::setSelection( const BufferStringSet& sellines,
-       				const TypeSet<StepInterval<int> >* rgs	)
+				const TypeSet<StepInterval<int> >* rgs	)
 {
     if ( rgs && rgs->size() != sellines.size() )
 	return;
 
     lnmsfld_->clearSelection();
+    if ( !sellines.isEmpty() )
+	lnmsfld_->setCurrentItem( sellines.get(0) );
+
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const int selidx = lnmsfld_->indexOf( sellines.get(idx) );
