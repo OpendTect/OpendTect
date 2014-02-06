@@ -536,6 +536,7 @@ void uiODMenuMgr::fillAnalMenu()
     layermodelmnu_->insertItem( new uiAction( "&Basic ...",
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), uiIcon::None() ) );
     analmnu_->insertItem( layermodelmnu_ );
+    analmnu_->insertSeparator();
 }
 
 
