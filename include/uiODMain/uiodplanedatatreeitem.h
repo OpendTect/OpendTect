@@ -28,8 +28,9 @@ public:
     enum Type		{ Default, Empty, RGBA };
     enum Orientation	{ Inline, Crossline, ZSlice };
 
-    			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
+			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
 			~uiODPlaneDataTreeItem();
+
     bool		init();
     void		setAtWellLocation(const Well::Data&);
     bool		displayDefaultData();
@@ -38,7 +39,6 @@ protected:
     BufferString	createDisplayName() const;
     bool		getDefaultDescID(Attrib::DescID&);
 
-    void		addToToolBarCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
 
@@ -69,7 +69,7 @@ mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODInlineParentTreeItem; }
+			{ return new uiODInlineParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -77,7 +77,7 @@ public:
 mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODInlineTreeItem(int displayid,Type);
+			uiODInlineTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
@@ -93,7 +93,7 @@ mExpClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODCrosslineParentTreeItem; }
+			{ return new uiODCrosslineParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -101,7 +101,7 @@ public:
 mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODCrosslineTreeItem(int displayid,Type);
+			uiODCrosslineTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
@@ -117,7 +117,7 @@ mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODZsliceParentTreeItem; }
+			{ return new uiODZsliceParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -125,7 +125,7 @@ public:
 mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODZsliceTreeItem(int displayid,Type);
+			uiODZsliceTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const

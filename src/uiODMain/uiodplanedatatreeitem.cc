@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
         addChild( new treeitm(-1,getType(mnuid)), false ); \
     else if ( mnuid==3 ) \
     { \
-    	ObjectSet<MultiID> wellids; \
+	ObjectSet<MultiID> wellids; \
 	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
 	    return true; \
 	for ( int idx=0; idx<wellids.size(); idx++ ) \
@@ -114,7 +114,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 
 //  getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.remove(
-	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
+			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->setDisplay( -1 );
     delete positiondlg_;
@@ -161,7 +161,7 @@ bool uiODPlaneDataTreeItem::init()
 
 //  getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.notify(
-	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
+			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -303,18 +303,6 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 }
 
 
-void uiODPlaneDataTreeItem::addToToolBarCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayID() || !isSelected() )
-	return;
-    
-    mAddMenuItem( tb, &positionmnuitem_, !visserv_->isLocked(displayid_),
-	    false );
-    uiODDisplayTreeItem::addToToolBarCB( cb );
-}
-
-
 void uiODPlaneDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
@@ -336,7 +324,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
-    
+
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
 
@@ -352,9 +340,9 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
 				pdd->getCubeSampling(true,true), maxcs,
-				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
+				mCB(this,uiODPlaneDataTreeItem,updatePlanePos),
 				(uiSliceSel::Type)orient_,scene->zDomainInfo());
-	positiondlg_->windowClosed.notify( 
+	positiondlg_->windowClosed.notify(
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg_->go();
 	pdd->getMovementNotifier()->notify(
@@ -376,7 +364,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     const CubeSampling newcs = pdd->getCubeSampling( true, true );
     positiondlg_->setCubeSampling( newcs );
 }
@@ -385,7 +373,7 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     CubeSampling newcs = positiondlg_->getCubeSampling();
     bool samepos = newcs == pdd->getCubeSampling();
     if ( positiondlg_->uiResult() && !samepos )
@@ -410,7 +398,7 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
 
     pdd->annotateNextUpdateStage( true );
     pdd->setCubeSampling( cs );
@@ -474,14 +462,14 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 uiTreeItem*
     uiODInlineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
-	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    ODMainWin()->applMgr().visServer()->getObject(visid));
 
     if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Inline )
 	return 0;
 
     mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-	    	     pdd->getChannels2RGBA() );
+		     pdd->getChannels2RGBA() );
 
     return new uiODInlineTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
@@ -501,7 +489,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
 	uiMSG().warning( "Flat survey, disabled inline display" );
 	return false;
     }
-    
+
     mParentShowSubMenu( uiODInlineTreeItem, true );
 }
 
@@ -514,14 +502,14 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
-	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
+		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
     if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Crossline )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-	    	    pdd->getChannels2RGBA());
+		    pdd->getChannels2RGBA());
     return new uiODCrosslineTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
 }
@@ -540,7 +528,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 	uiMSG().warning( "Flat survey, disabled cross-line display" );
 	return false;
     }
-    
+
     mParentShowSubMenu( uiODCrosslineTreeItem, true );
 }
 
@@ -553,14 +541,14 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
 uiTreeItem*
     uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
-	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
+		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
     if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-	    	    pdd->getChannels2RGBA());
+		    pdd->getChannels2RGBA());
 
     return new uiODZsliceTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
@@ -579,7 +567,7 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 	 uiMSG().warning( "Flat survey, disabled z display" );
 	 return false;
      }
-     
+
     mParentShowSubMenu( uiODZsliceTreeItem, false );
 }
 
