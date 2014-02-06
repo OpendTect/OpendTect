@@ -17,12 +17,16 @@ ________________________________________________________________________
 
 //Common strings used in OD. Should be extended
 
+inline FixedString sApply()			{ return "&Apply"; }
 inline FixedString sCancel()			{ return "&Cancel"; }
+inline FixedString sClose()			{ return "&Close"; }
+inline FixedString sHelp()			{ return "&Help"; }
 inline FixedString sLoad()			{ return "&Load ..."; }
 inline FixedString sNew()			{ return "&New"; }
 inline FixedString sNo()			{ return "&No"; }
-inline FixedString sOk()			{ return "&Ok"; }
+inline FixedString sOk()			{ return "&OK"; }
 inline FixedString sOpen(bool immediate=false);
+inline FixedString sRun()			{ return "&Run"; }
 inline FixedString sSave(bool immediate=true);
 inline FixedString sSaveAs()			{ return "Save &as ..."; }
 inline FixedString sSaveAsDefault();
