@@ -234,12 +234,12 @@ void Well::MarkerSet::alignOrderingWith( const ObjectSet<Well::Marker>& ms1 )
 	    idx1s[idx0] = ms1idx;
     }
 
-    int previdx0 = idx0s[0]; int prevms1idx = -1;
+    int previdx0 = idx0s[0];
     for ( int ms1idx=0; ms1idx<ms1sz; ms1idx++ )
     {
 	const int idx0 = idx0s[ms1idx];
 	if ( previdx0 < 0 )
-	    { previdx0 = idx0; prevms1idx = ms1idx; continue; }
+	    { previdx0 = idx0; continue; }
 	else if ( idx0 < 0 )
 	    continue;
 	if ( idx0 >= previdx0 )
