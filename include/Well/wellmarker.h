@@ -113,6 +113,9 @@ protected:
     Marker*		gtByName(const char*) const;
     Marker*		gtByLvlID(int) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);
+    void		alignOrderingWith(const ObjectSet<Marker>&);
+    void		moveBlock(int,int,const TypeSet<int>&);
+    void		insertNewAfter(int,ObjectSet<Marker>&);
 
 };
 
