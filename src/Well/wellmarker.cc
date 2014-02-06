@@ -276,7 +276,7 @@ void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms1 )
 	return; // no? then we're cool already. Nothing to do.
 
 
-	// First first and last common markers.
+	// Find first and last common markers.
     int ms1idxfirstmatch = -1; int ms1idxlastmatch = -1;
     for ( int ms1idx=0; ms1idx<idx0s.size(); ms1idx++ )
     {
