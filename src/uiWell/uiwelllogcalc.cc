@@ -72,11 +72,11 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     if ( lognms_.isEmpty() || wellids_.isEmpty() )
     {
 	new uiLabel( this, lognms.isEmpty() ? "No logs" : "No wells" );
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	return;
     }
 
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );

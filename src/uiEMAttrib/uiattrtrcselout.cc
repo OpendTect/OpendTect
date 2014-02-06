@@ -59,7 +59,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , nrsampfld_(0)
     , xparsdlg_(0)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     if ( usesinglehor_ )
@@ -363,7 +363,8 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	if ( !desc || mid.isEmpty() )            //Could be 2D neural network
 	{
 	    Desc* firststoreddsc = ads_.getFirstStored();
-	    if ( firststoreddsc )                                                               mid = MultiID( firststoreddsc->getStoredID(true) );
+	    if ( firststoreddsc )
+		mid = MultiID( firststoreddsc->getStoredID(true) );
 	}
 
 	IOObj* lineobj = IOM().get( mid );

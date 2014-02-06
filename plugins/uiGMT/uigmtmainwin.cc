@@ -47,7 +47,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     , needsave_(false)
 {
     setTitleText( "" );
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     setHelpID( "103.5.2" );
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
@@ -159,11 +159,9 @@ void uiGMTMainWin::tabSel( CallBacker* )
 
 void uiGMTMainWin::newFlow( CallBacker* )
 {
-    if ( needsave_ )
-    {
-	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
-	    return;
-    }
+    if ( needsave_ &&
+	 !uiMSG().askContinue("Current flow has not been saved, continue?") )
+	return;
 
     filefld_->clear();
     pars_.erase();
@@ -178,11 +176,9 @@ void uiGMTMainWin::newFlow( CallBacker* )
 
 void uiGMTMainWin::openFlow( CallBacker* )
 {
-    if ( needsave_ )
-    {
-	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
-	    return;
-    }
+    if ( needsave_ &&
+	 !uiMSG().askContinue("Current flow has not been saved, continue?") )
+	return;
 
     ctio_.ctxt.forread = true;
     uiIOObjSelDlg dlg( this, ctio_ );

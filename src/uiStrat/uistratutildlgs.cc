@@ -254,7 +254,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     , nmfld_(0)
     , anychg_(false)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     selfld_ = new uiStratLithoBox( this );
     const CallBack selchgcb( mCB(this,uiStratLithoDlg,selChg) );
@@ -537,7 +537,7 @@ uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
 		"Define special layer contents","110.0.5"))
     , anychg_(false)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     (void)new uiStratContentsEd( this, anychg_ );
 }
 

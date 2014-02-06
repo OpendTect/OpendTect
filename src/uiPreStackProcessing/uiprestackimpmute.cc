@@ -38,7 +38,7 @@ uiImportMute::uiImportMute( uiParent* p )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File", 
 	                       uiFileInput::Setup().withexamine(true)

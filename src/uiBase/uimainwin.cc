@@ -1359,6 +1359,7 @@ public:
 			//!< OK button disabled when set to empty
     void		setCancelText(const char*);
 			//!< Cancel button disabled when set to empty
+    void		setApplyText(const char*);
     void		enableSaveButton(const char* txt);
     void		setSaveButtonChecked(bool yn);
     void		setButtonSensitive(uiDialog::Button,bool yn);
@@ -1405,7 +1406,8 @@ protected:
 
     uiPushButton*	okbut_;
     uiPushButton*	cnclbut_;
-    uiToolButton*	helpbut_;
+    uiPushButton*	applybut_;
+    uiButton*		helpbut_;
     uiToolButton*	creditsbut_;
 
     uiCheckBox*		savebutcb_;
@@ -1424,6 +1426,7 @@ private:
     void		initChildren();
     uiObject*		createChildren();
     void		layoutChildren(uiObject*);
+    void		layoutChildrenOld(uiObject*);
 
 };
 
@@ -1433,7 +1436,8 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     : uiMainWinBody(hndle,parnt,s.wintitle_,s.modal_)
     , dlggrp_(0)
     , setup_(s)
-    , okbut_(0), cnclbut_(0), savebutcb_(0),  savebuttb_(0)
+    , okbut_(0), cnclbut_(0), applybut_(0)
+    , savebutcb_(0),  savebuttb_(0)
     , helpbut_(0), creditsbut_(0)
     , titlelbl_(0), result_(0)
     , initchildrendone_(false)
@@ -1467,14 +1471,6 @@ int uiDialogBody::exec( bool showminimized )
 }
 
 
-
-void uiDialogBody::setOkText( const char* txt )
-{
-    setup_.oktext_ = txt;
-    if ( okbut_ ) okbut_->setText(txt);
-}
-
-
 void uiDialogBody::setTitleText( const char* txt )
 {
     setup_.dlgtitle_ = txt;
@@ -1488,23 +1484,31 @@ void uiDialogBody::setTitleText( const char* txt )
     }
 }
 
+
+void uiDialogBody::setOkText( const char* txt )
+{
+    setup_.oktext_ = txt;
+    if ( okbut_ ) okbut_->setText(txt);
+}
+
+
 void uiDialogBody::setCancelText( const char* txt )
 {
     setup_.canceltext_ = txt;
-    if ( cnclbut_ ) cnclbut_->setText(txt);
+    if ( cnclbut_ ) cnclbut_->setText( txt );
 }
+
+
+void uiDialogBody::setApplyText( const char* txt )
+{ if ( applybut_ ) applybut_->setText( txt ); }
 
 
 bool uiDialogBody::hasSaveButton() const
-{
-    return savebutcb_;
-}
+{ return savebutcb_; }
 
 
 bool uiDialogBody::saveButtonChecked() const
-{
-    return savebutcb_ ? savebutcb_->isChecked() : false;
-}
+{ return savebutcb_ ? savebutcb_->isChecked() : false; }
 
 
 /*! Hides the box, which also exits the event loop in case of a modal box.  */
@@ -1547,12 +1551,13 @@ void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
     break;
     case uiDialog::CANCEL:	if ( cnclbut_ ) cnclbut_->setSensitive(yn);
     break;
+    case uiDialog::APPLY:	if ( applybut_ ) applybut_->setSensitive(yn);
+    break;
+    case uiDialog::HELP:	if ( helpbut_ ) helpbut_->setSensitive(yn);
+    break;
     case uiDialog::SAVE:
 	if ( savebutcb_ ) savebutcb_->setSensitive(yn);
 	if ( savebuttb_ ) savebuttb_->setSensitive(yn);
-    break;
-    case uiDialog::HELP:
-	if ( helpbut_ ) helpbut_->setSensitive(yn);
     break;
     case uiDialog::CREDITS:
 	if ( creditsbut_ ) creditsbut_->setSensitive(yn);
@@ -1567,11 +1572,12 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
     {
     case uiDialog::OK:		return okbut_; break;
     case uiDialog::CANCEL:	return cnclbut_; break;
+    case uiDialog::APPLY:	return applybut_; break;
+    case uiDialog::HELP:	return helpbut_; break;
     case uiDialog::SAVE:
 	return savebutcb_
 	    ? (uiButton*)savebutcb_ : (uiButton*)savebuttb_;
     break;
-    case uiDialog::HELP:	return helpbut_; break;
     case uiDialog::CREDITS:	return creditsbut_; break;
     }
 
@@ -1629,7 +1635,10 @@ void uiDialogBody::finalise( bool )
 void uiDialogBody::initChildren()
 {
     uiObject* lowestobject = createChildren();
-    layoutChildren( lowestobject );
+    if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
+	layoutChildrenOld( lowestobject );
+    else
+	layoutChildren( lowestobject );
 
     if ( okbut_ )
     {
@@ -1653,6 +1662,8 @@ uiObject* uiDialogBody::createChildren()
 	okbut_ = new uiPushButton( centralwidget_, setup_.oktext_, true );
     if ( !setup_.canceltext_.isEmpty() )
 	cnclbut_ = new uiPushButton( centralwidget_, setup_.canceltext_, true );
+    if ( setup_.applybutton_ )
+	applybut_ = new uiPushButton( centralwidget_, sApply(), true );
 
     if ( setup_.savebutton_ && !setup_.savetext_.isEmpty() )
     {
@@ -1674,10 +1685,19 @@ uiObject* uiDialogBody::createChildren()
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut_ = new uiToolButton( centralwidget_, "contexthelp",
-			shwhid ? hid.buf() : "Help on this window",
-			mCB(this,uiDialogBody,provideHelp) );
-	helpbut_->setPrefWidthInChar( 5 );
+	if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
+	{
+	    helpbut_ = new uiToolButton( centralwidget_, "contexthelp",
+			    shwhid ? hid.buf() : "Help on this window",
+			    mCB(this,uiDialogBody,provideHelp) );
+	    helpbut_->setPrefWidthInChar( 5 );
+	}
+	else
+	{
+	    helpbut_ = new uiPushButton( centralwidget_, sHelp(), true );
+	    helpbut_->setToolTip( shwhid ? hid.buf() : "Help on this window" );
+	    helpbut_->activated.notify( mCB(this,uiDialogBody,provideHelp) );
+	}
 
 	if ( dlg.haveCredits() )
 	{
@@ -1744,30 +1764,32 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
     uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
     uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
+
+    uiObject* prevbut = 0;
+    attachButton( helpbut_, prevbut, lowestobj );
+    attachButton( applybut_, prevbut, lowestobj );
+    attachButton( rightbut, prevbut, lowestobj );
+    attachButton( leftbut, prevbut, lowestobj );
+    attachButton( creditsbut_, prevbut, lowestobj );
+
+    uiObject* savebut = savebutcb_;
+    if ( !savebut ) savebut = savebuttb_;
+    if ( savebut )
+    {
+	savebut->attach( ensureBelow, lowestobj );
+	savebut->attach( bottomBorder, vborderdist );
+	savebut->attach( leftBorder, hborderdist );
+    }
+}
+
+
+void uiDialogBody::layoutChildrenOld( uiObject* lowestobj )
+{
+    uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
+    uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
     uiObject* exitbut = okbut_ ? okbut_ : cnclbut_;
     uiObject* centerbut = helpbut_;
     uiObject* extrabut = savebuttb_;
-
-    if ( GetEnvVarYN("DTECT_NEW_BUTTON_LAYOUT") )
-    {
-	uiObject* prevbut = 0;
-	attachButton( rightbut, prevbut, lowestobj );
-	attachButton( leftbut, prevbut, lowestobj );
-	attachButton( helpbut_, prevbut, lowestobj );
-	attachButton( creditsbut_, prevbut, lowestobj );
-
-	uiObject* savebut = savebutcb_;
-	if ( !savebut ) savebut = savebuttb_;
-	if ( savebut )
-	{
-	    savebut->attach( ensureBelow, lowestobj );
-	    savebut->attach( bottomBorder, vborderdist );
-	    savebut->attach( leftBorder, hborderdist );
-	}
-
-	return;
-    }
-
 
     if ( !okbut_ || !cnclbut_ )
     {
@@ -1786,12 +1808,9 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	extrabut = 0;
     }
 
-
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
     but->attach( bottomBorder, vborderdist )
-
-
 
     if ( leftbut )
     {
@@ -1867,7 +1886,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
-    ctrlstyle_ = DoAndLeave;
+    ctrlstyle_ = OkAndCancel;
 }
 
 
@@ -1877,8 +1896,9 @@ void uiDialog::setButtonText( Button but, const char* txt )
     {
         case OK		: setOkText( txt ); break;
         case CANCEL	: setCancelText( txt ); break;
-        case SAVE	: enableSaveButton( txt ); break;
+	case APPLY	: mBody->setApplyText( txt ); break;
         case HELP	: pErrMsg("set help txt but"); break;
+	case SAVE	: enableSaveButton( txt ); break;
         case CREDITS	: pErrMsg("set credits txt but"); break;
     }
 }
@@ -1886,23 +1906,31 @@ void uiDialog::setButtonText( Button but, const char* txt )
 
 void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 {
+    const char* oktext = sRun();
+    const char* canceltext = sClose();
+    if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
+    {
+	oktext = "&Go";
+	canceltext = "&Dismiss";
+    }
+
     switch ( cs )
     {
-    case DoAndLeave:
+    case OkAndCancel:
 	setOkText( sOk() );
 	setCancelText( sCancel() );
     break;
-    case DoAndStay:
-	setOkText( "&Go" );
-	setCancelText( "&Dismiss" );
+    case RunAndClose:
+	setOkText( oktext );
+	setCancelText( canceltext );
     break;
-    case LeaveOnly:
-	setOkText( mBody->finalised() ? "&Dismiss" : "" );
-	setCancelText( "&Dismiss" );
+    case CloseOnly:
+	setOkText( mBody->finalised() ? canceltext : "" );
+	setCancelText( canceltext );
     break;
     case DoAndProceed:
-	setOkText( "&Proceed" );
-	setCancelText( "&Dismiss" );
+	setOkText( oktext );
+	setCancelText( canceltext );
     break;
     }
 

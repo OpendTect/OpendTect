@@ -77,7 +77,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
 

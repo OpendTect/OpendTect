@@ -44,7 +44,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     , is2d_(is2d)
     , readyForDisplay(this)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     horinfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
 	    				   : mIOObjContext(EMHorizon3D),

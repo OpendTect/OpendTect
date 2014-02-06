@@ -39,7 +39,7 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 	, velfld_(0)
 	, valfld_(0)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 }
 
 

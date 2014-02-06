@@ -57,7 +57,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	, modefld(0)
 	, sstp_(0)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     init( false );
     modeSel(0);
@@ -73,7 +73,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	, modefld(0)
 	, sstp_(0)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );

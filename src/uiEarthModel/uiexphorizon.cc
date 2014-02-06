@@ -51,7 +51,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     setModal( false );
     setDeleteOnClose( false );
 

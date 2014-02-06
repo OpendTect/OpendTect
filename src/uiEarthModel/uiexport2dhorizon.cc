@@ -47,7 +47,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				     "Specify output parameters","104.0.1"))
 	, hinfos_(hinfos)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     uiLabeledComboBox* lcbox = new uiLabeledComboBox( this, "Select Horizon",
 						      "Select 2D Horizon" );

@@ -131,7 +131,7 @@ public :
 	, drawer_(drawer) 
 	, data_(ad)			  
     {
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 
 	BufferStringSet colnms;
 	for ( int idx=0; idx<data_.nrCols(); idx++ )

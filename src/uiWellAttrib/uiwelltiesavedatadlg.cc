@@ -41,7 +41,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     , data_(d)
     , datawriter_(wdr)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     BufferStringSet lognms; 	BufferStringSet wvltnms;
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
     wvltctioset_[0]->ctxt.forread = false;

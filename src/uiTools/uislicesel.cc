@@ -91,10 +91,10 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    BufferString label = is2d_ ? "Trace range" 
+    BufferString label = is2d_ ? "Trace range"
 			       : ( iscrl_ ? "Xline nr" : "Xline range" );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
-	   		 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
+			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
     crl1fld_->attach( rightTo, crl0fld_ );
     crl1fld_->display( !iscrl_ );
@@ -114,7 +114,7 @@ void uiSliceSel::createZFld()
 }
 
 
-void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv, 
+void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
 			       int curval )
 {
     box->setInterval( intv.start, intv.stop );
@@ -136,7 +136,7 @@ uiSliceScroll( uiSliceSel* ss )
 	, paused_(false)
 	, zfact_(mCast(float,ss->zdominfo_.userFactor()))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     timer = new Timer( "uiSliceScroll timer" );
     timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
 
@@ -418,7 +418,8 @@ void uiSliceSel::updateUI()
     if ( inl0fld_ )
     {
 	Interval<int> inlrg( cs_.hrg.start.inl(), cs_.hrg.stop.inl() );
-	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl(), maxcs_.hrg.stop.inl(),
+	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl(),
+				    maxcs_.hrg.stop.inl(),
 				    maxcs_.hrg.step.inl() );
 	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start );
 	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
@@ -443,9 +444,9 @@ void uiSliceSel::updateUI()
 
     if ( nrdec==0 )
     {
-	Interval<int> zrg( mNINT32(cs_.zrg.start*zfac), 
+	Interval<int> zrg( mNINT32(cs_.zrg.start*zfac),
 			   mNINT32(cs_.zrg.stop*zfac) );
-	StepInterval<int> maxzrg = 
+	StepInterval<int> maxzrg =
 	    StepInterval<int>( mNINT32(maxcs_.zrg.start*zfac),
 			       mNINT32(maxcs_.zrg.stop*zfac),
 			       mNINT32(maxcs_.zrg.step*zfac) );
@@ -465,7 +466,7 @@ void uiSliceSel::updateUI()
 	z1fld_->setInterval( maxzrg );
 	z1fld_->setValue( cs_.zrg.stop );
     }
-	
+
     z0fld_->box()->setNrDecimals( nrdec );
     z1fld_->setNrDecimals( nrdec );
 }
@@ -522,11 +523,11 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hrg.start.crl() = crl0fld_->box()->getValue();
     cs.hrg.stop.crl() = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
-    
+
     cs.zrg.start = mCast( float, z0fld_->box()->getValue() );
     cs.zrg.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
 			 : z1fld_->getValue() );
-    
+
     cs.fillPar( iop );
 }
 
@@ -548,7 +549,7 @@ void uiSliceSel::usePar( const IOPar& par )
     if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
 
     StepInterval<float> zrg;
-    par.get( sKey::ZRange(), zrg ); 
+    par.get( sKey::ZRange(), zrg );
     z0fld_->box()->setValue( zrg.start );
     if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
 }
@@ -558,10 +559,10 @@ void uiSliceSel::usePar( const IOPar& par )
 uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 			const CubeSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
-       			const ZDomain::Info& zdominfo )
+			const ZDomain::Info& zdominfo )
     : uiDialog(p,uiDialog::Setup("Positioning",
 				 "Specify the element's position","0.4.1")
-	    	 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
+		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo );
     slicesel_->setMaxCubeSampling( maxcs );

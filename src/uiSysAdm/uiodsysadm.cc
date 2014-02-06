@@ -73,11 +73,11 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
 	if ( haveas_ )
 	    msg += "\nnor to:"; msg += asdir_;
 	new uiLabel( this, msg );
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	return;
     }
 
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     uiGroup* topgrp = new uiGroup( this, "Top group" );
     grpfld = new uiListBox( topgrp, "Task groups" );

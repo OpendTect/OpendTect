@@ -49,7 +49,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , savefldgrp_( 0 )
     , finished(this)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
 	horizon_->ref();

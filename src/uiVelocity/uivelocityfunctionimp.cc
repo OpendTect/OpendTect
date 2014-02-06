@@ -40,7 +40,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File",
 	    		       uiFileInput::Setup().withexamine(true)

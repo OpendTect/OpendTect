@@ -44,7 +44,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     , ctxt_(*new IOObjContext(ctxt))
     , lastexternal_(0)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 }
 
 

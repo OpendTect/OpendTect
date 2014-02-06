@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,"103.1.19") )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     tree_ = new uiTreeView( this, "Operation tree", 9 );
     uiLabel* label0 = new uiLabel( this, "Operation tree" );
@@ -397,7 +397,7 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
 		mNoDlgTitle,"103.1.21") )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     
     inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Input body" );
     inputfld_->setForRead( true );

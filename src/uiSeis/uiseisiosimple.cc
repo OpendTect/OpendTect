@@ -80,7 +80,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	, isimp_(imp)
 	, geom_(gt)
 {
-    setCtrlStyle( uiDialog::DoAndStay );
+    setCtrlStyle( uiDialog::RunAndClose );
 
     data().clear( survChanged() );
     const bool is2d = is2D();

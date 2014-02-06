@@ -128,7 +128,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 	if ( !su.linekey_.isEmpty() )
 	    { lbltxt += " - "; lbltxt += su.linekey_; }
 	new uiLabel( this, lbltxt );
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	return;
     }
 
@@ -265,8 +265,9 @@ BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 				   bool before ) const
 {
     const BinID& step = tr_->readMgr()->info().geom_.step;
-    return crlwise_ ? BinID( cur.inl() + (before?-1:1) * step.inl() * idx, cur.crl())
-		    : BinID( cur.inl(), cur.crl() + (before?-1:1) * step.crl() * idx);
+    return crlwise_
+	? BinID( cur.inl() + (before?-1:1)*step.inl()*idx, cur.crl() )
+	: BinID( cur.inl(), cur.crl() + (before?-1:1)*step.crl()*idx );
 }
 
 
@@ -558,7 +559,7 @@ void uiSeisBrowser::commitChanges()
 	    const float diff = tableval - trcval;
 	    if ( !mIsZero(diff,1e-6) )
 	    {
-	 	trc.set( pos.row(), tableval, compnr_ );
+		trc.set( pos.row(), tableval, compnr_ );
 		changed[pos.col()] = true;
 	    }
 	}

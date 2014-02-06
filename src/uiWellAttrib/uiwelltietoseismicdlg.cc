@@ -543,7 +543,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	, redrawNeeded(this)
 	, data_(server_.data())
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );

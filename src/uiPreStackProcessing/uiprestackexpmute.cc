@@ -33,7 +33,7 @@ uiExportMute::uiExportMute( uiParent* p )
 				 "Specify output format", "103.2.6"))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     infld_ = new uiIOObjSel( this, ctio_, "Input Mute Def" );
 

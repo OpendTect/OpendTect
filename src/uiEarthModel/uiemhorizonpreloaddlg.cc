@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg(p)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", true );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 

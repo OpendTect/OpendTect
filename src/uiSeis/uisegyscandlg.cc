@@ -232,7 +232,7 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
 
     uiDialog* dlg = new uiDialog( p,
 		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
-    dlg->setCtrlStyle( uiDialog::LeaveOnly );
+    dlg->setCtrlStyle( uiDialog::CloseOnly );
     od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, titl );
     te->setText( strstrm.result() );

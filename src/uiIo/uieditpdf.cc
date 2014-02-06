@@ -58,7 +58,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , curdim2_(0)
 {
     if ( !ed )
-	setCtrlStyle( uiDialog::LeaveOnly );
+	setCtrlStyle( uiDialog::CloseOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
@@ -244,7 +244,7 @@ public:
 uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
     : uiDialog(p,uiDialog::Setup("1D PDF Viewer","","").modal(false) )
 {
-    setCtrlStyle( uiDialog::LeaveOnly );
+    setCtrlStyle( uiDialog::CloseOnly );
     disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
     disp_->setVals( xvals, yvals, sz );
 }

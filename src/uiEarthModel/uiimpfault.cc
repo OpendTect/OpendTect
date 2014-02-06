@@ -63,7 +63,7 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     enableSaveButton( "Display after import" );
     setModal( false );
 
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 }
 
 

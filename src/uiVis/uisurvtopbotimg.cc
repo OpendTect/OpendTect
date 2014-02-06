@@ -154,7 +154,7 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 				  "50.0.13") )
     , scene_( scene )
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     topfld_ = new uiSurvTopBotImageGrp( this, true,
 					scene_->getCubeSampling().zrg );

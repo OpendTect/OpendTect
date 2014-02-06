@@ -30,7 +30,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     , items_(set)
     , uicoltab_( 0 )
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     if ( attrnm && *attrnm )
     {

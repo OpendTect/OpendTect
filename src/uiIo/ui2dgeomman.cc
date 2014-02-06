@@ -28,13 +28,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 
-static const char* remmsg = "All the related 2D lines & horizons will become invalid. Do you want to go ahead?";
+static const char* remmsg =
+    "All the related 2D lines & horizons will become invalid. "
+    "Do you want to go ahead?";
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
 				 "103.1.14"))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     BufferStringSet linesets;
     S2DPOS().getLineSets( linesets );
@@ -45,12 +47,12 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linesetfld_->selectionChanged.notify(
 	    mCB(this,ui2DGeomManageDlg,lineSetSelCB) );
     linesetfld_->setPrefWidth( 200 );
-    
+
 	uiToolButton* removelsgeombut =
 	new uiToolButton( this, "trashcan", "Reemove LineSet Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
     removelsgeombut->attach( centeredRightOf, lslb );
-	
+
 	uiSeparator* versep = new uiSeparator( this, "", false );
     versep->attach( centeredRightOf, removelsgeombut );
 
@@ -60,7 +62,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     lnlb->attach( rightTo, versep );
     linenamefld_ = lnlb->box();
     linenamefld_->setPrefWidth( 200 );
-    
+
     uiToolButton* mangeombut =
 	new uiToolButton( this, "browse2dgeom", "Manage Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
@@ -124,10 +126,10 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     lbl.add( S2DPOS().curLineSet() );
     lbl.add( ", Linename : ");
     lbl.add( linenm );
-    
+
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
-    
+
     PosInfo::Line2DData geom( linenm );
     S2DPOS().getGeometry( geom );
     const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
@@ -143,13 +145,13 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     rgfld_->attach( leftAlignedBelow, table_ );
     rgfld_->setValue( geom.zRange() );
 
-    readnewbut_ =
-	new uiPushButton( this, "Read New Geometry ...", 
-		      	  mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+    readnewbut_ = new uiPushButton( this, "Read New Geometry ...",
+			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
     readnewbut_->attach( centeredBelow, rgfld_ );
-    
+
     fillTable( geom );
 }
+
 
 //---------- Import New Geomtery ----------------
 class uiGeom2DImpDlg : public uiDialog
@@ -186,7 +188,7 @@ void impLineGeom( CallBacker* )
     uiGeom2DImpDlg dlg( this, linenm_ );
     if ( !dlg.go() ) return;
 
-    BufferString filenm( dlg.geom2dinfld_->fileName() ); 
+    BufferString filenm( dlg.geom2dinfld_->fileName() );
     if ( !filenm.isEmpty() )
     {
 	od_istream strm( filenm );

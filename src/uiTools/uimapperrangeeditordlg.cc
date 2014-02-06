@@ -33,7 +33,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     , rangeChange(this)
     , dpm_(DPM(dmid))		       
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     datapackids_.setSize( nr );
     uiSeparator* sephor = 0;

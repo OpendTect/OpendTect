@@ -132,7 +132,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     bvs.getColumn( bvs.nrVals() - 1, datavals, false );
     if ( datavals.isEmpty() )
     {
-	setCtrlStyle( uiDialog::LeaveOnly );
+	setCtrlStyle( uiDialog::CloseOnly );
 	new uiLabel( this, "No valid log data values extracted" );
 	return;
     }
@@ -491,7 +491,7 @@ bool uiNLAPartServer::doDPSDlg()
     su.isconst(false).allowretrieve(false).canaddrow(false);
     delete uidps_;
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
-    uidps_->setCtrlStyle( uiDialog::DoAndStay );
+    uidps_->setCtrlStyle( uiDialog::RunAndClose );
     uidps_->storePars() = storepars_;
     BufferStringSet bss;
     bss.add( NLACreationDesc::DataTypeNames()[0] );

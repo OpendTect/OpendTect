@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     : uiDialog( p,Setup("Wavelet Extraction","Specify parameters","103.3.4")
 	             .modal(false) )
-    , seisctio_(*mMkCtxtIOObj(SeisTrc)) 
+    , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , wvltctio_(*mMkCtxtIOObj(Wavelet))
     , wvltsize_(0)
     , zrangefld_(0)
@@ -54,14 +54,14 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     , linesel2dfld_(0)
     , datastep_(SI().zStep())
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     if ( !is2d )
     {
 	seisctio_.ctxt.forread = true;
-	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering());
 
 	seissel3dfld_ = new uiSeisSel( this, seisctio_,
-	    			     uiSeisSel::Setup(false,false) );
+				     uiSeisSel::Setup(false,false) );
 	seissel3dfld_->selectionDone.notify(
 				mCB(this,uiWaveletExtraction,inputSelCB) );
 
@@ -76,7 +76,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 	uiSeis2DMultiLineSel::Setup lnsetup( "Select lines" );
 	lnsetup.withattr( true ).allattribs( false ).steering( false );
 	linesel2dfld_ = new uiSeis2DMultiLineSel( this, lnsetup );
-	linesel2dfld_->butPush.notify( 
+	linesel2dfld_->butPush.notify(
 				mCB(this,uiWaveletExtraction,inputSelCB) );
     }
 
@@ -88,7 +88,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 void uiWaveletExtraction::createCommonUIFlds()
 {
     zextraction_ = new uiGenInput( this, "Vertical Extraction",
-	    		BoolInpSpec(linesel2dfld_,"Z range","Horizons") );
+			BoolInpSpec(linesel2dfld_,"Z range","Horizons") );
     zextraction_->valuechanged.notify(
 				mCB(this,uiWaveletExtraction,choiceSelCB) );
 
@@ -99,7 +99,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     zrangefld_->attach( alignedBelow, zextraction_ );
 
     surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface(), this,
-	   		 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
+			 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
     BufferString lbl( "Wavelet length ", SI().getZUnitString() );
@@ -174,7 +174,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 		if ( datastep_ != zrg.step )
 		{
 		    uiMSG().message( "Selected lines having different sample",
-			    	     " intervals\n Please change selection" );
+				     " intervals\n Please change selection" );
 		    return;
 		}
 
@@ -185,7 +185,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	if ( commonzrg.nrSteps() == 0 )
 	{
 	    uiMSG().message( "No common Z Range in selected lines.\n"
-		    	     "Please change selection" );
+			     "Please change selection" );
 	    return;
 	}
 
@@ -201,16 +201,16 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     if ( zextraction_->getBoolValue() )
     {
 	zrangefld_->setRangeLimits( cs.zrg );
-    	zrangefld_->setRange( cs.zrg );
+	zrangefld_->setRange( cs.zrg );
     }
-} 
+}
 
 
 bool uiWaveletExtraction::acceptOK( CallBacker* )
 {
     if ( !linesel2dfld_ )
     {
-    	if ( !seissel3dfld_->ioobj() || !outputwvltfld_->ioobj() ) 
+	if ( !seissel3dfld_->ioobj() || !outputwvltfld_->ioobj() )
 	    return false;
     }
     else
@@ -242,7 +242,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 		       "0 and ( Wavelet Length/2)" );
 	taperfld_->setValue( 5 );
 	return false;
-    }	
+    }
 
     if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180 )
     {
@@ -277,7 +277,7 @@ bool uiWaveletExtraction::checkWaveletSize()
 	if ( range < wvltsize_ )
 	{
 	    uiMSG().message( "Selection window size should be more",
-		   	     " than Wavelet Size" );
+			     " than Wavelet Size" );
 	    return false;
 	}
     }
@@ -380,14 +380,14 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 					      Seis::TableSelData& tsd )
 {
     const char* extrazkey = IOPar::compKey( sKey::Surface(),
-	    			  	  Pos::EMSurfaceProvider::extraZKey() );
+					  Pos::EMSurfaceProvider::extraZKey() );
     Interval<float> extz( 0, 0 );
     if ( surfacepar.get(extrazkey,extz) )
 	tsd.extendZ( extz );
 
     Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
     BufferString surfkey = IOPar::compKey( sKey::Surface(),
-	    				   Pos::EMSurfaceProvider::id1Key() );
+					   Pos::EMSurfaceProvider::id1Key() );
     MultiID surf1mid, surf2mid;
     if ( !surfacepar.get( surfkey.buf(), surf1mid ) )
 	return false;
@@ -408,8 +408,8 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     }
 
     uiTaskRunner dlg( this );
-    EM::EMObject* emobjsinglehor = EM::EMM().loadIfNotFullyLoaded( surf1mid,
-	    							   &dlg );
+    EM::EMObject* emobjsinglehor =
+	EM::EMM().loadIfNotFullyLoaded( surf1mid, &dlg );
 
     if ( !emobjsinglehor )
 	return false;
@@ -425,8 +425,8 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     if ( betweenhors )
     {
 	EM::SectionID sid = horizon1->sectionID( 0 );
-	EM::EMObject* emobjdoublehor = EM::EMM().loadIfNotFullyLoaded( surf2mid,
-								       &dlg );
+	EM::EMObject* emobjdoublehor =
+	    EM::EMM().loadIfNotFullyLoaded( surf2mid, &dlg );
 
 	if ( !emobjdoublehor )
 	    return false;
@@ -453,7 +453,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     }
 
     emobjsinglehor->unRef();
-    
+
     return true;
 }
 

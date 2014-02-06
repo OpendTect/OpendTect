@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
-    : uiWellDahDisplay::DahObjData( scn, isfirst, s )  
+    : uiWellDahDisplay::DahObjData( scn, isfirst, s )
     , unitmeas_(0)
     , logSet(this)
 {
@@ -48,7 +48,7 @@ void uiWellLogDisplay::gatherDataInfo( bool first )
 {
     LogData& ld = logData( first );
     ld.xax_.setup().islog( ld.disp_.islogarithmic_ );
-    ld.cliprate_ = ld.disp_.cliprate_; 
+    ld.cliprate_ = ld.disp_.cliprate_;
     ld.valrg_ = ld.disp_.range_;
 
     uiWellDahDisplay::gatherDataInfo( first );
@@ -72,7 +72,7 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 }
 
 
-void uiWellLogDisplay::LogData::getInfoForDah( float dah, 
+void uiWellLogDisplay::LogData::getInfoForDah( float dah,
 						BufferString& msg ) const
 {
     if ( !log() ) return;
@@ -141,7 +141,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 
     if ( ld.disp_.iswelllog_ ) return;
 
-    const float rgstop = ld.xax_.range().stop; 
+    const float rgstop = ld.xax_.range().stop;
     const float rgstart = ld.xax_.range().start;
 
     int sz = ld.log() ? ld.log()->size() : 0;
@@ -168,7 +168,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 	float dah = ld.log()->dah( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah >= ld.log()->dah(index+1) || dah <= ld.log()->dah(index-1) )
+	    if ( dah>=ld.log()->dah(index+1) || dah<=ld.log()->dah(index-1) )
 		continue;
 	}
 	mDefZPosInLoop( dah )
@@ -218,13 +218,13 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
     if ( !ld.disp_.isleftfill_ && !ld.disp_.isrightfill_ ) return;
 
-    const float rgstop = ld.xax_.range().stop; 
+    const float rgstop = ld.xax_.range().stop;
     const float rgstart = ld.xax_.range().start;
     const bool isrev = rgstop < rgstart;
 
-    const float colrgstop = ld.disp_.fillrange_.stop; 
+    const float colrgstop = ld.disp_.fillrange_.stop;
     const float colrgstart = ld.disp_.fillrange_.start;
-    const bool iscolrev = colrgstop < colrgstart; 
+    const bool iscolrev = colrgstop < colrgstart;
 
     const float colstep = ( colrgstop - colrgstart ) / 255;
     int sz = ld.log() ? ld.log()->size() : 0;
@@ -237,7 +237,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     uiPoint closept;
 
     const bool fullpanelfill = ld.disp_.isleftfill_ && ld.disp_.isrightfill_;
-    const bool isfillrev = !fullpanelfill &&  
+    const bool isfillrev = !fullpanelfill &&
 		 ( ( first && ld.disp_.isleftfill_ && !isrev )
 		|| ( first && ld.disp_.isrightfill_ && isrev )
 		|| ( !first && ld.disp_.isrightfill_ && !isrev )
@@ -247,7 +247,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     mDefZPos( zfirst )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
-    closept.x = ( first ) ? isfillrev ? pixstart : pixstop 
+    closept.x = ( first ) ? isfillrev ? pixstart : pixstop
 			  : isfillrev ? pixstop  : pixstart;
     closept.y = ld.yax_.getPix( zfirst );
     int prevcolidx = 0;
@@ -272,9 +272,9 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	    isvalrev = !isvalrev;
 	const float valdiff = isvalrev ? colrgstop-val : val-colrgstart;
 	int colindex = (int)( valdiff/colstep );
-	if ( colindex > 255 ) colindex = 255; 
-	if ( colindex < 0 )   colindex = 0; 
-	if ( fullpanelfill ) 
+	if ( colindex > 255 ) colindex = 255;
+	if ( colindex < 0 )   colindex = 0;
+	if ( fullpanelfill )
 	    val = first ? rgstart : rgstop;
 
 	if ( mIsUdf(val) )
@@ -290,7 +290,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 	pt.x = ld.xax_.getPix(val);
 	pt.y = ld.yax_.getPix(zpos);
-	
+
 	*curpts += prevpt;
 	*curpts += pt;
 
@@ -337,14 +337,14 @@ uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
 
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 				    const uiWellLogDisplay::Setup& wldsu,
-       				    bool mkcopy )
+				    bool mkcopy )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID).modal(false))
     , logSet(this)
     , logsmine_(mkcopy)
     , log1_(0)
     , log2_(0)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     dispfld_ = new uiWellLogDisplay( this, wldsu );
     const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
     dispfld_->logData(true).logSet.notify( cb );

@@ -1136,7 +1136,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     uiDialog* setupdlg  = new uiDialog( parent(),
 				uiDialog::Setup("Tracking Setup",0,"108.0.1")
 				.modal(false) );
-    setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
+    setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg, emobj->getTypeStr(),
 						  0 );

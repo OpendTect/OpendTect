@@ -86,7 +86,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     filegrp->setHAlignObj( inpfilefld );
     filegrp->attach( alignedBelow, ismanfld );
 
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     postFinalise().notify( mCB(this,uiConvertPos,selChg) );
 }
 

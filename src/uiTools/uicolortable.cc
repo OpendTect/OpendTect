@@ -51,7 +51,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     , scaleChanged(nf)
 {
     showAlwaysOnTop();
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     setButtonText( OK, "Apply" );
 
     doclipfld = new uiGenInput( this, "Auto-set scale ranges",

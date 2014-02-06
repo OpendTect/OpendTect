@@ -39,7 +39,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram", 
 		    "Set azimuth and dip", mNoHelpID).modal(false)))
 {
-    pddlg_->setCtrlStyle( LeaveOnly );
+    pddlg_->setCtrlStyle( CloseOnly );
     pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );

@@ -41,7 +41,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, needsave_(false)
 	, windowHide(this)
 {
-    setCtrlStyle( uiDialog::DoAndStay );
+    setCtrlStyle( uiDialog::RunAndClose );
     setHelpID( "103.5.0" );
     addStdFields( false, false, true );
     createToolBar();

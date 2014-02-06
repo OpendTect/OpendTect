@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
 	: uiDialog( p, Setup( "Well log tools", "Select logs", "107.3.1" ) )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
     welllogselfld_ = new uiMultiWellLogSel( this, su );

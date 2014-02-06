@@ -37,7 +37,7 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,bool is2d,
     , inputfld_( 0 )
     , parsgrp_( 0 )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
 	horizon_->ref();

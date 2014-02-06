@@ -56,7 +56,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     , constzfld_(0)
     , dataselfld_(0)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     BufferString label( import_ ? "Input " : "Output " );
     label += "Ascii file";
@@ -76,7 +76,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	zfld_ = new uiLabeledComboBox( this, "Get Z values from" );
 	zfld_->box()->addItems( zoptions );
 	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
-		    		formatSel) );
+				formatSel) );
 	zfld_->attach( alignedBelow, filefld_ );
 
 	BufferString constzlbl = "Specify constant Z value";
@@ -107,8 +107,8 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	objfld_->attach( ensureBelow, sep );
 
 	colorfld_ = new uiColorInput( this,
-	       		           uiColorInput::Setup(getRandStdDrawColor()).
-	       			   lbltxt("Color") );
+				   uiColorInput::Setup(getRandStdDrawColor()).
+				   lbltxt("Color") );
 	colorfld_->attach( alignedBelow, objfld_ );
 
 	polyfld_ = new uiCheckBox( this, "Import as Polygon" );
@@ -128,7 +128,7 @@ void uiImpExpPickSet::inputChgd( CallBacker* )
 
 void uiImpExpPickSet::formatSel( CallBacker* )
 {
-    const int zchoice = zfld_->box()->currentItem(); 
+    const int zchoice = zfld_->box()->currentItem();
     const bool iszreq = zchoice == 0;
     constzfld_->display( zchoice == 1 );
     horinpfld_->display( zchoice == 2 );
@@ -173,7 +173,7 @@ bool uiImpExpPickSet::doImport()
     else
     {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
-	ioobj->pars().set( sKey::Type(), PickSetTranslatorGroup::sKeyPickSet() );
+	ioobj->pars().set( sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
     }
 
     IOM().commitChanges( *ioobj );
@@ -197,8 +197,8 @@ bool uiImpExpPickSet::doExport()
 
     const char* fname = filefld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() ) 
-    { 
+    if ( !sdo.usable() )
+    {
 	sdo.close();
 	mErrRet( "Could not open output file" )
     }

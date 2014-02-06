@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiPluginMan::uiPluginMan( uiParent* p )
 	: uiDialog(p,Setup("Plugins",mNoDlgTitle,"0.2.5"))
 {
-    setCtrlStyle( uiDialog::LeaveOnly );
+    setCtrlStyle( uiDialog::CloseOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     listfld = new uiListBox( leftgrp, "Plugin list" );
     listfld->setPrefWidthInChar( 25 );

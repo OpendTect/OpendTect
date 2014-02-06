@@ -64,7 +64,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	, tbuf_(*new SeisTrcBuf(true))
 	, rdr_(0)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );

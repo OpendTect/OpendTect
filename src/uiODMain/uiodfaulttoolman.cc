@@ -59,7 +59,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     , saveifdisplayed_( su.saveifdisplayed_ )
     , colormodechg( this )
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiLabel* colormodelbl = new uiLabel( this, "Output color selection:" );
 

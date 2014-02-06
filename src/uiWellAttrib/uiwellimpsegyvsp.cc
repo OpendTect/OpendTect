@@ -144,7 +144,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     , isdpth_(false)
 {
     const bool definft = SI().xyInFeet();
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     bparsfld_ = new uiSEGYVSPBasicPars( this );
 

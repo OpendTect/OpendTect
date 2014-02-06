@@ -40,9 +40,9 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 			"Specify import parameters", "103.0.22"))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
-    , import_(0)							
+    , import_(0)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     finpfld_ = new uiGenInput( this, "CBVS file name" );
     finpfld_->setReadOnly();
@@ -56,12 +56,12 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     uiSeparator* sep1 = new uiSeparator( this, "sep" );
     sep1->attach( stretchedBelow, subselfld_ );
 
-    interpfld_ = new uiGenInput( this, "Interpolation", 
+    interpfld_ = new uiGenInput( this, "Interpolation",
 			    BoolInpSpec( true, interpols[0], interpols[1] ) );
-    interpfld_->valuechanged.notify( 
-	    	mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
-    interpfld_->attach( ensureBelow, sep1 ); 
-    interpfld_->attach( alignedBelow, subselfld_ ); 
+    interpfld_->valuechanged.notify(
+		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
+    interpfld_->attach( ensureBelow, sep1 );
+    interpfld_->attach( alignedBelow, subselfld_ );
 
     cellsizefld_ = new uiLabeledSpinBox( this, "Lateral stepout (Inl/Crl)" );
     cellsizefld_->attach( alignedBelow, interpfld_ );
@@ -92,7 +92,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
 
 void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
 {
-    const bool curitm = interpfld_->getBoolValue() ? 0 : 1; 
+    const bool curitm = interpfld_->getBoolValue() ? 0 : 1;
     interpol_ = (SeisImpCBVSFromOtherSurvey::Interpol)(curitm);
     issinc_ = interpol_ == SeisImpCBVSFromOtherSurvey::Sinc;
     cellsizefld_->display( issinc_ );
@@ -105,12 +105,12 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
     if ( objdlg.go() && inctio_.ioobj )
     {
 	if ( import_ ) delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj ); 
+	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
 	if ( import_->prepareRead( fusrexp ) )
 	{
 	    finpfld_->setText( fusrexp );
-	    subselfld_->setInput( import_->cubeSampling() ); 
+	    subselfld_->setInput( import_->cubeSampling() );
 	}
 	else
 	    { delete import_; import_ = 0; }
@@ -122,14 +122,14 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 {
     if ( !import_ )
-	mErrRet( "No valid input, please select a new input file" ) 
+	mErrRet( "No valid input, please select a new input file" )
 
     if ( !outfld_->commitInput() )
     {
 	if ( outfld_->isEmpty() )
 	    mErrRet( "Please select a name for the output data" )
 	else
-	    mErrRet( "Can not process output" ) 
+	    mErrRet( "Can not process output" )
     }
     int cellsz = issinc_ ? cellsizefld_->box()->getValue() : 0;
     CubeSampling cs; subselfld_->getSampling( cs );
@@ -143,15 +143,15 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
-    , inioobj_(inp)	
+    , inioobj_(inp)
     , wrr_(0)
     , outioobj_(0)
     , nrdone_(0)
     , tr_(0)
     , fullusrexp_(0)
     , fft_(0)
-    , arr_(0)     
-    , fftarr_(0)     
+    , arr_(0)
+    , fftarr_(0)
     , taper_(0)
 {
 }
@@ -180,7 +180,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     const CBVSInfo::SurvGeom& geom = info.geom_;
     olddata_.cs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
     olddata_.cs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
-    olddata_.cs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() ); 
+    olddata_.cs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() );
     data_.hsit_ = new HorSamplingIterator( olddata_.cs_.hrg );
     olddata_.cs_.zrg = info.sd_.interval( info.nrsamples_ );
     data_.cs_.zrg = olddata_.cs_.zrg; data_.cs_.zrg.step = SI().zStep();
@@ -189,9 +189,10 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     while ( data_.hsit_->next( bid ) )
 	data_.cs_.hrg.include( SI().transform( b2c.transform( bid ) ) );
 
-    if ( !SI().isInside(data_.cs_.hrg.start,true) 
+    if ( !SI().isInside(data_.cs_.hrg.start,true)
 	&& !SI().isInside(data_.cs_.hrg.stop,true) )
-	mErrRet("The selected cube has no coordinate matching the current survey")
+	mErrRet( "The selected cube has no coordinates "
+		 "matching the current survey." )
 
     int step = olddata_.cs_.hrg.step.inl();
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;
@@ -203,19 +204,19 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 }
 
 
-void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz, 
+void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 					const CubeSampling& cs )
 {
-    interpol_ = interp; 
+    interpol_ = interp;
     data_.cs_ = cs;
     data_.cs_.limitTo( SI().sampling(false) );
     data_.cs_.hrg.snapToSurvey();
-    data_.hsit_->setSampling( data_.cs_.hrg ); 
+    data_.hsit_->setSampling( data_.cs_.hrg );
     totnr_ = mCast( int, data_.cs_.hrg.totalNr() );
-    if ( !cellsz ) return; 
-    fft_ = Fourier::CC::createDefault(); 
+    if ( !cellsz ) return;
+    fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );
-    StepInterval<float> zsi( data_.cs_.zrg ); 
+    StepInterval<float> zsi( data_.cs_.zrg );
     zsi.step = olddata_.cs_.zrg.step;
     szz_ = fft_->getFastSize( zsi.nrSteps() );
     arr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
@@ -225,7 +226,7 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 }
 
 
-float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c, 
+float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
 						 bool inldir, int step ) const
 {
     BinID orgbid = BinID( 0, 0 );
@@ -239,7 +240,7 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
 bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 {
     BufferString fnm( fulluserexp ? fulluserexp : inioobj_.fullUserExpr(true) );
-    tr_= CBVSSeisTrcTranslator::make( fnm, false, false, 0, true ); 
+    tr_= CBVSSeisTrcTranslator::make( fnm, false, false, 0, true );
     return tr_ ? true : false;
 }
 
@@ -249,18 +250,18 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 {
     if ( !data_.hsit_->next(data_.curbid_) )
 	return Executor::Finished();
-    
-    if ( !tr_ || !tr_->readMgr() ) 
+
+    if ( !tr_ || !tr_->readMgr() )
 	return Executor::ErrorOccurred();
 
     const Coord curcoord = SI().transform( data_.curbid_ );
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const BinID oldbid = b2c.transformBack( curcoord, olddata_.cs_.hrg.start,
-	    					olddata_.cs_.hrg.step );
-    SeisTrc* outtrc = 0; 
+						olddata_.cs_.hrg.step );
+    SeisTrc* outtrc = 0;
     if ( interpol_ == Nearest || padfac_ <= 1 )
     {
-	outtrc = readTrc( oldbid ); 
+	outtrc = readTrc( oldbid );
 	if ( !outtrc )
 	{
 	    outtrc = new SeisTrc( data_.cs_.zrg.nrSteps() );
@@ -271,7 +272,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     }
     else
     {
-	bool needgathertrcs = olddata_.curbid_ != oldbid || trcsset_.isEmpty(); 
+	bool needgathertrcs = olddata_.curbid_ != oldbid || trcsset_.isEmpty();
 	olddata_.curbid_ = oldbid;
 	if ( needgathertrcs )
 	{
@@ -292,15 +293,15 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	}
 	outtrc = new SeisTrc( *trcsset_[outtrcidx] );
     }
-    outtrc->info().binid = data_.curbid_; 
+    outtrc->info().binid = data_.curbid_;
 
-    if ( !wrr_ ) 
+    if ( !wrr_ )
 	wrr_ = new SeisTrcWriter(outioobj_);
     if ( !wrr_->put( *outtrc ) )
-    { 
-	errmsg_ = wrr_->errMsg(); 
+    {
+	errmsg_ = wrr_->errMsg();
 	delete outtrc;
-	return Executor::ErrorOccurred(); 
+	return Executor::ErrorOccurred();
     }
 
     delete outtrc;
@@ -312,12 +313,12 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
 SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
 {
-    SeisTrc* trc = 0; 
+    SeisTrc* trc = 0;
     if ( tr_->goTo( bid )  )
     {
 	trc = new SeisTrc;
 	trc->info().binid = bid;
-	tr_->readInfo( trc->info() ); 
+	tr_->readInfo( trc->info() );
 	tr_->read( *trc );
     }
     return trc;
@@ -336,8 +337,8 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
     {
 	for ( int idcrl=-nrcrltrcs; idcrl<nrcrltrcs; idcrl+=crlstep)
 	{
-	    BinID oldbid( olddata_.curbid_.inl() + idinl, 
-		    	  olddata_.curbid_.crl() + idcrl );
+	    BinID oldbid( olddata_.curbid_.inl() + idinl,
+			  olddata_.curbid_.crl() + idcrl );
 	    SeisTrc* trc = readTrc( oldbid );
 	    if ( !trc || trc->isEmpty() )
 		{ deepErase( trcs ); return false; }
@@ -348,15 +349,16 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
 }
 
 
-/*!Sinc interpol( x ): 
+/*!Sinc interpol( x ):
     x -> FFT(x) -> Zero Padd FFT -> iFFT -> y
 
 Zero Padding in FFT domain ( 2D example )
 			xx00xx
-	xxxx    -> 	000000
-	xxxx    	000000
+	xxxx	->	000000
+	xxxx		000000
 			xx00xx
 !*/
+
 #define mDoFFT(isforward,inp,outp,dim1,dim2,dim3)\
 {\
     fft_->setInputInfo(Array3DInfoImpl(dim1,dim2,dim3));\
@@ -369,11 +371,11 @@ Zero Padding in FFT domain ( 2D example )
 
 void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 {
-    if ( trcs.size() < 2 ) 
+    if ( trcs.size() < 2 )
 	return;
 
-    int szx = sz_; 	int newszx = newsz_;	 int xpadsz = (int)(szx/2);
-    int szy = sz_; 	int newszy = newsz_;	 int ypadsz = (int)(szy/2);
+    int szx = sz_;	int newszx = newsz_;	 int xpadsz = (int)(szx/2);
+    int szy = sz_;	int newszy = newsz_;	 int ypadsz = (int)(szy/2);
 
     for ( int idx=0; idx<trcs.size(); idx++ )
     {
@@ -440,7 +442,7 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	    trcs += trc;
 	    for ( int idz=0; idz<szz_; idz++ )
 	    {
-		if ( idz < trc->size() ) 
+		if ( idz < trc->size() )
 		    trc->set( idz, padarr.get(idx,idy,idz).real()*amplfac, 0 );
 	    }
 	}

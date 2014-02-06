@@ -30,7 +30,7 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     , volfld_(0)
     , impbody_(0)  
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     
     if ( SI().zIsTime() )
     {

@@ -73,7 +73,7 @@ uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
     : uiDialog( p, uiDialog::Setup("Set size of points","","") )
     , pointsetdisp_(disp)
 {
-    setCtrlStyle( uiDialog::LeaveOnly );
+    setCtrlStyle( uiDialog::CloseOnly );
     const float fsz = (float)pointsetdisp_->getPointSize();
     slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Size"), "Size" );
     slider_->sldr()->setInterval( StepInterval<float>(fsz-10.0f,

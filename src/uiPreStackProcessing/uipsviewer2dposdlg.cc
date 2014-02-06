@@ -40,7 +40,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
 	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     
     sliceselfld_ = new uiGatherPosSliceSel( this, tp, gathernms, issynthetic );
     sliceselfld_->enableScrollButton( false );

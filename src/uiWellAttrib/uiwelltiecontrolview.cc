@@ -203,7 +203,7 @@ public :
 	, pms_(pms)
 	, redrawneeded_(this)		   
     {
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	uiGroup* topgrp = new uiGroup( this, "top group" );
 	dispmrkfld_ = new uiCheckBox( topgrp, "display markers");
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );

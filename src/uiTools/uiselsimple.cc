@@ -27,7 +27,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
     if ( sz < 1 )
     {
 	new uiLabel(this,"No items available for selection");
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	return;
     }
 

@@ -428,7 +428,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties - Definition",
 				"Define possible layer properties","110.1.0"))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
     const char* strs[] = { "For this survey only",
 			   "As default for all surveys",

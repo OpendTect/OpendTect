@@ -56,6 +56,7 @@ public:
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
+			, applybutton_(false)
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
@@ -69,6 +70,7 @@ public:
 	mDefSetupMemb(BufferString,oktext)
 	mDefSetupMemb(BufferString,canceltext)
 	mDefSetupMemb(bool,modal)
+	mDefSetupMemb(bool,applybutton)
 	mDefSetupMemb(bool,savebutton)
 	mDefSetupMemb(bool,savebutispush)
 	mDefSetupMemb(bool,separator)
@@ -89,7 +91,7 @@ public:
 
     };
 
-    enum		Button { OK, SAVE, CANCEL, HELP, CREDITS };
+    enum		Button { OK, CANCEL, APPLY, HELP, CREDITS, SAVE };
 
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;
@@ -113,19 +115,18 @@ public:
     uiButton*		button( Button but );
     void		setButtonText( Button but, const char* txt );
 
-    enum CtrlStyle	{ DoAndLeave, DoAndStay, LeaveOnly, DoAndProceed };
+    enum CtrlStyle	{ OkAndCancel, RunAndClose, CloseOnly, DoAndProceed };
 			//! On construction, it's (of course) DoAndLeave
     void		setCtrlStyle(CtrlStyle);
 			//! OK button disabled when set to LeaveOnly
     CtrlStyle		getCtrlStyle() const		{ return ctrlstyle_; }
-    void		setOkText( const char* txt );
-			//! cancel button disabled when set to empty
-    void		setCancelText( const char* txt );
+    void		setOkText(const char*);
+			//! Cancel button disabled when set to empty
+    void		setCancelText(const char*);
 			//! Save button enabled when set to non-empty
     void		enableSaveButton( const char* txt="Save defaults" );
 			//! 0: cancel; 1: OK
     int			uiResult() const;
-
 
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);

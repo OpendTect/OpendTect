@@ -64,7 +64,7 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     waterbut_->display( false );
 
     fillRelationField( hornames_ );
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 }
 
 

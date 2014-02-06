@@ -491,7 +491,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	return false;
 
     bool res = issing ? singLaunch( *iop, fnm ) : multiLaunch( fnm );
-    return ctrlstyle_ == DoAndStay ? false : res;
+    return ctrlstyle_ == RunAndClose ? false : res;
 }
 
 

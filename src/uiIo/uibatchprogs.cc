@@ -175,11 +175,11 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 {
     if ( pil.size() < 1 )
     {
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 	new uiLabel( this, "Not found any BatchPrograms.* file in application");
 	return;
     }
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     progfld = new uiLabeledComboBox( this, "Batch program" );
     for ( int idx=0; idx<pil.size(); idx++ )

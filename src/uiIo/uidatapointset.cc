@@ -68,7 +68,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
-	    	      "Selected Points","All points with attribute" );
+		      "Selected Points","All points with attribute" );
     typefld_ = new uiGenInput( this, "Display",binp );
     typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
@@ -78,7 +78,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 	colnms.add( dps.colName(colidx) );
 
     uiLabeledComboBox* llb = new uiLabeledComboBox(
-	    			this, colnms, "Attribute to display" );
+				this, colnms, "Attribute to display" );
     llb->attach( alignedBelow, typefld_ );
     selfld_ = llb->box();
     if ( prevdispprop && !prevdispprop->showSelected() )
@@ -153,22 +153,22 @@ uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
 
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su,
-       				DataPointSetDisplayMgr* dpsmgr )
+				DataPointSetDisplayMgr* dpsmgr )
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
-    	, setup_(su)
-    	, zfac_(mCast(float,SI().zDomain().userFactor()))
-    	, zunitnm_(SI().getZUnitString(false))
+	, setup_(su)
+	, zfac_(mCast(float,SI().zDomain().userFactor()))
+	, zunitnm_(SI().getZUnitString(false))
 	, tbl_(0)
-    	, unsavedchgs_(false)
-    	, fillingtable_(true)
-    	, showbids_(false)
-    	, posdisptypechgd_(false)
-    	, valueChanged(this)
-    	, selPtsToBeShown(this)
-    	, rowAdded(this)
-    	, rowToBeRemoved(this)
-    	, rowRemoved(this)
+	, unsavedchgs_(false)
+	, fillingtable_(true)
+	, showbids_(false)
+	, posdisptypechgd_(false)
+	, valueChanged(this)
+	, selPtsToBeShown(this)
+	, rowAdded(this)
+	, rowToBeRemoved(this)
+	, rowRemoved(this)
 	, xplotwin_(0)
 	, dpsdisppropdlg_(0)
 	, statswin_(0)
@@ -184,7 +184,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 
     if ( mDPM.haveID(dps_.id()) )
 	mDPM.obtain( dps_.id() );
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     runcalcs_.allowNull( true );
 
     const int nrcols = initVars();
@@ -344,7 +344,7 @@ void uiDataPointSet::mkToolBars()
 	mAddButton( "variogram", compVertVariogram,
 		    "Compute variogram for column", false );
     xplottbid_ = mAddButton( "xplot", showCrossPlot,
-	    		     "Show Cross-plot", false );
+			     "Show Cross-plot", false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
 }
@@ -380,7 +380,7 @@ void uiDataPointSet::updColNames()
 	    colnm += BufferString("Z (",zunitnm_,")");
 	else
 	    colnm += userName( dColID(tid) );
-	
+
 	if ( tid > tbl_->nrCols()-1 )
 	    tbl_->insertColumns( tid, 1 );
 
@@ -513,10 +513,10 @@ void uiDataPointSet::fillPos( TRowID tid )
     BufferString rownm = groupName( dps_.group(dRowID(tid)) );
     if ( rownm.isEmpty() )
     {
-    	if ( is2D() )
-    	    rownm += pos.nr_;
-    	else
-    	    rownm += pos.binid_.toString();
+	if ( is2D() )
+	    rownm += pos.nr_;
+	else
+	    rownm += pos.binid_.toString();
     }
     tbl_->setRowLabel( tid, rownm );
     fillingtable_ = false;
@@ -544,7 +544,7 @@ void uiDataPointSet::handleAxisColChg()
 
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
-    
+
 }
 
 
@@ -601,9 +601,9 @@ void uiDataPointSet::selYCol( CallBacker* )
 	if ( dps_.nrActive()*2 > minptsfordensity )
 	{
 	    BufferString msg( "DataPoint set too large. Percentage of points "
-		    	      "displayed should be modified to give better "
+			      "displayed should be modified to give better "
 			      "performance. Do you want to change 'Plot each' "
-		      	      "or do you want to continue with no Y2 ?" ); 
+			      "or do you want to continue with no Y2 ?" );
 
 	    if ( uiMSG().askGoOn(msg,"Change % Data displayed",
 				 "Continue with no Y2") )
@@ -617,19 +617,19 @@ void uiDataPointSet::selYCol( CallBacker* )
 		plotpercentage_ =
 		    (float)100 / (float)(1+dps_.nrActive()/minptsfordensity);
 		y2col_ = -1;
-	    }		
+	    }
 	}
 	else
 	    y2col_ = tid;
     }
-    
+
     if ( prevy != ycol_ || prevy2 != y2col_ )
     {
 	if ( xplotwin_ )
 	    xplotwin_->setPercDisp( plotpercentage_ );
 	handleAxisColChg();
     }
- 
+
     if ( xplotwin_ && y2col_ == tid )
 	xplotwin_->setSelComboSensitive( true );
 
@@ -649,10 +649,10 @@ void uiDataPointSet::unSelYCol( CallBacker* )
 	return;
 
     handleAxisColChg();
-    
+
     if ( xplotwin_ && y2col_==-1 )
 	xplotwin_->setSelComboSensitive( false );
-    
+
     if ( xplotwin_ ) xplotwin_->setGrpColors();
 }
 
@@ -720,7 +720,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 void selTypeChanged( CallBacker* )
 {
     posinpfld_->newSpec( PositionInpSpec(PositionInpSpec::Setup(
-		    			 seltypefld_->getBoolValue())), 0 );
+					 seltypefld_->getBoolValue())), 0 );
 }
 
 bool acceptOK( CallBacker* )
@@ -739,9 +739,9 @@ bool acceptOK( CallBacker* )
     else
 	pos.set( posinpfld_->getBinID() );
     pos.z_ = zinpfld_->getfValue();
-    
+
     datarow_ =
-	DataPointSet::DataRow( pos, mCast( unsigned short, 
+	DataPointSet::DataRow( pos, mCast( unsigned short,
 				 !grpfld_ ? 1 : grpfld_->currentItem() +1 ) );
     return true;
 }
@@ -781,14 +781,14 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	    }
 	    else
 	    {
-    		const Coord3 coord(xval,yval,zval/SI().zDomain().userFactor());
-    		if ( mIsEqual(coord.x,newcoord.x,2) &&
-       		     mIsEqual(coord.y,newcoord.y,2) &&
-    		     mIsEqual(coord.z,newcoord.z,1e-4) )
-    		{
-    		    tbl_->ensureCellVisible( RowCol(rownr,0) );
-    		    break;
-    		}
+		const Coord3 coord(xval,yval,zval/SI().zDomain().userFactor());
+		if ( mIsEqual(coord.x,newcoord.x,2) &&
+		     mIsEqual(coord.y,newcoord.y,2) &&
+		     mIsEqual(coord.z,newcoord.z,1e-4) )
+		{
+		    tbl_->ensureCellVisible( RowCol(rownr,0) );
+		    break;
+		}
 	    }
 	}
     }
@@ -1304,7 +1304,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-	    	"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
+		"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
     curseldlg_ = 0;
@@ -1320,7 +1320,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( pvds.data().isEmpty() )
 	{ uiMSG().error("Selected data set is empty"); return; }
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
-	    				     dps_.isMinimal() );
+					     dps_.isMinimal() );
     if ( newdps->isEmpty() )
     { delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
@@ -1358,7 +1358,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
-	    		BoolInpSpec(false,"Text file","OpendTect object") );
+			BoolInpSpec(false,"Text file","OpendTect object") );
     tabfld_->valuechanged.notify( tccb );
     uiFileInput::Setup su;
     su.defseldir(GetDataDir()).forread(false).filter("*.txt");
@@ -1511,7 +1511,7 @@ void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
     dpsdispmgr_->lock();
     dpsdispmgr_->clearDispProp();
     dpsdispmgr_->setDispProp( dispprop );
-    
+
     int dpsid = dpsdispmgr_->getDisplayID(dps_);
     if ( dpsid < 0 )
 	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
@@ -1542,7 +1542,7 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	if ( tablerange.size()>1 )
 	{
 	     if ( !uiMSG().askGoOn( "Only selected rows will be removed"
-		     	      "\nThose rows falling in the same range"
+			      "\nThose rows falling in the same range"
 			      "\nbut not displayed as only certain"
 			      "\npercentage of data is displayed will not"
 			      "\nbe removed."
@@ -1618,12 +1618,12 @@ void uiDataPointSet::removeHiddenRows()
 	    val = mCast(float,mGetHPosVal(-nrPosCols(),drowid));
 	else
 	    val = dps_.value( dColID(sortcol_), drowid );
-	
+
 	if ( valrange.includes(val,true) || (valrange.start==val)
 					 || (valrange.stop==val) )
 	    dps_.setInactive( drowid, true );
 	continue;
-	
+
     }
 
     mCleanRunCalcs;
@@ -1679,7 +1679,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	    TypeSet<float> vals;
 	    bvs.get( pos, curbid, vals );
 	    DataPointSet::RowID rid = dps_.getRowID( pos );
-	    
+
 	    for ( int idx=0; idx<colids.size(); idx++ )
 	    {
 		float yval = mUdf(float);
@@ -1698,7 +1698,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	    }
 
 	    vals[ vals.size()-1 ] = mCast(float,mathobj->getValue());
-	    bvs.set( pos, vals ); 
+	    bvs.set( pos, vals );
 	}
 
 	unsavedchgs_ = true;
@@ -1725,7 +1725,7 @@ void uiDataPointSet::removeColumn( CallBacker* )
 	if ( tcolid == y2col_ ) { if ( sel ) msg += " and "; msg += "Y2"; }
 	msg += " axis for the crossplot. Removing the column will unselect it.";
 	msg += " Do you really want to remove this column?";
-	
+
 	if ( !uiMSG().askGoOn(msg) )
 	    return;
 	else
@@ -1762,26 +1762,26 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 	    nrgroups = dps_.group(irow);
     }
 
-    uiVariogramDlg varsettings( parent(), true );                              
-    if ( !varsettings.go() )                                                    
+    uiVariogramDlg varsettings( parent(), true );
+    if ( !varsettings.go() )
 	return;
 
     BufferString errmsg;
     bool msgiserror = true;
     VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold(),
-	   		      nrgroups, errmsg, msgiserror );
+			      nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )
     {
 	msgiserror ? uiMSG().error( errmsg.buf() )
-	    	   : uiMSG().warning( errmsg.buf() );
+		   : uiMSG().warning( errmsg.buf() );
 	return;
     }
 
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), vvc.getData(),
-	    					       vvc.getXaxes(),
-	    					       vvc.getLabels(),
-	   					       varsettings.getMaxRg(),
+						       vvc.getXaxes(),
+						       vvc.getLabels(),
+						       varsettings.getMaxRg(),
 						       false );
     variodlgs_ += uivv;
     uivv->draw();

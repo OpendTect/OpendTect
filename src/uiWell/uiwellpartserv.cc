@@ -282,7 +282,7 @@ void uiWellPartServer::launchRockPhysics()
 
     uiDialog msgdlg( &dlg, uiDialog::Setup("Rock Physics",mNoDlgTitle,
 					   mNoHelpID).modal(false) );
-    msgdlg.setCtrlStyle( uiDialog::LeaveOnly );
+    msgdlg.setCtrlStyle( uiDialog::CloseOnly );
     uiLabel* lbl = new uiLabel( &msgdlg, "Select one or several wells, "
 	    "press 'Create' button\nand then press the rock physics icon" );
     uiPushButton* rpicon = new uiPushButton( &msgdlg, "",

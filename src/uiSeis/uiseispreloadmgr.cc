@@ -43,7 +43,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup("Pre-load manager","Pre-loaded seismic data",
 			"103.0.13"))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
     listfld_ = new uiListBox( topgrp, "Loaded entries" );
     listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );

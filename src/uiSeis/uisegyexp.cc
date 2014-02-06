@@ -175,7 +175,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	, selcomp_(-1)
 {
     prepUsgStart( "Export" ); sendUsgInfo();
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
     PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );

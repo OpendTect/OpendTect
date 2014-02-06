@@ -26,13 +26,13 @@ namespace PreStackView
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      visSurvey::PreStackDisplay& vwr )
     : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,"50.0.20")
-	    		.modal(false) )
-    , viewer_(vwr)  
+			.modal(false) )
+    , viewer_(vwr)
     , applybox_(0)
     , applybut_(0)
 {
     ootxt_ = is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr";
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     oobox_ = new uiCheckBox( this, ootxt_ );
     oobox_->setChecked( true );
@@ -46,13 +46,13 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 
     stepfld_ = new uiLabeledSpinBox(this,"Step",0,"Step");
     stepfld_->attach( rightOf, posfld_ );
-    stepfld_->box()->setInterval( StepInterval<int>(posspos.step, 
+    stepfld_->box()->setInterval( StepInterval<int>(posspos.step,
 		posspos.stop-posspos.start,posspos.step) );
     stepfld_->box()->valueChanged.notify(
-	    		mCB(this,uiViewer3DPositionDlg,stepCB) );
+			mCB(this,uiViewer3DPositionDlg,stepCB) );
 
     applybox_ = new uiCheckBox( this, "Immediate update",
-	    			mCB(this,uiViewer3DPositionDlg,applBoxSel) );
+				mCB(this,uiViewer3DPositionDlg,applBoxSel) );
     applybox_->attach( rightOf, stepfld_ );
     applybut_ = new uiPushButton( this, "&Update Now", true );
     applybut_->attach( rightBorder );
@@ -80,8 +80,8 @@ bool uiViewer3DPositionDlg::isInl() const
 void uiViewer3DPositionDlg::renewFld( CallBacker* )
 {
     posfld_->setValue( !is3D() ? viewer_.traceNr() :
-	    (isInl() ? viewer_.draggerPosition().crl() 
-	     	     : viewer_.draggerPosition().inl()) );
+	    (isInl() ? viewer_.draggerPosition().crl()
+		     : viewer_.draggerPosition().inl()) );
 }
 
 
@@ -91,8 +91,8 @@ void uiViewer3DPositionDlg::stepCB( CallBacker* )
 
 void uiViewer3DPositionDlg::atStart( CallBacker* )
 {
-    posfld_->setValue( !is3D() ? viewer_.traceNr() : 
-	(isInl() ? viewer_.getPosition().crl() : viewer_.getPosition().inl()) ) ;
+    posfld_->setValue( !is3D() ? viewer_.traceNr() :
+	(isInl() ? viewer_.getPosition().crl() : viewer_.getPosition().inl()) );
 
     applybox_->setChecked( true );
     applybut_->display( false );
@@ -130,7 +130,7 @@ void uiViewer3DPositionDlg::applBoxSel( CallBacker* c )
 
 void uiViewer3DPositionDlg::posChg( CallBacker* c )
 {
-    if ( applybox_->isChecked() && 
+    if ( applybox_->isChecked() &&
 	 viewer_.draggerPosition()==viewer_.getPosition() )
     {
 	applyCB( c ); //This will adjust to the nearest position.
@@ -144,7 +144,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
     if ( is3D() )
     {
 	BinID newpos = viewer_.getPosition();
-	
+
 	if ( isInl() )
 	{
 	    if ( newpos.crl()==location )
@@ -152,7 +152,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 
 	    const StepInterval<int> crlrg = SI().crlRange( true );
 	    if ( crlrg.includes( location, false ) )
-	    	newpos.crl() = location;
+		newpos.crl() = location;
 	    else
 	    {
 		BufferString msg = "The crossline should be between ";
@@ -170,7 +170,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 
 	    const StepInterval<int> inlrg = SI().inlRange( true );
 	    if ( inlrg.includes( location, false ) )
-	    	newpos.inl() = location;
+		newpos.inl() = location;
 	    else
 	    {
 		BufferString msg = "The inline should be between ";
@@ -192,7 +192,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	if ( !viewer_.getSeis2DDisplay() || location==viewer_.traceNr() )
 	    return true;
 
-	const Interval<int> trcrg = 
+	const Interval<int> trcrg =
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
 	if ( !trcrg.includes(location, true) )
 	{

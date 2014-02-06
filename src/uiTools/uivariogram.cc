@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id Exp $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivariogram.h"
 
@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id Exp $";
 #include "uislider.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
-#include "variogrammodels.h" 
+#include "variogrammodels.h"
 
 #include <math.h>
 
@@ -40,21 +40,21 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 				 "Specify semi-variogram parameters",
 				 "111.0.12" ) )
 {
-    int dxmin = SI().inlDistance() <= SI().crlDistance() ?
-       		(int)SI().inlDistance() : (int)SI().crlDistance();
-    int minrgval = isvert ? 30 : SI().xyInFeet() ?
-       			    dxmin*mNINT32((float)300/dxmin) : dxmin*mNINT32((float) 100/dxmin);
-    int maxrgval = isvert ? 300 : SI().xyInFeet() ? 
-			    dxmin*mNINT32((float) 10000/dxmin) : dxmin*mNINT32((float) 5000/dxmin);
-    int defrgval = isvert ? 50 : SI().xyInFeet() ?
-       			    dxmin*mNINT32((float) 5000/dxmin) : dxmin*mNINT32((float) 2000/dxmin);
-    int minstepval = isvert ? 1 : dxmin;
-    int maxstepval = isvert ? 10 : 10*dxmin;
-    int defstep = isvert ? 1 : dxmin;
-    int minfldval = isvert ? 1 : 1000;
-    int maxfldval = isvert ? 100 : 100000;
-    int deffldval = isvert ? 10 : 1000;
-    int deffldstep = isvert ? 1 : 1000;
+    const int dxmin = SI().inlDistance() <= SI().crlDistance() ?
+		(int)SI().inlDistance() : (int)SI().crlDistance();
+    const int minrgval = isvert ? 30 : SI().xyInFeet() ?
+	dxmin*mNINT32((float)300/dxmin) : dxmin*mNINT32((float) 100/dxmin);
+    const int maxrgval = isvert ? 300 : SI().xyInFeet() ?
+	dxmin*mNINT32((float) 10000/dxmin) : dxmin*mNINT32((float) 5000/dxmin);
+    const int defrgval = isvert ? 50 : SI().xyInFeet() ?
+	dxmin*mNINT32((float) 5000/dxmin) : dxmin*mNINT32((float) 2000/dxmin);
+    const int minstepval = isvert ? 1 : dxmin;
+    const int maxstepval = isvert ? 10 : 10*dxmin;
+    const int defstep = isvert ? 1 : dxmin;
+    const int minfldval = isvert ? 1 : 1000;
+    const int maxfldval = isvert ? 100 : 100000;
+    const int deffldval = isvert ? 10 : 1000;
+    const int deffldstep = isvert ? 1 : 1000;
 
     BufferString lbl( "Maximum range " );
     lbl += isvert ? "(ms)" : SI().getXYUnitString();
@@ -88,7 +88,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 
 void uiVariogramDlg::stepChgCB( CallBacker* )
 {
-    int val = stepfld_->getValue();
+    const int val = stepfld_->getValue();
     maxrgfld_->setStep( val, true );
 }
 
@@ -124,8 +124,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 					 Array2D<float>* axes,
 					 BufferStringSet* labels,
 					 int maxrg, bool ishor )
-    	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
-		    		     "111.0.13" ).modal(false))
+	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
+				     "111.0.13" ).modal(false))
 	, maxrg_(maxrg)
 {
     if ( !data || ! axes || !labels ) return;
@@ -133,13 +133,12 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     data_ = new Array2DImpl<float>( *data );
     axes_ = new Array2DImpl<float>( *axes );
     labels_ = new BufferStringSet( *labels);
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     const CallBack chgCBfld ( mCB(this,uiVariogramDisplay,fieldChangedCB) );
     const CallBack chgCBlbl ( mCB(this,uiVariogramDisplay,labelChangedCB) );
-    sillfld_ = new uiSliderExtra( this,                              
-				  uiSliderExtra::Setup("sill").withedit(true).
-						       nrdec(3).logscale(false).						       isvertical(true),
-				  "sill slider" ); 
+    sillfld_ = new uiSliderExtra( this, uiSliderExtra::Setup("sill")
+					.withedit(true).nrdec(3).logscale(false)
+					.isvertical(true), "sill slider" );
     sillfld_->display( true );
     sillfld_->sldr()->valueChanged.notify( chgCBfld );
 
@@ -158,33 +157,34 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     disp_->yAxis(false)->setName( "Normalized Variance" );
     disp_->attach( rightOf, sillfld_ );
 
-    rangefld_ = new uiSliderExtra( this,                              
+    rangefld_ = new uiSliderExtra( this,
 				   uiSliderExtra::Setup("range").withedit(true).
 						       nrdec(1).logscale(false),
-				   "range slider" ); 
+				   "range slider" );
     rangefld_->attach( centeredBelow, disp_ );
     rangefld_->sldr()->setMinValue( 0 );
     rangefld_->display( true );
     rangefld_->sldr()->valueChanged.notify( chgCBfld );
 
     typefld_ = new uiGenInput( this, "Variogram model",
-	    		     StringListInpSpec(typestrs) );
+			     StringListInpSpec(typestrs) );
     typefld_->valuechanged.notify( chgCBfld );
     typefld_->attach( alignedBelow, rangefld_ );
 
     BufferString lblnmstr = ishor ? "Direction:" : "Source:";
     labelfld_ = new uiGenInput( this, lblnmstr,
-	    			StringListInpSpec(*labels) );
+				StringListInpSpec(*labels) );
     labelfld_->valuechanged.notify( chgCBlbl );
     labelfld_->attach( rightAlignedAbove, disp_ );
 }
+
 
 void uiVariogramDisplay::draw()
 {
     float maxdataval = 0;
     float maxdatavalcomp1 = 0;
-    int nrcomp = data_->info().getSize(0);
-    int size = data_->info().getSize(1);
+    const int nrcomp = data_->info().getSize(0);
+    const int size = data_->info().getSize(1);
     for ( int icomp=0; icomp<nrcomp; icomp++ )
     {
 	for ( int ilag=0; ilag<size; ilag++ )
@@ -213,10 +213,11 @@ void uiVariogramDisplay::draw()
     fieldChangedCB(0);
 }
 
+
 void uiVariogramDisplay::labelChangedCB( CallBacker* c )
 {
-    int size = axes_->info().getSize(1);
-    int curcomp = labelfld_->getIntValue();
+    const int size = axes_->info().getSize(1);
+    const int curcomp = labelfld_->getIntValue();
     int nbpts = 0;
     TypeSet<float> xaxisvals;
     TypeSet<float> yaxisvals;
@@ -232,24 +233,26 @@ void uiVariogramDisplay::labelChangedCB( CallBacker* c )
     disp_->setVals( xaxisvals.arr(), yaxisvals.arr(), nbpts );
 }
 
+
 void uiVariogramDisplay::fieldChangedCB( CallBacker* c )
 {
-    float nugget = 0;
-    int size = axes_->info().getSize(1);
+    const float nugget = 0;
+    const int size = axes_->info().getSize(1);
     Array1DImpl<float> xaxisvals(size);
     Array1DImpl<float> yaxisvals(size);
 
-    int curcomp = labelfld_->getIntValue();
-    float sill = sillfld_->sldr()->getValue();
-    float range = rangefld_->sldr()->getValue();
+    const int curcomp = labelfld_->getIntValue();
+    const float sill = sillfld_->sldr()->getValue();
+    const float range = rangefld_->sldr()->getValue();
 
     for ( int ilag=0; ilag<size; ilag++ )
 	xaxisvals.set( ilag, axes_->get(curcomp,ilag) );
     getVariogramModel( typefld_->text(), nugget, sill, range, size,
-	   		xaxisvals.getData(), yaxisvals.getData() );
+			xaxisvals.getData(), yaxisvals.getData() );
 
     disp_->setY2Vals( xaxisvals.getData(), yaxisvals.getData(), size );
 }
+
 
 uiVariogramDisplay::~uiVariogramDisplay()
 {
@@ -257,3 +260,4 @@ uiVariogramDisplay::~uiVariogramDisplay()
     if ( axes_ ) delete axes_;
     if ( labels_ ) delete labels_;
 }
+

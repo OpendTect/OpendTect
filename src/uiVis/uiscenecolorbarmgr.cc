@@ -21,7 +21,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     : uiDialog(p,uiDialog::Setup("Color Bar Settings",mNoDlgTitle,mNoHelpID))
     , scenecoltab_(coltab)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, "Width" );
     widthfld_ = wfld->box();

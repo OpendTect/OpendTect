@@ -43,7 +43,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Probability Density Function",
 				 "Specify parameters","112.0.0"))
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File",
 	    uiFileInput::Setup(uiFileDialog::Gen)
@@ -289,7 +289,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
 				 "Specify parameters","112.0.1"))
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = true;

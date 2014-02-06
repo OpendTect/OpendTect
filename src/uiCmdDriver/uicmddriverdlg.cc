@@ -101,7 +101,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 	, defaultscriptsdir_(defscriptsdir)
 	, defaultlogdir_(deflogdir)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     setCancelText( "&Hide" );
 
     cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, "Select script to" );

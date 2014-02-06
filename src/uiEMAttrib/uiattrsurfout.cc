@@ -39,7 +39,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     , interpol_(0)
 {
     setHelpID( "104.4.0" );
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     attrnmfld_ = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, attrfld_ );

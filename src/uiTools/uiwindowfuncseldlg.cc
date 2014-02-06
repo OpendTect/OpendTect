@@ -270,7 +270,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     , variable_(variable)
     , funcdrawer_(0)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );

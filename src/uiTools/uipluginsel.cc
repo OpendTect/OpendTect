@@ -31,7 +31,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     titl += GetFullODVersion(); titl += ": Candidate auto-loaded plugins";
     setCaption( titl );
 
-    setCtrlStyle( uiDialog::LeaveOnly );
+    setCtrlStyle( uiDialog::CloseOnly );
     setCancelText( sOk() );
     setSaveButtonChecked( true );
 

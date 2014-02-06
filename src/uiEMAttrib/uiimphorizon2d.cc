@@ -218,7 +218,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     , readyForDisplay(this)
 {
     enableSaveButton( "Display after import" );
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)

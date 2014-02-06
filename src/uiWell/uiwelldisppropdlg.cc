@@ -36,7 +36,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	, savedefault_(false)
 	, is2ddisplay_(is2d)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
 

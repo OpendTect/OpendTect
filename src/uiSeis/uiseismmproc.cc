@@ -837,7 +837,7 @@ bool uiSeisMMProc::wrapUp( bool force )
     }
 
     progrfld->append( "Processing completed" );
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     button(uiDialog::CANCEL)->display(false);
     rmTmpSeis( jobprov );
     delete jobrunner; jobrunner = 0;

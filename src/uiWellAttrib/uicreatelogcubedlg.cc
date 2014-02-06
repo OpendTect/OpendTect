@@ -34,7 +34,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 				 "Select logs to create new cubes",
 				 "103.2.25") )
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
 
     uiWellExtractParams::Setup su;
     su.withzstep(false).withsampling(true).withextractintime(false);

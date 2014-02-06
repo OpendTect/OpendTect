@@ -99,9 +99,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	     bid.crl()==cs_.hrg.start.crl() || bid.crl()==cs_.hrg.stop.crl() )
 	    continue;/*Extended one layer*/
 
-	if ( usepolygon && !plg_.isInside(Geom::Point2D<float>(
-		     mCast(float,bid.inl()), mCast(float,bid.crl())), true, 0.01) )
-	    continue;
+	if ( usepolygon )
+	{
+	    Geom::Point2D<float> pt( mCast(float,bid.inl()),
+				     mCast(float,bid.crl()) );
+	    if ( !plg_.isInside(pt,true,0.01) )
+		continue;
+	}
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
 	{
@@ -351,11 +355,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
+
 bool inFaultRange( const BinID& pos, int curidx,
-	Geometry::ExplPlaneIntersection* epi )
+		   Geometry::ExplPlaneIntersection* epi )
 {
     const char side = fsides_[curidx];
-    const int ic = side==mToMinInline || side==mToMaxInline ? pos.inl() : pos.crl();
+    const int ic = side==mToMinInline || side==mToMaxInline
+	? pos.inl() : pos.crl();
     if ( outsidergs_[curidx].includes(ic,false) )
 	return false;
 
@@ -417,8 +423,9 @@ bool inFaultRange( const BinID& pos, int curidx,
 	poly.add( c_[3] );
     }
 
-    return poly.isInside(Geom::Point2D<float>( mCast(float,pos.inl()),
-						mCast(float,pos.crl())),true,0 );
+    return poly.isInside(
+	Geom::Point2D<float>( mCast(float,pos.inl()),
+			      mCast(float,pos.crl())), true, 0 );
 }
 
 
@@ -541,7 +548,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     : uiDialog( p, Setup("Region constructor","Boundary settings","103.1.20") )
     , singlehoradded_(false)
 {
-    setCtrlStyle( DoAndStay );
+    setCtrlStyle( RunAndClose );
     //setHelpID( "dgb:104.0.4" );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),

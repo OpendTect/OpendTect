@@ -32,7 +32,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     , lay_(lay)
 {
     if ( !editable )
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( CloseOnly );
 
     lithfld_ = new uiGenInput( this, "Lithology", lay_.lithology().name() );
     lithfld_->setReadOnly();

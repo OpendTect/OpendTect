@@ -1290,7 +1290,7 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     , mpeman_(mpeman)
 {
     updateDisplayList();
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     ColTab::Sequence ctseq( "" );
     uiColorTableGroup* coltabgrp =

@@ -249,7 +249,7 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
             : uiDialog(p,Setup(w.name(),"","103.3.8")
 			 .modal(false))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
     properties_ = new uiWaveletDispProp( this, w );
 }
 

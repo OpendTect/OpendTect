@@ -50,7 +50,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     lineset_ = new Seis2DLineSet( ioobj.fullUserExpr(true) );

@@ -636,7 +636,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
 				"104.2.1"))
     , eminfo_(info)
 {
-    setCtrlStyle( LeaveOnly );
+    setCtrlStyle( CloseOnly );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
