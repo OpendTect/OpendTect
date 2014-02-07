@@ -133,6 +133,7 @@ protected:
 						     BufferStringSet&);
     void			importSet(CallBacker*);
     void			importFile(CallBacker*);
+    void			importFromSeis(CallBacker*);
     void			job2Set(CallBacker*);
     void			crossPlot(CallBacker*);
     void			directShow(CallBacker*);

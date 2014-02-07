@@ -45,21 +45,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
 #include "uiautoattrdescset.h"
-#include "uievaluatedlg.h"
-#include "uitoolbutton.h"
 #include "uicombobox.h"
+#include "uievaluatedlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiselobjothersurv.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uistoredattrreplacer.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
@@ -139,6 +140,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertMnuItem( impmnu, "From other &Survey ...", importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, "From &File ...", importFile );
     mInsertItem( "&Reconstruct from job file ...", job2Set, "job2set" );
+    mInsertItemNoIcon( "Import set from &Seismics ...", importFromSeis );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -1032,6 +1034,50 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 			 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
+}
+
+
+#define mDelCtio delete ctio->ioobj; delete ctio
+
+void uiAttribDescSetEd::importFromSeis( CallBacker* )
+{
+    if ( !offerSetSave() ) return;
+
+    // TODO: Only display files with have saved attributes
+    const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
+    CtxtIOObj* ctio = uiSeisSel::mkCtxtIOObj( is2d?Seis::Line:Seis::Vol, true );
+    ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
+
+    uiSeisSelDlg dlg( this, *ctio, uiSeisSel::Setup(is2d,false) );
+    if ( !dlg.go() ) { mDelCtio; return; }
+
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj ) { mDelCtio; return; }
+
+    FilePath fp( ioobj->fullUserExpr() );
+    fp.setExtension( "proc" );
+    if ( !File::exists(fp.fullPath()) )
+    {
+	uiMSG().error( "No attributeset stored with this dataset" );
+	mDelCtio;
+	return;
+    }
+
+    IOPar iopar( "AttributeSet" );
+    iopar.read( fp.fullPath(), sKey::Pars(), false );
+    PtrMan<IOPar> attrpars = iopar.subselect( sKey::Attributes() );
+    if ( !attrpars )
+    {
+	uiMSG().error( "Cannot read attributeset from this dataset" );
+	mDelCtio;
+	return;
+    }
+
+    attrset_->usePar( *attrpars );
+    newList( -1 );
+    attrsetfld_->setText( sKeyNotSaved );
+    setctio_.ioobj = 0;
+    mDelCtio;
 }
 
 
