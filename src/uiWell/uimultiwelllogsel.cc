@@ -524,7 +524,7 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 
 
 void uiMultiWellLogSel::setSelWellNames( const BufferStringSet& nms )
-{ wellsfld_->setSelectedItems( nms ); }
+{ if ( wellsfld_ ) wellsfld_->setSelectedItems( nms ); }
 
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& nms ) const
 { logsfld_->getSelectedItems( nms ); }
