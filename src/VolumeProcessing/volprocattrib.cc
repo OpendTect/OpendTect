@@ -109,8 +109,7 @@ bool VolProcAttrib::computeData( const Attrib::DataHolder& output,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float outval = mUdf(float);
-	if ( !chain_ || !executor_ )
-	    setOutputValue( output, 0, idx, z0, outval );
+	setOutputValue( output, 0, idx, z0, outval );
     }
 
     return true;
