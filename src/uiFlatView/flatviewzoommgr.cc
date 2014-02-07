@@ -193,6 +193,12 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 	add( newzooms ); return;
     }
 
+    const Size zoom0 = viewerdata_[vieweridx]->zooms_[0];
+    if ( newzoom.width() > zoom0.width() )
+	newzoom.setWidth( zoom0.width() );
+    if ( newzoom.height() > zoom0.height() )
+	newzoom.setHeight( zoom0.height() );
+
     const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
     bool found = false;
     for ( int idx=0; idx<viewerdata_[vieweridx]->zooms_.size(); idx++ )
