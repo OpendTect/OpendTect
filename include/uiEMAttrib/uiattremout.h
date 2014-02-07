@@ -13,11 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiemattribmod.h"
-#include "uibatchlaunch.h"
 #include "attribdescid.h"
+#include "uidialog.h"
 
 class NLAModel;
 class uiAttrSel;
+class uiBatchJobDispatcherSel;
 
 namespace Attrib { class DescSet; }
 
@@ -27,7 +28,7 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-mExpClass(uiEMAttrib) uiAttrEMOut : public uiFullBatchDialog
+mExpClass(uiEMAttrib) uiAttrEMOut : public uiDialog
 {
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
@@ -38,10 +39,11 @@ protected:
 
     virtual void	attribSel(CallBacker*)		=0;
     virtual bool	prepareProcessing();
-    virtual bool	fillPar(IOPar&);
+    virtual bool	fillPar();
     bool		addNLA(Attrib::DescID&);
     void		fillOutPar(IOPar&,const char* outtyp,
 	    			   const char* idlbl,const char* outid);
+    bool		acceptOK(CallBacker*);
 
     Attrib::DescSet&	ads_;
     const MultiID&	nlaid_;
@@ -49,6 +51,7 @@ protected:
     const NLAModel*	nlamodel_;
 
     uiAttrSel*		attrfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 };
 
 #endif

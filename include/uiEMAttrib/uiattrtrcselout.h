@@ -43,7 +43,7 @@ public:
 protected:
 
     bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     void                objSel(CallBacker*);
     void                attribSel(CallBacker*);
     void		interpSel(CallBacker*);

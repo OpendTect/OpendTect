@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
+#include "uibatchjobdispatchersel.h"
 
 
 using namespace Attrib;
@@ -67,8 +68,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     else
 	createTwoHorUI();
 
-    addStdFields();
-
+    batchfld_->attach( alignedBelow, outpfld_ );
     objSel(0);
     if ( usesinglehor_ && !ads_.is2D() )
 	interpSel(0);
@@ -81,22 +81,20 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 void uiAttrTrcSelOut::createSingleHorUI()
 {
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along Horizon" );
+    objfld_ = new uiIOObjSel( this, ctio_, "Calculate along Horizon" );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createSubSelFld( uppgrp_ );
-    createZIntervalFld( uppgrp_ );
-    createOutsideValFld( uppgrp_ );
+    createSubSelFld( this );
+    createZIntervalFld( this );
+    createOutsideValFld( this );
     if ( !ads_.is2D() )
     {
-	createInterpFld( uppgrp_ );
-	createNrSampFld( uppgrp_ );
+	createInterpFld( this );
+	createNrSampFld( this );
     }
-    createCubeBoundsFlds( uppgrp_ );
-    createOutputFld( uppgrp_ );
-
-    uppgrp_->setHAlignObj( attrfld_ );
+    createCubeBoundsFlds( this );
+    createOutputFld( this );
 }
 
 
@@ -108,19 +106,19 @@ void uiAttrTrcSelOut::createTwoHorUI()
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top Horizon:");
+    objfld_ = new uiIOObjSel( this, ctio_,"Calculate between top Horizon:");
     objfld_->attach( alignedBelow, attrfld_ );
 
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom Horizon:" );
+    obj2fld_ = new uiIOObjSel( this, ctio2_, "and bottom Horizon:" );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createExtraZTopFld( uppgrp_ );
-    createExtraZBotFld( uppgrp_ );
-    createSubSelFld( uppgrp_ );
-    createOutsideValFld( uppgrp_ );
+    createExtraZTopFld( this );
+    createExtraZBotFld( this );
+    createSubSelFld( this );
+    createOutsideValFld( this );
     if ( !ads_.is2D() )
     {
 	createInterpFld( xparsdlg_ );
@@ -130,19 +128,18 @@ void uiAttrTrcSelOut::createTwoHorUI()
 	createMainHorFld( xparsdlg_ );
     }
 
-    createCubeBoundsFlds( ads_.is2D() ? (uiParent*) uppgrp_
+    createCubeBoundsFlds( ads_.is2D() ? (uiParent*) this
 				      : (uiParent*) xparsdlg_ );
-    createOutputFld( uppgrp_ );
+    createOutputFld( this );
 
     if ( !ads_.is2D() )
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( uppgrp_, "Extra options", cb, false );
+			new uiPushButton( this, "Extra options", cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
+	batchfld_->attach( alignedBelow, extrabut );
     }
-
-    uppgrp_->setHAlignObj( attrfld_ );
 }
 
 
@@ -383,9 +380,10 @@ bool uiAttrTrcSelOut::prepareProcessing()
 }
 
 
-bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
+bool uiAttrTrcSelOut::fillPar()
 {
-    uiAttrEMOut::fillPar( iopar );
+    uiAttrEMOut::fillPar();
+    IOPar& iopar = batchfld_->jobSpec().pars_;
     const bool is2d = ads_.is2D();
 
     BufferString outseisid;
@@ -541,7 +539,7 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 
 void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
-    setParFileNmDef( attrfld_->getInput() );
+    batchfld_->setJobName( attrfld_->getInput() );
     if ( ads_.is2D() )
     {
 	const Desc* desc = ads_.getDesc( attrfld_->attribID() );
@@ -560,6 +558,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 			LineKey( IOM().nameOf( lk.lineName().buf() ),
 				 attrfld_->getInput() );
 		    outpfld_->setInputText( inptxt.buf() );
+		    batchfld_->setJobName( inptxt.buf() );
 
 		    outpfld_->processInput();
 		}
@@ -642,11 +641,7 @@ void uiAttrTrcSelOut::singLineSel( CallBacker* )
 {
     if ( !ads_.is2D() ) return;
 
-    mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
-    if ( singmachfld_ && seis2dsubsel )
-	singmachfld_->setValue( seis2dsubsel->isSingLine() );
-    singTogg( 0 );
-    if ( singmachfld_ ) singmachfld_->display( false );
+    batchfld_->jobSpecUpdated();
 }
 
 

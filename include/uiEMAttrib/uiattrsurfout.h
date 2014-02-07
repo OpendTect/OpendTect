@@ -40,7 +40,7 @@ public:
 protected:
 
     bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     void		attribSel(CallBacker*);
     void		objSelCB(CallBacker*);
     void		fillUdfSelCB(CallBacker*);

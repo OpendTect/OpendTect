@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uibatchjobdispatchersel.h"
 
 using namespace Attrib;
 
@@ -41,26 +42,25 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpID( "104.4.0" );
     setCtrlStyle( RunAndClose );
 
-    attrnmfld_ = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
+    attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
-    filludffld_ = new uiGenInput( uppgrp_, "Fill undefined parts",
+    filludffld_ = new uiGenInput( this, "Fill undefined parts",
 	    			  BoolInpSpec(false) );
     filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
-    settingsbut_ = new uiPushButton( uppgrp_, "Settings",
+    settingsbut_ = new uiPushButton( this, "Settings",
 	    			 mCB(this,uiAttrSurfaceOut,settingsCB), false);
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    objfld_ = new uiIOObjSel( uppgrp_, mIOObjContext(EMHorizon3D),
+    objfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
 			      "Calculate on Horizon" );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
 
-    uppgrp_->setHAlignObj( attrfld_ );
-    addStdFields( false, true );
+    batchfld_->attach( alignedBelow, objfld_ );
 }
 
 
@@ -120,7 +120,7 @@ void uiAttrSurfaceOut::objSelCB( CallBacker* )
 
     BufferString parnm( objfld_->ioobj(true)->name() );
     parnm += " "; parnm += attrnmfld_->text();
-    setParFileNmDef( parnm );
+    batchfld_->setJobName( parnm );
 }
 
 
@@ -136,9 +136,11 @@ bool uiAttrSurfaceOut::prepareProcessing()
 }
 
 
-bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
+bool uiAttrSurfaceOut::fillPar()
 {
-    uiAttrEMOut::fillPar( iopar );
+    uiAttrEMOut::fillPar();
+    IOPar& iopar = batchfld_->jobSpec().pars_;
+
     const IOObj* ioobj = objfld_->ioobj();
     if ( !ioobj ) return false;
 

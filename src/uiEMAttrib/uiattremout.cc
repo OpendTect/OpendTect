@@ -11,25 +11,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiattremout.h"
+
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "attribengman.h"
 #include "attriboutput.h"
-#include "uiattrsel.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "nladesign.h"
 #include "nlamodel.h"
-#include "uimsg.h"
 #include "multiid.h"
-#include "keystrs.h"
+
+#include "uiattrsel.h"
+#include "uibatchjobdispatchersel.h"
+#include "uimsg.h"
 
 using namespace Attrib;
 
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 			  const NLAModel* n, const MultiID& mid,
 			  const char* dlgnm )
-    : uiFullBatchDialog(p,Setup(dlgnm).procprognm("od_process_attrib_em"))
+    : uiDialog(p,Setup(dlgnm,mNoDlgTitle,""))
     , ads_(const_cast<DescSet&>(ad))
     , nlamodel_(n)
     , nlaid_(mid)
@@ -37,9 +40,12 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 {
     setTitleText( "" );
 
-    attrfld_ = new uiAttrSel( uppgrp_, ads_, "Quantity to output" );
+    attrfld_ = new uiAttrSel( this, ads_, "Quantity to output" );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectionDone.notify( mCB(this,uiAttrEMOut,attribSel) );
+
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::AttribEM );
 }
 
 
@@ -56,7 +62,7 @@ bool uiAttrEMOut::prepareProcessing()
 }
 
 
-bool uiAttrEMOut::fillPar( IOPar& iopar )
+bool uiAttrEMOut::fillPar()
 {
     if ( nlamodel_ && attrfld_->outputNr() >= 0 )
     {
@@ -76,13 +82,8 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
     IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
-	    
-    for ( int idx=0; idx<attrpar.size(); idx++ )
-    {
-        const char* nm = attrpar.getKey( idx );
-        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey(),nm),
-		   attrpar.getValue(idx) );
-    }
+    IOPar& iopar = batchfld_->jobSpec().pars_;
+    iopar.mergeComp( attrpar, SeisTrcStorOutput::attribkey() );
 
     if ( attrfld_->is2D() )
     {
@@ -139,4 +140,10 @@ bool uiAttrEMOut::addNLA( DescID& id )
 	mErrRet( errmsg );
 
     return true;
+}
+
+
+bool uiAttrEMOut::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
 }
