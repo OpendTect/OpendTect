@@ -29,7 +29,8 @@ public:
 		BinIDWiseTask( Step& ro )
 		    : step_( ro ), totalnr_( -1 )	{}
 
-    const char*	message() const				{ return errmsg_; }
+    const char*	message() const			{ return errmsg_; }
+    const char*	nrDoneText() const		{ return "Positions done"; }
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
@@ -95,7 +96,7 @@ protected:
     BufferString	errmsg_;
 };
 
-}; //Volproc namespace
+} // namespace Volproc
 
 
 using namespace VolProc;
