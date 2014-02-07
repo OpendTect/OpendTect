@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 
+class BufferStringSet;
+
 namespace Well
 {
 
@@ -34,6 +36,8 @@ public:
 			LogSet()		{ init(); }
     virtual		~LogSet()		{ setEmpty(); }
 
+    void		getNames(BufferStringSet&) const;
+
     int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
     const Log&		getLog( int idx ) const	{ return *logs[idx]; }
@@ -42,9 +46,9 @@ public:
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
 
     Interval<float>	dahInterval() const	{ return dahintv; }
-    						//!< not def if start == undef
+						//!< not def if start == undef
     void		updateDahIntvs();
-    						//!< if logs changed
+						//!< if logs changed
     void		removeTopBottomUdfs();
 
     void		add(Log*);		//!< becomes mine
@@ -61,7 +65,7 @@ protected:
     Interval<float>	dahintv;
 
     void		init()
-    			{ dahintv.start = mSetUdf(dahintv.stop); }
+			{ dahintv.start = mSetUdf(dahintv.stop); }
 
     void		updateDahIntv(const Well::Log&);
 

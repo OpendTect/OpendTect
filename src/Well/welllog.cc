@@ -16,9 +16,16 @@ const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
 
+void Well::LogSet::getNames( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<logs.size(); idx++ )
+	nms.add( logs[idx]->name() );
+}
+
+
 void Well::LogSet::add( Well::Log* l )
 {
-    if ( !l ) return; 
+    if ( !l ) return;
     if ( getLog(l->name()) ) return;
 
     logs += l;
@@ -92,7 +99,7 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
 {
     if ( &l != this )
     {
-	setName( l.name() ); 
+	setName( l.name() );
 	setUnitMeasLabel( l.unitMeasLabel() );
 	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
     }
@@ -165,13 +172,13 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
 
 void Well::Log::addValue( float dh, float val )
 {
-    if ( !mIsUdf(val) ) 
+    if ( !mIsUdf(val) )
     {
 	if ( val < range_.start ) range_.start = val;
 	if ( val > range_.stop ) range_.stop = val;
     }
 
-    dah_ += dh; 
+    dah_ += dh;
     val_ += val;
 }
 
