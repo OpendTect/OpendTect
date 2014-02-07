@@ -257,6 +257,14 @@ bool BatchProgram::go( od_ostream& strm )
     else
     { mStrmWithProcID( "Processing done; Closing down" ); }
 
+    PtrMan<IOObj> ioobj = IOM().get( seisid );
+    if ( ioobj )
+    {
+	FilePath fp( ioobj->fullUserExpr() );
+	fp.setExtension( "proc" );
+	pars().write( fp.fullPath(), sKey::Pars() );
+    }
+
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
     progressmeter.setFinished();
