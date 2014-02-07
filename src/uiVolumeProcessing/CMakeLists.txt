@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiVelocity uiAttributes uiEarthModel VolumeProcessing)
+SET(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
 SET(OD_MODULE_SOURCES
 	inituivolumeprocessing.cc
 	uivelocitygridder.cc
@@ -18,6 +18,7 @@ SET(OD_MODULE_SOURCES
 	uivolprocsmoother.cc
 	uivolprocsurfacelimitedfiller.cc
 	uivolprocvolreader.cc
+	uiwellloginterpolator.cc
 )
 
 OD_INIT_MODULE()

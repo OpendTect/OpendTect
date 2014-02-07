@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocsurfacelimitedfiller.h"
 #include "volprocvolreader.h"
 #include "volproctrans.h"
+#include "wellloginterpolator.h"
 
 
 mDefModInitFn(VolumeProcessing)
@@ -35,6 +36,9 @@ mDefModInitFn(VolumeProcessing)
     VolProc::SurfaceLimitedFiller::initClass();
     VolProc::VelGriddingStep::initClass();
     VolProc::VolumeReader::initClass();
+    VolProc::WellLogInterpolator::initClass();
 
+#ifdef __debug__
     VolProcAttrib::initClass();
+#endif
 }
