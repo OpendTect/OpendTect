@@ -34,11 +34,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 
-static int getWellIndex( const char* wellnm )
+static int getWellIndex( const char* nm )
 {
+    const FixedString wellnm = nm;
     for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
     {
-	if ( Well::MGR().wells()[idx]->name() == wellnm )
+	if ( wellnm == Well::MGR().wells()[idx]->name() )
 	    return idx;
     }
     return -1;
@@ -109,11 +110,15 @@ void uiCreateAttribLogDlg::init( CallBacker* )
     Well::MarkerSet mrkrs;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
-	int wdidx = getWellIndex( FixedString(wellnames_.get(idx)) );
+	const int wdidx = getWellIndex( wellnames_.get(idx) );
+	if ( !Well::MGR().wells().validIdx(wdidx) )
+	    continue;
+
 	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
 	if ( wdtmp )
 	    mrkrs.append( wdtmp->markers() );
     }
+
     sort( mrkrs ); zrangeselfld_->setMarkers( mrkrs );
 }
 
@@ -152,7 +157,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
-	const int wellidx = getWellIndex( FixedString(selwells.get(idx)) );
+	const int wellidx = getWellIndex( selwells.get(idx) );
 	if ( wellidx<0 ) continue;
 
 	if ( !inputsOK(wellidx) )
