@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "envvars.h"
 
 
 #define mSldUnits 250
@@ -52,6 +53,8 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(
 	    mCB(this,uiObjectItemViewWin,scrollBarCB) );
+    mAttachCB( mainviewer_->getNavigationMouseEventHandler().wheelMove,
+	       uiObjectItemViewWin::wheelMoveCB );
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ - mScrollBarSize );
     infobar_->setPrefHeight( su.infoheight_ );
@@ -169,6 +172,7 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 	NotifyStopper nsl( revsld->sliderReleased );
 	revsld->setValue( hslval_ );
     }
+//    if ( !sld ) { reSizeItems(); return; }
     const uiRect& mainrect = mainviewer_->getViewArea();
     const int x = mainrect.left();
     const int y = mainrect.top();
@@ -310,6 +314,44 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     zoomratiofld_->setChecked(false);
     screensz_ = screensz;
     reSizeSld(0);
+}
+
+
+void uiObjectItemViewWin::wheelMoveCB( CallBacker* )
+{
+    if ( !GetEnvVarYN("WCP_SCROLL_ZOOM") ) return;
+    if ( !mainviewer_->getNavigationMouseEventHandler().hasEvent() )
+	return;
+    
+    const MouseEvent& ev =mainviewer_->getNavigationMouseEventHandler().event();
+    if ( mIsZero(ev.angle(),0.01) )
+	return;
+    
+    const bool zoomin = ev.angle() > 0;
+    const uiRect viewrect = mainviewer_->getViewArea();
+    const float fac = zoomin ? 0.8 : 1.25;
+    
+    float newhorfac = fac*hslval_;
+    scaleVal( newhorfac, true, false );
+    float newverfac = fac*vslval_;
+    scaleVal( newverfac, false, false );
+    
+    uiSlider* hsldr = horsliderfld_->sldr();
+    uiSlider* vsldr = versliderfld_->sldr();
+    const bool sldrsatstart = mIsEqual(hsldr->getValue(),hsldr->minValue(),1e-5)
+	&& mIsEqual(vsldr->getValue(),vsldr->minValue(),1e-5);
+    const bool sldrsatstop = mIsEqual(hsldr->getValue(),hsldr->maxValue(),1e-5)
+	&& mIsEqual(vsldr->getValue(),vsldr->maxValue(),1e-5);
+    if ( (sldrsatstart && zoomin) || (sldrsatstop && !zoomin) ) return;
+    
+    NotifyStopper nsh( hsldr->sliderReleased );
+    NotifyStopper nsv( vsldr->sliderReleased );
+    hsldr->setValue( newhorfac );
+    vsldr->setValue( newverfac );
+    reSizeSld(0); fittoscreen_ = false;
+    
+    mainviewer_->setViewArea( viewrect.left()*fac, viewrect.top()*fac,
+	    viewrect.width()*fac, viewrect.height()*fac );
 }
 
 

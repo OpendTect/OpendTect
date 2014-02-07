@@ -112,6 +112,7 @@ protected:
 
     void		reSizeCB(CallBacker*);
     void		fitToScreen(CallBacker*);
+    void		wheelMoveCB(CallBacker*);
     void		reSizeSld(CallBacker*);
     void		rubBandCB(CallBacker*);
     void		scrollBarCB(CallBacker*);
