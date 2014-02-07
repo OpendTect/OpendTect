@@ -182,7 +182,7 @@ void Well::MarkerSet::insertNewAfter( int aftidx,
 	{ ObjectSet<Marker>::append( mrkrs ); mrkrs.erase(); return; }
 
     Interval<float> dahbounds( (*this)[0]->dah() - 10,
-	    			(*this)[size()-1]->dah() + 10 );
+				(*this)[size()-1]->dah() + 10 );
 
     Interval<int> idxs;
     if ( aftidx < 0 )
@@ -217,7 +217,7 @@ void Well::MarkerSet::insertNewAfter( int aftidx,
 	const float dahstep = gapwdht / (idxs.width() + 2);
 	for ( int idx=idxs.start; idx<=idxs.stop; idx++ )
 	    (*this)[idx]->setDah( dahbounds.start
-		    		  + dahstep * (idx-idxs.start+1) );
+				  + dahstep * (idx-idxs.start+1) );
     }
 }
 
@@ -402,11 +402,27 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 }
 
 
-Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms, Interval<int> rg )
+Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms,
+				const Interval<int>& rg )
     : markers_(ms)
-    , rg_(rg)
 {
-    const int inpsz = ms.size();
+    init( rg );
+}
+
+
+Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms,
+				const char* m1, const char* m2 )
+    : markers_(ms)
+{
+    init( Interval<int>(ms.indexOf(m1),ms.indexOf(m2)) );
+}
+
+
+void Well::MarkerRange::init( const Interval<int>& rg )
+{
+    rg_ = rg;
+
+    const int inpsz = markers_.size();
     if ( inpsz < 1 )
 	rg_.start = rg_.stop = -1;
     else
@@ -467,4 +483,53 @@ Well::MarkerSet* Well::MarkerRange::getResultSet() const
     for ( int idx=rg_.start; idx<=rg_.stop; idx++ )
 	*ret += new Well::Marker( *markers_[idx] );
     return ret;
+}
+
+
+void Well::MarkerChgRange::setThickness( float newth )
+{
+    if ( !isValid() || rg_.start == rg_.stop )
+	return;
+    if ( newth < 0 )
+	newth = 0;
+
+    const float startdah = markers_[rg_.start]->dah();
+    const float oldth = markers_[rg_.stop]->dah() - startdah;
+
+    if ( mIsZero(newth,mDefEps) )
+    {
+	for ( int idx=rg_.start+1; idx<rg_.stop; idx++ )
+	    getMarkers()[idx]->setDah( startdah );
+    }
+    else
+    {
+	const float comprfac = newth / oldth;
+	for ( int idx=rg_.start+1; idx<rg_.stop; idx++ )
+	{
+	    const float newdist = comprfac * (markers_[idx]->dah() - startdah);
+	    getMarkers()[idx]->setDah( startdah + newdist );
+	}
+    }
+
+    const float deltath = oldth - newth;
+    const float lastdah = markers_[rg_.stop-1]->dah();
+    for ( int idx=rg_.stop; idx<markers_.size(); idx++ )
+    {
+	float newdah = markers_[idx]->dah() - deltath;
+	if ( newdah < lastdah ) // just a guard against rounding errors
+	    newdah = lastdah;
+	getMarkers()[idx]->setDah( newdah );
+    }
+}
+
+
+void Well::MarkerChgRange::remove()
+{
+    if ( !isValid() ) return;
+
+    const int nrlays = rg_.width() + 1;
+    for ( int idx=0; idx<nrlays; idx++ )
+	getMarkers().removeSingle( rg_.start, true );
+
+    rg_.stop = rg_.start = rg_.start - 1;
 }

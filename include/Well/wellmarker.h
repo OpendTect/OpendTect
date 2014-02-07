@@ -94,6 +94,8 @@ public:
     bool		insertNew(Well::Marker*); //becomes mine
     void		addSameWell(const ObjectSet<Marker>&);
     void		mergeOtherWell(const ObjectSet<Marker>&);
+    virtual void	append( const ObjectSet<Marker>& ms )
+							{ mergeOtherWell(ms); }
 
     int			indexOf( const Marker* m ) const
 			{ return ObjectSet<Marker>::indexOf(m); }
@@ -104,9 +106,6 @@ public:
     void		getColors(TypeSet<Color>&) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
-
-    virtual void	append( const ObjectSet<Marker>& ms )
-							{ mergeOtherWell(ms); }
 
 protected:
 
@@ -125,8 +124,11 @@ protected:
 mExpClass(Well) MarkerRange
 {
 public:
+
 			MarkerRange(const MarkerSet&,
-				    Interval<int> idxrg=Interval<int>(-1,-1));
+				const Interval<int>& idxrg=Interval<int>(-1,-1));
+			MarkerRange(const MarkerSet&,
+				const char*,const char*);
 
     inline int		size() const		{ return rg_.width(false) + 1; }
     bool		isValid() const;
@@ -135,8 +137,10 @@ public:
 						{ return rg_.includes(i,false);}
     bool		isIncluded(const char*) const;
     bool		isIncluded(float z) const;
+
     void		getNames(BufferStringSet&) const;
     MarkerSet*		getResultSet() const; //!< returns new set
+
 
     const MarkerSet&	markers() const		{ return markers_; }
     const Interval<int>& idxRange() const	{ return rg_; }
@@ -146,8 +150,34 @@ protected:
 
     const MarkerSet&	markers_;
     Interval<int>	rg_;
+    bool		isconst_;
+
+    void		init(const Interval<int>&);
 
 };
+
+
+/*!\brief MarkerRange that can change its MarkerSet  */
+
+mExpClass(Well) MarkerChgRange : public MarkerRange
+{
+public:
+
+			MarkerChgRange( MarkerSet& ms,
+				const Interval<int>& idxrg=Interval<int>(-1,-1) )
+			    : MarkerRange(ms,idxrg)	{}
+			MarkerChgRange( MarkerSet& ms, const char* m1,
+							const char* m2 )
+			    : MarkerRange(ms,m1,m2)	{}
+
+    void		setThickness(float);
+    void		remove();
+
+    inline MarkerSet&	getMarkers()
+			{ return const_cast<MarkerSet&>(markers_); }
+
+};
+
 
 
 } // namespace Well
