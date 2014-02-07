@@ -115,10 +115,10 @@ public:
     uiButton*		button( Button but );
     void		setButtonText( Button but, const char* txt );
 
-    enum CtrlStyle	{ OkAndCancel, RunAndClose, CloseOnly, DoAndProceed };
-			//! On construction, it's (of course) DoAndLeave
+    enum CtrlStyle	{ OkAndCancel, RunAndClose, CloseOnly };
+			//! On construction, it's (of course) OkAndCancel
     void		setCtrlStyle(CtrlStyle);
-			//! OK button disabled when set to LeaveOnly
+			//! OK button disabled when set to CloseOnly
     CtrlStyle		getCtrlStyle() const		{ return ctrlstyle_; }
     void		setOkText(const char*);
 			//! Cancel button disabled when set to empty

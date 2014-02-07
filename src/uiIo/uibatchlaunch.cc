@@ -311,7 +311,7 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
     , singmachfld_( 0 )
     , hascluster_(false)
 {
-    setCtrlStyle( DoAndProceed );
+    setCtrlStyle( RunAndClose );
     setParFileNmDef( 0 );
     if ( s.showoutputopts_ )
     {
@@ -579,6 +579,6 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     redo_ = true;
     setHelpID( "101.2.1" );
     setTitleText( "Run a saved processing job" );
-    setCtrlStyle( DoAndProceed );
+    setCtrlStyle( RunAndClose );
     addStdFields( true );
 }

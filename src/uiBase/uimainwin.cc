@@ -1928,10 +1928,6 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 	setOkText( mBody->finalised() ? canceltext : "" );
 	setCancelText( canceltext );
     break;
-    case DoAndProceed:
-	setOkText( oktext );
-	setCancelText( canceltext );
-    break;
     }
 
     ctrlstyle_ = cs;
