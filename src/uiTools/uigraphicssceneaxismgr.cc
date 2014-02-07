@@ -274,10 +274,10 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     : view_( view )
     , xaxis_( new uiAxisHandler(&view.scene(),
 				uiAxisHandler::Setup(uiRect::Top)
-				.fixedborder(true).nogridline(true)) )
+				.fixedborder(true).nogridline(true).ticsz(5)) )
     , yaxis_( new uiAxisHandler(&view.scene(),
 				uiAxisHandler::Setup(uiRect::Left)
-				.fixedborder(true)) )
+				.fixedborder(true).ticsz(5)) )
     , uifont_( uiFontList::getInst().get(FontData::key(FontData::GraphicsMed)) )
 {
     xaxis_->setBegin( yaxis_ );
