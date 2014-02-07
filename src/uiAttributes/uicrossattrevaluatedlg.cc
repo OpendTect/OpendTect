@@ -32,7 +32,8 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
-    : uiDialog(p,uiDialog::Setup("Cross attributes evaluation","Settings",
+    : uiDialog(p,uiDialog::Setup("Cross attribute parameter evaluation",
+		mNoDlgTitle,
 		"101.3.1").modal(false).oktext("Accept").canceltext(""))
     , calccb(this)
     , showslicecb(this)
@@ -60,7 +61,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     haspars_ = true;
 
     uiGroup* grp = new uiGroup( this, "Attr-Params" );
-    uiLabel* paramlabel = new uiLabel( grp, "Evaluate parameters" );
+    uiLabel* paramlabel = new uiLabel( grp, "Parameter to evaluate" );
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
