@@ -69,7 +69,7 @@ protected:
     uiGenInput*		belowfld_;
 
     ObjectSet<uiGroup>	zselectionflds_;
-    ObjectSet<uiLabel> 	zlabelflds_;
+    ObjectSet<uiLabel>	zlabelflds_;
     uiGenInput*         zchoicefld_;
 
     int			selidx_;
@@ -108,7 +108,7 @@ public:
 			uiWellExtractParams(uiParent*,const Setup&);
 
     Well::ExtractParams& params()
-    			{ return static_cast<Well::ExtractParams&>(*params_); }
+			{ return static_cast<Well::ExtractParams&>(*params_); }
 
 protected:
 
@@ -140,10 +140,12 @@ public:
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
+    void		getSelWellIDs(TypeSet<MultiID>&) const;
 
     void		setSelLogNames(const BufferStringSet&);
     void		setSelWellNames(const BufferStringSet&);
     void		setSelWellIDs(const BufferStringSet&);
+    void		setSelWellIDs(const TypeSet<MultiID>&);
 
     void		update(); //call this when data changed
 

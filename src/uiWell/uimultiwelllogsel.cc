@@ -465,29 +465,48 @@ void uiMultiWellLogSel::update()
 }
 
 
-void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
+void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
 {
     if ( singlewid_ && !wellobjs_.isEmpty() )
     {
-	wids.add( wellobjs_[0]->key() );
+	mids.add( wellobjs_[0]->key() );
     }
     else
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
 	{
 	    if ( wellsfld_->isSelected(idx) )
-		wids.add( wellobjs_[idx]->key() );
+		mids.add( wellobjs_[idx]->key() );
 	}
     }
 }
 
 
-void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& ids )
+void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
+{
+    TypeSet<MultiID> mids;
+    getSelWellIDs( mids );
+    for ( int idx=0; idx<mids.size(); idx++ )
+	wids.add( mids[idx] );
+}
+
+
+void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
+{
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<idstrs.size(); idx++ )
+	mids += MultiID( idstrs.get(idx) );
+
+    setSelWellIDs( mids );
+}
+
+
+void uiMultiWellLogSel::setSelWellIDs( const TypeSet<MultiID>& ids )
 {
     BufferStringSet wellnms;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(ids.get(idx)) );
+	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
 	if ( ioobj ) wellnms.add( ioobj->name() );
     }
 
