@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivolprocsmoother.h"
 #include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
+#include "uiwellloginterpolator.h"
 
 
 
@@ -32,6 +33,9 @@ mDefModInitFn(uiVolumeProcessing)
     VolProc::uiSurfaceLimitedFiller::initClass();
     VolProc::uiVelocityGridder::initClass();
     VolProc::uiVolumeReader::initClass();
+    VolProc::uiWellLogInterpolator::initClass();
 
+#ifdef __debug__
     uiVolProcAttrib::initClass();
+#endif
 }

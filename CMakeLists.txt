@@ -42,10 +42,10 @@ include( ODInternal )
 set( OD_MODULES
 	Basic Algo General
 	Strat Network Batch Usage
-	Geometry EarthModel MMProc Seis
+	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
-	EMAttrib MPEEngine Well WellAttrib
+	EMAttrib MPEEngine WellAttrib
 	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiPreStackProcessing uiAttributes
