@@ -18,7 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 
 #include "uiattribfactory.h"
-#include "uimultiwelllogsel.h"
+#include "uilistbox.h"
+#include "uiwellsel.h"
+
+#include "welldata.h"
+#include "welllogset.h"
+#include "wellman.h"
 
 using namespace Attrib;
 
@@ -30,10 +35,33 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.3")
 
 {
-    uiMultiWellLogSel::Setup su; su.singlelog(true).withextractintime(false);
+    wellfld_ = new uiWellSel( this, true );
+    wellfld_->selectionDone.notify( mCB(this,uiWellLogAttrib,selDone) );
 
-    wellfld_ = new uiMultiWellLogSel( this, su );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs" );
+    llb->setStretch( 1, 1 );
+    logsfld_ = llb->box();
+    llb->attach( alignedBelow, wellfld_ );
+
     setHAlignObj( wellfld_ );
+    selDone( 0 );
+}
+
+
+void uiWellLogAttrib::selDone( CallBacker* )
+{
+    logsfld_->setEmpty();
+    const IOObj* ioobj = wellfld_->ioobj( true );
+    if ( !ioobj ) return;
+
+    const MultiID wellid = ioobj->key();
+    const bool isloaded = Well::MGR().isLoaded( wellid );
+    Well::Data* wd = Well::MGR().get( wellid );
+    const Well::LogSet& logs = wd->logs();
+    BufferStringSet lognms; logs.getNames( lognms );
+    logsfld_->addItems( lognms );
+    if ( !isloaded )
+	delete Well::MGR().release( wellid );
 }
 
 
@@ -44,21 +72,11 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
 
     const ValParam* par = desc.getValParam( WellLog::logName() );
     if ( par )
-    {
-	BufferStringSet lognms;
-	lognms.add( par->getStringValue(0) );
-	wellfld_->setSelLogNames( lognms );
-    }
+	logsfld_->setCurrentItem( par->getStringValue(0) );
 
     par = desc.getValParam( WellLog::keyStr() );
     if ( par )
-    {
-	const FileMultiString fms = par->getStringValue( 0 );
-	BufferStringSet wellids;
-	for ( int idx=0; idx<fms.size(); idx++ )
-	    wellids.add( fms[idx] );
-	wellfld_->setSelWellIDs( wellids );
-    }
+	wellfld_->setInput( MultiID(par->getStringValue(0)) );
 
     return true;
 }
@@ -81,14 +99,8 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != WellLog::attribName() )
 	return false;
 
-    BufferStringSet selwellids;
-    wellfld_->getSelWellIDs( selwellids );
-    FileMultiString fms; fms.add( selwellids );
-    mSetString( WellLog::keyStr(), fms.buf() );
-
-    BufferStringSet sellognms;
-    wellfld_->getSelLogNames( sellognms );
-    mSetString( WellLog::logName(), sellognms.get(0) );
+    mSetString( WellLog::keyStr(), wellfld_->key().buf() );
+    mSetString( WellLog::logName(), logsfld_->getText() );
 
     return true;
 }

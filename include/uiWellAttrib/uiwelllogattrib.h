@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uiattrdesced.h"
 
-class uiMultiWellLogSel;
+class uiListBox;
+class uiWellSel;
+
 namespace Attrib { class Desc; }
 
 /*! \brief Energy Attribute ui */
@@ -30,6 +32,8 @@ public:
 
 protected:
 
+    void		selDone(CallBacker*);
+
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool                setOutput(const Attrib::Desc&);
@@ -38,7 +42,8 @@ protected:
     bool		getInput(Attrib::Desc&);
     bool                getOutput(Attrib::Desc&);
 
-    uiMultiWellLogSel*	wellfld_;
+    uiWellSel*		wellfld_;
+    uiListBox*		logsfld_;
 
 			mDeclReqAttribUIFns
 };
