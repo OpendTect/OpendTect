@@ -115,17 +115,12 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     : addmnuitem_("&Add")
-    , statisticsmnuitem_("&Histogram ...") 
-    , amplspectrummnuitem_( "&Amplitude Spectrum ...")		     
+    , statisticsmnuitem_("&Histogram ...")
+    , amplspectrummnuitem_( "&Amplitude Spectrum ...")
     , positionmnuitem_("&Position ...")
-    , addlinlslicemnuitem_("&In-line slice")
-    , addlcrlslicemnuitem_("&Cross-line slice")
-    , addltimeslicemnuitem_("&Z slice")
-    , addvolumemnuitem_("&Volume")
     , addisosurfacemnuitem_("Iso s&urface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
-    , savevolumemnuitem_( "Save volume file" )
 {
     statisticsmnuitem_.iconfnm = "histogram";
     amplspectrummnuitem_.iconfnm = "amplspectrum";
@@ -200,7 +195,7 @@ void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	selattrmnuitem_.removeItems();
 	uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
-	    				    0, sceneID() );
+					    0, sceneID() );
 	if ( selattrmnuitem_.nrItems() )
 	    mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
     }
@@ -214,10 +209,6 @@ void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mAddMenuItem( menu, &displaymnuitem_, true, false );
 	mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
 	mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
     }
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
@@ -226,13 +217,6 @@ void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      true, false );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
 		      !islocked, false );
-
-    bool yn = false;
-    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn ); 
-    if ( yn )
-	mAddMenuOrTBItem( istb, 0, menu, &savevolumemnuitem_, true, false )
-    else
-	mResetMenuItem( &savevolumemnuitem_ );
 }
 
 
@@ -241,12 +225,12 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     MenuHandler* menu = dynamic_cast<MenuHandler*>(caller);
-    if ( !menu || mnuid==-1 || menu->isHandled() || 
+    if ( !menu || mnuid==-1 || menu->isHandled() ||
 	 menu->menuID() != displayID() )
 	return;
 
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
-	    	     visserv_->getObject( displayid_ ) )
+		     visserv_->getObject( displayid_ ) )
     if ( mnuid == colsettingsmnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -287,13 +271,13 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	uiStatsDisplay::Setup su; su.countinplot( false );
 	uiStatsDisplayWin* dwin =
 	    new uiStatsDisplayWin( applMgr()->applService().parent(),
-		    		   su, 1, false );
+				   su, 1, false );
 	dwin->statsDisplay()->setDataPackID( dpid, dmid );
 	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
 	dwin->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
 	dwin->show();
         menu->setIsHandled( true );
-    }	
+    }
     else if ( mnuid==amplspectrummnuitem_.id )
     {
 	const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
@@ -303,32 +287,6 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	asd->setDataPackID( dpid, dmid );
 	asd->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
 	asd->show();
-	menu->setIsHandled( true );
-    }
-
-    else if ( mnuid==addlinlslicemnuitem_.id )
-    {
-	addChild( new uiODVolrenSubTreeItem(
-		  vd->addSlice(visSurvey::VolumeDisplay::cInLine()) ), true );
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==addlcrlslicemnuitem_.id )
-    {
-	addChild( new uiODVolrenSubTreeItem(
-		  vd->addSlice(visSurvey::VolumeDisplay::cCrossLine())), true );
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==addltimeslicemnuitem_.id )
-    {
-	addChild( new uiODVolrenSubTreeItem(
-		  vd->addSlice(visSurvey::VolumeDisplay::cTimeSlice())), true );
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==addvolumemnuitem_.id && !hasVolume() )
-    {
-	vd->showVolRen(true);
-	int volrenid = vd->volRenID();
-	addChild( new uiODVolrenSubTreeItem(volrenid), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addisosurfacemnuitem_.id )
@@ -343,19 +301,6 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	dlg.go();
 
 	addChild( new uiODVolrenSubTreeItem(surfobjid), true );
-    }
-    else if ( mnuid==savevolumemnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	uiFileDialog filedlg( getUiParent(), false, GetPersonalDir(), "*.vol",
-			      "Select volume filename" );
-	if ( filedlg.go() )
-	{
-	    if ( !vd->writeVolume( filedlg.fileName() ) )
-	    {
-		uiMSG().error( vd->errMsg() );
-	    }
-	}
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )
     {
@@ -402,9 +347,9 @@ uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 {
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
-	    	     visserv_->getObject(parent_->selectionKey() ));
+		     visserv_->getObject(parent_->selectionKey() ));
 
-    if ( !vd ) return; 
+    if ( !vd ) return;
 
     if ( displayid_==vd->volRenID() )
 	vd->showVolRen(false);
@@ -426,7 +371,7 @@ bool uiODVolrenSubTreeItem::isVolume() const
 bool uiODVolrenSubTreeItem::isIsoSurface() const
 {
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     return isosurface;
 }
 
@@ -440,11 +385,11 @@ bool uiODVolrenSubTreeItem::init()
     if ( displayid_==-1 ) return false;
 
 //    mDynamicCastGet(visBase::VolrenDisplay*,volren,
-//	    	    visserv_->getObject(displayid_));
+//		    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( /*!volren && */ !slice && !isosurface )
 	return false;
 
@@ -452,7 +397,7 @@ bool uiODVolrenSubTreeItem::init()
     {
 	slice->setSelectable( true );
 	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
-	
+
 	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem::selChgCB );
 	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem::selChgCB);
 	mAttachCB( visserv_->getUiSlicePos()->positionChg,
@@ -491,7 +436,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     if ( !vd ) return;
 
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( slice )
     {
 	float dispval = vd->slicePosition( slice );
@@ -506,7 +451,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( isosurface && isosurface->getSurface() )
     {
 	const float isoval = vd->isoValue(isosurface);
@@ -541,7 +486,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     MenuHandler* menu = dynamic_cast<MenuHandler*>(caller);
-    if ( !menu || mnuid==-1 || menu->isHandled() || 
+    if ( !menu || mnuid==-1 || menu->isHandled() ||
 	 menu->menuID() != displayID() )
 	return;
 
@@ -598,7 +543,7 @@ void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 		    visserv_->getObject(parent_->selectionKey()));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !slice || !vd || !vd->getSelectedSlice() ) return;
 
     uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();

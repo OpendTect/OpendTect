@@ -47,7 +47,7 @@ public:
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODVolrenTreeItem(int displayid_=-1);
+			uiODVolrenTreeItem(int displayid_=-1);
     bool		showSubMenu();
 
 protected:
@@ -70,19 +70,14 @@ protected:
     MenuItem            statisticsmnuitem_;
     MenuItem            amplspectrummnuitem_;
     MenuItem		addmnuitem_;
-    MenuItem		addlinlslicemnuitem_;
-    MenuItem		addlcrlslicemnuitem_;
-    MenuItem		addltimeslicemnuitem_;
-    MenuItem		addvolumemnuitem_;
     MenuItem		addisosurfacemnuitem_;
-    MenuItem		savevolumemnuitem_;
 };
 
 
 mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODVolrenSubTreeItem(int displayid);
+			uiODVolrenSubTreeItem(int displayid);
 
     bool		isVolume() const;
     bool		isIsoSurface() const;
