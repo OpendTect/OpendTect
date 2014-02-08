@@ -34,7 +34,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
-    , infoheight_(su.infoheight_) 
+    , infoheight_(su.infoheight_)
     , screensz_(uiSize(su.startwidth_,su.startheight_))
     , fittoscreen_(true)
     , hslval_(1.0f)
@@ -103,7 +103,7 @@ void uiObjectItemViewWin::addItem( uiObjectItem* itm, uiObjectItem* infoitm )
 }
 
 
-void uiObjectItemViewWin::insertItem( int idx, 
+void uiObjectItemViewWin::insertItem( int idx,
 				uiObjectItem* itm, uiObjectItem* infoitm )
 {
     mainviewer_->insertItem( itm, idx );
@@ -127,7 +127,7 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->sldr()->setInterval( sintv );
     versliderfld_->sldr()->setInverted( true );
     versliderfld_->sldr()->sliderReleased.notify(
-	    			mCB(this,uiObjectItemViewWin,reSizeSld) );
+				mCB(this,uiObjectItemViewWin,reSizeSld) );
     versliderfld_->attach( centeredBelow, dummylbl );
     versliderfld_->setStretch( 0, 0 );
 
@@ -163,7 +163,7 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
     mDynamicCastGet(uiSlider*,sld,cb);
     fittoscreen_ = !sld;
 
-    if ( sld && zoomratiofld_->isChecked() ) 
+    if ( sld && zoomratiofld_->isChecked() )
     {
 	bool ishor = sld == hsldr;
 	uiSlider* revsld = ishor ? vsldr : hsldr;
@@ -204,15 +204,15 @@ void uiObjectItemViewWin::reSizeItems()
     const int nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
-    scaleVal( hslval_, true, true ); 
-    scaleVal( vslval_, false, true ); 
+    scaleVal( hslval_, true, true );
+    scaleVal( vslval_, false, true );
 
     const int w = mNINT32( hslval_*startwidth_/(float)nritems );
     const int h = mNINT32( vslval_*startheight_ );
     for ( int idx=0; idx<nritems; idx++ )
 	mainviewer_->reSizeItem( idx, uiSize( w, h ) );
 
-    infobar_->reSizeItems(); 
+    infobar_->reSizeItems();
     mainviewer_->resetViewArea(0);
     infobar_->resetViewArea(0);
 }
@@ -303,7 +303,7 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     float yratio = screensz.height()/(float)layoutsz.height();
     float newhslval = hslval_*xratio;
     float newvslval = vslval_*yratio;
-    scaleVal( newhslval, true, false ); 
+    scaleVal( newhslval, true, false );
     scaleVal( newvslval, false, false );
     if ( ( newhslval == hslval_ ) && ( newvslval == vslval_ ) )
 	return;
@@ -322,20 +322,20 @@ void uiObjectItemViewWin::wheelMoveCB( CallBacker* )
     if ( !GetEnvVarYN("WCP_SCROLL_ZOOM") ) return;
     if ( !mainviewer_->getNavigationMouseEventHandler().hasEvent() )
 	return;
-    
+
     const MouseEvent& ev =mainviewer_->getNavigationMouseEventHandler().event();
     if ( mIsZero(ev.angle(),0.01) )
 	return;
-    
+
     const bool zoomin = ev.angle() > 0;
     const uiRect viewrect = mainviewer_->getViewArea();
-    const float fac = zoomin ? 0.8 : 1.25;
-    
+    const float fac = zoomin ? 0.8f : 1.25f;
+
     float newhorfac = fac*hslval_;
     scaleVal( newhorfac, true, false );
     float newverfac = fac*vslval_;
     scaleVal( newverfac, false, false );
-    
+
     uiSlider* hsldr = horsliderfld_->sldr();
     uiSlider* vsldr = versliderfld_->sldr();
     const bool sldrsatstart = mIsEqual(hsldr->getValue(),hsldr->minValue(),1e-5)
@@ -343,13 +343,13 @@ void uiObjectItemViewWin::wheelMoveCB( CallBacker* )
     const bool sldrsatstop = mIsEqual(hsldr->getValue(),hsldr->maxValue(),1e-5)
 	&& mIsEqual(vsldr->getValue(),vsldr->maxValue(),1e-5);
     if ( (sldrsatstart && zoomin) || (sldrsatstop && !zoomin) ) return;
-    
+
     NotifyStopper nsh( hsldr->sliderReleased );
     NotifyStopper nsv( vsldr->sliderReleased );
     hsldr->setValue( newhorfac );
     vsldr->setValue( newverfac );
     reSizeSld(0); fittoscreen_ = false;
-    
+
     mainviewer_->setViewArea( viewrect.left()*fac, viewrect.top()*fac,
 	    viewrect.width()*fac, viewrect.height()*fac );
 }
@@ -386,8 +386,8 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     if ( selwidth<=0 || selheight<=0 ) return;
 
     const uiRect viewrect = mainviewer_->getViewArea();
-    const int viewwidth = viewrect.width(); 
-    const int viewheight = viewrect.height(); 
+    const int viewwidth = viewrect.width();
+    const int viewheight = viewrect.height();
 
     const float xfac = float(viewwidth)/selwidth;
     const float yfac = float(viewheight)/selheight;
@@ -395,9 +395,9 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     zoomratiofld_->setChecked(false);
 
     float newhorfac = xfac*hslval_;
-    scaleVal( newhorfac, true, false ); 
+    scaleVal( newhorfac, true, false );
     float newverfac = yfac*vslval_;
-    scaleVal( newverfac, false, false ); 
+    scaleVal( newverfac, false, false );
 
     uiSlider* hsldr = horsliderfld_->sldr();
     uiSlider* vsldr = versliderfld_->sldr();
@@ -407,7 +407,7 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     vsldr->setValue( newverfac );
     reSizeSld(0); fittoscreen_ = false;
 
-    mainviewer_->setViewArea( selrect->left()*xfac, selrect->top()*yfac, 
+    mainviewer_->setViewArea( selrect->left()*xfac, selrect->top()*yfac,
 			      selrect->width()*xfac, selrect->height()*yfac );
 }
 
@@ -447,7 +447,7 @@ void uiObjectItemViewInfoBar::removeItemByCouple( uiObjectItem* coupleditem )
 }
 
 
-void uiObjectItemViewInfoBar::insertItem( uiObjectItem* itm, 
+void uiObjectItemViewInfoBar::insertItem( uiObjectItem* itm,
 					uiObjectItem* cpleditm, int pos )
 {
     insertItem( itm, pos );
@@ -480,8 +480,8 @@ void uiObjectItemViewInfoBar::reSizeItems()
 uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     : uiGroup(mw.parent(),"ObjectItemView control")
     , mainviewer_(mw)
-    , manipdrawbut_(0)		     
-    , manip_(false)		     
+    , manipdrawbut_(0)
+    , manip_(false)
     , toolbar_(0)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
@@ -517,14 +517,14 @@ void uiObjectItemViewControl::stateCB( CallBacker* )
 }
 
 
-void uiObjectItemViewControl::changeStatus() 
+void uiObjectItemViewControl::changeStatus()
 {
     manip_ = !manip_;
 
-    uiGraphicsViewBase::ODDragMode mode = !manip_ ? 
+    uiGraphicsViewBase::ODDragMode mode = !manip_ ?
 	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
 
-    if ( manipdrawbut_ ) 
+    if ( manipdrawbut_ )
 	manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
 
     mainviewer_.setDragMode( mode );
@@ -541,7 +541,7 @@ void uiObjectItemViewControl::changeStatus()
 
 uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )
     : zax_(0)
-    , viewer_(vw)  
+    , viewer_(vw)
     , scene_(0)
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&vw.scene())
