@@ -44,8 +44,6 @@ public:
     inline virtual T*		removeAndTake(int idx, bool kporder=true );
 				/*!<Does not delete the entry. */
 
-    inline void			setEmpty()		{ erase(); }
-
 };
 
 
