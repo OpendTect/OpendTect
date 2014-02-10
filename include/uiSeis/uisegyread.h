@@ -37,8 +37,9 @@ public:
     enum RevType	{ Rev0, WeakRev1, Rev1 };
     enum State		{ BasicOpts=10, SetupImport=11, SetupScan=12 };
 
-    struct Setup
+    mExpClass(uiSeis) Setup
     {
+    public:
 			Setup( Purpose pp=Import )
 			    : purpose_(pp)
 			    , initialstate_(BasicOpts)
