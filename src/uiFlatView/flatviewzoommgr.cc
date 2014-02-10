@@ -94,10 +94,7 @@ void FlatView::ZoomMgr::init( const Geom::PosRectangle<double>& wr )
 void FlatView::ZoomMgr::init( const TypeSet<Geom::PosRectangle<double> >& wrs )
 {
     if ( viewerdata_.size()!=wrs.size() )
-    {
-	pErrMsg("Wrong number of viewers");
-	return;
-    }
+        { pErrMsg("Wrong number of viewers"); return; }
 
     for ( int idx=0; idx<viewerdata_.size(); idx++ )
     {
@@ -120,10 +117,7 @@ void FlatView::ZoomMgr::reInit( const Geom::PosRectangle<double>& wr )
 void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 {
     if ( viewerdata_.size()!=wrs.size() )
-    {
-	pErrMsg("Wrong number of viewers");
-	return;
-    }
+        { pErrMsg("Wrong number of viewers"); return; }
 
     ObjectSet<ViewerZoomData> oldviewerdata;
     deepCopy( oldviewerdata, viewerdata_ );
@@ -153,10 +147,7 @@ void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 void FlatView::ZoomMgr::add( const TypeSet<FlatView::ZoomMgr::Size>& newzooms )
 {
     if ( viewerdata_.size()!=newzooms.size() )
-    {
-	pErrMsg("Wrong number of viewers");
-	return;
-    }
+        { pErrMsg("Wrong number of viewers"); return; }
 
     if ( current_.isPresent(-1) )
     {
@@ -184,10 +175,7 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
     if ( vieweridx==-1 || current_.isPresent(-1) )
     {
 	if ( vieweridx>0 )
-	{
-	    pErrMsg("ZoomMgr is not initialized");
-	    return;
-	}
+	    { pErrMsg("ZoomMgr is not initialized"); return; }
 
 	TypeSet<FlatView::ZoomMgr::Size> newzooms( 1, newzoom );
 	add( newzooms ); return;
@@ -238,7 +226,9 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::current( int vieweridx ) const
 void FlatView::ZoomMgr::back( int vieweridx, bool usefwdfac ) const
 {
     int& cur = current_[vieweridx];
-    if ( !usefwdfac && cur>0 )
+    if ( cur <= 0 ) return;
+
+    if ( !usefwdfac )
 	{ cur--; return; }
 
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
