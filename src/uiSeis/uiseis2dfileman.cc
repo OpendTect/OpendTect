@@ -70,7 +70,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_->addButton( "mergelines", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
-	linegrp_->addButton( "extr3dseisinto2d", "Extract from 3D cube",
+	linegrp_->addButton( "extr3dinto2d", "Extract from 3D cube",
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_ );
 
