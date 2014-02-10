@@ -189,7 +189,7 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     rg1.sort( true );
 
     rg0.widen( extfac_ * rg0.step, true );
-    if ( !wva && !isVisible(wva) )
+    if ( mIsZero(rg1.width(),mDefEps) )
 	rg1.widen( extfac_ * rg1.step, true );
     return uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start);
 }
