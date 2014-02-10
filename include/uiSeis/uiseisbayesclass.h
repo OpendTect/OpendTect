@@ -31,6 +31,8 @@ public:
 			uiSeisBayesClass(uiParent*,bool is2d);
 			~uiSeisBayesClass();
 
+    virtual void	raiseCurrent();
+
 protected:
 
     bool		is2d_;

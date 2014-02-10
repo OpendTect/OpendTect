@@ -80,8 +80,6 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 	usePar( *iop );
 
     state_ = (int)su.initialstate_;
-    if ( setup_.purpose_ == Import )
-	afterfinishedstate_ = state_;
     nextAction();
 }
 
@@ -521,4 +519,16 @@ void uiSEGYRead::rev1qDlgClose( CallBacker* )
     mHandleVWCancel(rev1qdlg_,BasicOpts)
     determineRevPol();
     rev1qdlg_ = 0;
+}
+
+
+void uiSEGYRead::raiseCurrent()
+{
+#define mRaise(dlg) if ( dlg ) dlg->raise()
+
+	 mRaise( defdlg_ );
+    else mRaise( impdlg_ );
+    else mRaise( scandlg_ );
+    else mRaise( examdlg_ );
+    else mRaise( rev1qdlg_ );
 }

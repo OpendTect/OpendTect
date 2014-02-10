@@ -640,6 +640,17 @@ void uiSeisBayesClass::outputDone( CallBacker* )
 }
 
 
+#define mRaise(dlg) if ( dlg ) dlg->raise()
+
+void uiSeisBayesClass::raiseCurrent()
+{
+	 mRaise( inppdfdlg_ );
+    else mRaise( normdlg_ );
+    else mRaise( inpseisdlg_ );
+    else mRaise( outdlg_ );
+}
+
+
 uiSeisBayesClass::~uiSeisBayesClass()
 {
     delete inppdfdlg_;

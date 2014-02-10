@@ -130,9 +130,14 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Seis):
 	switch ( at )
 	{
-	mCase(Imp):	am_.seisserv_->importSeis( opt );	break;
 	mCase(Exp):	am_.seisserv_->exportSeis( opt );	break;
 	mCase(Man):	am_.seisserv_->manageSeismics(opt==1);	break;
+	mCase(Imp):
+	    if ( opt > 0 && opt < 5 )
+		am_.wellattrserv_->doSEGYTool( 0, opt%2?0:1 );
+	    else
+		am_.seisserv_->importSeis( opt );
+	break;
 	}
     break;
     mCase(Hor):
@@ -207,7 +212,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    else if ( opt == 2 )
 		am_.wellserv_->importMarkers();
 	    else if ( opt == 3 )
-		am_.wellattrserv_->importSEGYVSP();
+		am_.wellattrserv_->doVSPTool(0,2);
 	    else if ( opt == 4 )
 		am_.wellserv_->createSimpleWells();
 	    else if ( opt == 5 )

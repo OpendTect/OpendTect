@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimain.h"
 #include "prog.h"
+#include "moddepmgr.h"
 
 #ifdef __win__
 #include "file.h"
@@ -22,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiSeis" );
 
     bool dofork = true;
     uiSEGYExamine::Setup su;

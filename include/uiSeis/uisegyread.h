@@ -60,6 +60,8 @@ public:
     void		use(const IOObj*,bool force);
     void		usePar(const IOPar&);
 
+    virtual void	raiseCurrent();
+
     Seis::GeomType	geomType() const	{ return geom_; }
     int			revision() const	{ return rev_; }
     void		fillPar(IOPar&) const;

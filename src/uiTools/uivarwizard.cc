@@ -29,8 +29,8 @@ uiVarWizard::uiVarWizard( uiParent* p )
 
 void uiVarWizard::closeDown()
 {
-    uiOBJDISP()->go( this );
     processEnded.trigger();
+    uiOBJDISP()->go( this );
 }
 
 
@@ -43,7 +43,7 @@ void uiVarWizard::nextAction()
 	state_ = afterfinishedstate_;
     }
 
-    if ( state_ != cWait4Dialog() )
+    if ( state_ != cFinished() && state_ != cWait4Dialog() )
 	doPart();
 }
 

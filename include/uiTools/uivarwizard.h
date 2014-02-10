@@ -41,6 +41,8 @@ public:
     static int		cFinished()		{ return 1; }
     static int		cWait4Dialog()		{ return 2; }
 
+    virtual void	raiseCurrent()		= 0;
+
 protected:
 
     uiParent*		parent_;

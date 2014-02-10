@@ -857,6 +857,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     if ( nrmods < 1 )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
+    MouseCursorChanger mcs( MouseCursor::Wait );
+
     const bool forceupdate = gentools_==cb; // when 'Go' is pressed
     if ( forceupdate )
 	synthdisp_->setForceUpdate( true );
@@ -866,6 +868,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
 
     seqdisp_->prepareDesc();
+    mcs.restore();
+
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
     uiTaskRunner tr( this );
     if ( !tr.execute(ex) || !newmodl->isValid() )

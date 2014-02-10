@@ -20,6 +20,7 @@ class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
 class uiWellAttribCrossPlot;
+class uiSEGYRead;
 
 namespace Attrib { class DescSet; }
 namespace WellTie { class uiTieWinMGRDlg; }
@@ -38,7 +39,6 @@ public:
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
     const NLAModel*		getNLAModel()		{ return nlamodel;}
-    void			importSEGYVSP();
 
     const char*			name() const		{ return "Wells"; }
 
@@ -47,6 +47,8 @@ public:
     bool			createAttribLog(const BufferStringSet&);
     bool			createLogCube(const MultiID&);
     void			doXPlot();
+    void			doSEGYTool(IOPar* prevpars=0,int choice=-1);
+    void			doVSPTool(IOPar* prevpars=0,int choice=-1);
 
     void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
@@ -57,6 +59,7 @@ protected:
     Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
     bool			welltiedlgopened_;
+    uiSEGYRead*			cursegyread_;
 
     WellTie::uiTieWinMGRDlg*	welltiedlg_;
     uiWellAttribCrossPlot*	xplotwin2d_;
@@ -65,6 +68,9 @@ protected:
     
     void                        closeWellTieDlg(CallBacker*);
     void                        surveyChangedCB(CallBacker*);
+    void                        segyToolEnded(CallBacker*);
+    bool			launchSEGYWiz(IOPar*,int);
+
 };
 
 #endif
