@@ -197,9 +197,9 @@ bool uiWellAttribPartServer::launchSEGYWiz( IOPar* previop, int choice )
     }
 
     if ( previop )
-	cursegyread_->pars() = *previop;
+	cursegyread_->pars().merge( *previop );
     cursegyread_->processEnded.notify(
-	    		mCB(this,uiWellAttribPartServer,segyToolEnded) );
+			mCB(this,uiWellAttribPartServer,segyToolEnded) );
     return true;
 }
 
@@ -210,7 +210,6 @@ void uiWellAttribPartServer::segyToolEnded( CallBacker* )
 	return;
 
     IOPar previop( cursegyread_->pars() );
-    delete cursegyread_;
     cursegyread_ = 0;
 
     doSEGYTool( &previop );
@@ -235,7 +234,7 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
 bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 {
     uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset,
-	    		      nlamodel, wellnames.size() == 1 );
+			      nlamodel, wellnames.size() == 1 );
     return dlg.go();
 }
 
@@ -255,7 +254,7 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
     {
 	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
 	welltiedlg_->windowClosed.notify(
-		mCB(this,uiWellAttribPartServer,closeWellTieDlg));	
+		mCB(this,uiWellAttribPartServer,closeWellTieDlg));
 	welltiedlgopened_ = welltiedlg_->go();
     }
     return true;
@@ -266,6 +265,6 @@ void uiWellAttribPartServer::closeWellTieDlg( CallBacker* cb )
     mDynamicCastGet(WellTie::uiTieWinMGRDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
     dlg->delWins();
-    welltiedlgopened_ = false; 
+    welltiedlgopened_ = false;
 }
 
