@@ -59,24 +59,27 @@ public:
 					      bool needreloc=false,
 					      bool setdefaultbut=false);
 				~uiIOObjSelGrp();
+    bool			isEmpty() const;
+    int				size() const;
 
     void			fullUpdate(const MultiID& kpselected);
     bool			processInput();
-    				/*!< Processes the current selection so
+				/*!< Processes the current selection so
 				     selected() can be queried. It also creates
 				     an entry in IOM if the selected object is
 				     new.  */
 
     int				nrSel() const;
     const MultiID&		selected(int idx=0) const;
-    				/*!<\note that processInput should be called
+				/*!<\note that processInput should be called
 				          after selection, but before any call
 					  to this.  */
     void			setSelected(const TypeSet<MultiID>&);
     void			getSelected(TypeSet<MultiID>&) const;
+    void			selectAll(bool yn=true);
     Notifier<uiIOObjSelGrp>	selectionChg;
     Notifier<uiIOObjSelGrp>	newStatusMsg;
-    				/*!< Triggers when there is a new message for
+				/*!< Triggers when there is a new message for
 				     statusbars and similar */
 
     void			setSurveyDefaultSubsel(const char* subsel);
@@ -93,7 +96,7 @@ public:
     void			setAskedToOverwrite( bool yn )
 				{ asked2overwrite_ = yn; }
     bool			askedToOverwrite() const
-    				{ return asked2overwrite_; }
+				{ return asked2overwrite_; }
 
     virtual bool		fillPar(IOPar&) const;
     virtual void		usePar(const IOPar&);
@@ -265,7 +268,7 @@ default).
     bool		commitInput();
     bool		doCommitInput(bool&);
     CtxtIOObj&		ctxtIOObj( bool work=false )
-    					{ return work ? workctio_ : inctio_; }
+					{ return work ? workctio_ : inctio_; }
 
 };
 

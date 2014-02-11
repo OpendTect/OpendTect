@@ -29,7 +29,7 @@ void Well::LogSet::add( Well::Log* l )
     if ( getLog(l->name()) ) return;
 
     logs += l;
-    updateDahIntv( *l );;
+    updateDahIntv( *l );
 }
 
 

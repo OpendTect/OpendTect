@@ -404,16 +404,8 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
     if ( !propflds_.validIdx( idxofbut ) )
 	return;
 
-    const Well::Data* wd = Well::MGR().get( wellid_, false );
-    if  ( !wd ) return;
-
-    const Well::LogSet& logs = wd->logs();
-    BufferStringSet lognms;
-    for ( int idx=0; idx<logs.size(); idx++ )
-	lognms.add( logs.getLog(idx).name() );
-
     TypeSet<MultiID> idset; idset += wellid_;
-    uiWellLogCalc dlg( this, logs, lognms, idset );
+    uiWellLogCalc dlg( this, idset );
     dlg.setOutputLogName( propflds_[idxofbut]->propRef().name() );
     dlg.go();
 

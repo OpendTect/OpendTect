@@ -32,9 +32,7 @@ namespace Well { class Log; class LogSet; }
 mExpClass(uiWell) uiWellLogCalc : public uiDialog
 {
 public:
-				uiWellLogCalc(uiParent*,const Well::LogSet&,
-						const BufferStringSet&,
-						const TypeSet<MultiID>&);
+				uiWellLogCalc(uiParent*,const TypeSet<MultiID>&);
 				~uiWellLogCalc();
 
     bool			haveNewLogs() const	{ return havenew_; }
@@ -59,6 +57,7 @@ protected:
     uiLabeledComboBox*		formulaunfld_;
     uiComboBox*			outunfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
+    bool			mywelllogs_;
 
     int				nrvars_;
     int				nrspecvars_;
@@ -69,11 +68,11 @@ protected:
     MathExpression*		expr_;
     bool			havenew_;
     float			zsampintv_;
-    const BufferStringSet&	lognms_;
-    const Well::LogSet&		wls_;
+    BufferStringSet		lognms_;
+    Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
     BufferStringSet		inputunits_;
-    TypeSet<PropertyRef::StdType>	inputtypes_;
+    TypeSet<PropertyRef::StdType> inputtypes_;
 
     friend class		uiWellLogCalcInpData;
 
@@ -94,6 +93,7 @@ protected:
 	bool		iscst_;
     };
 
+    void			getAllLogs();
     void			getMathExpr();
     void			setCurWls(const Well::LogSet&);
     bool			getInpData(TypeSet<InpData>&);

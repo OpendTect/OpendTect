@@ -348,8 +348,7 @@ void uiWellMan::calcLogs( CallBacker* )
 	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
 
     currdrs_[0]->getLogs();
-    uiWellLogCalc dlg( this, curwds_[0]->logs(), availablelognms_,
-			curmultiids_ );
+    uiWellLogCalc dlg( this, curmultiids_ );
     dlg.go();
     if ( dlg.haveNewLogs() )
 	wellsChgd();
@@ -559,7 +558,7 @@ void uiWellMan::mkFileInfo()
     const Well::Track& track = curwds_[0]->track();
 
     const BufferString posstr( info.surfacecoord.toString(), " ",
-	    	SI().transform(info.surfacecoord).toString() );
+		SI().transform(info.surfacecoord).toString() );
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
 
     if ( !track.isEmpty() )

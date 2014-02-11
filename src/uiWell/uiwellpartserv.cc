@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelldisplay.h"
 #include "uiwelldisppropdlg.h"
 #include "uiwelldlgs.h"
+#include "uiwelllogcalc.h"
 #include "uiwellimpasc.h"
 #include "uiwelllogtools.h"
 #include "uiwellman.h"
@@ -156,15 +157,15 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     allapplied_ = false;
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
-    
+
     if ( isdisppropopened_ == false )
     {
 	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), wd );
-	uiwellpropdlg_->applyAllReq.notify( 
+	uiwellpropdlg_->applyAllReq.notify(
 			    mCB(this,uiWellPartServer,applyAll) );
 	uiwellpropdlg_->windowClosed.notify(
 			    mCB(this,uiWellPartServer, wellPropDlgClosed) );
-	isdisppropopened_ = uiwellpropdlg_->go();    
+	isdisppropopened_ = uiwellpropdlg_->go();
     }
     return true;
 }
@@ -185,7 +186,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 	saveWellDispProps( allapplied_ ? 0 : edwd );
 	edprops.commitDefaults();
     }
-    
+
     sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
 }
@@ -251,7 +252,7 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 }
 
 
-void uiWellPartServer::getLogNames( const MultiID& wellid, 
+void uiWellPartServer::getLogNames( const MultiID& wellid,
 					BufferStringSet& lognms ) const
 {
     const Well::Data* wd = Well::MGR().get( wellid );
@@ -272,34 +273,67 @@ void uiWellPartServer::manageWells()
 }
 
 
+class uiWellRockPhysLauncher : public uiDialog
+{
+public:
+
+uiWellRockPhysLauncher( uiParent* p )
+    : uiDialog( p, Setup("Rock Physics - Well Logs",
+		"Select one or more wells to add well logs to",mTODOHelpID) )
+    , ctio_(mMkCtxtIOObj(Well))
+{
+    selgrp_ = new uiIOObjSelGrp( this, *ctio_, 0, true, false, false );
+    const int sz = selgrp_->size();
+    if ( sz < 2 )
+    {
+	if ( sz == 0 )
+	    uiMSG().error( "Please create one or more wells first" );
+	postFinalise().notify( mCB(this,uiWellRockPhysLauncher,noSel) );
+    }
+}
+
+void noSel( CallBacker* )
+{
+    const int sz = selgrp_->size();
+    if ( sz <= 1 )
+    {
+	selgrp_->selectAll();
+	done( 1 );
+    }
+}
+
+bool acceptOK( CallBacker* )
+{
+    if ( selgrp_->isEmpty() )
+	return true;
+
+    TypeSet<MultiID> mids;
+    selgrp_->getSelected( mids );
+    if ( mids.isEmpty() )
+    {
+	uiMSG().error( "Please select at least one well" );
+	return false;
+    }
+
+    uiWellLogCalc dlg( this, mids );
+    dlg.go();
+    return true;
+}
+
+    uiIOObjSelGrp*	selgrp_;
+    CtxtIOObj*		ctio_;
+
+};
+
+
 void uiWellPartServer::launchRockPhysics()
 {
-    uiWellMan dlg( parent() );
-    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
-					 "Create multiple simple wells",
-					 mCB(this,uiWellPartServer,simpImp) );
-    dlg.addTool( tb );
-
-    uiDialog msgdlg( &dlg, uiDialog::Setup("Rock Physics",mNoDlgTitle,
-					   mNoHelpID).modal(false) );
-    msgdlg.setCtrlStyle( uiDialog::CloseOnly );
-    uiLabel* lbl = new uiLabel( &msgdlg, "Select one or several wells, "
-	    "press 'Create' button\nand then press the rock physics icon" );
-    uiPushButton* rpicon = new uiPushButton( &msgdlg, "",
-	    				     ioPixmap("rockphys.png"), false );
-    rpicon->attach( leftAlignedBelow, lbl );
-    lbl = new uiLabel( &msgdlg, "in the 'Calculate new logs' window" );
-    lbl->attach( rightOf, rpicon );
-    msgdlg.show();
-    msgdlg.raise();
+    uiWellRockPhysLauncher dlg( parent() );
     dlg.go();
 }
 
+
 void uiWellPartServer::simpImp( CallBacker* )
-{ createSimpleWells(); }
-
-
-void uiWellPartServer::createSimpleWells()
 {
     uiSimpleMultiWellCreate dlg( parent() );
     if ( !dlg.go() )
@@ -360,7 +394,7 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
-bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords, 
+bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 				  const char* wellname, MultiID& mid )
 {
     if ( coords.isEmpty() )
@@ -402,7 +436,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 {
     const Well::Data* wd = Well::MGR().get( mid );
-    if ( !wd || wd->logs().isEmpty()  ) 
+    if ( !wd || wd->logs().isEmpty()  )
 	return false;
 
     const Well::Log* log = wd->logs().getLog( lognm );
@@ -420,23 +454,23 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
 		     d2t.getTime(resamprg.stop, wd->track()),1);
 	resamprg.step /= SI().zDomain().userFactor();
-	resampsz = resamprg.nrSteps(); 
+	resampsz = resamprg.nrSteps();
 	for ( int idx=0; idx<resampsz; idx++ )
 	{
 	    const float dah = d2t.getDah( resamprg.atIndex( idx ),
-		   			  wd->track() );
+					  wd->track() );
 	    resamplvals += log->getValue( dah );
 	}
     }
     else
     {
 	resampsz = resamprg.nrSteps();
-	resamprg.step = resamprg.width() / (float)log->size(); 
+	resamprg.step = resamprg.width() / (float)log->size();
 	for ( int idx=0; idx<resampsz; idx++ )
 	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
     }
 
-    uiAmplSpectrum::Setup su( lognm, false,  resamprg.step ); 
+    uiAmplSpectrum::Setup su( lognm, false,  resamprg.step );
     uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
     asd->setData( resamplvals.arr(), resampsz );
     asd->show();

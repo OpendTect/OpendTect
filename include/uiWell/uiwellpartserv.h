@@ -37,7 +37,7 @@ public:
 
     const char*			name() const		{ return "Wells"; }
 
-    				// Services
+				// Services
     void			importTrack();
     void			importLogs();
     void			importMarkers();
@@ -67,11 +67,11 @@ public:
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
 				{ previewids_ = ids; }
-    TypeSet<int>&		getPreviewIds() 	{ return previewids_; }
+    TypeSet<int>&		getPreviewIds()	{ return previewids_; }
 
-    void			createSimpleWells();
+    void			createSimpleWells()	{ simpImp(0); }
     const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
-    
+
     void			doLogTools();
 
     void			createWellFromPicks();
@@ -79,7 +79,7 @@ public:
     bool			setupNewWell(BufferString&, Color&);
 
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
-	    				  MultiID&);
+					  MultiID&);
 
     void			setSceneID( int id )	{ cursceneid_ = id; }
     int				getSceneID() const	{ return cursceneid_; }
@@ -87,7 +87,7 @@ public:
     static int		        evPreviewRdmLine();
     static int			evCleanPreview();
     static int			evDisplayWell();
-    
+
 protected:
 
     uiWellImportAsc*		uiwellimpdlg_;
@@ -113,6 +113,7 @@ protected:
 						  const MultiID&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
+
 };
 
 #endif

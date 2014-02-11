@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellwriter.h"
 #include "welllog.h"
+#include "wellextractdata.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "mathexpression.h"
@@ -55,23 +56,34 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 }
 
 
-uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
-			      const BufferStringSet& lognms,
-			      const TypeSet<MultiID>& wllids )
+//TODO someone solve this huge bug. With multiple wells one wls is not
+// enough. Just pass the wllids and this dialog should clear the rest.
+
+
+uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     getDlgTitle(wllids),
 				     "107.1.10"))
-	, wls_(ls)
-	, lognms_(lognms)
+	, wls_(*new Well::LogSet)
 	, wellids_(wllids)
 	, formfld_(0)
 	, nrvars_(0)
 	, expr_(0)
 	, havenew_(false)
 {
-    if ( lognms_.isEmpty() || wellids_.isEmpty() )
+    if ( wellids_.isEmpty() )
     {
-	new uiLabel( this, lognms.isEmpty() ? "No logs" : "No wells" );
+	new uiLabel( this, "No wells.\nPlease import or create a well first." );
+	setCtrlStyle( CloseOnly );
+	return;
+    }
+
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    getAllLogs();
+    if ( wls_.isEmpty() || lognms_.isEmpty() )
+    {
+	new uiLabel( this, "Selected wells have no logs.\n"
+			   "Please import at least one." );
 	setCtrlStyle( CloseOnly );
 	return;
     }
@@ -140,9 +152,44 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 }
 
 
+void uiWellLogCalc::getAllLogs()
+{
+    for ( int idx=0; idx<wellids_.size(); idx++ )
+    {
+	IOObj* ioobj = IOM().get( wellids_[idx] );
+	if ( !ioobj ) continue;
+
+	Well::Data wd; Well::Reader wr( ioobj->fullUserExpr(true), wd );
+	BufferStringSet nms; wr.getLogInfo( nms );
+	bool havenewlog = false;
+	for ( int inm=0; inm<nms.size(); inm++ )
+	{
+	    const char* lognm = nms.get(inm).buf();
+	    if ( !lognms_.isPresent(lognm) )
+	    {
+		havenewlog = true;
+		lognms_.add( lognm );
+	    }
+	}
+	if ( havenewlog )
+	{
+	    wr.getLogs();
+	    for ( int ilog=0; ilog<wd.logs().size(); ilog++ )
+	    {
+		const Well::Log& wl = wd.logs().getLog( ilog );
+		if ( !wls_.getLog(wl.name()) )
+		    wls_.add( new Well::Log(wl) );
+	    }
+	}
+	delete ioobj;
+    }
+}
+
+
 uiWellLogCalc::~uiWellLogCalc()
 {
     delete expr_;
+    delete &wls_;
 }
 
 
@@ -277,9 +324,10 @@ void uiWellLogCalc::inpSel( CallBacker* )
 	if ( idx >= inpdataflds_.size() ) break;
 
 	const Well::Log* wl = inpdataflds_[idx]->getLog();
-	if ( !wl && !inpdataflds_[idx]->isCst() ) { pErrMsg("Huh"); continue; }
-	if ( !wl ) continue;
-	if ( wl->isEmpty() ) continue;
+	if ( !wl && !inpdataflds_[idx]->isCst() )
+		{ pErrMsg("Huh"); continue; }
+	if ( !wl || wl->isEmpty() )
+	    continue;
 
 	sr = wl->dahStep( false );
 	if ( !mIsUdf(sr) )

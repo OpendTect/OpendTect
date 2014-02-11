@@ -189,6 +189,24 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 }
 
 
+int uiIOObjSelGrp::size() const
+{
+    return listfld_->size();
+}
+
+
+bool uiIOObjSelGrp::isEmpty() const
+{
+    return listfld_->isEmpty();
+}
+
+
+void uiIOObjSelGrp::selectAll( bool yn )
+{
+    listfld_->selectAll( yn );
+}
+
+
 void uiIOObjSelGrp::setInitial( CallBacker* )
 {
     const char* presetnm = getNameField() ? getNameField()->text() : "";
@@ -790,9 +808,9 @@ void uiIOObjSel::obtainIOObj()
 			      && workctio_.ioobj->name()==inp.buf() )
 	    return;
     }
-    
+
     const IODir iodir( workctio_.ctxt.getSelKey() );
-    const IOObj* ioob = iodir.get( inp.buf(), 
+    const IOObj* ioob = iodir.get( inp.buf(),
 				   workctio_.ctxt.trgroup->userName() );
     workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
