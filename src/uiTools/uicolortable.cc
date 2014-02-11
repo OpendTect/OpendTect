@@ -265,7 +265,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 	mAddTBObj( minfld_, 2 );
 	mAddTBObj( canvas_, 2 );
 	mAddTBObj( maxfld_, 2 );
-	mAddTBObj( selfld_, 4 );
+	mAddTBObj( selfld_, (__iswin__ ? 20 : 4) );
 	return;
     }
 
