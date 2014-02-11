@@ -21,15 +21,9 @@ macro ( create_package PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/Contents/Resources/qt_menu.nib
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/qt_menu.nib )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${CMAKE_INSTALL_PREFIX}/create_macos_link
-				     ${DESTINATION_DIR}/Contents )
-	    execute_process( COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/create_macos_link
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E chdir ${DESTINATION_DIR}/Contents
+			     ln -s ../bin/mac/Release MacOS
 			     RESULT_VARIABLE STATUS )
-	    execute_process( COMMAND ${DESTINATION_DIR}/Contents/create_macos_link
-				     WORKING_DIRECTORY ${DESTINATION_DIR}/Contents
-				     RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents/create_macos_link )
 	    if( NOT ${STATUS} EQUAL "0" )
 		message( FATAL_ERROR "Failed to create MacOS link" )
 	    endif()
@@ -282,7 +276,7 @@ macro( init_destinationdir  PACKAGE_NAME )
     endif()
     set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_DETAIL}" )
     if( APPLE )
-	set( REL_DIR "OpendTect${REL_DIR}.app" )
+	set( REL_DIR "OpendTect\ ${REL_DIR}.app" )
     endif()
 
     set( FULLVER_NAME "${REL_DIR}${OpendTect_VERSION_PATCH}" )
