@@ -37,7 +37,7 @@ namespace visSurvey
 Horizon2DDisplay::Horizon2DDisplay()
 {
     points_.allowNull(true);
-    EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,2 ) );
+    EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,5 ) );
 }
 
 
