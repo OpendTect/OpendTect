@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifdef HAS_MATLAB
 
+# include <string.h>
 # include "matlabarray.h"
 
 extern "C" {
