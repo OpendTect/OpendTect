@@ -44,8 +44,6 @@ if(UNIX) #Apple an Linux
 				 "Please use MacOSX10.8 SDK instead." )
 	endif()
 
-	set ( OD_SET_TARGET_PROPERTIES 1 )
-
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
 	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
