@@ -57,7 +57,7 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
-       			      bool rockphysmode )
+			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     getDlgTitle(wllids),
 				     "107.1.10"))
@@ -95,7 +95,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->formSet.notify( formsetcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
-	    		    rockphyscb, "RockPhysics");
+			    rockphyscb, "RockPhysics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
 
@@ -148,7 +148,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     postFinalise().notify( formsetcb );
     if ( rockphysmode )
-	postFinalise().notify( rockphyscb );
+	afterPopup.notify( rockphyscb );
 }
 
 

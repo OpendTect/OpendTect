@@ -134,11 +134,12 @@ public:
     bool		removeWith(CallBacker*,bool wait=true);
 			//!<\returns false only if wait and no lock could be got
 
-    bool		isEnabled() const	{ return enabled_; }
-    bool		enable( bool yn=true )	{ return doEnable(yn); }
-    bool		disable()		{ return doEnable(false); }
+    inline bool 	isEnabled() const	{ return enabled_; }
+    inline bool 	enable( bool yn=true )	{ return doEnable(yn); }
+    inline bool 	disable()		{ return doEnable(false); }
 
-    bool	willCall(CallBacker*) const;
+    inline bool 	isEmpty() const 	{ return cbs_.isEmpty(); }
+    bool		willCall(CallBacker*) const;
 			/*!<\returns true if the callback list contains
 			     CallBacker. */
 

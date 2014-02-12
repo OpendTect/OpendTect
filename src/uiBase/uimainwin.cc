@@ -273,6 +273,13 @@ void uiMainWinBody::doShow( bool minimized )
     QEvent* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
 
+    if ( !handle_.afterPopup.isEmpty() )
+    {
+	handle_.afterpopuptimer_ = new Timer( "After popup timer" );
+	handle_.afterpopuptimer_->tick.notify(
+				mCB(&handle_,uiMainWin,aftPopupCB) );
+	handle_.afterpopuptimer_->start( 50, true );
+    }
     if ( modal_ )
 	eventloop_.exec();
 }
@@ -695,7 +702,9 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
+    , afterPopup(this)
     , caption_(setup.caption_)
+    , afterpopuptimer_(0)
 {
     body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ );
     setBody( body_ );
@@ -716,7 +725,9 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
+    , afterPopup(this)
     , caption_(nm)
+    , afterpopuptimer_(0)
 {
     body_ = new uiMainWinBody( *this, parnt, nm, modal );
     setBody( body_ );
@@ -734,7 +745,9 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , windowClosed(this)
     , activatedone(this)
     , ctrlCPressed(this)
+    , afterPopup(this)
     , caption_(nm)
+    , afterpopuptimer_(0)
 {
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -758,6 +771,7 @@ uiMainWin::~uiMainWin()
     if ( programmedactivewin_ == this )
 	programmedactivewin_ = parent() ? parent()->mainwin() : 0;
 
+    delete afterpopuptimer_;
     winlistmutex_.unLock();
 }
 

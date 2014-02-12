@@ -26,8 +26,8 @@ class uiObject;
 class uiMenu;
 class uiStatusBar;
 class uiToolBar;
+class Timer;
 class BufferStringSet;
-class BufferString;
 
 /*!
 \brief User interface main window.
@@ -57,7 +57,7 @@ public:
 	mDefSetupMemb(int,nrstatusflds)
     };
 
-    			uiMainWin(uiParent*,const uiMainWin::Setup&);
+			uiMainWin(uiParent*,const uiMainWin::Setup&);
 			uiMainWin(uiParent*,const char* nm="uiMainWin",
 				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
@@ -78,8 +78,8 @@ public:
 	    Unmanaged	/*!< not managed by a uiMainWin */
     };
 
-    uiStatusBar* 	statusBar();
-    uiMenuBar* 		menuBar();
+    uiStatusBar*	statusBar();
+    uiMenuBar*		menuBar();
 
     static uiMainWin*	activeWindow();
 
@@ -107,7 +107,7 @@ public:
     void		toStatusBar(const char*,int fldidx=0,int msecs=-1);
 
     virtual void	reDraw(bool deep);
-    uiGroup* 		topGroup();
+    uiGroup*		topGroup();
 
     void		setShrinkAllowed(bool yn);
     bool		shrinkAllowed();
@@ -122,13 +122,13 @@ public:
     uiToolBar*		removeToolBar(uiToolBar*);
     void		addToolBarBreak();
 
-    uiMenu& 		getToolbarsMenu() const;
+    uiMenu&		getToolbarsMenu() const;
 
     const ObjectSet<uiToolBar>& toolBars() const;
     const ObjectSet<uiDockWin>& dockWins() const;
 
     Notifier<uiMainWin>	windowClosed;
-    			//!< triggered when window exits
+			//!< triggered when window exits
 
     static void		provideHelp(const char* winid=0);
     static void		showCredits(const char* winid=0);
@@ -141,7 +141,7 @@ public:
     void		setPopupArea( PopupArea pa )	{ popuparea_ = pa; }
     PopupArea		getPopupArea() const		{ return popuparea_; }
     void		setCornerPos(int x,int y);
-    			//!Position of top-left corner in screen pixel coords
+			//!Position of top-left corner in screen pixel coords
     uiRect		geometry(bool frame=true) const;
 
     bool		poppedUp() const;
@@ -181,15 +181,16 @@ public:
 			     uncompressed file, quality=-1: use default    */
 
     void		activateInGUIThread(const CallBack&,
-	    				    bool busywait=true);
+					    bool busywait=true);
     void		saveImage(const char* fnm,int w,int h,int res);
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
+    Notifier<uiMainWin> afterPopup;
     void		copyToClipBoard();
 
 protected:
 
-    virtual bool	closeOK() 	{return true;}//!< confirm window close
+    virtual bool	closeOK()	{return true;}//!< confirm window close
 
 			uiMainWin(const char*,uiParent*);
     uiObject*		mainobject();
@@ -198,15 +199,17 @@ protected:
     void		readSettings();
 
     void		copyToClipBoardCB(CallBacker*);
+    void		aftPopupCB( CallBacker* )	{ afterPopup.trigger();}
 
     uiMainWinBody*	body_;
     uiParent*		parent_;
+    Timer*		afterpopuptimer_;
 
     PopupArea		popuparea_;
 
     BufferString	caption_;
 
-public:	
+public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
