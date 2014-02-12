@@ -283,30 +283,10 @@ uiWellRockPhysLauncher( uiParent* p )
     , ctio_(mMkCtxtIOObj(Well))
 {
     selgrp_ = new uiIOObjSelGrp( this, *ctio_, 0, true, false, false );
-    const int sz = selgrp_->size();
-    if ( sz < 2 )
-    {
-	if ( sz == 0 )
-	    uiMSG().error( "Please create one or more wells first" );
-	postFinalise().notify( mCB(this,uiWellRockPhysLauncher,noSel) );
-    }
-}
-
-void noSel( CallBacker* )
-{
-    const int sz = selgrp_->size();
-    if ( sz <= 1 )
-    {
-	selgrp_->selectAll();
-	done( 1 );
-    }
 }
 
 bool acceptOK( CallBacker* )
 {
-    if ( selgrp_->isEmpty() )
-	return true;
-
     TypeSet<MultiID> mids;
     selgrp_->getSelected( mids );
     if ( mids.isEmpty() )
@@ -315,7 +295,7 @@ bool acceptOK( CallBacker* )
 	return false;
     }
 
-    uiWellLogCalc dlg( this, mids );
+    uiWellLogCalc dlg( this, mids, true );
     dlg.go();
     return true;
 }
@@ -329,7 +309,18 @@ bool acceptOK( CallBacker* )
 void uiWellPartServer::launchRockPhysics()
 {
     uiWellRockPhysLauncher dlg( parent() );
-    dlg.go();
+    const int sz = dlg.selgrp_->size();
+    if ( sz == 0 )
+	uiMSG().error( "Please create one or more wells first" );
+    else if ( sz > 1 )
+	dlg.go();
+    else
+    {
+	dlg.selgrp_->selectAll();
+	TypeSet<MultiID> mids; dlg.selgrp_->getSelected( mids );
+	uiWellLogCalc lcdlg( parent(), mids, true );
+	lcdlg.go();
+    }
 }
 
 

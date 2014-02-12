@@ -56,11 +56,8 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 }
 
 
-//TODO someone solve this huge bug. With multiple wells one wls is not
-// enough. Just pass the wllids and this dialog should clear the rest.
-
-
-uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids )
+uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
+       			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     getDlgTitle(wllids),
 				     "107.1.10"))
@@ -96,8 +93,9 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids )
     mesu.withsetbut( true ).fnsbelow( false );
     formfld_ = new uiMathExpression( inpgrp, mesu );
     formfld_->formSet.notify( formsetcb );
+    const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
-			    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
+	    		    rockphyscb, "RockPhysics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
 
@@ -149,6 +147,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids )
     lcb->attach( alignedBelow, nmfld_ );
 
     postFinalise().notify( formsetcb );
+    if ( rockphysmode )
+	postFinalise().notify( rockphyscb );
 }
 
 

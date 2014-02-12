@@ -32,7 +32,8 @@ namespace Well { class Log; class LogSet; }
 mExpClass(uiWell) uiWellLogCalc : public uiDialog
 {
 public:
-				uiWellLogCalc(uiParent*,const TypeSet<MultiID>&);
+				uiWellLogCalc(uiParent*,const TypeSet<MultiID>&,
+					      bool rockphysmode=false);
 				~uiWellLogCalc();
 
     bool			haveNewLogs() const	{ return havenew_; }
