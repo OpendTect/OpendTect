@@ -14,13 +14,24 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool testArg()
 {
+    const char* desoutput = "Hello Dear 1";
+
     uiString string = uiString( "Hello %1 %2").arg( "Dear" ).arg( toString(1) );
-    mRunStandardTest( string.getQtString()==QString("Hello Dear 1"),
+    mRunStandardTest( string.getQtString()==QString( desoutput ),
 		     "Standard argument order");
 
     string = uiString( "Hello %2 %1").arg( toString( 1 ) ).arg( "Dear" );
-    mRunStandardTest( string.getQtString()==QString("Hello Dear 1"),
+    mRunStandardTest( string.getQtString()==QString(desoutput),
 		     "Reversed argument order");
+
+    BufferString expargs = string.getFullString();
+
+    mRunStandardTest( expargs==desoutput, "Argument expansion" );
+
+    uiString cloned;
+    cloned.setFrom( string );
+
+    mRunStandardTest( string.getQtString()==cloned.getQtString(), "copyFrom" );
 
     return true;
 }

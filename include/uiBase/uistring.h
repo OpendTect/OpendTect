@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 #include "objectset.h"
 
+class uiStringData;
+
 mFDQtclass( QString )
 
 /*!String that is able to hold wide character strings for the user interface.
@@ -36,73 +38,65 @@ mFDQtclass( QString )
  \endcode
 
    Will result in the string "4 plus 5 is 9"
+
+ \note As multiple uiStrings may use the same underlying data (if they are
+       constructed with the copy constructor or the equal operator, they are not
+       suited for other types of string operations than passing messages to the
+       user.
  */
 
 
 mExpClass(uiBase) uiString
 {
 public:
-			uiString(const uiString&);
-			uiString(const char* original = 0);
-			/*!<String is assumed to stay alive as it will be used
-			    for the originalstring_. */
-			uiString(const FixedString&);
-			/*!<Underlying const char is assumed to stay alive and
-			    will be used for the originalstring_ */
-			uiString(const BufferString&);
-			uiString(const QString&,
-				 const char* originalstring=0);
-			~uiString();
+				uiString(const uiString&);
+				/*!<\note Does not copy data, will use the same
+				  underlying data structure (reference
+				  counted). */
+				uiString(const char* original = 0);
+				uiString(const FixedString&);
+				uiString(const BufferString&);
 
-    bool		isEmpty() const;
+				~uiString();
 
-    uiString&		operator=(const uiString&);
-    uiString&		operator=(const char*);
-			/*!<String is assumed to stay alive as it will be used
-			 for the originalstring_. */
-    uiString&		operator=(const FixedString&);
-			/*!<Underlying const char is assumed to stay alive and
-			    will be used for the originalstring_ */
-    uiString&		operator=(const BufferString&);
+    bool			isEmpty() const;
 
+    uiString&			operator=(const uiString&);
+				/*!<\note Does not copy data, will use the same
+				 underlying data structure (reference
+				 counted). */
+    uiString&			setFrom(const uiString& src);
+				/*!<Copies all data over from src. If src and
+				    this use the same data, they will be
+				    separated. */
+    uiString&			operator=(const char*);
+    uiString&			operator=(const FixedString&);
 
-    uiString		arg(const char*) const;
-    uiString		arg(const uiString&) const;
+    uiString&			operator=(const BufferString&);
+    bool			operator==(const uiString& b) const
+				{ return b.data_==data_; }
 
-    const mQtclass(QString&)	getQtString() const;
+    uiString			arg(const char*) const;
+    uiString			arg(const uiString&) const;
+
+    const char* 		getFullString() const;
+				/*!<Constructs the result from the original
+				    string and the arguments,
+				without translation.
+				\note Returned string will only be valid until
+				 next call. */
     const char*			getOriginalString() const;
+    const mQtclass(QString&)	getQtString() const;
 
 private:
-
-    void			addArgument(uiString*);
-
-    ObjectSet<uiString>		arguments_;
-
-    mQtclass(QString)*		qstring_;
-    const char*			originalstring_;
-    const char*			translationcontext_;
-    const char*			translationdisambiguation_;
-    int				translationpluralnumber_;
-
-public: // Expert usage
-    void		setTranslationContext(const char*);
-			//!<\note String is assumed to remain in mem.
-    void		setTranslationDisambiguation(const char*);
-			//!<\note String is assumed to remain in mem
-    void		setTranslationPluralNr(int);
-			//!<If translation depends on plural, give current nr
-
-    void		update(bool translate=true,
-				bool replaceargs=true);
-			/*!<Updates internal qstrig from originalstring_
-			 and the other translation settings using the
-			 current language. Call is normally only needed
-			 if global translation language has changed. */
-			uiString(const char* text,
-				 const char* context,
-				 const char* disambiguation,
-				 int pluralnr);
-
+    friend class		uiStringData;
+    uiStringData*		data_;
+public:
+				uiString(const char* original,
+					 const char* context,
+					 const char* disambiguation,
+					 int pluralnr);
+				//Only for expert users
 
 };
 

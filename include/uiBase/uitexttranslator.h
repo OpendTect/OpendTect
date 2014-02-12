@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "callback.h"
+#include "uistring.h"
 
 
 mExpClass(uiBase) TextTranslator : public CallBacker
@@ -49,21 +50,39 @@ protected:
 };
 
 
-mExpClass(uiBase) TextTranslateMgr
+mExpClass(uiBase) TextTranslateMgr : public CallBacker
 {
 public:
 				TextTranslateMgr()
-				    : translator_(0)	{}
+				    : translator_(0)
+				    , dirtycount_(0)
+				    , languageChange(this)
+				{}
 				~TextTranslateMgr()	{ delete translator_; }
 
-    void			setTranslator( TextTranslator* ttr )
-				{ translator_ = ttr; }
-    TextTranslator*		tr()			{ return translator_; }
+
+
+    int 			nrSupportedLanguages() const;
+    uiString			getLanguageUserName(int) const;
+    const char* 		getLanguageName(int) const;
+    void			setLanguage(const char*);
+
+    Notifier<TextTranslateMgr>	languageChange;
+
+    int 			dirtyCount() const	{ return dirtycount_; }
+				//Increased every time language is changed
+
 
 protected:
 
     TextTranslator*			translator_;
+    Threads::Atomic<int>		dirtycount_;
 
+
+public: 			//Old stuff will be removed.
+    void			setTranslator( TextTranslator* ttr )
+    { translator_ = ttr; }
+    TextTranslator*		tr()			{ return translator_; }
 };
 
 

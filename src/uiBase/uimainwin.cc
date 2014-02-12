@@ -1126,13 +1126,13 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 				    QWidget* forwindow,
 				    BufferString* outputaddendum )
 {
-    QString wintitle;
+    BufferString wintitle;
     const QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
     for ( int count=1; true; count++ )
     {
 	bool unique = true;
-	wintitle = txt.getQtString();
+	wintitle = txt.getFullString();
 
 	if ( wintitle.isEmpty() )
 	    wintitle = "<no title>";
@@ -1157,7 +1157,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	if ( unique ) break;
     }
 
-    return uiString(wintitle,0);
+    return uiString(wintitle.str());
 }
 
 

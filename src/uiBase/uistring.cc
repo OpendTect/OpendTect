@@ -12,235 +12,229 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 
 #include "bufstring.h"
+#include "refcount.h"
 #include "ptrman.h"
+#include "typeset.h"
+#include "perthreadrepos.h"
+#include "uitexttranslator.h"
 
 
 #include <QString>
 #include <QCoreApplication>
 
-uiString::uiString( const char* str )
-    : qstring_( 0 )
-    , originalstring_( 0 )
-    , translationcontext_( 0 )
-    , translationpluralnumber_( -1 )
-    , translationdisambiguation_( 0 )
+
+class uiStringData
+{ mRefCountImplNoDestructor(uiStringData)
+public:
+    uiStringData( const char* originalstring, const char* context,
+		  const char* disambiguation, int pluralnr )
+	: originalstring_( originalstring )
+	, translationcontext_( context )
+	, translationpluralnumber_( pluralnr )
+	, translationdisambiguation_( disambiguation )
+    {
+    }
+
+    void setFrom( const uiStringData& d )
+    {
+	originalstring_ = d.originalstring_;
+	translationcontext_ = d.translationcontext_;
+	translationpluralnumber_ = d.translationpluralnumber_;
+	translationdisambiguation_ = d.translationdisambiguation_;
+	arguments_ = d.arguments_;
+    }
+
+    const char* getFullString() const;
+
+    void set(const char* orig);
+    void fillQString(QString&, bool translate) const;
+
+    TypeSet<uiString>		arguments_;
+
+    QString			qstring_;
+
+    BufferString		originalstring_;
+    const char* 		translationcontext_;
+    const char* 		translationdisambiguation_;
+    int 			translationpluralnumber_;
+
+    int 			dirtycount_;
+};
+
+
+void uiStringData::set( const char* orig )
 {
+    originalstring_ = orig;
+}
+
+
+const char* uiStringData::getFullString() const
+{
+    QString qres;
+    fillQString( qres, false )
+
+    mDeclStaticString( ret );
+    ret = qres;
+    return ret.buf();
+}
+
+
+
+void uiStringData::fillQString( QString& res, bool translate ) const
+{
+    if ( !originalstring_ || !*originalstring_ )
+	return;
+
+    res = originalstring_;
+
+    if ( translate )
+	res = QCoreApplication::translate( translationcontext_,
+					    originalstring_,
+					    translationdisambiguation_,
+					    QCoreApplication::CodecForTr,
+					    translationpluralnumber_ );
+
+    for ( int idx=0; idx<arguments_.size(); idx++ )
+    {
+	res = res.arg( arguments_[idx].getQtString() );
+    }
+}
+
+
+
+uiString::uiString( const char* str )
+    : data_( new uiStringData( 0, 0, 0, -1 ) )
+{
+    data_->ref();
     *this = str;
 }
 
 
-uiString::uiString( const char* text, const char* context,
+uiString::uiString( const char* originaltext, const char* context,
 		    const char* disambiguation, int pluralnr )
-    : qstring_( (text && *text) ? new QString(text) : 0)
-    , originalstring_( text )
-    , translationcontext_( context )
-    , translationpluralnumber_( pluralnr )
-    , translationdisambiguation_( disambiguation )
+    : data_( new uiStringData(originaltext, context, disambiguation, pluralnr ))
 {
-    update( true, true );
+    data_->ref();
 }
 
 
 uiString::uiString( const uiString& str )
-    : qstring_( 0 )
-    , originalstring_( 0 )
-    , translationcontext_( 0 )
-    , translationpluralnumber_( -1 )
-    , translationdisambiguation_( 0 )
+    : data_( str.data_ )
 {
+    data_->ref();
+
     *this = str;
 }
 
 
 uiString::uiString( const FixedString& str )
-    : qstring_( 0 )
-    , originalstring_( 0 )
-    , translationcontext_( 0 )
-    , translationpluralnumber_( -1 )
-    , translationdisambiguation_( 0 )
+    : data_( new uiStringData( 0, 0, 0, -1 ) )
 {
+    data_->ref();
     *this = str;
 }
 
 
 uiString::uiString( const BufferString& str )
-    : qstring_( 0 )
-    , originalstring_( 0 )
-    , translationcontext_( 0 )
-    , translationpluralnumber_( -1 )
-    , translationdisambiguation_( 0 )
+    : data_( new uiStringData( 0, 0, 0, -1 ) )
 {
+    data_->ref();
     *this = str;
-}
-
-
-uiString::uiString( const QString& str, const char* original )
-    : qstring_( str.isEmpty() ? 0 : new QString(str) )
-    , originalstring_( original )
-    , translationcontext_( 0 )
-    , translationpluralnumber_( -1 )
-    , translationdisambiguation_( 0 )
-{
 }
 
 
 uiString::~uiString()
 {
-    delete qstring_;
-    deepErase( arguments_ );
+    data_->unRef();
 }
 
 
 bool uiString::isEmpty() const
 {
-    return !qstring_ || qstring_->isEmpty();
+    return data_->originalstring_.isEmpty();
 }
 
 
 const char* uiString::getOriginalString() const
 {
-    return originalstring_;
+    return data_->originalstring_;
 }
 
-QString emptystring;
+
+const char* uiString::getFullString() const
+{
+    return data_->getFullString();
+}
 
 
 const QString& uiString::getQtString() const
 {
-    if ( isEmpty() )
-	return emptystring;
-
-    return *qstring_;
+    data_->fillQString( data_->qstring_, true );
+    return data_->qstring_;
 }
-
-#define mSetQString( strempty, srcassign ) \
-if ( strempty ) \
-{ \
-    deleteAndZeroPtr( qstring_ ); \
-} \
-else \
-{ \
-    if ( !qstring_ ) qstring_ = new QString(srcassign); \
-    else *qstring_ = srcassign; \
-}
-
 
 
 uiString& uiString::operator=( const uiString& str )
 {
-    mSetQString( str.isEmpty(), str.getQtString() );
+    str.data_->ref();
+    data_->unRef();
+    data_ = str.data_;
+    return *this;
+}
 
-    originalstring_ = str.originalstring_;
-    translationcontext_ = str.translationcontext_;
-    translationdisambiguation_ = str.translationdisambiguation_;
-    translationpluralnumber_ = str.translationpluralnumber_;
 
-    deepErase( arguments_ );
-    deepCopy( arguments_, str.arguments_ );
+uiString& uiString::setFrom( const uiString& str )
+{
+    if ( data_==str.data_ )
+    {
+	data_->unRef();
+	data_ = new uiStringData( 0, 0, 0, -1 );
+	data_->ref();
+    }
 
+    data_->setFrom( *str.data_ );
     return *this;
 }
 
 
 uiString& uiString::operator=( const FixedString& str )
 {
-    mSetQString(str.isEmpty(),str.str());
-
-    originalstring_ = str.str();
+    data_->set( str.str() );
     return *this;
 }
 
 
 uiString& uiString::operator=( const BufferString& str )
 {
-    mSetQString(str.isEmpty(),str.str());
+    data_->set( str.str() );
 
-    originalstring_ = 0;
     return *this;
 }
 
 
 uiString& uiString::operator=( const char* str )
 {
-    mSetQString( !str, str );
-
-    originalstring_ = str;
+    data_->set( str );
     return *this;
 }
 
 
 uiString uiString::arg( const uiString& newarg ) const
 {
-    uiString ret = *this;
-    ret.addArgument( new uiString(newarg) );
-    ret.update( true, true );
+    uiString ret;
+    ret.data_->setFrom( *data_ );
+    ret.data_->arguments_ += newarg;
+
     return ret;
 }
 
 
 uiString uiString::arg( const char* newarg ) const
 {
-    uiString ret = *this;
-    ret.addArgument( new uiString(newarg) );
-    ret.update( true, true );
-    return ret;
+    return arg( uiString(newarg) );
 }
 
 
-void uiString::update( bool translate, bool replace )
-{
-    for ( int idx=0; idx<arguments_.size(); idx++ )
-	arguments_[idx]->update( translate, replace );
-
-    if ( !qstring_ )
-	return;
-
-    *qstring_ = originalstring_;
-
-    if ( !translate && !replace )
-    {
-	return;
-    }
-
-    if ( translate )
-    {
-	*qstring_ = QCoreApplication::translate( translationcontext_,
-						 originalstring_,
-						 translationdisambiguation_,
-						 QCoreApplication::CodecForTr,
-						 translationpluralnumber_ );
-    }
-
-    if ( replace )
-    {
-	for ( int idx=0; idx<arguments_.size(); idx++ )
-	{
-	    *qstring_ = qstring_->arg( arguments_[idx]->getQtString() );
-	}
-    }
-}
-
-
-void uiString::addArgument( uiString* newarg )
-{
-    arguments_ += newarg;
-}
-
-
-void uiString::setTranslationContext( const char* ctxt )
-{ translationcontext_ = ctxt; }
-
-
-void uiString::setTranslationDisambiguation( const char* di )
-{ translationdisambiguation_ = di; }
-
-
-void uiString::setTranslationPluralNr( int nr )
-{ translationpluralnumber_ = nr; }
-
-
-
-#include "uitexttranslator.h"
 mGlobal( uiBase )  TextTranslateMgr& TrMgr()
 {
     mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
