@@ -34,7 +34,7 @@ else()
     set( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
 		   .lic_start_common mk_datadir .start_dtect setup.od )
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
-    set( ODSCRIPTS od_* mksethdir mac_term macterm.in )
+    set( ODSCRIPTS od_* mksethdir macterm.in )
 endif()
 
 if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
