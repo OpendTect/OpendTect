@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "testprog.h"
 
+#include "multiid.h"
+
 
 #define mTest( testname, test ) \
 if ( (test)==true ) \
@@ -77,6 +79,14 @@ bool testPointerAlignment()
 }
 
 
+bool testCompoundKey()
+{
+    mRunStandardTest( MultiID::udf().isUdf(), "Undefined multiid" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -85,7 +95,8 @@ int main( int argc, char** argv )
     // really fit anywhere else.
 
     if ( !testPointerCast()
-      || !testPointerAlignment() )
+	|| !testCompoundKey()
+        || !testPointerAlignment() )
         ExitProgram( 1 );
 
     return ExitProgram( 0 );
