@@ -229,9 +229,10 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 void uiODApplMgr::surveyChanged( CallBacker* )
 {
     dispatcher_.survChg(false); attrvishandler_.survChg(false);
-    bool douse = false; MultiID id;
+    bool douse = false; 
+    MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id == "" )
+    if ( !douse || id.isEmpty() )
 	sceneMgr().addScene( true );
 
     attrserv_ = new uiAttribPartServer( applservice_ );

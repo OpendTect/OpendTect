@@ -554,9 +554,10 @@ void uiODMain::doRestoreSession()
 
 void uiODMain::handleStartupSession()
 {
-    bool douse = false; MultiID id;
+    bool douse = false; 
+    MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id == "" )
+    if ( !douse || id.isEmpty() )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );
