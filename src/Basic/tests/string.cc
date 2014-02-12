@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include "multiid.h"
 
 
 #define mRunTest( desc, test ) \
@@ -234,7 +235,17 @@ static bool testLimFToStringFns()
     return true;
 }
 
+bool testEmptyStringComparison()
+{
+    BufferString bfstr;
+    mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
+    FixedString fxdstr;
+    mRunStandardTest( fxdstr=="", "Empty string comparison - FixedString");
+    MultiID mid;
+    mRunStandardTest( mid=="", "Empty string comparison - MultiID");
 
+    return true;
+}
 
 int main( int argc, char** argv )
 {
@@ -244,7 +255,8 @@ int main( int argc, char** argv )
       || !testStringPrecisionInAscII()
       || !testBufferStringFns()
       || !testOccFns()
-      || !testLimFToStringFns() )
+      || !testLimFToStringFns() 
+      || !testEmptyStringComparison() )
 	ExitProgram( 1 );
 
     BufferStringSet strs;

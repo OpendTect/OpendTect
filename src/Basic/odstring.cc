@@ -46,18 +46,19 @@ bool OD::String::operator <( const char* s ) const
 }
 
 
+#define mIsEmpty(str) (!str || !*str)
+
 #define mRetEmptyEquality(s1,s2) \
-    if ( s1 == s2 ) \
+    if ( s1 == s2 || ( mIsEmpty(s1) && mIsEmpty(s2) ) )\
 	return true; \
-    else if ( !s1 || !s2 ) \
-	return false
+    else if ( mIsEmpty(s1) || mIsEmpty(s2) ) \
+	return false;\
 
 #define mGetMeForEquality() \
     const char* me = gtStr(); \
     mRetEmptyEquality( me, s )
 
 #define mIsInsens() (sens == CaseInsensitive)
-
 
 bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
 {
