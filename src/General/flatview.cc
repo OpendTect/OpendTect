@@ -421,6 +421,8 @@ FlatView::Viewer::Viewer()
     , wvapack_(0)
     , vdpack_(0)
 {
+    dpm_.packToBeRemoved.notifyIfNotNotified(
+			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
 }
 
 
@@ -510,10 +512,9 @@ void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
     if ( ids_.isPresent(id) ) return;
     ids_ += id;
     obs_ += obs;
-    dpm_.obtain( id, obs );
-    if ( obs )
-	dpm_.packToBeRemoved.notifyIfNotNotified(
-		mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
+
+    if ( !obs )
+	dpm_.obtain( id );
 }
 
 
@@ -576,7 +577,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	return;
     }
     else
-	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.obtain( id, true );
+	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.observe( id );
 
     ConstDataPackRef<FlatDataPack> fdp = obtainPack( wva );
     if ( !fdp ) return;

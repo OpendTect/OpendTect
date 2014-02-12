@@ -101,10 +101,12 @@ void Engine::setActiveVolume( const CubeSampling& nav )
 
     if ( !dim )
 	ncs.hrg.start.inl() = ncs.hrg.stop.inl() =
-	    SI().inlRange(true).snap((ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
+	    SI().inlRange(true).snap(
+		(ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
     else if ( dim==1 )
 	ncs.hrg.start.crl() = ncs.hrg.stop.crl() =
-	    SI().crlRange(true).snap((ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
+	    SI().crlRange(true).snap(
+		(ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
     else
 	ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(ncs.zrg.center());
 
@@ -479,26 +481,27 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 
 const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
 {
-    DataPack* datapack = DPM( DataPackMgr::FlatID() ).obtain( datapackid, true);
+    DataPackRef<DataPack> datapack =
+			    DPM( DataPackMgr::FlatID() ).obtain( datapackid );
     if ( !datapack )
-	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid, true );
+	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid );
 
     DataHolder* dh = new DataHolder();
 
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
     if ( cdp )
     {
 	dh->setCubeSampling( cdp->cube().cubeSampling() );
 	dh->set3DData( &cdp->cube() );
     }
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack.ptr());
     if ( fdp )
     {
 	dh->setCubeSampling( fdp->cube().cubeSampling() );
 	dh->set3DData( &fdp->cube() );
     }
 
-    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
+    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack.ptr());
     if ( dp2d )
     {
 	dh->setCubeSampling( dp2d->dataarray()->cubesampling_ );
@@ -750,10 +753,14 @@ const char* Engine::errMsg() const
 CubeSampling Engine::getDefaultActiveVolume()
 {
     CubeSampling cs;
-    cs.hrg.start.inl()=(5*SI().inlRange(true).start+3*SI().inlRange(true).stop)/8;
-    cs.hrg.start.crl()=(5*SI().crlRange(true).start+3*SI().crlRange(true).stop)/8;
-    cs.hrg.stop.inl() =(3*SI().inlRange(true).start+5*SI().inlRange(true).stop)/8;
-    cs.hrg.stop.crl() =(3*SI().crlRange(true).start+5*SI().crlRange(true).stop)/8;
+    cs.hrg.start.inl()=(5*SI().inlRange(true).start+
+			3*SI().inlRange(true).stop)/8;
+    cs.hrg.start.crl()=(5*SI().crlRange(true).start+
+			3*SI().crlRange(true).stop)/8;
+    cs.hrg.stop.inl() =(3*SI().inlRange(true).start+
+			5*SI().inlRange(true).stop)/8;
+    cs.hrg.stop.crl() =(3*SI().crlRange(true).start+
+			5*SI().crlRange(true).stop)/8;
     cs.zrg.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
     cs.zrg.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
     SI().snap( cs.hrg.start, BinID(0,0) );

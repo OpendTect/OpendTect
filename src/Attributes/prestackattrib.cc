@@ -466,7 +466,8 @@ void PSAttrib::prepPriorToBoundsCalc()
     if ( fullidstr && *fullidstr == '#' )
     {
 	DataPack::FullID fid( fullidstr+1 );
-	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid), false );
+
+	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid) );
 	mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
 	isondisc =  !psgdtp;
 	if ( isondisc )

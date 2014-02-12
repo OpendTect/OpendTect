@@ -192,7 +192,8 @@ void uiFlatViewDataDispPropTab::setDataNames()
     dispfld_->addItem( "No" );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	const DataPack* dp = dpm_.obtain( vwr_.availablePacks()[idx], true );
+	ConstDataPackRef<DataPack> dp =
+		dpm_.obtain( vwr_.availablePacks()[idx]);
 	if ( dp )
 	{
 	    dispfld_->addItem( dp->name() );
@@ -266,7 +267,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	const DataPack* dp = dpm_.obtain( vwr_.availablePacks()[idx], true );
+	ConstDataPackRef<DataPack> dp = dpm_.obtain(vwr_.availablePacks()[idx]);
 	if ( dp && dp->name() == datanm )
 	    vwr_.usePack( wva, dp->id(), false );
     }

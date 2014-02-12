@@ -47,7 +47,7 @@ bool testDataPack()
 
     int id = dpc->id();
 
-    DataPack* dp = dpm.obtain( id, true );
+    DataPack* dp = dpm.observe( id );
     mRunStandardTest( dpc->nrUsers()==1, "Nr users after observation obtain");
 
     mRunStandardTest( dp, "Return value from observation obtain");

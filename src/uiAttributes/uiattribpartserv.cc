@@ -584,14 +584,15 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 					       DataPack::ID cacheid )
 {
-    DataPack* datapack = DPM( DataPackMgr::FlatID() ).obtain( cacheid, true );
+    DataPackRef<DataPack> datapack =
+	DPM( DataPackMgr::FlatID() ).obtain( cacheid );
     if ( !datapack )
-	datapack = DPM( DataPackMgr::CubeID() ).obtain( cacheid, true );
+	datapack = DPM( DataPackMgr::CubeID() ).obtain( cacheid );
 
     const Attrib::DataCubes* cache = 0;
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
     if ( cdp ) cache = &cdp->cube();
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack.ptr());
     if ( fdp ) cache = &fdp->cube();
     const DataCubes* output = createOutput( cs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();

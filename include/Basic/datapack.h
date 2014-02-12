@@ -158,10 +158,14 @@ public:
     			/*!< The pack becomes mines. Pack is obtained
 			     during the lock, i.e. threadsafe. */
 
-    inline DataPack*	obtain( DataPack::ID dpid, bool observing_only=false )
-			{ return doObtain(dpid,observing_only); }
-    inline const DataPack* obtain( DataPack::ID dpid, bool obsrv=false ) const
-			{ return doObtain(dpid,obsrv); }
+    inline DataPack*	obtain( DataPack::ID dpid )
+			{ return doObtain(dpid,false); }
+    inline const DataPack* obtain( DataPack::ID dpid ) const
+			{ return doObtain(dpid,false); }
+    inline DataPack*	observe( DataPack::ID dpid )
+			{ return doObtain(dpid,true); }
+    inline const DataPack* observe( DataPack::ID dpid ) const
+			{ return doObtain(dpid,true); }
 
     void		release(DataPack::ID);
     void		release( const DataPack* dp )

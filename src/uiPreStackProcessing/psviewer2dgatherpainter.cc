@@ -50,7 +50,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 	inputvdgather_ = 0;
     }
 
-    DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid, false );
+    DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid );
     mDynamicCastGet( PreStack::Gather*, vdgather, vddp );
     if ( vdgather ) inputvdgather_ = vdgather;
     else if ( vddp ) DPM( DataPackMgr::FlatID() ).release( vddp->id() );
@@ -78,7 +78,7 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 	inputwvagather_ = 0;
     }
 
-    DataPack* wvadp = DPM( DataPackMgr::FlatID() ).obtain( wvaid, false );
+    DataPack* wvadp = DPM( DataPackMgr::FlatID() ).obtain( wvaid );
     mDynamicCastGet( PreStack::Gather*, wvagather, wvadp );
     if ( wvagather ) inputwvagather_ = wvagather;
     else if ( wvadp ) DPM( DataPackMgr::FlatID() ).release( wvadp->id() );

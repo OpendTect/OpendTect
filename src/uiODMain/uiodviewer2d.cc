@@ -99,11 +99,11 @@ uiODViewer2D::~uiODViewer2D()
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    DataPack* dp = dpm.obtain( packid, true );
-    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
-    mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
-    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
-    mDynamicCastGet(Attrib::FlatRdmTrcsDataPack*,dprdm,dp)
+    ConstDataPackRef<DataPack> dp = dpm.obtain( packid );
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr())
+    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp.ptr())
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr())
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr())
 
     const bool isnew = !viewwin();
     if ( isnew )
@@ -185,12 +185,10 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 		if ( ids[idx] == vwr.packID(!wva) )
 		    setforotherdisp = true;
 		vwr.removePack( ids[idx] );
-		dpm.release( ids[idx] );
 		break;
 	    }
 	}
 
-	dpm.obtain( packid, false );
 	vwr.setPack( wva, packid, false, isnew );
 	if ( isnew || setforotherdisp )
 	    vwr.setPack( !wva, packid, true, isnew );
@@ -351,16 +349,9 @@ void uiODViewer2D::removeAvailablePacks()
 {
     if ( !viewwin() ) { pErrMsg("No main window"); return; }
 
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    vwr.removePack( ids[idx] );
-	    dpm.release( ids[idx] );
-	}
+	viewwin()->viewer(ivwr).clearAllPacks();
     }
 }
 
