@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "visdata.h"
 #include "vissurvscene.h"
+#include "vissurvobj.h"
 #include "welltransl.h"
 
 // For factories
@@ -835,8 +836,12 @@ void uiODSceneMgr::rebuildTrees()
 
 	for ( int idy=0; idy<visids.size(); idy++ )
 	{
-	    /*if ( !visServ().getObject(visids[idy])->saveInSessions() )
-		continue; */
+	    mDynamicCastGet( const visSurvey::SurveyObject*, surobj, 
+		visServ().getObject(visids[idy]) );
+
+	    if ( surobj && surobj->getSaveInSessionsFlag() == false )
+		continue;
+	    
 	    uiODDisplayTreeItem::create( scene.itemmanager_, &applMgr(),
 					 visids[idy] );
 	}

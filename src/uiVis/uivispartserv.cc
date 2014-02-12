@@ -406,13 +406,18 @@ visBase::DataObject* uiVisPartServer::getObject( int id ) const
 
 
 void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
-				 bool )
+				 bool saveinsessions )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid));
     if ( !scene ) return;
 
     scene->addObject( dobj );
     objectaddedremoved.trigger();
+
+    mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
+    if ( surobj )
+        surobj->setSaveInSessionsFlag( saveinsessions );
+    
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {

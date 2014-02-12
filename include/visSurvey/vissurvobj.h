@@ -341,6 +341,11 @@ public:
     void			setUserRefs( int attrib, BufferStringSet* nms )
 				{ userrefs_.replace( attrib, nms ); }
 
+    void			setSaveInSessionsFlag( bool yn )
+				{ saveinsessionsflag_ = yn; }
+    bool			getSaveInSessionsFlag() const
+				{ return saveinsessionsflag_; }
+
 protected:
     				SurveyObject();
 				~SurveyObject();
@@ -358,6 +363,7 @@ protected:
 
     const Survey::Geometry3D*	s3dgeom_;
     BufferString		survname_; //Only from IOPar
+    bool			saveinsessionsflag_;
 
 };
 

@@ -939,8 +939,10 @@ void Scene::fillPar( IOPar& par ) const
     {
 	BufferString childkey( childfix(), nrchilds );
 	mDynamicCastGet(const visSurvey::SurveyObject*,survobj, getObject(idx));
-	if ( !survobj )
+	
+	if ( !survobj || survobj->getSaveInSessionsFlag() == false )
 	    continue;
+
 	IOPar childpar;
 	nrchilds++;
 

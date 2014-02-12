@@ -29,6 +29,7 @@ SurveyObject::SurveyObject()
     , basemapobj_(0)
     , locked_(false)
     , updatestagenr_( 0 )
+    , saveinsessionsflag_( true )
 {
     set3DSurvGeom( SI().get3DGeometry(true) );
 }
