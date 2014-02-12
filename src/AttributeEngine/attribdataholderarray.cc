@@ -103,9 +103,9 @@ void DataHolderArray::getAll( float* ptr ) const
     const int nrdataholders = info_.getSize( 1 );
     const int nrsamples = info_.getSize( 2 );
     
-    for ( int dhidx=0; dhidx<nrdataholders; dhidx++ )
+    for ( int seridx=0; seridx<nrseries; seridx++ )
     {
-	for ( int seridx=0; seridx<nrseries; seridx++ )
+	for ( int dhidx=0; dhidx<nrdataholders; dhidx++ )
 	{
 	    const ValueSeries<float>* valser = dh_[dhidx]->series( seridx );
 	    if ( !valser )
