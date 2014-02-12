@@ -30,7 +30,43 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarchingcubessurfacedisplay.h"
 
 
+// uiPropertiesDlg
+uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
+    : uiTabStackDlg(p,uiDialog::Setup("Display properties",
+				      mNoDlgTitle,"50.0.4"))
+    , survobj_(so)
+    , visobj_(dynamic_cast<visBase::VisualObject*>(so))
+{
+    if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
+    {
+	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
+			survobj_, true, true, false, false, false, true,
+			survobj_->hasColor() )) ;
+    }
 
+    if ( so && so->canEnableTextureInterpolation() )
+	addGroup( new uiTextureInterpolateGrp(tabstack_->tabGroup(),survobj_) );
+
+    if ( survobj_->lineStyle() )
+	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
+    if ( pdd )
+	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
+
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
+    if ( plg )
+	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
+
+    mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
+    if ( flt )
+	addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
+
+    setCancelText( "" );
+}
+
+
+// uiLineStyleGrp
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     : uiDlgGroup(p,"Line style")
     , survobj_(so)
@@ -64,40 +100,7 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 }
 
 
-uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4"))
-    , survobj_(so)
-    , visobj_(dynamic_cast<visBase::VisualObject*>(so))
-{
-    if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
-    {
-	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
-			survobj_, true, true, false, false, false, true,
-			survobj_->hasColor() )) ;
-    }
-    
-    if ( so && so->canEnableTextureInterpolation() )
-	addGroup( new uiTextureInterpolateGrp(tabstack_->tabGroup(),survobj_) );
-
-    if ( survobj_->lineStyle() )
-	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
-
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
-    if ( pdd )
-	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
-    
-    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
-    if ( plg )
-	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
-
-    mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
-    if ( flt )
-	addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
-
-    setCancelText( "" );
-}
-
-
+// uiTextureInterpolateGrp
 uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p, 
 						  visSurvey::SurveyObject* so )
     : uiDlgGroup(p,"Texture")
@@ -121,6 +124,8 @@ void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 	survobj_->enableTextureInterpolation( textclasssify_->getBoolValue() );
 }
 
+
+// uiMaterialGrp
 
 #define mFinalise( sldr, fn ) \
 if ( sldr ) \
