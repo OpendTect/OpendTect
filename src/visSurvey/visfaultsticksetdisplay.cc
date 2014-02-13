@@ -66,12 +66,20 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , stickselectmode_(false)
 {
     sticks_->ref();
+    stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
+    stickdrawstyle_->ref();
+
+    LineStyle stickls( LineStyle::Solid, 3 );
+    stickdrawstyle_->setLineStyle( stickls );
     addChild( sticks_->osgNode() );
     sticks_->setName( "FaultSticks" );
 
     activestick_->ref();
-    visBase::DrawStyle* ds = activestick_->addNodeState(new visBase::DrawStyle);
-    ds->setLineStyle( LineStyle(LineStyle::Solid,3) );
+    activestickdrawstyle_ = activestick_->addNodeState( new visBase::DrawStyle);
+    activestickdrawstyle_->ref();
+
+    stickls.width_ += 2;
+    activestickdrawstyle_->setLineStyle( stickls );
     addChild( activestick_->osgNode() );
 
     for ( int idx=0; idx<3; idx++ )
@@ -88,8 +96,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     activestick_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
 				   false );
     sticks_->setPickable( false );
-    sticks_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
-			      false );
+    sticks_->enableTraversal( visBase::cDraggerIntersecTraversalMask(), false );
 }
 
 
@@ -124,7 +131,12 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 
     if ( displaytransform_ ) displaytransform_->unRef();
 
+    sticks_->removeNodeState( stickdrawstyle_ );
+    stickdrawstyle_->unRef();
     sticks_->unRef();
+
+    activestick_->removeNodeState( activestickdrawstyle_ );
+    activestickdrawstyle_->unRef();
     activestick_->unRef();
 
     for ( int idx=knotmarkersets_.size()-1; idx>=0; idx-- )
@@ -257,6 +269,22 @@ NotifierAccess* FaultStickSetDisplay::materialChange()
 
 Color FaultStickSetDisplay::getColor() const
 { return getMaterial()->getColor(); }
+
+
+const LineStyle* FaultStickSetDisplay::lineStyle() const
+{ return &stickdrawstyle_->lineStyle(); }
+
+
+void FaultStickSetDisplay::setLineStyle( const LineStyle& ls )
+{
+    stickdrawstyle_->setLineStyle( ls );
+
+    LineStyle activestickls( ls );
+    activestickls.width_ += 2;
+    activestickdrawstyle_->setLineStyle( activestickls );
+
+    requestSingleRedraw();
+}
 
 
 void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )

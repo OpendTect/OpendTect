@@ -22,10 +22,10 @@ ________________________________________________________________________
 
 namespace visBase 
 { 
-    class Transformation;
+    class DrawStyle;
     class Lines;
     class MarkerSet;
-    class DrawStyle;
+    class Transformation;
 }
 
 namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
@@ -60,6 +60,8 @@ public:
     void			setColor(Color);
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -154,6 +156,8 @@ protected:
 
     visBase::Lines*		sticks_;
     visBase::Lines*		activestick_;
+    visBase::DrawStyle* 	stickdrawstyle_;
+    visBase::DrawStyle* 	activestickdrawstyle_;
 
     bool			displayonlyatsections_;
     bool			stickselectmode_;
