@@ -172,7 +172,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
     mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 3 );
-    mnu.insertItem( new uiAction(uiStrings::sRemove() ), 4 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true) ), 4 );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )

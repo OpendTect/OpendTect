@@ -339,7 +339,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
 	    			applMgr()->attrServer()->curDescSet(false) );
