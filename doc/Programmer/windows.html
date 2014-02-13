@@ -67,17 +67,17 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 <p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win32 folder directory. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code.  Please note you can only debug your own code and cannot step in to any OpendTect library functions, as this is being used as an external library.</p>
 
 <a name="ownplugin"><h3 id="heading3">Building your own plugin</h3></a>
-<p id="text">If you want to create your own plugin, we have a starting point called "My_Plugin_Name" which is also one of the projects you see. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you. Procedure:</p>
+<p id="text">If you want to create your own plugin, we have a starting point called "Tut" which is also one of the projects you see. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you. Procedure:</p>
 
 <ul>
 <li>Exit Visual Studio.
-<li>Rename 'My_Plugin_Name' folder with a name of your chice e.g 'My_Inversion'.
-<li>Edit the ODWork\CMakeLists.txt, replace - replace 'My_Plugin_Name' with 'My_Inversion'.
-<li>Rename my_plugin_name_pi.cc to a different name like "my_inversion_pi.cc" as shown earlier.
-<li>Edit my_inv_plugin_pi.cc and replace every occurences of 'My_Plugin_Name' with 'My_Inversion'.
+<li>Rename 'Tut' folder with a name of your chice e.g 'My_Inversion'.
+<li>Edit the ODWork\CMakeLists.txt, replace - replace 'Tut' with 'My_Inversion'.
+<li>Rename tutpi.cc to a different name like "my_inversion_pi.cc" as shown earlier.
+<li>Edit my_inv_plugin_pi.cc and replace every occurences of 'Tut' with 'My_Inversion'.
 <li>Keep the code as-is, or change something. If you add files, or remove/rename the ones provided in the plugin directory, change the CMakeLists.txt in the plugin directory accordingly.
 <li>Now configure CMake just like you configured before. I didn't have to disable my virus scanning anymore, but you may have to do this.
-<li>If you manage to make the the projects and successfully build them, then start the od_main project again and load the new plugin DLL form ODWork\bin\win32/64\<br>Debug in to OpendTect. If you didn't change the example 'My_Class' you will see a 'Hello World!' message appear.
+<li>If you manage to make the the projects and successfully build them, then start the od_main project again and load the new plugin DLL form ODWork\bin\win32/64\<br>Debug in to OpendTect. If you didn't change the example you will see a your plugin is loaded in the list of the plugins for utilities->tools->Plugins menu.
 </ul>
 
 <h3 id="heading3">Debugging your own plugin </h3>
