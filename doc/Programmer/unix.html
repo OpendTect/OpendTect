@@ -95,16 +95,16 @@ After "<code>cmake .</code>" (ceemake dot) in the root of your development envir
 </p>
 <h3 id="heading3">Your own plugin</h3>
 <p id="text">
-To create your very own plugin, we added a directory 'My_Plugin_Name'. Change that directory name to how you want to name your plugin. No spaces please. Example: 'PsychicFreqEst'. You want to get this name in all details now. So:</p>
+To create your very own plugin, we have supplied the Tutorial plugins which contains Tut and uiTut modules. You can either change that directory name to how you want to name your plugin or create a similar directory structure but do not put spaces please. Example: 'PsychicFreqEst'. You want to get this name in all details now. So:</p>
 <pre id="code"><code>
-mv My_Plugin_Name PsychicFreqEst
+mv Tut PsychicFreqEst
 cd PsychicFreqEst
-mv my_plugin_name_pi.cc psychicfreqest_pi.cc
+mv tutpi.cc psychicfreqest_pi.cc
 </code></pre><br>
 <p id="text">Now edit both the CMakeLists.txt and psychicfreqest_pi.cc, as in:</p>
 <pre id="code"><code>vi CMakeLists.txt psychicfreqest_pi.cc</code></pre>
 <p id="text">
-CMakelists will need the changed file name, 'psychicfreqest_pi' instead of 'my_plugin_name_pi'. Then go through the psychicfreqest_pi.cc file and change everything appropriate, at least 'My_Plugin_Name' to 'PsychicFreqEst'. Then .. first go back to $WORK to change CMakeLists.txt there, change 'My_Plugin_Name' to 'PsychicFreqEst'. Because you have changed a directory name ... Then run <code>cmake .</code>  ... or just 'make' (nice tool, cmake). You can imagine having to add other plugins, there, later.</p>
+CMakelists will need the changed file name, 'psychicfreqest_pi' instead of 'tutpi'. Then go through the psychicfreqest_pi.cc file and change everything appropriate, at least 'Tut' to 'PsychicFreqEst'. Then .. first go back to $WORK to change CMakeLists.txt there, change 'Tut' to 'PsychicFreqEst'. Because you have changed a directory name ... Then run <code>cmake .</code>  ... or just 'make' (nice tool, cmake). You can imagine having to add other plugins, there, later.</p>
 <p id="text">After that 'global' cmake reconfiguration, you can go to your plugin directory (i.c. plugins/PsychicFreqEst) and do 'make'. Again you can load the plugin (libPsychicFreqEst.so), and a message 'Hello world' should be the result.
 </p><p id="text">
 To change the implementation, you would want to change some more stuff, like the message. Look in my_first_separate_source.cc and change "Hello world!" to "I sense your frequencies!". And so forth. For useful changes, take a peek at the Tut plugins and <a href="plugins.html">the documentation</a>.

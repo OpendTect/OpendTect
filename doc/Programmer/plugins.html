@@ -118,7 +118,8 @@ second function simply provides info for the users of your plugin.
 
 <a name="helloworld"><h3 id="heading3">Hello world</h3></a>
 
-<p id="text"> Note that the standard plugin functions must be declared 'extern "C"', as you
+<p id="text"> Here is an example to build a simple "Hello world" plugin for
+OpendTect. Note that the standard plugin functions must be declared 'extern "C"', as you
 can see in the first example plugin "Hello": </p>
 
 <pre id="code"><code>#include &lt;iostream&gt;
@@ -129,9 +130,7 @@ extern "C" const char* InitHelloPlugin( int, char** )
 }
 </code></pre>
 
-<p id="text"> You'll find this example plugin in the plugins directory of your
-work environment. Those 6 lines are enough to constitute a plugin for
-OpendTect. The CMakeLists.txt to build the plugin looks like this: </p>
+<p id="text"> Only these 6 lines of code. The CMakeLists.txt to build the plugin looks like this: </p>
 
 <p id="text">
 <pre id="code"><code>SET(OD_MODULE_DEPS Basic)
@@ -168,7 +167,7 @@ extern "C" const char* InituiHelloPlugin( int*, char** )
 }
 </code></pre>
 
-<p id="text">Again 6 lines, but now, when you load it, you'll get a popup
+<p id="text">Again only 6 lines, but now, when you load it, you'll get a popup
 message with an OK button. </p>
 
 <p id="text">In this case we actually use stuff from OpendTect libraries, so the
@@ -208,7 +207,7 @@ mDefODInitPlugin(uiHello)
 you get the hang of it. Although we fear that you might be scared by this code when you first see it, we hope that after the explanations below you will see
 some beauty in it and start to like it.</p>
 
-<p id="text">Look in uihellopi.cc - the else of the PLAN_A part. First of all,
+<p id="text">Look in uiHello example - the else of the PLAN_A part. First of all,
 we nicely define the other standard plugin functions:</p>
 
 <pre id="code"><code>
@@ -251,7 +250,7 @@ ODMainWin()</code> global function. Once you have that, you can reach
 any object you need.</p>
 
 <p id="text"> To see where things start, go to the InituiHelloPlugin
-function at the bottom of uihellopi.cc to find: </p>
+function to find: </p>
 
 <pre id="code"><code>mDefODInitPlugin(uiHello)
 {
@@ -380,7 +379,7 @@ the screen and the user clicks OK.</p>
 
 <p id="text"> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
 
-<p id="text">Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
+<p id="text">Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to uiHello. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
 
 <p id="text"> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.</p>
 
@@ -857,6 +856,20 @@ supported on all platforms. </p>
 
 <p id="text">The plugins in the .alo files are loaded in the order as specified in the file. The alo files themselves are handled in alphabetical order. </p>
 
+<h3 id="heading3">Using CMake to generate .alo files automatically</h3>
+
+<p id="text"> All the steps described above can be automated with CMake by configuring CmakeLists.txt file, where you only have to add "SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )" to genearte an alo file for your plugin which will be autoloaded by od_main.In general, if you want your plugin to be autoloaded by a program you have to use: "SET( OD_PLUGIN_ALO_EXEC <program name(s)>)". For example, "SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )" will auto-load the plugin to od_process_attrib, od_process_attrib_em and od_stratamp according to the definition of OD_ATTRIB_EXECS in CMakeModules/ODUtils.cmake." </p>
+
+<p id="text">
+<pre id="code"><code>SET(OD_MODULE_DEPS Basic)
+SET(OD_IS_PLUGIN yes)
+SET(OD_MODULE_SOURCES
+        hellopi.cc)
+SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
+SET( OD_NO_ALO_ENTRY 1 )
+OD_INIT_MODULE()
+</code></pre>
+</p>
 
 <br>
 <h2 id="heading2">Distributing your plugins</h2>
