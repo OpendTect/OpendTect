@@ -71,7 +71,7 @@ void uiStringData::set( const char* orig )
 const char* uiStringData::getFullString() const
 {
     QString qres;
-    fillQString( qres, false );
+    fillQString( qres, false )
 
     mDeclStaticString( ret );
     ret = qres;
