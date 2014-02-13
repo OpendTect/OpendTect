@@ -82,9 +82,9 @@ uiMathExpression::uiMathExpression( uiParent* p,
 }
 
 
-uiToolButton* uiMathExpression::addButton( const uiToolButtonSetup& tbsu )
+uiButton* uiMathExpression::addButton( const uiToolButtonSetup& tbsu )
 {
-    uiToolButton* newbut = new uiToolButton( this, tbsu );
+    uiButton* newbut = tbsu.getButton( this );
     if ( lastbut_ )
 	newbut->attach( rightOf, lastbut_ );
     else if ( setbut_ )

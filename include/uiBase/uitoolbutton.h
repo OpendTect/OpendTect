@@ -52,13 +52,13 @@ public:
 
     void			setID( int i )		{ id_ = i; }
     int				id() const		{ return id_; }
-    
+
     void			click();
 
 private:
 
     uiToolButtonBody*		body_;
-    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap&, const char*); 
+    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap&, const char*);
 
     int				id_; // Used by toolbar
 
@@ -73,25 +73,30 @@ private:
 mExpClass(uiBase) uiToolButtonSetup
 {
 public:
-		    uiToolButtonSetup( const char* fnm, const char* tt,
-					const CallBack& c, const char* nm=0 )
-			: filename_(fnm)
-			, cb_(c)
-			, tooltip_(tt)
-			, istoggle_(false)
-			, ison_(false)
-			, arrowtype_(uiToolButton::NoArrow)
-			, name_(nm && *nm ? nm : tt)	{}
-			
+			uiToolButtonSetup( const char* fnm, const char* tt,
+					    const CallBack& c, const char* nm=0 )
+			    : filename_(fnm)
+			    , cb_(c)
+			    , tooltip_(tt)
+			    , istoggle_(false)
+			    , ison_(false)
+			    , isimmediate_(false)
+			    , arrowtype_(uiToolButton::NoArrow)
+			    , name_(nm && *nm ? nm : tt)	{}
+
     mDefuiTBSUMemb(BufferString,filename);
     mDefuiTBSUMemb(BufferString,tooltip);
     mDefuiTBSUMemb(CallBack,cb);
 
     mDefuiTBSUMemb(bool,istoggle);
     mDefuiTBSUMemb(bool,ison);
+    mDefuiTBSUMemb(bool,isimmediate);
     mDefuiTBSUMemb(uiToolButton::ArrowType,arrowtype);
     mDefuiTBSUMemb(BufferString,shortcut);
     mDefuiTBSUMemb(BufferString,name);
+
+    uiButton*		getButton(uiParent*,bool forcetoolbutton=false) const;
+			//!< pushbutton if name_ != tooltip_ and !istoggle_
 
 };
 

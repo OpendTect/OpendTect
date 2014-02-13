@@ -40,7 +40,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     FileMultiString fms( prop_.def() );
     formfld_->setText( fms[0] );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
-		    mCB(this,uiMathPropEdDlg,rockPhysReq), "RockPhysics");
+		    mCB(this,uiMathPropEdDlg,rockPhysReq), "&Rock Physics");
     formfld_->addButton( tbsu )->attach( centeredAbove, formfld_->textField() );
     formfld_->formSet.notify( mCB(this,uiMathPropEdDlg,updVarsOnScreen) );
 

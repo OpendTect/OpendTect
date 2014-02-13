@@ -379,6 +379,18 @@ void uiCheckBox::click()
 }
 
 
+uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
+{
+    if ( forcetb || istoggle_ || name_ == tooltip_ )
+	return new uiToolButton( p, *this );
+
+    uiPushButton* pb = new uiPushButton( p, name_, ioPixmap(filename_),
+					 cb_, isimmediate_ );
+    pb->setToolTip( tooltip_ );
+    return pb;
+}
+
+
 // For some reason it is necessary to set the preferred width. Otherwise the
 // button will reserve +- 3 times it's own width, which looks bad
 

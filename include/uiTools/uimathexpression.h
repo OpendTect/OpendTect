@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiLineEdit;
 class uiComboBox;
 class uiPushButton;
-class uiToolButton;
+class uiButton;
 class uiToolButtonSetup;
 
 
@@ -49,7 +49,7 @@ public:
 
     const char*		text();
     uiLineEdit*		textField()		{ return txtfld_; }
-    uiToolButton*	addButton(const uiToolButtonSetup&);
+    uiButton*		addButton(const uiToolButtonSetup&);
     //!< attach this yourself if it's the first and you have no 'Set' button
 
     Notifier<uiMathExpression>	formSet;
@@ -61,7 +61,7 @@ protected:
     uiComboBox*		grpfld_;
     uiComboBox*		fnfld_;
     uiPushButton*	setbut_;
-    uiToolButton*	lastbut_;
+    uiButton*		lastbut_;
     Setup		setup_;
 
     void		grpSel(CallBacker*);

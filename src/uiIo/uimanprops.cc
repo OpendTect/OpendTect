@@ -200,7 +200,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     }
     formfld_->setText( curdef );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
-	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "RockPhysics");
+	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "&Rock Physics");
     formfld_->addButton( tbsu );
 
     for ( int idx=0; idx<=cMaxNrVars; idx++ )

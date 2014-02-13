@@ -95,7 +95,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->formSet.notify( formsetcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
-			    rockphyscb, "RockPhysics");
+			    rockphyscb, "&Rock Physics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
 

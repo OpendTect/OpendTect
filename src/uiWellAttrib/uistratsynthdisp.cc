@@ -224,7 +224,7 @@ void uiStratSynthDisp::layerPropsPush( CallBacker* )
 
 void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 {
-    uiToolButton* tb = new uiToolButton( datagrp_, bsu );
+    uiButton* tb = bsu.getButton( datagrp_ );
     if ( lasttool_ )
 	tb->attach( leftOf, lasttool_ );
     else
