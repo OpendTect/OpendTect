@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
+#include "uistrings.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
@@ -63,10 +64,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), mAddIdx );
-    mnu.insertItem( new uiAction("Add &color blended..."), mAddCBIdx );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), mAddIdx );
+    mnu.insertItem( new uiAction(tr("Add &color blended...")), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction("&New ...");
+    uiAction* newmenu = new uiAction( uiStrings::sNew(true) );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
@@ -74,10 +75,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
 		new uiMenu( getUiParent(), "&Display all" );
-	displaymnu->insertItem( new uiAction("&Only at sections"),
+	displaymnu->insertItem( new uiAction(tr("&Only at sections")),
 				mSectIdx );
-	displaymnu->insertItem( new uiAction("&In full"), mFullIdx );
-	displaymnu->insertItem( new uiAction("&At sections and in full"),
+	displaymnu->insertItem( new uiAction(tr("&In full")), mFullIdx );
+	displaymnu->insertItem( new uiAction(tr("&At sections and in full")),
 				mSectFullIdx );
 	mnu.insertItem( displaymnu );
     }
@@ -535,16 +536,16 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), 0 );
-    uiAction* newmenu = new uiAction("&New ...");
+    mnu.insertItem( new uiAction( uiStrings::sAdd(true) ), 0 );
+    uiAction* newmenu = new uiAction( uiStrings::sNew(true) );
     mnu.insertItem( newmenu, 1 );
-    mnu.insertItem( new uiAction("&Create from 3D ..."), 2 );
+    mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction("&Display all only at sections"), 3 );
-	mnu.insertItem( new uiAction("&Show all in full"), 4 );
+	mnu.insertItem( new uiAction(tr("&Display all only at sections")), 3 );
+	mnu.insertItem( new uiAction(tr("&Show all in full")), 4 );
     }
     addStandardItems( mnu );
 

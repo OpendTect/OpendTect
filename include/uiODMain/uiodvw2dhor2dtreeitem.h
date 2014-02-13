@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
+#include "uistring.h"
 
 #include "emposid.h"
 
@@ -38,7 +39,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain)
+uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const 	{ return typeid(*this).name(); }

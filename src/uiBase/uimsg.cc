@@ -268,10 +268,9 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 
 int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
-    const char* yestxt = "&Remove";
     const char* notxt = wcancel ? "&Don't remove" : sCancel();
     const char* canceltxt = sCancel();
-    return question( text, yestxt, notxt,
+    return question( text, uiStrings::sRemove(true), notxt,
 		     wcancel ? canceltxt : 0, "Remove data" );
 }
 

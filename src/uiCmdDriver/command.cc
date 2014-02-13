@@ -347,7 +347,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	int nrgrey = 0;
 	for ( int itmidx=items.size()-1; itmidx>=0; itmidx-- )
 	{
-	    mGetAmpFilteredStr( itmtxt, items[itmidx]->text() );
+	    mGetAmpFilteredStr( itmtxt, items[itmidx]->text().getFullString() );
 	    if ( mSearchKey(itemstr).isMatching(itmtxt) )
 	    {
 		if ( !items[itmidx]->isEnabled() )
@@ -364,7 +364,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	mParStrPreRet( "menu item", items, nrgrey, tmpstr.unescapedStr(),
 		       itmselnr, "path", true, false );
 	curitem = items[0];
-	mGetAmpFilteredStr( curitmtxt, curitem->text() );
+	mGetAmpFilteredStr( curitmtxt, curitem->text().getFullString() );
 	drv_.wildcardMan().check( mSearchKey(itemstr), curitmtxt );
 	mDressNameString( curitmtxt, sMenuPath );
 	pathstr += curitmtxt;
@@ -441,7 +441,7 @@ bool MenuTracer::getMenuInfo( const FileMultiString& menupath, bool allowroot,
 
     menuinfo.ison_ = !mnuitm->isCheckable() ? -1 : mnuitm->isChecked() ? 1 : 0;
     menuinfo.siblingnr_++;
-    menuinfo.text_ = mnuitm->text();
+    menuinfo.text_ = mnuitm->text().getFullString();
     StringProcessor(menuinfo.text_).filterAmpersands();
     return true;
 }

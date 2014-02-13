@@ -21,18 +21,19 @@ ________________________________________________________________________
 mExpClass(uiBase) uiStrings
 { mTextTranslationClass(uiStrings);
 public:
-    static inline uiString sNew(bool immediate);
+
     static inline uiString sAdd(bool immediate);
-    static inline uiString sRemove()		{ return tr("&Remove"); }
     static inline uiString sApply()		{ return tr("&Apply"); }
     static inline uiString sCancel()		{ return tr("&Cancel"); }
     static inline uiString sClose()		{ return tr("&Close"); }
+    static inline uiString sEdit(bool immediate);
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
-    static inline uiString sNew()		{ return tr("&New"); }
+    static inline uiString sNew(bool immediate);
     static inline uiString sNo()		{ return tr("&No"); }
     static inline uiString sOk()		{ return tr("&OK"); }
     static inline uiString sOpen(bool immediate);
+    static inline uiString sRemove(bool immediate);
     static inline uiString sRun()		{ return tr("&Run"); }
     static inline uiString sSave(bool immediate);
     static inline uiString sSaveAs()		{ return tr("Save &as ..."); }
@@ -78,6 +79,12 @@ inline uiString uiStrings::sAdd( bool immediate )
 }
 
 
+inline uiString uiStrings::sEdit( bool immediate )
+{
+    return immediate ? tr("&Edit") : tr("&Edit ...");
+}
+
+
 inline uiString uiStrings::sNew( bool immediate )
 {
     return immediate ? tr("&New") : tr("&New ...");
@@ -88,8 +95,13 @@ inline uiString uiStrings::sOpen(bool immediate)
 { return immediate ? "&Open" : "&Open ..."; }
 
 
+inline uiString uiStrings::sRemove(bool immediate)
+{ return immediate ? tr("&Remove") : tr("&Remove ..."); }
+
+
 inline uiString uiStrings::sSave(bool immediate)
 { return immediate ? "&Save" : "&Save ..."; }
+
 
 
 inline uiString uiStrings::sSaveAsDefault()

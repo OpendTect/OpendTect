@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "menuhandler.h"
+#include "uistring.h"
 
 class uiTreeView;
 class uiODApplMgr;
@@ -24,7 +25,7 @@ class ui3DViewer;
 
 
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
-{
+{ mTextTranslationClass(uiODTreeItem)
 public:
     			uiODTreeItem(const char*);
     bool		anyButtonClick(uiTreeViewItem*);
@@ -91,13 +92,14 @@ public:
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
 mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
-{ \
+{ mTextTranslationClass(uiOD##type##TreeItem)\
     typedef uiOD##inherited inheritedClass; \
 public: \
     			uiOD##type##TreeItem(); \
     extrapublic;	\
 protected: \
-    const char*		parentType() const { return typeid(uiOD##parentitem).name();}\
+    const char* 	parentType() const \
+			{ return typeid(uiOD##parentitem).name();} \
 };
 
 

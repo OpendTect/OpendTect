@@ -348,11 +348,11 @@ void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 
     const bool nomrkr = mrklist_->isEmpty();
 
-    mnu.insertItem( new uiAction("Add &New ..."), 0 );
+    mnu.insertItem( new uiAction(tr("Add &New ...")), 0 );
     if ( !nomrkr )
     {
-	mnu.insertItem( new uiAction("&Edit ..."), 1 );
-	mnu.insertItem( new uiAction("Remove ..."), 2 );
+	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 1 );
+	mnu.insertItem( new uiAction(uiStrings::sRemove(false)), 2 );
     }
     const int mnuid = mnu.exec();
     if ( mnuid < 0 )

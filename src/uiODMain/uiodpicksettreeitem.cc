@@ -118,29 +118,29 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add PickSet ..."), mLoadIdx );
-    mnu.insertItem( new uiAction("Add &Polygon..."), mLoadPolyIdx );
-    uiMenu* newmnu = new uiMenu( getUiParent(), "&New PickSet" );
-    newmnu->insertItem( new uiAction("&Empty ..."), mEmptyIdx );
-    newmnu->insertItem( new uiAction("Generate &3D..."), mGen3DIdx );
+    mnu.insertItem( new uiAction(tr("&Add PickSet ...")), mLoadIdx );
+    mnu.insertItem( new uiAction(tr("Add &Polygon...")), mLoadPolyIdx );
+    uiMenu* newmnu = new uiMenu( getUiParent(), tr("&New PickSet") );
+    newmnu->insertItem( new uiAction(tr("&Empty ...")), mEmptyIdx );
+    newmnu->insertItem( new uiAction(tr("Generate &3D...")), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction("Generate &2D ..."), mRandom2DIdx );
+	newmnu->insertItem( new uiAction(tr("Generate &2D ...")), mRandom2DIdx);
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiAction("Ne&w Polygon ..."), mPolygonIdx );
+    mnu.insertItem( new uiAction(tr("Ne&w Polygon ...")), mPolygonIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
-	    new uiAction( "&Display picks only at sections" );
+	    new uiAction( tr("&Display picks only at sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( "Show &all picks" );
+	uiAction* shwallitem = new uiAction( tr("Show &all picks") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction("&Merge Sets ..."), mMergeIdx );
-	mnu.insertItem( new uiAction("&Save changes"), mSaveIdx );
+	mnu.insertItem( new uiAction(tr("&Merge Sets ...")), mMergeIdx );
+	mnu.insertItem( new uiAction(tr("&Save changes")), mSaveIdx );
     }
 
     addStandardItems( mnu );

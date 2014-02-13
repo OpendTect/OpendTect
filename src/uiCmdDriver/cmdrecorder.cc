@@ -446,7 +446,7 @@ static bool findMenuPath( const uiActionContainer& mnu,
     if ( !itemfound )
 	return false;
 
-    mGetAmpFilteredStr( curtxt, curitem->text() );
+    mGetAmpFilteredStr( curtxt, curitem->text().getFullString() );
     mDressNameString( curtxt, sMenuPath );
 
     int nrmatches = 0;
@@ -458,7 +458,7 @@ static bool findMenuPath( const uiActionContainer& mnu,
 	if ( !mnuitm->isEnabled() )
 	    continue;
 
-	mGetAmpFilteredStr( mnuitmtxt, mnuitm->text() );
+	mGetAmpFilteredStr( mnuitmtxt, mnuitm->text().getFullString() );
 	if ( SearchKey(curtxt,false).isMatching(mnuitmtxt) )
 	{
 	    if ( SearchKey(curtxt,true).isMatching(mnuitmtxt) )

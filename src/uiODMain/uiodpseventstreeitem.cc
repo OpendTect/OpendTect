@@ -47,7 +47,7 @@ uiODPSEventsParentTreeItem::~uiODPSEventsParentTreeItem()
 bool uiODPSEventsParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("Add ..."), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     addStandardItems( mnu );
   
     const int mnusel = mnu.exec();

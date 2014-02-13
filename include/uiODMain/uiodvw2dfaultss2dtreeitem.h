@@ -14,8 +14,10 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
+#include "uistring.h"
 
 #include "emposid.h"
+
 
 class VW2DFaultSS2D;
 class uiODViewer2D;

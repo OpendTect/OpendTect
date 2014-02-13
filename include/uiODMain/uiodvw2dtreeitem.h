@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
+#include "uistring.h"
 
 class CubeSampling;
 class uiTreeView;
@@ -24,7 +25,7 @@ namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
-{
+{ mTextTranslationClass(uiODVw2DTreeItem)
 public:
     			uiODVw2DTreeItem(const char*);
 			~uiODVw2DTreeItem(){}
@@ -39,6 +40,8 @@ public:
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
 
 protected:
+
+    static uiString	sChangeSetup() { return tr("Change setup..."); }
 
     int				displayid_;
 

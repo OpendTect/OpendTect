@@ -20,6 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiparentbody.h"
 #include "pixmap.h"
 #include "uitexttranslator.h"
+#include "uistring.h"
+
 #include <climits>
 
 #include <QCursor>
@@ -103,21 +105,21 @@ QWidget* uiMenuBar::getWidget()
 
 static CallBackSet interceptors_;
 
-uiMenu::uiMenu( uiParent* p, const char* nm, const char* pmnm )
-    : uiBaseObject( nm )
+uiMenu::uiMenu( uiParent* p, const uiString& nm, const char* pmnm )
+    : uiBaseObject( nm.getFullString() )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)( p ? p->getWidget() : 0 ) )
 {
-    qmenu_->setTitle( nm );
+    qmenu_->setTitle( nm.getQtString() );
 }
 
 
-uiMenu::uiMenu( const char* nm, const char* pmnm )
-    : uiBaseObject( nm )
+uiMenu::uiMenu( const uiString& nm, const char* pmnm )
+    : uiBaseObject( nm.getFullString() )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)( 0 ) )
 {
-    qmenu_->setTitle( nm );
+    qmenu_->setTitle( nm.getQtString() );
 }
 
 

@@ -82,8 +82,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), 0 );
-    mnu.insertItem( new uiAction("&New polygon body..."), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
+    mnu.insertItem( new uiAction(tr("&New polygon body...")), 1 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();

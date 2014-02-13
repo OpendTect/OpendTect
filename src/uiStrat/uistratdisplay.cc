@@ -245,7 +245,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	{
 	    const StratDispData::Level* lvl = getLevelFromPos();
 	    if ( !lvl ) return false; 
-	    uiAction* assmnuitm = new uiAction( "Assign marker boundary" );
+	    uiAction* assmnuitm = new uiAction( tr("Assign marker boundary") );
 	    uiMenu menu( parent(), "Action" );
 	    menu.insertItem( assmnuitm, 1 );
 	    const int mnuid = menu.exec();
@@ -265,7 +265,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	    bool addunit = data_.nrUnits( 0 ) == 0;  
 	    if ( !addunit )
 	    {
-		uiAction* assmnuitm = new uiAction( "Add Unit" );
+		uiAction* assmnuitm = new uiAction( tr("Add Unit") );
 		uiMenu menu( parent(), "Action" );
 		menu.insertItem( assmnuitm, 0 );
 		const int mnuid = menu.exec();

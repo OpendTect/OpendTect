@@ -49,18 +49,19 @@ static const int cLogDispSize = 4;
 bool uiODWellParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), cAddIdx );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem(
-	    new uiAction("&Tie Well to Seismic ...","well_tie"), cTieIdx);
-    mnu.insertItem( new uiAction("&New WellTrack ..."), cNewWellIdx );
+	    new uiAction(tr("&Tie Well to Seismic ..."),"well_tie"), cTieIdx);
+    mnu.insertItem( new uiAction(tr("&New WellTrack ...")), cNewWellIdx );
     if ( children_.size() > 1 )
-	mnu.insertItem( new uiAction("&Create Attribute Log ..."),cAttribIdx);
+	mnu.insertItem( new uiAction(tr("&Create Attribute Log ...")),
+			cAttribIdx);
 
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiAction* szmenuitem = new uiAction("Constant Log Size");
+	uiAction* szmenuitem = new uiAction(tr("Constant Log Size"));
 	mnu.insertItem( szmenuitem, cLogDispSize );
 	szmenuitem->setCheckable( true );
 	szmenuitem->setChecked( constlogsize_ );
@@ -69,20 +70,20 @@ bool uiODWellParentTreeItem::showSubMenu()
     if ( children_.size() > 1 )
     {
 	mnu.insertSeparator();
-	uiMenu* showmnu = new uiMenu( getUiParent(), "&Show all" );
-	showmnu->insertItem( new uiAction("Well names (&Top)"), 41 );
-	showmnu->insertItem( new uiAction("Well names (&Bottom)"), 42 );
-	showmnu->insertItem( new uiAction("&Markers"), 43 );
-	showmnu->insertItem( new uiAction("Marker &Names"), 44 );
-	showmnu->insertItem( new uiAction("&Logs"), 45 );
+	uiMenu* showmnu = new uiMenu( getUiParent(), tr("&Show all") );
+	showmnu->insertItem( new uiAction(tr("Well names (&Top)")), 41 );
+	showmnu->insertItem( new uiAction(tr("Well names (&Bottom)")), 42 );
+	showmnu->insertItem( new uiAction(tr("&Markers")), 43 );
+	showmnu->insertItem( new uiAction(tr("Marker &Names")), 44 );
+	showmnu->insertItem( new uiAction(tr("&Logs")), 45 );
 	mnu.insertItem( showmnu );
 
-	uiMenu* hidemnu = new uiMenu( getUiParent(), "&Hide all" );
-	hidemnu->insertItem( new uiAction("Well names (&Top)"), 51 );
-	hidemnu->insertItem( new uiAction("Well names (&Bottom)"), 52 );
-	hidemnu->insertItem( new uiAction("&Markers"), 53 );
-	hidemnu->insertItem( new uiAction("Marker &Names"), 54 );
-	hidemnu->insertItem( new uiAction("&Logs"), 55 );
+	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("&Hide all") );
+	hidemnu->insertItem( new uiAction(tr("Well names (&Top)")), 51 );
+	hidemnu->insertItem( new uiAction(tr("Well names (&Bottom)")), 52 );
+	hidemnu->insertItem( new uiAction(tr("&Markers")), 53 );
+	hidemnu->insertItem( new uiAction(tr("Marker &Names")), 54 );
+	hidemnu->insertItem( new uiAction(tr("&Logs")), 55 );
 	mnu.insertItem( hidemnu );
     }
     addStandardItems( mnu );

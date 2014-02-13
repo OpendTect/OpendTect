@@ -315,9 +315,6 @@ uiObject::~uiObject()
     delete qtranslatedtooltipstr_;
     closed.trigger();
     uiobjectlist_ -= this;
-
-    if ( translateid_ >= 0 && TrMgr().tr() )
-	TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
 }
 
 

@@ -23,7 +23,7 @@ namespace Well { class Data; }
 
 
 mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
-{
+{ mTextTranslationClass(uiODPlaneDataTreeItem)
 public:
     enum Type		{ Default, Empty, RGBA };
     enum Orientation	{ Inline, Crossline, ZSlice };
@@ -34,6 +34,10 @@ public:
     bool		init();
     void		setAtWellLocation(const Well::Data&);
     bool		displayDefaultData();
+
+    static uiString	sAddDefaultData();
+    static uiString	sAddColorBlended();
+    static uiString	sAddAtWellLocation();
 
 protected:
     BufferString	createDisplayName() const;

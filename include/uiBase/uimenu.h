@@ -67,7 +67,7 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 {
 
 public:                        
-				uiMenu(const char* nm="uiMenu",
+				uiMenu(const uiString& nm="uiMenu",
 				       const char* pixmapfilenm=0);
 
 				~uiMenu();
@@ -125,7 +125,7 @@ public:
     static void			removeInterceptor(const CallBack&);
     void			doIntercept(bool yn,uiAction* activateitm = 0);
 
-				uiMenu(uiParent*, const char* nm="uiMenu",
+				uiMenu(uiParent*, const uiString& nm="uiMenu",
 				       const char* pixmapfilenm=0);
 };
 

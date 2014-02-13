@@ -42,7 +42,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain)
+uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -53,7 +54,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
-{
+{ mTextTranslationClass(uiODVw2DPickSetTreeItem)
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
 			~uiODVw2DPickSetTreeItem();

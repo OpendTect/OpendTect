@@ -34,10 +34,7 @@ static ObjectSet<uiAction> uiactionlist_;
     msgr_(0),  \
     parentcontainer_( 0 ),  \
     cmdrecrefnr_( 0 ), \
-    translateid_( -1 ), \
-    menu_( 0 ), \
-    qnormaltooltipstr_( new QString ), \
-    qtranslatedtooltipstr_( new QString )
+    menu_( 0 )
 
 uiAction::uiAction( QAction* qact )
     : mInit
@@ -47,14 +44,14 @@ uiAction::uiAction( QAction* qact )
 }
 
 
-uiAction::uiAction( const char* txt )
+uiAction::uiAction( const uiString& txt )
     : mInit
 {
     init( txt );
 }
 
 
-uiAction::uiAction( const char* txt, const CallBack& cb )
+uiAction::uiAction( const uiString& txt, const CallBack& cb )
     : mInit
 {
     init( txt );
@@ -62,7 +59,8 @@ uiAction::uiAction( const char* txt, const CallBack& cb )
 }
 
 
-uiAction::uiAction( const char* txt, const CallBack& cb, const ioPixmap& icon )
+uiAction::uiAction( const uiString& txt, const CallBack& cb,
+		    const ioPixmap& icon )
     : mInit
 {
     init( txt );
@@ -71,7 +69,8 @@ uiAction::uiAction( const char* txt, const CallBack& cb, const ioPixmap& icon )
 }
 
 
-uiAction::uiAction( const char* txt, const CallBack& cb, const char* iconfile )
+uiAction::uiAction( const uiString& txt, const CallBack& cb,
+		    const char* iconfile )
     : mInit
 {
     FixedString pixmapfile( iconfile );
@@ -83,7 +82,7 @@ uiAction::uiAction( const char* txt, const CallBack& cb, const char* iconfile )
 }
 
 
-uiAction::uiAction( const char* txt, const char* iconfile )
+uiAction::uiAction( const uiString& txt, const char* iconfile )
     : mInit
 {
     FixedString pixmapfile( iconfile );
@@ -108,10 +107,11 @@ uiAction::uiAction( const MenuItem& itm )
 
 uiAction::~uiAction()
 {
+    detachAllNotifiers();
+
     delete msgr_;
-    delete qnormaltooltipstr_;
-    delete qtranslatedtooltipstr_;
     uiactionlist_ -= this;
+
     if ( menu_ )
     {
 	//Sanity check. Does not cost much
@@ -125,11 +125,14 @@ uiAction::~uiAction()
 }
 
 
-void uiAction::init( const char* txt )
+void uiAction::init( const uiString& txt )
 {
-    qaction_ = new QAction( QString(txt), 0 );
+    mAttachCB( TrMgr().languageChange, uiAction::translateCB );
+    text_ = txt;
+    qaction_ = new QAction( text_.getQtString(), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
     uiactionlist_ += this;
+
     updateToolTip();
 }
 
@@ -141,71 +144,43 @@ void uiAction::setShortcut( const char* sctxt )
 }
 
 
-void uiAction::setText( const char* txt )
+void uiAction::setText( const uiString& txt )
 {
-    qaction_->setText( QString(txt) );
+    text_ = txt;
+    qaction_->setText( text_.getQtString() );
     updateToolTip();
 }
 
 
-void uiAction::setText( const wchar_t* txt )
+const uiString& uiAction::text() const
 {
-    qaction_->setText( QString::fromWCharArray(txt) );
+    return text_;
+}
+
+
+void uiAction::setIconText( const uiString& txt )
+{
+    icontext_ = txt;
+    qaction_->setIconText( icontext_.getQtString() );
+}
+
+
+const uiString& uiAction::iconText() const
+{
+    return icontext_;
+}
+
+
+void uiAction::setToolTip( const uiString& txt )
+{
+    tooltip_ = txt;
     updateToolTip();
 }
 
 
-const char* uiAction::text() const
+const uiString& uiAction::toolTip() const
 {
-    mDeclStaticString( ret );
-    ret = qaction_->text();
-    return ret.buf();
-}
-
-
-void uiAction::setIconText( const char* txt )
-{ qaction_->setIconText( txt ); }
-
-
-const char* uiAction::iconText() const
-{
-    mDeclStaticString( ret );
-    ret = qaction_->iconText();
-    return ret.buf();
-}
-
-
-void uiAction::setToolTip( const char* txt )
-{ setToolTip( QString(txt) ); }
-
-
-void uiAction::setToolTip( const wchar_t* txt )
-{ setToolTip( QString::fromWCharArray(txt) ); }
-
-
-void uiAction::setToolTip( const QString& txt )
-{
-    if ( txt == *qnormaltooltipstr_ )
-	return;
-
-    const bool wastranslated = translateid_>=0 ||
-			       qtranslatedtooltipstr_->size();
-
-    *qnormaltooltipstr_ = txt;
-    *qtranslatedtooltipstr_ = "";
-    updateToolTip();
-
-
-    if ( TrMgr().tr() && TrMgr().tr()->enabled() && wastranslated )
-	doTranslate();
-}
-
-
-const char* uiAction::toolTip() const
-{
-    mDeclStaticString( ret );
-    ret = *qnormaltooltipstr_;
-    return ret.buf();
+    return tooltip_;
 }
 
 
@@ -213,19 +188,21 @@ void uiAction::updateToolTip()
 {
     if ( uiMain::isNameToolTipUsed() )
     {
-	BufferString namestr = *text() ? text() : toolTip();
+	BufferString namestr =
+		(text_.isEmpty() ? tooltip_ : text_ ).getFullString();
 	uiMain::formatNameToolTipString( namestr );
 	qaction_->setToolTip( namestr.buf() );
     }
-    else if ( qtranslatedtooltipstr_->size() )
-	qaction_->setToolTip( *qtranslatedtooltipstr_ );
     else
-	qaction_->setToolTip( *qnormaltooltipstr_ );
+    {
+	qaction_->setToolTip( tooltip_.getQtString() );
+    }
 }
 
 
 void uiAction::setSeparator( bool yn )
 { qaction_->setSeparator( yn ); }
+
 
 bool uiAction::isSeparator() const
 { return qaction_->isSeparator(); }
@@ -277,29 +254,6 @@ void uiAction::trigger(bool checked)
 }
 
 
-void uiAction::doTranslate()
-{
-    if ( !TrMgr().tr() ) return;
-
-    BufferString txt( *toolTip() ? toolTip() : text() );
-    txt.trimBlanks();
-    txt.remove( '&' );
-    if ( txt.isEmpty() || txt.isNumber() )
-	return;
-
-    mAttachCB(TrMgr().tr()->ready, uiAction::translationReadyCB );
-    translateid_ = TrMgr().tr()->translate( txt );
-}
-
-
-void uiAction::translate()
-{
-    doTranslate();
-
-    if ( menu_ ) menu_->translate();
-}
-
-
 void uiAction::reloadIcon()
 {
     if ( iconfile_.isEmpty() )
@@ -319,24 +273,12 @@ void uiAction::reloadIcon()
 }
 
 
-void uiAction::translationReadyCB( CallBacker* cb )
+void uiAction::translateCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,translationid,cb);
-    if ( translationid != translateid_ )
-	return;
-
-    const wchar_t* translation = TrMgr().tr()->get();
-    QString txt = QString::fromWCharArray( translation );
-    QString tt( *toolTip() ? toolTip() : text() );
-    tt += "\n\n"; tt += txt;
-
-    *qtranslatedtooltipstr_ = tt;
+    qaction_->setText( text_.getQtString() );
+    qaction_->setIconText( icontext_.getQtString() );
     updateToolTip();
-
-    translateid_ = -1;
-    mDetachCB(TrMgr().tr()->ready, uiAction::translationReadyCB );
 }
-
 
 
 void uiAction::setIcon( const ioPixmap& pm )
@@ -490,7 +432,8 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
     for ( int idx=0; idx<actions_.size(); idx++ )
     {
 	uiAction* itm = actions_[idx];
-	if ( !strcmp(itm->text(),itmtxt) )
+
+	if ( !strcmp(itm->text().getFullString(),itmtxt) )
 	    return itm;
     }
 
@@ -642,7 +585,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
 
 uiAction* uiActionContainer::insertSeparator()
 {
-    uiAction* action = new uiAction( "" );
+    uiAction* action = new uiAction( uiString() );
     action->setSeparator( true );
     insertAction( action );
     return action;
@@ -676,12 +619,6 @@ void uiActionContainer::removeAction( int id )
     const int idx=ids_.indexOf(id);
     if ( actions_.validIdx(idx) )
 	removeItem( actions_[idx] );
-}
-
-
-void uiActionContainer::translate()
-{
-    mObjectSetApplyToAll( actions_, actions_[idx]->translate() );
 }
 
 

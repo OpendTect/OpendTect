@@ -59,11 +59,11 @@ uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
 bool uiODSeis2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add"), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
     if ( SI().has3D() )
-	mnu.insertItem( new uiAction("&Create from 3D ..."), 1 );
+	mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 1 );
 
-    mnu.insertItem( new uiAction("&Generate 3D cube..."), 2 );
+    mnu.insertItem( new uiAction(tr("&Generate 3D cube...")), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )

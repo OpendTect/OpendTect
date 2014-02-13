@@ -290,10 +290,10 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction( sSaveAs() ), 1 );
-    uiAction* cngsetup = new uiAction( "Change setup..." );
+    uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    mnu.insertItem( new uiAction("&Remove"), 3 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
 	    			applMgr()->attrServer()->curDescSet(false) );
@@ -337,7 +337,8 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
 	if ( emobj )
 	{
-	    const EM::SectionID sectionid = emobj->sectionID( emobj->nrSections()-1 );
+	    const EM::SectionID sectionid =
+			emobj->sectionID( emobj->nrSections()-1 );
 	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
 	}
     }

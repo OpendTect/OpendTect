@@ -336,10 +336,10 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction(sSaveAs()), 1 );
-    uiAction* cngsetup = new uiAction( "Change setup..." );
+    uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    mnu.insertItem( new uiAction("&Remove"), 3 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
 	    			applMgr()->attrServer()->curDescSet(false) );

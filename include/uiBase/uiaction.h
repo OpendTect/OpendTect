@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 
 #include "separstr.h"
+#include "uistring.h"
 #include "uibaseobject.h"
 
 
@@ -25,7 +26,6 @@ class uiActionContainer;
 class i_ActionMessenger;
 mFDQtclass(QAction);
 mFDQtclass(QMenu);
-mFDQtclass(QString);
 
 /*!Represents either a menu item, or a toolbar item that can be
    clicked by a user .*/
@@ -34,29 +34,28 @@ mExpClass(uiBase) uiAction : public CallBacker
 {
 friend class		i_ActionMessenger;
 public:
-                        uiAction(const char*);
-                        uiAction(const char*,const CallBack&);
-                        uiAction(const char*,const CallBack&,const ioPixmap&);
-			uiAction(const char*,const CallBack&,const char* pmfln);
-			uiAction(const char*,const char* pmfln);
+			uiAction(const uiString&);
+			uiAction(const uiString&,const CallBack&);
+			uiAction(const uiString&,const CallBack&,
+				 const ioPixmap&);
+			uiAction(const uiString&,const CallBack&,
+				 const char* pmfln);
+			uiAction(const uiString&,const char* pmfln);
 			uiAction(const MenuItem&);
 			uiAction(mQtclass(QAction*));
 			~uiAction();
 
-    void		setText(const char*);
-    void		setText(const wchar_t* txt);
-    const char*		text() const;
+    void		setText(const uiString&);
+    const uiString&	text() const;
 			/*!<\note Use before next call.*/
-    void		setIconText(const char*);
-    const char*		iconText() const;
+    void		setIconText(const uiString&);
+    const uiString&	iconText() const;
 			/*!<\note Use before next call.*/
-    void		setToolTip(const char*);
-    void		setToolTip(const wchar_t*);
-    const char*		toolTip() const;
+    void		setToolTip(const uiString&);
+    const uiString&	toolTip() const;
 			/*!<\note Use before next call.*/
 
     static void		updateToolTips();
-
     void		setMenu(uiMenu*);
 			//!<Becomes mine
 
@@ -90,19 +89,17 @@ public:
     Notifier<uiAction>	toggled;
     Notifier<uiAction>	triggered;
 
-    virtual void	translate();
     void		reloadIcon();
 
 protected:
 
     virtual void	trigger(bool checked);
-    void		translationReadyCB(CallBacker*);
-    void		doTranslate();
-    void		setToolTip(const mQtclass(QString&));
+    void		translateCB(CallBacker*);
 
     void		updateToolTip();
-    mQtclass(QString*)	qnormaltooltipstr_;
-    mQtclass(QString*)	qtranslatedtooltipstr_;
+    uiString		tooltip_;
+    uiString		text_;
+    uiString		icontext_;
 
 private:
 
@@ -114,11 +111,10 @@ private:
     mQtclass(QAction*)		qaction_;
 
     bool			checked_;
-    int				translateid_;
 
     int				cmdrecrefnr_;
 
-    void			init(const char*);
+    void			init(const uiString&);
 
 public:
     //! Not for casual use
@@ -175,7 +171,6 @@ public:
     void			removeAction(uiAction*);
     void			removeAction(int id);
     void			removeAllActions();
-    virtual void		translate();
     void			reloadIcons();
 
 protected:

@@ -779,14 +779,14 @@ bool UIEntity::sensitive() const
 const char* UIEntity::name() const
 {
     if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->name().buf() : uiact_->text();
+    return uiobj_ ? uiobj_->name().buf() : uiact_->text().getFullString();
 }
 
 
 const char* UIEntity::toolTip() const
 {
     if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->toolTip() : uiact_->toolTip();
+    return uiobj_ ? uiobj_->toolTip() : uiact_->toolTip().getFullString();
 }
 
 

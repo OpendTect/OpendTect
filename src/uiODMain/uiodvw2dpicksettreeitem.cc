@@ -166,13 +166,13 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Properties ..."), 0 );
-    mnu.insertItem( new uiAction("Set &direction ..."), 1 );
+    mnu.insertItem( new uiAction(tr("&Properties ...")), 0 );
+    mnu.insertItem( new uiAction(tr("Set &direction ...")), 1 );
     uiAction* saveitm = new uiAction( sSave(false) );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
-    mnu.insertItem( new uiAction( sSaveAs() ), 3 );
-    mnu.insertItem( new uiAction("&Remove"), 4 );
+    mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 3 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove() ), 4 );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )

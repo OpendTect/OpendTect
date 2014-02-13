@@ -1192,20 +1192,21 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     {
 	if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
 	{
-	    const char* scenenm = itm->text();
+	    const char* scenenm = itm->text().getFullString();
 	    sceneMgr().setActiveScene( scenenm );
 	    itm->setChecked( true );
 	}
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
-	    Settings::common().set( sKeyIconSetNm, itm->text() + 1 );
+	    Settings::common().set( sKeyIconSetNm,
+				    itm->text().getFullString() + 1 );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reloadIcons();
 	    Settings::common().write();
 	}
 	if ( id > mHelpMnu )
-	    helpmgr_->handle( id, itm->text() );
+	    helpmgr_->handle( id, itm->text().getFullString() );
 
     } break;
 

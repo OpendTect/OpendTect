@@ -499,7 +499,7 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
-	if ( tb.name()==action->text() )
+	if ( tb.name()==action->text().getFullString() )
 	    tb.display( tb.isHidden() );
     }
 }
@@ -1235,8 +1235,8 @@ void uiMainWin::translate()
     for ( int idx=0; idx<body_->dockwins_.size(); idx++ )
 	doTranslate( body_->dockwins_[idx] );
 
-    if ( menuBar() )
-	menuBar()->translate();
+    //if ( menuBar() )
+	//menuBar()->translate();
 }
 
 

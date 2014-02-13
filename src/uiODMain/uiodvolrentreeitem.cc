@@ -61,7 +61,7 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add"), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
     {

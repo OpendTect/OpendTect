@@ -251,7 +251,6 @@ void uiToolBar::clear()
 
 void uiToolBar::translate()
 {
-    uiActionContainer::translate();
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
 	addedobjects_[idx]->translate();
 }

@@ -70,8 +70,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), mAddMnuID );
-    mnu.insertItem( new uiAction("&New ..."), mNewMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sNew(false)), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -92,15 +92,17 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
 
-	mInsertItm( dispmnu, "&In full", mDispInFull, true );
-	mInsertItm( dispmnu, "&Only at sections", mDispAtSect, candispatsect );
-	mInsertItm( dispmnu, "Only at &horizons", mDispAtHors, candispathors );
-	mInsertItm( dispmnu, "&At sections && horizons", mDispAtBoth,
+	mInsertItm( dispmnu, tr("&In full"), mDispInFull, true );
+	mInsertItm( dispmnu, tr("&Only at sections"), mDispAtSect,
+		    candispatsect );
+	mInsertItm( dispmnu, tr("Only at &horizons"), mDispAtHors,
+		    candispathors );
+	mInsertItm( dispmnu, tr("&At sections && horizons"), mDispAtBoth,
 					    candispatsect && candispathors );
 	dispmnu->insertSeparator();
-	mInsertItm( dispmnu, "Fault &planes", mDispPlanes, true );
-	mInsertItm( dispmnu, "Fault &sticks", mDispSticks, true );
-	mInsertItm( dispmnu, "&Fault planes && sticks", mDispPSBoth, true );
+	mInsertItm( dispmnu, tr("Fault &planes"), mDispPlanes, true );
+	mInsertItm( dispmnu, tr("Fault &sticks"), mDispSticks, true );
+	mInsertItm( dispmnu, tr("&Fault planes && sticks"), mDispPSBoth, true );
 	mnu.insertItem( dispmnu );
     }
 
@@ -418,15 +420,16 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction("&Add ..."), mAddMnuID );
-    mnu.insertItem( new uiAction("&New ..."), mNewMnuID );
+    mnu.insertItem( new uiAction(tr("&Add ...")), mAddMnuID );
+    mnu.insertItem( new uiAction(tr("&New ...")), mNewMnuID );
 
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
-	dispmnu->insertItem( new uiAction("&In full"), mDispInFull );
-	dispmnu->insertItem( new uiAction("&Only at sections"), mDispAtSect );
+	dispmnu->insertItem( new uiAction(tr("&In full")), mDispInFull );
+	dispmnu->insertItem( new uiAction(tr("&Only at sections")),
+			     mDispAtSect );
 	mnu.insertItem( dispmnu );
     }
 

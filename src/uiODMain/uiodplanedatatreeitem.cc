@@ -58,13 +58,28 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 }
 
 
+uiString uiODPlaneDataTreeItem::sAddDefaultData()
+{ return tr("Add &default data"); }
+
+
+uiString uiODPlaneDataTreeItem::sAddColorBlended()
+{ return tr("Add &color blended"); }
+
+
+uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
+{ return tr("Add at Well location ..."); }
+
+
 #define mParentShowSubMenu( treeitm, fromwell ) \
     uiMenu mnu( getUiParent(), "Action" ); \
-    mnu.insertItem( new uiAction("&Add"), 0 ); \
-    mnu.insertItem( new uiAction("Add &default data"), 1 ); \
-    mnu.insertItem( new uiAction("Add &color blended"), 2 ); \
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 ); \
+    mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 1 ); \
+    mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 2 ); \
     if ( fromwell ) \
-	mnu.insertItem( new uiAction("Add at Well location ..."), 3 ); \
+	mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
