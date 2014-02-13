@@ -20,6 +20,7 @@
 class uiSEGYVSPBasicPars;
 class uiGenInput;
 class uiCheckBox;
+class uiComboBox;
 class uiIOObjSel;
 class SeisTrc;
 class CtxtIOObj;
@@ -28,7 +29,7 @@ class CtxtIOObj;
 mExpClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
 {
 public:
-    			uiWellImportSEGYVSP(uiParent*);
+			uiWellImportSEGYVSP(uiParent*);
 			~uiWellImportSEGYVSP();
 
     void		use(const SeisTrc&);
@@ -38,17 +39,16 @@ protected:
     uiGenInput*		inpsampfld_;
     uiGenInput*		istimefld_;
     uiGenInput*		unitfld_;
-    uiGenInput*		lognmfld_;
     uiGenInput*		outzrgfld_;
     uiCheckBox*		inpinftfld_;
     uiCheckBox*		outinftfld_;
     uiCheckBox*		inpistvdfld_;
     uiCheckBox*		outistvdfld_;
+    uiComboBox*		lognmfld_;
     uiSEGYVSPBasicPars*	bparsfld_;
     uiIOObjSel*		wellfld_;
 
     IOPar		sgypars_;
-    CtxtIOObj&		ctio_;
     SamplingData<float>	dispinpsamp_;
     BufferStringSet	existinglognms_;
     bool		isdpth_;
@@ -56,13 +56,12 @@ protected:
     bool		inpIsTime() const;
     void		isTimeChg(CallBacker*);
     void		wllSel(CallBacker*);
-    void		selLogNm(CallBacker*);
     void		outSampChk(CallBacker*);
 
     bool		acceptOK(CallBacker*);
     bool		fetchTrc(SeisTrc&);
     bool		createLog(const SeisTrc&,const Interval<float>&,
-	    			  const char*);
+				  const char*);
 
     friend class	uiSEGYVSPBasicPars;
 

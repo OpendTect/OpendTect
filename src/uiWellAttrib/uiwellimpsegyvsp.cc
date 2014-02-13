@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uiselsimple.h"
+#include "uicombobox.h"
 #include "uibutton.h"
 #include "uimsg.h"
 
@@ -40,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "timer.h"
 
 
 class uiSEGYVSPBasicPars : public uiCompoundParSel
@@ -51,22 +51,9 @@ uiSEGYVSPBasicPars( uiWellImportSEGYVSP* p )
     : uiCompoundParSel( p, "SEG-Y input" )
     , imp_(*p)
     , fnm_("-")
-    , timr_(0)
 {
     butPush.notify( mCB(this,uiSEGYVSPBasicPars,selPush) );
-    postFinalise().notify( mCB(this,uiSEGYVSPBasicPars,initWin) );
-}
-
-~uiSEGYVSPBasicPars()
-{
-    delete timr_;
-}
-
-void initWin( CallBacker* )
-{
-    timr_ = new Timer( "uiSEGYVSPBasicPars: initial setup popup" );
-    timr_->tick.notify( mCB(this,uiSEGYVSPBasicPars,doSel) );
-    timr_->start( 100, true );
+    p->afterPopup.notify( mCB(this,uiSEGYVSPBasicPars,doSel) );
 }
 
 void selPush( CallBacker* )
@@ -128,7 +115,6 @@ BufferString getSummary() const
 
     uiWellImportSEGYVSP& imp_;
     BufferString	fnm_;
-    Timer*		timr_;
 
 };
 
@@ -139,7 +125,6 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
 				 "107.0.1") )
     , istimefld_(0)
     , unitfld_(0)
-    , ctio_(*mMkCtxtIOObj(Well))
     , dispinpsamp_(mUdf(float),1)
     , isdpth_(false)
 {
@@ -183,20 +168,20 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "hor sep", true, false );
     sep->attach( stretchedBelow, inpsampfld_ );
 
-    wellfld_ = new uiIOObjSel( this, ctio_, "Add to Well" );
+    wellfld_ = new uiIOObjSel( this, mIOObjContext(Well), "Add to Well" );
     wellfld_->attach( alignedBelow, inpsampfld_ );
     wellfld_->attach( ensureBelow, sep );
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
-    lognmfld_ = new uiGenInput( this, "Output log name", "VSP" );
-    lognmfld_->attach( alignedBelow, wellfld_ );
-    uiPushButton* but = new uiPushButton( this, "Se&lect",
-	    		mCB(this,uiWellImportSEGYVSP,selLogNm), false );
-    but->attach( rightOf, lognmfld_ );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Output log name" );
+    lcb->attach( alignedBelow, wellfld_ );
+    lognmfld_ = lcb->box();
+    lognmfld_->setReadOnly( false );
+    lognmfld_->setText( "VSP" );
 
     const FloatInpIntervalSpec fispec( false );
     outzrgfld_ = new uiGenInput( this, "Limit output interval", fispec );
-    outzrgfld_->attach( alignedBelow, lognmfld_ );
+    outzrgfld_->attach( alignedBelow, lcb );
     outzrgfld_->setWithCheck( true );
     outzrgfld_->checked.notify( mCB(this,uiWellImportSEGYVSP,outSampChk) );
     outinftfld_ = new uiCheckBox( this, "Feet" );
@@ -205,35 +190,33 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outistvdfld_ = new uiCheckBox( this, "TVDSS" );
     outistvdfld_->attach( rightOf, outinftfld_ );
 
+    postFinalise().notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
     postFinalise().notify( mCB(this,uiWellImportSEGYVSP,isTimeChg) );
 }
 
 
 uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 {
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
-    if ( !ctio_.ioobj ) return;
     existinglognms_.erase();
-    const char* nm = Well::IO::getMainFileName( *ctio_.ioobj );
-    if ( !nm || !*nm ) return;
-    Well::Data wd; Well::Reader wr( nm, wd );
-    wr.getLogInfo( existinglognms_ );
-}
+    const IOObj* ioobj = wellfld_->ioobj(true);
+    if ( ioobj )
+    {
+	const FixedString nm = Well::IO::getMainFileName( *ioobj );
+	Well::Data wd; Well::Reader wr( nm, wd );
+	wr.getLogInfo( existinglognms_ );
+    }
 
-
-void uiWellImportSEGYVSP::selLogNm( CallBacker* )
-{
-    uiGetObjectName::Setup su( "Specify output log name", existinglognms_ );
-    su.inptxt( "Name for VSP log" ).deflt( lognmfld_->text() );
-    if ( su.deflt_.isEmpty() ) su.deflt_ = "VSP";
-    uiGetObjectName dlg( this, su );
-    if ( dlg.go() )
-	lognmfld_->setText( dlg.text() );
+    BufferString curlognm = lognmfld_->text();
+    lognmfld_->setEmpty();
+    lognmfld_->addItems( existinglognms_ );
+    if ( curlognm.isEmpty() )
+	curlognm = "VSP";
+    lognmfld_->setText( curlognm );
 }
 
 
@@ -284,7 +267,7 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 {
     if ( bparsfld_->fnm_.isEmpty() || sgypars_.isEmpty() )
 	mErrRet("Please define the input SEG-Y")
-    if ( !wellfld_->commitInput() )
+    if ( !wellfld_->ioobj() )
 	mErrRet("Please select the output well")
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )
@@ -343,10 +326,13 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 				     const Interval<float>& ozr,
 				     const char* lognm )
 {
-    const MultiID key( ctio_.ioobj->key() );
+    const IOObj* ioobj = wellfld_->ioobj(true);
+    if ( !ioobj )
+	return false;
+    const MultiID key( ioobj->key() );
     const bool wasloaded = Well::MGR().isLoaded( key );
 
-    Well::Data* wd = Well::MGR().get( key );
+    Well::Data* wd = Well::MGR().get( ioobj->key() );
     if ( !wd )
 	mErrRet("Cannot load the selected well")
     if ( !isdpth_ && !wd->d2TModel() )
@@ -391,7 +377,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    Well::Writer wtr( Well::IO::getMainFileName(*ctio_.ioobj), *wd );
+    Well::Writer wtr( Well::IO::getMainFileName(*ioobj), *wd );
     wtr.putLogs();
 
     if ( wasloaded )
