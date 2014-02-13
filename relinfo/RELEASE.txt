@@ -1,8 +1,34 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0h: February 13, 2014
+  * Scene colorbar settings now available in the scene colorbar tool menu 
+  * Trace Number column now shown for crossplot extracted from 2d data
+  * Added support for import of SEG-Y files with reverse ordered trace numbers
+  * Added option to resample while creating 3D attribute volumes
+  * Resolution (dpi) field in 2D viewer snapshot dialog now restricted
+    to screen resolution
+  * Fix for crash while removing time slice attribute
+  * Fix for crash while selecting time-to-depth model without selecting a well 
+  * Fix for attribute selection while tracking 2D horizons on Windows 32bit
+  * Fix for crash on adding a new scene while 'Display current element only'
+    is toggled on
+  * Fix for crash while adding a horizon cube to inline display
+  * Fix for crash in auto-load plugin selection window
+  * Fix for loading SEG-Y file when Inlines and Crosslines byte are filpped
+  * Fix for Y2 axis display for crossplot extracted from 2d & synthetic data
+  * Fix for sorting of markers for data extraction in
+    well-attribute crossplots
+  * Fix for default unit for P-wave in well tie unit
+  * Fix for  X-coord column being duplicated into Y-coord columns while
+    saving Attribute vs. Attribute cross plot data
+
+v4.6.0g: February 3, 2014
+  * Fix for 2D steering data display issues
 
 v4.6.0f: January 16, 2014
+  * Displaying only commercial plugin names in auto-load plugin selection
+    window at startup
   * Fix for calculation of Hilbert transform
   * Fix for crash while checking parameters in GapDecon attribute
   * Fix for crash while reading new well depth to time data
