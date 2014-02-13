@@ -328,11 +328,11 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 	float* ptr = dataset_->getData();
 	bool canusevalseries = ptr;
 
-	for ( int idx=0; idx<nrdh && canusevalseries; idx++ )
+	for ( int seridx=0; seridx<nrseries && canusevalseries; seridx++ )
 	{
-	    for ( int idy=0; idy<nrseries; idy++ )
+	    for ( int dhidx=0; dhidx<nrdh; dhidx++ )
 	    {
-		ValueSeries<float>* valser = dh.dataset_[idx]->series(idy);
+		ValueSeries<float>* valser = dh.dataset_[dhidx]->series(seridx);
 		if ( valser )
 		{
 		    valser->getValues( ptr, nrsamples );
