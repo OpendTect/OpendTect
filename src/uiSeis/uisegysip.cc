@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ioobj.h"
 #include "oddirs.h"
-#include "timer.h"
 #include "oscommand.h"
 #include "od_ostream.h"
 
@@ -37,17 +36,10 @@ uiSEGYSIPMgrDlg( uiSEGYSurvInfoProvider* sip, uiParent* p,
 		 const uiDialog::Setup& su )
     : uiDialog(p,su)
     , sip_(sip)
-    , timer_(*new Timer("Next dialog"))
 {
     new uiLabel( this, "To be able to scan your data\n"
 	    "You must define the specific properties of your SEG-Y file(s)" );
-    timer_.tick.notify( mCB(this,uiSEGYSIPMgrDlg,start) );
-    timer_.start( 500, true );
-}
-
-~uiSEGYSIPMgrDlg()
-{
-    delete &timer_;
+    afterPopup.notify( mCB(this,uiSEGYSIPMgrDlg,start) );
 }
 
 void start( CallBacker* )
@@ -65,7 +57,6 @@ void atEnd( CallBacker* )
 
     uiSEGYRead*			sr_;
     uiSEGYSurvInfoProvider*	sip_;
-    Timer&			timer_;
 
 };
 

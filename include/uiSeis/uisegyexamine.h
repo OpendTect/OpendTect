@@ -68,7 +68,6 @@ protected:
     uiTable*		tbl_;
     uiSEGYTrcHdrValPlot* hvaldisp_;
 
-    void		onStartUp(CallBacker*);
     void		saveHdr(CallBacker*);
     void		dispSeis(CallBacker*);
     void		dispHist(CallBacker*);

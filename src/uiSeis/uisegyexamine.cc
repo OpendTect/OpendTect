@@ -61,7 +61,6 @@ void uiSEGYExamine::Setup::usePar( const IOPar& iop )
 uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	: uiDialog(p,su)
 	, setup_(su)
-	, timer_(new Timer("Startup timer"))
 	, tbuf_(*new SeisTrcBuf(true))
 	, rdr_(0)
 {
@@ -125,22 +124,14 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     str += su.nrtrcs_; str += " traces ...";
     outInfo( str );
 
-    postFinalise().notify( mCB(this,uiSEGYExamine,onStartUp) );
+    afterPopup.notify( mCB(this,uiSEGYExamine,updateInput) );
 }
 
 
 uiSEGYExamine::~uiSEGYExamine()
 {
     delete rdr_;
-    delete timer_;
     delete &tbuf_;
-}
-
-
-void uiSEGYExamine::onStartUp( CallBacker* )
-{
-    timer_->tick.notify( mCB(this,uiSEGYExamine,updateInput) );
-    timer_->start( 100, true );
 }
 
 
@@ -202,7 +193,6 @@ void uiSEGYExamine::updateInput( CallBacker* )
     display( true );
     updateInp();
     setName( setup_.fs_.fname_ );
-    delete timer_; timer_ = 0;
 }
 
 

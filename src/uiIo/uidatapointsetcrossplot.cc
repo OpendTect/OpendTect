@@ -155,13 +155,15 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 
 uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
-    delete &lsy1_;
-    delete &lsy2_;
     timer_.tick.remove( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
+
     if ( yptitems_ ) scene().removeItem( yptitems_ );
     if ( y2ptitems_ ) scene().removeItem( y2ptitems_ );
     if ( selrectitems_ ) scene().removeItem( selrectitems_ );
     if ( selrectitems_ ) scene().removeItem( selrectitems_ );
+
+    delete &lsy1_;
+    delete &lsy2_;
 }
 
 #define mHandleAxisAutoScale(axis) \

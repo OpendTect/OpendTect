@@ -20,7 +20,10 @@ mFDQtclass(QEvent);
 
 class uiEventFilterImpl;
 class uiBaseObject;
-/*!\ The base class for most UI elements. */
+
+
+/*!\brief is a class that is able to recieve events from Qt and trigger an
+  OD-style notification/callback. */
 
 mExpClass(uiBase) uiEventFilter : public CallBacker
 {
@@ -195,8 +198,8 @@ public:
 protected:
 
     uiEventFilterImpl*		impl_;
+
 };
 
 
 #endif
-

@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-#include "timer.h"
 #include "unitofmeasure.h"
 #include "variogramcomputers.h"
 
@@ -178,7 +177,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, maniptb_(0)
 	, percfld_(0)
 	, showbidsfld_(0)
-	, timer_(new Timer())
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
 
@@ -551,8 +549,6 @@ void uiDataPointSet::handleAxisColChg()
 void uiDataPointSet::initWin( CallBacker* c )
 {
     setSortedCol( nrPosCols() );
-    if ( dps_.isEmpty() && setup_.allowretrieve_ )
-	timer_->start( 500, true );
 }
 
 
