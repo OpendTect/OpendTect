@@ -67,6 +67,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uirubberband.cc
 		uiseparator.cc
 		uistring.cc
+		uistrings.cc
 		uishortcutsmgr.cc
 		uislider.cc
 		uispinbox.cc
