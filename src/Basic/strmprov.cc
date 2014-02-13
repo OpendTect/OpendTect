@@ -299,6 +299,7 @@ void dumpInfo( IOPar& iop ) const
 };
 
 
+#define mBytesToMB(bytes) ( bytes / (1024*1024) ) 
 class StreamProviderPreLoadedData : public Executor
 {
 public:
@@ -325,8 +326,8 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	mTryAlloc(buf,char [ bufsz ])
 	if ( !buf )
 	{
-	    msg_ = "Failed to allocate "; msg_ += bufsz / 1024;
-	    msg_ += " kb of memory";
+	    msg_ = "Failed to allocate "; msg_ += mBytesToMB( bufsz );
+	    msg_ += " MB of memory";
 	}
 	else
 	{
@@ -353,8 +354,8 @@ const BufferString& fileName() const
 
 const char* message() const { return msg_.buf(); }
 const char* nrDoneText() const { return "MBs read"; }
-od_int64 nrDone() const { return filesz_ / 1024; }
-od_int64 totalNr() const { return dp_ ? dp_->size() / 1024 : -1; }
+od_int64 nrDone() const { return mBytesToMB( filesz_ ); }
+od_int64 totalNr() const { return dp_ ? mBytesToMB(dp_->size()) : -1; }
 
 int nextStep()
 {
@@ -467,7 +468,7 @@ bool mkNewPLD()
 
 const char* message() const	{ return curpld_ ? curpld_->message() : ""; }
 const char* nrDoneText() const	{ return curpld_ ? curpld_->nrDoneText() : ""; }
-od_int64 totalNr() const	{ return totnr_; }
+od_int64 totalNr() const	{ return totnr_ / 1024; }
 od_int64 nrDone() const	
 { return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }
 
