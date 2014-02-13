@@ -22,6 +22,7 @@ v4.6.0h: February 13, 2014
   * Fix for default unit for P-wave in well tie unit
   * Fix for  X-coord column being duplicated into Y-coord columns while
     saving Attribute vs. Attribute cross plot data
+  * Fix for narrow width of the color table selector
 
 v4.6.0g: February 3, 2014
   * Fix for 2D steering data display issues
