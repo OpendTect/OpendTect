@@ -30,11 +30,10 @@ class uiVariogramDisplay;
 
 class DataPointSetDisplayMgr;
 class DataPointSetDisplayProp;
-class Timer;
 namespace Stats { template <class T> class RunCalc; }
 
 /*!\brief Edit DataPointSet.
- 
+
   The DataPointSet will be edited in-place. If you want to be able to
   rollback on user cancel, you'll have to make a copy of the original set
   yourself, and check the return value for the cancel.
@@ -43,7 +42,7 @@ namespace Stats { template <class T> class RunCalc; }
 
 
 mExpClass(uiIo) uiDataPointSet : public uiDialog
-{ 	
+{
 public:
 
     typedef int			TColID;
@@ -67,7 +66,7 @@ public:
 
 				uiDataPointSet(uiParent*,const DataPointSet&,
 					      const Setup&,
-				    	      DataPointSetDisplayMgr* mgr=0);
+					      DataPointSetDisplayMgr* mgr=0);
 				~uiDataPointSet();
 
     DataPointSet&		pointSet()	{ return dps_; }
@@ -75,10 +74,10 @@ public:
 
     bool			is2D() const;
     int				size() const	{ return drowids_.size(); }
-    				//!< number of displayable rows
+				//!< number of displayable rows
 
     void			setZFactor( float f, const char* unnm )
-    				{ zfac_ = f; zunitnm_ = unnm; }
+				{ zfac_ = f; zunitnm_ = unnm; }
 				//!< Default is SI().zDomain().userFactor()
 
     uiTable*			table()		{ return tbl_; }
@@ -95,32 +94,32 @@ public:
 
     Notifier<uiDataPointSet>	selPtsToBeShown;	// to show in 3D
 
-    Notifier<uiDataPointSet>	rowAdded; 
+    Notifier<uiDataPointSet>	rowAdded;
     CNotifier<uiDataPointSet,int> rowToBeRemoved;
-    CNotifier<uiDataPointSet,int> rowRemoved; 
+    CNotifier<uiDataPointSet,int> rowRemoved;
 
     void			getChanges(DataPointSet::DataRow& before,
-	    				   DataPointSet::DataRow& after) const
+					   DataPointSet::DataRow& after) const
 				{ before = beforechgdr_; after = afterchgdr_; }
 
     void			setCurrent(DColID,DRowID);
     void			setCurrent(const DataPointSet::Pos&,DColID);
 
-    				// Note that groups start at 1!
+				// Note that groups start at 1!
 				// Thus bss.get(0) => group 1.
-    void			setGroupNames( 	const BufferStringSet& bss )
+    void			setGroupNames(	const BufferStringSet& bss )
 							{ grpnames_ = bss; }
     const BufferStringSet&	groupNames() const	{ return grpnames_; }
     const char*			groupName(int) const;
     void			setGroupType( const char* nm )
 							{ grptype_ = nm; }
     const char*			groupType() const	{ return grptype_; }
-    
+
     DRowID			dRowID(TRowID tid=-99) const;
     TRowID			tRowID(DRowID did=-99) const;
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
-    
+
     bool			isSelectionValid(DRowID) const;
     void			addRow(const DataPointSet::DataRow&);
 
@@ -128,7 +127,7 @@ public:
     void			reDoTable();
     bool			posDispTypeChgd()   { return posdisptypechgd_; }
 
-    int 			getSelectionGroupIdx(int selaareaid) const;
+    int			getSelectionGroupIdx(int selaareaid) const;
 
     const DataPointSetDisplayMgr* displayMgr() const	{ return dpsdispmgr_; }
     void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
@@ -172,7 +171,6 @@ protected:
     bool			posdisptypechgd_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
-    Timer*			timer_;
 
     static const char*		sKeyMinDPPts()
 				{ return "Minimum pts for Density Plot"; }
@@ -190,7 +188,7 @@ protected:
 
     void			mkToolBars();
 
-    				// default returns current row/col
+				// default returns current row/col
     float			getVal(DColID,DRowID,bool userunits) const;
 
     void			calcIdxs();
@@ -262,7 +260,7 @@ private:
 
 public:
     float			getValue( DColID did, DRowID rid ,
-	    				  bool userunits ) const
+					  bool userunits ) const
 				{ return getVal(did,rid,userunits); }
     void			setUnsavedChg( bool chg )
 				{ unsavedchgs_ = chg; }
