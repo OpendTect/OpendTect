@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "typeset.h"
 #include "perthreadrepos.h"
 #include "uitexttranslator.h"
+#include "uistrings.h"
 
 
 #include <QString>
