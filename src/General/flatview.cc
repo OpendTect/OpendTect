@@ -541,7 +541,6 @@ void FlatView::Viewer::clearAllPacks()
 {
     while ( !ids_.isEmpty() )
 	removePack( ids_[0] );
-    handleChange( BitmapData );
 }
 
 
