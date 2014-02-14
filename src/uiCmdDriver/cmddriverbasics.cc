@@ -786,7 +786,9 @@ const char* UIEntity::name() const
 const char* UIEntity::toolTip() const
 {
     if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->toolTip() : uiact_->toolTip().getFullString();
+    return uiobj_
+	? uiobj_->toolTip().getFullString()
+	: uiact_->toolTip().getFullString();
 }
 
 

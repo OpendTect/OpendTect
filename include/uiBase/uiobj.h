@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
+#include "uistring.h"
 #include "color.h"
 
 mFDQtclass(QWidget)
@@ -67,11 +68,11 @@ public:
 
     virtual void	setName(const char*);
 
-    void		setToolTip(const char*);
-    const char*		toolTip() const;
+    void		setToolTip(const uiString&);
+    const uiString&	toolTip() const;
     static void		updateToolTips();
 
-    virtual void	translate();
+    void		translateText();
 
     void		display(bool yn,bool shrink=false,bool maximised=false);
     void		setFocus();
@@ -174,16 +175,14 @@ protected:
     void		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
     void		updateToolTip();
-    mQtclass(QString*)	qnormaltooltipstr_;
-    mQtclass(QString*)	qtranslatedtooltipstr_;
+
+    uiString		tooltip_;
 
     uiObjEventFilter*	uiobjeventfilter_;
 
 private:
 
     uiParent*		parent_;
-    int			translateid_;
-    void		trlReady(CallBacker*);
 };
 
 
