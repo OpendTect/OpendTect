@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uiseparator.h"
 #include "uitoolbar.h"
+#include "uitexttranslator.h"
 #include "uitoolbutton.h"
 
 #include "envvars.h"
@@ -701,6 +702,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , afterPopup(this)
     , caption_(setup.caption_)
     , afterpopuptimer_(0)
+    , languagedirtycount_( TrMgr().dirtyCount() )
 {
     body_ = new uiMainWinBody( *this, p, setup.caption_.getFullString(),
 			       setup.modal_ );
@@ -726,12 +728,15 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , afterPopup(this)
     , caption_(nm)
     , afterpopuptimer_(0)
+    , languagedirtycount_( TrMgr().dirtyCount() )
 {
     body_ = new uiMainWinBody( *this, parnt, nm, modal );
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
+
+    mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
 }
 
 
@@ -748,6 +753,8 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , afterpopuptimer_(0)
 {
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
+
+    mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
 }
 
 
@@ -757,6 +764,8 @@ static uiMainWin*		programmedactivewin_ = 0;
 
 uiMainWin::~uiMainWin()
 {
+    detachAllNotifiers();
+
     if ( !body_->deletefrombody_ )
     {
 	body_->deletefromod_ = true;
@@ -1210,6 +1219,16 @@ void uiMainWin::translate()
 void uiMainWin::copyToClipBoardCB( CallBacker* )
 {
     copyToClipBoard();
+}
+
+
+void uiMainWin::languageChangeCB( CallBacker* )
+{
+    if ( languagedirtycount_<TrMgr().dirtyCount() )
+    {
+        translate();
+	languagedirtycount_ = TrMgr().dirtyCount();
+    }
 }
 
 class ImageSaver : public CallBacker

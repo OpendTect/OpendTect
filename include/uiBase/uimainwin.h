@@ -200,6 +200,7 @@ protected:
 
     void		copyToClipBoardCB(CallBacker*);
     void		aftPopupCB( CallBacker* )	{ afterPopup.trigger();}
+    void		languageChangeCB(CallBacker*);
 
     uiMainWinBody*	body_;
     uiParent*		parent_;
@@ -208,6 +209,7 @@ protected:
     PopupArea		popuparea_;
 
     uiString		caption_;
+    int			languagedirtycount_;
 
 public:
 			// Not for casual use

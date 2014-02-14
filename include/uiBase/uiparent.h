@@ -103,6 +103,8 @@ public:
     void		setBackgroundColor(const Color& c)
 			    { mIfMO()->setBackgroundColor(c); }
 
+    void		translate();
+
 protected:
 
     virtual void        attach_( constraintType t, uiObject* oth, int margin=-1,

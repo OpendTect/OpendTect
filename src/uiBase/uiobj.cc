@@ -210,6 +210,18 @@ Color uiParent::backgroundColor() const
 }
 
 
+void uiParent::translate()
+{
+    uiBaseObject::translate();
+
+    if ( !childList() )
+        return;
+
+    for ( int idx=0; idx<childList()->size(); idx++ )
+        const_cast<uiBaseObject*>((*childList())[idx])->translate();
+}
+
+
 uiParentBody* uiParent::pbody()
 {
     return dynamic_cast<uiParentBody*>( body() );
