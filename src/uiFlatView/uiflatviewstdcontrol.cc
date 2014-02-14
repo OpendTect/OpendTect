@@ -336,7 +336,7 @@ void uiFlatViewStdControl::helpCB( CallBacker* )
 
 void uiFlatViewStdControl::translateCB( CallBacker* )
 {
-    mainwin()->translate();
+    mainwin()->translateText();
 }
 
 

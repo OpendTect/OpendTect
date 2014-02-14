@@ -49,7 +49,7 @@ public:
     Alignment::HPos	alignment() const;
 
 private:
-    void		translate();
+    void		translateText();
 
     void		init(const uiString& txt,uiObject* buddy);
 

@@ -115,7 +115,7 @@ public:
     void		collapseAll();
     void		expandTo(int treedepth);
 
-    void		translate();
+    void		translateText();
     bool		handleLongTabletPress();
 
 			//! re-draws at next X-loop
@@ -229,7 +229,7 @@ public:
 
     void		setToolTip(int column,const char*);
     const char*		toolTip(int column) const;
-    void		translate();
+    void		translateText();
 
     static void		updateToolTips();
 
@@ -319,7 +319,7 @@ protected:
     bool			checked_;
 
     void			trlReady(CallBacker*);
-    bool			translate(int column);
+    bool			translateText(int column);
     TypeSet<int>		translateids_;
     TypeSet<int>		translatecolumns_;
 

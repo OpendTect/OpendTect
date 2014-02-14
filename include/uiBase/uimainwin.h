@@ -168,7 +168,7 @@ public:
 				       mQtclass(QWidget*) forwindow=0,
 				       BufferString* addendum = 0);
 
-    void		translate();
+    void		translateText();
 
 
     bool		grab(const char* filenm,int zoom=1,

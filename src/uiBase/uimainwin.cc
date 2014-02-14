@@ -1208,9 +1208,9 @@ void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
 { body_->activateInGUIThread( cb, busywait ); }
 
 
-void uiMainWin::translate()
+void uiMainWin::translateText()
 {
-    uiParent::translate();
+    uiParent::translateText();
 
     //Don't know if anything special needs to be done here.
 }
@@ -1226,7 +1226,7 @@ void uiMainWin::languageChangeCB( CallBacker* )
 {
     if ( languagedirtycount_<TrMgr().dirtyCount() )
     {
-        translate();
+        translateText();
 	languagedirtycount_ = TrMgr().dirtyCount();
     }
 }

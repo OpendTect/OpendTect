@@ -225,8 +225,9 @@ void uiButton::setText( const uiString& txt )
 }
 
 
-void uiButton::translate()
+void uiButton::translateText()
 {
+    uiObject::translateText();
     mqbut()->setText( text_.getQtString() );
 }
 

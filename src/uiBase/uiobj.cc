@@ -210,15 +210,15 @@ Color uiParent::backgroundColor() const
 }
 
 
-void uiParent::translate()
+void uiParent::translateText()
 {
-    uiBaseObject::translate();
+    uiBaseObject::translateText();
 
     if ( !childList() )
         return;
 
     for ( int idx=0; idx<childList()->size(); idx++ )
-        const_cast<uiBaseObject*>((*childList())[idx])->translate();
+        const_cast<uiBaseObject*>((*childList())[idx])->translateText();
 }
 
 
@@ -369,7 +369,7 @@ void uiObject::updateToolTip()
 
 void uiObject::translateText()
 {
-    uiBaseObject::translate();
+    uiBaseObject::translateText();
     updateToolTip();
 }
 

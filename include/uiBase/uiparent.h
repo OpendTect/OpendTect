@@ -103,7 +103,7 @@ public:
     void		setBackgroundColor(const Color& c)
 			    { mIfMO()->setBackgroundColor(c); }
 
-    void		translate();
+    void		translateText();
 
 protected:
 

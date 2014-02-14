@@ -29,7 +29,7 @@ public:
     bool			finalised() const;
     void			clear();
 
-    virtual void		translate()		{}
+    virtual void		translateText()		{}
 				/*!<Triggers translation of object and all
 				    members to current language. */
 

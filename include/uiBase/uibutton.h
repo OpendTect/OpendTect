@@ -44,7 +44,7 @@ public:
     Notifier<uiButton>	activated;
 
 protected:
-    void		translate();
+    void		translateText();
     uiString		text_;
 
 public:

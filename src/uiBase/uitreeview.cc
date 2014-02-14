@@ -599,12 +599,12 @@ void uiTreeView::setNotifiedItem( QTreeWidgetItem* itm )
 { lastitemnotified_ = mItemFor( itm ); }
 
 
-void uiTreeView::translate()
+void uiTreeView::translateText()
 {
     for ( int idx=0; idx<nrItems(); idx++ )
     {
         uiTreeViewItem* itm = getItem( idx );
-	if ( itm ) itm->translate();
+	if ( itm ) itm->translateText();
     }
 }
 
@@ -699,18 +699,18 @@ const char* uiTreeViewItem::text( int column ) const
 }
 
 
-void uiTreeViewItem::translate()
+void uiTreeViewItem::translateText()
 {
     int column = 0;
-    while ( translate(column++) )
+    while ( translateText(column++) )
     {}
 
     for ( int idx=0; idx<nrChildren(); idx++ )
-	getChild(idx)->translate();
+	getChild(idx)->translateText();
 }
 
 
-bool uiTreeViewItem::translate( int column )
+bool uiTreeViewItem::translateText( int column )
 {
     if ( !TrMgr().tr() || column<0 || column>=qnormaltooltipstrlist_->size() )
 	return false;
@@ -992,7 +992,7 @@ void uiTreeViewItem::setToolTip( int column, const char* txt )
     updateToolTip( column );
 
     if ( TrMgr().tr() && TrMgr().tr()->enabled() && wastranslated )
-	translate( column );
+	translateText( column );
 }
 
 

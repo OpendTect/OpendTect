@@ -95,8 +95,9 @@ void uiLabel::setText( const uiString& txt )
 }
 
 
-void uiLabel::translate()
+void uiLabel::translateText()
 {
+    uiObject::translateText();
     body_->setText( text_.getQtString() );
 }
 

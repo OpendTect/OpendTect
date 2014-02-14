@@ -249,10 +249,10 @@ void uiToolBar::clear()
 }
 
 
-void uiToolBar::translate()
+void uiToolBar::translateText()
 {
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
-	addedobjects_[idx]->translate();
+	addedobjects_[idx]->translateText();
 }
 
 
