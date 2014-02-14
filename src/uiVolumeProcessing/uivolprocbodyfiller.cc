@@ -7,18 +7,19 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivolprocbodyfiller.h"
-
 #include "volprocbodyfiller.h"
+
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uivolprocchain.h"
+
 #include "embodytr.h"
 #include "separstr.h"
 
+
 namespace VolProc
 {
-
 
 void uiBodyFiller::initClass()
 {
@@ -33,22 +34,21 @@ void uiBodyFiller::initClass()
 uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), mp )
     , bodyfiller_( mp )
-    , ctio_(mMkCtxtIOObj(EMBody))
 {
     setHelpID( "103.6.2" );
 
-    ctio_->ctxt.forread = true;
+    IOObjContext ctxt = mIOObjContext( EMBody );
+    ctxt.forread = true;
+    uinputselfld_ = new uiIOObjSel( this, ctxt, "Input Body" );
+    uinputselfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
     if ( mp )
-    	ctio_->setObj( mp->getSurfaceID() );
-    
-    uinputselfld_ = new uiIOObjSel( this, *ctio_,"Input Body" );
+	uinputselfld_->setInput( mp->getSurfaceID() );
     
     const bool showinside = !mIsUdf( mp->getInsideValue() ); 
     useinsidefld_ = new uiGenInput( this, "Inside",
 	    BoolInpSpec( showinside, "Value", "Transparent" ) );
     useinsidefld_->attach( alignedBelow, uinputselfld_ );
-    useinsidefld_->valuechanged.notify(
-	    mCB(this,uiBodyFiller, updateFlds) );
+    useinsidefld_->valuechanged.notify( mCB(this,uiBodyFiller,updateFlds) );
     insidevaluefld_ = new uiGenInput( this, "Inside-Value",
 	    FloatInpSpec( showinside ? mp->getInsideValue() : -2000 ) );
     insidevaluefld_->attach( alignedBelow, useinsidefld_ );
@@ -70,7 +70,14 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 
 uiBodyFiller::~uiBodyFiller()
 {
-    delete ctio_->ioobj; delete ctio_;
+}
+
+
+void uiBodyFiller::bodySel( CallBacker* )
+{
+    const IOObj* ioobj = uinputselfld_->ioobj();
+    if ( ioobj )
+	namefld_->setText( ioobj->name() );
 }
 
 
@@ -95,13 +102,10 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    if ( !uinputselfld_->commitInput() )
-    {
-	uiMSG().error("Please select the IsoSurface");
-	return false;
-    }
+    const IOObj* ioobj = uinputselfld_->ioobj();
+    if ( !ioobj ) return false;
 
-    bodyfiller_->setSurface(uinputselfld_->ctxtIOObj().ioobj->key());
+    bodyfiller_->setSurface( ioobj->key() );
 
     if ( useinsidefld_->getBoolValue() && !useoutsidefld_->getBoolValue() )
     {
@@ -150,6 +154,5 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     return true;
 }
 
-
-};//namespace
+} // namespace VolProc
 

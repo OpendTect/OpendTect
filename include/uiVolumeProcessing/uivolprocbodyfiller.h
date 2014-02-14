@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "volprocbodyfiller.h"
 
-class CtxtIOObj;
 class uiIOObjSel;
 
 
@@ -36,10 +35,10 @@ protected:
     static uiStepDialog*	createInstance(uiParent*, Step*);
 
     bool			acceptOK(CallBacker*);
+    void			bodySel(CallBacker*);
     void			updateFlds(CallBacker*);
 
     BodyFiller*			bodyfiller_;
-    CtxtIOObj*			ctio_;
 
     uiIOObjSel*			uinputselfld_;			
     uiGenInput*			useinsidefld_;
@@ -48,7 +47,7 @@ protected:
     uiGenInput*			outsidevaluefld_;
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 
