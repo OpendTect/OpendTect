@@ -29,6 +29,10 @@ public:
     bool			finalised() const;
     void			clear();
 
+    virtual void		translate()		{}
+    				/*!<Triggers translation of object and all
+				    members to current language. */
+
     inline const uiBody*	body() const		{ return body_; }
     inline uiBody*		body()			{ return body_; }
 
