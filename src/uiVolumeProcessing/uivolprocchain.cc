@@ -116,7 +116,9 @@ void uiStepDialog::addNameFld( uiObject* alignobj, bool leftalign )
 	sep = new uiSeparator( this, "namefld sep" );
 	sep->attach( stretchedBelow, alignobj );
     }
+
     namefld_ = new uiGenInput( this, "Name for this step", step_->userName() );
+    namefld_->setElemSzPol( uiObject::Wide );
     if ( alignobj )
     {
 	namefld_->attach( ensureBelow, sep );
