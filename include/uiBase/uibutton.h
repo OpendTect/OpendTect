@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uiobj.h"
+#include "uistring.h"
 
 class uiButtonBody;
 class uiCheckBoxBody;
@@ -31,18 +32,20 @@ mFDQtclass(QMenu)
 mExpClass(uiBase) uiButton : public uiObject
 {
 public:
-			uiButton(uiParent*,const char*,const CallBack*,
+			uiButton(uiParent*,const uiString&,const CallBack*,
 				 uiObjectBody&);
     virtual		~uiButton()		{}
 
-    virtual void	setText(const char*);
-    const char*		text();
+    virtual void	setText(const uiString&);
+    const uiString&	text() const { return text_; }
 
     virtual void	click()			{}
 
     Notifier<uiButton>	activated;
 
 protected:
+    void		translate();
+    uiString		text_;
 
 public:
     			//! Not for casual use
@@ -110,8 +113,8 @@ mExpClass(uiBase) uiCheckBox: public uiButton
 {
 public:
 
-				uiCheckBox(uiParent*,const char*);
-				uiCheckBox(uiParent*,const char*,
+				uiCheckBox(uiParent*,const uiString&);
+				uiCheckBox(uiParent*,const uiString&,
 					   const CallBack&);
 
     bool			isChecked() const;
@@ -119,12 +122,10 @@ public:
 
     void			click();
 
-    virtual void		setText(const char*);
-
 private:
 
     uiCheckBoxBody*		body_;
-    uiCheckBoxBody&		mkbody(uiParent*,const char*);
+    uiCheckBoxBody&		mkbody(uiParent*,const uiString&);
 
 };
 

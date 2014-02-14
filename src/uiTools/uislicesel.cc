@@ -211,7 +211,7 @@ void butPush( CallBacker* cb )
 	doAdvance( cb != ctrlbut );
     else
     {
-	/*new*/paused_ = ctrlbut->text()[1] == 'P';
+	/*new*/paused_ = ctrlbut->text().getOriginalString()[1] == 'P';
 	ctrlbut->setText( paused_ ? "&Go" : sButTxtPause );
     }
 }

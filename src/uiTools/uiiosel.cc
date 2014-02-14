@@ -380,7 +380,9 @@ void uiIOSelect::setReadOnly( bool yn )
 
 const char* uiIOSelect::labelText() const
 {
-    return lbl_ ? lbl_->text() : (optbox_ ? optbox_->text() : "");
+    return lbl_
+	? lbl_->text()
+	: (optbox_ ? optbox_->text().getFullString() : "");
 }
 
 

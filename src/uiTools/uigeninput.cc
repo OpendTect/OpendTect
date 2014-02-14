@@ -920,7 +920,7 @@ mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 const char* uiGenInput::titleText()
 { 
     if ( labl_ ) return labl_->text();
-    if ( cbox_ ) return cbox_->text();
+    if ( cbox_ ) return cbox_->text().getOriginalString();
     return 0;
 }
 

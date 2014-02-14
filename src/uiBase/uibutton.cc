@@ -43,29 +43,29 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
     public uiObjectBody, public T { public:
 
 			uiButtonTemplBody( uiButton& hndle, uiParent* p,
-					   const char* txt )
-			    : uiObjectBody( p, txt )
+					   const uiString& txt )
+			    : uiObjectBody( p, txt.getFullString() )
                             , T(p && p->pbody() ? p->pbody()->managewidg() : 0 )
                             , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )
 			    {
-				this->setText(txt);
+				this->setText(txt.getQtString());
 				setHSzPol( uiObject::SmallVar );
 			    }
 
 			uiButtonTemplBody(uiButton& hndle,
 				     const ioPixmap& pm,
-				     uiParent* parnt, const char* txt)
-			    : uiObjectBody( parnt, txt )
-			    , T( QIcon(*pm.qpixmap()),txt,
+				     uiParent* parnt, const uiString& txt)
+			    : uiObjectBody( parnt, txt.getFullString() )
+			    , T( QIcon(*pm.qpixmap()),txt.getQtString(),
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0 )
                             , handle_( hndle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )
 			    {
-				this->setText(txt);
+				this->setText(txt.getQtString());
 				setHSzPol( uiObject::SmallVar );
 			    }
 
@@ -81,8 +81,6 @@ public:
                         { return ((uiButtonTemplBody*)this)->qButton(); }
 
     virtual int	nrTxtLines() const		{ return 1; }
-
-    const char*		text();
 
 protected:
 
@@ -172,7 +170,7 @@ class uiCheckBoxBody: public uiButtonTemplBody<QCheckBox>
 public:
 
 			uiCheckBoxBody(uiButton& hndle,
-				     uiParent* parnt, const char* txt)
+				     uiParent* parnt, const uiString& txt)
 		       : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
 		       {}
 
@@ -208,9 +206,9 @@ protected:
 
 #define mqbut()         dynamic_cast<QAbstractButton*>( body() )
 
-uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
+uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
-    : uiObject( parnt, nm, b )
+    : uiObject( parnt, nm.getFullString(), b )
     , activated( this )
 {
     if ( cb ) activated.notify(*cb);
@@ -220,17 +218,16 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 }
 
 
-void uiButton::setText( const char* txt )
+void uiButton::setText( const uiString& txt )
 {
-    mqbut()->setText( QString( txt ) );
+    text_ = txt;
+    mqbut()->setText( text_.getQtString() );
 }
 
 
-const char* uiButton::text()
+void uiButton::translate()
 {
-    mDeclStaticString( buttxt );
-    buttxt = mqbut()->text();
-    return buttxt.buf();
+    mqbut()->setText( text_.getQtString() );
 }
 
 
@@ -340,23 +337,17 @@ void uiRadioButton::click()
 }
 
 
-uiCheckBox::uiCheckBox( uiParent* p, const char* nm )
+uiCheckBox::uiCheckBox( uiParent* p, const uiString& nm )
     : uiButton(p,nm,0,mkbody(p,nm))
 {}
 
 
-uiCheckBox::uiCheckBox( uiParent* p, const char* nm, const CallBack& cb )
+uiCheckBox::uiCheckBox( uiParent* p, const uiString& nm, const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
 {}
 
 
-void uiCheckBox::setText( const char* txt )
-{
-    mqbut()->setText( QString( txt ) );
-}
-
-
-uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
+uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const uiString& txt )
 {
     body_= new uiCheckBoxBody(*this,parnt,txt);
     return *body_;
