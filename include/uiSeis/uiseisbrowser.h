@@ -37,7 +37,7 @@ mExpClass(uiSeis) uiSeisBrowser : public uiDialog
 public :
 
     mExpClass(uiSeis) Setup : public uiDialog::Setup
-    {
+    { mTextTranslationClass(Setup);
     public:
     			Setup(const MultiID&,Seis::GeomType);
 	mDefSetupMemb(MultiID,id)

@@ -89,9 +89,8 @@ uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
     , startz_(mUdf(float))
     , readonly_(true)
 {
-    wintitle_ = "Browse ";
-    wintitle_ += Seis::nameOf( gt );
-    wintitle_ += " '"; wintitle_ += IOM().nameOf( ky ); wintitle_ += "'";
+    wintitle_ = uiString(tr("Browse %1 '%2'")).arg( Seis::nameOf( gt ) )
+					      .arg(IOM().nameOf( ky ));
 }
 
 
