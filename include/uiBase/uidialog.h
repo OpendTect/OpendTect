@@ -48,11 +48,12 @@ public:
     {
     public:
 
-			Setup( const char* window_title,
-			       const char* dialog_title,
+			Setup( const uiString& window_title,
+			       const uiString& dialog_title,
 			       const char* help_id )
 			: wintitle_(window_title)
-			, dlgtitle_(dialog_title ? dialog_title : window_title)
+			, dlgtitle_(!dialog_title.isEmpty()
+				    ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
@@ -63,12 +64,12 @@ public:
 			, fixedsize_(false), okcancelrev_(false)
 			{}
 
-	mDefSetupMemb(BufferString,wintitle)
-	mDefSetupMemb(BufferString,dlgtitle)
+	mDefSetupMemb(uiString,wintitle)
+	mDefSetupMemb(uiString,dlgtitle)
 	mDefSetupMemb(BufferString,helpid)
-	mDefSetupMemb(BufferString,savetext)
-	mDefSetupMemb(BufferString,oktext)
-	mDefSetupMemb(BufferString,canceltext)
+	mDefSetupMemb(uiString,savetext)
+	mDefSetupMemb(uiString,oktext)
+	mDefSetupMemb(uiString,canceltext)
 	mDefSetupMemb(bool,modal)
 	mDefSetupMemb(bool,applybutton)
 	mDefSetupMemb(bool,savebutton)
@@ -108,29 +109,29 @@ public:
     void		setVSpacing( int );
     void		setBorder( int );
 
-    void		setCaption( const char* txt );
+    void		setCaption( const uiString& txt );
     void		setModal(bool yn);
     bool		isModal() const;
 
     uiButton*		button( Button but );
-    void		setButtonText( Button but, const char* txt );
+    void		setButtonText( Button but, const uiString& txt );
 
     enum CtrlStyle	{ OkAndCancel, RunAndClose, CloseOnly };
 			//! On construction, it's (of course) OkAndCancel
     void		setCtrlStyle(CtrlStyle);
 			//! OK button disabled when set to CloseOnly
     CtrlStyle		getCtrlStyle() const		{ return ctrlstyle_; }
-    void		setOkText(const char*);
+    void		setOkText(const uiString&);
 			//! Cancel button disabled when set to empty
-    void		setCancelText(const char*);
+    void		setCancelText(const uiString&);
 			//! Save button enabled when set to non-empty
-    void		enableSaveButton( const char* txt="Save defaults" );
+    void		enableSaveButton( const uiString& txt="Save defaults" );
 			//! 0: cancel; 1: OK
     int			uiResult() const;
 
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
-    void		setTitleText(const char* txt);
+    void		setTitleText(const uiString& txt);
     bool		hasSaveButton() const;
     bool		saveButtonChecked() const;
 

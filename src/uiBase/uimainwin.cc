@@ -39,7 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "perthreadrepos.h"
 #include "strmprov.h"
-#include "uitexttranslator.h"
 #include "thread.h"
 #include "timer.h"
 
@@ -115,7 +114,7 @@ public:
     void		setModal(bool yn);
     bool		isModal() const			{ return modal_; }
 
-    void		setWindowTitle(const char*);
+    void		setWindowTitle(const uiString&);
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 
@@ -602,7 +601,7 @@ void uiMainWinBody::readSettings()
 }
 
 
-void uiMainWinBody::setWindowTitle( const char* txt )
+void uiMainWinBody::setWindowTitle( const uiString& txt )
 {
     QMainWindow::setWindowTitle(
 		uiMainWin::uniqueWinTitle(txt,this,0).getQtString() );
@@ -639,9 +638,6 @@ void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
 {
     OD::KeyboardKey key = OD::KeyboardKey( ev->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)ev->modifiers() );
-
-    if ( ev && ev->key() == Qt::Key_F12 )
-	handle_.translate();
 
     if ( key == OD::C && modifier == OD::ControlButton )
 	handle_.ctrlCPressed.trigger();
@@ -695,7 +691,7 @@ void uiMainWinBody::managePopupPos()
 
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
-    : uiParent(setup.caption_,0)
+    : uiParent(setup.caption_.getFullString(),0)
     , body_(0)
     , parent_(p)
     , popuparea_(Auto)
@@ -706,11 +702,13 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , caption_(setup.caption_)
     , afterpopuptimer_(0)
 {
-    body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ );
+    body_ = new uiMainWinBody( *this, p, setup.caption_.getFullString(),
+			       setup.modal_ );
     setBody( body_ );
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
-    body_->setWindowIconText(
-	    setup.caption_.isEmpty() ? "OpendTect" : setup.caption_.buf() );
+    body_->setWindowIconText( setup.caption_.isEmpty()
+		? "OpendTect"
+		: setup.caption_.getQtString() );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -845,7 +843,7 @@ void uiMainWin::setCaption( const char* txt )
 const char* uiMainWin::caption( bool unique ) const
 {
     mDeclStaticString( capt );
-    capt = unique ? body_->windowTitle() : caption_.buf();
+    capt = unique ? body_->windowTitle() : caption_.getFullString();
     return capt;
 }
 
@@ -886,7 +884,8 @@ const ObjectSet<uiDockWin>& uiMainWin::dockWins() const
 { return body_->dockWins(); }
 
 
-uiGroup* uiMainWin::topGroup()		   { return body_->uiCentralWidg(); }
+uiGroup* uiMainWin::topGroup()
+{ return body_->uiCentralWidg(); }
 
 
 void uiMainWin::setShrinkAllowed(bool yn)
@@ -1200,43 +1199,11 @@ void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
 { body_->activateInGUIThread( cb, busywait ); }
 
 
-static void doTranslate( const uiBaseObject* obj )
-{
-    uiBaseObject* baseobj = const_cast<uiBaseObject*>( obj );
-    mDynamicCastGet(uiObject*,uiobj,baseobj);
-    mDynamicCastGet(uiGroupObj*,uigrpobj,baseobj);
-    if ( !uigrpobj && uiobj ) uiobj->translate();
-
-    if ( uigrpobj )
-    {
-	const ObjectSet<uiBaseObject>* children = uigrpobj->childList();
-	for ( int idx=0; idx<children->size(); idx++ )
-	    doTranslate( (*children)[idx] );
-    }
-
-    mDynamicCastGet(uiParent*,uipar,baseobj);
-    if ( !uipar ) return;
-
-    const ObjectSet<uiBaseObject>* children = uipar->childList();
-    for ( int idx=0; idx<children->size(); idx++ )
-	doTranslate( (*children)[idx] );
-}
-
-
 void uiMainWin::translate()
 {
-    doTranslate( body_->centralwidget_ );
+    uiParent::translate();
 
-    for ( int idx=0; idx<body_->toolbars_.size(); idx++ )
-    {
-	body_->toolbars_[idx]->translate();
-    }
-
-    for ( int idx=0; idx<body_->dockwins_.size(); idx++ )
-	doTranslate( body_->dockwins_[idx] );
-
-    //if ( menuBar() )
-	//menuBar()->translate();
+    //Don't know if anything special needs to be done here.
 }
 
 
@@ -1368,13 +1335,13 @@ public:
     void		uiSetResult( int v )	{ result_ = v; }
     int			uiResult()		{ return result_; }
 
-    void		setTitleText(const char* txt);
-    void		setOkText(const char*);
+    void		setTitleText(const uiString& txt);
+    void		setOkText(const uiString&);
 			//!< OK button disabled when set to empty
-    void		setCancelText(const char*);
+    void		setCancelText(const uiString&);
 			//!< Cancel button disabled when set to empty
-    void		setApplyText(const char*);
-    void		enableSaveButton(const char* txt);
+    void		setApplyText(const uiString&);
+    void		enableSaveButton(const uiString& txt);
     void		setSaveButtonChecked(bool yn);
     void		setButtonSensitive(uiDialog::Button,bool yn);
     bool		saveButtonChecked() const;
@@ -1399,7 +1366,6 @@ public:
 				    uiObject* other,int margin,bool reciprocal);
     void		provideHelp(CallBacker*);
     void		showCredits(CallBacker*);
-    void		doTranslate(CallBacker*);
 
     const uiDialog::Setup& getSetup() const	{ return setup_; }
 
@@ -1447,7 +1413,7 @@ private:
 
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
-    : uiMainWinBody(hndle,parnt,s.wintitle_,s.modal_)
+    : uiMainWinBody(hndle,parnt,s.wintitle_.getFullString(),s.modal_)
     , dlggrp_(0)
     , setup_(s)
     , okbut_(0), cnclbut_(0), applybut_(0)
@@ -1485,7 +1451,7 @@ int uiDialogBody::exec( bool showminimized )
 }
 
 
-void uiDialogBody::setTitleText( const char* txt )
+void uiDialogBody::setTitleText( const uiString& txt )
 {
     setup_.dlgtitle_ = txt;
     if ( titlelbl_ )
@@ -1494,26 +1460,26 @@ void uiDialogBody::setTitleText( const char* txt )
 	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( titlelbl_->body() );
 	if ( tb && !tb->itemInited() )
 	    titlelbl_->setPrefWidthInChar(
-		    mMAX( tb->prefWidthInCharSet(), strlen(txt) + 2 ));
+	    mMAX( tb->prefWidthInCharSet(), strlen(txt.getFullString()) + 2 ));
     }
 }
 
 
-void uiDialogBody::setOkText( const char* txt )
+void uiDialogBody::setOkText( const uiString& txt )
 {
     setup_.oktext_ = txt;
     if ( okbut_ ) okbut_->setText(txt);
 }
 
 
-void uiDialogBody::setCancelText( const char* txt )
+void uiDialogBody::setCancelText( const uiString& txt )
 {
     setup_.canceltext_ = txt;
     if ( cnclbut_ ) cnclbut_->setText( txt );
 }
 
 
-void uiDialogBody::setApplyText( const char* txt )
+void uiDialogBody::setApplyText( const uiString& txt )
 { if ( applybut_ ) applybut_->setText( txt ); }
 
 
@@ -1547,7 +1513,7 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
 }
 
 
-void uiDialogBody::enableSaveButton( const char* txt )
+void uiDialogBody::enableSaveButton( const uiString& txt )
 { setup_.savetext_ = txt; setup_.savebutton_ = true; }
 
 void uiDialogBody::setSaveButtonChecked( bool yn )
@@ -1673,9 +1639,13 @@ void uiDialogBody::initChildren()
 uiObject* uiDialogBody::createChildren()
 {
     if ( !setup_.oktext_.isEmpty() )
-	okbut_ = new uiPushButton( centralwidget_, setup_.oktext_, true );
+	okbut_ = new uiPushButton( centralwidget_,
+				   setup_.oktext_.getFullString(), true );
+	//TODO: Replace with oktext_ when button can hadle that
     if ( !setup_.canceltext_.isEmpty() )
-	cnclbut_ = new uiPushButton( centralwidget_, setup_.canceltext_, true );
+	cnclbut_ = new uiPushButton( centralwidget_,
+				    setup_.canceltext_.getFullString(), true );
+	//TODO: Replace with canceltext_ when button can hadle that
     if ( setup_.applybutton_ )
 	applybut_ = new uiPushButton( centralwidget_, sApply(), true );
 
@@ -1683,7 +1653,8 @@ uiObject* uiDialogBody::createChildren()
     {
 	if ( setup_.savebutispush_ )
 	    savebuttb_ = new uiToolButton( centralwidget_, "save",
-			  setup_.savetext_, CallBack() );
+			  setup_.savetext_.getFullString(), CallBack() );
+	//TODO: Use savetext_ directly when uiToolbutton supports it
 	else
 	{
 	    savebutcb_ = new uiCheckBox( centralwidget_, setup_.savetext_ );
@@ -1871,13 +1842,6 @@ void uiDialogBody::provideHelp( CallBacker* )
 }
 
 
-void uiDialogBody::doTranslate( CallBacker* )
-{
-    mDynamicCastGet( uiDialog&, dlg, handle_ );
-    dlg.translate();
-}
-
-
 void uiDialogBody::showCredits( CallBacker* )
 {
     mDynamicCastGet( uiDialog&, dlg, handle_ );
@@ -1890,7 +1854,7 @@ void uiDialogBody::showCredits( CallBacker* )
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
-	: uiMainWin( s.wintitle_, p )
+	: uiMainWin( s.wintitle_.getFullString(), p )
 	, cancelpushed_(false)
 {
     body_= new uiDialogBody( *this, p, s );
@@ -1904,7 +1868,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 }
 
 
-void uiDialog::setButtonText( Button but, const char* txt )
+void uiDialog::setButtonText( Button but, const uiString& txt )
 {
     switch ( but )
     {
@@ -1991,10 +1955,10 @@ void uiDialog::done( int i )			{ mBody->done( i ); }
 void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
 void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
-void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
-void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
-void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
-void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
+void uiDialog::setTitleText(const uiString& txt){ mBody->setTitleText(txt); }
+void uiDialog::setOkText( const uiString& txt ) { mBody->setOkText(txt); }
+void uiDialog::setCancelText(const uiString& t) { mBody->setCancelText(t);}
+void uiDialog::enableSaveButton(const uiString& t){ mBody->enableSaveButton(t);}
 uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
@@ -2012,7 +1976,7 @@ bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
-void uiDialog::setCaption( const char* txt )
+void uiDialog::setCaption( const uiString& txt )
     { caption_ = txt; mBody->setWindowTitle( txt ); }
 
 int uiDialog::titlepos_ = 0; // default is centered.

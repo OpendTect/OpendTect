@@ -30,7 +30,7 @@ public:
     void			clear();
 
     virtual void		translate()		{}
-    				/*!<Triggers translation of object and all
+				/*!<Triggers translation of object and all
 				    members to current language. */
 
     inline const uiBody*	body() const		{ return body_; }

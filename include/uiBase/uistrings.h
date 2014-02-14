@@ -21,11 +21,12 @@ ________________________________________________________________________
 mExpClass(uiBase) uiStrings
 { mTextTranslationClass(uiStrings);
 public:
-
+    static inline uiString sAbort()		{ return tr("&Abort"); }
     static inline uiString sAdd(bool immediate);
     static inline uiString sApply()		{ return tr("&Apply"); }
     static inline uiString sCancel()		{ return tr("&Cancel"); }
     static inline uiString sClose()		{ return tr("&Close"); }
+    static inline uiString sContinue()		{ return tr("&Continue"); }
     static inline uiString sEdit(bool immediate);
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }

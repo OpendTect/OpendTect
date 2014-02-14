@@ -291,7 +291,8 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     {
 	BufferString msg = fld.titleText();
 	msg += "-path is referring to previous survey!";
-	res = uiMSG().question( msg, "Continue", "Reset", "Cancel", "Warning" );
+	res = uiMSG().question( msg, uiStrings::sContinue(), "Reset",
+				uiStrings::sCancel(), "Warning" );
 	surveycheck = res<0;
 
 	if ( !res )

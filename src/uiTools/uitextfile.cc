@@ -254,7 +254,8 @@ uiTextFileDlg::uiTextFileDlg( uiParent* p, bool rdonly, bool tbl,
 uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& dlgsetup )
 	: uiDialog(p,dlgsetup)
 {
-    init( dlgsetup, uiTextFile::Setup(true,false,dlgsetup.wintitle_) );
+    init( dlgsetup, uiTextFile::Setup(true,false,
+				      dlgsetup.wintitle_.getFullString()) );
 }
 
 

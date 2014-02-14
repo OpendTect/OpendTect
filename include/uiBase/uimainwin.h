@@ -40,7 +40,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup( const char* capt )
+			Setup( const uiString& capt )
 			: caption_(capt)
 			, icontxt_(capt)
 			, modal_(false)
@@ -49,8 +49,8 @@ public:
 			, nrstatusflds_(1)
 			{}
 
-	mDefSetupMemb(BufferString,caption)
-	mDefSetupMemb(BufferString,icontxt)
+	mDefSetupMemb(uiString,caption)
+	mDefSetupMemb(uiString,icontxt)
 	mDefSetupMemb(bool,modal)
 	mDefSetupMemb(bool,withmenubar)
 	mDefSetupMemb(bool,deleteonclose)
@@ -207,7 +207,7 @@ protected:
 
     PopupArea		popuparea_;
 
-    BufferString	caption_;
+    uiString		caption_;
 
 public:
 			// Not for casual use

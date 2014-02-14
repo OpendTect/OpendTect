@@ -179,7 +179,7 @@ void uiMsg::odfunc( const uiString& text ) \
     if ( text.isEmpty() ) \
 	return; \
 \
-    uiString oktxt = sOk(); \
+    uiString oktxt = uiStrings::sOk(); \
 \
     mCapt(caption); \
     const int refnr = beginCmdRecEvent( utfwintitle.buf() ); \
@@ -268,26 +268,23 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 
 int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
-    const char* notxt = wcancel ? "&Don't remove" : sCancel();
-    const char* canceltxt = sCancel();
+    const uiString notxt = wcancel ? tr("&Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(true), notxt,
-		     wcancel ? canceltxt : 0, "Remove data" );
+		     wcancel ? uiStrings::sCancel() : uiString(0),
+		     tr("Remove data") );
 }
 
 
 int uiMsg::askContinue( const uiString& text )
 {
-    const uiString yestxt = tr("&Continue");
-    const uiString notxt = tr("&Abort");
-    return question( text, yestxt, notxt, 0 );
+    return question( text, uiStrings::sContinue(), uiStrings::sAbort(), 0 );
 }
 
 
 int uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = tr("&Overwrite");
-    const uiString notxt = sCancel();
-    return question( text, yestxt, notxt, 0 );
+    return question( text, yestxt, uiStrings::sCancel(), 0 );
 }
 
 
@@ -300,8 +297,8 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
     mCapt(!text.isEmpty() ? title : tr("Please specify") );
     const int refnr = beginCmdRecEvent( utfwintitle );
 
-    const uiString yestxt = yestxtinp.isEmpty() ? sYes() : yestxtinp;
-    const uiString notxt = notxtinp.isEmpty() ? sNo() : notxtinp;
+    const uiString yestxt = yestxtinp.isEmpty() ? uiStrings::sYes() : yestxtinp;
+    const uiString notxt = notxtinp.isEmpty() ? uiStrings::sNo() : notxtinp;
 
     const int res = QMessageBox::question( popParnt(), wintitle.getQtString(),
 				    text.getQtString(), yestxt.getQtString(),
@@ -324,14 +321,14 @@ void uiMsg::about( const uiString& text )
     mCapt(tr("About"));
     const int refnr = beginCmdRecEvent( utfwintitle );
     QMessageBox::about( popParnt(), wintitle.getQtString(), text.getQtString());
-    endCmdRecEvent( refnr, 0, sOk() );
+    endCmdRecEvent( refnr, 0, uiStrings::sOk().getOriginalString() );
 }
 
 
 bool uiMsg::askGoOn( const uiString& text, bool yn )
 {
-    const char* oktxt = yn ? sYes() : sOk();
-    const char* canceltxt = yn ? sNo() : sCancel();
+    const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
+    const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
 
     return askGoOn( text, oktxt, canceltxt );
 }
@@ -359,9 +356,15 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 {
     mPrepCursor();
 
-    const uiString yestxt = textyesinp.isEmpty() ? sYes() : textyesinp;
-    const uiString notxt = textnoinp.isEmpty() ? sNo() : textnoinp;
-    const uiString cncltxt = cnclmsginp.isEmpty() ? sCancel() : cnclmsginp;
+    const uiString yestxt = textyesinp.isEmpty()
+	? uiStrings::sYes()
+	: textyesinp;
+    const uiString notxt = textnoinp.isEmpty()
+	? uiStrings::sNo()
+	: textnoinp;
+    const uiString cncltxt = cnclmsginp.isEmpty()
+	? uiStrings::sCancel()
+	: cnclmsginp;
 
     mCapt(tr("Please specify"));
     const int refnr = beginCmdRecEvent( utfwintitle );
@@ -380,7 +383,7 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 bool uiMsg::showMsgNextTime( const uiString& text, const uiString& ntmsginp )
 {
     mPrepCursor();
-    const uiString oktxt = sOk();
+    const uiString oktxt = uiStrings::sOk();
     const uiString notmsg = ntmsginp.isEmpty()
 	? tr("&Don't show this message again")
 	: ntmsginp;
