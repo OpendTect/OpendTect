@@ -12,25 +12,28 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 
+class uiBatchJobDispatcherSel;
+class uiGenInput;
 class uiZAxisTransformSel;
 class uiSeisSel;
 class uiPosSubSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
-mClass(uiSeis) uiBatchTime2DepthSetup : public uiFullBatchDialog
+mClass(uiSeis) uiBatchTime2DepthSetup : public uiDialog
 {
 public:
 				uiBatchTime2DepthSetup(uiParent*);
 
 protected:
 
-    bool			fillPar(IOPar&);
+    bool			fillPar();
     bool			prepareProcessing();
     void			dirChangeCB(CallBacker*);
-    void			updateZRangeCB(CallBacker*) {}
+    void			objSelCB(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
     uiGenInput*			directionsel_;
 
@@ -44,6 +47,7 @@ protected:
 
     uiSeisSel*			outputtimesel_;
     uiSeisSel*			outputdepthsel_;
+    uiBatchJobDispatcherSel*	batchfld_;
 };
 
 

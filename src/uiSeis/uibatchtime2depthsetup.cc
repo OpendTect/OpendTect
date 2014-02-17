@@ -16,29 +16,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zdomain.h"
 
+#include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uiveldesc.h"
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
-    : uiFullBatchDialog( p,
-	uiFullBatchDialog::Setup("Time to depth volume conversion")
-	    .procprognm("od_process_time2depth" ) )
+    : uiDialog( p,Setup("Time to depth volume conversion",
+			"Time/Depth conversion","103.2.12") )
 {
-    setTitleText( "Time/Depth conversion" );
-    setHelpID( "103.2.12" );
-
-    directionsel_ = new uiGenInput( uppgrp_, "Direction",
+    directionsel_ = new uiGenInput( this, "Direction",
 	    BoolInpSpec(true, "Time to Depth", "Depth to Time", true ) );
     directionsel_->valuechanged.notify(
 	    mCB(this,uiBatchTime2DepthSetup,dirChangeCB));
 
-    t2dfld_ = new uiZAxisTransformSel( uppgrp_, false, ZDomain::sKeyTime(),
+    t2dfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyTime(),
 				   ZDomain::sKeyDepth(), true );
     t2dfld_->attach( alignedBelow, directionsel_ );
 
-    d2tfld_ = new uiZAxisTransformSel( uppgrp_, false, ZDomain::sKeyDepth(),
+    d2tfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyDepth(),
 				      ZDomain::sKeyTime(), true );
     d2tfld_->attach( alignedBelow, directionsel_ );
 
@@ -60,36 +57,35 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 						ZDomain::sKeyTime() );
     }
     uiSeisSel::Setup sssu(Seis::Vol); sssu.seltxt("Input Time Volume");
-    inputtimesel_ = new uiSeisSel( uppgrp_, inputtimectxt, sssu );
+    inputtimesel_ = new uiSeisSel( this, inputtimectxt, sssu );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
-    inputtimesel_->selectionDone.notify(
-	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB));
     sssu.seltxt("Input Depth Volume");
-    inputdepthsel_ = new uiSeisSel( uppgrp_, inputdepthctxt, sssu );
+    inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
-    inputdepthsel_->selectionDone.notify(
-	    		mCB(this,uiBatchTime2DepthSetup,updateZRangeCB) );
 
-    possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );
+    possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, inputtimesel_ );
 
     IOObjContext outputtimectxt = inputtimectxt;
     outputtimectxt.forread = false;
     sssu.seltxt( "Output Time Volume" );
-    outputtimesel_ = new uiSeisSel( uppgrp_, outputtimectxt, sssu );
+    outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
+    outputtimesel_->selectionDone.notify(
+			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
     outputtimesel_->attach( alignedBelow, possubsel_ );
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread = false;
     sssu.seltxt( "Output Depth Volume" );
-    outputdepthsel_ = new uiSeisSel( uppgrp_, outputdepthctxt, sssu );
+    outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
+    outputdepthsel_->selectionDone.notify(
+			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
     outputdepthsel_->attach( alignedBelow, possubsel_ );
 
-    uppgrp_->setHAlignObj( possubsel_ );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::T2D );
+    batchfld_->attach( alignedBelow, outputdepthsel_ );
 
-    setParFileNmDef( "time2depth" );
-
-    addStdFields( false, true );
     dirChangeCB( 0 );
 }
 
@@ -103,6 +99,16 @@ void uiBatchTime2DepthSetup::dirChangeCB( CallBacker* )
     inputdepthsel_->display( !istime2depth );
     outputtimesel_->display( !istime2depth );
     outputdepthsel_->display( istime2depth );
+}
+
+
+void uiBatchTime2DepthSetup::objSelCB( CallBacker* )
+{
+    const bool istime2depth = directionsel_->getBoolValue();
+    const IOObj* ioobj = istime2depth ? outputdepthsel_->ioobj( true )
+				      : outputtimesel_->ioobj( true );
+    if ( ioobj )
+	batchfld_->setJobName( ioobj->name() );
 }
 
 
@@ -137,7 +143,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 }
 
 
-bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
+bool uiBatchTime2DepthSetup::fillPar()
 {
     const bool istime2depth = directionsel_->getBoolValue();
     RefMan<ZAxisTransform> trans = istime2depth
@@ -168,6 +174,7 @@ bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
     if ( !output )
 	return false;
 
+    IOPar& par = batchfld_->jobSpec().pars_;
     par.set( ProcessTime2Depth::sKeyInputVolume(),  input->key() );
     possubsel_->fillPar( par );
 
@@ -184,4 +191,10 @@ bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 	       directionsel_->getBoolValue() );
 
     return true;
+}
+
+
+bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
 }
