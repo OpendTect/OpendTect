@@ -334,7 +334,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 {
     plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
     plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    setPolyLines( 0 ); delete mathobj_; delete mathobj1_;
+    delete mathobj_; delete mathobj1_;
 }
 
 
