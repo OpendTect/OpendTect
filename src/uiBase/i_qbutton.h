@@ -23,32 +23,38 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_ButMessenger : public QObject 
-{ 
+class i_ButMessenger : public QObject
+{
+
     Q_OBJECT
     friend class	uiButton;
+
 public:
 
-i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
+i_ButMessenger( QAbstractButton& sndr, uiButtonMessenger& receiver )
     : receiver_(receiver)
     , sender_(sndr)
 {
-    connect( sender_, SIGNAL(clicked()), this, SLOT(clicked()) );
-    connect( sender_, SIGNAL(pressed()), this, SLOT(pressed()) );
-    connect( sender_, SIGNAL(released()), this, SLOT(released()) );
-    connect( sender_, SIGNAL(toggled(bool)), this, SLOT(toggled(bool)) );
+#define mConnectButMsngr(nm,args) \
+    connect( &sender_, SIGNAL(nm(args)), this, SLOT(nm(args)) )
+
+    mConnectButMsngr( toggled, bool );
+    mConnectButMsngr( clicked, );
+    mConnectButMsngr( pressed, );
+    mConnectButMsngr( released, );
 }
 
 private:
 
-    uiButtonBody*		receiver_;
-    QAbstractButton*	sender_;
+    uiButtonMessenger&	receiver_;
+    QAbstractButton&	sender_;
 
 public slots:
-void toggled(bool)	{ receiver_->notifyHandler( uiButtonBody::toggled ); }
-void clicked()		{ receiver_->notifyHandler( uiButtonBody::clicked ); }
-void pressed()		{ receiver_->notifyHandler( uiButtonBody::pressed ); }
-void released()		{ receiver_->notifyHandler( uiButtonBody::released); }
+
+    void toggled(bool)	{ receiver_.notifyHandler(uiButtonMessenger::toggled); }
+    void clicked()	{ receiver_.notifyHandler(uiButtonMessenger::clicked); }
+    void pressed()	{ receiver_.notifyHandler(uiButtonMessenger::pressed); }
+    void released()	{ receiver_.notifyHandler(uiButtonMessenger::released);}
 
 };
 

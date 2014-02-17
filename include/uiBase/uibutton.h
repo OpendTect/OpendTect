@@ -28,7 +28,8 @@ mFDQtclass(QEvent)
 mFDQtclass(QMenu)
 
 
-//!\brief Button Abstract Base class
+//!\brief is the base class for all buttons.
+
 mExpClass(uiBase) uiButton : public uiObject
 {
 public:
@@ -37,79 +38,75 @@ public:
     virtual		~uiButton()		{}
 
     virtual void	setText(const uiString&);
-    const uiString&	text() const { return text_; }
+    const uiString&	text() const			{ return text_; }
+    void		setPixmap(const char*);
+    void		setPixmap( const ioPixmap& pm ) { setPM(pm); }
 
-    virtual void	click()			{}
+    virtual void	click()		= 0;
 
     Notifier<uiButton>	activated;
 
+			//! Not for casual use
+    mQtclass(QAbstractButton*)	qButton();
+
 protected:
-    void		translateText();
+
     uiString		text_;
 
-public:
-    			//! Not for casual use
-    mQtclass(QAbstractButton*)	qButton();
+    virtual void	translateText();
+    virtual void	setPM(const ioPixmap&);
+
 };
 
 
 /*!\brief Push button. By default, assumes immediate action, not a dialog
   when pushed. The button text will in that case get an added " ..." to the
   text. In principle, it could also get another appearance.
-  */
+*/
 
 mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
-				uiPushButton(uiParent*,const uiString& nm,
-					     bool immediate);
-				uiPushButton(uiParent*,const uiString& nm,
-					     const CallBack&,
-					     bool immediate); 
-				uiPushButton(uiParent*,const uiString& nm,
-					     const ioPixmap&,
-					     bool immediate);
-				uiPushButton(uiParent*,const uiString& nm,
-					     const ioPixmap&,const CallBack&,
-					     bool immediate);
-				~uiPushButton();
+			uiPushButton(uiParent*,const uiString& nm,
+				     bool immediate);
+			uiPushButton(uiParent*,const uiString& nm,
+				     const CallBack&,bool immediate);
+			uiPushButton(uiParent*,const uiString& nm,
+				     const ioPixmap&,bool immediate);
+			uiPushButton(uiParent*,const uiString& nm,
+				     const ioPixmap&,const CallBack&,
+				     bool immediate);
 
-    void			setDefault(bool yn=true);
-    void			setPixmap(const char*);
-    void			setPixmap(const ioPixmap&);
-    				//! Size of pixmap is 1/2 the size of button
-
-    void			click();
+    void		setDefault(bool yn=true);
+    void		click();
 
 private:
 
-    void			translateText();
-    void			updateText();
+    void		translateText();
+    void		updateText();
 
-    bool			immediate_;
-
-    uiPushButtonBody*		body_;
-    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,
-				       const uiString&);
+    bool		immediate_;
+    uiPushButtonBody*	pbbody_;
+    uiPushButtonBody&	mkbody(uiParent*,const uiString&);
 };
 
 
 mExpClass(uiBase) uiRadioButton : public uiButton
-{                        
+{
 public:
-				uiRadioButton(uiParent*,const uiString&);
-				uiRadioButton(uiParent*,const uiString&,
-					      const CallBack&);
+			uiRadioButton(uiParent*,const uiString&);
+			uiRadioButton(uiParent*,const uiString&,
+				      const CallBack&);
 
-    bool			isChecked() const;
-    virtual void		setChecked(bool yn=true);
+    bool		isChecked() const;
+    virtual void	setChecked(bool yn=true);
 
-    void			click();
+    void		click();
 
 private:
 
-    uiRadioButtonBody*		body_;
-    uiRadioButtonBody&		mkbody(uiParent*,const uiString&);
+    uiRadioButtonBody*	rbbody_;
+    uiRadioButtonBody&	mkbody(uiParent*,const uiString&);
 
 };
 
@@ -118,43 +115,42 @@ mExpClass(uiBase) uiCheckBox: public uiButton
 {
 public:
 
-				uiCheckBox(uiParent*,const uiString&);
-				uiCheckBox(uiParent*,const uiString&,
-					   const CallBack&);
+			uiCheckBox(uiParent*,const uiString&);
+			uiCheckBox(uiParent*,const uiString&,
+				   const CallBack&);
 
-    bool			isChecked() const;
-    void			setChecked(bool yn=true);
+    bool		isChecked() const;
+    void		setChecked(bool yn=true);
 
-    void			click();
+    void		click();
 
 private:
 
-    uiCheckBoxBody*		body_;
-    uiCheckBoxBody&		mkbody(uiParent*,const uiString&);
+    uiCheckBoxBody*	cbbody_;
+    uiCheckBoxBody&	mkbody(uiParent*,const uiString&);
 
 };
 
 
 //! Button Abstract Base class
-mExpClass(uiBase) uiButtonBody
+
+mExpClass(uiBase) uiButtonMessenger
 {
     friend class        i_ButMessenger;
 
 public:
-			uiButtonBody()				{}
-    virtual		~uiButtonBody()				{}
+
+			uiButtonMessenger()		{}
+    virtual		~uiButtonMessenger()		{}
 
     //! Button signals emitted by Qt.
     enum notifyTp       { clicked, pressed, released, toggled };
-    
+
 protected:
 
     //! Handler called from Qt.
-    virtual void        notifyHandler(notifyTp)			=0;
+    virtual void	notifyHandler(notifyTp)		= 0;
+
 };
 
-
-
-
 #endif
-

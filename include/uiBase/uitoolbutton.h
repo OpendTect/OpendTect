@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uibutton.h"
 #include "uiicons.h"
+
 class uiToolButtonBody;
 class uiToolButtonSetup;
 
@@ -28,10 +29,10 @@ public:
 				uiToolButton(uiParent*,
 					     const uiToolButtonSetup&);
 				uiToolButton(uiParent*,const char* filenm,
-					     const char* tooltip,
+					     const uiString& tooltip,
 					     const CallBack&);
 				uiToolButton(uiParent*,ArrowType,
-					     const char* tooltip,
+					     const uiString& tooltip,
 					     const CallBack&);
 				~uiToolButton();
 
@@ -41,8 +42,6 @@ public:
     void			setToggleButton(bool yn=true);
     bool			isToggleButton() const;
 
-    void			setPixmap(const char*);
-    void			setPixmap(const ioPixmap&);
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
@@ -57,14 +56,16 @@ public:
 
 private:
 
-    uiToolButtonBody*		body_;
-    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap&, const char*);
+    uiToolButtonBody*		tbbody_;
+    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap&,
+				       const uiString&);
 
     int				id_; // Used by toolbar
 
     uiMenu*			uimenu_;
     mQtclass(QMenu*)		qmenu_;
 
+    virtual void		setPM(const ioPixmap&);
 };
 
 
@@ -74,7 +75,7 @@ mExpClass(uiBase) uiToolButtonSetup
 {
 public:
 			uiToolButtonSetup( const char* fnm, const char* tt,
-					    const CallBack& c, const char* nm=0 )
+					   const CallBack& c, const char* nm=0 )
 			    : filename_(fnm)
 			    , cb_(c)
 			    , tooltip_(tt)

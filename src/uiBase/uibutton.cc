@@ -33,203 +33,187 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-//! Wrapper around QButtons.
-/*!
-    Extends each QButton class <T> with a i_ButMessenger, which connects
-    itself to the signals transmitted from Qt buttons.  Each signal is
-    relayed to the notifyHandler of a uiButton handle object.
-*/
-template< class T > class uiButtonTemplBody : public uiButtonBody,
-    public uiObjectBody, public T { public:
 
-			uiButtonTemplBody( uiButton& hndle, uiParent* p,
-					   const uiString& txt )
-			    : uiObjectBody( p, txt.getFullString() )
-                            , T(p && p->pbody() ? p->pbody()->managewidg() : 0 )
-                            , handle_( hndle )
-			    , messenger_ ( *new i_ButMessenger( this, this) )
-			    , idInGroup( 0 )
-			    {
-				this->setText(txt.getQtString());
-				setHSzPol( uiObject::SmallVar );
-			    }
-
-			uiButtonTemplBody(uiButton& hndle,
-				     const ioPixmap& pm,
-				     uiParent* parnt, const uiString& txt)
-			    : uiObjectBody( parnt, txt.getFullString() )
-			    , T( QIcon(*pm.qpixmap()),txt.getQtString(),
-					parnt && parnt->pbody() ?
-					parnt->pbody()->managewidg() : 0 )
-                            , handle_( hndle )
-			    , messenger_ ( *new i_ButMessenger( this, this) )
-			    , idInGroup( 0 )
-			    {
-				this->setText(txt.getQtString());
-				setHSzPol( uiObject::SmallVar );
-			    }
-
-#define mHANDLE_OBJ	uiButton
-#include                "i_uiobjqtbody.h"
-
-public:
-
-    virtual		~uiButtonTemplBody()		{ delete &messenger_; }
-
-    virtual QAbstractButton&    qButton() = 0;
-    inline const QAbstractButton& qButton() const
-                        { return ((uiButtonTemplBody*)this)->qButton(); }
-
-    virtual int	nrTxtLines() const		{ return 1; }
-
-protected:
-
-    i_ButMessenger&     messenger_;
-    int                 idInGroup;
-
-    void		doNotify()
-			{
-			    const int refnr = handle_.beginCmdRecEvent();
-			    handle_.activated.trigger(handle_);
-			    handle_.endCmdRecEvent( refnr );
-			}
-};
-
-class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
+class uiButtonBody : public uiObjectBody
+		   , public uiButtonMessenger
 {
 public:
-			uiPushButtonBody( uiButton& hndle,
-					  uiParent* parnt, const uiString& txt )
-		     : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
-		     , iconfrac_(0.75)
-		     {}
 
-			uiPushButtonBody( uiButton& hndle, const ioPixmap& pm,
-					  uiParent* parnt, const uiString& txt )
-			    : uiButtonTemplBody<QPushButton>
-					(hndle,pm,parnt,txt)
-			    , iconfrac_(0.75)
-			    {}
+uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
+	      QAbstractButton& qbut )
+    : uiObjectBody(p,txt.getFullString())
+    , messenger_(qbut,*this)
+    , iconfrac_(0.75)
+    , qbut_(qbut)
+    , uibut_(uibut)
+{
+    qbut_.setText( txt.getQtString() );
+    setHSzPol( uiObject::SmallVar );
+}
 
-    void		setIconFrac( float icf )
-			{
-			    if ( icf<=0.0 || icf>1.0 ) return;
+void setIconFrac( float icf )
+{
+    if ( icf<=0.0f || icf>1.0f )
+	icf = 1.0f;
+
 #ifdef __win__
-			    setIconSize( qbutsize_ );
+    qbut_.setIconSize( qbutsize_ );
 #else
-			    setIconSize( QSize(mNINT32(width()*icf),
-					       mNINT32(height()*icf)) );
+    qbut_.setIconSize( QSize(mNINT32(qbut_.width()*icf),
+		       mNINT32(qbut_.height()*icf)) );
 #endif
-			    iconfrac_ = icf;
-			}
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+    iconfrac_ = icf;
 
-protected:
+}
 
-    virtual void        notifyHandler( notifyTp tp )
-			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
+void doNotify()
+{
+    const int refnr = uibut_.beginCmdRecEvent();
+    uibut_.activated.trigger(uibut_);
+    uibut_.endCmdRecEvent( refnr );
+}
 
-    void		resizeEvent( QResizeEvent* ev )
-			{
-			    uiParent* hpar = handle_.parent();
-			    mDynamicCastGet(uiToolBar*,tb,hpar)
-			    if ( hpar && !tb )
-			    {
-			        if ( ev ) qbutsize_ = ev->size();
-				setIconFrac( iconfrac_ );
-			    }
+virtual int nrTxtLines() const
+{
+    return 1;
+}
 
-			    QPushButton::resizeEvent( ev );
-			}
-
+    uiButton&		uibut_;
+    QAbstractButton&	qbut_;
+    i_ButMessenger	messenger_;
     float		iconfrac_;
     QSize		qbutsize_;
 };
 
 
-class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
-{
-public:
-			uiRadioButtonBody(uiButton& hndle,
-				     uiParent* parnt, const uiString& txt)
-		    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
-		    {}
+//! Wrapper around QButtons.
+/*!
+    Extends each QButton class <ButT> with a i_ButMessenger, which connects
+    itself to the signals transmitted from Qt buttons.	Each signal is
+    relayed to the notifyHandler of a uiButton handle object.
+*/
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
-
-protected:
-
-    virtual void        notifyHandler( notifyTp tp )
-			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
-};
-
-
-class uiCheckBoxBody: public uiButtonTemplBody<QCheckBox>
+template<class ButT>
+class uiButtonTemplBody : public ButT
+			, public uiButtonBody
 {
 public:
 
-			uiCheckBoxBody(uiButton& hndle,
-				     uiParent* parnt, const uiString& txt)
-		       : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
-		       {}
-
-    virtual QAbstractButton&    qButton()	{ return *this; }
-
-protected:
-
-    virtual void        notifyHandler( notifyTp tp )
-			{ if ( tp == uiButtonBody::toggled ) doNotify(); }
-};
-
-
-class uiToolButtonBody : public uiButtonTemplBody<QToolButton>
+uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
+    : uiButtonBody( uibut, p, txt, *this )
+    , ButT( p && p->pbody() ? p->pbody()->managewidg() : 0 )
+    , handle_(uibut)
 {
-public:
-			uiToolButtonBody(uiButton& hndle,
-				     uiParent* parnt, const char* txt)
-		     : uiButtonTemplBody<QToolButton>(hndle,parnt,txt)
-		      {
-			  setFocusPolicy( Qt::ClickFocus );
-		      }
+}
 
+#define mHANDLE_OBJ	uiButton
+#define mQWIDGET_BODY	QAbstractButton
+#include "i_uiobjqtbody.h"
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+void resizeEvent( QResizeEvent* ev )
+{
+    uiParent* hpar = uibut_.parent();
+    mDynamicCastGet(uiToolBar*,tb,hpar)
+    if ( hpar && !tb )
+    {
+	if ( ev )
+	    qbutsize_ = ev->size();
+	setIconFrac( iconfrac_ );
+    }
 
+    QAbstractButton::resizeEvent( ev );
+}
 
-protected:
+void setPixmap( const ioPixmap& pm )
+{
+    qbut_.setIcon( QIcon(*pm.qpixmap()) );
+}
 
-    virtual void        notifyHandler( notifyTp tp )
-			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
+#define mDefButtonBodyClass(nm,reactsto,constr_code) \
+class ui##nm##Body : public uiButtonTemplBody<Q##nm> \
+{ \
+public: \
+ \
+ui##nm##Body( uiButton& uibut, uiParent* parnt, const uiString& txt ) \
+    : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
+{ \
+    setText( txt.getQtString() ); \
+    constr_code; \
+} \
+ \
+ui##nm##Body( uiButton& uibut, const ioPixmap& pm, \
+	      uiParent* parnt, const uiString& txt ) \
+    : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
+{ \
+    setText( txt.getQtString() ); \
+    setPixmap( pm ); \
+    constr_code; \
+} \
+ \
+protected: \
+ \
+virtual void notifyHandler( notifyTp tp ) \
+{ \
+    if ( tp == uiButtonMessenger::reactsto ) \
+	doNotify(); \
+} \
+ \
+}
 
-#define mqbut()         dynamic_cast<QAbstractButton*>( body() )
+
+// uiButton
+
+mDefButtonBodyClass(PushButton,clicked,);
+mDefButtonBodyClass(RadioButton,clicked,);
+mDefButtonBodyClass(CheckBox,toggled,);
+mDefButtonBodyClass(ToolButton,clicked,setFocusPolicy( Qt::ClickFocus ));
+
+#define muiButBody() dynamic_cast<uiButtonBody&>( *body() )
 
 uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
-    : uiObject( parnt, nm.getFullString(), b )
-    , activated( this )
-    , text_( nm )
+    : uiObject(parnt,nm.getFullString(),b)
+    , activated(this)
+    , text_(nm)
 {
     if ( cb ) activated.notify(*cb);
 
     mDynamicCastGet(uiButtonGroup*,butgrp,parnt)
-    if ( butgrp ) butgrp->addButton( this );
+    if ( butgrp )
+	butgrp->addButton( this );
+}
+
+
+void uiButton::setPixmap( const char* pmnm )
+{
+    setPM( ioPixmap(pmnm) );
+}
+
+
+void uiButton::setPM( const ioPixmap& pm )
+{
+    if ( !isMainThreadCurrent() )
+	return;
+
+    muiButBody().setIconFrac( 0.7 );
+    qButton()->setIcon( *pm.qpixmap() );
 }
 
 
 void uiButton::setText( const uiString& txt )
 {
     text_ = txt;
-    mqbut()->setText( text_.getQtString() );
+    qButton()->setText( text_.getQtString() );
 }
 
 
 void uiButton::translateText()
 {
     uiObject::translateText();
-    mqbut()->setText( text_.getQtString() );
+    qButton()->setText( text_.getQtString() );
 }
 
 
@@ -239,18 +223,21 @@ QAbstractButton* uiButton::qButton()
 }
 
 
+#define mQBut(typ) dynamic_cast<Q##typ&>( *body() )
+
+// uiPushButton
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
-    , immediate_( ia )
+    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
+    , immediate_(ia)
 {
     updateText();
 }
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
-			   const CallBack& cb, bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
-    , immediate_( ia )
+			    const CallBack& cb, bool ia )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,nm) )
+    , immediate_(ia)
 {
     updateText();
 }
@@ -258,34 +245,28 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 			    const ioPixmap& pm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
-    , immediate_( ia )
+    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
+    , immediate_(ia)
 {
     updateText();
+    setPixmap( pm );
 }
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 			    const ioPixmap& pm, const CallBack& cb, bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
-    , immediate_( ia )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,nm) )
+    , immediate_(ia)
 {
     updateText();
+    setPixmap( pm );
 }
 
 
-uiPushButton::~uiPushButton()
+uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
-}
-
-
-uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
-					const uiString& txt )
-{
-    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,txt);
-    else	body_ = new uiPushButtonBody(*this,parnt,txt);
-
-    return *body_;
+    pbbody_ = new uiPushButtonBody( *this, parnt, txt );
+    return *pbbody_;
 }
 
 
@@ -301,61 +282,56 @@ void uiPushButton::updateText()
     if ( !newtext.isEmpty() && !immediate_ )
 	newtext.append( " ..." );
 
-    mqbut()->setText( newtext );
+    qButton()->setText( newtext );
 }
 
 
 void uiPushButton::setDefault( bool yn )
 {
-    body_->setDefault( yn );
+    mQBut(PushButton).setDefault( yn );
     setFocus();
 }
 
 
-void uiPushButton::setPixmap( const char* pmnm )
+void uiPushButton::click()
 {
-    setPixmap( ioPixmap(pmnm) );
+    activated.trigger();
 }
 
 
-void uiPushButton::setPixmap( const ioPixmap& pm )
-{
-    if ( !isMainThreadCurrent() )
-	return;
-
-    body_->setIconFrac( 0.7 );
-    body_->setIcon( *pm.qpixmap() );
-}
-
-
-void uiPushButton::click()			{ activated.trigger(); }
-
-
+// uiRadioButton
 uiRadioButton::uiRadioButton( uiParent* p, const uiString& nm )
     : uiButton(p,nm,0,mkbody(p,nm))
-{}
+{
+}
 
 
 uiRadioButton::uiRadioButton( uiParent* p, const uiString& nm,
 			      const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
-{}
-
-
-uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const uiString& txt )
 {
-    body_= new uiRadioButtonBody(*this,parnt,txt);
-    return *body_;
 }
 
 
-bool uiRadioButton::isChecked() const		{ return body_->isChecked (); }
+uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt,
+					  const uiString& txt )
+{
+    rbbody_ = new uiRadioButtonBody( *this, parnt, txt );
+    return *rbbody_;
+}
+
+
+bool uiRadioButton::isChecked() const
+{
+    return rbbody_->isChecked ();
+}
 
 void uiRadioButton::setChecked( bool check )
 {
     mBlockCmdRec;
-    body_->setChecked( check );
+    rbbody_->setChecked( check );
 }
+
 
 void uiRadioButton::click()
 {
@@ -364,29 +340,36 @@ void uiRadioButton::click()
 }
 
 
+// uiCheckBox
 uiCheckBox::uiCheckBox( uiParent* p, const uiString& nm )
     : uiButton(p,nm,0,mkbody(p,nm))
-{}
+{
+}
 
 
 uiCheckBox::uiCheckBox( uiParent* p, const uiString& nm, const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
-{}
+{
+}
 
 
 uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const uiString& txt )
 {
-    body_= new uiCheckBoxBody(*this,parnt,txt);
-    return *body_;
+    cbbody_ = new uiCheckBoxBody( *this, parnt, txt );
+    return *cbbody_;
 }
 
-bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
+
+bool uiCheckBox::isChecked () const
+{
+    return cbbody_->isChecked();
+}
 
 
 void uiCheckBox::setChecked ( bool check )
 {
     mBlockCmdRec;
-    body_->setChecked( check );
+    cbbody_->setChecked( check );
 }
 
 
@@ -415,7 +398,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 static int preftbsz = -1;
 #define mSetDefPrefSzs() \
     if ( preftbsz < 0 ) \
-	body_->setIconSize( QSize(iconSize(),iconSize()) ); \
+	tbbody_->setIconSize( QSize(iconSize(),iconSize()) ); \
     mDynamicCastGet(uiToolBar*,tb,parnt) \
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
@@ -443,25 +426,25 @@ uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
 
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
-			    const char* tt, const CallBack& cb )
+			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
 	        mkbody(parnt,ioPixmap(fnm),tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
-    setToolTip( tt );
+    setToolTip( tt.getFullString() );
 }
 
 
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
-			    const char* tt, const CallBack& cb )
+			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
 	        mkbody(parnt,ioPixmap(uiIcon::None()),tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
     setArrowType( at );
-    setToolTip( tt );
+    setToolTip( tt.getFullString() );
 }
 
 
@@ -473,27 +456,27 @@ uiToolButton::~uiToolButton()
 
 
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
-					const char* txt)
+					const uiString& txt)
 {
-    body_ = new uiToolButtonBody(*this,parnt,txt);
+    tbbody_ = new uiToolButtonBody(*this,parnt,txt);
     if ( pm.qpixmap() )
-        body_->setIcon( *pm.qpixmap() );
+	tbbody_->setIcon( QIcon(*pm.qpixmap()) );
 
-    return *body_;
+    return *tbbody_;
 }
 
 
-bool uiToolButton::isOn() const		{ return body_->isChecked(); }
+bool uiToolButton::isOn() const { return tbbody_->isChecked(); }
 
 void uiToolButton::setOn( bool yn )
 {
     mBlockCmdRec;
-    body_->setChecked( yn );
+    tbbody_->setChecked( yn );
 }
 
 
-bool uiToolButton::isToggleButton() const     { return body_->isCheckable();}
-void uiToolButton::setToggleButton( bool yn ) { body_->setCheckable( yn ); }
+bool uiToolButton::isToggleButton() const     { return tbbody_->isCheckable();}
+void uiToolButton::setToggleButton( bool yn ) { tbbody_->setCheckable( yn ); }
 
 
 void uiToolButton::click()
@@ -504,17 +487,12 @@ void uiToolButton::click()
 }
 
 
-void uiToolButton::setPixmap( const char* pmnm )
-{
-    setPixmap( ioPixmap(pmnm) );
-}
-
-void uiToolButton::setPixmap( const ioPixmap& pm )
+void uiToolButton::setPM( const ioPixmap& pm )
 {
     if ( !isMainThreadCurrent() )
 	return;
 
-    body_->setIcon( QIcon(*pm.qpixmap()) );
+    tbbody_->setIcon( QIcon(*pm.qpixmap()) );
 }
 
 
@@ -529,14 +507,14 @@ void uiToolButton::setArrowType( ArrowType type )
 	case RightArrow: setPixmap( "rightarrow" ); break;
     }
 #else
-    body_->setArrowType( (Qt::ArrowType)(int)type );
+    tbbody_->setArrowType( (Qt::ArrowType)(int)type );
 #endif
 }
 
 
 void uiToolButton::setShortcut( const char* sc )
 {
-    body_->setShortcut( QString(sc) );
+    tbbody_->setShortcut( QString(sc) );
 }
 
 
@@ -554,6 +532,6 @@ void uiToolButton::setMenu( uiMenu* mnu )
 	qmenu_->addAction( qact );
     }
 
-    body_->setMenu( qmenu_ );
-    body_->setPopupMode( QToolButton::MenuButtonPopup );
+    tbbody_->setMenu( qmenu_ );
+    tbbody_->setPopupMode( QToolButton::MenuButtonPopup );
 }

@@ -22,17 +22,13 @@ ________________________________________________________________________
 # define mQWIDGET_BASE	mQWIDGET_BODY
 #endif
 
-#ifndef mTHIS_QWIDGET
-# define mTHIS_QWIDGET	this
-#endif
 
 public:
 
-    virtual const QWidget*
-			qwidget_() const { return mTHIS_QWIDGET; }
+    virtual const QWidget* qwidget_() const { return this; }
 
 #ifndef UIBASEBODY_ONLY
-			//! over-ride Qt
+			//! override Qt
     virtual void	setFont( const QFont& )
 			{
 			    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
@@ -42,10 +38,9 @@ public:
     virtual void	fontChange( const QFont& oldFont )
 			{
 			    uiBody::fontchanged();
-//			    mQWIDGET_BASE::fontChange( oldFont );
 			}
 
-			//! over-ride Qt
+			//! override Qt
     virtual void	closeEvent( QCloseEvent *e )
 			{
 			    if ( uiCloseOK() )
