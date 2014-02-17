@@ -22,6 +22,7 @@ class BufferStringSet;
 class uiLabel;
 class uiListBoxBody;
 class uiMenu;
+class uiString;
 
 mFDQtclass(QListWidgetItem)
 
@@ -189,25 +190,23 @@ public:
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
-			uiLabeledListBox(uiParent*,const char* lbltxt,
+			uiLabeledListBox(uiParent*,const uiString& lbltxt,
 					 bool multisel=false,LblPos p=LeftTop);
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
-					 const char* lbltxt,
+					 const uiString& lbltxt,
 					 bool multisel=false,LblPos p=LeftTop);
 
-    uiListBox*		box()				{ return lb; }
-    int			nrLabels() const		{ return lbls.size(); }
-    uiLabel*		label( int nr=0 )		{ return lbls[nr]; }
-    const char*		labelText(int nr=0) const;
+    uiListBox*		box()				{ return lb_; }
+    int 		nrLabels() const		{ return lbls_.size(); }
+    uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const char*,int nr=0);
-
 
 protected:
 
-    uiListBox*		lb;
-    ObjectSet<uiLabel>	lbls;
+    uiListBox*		lb_;
+    ObjectSet<uiLabel>	lbls_;
 
-    void		mkRest(const char*,LblPos);
+    void		mkRest(const uiString&,LblPos);
 
 };
 

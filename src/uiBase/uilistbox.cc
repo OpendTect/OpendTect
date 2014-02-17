@@ -939,45 +939,40 @@ void uiListBox::scrollToBottom()
 
 
 // -------------- uiLabeledListBox ----------------
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const char* txt, bool multisel,
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
+				    bool multisel,
 				    uiLabeledListBox::LblPos pos )
 	: uiGroup(p,"Labeled listbox")
 {
-    lb = new uiListBox( this, txt, multisel );
+    lb_ = new uiListBox( this, txt.getFullString(), multisel );
     mkRest( txt, pos );
 }
 
 
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
-				    const char* txt,
+				    const uiString& txt,
 				    bool multisel, uiLabeledListBox::LblPos pos)
 	: uiGroup(p,"Labeled listbox")
 {
-    lb = new uiListBox( this, s, txt, multisel );
+    lb_ = new uiListBox( this, s, txt.getFullString(), multisel );
     mkRest( txt, pos );
 }
 
 
 void uiLabeledListBox::setLabelText( const char* txt, int nr )
 {
-    if ( nr >= lbls.size() ) return;
-    lbls[nr]->setText( txt );
+    if ( nr >= lbls_.size() ) return;
+    lbls_[nr]->setText( txt );
 }
 
 
-const char* uiLabeledListBox::labelText( int nr ) const
+void uiLabeledListBox::mkRest( const uiString& txt,
+			       uiLabeledListBox::LblPos pos )
 {
-    if ( nr >= lbls.size() ) return "";
-    return lbls[nr]->text();
-}
-
-
-void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
-{
-    setHAlignObj( lb );
+    setHAlignObj( lb_ );
 
     BufferStringSet txts;
-    BufferString s( txt );
+    BufferString s( txt.getFullString() );
     char* ptr = s.getCStr();
     if( !ptr || !*ptr ) return;
     while ( 1 )
@@ -995,39 +990,39 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
 
     uiLabel* labl = new uiLabel( this, ptr );
-    lbls += labl;
+    lbls_ += labl;
     constraintType lblct = alignedBelow;
     switch ( pos )
     {
     case LeftTop:
-	lb->attach( rightOf, labl );		lblct = rightAlignedBelow;
+	lb_->attach( rightOf, labl );		lblct = rightAlignedBelow;
     break;
     case RightTop:
-	labl->attach( rightOf, lb );		lblct = alignedBelow;
+	labl->attach( rightOf, lb_ );		lblct = alignedBelow;
     break;
     case LeftMid:
-	labl->attach( centeredLeftOf, lb );	lblct = alignedBelow;
+	labl->attach( centeredLeftOf, lb_ );	lblct = alignedBelow;
     break;
     case RightMid:
-	labl->attach( centeredRightOf, lb );	lblct = alignedBelow;
+	labl->attach( centeredRightOf, lb_ );	lblct = alignedBelow;
     break;
     case AboveLeft:
-	lb->attach( alignedBelow, labl );	lblct = alignedAbove;
+	lb_->attach( alignedBelow, labl );	lblct = alignedAbove;
     break;
     case AboveMid:
-	lb->attach( centeredBelow, labl );	lblct = centeredAbove;
+	lb_->attach( centeredBelow, labl );	lblct = centeredAbove;
     break;
     case AboveRight:
-	lb->attach( rightAlignedBelow, labl );	lblct = rightAlignedAbove;
+	lb_->attach( rightAlignedBelow, labl ); lblct = rightAlignedAbove;
     break;
     case BelowLeft:
-	labl->attach( alignedBelow, lb );	lblct = alignedBelow;
+	labl->attach( alignedBelow, lb_ );	lblct = alignedBelow;
     break;
     case BelowMid:
-	labl->attach( centeredBelow, lb );	lblct = centeredBelow;
+	labl->attach( centeredBelow, lb_ );	lblct = centeredBelow;
     break;
     case BelowRight:
-	labl->attach( rightAlignedBelow, lb );	lblct = rightAlignedBelow;
+	labl->attach( rightAlignedBelow, lb_ ); lblct = rightAlignedBelow;
     break;
     }
 
@@ -1037,7 +1032,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
 	uiLabel* cur = new uiLabel( this, (last1st
 			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
 	cur->attach( lblct, labl );
-	lbls += cur;
+	lbls_ += cur;
 	labl = cur;
 	nrleft--;
     }
