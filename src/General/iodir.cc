@@ -20,7 +20,8 @@ IODir::IODir( const char* dirnm )
 	, dirname_(dirnm)
 	, curid_(0)
 {
-    if ( build() ) isok_ = true;
+    if ( build() )
+	isok_ = true;
 }
 
 
@@ -40,7 +41,8 @@ IODir::IODir( const MultiID& ky )
     dirname_ = ioobj->dirName();
     delete ioobj;
 
-    if ( build() ) isok_ = true;
+    if ( build() )
+	isok_ = true;
 }
 
 
@@ -246,9 +248,15 @@ bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 
 void IODir::reRead()
 {
-    deepErase(objs_);
-    curid_ = 0;
-    if ( build() ) isok_ = true;
+    IODir rdiodir( dirname_ );
+    if ( rdiodir.isok_ && rdiodir.main() && rdiodir.size() > 1 )
+    {
+	deepErase( objs_ );
+	objs_ = rdiodir.objs_;
+	rdiodir.objs_.erase();
+	curid_ = rdiodir.curid_;
+	isok_ = true;
+    }
 }
 
 
