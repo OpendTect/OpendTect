@@ -184,7 +184,6 @@ endif()
 FILE( GLOB SCRIPTS ${CMAKE_SOURCE_DIR}/bin/od_* )
 install( PROGRAMS ${SCRIPTS} DESTINATION bin )
 install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION bin )
-install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mac_term DESTINATION bin )
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION bin )
 
 #Installing unix syatem libraries
