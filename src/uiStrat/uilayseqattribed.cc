@@ -238,7 +238,8 @@ bool uiLaySeqAttribEd::getFromScreen()
     if ( havetr
       && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)) )
     {
-	uiMSG().error( "Please enter a correct ", valfld_->titleText() );
+	uiMSG().error(
+		tr("Please enter a correct %1").arg( valfld_->titleText() ));
 	return false;
     }
 

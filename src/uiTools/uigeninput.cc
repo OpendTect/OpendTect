@@ -504,40 +504,41 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 //-----------------------------------------------------------------------------
 
 #define mInitStdMembs \
-    : uiGroup(p,disptxt) \
+    : uiGroup(p,disptxt.getOriginalString()) \
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
     , selText_(""), withchk_(false) \
-    , labl_(0), cbox_(0), selbut_(0) \
+    , labl_(0), titletext_(disptxt), cbox_(0), selbut_(0) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
     , elemszpol_( uiObject::Undef )
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
+			const char* inputStr)
     mInitStdMembs
 { 
     inputs_ += new StringInpSpec( inputStr );
-    if ( disptxt && *disptxt )
-	inputs_[0]->setName( disptxt );
+    if ( !disptxt.isEmpty() )
+	inputs_[0]->setName( disptxt.getOriginalString() );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1 )
     mInitStdMembs
 {
     inputs_ += inp1.clone();
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
-    if ( disptxt && *disptxt && !inputhasnm )
-	inputs_[0]->setName( disptxt );
+    if ( !disptxt.isEmpty() && !inputhasnm )
+	inputs_[0]->setName( disptxt.getOriginalString() );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
 	    , const DataInpSpec& inp1 , const DataInpSpec& inp2 )
     mInitStdMembs
 {
@@ -547,7 +548,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 }
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt
 	    , const DataInpSpec& inp1, const DataInpSpec& inp2 
 	    , const DataInpSpec& inp3 )
     mInitStdMembs
@@ -615,14 +616,14 @@ void uiGenInput::doFinalise( CallBacker* )
 
     if ( withchk_ )
     {
-	cbox_ = new uiCheckBox( this, name() );
+	cbox_ = new uiCheckBox( this, titletext_ );
 	cbox_->attach( leftTo, lastElem );
 	cbox_->activated.notify( mCB(this,uiGenInput,checkBoxSel) );
 	setChecked( checked_ );
     }
-    else if ( *name() ) 
+    else if ( !titletext_.isEmpty() )
     {
-	labl_ = new uiLabel( this, name() );
+	labl_ = new uiLabel( this, titletext_ );
 	labl_->attach( leftTo, lastElem );
 	labl_->setAlignment( Alignment::Right );
     }
@@ -633,7 +634,7 @@ void uiGenInput::doFinalise( CallBacker* )
     if ( !selText_.isEmpty() )
     {
 	selbut_ = new uiPushButton( this, selText_, false );
-	selbut_->setName( BufferString(selText_," ",name()) );
+	selbut_->setName( BufferString(selText_.getFullString()," ",name()) );
 	selbut_->activated.notify( mCB(this,uiGenInput,doSelect_) );
 	selbut_->attach( rightOf, lastElem );
     }
@@ -733,11 +734,13 @@ int uiGenInput::nrElements() const
 }
 
 
-void uiGenInput::setToolTip( const char* tt, int ielem )
+void uiGenInput::setToolTip( const uiString& tt, int ielem )
 {
     UserInputObj* elem = element( ielem );
     if ( elem )
-	elem->setToolTip( tt );
+	elem->setToolTip( tt.getFullString() );
+
+    //TODO: Repleace with real tt.
 }
 
 
@@ -917,17 +920,16 @@ mDefuiLineEditGetSet(getfValue,setValue,float)
 mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 
-const char* uiGenInput::titleText()
+const uiString& uiGenInput::titleText()
 { 
-    if ( labl_ ) return labl_->text();
-    if ( cbox_ ) return cbox_->text().getOriginalString();
-    return 0;
+    return titletext_;
 }
 
 
-void uiGenInput::setTitleText( const char* txt )
-{ 
-    setName( txt );	//If object is not finalized
+void uiGenInput::setTitleText( const uiString& txt )
+{
+    titletext_ = txt;
+    setName( txt.getFullString() );
     if ( labl_ ) labl_->setText( txt );
     if ( cbox_ ) cbox_->setText( txt );
 }

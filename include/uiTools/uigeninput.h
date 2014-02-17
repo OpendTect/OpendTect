@@ -16,11 +16,13 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
+#include "uistring.h"
 
 class BinIDValue;
 class uiLineEdit;
 class uiLabel;
 class uiCheckBox;
+class uiString;
 class uiPushButton;
 class uiGenInputInputFld;
 class uiGenInputFieldIdx;
@@ -56,16 +58,16 @@ only if the uiGenInput has not been finalised yet.
 mExpClass(uiTools) uiGenInput : public uiGroup
 {
 public:
-			uiGenInput( uiParent* p, const char* disptxt
+			uiGenInput( uiParent* p, const uiString& disptxt
 				  , const char* inputStr=0 ); 
 
-			uiGenInput( uiParent* p, const char* disptxt,
+			uiGenInput( uiParent* p, const uiString& disptxt,
 			    const DataInpSpec& );
 
-			uiGenInput( uiParent* p, const char* disptxt,
+			uiGenInput( uiParent* p, const uiString&,
 			    const DataInpSpec& ,const DataInpSpec& );
 
-			uiGenInput( uiParent* p, const char* disptxt,
+			uiGenInput( uiParent* p, const uiString&,
 			    const DataInpSpec&, const DataInpSpec&,
 			    const DataInpSpec& );
 
@@ -198,10 +200,10 @@ Returns true, if changes are accepted.
     int			nrElements() const; 
     void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol_=p;}
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol_; }
-    void		setToolTip(const char*,int ielem=0);
+    void		setToolTip(const uiString&,int ielem=0);
 
-    virtual const char*	titleText();
-    virtual void	setTitleText(const char*);
+    virtual const uiString&	titleText();
+    virtual void		setTitleText(const uiString&);
 
     void 		setChecked(bool yn);
     bool		isChecked();
@@ -228,10 +230,11 @@ protected:
 
     bool		finalised_;
 
-    BufferString	selText_;
+    uiString		selText_;
     bool		withchk_;
 
     uiLabel*		labl_;
+    uiString		titletext_;
     uiCheckBox* 	cbox_;
     uiPushButton*	selbut_;
 

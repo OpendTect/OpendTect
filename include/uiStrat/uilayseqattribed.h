@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uidialog.h"
+#include "uistring.h"
+
 class uiListBox;
 class uiComboBox;
 class uiGenInput;
@@ -24,7 +26,7 @@ namespace Strat { class LaySeqAttrib; class RefTree; };
 /*! \brief edits a layer sequence attribute */
 
 mExpClass(uiStrat) uiLaySeqAttribEd : public uiDialog
-{
+{ mTextTranslationClass(uiLaySeqAttribEd);
 public:
 
     mExpClass(uiStrat) Setup

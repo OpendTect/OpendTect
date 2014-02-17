@@ -289,7 +289,7 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     int res = 1;
     if ( isRefToDataDir(fld,true) && !isRefToDataDir(fld,false) )
     {
-	BufferString msg = fld.titleText();
+	BufferString msg = fld.titleText().getFullString();
 	msg += "-path is referring to previous survey!";
 	res = uiMSG().question( msg, uiStrings::sContinue(), "Reset",
 				uiStrings::sCancel(), "Warning" );

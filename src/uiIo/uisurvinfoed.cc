@@ -832,7 +832,7 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 
 void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
-    const FixedString labeltext = refdatumfld_->titleText();
+    const BufferString labeltext = refdatumfld_->titleText().getFullString();
     const bool showdepthinft = !depthdispfld_->getBoolValue();
     const bool needsupdate =
 	labeltext != ( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
