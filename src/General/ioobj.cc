@@ -234,6 +234,12 @@ int IOObj::myKey() const
 }
 
 
+bool IOObj::isProcTmp() const
+{
+    return matchString( "~Proc", name().buf() );
+}
+
+
 bool IOObj::isReadDefault() const
 {
     if ( myKey() < 2 || isSubdir() ) return false;

@@ -167,10 +167,13 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 
     prepared_ = true;
 
-    ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
-    ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
-    ioobj_->updateCreationPars();
-    IOM().commitChanges( *ioobj_ );
+    if ( !ioobj_->isTmp() && !ioobj_->isProcTmp() )
+    {
+	ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
+	ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
+	ioobj_->updateCreationPars();
+	IOM().commitChanges( *ioobj_ );
+    }
 
     return prepared_;
 }
