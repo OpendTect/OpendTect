@@ -61,15 +61,15 @@ public:
 mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
-				uiPushButton(uiParent*,const char* nm,
+				uiPushButton(uiParent*,const uiString& nm,
 					     bool immediate);
-				uiPushButton(uiParent*,const char* nm,
+				uiPushButton(uiParent*,const uiString& nm,
 					     const CallBack&,
 					     bool immediate); 
-				uiPushButton(uiParent*,const char* nm,
+				uiPushButton(uiParent*,const uiString& nm,
 					     const ioPixmap&,
 					     bool immediate);
-				uiPushButton(uiParent*,const char* nm,
+				uiPushButton(uiParent*,const uiString& nm,
 					     const ioPixmap&,const CallBack&,
 					     bool immediate);
 				~uiPushButton();
@@ -83,17 +83,22 @@ public:
 
 private:
 
+    void			translateText();
+    void			updateText();
+
+    bool			immediate_;
+
     uiPushButtonBody*		body_;
-    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*,
-	    				bool);
+    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,
+				       const uiString&);
 };
 
 
 mExpClass(uiBase) uiRadioButton : public uiButton
 {                        
 public:
-				uiRadioButton(uiParent*,const char*);
-				uiRadioButton(uiParent*,const char*,
+				uiRadioButton(uiParent*,const uiString&);
+				uiRadioButton(uiParent*,const uiString&,
 					      const CallBack&);
 
     bool			isChecked() const;
@@ -104,7 +109,7 @@ public:
 private:
 
     uiRadioButtonBody*		body_;
-    uiRadioButtonBody&		mkbody(uiParent*,const char*);
+    uiRadioButtonBody&		mkbody(uiParent*,const uiString&);
 
 };
 

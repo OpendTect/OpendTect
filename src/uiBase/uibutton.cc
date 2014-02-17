@@ -99,13 +99,13 @@ class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
 {
 public:
 			uiPushButtonBody( uiButton& hndle,
-					  uiParent* parnt, const char* txt )
+					  uiParent* parnt, const uiString& txt )
 		     : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
 		     , iconfrac_(0.75)
 		     {}
 
 			uiPushButtonBody( uiButton& hndle, const ioPixmap& pm,
-				          uiParent* parnt, const char* txt )
+					  uiParent* parnt, const uiString& txt )
 			    : uiButtonTemplBody<QPushButton>
 					(hndle,pm,parnt,txt)
 			    , iconfrac_(0.75)
@@ -152,7 +152,7 @@ class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
 {
 public:
 			uiRadioButtonBody(uiButton& hndle,
-				     uiParent* parnt, const char* txt)
+				     uiParent* parnt, const uiString& txt)
 		    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
 		    {}
 
@@ -210,6 +210,7 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject( parnt, nm.getFullString(), b )
     , activated( this )
+    , text_( nm )
 {
     if ( cb ) activated.notify(*cb);
 
@@ -238,27 +239,39 @@ QAbstractButton* uiButton::qButton()
 }
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm,ia) )
-{}
+uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm, bool ia )
+    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+    , immediate_( ia )
+{
+    updateText();
+}
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb,
-			    bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm,ia) )
-{}
+uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
+			   const CallBack& cb, bool ia )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
+    , immediate_( ia )
+{
+    updateText();
+}
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
+uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 			    const ioPixmap& pm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm,ia) )
-{}
+    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+    , immediate_( ia )
+{
+    updateText();
+}
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
+uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 			    const ioPixmap& pm, const CallBack& cb, bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm,ia) )
-{}
+    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
+    , immediate_( ia )
+{
+    updateText();
+}
 
 
 uiPushButton::~uiPushButton()
@@ -267,15 +280,28 @@ uiPushButton::~uiPushButton()
 
 
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
-					const char* txt, bool immact )
+					const uiString& txt )
 {
-    BufferString buttxt( txt );
-    if ( !immact && txt && *txt )
-	buttxt += " ...";
-    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,buttxt.buf());
-    else	body_ = new uiPushButtonBody(*this,parnt,buttxt.buf());
+    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,txt);
+    else	body_ = new uiPushButtonBody(*this,parnt,txt);
 
     return *body_;
+}
+
+
+void uiPushButton::translateText()
+{
+    updateText();
+}
+
+
+void uiPushButton::updateText()
+{
+    QString newtext = text_.getQtString();
+    if ( !newtext.isEmpty() && !immediate_ )
+	newtext.append( " ..." );
+
+    mqbut()->setText( newtext );
 }
 
 
@@ -305,18 +331,18 @@ void uiPushButton::setPixmap( const ioPixmap& pm )
 void uiPushButton::click()			{ activated.trigger(); }
 
 
-uiRadioButton::uiRadioButton( uiParent* p, const char* nm )
+uiRadioButton::uiRadioButton( uiParent* p, const uiString& nm )
     : uiButton(p,nm,0,mkbody(p,nm))
 {}
 
 
-uiRadioButton::uiRadioButton( uiParent* p, const char* nm,
+uiRadioButton::uiRadioButton( uiParent* p, const uiString& nm,
 			      const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
 {}
 
 
-uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const char* txt )
+uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     body_= new uiRadioButtonBody(*this,parnt,txt);
     return *body_;
