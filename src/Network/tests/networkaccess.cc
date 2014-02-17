@@ -74,7 +74,7 @@ bool testDownloadToFile()
 bool testFileUpload()
 {
     const char* url =
-		    "http://dgbindia1/testing/ctest/php_do_not_delete_it.php";
+		    "http://dgbindia2/testing/ctest/php_do_not_delete_it.php";
     FilePath localfp( FilePath::getTempDir() );
     localfp.add( "dlsites.txt" );
     const char* remotefn("test_file");
@@ -95,7 +95,7 @@ bool testQueryUpload()
     IOPar querypars;
     querypars.set( "report", report );
     const char* url =
-		    "http://dgbindia1/testing/ctest/php_do_not_delete_it_2.php";
+		    "http://dgbindia2/testing/ctest/php_do_not_delete_it_2.php";
     BufferString err;
     if ( !Network::uploadQuery( url, querypars, err ) )
 	returnError
@@ -107,10 +107,10 @@ bool testQueryUpload()
 bool testFileSizes()
 {
     od_int64 sizeremotefile=0,sizeofuploadedfile=0;
-    const char* url = "http://dgbindia1/testing/ctest/test_file";
+    const char* url = "http://dgbindia2/testing/ctest/test_file";
     BufferString err;
     Network::getRemoteFileSize( url, sizeremotefile, err );
-    url = "http://dgbindia1/testing/ctest/dumpuploads/test_file";
+    url = "http://dgbindia2/testing/ctest/dumpuploads/test_file";
     Network::getRemoteFileSize( url, sizeofuploadedfile, err );
 
     if ( sizeofuploadedfile < 0 || sizeremotefile < 0 ||
