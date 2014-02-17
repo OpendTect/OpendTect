@@ -448,7 +448,7 @@ void uiIOObjSelGrp::setContext( const IOObjContext& c )
 }
 
 
-bool uiIOObjSelGrp::processInput()
+bool uiIOObjSelGrp::processInput( bool noneisok )
 {
     int curitm = listfld_->currentItem();
     if ( !nmfld_ )
@@ -456,7 +456,7 @@ bool uiIOObjSelGrp::processInput()
 	// all 'forread' is handled here
 	if ( ismultisel_ )
 	{
-	    if ( nrSel() > 0 )
+	    if ( noneisok || nrSel() > 0 )
 		return true;
 	    uiMSG().error( "Please select at least one item ",
 		           "or press Cancel" );

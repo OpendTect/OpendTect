@@ -63,7 +63,7 @@ public:
     int				size() const;
 
     void			fullUpdate(const MultiID& kpselected);
-    bool			processInput();
+    bool			processInput(bool noneisok=false);
 				/*!< Processes the current selection so
 				     selected() can be queried. It also creates
 				     an entry in IOM if the selected object is
