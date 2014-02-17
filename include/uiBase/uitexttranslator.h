@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "callback.h"
 #include "uistring.h"
+#include "atomic.h"
 
 
 mExpClass(uiBase) TextTranslator : public CallBacker

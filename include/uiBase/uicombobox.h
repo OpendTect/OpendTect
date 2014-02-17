@@ -99,7 +99,7 @@ private:
 
 public:
 
-    void		setToolTip( const char* tt )
+    void		setToolTip( const uiString& tt )
 			{ uiObject::setToolTip(tt); }
 
     virtual bool	update_( const DataInpSpec& spec );

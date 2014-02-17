@@ -48,7 +48,8 @@ public:
 };
 
 
-mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
+mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>,
+			       public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value
@@ -102,7 +103,7 @@ public:
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
 
-    void		setToolTip( const char* tt )
+    void		setToolTip( const uiString& tt )
     			{ uiObject::setToolTip(tt); }
 
 protected:

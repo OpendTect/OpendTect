@@ -9,6 +9,17 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uistrings.h"
+#include "uitexttranslator.h"
+
+#include "ptrman.h"
+
+
+
+mGlobal( uiBase )  TextTranslateMgr& TrMgr()
+{
+    mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
+    if ( !trmgr ) trmgr = new TextTranslateMgr();
+    return *trmgr;
+}
 
 

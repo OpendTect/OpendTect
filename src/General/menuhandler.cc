@@ -116,7 +116,7 @@ MenuItem* MenuItemHolder::findItem( const char* txt )
     tofindtxt.remove( '&' );
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	BufferString itmtxt = items_[idx]->text;
+	BufferString itmtxt = items_[idx]->text.getFullString();
 	itmtxt.remove( '&' );
 	if ( itmtxt == tofindtxt )
 	    return items_[idx];
@@ -163,7 +163,7 @@ void MenuItemHolder::assignItemID( MenuItem& item )
 
 static int itemid = 0;
 
-MenuItem::MenuItem( const char* txt, int pl )
+MenuItem::MenuItem( const uiString& txt, int pl )
     : text(txt)
     , placement(pl)
     , checkable(false)
@@ -225,7 +225,7 @@ void MenuHandler::assignItemID( MenuItem& itm )
 }
 
 
-MenuItemHandler::MenuItemHandler( MenuHandler& mh, const char* nm,
+MenuItemHandler::MenuItemHandler( MenuHandler& mh, const uiString& nm,
 				  const CallBack& cb, const char* parenttext,
 				  int placement )
     : menuitem_(nm,placement)

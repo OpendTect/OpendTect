@@ -16,9 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "typeset.h"
 #include "perthreadrepos.h"
-#include "uitexttranslator.h"
-#include "uistrings.h"
-
 
 #include <QString>
 #include <QCoreApplication>
@@ -235,11 +232,4 @@ uiString uiString::arg( const char* newarg ) const
     return arg( uiString(newarg) );
 }
 
-
-mGlobal( uiBase )  TextTranslateMgr& TrMgr()
-{
-    mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
-    if ( !trmgr ) trmgr = new TextTranslateMgr();
-    return *trmgr;
-}
 

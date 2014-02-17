@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
-#include "uibasemod.h"
+#include "basicmod.h"
 
 #include "objectset.h"
 
@@ -46,7 +46,7 @@ mFDQtclass( QString )
  */
 
 
-mExpClass(uiBase) uiString
+mExpClass(Basic) uiString
 {
 public:
 				uiString(const uiString&);

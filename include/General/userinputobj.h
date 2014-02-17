@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class CallBack;
 class BufferStringSet;
+class uiString;
 
 
 mExpClass(General) UserInputObj
@@ -61,7 +62,7 @@ public:
 			//! return false if not updated for whatever reason.
     bool		update( const DataInpSpec& s );
 
-    virtual void        setToolTip(const char*)			= 0;
+    virtual void	setToolTip(const uiString&)		= 0;
 
 protected:
 

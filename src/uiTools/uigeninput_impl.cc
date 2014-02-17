@@ -224,7 +224,8 @@ uiGenInputBoolFld::uiGenInputBoolFld( uiParent* p, const char* truetext,
     init( p, truetext, falsetext, initval );
 }
 
-uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec, const char* nm)
+uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
+				     const char* nm)
     : uiGroup( p, nm )
     , UserInputObjImpl<bool>()
     , butgrp( 0 ), checkbox( 0 ), rb1( 0 ), rb2( 0 ), yn( false )
@@ -283,7 +284,7 @@ uiObject* uiGenInputBoolFld::mainobject()
 }
 
 
-void uiGenInputBoolFld::setToolTip( const char* tt )
+void uiGenInputBoolFld::setToolTip( const uiString& tt )
 {
     if ( checkbox )
 	checkbox->setToolTip( tt );
@@ -385,7 +386,7 @@ bool uiGenInputIntFld::isReadOnly() const
 bool uiGenInputIntFld::update_( const DataInpSpec& spec )
 { setvalue_( spec.getIntValue() ); return true; }
 
-void uiGenInputIntFld::setToolTip( const char* tt )
+void uiGenInputIntFld::setToolTip( const uiString& tt )
 { uiSpinBox::setToolTip( tt ); }
 
 int uiGenInputIntFld::getvalue_() const

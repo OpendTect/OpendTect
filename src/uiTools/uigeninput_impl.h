@@ -123,7 +123,7 @@ public:
 
     virtual bool	update_( const DataInpSpec& spec );
 
-    virtual void	setToolTip(const char*);
+    virtual void	setToolTip(const uiString&);
 
 protected:
 
@@ -162,7 +162,7 @@ public:
     virtual bool	isReadOnly() const;
 
     virtual bool	update_(const DataInpSpec&);
-    virtual void	setToolTip(const char*);
+    virtual void	setToolTip(const uiString&);
 
 protected:
 

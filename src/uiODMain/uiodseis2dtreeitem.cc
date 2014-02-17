@@ -392,7 +392,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	selcomps.erase();
 	menu->setIsHandled( true );
 	const int itmidx = storeditm_.itemIndex( mnuid );
-	const char* attribnm = storeditm_.getItem(itmidx)->text;
+	const BufferString attribnm =
+		storeditm_.getItem(itmidx)->text.getFullString();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
@@ -404,7 +405,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	selcomps.erase();
 	menu->setIsHandled( true );
 	const int itmidx = steeringitm_.itemIndex( mnuid );
-	const char* attribnm = steeringitm_.getItem(itmidx)->text;
+	const BufferString attribnm =
+		steeringitm_.getItem(itmidx)->text.getFullString();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
@@ -424,7 +426,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const int itmidx = editcoltabitm_.itemIndex( mnuid );
-	BufferString attrnm = editcoltabitm_.getItem(itmidx)->text;
+	BufferString attrnm =
+		editcoltabitm_.getItem(itmidx)->text.getFullString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	if ( set.size() )
@@ -437,7 +440,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const int itmidx = editattritm_.itemIndex( mnuid );
-	BufferString curnm = editattritm_.getItem(itmidx)->text;
+	BufferString curnm = editattritm_.getItem(itmidx)->text.getFullString();
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
 						     : curnm.buf();
 	selectNewAttribute( attribnm );
@@ -446,7 +449,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const int itmidx = removeattritm_.itemIndex( mnuid );
-	const char* attribnm = removeattritm_.getItem(itmidx)->text;
+	const BufferString attribnm =
+		removeattritm_.getItem(itmidx)->text.getFullString();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	    ((uiOD2DLineSetSubItem*)children_[idx])->removeAttrib( attribnm );
     }
@@ -457,7 +461,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const bool show = showattritm_.itemIndex(mnuid)!=-1;
 	MenuItem& attritm = show ? showattritm_ : hideattritm_;
 	const int itmidx = attritm.itemIndex( mnuid );
-	BufferString curnm = attritm.getItem(itmidx)->text;
+	BufferString curnm = attritm.getItem(itmidx)->text.getFullString();
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
 						     : curnm.buf();
 	ObjectSet<uiTreeItem> itms; findChildren( attribnm, itms );
@@ -1042,13 +1046,15 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled(true);
-	displayStoredData( storeditm_.findItem(mnuid)->text, -1, uitr );
+	displayStoredData(
+		storeditm_.findItem(mnuid)->text.getFullString(), -1, uitr );
     }
     else if ( steeringitm_.itemIndex(mnuid)!=-1 )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayStoredData( steeringitm_.findItem(mnuid)->text, 1, uitr );
+	displayStoredData(
+	    steeringitm_.findItem(mnuid)->text.getFullString(), 1, uitr );
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas,usemcomp))
     {
@@ -1059,7 +1065,8 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayStoredData( zattritm_.findItem(mnuid)->text, -1, uitr );
+	displayStoredData(
+	    zattritm_.findItem(mnuid)->text.getFullString(), -1, uitr );
     }
     else if ( mnuid==attrnoneitm_.id )
     {

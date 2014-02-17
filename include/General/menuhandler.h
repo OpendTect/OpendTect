@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class MenuItem;
@@ -51,7 +52,9 @@ public:
     MenuItem*			findItem(int id);
     const MenuItem*		findItem(int id) const;
     MenuItem*			findItem(const char*);
+				//!<Seaches for untranslated text
     const MenuItem*		findItem(const char*) const;
+				//!<Seaches for untranslated text
 
     const ObjectSet<MenuItem>&	getItems() const;
 
@@ -73,15 +76,17 @@ private:
 mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
-				MenuItem(const char* text=0,int placement=-1);
+				MenuItem(const uiString& text=0,
+					 int placement=-1);
     void			createItems(const BufferStringSet&);
 
-    BufferString		text;
+    uiString			text;
 				/*< The text that should be on the item. */
     int				placement;
 				/*!< Gives the system an indication where in the
 				     menu the item should be placed. Items will
-				     be placed in increasing order of placement.				*/
+				     be placed in increasing order of placement.
+				*/
     int				id;
 				/*!< This item's unique id. */
     bool			checkable;
@@ -220,7 +225,7 @@ protected:
 mExpClass(General) MenuItemHandler : public CallBacker
 {
 public:
-			MenuItemHandler(MenuHandler&,const char* nm,
+			MenuItemHandler(MenuHandler&,const uiString& nm,
 					const CallBack&,const char* parenttxt=0,
 					int placement=-1);
 			~MenuItemHandler();

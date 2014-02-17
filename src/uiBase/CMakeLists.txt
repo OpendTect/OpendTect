@@ -7,7 +7,7 @@
 
 set(OD_MODULE_DEPS General)
 set(OD_USEQT Widgets PrintSupport)
-set(OD_TEST_PROGS uistring.cc )
+set(OD_TEST_PROGS )
 set(QT_MOC_HEADERS i_qaction.h
 		i_qbutton.h
 		i_qcombobox.h
@@ -66,8 +66,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uirgbarray.cc
 		uirubberband.cc
 		uiseparator.cc
-		uistring.cc
-		uistrings.cc
 		uishortcutsmgr.cc
 		uislider.cc
 		uispinbox.cc
@@ -79,6 +77,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitable.cc
 		uitabstack.cc
 		uitextedit.cc
+		uitexttranslate.cc
 		uitoolbar.cc
 		uitreeview.cc
 		uivirtualkeyboard.cc)

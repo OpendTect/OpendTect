@@ -263,7 +263,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	return false;
 
     PtrMan<IOObj> ioobj = IOM().getLocal(
-	    selectpsdatamenuitem_.getItem(mnuidx)->text, 0 );
+	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString(), 0 );
     if ( !ioobj )
 	mErrReturn( "No object selected" )
 

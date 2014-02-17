@@ -364,7 +364,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	ODMainWin()->applMgr().wellServer()->showAmplSpectrum( wellid, 
-				amplspectrummnuitem_.findItem(mnuid)->text );
+		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == logviewermnuitem_.id )

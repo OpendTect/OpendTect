@@ -29,6 +29,7 @@ set( OD_TEST_PROGS
 	svnversion.cc
 	threads.cc
 	threadwork.cc
+	uistring.cc
 )
 
 set( OD_MODULE_SOURCES
@@ -91,6 +92,7 @@ set( OD_MODULE_SOURCES
 	threadwork.cc
 	timefun.cc
 	timer.cc
+	uistring.cc
 	winutils.cc
 	zdomain.cc
 )

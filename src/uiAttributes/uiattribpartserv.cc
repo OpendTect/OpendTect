@@ -1254,7 +1254,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
-	const int idx = attrinf.ioobjnms_.indexOf(item->text);
+	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
 	const char* objidstr = attrinf.ioobjids_.get(idx);
 	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
 	idlkey = LineKey( objidstr );
@@ -1263,7 +1263,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( steering3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
-	const int idx = attrinf.steernms_.indexOf( item->text );
+	const int idx = attrinf.steernms_.indexOf( item->text.getFullString() );
 	const char* objidstr = attrinf.steerids_.get( idx );
 	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
 	idlkey = LineKey( objidstr );
@@ -1277,7 +1277,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
 	    if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
 	    const MultiID mid( attrinf.ioobjids_.get(0) );
-	    idlkey = LineKey( mid, item->text );
+	    idlkey = LineKey( mid, item->text.getFullString() );
 	    attribid = eDSHolder().getDescSet(true,true)->getStoredID( idlkey );
 	    isstored = true;
 	}
@@ -1289,7 +1289,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 		{
 		    const MenuItem* item = (*ls2dmnuitm)[idx]->findItem(mnuid);
 		    const MultiID mid( attrinf.ioobjids_.get(idx) );
-		    idlkey = LineKey( mid, item->text );
+		    idlkey = LineKey( mid, item->text.getFullString() );
 		    attribid = eDSHolder().getDescSet( true, true )
 					->getStoredID( idlkey );
 		    isstored = true;
@@ -1300,7 +1300,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( calcmnuitem->findItem(mnuid) )
     {
 	const MenuItem* item = calcmnuitem->findItem(mnuid);
-	int idx = attrinf.attrnms_.indexOf(item->text);
+	int idx = attrinf.attrnms_.indexOf(item->text.getFullString());
 	attribid = attrinf.attrids_[idx];
     }
     else if ( nlamnuitem->findItem(mnuid) )
@@ -1314,7 +1314,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
-	PtrMan<IOObj> ioobj = IOM().getLocal( item->text, 0 );
+	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
 	if ( ioobj )
 	{
 	    attribid = eDSHolder().getDescSet( false, true )
@@ -1390,12 +1390,12 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
 	stored = true;
 	const MenuItem* item = stored2dmnuitem_.findItem( mnuid );
 	if ( !item ) item = steering2dmnuitem_.findItem( mnuid );
-	attbnm = item->text;
+	attbnm = item->text.getFullString();
     }
     else if ( calc2dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = calc2dmnuitem_.findItem( mnuid );
-	attbnm = item->text;
+	attbnm = item->text.getFullString();
     }
 }
 
