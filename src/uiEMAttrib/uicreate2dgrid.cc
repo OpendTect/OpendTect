@@ -10,7 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uicreate2dgrid.h"
+
 #include "uibasemap.h"
+#include "uibatchjobdispatchersel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
@@ -355,7 +357,8 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 
     const Coord maxcoord = SI().maxCoord(false);
     const Coord mincoord = SI().minCoord(false);
-    const float maxdim = (float) mMAX( maxcoord.x-mincoord.x, maxcoord.y-mincoord.y );
+    const float maxdim = (float) mMAX( maxcoord.x-mincoord.x,
+				       maxcoord.y-mincoord.y );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
     pardistfld_->setValue( mNINT32(axl.sd_.step/2) );
     perdistfld_->setValue( mNINT32(axl.sd_.step/2) );
@@ -459,27 +462,26 @@ bool ui2DGridLinesFromRandLine::fillPar( IOPar& par ) const
 
 
 uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
-    : uiFullBatchDialog(p,uiFullBatchDialog::Setup("Create 2D Seismic grid")
-			  .procprognm("od_process_2dgrid"))
+    : uiDialog(p,uiDialog::Setup("Create 2D Seismic grid",mNoDlgTitle,
+				 "103.2.23") )
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , cs_(*new CubeSampling(true))
 {
-    setHelpID( "103.2.23" );
-    setParFileNmDef( "seis2dgrid" );
     uiGroup* seisgrp = createSeisGroup( rdl );
 
     uiGroup* previewgrp = createPreviewGroup();
     previewgrp->attach( rightTo, seisgrp );
 
-    uiSeparator* sep = new uiSeparator( uppgrp_, "HSeparator", true );
+    uiSeparator* sep = new uiSeparator( this, "HSeparator", true );
     sep->attach( stretchedBelow, previewgrp );
     sep->attach( ensureBelow, seisgrp );
 
     uiGroup* horgrp = createHorizonGroup();
     horgrp->attach( alignedBelow, seisgrp );
     horgrp->attach( ensureBelow, sep );
-    addStdFields( false, true );
-    uppgrp_->setHAlignObj( horgrp );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::Grid2D );
+    batchfld_->attach( alignedBelow, horgrp );
 
     postFinalise().notify( mCB(this,uiCreate2DGrid,finaliseCB) );
 }
@@ -493,7 +495,7 @@ uiCreate2DGrid::~uiCreate2DGrid()
 
 uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 {
-    uiGroup* grp = new uiGroup( uppgrp_, "Seis group" );
+    uiGroup* grp = new uiGroup( this, "Seis group" );
 
     IOObjContext ctxt = mIOObjContext( SeisTrc );
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
@@ -539,7 +541,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 
 uiGroup* uiCreate2DGrid::createHorizonGroup()
 {
-    uiGroup* grp = new uiGroup( uppgrp_, "Horizon group" );
+    uiGroup* grp = new uiGroup( this, "Horizon group" );
 
     horcheckfld_ = new uiCheckBox( grp, "Extract horizons for the new grid",
 	    			   mCB(this,uiCreate2DGrid,horCheckCB) );
@@ -557,7 +559,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
 
 uiGroup* uiCreate2DGrid::createPreviewGroup()
 {
-    uiGroup* grp = new uiGroup( uppgrp_, "Preview Group" );
+    uiGroup* grp = new uiGroup( this, "Preview Group" );
     previewmap_ = new uiSurveyMap( grp, false );
     preview_ = new uiGrid2DMapObject;
     preview_->itemGrp()->setZValue( 1 );
@@ -628,12 +630,16 @@ void uiCreate2DGrid::outSelCB( CallBacker* )
 {
     const IOObj* ioobj = outfld_->ioobj();
     hornmfld_->setText( ioobj ? ioobj->name() : "Grid2D-" );
+    if ( ioobj )
+	batchfld_->setJobName( ioobj->name() );
 }
 
 
 void uiCreate2DGrid::updatePreview( CallBacker* )
 {
-    const ui2DGridLines* grp = sourceselfld_ && sourceselfld_->getBoolValue() ? 				inlcrlgridgrp_ : randlinegrdgrp_;
+    bool isinlcrlbased = sourceselfld_ && sourceselfld_->getBoolValue();
+    const ui2DGridLines* grp = isinlcrlbased ? inlcrlgridgrp_
+					       : randlinegrdgrp_;
     const Grid2D* grid = grp->getGridLines();
     preview_->setGrid( grid );
     preview_->setBaseLine( grp->getBaseLine() );
@@ -752,17 +758,14 @@ bool uiCreate2DGrid::checkInput() const
 }
 
 
-bool uiCreate2DGrid::fillPar( IOPar& batchpar )
+bool uiCreate2DGrid::fillPar()
 {
-    if ( !infld_->ioobj() ) return false;
-    if ( !outfld_->ioobj() ) return false;
-
-    IOPar par;
-
-    if ( !checkInput() )
+    if ( !infld_->ioobj() || !outfld_->ioobj() || !checkInput() )
 	return false;
 
+    IOPar par;
     fillSeisPar( par );
+    IOPar& batchpar = batchfld_->jobSpec().pars_;
     batchpar.mergeComp( par, "Seis" );
 
     if ( horcheckfld_->isChecked() )
@@ -779,3 +782,8 @@ bool uiCreate2DGrid::fillPar( IOPar& batchpar )
     return true;
 }
 
+
+bool uiCreate2DGrid::acceptOK( CallBacker* )
+{
+    return fillPar() ? batchfld_->start() : false;
+}

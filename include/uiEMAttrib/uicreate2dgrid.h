@@ -14,18 +14,20 @@ ________________________________________________________________________
 
 
 #include "uiemattribmod.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 #include "uigroup.h"
 #include "grid2d.h"
 
 class BufferStringSet;
 class CubeSampling;
 class HorSampling;
+class uiBatchJobDispatcherSel;
 class uiCheckBox;
 class uiGenInput;
 class uiGrid2DMapObject;
 class uiIOObjSel;
 class uiIOObjSelGrp;
+class uiLabel;
 class uiPosSubSel;
 class uiSeisSel;
 class uiSelNrRange;
@@ -116,15 +118,14 @@ protected:
 };
 
 
-mExpClass(uiEMAttrib) uiCreate2DGrid : public uiFullBatchDialog
+mExpClass(uiEMAttrib) uiCreate2DGrid : public uiDialog
 {
 public:
 				uiCreate2DGrid(uiParent*,
 					       const Geometry::RandomLine*);
 				~uiCreate2DGrid();
 
-    bool			fillPar(IOPar&);
-    bool			prepareProcessing()	{ return true; }
+    bool			fillPar();
 
 protected:
 
@@ -148,6 +149,7 @@ protected:
     uiCheckBox*			horcheckfld_;
     uiIOObjSelGrp*		horselfld_;
     uiGenInput*			hornmfld_;
+    uiBatchJobDispatcherSel*	batchfld_;
 
     CubeSampling&		cs_;
 
@@ -163,7 +165,7 @@ protected:
     void			fillHorPar(IOPar&);
 
     bool			checkInput() const;
-
+    bool			acceptOK(CallBacker*);
 };
 
 
