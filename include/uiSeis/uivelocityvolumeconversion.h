@@ -13,8 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 
+class uiBatchJobDispatcherSel;
 class uiVelSel;
 class uiSeisSel;
 class uiPosSubSel;
@@ -27,7 +28,7 @@ namespace Vel
 
 /*!Dialog to setup a velocity conversion for volumes on disk. */
 
-mExpClass(uiSeis) uiBatchVolumeConversion : public uiFullBatchDialog
+mExpClass(uiSeis) uiBatchVolumeConversion : public uiDialog
 {
 public:
 			uiBatchVolumeConversion(uiParent*);
@@ -35,13 +36,14 @@ public:
 protected:
 
     void		inputChangeCB(CallBacker*);
-    bool		prepareProcessing() { return true; }
-    bool		fillPar(IOPar&);
+    bool		fillPar();
+    bool		acceptOK(CallBacker*);
 
     uiVelSel*		input_;
     uiPosSubSel*	possubsel_;
     uiLabeledComboBox*	outputveltype_;
     uiSeisSel*		outputsel_;
+    uiBatchJobDispatcherSel*	batchfld_;
 };
 
 }; //namespace
