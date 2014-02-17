@@ -5,7 +5,7 @@
 #RCS:           $Id$
 
 #OpenDtect libraries
-set( LIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel General
+set( LIBLIST Algo AttributeEngine Attributes Basic Batch EarthModel General
 	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
 	     PreStackProcessing EMAttrib ExpAttribs Well WellAttrib uiAttributes uiBase uiOSG
 	     uiEarthModel uiEMAttrib uiExpAttribs uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
