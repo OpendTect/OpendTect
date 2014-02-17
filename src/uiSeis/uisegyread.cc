@@ -347,9 +347,9 @@ uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
 				iop,Middle)
     , initialpol_(pol)
 {
-    choicefld_ = new uiCheckList( this, BufferStringSet(rev1txts),
-				  uiCheckList::OneOnly );
-    choicefld_->setChecked( pol-1, true );
+    choicefld_ = new uiCheckList( this, uiCheckList::OneOnly );
+    choicefld_->addItems( BufferStringSet(rev1txts) )
+		.setChecked( pol-1, true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
     dontaskfld_->attach( ensureBelow, choicefld_ );

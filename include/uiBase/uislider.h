@@ -29,17 +29,16 @@ public:
 				 int nrdec=0,bool log=false, bool vert=false);
 			~uiSlider();
 
-    enum 		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2, 
+    enum		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2,
 				      Right=Below, Both=3 };
-    enum		Orientation { Horizontal, Vertical };
 
     void		setText(const char*);
     const char*		text() const;
 
     void		setValue(int);
     void		setValue(float);
-    int 		getIntValue() const;
-    float 		getValue() const;
+    int			getIntValue() const;
+    float		getValue() const;
 
     void		setMinValue(float);
     float		minValue() const;
@@ -61,7 +60,7 @@ public:
     void		setTickStep(int);
     int			tickStep() const;
     void		setOrientation(Orientation);
-    uiSlider::Orientation getOrientation() const;
+    Orientation		getOrientation() const;
 
     void		setInverted(bool);
     bool		isInverted() const;
@@ -74,7 +73,7 @@ public:
     Notifier<uiSlider>	sliderMoved;
     Notifier<uiSlider>	sliderPressed;
     Notifier<uiSlider>	sliderReleased;
-    
+
     float		getLinearFraction() const;
     void		setLinearFraction(float fraction);
 
@@ -91,9 +90,10 @@ private:
 
     float		userValue(int) const;
     int			sliderValue(float) const;
+
 };
 
-/*! Slider with label */
+/*! Slider with extrqa features, like label and user box to type value */
 
 mExpClass(uiBase) uiSliderExtra : public uiGroup
 {
@@ -119,7 +119,7 @@ public:
 	mDefSetupMemb(BufferString,lbl)
     };
 
-                	uiSliderExtra(uiParent*,const Setup&,
+	uiSliderExtra(uiParent*,const Setup&,
 				      const char* nm=0);
 
     uiSlider*		sldr()			{ return slider; }
@@ -127,21 +127,21 @@ public:
 
     void		processInput();
     float		editValue() const;
-    			//!<The val in the ed field, which may be outside range
+			//!<The val in the ed field, which may be outside range
 
     Notifier<uiSliderExtra> valueChanged;
 
 protected:
 
     uiSlider*		slider;
-    uiLabel*    	lbl;
+    uiLabel*	lbl;
     uiLineEdit*		editfld;
 
     void		init(const Setup&,const char*);
     void		editRetPress(CallBacker*);
     void		sliderMove(CallBacker*);
+
 };
 
 
 #endif
-

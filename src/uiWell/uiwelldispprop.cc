@@ -360,12 +360,11 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     uiGroup* grp = new uiGroup( this, "Style" );
 
-    BufferStringSet stringset;
-    stringset.add( "Well log" );
-    stringset.add( "Seismic" );
-    stringset.add( "Log tube" );
-
-    stylefld_ = new uiCheckList( grp, stringset, uiCheckList::OneOnly, true);
+    stylefld_ = new uiCheckList( grp, uiCheckList::OneOnly,
+				 uiObject::Horizontal );
+    stylefld_->addItem( "Well log" )
+	      .addItem( "Seismic" )
+	      .addItem( "Log tube" );
     grp->attach( alignedAbove, szfld_ );
 
     uiSeparator* sep1 = new uiSeparator( this, "Sep" );

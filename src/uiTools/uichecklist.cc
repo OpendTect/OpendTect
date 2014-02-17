@@ -14,37 +14,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 
 
-uiCheckList::uiCheckList( uiParent* p, const char* t1, const char* t2,
-			  uiCheckList::Pol pl )
+uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
+			  uiObject::Orientation ori )
     : uiGroup(p,"CheckList")
     , pol_(pl)
+    , orientation_(ori)
     , changed(this)
 {
-    addBox( t1 );
-    addBox( t2 );
     postFinalise().notify( mCB(this,uiCheckList,initGrp) );
 }
 
 
-uiCheckList::uiCheckList( uiParent* p, const BufferStringSet& bss,
-			  uiCheckList::Pol pl, bool forcehor )
-    : uiGroup(p,"CheckList")
-    , pol_(pl)
-    , changed(this)
-{
-    for ( int idx=0; idx<bss.size(); idx++ )
-	addBox( bss.get(idx), forcehor );
-
-    postFinalise().notify( mCB(this,uiCheckList,initGrp) );
-}
-
-
-void uiCheckList::addBox( const char* txt, bool hor )
+uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
 {
     uiCheckBox* cb = new uiCheckBox( this, txt );
+
+    if ( iconfnm && *iconfnm )
+	cb->setPixmap( iconfnm );
+
     if ( !boxs_.isEmpty() )
-	cb->attach( hor ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
+	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
+
     boxs_ += cb;
+    return *this;
+}
+
+
+uiCheckList& uiCheckList::addItems( const BufferStringSet& itms )
+{
+    for ( int idx=0; idx<itms.size(); idx++ )
+	addItem( itms.get(idx), 0 );
+    return *this;
 }
 
 
@@ -68,17 +68,18 @@ void uiCheckList::initGrp( CallBacker* )
 
 bool uiCheckList::isChecked( int idx ) const
 {
-    return idx < 0 || idx >= boxs_.size() ? false : boxs_[idx]->isChecked();
+    return boxs_.validIdx(idx) ? boxs_[idx]->isChecked() : false;
 }
 
 
-void uiCheckList::setChecked( int idx, bool yn )
+uiCheckList& uiCheckList::setChecked( int idx, bool yn )
 {
-    if ( idx >= 0 && idx < boxs_.size() )
+    if ( boxs_.validIdx(idx) )
     {
 	boxs_[idx]->setChecked( yn );
 	boxChk( boxs_[idx] );
     }
+    return *this;
 }
 
 

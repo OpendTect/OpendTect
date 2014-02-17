@@ -146,7 +146,8 @@ uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
     : uiDialog(p,uiDialog::Setup("Please specify",qn,hid))
     , allowcancel_(wcncl)
 {
-    inpfld_ = new uiCheckList( this, opts, uiCheckList::OneOnly );
+    inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
+    inpfld_->addItems( opts );
     setDefaultChoice( 0 );
 }
 
@@ -156,7 +157,8 @@ uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
     : uiDialog(p,s)
     , allowcancel_(wc)
 {
-    inpfld_ = new uiCheckList( this, opts, uiCheckList::OneOnly );
+    inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
+    inpfld_->addItems( opts );
     setDefaultChoice( 0 );
 }
 

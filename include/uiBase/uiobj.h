@@ -39,6 +39,7 @@ mExpClass(uiBase) uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;
+
 public:
 			uiObject(uiParent*,const char* nm);
 			uiObject(uiParent*,const char* nm,uiObjectBody&);
@@ -57,6 +58,7 @@ public:
     enum		SzPolicy{ Undef, Small, Medium, Wide,
 				  SmallVar, MedVar, WideVar,
 				  SmallMax, MedMax, WideMax };
+    enum Orientation	{ Horizontal, Vertical };
 
 
     void		setHSzPol(SzPolicy);

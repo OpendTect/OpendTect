@@ -100,14 +100,12 @@ void uiWellAttribPartServer::doSEGYTool( IOPar* previop, int choice )
 	uiDialog dlg( parent(), uiDialog::Setup("SEG-Y Tool",
 	    previop ? "Import more data?" : "What do you want to do?",
 	    mTODOHelpID) );
-	BufferStringSet choices;
-	choices.add( "&Import SEG-Y file(s) to OpendTect data" );
-	choices.add( "&Scan SEG-Y file(s) to use in-place" );
-	choices.add( "Import &VSP data from SEG-Y file" );
-	choices.add( previop ? "&Quit SEG-Y import"
+	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
+	choicefld->addItem( "&Import SEG-Y file(s) to OpendTect data" );
+	choicefld->addItem( "&Scan SEG-Y file(s) to use in-place" );
+	choicefld->addItem( "Import &VSP data from SEG-Y file" );
+	choicefld->addItem( previop ? "&Quit SEG-Y import"
 			     : "&Cancel the operation" );
-	uiCheckList* choicefld = new uiCheckList( &dlg, choices,
-						  uiCheckList::OneOnly );
 	choicefld->setChecked( 3, true );
 	if ( !dlg.go() )
 	    return;
@@ -139,13 +137,12 @@ void uiWellAttribPartServer::doVSPTool( IOPar* previop, int choice )
     {
 	uiDialog dlg( parent(), uiDialog::Setup("VSP Import",
 					mNoDlgTitle,mTODOHelpID) );
-	BufferStringSet choices;
-	choices.add( "&2-D VSP (will be imported as 2-D seismic line)" );
-	choices.add( "&3-D VSP (can only be imported as 3D cube)" );
-	choices.add( "&Zero-offset (single trace) VSP" );
-	choices.add( previop ? "&Quit import" : "&Cancel the operation" );
-	uiCheckList* choicefld = new uiCheckList( &dlg, choices,
-						  uiCheckList::OneOnly );
+	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
+	choicefld->addItem( "&2-D VSP (will be imported as 2-D seismic line)" );
+	choicefld->addItem( "&3-D VSP (can only be imported as 3D cube)" );
+	choicefld->addItem( "&Zero-offset (single trace) VSP" );
+	choicefld->addItem( previop ? "&Quit import"
+				    : "&Cancel the operation" );
 	choicefld->setChecked( 3, true );
 	if ( !dlg.go() )
 	    return;

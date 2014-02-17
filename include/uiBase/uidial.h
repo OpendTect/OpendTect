@@ -28,10 +28,8 @@ public:
                         uiDial(uiParent*,const char* nm="Dial");
 			~uiDial();
 
-    enum		Orientation { Horizontal, Vertical };
-
     void		setValue(int);
-    int 		getValue() const;
+    int			getValue() const;
 
     void		setMinValue(int);
     int			minValue() const;
@@ -44,7 +42,7 @@ public:
     void		getInterval(StepInterval<int>&) const;
 
     void		setOrientation(Orientation);
-    uiDial::Orientation getOrientation() const;
+    Orientation		getOrientation() const;
 
     void		setInverted(bool);
     bool		isInverted() const;
@@ -59,14 +57,14 @@ public:
     Notifier<uiDial>	sliderMoved;
     Notifier<uiDial>	sliderPressed;
     Notifier<uiDial>	sliderReleased;
-    
+
 private:
 
     uiDialBody*		body_;
     uiDialBody&		mkbody(uiParent*,const char*);
 
     bool		startAtTop_;
-    			// true - numbering starts at the top
+			// true - numbering starts at the top
 };
 
 /*! Dial with label */
@@ -77,7 +75,7 @@ public:
     mExpClass(uiBase) Setup
     {
 	public:
-	    		Setup(const char* l=0)
+			Setup(const char* l=0)
 			    : lbl_(l)
 			    , withedit_(false)
 			    , isvertical_(false)
@@ -93,7 +91,7 @@ public:
 			uiDialExtra(uiParent*,const Setup&, const char* nm);
 
     uiDial*		dial()		{ return dial_; }
-    uiLabel*   		label()   	{ return lbl_; }
+    uiLabel*		label()	{ return lbl_; }
 
     void                processInput();
     float               editValue() const;
@@ -104,7 +102,7 @@ protected:
     uiDial*		dial_;
     uiLabel*            lbl_;
     uiLineEdit*         editfld_;
-    
+
     void                init(const Setup&,const char*);
     void                editRetPress(CallBacker*);
     void                sliderMove(CallBacker*);

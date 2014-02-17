@@ -195,19 +195,18 @@ protected:
     const BufferString	dataroot_;
     SurveyInfo&		survinfo_;
     uiGenInput*		survnmfld_;
+    uiGenInput*		zistimefld_;
+    uiGenInput*		zinfeetfld_;
     uiCheckList*	pol2dfld_;
     uiComboBox*		sipfld_;
-    uiCheckList*	zdomainfld_;
-    uiGroup*		zunitgrp_;
-    uiCheckList*	zunitfld_;
     ObjectSet<uiSurvInfoProvider>& sips_;
 
     BufferString	sipName() const;
     BufferString	survName() const { return survnmfld_->text(); }
     bool		has3D() const	 { return pol2dfld_->isChecked(0); }
     bool		has2D() const	 { return pol2dfld_->isChecked(1); }
-    bool		isTime() const	 { return zdomainfld_->isChecked(0); }
-    bool		isInFeet() const { return zunitfld_->isChecked(1); }
+    bool		isTime() const	 { return zistimefld_->getBoolValue(); }
+    bool		isInFeet() const { return zinfeetfld_->getBoolValue(); }
 
     void		setSip(bool for2donly);
 
@@ -225,7 +224,7 @@ void pol2dChg( CallBacker* cb )
 
 void zdomainChg( CallBacker* cb )
 {
-    zunitgrp_->display( !isTime() );
+    zinfeetfld_->display( !isTime() );
 }
 
 };
@@ -244,7 +243,9 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
 
     uiGroup* pol2dgrp = new uiGroup( this, "Data type group" );
     uiLabel* pol2dlbl = new uiLabel( pol2dgrp, "Available data" );
-    pol2dfld_ = new uiCheckList( pol2dgrp, "3D", "2D", uiCheckList::AtLeastOne);
+    pol2dfld_ = new uiCheckList( pol2dgrp, uiCheckList::AtLeastOne,
+				 uiObject::Horizontal );
+    pol2dfld_->addItem( "3D" ).addItem( "2D" );
     pol2dfld_->attach( rightOf, pol2dlbl );
     pol2dfld_->setChecked( 0, true );
     pol2dfld_->setChecked( 1, false );
@@ -256,23 +257,16 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
     siplcb->attach( alignedBelow, pol2dgrp );
     sipfld_ = siplcb->box();
 
-    uiGroup* zdomaingrp = new uiGroup( this, "Domain group" );
-    uiLabel* domainlbl = new uiLabel( zdomaingrp, "Domain" );
-    zdomainfld_ = new uiCheckList( zdomaingrp, "Time", "Depth",
-				   uiCheckList::OneOnly );
-    zdomainfld_->attach( rightOf, domainlbl );
-    zdomainfld_->changed.notify( mCB(this,uiStartNewSurveySetup,zdomainChg) );
-    zdomaingrp->setHAlignObj( zdomainfld_ );
-    zdomaingrp->attach( alignedBelow, siplcb );
+    zistimefld_ = new uiGenInput( this, "Z Domain",
+				  BoolInpSpec(true,"Time","Depth"));
+    zistimefld_->valuechanged.notify(
+			mCB(this,uiStartNewSurveySetup,zdomainChg) );
+    zistimefld_->attach( alignedBelow, siplcb );
 
-    zunitgrp_ = new uiGroup( this, "Z unit group" );
-    uiLabel* zunitlbl = new uiLabel( zunitgrp_, "Depth unit" );
-    zunitfld_ = new uiCheckList( zunitgrp_, "Meter", "Feet",
-				 uiCheckList::OneOnly );
-    zunitfld_->attach( rightOf, zunitlbl );
-    zunitgrp_->setHAlignObj( zunitfld_ );
-    zunitgrp_->attach( alignedBelow, zdomaingrp );
-    zunitgrp_->display( false );
+    zinfeetfld_ = new uiGenInput( this, "Depth unit",
+				BoolInpSpec(true,"Meter","Feet") );
+    zinfeetfld_->attach( alignedBelow, zistimefld_ );
+    zinfeetfld_->display( false );
 
     setSip( false );
 }

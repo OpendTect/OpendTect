@@ -70,8 +70,9 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    optsfld_ = new uiCheckList( this, "Write line name",
-			SI().zIsTime() ? "Z in msec" : "Z in feet" );
+    optsfld_ = new uiCheckList( this, uiCheckList::Unrel, uiObject::Horizontal);
+    optsfld_->addItem( "Write line name" )
+	     .addItem( SI().zIsTime() ? "Z in msec" : "Z in feet" );
     optsfld_->attach( alignedBelow, udffld_ );
     optsfld_->setChecked( 0, true );
     optsfld_->setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );

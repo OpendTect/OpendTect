@@ -24,7 +24,7 @@ class BufferStringSet;
 /*!\brief Select entry from list */
 
 mExpClass(uiTools) uiSelectFromList : public uiDialog
-{ 	
+{
 public:
 
     mExpClass(uiTools) Setup : public uiDialog::Setup
@@ -45,7 +45,7 @@ public:
 			~uiSelectFromList()	{}
 
     int			selection() const	{ return setup_.current_; }
-    			//!< -1 = no selection made (cancelled or 0 list items)
+			//!< -1 = no selection made (cancelled or 0 list items)
 
     uiListBox*		selFld()		{ return selfld_; }
     uiGenInput*		filtFld()		{ return filtfld_; }
@@ -71,7 +71,7 @@ private:
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
 mExpClass(uiTools) uiGetObjectName : public uiDialog
-{ 	
+{
 public:
 
     mExpClass(uiTools) Setup : public uiDialog::Setup
@@ -112,7 +112,7 @@ protected:
 /*!\brief Get an action from a series of possibilities from user */
 
 mExpClass(uiTools) uiGetChoice : public uiDialog
-{ 	
+{
 public:
 
 			uiGetChoice(uiParent*,
@@ -126,7 +126,7 @@ public:
 
     void		setDefaultChoice(int);
     int			choice() const		{ return choice_; }
-    			//!< on cancel will be -1
+			//!< on cancel will be -1
 
     uiCheckList*	checkList();
     uiGroup*		bottomFld(); //!< is checkList()
@@ -144,4 +144,3 @@ protected:
 
 
 #endif
-
