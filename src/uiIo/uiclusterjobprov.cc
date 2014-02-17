@@ -104,7 +104,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
     *sd.ostrm << fp.fullPath().buf() << std::endl;
     *sd.ostrm << "set exitcode = $status" << std::endl;
     *sd.ostrm << "echo \""; *sd.ostrm << desc;
-    *sd.ostrm << " finished with code ${exitcode} >>\\" << std::endl;
+    *sd.ostrm << " finished with code ${exitcode}\" >> \\" << std::endl;
     fp.setExtension( ".log" );
     *sd.ostrm << fp.fullPath().buf() << std::endl;
     *sd.ostrm << "exit ${exitcode}" << std::endl;
@@ -133,6 +133,8 @@ int nextStep()
     fp.setExtension( "log" );
     BufferString logfnm = fp.fullPath();
     iop.set( sKey::LogFile(), logfnm );
+    iop.set( sKey::DataRoot(), GetBaseDataDir() );
+    iop.set( sKey::Survey(), IOM().surveyName() );
     if ( !iop.write(parfnm.buf(),sKey::Pars()) )
 	return ErrorOccurred();
 
