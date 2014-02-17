@@ -287,13 +287,11 @@ uiWellRockPhysLauncher( uiParent* p )
 
 bool acceptOK( CallBacker* )
 {
+    if ( !selgrp_->processInput() )
+	return false;
+
     TypeSet<MultiID> mids;
     selgrp_->getSelected( mids );
-    if ( mids.isEmpty() )
-    {
-	uiMSG().error( "Please select at least one well" );
-	return false;
-    }
 
     uiWellLogCalc dlg( this, mids, true );
     dlg.go();

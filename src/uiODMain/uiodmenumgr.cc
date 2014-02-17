@@ -772,7 +772,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mAddTB(dtecttb_,"xplot_attribs","Cross-plot Attribute vs Attribute data",
 	   false,doAttribXPlot);
 
-    mAddTB(dtecttb_,"rockphys","Rock Physics",false,launchRockPhysics);
+    mAddTB(dtecttb_,"rockphys","Create new well logs using Rock Physics",
+	    		false,launchRockPhysics);
 
     dTectTBChanged.trigger();
 }
