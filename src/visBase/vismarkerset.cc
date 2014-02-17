@@ -255,6 +255,9 @@ void MarkerSet::setDisplayTransformation( const mVisTrans* nt )
     if ( normals_ ) normals_->setDisplayTransformation( nt );
     
     displaytrans_ = nt;
+
+    forceRedraw( true );
+
 }
 
 
