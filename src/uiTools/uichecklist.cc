@@ -35,6 +35,8 @@ uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
     if ( !boxs_.isEmpty() )
 	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
 
+    cb->setStretch( 2, 2 );
+
     boxs_ += cb;
     return *this;
 }
