@@ -126,13 +126,18 @@ void uiFlatViewStdControl::finalPrepare()
     updatePosButtonStates();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	MouseEventHandler& mevh = mouseEventHandler( idx, false );
-	mAttachCB( mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
+	MouseEventHandler& mevh =
+	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
+	mAttachCBIfNotAttached(
+		mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
 	if ( withhanddrag_ )
 	{
-	    mAttachCB(mevh.buttonPressed,uiFlatViewStdControl::handDragStarted);
-	    mAttachCB( mevh.buttonReleased, uiFlatViewStdControl::handDragged );
-	    mAttachCB( mevh.movement, uiFlatViewStdControl::handDragging );
+	    mAttachCBIfNotAttached(
+		    mevh.buttonPressed, uiFlatViewStdControl::handDragStarted );
+	    mAttachCBIfNotAttached(
+		    mevh.buttonReleased, uiFlatViewStdControl::handDragged );
+	    mAttachCBIfNotAttached(
+		    mevh.movement, uiFlatViewStdControl::handDragging );
 	}
     }
 }
