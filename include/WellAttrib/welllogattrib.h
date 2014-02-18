@@ -5,8 +5,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:        Nanne Hemstra
+ Date:          December 2013
  RCS:           $Id$
 ________________________________________________________________________
 
@@ -15,7 +15,10 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "attribprovider.h"
+#include "multiid.h"
+#include "ranges.h"
 
+template <class T> class Array1D;
 
 namespace Attrib
 {
@@ -23,7 +26,7 @@ namespace Attrib
 /*!
 \brief %WellLog Attribute
 
-Reads a log from 1 or more wells
+Reads a log from 1 well and extends it laterally
 
 <pre>
 WellLog
@@ -44,8 +47,10 @@ public:
     static const char*	keyStr()		{ return "id"; }
     static const char*	logName()		{ return "logname"; }
 
+    void		prepareForComputeData();
+
 protected:
-			~WellLog() {}
+			~WellLog();
     static Provider*    createInstance(Desc&);
 
     bool		allowParallelComputation() const;
@@ -54,14 +59,13 @@ protected:
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
 
-    Interval<float>	gate_;
-    Interval<int>	dessampgate_;
-    int			dataidx_;
-    const DataHolder*	inputdata_;
+    MultiID		wellid_;
+    BufferString	logname_;
+    Array1D<float>*	logvals_;
+    StepInterval<float>	arrzrg_;
 };
 
 } // namespace Attrib
-
 
 #endif
 

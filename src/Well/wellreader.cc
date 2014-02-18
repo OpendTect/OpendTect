@@ -308,7 +308,14 @@ bool Well::Reader::getTrack() const
 }
 
 
-void Well::Reader::getLogInfo( BufferStringSet& strs ) const
+void Well::Reader::getLogInfo( BufferStringSet& nms ) const
+{
+    TypeSet<int> idxs;
+    getLogInfo( nms, idxs );
+}
+
+
+void Well::Reader::getLogInfo( BufferStringSet& nms, TypeSet<int>& idxs ) const
 {
     for ( int idx=1;  ; idx++ )
     {
@@ -319,14 +326,17 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	{
 	    int bintyp = 0;
 	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
-	    if ( strs.isPresent( log->name() ) )
+	    if ( nms.isPresent(log->name()) )
 	    {
-		BufferString msg(log->name());
+		BufferString msg( log->name() );
 		msg += " already present in the list, won't be read";
 		pErrMsg( msg );
 	    }
 	    else
-		strs.add( log->name() );
+	    {
+		nms.add( log->name() );
+		idxs += idx;
+	    }
 	}
     }
 }
@@ -382,6 +392,20 @@ Interval<float> Well::Reader::getAllLogsDahRange() const
 	ret.include( dahrg );
     }
     return ret;
+}
+
+
+bool Well::Reader::getLog( const char* lognm ) const
+{
+    BufferStringSet nms;
+    TypeSet<int> idxs;
+    getLogInfo( nms, idxs );
+    const int lognmidx = nms.indexOf( lognm );
+    if ( lognmidx<0 ) return false;
+
+    const int logfileidx = idxs[lognmidx];
+    mGetInpStream( sExtLog(), logfileidx, return false );
+    return addLog( strm );
 }
 
 

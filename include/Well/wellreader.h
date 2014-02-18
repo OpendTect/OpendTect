@@ -45,6 +45,7 @@ public:
     bool		getD2T() const;		//!< Read D2T model only
     bool		getCSMdl() const;	//!< Read Checkshot model only
     bool		getDispProps() const;	//!< Read display props only
+    bool		getLog(const char* lognm) const; //!< Read lognm only
 
     bool		getInfo(od_istream&) const;
     bool		addLog(od_istream&) const;
@@ -53,8 +54,10 @@ public:
     bool		getCSMdl(od_istream&) const;
     bool		getDispProps(od_istream&) const;
 
-    void		getLogInfo(BufferStringSet&) const;
-    Interval<float>	getLogDahRange(const char*) const;
+    void		getLogInfo(BufferStringSet& lognms) const;
+
+    // These should not be here. Move to Well::Log class
+    Interval<float>	getLogDahRange(const char* lognm) const;
     			//!< If no log with this name, returns [undef,undef]
     Interval<float>	getAllLogsDahRange() const;
     			//!< If no log returns [undef,undef]
@@ -64,6 +67,7 @@ protected:
     Data&		wd;
 
     bool		getOldTimeWell(od_istream&) const;
+    void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		getTrack(od_istream&) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;

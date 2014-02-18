@@ -10,20 +10,18 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 
-
 #include "uiwelllogattrib.h"
 #include "welllogattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "welldata.h"
+#include "welllogset.h"
+#include "wellman.h"
 
 #include "uiattribfactory.h"
 #include "uilistbox.h"
 #include "uiwellsel.h"
-
-#include "welldata.h"
-#include "welllogset.h"
-#include "wellman.h"
 
 using namespace Attrib;
 
