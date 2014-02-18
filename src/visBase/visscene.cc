@@ -52,7 +52,7 @@ Scene::Scene()
     light_->setLightNum( 1 );
     osg::ref_ptr<osg::StateSet> stateset = osggroup_->getOrCreateStateSet();
     stateset->setAttributeAndModes(light_->osgLight() );
-    
+
     polygonoffset_->ref();
 
     float units = mDefaultUnits;
@@ -129,7 +129,7 @@ void Scene::runUpdateQueueCB(CallBacker *)
 {
     if ( !visualizationthread_ )
         setVisualizationThread( Threads::currentThread() );
-    
+
     Threads::WorkManager::twm().executeQueue( updatequeueid_ );
 }
 
@@ -244,47 +244,47 @@ void Scene::mousePickCB( CallBacker* cb )
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    DataObject* dataobj = DM().getObject(eventinfo.pickedobjids[idx]);
-	    const bool idisok = markerclicked || mousedownid_==dataobj->id();
+	    if ( !dataobj ) continue;
 
-	    if ( idisok )
+	    const bool idisok = markerclicked || mousedownid_==dataobj->id();
+	    if ( !idisok ) continue;
+
+	    if ( dataobj->rightClickable() &&
+		 OD::rightMouseButton(eventinfo.buttonstate_) &&
+		 dataobj->rightClicked() )
 	    {
-		if ( dataobj->rightClickable() &&
-		     OD::rightMouseButton(eventinfo.buttonstate_) &&
-		     dataobj->rightClicked() )
+		mDynamicCastGet( visBase::MarkerSet*, emod, dataobj );
+		if ( emod )
 		{
-		    mDynamicCastGet( visBase::MarkerSet*, emod, dataobj );
-		    if ( emod ) 
-		    {
-			markerclicked = true;
-			continue;
-		    }
-		    dataobj->triggerRightClick(&eventinfo);
+		    markerclicked = true;
+		    continue;
+		}
+		dataobj->triggerRightClick(&eventinfo);
+		events_.setHandled();
+	    }
+	    else if ( dataobj->selectable() )
+	    {
+		if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+		      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		      !OD::altKeyboardButton(eventinfo.buttonstate_) )
+		{
+		    DM().selMan().select( mousedownid_, true );
 		    events_.setHandled();
 		}
-		else if ( dataobj->selectable() )
+		else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
+		      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		      !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		{
-		    if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
-			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
-		    {
-			DM().selMan().select( mousedownid_, true );
-			events_.setHandled();
-		    }
-		    else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
-			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
-		    {
-			DM().selMan().select( mousedownid_, false );
-			events_.setHandled();
-		    }
+		    DM().selMan().select( mousedownid_, false );
+		    events_.setHandled();
 		}
-
-		break;
 	    }
+
+	    break;
 	}
     }
 
-    //Note: 
+    //Note:
     //Don't call setHandled, since that will block all other event-catchers
     //(Does not apply for OSG. Every scene has only one EventCatcher. JCG)
 }
