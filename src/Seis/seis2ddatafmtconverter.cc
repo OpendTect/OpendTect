@@ -17,6 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
+#include "survgeom.h"
+
+#define mCapChar "^"
 
 class OD_2DLineSetTo2DDataSetConverter
 {
@@ -99,7 +102,9 @@ void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 	const Seis2DLineSet lineset( *ioobjlist[idx] );
 	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
 	{
-	    IOPar* iop = new IOPar(lineset.getInfo(lineidx) );
+	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
+	    iop->add( sKey::GeomID(), Survey::GM().getGeomID(
+				    lineset.lineName(lineidx),lineset.name()) );
 	    all2dseisiopars_ += iop;
 	}
     }
@@ -153,7 +158,14 @@ bool OD_2DLineSetTo2DDataSetConverter::copyDataAndAddToDelList(
 	FilePath oldfp( oldfilepaths.get(idx) );
 	FilePath newfp( getAttrFolderPath( *iop ) );
 	File::createDir( newfp.fullPath() );
-	newfp.add( oldfp.fileName() );
+	BufferString newfn( newfp.fileName() );
+	newfn.add( mCapChar );
+	Pos::GeomID geomid;
+	if ( !iop->get(sKey::GeomID(),geomid) || geomid <= 0 )
+	    continue;
+	newfn.add( geomid );
+	newfp.add( newfn ).setExtension( oldfp.extension() );
+
 	if ( oldfp == newfp )
 	    continue;
 
@@ -188,10 +200,11 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFiles(
 		continue;
 	    }
 
-	    BufferString newfnm( attrname );
-	    newfnm.add(FilePath::dirSep(FilePath::Local)).add(
-							    oldfnm.fullPath());
-	    iop->set( sKey::FileName(), newfnm.buf() );
+	    FilePath newfnm( attrname );
+	    newfnm.add( BufferString(attrname).add(mCapChar).add( Survey::GM().
+			getGeomID(lineset.lineName(lineidx),lineset.name()) ) );
+	    newfnm.setExtension( oldfnm.extension() );
+	    iop->set( sKey::FileName(), newfnm.fullPath() );
 	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 									*iop) );
 	    if ( File::exists(newfullfnm.buf()) || !File::exists(
