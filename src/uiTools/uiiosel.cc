@@ -62,7 +62,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	}
     }
     inp_->setReadOnly( false );
-    inp_->setHSzPol( uiObject::WideVar );
+    inp_->setHSzPol( uiObject::Wide );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );
