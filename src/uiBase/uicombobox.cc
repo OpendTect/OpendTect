@@ -110,11 +110,11 @@ uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 
 void uiComboBox::adjustWidth( const char* txt )
 {
-    const uiFont& font =
-	uiFontList::getInst().get(FontData::key(FontData::Control) );
-    const int width = font.width( txt );
+    const uiFont& controlfont =
+	uiFontList::getInst().get( FontData::key(FontData::Control) );
+    const int txtwidth = controlfont.width( txt );
     
-    curwidth_ = curwidth_ >= width ? curwidth_ : width;
+    curwidth_ = curwidth_ >= txtwidth ? curwidth_ : txtwidth;
     body_->view()->setMinimumWidth( curwidth_ + 50 );
 }
 
