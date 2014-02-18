@@ -10,8 +10,9 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 
-#include "moddepmgr.h"
 #include "coord.h"
+#include "moddepmgr.h"
+
 #include "uivelocitygridder.h"
 #include "uivolprocattrib.h"
 #include "uivolproclateralsmoother.h"
@@ -20,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
 #include "uiwellloginterpolator.h"
+#include "uivolprocbatchsetup.h"
 
 
 
@@ -38,4 +40,6 @@ mDefModInitFn(uiVolumeProcessing)
 #ifdef __debug__
     uiVolProcAttrib::initClass();
 #endif
+
+    Batch::MMJobDispatcher::addDef( new Batch::VolMMProgDef );
 }

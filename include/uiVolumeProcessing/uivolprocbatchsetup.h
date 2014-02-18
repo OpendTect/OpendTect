@@ -13,10 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "uivolumeprocessingmod.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
+#include "mmbatchjobdispatch.h"
 
 class IOObj;
 
+class uiBatchJobDispatcherSel;
 class uiIOObjSel;
 class uiPosSubSel;
 class uiPushButton;
@@ -28,7 +30,7 @@ namespace VolProc
 
 class Chain;
 
-mExpClass(uiVolumeProcessing) uiBatchSetup : public uiFullBatchDialog
+mExpClass(uiVolumeProcessing) uiBatchSetup : public uiDialog
 {
 
 public:
@@ -38,7 +40,7 @@ public:
 protected:
 
     bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     bool		retrieveChain();
 
     uiIOObjSel*		setupsel_;
@@ -46,12 +48,29 @@ protected:
     uiPosSubSel*	possubsel_;
     uiIOObjSel*		outputsel_;
     Chain*		chain_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     void		setupSelCB(CallBacker*);
     void		editPushCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
 };
 
 } // namespace VolProc
 
-#endif
 
+namespace Batch
+{
+
+class VolMMProgDef : public MMProgDef
+{
+public:
+			VolMMProgDef() : MMProgDef( "od_SeisMMBatch" )	{}
+    virtual bool	isSuitedFor(const char*) const;
+    virtual bool	canHandle(const JobSpec&) const;
+    static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }
+};
+
+
+} // namespace Batch
+
+#endif

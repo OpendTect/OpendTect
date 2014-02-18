@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volproctrans.h"
 
 #include "uibutton.h"
+#include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -29,39 +30,34 @@ namespace VolProc
 {
 
 uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
-    : uiFullBatchDialog( p,
-	    uiFullBatchDialog::Setup("Volume Builder: Create output")
-	    .procprognm("od_process_volume" ) )
+    : uiDialog( p, uiDialog::Setup("Volume Builder: Create output",
+				   mNoDlgTitle,"103.2.11" ) )
     , chain_( 0 )
 {
-    setTitleText( 0 );
-    setHelpID( "103.2.11" );
-
     IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
     setupcontext.forread = true;
-    setupsel_ = new uiIOObjSel( uppgrp_, setupcontext,
+    setupsel_ = new uiIOObjSel( this, setupcontext,
 	   			"Volume Builder setup" );
     if ( initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
-    editsetup_ = new uiPushButton( uppgrp_, "Create",
+    editsetup_ = new uiPushButton( this, "Create",
 	    ioPixmap(uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 
-    possubsel_ = new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,true) );
+    possubsel_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true) );
     possubsel_->attach( alignedBelow, setupsel_ );
 
-    outputsel_ = new uiSeisSel( uppgrp_, uiSeisSel::ioContext(Seis::Vol,false), 
+    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
 
-    uppgrp_->setHAlignObj( setupsel_ );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::Vol );
+    batchfld_->attach( alignedBelow, outputsel_ );
 
-    setParFileNmDef( "volume_builder" );
-
-    addStdFields( false, false, true );
     setupSelCB( 0 );
 }
 
@@ -118,13 +114,14 @@ bool uiBatchSetup::prepareProcessing()
 }
 
 
-bool uiBatchSetup::fillPar( IOPar& par )
+bool uiBatchSetup::fillPar()
 {
     const IOObj* setupioobj = setupsel_->ioobj( true );
     PtrMan<IOObj> outputioobj = outputsel_->getIOObj( true );
     if ( !setupioobj || !outputioobj )
 	return false; 
 
+    IOPar& par = batchfld_->jobSpec().pars_;
     par.set( VolProcessingTranslatorGroup::sKeyChainID(), setupioobj->key() );
 
     // TODO: Make this more general, e.g remove all Attrib related keys
@@ -141,13 +138,38 @@ void uiBatchSetup::setupSelCB( CallBacker* )
 {
     const IOObj* outputioobj = setupsel_->ioobj( true );
     editsetup_->setText( outputioobj ? "Edit ..." : "Create ..." );
+    if ( outputioobj )
+	batchfld_->setJobName( outputioobj->name() );
 
     retrieveChain();
     const bool needsfullvol = chain_ ? chain_->needsFullVolume() : true;
-    if ( needsfullvol )
-	setMode( uiFullBatchDialog::Single );
+    IOPar& par = batchfld_->jobSpec().pars_;
+    par.setYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
+    batchfld_->jobSpecUpdated();
+}
 
-    singmachfld_->setSensitive( !needsfullvol );
+
+bool uiBatchSetup::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
 }
 
 } // namespace VolProc
+
+
+// class VolMMProgDef
+
+bool Batch::VolMMProgDef::isSuitedFor( const char* prognm ) const
+{
+    BufferString pnm( prognm );
+    return pnm == Batch::JobSpec::progNameFor( Batch::JobSpec::Vol );
+}
+
+
+bool Batch::VolMMProgDef::canHandle( const Batch::JobSpec& js ) const
+{
+    const IOPar& par = js.pars_;
+    bool needsfullvol = false;
+    par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
+    return !needsfullvol;
+}
