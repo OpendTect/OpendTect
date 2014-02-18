@@ -253,7 +253,8 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     {
 	// For 2D, inline is just an index number
 	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata );
-	sd.setInlRange( Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
+	sd.setInlRange(
+		Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
     }
 
     if ( selRes(rdmgr_->binID()) )
@@ -503,6 +504,39 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 }
 
 
+
+static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
+{
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( ext );
+    StreamProvider* sp = new StreamProvider( fp.fullPath() );
+    if ( !sp->exists(true) )
+    { delete sp; sp = 0; }
+
+    return sp;
+}
+
+
+static void removeAuxFile( const IOObj* ioobj, const char* ext )
+{
+    PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
+    if ( sp ) sp->remove(false);
+}
+
+
+static void renameAuxFile( const IOObj* ioobj, const char* newnm,
+			   const char* ext )
+{
+    PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
+    if ( sp )
+    {
+	FilePath fpnew( newnm );
+	fpnew.setExtension( ext );
+	sp->rename( fpnew.fullPath() );
+    }
+}
+
+
 #define mImplStart(fn) \
     if ( !ioobj || ioobj->translator()!="CBVS" ) return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
@@ -522,21 +556,24 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    mImplStart(implRemove());
+    mImplStart( implRemove() );
 
-    FilePath fpar( ioobj->fullUserExpr(true) );
-    fpar.setExtension( "par" );
-    StreamProvider parsp( fpar.fullPath() );
-    if ( parsp.exists(true) )
-	parsp.remove(false);
+    removeAuxFile( ioobj, "par" );
+    removeAuxFile( ioobj, "proc" );
 
+    bool rv = true;
     for ( int nr=0; ; nr++ )
     {
 	mImplLoopStart;
 
 	if ( !sp.remove(false) )
-	    return nr ? true : false;
+	{
+	    rv = nr ? true : false;
+	    break;
+	}
     }
+
+    return rv;
 }
 
 
@@ -545,15 +582,8 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 {
     mImplStart( implRename(newnm) );
 
-    FilePath fpar( ioobj->fullUserExpr(true) );
-    fpar.setExtension( "par" );
-    StreamProvider parsp( fpar.fullPath() );
-    if ( parsp.exists(true) )
-    {
-	FilePath fparnew( newnm );
-	fparnew.setExtension( "par" );
-	parsp.rename( fparnew.fullPath() );
-    }
+    renameAuxFile( ioobj, newnm, "par" );
+    renameAuxFile( ioobj, newnm, "proc" );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
