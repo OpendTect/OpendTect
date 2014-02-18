@@ -232,12 +232,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* si )
 	    addObject( northarrow_ );
 	}
     }
+    
+    if ( si != survinfo_ )
+	survinfo_ = si;
 
     if ( !si )
 	return;
-
-    if ( si != survinfo_ )
-	survinfo_ = si;
 
     view_.setViewArea( 0, 0, view_.scene().width(), view_.scene().height() );
 
