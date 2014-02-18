@@ -85,7 +85,6 @@ protected:
     virtual bool	notifyValueChanging_(const CallBack&)	{return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
-
 private:
 
     int			oldnritems_;
@@ -96,6 +95,8 @@ private:
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
+    void		adjustWidth(const char*);
+    int			curwidth_;
 
 public:
 

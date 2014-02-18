@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_qcombobox.h"
 
+#include <QAbstractItemView>
 #include <QContextMenuEvent>
 #include <QSize>
 
@@ -68,6 +69,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     , selectionChanged( this )
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
 {
 }
 
@@ -78,6 +80,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
     , selectionChanged( this )
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
 {
     addItems( uids );
 }
@@ -88,6 +91,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     , selectionChanged( this )
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
 {
     addItems( uids );
 }
@@ -101,6 +105,17 @@ uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 {
     body_ = new uiComboBoxBody( *this, parnt, nm );
     return *body_;
+}
+
+
+void uiComboBox::adjustWidth( const char* txt )
+{
+    const uiFont& font =
+	uiFontList::getInst().get(FontData::key(FontData::Control) );
+    const int width = font.width( txt );
+    
+    curwidth_ = curwidth_ >= width ? curwidth_ : width;
+    body_->view()->setMinimumWidth( curwidth_ + 50 );
 }
 
 
@@ -213,7 +228,10 @@ void uiComboBox::setCurrentItem( int idx )
 void uiComboBox::setItemText( int idx, const char* txt )
 {
     if ( idx >= 0 && idx < body_->count() )
+    {
+	adjustWidth( txt );
 	body_->setItemText( idx, QString(txt) );
+    }
 }
 
 
@@ -254,6 +272,8 @@ void uiComboBox::addItem( const wchar_t* txt, int id )
 #else
     QString itmtxt = QString::fromWCharArray( txt );
 #endif
+    const BufferString itmstr( itmtxt );
+    adjustWidth( itmstr.buf() );
     body_->addItem( itmtxt );
     itemids_ += id;
 }
@@ -266,6 +286,7 @@ void uiComboBox::addItem( const char* txt )
 void uiComboBox::addItem( const char* txt, int id )
 {
     mBlockCmdRec;
+    adjustWidth( txt );
     body_->addItem( QString(txt) );
     itemids_ += id;
 }
@@ -285,6 +306,7 @@ void uiComboBox::addSeparator()
 void uiComboBox::insertItem( const char* txt, int index, int id )
 {
     mBlockCmdRec;
+    adjustWidth( txt );
     body_->insertItem( index, QString(txt) );
     itemids_.insert( index, id );
 }
@@ -294,6 +316,7 @@ void uiComboBox::insertItem( const ioPixmap& pm, const char* txt,
 			     int index, int id )
 {
     mBlockCmdRec;
+    adjustWidth( txt );
     body_->insertItem( index, *pm.qpixmap(), QString(txt) );
     itemids_.insert( index, id );
 }
