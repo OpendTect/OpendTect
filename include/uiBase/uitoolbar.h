@@ -58,7 +58,7 @@ public:
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
 
-    void		setLabel(const char*);
+    void		setLabel(const uiString&);
 
     void		setToggle(int id, bool);
     void		setIcon(int id,const char*);
@@ -121,6 +121,7 @@ protected:
     ToolBarArea			tbarea_;
     ObjectSet<uiObject>		addedobjects_;
 
+    uiString			label_;
     int				getButtonID(mQtclass(QAction*));
     
 public:

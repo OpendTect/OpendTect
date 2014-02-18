@@ -128,10 +128,11 @@ void uiToolBar::addObject( uiObject* obj )
 };
 
 
-void uiToolBar::setLabel( const char* lbl )
+void uiToolBar::setLabel( const uiString& lbl )
 {
-    qtoolbar_->setWindowTitle( QString(lbl) );
-    setName( lbl );
+    label_ = lbl;
+    qtoolbar_->setWindowTitle( lbl.getQtString() );
+    setName( lbl.getFullString() );
 }
 
 #define mGetAction( conststatement, erraction ) \
@@ -251,6 +252,9 @@ void uiToolBar::clear()
 
 void uiToolBar::translateText()
 {
+    if ( !label_.isEmpty() )
+        qtoolbar_->setWindowTitle( label_.getQtString() );
+
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
 	addedobjects_[idx]->translateText();
 }

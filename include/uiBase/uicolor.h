@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "color.h"
 #include "uigroup.h"
+#include "uistrings.h"
 
 class uiLabel;
 class uiPushButton;
@@ -26,8 +27,8 @@ class uiSpinBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-mGlobal(uiBase) bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
-		    bool withtransp=false); 
+mGlobal(uiBase) bool selectColor(Color&,uiParent* parnt=0,uiString=0,
+                                 bool withtransp=false);
 
 // To be used by cmddriver to select a color while closing the QColorDialog
 mGlobal(uiBase) void		setExternalColor( const Color& );
@@ -41,7 +42,7 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
  */
 
 mExpClass(uiBase) uiColorInput : public uiGroup
-{
+{ mTextTranslationClass(uiColorInput)
 public:
     mExpClass(uiBase) Setup
     {
@@ -51,17 +52,16 @@ public:
 
 			    Setup( const Color& col, TranspHndlng h=None )
 				: color_(col)
-				, lbltxt_("")
 				, withcheck_(false)
-				, dlgtitle_("Select color")
+                                , dlgtitle_( uiColorInput::sSelColor() )
 				, transp_(h)
 				, withdesc_(h != Separate)
 			    {}
 
 	mDefSetupMemb(Color,color)
-	mDefSetupMemb(BufferString,lbltxt)
+	mDefSetupMemb(uiString,lbltxt)
 	mDefSetupMemb(bool,withcheck)
-	mDefSetupMemb(BufferString,dlgtitle)
+	mDefSetupMemb(uiString,dlgtitle)
 	mDefSetupMemb(TranspHndlng,transp)
 	mDefSetupMemb(bool,withdesc)
 
@@ -82,7 +82,11 @@ public:
     uiPushButton*		getButton()	{ return colbut_; }
     uiComboBox*			getDescCombo()	{ return descfld_; }
 
-protected:
+    static uiString		sSelColor()	{ return tr("Select color"); }
+    static bool			selectColor(Color& col,uiParent*,
+                                            uiString,bool withtransp);
+
+private:
 
     uiPushButton*		colbut_;
     uiCheckBox*			dodrawbox_;
@@ -91,14 +95,13 @@ protected:
     uiLabel*			lbl_;
 
     Color			color_;
-    BufferString		dlgtxt_;
+    uiString			dlgtxt_;
     bool			selwithtransp_;
 
     void			selCol(CallBacker*);
     void			dodrawSel(CallBacker*);
     void			descSel(CallBacker*);
     void			transpChg(CallBacker*);
-
 };
 
 #endif

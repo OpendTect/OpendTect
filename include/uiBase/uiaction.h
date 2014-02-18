@@ -122,10 +122,6 @@ public:
     static void         removeCmdRecorder(const CallBack&);
     int  /* refnr */    beginCmdRecEvent(const char* msg=0);
     void                endCmdRecEvent(int refnr,const char* msg=0);
-
-			//Legacy, to be removed
-    void		setPixmap(const char* file) { setIcon(file); }
-    void		setPixmap(const ioPixmap& p) { setIcon(p); }
 };
 
 /*!Represents a series of menu selections, from the top of a

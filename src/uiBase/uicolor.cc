@@ -61,15 +61,22 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 }
 
 
-bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
+bool selectColor( Color& col, uiParent* parnt,
+                uiString txt, bool withtransp )
+{ return uiColorInput::selectColor( col, parnt, txt, withtransp ); }
+
+
+
+bool uiColorInput::selectColor( Color& col, uiParent* parnt,
+                                uiString txt, bool withtransp )
 {
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
-    if ( !nm || !*nm ) nm = "Select color";
+    if ( txt.isEmpty() ) txt = tr("Select color");
 
     BufferString addendum;
-    const uiString wintitle = uiMainWin::uniqueWinTitle( nm, 0, &addendum );
-    BufferString utfwintitle( nm, addendum );
-    const int refnr = beginCmdRecEvent( utfwintitle );
+    const uiString wintitle = uiMainWin::uniqueWinTitle( txt, 0, &addendum );
+    BufferString utfwintitle( txt.getFullString(), addendum );
+    const int refnr = ::beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
     qdlg.setWindowTitle( wintitle.getQtString() );
@@ -98,7 +105,7 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 		 withtransp ? newcol.alpha() : col.t() );
     }
 
-    endCmdRecEvent( refnr, ok, col, withtransp );
+    ::endCmdRecEvent( refnr, ok, col, withtransp );
     return ok;
 }
 
@@ -131,20 +138,21 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	dodrawbox_->setChecked( true );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
-    colbut_ = new uiPushButton( this, "", false );
-    colbut_->setName( nm && *nm ? nm :
-	    ( s.lbltxt_ && *s.lbltxt_ ? s.lbltxt_.buf() : "Color") );
+    colbut_ = new uiPushButton( this,"", false );
+    colbut_->setName( (nm && *nm)
+            ? nm
+            : (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString() : "Color" ) );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     if ( dodrawbox_ )
 	colbut_->attach( rightOf, dodrawbox_ );
     
-    if ( !dodrawbox_ && s.lbltxt_ && *s.lbltxt_)
+    if ( !dodrawbox_ && !s.lbltxt_.isEmpty() )
 	lbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
 
     uiLabeledSpinBox* lsb = 0;
     if ( s.transp_ == Setup::Separate )
     {
-	lsb = new uiLabeledSpinBox( this, "Transp", 0 );
+	lsb = new uiLabeledSpinBox( this, tr("Transp"), 0 );
 	lsb->attach( rightOf, colbut_ );
 	transpfld_ = lsb->box();
 	transpfld_->setSuffix( "%" );
