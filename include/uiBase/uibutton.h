@@ -67,13 +67,13 @@ protected:
 mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
-			uiPushButton(uiParent*,const uiString& nm,
+			uiPushButton(uiParent*,const uiString& txt,
 				     bool immediate);
-			uiPushButton(uiParent*,const uiString& nm,
+			uiPushButton(uiParent*,const uiString& txt,
 				     const CallBack&,bool immediate);
-			uiPushButton(uiParent*,const uiString& nm,
+			uiPushButton(uiParent*,const uiString& txt,
 				     const ioPixmap&,bool immediate);
-			uiPushButton(uiParent*,const uiString& nm,
+			uiPushButton(uiParent*,const uiString& txt,
 				     const ioPixmap&,const CallBack&,
 				     bool immediate);
 
