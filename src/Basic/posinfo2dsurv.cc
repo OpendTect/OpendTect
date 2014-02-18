@@ -40,9 +40,10 @@ namespace PosInfo { struct Survey2DDeleter : public NamedObject {
 
 
 const PosInfo::Line2DKey& PosInfo::Line2DKey::udf()
-{
-    return udfl2dkey;
-}
+{ return udfl2dkey; }
+
+bool PosInfo::Line2DKey::isUdf() const
+{ return *this == udf(); }
 
 
 bool PosInfo::Line2DKey::haveLSID() const

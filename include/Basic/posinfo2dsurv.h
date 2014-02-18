@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "basicmod.h"
 #include "posinfo2d.h"
 #include "separstr.h"
@@ -54,7 +54,7 @@ public:
 			    : IdxPair(lsid,lineid)	{}
 
     inline bool		operator ==( const Line2DKey& oth ) const
-   			{ return IdxPair::operator==(oth); }
+			{ return IdxPair::operator==(oth); }
     inline bool		operator !=( const Line2DKey& oth ) const
 			{ return !( operator==(oth) ); }
 
@@ -71,6 +71,7 @@ public:
     bool		haveLSID() const;
     bool		haveLineID() const;
 
+    bool		isUdf() const;
     static const Line2DKey& udf();
 
 };
@@ -106,7 +107,7 @@ public:
     void		removeLine(const char*);
     void		removeLineSet(const char*);
     void		renameLineSet(const char*,const char*);
-    
+
     // using ids
     const char*		getLineSet(IdxType lsid) const;
     const char*		getLineName(IdxType lineid) const;
@@ -122,7 +123,7 @@ public:
 
     bool		getGeometry(IdxType lid,Line2DData&) const;
     bool		getGeometry(const Line2DKey&,Line2DData&) const;
-    			//!< thread safe
+			//!< thread safe
 
     void		renameLine(const char*oldnm,const char*newnm);
     void		removeLine(IdxType lid);
@@ -133,7 +134,7 @@ public:
     const char*		getLineFileNm(const char* lsnm,const char* lnm) const;
 
     bool		readDistBetwTrcsStats(const char* linemn,float& max,
-	    				      float& median) const;
+					      float& median) const;
 
 protected:
 
@@ -152,31 +153,28 @@ private:
 
     void		readIdxFiles();
     bool		isIdxFileNew(const char* lsnm=0) const;
-    BufferString 	getIdxTimeStamp(const char* lsnm=0) const;
+    BufferString	getIdxTimeStamp(const char* lsnm=0) const;
     static void		readIdxFile(const char*,IOPar&);
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
     void		getIDs(const IOPar&,TypeSet<IdxType>&) const;
     BufferString	getNewStorageName(const char*,const FilePath&,
-	    				  const IOPar&) const;
+					  const IOPar&) const;
     int			getLineSetIdx(IdxType lsid) const;
     int			getLineIdx(IdxType lineid) const;
 
     mGlobal(Basic) friend const Survey2D& ::S2DPOS();
 
-    			Survey2D();
+			Survey2D();
 
 public:
 
-    			~Survey2D();
+			~Survey2D();
 
 };
 
 
 } // namespace PosInfo
-
-
-
 
 #endif
 
