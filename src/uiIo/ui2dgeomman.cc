@@ -49,7 +49,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linesetfld_->setPrefWidth( 200 );
 
 	uiToolButton* removelsgeombut =
-	new uiToolButton( this, "trashcan", "Reemove LineSet Geometry",
+	new uiToolButton( this, "trashcan", "Remove LineSet Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
     removelsgeombut->attach( centeredRightOf, lslb );
 
