@@ -24,6 +24,12 @@ bool testArg()
     mRunStandardTest( string.getQtString()==QString(desoutput),
 		     "Reversed argument order");
 
+    string = uiString( "Hello %1 %2");
+    string.arg( "Dear" ).arg( toString(1) );
+    mRunStandardTest( string.getQtString()==QString(desoutput),
+		     "In-place");
+
+
     BufferString expargs = string.getFullString();
 
     mRunStandardTest( expargs==desoutput, "Argument expansion" );

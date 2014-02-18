@@ -217,17 +217,22 @@ uiString& uiString::operator=( const char* str )
 }
 
 
-uiString uiString::arg( const uiString& newarg ) const
+uiString& uiString::arg( const uiString& newarg )
 {
-    uiString ret;
-    ret.data_->setFrom( *data_ );
-    ret.data_->arguments_ += newarg;
-
-    return ret;
+    data_->arguments_ += newarg;
+    return *this;;
 }
 
 
-uiString uiString::arg( const char* newarg ) const
+uiString& uiString::arg( const FixedString& a )
+{ return arg( a.str() ); }
+
+
+uiString& uiString::arg( const BufferString& a )
+{ return arg( a.str() ); }
+
+
+uiString& uiString::arg( const char* newarg )
 {
     return arg( uiString(newarg) );
 }

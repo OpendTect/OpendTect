@@ -76,8 +76,10 @@ public:
     bool			operator==(const uiString& b) const
 				{ return b.data_==data_; }
 
-    uiString			arg(const char*) const;
-    uiString			arg(const uiString&) const;
+    uiString&			arg(const char*);
+    uiString&			arg(const FixedString&);
+    uiString&			arg(const BufferString&);
+    uiString&			arg(const uiString&);
 
     const char* 		getFullString() const;
 				/*!<Constructs the result from the original
