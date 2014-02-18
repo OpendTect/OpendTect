@@ -109,6 +109,7 @@ public:
 			    , logscale_(false)
 			    , isvertical_(false)
 			    , sldrsize_(200)
+			    , isinverted_(false)
 			    {}
 
 	mDefSetupMemb(bool,withedit)
@@ -116,14 +117,15 @@ public:
 	mDefSetupMemb(bool,isvertical)
 	mDefSetupMemb(int,nrdec)
 	mDefSetupMemb(int,sldrsize)
+	mDefSetupMemb(bool,isinverted)
 	mDefSetupMemb(BufferString,lbl)
     };
 
-	uiSliderExtra(uiParent*,const Setup&,
+			uiSliderExtra(uiParent*,const Setup&,
 				      const char* nm=0);
 
-    uiSlider*		sldr()			{ return slider; }
-    uiLabel*		label()			{ return lbl; }
+    uiSlider*		sldr()			{ return slider_; }
+    uiLabel*		label()			{ return lbl_; }
 
     void		processInput();
     float		editValue() const;
@@ -133,9 +135,9 @@ public:
 
 protected:
 
-    uiSlider*		slider;
-    uiLabel*	lbl;
-    uiLineEdit*		editfld;
+    uiSlider*		slider_;
+    uiLabel*		lbl_;
+    uiLineEdit*		editfld_;
 
     void		init(const Setup&,const char*);
     void		editRetPress(CallBacker*);

@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ranges.h"
 #include "scaler.h"
 
-#include <QString> 
+#include <QString>
 
 #include <math.h>
 
@@ -37,7 +37,7 @@ public:
 
     virtual		~uiSliderBody()		{ delete &messenger_; }
 
-    virtual int 	nrTxtLines() const	{ return 1; }
+    virtual int	nrTxtLines() const	{ return 1; }
 
 private:
 
@@ -67,9 +67,9 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     , sliderReleased(this)
 {
     body_->setOrientation( vert ? Qt::Vertical
-	    			: Qt::Horizontal );
+				: Qt::Horizontal );
     body_->setStretch( vert ? 0 : 1, vert ? 1 : 0 );
-    
+
     if ( dec < 0 ) dec = 0;
 
     double factor = pow( 10., -dec );
@@ -126,7 +126,7 @@ int uiSlider::sliderValue( float fval ) const
 	fval = log10( fval );
     }
 
-    return mNINT32( scaler_ ? scaler_->unScale(fval) : fval ); 
+    return mNINT32( scaler_ ? scaler_->unScale(fval) : fval );
 }
 
 
@@ -211,9 +211,9 @@ void uiSlider::setMinValue( float minval )
 
 
 void uiSlider::setMaxValue( float maxval )
-{ 
+{
     mBlockCmdRec;
-    body_->setMaximum( sliderValue(maxval) ); 
+    body_->setMaximum( sliderValue(maxval) );
 }
 
 
@@ -289,7 +289,7 @@ void uiSlider::setLinearScale( double constant, double factor )
 }
 
 
-int uiSlider::tickStep() const     	{ return body_->tickInterval() ; }
+int uiSlider::tickStep() const	{ return body_->tickInterval() ; }
 void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 
 
@@ -297,8 +297,8 @@ void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 #define mGetNm nm ? nm : (s.lbl_.isEmpty() ? "uiSliderExtra" : s.lbl_.buf() )
 uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
     : uiGroup(p,mGetNm)
-    , editfld(0)
-    , lbl(0)
+    , editfld_(0)
+    , lbl_(0)
     , valueChanged(this)
 {
     init( s, mGetNm );
@@ -307,57 +307,60 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
 
 void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 {
-    slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_,
-	    		   setup.isvertical_ );
+    slider_ = new uiSlider( this, nm, setup.nrdec_, setup.logscale_,
+			    setup.isvertical_ );
 
     if ( !setup.lbl_.isEmpty() )
-	lbl = new uiLabel( this, setup.lbl_ );
+	lbl_ = new uiLabel( this, setup.lbl_ );
 
     if ( setup.withedit_ )
     {
-	slider->valueChanged.notify( mCB(this,uiSliderExtra,sliderMove) );
-	editfld = new uiLineEdit( this, BufferString(setup.lbl_," value") );
-	editfld->setHSzPol( uiObject::Small );
-	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
+	slider_->valueChanged.notify( mCB(this,uiSliderExtra,sliderMove) );
+	editfld_ = new uiLineEdit( this, BufferString(setup.lbl_," value") );
+	editfld_->setHSzPol( uiObject::Small );
+	editfld_->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
 	sliderMove(0);
     }
 
-    if ( setup.isvertical_ ) 
+    if ( setup.isvertical_ )
     {
-	slider->setPrefHeight( setup.sldrsize_ );
-	slider->setPrefWidth( 10 );
-	if ( lbl ) slider->attach( centeredBelow, lbl );
-	if ( editfld ) editfld->attach( centeredBelow, slider );
+	slider_->setPrefHeight( setup.sldrsize_ );
+	slider_->setPrefWidth( 10 );
+	if ( lbl_ ) slider_->attach( centeredBelow, lbl_ );
+	if ( editfld_ ) editfld_->attach( centeredBelow, slider_ );
     }
     else
     {
-	slider->setPrefWidth( setup.sldrsize_ );
-	if ( lbl ) slider->attach( rightOf, lbl );
-	if ( editfld ) editfld->attach( rightOf, slider );
+	slider_->setPrefWidth( setup.sldrsize_ );
+	if ( lbl_ ) slider_->attach( rightOf, lbl_ );
+	if ( editfld_ ) editfld_->attach( rightOf, slider_ );
     }
-    
-    setHAlignObj( slider );
+
+    slider_->setInverted( setup.isinverted_ );
+    slider_->setInvertedControls( setup.isinverted_ );
+
+    setHAlignObj( slider_ );
 }
 
 
 void uiSliderExtra::sliderMove( CallBacker* )
 {
-    float val = slider->getValue();
-    if ( editfld ) editfld->setValue( val );
+    float val = slider_->getValue();
+    if ( editfld_ ) editfld_->setValue( val );
     valueChanged.trigger();
 }
 
 
 void uiSliderExtra::processInput()
 {
-    if ( editfld )
-	slider->setValue( editfld->getfValue() );
+    if ( editfld_ )
+	slider_->setValue( editfld_->getfValue() );
 }
 
 
 float uiSliderExtra::editValue() const
 {
-    return editfld ? editfld->getfValue() : mUdf(float); 
+    return editfld_ ? editfld_->getfValue() : mUdf(float);
 }
 
 void uiSliderExtra::editRetPress( CallBacker* )
