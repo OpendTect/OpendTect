@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+class uiLabel;
 class uiCheckBox;
 class BufferStringSet;
 
@@ -42,6 +43,7 @@ public:
 			uiCheckList(uiParent*,Pol=Unrel,
 				    Orientation orient=uiObject::Vertical);
 
+    void		setLabel(const char*);
     uiCheckList&	addItem(const char* txt,const char* iconfnm=0);
     uiCheckList&	addItems(const BufferStringSet&);
     Pol			pol() const		{ return pol_; }
@@ -63,11 +65,13 @@ protected:
     const Pol		pol_;
     const Orientation	orientation_;
     ObjectSet<uiCheckBox> boxs_;
+    uiGroup*		grp_;
+    uiLabel*		lbl_;
     uiCheckBox*		clicked_;
 
     void		setBox(int,bool chkd,bool shw=true);
 
-    void		initGrp(CallBacker*);
+    void		initObj(CallBacker*);
     void		boxChk(CallBacker*);
 
     void		ensureOne(bool);

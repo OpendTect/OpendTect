@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uichecklist.h"
 #include "uibutton.h"
+#include "uilabel.h"
 #include "bufstringset.h"
 
 
@@ -21,13 +22,15 @@ uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
     , orientation_(ori)
     , changed(this)
 {
-    postFinalise().notify( mCB(this,uiCheckList,initGrp) );
+    grp_ = new uiGroup( this, "CheckList buttons" );
+    setHAlignObj( grp_ );
+    postFinalise().notify( mCB(this,uiCheckList,initObj) );
 }
 
 
 uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
 {
-    uiCheckBox* cb = new uiCheckBox( this, txt );
+    uiCheckBox* cb = new uiCheckBox( grp_, txt );
 
     if ( iconfnm && *iconfnm )
 	cb->setPixmap( iconfnm );
@@ -35,7 +38,7 @@ uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
     if ( !boxs_.isEmpty() )
 	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
 
-    cb->setStretch( 2, 2 );
+    cb->setStretch( 0, 0 );
 
     boxs_ += cb;
     return *this;
@@ -50,7 +53,20 @@ uiCheckList& uiCheckList::addItems( const BufferStringSet& itms )
 }
 
 
-void uiCheckList::initGrp( CallBacker* )
+void uiCheckList::setLabel( const char* txt )
+{
+    if ( lbl_ )
+	lbl_->setText( txt );
+    else
+    {
+	lbl_ = new uiLabel( this, txt );
+	lbl_->attach( centeredLeftOf, grp_ );
+    }
+    setName( txt );
+}
+
+
+void uiCheckList::initObj( CallBacker* )
 {
     clicked_ = boxs_.isEmpty() ? 0 : boxs_[0];
     if ( !clicked_ ) return;

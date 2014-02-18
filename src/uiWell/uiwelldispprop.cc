@@ -358,23 +358,22 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     : uiWellDispProperties(p,su,lp)
 {
 
-    uiGroup* grp = new uiGroup( this, "Style" );
-
-    stylefld_ = new uiCheckList( grp, uiCheckList::OneOnly,
+    stylefld_ = new uiCheckList( this, uiCheckList::OneOnly,
 				 uiObject::Horizontal );
     stylefld_->addItem( "Well log" )
 	      .addItem( "Seismic" )
 	      .addItem( "Log tube" );
-    grp->attach( alignedAbove, szfld_ );
+    stylefld_->setLabel( "Style" );
+    stylefld_->attach( alignedAbove, szfld_ );
 
     uiSeparator* sep1 = new uiSeparator( this, "Sep" );
-    sep1->attach( stretchedAbove, grp );
+    sep1->attach( stretchedAbove, stylefld_ );
 
     rangefld_ = new uiGenInput( this, "Log range (min/max)",
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );
-    rangefld_->attach( alignedAbove, grp );
+    rangefld_->attach( alignedAbove, stylefld_ );
     sep1->attach( stretchedBelow, rangefld_ );
 
     const char* choice[] = { "clip rate", "data range", 0 };

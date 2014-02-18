@@ -241,20 +241,16 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
     survnmfld_ = new uiGenInput( this, "Survey name" );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
-    uiGroup* pol2dgrp = new uiGroup( this, "Data type group" );
-    uiLabel* pol2dlbl = new uiLabel( pol2dgrp, "Available data" );
-    pol2dfld_ = new uiCheckList( pol2dgrp, uiCheckList::AtLeastOne,
+    pol2dfld_ = new uiCheckList( this, uiCheckList::AtLeastOne,
 				 uiObject::Horizontal );
+    pol2dfld_->setLabel( "Available data" );
     pol2dfld_->addItem( "3D" ).addItem( "2D" );
-    pol2dfld_->attach( rightOf, pol2dlbl );
-    pol2dfld_->setChecked( 0, true );
-    pol2dfld_->setChecked( 1, false );
+    pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
-    pol2dgrp->setHAlignObj( pol2dfld_ );
-    pol2dgrp->attach( alignedBelow, survnmfld_ );
+    pol2dfld_->attach( alignedBelow, survnmfld_ );
 
     uiLabeledComboBox* siplcb = new uiLabeledComboBox( this, "Define by" );
-    siplcb->attach( alignedBelow, pol2dgrp );
+    siplcb->attach( alignedBelow, pol2dfld_ );
     sipfld_ = siplcb->box();
 
     zistimefld_ = new uiGenInput( this, "Z Domain",

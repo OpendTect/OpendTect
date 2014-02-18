@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uichecklist.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
@@ -71,11 +70,10 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    uiObject::Horizontal );
+    stickidsfld_->setLabel( "Write" );
     stickidsfld_->addItem( "Stick index" ).addItem( "Node Index" );
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
     stickidsfld_->attach( alignedBelow, coordfld_ );
-    uiLabel* lbl = new uiLabel( this, "Write" );
-    lbl->attach( leftOf, stickidsfld_ );
 
     if ( mGet(typ,true,false) )
     {

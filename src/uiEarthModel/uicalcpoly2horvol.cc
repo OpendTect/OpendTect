@@ -51,7 +51,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 
     optsfld_ = new uiCheckList( grp );
     optsfld_->addItem( "&Ignore negative thicknesses" ).addItem( "&Upward" );
-    optsfld_->setChecked( 0, true ); optsfld_->setChecked( 1, true );
+    optsfld_->setChecked( 0, true ).setChecked( 1, true );
 
     uiObject* attobj = optsfld_->attachObj();
     if ( SI().zIsTime() )

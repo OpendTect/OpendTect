@@ -74,8 +74,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->addItem( "Write line name" )
 	     .addItem( SI().zIsTime() ? "Z in msec" : "Z in feet" );
     optsfld_->attach( alignedBelow, udffld_ );
-    optsfld_->setChecked( 0, true );
-    optsfld_->setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
+    optsfld_->setChecked( 0, true )
+	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 			      uiFileInput::Setup().forread(false) );
