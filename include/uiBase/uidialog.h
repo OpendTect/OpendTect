@@ -52,8 +52,7 @@ public:
 			       const uiString& dialog_title,
 			       const char* help_id )
 			: wintitle_(window_title)
-			, dlgtitle_(!dialog_title.isEmpty()
-				    ? dialog_title : window_title)
+			, dlgtitle_(dialog_title)
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
