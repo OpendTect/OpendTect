@@ -631,12 +631,20 @@ bool uiSurvey::acceptOK( CallBacker* )
 		return false;
 	}
 	if ( IOMan::newSurvey(cursurvinfo_) )
+	{
 	    cursurvinfo_ = 0; // it's not ours anymore
+	    if ( survmap_ )
+		survmap_->setSurveyInfo( 0 );
+	}
 	else
 	{
 	    const SurveyInfo* si = &SI();
 	    if ( cursurvinfo_ == si )
+	    {
 		cursurvinfo_ = 0;
+		if ( survmap_ )
+		    survmap_->setSurveyInfo( 0 );
+	    }
 
 	    const bool isblocked = IOM().message().isEmpty();
 	    if ( !isblocked )
@@ -676,6 +684,8 @@ void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
     delete cursurvinfo_; cursurvinfo_ = newsi;
     if ( updscreen )
 	putToScreen();
+    else if ( survmap_ )
+	survmap_->setSurveyInfo( 0 );
 }
 
 
