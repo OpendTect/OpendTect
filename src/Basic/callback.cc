@@ -67,21 +67,32 @@ void CallBacker::detachAllNotifiers()
 }
 
 
-void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
+bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
+			  bool onlyifnew )
 {
-    notif.notify( cb );
+    if ( onlyifnew )
+    {
+	if ( !notif.notifyIfNotNotified( cb ) )
+	    return false;
+    }
+    else
+    {
+	notif.notify( cb );
+    }
  
     if ( cb.cbObj()!=this )
-	return;
+	return true;
     
     if ( notif.cber_==this )
-	return;
+	return true;
 
     notif.addShutdownSubscription( this );
     
     Threads::Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
 	attachednotifiers_ += &notif;
+
+    return true;
 }
 
  
@@ -282,10 +293,10 @@ void NotifierAccess::notify( const CallBack& cb, bool first )
 }
 
 
-void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
+bool NotifierAccess::notifyIfNotNotified( const CallBack& cb )
 {
     Threads::Locker lckr( cbs_.lock_ );
-    cbs_.addIfNew( cb );
+    return cbs_.addIfNew( cb );
 }
 
 

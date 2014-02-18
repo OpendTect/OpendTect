@@ -129,7 +129,8 @@ public:
     virtual		~NotifierAccess();
 
     void		notify(const CallBack&,bool first=false);
-    void		notifyIfNotNotified(const CallBack&);
+    bool		notifyIfNotNotified(const CallBack&);
+			//!\returns true if it was added
     void		remove(const CallBack&);
     bool		removeWith(CallBacker*,bool wait=true);
 			//!<\returns false only if wait and no lock could be got
@@ -240,10 +241,12 @@ public:
 			CallBacker(const CallBacker&);
     virtual		~CallBacker();
 
-    void		attachCB(NotifierAccess&,const CallBack&);
+    bool		attachCB(NotifierAccess&,const CallBack&,
+				 bool onlyifnew=false);
 			/*!<Adds cb to notifier, and makes sure
 			    it is removed later when object is
-			    deleted. */
+			    deleted.
+			    \returns if it was attached. */
     void		detachCB(NotifierAccess&,const CallBack&);
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
@@ -265,7 +268,10 @@ private:
 
 
 #define mAttachCB( notifier, func ) \
-attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
+attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), false )
+
+#define mAttachCBIfNotAttached( notifier, func ) \
+attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), true )
 
 #define mDetachCB( notifier, func ) \
 detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )

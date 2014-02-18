@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "signal.h"
 #include "thread.h"
 #include <time.h>
+#include "ptrman.h"
 
 
 class ClassWithNotifier : public CallBacker
@@ -43,17 +44,6 @@ public:
     Threads::Atomic<int>	nrhits_;
 };
 
-#define mCheckTest( testname, condition ) \
-if ( !(condition) ) \
-{ \
-    od_cout() << testname << ": Failed\n"; \
-    return false; \
-} \
-else if ( !quiet ) \
-{ \
-    od_cout() << testname << ": Pass\n"; \
-}
-
 
 bool testNormalOp()
 {
@@ -63,44 +53,47 @@ bool testNormalOp()
     notifier.notifier.notifyIfNotNotified(
 				mCB(&notified, NotifiedClass,callbackA) );
     notifier.notifier.trigger();
-    mCheckTest( "Normal callback after notifyIfNotNotified",
-	        notified.nrhits_==1 );
+    mRunStandardTest(notified.nrhits_==1,
+		     "Normal callback after notifyIfNotNotified" );
 
     notifier.notifier.notifyIfNotNotified(
 			  mCB(&notified, NotifiedClass,callbackA) );
     notifier.notifier.notify( mCB(&notified, NotifiedClass,callbackA) );
 
     notifier.notifier.trigger();
-    mCheckTest( "Normal callback", notified.nrhits_==3 );
+    mRunStandardTest( notified.nrhits_==3, "Normal callback" );
 
-    mCheckTest( "Return value of disable call", notifier.notifier.disable() );
-    mCheckTest( "Return value of disable call on disabled notifier",
-		!notifier.notifier.disable() );
+    mRunStandardTest( notifier.notifier.disable(),
+		     "Return value of disable call" );
+    mRunStandardTest( !notifier.notifier.disable(),
+		     "Return value of disable call on disabled notifier" );
     notifier.notifier.trigger();
-    mCheckTest( "Trigger disabled notifier", notified.nrhits_==3 );
+    mRunStandardTest( notified.nrhits_==3 , "Trigger disabled notifier" );
 
-    mCheckTest( "Return value of enable call on disabled notifier",
-	       !notifier.notifier.enable() );
+    mRunStandardTest( !notifier.notifier.enable(),
+		      "Return value of enable call on disabled notifier" );
 
     NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
-    mCheckTest( "Notify-stopper on enabled notifier", notified.nrhits_==3 );
+    mRunStandardTest( notified.nrhits_==3,
+		     "Notify-stopper on enabled notifier" );
     delete stopper;
 
     notifier.notifier.trigger();
-    mCheckTest( "Removed notify-stopper on enabled notifier",
-	        notified.nrhits_==5 );
+    mRunStandardTest( notified.nrhits_==5,
+		     "Removed notify-stopper on enabled notifier" );
 
     notifier.notifier.disable();
 
     stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
-    mCheckTest( "Notify-stopper on disabled notifier", notified.nrhits_==5 );
+    mRunStandardTest( notified.nrhits_==5,
+		     "Notify-stopper on disabled notifier" );
     delete stopper;
 
     notifier.notifier.trigger();
-    mCheckTest( "Removed notify-stopper on disabled notifier",
-	       notified.nrhits_==5 );
+    mRunStandardTest( notified.nrhits_==5,
+		     "Removed notify-stopper on disabled notifier" );
 
     return true;
 }
@@ -108,33 +101,58 @@ bool testNormalOp()
 
 bool testAttach()
 {
-    ClassWithNotifier* notifier = new ClassWithNotifier;
-    NotifierAccess* naccess = &notifier->notifier;
-    NotifiedClass* notified = new NotifiedClass( naccess );
+    {
+	ClassWithNotifier* notifier = new ClassWithNotifier;
+	NotifierAccess* naccess = &notifier->notifier;
+	NotifiedClass* notified = new NotifiedClass( naccess );
 
-    notifier->notifier.trigger();
-    mCheckTest( "Normal attached callback", notified->nrhits_==1);
+	notifier->notifier.trigger();
+	mRunStandardTest( notified->nrhits_==1, "Normal attached callback" );
 
-    delete notified;
+	delete notified;
 
-    mCheckTest( "Notifier shutdown subscription removal",
-	       !notifier->notifier.isShutdownSubscribed(notified) );
+	mRunStandardTest( !notifier->notifier.isShutdownSubscribed(notified),
+			 "Notifier shutdown subscription removal" );
 
-    mCheckTest( "Notifier notification removal",
-	       !naccess->willCall(notified) );
+	mRunStandardTest( !naccess->willCall(notified),
+			 "Notifier notification removal" );
 
-    notified = new NotifiedClass( naccess );
+	notified = new NotifiedClass( naccess );
 
-    notifier->notifier.trigger();
+	notifier->notifier.trigger();
 
-    mCheckTest( "Normal attached callback 2", notified->nrhits_==1);
+	mRunStandardTest( notified->nrhits_==1, "Normal attached callback 2");
 
-    delete notifier;
+	delete notifier;
 
-    mCheckTest( "Callbacker notifier removal",
-	       !notified->isNotifierAttached(naccess) );
+	mRunStandardTest( !notified->isNotifierAttached(naccess),
+			 "Callbacker notifier removal" );
 
-    delete notified;
+	delete notified;
+    }
+    {
+	PtrMan<ClassWithNotifier> notifier = new ClassWithNotifier;
+	NotifierAccess* naccess = &notifier->notifier;
+	PtrMan<NotifiedClass> notified = new NotifiedClass( naccess );
+
+	notified->attachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+
+	notifier->notifier.trigger();
+	mRunStandardTest(notified->nrhits_==2, "Double notifications");
+
+	notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+	notifier->notifier.trigger();
+
+	mRunStandardTest(notified->nrhits_==3, "Detachement");
+
+
+	notified->attachCB( *naccess,
+			    mCB(notified,NotifiedClass,callbackA), true );
+
+	notifier->notifier.trigger();
+
+	mRunStandardTest(notified->nrhits_==4, "Attach if not yet attached");
+    }
 
     return true;
 }
@@ -149,11 +167,11 @@ bool testEarlyDetach()
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     notifier->notifier.trigger();
 
-    mCheckTest( "Detached callback", notified->nrhits_==0);
-    mCheckTest( "WillCall of detached callback",
-	       !naccess->willCall(notified) );
-    mCheckTest( "Notifier removal from attached list",
-	       !notified->isNotifierAttached(naccess) );
+    mRunStandardTest( notified->nrhits_==0, "Detached callback" );
+    mRunStandardTest( !naccess->willCall(notified),
+		     "WillCall of detached callback" );
+    mRunStandardTest( !notified->isNotifierAttached(naccess),
+		     "Notifier removal from attached list" );
 
     delete notifier;
     delete notified;
@@ -173,7 +191,7 @@ bool testLateDetach()
     delete notified;
 
     if ( !quiet )
-	od_cout() << "Detaching deleted notifier: Pass\n";
+	od_cout() << "Detaching deleted notifier - SUCCESS\n";
 
     return true;
 }
@@ -190,7 +208,7 @@ bool testDetachBeforeRemoval()
     delete notifier;
 
     if ( !quiet )
-	od_cout() << "Detach before removal: Pass\n";
+	od_cout() << "Detach before removal - SUCCESS\n";
 
     return true;
 }
@@ -391,7 +409,7 @@ bool testMulthThreadChaos()
 	receiverslist.stop();
     } //All variables out of scope here
 
-    od_cout() << " Pass\n";
+    od_cout() << " - SUCCESS\n";
     return true;
 }
 
