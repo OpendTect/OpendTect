@@ -102,11 +102,9 @@ void uiLabel::translateText()
 }
 
 
-const char* uiLabel::text() const
+const uiString& uiLabel::text() const
 {
-    mDeclStaticString( txt );
-    txt = body_->text();
-    return txt.buf();
+    return text_;
 }
 
 

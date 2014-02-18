@@ -28,6 +28,8 @@ public:
     static inline uiString sClose()		{ return tr("&Close"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
     static inline uiString sEdit(bool immediate);
+    static inline uiString sEmptyString()	{ return uiString(""); }
+    static inline uiString sError()		{ return tr("Error"); }
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
     static inline uiString sNew(bool immediate);
@@ -39,6 +41,7 @@ public:
     static inline uiString sSave(bool immediate);
     static inline uiString sSaveAs()		{ return tr("Save &as ..."); }
     static inline uiString sSaveAsDefault();
+    static inline uiString sSelect(bool arg=false,bool plural=false);
     static inline uiString sYes()		{ return tr("&Yes"); }
 };
 
@@ -102,6 +105,15 @@ inline uiString uiStrings::sRemove(bool immediate)
 
 inline uiString uiStrings::sSave(bool immediate)
 { return immediate ? "&Save" : "&Save ..."; }
+
+
+inline uiString uiStrings::sSelect(bool arg,bool plural)
+{
+    if ( !arg )
+	return tr("&Select");
+
+    return plural ? tr( "Select %1" ) : tr( "Select %1(s)" );
+}
 
 
 

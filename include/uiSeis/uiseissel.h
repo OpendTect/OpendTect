@@ -117,7 +117,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisSelDlg : public uiIOObjSelDlg
-{
+{ mTextTranslationClass(uiSeisSelDlg);
 public:
 
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,
@@ -139,6 +139,9 @@ protected:
     void		attrNmSel(CallBacker*);
     const char*		getDataType();
     void		getComponentNames(BufferStringSet&) const;
+private:
+    static uiString	gtSelTxt(const uiSeisSel::Setup& setup,bool forread);
+    friend		class uiSeisSel;
 };
 
 

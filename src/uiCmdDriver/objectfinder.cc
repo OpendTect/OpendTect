@@ -113,7 +113,7 @@ void ObjectFinder::getAliases( const CallBacker& entity,
 
     mDynamicCastGet( const uiLabel*, uilabel, uientity.object() ); 
     if ( uilabel )
-	alttext = uilabel->text();
+	alttext = uilabel->text().getFullString();
 
     mDynamicCastGet( const uiButton*, uibut, uientity.object() ); 
     if ( uibut )

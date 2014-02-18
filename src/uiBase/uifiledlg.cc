@@ -68,16 +68,15 @@ static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
     parnt_ = parnt; \
     confirmoverwrite_ = true; \
 \
-    if ( !caption || !*caption ) \
+    if ( caption.isEmpty() ) \
     { \
-	caption_ = (mode_==Directory || mode_==DirectoryOnly) ? \
-		   "Directory selection" : "File selection"; \
+	setDefaultCaption(); \
     }
 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* fltr,
-			    const char* caption )
+			    const uiString& caption )
 	: mode_(forread ? ExistingFile : AnyFile)
         , forread_( forread )
 	, filter_( fltr )
@@ -87,7 +86,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 
 uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 			    const char* fname, const char* fltr,
-			    const char* caption )
+			    const uiString& caption )
 	: mode_(md)
         , forread_(true)
 	, filter_(fltr)
@@ -96,7 +95,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
-			    const char* fname, const char* caption )
+			    const char* fname, const uiString& caption )
 	: mode_(AnyFile)
         , forread_(true)
 	, addallexts_(true)
@@ -175,7 +174,7 @@ int uiFileDialog::go()
     BufferString addendum;
     const uiString wintitle =
 	uiMainWin::uniqueWinTitle( caption_, 0, &addendum );
-    const BufferString utfwintitle( caption_, addendum );
+    const BufferString utfwintitle( caption_.getFullString(), addendum );
     int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
@@ -475,4 +474,9 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 
 
 
+void uiFileDialog::setDefaultCaption()
+{
+    caption_ = (mode_==Directory || mode_==DirectoryOnly) ? \
+	tr("Directory selection") : tr("File selection"); \
+}
 

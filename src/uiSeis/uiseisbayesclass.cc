@@ -403,7 +403,7 @@ void uiSeisBayesClass::normGot( CallBacker* )
 
 
 class uiSeisBayesSeisInp : public uiVarWizardDlg
-{
+{ mTextTranslationClass(uiSeisBayesSeisInp);
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
@@ -432,9 +432,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     {
 	for ( int idx=0; idx<nrvars; idx++ )
 	{
-	    su.seltxt_ = "Input for '";
-	    su.seltxt_ += pdf->dimName(idx);
-	    su.seltxt_ += "'";
+	    su.seltxt_ = tr("Input for '%1'").arg( pdf->dimName(idx) );
 	    uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
 	    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idx) );
 	    fld->setInput( MultiID(id) );
@@ -498,7 +496,7 @@ void uiSeisBayesClass::inpSeisGot( CallBacker* )
 
 
 class uiSeisBayesOut : public uiVarWizardDlg
-{
+{ mTextTranslationClass(uiSeisBayesOut);
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
@@ -547,7 +545,7 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf )
 	su.seltxt_ = nm;
     else
-	{ su.seltxt_ = "P: '"; su.seltxt_ += nm; su.seltxt_ += "'"; }
+    { su.seltxt_ = uiString("P: '%1'").arg( nm ); }
 
     const int nrflds = flds3d_.size();
     int curidx = nrflds;

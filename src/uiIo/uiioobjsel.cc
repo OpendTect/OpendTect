@@ -95,7 +95,7 @@ void relocStart( const char* msg )
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt, bool multisel,
+			      const uiString& seltxt, bool multisel,
 			      bool havereloc, bool havesetsurvdefault )
     : uiGroup(p)
     , ctio_(c)
@@ -113,7 +113,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     topgrp_ = new uiGroup( this, "Top group" );
     filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    if ( !seltxt || !*seltxt )
+    if ( seltxt.isEmpty() )
     {
 	listfld_ = new uiListBox( topgrp_ );
 	filtfld_->attach( centeredAbove, listfld_ );
@@ -581,7 +581,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt, bool multisel,
+			      const uiString& seltxt, bool multisel,
 			      bool havesetsurvdefault)
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
@@ -596,29 +596,43 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
-    BufferString nm( seltxt );
-    if ( nm.isEmpty() )
+    uiString titletext( seltxt );
+    if ( titletext.isEmpty() )
     {
-	nm = "Select ";
-	nm += c.ctxt.forread ? "input " : "output ";
-	if ( c.ctxt.name().isEmpty() )
-	    nm += c.ctxt.trgroup->userName();
+	if ( c.ctxt.forread )
+	    titletext = tr("Select input %1%2");
 	else
-	    nm += c.ctxt.name();
-	if ( ismultisel ) nm += "(s)";
-    }
-    setTitleText( nm );
+	    titletext = tr("Select output %1%2");
 
-    BufferString captn( seltxt );
+	if ( c.ctxt.name().isEmpty() )
+	    titletext = titletext.arg( uiString(c.ctxt.trgroup->userName()) );
+	else
+	    titletext = titletext.arg( uiString( c.ctxt.name() ) );
+
+	titletext = titletext.arg( ismultisel
+			? "(s)"
+			: uiStrings::sEmptyString() );
+    }
+
+    setTitleText( titletext );
+
+    uiString captn( seltxt );
     if ( captn.isEmpty() )
     {
-	captn = c.ctxt.forread ? "Load " : "Save ";
-	if ( c.ctxt.name().isEmpty() )
-	    captn += c.ctxt.trgroup->userName();
+	if ( c.ctxt.forread )
+	{
+	    if ( multisel )
+		captn = tr( "Load %1(s)");
+	    else
+		captn = tr( "Load %1" );
+	}
 	else
-	    captn += c.ctxt.name();
-	if ( !c.ctxt.forread ) captn += " as";
-	else if ( ismultisel ) captn += "(s)";
+	    captn = tr("Save %1 as" );
+
+	if ( c.ctxt.name().isEmpty() )
+	    captn = captn.arg( uiString( c.ctxt.trgroup->userName() ) );
+	else
+	    captn = captn.arg( uiString( c.ctxt.name() ) );
     }
     setCaption( captn );
 
@@ -845,36 +859,37 @@ MultiID uiIOObjSel::validKey() const
 }
 
 
-#define mDoCommit() \
-    bool alreadyerr = noerr; \
-    const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr); \
-    if ( !setup_.optional_ && !inctio_.ioobj && !alreadyerr ) \
-    { \
-	BufferString txt( inctio_.ctxt.forread \
-				    ? "Please select the " \
-				    : "Please enter a valid name for the " ); \
-	txt += setup_.seltxt_; \
-	uiMSG().error( txt ); \
+void uiIOObjSel::doCommit( bool noerr ) const
+{
+    bool alreadyerr = noerr;
+    const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
+    if ( !setup_.optional_ && !inctio_.ioobj && !alreadyerr )
+    {
+	uiString txt( inctio_.ctxt.forread
+			 ? tr( "Please select the %1")
+			 : tr( "Please enter a valid name for the %1" ) );
+	uiMSG().error( txt.arg( setup_.seltxt_ ) );
     }
+}
 
 
 MultiID uiIOObjSel::key( bool noerr ) const
 {
-    mDoCommit();
+    doCommit(noerr);
     return inctio_.ioobj ? inctio_.ioobj->key() : MultiID("");
 }
 
 
 const IOObj* uiIOObjSel::ioobj( bool noerr ) const
 {
-    mDoCommit();
+    doCommit( noerr );
     return inctio_.ioobj;
 }
 
 
 IOObj* uiIOObjSel::getIOObj( bool noerr )
 {
-    mDoCommit();
+    doCommit( noerr );
     IOObj* ret = inctio_.ioobj; inctio_.ioobj = 0;
     return ret;
 }

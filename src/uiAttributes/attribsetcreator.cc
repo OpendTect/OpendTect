@@ -29,7 +29,7 @@ MultiID storhint_;
 
 
 class uiSelExternalAttrInps : public uiDialog
-{
+{ mTextTranslationClass(uiSelExternalAttrInps);
 public:
 uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 		const BufferStringSet& indirinps,
@@ -158,18 +158,20 @@ bool acceptOK( CallBacker* )
 	const IOObj* ioobj = sel.ctxtIOObj().ioobj;
 	if ( !ioobj )
 	{
-	    BufferString msg( "Please supply input for '" );
-	    msg += sel.labelText(); msg += "'";
-	    uiMSG().error( msg );
+	    uiMSG().error(
+		    tr("Please supply input for '%1'").arg(sel.labelText()) );
 	    return false;
 	}
 
-	const DescID descid = attrset->getID( sel.labelText(), true );
+	const DescID descid =
+		attrset->getID( sel.labelText().getFullString(), true );
 	if ( !descid.isValid() )
 	{
-	    BufferString msg( "There is a problem importing '" );
-	    msg += sel.labelText();
-	    msg += "'.\nPlease contact support for possible workarounds.";
+	    const uiString msg =
+		tr( "There is a problem importing '%1'.\n"
+		    "Please contact support for possible workarounds.").
+		    arg( sel.labelText() );
+
 	    uiMSG().error( msg );
 	    return false;
 	}

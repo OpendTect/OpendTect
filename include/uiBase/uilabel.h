@@ -37,7 +37,7 @@ public:
 
 */
     virtual void	setText(const uiString&);
-    const char*         text() const;
+    const uiString&	text() const;
     void		setTextSelectable(bool yn=true);
     void		setPixmap(const ioPixmap&);
 

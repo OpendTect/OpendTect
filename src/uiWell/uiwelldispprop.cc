@@ -200,7 +200,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     uiLabel* lbl = new uiLabel( this, "Display markers" );
     lbl->attach( leftOf, checkallfld_  );
 
-    displaymarkersfld_ = new uiListBox( this, lbl->text() );
+    displaymarkersfld_ = new uiListBox( this, lbl->text().getFullString() );
     displaymarkersfld_->addItems( allmarkernms );
     displaymarkersfld_->setItemsCheckable( true );
     displaymarkersfld_->attach( alignedBelow, checkallfld_ );

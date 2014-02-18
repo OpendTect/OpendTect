@@ -122,7 +122,8 @@ mImplInitVar
 }
 
 
-void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
+void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
+				 Attrib::DescID ignoreid,
 				 bool isinp4otherattrib )
 {
     //TODO: steering will never be displayed: on purpose?
@@ -133,18 +134,19 @@ void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 
     if ( attrinf_->ioobjnms_.isEmpty() )
     {
-	new uiLabel( this, "No seismic data available.\n"
-			   "Please import data first" );
-	setCaption( "Error" );
-	setCancelText( "Ok" );
-	setOkText( "" );
+	new uiLabel( this, tr("No seismic data available.\n"
+			      "Please import data first") );
+	setCaption( uiStrings::sError() );
+	setCancelText( uiStrings::sOk() );
+	setOkText( uiStrings::sEmptyString() );
 	return;
     }
 
-    BufferString nm( "Select " ); nm += seltxt;
-    setName( nm );
-    setCaption( "Select" );
-    setTitleText( nm );
+    setCaption( uiStrings::sSelect() );
+
+    uiString title = uiStrings::sSelect(true).arg( seltxt );
+    setTitleText( title );
+    setName( title.getFullString() );
 
     createSelectionButtons();
     createSelectionFields();
@@ -594,11 +596,11 @@ void uiAttrSelDlg::replaceStoredByInMem()
 }
 
 
-static const char* cDefLabel = "Input Data";
+uiString uiAttrSel::cDefLabel() { return tr("Input Data"); }
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
@@ -612,7 +614,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
 		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
@@ -791,7 +793,7 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 
 void uiAttrSel::doSel( CallBacker* )
 {
-    uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel );
+    uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel() );
     setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_);
     uiAttrSelDlg dlg( this, attrdata_, dpfids_, setup );
     if ( dlg.go() )

@@ -385,31 +385,31 @@ void uiComboBox::popupVirtualKeyboard( int globalx, int globaly )
 //------------------------------------------------------------------------------
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiString& txt,
 				      const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, nm && *nm ? nm : txt );
+    cb_ = new uiComboBox( this, nm && *nm ? nm : txt.getFullString() );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& strs,
-				      const char* txt, const char* nm )
+				      const uiString& txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt );
+    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt.getFullString() );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** strs,
-				      const char* txt, const char* nm )
+				      const uiString& txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt );
+    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt.getFullString() );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }

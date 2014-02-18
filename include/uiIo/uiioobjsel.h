@@ -54,7 +54,7 @@ mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
 public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
-					      const char* seltxt=0,
+					      const uiString& seltxt=0,
 					      bool multisel=false,
 					      bool needreloc=false,
 					      bool setdefaultbut=false);
@@ -143,10 +143,11 @@ protected:
 */
 
 mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
-{
+{ mTextTranslationClass(uiIOObjSelDlg);
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* seltxt=0,bool multisel=false,
+				      const uiString& seltxt=0,
+				      bool multisel=false,
 				      bool allowsetsurvdefault=false);
 
     int			nrSel() const		{ return selgrp_->nrSel(); }
@@ -160,7 +161,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*)	{return selgrp_->processInput();}
+    bool		acceptOK(CallBacker*){return selgrp_->processInput();}
     void		statusMsgCB(CallBacker*);
 
     uiIOObjSelGrp*	selgrp_;
@@ -179,7 +180,7 @@ protected:
 */
 
 mExpClass(uiIo) uiIOObjSel : public uiIOSelect
-{
+{ mTextTranslationClass(uiIOObjSel);
 public:
 
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
@@ -247,6 +248,7 @@ protected:
     virtual IOObj*	createEntry(const char*);
     void		obtainIOObj();
     bool		existingUsrName(const char*) const;
+    void		doCommit(bool) const;
 
 
 public: // old style

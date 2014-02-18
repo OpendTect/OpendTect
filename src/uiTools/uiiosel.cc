@@ -37,7 +37,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, haveempty_(su.withclear_)
 {
     uiObject* alobj = 0;
-#define mComboName BufferString("Select ",su.seltxt_.buf())
+#define mComboName BufferString("Select ",su.seltxt_.getFullString())
     if ( su.optional_ )
     {
 	alobj = inp_ = new uiComboBox( this, mComboName );
@@ -66,7 +66,9 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );
-    selbut_->setName( BufferString( su.buttontxt_, " ", su.seltxt_ ) );
+    BufferString butnm( su.buttontxt_.getFullString(), " " );
+    butnm += su.seltxt_.getFullString();
+    selbut_->setName( butnm.buf() );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
     selbut_->attach( rightOf, alobj );
 
@@ -377,20 +379,23 @@ void uiIOSelect::setReadOnly( bool yn )
     inp_->setReadOnly( yn );
 }
 
+uiString emptystring;
 
-const char* uiIOSelect::labelText() const
+const uiString& uiIOSelect::labelText() const
 {
+
     return lbl_
 	? lbl_->text()
-	: (optbox_ ? optbox_->text().getFullString() : "");
+	: (optbox_ ? optbox_->text() : emptystring );
 }
 
 
-void uiIOSelect::setLabelText( const char* s )
+void uiIOSelect::setLabelText( const uiString& s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar( (int)(FixedString(s).size()+1) );
+	lbl_->setPrefWidthInChar(
+			(int)(FixedString(s.getFullString()).size()+1) );
 	return lbl_->setText( s );
     }
     else if ( optbox_ )
@@ -418,8 +423,7 @@ uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 
 void uiIOFileSelect::doFileSel( CallBacker* c )
 {
-    BufferString caption( "Select " );
-    caption += labelText();
+    uiString caption = tr("Select %1").arg( labelText() );
     uiFileDialog fd( this, forread, getInput(),
 		     filter.isEmpty() ? 0 : (const char*)filter, caption );
     if ( seldir )

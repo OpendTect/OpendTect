@@ -118,12 +118,12 @@ public:
 mExpClass(uiBase) uiLabeledComboBox : public uiGroup
 {
 public:
-		uiLabeledComboBox(uiParent*,const char* lbl,
+		uiLabeledComboBox(uiParent*,const uiString& lbl,
 				  const char* nm=0);
 		uiLabeledComboBox(uiParent*,const BufferStringSet&,
-				  const char* lbl,const char* nm=0);
+				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const char**,
-				  const char* lbl,const char* nm=0);
+				  const uiString& lbl,const char* nm=0);
 
     uiComboBox*	box()		{ return cb_; }
     uiLabel*	label()		{ return labl_; }

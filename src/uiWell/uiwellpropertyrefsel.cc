@@ -355,7 +355,7 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 	if ( propflds_[idx] && propflds_[idx]->getLabel() )
 	{
 	    BufferString lblnm = BufferString(
-					propflds_[idx]->getLabel()->text() );
+			propflds_[idx]->getLabel()->text().getFullString() );
 	    if ( lblnm == bfs )
 		return propflds_[idx];
 	}

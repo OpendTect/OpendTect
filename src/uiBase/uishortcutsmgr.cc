@@ -248,8 +248,10 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
 	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
 	if ( eikd )
 	{
-	    iop.set( IOPar::compKey(basekey,sKey::Property()), eikd->getLabel());
-	    iop.set( IOPar::compKey(basekey,sKey::Value()), eikd->getIntValue() );
+	    iop.set( IOPar::compKey(basekey,sKey::Property()),
+		     eikd->getLabel().getFullString() );
+	    iop.set( IOPar::compKey(basekey,sKey::Value()),
+		     eikd->getIntValue() );
 	}
     }
 }

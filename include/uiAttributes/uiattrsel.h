@@ -72,20 +72,20 @@ attribute set.
 */
 
 mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
-{
+{ mTextTranslationClass(uiAttrSelDlg);
 public:
 
     mExpClass(uiAttributes) Setup
     {
     public:
-		Setup( const char* txt )
+		Setup( const uiString& txt )
 		    : seltxt_(txt)
 		    , ignoreid_(Attrib::DescID::undef())
 		    , isinp4otherattrib_(false)
 		    , showsteeringdata_(false)
 		{}
 
-		mDefSetupMemb(BufferString,seltxt)
+		mDefSetupMemb(uiString,seltxt)
 		mDefSetupMemb(Attrib::DescID,ignoreid)
 		mDefSetupMemb(bool,isinp4otherattrib)
 		mDefSetupMemb(bool,showsteeringdata)
@@ -136,7 +136,7 @@ protected:
     uiGenInput*		attr2dfld_;
     uiLabeledComboBox*	compfld_;
 
-    void		initAndBuild(const char*,Attrib::DescID,bool);
+    void		initAndBuild(const uiString&,Attrib::DescID,bool);
     void		createSelectionButtons();
     void		createSelectionFields();
 
@@ -158,7 +158,7 @@ protected:
 */
 
 mExpClass(uiAttributes) uiAttrSel : public uiIOSelect
-{
+{ mTextTranslationClass(uiAttrSel);
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
 				  const char* txt=0,
@@ -215,6 +215,8 @@ protected:
     void		update2D();
     void		doSel(CallBacker*);
     virtual const char*	userNameFromKey(const char*) const;
+
+    static uiString	cDefLabel();
 };
 
 

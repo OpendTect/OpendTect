@@ -437,13 +437,13 @@ void uiSpinBox::popupVirtualKeyboard( int globalx, int globaly )
 
 //------------------------------------------------------------------------------
 
-uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
+uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const uiString& txt, int dec,
 				    const char* nm )
 	: uiGroup(p,"LabeledSpinBox")
 {
-    sb = new uiSpinBox( this, dec, nm && *nm ? nm : txt );
+    sb_ = new uiSpinBox( this, dec, nm && *nm ? nm : txt.getFullString() );
     BufferString sblbl;
-    lbl = new uiLabel( this, txt, sb );
-    lbl->setAlignment( Alignment::Right );
-    setHAlignObj( sb );
+    lbl_ = new uiLabel( this, txt, sb_ );
+    lbl_->setAlignment( Alignment::Right );
+    setHAlignObj( sb_ );
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 class uiLabel;
 class uiCheckBox;
 class uiComboBox;
@@ -27,21 +28,21 @@ class uiPushButton;
 */
 
 mExpClass(uiTools) uiIOSelect : public uiGroup
-{
+{ mTextTranslationClass(uiIOSelect);
 public:
 
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const char* seltext=0 )
+			Setup( const uiString& seltext=0 )
 			    : seltxt_(seltext)
 			    , withclear_(false)
-			    , buttontxt_("&Select")
+			    , buttontxt_(uiStrings::sSelect())
 			    , optional_(false)
 			    , keepmytxt_(false)		{}
 
-	mDefSetupMemb(BufferString,seltxt)
-	mDefSetupMemb(BufferString,buttontxt)
+	mDefSetupMemb(uiString,seltxt)
+	mDefSetupMemb(uiString,buttontxt)
 	mDefSetupMemb(bool,withclear)
 	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(bool,keepmytxt)
@@ -81,8 +82,8 @@ public:
     Notifier<uiIOSelect> selectionDone;
     Notifier<uiIOSelect> optionalChecked;
 
-    const char*		labelText() const;
-    void		setLabelText(const char*);
+    const uiString&	labelText() const;
+    void		setLabelText(const uiString&);
     void		setLabelSelectable(bool yn=true);
 
     void		stretchHor(bool);
@@ -120,12 +121,11 @@ protected:
 			//!< notification when user selects from combo
 
     void		doFinalise(CallBacker*);
-
 };
 
 
 mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
-{
+{ mTextTranslationClass(uiIOFileSelect);
 public:
 			uiIOFileSelect(uiParent*,const char* txt,
 					bool for_read,

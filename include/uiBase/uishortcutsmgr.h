@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
+#include "uistring.h"
+
 mFDQtclass(QKeyEvent)
 
 
@@ -136,15 +138,15 @@ public:
 			         val_==ev.val_; }
 
     bool		set(const char* statestr,const char* keystr,int val);
-    void		setIntLabel( const char* lbl )	{ extralbl_ = lbl; }
+    void		setIntLabel( const uiString& lbl ) { extralbl_ = lbl; }
 
     int			getIntValue() const	{ return val_; }
-    const char*		getLabel() const	{ return extralbl_.buf(); }
+    const uiString&	getLabel() const	{ return extralbl_; }
 
 protected:
 
     int			val_;
-    BufferString	extralbl_;
+    uiString		extralbl_;
 };
 
 #endif

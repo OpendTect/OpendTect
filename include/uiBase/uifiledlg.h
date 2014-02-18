@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 class uiParent;
 class FileMultiString;
@@ -22,7 +23,7 @@ class FileMultiString;
 */
 
 mExpClass(uiBase) uiFileDialog
-{
+{ mTextTranslationClass(uiFileDialog);
 public:
     //! File selection mode
     enum Mode
@@ -40,16 +41,16 @@ public:
                         uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
-				     const char* caption=0);
+				     const uiString& caption=0);
 
                         uiFileDialog(uiParent*,Mode mode=AnyFile,
 				     const char* fname=0,
 				     const char* filter=0,
-				     const char* caption=0);
+				     const uiString& caption=0);
     enum Type		{ Gen, Img, Txt, Html };
                         uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
-				     const char* caption=0);
+				     const uiString& caption=0);
 						//!< Always AnyFile
 
     const char*		fileName() const	{ return fn; }
@@ -92,7 +93,7 @@ protected:
     Mode		mode_;
     BufferString	fname_;
     BufferString	filter_;
-    BufferString	caption_;
+    uiString		caption_;
     uiParent*		parnt_;
     BufferStringSet	filenames_;
     BufferString	selectedfilter_;
@@ -105,6 +106,7 @@ protected:
     static BufferString		extfilenameserrmsg_;
 
 private:
+    void		setDefaultCaption();
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr, bool ok);
 };

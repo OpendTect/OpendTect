@@ -59,5 +59,6 @@ void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
 }
 
 const char* uiGatherDisplayInfoHeader::getDataName() const
-{ return datalbl_->text(); }
+{ return datalbl_->text().getFullString(); }
+
 } //namespace

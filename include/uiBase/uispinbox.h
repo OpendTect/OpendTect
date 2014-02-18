@@ -118,17 +118,17 @@ private:
 mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
 {
 public:
-                	uiLabeledSpinBox(uiParent*,const char* txt,
+			uiLabeledSpinBox(uiParent*,const uiString&,
 					 int nrdecimals=0,const char* nm=0);
 
-    uiSpinBox*  	box()			{ return sb; }
-    const uiSpinBox*  	box() const		{ return sb; }
-    uiLabel*    	label()			{ return lbl; }
+    uiSpinBox*		box()			{ return sb_; }
+    const uiSpinBox*	box() const		{ return sb_; }
+    uiLabel*		label() 		{ return lbl_; }
 
 protected:
 
-    uiSpinBox*		sb;
-    uiLabel*    	lbl;
+    uiSpinBox*		sb_;
+    uiLabel*		lbl_;
 };
 
 #endif

@@ -38,22 +38,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 
 
-static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
+uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 {
     if ( !setup.seltxt_.isEmpty() )
-	return setup.seltxt_.buf();
+	return setup.seltxt_;
 
     switch ( setup.geom_ )
     {
     case Seis::Vol:
-	return forread ? "Input Cube" : "Output Cube";
+	return forread ? tr("Input Cube") : tr("Output Cube");
     case Seis::Line:
-	return forread ? (setup.selattr_ ? "Input Line Set|Attribute"
-					 : "Input Line Set")
-		       : (setup.selattr_ ? "Output Line Set|Attribute"
-					 : "Output Line Set");
+	return forread ? (setup.selattr_ ? tr("Input Line Set|Attribute")
+					 : tr("Input Line Set") )
+		       : (setup.selattr_ ? tr("Output Line Set|Attribute")
+					 : tr("Output Line Set") );
     default:
-	return forread ? "Input Data Store" : "Output Data Store";
+	return forread ? tr("Input Data Store") : tr("Output Data Store");
     }
 }
 
@@ -127,11 +127,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    BufferString titletxt( "Select " );
-    if ( sssu.seltxt_ )
-	titletxt += sssu.seltxt_;
+    uiString titletxt( uiStrings::sSelect(true,false) );
+    if ( !sssu.seltxt_.isEmpty() )
+	titletxt = titletxt.arg( sssu.seltxt_ );
     else
-	titletxt += isps ? "Data Store" : (is2d ? "Line Set" : "Cube");
+	titletxt = titletxt.arg( isps
+                ? tr("Data Store")
+                : (is2d ? tr("Line Set") : tr("Cube")) );
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
@@ -406,7 +408,7 @@ uiSeisSel::~uiSeisSel()
 uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 {
     uiSeisSel::Setup ret( su );
-    ret.seltxt_ = gtSelTxt( su, forread );
+    ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, forread );
     ret.filldef( su.allowsetdefault_ );
     return ret;
 }
