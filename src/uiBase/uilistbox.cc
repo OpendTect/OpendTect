@@ -32,9 +32,6 @@ mUseQtnamespace
 #define mContiguous QAbstractItemView::ContiguousSelection
 
 static const int cIconSz = 16;
-static const char* startmark = ":"; static const char* endmark = ":";
-#define mGetMarkededBufferString(nm,yn,inpstr) \
-    const BufferString nm( yn ? startmark : "", inpstr, yn ? endmark : "" )
 
 int uiListBox::cDefNrLines()	{ return 7; }
 
@@ -69,8 +66,9 @@ public:
 
     virtual		~uiListBoxBody()		{ delete &messenger_; }
 
-    void		insertItem(int idx,const char* txt,bool mark,int id);
-    void		addItem(const char* txt,bool mark,int id);
+    void		insertItem(int idx,const uiString& txt,
+				   bool mark,int id);
+    void		addItem(const uiString&,bool mark,int id);
     void		removeAll();
     void		removeItem( int idx )
 			{
@@ -78,8 +76,14 @@ public:
 				return;
 
 			    items_.removeSingle( idx );
+			    itemstrings_.removeSingle( idx );
+			    itemmarked_.removeSingle( idx );
 			    delete takeItem(idx);
 			}
+    uiString&		getItemText(int idx) { return itemstrings_[idx]; }
+    BoolTypeSetType&	getItemMark(int idx) { return itemmarked_[idx]; }
+
+    void		updateText(int idx);
 
     int			indexOf(uiListBoxItem*) const;
     void		setItemID(int idx,int id);
@@ -112,9 +116,10 @@ protected:
 
 private:
 
-    i_listMessenger&    messenger_;
+    i_listMessenger&		messenger_;
     ObjectSet<uiListBoxItem>	items_;
-
+    TypeSet<uiString>		itemstrings_;
+    BoolTypeSet 		itemmarked_;
 };
 
 
@@ -139,33 +144,53 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
 }
 
 
-static void createQString( QString& qs, const char* str, bool mark )
+static void createQString( QString& qs, const uiString& str, bool mark )
 {
-    if ( !str ) str = "";
-    mGetMarkededBufferString( bs, mark, str );
-    qs = bs.buf();
+    if ( mark )
+    {
+	const char* markstr = ":";
+	qs = markstr;
+	qs += str.getQtString();
+	qs += markstr;
+    }
+    else
+    {
+	qs = str.getQtString();
+    }
 }
 
 
-void uiListBoxBody::addItem( const char* txt, bool mark, int id )
+void uiListBoxBody::addItem( const uiString& txt, bool mark, int id )
 {
     QString qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_ += itm;
+    itemstrings_ += txt;
+    itemmarked_ += mark;
     QListWidget::addItem( itm );
 }
 
 
-void uiListBoxBody::insertItem( int idx, const char* txt, bool mark, int id )
+void uiListBoxBody::insertItem( int idx, const uiString& txt, bool mark, int id)
 {
     QString qs;
     createQString( qs, txt, mark );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_.insertAt( itm, idx );
+    itemstrings_.insert( idx, txt );
+    itemmarked_.insert( idx, mark );
     QListWidget::insertItem( idx, itm );
+}
+
+
+void uiListBoxBody::updateText( int idx )
+{
+    QString qs;
+    createQString( qs, itemstrings_[idx], itemmarked_[idx] );
+    item(idx)->setText( qs );
 }
 
 
@@ -173,6 +198,8 @@ void uiListBoxBody::removeAll()
 {
     QListWidget::clear();
     items_.erase();
+    itemstrings_.erase();
+    itemmarked_.erase();
 }
 
 
@@ -390,9 +417,9 @@ void uiListBox::getItems( BufferStringSet& nms ) const
 }
 
 
-void uiListBox::addItem( const char* text, bool mark, int id )
+void uiListBox::addItem( const uiString& text, bool mark, int id )
 {
-    if ( !allowduplicates_ && isPresent( text ) )
+    if ( !allowduplicates_ && isPresent( text.getFullString() ) )
 	return;
 
     mBlockCmdRec;
@@ -403,14 +430,14 @@ void uiListBox::addItem( const char* text, bool mark, int id )
 }
 
 
-void uiListBox::addItem( const char* text, const ioPixmap& pm, int id )
+void uiListBox::addItem( const uiString& text, const ioPixmap& pm, int id )
 {
     addItem( text, false, id );
     setPixmap( size()-1, pm );
 }
 
 
-void uiListBox::addItem( const char* text, const Color& col, int id )
+void uiListBox::addItem( const uiString& text, const Color& col, int id )
 {
     ioPixmap pm( 64, 64); pm.fill( col );
     addItem( text, pm, id );
@@ -436,14 +463,14 @@ void uiListBox::addItems( const BufferStringSet& strs )
 }
 
 
-void uiListBox::insertItem( const char* text, int index, bool mark, int id )
+void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 {
     mBlockCmdRec;
     if ( index<0 )
 	addItem( text, mark );
     else
     {
-	if ( !allowduplicates_ && isPresent( text ) )
+	if ( !allowduplicates_ && isPresent( text.getFullString() ) )
 	    return;
 
 	body_->insertItem( index, text, mark, id );
@@ -453,7 +480,7 @@ void uiListBox::insertItem( const char* text, int index, bool mark, int id )
 }
 
 
-void uiListBox::insertItem( const char* text, const ioPixmap& pm,
+void uiListBox::insertItem( const uiString& text, const ioPixmap& pm,
 			    int index, int id )
 {
     if ( index < 0 )
@@ -466,7 +493,7 @@ void uiListBox::insertItem( const char* text, const ioPixmap& pm,
 }
 
 
-void uiListBox::insertItem( const char* text, const Color& col,
+void uiListBox::insertItem( const uiString& text, const Color& col,
 			    int index, int id )
 {
     ioPixmap pm( 64, 64 ); pm.fill( col );
@@ -611,33 +638,22 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIndex(idx) )
 	return "";
 
-    rettxt = body_->item(idx)->text();
-    if ( rettxt[0] != *startmark )
-	return rettxt;
-
-    const int sz = rettxt.size();
-    if ( rettxt[sz-1] != *endmark )
-	return rettxt;
-
-    rettxt[sz-1] = '\0';
-    return ((const char*)rettxt) + 1;
+    rettxt_ = body_->getItemText(idx).getFullString();
+    return rettxt_;
 }
 
 
 bool uiListBox::isMarked( int idx ) const
 {
-    rettxt = body_->item(idx)->text();
-    return rettxt.buf()[0] == *startmark
-	&& rettxt.buf()[rettxt.size()-1] == *endmark;
+    return body_->getItemMark( idx );
 }
 
 
 void uiListBox::setMarked( int idx, bool yn )
 {
     if ( isMarked(idx) == yn ) return;
-    mGetMarkededBufferString( newitmtxt, yn, textOfItem(idx) );
-    setItemText( idx, newitmtxt );
-
+    body_->getItemMark( idx ) = yn;
+    body_->updateText( idx );
 }
 
 
@@ -762,12 +778,12 @@ int uiListBox::nrChecked() const
 }
 
 
-void uiListBox::setItemText( int idx, const char* txt )
+void uiListBox::setItemText( int idx, const uiString& txt )
 {
     if ( !validIndex(idx) ) return;
 
-    mGetMarkededBufferString( itmtxt, isMarked(idx), txt );
-    body_->item(idx)->setText( QString(itmtxt.buf()) );
+    body_->getItemText( idx ) = txt;
+    body_->updateText( idx );
 }
 
 
@@ -938,6 +954,15 @@ void uiListBox::scrollToBottom()
 { body_->scrollToBottom(); }
 
 
+void uiListBox::translateText()
+{
+    uiObject::translateText();
+
+    for ( int idx=0; idx<size(); idx++ )
+	body_->updateText( idx );
+}
+
+
 // -------------- uiLabeledListBox ----------------
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
 				    bool multisel,
@@ -959,7 +984,7 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
 }
 
 
-void uiLabeledListBox::setLabelText( const char* txt, int nr )
+void uiLabeledListBox::setLabelText( const uiString& txt, int nr )
 {
     if ( nr >= lbls_.size() ) return;
     lbls_[nr]->setText( txt );
@@ -1039,3 +1064,4 @@ void uiLabeledListBox::mkRest( const uiString& txt,
 
     deepErase( txts );
 }
+

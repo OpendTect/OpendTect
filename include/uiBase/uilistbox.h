@@ -80,16 +80,16 @@ public:
     void		removeItem( const FixedString& fs )
 						{ removeItem( fs.str() ); }
     void		setAllowDuplicates(bool yn);
-    void		addItem(const char*,bool marked=false,int id=-1);
-    void		addItem(const char*,const ioPixmap&,int id=-1);
-    void		addItem(const char*,const Color&,int id=-1);
+    void		addItem(const uiString&,bool marked=false,int id=-1);
+    void		addItem(const uiString&,const ioPixmap&,int id=-1);
+    void		addItem(const uiString&,const Color&,int id=-1);
     void		addItems(const char**);
     void		addItems(const BufferStringSet&);
-    void		insertItem(const char*,int idx=-1,
+    void		insertItem(const uiString&,int idx=-1,
 				   bool marked=false,int id=-1);
-    void		insertItem(const char*,const ioPixmap&,
+    void		insertItem(const uiString&,const ioPixmap&,
 				   int idx=-1,int id=-1);
-    void		insertItem(const char*,const Color&,
+    void		insertItem(const uiString&,const Color&,
 				   int idx=-1,int id=-1);
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const ioPixmap&);
@@ -107,7 +107,7 @@ public:
 						{ setCurrentItem( fs.str() ); }
     int			indexOf(const char*) const;	//!< First match
     const char*		textOfItem(int) const;
-    void		setItemText(int,const char*);
+    void		setItemText(int,const uiString&);
     void		getItems(BufferStringSet&) const;
 
     bool		isMarked(int) const;
@@ -157,9 +157,11 @@ public:
 
     bool		handleLongTabletPress();
 
-protected:
+private:
 
-    mutable BufferString rettxt;
+    void		translateText();
+
+    mutable BufferString rettxt_;
     OD::ButtonState	buttonstate_;
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
@@ -168,8 +170,6 @@ protected:
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
-
-private:
 
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,bool,int,int);
@@ -199,7 +199,7 @@ public:
     uiListBox*		box()				{ return lb_; }
     int 		nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
-    void		setLabelText(const char*,int nr=0);
+    void		setLabelText(const uiString&,int nr=0);
 
 protected:
 
