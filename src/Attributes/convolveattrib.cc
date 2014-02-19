@@ -295,8 +295,11 @@ Convolve::Convolve( Desc& ds )
 	mGetString( wavidstr, waveletStr() );
 	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
 	wavelet_ = Wavelet::get( ioobj );
+	if ( !wavelet_ ) return;
+
 	int wvletmididx = wavelet_->centerSample();
 	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
+
 	return;
     }
 
@@ -309,6 +312,17 @@ Convolve::~Convolve()
 {
     if ( kernel_ ) delete kernel_;
     if ( wavelet_ ) delete wavelet_;
+}
+
+
+void Convolve::prepPriorToBoundsCalc()
+{
+    if ( wavelet_ && !mIsEqual(refstep_, wavelet_->sampleRate(), 1e-4 ) )
+    {
+	wavelet_->reSampleTime( refstep_ );
+	int wvletmididx = wavelet_->centerSample();
+	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
+    }
 }
 
 

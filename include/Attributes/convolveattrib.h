@@ -10,7 +10,7 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
-    
+
 -*/
 
 #include "attributesmod.h"
@@ -26,27 +26,27 @@ namespace Attrib
 
   %Convolve convolves a signal with the on the command-line specified signal.
 
-<pre>  
+<pre>
   Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
-  
+
   Kernel:         Uses Shape      Uses Size       Desc
-  
+
   LowPass         Yes             Yes             A basic averaging kernel.
   Laplacian       Yes             Yes             A laplacian kernel(signal-avg)
   Prewitt         No              No              A 3x3x3 gradient filter with
-						  three subkernels: 1 (inl), 
+						  three subkernels: 1 (inl),
 						  2 (crl) and 3 (time).
 
   Inputs:
   0       Signal to be convolved.
-  
+
   Outputs:
   0       Sum of the convolution with all kernels / N
   1       Subkernel 1
   .
   .
   .
-  N       Subkernel N  
+  N	  Subkernel N
 </pre>
 */
 
@@ -63,27 +63,28 @@ public:
     static const char*		sizeStr()		{ return "size"; }
     static const char*		waveletStr()		{ return "waveletid"; }
     static const char*		kernelTypeStr(int);
-    static const char*  	shapeTypeStr(int);
+    static const char*	shapeTypeStr(int);
 
-    static const float  	prewitt[];
-    static const float  	prewitt2D[];
+    static const float	prewitt[];
+    static const float	prewitt2D[];
 
     virtual bool		isSingleTrace() const;
+    virtual void		prepPriorToBoundsCalc();
 
 protected:
-    				~Convolve();
+				~Convolve();
 
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			allowParallelComputation() const;
     bool			getInputOutput(int input,
-	    				       TypeSet<int>& res) const;
+					       TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int idx);
     bool			computeDataKernel(const DataHolder&,
 						  int t0, int nrsamples ) const;
     bool			computeDataWavelet(const DataHolder&,
-					    	  int t0, int nrsamples ) const;
+						  int t0, int nrsamples ) const;
     bool			computeData(const DataHolder&,const BinID& rel,
 					    int t0,int nrsamples,
 					    int threadid) const;
