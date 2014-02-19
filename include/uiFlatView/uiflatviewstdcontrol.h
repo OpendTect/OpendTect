@@ -100,7 +100,6 @@ protected:
     void		keyPressCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     void		stateCB(CallBacker*);
-    void		translateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
     virtual void	vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);

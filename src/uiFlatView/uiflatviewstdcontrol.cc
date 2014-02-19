@@ -96,11 +96,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	helpid_ = setup.helpid_;
     }
 
-    if ( TrMgr().tr() && TrMgr().tr()->enabled() )
-    {
-	uiToolButton* mDefBut(trlbut,"google",translateCB,"Translate");
-    }
-
     mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
     mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
 
@@ -336,12 +331,6 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 void uiFlatViewStdControl::helpCB( CallBacker* )
 {
     uiMainWin::provideHelp( helpid_ );
-}
-
-
-void uiFlatViewStdControl::translateCB( CallBacker* )
-{
-    mainwin()->translateText();
 }
 
 
