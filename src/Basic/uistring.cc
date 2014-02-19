@@ -68,6 +68,9 @@ void uiStringData::set( const char* orig )
 
 const char* uiStringData::getFullString() const
 {
+    if ( !arguments_.size() )
+        return originalstring_.buf();
+    
     QString qres;
     fillQString( qres, false );
 
