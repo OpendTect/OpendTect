@@ -6,6 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "hiddenparam.h"
 #include "convolveattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
@@ -17,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wavelet.h"
 #include "genericnumer.h"
 
+
+#define mExtraDesSamples 100	//in case zstep wavelet != refstep_ (v4.6 only)
 
 #define mShapeCube	0
 #define mShapeSphere    1
@@ -30,7 +33,14 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Convolve)
-    
+
+HiddenParam<Convolve,int> iswaveletready_(0);
+
+void Convolve::setIfWavReady( int val )
+{
+    iswaveletready_.setParam( this, val );
+}
+
 void Convolve::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -66,7 +76,7 @@ void Convolve::initClass()
 }
 
 
-const float Convolve::prewitt[] = 
+const float Convolve::prewitt[] =
 {
 	// Kernel 0 (Inline)
 	-1,-1,-1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
@@ -75,25 +85,25 @@ const float Convolve::prewitt[] =
 
 	0, 0, 0,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
 	0, 0, 0,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
-	0, 0, 0, 	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
 
-	1, 1, 1, 	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
-	1, 1, 1, 	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
-	1, 1, 1, 	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
+	1, 1, 1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	1, 1, 1,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	1, 1, 1,	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
 
 	// Kernel 1 (Crossline)
- 
+
 	-1,-1,-1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
 	0, 0, 0,	/* Inline -1, Crossline =  0, Time = -dt -- +dt */
 	1, 1, 1,	/* Inline -1, Crossline = +1, Time = -dt -- +dt */
 
 	-1,-1,-1,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
 	0, 0, 0,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
-	1, 1, 1, 	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+	1, 1, 1,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
 
-	-1,-1,-1, 	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
-	0, 0, 0, 	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
-	1, 1, 1, 	/* Inline +1, Crossline = +1, Time = -dt -- +dt */ 
+	-1,-1,-1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	1, 1, 1,	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
 
 	// Kernel 2 (Time)
 	-1, 0, 1,	/* Inline -1, Crossline = -1, Time = -dt -- +dt */
@@ -102,27 +112,27 @@ const float Convolve::prewitt[] =
 
 	-1, 0, 1,	/* Inline  0, Crossline = -1, Time = -dt -- +dt */
 	-1, 0, 1,	/* Inline  0, Crossline =  0, Time = -dt -- +dt */
-	-1, 0, 1, 	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
+	-1, 0, 1,	/* Inline  0, Crossline = +1, Time = -dt -- +dt */
 
-	-1, 0, 1, 	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
-	-1, 0, 1, 	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
-	-1, 0, 1 	/* Inline +1, Crossline = +1, Time = -dt -- +dt */ 
+	-1, 0, 1,	/* Inline +1, Crossline = -1, Time = -dt -- +dt */
+	-1, 0, 1,	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
+	-1, 0, 1	/* Inline +1, Crossline = +1, Time = -dt -- +dt */
 };
 
 
-const float Convolve::prewitt2D[] = 
+const float Convolve::prewitt2D[] =
 {
 	// Kernel 0 (Crossline = Trace number)
- 
-	-1,-1,-1, 	/* Trace nr = -1, Time = -dt -- +dt */
-	0, 0, 0, 	/* Trace nr =  0, Time = -dt -- +dt */
-	1, 1, 1, 	/* Trace nr = +1, Time = -dt -- +dt */ 
+
+	-1,-1,-1,	/* Trace nr = -1, Time = -dt -- +dt */
+	0, 0, 0,	/* Trace nr =  0, Time = -dt -- +dt */
+	1, 1, 1,	/* Trace nr = +1, Time = -dt -- +dt */
 
 	// Kernel 1 (Time)
 
-	-1, 0, 1, 	/* Trace nr = -1, Time = -dt -- +dt */
-	-1, 0, 1, 	/* Trace nr =  0, Time = -dt -- +dt */
-	-1, 0, 1 	/* Trace nr = +1, Time = -dt -- +dt */ 
+	-1, 0, 1,	/* Trace nr = -1, Time = -dt -- +dt */
+	-1, 0, 1,	/* Trace nr =  0, Time = -dt -- +dt */
+	-1, 0, 1	/* Trace nr = +1, Time = -dt -- +dt */
 };
 
 
@@ -130,15 +140,15 @@ void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
     bool isprewitt = !strcmp( kernel->getStringValue(0),
-	    		      kernelTypeStr(mKernelFunctionPrewitt) );
+			      kernelTypeStr(mKernelFunctionPrewitt) );
     bool iswavelet = !strcmp( kernel->getStringValue(0),
-	    		      kernelTypeStr(mKernelFunctionWavelet) );
+			      kernelTypeStr(mKernelFunctionWavelet) );
     bool needsz = !(isprewitt || iswavelet);
     desc.setParamEnabled(sizeStr(),needsz);
     desc.setParamEnabled(shapeStr(),needsz);
     desc.setParamEnabled(waveletStr(),iswavelet);
-    
-    if ( isprewitt ) 
+
+    if ( isprewitt )
 	desc.setNrOutputs( Seis::UnknowData, desc.is2D() ? 3 : 4 );
 }
 
@@ -159,7 +169,7 @@ const char* Convolve::shapeTypeStr(int type)
 }
 
 
-const float* Convolve::Kernel::getKernel(  ) const 
+const float* Convolve::Kernel::getKernel(  ) const
 { return kernel_; }
 
 
@@ -192,7 +202,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
     if ( kernelfunc == -1 && shapetype == -1 && size == 0 )
 	return;
 
-    if ( kernelfunc==mKernelFunctionLowPass || 
+    if ( kernelfunc==mKernelFunctionLowPass ||
 	    kernelfunc==mKernelFunctionLaplacian )
     {
 	nrsubkernels_ = 1;
@@ -215,7 +225,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
 		{
 		    const float nv =
-			( shapetype==mShapeSphere && 
+			( shapetype==mShapeSphere &&
 			  limit2<inl*inl+crl*crl+tidx*tidx )
 			? 0.f : value;
 		    kernel_[pos++] = nv;
@@ -262,7 +272,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 	sum_ += subkernelsum;
     }
 }
-    
+
 
 
 Convolve::Kernel::~Kernel()
@@ -279,10 +289,11 @@ Convolve::Convolve( Desc& ds )
 {
     if ( !isOK() ) return;
 
+    setIfWavReady(0);
     inputdata_.allowNull( true );
 
     mGetEnum( kerneltype_, kernelStr() );
-    if ( kerneltype_ == mKernelFunctionLowPass || 
+    if ( kerneltype_ == mKernelFunctionLowPass ||
 	    kerneltype_ == mKernelFunctionLaplacian )
     {
 	mGetEnum( shape_, shapeStr() );
@@ -297,7 +308,8 @@ Convolve::Convolve( Desc& ds )
 	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
 	wavelet_ = Wavelet::get( ioobj );
 	int wvletmididx = wavelet_->centerSample();
-	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
+	dessampgate_ = Interval<int>( -(wvletmididx+mExtraDesSamples),
+					wvletmididx+mExtraDesSamples );
 	return;
     }
 
@@ -322,7 +334,7 @@ bool Convolve::getInputOutput( int input, TypeSet<int>& res ) const
 bool Convolve::getInputData( const BinID& relpos, int idx )
 {
     int sz = (1+stepout_.inl*2) * (1+stepout_.crl*2);
-    
+
     while ( inputdata_.size()< sz )
 	inputdata_ += 0;
 
@@ -392,7 +404,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 	{
 	    if ( !inputdata_[idy] )
 		continue;
-	    
+
 	    const int valoffset = idy * sgwidth;
 
 	    ArrPtrMan<float> vals = new float[sgwidth];
@@ -425,7 +437,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 	{
 	    for ( int idy=0; idy<nrofkernels; idy++ )
 		if ( isOutputEnabled(idy+1) )
-		   setOutputValue( output, idy+1, idx, z0, res[idy] ); 
+		   setOutputValue( output, idy+1, idx, z0, res[idy] );
 	}
     }
 
@@ -438,6 +450,15 @@ bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
 {
     if ( !inputdata_[0] || !wavelet_ ) return false;
 
+    // no problem to do that here, wavelet mode is not multithreaded
+    if ( iswaveletready_.getParam( this ) == 0 )
+    {
+	if ( wavelet_ && !mIsEqual(refstep_, wavelet_->sampleRate(), 1e-4 ) )
+	    wavelet_->reSampleTime( refstep_ );
+
+	const_cast<Convolve*>(this)->setIfWavReady(1);
+    }
+
     int waveletsz = wavelet_->size();
     int wavfirstidx = -wavelet_->centerSample();
     float* wavarr = wavelet_->samples();
@@ -446,7 +467,7 @@ bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
     GenericConvolve( waveletsz, wavfirstidx, wavarr, inputdata_[0]->nrsamples_,
 		     -inpshift, *inputdata_[0]->series(dataidx_),
 		     nrsamples, 0, outp );
-    
+
     return true;
 }
 
