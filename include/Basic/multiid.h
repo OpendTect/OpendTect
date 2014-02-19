@@ -57,6 +57,7 @@ public:
     inline void		setID( int idx, int i )
 			{ setKey( idx, toString(i) ); }
     int			leafID() const;
+    MultiID		parent() const;
 
     inline MultiID&	add( int i )
 			{ *this += toString(i); return *this; }

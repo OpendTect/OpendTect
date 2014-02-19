@@ -96,7 +96,7 @@ CompoundKey CompoundKey::upLevel() const
 
     int nrkeys = nrKeys();
     if ( nrkeys <= 1 )
-	ret = "";
+	ret.setEmpty();
     else
     {
 	char* ptr = ret.fromKey( nrkeys-1 );
@@ -117,6 +117,12 @@ int MultiID::leafID() const
 {
     const char* ptr = lastOcc( impl_, '.' );
     return toInt( ptr ? ptr+1 : (const char*)impl_ );
+}
+
+
+MultiID MultiID::parent() const
+{
+    return MultiID( upLevel().buf() );
 }
 
 
