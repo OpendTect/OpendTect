@@ -54,11 +54,12 @@ public:
     void		takeItem(uiTreeViewItem*);
     void		insertItem(int,uiTreeViewItem*);
 
+    void		addColumns(const TypeSet<uiString>&);
     void		addColumns(const BufferStringSet&);
     int			nrColumns() const;
 
-    void		removeColumn(int index );
-    void		setColumnText(int column,const char* label);
+    void		removeColumn(int index);
+    void		setColumnText(int column,const uiString& label);
     const char*		columnText(int column) const;
     void		setColumnWidth(int column,int width);
     void		setFixedColumnWidth(int column,int width);
@@ -167,8 +168,9 @@ private:
     friend class		uiTreeViewBody;
     friend class		uiTreeViewItem;
 
-    uiTreeViewBody*	body_;
+    uiTreeViewBody*		body_;
 
+    TypeSet<uiString>		labels_;
 };
 
 
@@ -227,8 +229,8 @@ public:
     bool		isChecked(bool qtstatus=true) const;
 			//!< returns false if not checkable
 
-    void		setToolTip(int column,const char*);
-    const char*		toolTip(int column) const;
+    void		setToolTip(int column,const uiString&);
+
     void		translateText();
 
     static void		updateToolTips();
@@ -240,7 +242,7 @@ public:
     int			siblingIndex() const;
     			/*!<\returns this items index of it's siblings. */
 
-    void		setText( const char*, int column=0 );
+    void		setText( const uiString&, int column=0 );
     void		setText( int i, int column=0 )
 			{ setText( toString(i), column ); }
     void		setText( float f, int column=0 )
@@ -308,6 +310,8 @@ protected:
     mQtclass(QTreeWidgetItem*)	qtreeitem_;
 
     void			init(const Setup&);
+    TypeSet<uiString>		texts_;
+    TypeSet<uiString>		tooltips_;
 
     bool			isselectable_;
     bool			iseditable_;
@@ -318,14 +322,7 @@ protected:
     void			updateFlags();
     bool			checked_;
 
-    void			trlReady(CallBacker*);
-    bool			translateText(int column);
-    TypeSet<int>		translateids_;
-    TypeSet<int>		translatecolumns_;
-
     bool			updateToolTip(int column);
-    mQtclass(QStringList*)	qnormaltooltipstrlist_;
-    mQtclass(QStringList*)	qtranslatedtooltipstrlist_;
 };
 
 #endif
