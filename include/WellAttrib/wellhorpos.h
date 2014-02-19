@@ -17,10 +17,14 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "position.h"
 
-/*!brief used to give well / horizon intersection. In theory more than one intersection is possible (in case of faults or deviated tracks along the horizon ) but only one pos will be returned!*/
-
 namespace Well { class Track; class D2TModel; }
 namespace EM { class Horizon2D; class Horizon3D; }
+
+/*!
+\brief Used to give well/horizon intersection. In theory more than one
+intersection is possible ( in case of faults or deviated tracks along the
+horizon ) but only one pos will be returned.
+*/
 
 mExpClass(WellAttrib) WellHorIntersectFinder
 {
