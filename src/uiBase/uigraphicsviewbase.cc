@@ -518,3 +518,10 @@ uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
 	    		(int)sb->sizeHint().height()) 
 	      : uiSize(0,0);
 }
+
+
+void uiGraphicsViewBase::translateText()
+{
+    uiObject::translateText();
+    scene_->translateText();
+}

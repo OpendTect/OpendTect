@@ -95,6 +95,8 @@ public:
 
     void			addUpdateToQueue(Task*);
     bool			executePendingUpdates();
+
+    void			translateText();
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;

@@ -239,8 +239,9 @@ mExpClass(uiBase) uiTextItem : public uiGraphicsItem
 {
 public:
 			uiTextItem();
-    			uiTextItem(const char*,const Alignment& al=Alignment());
-    			uiTextItem(const uiPoint&,const char*,
+			uiTextItem(const uiString&,
+				   const Alignment& al=Alignment());
+			uiTextItem(const uiPoint&,const uiString&,
 				   const Alignment& al=Alignment());
 			~uiTextItem();
 
@@ -248,14 +249,16 @@ public:
     void		setFontData(const FontData&);
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
-    void 		setText(const char*); 
+    void		setText(const uiString&);
     void		setTextColor(const Color&);
 
 protected:
 			uiTextItem(QGraphicsItem*);
+    void		translateText();
 
     ODViewerTextItem* 	mkODObj();
     ODViewerTextItem*	qtextitem_;
+    uiString		text_;
 
     virtual void	stPos(float,float);
 };
@@ -370,7 +373,7 @@ public:
 				    const uiPoint& p2 )
 			    : end_((float)endp.x,(float)endp.y)
 			    , cp1_((float)p1.x,(float)p1.y)
-			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)		{}
+			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)  {}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& p1,
 				    const Geom::Point2D<float>& p2 )

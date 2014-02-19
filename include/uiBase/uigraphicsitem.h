@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uigeom.h"
 #include "manobjectset.h"
+#include "uistring.h"
 
 class LineStyle;
 class FillPattern;
@@ -63,7 +64,7 @@ public:
     virtual void	setFillPattern(const FillPattern&);
 
     void		setCursor(const MouseCursor&);
-    void		setToolTip(const char*);
+    void		setToolTip(const uiString&);
 
     virtual void	setScene(uiGraphicsScene*);
     void		setParent(uiGraphicsItem*);
@@ -74,6 +75,8 @@ public:
     			//Old, will be remove once all dep code is changed
     void		rotate(float angle) { setRotation(angle); }
     void		scale(float sx,float sy) { setScale( sx, sy ); }
+
+    virtual void	translateText();
 protected:
 
     			uiGraphicsItem(QGraphicsItem*);
@@ -91,6 +94,8 @@ private:
 
     static int		getNewID();
     const int		id_;
+
+    uiString		tooltip_;
 
     virtual void	stPos(float,float);
 
@@ -143,13 +148,15 @@ public:
 
 protected:
 
-    mQtclass(QGraphicsItem*)	mkQtObj();
+    void				translateText();
 
-    bool		owner_;
-    bool		isvisible_;
+    mQtclass(QGraphicsItem*)		mkQtObj();
+
+    bool				owner_;
+    bool				isvisible_;
     mQtclass(QGraphicsItemGroup*)	qgraphicsitemgrp_;
-    ObjectSet<uiGraphicsItem>	items_;
-    ObjectSet<uiGraphicsItem>	items2bdel_;
+    ObjectSet<uiGraphicsItem>		items_;
+    ObjectSet<uiGraphicsItem>		items2bdel_;
 
     uiGraphicsItem*	gtItm( int idx ) const
 			{ return !items_.validIdx(idx) ? 0

@@ -332,7 +332,7 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 }
 
 
-void ODViewerTextItem::setText( const char* t )
+void ODViewerTextItem::setText( const QString& t )
 {
     prepareGeometryChange();
     text_ = t;
@@ -372,7 +372,7 @@ QRectF ODViewerTextItem::boundingRect() const
     const QPointF alignment = getAlignment();
 
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( QString(text_.buf()) );
+    const float txtwidth = qfm.width( text_ );
     const float txtheight = qfm.height();
 
     const float movex = alignment.x() * txtwidth;
@@ -400,12 +400,10 @@ void ODViewerTextItem::paint( QPainter* painter,
     painter->save();
     painter->resetTransform();
 
-    const QString text( text_.buf() );
-
     const QPointF alignment = getAlignment();
 
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( text );
+    const float txtwidth = qfm.width( text_ );
     const float txtheight = qfm.height();
 
     const float movex = alignment.x() * txtwidth;
@@ -418,7 +416,7 @@ void ODViewerTextItem::paint( QPainter* painter,
     //painter->drawPoint( paintpos.x(), paintpos.y() );
 
     painter->drawText(
-	    QPointF(paintpos.x() + movex, paintpos.y()+movey+txtheight), text );
+	    QPointF(paintpos.x() + movex, paintpos.y()+movey+txtheight), text_);
 
     painter->restore();
 

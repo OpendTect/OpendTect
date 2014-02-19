@@ -214,6 +214,15 @@ bool uiGraphicsScene::executePendingUpdates()
 }
 
 
+void uiGraphicsScene::translateText()
+{
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	items_[idx]->translateText();
+    }
+}
+
+
 void uiGraphicsScene::addUpdateToQueue( Task* t )
 {
     Threads::WorkManager::twm().addWork(

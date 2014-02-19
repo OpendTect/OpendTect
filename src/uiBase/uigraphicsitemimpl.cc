@@ -510,7 +510,7 @@ uiTextItem::uiTextItem()
 }
 
 
-uiTextItem::uiTextItem( const char* txt, const Alignment& al )
+uiTextItem::uiTextItem( const uiString& txt, const Alignment& al )
     : uiGraphicsItem(mkODObj())
 {
     setText( txt );
@@ -518,7 +518,7 @@ uiTextItem::uiTextItem( const char* txt, const Alignment& al )
 }
 
 
-uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
+uiTextItem::uiTextItem( const uiPoint& pos, const uiString& txt,
 			const Alignment& al )
     : uiGraphicsItem(mkODObj())
 {
@@ -547,9 +547,17 @@ uiSize uiTextItem::getTextSize() const
 }
 
 
-void uiTextItem::setText( const char* txt )
+void uiTextItem::setText( const uiString& txt )
 {
-    qtextitem_->setText( txt );
+    text_ = txt;
+    qtextitem_->setText( text_.getQtString() );
+}
+
+
+void uiTextItem::translateText()
+{
+    uiGraphicsItem::translateText();
+    qtextitem_->setText( text_.getQtString() );
 }
 
 

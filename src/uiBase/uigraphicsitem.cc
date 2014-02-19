@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicursor.h"
 #include "uimain.h"
+#include "uistring.h"
 #include "bufstringset.h"
 
 #include "draw.h"
@@ -277,8 +278,11 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 }
 
 
-void uiGraphicsItem::setToolTip( const char* tt )
-{ qgraphicsitem_->setToolTip( tt ); }
+void uiGraphicsItem::setToolTip( const uiString& tt )
+{
+    tooltip_ = tt;
+    qgraphicsitem_->setToolTip( tt.getQtString() );
+}
 
 
 void uiGraphicsItemSet::setZValue( int zval )
@@ -294,6 +298,12 @@ void uiGraphicsItemSet::setZValue( int zval )
 int uiGraphicsItem::getZValue() const
 {
     return mNINT32(qgraphicsitem_->zValue());
+}
+
+
+void uiGraphicsItem::translateText()
+{
+    qgraphicsitem_->setToolTip( tooltip_.getQtString() );
 }
 
 
@@ -409,4 +419,12 @@ uiRect uiGraphicsItemGroup::boundingRect() const
     for ( int idx=1; idx<items_.size(); idx++ )
 	ret.include( items_[idx]->boundingRect() );
     return ret;
+}
+
+
+void uiGraphicsItemGroup::translateText()
+{
+    uiGraphicsItem::translateText();
+    for ( int idx=0; idx<items_.size(); idx++ )
+	items_[idx]->translateText();
 }

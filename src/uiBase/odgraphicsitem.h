@@ -119,7 +119,7 @@ public:
 			    , val_( Qt::AlignTop )
 			{}
     
-    void		setText(const char*);
+    void		setText(const QString&);
 
     QRectF		boundingRect() const;
     
@@ -137,7 +137,7 @@ protected:
     QPointF		getAlignment() const;
     
     QFont		font_;
-    BufferString	text_;
+    QString		text_;
     Qt::Alignment	hal_;
     Qt::Alignment	val_;
     bool		paintinwc_;

@@ -84,8 +84,9 @@ public:
 
     MouseEventHandler&		getNavigationMouseEventHandler();
     				/*!<This eventhandler handles events related to
-				    navigation (rubberbands & panning). For general
-				    calls, use getMouseEventHandler(). */
+				    navigation (rubberbands & panning).
+				    For general calls, use
+				    getMouseEventHandler(). */
     MouseEventHandler&		getMouseEventHandler();
     KeyboardEventHandler&	getKeyboardEventHandler();
 
@@ -100,6 +101,8 @@ public:
 
 
 protected:
+
+    void			translateText();
 
     uiGraphicsViewBody*		body_;
     uiGraphicsViewBody&		mkbody(uiParent*,const char*);
