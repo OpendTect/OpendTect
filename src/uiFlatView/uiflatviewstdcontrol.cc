@@ -132,14 +132,16 @@ void uiFlatViewStdControl::finalPrepare()
     {
 	MouseEventHandler& mevh =
 	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
-	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
+	mevh.wheelMove.notifyIfNotNotified(
+		mCB(this,uiFlatViewStdControl,wheelMoveCB) );
 	if ( withhanddrag_ )
 	{
-	    mevh.buttonPressed.notify(
-		    mCB(this,uiFlatViewStdControl,handDragStarted));
-	    mevh.buttonReleased.notify(
-		    mCB(this,uiFlatViewStdControl,handDragged));
-	    mevh.movement.notify( mCB(this,uiFlatViewStdControl,handDragging));
+	    mevh.buttonPressed.notifyIfNotNotified(
+		    mCB(this,uiFlatViewStdControl,handDragStarted) );
+	    mevh.buttonReleased.notifyIfNotNotified(
+		    mCB(this,uiFlatViewStdControl,handDragged) );
+	    mevh.movement.notifyIfNotNotified(
+		    mCB(this,uiFlatViewStdControl,handDragging) );
 	}
     }
 }
