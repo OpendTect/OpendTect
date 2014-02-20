@@ -113,19 +113,18 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     topgrp_ = new uiGroup( this, "Top group" );
     filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    uiObject* lfatt;
     if ( seltxt.isEmpty() )
-    {
-	listfld_ = new uiListBox( topgrp_ );
-	filtfld_->attach( centeredAbove, listfld_ );
-	topgrp_->setHAlignObj( listfld_ );
-    }
+	lfatt = listfld_ = new uiListBox( topgrp_ );
     else
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt );
-	llb->attach( alignedBelow, filtfld_ );
-	topgrp_->setHAlignObj( llb );
+	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt, false,
+						uiLabeledListBox::LeftMid );
 	listfld_ = llb->box();
+	lfatt = llb->attachObj();
     }
+    lfatt->attach( centeredBelow, filtfld_ );
+    topgrp_->setHAlignObj( lfatt );
 
     listfld_->setName( "Objects list" );
     if ( ismultisel_ )
@@ -192,6 +191,12 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 int uiIOObjSelGrp::size() const
 {
     return listfld_->size();
+}
+
+
+int uiIOObjSelGrp::currentItem() const
+{
+    return listfld_->currentItem();
 }
 
 
