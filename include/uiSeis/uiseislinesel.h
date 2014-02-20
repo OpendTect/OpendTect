@@ -36,15 +36,17 @@ mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
-    			uiSeis2DLineSel(uiParent*,const char* lsnm=0);
+			uiSeis2DLineSel(uiParent*,const char* lsnm=0);
 
-    const char*		lineName() const	{ return lnm_.str(); }
-    const char*		lineSetName() const	{ return lsnm_.str(); }
+    bool		inputOK(bool emit_uimsg=true) const;
+    inline const char*	lineName() const	{ return lnm_.str(); }
+    inline const char*	lineSetName() const	{ return lsnm_.str(); }
     MultiID		lineSetID() const;
     void		set(const char* lsnm,const char* lnm=0);
 
     const PosInfo::Line2DKey& getLine2DKey() const;
     void		set(const PosInfo::Line2DKey&);
+
 
 protected:
 
@@ -63,7 +65,7 @@ mExpClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
 {
 public:
 
-    			uiSeis2DLineNameSel(uiParent*,bool forread);
+			uiSeis2DLineNameSel(uiParent*,bool forread);
 
     const char*		getInput() const;
     void		setInput(const char*);
@@ -113,7 +115,7 @@ public:
 	mDefSetupMemb(bool,filldef)
     };
 
-    				uiSeis2DMultiLineSel(uiParent*,const Setup&);
+				uiSeis2DMultiLineSel(uiParent*,const Setup&);
 				~uiSeis2DMultiLineSel();
 
     BufferString		getSummary() const;
@@ -153,7 +155,7 @@ protected:
 mExpClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
 {
 public:
-    				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
+				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
 					const uiSeis2DMultiLineSel::Setup&);
 				~uiSeis2DMultiLineSelDlg()	{}
 
@@ -168,7 +170,7 @@ public:
 
     void			setLineSet(const MultiID&,const char* attr=0);
     void			setSelection(const BufferStringSet&,
-	    			       const TypeSet<StepInterval<int> >* rg=0);
+				       const TypeSet<StepInterval<int> >* rg=0);
     void			setAll(bool);
     void			setZRange(const StepInterval<float>&);
 

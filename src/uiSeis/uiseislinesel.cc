@@ -52,6 +52,24 @@ BufferString uiSeis2DLineSel::getSummary() const
 }
 
 
+bool uiSeis2DLineSel::inputOK( bool doerr ) const
+{
+    if ( lnm_.isEmpty() )
+    {
+	if ( doerr )
+	    uiMSG().error( "Please select the line" );
+	return false;
+    }
+    if ( lsnm_.isEmpty() )
+    {
+	if ( doerr )
+	    uiMSG().error( "Please select the Line Set" );
+	return false;
+    }
+    return true;
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return; }
 
 void uiSeis2DLineSel::selPush( CallBacker* )
