@@ -117,7 +117,13 @@ void uiLabel::setTextSelectable( bool yn )
 
 void uiLabel::setPixmap( const ioPixmap& pixmap )
 {
-    body_->setPixmap( *pixmap.qpixmap() );
+    if ( !pixmap.qpixmap() ) return;
+
+    const uiFont& ft =
+	uiFontList::getInst().get( FontData::key(FontData::Control) );
+    const QPixmap pm = pixmap.qpixmap()->scaledToHeight( ft.height() );
+    body_->setPixmap( pm );
+    body_->setAlignment( Qt::AlignCenter );
 }
 
 
