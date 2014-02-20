@@ -24,6 +24,7 @@ public:
     static inline uiString sAbort()		{ return tr("&Abort"); }
     static inline uiString sAdd(bool immediate);
     static inline uiString sApply()		{ return tr("&Apply"); }
+    static inline uiString sBack()		{ return tr("&< Back"); }
     static inline uiString sCancel()		{ return tr("&Cancel"); }
     static inline uiString sClose()		{ return tr("&Close"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
@@ -33,6 +34,7 @@ public:
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
     static inline uiString sNew(bool immediate);
+    static inline uiString sNext()		{ return tr("Next &>"); }
     static inline uiString sNo()		{ return tr("&No"); }
     static inline uiString sOk()		{ return tr("&OK"); }
     static inline uiString sOpen(bool immediate);

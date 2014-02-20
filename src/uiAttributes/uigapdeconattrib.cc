@@ -645,7 +645,7 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
     else
 	inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
 				    BoolInpSpec(true,"Inline","Crossline") );
-    setOkText("Next >>" );
+    setOkText( uiStrings::sNext() );
 }
 
 

@@ -15,9 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
-const char* uiVarWizardDlg::sProceedButTxt()	{ return "Next >&>"; }
-const char* uiVarWizardDlg::sBackButTxt()	{ return "&<< Back"; }
-
 
 uiVarWizard::uiVarWizard( uiParent* p )
     : state_(-1)
@@ -61,14 +58,14 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     , pos_(pos)
 {
     if ( pos_ == End )
-	setOkText( "&Go" );
+	setOkText( uiStrings::sRun() );
     else
-	setOkText( sProceedButTxt() );
+	setOkText( uiStrings::sNext() );
 
     if ( pos_ == Start )
-	setCancelText( "&Quit" );
+	setCancelText( uiStrings::sCancel() );
     else
-	setCancelText( sBackButTxt() );
+	setCancelText( uiStrings::sBack() );
 }
 
 
