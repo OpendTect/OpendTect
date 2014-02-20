@@ -38,8 +38,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	uiBatchJobDispatcherLauncher* dl = fact.create( nms.get(idx), jobspec_);
-	if ( dl && (proctyp == Batch::JobSpec::NonODBase
-		  || dl->isSuitedFor(jobspec_.prognm_)) )
+	if ( dl && dl->isSuitedFor(jobspec_.prognm_) )
 	    uidispatchers_ += dl;
 	else
 	    delete dl;
@@ -262,7 +261,7 @@ bool uiBatchJobDispatcherLauncher::isSuitedFor( const char* prognm ) const
 
 bool uiBatchJobDispatcherLauncher::canHandleJobSpec() const
 {
-    return isSuitedFor( jobspec_.prognm_ );
+    return dispatcher().canHandle( jobspec_ );
 }
 
 
