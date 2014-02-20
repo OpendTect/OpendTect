@@ -123,7 +123,8 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     if ( dirptr )
     {
 	dirptr->key_ = dirky;
-	dirptr->curid_ = fms.getIValue( 1 );
+	const int newid = fms.getIValue( 1 );
+	dirptr->curid_ = mIsUdf(newid) ? 0 : newid;
 	if ( dirptr->curid_ == IOObj::tmpID() )
 	    dirptr->curid_ = 1;
     }
