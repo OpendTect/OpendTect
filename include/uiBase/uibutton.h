@@ -41,6 +41,8 @@ public:
     const uiString&	text() const			{ return text_; }
     void		setPixmap(const char*);
     void		setPixmap( const ioPixmap& pm ) { setPM(pm); }
+    void		setIconScale(float val); /*!< val between [0-1] */
+    virtual void	updateIconSize()	{}
 
     virtual void	click()		= 0;
 
@@ -52,6 +54,7 @@ public:
 protected:
 
     uiString		text_;
+    float		iconscale_;
 
     virtual void	translateText();
     virtual void	setPM(const ioPixmap&);
@@ -84,6 +87,7 @@ private:
 
     void		translateText();
     void		updateText();
+    void		updateIconSize();
 
     bool		immediate_;
     uiPushButtonBody*	pbbody_;

@@ -43,7 +43,6 @@ uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
 	      QAbstractButton& qbut )
     : uiObjectBody(p,txt.getFullString())
     , messenger_(qbut,*this)
-    , iconfrac_(0.75)
     , qbut_(qbut)
     , uibut_(uibut)
 {
@@ -51,21 +50,6 @@ uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
     setHSzPol( uiObject::SmallVar );
 }
 
-void setIconFrac( float icf )
-{
-    if ( icf<=0.0f || icf>1.0f )
-	icf = 1.0f;
-
-#ifdef __win__
-    qbut_.setIconSize( qbutsize_ );
-#else
-    qbut_.setIconSize( QSize(mNINT32(qbut_.width()*icf),
-		       mNINT32(qbut_.height()*icf)) );
-#endif
-
-    iconfrac_ = icf;
-
-}
 
 void doNotify()
 {
@@ -82,8 +66,6 @@ virtual int nrTxtLines() const
     uiButton&		uibut_;
     QAbstractButton&	qbut_;
     i_ButMessenger	messenger_;
-    float		iconfrac_;
-    QSize		qbutsize_;
 };
 
 
@@ -107,28 +89,23 @@ uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
 {
 }
 
-#define mHANDLE_OBJ	uiButton
-#define mQWIDGET_BODY	QAbstractButton
-#include "i_uiobjqtbody.h"
 
 void resizeEvent( QResizeEvent* ev )
 {
     uiParent* hpar = uibut_.parent();
     mDynamicCastGet(uiToolBar*,tb,hpar)
     if ( hpar && !tb )
-    {
-	if ( ev )
-	    qbutsize_ = ev->size();
-	setIconFrac( iconfrac_ );
-    }
+	uibut_.updateIconSize();
 
     QAbstractButton::resizeEvent( ev );
 }
 
-void setPixmap( const ioPixmap& pm )
-{
-    qbut_.setIcon( QIcon(*pm.qpixmap()) );
-}
+
+
+
+#define mHANDLE_OBJ	uiButton
+#define mQWIDGET_BODY	QAbstractButton
+#include "i_uiobjqtbody.h"
 
 };
 
@@ -149,7 +126,6 @@ ui##nm##Body( uiButton& uibut, const ioPixmap& pm, \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
     setText( txt.getQtString() ); \
-    setPixmap( pm ); \
     constr_code; \
 } \
  \
@@ -177,6 +153,7 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject(parnt,nm.getFullString(),b)
     , activated(this)
+    , iconscale_(0.75)
     , text_(nm)
 {
     if ( cb ) activated.notify(*cb);
@@ -198,8 +175,18 @@ void uiButton::setPM( const ioPixmap& pm )
     if ( !isMainThreadCurrent() )
 	return;
 
-    muiButBody().setIconFrac( 0.7 );
     qButton()->setIcon( *pm.qpixmap() );
+    updateIconSize();
+}
+
+
+void uiButton::setIconScale( float val )
+{
+    if ( val<=0.0f || val>1.0f )
+	val = 1.0f;
+
+    iconscale_ = val;
+    updateIconSize();
 }
 
 
@@ -267,6 +254,19 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     pbbody_ = new uiPushButtonBody( *this, parnt, txt );
     return *pbbody_;
+}
+
+
+void uiPushButton::updateIconSize()
+{
+    const QString buttxt = text_.getQtString();
+    int butwidth = qButton()->width();
+    const int butheight = qButton()->height();
+    if ( !buttxt.isEmpty() )
+	butwidth = butheight;
+
+    qButton()->setIconSize( QSize(mNINT32(butwidth*iconscale_),
+				  mNINT32(butheight*iconscale_)) );
 }
 
 
@@ -395,10 +395,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 // For some reason it is necessary to set the preferred width. Otherwise the
 // button will reserve +- 3 times it's own width, which looks bad
 
-static int preftbsz = -1;
 #define mSetDefPrefSzs() \
-    if ( preftbsz < 0 ) \
-	tbbody_->setIconSize( QSize(iconSize(),iconSize()) ); \
     mDynamicCastGet(uiToolBar*,tb,parnt) \
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
@@ -484,15 +481,6 @@ void uiToolButton::click()
     if ( isToggleButton() )
 	setOn( !isOn() );
     activated.trigger();
-}
-
-
-void uiToolButton::setPM( const ioPixmap& pm )
-{
-    if ( !isMainThreadCurrent() )
-	return;
-
-    tbbody_->setIcon( QIcon(*pm.qpixmap()) );
 }
 
 

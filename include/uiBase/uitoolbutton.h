@@ -64,8 +64,6 @@ private:
 
     uiMenu*			uimenu_;
     mQtclass(QMenu*)		qmenu_;
-
-    virtual void		setPM(const ioPixmap&);
 };
 
 
