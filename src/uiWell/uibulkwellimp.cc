@@ -44,7 +44,8 @@ using namespace Well;
 
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well Track Import",mNoDlgTitle,"107.0.10"))
+    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Well Tracks",
+		 mNoDlgTitle,"107.0.10"))
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
@@ -219,7 +220,8 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
 // uiBulkLogImport
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Bulk Log Import",mNoDlgTitle,"107.0.11"))
+    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Logs",
+		 mNoDlgTitle,"107.0.11"))
 {
     inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
@@ -306,7 +308,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
 // uiBulkMarkerImport
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Bulk Marker Import",mNoDlgTitle,"107.0.12"))
+    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Markers",
+		 mNoDlgTitle,"107.0.12"))
     , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
@@ -439,7 +442,7 @@ D2TModelData( const char* wellnm )
 
 // uiBulkD2TModelImport
 uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Bulk D2TModel Import",
+    : uiDialog(p,uiDialog::Setup("Multi-Well Import: D2TModel",
 				 mNoDlgTitle,mTODOHelpID))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
