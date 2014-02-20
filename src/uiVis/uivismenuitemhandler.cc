@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivismenuitemhandler.h"
 
 #include "uivispartserv.h"
-#include "visdata.h"
+#include "vissurvobj.h"
 
 
 uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
@@ -31,9 +31,10 @@ int uiVisMenuItemHandler::getDisplayID() const
 bool uiVisMenuItemHandler::shouldAddMenu() const
 {
     RefMan<visBase::DataObject> dataobj =
-	visserv_.getObject( menuhandler_.menuID() );
-    if ( !dataobj )
+		visserv_.getObject( menuhandler_.menuID() );
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,dataobj.ptr())
+    if ( !survobj )
 	return false;
 
-    return FixedString(classnm_) == dataobj->getClassName();
+    return FixedString(classnm_) == survobj->factoryKeyword();
 }
