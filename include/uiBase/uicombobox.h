@@ -35,6 +35,8 @@ public:
 			uiComboBox(uiParent*,const char* nm);
 			uiComboBox(uiParent*,const BufferStringSet&,
 				   const char* nm);
+			uiComboBox(uiParent*,const TypeSet<uiString>&,
+				   const char* nm);
 			uiComboBox(uiParent*,const char**,const char* nm);
     virtual		~uiComboBox();
 
@@ -54,18 +56,18 @@ public:
     void		setCurrentItem(const char*); //!< First match
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
-
-    void		addItem(const wchar_t*,int id=-1);
-    virtual void	addItem(const char*);
-    void		addItem(const char*,int id);
+    virtual void	addItem(const uiString&);
+    void		addItem(const uiString&,int id);
     void		addItems(const BufferStringSet&);
+    void		addItems(const TypeSet<uiString>&);
     void		addSeparator();
-    void		insertItem(const char*,int index=-1,int id=-1);
-    void		insertItem(const ioPixmap&,const char*,
+    void		insertItem(const uiString&,int index=-1,int id=-1);
+    void		insertItem(const ioPixmap&,const uiString&,
 				   int index=-1,int id=-1);
 
     const char*		textOfItem(int) const;
-    void		setItemText(int,const char*);
+
+    void		setItemText(int,const uiString&);
     void		setPixmap(const ioPixmap&,int index);
 
     void		setItemID(int index,int id);
@@ -85,11 +87,13 @@ protected:
     virtual bool	notifyValueChanging_(const CallBack&)	{return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
+    void		translateText();
 private:
 
     int			oldnritems_;
     int			oldcuritem_;
     TypeSet<int>	itemids_;
+    TypeSet<uiString>	itemstrings_;
 
     mutable BufferString rettxt_;
 

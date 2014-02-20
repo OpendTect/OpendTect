@@ -7,13 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "userinputobj.h"
+#include "uistring.h"
 
 void UserInputObj::setValue( const char* s )
 { setText(s); }
 
 
-void UserInputObj::addItem( const char* s )
-{ setText(s); }
+void UserInputObj::addItem( const uiString& s )
+{ setText(s.getFullString()); }
 
 
 bool UserInputObj::notifyValueChanging( const CallBack& cb )
