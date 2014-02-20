@@ -97,10 +97,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     topgrp_ = new uiGroup( this, "Top group" );
     survnmfld_ = new uiGenInput( topgrp_, "Survey name",
 				StringInpSpec(si_.name()) );
+    survnmfld_->setElemSzPol( uiObject::Wide );
 
     pathfld_ = new uiGenInput( topgrp_, "Location on disk",
 				StringInpSpec(orgstorepath_) );
     pathfld_->attach( alignedBelow, survnmfld_ );
+    pathfld_->setElemSzPol( uiObject::Wide );
 
 #ifdef __win__
     pathfld_->setSensitive( false );
@@ -284,12 +286,15 @@ void uiSurveyInfoEditor::mkCoordGrp()
     xy0fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
 				PositionInpSpec(psetup).setName("X1",0)
 						       .setName("Y1",1) );
+    xy0fld_->setElemSzPol( uiObject::SmallVar );
     xy1fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
 				PositionInpSpec(psetup).setName("X2",0)
 						       .setName("Y2",1) );
+    xy1fld_->setElemSzPol( uiObject::SmallVar );
     xy2fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
 				PositionInpSpec(psetup).setName("X3",0)
 						       .setName("Y3",1) );
+    xy2fld_->setElemSzPol( uiObject::SmallVar );
     ic1fld_->attach( alignedBelow, ic0fld_ );
     ic2fld_->attach( alignedBelow, ic1fld_ );
     xy0fld_->attach( rightOf, ic0fld_ );
