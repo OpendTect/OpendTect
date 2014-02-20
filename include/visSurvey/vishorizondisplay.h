@@ -36,9 +36,9 @@ mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 {
 public:
 				HorizonDisplay();
-				mDefaultFactoryInstantiation( 
-    			        visSurvey::SurveyObject,HorizonDisplay, 
-				"HorizonDisplay", sFactoryKeyword() );
+				mDefaultFactoryInstantiation(
+				    visSurvey::SurveyObject,HorizonDisplay,
+				    "HorizonDisplay", sFactoryKeyword() );
 
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
@@ -78,9 +78,9 @@ public:
     virtual int			selectedTexture(int attrib) const;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
-    Pol2D3D                     getAllowedDataType() const      
-    				{ return Both2DAnd3D; }
-    
+    Pol2D3D                     getAllowedDataType() const
+				{ return Both2DAnd3D; }
+
     int				nrAttribs() const;
     bool			addAttrib();
     bool			canAddAttrib(int nrattribstoadd=1) const;
@@ -91,20 +91,20 @@ public:
     unsigned char		getAttribTransparency(int) const;
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
-    
+
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
     void			createAndDispDataPack(int,const DataPointSet*,
-	    					TaskRunner*);
+						TaskRunner*);
     bool                        setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
+					      TaskRunner*);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
-    bool			allowMaterialEdit() const 	{ return true; }
+    bool			allowMaterialEdit() const	{ return true; }
     bool			hasColor() const		{ return true; }
 
     EM::SectionID		getSectionID(int visid) const;
@@ -112,10 +112,10 @@ public:
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData( int,const DataPointSet*,
-	    					 TaskRunner*);
+						 TaskRunner*);
 
     void			setLineStyle(const LineStyle&);
-    				/*!<If ls is solid, a 3d shape will be used,
+				/*!<If ls is solid, a 3d shape will be used,
 				    otherwise 'flat' lines. */
     bool			hasStoredAttrib(int attrib) const;
     bool			hasDepth(int attrib) const;
@@ -126,15 +126,15 @@ public:
     bool			displaysSurfaceGrid() const;
     void			displaysSurfaceGrid(bool);
     void			setResolution(int,TaskRunner*);
-    				/*!< 0 is automatic */
+				/*!< 0 is automatic */
 
     bool			allowsPicks() const		{ return true; }
     void			getMousePosInfo(const visBase::EventInfo& e,
-	    					IOPar& i ) const
+						IOPar& i ) const
 				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
-	    					Coord3&,
-	    					BufferString& val,
+						Coord3&,
+						BufferString& val,
 						BufferString& info) const;
     float			calcDist(const Coord3&) const;
     float			maxDist() const;
@@ -169,11 +169,11 @@ public:
 
     bool                        canBDispOn2DViewer() const      { return true; }
     bool                        isVerticalPlane() const		{ return false;}
-    
+
     bool			shouldUseTexture() const;
     void			setAttribShift(int channel,
-	    				       const TypeSet<float>& shifts);
-    				/*!<Gives the shifts for all versions of an 
+					       const TypeSet<float>& shifts);
+				/*!<Gives the shifts for all versions of an
 				    attrib. */
 
     const ObjectSet<visBase::VertexShape>& getIntersectionLines() const;
@@ -185,12 +185,12 @@ public:
     static HorizonDisplay*	getHorizonDisplay(const MultiID&);
 
     void			doOtherObjectsMoved(
-	    				const ObjectSet<const SurveyObject>&,
+					const ObjectSet<const SurveyObject>&,
 					int whichobj );
 
 
 protected:
-    				~HorizonDisplay();
+				~HorizonDisplay();
     void			removeEMStuff();
 
     EM::PosID			findClosestNode(const Coord3&) const;
