@@ -114,7 +114,7 @@ inline uiString uiStrings::sSelect(bool arg,bool plural)
     if ( !arg )
 	return tr("&Select");
 
-    return plural ? tr( "Select %1" ) : tr( "Select %1(s)" );
+    return plural ? tr( "Select %1(s)" ) : tr( "Select %1" );
 }
 
 
