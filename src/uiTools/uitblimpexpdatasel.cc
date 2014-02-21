@@ -590,7 +590,7 @@ BufferString getSummary() const
 
 void doDlg( CallBacker* )
 {
-    if ( !impsel_.commitHdr() )
+    if ( !impsel_.commitHdr(true) )
 	return;
 
     uiTableFormatDescFldsEd dlg( &impsel_, helpid_ );
@@ -652,7 +652,7 @@ void uiTableImpDataSel::typChg( CallBacker* )
 
 void uiTableImpDataSel::hdrChg( CallBacker* )
 {
-    commitHdr();
+    commitHdr( false );
     fmtdeffld_->updateSummary();
     descChanged.trigger();
 }
@@ -705,18 +705,18 @@ int uiTableImpDataSel::nrHdrLines() const
 }
 
 
-bool uiTableImpDataSel::commitHdr()
+bool uiTableImpDataSel::commitHdr( bool witherror )
 {
     const int htyp = hdrtypefld_->getIntValue();
     if ( htyp == 2 )
     {
 	BufferString tok = hdrtokfld_->text();
-	if ( tok.isEmpty() )
+	if ( tok.isEmpty() && witherror )
 	{
 	    uiMSG().error( "Please enter the string marking the end-of-header");
 	    return false;
 	}
-	if ( tok.contains(' ') )
+	if ( tok.contains(' ') && witherror )
 	{
 	    uiMSG().error( "The end-of-header 'word' cannot contain spaces");
 	    return false;
@@ -731,7 +731,7 @@ bool uiTableImpDataSel::commitHdr()
 
 bool uiTableImpDataSel::commit()
 {
-    if ( !commitHdr() )
+    if ( !commitHdr(true) )
 	return false;
 
     if ( !fd_.isGood() )
