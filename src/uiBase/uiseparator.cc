@@ -34,9 +34,11 @@ uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 };
 
 
-uiSeparator::uiSeparator( uiParent* p, const char* txt, bool hor, bool raised )
-    : uiObject(p,txt,mkbody(p,txt,hor,raised))
-{}
+uiSeparator::uiSeparator( uiParent* p, const char* txt,
+			uiObject::Orientation ori, bool raised )
+    : uiObject(p,txt,mkbody(p,txt,ori==Horizontal,raised))
+{
+}
 
 
 uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt, 

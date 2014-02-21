@@ -77,7 +77,8 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	lastgrp = lcb;
     }
 
-    uiSeparator* sep = new uiSeparator( this, "hor sep", true, false );
+    uiSeparator* sep = new uiSeparator( this, "hor sep", uiObject::Horizontal,
+	    				false );
     sep->attach( stretchedBelow, lastgrp );
 
     int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );

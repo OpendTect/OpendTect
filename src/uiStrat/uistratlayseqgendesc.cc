@@ -160,7 +160,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 
 
 uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
-		uiStratLayModEditTools& lmt, Strat::LayerModelProvider& lmp )
+	    uiStratLayModEditTools& lmt, Strat::LayerModelProvider& lmp, int )
 {
     return new uiStratSimpleLayerModelDisp( lmt, lmp );
 }

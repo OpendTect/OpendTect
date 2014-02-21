@@ -50,7 +50,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     switchfld_->attach( alignedBelow, scenefld_ );
     switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
 
-    uiSeparator* sep1 = new uiSeparator( this, "HSep", true );
+    uiSeparator* sep1 = new uiSeparator( this, "HSep" );
     sep1->attach( stretchedBelow, switchfld_ );
 
     uiGroup* lightgrp = new uiGroup( this, "Light group" );
@@ -103,7 +103,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
     showpdfld_->attach( alignedBelow, dipfld_ );
 
-    uiSeparator* sep2 = new uiSeparator( this, "HSep", true );
+    uiSeparator* sep2 = new uiSeparator( this, "HSep" );
     sep2->attach( stretchedBelow, showpdfld_ );
 
     ambintensityfld_ = new uiSliderExtra( this,

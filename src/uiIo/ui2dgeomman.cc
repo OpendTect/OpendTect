@@ -40,39 +40,36 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 
     BufferStringSet linesets;
     S2DPOS().getLineSets( linesets );
-    uiLabeledListBox* lslb =
-	new uiLabeledListBox( this, linesets, "Linesets", false,
-			      uiLabeledListBox::AboveMid );
+    uiLabeledListBox* lslb = new uiLabeledListBox( this, linesets, "Linesets",
+	    			false, uiLabeledListBox::AboveMid );
     linesetfld_ = lslb->box();
     linesetfld_->selectionChanged.notify(
 	    mCB(this,ui2DGeomManageDlg,lineSetSelCB) );
     linesetfld_->setPrefWidth( 200 );
 
-	uiToolButton* removelsgeombut =
-	new uiToolButton( this, "trashcan", "Remove LineSet Geometry",
-			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
+    uiToolButton* removelsgeombut = new uiToolButton( this, "trashcan",
+				"Remove LineSet Geometry",
+				mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
     removelsgeombut->attach( centeredRightOf, lslb );
 
-	uiSeparator* versep = new uiSeparator( this, "", false );
+    uiSeparator* versep = new uiSeparator( this, "", uiObject::Vertical );
     versep->attach( centeredRightOf, removelsgeombut );
 
-    uiLabeledListBox* lnlb =
-	new uiLabeledListBox( this, "Linenames", false,
-			      uiLabeledListBox::AboveMid );
+    uiLabeledListBox* lnlb = new uiLabeledListBox( this, "Linenames", false,
+				uiLabeledListBox::AboveMid );
     lnlb->attach( rightTo, versep );
     linenamefld_ = lnlb->box();
     linenamefld_->setPrefWidth( 200 );
 
-    uiToolButton* mangeombut =
-	new uiToolButton( this, "browse2dgeom", "Manage Line Geometry",
-			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
+    uiToolButton* mangeombut = new uiToolButton( this, "browse2dgeom",
+				"Manage Line Geometry",
+				mCB(this,ui2DGeomManageDlg,manLineGeom) );
     mangeombut->attach( centeredRightOf, lnlb );
 
-	uiToolButton* remgeombut =
-	new uiToolButton( this, "trashcan", "Remove Line Geometry",
-			  mCB(this,ui2DGeomManageDlg,removeLineGeom) );
+    uiToolButton* remgeombut = new uiToolButton( this, "trashcan",
+	    			"Remove Line Geometry",
+				mCB(this,ui2DGeomManageDlg,removeLineGeom) );
     remgeombut->attach( alignedBelow, mangeombut );
-
 
     lineSetSelCB( 0 );
 }
@@ -86,10 +83,7 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
 {
     if ( linesetfld_->isEmpty() )
-    {
-	linenamefld_->setEmpty();
-	return;
-    }
+	{ linenamefld_->setEmpty(); return; }
 
     BufferStringSet linenames;
     S2DPOS().setCurLineSet( linesetfld_->getText() );
@@ -112,12 +106,13 @@ void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
     lineSetSelCB( 0 );
 }
 
-//-----------Manage Line Geometry-----------------
 
+//-----------Manage Line Geometry-----------------
 
 class uiManageLineGeomDlg : public uiDialog
 {
-    public:
+public:
+
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
     : uiDialog( p, uiDialog::Setup("Manage Line Geometry",linenm,"103.1.15"))
     , linenm_(linenm)
@@ -154,10 +149,11 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 
 
 //---------- Import New Geomtery ----------------
+
 class uiGeom2DImpDlg : public uiDialog
 {
-
 public:
+
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
     : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,"103.1.16"))
 {
@@ -171,10 +167,7 @@ uiGeom2DImpDlg( uiParent* p, const char* linenm )
 bool acceptOK( CallBacker* )
 {
     if ( File::isEmpty(geom2dinfld_->fileName()) )
-    {
-	uiMSG().error( "Invalid input file" );
-	return false;
-    }
+	{ uiMSG().error( "Invalid input file" ); return false; }
     return true;
 }
 
@@ -244,12 +237,17 @@ bool acceptOK( CallBacker* )
     uiPushButton*	readnewbut_;
 };
 
+
 //-----------------------------------------------------
+
+#define mNoSelectionAvailable() ( \
+	linenamefld_->isEmpty() \
+     || linenamefld_->nrSelected() < 1 \
+     || linenamefld_->currentItem() < 0 )
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() ||
-	 linenamefld_->currentItem() < 0 )
+    if ( mNoSelectionAvailable() )
 	return;
 
     uiManageLineGeomDlg dlg( this, linenamefld_->getText() );
@@ -259,9 +257,8 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 
 void ui2DGeomManageDlg::removeLineGeom( CallBacker* )
 {
-    if ( linenamefld_->isEmpty() || !linenamefld_->nrSelected() ||
-	 linenamefld_->currentItem() < 0 || !uiMSG().askGoOn(remmsg) )
-	    return;
+    if ( mNoSelectionAvailable() || !uiMSG().askGoOn(remmsg) )
+	return;
 
     PosInfo::POS2DAdmin().removeLine( linenamefld_->getText() );
     linenamefld_->removeItem( linenamefld_->currentItem() );

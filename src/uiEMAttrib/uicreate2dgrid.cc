@@ -472,7 +472,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     uiGroup* previewgrp = createPreviewGroup();
     previewgrp->attach( rightTo, seisgrp );
 
-    uiSeparator* sep = new uiSeparator( this, "HSeparator", true );
+    uiSeparator* sep = new uiSeparator( this, "HSeparator" );
     sep->attach( stretchedBelow, previewgrp );
     sep->attach( ensureBelow, seisgrp );
 

@@ -568,7 +568,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,
 					    needNewEstimatedWvlt) );
 
-    uiSeparator* verSepar = new uiSeparator( viewersgrp,"Vertical", false );
+    uiSeparator* verSepar = new uiSeparator( viewersgrp, "Vert sep",
+	    				     uiObject::Vertical );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );

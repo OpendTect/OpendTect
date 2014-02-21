@@ -44,7 +44,7 @@ public:
     virtual void	descHasChanged()		= 0;
     virtual uiObject*	outerObj()			= 0;
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
-				    Strat::LayerModelProvider&)	= 0;
+			    Strat::LayerModelProvider&,int opt=0) = 0;
 
     virtual void	prepareDesc()			{}
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }

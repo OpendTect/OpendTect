@@ -45,7 +45,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     repeatfld_->attach( alignedBelow, welllogsel_ );
     repeatfld_->box()->setInterval( 1, 40, 1 );
 
-    uiSeparator* sep = new uiSeparator( this, "Save Separ", true );
+    uiSeparator* sep = new uiSeparator( this, "Save Separ" );
     sep->attach( stretchedBelow, repeatfld_ );
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );

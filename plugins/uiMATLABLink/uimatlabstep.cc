@@ -44,7 +44,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );
-    uiSeparator* sep = new uiSeparator( this, "File Separator", true );
+    uiSeparator* sep = new uiSeparator( this, "File Separator" );
     sep->attach( stretchedBelow, filefld_ );
 
     addMultiInputFld();

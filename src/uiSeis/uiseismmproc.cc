@@ -171,7 +171,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 
     if ( sepattach )
     {
-	sep = new uiSeparator( this, "Hor sep 1", true );
+	sep = new uiSeparator( this, "Hor sep 1" );
 	sep->attach( stretchedBelow, sepattach );
     }
 
@@ -260,7 +260,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     jrppolgrp->setHAlignObj( nicefld );
     jrppolgrp->attach( ensureBelow, machgrp );
 
-    sep = new uiSeparator( this, "Hor sep 2", true );
+    sep = new uiSeparator( this, "Hor sep 2" );
     sep->attach( stretchedBelow, jrppolgrp );
 
     progrfld = new uiTextEdit( this, "Processing progress", true );

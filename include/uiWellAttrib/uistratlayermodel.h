@@ -38,7 +38,7 @@ mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 public:
 
 				uiStratLayerModel(uiParent*,
-						  const char* seqdisptype=0);
+					const char* disptype=0,int opt=0);
 				~uiStratLayerModel();
 
     void			go()		{ show(); }
@@ -74,7 +74,7 @@ public:
     bool			checkUnscaledWavelet();
 
     static void			doBasicLayerModel();
-    static void			doLayerModel(const char* modnm);
+    static void			doLayerModel(const char* modnm,int opt=0);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,

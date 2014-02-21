@@ -165,7 +165,7 @@ void startCB( CallBacker* cb )
 	    Settings::common().write( false );
 	modnm = newmodnm;
     }
-    doLayerModel( par, modnm );
+    doLayerModel( par, modnm, 0 );
 }
 
 bool haveExistingDlg()
@@ -179,12 +179,12 @@ bool haveExistingDlg()
     return false;
 }
 
-void doLayerModel( uiParent* p, const char* modnm )
+void doLayerModel( uiParent* p, const char* modnm, int opt )
 {
     if ( haveExistingDlg() || Strat::RT().isEmpty() )
 	return;
 
-    dlg_ = new uiStratLayerModel( p, modnm );
+    dlg_ = new uiStratLayerModel( p, modnm, opt );
     dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
     dlg_->go();
 }
@@ -219,12 +219,12 @@ void uiStratLayerModel::doBasicLayerModel()
 }
 
 
-void uiStratLayerModel::doLayerModel( const char* modnm )
+void uiStratLayerModel::doLayerModel( const char* modnm, int opt )
 {
     if ( Strat::RT().isEmpty() )
 	StratTreeWin().popUp();
     else
-	uislm_manager().doLayerModel( &StratTreeWin(), modnm );
+	uislm_manager().doLayerModel( &StratTreeWin(), modnm, opt );
 }
 
 
@@ -291,7 +291,7 @@ void initEditing()
 };
 
 
-uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
+uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,"",1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)
@@ -333,7 +333,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 
     modtools_ = new uiStratLayModEditTools( botgrp );
     gentools_ = new uiStratGenDescTools( gengrp );
-    moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_ );
+    moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
 	return;
 

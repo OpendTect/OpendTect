@@ -61,7 +61,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     bldfld_ = new uiMadagascarBldCmd( uppgrp_ );
     bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
 
-    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", false );
+    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", uiObject::Vertical );
     sep->attach( rightTo, maingrp );
     bldfld_->attach( rightTo, sep );
     uppgrp_->setHAlignObj( sep );

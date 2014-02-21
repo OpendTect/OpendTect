@@ -76,7 +76,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     seisattrfld_->setDataPackInp( fids, false );
     seisattrfld_->setDataPackInp( psfids, true );
 
-    uiSeparator* sep = new uiSeparator( this, "sep1", true );
+    uiSeparator* sep = new uiSeparator( this, "sep1" );
     sep->attach( stretchedBelow, seisattrfld_ );
 
     layseqattrfld_ = new uiStratLaySeqAttribSetBuild( this, lm_ );

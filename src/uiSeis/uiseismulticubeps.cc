@@ -97,7 +97,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     compfld_->attach( rightOf, offsfld_ );
     compfld_->display( false );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep", true, false );
+    uiSeparator* sep = new uiSeparator( this, "Hor sep",
+	    				uiObject::Horizontal, false );
     sep->attach( stretchedBelow, offsfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 

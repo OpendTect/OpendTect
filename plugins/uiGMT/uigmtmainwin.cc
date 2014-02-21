@@ -81,7 +81,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     resetbut_->setToolTip( "Reset input fields" );
     resetbut_->attach( rightOf, editbut_ );
 
-    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", false );
+    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", uiObject::Vertical );
     sep->attach( stretchedLeftTo, rightgrp );
 
     flowgrp_ = new uiGroup( uppgrp_, "Flow Group" );

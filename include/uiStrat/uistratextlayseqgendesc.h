@@ -35,7 +35,7 @@ public:
 
     virtual uiObject*			outerObj()	{ return this; }
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-					    Strat::LayerModelProvider&);
+					    Strat::LayerModelProvider&,int);
     virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
 
 protected:
