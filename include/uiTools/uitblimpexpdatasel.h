@@ -30,19 +30,19 @@ namespace Table { class FormatDesc; }
   For example, the Wavelet import dialog creates a Table::FormatDesc object
   using WaveletAscIO::getDesc(), this class lets the user fill the FormatDesc's
   selection_, after which WaveletAscIO creates the imported object.
- 
+
  */
 
 mExpClass(uiTools) uiTableImpDataSel : public uiGroup
 {
 public:
 
-    				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
+				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
 						  const char* help_id);
 
     Table::FormatDesc&		desc()		{ return fd_; }
     const BufferString&		fmtName()	{ return fmtname_; }
-    				//!< May not be correct: it's the last selected
+				//!< May not be correct: it's the last selected
 
     void			updateSummary();
     bool			commit();
@@ -64,6 +64,7 @@ protected:
     friend class		uiTableFormatDescFldsEd;
 
     bool			commitHdr();
+    bool			commitHdrNew(bool witherror);
     void			typChg(CallBacker*);
     void			hdrChg(CallBacker*);
     void			descChg(CallBacker*);
