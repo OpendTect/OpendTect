@@ -66,6 +66,7 @@ uiTieView::~uiTieView()
     delete wellcontrol_;
     vwr_->clearAllPacks();
     delete &trcbuf_;
+    deepErase( logsdisp_ );
 }
 
 

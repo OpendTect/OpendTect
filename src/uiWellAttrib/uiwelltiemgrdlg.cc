@@ -195,9 +195,8 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     const char* nm = Well::IO::getMainFileName( *wllctio_.ioobj );
     if ( !nm || !*nm ) return;
 
-    wd_ = new Well::Data;
-    Well::Reader wr( nm, *wd_ );
-    wr.get();
+    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
+    wd_ = Well::MGR().get( wellid, false );
 
     logsfld_->wellid_ = wllctio_.ioobj->key();
     if ( !logsfld_->setLogs(wd_->logs()) )
@@ -209,8 +208,8 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 	return;
     }
 
-    used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
-    used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM((*wd_)) );
+    used2tmbox_->display( wd_->d2TModel() && !mIsUnvalidD2TM((*wd_)) );
+    used2tmbox_->setChecked( wd_->d2TModel() && !mIsUnvalidD2TM((*wd_)) );
 
     getSetup( nm );
 }
@@ -510,8 +509,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     welltiedlgset_ += wtdlg;
     welltiedlgsetcpy_ += wtdlg;
     //windows are stored in a an ObjectSet to be deleted in the destructor
-    welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
-				mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
+    wtdlg->windowClosed.notify(	mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
 
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
     if ( !ioobj ) return false;
@@ -528,19 +526,15 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
 void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
-    mDynamicCastGet(WellTie::uiTieWin*,win,cb)
-    if ( !win ) { pErrMsg("Huh"); return; }
-    for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
-    {
-	if ( welltiedlgset_[idx] == win )
-	{
-	    welltiedlgset_.removeSingle(idx);
-	    WellTie::Writer wtr(
-			Well::IO::getMainFileName( win->Setup().wellid_) );
-	    IOPar par; win->fillPar( par );
-	    wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
-	}
-    }
+    mDynamicCastGet(WellTie::uiTieWin*,win,cb);
+    const int idx = welltiedlgset_.indexOf( win );
+    if ( !win || idx<0 ) return;
+    
+    WellTie::Writer wtr( Well::IO::getMainFileName(win->Setup().wellid_) );
+    IOPar par; win->fillPar( par );
+    wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
+    
+    welltiedlgset_.removeSingle( idx );
 }
 
 #define mGetPar(key) \

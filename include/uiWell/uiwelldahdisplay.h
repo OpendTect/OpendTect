@@ -159,12 +159,11 @@ public:
 				      //a line otherwise
     };
 
-    void			setData(const Data& data)
-					{ zdata_.copyFrom(data); dataChanged();}
+    void			setData(const Data& data);
     void			setZRange(Interval<float> zrg)
 					{ zdata_.zrg_ = zrg; dataChanged();}
 
-    const Data&			zData()	   { return zdata_; }
+    const Data&			zData()		   { return zdata_; }
     TypeSet<PickData>&          zPicks()           { return zpicks_; }
     Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
 
@@ -214,6 +213,7 @@ protected:
 
     void			dataChanged();
     void			init(CallBacker*);
+    void			wellDataToBeDeleted(CallBacker*);
     void			reSized(CallBacker*);
 
     friend class                uiWellDisplay;

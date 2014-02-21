@@ -256,7 +256,7 @@ WellDataMgr::~WellDataMgr()
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,WellDataMgr,wellDataDelNotify));
     wd_ = 0;
-    Well::MGR().release( wellid_ );
+    delete Well::MGR().release( wellid_ );
 }
 
 
