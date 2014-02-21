@@ -64,7 +64,7 @@ void uiImportHorizon::initClass()
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup("Import Horizon","Specify parameters",
+    : uiDialog(p,uiDialog::Setup("Import Horizon",mNoDlgTitle,
 				 "104.0.2").modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)

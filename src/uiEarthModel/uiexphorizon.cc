@@ -48,16 +48,15 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Export Horizon",
-				     "Specify output format","104.0.1"))
+    : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,"104.0.1"))
 {
     setCtrlStyle( RunAndClose );
     setModal( false );
     setDeleteOnClose( false );
 
     infld_ = new uiSurfaceRead( this,
-		     uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
-				    .withsubsel(true) );
+		uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
+		.withsubsel(true).withsectionfld(false) );
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
@@ -66,7 +65,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
     settingsbutt_ = new uiPushButton( this, "Settings",
-				      mCB(this,uiExportHorizon, settingsCB),
+				      mCB(this,uiExportHorizon,settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
 
@@ -80,9 +79,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
 
-    unitsel_ = new uiUnitSel( this, SI().zIsTime() ? PropertyRef::Time
-						   : PropertyRef::Dist,
-				    "Z Unit" );
+    unitsel_ = new uiUnitSel( this,
+	SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
     headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );

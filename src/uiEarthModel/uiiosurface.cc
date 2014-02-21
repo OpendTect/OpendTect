@@ -72,11 +72,11 @@ uiIOSurface::~uiIOSurface()
 }
 
 
-void uiIOSurface::mkAttribFld()
+void uiIOSurface::mkAttribFld( bool labelabove )
 {
     attribfld_ = new uiLabeledListBox( this, "Calculated attributes", true,
-				      uiLabeledListBox::AboveMid );
-    attribfld_->setStretch( 1, 1 );
+	labelabove ? uiLabeledListBox::AboveMid : uiLabeledListBox::LeftTop );
+    attribfld_->setStretch( 2, 2 );
     attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
 
@@ -84,8 +84,7 @@ void uiIOSurface::mkAttribFld()
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
     sectionfld_ = new uiLabeledListBox( this, "Available patches", true,
-				     labelabove ? uiLabeledListBox::AboveMid
-						: uiLabeledListBox::LeftTop );
+	labelabove ? uiLabeledListBox::AboveMid : uiLabeledListBox::LeftTop );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
     sectionfld_->box()->selectionChanged.notify(
@@ -484,9 +483,9 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
     if ( setup.withattribfld_ )
     {
-	mkAttribFld();
+	mkAttribFld( setup.withsectionfld_ );
 	attribfld_->attach( alignedBelow, objfld_ );
-	sectionfld_->attach( rightTo, attribfld_ );
+	if ( sectionfld_ ) sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
 	attribfld_->box()->setMultiSelect( setup.multiattribsel_ );
     }

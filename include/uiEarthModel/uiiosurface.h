@@ -66,7 +66,7 @@ protected:
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const HorSampling&);
 
-    void		mkAttribFld();
+    void		mkAttribFld(bool);
     void		mkSectionFld(bool);
     void		mkRangeFld(bool multiss=false);
     void		mkObjFld(const char*);
@@ -124,7 +124,7 @@ public:
 
 protected:
     void		stratLvlChg(CallBacker*);
-    void 		ioDataSelChg(CallBacker*);
+    void		ioDataSelChg(CallBacker*);
 
     uiCheckBox*		displayfld_;
     uiColorInput*       colbut_;
@@ -156,7 +156,7 @@ public:
 	mDefSetupMemb(bool,multiattribsel)
     };
 
-    			uiSurfaceRead(uiParent*,const Setup&);
+			uiSurfaceRead(uiParent*,const Setup&);
 
     virtual bool	processInput();
     void		setIOObj(const MultiID&);
@@ -181,13 +181,13 @@ public:
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
     void			setSelectedFaults(const TypeSet<MultiID>&,
-	    				const TypeSet<FaultTrace::Act>* =0);
+					const TypeSet<FaultTrace::Act>* =0);
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
-					
+
     void			set2DLineKeys(
 					    const TypeSet<PosInfo::Line2DKey>&);
-    				/*<for FaultStickSet picked from 2D lines.*/
+				/*<for FaultStickSet picked from 2D lines.*/
 
     Notifier<uiFaultParSel>	selChange;
 
@@ -201,7 +201,7 @@ protected:
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<PosInfo::Line2DKey>	l2dkeys_;
-    
+
     bool			useoptions_;
     BufferStringSet		optnms_;
     TypeSet<int>		optids_;
