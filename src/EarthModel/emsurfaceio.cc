@@ -804,7 +804,10 @@ int dgbSurfaceReader::nextStep()
     }
 
     if ( !prepareRowRead(strm) )
-	return ErrorOccurred();
+    {
+	msg_ = strm.errMsg();
+        return ErrorOccurred();
+    }
 
     const SectionID sectionid = sectionids_[sectionindex_];
 
@@ -902,7 +905,10 @@ int dgbSurfaceReader::nextStep()
 	{
 	    const Pos::GeomID geomid = geomids_[rowindex_];
 	    if ( geomid < 0 )
-	     return ErrorOccurred();
+	    {
+		msg_ = "Cannot find 2D line associated with the 2D horizon.";
+		return ErrorOccurred();
+	    }
 
 	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
 			    geomid, firstcol+noofcoltoskip,
@@ -915,7 +921,10 @@ int dgbSurfaceReader::nextStep()
 			: S2DPOS().getLine2DKey( linesets_[rowindex_]->buf(),
 						 linenames_[rowindex_]->buf() );
 	    if ( !l2dky.isOK() )
+	    {
+		msg_ = "Cannot find 2D line associated with the 2D horizon.";
 		return ErrorOccurred();
+	    }
 	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
 				    l2dky, firstcol+noofcoltoskip,
 				    firstcol+nrcols+noofcoltoskip-1, colstep );
@@ -982,8 +991,8 @@ int dgbSurfaceReader::prepareNewSection( od_istream& strm )
     nrrows_ = readInt32( strm );
     if ( !strm.isOK() )
     {
-	msg_ = sMsgReadError();
-	return ErrorOccurred();
+	msg_ = strm.errMsg();
+        return ErrorOccurred();
     }
 
     if ( nrrows_ )
@@ -1147,10 +1156,18 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 {
     if ( version_!=3 )
     {
-	if ( !isBinary() ) return ErrorOccurred();
+	if ( !isBinary() )
+	{
+	    msg_ = "Invalid file.";
+	    return ErrorOccurred();
+	}
 
 	const int nrcols = readInt32( strm );
-	if ( !strm.isOK() ) return ErrorOccurred();
+	if ( !strm.isOK() ) 
+	{
+	    msg_ = strm.errMsg();
+	    return ErrorOccurred();
+	}
 
 	int offset = 0;
 	if ( nrcols )
@@ -1164,7 +1181,11 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 	    offset += int32interpreter_->nrBytes(); //firstcol
 
 	    strm.setPosition( offset, od_stream::Rel );
-	    if ( !strm.isOK() ) return ErrorOccurred();
+	    if ( !strm.isOK() )
+	    {
+		msg_ = strm.errMsg();
+		return ErrorOccurred();
+	    }
 	}
     }
 
