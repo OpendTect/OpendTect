@@ -102,6 +102,18 @@ int Shape::getMaterialBinding() const
 }
 
 
+void Shape::enableRenderLighting(bool yn )
+{
+    osg::StateSet* stateset = getStateSet();
+    if ( !stateset )
+	return;
+    if ( yn )
+	stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON); 
+    else
+	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF); 
+}
+
+
 void Shape::setRenderMode( RenderMode mode )
 {
     osg::StateSet* stateset = getStateSet();
@@ -111,7 +123,6 @@ void Shape::setRenderMode( RenderMode mode )
     osg::ref_ptr<osg::LightModel> lightmodel = new osg::LightModel;
     lightmodel->setTwoSided( true );
     stateset->setAttributeAndModes( lightmodel, osg::StateAttribute::ON );
-
     stateset->removeAttribute( osg::StateAttribute::CULLFACE );
     if ( mode == RenderBothSides )
 	return;

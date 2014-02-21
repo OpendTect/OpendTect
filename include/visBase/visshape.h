@@ -55,6 +55,8 @@ public:
     int				getMaterialBinding() const;
 
     void			setRenderMode(RenderMode);
+    void			enableRenderLighting(bool);
+    //! osg default render lighting is on
 
     int				usePar(const IOPar&);
     void			fillPar(IOPar&) const;
