@@ -51,7 +51,8 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
-    uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Manip buttons" );
+    uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Manip buttons",
+					     uiObject::Vertical );
     bgrp->attach( rightOf, listfld_ );
 #   define mAddBut(s,fn) \
     new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )

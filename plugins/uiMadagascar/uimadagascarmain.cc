@@ -104,7 +104,8 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "", false );
+    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "",
+					     uiObject::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
 	    			"Move current command up", butpushcb );

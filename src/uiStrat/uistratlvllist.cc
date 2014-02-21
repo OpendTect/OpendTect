@@ -33,7 +33,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
     box()->setFieldWidth( 15 );
     box()->doubleClicked.notify( mCB(this,uiStratLvlList,editCB) );
 
-    uiButtonGroup* grp = new uiButtonGroup( this, "Tools" );
+    uiButtonGroup* grp = new uiButtonGroup( this, "Tools", uiObject::Vertical );
     grp->attach( rightTo, box() );
     new uiToolButton( grp, "addnew", "Create New",
 		      mCB(this,uiStratLvlList,addCB) );

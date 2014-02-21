@@ -65,7 +65,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
-						 false );
+						 uiObject::Horizontal );
     addlogsbut_ = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
     calclogsbut_ = new uiPushButton( logsbgrp, "&Create", false );
@@ -333,12 +333,9 @@ void uiWellMan::logTools( CallBacker* )
 
 void uiWellMan::importLogs( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-
-    currdrs_[0]->getLogs();
-    uiLoadLogsDlg dlg( this, *curwds_[0] );
+    uiImportLogsDlg dlg( this, curioobj_ );
     if ( dlg.go() )
-	writeLogs();
+	wellsChgd();
 }
 
 

@@ -26,9 +26,11 @@ class uiGenInput;
 class uiLabel;
 class uiLabeledListBox;
 class uiTable;
-class BufferStringSet;
-class od_ostream;
 class uiTableImpDataSel;
+class uiWellSel;
+class BufferStringSet;
+class IOObj;
+class od_ostream;
 
 namespace Table { class FormatDesc; }
 namespace Well { class Data; class Track; class D2TModel; class Log; }
@@ -95,7 +97,7 @@ protected:
     int				getTVDGLCol() const;
     int				getTVDSDCol() const;
     int				getTVDSSCol() const;
-    int 			getTimeCol() const;
+    int				getTimeCol() const;
     int				getVintCol() const;
     bool			rowIsIncomplete(int row) const;
     int				getPreviousCompleteRowIdx(int row) const;
@@ -108,22 +110,21 @@ protected:
 Dialog for loading logs from las file
 */
 
-mExpClass(uiWell) uiLoadLogsDlg : public uiDialog
+mExpClass(uiWell) uiImportLogsDlg : public uiDialog
 {
 public:
-    				uiLoadLogsDlg(uiParent*,Well::Data&);
+				uiImportLogsDlg(uiParent*,const IOObj*);
 
 protected:
 
-    uiFileInput*		lasfld;
-    uiGenInput*			intvfld;
-    uiGenInput*			intvunfld;
-    uiGenInput*			istvdfld;
-    uiGenInput*			udffld;
-    uiLabel*			unitlbl;
-    uiLabeledListBox*		logsfld;
-
-    Well::Data&			wd;
+    uiFileInput*		lasfld_;
+    uiGenInput*			intvfld_;
+    uiGenInput*			intvunfld_;
+    uiGenInput*			istvdfld_;
+    uiGenInput*			udffld_;
+    uiLabel*			unitlbl_;
+    uiLabeledListBox*		logsfld_;
+    uiWellSel*			wellfld_;
 
     bool			acceptOK(CallBacker*);
     void			lasSel(CallBacker*);
@@ -134,7 +135,7 @@ protected:
 mExpClass(uiWell) uiExportLogs : public uiDialog
 {
 public:
-    				uiExportLogs(uiParent*,
+				uiExportLogs(uiParent*,
 					const ObjectSet<Well::Data>&,
 					const BufferStringSet&);
 protected:
@@ -163,19 +164,19 @@ class uiColorInput;
 mExpClass(uiWell) uiNewWellDlg : public uiGetObjectName
 {
 public:
-    				uiNewWellDlg(uiParent*);
-    				~uiNewWellDlg();
+				uiNewWellDlg(uiParent*);
+				~uiNewWellDlg();
 
     const Color&		getWellColor();
-    const char* 		getName() const		{ return name_; }
-				
+    const char*	getName() const	{ return name_; }
+
 protected:
 
     uiColorInput*		colsel_;
     BufferString		name_;
     BufferStringSet*		nms_;
 
-    virtual bool        	acceptOK(CallBacker*);
+    virtual bool		acceptOK(CallBacker*);
     const BufferStringSet&	mkWellNms();
 };
 
@@ -193,7 +194,6 @@ protected:
 
     bool			acceptOK(CallBacker*);
 };
-
 
 #endif
 

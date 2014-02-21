@@ -118,7 +118,8 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
 	tbl_->setRowLabel( irow, toString(rowval) );
     }
 
-    uiButtonGroup* bgrp = new uiButtonGroup( grp );
+    uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons",
+					     uiObject::Vertical );
     new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
 	    "View function", mCB(this,uiEditProbDenFunc,viewPDF) );
     if ( editable_ )

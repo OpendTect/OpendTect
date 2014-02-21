@@ -124,7 +124,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Mode" );
 
-    modeselgrp_ = new uiButtonGroup( grp, "ModeSel" );
+    modeselgrp_ = new uiButtonGroup( grp, "ModeSel", uiObject::Vertical );
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 

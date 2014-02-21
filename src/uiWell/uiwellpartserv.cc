@@ -119,7 +119,11 @@ void uiWellPartServer::importTrack()
 
 
 void uiWellPartServer::importLogs()
-{ manageWells(); }
+{
+    uiImportLogsDlg dlg( parent(), 0 );
+    dlg.go();
+}
+
 
 void uiWellPartServer::importMarkers()
 { manageWells(); }

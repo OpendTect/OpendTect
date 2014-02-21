@@ -95,7 +95,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
 {
     const bool haveattribs = attrinf_->attrnms_.size();
 
-    selgrp_ = new uiButtonGroup( this, "Input selection" );
+    selgrp_ = new uiButtonGroup( this, "Input selection", uiObject::Vertical );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 
@@ -170,7 +170,8 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
     const int newseltype = selType();
-    uiListBox* attrfld = newseltype ? (newseltype==1 ? attroutfld_ : nlaoutfld_)				    : storoutfld_;
+    uiListBox* attrfld = newseltype ? (newseltype==1 ? attroutfld_ : nlaoutfld_)
+				    : storoutfld_;
     if ( seltype_ == newseltype )
     {
 	BufferString selnm = attrfld->getText();

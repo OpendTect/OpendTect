@@ -91,7 +91,8 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
 
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );
-    uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", false );
+    uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "",
+					     uiObject::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
 				"Move current item up", butpushcb );

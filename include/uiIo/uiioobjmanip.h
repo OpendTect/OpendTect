@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uiiomod.h"
 #include "uibuttongroup.h"
+
 class IOObj;
 class IOStream;
 class Translator;
@@ -27,7 +27,8 @@ mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
-			    : uiButtonGroup(p,"") { altbutdata.allowNull(); }
+			    : uiButtonGroup(p,"ManipButtons",uiObject::Vertical)
+			{ altbutdata.allowNull(); }
 			~uiManipButGrp()
 			{ deepErase(butdata); deepErase(altbutdata); }
 

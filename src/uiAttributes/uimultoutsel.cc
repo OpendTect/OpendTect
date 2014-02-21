@@ -182,7 +182,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
     fillAttribFld();
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "", true );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "", uiObject::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
 		      mCB(this,uiMultiAttribSel,doAdd) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
@@ -196,7 +196,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     selllb->attach( rightTo, attrllb );
     selllb->attach( ensureRightOf, bgrp );
 
-    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", true );
+    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", uiObject::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,"Move up",
 		      mCB(this,uiMultiAttribSel,moveUp) );
     new uiToolButton( sortgrp, uiToolButton::DownArrow, "Move down",

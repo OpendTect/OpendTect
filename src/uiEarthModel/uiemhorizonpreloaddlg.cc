@@ -53,7 +53,8 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons" );
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons",
+					       uiObject::Vertical );
     butgrp->attach( rightOf, listfld_ );
 
     uiPushButton* add3dbut mUnusedVar =

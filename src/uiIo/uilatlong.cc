@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiLatLongDMSInp : public uiGroup
 {
 public:
-    			uiLatLongDMSInp(uiParent*,bool lat);
+			uiLatLongDMSInp(uiParent*,bool lat);
 
     double		value() const;
     void		set(double);
@@ -58,7 +58,7 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     minfld_->setValue( 0 );
     minfld_->attach( rightOf, degfld_ );
     secfld_ = new uiLineEdit( this, FloatInpSpec(),
-	    		      BufferString("DMS ",nm," sec") );
+			      BufferString("DMS ",nm," sec") );
     secfld_->setHSzPol( uiObject::Small );
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
@@ -84,7 +84,7 @@ void uiLatLongDMSInp::set( double val )
 {
     LatLong ll;
     (islat_ ? ll.lat_ : ll.lng_) = val;
-    int d, m; float s; 
+    int d, m; float s;
     ll.getDMS( islat_, d, m, s );
     const bool issw = val < 0;
     swfld_->setChecked( issw );
@@ -99,7 +99,8 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     : uiGroup(p,"Lat/Long inp group")
 {
     const CallBack tscb( mCB(this,uiLatLongInp,typSel) );
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp" );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp",
+					     uiObject::Vertical );
     bgrp->setExclusive( true );
     isdecbut_ = new uiRadioButton( bgrp, "Decimal" );
     isdecbut_->setChecked( true );
@@ -184,7 +185,7 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 
 
 uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
-       					const SurveyInfo* si )
+					const SurveyInfo* si )
     : uiDialog(p,uiDialog::Setup("Lat/Long vs Coordinates",
 	     "Estimation of geographical coordinates from/to "
 	     "the rectangular survey coordinates",
@@ -193,7 +194,7 @@ uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
     , si_(si?si:&SI())
 {
     coordfld_ = new uiGenInput( this, "Coordinate in or near survey",
-	    			DoubleInpSpec(), DoubleInpSpec() );
+				DoubleInpSpec(), DoubleInpSpec() );
 
     latlngfld_ = new uiLatLongInp( this );
     latlngfld_->attach( alignedBelow, coordfld_ );

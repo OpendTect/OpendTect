@@ -72,7 +72,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubesllb );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "", true );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons",
+					     uiObject::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
 	    			mCB(this,uiSeisMultiCubePS,addCube) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
@@ -88,7 +89,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     selfld_->setPrefWidthInChar( 30 );
 
     BufferString offsetstr( "Offset ", SI().getXYUnitString() );
-    offsfld_ = new uiGenInput( this, offsetstr, 
+    offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpSpec().setName("Offset") );
     offsfld_->attach( alignedBelow, selllb );
     offsfld_->setElemSzPol( uiObject::Small );
@@ -215,7 +216,7 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 	{
 	    for ( int idx=0; idx<compnms.size(); idx++ )
 	    {
-		uiSeisMultiCubePSEntry* selentry = 
+		uiSeisMultiCubePSEntry* selentry =
 					new uiSeisMultiCubePSEntry( *entry );
 		selentry->comp_ = idx;
 		selentry->offs_ = mCast(float,10*idx);

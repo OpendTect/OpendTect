@@ -236,7 +236,7 @@ void uiAttrSelDlg::createSelectionButtons()
     const bool havestored = attrinf_->ioobjnms_.size();
     const bool havesteered = attrinf_->steernms_.size();
 
-    selgrp_ = new uiButtonGroup( this, "Input selection" );
+    selgrp_ = new uiButtonGroup( this, "Input selection", uiObject::Vertical );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );

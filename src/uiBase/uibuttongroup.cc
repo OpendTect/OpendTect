@@ -17,9 +17,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
+uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
+			      uiObject::Orientation orient )
     : uiGroup( p ,nm )
-    , vertical_(vertical)
+    , orientation_(orient)
 {
     qbuttongrp_ = new QButtonGroup();
 }
@@ -33,11 +34,12 @@ uiButtonGroup::~uiButtonGroup()
 
 int uiButtonGroup::addButton( uiButton* button )
 {
-    int id = qbuttongrp_->buttons().size();
+    const bool vertical = orientation_ == uiObject::Vertical;
+    const int id = qbuttongrp_->buttons().size();
     qbuttongrp_->addButton( button->qButton(), id );
     button->setStretch( grpobj_->width(), grpobj_->height() );
     if ( !uibuts_.isEmpty() )
-	button->attach( vertical_ ? leftAlignedBelow : rightTo,
+	button->attach( vertical ? leftAlignedBelow : rightTo,
 			uibuts_[uibuts_.size()-1] );
     uibuts_ += button;
     return id;

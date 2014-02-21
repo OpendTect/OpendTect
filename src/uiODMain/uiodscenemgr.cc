@@ -308,7 +308,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    continue;
 	}
 
-	visBase::DataObject* obj = 
+	visBase::DataObject* obj =
 	    visBase::DM().getObject( scn.sovwr_->sceneID() );
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
@@ -349,7 +349,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
     }
 
     rebuildTrees();
-    
+
 }
 
 
@@ -602,7 +602,7 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Specify snapshot",
 				   "Select area to take snapshot","50.0.1") )
 {
-    butgrp_ = new uiButtonGroup( this, "Area type" );
+    butgrp_ = new uiButtonGroup( this, "Area type", uiObject::Vertical );
     butgrp_->setExclusive( true );
     new uiRadioButton( butgrp_, "Scene" );
     new uiRadioButton( butgrp_, "Window" );
@@ -836,12 +836,12 @@ void uiODSceneMgr::rebuildTrees()
 
 	for ( int idy=0; idy<visids.size(); idy++ )
 	{
-	    mDynamicCastGet( const visSurvey::SurveyObject*, surobj, 
+	    mDynamicCastGet( const visSurvey::SurveyObject*, surobj,
 		visServ().getObject(visids[idy]) );
 
 	    if ( surobj && surobj->getSaveInSessionsFlag() == false )
 		continue;
-	    
+
 	    uiODDisplayTreeItem::create( scene.itemmanager_, &applMgr(),
 					 visids[idy] );
 	}

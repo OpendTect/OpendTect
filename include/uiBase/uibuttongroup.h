@@ -19,18 +19,19 @@ ________________________________________________________________________
 mFDQtclass(QButtonGroup)
 class uiButton;
 
-/* Group managing buttons, and their position.
+/*\brief Group managing buttons, and their position.
 
-If the buttons have an on/off state, then you should consider the setExclusive() switch, which is by default ON.
+If the buttons have an on/off state, then you should consider the
+setExclusive() switch, which is by default ON.
 
-   */
+*/
 
 
 mExpClass(uiBase) uiButtonGroup : public uiGroup
-{ 	
+{
 public:
-			uiButtonGroup(uiParent*,const char* nm="uiButtonGrp",
-				      bool vertical=true);
+			uiButtonGroup(uiParent*,const char* nm,
+				      uiObject::Orientation);
 			~uiButtonGroup();
 
     void		selectButton(int id);
@@ -44,14 +45,14 @@ public:
     bool		isExclusive() const;
 
     int			addButton(uiButton*);
-    			//!< Only use if you need ID. Then, set 0 as parent
-    			//!< when constructing teh button.
+			//!< Only use if you need ID. Then, set 0 as parent
+			//!< when constructing teh button.
 
 protected:
 
     mQtclass(QButtonGroup*)	qbuttongrp_;
     ObjectSet<uiButton>		uibuts_;
-    bool			vertical_;
+    uiObject::Orientation	orientation_;
 
 };
 

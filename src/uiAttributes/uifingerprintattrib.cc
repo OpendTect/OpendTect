@@ -73,12 +73,12 @@ class uiFPAdvancedDlg: public uiDialog
 			uiFPAdvancedDlg(uiParent*,calcFingParsObject*,
 					const BufferStringSet&);
 			~uiFPAdvancedDlg();
-							
+
     void                prepareNumGroup(uiGroup*,const BufferStringSet&);
     void                rangeSel(CallBacker*);
     void                calcPush(CallBacker*);
     bool                acceptOK(CallBacker*);
-    
+
     uiButtonGroup*      rangesgrp_;
     uiRadioButton*      picksetbut_;
     uiIOObjSel*         picksetfld_;
@@ -101,7 +101,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 {
     calcobj_ = new calcFingParsObject( this );
 
-    refgrp_ = new uiButtonGroup( this, "", false );
+    refgrp_ = new uiButtonGroup( this, "", uiObject::Horizontal );
     uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,"Reference position");
@@ -114,16 +114,16 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     refposfld_ = new uiGenInput( this,
 			is2d_ ? sKey::TraceNr() : "Position (Inl/Crl)",
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
-	   		.setName("Inl position",0).setName("Crl position",1) );
+			.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );
 
     BufferString zlabel = "Z "; zlabel += SI().getZUnitString();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
-    
+
     getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
-	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
+				   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
     pickretriever_ = PickRetriever::getInstance();
     pickretriever_->finished()->notify(
@@ -139,25 +139,25 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
-    statsfld_ = new uiGenInput( this, "PickSet statistic", 
-	    		       StringListInpSpec(statstrs) );
+    statsfld_ = new uiGenInput( this, "PickSet statistic",
+			       StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
-    manlbl_ = new uiLabel( this, 
-	    		   "Please select some attributes and go to Advanced" );
+    manlbl_ = new uiLabel( this,
+			   "Please select some attributes and go to Advanced" );
     manlbl_->attach( alignedBelow, refgrp_ );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute")
-	    				        .rowgrow(true)
-					        .minrowhgt(1.5)
-					        .maxrowhgt(1.8)
-				       	        .defrowlbl("")
-					        .fillcol(true)
-					        .fillrow(true)
-					        .removeselallowed(false)
-				       .mincolwdt(3.f*uiObject::baseFldSize())
-				       .maxcolwdt(4.f*uiObject::baseFldSize()),
+				.rowgrow(true)
+				.minrowhgt(1.5)
+				.maxrowhgt(1.8)
+				.defrowlbl("")
+				.fillcol(true)
+				.fillrow(true)
+				.removeselallowed(false)
+				.mincolwdt(3.f*uiObject::baseFldSize())
+				.maxcolwdt(4.f*uiObject::baseFldSize()),
 			  "Reference attributes table" );
 
     const char* collbls[] = { "Reference attributes", 0 };
@@ -178,7 +178,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     uiPushButton* calcbut =
 		new uiPushButton( this, "Calculate &parameters", cbcalc, true);
     calcbut->attach( alignedBelow, table_ );
-    
+
     CallBack cbrg = mCB(this,uiFingerPrintAttrib,getAdvancedPush);
     uiPushButton* advbut = new uiPushButton( this, "&Advanced", cbrg, false );
     advbut->attach( rightAlignedBelow, table_ );
@@ -210,7 +210,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     const uiAttrSelData asd( is2d_, false );
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
+	uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
 	attrbox->setLabelSelectable( false );	// reveals table right-click
 						// menu underneath the label
 	attrbox->setBorder( 0 );
@@ -226,13 +226,13 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row();
     const uiAttrSelData asd( is2d_, false );
-    uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
+    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
     attrbox->setLabelSelectable( false );	// reveals table right-click
-    						// menu underneath the label
+						// menu underneath the label
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );
-    
+
     TypeSet<int> weights = calcobj_->getWeights();
     weights.insert( newrow, 1);
 
@@ -266,7 +266,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 		 is2d_ ? refposfld_->setValue(refpos.crl())
 		       : refposfld_->setValue(refpos) )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
-	    	 refposzfld_->setValue( refposz ) );
+		 refposzfld_->setValue( refposz ) );
 
     if ( is2d_ )
     {
@@ -276,8 +276,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	linefld_->set( lsnm, lnm );
     }
 
-    mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
-	    	  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
+    mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
+		  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -286,7 +286,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	       statsfld_->setValue(statsval) )
 
     refSel(0);
-    
+
     int nrvals = cInitNrRows;
     if ( desc.getParam( FingerPrint::valStr() ) )
     {
@@ -347,7 +347,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetString( FingerPrint::rgpicksetStr(), rgp, calcobj_->setRgRefPick(rgp))
 
     mIfGetInt(FingerPrint::rgreftypeStr(), rgtyp, calcobj_->setRgRefType(rgtyp))
-    
+
     return true;
 }
 
@@ -357,7 +357,7 @@ bool uiFingerPrintAttrib::setInput( const Desc& desc )
     const int nrflds = table_->nrRows();
     for ( int idx=0; idx<nrflds; idx++ )
 	putInp( attribflds_[idx], desc, idx );
-    
+
     return true;
 }
 
@@ -384,7 +384,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     {
 	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
 	if ( picksetfld_->ioobj(true) )
-	    mSetString( FingerPrint::valpicksetStr(), 
+	    mSetString( FingerPrint::valpicksetStr(),
 			picksetfld_->key() )
     }
 
@@ -396,7 +396,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	ValParam& valparam = (ValParam&)(*valueset)[idx];
 	valparam.setValue( values[idx] );
     }
-    
+
     TypeSet< Interval<float> > ranges = calcobj_->getRanges();
     if ( values.size() != ranges.size() ) return false;
 
@@ -407,7 +407,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	FloatGateParam& fgateparam = (FloatGateParam&)(*rangeset)[idx];
 	fgateparam.setValue( ranges[idx] );
     }
-    
+
     TypeSet<int> weights = calcobj_->getWeights();
 
     mDescGetParamGroup(IntParam,weightset,desc,FingerPrint::weightStr())
@@ -417,7 +417,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	ValParam& valparam = (ValParam&)(*weightset)[idx];
 	valparam.setValue( weights[idx] );
     }
-    
+
     mSetInt( FingerPrint::rgreftypeStr(), calcobj_->getRgRefType() );
     if ( calcobj_->getRgRefType() == 1 )
 	mSetString( FingerPrint::rgpicksetStr(), calcobj_->getRgRefPick() )
@@ -486,7 +486,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 	    userrefset.add( attribflds_[idx]->getInput() );
 
     advanceddlg_ = new uiFPAdvancedDlg( this, calcobj_, userrefset );
-    
+
     BinIDValueSet* valuesset = createValuesBinIDSet( advanceddlg_->errmsg_ );
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setDescSet( ads_ );
@@ -500,7 +500,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
     calcobj_->setUserRefList( refset );
     if ( picksetbut_->isChecked() )
 	calcobj_->setValStatsType( statsfld_->getIntValue() );
-    
+
     advanceddlg_->go();
 }
 
@@ -514,7 +514,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	errmsg = "Please choose the pickset from which\n";
 	errmsg += "the ranges will be computed";
     }
-    if ( !errmsg.isEmpty() ) 
+    if ( !errmsg.isEmpty() )
     {
 	uiMSG().error( errmsg );
 	return;
@@ -586,7 +586,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	deepErase( values );
 	return pickvals;
     }
-    
+
     return new BinIDValueSet( 1, false );
 }
 
@@ -642,13 +642,14 @@ bool uiFingerPrintAttrib::areUIParsOK()
 
 
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
-       				  const BufferStringSet& attrrefset )
+				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
 				   "Specify advanced options", "101.3.2") )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
 {
-    rangesgrp_ = new uiButtonGroup( this, "Get ranges from", false );
+    rangesgrp_ = new uiButtonGroup( this, "Get ranges from",
+				    uiObject::Horizontal );
     uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, "Manual" );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,"Pickset");
@@ -661,15 +662,15 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
     picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
     picksetfld_->display( true );
-    
+
     uiGroup* attrvalsgrp = new uiGroup( this, "Attrib inputs" );
     prepareNumGroup( attrvalsgrp, attrrefset );
-	
+
     CallBack cbcalc = mCB(this,uiFPAdvancedDlg,calcPush);
     uiPushButton* calcbut =
 	new uiPushButton( this, "Calculate &parameters", cbcalc, true);
     calcbut->attach( alignedBelow, (uiParent*)attrvalsgrp );
-    
+
     postFinalise().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
 }
 
@@ -721,7 +722,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 
     if ( calcobj_.getRanges().size() != attrrefset.size() ) return;
     if ( calcobj_.getValues().size() != attrrefset.size() ) return;
-    
+
     for ( int idx=0; idx<calcobj_.getRanges().size(); idx++ )
     {
 	valflds_[idx]->setValue( calcobj_.getValues()[idx] );
@@ -823,7 +824,7 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
     calcobj_.setRanges( ranges );
     calcobj_.setValues( values );
     calcobj_.setWeights( weights );
-    
+
     return true;
 }
 

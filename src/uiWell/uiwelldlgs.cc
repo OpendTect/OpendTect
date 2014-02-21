@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
-#include "uiwellpartserv.h"
+#include "uiwellsel.h"
 
 #include "ctxtioobj.h"
 #include "file.h"
@@ -44,7 +44,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllog.h"
 #include "welltransl.h"
 #include "welllogset.h"
+#include "wellreader.h"
 #include "welltrack.h"
+#include "wellwriter.h"
 
 
 static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
@@ -405,13 +407,15 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
     unitfld_->attach( rightAlignedBelow, timefld_ );
 
-    uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons", false );
+    uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons",
+					    uiObject::Horizontal );
     if ( !cksh_ )
 	new uiPushButton( actbutgrp, "&Update display",
 			  mCB(this,uiD2TModelDlg,updNow), true );
     actbutgrp->attach( leftAlignedBelow, tbl_ );
 
-    uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons", false);
+    uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
+					   uiObject::Horizontal );
     new uiPushButton( iobutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
 		      false );
     new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
@@ -1090,62 +1094,67 @@ static const float defundefval = -999.25;
 #endif
 
 
-uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
+uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Logs","Define log parameters","107.1.2"))
-    , wd(wd_)
 {
-    lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
-			      uiFileInput::Setup(uiFileDialog::Gen)
-			      .filter(lasfileflt).withexamine(true) );
-    lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
+    lasfld_ = new uiFileInput( this, "Input (pseudo-)LAS logs file",
+			       uiFileInput::Setup(uiFileDialog::Gen)
+			       .filter(lasfileflt).withexamine(true) );
+    lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
-    intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
+    intvfld_ = new uiGenInput( this, "Depth interval to load (empty=all)",
 			      FloatInpIntervalSpec(false) );
-    intvfld->attach( alignedBelow, lasfld );
+    intvfld_->attach( alignedBelow, lasfld_ );
+
     BoolInpSpec mft( !SI().depthsInFeet(), "Meter", "Feet" );
-    intvunfld = new uiGenInput( this, "", mft );
-    intvunfld->attach( rightOf, intvfld );
-    intvunfld->display( false );
+    intvunfld_ = new uiGenInput( this, "", mft );
+    intvunfld_->attach( rightOf, intvfld_ );
+    intvunfld_->display( false );
 
-    unitlbl = new uiLabel( this, "XXXX" );
-    unitlbl->attach( rightOf, intvfld );
-    unitlbl->display( false );
+    unitlbl_ = new uiLabel( this, "XXXX" );
+    unitlbl_->attach( rightOf, intvfld_ );
+    unitlbl_->display( false );
 
-    istvdfld = new uiGenInput( this, "Depth values are",
+    istvdfld_ = new uiGenInput( this, "Depth values are",
 				BoolInpSpec(false,"TVDSS","MD") );
-    istvdfld->attach( alignedBelow, intvfld );
+    istvdfld_->attach( alignedBelow, intvfld_ );
 
-    udffld = new uiGenInput( this, "Undefined value in logs",
+    udffld_ = new uiGenInput( this, "Undefined value in logs",
                     FloatInpSpec(defundefval));
-    udffld->attach( alignedBelow, istvdfld );
+    udffld_->attach( alignedBelow, istvdfld_ );
 
-    logsfld = new uiLabeledListBox( this, "Select logs", true );
-    logsfld->attach( alignedBelow, udffld );
+    logsfld_ = new uiLabeledListBox( this, "Select logs", true );
+    logsfld_->attach( alignedBelow, udffld_ );
+
+    wellfld_ = new uiWellSel( this, true, "Add to Well" );
+    if ( ioobj ) wellfld_->setInput( *ioobj );
+    wellfld_->attach( alignedBelow, logsfld_ );
+
 }
 
 
-void uiLoadLogsDlg::lasSel( CallBacker* )
+void uiImportLogsDlg::lasSel( CallBacker* )
 {
-    const char* lasfnm = lasfld->text();
+    const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm ) return;
 
-    Well::Data wd_; Well::LASImporter wdai( wd_ );
+    Well::Data wd; Well::LASImporter wdai( wd );
     Well::LASImporter::FileInfo lfi;
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( res ); return; }
 
-    logsfld->box()->setEmpty();
-    logsfld->box()->addItems( lfi.lognms );
-    logsfld->box()->selectAll( true );
+    logsfld_->box()->setEmpty();
+    logsfld_->box()->addItems( lfi.lognms );
+    logsfld_->box()->selectAll( true );
 
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
-    unitlbl->setText( lbl );
-    unitlbl->display( true );
-    bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
-    intvunfld->setValue( !isft );
-    intvunfld->display( false );
+    unitlbl_->setText( lbl );
+    unitlbl_->display( true );
+    const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
+    intvunfld_->setValue( !isft );
+    intvunfld_->display( false );
 
-    udffld->setValue( lfi.undefval );
+    udffld_->setValue( lfi.undefval );
 
     Interval<float> usrzrg = lfi.zrg;
     if ( isft )
@@ -1155,19 +1164,27 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
 	if ( !mIsUdf(lfi.zrg.stop) )
 	    usrzrg.stop *= mToFeetFactorF;
     }
-    intvfld->setValue( usrzrg );
+    intvfld_->setValue( usrzrg );
 }
 
 
-bool uiLoadLogsDlg::acceptOK( CallBacker* )
+bool uiImportLogsDlg::acceptOK( CallBacker* )
 {
+    const IOObj* wellioobj = wellfld_->ioobj();
+    if ( !wellioobj ) return false;
+
+    Well::Data wd;
+    Well::Reader rdr( wellioobj->fullUserExpr(true), wd );
+    if ( !rdr.getLogs() )
+    { uiMSG().error( "Cannot read logs from selected well" ); return false; }
+
     Well::LASImporter wdai( wd );
     Well::LASImporter::FileInfo lfi;
 
-    lfi.undefval = udffld->getfValue();
+    lfi.undefval = udffld_->getfValue();
 
-    Interval<float> usrzrg = intvfld->getFInterval();
-    const bool zinft = !intvunfld->getBoolValue();
+    Interval<float> usrzrg = intvfld_->getFInterval();
+    const bool zinft = !intvunfld_->getBoolValue();
     if ( zinft )
     {
 	if ( !mIsUdf(usrzrg.start) )
@@ -1177,15 +1194,15 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     }
     lfi.zrg.setFrom( usrzrg );
 
-    const char* lasfnm = lasfld->text();
+    const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
 	{ uiMSG().error("Enter valid filename"); return false; }
 
     BufferStringSet lognms;
-    for ( int idx=0; idx<logsfld->box()->size(); idx++ )
+    for ( int idx=0; idx<logsfld_->box()->size(); idx++ )
     {
-	if ( logsfld->box()->isSelected(idx) )
-	    lognms += new BufferString( logsfld->box()->textOfItem(idx) );
+	if ( logsfld_->box()->isSelected(idx) )
+	    lognms += new BufferString( logsfld_->box()->textOfItem(idx) );
     }
 
     BufferString existlogmsg;
@@ -1210,8 +1227,12 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 
 
     lfi.lognms = lognms;
-    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld->getBoolValue() );
+    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
     if ( res ) { uiMSG().error( res ); return false; }
+
+    Well::Writer wtr( wellioobj->fullUserExpr(true), wd );
+    if ( !wtr.putLogs() )
+    { uiMSG().error( "Cannot write logs to disk" ); return false; }
 
     return true;
 }
@@ -1248,7 +1269,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
-    zunitgrp_ = new uiButtonGroup( this, "", false );
+    zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons",
+				   uiObject::Horizontal );
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );
