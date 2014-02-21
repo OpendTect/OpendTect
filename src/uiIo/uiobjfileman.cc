@@ -12,19 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiobjfileman.h"
 
-#include "uitoolbutton.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uisplitter.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 
 #include "ctxtioobj.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "keystrs.h"
 #include "streamconn.h"
 #include "strmprov.h"
@@ -68,12 +69,17 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
+    uiToolButton* dummytb = new uiToolButton( infogrp_, "", "", CallBack() );
+    dummytb->attach( rightTo, infofld_ );
+    dummytb->display( false );
 
     uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
+    uiLabel* noteslbl = new uiLabel( notesgrp, "Notes:" );
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( "Notes" );
+    notesfld_->attach( alignedBelow, noteslbl );
     uiToolButton* savebut = new uiToolButton( notesgrp, "save", "Save Notes",
 	    mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
