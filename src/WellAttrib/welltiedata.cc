@@ -255,7 +255,7 @@ WellDataMgr::~WellDataMgr()
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,WellDataMgr,wellDataDelNotify));
     wd_ = 0;
-    Well::MGR().release( wellid_ );
+    delete Well::MGR().release( wellid_ );
 }
 
 
@@ -355,7 +355,7 @@ Server::Server( const WellTie::Setup& wts )
     , wellid_(wts.wellid_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
-    wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
+    mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
 
     Well::Data* wdata = wdmgr_->wd();
     if ( !wdata ) return; //TODO close + errmsg
@@ -375,12 +375,12 @@ Server::Server( const WellTie::Setup& wts )
 
 Server::~Server()
 {
+    detachAllNotifiers();
     delete datawriter_;
     delete d2tmgr_;
     delete dataplayer_;
     delete pickmgr_;
     delete data_;
-    wdmgr_->datadeleted_.remove( mCB(this,Server,wellDataDel) );
     delete wdmgr_;
 }
 

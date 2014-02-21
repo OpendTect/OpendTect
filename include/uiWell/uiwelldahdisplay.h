@@ -158,8 +158,7 @@ public:
 				      //a line otherwise
     };
 
-    void			setData(const Data& data)
-					{ zdata_.copyFrom(data); dataChanged();}
+    void			setData(const Data& data);
     void			setZRange(Interval<float> zrg)
 					{ zdata_.zrg_ = zrg; dataChanged();}
 
@@ -214,6 +213,7 @@ protected:
     void			dataChanged();
     void			init(CallBacker*);
     void			reSized(CallBacker*);
+    void			wellDataToBeDeleted(CallBacker*);
 
     friend class                uiWellDisplay;
     friend class                uiWellDisplayControl;

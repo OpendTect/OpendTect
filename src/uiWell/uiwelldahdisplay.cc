@@ -17,15 +17,13 @@ static const char* rcsID mUsedVar = "$Id: uiwelldahdisplay.cc";
 
 #include "coltabsequence.h"
 #include "dataclipper.h"
-#include "math.h"
 #include "mouseevent.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welllog.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
-
-#include <iostream>
+#include "wellman.h"
 
 
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
@@ -108,7 +106,18 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
 
 uiWellDahDisplay::~uiWellDahDisplay()
 {
+    detachAllNotifiers();
     delete ld1_; delete ld2_;
+}
+
+
+void uiWellDahDisplay::setData( const Data& data )
+{
+    zdata_.copyFrom( data );
+    Well::Data* wd = const_cast<Well::Data*>( zdata_.wd_ );
+    mAttachCBIfNotAttached(
+	    wd->tobedeleted, uiWellDahDisplay::wellDataToBeDeleted );
+    dataChanged();
 }
 
 
@@ -458,6 +467,16 @@ void uiWellDahDisplay::init( CallBacker* )
 {
     dataChanged();
     show();
+}
+
+
+void uiWellDahDisplay::wellDataToBeDeleted( CallBacker* cb )
+{
+    mDynamicCastGet(Well::Data*,welldata,cb);
+    if ( !welldata || welldata!=zdata_.wd_ ) return;
+
+    zdata_.wd_ = Well::MGR().get( welldata->multiID(), false );
+    dataChanged();
 }
 
 
