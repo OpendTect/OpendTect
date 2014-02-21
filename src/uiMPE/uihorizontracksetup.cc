@@ -94,6 +94,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     : uiSetupGroup(p,"")
     , sectiontracker_(0)
     , attrset_(ads)
+    , horadj_(0)
     , inpfld_(0)
     , addstepbut_(0)
     , is2d_(!strcmp(typestr,EM::Horizon2D::typeStr()))
