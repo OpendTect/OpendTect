@@ -79,6 +79,50 @@ bool isFFTAngleOK(PreStack::Gather* angles)
 }
 
 
+#define mCompVal(ofsidx,zidx,val) \
+    if ( !mIsEqual(angles->data().get(ofsidx,zidx),val,1e-1f) ) return false
+
+bool compareAngles(PreStack::Gather* angles,int zidx)
+{
+    const int lastidx = angles->data().info().getSize( 1 ) - 1;
+    const int mididx = lastidx / 2;
+
+    mCompVal( 0, 0, 0 );
+    mCompVal( 1, 0, 1.57f );
+    mCompVal( 2, 0, 1.57f );
+    mCompVal( 3, 0, 1.57f );
+    mCompVal( 4, 0, 1.57f );
+    mCompVal( 5, 0, 1.57f );
+
+    mCompVal( 0, mididx, 0 );
+    mCompVal( 1, mididx, 0.40f );
+    mCompVal( 2, mididx, 0.70f );
+    mCompVal( 3, mididx, 0.90f );
+    mCompVal( 4, mididx, 1.05f );
+    mCompVal( 5, mididx, 1.15f );
+
+    mCompVal( 0, zidx, 0 );
+    mCompVal( 1, zidx, 0.20f );
+    mCompVal( 2, zidx, 0.40f );
+    mCompVal( 3, zidx, 0.55f );
+    mCompVal( 4, zidx, 0.70f );
+    mCompVal( 5, zidx, 0.80f );
+
+    mCompVal( 0, lastidx, 0 );
+    mCompVal( 1, lastidx, 0.20f );
+    mCompVal( 2, lastidx, 0.40f );
+    mCompVal( 3, lastidx, 0.55f );
+    mCompVal( 4, lastidx, 0.70f );
+    mCompVal( 5, lastidx, 0.80f );
+
+    return true;
+}
+
+
+
+bool testAnglesForDifferentSurveys();
+
+
 bool BatchProgram::go( od_ostream& strm )
 {
     mInitBatchTestProg();
@@ -136,5 +180,89 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
+    if ( !testAnglesForDifferentSurveys() )
+    {
+	od_cout() << "Failed while comparing values in different surveys\n";
+	return false;
+    }
+
     return true;
 }
+
+
+bool testAnglesForDifferentSurveys()
+{
+    const int nrsurveys = 6;
+    const char* survnames[] = { "F3_Test_Survey", "F3_Test_Survey_DepthFT", 
+				"F3_Test_Survey_DepthFT__XYinft_", 
+				"F3_Test_Survey_DepthM",
+				"F3_Test_Survey_DepthM_XYinft", 
+				"F3_Test_Survey_XYinft" };
+
+    TypeSet<StepInterval<double> > zrgs;
+    zrgs.add( StepInterval<double> (0,1.1,0.004) );
+    zrgs.add( StepInterval<double> (0,3930,15) );
+    zrgs.add( StepInterval<double> (0,3930,15) );
+    zrgs.add( StepInterval<double> (0,1200,5) );
+    zrgs.add( StepInterval<double> (0,1200,5) );
+    zrgs.add( StepInterval<double> (0,1.1,0.004) );
+
+    const int zids [] = { 256, 257, 257, 235, 235, 256 };
+
+    for ( int idx = 0; idx < nrsurveys; idx++ )
+    {
+	IOM().setSurvey( survnames[idx] );
+	RefMan<PreStack::VelocityBasedAngleComputer> computer =
+				new PreStack::VelocityBasedAngleComputer;
+
+	PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
+	if ( !velobj )
+	{
+	    od_cout() << survnames[idx];
+	    od_cout() << " : Input data is not available.\n";
+	    return false;
+	}
+
+	computer->setMultiID( velobj->key() );
+	StepInterval<double> zrange(zrgs[idx]), offsetrange(0,2500,500);
+	FlatPosData fp;
+	fp.setRange( true, offsetrange );
+	fp.setRange( false, zrange );
+	computer->setOutputSampling( fp );
+	computer->setTrcKey( TrcKey(BinID(426,950)) );
+	if ( !computer->isOK() )
+	{
+	    od_cout() << survnames[idx];
+	    od_cout() << " : Angle computer is not OK.\n";
+	    return false;
+	}
+
+	PtrMan<PreStack::Gather> angles = computer->computeAngles();
+	if ( !angles )
+	{
+	    od_cout() << survnames[idx];
+	    od_cout() << " : Computer did not succeed in making angle data\n";
+	    return false;
+	}
+
+	for ( int ofsidx = 0; ofsidx <= offsetrange.nrSteps(); ofsidx++ )
+	{
+	    TypeSet<float> anglevals;
+	    for ( int zidx = 0; zidx <= zrgs[idx].nrSteps(); zidx++ )
+	    {
+		float angle = angles->data().get( ofsidx, zidx );
+		anglevals += angle;
+	    }
+	}
+	
+	if ( !compareAngles(angles,zids[idx]) )
+	{
+	    od_cout() << survnames[idx];
+	    od_cout() << " : Angle computer computed wrong values\n";
+	    return false;
+	}
+    }
+
+    return true;
+}
+
