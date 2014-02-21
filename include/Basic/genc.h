@@ -32,11 +32,11 @@ mGlobal(Basic) int GetPID(void);
 mGlobal(Basic) const char* GetLocalHostName(void);
 		/*!< returns (as expected) local host name */
 
-#ifdef __win__
+mGlobal(Basic) const char* GetIPFromHostName(BufferString hostnm);
+		/*!< return the IP address given a host name */
+
 mGlobal(Basic) const char* GetLocalIP(void);
 		/*!< returns local IP Address */
-#endif
-
 
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs

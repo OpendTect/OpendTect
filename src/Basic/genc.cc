@@ -28,6 +28,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifndef __win__
 # include <unistd.h>
 # include <errno.h>
+# include <netdb.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 # include <sys/types.h>
 # include <signal.h>
 #else
@@ -64,19 +68,26 @@ static int insysadmmode_ = 0;
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
-#ifdef __win__
-const char* GetLocalIP(void)
+
+const char* GetIPFromHostName( BufferString hostnm )
 {
-    mDefineStaticLocalObject( char, ret, [16] );
+    mDefineStaticLocalObject( char, ret, [256] );
 
     struct in_addr addr;
-    struct hostent* remotehost = gethostbyname( GetLocalHostName() );
+    struct hostent* remotehost = gethostbyname( hostnm );
     addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
     strcpy( ret, inet_ntoa(addr) );
     return ret;
 }
 
 
+const char* GetLocalIP(void)
+{
+    return GetIPFromHostName( GetLocalHostName() );
+}
+
+
+#ifdef __win__
 int initWinSock()
 {
     WSADATA wsaData;
