@@ -584,7 +584,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(srd,1e-4f) )
 	{
 	    txt.add( "Seismic Reference Datum (SRD): " );
-	    txt.add( srd );
+	    txt.add( zun ? zun->userValue(srd) : srd );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.add( "\n" );
 	}
