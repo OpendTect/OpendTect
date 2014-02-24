@@ -861,7 +861,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 
     const float newvint = mGetVel(dah,d2t);
     const RowCol rcvint(row,getVintCol());
-    tbl_->setValue( rcvint, newvint );
+    tbl_->setValue( rcvint, newvint * zfac );
 
     for ( int irow=row+1; irow<tbl_->nrRows(); irow++ )
     {
@@ -1003,39 +1003,36 @@ void uiD2TModelDlg::expData( CallBacker* )
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     BufferStringSet header = getColLabels();
 
-    *sd.ostrm << header.get( cMDCol ) << '\t';
-    *sd.ostrm <<  header.get( cTVDCol ) << '\t';
+    *sd.ostrm << header.get( cMDCol ) << '\t' << header.get( cTVDCol ) << '\t';
     if ( hastvdgl )
 	*sd.ostrm << header.get( getTVDGLCol() ) << '\t';
 
+    *sd.ostrm << header.get( getTVDSSCol() ) << '\t';
     if ( hastvdsd )
 	*sd.ostrm << header.get( getTVDSDCol() ) << '\t';
 
-    *sd.ostrm << header.get( getTVDSSCol() ) << '\t';
     *sd.ostrm << header.get( getTimeCol() ) << '\t';
     *sd.ostrm << header.get( getVintCol() ) << '\n';
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
-	const float dah = d2t->dah(idx) * zfac;
+	const float dah = d2t->dah(idx);
 	const float tvdss = mCast(float,wd_.track().getPos(dah).z) * zfac;
 	const float tvd = tvdss + kbelev * zfac;
 	const float twt = d2t->t(idx) * twtfac;
 	const float vint = mGetVel(dah,d2t);
-	*sd.ostrm << Conv::to<const char*>( dah ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( dah * zfac ) << '\t';
 	*sd.ostrm << Conv::to<const char*>( tvd ) << '\t';
 	if ( hastvdgl )
 	{
 	    const float tvdgl = tvdss + groundevel * zfac;
 	    *sd.ostrm << Conv::to<const char*>( tvdgl ) << '\t';
 	}
-
+	*sd.ostrm << Conv::to<const char*>( tvdss ) << '\t';
 	if ( hastvdsd )
 	{
 	    const float tvdsd = tvdss + srd * zfac;
 	    *sd.ostrm << Conv::to<const char*>( tvdsd ) << '\t';
 	}
-
-	*sd.ostrm << Conv::to<const char*>( tvdss ) << '\t';
 	*sd.ostrm << Conv::to<const char*>( twt ) << '\t';
 	*sd.ostrm << Conv::to<const char*>( vint * zfac ) << '\n';
     }
