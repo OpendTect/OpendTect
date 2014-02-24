@@ -33,10 +33,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <signal.h>
 
-#if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
-# define mUseCrashDumper yes
-#include "client\windows\handler\exception_handler.h"
+#ifdef HAS_BREAKPAD
+
 #include <QString>
+
+#ifdef __win__
+#include "client\windows\handler\exception_handler.h"
+#endif
+
+#ifdef __lux__
+#include "client/linux/handler/exception_handler.h"
+#endif
+
+#ifdef __mac__
+#include "client/mac/handler/exception_handler.h"
+#endif
+
 #endif
 
 
@@ -44,8 +56,6 @@ namespace OD { Export_Basic od_ostream& logMsgStrm(); }
 Export_Basic int gLogFilesRedirectCode = -1; // 0 = stderr, 1 = log file
 static bool crashonprogerror = false;
 static PtrMan<od_ostream> dbglogstrm = 0;
-namespace google_breakpad { class ExceptionHandler; }
-
 
 
 void od_test_prog_crash_handler(int)
@@ -432,41 +442,8 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
 
 #ifdef mUseCrashDumper
 
-namespace System
-{
-
-/*!Segmentation fault core dumper that sends dump to dGB. */
-
-mExpClass(Basic) CrashDumper
-{
-public:
-    static CrashDumper&	getInstance();
-			//!Creates and installs at first run.
-
-    void		sendDump(const char* filename);
-
-    void		setSendAppl(const char* a)    { sendappl_ = a; }
-
-    static FixedString	sSenderAppl();		//od_ReportIssue
-    static FixedString	sUiSenderAppl();	//od_uiReportIssue
-
-private:
-					CrashDumper();
-
-    void				init();
-
-    static CrashDumper*			theinst_;
-
-    BufferString			sendappl_;
-    google_breakpad::ExceptionHandler*	handler_;
-};
-
-} // namespace System
-
-
 using namespace System;
 
-// CrashDumper
 CrashDumper::CrashDumper()
     : sendappl_( sSenderAppl() )
     , handler_(0)
@@ -477,6 +454,8 @@ CrashDumper::CrashDumper()
 
 CrashDumper* CrashDumper::theinst_ = 0;
 
+
+#ifdef __win__
 
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
@@ -503,6 +482,32 @@ void CrashDumper::init()
 		    google_breakpad::ExceptionHandler::HANDLER_ALL );
 }
 
+#endif
+
+#ifdef __lux__
+
+static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
+			void* context, bool succeeded )
+{
+    FilePath dmpfp( minidumpdesc.path() );
+    System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
+    return succeeded;
+}
+
+
+void CrashDumper::init()
+{
+    if ( handler_ )
+	return;
+
+    const BufferString dmppathbuf = FilePath::getTempDir();
+    const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
+    handler_ = new google_breakpad::ExceptionHandler(
+		    minidumpdesc, NULL, MinidumpCB, NULL,
+		    true, -1 );
+}
+
+#endif
 
 void CrashDumper::sendDump( const char* filename )
 {

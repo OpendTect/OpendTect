@@ -6,7 +6,7 @@
 #_______________________________________________________________________________
 
 
-set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location" )
+set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
 option ( OD_ENABLE_BREAKPAD "Use breakpad" )
 
 if(OD_ENABLE_BREAKPAD)
@@ -38,8 +38,16 @@ macro(OD_SETUP_BREAKPAD)
 			 OD_MERGE_LIBVAR( BREAKPADLIB )
 			 OD_MERGE_LIBVAR( BREAKPADCOMMONLIB )
 			 OD_MERGE_LIBVAR( BREAKPADCLIENTLIB )
-		endif( WIN32 )
-		
+		elseif( APPLE )
+			#TODO
+		else() # Linux
+			find_library( BREAKPADLIB NAMES breakpad
+				      PATHS ${BREAKPAD_DIR}
+				      REQUIRED )
+			find_library( BREAKPADCLIENTLIB NAMES breakpad_client
+				      PATHS ${BREAKPAD_DIR}/client/linux
+				      REQUIRED )
+		endif()
 		set(OD_BREAKPADLIBS ${BREAKPADLIB} ${BREAKPADCOMMONLIB} ${BREAKPADCLIENTLIB} )
 		list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR})
 		list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )

@@ -14,7 +14,10 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"  
+#include "bufstring.h"
  
+namespace google_breakpad { class ExceptionHandler; }
+
 /*!\brief Defines a generic interface for supplying debug/runtime info.
 
     The isOn() is controlled by the environment variable DTECT_DEBUG.
@@ -54,6 +57,44 @@ extern "C" {
 
 }
 
+
+
+
+#ifdef HAS_BREAKPAD
+#define mUseCrashDumper
+
+namespace System
+{
+
+/*!Segmentation fault core dumper that sends dump to dGB. */
+
+mExpClass(Basic) CrashDumper
+{
+public:
+    static CrashDumper& getInstance();
+			//!Creates and installs at first run.
+
+    void		sendDump(const char* filename);
+
+    void		setSendAppl(const char* a)    { sendappl_ = a; }
+
+    static FixedString	sSenderAppl();		//od_ReportIssue
+    static FixedString	sUiSenderAppl();	//od_uiReportIssue
+
+private:
+					CrashDumper();
+
+    void				init();
+
+    static CrashDumper* 		theinst_;
+
+    BufferString			sendappl_;
+    google_breakpad::ExceptionHandler*	handler_;
+};
+
+}; //Namespace System
+
+#endif	// HAS_BREAKPAD
 
 /* 
     This is a list of reserved debug masks, in order to avoid conflicts.
