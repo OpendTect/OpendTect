@@ -8,18 +8,19 @@
  * ID       : $Id$
 -*/
 
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 
 class CtxtIOObj;
 class HorSampling;
 class uiAttrSel;
+class uiBatchJobDispatcherSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPosSubSel;
 
 
-mClass(uiHorizonAttrib) uiStratAmpCalc : public uiFullBatchDialog
+mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
 {
 public:
 			uiStratAmpCalc(uiParent*);
@@ -33,8 +34,9 @@ protected:
     void		getAvailableRange(HorSampling&);
     bool		prepareProcessing();
     bool		checkInpFlds();
-    bool		fillPar(IOPar& iop);
+    bool		fillPar();
     void		setParFileName();
+    bool		acceptOK(CallBacker*);
 
     CtxtIOObj&		horctio1_;
     CtxtIOObj&		horctio2_;
@@ -53,6 +55,7 @@ protected:
     uiLabeledComboBox*	ampoptionfld_;
     bool		usesingle_;
     bool		isoverwrite_;
+    uiBatchJobDispatcherSel*	batchfld_;
 };
 
 

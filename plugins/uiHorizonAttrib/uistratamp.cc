@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 #include "uiattrsel.h"
+#include "uibatchjobdispatchersel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -29,63 +30,65 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiFullBatchDialog( p, Setup("StratalAmplitude")
-	    		    .procprognm("od_stratamp") )
+    : uiDialog( p, Setup("StratalAmplitude",mNoDlgTitle,mTODOHelpID) )
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , isoverwrite_(false)
 {
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
-    inpfld_ = new uiAttrSel( uppgrp_, *ads, "Quantity to output" );
+    inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
     inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
-    winoption_= new uiGenInput( uppgrp_, "Window Option",
+    winoption_= new uiGenInput( this, "Window Option",
 	                        BoolInpSpec(true, "Single Horizon",
 				"Double Horizon") );
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
-    horfld1_ = new uiIOObjSel( uppgrp_, horctio1_, "    Horizon" );
+    horfld1_ = new uiIOObjSel( this, horctio1_, "    Horizon" );
     horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( uppgrp_, horctio2_, "Bottom Horizon" );
+    horfld2_ = new uiIOObjSel( this, horctio2_, "Bottom Horizon" );
     horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";
     lbltxt += SI().getZUnitString(); lbltxt += " Top";
-    tophorshiftfld_ = new uiGenInput( uppgrp_, lbltxt,
+    tophorshiftfld_ = new uiGenInput( this, lbltxt,
 	    			      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
-    bothorshiftfld_ = new uiGenInput( uppgrp_, "Bottom", FloatInpSpec(0) );
+    bothorshiftfld_ = new uiGenInput( this, "Bottom", FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
 
-    rangefld_= new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );
+    rangefld_= new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
 
-    ampoptionfld_ = new uiLabeledComboBox( uppgrp_, statstrs,
+    ampoptionfld_ = new uiLabeledComboBox( this, statstrs,
 	    				   "Amplitude Option" );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
-    selfld_= new uiGenInput( uppgrp_, "Add result as an attribute to",
+    selfld_= new uiGenInput( this, "Add result as an attribute to",
 			     BoolInpSpec(true,"Top Horizon","Bottom Horizon") );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
-    foldfld_ = new uiGenInput( uppgrp_, "Output fold as an extra attribute",
+    foldfld_ = new uiGenInput( this, "Output fold as an extra attribute",
 	    		       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
-    attribnamefld_ = new uiGenInput( uppgrp_, "Attribute name",
+    attribnamefld_ = new uiGenInput( this, "Attribute name",
 			             StringInpSpec("Stratal Amplitude") );
     attribnamefld_->valuechanged.notify(
 	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
     attribnamefld_->attach( alignedBelow, foldfld_ );
-    addStdFields( false, true );
-    uppgrp_->setHAlignObj( inpfld_ );
+
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::NonODBase );
+    batchfld_->attach( alignedBelow, attribnamefld_ );
+    batchfld_->jobSpec().prognm_ = "od_stratamp";
     setParFileName();
 
     postFinalise().notify( mCB(this,uiStratAmpCalc,choiceSel) );
@@ -122,12 +125,12 @@ void uiStratAmpCalc::inpSel( CallBacker* )
 
 void uiStratAmpCalc::setParFileName()
 {
-    BufferString parfnm( "Stratal_Amplitude_" );
+    BufferString jobnm;
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    addtotop ? parfnm.add( horfld1_->getInput() )
-	     : parfnm.add( horfld2_->getInput() );
-    parfnm.add( "_").add( attribnamefld_->text() );
-    setParFileNmDef( parfnm );
+    addtotop ? jobnm.add( horfld1_->getInput() )
+	     : jobnm.add( horfld2_->getInput() );
+    jobnm.add( "_").add( attribnamefld_->text() );
+    batchfld_->setJobName( jobnm );
 }
 
 
@@ -208,8 +211,9 @@ bool uiStratAmpCalc::prepareProcessing()
 }
 
 
-bool uiStratAmpCalc::fillPar( IOPar& iop )
+bool uiStratAmpCalc::fillPar()
 {
+    IOPar& iop = batchfld_->jobSpec().pars_;
     iop.setYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle_ );
     iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj->key() );
     if ( !usesingle_ )
@@ -261,4 +265,10 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
     iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
     iop.set( IOPar::compKey(sKey::Output(), sKey::Type()), sKey::Cube() );
     return true;
+}
+
+
+bool uiStratAmpCalc::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() && batchfld_->start();
 }
