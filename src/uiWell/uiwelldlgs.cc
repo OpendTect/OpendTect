@@ -856,7 +856,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 
     const float newvint = mGetVel(dah,d2t);
     const RowCol rcvint(row,getVintCol());
-    tbl_->setValue( rcvint, newvint );
+    tbl_->setValue( rcvint, newvint * zfac );
 
     for ( int irow=row+1; irow<tbl_->nrRows(); irow++ )
     {
@@ -1001,30 +1001,33 @@ void uiD2TModelDlg::expData( CallBacker* )
     strm << header.get( cMDCol ) << od_tab <<  header.get( cTVDCol ) << od_tab;
     if ( hastvdgl )
 	strm << header.get( getTVDGLCol() ) << od_tab;
+
+    strm << header.get( getTVDSSCol() ) << od_tab;
     if ( hastvdsd )
 	strm << header.get( getTVDSDCol() ) << od_tab;
-    strm << header.get( getTVDSSCol() ) << od_tab;
+
     strm << header.get( getTimeCol() ) << od_tab;
     strm << header.get( getVintCol() ) << od_newline;
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
-	const float dah = d2t->dah(idx) * zfac;
+	const float dah = d2t->dah(idx);
 	const float tvdss = mCast(float,wd_.track().getPos(dah).z) * zfac;
 	const float tvd = tvdss + kbelev * zfac;
 	const float twt = d2t->t(idx) * twtfac;
 	const float vint = mGetVel(dah,d2t);
-	strm << dah << od_tab << tvd << od_tab;
+	strm << dah * zfac << od_tab << tvd << od_tab;
 	if ( hastvdgl )
 	{
 	    const float tvdgl = tvdss + groundevel * zfac;
 	    strm << tvdgl << od_tab;
 	}
+	strm << tvdss << od_tab;
 	if ( hastvdsd )
 	{
 	    const float tvdsd = tvdss + srd * zfac;
 	    strm << tvdsd << od_tab;
 	}
-	strm << tvdss << od_tab << twt << od_tab << vint * zfac << od_newline;
+	strm << twt << od_tab << vint * zfac << od_newline;
     }
 }
 
