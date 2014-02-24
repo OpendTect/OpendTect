@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdataset.h"
 #include "survinfo.h"
 
+#include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -134,25 +135,26 @@ const char* uiIsopachMakerGrp::attrName() const
 
 //uiIsopachMakerBatch
 uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
-    : uiFullBatchDialog( p,Setup("Create isopach").procprognm("od_isopach") )
+    : uiDialog( p,Setup("Create isopach",mNoDlgTitle,mTODOHelpID) )
 {
-    grp_ = new uiIsopachMakerGrp( uppgrp_, -1 );
-    addStdFields( false, true );
-    uppgrp_->setHAlignObj( grp_ );
+    grp_ = new uiIsopachMakerGrp( this, -1 );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::NonODBase );
+    batchfld_->attach( alignedBelow, grp_ );
+    batchfld_->jobSpec().prognm_ = "od_isopach";
+    batchfld_->setJobName( "isopach" );
 }
 
 
 bool uiIsopachMakerBatch::prepareProcessing()
 {
-    if ( !grp_->chkInputFlds() )
-	return false;
-
-    return true;
+    return grp_->chkInputFlds();
 }
 
 
-bool uiIsopachMakerBatch::fillPar( IOPar& par )
+bool uiIsopachMakerBatch::fillPar()
 {
+    IOPar& par = batchfld_->jobSpec().pars_;
     if ( !grp_->fillPar( par ) )
 	return false;
 
@@ -176,6 +178,12 @@ bool uiIsopachMakerBatch::fillPar( IOPar& par )
 
     par.setYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite_ );
     return true;
+}
+
+
+bool uiIsopachMakerBatch::acceptOK( CallBacker* )
+{
+    return prepareProcessing() && fillPar() && batchfld_->start();
 }
 
 
@@ -204,7 +212,7 @@ bool uiIsopachMakerDlg::acceptOK( CallBacker* )
     if ( !grp_->chkInputFlds() )
 	return false;
     
-    return doWork() ? true : false;
+    return doWork();
 }
 
 

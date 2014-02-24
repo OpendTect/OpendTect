@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 #include "uigroup.h"
 #include "emposid.h"
 
+class uiBatchJobDispatcherSel;
 class uiIOObjSel;
 class uiGenInput;
 class CtxtIOObj;
@@ -50,17 +51,19 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiFullBatchDialog
+mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiDialog
 {
 public:
 
 			uiIsopachMakerBatch(uiParent*);
 protected:
     bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    bool		fillPar();
+    bool		acceptOK(CallBacker*);
 
-    uiIsopachMakerGrp*	grp_;
-    bool		isoverwrite_;
+    uiIsopachMakerGrp*		grp_;
+    uiBatchJobDispatcherSel*	batchfld_;
+    bool			isoverwrite_;
 };
 
 
