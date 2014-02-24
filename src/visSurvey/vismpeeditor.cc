@@ -34,7 +34,7 @@ MPEEditor::MPEEditor()
     , emeditor_( 0 )
     , eventcatcher_( 0 )
     , transformation_( 0 )
-    , markersize_( 10 )
+    , markersize_( 3 )
     , interactionlinedisplay_( 0 )
     , interactionLineRightClick( this )
     , activedragger_( EM::PosID::udf() )
@@ -302,7 +302,6 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     markerstyle.size_ = (int)markersize_;
     marker->setMarkerStyle( markerstyle );
     marker->setMinimumScale( 0 );
-    marker->setMaximumScale( 25.5f );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );

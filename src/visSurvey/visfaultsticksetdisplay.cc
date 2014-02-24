@@ -46,7 +46,7 @@ const char* FaultStickSetDisplay::sKeyEarthModelID()	{ return "EM ID"; }
 const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
 					{ return "Display only at sections"; }
 
-#define mDefaultMarkerSize 10
+#define mDefaultMarkerSize 3
 
 
 FaultStickSetDisplay::FaultStickSetDisplay()

@@ -843,7 +843,7 @@ visBase::MarkerSet* Scene::createMarkerSet() const
     markerset->ref();
     markerset->setType( MarkerStyle3D::Cross );
     markerset->setMarkersSingleColor( cDefaultMarkerColor() );
-    markerset->setScreenSize( 9 );
+    markerset->setScreenSize( 6 );
     markerset->unRefNoDelete();
     return markerset;
 }

@@ -37,7 +37,6 @@ const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
 const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 static const float cDistEps = 0.1f;
-static const int cMinMarkerSize = 10;
 
 static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 {
@@ -127,7 +126,7 @@ void LocationDisplay::setSet( Pick::Set* s )
     setName( set_->name() );
 
     MarkerStyle3D markerstyle;
-    markerstyle.size_ = set_->disp_.pixsize_ + cMinMarkerSize;
+    markerstyle.size_ = set_->disp_.pixsize_;
     markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
     markerset_->setMaterial( 0 );
     markerset_->setMarkerStyle( markerstyle );

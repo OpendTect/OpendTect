@@ -22,6 +22,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+#define mOSGMarkerScaleFactor 2.5f
+
+
 mCreateFactoryEntry( visBase::MarkerSet );
 
 using namespace visBase;
@@ -36,8 +39,10 @@ MarkerSet::MarkerSet()
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
 
+    setAutoRotateMode( ROTATE_TO_SCREEN );
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
+    setMaximumScale( 50.0 );
     setMaterial( 0 ); //Triggers update of markerset's color array
 }
 
@@ -177,13 +182,13 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 void MarkerSet::setScreenSize( float sz )
 {
     markerstyle_.size_ = (int)sz;
-    markerset_->setMarkerSize( sz );
+    markerset_->setMarkerSize( mOSGMarkerScaleFactor*sz );
 }
 
 
 float MarkerSet::getScreenSize() const
 {
-    return markerset_->getMarkerSize();
+    return markerset_->getMarkerSize() / mOSGMarkerScaleFactor;
 }
 
 
@@ -195,9 +200,7 @@ void MarkerSet::setMarkerResolution( float res )
 
 void MarkerSet::doFaceCamera(bool yn)
 {
-    markerset_->setRotateMode( yn
-	? osg::AutoTransform::ROTATE_TO_CAMERA
-	: osg::AutoTransform::NO_ROTATION );
+    setAutoRotateMode( yn ? ROTATE_TO_CAMERA : NO_ROTATION );
 }
 
 
@@ -240,6 +243,12 @@ float MarkerSet::getMinimumScale() const
 void MarkerSet::setAutoRotateMode( AutoRotateMode rotatemode )
 {
     markerset_->setRotateMode( (osg::AutoTransform::AutoRotateMode)rotatemode );
+    osg::Quat quat;
+    if ( rotatemode != NO_ROTATION )
+	quat.makeRotate( M_PI_2, osg::Vec3(-1.0,0.0,0.0) );
+
+    markerset_->setMarkerRotation( quat );
+
 }
 
 

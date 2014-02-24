@@ -51,7 +51,6 @@ PSEventDisplay::PSEventDisplay()
     addNodeState( linestyle_ );
     eventmarkerset_->ref();
     eventmarkerset_->setMarkerStyle( markerstyle_ );
-    eventmarkerset_->setScreenSize( 16 );
     eventmarkerset_->setMaterial( getMaterial() );
 
     addChild( eventmarkerset_->osgNode() );
