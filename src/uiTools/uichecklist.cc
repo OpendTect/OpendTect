@@ -21,6 +21,8 @@ uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
     , pol_(pl)
     , orientation_(ori)
     , changed(this)
+    , lbl_(0)
+    , clicked_(0)
 {
     grp_ = new uiGroup( this, "CheckList buttons" );
     setHAlignObj( grp_ );
@@ -145,7 +147,7 @@ void uiCheckList::boxChk( CallBacker* c )
 
 void uiCheckList::ensureOne( bool ischckd )
 {
-    if ( clicked_->isChecked() == ischckd )
+    if ( clicked_ && clicked_->isChecked() == ischckd )
 	return;
 
     int boxidx = 0;
@@ -178,7 +180,7 @@ void uiCheckList::handleRadio( bool allownone )
     }
     else if ( nrchcked > 1 )
     {
-	const bool clckischcked = clicked_->isChecked();
+	const bool clckischcked = clicked_ && clicked_->isChecked();
 	bool havechck = false;
 	for ( int idx=0; idx<boxs_.size(); idx++ )
 	{
