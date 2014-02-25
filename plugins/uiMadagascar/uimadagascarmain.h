@@ -8,18 +8,21 @@
 -*/
 
 #include "uimadagascarmod.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 #include "iopar.h"
 #include "madprocflow.h"
+
 class CtxtIOObj;
 class uiGroup;
+
+class uiBatchJobDispatcherSel;
 class uiMadIOSel;
 class uiListBox;
 class uiToolButton;
 class uiMadagascarBldCmd;
 
 
-mClass(uiMadagascar) uiMadagascarMain : public uiFullBatchDialog
+mClass(uiMadagascar) uiMadagascarMain : public uiDialog
 {
 public:
 
@@ -41,6 +44,7 @@ protected:
     uiToolButton*	downbut_;
     uiToolButton*	rmbut_;
     uiMadagascarBldCmd*	bldfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     ODMad::ProcFlow&	procflow_;
 
@@ -56,12 +60,11 @@ protected:
     void		exportFlow(CallBacker*);
     bool		rejectOK(CallBacker*);
 
-    bool		prepareProcessing()	{ return true; }
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     void		createToolBar();
     void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
-
+    bool		acceptOK(CallBacker*);
 };
 
 

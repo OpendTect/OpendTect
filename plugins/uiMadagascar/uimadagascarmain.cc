@@ -6,6 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "uibatchjobdispatchersel.h"
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
 #include "uimadbldcmd.h"
@@ -32,9 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiFullBatchDialog(p,Setup("Madagascar processing")
-				   .procprognm("od_madexec")
-				   .modal(false))
+	: uiDialog(p,Setup("Madagascar processing",mNoDlgTitle,"103.5.0" )
+			   .modal(false) )
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
 	, procflow_(*new ODMad::ProcFlow())
@@ -42,11 +42,9 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, windowHide(this)
 {
     setCtrlStyle( uiDialog::RunAndClose );
-    setHelpID( "103.5.0" );
-    addStdFields( false, false, true );
     createToolBar();
 
-    uiGroup* maingrp = new uiGroup( uppgrp_, "Main group" );
+    uiGroup* maingrp = new uiGroup( this, "Main group" );
 
     infld_ = new uiMadIOSel( maingrp, true );
     infld_->selectionMade.notify( mCB(this,uiMadagascarMain,inpSel) );
@@ -58,16 +56,19 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     outfld_->selectionMade.notify( mCB(this,uiMadagascarMain,inpSel) );
     outfld_->attach( alignedBelow, procgrp );
 
-    bldfld_ = new uiMadagascarBldCmd( uppgrp_ );
+    bldfld_ = new uiMadagascarBldCmd( this );
     bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
 
-    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", uiObject::Vertical );
+    uiSeparator* sep = new uiSeparator( this, "VSep", uiObject::Vertical );
     sep->attach( rightTo, maingrp );
     bldfld_->attach( rightTo, sep );
-    uppgrp_->setHAlignObj( sep );
 
-    setParFileNmDef( "Mad_Proc" );
-    parfnamefld_->setDefaultSelectionDir( ODMad::FileSpec::defPath() );
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::NonODBase );
+    batchfld_->attach( ensureBelow, maingrp );
+    batchfld_->jobSpec().prognm_ = "od_madexec";
+    batchfld_->setJobName( "Mad_Proc" );
+
     updateCaption();
     postFinalise().notify( mCB(this,uiMadagascarMain,setButStates) );
 }
@@ -133,14 +134,6 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
     outfld_->fillPar( outpar );
     BufferString inptyp( inpar.find(sKey::Type()) );
     BufferString outptyp( outpar.find(sKey::Type()) );
-
-    if ( inptyp==Seis::nameOf(Seis::Vol) && outptyp==Seis::nameOf(Seis::Vol) )
-	singmachfld_->setSensitive( true );
-    else
-    {
-	singmachfld_->setValue( hascluster_ ? 0 : 1 );
-	singmachfld_->setSensitive( false );
-    }
 }
 
 #undef mErrRet
@@ -349,15 +342,21 @@ bool uiMadagascarMain::rejectOK( CallBacker* )
 }
 
 
-bool uiMadagascarMain::fillPar( IOPar& iop )
+bool uiMadagascarMain::fillPar()
 {
     BufferString errmsg;
     if ( !procflow_.isOK(errmsg) )
 	mErrRet( errmsg.buf() )
 
+    IOPar& iop =  batchfld_->jobSpec().pars_;
     procflow_.fillPar( iop );
 
     iop.set( sKeySeisOutIDKey, "Output.ID" );
     return true;
 }
 
+
+bool uiMadagascarMain::acceptOK( CallBacker* )
+{
+    return fillPar() && batchfld_->start();
+}
