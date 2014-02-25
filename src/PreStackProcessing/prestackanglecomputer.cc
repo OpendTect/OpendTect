@@ -372,12 +372,6 @@ Gather* AngleComputer::computeAngleData()
 	raytracer_->setModel( curElasticModel() );
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
-	if ( SI().depthsInFeet() )
-	{
-	    for ( int idx=0; idx<offsets.size(); idx++ )
-	    offsets[idx] *= mToFeetFactorF;
-	}
-
 	raytracer_->setOffsets( offsets );
 	if ( !raytracer_->execute() )
 	    return 0;
@@ -520,8 +514,13 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     const int zsize = zrange.nrSteps() + 1;
     TypeSet<float> vel;
     vel.setCapacity( zsize );
+
+    float convfactor = 1;
+    if ( SI().zDomain().isTime() && SI().depthsInFeet() )
+	convfactor = mFromFeetFactorF;
+
     for( int idx=0; idx<zsize; idx++ )
-	vel += func->getVelocity( zrange.atIndex(idx) );
+	vel += func->getVelocity( zrange.atIndex(idx) ) * convfactor;
 
     if ( veldesc.type_ != VelocityDesc::Interval )
     {

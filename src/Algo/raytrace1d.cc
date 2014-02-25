@@ -80,9 +80,12 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
 
 bool RayTracer1D::usePar( const IOPar& par )
 {
-    par.get( sKeyOffset(), offsets_ );
-    if ( offsets_.isEmpty() )
-	offsets_ += 0;
+    TypeSet<float> offsets;
+    par.get( sKeyOffset(), offsets );
+    if ( offsets.isEmpty() )
+	offsets += 0;
+
+    setOffsets( offsets );
     return setup().usePar( par );
 }
 
@@ -90,7 +93,9 @@ bool RayTracer1D::usePar( const IOPar& par )
 void RayTracer1D::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), factoryKeyword() );
-    par.set( sKeyOffset(), offsets_ );
+    TypeSet<float> offsets;
+    getOffsets( offsets );
+    par.set( sKeyOffset(), offsets );
     setup().fillPar( par );
 }
 
@@ -117,7 +122,25 @@ void RayTracer1D::setModel( const ElasticModel& lys )
 
 
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
-{ offsets_ = offsets; }
+{ 
+    offsets_ = offsets;
+    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    {
+	for ( int idx=0; idx<offsets_.size(); idx++ )
+	    offsets_[idx] *= mToFeetFactorF;
+    }
+}
+
+
+void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
+{ 
+    offsets = offsets_;
+    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    {
+	for ( int idx=0; idx<offsets.size(); idx++ )
+	    offsets[idx] *= mFromFeetFactorF;
+    }
+}
 
 
 od_int64 RayTracer1D::nrIterations() const
