@@ -332,9 +332,9 @@ static const char* rev1info =
     "\n\nPlease specify:";
 static const char* rev1txts[] =
 {
-    "[&No]: The file is NOT SEG-Y Rev.1 - treat as legacy (i.e. Rev. 0)",
-    "[&Mostly]: It's Rev. 1 but I may need to overrule some things",
-    "[&Yes]: I know the file is 100% correct SEG-Y Rev.1",
+    "&No: The file is NOT SEG-Y Rev.1 - treat as legacy (i.e. Rev. 0)",
+    "&Mostly: It's Rev. 1 but I may need to overrule some things",
+    "&Yes: I know the file is 100% correct SEG-Y Rev.1",
     0
 };
 
