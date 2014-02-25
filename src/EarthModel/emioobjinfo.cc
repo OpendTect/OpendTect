@@ -365,9 +365,9 @@ int IOObjInfo::nrSticks() const
     if ( !reader_->pars() )
 	return 0;
 
-    Interval<float> rowrange;
+    Interval<int> rowrange = Interval<int>::udf();
     reader_->pars()->get( "Row range", rowrange );
-    return (int)rowrange.width() + 1;
+    return rowrange.isUdf() ? 0 : rowrange.width()+1;
 }
 
 } // namespace EM
