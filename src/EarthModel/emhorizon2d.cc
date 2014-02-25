@@ -758,13 +758,18 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
-	return 0;
+	return false;
 
     const int lineidx = geom->getRowIndex( l2dkey );
-//    const StepInterval<int> colrg = geom->colRange( lineidx );
-//  Should we use this colrg?
+    if ( lineidx < 0 )
+	return false;
+    
+    const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=trcrg.start; col<=trcrg.stop; col+=trcrg.step )
     {
+	if ( !colrg.includes(col,false) )
+	    continue;
+
 	RowCol rc( lineidx, col );
 	Coord3 pos = geom->getKnot( rc );
 	if ( pos.isDefined() && onlyfillundefs )
@@ -790,6 +795,9 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid,
 	return 0;
 
     const int lineidx = geom->getRowIndex( geomid );
+    if ( lineidx < 0 )
+	return false;
+    
     const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
@@ -820,9 +828,11 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid,
 
     Array1DImpl<float>* arr = 0;
     const int lineidx = geom->getRowIndex( l2dkey );
-    arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
+    if ( lineidx < 0 )
+	return 0;
 
-    if ( !arr && !arr->isOK() )
+    arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
+    if ( !arr || !arr->isOK() )
 	return 0;
 
     const StepInterval<int> colrg = geom->colRange( lineidx );
@@ -848,9 +858,11 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
 
     Array1DImpl<float>* arr = 0;
     const int lineidx = geom->getRowIndex( geomid );
-    arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
+    if ( lineidx < 0 )
+	return 0;
 
-    if ( !arr && !arr->isOK() )
+    arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
+    if ( !arr || !arr->isOK() )
 	return 0;
 
     const StepInterval<int> colrg = geom->colRange( lineidx );
