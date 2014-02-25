@@ -40,7 +40,7 @@ uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
     if ( !boxs_.isEmpty() )
 	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
 
-    cb->setStretch( 0, 0 );
+    cb->setStretch( 0, orientation_ == uiObject::Vertical ? 2 : 0 );
 
     boxs_ += cb;
     return *this;

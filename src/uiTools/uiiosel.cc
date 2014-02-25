@@ -272,6 +272,7 @@ void uiIOSelect::setInput( const char* key )
     if ( !inp_->isPresent(usrnm) )
 	inp_->addItem( usrnm );
     inp_->setCurrentItem( usrnm );
+    setInputText( usrnm );
 }
 
 
