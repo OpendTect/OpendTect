@@ -66,6 +66,7 @@ public:
 			  to compute zoeppritz coeffs <!*/
 
     void		setOffsets(const TypeSet<float>& offsets);
+    void		getOffsets(TypeSet<float>& offsets) const;
 
     const char*		errMsg() const { return errmsg_.str(); }
 
