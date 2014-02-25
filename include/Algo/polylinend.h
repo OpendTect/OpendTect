@@ -63,7 +63,7 @@ int PolyLineND<T>::nextIdx( int idx ) const
     int idy = idx + 1;
     if ( idy>=this->size() || !(*this)[idy].isDefined() )
     {
-	while ( (--idy)>=0 && (*this)[idy].isDefined() );
+	while ( (--idy)>=0 && (*this)[idy].isDefined() ) ;
 
 	idy++;
 
