@@ -32,16 +32,16 @@ class uiWellPartServer;
 mExpClass(uiWell) uiWellSelGrp : public uiGroup
 {
 public:
-    			uiWellSelGrp(uiParent*,bool withpos=true);
+			uiWellSelGrp(uiParent*,bool withpos=true);
 
-    void 		getCoordinates(TypeSet<Coord>&);
+    void		getCoordinates(TypeSet<Coord>&);
     const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
     void		setSelectedWells();
 
 protected:
 
     void		fillListBox();
-    
+
     void		createSelectButtons(uiGroup*);
     void                createMoveButtons(uiGroup*);
     void		createFields();
@@ -61,7 +61,7 @@ protected:
 
     uiListBox*		wellsbox_;
     uiTable*		selwellsbox_;
-    
+
     uiGenInput*		onlytopfld_;
 
     uiToolButton*	toselect_;
@@ -82,15 +82,15 @@ protected:
 mExpClass(uiWell) uiWell2RandomLineDlg : public uiDialog
 {
 public:
-    			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
-    			~uiWell2RandomLineDlg();
+			uiWell2RandomLineDlg(uiParent*,uiWellPartServer* ps=0);
+			~uiWell2RandomLineDlg();
 
-    void 		getCoordinates(TypeSet<Coord>&);
+    void		getCoordinates(TypeSet<Coord>&);
     const char*		getRandLineID() const;
     bool		dispOnCreation();
 
 protected:
-    
+
     void		createFields();
     void		attachFields();
     void		previewPush(CallBacker*);
@@ -98,8 +98,8 @@ protected:
     bool		acceptOK(CallBacker*);
 
     uiGenInput*		extendfld_;
-    uiIOObjSel* 	outfld_;
-    uiCheckBox* 	dispfld_;
+    uiIOObjSel*	outfld_;
+    uiCheckBox*	dispfld_;
 
     CtxtIOObj&		outctio_;
 

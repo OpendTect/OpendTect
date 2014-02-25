@@ -352,6 +352,8 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
 				 "Select wells to set up the random line path",
 				 "109.0.0").modal(false))
     , wellserv_(ws)
+    , previewbutton_(0)
+    , dispfld_(0)
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     outctio_.ctxt.forread = false;
@@ -380,27 +382,35 @@ void uiWell2RandomLineDlg::createFields()
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
 
-    CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-    previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
-    previewbutton_->attach( ensureBelow, sep );
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
-    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
-    dispfld_->setChecked( true );
+    if ( wellserv_ )
+    {
+	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
+	previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
+	previewbutton_->attach( ensureBelow, sep );
+	dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+	dispfld_->setChecked( true );
+    }
 }
 
 
 void uiWell2RandomLineDlg::attachFields()
 {
     extendfld_->attach( alignedBelow, selgrp_ );
-    previewbutton_->attach( alignedBelow, extendfld_ );
-    outfld_->attach( alignedBelow, previewbutton_ );
-    dispfld_->attach( alignedBelow, outfld_ );
+    if ( !previewbutton_ )
+	outfld_->attach( alignedBelow, extendfld_ );
+    else
+    {
+	previewbutton_->attach( alignedBelow, extendfld_ );
+	outfld_->attach( alignedBelow, previewbutton_ );
+	dispfld_->attach( alignedBelow, outfld_ );
+    }
 }
 
 
 bool uiWell2RandomLineDlg::dispOnCreation()
 {
-    return dispfld_->isChecked();
+    return dispfld_ ? dispfld_->isChecked() : false;
 }
 
 
