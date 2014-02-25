@@ -26,6 +26,21 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 { return *new IOPar("Temporay storage selection history"); }
 
 
+uiObject* uiIOSelect::endObj( bool left )
+{
+    if ( !left )
+	return selbut_;
+
+    if ( optbox_ )
+	return optbox_;
+    if ( !lbl_ )
+	return inp_;
+
+    mDynamicCastGet(uiLabeledComboBox*,lcb,lbl_->parent())
+    return lcb ? lcb->attachObj() : (uiObject*)lbl_;
+}
+
+
 uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	: uiGroup(p)
 	, doselcb_(butcb)

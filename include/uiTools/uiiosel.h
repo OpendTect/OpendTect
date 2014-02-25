@@ -89,6 +89,7 @@ public:
     void		stretchHor(bool);
 
     uiComboBox*		inpBox()		{ return inp_; }
+    uiObject*		endObj(bool left);
 
 protected:
 
