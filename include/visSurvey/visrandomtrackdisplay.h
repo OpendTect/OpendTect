@@ -85,22 +85,19 @@ public:
     bool                        setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
     DataPack::ID                getDataPackID(int attrib) const;
+    DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
-				     a knot can be added before the
-				     knotnr.
+				     a knot can be added before the knotnr.
 				     If knotnr==nrKnots, it checks if a knot
-				     can be added.
-				*/
+				     can be added. */
     void			addKnot(int knotnr);
-    				/*! if knotnr<nrKnots, a knot is added before
-				    the knotnr.
-				    If knotnr==nrKnots, a knot is added at the
-				    end
-				*/
+				/*!< If knotnr<nrKnots, a knot is added before
+				     the knotnr. If knotnr==nrKnots, a knot is
+				     added at the end. */
     				
     int				nrKnots() const;
     void			addKnot(const BinID&);

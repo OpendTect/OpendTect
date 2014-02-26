@@ -97,6 +97,7 @@ public:
     bool			setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
+    DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
     				{ return DataPackMgr::FlatID(); }
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
@@ -140,7 +141,6 @@ public:
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
    
-    const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib) const;
     float			getDisplayMinDataStep(bool x0) const;
 
     virtual void		annotateNextUpdateStage(bool yn);

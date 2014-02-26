@@ -2183,6 +2183,12 @@ DataPack::ID HorizonDisplay::getDataPackID( int channel ) const
 }
 
 
+DataPack::ID HorizonDisplay::getDisplayedDataPackID( int channel ) const
+{
+    return getDataPackID( channel );
+}
+
+
 const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 {
     return sections_.validIdx( horsecid ) ? sections_[horsecid] : 0;

@@ -27,6 +27,7 @@ class uiToolBar;
 class uiTreeFactorySet;
 class MouseCursorExchange;
 class Vw2DDataManager;
+class ZAxisTransform;
 
 namespace Attrib { class SelSpec; }
 namespace FlatView { class AuxData; }
@@ -68,6 +69,12 @@ public:
 				it has a valid one. Returns DataPack::ID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
+
+    ZAxisTransform*		getZAxisTransform() const
+				{ return datatransform_; }
+    bool			setZAxisTransform(ZAxisTransform*);
+    bool			hasZAxisTransform() const
+				{ return datatransform_; }
 
     void			setLineSetID( const MultiID& lsetid )
 				{ linesetid_ = lsetid; }
@@ -111,6 +118,7 @@ protected:
     uiFlatViewWin*		viewwin_;
     MouseCursorExchange*	mousecursorexchange_;
     FlatView::AuxData*		marker_;
+    ZAxisTransform*		datatransform_;
 
     MultiID			linesetid_;
     CubeSampling		cs_;

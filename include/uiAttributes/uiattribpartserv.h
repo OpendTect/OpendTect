@@ -45,6 +45,7 @@ class DataPointSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class TaskRunner;
+class ZAxisTransform;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
 namespace ColTab { class MapperSetup; }
@@ -124,6 +125,8 @@ public:
 					    TypeSet<BinID>* trueknotspos);
     DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&,
 				       TaskRunner&);
+    DataPack::ID	createZTransformedOutput(
+			    const CubeSampling&,ZAxisTransform*,DataPack::ID);
 
     bool		isDataClassified(const Array3D<float>&) const;
 

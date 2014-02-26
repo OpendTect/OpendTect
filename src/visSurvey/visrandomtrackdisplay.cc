@@ -45,7 +45,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "zaxistransform.h"
 
-#include <math.h>
 
 /* OSG-TODO: replace dragger_ with not yet available OSG RandomTrackDragger */
 
@@ -492,6 +491,12 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 {
     return datapackids_[attrib];
+}
+
+
+DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
 }
 
 

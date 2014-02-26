@@ -988,6 +988,15 @@ DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 }
 
 
+DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    if ( !displaycache_.validIdx(attrib) ) return DataPack::cNoID();
+    const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
+    const int curversion = channels_->currentVersion(attrib);
+    return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cNoID();
+}
+
+
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 			const BinIDValueSet* bivset, TaskRunner* )
 {
@@ -1054,18 +1063,15 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	int dpid = dpids[idx];
-	const DataPack* datapack = DPM(DataPackMgr::FlatID()).obtain( dpid );
-	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
+	const DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+	ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( dpids[idx] );
 	if ( !fdp )
 	{
 	    channels_->turnOn( false );
-	    DPM(DataPackMgr::FlatID()).release( dpid );
 	    continue;
 	}
 
 	const Array2D<float>& dparr = fdp->data();
-
 	const float* arr = dparr.getData();
 	OD::PtrPolicy cp = OD::UsePtr;
 
@@ -1076,12 +1082,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	{
 	    const od_int64 totalsz = sz0*sz1;
 	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
-
-	    if ( !tmparr )
-	    {
-		DPM(DataPackMgr::FlatID()).release( dpid );
-		continue;
-	    }
+	    if ( !tmparr ) continue;
 
 	    dparr.getAll( tmparr );
 	    arr = tmparr;
@@ -1090,8 +1091,6 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 
 	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
-
-	DPM(DataPackMgr::FlatID()).release( dpid );
     }
    
     channels_->turnOn( true );
@@ -1105,13 +1104,6 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
     resampler.setInterpolate( textureInterpolationEnabled() );
     TaskRunner::execute( tr, resampler );
 }
-
-
-const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(
-						int attrib ) const
-{ 
-    return displaycache_.validIdx(attrib) ? displaycache_[attrib] : 0; 
-} 
 
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const

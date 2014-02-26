@@ -36,6 +36,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "survinfo.h"
 
+#include "zaxistransform.h"
+#include "zaxistransformdatapack.h"
 #include "visvw2ddataman.h"
 #include "visvw2ddata.h"
 
@@ -62,6 +64,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , dataChanged(this)
     , mousecursorexchange_(0)
     , marker_(0)
+    , datatransform_(0)
 {
     setWinTitle();
     linesetid_.setEmpty();
@@ -86,6 +89,9 @@ uiODViewer2D::~uiODViewer2D()
     setMouseCursorExchange( 0 );
     detachAllNotifiers();
 
+    if ( datatransform_ )
+	datatransform_->unRef();
+
     if ( viewwin() )
     {
 	removeAvailablePacks();
@@ -104,25 +110,27 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp.ptr())
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr())
     mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr())
+    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr())
 
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( dp3d || dprdm )
+	if ( dp3d || dprdm || zatdp3d )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 	else if ( dp2ddh )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
 
 	createViewWin( (dp3d && dp3d->isVertical()) ||
-		       (dp2d && dp2d->isVertical()), dp3d );
-	if ( slicepos_ ) slicepos_->getToolBar()->display( dp3d );
+		       (dp2d && dp2d->isVertical()) || zatdp3d, dp3d||zatdp3d );
+	if ( slicepos_ ) slicepos_->getToolBar()->display( dp3d || zatdp3d );
     }
 
-    if ( dp3d )
+    if ( dp3d || zatdp3d )
     {
-	const CubeSampling cs = dp3d->cube().cubeSampling();
-	if ( cs != cs_ ) removeAvailablePacks();
-	cs_ = cs; if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
+	const CubeSampling& cs = dp3d ? dp3d->cube().cubeSampling()
+				     : zatdp3d->inputCS();
+	if ( cs != cs_ ) { removeAvailablePacks(); cs_ = cs; }
+	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
     }
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
@@ -137,6 +145,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    treetp_->updCubeSamling( dp3d->cube().cubeSampling(), true );
 	else if ( dp2ddh )
 	    treetp_->updCubeSamling( dp2ddh->getCubeSampling(), true );
+	else if ( zatdp3d )
+	    treetp_->updCubeSamling( zatdp3d->inputCS(), true );
     }
 
     viewwin()->start();
@@ -195,6 +205,19 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
     }
 
     dataChanged.trigger( this );
+}
+
+
+bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
+{
+    if ( datatransform_ )
+	datatransform_->unRef();
+
+    datatransform_ = zat;
+    if ( datatransform_ )
+	datatransform_->ref();
+
+    return true;
 }
 
 
@@ -414,7 +437,9 @@ DataPack::ID uiODViewer2D::createDataPack( bool wva ) const
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( wva ? wvaselspec_ : vdselspec_ );
     const CubeSampling cs = slicepos_->getCubeSampling();
-    return attrserv->createOutput( cs, DataPack::cNoID() );
+    return hasZAxisTransform() ?
+	attrserv->createZTransformedOutput(cs,datatransform_,DataPack::cNoID())
+	: attrserv->createOutput(cs,DataPack::cNoID());
 }
 
 

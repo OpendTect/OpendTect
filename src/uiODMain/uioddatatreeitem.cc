@@ -242,7 +242,8 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
-    const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
+    const DataPack::ID dpid =
+	visserv->getDisplayedDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
     const bool isvert = visserv->isVerticalDisp( displayID() );
     if ( hasdatapack )
@@ -267,13 +268,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	                applMgr()->visServer()->getObject(sceneID()));
-    const bool hasztransform = scene && scene->getZAxisTransform();
-//TODO:remove when Z-transformed scenes are ok for 2D Viewer
-
-    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
-	    && dpid>DataPack::cNoID() )
+    if ( visserv->canBDispOn2DViewer(displayID()) && hasdatapack )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );

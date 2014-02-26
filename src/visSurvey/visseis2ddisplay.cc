@@ -325,6 +325,12 @@ DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 }
 
 
+DataPack::ID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
+}
+
+
 void Seis2DDisplay::setTraceData( int attrib,
 				  const Attrib::Data2DArray& dataset,
 				  TaskRunner* tr )

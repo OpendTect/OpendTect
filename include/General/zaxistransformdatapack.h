@@ -23,10 +23,9 @@ template <class T> class Array3D;
 class FlatPosData;
 class ZAxisTransform;
 
-
-/*!\brief DataPack for ZAxis transformed data.
+/*!
+\brief DataPack for ZAxis transformed data.
 */
-
 
 mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
 {
@@ -43,8 +42,8 @@ public:
     void			setInterpolate( bool yn ) { interpolate_ = yn; }
     bool			getInterpolate() const	 { return interpolate_;}
 
-
-    const ZAxisTransform&	getTransform() const { return transform_; }
+    const ZAxisTransform&	getTransform() const	{ return transform_; }
+    const CubeSampling& 	inputCS() const 	{ return inputcs_; }
 
     Array2D<float>&		data();
     const Array2D<float>&	data() const;

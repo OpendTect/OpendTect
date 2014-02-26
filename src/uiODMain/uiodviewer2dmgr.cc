@@ -62,7 +62,7 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 
 void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    int dtpackid = visServ().getDataPackID( visid, attribid );
+    const int dtpackid = visServ().getDisplayedDataPackID( visid, attribid );
     if ( dtpackid < 0 ) return;
 
     uiODViewer2D* curvwr = find2DViewer( visid );
@@ -71,6 +71,9 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	curvwr = &addViewer2D( visid );
+	const ZAxisTransform* zat =
+	    visServ().getZAxisTransform( visServ().getSceneID(visid) );
+	curvwr->setZAxisTransform( const_cast<ZAxisTransform*>(zat) );
 	mAttachCB( curvwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else

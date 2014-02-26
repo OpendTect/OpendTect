@@ -253,6 +253,8 @@ public:
 	    				      TaskRunner*)
     				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
+    virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
+				{ return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
     virtual void		createAndDispDataPack(int, const DataPointSet*,
 	    					      TaskRunner*){}

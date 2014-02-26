@@ -159,6 +159,7 @@ public:
 			/*!< data becomes mine */
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;
+    DataPack::ID	getDisplayedDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
     void		createAndDispDataPack(int id,int attrib,
 					      const DataPointSet* );
