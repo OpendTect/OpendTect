@@ -311,12 +311,18 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     table_->setNrRows( nrrows );
     const float zfac = zFactor();
     const float kbelev = track_.getKbElev();
-    for ( int idx=0; idx<nrrows; idx++ )
+    for ( int idx=0; idx<nrnew; idx++ )
     {
 	const int irow = startrow + idx;
-	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
-	levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
-	table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
+	uiGroup* grp = table_->getCellGroup( RowCol(irow,cLevelCol) );
+	mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
+	if ( !levelsel )
+	{
+	    levelsel = new uiStratLevelSel( 0, true, 0 );
+	    levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
+	}
+
 	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx] : 0;
 	if ( marker )
 	{
