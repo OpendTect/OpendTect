@@ -82,6 +82,7 @@ set( OD_PLUGINS
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
 	CmdDriver
+	uiOwnIODir
 )
 
 set( OD_SPECPROGS ODSeis visBase )
