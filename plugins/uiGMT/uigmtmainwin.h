@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "gmtpar.h"
-#include "uibatchlaunch.h"
+#include "uidialog.h"
 
 class CtxtIOObj;
 class Timer;
+class uiBatchJobDispatcherSel;
 class uiGMTBaseMapGrp;
 class uiGMTOverlayGrp;
 class uiFileInput;
@@ -25,7 +26,7 @@ class uiPushButton;
 class uiToolButton;
 class uiTabStack;
 
-mClass(uiGMT) uiGMTMainWin : public uiFullBatchDialog
+mClass(uiGMT) uiGMTMainWin : public uiDialog
 {
 public:
     			uiGMTMainWin(uiParent*);
@@ -55,6 +56,7 @@ protected:
     ObjectSet<GMTPar>	pars_;
     Timer*		tim_;
     bool		needsave_;
+    uiBatchJobDispatcherSel*	batchfld_;
 
     void		createPush(CallBacker*);
     void		viewPush(CallBacker*);
@@ -69,9 +71,9 @@ protected:
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
     void		saveFlow(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
-    bool		prepareProcessing()		{ return true; }
-    bool		fillPar(IOPar&);
+    bool		fillPar();
     bool		usePar( const IOPar&);
 };
 

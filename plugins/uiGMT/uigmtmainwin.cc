@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "timer.h"
 
+#include "uibatchjobdispatchersel.h"
 #include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uidesktopservices.h"
@@ -36,21 +37,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiFullBatchDialog(p,uiFullBatchDialog::Setup("GMT Mapping Tool")
-					     .procprognm("od_gmtexec")
-					     .modal(false)
-					     .showoutputopts(false))
+    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,"103.5.2")
+				.modal(false) )
     , addbut_(0)
     , editbut_(0)
     , ctio_(*mMkCtxtIOObj(ODGMTProcFlow))
     , tim_(0)
     , needsave_(false)
 {
-    setTitleText( "" );
     setCtrlStyle( CloseOnly );
-    setHelpID( "103.5.2" );
 
-    uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
+    uiGroup* rightgrp = new uiGroup( this, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );
     tabstack_->selChange().notify( mCB(this,uiGMTMainWin,tabSel) );
 
@@ -81,10 +78,10 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     resetbut_->setToolTip( "Reset input fields" );
     resetbut_->attach( rightOf, editbut_ );
 
-    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", uiObject::Vertical );
+    uiSeparator* sep = new uiSeparator( this, "VSep", uiObject::Vertical );
     sep->attach( stretchedLeftTo, rightgrp );
 
-    flowgrp_ = new uiGroup( uppgrp_, "Flow Group" );
+    flowgrp_ = new uiGroup( this, "Flow Group" );
 
     uiLabeledListBox* llb = new uiLabeledListBox( flowgrp_, "Map overlays" );
     flowfld_ = llb->box();
@@ -105,24 +102,27 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
-    filefld_ = new uiFileInput( uppgrp_, "Output file",
+    filefld_ = new uiFileInput( this, "Output file",
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(false).filter("*.ps").defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 
-    createbut_ = new uiPushButton( uppgrp_, "&Create Map",
+    createbut_ = new uiPushButton( this, "&Create Map",
 				   mCB(this,uiGMTMainWin,createPush), true );
     createbut_->attach( alignedBelow, filefld_ );
 
-    viewbut_ = new uiPushButton( uppgrp_, "&View Map",
+    viewbut_ = new uiPushButton( this, "&View Map",
 				 mCB(this,uiGMTMainWin,viewPush), true );
     viewbut_->attach( rightTo, createbut_ );
 
     flowgrp_->attach( leftTo, rightgrp );
     flowgrp_->attach( ensureLeftOf, sep );
-    uppgrp_->setHAlignObj( sep );
-    setParFileNmDef( "GMT_Proc" );
+    batchfld_ = new uiBatchJobDispatcherSel( rightgrp, true,
+					     Batch::JobSpec::NonODBase );
+    batchfld_->jobSpec().prognm_ = "od_gmtexec";
+    batchfld_->setJobName( "GMT_Proc" );
+    batchfld_->display( false );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
     toolbar->addButton( "newflow", "New flow",
@@ -423,7 +423,7 @@ void uiGMTMainWin::viewPush( CallBacker* )
 }
 
 
-bool uiGMTMainWin::fillPar( IOPar& par )
+bool uiGMTMainWin::fillPar()
 {
     BufferString fnm = filefld_->fileName();
     if ( fnm.isEmpty() )
@@ -439,6 +439,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( File::exists(fnm.buf()) && !File::isWritable(fnm.buf()) )
 	mErrRet("Output file already exists and is read only")
 
+    IOPar& par = batchfld_->jobSpec().pars_;
     par.set( sKey::FileName(), fnm );
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
@@ -517,4 +518,10 @@ bool uiGMTMainWin::usePar( const IOPar& par )
     }
 
     return true;
+}
+
+
+bool uiGMTMainWin::acceptOK( CallBacker*)
+{
+    return fillPar() && batchfld_->start();
 }
