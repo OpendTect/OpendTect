@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "generalmod.h"
 #include "namedobj.h"
 #include "multiid.h"
@@ -28,10 +28,10 @@ class TranslatorGroup;
 mExpClass(General) IOObjSelConstraints
 {
 public:
-    
-    			IOObjSelConstraints();
-    			IOObjSelConstraints(const IOObjSelConstraints&);
-    			~IOObjSelConstraints();
+
+			IOObjSelConstraints();
+			IOObjSelConstraints(const IOObjSelConstraints&);
+			~IOObjSelConstraints();
     IOObjSelConstraints& operator =(const IOObjSelConstraints&);
 
     IOPar&		require_;
@@ -50,7 +50,7 @@ public:
 
   Usually, this object is obtained by calling the ioContext() method of a
   certain TranslatorGroup.
-  
+
   Note, that if the StdSelType is set to None, you must provide the selkey or
   we'll be blobbing stuff in the root of the survey.
 */
@@ -93,13 +93,14 @@ public:
     static int			totalNrStdDirs();
     static const StdDirData*	getStdDirData(StdSelType);
     static BufferString		getDataDirName(StdSelType);
-    				//!< Including legacy names - smart
+				//!< Including legacy names - smart
 
+    const char*		objectTypeName() const;
     inline bool		hasStdSelKey() const	{ return stdseltype != None; }
     MultiID		getSelKey() const;
     void		fillTrGroup();
-    			//!< Uses stdseltype to make a trgroup
-    			//!< Should never be necessary
+			//!< Uses stdseltype to make a trgroup
+			//!< Should never be necessary
 };
 
 

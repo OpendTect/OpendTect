@@ -70,6 +70,7 @@ public:
 				     new.  */
 
     int				nrSel() const;
+    bool			isSel(int) const;
     int				currentItem() const;
     const MultiID&		selected(int idx=0) const;
 				/*!<\note that processInput should be called

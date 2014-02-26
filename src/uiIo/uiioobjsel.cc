@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uistatusbar.h"
 
+#define mObjTypeName ctio_.ctxt.objectTypeName()
 
 static const MultiID udfmid( "-1" );
 
@@ -234,6 +235,12 @@ int uiIOObjSelGrp::nrSel() const
 	if ( listfld_->isSelected(idx) ) nr++;
 
     return nr;
+}
+
+
+bool uiIOObjSelGrp::isSel( int idx ) const
+{
+    return listfld_->isSelected( idx );
 }
 
 
@@ -455,7 +462,7 @@ void uiIOObjSelGrp::setContext( const IOObjContext& c )
 
 bool uiIOObjSelGrp::processInput( bool noneisok )
 {
-    int curitm = listfld_->currentItem();
+    const int curitm = listfld_->currentItem();
     if ( !nmfld_ )
     {
 	// all 'forread' is handled here
@@ -463,14 +470,24 @@ bool uiIOObjSelGrp::processInput( bool noneisok )
 	{
 	    if ( noneisok || nrSel() > 0 )
 		return true;
-	    uiMSG().error( "Please select at least one item ",
+	    uiMSG().error( "Please select at least one ", mObjTypeName,
 		           "or press Cancel" );
 	    return false;
 	}
 
-	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
+	if ( curitm < 0 )
+	{
+	    ctio_.setObj( 0 );
+	    if ( !noneisok )
+		uiMSG().error( "Please select the ", mObjTypeName,
+			       "or press Cancel" );
+	    return noneisok;
+	}
+	PtrMan<IOObj> ioobj = getIOObj( curitm );
 	if ( !ioobj )
 	{
+	    uiMSG().error( "Internal error: "
+		"Cannot retrieve ", mObjTypeName, " details from data store" );
 	    IOM().to( MultiID(0) );
 	    fullUpdate( -1 );
 	    return false;
@@ -494,12 +511,12 @@ bool uiIOObjSelGrp::processInput( bool noneisok )
 	bool ret = true;
 	if ( ioobj->implReadOnly() )
 	{
-	    uiMSG().error( "Object is read-only" );
+	    uiMSG().error( "Selected ", mObjTypeName, " is read-only" );
 	    ret = false;
 	}
 	else if ( confirmoverwrite_ && !asked2overwrite_ )
-	    ret = uiMSG().askOverwrite( "Overwrite existing object?" );
-
+	    ret = uiMSG().askOverwrite(
+		    BufferString("Overwrite existing ",mObjTypeName,"?") );
 	if ( !ret )
 	{
 	    asked2overwrite_ = false;
@@ -520,7 +537,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     PtrMan<IOObj> ioobj = mkEntry( ctio_, seltxt );
     if ( !ioobj )
     {
-	uiMSG().error( "Cannot create object with this name" );
+	uiMSG().error( "Cannot create ", mObjTypeName, " with this name" );
 	return false;
     }
 
@@ -873,7 +890,7 @@ void uiIOObjSel::doCommit( bool noerr ) const
 	uiString txt( inctio_.ctxt.forread
 			 ? tr( "Please select the %1")
 			 : tr( "Please enter a valid name for the %1" ) );
-	uiMSG().error( txt.arg( setup_.seltxt_ ) );
+	uiMSG().error( txt.arg( workctio_.ctxt.objectTypeName() ) );
     }
 }
 

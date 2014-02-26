@@ -191,14 +191,14 @@ void IOMan::init()
 
 void IOMan::reInit( bool dotrigger )
 {
-    if ( dotrigger && !IOM().isBad() ) 
+    if ( dotrigger && !IOM().isBad() )
 	IOM().surveyToBeChanged.trigger();
 
-    if ( IOM().changeSurveyBlocked() ) 
-    { 
-	IOM().setChangeSurveyBlocked(false); 
-	return; 
-    } 
+    if ( IOM().changeSurveyBlocked() )
+    {
+	IOM().setChangeSurveyBlocked(false);
+	return;
+    }
 
     StreamProvider::unLoadAll();
     TranslatorGroup::clearSelHists();
@@ -212,15 +212,15 @@ void IOMan::reInit( bool dotrigger )
 	rootdir_ = GetBaseDataDir();
 
     init();
-    if ( !IOM().isBad() ) 
-    { 
-	SurveyInfo::setSurveyName( SI().getDirName() ); 
-	setupCustomDataDirs(-1); 
-	if ( dotrigger ) 
+    if ( !IOM().isBad() )
+    {
+	SurveyInfo::setSurveyName( SI().getDirName() );
+	setupCustomDataDirs(-1);
+	if ( dotrigger )
 	{
-	    IOM().surveyChanged.trigger(); 
-	    IOM().afterSurveyChange.trigger(); 
-	} 
+	    IOM().surveyChanged.trigger();
+	    IOM().afterSurveyChange.trigger();
+	}
     }
 
 }
@@ -671,6 +671,8 @@ bool IOMan::setDir( const char* dirname )
 
 static const char* getTranslDirNm( const Translator* tr )
 {
+    if ( !tr ) return 0;
+
     const IOObjContext& ctxt = tr->group()->ioCtxt();
     const IOObjContext::StdDirData* sdd
 		    = IOObjContext::getStdDirData( ctxt.stdseltype );

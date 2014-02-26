@@ -288,6 +288,13 @@ void IOObjContext::fillTrGroup()
 }
 
 
+const char* IOObjContext::objectTypeName() const
+{
+    const_cast<IOObjContext*>(this)->fillTrGroup(); // just to be safe
+    return trgroup->userName();
+}
+
+
 bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
     if ( trgroup )
