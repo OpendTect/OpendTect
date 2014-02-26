@@ -169,7 +169,12 @@ void uiComboBox::setEmpty()
 
 const char* uiComboBox::text() const
 {
-    rettxt_ = textOfItem( currentItem() );
+    const int curitemidx = currentItem();
+    if ( isReadOnly() || itemstrings_.validIdx(curitemidx) )
+	rettxt_ = textOfItem( curitemidx );
+    else
+	rettxt_ = body_->currentText();
+
     return rettxt_.buf();
 }
 
