@@ -169,9 +169,8 @@ void uiComboBox::setEmpty()
 
 const char* uiComboBox::text() const
 {
-    const int curitemidx = currentItem();
-    if ( isReadOnly() || itemstrings_.validIdx(curitemidx) )
-	rettxt_ = textOfItem( curitemidx );
+    if ( isReadOnly() )
+	rettxt_ = textOfItem( currentItem() );
     else
 	rettxt_ = body_->currentText();
 
