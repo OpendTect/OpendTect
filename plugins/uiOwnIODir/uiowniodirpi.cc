@@ -110,7 +110,7 @@ void uiOwnIODirMgr::doDlg( CallBacker* )
 
 mDefODInitPlugin(uiOwnIODir)
 {
-    // These are necessary since 4.6:
+    // These factory adds are necessary since 4.6:
 
     MyObjTranslatorGroup::initClass();
     MyFmtMyObjTranslator::initClass();
