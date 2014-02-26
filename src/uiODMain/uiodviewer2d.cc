@@ -128,7 +128,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     if ( dp3d || zatdp3d )
     {
 	const CubeSampling& cs = dp3d ? dp3d->cube().cubeSampling()
-				     : zatdp3d->inputCS();
+				      : zatdp3d->inputCS();
 	if ( cs != cs_ ) { removeAvailablePacks(); cs_ = cs; }
 	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
     }
