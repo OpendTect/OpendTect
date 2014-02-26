@@ -50,10 +50,6 @@ mDeclEmptyTranslatorBundle(uiOwnIODir,MyObj,MyFmt,"myo")
 mDefSimpleTranslatorsWithSelKey(MyObj,"My Object",MyFmt,None,sSelKey)
 
 
-#if mODMinorVersion < 7
-# define uiAction uiMenuItem
-#endif
-
 
 uiOwnIODirMgr::uiOwnIODirMgr( uiODMain& a )
 	: appl(a)
