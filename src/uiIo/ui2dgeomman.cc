@@ -41,7 +41,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     BufferStringSet linesets;
     S2DPOS().getLineSets( linesets );
     uiLabeledListBox* lslb = new uiLabeledListBox( this, linesets, "Linesets",
-	    			false, uiLabeledListBox::AboveMid );
+				false, uiLabeledListBox::AboveMid );
     linesetfld_ = lslb->box();
     linesetfld_->selectionChanged.notify(
 	    mCB(this,ui2DGeomManageDlg,lineSetSelCB) );
@@ -67,7 +67,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     mangeombut->attach( centeredRightOf, lnlb );
 
     uiToolButton* remgeombut = new uiToolButton( this, "trashcan",
-	    			"Remove Line Geometry",
+				"Remove Line Geometry",
 				mCB(this,ui2DGeomManageDlg,removeLineGeom) );
     remgeombut->attach( alignedBelow, mangeombut );
 
@@ -114,7 +114,8 @@ class uiManageLineGeomDlg : public uiDialog
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
-    : uiDialog( p, uiDialog::Setup("Manage Line Geometry",linenm,"103.1.15"))
+    : uiDialog( p, uiDialog::Setup("Manage Line Geometry",
+				   mNoDlgTitle,"103.1.15"))
     , linenm_(linenm)
 {
     BufferString lbl( "Lineset : ");
