@@ -201,9 +201,53 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 }
 
 
+static void addStickToStick( const TypeSet<Coord3>& src, TypeSet<Coord3>& dest,
+			     double zscale )
+{
+    if ( src.isEmpty() )
+       return;
+
+    if ( dest.isEmpty() )
+    {
+       dest = src;
+       return;
+    }
+
+    Coord3 dif00 = src.first() - dest.first();
+    Coord3 dif01 = src.first() - dest.last();
+    Coord3 dif10 = src.last() - dest.first();
+    Coord3 dif11 = src.last() - dest.last();
+
+    dif00.z *= zscale;
+    dif01.z *= zscale;
+    dif10.z *= zscale;
+    dif11.z *= zscale;
+
+    if ( dif00.sqAbs()<=dif01.sqAbs() && dif00.sqAbs()<=dif10.sqAbs() &&
+	 dif00.sqAbs()<=dif11.sqAbs() )
+    {
+	for ( int idx=0; idx<src.size(); idx++ )
+	    dest.insert( 0, src[idx] );
+    }
+    else if ( dif01.sqAbs()<=dif10.sqAbs() && dif01.sqAbs()<=dif11.sqAbs() )
+    {
+	for ( int idx=0; idx<src.size(); idx++ )
+	    dest.add( src[idx] );
+    }
+    else if ( dif10.sqAbs() <= dif11.sqAbs() )
+    {
+	for ( int idx=src.size()-1; idx>=0; idx-- )
+	   dest.insert( 0, src[idx] );
+    }
+    else
+    {
+	for ( int idx=src.size()-1; idx>=0; idx-- )
+	    dest.add( src[idx] );
+    }
+}
+
 #define mAddStickPositions() \
-    for ( int k=0; k<=lastidx; k++ ) \
-        sticks_[idy]->crds_.addIfNew(stickpositions[k]); \
+    addStickToStick( stickpositions, sticks_[idy]->crds_ , setup_.zscale_ ); \
     found = true; \
     break; \
 
@@ -584,10 +628,6 @@ void FSStoFault3DConverter::untwistSticks( double zscale )
 {
     for ( int idx=1; idx<sticks_.size(); idx++ )
     {
-	if ( !curfssg_ || !curfssg_->isTwisted(sticks_[idx-1]->sticknr_,
-		    sticks_[idx]->sticknr_, zscale) )
-	    continue;
-
 	const int nbnrknots = sticks_[idx-1]->crds_.size();
 	const int nrknots = sticks_[idx]->crds_.size();
 	if ( nbnrknots<2 || nrknots<2 )
@@ -597,8 +637,8 @@ void FSStoFault3DConverter::untwistSticks( double zscale )
 	d0.z *= zscale;
 	Coord3 d1 = sticks_[idx]->crds_[0]-sticks_[idx]->crds_[nrknots-1];
 	d1.z *= zscale;
-	double cosangle = d0.dot(d1)/Math::Sqrt(d0.dot(d0)*d1.dot(d1));
-	if ( fabs(cosangle)<0.707 ) //if skewed more than 45 degree ignore it
+
+	if ( d0.dot(d1) >= 0.0 )
 	    continue;
 
 	for ( int idy=0; idy<nrknots/2; idy++ )
