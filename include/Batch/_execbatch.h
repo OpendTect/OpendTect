@@ -18,9 +18,10 @@ ________________________________________________________________________
 
 */
 
-#include "strmprov.h"
-#include "od_ostream.h"
 #include "envvars.h"
+#include "od_ostream.h"
+#include "strmprov.h"
+#include "hostdata.h"
 
 
 int Execute_batch( int* pargc, char** argv )
