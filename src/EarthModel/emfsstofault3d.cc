@@ -202,7 +202,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 
 
 static void addStickToStick( const TypeSet<Coord3>& src, TypeSet<Coord3>& dest,
-			     float zscale )
+			     double zscale )
 {
     if ( src.isEmpty() )
        return;
