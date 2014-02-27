@@ -711,8 +711,6 @@ bool uiODMain::closeOK()
 	return false;
     }
 
-    IOM().applClosing();
-
     if ( failed_ ) return true;
 
     if ( !askedanything )
@@ -722,6 +720,8 @@ bool uiODMain::closeOK()
 	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
 	    return false;
     }
+    
+    IOM().applClosing();
 
     removeDockWindow( ctabwin_ );
     delete scenemgr_;
