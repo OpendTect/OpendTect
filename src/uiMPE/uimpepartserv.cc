@@ -1042,13 +1042,8 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
-    BufferString version;
-    float versionnr = 0;
-    if ( iopar.get( "dTect", version ) )
-	versionnr = toFloat( version.buf()+1 );
-
     Attrib::DescSet newads( tracker->is2D() );
-    newads.usePar( *attrpar, versionnr );
+    newads.usePar( *attrpar );
     mergeAttribSets( newads, *tracker );
 
     return true;
