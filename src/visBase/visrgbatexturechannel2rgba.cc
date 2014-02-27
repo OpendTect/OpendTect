@@ -58,7 +58,7 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 
 const ColTab::Sequence* RGBATextureChannel2RGBA::getSequence( int ch ) const
 {
-    return &sequences_[ch];
+    return ch >=0 && ch < 4 ? &sequences_[ch] : 0;
 }
 
 
