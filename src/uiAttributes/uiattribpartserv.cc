@@ -168,11 +168,10 @@ void uiAttribPartServer::useAutoSet( bool is2d )
 }
 
 
-bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d,
-				     float versionnr )
+bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 {
     DescSet* ads = new DescSet(is2d);
-    if ( !ads->usePar(iopar, versionnr) )
+    if ( !ads->usePar(iopar) )
     {
 	delete ads;
 	return false;
@@ -224,13 +223,17 @@ bool uiAttribPartServer::editSet( bool is2d )
 
     delete attrsetdlg_;
     attrsetdlg_ = new uiAttribDescSetEd( parent(),
-					 const_cast<DescSetMan*>(adsman),0,
-					 attrsneedupdt_ );
-    attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
-    attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
+					 const_cast<DescSetMan*>(adsman), 0 );
+    attrsetdlg_->applyPushed.notify(
+		mCB(this,uiAttribPartServer,attrsetDlgApply) );
+    attrsetdlg_->dirshowcb.notify(
+		mCB(this,uiAttribPartServer,directShowAttr) );
+    attrsetdlg_->evalattrcb.notify(
+		mCB(this,uiAttribPartServer,showEvalDlg) );
     attrsetdlg_->crossevalattrcb.notify(
-	    mCB(this,uiAttribPartServer,showCrossEvalDlg) );
-    attrsetdlg_->xplotcb.notify( mCB(this,uiAttribPartServer,showXPlot) );
+		mCB(this,uiAttribPartServer,showCrossEvalDlg) );
+    attrsetdlg_->xplotcb.notify(
+		mCB(this,uiAttribPartServer,showXPlot) );
     if ( attrsneedupdt_ )
     {
 	attrsetdlg_->updtAllEntries();
@@ -238,7 +241,7 @@ bool uiAttribPartServer::editSet( bool is2d )
     }
 
     attrsetdlg_->windowClosed.notify(
-				mCB(this,uiAttribPartServer,attrsetDlgClosed) );
+		mCB(this,uiAttribPartServer,attrsetDlgClosed) );
     return attrsetdlg_->go();
 }
 
@@ -273,6 +276,17 @@ void uiAttribPartServer::xplotClosedCB( CallBacker* cb )
 		mCB(this,uiAttribPartServer,xplotClosedCB) );
 	xplot->setDeleteOnClose( true );
     }
+}
+
+
+void uiAttribPartServer::attrsetDlgApply( CallBacker* )
+{
+    const bool is2d = attrsetdlg_->getSet()->is2D();
+    DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
+    adsman->setDescSet( new Attrib::DescSet( *attrsetdlg_->getSet() ) );
+    adsman->attrsetid_ = attrsetdlg_->curSetID();
+    set2DEvent( is2d );
+    sendEvent( evNewAttrSet() );
 }
 
 
@@ -1701,10 +1715,8 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
     if ( ads )
     {
 	BufferStringSet errmsgs;
-	BufferString versionstr;
-	float versionnr = iopar.get( sKey::Version(), versionstr )
-				? versionstr.toFloat() : 0 ;
-	if ( isstored && versionnr<4.05 )	//backward compatibility v<4.1.1
+	const int odversion = iopar.odVersion();
+	if ( isstored && odversion<411 )	//backward compatibility v<4.1.1
 	{
 	    DescSet* adsnonstored = eDSHolder().getDescSet( is2d, false );
 	    if ( adsnonstored )
@@ -1717,7 +1729,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	    }
 	}
 	else
-	    ads->usePar( iopar, versionnr, &errmsgs );
+	    ads->usePar( iopar, &errmsgs );
 
 	BufferString basemsg = "Error during restore of ";
 	basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";

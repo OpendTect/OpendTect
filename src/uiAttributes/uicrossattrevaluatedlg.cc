@@ -157,8 +157,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
     if ( !attrset_.getDesc(srcid_) )
 	return;
 
-    float vsn = mODMajorVersion + 0.1*mODMinorVersion;
-    attrset_.usePar( initpar_, vsn );
+    attrset_.usePar( initpar_ );
     sliderfld->sldr()->setValue(0);
     lbls_.erase();
     specs_.erase();

@@ -229,7 +229,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 void uiODApplMgr::surveyChanged( CallBacker* )
 {
     dispatcher_.survChg(false); attrvishandler_.survChg(false);
-    bool douse = false; 
+    bool douse = false;
     MultiID id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id.isEmpty() )
@@ -299,6 +299,7 @@ void uiODApplMgr::enableSceneManipulation( bool yn )
 
 void uiODApplMgr::editAttribSet()
 { editAttribSet( SI().has2D() ); }
+
 void uiODApplMgr::editAttribSet( bool is2d )
 {
     enableMenusAndToolBars( false );
@@ -887,9 +888,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid == uiMPEPartServer::evRemoveTreeObject() )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
-
-	//const MultiID mid = emserv_->getStorageID(emid);
+	const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
@@ -922,7 +921,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid == uiMPEPartServer::evStartSeedPick() )
     {
 	//Turn off everything
-
 	visserv_->turnSeedPickingOn( true );
 	sceneMgr().setToViewMode( false );
     }
@@ -1021,8 +1019,6 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	TypeSet<Coord> coords;
 	wellserv_->getRdmLineCoordinates( coords );
 	setupRdmLinePreview( coords );
-	//enableTree( false );
-	//enableMenusAndToolBars( false );
     }
     else if ( evid == uiWellPartServer::evCleanPreview() )
     {
@@ -1065,7 +1061,6 @@ bool uiODApplMgr::handleEMServEv( int evid )
     else if ( evid == uiEMPartServer::evRemoveTreeObject() )
     {
 	const EM::ObjectID emid = emserv_->selEMID();
-	//const MultiID mid = emserv_->getStorageID(emid);
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
@@ -1439,8 +1434,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// New NLA Model available: replace the attribute set!
 	// Create new attrib set from NLA model's IOPar
 
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
-			       nlaserv_->getModel().versionNr() );
+	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
 	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames() )
@@ -1495,10 +1489,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
 
-	float vsn = mODMajorVersion + 0.1*mODMinorVersion;
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
-	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D(),
-				   vsn );
+	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
+
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
@@ -1519,8 +1512,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( !attrserv_->createAttributeSet(nlaserv_->modelInputs(),&attrset) )
 	    return false;
 	attrset.fillPar( nlaserv_->modelPars() );
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
-			       nlaserv_->getModel().versionNr() );
+	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evCr2DRandomSet() )
     {

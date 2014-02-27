@@ -48,20 +48,13 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    strm << "Processing on " << HostData::localHostName()  << ".\n";
+    const int odversion = pars().odVersion();
+    if ( odversion < 320 )
+    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
 
-    float vsn = 0;
-    if ( !parversion_.isEmpty() )
-    {
-	vsn = parversion_.toFloat();
-	if ( vsn < 3.2 )
-	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
-    }
-
-    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
+    OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
-    const int process_id = GetPID();
     Attrib::Processor* proc = 0;
     const char* tempdir = pars().find(sKey::TmpStor());
     if ( tempdir && *tempdir )
@@ -139,7 +132,7 @@ bool BatchProgram::go( od_ostream& strm )
     else
     {
 	PtrMan<IOPar> attribs = pars().subselect("Attributes");
-	if ( !attribset.usePar( *attribs, vsn ) )
+	if ( !attribset.usePar(*attribs) )
 	    mRetJobErr( attribset.errMsg() )
     }
 
@@ -220,7 +213,7 @@ bool BatchProgram::go( od_ostream& strm )
 		if ( loading )
 		{
 		    loading = false;
-		    mStrmWithProcID( "Processing started" );
+		    mMessage( "Processing started" );
 		}
 
 		if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
@@ -253,9 +246,9 @@ bool BatchProgram::go( od_ostream& strm )
 	closeok = proc->outputs_[0]->finishWrite();
 
     if ( !closeok )
-    { mStrmWithProcID( "Could not close output data." ); }
+    { mMessage( "Could not close output data." ); }
     else
-    { mStrmWithProcID( "Processing done; Closing down" ); }
+    { mMessage( "Processing done; Closing down" ); }
 
     PtrMan<IOObj> ioobj = IOM().get( seisid );
     if ( ioobj )
@@ -268,7 +261,7 @@ bool BatchProgram::go( od_ostream& strm )
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
     progressmeter.setFinished();
-    mStrmWithProcID( "Threads closed; Writing finish status" );
+    mMessage( "Threads closed; Writing finish status" );
 
     if ( !comm_ ) return true;
 
@@ -276,9 +269,9 @@ bool BatchProgram::go( od_ostream& strm )
     bool ret = comm_->sendState();
 
     if ( ret )
-	mStrmWithProcID( "Successfully wrote finish status" );
+	mMessage( "Successfully wrote finish status" );
     else
-	mStrmWithProcID( "Could not write finish status" );
+	mMessage( "Could not write finish status" );
     return ret;
 }
 

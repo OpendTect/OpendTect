@@ -64,7 +64,6 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    const float versionnr = toFloat( astream.version() );
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
 	return "File has wrong file type";
 
@@ -72,14 +71,14 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     IOPar bupar; ads.fillPar( bupar );
     ads.removeAll( false );
     BufferStringSet parseerrmsgs;
-    ads.usePar( iopar, versionnr, &parseerrmsgs );
+    ads.usePar( iopar, &parseerrmsgs );
 
     if ( ads.isEmpty() )
     {
-	ads.usePar( bupar, versionnr );
+	ads.usePar( bupar );
 	return "Could not find any attribute definitions in file";
     }
-    
+
     if ( parseerrmsgs.size() )
     {
 	warningmsg = *parseerrmsgs[0];

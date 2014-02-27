@@ -393,7 +393,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     nrseloutputs = seloutputs_.size() ? seloutputs_.size()
 				      : outdescidsz ? outdescidsz : 1;
     if ( !seloutputs_.isEmpty() )
-	//TODO make use of the multiple targetspecs (pre-stack for inst)
+	//TODO make use of the multiple targetspecs (prestack for inst)
 	ret->createAndAddMultOutDescs( targetid, seloutputs_,
 					     seloutnms_, outdescids );
     else if ( outdescids.isEmpty() )
@@ -509,7 +509,7 @@ bool uiAttrVolOut::fillPar()
 	MultiID ky;
 	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
-	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
+	    descset.usePar( nlamodel_->pars() );
 
 	Attrib::Desc* desc = nlamodel_ ? descset.getFirstStored()
 			      : ads_.getDesc( todofld_->attribID() );

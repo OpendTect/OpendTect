@@ -38,8 +38,6 @@ const char* ODSession::sKeyStartupID()  { return "Session.Auto ID"; }
 
 ODSession::ODSession()
 {
-    versionnr_ = mODMajorVersion; versionnr_ += ".";
-    versionnr_ += mODMinorVersion;
 }
 
 
@@ -75,7 +73,6 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	nlapars_ = sess.nlapars_;
 	mpepars_ = sess.mpepars_;
 	pluginpars_ = sess.pluginpars_;
-	versionnr_ = sess.versionnr_;
 	vwr2dpars_ = sess.vwr2dpars_;
     }
     return *this;
@@ -94,12 +91,9 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
 	&& pluginpars_ == sess.pluginpars_
-	&& versionnr_ == sess.versionnr_
 	&& vwr2dpars_ == sess.vwr2dpars_;
 }
-   
-#define mAddVersionNr(iopar) \
-    iopar.add( sKey::Version(), versionnr_ );
+
 
 bool ODSession::usePar( const IOPar& par )
 {
@@ -126,7 +120,7 @@ bool ODSession::usePar( const IOPar& par )
     PtrMan<IOPar> attr3dsubpars = par.subselect( attr3dprefix() );
     if ( attr3dsubpars )
 	attrpars3d_ = *attr3dsubpars;
-    
+
     PtrMan<IOPar> attr2dstoredsubpars = par.subselect( attr2dstoredprefix() );
     if ( attr2dstoredsubpars )
 	attrpars2dstored_ = *attr2dstoredsubpars;
@@ -134,7 +128,7 @@ bool ODSession::usePar( const IOPar& par )
     PtrMan<IOPar> attr3dstoredsubpars = par.subselect( attr3dstoredprefix() );
     if ( attr3dstoredsubpars )
 	attrpars3dstored_ = *attr3dstoredsubpars;
-    
+
     PtrMan<IOPar> nlasubpars = par.subselect( nlaprefix() );
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
@@ -151,18 +145,6 @@ bool ODSession::usePar( const IOPar& par )
     if ( vwr2dsubpars )
         vwr2dpars_ = *vwr2dsubpars;
 
-    mAddVersionNr(seispars_);
-    mAddVersionNr(vispars_);
-    mAddVersionNr(scenepars_);
-    mAddVersionNr(attrpars_);
-    mAddVersionNr(attrpars2d_);
-    mAddVersionNr(attrpars3d_);
-    mAddVersionNr(attrpars2dstored_);
-    mAddVersionNr(attrpars3dstored_);
-    mAddVersionNr(nlapars_);
-    mAddVersionNr(mpepars_);
-    mAddVersionNr(pluginpars_);
-    mAddVersionNr(vwr2dpars_);
     return true;
 }
 
@@ -275,15 +257,14 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    if ( astream.majorVersion() < 4 )
-	return "Cannot read session files older than OpendTect V4.0";
-
     IOPar iopar( astream );
     if ( iopar.isEmpty() )
 	return "Empty input file";
 
-    session.setVersionNr( BufferString(astream.version()) );
-    if ( !session.usePar( iopar ))
+    if ( iopar.odVersion() < 400 )
+	return "Cannot read session files older than OpendTect V4.0";
+
+    if ( !session.usePar(iopar) )
 	return "Could not read session-file";
 
     return 0;

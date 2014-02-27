@@ -67,9 +67,9 @@ bool uiAttrEMOut::fillPar()
     if ( nlamodel_ && attrfld_->outputNr() >= 0 )
     {
 	if ( !nlaid_ || !(*nlaid_) )
-	{ 
-	    uiMSG().message( "NN needs to be stored before creating volume" ); 
-	    return false; 
+	{
+	    uiMSG().message( "NN needs to be stored before creating volume" );
+	    return false;
 	}
 	if ( !addNLA( nladescid_ ) )	return false;
     }
@@ -87,10 +87,9 @@ bool uiAttrEMOut::fillPar()
 
     if ( attrfld_->is2D() )
     {
-	MultiID ky;
 	DescSet descset(true);
 	if ( nlamodel_ )
-	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
+	    descset.usePar( nlamodel_->pars() );
 
 	const Desc* desc = nlamodel_ ? descset.getFirstStored()
 				     : clonedset->getFirstStored();
@@ -111,7 +110,7 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 
     BufferString key;
     BufferString tmpkey;
-    mDefineStaticLocalObject( const BufferString, keybase, 
+    mDefineStaticLocalObject( const BufferString, keybase,
 			      ( IOPar::compKey(sKey::Output(), 0) ) );
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );

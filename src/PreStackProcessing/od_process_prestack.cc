@@ -40,16 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    strm << "Processing on " << HostData::localHostName() << '.' << od_newline;
-
-    if ( !parversion_.isEmpty() )
-    {
-	const float vsn = parversion_.toFloat();
-	if ( vsn < 3.2 )
-	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
-    }
-
-    const int process_id = GetPID();
+    const int odversion = pars().odVersion();
+    if ( odversion < 320 )
+    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
@@ -276,9 +269,11 @@ bool BatchProgram::go( od_ostream& strm )
 
 	int nrfound = 0;
 	PreStack::Gather* sparegather = 0;
-	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
+	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
+					   relbid.inl()++ )
 	{
-	    for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();relbid.crl()++)
+	    for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
+					       relbid.crl()++)
 	    {
 		if ( !procman->wantsInput( relbid ) )
 		    continue;
@@ -386,7 +381,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	    if ( prevline!=curbid.inl() )
 	    {
-		const int obsoleteline = curbid.inl() - (stepout.inl()+1)*step.inl();
+		const int obsoleteline =
+		    curbid.inl() - (stepout.inl()+1)*step.inl();
 		for ( int idx=bids.size()-1; idx>=0; idx-- )
 		{
 		    if ( bids[idx].inl()<=obsoleteline )
@@ -403,7 +399,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    curbid.crl() += cdprange.step;
 	    if ( !cdprange.includes( curbid.crl(), true ) )
 		break;
-	    const int obsoletetrace = curbid.crl() -(stepout.crl()+1)*cdprange.step;
+	    const int obsoletetrace =
+		curbid.crl() -(stepout.crl()+1)*cdprange.step;
 	    for ( int idx=bids.size()-1; idx>=0; idx-- )
 	    {
 		if ( bids[idx].crl()<=obsoletetrace )
@@ -419,7 +416,8 @@ bool BatchProgram::go( od_ostream& strm )
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
     progressmeter.setFinished();
-    mStrmWithProcID( "Threads closed; Writing finish status" );
+
+    mMessage( "Threads closed; Writing finish status" );
 
     for ( int idx=gathers.size()-1;  idx>=0; idx-- )
 	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
@@ -431,16 +429,13 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     comm_->setState( JobCommunic::Finished );
-    bool ret = comm_->sendState();
-
+    const bool ret = comm_->sendState();
     if ( ret )
-	mStrmWithProcID( "Successfully wrote finish status" );
+	mMessage( "Successfully wrote finish status" );
     else
-	mStrmWithProcID( "Could not write finish status" );
+	mMessage( "Could not write finish status" );
 
     delete procman;
 
     return ret;
 }
-
-

@@ -1,9 +1,9 @@
 #ifndef batchprog_h
 #define batchprog_h
- 
+
 /*
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		14-9-1998
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
  If program args are needed outside this method, BP() can be accessed.
- 
+
 */
 
 #include "batchmod.h"
@@ -54,7 +54,7 @@ public:
 
     const IOPar&		pars() const	{ return *iopar_; }
     IOPar&			pars()		{ return *iopar_; }
-    
+
     const CommandLineParser&	clParser()	{ return *clparser_; }
 
 			//! This method must be defined by user
@@ -72,17 +72,17 @@ public:
 
     mExp(Batch) static void	deleteInstance();
 
-    
-    static const char*	sKeyMasterHost() 	{ return "masterhost"; }
+
+    static const char*	sKeyMasterHost()	{ return "masterhost"; }
     static const char*	sKeyMasterPort()	{ return "masterport"; }
     static const char*	sKeyBG()		{ return "bg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
     static const char*	sKeyDataDir()		{ return "datadir"; }
-    
+
 protected:
 
     friend int		Execute_batch(int*,char**);
-    
+
     //friend class	JobCommunic;
 
 			BatchProgram();
@@ -97,8 +97,7 @@ protected:
     StreamData&		sdout_;
     IOPar*		iopar_;
     CommandLineParser*	clparser_;
-	
-    BufferString	parversion_;
+
     BufferStringSet	requests_;
     BufferString	finishmsg_;
 
@@ -107,7 +106,7 @@ protected:
     mExp(Batch) void	killNotify( bool yn );
 
     JobCommunic*	mmComm()		{ return comm_; }
-    int 		jobId()			{ return jobid_; }
+    int			jobId()			{ return jobid_; }
 
 private:
 
@@ -137,6 +136,9 @@ mGlobal(Batch) BatchProgram& BP();
 
 #define mStrmWithProcID(s) \
 strm << "\n[" << process_id << "]: " << s << "." << od_newline
+
+#define mMessage(s) \
+strm << s << '.' << od_newline
 
 #define mSetCommState(State) \
 if ( comm_ ) \

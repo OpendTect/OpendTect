@@ -399,7 +399,7 @@ void DescSet::handleStorageOldFormat( IOPar& descpar )
 
 void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	                           BufferString& defstring,
-				   float versionnr ) const
+				   int odversion ) const
 {
     if ( attribname == "RefTime" )
     {
@@ -417,7 +417,7 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	bstr += ptr;
 	defstring = bstr;
     }
-    if ( attribname == "Math" && versionnr<3.4 )
+    if ( attribname == "Math" && odversion<340 )
 	handleOldMathExpression( descpar, defstring );
 }
 
@@ -636,12 +636,8 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
-bool DescSet::usePar( const IOPar& par, float versionnr,
-		      BufferStringSet* errmsgs )
+bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
-    if ( mIsUdf(versionnr) )
-	versionnr = mODVersion * 0.01;
-
     const char* typestr = par.find( sKey::Type() );
     if ( typestr )
     {
@@ -672,7 +668,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
 	    mHandleParseErr( "Cannot find attribute name" );
 
-	handleOldAttributes( attribname, *descpar, defstring, versionnr );
+	handleOldAttributes( attribname, *descpar, defstring, par.odVersion() );
 	if ( errmsgs && !errmsg_.isEmpty() )
 	    errmsgs->add( errmsg_ );
 

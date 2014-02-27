@@ -134,7 +134,7 @@ void BatchProgram::init()
 	std::cerr << aistrm.fileType() << std::endl;
 	return;
     }
-    parversion_ = aistrm.version();
+
     iopar_->getFrom( aistrm );
     odstrm.close();
 

@@ -63,12 +63,11 @@ using namespace EM;
 }
 
 
-static bool attribSetQuery( od_ostream& strm, const IOPar& iopar,
-			    bool stepout, float vnr )
+static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 {
     DescSet initialset( false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
-    if ( !initialset.usePar( *attribs, vnr ) )
+    if ( !initialset.usePar(*attribs) )
 	mErrRet( initialset.errMsg() )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
@@ -318,13 +317,11 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
 
-    const float vnr = parversion_.isEmpty() ? 0 : parversion_.toFloat();
-
     if ( clParser().nrArgs() )
     {
 	const bool ismaxstepout = clParser().isPresent( "maxstepout" );
 	if ( ismaxstepout || clParser().isPresent( "validate" ) )
-	    return attribSetQuery( strm, pars(), ismaxstepout, vnr );
+	    return attribSetQuery( strm, pars(), ismaxstepout );
     }
 
     showHostName( strm );
@@ -414,7 +411,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes() );
-    if ( !attribset.usePar(*attribs,vnr) )
+    if ( !attribset.usePar(*attribs) )
 	mErrRetNoProc( attribset.errMsg() )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );

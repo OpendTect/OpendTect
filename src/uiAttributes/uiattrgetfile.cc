@@ -81,11 +81,6 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     fname_ = fileinpfld->fileName();
     IOPar iop; iop.read( fname_, sKey::Pars() );
 
-    BufferString version;
-    float versionnr = 0;
-    if ( iop.get( "dTect", version ) )
-	versionnr = toFloat( version.buf()+1 );
-
     if ( !isattrset_ )
     {
 	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
@@ -93,7 +88,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 	if ( subpar ) iop = *subpar;
     }
 
-    attrset_.removeAll( false ); attrset_.usePar( iop, versionnr );
+    attrset_.removeAll( false ); attrset_.usePar( iop );
     const int nrgood = attrset_.nrDescs( false, false );
     BufferString txt( nrgood == 1  ? "Attribute: "
 			: (nrgood ? "Attributes:\n"

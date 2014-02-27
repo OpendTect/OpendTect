@@ -46,7 +46,7 @@ const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
 			    Stats::Type stattyp, const HorSampling& hs,
-       			    bool outputfold )
+			    bool outputfold )
     : Executor("Computing Stratal amplitude...")
     , rdr_(0)
     , tophorizon_(tophor)
@@ -96,8 +96,7 @@ int StratAmpCalc::init( const IOPar& pars )
 
     //determine whether stored data is used
     PtrMan<IOPar> attribs = pars.subselect("Attributes");
-    float vsn = mODMajorVersion + 0.1*mODMinorVersion;
-    if ( !attribs || !descset_->usePar( *attribs, vsn ) )
+    if ( !attribs || !descset_->usePar(*attribs) )
 	return -1;
 
     BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
@@ -194,11 +193,11 @@ int StratAmpCalc::nextStep()
     const EM::SubID subid = bid.toInt64();
     float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
-		     : (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     z1 += tophorshift_;
     z2 += bothorshift_;
     Interval<int> sampintv( trc->info().nearestSample(z1),
-	    		    trc->info().nearestSample(z2) );
+			    trc->info().nearestSample(z2) );
     sampintv.sort();
 
     if ( sampintv.start < 0 )
@@ -222,8 +221,8 @@ int StratAmpCalc::nextStep()
 	case Stats::Min: outval = runcalc.min(); break;
 	case Stats::Max: outval = runcalc.max(); break;
 	case Stats::Average: outval = (float) runcalc.average(); break;
-	case Stats::RMS: outval = (float) runcalc.rms(); break;  
-	case Stats::Sum: outval = runcalc.sum(); break;  
+	case Stats::RMS: outval = (float) runcalc.rms(); break;
+	case Stats::Sum: outval = runcalc.sum(); break;
 	default: break;
     }
 

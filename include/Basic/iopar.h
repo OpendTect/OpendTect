@@ -272,9 +272,13 @@ public:
 			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(od_ostream&,const char* filetyp) const;
     int			majorVersion() const	{ return majorversion_; }
-			//!<Only set if read from file. Otherwise set to current ver
+			//!<Only set if read from file. Otherwise set to current
     int			minorVersion() const	{ return minorversion_; }
-			//!<Only set if read from file. Otherwise set to current ver
+			//!<Only set if read from file. Otherwise set to current
+    int			odVersion() const;
+			/*!<Only set if read from file. Otherwise set to current
+			    v4.6.0 returns as 460 */
+
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 

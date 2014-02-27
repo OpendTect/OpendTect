@@ -22,7 +22,7 @@ class BufferStringSet;
 class DataPointSet;
 
 
-namespace Attrib 
+namespace Attrib
 {
 class Desc; class DescSetup; class SelSpec;
 
@@ -102,12 +102,11 @@ public:
     void		cleanUpDescsMissingInputs();
 
     void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&,float version=mUdf(float),
-	    			BufferStringSet* errmsgs=0);
+    bool		usePar(const IOPar&,BufferStringSet* errmsgs=0);
     bool 		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
 	    				  BufferStringSet*);
     bool		createSteeringDesc(const IOPar&,BufferString,
-					   ObjectSet<Desc>&, int& id, 
+					   ObjectSet<Desc>&, int& id,
 					   BufferStringSet* errmsgs=0);
     static Desc*	createDesc(const BufferString&, const IOPar&,
 	    			   const BufferString&,BufferStringSet*);
@@ -117,7 +116,7 @@ public:
     bool 		setAllInputDescs(int, const IOPar&,BufferStringSet*);
     void 		handleStorageOldFormat(IOPar&);
     void 		handleOldAttributes(BufferString&,IOPar&,BufferString&,
-	    				    float) const;
+	    				    int) const;
     void		handleOldMathExpression(IOPar&,BufferString&) const;
     void		handleReferenceInput(Desc*);
 

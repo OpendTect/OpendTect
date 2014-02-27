@@ -103,7 +103,7 @@ public:
 				     bool is2d, const char* seltxt="View Data");
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(const MultiID&,bool is2d,bool multioutput);
-    bool		replaceSet(const IOPar&,bool is2d,float versionnr);
+    bool		replaceSet(const IOPar&,bool is2d);
     bool		addToDescSet(const char*,bool is2d);
     int			getSliceIdx() const		{ return sliceidx_; }
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
@@ -225,6 +225,7 @@ protected:
     void		evalDlgClosed(CallBacker*);
     void		xplotClosedCB(CallBacker*);
     void		processEvalDlg(bool iscrossevaluate);
+    void		attrsetDlgApply(CallBacker*);
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);

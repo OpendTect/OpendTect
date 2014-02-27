@@ -1,21 +1,21 @@
 #ifndef _execbatch_h
 #define _execbatch_h
- 
+
 /*
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		30-10-2003
  RCS:		$Id$
 ________________________________________________________________________
 
- The implementation fo Execute_batch should be in the executable on 
+ The implementation fo Execute_batch should be in the executable on
  windows, but can be in a .so on *nix.
  In order not to pollute batchprog.h, I've placed the implementation
  into a separate file, which is included trough batchprog.h on win32
  and included in batchprog.cc on *nix.
- 
+
 */
 
 #include "strmprov.h"
@@ -38,8 +38,10 @@ int Execute_batch( int* pargc, char** argv )
     if ( allok )
     {
 	od_ostream logstrm( *bp.sdout_.ostrm );
-	logstrm << "Starting program " << argv[0] << " "
-	    << bp.name() << "\n";
+	logstrm << "Starting program: " << argv[0] << " "
+		<< bp.name() << "\n";
+	logstrm << "Processing on: " << HostData::localHostName() << "\n";
+	logstrm << "Process ID: " << GetPID() << "\n";
 	allok = bp.go( logstrm );
     }
 

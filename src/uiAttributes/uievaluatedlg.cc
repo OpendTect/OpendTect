@@ -39,7 +39,7 @@ static const char* sKeyIncr = "Increment";
     mDescGetConstParamGroup(T,str,desc,parstr1_);\
     valpar1 = &(ValParam&)(*str)[pgidx_];\
 }
-    
+
 AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 				    const EvalParam& evalparam )
     : uiGroup(p,"")
@@ -54,7 +54,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
     if ( evaloutput_ )
     {
 	const Attrib::Desc* desc = ade.curDesc();
-	const float val = desc ? ade.getOutputValue( desc->selectedOutput() ) 
+	const float val = desc ? ade.getOutputValue( desc->selectedOutput() )
 			       : 0;
 	initfld = new uiGenInput( this, sKeyInit, FloatInpSpec(val) );
 	setHAlignObj( initfld );
@@ -74,7 +74,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	if ( !valpar1 ) mGetValParFromGroup(ZGateParam,zgpset,(*ade.curDesc()));
 //	if ( !valpar1 ) mGetValParFromGroup(BinIDParam,bpset,(*ade.curDesc()));
     }
-    
+
     DataInpSpec* initspec1 = 0; DataInpSpec* initspec2 = 0;
     DataInpSpec* incrspec1 = 0; DataInpSpec* incrspec2 = 0;
     if ( valpar1 )
@@ -164,7 +164,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	if ( !valpar1 ) mGetValParFromGroup( ZGateParam, zgparamset, desc );
 //	if ( !valpar1 ) mGetValParFromGroup( BinIDParam, bidparamset, desc );
     }
-	
+
     mDynamicCastGet(ZGateParam*,gatepar,valpar1)
     mDynamicCastGet(BinIDParam*,bidpar,valpar1)
     mDynamicCastGet(FloatParam*,fpar,valpar1)
@@ -185,7 +185,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	BinID bid;
 	bid.inl() = initfld->getBinID().inl() + idx * incrfld->getBinID().inl();
 	bid.crl() = initfld->getBinID().crl() + idx * incrfld->getBinID().crl();
-	
+
 	if ( desc.is2D() )
 	    { mCreateLabel1(bid.crl()) }
 	else
@@ -199,9 +199,9 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	if ( bidpar2 )
 	{
 	    BinID bid2;
-	    bid2.inl() = initfld->getBinID(1).inl() + 
+	    bid2.inl() = initfld->getBinID(1).inl() +
 					idx * incrfld->getBinID(1).inl();
-	    bid2.crl() = initfld->getBinID(1).crl() + 
+	    bid2.crl() = initfld->getBinID(1).crl() +
 					idx * incrfld->getBinID(1).crl();
 	    bidpar2->setValue( bid2.inl(), 0 );
 	    bidpar2->setValue( bid2.crl(), 1 );
@@ -301,7 +301,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 
     sliderfld = new uiSliderExtra( this, "Slice", "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->sldr()->valueChanged.notify( 
+    sliderfld->sldr()->valueChanged.notify(
 	    				mCB(this,uiEvaluateDlg,sliderMove) );
     sliderfld->sldr()->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
@@ -341,8 +341,7 @@ void uiEvaluateDlg::variableSel( CallBacker* )
 
 void uiEvaluateDlg::calcPush( CallBacker* )
 {
-    float vsn = mODMajorVersion + 0.1*mODMinorVersion;
-    attrset_->usePar( initpar_, vsn );
+    attrset_->usePar( initpar_ );
     sliderfld->sldr()->setValue(0);
     lbls_.erase();
     specs_.erase();
@@ -373,7 +372,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	    continue;
 	}
 
-	if ( idx ) 
+	if ( idx )
 	    attrset_->addDesc( newad );
 
 	lbls_ += new BufferString( lbl );
@@ -382,7 +381,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	// trick : use as -> objectRef to store the userref;
 	// possible since objref_ is only used for NN which cannot be evaluated
 	as.setObjectRef( userchosenref.buf() );
-		
+
 	specs_ += as;
     }
 

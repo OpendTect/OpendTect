@@ -584,7 +584,7 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
 	return false;
 
     if ( inoutadsman_ )
-        inoutadsman_->setSaved( adsman_->isSaved() );
+	inoutadsman_->setSaved( adsman_->isSaved() );
 
     prevsavestate = saveButtonChecked();
     nmprefgrp_ = attrtypefld_->group();
@@ -1087,7 +1087,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     ascistream ascstrm( strm );
     IOPar iopar( ascstrm );
     replaceStoredAttr( iopar );
-    attrset_->usePar( iopar, toFloat(ascstrm.version()) );
+    attrset_->usePar( iopar );
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
     setctio_.ioobj = 0;

@@ -133,7 +133,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    cs_.init();
 	else
 	{
-	    cs_.set2DDef(); // doesn't make much sense, but is better than nothing
+	    // doesn't make much sense, but is better than nothing
+	    cs_.set2DDef();
 
 	    cs_.hrg.start.inl() = cs_.hrg.stop.inl() = 0;
 	    MultiID lsid;
@@ -398,8 +399,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     DescSet* descset = addtoset ? new DescSet( *addtoset )
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset &&
-	 !descset->usePar(nlamodel_->pars(),nlamodel_->versionNr()) )
+    if ( !addtoset && !descset->usePar(nlamodel_->pars()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
@@ -667,7 +667,8 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	if ( cs_.defaultDir() == CubeSampling::Inl )
 	    for ( int idx=0; idx<cs_.nrCrl(); idx++ )
 		positions += BinID( cs_.hrg.start.inl(),
-				    cs_.hrg.start.crl() + cs_.hrg.step.crl()*idx );
+				    cs_.hrg.start.crl() +
+					cs_.hrg.step.crl()*idx );
 	if ( cs_.defaultDir() == CubeSampling::Crl )
 	    for ( int idx=0; idx<cs_.nrInl(); idx++ )
 		positions += BinID( cs_.hrg.start.inl()+ cs_.hrg.step.inl()*idx,
@@ -687,7 +688,8 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets )
     : Executor("Extracting attributes")
 {
-    const DescSet* attrset = aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
+    const DescSet* attrset =
+	aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	const DescID id = attrset->getID( inputs.get(idx), true );
@@ -976,7 +978,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     }
 
     Processor* proc =
-		createProcessor( *procattrset_, lineKey().buf(), outid, errmsg );
+	createProcessor( *procattrset_, lineKey().buf(), outid, errmsg );
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )
@@ -1026,10 +1028,10 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output(),"0") );
+    PtrMan<IOPar> output = pars.subselect( IOPar::compKey(sKey::Output(),"0") );
     const char* linename = output->find(sKey::LineKey());
     if ( !linename )
-	linename = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()) );
+	linename = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()));
 
     setLineKey( linename );
 
