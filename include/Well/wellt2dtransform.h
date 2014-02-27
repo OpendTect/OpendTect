@@ -30,6 +30,7 @@ public:
 				  "WellT2D", sFactoryKeyword() );
 
 				WellT2DTransform();
+				WellT2DTransform(const MultiID&);
 
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,

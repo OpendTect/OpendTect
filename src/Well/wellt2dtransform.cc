@@ -21,13 +21,21 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "zdomain.h"
+#include "keystrs.h"
 
-#include <cmath>
 
 WellT2DTransform::WellT2DTransform()
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
     , data_(0)
 {
+}
+
+
+WellT2DTransform::WellT2DTransform( const MultiID& wllid )
+    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
+    , data_(0)
+{
+    tozdomaininfo_.pars_.set( sKey::ID(), wllid );
 }
 
 
