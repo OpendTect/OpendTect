@@ -1419,6 +1419,7 @@ protected:
     virtual void	finalise()	{ finalise(false); }
     virtual void	finalise(bool);
     void		closeEvent(QCloseEvent*);
+    void		applyCB(CallBacker*);
 
 private:
 
@@ -1453,7 +1454,6 @@ uiDialogBody::~uiDialogBody()
     if ( cnclbut_ )
 	cnclbut_->activated.remove( mCB(this,uiDialogBody,reject) );
 }
-
 
 
 int uiDialogBody::exec( bool showminimized )
@@ -1666,7 +1666,10 @@ uiObject* uiDialogBody::createChildren()
 				    setup_.canceltext_.getFullString(), true );
 	//TODO: Replace with canceltext_ when button can hadle that
     if ( setup_.applybutton_ )
+    {
 	applybut_ = new uiPushButton( centralwidget_, sApply(), true );
+	applybut_->activated.notify( mCB(this,uiDialogBody,applyCB) );
+    }
 
     if ( setup_.savebutton_ && !setup_.savetext_.isEmpty() )
     {
@@ -1856,15 +1859,22 @@ void uiDialogBody::layoutChildrenOld( uiObject* lowestobj )
 
 void uiDialogBody::provideHelp( CallBacker* )
 {
-    mDynamicCastGet( uiDialog&, dlg, handle_ );
+    mDynamicCastGet(uiDialog&,dlg,handle_);
     uiMainWin::provideHelp( dlg.helpID() );
 }
 
 
 void uiDialogBody::showCredits( CallBacker* )
 {
-    mDynamicCastGet( uiDialog&, dlg, handle_ );
+    mDynamicCastGet(uiDialog&,dlg,handle_);
     uiMainWin::showCredits( dlg.helpID() );
+}
+
+
+void uiDialogBody::applyCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiDialog&,dlg,handle_);
+    dlg.applyPushed.trigger( cb );
 }
 
 
@@ -1873,8 +1883,9 @@ void uiDialogBody::showCredits( CallBacker* )
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
-	: uiMainWin( s.wintitle_.getFullString(), p )
-	, cancelpushed_(false)
+    : uiMainWin( s.wintitle_.getFullString(), p )
+    , cancelpushed_(false)
+    , applyPushed(this)
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );

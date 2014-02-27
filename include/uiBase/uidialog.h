@@ -144,8 +144,10 @@ public:
     void		showMinMaxButtons();
     void		showAlwaysOnTop();
     static int		titlePos();
-    static void		setTitlePos( int p );
-			// -1 = left, 0 = center, 1 = right
+    static void		setTitlePos(int pos);
+			// pos: -1 = left, 0 = center, 1 = right
+
+    Notifier<uiDialog>	applyPushed;
 
 protected:
 
