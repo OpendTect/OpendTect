@@ -22,13 +22,15 @@ namespace Well
     class D2TModel;
 }
 
-/*!\brief Manages the D2T models used during TWTS.*/
-
 namespace WellTie
 {
 
 class DataWriter;
 class Setup;
+
+/*!
+\brief Manages the D2T models used during TWTS.
+*/
 
 mExpClass(WellAttrib) D2TModelMgr
 {
