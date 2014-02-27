@@ -42,7 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog( p,Setup("Wavelet Extraction","Specify parameters","103.3.4")
+    : uiDialog( p,Setup("Extract Wavelet",mNoDlgTitle,"103.3.4")
 	             .modal(false) )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , wvltctio_(*mMkCtxtIOObj(Wavelet))

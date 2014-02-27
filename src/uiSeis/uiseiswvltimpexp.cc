@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Wavelet import","Import wavelets","103.3.1"))
+    : uiDialog(p,uiDialog::Setup("Import Wavelet",mNoDlgTitle,"103.3.1"))
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
@@ -128,7 +128,7 @@ MultiID uiSeisWvltImp::selKey() const
 
 
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Wavelet export","Export wavelets","103.3.1"))
+    : uiDialog(p,uiDialog::Setup("Export Wavelet",mNoDlgTitle,"103.3.1"))
 {
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
 

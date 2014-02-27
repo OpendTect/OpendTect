@@ -25,8 +25,8 @@ static BufferString lastoutfile;
 
 
 uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
-	: uiDialog(p, uiDialog::Setup("Position conversion",
-		   "Coordinates vs Inline/Crossline","0.3.7").modal(mod))
+	: uiDialog(p, uiDialog::Setup("Convert Positions",
+		   mNoDlgTitle,"0.3.7").modal(mod))
 	, survinfo(si)
 {
     ismanfld = new uiGenInput( this, "Conversion",
@@ -38,19 +38,21 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     const Interval<int> intv( -mUdf(int), mUdf(int) );
     inlfld = new uiGenInput( inlcrlgrp, "In-line",
 		IntInpSpec(0,intv).setName("Inl-field") );
-    inlfld->setElemSzPol( uiObject::Small );
+    inlfld->setValue( si.inlRange(false).start );
+    inlfld->setElemSzPol( uiObject::Medium );
     crlfld = new uiGenInput( inlcrlgrp, "Cross-line",
 		IntInpSpec(0,intv).setName("Crl-field") );
-    crlfld->setElemSzPol( uiObject::Small );
+    crlfld->setValue( si.crlRange(false).start );
+    crlfld->setElemSzPol( uiObject::Medium );
     crlfld->attach( alignedBelow, inlfld );
 
     uiGroup* xygrp = new uiGroup( mangrp, "XY group" );
     xfld = new uiGenInput( xygrp, "X-coordinate",
 			   DoubleInpSpec().setName("X-field") );
-    xfld->setElemSzPol( uiObject::Small );
+    xfld->setElemSzPol( uiObject::Medium );
     yfld = new uiGenInput( xygrp, "Y-coordinate",
 			   DoubleInpSpec().setName("Y-field") );
-    yfld->setElemSzPol( uiObject::Small );
+    yfld->setElemSzPol( uiObject::Medium );
     yfld->attach( alignedBelow, xfld );
 
     uiGroup* butgrp = new uiGroup( mangrp, "Buttons" );

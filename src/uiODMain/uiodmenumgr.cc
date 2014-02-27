@@ -282,7 +282,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphorasc, "&Bulk 3D ...", mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
-    mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
+    mInsertItem( impfault, "&Ascii ...", mImpFaultMnuItm );
     mInsertItem( impfaultstick, "&Ascii 3D ...", mImpFaultSSAscii3DMnuItm );
     mInsertItem( impfaultstick, "&Ascii 2D ...", mImpFaultSSAscii2DMnuItm );
 

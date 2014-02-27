@@ -28,6 +28,7 @@ public:
     static inline uiString sCancel()		{ return tr("&Cancel"); }
     static inline uiString sClose()		{ return tr("&Close"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
+    static inline uiString sCopy()		{ return tr("&Copy"); }
     static inline uiString sEdit(bool immediate);
     static inline uiString sEmptyString()	{ return uiString(""); }
     static inline uiString sError()		{ return tr("Error"); }

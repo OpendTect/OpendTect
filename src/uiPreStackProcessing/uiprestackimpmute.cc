@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -8,23 +7,24 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiprestackimpmute.h"
+
 #include "uifileinput.h"
-#include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
 #include "horsampling.h"
 #include "oddirs.h"
-#include "prestackmutedeftransl.h"
+#include "od_istream.h"
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
-#include "od_istream.h"
+#include "prestackmutedeftransl.h"
 #include "survinfo.h"
 #include "tabledef.h"
 
@@ -32,9 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Mute","Specify Parameters","103.2.5"))
+    : uiDialog( p,uiDialog::Setup("Import Mute Function",mNoDlgTitle,"103.2.5"))
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
@@ -54,20 +53,12 @@ uiImportMute::uiImportMute( uiParent* p )
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, inlcrlfld_ );
-
     dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.7" );
     dataselfld_->attach( alignedBelow, inlcrlfld_ ); 
-    dataselfld_->attach( ensureBelow, sep );
-
-    sep = new uiSeparator( this, "H sep" );
-    sep->attach( alignedBelow, dataselfld_ );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Mute" );
+    outfld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
     outfld_->attach( alignedBelow, dataselfld_ );
-    outfld_->attach( ensureBelow, sep );
 
     postFinalise().notify( mCB(this,uiImportMute,formatSel) );
 }

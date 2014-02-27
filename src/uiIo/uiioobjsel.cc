@@ -614,7 +614,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     const bool ismultisel = multisel && c.ctxt.forread;
     selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel, false,
 				 havesetsurvdefault );
-    selgrp_->getListField()->setHSzPol( uiObject::Wide );
+    selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 

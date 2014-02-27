@@ -86,7 +86,7 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Horizon Import",mNoDlgTitle,"104.0.16"))
+    : uiDialog(p,uiDialog::Setup("Import Horizons",mNoDlgTitle,"104.0.16"))
     , fd_(BulkHorizonAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()

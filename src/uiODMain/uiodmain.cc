@@ -376,37 +376,30 @@ class uiODMainAutoSessionDlg : public uiDialog
 public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
-    : uiDialog(p,uiDialog::Setup("Auto-load session"
-				,"Set auto-load session","50.3.1"))
-    , ctio_(*mMkCtxtIOObj(ODSession))
+    : uiDialog(p,uiDialog::Setup("Auto-load session",mNoDlgTitle,"50.3.1"))
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
 
-    usefld_ = new uiGenInput( this, "Auto-load sessions",
+    usefld_ = new uiGenInput( this, "Auto-load session mode",
 			      BoolInpSpec(douse,"Enabled","Disabled") );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, "Use one for this survey",
-			      BoolInpSpec( !id.isEmpty() ) );
+			        BoolInpSpec(!id.isEmpty()) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
-    ctio_.setObj( id ); ctio_.ctxt.forread = true;
-    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
-    selgrp_->attach( alignedBelow, doselfld_ );
-    lbl_ = new uiLabel( this, "Session to use" );
-    lbl_->attach( centeredLeftOf, selgrp_ );
+    IOObjContext ctxt = mIOObjContext( ODSession );
+    ctxt.forread = true;
+    sessionfld_ = new uiIOObjSel( this, ctxt );
+    sessionfld_->setInput( id );
+    sessionfld_->attach( alignedBelow, doselfld_ );
 
     loadnowfld_ = new uiGenInput( this, "Load selected session now",
 				  BoolInpSpec(true) );
-    loadnowfld_->attach( alignedBelow, selgrp_ );
+    loadnowfld_->attach( alignedBelow, sessionfld_ );
 
     postFinalise().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
-}
-
-~uiODMainAutoSessionDlg()
-{
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 void useChg( CallBacker* )
@@ -414,9 +407,8 @@ void useChg( CallBacker* )
     const bool douse = usefld_->getBoolValue();
     const bool dosel = douse ? doselfld_->getBoolValue() : false;
     doselfld_->display( douse );
-    selgrp_->display( dosel );
+    sessionfld_->display( dosel );
     loadnowfld_->display( dosel );
-    lbl_->display( dosel );
 }
 
 
@@ -425,30 +417,22 @@ bool acceptOK( CallBacker* )
     const bool douse = usefld_->getBoolValue();
     const bool dosel = douse ? doselfld_->getBoolValue() : false;
     if ( !dosel )
-	ctio_.setObj( 0 );
-    else
     {
-	selgrp_->processInput();
-	if ( selgrp_->nrSel() < 1 )
-	    { uiMSG().error("Please select a session"); return false; }
-	if ( selgrp_->nrSel() > 0 )
-	    ctio_.setObj( selgrp_->selected(0) );
+	ODSession::setStartupData( douse, MultiID::udf() );
+	return true;
     }
 
-    const MultiID id( ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
-    ODSession::setStartupData( douse, id );
+    const IOObj* ioobj = sessionfld_->ioobj();
+    if ( !ioobj ) return false;
 
+    ODSession::setStartupData( douse, sessionfld_->key() );
     return true;
 }
 
-    CtxtIOObj&		ctio_;
-
     uiGenInput*		usefld_;
     uiGenInput*		doselfld_;
+    uiIOObjSel*		sessionfld_;
     uiGenInput*		loadnowfld_;
-    uiIOObjSelGrp*	selgrp_;
-    uiLabel*		lbl_;
-
 };
 
 
@@ -457,7 +441,7 @@ void uiODMain::autoSession()
     uiODMainAutoSessionDlg dlg( this );
     if ( dlg.go() )
     {
-	if ( dlg.loadnowfld_->getBoolValue() && dlg.ctio_.ioobj )
+	if ( dlg.loadnowfld_->getBoolValue() )
 	    handleStartupSession();
     }
 }

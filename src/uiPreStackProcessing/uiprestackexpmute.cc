@@ -20,8 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "mathfunc.h"
 #include "oddirs.h"
-#include "prestackmutedeftransl.h"
 #include "prestackmutedef.h"
+#include "prestackmutedeftransl.h"
 #include "strmprov.h"
 #include "survinfo.h"
 
@@ -29,13 +29,12 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Mute Function",
-				 "Specify output format", "103.2.6"))
+    : uiDialog(p,uiDialog::Setup("Export Mute Function",mNoDlgTitle,"103.2.6"))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setCtrlStyle( RunAndClose );
 
-    infld_ = new uiIOObjSel( this, ctio_, "Input Mute Def" );
+    infld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
 
     coordfld_ = new uiGenInput( this, "Write coordinates as",
 			        BoolInpSpec(true,"X/Y","Inl/Crl") );

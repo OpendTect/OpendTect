@@ -82,6 +82,7 @@ Scene::Scene()
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , ctshownusepar_( false )
     , usepar_( false )
+    , scenecoltab_(0)
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );

@@ -45,9 +45,8 @@ static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
-	: uiDialog(p,uiDialog::Setup("Survey setup",
-				     "Specify survey parameters","0.3.2")
-				     .nrstatusflds(1))
+	: uiDialog(p,uiDialog::Setup("Edit Survey Parameters",
+				     mNoDlgTitle,"0.3.2").nrstatusflds(1))
 	, rootdir_(GetBaseDataDir())
 	, orgdirname_(si_.dirname_.buf())
 	, si_(si)
