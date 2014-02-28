@@ -378,7 +378,7 @@ void uiTreeView::removeColumn( int col )
 
 void uiTreeView::setColumnText( int col, const uiString& label )
 {
-    while ( labels_.size()<col )
+    while ( labels_.size()<=col )
 	labels_ += uiString();
 
     labels_[col] = label;
