@@ -58,7 +58,7 @@ void uiGraphicsSceneAxis::setPosition(bool isx,bool istoporleft,bool isinside)
     inside_ = isinside;
     isx_ = isx;
     istop_ = istoporleft;
-    
+
     reDraw();
 }
 
@@ -67,14 +67,14 @@ void uiGraphicsSceneAxis::enableMask( bool yn )
 {
     if ( yn==(bool) mask_ )
 	return;
-    
+
     if ( yn )
     {
 	mask_ = new uiRectItem;
 	itmgrp_->add( mask_ );
 	mask_->setFillColor( Color::White() );
 	LineStyle lst; lst.type_ = LineStyle::None;
-	
+
 	mask_->setPenStyle( lst );
 	mask_->setZValue( mMaskZ );
     }
@@ -112,7 +112,7 @@ void uiGraphicsSceneAxis::turnOn( bool yn )
     if ( itmgrp_ ) itmgrp_->setVisible( yn );
 }
 
-    
+
 #define mGetItem( type, nm, var ) \
 type* var; \
 if ( nm##s_.validIdx( cur##nm##itm ) ) \
@@ -158,12 +158,12 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     const int ticklinestart = baseline + bias;
     const int ticklinestop = baseline;
 
-    BufferString txt = toString( worldpos * txtfactor_, getNrAnnotChars() );
+    BufferString txt = toStringLim( worldpos * txtfactor_, getNrAnnotChars() );
     const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
     float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
-    
+
     mGetItem( uiLineItem, line, tickline );
-    
+
     Geom::Point2D<float> tickstart( axispos, mCast(float,ticklinestart) );
     Geom::Point2D<float> tickstop( axispos, mCast(float,ticklinestop) );
 
@@ -187,11 +187,11 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
 	    gridstart.swapXY();
 	    gridstop.swapXY();
 	}
-	
+
 	gridline->setLine( gridstart, gridstop );
 	gridline->setPenStyle( gridls_ );
     }
-    
+
     Alignment al;
     if ( isx_ )
     {
@@ -239,7 +239,7 @@ void uiGraphicsSceneAxis::reDraw()
 	line->setLine( start, stop );
 	line->setPenStyle( ls_ );
     }
-    
+
     const float fnrsteps = (float) ( rg_.width(false)/axis.step );
     const int nrsteps = mNINT32( fnrsteps )+2;
     if ( !mIsEqual(rg_.start,axis.start,axis.step/100.f) &&
@@ -252,13 +252,13 @@ void uiGraphicsSceneAxis::reDraw()
 	    continue;
 	drawAtPos( mCast(float,worldpos), true, curtextitm, curlineitm );
     }
-    
+
     if ( !mIsEqual(rg_.stop,axis.atIndex(nrsteps-1),axis.step/100.f) &&
 	 (!annotinint_ || mIsEqual(rg_.stop,mNINT32(rg_.stop),1e-4)) )
 	drawAtPos( mCast(float,rg_.stop), false, curtextitm, curlineitm );
     while ( curlineitm<lines_.size() )
 	itmgrp_->remove( lines_.pop(), true );
-    
+
     while ( curtextitm<texts_.size() )
 	itmgrp_->remove( texts_.pop(), true );
 }
@@ -306,7 +306,7 @@ void uiGraphicsSceneAxisMgr::setZValue( int z )
 {
     xaxis_->setup().zval( z+1 );
     yaxis_->setup().zval( z+1 );
-    
+
     topmask_->setZValue( z );
     bottommask_->setZValue( z );
     leftmask_->setZValue( z );
@@ -318,9 +318,9 @@ void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
 {
     xaxis_->updateDevSize();
     yaxis_->updateDevSize();
-    
+
     const uiRect fullrect = view_.getViewArea();
-    
+
     topmask_->setRect( fullrect.left(), fullrect.top(),
 		      fullrect.width(), viewrect.top()-fullrect.top() );
     bottommask_->setRect( fullrect.left(), viewrect.bottom(),

@@ -200,7 +200,7 @@ static bool testOccFns()
     const typ##VarDef nm = { val, #val }
 
 #define mPrNumb(var,maxsz) \
-    str = toString( var.v_, maxsz ); \
+    str = toStringLim( var.v_, maxsz ); \
     od_cout() << var.desc_ << ' ' << maxsz << ": \"" << str << '"' << od_endl
 
 static bool testLimFToStringFns()
@@ -255,7 +255,7 @@ int main( int argc, char** argv )
       || !testStringPrecisionInAscII()
       || !testBufferStringFns()
       || !testOccFns()
-      || !testLimFToStringFns() 
+      || !testLimFToStringFns()
       || !testEmptyStringComparison() )
 	ExitProgram( 1 );
 

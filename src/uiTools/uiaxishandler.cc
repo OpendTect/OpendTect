@@ -169,7 +169,8 @@ void uiAxisHandler::reCalc()
     if ( doPlotExtreme(annotstart_,true) )
     {
 	pos_ += 0.0f;
-	strs_.add( toString(rg_.start,rg_.start<0 ? reqnrchars+1 : reqnrchars));
+	strs_.add( toStringLim( rg_.start,
+				rg_.start<0 ? reqnrchars+1 : reqnrchars) );
     }
 
     for ( int idx=0; idx<=nrsteps; idx++ )
@@ -179,8 +180,8 @@ void uiAxisHandler::reCalc()
 	    continue;
 	if ( mIsZero( pos, setup_.epsaroundzero_ ) )
 	    pos = 0;
-	const BufferString posstr( toString(pos,pos<0 ? reqnrchars+1
-						      : reqnrchars) );
+	const BufferString posstr( toStringLim(pos,pos<0 ? reqnrchars+1
+							 : reqnrchars) );
 	strs_.add( posstr );
 	float relpos = pos - rg_.start;
 	if ( rgisrev_ ) relpos = -relpos;
@@ -196,7 +197,8 @@ void uiAxisHandler::reCalc()
     if ( doPlotExtreme(annotrg.atIndex(nrsteps),false) )
     {
 	pos_ += 1.0f;
-	strs_.add( toString(rg_.stop,rg_.stop<0 ? reqnrchars+1 : reqnrchars) );
+	strs_.add(
+		toStringLim(rg_.stop,rg_.stop<0 ? reqnrchars+1 : reqnrchars) );
     }
     if ( !setup_.noaxisannot_ )
 	calcwdth_ += isHor() ? font.height() : rgwdth;

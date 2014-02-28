@@ -125,15 +125,27 @@ BufferString& BufferString::add( const QString& qstr )
 }
 
 
-BufferString& BufferString::add( float f, int maxnrchars )
+BufferString& BufferString::add( float f, int nrdec )
 {
-    return add( toString( f, maxnrchars ) );
+    return add( toString( f, nrdec ) );
 }
 
 
-BufferString& BufferString::add( double d, int maxnrchars )
+BufferString& BufferString::add( double d, int nrdec )
 {
-    return add( toString( d, maxnrchars ) );
+    return add( toString( d, nrdec ) );
+}
+
+
+BufferString& BufferString::addLim( float f, int maxnrchars )
+{
+    return add( toStringLim( f, maxnrchars ) );
+}
+
+
+BufferString& BufferString::addLim( double d, int maxnrchars )
+{
+    return add( toStringLim( d, maxnrchars ) );
 }
 
 

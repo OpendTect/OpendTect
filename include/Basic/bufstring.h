@@ -89,16 +89,20 @@ public:
     BufferString&	set( const OD::String& s )	{ return set(s.str()); }
     template <class T>
     BufferString&	set(const T&);
-    BufferString&	set(float,int maxnrchars);
-    BufferString&	set(double,int maxnrchars);
+    BufferString&	set(float,int nrdec);
+    BufferString&	set(double,int nrdec);
+    BufferString&	setLim(float,int maxnrchars);
+    BufferString&	setLim(double,int maxnrchars);
 
     BufferString&	add(const char*);
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
     BufferString&	add(const QString&);
     template <class T>
     BufferString&	add(const T&);
-    BufferString&	add(float,int maxnrchars);
-    BufferString&	add(double,int maxnrchars);
+    BufferString&	add(float,int nrdec);
+    BufferString&	add(double,int nrdec);
+    BufferString&	addLim(float,int maxnrchars);
+    BufferString&	addLim(double,int maxnrchars);
 
     void                fill(char*,int maxnrchar) const;
     BufferString&	addSpace();
@@ -231,11 +235,17 @@ inline BufferString& BufferString::set( const char* s )
 template <class T> inline BufferString& BufferString::set( const T& t )
 { setEmpty(); return add( t ); }
 
-inline BufferString& BufferString::set( float f, int maxnrchars )
-{ setEmpty(); return add( f, maxnrchars ); }
+inline BufferString& BufferString::set( float f, int nrdec )
+{ setEmpty(); return add( f, nrdec ); }
 
-inline BufferString& BufferString::set( double d, int maxnrchars )
-{ setEmpty(); return add( d, maxnrchars ); }
+inline BufferString& BufferString::set( double d, int nrdec )
+{ setEmpty(); return add( d, nrdec ); }
+
+inline BufferString& BufferString::setLim( float f, int maxnrchars )
+{ setEmpty(); return addLim( f, maxnrchars ); }
+
+inline BufferString& BufferString::setLim( double d, int maxnrchars )
+{ setEmpty(); return addLim( d, maxnrchars ); }
 
 
 #endif

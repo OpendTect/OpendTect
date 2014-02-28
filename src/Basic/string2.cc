@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 #include <iostream>
 
+#include <QString>
+
 #ifdef __win__
 # define sDirSep        "\\"
 #else
@@ -219,6 +221,26 @@ static void finalCleanupNumberString( char* str )
 
     if ( !*str )
 	mSetStrTo0(str,return)
+}
+
+
+template <class T>
+static const char* getStringFromFPNumber( T inpval, int nrdec )
+{
+    mDeclStaticString( retstr );
+    char* str = retstr.getCStr();
+
+    if ( !inpval )
+	mSetStrTo0(str,return str)
+
+    const bool isneg = inpval < 0;
+    const T val = isneg ? -inpval : inpval;
+    if ( mIsUdf(val) )
+	return sKey::FloatUdf();
+
+    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
+    retstr = QString::number( inpval, *fmtend, nrdec );
+    return str;
 }
 
 
@@ -690,8 +712,14 @@ const char* toString( od_uint64 i )
 const char* toString( float f )
 { return getStringFromFPNumber( f ); }
 
+const char* toString( float f, int nrdec )
+{ return getStringFromFPNumber( f, nrdec ); }
+
 const char* toString( double d )
 { return getStringFromFPNumber( d ); }
+
+const char* toString( double d, int nrdec )
+{ return getStringFromFPNumber( d, nrdec ); }
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }
@@ -763,10 +791,10 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
     return str;
 }
 
-const char* toString( double d, int mw )
+const char* toStringLim( double d, int mw )
 { return toStringLimImpl( d, mw ); }
 
-const char* toString( float f, int mw )
+const char* toStringLim( float f, int mw )
 { return toStringLimImpl( f, mw ); }
 
 
