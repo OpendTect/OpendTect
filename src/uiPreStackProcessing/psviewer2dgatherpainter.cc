@@ -52,15 +52,14 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 
     DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid );
     mDynamicCastGet( PreStack::Gather*, vdgather, vddp );
-    if ( vdgather ) inputvdgather_ = vdgather;
-    else if ( vddp ) DPM( DataPackMgr::FlatID() ).release( vddp->id() );
-    viewer_.appearance().ddpars_.vd_.show_ = inputvdgather_;
-    
-    if ( inputvdgather_ )
+    viewer_.appearance().ddpars_.vd_.show_ = vdgather;
+    if ( vdgather )
     {
-	viewer_.addPack( vdid, false );
-	viewer_.usePack( false, vdid, !hadpack );
+	inputvdgather_ = vdgather;
+	viewer_.setPack( false, vdid, !hadpack );
     }
+    else if ( vddp )
+	DPM( DataPackMgr::FlatID() ).release( vddp->id() );
 }
 
 
@@ -80,14 +79,14 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 
     DataPack* wvadp = DPM( DataPackMgr::FlatID() ).obtain( wvaid );
     mDynamicCastGet( PreStack::Gather*, wvagather, wvadp );
-    if ( wvagather ) inputwvagather_ = wvagather;
-    else if ( wvadp ) DPM( DataPackMgr::FlatID() ).release( wvadp->id() );
-    viewer_.appearance().ddpars_.wva_.show_ = inputwvagather_;
-    if ( inputwvagather_ )
+    viewer_.appearance().ddpars_.wva_.show_ = wvagather;
+    if ( wvagather )
     {
-	viewer_.addPack( wvaid, true );
-	viewer_.usePack( true, wvaid, !hadpack );
+	inputwvagather_ = wvagather;
+	viewer_.setPack( true, wvaid, !hadpack );
     }
+    else if ( wvadp )
+	DPM( DataPackMgr::FlatID() ).release( wvadp->id() );
 }
 
 

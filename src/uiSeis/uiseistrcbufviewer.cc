@@ -72,7 +72,7 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 
     DPM( DataPackMgr::FlatID() ).addAndObtain( dp_ );
     const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
-    viewer().addPack( dp_->id(), !mine );
+    viewer().addPack( dp_->id() );
     if ( ddpars.wva_.show_ )
 	viewer().usePack( true, dp_->id() );
     if ( ddpars.vd_.show_ )

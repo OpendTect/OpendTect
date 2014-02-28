@@ -326,14 +326,16 @@ public:
     const Appearance&	appearance() const
     			{ return const_cast<Viewer*>(this)->appearance(); }
 
-    void		addPack(::DataPack::ID,bool observe=false);
-    			//!< Adds to list, but doesn't use for WVA or VD
+    void		addPack(::DataPack::ID);
+			/*!< Adds to list and obtains the DataPack, but does not
+			 use for WVA or VD. DataPack gets released in the
+			 destructor of this class. */
     void		usePack(bool wva,::DataPack::ID,bool usedefs=true );
     			//!< Does not add new packs, just selects from added
     void		removePack(::DataPack::ID);
-    void		setPack( bool wva, ::DataPack::ID id, bool obs,
-				 bool usedefs=true )
-			{ addPack( id, obs ); usePack( wva, id, usedefs ); }
+			//!< Releases DataPack after removing from the list.
+    void		setPack(bool wva,::DataPack::ID id,bool usedefs=true)
+			{ addPack( id ); usePack( wva, id, usedefs ); }
     void		clearAllPacks();
 
     const FlatDataPack* obtainPack(bool wva,bool checkother=false) const;
@@ -400,7 +402,6 @@ public:
 protected:
 
     TypeSet< ::DataPack::ID>	ids_;
-    BoolTypeSet			obs_;
     Appearance*			defapp_;
     DataPackMgr&		dpm_;
     FlatView_CB_Rcvr*		cbrcvr_;

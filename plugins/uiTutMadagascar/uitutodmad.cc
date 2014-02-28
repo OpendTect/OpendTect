@@ -86,7 +86,7 @@ void uiTutODMad::createAndDisplay2DViewer()
 		    uiFlatViewMainWin::Setup("Madagascar data",true) );
     uiFlatViewer& vwr = fvwin->viewer();
     bool dowiggles = dowigglesfld_->getBoolValue();
-    vwr.setPack( dowiggles, bufdtpack_->id(), false, true );
+    vwr.setPack( dowiggles, bufdtpack_->id(), true );
     FlatView::Appearance& app = vwr.appearance();
     app.annot_.setAxesAnnot( true );
     app.setDarkBG( false );

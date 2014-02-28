@@ -232,8 +232,8 @@ void uiTieView::setDataPack()
     dp->posData().setRange( true, xrange );
     dp->setName( data_.seismic() );
     DPM(DataPackMgr::FlatID()).add( dp );
-    vwr_->setPack( true, dp->id(), false, false );
-    vwr_->setPack( false, dp->id(), false, false );
+    vwr_->setPack( true, dp->id(), false );
+    vwr_->setPack( false, dp->id(), false );
 }
 
 

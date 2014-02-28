@@ -222,7 +222,7 @@ void uiWavelet::drawWavelet()
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );
-    viewer_->setPack( true, dp->id(), false, false );
+    viewer_->setPack( true, dp->id(), false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );

@@ -399,18 +399,10 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( dpid );
-    if ( !dp )
-	return 0;
+    ConstDataPackRef<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).obtain(dpid);
+    if ( !fdp ) return 0;
 
-    mDynamicCastGet( const FlatDataPack*, fdp, dp );
-    if ( !fdp )
-    {
-	DPM(DataPackMgr::FlatID()).release( dp );
-	return 0;
-    }
-
-    vwr.setPack( false, dpid, false, true );
+    vwr.setPack( false, dpid, true );
     int pw = 400 + 5 * fdp->data().info().getSize( 0 );
     if ( pw > 800 ) pw = 800;
 
@@ -418,9 +410,6 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     viewwin->addControl( new uiFlatViewStdControl( vwr,
 	uiFlatViewStdControl::Setup().withstates(true) ) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
-    //vwr.drawBitMaps();
-    //vwr.drawAnnot();
-    DPM(DataPackMgr::FlatID()).release( dp );
     return viewwin;
 }
 

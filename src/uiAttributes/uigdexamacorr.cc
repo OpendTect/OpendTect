@@ -136,7 +136,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	//now we have to go back to the user specified sampling
 	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
-	    correctd2dh.ptr()->dataset_[idx]->z0_ = mNINT32(cs_.zrg.start/zstep);
+	    correctd2dh.ptr()->dataset_[idx]->z0_=mNINT32(cs_.zrg.start/zstep);
     }
 
     if ( isqc )
@@ -193,13 +193,13 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
     if ( fvwin )
-	fvwin->viewer().setPack( false, dp->id(), false, false );
+	fvwin->viewer().setPack( false, dp->id(), false );
     else
     {
 	fvwin = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup(isqc?qctitle_:examtitle_,false) );
 	uiFlatViewer& vwr = fvwin->viewer();
-	vwr.setPack( false, dp->id(), false, true );
+	vwr.setPack( false, dp->id(), true );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
 	app.setDarkBG( false );

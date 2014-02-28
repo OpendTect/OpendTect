@@ -69,7 +69,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
     addRefZ( 0 );
 
     handleChange( mCast(unsigned int,All) );
@@ -100,7 +100,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
 
     if ( trc )
     {

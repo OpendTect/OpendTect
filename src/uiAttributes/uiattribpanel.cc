@@ -122,7 +122,7 @@ FlatDataPack* uiAttribPanel::createFDPack( EngineMan* aem,
 void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 {
     if ( flatvwin_ )
-	flatvwin_->viewer().setPack( false, fdpack->id(), false );
+	flatvwin_->viewer().setPack( false, fdpack->id() );
     else
     {
 	flatvwin_ =
@@ -136,7 +136,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
-	vwr.setPack( false, fdpack->id(), false );
+	vwr.setPack( false, fdpack->id() );
 	flatvwin_->addControl( new uiFlatViewStdControl( flatvwin_->viewer(),
 			       uiFlatViewStdControl::Setup(0) ) );
 	flatvwin_->setDeleteOnClose( false );

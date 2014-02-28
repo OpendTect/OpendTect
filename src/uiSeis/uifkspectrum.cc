@@ -159,7 +159,7 @@ bool uiFKSpectrum::view( Array2D<float>& array )
     datapack->setDimNames( "K", "Freq", true );
     DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
     dpman.add( datapack );
-    viewer().setPack( false, datapack->id(), false, false );
+    viewer().setPack( false, datapack->id(), false );
 
     return true;
 }

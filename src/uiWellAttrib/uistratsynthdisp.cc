@@ -765,7 +765,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 					SeisTrcInfo::TrcNr, "Forward Modeling");
 	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
 	DPM( DataPackMgr::FlatID() ).add( dp );
-	vwr_->setPack( wva, dp->id(), false, !hadpack );
+	vwr_->setPack( wva, dp->id(), !hadpack );
 	vwr_->setVisible( wva, false );
 	return;
     }
@@ -835,7 +835,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
     }
 
-    vwr_->setPack( wva, dp->id(), false, !hadpack );
+    vwr_->setPack( wva, dp->id(), !hadpack );
     NotifyStopper notstop( vwr_->viewChanged );
     if ( mIsZero(relzoomwr_.left(),1e-3) &&
 	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&

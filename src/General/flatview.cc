@@ -433,8 +433,7 @@ FlatView::Viewer::~Viewer()
     delete cbrcvr_;
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
-	if ( !obs_[idx] )
-	    dpm_.release( ids_[idx] );
+	dpm_.release( ids_[idx] );
     }
 }
 
@@ -507,14 +506,11 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 }
 
 
-void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
+void FlatView::Viewer::addPack( DataPack::ID id )
 {
     if ( ids_.isPresent(id) ) return;
     ids_ += id;
-    obs_ += obs;
-
-    if ( !obs )
-	dpm_.obtain( id );
+    dpm_.obtain( id );
 }
 
 
@@ -555,11 +551,8 @@ void FlatView::Viewer::removePack( DataPack::ID id )
     if ( hasPack(false) && packID(false)==id )
 	usePack( false, DataPack::cNoID(), false );
 
-    // Construction necessary because the release could trigger a new removePack
-    const bool obs = obs_[idx];
-    ids_.removeSingle( idx ); obs_.removeSingle( idx );
-    if ( !obs )
-	dpm_.release( id );
+    ids_.removeSingle( idx );
+    dpm_.release( id );
 }
 
 

@@ -299,14 +299,14 @@ bool PreStackDisplay::updateData()
 	if ( displayid==DataPack::cNoID() )
 	{
 	    if ( haddata )
-		flatviewer_->setPack( false, DataPack::cNoID(), false );
+		flatviewer_->setPack( false, DataPack::cNoID() );
 	    else
 		dataChangedCB( 0 );
 
 	    return false;
 	}
 	else
-	    flatviewer_->setPack( false, displayid, false, !haddata );
+	    flatviewer_->setPack( false, displayid, !haddata );
 
     turnOn( true );
     return true;  

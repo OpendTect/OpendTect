@@ -120,16 +120,18 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	else if ( dp2ddh )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
 
-	createViewWin( (dp3d && dp3d->isVertical()) ||
-		       (dp2d && dp2d->isVertical()) || zatdp3d, dp3d||zatdp3d );
-	if ( slicepos_ ) slicepos_->getToolBar()->display( dp3d || zatdp3d );
+	const bool isvertical = (dp3d && dp3d->isVertical()) ||
+				(dp2d && dp2d->isVertical()) || zatdp3d;
+	const bool needslicepos = dp3d || zatdp3d;
+	createViewWin( isvertical, needslicepos );
+	if ( slicepos_ ) slicepos_->getToolBar()->display( needslicepos );
     }
 
     if ( dp3d || zatdp3d )
     {
 	const CubeSampling& cs = dp3d ? dp3d->cube().cubeSampling()
 				      : zatdp3d->inputCS();
-	if ( cs != cs_ ) { removeAvailablePacks(); cs_ = cs; }
+	if ( cs_ != cs ) { removeAvailablePacks(); cs_ = cs; }
 	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
     }
 
@@ -183,7 +185,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 
 	TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
-	{ vwr.setPack( wva, packid, true, isnew ); continue; }
+	{ vwr.setPack( wva, packid, isnew ); continue; }
 
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
@@ -199,9 +201,9 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	    }
 	}
 
-	vwr.setPack( wva, packid, false, isnew );
+	vwr.setPack( wva, packid, isnew );
 	if ( isnew || setforotherdisp )
-	    vwr.setPack( !wva, packid, true, isnew );
+	    vwr.setPack( !wva, packid, isnew );
     }
 
     dataChanged.trigger( this );
