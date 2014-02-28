@@ -516,6 +516,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
     , is2d_(is2d)
+    , scanner_(0)
 {
     if ( !ioobj_ )
 	{ msg_ = "Cannot find output object"; return; }
@@ -628,11 +629,11 @@ const char* SEGY::FileIndexer::message() const
 
 
 od_int64 SEGY::FileIndexer::nrDone() const
-{ return scanner_->nrDone(); }
+{ return scanner_ ? scanner_->nrDone() : 0; }
 
 
 od_int64 SEGY::FileIndexer::totalNr() const
-{ return scanner_->totalNr(); }
+{ return scanner_ ? scanner_->totalNr() : 0; }
 
 
 const char* SEGY::FileIndexer::nrDoneText() const
