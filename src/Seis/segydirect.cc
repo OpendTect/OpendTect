@@ -505,6 +505,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
     , is2d_(is2d)
+    , scanner_(0)
 {
     if ( !ioobj_ )
 	{ msg_ = "Cannot find output object"; return; }
