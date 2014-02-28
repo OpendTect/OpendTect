@@ -35,7 +35,7 @@ mGlobal(General) FileFormatRepository& FFR();
   The idea is to create a subclass of AscIO which synthesises an object
   from the Selection of a Table::FormatDesc. Or, in the case of export,
   outputs the data according to the Selection object.
- 
+
  */
 
 mExpClass(General) AscIO
@@ -51,13 +51,15 @@ public:
 				    , hdrread_(false) { units_.allowNull(true);}
     virtual			~AscIO();
 
-    const FormatDesc&		desc() const		{ return fd_; }
-    const char*			errMsg() const		{ return errmsg_.str(); }
+    const FormatDesc&		desc() const	{ return fd_; }
+    const char* 		errMsg() const	{ return errmsg_.str(); }
+    const char* 		warnMsg() const { return warnmsg_.str(); }
 
 protected:
 
     const FormatDesc&		fd_;
     mutable BufferString	errmsg_;
+    mutable BufferString	warnmsg_;
     BufferStringSet		vals_;
     ObjectSet<const UnitOfMeasure> units_;
     ImportHandler*		imphndlr_;
@@ -74,7 +76,7 @@ protected:
     void			addVal(const char*,const UnitOfMeasure*) const;
     bool			getHdrVals(od_istream&) const;
     int				getNextBodyVals(od_istream&) const;
-    				//!< Executor convention
+				//!< Executor convention
     bool			putHdrVals(od_ostream&) const;
     bool			putNextBodyVals(od_ostream&) const;
 
@@ -82,7 +84,7 @@ protected:
     int				getIntValue(int,int udf=mUdf(int)) const;
     float			getfValue(int,float udf=mUdf(float)) const;
     double			getdValue(int,double udf=mUdf(double)) const;
-    				// For more, use Conv:: stuff
+				// For more, use Conv:: stuff
 
     int				formOf(bool hdr,int iinf) const;
     int				columnOf(bool hdr,int iinf,int ielem) const;
@@ -102,14 +104,14 @@ public:
 
     const IOPar*	get(const char* grp,const char* nm) const;
     void		set(const char* grp,const char* nm,
-	    		    IOPar*,Repos::Source);
+			    IOPar*,Repos::Source);
 			    //!< IOPar* will become mine; set to null to remove
 
     bool		write(Repos::Source) const;
 
 protected:
 
-    			FileFormatRepository();
+			FileFormatRepository();
     void		addFromFile(const char*,Repos::Source);
     const char*		grpNm(int) const;
     int			gtIdx(const char*,const char*) const;
