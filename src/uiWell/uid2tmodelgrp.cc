@@ -75,14 +75,17 @@ void uiD2TModelGroup::fileFldChecked( CallBacker* )
 }
 
 
-
-const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
+#define mErrRet(s) { errmsg_ = s; return false; }
+bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 {
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
     {
 	if ( velfld_->isUndef() )
-	    return "Please enter the velocity for generating the D2T model";
+	    mErrRet( "Please enter the velocity for generating the D2T model" )
     }
+
+    if ( wd.track().isEmpty() )
+	mErrRet( "Cannot generate D2Time model without track" )
 
     if ( cksh )
 	wd.setCheckShotModel( new Well::D2TModel );
@@ -91,10 +94,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
     if ( !&d2t )
-	return "D2Time model not set properly";
-
-    if ( wd.track().isEmpty() )
-	return "Cannot generate D2Time model without track";
+	mErrRet( "D2Time model not set properly" )
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
@@ -110,27 +110,39 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const char* fname = filefld_->fileName();
 	od_istream strm( fname );
 	if ( !strm.isOK() )
-	    return "Could not open input file";
+	    mErrRet( "Could not open input file" )
 
 	BufferString errmsg;
 	if ( !dataselfld_->commit() )
-	    return "Please specify data format";
+	    mErrRet( "Please specify data format" )
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
 	if ( !aio.get(strm,d2t,wd) )
 	{
-	    uiMSG().warning( "Ascii TD model import failed - using fallback" );
-	    d2t.makeFromTrack( wd.track(), Well::getDefaultVelocity(),
-			       wd.info().replvel );
+	    errmsg_ = "Ascii TD model import failed for well ";
+	    errmsg_.add( wd.name() );
+	    errmsg_.addNewLine();
+	    if ( aio.errMsg() )
+	    {
+		errmsg_.add( aio.errMsg() );
+		errmsg_.addNewLine();
+	    }
+
+	    errmsg_.add( "Change your format definition "
+			 " or edit your data or press cancel." );
+	    return false;
 	}
+
+	if ( aio.warnMsg() )
+	    warnmsg_ = aio.warnMsg();
     }
 
     if ( d2t.size() < 2 )
-	return "Cannot import time-depth model";
+	mErrRet( "Cannot import time-depth model" )
 
     d2t.deInterpolate();
-    return 0;
+    return true;
 }
 
 

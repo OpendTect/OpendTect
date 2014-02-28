@@ -43,7 +43,9 @@ public:
 
 			uiD2TModelGroup(uiParent*,const Setup&);
 
-    const char*		getD2T(Well::Data&,bool cksh = true) const;
+    bool		getD2T(Well::Data&,bool cksh = true) const;
+    const char* 	errMsg() const		{ return errmsg_; }
+    const char* 	warnMsg() const 	{ return warnmsg_; }
 
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;
@@ -52,7 +54,8 @@ protected:
 
     Setup		setup_;
     Table::FormatDesc&  fd_;
-
+    mutable BufferString	errmsg_;
+    mutable BufferString	warnmsg_;
 
     uiFileInput*	filefld_;
     uiGenInput*		velfld_;
