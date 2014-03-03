@@ -237,14 +237,12 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh ) return;
+    if ( !meh || !mousepressed_ || !withhanddrag_ ) return;
 
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     uiFlatViewer* vwr = vwrs_[vwridx];
-    const uiGraphicsView& canvas = vwr->rgbCanvas();
-    if ( (canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag) ||
-	 !mousepressed_ || !withhanddrag_ )
+    if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
 	return;
 
     const uiPoint curpt = meh->event().pos();
