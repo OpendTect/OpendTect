@@ -55,19 +55,8 @@ if ( osgGeo_DIR MATCHES "${CMAKE_SOURCE_DIR}/external/osgGeo" )
     if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
 	 (CMAKE_GENERATOR STREQUAL "Ninja") )
 	add_custom_target( osgGeo ALL COMMAND ${CMAKE_COMMAND}
-		${CMAKE_BINARY_DIR}/external/osgGeo  -DOSG_DIR=${OSG_DIR}
-		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-		-DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}/external/osgGeo
-		-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
-		-G${CMAKE_GENERATOR}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/osgGeo/
 		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
 		    --target osgGeo )
-	add_custom_target( clean_osgGeo COMMAND ${CMAKE_COMMAND}
-		 file( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeCache.txt)
-		message( "ABCD" )
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --target clean )
     else()
 	add_custom_target( osgGeo ALL
 		${CMAKE_COMMAND}
@@ -78,17 +67,6 @@ if ( osgGeo_DIR MATCHES "${CMAKE_SOURCE_DIR}/external/osgGeo" )
 		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
 		    --config Release
 		    --target osgGeo )
-	add_custom_target( clean_osgGeo ALL
-		${CMAKE_COMMAND} file( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeCache.txt)
-		${CMAKE_COMMAND} message( "ABCD" )
-		${CMAKE_COMMAND} 
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --target clean
-		    --config Debug
-		COMMAND ${CMAKE_COMMAND} file( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeCache.txt)
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --config Release
-		    --target clean )
     endif()
 endif()
 
@@ -185,7 +163,8 @@ macro(OD_SETUP_OSG)
 			set( ALLLIBS "" )
 		    elseif( WIN32 )
 			if( NOT ${ISOSGGEO} EQUAL -1 )
-			    set( DLLFILE ${LIB} )
+			    get_filename_component( OSGLIBPATH ${LIB} PATH )
+			    set( DLLFILE ${OSGLIBPATH}/${OSGLIBNAME}.dll )
 			else()
 			    file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
 			endif()
