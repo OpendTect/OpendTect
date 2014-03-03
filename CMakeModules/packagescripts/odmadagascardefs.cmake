@@ -4,6 +4,6 @@
 # Date:         August 2012
 #RCS:           $Id$
 
-SET( LIBLIST Madagascar uiMadagascar MadagascarAttribs MadagascarAttribs )
+SET( LIBLIST Madagascar uiMadagascar MadagascarAttribs uiMadagascarAttribs )
 SET( EXECLIST od_madexec )
 SET( PACK "odmadagascar")
