@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "timer.h"
 
+#include <iostream>
 
 static const char* sStopAndQuit = "Stop process and Quit";
 static const char* sQuitOnly = "Close this window";
@@ -171,13 +172,17 @@ void uiProgressViewer::doWork( CallBacker* )
 
     if ( strm_.isOK() )
     {
-	addChar( strm_.peek() );
-	strm_.ignore( 1 );
+	const char ch = strm_.peek();
+	if ( ch )
+	{
+	    addChar( strm_.peek() );
+	    strm_.ignore( 1 );
+	}
     }
     else
     {
 	handleProcessStatus();
-	if ( !haveProcess() )
+/*	if ( !haveProcess() )
 	{
 	    sleepSeconds( 1 );
 	    strm_.reOpen();
@@ -185,7 +190,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	    txtfld->setText( curline_ );
 	    statusBar()->message( processEnded() ? "Processing ended" : "" );
 	    return;
-	}
+	}*/ //TODO: On Linux, how to pass pid. On windows, how to use it.
 
 	strm_.reOpen();
 	strm_.ignore( nrcharsread_ );
