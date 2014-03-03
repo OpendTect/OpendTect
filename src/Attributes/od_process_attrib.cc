@@ -162,93 +162,127 @@ bool BatchProgram::go( od_ostream& strm )
     if ( linename.isEmpty() && subselpar )
 	linename = subselpar->find( sKey::LineKey() );
 
-    BufferString errmsg;
-    proc = attrengman->usePar( pars(), attribset, linename, errmsg );
-    if ( !proc )
-	mRetJobErr( errmsg );
-
-    mSetCommState(Working);
-
-    double startup_wait = 0;
-    pars().get( "Startup delay time", startup_wait );
-    sleepSeconds( startup_wait );
-
     const char* attrtypstr = pars().find( "Attributes.Type" );
     const bool is2d = attrtypstr && *attrtypstr == '2';
-    const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
-    TextStreamProgressMeter progressmeter(strm);
-    bool loading = true;
-    int nriter = 0, nrdone = 0;
-
-    while ( true )
+    BufferStringSet alllinenames;
+    if ( linename.isEmpty() && is2d ) //processing lineset on a single machine
     {
-	bool paused = false;
-
-	if ( pauseRequested() )
+	MultiID lsid;
+	pars().get( "Input Line Set", lsid );
+	PtrMan<IOObj> lsobj = IOM().get( lsid );
+	if ( lsobj )
 	{
-	    paused = true;
-	    mSetCommState(Paused);
-	    sleepSeconds( pause_sleep_time );
-	}
-	else
-	{
-	    if ( paused )
-	    {
-		paused = false;
-		mSetCommState(Working);
-	    }
-
-	    const int res = proc->nextStep();
-
-	    if ( nriter == 0 && !is2d )
-	    {
-		strm << "\nEstimated number of positions to be processed"
-		     <<"(assuming regular input): "<< proc->totalNr()
-		     << "\nLoading cube data ...\n" << od_endl;
-		progressmeter.setTotalNr( proc->totalNr() );
-	    }
-
-	    if ( res > 0 )
-	    {
-		if ( loading )
-		{
-		    loading = false;
-		    mMessage( "Processing started" );
-		}
-
-		if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
-		    mRetHostErr( comm_->errMsg() )
-
-		if ( proc->nrDone()>nrdone )
-		{
-		    nrdone++;
-		    ++progressmeter;
-		}
-	    }
-	    else
-	    {
-		if ( res == -1 )
-		    mRetJobErr( BufferString("Cannot reach next position",
-					     ": ",proc->message()) )
-		break;
-	    }
-
-	    if ( res >= 0 )
-	    {
-		nriter++;
-		proc->outputs_[0]->writeTrc();
-	    }
+	    Seis2DLineSet ls(*lsobj);
+	    for ( int idx=0; idx<ls.nrLines(); idx++ )
+		alllinenames.addIfNew(ls.lineName(idx));
 	}
     }
 
-    bool closeok = true;
-    if ( nriter )
-	closeok = proc->outputs_[0]->finishWrite();
+    if ( alllinenames.isEmpty() )	//all other cases
+	alllinenames.add(linename);
 
-    if ( !closeok )
-    { mMessage( "Could not close output data." ); }
-    else
-    { mMessage( "Processing done; Closing down" ); }
+    TextStreamProgressMeter progressmeter(strm);
+    for ( int idx=0; idx<alllinenames.size(); idx++ )
+    {
+	BufferString errmsg;
+	proc = attrengman->usePar( pars(), attribset, alllinenames.get(idx),
+				   errmsg );
+	if ( !proc )
+	    mRetJobErr( errmsg );
+
+	mSetCommState(Working);
+
+	double startup_wait = 0;
+	pars().get( "Startup delay time", startup_wait );
+	sleepSeconds( startup_wait );
+
+	const double pause_sleep_time =
+				GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
+	bool loading = true;
+	int nriter = 0, nrdone = 0;
+
+	while ( true )
+	{
+	    bool paused = false;
+
+	    if ( pauseRequested() )
+	    {
+		paused = true;
+		mSetCommState(Paused);
+		sleepSeconds( pause_sleep_time );
+	    }
+	    else
+	    {
+		if ( paused )
+		{
+		    paused = false;
+		    mSetCommState(Working);
+		}
+
+		const int res = proc->nextStep();
+
+		if ( nriter == 0 && !is2d )
+		{
+		    strm << "\nEstimated number of positions to be processed"
+			 <<"(assuming regular input): "<< proc->totalNr()
+			 << "\nLoading cube data ...\n" << od_endl;
+		    progressmeter.setTotalNr( proc->totalNr() );
+		}
+		if ( nriter == 0 && is2d && alllinenames.size()>1 )
+		{
+		    strm << "\nComputing on line "
+			 << alllinenames.get(idx).buf()<< "\n" << od_endl;
+		}
+
+		if ( res > 0 )
+		{
+		    if ( loading )
+		    {
+			loading = false;
+			mMessage( "Processing started" );
+		    }
+
+		    if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
+			mRetHostErr( comm_->errMsg() )
+
+		    if ( proc->nrDone()>nrdone )
+		    {
+			nrdone++;
+			++progressmeter;
+		    }
+		}
+		else
+		{
+		    if ( res == -1 )
+			mRetJobErr( BufferString("Cannot reach next position",
+						 ": ",proc->message()) )
+		    break;
+		}
+
+		if ( res >= 0 )
+		{
+		    nriter++;
+		    proc->outputs_[0]->writeTrc();
+		}
+	    }
+	}
+
+	bool closeok = true;
+	if ( nriter )
+	    closeok = proc->outputs_[0]->finishWrite();
+
+	if ( !closeok )
+	{ mMessage( "Could not close output data." ); }
+	else
+	{
+	    mMessage( "Processing done; Closing down" );
+	    if ( is2d && alllinenames.size()>1 )
+		strm << "\nComputed line " <<idx+1<< " out of "
+		     << alllinenames.size()<<"\n" << od_endl;
+	}
+
+	mDestroyWorkers
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( seisid );
     if ( ioobj )
@@ -259,7 +293,6 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
-    mDestroyWorkers
     progressmeter.setFinished();
     mMessage( "Threads closed; Writing finish status" );
 
