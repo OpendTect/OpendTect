@@ -157,7 +157,11 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 
     ObjectSet<Marker> tomove;
     for ( int idx=fromrg.start; idx<=fromrg.stop; idx++ )
-	tomove += new Marker( *(*this)[idx] );
+    {
+	Marker& oldmrk = *(*this)[idx];
+	tomove += new Marker( oldmrk );
+	oldmrk.setName( "" );
+    }
 
     int toidx = toidxblockstart;
     for ( int idx=toidxblockstart+1; idx<idxs.size(); idx++ )
@@ -178,7 +182,9 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 void Well::MarkerSet::insertNewAfter( int aftidx,
 					ObjectSet<Well::Marker>& mrkrs )
 {
-    if ( isEmpty() )
+    if ( mrkrs.isEmpty() )
+	return;
+    else if ( isEmpty() )
 	{ ObjectSet<Marker>::append( mrkrs ); mrkrs.erase(); return; }
 
     Interval<float> dahbounds( (*this)[0]->dah() - 10,
