@@ -28,7 +28,6 @@ HilbertTransform::HilbertTransform()
     , hilbwindow_(0)
     , startidx_(0)
     , convstartidx_(0)
-    , arrminnrsamp_(0)
 {}
 
 
@@ -58,11 +57,9 @@ bool HilbertTransform::isPossible( int sz ) const
 }
 
 
-void HilbertTransform::setCalcRange( int startidx,int arrminnrsamp,
-			             int convstartidx )
+void HilbertTransform::setCalcRange( int startidx, int convstartidx )
 {
     startidx_ = startidx;
-    arrminnrsamp_ = arrminnrsamp;
     convstartidx_ = convstartidx;
 }
 
@@ -136,9 +133,9 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 				  ValueSeries<float>& output, int szout ) const
 {
     Masker masker( input, szin );
-    int nrsampforavg = szout;
+    int nrsampforavg = szin;
     float sum = 0;
-    for ( int idx=0; idx<szout; idx++ )
+    for ( int idx=0; idx<szin; idx++ )
     {
 	float val = masker[ idx + startidx_ ];
 	if ( mIsUdf(val) )
@@ -155,8 +152,8 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     float* outarr = output.arr();
     const int windowsz = halflen_ * 2 + 1;
     GenericConvolve( windowsz, -halflen_, hilbwindow_,
-		     szin, convstartidx_, masker,
-		     arrminnrsamp_, 0, outarr );
+		     szin, 0, masker,
+		     szout, convstartidx_, outarr );
 
     return true;
 }

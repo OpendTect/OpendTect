@@ -45,7 +45,7 @@ public:
 
     bool		init();
     void		setHalfLen( int hl )		{ halflen_ = hl; }
-    void		setCalcRange(int, int, int);
+    void		setCalcRange(int startidx,int convstartidx);
 
     bool		transform(const ValueSeries<float>&,int szin,
 	    			  ValueSeries<float>&,int szout) const;
@@ -70,7 +70,6 @@ protected:
     ArrayNDInfo*	info_;
     int			startidx_;
     int			convstartidx_;
-    int			arrminnrsamp_;
 
     mutable BufferString errmsg_;
 };

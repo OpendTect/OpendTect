@@ -56,7 +56,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
 {
     HilbertTransform hilbert;
-    hilbert.setCalcRange( 0, wvltsz_, 0 );
+    hilbert.setCalcRange( 0, 0 );
     hilbert.setInputInfo( Array1DInfoImpl(wvltsz_) );
     hilbert.setDir( true );
     hilbert.init();

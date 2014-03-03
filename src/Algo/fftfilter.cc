@@ -17,10 +17,7 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "odcomplex.h"
 
-
 #define mMINNRSAMPLES	100
-
-
 
 DefineEnumNames(FFTFilter,Type,0,"Filter type")
 { "LowPass", "HighPass", "BandPass", 0 };
@@ -270,7 +267,7 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
 {\
     HilbertTransform hilbert;\
     hilbert.setInputInfo( Array1DInfoImpl(sz_) );\
-    hilbert.setCalcRange( 0, sz_, 0 );\
+    hilbert.setCalcRange( 0, 0 );\
     hilbert.setDir( true );\
     hilbert.init();\
     if (!hilbert.transform(inp,outp) )\
