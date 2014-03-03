@@ -148,7 +148,6 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
     visBase::PolyLine*          polyline_;
     const mVisTrans*		transformation_;
-    SoSeparator*                linesep_;
     ZAxisTransform*		datatransform_;
 
     MultiID			storedmid_;
