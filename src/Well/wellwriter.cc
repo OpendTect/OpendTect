@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f,false)
-    	, wd(w)
+	, wd(w)
 	, binwrlogs_(false)
 {
 }
@@ -81,7 +81,7 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 	char str[80]; wd.info().surfacecoord.fill( str );
 	astrm.put( Well::Info::sKeycoord(), str );
     }
-    astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
+    astrm.put( Well::Info::sKeySRD(),  wd.info().srdelev );
     astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
     astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );
     astrm.newParagraph();
@@ -100,7 +100,7 @@ bool Well::Writer::putTrack( std::ostream& strm ) const
 	strm << toString(c.x) << '\t';
 	strm << toString(c.y) << '\t';
 	strm << toString(c.z) << '\t';
-	strm << wd.track().dah(idx) << '\n';
+	strm << toString(wd.track().dah(idx)) << '\n';
     }
     return strm.good();
 }
@@ -174,18 +174,22 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
     float v[2];
     for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
     {
-	v[0] = wl.dah(idx); v[1] = wl.value(idx);
+	v[0] = wl.dah( idx );
 	if ( mIsUdf(v[0]) )
 	    continue;
 
+	v[1] = wl.value( idx );
 	if ( binwrlogs_ )
-	    strm.write( (char*)v, 2*sizeof(float) );
+	    strm.write( (const char*) &v, sizeof(v) );
 	else
 	{
+	    strm << toString( v[0] ) << '\t';
 	    if ( mIsUdf(v[1]) )
-		strm << v[0] << '\t' << sKey::FloatUdf() << '\n';
+		strm << sKey::FloatUdf();
 	    else
-		strm << v[0] << '\t' << v[1] << '\n';
+		strm << toString( v[1] );
+
+	    strm << '\n';
 	}
     }
 
@@ -213,8 +217,12 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
     {
 	BufferString basekey; basekey += idx+1;
 	const Well::Marker& wm = *wd.markers()[idx];
+	const float dah = wm.dah();
+	if ( mIsUdf(dah) )
+	    continue;
+
 	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
-	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), wm.dah() );
+	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()),dah );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef()), wm.levelID() );
 	BufferString bs; wm.color().fill( bs.buf() );
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
@@ -256,7 +264,15 @@ bool Well::Writer::doPutD2T( std::ostream& strm, bool csmdl ) const
     astrm.newParagraph();
 
     for ( int idx=0; idx<d2t.size(); idx++ )
-	strm << d2t.dah(idx) << '\t' << d2t.t(idx) << '\n';
+    {
+	const float dah = d2t.dah( idx );
+	if ( mIsUdf(dah) )
+	    continue;
+
+	strm << toString( dah ) << '\t';
+	strm << toString( d2t.t(idx) ) << '\n';
+    }
+
     return strm.good();
 }
 
@@ -277,9 +293,10 @@ bool Well::Writer::putDispProps( std::ostream& strm ) const
     if ( !wrHdr(strm,sKeyDispProps()) ) return false;
 
     ascostream astrm( strm );
-    IOPar iop; 
+    IOPar iop;
     wd.displayProperties(true).fillPar( iop );
     wd.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
     return strm.good();
 }
+
