@@ -5,4 +5,4 @@
 #RCS:           $Id$
 
 set( BASEPACKAGES basedatadefs )
-set( PACKAGELIST basedefs odgmtdefs odgprdefs odmadagascardefs develdefs ) 
+set( PACKAGELIST basedefs develdefs )

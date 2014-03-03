@@ -18,10 +18,11 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 	      od_process_velocityconv od_process_volume od_ProgressViewer od_DispMsg
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
-	      od_ReportIssue od_uiReportIssue )
+	      od_ReportIssue od_uiReportIssue od_gmtexec od_madexec)
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
-	     TextureAttrib uiTextureAttrib )
+	     TextureAttrib uiTextureAttrib GMT uiGMT uiImpGPR Madagascar uiMadagascar
+	     MadagascarAttribs uiMadagascarAttribs )
 #Only for windows base package
 set( WINEXECLIST od_start_dtect od_main_console )
 
