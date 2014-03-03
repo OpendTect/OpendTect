@@ -76,36 +76,16 @@ public:
     float		zref;		// not stored
     bool		new_packet;	// not stored
 
-    void		handlePossibleFeetConversion(bool conv_back=false,
-						 bool other_domain=false);
-			/*!< Use Seis::InternalUnitsEnsurer class (see below).
-			     Needed when seismic data meets the 'real world'.
-			     Note that this function most often does nothing.
-			     The other_domain is for time traces in depth
-			     surveys and vv. */
+    void		handlePossibleFeetConversion(bool,bool);
+			    /*!< DEPRECATED (will disappear in 5.0) */
 
 };
 
 
+/* The following section is DEPRECATED (will disappear in 5.0) */
+
 namespace Seis
 {
-
-/* Ensures depth seismics are in meters (in this scope).
-
-   Depth seismic data is the *only* exception to the rule that everything
-   inside OpendTect is always in SI units (internal units).
-   To make the connection with other objects, you need to make sure seismic
-   data is compatible. This object makes this easy. Usage is almost certainly
-   via one of the macros, probably mSeisTrcEnsureInternalUnits. Usage like:
-
-	    void doSomething( const SeisTrc& trc )
-	    {
-		mSeisTrcEnsureInternalUnits( trc );
-		// use trace without fear for feet here
-		// after function, trc won't have changed
-	    }
-
-   */
 
 mExpClass(Seis) InternalUnitsEnsurer
 {
@@ -139,6 +119,7 @@ public:
 
 }
 
+/* END of DEPRECATED code */
+
 
 #endif
-
