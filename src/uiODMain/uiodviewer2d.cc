@@ -185,7 +185,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 
 	TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
-	{ vwr.setPack( wva, packid, isnew ); continue; }
+	{ vwr.usePack( wva, packid, isnew ); continue; }
 
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
@@ -203,7 +203,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 
 	vwr.setPack( wva, packid, isnew );
 	if ( isnew || setforotherdisp )
-	    vwr.setPack( !wva, packid, isnew );
+	    vwr.usePack( !wva, packid, isnew );
     }
 
     dataChanged.trigger( this );
