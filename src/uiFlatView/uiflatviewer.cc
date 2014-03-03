@@ -140,6 +140,7 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
+    setView( wr_ );
     axesdrawer_.update();
     reSizeCB(0); // Needed as annotation changes may make view-area
     		 // larger or smaller.

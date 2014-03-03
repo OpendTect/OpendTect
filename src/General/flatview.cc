@@ -144,7 +144,9 @@ FlatView::DataDispPars::Common::Common()
     : show_(true)
     , blocky_(false)
     , allowuserchange_(true)		    
-{}
+{
+    setAllowUserChangeData( true );
+}
 
 
 /*void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
