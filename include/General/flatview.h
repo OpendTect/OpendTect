@@ -304,9 +304,7 @@ protected:
   possibility.
   
   You can attach many datapacks to the viewer; the different modes (WVA, VD)
-  can be attached to zero or one of those packs. If you pass the data pack in
-  observe mode, the viewer will not release the pack when it's deleted or
-  when removePack is called for the pack.
+  can be attached to zero or one of those packs.
 
   addPack() -> add a DataPack to the list of available data packs
   usePack() -> sets one of the available packs for wva of vd display
