@@ -436,21 +436,6 @@ void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 }
 
 
-void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
-						bool othdomain )
-{
-    if ( SI().zIsTime() != othdomain		// data is in time
-      || (othdomain && !SI().depthsInFeet())
-      || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
-	return;
-
-    const float fac = conv_back ? mToFeetFactorF : mFromFeetFactorF;
-
-    sampling.scale( fac );
-    if ( !mIsUdf(pick) ) pick *= fac;
-}
-
-
 int Seis::Bounds::expectedNrTraces() const
 {
     int rg0 = start(true); int rg1 = stop(true); int delta = step(true);
