@@ -103,6 +103,8 @@ void fillCurrent()
 	transpfld_->sldr()->setValue( img_->getTransparency()*100 );
 	zposfld_->sldr()->setValue( mCast(float,img_->topLeft().z) );
     }
+
+    coordChg( 0 );
 }
 
 void newFile( CallBacker* )
