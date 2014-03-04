@@ -151,7 +151,7 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
     else
     {
 	aspectratio_ = (float) ( scene_->width() / scene_->height() );
-	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
 	dpifld_->box()->setValue( screendpi_ );
+	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
     }
 }
