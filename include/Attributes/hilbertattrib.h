@@ -41,7 +41,7 @@ protected:
 					    int threadid) const;
 
     bool			allowParallelComputation() const
-    				{ return false; }
+    				{ return true; }
     const Interval<int>*        desZSampMargin(int input,int output) const
 				{ return &zmargin_; }
 

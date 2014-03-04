@@ -71,14 +71,10 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ ) return false;
 
     const int hilbfilterlen = halflen_*2 + 1;
-    const bool enoughsamps = nrsamples >= hilbfilterlen;
+    const bool enoughsamps = inputdata_->nrsamples_ >= hilbfilterlen;
     const int arrminnrsamp = inputdata_->nrsamples_>hilbfilterlen
                                 ? inputdata_->nrsamples_ : hilbfilterlen;
-    const int nrsamptooutput = enoughsamps ? nrsamples : arrminnrsamp;
-    const int shift = z0 - inputdata_->z0_;
-
-    int inpstartidx = 0;
-    int startidx = enoughsamps ? shift : 0;
+    const int convstartidx = z0 - inputdata_->z0_;
 
     Array1DImpl<float> createarr( arrminnrsamp );
     ValueSeries<float>* padtrace = 0;
@@ -94,8 +90,6 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 	padtrace = createarr.getStorage();
 	if ( !padtrace )
 	    return false;
-
-	startidx = shift;
     }
 
     HilbertTransform ht;
@@ -103,17 +97,17 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 	return false;
 
     ht.setHalfLen( halflen_ );
-    ht.setCalcRange( startidx, arrminnrsamp, inpstartidx );
-    Array1DImpl<float> outarr( arrminnrsamp );
+    ht.setCalcRange( 0, nrsamples, convstartidx );
+    Array1DImpl<float> outarr( nrsamples );
     const bool transformok = enoughsamps
 	      ? ht.transform(*inputdata_->series(dataidx_),
-		      	     inputdata_->nrsamples_,outarr,nrsamptooutput )
-	      : ht.transform(*padtrace,arrminnrsamp,outarr,nrsamptooutput );
+		      	     inputdata_->nrsamples_,outarr,nrsamples)
+	      : ht.transform(*padtrace,arrminnrsamp,outarr,nrsamples);
     if ( !transformok )
 	return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
-	setOutputValue( output, 0, idx, z0, outarr.get(shift+idx) );
+	setOutputValue( output, 0, idx, z0, outarr.get(idx) );
 
     return true;
 }
