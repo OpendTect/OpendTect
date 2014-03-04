@@ -123,7 +123,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
 
-    float defsr = SI().depthsInFeet() ? 0.5 : 0.1524;
+    float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
     if ( !wls_.isEmpty() )
 	defsr = wls_.getLog(0).dahStep( false );
     srfld_ = new uiGenInput( this, "Output sample distance",
@@ -601,7 +601,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		}
 		else if ( inpd.specidx_ == mVelIdx && d2t )
 		{
-		    val = d2t->getVelocityForDah( curdah, track );
+		    val = mCast(float,d2t->getVelocityForDah( curdah, track ));
 		    const UnitOfMeasure* uom =
 					 UnitOfMeasure::surveyDefDepthUnit();
 		    if ( uom ) val = uom->userValue( val );
