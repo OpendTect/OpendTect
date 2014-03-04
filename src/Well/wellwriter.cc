@@ -122,7 +122,13 @@ bool Well::Writer::putLogs() const
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
 	StreamData sd = mkSD( sExtLog(), idx+1 );
-	if ( !sd.usable() ) break;
+	if ( !sd.usable() )
+	{
+	    ErrMsg(
+		 BufferString("Could not write to file: '",sd.fileName(),"'") );
+	    sd.close();
+	    return false;
+	}
 
 	const Well::Log& wl = wd.logs().getLog(idx);
 	if ( !putLog(*sd.ostrm,wl) )
