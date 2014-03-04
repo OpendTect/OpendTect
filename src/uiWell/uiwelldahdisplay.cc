@@ -107,7 +107,8 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
 uiWellDahDisplay::~uiWellDahDisplay()
 {
     Well::Data* wd = const_cast<Well::Data*>( zdata_.wd_ );
-    wd->tobedeleted.remove( mCB(this,uiWellDahDisplay,wellDataToBeDeleted) );
+    if ( wd )
+	wd->tobedeleted.remove( mCB(this,uiWellDahDisplay,wellDataToBeDeleted));
     delete ld1_; delete ld2_;
 }
 
