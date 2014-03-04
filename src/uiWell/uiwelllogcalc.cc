@@ -24,20 +24,31 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uiwelllogcalcinpdata.h"
 
-#include "welllogset.h"
-#include "wellreader.h"
-#include "welldata.h"
-#include "wellwriter.h"
-#include "welllog.h"
-#include "separstr.h"
-#include "survinfo.h"
-#include "mathexpression.h"
-#include "unitofmeasure.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mathexpression.h"
+#include "separstr.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
+#include "welld2tmodel.h"
+#include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
+#include "wellreader.h"
+#include "welltrack.h"
+#include "wellwriter.h"
+
+#define mMDIdx	0
+#define mDZIdx	1
+#define mTVDSSIdx	2
+#define mTVDIdx	3
+#define mTVDSDIdx	4
+#define	mTWTIdx	5
+#define	mVelIdx	6
 
 static const int cMaxNrInps = 6;
-static const char* specvararr[] = { "MD", "DZ", 0 };
+static const char* specvararr[] = { "MD", "DZ", "TVDSS", "TVD", "TVDSD", "TWT",
+				    "VINT", 0 };
 static const BufferStringSet specvars( specvararr );
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
@@ -112,11 +123,11 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
 
-    float defsr = 1;
+    float defsr = SI().depthsInFeet() ? 0.5 : 0.1524;
     if ( !wls_.isEmpty() )
 	defsr = wls_.getLog(0).dahStep( false );
     srfld_ = new uiGenInput( this, "Output sample distance",
-				FloatInpSpec(defsr));
+			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, inpgrp );
     srfld_->attach( ensureBelow, sep );
     ftbox_ = new uiCheckBox( this, "Feet" );
@@ -336,8 +347,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	Well::Reader rdr( fnm, wd );
 	if ( !rdr.getLogs() )
 	{
-	    BufferString msg = "Cannot read well logs for well ";
-	    msg += ioobj->name();
+	    BufferString msg( "Cannot read well logs for well ",ioobj->name() );
 	    mErrContinue( msg.buf());
 	}
 	Well::LogSet& wls = wd.logs();
@@ -346,13 +356,22 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( !getInpData(inpdata) || !getRecInfo() )
 	    continue;
 
+	if ( SI().zIsTime() )
+	{
+	    if ( !rdr.getD2T() )
+	    {
+		BufferString msg( "Cannot read time-depth model for well ",
+				  ioobj->name() );
+		mErrContinue( msg.buf() );
+	    }
+	}
+
 	Well::Log* newwl = new Well::Log( newnm );
-	if ( !calcLog(*newwl,inpdata) )
+	if ( !calcLog(*newwl,inpdata,wd.track(),wd.d2TModel()) )
 	{
 	    delete newwl;
-	    BufferString msg = "Cannot compute well log '";
-	    msg += newnm; msg += "'";
-	    mErrContinue( msg.buf());
+	    BufferString msg( "Cannot compute well log '", newnm, "'" );
+	    mErrContinue( msg.buf() );
 	}
 	const int unselidx = outunfld_->currentItem();
 	const UnitOfMeasure* outun = 0;
@@ -375,14 +394,17 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
-	wls.add( newwl );
 
+	wls.add( newwl );
 	Well::Writer wtr( fnm, wd );
 	if ( !wtr.putLogs() )
 	{
-	    BufferString msg = "Cannot write new logs to file '";
-	    msg += fnm; msg += "'";
-	    mErrContinue( msg.buf());
+	    BufferString msg( "Cannot write new logs for well ",ioobj->name() );
+	    msg.add( "\n" ).add( "Check the permissions of the *.wll files" );
+	    mErrContinue( msg.buf() );
+
+	    wls.remove( wls.size()-1 );
+	    //Do not keep in memory what is not on disk
 	}
 	successfulonce = true;
     }
@@ -450,6 +472,12 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 		    mErrRet(BufferString("The well log chosen for variable: '",
 					 varnm.buf(),"' is empty."))
 	    }
+	    else if ( !SI().zIsTime() &&
+		      (inpd.specidx_ == mTWTIdx || inpd.specidx_ == mVelIdx) )
+	    {
+		mErrRet(BufferString("Cannot use: '",
+				      varnm.buf(),"' in a depth survey."))
+	    }
 	} break;
 	}
 
@@ -495,9 +523,15 @@ bool uiWellLogCalc::getRecInfo()
 
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdata )
+{ return false; }
+
+
+bool uiWellLogCalc::calcLog( Well::Log& wlout,
+			     const TypeSet<uiWellLogCalc::InpData>& inpdata,
+			     Well::Track& track, Well::D2TModel* d2t )
 {
-    if ( inpdata.isEmpty() || !inpdata[0].wl_ )
-	{ pErrMsg("Missing log"); return false; }
+    if ( inpdata.isEmpty() )
+    { pErrMsg("Wrong equation: check syntax"); return false; }
 
     TypeSet<float> vals; int rgidx = 0;
     int nrstart = startvals_.size();
@@ -505,18 +539,21 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	{ vals = startvals_; rgidx = 1; }
     if ( nrstart > 0 ) nrstart--;
 
-    StepInterval<float> samprg;
-    samprg.step = zsampintv_;
-    Interval<float> dahrg( wls_.dahInterval() );
-    if ( !inpdata.isEmpty() )
+    Interval<float> dahrg( mUdf(float), mUdf(float) );
+    for ( int iinp=0; iinp<inpdata.size(); iinp++ )
     {
-	if ( inpdata[0].wl_ )
-	    dahrg = inpdata[0].wl_->dahRange();
-	for ( int idx=1; idx<inpdata.size(); idx++ )
-	    if ( inpdata[idx].wl_ )
-		dahrg.include( inpdata[idx].wl_->dahRange(), false );
+	if ( !inpdata[iinp].wl_ )
+	    continue;
+
+	if ( dahrg.isUdf() )
+	    dahrg = inpdata[iinp].wl_->dahRange();
+	else
+	    dahrg.include( inpdata[iinp].wl_->dahRange(), false );
     }
-    samprg.start = dahrg.start; samprg.stop = dahrg.stop;
+    if ( dahrg.isUdf() )
+	dahrg = track.dahRange();
+
+    StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
     const int endrgidx = samprg.nrSteps();
     for ( ; rgidx<=endrgidx; rgidx++ )
     {
@@ -542,8 +579,34 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    else
 	    {
 		float val = mUdf(float);
-		if ( inpd.specidx_ == 0 )	val = curdah;
-		else if ( inpd.specidx_ == 1 )	val = samprg.step;
+		if ( inpd.specidx_ == mMDIdx )	val = curdah;
+		else if ( inpd.specidx_ == mDZIdx )	val = samprg.step;
+		else if ( inpd.specidx_ == mTVDSSIdx ||
+			  inpd.specidx_ == mTVDIdx ||
+			  inpd.specidx_ == mTVDSDIdx )
+		{
+		    val = mCast(float,track.getPos(curdah).z);
+		    if ( inpd.specidx_ == mTVDIdx && !mIsUdf(val) )
+			val += track.getKbElev();
+		    else if ( inpd.specidx_ == mTVDSDIdx  && !mIsUdf(val) )
+			val += mCast(float, SI().seismicReferenceDatum());
+		}
+		else if ( inpd.specidx_ == mTWTIdx && d2t )
+		{
+		    val = d2t->getTime( curdah, track );
+		    const UnitOfMeasure* uom =
+					UnitOfMeasure::surveyDefZUnit();
+		    if ( uom ) val = uom->userValue( val );
+
+		}
+		else if ( inpd.specidx_ == mVelIdx && d2t )
+		{
+		    val = d2t->getVelocityForDah( curdah, track );
+		    const UnitOfMeasure* uom =
+					 UnitOfMeasure::surveyDefDepthUnit();
+		    if ( uom ) val = uom->userValue( val );
+		}
+
 		expr_->setVariableValue( iinp, val );
 	    }
 	}

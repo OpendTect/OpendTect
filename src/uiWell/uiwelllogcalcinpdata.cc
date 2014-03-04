@@ -28,7 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathexpression.h"
 #include "unitofmeasure.h"
 
-static const char* specvararr[] = { "MD", "DZ", 0 };
+static const char* specvararr[] = { "MD", "DZ", "TVDSS", "TVD", "TVDSD", "TWT",
+				    "VINT", 0 };
 static const BufferStringSet specvars( specvararr );
 
 HiddenParam<uiWellLogCalcInpData,int>      doforceunitmanager( 0 );

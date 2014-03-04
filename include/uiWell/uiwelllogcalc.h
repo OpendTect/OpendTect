@@ -25,7 +25,7 @@ class uiLabeledComboBox;
 class uiMathExpression;
 class MathExpression;
 class uiWellLogCalcInpData;
-namespace Well { class Log; class LogSet; }
+namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 
 /*! \brief Dialog for marker specifications */
 
@@ -98,7 +98,10 @@ protected:
     void			setCurWls(const Well::LogSet&);
     bool			getInpData(TypeSet<InpData>&);
     bool			getRecInfo();
+				// Do not use, will be removed
     bool			calcLog(Well::Log&,const TypeSet<InpData>&);
+    bool			calcLog(Well::Log&,const TypeSet<InpData>&,
+					Well::Track&,Well::D2TModel*);
 
     void			initWin(CallBacker*);
     void			rockPhysReq(CallBacker*);
