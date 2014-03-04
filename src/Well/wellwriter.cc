@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f)
-    	, wd(w)
+	, wd(w)
 	, binwrlogs_(false)
 {
 }
@@ -91,10 +91,10 @@ bool Well::Writer::putTrack( od_ostream& strm ) const
 	const Coord3& c = wd.track().pos(idx);
 	    // don't try to do the following in one statement
 	    // (unless for educational purposes)
-	strm << toString(c.x) << '\t';
-	strm << toString(c.y) << '\t';
-	strm << toString(c.z) << '\t';
-	strm << wd.track().dah(idx) << '\n';
+	strm << c.x << od_tab;
+	strm << c.y << od_tab;
+	strm << c.z << od_tab;
+	strm << wd.track().dah(idx) << od_newline;
     }
     return strm.isOK();
 }
@@ -162,18 +162,22 @@ bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
     float v[2];
     for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
     {
-	v[0] = wl.dah(idx); v[1] = wl.value(idx);
+	v[0] = wl.dah( idx );
 	if ( mIsUdf(v[0]) )
 	    continue;
 
+	v[1] = wl.value( idx );
 	if ( binwrlogs_ )
-	    strm.addBin( (char*)v, 2*sizeof(float) );
+	    strm.addBin( &v, sizeof(v) );
 	else
 	{
+	    strm << v[0] << od_tab;
 	    if ( mIsUdf(v[1]) )
-		strm << v[0] << '\t' << sKey::FloatUdf() << '\n';
+		strm << sKey::FloatUdf();
 	    else
-		strm << v[0] << '\t' << v[1] << '\n';
+		strm << v[1];
+
+	    strm << od_newline;
 	}
     }
 
@@ -197,8 +201,12 @@ bool Well::Writer::putMarkers( od_ostream& strm ) const
     {
 	BufferString basekey; basekey += idx+1;
 	const Well::Marker& wm = *wd.markers()[idx];
+	const float dah = wm.dah();
+	if ( mIsUdf(dah) )
+	    continue;
+
 	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
-	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), wm.dah() );
+	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), dah );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef()), wm.levelID() );
 	BufferString bs; wm.color().fill( bs );
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
@@ -236,7 +244,14 @@ bool Well::Writer::doPutD2T( od_ostream& strm, bool csmdl ) const
     astrm.newParagraph();
 
     for ( int idx=0; idx<d2t.size(); idx++ )
-	strm << d2t.dah(idx) << '\t' << d2t.t(idx) << '\n';
+    {
+	const float dah = d2t.dah( idx );
+	if ( mIsUdf(dah) )
+	    continue;
+
+	strm << dah << od_tab << d2t.t(idx) << od_newline;
+    }
+
     return strm.isOK();
 }
 
@@ -253,9 +268,10 @@ bool Well::Writer::putDispProps( od_ostream& strm ) const
     if ( !wrHdr(strm,sKeyDispProps()) ) return false;
 
     ascostream astrm( strm );
-    IOPar iop; 
+    IOPar iop;
     wd.displayProperties(true).fillPar( iop );
     wd.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
     return strm.isOK();
 }
+
