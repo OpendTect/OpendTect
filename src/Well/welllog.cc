@@ -215,7 +215,7 @@ bool Well::Log::isCode( float eps ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const float val = val_[idx];
-	if ( !mIsEqualWithUdf(val,(float)mNINT32(val),eps) || val < eps )
+	if ( !mIsEqualWithUdf(val,mCast(float,mNINT32(val)),eps) )
 	    return false;
     }
 
