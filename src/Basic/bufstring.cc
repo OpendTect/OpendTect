@@ -149,21 +149,44 @@ BufferString& BufferString::addLim( double d, int maxnrchars )
 }
 
 
-BufferString& BufferString::addSpace()
+static const char* spc32 =
+"                                ";
+static const char* tab32 =
+"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+static const char* nl32 =
+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+
+
+BufferString& BufferString::addArr32Chars( const char* carr, int nr )
 {
-    return add( " " );
+    if ( nr == 1 )
+	return add( carr + 31 ); // shortcut for majority of calls
+    else if ( nr < 1 )
+	return *this;
+
+    const int nr32 = nr / 32;
+    for ( int idx=0; idx<nr32; idx++ )
+	add( carr );
+
+    return add( carr + 31 - (nr%32) + 1 );
 }
 
 
-BufferString& BufferString::addTab()
+BufferString& BufferString::addSpace( int nr )
 {
-    return add( "\t" );
+    return addArr32Chars( spc32, nr );
 }
 
 
-BufferString& BufferString::addNewLine()
+BufferString& BufferString::addTab( int nr )
 {
-    return add( "\n" );
+    return addArr32Chars( tab32, nr );
+}
+
+
+BufferString& BufferString::addNewLine( int nr )
+{
+    return addArr32Chars( nl32, nr );
 }
 
 

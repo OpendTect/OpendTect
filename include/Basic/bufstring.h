@@ -74,6 +74,9 @@ public:
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
+    void                fill(char*,int maxnrchar) const;
+			//!< fill old C-style char buf
+
     inline char&	operator []( int idx )	{ return getCStr()[idx]; }
     char*		find(char);
     char*		find(const char*);
@@ -104,10 +107,9 @@ public:
     BufferString&	addLim(float,int maxnrchars);
     BufferString&	addLim(double,int maxnrchars);
 
-    void                fill(char*,int maxnrchar) const;
-    BufferString&	addSpace();
-    BufferString&	addTab();
-    BufferString&	addNewLine();
+    BufferString&	addSpace(int nrspaces=1);
+    BufferString&	addTab(int nrtabs=1);
+    BufferString&	addNewLine(int nrnewlines=1);
 
     inline unsigned int	bufSize() const		{ return len_; }
     void		setBufSize(unsigned int);
@@ -152,6 +154,7 @@ private:
 
     void		init();
     inline void		destroy()	{ delete [] buf_; buf_ = 0; }
+    BufferString&	addArr32Chars(const char*,int);
 
 public:
 
