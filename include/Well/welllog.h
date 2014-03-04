@@ -24,8 +24,8 @@ namespace Well
 
 /*!
 \brief Well log
- 
-  No regular sampling required, as in all DahObjs. 
+
+  No regular sampling required, as in all DahObjs.
 
   Logs can contain undefined points and sections (washouts etc.) - they will
   never have undefined dah values though. If you can't handle undef values,
@@ -44,9 +44,7 @@ mExpClass(Well) Log : public DahObj
 {
 public:
 
-			Log( const char* nm=0 )
-			: DahObj(nm)
-			, range_(mUdf(float),-mUdf(float))	{}
+			Log(const char* nm=0);
 			Log( const Log& t )
 			: DahObj("")			{ *this = t; }
     Log&		operator =(const Log&);
@@ -55,21 +53,25 @@ public:
 
     float		getValue(float,bool noudfs=false) const;
     void		addValue(float dh,float val);
-    			//!< addition must always ascend or descend
+			//!< addition must always ascend or descend
+    void		updateAfterValueChanges();
+			//!< call it upon any change of value(s)
     void		ensureAscZ();
-    			// Do this after adding values when Z may be reversed
+			// Do this after adding values when Z may be reversed
     bool		insertAtDah(float dh,float val);
     void		removeTopBottomUdfs();
 
-    Interval<float>&	valueRange() 			{ return range_; }
-    const Interval<float>& valueRange() const 		{ return range_; }
+    Interval<float>&	valueRange()			{ return range_; }
+    const Interval<float>& valueRange() const		{ return range_; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     void		convertTo(const UnitOfMeasure*);
-    bool		isCode(float eps=1e-3f) const;
-    			//!< log values are all integers stored as floats
+    bool		isCode() const;
+			//!< log values are all integers stored as floats
+    void		updateIsCode( float eps=1e-3f );
+			//!< Do not use, will be removed
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();

@@ -621,7 +621,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 	: Executor("Well log data extraction")
 	, ids_(i)
 	, dpss_(d)
-	, samppol_(Stats::UseMed)
+	, samppol_(Stats::UseAvg)
 	, curid_(0)
 	, zistime_(ztm)
 {

@@ -48,8 +48,8 @@ const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
 
 
 Well::IO::IO( const char* f, bool fr )
-    	: basenm(f)
-    	, isrdr(fr)
+	: basenm(f)
+	, isrdr(fr)
 {
     FilePath fp( basenm );
     fp.setExtension( 0, true );
@@ -131,7 +131,7 @@ static const char* rdHdr( std::istream& strm, const char* fileky,
 
 Well::Reader::Reader( const char* f, Well::Data& w )
 	: Well::IO(f,true)
-    	, wd(w)
+	, wd(w)
 {
 }
 
@@ -201,7 +201,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	{
 	    const float readsurfelev = astrm.getFValue(); //needed for old files
 	    wd.info().srdelev = mIsUdf(readsurfelev ) ? 0  :
-	       			    -1.f * readsurfelev;
+				    -1.f * readsurfelev;
 	}
 	else if ( astrm.hasKeyword(Well::Info::sKeySRD()) )
 	    wd.info().srdelev = astrm.getFValue();
@@ -367,12 +367,12 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	sd.close();
 	if ( log->isEmpty() )
 	    continue;
-	
+
 	const bool valinmtr = SI().zInFeet() && (version < 4.195);
 
 	ret.start = valinmtr ? (log->dah(0) * mToFeetFactorF) : log->dah(0);
 	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactorF )
-	    		    : log->dah( log->size()-1 );
+			    : log->dah( log->size()-1 );
 	break;
     }
 
@@ -469,7 +469,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
 	return false;
 
     readLogData( *newlog, strm, bintype );
-    
+
     if ( SI().zInFeet() && version < 4.195 )
     {
 	for ( int idx=0; idx<newlog->size(); idx++ )
@@ -487,6 +487,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
     }
 
     newlog->removeTopBottomUdfs();
+    newlog->updateAfterValueChanges();
     wd.logs().add( newlog );
 
     return true;
@@ -494,7 +495,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
 
 
 void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
-       				int bintype ) const
+				int bintype ) const
 {
 
     float v[2];
@@ -536,7 +537,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	return false;
 
     ascistream astrm( strm, false );
-    
+
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
@@ -556,7 +557,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	    { delete wm; continue; }
 	float val = toFloat( bs.buf() );
 	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
-						      : val ); 
+						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );

@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "welllog.h"
 #include "welllogset.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "idxable.h"
 
@@ -22,7 +23,7 @@ void Well::LogSet::add( Well::Log* l )
     if ( getLog(l->name()) ) return;
 
     logs += l;
-    updateDahIntv( *l );;
+    updateDahIntv( *l );
 }
 
 
@@ -88,6 +89,17 @@ void Well::LogSet::removeTopBottomUdfs()
 }
 
 
+
+HiddenParam<Well::Log,int> iscode_(0);
+
+Well::Log::Log( const char* nm )
+    : DahObj(nm)
+    , range_(mUdf(float),-mUdf(float))
+{
+    iscode_.setParam( this, 0 );
+}
+
+
 Well::Log& Well::Log::operator =( const Well::Log& l )
 {
     if ( &l != this )
@@ -95,8 +107,15 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
 	setName( l.name() );
 	setUnitMeasLabel( l.unitMeasLabel() );
 	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
+	iscode_.setParam( this, l.isCode() );
     }
     return *this;
+}
+
+
+bool Well::Log::isCode() const
+{
+    return iscode_.getParam(this) == 1;
 }
 
 
@@ -138,6 +157,9 @@ float Well::Log::getValue( float dh, bool noudfs ) const
     else if ( !found2 )
 	return val1;
 
+    if ( isCode() )
+	return val2;
+
     return ((dh-dah1) * val2 + (dah2-dh) * val1) / (dah2 - dah1);
 }
 
@@ -152,6 +174,12 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
     const int idx2 = idx1 + 1;
     const float v1 = val_[idx1];
     const float v2 = val_[idx2];
+    if ( mIsUdf(v1) || mIsUdf(v2) )
+	return mUdf(float);
+
+    if ( isCode() )
+	return mIsUdf(v2) ? v2 : v1;
+
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     if ( mIsUdf(v1) )
@@ -160,6 +188,15 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
 	return d2 > d1 ? v1 : mUdf(float);
 
     return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
+}
+
+
+static bool valIsCode( float val, float eps )
+{
+    if ( mIsUdf(val) )
+	return true; //No reason for failure
+
+    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
 }
 
 
@@ -173,6 +210,10 @@ void Well::Log::addValue( float dh, float val )
 
     dah_ += dh;
     val_ += val;
+    if ( isEmpty() )
+	iscode_.setParam( this, valIsCode(val,1e-3f) ? 1 : 0 );
+    else if ( iscode_.getParam(this)==1 && !valIsCode(val,1e-3f) )
+	 iscode_.setParam( this, 0 );
 }
 
 
@@ -203,16 +244,24 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 }
 
 
-bool Well::Log::isCode( float eps ) const
+void Well::Log::updateAfterValueChanges()
+{
+    updateIsCode();
+}
+
+
+void Well::Log::updateIsCode( float eps )
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const float val = val_[idx];
-	if ( !mIsEqualWithUdf(val,mCast(float,mNINT32(val)),eps) )
-	    return false;
+	if ( !valIsCode(val_[idx],eps) )
+	{
+	    iscode_.setParam( this, 0 );
+	    return;
+	}
     }
 
-    return true;
+    iscode_.setParam( this, 1 );
 }
 
 
