@@ -495,6 +495,7 @@ bool Well::Reader::addLog( od_istream& strm ) const
     }
 
     newlog->removeTopBottomUdfs();
+    newlog->updateAfterValueChanges();
     wd.logs().add( newlog );
 
     return true;

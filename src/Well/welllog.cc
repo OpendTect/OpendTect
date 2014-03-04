@@ -102,6 +102,7 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
 	setName( l.name() );
 	setUnitMeasLabel( l.unitMeasLabel() );
 	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
+	iscode_ = l.iscode_;
     }
     return *this;
 }
@@ -145,6 +146,9 @@ float Well::Log::getValue( float dh, bool noudfs ) const
     else if ( !found2 )
 	return val1;
 
+    if ( iscode_ )
+	return val2;
+
     return ((dh-dah1) * val2 + (dah2-dh) * val1) / (dah2 - dah1);
 }
 
@@ -159,6 +163,12 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
     const int idx2 = idx1 + 1;
     const float v1 = val_[idx1];
     const float v2 = val_[idx2];
+    if ( mIsUdf(v1) || mIsUdf(v2) )
+	return mUdf(float);
+
+    if ( iscode_ )
+	return mIsUdf(v2) ? v2 : v1;
+
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     if ( mIsUdf(v1) )
@@ -167,6 +177,15 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
 	return d2 > d1 ? v1 : mUdf(float);
 
     return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
+}
+
+
+static bool valIsCode( float val, float eps )
+{
+    if ( mIsUdf(val) )
+	return true; //No reason for failure
+
+    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
 }
 
 
@@ -180,6 +199,10 @@ void Well::Log::addValue( float dh, float val )
 
     dah_ += dh;
     val_ += val;
+    if ( isEmpty() )
+	iscode_ = valIsCode( val, 1e-3f );
+    else if ( iscode_ && !valIsCode(val,1e-3f) )
+	 iscode_ = false;
 }
 
 
@@ -210,16 +233,18 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 }
 
 
-bool Well::Log::isCode( float eps ) const
+void Well::Log::updateAfterValueChanges()
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const float val = val_[idx];
-	if ( !mIsEqualWithUdf(val,mCast(float,mNINT32(val)),eps) )
-	    return false;
+	if ( !valIsCode(val_[idx],1e-3f) )
+	{
+	    iscode_ = false;;
+	    return;
+	}
     }
 
-    return true;
+    iscode_ = true;
 }
 
 
