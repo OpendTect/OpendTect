@@ -157,7 +157,11 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 
     ObjectSet<Marker> tomove;
     for ( int idx=fromrg.start; idx<=fromrg.stop; idx++ )
-	tomove += new Marker( *(*this)[idx] );
+    {
+	Marker& oldmrk = *(*this)[idx];
+	tomove += new Marker( oldmrk );
+	oldmrk.setName( "" );
+    }
 
     int toidx = toidxblockstart;
     for ( int idx=toidxblockstart+1; idx<idxs.size(); idx++ )
@@ -178,11 +182,13 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 void Well::MarkerSet::insertNewAfter( int aftidx,
 					ObjectSet<Well::Marker>& mrkrs )
 {
-    if ( isEmpty() )
+    if ( mrkrs.isEmpty() )
+	return;
+    else if ( isEmpty() )
 	{ ObjectSet<Marker>::append( mrkrs ); mrkrs.erase(); return; }
 
     Interval<float> dahbounds( (*this)[0]->dah() - 10,
-	    			(*this)[size()-1]->dah() + 10 );
+				(*this)[size()-1]->dah() + 10 );
 
     Interval<int> idxs;
     if ( aftidx < 0 )
@@ -217,7 +223,7 @@ void Well::MarkerSet::insertNewAfter( int aftidx,
 	const float dahstep = gapwdht / (idxs.width() + 2);
 	for ( int idx=idxs.start; idx<=idxs.stop; idx++ )
 	    (*this)[idx]->setDah( dahbounds.start
-		    		  + dahstep * (idx-idxs.start+1) );
+				  + dahstep * (idx-idxs.start+1) );
     }
 }
 
