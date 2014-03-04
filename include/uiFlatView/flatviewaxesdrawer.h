@@ -52,7 +52,6 @@ protected:
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
     uiBorder		extraborder_;
-    virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 
 };
 

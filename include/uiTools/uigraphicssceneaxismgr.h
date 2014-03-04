@@ -150,21 +150,6 @@ public:
 
 protected:
     
-    
-    // virtual double	getAnnotTextAndPos( bool isx, double proposedpos,
-	//				    BufferString* text = 0) const;
-    			/*!<When drawing the axis, the object proposes
-			    an annotation at proposedpos. proposedpos may
-			    however not be a good location (e.g. it may not
-			    be on an even sample). Default is to display
-			    at the proposedpos, with the proposedpos as the
-			    text, but inheriting classes may customize this.
-			    \param isx		true if x-axis, false if y-axis.
-			    \param proposedpos	ideal place of annotation
-			    \param text	where	the text to display
-			    \returns 		the actual display pos is
-			 */
-
     uiAxisHandler*		xaxis_;
     uiAxisHandler*		yaxis_;
 

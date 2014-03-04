@@ -44,23 +44,6 @@ FlatView::AxesDrawer::~AxesDrawer()
 }
 
 
-double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
-						    BufferString* txt ) const
-{
-    const bool usewva = !vwr_.isVisible( false );
-    ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
-
-    const FlatPosData& pd = fdp->posData();
-    IndexInfo idxinfo( pd.indexInfo( true, pos ) );
-    pos = pd.position( true, idxinfo.nearest_ );
-
-    const double altdimval = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
-    if ( txt && !mIsUdf(altdimval) )
-	*txt = altdimval;
-    return pos;
-}
-
-
 void FlatView::AxesDrawer::updateScene()
 {
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
