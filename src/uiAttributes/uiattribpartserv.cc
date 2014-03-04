@@ -1713,19 +1713,28 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	else
 	    ads->usePar( iopar, versionnr, &errmsgs );
 
-	BufferString errmsg;
-	for ( int idx=0; idx<errmsgs.size(); idx++ )
+	BufferString basemsg = "Error during restore of ";
+	basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";
+
+	if ( errmsgs.size()<4 )
 	{
-	    if ( !idx )
+	    BufferString errmsg;
+	    for ( int idx=0; idx<errmsgs.size(); idx++ )
 	    {
-		errmsg = "Error during restore of ";
-		errmsg += is2d ? "2D " : "3D "; errmsg += "Attribute Set:";
+		if ( !idx )
+		{
+		    errmsg = basemsg;
+		    errmsg += ":";
+		}
+
+		errmsg += "\n";
+		errmsg += errmsgs.get( idx );
 	    }
-	    errmsg += "\n";
-	    errmsg += errmsgs.get( idx );
+	    if ( !errmsg.isEmpty() )
+		uiMSG().error( errmsg );
 	}
-	if ( !errmsg.isEmpty() )
-	    uiMSG().error( errmsg );
+	else
+	    uiMSG().errorWithDetails( errmsgs, basemsg );
 
 	set2DEvent( is2d );
 	sendEvent( evNewAttrSet() );
