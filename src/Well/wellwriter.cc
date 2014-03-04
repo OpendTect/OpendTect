@@ -21,7 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mGetOutStream(ext,nr,todo) \
         od_ostream strm( getFileName(ext,nr) ); \
-    if ( !strm.isOK() ) { todo; }
+    if ( !strm.isOK() ) \
+{ \
+    ErrMsg(BufferString("Could not write to file: '",strm.fileName(),"'") ); \
+    todo; \
+}
 
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f)
@@ -111,7 +115,7 @@ bool Well::Writer::putLogs() const
 {
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
-	mGetOutStream( sExtLog(), idx+1, break )
+	mGetOutStream( sExtLog(), idx+1, return false )
 
 	const Well::Log& wl = wd.logs().getLog(idx);
 	if ( !putLog(strm,wl) )
