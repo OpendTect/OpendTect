@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
+#include "angles.h"
 #include "survinfo.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -56,11 +57,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
-#define mMapWidth	300
-#define mMapHeight	300
 #define mErrRetVoid(s)	{ if ( s ) uiMSG().error(s); return; }
 #define mErrRet(s)	{ if ( s ) uiMSG().error(s); return false; }
 
+static int sMapWidth = 300;
+static int sMapHeight = 300;
 
 //--- General tools
 
@@ -116,8 +117,7 @@ class uiNewSurveyByCopy : public uiDialog
 public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
-	: uiDialog(p,uiDialog::Setup("Import survey from location",
-		   "Copy surveys from any data root",mTODOHelpID))
+	: uiDialog(p,uiDialog::Setup("Copy survey",mNoDlgTitle,mTODOHelpID))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -185,7 +185,7 @@ class uiStartNewSurveySetup : public uiDialog
 
 public:
 			uiStartNewSurveySetup(uiParent*,const char*,
-						SurveyInfo&);
+					      SurveyInfo&);
 
     bool		isOK();
     bool		acceptOK(CallBacker*);
@@ -363,8 +363,8 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
 
 
 uiSurvey::uiSurvey( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Survey selection",
-	       "Select and setup survey","0.3.1").nrstatusflds(1))
+    : uiDialog(p,uiDialog::Setup("Survey Setup and Selection",
+				 mNoDlgTitle,"0.3.1"))
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
     , initialsurveyname_(GetSurveyName())
@@ -377,18 +377,17 @@ uiSurvey::uiSurvey( uiParent* p )
     , cursurvremoved_(false)
 {
     const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
-    const int lbwidth = 250;
-    const int noteshght = 5;
-    const int totwdth = lbwidth + mMapWidth + 10;
 
     if ( dataroot_.isEmpty() )
     {
 	new uiLabel( this,
-		"Cannot establish a base data directory."
+		"Cannot establish a 'Survey Data Root' directory."
 		"\nOpendTect needs a place to store its files."
 		"\nPlease consult the documentation at opendtect.org,"
 		"\nor contact support@opendtect.org." );
     }
+
+    updateWindowTitle();
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
@@ -398,113 +397,40 @@ uiSurvey::uiSurvey( uiParent* p )
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
+    uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
 
-    survmap_ = new uiSurveyMap( rightgrp );
-    survmap_->setPrefWidth( mMapWidth );
-    survmap_->setPrefHeight( mMapHeight );
+    fillLeftGroup( leftgrp );
+    fillRightGroup( rightgrp );
+    rightgrp->attach( rightOf, leftgrp );
 
-    uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
-    dirfld_ = new uiListBox( leftgrp, "Surveys" );
-    updateSurvList();
-    dirfld_->selectionChanged.notify( selchgcb );
-    dirfld_->doubleClicked.notify( mCB(this,uiSurvey,accept) );
-    dirfld_->setPrefWidth( lbwidth );
-    dirfld_->setStretch( 2, 2 );
-    leftgrp->attach( leftOf, rightgrp );
-
-    uiPushButton* newbut = new uiPushButton( leftgrp, "&New",
-				mCB(this,uiSurvey,newButPushed), false );
-    newbut->attach( rightOf, dirfld_ );
-    newbut->setPrefWidthInChar( 12 );
-    rmbut_ = new uiPushButton( leftgrp, "&Remove",
-			       mCB(this,uiSurvey,rmButPushed), false );
-    rmbut_->attach( alignedBelow, newbut );
-    rmbut_->setPrefWidthInChar( 12 );
-    editbut_ = new uiPushButton( leftgrp, "&Edit",
-				 mCB(this,uiSurvey,editButPushed), false );
-    editbut_->attach( alignedBelow, rmbut_ );
-    editbut_->setPrefWidthInChar( 12 );
-    uiPushButton* copybut = new uiPushButton( leftgrp, "C&opy",
-				 mCB(this,uiSurvey,copyButPushed), false );
-    copybut->attach( alignedBelow, editbut_ );
-    copybut->setPrefWidthInChar( 12 );
-
-    uiToolButton* expbut = new uiToolButton( leftgrp, "share",
-				    "Pack survey into a zip file",
-				    mCB(this,uiSurvey,exportButPushed) );
-    expbut->attach( alignedBelow, copybut );
-    uiToolButton* impbut = new uiToolButton( leftgrp, "unpack",
-				    "Unpack survey from zip file",
-				    mCB(this,uiSurvey,importButPushed) );
-    impbut->attach( rightAlignedBelow, copybut );
-
-    ObjectSet<uiSurvey::Util>& utils = getUtils();
-    uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
-    const CallBack cb( mCB(this,uiSurvey,utilButPush) );
-    for ( int idx=0; idx<utils.size(); idx++ )
-    {
-	const uiSurvey::Util& util = *utils[idx];
-	uiToolButton* but = new uiToolButton( utilbutgrp, util.pixmap_,
-						util.tooltip_, cb );
-	but->setToolTip( util.tooltip_ );
-	utilbuts_ += but;
-	if ( idx > 0 )
-	    utilbuts_[idx]->attach( rightOf, utilbuts_[idx-1] );
-    }
-    utilbutgrp->attach( centeredBelow, survmap_ );
-
-    uiPushButton* drbut = new uiPushButton( leftgrp, "&Set Data Root",
-				mCB(this,uiSurvey,dataRootPushed), false );
-    drbut->attach( centeredBelow, dirfld_ );
-
-    uiSeparator* horsep1 = new uiSeparator( topgrp );
-    horsep1->setPrefWidth( totwdth );
-    horsep1->attach( stretchedBelow, rightgrp, -2 );
-    horsep1->attach( ensureBelow, leftgrp );
-
-    uiGroup* infoleft = new uiGroup( topgrp, "Survey info left" );
-    uiGroup* inforight = new uiGroup( topgrp, "Survey info right" );
-    infoleft->attach( alignedBelow, leftgrp );
-    infoleft->attach( ensureBelow, horsep1 );
-    inforight->attach( alignedBelow, rightgrp );
-    inforight->attach( ensureBelow, horsep1 );
-
-    infoleft->setFont( FontList().get(FontData::key(FontData::ControlSmall)) );
-    inforight->setFont( FontList().get(FontData::key(FontData::ControlSmall)));
-
-    inllbl_ = new uiLabel( infoleft, "" );
-    crllbl_ = new uiLabel( infoleft, "" );
-    arealbl_ = new uiLabel( infoleft, "" );
-    zlbl_ = new uiLabel( inforight, "" );
-    binlbl_ = new uiLabel( inforight, "" );
-    typelbl_ = new uiLabel( inforight, "" );
-    inllbl_->setPrefWidthInChar( 40 );
-    crllbl_->setPrefWidthInChar( 40 );
-    zlbl_->setPrefWidthInChar( 40 );
-    binlbl_->setPrefWidthInChar( 40 );
-    arealbl_->setPrefWidthInChar( 40 );
-    typelbl_->setPrefWidthInChar( 40 );
-
-    crllbl_->attach( alignedBelow, inllbl_ );
-    arealbl_->attach( alignedBelow, crllbl_ );
-    binlbl_->attach( alignedBelow, zlbl_ );
-    typelbl_->attach( alignedBelow, binlbl_ );
+    uiLabel* infolbl = new uiLabel( topgrp, "" );
+    infolbl->setPixmap( "info" );
+    infolbl->setToolTip( "Survey Information" );
+    infolbl->attach( alignedBelow, leftgrp );
+    infofld_ = new uiTextEdit( topgrp, "Info", true );
+    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setStretch( 2, 1 );
+    infofld_->attach( rightTo, infolbl );
+    infofld_->attach( ensureBelow, rightgrp );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
-    uiLabel* notelbl = new uiLabel( botgrp, "Notes:" );
-    notes_ = new uiTextEdit( botgrp, "Notes" );
-    notes_->attach( alignedBelow, notelbl );
-    notes_->setPrefHeightInChar( noteshght );
-    notes_->setPrefWidth( totwdth );
-    notes_->setStretch( 2, 2 );
+    uiLabel* notelbl = new uiLabel( botgrp, "" );
+    notelbl->setPixmap( ioPixmap("notes") );
+    notelbl->setToolTip( "Notes" );
+    notelbl->setMaximumWidth( 32 );
+
+    notesfld_ = new uiTextEdit( botgrp, "Survey Notes" );
+    notesfld_->attach( rightTo, notelbl );
+    notesfld_->setPrefHeightInChar( 6 );
+    notesfld_->setStretch( 2, 2 );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
     splitter->addGroup( botgrp );
 
     putToScreen();
-    setOkText( "&Ok (Select)" );
+    setOkText( "&Select" );
     postFinalise().notify( selchgcb );
 }
 
@@ -513,6 +439,70 @@ uiSurvey::~uiSurvey()
 {
     delete impiop_;
     delete cursurvinfo_;
+}
+
+
+void uiSurvey::fillLeftGroup( uiGroup* grp )
+{
+    dirfld_ = new uiListBox( grp, "Surveys" );
+    updateSurvList();
+    dirfld_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
+    dirfld_->doubleClicked.notify( mCB(this,uiSurvey,accept) );
+    dirfld_->setHSzPol( uiObject::WideVar );
+    dirfld_->setStretch( 2, 2 );
+
+    uiToolButton* dbbut = new uiToolButton( grp, "database",
+	"Select Survey Data Root", mCB(this,uiSurvey,dataRootPushed) );
+    dbbut->attach( rightTo, dirfld_ );
+
+    uiToolButton* newbut = new uiToolButton( grp, "addnew",
+	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
+    newbut->attach( alignedBelow, dbbut );
+
+    editbut_ = new uiToolButton( grp, "edit", "Edit Survey Parameters",
+				 mCB(this,uiSurvey,editButPushed) );
+    editbut_->attach( alignedBelow, newbut );
+
+    uiToolButton* copybut = new uiToolButton( grp, "copyobj",
+	"Copy Survey", mCB(this,uiSurvey,copyButPushed) );
+    copybut->attach( alignedBelow, editbut_ );
+
+    uiToolButton* expbut = new uiToolButton( grp, "export",
+	"Pack survey into a zip file", mCB(this,uiSurvey,exportButPushed) );
+    expbut->attach( alignedBelow, copybut );
+
+    uiToolButton* impbut = new uiToolButton( grp, "import",
+	"Import survey from zip file", mCB(this,uiSurvey,importButPushed) );
+    impbut->attach( alignedBelow, expbut );
+
+    rmbut_ = new uiToolButton( grp, "trashcan", "Remove Survey",
+			       mCB(this,uiSurvey,rmButPushed) );
+    rmbut_->attach( alignedBelow, impbut );
+}
+
+
+void uiSurvey::fillRightGroup( uiGroup* grp )
+{
+    survmap_ = new uiSurveyMap( grp );
+    survmap_->setPrefWidth( sMapWidth );
+    survmap_->setPrefHeight( sMapHeight );
+
+    uiButton* lastbut = 0;
+    ObjectSet<uiSurvey::Util>& utils = getUtils();
+    const CallBack cb( mCB(this,uiSurvey,utilButPush) );
+    for ( int idx=0; idx<utils.size(); idx++ )
+    {
+	const uiSurvey::Util& util = *utils[idx];
+	uiToolButton* but = new uiToolButton( grp, util.pixmap_,
+					      util.tooltip_, cb );
+	but->setToolTip( util.tooltip_ );
+	utilbuts_ += but;
+	if ( !lastbut )
+	    but->attach( rightTo, survmap_ );
+	else
+	    but->attach( alignedBelow, lastbut );
+	lastbut = but;
+    }
 }
 
 
@@ -874,6 +864,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
     SetCurBaseDataDirOverrule( dataroot_ );
 
     updateSurvList();
+    updateWindowTitle();
     const char* ptr = GetSurveyName();
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
@@ -911,6 +902,12 @@ void uiSurvey::utilButPush( CallBacker* cb )
     }
 }
 
+
+void uiSurvey::updateWindowTitle()
+{
+    const BufferString title( "Survey Data Root: ", dataroot_ );
+    setTitleText( title );
+}
 
 
 void uiSurvey::updateSurvList()
@@ -1014,29 +1011,30 @@ void uiSurvey::selChange( CallBacker* )
 }
 
 
-
 void uiSurvey::putToScreen()
 {
     if ( !survmap_ ) return;
 
     survmap_->setSurveyInfo( cursurvinfo_ );
 
+    BufferString locinfo( "Location: " );
     BufferString inlinfo( "In-line range: " );
     BufferString crlinfo( "Cross-line range: " );
-    BufferString survtypeinfo( "Survey type: " );
     BufferString zinfo( "Z range" );
-    BufferString bininfo( "Bin size" );
+    BufferString bininfo( "Inl/Crl bin size" );
     BufferString areainfo( "Area" );
+    BufferString survtypeinfo( "Survey type: " );
+    BufferString orientinfo( "In-line Orientation: " );
 
     if ( !cursurvinfo_ )
     {
-	notes_->setText( "" );
+	notesfld_->setText( "" );
 	zinfo.add( ":" ); bininfo.add( ":" ); areainfo.add( ":" );
     }
     else
     {
 	const SurveyInfo& si = *cursurvinfo_;
-	notes_->setText( si.comment() );
+	notesfld_->setText( si.comment() );
 
 	zinfo.add( " (" ).add( si.getZUnitString(false) ).add( "): ");
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
@@ -1046,24 +1044,20 @@ void uiSurvey::putToScreen()
 	{
 	    inlinfo.add( si.sampling(false).hrg.start.inl() );
 	    inlinfo.add( " - ").add( si.sampling(false).hrg.stop.inl() );
-	    inlinfo.add( "  step: " ).add( si.inlStep() );
+	    inlinfo.add( " - " ).add( si.inlStep() );
 	    crlinfo.add( si.sampling(false).hrg.start.crl() );
 	    crlinfo.add( " - ").add( si.sampling(false).hrg.stop.crl() );
-	    crlinfo.add( "  step: " ).add( si.crlStep() );
+	    crlinfo.add( " - " ).add( si.crlStep() );
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
-	    #define mAddDist(dist) \
-	    nr = (int)(dist*100+.5); bininfo += nr/100; \
-	    rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest
 
-	    int nr, rest;
-	    bininfo += "inl: "; mAddDist(inldist);
-	    bininfo += "  crl: "; mAddDist(crldist);
+	    bininfo.add( toString(inldist,2) ).add( "/" )
+		   .add( toString(crldist,2) );
 	    float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
 	    if ( si.xyInFeet() )
 		area /= 2.590; // square miles
 
-	    areainfo += area;
+	    areainfo.add( toString(area,2) );
 	}
 
 	#define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
@@ -1071,37 +1065,38 @@ void uiSurvey::putToScreen()
 	const bool istime = si.zIsTime();
 	mAdd2ZString( si.zRange(false).start );
 	zinfo += " - "; mAdd2ZString( si.zRange(false).stop );
-	zinfo += "  step: "; mAdd2ZString( si.zRange(false).step );
-	survtypeinfo.add( ": " ).add( SurveyInfo::toString(si.survDataType()) );
+	zinfo += " - "; mAdd2ZString( si.zRange(false).step );
+	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
+
+	FilePath fp( si.datadir_, si.dirname_ );
+	fp.makeCanonical();
+	locinfo.add( fp.fullPath() );
+
+	const float usrang = Math::degFromNorth( si.angleXInl() );
+	orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
     }
-    inllbl_->setText( inlinfo );
-    crllbl_->setText( crlinfo );
-    binlbl_->setText( bininfo );
-    arealbl_->setText( areainfo );
-    zlbl_->setText( zinfo );
-    typelbl_->setText( survtypeinfo );
+
+    BufferString infostr;
+    infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
+	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
+	.add( areainfo ).addNewLine().add( survtypeinfo )
+	.addNewLine().add( locinfo ).addNewLine().add( orientinfo );
+    infofld_->setText( infostr );
 
     const bool anysvy = !dirfld_->isEmpty();
     rmbut_->setSensitive( anysvy );
     editbut_->setSensitive( anysvy );
     for ( int idx=0; idx<utilbuts_.size(); idx++ )
 	utilbuts_[idx]->setSensitive( anysvy );
-
-    if ( cursurvinfo_ )
-    {
-	FilePath fp( cursurvinfo_->datadir_, cursurvinfo_->dirname_ );
-	fp.makeCanonical();
-	toStatusBar( fp.fullPath() );
-    }
 }
 
 
 bool uiSurvey::writeSurvInfoFileIfCommentChanged()
 {
-    if ( !cursurvinfo_ || !notes_->isModified() )
+    if ( !cursurvinfo_ || !notesfld_->isModified() )
 	return true;
 
-    cursurvinfo_->setComment( notes_->text() );
+    cursurvinfo_->setComment( notesfld_->text() );
     if ( !cursurvinfo_->write( dataroot_ ) )
 	mErrRet( "Failed to write survey info.\nNo changes committed." )
 

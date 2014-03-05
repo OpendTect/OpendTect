@@ -16,14 +16,13 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstring.h"
 
-class SurveyInfo;
 class BufferStringSet;
-class uiLabel;
+class SurveyInfo;
 class uiButton;
 class uiListBox;
-class uiTextEdit;
 class uiSurveyMap;
 class uiSurvInfoProvider;
+class uiTextEdit;
 
 
 /*!\brief The main survey selection dialog */
@@ -36,11 +35,11 @@ public:
 			~uiSurvey();
 
     static void		getSurveyList(BufferStringSet&,const char* dataroot=0,
-	    			      const char* excludenm=0);
+				      const char* excludenm=0);
 
     static bool		survTypeOKForUser(bool is2d);
-    			//!< checks whether given type has support
-    			//!< returns whether user wants to continue
+			//!< checks whether given type has support
+			//!< returns whether user wants to continue
 
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
@@ -76,18 +75,13 @@ protected:
     uiButton*		editbut_;
     uiButton*		rmbut_;
     ObjectSet<uiButton>	utilbuts_;
-    uiLabel*		inllbl_;
-    uiLabel*		crllbl_; 
-    uiLabel*		zlbl_;
-    uiLabel*		binlbl_;
-    uiLabel*		arealbl_;
-    uiLabel*		typelbl_;
-    uiTextEdit*		notes_;
+    uiTextEdit*		infofld_;
+    uiTextEdit*		notesfld_;
     bool		parschanged_; //!< of initial survey only
     bool		cursurvremoved_;
 
-    bool		acceptOK(CallBacker*);  
-    bool		rejectOK(CallBacker*);  
+    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*);
     void		newButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
@@ -97,10 +91,11 @@ protected:
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);
     void		selChange(CallBacker*);
-    void 		updateInfo( CallBacker* )	{ putToScreen(); }
+    void		updateInfo( CallBacker* )	{ putToScreen(); }
 
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
+    void		updateWindowTitle();
     void		updateSurvList();
     void		putToScreen();
     bool		writeSettingsSurveyFile();
@@ -110,9 +105,9 @@ protected:
     void		updateDataRootInSettings();
     void		rollbackNewSurvey(const char*);
 
+private:
+    void		fillLeftGroup(uiGroup*);
+    void		fillRightGroup(uiGroup*);
 };
 
-
-
 #endif
-
