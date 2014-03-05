@@ -815,16 +815,15 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
-    std::istream& strm = sConn().iStream();
-    if ( !sConn().doIO( headerbuf_, mSEGYTraceHeaderBytes )
-	    || strm.eof() )
-    {
-	if ( !strm.eof() )
-	    mPosErrRet("Error reading trace header")
+    if ( !conn || !conn->isStream() )
+	mErrRet("Cannot read from input stream")
+    if ( !sConn().doIO(headerbuf_,mSEGYTraceHeaderBytes) )
+       mPosErrRet("Error reading trace header")	
+    headerbufread_ = true;
+    if ( sConn().iStream().eof() )
 	return noErrMsg();
-    }
 
-    return (headerbufread_ = true);
+    return true;
 }
 
 
