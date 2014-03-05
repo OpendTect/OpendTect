@@ -406,7 +406,7 @@ bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg,
     if ( sz < 1 ) return false;
 
     const PosInfo::LineData* ld = (*this)[0];
-    rg = ld->segments_[0];
+    rg = ld->segments_.size() ? ld->segments_[0] : StepInterval<int>(0,0,1);
     bool foundrealstep = rg.start != rg.stop;
     bool isreg = true;
 
@@ -576,6 +576,8 @@ bool PosInfo::CubeData::isCrlReversed() const
     for ( int ilnr=0; ilnr<sz; ilnr++ )
     {
 	const PosInfo::LineData& ld = *(*this)[ilnr];
+	if ( ld.segments_.isEmpty() )
+	    continue;
 	if ( ld.segments_.size() >= 2 )
 	{
 	    if ( ld.segments_[0].start==ld.segments_[1].start )
