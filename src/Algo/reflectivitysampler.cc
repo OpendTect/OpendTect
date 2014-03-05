@@ -47,14 +47,16 @@ ReflectivitySampler::~ReflectivitySampler()
 void ReflectivitySampler::doTimeReflectivities()
 {
     fft_ = new Fourier::CC;
-    creflectivities_.setParam( this, new TypeSet<float_complex> );
+    if ( !creflectivities_.getParam(this) )
+	creflectivities_.setParam( this, new TypeSet<float_complex> );
 }
 
 
 TypeSet<float_complex>& ReflectivitySampler::reflectivities( bool time ) const
 {
     return time && fft_ && creflectivities_.getParam(this)
-       		? *creflectivities_.getParam(this) : output_;
+		? *creflectivities_.getParam(this)
+		: output_;
 }
 
 
@@ -166,7 +168,7 @@ bool ReflectivitySampler::doFinish( bool success )
 	    *res += *buffers[idx];
 	    buffers[idx]++;
 	}
-	
+
 	res++;
     }
 
@@ -183,7 +185,7 @@ bool ReflectivitySampler::doFinish( bool success )
 void ReflectivitySampler::setTargetDomain( bool fourier )
 {
     if ( fourier ) return;
-    
+
     doTimeReflectivities();
 }
 

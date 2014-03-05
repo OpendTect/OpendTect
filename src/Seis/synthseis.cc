@@ -84,13 +84,13 @@ void SynthGenBase::fillPar( IOPar& par ) const
 }
 
 
-bool SynthGenBase::usePar( const IOPar& par ) 
+bool SynthGenBase::usePar( const IOPar& par )
 {
     return par.getYN( sKeyNMO(), applynmo_ )
 	&& par.getYN( sKeyFourier(), isfourier_ )
 	&& par.getYN( sKeyInternal(), dointernalmultiples_ )
         && par.get( sKeySurfRefl(), surfreflcoeff_ )
-    	&& par.get( sKeyStretchLimit(), stretchlimit_)
+	&& par.get( sKeyStretchLimit(), stretchlimit_)
         && par.get( sKeyMuteLength(), mutelength_ );
 }
 
@@ -104,8 +104,8 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 
 bool SynthGenBase::getOutSamplingFromModel(
 			     const ObjectSet<const ReflectivityModel>& models,
-       			     StepInterval<float>& sampling,
-       			     bool usenmo )
+			     StepInterval<float>& sampling,
+			     bool usenmo )
 {
     if ( models.isEmpty() )
 	mpErrRet( "No models given to make synthetics", false );
@@ -159,10 +159,10 @@ bool SynthGenBase::getOutSamplingFromModel(
 
     sampling.scale( 1.f / outputsr );
     sampling.start = mIsEqual( (float)mNINT32(sampling.start), sampling.start,
-	   			1e-2f )
+				1e-2f )
 			  ? mNINT32(sampling.start) : floor( sampling.start);
     sampling.stop = mIsEqual( (float)mNINT32(sampling.stop), sampling.stop,
-	   		       1e-2f )
+			       1e-2f )
 			 ? mNINT32(sampling.stop) : ceil( sampling.stop );
     sampling.scale( outputsr );
     sampling.start += wavelet_->samplePositions().start;
@@ -188,7 +188,7 @@ SynthGenerator::~SynthGenerator()
     freqreflectivities_.erase();
     creflectivities_.erase();
     reflectivities_.erase();
-    
+
     delete &outtrc_;
 }
 
@@ -211,10 +211,10 @@ SynthGenerator* SynthGenerator::create( bool advanced )
 bool SynthGenerator::setModel( const ReflectivityModel& refmodel )
 {
     refmodel_ = &refmodel;
-    
+
     freqreflectivities_.erase();
     convolvesize_ = 0;
-    
+
     return true;
 }
 
@@ -222,7 +222,7 @@ bool SynthGenerator::setModel( const ReflectivityModel& refmodel )
 bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
     freqwavelet_.erase();
-        
+
     return SynthGenBase::setWavelet( wvlt, pol );
 }
 
@@ -235,7 +235,7 @@ bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
 
     convolvesize_ = 0;
     freqwavelet_.erase();
-    
+
     return true;
 }
 
@@ -271,7 +271,7 @@ int SynthGenerator::nextStep()
 
     if ( freqreflectivities_.isEmpty() )
 	return computeReflectivities() ? mMoreToDoRet : mErrOccRet;
-    
+
     return computeTrace( outtrc_ ) ? mFinishedRet : mErrOccRet;
 }
 
@@ -323,17 +323,17 @@ int SynthGenerator::genFreqWavelet()
 	int arrpos = idx - wavelet_->centerSample();
 	if ( arrpos < 0 )
 	    arrpos += convolvesize_;
-	
+
 	freqwavelet_[arrpos] = wavelet_->samples()[idx];
     }
-    
+
     mPrepFFT( fft, freqwavelet_.arr(), true, convolvesize_ );
     if ( !fft->run(true) )
     {
 	freqwavelet_.erase();
 	mErrRet( "Error running FFT for the wavelet spectrum", mErrOccRet );
     }
-    
+
     return mMoreToDoRet;
 }
 
@@ -341,14 +341,14 @@ int SynthGenerator::genFreqWavelet()
 bool SynthGenerator::computeTrace( SeisTrc& res ) const
 {
     res.zero();
-    
+
     PtrMan<ValueSeries<float> > tmpvs = applynmo_
 	? new ArrayValueSeries<float, float>( convolvesize_ )
 	: 0;
-    
+
     SeisTrcValueSeries trcvs( res, 0 );
     ValueSeries<float>& vs = tmpvs ? *tmpvs : trcvs;
-    
+
     if ( isfourier_ )
     {
 	if ( !doFFTConvolve( vs, tmpvs ? convolvesize_ : outtrc_.size() ) )
@@ -356,17 +356,17 @@ bool SynthGenerator::computeTrace( SeisTrc& res ) const
     }
     else if ( !doTimeConvolve( vs, tmpvs ? convolvesize_ : outtrc_.size() ) )
 	return false;
-    
+
     if ( applynmo_ )
     {
 	if ( !doNMOStretch( vs, convolvesize_, trcvs, outtrc_.size() ))
 	    return false;
     }
-    
+
     return true;
 }
-    
-    
+
+
 bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 				  ValueSeries<float>& out, int outsz ) const
 {
@@ -374,17 +374,17 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 
     if ( !refmodel_->size() )
 	return true;
-    
+
     float mutelevel = outputsampling_.start;
     float firsttime = mUdf(float);
-    
+
     PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
 				      PointBasedMathFunction::ExtraPolGradient);
 
     for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
-	
+
 	if ( idx>0 )
 	{
 	    //check for crossing events
@@ -393,45 +393,45 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	    {
 		mutelevel = mMAX(spike.correctedtime_, mutelevel );
 	    }
-    	}
-    
+	}
+
 	firsttime = mMIN( firsttime, spike.correctedtime_ );
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
-    
+
     if ( firsttime>0 )
 	stretchfunc.add( 0, 0 );
-    
+
     outtrc_.info().sampling.indexOnOrAfter( mutelevel );
-    
+
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
 	    insz, outputsampling_.start,
 	    outputsampling_.step );
-				
+
     for ( int idx=0; idx<outsz; idx++ )
     {
 	const float corrtime = outtrc_.info().sampling.atIndex( idx );
 	const float uncorrtime = stretchfunc.getValue( corrtime );
-	
+
 	const float stretch = corrtime>0
 	    ? uncorrtime/corrtime -1
 	    : 0;
-	
+
 	if ( stretch>stretchlimit_ )
 	    mutelevel = mMAX( corrtime, mutelevel );
-	
+
 	const float outval = samplfunc.getValue( uncorrtime );
 	out.setValue( idx, mIsUdf(outval) ? 0 : outval );
     }
 
-    
+
     if ( mutelevel>outputsampling_.start )
     {
 	Muter muter( mutelength_/outputsampling_.step, false );
 	muter.mute( out, outtrc_.size(),
 		    outputsampling_.getfIndex( mutelevel ) );
     }
-    
+
     return true;
 }
 
@@ -441,21 +441,21 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz ) const
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     if ( !fft )
 	return false;
-    
+
     mDeclareAndTryAlloc( ArrPtrMan<float_complex>, cres,
 			 float_complex[convolvesize_] );
     if ( !cres )
 	return false;
-    
+
     for ( int idx=0; idx<convolvesize_; idx++ )
 	cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
-    
+
     mPrepFFT( fft, cres, false, convolvesize_ );
     if ( !fft->run(true) )
 	return false;
 
     sortOutput( cres, res, outsz );
-    
+
     return true;
 }
 
@@ -487,8 +487,8 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz ) const
 
 
 void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
-       				      float scal,
-       				      SamplingData<float>& sampling ) const
+				      float scal,
+				      SamplingData<float>& sampling ) const
 {
     const int sz = trc.info().getSize(0);
     for ( int idx=0; idx<sz; idx++ )
@@ -500,7 +500,7 @@ void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
 
 
 void SynthGenerator::sortOutput( float_complex* cres, ValueSeries<float>& res,
-       				 int outsz ) const
+				 int outsz ) const
 {
     const float step = outtrc_.info().sampling.step;
     float start = mCast( float, mCast( int, outtrc_.startPos()/step ) ) * step;
@@ -542,14 +542,15 @@ bool SynthGenerator::computeReflectivities()
     const StepInterval<float> sampling( outputsampling_.start,
 	    outputsampling_.atIndex( convolvesize_-1 ), outputsampling_.step );
 
-    ReflectivitySampler sampler( *refmodel_, sampling, freqreflectivities_ );
-    sampler.doTimeReflectivities();
-    bool isok = sampler.execute();
+    PtrMan<ReflectivitySampler> sampler =
+	new ReflectivitySampler( *refmodel_, sampling, freqreflectivities_ );
+    sampler->doTimeReflectivities();
+    bool isok = sampler->execute();
     if ( !isok )
-	mErrRet( sampler.message(), false );
+	mErrRet( sampler->message(), false );
 
-    creflectivities_ = sampler.reflectivities( true );
-    sampler.getTimeReflectivities( reflectivities_ );
+    creflectivities_ = sampler->reflectivities( true );
+    sampler->getTimeReflectivities( reflectivities_ );
 
     return true;
 }
@@ -560,16 +561,16 @@ void SynthGenerator::computeSampledReflectivities( TypeSet<float>& realres,
 {
     const StepInterval<float> sampling( outputsampling_.start,
 	outputsampling_.atIndex( convolvesize_ ), outputsampling_.step );
-    
+
     realres.erase();
     realres.setSize( convolvesize_, 0 );
-    
+
     if ( cres )
     {
 	cres->erase();
 	cres->setSize( convolvesize_, float_complex(0,0) );
     }
-    
+
     for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
@@ -595,8 +596,8 @@ bool SynthGenerator::doWork()
 {
     int res = mMoreToDoRet;
     while ( res == mMoreToDoRet )
-    	res = nextStep();
-    
+	res = nextStep();
+
     return res == mFinishedRet;
 }
 
@@ -628,8 +629,8 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 }
 
 
-void MultiTraceSynthGenerator::setModels( 
-			const ObjectSet<const ReflectivityModel>& refmodels ) 
+void MultiTraceSynthGenerator::setModels(
+			const ObjectSet<const ReflectivityModel>& refmodels )
 {
     totalnr_ = 0;
     models_ = &refmodels;
@@ -654,7 +655,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 	synthgen.setOutSampling( outputsampling_ );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
-	
+
 	lock_.lock();
 
 	trcs_ += new SeisTrc( synthgen.result() );
@@ -668,20 +669,20 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 }
 
 
-void MultiTraceSynthGenerator::getResult( ObjectSet<SeisTrc>& trcs ) 
+void MultiTraceSynthGenerator::getResult( ObjectSet<SeisTrc>& trcs )
 {
-    TypeSet<int> sortidxs; 
+    TypeSet<int> sortidxs;
     for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
 	sortidxs += idtrc;
     sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
     for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
-	trcs += trcs_[ sortidxs[idtrc] ]; 
+	trcs += trcs_[ sortidxs[idtrc] ];
 
     trcs_.erase();
 }
 
 
-void MultiTraceSynthGenerator::getSampledReflectivities( 
+void MultiTraceSynthGenerator::getSampledReflectivities(
 						TypeSet<float>& rfs) const
 {
     if ( !synthgens_.isEmpty() )
@@ -730,7 +731,7 @@ bool RaySynthGenerator::doPrepare( int )
 
     rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
     message_ = "Raytracing";
-    if ( !rtr_->execute() ) 
+    if ( !rtr_->execute() )
 	mErrRet( rtr_->errMsg(), false );
 
     raytracingdone_ = true;
@@ -750,7 +751,7 @@ bool RaySynthGenerator::doPrepare( int )
     const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
     StepInterval<float> cursampling( outputsampling_ );
     SynthGenBase::getOutSamplingFromModel( models, cursampling,
-	   				   applynmo_ || zerooffset );
+					   applynmo_ || zerooffset );
     outputsampling_.include( cursampling, false );
     outputsampling_.step = cursampling.step;
 
@@ -796,7 +797,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	    multitracegen.getSampledReflectivities( rm.sampledrefs_ );
 	}
     }
-    
+
     return true;
 }
 
@@ -824,7 +825,7 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
-	ReflectivityModel* refmodel = new ReflectivityModel(); 
+	ReflectivityModel* refmodel = new ReflectivityModel();
 	rt1d.getReflectivity( idx, *refmodel );
 
 	TimeDepthModel* t2dm = new TimeDepthModel();
@@ -854,7 +855,7 @@ RaySynthGenerator::RayModel::~RayModel()
 bool RaySynthGenerator::usePar( const IOPar& par )
 {
     SynthGenBase::usePar( par );
-    raysetup_.merge( par ); 
+    raysetup_.merge( par );
     raysetup_.get( RayTracer1D::sKeyOffset(), offsets_ );
     if ( offsets_.isEmpty() )
 	offsets_ += 0;
@@ -899,21 +900,21 @@ void RaySynthGenerator::getAllRefls( ObjectSet<const ReflectivityModel>& refs )
 	inpset.erase();\
 }
 
-void RaySynthGenerator::RayModel::getTraces( 
+void RaySynthGenerator::RayModel::getTraces(
 		    ObjectSet<SeisTrc>& trcs, bool steal )
 {
     mGet( outtrcs_, trcs, steal );
 }
 
 
-void RaySynthGenerator::RayModel::getRefs( 
+void RaySynthGenerator::RayModel::getRefs(
 			ObjectSet<const ReflectivityModel>& trcs, bool steal )
 {
     mGet( refmodels_, trcs, steal );
 }
 
 
-void RaySynthGenerator::RayModel::getD2T( 
+void RaySynthGenerator::RayModel::getD2T(
 			ObjectSet<TimeDepthModel>& trcs, bool steal )
 {
     mGet( t2dmodels_, trcs, steal );
@@ -930,8 +931,8 @@ void RaySynthGenerator::RayModel::forceReflTimes( const StepInterval<float>& si)
 {
     for ( int idx=0; idx<refmodels_.size(); idx++ )
     {
-	ReflectivityModel& refmodel 
-	    		= const_cast<ReflectivityModel&>(*refmodels_[idx]);
+	ReflectivityModel& refmodel
+			= const_cast<ReflectivityModel&>(*refmodels_[idx]);
 	for ( int iref=0; iref<refmodel.size(); iref++ )
 	{
 	    refmodel[iref].time_ = si.atIndex(iref);
