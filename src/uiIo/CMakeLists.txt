@@ -38,6 +38,7 @@ SET(OD_MODULE_SOURCES
 	    uiioobjsel.cc
 	    uilatlong.cc
 	    uimanprops.cc
+	    uimmbatchjobdispatch.cc
 	    uiobjfileman.cc
 	    uipickpartserv.cc
 	    uipicksetman.cc

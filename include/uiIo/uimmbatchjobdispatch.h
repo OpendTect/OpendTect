@@ -11,50 +11,46 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uiiomod.h"
 #include "uidialog.h"
 
 class Timer;
 class uiLabel;
-class Executor;
 class uiSlider;
+class uiListBox;
 class uiTextEdit;
 class uiGenInput;
 class uiComboBox;
 class HostDataList;
 class uiProgressBar;
 class uiTextFileDlg;
-class uiIOFileSelect;
-class uiSeisIOObjInfo;
-class SeisJobExecProv;
-class uiLabeledListBox;
+namespace Batch { class JobSpec; }
 
 
-mExpClass(uiSeis) uiSeisMMProc : public uiDialog
+mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 {
 public:
-                        uiSeisMMProc(uiParent*,const IOPar&,
-				     const char* prognm,const char* parfnm);
-			~uiSeisMMProc();
+                        uiMMBatchJobDispatcher(uiParent*,const Batch::JobSpec&);
+			~uiMMBatchJobDispatcher();
 
 protected:
 
-    HostDataList&	hdl;
-    Executor*		task;
-    Timer*		timer;
-    int			nrcyclesdone;
-    bool 		paused;
+    Batch::JobSpec&	jobspec_;
+    HostDataList&	hdl_;
+    Timer*		timer_;
+    int			nrcyclesdone_;
+    BufferString	basecaption_;
 
-    uiLabeledListBox*	avmachfld_;
-    uiLabeledListBox*	usedmachfld_;
+    uiListBox*		avmachfld_;
+    uiListBox*		usedmachfld_;
+    uiTextEdit*		progrfld_;
+    uiTextFileDlg*	logvwer_;
+    uiSlider*		nicefld_;
+    uiProgressBar*	progbar_;
     uiComboBox*		jrppolselfld_;
-    uiTextEdit*		progrfld;
-    uiTextFileDlg*	logvwer;
-    uiGenInput*		jrpstartfld;
-    uiGenInput*		jrpstopfld;
-    uiLabel*		jrpworklbl;
-    uiSlider*		nicefld;
-    uiProgressBar*	progbar;
+    uiGenInput*		jrpstartfld_;
+    uiGenInput*		jrpstopfld_;
+    uiLabel*		jrpworklbl_;
 
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -64,23 +60,13 @@ protected:
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
-    void		jobPrepare(CallBacker*);
-    void		jobStarted(CallBacker*);
-    void		jobFailed(CallBacker*);
-    void		infoMsgAvail(CallBacker*);
     void		jrpSel(CallBacker*);
 
     void		startWork(CallBacker*);
-    void		setNiceNess();
     void		updateAliveDisp();
-    void		updateCurMachs();
-    bool		wrapUp(bool);
-    int			runnerHostIdx(const char*) const;
+    bool		isPaused() const;
+    const char*		curUsedMachName();
 
-    const char* 	curUsedMachName();
-    void		pauseJobs();
-    int			defltNrInlPerJob(const IOPar&);
-    void		mkJobRunner(int);
 };
 
 #endif
