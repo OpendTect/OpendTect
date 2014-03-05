@@ -330,7 +330,7 @@ void uiDataPointSet::mkToolBars()
 
     if ( !is2D() )
     {
-	showbidsfld_ = new uiCheckBox( disptb_, "Show BinIDs" );
+	showbidsfld_ = new uiCheckBox( disptb_, "Show Inl/Crl" );
 	showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
 	showbidsfld_->setChecked( showbids_ );
 	disptb_->addObject( showbidsfld_ );
