@@ -260,6 +260,7 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	selids_ += selid;
 	linenmsset_ += BufferStringSet();
 	const int lsidx = linenmsset_.size()-1;
+	NotifyStopper ns( lnmfld_->selectionChanged );
 	for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
 	{
 	    lnmfld_->setSelected( lidx, true );
