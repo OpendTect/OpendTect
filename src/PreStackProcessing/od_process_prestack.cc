@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
-#include "hostdata.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
