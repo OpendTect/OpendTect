@@ -43,12 +43,16 @@ SceneColTab::SceneColTab()
     , width_(20)
     , height_(250)
     , horizontal_(false)
+    , pos_(Bottom)
+    , aspratio_(1)
+    , winx_(100)
+    , winy_(100)
 {
     addChild( osgcolorbar_ );
     mScalarBar->setOrientation( mScalarBarType::VERTICAL );
     mScalarBar->setTitle( "" );
     mScalarBar->setNumLabels( 5 );
-    
+
     setSize( width_, height_ );
     setColTabSequence( ColTab::Sequence("") );
 }
@@ -82,7 +86,7 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 {
     if ( sequence_==ctseq )
 	return;
-    
+
     sequence_ = ctseq;
     updateSequence();
 }
@@ -166,13 +170,13 @@ void SceneColTab::updateSequence()
     std::vector<osg::Vec4> colors(nrcols);
 
     mDefParallelCalc4Pars( ColorUpdator,
-	    		   std::vector<osg::Vec4>&, colors, 
+			   std::vector<osg::Vec4>&, colors,
 			   const ColTab::IndexedLookUpTable&,table,
 			   bool, flipseq,
 			   const int&, nrcols )
     mDefParallelCalcBody
     (
-    	,
+	,
 	Color col = table_.colorForIndex( flipseq_ ? nrcols_-idx-1 : idx );
 	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), col2f(t) )
 	,
@@ -184,7 +188,7 @@ void SceneColTab::updateSequence()
     osgSim::ColorRange* osgcolorrange =
 	new osgSim::ColorRange(
 	rg_.start, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop, colors );
-   
+
     mScalarBar->setScalarsToColors( osgcolorrange );
 }
 
@@ -194,7 +198,7 @@ void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     Interval<float> rg = ms.range_;
     if ( rg==rg_ && flipseq_==ms.flipseq_ )
 	return;
-    
+
     rg_ = rg;
     flipseq_ = ms.flipseq_;
 
