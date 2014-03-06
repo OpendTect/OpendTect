@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
-#include "hostdata.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
@@ -82,10 +81,6 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 
     return true;
 }
-
-
-static void showHostName( od_ostream& strm )
-{ strm << "Processing on " << HostData::localHostName() << ".\n"; }
 
 
 static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
@@ -324,7 +319,6 @@ bool BatchProgram::go( od_ostream& strm )
 	    return attribSetQuery( strm, pars(), ismaxstepout );
     }
 
-    showHostName( strm );
     Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
 				  SeisJobExecProv::sKeyWorkLS() );
 
