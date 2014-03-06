@@ -344,7 +344,7 @@ bool uiSynthGenDlg::getFromScreen()
 	SyntheticData* inppssd = stratsynth_.getSynthetic(
 		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
-	    mErrRet("Problem with Input Pre-Stack synthetic data",return false);
+	    mErrRet("Problem with Input Prestack synthetic data",return false);
 
 	inppssd->fillGenParams( genparams );
 	genparams.name_ = nm;

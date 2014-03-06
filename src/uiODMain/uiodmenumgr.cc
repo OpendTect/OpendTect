@@ -192,7 +192,7 @@ void uiODMenuMgr::fillSurveyMenu()
     uiMenu* sessionitm = new uiMenu( &appl_, "S&ession" );
     mInsertItem( sessionitm, sSave(false), mSessSaveMnuItm );
     mInsertItem( sessionitm, "&Restore ...", mSessRestMnuItm );
-    mInsertItem( sessionitm, "&Auto ...", mSessAutoMnuItm );
+    mInsertItem( sessionitm, "&Auto-load ...", mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );
     surveymnu_->insertSeparator();
 
@@ -266,8 +266,8 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impseissimple = new uiMenu( &appl_, "&Simple file" );
     mInsertItem( impseissimple, "&3D ...", mImpSeisSimple3DMnuItm );
     mInsertItem( impseissimple, "&2D ...", mImpSeisSimple2DMnuItm );
-    mInsertItem( impseissimple, "&Pre-Stack 3D ...", mImpSeisSimplePS3DMnuItm );
-    mInsertItem( impseissimple, "Pre-S&tack 2D ...", mImpSeisSimplePS2DMnuItm );
+    mInsertItem( impseissimple, "&Prestack 3D ...", mImpSeisSimplePS3DMnuItm );
+    mInsertItem( impseissimple, "Pre&stack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
     uiMenu* impcbvsseis = new uiMenu( &appl_, "&CBVS" );
     mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
@@ -337,12 +337,12 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* expseissgy = new uiMenu( &appl_, "&SEG-Y" );
     mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
     mInsertItem( expseissgy, "&2D ...", mExpSeisSEGY2DMnuItm );
-    mInsertItem( expseissgy, "&Pre-Stack 3D ...", mExpSeisSEGYPS3DMnuItm );
+    mInsertItem( expseissgy, "&Prestack 3D ...", mExpSeisSEGYPS3DMnuItm );
     expseis->insertItem( expseissgy );
     uiMenu* expseissimple = new uiMenu( &appl_, "S&imple file" );
     mInsertItem( expseissimple, "&3D ...", mExpSeisSimple3DMnuItm );
     mInsertItem( expseissimple, "&2D ...", mExpSeisSimple2DMnuItm );
-    mInsertItem( expseissimple, "&Pre-Stack 3D ...", mExpSeisSimplePS3DMnuItm );
+    mInsertItem( expseissimple, "&Prestack 3D ...", mExpSeisSimplePS3DMnuItm );
     expseis->insertItem( expseissimple );
 
     mInsertItem( exphor, "Ascii &3D...", mExpHorAscii3DMnuItm );
@@ -448,7 +448,7 @@ void uiODMenuMgr::fillProcMenu()
 	    new uiAction("&Velocity conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 	csoitm->insertItem(
-	    new uiAction("&Pre Stack processing ...",
+	    new uiAction("&Prestack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
 	csoitm->insertItem(
 	    new uiAction("&Create MultiCube DataStore ...",
@@ -773,7 +773,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	   false,doAttribXPlot);
 
     mAddTB(dtecttb_,"rockphys","Create new well logs using Rock Physics",
-	    		false,launchRockPhysics);
+			false,launchRockPhysics);
 
     dTectTBChanged.trigger();
 }

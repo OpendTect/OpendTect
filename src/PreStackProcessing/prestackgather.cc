@@ -63,7 +63,7 @@ Gather::Gather( const Gather& gather )
 
 
 Gather::Gather( const FlatPosData& fposdata )
-    : FlatDataPack( sDataPackCategory(), 
+    : FlatDataPack( sDataPackCategory(),
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
     , offsetisangle_( false )
     , iscorr_( false )
@@ -101,7 +101,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
     if ( !rdr )
     {
 	if ( errmsg )
-	    (*errmsg) = "This Pre-Stack data store cannot be handeled.";
+	    (*errmsg) = "This Prestack data store cannot be handled.";
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -111,7 +111,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 }
 
 
-bool Gather::readFrom( const MultiID& mid, const int trcnr, 
+bool Gather::readFrom( const MultiID& mid, const int trcnr,
 		       const char* linename, int comp, BufferString* errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -126,14 +126,14 @@ bool Gather::readFrom( const MultiID& mid, const int trcnr,
 }
 
 
-bool Gather::readFrom( const IOObj& ioobj, const int tracenr, 
+bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 		       const char* linename, int comp, BufferString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
     if ( !rdr )
     {
 	if ( errmsg )
-	    (*errmsg) = "This Pre-Stack data store cannot be handeled.";
+	    (*errmsg) = "This Prestack data store cannot be handled.";
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -144,7 +144,7 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 }
 
 
-bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid, 
+bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 		       int comp, BufferString* errmsg )
 {
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
@@ -155,7 +155,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	return false;
     }
     if ( !setFromTrcBuf( *tbuf, comp, true ) )
-       return false;	
+       return false;
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
 
@@ -181,7 +181,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 
 
 bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
-{ 
+{
     tbuf.sort( true, SeisTrcInfo::Offset );
 
     bool isset = false;
@@ -261,15 +261,16 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
     zit_ = SI().zIsTime();
     coord_ = crd;
-    binid_ = SI().transform( coord_ ); 
+    binid_ = SI().transform( coord_ );
 
     return true;
 }
 
 
 const char* Gather::dimName( bool dim0 ) const
-{ 
-    return dim0 ? sKey::Offset() : (SI().zIsTime() ? sKey::Time() : sKey::Depth());
+{
+    return dim0 ? sKey::Offset() :
+			(SI().zIsTime() ? sKey::Time() : sKey::Depth());
 }
 
 
@@ -309,8 +310,8 @@ float Gather::getAzimuth( int idx ) const
 
 OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 {
-    return OffsetAzimuth( (float) posData().position( true, idx ), 
-	    		  azimuths_[idx] );
+    return OffsetAzimuth( (float) posData().position( true, idx ),
+			  azimuths_[idx] );
 }
 
 
@@ -364,7 +365,7 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
 
 
 GatherSetDataPack::GatherSetDataPack( const char* categry,
-       				      const ObjectSet<Gather>& gathers )
+				      const ObjectSet<Gather>& gathers )
     : DataPack( categry )
     , gathers_( gathers )
 {
@@ -409,7 +410,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
     {
 	const int gathersz = gathers_[idx]->size(false);
 	SeisTrc* trc = new SeisTrc( gathersz );
-	trc->info().binid = gathers_[idx]->getBinID();	
+	trc->info().binid = gathers_[idx]->getBinID();
 	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
 	trc->info().nr = idx+1;
 	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
@@ -438,7 +439,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
 		offidxs.addIfNew( idoff );
 	}
     }
-    if ( offidxs.isEmpty() ) 
+    if ( offidxs.isEmpty() )
 	return;
 
     for ( int idx=0; idx<offidxs.size(); idx++ )

@@ -26,7 +26,7 @@ class DataPackMgr;
 \brief A data packet: data+positioning and more that needs to be shared.
 
   The 'category' is meant like:
-  'Pre-Stack gather'
+  'Prestack gather'
   'Wavelet'
   'Fault surface'
 */
@@ -123,18 +123,18 @@ protected:
 
 /*!
 \brief Manages DataPacks.
-  
+
   DataPacks will be managed with everything in it. If you add a Pack, you
   will get the ID of the pack.
-  
+
   When you obtain the data for looking at it, you can choose to 'only observe'.
   In that case, you'd better use the packToBeRemoved notifier, as the data may
   be deleted at any time. Normally, you want to obtain a reference whilst
   making sure the data is not thrown away.
-  
+
   This means you *must* release the data pack once you no longer use it, but
  *NEVER* release a pack when you used the 'observing_only' option.
- 
+
  You can get an appropriate DataPackMgr from the DPM() function.
 */
 
@@ -250,7 +250,7 @@ protected:
 };
 
 /*! Provides safe&easy access to DataPack subclass.
-  
+
   Obtains the pack, and releases it when it goes out of scope. Typically used
   to hold a datapack as a local variable. Will also work when there are
   multiple return points.
@@ -319,7 +319,7 @@ mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 	 DPM( mgrid ).release( __dp->id() ); \
     else \
 	var = __dummy; \
-} 
+}
 
 
 #define mObtainDataPackToLocalVar( var, type, mgrid, newid ) \

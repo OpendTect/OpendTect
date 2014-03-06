@@ -15,8 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-uiGatherDisplayInfoHeader::uiGatherDisplayInfoHeader( uiParent* p ) 
-    : uiGroup( p, "Pre-stack gather Display Info Header" )
+uiGatherDisplayInfoHeader::uiGatherDisplayInfoHeader( uiParent* p )
+    : uiGroup( p, "Prestack gather Display Info Header" )
 {
     setStretch( 2, 2 );
     datalbl_ = new uiLabel(this,"");
@@ -41,11 +41,11 @@ void uiGatherDisplayInfoHeader::setOffsetRange( const Interval<float>& offs )
 }
 
 
-void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl, 
+void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 					bool  is2d, const char* datanm )
 {
-    datalbl_->setText( datanm ); 
-    BufferString posstr( is2d ? "Trace " : isinl ? "Crl " : "Inl " ); 
+    datalbl_->setText( datanm );
+    BufferString posstr( is2d ? "Trace " : isinl ? "Crl " : "Inl " );
     posstr += isinl ? toString( pos.crl() ) : toString( pos.inl() );
     poslbl_->setText( posstr.buf() );
 }
@@ -53,7 +53,7 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 
 void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
 {
-    datalbl_->setText( datanm ); 
+    datalbl_->setText( datanm );
     BufferString posstr( "Model " ); posstr += pos;
     poslbl_->setText( posstr.buf() );
 }

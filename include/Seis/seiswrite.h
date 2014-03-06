@@ -43,7 +43,7 @@ public:
 				//!< Can be anything: SEGY - CBVS - database
 			SeisTrcWriter(const char*,bool is_2d,bool is_ps);
 				//!< Write 'loose' CBVS files
-				//!< (or pre-stack: directories) only.
+				//!< (or prestack: directories) only.
 			~SeisTrcWriter();
     virtual bool	close();
 
@@ -62,7 +62,7 @@ public:
     SeisPSWriter*	psWriter()			{ return pswriter_; }
     const SeisPSWriter*	psWriter() const		{ return pswriter_; }
 
-    			// 2D
+			// 2D
     const LineKeyProvider* lineKeyProvider() const	{ return lkp_; }
     void		setLineKeyProvider( const LineKeyProvider* l )
 							{ lkp_ = l; }
@@ -71,7 +71,7 @@ public:
     void		setAttrib( const char* a )	{ attribnm_ = a; }
 				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar_;}
-    void 		setDataType( const char* dt ) 	{ datatype_ = dt; } 
+    void		setDataType( const char* dt )	{ datatype_ = dt; }
 
     static const char*	sKeyWriteBluntly();
     virtual void	usePar(const IOPar&);
@@ -125,28 +125,28 @@ protected:
 mExpClass(Seis) SeisSequentialWriter
 {
 public:
-    			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
+			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
 			/*!<Writer is owned by caller, not mine. Default bufsize
 			    is 2xnrprocessors. */
 			~SeisSequentialWriter();
     bool		announceTrace(const BinID&);
-    			/*!<Tell the writer that this binid will be submitted
+			/*!<Tell the writer that this binid will be submitted
 			    later. */
 
     bool		submitTrace( SeisTrc*, bool waitforbuffer=true );
-    			/*!<Trc becomes mine. If waitforbuffer is true and
+			/*!<Trc becomes mine. If waitforbuffer is true and
 			    buffer is full, wait until buffer gets smaller. */
 
     bool		submitGather( ObjectSet<SeisTrc>&,
-	    			      bool waitforbuffer=true );
-    			/*!<Trcs become mine. All traces are assumed to be from
+				      bool waitforbuffer=true );
+			/*!<Trcs become mine. All traces are assumed to be from
 			    the same cdp. Traces will be written out in the same
 			    order as in the set.
 			    If waitforbuffer is true and buffer is full, wait
 			    until buffer gets smaller. */
 
     bool		finishWrite();
-    			/*!<Wait for everything to be written. Should be
+			/*!<Wait for everything to be written. Should be
 			    after final submitTrace, before closure.*/
 
     const char*		errMsg() const { return errmsg_.str(); }
@@ -169,7 +169,7 @@ protected:
     BufferString		errmsg_;
 
 };
-    			
+
 
 #endif
 

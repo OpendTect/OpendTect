@@ -39,7 +39,7 @@ public:
     bool		is2D() const		{ return is2d_; }
     bool		isPS() const		{ return psioprov_; }
     Seis::GeomType	geomType() const
-    			{ return Seis::geomTypeOf(is2D(),isPS()); }
+			{ return Seis::geomTypeOf(is2D(),isPS()); }
 
     const char*		errMsg() const
 			{ return errmsg_.str(); }
@@ -74,10 +74,10 @@ public:
     // 2D only
     Seis2DLineSet*	lineSet()			{ return lset_; }
     const Seis2DLineSet* lineSet() const		{ return lset_; }
-    Seis2DDataSet*	dataSet()				{ return dataset_; }
+    Seis2DDataSet*	dataSet()			{ return dataset_; }
     const Seis2DDataSet* dataSet() const		{ return dataset_; }
 
-    // Pre-Stack only
+    // Prestack only
     const SeisPSIOProvider* psIOProv() const		{ return psioprov_; }
 
 protected:

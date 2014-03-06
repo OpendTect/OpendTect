@@ -155,7 +155,7 @@ protected:
 
 //EventReader
 EventReader::EventReader( IOObj* ioobj, EventManager* events, bool trigger )
-    : Executor( "Reading Pre-stack events" )
+    : Executor( "Reading Prestack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
     , bidsel_( 0 )
@@ -528,7 +528,7 @@ bool EventReader::readAuxData(const char* fnm)
 
 //EventWriter
 EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
-    : Executor( "Writing Pre-stack events" )
+    : Executor( "Writing Prestack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
 {

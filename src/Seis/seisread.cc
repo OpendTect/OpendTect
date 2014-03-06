@@ -101,7 +101,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	const char* fnm = ioobj_->fullUserExpr(Conn::Read);
 	if ( is2d_ )
 	{
-	    errmsg_ = "SeisTrcReader cannot read from 2D Pre-Stack data store";
+	    errmsg_ = "SeisTrcReader cannot read from 2D Prestack Data store";
 	    return false;
 	}
 	psrdr_ = psioprov_->make3DReader( fnm );
@@ -143,7 +143,7 @@ void SeisTrcReader::startWork()
 
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if ( !pscditer_->next(curpsbid_) )
-	    { errmsg_ = "Pre-stack data storage is empty"; return; }
+	    { errmsg_ = "Prestack Data storage is empty"; return; }
 	pscditer_->reset();
 	return;
     }
@@ -761,7 +761,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     if ( isPS() )
     {
 	if ( !ioobj_ ) return 0;
-	if ( is2D() ) return 0; //TODO 2D pre-stack
+	if ( is2D() ) return 0; //TODO 2D prestack
 	SeisPSReader* r = SPSIOPF().get3DReader( *ioobj_ );
 	mDynamicCastGet(SeisPS3DReader*,rdr,r)
 	if ( !rdr ) return 0;

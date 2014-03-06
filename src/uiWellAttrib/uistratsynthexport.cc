@@ -53,7 +53,8 @@ class uiStratSynthOutSel : public uiCheckedCompoundParSel
 {
 public:
 
-uiStratSynthOutSel( uiParent* p, const char* seltxt, const BufferStringSet& nms )
+uiStratSynthOutSel( uiParent* p, const char* seltxt,
+		    const BufferStringSet& nms )
     : uiCheckedCompoundParSel( p, seltxt, false, "&Select" )
     , nms_(nms)
     , nm_(seltxt)
@@ -103,7 +104,7 @@ virtual BufferString getSummary() const
 	else if ( sz == selsz )
 	    ret.add( " (all)" );
     }
-    
+
     return ret;
 }
 
@@ -132,7 +133,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     sssu.enabotherdomain( false ).zdomkey( ZDomain::sKeyTime() )
 	.selattr( false ).allowsetdefault( false );
     linesetsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
-	    			sssu );
+				sssu );
     linesetsel_->attach( alignedBelow, crnewfld_ );
     linesetsel_->selectionDone.notify( mCB(this,uiStratSynthExport,lsSel) );
     newlinenmsel_ = new uiSeis2DLineNameSel( this, false );
@@ -161,7 +162,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     horsel_ = new uiStratSynthOutSel( selgrp, "2D horizons", nms );
     horsel_->attach( alignedBelow, poststcksel_ );
     nms.erase(); addNames( presds_, nms );
-    prestcksel_ = new uiStratSynthOutSel( selgrp, "Pre-stack data", nms );
+    prestcksel_ = new uiStratSynthOutSel( selgrp, "Prestack data", nms );
     prestcksel_->attach( alignedBelow, horsel_ );
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
@@ -204,10 +205,10 @@ void uiStratSynthExport::fillGeomGroup()
     geomgrp_->setHAlignObj( geomsel_ );
 
     BinID startbid( SI().inlRange(true).snappedCenter(),
-	    	    SI().crlRange(true).start );
+		    SI().crlRange(true).start );
     Coord startcoord = SI().transform( startbid );
     BinID stopbid( SI().inlRange(true).snappedCenter(),
-	    	   SI().crlRange(true).stop );
+		   SI().crlRange(true).stop );
     Coord stopcoord = SI().transform( stopbid );
     coord0fld_ = new uiGenInput( geomgrp_, "Coordinates: from",
 					DoubleInpSpec(), DoubleInpSpec() );
@@ -351,7 +352,7 @@ uiStratSynthExport::GeomSel uiStratSynthExport::selType() const
 }
 
 
-bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom ) 
+bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 {
     uiStratSynthExport::GeomSel selgeom = selType();
     TypeSet<Coord> ptlist;
@@ -461,7 +462,7 @@ bool uiStratSynthExport::createHor2Ds()
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
 	    horizon2d->setPos( horizon2d->sectionID(0), l2dky, trcidx,
-		    	       stratlvl->zvals_[trcidx], false );
+			       stratlvl->zvals_[trcidx], false );
 	}
 
 	PtrMan<Executor> saver = horizon2d->saver();
@@ -488,7 +489,7 @@ void uiStratSynthExport::removeNonSelected()
     }
     else
 	postsds_.erase();
-    
+
     if ( prestcksel_->isChecked() )
     {
 	selids = prestcksel_->selidxs_;
@@ -540,7 +541,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	getExpObjs();
 	return false;
     }
-	
+
     S2DPOS().setCurLineSet( lineobj->name() );
     BufferString linenm =
 	crnewfld_->getBoolValue() ? newlinenmsel_->getInput()
@@ -579,8 +580,8 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     prepostfix.add( postfxfld_->text() );
     ObjectSet<const SyntheticData> sds( postsds_ );
     sds.append( presds_ );
-    StratSynthExporter synthexp( *linesetsel_->getIOObj(), sds, 
-	    			 linegeom, prepostfix );
+    StratSynthExporter synthexp( *linesetsel_->getIOObj(), sds,
+				 linegeom, prepostfix );
     uiTaskRunner tr( this );
     const bool res = TaskRunner::execute( &tr, synthexp );
     if ( !res )

@@ -30,8 +30,8 @@ class SEGYDirectPSIOProvider : public SeisPSIOProvider
 {
 public:
 			SEGYDirectPSIOProvider()
-			    	: SeisPSIOProvider("SEGYDirect")
-    			{}
+				: SeisPSIOProvider("SEGYDirect")
+			{}
     SeisPS3DReader*	make3DReader( const char* fnm, int ) const
 			{ return new SEGYDirect3DPSReader(fnm); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const
@@ -60,14 +60,14 @@ bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
 }
 
 
-// This adds the SEG-Y direct pre-stack seismics data storage to the factory
+// This adds the SEG-Y direct prestack seismics data storage to the factory
 int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 
 
 static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
 						int filenr )
 {
-    const FixedString filename = def.fileName( filenr ); 
+    const FixedString filename = def.fileName( filenr );
     if ( !filename )
 	return 0;
 
@@ -100,7 +100,7 @@ SEGYDirect3DPSReader::~SEGYDirect3DPSReader()
 }
 
 
-const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const 
+const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const
 { return def_.cubeData(); }
 
 
@@ -182,7 +182,7 @@ SEGYDirect2DPSReader::~SEGYDirect2DPSReader()
 }
 
 
-const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const 
+const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const
 { return def_.lineData(); }
 
 
@@ -224,7 +224,8 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl()), nr );
-    return ti.isValid() ? getTrace(ti.filenr_,mCast(int,ti.trcidx_),bid.crl()): 0;
+    return ti.isValid() ?
+	getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() ) : 0;
 }
 
 

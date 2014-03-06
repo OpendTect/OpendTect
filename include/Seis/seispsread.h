@@ -21,7 +21,7 @@ class BufferStringSet;
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
-/*!\brief reads from a pre-stack seismic data store.
+/*!\brief reads from a prestack seismic data store.
 
  Some data stores like attribute stores have a symbolic name for each sample. In
  that case, getSampleNames may return true.
@@ -46,7 +46,7 @@ public:
 
 };
 
-/*!\brief reads from a 3D pre-stack seismic data store. */
+/*!\brief reads from a 3D prestack seismic data store. */
 
 mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
@@ -59,7 +59,7 @@ public:
 };
 
 
-/*!\brief reads from a 2D pre-stack seismic data store. */
+/*!\brief reads from a 2D prestack seismic data store. */
 
 mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 {

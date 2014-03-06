@@ -45,7 +45,7 @@ public:
 
 
 /*!\brief Determines many geometry parameters from a series of Coords with
-    corresponding BinID or trace numbers and offsets if pre-stack. */
+    corresponding BinID or trace numbers and offsets if prestack. */
 
 
 mExpClass(General) Detector

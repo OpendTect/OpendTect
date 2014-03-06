@@ -24,7 +24,7 @@ ________________________________________________________________________
 class IOObj;
 
 
-/*!\brief Pre-Stack Seismics objects provider
+/*!\brief Prestack Seismics objects provider
 
   It is not mandatory to provide both reader and writer.
   Null returns must be expected.
@@ -47,7 +47,7 @@ class IOObj;
   * positive number for single inline usage
   * mUdf(int) (=default) for scanning the entire datastore
 
-  For 2D pre-stack data stores, you have to pass a line name to get the
+  For 2D prestack data stores, you have to pass a line name to get the
   relevant reader. This can return null if the line name is not found.
 
  */

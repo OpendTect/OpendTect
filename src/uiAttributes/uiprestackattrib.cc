@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 
 
-mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
+mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
 
 
 static const char*	statTypeCountStr()	{ return "Fold"; }

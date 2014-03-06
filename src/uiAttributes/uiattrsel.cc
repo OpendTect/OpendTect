@@ -737,7 +737,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
 	usrnm_ = lk;
 
-	//check for multi-components or pre-stack data
+	//check for multi-components or prestack data
 	//tricky test: look for "=" or "|ALL"
 	BufferString descattrnm( ad->userRef() );
 	BufferString copyofdanm( descattrnm );

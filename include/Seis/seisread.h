@@ -35,7 +35,7 @@ you cannot use SeisTrcTranslator facilities then.
 Then, the routine is: get(trc.info()) possibly followed by get(trc).
 Not keeping this sequence is at your own risk.
 
-Note: 2D Pre-Stack data cannot (yet) be read via this class.
+Note: 2D Prestack data cannot (yet) be read via this class.
 
 */
 
@@ -63,7 +63,7 @@ public:
 			      2 = Not usable (trace needs to be skipped)
 			      If 1 is returned, then you should also call
 			      get(SeisTrc&). */
-			
+
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without
 			     checking the get(SeisTrcInfo&) result. Beware that

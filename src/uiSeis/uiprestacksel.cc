@@ -23,7 +23,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 			const MultiID& selid )
     : uiDialog(p,uiDialog::Setup("Select Data",mNoDlgTitle,mNoHelpID))
     , dpfids_(dpfids)
-    , selid_(selid)  
+    , selid_(selid)
 {
     datapackinpfld_ = new uiListBox( this );
 
@@ -48,13 +48,13 @@ bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
 
 
 uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
-    : uiGroup(p, "Pre-Stack data selector")
+    : uiGroup(p, "Prestack data selector")
     , ctio_(*uiSeisSel::mkCtxtIOObj(is2d?Seis::LinePS:Seis::VolPS,true))
     , selid_(MultiID::udf())
 {
-    BufferString seltxt( "Select Pre-Stack data" );
+    BufferString seltxt( "Select Prestack Data" );
     seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
-    datapackinpfld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt), 
+    datapackinpfld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				mCB(this,uiPreStackSel,doSelDataPack));
 
     datapackinpfld_->display( false );
@@ -74,7 +74,7 @@ bool uiPreStackSel::fillPar( IOPar& par ) const
 }
 
 
-void uiPreStackSel::usePar( const IOPar& par ) 
+void uiPreStackSel::usePar( const IOPar& par )
 {
     return seisinpfld_->usePar( par );
 }
@@ -95,7 +95,7 @@ const MultiID uiPreStackSel::getMultiID() const
     if ( dpfids_.isEmpty() )
 	return selid_;
 
-    BufferString mid = "#"; 
+    BufferString mid = "#";
     mid += selid_;
     return mid.buf();
 }
@@ -128,7 +128,7 @@ bool uiPreStackSel::commitInput()
 }
 
 
-void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids ) 
+void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 {
     dpfids_ = ids;
     for ( int idx=0; idx<ids.size(); idx++ )

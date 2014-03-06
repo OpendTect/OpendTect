@@ -33,15 +33,15 @@ namespace PreStackView
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const CubeSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
-    : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
+    : uiDialog(p,uiDialog::Setup("Prestack Gather display positions",
 				0,"51.1.1").modal(false))
     , okpushed_(this)
-    , is2d_(is2d)		     
+    , is2d_(is2d)
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
 	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
     setCtrlStyle( RunAndClose );
-    
+
     sliceselfld_ = new uiGatherPosSliceSel( this, tp, gathernms, issynthetic );
     sliceselfld_->enableScrollButton( false );
     if ( is2d_ || issynthetic )
@@ -66,7 +66,7 @@ bool uiViewer2DPosDlg::acceptOK( CallBacker* )
 }
 
 
-void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs ) 
+void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs )
 {
     sliceselfld_->acceptOK();
     cs = sliceselfld_->getCubeSampling();
@@ -96,7 +96,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
   , issynthetic_(issynthetic)
 {
     setStretch( 2, 2 );
-    BufferString msg( "Dynamic " ); 
+    BufferString msg( "Dynamic " );
     const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
     msg += linetxt;
     msg += is2d_ ? " Number" : " Range";
@@ -108,7 +108,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     }
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
-    stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
+    stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ );
     stepfld_->box()->setValue( 1 );
 
     updbut_ =
@@ -119,7 +119,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
 
     uiSeparator* sep2 = new uiSeparator( this, "nr viewer/table sep" );
     sep2->attach( stretchedBelow, updbut_ );
-    
+
     posseltbl_ =
 	new uiTable( this, uiTable::Setup(10,gathernms_.size()),"Select");
     posseltbl_->attach( ensureBelow, sep2 );
@@ -246,7 +246,7 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
     {
 	GatherInfo ginfo = gatherinfos_[prevgatheridx];
 	int selpos = geninp->getIntValue()-1;
-    
+
 	if ( issynthetic_ )
 	{
 	    CubeSampling cs( true );
@@ -310,7 +310,7 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     }
 
     rgstep = trcrg.snapStep( rgstep );
-    
+
     StepInterval<int> steprg( trcrg.step, trcrg.width(), trcrg.step );
     stepfld_->box()->setInterval( steprg );
     stepfld_->box()->setValue( rgstep );
@@ -416,8 +416,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 
 
 
-uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p, 
-					    const BufferStringSet& gnms, 
+uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
+					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
 				"Add PS Gather","51.1.2"))

@@ -63,16 +63,16 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     if ( has3d )
     {
 	if ( has2d )
-	    mAddBut("Add 3D Pre-Stack data",ps3DPush);
+	    mAddBut("Add 3D Prestack data",ps3DPush);
 	else
-	    mAddBut("Add Pre-Stack data",ps3DPush);
+	    mAddBut("Add Prestack data",ps3DPush);
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut("Add 2D Pre-Stack lines",ps2DPush);
+	    mAddBut("Add 2D Prestack lines",ps2DPush);
 	else
-	    mAddBut("Add Pre-Stack data",ps2DPush);
+	    mAddBut("Add Prestack data",ps2DPush);
     }
     mAddBut("Unload Selected",unloadPush);
 
@@ -438,7 +438,7 @@ bool acceptOK( CallBacker* )
 {
     if ( !ioObj() )
     {
-	uiMSG().error( "Please select a 2D Pre-Stack Data Store" );
+	uiMSG().error( "Please select a 2D Prestack Data Store" );
 	return false;
     }
     lnms_.erase();

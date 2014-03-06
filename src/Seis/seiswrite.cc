@@ -151,7 +151,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 			  : psioprov_->make3DWriter( psstorkey );
 	if ( !pswriter_ )
 	{
-	    errmsg_ = "Cannot open Pre-Stack data store for write";
+	    errmsg_ = "Cannot open Prestack Data store for write";
 	    return false;
 	}
 	pswriter_->usePar( ioobj_->pars() );

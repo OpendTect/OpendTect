@@ -24,7 +24,9 @@ class uiGenInput;
 class uiListBox;
 class uiToolButton;
 
-/*! \brief: setup a dialog where the user can select a set of Pre-stack volumes and merge them into one. The priority order decides which volume to use in case of an overlap.
+/*! \brief: setup a dialog where the user can select a set of Prestack volumes
+    and merge them into one. The priority order decides which volume to use in
+    case of an overlap.
 */
 
 mExpClass(uiSeis) uiPreStackMergeDlg : public uiDialog
@@ -38,7 +40,7 @@ protected:
 
     void		fillListBox();
     bool		setSelectedVols();
-    
+
     void                createSelectButtons(uiGroup*);
     void                createMoveButtons(uiGroup*);
     void		createFields(uiGroup*);
@@ -64,7 +66,7 @@ protected:
     uiGenInput*		stackfld_;
     uiIOObjSel*		outpfld_;
     uiPosSubSel*	subselfld_;
-    
+
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;
 };
@@ -86,7 +88,7 @@ protected:
     uiIOObjSel*		outpfld_;
     uiPosSubSel*	subselfld_;
     uiGenInput*		offsrgfld_;
-    
+
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;
 

@@ -46,7 +46,7 @@ public:
 
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Create MultiCube Pre-Stack data store",
+	: uiDialog(p,uiDialog::Setup("Create MultiCube Prestack data store",
 		   mNoDlgTitle,"103.1.7"))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)

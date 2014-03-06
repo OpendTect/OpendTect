@@ -19,10 +19,10 @@ class SeisTrcTranslator;
 class CBVSSeisTrcTranslator;
 
 
-/*!\brief Implementation class: I/O from a CBVS pre-stack seismic data store.
+/*!\brief Implementation class: I/O from a CBVS prestack seismic data store.
 
   Every (in)line is a CBVS cube. A gather corresponds to one crossline/trace
-  number). 
+  number).
   Because CBSV seismics is inline-sorted, the crossline number is stored
   as inline in the cube. Upon retrieval actual BinID and Coord are restored.
 
@@ -36,14 +36,14 @@ class CBVSSeisTrcTranslator;
 mExpClass(Seis) SeisCBVSPSIO
 {
 public:
-    			SeisCBVSPSIO(const char* dirnm);
+			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
     const char*		errMsg() const		{ return errmsg_.str(); }
 
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,
-	    				const Interval<int>* inlrg=0) const;
+					const Interval<int>* inlrg=0) const;
     static int		getInlNr(const char* filenm);
 
     void		usePar(const IOPar&);
@@ -74,16 +74,16 @@ protected:
 };
 
 
-/*!\brief reads from a CBVS pre-stack seismic data store. */
+/*!\brief reads from a CBVS prestack seismic data store. */
 
 mExpClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
 {
 public:
 
-    			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
+			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
 			~SeisCBVSPS3DReader();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
@@ -108,16 +108,16 @@ protected:
 };
 
 
-/*!\brief reads from a CBVS pre-stack seismic data store. */
+/*!\brief reads from a CBVS prestack seismic data store. */
 
 mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
 		         , public SeisCBVSPSIO
 {
 public:
 
-    			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
+			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
 			~SeisCBVSPS2DReader();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
@@ -135,7 +135,7 @@ protected:
 };
 
 
-/*!\brief writes to a CBVS 3D pre-stack seismic data store.
+/*!\brief writes to a CBVS 3D prestack seismic data store.
 
  Note: Can make new data stores and append new inlines to existing.
  Will replace any existing inlines.
@@ -147,9 +147,9 @@ mExpClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
 {
 public:
 
-    			SeisCBVSPS3DWriter(const char* dirnm);
+			SeisCBVSPS3DWriter(const char* dirnm);
 			~SeisCBVSPS3DWriter();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     bool		put(const SeisTrc&);
     void		close();
@@ -168,7 +168,7 @@ protected:
 };
 
 
-/*!\brief writes to a CBVS 2D pre-stack seismic data store.
+/*!\brief writes to a CBVS 2D prestack seismic data store.
 
  Note: Can make new data stores, add new lines and replace existing.
 
@@ -179,8 +179,8 @@ mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
 {
 public:
 
-    			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
+			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     bool		put(const SeisTrc&);
     void		close();

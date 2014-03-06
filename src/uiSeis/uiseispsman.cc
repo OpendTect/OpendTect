@@ -30,7 +30,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
 #define mCapt \
-    is2d ? "Manage 2D Pre-stack seismics" : "Manage 3D Pre-stack seismics"
+    is2d ? "Manage 2D Prestack seismics" : "Manage 3D Prestack seismics"
 #define mHelpID is2d ? "103.4.1" : "103.4.0"
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
@@ -117,7 +117,7 @@ void uiSeisPreStackMan::mkFileInfo()
 #	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 	    txt.add(zddef.userName()).add(" range ")
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
-		.add(" - ") mAddZValTxt(cs.zrg.stop) 
+		.add(" - ") mAddZValTxt(cs.zrg.stop)
 		.add(" [") mAddZValTxt(cs.zrg.step) .add("]\n");
 	}
     }

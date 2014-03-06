@@ -47,7 +47,7 @@ public:
     static int		factid;
 };
 
-// This adds the CBVS type pre-stack seismics data storage to the factory
+// This adds the CBVS type prestack seismics data storage to the factory
 int CBVSSeisPSIOProvider::factid = SPSIOPF().add( new CBVSSeisPSIOProvider );
 
 
@@ -341,7 +341,7 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     if ( posdata_.size() < 1 )
     {
 	errmsg_.set( "Directory '" ).add( dirnm_ )
-	       .add( "' contains no usable pre-stack data files" );
+	       .add( "' contains no usable prestack data files" );
 	return;
     }
 
@@ -415,7 +415,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     const BufferString filenm = fp.fullPath();
     if( !File::exists(filenm) )
     {
-	errmsg_ = "No Pre Stack data available for inline "; errmsg_ += inl;
+	errmsg_ = "No Prestack data available for inline "; errmsg_ += inl;
 	return false;
     }
 

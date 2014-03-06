@@ -18,7 +18,7 @@ class SeisTrc;
 class BufferStringSet;
 
 
-/*!\brief writes to a pre-stack seismic data store.
+/*!\brief writes to a prestack seismic data store.
 
  Expected is a supply of traces with correct offset and azimuth.
  The supply MUST be per gather. For 3D, inline and crossline must be correct,

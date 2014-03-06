@@ -41,7 +41,7 @@ public:
     static int		factid;
 };
 
-// This adds the Multicube type pre-stack seismics data storage to the factory
+// This adds the Multicube type prestack seismics data storage to the factory
 int MultiCubeSeisPSIOProvider::factid = SPSIOPF().add(
 				new MultiCubeSeisPSIOProvider );
 

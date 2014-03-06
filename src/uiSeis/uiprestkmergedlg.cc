@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Merge Pre-Stack Data",
+    : uiDialog(p,uiDialog::Setup("Merge Prestack Data",
 				 "Select data stores to merge into one",
 				 "103.4.3"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
@@ -140,7 +140,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	for ( int idx=0; idx<volsbox_->size(); idx++ )
 	{
 	    if ( !volsbox_->isSelected(idx) ) continue;
-	   
+
 	    selvolsbox_->addItem( volsbox_->textOfItem(idx));
 	    volsbox_->removeItem(idx);
 	    lastusedidx = idx;
@@ -156,7 +156,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	for ( int idx=0; idx<selvolsbox_->size(); idx++ )
 	{
 	    if ( !selvolsbox_->isSelected(idx) ) continue;
-	   
+
 	    volsbox_->addItem( selvolsbox_->textOfItem(idx));
 	    selvolsbox_->removeItem(idx);
 	    lastusedidx = idx;
@@ -276,14 +276,14 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
     const bool dostack = stackfld_->getBoolValue();
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
 	    					  dostack, sd );
-    exec->setName( "Merge Pre-Stack Data Stores" );
+    exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
 }
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Pre-Stack Data","","103.4.2"))
+    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","","103.4.2"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {
@@ -364,7 +364,7 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     const float ofsrgstart = offsrgfld_->getfValue(0) * convfactor;
     const float ofsrgstop = offsrgfld_->getfValue(1) * convfactor;
     exec->setOffsetRange( ofsrgstart, ofsrgstop );
-    exec->setName( "Copy Pre-Stack Data Store" );
+    exec->setName( "Copy Prestack Data Store" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
 }

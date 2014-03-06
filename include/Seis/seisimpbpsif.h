@@ -21,7 +21,7 @@ class SeisTrc;
 class SeisPSImpDataMgr;
 
 
-/*!\brief reads a BPSIF pre-stack data exchange file into a PS data store
+/*!\brief reads a BPSIF prestack data exchange file into a PS data store
 
  The BPSIF format is defined as follows:
  * First line is "#BPSIF#"
@@ -48,7 +48,7 @@ class SeisPSImpDataMgr;
 Typically, lines will be extremely long. The number of values per line is:
 3 + nr_opt_shot_attribs + N * (2 + nr_opt_rcv_attribs).
 
-This class will read a BPSIF and store the data in a pre-stack data store.
+This class will read a BPSIF and store the data in a prestack data store.
 Notes:
 * The data will be sorted if the data store requires that
 * The input filename may contain glob expression, e.g. line*.dat. These files

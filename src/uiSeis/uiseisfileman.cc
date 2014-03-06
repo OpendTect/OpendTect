@@ -88,7 +88,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    manipgrp->addButton( "man_ps", "Manage Pre-Stack data",
+    manipgrp->addButton( "man_ps", "Manage Prestack Data",
 			 mCB(this,uiSeisFileMan,manPS) );
 
     mTriggerInstanceCreatedNotifier();
@@ -212,7 +212,8 @@ void uiSeisFileMan::mkFileInfo()
 	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
 				Conn::Read) ) )
 	{
-	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo_[0];
+	    const BasicComponentInfo& bci =
+		*tri->readMgr()->info().compinfo_[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
 	    BufferString etxt = DataCharacteristics::getUserTypeString(ut);
 	    txt += "\nStorage: "; txt += etxt.buf() + 4;

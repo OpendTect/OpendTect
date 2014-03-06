@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
        			    bool dostack, const Seis::SelData* sd )
-  	: Executor("Merging Pre-Stack data")
+	: Executor("Merging Prestack data")
 	, writer_(0)
 	, dostack_(dostack)
 	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
@@ -121,7 +121,7 @@ int SeisPSMerger::nextStep()
 	}
 
 	if ( gatherset.isEmpty() ) continue;
-	
+
 	gather = gatherset[0];
 	if ( dostack_ && gatherset.size() > 1 )
 	    stackGathers( *gather, gatherset );

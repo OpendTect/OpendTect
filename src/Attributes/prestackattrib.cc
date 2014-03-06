@@ -479,7 +479,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	psioobj_ = IOM().get( psid_ );
 	if ( !psioobj_ && isondisc )
-	    mErrRet("Cannot find pre-stack data store ",psid_,
+	    mErrRet("Cannot find prestack data store ",psid_,
 		    " in object manager")
 
 	if ( is2D() )
@@ -489,7 +489,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 
 	if ( !psrdr_ )
-	    mErrRet("Cannot create reader for ",psid_," pre-stack data store")
+	    mErrRet("Cannot create reader for ",psid_," prestack data store")
 
 	const char* emsg = psrdr_->errMsg();
 	if ( emsg ) mErrRet("PS Reader: ",emsg,"");

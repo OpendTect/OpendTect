@@ -25,12 +25,12 @@ namespace PreStackView
 {
 
 uiGatherDisplay::uiGatherDisplay( uiParent* p  )
-    : uiGroup(p, "Pre-stack gather Display" )
+    : uiGroup(p, "Prestack gather Display" )
     , bid_(-1,-1)
     , zrg_(0)
     , fixedoffset_( false )
     , offsetrange_( mUdf(float), mUdf(float) )
-    , displayannotation_(true)					      
+    , displayannotation_(true)
 {
     viewer_ = new uiFlatViewer( this );
     viewer_->appearance().setGeoDefaults( true );
@@ -128,7 +128,7 @@ bool uiGatherDisplay::displaysAnnotation() const
 
 void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
 {
-    if ( yn==fixedoffset_ && 
+    if ( yn==fixedoffset_ &&
 	mIsEqual(offsetrange_.start,rg.start,1e-3) &&
 	mIsEqual(offsetrange_.stop,rg.stop,1e-3) )
 	return;
@@ -250,7 +250,7 @@ void uiViewer2D::removeGatherDisplay( const uiGatherDisplay* disp )
 	if ( objitm->getGroup() == disp )
 	{
 	    removeItem( objitm );
-	    delete objitm; 
+	    delete objitm;
 	}
     }
 }
@@ -293,7 +293,7 @@ void uiViewer2D::doReSize( const uiSize& sz )
     uiSize objsz = uiSize( sz.width() / objectitems_.size() , sz.height() );
     for ( int idx=0; idx<objectitems_.size() ; idx++ )
     {
-	reSizeItem( idx, objsz ); 
+	reSizeItem( idx, objsz );
 	getGatherDisplay( idx ).setWidth( objsz.width() );
     }
     resetViewArea(0);

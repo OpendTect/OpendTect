@@ -29,9 +29,9 @@ namespace Attrib
 {
 
 /*!
-\brief "Pre-Stack Attribute"
+\brief "Prestack Attribute"
 
-  Outputs a standard attribute from pre-stack data.
+  Outputs a standard attribute from prestack data.
   Classname should really be PreStack, but the compiler complains and mixes up
   with PreStack namespace.
 
@@ -41,7 +41,7 @@ namespace Attrib
 
 
   Input:
-  0		Pre-Stack Data
+  0		Prestack Data
 
   Output:
   0		Attribute

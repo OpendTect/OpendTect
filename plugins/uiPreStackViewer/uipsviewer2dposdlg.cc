@@ -31,17 +31,17 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d, 
+uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 					const CubeSampling& cs )
-    : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
-				0,"50.2.3").modal(false))
+    : uiDialog(p,uiDialog::Setup("Prestack Gather display Positions",
+				 mNoDlgTitle,"50.2.3").modal(false))
     , okpushed_(this)
-    , is2d_(is2d)		     
+    , is2d_(is2d)
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
 	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
     setCtrlStyle( DoAndStay );
-    
+
     sliceselfld_ = new uiGatherPosSliceSel( this, tp );
     sliceselfld_->enableScrollButton( false );
     if ( is2d_ )
@@ -59,7 +59,7 @@ bool uiViewer2DPosDlg::acceptOK( CallBacker* )
 }
 
 
-void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs ) 
+void uiViewer2DPosDlg::getCubeSampling( CubeSampling& cs )
 {
     sliceselfld_->acceptOK();
     cs = sliceselfld_->getCubeSampling();
@@ -83,13 +83,13 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
   : uiSliceSel(p,tp,ZDomain::SI())
 {
     setStretch( 2, 2 );
-    BufferString msg( "Dynamic " ); 
+    BufferString msg( "Dynamic " );
     const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
     msg += linetxt;
     msg += is2d_ ? " Number" : " Range";
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
-    stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
+    stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ );
     stepfld_->box()->setInterval( 1, mCast(int,cs_.hrg.totalNr()) );
 
     uiSeparator* sep = new uiSeparator( this, "pos/nr viewer sep" );
@@ -97,14 +97,14 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
     nrviewersfld_ = new uiLabeledSpinBox( this, "Number of gathers per line" );
     nrviewersfld_->attach( ensureBelow, sep );
     nrviewersfld_->attach( alignedBelow, z0fld_ );
-    nrviewersfld_->box()->valueChanging.notify( 
+    nrviewersfld_->box()->valueChanging.notify(
 	    mCB(this,uiGatherPosSliceSel,nrViewersChged) );
     nrviewersfld_->box()->setInterval( 1, 100 );
 
     dynamicrgbox_ = new uiCheckBox( this, msg );
     dynamicrgbox_->attach( rightOf, nrviewersfld_ );
-    dynamicrgbox_->activated.notify( 
-	    		mCB(this,uiGatherPosSliceSel,dynamicRangeChged) );
+    dynamicrgbox_->activated.notify(
+			mCB(this,uiGatherPosSliceSel,dynamicRangeChged) );
     enableDynamicRange( false );
 
     CallBack cb( mCB(this,uiGatherPosSliceSel,posChged) );
@@ -133,8 +133,8 @@ void uiGatherPosSliceSel::setNrViewers( int nrvwrs )
 
 
 void uiGatherPosSliceSel::enableDynamicRange( bool yn )
-{ 
-    dynamicrgbox_->display( yn ); 
+{
+    dynamicrgbox_->display( yn );
     dynamicrgbox_->setChecked( yn );
 }
 
@@ -155,27 +155,27 @@ void uiGatherPosSliceSel::enableZDisplay( bool yn )
 
 
 void uiGatherPosSliceSel::posChged( CallBacker* cb )
-{ 
+{
     acceptOK();
-    const int divnr = stepfld_->box()->getValue(); 
-    if ( divnr > 0 ) 
+    const int divnr = stepfld_->box()->getValue();
+    if ( divnr > 0 )
     {
 	NotifyStopper ns( nrviewersfld_->box()->valueChanging );
-	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange() 
-			        	   : cs_.hrg.inlRange();
+	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange()
+				   : cs_.hrg.inlRange();
 	nrviewersfld_->box()->setValue( rg.width()/divnr +1 );
     }
 }
 
 
 void uiGatherPosSliceSel::nrViewersChged( CallBacker* cb )
-{ 
+{
     acceptOK();
-    const int divnr = nrviewersfld_->box()->getValue()-1; 
-    if ( divnr > 0 ) 
+    const int divnr = nrviewersfld_->box()->getValue()-1;
+    if ( divnr > 0 )
     {
 	NotifyStopper ns( stepfld_->box()->valueChanging );
-	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange() 
+	Interval<int> rg = isinl_ || is2d_ ? cs_.hrg.crlRange()
 					   : cs_.hrg.inlRange();
 	stepfld_->box()->setValue( rg.width()/divnr );
     }
@@ -186,8 +186,8 @@ bool uiGatherPosSliceSel::isDynamicRange() const
 { return dynamicrgbox_->isChecked(); }
 
 
-uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p, 
-					    const BufferStringSet& gnms, 
+uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
+					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
 				"Add PS Gather","50.2.4"))
@@ -207,7 +207,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     toselect_->attach( centeredRightOf, allgatherfld_ );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
-	    			"Move left", cb );
+				    "Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );

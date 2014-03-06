@@ -151,7 +151,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				mCB(this,uiStratSynthDisp,levelSnapChanged) );
     levelsnapselfld_->addItems( VSEvent::TypeNames() );
 
-    prestackgrp_ = new uiGroup( datagrp_, "Pre-Stack View Group" );
+    prestackgrp_ = new uiGroup( datagrp_, "Prestack View Group" );
     prestackgrp_->attach( rightOf, lvlsnapcbx, 20 );
 
     offsetposfld_ = new uiSynthSlicePos( prestackgrp_, "Offset" );

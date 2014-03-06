@@ -24,7 +24,7 @@ class SeisResampler;
 namespace Seis { class SelData; }
 
 
-/*!\brief Pre-Stack seismic data merger
+/*!\brief Prestack seismic data merger
 
   The order in which the stores are in the ObjectSet is important: the first
   data store at a position will be used.
