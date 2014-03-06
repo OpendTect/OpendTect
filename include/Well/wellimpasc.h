@@ -67,14 +67,14 @@ public:
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(std::istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
-	    			bool istvd=true);
+				bool istvd=true);
     const char*		getLogs(std::istream& lasstrm,const FileInfo&,
-	    			bool istvd=true);
+				bool istvd=true);
 
     bool		willConvertToSI() const		{ return useconvs_; }
-    			//!< Note that depth is always converted
+			//!< Note that depth is always converted
     void		setConvertToSI( bool yn )	{ useconvs_ = yn; }
-    			//!< Note that depth is always converted
+			//!< Note that depth is always converted
 
 protected:
 
@@ -86,7 +86,7 @@ protected:
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
     const char*		getLogData(std::istream&,const BoolTypeSet&,
-	    			   const FileInfo&,bool,int,int);
+				   const FileInfo&,bool,int,int);
 
 };
 
@@ -98,13 +98,13 @@ protected:
 mExpClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
-    				TrackAscIO( const Table::FormatDesc& fd,
+				TrackAscIO( const Table::FormatDesc& fd,
 					   std::istream& strm )
 				    : Table::AscIO(fd)
-	      		    	    , strm_(strm)	{}
+				    , strm_(strm)	{}
 
     static Table::FormatDesc*	getDesc();
-    bool 			getData(Data&,bool first_is_surface) const;
+    bool			getData(Data&,bool first_is_surface) const;
 
 protected:
 
@@ -118,17 +118,21 @@ protected:
 */
 
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
-{   
+{
     public:
-				D2TModelAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)          {}
+				D2TModelAscIO(const Table::FormatDesc& fd);
 
     static Table::FormatDesc*   getDesc(bool withunitfld);
     static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
     static void                 createDescBody(Table::FormatDesc*,bool unitfld);
 
     bool                        get(std::istream&,Well::D2TModel&,
-	    			    const Well::Data&) const;
+				    const Well::Data&) const;
+
+    const char*			warnMsg() const;
+
+				//Needs to be public, but do not use
+    void			deleteMsg();
 };
 
 
@@ -139,7 +143,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 {
 public:
-    			MarkerSetAscIO( const Table::FormatDesc& fd )
+			MarkerSetAscIO( const Table::FormatDesc& fd )
 			    : Table::AscIO(fd)		{}
 
     static Table::FormatDesc*	getDesc();

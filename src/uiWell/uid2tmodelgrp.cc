@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -28,6 +29,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mZUnLbl SI().depthsInFeet() ? " (ft/s)" : " (m/s)"
 
 
+HiddenParam< uiD2TModelGroup,BufferString* > errmsg_(0);
+HiddenParam< uiD2TModelGroup,BufferString* > warnmsg_(0);
+
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
     , velfld_(0)
@@ -36,6 +40,9 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     , setup_(su)
     , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
+    errmsg_.setParam( this, new BufferString() );
+    warnmsg_.setParam( this, new BufferString() );
+
     filefld_ = new uiFileInput( this, setup_.filefldlbl_,
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
@@ -64,6 +71,38 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 }
 
 
+uiD2TModelGroup::~uiD2TModelGroup()
+{
+    BufferString* errmsg = errmsg_.getParam(this);
+    BufferString* warnmsg = warnmsg_.getParam(this);
+    errmsg_.removeParam( this );
+    warnmsg_.removeParam( this );
+    delete errmsg;
+    delete warnmsg;
+}
+
+
+const char* uiD2TModelGroup::errMsg() const
+{ return errmsg_.getParam(this)->str(); }
+
+
+const char* uiD2TModelGroup::warnMsg() const
+{ return warnmsg_.getParam(this)->str(); }
+
+
+void uiD2TModelGroup::setMsg( const BufferString msg, bool warning ) const
+{
+    const_cast<uiD2TModelGroup*>(this)->setMsgNonconst(msg,warning);
+}
+
+
+void uiD2TModelGroup::setMsgNonconst( const BufferString msg, bool warning )
+{
+    BufferString* retmsg =  warning ? warnmsg_.getParam(this)
+				    : errmsg_.getParam(this);
+    if ( retmsg ) *retmsg = msg;
+}
+
 
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
@@ -75,14 +114,27 @@ void uiD2TModelGroup::fileFldChecked( CallBacker* )
 }
 
 
-
 const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
+{
+    getD2TBool(wd,cksh);
+    return errMsg();
+}
+
+#define mErrRet(s) \
+{ \
+    setMsg( s, false ); \
+    return false; \
+}
+bool uiD2TModelGroup::getD2TBool( Well::Data& wd, bool cksh ) const
 {
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
     {
 	if ( velfld_->isUndef() )
-	    return "Please enter the velocity for generating the D2T model";
+	    mErrRet( "Please enter the velocity for generating the D2T model" )
     }
+
+    if ( wd.track().isEmpty() )
+	mErrRet( "Cannot generate D2Time model without track" )
 
     if ( cksh )
 	wd.setCheckShotModel( new Well::D2TModel );
@@ -91,10 +143,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
     if ( !&d2t )
-	return "D2Time model not set properly";
-
-    if ( wd.track().isEmpty() )
-	return "Cannot generate D2Time model without track";
+	mErrRet( "D2Time model not set properly" )
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
@@ -112,28 +161,38 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( !sdi.usable() )
 	{
 	    sdi.close();
-	    return "Could not open input file";
+	    mErrRet( "Could not open input file" )
 	}
 
-	BufferString errmsg;
 	if ( !dataselfld_->commit() )
-	    return "Please specify data format";
+	    mErrRet( "Please specify data format" )
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
 	if ( !aio.get(*sdi.istrm,d2t,wd) )
 	{
-	    uiMSG().warning( "Ascii TD model import failed - using fallback" );
-	    d2t.makeFromTrack( wd.track(), Well::getDefaultVelocity(),
-			       wd.info().replvel );
+	    BufferString errmsg;
+	    errmsg = "Ascii TD model import failed for well ";
+	    errmsg.add( wd.name() ).add( "\n" );
+	    if ( aio.errMsg() )
+		errmsg.add( aio.errMsg() ).add( "\n" );
+
+	    errmsg.add( "Change your format definition "
+			"or edit your data or press cancel." );
+	    mErrRet(errmsg)
 	}
+
+	if ( aio.warnMsg() )
+	    setMsg( aio.warnMsg(), true );
+
+	aio.deleteMsg();
     }
 
     if ( d2t.size() < 2 )
-	return "Cannot import time-depth model";
+	mErrRet( "Cannot import time-depth model" )
 
     d2t.deInterpolate();
-    return 0;
+    return true;
 }
 
 

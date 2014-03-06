@@ -939,12 +939,19 @@ uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
 
 bool acceptOK( CallBacker* )
 {
-    const char* errmsg = d2tgrp->getD2T( wd_, cksh_ );
-    if ( errmsg && *errmsg )
-	{ uiMSG().error( errmsg ); return false; }
+    if ( !d2tgrp->getD2TBool(wd_,cksh_) )
+    {
+	if ( d2tgrp->errMsg() )
+	    uiMSG().error( d2tgrp->errMsg() );
 
-    if ( wd_.d2TModel() )
-	wd_.d2TModel()->deInterpolate();
+	return false;
+    }
+    if ( d2tgrp->warnMsg() )
+	uiMSG().warning( d2tgrp->warnMsg() );
+
+    Well::D2TModel* d2t = mD2TModel;
+    if ( d2t )
+	d2t->deInterpolate();
 
     return true;
 }
@@ -961,9 +968,8 @@ void uiD2TModelDlg::readNew( CallBacker* )
     uiD2TModelReadDlg dlg( this, wd_, cksh_ );
     if ( !dlg.go() ) return;
 
-    const BufferString errmsg = dlg.d2tgrp->getD2T( wd_, cksh_ );
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+    if ( !dlg.d2tgrp->getD2TBool(wd_,cksh_) )
+	return;
     else
     {
 	tbl_->clearTable();
