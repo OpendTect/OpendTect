@@ -850,8 +850,10 @@ void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
 	TimeDepthModel* d2tmodel = d2tmodels[imdl];
 	if ( !d2tmodel ) continue;
 	const int d2tmsz = d2tmodel->size();
-	float depths[ d2tmsz ];
-	float times[ d2tmsz ];
+	TypeSet<float> depths;
+	depths.setSize( d2tmsz );
+	TypeSet<float> times;
+	times.setSize( d2tmsz );
 	for ( int isamp=0; isamp<d2tmsz; isamp++ )
 	{
 	    depths[isamp] =
@@ -859,7 +861,7 @@ void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
 	    times[isamp] = d2tmodel->getTime( isamp );
 	}
 
-	d2tmodel->setModel( depths, times, d2tmsz );
+	d2tmodel->setModel( depths.arr(), times.arr(), d2tmsz );
     }
 }
 
