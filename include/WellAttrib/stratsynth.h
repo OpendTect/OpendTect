@@ -131,6 +131,7 @@ protected:
 	    				 const CubeSampling&,
 					 const SynthGenParams&,
 					 const Seis::RaySynthGenerator&);
+    void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
 };
 
 #endif

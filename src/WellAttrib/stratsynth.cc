@@ -834,11 +834,33 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	if ( tmpd2ts.isEmpty() )
 	    continue;
 
+	adjustD2TModels( tmpd2ts );
 	while ( tmpd2ts.size() )
 	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
     }
 
     return sd;
+}
+
+
+void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
+{
+    for ( int imdl=0; imdl<d2tmodels.size(); imdl++ )
+    {
+	TimeDepthModel* d2tmodel = d2tmodels[imdl];
+	if ( !d2tmodel ) continue;
+	const int d2tmsz = d2tmodel->size();
+	float depths[ d2tmsz ];
+	float times[ d2tmsz ];
+	for ( int isamp=0; isamp<d2tmsz; isamp++ )
+	{
+	    depths[isamp] =
+		d2tmodel->getDepth( isamp ) - SI().seismicReferenceDatum();
+	    times[isamp] = d2tmodel->getTime( isamp );
+	}
+
+	d2tmodel->setModel( depths, times, d2tmsz );
+    }
 }
 
 
