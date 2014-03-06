@@ -62,8 +62,8 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
     uiWorldRect br = activevwr_->boundingBox();
     br.sortCorners();
     const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
-    activevwr_->setView( wr );
     zoommgr_.add( sz, vwrs_.indexOf(activevwr_) );
+    activevwr_->setView( wr );
 
     zoomChanged.trigger();
 }
@@ -191,11 +191,11 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 		        masterbbox.bottom(), bbox.bottom() );
 	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
 			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
-	NotifyStopper ns( vwrs_[idx]->viewChanged );
-	vwrs_[idx]->setView( newwr );
-
 	if ( haveZoom(oldwr.size(),newwr.size()) )
 	    { zoommgr_.add( newwr.size(), idx ); havezoom = true; }
+
+	NotifyStopper ns( vwrs_[idx]->viewChanged );
+	vwrs_[idx]->setView( newwr );
     }
 
     if ( havezoom )
