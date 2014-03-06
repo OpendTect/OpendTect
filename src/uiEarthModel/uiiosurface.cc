@@ -628,13 +628,13 @@ public:
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
 	: uiDialog(p,uiDialog::Setup(
 		    fltpar.is2d_ ? "FaultStickSet selection":"Fault selection",
-		    "Selected", mNoHelpID) )
+		    mNoDlgTitle,mTODOHelpID) )
 	, fltpar_(fltpar)
     {
-	table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(
+	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).fillrow(
 		    true).rightclickdisabled(true).selmode(uiTable::Single),"");
 	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
-	const char* collbls[] = { fltnm, "Act option", 0 };
+	const char* collbls[] = { fltnm, "Boundary Type", 0 };
 	table_->setColumnLabels( collbls );
 	table_->setLeftMargin( 0 );
 	table_->setSelectionBehavior( uiTable::SelectRows );
@@ -644,7 +644,7 @@ public:
 	table_->setColumnStretchable( 1, true );
 
 	uiPushButton* addbut = new uiPushButton( this, "&Add",
-		mCB(this,uiFaultOptSel,addCB), true );
+		mCB(this,uiFaultOptSel,addCB), false );
 	addbut->attach( rightOf, table_ );
 
 	removebut_ = new uiPushButton( this, "&Remove",
@@ -673,7 +673,6 @@ public:
 	    if ( !ioobj ) continue;
 
 	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj, 0 );
-
 	}
 
 	removebut_->setSensitive( fltpar_.selfaultids_.size() );
