@@ -260,19 +260,18 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
 JobRunner* SeisJobExecProv::getRunner( int nrinlperjob )
 {
-    if ( is2d_ && nrrunners_ > 0 ) return 0;
-
     JobDescProv* jdp = is2d_ ? mk2DJobProv() : mk3DJobProv( nrinlperjob );
 
     if ( jdp && jdp->nrJobs() == 0 )
     {
 	delete jdp; jdp = 0;
 	errmsg_ = "No lines to process";
+	return 0;
     }
 
     if ( jdp )
     {
-	nrrunners_++;
+	nrrunners_ = is2d_ && nrrunners_ > 0 ? nrrunners_ : nrrunners_+1;
 	return new JobRunner( jdp, progname_ );
     }
 

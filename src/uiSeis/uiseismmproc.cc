@@ -374,10 +374,14 @@ int uiSeisMMProc::defltNrInlPerJob( const IOPar& inputpar )
 
 void uiSeisMMProc::mkJobRunner( int nr_inl_job )
 {
-    if ( jobrunner ) delete jobrunner;
+    if ( jobrunner )
+    {
+	delete jobrunner;
+	jobrunner = 0;
+    }
 
     jobrunner = jobprov->getRunner( nr_inl_job );
-    if ( jobprov->errMsg() )
+    if ( !jobrunner || jobprov->errMsg() )
     {
 	delete jobrunner; jobrunner = 0;
 	mErrRet(jobprov->errMsg())
