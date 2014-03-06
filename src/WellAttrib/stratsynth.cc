@@ -856,8 +856,8 @@ void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
 	times.setSize( d2tmsz );
 	for ( int isamp=0; isamp<d2tmsz; isamp++ )
 	{
-	    depths[isamp] =
-		d2tmodel->getDepth( isamp ) - SI().seismicReferenceDatum();
+	    depths[isamp] = d2tmodel->getDepth( isamp ) -
+			    mCast(float,SI().seismicReferenceDatum());
 	    times[isamp] = d2tmodel->getTime( isamp );
 	}
 
