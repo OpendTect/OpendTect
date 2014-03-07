@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "undefval.h"
 #include "bufstring.h"
+#include "errmsg.h"
 
 #include <math.h>
 
@@ -110,7 +111,7 @@ public:
     const char*			fullVariableExpression( int ) const
 							{ return str_.buf(); }
 
-    int 	nrVariables() const	{ return 1; }
+    int	nrVariables() const	{ return 1; }
 
     double			getValue() const	{ return val_; }
 
