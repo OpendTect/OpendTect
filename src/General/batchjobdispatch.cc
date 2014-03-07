@@ -32,7 +32,7 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 {
     switch ( pt )
     {
-#define mHandlePTCase(typ,pnm) \
+#	define mHandlePTCase(typ,pnm) \
 	case typ: return "od_process_" # pnm
 	mHandlePTCase(Attrib,attrib);
 	mHandlePTCase(AttribEM,attrib_em);
@@ -42,10 +42,35 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 	mHandlePTCase(T2D,time2depth);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
+	case NonODBase:
+	    return "";
 	default:
-	    pFreeFnErrMsg("switch case not added","Batch::JobSpec::progNameFor");
+	    pFreeFnErrMsg("switch case not added",
+			  "Batch::JobSpec::progNameFor");
 	    return 0;
     }
+}
+
+
+Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
+{
+    if ( !odpnm || !*odpnm || !FixedString(odpnm).startsWith("od_process_") )
+	return NonODBase;
+
+    const FixedString pnm( odpnm + 11 );
+#   define mRetForName(typ,str) \
+    if ( pnm == #str ) return typ
+
+    mRetForName(Attrib,attrib);
+    mRetForName(AttribEM,attrib_em);
+    mRetForName(Grid2D,2dgrid);
+    mRetForName(PreStack,prestack);
+    mRetForName(SEGY,segyio);
+    mRetForName(T2D,time2depth);
+    mRetForName(VelConv,velocityconv);
+    mRetForName(Vol,volume);
+
+    return NonODBase;
 }
 
 

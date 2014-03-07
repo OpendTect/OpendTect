@@ -12,90 +12,44 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uidialog.h"
+#include "uimmbatchjobdispatch.h"
 
 class IOObj;
-class Timer;
-class uiLabel;
-class Executor;
-class uiSlider;
 class JobRunner;
-class uiTextEdit;
 class uiGenInput;
-class uiComboBox;
-class HostDataList;
-class uiProgressBar;
-class uiTextFileDlg;
 class uiIOFileSelect;
 class uiSeisIOObjInfo;
 class SeisJobExecProv;
-class uiLabeledListBox;
 
 
-mExpClass(uiSeis) uiSeisMMProc : public uiDialog
+mExpClass(uiSeis) uiSeisMMProc : public uiMMBatchJobDispatcher
 {
 public:
-                        uiSeisMMProc(uiParent*,const IOPar&,
-				     const char* prognm,const char* parfnm);
+
+                        uiSeisMMProc(uiParent*,const IOPar&,const char* parfnm);
 			~uiSeisMMProc();
 
 protected:
 
-    HostDataList&	hdl;
-    SeisJobExecProv*	jobprov;
-    JobRunner*		jobrunner;
-    Executor*		task;
-    Timer*		timer;
-    const IOPar&	iop;
-    BufferString	progname;
-    BufferString	parfnm;
-    int			nrcyclesdone;
-    uiSeisIOObjInfo*	outioobjinfo;
-    bool		isrestart;
-    bool		is2d;
-    bool 		paused;
-    bool 		lsfileemitted;
+    SeisJobExecProv*	jobprov_;
+    uiSeisIOObjInfo*	outioobjinfo_;
+    bool		is2d_;
+    bool		lsfileemitted_;
+    int			nrinlperjob_;
+    const BufferString	parfnm_;
 
-    uiLabeledListBox*	avmachfld;
-    uiLabeledListBox*	usedmachfld;
-    uiComboBox*		jrppolselfld;
-    uiIOFileSelect*	tmpstordirfld;
-    uiGenInput*		inlperjobfld;
-    uiTextEdit*		progrfld;
-    uiTextFileDlg*	logvwer;
-    uiGenInput*		jrpstartfld;
-    uiGenInput*		jrpstopfld;
-    uiLabel*		jrpworklbl;
-    uiSlider*		nicefld;
-    uiProgressBar*	progbar;
-    BufferString	caption;
+    uiIOFileSelect*	tmpstordirfld_;
+    uiGenInput*		inlperjobfld_;
 
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    virtual bool	initWork(bool);
+    virtual bool	prepareCurrentJob();
+    virtual Executor*	getPostProcessor() const;
+    virtual bool	removeTmpProcFiles();
+    virtual bool	needConfirmEarlyStop() const;
+    virtual bool	haveTmpProcFiles() const;
 
-    void		initWin(CallBacker*);
-    void		doCycle(CallBacker*);
-    void		addPush(CallBacker*);
-    void		stopPush(CallBacker*);
-    void		vwLogPush(CallBacker*);
-    void		jobPrepare(CallBacker*);
-    void		jobStarted(CallBacker*);
-    void		jobFailed(CallBacker*);
-    void		infoMsgAvail(CallBacker*);
-    void		jrpSel(CallBacker*);
+    bool		isRestart() const	{ return !tmpstordirfld_; }
 
-    void		startWork(CallBacker*);
-    void		setNiceNess();
-    void		updateAliveDisp();
-    void		updateCurMachs();
-    bool		wrapUp(bool);
-    bool		readyForPostProcess();
-    int			runnerHostIdx(const char*) const;
-
-    const char* 	curUsedMachName();
-    void		pauseJobs();
-    int			defltNrInlPerJob(const IOPar&);
-    void		mkJobRunner(int);
 };
 
 #endif

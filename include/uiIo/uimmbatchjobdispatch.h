@@ -1,5 +1,5 @@
-#ifndef uiseismmproc_h
-#define uiseismmproc_h
+#ifndef uimmbatchjobdispatch_h
+#define uimmbatchjobdispatch_h
 /*+
 ________________________________________________________________________
 
@@ -15,31 +15,51 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class Timer;
+class Executor;
+class JobRunner;
+class HostDataList;
 class uiLabel;
 class uiSlider;
 class uiListBox;
 class uiTextEdit;
 class uiGenInput;
 class uiComboBox;
-class HostDataList;
 class uiProgressBar;
 class uiTextFileDlg;
-namespace Batch { class JobSpec; }
 
 
 mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 {
 public:
-                        uiMMBatchJobDispatcher(uiParent*,const Batch::JobSpec&);
+                        uiMMBatchJobDispatcher(uiParent*,const IOPar&,
+						const char* helpid=0);
 			~uiMMBatchJobDispatcher();
 
 protected:
 
-    Batch::JobSpec&	jobspec_;
+    uiGroup*		specparsgroup_;			// for subclass
+    virtual bool	initWork(bool retry)		= 0;
+    virtual bool	prepareCurrentJob()		{ return true; }
+    virtual Executor*	getPostProcessor() const	{ return 0; }
+    virtual bool	haveTmpProcFiles() const	{ return false; }
+    virtual bool	removeTmpProcFiles()		{ return true; }
+    virtual bool	needConfirmEarlyStop() const	{ return true; }
+    virtual bool	recoverFailedWrapUp() const	{ return false; }
+
+    IOPar&		jobpars_;
     HostDataList&	hdl_;
     Timer*		timer_;
     int			nrcyclesdone_;
     BufferString	basecaption_;
+    JobRunner*		jobrunner_;
+    mutable BufferString errmsg_;
+
+    inline bool		isMultiHost() const		{ return avmachfld_; }
+    bool		isPaused() const;
+    const char*		curUsedMachName();
+    int			runnerHostIdx(const char*) const;
+
+private:
 
     uiListBox*		avmachfld_;
     uiListBox*		usedmachfld_;
@@ -61,11 +81,19 @@ protected:
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
     void		jrpSel(CallBacker*);
+    void		jobPrep(CallBacker*);
+    void		jobStart(CallBacker*);
+    void		jobFail(CallBacker*);
+    void		infoMsgAvail(CallBacker*);
 
     void		startWork(CallBacker*);
+    bool		ready4WrapUp(bool&) const;
+    void		handleJobPausing();
     void		updateAliveDisp();
-    bool		isPaused() const;
-    const char*		curUsedMachName();
+    void		updateCurMachs();
+    void		clearAliveDisp();
+    bool		wrapUp();
+    void		removeTempResults();
 
 };
 

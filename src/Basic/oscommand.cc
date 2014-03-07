@@ -356,6 +356,10 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     if ( !*comm )
 	{ errmsg_.set( "Command is empty" ); return false; }
 
+#ifdef __debug__
+    od_cout() << "About to execute:\n" << comm << od_endl;
+#endif
+
 # ifndef __win__
 
     BufferString oscmd( comm );

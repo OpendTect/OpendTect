@@ -46,10 +46,11 @@ int main( int argc, char ** argv )
 	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
 	return ExitProgram( 1 );
     }
-    IOPar iop; iop.read( strm, sKey::Pars() );
-    if ( iop.size() == 0 )
+
+    IOPar jobpars; jobpars.read( strm, sKey::Pars() );
+    if ( jobpars.isEmpty() )
     {
-	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
+	od_cout() << argv[0] << ": Invalid parameter file" << parfnm << od_endl;
 	return ExitProgram( 1 );
     }
     strm.close();
@@ -57,7 +58,7 @@ int main( int argc, char ** argv )
     if ( bgadd )
 	ForkProcess();
 
-    const char* res = iop.find( sKey::Survey() );
+    const char* res = jobpars.find( sKey::Survey() );
     if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 
@@ -65,7 +66,8 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( "Seis" );
 
     uiMain app( argc, argv );
-    uiSeisMMProc* smmp = new uiSeisMMProc( 0, iop, argv[1+bgadd], parfnm );
+
+    uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars, parfnm );
 
     app.setTopLevel( smmp );
     smmp->show();

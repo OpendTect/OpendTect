@@ -34,6 +34,7 @@ public:
 			    : prognm_(pnm), execpars_(true)		{}
 
     static const char*	progNameFor(ProcType);
+    static ProcType	procTypeFor(const char*);
 
     BufferString	prognm_;
     BufferString	clargs_;
