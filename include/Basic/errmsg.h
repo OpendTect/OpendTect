@@ -18,15 +18,6 @@ ________________________________________________________________________
 
 mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
 
-
-#ifdef __debug__
-
-
-  namespace OD {
-      mGlobal(Basic) void programmerErrMsg(const char* msg,const char* cname,
-					   const char* fnm,int linenr);
-}
-
 #include <typeinfo>
 template <class T>
 inline const char* className( const T& t )
@@ -34,6 +25,15 @@ inline const char* className( const T& t )
     const char* nm = typeid(t).name();
     while ( *nm >= '0' && *nm <= '9' ) nm++;
     return nm;
+}
+
+
+#ifdef __debug__
+
+
+  namespace OD {
+      mGlobal(Basic) void programmerErrMsg(const char* msg,const char* cname,
+					   const char* fnm,int linenr);
 }
 
 # define pErrMsg(msg) \

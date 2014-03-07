@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "undefval.h"
 #include "bufstring.h"
-#include "errmsg.h"
 
 #include <math.h>
 
