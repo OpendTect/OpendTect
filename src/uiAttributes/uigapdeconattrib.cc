@@ -573,7 +573,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     if ( positiondlg_->uiResult() == 1 )
 	positiondlg_->popUpPosDlg();
 
-    if ( positiondlg_->posdlg_->uiResult() == 1 )
+    if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
 	DescID inp0id = DescID::undef();
 	DescID inp1id = DescID::undef();
@@ -702,7 +702,7 @@ void uiGDPositionDlg::popUpPosDlg()
 
 const CubeSampling& uiGDPositionDlg::getCubeSampling()
 {
-    return posdlg_->getCubeSampling();
+    return posdlg_ ? posdlg_->getCubeSampling() : cs_;
 }
 
 
