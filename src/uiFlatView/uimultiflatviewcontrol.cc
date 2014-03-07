@@ -156,9 +156,9 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 
     const MouseEventHandler& meh =
 	activevwr_->rgbCanvas().getNavigationMouseEventHandler();
-    const bool wheelmoved= meh.hasEvent() && !mIsZero(meh.event().angle(),0.01);
     const bool zoomin = but == zoominbut_;
-    if ( !zoomin && !wheelmoved && zoommgr_.atStart(vwrs_.indexOf(activevwr_)) )
+    const int vwridx = vwrs_.indexOf(activevwr_);
+    if ( !zoomin && !meh.hasEvent() && zoommgr_.atStart(vwridx) )
 	for ( int idx=0; idx<vwrs_.size(); idx++ )
 	    if ( !zoommgr_.atStart(idx) ) { activevwr_ = vwrs_[idx]; break; }
 
