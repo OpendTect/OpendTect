@@ -226,7 +226,7 @@ bool uiIOSurface::haveAttrSel() const
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
     if ( !rgfld_ || rgfld_->isAll() )
-	sels.rg.init( false );
+	sels.rg = sels.sd.rg;
     else
 	sels.rg = rgfld_->envelope().hrg;
 
