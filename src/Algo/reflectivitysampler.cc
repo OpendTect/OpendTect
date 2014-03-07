@@ -14,7 +14,8 @@
 #include "varlenarray.h"
 
 
-HiddenParam<ReflectivitySampler,TypeSet<float_complex>* > creflectivities_(0);
+static HiddenParam<ReflectivitySampler,TypeSet<float_complex>* >
+						creflectivities_(0);
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
@@ -47,8 +48,7 @@ ReflectivitySampler::~ReflectivitySampler()
 void ReflectivitySampler::doTimeReflectivities()
 {
     fft_ = new Fourier::CC;
-    if ( !creflectivities_.getParam(this) )
-	creflectivities_.setParam( this, new TypeSet<float_complex> );
+    creflectivities_.setParam( this, new TypeSet<float_complex> );
 }
 
 

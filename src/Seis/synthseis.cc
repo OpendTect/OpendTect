@@ -542,15 +542,14 @@ bool SynthGenerator::computeReflectivities()
     const StepInterval<float> sampling( outputsampling_.start,
 	    outputsampling_.atIndex( convolvesize_-1 ), outputsampling_.step );
 
-    PtrMan<ReflectivitySampler> sampler =
-	new ReflectivitySampler( *refmodel_, sampling, freqreflectivities_ );
-    sampler->doTimeReflectivities();
-    bool isok = sampler->execute();
+    ReflectivitySampler sampler( *refmodel_, sampling, freqreflectivities_ );
+    sampler.doTimeReflectivities();
+    const bool isok = sampler.execute();
     if ( !isok )
-	mErrRet( sampler->message(), false );
+	mErrRet( sampler.message(), false );
 
-    creflectivities_ = sampler->reflectivities( true );
-    sampler->getTimeReflectivities( reflectivities_ );
+    creflectivities_ = sampler.reflectivities( true );
+    sampler.getTimeReflectivities( reflectivities_ );
 
     return true;
 }
