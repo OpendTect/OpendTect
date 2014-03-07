@@ -337,9 +337,13 @@ static void addObjNm( BufferString& msg, const JobRunner* jr, int nr )
 
 void uiMMBatchJobDispatcher::jobPrep( CallBacker* )
 {
+    prepareCurrentJob();
+
+    /* CDash doesn't like this:
     if ( !prepareCurrentJob() )
 	// TODO put errmsg_ somewhere
 	;
+    */
 }
 
 
