@@ -32,7 +32,7 @@ static void parsePassedExpr( const char* inp )
 
 	for ( int idx=0; idx<nrvars; idx++ )
 	{
-	    const float val = (double)(Stats::randGen().getIndex(10) - 5);
+	    const float val = (float)(Stats::randGen().getIndex(20) - 5);
 	    od_cout() << "Var " << idx << " val=" << val << od_endl;
 	    me->setVariableValue( idx, val );
 	}
