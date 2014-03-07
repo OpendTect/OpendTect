@@ -345,11 +345,25 @@ bool uiWellImportAsc::doWork()
 
     if ( SI().zIsTime() )
     {
-	const char* errmsg = d2tgrp_->getD2T( wd_, false );
-	if ( errmsg ) mErrRet( errmsg );
-	if ( d2tgrp_->wantAsCSModel() )
-	    d2tgrp_->getD2T( wd_, true );
+	const bool validd2t = d2tgrp_->getD2TBool( wd_, false );
+	if ( !validd2t )
+	{
+	    BufferString errmsg;
+	    if ( d2tgrp_->errMsg() )
+		errmsg = d2tgrp_->errMsg();
+
+	    errmsg.add( "\n" ).add( "Alternatively, swith off the use of a"
+				    " Depth to Time model file" );
+	    mErrRet( errmsg );
+	}
+	else if ( d2tgrp_->warnMsg() )
+	{
+	    uiMSG().warning( d2tgrp_->warnMsg() );
+	}
+
 	datasrcnms += d2tgrp_->dataSourceName();
+	if ( d2tgrp_->wantAsCSModel() )
+	    wd_.setCheckShotModel( new Well::D2TModel( *wd_.d2TModel() ) );
     }
 
     const IOObj* ioobj = outfld_->ioobj();

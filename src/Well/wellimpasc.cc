@@ -6,19 +6,22 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "wellimpasc.h"
+
+#include "ailayer.h"
+#include "hiddenparam.h"
+#include "idxable.h"
+#include "mathfunc.h"
 #include "sorting.h"
 #include "strmprov.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
-#include "varlenarray.h"
-#include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "idxable.h"
 
 #include <iostream>
 #include <math.h>
@@ -555,13 +558,40 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 }
 
 
+
+static HiddenParam< Well::D2TModelAscIO,BufferString* > warnmsg_( 0 );
+
+Well::D2TModelAscIO::D2TModelAscIO( const Table::FormatDesc& fd )
+    : Table::AscIO(fd)
+{
+    warnmsg_.setParam( this, new BufferString() );
+}
+
+
+void Well::D2TModelAscIO::deleteMsg()
+{
+    BufferString* warnmsg = warnmsg_.getParam(this);
+    warnmsg_.removeParam( this );
+    delete warnmsg;
+}
+
+
+const char* Well::D2TModelAscIO::warnMsg() const
+{
+    if ( warnmsg_.getParam(this) )
+	return warnmsg_.getParam( this )->str();
+
+    return 0;
+}
+
+
 Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
-    fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf()),
-				Table::Required );
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+			    StringInpSpec(sKey::FloatUdf()), Table::Required );
     createDescBody( fd, withunitfld );
+
     return fd;
 }
 
@@ -589,15 +619,20 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
     createDescBody( &fd, withunitfld );
 }
 
+#undef mErrRet
+#define mErrRet(s) { errmsg = s; return false; }
+#define mScaledValue(s,uom,string) \
+{ getStringFromFloat(mCast(float,uom ? uom->userValue(s) : s),string.buf(),3); }
 
 static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
-			    TypeSet<double>& rawtvals, const Well::Data& wll )
+			    TypeSet<double>& rawtvals, const Well::Data& wll,
+			    BufferString& errmsg, BufferString& warnmsg )
 {
     const Well::Track& trck = wll.track();
     int inputsz = rawzvals.size();
 
     if ( inputsz < 2 || inputsz != rawtvals.size() )
-	return false;
+	mErrRet( "Input file does not contain at least two valid rows" );
 
     // sort and remove duplicates
     mAllocVarLenIdxArr( int, idxs, inputsz );
@@ -605,6 +640,9 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     TypeSet<double> zvals, tvals;
     zvals += rawzvals[0];
     tvals += rawtvals[idxs[0]];
+    PointBasedMathFunction tdcurve( PointBasedMathFunction::Linear,
+				    PointBasedMathFunction::ExtraPolGradient );
+    tdcurve.add( mCast(float,zvals[0]), mCast(float,tvals[0]) );
     for ( int idx=1; idx<inputsz; idx++ )
     {
 	const int lastidx = zvals.size()-1;
@@ -614,76 +652,128 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 	{
 	    zvals += rawzvals[idx];
 	    tvals += rawtvals[idxs[idx]];
+	    tdcurve.add( mCast(float,zvals[idx]), mCast(float,tvals[idx]) );
 	}
     }
 
     inputsz = zvals.size();
     if ( inputsz < 2 )
-	return false;
+    {
+	mErrRet( "Input file does not contain at least two valid rows "
+		 "after resorting and removal of duplicated positions" );
+    }
 
-    TypeSet<float> mds;
-    TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
     const double srd = SI().seismicReferenceDatum();
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
     // velocity above is controled by info().replvel
 
-    int istartz = IdxAble::getLowIdx( zvals, inputsz, firstz );
-    if ( istartz < 0  )
-	istartz = 0;
-    else if ( istartz >= (inputsz-1) )
+    int istartz = IdxAble::getUpperIdx( zvals, inputsz, firstz );
+    if ( istartz == inputsz )
 	istartz--;
 
-    double curvel = ( zvals[istartz+1] - zvals[istartz] ) /
-		    ( tvals[istartz+1] - tvals[istartz] );
-    mds += trck.getDahForTVD(mCast(float,firstz));
-    ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
-				       mCast( double, wll.info().replvel );
-    // one SHOULD check here if this time corresponds to the time at the
-    // same depth in the input file, i.e. is the computed replacement velocity
-    // in line with the one stored in info() or input in the advanced import
-    // settings window
-
-    int prevvelidx = istartz;
-    istartz++;
+    // Remove duplicated velocities
+    ElasticModel model;
     for ( int idz=istartz; idz<inputsz; idz++ )
     {
-	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
-			      ( tvals[idz] - tvals[prevvelidx] );
-	if ( mIsEqual(curvel,newvel,1e-2) && (idz<inputsz-1) )
-	    if ( mds.size() != 1 )
-		continue;
+	double thickness = zvals[idz] - zvals[idz-1];
+	const double vel = thickness / ( tvals[idz] - tvals[idz-1] );
+	if ( idz == istartz )
+	    thickness -= firstz - zvals[idz-1];
 
-	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
-	if ( !mIsUdf(dah) )
+	ElasticLayer newlayer( mCast(float,thickness), mCast(float,vel),
+			       mUdf(float), mUdf(float) );
+	model += newlayer;
+    }
+    model.mergeSameLayers();
+
+    TypeSet<float> mds;
+    TypeSet<double> ts;
+    const float firstdah = trck.getDahForTVD( mCast(float,firstz) );
+    if ( mIsUdf(firstdah) )
+	mErrRet( "First valid point of model is out of track range" )
+
+    const bool kbabovesrd = zwllhead < -1.f * srd;
+    const double replvel = mCast(double,wll.info().replvel);
+    mds += firstdah;
+    ts	+= kbabovesrd ? 0. : 2. * ( zwllhead + srd ) / replvel;
+    const double srdtwtinfile = mCast(double,
+				      tdcurve.getValue( mCast(float,firstz) ) );
+    const double timeshift = ts[0] - srdtwtinfile;
+    if ( !mIsZero(timeshift,1e-5) )
+    {
+	warnmsg = "Error with the replacement velocity\n";
+	if ( kbabovesrd )
 	{
-	    const float prevdah = trck.getDahForTVD(
-					    mCast(float,zvals[prevvelidx]) );
-	    if ( !mIsEqual(mds[0],prevdah,1e-2f) )
-	    {
-		mds += prevdah;
-		ts += tvals[prevvelidx];
-	    }
-
-	    prevvelidx = idz;
-	    curvel = newvel;
+	    warnmsg.add( "Your time-depth model does not honour " );
+	    warnmsg.add( "TWT(Z=SRD) = 0" );
+	}
+	else
+	{
+	    const UnitOfMeasure* uomdepth = UnitOfMeasure::surveyDefDepthUnit();
+	    const BufferString veluomlbl(
+		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false),
+		    "/s" );
+	    const double replvelinfile = 2. * (zwllhead+srd) / srdtwtinfile;
+	    warnmsg.add( "Your time-depth model suggests a replacement " );
+	    warnmsg.add( "velocity of: " );
+	    BufferString valstring;
+	    mScaledValue(replvelinfile,uomdepth,valstring)
+	    warnmsg.add( valstring ).add( veluomlbl ).add( "\n" );
+	    warnmsg.add( "but the replacement velocity of the well is: " );
+	    mScaledValue(replvel,uomdepth,valstring)
+	    warnmsg.add( valstring );
+	    warnmsg.add( veluomlbl );
 	}
 
-	if ( idz == inputsz-1 )
+	const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefZUnit();
+	warnmsg.add( "\n" );
+	warnmsg.add( "OpendTect WILL correct for this error by applying a " );
+	BufferString valstring;
+	mScaledValue(timeshift,uomz,valstring)
+	warnmsg.add( "time shift of: " ).add( valstring );
+	warnmsg.add( UnitOfMeasure::surveyDefZUnitAnnot(true,false) );
+	warnmsg.add( "\n" );
+	warnmsg.add("The resulting travel-times will differ from the file");
+    }
+
+    const double zstop = mCast(double,trck.zRange().stop);
+    double curdepth = firstz;
+    for ( int ilay=0; ilay<model.size(); ilay++ )
+    {
+	ElasticLayer& layer = model[ilay];
+	const double thickness = mCast(double,layer.thickness_);
+	const double vel = mCast(double,layer.vel_);
+	if ( curdepth + thickness > zstop )
 	{
-	    mds += trck.getDahForTVD( mCast(float,zvals[idz]) );
-	    ts += tvals[idz];
+	    mds += trck.dahRange().stop;
+	    ts += ts[ilay] + ( zstop - curdepth ) / vel;
+	    break;
 	}
+
+	curdepth += thickness;
+	const float basedah = trck.getDahForTVD( mCast(float,curdepth) );
+	if ( mIsUdf(basedah) )
+	    mErrRet( "Could not convert one of the TD point to MD" )
+
+	mds += basedah;
+	ts += ts[ilay] + thickness / vel;
     }
 
     const int outsz = mds.size();
-
     if ( outsz < 2 )
-	return false;
+	mErrRet( "Cannot create the time-depth model given the input" );
 
     for ( int idx=0; idx<outsz; idx++ )
-	d2t.add( mds[idx], (float)ts[idx] );
+    {
+	if ( fabs(mds[idx]) > 1e20f || fabs(ts[idx]) > 1e20 )
+	    mErrRet( "Import of Time-depth model produced erroneous values" );
+    }
+
+    d2t.setEmpty();
+    for ( int idx=0; idx<outsz; idx++ )
+	d2t.add( mds[idx], mCast(float,ts[idx]) );
 
     return true;
 }
@@ -692,7 +782,6 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 				const Well::Data& wll ) const
 {
-    d2t.setEmpty();
     if ( wll.track().isEmpty() ) return true;
 
     const int dpthopt = formOf( false, 0 );
@@ -719,14 +808,22 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	    tval *= 2;
 
 	if ( !istvd )
-	    zvals += wll.track().getPos(mCast(float,zval)).z;
-	else
-	    zvals += zval;
+	{
+	    const Coord3 crd = wll.track().getPos( mCast(float,zval) );
+	    if ( mIsUdf(crd) )
+		continue;
 
-	tvals += tval;
+	    zvals += crd.z; tvals += tval;
+	}
+	else
+	{
+	    zvals += zval;
+	    tvals += tval;
+	}
     }
 
-    return getTVDD2TModel( d2t, zvals, tvals, wll );
+    return getTVDD2TModel( d2t, zvals, tvals, wll, errmsg_,
+			   *warnmsg_.getParam(this) );
 }
 
 

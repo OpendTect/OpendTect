@@ -42,8 +42,12 @@ public:
     };
 
 			uiD2TModelGroup(uiParent*,const Setup&);
+			~uiD2TModelGroup();
 
     const char*		getD2T(Well::Data&,bool cksh = true) const;
+    bool		getD2TBool(Well::Data&,bool cksh = true) const;
+    const char*		errMsg() const;
+    const char*		warnMsg() const;
 
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;
@@ -60,6 +64,10 @@ protected:
     uiTableImpDataSel*  dataselfld_;
 
     void		fileFldChecked(CallBacker*);
+
+			//For ABI compatibility, will be removed
+    void		setMsg(const BufferString,bool warning) const;
+    void		setMsgNonconst(const BufferString,bool warning);
 };
 
 
