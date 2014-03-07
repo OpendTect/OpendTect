@@ -18,7 +18,8 @@ namespace Attrib
 
 DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
     : dh_(dh)
-    , type_(1)
+    , type_(0)
+    , seriesidx_(-1)
 {
     const int nrdh = dh_.size();
     int nrseries = 0;
@@ -37,15 +38,14 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
 
 
 DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh, int sidx,
-				    int dim0sz, int dim1sz )
+				  int dim0sz, int dim1sz )
     : dh_(dh)
     , seriesidx_(sidx)
-    , type_(0)
+    , type_(1)
 {
-    const int nrdh = dh_.size();
     info_.setSize( 0, dim0sz );
     info_.setSize( 1, dim1sz );
-    info_.setSize( 2, nrdh ? dh_[0]->nrsamples_ : 0 );
+    info_.setSize( 2, !dh_.isEmpty() ? dh_[0]->nrsamples_ : 0 );
 }
 
 
@@ -56,7 +56,7 @@ DataHolderArray::~DataHolderArray()
 
 void DataHolderArray::set( int i0, int i1, int i2, float val )
 {
-    if ( type_==1 )
+    if ( type_==0 )
     {
 	TypeSet<int> valididxs = dh_[0]->validSeriesIdx();
 	const int sidx = valididxs[i0];
@@ -77,20 +77,20 @@ void DataHolderArray::set( int i0, int i1, int i2, float val )
 float DataHolderArray::get( int i0, int i1, int i2 ) const
 {
     if ( i0<0 || i1<0 || i2<0 ) return mUdf(float);
-   
-   if ( type_==1 )
-   {
+
+    if ( type_==0 )
+    {
 	TypeSet<int> valididxs = dh_[0]->validSeriesIdx();
 	const int sidx = valididxs[i0];
 	const ValueSeries<float>* valseries = dh_[i1]->series( sidx );
 	return valseries ? valseries->value( i2 ) : mUdf(float);
-   }
-   else
-   {
+    }
+    else
+    {
 	const int idx = (i0*info_.getSize(1)) + i1;
 	const ValueSeries<float>* vals = dh_[idx]->series( seriesidx_ );
 	return vals ? vals->value(i2) : mUdf(float);
-   }
+    }
 }
 
 
@@ -99,25 +99,48 @@ void DataHolderArray::getAll( float* ptr ) const
     if ( !ptr )
 	return;
 
-    const int nrseries = info_.getSize( 0 );
-    const int nrdataholders = info_.getSize( 1 );
-    const int nrsamples = info_.getSize( 2 );
-    
-    for ( int seridx=0; seridx<nrseries; seridx++ )
+    if ( type_==0 )
     {
-	for ( int dhidx=0; dhidx<nrdataholders; dhidx++ )
+	const int nrseries = info_.getSize( 0 );
+	const int nrdataholders = info_.getSize( 1 );
+	const int nrsamples = info_.getSize( 2 );
+	TypeSet<int> valididxs = dh_[0]->validSeriesIdx();
+
+	for ( int seridx=0; seridx<nrseries; seridx++ )
 	{
-	    const ValueSeries<float>* valser = dh_[dhidx]->series( seridx );
-	    if ( !valser )
-		continue;
+	    const int sidx = valididxs[seridx];
+	    for ( int dhidx=0; dhidx<nrdataholders; dhidx++ )
+	    {
+		const ValueSeries<float>* vs = dh_[dhidx]->series( sidx );
+		const float* srcptr = vs ? vs->arr() : 0;
+		if ( srcptr )
+		    OD::sysMemCopy( ptr, srcptr, nrsamples*sizeof(float) );
+		else if ( vs )
+		    vs->getValues( ptr, nrsamples );
 
-	    const float* srcptr = valser->arr();
-	    if ( srcptr ) 
-		OD::sysMemCopy( ptr, srcptr, nrsamples*sizeof(float) );
-	    else 
-		valser->getValues( ptr, nrsamples );
+		ptr += nrsamples;
+	    }
+	}
+    }
+    else
+    {
+	const int sz0 = info_.getSize( 0 );
+	const int sz1 = info_.getSize( 1 );
+	const int sz2 = info_.getSize( 2 );
+	for ( int i0=0; i0<sz0; i0++ )
+	{
+	    for ( int i1=0; i1<sz1; i1++ )
+	    {
+		const int dhidx = (i0*sz1) + i1;
+		const ValueSeries<float>* vs = dh_[dhidx]->series( seriesidx_ );
+		const float* srcptr = vs ? vs->arr() : 0;
+		if ( srcptr )
+		    OD::sysMemCopy( ptr, srcptr, sz2*sizeof(float) );
+		else if ( vs )
+		    vs->getValues( ptr, sz2 );
 
-	    ptr += nrsamples;
+		ptr += sz2;
+	    }
 	}
     }
 }
