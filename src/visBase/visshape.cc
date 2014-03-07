@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannels.h"
 #include "vistexturecoords.h"
 
+#include <osg/BlendFunc>
 #include <osg/CullFace>
 #include <osg/PrimitiveSet>
 #include <osg/Switch>
@@ -475,6 +476,24 @@ void VertexShape::materialChangeCB( CallBacker* )
     material_->setColorBindType( colorbindtype_ );
     if ( osggeom_->getVertexArray()->getNumElements() > 0 )
         material_->attachGeometry( osggeom_ );
+
+    osg::StateSet* ss = getStateSet();
+
+    const bool transparent = getMaterial()->getTransparency() > 0.0;
+
+    if ( transparent && ss->getRenderingHint()!=osg::StateSet::TRANSPARENT_BIN )
+    {
+	osg::ref_ptr<osg::BlendFunc> blendFunc = new osg::BlendFunc;
+	blendFunc->setFunction( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	ss->setAttributeAndModes( blendFunc );
+	ss->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    }
+
+    if ( !transparent && ss->getRenderingHint()!=osg::StateSet::OPAQUE_BIN )
+    {
+	ss->removeAttribute( osg::StateAttribute::BLENDFUNC );
+	ss->setRenderingHint( osg::StateSet::OPAQUE_BIN );
+    }
 }
 
 

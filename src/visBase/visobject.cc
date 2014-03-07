@@ -118,11 +118,9 @@ void VisualObjectImpl::materialChangeCB( CallBacker* )
 {
     osg::StateSet* ss = osgroot_->getOrCreateStateSet();
 
-    const bool istransparent = getMaterial()->getTransparency() > 0.0;
-    const bool wastransparent =
-		    ss->getRenderingHint() == osg::StateSet::TRANSPARENT_BIN;
+    const bool transparent = getMaterial()->getTransparency() > 0.0;
 
-    if ( !wastransparent && istransparent )
+    if ( transparent && ss->getRenderingHint()!=osg::StateSet::TRANSPARENT_BIN )
     {
 	osg::ref_ptr<osg::BlendFunc> blendFunc = new osg::BlendFunc;
 	blendFunc->setFunction( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -130,7 +128,7 @@ void VisualObjectImpl::materialChangeCB( CallBacker* )
 	ss->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     }
 
-    if ( wastransparent && !istransparent )
+    if ( !transparent && ss->getRenderingHint()!=osg::StateSet::OPAQUE_BIN )
     {
 	ss->removeAttribute( osg::StateAttribute::BLENDFUNC );
 	ss->setRenderingHint( osg::StateSet::OPAQUE_BIN );
