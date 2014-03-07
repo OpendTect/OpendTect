@@ -20,7 +20,7 @@ ________________________________________________________________________
 
   A MathExpression can be queried about its variables with getNrVariables(),
   and each variable's name can be queried with getVariableStr( int ).
-  
+
   When a calculations should be done, all variables must be set with
   setVariable( int, double ). Then, the calculation can be done with getValue().
 -*/
@@ -29,50 +29,55 @@ mExpClass(General) MathExpression
 {
 public:
 
-    virtual double		getValue() const		= 0;
+    virtual double	getValue() const		= 0;
 
-    virtual int			nrVariables() const;
-    virtual const char*		fullVariableExpression(int) const;
-    virtual void		setVariableValue(int,double);
+    virtual int nrVariables() const;
+    virtual const char* fullVariableExpression(int) const;
+    virtual void	setVariableValue(int,double);
 
-				// recursive "out" or "this" excluded
-    int				nrUniqueVarNames() const
-    				{ return varnms_.size(); }
-    const char*			uniqueVarName( int idx ) const
-				{ return varnms_.get(idx).buf(); }
-    int				indexOfUnVarName( const char* nm )
-				{ return varnms_.indexOf( nm ); }
-    int				firstOccurVarName(const char*) const;
+			// recursive "out" or "this" excluded
+    int 	nrUniqueVarNames() const
+			{ return varnms_.size(); }
+    const char* uniqueVarName( int idx ) const
+			{ return varnms_.get(idx).buf(); }
+    int 	indexOfUnVarName( const char* nm )
+			{ return varnms_.indexOf( nm ); }
+    int 	firstOccurVarName(const char*) const;
 
-    enum VarType		{ Variable, Constant, Recursive };
-    VarType			getType(int varidx) const;
-    int				getConstIdx(int varidx) const;
+    enum VarType	{ Variable, Constant, Recursive };
+    VarType		getType(int varidx) const;
+    int 	getConstIdx(int varidx) const;
 
-    bool			isRecursive() const
-    				{ return isrecursive_; }
+    bool		isRecursive() const
+			{ return isrecursive_; }
 
-    virtual MathExpression*	clone() const = 0;
+    virtual MathExpression* clone() const = 0;
 
-    virtual			~MathExpression();
+    virtual		~MathExpression();
+
+    const char* type() const;
+    void		dump( BufferString& str ) const { doDump(str,0); }
 
 protected:
 
-				MathExpression(int nrinputs);
+			MathExpression(int nrinputs);
 
-    int				nrInputs() const { return inputs_.size(); }
-    bool			setInput( int, MathExpression* );
-    void			copyInput( MathExpression* target ) const;
+    int 	nrInputs() const { return inputs_.size(); }
+    bool		setInput( int, MathExpression* );
+    void		copyInput( MathExpression* target ) const;
 
-    void			addIfOK(const char*);
+    void		addIfOK(const char*);
 
+    ObjectSet<TypeSet<int> > variableobj_;
+    ObjectSet<TypeSet<int> > variablenr_;
+    ObjectSet<MathExpression> inputs_;
+    BufferStringSet	varnms_;
+    bool		isrecursive_;
 
-    ObjectSet<TypeSet<int> >	variableobj_;
-    ObjectSet<TypeSet<int> >	variablenr_;
-    ObjectSet<MathExpression>	inputs_;
-    BufferStringSet		varnms_;
-    bool			isrecursive_;
+    friend class	MathExpressionParser;
 
-    friend class		MathExpressionParser;
+    void		doDump(BufferString&,int nrtabs) const;
+    virtual void	dumpSpecifics(BufferString&,int nrtabs) const	{}
 
 };
 
@@ -85,14 +90,14 @@ protected:
   A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
   not start with a digit and is not an operator is treated as a variable.
   An operator can be either:
-  
-  +, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat, 
+
+  +, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat,
   or |abs|
-  
+
   A mathematical function can be either:
-  
+
   sin(), cos(), tan(), ln(), log(), exp() or sqrt ().
-  
+
   If the parser returns null, it couldn't parse the expression.
   Then, errmsg_ should contain info.
 -*/
@@ -101,7 +106,7 @@ mExpClass(General) MathExpressionParser
 {
 public:
 
-    				MathExpressionParser( const char* str=0 )
+				MathExpressionParser( const char* str=0 )
 				    : inp_(str)		{}
 
     void			setInput( const char* s ) { inp_ = s; }
@@ -115,10 +120,23 @@ public:
 
 protected:
 
-    BufferString		inp_;
-    mutable BufferString	errmsg_;
+    BufferString	inp_;
+    mutable BufferString errmsg_;
 
-    MathExpression*		parse(const char*) const;
+    MathExpression*	parse(const char*) const;
+
+    bool		findOuterParens(char*,int,MathExpression*&) const;
+    bool		findOuterAbs(char*,int,MathExpression*&) const;
+    bool		findQMarkOper(char*,int,MathExpression*&) const;
+    bool		findAndOrOr(char*,int,MathExpression*&) const;
+    bool		findInequality(char*,int,MathExpression*&) const;
+    bool		findPlusAndMinus(char*,int,MathExpression*&) const;
+    bool		findOtherOper(BufferString&,int,MathExpression*&) const;
+    bool		findVariable(char*,int,MathExpression*&) const;
+    bool		findMathFunction(BufferString&,int,
+					 MathExpression*&) const;
+    bool		findStatsFunction(BufferString&,int,
+					  MathExpression*&) const;
 
 };
 
@@ -130,7 +148,7 @@ protected:
 mExpClass(General) MathExpressionOperatorDesc
 {
 public:
-    			MathExpressionOperatorDesc( const char* s,
+			MathExpressionOperatorDesc( const char* s,
 					const char* d, bool isop, int n )
 			    : symbol_(s), desc_(d)
 			    , isoperator_(isop), nrargs_(n)	{}

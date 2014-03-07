@@ -16,21 +16,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "statruncalc.h"
 #include "undefval.h"
+#include "bufstring.h"
 
 #include <math.h>
-#include <string.h>
-
-#define absolute( str, idx, inabs) \
-    if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) ) \
-	inabs=(inabs+1)%2;
 
 #ifndef M_PI
-# define M_PI           3.14159265358979323846  /* pi */
+# define M_PI		3.14159265358979323846
 #endif
 
-
-#define mAddDesc(s,d,i,n) \
-    grp->opers_ += new MathExpressionOperatorDesc(s,d,i,n)
 
 const ObjectSet<const MathExpressionOperatorDescGroup>&
 			MathExpressionOperatorDescGroup::supported()
@@ -44,6 +37,9 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
 
     MathExpressionOperatorDescGroup* grp = new MathExpressionOperatorDescGroup;
     grp->name_ = "Basic";
+
+#   define mAddDesc(s,d,i,n) \
+    grp->opers_ += new MathExpressionOperatorDesc(s,d,i,n)
     mAddDesc("+","Add",true,2);
     mAddDesc("-","Subtract",true,2);
     mAddDesc("*","Multiply",true,2);
@@ -109,77 +105,86 @@ class MathExpressionVariable : public MathExpression
 public:
 				MathExpressionVariable( const char* str )
 				    : MathExpression( 0 )
-				    , str_( new char[strlen(str)+1] )
-				{ strcpy( str_, str ); addIfOK(str); }
-
-				~MathExpressionVariable() { delete [] str_; }
+				    , str_(str) { addIfOK(str_.buf()); }
 
     const char*			fullVariableExpression( int ) const
-				{ return str_; }
+							{ return str_.buf(); }
 
-    int				nrVariables() const { return 1; }
+    int 	nrVariables() const	{ return 1; }
 
-    double			getValue() const
-				{
-				    return val_;
-				}
+    double			getValue() const	{ return val_; }
 
     void			setVariableValue( int, double nv )
-				{ val_ = nv; }
+							{ val_ = nv; }
 
     MathExpression*		clone() const
 				{
 				    MathExpression* res =
-					new MathExpressionVariable(str_);
+					new MathExpressionVariable(str_.buf());
 				    copyInput( res );
 				    return res;
 				}
 
-
 protected:
+
     double			val_;
-    char*			str_;
+    BufferString		str_;
+
 };
 
 
 class MathExpressionConstant : public MathExpression
 {
 public:
-				MathExpressionConstant( double val )
-				    : val_ ( val )
-				    , MathExpression( 0 )		{}
 
-    double			getValue() const { return val_; }
+MathExpressionConstant( double val )
+    : val_ ( val )
+    , MathExpression( 0 )
+{
+}
 
-    MathExpression*		clone() const
-				{
-				    MathExpression* res =
-					new MathExpressionConstant(val_);
-				    copyInput( res );
-				    return res;
-				}
+double getValue() const
+{
+    return val_;
+}
+
+MathExpression* clone() const
+{
+    MathExpression* res = new MathExpressionConstant(val_);
+    copyInput( res );
+    return res;
+}
+
+void dumpSpecifics( BufferString& str, int nrtabs ) const
+{
+    str.addTab( nrtabs ).add( "Const value: " ).add( val_ ).addNewLine();
+}
 
 protected:
+
     double			val_;
+
 };
 
 
 #define mMathExpressionClass( clss, nr ) \
+     \
 class MathExpression##clss : public MathExpression \
 { \
 public: \
-			MathExpression##clss() \
-			    : MathExpression( nr )		{} \
+MathExpression##clss() : MathExpression( nr ) \
+{ \
+} \
  \
-    double		getValue() const; \
+double getValue() const; \
  \
-    MathExpression*	clone() const \
-			{ \
-			    MathExpression* res = \
-					new MathExpression##clss(); \
-			    copyInput( res ); \
-			    return res; \
-			} \
+MathExpression* clone() const \
+{ \
+    MathExpression* res = new MathExpression##clss(); \
+    copyInput( res ); \
+    return res; \
+} \
+ \
 };
 
 
@@ -450,26 +455,28 @@ double MathExpressionGaussRandom::getValue() const
 class MathExpression##clss : public MathExpression \
 { \
 public: \
-			MathExpression##clss() \
-			    : MathExpression( 1 )		{} \
+\
+MathExpression##clss() \
+    : MathExpression( 1 ) \
+{} \
+\
+double getValue() const \
+{ \
+    double val = inputs_[0]->getValue(); \
+    if ( Values::isUdf(val) ) \
+	return mUdf(double); \
+\
+    double out = func(val); \
+    return out == out ? out : mUdf(double); \
+} \
+\
+MathExpression* clone() const \
+{ \
+    MathExpression* res = new MathExpression##clss(); \
+    copyInput( res ); \
+    return res; \
+} \
  \
-    double		getValue() const \
-			{ \
-			    double val = inputs_[0]->getValue(); \
-			    if ( Values::isUdf(val) ) \
-				return mUdf(double); \
- \
-			    double out = func(val); \
-			    return out == out ? out : mUdf(double); \
-			} \
- \
-    MathExpression*	clone() const \
-			{ \
-			    MathExpression* res = \
-					new MathExpression##clss(); \
-			    copyInput( res ); \
-			    return res; \
-			} \
 };
 
 
@@ -489,26 +496,29 @@ mMathExpressionOper( Sqrt, Math::Sqrt );
 class MathExpression##statnm : public MathExpression \
 { \
 public: \
-			MathExpression##statnm( int nrvals ) \
-			    : MathExpression( nrvals )		{} \
- \
-    double		getValue() const \
-			{ \
-			    Stats::RunCalc<double> stats( \
-				Stats::CalcSetup().require(Stats::statnm)); \
-			    for ( int idx=0; idx<inputs_.size(); idx++) \
-				stats += inputs_[idx]->getValue(); \
- \
-			    return ( double ) stats.getValue(Stats::statnm); \
-			} \
- \
-    MathExpression*	clone() const \
-			{ \
-			    MathExpression* res = \
-				new MathExpression##statnm( inputs_.size() ); \
-			    copyInput( res ); \
-			    return res; \
-			} \
+\
+MathExpression##statnm( int nrvals ) \
+    : MathExpression( nrvals ) \
+{} \
+\
+double getValue() const \
+{ \
+    Stats::RunCalc<double> stats( \
+	Stats::CalcSetup().require( Stats::statnm ) ); \
+    for ( int idx=0; idx<inputs_.size(); idx++) \
+	stats += inputs_[idx]->getValue(); \
+\
+    return (double)stats.getValue( Stats::statnm ); \
+} \
+\
+MathExpression* clone() const \
+{ \
+    MathExpression* res = \
+	new MathExpression##statnm( inputs_.size() ); \
+    copyInput( res ); \
+    return res; \
+} \
+\
 };
 
 
@@ -657,6 +667,32 @@ int MathExpression::firstOccurVarName( const char* fullvnm ) const
 }
 
 
+const char* MathExpression::type() const
+{
+    return ::className(*this) + 14;
+}
+
+
+void MathExpression::doDump( BufferString& str, int nrtabs ) const
+{
+    const int nrvars = nrVariables();
+    const int nrinps = inputs_.size();
+    str.addTab( nrtabs ).add( type() );
+    if ( isrecursive_ )
+	str.add( " [recursive]" );
+    str .add( ": " ).add( nrvars ).add( " vars" )
+	.add( ", " ).add( nrinps ).add( " inps" ).addNewLine();
+    dumpSpecifics( str, nrtabs );
+    for ( int ivar=0; ivar<nrvars; ivar++ )
+    {
+	str.addTab( nrtabs ).add( "Var " ).add( ivar ).add( ": " )
+	    .add( fullVariableExpression( ivar ) ).addNewLine();
+    }
+    for ( int iinp=0; iinp<nrinps; iinp++ )
+	inputs_[iinp]->doDump( str, nrtabs+1 );
+}
+
+
 //--- Parser
 
 
@@ -709,523 +745,443 @@ int MathExpressionParser::constIdxOf( const char* varstr )
 }
 
 
-static void countParens( const char* str, int& idx, int& parenslevel, int len )
+#define mErrRet(s) { errmsg_.set( s ); return true; }
+
+#define mIfInAbsContinue() \
+    if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) ) \
+	inabs = !inabs; \
+    if ( inabs ) continue
+
+#define mWithinParensContinue() \
+	const char curch = str[idx]; \
+	if ( curch == ')' ) parenslevel++; \
+	else if ( curch == '(' ) parenslevel--; \
+	if ( parenslevel ) continue
+
+
+bool MathExpressionParser::findOuterParens( char* str, int len,
+					      MathExpression*& ret ) const
 {
-    while ( idx<len && (str[idx]=='(' || parenslevel) )
-    {
-	if ( str[idx]=='(' ) parenslevel++;
-	if ( parenslevel && str[idx]==')' ) parenslevel--;
-	if ( parenslevel ) idx++;
-    }
-}
+    if ( str[0] != '(' || str[len-1] != ')' )
+	return false;
 
-
-MathExpression* MathExpressionParser::parse() const
-{
-    if ( inp_.isEmpty() ) { errmsg_ = "Empty input"; return 0; }
-    return parse( inp_.buf() );
-}
-
-
-MathExpression* MathExpressionParser::parse( const char* input ) const
-{
-    int len = input ? strlen(input) : 0;
-    if ( !len ) return 0;
-
-    ArrPtrMan<char> str = new char[len+1];
-    str[0]=0;
-
-    int pos = 0;
-    for ( int idx=0; idx<len; idx++ )
-    {
-	if ( !isspace(input[idx]) )
-	    str[pos++] = input[idx];
-	str[pos] = 0;
-    }
-
-    len = strlen(str);
-
+    bool haveouterparens = true;
     int parenslevel = 0;
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) parenslevel++;
-	if ( str[idx]==')' ) parenslevel--;
-    }
-    if ( parenslevel )
-    {
-	if ( parenslevel > 0 )
-	    errmsg_ = "More left than right parentheses";
-	else
-	    errmsg_ = "More right than left parentheses";
-	return 0;
-    }
-
-    while ( str[0] == '(' && str[len-1]==')' )
-    {
-	int localparenslevel = 0;
-	bool removeparens = true;
-
-	for ( int idx=1; idx<len-1; idx++ )
+	const char curch = str[idx];
+	if ( curch == '(' )
+	    parenslevel++;
+	else if ( curch == ')' )
 	{
-	    if ( str[idx]=='(' ) localparenslevel++;
-	    if ( str[idx]==')' ) localparenslevel--;
-
-	    if ( localparenslevel<0 )
+	    parenslevel--;
+	    if ( parenslevel == 0 && haveouterparens )
+		haveouterparens = idx == len-1;
+	    else if ( parenslevel < 0 )
 	    {
-		removeparens=false;
-		break;
-	    }
-	}
-
-	if ( !removeparens )
-	    break;
-
-	ArrPtrMan<char> tmp = new char[len+1];
-	strcpy( tmp, &str[1] );
-	tmp[len-2] = 0;
-	strcpy( str, tmp );
-
-	len = strlen( str );
-    }
-
-
-    // Look for absolute values
-    if ( len>3 &&
-	 str[0] == '|' && str[1] != '|' &&
-	 str[len-1] == '|' && str[len-2] != '|' )
-    {
-	ArrPtrMan<char> tmp = new char[len+1];
-	strcpy( tmp, &str[1] );
-	tmp[len-2] = 0;
-
-	MathExpression* inp = parse( tmp );
-	if ( inp )
-	{
-	    MathExpression* res = new MathExpressionAbs;
-	    res->setInput( 0, inp );
-	    return res;
-	}
-    }
-
-    parenslevel = 0;
-    bool inabs = false;
-
-    // ? :
-    for ( int idx=0; idx<len; idx++ )
-    {
-	absolute( str, idx, inabs);
-	if ( inabs ) continue;
-
-	countParens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
-
-	if ( str[idx] == '?' )
-	{
-	    if ( !idx ) continue;
-
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-
-	    for ( int idy=idx; idy<len; idy++ )
-	    {
-		absolute( str, idx, inabs)
-		if ( inabs ) continue;
-
-		countParens(str, idx, parenslevel, len);
-		if ( parenslevel ) continue;
-
-		if ( str[idy] == ':' )
-		{
-		    MathExpression* inp0 = parse( arg0 );
-		    if ( !inp0 ) return 0;
-
-		    ArrPtrMan<char> arg1 = new char[len+1];
-		    strcpy( arg1, &str[idx+1] );
-		    arg1[idy-idx-1] = 0;
-
-		    MathExpression* inp1 = parse( arg1 );
-		    if ( !inp1 )
-		    {
-			delete inp0;
-			return 0;
-		    }
-
-		    ArrPtrMan<char> arg2 = new char[len+1];
-		    strcpy( arg2, &str[idy+1] );
-
-		    MathExpression* inp2 = parse( arg2 );
-		    if ( !inp2 )
-		    {
-			delete inp0;
-			delete inp1;
-			return 0;
-		    }
-
-
-		    MathExpression* res = new MathExpressionCondition;
-
-		    res->setInput( 0, inp0 );
-		    res->setInput( 1, inp1 );
-		    res->setInput( 2, inp2 );
-
-		    return res;
-		}
+		str[idx+1] = '\0';
+		errmsg_.set( "Found a closing parenthesis ')' too early" );
+		if ( idx > 3 )
+		    errmsg_.add( ": " ).add( str );
+		return true;
 	    }
 	}
     }
+    if ( parenslevel > 0 )
+	mErrRet( "Not enough closing parentheses ')' found" );
+
+    if ( haveouterparens )
+    {
+	str[len-1] = '\0';
+	ret = parse( str+1 );
+	return true;
+    }
+
+    return false;
+}
 
 
-    // && ||
+bool MathExpressionParser::findOuterAbs( char* str, int len,
+					      MathExpression*& ret ) const
+{
+    if ( str[0] != '|' || str[len-1] != '|' )
+	return false;
+    if ( len == 1 )
+	mErrRet( "Single '|': invalid expression" );
+    if ( len == 2 )
+	mErrRet( "Stand-alone '||' found" );
+
+    BufferString workstr( str+1 );
+    workstr[len-2] = '\0';
+    ret = parse( workstr );
+    if ( ret )
+    {
+	MathExpression* absexp = new MathExpressionAbs;
+	absexp->setInput( 0, ret );
+	ret = absexp;
+	return true;
+    }
+
+    return false;
+}
+
+
+bool MathExpressionParser::findQMarkOper( char* str, int len,
+					      MathExpression*& ret ) const
+{
+    bool inabs = false; int parenslevel = 0;
+    int qmarkpos = -1;
+
     for ( int idx=0; idx<len; idx++ )
     {
-	absolute( str, idx, inabs)
-	if ( inabs ) continue;
+	mIfInAbsContinue(); mWithinParensContinue();
 
-	countParens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
+	if ( curch == '?' )
+	{
+	    qmarkpos = idx;
+	    if ( qmarkpos == 0 )
+		mErrRet( "Please add a condition before '?'" )
+	    continue;
+	}
+	else if ( curch == ':' )
+	{
+	    if ( qmarkpos < 0 )
+		mErrRet( "Found ':' without '?'" )
+	    if ( idx == qmarkpos+1 )
+		mErrRet( "Please add a value for the 'true' condition" )
+	    if ( idx == len - 1 )
+		mErrRet( "Please add a value for the 'false' condition" )
+	    str[qmarkpos] = str[idx] = '\0';
+	    MathExpression* cond = parse( str );
+	    if ( !cond )
+		return true;
+	    MathExpression* trueexp = parse( str + qmarkpos + 1 );
+	    if ( !trueexp )
+		{ delete cond; return true; }
+	    MathExpression* falseexp = parse( str + idx + 1 );
+	    if ( !falseexp )
+		{ delete cond; delete trueexp; return 0; }
+	    ret = new MathExpressionCondition;
+	    ret->setInput( 0, cond );
+	    ret->setInput( 1, trueexp );
+	    ret->setInput( 2, falseexp );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+bool MathExpressionParser::findAndOrOr( char* str, int len,
+					      MathExpression*& ret ) const
+{
+    bool inabs = false; int parenslevel = 0;
+
+    for ( int idx=0; idx<len-1; idx++ )
+    {
+	mIfInAbsContinue(); mWithinParensContinue();
 
 	if ( (str[idx]=='&'&&str[idx+1]=='&')||(str[idx]=='|'&&str[idx+1]=='|'))
 	{
-	    if ( !idx ) continue;
+	    if ( idx == 0 )
+		mErrRet( "No left-hand side for '&&' or '||' found" )
+	    else if ( idx == len-2 )
+		mErrRet( "No right-hand side for '&&' or '||' found" )
 
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-
-	    MathExpression* inp0 = parse( arg0 );
-
-	    if ( !inp0 ) return 0;
-
-	    ArrPtrMan<char> arg1 = new char[len+1];
-	    strcpy( arg1, &str[idx+2] );
-
-	    MathExpression* inp1 = parse( arg1 );
-
+	    str[idx] = '\0';
+	    MathExpression* inp0 = parse( str );
+	    if ( !inp0 )
+		return true;
+	    MathExpression* inp1 = parse( str + idx + 2 );
 	    if ( !inp1 )
-	    {
-		delete inp0;
-		return 0;
-	    }
-
-	    MathExpression* res = 0;
+		{ delete inp0; return true; }
 
 	    if ( str[idx] == '&' )
-		res = new MathExpressionAND;
+		ret = new MathExpressionAND;
 	    else
-		res = new MathExpressionOR;
-
-	    res->setInput( 0, inp0 );
-	    res->setInput( 1, inp1 );
-
-	    return res;
+		ret = new MathExpressionOR;
+	    ret->setInput( 0, inp0 );
+	    ret->setInput( 1, inp1 );
+	    return true;
 	}
     }
 
+    return false;
+}
 
-    // <, >, <=, >=, ==, !=
+
+bool MathExpressionParser::findInequality( char* str, int len,
+					      MathExpression*& ret ) const
+{
+    bool inabs = false; int parenslevel = 0;
+
     for ( int idx=0; idx<len; idx++ )
     {
-	absolute( str, idx, inabs)
-	if ( inabs ) continue;
+	mIfInAbsContinue(); mWithinParensContinue();
 
-	countParens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
-
-	if ( str[idx]=='<' ||  str[idx]=='>' || str[idx]=='=' || str[idx]=='!')
+	const bool iseq = curch == '=';
+	const bool islt = curch == '<';
+	const bool isgt = curch == '>';
+	const bool isnot = curch == '!';
+	if ( iseq || islt || isgt || isnot )
 	{
-	    if ( !idx ) continue;
-	    if ( (str[idx]=='=' || str[idx]=='!') && str[idx+1] != '=' )
+	    const char nextch = idx < len-1 ? str[idx+1] : ' ';
+	    if ( (iseq || isnot) && nextch != '=' )
+	    {
+		str[idx+2] = '\0';
+		errmsg_.set( "Invalid operator found: ").add( str+idx );
+		return true;
+	    }
+	    if ( idx == 0 )
+		mErrRet( "No left-hand side for (in-)equality operator found" )
+	    else if ( idx == len-1 )
+		mErrRet( "No right-hand side for (in-)equality operator found" )
+
+	    str[idx] = '\0';
+	    MathExpression* inp0 = parse( str );
+	    if ( !inp0 )
+		return true;
+	    const int nrchars = nextch == '=' ? 2 : 1;
+	    MathExpression* inp1 = parse( str + idx + nrchars );
+	    if ( !inp1 )
+		{ delete inp0; return true; }
+
+	    if ( islt )
+	    {
+		if ( nextch == '=' )
+		    ret = new MathExpressionLessOrEqual;
+		else
+		    ret = new MathExpressionLess;
+	    }
+	    else if ( isgt )
+	    {
+		if ( nextch == '=' )
+		    ret = new MathExpressionMoreOrEqual;
+		else
+		    ret = new MathExpressionMore;
+	    }
+	    else if ( iseq )
+		ret = new MathExpressionEqual;
+	    else
+		ret = new MathExpressionNotEqual;
+
+	    ret->setInput( 0, inp0 );
+	    ret->setInput( 1, inp1 );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+bool MathExpressionParser::findPlusAndMinus( char* str, int len,
+					      MathExpression*& ret ) const
+{
+    bool inabs = false; int parenslevel = 0;
+
+    for ( int idx=0; idx<len; idx++ )
+    {
+	mIfInAbsContinue(); mWithinParensContinue();
+
+	if ( curch == '+' ||  curch == '-' )
+	{
+	    if ( idx == 0 || idx == len-1 )
+		continue;
+	    const char prevch = str[idx-1];
+	    if ( prevch == '(' || prevch == '+' || prevch == '-'
+		|| prevch == '*' || prevch == '/' || prevch == '/'
+		|| prevch == '^' || prevch == '[' )
+		continue;
+	    if ( idx > 1 && (prevch == 'e' || prevch == 'E')
+		&& !isalpha(str[idx-2]) )
 		continue;
 
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-
-	    MathExpression* inp0 = parse( arg0 );
-
-	    if ( !inp0 ) return 0;
-
-	    bool twochars = str[idx+1] == '=' ? true : false;
-	    ArrPtrMan<char> arg1 = new char[len+1];
-	    strcpy( arg1, &str[idx+1+twochars] );
-
-	    MathExpression* inp1 = parse( arg1 );
-
+	    MathExpression* inp1 = parse( curch == '+' ? str+idx+1 : str+idx );
 	    if ( !inp1 )
-	    {
-		delete inp0;
-		return 0;
-	    }
+		return true;
+	    str[idx] = '\0';
+	    MathExpression* inp0 = parse( str );
+	    if ( !inp0 )
+		{ delete inp1; return true; }
 
-	    MathExpression* res = 0;
-
-	    if ( str[idx] == '<' )
-	    {
-		if ( str[idx+1] == '=' )
-		    res = new MathExpressionLessOrEqual;
-		else
-		    res = new MathExpressionLess;
-	    }
-	    else if ( str[idx] == '>' )
-	    {
-		if ( str[idx+1] == '=' )
-		    res = new MathExpressionMoreOrEqual;
-		else
-		    res = new MathExpressionMore;
-	    }
-	    else if ( str[idx] == '=' )
-		res = new MathExpressionEqual;
-	    else
-		res = new MathExpressionNotEqual;
-
-	    res->setInput( 0, inp0 );
-	    res->setInput( 1, inp1 );
-
-	    return res;
+	    ret = new MathExpressionPlus;
+	    ret->setInput( 0, inp0 );
+	    ret->setInput( 1, inp1 );
+	    return true;
 	}
     }
 
-
-    // + -
-    for ( int idx=0; idx<len; idx++ )
-    {
-	absolute( str, idx, inabs)
-	if ( inabs ) continue;
-
-        countParens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
-
-	if ( str[idx]=='+' ||  str[idx]=='-' )
-	{
-	    if ( !idx ) continue;
-	    if ( str[idx-1]=='(' ) continue;
-	    if ( str[idx-1]=='+' ) continue;
-	    if ( str[idx-1]=='-' ) continue;
-	    if ( str[idx-1]=='*' ) continue;
-	    if ( str[idx-1]=='/' ) continue;
-	    if ( str[idx-1]=='^' ) continue;
-	    if ( str[idx-1]=='[' ) continue;
-	    if ( idx > 1 && caseInsensitiveEqual( &str[idx-1], "e", 1 )
-		&& !isalpha(str[idx-2]) ) continue;
-
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-
-	    MathExpression* inp0 = parse( arg0 );
-
-	    if ( !inp0 ) return 0;
-
-	    ArrPtrMan<char> arg1 = new char[len+1];
-	    // Always use the plus operator.
-	    // So '20-4-5' becomes '20+-4+-5'
-	    if ( str[idx] == '+' )
-		strcpy( arg1, &str[idx+1] );
-	    else
-		strcpy( arg1, &str[idx] );
-
-	    MathExpression* inp1 = parse( arg1 );
-
-	    if ( !inp1 )
-	    {
-		delete inp0;
-		return 0;
-	    }
-
-	    MathExpression* res = new MathExpressionPlus;
-
-	    res->setInput( 0, inp0 );
-	    res->setInput( 1, inp1 );
-
-	    return res;
-	}
-    }
-
-#define mParseOperator( op, clss ) \
-    for ( int idx=0; idx<len; idx++ ) \
-    { \
-	absolute( str, idx, inabs) \
-	if ( inabs ) continue; \
- \
-	countParens(str, idx, parenslevel, len); \
-	if ( parenslevel ) continue; \
- \
-	if ( str[idx] == op ) \
-	{ \
-	    if ( !idx ) continue; \
- \
-	    ArrPtrMan<char> arg0 = new char[len+1]; \
-	    strcpy( arg0, str ); \
-	    arg0[idx] = 0; \
-	    MathExpression* inp0 = parse( arg0 ); \
-	    if ( !inp0 ) return 0; \
- \
-	    ArrPtrMan<char> arg1 = new char[len+1]; \
-	    strcpy( arg1, &str[idx+1] ); \
-	    MathExpression* inp1 = parse( arg1 ); \
-	    if ( !inp1 ) \
-	    { \
-		delete inp0; \
-		return 0; \
-	    } \
-	 \
-	    MathExpression* res = new MathExpression##clss; \
- \
-	    res->setInput( 0, inp0 ); \
-	    res->setInput( 1, inp1 ); \
- \
-	    return res; \
-	} \
-    }
-
-    // negative variables
+    // unary '-'
     if ( str[0]== '-' )
     {
 	MathExpression* inp0 = new MathExpressionConstant( -1 );
-	if ( !inp0 ) return 0;
-
-	ArrPtrMan<char> arg1 = new char[len+1];
-	strcpy( arg1, str+1 );
-	MathExpression* inp1 = parse( arg1 );
-	if ( !inp1 ) return 0;
-
-	MathExpression* res = new MathExpressionMultiply;
-	res->setInput( 0, inp0 );
-	res->setInput( 1, inp1 );
-
-	return res;
+	MathExpression* inp1 = parse( str+1 );
+	if ( !inp1 )
+	    return true;
+	ret = new MathExpressionMultiply;
+	ret->setInput( 0, inp0 );
+	ret->setInput( 1, inp1 );
+	return true;
     }
 
-    mParseOperator( '*', Multiply );
-    mParseOperator( '/', Divide );
-    mParseOperator( '%', IntDivRest );
-    mParseOperator( '|', IntDivide );
-    mParseOperator( '^', Power );
+    return false;
+}
 
 
-    char* endptr;
-    double tres = strtod( str, &endptr );
+bool MathExpressionParser::findOtherOper( BufferString& workstr, int len,
+					      MathExpression*& ret ) const
+{
+    char* str = workstr.getCStr();
+    bool inabs = false; int parenslevel = 0;
 
-    if ( endptr != str )
-	return new MathExpressionConstant( ( double )tres );
-
-
-#define mParseFunction( func, clss ) { \
-    BufferString funcstr(func); funcstr += "("; \
-    int funclen = funcstr.size(); \
-    if ( !strncasecmp( str, funcstr.buf(), funclen ) && str[len-1] == ')' ) \
+#define mParseOperator( op, clss, chkabs ) \
+    inabs = false; parenslevel = 0; \
+    for ( int idx=0; idx<len; idx++ ) \
     { \
-	ArrPtrMan<char> arg0 = new char[len-funclen+1]; \
-	strcpy( arg0, str+funclen ); \
-	arg0[len-funclen-1] = 0; \
-	MathExpression* inp = parse( arg0 ); \
-	if ( !inp ) return 0; \
-\
-	MathExpression* res = new MathExpression##clss; \
-	res->setInput( 0, inp ); \
-	return res; \
+	if ( chkabs ) { mIfInAbsContinue(); } mWithinParensContinue(); \
+ \
+	if ( curch == op ) \
+	{ \
+	    if ( idx == 0 || idx == len-1 ) \
+		continue; \
+	    str[idx] = '\0'; \
+	    MathExpression* inp0 = parse( str ); \
+	    if ( !inp0 ) return true; \
+	    MathExpression* inp1 = parse( str+idx+1 ); \
+	    if ( !inp1 ) \
+		{ delete inp0; return true; } \
+	    ret = new MathExpression##clss; \
+	    ret->setInput( 0, inp0 ); \
+	    ret->setInput( 1, inp1 ); \
+	    return true; \
+	} \
+    }
+
+    mParseOperator( '*', Multiply, true );
+    mParseOperator( '/', Divide, true );
+    mParseOperator( '%', IntDivRest, true );
+    mParseOperator( '^', Power, true );
+
+    const int nrpipes = workstr.count( '|' );
+    if ( nrpipes == 1 )
+	{ mParseOperator( '|', IntDivide, false ); }
+
+    return false;
+}
+
+
+bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
+					      MathExpression*& ret ) const
+{
+    char* str = workstr.getCStr();
+#   define mParseFunction( nm, clss ) { \
+    if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
+    { \
+	workstr[len-1] = '\0'; \
+	MathExpression* inp = parse( str + FixedString( #nm "(" ).size() ); \
+	if ( !inp ) return true; \
+	ret = new MathExpression##clss; \
+	ret->setInput( 0, inp ); \
+	return true; \
     } \
     }
+    mParseFunction( sqrt, Sqrt )
+    mParseFunction( exp, Exp )
 
-    // sqrt
-    mParseFunction( "sqrt", Sqrt )
-    // exp(x) -> e^x
-    mParseFunction( "exp", Exp )
+    mParseFunction( ln, NatLog )
+    mParseFunction( log, Log )
 
-    // ln (Natural log)  &  log (10log)
-    mParseFunction( "ln", NatLog )
-    mParseFunction( "log", Log )
+    mParseFunction( sin, Sine )
+    mParseFunction( asin, ArcSine )
+    mParseFunction( cos, Cosine )
+    mParseFunction( acos, ArcCosine )
+    mParseFunction( tan, Tangent )
+    mParseFunction( atan, ArcTangent )
 
-//  sin(), asin(), cos(), acos(), tan(), atan()
-    mParseFunction( "sin", Sine )
-    mParseFunction( "asin", ArcSine )
-    mParseFunction( "cos", Cosine )
-    mParseFunction( "acos", ArcCosine )
-    mParseFunction( "tan", Tangent )
-    mParseFunction( "atan", ArcTangent )
+    mParseFunction( rand, Random )
+    mParseFunction( randg, GaussRandom )
 
-    // random number
-    mParseFunction( "rand", Random )
-    mParseFunction( "randg", GaussRandom )
+    return false;
+}
 
-    if ( (!strncasecmp( str, "min(", 4 ) ||
-	  !strncasecmp( str, "max(", 4 ) ||
-	  !strncasecmp( str, "sum(", 4 ) ||
-	  !strncasecmp( str, "med(", 4 ) ||
-	  !strncasecmp( str, "var(", 4 ) ||
-	  !strncasecmp( str, "avg(", 4 ) ) && str[len-1] == ')' )
+
+bool MathExpressionParser::findStatsFunction( BufferString& workstr, int len,
+					      MathExpression*& ret ) const
+{
+    char* str = workstr.getCStr();
+#   define mGetIsFnMatch(nm) \
+    const bool is##nm = workstr.startsWith( #nm "(", CaseInsensitive )
+
+    mGetIsFnMatch(min); mGetIsFnMatch(max); mGetIsFnMatch(sum);
+    mGetIsFnMatch(med); mGetIsFnMatch(var); mGetIsFnMatch(avg);
+
+    if ( ismin || ismax || issum || ismed || isvar || isavg )
     {
+	BufferStringSet args;
+	int argstart = 4;
 	TypeSet<int> argumentstop;
-	for ( int idx=4; idx<len; idx++ )
+	bool inabs = false; int parenslevel = 0;
+	for ( int idx=argstart; idx<len; idx++ )
 	{
-	    absolute( str, idx, inabs)
-	    if ( inabs ) continue;
+	    mIfInAbsContinue();
+	    if ( idx != len-1 )
+		{ mWithinParensContinue(); }
 
-	    countParens(str, idx, parenslevel, len);
-	    if ( parenslevel ) continue;
-
-	    if ( str[idx] == ',' || str[idx] == ')' )
+	    if ( idx == len-1 || str[idx] == ',' )
 	    {
-		if ( !idx ) return 0;
+		if ( idx == argstart )
+		    mErrRet("Empty argument(s) to statistical funcion")
 
-		argumentstop += idx;
-		if ( str[idx] == ')' ) break;
+		str[idx] = '\0';
+		args.add( str + argstart );
+		argstart = idx + 1;
 	    }
 	}
 
 	ObjectSet<MathExpression> inputs_;
-
-	int prevstop = 3;
-	for ( int idx=0; idx<argumentstop.size(); idx++ )
+	for ( int idx=0; idx<args.size(); idx++ )
 	{
-	    ArrPtrMan<char> arg = new char[len+1];
-	    strncpy( arg, &str[prevstop+1], argumentstop[idx]-prevstop-1);
-	    arg[argumentstop[idx]-prevstop-1] = 0;
-	    prevstop = argumentstop[idx];
-
-	    MathExpression* inp = parse( arg );
+	    MathExpression* inp = parse( args.get(idx) );
 	    if ( !inp )
 	    {
 		deepErase( inputs_ );
-		return 0;
+		return true;
 	    }
 
 	    inputs_ += inp;
 	}
 
-	MathExpression* res = 0;
-	if ( !strncasecmp( str, "max(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMax( inputs_.size() );
-	else if ( !strncasecmp( str, "min(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMin( inputs_.size() );
-	else if ( !strncasecmp( str, "sum(", 4 ) )
-	    res = (MathExpression*) new MathExpressionSum( inputs_.size() );
-	else if ( !strncasecmp( str, "med(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMedian( inputs_.size() );
-	else if ( !strncasecmp( str, "avg(", 4 ) )
-	    res = (MathExpression*) new MathExpressionAverage( inputs_.size() );
-	else if ( !strncasecmp( str, "var(", 4 ) )
-	    res = (MathExpression*) new MathExpressionVariance( inputs_.size());
+	const int inpssz = inputs_.size();
+	if ( ismax )
+	    ret = new MathExpressionMax( inpssz );
+	else if ( ismin )
+	    ret = new MathExpressionMin( inpssz );
+	else if ( issum )
+	    ret = new MathExpressionSum( inpssz );
+	else if ( ismed )
+	    ret = new MathExpressionMedian( inpssz );
+	else if ( isavg )
+	    ret = new MathExpressionAverage( inpssz );
+	else if ( isvar )
+	    ret = new MathExpressionVariance( inpssz );
+	if ( !ret )
+	    return true;
 
-	if ( !res )
-	    return res;
-
-	for ( int idx=0; idx<inputs_.size(); idx++ )
-	    res->setInput( idx, inputs_[idx] );
-
-	return res;
+	for ( int idx=0; idx<inpssz; idx++ )
+	    ret->setInput( idx, inputs_[idx] );
+	return true;
     }
 
+    return false;
+}
 
-    if ( !strcasecmp( input, "pi" ) )
-	return new MathExpressionConstant( M_PI );
 
-    if ( !strcasecmp( input, "undef" ) )
-	return new MathExpressionConstant( mUdf(double) );
-
+bool MathExpressionParser::findVariable( char* str, int len,
+					      MathExpression*& ret ) const
+{
     bool isvariable = true;
-
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( (!idx&&isdigit(str[idx])) || !isalnum(str[idx]) )
@@ -1234,27 +1190,85 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 	    break;
 	}
     }
-
     if ( isvariable )
     {
 	if ( varTypeOf(str)== MathExpression::Recursive )
 	{
-	    int recshift;
-	    varNameOf( str, &recshift );
-	    if ( !recshift )
+	    int recshift; varNameOf( str, &recshift );
+	    if ( recshift >= 0 )
 	    {
-		errmsg_ = "Cannot parse this:\n'";
-		errmsg_ += input; errmsg_ += "'\n";
-		errmsg_ += "Recursive expression must be of type ";
-		errmsg_ += "'THIS[-n]' or 'OUT[-n]'";
-		return 0;
+		errmsg_.set( "Invalid recursive expression:\n'" )
+		       .add( str ).add( "'\nRecursive expression must be "
+					"of type 'THIS[-n]' or 'OUT[-n]'" );
+		return true;
 	    }
 	}
 
-	return new MathExpressionVariable( str );
+	ret = new MathExpressionVariable( str );
+	return true;
     }
 
-    errmsg_ = "Cannot parse this:\n'";
-    errmsg_ += input; errmsg_ += "'";
+    return false;
+}
+
+
+MathExpression* MathExpressionParser::parse( const char* inpstr ) const
+{
+    errmsg_.setEmpty();
+    if ( FixedString(inpstr).isEmpty() )
+	return 0;
+
+    BufferString workstr( inpstr );
+    workstr.remove( ' ' );
+    const int len = workstr.size();
+    if ( len < 1 )
+	return 0;
+    char* str = workstr.getCStr();
+    MathExpression* ret = 0;
+
+    if ( findOuterParens( str, len, ret ) )
+	return ret;
+    else if ( findOuterAbs( str, len, ret ) )
+	return ret;
+    else if ( findQMarkOper( str, len, ret ) )
+	return ret;
+    else if ( findAndOrOr( str, len, ret ) )
+	return ret;
+    else if ( findInequality( str, len, ret ) )
+	return ret;
+    else if ( findPlusAndMinus( str, len, ret ) )
+	return ret;
+    else if ( findOtherOper( workstr, len, ret ) )
+	return ret;
+
+    double dres = mUdf(double);
+    if ( getFromString(dres,str,mUdf(float)) )
+	return new MathExpressionConstant( dres );
+
+    if ( str[len-1] == ')' )
+    {
+	if ( findMathFunction( workstr, len, ret ) )
+	    return ret;
+	else if ( findStatsFunction( workstr, len, ret ) )
+	    return ret;
+    }
+
+    if ( workstr.isEqual("pi",CaseInsensitive) )
+	return new MathExpressionConstant( M_PI );
+    else if ( workstr.isEqual("undef",CaseInsensitive) )
+	return new MathExpressionConstant( mUdf(double) );
+
+    if ( findVariable( str, len, ret ) )
+	return ret;
+
+    errmsg_.set( "Cannot parse this:\n'" ).add( inpstr ).add( "'" );
     return 0;
+}
+
+
+MathExpression* MathExpressionParser::parse() const
+{
+    if ( inp_.isEmpty() )
+	{ errmsg_ = "Empty input"; return 0; }
+    return parse( inp_.buf() );
 }
