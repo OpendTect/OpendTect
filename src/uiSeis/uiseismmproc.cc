@@ -48,10 +48,8 @@ static const char* outlsfilename = "outls.2ds";
 
 static int defltNrInlPerJob( const IOPar& inputpar )
 {
-    static int nr_inl_job = -1;
-
+    int nr_inl_job = -1;
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
-
     if ( nr_inl_job <= 0 )
     {
 	IOPar* iopar = Settings::common().subselect( mMMKey );
