@@ -67,8 +67,8 @@ int TabletInfo::postPressTime() const
 float TabletInfo::postPressDist() const
 {
     return ( float )( globalpresspos_.isDefined() 
-				 		? globalpresspos_.distTo(globalpos_)
-				 		: mUdf(float) );
+				 	? globalpresspos_.distTo(globalpos_)
+				 	: mUdf(float) );
 }
 
 
@@ -103,7 +103,7 @@ void MouseEvent::setButtonState( const OD::ButtonState& bs )
 bool MouseEvent::leftButton() const	{ return butstate_ & OD::LeftButton; }
 bool MouseEvent::rightButton() const	{ return butstate_ & OD::RightButton; }
 bool MouseEvent::middleButton() const	{ return butstate_ & OD::MidButton; }
-bool MouseEvent::ctrlStatus() const	{ return butstate_ & OD::ControlButton;}
+bool MouseEvent::ctrlStatus() const	{ return butstate_ &OD::ControlButton;}
 bool MouseEvent::altStatus() const	{ return butstate_ & OD::AltButton; }
 bool MouseEvent::shiftStatus() const	{ return butstate_ & OD::ShiftButton; }
 
@@ -198,3 +198,28 @@ MouseCursorExchange::Info::Info( const Coord3& pos, float offset )
     : surveypos_( pos )
     , offset_( offset ) 
 {}
+
+
+GestureEventHandler::GestureEventHandler()
+    : pinchnotifier(this)
+    , ishandled_(false)
+{}
+
+
+GestureEventHandler::~GestureEventHandler()
+{}
+
+
+void GestureEventHandler::triggerPinchEvent( const GestureEventInfo& info )
+{
+    ishandled_ = false;
+    currentevent_ = &info;
+    pinchnotifier.trigger();
+    currentevent_ = 0;
+}
+
+
+const GestureEventInfo*	GestureEventHandler::getPinchEventInfo() const
+{
+    return currentevent_;
+}

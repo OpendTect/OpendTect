@@ -19,6 +19,7 @@ class Alignment;
 class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
+class GestureEventHandler;
 class KeyboardEventHandler;
 class MouseEventHandler;
 class uiRect;
@@ -89,6 +90,7 @@ public:
 				    getMouseEventHandler(). */
     MouseEventHandler&		getMouseEventHandler();
     KeyboardEventHandler&	getKeyboardEventHandler();
+    GestureEventHandler&	gestureEventHandler();
 
 
     CNotifier<uiGraphicsViewBase,uiSize> reSize; //!< CallBacker is OLD size

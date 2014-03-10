@@ -80,7 +80,8 @@ public:
 				{}
 
 				MouseEvent(const MouseEvent& me)
-				    : tabletinfo_(0)		{ *this = me; }
+				    : tabletinfo_(0)
+				{ *this = me; }
 
 				~MouseEvent();
     MouseEvent&			operator=(const MouseEvent&);
@@ -207,6 +208,80 @@ public:
 };
     
 
+/*!\brief Stores event information from gesture event */
+mExpClass(General) GestureEventInfo
+{
+public:
+			    GestureEventInfo( int x, int y, 
+						float scale, float angle )
+			    : pos_(x,y),scale_(scale),angle_(angle)
+			    {}
+
+    const Geom::Point2D<int>&	pos() const	    { return pos_; }
+    int				x() const	    { return pos_.x; }
+    int				y() const	    { return pos_.y; }
+    float			scale() const	    { return scale_; }
+    float			angle() const	    { return angle_; }
+
+protected:
+
+    Geom::Point2D<int>		pos_;
+    float			scale_;
+    float			angle_;
+};
+
+
+/*!\brief Handles gesture event and triggers notifier with GestureEventInfo 
+
+The callback function should look like this. It also has isHandled()
+and setHandled() functions similar to the mouse events, to explicitly handle the
+callback which prevents other objects in the chain to use it.
+
+\code
+void MyClass::handlePinchEventCB( CallBacker* cb )
+{
+    mDynamicCastGet(const GestureEventHandler*,evh,cb);
+
+    if ( !evh || evh->isHandled() )
+	return;
+
+    const GestureEventInfo* gevinfo = evh->getPinchEventInfo();
+    if ( !gevinfo )
+	return;
+    
+    Geom::Point2D<int> pos = gevinfo->pos();
+    // do some work
+
+    evh->setHandled( true );
+}
+
+\endcode
+*/
+
+mExpClass(General) GestureEventHandler : public CallBacker
+{
+public:
+				GestureEventHandler();
+				~GestureEventHandler();
+    
+   
+    void			triggerPinchEvent(
+					    const GestureEventInfo& pinchinfo);
+    //!<Only available during events
+    const GestureEventInfo*	getPinchEventInfo() const;
+    bool			isHandled() const	{ return ishandled_; }
+    void			setHandled(bool yn)	{ ishandled_ = yn; }
+
+    Notifier<GestureEventHandler> pinchnotifier;
+
+private:
+
+    const GestureEventInfo*	    currentevent_;
+    bool			    ishandled_;
+};
+
+
+			    
 
 #endif
 

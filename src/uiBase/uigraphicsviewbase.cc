@@ -18,8 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 
 #include <QApplication>
+#include <QGesture>
 #include <QGraphicsView>
 #include <QScrollBar>
+#include <QTouchEvent>
 #include <QWheelEvent>
 
 mUseQtnamespace
@@ -37,19 +39,24 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(hndle,p,nm)
     , mousehandler_(*new MouseEventHandler)
     , keyboardhandler_(*new KeyboardEventHandler)
+    , gestureeventhandler_(*new GestureEventHandler)
     , startpos_(-1,-1)
     , handle_(hndle)
+    , currentpinchscale_(0)
 {
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
     setPrefHeight( cDefaultHeight );
     setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+    viewport()->setAttribute( Qt::WA_AcceptTouchEvents );
+    grabGesture( Qt::PinchGesture );
 }
 
 ~uiGraphicsViewBody()
 {
     delete &mousehandler_;
     delete &keyboardhandler_;
+    delete &gestureeventhandler_;
 } 
 
 MouseEventHandler& mouseEventHandler()
@@ -57,6 +64,9 @@ MouseEventHandler& mouseEventHandler()
 
 KeyboardEventHandler& keyboardEventHandler()
 { return keyboardhandler_; }
+
+GestureEventHandler& gestureEventHandler()
+{ return gestureeventhandler_; }
 
 const uiPoint& getStartPos() const	{ return startpos_; }
 
@@ -66,7 +76,9 @@ protected:
     OD::ButtonState		buttonstate_;
     MouseEventHandler&		mousehandler_;
     KeyboardEventHandler&	keyboardhandler_;
+    GestureEventHandler&	gestureeventhandler_;
     uiGraphicsViewBase&		handle_;
+    float			currentpinchscale_;
 
     void			wheelEvent(QWheelEvent*);
     void			resizeEvent(QResizeEvent*);
@@ -77,6 +89,8 @@ protected:
     void			mouseDoubleClickEvent(QMouseEvent*);
     void			keyPressEvent(QKeyEvent*);
     void			scrollContentsBy (int,int);
+    bool			event(QEvent*);
+    bool			gestureEvent(QGestureEvent*);
 };
 
 
@@ -247,6 +261,38 @@ void uiGraphicsViewBody::scrollContentsBy( int dx, int dy )
 }
 
 
+bool uiGraphicsViewBody::event( QEvent* ev )
+{
+    if ( ev->type() == QEvent::Gesture )
+         return gestureEvent( static_cast<QGestureEvent*>( ev ) );
+    return QWidget::event( ev );
+}
+
+
+bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
+{
+    if ( QPinchGesture* pinch =
+	    static_cast<QPinchGesture*>(ev->gesture(Qt::PinchGesture) ) )
+    {
+	QPinchGesture::ChangeFlags changeflags = pinch->changeFlags();
+	if ( changeflags & QPinchGesture::ScaleFactorChanged ) 
+	{
+	    const QPointF qcenter = pinch->centerPoint();
+	    const GestureEventInfo evinfo( qcenter.x(), qcenter.y(),
+					   pinch->scaleFactor(), 
+					   pinch->rotationAngle() );
+	    if ( mIsEqual(currentpinchscale_,evinfo.scale(),mDefEps) )
+		return false;
+	
+	    currentpinchscale_ = evinfo.scale();
+	    gestureeventhandler_.triggerPinchEvent( evinfo );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
 
 uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
@@ -297,6 +343,9 @@ MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
 
 KeyboardEventHandler& uiGraphicsViewBase::getKeyboardEventHandler()
 { return body_->keyboardEventHandler(); }
+
+GestureEventHandler& uiGraphicsViewBase::gestureEventHandler()
+{ return body_->gestureEventHandler(); }
 
 void uiGraphicsViewBase::rePaint()
 { body_->viewport()->repaint(); }
