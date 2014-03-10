@@ -4,26 +4,39 @@ OpendTect V4.6.x : Release info
 v4.6.0i: March 6. 2014
  * Fix for crash while closing OpendTect if the crossplot settings dialog
    is open
- * Fix in script generation for cluster processing
  * Fix for crash while moving mouse over a well in tie-well-to-seismics window
  * Fix for crash while rotating the phase of the current wavelet 
    (statistical wavelet), in Well-tie
- * Fix for displaying the value of Reference Datum Elevation in well manager
  * Fix for crash while gridding 2D horizon
- * Fix for displaying of 'Nr sticks' information in faults manager
  * Fix for crash in Well Markers Dialog 
- * Fix for displaying annotations along the 'Cross-line' axis in 2D viewer
  * Fix for crash while creating snapshot when when no settings file is present
  * Fix for crash while closing Manage Wells window if Log viewer window is
    open
+ * Fix for crash in Markerset sorting
+ * Fix for crash for multiple 2D line attribute processing
+ * Fix in script generation for cluster processing
+ * Fix for displaying the value of Reference Datum Elevation in well manager
+ * Fix for displaying of 'Nr sticks' information in faults manager
+ * Fix for displaying annotations along the 'Cross-line' axis in 2D viewer
  * Fix for duplication of positions while extracting Attribute 2D cross plot 
  * Fix for calculating 'Quick UVQ' in 2D depth survey
- * Fix for crash for multiple 2D line attribute processing
- * Fix for occational disappearance of seismic volumes after multi-machine
-   processing
+ * Fix for occasional disappearance of seismic volume entries in the manager
+   after multi-machine processing
  * Fix for importing twisted fault surfaces
- * Fix for crash in Markerset sorting
- * Fix for lithology log import with value 0
+ * Fix for the resampling of lithology logs and flag logs into non-integer
+   numbers
+ * Fix on the precision when writing well data back to disk
+ * Fix for conversion of interval velocities in the time-depth model manager
+ * Fix for import of time-depth models when the model was larger than the well
+   track
+ * Improvements on the error reporting during import of ascii time-depth models
+ * Fix for log creation using equations whose first variable was not a log
+ * The log creator will now give an error message when the well data is
+   read-only
+ * The log creator can use additional input variables: TVDSS, TVD, TVDSD, TWT,
+   VINT (in addition to MD, DZ)
+ * The log creator can create logs without input logs
+   (to output the variable listed above)
 
 v4.6.0h: February 13, 2014
   * Scene colorbar settings now available in the scene colorbar tool menu 
