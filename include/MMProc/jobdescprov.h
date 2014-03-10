@@ -47,19 +47,17 @@ protected:
 };
 
 
-/*!
-\brief Simple implementation of JobDescProv based upon replacing a value
-in the IOPar for one of the strings from a BufferStringSet.
+/*!\brief Simple implementation of JobDescProv based on replacing a value
+in the IOPar with another.
 */
 
 mExpClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
 {
 public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
-					      const BufferStringSet& nms);
-			//!< IOPar, key and bufstringset will be copied
+						int nrjobs);
 
-    virtual int		nrJobs() const		{ return names_.size(); }
+    virtual int		nrJobs() const		{ return nrjobs_; }
     virtual void	getJob(int,IOPar&) const;
     virtual const char*	objType() const		{ return objtyp_.buf(); }
     virtual const char*	objName(int) const;
@@ -69,14 +67,50 @@ public:
 
 protected:
 
+    const int		nrjobs_;
     BufferString	key_;
-    BufferStringSet	names_;
+    virtual const char*	gtObjName(int) const	= 0;
 
 };
 
 
-/*!
-\brief Implementation of JobDescProv based upon splitting the inlines in the
+/*!\brief KeyReplaceJobDescProv where the values are in a string set. */
+
+mExpClass(MMProc) StringKeyReplaceJobDescProv : public KeyReplaceJobDescProv
+{
+public:
+    			StringKeyReplaceJobDescProv(const IOPar&,const char* ky,
+					      const BufferStringSet& nms);
+			    //!< IOPar, key and bufstringset will be copied
+
+protected:
+
+    BufferStringSet	names_;
+    virtual const char*	gtObjName(int) const;
+
+};
+
+
+/*!\brief KeyReplaceJobDescProv where the values taken from a range of IDs. */
+
+mExpClass(MMProc) IDKeyReplaceJobDescProv : public KeyReplaceJobDescProv
+{
+public:
+    			IDKeyReplaceJobDescProv(const IOPar&,const char* ky,
+					      const StepInterval<int>& idrg);
+			    //!< IOPar, key and bufstringset will be copied
+
+    virtual void	dump(od_ostream&) const;
+
+protected:
+
+    const StepInterval<int> idrg_;
+    virtual const char*	gtObjName(int) const;
+
+};
+
+
+/*!\brief Implementation of JobDescProv based upon splitting the inlines in the
 IOPar.
 
 The keying is either:
@@ -95,13 +129,13 @@ public:
 
     virtual int		nrJobs() const;
     virtual void	getJob(int,IOPar&) const;
-    virtual const char*	objType() const		{ return "inline"; }
+    virtual const char*	objType() const			{ return "inline"; }
     virtual const char*	objName(int) const;
     virtual void	dump(od_ostream&) const;
 
     void		getRange(StepInterval<int>&) const;
-    void		setNrInlsPerJob(const int nr)	{ ninlperjob_ = nr; }
     int			getNrInlsPerJob()		{ return ninlperjob_; }
+    void		setNrInlsPerJob(const int nr)	{ ninlperjob_ = nr; }
 
     static const char*	sKeyMaxInlRg(); //!< absolute limit - will override
     static const char*	sKeyMaxCrlRg(); //!< absolute limit - will override

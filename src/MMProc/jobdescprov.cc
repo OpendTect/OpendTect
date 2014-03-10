@@ -37,11 +37,11 @@ JobDescProv::~JobDescProv()
 }
 
 
-KeyReplaceJobDescProv::KeyReplaceJobDescProv( const IOPar& iop, const char* key,
-					      const BufferStringSet& nms )
+KeyReplaceJobDescProv::KeyReplaceJobDescProv( const IOPar& iop,
+						const char* key, int nrjobs )
 	: JobDescProv(iop)
 	, key_(key)
-    	, names_(nms)
+	, nrjobs_(nrjobs)
 {
 }
 
@@ -55,7 +55,7 @@ void KeyReplaceJobDescProv::getJob( int jid, IOPar& iop ) const
 
 const char* KeyReplaceJobDescProv::objName( int jid ) const
 {
-    objnm_ = names_.get( jid );
+    objnm_ = gtObjName( jid );
     return objnm_.buf();
 }
 
@@ -64,9 +64,44 @@ void KeyReplaceJobDescProv::dump( od_ostream& strm ) const
 {
     strm << "\nKey-replace JobDescProv dump.\n"
 	    "The following jobs description keys are available:\n";
-    for ( int idx=0; idx<names_.size(); idx++ )
-	strm << names_.get(idx) << ' ';
+    for ( int idx=0; idx<nrjobs_; idx++ )
+	strm << objName( idx ) << ' ';
     strm << od_endl;
+}
+
+
+StringKeyReplaceJobDescProv::StringKeyReplaceJobDescProv( const IOPar& iop,
+			const char* key, const BufferStringSet& nms )
+    : KeyReplaceJobDescProv(iop,key,nms.size())
+{
+}
+
+
+const char* StringKeyReplaceJobDescProv::gtObjName( int jid ) const
+{
+    return names_.validIdx(jid) ? names_.get(jid).buf() : "";
+}
+
+
+IDKeyReplaceJobDescProv::IDKeyReplaceJobDescProv( const IOPar& iop,
+				const char* ky, const StepInterval<int>& rg )
+	: KeyReplaceJobDescProv(iop,ky,rg.nrSteps()+1)
+    	, idrg_(rg)
+{
+}
+
+
+const char* IDKeyReplaceJobDescProv::gtObjName( int jid ) const
+{
+    return toString( idrg_.atIndex(jid) );
+}
+
+
+void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
+{
+    strm << "\nID Key-replace JobDescProv: "
+	    << idrg_.start << '-' << idrg_.stop << " (step "
+	    << idrg_.step << ", " << nrjobs_ << " jobs)." << od_endl;
 }
 
 

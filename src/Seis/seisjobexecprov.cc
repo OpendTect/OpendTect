@@ -179,7 +179,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
     BufferString parkey( mOutKey(sKey::LineKey()) );
     KeyReplaceJobDescProv* ret
-	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
+	= new StringKeyReplaceJobDescProv( iopar_, parkey, nms );
     ret->objtyp_ = "Line";
     return ret;
 }
