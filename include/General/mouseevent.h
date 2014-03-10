@@ -212,9 +212,9 @@ public:
 mExpClass(General) GestureEventInfo
 {
 public:
-			    GestureEventInfo( int x, int y, 
+			    GestureEventInfo( int xx, int yy, 
 						float scl, float angl )
-			    : pos_(x,y),scale_(scl),angle_(angl)
+			    : pos_(xx,yy),scale_(scl),angle_(angl)
 			    {}
 
     const Geom::Point2D<int>&	pos() const	    { return pos_; }
