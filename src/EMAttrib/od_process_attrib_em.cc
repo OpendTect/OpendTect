@@ -411,6 +411,8 @@ bool BatchProgram::go( std::ostream& strm )
 
     DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes() );
+    if ( !attribs ) mErrRetNoProc( "No Attributes specified" );
+
     if ( !attribset.usePar(*attribs,vnr) )
 	mErrRetNoProc( attribset.errMsg() )
 
