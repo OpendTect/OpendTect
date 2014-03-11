@@ -57,7 +57,7 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     delete &mousehandler_;
     delete &keyboardhandler_;
     delete &gestureeventhandler_;
-} 
+}
 
 MouseEventHandler& mouseEventHandler()
 { return mousehandler_; }
@@ -111,7 +111,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 
     if ( ev->button() == Qt::RightButton )
     {
-	QGraphicsView::DragMode dragmode = dragMode(); 
+	QGraphicsView::DragMode dragmode = dragMode();
 	setDragMode( QGraphicsView::NoDrag );
 
 	buttonstate_ = OD::RightButton;
@@ -207,7 +207,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 				      newsz.height()-2*sceneborder );
 #else
 	handle_.scene_->setSceneRect( sceneborder, sceneborder,
-				      width()-2*sceneborder, 
+				      width()-2*sceneborder,
 				      height()-2*sceneborder );
 #endif
     }
@@ -265,7 +265,7 @@ bool uiGraphicsViewBody::event( QEvent* ev )
 {
     if ( ev->type() == QEvent::Gesture )
          return gestureEvent( static_cast<QGestureEvent*>( ev ) );
-    return QWidget::event( ev );
+    return QGraphicsView::event( ev );
 }
 
 
@@ -275,15 +275,15 @@ bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
 	    static_cast<QPinchGesture*>(ev->gesture(Qt::PinchGesture) ) )
     {
 	QPinchGesture::ChangeFlags changeflags = pinch->changeFlags();
-	if ( changeflags & QPinchGesture::ScaleFactorChanged ) 
+	if ( changeflags & QPinchGesture::ScaleFactorChanged )
 	{
 	    const QPointF qcenter = pinch->centerPoint();
 	    const GestureEventInfo evinfo( qcenter.x(), qcenter.y(),
-					   mCast(float,pinch->scaleFactor()), 
+					   mCast(float,pinch->scaleFactor()),
 					   mCast(float,pinch->rotationAngle()));
 	    if ( mIsEqual(currentpinchscale_,evinfo.scale(),mDefEps) )
 		return false;
-	
+
 	    currentpinchscale_ = evinfo.scale();
 	    gestureeventhandler_.triggerPinchEvent( evinfo );
 	    return true;
@@ -301,7 +301,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , reDrawn(this)
     , preDraw(this)
     , rubberBandUsed(this)
-    , scrollBarUsed(this) 
+    , scrollBarUsed(this)
     , scene_(0)
     , selectedarea_(0)
     , sceneborder_(0)
@@ -433,9 +433,9 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 uiRect uiGraphicsViewBase::getViewArea() const
 {
     QRectF qselrect( body_->mapToScene(0,0),
-	    	     body_->mapToScene(width(),height()) );
+		     body_->mapToScene(width(),height()) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
-	    	   (int)qselrect.right(), (int)qselrect.bottom() );
+		   (int)qselrect.right(), (int)qselrect.bottom() );
 }
 
 
@@ -459,7 +459,7 @@ uiRect uiGraphicsViewBase::getSceneRect() const
 {
     QRectF scenerect = body_->sceneRect();
     return uiRect( (int)scenerect.left(), (int)scenerect.top(),
-	    	   (int)scenerect.right(), (int)scenerect.bottom() );
+		   (int)scenerect.right(), (int)scenerect.bottom() );
 }
 
 
@@ -470,9 +470,9 @@ void uiGraphicsViewBase::setSceneRect( const uiRect& rect )
 uiPoint uiGraphicsViewBase::getCursorPos() const
 {
     QPoint globalpos( body_->cursor().pos().x(),
-	    			body_->cursor().pos().y() );
+				body_->cursor().pos().y() );
     QPoint viewpos( (int)body_->mapFromGlobal(globalpos).x(),
-		    	      (int)body_->mapFromGlobal(globalpos).y() );
+			      (int)body_->mapFromGlobal(globalpos).y() );
     return getScenePos( (float)viewpos.x(), (float)viewpos.y() );
 }
 
@@ -481,10 +481,10 @@ uiPoint uiGraphicsViewBase::getScenePos( float x, float y ) const
 {
     QPoint viewpos( (int)x, (int)y );
     return uiPoint( (int)body_->mapToScene(viewpos).x(),
-	    	    (int)body_->mapToScene(viewpos).y() );
+		    (int)body_->mapToScene(viewpos).y() );
 }
 
-const uiPoint& uiGraphicsViewBase::getStartPos() const	
+const uiPoint& uiGraphicsViewBase::getStartPos() const
 { return body_->getStartPos(); }
 
 
@@ -529,7 +529,7 @@ void uiGraphicsViewBase::setNoBackGround()
 void uiGraphicsViewBase::setSceneAlignment( const Alignment& al )
 {
     Qt::Alignment qal;
-    if ( al.vPos() == Alignment::Top ) 
+    if ( al.vPos() == Alignment::Top )
 	qal = Qt::AlignTop;
     else if ( al.vPos() == Alignment::Bottom )
 	qal = Qt::AlignBottom;
@@ -561,10 +561,10 @@ int uiGraphicsViewBase::getSceneBorder() const
 
 uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
 {
-    const QScrollBar* sb = hor ? body_->horizontalScrollBar() 
+    const QScrollBar* sb = hor ? body_->horizontalScrollBar()
 			       : body_->verticalScrollBar();
-    return sb ? uiSize( (int)sb->sizeHint().width(), 
-	    		(int)sb->sizeHint().height()) 
+    return sb ? uiSize( (int)sb->sizeHint().width(),
+			(int)sb->sizeHint().height())
 	      : uiSize(0,0);
 }
 
