@@ -42,9 +42,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-
-
-
 class Horizon2DImporter : public Executor
 {
 public:
@@ -210,7 +207,7 @@ protected:
 
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
+    : uiDialog(p,uiDialog::Setup("Import 2D Horizon",mNoDlgTitle,
 				 "104.0.14").modal(false))
     , scanner_(0)
     , linesetnms_(*new BufferStringSet)
@@ -219,6 +216,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 {
     enableSaveButton( "Display after import" );
     setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)

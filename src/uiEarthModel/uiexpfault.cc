@@ -48,6 +48,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 {
     setModal( false );
     setDeleteOnClose( false );
+    setOkText( uiStrings::sExport() );
 
     BufferString inplbl( "Input ");
     inplbl += typ;

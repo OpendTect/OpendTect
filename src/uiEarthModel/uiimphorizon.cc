@@ -78,6 +78,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , importReady(this)
 {
     setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sImport() );
     setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
 
@@ -637,6 +638,4 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     delete loader;
     return horizon;
 }
-
-
 

@@ -51,6 +51,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,"104.0.1"))
 {
     setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sExport() );
     setModal( false );
     setDeleteOnClose( false );
 
