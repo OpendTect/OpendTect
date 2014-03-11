@@ -217,7 +217,7 @@ public:
     void		setForRead(bool);
     void		setConfirmOverwrite( bool yn )
 					{ setup_.confirmoverwr_ = yn; }
-    void		setHelpKey(const HelpKey& key) { helpkey_ = key; }
+    void		setHelpKey(const HelpKey& helpkey) { helpkey_=helpkey; }
 
     virtual void	updateInput();	//!< updates from CtxtIOObj
     virtual void	processInput(); //!< Match user typing with existing
