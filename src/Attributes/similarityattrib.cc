@@ -211,8 +211,9 @@ bool Similarity::getTrcPos()
     if ( extension_==mExtensionCube )
     {
 	BinID bid;
-	for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++ )
-	    for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl(); bid.crl()++ )
+	for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++)
+	    for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl();
+		    bid.crl()++ )
 		trcpos_ += bid;
 
 	for ( int idx=0; idx<trcpos_.size()-1; idx++ )
@@ -383,8 +384,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float dist = 0;
 	    if ( dobrowsedip_ )
 	    {
-		float di = abs(trcpos_[idx1].inl() - trcpos_[idx0].inl())*inlDist();
-		float dc = abs(trcpos_[idx1].crl() - trcpos_[idx0].crl())*crlDist();
+		float di = abs(trcpos_[idx1].inl() -
+			trcpos_[idx0].inl())*inlDist();
+		float dc = abs(trcpos_[idx1].crl() -
+			trcpos_[idx0].crl())*crlDist();
 		dist = Math::Sqrt( di*di + dc*dc );
 	    }
 
@@ -396,17 +399,19 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float curdip = -maxdip_;
 	    while ( docontinue )	//loop necessary for dip browser
 	    {
-		if ( dosteer_ )
+		const int steervalidx = z0+idx-steeringdata_->z0_;
+		if ( dosteer_ && steervalidx>0 &&
+			steervalidx<steeringdata_->nrsamples_ )
 		{
 		    ValueSeries<float>* serie0 = 
 			    steeringdata_->series( steerindexes_[idx0] );
 		    if ( serie0 )
-			s0 = bases0 + serie0->value( z0+idx-steeringdata_->z0_);
+			s0 = bases0 + serie0->value( steervalidx );
 
 		    ValueSeries<float>* serie1 = 
 			    steeringdata_->series( steerindexes_[idx1] );
 		    if ( serie1 )
-			s1 = bases1 + serie1->value( z0+idx-steeringdata_->z0_);
+			s1 = bases1 + serie1->value( steervalidx );
 		}
 
 		if ( dobrowsedip_ )
