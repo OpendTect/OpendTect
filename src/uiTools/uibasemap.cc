@@ -62,8 +62,10 @@ void uiBaseMapObject::update()
 	{
 	    while ( itemgrp_->size()>itemnr )
 	    {
-		mDynamicCastGet(uiPolyLineItem*,itm,itemgrp_->getUiItem(itemnr));
-		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		mDynamicCastGet(uiPolyLineItem*,itm,
+				itemgrp_->getUiItem(itemnr));
+		if ( !itm )
+		    itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		else break;
 	    }
 
@@ -90,7 +92,8 @@ void uiBaseMapObject::update()
 	    while ( itemgrp_->size()>itemnr )
 	    {
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(itemnr));
-		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		if ( !itm )
+		    itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		else break;
 	    }
 
@@ -115,7 +118,8 @@ void uiBaseMapObject::update()
 	    {
 		while ( itemgrp_->size()>itemnr )
 		{
-		    mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
+		    mDynamicCastGet(uiMarkerItem*,itm,
+				    itemgrp_->getUiItem(itemnr));
 		    if ( !itm )
 			itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		    else break;
@@ -126,7 +130,8 @@ void uiBaseMapObject::update()
 
 		mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
 		itm->setMarkerStyle( *bmobject_->getMarkerStyle(idx) );
-		itm->setPos( transform_->transform( uiWorldPoint(crds[ptidx]) ) );
+		itm->setPos(
+			transform_->transform( uiWorldPoint(crds[ptidx]) ) );
 		itemnr++;
 	    }
 	}
@@ -206,6 +211,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     if ( index==-1 )
     {
 	pErrMsg( "Base map object not found" );
+	return;
     }
 
     view_.scene().removeItem( objects_[index]->itemGrp() );

@@ -104,14 +104,26 @@ uiParent* uiODApplService::parent() const
 
 void uiODApplMgrDispatcher::survChg( bool before )
 {
-    if ( before && convposdlg_ )
+    if ( before )
+    {
+	if ( convposdlg_ )
 	{ delete convposdlg_; convposdlg_ = 0; }
 
-    if ( basemapdlg_ )
-    {
-	delete basemapdlg_;
-	basemapdlg_ = 0;
-	basemap_ = 0;
+	TypeSet<int> sceneids;
+	am_.visserv_->getChildIds( -1, sceneids );
+	for ( int idx=0; idx<sceneids.size(); idx++ )
+	{
+	    mDynamicCastGet(visSurvey::Scene*,scene,
+			    am_.visserv_->getObject(sceneids[idx]) );
+	    if ( scene ) scene->setBaseMap( 0 );
+	}
+
+	if ( basemapdlg_ )
+	{
+	    delete basemapdlg_;
+	    basemapdlg_ = 0;
+	    basemap_ = 0;
+	}
     }
 
     deepErase( uidpsset_ );
@@ -138,7 +150,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Hor):
 	switch ( at )
 	{
-	mCase(Imp):	
+	mCase(Imp):
 	    if ( opt == 0 )
 		am_.emserv_->import3DHorGeom();
 	    else if ( opt == 1 )
@@ -296,14 +308,14 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiImpPVDS dlg( par_ );
 	    dlg.go();
 	}
-    	else if ( at == uiODApplMgr::Man )
+	else if ( at == uiODApplMgr::Man )
 	{
 	    uiDataPointSetMan mandlg( par_ );
 	    mandlg.go();
 	}
     break;
     mCase(Body):
-  	if ( at == uiODApplMgr::Man )
+	if ( at == uiODApplMgr::Man )
 	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::sKeyword() );
     break;
     mCase(Props):
@@ -317,8 +329,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	if ( at == uiODApplMgr::Man )
 	{
 	    uiSessionMan mandlg( par_ );
-    	    mandlg.go();
+	    mandlg.go();
 	}
+    break;
     mCase(NLA):
 	    pErrMsg("NLA event occurred");
     break;
@@ -408,13 +421,13 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
     BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(*cache, colnr, step);
 
     MapDataPack* newpack = new MapDataPack( sKey::Attribute(), data.name(),
-	    				    bvsarr );
+					    bvsarr );
     StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
     StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
     StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
-	    			(double)tempinlrg.step );
+				(double)tempinlrg.step );
     StepInterval<double> crlrg( (double)tempcrlrg.start, (double)tempcrlrg.stop,
-	    			(double)tempcrlrg.step );
+				(double)tempcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );
@@ -461,7 +474,7 @@ void uiODApplMgrDispatcher::startInstMgr()
     BufferString msg( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
 #else
-    BufferString msg( "Please close OpendTect application and all other " 
+    BufferString msg( "Please close OpendTect application and all other "
 		      "OpendTect processes before proceeding for"
 		      " installation/update" );
 #endif
@@ -483,13 +496,13 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 #endif
 
     uiGetChoice dlg( par_, options,
-	    		"Select policy for auto-update", true, "0.4.5" );
-   
+		     "Select policy for auto-update", true, "0.4.5" );
+
     const int idx = options.indexOf( alloptions.get((int)curait) );
     dlg.setDefaultChoice( idx < 0 ? 0 : idx );
     if ( !dlg.go() )
 	return;
-    ODInst::AutoInstType newait = (ODInst::AutoInstType) 
+    ODInst::AutoInstType newait = (ODInst::AutoInstType)
 				alloptions.indexOf( options.get(dlg.choice()) );
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
