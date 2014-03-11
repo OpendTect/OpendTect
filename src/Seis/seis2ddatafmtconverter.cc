@@ -119,9 +119,9 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
     ctio.ctxt.deftransl.add( "TwoD DataSet" );
-    if ( iop.indexOf(sKey::DataType()) >= 0 )
+    /*if ( iop.indexOf(sKey::DataType()) >= 0 )
 	ctio.ctxt.toselect.require_.set( sKey::Type(), 
-				iop.getValue(iop.indexOf(sKey::DataType())) );
+				iop.getValue(iop.indexOf(sKey::DataType())) );*/
     ctio.ctxt.setName( iop.getValue( iop.indexOf( sKey::Attribute() ) ) );
     if ( ctio.fillObj() == 0 ) return BufferString::empty();
     PtrMan<IOObj> ioobj = ctio.ioobj;
