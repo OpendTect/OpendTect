@@ -434,7 +434,7 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 
 void uiStratTreeWin::helpCB( CallBacker* )
 {
-    HelpProvider::provideHelp( "110.0.0" );
+    HelpProvider::provideHelp( HelpKey("110.0.0") );
 }
 
 

@@ -1102,7 +1102,7 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 
 
 void uiStratLayerModel::helpCB( CallBacker* )
-{ HelpProvider::provideHelp( "110.2.0" ); }
+{ HelpProvider::provideHelp( HelpKey("110.2.0") ); }
 
 
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )

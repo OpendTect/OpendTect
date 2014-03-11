@@ -213,7 +213,7 @@ void uiViewer2DMainWin::reSizeItems()
 
 void uiViewer2DMainWin::doHelp( CallBacker* )
 {
-    HelpProvider::provideHelp( "51.1.0" );
+    HelpProvider::provideHelp( HelpKey("51.1.0") );
 }
 
 

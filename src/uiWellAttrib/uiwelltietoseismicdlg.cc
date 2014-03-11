@@ -246,7 +246,7 @@ void uiTieWin::drawFields()
 
 void uiTieWin::provideWinHelp( CallBacker* )
 {
-    HelpProvider::provideHelp( "107.4.1" );
+    HelpProvider::provideHelp( HelpKey("107.4.1") );
 }
 
 
