@@ -104,14 +104,26 @@ uiParent* uiODApplService::parent() const
 
 void uiODApplMgrDispatcher::survChg( bool before )
 {
-    if ( before && convposdlg_ )
+    if ( before )
+    {
+	if ( convposdlg_ )
 	{ delete convposdlg_; convposdlg_ = 0; }
 
-    if ( basemapdlg_ )
-    {
-	delete basemapdlg_;
-	basemapdlg_ = 0;
-	basemap_ = 0;
+	TypeSet<int> sceneids;
+	am_.visserv_->getChildIds( -1, sceneids );
+	for ( int idx=0; idx<sceneids.size(); idx++ )
+	{
+	    mDynamicCastGet(visSurvey::Scene*,scene,
+			    am_.visserv_->getObject(sceneids[idx]) );
+	    if ( scene ) scene->setBaseMap( 0 );
+	}
+
+	if ( basemapdlg_ )
+	{
+	    delete basemapdlg_;
+	    basemapdlg_ = 0;
+	    basemap_ = 0;
+	}
     }
 
     deepErase( uidpsset_ );
