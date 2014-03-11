@@ -28,7 +28,7 @@ public:
 			    OD_2DLineSetTo2DDataSetConverter()	    {}
 			    ~OD_2DLineSetTo2DDataSetConverter();
 
-    void		    doConversion();
+    void		    doConversion(BufferString& errmsg);
 
 protected:
 
@@ -49,11 +49,11 @@ protected:
 };
 
 
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets();
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets()
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( BufferString& errmsg );
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( BufferString& errmsg )
 {
     mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
-    converter.doConversion();
+    converter.doConversion( errmsg );
 }
 
 
@@ -61,14 +61,13 @@ OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
 { deepErase( all2dseisiopars_ ); }
 
 
-void OD_2DLineSetTo2DDataSetConverter::doConversion()
+void OD_2DLineSetTo2DDataSetConverter::doConversion( BufferString& errmsg )
 {
     ObjectSet<IOObj> all2dsfiles;
     makeListOfLineSets( all2dsfiles );
     fillIOParsFrom2DSFile( all2dsfiles );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
-    BufferString errmsg;
     copyDataAndAddToDelList( filepathsofold2ddata, filestobedeleted, errmsg );
     update2DSFiles( all2dsfiles );
     removeDuplicateData( filestobedeleted );
@@ -132,7 +131,7 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 {
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
 	filepaths.add( SeisCBVS2DLineIOProvider::getFileName( 
-						  *all2dseisiopars_[idx]) );
+						    *all2dseisiopars_[idx]) );
 
     return;
 }

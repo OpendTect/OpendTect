@@ -56,6 +56,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplatform.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "timer.h"
 #include "odsysmem.h"
 
@@ -65,6 +66,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 extern "C" const char* GetSettingsDataDir();
 extern void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
+extern void OD_Convert_2DLineSets_To_2DDataSets(BufferString& errmsg);
 static const int cCTHeight = 200;
 
 
@@ -148,6 +150,13 @@ uiODMain::uiODMain( uiMain& a )
 	::exit( 0 );
 
     OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
+    Survey::GMAdmin().fetchFrom2DGeom();
+    Survey::GMAdmin().fillGeometries(0);
+    BufferString errmsg;
+    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n", 
+		       errmsg.buf() );
 
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
