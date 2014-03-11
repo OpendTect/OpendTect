@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigroup.h"
 #include "uiobj.h"
 #include "uirgbarray.h"
+#include "hiddenparam.h"
 
 #include <QMutex>
 #include <QBrush>
@@ -32,6 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QWidget>
 
 mUseQtnamespace
+
+HiddenParam<uiTextItem,BufferString>	text_( 0 );
 
 uiObjectItem::uiObjectItem( uiObject* obj )
     : uiGraphicsItem(mkQtObj())
@@ -568,15 +571,21 @@ ODViewerTextItem* uiTextItem::mkODObj()
 }
 
 
+#define mExtraSpace 10
+
 uiSize uiTextItem::getTextSize() const
 {
-    const QRectF rect( qtextitem_->boundingRect() );
-    return uiSize( (int)(rect.width()+.5), (int)(rect.height()+.5) );
+    QFontMetrics qfm( qtextitem_->getFont() );
+    // Extra space is added to avoid clipping on some platforms and the value is
+    // arbitrarily chosen.
+    return uiSize( qfm.width(text_.getParam(this).buf())+mExtraSpace,
+	    	   qfm.height()+mExtraSpace );
 }
 
 
 void uiTextItem::setText( const char* txt )
 {
+    text_.setParam(this,txt);;
     qtextitem_->setText( txt );
 }
 

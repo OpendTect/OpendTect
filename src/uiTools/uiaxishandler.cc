@@ -587,10 +587,10 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	namepos -= FontList().get().height()/2; //shift due to rotation
-	pt.x = (int) (isleft ? namepos : width_ - namepos);
-	pt.y = ( height_+nameitm_->getTextSize().width() ) / 2;
-	al.set( isleft ? Alignment::Left : Alignment::Right );
+	namepos += FontList().get().height()/2; //shift due to rotation
+	pt.x = isleft ? mCast(int,namepos) : width_-pixAfter();
+	pt.y = height_/2;
+	al.set( Alignment::HCenter );
 
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
