@@ -123,7 +123,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     if ( !dispcorrect ) return;
 
     mAddMenuItem( menu, &propmenuitem_, true, false );
-    propmenuitem_.iconfnm = "disppars.png";
+    propmenuitem_.iconfnm = "disppars";
     mAddMenuItem( menu, &createbodymnuitem_, true, false );
     mAddMenuItem( menu, &storepsmnuitem_, true, false );
     mAddMenuItem( menu, &removemnuitem_, true, false );

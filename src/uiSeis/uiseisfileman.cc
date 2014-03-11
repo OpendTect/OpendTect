@@ -76,7 +76,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				mCB(this,uiSeisFileMan,man2DPush) );
 	manipgrp->addButton( "dumpgeom", "Dump geometry",
 				mCB(this,uiSeisFileMan,dump2DPush) );
-	manipgrp->addButton( "man2dgeom.png", "Manage 2D geometry",
+	manipgrp->addButton( "man2dgeom", "Manage 2D geometry",
 				mCB(this,uiSeisFileMan,man2DGeom) );
     }
     else
