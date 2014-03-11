@@ -367,7 +367,7 @@ public:
 				  DataPack3D=3 };
 
 uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
-    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpKey))
     , attribnm_(0)
     , linesfld_(0)
     , subvolfld_(0)
@@ -385,7 +385,7 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
 }
 
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpID)) 
+    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)

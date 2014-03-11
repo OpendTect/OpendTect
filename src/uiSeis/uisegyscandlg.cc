@@ -231,7 +231,7 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
 	uiMSG().warning( "Cannot write report to specified file" );
 
     uiDialog* dlg = new uiDialog( p,
-		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
+		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpKey).modal(false) );
     dlg->setCtrlStyle( uiDialog::CloseOnly );
     od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, titl );

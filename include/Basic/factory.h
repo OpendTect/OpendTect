@@ -34,24 +34,33 @@ public:
 				//!<or -1 for none
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
-    
-    BufferString&		errMsg() const { return errmsgs_.getObject(); }
+
+    BufferString&		errMsg() const;
     				//!<Threadsafe, as each thread will have
     				//!<a different string returned.
-    
+
+    const char* 		currentName() const;
+				/*!<Is set only when calling the create-
+				    functions, so they can know what was
+				    requested.
+				    \note Threadsafe, as each thread will have
+					  a different string returned.
+				 */
+
 protected:
     int				indexOf(const char*) const;
     void			addNames(const char*,const char*);
     void			setNames(int,const char*,const char*);
 
-private:
     mutable StaticStringManager	errmsgs_;
+    mutable StaticStringManager currentname_;
+
+private:
     
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     BufferStringSet		aliases_;
     BufferString		defaultname_;
-
 };
 
 
@@ -286,14 +295,15 @@ static baseclss*	createInstance( parclss p1 ) \
 
 
 #define mCreateImpl( donames, createfunc ) \
+    currentname_.getObject() = name; \
     if ( donames ) \
     { \
 	const int idx = indexOf( name ); \
 	if ( idx==-1 ) \
 	{ \
-	    errMsg() = "Name "; \
-	    errMsg().add( name ).add(" not found.\n" ) \
-		    .add( "Perhaps all plugins are not loaded\n" ); \
+	    errmsgs_.getObject() = "Name "; \
+	    errmsgs_.getObject().add( name ).add(" not found.\n" ) \
+				.add( "Perhaps all plugins are not loaded\n" );\
 	    return 0; \
 	} \
 	return createfunc; \

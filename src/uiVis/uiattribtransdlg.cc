@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 				    int attrib )
-    : uiDialog( p, uiDialog::Setup("Attribute transparency",0,mNoHelpID) )
+    : uiDialog( p, uiDialog::Setup("Attribute transparency",0,mNoHelpKey) )
     , so_( so )
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )

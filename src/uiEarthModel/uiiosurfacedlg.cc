@@ -78,7 +78,7 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 
 //Not used anymore, keep it?
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,mNoHelpKey))
 {
     iogrp_ = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(typ).withattribfld(false) );

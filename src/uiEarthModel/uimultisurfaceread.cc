@@ -185,7 +185,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 	return;
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
-	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpID) );
+	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpKey) );
     uiListBox* lb = new uiListBox( &dlg, "Patches", true );
     lb->addItems( sd.sections );
     lb->selectAll( true );

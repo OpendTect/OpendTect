@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Problem reporter",mNoDlgTitle,mNoHelpID) )
+    : uiDialog( p, uiDialog::Setup("Problem reporter",mNoDlgTitle,mNoHelpKey) )
 {
     uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
     lblgrp->setFrame( true );
@@ -63,7 +63,7 @@ void uiIssueReporterDlg::viewReportCB( CallBacker* )
     BufferString report;
     getReport( report );
     
-    uiDialog dlg( this, uiDialog::Setup("View report", 0, mNoHelpID ) );
+    uiDialog dlg( this, uiDialog::Setup("View report", 0, mNoHelpKey ) );
     uiTextBrowser* browser = new uiTextBrowser(&dlg);
     browser->setText( report.buf() );
     dlg.setCancelText( 0 );

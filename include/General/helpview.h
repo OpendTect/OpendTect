@@ -15,37 +15,56 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstring.h"
+#include "factory.h"
 
-/*!\brief access help/about/credit files
+class HelpKey;
 
-  The files are sought in GetSoftwareDir()/doc/DIR/xxx/ . The xxx is the 'scope'
-  taken from the window ID (e.g. "myplugin" from "myplugin:1.2.3"). If
-  no scope present, 'base' is used (which is the OpendTect manual).
-  For user doc, DIR=User. For credits, DIR=Credits.
+
+/*!
+The generalization of a provider that can provide help in some way. Each
+ provider is identified by an providername, and an argument (encapsulated in
+ an HelpKey). The providername is used to create a HelpProvider, and the
+ argument is given to it to produce a help.
+
 */
 
 
-namespace HelpViewer
+mExpClass(General) HelpProvider
 {
+public:
+			mDefineFactoryInClass(HelpProvider,factory);
+    virtual		~HelpProvider() 			{}
 
-mGlobal(General) void		init();
-    
-mGlobal(General) BufferString	getURLForWinID(const char* winid);
-    			//!< Combines Link -> WinID -> URL
-
-mGlobal(General) BufferString	getCreditsURLForWinID(const char* winid);
-    			//!< Finds link in the appropriate credits page
+    static void 	provideHelp(const HelpKey&);
+    static bool 	hasHelp(const HelpKey&);
 
 
-mGlobal(General) BufferString	getLinkNameForWinID(const char*,const char*);
-mGlobal(General) BufferString	getURLForLinkName(const char*,const char*);
-mGlobal(General) BufferString	getCreditsFileName(const char* winid);
-mGlobal(General) bool		getCreditsData(const char* filenm,IOPar&);
-mGlobal(General) bool		hasSpecificCredits(const char* winid);
-mGlobal(General) const char*	getCreditsSpecificFileName(const char* winid);
-mGlobal(General) BufferString	getWebUrlFromLocal(const char*);
-
+private:
+    virtual bool	hasHelp(const char* arg) const		= 0;
+    virtual void	provideHelp(const char* arg) const	= 0;
 };
+
+
+/* Key to contain both a helpprovidername and an argument */
+mExpClass(General) HelpKey
+{
+public:
+			HelpKey(const char* providername,const char* arg)
+			    : providername_( providername ), argument_(arg) {}
+
+    bool		isEmpty() const;
+
+    const char* 	providername_;
+    const char* 	argument_;
+
+
+			//This constructor is for legacy stuff. Remove.
+			HelpKey(const char* arg=0)
+			    : providername_("od")
+			    , argument_( arg )
+			{}
+};
+
 
 #endif
 

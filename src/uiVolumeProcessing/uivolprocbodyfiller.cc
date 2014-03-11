@@ -35,7 +35,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), mp )
     , bodyfiller_( mp )
 {
-    setHelpID( "103.6.2" );
+    setHelpKey( "103.6.2" );
 
     IOObjContext ctxt = mIOObjContext( EMBody );
     ctxt.forread = true;

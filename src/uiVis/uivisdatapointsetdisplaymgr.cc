@@ -134,7 +134,7 @@ class uiCreateBodyDlg : public uiDialog
 {
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiDialog(p,uiDialog::Setup("Body Creation","Create new Body",mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("Body Creation","Create new Body",mNoHelpKey))
     , selfld_( 0 )
     , rgfld_( 0 )
 {

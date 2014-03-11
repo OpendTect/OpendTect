@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 
 uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,mNoHelpKey))
 {
     setOkText( "Continue" );
 

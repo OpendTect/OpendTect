@@ -31,7 +31,7 @@ public:
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,mNoHelpID)
+			: uiDialog::Setup(wintitl,0,mNoHelpKey)
 			, items_(its)
 			, current_(0)		{}
 
@@ -78,7 +78,7 @@ public:
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,mNoHelpID)
+			: uiDialog::Setup(wintitl,0,mNoHelpKey)
 			, items_(its)
 			, inptxt_("Name")	{}
 
@@ -119,7 +119,7 @@ public:
 				    const BufferStringSet& options,
 				    const char* question=0,
 				    bool allowcancel=true,
-				    const char* helpid=mNoHelpID);
+				    const HelpKey& helpkey=mNoHelpKey);
 
 			uiGetChoice(uiParent*,uiDialog::Setup,
 				    const BufferStringSet& options, bool wc);

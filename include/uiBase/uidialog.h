@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "bufstring.h"
 #include "uistrings.h"
+#include "helpview.h"
 
 class uiButton;
 
@@ -31,8 +32,8 @@ If you don't want to use the help system, simply pass null ('0').
 */
 
 #define mNoDlgTitle	""
-#define mTODOHelpID	"0.0.0"
-#define mNoHelpID	"-"
+#define mTODOHelpKey	HelpKey( 0, toString(-1) )
+#define mNoHelpKey	HelpKey( "", 0 )
 
 
 mExpClass(uiBase) uiDialog : public uiMainWin
@@ -47,13 +48,12 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-
 			Setup( const uiString& window_title,
 			       const uiString& dialog_title,
-			       const char* help_id )
+			       const HelpKey& help_key )
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title)
-			, helpid_(help_id), savetext_("Save defaults")
+			, helpkey_(help_key), savetext_("Save defaults")
 			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
 			, applybutton_(false)
@@ -65,7 +65,7 @@ public:
 
 	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(uiString,dlgtitle)
-	mDefSetupMemb(BufferString,helpid)
+	mDefSetupMemb(HelpKey,helpkey)
 	mDefSetupMemb(uiString,savetext)
 	mDefSetupMemb(uiString,oktext)
 	mDefSetupMemb(uiString,canceltext)
@@ -87,7 +87,7 @@ public:
 			       const char* dialog_title,
 			       int help_id )	{}
 			//!< Makes sure you cannot use '0' for help ID.
-			//!< Use mTODOHelpID or mNoHelpID instead
+			//!< Use mTODOHelpKey or mNoHelpKey instead
 
     };
 
@@ -137,9 +137,8 @@ public:
     void		setSeparator(bool yn);
 			//!< Separator between central dialog and Ok/Cancel bar?
     bool		separator() const;
-    void		setHelpID(const char*);
-    virtual const char*	helpID() const;
-    bool		haveCredits() const;
+    void		setHelpKey(const HelpKey&);
+    virtual HelpKey	helpKey() const;
 
     void		showMinMaxButtons();
     void		showAlwaysOnTop();

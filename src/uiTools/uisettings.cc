@@ -65,7 +65,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     if ( issurvdefs_ )
     {
 	setTitleText( "Set Survey default value" );
-	setHelpID( "0.2.8" );
+	setHelpKey( "0.2.8" );
     }
     else
     {

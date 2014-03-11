@@ -43,7 +43,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
     : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
 {
-    setHelpID( "103.6.10" );
+    setHelpKey( "103.6.10" );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
 				  "Values between", "Values outside", 0 };
     cutofftypefld_ = new uiGenInput( this, "Keep",

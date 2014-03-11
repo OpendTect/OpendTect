@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     : uiDialog(p,uiDialog::Setup("Find job specification file",
 			       "Select appropriate job specification file",
-				 mNoHelpID).nrstatusflds(1))
+				 mNoHelpKey).nrstatusflds(1))
     , ctio_(c)
     , iopkey_(iopky)
 {

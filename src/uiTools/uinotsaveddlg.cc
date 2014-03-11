@@ -40,7 +40,7 @@ public:
     uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
 	          const char* actiontype )
 	: uiDialog( p, uiDialog::Setup( "Not Saved",
-		    "The following objects are not saved", mNoHelpID ) )
+		    "The following objects are not saved", mNoHelpKey ) )
 	, prompter_( prompter )
     {
 	BufferString action( actiontype );

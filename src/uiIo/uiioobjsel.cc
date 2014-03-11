@@ -990,8 +990,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
     uiIOObjSelGrp* selgrp_ = dlg->selGrp();
     if ( selgrp_ ) selgrp_->setConfirmOverwrite( false ); // handle that here
 
-    if ( !helpid_.isEmpty() )
-	dlg->setHelpID( helpid_ );
+    if ( !helpkey_.isEmpty() )
+	dlg->setHelpKey( helpkey_ );
     if ( dlg->go() && dlg->ioObj() )
     {
 	workctio_.setObj( dlg->ioObj()->clone() );

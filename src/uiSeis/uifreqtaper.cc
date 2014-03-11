@@ -81,7 +81,7 @@ class uiFreqTaperSelLineDlg : public uiDialog
 public:
 
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
-	: uiDialog(p,uiDialog::Setup("Select line from Data",0,mNoHelpID))
+	: uiDialog(p,uiDialog::Setup("Select line from Data",0,mNoHelpKey))
 	, linesfld_(0)
 	, objinfo_(objinfo)
 {

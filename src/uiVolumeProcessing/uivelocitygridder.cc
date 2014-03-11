@@ -21,7 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, VolProc::Step* ro )
+uiStepDialog* uiVelocityGridder::createInstance( uiParent* p,
+						 VolProc::Step* ro )
 {
     mDynamicCastGet( VelGriddingStep*, gridop, ro );
     if ( !gridop ) return 0;
@@ -34,7 +35,7 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
     : uiStepDialog( p, VelGriddingStep::sFactoryDisplayName(), ro )
     , operation_( ro )
 {
-    setHelpID( "103.6.5" );
+    setHelpKey( "103.6.5" );
 
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
 

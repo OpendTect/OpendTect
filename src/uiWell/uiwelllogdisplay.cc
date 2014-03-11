@@ -338,7 +338,7 @@ uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 				    const uiWellLogDisplay::Setup& wldsu,
 				    bool mkcopy )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID).modal(false))
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey).modal(false))
     , logSet(this)
     , logsmine_(mkcopy)
     , log1_(0)

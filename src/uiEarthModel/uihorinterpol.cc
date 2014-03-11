@@ -107,12 +107,6 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 }
 
 
-const char* uiHorizonInterpolDlg::helpID() const
-{
-    return uiDialog::helpID();
-}
-
-
 #define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )

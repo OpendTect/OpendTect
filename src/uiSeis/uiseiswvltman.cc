@@ -233,7 +233,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     ctio.ctxt.forread = true;
 
     uiSelObjFromOtherSurvey dlg( this, ctio );
-    dlg.setHelpID("0.3.11");
+    dlg.setHelpKey("0.3.11");
     Wavelet* wvlt = 0;
     bool didsel = true;
     if ( dlg.go() ) 

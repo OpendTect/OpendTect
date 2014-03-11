@@ -37,7 +37,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , visserv_(visserv)
     , pd_(0)
     , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram", 
-		    "Set azimuth and dip", mNoHelpID).modal(false)))
+		    "Set azimuth and dip", mNoHelpKey).modal(false)))
 {
     pddlg_->setCtrlStyle( CloseOnly );
     pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );

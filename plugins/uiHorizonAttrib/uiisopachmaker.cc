@@ -135,7 +135,7 @@ const char* uiIsopachMakerGrp::attrName() const
 
 //uiIsopachMakerBatch
 uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
-    : uiDialog( p,Setup("Create isopach",mNoDlgTitle,mTODOHelpID) )
+    : uiDialog( p,Setup("Create isopach",mNoDlgTitle,mTODOHelpKey) )
 {
     grp_ = new uiIsopachMakerGrp( this, -1 );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,

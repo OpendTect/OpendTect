@@ -536,7 +536,7 @@ class uiFSS2DLineSelDlg : public uiDialog
 public:
     uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::Line2DKey>& geoids )
 	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
-		    "Available for 2D lines",mNoHelpID))
+		    "Available for 2D lines",mNoHelpKey))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
 	const IODir iodir( ctio->ctxt.getSelKey() );
@@ -628,7 +628,7 @@ public:
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
 	: uiDialog(p,uiDialog::Setup(
 		    fltpar.is2d_ ? "FaultStickSet selection":"Fault selection",
-		    mNoDlgTitle,mTODOHelpID) )
+		    mNoDlgTitle,mTODOHelpKey) )
 	, fltpar_(fltpar)
     {
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).fillrow(

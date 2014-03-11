@@ -11,7 +11,7 @@
 <center>
 <font color=black><h2>OpendTect version @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@</h2>
 <h3>@MONTH@, @YEAR@</h3></font>
-OpendTect is Copyright (C) 2003-2012 dGB Beheer B.V.<br>
+OpendTect is Copyright (C) 2003-@YEAR@ dGB Beheer B.V.<br>
 The license agreement is available at:<br>
 http://opendtect.org/OpendTect_license.txt
 </center>

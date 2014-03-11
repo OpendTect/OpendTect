@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uiodmenumgr.cc 33559 2014-03-06 12:43:30Z nanne.hemstra@dgbes.com $";
 
 #include "uiodmenumgr.h"
 
@@ -1159,7 +1159,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	BufferString text;
 	iopar.dumpPretty( text );
 	uiDialog dlg( &appl_, uiDialog::Setup("Memory information", mNoDlgTitle,
-					      mNoHelpID ) );
+					      mNoHelpKey ) );
 	uiTextBrowser* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
 	dlg.setCancelText( 0 );
@@ -1207,7 +1207,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    Settings::common().write();
 	}
 	if ( id > mHelpMnu )
-	    helpmgr_->handle( id, itm->text().getFullString() );
+	    helpmgr_->handle( id );
 
     } break;
 

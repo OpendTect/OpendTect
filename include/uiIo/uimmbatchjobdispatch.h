@@ -32,7 +32,7 @@ mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 {
 public:
                         uiMMBatchJobDispatcher(uiParent*,const IOPar&,
-						const char* helpid=0);
+						const HelpKey& helpkey=0);
 			~uiMMBatchJobDispatcher();
 
 protected:

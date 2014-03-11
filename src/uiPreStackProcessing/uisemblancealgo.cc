@@ -15,9 +15,9 @@ namespace PreStack
 mImplFactory1Param( uiSemblanceAlgorithm, uiParent*,
 		    uiSemblanceAlgorithm::factory);
 
-uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const char* helpid )
+uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const HelpKey& helpkey)
     : uiDialog( p,
-	  uiDialog::Setup("Setup","Semblance parameters",helpid).canceltext(0))
+	  uiDialog::Setup("Setup","Semblance parameters",helpkey).canceltext(0))
 {}
 
 

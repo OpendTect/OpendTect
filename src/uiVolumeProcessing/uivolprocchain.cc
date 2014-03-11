@@ -40,7 +40,7 @@ mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
 // uiStepDialog
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
-    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mNoHelpID) )
+    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mNoHelpKey) )
     , step_(step)
     , multiinpfld_(0)
 {

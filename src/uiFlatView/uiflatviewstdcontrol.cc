@@ -90,10 +90,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
     }
 
-    if ( !setup.helpid_.isEmpty() )
+    if ( !setup.helpkey_.isEmpty() )
     {
 	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,"Help");
-	helpid_ = setup.helpid_;
+	helpkey_ = setup.helpkey_;
     }
 
     mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
@@ -328,7 +328,7 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 
 void uiFlatViewStdControl::helpCB( CallBacker* )
 {
-    uiMainWin::provideHelp( helpid_ );
+    HelpProvider::provideHelp( helpkey_ );
 }
 
 

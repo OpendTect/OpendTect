@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiTutODMad::uiTutODMad( uiParent* p )
     : uiDialog( p, Setup("Display Madagascar data dialog",
-			 "Specify data settings", mNoHelpID) )
+			 "Specify data settings", mNoHelpKey) )
     , iop_("Madagascar display parameters")
 {
     uiFileInput::Setup fisu;

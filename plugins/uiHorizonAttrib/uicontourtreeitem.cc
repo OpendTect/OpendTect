@@ -697,7 +697,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         getZVSAreaValues( zvals, areas );
 
         uiDialog dlg( ODMainWin(), uiDialog::Setup("Countour areas", 0,
-				   mNoHelpID ) );
+				   mNoHelpKey ) );
         dlg.setCancelText( 0 );
 
         RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,

@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "envvars.h"
 #include "filepath.h"
-#include "helpview.h"
 #include "iopar.h"
 #include "keyboardevent.h"
 #include "msgh.h"
@@ -786,30 +785,6 @@ uiMainWin::~uiMainWin()
 QWidget* uiMainWin::qWidget() const
 { return body_; }
 
-void uiMainWin::provideHelp( const char* winid )
-{
-    const BufferString fnm = HelpViewer::getURLForWinID( winid );
-    mDefineStaticLocalObject( bool, shwonly,
-			      = GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY") );
-    if ( shwonly ) return;
-
-    BufferString browser;
-    Settings::common().get( "dTect.Browser", browser );
-    if ( browser.isEmpty() )
-	uiDesktopServices::openUrl( fnm );
-    else
-    {
-	BufferString cmd( browser, " ", fnm );
-	OS::ExecCommand( cmd, OS::RunInBG );
-    }
-}
-
-
-void uiMainWin::showCredits( const char* winid )
-{
-    const BufferString fnm = HelpViewer::getCreditsURLForWinID( winid );
-    uiDesktopServices::openUrl( fnm );
-}
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
@@ -1370,8 +1345,8 @@ public:
 			//! Separator between central dialog and Ok/Cancel bar?
     void		setSeparator( bool yn )	{ setup_.separator_ = yn; }
     bool		separator() const	{ return setup_.separator_; }
-    void		setHelpID( const char* id ) { setup_.helpid_ = id; }
-    const char*		helpID() const		{ return setup_.helpid_; }
+    void		setHelpKey(const HelpKey& key) { setup_.helpkey_ = key;}
+    HelpKey		helpKey() const 	{ return setup_.helpkey_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 
@@ -1684,33 +1659,30 @@ uiObject* uiDialogBody::createChildren()
 	}
     }
     mDynamicCastGet( uiDialog&, dlg, handle_ );
-    const BufferString hid( dlg.helpID() );
-    if ( !hid.isEmpty() && hid != "-" )
+    if ( !dlg.helpKey().isEmpty() )
     {
 	mDefineStaticLocalObject( bool, shwhid,
 				  = GetEnvVarYN("DTECT_SHOW_HELP") );
 #ifdef __debug__
 	shwhid = true;
 #endif
+
+	const BufferString helptooltip = shwhid
+	    ? BufferString(dlg.helpKey().providername_,dlg.helpKey().argument_)
+	    : "Help on this window";
+
 	if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
 	{
 	    helpbut_ = new uiToolButton( centralwidget_, "contexthelp",
-			    shwhid ? hid.buf() : "Help on this window",
+			    helptooltip,
 			    mCB(this,uiDialogBody,provideHelp) );
 	    helpbut_->setPrefWidthInChar( 5 );
 	}
 	else
 	{
 	    helpbut_ = new uiPushButton( centralwidget_, sHelp(), true );
-	    helpbut_->setToolTip( shwhid ? hid.buf() : "Help on this window" );
+	    helpbut_->setToolTip( helptooltip );
 	    helpbut_->activated.notify( mCB(this,uiDialogBody,provideHelp) );
-	}
-
-	if ( dlg.haveCredits() )
-	{
-	    creditsbut_ = new uiToolButton( centralwidget_, "credits",
-		    "Show credits", mCB(this,uiDialogBody,showCredits) );
-	    creditsbut_->setPrefWidthInChar( 5 );
 	}
     }
 
@@ -1859,15 +1831,8 @@ void uiDialogBody::layoutChildrenOld( uiObject* lowestobj )
 
 void uiDialogBody::provideHelp( CallBacker* )
 {
-    mDynamicCastGet(uiDialog&,dlg,handle_);
-    uiMainWin::provideHelp( dlg.helpID() );
-}
-
-
-void uiDialogBody::showCredits( CallBacker* )
-{
-    mDynamicCastGet(uiDialog&,dlg,handle_);
-    uiMainWin::showCredits( dlg.helpID() );
+    mDynamicCastGet( uiDialog&, dlg, handle_ );
+    HelpProvider::provideHelp( dlg.helpKey() );
 }
 
 
@@ -1958,12 +1923,6 @@ void uiDialog::showAlwaysOnTop()
 }
 
 
-bool uiDialog::haveCredits() const
-{
-    return HelpViewer::hasSpecificCredits( helpID() );
-}
-
-
 int uiDialog::go()
 {
     mAddToOrderedWinList( this );
@@ -1992,8 +1951,8 @@ void uiDialog::enableSaveButton(const uiString& t){ mBody->enableSaveButton(t);}
 uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
-void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
-const char* uiDialog::helpID() const		{ return mBody->helpID(); }
+void uiDialog::setHelpKey( const HelpKey& key ) { mBody->setHelpKey(key); }
+HelpKey uiDialog::helpKey() const		{ return mBody->helpKey(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
 bool uiDialog::isModal() const			{ return mBody->isModal(); }

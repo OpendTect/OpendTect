@@ -20,6 +20,14 @@ FactoryBase::~FactoryBase()
 {}
 
 
+const char* FactoryBase::currentName() const
+{ return currentname_.getObject().str(); }
+
+
+BufferString& FactoryBase::errMsg() const
+{ return currentname_.getObject(); }
+
+
 void FactoryBase::addNames( const char* name, const char* username )
 {
     SeparString sep( name, cSeparator() );

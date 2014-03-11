@@ -193,7 +193,7 @@ class uiSubSelForAnalysis : public uiDialog
 {
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpID)) 
+    : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)

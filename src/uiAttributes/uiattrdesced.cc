@@ -57,12 +57,12 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
 }
 
 
-uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const char* helpid )
+uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const HelpKey& helpkey )
     : uiGroup(p,"")
     , desc_(0)
     , ads_(0)
     , is2d_(is2d)
-    , helpid_(helpid)
+    , helpkey_(helpkey)
     , needinpupd_(false)
 {
 }

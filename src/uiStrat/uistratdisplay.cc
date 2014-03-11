@@ -127,7 +127,7 @@ class uiColViewerDlg : public uiDialog
 {
 public :
     uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
-	: uiDialog(p,uiDialog::Setup("View Columns","",mNoHelpID))
+	: uiDialog(p,uiDialog::Setup("View Columns","",mNoHelpKey))
 	, drawer_(drawer) 
 	, data_(ad)			  
     {

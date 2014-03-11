@@ -99,7 +99,7 @@ void uiWellAttribPartServer::doSEGYTool( IOPar* previop, int choice )
     {
 	uiDialog dlg( parent(), uiDialog::Setup("SEG-Y Tool",
 	    previop ? "Import more data?" : "What do you want to do?",
-	    mTODOHelpID) );
+	    mTODOHelpKey) );
 	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
 	choicefld->addItem( "&Import SEG-Y file(s) to OpendTect data" )
 	    .addItem( "&Scan SEG-Y file(s) to use in-place" )
@@ -135,7 +135,7 @@ void uiWellAttribPartServer::doVSPTool( IOPar* previop, int choice )
     if ( choice < 0 )
     {
 	uiDialog dlg( parent(), uiDialog::Setup("VSP Import",
-					mNoDlgTitle,mTODOHelpID) );
+					mNoDlgTitle,mTODOHelpKey) );
 	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
 	choicefld->addItem( "&2-D VSP (will be imported as 2-D seismic line)" )
 	    .addItem( "&3-D VSP (can only be imported as 3D cube)" )

@@ -36,7 +36,7 @@ namespace CmdDrive
 
 
 uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
-	: uiDialog( p, Setup("Command interaction", ispec.dlgtitle_, mNoHelpID)
+	: uiDialog( p, Setup("Command interaction", ispec.dlgtitle_, mNoHelpKey)
 		       .modal(false) )
 	, unhide_( !ispec.wait_ )
 {

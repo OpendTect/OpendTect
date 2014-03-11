@@ -565,7 +565,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
     uiGetChoice dlg( this, opts,
 	    "The wavelet seems to be unscaled.\n"
 	    "For most purposes, you will need a scaled wavelet.\n", true );
-    dlg.setHelpID( "110.2.2" );
+    dlg.setHelpKey( "110.2.2" );
     dlg.go(); const int choice = dlg.choice();
     if ( choice < 0 )
 	return false;
@@ -1102,7 +1102,7 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 
 
 void uiStratLayerModel::helpCB( CallBacker* )
-{ uiMainWin::provideHelp( "110.2.0" ); }
+{ HelpProvider::provideHelp( "110.2.0" ); }
 
 
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )

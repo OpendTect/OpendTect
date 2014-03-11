@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "iopar.h"
 
+class HelpKey;
 class uiGenInput;
 class uiTableFormatDescFldsEd;
 class uiTableFmtDescFldsParSel;
@@ -37,7 +38,7 @@ mExpClass(uiTools) uiTableImpDataSel : public uiGroup
 {
 public:
 				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
-						  const char* help_id);
+						  const HelpKey&);
 
     Table::FormatDesc&		desc()		{ return fd_; }
     const BufferString&		fmtName()	{ return fmtname_; }

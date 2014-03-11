@@ -101,7 +101,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , freqvals_(new Array1DImpl<float>(mPadSz))
 {
     setCaption( "Taper Wavelet" );
-    setHelpID("103.3.6");
+    setHelpKey("103.3.6");
     uiSliderExtra::Setup su;
     su.lbl_ = "Taper Wavelet (%)";
     su.sldrsize_ = 220;

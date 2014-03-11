@@ -35,7 +35,6 @@ public:
 					     bool is2d=false);
 			~uiHorizonInterpolDlg();
 
-    const char*		helpID() const;
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
 
     Notifier<uiHorizonInterpolDlg> finished;

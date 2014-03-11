@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
 #include "menuhandler.h"
+#include "helpview.h"
 
 class uiMenuHandler;
 class uiToolButton;
@@ -33,7 +34,7 @@ public:
     {
 			Setup( uiParent* p=0 )
 			    : parent_(p)
-			    , helpid_("")
+			    , helpkey_("")
 			    , withcoltabed_(true)
 			    , withedit_(false)
 			    , withthumbnail_(true)		      
@@ -51,7 +52,7 @@ public:
 	mDefSetupMemb(bool,withhanddrag)
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
-	mDefSetupMemb(BufferString,helpid)
+	mDefSetupMemb(HelpKey,helpkey)
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
@@ -112,7 +113,7 @@ protected:
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
 
-    BufferString	helpid_;
+    HelpKey		helpkey_;
 };
 
 #endif

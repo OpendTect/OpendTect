@@ -496,7 +496,7 @@ void uiODSceneMgr::setKeyBindings()
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->sovwr_->getCurrentKeyBindings(), 0 );
     uiGenInputDlg dlg( &appl_, "Select Mouse Controls", "Select", inpspec );
-    dlg.setHelpID("0.2.7");
+    dlg.setHelpKey("0.2.7");
     if ( dlg.go() )
 	mDoAllScenes(sovwr_,setKeyBindings,dlg.text());
 }

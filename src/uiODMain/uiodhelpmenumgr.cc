@@ -10,20 +10,17 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodhelpmenumgr.h"
+
+#include "uihelpview.h"
+
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
 #include "uidesktopservices.h"
 #include "uimenu.h"
-#include "ascstream.h"
-#include "dirlist.h"
-#include "helpview.h"
-#include "od_istream.h"
 #include "filepath.h"
 #include "file.h"
 #include "oddirs.h"
-#include "iopar.h"
 
-static const char* oddirnm = "base";
 
 #define mInsertItem(mnu,txt,id,sc) \
 { \
@@ -32,266 +29,55 @@ static const char* oddirnm = "base";
     itm->setShortcut( sc ); \
 }
 
-uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
-    	: havedtectdoc_(false)
-	, helpmnu_(mm->helpMnu())
-    	, mnumgr_(mm)
+static BufferString getAdminURL()
 {
-    scanEntries( mGetUserDocDir() );
-    mkVarMenu();
-    if ( havedtectdoc_ )
-    {
-	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
+    FilePath fp;
+    fp = mGetSysAdmDocDir();
+    return fp.add("base").add("index.htm").fullPath();
+}
+
+
+uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
+	: helpmnu_( mm->helpMnu() )
+	, mnumgr_( mm )
+{
+    if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
 	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
-    }
-    mkAboutMenu();
-    mkCreditsMenu();
+
+    BufferString adminurl = getAdminURL();
+    if ( File::exists(adminurl) )
+	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
+    mInsertItem( helpmnu_, "&About", mAboutMnuItm, 0)
+    mInsertItem( helpmnu_, "User documentation", mUserDocMnuItm, 0 );
 }
 
 
 uiODHelpMenuMgr::~uiODHelpMenuMgr()
 {
-    deepErase( varentries_ );
-    deepErase( aboutentries_ );
-    deepErase( creditsentries_ );
 }
 
 
-class uiODHelpDocInfo
+
+void uiODHelpMenuMgr::handle( int id )
 {
-public:
-    			uiODHelpDocInfo() : id(-1)	{}
-
-    int			id;
-    BufferString	nm;
-    BufferString	iconfnm;
-    BufferString	starturl;
-    BufferString	shortcut;
-
-    bool		getFrom(od_istream&,const char*);
-};
-
-
-bool uiODHelpDocInfo::getFrom( od_istream& strm, const char* dirnm )
-{
-    ascistream astrm( strm );
-
-    starturl = "index.htm"; nm = "";
-    while ( !atEndOfSection(astrm.next()) )
-    {
-	if ( astrm.hasKeyword("Menu name") )
-	    nm = astrm.value();
-	else if (  astrm.hasKeyword("Icon file")
-		|| astrm.hasKeyword("Start URL") )
-	{
-	    FilePath fp( astrm.value() );
-	    if ( !fp.isAbsolute() )
-		fp.setPath( dirnm );
-	    (*astrm.keyWord() == 'S' ? starturl : iconfnm) = fp.fullPath();
-	}
-	else if ( astrm.hasKeyword("Shortcut") )
-	    shortcut = astrm.value();
-    }
-
-    return !nm.isEmpty();
-}
-
-
-void uiODHelpMenuMgr::scanEntries( const char* docdir )
-{
-    DirList dl( docdir, DirList::DirsOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const BufferString dirnm = dl.get( idx );
-	if ( dirnm == "Programmer" || dirnm == "Credits" ) continue;
-
-	uiODHelpDocInfo* di = new uiODHelpDocInfo;
-	FilePath fp( dl.dirName(), dirnm );
-	const BufferString fulldirnm = fp.fullPath();
-	fp.add( ".mnuinfo" );
-	od_istream strm( fp.fullPath() );
-	if ( !strm.isOK() || !di->getFrom(strm,fulldirnm) )
-	{
-	    fp.setFileName( "LinkFileTable.txt" );
-	    const bool haslinkfile = File::exists( fp.fullPath() );
-	    fp.setFileName( "index.htm" );
-	    if ( !File::exists(fp.fullPath()) )
-	    {
-		FilePath temfp( fp );
-		temfp.setFileName( "index.html" );
-		if( File::exists(temfp.fullPath()) )
-		    fp.setFileName( "index.html" );
-		if ( !File::exists(fp.fullPath()) && !haslinkfile )
-		    { delete di; continue; }
-	    }
-	    di->starturl = fp.fullPath();
-	    di->iconfnm = FilePath(docdir,"defhelpicon").fullPath();
-	    di->nm = dirnm;
-	}
-	strm.close();
-
-	di->id = mHelpVarMnuBase + varentries_.size();
-	varentries_ += di;
-	if ( dirnm == oddirnm )
-	{
-	    havedtectdoc_ = true;
-	    if ( varentries_.size() > 1 )
-		varentries_.swap( 0, varentries_.size()-1 );
-	}
-    }
-}
-
-
-void uiODHelpMenuMgr::insertVarItem( uiMenu* mnu, int eidx, bool withicon )
-{
-    uiODHelpDocInfo& di = *varentries_[eidx];
-    BufferString txt( di.nm );
-    txt += " ...";
-    mInsertItem( mnu, txt, di.id, di.shortcut );
-}
-
-
-void uiODHelpMenuMgr::mkVarMenu()
-{
-    if ( varentries_.size() == 0 )
-
-	ErrMsg( "No help documentation found" );
-
-    else if ( varentries_.size() == 1 )
-    {
-	if ( havedtectdoc_ )
-	    varentries_[0]->nm = "&Index";
-	insertVarItem( helpmnu_, 0, false );
-    }
-    else
-    {
-	uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&Index" );
-	for ( int idx=0; idx<varentries_.size(); idx++ )
-	    insertVarItem( submnu, idx, true );
-	helpmnu_->insertItem( submnu );
-    }
-}
-
-
-void uiODHelpMenuMgr::mkCreditsMenu()
-{
-    uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&Credits" );
-    helpmnu_->insertItem( submnu );
-
-    DirList dl( GetDocFileDir("Credits"), DirList::DirsOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	FilePath fp( dl.fullPath(idx), "index.txt" ); IOPar iop;
-	if ( !HelpViewer::getCreditsData(fp.fullPath(),iop) )
-	    continue;
-
-	uiODHelpDocInfo* di = new uiODHelpDocInfo;
-	di->id = mHelpCreditsMnuBase + idx + 1;
-	di->nm = iop.name(); di->nm += " ...";
-	fp.setFileName( "index.html" );
-	di->starturl = fp.fullPath();
-	creditsentries_ += di;
-
-	const BufferString dirnm( dl.get(idx) );
-	if ( dirnm == "base" && creditsentries_.size() > 1 )
-	{
-	    di->id = mHelpCreditsMnuBase;
-	    creditsentries_.swap( 0, creditsentries_.size()-1 );
-	}
-    }
-    for ( int idx=0; idx<creditsentries_.size(); idx++ )
-    {
-	const uiODHelpDocInfo* di = creditsentries_[idx];
-	mInsertItem( submnu, di->nm, di->id, di->shortcut );
-    }
-}
-
-
-void uiODHelpMenuMgr::mkAboutMenu()
-{
-    uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&About" );
-    helpmnu_->insertItem( submnu );
-    mInsertItem( submnu, "&General ...", mHelpAboutMnuBase, 0 );
-
-    FilePath fp( GetDocFileDir("ReleaseInfo") );
-    DirList dl( fp.fullPath(), DirList::FilesOnly, "*.txt" );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const BufferString fnm = dl.get( idx );
-	uiODHelpDocInfo* di = new uiODHelpDocInfo;
-	di->id = mHelpAboutMnuBase + idx + 1;
-	di->nm = fnm; di->nm += " ...";
-	di->starturl = dl.fullPath(idx);
-	aboutentries_ += di;
-	if ( fnm == "RELEASE.txt" && aboutentries_.size() > 1 )
-	    aboutentries_.swap( 0, aboutentries_.size()-1 );
-    }
-    for ( int idx=0; idx<aboutentries_.size(); idx++ )
-    {
-	const uiODHelpDocInfo* di = aboutentries_[idx];
-	mInsertItem( submnu, di->nm, di->id, di->shortcut );
-    }
-}
-
-
-bool uiODHelpMenuMgr::getPopupData( int id, BufferString& helpurl )
-{
-    const bool isabout = id < mHelpCreditsMnuBase;
-    const bool iscredits = !isabout && id < mHelpVarMnuBase;
-
-    const ObjectSet<uiODHelpDocInfo>& hdi =
-	 isabout ? aboutentries_ : (iscredits ? creditsentries_ : varentries_);
-    const uiODHelpDocInfo* di = 0;
-    for ( int idx=0; idx<hdi.size(); idx++ )
-    {
-	if ( hdi[idx]->id == id )
-	    { di = hdi[idx]; break; }
-    }
-    if ( !di )
-    {
-	BufferString msg( "Invalid help menu ID: '" );
-	msg += id; msg += "'"; pErrMsg( msg );
-	return false;
-    }
-
-    helpurl = di->starturl;
-    return true;
-}
-
-
-void uiODHelpMenuMgr::handle( int id, const char* itemname )
-{
-    FilePath fp;
-    BufferString helpurl;
     switch( id )
     {
-    case mAdminMnuItm:
-    {
-	fp = mGetSysAdmDocDir();
-	helpurl = fp.add("base").add("index.htm").fullPath();
-    } break;
-    case mProgrammerMnuItm:
-    {
-	fp = mGetProgrammerDocDir(); 
-        helpurl = fp.add("index.html").fullPath();
-    } break;
-    case mHelpAboutMnuBase:
-    {
-	fp = mGetUserDocDir();
-	const char* htmlfnm = "about.html";
-	helpurl = fp.add(oddirnm).add(htmlfnm).fullPath();
-	if ( !File::exists(helpurl) )
-	    helpurl = GetDocFileDir( htmlfnm );
-    } break;
-    default:
-    {
-	if ( !getPopupData( id, helpurl) )
-	    return;
-    } break;
-
+	case mAdminMnuItm:
+	{
+	    uiDesktopServices::openUrl( getAdminURL().buf() );
+	} break;
+	case mProgrammerMnuItm:
+	{
+	    HelpProvider::provideHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0));
+	} break;
+	case mAboutMnuItm:
+	{
+	    uiDesktopServices::openUrl(
+		FilePath(GetSoftwareDir(false),"doc","about.html").fullPath() );
+	} break;
+	default:
+	{
+	    HelpProvider::provideHelp( HelpKey("od", 0) );
+	}
     }
-
-    if ( !File::exists(helpurl.buf()) )
-	helpurl = HelpViewer::getWebUrlFromLocal( helpurl.buf() );
-    uiDesktopServices::openUrl( helpurl );
 }

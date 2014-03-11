@@ -89,6 +89,7 @@ int ODMain( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "AllNonUi" );
     PIM().loadAuto( false );
 
+    OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
     uiODMain* odmain = new uiODMain( *new uiMain(argc,argv) );

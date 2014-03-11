@@ -97,7 +97,7 @@ public:
 
 			Setup( const char* fname=0 )
 			    : uiDialog::Setup(fname?fname:"File viewer",
-				    		0,mNoHelpID)
+						0,mNoHelpKey)
 			    , scroll2bottom_(false)
 			    , allowopen_(false)
 			    , allowsave_(false)

@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class uiODMenuMgr;
 class uiMenu;
-class uiODHelpDocInfo;
 
 
 /*!\brief The OpendTect help menu manager */
@@ -27,23 +26,12 @@ public:
     				uiODHelpMenuMgr(uiODMenuMgr*);
     				~uiODHelpMenuMgr();
 
-    void			handle(int,const char*);
+    void			handle(int);
 
 protected:
 
-    bool			havedtectdoc_;
     uiODMenuMgr*		mnumgr_;
     uiMenu*			helpmnu_;
-    ObjectSet<uiODHelpDocInfo>	aboutentries_;
-    ObjectSet<uiODHelpDocInfo>	varentries_;
-    ObjectSet<uiODHelpDocInfo>	creditsentries_;
-
-    void			scanEntries(const char*);
-    void			mkVarMenu();
-    void			mkAboutMenu();
-    void			mkCreditsMenu();
-    bool			getPopupData(int,BufferString&);
-    void			insertVarItem(uiMenu*,int,bool);
 };
 
 #endif

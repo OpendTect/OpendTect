@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathproperty.h"
 #include "elasticpropseltransl.h"
 #include "preloads.h"
-#include "helpview.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
 #include "batchjobdispatch.h"
@@ -23,8 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
-
-    HelpViewer::init();
 
     ElasticPropSelectionTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();

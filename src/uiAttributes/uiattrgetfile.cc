@@ -127,7 +127,7 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p, bool is2d )
     : uiSrchProcFiles(p,mkCtio(is2d),"Output.0.Seismic.ID")
 {
-    setHelpID( "101.1.4" );
+    setHelpKey( "101.1.4" );
 }
 
 

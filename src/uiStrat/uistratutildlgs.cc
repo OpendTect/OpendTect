@@ -588,7 +588,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 					    const Strat::LeavedUnitRef& unit )
     : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
 			     "Specify number and properties of the new units",
-			     mTODOHelpID))
+			     mTODOHelpKey))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")

@@ -39,7 +39,7 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     capt += curgrp->name();
     capt += "'";
     setCaption( capt );
-    setHelpID( "111.0.11" );
+    setHelpKey( "111.0.11" );
 
     BufferString msg( "A new column will be added with selectedness values.\n"
 	    	      "Specify the name of the new column." );

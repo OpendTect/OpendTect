@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage color bars",0,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("Manage color bars",0,mNoHelpKey))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );

@@ -1286,7 +1286,7 @@ protected:
 
 uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     : uiDialog( mpeman->getToolBar(),
-	    uiDialog::Setup("QC display properties","",mNoHelpID).modal(false) )
+	    uiDialog::Setup("QC display properties","",mNoHelpKey).modal(false))
     , mpeman_(mpeman)
 {
     updateDisplayList();

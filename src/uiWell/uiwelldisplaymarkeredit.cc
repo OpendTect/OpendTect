@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
     : uiDialog(p,uiDialog::Setup(edit ? "Edit Marker": "Add Marker",
-					mNoDlgTitle,mNoHelpID))
+					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );

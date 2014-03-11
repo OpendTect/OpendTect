@@ -39,7 +39,7 @@ static const int noprogbardispnrsymbs = 29;
 
 
 uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr ) 
-    : uiDialog( p, uiDialog::Setup("Executing",mNoDlgTitle,mNoHelpID)
+    : uiDialog( p, uiDialog::Setup("Executing",mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext("Pause")
 	.canceltext("Abort") )

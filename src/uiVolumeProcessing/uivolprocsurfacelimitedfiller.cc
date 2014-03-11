@@ -49,7 +49,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), hp )
     , surfacefiller_( hp )
 {
-    setHelpID( "dgb:104.0.4" );
+    setHelpKey( "dgb:104.0.4" );
 
     if ( !surfacefiller_ ) return;
 	

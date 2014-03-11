@@ -28,7 +28,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi )
     , hwinterpolator_( hwi )
 {
-    setHelpID( mTODOHelpID );
+    setHelpKey( mTODOHelpKey );
 
     const char* ext[] = { "None", "By top/bottom values only",
 			  "By parallel to top/base", 0 };

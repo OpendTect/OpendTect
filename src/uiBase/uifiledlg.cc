@@ -145,7 +145,7 @@ int uiFileDialog::go()
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
     {
 	uiDialog dlg( parnt_, uiDialog::Setup("Specify file name",
-			    "System file selection unavailable!",mNoHelpID) );
+			    "System file selection unavailable!",mNoHelpKey) );
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
 	new uiLabel( &dlg, "File name", le );

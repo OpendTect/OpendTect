@@ -117,7 +117,7 @@ class uiNewSurveyByCopy : public uiDialog
 public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
-	: uiDialog(p,uiDialog::Setup("Copy survey",mNoDlgTitle,mTODOHelpID))
+	: uiDialog(p,uiDialog::Setup("Copy survey",mNoDlgTitle,mTODOHelpKey))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -233,7 +233,7 @@ void zdomainChg( CallBacker* cb )
 uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,uiDialog::Setup("Create new survey",
-		    "Specify new survey parameters",mTODOHelpID))
+		    "Specify new survey parameters",mTODOHelpKey))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())

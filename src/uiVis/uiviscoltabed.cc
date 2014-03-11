@@ -129,7 +129,7 @@ void uiVisColTabEd::fillPar( IOPar& par )
 
 // ----- uiColorBarDialog -----
 uiColorBarDialog::uiColorBarDialog( uiParent* p, const char* title )
-    : uiDialog(p, uiDialog::Setup(title,0,mNoHelpID).modal(false)
+    : uiDialog(p, uiDialog::Setup(title,0,mNoHelpKey).modal(false)
 	       .oktext("Exit").dlgtitle("").canceltext(""))
     , winClosing( this )
 {

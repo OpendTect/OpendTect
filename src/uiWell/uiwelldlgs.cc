@@ -1550,7 +1550,7 @@ const Color& uiNewWellDlg::getWellColor()
 
 
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey))
     , log_(wl)
 {
     BufferString ttl( "Edit unit of measure :" );

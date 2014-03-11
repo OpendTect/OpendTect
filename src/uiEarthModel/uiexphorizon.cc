@@ -518,7 +518,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
     if ( typfld_->getIntValue() != 2 )
 	return;
 
-    uiDialog dlg( this, uiDialog::Setup("IESX details",mNoDlgTitle,mNoHelpID) );
+    uiDialog dlg( this, uiDialog::Setup("IESX details",mNoDlgTitle,mNoHelpKey));
     uiGenInput* namefld = new uiGenInput( &dlg, "Horizon name in file" );
     uiGenInput* commentfld = new uiGenInput( &dlg, "[Comment]" );
     commentfld->attach( alignedBelow, namefld );

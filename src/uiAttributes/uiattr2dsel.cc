@@ -44,7 +44,7 @@ using namespace Attrib;
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const MultiID& lsid, const NLAModel* nla,
 				const char* curnm )
-	: uiDialog(p,Setup("Select Attribute","Select Attribute",mNoHelpID))
+	: uiDialog(p,Setup("Select Attribute","Select Attribute",mNoHelpKey))
 	, setid_(lsid)
 	, nla_(nla)
 	, descid_(-1,true)

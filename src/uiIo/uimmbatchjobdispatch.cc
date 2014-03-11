@@ -36,8 +36,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
-						const char* helpid )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,helpid)
+						const HelpKey& helpkey )
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,helpkey)
 		.nrstatusflds(-1)
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))

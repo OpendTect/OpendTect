@@ -623,7 +623,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
 				  bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,mNoHelpID) )
+    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,mNoHelpKey) )
     , cs_( cs )
     , prefcs_(0)
     , is2d_( is2d )

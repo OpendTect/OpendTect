@@ -122,7 +122,7 @@ void uiDateSel::setDate( const DateInfo& di )
 void uiDateSel::showCalendarCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup( "Calendar", "Select date",
-					 mNoHelpID ) );
+					 mNoHelpKey ) );
     uiCalendar* cal = new uiCalendar( &dlg );
     DateInfo di;
     if ( getDate(di,false) )

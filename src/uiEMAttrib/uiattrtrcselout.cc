@@ -61,7 +61,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , xparsdlg_(0)
 {
     setCtrlStyle( RunAndClose );
-    setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
+    setHelpKey( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     if ( usesinglehor_ )
 	createSingleHorUI();

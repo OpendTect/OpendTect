@@ -42,7 +42,7 @@ uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
     , msfld_(0)
 {
     hor_.ref();
-    setHelpID( "104.4.8" );
+    setHelpKey( "104.4.8" );
 
     mAddMSFld("Store in",inpfld_)
 }

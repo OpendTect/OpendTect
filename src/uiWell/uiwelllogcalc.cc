@@ -542,7 +542,7 @@ bool uiWellLogCalc::getRecInfo()
     if ( nrrec < 1 ) return true;
 
     const char* wintitl = nrrec > 1 ? "Specify values" : "Specify value";
-    uiDialog dlg( this, uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpID) );
+    uiDialog dlg( this, uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey) );
     uiLabel* lbl = new uiLabel( &dlg,
 	    "Recursive calculation: Please enter starting value(s)" );
     uiGenInput* fld = new uiGenInput( &dlg,

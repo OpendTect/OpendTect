@@ -193,7 +193,7 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( parent(), setup );
-    dlg.setHelpID("50.0.17");
+    dlg.setHelpKey("50.0.17");
     if ( dlg.selFld() )
     {
 	dlg.selFld()->setMultiSelect();

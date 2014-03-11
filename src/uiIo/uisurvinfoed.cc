@@ -873,7 +873,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
     uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpID("0.3.6");
+    dlg->setHelpKey("0.3.6");
     return dlg;
 }
 

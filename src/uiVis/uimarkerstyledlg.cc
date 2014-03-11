@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 	: uiDialog(p,
 		   uiDialog::Setup(title,"Specify marker style properties",
-		       		   mNoHelpID)
+				   mNoHelpKey)
 		   .canceltext(""))
 {
     MarkerStyle3D::Type excludedtypes[] =

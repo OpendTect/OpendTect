@@ -103,7 +103,7 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 			      const char* fldtxt, DataInpSpec* spec )
-	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
+	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle, fldtxt, spec );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
@@ -112,7 +112,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
+	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle, e );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );

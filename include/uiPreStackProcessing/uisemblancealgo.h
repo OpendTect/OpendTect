@@ -32,7 +32,7 @@ public:
     virtual bool	populateUI(const SemblanceAlgorithm*) 		= 0;
     virtual bool	populateObject(SemblanceAlgorithm*) const 	= 0;
 protected:
-    			uiSemblanceAlgorithm(uiParent*,const char* helpid);
+			uiSemblanceAlgorithm(uiParent*,const HelpKey&);
 };
 
 }; //namespace

@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 					visBase::SceneColTab* coltab )
-    : uiDialog(p,uiDialog::Setup("Color Bar Settings",mNoDlgTitle,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("Color Bar Settings",mNoDlgTitle,mNoHelpKey))
     , scenecoltab_(coltab)
 {
     setCtrlStyle( CloseOnly );

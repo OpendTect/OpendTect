@@ -26,7 +26,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
 {
-    setHelpID( "103.6.3" ); 
+    setHelpKey( "103.6.3" );
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
@@ -117,8 +117,10 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	? 1
 	: mUdf(float);
 
-    pars.stepout_.row() = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
-    pars.stepout_.col() = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
+    pars.stepout_.row() =
+	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
+    pars.stepout_.col() =
+	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
     pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );

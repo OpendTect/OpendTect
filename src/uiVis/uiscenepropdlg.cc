@@ -232,7 +232,7 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 
 	separationdlg_ =
 	    new uiGenInputDlg( this, "Line/Surface separation", entries );
-	separationdlg_->setHelpID( "od:50.0.19");
+	separationdlg_->setHelpKey( "od:50.0.19");
     }
 
     while ( true )

@@ -130,7 +130,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpID) );
+    uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
 	    			uiSelLineStyle::Setup().drawstyle(false) );

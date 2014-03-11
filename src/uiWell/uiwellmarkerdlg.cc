@@ -530,7 +530,7 @@ public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
 	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", 
-		    			mNoHelpID) )
+					mNoHelpKey) )
 {
     list_ = new uiListBox( this, "Markers" );
     list_->setItemsCheckable( true );

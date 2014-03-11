@@ -369,7 +369,7 @@ class uiTableFormatDescFldsEd : public uiDialog
 public:
 
 				uiTableFormatDescFldsEd(uiTableImpDataSel*,
-							const char*);
+							const HelpKey&);
 
     Table::FormatDesc&		desc()		{ return fd_; }
 
@@ -400,9 +400,9 @@ protected:
 
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
-						  const char* hid )
+						  const HelpKey& helpkey )
 	: uiDialog(ds,uiDialog::Setup("Format definition",
-				      "Specify necessary information",hid)
+				      "Specify necessary information",helpkey)
 		      .savebutton(true).savebutispush(true)
 		      .savetext("Save format"))
 	, ds_(*ds)
@@ -557,10 +557,10 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 {
 public:
 
-uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const char* hid )
+uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
     : uiCompoundParSel( p, "Format definition", "Define" )
     , impsel_(*p)
-    , helpid_(hid)
+    , helpkey_(helpkey)
     , descCommitted(this)
 {
     butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
@@ -594,19 +594,19 @@ void doDlg( CallBacker* )
     if ( !impsel_.commitHdr(true) )
 	return;
 
-    uiTableFormatDescFldsEd dlg( &impsel_, helpid_ );
+    uiTableFormatDescFldsEd dlg( &impsel_, helpkey_ );
     if ( dlg.go() ) descCommitted.trigger();
 }
 
     uiTableImpDataSel&	impsel_;
-    const char*		helpid_;
+    HelpKey		helpkey_;
     Notifier<uiTableFmtDescFldsParSel> descCommitted;
 
 };
 
 
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
-				      const char* hid )
+				      const HelpKey& helpkey )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
 	, descChanged(this)
@@ -634,7 +634,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
     hdrtokfld_->valuechanged.notify( hdrchgcb );
 
-    fmtdeffld_ = new uiTableFmtDescFldsParSel( this, hid );
+    fmtdeffld_ = new uiTableFmtDescFldsParSel( this, helpkey );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
     fmtdeffld_->descCommitted.notify( mCB(this,uiTableImpDataSel,descChg) );
 

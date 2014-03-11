@@ -29,7 +29,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
 {
-    setHelpID( "103.6.4" );
+    setHelpKey( "103.6.4" );
 
     uiWindowFunctionSel::Setup su; su.label_= "Operator";
     su.winname_ = smoother_->getOperatorName(); 
@@ -86,9 +86,12 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 	return false;
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    const int inlsz = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
-    const int crlsz = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
-    const int zsz = mNINT32(zlenfld_->box()->getFValue()/zstep)*2+1;
+    const int inlsz =
+	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
+    const int crlsz =
+	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
+    const int zsz =
+	mNINT32(zlenfld_->box()->getFValue()/zstep)*2+1;
 
     if ( !inlsz && !crlsz && !zsz )
     {

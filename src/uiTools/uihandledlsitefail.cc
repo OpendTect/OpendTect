@@ -90,7 +90,7 @@ float uiHandleDLSiteFail::timeout() const
 void uiHandleDLSiteFail::proxyButCB( CallBacker* )
 {
     uiProxyDlg dlg( this );
-    dlg.setHelpID( mNoHelpID );
+    dlg.setHelpKey( mNoHelpKey );
     dlg.go();
 }
 

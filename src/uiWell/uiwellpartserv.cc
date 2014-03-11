@@ -283,7 +283,7 @@ public:
 
 uiWellRockPhysLauncher( uiParent* p )
     : uiDialog( p, Setup("Rock Physics - Well Logs",
-		"Select one or more wells to add well logs to",mTODOHelpID) )
+		"Select one or more wells to add well logs to",mTODOHelpKey) )
     , ctio_(mMkCtxtIOObj(Well))
 {
     selgrp_ = new uiIOObjSelGrp( this, *ctio_, 0, true, false, false );

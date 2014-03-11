@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
-		    	   mNoHelpID))
+			   mNoHelpKey))
 	, dps_(0)
 	, dpsdispmgr_(dpsdispmgr)
 {

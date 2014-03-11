@@ -217,7 +217,7 @@ public:
     void		setForRead(bool);
     void		setConfirmOverwrite( bool yn )
 					{ setup_.confirmoverwr_ = yn; }
-    void		setHelpID( const char* id ) { helpid_ = id; }
+    void		setHelpKey(const HelpKey& key) { helpkey_ = key; }
 
     virtual void	updateInput();	//!< updates from CtxtIOObj
     virtual void	processInput(); //!< Match user typing with existing
@@ -234,7 +234,7 @@ protected:
     CtxtIOObj&		inctio_;
     CtxtIOObj&		workctio_;
     Setup		setup_;
-    BufferString	helpid_;
+    HelpKey		helpkey_;
     bool		inctiomine_;
 
     void		preFinaliseCB(CallBacker*);

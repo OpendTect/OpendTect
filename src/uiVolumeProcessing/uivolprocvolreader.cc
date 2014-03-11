@@ -27,7 +27,7 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     , volumereader_( vr )
     , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {
-    setHelpID( "103.6.8" );
+    setHelpKey( "103.6.8" );
 
     if ( vr )
 	ctio_->setObj( vr->getVolumeID() );

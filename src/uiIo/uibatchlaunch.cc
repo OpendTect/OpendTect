@@ -300,7 +300,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 // uiFullBatchDialog
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
-    : uiDialog(p,uiDialog::Setup(s.wintxt_,"",mNoHelpID)
+    : uiDialog(p,uiDialog::Setup(s.wintxt_,"",mNoHelpKey)
 		 .modal(s.modal_).menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))
     , procprognm_(s.procprognm_.isEmpty() ? "od_process_attrib" : s.procprognm_)
@@ -577,7 +577,7 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
 				.procprognm(ppn).multiprocprognm(mpn))
 {
     redo_ = true;
-    setHelpID( "101.2.1" );
+    setHelpKey( "101.2.1" );
     setTitleText( "Run a saved processing job" );
     setCtrlStyle( RunAndClose );
     addStdFields( true );

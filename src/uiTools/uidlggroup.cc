@@ -33,33 +33,22 @@ uiTabStackDlg::~uiTabStackDlg()
 
 void uiTabStackDlg::selChange( CallBacker* )
 {
-    const char* helpid = helpID();
-    setButtonSensitive( uiDialog::HELP, helpid && *helpid );
+    const HelpKey& helpkey = helpKey();
+    setButtonSensitive( uiDialog::HELP, !helpkey.isEmpty() );
 }
 
 
-const char* uiTabStackDlg::helpID() const
+HelpKey uiTabStackDlg::helpKey() const
 {
-    const char* helpid = uiDialog::helpID();
-    if ( helpid && *helpid )
-	return helpid;
-
-    bool hassomehelp = false;
-    for ( int idx=0; idx<tabstack_->size(); idx++ )
-    {
-	mDynamicCastGet( const uiDlgGroup*, grp, tabstack_->page(idx) );
-	if ( grp->helpID() )
-	{
-	    hassomehelp = true;
-	    break;
-	}
-    }
+    const HelpKey& helpkey = uiDialog::helpKey();
+    if ( !helpkey.isEmpty() )
+	return helpkey;
 
     mDynamicCastGet( const uiDlgGroup*, grp, tabstack_->currentPage() );
-    if ( grp && grp->helpID() )
-	return grp->helpID();
+    if ( grp && !grp->helpKey().isEmpty() )
+	return grp->helpKey();
 
-    return hassomehelp ? "" : 0;
+    return helpkey;
 }
 
 

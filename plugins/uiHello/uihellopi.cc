@@ -70,7 +70,7 @@ public:
 
 uiHelloMsgBringer( uiParent* p )
     : uiDialog(p,Setup("Hello Message Window","Specify hello message",
-			mNoHelpID))
+			mNoHelpKey))
 {
     txtfld = new uiGenInput( this, "Hello message",
 				StringInpSpec("Hello world") );

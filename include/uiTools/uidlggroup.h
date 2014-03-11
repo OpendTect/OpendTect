@@ -43,7 +43,7 @@ public:
 			*/
     virtual const char*	errMsg() const			{ return 0; }
 
-    virtual const char*	helpID() const			{ return 0; }
+    virtual HelpKey	helpKey() const 		{ return 0; }
     			
 };
 
@@ -58,9 +58,13 @@ public:
     void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
 
-    const char*	helpID() const
-			{ const char* hid = grp_->helpID();
-			  if ( !hid ) hid = uiDialog::helpID(); return hid; }
+    HelpKey	helpKey() const
+		{
+		    if ( !grp_->helpKey().isEmpty() )
+			return grp_->helpKey();
+
+		    return uiDialog::helpKey();
+		}
 
 protected:
     bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
@@ -88,7 +92,7 @@ public:
     int			currentGroupID()	
     			{ return tabstack_->currentPageId(); }
 
-    const char*		helpID() const;
+    HelpKey		helpKey() const;
     			/*!<Returns the help id for the current group, or 0 if
 			    no help available for any group, "" if there is
 			    help for one or more groups, but not the currently

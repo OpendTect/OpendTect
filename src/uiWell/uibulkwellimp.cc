@@ -443,7 +443,7 @@ D2TModelData( const char* wellnm )
 // uiBulkD2TModelImport
 uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Multi-Well Import: D2TModel",
-				 mNoDlgTitle,mTODOHelpID))
+				 mNoDlgTitle,mTODOHelpKey))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
     uiFileInput::Setup fs;

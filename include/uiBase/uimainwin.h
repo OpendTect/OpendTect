@@ -130,9 +130,6 @@ public:
     Notifier<uiMainWin>	windowClosed;
 			//!< triggered when window exits
 
-    static void		provideHelp(const char* winid=0);
-    static void		showCredits(const char* winid=0);
-
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(mQtclass(QWidget*) mwimpl);
 

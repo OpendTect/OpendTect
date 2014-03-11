@@ -23,7 +23,7 @@ mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
 
 
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,mNoHelpID)
+	: uiAttrDescEd(p,is2d,mNoHelpKey)
 {
     inpfld_ = createInpFld( is2d, "Input Data");
 

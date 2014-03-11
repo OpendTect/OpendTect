@@ -499,7 +499,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(parent_->selectionKey()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-		uiDialog::Setup( "Iso value selection", 0, mNoHelpID ) );
+		uiDialog::Setup( "Iso value selection", 0, mNoHelpKey ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd) );
 	dlg.go();
 	updateColumnText(1);

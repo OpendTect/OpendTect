@@ -39,7 +39,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     : uiAttrEMOut( p, ad, n, mid, "Calculate Horizon Data" )
     , interpol_(0)
 {
-    setHelpID( "104.4.0" );
+    setHelpKey( "104.4.0" );
     setCtrlStyle( RunAndClose );
 
     attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );

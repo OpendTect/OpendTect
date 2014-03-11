@@ -12,11 +12,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uicursor.h"
 
+#include "uihelpview.h"
+
 mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
 
     uiCursorManager::initClass();
+    FlareHelpProvider::initODHelp();
+
+    DevDocHelp::initClass();
+
 
 #ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(

@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "helpview.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -232,10 +231,6 @@ void uiAttribDescSetEd::createGroups()
     helpbut_ = new uiToolButton( degrp, "contexthelp", "Help",
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
-
-    creditsbut_ = new uiToolButton( degrp, "credits", "Show credits",
-				mCB(this,uiAttribDescSetEd,creditsButPush) );
-    creditsbut_->attach( rightTo, helpbut_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );
     attrnmfld_->attach( alignedBelow, degrp );
@@ -499,14 +494,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 void uiAttribDescSetEd::helpButPush( CallBacker* )
 {
     uiAttrDescEd* curdesced = curDescEd();
-    const char* helpid = curdesced->helpID();
-    uiMainWin::provideHelp( helpid );
-}
-
-
-void uiAttribDescSetEd::creditsButPush( CallBacker* )
-{
-    uiMainWin::showCredits( curDescEd()->helpID() );
+    HelpProvider::provideHelp( curdesced->helpKey() );
 }
 
 
@@ -668,8 +656,6 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     }
     dummydesc->unRef();
     updating_fields_ = false;
-
-    creditsbut_->display( HelpViewer::hasSpecificCredits(curde->helpID()) );
 }
 
 
@@ -981,7 +967,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup sflsu( "Default Attribute Sets", attribnames );
     sflsu.dlgtitle( "Select default attribute set" );
     uiSelectFromList dlg( this, sflsu );
-    dlg.setHelpID("101.1.6");
+    dlg.setHelpKey("101.1.6");
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
@@ -1099,7 +1085,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     if ( !offerSetSave() ) return;
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
-    objdlg.setHelpID( "0.3.5" );
+    objdlg.setHelpKey( "0.3.5" );
     IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
     if ( objdlg.go() && setctio_.ioobj )
     {

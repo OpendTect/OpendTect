@@ -142,8 +142,8 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 
 
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
-			  const char* qn, bool wcncl, const char* hid )
-    : uiDialog(p,uiDialog::Setup("Please specify",qn,hid))
+			  const char* qn, bool wcncl, const HelpKey& helpkey )
+    : uiDialog(p,uiDialog::Setup("Please specify",qn,helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );

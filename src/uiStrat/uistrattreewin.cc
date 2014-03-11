@@ -337,9 +337,9 @@ static const char* infolvltrs[] =
 void uiStratTreeWin::saveAsCB( CallBacker* )
 {
     const char* dlgtit = "Save the stratigraphy at:";
-    const char* helpid = 0;
+
     uiDialog savedlg( this, uiDialog::Setup( "Save Stratigraphy",
-		    dlgtit, helpid ) );
+		    dlgtit, mNoHelpKey ) );
     BufferStringSet bfset( infolvltrs );
     uiListBox saveloclist( &savedlg, bfset );
     savedlg.go();
@@ -434,7 +434,7 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 
 void uiStratTreeWin::helpCB( CallBacker* )
 {
-    uiMainWin::provideHelp( "110.0.0" );
+    HelpProvider::provideHelp( "110.0.0" );
 }
 
 

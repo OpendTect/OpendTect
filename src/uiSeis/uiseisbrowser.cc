@@ -433,7 +433,7 @@ public:
 
 uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
     : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position",
-				   mNoHelpID) )
+				   mNoHelpKey) )
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );

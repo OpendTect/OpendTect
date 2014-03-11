@@ -138,7 +138,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     }
     else
     {
-	setHelpID("104.0.0");
+	setHelpKey("104.0.0");
 	filludffld_ = new uiGenInput( this, "Fill undefined parts",
 				      BoolInpSpec(true) );
 	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));

@@ -33,7 +33,7 @@ static bool checkIfDataDir( const char* path )
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
 				      const char* dataroot )
     : uiDialog(p,uiDialog::Setup("Survey Selection",
-				 "Select Survey",mNoHelpID))
+				 "Select Survey",mNoHelpKey))
 
 {
     datarootfld_ = new uiFileInput( this, "Data Root",

@@ -42,7 +42,7 @@ public:
     				//!<A unitstring in [] that tells what the
 				//!<unit is for going from one cell to another
     
-    const char*			helpID() const;
+    HelpKey			helpKey() const;
     void			fillPar(IOPar&) const;
     
     void			setStep(const BinID&);
@@ -119,7 +119,7 @@ public:
     bool			acceptOK();
     void			setDistanceUnit(const char*);
 
-    const char*			helpID() const { return "104.0.13"; }
+    HelpKey			helpKey() const { return "104.0.13"; }
 
 protected:
 
@@ -151,7 +151,7 @@ public:
     bool			acceptOK();
     void			setDistanceUnit(const char*);
 
-    const char*			helpID() const { return "104.0.13"; }
+    HelpKey			helpKey() const { return "104.0.13"; }
 
 protected:
 
@@ -174,7 +174,7 @@ public:
 
     bool			acceptOK();
 
-    const char*			helpID() const { return "104.0.13"; }
+    HelpKey			helpKey() const { return "104.0.13"; }
 
 protected:
 

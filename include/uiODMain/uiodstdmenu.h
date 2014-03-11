@@ -217,9 +217,9 @@ ________________________________________________________________________
 #define mHelpMnuBase		(mHelpMnu + 100)
 #define mAdminMnuItm		(mHelpMnuBase + 1)
 #define mProgrammerMnuItm	(mHelpMnuBase + 2)
-#define mHelpAboutMnuBase	(mHelpMnuBase + 100)
-#define mHelpCreditsMnuBase	(mHelpMnuBase + 200)
-#define mHelpVarMnuBase		(mHelpMnuBase + 300)
+#define mAboutMnuItm		(mHelpMnuBase + 3)
+#define mUserDocMnuItm		(mHelpMnuBase + 4)
+
 
 
 

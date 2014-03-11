@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "changetracker.h"
 #include "paramsetget.h"
 #include "datapack.h"
+#include "helpview.h"
 
 namespace Attrib { class Desc; class DescSet; class DescSetMan; };
 
@@ -83,7 +84,7 @@ mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
 public:
 
     virtual		~uiAttrDescEd();
-    const char*		helpID()			{ return helpid_; }
+    HelpKey		helpKey()			{ return helpkey_; }
     void		setDesc(Desc*,DescSetMan*);
     void		setDescSet( DescSet* ds )	{ ads_ = ds; }
     Desc*		curDesc()			{ return desc_; }
@@ -128,7 +129,8 @@ public:
 
 protected:
 
-			uiAttrDescEd(uiParent*,bool is2d,const char* helpid=0);
+			uiAttrDescEd(uiParent*,bool is2d,
+				     const HelpKey& helpkey=0);
 
     virtual bool	setParameters(const Desc&)	{ return true; }
     virtual bool	getParameters(Desc&)		{ return true; }
@@ -164,7 +166,7 @@ protected:
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
     Desc*		getInputDescFromDP(uiAttrSel*) const;
 
-    BufferString        helpid_;
+    HelpKey		helpkey_;
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;

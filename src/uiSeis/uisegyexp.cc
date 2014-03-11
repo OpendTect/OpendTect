@@ -467,7 +467,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    BufferStringSet cnms; oinf.getComponentNames( cnms, lk );
 	    uiSelectFromList dlg( this,
 		uiSelectFromList::Setup("Please select the component",cnms) );
-	    dlg.setHelpID("103.0.15");
+	    dlg.setHelpKey("103.0.15");
 	    if ( !dlg.go() )
 		return false;
 	    selcomp_ = dlg.selection();

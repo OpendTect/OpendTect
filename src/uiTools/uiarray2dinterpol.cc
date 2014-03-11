@@ -151,10 +151,10 @@ uiArray2DInterpolSel::~uiArray2DInterpolSel()
 { delete result_; }
 
 
-const char* uiArray2DInterpolSel::helpID() const
+HelpKey uiArray2DInterpolSel::helpKey() const
 {
     const int sel = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
-    return params_[sel] ? params_[sel]->helpID() : 0;
+    return params_[sel] ? params_[sel]->helpKey() : 0;
 }
 
 

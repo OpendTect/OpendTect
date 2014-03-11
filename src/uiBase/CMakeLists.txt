@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS General)
+set(OD_MODULE_DEPS Network )
 set(OD_USEQT Widgets PrintSupport)
 set(OD_TEST_PROGS )
 set(QT_MOC_HEADERS i_qaction.h
@@ -49,6 +49,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uigraphicsitemimpl.cc
 		uigraphicsscene.cc
 		uigraphicsviewbase.cc
+		uihelpview.cc
 		uilabel.cc
 		uilayout.cc
 		uilineedit.cc

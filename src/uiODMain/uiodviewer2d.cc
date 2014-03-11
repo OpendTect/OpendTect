@@ -265,7 +265,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
-	    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
+	    uiFlatViewStdControl::Setup(controlparent).helpkey("51.0.0")
 						      .withedit(true) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     createPolygonSelBut( viewstdcontrol_->toolBar() );

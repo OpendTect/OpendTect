@@ -48,8 +48,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-static const char*  helpid = "107.4.1";
-
 
 #define mErrRetYN(msg) { uiMSG().error(msg); return false; }
 #define mErrRet(msg) { uiMSG().error(msg); return; }
@@ -248,7 +246,7 @@ void uiTieWin::drawFields()
 
 void uiTieWin::provideWinHelp( CallBacker* )
 {
-    provideHelp( helpid );
+    HelpProvider::provideHelp( "107.4.1" );
 }
 
 
@@ -465,7 +463,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpID) );
+    uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same",
 				BoolInpSpec(true,"Name","Regional marker") );
     matchdlg.go();
