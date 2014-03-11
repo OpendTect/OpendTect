@@ -133,8 +133,12 @@ bool StrmOper::peekChar( std::istream& strm, char& ch )
 	strm.clear();
     }
 
-    ch = (char)strm.peek();
-    return ch != EOF;
+    int ich = strm.peek();
+    if ( ich == 255 )
+	ich = (int)' '; // Non-breaking-space.
+
+    ch = (char)ich;
+    return ich != EOF;
 }
 
 
