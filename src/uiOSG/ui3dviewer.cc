@@ -104,7 +104,7 @@ public:
 protected:
     TrackBallManipulatorMessenger()
     {
-        
+
     }
     ui3DViewerBody*	viewerbody_;
 };
@@ -547,7 +547,7 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
     else if ( caller==distancethumbwheel_ )
     {
         osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-        	static_cast<osgGeo::TrackballManipulator*>(
+	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
         manip->changeDistance( deltaangle/M_PI );
 
@@ -600,7 +600,7 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
 	handleGestureEvent( gestureevent );
     }
 
-    if ( eventfilter_.getCurrentEventType()== 
+    if ( eventfilter_.getCurrentEventType()==
 	uiEventFilter::Show && setinitialcamerapos_ )
     {
 	viewAll( false );
@@ -757,7 +757,7 @@ void ui3DViewerBody::viewAll( bool animate )
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
         static_cast<osgGeo::TrackballManipulator*>(
                                         view_->getCameraManipulator() );
-    
+
     manip->viewAll( view_, animate );
 
     requestRedraw();
@@ -770,7 +770,7 @@ void ui3DViewerBody::requestRedraw()
 	return;
 
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-    	static_cast<osgGeo::TrackballManipulator*>(
+	static_cast<osgGeo::TrackballManipulator*>(
                                                view_->getCameraManipulator() );
 
     const bool animating = manip->isThrown() || manip->isAnimating();
@@ -894,12 +894,12 @@ bool ui3DViewerBody::isCameraOrthographic() const
 
 void ui3DViewerBody::toggleCameraType()
 {
-    osgGeo::TrackballManipulator* manip = 
+    osgGeo::TrackballManipulator* manip =
 	static_cast<osgGeo::TrackballManipulator*>(
 	view_->getCameraManipulator() );
-    
+
     if ( !manip ) return;
-    
+
     manip->setProjectionAsPerspective(  !manip->isCameraPerspective() );
 
     requestRedraw();
@@ -908,7 +908,7 @@ void ui3DViewerBody::toggleCameraType()
 
 void ui3DViewerBody::setHomePos(const IOPar& homepos)
 {
-    homepos_ = homepos;  
+    homepos_ = homepos;
 }
 
 
@@ -1020,7 +1020,7 @@ float ui3DViewerBody::getCameraZoom() const
 
 void ui3DViewerBody::fillCameraPos( IOPar& par ) const
 {
-    const osgGeo::TrackballManipulator* manip = 
+    const osgGeo::TrackballManipulator* manip =
 	 static_cast<osgGeo::TrackballManipulator*>(
 	 view_->getCameraManipulator() );
 
@@ -1050,9 +1050,9 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 	 !par.get( sKeyManipCenter(), center ) ||
 	 !par.get( sKeyManipDistance(), distance ) )
 	return false;
-    
-    osgGeo::TrackballManipulator* manip = 
-	static_cast<osgGeo::TrackballManipulator*>( 
+
+    osgGeo::TrackballManipulator* manip =
+	static_cast<osgGeo::TrackballManipulator*>(
 	view_->getCameraManipulator() );
 
     if ( !manip ) return false;
@@ -1111,7 +1111,8 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     if ( res ) func( var );
 
     bool res = false;
-    mGetProp( get, sKeyBGColor(), Color, col, setBackgroundColor );
+    mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
+    mGetProp( get, sKeyAnnotColor(), Color, col, setAxisAnnotColor );
     mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
 }
 
@@ -1169,20 +1170,19 @@ bool ui3DViewer::isAnimationEnabled() const
 
 
 void ui3DViewer::setBackgroundColor( const Color& col )
-{
-    osgbody_->setBackgroundColor( col );
-}
-
-
-void ui3DViewer::setAxisAnnotColor( const Color& col )
-{
-    osgbody_->setAxisAnnotColor( col );
-}
-
+{ osgbody_->setBackgroundColor( col ); }
 
 Color ui3DViewer::getBackgroundColor() const
+{ return osgbody_->getBackgroundColor(); }
+
+void ui3DViewer::setAxisAnnotColor( const Color& col )
+{ osgbody_->setAxisAnnotColor( col ); }
+
+
+Color ui3DViewer::getAxisAnnotColor() const
 {
-    return osgbody_->getBackgroundColor();
+    mDynamicCastGet(const visSurvey::Scene*,survscene,getScene());
+    return survscene ? survscene->getAnnotColor() : Color::White();
 }
 
 
@@ -1361,6 +1361,7 @@ void ui3DViewer::savePropertySettings() const
     Settings::common().set( BufferString(sKeydTectScene(),str), func );
 
     mSaveProp( set, sKeyBGColor(), getBackgroundColor() );
+    mSaveProp( set, sKeyAnnotColor(), getAxisAnnotColor() );
     mSaveProp( setYN, sKeyAnimate(), isAnimationEnabled() );
     Settings::common().write();
 }
@@ -1370,6 +1371,7 @@ void ui3DViewer::fillPar( IOPar& par ) const
 {
     par.set( sKeySceneID(), getScene()->id() );
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
+    par.set( sKeyAnnotColor(), (int)getAxisAnnotColor().rgb() );
     par.set( sKeyStereo(), toString( getStereoType() ) );
     float offset = getStereoOffset();
     par.set( sKeyStereoOff(), offset );
@@ -1388,11 +1390,17 @@ bool ui3DViewer::usePar( const IOPar& par )
     setSceneID( sceneid );
     if ( !getScene() ) return false;
 
-    int bgcol;
-    if ( par.get(sKeyBGColor(),bgcol) )
+    int col;
+    if ( par.get(sKeyBGColor(),col) )
     {
-	Color newcol; newcol.setRgb( bgcol );
+	Color newcol; newcol.setRgb( col );
 	setBackgroundColor( newcol );
+    }
+
+    if ( par.get(sKeyAnnotColor(),col) )
+    {
+	Color newcol; newcol.setRgb( col );
+	setAxisAnnotColor( newcol );
     }
 
     StereoType stereotype;

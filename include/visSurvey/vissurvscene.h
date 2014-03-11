@@ -81,7 +81,7 @@ public:
 
     virtual void		removeAll();
     virtual void		addObject(visBase::DataObject*);
-    				/*!< If the object is a visSurvey::SurveyObject
+				/*!< If the object is a visSurvey::SurveyObject
 				     it will ask if it's an inlcrl-object or
 				     not. If it's not an
 				     visSurvey::SurveyObject, it will be put in
@@ -122,7 +122,7 @@ public:
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
-    				/*! If not xyt it is inlcrlt */
+				/*! If not xyt it is inlcrlt */
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
@@ -130,9 +130,9 @@ public:
     void			objectMoved(CallBacker*);
 
     void			setFixedZStretch(float);
-    				/*!<Used to set the z-strecthing according
+				/*!<Used to set the z-strecthing according
 				    to the user's preference. Is unitless -
-				    all entities (i.e. distance vs time) 
+				    all entities (i.e. distance vs time)
 				    should be handled by zscale.
 				*/
     float			getFixedZStretch() const;
@@ -141,16 +141,16 @@ public:
     float			getTempZStretch() const;
 
     void			setZScale(float);
-    				/*!<The zscale should compensate for different
+				/*!<The zscale should compensate for different
 				   entities in xy and z respectively and
 				   remain constant through the life of the
 				   scene.  */
     float			getZScale() const;
-    				/*!<Returns an anproximate figure how to scale Z
+				/*!<Returns an anproximate figure how to scale Z
 				    relates to XY coordinates in this scene. */
 
     float			getApparentVelocity(float zstretch) const;
-    				/*<!Velocity Unit depends on display depth in
+				/*<!Velocity Unit depends on display depth in
                                     feet setting. */
 
     const mVisTrans*		getTempZStretchTransform() const;
@@ -176,7 +176,7 @@ public:
     const char*			zDomainID() const;
 
     void			setAnnotColor(const Color&);
-    const Color	    		getAnnotColor() const;
+    const Color			getAnnotColor() const;
     void			setMarkerPos(const Coord3&,int sceneid);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
@@ -186,8 +186,8 @@ public:
 
     void			allowAppShading(bool yn){ appallowshad_ = yn; }
     bool			allowsAppShading() const{return appallowshad_;}
-    				/*!<The application may allow or disallow
-				    shading for a scene. Even if app wants 
+				/*!<The application may allow or disallow
+				    shading for a scene. Even if app wants
 				    shading, it's not guaranteed as either the
 				    system cannot do it, or the user has
 				    disabled it. */
@@ -196,9 +196,9 @@ public:
     virtual bool		usePar(const IOPar&);
 
     static const char*		sKeyZStretch();
- 
+
 protected:
-    				~Scene();
+				~Scene();
 
     void			setup();
     void			updateAnnotationText();
@@ -207,7 +207,7 @@ protected:
     visBase::MarkerSet*		createMarkerSet() const;
     void			updateBaseMapCursor(const Coord&);
     static const Color&		cDefaultMarkerColor();
-    
+
     RefMan<visBase::Transformation>	tempzstretchtrans_;
 
     RefMan<visBase::Transformation>	inlcrlrotation_;
@@ -230,7 +230,7 @@ protected:
     visBase::TopBotImage*	botimg_;
     int				getImageFromPar(const IOPar&,const char*,
 					        visBase::TopBotImage*&);
-    
+
     Coord3			xytmousepos_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
@@ -252,6 +252,7 @@ protected:
     static const char*		sKeyShowScale();
     static const char*		sKeyShowGrid();
     static const char*		sKeyAnnotFont();
+    static const char*		sKeyAnnotColor();
     static const char*		sKeyShowCube();
     static const char*		sKeyZAxisTransform();
     static const char*		sKeyAppAllowShading();

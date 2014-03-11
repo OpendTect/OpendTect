@@ -70,6 +70,7 @@ public:
     void		saveHomePos();
     void		showRotAxis(bool);
     void		setAxisAnnotColor(const Color&);
+    Color		getAxisAnnotColor() const;
     bool		rotAxisShown() const;
     void		toggleCameraType();
     bool		isCameraPerspective() const;
@@ -99,14 +100,15 @@ public:
 
 private:
 
-    static const char* sKeySceneID()    { return "Scene ID"; }
+    static const char* sKeySceneID()	{ return "Scene ID"; }
     static const char* sKeyAnimate()	{ return "Animate"; }
-    static const char* sKeyBGColor()    { return "Background color"; }
-    static const char* sKeyStereo()     { return "Stereo viewing"; }
-    static const char* sKeyQuadBuf()    { return "Quad buffer"; }
-    static const char* sKeyStereoOff()  { return "Stereo offset"; }
-    static const char* sKeyPrintDlg()   { return "Print dlg"; }
-    static const char* sKeyPersCamera() { return "Perspective camera"; }
+    static const char* sKeyBGColor()	{ return "Background color"; }
+    static const char* sKeyAnnotColor() { return "Annotation color"; }
+    static const char* sKeyStereo()	{ return "Stereo viewing"; }
+    static const char* sKeyQuadBuf()	{ return "Quad buffer"; }
+    static const char* sKeyStereoOff()	{ return "Stereo offset"; }
+    static const char* sKeyPrintDlg()	{ return "Print dlg"; }
+    static const char* sKeyPersCamera()	{ return "Perspective camera"; }
 
     ui3DViewerBody*	osgbody_;
 

@@ -38,14 +38,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mCreateFactoryEntry( visSurvey::Scene );
 
-
 namespace visSurvey {
-
 
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
 const char* Scene::sKeyAnnotFont()	{ return "Annotation font"; }
+const char* Scene::sKeyAnnotColor()	{ return "Annotation color"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
@@ -88,7 +87,7 @@ Scene::Scene()
     setAmbientLight( 1 );
     setup();
 
-    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING") )
 	userwantsshading_ = false;
 
     if ( userwantsshading_ )
@@ -106,18 +105,27 @@ void Scene::updateAnnotationText()
 	return;
 
     if ( SI().inlRange(true).width() )
-    	annot_->setText( 0, "In-line" );
+	annot_->setText( 0, "In-line" );
 
     if ( SI().crlRange(true).width() )
-    	annot_->setText( 1, "Cross-line" );
+	annot_->setText( 1, "Cross-line" );
 
     if ( SI().zRange(true).width() )
-    	annot_->setText( 2, zDomainUserName() );
+	annot_->setText( 2, zDomainUserName() );
 
     annot_->setAnnotScale( 2,
 	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
 }
 
+
+#define mGetFontFromPar( par ) \
+BufferString font; \
+if ( par.get( sKeyAnnotFont(), font ) ) \
+{ \
+    FontData fd; \
+    if ( fd.getFrom( font.buf() ) ) \
+	setAnnotFont( fd ); \
+}
 
 void Scene::setup()
 {
@@ -127,7 +135,7 @@ void Scene::setup()
 
     if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
         SI().pars().get( "Z Scale", curzstretch_ );
-    
+
     updateTransforms( cs );
 
     setCubeSampling( cs );
@@ -150,21 +158,15 @@ void Scene::setup()
     Settings::common().getYN( BufferString(sKeydTectScene(),str), doshow ); \
     func( doshow );
 
-#define mGetFontFromPar( par ) \
-BufferString font; \
-if ( par.get( sKeyAnnotFont(), font ) ) \
-{ \
-    FontData fd; \
-    if ( fd.getFrom( font.buf() ) ) \
-	setAnnotFont( fd ); \
-}
-
-
     mShowAnnot( sKeyShowAnnot(), showAnnotText );
     mShowAnnot( sKeyShowScale(), showAnnotScale );
     mShowAnnot( sKeyShowGrid(), showAnnotGrid );
 
-    mGetFontFromPar( Settings::common() )
+    mGetFontFromPar( Settings::common() );
+
+    Color anncol;
+    if ( Settings::common().get(sKeyAnnotColor(),anncol) )
+	setAnnotColor( anncol );
 }
 
 
@@ -239,7 +241,7 @@ void Scene::updateTransforms( const CubeSampling& cs )
 	for ( int idx=0; idx<oldinlcrlrotation->size(); idx++ )
 	{
 	    RefMan<visBase::DataObject> dobj =
-	    	oldinlcrlrotation->getObject(idx);
+		oldinlcrlrotation->getObject(idx);
 	    inlcrlrotation_->addObject( dobj );
 	    dobj->setDisplayTransformation( inlcrlscale_ );
 	}
@@ -442,8 +444,8 @@ float Scene::getFixedZStretch() const
 float Scene::getTempZStretch() const
 {
     return tempzstretchtrans_
-    	? mCast(float,tempzstretchtrans_->getScale().z)
-    	: 1.f;
+	? mCast(float,tempzstretchtrans_->getScale().z)
+	: 1.f;
 }
 
 
@@ -539,10 +541,10 @@ bool Scene::isAnnotShown() const
 
 void Scene::setAnnotText( int dim, const char* txt )
 {
-    if ( (dim==0 && SI().inlRange(true).width()) || 
+    if ( (dim==0 && SI().inlRange(true).width()) ||
 	 (dim==1 && SI().crlRange(true).width()) ||
 	 (dim==2 && SI().zRange(true).width()) )
-    	annot_->setText( dim, txt );
+	annot_->setText( dim, txt );
 }
 
 
@@ -568,6 +570,9 @@ void Scene::setAnnotColor( const Color& col )
 	if ( so )
 	    so->setAnnotColor( col );
     }
+
+    if ( scenecoltab_ )
+	scenecoltab_->setLegendColor( col );
 }
 
 
@@ -591,7 +596,7 @@ const Selector<Coord3>* Scene::getSelector() const
 Coord3 Scene::getMousePos( bool xyt ) const
 {
    if ( xyt ) return xytmousepos_;
-   
+
    Coord3 res = xytmousepos_;
    BinID binid = SI().transform( Coord(res.x,res.y) );
    res.x = binid.inl();
@@ -634,7 +639,7 @@ void Scene::objectMoved( CallBacker* cb )
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	
+
 	if ( so ) so->otherObjectsMoved( activeobjects, movedid );
     }
 }
@@ -668,7 +673,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		    BufferString newmouseposval;
 		    BufferString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
-			    		 newmouseposval, newstr );
+					 newmouseposval, newstr );
 		    so->getMousePosInfo( eventinfo, infopar_ );
 		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
@@ -693,7 +698,7 @@ void Scene::setBaseMap( BaseMap* bm )
     {
 	basemap_->removeObject( basemapcursor_ );
 	delete basemapcursor_;
-	basemapcursor_ = 0; 
+	basemapcursor_ = 0;
     }
 
     basemap_ = bm;
@@ -772,11 +777,8 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 	infopar_.get( sKey::LineKey(), linenm );
 	infopar_.get( sKey::TraceNr(), trcnr );
 	if ( !linenm.isEmpty() && trcnr>=0 )
-	{
-	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
-	    displaypos.z = datatransform_->transform(
-		    BinIDValue(bid,(float) coord.z) );
-	}
+	    displaypos.z = datatransform_->transform2D( linenm, trcnr,
+							(float)coord.z );
 	else
 	    displaypos.z = datatransform_->transform( coord );
     }
@@ -798,6 +800,7 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     markerset_->clearMarkers();
     markerset_->addPos( displaypos );
     markerset_->turnMarkerOn( 0, true );
+    markerset_->forceRedraw( true );
 }
 
 
@@ -819,7 +822,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
 	return;
 
     Threads::Locker lckr( basemapcursor_->lock_,
-	    		  Threads::Locker::DontWaitForLock );
+			  Threads::Locker::DontWaitForLock );
 
     if ( lckr.isLocked() )
     {
@@ -890,7 +893,7 @@ const Color& Scene::getMarkerColor() const
     if ( !markerset_ )
 	return cDefaultMarkerColor();
 
-    mDefineStaticLocalObject( const Color, singlecolor, 
+    mDefineStaticLocalObject( const Color, singlecolor,
 			      = markerset_->getMarkersSingleColor() );
     return singlecolor;
 }
@@ -916,6 +919,7 @@ void Scene::fillPar( IOPar& par ) const
     BufferString font;
     getAnnotFont().putTo( font );
     par.set( sKeyAnnotFont(), font );
+    par.set( sKeyAnnotColor(), getAnnotColor() );
 
     if ( datatransform_ )
     {
@@ -940,7 +944,7 @@ void Scene::fillPar( IOPar& par ) const
     {
 	BufferString childkey( childfix(), nrchilds );
 	mDynamicCastGet(const visSurvey::SurveyObject*,survobj, getObject(idx));
-	
+
 	if ( !survobj || survobj->getSaveInSessionsFlag() == false )
 	    continue;
 
@@ -980,7 +984,7 @@ bool Scene::usePar( const IOPar& par )
     removeAll();
     setup();
 
-    ZDomain::Info zdomaininfo( ZDomain::SI() ); 
+    ZDomain::Info zdomaininfo( ZDomain::SI() );
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
@@ -1022,7 +1026,7 @@ bool Scene::usePar( const IOPar& par )
 	{
 	    childids += sessionobjid;
 	}
-    }    
+    }
 
     sort( childids );
 
@@ -1030,7 +1034,7 @@ bool Scene::usePar( const IOPar& par )
     {
 	BufferString key( childfix(), chld );
 	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
-	
+
 	BufferString surobjtype;
 	if ( !chldpar->get( sKey::Type(), surobjtype ) )
 	    continue;
@@ -1041,14 +1045,14 @@ bool Scene::usePar( const IOPar& par )
 		continue;
 	}
 
-	visSurvey::SurveyObject* survobj = 
+	visSurvey::SurveyObject* survobj =
 	    SurveyObject::factory().create( surobjtype );
 
 	if ( !survobj )
 	    continue;
 
 	survobj->doRef();
-	
+
 	RefMan<visBase::VisualObject> dobj = 0;
 	mDynamicCast( visBase::VisualObject*, dobj, survobj );
 	if ( !dobj )
@@ -1076,6 +1080,9 @@ bool Scene::usePar( const IOPar& par )
     showAnnotText( txtshown );
 
     mGetFontFromPar( par );
+    Color annotcolor;
+    if ( par.get(sKeyAnnotColor(),annotcolor) )
+	setAnnotColor( annotcolor );
 
     bool scaleshown = true;
     par.getYN( sKeyShowScale(), scaleshown );
@@ -1108,13 +1115,13 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
 {
     int imgid;
     if ( par.get(key,imgid) )
-    { 
+    {
         RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
         if ( !dataobj ) return 0;
         mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
         if ( !im ) return -1;
 	int objidx = getFirstIdx( image );
-	if ( objidx>=0 ) removeObject( objidx ); 	
+	if ( objidx>=0 ) removeObject( objidx );
 	image = im;
     }
 
@@ -1149,7 +1156,7 @@ void Scene::setSceneColTab( visBase::SceneColTab* sct )
 	scenecoltab_->turnOn( ctshownusepar_ );
 	usepar_ = false;
     }
-    
+
 }
 
 
@@ -1165,6 +1172,7 @@ void Scene::savePropertySettings()
     BufferString font;
     getAnnotFont().putTo( font );
     Settings::common().set( sKeyAnnotFont(), font );
+    Settings::common().set( sKeyAnnotColor(), getAnnotColor() );
     Settings::common().write();
 }
 
