@@ -288,7 +288,7 @@ void uiDataPointSet::mkToolBars()
     {
 	if ( !iotb_ )
 	    iotb_ = new uiToolBar( this, "I/O Tool bar" );
-	mAddButton( "saveset.png", save, "Save data" );
+	mAddButton( "saveset", save, "Save data" );
 	if ( setup_.allowretrieve_ )
 	    mAddButton( "openset", retrieve, "Retrieve stored data" );
     }
