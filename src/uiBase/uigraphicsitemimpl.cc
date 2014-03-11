@@ -540,10 +540,15 @@ ODViewerTextItem* uiTextItem::mkODObj()
 }
 
 
+#define mExtraSpace 10
+
 uiSize uiTextItem::getTextSize() const
 {
-    const QRectF rect( qtextitem_->boundingRect() );
-    return uiSize( (int)(rect.width()+.5), (int)(rect.height()+.5) );
+    QFontMetrics qfm( qtextitem_->getFont() );
+    // Extra space is added to avoid clipping on some platforms and the value is
+    // arbitrarily chosen.
+    return uiSize( qfm.width(text_.getOriginalString())+mExtraSpace,
+		   qfm.height()+mExtraSpace );
 }
 
 

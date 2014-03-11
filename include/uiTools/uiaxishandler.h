@@ -70,6 +70,7 @@ public:
 			    , islog_(false)
 			    , zval_(4)
 			    , nmcolor_(Color::NoColor())
+			    , fontdata_(FontData(10))
 			    {}
 
 	mDefSetupMemb(uiRect::Side,side)

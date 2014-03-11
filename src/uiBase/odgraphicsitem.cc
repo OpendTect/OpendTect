@@ -17,8 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifont.h"
 #include "uimain.h"
 
-#include <math.h>
-
 #include <QColor>
 #include <QPainter>
 #include <QPen>
@@ -369,19 +367,15 @@ QPointF ODViewerTextItem::getAlignment() const
 
 QRectF ODViewerTextItem::boundingRect() const
 {
-    const QPointF alignment = getAlignment();
-
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( text_ );
     const float txtheight = qfm.height();
 
-    const float movex = alignment.x() * txtwidth;
-    const float movey = alignment.y() * txtheight;
-
     const QPointF paintpos = mapToScene( QPointF(0,0) );
-    const QRectF scenerect( paintpos.x()+movex-5, paintpos.y()+movey-5,
-			    txtwidth+10, txtheight+10 );//Extra space is added
-    //to avoid clipping on some platforms & the number 5 is arbitrarily chosen.
+    const float radius = mMAX(txtwidth,txtheight);
+    const QRectF scenerect( paintpos.x()-2*radius, paintpos.y()-2*radius,
+			    4*radius, 4*radius ); // Largest rectangle is chosen
+    // to avoid clipping when the text is aligned in a different direction.
     return mapRectFromScene( scenerect );
 }
 
@@ -394,8 +388,8 @@ void ODViewerTextItem::paint( QPainter* painter,
 	painter->setClipRect( option->exposedRect );
 
     QPointF paintpos( 0, 0 );
-
     paintpos = painter->worldTransform().map( paintpos );
+    const double paintangle = Math::ASin(painter->worldTransform().m12());
 
     painter->save();
     painter->resetTransform();
@@ -406,8 +400,8 @@ void ODViewerTextItem::paint( QPainter* painter,
     const float txtwidth = qfm.width( text_ );
     const float txtheight = qfm.height();
 
-    const float movex = alignment.x() * txtwidth;
-    const float movey = alignment.y() * txtheight;
+    const float movex = alignment.x() * (txtwidth * cos(paintangle));
+    const float movey = alignment.y() * (txtheight + txtwidth*sin(paintangle));
 
     painter->setPen( pen() );
     painter->setFont( font_ );
@@ -415,8 +409,10 @@ void ODViewerTextItem::paint( QPainter* painter,
     //Nice for debugging
     //painter->drawPoint( paintpos.x(), paintpos.y() );
 
-    painter->drawText(
-	    QPointF(paintpos.x() + movex, paintpos.y()+movey+txtheight), text_);
+    painter->translate( QPointF(paintpos.x()+movex,
+				paintpos.y()+movey+txtheight) );
+    painter->rotate( Math::toDegrees(paintangle) );
+    painter->drawText( QPointF(0,0), text_ );
 
     painter->restore();
 
