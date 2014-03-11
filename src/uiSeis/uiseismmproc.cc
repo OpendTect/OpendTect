@@ -427,6 +427,8 @@ static int getSecs( const char* txt )
 void uiSeisMMProc::doCycle( CallBacker* )
 {
     nrcyclesdone++;
+    if ( !jobrunner )
+	return;
 
     if ( jobrunner->nextStep() == Executor::ErrorOccurred() )
     {
