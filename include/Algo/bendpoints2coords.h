@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id$
+ RCS:		$Id: bendpoints2coords.h 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "coord.h"
 #include "typeset.h"
-#include <iosfwd>
+#include <od_iosfwd.h>
 
 
 /*!
@@ -34,14 +34,14 @@ public:
 
     			BendPoints2Coords(const TypeSet<Coord>&,
 					  const int* ids=0);
-    			BendPoints2Coords(std::istream&); //!< 'table' file
+			BendPoints2Coords(od_istream&); //!< 'table' file
 
     const TypeSet<Coord>& getCoords() const	{ return coords_; }
     const TypeSet<int>&	getIDs() const		{ return nrs_; }
 
     Coord		coordAt(float) const;
 
-    void		readFrom(std::istream&);
+    void		readFrom(od_istream&);
 
 protected:
 

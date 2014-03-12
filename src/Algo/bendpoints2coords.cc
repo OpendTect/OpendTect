@@ -3,11 +3,11 @@
  * AUTHOR   : Bert
  * DATE     : Dec 2009
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: bendpoints2coords.cc 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $";
 
 #include "bendpoints2coords.h"
 #include "sorting.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 BendPoints2Coords::BendPoints2Coords( const TypeSet<Coord>& crds,
@@ -17,21 +17,25 @@ BendPoints2Coords::BendPoints2Coords( const TypeSet<Coord>& crds,
 }
 
 
-BendPoints2Coords::BendPoints2Coords( std::istream& strm )
+BendPoints2Coords::BendPoints2Coords( od_istream& strm )
 {
     readFrom( strm );
 }
 
 
-void BendPoints2Coords::readFrom( std::istream& strm )
+void BendPoints2Coords::readFrom( od_istream& strm )
 {
-    TypeSet<Coord> crds; TypeSet<int> nrs;
+    TypeSet<Coord> crds;
+    TypeSet<int> nrs;
+
     Coord crd; int nr;
-    while ( strm.good() )
+
+    while ( strm.isOK() )
     {
 	strm >> nr >> crd.x >> crd.y;
-	if ( !strm.good() || (mIsZero(crd.x,1e-4) && mIsZero(crd.y,1e-4)) )
+	if ( !strm.isOK() )
 	    break;
+
 	nrs += nr;
 	crds += crd;
     }

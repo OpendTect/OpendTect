@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: segytr.cc 32653 2013-12-04 23:20:42Z bert.bril@dgbes.com $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainterp.h"
 #include "conn.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "timefun.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -25,8 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "zdomain.h"
-#include "strmprov.h"
-#include "strmoper.h"
 #include "filepath.h"
 #include "od_iostream.h"
 #include "bendpoints2coords.h"
@@ -363,11 +360,12 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 		fp.setExtension( coordfnm.buf()+4 );
 		coordfnm = fp.fullPath();
 	    }
-	    StreamData sd = StreamProvider(coordfnm).makeIStream();
-	    if ( !sd.usable() )
+
+	    od_istream stream( coordfnm );
+	    if ( !stream.isOK() )
 		{ errmsg = "Cannot open coordinate file"; return; }
-	    bp2c_ = new BendPoints2Coords( *sd.istrm );
-	    sd.close();
+	    bp2c_ = new BendPoints2Coords( stream );
+	    stream.close();
 	    if ( bp2c_->getIDs().size() < 2 )
 		{ errmsg = "Cannot read coordinate file"; return; }
 	}
