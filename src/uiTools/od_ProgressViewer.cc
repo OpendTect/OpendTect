@@ -104,7 +104,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     OD::memSet( str, ' ', nrchars );
     str[nrchars] = '\0';
 
-    int deswidth = fnt.width( str.ptr() );
+    int deswidth = fnt.width( (const char*) str );
     const int desktopwidth = uiMain::theMain().desktopSize().hNrPics();
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
