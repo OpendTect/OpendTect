@@ -404,6 +404,13 @@ void FlatView::Appearance::setDarkBG( bool yn )
 }
 
 
+void FlatView::Appearance::setGeoDefaults( bool isvert )
+{
+    annot_.x2_.reversed_ = isvert;
+    ddpars_.wva_.allowuserchange_ = isvert;
+}
+
+
 class FlatView_CB_Rcvr : public CallBacker
 {
 public:

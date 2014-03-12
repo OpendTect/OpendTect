@@ -282,8 +282,7 @@ public:
     void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
 
-    void		setGeoDefaults( bool vert )
-			{ if ( vert ) annot_.x2_.reversed_ = true; }
+    void		setGeoDefaults(bool isvert);
 
 protected:
 
