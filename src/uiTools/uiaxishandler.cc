@@ -657,21 +657,20 @@ void uiAxisHandler::updateName()
 	nameitm_->setText( name() );
 
     Alignment al( Alignment::HCenter, Alignment::VCenter );
-    float namepos = mCast( float, pixToEdge() - ticSz() - calcwdth_ );
     uiPoint pt;
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	pt.x = pixBefore() + axsz_ / 2;
-	pt.y = (int) (istop ? namepos : height_ - namepos);
+	const int namepos = pixToEdge() - ticSz() - calcwdth_;
+	pt.x = pixBefore() + axsz_/2;
+	pt.y = istop ? namepos : height_-namepos;
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	namepos += FontList().get().height()/2; //shift due to rotation
-	pt.x = isleft ? mCast(int,namepos) : width_-pixAfter();
-	pt.y = height_/2;
+	pt.x = isleft ? pixAfter() : width_-pixAfter();
+	pt.y = height_/2 - pixAfter();
 	al.set( Alignment::HCenter );
 
 	if ( !ynmtxtvertical_ )
