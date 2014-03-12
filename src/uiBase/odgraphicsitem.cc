@@ -373,8 +373,8 @@ QRectF ODViewerTextItem::boundingRect() const
 
     const QPointF paintpos = mapToScene( QPointF(0,0) );
     const float radius = mMAX(txtwidth,txtheight);
-    const QRectF scenerect( paintpos.x()-2*radius, paintpos.y()-2*radius,
-			    4*radius, 4*radius ); // Largest rectangle is chosen
+    const QRectF scenerect( paintpos.x()-radius, paintpos.y()-radius,
+			    2*radius, 2*radius ); // Largest rectangle is chosen
     // to avoid clipping when the text is aligned in a different direction.
     return mapRectFromScene( scenerect );
 }
