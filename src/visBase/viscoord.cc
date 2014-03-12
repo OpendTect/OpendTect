@@ -74,6 +74,7 @@ bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
 Coordinates::Coordinates()
     : transformation_( 0 )
     , osgcoords_( new osg::Vec3Array )
+    , change( this )
 {
     mGetOsgVec3Arr(osgcoords_)->ref();
 }
@@ -120,6 +121,8 @@ void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 	transformation_->ref();
 
     setPositions(worldpos);
+
+    change.trigger();
 }
 
 
@@ -141,6 +144,9 @@ void Coordinates::setEmpty()
 
     unusedcoords_.erase();
     mGetOsgVec3Arr(osgcoords_)->clear();
+
+    change.trigger();
+
 }
 
 
@@ -181,7 +187,9 @@ int Coordinates::addPos( const Coord3& pos )
     }
 
     mGetOsgVec3Arr(osgcoords_)->push_back( Conv::to<osg::Vec3>(postoset) );
-    return mGetOsgVec3Arr(osgcoords_)->size()-1;
+    change.trigger();
+
+    return  mGetOsgVec3Arr(osgcoords_)->size()-1;
 }
 
 
@@ -237,6 +245,7 @@ void Coordinates::setPos( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
     setPosWithoutLock(idx,pos,false);
+    change.trigger();
 }
 
 
@@ -262,6 +271,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
     const int unusedidx = unusedcoords_.indexOf(idx);
     if ( unusedidx!=-1 )
 	unusedcoords_.removeSingle( unusedidx );
+
 }
 
 
@@ -298,6 +308,8 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 	    }
 	}
     }
+
+    change.trigger();
 }
 
 
@@ -316,6 +328,9 @@ void Coordinates::removeAfter( int idx )
     }
 
     dirty();
+
+    change.trigger();
+
 }
 
 
@@ -346,6 +361,9 @@ void Coordinates::setAllZ( const float* vals, int sz, float zscale )
     }
 
     dirty();
+
+    change.trigger();
+
 }
 
 
@@ -363,6 +381,7 @@ void Coordinates::setPositions( const TypeSet<Coord3>& pos)
     SetOrGetCoordinates SetOrGetCoordinates( this, pos.size(), &pos, 0 );
     TaskRunner tr;
     TaskRunner::execute( &tr,SetOrGetCoordinates );
+    change.trigger();
 }
 
 
@@ -382,6 +401,9 @@ void Coordinates::setAllPositions( const Coord3 pos, int sz, int start )
 
     for ( int idx=0; idx<sz; idx++ )
 	setPosWithoutLock(idx+start, pos, false );
+
+    change.trigger();
+
 }
 
 

@@ -79,6 +79,7 @@ mExpClass(visBase) VertexShape : public Shape
     class NodeCallbackHandler;
 
 public:
+    
     static VertexShape*	create()
 			mCreateDataObj(VertexShape);
 
@@ -115,6 +116,9 @@ public:
     Geometry::PrimitiveSet*	getPrimitiveSet(int);
     void		setMaterial( Material* mt );
     void		materialChangeCB( CallBacker*  );
+    void		coordinatesChangedCB( CallBacker* );
+    void		enableCoordinatesChangedCB(bool yn)
+			{ usecoordinateschangedcb_ = yn; }
     void		useOsgAutoNormalComputation(bool);
 
     enum		BindType{ BIND_OFF = 0,BIND_OVERALL,
@@ -157,6 +161,7 @@ protected:
     osg::Geometry*	osggeom_;
 
     bool		useosgsmoothnormal_;
+    bool		usecoordinateschangedcb_;
 
     BindType		colorbindtype_;
     BindType		normalbindtype_;

@@ -294,17 +294,23 @@ VertexShape::VertexShape()
     : mVertexShapeConstructor( new osg::Geode )
     , colorbindtype_( BIND_OFF )
     , normalbindtype_( BIND_PER_VERTEX )
+    , usecoordinateschangedcb_( true )
 {
     setupOsgNode();
+    if ( coords_ )
+	 mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 }
     
 
 VertexShape::VertexShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp,
 			  bool creategeode )
     : mVertexShapeConstructor( creategeode ? new osg::Geode : 0 )
+    , usecoordinateschangedcb_( true )
 {
     setupOsgNode();
     setPrimitiveType( tp );
+    if ( coords_ )
+	mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 }
 
 
@@ -370,6 +376,7 @@ void VertexShape::setCoordinates( Coordinates* coords )
 
     if ( coords_ )
     {
+	 mDetachCB( coords_->change, VertexShape::coordinatesChangedCB );
 	 if ( osggeom_ ) osggeom_->setVertexArray(0);
 	 unRefAndZeroPtr( coords_ );
     }
@@ -378,8 +385,9 @@ void VertexShape::setCoordinates( Coordinates* coords )
     if ( coords_ )
     {
 	coords_->ref();
+	mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 	if ( osggeom_ )
-	    osggeom_->setVertexArray(mGetOsgVec3Arr( coords_->osgArray()));
+	    osggeom_->setVertexArray( mGetOsgVec3Arr( coords_->osgArray() ) );
     }
 
 }
@@ -494,6 +502,16 @@ void VertexShape::materialChangeCB( CallBacker* )
 	ss->removeAttribute( osg::StateAttribute::BLENDFUNC );
 	ss->setRenderingHint( osg::StateSet::OPAQUE_BIN );
     }
+}
+
+
+void VertexShape::coordinatesChangedCB( CallBacker* )
+{
+    if ( !usecoordinateschangedcb_ )
+	return;
+
+    if ( osggeom_ && primitivesets_.size() && coords_->size() )
+	dirtyCoordinates();
 }
 
 

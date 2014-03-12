@@ -49,6 +49,7 @@ mExpClass(visBase) Coordinates : public DataObject
 {
 public:
 
+    Notifier<Coordinates>change;
     static Coordinates*	create()
 			mCreateDataObj(Coordinates);
     friend		class CoordinatesBuilder;
