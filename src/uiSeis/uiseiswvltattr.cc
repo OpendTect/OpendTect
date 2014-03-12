@@ -123,7 +123,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     bool istime = SI().zIsTime();
     s.datasz_ = istime ? (int) ( 0.5/SI().zStep() ) : 100;
     s.xaxnm_ = istime ? "Time (s)" : "Depth (m)";
-    s.yaxnm_ = "Taper Apmplitude";
+    s.yaxnm_ = "Taper Amplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
