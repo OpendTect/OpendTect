@@ -110,6 +110,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     polyline_->ref();
     addChild( polyline_->osgNode() );
     polyline_->setMaterial( new visBase::Material );
+    polyline_->setLineStyle( LineStyle(LineStyle::Solid,1) );
 
     markerset_->ref();
     addChild( markerset_->osgNode() );
@@ -169,6 +170,8 @@ RandomTrackDisplay::~RandomTrackDisplay()
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
 {
     panelstrip_->setDisplayTransformation( t );
+    polyline_->setDisplayTransformation( t );
+    markerset_->setDisplayTransformation( t );
     // dragger_->setDisplayTransformation( t );
 }
 
@@ -1215,22 +1218,32 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
     if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick && 
 			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
     {  
-	Coord3 pos = eventinfo.worldpickedpos;
+	const Coord3 pos = eventinfo.worldpickedpos;
+	Coord3 inlcrlpos(pos);
+	BinID bid = SI().transform( inlcrlpos );
+	inlcrlpos.x = bid.inl(); inlcrlpos.y = bid.crl();
 
 	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 		    !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 		    !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	{
-	    removePickPos( pos );
+
+	    if ( !eventinfo.pickedobjids.isPresent(markerset_->id()) )
+		return;
+
+	    const mVisTrans* transform = markerset_->getDisplayTransformation();
+
+	    if ( transform )
+		transform->transform( inlcrlpos );
+
+	    removePickPos( inlcrlpos );
 	    eventcatcher_->setHandled();
 	    return;
 	}
 
 	if ( !checkValidPick( eventinfo, pos ) )
 	    return;
-	BinID bid = SI().transform( pos );
-	pos.x = bid.inl(); pos.y = bid.crl();
-	setPickPos( pos );
+	setPickPos( inlcrlpos );
 	eventcatcher_->setHandled();
     }
 } 
@@ -1289,10 +1302,7 @@ void RandomTrackDisplay::setPickPos( const Coord3& pos )
 
 void RandomTrackDisplay::removePickPos( const Coord3& pickpos )
 {
-    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
-    const double epsz = 0.01f * get3DSurvGeom()->zStep();
-    const Coord3 eps( epsxy,epsxy,epsz );
-    const int markeridx = markerset_->findMarker( pickpos,eps );
+    const int markeridx = markerset_->findClosestMarker( pickpos, true );
     if ( markeridx == -1 )
 	return;
     polyline_->removePoint( markeridx );
