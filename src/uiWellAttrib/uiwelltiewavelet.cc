@@ -137,9 +137,6 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 
 uiWavelet::~uiWavelet()
 {
-    const TypeSet<DataPack::ID> ids = viewer_->availablePacks();
-    for ( int idx=ids.size()-1; idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( ids[idx] );
 }
 
 

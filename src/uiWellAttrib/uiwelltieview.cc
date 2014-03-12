@@ -64,7 +64,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 uiTieView::~uiTieView()
 {
     delete wellcontrol_;
-    vwr_->clearAllPacks();
     delete &trcbuf_;
     deepErase( logsdisp_ );
 }
