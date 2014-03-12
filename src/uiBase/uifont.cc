@@ -134,9 +134,9 @@ int uiFont::avgWidth() const
 }
 
 
-int uiFont::width(const char* str) const
+int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.width( QString( str ));
+    return qfontmetrics_.width( str.getQtString() );
 }
 
 

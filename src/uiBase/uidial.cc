@@ -199,7 +199,8 @@ void uiDialExtra::init( const uiDialExtra::Setup& setup, const char* nm )
     if ( setup.withedit_ )
     {
 	dial_->valueChanged.notify( mCB(this,uiDialExtra,sliderMove) );
-	editfld_ = new uiLineEdit( this, BufferString(setup.lbl_," value") );
+	editfld_ = new uiLineEdit( this,
+			BufferString(setup.lbl_.getFullString()," value") );
 	editfld_->setHSzPol( uiObject::Small );
 	editfld_->returnPressed.notify( mCB(this,uiDialExtra,editRetPress) );
 	sliderMove(0);

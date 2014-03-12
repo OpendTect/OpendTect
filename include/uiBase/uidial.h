@@ -75,7 +75,7 @@ public:
     mExpClass(uiBase) Setup
     {
 	public:
-			Setup(const char* l=0)
+			Setup(const uiString& l)
 			    : lbl_(l)
 			    , withedit_(false)
 			    , isvertical_(false)
@@ -85,13 +85,13 @@ public:
 		mDefSetupMemb(bool,withedit)
 		mDefSetupMemb(bool,isvertical)
 		mDefSetupMemb(int,dialsize)
-		mDefSetupMemb(BufferString,lbl)
+		mDefSetupMemb(uiString,lbl)
     };
 
 			uiDialExtra(uiParent*,const Setup&, const char* nm);
 
     uiDial*		dial()		{ return dial_; }
-    uiLabel*		label()	{ return lbl_; }
+    uiLabel*		label() 	{ return lbl_; }
 
     void                processInput();
     float               editValue() const;

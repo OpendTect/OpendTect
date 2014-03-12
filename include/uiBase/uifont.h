@@ -19,6 +19,7 @@ mFDQtclass(QFontMetrics)
 class Settings;
 class uiParent;
 class BufferStringSet;
+class uiString;
 
 mExpClass(uiBase) uiFont : public CallBacker
 {			//!< font stuff that needs Qt.
@@ -53,7 +54,7 @@ public:
     int			leading() const; 
     int 		maxWidth() const;
     int 		avgWidth() const;
-    int 		width(const char* str) const;
+    int 		width(const uiString&) const;
     int			ascent() const; 
     int			descent() const; 
 
