@@ -146,6 +146,49 @@ bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 }
 
 
+bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
+		TypeSet<float>& offs, TypeSet<int>& comps, BufferString& emsg )
+{
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mRetStrmErrMsg(emsg,"Cannot open file","for read")
+
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType(sKeyFileType) )
+    {
+	emsg.set( "File:\n" ).add( fnm ).add( "\nis not of type" )
+	    .add( sKeyFileType );
+	return false;
+    }
+
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	const MultiID ky( astrm.keyWord() );
+	const FileMultiString fms( astrm.value() );
+	if ( ky.isEmpty() || fms.size() < 1 )
+	    continue;
+	PtrMan<IOObj> ioobj = IOM().get( ky );
+	if ( !ioobj || ioobj->isBad() )
+	    continue;
+
+	const float offset = fms.getFValue( 0 );
+	const int icomp = fms.getIValue( 1 );
+	if ( mIsUdf(offset) || offset < 0 || icomp < 0 )
+	    continue;
+
+	keys += new MultiID( ky );
+	offs += offset; comps += icomp;
+    }
+
+    if ( offs.isEmpty() )
+    {
+	emsg.set( "File:\n" ).add( fnm ).add( "contains no valid data" );
+	return false;
+    }
+    return true;
+}
+
+
 bool MultiCubeSeisPSReader::writeData( const char* fnm,
 	const ObjectSet<MultiID>& keys, const TypeSet<float>& offs,
 	const TypeSet<int>& comps, BufferString& emsg )

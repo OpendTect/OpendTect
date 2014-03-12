@@ -47,7 +47,8 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 			     mCB(this,uiSeisPreStackMan,copyPush) );
 	manipgrp->addButton( "mergeseis", "Merge data stores",
 			     mCB(this,uiSeisPreStackMan,mergePush) );
-	manipgrp->addButton( "mkmulticubeps","Create Multi-Cube data store",
+	manipgrp->addButton( "mkmulticubeps",
+			     "Create/Edit Multi-Cube data store",
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
     }
 
@@ -151,8 +152,14 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
 void uiSeisPreStackMan::mkMultiPush( CallBacker* )
 {
-    const MultiID key( curioobj_ ? curioobj_->key() : MultiID("") );
-    uiSeisMultiCubePS dlg( this );
+    MultiID key; const char* toedit = 0;
+    if ( curioobj_ )
+    {
+	key = curioobj_->key();
+	if ( curioobj_->translator() == "MultiCube" )
+	    toedit = key.buf();
+    }
+    uiSeisMultiCubePS dlg( this, toedit );
     dlg.go();
     selgrp_->fullUpdate( key );
 }

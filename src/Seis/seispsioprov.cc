@@ -150,15 +150,30 @@ mDefSimpleTranslatorSelector(SeisPS2D,sKeySeisPS2DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisPS2D,Seis)
 
 
+bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( ioobj )
+    {
+	const FixedString res = ioobj->pars().find(
+					SeisPSIOProvider::sKeyCubeID );
+	if ( !res.isEmpty() )
+	    IOM().permRemove( MultiID(res) );
+    }
+    return true;
+}
+
+
 bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return false;
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    if ( !ioobj )
+	return true;
+
+    SeisPS3DTranslator::implRemove( ioobj );
+
+    const BufferString fnm( ioobj->fullUserExpr(true) );
     if ( File::exists(fnm) )
 	File::remove( fnm );
-    const char* res = ioobj->pars().find( SeisPSIOProvider::sKeyCubeID );
-    if ( res )
-	IOM().permRemove( MultiID(res) );
+
     return !File::exists(fnm);
 }
 

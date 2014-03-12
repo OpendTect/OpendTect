@@ -44,6 +44,9 @@ public:
     bool		getFrom(const char* fnm);
     bool		putTo(const char* fnm) const;
 
+    static bool		readData(const char* fnm,ObjectSet<MultiID>&,
+	    			  TypeSet<float>&,TypeSet<int>&,
+				  BufferString& emsg);
     static bool		writeData(const char* fnm,const ObjectSet<MultiID>&,
 	    			  const TypeSet<float>&,const TypeSet<int>&,
 				  BufferString& emsg);

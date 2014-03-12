@@ -28,7 +28,7 @@ mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
 {
 
 public:
-                        uiSeisMultiCubePS(uiParent*);
+                        uiSeisMultiCubePS(uiParent*,const char* ky=0);
                         ~uiSeisMultiCubePS();
 
     const IOObj*	createdIOObj() const;
@@ -53,6 +53,7 @@ protected:
     void		fullUpdate();
     void		setCompFld(const uiSeisMultiCubePSEntry&);
 
+    void		setInitial(CallBacker*);
     void		inputChg(CallBacker*);
     void		selChg(CallBacker*);
     void		addCube(CallBacker*);

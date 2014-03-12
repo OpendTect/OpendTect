@@ -45,8 +45,10 @@ public:
 };
 
 
-uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Create MultiCube Prestack data store",
+uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
+	: uiDialog(p,uiDialog::Setup(
+		   ky && *ky ? "Edit/Create MultiCube Prestack data store"
+			     : "Create MultiCube Prestack data store",
 		   mNoDlgTitle,"103.1.7"))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
@@ -54,11 +56,15 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 {
     ctio_.ctxt.forread = false;
     ctio_.ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
+    if ( ky && *ky )
+	ctio_.setObj( MultiID(ky) );
+    else
+	ctio_.setObj( 0 );
 
     fillEntries();
     if ( entries_.isEmpty() )
     {
-	new uiLabel( this, "No cubes found.\n\nPlease import data first." );
+	new uiLabel( this, "No cubes found.\n\nPlease import 3D seismic data.");
 	return;
     }
 
@@ -106,6 +112,9 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     outfld_ = new uiIOObjSel( this, ctio_, "Output data store" );
     outfld_->attach( alignedBelow, bgrp );
     outfld_->attach( ensureBelow, sep );
+
+    if ( ctio_.ioobj )
+	afterPopup.notify( mCB(this,uiSeisMultiCubePS,setInitial) );
 }
 
 
@@ -149,6 +158,34 @@ void uiSeisMultiCubePS::recordEntryData()
     const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     se.offs_ = offsfld_->getfValue() * convfactor;
     se.comp_ = compfld_->isEmpty() ? 0 : compfld_->currentItem();
+}
+
+
+void uiSeisMultiCubePS::setInitial( CallBacker* cb )
+{
+    if ( !ctio_.ioobj )
+	return;
+
+    BufferString emsg;
+    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj->fullUserExpr(false),
+		keys,offs,comps,emsg) )
+	{ uiMSG().error( emsg ); return; }
+
+    for ( int idx=0; idx<keys.size(); idx++ )
+    {
+	IOObj* ioobj = IOM().get( *keys[idx] );
+	if ( !ioobj )
+	    continue;
+	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );
+	entry->offs_ = offs[idx];
+	entry->comp_ = comps[idx];
+	selentries_ += entry;
+    }
+
+    deepErase( keys );
+    curselidx_ = selentries_.size() - 1;
+    fullUpdate();
 }
 
 
@@ -299,19 +336,19 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	}
     }
 
-    ObjectSet<MultiID> mids; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
-	mids += new MultiID( entry.ioobj_->key() );
+	keys += new MultiID( entry.ioobj_->key() );
 	offs += entry.offs_;
 	comps += entry.comp_;
     }
 
     BufferString emsg;
     bool ret = MultiCubeSeisPSReader::writeData(
-		    ctio_.ioobj->fullUserExpr(false), mids, offs, comps, emsg );
-    deepErase( mids );
+		    ctio_.ioobj->fullUserExpr(false), keys, offs, comps, emsg );
+    deepErase( keys );
     if ( !ret )
 	mErrRet(emsg)
 

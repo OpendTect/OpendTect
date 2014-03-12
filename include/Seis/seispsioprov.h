@@ -128,6 +128,8 @@ mExpClass(Seis) SeisPS3DTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
+
+    virtual bool	implRemove(const IOObj*) const;
 };
 
 
