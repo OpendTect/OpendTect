@@ -153,6 +153,22 @@ bool StrmOper::readChar( std::istream& strm, char& ch, bool allownls )
 }
 
 
+bool StrmOper::skipWhiteSpace( std::istream& strm )
+{
+    char ch;
+    while ( true )
+    {
+	if ( !peekChar(strm,ch) )
+	    return false;
+	if ( isspace(ch) )
+	    strm.ignore( 1 );
+	else
+	    break;
+    }
+    return true;
+}
+
+
 static void addToBS( BufferString& bs, char* partbuf, int& pos, char ch )
 {
     partbuf[pos] = ch;

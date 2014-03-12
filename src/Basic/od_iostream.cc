@@ -171,7 +171,7 @@ bool od_stream::isBad() const
     if ( forWrite() )
 	return !sd_.ostrm || !sd_.ostrm->good();
     else
-	return !sd_.istrm || sd_.istrm->bad();
+	return !sd_.istrm || sd_.istrm->bad() || sd_.istrm->fail();
 }
 
 
@@ -376,20 +376,51 @@ od_stream::Count od_istream::lastNrBytesRead() const
 }
 
 
-#define mGetNumberWithRetry() \
-    int retrycount = 0;  \
-    std::istream& strm = stdStream(); \
-    t = ((od_int32)0); \
-    if ( !strm.good() ) return *this; \
-    while ( true ) \
-    { \
-	if ( strm.eof() ) break; \
-	strm >> t; \
-	if ( strm.good() || strm.eof() ) break; \
-	else if ( strm.fail() ) { fillNumberFmtErrMsg(); break; } \
-	else if ( !StrmOper::resetSoftError(strm,retrycount) ) break; \
-    } \
-    return *this
+static void fillNumberFmtErrMsg( od_istream& strm, BufferString& errmsg )
+{
+    std::istream& stdstrm = strm.stdStream();
+    if ( !stdstrm.fail() )
+	errmsg.setEmpty();
+    else
+    {
+	stdstrm.clear(); BufferString word;
+	StrmOper::readWord( stdstrm, true, &word );
+	stdstrm.clear(std::ios::badbit);
+	errmsg.set( "Invalid number found: '" ).add( word ).add( "'" );
+    }
+}
+
+
+#define mNumberNotPresentErrRet() \
+	{ errmsg.set( "Number not present on last line" ); \
+	    stdstrm.setstate(std::ios::failbit); return false; } \
+
+template <class T>
+static bool getNumberWithRetry( od_istream& strm, T& t, BufferString& errmsg )
+{
+    std::istream& stdstrm = strm.stdStream();
+    t = (T)0;
+
+    int retrycount = 0;
+    if ( !stdstrm.good() )
+	return false;
+    if ( !StrmOper::skipWhiteSpace(stdstrm) )
+	mNumberNotPresentErrRet()
+    while ( true )
+    {
+	if ( stdstrm.eof() )
+	    mNumberNotPresentErrRet()
+	stdstrm >> t;
+	if ( stdstrm.good() || stdstrm.eof() )
+	    break;
+	else if ( stdstrm.fail() )
+	    { fillNumberFmtErrMsg(strm,errmsg); return false; }
+	else if ( !StrmOper::resetSoftError(stdstrm,retrycount) )
+	    return false;
+    }
+    return true;
+}
+
 
 #define mGetWithRetry(stmts,rv) \
 int retrycount = 0; \
@@ -426,7 +457,8 @@ od_ostream& od_ostream::add( typ t ) \
 }
 
 #define mImplNumberGetFn(typ) \
-od_istream& od_istream::get( typ& t ) { mGetNumberWithRetry(); }
+od_istream& od_istream::get( typ& t ) \
+{ getNumberWithRetry(*this,t,errmsg_); return *this; }
 
 #define mImplSimpleAddFn(typ) mImplStrmAddFn(typ,t)
 #define mImplSimpleAddGetFns(typ) mImplSimpleAddFn(typ) mImplNumberGetFn(typ)
@@ -583,21 +615,6 @@ bool od_istream::skipLine()
 {
     StrmOper::readLine( stdStream() );
     return isOK();
-}
-
-
-void od_istream::fillNumberFmtErrMsg()
-{
-    std::istream& strm = stdStream();
-    if ( !strm.fail() )
-	errmsg_.setEmpty();
-    else
-    {
-	strm.clear(); BufferString word;
-	StrmOper::readWord( strm, true, &word );
-	strm.clear(std::ios::badbit);
-	errmsg_.set( "Invalid number found: '" ).add( word ).add( "'" );
-    }
 }
 
 

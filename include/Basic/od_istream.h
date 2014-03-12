@@ -88,10 +88,6 @@ public:
 
     static od_istream&	nullStream();
 
-protected:
-
-    void		fillNumberFmtErrMsg();
-
 };
 
 

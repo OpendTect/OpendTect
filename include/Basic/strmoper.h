@@ -33,6 +33,7 @@ namespace StrmOper
     mGlobal(Basic) bool		readLine(std::istream&,BufferString* b=0,
 					 bool* newline_found=0);
     mGlobal(Basic) bool		readFile(std::istream&,BufferString&);
+    mGlobal(Basic) bool 	skipWhiteSpace(std::istream&);
 
     mGlobal(Basic) od_int64	tell(std::istream&);
     mGlobal(Basic) od_int64	tell(std::ostream&);
