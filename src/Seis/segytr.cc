@@ -809,13 +809,15 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
+    if ( !conn || !conn->isStream() )
+	mErrRet("Cannot read from input stream")
     od_istream& strm = sConn().iStream();
-    if ( !strm.getBin(headerbuf_,mSEGYTraceHeaderBytes) || !strm.isOK() )
-    {
-	if ( strm.isBad() )
-	    mPosErrRet("Error reading trace header")
+    if ( !strm.getBin(headerbuf_,mSEGYTraceHeaderBytes) )
+	mPosErrRet("Error reading trace header")
+    if ( strm.isBad() )
+	mErrRet("Something terribly wrong in input stream" )
+    if ( !strm.isOK() )
 	return noErrMsg();
-    }
 
     return true;
 }
