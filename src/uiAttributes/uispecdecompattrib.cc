@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 
-mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp())
+mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomposition",sKeyFreqGrp())
 
 
 const char* uiSpecDecompAttrib::sKeyBinID() { return "BinID"; }
