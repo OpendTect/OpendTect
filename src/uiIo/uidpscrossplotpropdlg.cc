@@ -630,6 +630,7 @@ void getRmsError( bool isy2 )
 
 void getRmsErrorCB( CallBacker* )
 {
+    if ( !drawlinefld_->isChecked() ) return;
     const bool drawy2 = selaxisfld_ && !selaxisfld_->getBoolValue();
     uiGenInput* inpfld = drawy2 ? inpfld1_ : inpfld_;
     if ( parseExp( inpfld ) ) getRmsError( drawy2 );
