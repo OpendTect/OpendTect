@@ -459,6 +459,7 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
     if ( pm.qpixmap() )
 	tbbody_->setIcon( QIcon(*pm.qpixmap()) );
 
+    tbbody_->setIconSize( QSize(iconSize(),iconSize()) );
     return *tbbody_;
 }
 
