@@ -278,7 +278,8 @@ bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
 	if ( changeflags & QPinchGesture::ScaleFactorChanged )
 	{
 	    const QPointF qcenter = pinch->centerPoint();
-	    const GestureEventInfo evinfo( qcenter.x(), qcenter.y(),
+	    const GestureEventInfo evinfo( mCast(int,qcenter.x()),
+					   mCast(int,qcenter.y()),
 					   mCast(float,pinch->scaleFactor()),
 					   mCast(float,pinch->rotationAngle()));
 	    if ( mIsEqual(currentpinchscale_,evinfo.scale(),mDefEps) )
