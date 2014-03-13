@@ -200,6 +200,21 @@ bool uiAttrVolOut::prepareProcessing()
     {
 	const char* outputnm = objfld_->getInput();
 	BufferString attrnm = LineKey( outputnm ).attrName();
+	const int nroccuer = countCharacter( attrnm.buf(), '|' );
+	replaceCharacter( attrnm.buf(), '|', '_' );
+	if ( nroccuer )
+	{
+	    BufferString msg( "Invalid charactor '|' " );
+	    msg.add( " found in attribute name. " )
+	       .add( "It will be renamed to: '" )
+	       .add( attrnm.buf() ).add("'." )
+	       .add( "\nDo you want to continue?" );
+	    if ( !uiMSG().askGoOn( msg.buf() ) )
+		return false;
+
+	    objfld_->setAttrNm( attrnm );
+	}
+
 	if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
 	{
 	    const bool res = uiMSG().askGoOn(
