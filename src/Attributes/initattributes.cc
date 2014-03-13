@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "shiftattrib.h"
 #include "similarityattrib.h"
 #include "specdecompattrib.h"
+#include "textureattrib.h"
 #include "volstatsattrib.h"
 
 mDefModInitFn(Attributes)
@@ -62,5 +63,6 @@ mDefModInitFn(Attributes)
     Attrib::Shift::initClass();
     Attrib::Similarity::initClass();
     Attrib::SpecDecomp::initClass();
+    Attrib::Texture::initClass();
     Attrib::VolStats::initClass();
 }

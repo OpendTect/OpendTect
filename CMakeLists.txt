@@ -62,7 +62,6 @@ set( OD_PLUGINS
 	Madagascar
 	MadagascarAttribs
 	MATLABLink
-	TextureAttrib
 	Tut
 	VoxelConnectivityFilter
 	uiDPSDemo
@@ -76,7 +75,6 @@ set( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiMATLABLink
-	uiTextureAttrib
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter

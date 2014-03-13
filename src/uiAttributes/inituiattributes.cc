@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uishiftattrib.h"
 #include "uisimilarityattrib.h"
 #include "uispecdecompattrib.h"
+#include "uitextureattrib.h"
 #include "uivolstatsattrib.h"
 
 
@@ -60,5 +61,6 @@ mDefModInitFn(uiAttributes)
     uiShiftAttrib::initClass();
     uiSimilarityAttrib::initClass();
     uiSpecDecompAttrib::initClass();
+    uiTextureAttrib::initClass();
     uiVolumeStatisticsAttrib::initClass();
 }
