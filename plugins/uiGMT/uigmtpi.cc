@@ -80,7 +80,7 @@ void gmtPush( CallBacker* )
 {
     uiDesktopServices::openUrl(
 	    __islinux__ ? "http://www.opendtect.org/index.php/download.html"
-	    		: "http://www.soest.hawaii.edu/gmt" );
+	    		: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
 bool acceptOK( CallBacker* )
