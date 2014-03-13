@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 
 class uiAttrSel;
+class uiGenInput;
 
 
 /*! \brief FK Filter Attribute description editor */
@@ -29,6 +30,9 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
+    uiGenInput*		minmaxfld_;
+
+    void		panelbutCB(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

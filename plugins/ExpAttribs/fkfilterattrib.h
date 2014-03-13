@@ -27,7 +27,9 @@ public:
     static void		initClass();
 			FKFilter(Desc&);
 
-    static const char*	attribName()	   { return "FKFilter"; }
+    static const char*	attribName()	{ return "FKFilter"; }
+    static const char*	minStr()	{ return "min"; }
+    static const char*	maxStr()	{ return "max"; }
 
 protected:
 
@@ -38,9 +40,10 @@ protected:
 				    int,int,int) const;
 
     const DataHolder*	inpdata_;
+    float		minval_;
+    float		maxval_;
 };
 
 } // namespace Attrib
-
 
 #endif
