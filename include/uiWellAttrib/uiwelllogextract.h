@@ -49,6 +49,8 @@ public:
 				~uiWellLogExtractGrp();
 
     void			setDescSet(const Attrib::DescSet*);
+    const Attrib::DescSet*	getDescSet() const	{ return ads_; }
+
     void			getWellNames(BufferStringSet&);
     void			getSelLogNames(BufferStringSet&);
 
