@@ -183,7 +183,7 @@ void uiTreeViewBody::mousePressEvent( QMouseEvent* ev )
     if ( ev->button() == Qt::RightButton )
 	lvhandle_.buttonstate_ = OD::RightButton;
     else if ( ev->button() == Qt::LeftButton )
-	lvhandle_.mouseButtonPressed.trigger();
+	lvhandle_.buttonstate_ = OD::LeftButton;
     else
 	lvhandle_.buttonstate_ = OD::NoButton;
 
