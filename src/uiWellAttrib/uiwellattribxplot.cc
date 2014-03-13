@@ -54,6 +54,10 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	new uiDataPointSet( this, *wellextractgrp_->getDPS(),
 			    uiDataPointSet::Setup("Well attribute data",false),
 			    dpsdispmgr_ );
+    IOPar& iop = uidps->storePars();
+    wellextractgrp_->getDescSet()->fillPar( iop );
+    if ( iop.name().isEmpty() )
+	iop.setName( "Attributes" );
     uidps->setGroupType( "well" );
     BufferStringSet wellnms;
     wellextractgrp_->getWellNames( wellnms );

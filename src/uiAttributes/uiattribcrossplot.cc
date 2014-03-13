@@ -442,6 +442,10 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
 		uiDataPointSet::Setup("Attribute data",false),dpsdispmgr_ );
     dpsset_ += uidps;
+    IOPar& attrpar = uidps->storePars();
+    ads_.fillPar( attrpar );
+    if ( attrpar.name().isEmpty() )
+	attrpar.setName( "Attributes" );
     mDPM.release( dps->id() );
     return uidps->go() ? true : false;
 }
