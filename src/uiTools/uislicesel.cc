@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uispinbox.h"
 
+#include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "thread.h"
 #include "timer.h"
@@ -576,3 +577,116 @@ bool uiSliceSelDlg::acceptOK( CallBacker* )
 {
     return slicesel_->acceptOK();
 }
+
+
+// uiLinePosSelDlg
+uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const PosInfo::Line2DKey& l2d )
+    : uiDialog( p, uiDialog::Setup("Select line position",mNoDlgTitle,mNoHelpKey) )
+    , prefcs_(0)
+    , is2d_(true)
+    , inlcrlfld_(0)
+    , posdlg_(0)
+{
+    S2DPOS().setCurLineSet( l2d.lsID() );
+    BufferStringSet linenames;
+    S2DPOS().getLines( linenames );
+    linesfld_ = new uiGenInput( this, "Compute on line:",
+				StringListInpSpec(linenames) );
+    setOkText( uiStrings::sNext() );
+}
+
+
+uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const CubeSampling& cs )
+    : uiDialog( p, uiDialog::Setup("Select line position",mNoDlgTitle,mNoHelpKey) )
+    , cs_( cs )
+    , prefcs_(0)
+    , is2d_(false)
+    , linesfld_(0)
+    , posdlg_(0)
+{
+    inlcrlfld_ = new uiGenInput( this, "Compute on:",
+				 BoolInpSpec(true,"Inline","Crossline") );
+    setOkText( uiStrings::sNext() );
+}
+
+
+uiLinePosSelDlg::~uiLinePosSelDlg()
+{
+    delete posdlg_;
+}
+
+
+bool uiLinePosSelDlg::acceptOK( CallBacker* )
+{
+    return linesfld_ ? selectPos2D()
+		     : selectPos3D();
+}
+
+
+bool uiLinePosSelDlg::selectPos2D()
+{
+    PosInfo::Line2DData l2dd( linesfld_->text() );
+    const bool res = S2DPOS().getGeometry( l2dd );
+    if ( !res ) return false;
+
+    CubeSampling inputcs = cs_;
+    if ( prefcs_ )
+	inputcs = *prefcs_;
+    else
+    {
+	inputcs.hrg.setCrlRange( l2dd.trcNrRange() );
+	inputcs.zrg = l2dd.zRange();
+    }
+
+    const ZDomain::Info info( ZDomain::SI() );
+    const uiSliceSel::Type tp = uiSliceSel::TwoD;
+    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, CallBack(), tp, info );
+    posdlg_->grp()->enableApplyButton( false );
+    posdlg_->grp()->enableScrollButton( false );
+    posdlg_->setModal( true );
+    if ( !prevpar_.isEmpty() )
+	posdlg_->grp()->usePar( prevpar_ );
+
+    return posdlg_->go();
+}
+
+
+bool uiLinePosSelDlg::selectPos3D()
+{
+    CallBack dummycb;
+    const bool isinl = inlcrlfld_->getBoolValue();
+
+    CubeSampling inputcs = cs_;
+    if ( prefcs_ )
+	inputcs = *prefcs_;
+    else
+    {
+	if ( isinl )
+	    inputcs.hrg.stop.inl() = inputcs.hrg.start.inl()
+				   = inputcs.hrg.inlRange().snappedCenter();
+	else
+	    inputcs.hrg.stop.crl() = inputcs.hrg.start.crl()
+				   = inputcs.hrg.crlRange().snappedCenter();
+
+	inputcs.zrg.start = 0;
+    }
+
+    const ZDomain::Info info( ZDomain::SI() );
+    const uiSliceSel::Type tp = isinl ? uiSliceSel::Inl : uiSliceSel::Crl;
+    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, tp, info );
+    posdlg_->grp()->enableApplyButton( false );
+    posdlg_->grp()->enableScrollButton( false );
+    posdlg_->setModal( true );
+    if ( !prevpar_.isEmpty() )
+	posdlg_->grp()->usePar( prevpar_ );
+
+    return posdlg_->go();
+}
+
+
+const CubeSampling& uiLinePosSelDlg::getCubeSampling() const
+{ return posdlg_ ? posdlg_->getCubeSampling() : cs_; }
+
+
+const char* uiLinePosSelDlg::getLineName() const
+{ return linesfld_ ? linesfld_->text() : ""; }

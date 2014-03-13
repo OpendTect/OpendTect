@@ -12,18 +12,20 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uidialog.h"
 #include "uigroup.h"
 #include "cubesampling.h"
 #include "ranges.h"
-#include "zdomain.h"
 #include "threadlock.h"
+#include "zdomain.h"
 
+class uiGenInput;
 class uiLabeledSpinBox;
 class uiScrollDialog;
-class uiSpinBox;
 class uiSliceScroll;
-
+class uiSpinBox;
+namespace PosInfo { class Line2DKey; }
 
 mExpClass(uiTools) uiSliceSel : public uiGroup
 {
@@ -108,5 +110,30 @@ protected:
     bool			acceptOK(CallBacker*);
 };
 
-#endif
 
+class uiLinePosSelDlg: public uiDialog
+{
+public:
+			uiLinePosSelDlg(uiParent*,const PosInfo::Line2DKey&);
+			uiLinePosSelDlg(uiParent*,const CubeSampling&);
+			~uiLinePosSelDlg();
+
+    const CubeSampling&	getCubeSampling() const;
+    const char*		getLineName() const;
+    void		setPrefCS(CubeSampling* prefcs)	{ prefcs_ = prefcs; }
+
+protected:
+    bool		acceptOK(CallBacker*);
+    bool		selectPos2D();
+    bool		selectPos3D();
+
+    uiGenInput*		inlcrlfld_;
+    uiGenInput*		linesfld_;
+    CubeSampling	cs_;
+    CubeSampling*	prefcs_;
+    uiSliceSelDlg*	posdlg_;
+    bool		is2d_;
+    IOPar		prevpar_;
+};
+
+#endif
