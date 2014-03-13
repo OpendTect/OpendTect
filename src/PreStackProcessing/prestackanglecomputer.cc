@@ -35,6 +35,7 @@ DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 
 
 static const float deftimestep = 0.004f;
+static const float maxtwttime = 100.0f;
 
 
 AngleComputer::AngleComputer()
@@ -164,13 +165,14 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    prevlayertwt = layertwt;
 	}
 
-	if ( mIsUdf(layertwt) )
+	const int zsizeintime = mCast( int, layertwt/deftimestep );
+	if ( mIsUdf(layertwt) || layertwt < 0 || layertwt > maxtwttime || 
+	     zsizeintime <= 0 )
 	{
 	    arr1doutput = arr1doutput + zsize;
 	    continue;
 	}
 
-	const int zsizeintime = mCast( int, layertwt/deftimestep );
 	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
 	    angles.set( zidx, anglevals.getValue( zidx*deftimestep ) );
