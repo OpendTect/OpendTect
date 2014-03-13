@@ -294,7 +294,7 @@ public:
     void		releaseNow();
 
     T*			operator->()			{ return this->ptr_; }
-    T&			operator*()			{ return this->ptr_;}
+    T&			operator*()			{ return *this->ptr_;}
     T*			ptr()				{ return this->ptr_; }
     DataPack*		dataPack()			{ return this->dp_; }
 };
