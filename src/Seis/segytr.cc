@@ -818,7 +818,11 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
     if ( !conn || !conn->isStream() )
 	mErrRet("Cannot read from input stream")
     if ( !sConn().doIO(headerbuf_,mSEGYTraceHeaderBytes) )
-       mPosErrRet("Error reading trace header")	
+    {
+	if ( sConn().iStream().bad() )
+	    mPosErrRet("Error reading trace header")	
+	return noErrMsg();
+    }
     headerbufread_ = true;
     if ( sConn().iStream().eof() )
 	return noErrMsg();
