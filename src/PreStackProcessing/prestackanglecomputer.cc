@@ -173,8 +173,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	}
 
 	const int zsizeintime = mCast( int, layertwt/deftimestep );
-	if ( mIsUdf(layertwt) || layertwt < 0 || layertwt > maxtwttime || 
-	     zsizeintime <= 0 )
+	if ( mIsUdf(layertwt) || layertwt > maxtwttime || zsizeintime <= 0 )
 	{
 	    arr1doutput = arr1doutput + zsize;
 	    continue;
