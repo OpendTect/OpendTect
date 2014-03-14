@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id: simpnumer.cc 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "bendpoints2coords.h"
 
