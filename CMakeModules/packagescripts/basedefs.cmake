@@ -27,7 +27,7 @@ set( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 set( WINEXECLIST od_start_dtect od_main_console od_runinst )
 
 #No need to include shell scripts in windows base package.
-set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
+set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt LICENSE.txt )
 if( WIN32 )
     set( SPECFILES ${TXTFILES} )
     set( ODSCRIPTS "" )
