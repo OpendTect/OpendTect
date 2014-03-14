@@ -396,19 +396,20 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float curdip = -maxdip_;
 	    while ( docontinue )	//loop necessary for dip browser
 	    {
-		const int steervalidx = z0+idx-steeringdata_->z0_;
-		if ( dosteer_ && steervalidx>0 && 
-			steervalidx<steeringdata_->nrsamples_ )
+		if ( dosteer_ )
 		{
+		    const int steervalidx = z0+idx-steeringdata_->z0_;
+		    const bool isvalididx =
+			steervalidx>=0 && steervalidx<steeringdata_->nrsamples_;
 
 		    ValueSeries<float>* serie0 = 
 			    steeringdata_->series( steerindexes_[idx0] );
-		    if ( serie0 )
+		    if ( serie0 && isvalididx )
 			s0 = bases0 + serie0->value( steervalidx);
 
 		    ValueSeries<float>* serie1 = 
 			    steeringdata_->series( steerindexes_[idx1] );
-		    if ( serie1 )
+		    if ( serie1 && isvalididx )
 			s1 = bases1 + serie1->value( steervalidx );
 		}
 
