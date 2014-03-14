@@ -40,15 +40,15 @@ mExpClass(AttributeEngine) DescSetup
 {
     public:
 				    DescSetup();
-	mDefSetupClssMemb(DescSetup,bool,is2d);
-	mDefSetupClssMemb(DescSetup,bool,ps);
-	mDefSetupClssMemb(DescSetup,bool,singletraceonly);
-	mDefSetupClssMemb(DescSetup,bool,usingtrcpos);
-	mDefSetupClssMemb(DescSetup,bool,depthonly);
-	mDefSetupClssMemb(DescSetup,bool,timeonly);
-	mDefSetupClssMemb(DescSetup,bool,hidden);
-	mDefSetupClssMemb(DescSetup,bool,steering);
-	mDefSetupClssMemb(DescSetup,bool,stored);
+	mDefSetupClssMemb(DescSetup,bool,is2d)
+	mDefSetupClssMemb(DescSetup,bool,ps)
+	mDefSetupClssMemb(DescSetup,bool,singletraceonly)
+	mDefSetupClssMemb(DescSetup,bool,usingtrcpos)
+	mDefSetupClssMemb(DescSetup,bool,depthonly)
+	mDefSetupClssMemb(DescSetup,bool,timeonly)
+	mDefSetupClssMemb(DescSetup,bool,hidden)
+	mDefSetupClssMemb(DescSetup,bool,steering)
+	mDefSetupClssMemb(DescSetup,bool,stored)
 };
 
 
@@ -87,7 +87,7 @@ Each Desc has DescID that is unique within it's DescSet.
 */
 
 mExpClass(AttributeEngine) Desc
-{ mRefCountImpl(Desc);
+{ mRefCountImpl(Desc)
 public:
 
     enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
@@ -143,7 +143,7 @@ public:
     int				nrInputs() const;
     InputSpec&			inputSpec(int);
     const InputSpec&		inputSpec(int) const;
-    bool		setInput(int,const Desc*);
+    bool			setInput(int,const Desc*);
     Desc*			getInput(int);
     const Desc*			getInput(int) const;
     void			getDependencies(TypeSet<Attrib::DescID>&) const;
@@ -235,7 +235,7 @@ protected:
     BufferString		attribname_;
     ObjectSet<Param>		params_;
 
-    BufferString	userref_;
+    BufferString		userref_;
     int				seloutput_;
     DescSet*			descset_;
 
@@ -244,7 +244,7 @@ protected:
     BufferString		errmsg_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #define mGetIntFromDesc( __desc, var, varstring ) \
 {\
@@ -344,6 +344,3 @@ protected:
     mGetDoubleFromDesc( desc_, var, varstring )
 
 #endif
-
-
-
