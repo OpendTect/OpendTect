@@ -56,7 +56,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup("Create Seismic Output","","101.2.0"))
+    : uiDialog(p,Setup("",mNoDlgTitle,"101.2.0"))
     , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
@@ -68,7 +68,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , datastorefld_(0)
 {
     const bool is2d = ad.is2D();
-    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute" );
+    setCaption( is2d ? "Create LineSet Attribute" :
+	( multioutput ? "Create Multi-attribute Output"
+		      : "Create Volume Attribute") );
 
     uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;
@@ -99,17 +101,18 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiGroup* botgrp = objfld_;
     if ( multioutput && !is2d )
     {
-	uiCheckBox* cb = new uiCheckBox( this, "Create Prestack DataStore" );
+	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
 	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
-	datastorefld_ = new uiIOObjSel( this, ctxt, "Output data store" );
+	datastorefld_ = new uiIOObjSel( this, ctxt,
+					"Output Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, cb );
 
-	const Interval<float> offsets( 10, 10 );
+	const Interval<float> offsets( 0, 100 );
 	offsetfld_ = new uiGenInput( this, "Offset (start/step)",
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );

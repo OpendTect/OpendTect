@@ -183,14 +183,14 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     fillAttribFld();
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", uiObject::Vertical );
-    new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
+    new uiToolButton( bgrp, uiToolButton::RightArrow, "Add",
 		      mCB(this,uiMultiAttribSel,doAdd) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
 		      mCB(this,uiMultiAttribSel,doRemove) );
     bgrp->attach( centeredRightOf, attrllb );
 
     uiLabeledListBox* selllb =
-	new uiLabeledListBox( this, "Selected attributes", false, mLblPos );
+	new uiLabeledListBox( this, "Selected attributes", true, mLblPos );
     selfld_ = selllb->box();
     selfld_->setHSzPol( uiObject::Wide );
     selllb->attach( rightTo, attrllb );
@@ -270,15 +270,20 @@ void uiMultiAttribSel::doAdd( CallBacker* )
 	const int seldescouputidx = seldesc->selectedOutput();
 	BufferStringSet alluserrefs;
 	uiMultOutSel::fillInAvailOutNames( *seldesc, alluserrefs );
+	const BufferString baseusrref = seldesc->userRef();
 	for ( int idx=0; idx<alluserrefs.size(); idx++ )
 	{
-	    if ( idx == seldescouputidx ) continue;
+	    const BufferString usrref( baseusrref, "_", alluserrefs.get(idx) );
+	    if ( idx == seldescouputidx )
+	    {
+		const_cast<Desc*>(seldesc)->setUserRef( usrref );
+		continue;
+	    }
 
 	    Desc* tmpdesc = new Desc( *seldesc );
 	    tmpdesc->ref();
 	    tmpdesc->selectOutput( idx );
-	    tmpdesc->setUserRef( BufferString(seldesc->userRef(),"_",
-				 alluserrefs.get(idx) ) );
+	    tmpdesc->setUserRef( usrref );
 	    const DescID newid =
 		const_cast<Attrib::DescSet*>(&descset_)->addDesc( tmpdesc );
 	    allids_ += newid;
@@ -292,11 +297,16 @@ void uiMultiAttribSel::doAdd( CallBacker* )
 
 void uiMultiAttribSel::doRemove( CallBacker* )
 {
-    const int idx = selfld_->currentItem();
-    if ( !selids_.validIdx(idx) )
+    TypeSet<int> selidxs;
+    selfld_->getSelectedItems( selidxs );
+    if ( selidxs.isEmpty() )
 	return;
 
-    selids_.removeSingle( idx );
+    TypeSet<DescID> ids2rem;
+    for ( int idx=0; idx<selidxs.size(); idx++ )
+	ids2rem += selids_[ selidxs[idx] ];
+
+    selids_.createDifference( ids2rem, true );
     updateSelFld();
 }
 
