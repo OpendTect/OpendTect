@@ -375,9 +375,6 @@ bool ZipHandler::doZCompress()
     for ( int flushpolicy=Z_NO_FLUSH; flushpolicy!=Z_FINISH;  )
     {
 	istrm_->getBin( in, chunksize );
-	if ( istrm_->isBad() )
-	    return reportReadError();
-
 	uInt nrbytesread = (uInt)istrm_->lastNrBytesRead();
 	zlibstrm.avail_in = nrbytesread;
 	nrdonesize_ += zlibstrm.avail_in;
