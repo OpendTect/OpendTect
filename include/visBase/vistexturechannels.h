@@ -28,6 +28,24 @@ class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
 
+/*!                                                                             
+Base class to manage the set of interchangeable and overlayable data layers
+from which the texture displayed on some kind of section will be assembled
+dynamically.
+  
+Different attributes are stored in different channels. Each channel may have
+multiple versions, for example obtained with different parameter settings of
+the attribute.
+
+Each channel may consist of different components. Each component corresponds
+with one data layer. Multiple components are not yet used.
+
+Every component may utilize up to four bands in the image that stores the data.
+The first band contains the data values itself. Additional bands are used to
+to improve the quality of the displayed texture. One band is used to denote 
+undefined values separate from the actual signal. Other band(s) for example
+store the instantaneous power of the signal.
+*/ 
 
 mExpClass(visBase) TextureChannels : public DataObject
 {
@@ -90,6 +108,12 @@ public:
 
     void			enableTextureInterpolation(bool);
     bool			textureInterpolationEnabled() const;
+
+    unsigned char		nrDataBands() const;
+    inline unsigned char	nrUdfBands() const	   { return 1; }
+    inline unsigned char	nrTextureBands() const
+				{ return nrDataBands() + nrUdfBands(); }
+
 
 protected:
     friend			class ChannelInfo;

@@ -209,7 +209,8 @@ void ColTabTextureChannel2RGBA::update()
 		    procidx = laytex_->nrProcesses();
 		    proc = new osgGeo::ColTabLayerProcess( *laytex_ );
 		    laytex_->addProcess( proc );
-		    proc->setDataLayerID( layerid );
+		    for ( int idx=channels_->nrDataBands()-1; idx>=0; idx-- )
+			proc->setDataLayerID( idx, layerid, idx );
 
 		    TypeSet<unsigned char>* ts = new TypeSet<unsigned char>();
 		    getColors( channel, *ts );

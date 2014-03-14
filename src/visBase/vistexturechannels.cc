@@ -376,7 +376,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     }
 
     const od_int64 nrelements = nrElements( false );
-    const unsigned char spacing = 2;
+    const unsigned char spacing = texturechannels_.nrTextureBands();
 
     if ( !mappeddata_[version] )
     {
@@ -388,10 +388,14 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	ownsmappeddata_[version] = true;
     }
 
+    unsigned char* mappedudfs = 0;
+    if ( texturechannels_.nrUdfBands() )
+	mappedudfs = mappeddata_[version] + texturechannels_.nrDataBands();
+
     ColTab::MapperTask< unsigned char>	maptask( *mappers_[version], nrelements,
 	    mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
-	    mappeddata_[version]+1, spacing  );
+	    mappedudfs, spacing );
 
     if ( TaskRunner::execute( tr, maptask ) )
     {
@@ -483,6 +487,11 @@ void ChannelInfo::updateOsgImages()
 	return;
     }
 
+    const unsigned char nrbands = texturechannels_.nrTextureBands();
+    const GLenum imageformat = nrbands>=4 ? GL_RGBA :
+			       nrbands==3 ? GL_RGB :
+			       nrbands==2 ? GL_LUMINANCE_ALPHA : GL_LUMINANCE;
+
     const od_int64 componentsize = nrElements( true );
     for ( int idx=0; idx<osgimages_.size(); idx++ )
     {
@@ -493,11 +502,10 @@ void ChannelInfo::updateOsgImages()
 	    osgimages_.replace( idx, image );
 	}
 
-	const od_int64 offset = idx * componentsize*2;
+	const od_int64 offset = idx * componentsize * nrbands;
 
-	osgimages_[idx]->setImage( size_[2], size_[1],
-			    size_[0], GL_LUMINANCE_ALPHA,
-			    GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+	osgimages_[idx]->setImage( size_[2], size_[1], size_[0],
+			    imageformat, imageformat, GL_UNSIGNED_BYTE,
 			    mappeddata_[currentversion_]+offset,
 			    osg::Image::NO_DELETE, 1 );
     }
@@ -589,8 +597,6 @@ int TextureChannels::addChannel()
     TypeSet<int> osgids;
 
     const int osgid = osgtexture_->addDataLayer();
-    osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
-    osgtexture_->setDataLayerUndefChannel( osgid, 3 );
     const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
     osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
     osgtexture_->setDataLayerBorderColor( osgid, imageudfcolor );
@@ -882,15 +888,35 @@ void TextureChannels::update( ChannelInfo* ti, bool tc2rgba )
 }
 
 
+unsigned char TextureChannels::nrDataBands() const
+{
+    const bool uselowressignalpower = true;    // tuneable
+
+    unsigned char nrdatabands = 1;
+    // Improve color table mapping quality of mipmapped fragment shader
+    if ( tc2rgba_ && tc2rgba_->canSetSequence() && tc2rgba_->canUseShading() )
+	nrdatabands += uselowressignalpower ? 1 : 2;
+
+    return nrdatabands;
+}
+
+
 void TextureChannels::update( int channel, bool tc2rgba )
 {
     channelinfo_[channel]->updateOsgImages();
     for ( int component=channelinfo_[channel]->nrComponents()-1;
 	  component>=0; component-- )
     {
-	osgtexture_->setDataLayerImage(
-		channelinfo_[channel]->osgids_[component],
-		channelinfo_[channel]->osgimages_[component] );
+	const int osgid = channelinfo_[channel]->osgids_[component];
+
+	osgtexture_->setDataLayerImage( osgid,
+		channelinfo_[channel]->osgimages_[component],
+		true, nrDataBands()-1 );
+
+	const int udflayerid = nrUdfBands() ? osgid : -1;
+	osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
+	const int udfchannel = nrTextureBands()==3 ? 2 : 3;
+	osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
     }
 }
 
