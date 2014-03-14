@@ -109,7 +109,12 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 
 void uiAttrSurfaceOut::attribSel( CallBacker* )
 {
-    attrnmfld_->setText( attrfld_->getInput() );
+    BufferString attrnm( attrfld_->getInput() );
+    const int nroccuer = countCharacter( attrnm.buf(), '|' );
+    if ( nroccuer )
+	replaceCharacter( attrnm.buf(), '|', '_' );
+
+    attrnmfld_->setText( attrnm );
     objSelCB(0);
 }
 
