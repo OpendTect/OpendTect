@@ -87,7 +87,7 @@ const char* uiStringData::getFullString() const
 	return originalstring_.buf();
 
     QString qres;
-    fillQString( qres, false );
+    fillQString( qres, 0 );
 
     mDeclStaticString( ret );
     ret = qres;
