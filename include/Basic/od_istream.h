@@ -85,6 +85,9 @@ public:
 
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();
+    bool		atEOF() const;
+				//!< equivalent to: !isOK() && !isBad()
+				//!< avoid using it in normal circumstances
 
     static od_istream&	nullStream();
 

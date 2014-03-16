@@ -29,24 +29,26 @@ namespace Seis
     enum ReadMode	{ PreScan, Scan, Prod };
 
     enum GeomType	{ Vol, VolPS, Line, LinePS };
-    mGlobal(Seis) inline bool		is2D( GeomType gt )
-    			{ return gt > VolPS; }
-    mGlobal(Seis) inline bool		is3D( GeomType gt )
-    			{ return gt < Line; }
-    mGlobal(Seis) inline bool		isPS( GeomType gt )
-    			{ return gt == VolPS || gt == LinePS; }
-    mGlobal(Seis) inline int		dimSize( GeomType gt )
+    mGlobal(Seis) inline bool	is2D( GeomType gt )
+			{ return gt > VolPS; }
+    mGlobal(Seis) inline bool	is3D( GeomType gt )
+			{ return gt < Line; }
+    mGlobal(Seis) inline bool	isPS( GeomType gt )
+			{ return gt == VolPS || gt == LinePS; }
+    mGlobal(Seis) inline int	dimSize( GeomType gt )
 			{ return gt == Line ? 2 : (gt == VolPS ? 4 : 3); }
-    mGlobal(Seis) const char*		nameOf(GeomType);
-    mGlobal(Seis) GeomType		geomTypeOf(const char*);
-    mGlobal(Seis) inline GeomType	geomTypeOf( bool is2d, bool isps )
+    mGlobal(Seis) const char*	nameOf(GeomType);
+    mGlobal(Seis) GeomType	geomTypeOf(const char*);
+    mGlobal(Seis) inline GeomType geomTypeOf( bool is2d, bool isps )
 			{ return is2d ? (isps?LinePS:Line) : (isps?VolPS:Vol); }
     mGlobal(Seis) const char**	geomTypeNames();
     mGlobal(Seis) void		putInPar(GeomType,IOPar&);
     mGlobal(Seis) bool		getFromPar(const IOPar&,GeomType&);
+    mGlobal(Seis) bool		is2DGeom(const IOPar&);
+    mGlobal(Seis) bool		isPSGeom(const IOPar&);
 
 
-    enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, 
+    enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient,
 			  Azimuth, Classification, UnknowData };
     mGlobal(Seis) bool		isAngle(DataType);
     mGlobal(Seis) const char*		nameOf(DataType);

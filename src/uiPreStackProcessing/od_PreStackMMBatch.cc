@@ -3,7 +3,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
- Date:          April 2002
+ Date:          Mar 2014
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 #include "uimain.h"
-#include "uiseismmproc.h"
+#include "uiprestackmmproc.h"
 
 #include "iopar.h"
 #include "moddepmgr.h"
@@ -26,12 +26,12 @@ int main( int argc, char ** argv )
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
     uiMain app( argc, argv );
-    uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars );
-    app.setTopLevel( smmp );
-    smmp->show();
+    uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
+    app.setTopLevel( pmmp );
+    pmmp->show();
 
     return ExitProgram( app.exec() );
 }

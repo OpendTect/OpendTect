@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uimmbatchjobdispatch.h"
 
-class IOObj;
-class JobRunner;
 class uiGenInput;
 class uiIOFileSelect;
 class uiSeisIOObjInfo;
@@ -26,17 +24,17 @@ mExpClass(uiSeis) uiSeisMMProc : public uiMMBatchJobDispatcher
 {
 public:
 
-                        uiSeisMMProc(uiParent*,const IOPar&,const char* parfnm);
+                        uiSeisMMProc(uiParent*,const IOPar&);
 			~uiSeisMMProc();
 
 protected:
 
     SeisJobExecProv*	jobprov_;
     uiSeisIOObjInfo*	outioobjinfo_;
-    bool		is2d_;
+    const bool		is2d_;
+    const BufferString	parfnm_;
     bool		lsfileemitted_;
     int			nrinlperjob_;
-    const BufferString	parfnm_;
 
     uiIOFileSelect*	tmpstordirfld_;
     uiGenInput*		inlperjobfld_;

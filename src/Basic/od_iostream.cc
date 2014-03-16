@@ -175,6 +175,12 @@ bool od_stream::isBad() const
 }
 
 
+bool od_istream::atEOF() const
+{
+    return !sd_.istrm || sd_.istrm->eof();
+}
+
+
 const char* od_stream::errMsg() const
 {
     if ( errmsg_.isEmpty() )

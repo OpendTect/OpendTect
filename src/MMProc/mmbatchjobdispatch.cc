@@ -107,7 +107,7 @@ bool Batch::MMJobDispatcher::launch()
 
     BufferString cmd( progdefs_[pdidx]->mmprognm_, " ", jobspec_.clargs_ );
     BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\'' );
-    cmd.add( jobspec_.prognm_ ).add( " " ).add( qtdparfnm );
+    cmd.add( " " ).add( qtdparfnm );
     OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars ep( jobspec_.execpars_ );

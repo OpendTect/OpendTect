@@ -171,6 +171,22 @@ bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
 }
 
 
+bool Seis::is2DGeom( const IOPar& iop )
+{
+    GeomType gt = Vol;
+    getFromPar( iop, gt );
+    return is2D( gt );
+}
+
+
+bool Seis::isPSGeom( const IOPar& iop )
+{
+    GeomType gt = Vol;
+    getFromPar( iop, gt );
+    return isPS( gt );
+}
+
+
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
 	"Trace number",
 	"Pick position",

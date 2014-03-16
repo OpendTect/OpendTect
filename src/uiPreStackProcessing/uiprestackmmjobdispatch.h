@@ -1,11 +1,11 @@
-#ifndef uiseismmjobdispatch_h
-#define uiseismmjobdispatch_h
+#ifndef uiprestackmmjobdispatch_h
+#define uiprestackmmjobdispatch_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
- Date:          Jan 2014
+ Date:          Mar 2014
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,11 @@ ________________________________________________________________________
 namespace Batch
 {
 
-class SeisMMProgDef : public MMProgDef
+class PreStackMMProgDef : public MMProgDef
 {
 public:
-			SeisMMProgDef() : MMProgDef("od_SeisMMBatch")	{}
+			PreStackMMProgDef() : MMProgDef("od_PreStackMMBatch") {}
+
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
 };

@@ -39,7 +39,7 @@ mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,"Grubbs Filter","Experimental" )
 
 
 uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"mToDoHelpID")
+    : uiAttrDescEd(p,is2d,mTODOHelpKey)
 
 {
     inpfld_ = createInpFld( is2d );

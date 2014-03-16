@@ -32,6 +32,53 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobrunner.h"
 #include "jobdescprov.h"
 #include "jobinfo.h"
+#include "od_iostream.h"
+#include "genc.h"
+#include "ioman.h"
+#include "survinfo.h"
+#include "plugins.h"
+
+
+
+bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
+						IOPar& jobpars )
+{
+    const FixedString arg1( argv[1] );
+    const int bgadd = arg1 == "-bg" ? 1 : 0;
+    if ( argc+bgadd < 2 )
+    {
+	od_cout() << "Usage: " << argv[0] << " parfile" << od_endl;
+	return false;
+    }
+
+    FilePath fp( argv[ 1 + bgadd ] );
+    const BufferString parfnm( fp.fullPath() );
+    od_istream strm( parfnm );
+    if ( !strm.isOK() )
+    {
+	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
+	return false;
+    }
+
+    jobpars.read( strm, sKey::Pars() );
+    if ( jobpars.isEmpty() )
+    {
+	od_cout() << argv[0] << ": Invalid parameter file" << parfnm << od_endl;
+	return false;
+    }
+    strm.close();
+
+    if ( bgadd )
+	ForkProcess();
+
+    const char* res = jobpars.find( sKey::Survey() );
+    if ( res && *res && SI().getDirName() != res )
+	IOMan::setSurvey( res );
+    PIM().loadAuto( false );
+    jobpars.set( sKey::FileName(), parfnm );
+
+    return true;
+}
 
 
 
@@ -626,6 +673,13 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
     const int nrsel = avmachfld_ ? avmachfld_->nrSelected() : 1;
     if ( nrsel < 1 )
 	mErrRet("Please select one or more hosts")
+
+    if ( !jobrunner_ )
+    {
+	startWork( 0 );
+	if ( !jobrunner_ )
+	    return;
+    }
 
     for ( int idx=0; idx<nrmach; idx++ )
     {

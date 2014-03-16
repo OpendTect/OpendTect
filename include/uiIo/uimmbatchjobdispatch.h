@@ -35,6 +35,8 @@ public:
 						const HelpKey& helpkey=0);
 			~uiMMBatchJobDispatcher();
 
+    static bool		initMMProgram(int argc,char** argv,IOPar& jobpars);
+
 protected:
 
     uiGroup*		specparsgroup_;			// for subclass

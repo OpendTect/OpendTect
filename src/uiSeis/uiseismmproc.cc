@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiiosel.h"
 #include "uimsg.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
@@ -80,16 +79,18 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     }
 
 
-uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop, const char* parfnm )
+uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop,"103.2.0")
-    , parfnm_(parfnm)
+    , parfnm_(iop.find(sKey::FileName()))
     , tmpstordirfld_(0), inlperjobfld_(0)
     , jobprov_(0)
     , outioobjinfo_(0)
     , lsfileemitted_(false)
+    , is2d_(false)
 {
-    jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );
-    nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
+    if ( parfnm_.isEmpty() )
+	mRetInvJobSpec( "Invalid job specification file pass."
+		"\nMissing 'File name' key." )
 
     const char* idres = jobpars_.find( SeisJobExecProv::outputKey(jobpars_) );
     if ( !idres )
@@ -102,7 +103,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop, const char* parfnm )
 	mRetInvJobSpec( BufferString("Cannot find output cube (", idres,
 			") in object management." ) );
 
-    is2d_ = outioobjinfo_->is2D();
+    jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );
+    nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
+
+    const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
 
     setOkText( "  Dismiss  " );
     setTitleText( isMultiHost()  ? "Multi-Machine Processing"

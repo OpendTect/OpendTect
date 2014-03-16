@@ -66,7 +66,7 @@ public:
 
 uiCustomIODirTester( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Custom IODir Tester","Specify Own objects",
-				 mTODOHelpID))
+				 mTODOHelpKey))
 {
     selinfld_ = new uiIOObjSel( this, mIOObjContext(MyObj) );
 
