@@ -25,7 +25,7 @@ class ui3DViewer;
 
 
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
-{ mTextTranslationClass(uiODTreeItem)
+{ mODTextTranslationClass(uiODTreeItem)
 public:
     			uiODTreeItem(const char*);
     bool		anyButtonClick(uiTreeViewItem*);
@@ -92,7 +92,7 @@ public:
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
 mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
-{ mTextTranslationClass(uiOD##type##TreeItem)\
+{ mODTextTranslationClass(uiOD##type##TreeItem)\
     typedef uiOD##inherited inheritedClass; \
 public: \
     			uiOD##type##TreeItem(); \

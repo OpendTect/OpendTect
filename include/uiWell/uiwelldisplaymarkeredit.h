@@ -50,7 +50,7 @@ protected :
 
 
 mExpClass(uiWell) uiDispEditMarkerDlg : public uiDialog
-{ mTextTranslationClass(uiDispEditMarkerDlg);
+{ mODTextTranslationClass(uiDispEditMarkerDlg);
 public:
 				uiDispEditMarkerDlg(uiParent*);
 				~uiDispEditMarkerDlg();

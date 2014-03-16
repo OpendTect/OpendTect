@@ -42,7 +42,7 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
  */
 
 mExpClass(uiBase) uiColorInput : public uiGroup
-{ mTextTranslationClass(uiColorInput)
+{ mODTextTranslationClass(uiColorInput)
 public:
     mExpClass(uiBase) Setup
     {

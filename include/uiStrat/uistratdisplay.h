@@ -101,7 +101,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratDisplay : public uiGraphicsView
-{ mTextTranslationClass(uiStratDisplay);
+{ mODTextTranslationClass(uiStratDisplay);
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
 				~uiStratDisplay();

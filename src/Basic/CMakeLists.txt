@@ -90,6 +90,7 @@ set( OD_MODULE_SOURCES
 	task.cc
 	thread.cc
 	threadwork.cc
+	texttranslator.cc
 	timefun.cc
 	timer.cc
 	uistring.cc

@@ -16,10 +16,13 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "objectset.h"
+#include "keystrs.h"
 
 class uiStringData;
 
-mFDQtclass( QString )
+mFDQtclass( QString );
+mFDQtclass( QTranslator );
+
 
 /*!String that is able to hold wide character strings for the user interface.
    These strings can be in different encodings and should only be used to pass
@@ -43,6 +46,25 @@ mFDQtclass( QString )
        constructed with the copy constructor or the equal operator, they are not
        suited for other types of string operations than passing messages to the
        user.
+
+ The translation in OpendTect is done using Qt's subsystem for localization.
+ A class that wishes to enable localization should:
+
+  -# Declare the mTextTranslationClass(classname,application) in its class
+     definition. The application is a string that identifies your application.
+     OpendTect's internal classes use the "od" applicaiton string, and can for
+     short use the mODTextTranslationClass macro.
+  -# Use the tr() function for all translatable string. The tr() function
+     returns a uiString() that can be passed to the ui.
+  -# Use Qt's lupdate to scan your code for localization strings. This will
+     generate a .ts file which can be editded with Qt's Linguist program to
+     translate the strings.
+  -# The updated .ts file should be converted to a binary .qm file using Qt's
+     lrelease application.
+  -# The .qm file should be placed in
+     data/localizations/<application>_<lang>_<country>.ts in the release. For
+     example, a localization of OpendTect to traditional Chinese/Taiwan would be
+    saved as od_zh_TW.ts.
  */
 
 
@@ -69,6 +91,7 @@ public:
 				/*!<Copies all data over from src. If src and
 				    this use the same data, they will be
 				    separated. */
+    void			setFrom(const mQtclass(QString)&);
     uiString&			operator=(const char*);
     uiString&			operator=(const FixedString&);
 
@@ -90,23 +113,34 @@ public:
     const char*			getOriginalString() const;
     const mQtclass(QString&)	getQtString() const;
 
+    static const char*		sODLocalizationApplication() { return "od"; }
+
 private:
     friend class		uiStringData;
     uiStringData*		data_;
 public:
+				//Only for expert users
 				uiString(const char* original,
 					 const char* context,
+					 const char* application,
 					 const char* disambiguation,
 					 int pluralnr);
-				//Only for expert users
+    void			translate(const mQtclass(QTranslator)&,
+					  mQtclass(QString)&) const;
+
+
 
 };
 
-#define mTextTranslationClass(clss) \
+#define mTextTranslationClass(clss,application) \
 private: \
  static inline uiString tr( const char* text, const char* disambiguation = 0,  \
  int pluralnr=-1 ) \
- { return uiString( text, #clss, disambiguation, pluralnr ); }
+ { return uiString( text, #clss, application, disambiguation, pluralnr ); }
+
+#define mODTextTranslationClass(clss) \
+mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
+
 
 
 #endif

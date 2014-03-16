@@ -29,7 +29,7 @@ MultiID storhint_;
 
 
 class uiSelExternalAttrInps : public uiDialog
-{ mTextTranslationClass(uiSelExternalAttrInps);
+{ mODTextTranslationClass(uiSelExternalAttrInps);
 public:
 uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 		const BufferStringSet& indirinps,

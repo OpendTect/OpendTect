@@ -16,20 +16,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "typeset.h"
 #include "perthreadrepos.h"
+#include "texttranslator.h"
 
 #include <QString>
-#include <QCoreApplication>
+#include <QTranslator>
 
 
 class uiStringData
 { mRefCountImplNoDestructor(uiStringData)
 public:
     uiStringData( const char* originalstring, const char* context,
+		  const char* application,
 		  const char* disambiguation, int pluralnr )
 	: originalstring_( originalstring )
 	, translationcontext_( context )
 	, translationpluralnumber_( pluralnr )
 	, translationdisambiguation_( disambiguation )
+	, application_( application )
     {
     }
 
@@ -40,12 +43,23 @@ public:
 	translationpluralnumber_ = d.translationpluralnumber_;
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
+	application_ = d.application_;
+    }
+
+    void setFrom( const QString& qstr )
+    {
+	originalstring_.setEmpty();
+	translationcontext_ = 0;
+	translationpluralnumber_ = -1;
+	translationdisambiguation_ = 0;
+	application_ = 0;
+	qstring_ = qstr;
     }
 
     const char* getFullString() const;
 
     void set(const char* orig);
-    void fillQString(QString&, bool translate) const;
+    void fillQString(QString&,const QTranslator* translator=0) const;
 
     TypeSet<uiString>		arguments_;
 
@@ -53,6 +67,7 @@ public:
 
     BufferString		originalstring_;
     const char* 		translationcontext_;
+    const char* 		application_;
     const char* 		translationdisambiguation_;
     int 			translationpluralnumber_;
 
@@ -81,19 +96,18 @@ const char* uiStringData::getFullString() const
 
 
 
-void uiStringData::fillQString( QString& res, bool translate ) const
+void uiStringData::fillQString( QString& res,
+				const QTranslator* translator ) const
 {
     if ( !originalstring_ || !*originalstring_ )
 	return;
 
-    res = originalstring_;
-
-    if ( translate )
-	res = QCoreApplication::translate( translationcontext_,
-					    originalstring_,
-					    translationdisambiguation_,
-					    QCoreApplication::CodecForTr,
-					    translationpluralnumber_ );
+    if ( translator )
+	res = translator->translate( translationcontext_, originalstring_,
+				     translationdisambiguation_,
+				     translationpluralnumber_ );
+    else
+	res = originalstring_;
 
     for ( int idx=0; idx<arguments_.size(); idx++ )
     {
@@ -104,7 +118,7 @@ void uiStringData::fillQString( QString& res, bool translate ) const
 
 
 uiString::uiString( const char* str )
-    : data_( new uiStringData( 0, 0, 0, -1 ) )
+    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
 {
     data_->ref();
     *this = str;
@@ -112,8 +126,10 @@ uiString::uiString( const char* str )
 
 
 uiString::uiString( const char* originaltext, const char* context,
+		    const char* application,
 		    const char* disambiguation, int pluralnr )
-    : data_( new uiStringData(originaltext, context, disambiguation, pluralnr ))
+    : data_( new uiStringData(originaltext, context, application,
+			      disambiguation, pluralnr ))
 {
     data_->ref();
 }
@@ -129,7 +145,7 @@ uiString::uiString( const uiString& str )
 
 
 uiString::uiString( const FixedString& str )
-    : data_( new uiStringData( 0, 0, 0, -1 ) )
+    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
 {
     data_->ref();
     *this = str;
@@ -137,7 +153,7 @@ uiString::uiString( const FixedString& str )
 
 
 uiString::uiString( const BufferString& str )
-    : data_( new uiStringData( 0, 0, 0, -1 ) )
+    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
 {
     data_->ref();
     *this = str;
@@ -170,7 +186,8 @@ const char* uiString::getFullString() const
 
 const QString& uiString::getQtString() const
 {
-    data_->fillQString( data_->qstring_, true );
+    data_->fillQString( data_->qstring_,
+			TrMgr().getQTranslator(data_->application_) );
     return data_->qstring_;
 }
 
@@ -189,12 +206,18 @@ uiString& uiString::setFrom( const uiString& str )
     if ( data_==str.data_ )
     {
 	data_->unRef();
-	data_ = new uiStringData( 0, 0, 0, -1 );
+	data_ = new uiStringData( 0, 0, 0, 0, -1 );
 	data_->ref();
     }
 
     data_->setFrom( *str.data_ );
     return *this;
+}
+
+
+void uiString::setFrom( const QString& qstr )
+{
+    data_->setFrom( qstr );
 }
 
 
@@ -238,6 +261,13 @@ uiString& uiString::arg( const BufferString& a )
 uiString& uiString::arg( const char* newarg )
 {
     return arg( uiString(newarg) );
+}
+
+
+void uiString::translate( const QTranslator& tr , QString& res ) const
+{
+    data_->fillQString( res, &tr );
+
 }
 
 

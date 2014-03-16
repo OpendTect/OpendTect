@@ -25,7 +25,7 @@ class uiString;
 
 mExpClass(uiBase) uiMsg
 {
-    mTextTranslationClass(uiMsg);
+    mODTextTranslationClass(uiMsg);
     friend class uiMain;
     mGlobal(uiBase) friend uiMsg& uiMSG();
 

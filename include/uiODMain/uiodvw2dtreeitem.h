@@ -25,7 +25,7 @@ namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
-{ mTextTranslationClass(uiODVw2DTreeItem)
+{ mODTextTranslationClass(uiODVw2DTreeItem)
 public:
     			uiODVw2DTreeItem(const char*);
 			~uiODVw2DTreeItem(){}

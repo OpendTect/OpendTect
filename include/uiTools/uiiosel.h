@@ -28,7 +28,7 @@ class uiPushButton;
 */
 
 mExpClass(uiTools) uiIOSelect : public uiGroup
-{ mTextTranslationClass(uiIOSelect);
+{ mODTextTranslationClass(uiIOSelect);
 public:
 
     mExpClass(uiTools) Setup
@@ -126,7 +126,7 @@ protected:
 
 
 mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
-{ mTextTranslationClass(uiIOFileSelect);
+{ mODTextTranslationClass(uiIOFileSelect);
 public:
 			uiIOFileSelect(uiParent*,const char* txt,
 					bool for_read,

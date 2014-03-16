@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uiparentbody.h"
 #include "pixmap.h"
-#include "uitexttranslator.h"
+#include "texttranslator.h"
 #include "uistring.h"
 
 #include <climits>

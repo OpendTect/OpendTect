@@ -117,7 +117,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisSelDlg : public uiIOObjSelDlg
-{ mTextTranslationClass(uiSeisSelDlg);
+{ mODTextTranslationClass(uiSeisSelDlg);
 public:
 
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,

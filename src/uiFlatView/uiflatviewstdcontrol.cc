@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "pixmap.h"
-#include "uitexttranslator.h"
+#include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \

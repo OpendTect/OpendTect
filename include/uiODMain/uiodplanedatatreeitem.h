@@ -23,7 +23,7 @@ namespace Well { class Data; }
 
 
 mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
-{ mTextTranslationClass(uiODPlaneDataTreeItem)
+{ mODTextTranslationClass(uiODPlaneDataTreeItem)
 public:
     enum Type		{ Default, Empty, RGBA };
     enum Orientation	{ Inline, Crossline, ZSlice };

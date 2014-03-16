@@ -54,7 +54,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
-{ mTextTranslationClass(uiODVw2DPickSetTreeItem)
+{ mODTextTranslationClass(uiODVw2DPickSetTreeItem)
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
 			~uiODVw2DPickSetTreeItem();

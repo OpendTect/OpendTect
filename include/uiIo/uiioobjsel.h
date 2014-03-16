@@ -145,7 +145,7 @@ protected:
 */
 
 mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
-{ mTextTranslationClass(uiIOObjSelDlg);
+{ mODTextTranslationClass(uiIOObjSelDlg);
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
 				      const uiString& seltxt=0,
@@ -182,7 +182,7 @@ protected:
 */
 
 mExpClass(uiIo) uiIOObjSel : public uiIOSelect
-{ mTextTranslationClass(uiIOObjSel);
+{ mODTextTranslationClass(uiIOObjSel);
 public:
 
     mExpClass(uiIo) Setup : public uiIOSelect::Setup

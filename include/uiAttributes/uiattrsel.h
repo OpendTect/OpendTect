@@ -72,7 +72,7 @@ attribute set.
 */
 
 mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
-{ mTextTranslationClass(uiAttrSelDlg);
+{ mODTextTranslationClass(uiAttrSelDlg);
 public:
 
     mExpClass(uiAttributes) Setup
@@ -158,7 +158,7 @@ protected:
 */
 
 mExpClass(uiAttributes) uiAttrSel : public uiIOSelect
-{ mTextTranslationClass(uiAttrSel);
+{ mODTextTranslationClass(uiAttrSel);
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
 				  const char* txt=0,

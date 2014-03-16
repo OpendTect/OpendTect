@@ -19,7 +19,7 @@ ________________________________________________________________________
 //Common strings. Use these and extend when needed
 
 mExpClass(uiBase) uiStrings
-{ mTextTranslationClass(uiStrings);
+{ mODTextTranslationClass(uiStrings);
 public:
     static inline uiString sAbort()		{ return tr("&Abort"); }
     static inline uiString sAdd(bool immediate);

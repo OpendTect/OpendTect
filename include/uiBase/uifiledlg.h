@@ -23,7 +23,7 @@ class FileMultiString;
 */
 
 mExpClass(uiBase) uiFileDialog
-{ mTextTranslationClass(uiFileDialog);
+{ mODTextTranslationClass(uiFileDialog);
 public:
     //! File selection mode
     enum Mode

@@ -78,7 +78,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitable.cc
 		uitabstack.cc
 		uitextedit.cc
-		uitexttranslate.cc
 		uitoolbar.cc
 		uitreeview.cc
 		uivirtualkeyboard.cc)

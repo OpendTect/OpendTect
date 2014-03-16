@@ -26,7 +26,7 @@ namespace Strat { class LaySeqAttrib; class RefTree; };
 /*! \brief edits a layer sequence attribute */
 
 mExpClass(uiStrat) uiLaySeqAttribEd : public uiDialog
-{ mTextTranslationClass(uiLaySeqAttribEd);
+{ mODTextTranslationClass(uiLaySeqAttribEd);
 public:
 
     mExpClass(uiStrat) Setup

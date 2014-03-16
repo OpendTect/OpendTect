@@ -403,7 +403,7 @@ void uiSeisBayesClass::normGot( CallBacker* )
 
 
 class uiSeisBayesSeisInp : public uiVarWizardDlg
-{ mTextTranslationClass(uiSeisBayesSeisInp);
+{ mODTextTranslationClass(uiSeisBayesSeisInp);
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
@@ -496,7 +496,7 @@ void uiSeisBayesClass::inpSeisGot( CallBacker* )
 
 
 class uiSeisBayesOut : public uiVarWizardDlg
-{ mTextTranslationClass(uiSeisBayesOut);
+{ mODTextTranslationClass(uiSeisBayesOut);
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )

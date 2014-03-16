@@ -23,7 +23,7 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 
 mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
-{ mTextTranslationClass(uiODWellParentTreeItem)
+{ mODTextTranslationClass(uiODWellParentTreeItem)
     typedef uiODTreeItem	inheritedClass;
 public:
     			uiODWellParentTreeItem();
