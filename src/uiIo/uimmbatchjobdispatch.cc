@@ -221,7 +221,6 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     progbar_->attach( alignedBelow, progrfld_ );
 
     postFinalise().notify( mCB(this,uiMMBatchJobDispatcher,initWin) );
-    afterPopup.notify( mCB(this,uiMMBatchJobDispatcher,startWork) );
 }
 
 

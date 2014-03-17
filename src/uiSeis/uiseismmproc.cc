@@ -108,8 +108,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	mRetInvJobSpec( BufferString("Cannot find output cube (", idres,
 			") in object management." ) );
 
-    jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );
     nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
+    jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );
 
     const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
@@ -194,7 +194,6 @@ bool uiSeisMMProc::initWork( bool retry )
 		mErrRet("The temporary storage directory is not writable")
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
 	    jobpars_.set( sKey::TmpStor(), tmpstordir );
-	    tmpstordirfld_->setSensitive( false );
 	}
 
 	jobprov_ = new SeisJobExecProv(
