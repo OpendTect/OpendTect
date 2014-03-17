@@ -46,6 +46,10 @@ public:
     mDefSetupClssMemb(CommandExecPars,bool,isconsoleuiprog);
 			    //!< program uses text-based stdin console input
 			    //!< if true, will ignore monitor settings
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    void		removeFromPar(IOPar&) const;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uiodmenumgr.cc 33559 2014-03-06 12:43:30Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodmenumgr.h"
 
@@ -473,7 +473,7 @@ void uiODMenuMgr::fillProcMenu()
 		   mCompBetweenHor3DMnuItm, "betweenhors" );
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
 		   mCompAlongHor3DMnuItm, "alonghor" );
-    mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
+    mInsertItem( csoitm, "(Re-)Start Batch &Job...", mStartBatchJobMnuItm );
     csoitm->insertItem( new uiAction("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
     mInsertItem( csoitm, "&Settings ...", mProcSettingsItm );
@@ -1106,7 +1106,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
     case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
-    case mReStartMnuItm:	applMgr().reStartProc(); break;
+    case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
     case mProcSettingsItm:	applMgr().setProcSettings(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;

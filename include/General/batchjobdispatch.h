@@ -32,6 +32,7 @@ public:
 			JobSpec(ProcType);
 			JobSpec( const char* pnm=0 )
 			    : prognm_(pnm), execpars_(true)		{}
+			JobSpec(const IOPar&);
 
     static const char*	progNameFor(ProcType);
     static ProcType	procTypeFor(const char*);
@@ -40,6 +41,9 @@ public:
     BufferString	clargs_;
     IOPar		pars_;
     OS::CommandExecPars	execpars_;	//!< just a hint for some dispatchers
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 
 };
 
@@ -50,7 +54,9 @@ public:
   elaborate cluster-based job splitting monsters.
 
   isSuitedFor() determines whether a certain type of dispatcher can handle any
-  job for this program. canHandle() decides on the whole JobSpec.
+  job for this program. canHandle() decides on the whole JobSpec. If the
+  job creates intermediate results, then it may be able to resume after
+  the user has stopped. In that case, canResume() can return true.
 
   Every job will sooner or later be written to a par file. We want to have user
   select job names, not par file names. Thus, there are both job names and
@@ -71,6 +77,7 @@ public:
     virtual const char*	description() const		= 0;
     virtual bool	isSuitedFor(const char* prognm) const = 0;
     virtual bool	canHandle(const JobSpec&) const;
+    virtual bool	canResume(const JobSpec&) const { return false; }
 
     bool		go(const JobSpec&);
     const char*		errMsg() const			{ return errmsg_; }
@@ -86,7 +93,8 @@ public:
     void		setJobName(const char*);
     BufferString	jobName() const	{ return getJobName(parfnm_.buf()); }
 
-    bool		writeParFile() const;
+    static void		setUserWantsResume(IOPar&,bool);
+    static bool		userWantsResume(const IOPar&);
 
     JobSpec		jobspec_;
     BufferString	parfnm_;
@@ -97,6 +105,8 @@ protected:
     virtual bool	launch()			= 0;
 
     mutable BufferString errmsg_;
+
+    bool		writeParFile() const;
 
 };
 

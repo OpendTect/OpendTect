@@ -542,8 +542,8 @@ void uiODApplMgrDispatcher::genAngleMuteFunction()
 { PreStack::uiAngleMuteComputer dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::bayesClass( bool is2d )
 { new uiSeisBayesClass( ODMainWin(), is2d ); }
-void uiODApplMgrDispatcher::reStartProc()
-{ uiRestartBatchDialog dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::startBatchJob()
+{ uiStartBatchJobDialog dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::batchProgs()
 { uiBatchProgLaunch dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::pluginMan()

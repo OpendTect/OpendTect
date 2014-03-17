@@ -39,6 +39,11 @@ bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
     return isSuitedFor( js.prognm_ );
 }
 
+bool Batch::SeisMMProgDef::canResume( const Batch::JobSpec& js ) const
+{
+    return canHandle(js) && SeisJobExecProv::isRestart(js.pars_);
+}
+
 static const char* outlsfilename = "outls.2ds";
 
 #define mMMKey			"MultiMachine"
@@ -107,6 +112,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
 
     const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
+    const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
+			&& SeisJobExecProv::isRestart(iop);
 
     setOkText( "  Dismiss  " );
     setTitleText( isMultiHost()  ? "Multi-Machine Processing"
@@ -120,17 +127,18 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 
     if ( !is2d_ )
     {
-	BufferString tmpstordir = jobpars_.find(sKey::TmpStor());
-	bool isrestart = !tmpstordir.isEmpty();
-	if ( !isrestart )
+	BufferString tmpstordir = jobpars_.find( sKey::TmpStor() );
+	if ( !doresume )
 	{
+	    if ( File::exists(tmpstordir) )
+		File::remove(tmpstordir);
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir();
 	    FilePath fp( tmpstordir ); fp.setFileName( 0 );
 	    tmpstordir = fp.fullPath();
 	}
 
 	uiObject* inlperjobattach = 0;
-	if ( isrestart )
+	if ( doresume )
 	{
 	    BufferString msg( sKey::TmpStor() ); msg += ": ";
 	    uiLabel* tmpstorloc = new uiLabel( specparsgroup_, msg );

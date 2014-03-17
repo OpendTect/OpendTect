@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "fixedstring.h"
+#include "separstr.h"
+#include "iopar.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -32,6 +34,61 @@ static const char* rcsID mUsedVar = "$Id$";
 
 BufferString OS::MachineCommand::defremexec_( "ssh" );
 static const char* sODProgressViewerProgName = "od_ProgressViewer";
+static const char* sKeyExecPars = "ExecPars";
+static const char* sKeyMonitor = "Monitor";
+static const char* sKeyProgType = "ProgramType";
+static const char* sKeyPriorityLevel = "PriorityLevel";
+
+
+void OS::CommandExecPars::usePar( const IOPar& iop )
+{
+    IOPar* subpar = iop.subselect( sKeyExecPars );
+    if ( !subpar || subpar->isEmpty() )
+	{ delete subpar; return; }
+
+    FileMultiString fms;
+    subpar->get( sKeyMonitor, fms );
+    int sz = fms.size();
+    if ( sz > 0 )
+    {
+	needmonitor_ = toBool( fms[0] );
+	monitorfnm_ = fms[1];
+    }
+
+    fms.setEmpty();
+    subpar->get( sKeyProgType, fms );
+    sz = fms.size();
+    if ( sz > 0 )
+    {
+	launchtype_ = *fms[0] == 'W' ? Wait4Finish : RunInBG;
+	isconsoleuiprog_ = *fms[0] == 'C';
+    }
+
+    subpar->get( sKeyPriorityLevel, prioritylevel_ );
+
+    delete subpar;
+}
+
+
+void OS::CommandExecPars::fillPar( IOPar& iop ) const
+{
+    FileMultiString fms;
+    fms += needmonitor_ ? "Yes" : "No";
+    fms += monitorfnm_;
+    iop.set( IOPar::compKey(sKeyExecPars,sKeyMonitor), fms );
+
+    fms = launchtype_ == Wait4Finish ? "Wait" : "BG";
+    fms += isconsoleuiprog_ ? "ConsoleUI" : "";
+    iop.set( IOPar::compKey(sKeyExecPars,sKeyProgType), fms );
+
+    iop.set( IOPar::compKey(sKeyExecPars,sKeyPriorityLevel), prioritylevel_ );
+}
+
+
+void OS::CommandExecPars::removeFromPar( IOPar& iop ) const
+{
+    iop.removeWithKeyPattern( BufferString(sKeyExecPars,".*") );
+}
 
 
 OS::MachineCommand::MachineCommand( const char* comm )

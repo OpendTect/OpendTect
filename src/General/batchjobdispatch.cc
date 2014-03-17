@@ -15,6 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "dirlist.h"
 #include "ioman.h"
+#include "iopar.h"
+
+static const char* sKeyProgramName = "Program.Name";
+static const char* sKeyClArgs = "Program.Args";
 
 
 mImplFactory(Batch::JobDispatcher,Batch::JobDispatcher::factory)
@@ -25,6 +29,37 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
     , prognm_(progNameFor(pt))
 {
     execpars_.needmonitor_ = true;
+}
+
+
+Batch::JobSpec::JobSpec( const IOPar& iop )
+    : execpars_(true)
+{
+    usePar( iop );
+    pars_.removeWithKey( sKey::Survey() );
+    pars_.removeWithKey( sKey::DataRoot() );
+}
+
+
+void Batch::JobSpec::usePar( const IOPar& iop )
+{
+    pars_ = iop;
+    pars_.removeWithKey( sKeyProgramName );
+    pars_.removeWithKey( sKeyClArgs );
+    execpars_.removeFromPar( pars_ );
+
+    prognm_ = iop.find( sKeyProgramName );
+    clargs_ = iop.find( sKeyClArgs );
+    execpars_.usePar( iop );
+}
+
+
+void Batch::JobSpec::fillPar( IOPar& iop ) const
+{
+    iop = pars_;
+    iop.set( sKeyProgramName, prognm_ );
+    iop.set( sKeyClArgs, clargs_ );
+    execpars_.fillPar( iop );
 }
 
 
@@ -93,9 +128,6 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
     if ( !init() )
 	return false;
 
-    jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
-    jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
-
     return launch();
 }
 
@@ -147,10 +179,14 @@ void Batch::JobDispatcher::setJobName( const char* inp )
 
 bool Batch::JobDispatcher::writeParFile() const
 {
-    od_ostream parstrm( parfnm_ );
-    ascostream astrm( parstrm );
+    IOPar wrpar( jobspec_.pars_ );
+    jobspec_.fillPar( wrpar );
+    wrpar.set( sKey::Survey(), IOM().surveyName() );
+    wrpar.set( sKey::DataRoot(), GetBaseDataDir() );
+
+    od_ostream parstrm( parfnm_ ); ascostream astrm( parstrm );
     astrm.putHeader( "Parameters" );
-    jobspec_.pars_.putTo( astrm );
+    wrpar.putTo( astrm );
     const bool ret = parstrm.isOK();
     parstrm.close();
     if ( !ret )
@@ -160,6 +196,21 @@ bool Batch::JobDispatcher::writeParFile() const
     }
     return ret;
 }
+
+
+static const char* sKeyResumeProcessing = "Resume Processing";
+
+void Batch::JobDispatcher::setUserWantsResume( IOPar& iop, bool yn )
+{
+    iop.set( sKeyResumeProcessing, yn );
+}
+
+
+bool Batch::JobDispatcher::userWantsResume( const IOPar& iop )
+{
+    return iop.isTrue( sKeyResumeProcessing );
+}
+
 
 
 Batch::SingleJobDispatcher::SingleJobDispatcher()

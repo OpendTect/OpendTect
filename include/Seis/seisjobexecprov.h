@@ -52,7 +52,7 @@ public:
 			SeisJobExecProv(const char* prognm,const IOPar&);
     virtual		~SeisJobExecProv();
 
-    bool		isRestart() const;
+    bool		isRestart() const	{ return isRestart(iopar_); }
     const char*		errMsg() const		{ return errmsg_.str(); }
     const IOPar&	pars() const		{ return iopar_; }
 
@@ -72,6 +72,8 @@ public:
     static const char*	sKeySeisOutIDKey();
     static const char*	sKeyOutputLS();
     static const char*	sKeyWorkLS();
+
+    static bool		isRestart(const IOPar&);
 
 protected:
 

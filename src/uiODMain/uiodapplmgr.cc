@@ -1822,8 +1822,8 @@ void uiODApplMgr::bayesClass3D( CallBacker* )
 { dispatcher_.bayesClass(false); }
 void uiODApplMgr::resortSEGY( CallBacker* )
 { dispatcher_.resortSEGY(); }
-void uiODApplMgr::reStartProc()
-{ dispatcher_.reStartProc(); }
+void uiODApplMgr::startBatchJob()
+{ dispatcher_.startBatchJob(); }
 void uiODApplMgr::setProcSettings()
 { dispatcher_.setProcSettings(); }
 void uiODApplMgr::batchProgs()

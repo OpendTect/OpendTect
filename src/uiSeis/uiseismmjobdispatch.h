@@ -22,6 +22,7 @@ public:
 			SeisMMProgDef() : MMProgDef("od_SeisMMBatch")	{}
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
+    virtual bool	canResume(const JobSpec&) const;
 };
 
 } // namespace Batch

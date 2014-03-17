@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "cubesampling.h"
 #include "separstr.h"
+#include "batchjobdispatch.h"
 #include "genc.h"
 
 const char* SeisJobExecProv::sKeySeisOutIDKey()	{ return "Output Seismics Key";}
@@ -98,8 +99,12 @@ const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 
 JobDescProv* SeisJobExecProv::mk2DJobProv()
 {
-    FixedString restkey = iopar_.find( sKeyProcIs2D );
-    const bool isrestart = restkey && *restkey == 'Y';
+    bool doresume = false;
+    if ( Batch::JobDispatcher::userWantsResume(iopar_) )
+    {
+	const FixedString restkey = iopar_.find( sKeyProcIs2D );
+	doresume = restkey.firstChar() == 'Y';
+    }
     iopar_.set( sKeyProcIs2D, "Yes" );
 
     // Allow alternative keying via input key
@@ -122,7 +127,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
 	FixedString attrnm = iopar_.find( sKey::Target() );
 
-	if ( isrestart )
+	if ( doresume )
 	{
 	    S2DPOS().setCurLineSet( inpls->name() );
 	    for ( int idx=0; idx<nms.size(); idx++ )
@@ -205,11 +210,11 @@ void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
 }
 
 
-bool SeisJobExecProv::isRestart() const
+bool SeisJobExecProv::isRestart( const IOPar& iop )
 {
-    const char* res = iopar_.find( sKey::TmpStor() );
+    const char* res = iop.find( sKey::TmpStor() );
     if ( !res )
-	return iopar_.find( sKeyProcIs2D );
+	return iop.find( sKeyProcIs2D );
 
     return File::isDirectory(res);
 }

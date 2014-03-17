@@ -28,6 +28,8 @@ public:
     virtual bool	isSuitedFor(const char* prognm) const	= 0;
     virtual bool	canHandle( const JobSpec& js ) const
 			{ return isSuitedFor( js.prognm_ ); }
+    virtual bool	canResume( const JobSpec& js ) const
+			{ return false; }
 
     BufferString	mmprognm_;
 
@@ -46,6 +48,7 @@ public:
     virtual const char*	description() const;
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
+    virtual bool	canResume(const JobSpec&) const;
 
     mDefaultFactoryInstantiation(JobDispatcher,MMJobDispatcher,
 				 "Multi-Machine","Multi-Machine");

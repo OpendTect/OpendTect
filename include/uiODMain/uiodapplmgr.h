@@ -95,7 +95,7 @@ public:
     void			openCrossPlot(CallBacker* =0);
 				//!< Create crossplot from file
     void			createHorOutput(int,bool);
-    void			reStartProc();
+    void			startBatchJob();
     void			setProcSettings();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);

@@ -79,6 +79,17 @@ bool Batch::MMJobDispatcher::canHandle( const Batch::JobSpec& js ) const
 }
 
 
+bool Batch::MMJobDispatcher::canResume( const Batch::JobSpec& js ) const
+{
+    for ( int idx=0; idx<progdefs_.size(); idx++ )
+    {
+	if ( progdefs_[idx]->canResume(js) )
+	    return true;
+    }
+    return false;
+}
+
+
 bool Batch::MMJobDispatcher::init()
 {
     if ( parfnm_.isEmpty() )

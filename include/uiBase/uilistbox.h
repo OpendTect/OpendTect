@@ -191,10 +191,10 @@ public:
 			  BelowLeft, BelowMid, BelowRight };
 
 			uiLabeledListBox(uiParent*,const uiString& lbltxt,
-					 bool multisel=false,LblPos p=LeftTop);
+					 bool multisel=false,LblPos p=LeftMid);
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
 					 const uiString& lbltxt,
-					 bool multisel=false,LblPos p=LeftTop);
+					 bool multisel=false,LblPos p=LeftMid);
 
     uiListBox*		box()				{ return lb_; }
     int 		nrLabels() const		{ return lbls_.size(); }
