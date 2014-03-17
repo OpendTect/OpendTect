@@ -786,6 +786,7 @@ bool uiMMBatchJobDispatcher::acceptOK(CallBacker*)
 	    return false;
     }
 
-    jobrunner_->stopAll();
+    if ( jobrunner_ )
+	jobrunner_->stopAll();
     return wrapUp();
 }

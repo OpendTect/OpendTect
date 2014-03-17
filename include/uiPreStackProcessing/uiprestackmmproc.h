@@ -28,9 +28,6 @@ protected:
     const bool		is2d_;
 
     virtual bool	initWork(bool);
-    virtual bool	prepareCurrentJob();
-    virtual Executor*	getPostProcessor() const;
-    virtual bool	needConfirmEarlyStop() const;
 
 };
 

@@ -231,7 +231,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     TypeSet<int>* ptrnrs = 0;
 
     mSetInlsPerJob( nrinlperjob );
-    InlineSplitJobDescProv jdp( iopar_, 0 );
+    InlineSplitJobDescProv jdp( iopar_ );
     jdp.getRange( todoinls_ );
 
     if ( havetempdir )
@@ -254,8 +254,8 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     jpiopar.set( seisoutkey_, tmpstorid_ );
     jpiopar.set( mOutSubKey(sKey::Type()), sKey::Range() );
 
-    return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, 0 )
-		  : new InlineSplitJobDescProv( jpiopar, 0 );
+    return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs )
+		  : new InlineSplitJobDescProv( jpiopar );
 }
 
 

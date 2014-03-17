@@ -121,10 +121,9 @@ The keying is either:
 mExpClass(MMProc) InlineSplitJobDescProv : public JobDescProv
 {
 public:
+    			InlineSplitJobDescProv(const IOPar&);
     			InlineSplitJobDescProv(const IOPar&,
-						const char* single_key=0);
-    			InlineSplitJobDescProv(const IOPar&,const TypeSet<int>&,
-						const char* single_key=0);
+						const TypeSet<int>&);
 			~InlineSplitJobDescProv();
 
     virtual int		nrJobs() const;
@@ -145,7 +144,6 @@ public:
 
 protected:
 
-    const BufferString	singlekey_;
     StepInterval<int>	inlrg_;
     TypeSet<int>*	inls_;
 

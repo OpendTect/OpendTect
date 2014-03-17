@@ -109,10 +109,8 @@ void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
     Interval<int> dum; SI().sampling(false).hrg.get( inlrg_, dum )
 
 
-InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
-					     	const char* sk )
+InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
     	: JobDescProv(iop)
-    	, singlekey_(sk)
     	, inls_(0)
 	, ninlperjob_( 1 )
 {
@@ -123,9 +121,8 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
 
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
-			const TypeSet<int>& in, const char* sk )
+						const TypeSet<int>& in )
     	: JobDescProv(iop)
-    	, singlekey_(sk)
     	, inls_(new TypeSet<int>(in))
 	, ninlperjob_( 1 )
 {
@@ -152,14 +149,9 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {
     rg.step = 0;
 
-    if ( *(const char*)singlekey_ )
-	inpiopar_.get( singlekey_, rg );
-    else
-    {
-	inpiopar_.get( mGetSubselKey(FirstInl), rg.start );
-	inpiopar_.get( mGetSubselKey(LastInl), rg.stop );
-	inpiopar_.get( mGetSubselKey(StepInl), rg.step );
-    }
+    inpiopar_.get( mGetSubselKey(FirstInl), rg.start );
+    inpiopar_.get( mGetSubselKey(LastInl), rg.stop );
+    inpiopar_.get( mGetSubselKey(StepInl), rg.step );
 
     if ( rg.step < 0 ) rg.step = -rg.step;
     if ( !rg.step ) rg.step = SI().inlStep();
@@ -209,18 +201,12 @@ int InlineSplitJobDescProv::lastInlNr( int jid ) const
 
 void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 {
-    //TODO: verify whether we still need to support singlekey_
     Interval<float> tmprg;
     const bool isfullrange = inpiopar_.get(mGetSubselKey(ZRange), tmprg);
     iop = inpiopar_;
-    if ( *(const char*)singlekey_ )
-	iop.set( singlekey_, firstInlNr(jid), lastInlNr(jid), inlrg_.step );
-    else
-    {
-	iop.set( mGetSubselKey(Type), sKey::Range() );
-	iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
-	iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
-    }
+    iop.set( mGetSubselKey(Type), sKey::Range() );
+    iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
+    iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
 
     if ( !isfullrange )
     {

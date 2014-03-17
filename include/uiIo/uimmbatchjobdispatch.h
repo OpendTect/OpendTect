@@ -45,7 +45,7 @@ protected:
     virtual Executor*	getPostProcessor() const	{ return 0; }
     virtual bool	haveTmpProcFiles() const	{ return false; }
     virtual bool	removeTmpProcFiles()		{ return true; }
-    virtual bool	needConfirmEarlyStop() const	{ return true; }
+    virtual bool	needConfirmEarlyStop() const	{ return jobrunner_; }
     virtual bool	recoverFailedWrapUp() const	{ return false; }
 
     IOPar&		jobpars_;
