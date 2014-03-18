@@ -236,7 +236,18 @@ void uiSEGYFileSpec::setInp2D( bool yn )
 
 void uiSEGYFileSpec::fileSel( CallBacker* )
 {
-    if ( !forread_ ) return;
+    if ( !forread_ )
+    {
+	FilePath fp( fnmfld_->fileName() );
+	const FixedString ext = fp.extension();
+	if ( ext.isEmpty() )
+	{
+	    fp.setExtension( "sgy" );
+	    fnmfld_->setFileName( fp.fullPath() );
+	}
+
+	return;
+    }
 
     const SEGY::FileSpec spec( getSpec() );
     const char* fnm = spec.getFileName();
