@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 
 @$*/
+
 #include "algomod.h"
 #include "arraynd.h"
 #include "enums.h"
@@ -20,18 +21,17 @@ ________________________________________________________________________
 #include "periodicvalue.h"
 
 
-/*!
-\ingroup Algo
-\brief Removes the DC component from an ArrayND. If no output is given,
-removeBias( ) will store the result in the input ArrayND. User can choose to
-remove only the average or an eventual linear trend.
-*/
-
 #define mComputeTrendAandB( sz ) \
 	aval = ( (TT)sz * crosssum - sum * (TT)sumindexes ) / \
 	       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );\
 	bval = ( sum * (TT)sumsqidx - (TT)sumindexes * crosssum ) / \
 	       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );
+
+/*!
+Removes the DC component from an ArrayND. If no output is given, removeBias()
+will store the result in the input ArrayND. User can choose to remove only the
+average or an eventual linear trend.
+*/
 
 template <class T, class TT>
 inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
@@ -72,7 +72,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	    crosssum += inpptr[idx] * (TT)idx;
 	}
 
-	if ( !count )
+	if ( count <= 1 )
 	    return false;
 
 	if ( onlyavg )
@@ -112,7 +112,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	} while ( iter.next() );
 
 	iter.reset();
-	if ( !count )
+	if ( count <= 1 )
 	    return false;
 
 	if ( onlyavg )
