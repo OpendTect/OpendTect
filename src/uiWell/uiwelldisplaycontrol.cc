@@ -22,23 +22,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 
 
-uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l ) 
-    : selmarker_(0)	
-    , seldisp_(0)			
+uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )
+    : selmarker_(0)
+    , seldisp_(0)
     , lastselmarker_(0)
-    , ismousedown_(false)		       
+    , ismousedown_(false)
     , isctrlpressed_(false)
-    , xpos_(0)			   
-    , ypos_(0)			   
-    , time_(0)					       
-    , dah_(0)					       
+    , xpos_(0)
+    , ypos_(0)
+    , time_(0)
+    , dah_(0)
     , posChanged(this)
     , mousePressed(this)
     , mouseReleased(this)
-    , markerSel(this)			 
+    , markerSel(this)
 {
     addDahDisplay( l );
-}    
+}
 
 
 uiWellDisplayControl::~uiWellDisplayControl()
@@ -77,7 +77,7 @@ void uiWellDisplayControl::clear()
     for ( int idx=logdisps_.size()-1; idx>=0; idx-- )
 	removeDahDisplay( *logdisps_[idx] );
 
-    seldisp_ = 0; 	
+    seldisp_ = 0;
     lastselmarker_ = 0;
 }
 
@@ -93,9 +93,9 @@ MouseEventHandler* uiWellDisplayControl::mouseEventHandler()
 void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh ) 
+    if ( !mevh )
 	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() ) 
+    if ( !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     if ( seldisp_ )
@@ -103,7 +103,7 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
 	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
 	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
-	const Well::Track* tr = zdata.track(); 
+	const Well::Track* tr = zdata.track();
 	if ( zdata.zistime_ )
 	{
 	    time_ = ypos_;
@@ -139,22 +139,22 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     const bool zinft = zdata.dispzinft_ && zdata.zistime_;
     const float dispdepth = zinft ? mToFeetFactorF*dah_ : dah_;
     const FixedString depthunitstr = getDistUnitString(zinft,false);
-    info += toString( dispdepth );
-    info += depthunitstr; 
+    info += toString( dispdepth, 2 );
+    info += depthunitstr;
 
     info += "  TVD:";
     const Well::Track* tr = zdata.track();
-    info += toString( tr->getPos(dah_).z+tr->getKbElev() );
-    info += depthunitstr; 
+    info += toString( tr->getPos(dah_).z+tr->getKbElev(), 2 );
+    info += depthunitstr;
     info += "  TVDSS:";
-    info += toString( tr->getPos(dah_).z );
-    info += depthunitstr; 
+    info += toString( tr->getPos(dah_).z, 2 );
+    info += depthunitstr;
 
     if ( zdata.zistime_ )
     {
-    	info += "  TWT:";
-    	info += toString( time_ );
-    	info += SI().zDomain().unitStr(); 
+	info += "  TWT:";
+	info += toString( time_, 2 );
+	info += SI().zDomain().unitStr();
     }
 }
 
@@ -171,9 +171,9 @@ void uiWellDisplayControl::setPosInfo( CallBacker* cb )
 void uiWellDisplayControl::mousePressedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh ) 
+    if ( !mevh )
 	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() ) 
+    if ( !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     ismousedown_ = true;
@@ -186,9 +186,9 @@ void uiWellDisplayControl::mousePressedCB( CallBacker* cb )
 void uiWellDisplayControl::mouseReleasedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh ) 
+    if ( !mevh )
 	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() ) 
+    if ( !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     ismousedown_ = false;
@@ -206,7 +206,7 @@ void uiWellDisplayControl::setSelDahDisplay( CallBacker* cb )
 	for ( int idx=0; idx<logdisps_.size(); idx++)
 	{
 	    uiWellDahDisplay* ld = logdisps_[idx];
-	    if ( &ld->getMouseEventHandler() == mevh ) 
+	    if ( &ld->getMouseEventHandler() == mevh )
 	    {
 		seldisp_ = ld;
 		break;
@@ -216,7 +216,7 @@ void uiWellDisplayControl::setSelDahDisplay( CallBacker* cb )
 }
 
 
-void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb ) 
+void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 {
     if ( !seldisp_ ) return;
     const MouseEvent& ev = seldisp_->getMouseEventHandler().event();
@@ -228,7 +228,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 	const Well::Marker& mrk = markerdraw.mrk_;
 	uiLineItem& li = *markerdraw.lineitm_;
 
-	if ( abs( li.getPos().y - mousepos )<2 ) 
+	if ( abs( li.getPos().y - mousepos )<2 )
 	{
 	    selmrk = const_cast<Well::Marker*>( &mrk );
 	    break;
@@ -269,7 +269,7 @@ void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
 	const LineStyle& ls = mrkdraw->ls_;
 	uiLineItem& li = *mrkdraw->lineitm_;
 	int width = yn ? ls.width_+2 : ls.width_;
-	li.setPenStyle( LineStyle( ls.type_, width, mrk.color() ) ); 
+	li.setPenStyle( LineStyle( ls.type_, width, mrk.color() ) );
     }
 }
 
