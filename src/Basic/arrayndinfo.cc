@@ -21,7 +21,7 @@ bool ArrayNDInfo::isOK() const
 	if ( getSize(idx)<0 )
 	    return false;
     }
-    
+
     return true;
 }
 
@@ -92,7 +92,7 @@ bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 
     return true;
 }
-	
+
 
 od_uint64 ArrayNDInfo::calcTotalSz() const
 {
@@ -114,7 +114,7 @@ od_uint64 Array2DInfo::getOffset( int p0, int p1 ) const
 
 
 bool Array2DInfo::validPos( int p0, int p1 ) const
-{ 
+{
     const int pos[2] = { p0, p1 };
     return ArrayNDInfo::validPos( pos );
 }
@@ -134,15 +134,15 @@ bool Array3DInfo::validPos( int p0, int p1, int p2 ) const
 }
 
 
-Array1DInfoImpl::Array1DInfoImpl( int nsz ) 
-	: dimsz_(nsz) 
+Array1DInfoImpl::Array1DInfoImpl( int nsz )
+	: dimsz_(nsz)
 {
 }
 
 
 Array1DInfoImpl::Array1DInfoImpl( const Array1DInfo& nsz)
 	: dimsz_( nsz.getSize(0) )
-{ } 
+{ }
 
 
 bool Array1DInfoImpl::setSize( int dim, int nsz )
@@ -165,7 +165,7 @@ Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& nsz )
     dimsz_[0] = nsz.getSize(0);
     dimsz_[1] = nsz.getSize(1);
 
-    cachedtotalsz_ = calcTotalSz(); 
+    cachedtotalsz_ = calcTotalSz();
 }
 
 
@@ -173,12 +173,12 @@ bool Array2DInfoImpl::setSize( int dim, int nsz )
 {
     if( dim > 1 || dim < 0 ) return false;
     dimsz_[dim] = nsz;
-    cachedtotalsz_ = calcTotalSz();	
+    cachedtotalsz_ = calcTotalSz();
     return true;
 }
 
 
-Array3DInfoImpl::Array3DInfoImpl( int sz0, int sz1, int sz2 ) 
+Array3DInfoImpl::Array3DInfoImpl( int sz0, int sz1, int sz2 )
 {
     dimsz_[0] = sz0; dimsz_[1] = sz1; dimsz_[2] = sz2;
     cachedtotalsz_ = calcTotalSz();
@@ -198,7 +198,7 @@ bool Array3DInfoImpl::setSize(int dim, int nsz)
 {
     if( dim > 2 || dim < 0 ) return false;
     dimsz_[dim] = nsz;
-    cachedtotalsz_ = calcTotalSz(); 
+    cachedtotalsz_ = calcTotalSz();
     return true;
 }
 
@@ -209,7 +209,7 @@ ArrayNDInfo* ArrayNDInfoImpl::clone() const
     if ( ndim_==2 ) return new Array2DInfoImpl(dimsz_[0], dimsz_[1]);
     if ( ndim_==3 ) return new Array3DInfoImpl(dimsz_[0], dimsz_[1], dimsz_[2]);
 
-    return new ArrayNDInfoImpl(*this); 
+    return new ArrayNDInfoImpl(*this);
 }
 
 
@@ -219,13 +219,13 @@ ArrayNDInfo* ArrayNDInfoImpl::create( int ndim )
     if ( ndim==2 ) return new Array2DInfoImpl;
     if ( ndim==3 ) return new Array3DInfoImpl;
 
-    return new ArrayNDInfoImpl(ndim); 
+    return new ArrayNDInfoImpl(ndim);
 }
 
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
 	: ndim_( ndim )
-	, dimsz_( ndim<1 ? 0 : new int[ndim_] )  
+	, dimsz_( ndim<1 ? 0 : new int[ndim_] )
 {
     cachedtotalsz_ = 0;
     for ( int idx = 0; idx<ndim_; idx++ )
@@ -236,10 +236,10 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 	: ArrayNDInfo( nsz )
 	, ndim_(nsz.getNDim())
-	, dimsz_( ndim_<1 ? 0 : new int[ndim_] )  
+	, dimsz_( ndim_<1 ? 0 : new int[ndim_] )
 {
     for ( int idx=0; idx<ndim_; idx++ )
-	setSize( idx, nsz.getSize(idx) ); 
+	setSize( idx, nsz.getSize(idx) );
 }
 
 

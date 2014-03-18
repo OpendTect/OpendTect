@@ -25,23 +25,23 @@ mExpClass(Basic) ArrayNDInfo
 public:
 
     virtual ArrayNDInfo* clone() const					= 0;
-    virtual		~ArrayNDInfo()					{} 
+    virtual		~ArrayNDInfo()					{}
 
     virtual int		getNDim() const					= 0;
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);
-    
+
     virtual bool	isOK() const;
- 
+
     virtual od_uint64	getTotalSz() const;
     virtual od_uint64	getOffset(const int*) const;
-    			/*!<Returns offset in a 'flat' array.*/
+			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(const int*) const;
-    			/*!<Checks if the position exists. */
+			/*!<Checks if the position exists. */
     bool		validDimPos(int dim,int pos) const;
-    			/*!<Checks if the position exists on a certain dim. */
+			/*!<Checks if the position exists on a certain dim. */
     virtual bool	getArrayPos(od_uint64, int*) const;
-    			/*!<Given an offset, what is the ND position. */
+			/*!<Given an offset, what is the ND position. */
 
 protected:
 
@@ -144,10 +144,10 @@ public:
     virtual Array1DInfo* clone() const
 			{ return new Array1DInfoImpl(*this); }
 
-			Array1DInfoImpl(int nsz=0); 
+			Array1DInfoImpl(int nsz=0);
 			Array1DInfoImpl(const Array1DInfo&);
 
-    virtual int		getSize(int dim) const; 
+    virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
     virtual bool	isOK() const			{ return dimsz_>=0; }
     virtual od_uint64	getTotalSz() const		{ return dimsz_; }
@@ -177,7 +177,7 @@ public:
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
     virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
-    
+
 protected:
 
     int                 dimsz_[2];
@@ -199,7 +199,7 @@ public:
 			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
 
-    virtual int		getSize(int dim) const; 
+    virtual int		getSize(int dim) const;
     virtual bool	setSize(int dim,int nsz);
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
     virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
@@ -209,7 +209,7 @@ protected:
     int                 dimsz_[3];
     od_uint64		cachedtotalsz_;
 
-};  
+};
 
 
 /*!
@@ -235,7 +235,7 @@ public:
 
 protected:
 
-    int 		ndim_;
+    int		ndim_;
     int*		dimsz_;
 
     od_uint64		cachedtotalsz_;

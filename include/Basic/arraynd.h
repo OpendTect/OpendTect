@@ -43,7 +43,7 @@ public:
     virtual inline bool			isOK() const;
     virtual inline bool			isEmpty() const;
 
-    virtual T		getND(const int*) const	= 0;
+    virtual T				getND(const int*) const	= 0;
     virtual bool			isSettable() const	{ return true; }
     virtual void			setND(const int*,T)	= 0;
 
@@ -86,14 +86,14 @@ public:
 
 protected:
 
-    virtual const ValueSeries<T>* getStorage_() const { return 0; }
+    virtual const ValueSeries<T>*	getStorage_() const { return 0; }
 
-    virtual const T*		getData_() const
-				{
-				    if ( getStorage_() )
-					return getStorage()->arr();
-				    return 0;
-				}
+    virtual const T*			getData_() const
+					{
+					    if ( getStorage_() )
+						return getStorage()->arr();
+					    return 0;
+					}
 
 };
 
@@ -111,7 +111,8 @@ public:
     virtual void		set(int,T)				= 0;
     virtual T			get(int) const				= 0;
     void			setND(const int* pos,T v) { set( pos[0], v ); }
-    T		getND(const int* pos) const {return get(pos[0]);}
+    T				getND(const int* pos) const
+				{ return get(pos[0]); }
 
 				// implement ValueSeries interface
     T				value(od_int64 i) const	{ return get( (int) i);}
@@ -136,7 +137,7 @@ mClass(Basic) Array2D : public ArrayND<T>
 {
 public:
     virtual void		set( int, int, T )			= 0;
-    virtual T		get( int p0, int p1 ) const		= 0;
+    virtual T			get( int p0, int p1 ) const		= 0;
     void			setND(  const int* pos, T v )
 				    { set( pos[0], pos[1], v);}
     T		                getND( const int* pos ) const
@@ -155,8 +156,8 @@ mClass(Basic) Array3D : public ArrayND<T>
 {
 public:
 
-    virtual void		set( int, int, int, T )		= 0;
-    virtual T		get( int p0, int p1, int p2 ) const	= 0;
+    virtual void		set( int, int, int, T )			= 0;
+    virtual T			get( int p0, int p1, int p2 ) const	= 0;
     void			setND( const int* pos, T v )
 				    { set( pos[0], pos[1], pos[2], v);}
     T		                getND( const int* pos ) const
@@ -277,7 +278,7 @@ public:
 
 mDefArrayNDConverter(1D)
 
-    T		get( int p0 ) const
+    T			get( int p0 ) const
 					{ return (T)arr_->get( p0 ); }
     void		set( int p0, T v )
 					{ arr_->set( p0, (TT)v ); }
@@ -286,7 +287,7 @@ mDefArrayNDConverter(1D)
 
 mDefArrayNDConverter(2D)
 
-    T		get( int p0, int p1 ) const
+    T			get( int p0, int p1 ) const
 					{ return (T)arr_->get( p0, p1 ); }
     void		set( int p0, int p1, T v )
 					{ arr_->set( p0, p1, (TT)v ); }
@@ -295,7 +296,7 @@ mDefArrayNDConverter(2D)
 
 mDefArrayNDConverter(3D)
 
-    T		get( int p0, int p1, int p2 ) const
+    T			get( int p0, int p1, int p2 ) const
 					{ return (T)arr_->get( p0, p1, p2 ); }
     void		set( int p0, int p1, int p2, T v )
 					{ arr_->set( p0, p1, p2, (TT)v ); }

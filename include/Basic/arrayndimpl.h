@@ -45,11 +45,11 @@ public:
 
     inline			Array1DImpl(int sz);
     inline			~Array1DImpl();
-    				mDeclArrayNDCopyTools(1D);
+				mDeclArrayNDCopyTools(1D);
 
     ValueSeries<T>*		clone() const
-    				{ return new Array1DImpl<T>(*this); }
-    		
+				{ return new Array1DImpl<T>(*this); }
+
     inline bool			isOK() const { return stor_ && stor_->isOK(); }
     inline void			copyFrom(const Array1D<T>&);
     inline bool			setStorage(ValueSeries<T>*);
@@ -57,13 +57,13 @@ public:
 
     inline void			set(int pos,T);
     inline T			get(int pos) const;
-			
+
     inline const Array1DInfo&	info() const		{ return in_; }
     inline bool			canSetInfo() const	{ return true; }
     inline bool			setInfo(const ArrayNDInfo&);
     inline bool			setSize(int);
     inline bool			setSize( od_int64 sz )
-    				{ return setSize( ((int)sz) ); }
+				{ return setSize( ((int)sz) ); }
 
 				// ValueSeries interface
     inline T*			arr()			{ return ptr_; }
@@ -72,7 +72,7 @@ public:
 protected:
     inline const T*		getData_() const	{ return ptr_; }
     T*				ptr_;	//not owned, only a shortcut
-    					//for the 99% percent case
+					//for the 99% percent case
 
     mDeclArrayNDProtMemb(Array1DInfoImpl);
 
@@ -110,7 +110,7 @@ protected:
 
     inline const T*		getData_() const	{ return ptr_; }
     T*				ptr_;	//not owned, only a shortcut
-    					//for the 99% percent case
+					//for the 99% percent case
 
     mDeclArrayNDProtMemb(Array2DInfoImpl);
 
@@ -146,7 +146,7 @@ public:
 protected:
     inline const T*	getData_() const	{ return ptr_; }
     T*			ptr_;	//not owned, only a shortcut
-    					//for the 99% percent case
+					//for the 99% percent case
 
     mDeclArrayNDProtMemb(Array3DInfoImpl);
 };
@@ -178,7 +178,7 @@ public:
     inline bool			canSetInfo() const	{ return true; }
     inline bool			canChangeNrDims() const	{ return true; }
     inline bool			setInfo(const ArrayNDInfo&);
- 
+
     inline bool			setSize(const int*);
     inline void			copyFrom(const ArrayND<T>&);
 
@@ -186,11 +186,11 @@ protected:
 
     inline const T*		getData_() const	{ return ptr_; }
     T*				ptr_;	//not owned, only a shortcut
-    					//for the 99% percent case
+					//for the 99% percent case
 
     mDeclArrayNDProtMemb(ArrayNDInfo*)
 
-}; 
+};
 
 
 #define mArrNDImplCreateStor \
@@ -220,7 +220,7 @@ clss<T>::clss( const from<T>& templ ) \
 { \
     const ValueSeries<T>* storage = templ.getStorage(); \
     ValueSeries<T>* newstor = storage && storage->selfSufficient() \
-    	? storage->clone() \
+	? storage->clone() \
 	: 0; \
     if ( !newstor || !setStorageNoResize( newstor ) )  \
     { \
@@ -289,7 +289,7 @@ mArrNDImplDestructor( Array1DImpl )
 mArrNDImplSetStorage( Array1DImpl )
 
 template <class T> inline
-void Array1DImpl<T>::set( int pos, T v )	
+void Array1DImpl<T>::set( int pos, T v )
 {
 #ifdef __debug__
     if ( !in_.validPos( pos ) )
@@ -326,7 +326,7 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 template <class T> inline
 bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 1 ) return false; 
+    if ( ni.getNDim() != 1 ) return false;
     return setSize( ni.getSize(0) );
 }
 
@@ -403,7 +403,7 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 template <class T> inline
 bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 2 ) return false; 
+    if ( ni.getNDim() != 2 ) return false;
     return setSize( ni.getSize(0), ni.getSize(1) );
 }
 
@@ -473,7 +473,7 @@ void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 template <class T> inline
 bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim() != 3 ) return false; 
+    if ( ni.getNDim() != 3 ) return false;
     return setSize( ni.getSize(0), ni.getSize(1), ni.getSize(2) );
 }
 
@@ -577,7 +577,7 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
     return setSize( sizes.arr() );
 }
 
- 
+
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( const int* d )
 {
