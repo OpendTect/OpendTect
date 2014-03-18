@@ -884,6 +884,7 @@ bool MathExpressionParser::findAndOrOr( char* str, int len,
 
 	if ( (str[idx]=='&'&&str[idx+1]=='&')||(str[idx]=='|'&&str[idx+1]=='|'))
 	{
+	    const bool isand = str[idx] == '&';
 	    if ( idx == 0 )
 		mErrRet( "No left-hand side for '&&' or '||' found" )
 	    else if ( idx == len-2 )
@@ -897,7 +898,7 @@ bool MathExpressionParser::findAndOrOr( char* str, int len,
 	    if ( !inp1 )
 		{ delete inp0; return true; }
 
-	    if ( str[idx] == '&' )
+	    if ( isand )
 		ret = new MathExpressionAND;
 	    else
 		ret = new MathExpressionOR;
