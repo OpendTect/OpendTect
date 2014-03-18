@@ -74,14 +74,16 @@ public:
 			{
 			    if ( !items_.validIdx(idx) )
 				return;
-
+			    
+			    delete takeItem(idx);
 			    items_.removeSingle( idx );
 			    itemstrings_.removeSingle( idx );
 			    itemmarked_.removeSingle( idx );
-			    delete takeItem(idx);
 			}
     uiString&		getItemText(int idx) { return itemstrings_[idx]; }
     BoolTypeSetType&	getItemMark(int idx) { return itemmarked_[idx]; }
+    bool		validItemIndex(int idx)  
+			{ return itemstrings_.validIdx( idx ); }
 
     void		updateText(int idx);
 
@@ -353,7 +355,7 @@ int uiListBox::size() const
 { return body_->count(); }
 
 bool uiListBox::validIndex( int idx ) const
-{ return idx>=0 && idx<body_->count(); }
+{ return body_->validItemIndex( idx ); }
 
 
 bool uiListBox::isSelected ( int idx ) const
