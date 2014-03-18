@@ -152,6 +152,10 @@ void uiFileInput::enableExamine( bool yn )
 }
 
 
+void uiFileInput::setDefaultExtension( const char* ext )
+{ defaultext_ = ext; }
+
+
 void uiFileInput::doSelect( CallBacker* )
 {
     BufferString fname = fileName();
@@ -193,6 +197,15 @@ void uiFileInput::doSelect( CallBacker* )
     else
     {
 	newfname = dlg->fileName();
+	if ( !forread_ && !defaultext_.isEmpty() )
+	{
+	    FilePath fp( newfname );
+	    const FixedString ext = fp.extension();
+	    if ( ext.isEmpty() )
+		fp.setExtension( defaultext_ );
+	    newfname = fp.fullPath();
+	}
+
 	setFileName( newfname );
     }
 

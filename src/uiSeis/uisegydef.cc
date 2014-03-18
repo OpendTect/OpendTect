@@ -69,6 +69,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
+    if ( !forread_ ) fnmfld_->setDefaultExtension( "sgy" );
     fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
     if ( forread_ )
     {
@@ -237,17 +238,7 @@ void uiSEGYFileSpec::setInp2D( bool yn )
 void uiSEGYFileSpec::fileSel( CallBacker* )
 {
     if ( !forread_ )
-    {
-	FilePath fp( fnmfld_->fileName() );
-	const FixedString ext = fp.extension();
-	if ( ext.isEmpty() )
-	{
-	    fp.setExtension( "sgy" );
-	    fnmfld_->setFileName( fp.fullPath() );
-	}
-
 	return;
-    }
 
     const SEGY::FileSpec spec( getSpec() );
     const char* fnm = spec.getFileName();
