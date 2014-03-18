@@ -7,6 +7,9 @@
 include( CMakeModules/packagescripts/packages.cmake )
 include( ${PSD}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
+#Genarate Symbols and then Strip the binaries
+OD_GENERATE_BREAKPAD_SYMBOLS()
+
 if( APPLE OR WIN32 )
     od_sign_libs()
 endif()
