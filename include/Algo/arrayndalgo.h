@@ -101,7 +101,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	    crosssum += inpptr[idx] * (TT)idx;
 	}
 
-	if ( !count )
+	if ( count <= 1 )
 	    return false;
 
 	if ( onlyavg )
@@ -141,7 +141,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 	} while ( iter.next() );
 
 	iter.reset();
-	if ( !count )
+	if ( count <= 1 )
 	    return false;
 
 	if ( onlyavg )
