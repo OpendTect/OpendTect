@@ -155,6 +155,13 @@ bool uiBatchJobDispatcherSel::wantBatch() const
 }
 
 
+uiBatchJobDispatcherLauncher* uiBatchJobDispatcherSel::selectedLauncher()
+{
+    const int selidx = selIdx();
+    return selidx < 0 ? 0 : uidispatchers_[selidx];
+}
+
+
 const char* uiBatchJobDispatcherSel::selected() const
 {
     const int selidx = selIdx();
@@ -218,6 +225,8 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
 	jobnmfld_->setText( uidisp->dispatcher().jobName() );
 
     fldChck( 0 );
+
+    selectionChange.trigger();
 }
 
 

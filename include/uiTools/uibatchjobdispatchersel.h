@@ -37,9 +37,10 @@ public:
     void		setJobSpec(const Batch::JobSpec&);
     void		setJobName(const char*);
 
-    Batch::JobSpec&	jobSpec()		{ return jobspec_; };
+    Batch::JobSpec&	jobSpec()		{ return jobspec_; }
     const char*		selected() const;
     const char*		selectedInfo() const;
+    uiBatchJobDispatcherLauncher* selectedLauncher();
 
     bool		wantBatch() const;	//! can be false if isoptional
     bool		start();
