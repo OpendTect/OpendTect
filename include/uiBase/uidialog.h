@@ -120,6 +120,7 @@ public:
     void		setCtrlStyle(CtrlStyle);
 			//! OK button disabled when set to CloseOnly
     CtrlStyle		getCtrlStyle() const		{ return ctrlstyle_; }
+    void		setOkCancelText(const uiString& ok,const uiString& cnl);
     void		setOkText(const uiString&);
 			//! Cancel button disabled when set to empty
     void		setCancelText(const uiString&);

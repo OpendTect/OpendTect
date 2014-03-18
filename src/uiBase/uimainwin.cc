@@ -1330,6 +1330,7 @@ public:
     int			uiResult()		{ return result_; }
 
     void		setTitleText(const uiString& txt);
+    void		setOkCancelText(const uiString&,const uiString&);
     void		setOkText(const uiString&);
 			//!< OK button disabled when set to empty
     void		setCancelText(const uiString&);
@@ -1346,7 +1347,7 @@ public:
     void		setSeparator( bool yn )	{ setup_.separator_ = yn; }
     bool		separator() const	{ return setup_.separator_; }
     void		setHelpKey(const HelpKey& key) { setup_.helpkey_ = key;}
-    HelpKey		helpKey() const 	{ return setup_.helpkey_; }
+    HelpKey		helpKey() const	{ return setup_.helpkey_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
 
@@ -1456,6 +1457,14 @@ void uiDialogBody::setTitleText( const uiString& txt )
 	    titlelbl_->setPrefWidthInChar(
 	    mMAX( tb->prefWidthInCharSet(), strlen(txt.getFullString()) + 2 ));
     }
+}
+
+
+void uiDialogBody::setOkCancelText( const uiString& oktxt,
+				    const uiString& cncltxt )
+{
+    setOkText( oktxt );
+    setCancelText( cncltxt );
 }
 
 
@@ -1890,16 +1899,13 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     switch ( cs )
     {
     case OkAndCancel:
-	setOkText( sOk() );
-	setCancelText( sCancel() );
+	setOkCancelText( sOk(), sCancel() );
     break;
     case RunAndClose:
-	setOkText( oktext );
-	setCancelText( canceltext );
+	setOkCancelText( oktext, canceltext );
     break;
     case CloseOnly:
-	setOkText( mBody->finalised() ? canceltext : "" );
-	setCancelText( canceltext );
+	setOkCancelText( mBody->finalised() ? canceltext : "", canceltext );
     break;
     }
 
@@ -1956,6 +1962,9 @@ HelpKey uiDialog::helpKey() const		{ return mBody->helpKey(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
 bool uiDialog::isModal() const			{ return mBody->isModal(); }
+
+void uiDialog::setOkCancelText( const uiString& oktxt, const uiString& cncltxt )
+{ mBody->setOkCancelText( oktxt, cncltxt ); }
 
 void uiDialog::setButtonSensitive(uiDialog::Button b, bool s )
     { mBody->setButtonSensitive(b,s); }
