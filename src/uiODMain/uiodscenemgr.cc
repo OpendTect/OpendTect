@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmenumgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiprintscenedlg.h"
-#include "uislider.h"
 #include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
 #include "uistatusbar.h"
@@ -95,7 +94,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , sceneClosed(this)
     , treeToBeAdded(this)
     , viewModeChanged(this)
-    , zoomslider_( 0 )
     , scenetimer_(new Timer)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
@@ -210,7 +208,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     {
 	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
-	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 	scn.sovwr_->showRotAxis( true );
 	menuMgr().updateAxisMode( true );
     }
@@ -344,7 +341,6 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
     {
 	const bool isperspective = vwrs[0]->isCameraPerspective();
 	menuMgr().setCameraPixmap( isperspective );
-	if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 	menuMgr().updateAxisMode( true );
     }
 
@@ -665,7 +661,6 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     mDoAllScenes(sovwr_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     menuMgr().setCameraPixmap( isperspective );
-    if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 }
 
 

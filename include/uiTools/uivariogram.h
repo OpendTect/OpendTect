@@ -18,7 +18,7 @@ template <class T> class Array2D;
 class BufferStringSet;
 class uiGenInput;
 class uiFunctionDisplay;
-class uiSliderExtra;
+class uiSlider;
 class uiSpinBox;
 
 mExpClass(uiTools) uiVariogramDlg : public uiDialog
@@ -44,7 +44,7 @@ protected:
 mExpClass(uiTools) uiVariogramDisplay: public uiDialog
 {
 public:
-     				uiVariogramDisplay(uiParent*,Array2D<float>*,
+				uiVariogramDisplay(uiParent*,Array2D<float>*,
 						   Array2D<float>*,
 						   BufferStringSet*,
 						   int maxrg,
@@ -58,13 +58,13 @@ protected:
         Array2D<float>*		data_;
 	Array2D<float>*		axes_;
 	BufferStringSet*	labels_;
-        uiFunctionDisplay* 	disp_;
+        uiFunctionDisplay*	disp_;
 	int			maxrg_;
 
 	uiGenInput*		labelfld_;
 	uiGenInput*		typefld_;
-	uiSliderExtra*		sillfld_;
-	uiSliderExtra*		rangefld_;
+	uiSlider*		sillfld_;
+	uiSlider*		rangefld_;
 
 	void			labelChangedCB(CallBacker*);
 	void			fieldChangedCB(CallBacker*);

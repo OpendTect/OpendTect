@@ -18,14 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs_ )
 	: uiDialog(p, uiDialog::Setup("Stereo viewing",
-		    		      "Set stereo offset","50.0.2")
+				      "Set stereo offset","50.0.2")
 		      .canceltext(""))
 	, vwrs(vwrs_)
 {
-    sliderfld = new uiSliderExtra( this, 
-	    		uiSliderExtra::Setup("Stereo offset").withedit(true),
-	   		"Offset slider" );
-    sliderfld->sldr()->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
+    sliderfld = new uiSlider( this,
+			uiSlider::Setup("Stereo offset").withedit(true),
+			"Offset slider" );
+    sliderfld->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
 
     preFinalise().notify( mCB(this,uiStereoDlg,doFinalise) );
 }
@@ -38,20 +38,19 @@ void uiStereoDlg::doFinalise( CallBacker* )
     int maxval = (int)(offset + 1000); maxval /= 100; maxval *= 100;
     if ( minval < 10 ) minval = 10;
 
-    sliderfld->sldr()->setMinValue( (float) minval );
-    sliderfld->sldr()->setMaxValue( (float) maxval );
-    sliderfld->sldr()->setValue( offset );
+    sliderfld->setMinValue( (float) minval );
+    sliderfld->setMaxValue( (float) maxval );
+    sliderfld->setValue( offset );
 }
 
 
 bool uiStereoDlg::acceptOK( CallBacker* )
 {
-    sliderfld->processInput();
-    float slval = sliderfld->sldr()->getValue();
+    float slval = sliderfld->getValue();
     for ( int idx=0; idx<vwrs.size(); idx++ )
 	vwrs[idx]->setStereoOffset( slval );
 
-    if ( mIsEqual(sliderfld->sldr()->maxValue(),slval,mDefEps) )
+    if ( mIsEqual(sliderfld->maxValue(),slval,mDefEps) )
 	uiMSG().message( "Open this dialog again for higher offsets" );
 
     return true;
@@ -60,7 +59,7 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 
 void uiStereoDlg::sliderMove( CallBacker* )
 {
-    float slval = sliderfld->sldr()->getValue();
+    float slval = sliderfld->getValue();
     for ( int idx=0; idx<vwrs.size(); idx++ )
         vwrs[idx]->setStereoOffset( slval );
 }

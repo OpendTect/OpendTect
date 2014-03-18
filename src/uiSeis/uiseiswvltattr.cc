@@ -39,12 +39,12 @@ uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
 }
 
 
-void uiSeisWvltSliderDlg::constructSlider( uiSliderExtra::Setup& su,
+void uiSeisWvltSliderDlg::constructSlider( uiSlider::Setup& su,
 				      const Interval<float>&  sliderrg )
 {
-    sliderfld_ = new uiSliderExtra( this, su, "wavelet slider" );
-    sliderfld_->sldr()->setInterval( sliderrg );
-    sliderfld_->sldr()->valueChanged.notify(mCB(this,uiSeisWvltSliderDlg,act));
+    sliderfld_ = new uiSlider( this, su, "wavelet slider" );
+    sliderfld_->setInterval( sliderrg );
+    sliderfld_->valueChanged.notify(mCB(this,uiSeisWvltSliderDlg,act));
 }
 
 
@@ -61,7 +61,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
 {
     setCaption( "Phase rotation Slider" );
-    uiSliderExtra::Setup su;
+    uiSlider::Setup su;
     su.lbl_ = "Rotate phase (degrees)";
     su.isvertical_ = true;
     su.sldrsize_ = 250;
@@ -75,7 +75,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
 
 void uiSeisWvltRotDlg::act( CallBacker* )
 {
-    const float dphase = sliderfld_->sldr()->getValue();
+    const float dphase = sliderfld_->getValue();
     float* wvltsamps = wvlt_->samples();
     const float* orgwvltsamps = orgwvlt_->samples();
     const int wvltsz = wvlt_->size();
@@ -102,7 +102,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 {
     setCaption( "Taper Wavelet" );
     setHelpKey("103.3.6");
-    uiSliderExtra::Setup su;
+    uiSlider::Setup su;
     su.lbl_ = "Taper Wavelet (%)";
     su.sldrsize_ = 220;
     su.withedit_ = true;
@@ -208,7 +208,7 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
     }
     else
     {
-	float var = sliderfld_->sldr()->getValue();
+	float var = sliderfld_->getValue();
 	timedrawer_->setWindows( 1-var/100 );
 
 	if ( !timedrawer_->getFuncValues() ) return;

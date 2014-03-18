@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiLabeledComboBox;
-class uiSliderExtra;
+class uiSlider;
 
 /*!Dialog to set the z-stretch of a scene. */
 
@@ -33,7 +33,7 @@ public:
 protected:
 
     uiLabeledComboBox*	scenefld_;
-    uiSliderExtra*	sliderfld_;
+    uiSlider*		sliderfld_;
     uiCheckBox*		savefld_;
     uiButton*		vwallbut_;
 

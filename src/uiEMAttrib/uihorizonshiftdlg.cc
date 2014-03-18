@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* uiHorizonShiftDialog::sDefaultAttribName()
 { return "Attribute Name"; }
-    
+
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
@@ -36,7 +36,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    float initialshift,
 					    bool cancalcattrib )
     : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,"104.0.15").
-	    			  modal(false) )
+				  modal(false) )
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
     , emid_(emid)
@@ -56,16 +56,15 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
 
     lbl = BufferString( "Shift ", SI().getZUnitString() );
-    slider_ = new uiSliderExtra(
-	    this, uiSliderExtra::Setup(lbl).withedit(true), "Horizon slider" );
+    slider_ = new uiSlider(
+	    this, uiSlider::Setup(lbl).withedit(true), "Horizon slider" );
     slider_->attach( alignedBelow, rangeinpfld_ );
-    uiSlider* sldr = slider_->sldr();
 
     // TODO: Calculate slider range from horizon's z-range
-    slider_->sldr()->setScale( shiftrg_.step, shiftrg_.start );
-    slider_->sldr()->setInterval( shiftrg_ );
-    slider_->sldr()->setValue( curshift );
-    sldr->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
+    slider_->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->setInterval( shiftrg_ );
+    slider_->setValue( curshift );
+    slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
@@ -78,7 +77,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	attrinpfld_->attach( alignedBelow, slider_ );
 	attrinpfld_->selectionDone.notify(
 		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
-	
+
 	calbut_ = new uiPushButton( this, "Calculate", false );
 	calbut_->attach( rightTo, attrinpfld_ );
 	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
@@ -88,7 +87,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	storefld_->setChecked( false );
 	storefld_->activated.notify(
 		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
-	
+
 	namefld_ = new uiGenInput( this, "Attribute Basename",
 				   StringInpSpec(sDefaultAttribName()) );
 	namefld_->attach( alignedBelow, storefld_ );
@@ -135,9 +134,9 @@ void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
     calbut_->display( isok );
     storefld_->display( isok );
     namefld_->display( isok && storefld_->isChecked() );
-     
+
     if ( !isok )
- 	return;
+	return;
 
     if ( uiMSG().question("Calculate now?" ) )
 	calcAttrib( 0 );
@@ -161,7 +160,7 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
     shiftrg_ = intv;
 
     rangeinpfld_->setValue( shiftrg_ );
-    
+
     if ( (calcshiftrg_ != shiftrg_) && (!mIsUdf(calcshiftrg_.start) &&
 				        !mIsUdf(calcshiftrg_.stop)) )
     {
@@ -172,8 +171,8 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 	}
     }
 
-    slider_->sldr()->setScale( shiftrg_.step, shiftrg_.start );
-    slider_->sldr()->setInterval( shiftrg_ );
+    slider_->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->setInterval( shiftrg_ );
     rangeinpfld_->setValue( shiftrg_ );
 }
 
@@ -197,8 +196,8 @@ float uiHorizonShiftDialog::getShift() const
 {
     float curshift = slider_->editValue();
     if ( mIsUdf(curshift) )
-	curshift = slider_->sldr()->getValue();
-    
+	curshift = slider_->getValue();
+
     return curshift / SI().zDomain().userFactor();
 }
 
@@ -239,7 +238,7 @@ const char* uiHorizonShiftDialog::getAttribBaseName() const
 
 bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 {
-    if ( storefld_ && storefld_->isChecked() ) 
+    if ( storefld_ && storefld_->isChecked() )
     {
 	const FixedString nm = namefld_->text();
 	if ( nm.isEmpty() || nm==sDefaultAttribName() )

@@ -233,14 +233,14 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     inffreqfld_->attach( rightOf, varinpfld_ );
     inffreqfld_->setElemSzPol( uiObject::Small );
 
-    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup("")
+    sliderfld_ = new uiSlider( this, uiSlider::Setup("")
 				    .withedit(false)
 				    .sldrsize(180)
 				    .isvertical(false),
 				    "slider" );
-    sliderfld_->sldr()->setInterval( hasmin_ ? mMinRg : mMaxRg );
+    sliderfld_->setInterval( hasmin_ ? mMinRg : mMaxRg );
     sliderfld_->attach( rightOf, inffreqfld_ );
-    sliderfld_->sldr()->valueChanged.notify(
+    sliderfld_->valueChanged.notify(
 				mCB( this, uiFreqTaperGrp, sliderChanged ) );
 
     supfreqfld_ = new uiGenInput( this, "",
@@ -273,7 +273,7 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
     td.rg_ = newrg;
     td.refrg_ = newrg;
 
-    sliderfld_->sldr()->setInterval( isminactive_ ? mMinRg : mMaxRg );
+    sliderfld_->setInterval( isminactive_ ? mMinRg : mMaxRg );
 
     drawerdata.rg_ = newrg;
     drawerdata.refrg_ = newrg;
@@ -294,7 +294,7 @@ void uiFreqTaperGrp::sliderChanged( CallBacker* )
 {
     mStopFreqNotifiers()
 
-    float sval = sliderfld_->sldr()->getValue();
+    float sval = sliderfld_->getValue();
     if ( isminactive_ )
 	inffreqfld_->setValue( sval );
     else
@@ -338,7 +338,7 @@ void uiFreqTaperGrp::putToScreen( CallBacker* )
 {
     mStopFreqNotifiers()
     NotifyStopper nsf3( varinpfld_->valuechanged );
-    NotifyStopper nsf4( sliderfld_->sldr()->valueChanged );
+    NotifyStopper nsf4( sliderfld_->valueChanged );
 
     TaperData& td = mGetData();
 
@@ -353,7 +353,7 @@ void uiFreqTaperGrp::putToScreen( CallBacker* )
     inffreqfld_->setValue( freq1 );
     supfreqfld_->setValue( freq2 );
 
-    sliderfld_->sldr()->setValue( isminactive_ ? freq1 : freq2 );
+    sliderfld_->setValue( isminactive_ ? freq1 : freq2 );
 
     float slope = td.slope_;
     setTo1Decimal( slope );
@@ -411,8 +411,8 @@ void uiFreqTaperGrp::freqChoiceChged( CallBacker* )
     else
 	isminactive_ = hasmin_;
 
-    NotifyStopper ns( sliderfld_->sldr()->valueChanged );
-    sliderfld_->sldr()->setInterval( isminactive_ ? mMinRg : mMaxRg );
+    NotifyStopper ns( sliderfld_->valueChanged );
+    sliderfld_->setInterval( isminactive_ ? mMinRg : mMaxRg );
 
     setSlopeFromFreq();
     putToScreen(0);

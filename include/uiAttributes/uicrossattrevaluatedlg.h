@@ -25,7 +25,7 @@ class uiLabel;
 class uiLabeledSpinBox;
 class uiListBox;
 class uiPushButton;
-class uiSliderExtra;
+class uiSlider;
 
 mExpClass(uiAttributes) uiCrossAttrEvaluateDlg : public uiDialog
 {
@@ -39,8 +39,8 @@ public:
     Attrib::DescSet*		getEvalSet() const	{ return &attrset_; }
     bool			storeSlices() const;
     bool			evaluationPossible() const { return haspars_; }
-    const TypeSet<Attrib::DescID>& evaluateChildIds() const 
-    				{ return seldeschildids_; }
+    const TypeSet<Attrib::DescID>& evaluateChildIds() const
+				{ return seldeschildids_; }
     BufferString		acceptedDefStr() const;
 
     Notifier<uiCrossAttrEvaluateDlg>		calccb;
@@ -52,7 +52,7 @@ protected:
     uiListBox*			attrnmsfld_;
 
     uiPushButton*		calcbut;
-    uiSliderExtra*		sliderfld;
+    uiSlider*			sliderfld;
     uiLabeledSpinBox*		nrstepsfld;
     uiLabel*			displaylbl;
     uiCheckBox*			storefld;
@@ -62,12 +62,12 @@ protected:
     void			sliderMove(CallBacker*);
     void			doFinalise(CallBacker*);
     void			getSelDescIDs(
-	    				TypeSet<TypeSet<Attrib::DescID> >&, 
+					TypeSet<TypeSet<Attrib::DescID> >&,
 					TypeSet<TypeSet<int> >&);
 
     bool			acceptOK(CallBacker*);
 
-    Attrib::Desc*		seldesc_; 
+    Attrib::Desc*		seldesc_;
     Attrib::DescID		srcid_;
     Attrib::DescSet&		attrset_;
     TypeSet<BufferStringSet>	userattnms_;//per parameter
@@ -78,9 +78,9 @@ protected:
     TypeSet<Attrib::DescID>	srcspecids_;
     TypeSet<Attrib::DescID>	seldeschildids_;
     BufferStringSet		lbls_; //size is nr of steps
-    TypeSet<Attrib::SelSpec> 	specs_;//size is nr of steps
+    TypeSet<Attrib::SelSpec>	specs_;//size is nr of steps
 
-    BufferStringSet		defstr_;    
+    BufferStringSet		defstr_;
     bool			enabstore_;
     bool			haspars_;
 };

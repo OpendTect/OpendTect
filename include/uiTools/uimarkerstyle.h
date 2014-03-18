@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiGenInput;
-class uiSliderExtra;
+class uiSlider;
 
 
 mExpClass(uiTools) uiMarkerStyle3D : public uiGroup
@@ -36,13 +36,13 @@ public:
     Color		getColor() const;
     int			getSize() const;
 
-    void    		setMarkerStyle(const MarkerStyle3D& style);
+    void		setMarkerStyle(const MarkerStyle3D& style);
     void		getMarkerStyle(MarkerStyle3D& style) const;
 
 protected:
     TypeSet<MarkerStyle3D::Type>	types_;
 
-    uiSliderExtra*			sliderfld_;
+    uiSlider*				sliderfld_;
     uiGenInput*				typefld_;
     uiColorInput*			colselfld_;
 };

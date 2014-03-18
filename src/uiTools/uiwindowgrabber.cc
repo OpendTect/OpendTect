@@ -74,12 +74,12 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 	fileinputfld_->attach( alignedBelow, windowfld_ );
     updateFilter();
 
-    qualityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Image quality").withedit(true),
+    qualityfld_ = new uiSlider( this,
+	    uiSlider::Setup("Image quality").withedit(true),
 	    "Quality slider" );
     qualityfld_->attach( alignedBelow, fileinputfld_ );
-    qualityfld_->sldr()->setInterval( StepInterval<float>(0,100,1) );
-    qualityfld_->sldr()->setValue(50);
+    qualityfld_->setInterval( StepInterval<float>(0,100,1) );
+    qualityfld_->setValue(50);
     qualityfld_->attach( alignedBelow, fileinputfld_ );
 
     infofld_ = new uiLabel( this, "Arrange your windows before confirming" );
@@ -220,7 +220,7 @@ uiMainWin* uiWindowGrabDlg::getWindow() const
 
 
 int uiWindowGrabDlg::getQuality() const
-{ return qualityfld_->sldr()->getIntValue(); }
+{ return qualityfld_->getIntValue(); }
 
 
 uiWindowGrabber::uiWindowGrabber( uiParent* p )

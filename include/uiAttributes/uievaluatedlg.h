@@ -35,7 +35,7 @@ class uiGenInput;
 class uiLabel;
 class uiLabeledSpinBox;
 class uiPushButton;
-class uiSliderExtra;
+class uiSlider;
 
 
 mExpClass(uiAttributes) AttribParamGroup : public uiGroup
@@ -85,7 +85,7 @@ protected:
 
     uiGenInput*			evalfld;
     uiPushButton*		calcbut;
-    uiSliderExtra*		sliderfld;
+    uiSlider*			sliderfld;
     uiLabeledSpinBox*		nrstepsfld;
     uiLabel*			displaylbl;
     uiCheckBox*			storefld;

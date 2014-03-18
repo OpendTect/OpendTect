@@ -262,11 +262,11 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedtypefld_->attach( alignedBelow, colorfld_ );
     seedtypefld_->attach( ensureBelow, sep );
 
-    seedsliderfld_ = new uiSliderExtra( grp,
-				uiSliderExtra::Setup("Seed Size").
+    seedsliderfld_ = new uiSlider( grp,
+				uiSlider::Setup("Seed Size").
 				withedit(true),	"Seed Size" );
-    seedsliderfld_->sldr()->setInterval( 1, 15 );
-    seedsliderfld_->sldr()->valueChanged.notify(
+    seedsliderfld_->setInterval( 1, 15 );
+    seedsliderfld_->valueChanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedSliderMove));
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
@@ -375,7 +375,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 
 void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 {
-    const float sldrval = seedsliderfld_->sldr()->getValue();
+    const float sldrval = seedsliderfld_->getValue();
     const int newsize = mNINT32(sldrval);
     if ( markerstyle_.size_ == newsize )
 	return;
@@ -525,7 +525,7 @@ void uiHorizonSetupGroup::initSimiGroup()
 
 void uiHorizonSetupGroup::initPropertyGroup()
 {
-    seedsliderfld_->sldr()->setValue( markerstyle_.size_ );
+    seedsliderfld_->setValue( markerstyle_.size_ );
     seedcolselfld_->setColor( markerstyle_.color_ );
     seedtypefld_->setValue( markerstyle_.type_ - MarkerStyle3D::None );
 }

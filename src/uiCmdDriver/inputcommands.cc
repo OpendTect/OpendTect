@@ -305,10 +305,8 @@ bool GetSliderCmd::act( const char* parstr )
     mParKeyStrPre( "slider", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiSlider*, uislider, objsfound[0] );
 
-    mDynamicCastGet( uiSliderExtra*, uiextraslider,
-		     const_cast<uiSlider*>(uislider)->parent() );
-    BufferString text = uiextraslider
-	? uiextraslider->label()->text().getFullString()
+    BufferString text = uislider && uislider->label()
+	? uislider->label()->text().getFullString()
 	: (const char*) sKey::EmptyString();
 
     mParForm( answer, form, text, uislider->getLinearFraction()*100 );
@@ -449,5 +447,4 @@ bool SliderCmdComposer::accept( const CmdRecEvent& ev )
     return true;
 }
 
-
-}; // namespace CmdDrive
+} // namespace CmdDrive

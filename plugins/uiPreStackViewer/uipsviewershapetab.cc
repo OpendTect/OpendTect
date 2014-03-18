@@ -29,40 +29,40 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-
-uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p, 
+uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Shape" )
     , factorslider_( 0 )
-    , widthslider_( 0 )		
-    , applyall_( false )			
-    , savedefault_( false )						
+    , widthslider_( 0 )
+    , applyall_( false )
+    , savedefault_( false )
     , viewer_( vwr )
-    , mgr_( mgr )		       
+    , mgr_( mgr )
     , initialside_( vwr.displayOnPositiveSide() )
 {
     autowidthfld_ = new uiGenInput( this, "Width",
 	    BoolInpSpec( true, "Relative", "Absolute" ) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
-    autowidthfld_->valuechanged.notify( 
+    autowidthfld_->valuechanged.notify(
 	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
-    factorslider_ = new uiSlider( this,0,mSliderDecimal,false );
+    uiSlider::Setup ss; ss.nrdec(mSliderDecimal);
+    factorslider_ = new uiSlider( this, ss );
     factorslider_->attach( alignedBelow, autowidthfld_ );
     const float curfactor = viewer_.getFactor();
     factorslider_->setInterval( StepInterval<float>(mSliderMinFactor*curfactor,
 				mSliderMaxFactor*curfactor, mSliderStep) );
     factorslider_->setValue( curfactor );
-    factorslider_->valueChanged.notify( 
+    factorslider_->valueChanged.notify(
 	    mCB(this, uiViewer3DShapeTab, factorMoveCB) );
-    
-    widthslider_ = new uiSlider( this,0,mSliderDecimal,false );
+
+    widthslider_ = new uiSlider( this, ss );
     widthslider_->attach( alignedBelow, autowidthfld_ );
     const float curwidth = viewer_.getWidth();
     widthslider_->setInterval( StepInterval<float>( mSliderMinFactor*curwidth,
 		mSliderMaxFactor*curwidth, mSliderStep ) );
     widthslider_->setValue( curwidth );
-    widthslider_->valueChanged.notify( 
+    widthslider_->valueChanged.notify(
 	    mCB(this,uiViewer3DShapeTab,widthMoveCB) );
 
     switchsidebutton_ = new uiPushButton( this, "Switch View Side",
@@ -101,10 +101,10 @@ void uiViewer3DShapeTab::widthTypeChangeCB( CallBacker* cb )
 	widthslider_->setValue( viewer_.getWidth() );
 	widthslider_->display( !yn );
     }
-    
+
     if ( factorslider_ )
     {
-	factorslider_->display( yn );  
+	factorslider_->display( yn );
 	factorslider_->setValue( viewer_.getFactor() );
     }
 }
@@ -145,7 +145,7 @@ bool uiViewer3DShapeTab::acceptOK( )
 	{
 	    visSurvey::PreStackDisplay* psv = mgr_.get3DViewers()[idx];
 	    if ( !psv ) continue;
-	    
+
 	    psv->displaysAutoWidth( autowidthfld_->getBoolValue() );
 	    psv->displaysOnPositiveSide( viewer_.displayOnPositiveSide() );
 	    if ( autowidthfld_->getBoolValue() )
@@ -178,15 +178,14 @@ bool uiViewer3DShapeTab::rejectOK()
 {
     viewer_.displaysOnPositiveSide( initialside_ );
     autowidthfld_->setValue( initialautowidth_ );
-    
+
     if ( initialautowidth_ )
-    	factorslider_->setValue( initialfactor_ );
+	factorslider_->setValue( initialfactor_ );
     else
-    	widthslider_->setValue( initialwidth_ );
+	widthslider_->setValue( initialwidth_ );
 
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStackView
 

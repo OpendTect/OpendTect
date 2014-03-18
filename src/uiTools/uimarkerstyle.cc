@@ -49,9 +49,9 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 
     typefld_ = new uiGenInput( this, "Marker Shape", str );
 
-    sliderfld_ = new uiSliderExtra( this, 
-	uiSliderExtra::Setup("Size").withedit(true), "Slider Size" );
-    sliderfld_->sldr()->setInterval( rg );
+    sliderfld_ = new uiSlider( this,
+	uiSlider::Setup("Size").withedit(true), "Slider Size" );
+    sliderfld_->setInterval( rg );
     sliderfld_->attach( alignedBelow, typefld_ );
 
     if ( withcolor )
@@ -66,7 +66,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 
 
 NotifierAccess* uiMarkerStyle3D::sliderMove()
-{ return &sliderfld_->sldr()->valueChanged; }
+{ return &sliderfld_->valueChanged; }
 
 
 NotifierAccess* uiMarkerStyle3D::typeSel()
@@ -94,15 +94,7 @@ Color uiMarkerStyle3D::getColor() const
 
 
 int uiMarkerStyle3D::getSize() const
-{
-    const int sz = mNINT32(sliderfld_->sldr()->getValue() );
-    sliderfld_->processInput();
-    const int res = mNINT32(sliderfld_->sldr()->getValue() );
-    if ( res!=sz )
-	sliderfld_->sldr()->valueChanged.trigger( 0 );
-
-    return res;
-}
+{ return sliderfld_->getIntValue(); }
 
 
 void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
@@ -112,6 +104,6 @@ void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
 	idx = 0;
 
     typefld_->setValue( idx );
-    sliderfld_->sldr()->setValue( st.size_ );
+    sliderfld_->setValue( st.size_ );
     if ( colselfld_ ) colselfld_->setColor( st.color_ );
 }

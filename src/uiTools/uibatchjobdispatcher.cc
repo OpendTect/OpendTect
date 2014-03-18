@@ -319,12 +319,11 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 	remhostfld_->setChecked( false );
     }
 
-    uiSliderExtra::Setup ssu( "Job Priority (if available)" );
-    // ssu.withedit( true );
-    uiSliderExtra* sle = new uiSliderExtra( this, ssu );
+    uiSlider::Setup ssu( "Job Priority (if available)" );
+    ssu.withedit( true );
+    priofld_ = new uiSlider( this, ssu );
     if ( remhostfld_ )
-	sle->attach( alignedBelow, remhostfld_ );
-    priofld_ = sle->sldr();
+	priofld_->attach( alignedBelow, remhostfld_ );
     priofld_->setInterval( -cPrioBound, cPrioBound, 1.0f );
     priofld_->setTickMarks( uiSlider::NoMarks );
     priofld_->setValue( execpars_.prioritylevel_ * cPrioBound );

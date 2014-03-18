@@ -26,7 +26,7 @@ class uiButtonGroup;
 class uiColorInput;
 class uiGenInput;
 class uiPushButton;
-class uiSliderExtra;
+class uiSlider;
 class uiTabStack;
 
 
@@ -42,9 +42,7 @@ class SectionTracker;
 mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
-    //static void			initClass();
-				/*!<Adds the class to the factory. */
-    				uiHorizonSetupGroup(uiParent*,
+				uiHorizonSetupGroup(uiParent*,
 						    const Attrib::DescSet*,
 						    const char*);
 				~uiHorizonSetupGroup();
@@ -62,12 +60,12 @@ public:
     void			setAttribSelSpec(const Attrib::SelSpec*);
     bool			isSameSelSpec(const Attrib::SelSpec*) const;
 
-    NotifierAccess*		modeChangeNotifier()	
-    				{ return &modechanged_; }
-    NotifierAccess*		propertyChangeNotifier()	
+    NotifierAccess*		modeChangeNotifier()
+				{ return &modechanged_; }
+    NotifierAccess*		propertyChangeNotifier()
 				{ return &propertychanged_; }
     NotifierAccess*		eventChangeNotifier()
-    				{ return &eventchanged_; }
+				{ return &eventchanged_; }
     NotifierAccess*		similartyChangeNotifier()
 				{ return &similartychanged_; }
 
@@ -76,11 +74,6 @@ public:
     bool			commitToTracker(bool& fieldchange) const;
 
 protected:
-//				uiHorizonSetupGroup(uiParent*,
-//						    const Attrib::DescSet*,
-//						    const char*);
-    //static uiSetupGroup*	create(uiParent*,const char* typestr,
-//	    			       const Attrib::DescSet*);
 
     uiGroup*			createModeGroup();
     void			initModeGroup();
@@ -96,7 +89,7 @@ protected:
     void			selUseSimilarity(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
     void			selEventType(CallBacker*);
-    void                	seedModeChange(CallBacker*);
+    void			seedModeChange(CallBacker*);
     void			eventChangeCB(CallBacker*);
     void			similartyChangeCB(CallBacker*);
     void			colorChangeCB(CallBacker*);
@@ -106,7 +99,7 @@ protected:
     void			addStepPushedCB(CallBacker*);
 
     uiTabStack*			tabgrp_;
-    uiButtonGroup*      	modeselgrp_;
+    uiButtonGroup*		modeselgrp_;
     uiAttrSel*			inpfld_;
     uiGenInput*			usesimifld_;
     uiGenInput*			thresholdtypefld_;
@@ -120,13 +113,13 @@ protected:
     uiGroup*			maingrp_;
     uiPushButton*		applybut_;
     uiColorInput*		colorfld_;
-    uiSliderExtra*      	seedsliderfld_;
-    uiGenInput*         	seedtypefld_;
-    uiColorInput*       	seedcolselfld_;
+    uiSlider*			seedsliderfld_;
+    uiGenInput*			seedtypefld_;
+    uiColorInput*		seedcolselfld_;
 
     bool			is2d_;
     EMSeedPicker::SeedModeOrder	mode_;
-    MarkerStyle3D       	markerstyle_;
+    MarkerStyle3D		markerstyle_;
 
     const Attrib::DescSet*	attrset_;
     SectionTracker*		sectiontracker_;
@@ -136,7 +129,7 @@ protected:
     Notifier<uiHorizonSetupGroup> eventchanged_;
     Notifier<uiHorizonSetupGroup> similartychanged_;
     Notifier<uiHorizonSetupGroup> propertychanged_;
-    
+
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();
 };
@@ -146,13 +139,13 @@ mExpClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
 {
 public:
     static void			initClass();
-    
+
 protected:
-    				uiBaseHorizonSetupGroup(uiParent*,
+				uiBaseHorizonSetupGroup(uiParent*,
 							const Attrib::DescSet*,
 							const char*);
     static uiSetupGroup*        create(uiParent*,const char* typestr,
-	    			       const Attrib::DescSet*);
+				       const Attrib::DescSet*);
 };
 
 

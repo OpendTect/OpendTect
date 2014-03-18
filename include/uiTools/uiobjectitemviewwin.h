@@ -23,7 +23,7 @@ class uiObjectItemView;
 class uiObjectItemViewInfoBar;
 class uiObjectItemViewAxisPainter;
 class uiObjectItemViewControl;
-class uiSliderExtra;
+class uiSlider;
 class uiToolBar;
 class uiToolButton;
 class uiGraphicsObjectScene;
@@ -36,7 +36,7 @@ class uiBorder;
 
 mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
 {
-public:    
+public:
 
     mExpClass(uiTools) Setup
     {
@@ -47,8 +47,8 @@ public:
 			    , startwidth_(400)
 			    , startheight_(600)
 			    , infoheight_(50)
-			    , layoutpos_(0,0)		     
-			    {} 
+			    , layoutpos_(0,0)
+			    {}
 
 	 mDefSetupMemb(BufferString,wintitle)
 	 mDefSetupMemb(int,startwidth)
@@ -60,11 +60,11 @@ public:
 			uiObjectItemViewWin(uiParent*,const Setup&);
 
 
-    int 		nrItems() const { return mainviewer_->nrItems(); }
-    uiObjectItemView*	mainViewer() 	{ return mainviewer_; }
+    int			nrItems() const { return mainviewer_->nrItems(); }
+    uiObjectItemView*	mainViewer()	{ return mainviewer_; }
 
-    void 		addObject(uiObject* grp,uiObject* infogrp=0);
-    void 		addGroup(uiGroup* grp,uiGroup* infogrp=0);
+    void		addObject(uiObject* grp,uiObject* infogrp=0);
+    void		addGroup(uiGroup* grp,uiGroup* infogrp=0);
 
     void                removeObject(uiObject*);
     void                removeGroup(uiGroup*);
@@ -74,11 +74,11 @@ public:
 
     void		removeAllItems();
 
-    virtual void 	fillPar(IOPar&) const;
-    virtual void 	usePar(const IOPar&); 
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
 
-    static const char*  sKeyHZoomVal() 	{ return "Horizontal Zoom Value"; }
-    static const char*  sKeyVZoomVal() 	{ return "Vertical Zoom Value"; }
+    static const char*  sKeyHZoomVal()	{ return "Horizontal Zoom Value"; }
+    static const char*  sKeyVZoomVal()	{ return "Vertical Zoom Value"; }
 
 protected:
 
@@ -86,8 +86,8 @@ protected:
 
     uiObjectItemViewInfoBar* infobar_;
 
-    uiSliderExtra*	versliderfld_;
-    uiSliderExtra*	horsliderfld_;
+    uiSlider*		versliderfld_;
+    uiSlider*		horsliderfld_;
     uiToolButton*	fittoscreenbut_;
     uiCheckBox*		zoomratiofld_;
 
@@ -103,11 +103,11 @@ protected:
 
     void		init();
     void		makeSliders();
-    void 		setUpView();
+    void		setUpView();
     virtual void	reSizeItems();
     virtual void	scaleVal(float&,bool,bool);
 
-    void 		addItem(uiObjectItem* itm,uiObjectItem* infoitm=0);
+    void		addItem(uiObjectItem* itm,uiObjectItem* infoitm=0);
     void		insertItem(int idx,uiObjectItem*,uiObjectItem* info=0);
 
     void		reSizeCB(CallBacker*);
@@ -120,14 +120,14 @@ protected:
 
 mExpClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
 {
-public:    
+public:
 
 			uiObjectItemViewInfoBar(uiParent*);
 
     void		addItem(uiObjectItem*,uiObjectItem* coupleditm);
     virtual void	addItem( uiObjectItem* itm, int stretch=1 )
 			{ return uiObjectItemView::addItem(itm,stretch); }
-    void   		insertItem(uiObjectItem*,uiObjectItem* cplitm,int idx);
+    void		insertItem(uiObjectItem*,uiObjectItem* cplitm,int idx);
     virtual void	insertItem(uiObjectItem* itm,int pos,int st=1)
 			{ return uiObjectItemView::insertItem(itm,pos,st); }
 
@@ -138,7 +138,7 @@ public:
     void                removeItemByCouple(uiObjectItem* coupleditem);
 
 protected:
-    ObjectSet<uiObjectItem> coupleditems_; 
+    ObjectSet<uiObjectItem> coupleditems_;
 };
 
 
@@ -148,21 +148,21 @@ mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
 
-    virtual uiToolBar* 	toolBar() { return toolbar_;}
+    virtual uiToolBar*	toolBar() { return toolbar_;}
 
-    void  	        changeStatus();
+    void	        changeStatus();
 
 protected:
 
     uiObjectItemView&	mainviewer_;
     uiToolBar*          toolbar_;
     uiToolButton*	manipdrawbut_;
-    MouseCursor 	cursor_;
+    MouseCursor		cursor_;
     bool		manip_;
 
-    void        	setToolButtons();
-    void 		stateCB(CallBacker*);
-    void 		keyPressedCB(CallBacker*);
+    void		setToolButtons();
+    void		stateCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
 };
 
 
@@ -171,18 +171,18 @@ mExpClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);
 
-    void 		setZRange(Interval<float>);
-    uiAxisHandler*	getAxis() const 	{ return zax_; }
+    void		setZRange(Interval<float>);
+    uiAxisHandler*	getAxis() const	{ return zax_; }
 
-protected:	
+protected:
 
     uiObjectItemView&	viewer_;
     uiGraphicsObjectScene* scene_;
-    uiAxisHandler* 	zax_;
-    uiBorder 		border_;
+    uiAxisHandler*	zax_;
+    uiBorder		border_;
 
-    void 		setAxisRelations();
-    void 		plotAxis(CallBacker*);
+    void		setAxisRelations();
+    void		plotAxis(CallBacker*);
 };
 
 

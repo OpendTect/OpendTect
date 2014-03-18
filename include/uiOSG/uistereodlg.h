@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiosgmod.h"
 #include "uidialog.h"
 
-class uiSliderExtra;
+class uiSlider;
 class ui3DViewer;
 
 /*!
@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    uiSliderExtra*	sliderfld;
+    uiSlider*		sliderfld;
     ObjectSet<ui3DViewer> vwrs;
 
     void		doFinalise(CallBacker*);

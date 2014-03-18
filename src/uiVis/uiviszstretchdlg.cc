@@ -49,7 +49,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,
-		    	    visBase::DM().getObject(sceneids_[idx]))
+			    visBase::DM().getObject(sceneids_[idx]))
 	    scenenms.add( scene->name() );
 	}
 
@@ -58,10 +58,10 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
     }
 
-    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup(mZStretchStr)
+    sliderfld_ = new uiSlider( this, uiSlider::Setup(mZStretchStr)
 				     .withedit(true).nrdec(3).logscale(true),
-	   				"Z stretch slider" );
-    mAttachCB( sliderfld_->sldr()->valueChanged,uiZStretchDlg::sliderMove );
+					"Z stretch slider" );
+    mAttachCB( sliderfld_->valueChanged,uiZStretchDlg::sliderMove );
     if ( scenefld_ )
 	sliderfld_->attach( alignedBelow, scenefld_ );
 
@@ -128,9 +128,9 @@ void uiZStretchDlg::updateSliderValues()
 
     sliderfld_->label()->setText( label.buf() );
 
-    sliderfld_->sldr()->setMinValue( 0.04f*initslval_*uifactor_ );
-    sliderfld_->sldr()->setMaxValue( 25*initslval_*uifactor_ );
-    sliderfld_->sldr()->setValue( initslval_ * uifactor_ );
+    sliderfld_->setMinValue( 0.04f*initslval_*uifactor_ );
+    sliderfld_->setMaxValue( 25*initslval_*uifactor_ );
+    sliderfld_->setValue( initslval_ * uifactor_ );
 }
 
 
@@ -166,7 +166,7 @@ bool uiZStretchDlg::acceptOK( CallBacker* )
 	return true;
 
     sliderfld_->processInput();
-    const float slval = sliderfld_->sldr()->getValue() / uifactor_;
+    const float slval = sliderfld_->getValue() / uifactor_;
     setZStretch( slval, true );
 
     if ( savefld_->isChecked() )
@@ -191,7 +191,7 @@ bool uiZStretchDlg::rejectOK( CallBacker* )
 
 void uiZStretchDlg::sliderMove( CallBacker* )
 {
-    const float slval = sliderfld_->sldr()->getValue() / uifactor_;
+    const float slval = sliderfld_->getValue() / uifactor_;
     setZStretch( slval, false );
 }
 

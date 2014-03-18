@@ -36,7 +36,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 				 "Set light properties","50.0.18").modal(false))
     , visserv_(visserv)
     , pd_(0)
-    , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram", 
+    , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram",
 		    "Set azimuth and dip", mNoHelpKey).modal(false)))
 {
     pddlg_->setCtrlStyle( CloseOnly );
@@ -45,8 +45,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
     scenefld_->attach( hCentered );
 
-    switchfld_ = new uiGenInput( this, "Turn light", 
-	    BoolInpSpec(false,"On","Off") );
+    switchfld_ = new uiGenInput( this, "Turn light",
+				 BoolInpSpec(false,"On","Off") );
     switchfld_->attach( alignedBelow, scenefld_ );
     switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
 
@@ -59,31 +59,31 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     lighttypefld_ = new uiGenInput( lightgrp, "Light type", BoolInpSpec(
 		false,"Positioned at the camera","Relative to the scene") );
-    lighttypefld_->valuechanged.notify( 
+    lighttypefld_->valuechanged.notify(
 	    mCB(this,uiDirLightDlg,lightSelChangedCB) );
 
     lightgrp->setHAlignObj( lighttypefld_ );
-	
-    intensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
-	    	         nrdec(1).logscale(false), "Intensity slider" );
-    intensityfld_->attach( alignedBelow, lightgrp );
-    intensityfld_->sldr()->setMinValue( 0 );
-    intensityfld_->sldr()->setMaxValue( 100 );
-    intensityfld_->sldr()->setStep( 5 );
 
-    headonintensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Camera light intensity (%)").
-	    			 withedit(true).nrdec(1).logscale(false), 
-				 "Camera light intensity slider" );
+    intensityfld_ = new uiSlider( this,
+			uiSlider::Setup("Intensity (%)").withedit(true).
+				nrdec(1).logscale(false), "Intensity slider" );
+    intensityfld_->attach( alignedBelow, lightgrp );
+    intensityfld_->setMinValue( 0 );
+    intensityfld_->setMaxValue( 100 );
+    intensityfld_->setStep( 5 );
+
+    headonintensityfld_ = new uiSlider( this,
+			uiSlider::Setup("Camera light intensity (%)").
+				withedit(true).nrdec(1).logscale(false),
+			"Camera light intensity slider" );
     headonintensityfld_->attach( alignedBelow, lightgrp );
-    headonintensityfld_->sldr()->setMinValue( 0 );
-    headonintensityfld_->sldr()->setMaxValue( 100 );
-    headonintensityfld_->sldr()->setStep( 5 );
+    headonintensityfld_->setMinValue( 0 );
+    headonintensityfld_->setMaxValue( 100 );
+    headonintensityfld_->setStep( 5 );
 
     const CallBack chgCB( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
-    azimuthfld_ = new uiDialExtra( this, 
+    azimuthfld_ = new uiDialExtra( this,
 	    uiDialExtra::Setup("Azimuth (degrees)").withedit(true),
 	    "Azimuth slider" );
     azimuthfld_->attach( centeredBelow, intensityfld_ );
@@ -92,13 +92,13 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     azimuthfld_->dial()->setMaxValue( 360 );
     azimuthfld_->dial()->setInterval( StepInterval<int>( 0, 360, 5 ) );
 
-    dipfld_ = new uiSliderExtra( this,
-	        uiSliderExtra::Setup("Dip (degrees)").withedit(true).nrdec(0).
-	    	logscale(false), "Dip slider" );
+    dipfld_ = new uiSlider( this,
+			uiSlider::Setup("Dip (degrees)").withedit(true)
+				.nrdec(0).logscale(false), "Dip slider" );
     dipfld_->attach( centeredBelow, azimuthfld_ );
-    dipfld_->sldr()->setMinValue( 0 );
-    dipfld_->sldr()->setMaxValue( 90 );
-    dipfld_->sldr()->setStep( 5 );
+    dipfld_->setMinValue( 0 );
+    dipfld_->setMaxValue( 90 );
+    dipfld_->setStep( 5 );
 
     showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
     showpdfld_->attach( alignedBelow, dipfld_ );
@@ -106,14 +106,14 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     uiSeparator* sep2 = new uiSeparator( this, "HSep" );
     sep2->attach( stretchedBelow, showpdfld_ );
 
-    ambintensityfld_ = new uiSliderExtra( this,
-	    	        uiSliderExtra::Setup("Ambient light intensity (%)").
-	    			 withedit(true).nrdec(1).logscale(false), 
-				 "Ambient light intensity slider" );
+    ambintensityfld_ = new uiSlider( this,
+			uiSlider::Setup("Ambient light intensity (%)").
+				withedit(true).nrdec(1).logscale(false),
+			"Ambient light intensity slider" );
     ambintensityfld_->attach( centeredBelow, sep2 );
-    ambintensityfld_->sldr()->setMinValue( 0 );
-    ambintensityfld_->sldr()->setMaxValue( 100 );
-    ambintensityfld_->sldr()->setStep( 5 );
+    ambintensityfld_->setMinValue( 0 );
+    ambintensityfld_->setMaxValue( 100 );
+    ambintensityfld_->setStep( 5 );
 
     InitInfoType initinfo;
     if ( updateSceneSelector() )
@@ -124,17 +124,17 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     azimuthfld_->dial()->setValue( (int)initinfo.azimuth_ );
     azimuthfld_->dial()->valueChanged.notify( chgCB );
-    dipfld_->sldr()->setValue( initinfo.dip_ );
-    dipfld_->sldr()->valueChanged.notify( chgCB ); 
-    intensityfld_->sldr()->setValue( initinfo.intensity_ );
-    intensityfld_->sldr()->valueChanged.notify( chgCB ); 
-    headonintensityfld_->sldr()->setValue( initinfo.headonintensity_ );
-    headonintensityfld_->sldr()->valueChanged.notify( 
-	    mCB(this,uiDirLightDlg,headOnChangedCB) ); 
-    ambintensityfld_->sldr()->setValue( initinfo.ambintensity_ );
-    ambintensityfld_->sldr()->valueChanged.notify( 
-	    mCB(this,uiDirLightDlg,ambientChangedCB) ); 
-    scenefld_->box()->selectionChanged.notify( 
+    dipfld_->setValue( initinfo.dip_ );
+    dipfld_->valueChanged.notify( chgCB );
+    intensityfld_->setValue( initinfo.intensity_ );
+    intensityfld_->valueChanged.notify( chgCB );
+    headonintensityfld_->setValue( initinfo.headonintensity_ );
+    headonintensityfld_->valueChanged.notify(
+	    mCB(this,uiDirLightDlg,headOnChangedCB) );
+    ambintensityfld_->setValue( initinfo.ambintensity_ );
+    ambintensityfld_->valueChanged.notify(
+	    mCB(this,uiDirLightDlg,ambientChangedCB) );
+    scenefld_->box()->selectionChanged.notify(
 	    mCB(this,uiDirLightDlg,sceneSelChangedCB) );
     visserv_->nrScenesChange().notify(
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
@@ -153,7 +153,7 @@ uiDirLightDlg::~uiDirLightDlg()
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
 
     delete pd_;
-    
+
     pddlg_->close();
     delete pddlg_;
 }
@@ -170,24 +170,24 @@ void uiDirLightDlg::onOffChg( CallBacker* cb )
 {
     const bool turnedon = switchfld_->getBoolValue();
     const bool dirlight = turnedon && !lighttypefld_->getBoolValue();
-   
+
     lighttypefld_->display( turnedon );
     azimuthfld_->display( dirlight );
     dipfld_->display( dirlight );
     intensityfld_->display( dirlight );
     headonintensityfld_->display( turnedon && lighttypefld_->getBoolValue() );
     showpdfld_->display( dirlight );
-    
+
     const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
 	    continue;
-	
+
 	mDynamicCastGet(visSurvey::Scene*,scene,
-    		visBase::DM().getObject(initinfo_[idx].sceneid_));
-    	if ( scene )
-    	    scene->getLight()->turnOn( turnedon );
+		visBase::DM().getObject(initinfo_[idx].sceneid_));
+	if ( scene )
+	    scene->getLight()->turnOn( turnedon );
     }
 }
 
@@ -197,25 +197,25 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
     if ( pd_ ) return;
 
     pd_ = new uiPolarDiagram( pddlg_ );
-    pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()), 
-	    	    dipfld_->sldr()->getValue() );
+    pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
+		    dipfld_->getValue() );
     pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
 }
 
 
 float uiDirLightDlg::getHeadOnIntensity() const
 {
-    float intensity = headonintensityfld_->sldr()->getValue();
+    float intensity = headonintensityfld_->getValue();
     if ( intensity<0 || intensity>100 )
-	headonintensityfld_->sldr()->setValue( 100 );
-    return headonintensityfld_->sldr()->getValue() / 100;
+	headonintensityfld_->setValue( 100 );
+    return headonintensityfld_->getValue() / 100;
 }
 
 
 void uiDirLightDlg::setHeadOnIntensity( float value )
 {
     if ( value>=0 && value<=1.0 )
-	headonintensityfld_->sldr()->setValue( value*100 );
+	headonintensityfld_->setValue( value*100 );
 }
 
 
@@ -290,8 +290,8 @@ void uiDirLightDlg::updateInitInfo()
 	}
 
 	initinfo_.removeSingle( idx );
-    }    
-    
+    }
+
     // append new info for scene(s) added
     const int size = initinfo_.size();
     for ( int newidx=0; newidx<newsceneids.size(); newidx++ )
@@ -307,7 +307,7 @@ void uiDirLightDlg::updateInitInfo()
 	}
 
 	if ( present ) continue;
-	
+
 	mDynamicCastGet(visSurvey::Scene*,scene,
 		visserv_->getObject(newsceneids[newidx]));
 	if ( !scene ) continue;
@@ -336,11 +336,11 @@ void uiDirLightDlg::saveInitInfo()
 	if ( !dosave ) continue;
 
         initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
-        initinfo_[idx].dip_ = dipfld_->sldr()->getValue();
-        initinfo_[idx].intensity_ = intensityfld_->sldr()->getValue();
-        initinfo_[idx].headonintensity_ = 
-	    headonintensityfld_->sldr()->getValue();
-        initinfo_[idx].ambintensity_ = ambintensityfld_->sldr()->getValue();
+	initinfo_[idx].dip_ = dipfld_->getValue();
+	initinfo_[idx].intensity_ = intensityfld_->getValue();
+	initinfo_[idx].headonintensity_ =
+	    headonintensityfld_->getValue();
+	initinfo_[idx].ambintensity_ = ambintensityfld_->getValue();
     }
 
     initlighttype_ = lighttypefld_->getBoolValue();
@@ -359,18 +359,18 @@ void uiDirLightDlg::resetWidgets()
 	idx = 0;
 
     azimuthfld_->dial()->setValue( (int)initinfo_[idx].azimuth_ );
-    dipfld_->sldr()->setValue( initinfo_[idx].dip_ );
-    intensityfld_->sldr()->setValue( initinfo_[idx].intensity_ );
-    headonintensityfld_->sldr()->setValue( 
+    dipfld_->setValue( initinfo_[idx].dip_ );
+    intensityfld_->setValue( initinfo_[idx].intensity_ );
+    headonintensityfld_->setValue(
 	    initinfo_[idx].headonintensity_ );
-    ambintensityfld_->sldr()->setValue( initinfo_[idx].ambintensity_ );
+    ambintensityfld_->setValue( initinfo_[idx].ambintensity_ );
 }
 
 
 // Set the values of the widgets from the scene.
 void uiDirLightDlg::setWidgets( bool resetinitinfo )
 {
-    bool updateall = initinfo_.size() > 0 
+    bool updateall = initinfo_.size() > 0
 		     && scenefld_->box()->currentItem() == 0;
 
     bool anySceneDone = false;
@@ -381,22 +381,22 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 	if ( !doupd ) continue;
 
 	// head on light
-	headonintensityfld_->sldr()->setValue( getHeadOnLight( idx ) );
+	headonintensityfld_->setValue( getHeadOnLight( idx ) );
         if ( resetinitinfo )
-	    initinfo_[idx].headonintensity_ = 
-		headonintensityfld_->sldr()->getValue();
+	    initinfo_[idx].headonintensity_ =
+		headonintensityfld_->getValue();
 
 	// ambient intensity
-	ambintensityfld_->sldr()->setValue( getAmbientLight( idx ) );
+	ambintensityfld_->setValue( getAmbientLight( idx ) );
         if ( resetinitinfo )
-	    initinfo_[idx].ambintensity_ = 
-		ambintensityfld_->sldr()->getValue();
+	    initinfo_[idx].ambintensity_ =
+		ambintensityfld_->getValue();
 
 	// directional light
         visBase::Light* dl = getDirLight( idx );
         if ( !dl )
         {
-   	    if ( resetinitinfo )
+	    if ( resetinitinfo )
 	        initinfo_[idx].reset( false );
 	    continue;
         }
@@ -410,11 +410,11 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 		Angle::UsrDeg );
 
 	if ( pd_ )
-   	    pd_->setValues( azimuth, dip );
+	    pd_->setValues( azimuth, dip );
 
         if ( resetinitinfo )
         {
-    	    initinfo_[idx].azimuth_ = azimuth;
+	    initinfo_[idx].azimuth_ = azimuth;
 	    initinfo_[idx].dip_ = dip;
 	    initinfo_[idx].intensity_ = dl->getDiffuse() * 100;
 	}
@@ -422,9 +422,9 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 	if ( !anySceneDone )
 	{
 	    azimuthfld_->dial()->setValue( (int)azimuth );
-            dipfld_->sldr()->setValue( dip );
-            intensityfld_->sldr()->setValue( dl->getDiffuse() * 100 );
-   	    anySceneDone = true;
+	    dipfld_->setValue( dip );
+	    intensityfld_->setValue( dl->getDiffuse() * 100 );
+	    anySceneDone = true;
 	}
     }
 }
@@ -456,20 +456,20 @@ void uiDirLightDlg::setDirLight()
 	if ( !scene )
 	    continue;
 
-	float az_rad = Angle::convert( Angle::UsrDeg, 
+	float az_rad = Angle::convert( Angle::UsrDeg,
 		(float) (azimuthfld_->dial()->getValue()), Angle::Rad );
 	float dip_rad = Angle::convert( Angle::Deg,
-		dipfld_->sldr()->getValue() - 180, Angle::Rad );
+		dipfld_->getValue() - 180, Angle::Rad );
 	  // offset for observed deviation
 
 	float x = cos( az_rad ) * cos( dip_rad );
 	float y = sin( az_rad ) * cos( dip_rad );
-       	float z = sin (dip_rad );
+	float z = sin (dip_rad );
 
 	RefMan<visBase::Light> dl = getDirLight( idx );
 
-	dl->setDirection( x, y, z ); 
- 	dl->setDiffuse( intensityfld_->sldr()->getValue() / 100 );
+	dl->setDirection( x, y, z );
+	dl->setDiffuse( intensityfld_->getValue() / 100 );
     }
 }
 
@@ -487,13 +487,13 @@ void uiDirLightDlg::ambientChangedCB( CallBacker* )
     if  ( !initinfo_.size() )
 	return;
 
-    float intensity = ambintensityfld_->sldr()->getValue();
+    float intensity = ambintensityfld_->getValue();
     if ( intensity<0 || intensity>100 )
-	ambintensityfld_->sldr()->setValue(100);
+	ambintensityfld_->setValue(100);
 
-    intensity = ambintensityfld_->sldr()->getValue() / 100 ;
+    intensity = ambintensityfld_->getValue() / 100 ;
     const bool lightall = scenefld_->box()->currentItem()==0;
-    
+
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	bool dolight = lightall || idx==scenefld_->box()->currentItem()-1;
@@ -511,8 +511,8 @@ float uiDirLightDlg::getHeadOnLight( int sceneidx ) const
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    visBase::DM().getObject(initinfo_[sceneidx].sceneid_));
-    float hol = (scene) ? visserv_->sendGetHeadOnIntensityEvent( 
-	    		initinfo_[sceneidx].sceneid_ ) * 100 : 0;
+    float hol = (scene) ? visserv_->sendGetHeadOnIntensityEvent(
+			initinfo_[sceneidx].sceneid_ ) * 100 : 0;
     if ( hol < 0 )
 	// scene not yet up
 	hol = mInitHeadOnIntensity;
@@ -527,7 +527,7 @@ void uiDirLightDlg::setHeadOnLight()
 
     float intensity = getHeadOnIntensity();
     const bool lightall = scenefld_->box()->currentItem()==0;
-    
+
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
@@ -538,7 +538,7 @@ void uiDirLightDlg::setHeadOnLight()
 	if ( !scene )
 	    continue;
 
-	visserv_->sendSetHeadOnIntensityEvent( initinfo_[idx].sceneid_, 
+	visserv_->sendSetHeadOnIntensityEvent( initinfo_[idx].sceneid_,
 		intensity );
     }
 }
@@ -563,14 +563,14 @@ void uiDirLightDlg::validateInput()
     const float az = mCast( float, azimuthfld_->dial()->getValue() );
     if ( az<0 || az>360 )
 	azimuthfld_->dial()->setValue( mInitAzimuth );
-    
-    const float dip = dipfld_->sldr()->getValue();
+
+    const float dip = dipfld_->getValue();
     if ( dip<0 || dip>90 )
-	dipfld_->sldr()->setValue( mInitDip );
-    
-    const float intensity = intensityfld_->sldr()->getValue();
+	dipfld_->setValue( mInitDip );
+
+    const float intensity = intensityfld_->getValue();
     if ( intensity<0 || intensity>100 )
-	intensityfld_->sldr()->setValue( mInitIntensity );
+	intensityfld_->setValue( mInitIntensity );
 }
 
 
@@ -581,7 +581,7 @@ bool uiDirLightDlg::isInSync()
 	float az, dip;
 	pd_->getValues( &az, &dip );
 	if ( az != azimuthfld_->dial()->getValue() ||
-		dip != dipfld_->sldr()->getValue() )
+		dip != dipfld_->getValue() )
 	    return false;
     }
 
@@ -598,9 +598,9 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
         intensityfld_->processInput();
         headonintensityfld_->processInput();
         ambintensityfld_->processInput();
-    
+
 	setDirLight();
-    	setHeadOnLight();
+	setHeadOnLight();
         saveInitInfo();
     }
 
@@ -609,10 +609,10 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
     {
 	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
 	    continue;
-	
+
 	mDynamicCastGet(visSurvey::Scene*,scene,
-    		visBase::DM().getObject(initinfo_[idx].sceneid_));
-    	if ( !scene ) continue;
+		visBase::DM().getObject(initinfo_[idx].sceneid_));
+	if ( !scene ) continue;
 	initinfo_[idx].directlighton_ = scene->getLight()->isOn();
 	initinfo_[idx].intensity_ = scene->getLight()->getDiffuse();
 	initinfo_[idx].dx_ = scene->getLight()->direction(0);
@@ -627,24 +627,24 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 bool uiDirLightDlg::rejectOK( CallBacker* )
 {
     resetWidgets();
-    
+
     lighttypefld_->setValue(initlighttype_);
-   
-    bool lighton = false; 
+
+    bool lighton = false;
     const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
 	    continue;
-	
+
 	mDynamicCastGet(visSurvey::Scene*,scene,
-    		visBase::DM().getObject(initinfo_[idx].sceneid_));
-    	if ( scene )
+		visBase::DM().getObject(initinfo_[idx].sceneid_));
+	if ( scene )
 	{
 	    visBase::Light& dl = *scene->getLight();
 	    dl.turnOn(initinfo_[idx].directlighton_);
-	    dl.setDirection( initinfo_[idx].dx_, initinfo_[idx].dy_, 
-		    	     initinfo_[idx].dz_ );
+	    dl.setDirection( initinfo_[idx].dx_, initinfo_[idx].dy_,
+			     initinfo_[idx].dz_ );
 	    dl.setDiffuse( initinfo_[idx].intensity_ );
 	    if ( !forall || initinfo_[idx].directlighton_ )
 		lighton = initinfo_[idx].directlighton_;
@@ -674,7 +674,7 @@ void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
     showpdfld_->display( dirlight );
     if ( dirlight && pdshown )
 	pddlg_->show();
-    else 
+    else
 	pddlg_->close();
     setDirLight();
     setHeadOnLight();
@@ -686,20 +686,20 @@ void uiDirLightDlg::sceneSelChangedCB( CallBacker* )
     setWidgets( false );
     setlightSwitch();
 }
-	
+
 
 void uiDirLightDlg::setlightSwitch()
 {
-    bool lighton = false;    
+    bool lighton = false;
     const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	if ( !forall && idx!=scenefld_->box()->currentItem()-1 )
 	    continue;
-	
+
 	mDynamicCastGet(visSurvey::Scene*,scene,
-    		visBase::DM().getObject(initinfo_[idx].sceneid_));
-    	if ( scene && scene->getLight()->isOn() )
+		visBase::DM().getObject(initinfo_[idx].sceneid_));
+	if ( scene && scene->getLight()->isOn() )
 	{
 	    lighton = true;
 	    break;
@@ -713,13 +713,13 @@ void uiDirLightDlg::setlightSwitch()
 void uiDirLightDlg::fieldChangedCB( CallBacker* c )
 {
     if ( !pd_ )
-    	setDirLight();
+	setDirLight();
 
     // do the work only if this is not called by setValue of polarDiagramCB
     else if ( !pd_->hasFocus() )
     {
-	pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()), 
-		dipfld_->sldr()->getValue() );
+	pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
+		dipfld_->getValue() );
         setDirLight();
     }
 }
@@ -730,7 +730,7 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
     float azimuth, dip;
     pd_->getValues( &azimuth, &dip );
     azimuthfld_->dial()->setValue( (int)azimuth );
-    dipfld_->sldr()->setValue( dip );
+    dipfld_->setValue( dip );
     setDirLight();
 }
 
@@ -745,7 +745,7 @@ void uiDirLightDlg::nrScenesChangedCB( CallBacker* )
 {
     if ( updateSceneSelector() )
     {
-    	setWidgets( true );
+	setWidgets( true );
         showWidgets( true );
     }
     else
@@ -810,18 +810,18 @@ uiDirLightDlg::InitInfo&
 
 bool uiDirLightDlg::InitInfo::operator== ( const InitInfo& it ) const
 {
-    return sceneid_==it.sceneid_ && azimuth_==it.azimuth_ && 
-	   dip_==it.dip_ && intensity_==it.intensity_ && 
-	   headonintensity_==it.headonintensity_ && 
+    return sceneid_==it.sceneid_ && azimuth_==it.azimuth_ &&
+	   dip_==it.dip_ && intensity_==it.intensity_ &&
+	   headonintensity_==it.headonintensity_ &&
 	   ambintensity_==it.ambintensity_ && directlighton_==it.directlighton_;
 }
 
 
 bool uiDirLightDlg::InitInfo::operator!= ( const InitInfo& it ) const
 {
-    return  sceneid_ != it.sceneid_ || azimuth_ != it.azimuth_ || 
-	    dip_ != it.dip_ || intensity_ != it.intensity_ || 
-	    headonintensity_ != it.headonintensity_ || 
-	    ambintensity_ != it.ambintensity_ || 
+    return  sceneid_ != it.sceneid_ || azimuth_ != it.azimuth_ ||
+	    dip_ != it.dip_ || intensity_ != it.intensity_ ||
+	    headonintensity_ != it.headonintensity_ ||
+	    ambintensity_ != it.ambintensity_ ||
 	    directlighton_ != it.directlighton_;
 }

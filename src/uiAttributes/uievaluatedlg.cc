@@ -254,7 +254,7 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters"
 				,"101.3.1")
-	    	.modal(false)
+		.modal(false)
 	        .oktext("Accept")
 	        .canceltext(""))
     , calccb(this)
@@ -299,11 +299,10 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSliderExtra( this, "Slice", "Slice slider" );
+    sliderfld = new uiSlider( this, "Slice", "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->sldr()->valueChanged.notify(
-	    				mCB(this,uiEvaluateDlg,sliderMove) );
-    sliderfld->sldr()->setTickMarks( uiSlider::Below );
+    sliderfld->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
+    sliderfld->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
 
     storefld = new uiCheckBox( this, "Store slices on 'Accept'" );
@@ -342,7 +341,7 @@ void uiEvaluateDlg::variableSel( CallBacker* )
 void uiEvaluateDlg::calcPush( CallBacker* )
 {
     attrset_->usePar( initpar_ );
-    sliderfld->sldr()->setValue(0);
+    sliderfld->setValue(0);
     lbls_.erase();
     specs_.erase();
 
@@ -392,15 +391,15 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 
     if ( enabstore_ ) storefld->setSensitive( true );
     sliderfld->setSensitive( true );
-    sliderfld->sldr()->setMaxValue( mCast(float,nrsteps-1) );
-    sliderfld->sldr()->setTickStep( 1 );
+    sliderfld->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld->setTickStep( 1 );
     sliderMove(0);
 }
 
 
 void uiEvaluateDlg::sliderMove( CallBacker* )
 {
-    const int sliceidx = sliderfld->sldr()->getIntValue();
+    const int sliceidx = sliderfld->getIntValue();
     if ( sliceidx >= lbls_.size() )
 	return;
 
@@ -411,7 +410,7 @@ void uiEvaluateDlg::sliderMove( CallBacker* )
 
 bool uiEvaluateDlg::acceptOK( CallBacker* )
 {
-    const int sliceidx = sliderfld->sldr()->getIntValue();
+    const int sliceidx = sliderfld->getIntValue();
     if ( sliceidx < specs_.size() )
 	seldesc_ = attrset_->getDesc( specs_[sliceidx].id() );
 

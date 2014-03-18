@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool uiScenePropertyDlg::savestatus_ = true;
 
 
-uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p, 
+uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
     : uiDialog(p,uiDialog::Setup("Scene properties","","50.0.5"))
     , hadsurveybox_(true)
@@ -53,7 +53,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	oldbgcolor_ = viewers_[curvwridx_]->getBackgroundColor();
 	hadanimation_ = viewers_[curvwridx_]->isAnimationEnabled();
 
-        mDynamicCast(visSurvey::Scene*, scene_, const_cast <visBase::Scene*> 
+	mDynamicCast(visSurvey::Scene*, scene_, const_cast <visBase::Scene*>
 			(viewers_[curvwridx_]->getScene()));
 	if ( scene_ )
 	{
@@ -67,7 +67,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    oldmarkercolor_ = scene_->getMarkerColor();
 	    oldfactor_ = scene_->getPolygonOffset()->getFactor();
 	    oldunits_ = scene_->getPolygonOffset()->getUnits();
-    	}
+	}
     }
 
     survboxfld_ = new uiCheckBox( this, "Survey box" );
@@ -101,28 +101,28 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     bgcolfld_->attach( alignedBelow, annotgridfld_ );
     bgcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
-    markersizefld_ = new uiSliderExtra( this,
-				uiSliderExtra::Setup("Mouse marker size"),
+    markersizefld_ = new uiSlider( this,
+				uiSlider::Setup("Mouse marker size"),
 				"Marker size slider" );
-    markersizefld_->sldr()->setMinValue( 1 );
-    markersizefld_->sldr()->setMaxValue( 10 );
-    markersizefld_->sldr()->setValue( oldmarkersize_ );
+    markersizefld_->setMinValue( 1 );
+    markersizefld_->setMaxValue( 10 );
+    markersizefld_->setValue( oldmarkersize_ );
     markersizefld_->attach( alignedBelow, bgcolfld_ );
-    markersizefld_->sldr()->valueChanged.notify(
-	    				mCB(this,uiScenePropertyDlg,updateCB) );
+    markersizefld_->valueChanged.notify(
+					mCB(this,uiScenePropertyDlg,updateCB) );
 
     markercolfld_ = new uiColorInput( this,
 	    uiColorInput::Setup(oldmarkercolor_).lbltxt("Mouse marker color") );
     markercolfld_->attach( alignedBelow, markersizefld_ );
     markercolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
-    
+
     annotcolfld_ = new uiColorInput( this,
 	    uiColorInput::Setup(annotcolor_).lbltxt("Annotation color") );
     annotcolfld_->attach( alignedBelow, markercolfld_ );
     annotcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     uiPushButton* ltbutton = new uiPushButton(this, "Line/Surface separation",
-	    		mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
+			mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
     ltbutton->attach( alignedBelow, annotcolfld_ );
 
     animationfld_ = new uiCheckBox( this, "Allow spin animation" );
@@ -178,7 +178,7 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->showAnnotGrid( annotgridfld_->isChecked() );
     scene->showAnnotText( annotfld_->isChecked() );
 
-    scene->setMarkerSize( markersizefld_->sldr()->getValue() );
+    scene->setMarkerSize( markersizefld_->getValue() );
     scene->setMarkerColor( markercolfld_->color() );
     scene->setAnnotColor( annotcolfld_->color() );
     scene->getSceneColTab()->setLegendColor( annotcolfld_->color() );

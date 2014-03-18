@@ -21,20 +21,20 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )
 {
-    uiSliderExtra::Setup ss( "Transparency" ); ss.withedit(true);
-    slider_ = new uiSliderExtra( this, ss, "Transparency slider" );
-    slider_->sldr()->setMinValue( 0 );
-    slider_->sldr()->setMaxValue( 100 );
-    slider_->sldr()->setStep( 1 );
-    slider_->sldr()->setValue( 100*initaltrans_/255.f ); 
+    uiSlider::Setup ss( "Transparency" ); ss.withedit(true);
+    slider_ = new uiSlider( this, ss, "Transparency slider" );
+    slider_->setMinValue( 0 );
+    slider_->setMaxValue( 100 );
+    slider_->setStep( 1 );
+    slider_->setValue( 100*initaltrans_/255.f );
 
-    slider_->sldr()->valueChanged.notify( mCB(this,uiAttribTransDlg,changeCB) );
+    slider_->valueChanged.notify( mCB(this,uiAttribTransDlg,changeCB) );
 }
 
 
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
-    const int val = 255*slider_->sldr()->getIntValue()/100;
+    const int val = 255*slider_->getIntValue()/100;
     so_.setAttribTransparency( attrib_, mCast(unsigned char,val) );
 }
 
@@ -47,6 +47,5 @@ bool uiAttribTransDlg::rejectOK( CallBacker* )
 
 bool uiAttribTransDlg::acceptOK( CallBacker* )
 {
-    slider_->processInput();
     return true;
 }

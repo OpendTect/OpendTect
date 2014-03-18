@@ -20,7 +20,7 @@ class uiDialExtra;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiPushButton;
-class uiSliderExtra;
+class uiSlider;
 class uiVisPartServer;
 
 namespace visBase { class Light; }
@@ -37,12 +37,12 @@ public:
 
 protected:
 
-    visBase::Light*	getDirLight(int) const;
+    visBase::Light*		getDirLight(int) const;
     void			setDirLight();
     float			getHeadOnLight(int) const;
     void			setHeadOnLight();
     float			getAmbientLight(int) const;
-    bool			updateSceneSelector();	
+    bool			updateSceneSelector();
     void			updateInitInfo();
     void			saveInitInfo();
     void			resetWidgets();
@@ -67,15 +67,15 @@ protected:
     void			activeSceneChangedCB(CallBacker*);
     void			onOffChg(CallBacker*);
     void			setlightSwitch();
-    
+
     uiVisPartServer*		visserv_;
 
     uiLabeledComboBox*		scenefld_;
     uiDialExtra*		azimuthfld_;
-    uiSliderExtra*		dipfld_;
-    uiSliderExtra*		intensityfld_;
-    uiSliderExtra*		headonintensityfld_;
-    uiSliderExtra*		ambintensityfld_;
+    uiSlider*			dipfld_;
+    uiSlider*			intensityfld_;
+    uiSlider*			headonintensityfld_;
+    uiSlider*			ambintensityfld_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
     uiDialog*			pddlg_;
@@ -84,38 +84,35 @@ protected:
 
     typedef mStruct(uiVis) InitInfo
     {
-		int		sceneid_;
-        	
-        	float		azimuth_;  // user degrees
-	        float		dip_;  // degrees
-        	
-	        float		headonintensity_;
-        	float		ambintensity_;
-		
-		bool		directlighton_;
-		float		intensity_;
-		float		dx_;
-		float		dy_;
-		float		dz_;
-	
-	public:
+	int		sceneid_;
 
-				InitInfo();
-		void		reset(bool resetheadonval=true);
+	float		azimuth_;  // user degrees
+	float		dip_;  // degrees
 
-        	InitInfo& 	operator = (const InitInfo&);
-        	bool		operator == (const InitInfo&) const;
-        	bool	 	operator != (const InitInfo&) const;
+	float		headonintensity_;
+	float		ambintensity_;
+
+	bool		directlighton_;
+	float		intensity_;
+	float		dx_;
+	float		dy_;
+	float		dz_;
+
+			InitInfo();
+	void		reset(bool resetheadonval=true);
+
+	InitInfo&	operator = (const InitInfo&);
+	bool		operator == (const InitInfo&) const;
+	bool		operator != (const InitInfo&) const;
 
     } InitInfoType;
 
     TypeSet<InitInfoType>	initinfo_;
 
     bool			initlighttype_;
-    				// initial light type: 0 - headon light, 
-    				// 1 - scene (directional light)
+				// initial light type: 0 - headon light,
+				// 1 - scene (directional light)
 };
 
 #endif
-
 

@@ -136,11 +136,11 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     setCtrlStyle( CloseOnly );
     const CallBack chgCBfld ( mCB(this,uiVariogramDisplay,fieldChangedCB) );
     const CallBack chgCBlbl ( mCB(this,uiVariogramDisplay,labelChangedCB) );
-    sillfld_ = new uiSliderExtra( this, uiSliderExtra::Setup("sill")
+    sillfld_ = new uiSlider( this, uiSlider::Setup("sill")
 					.withedit(true).nrdec(3).logscale(false)
 					.isvertical(true), "sill slider" );
     sillfld_->display( true );
-    sillfld_->sldr()->valueChanged.notify( chgCBfld );
+    sillfld_->valueChanged.notify( chgCBfld );
 
     uiFunctionDisplay::Setup fdsu;
     fdsu.border_.setLeft( 2 );
@@ -157,14 +157,13 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     disp_->yAxis(false)->setName( "Normalized Variance" );
     disp_->attach( rightOf, sillfld_ );
 
-    rangefld_ = new uiSliderExtra( this,
-				   uiSliderExtra::Setup("range").withedit(true).
-						       nrdec(1).logscale(false),
+    rangefld_ = new uiSlider( this, uiSlider::Setup("range").withedit(true).
+						    nrdec(1).logscale(false),
 				   "range slider" );
     rangefld_->attach( centeredBelow, disp_ );
-    rangefld_->sldr()->setMinValue( 0 );
+    rangefld_->setMinValue( 0 );
     rangefld_->display( true );
-    rangefld_->sldr()->valueChanged.notify( chgCBfld );
+    rangefld_->valueChanged.notify( chgCBfld );
 
     typefld_ = new uiGenInput( this, "Variogram model",
 			     StringListInpSpec(typestrs) );
@@ -201,14 +200,14 @@ void uiVariogramDisplay::draw()
     disp_->setup().xrg_.stop = mCast( float, maxrg_ );
     disp_->setup().yrg_.stop = maxdataval*1.1f;
 
-    rangefld_->sldr()->setMaxValue( mCast( float, maxrg_ ) );
-    rangefld_->sldr()->setStep( mCast( float, maxrg_/(100*(size-1)) ) );
-    rangefld_->sldr()->setValue( maxrg_/4 );
+    rangefld_->setMaxValue( mCast( float, maxrg_ ) );
+    rangefld_->setStep( mCast( float, maxrg_/(100*(size-1)) ) );
+    rangefld_->setValue( maxrg_/4 );
 
-    sillfld_->sldr()->setMinValue( 0 );
-    sillfld_->sldr()->setMaxValue( maxdataval*1.1f );
-    sillfld_->sldr()->setStep( maxdataval/1000 );
-    sillfld_->sldr()->setValue( maxdatavalcomp1 );
+    sillfld_->setMinValue( 0 );
+    sillfld_->setMaxValue( maxdataval*1.1f );
+    sillfld_->setStep( maxdataval/1000 );
+    sillfld_->setValue( maxdatavalcomp1 );
 
     fieldChangedCB(0);
 }
@@ -242,8 +241,8 @@ void uiVariogramDisplay::fieldChangedCB( CallBacker* c )
     Array1DImpl<float> yaxisvals(size);
 
     const int curcomp = labelfld_->getIntValue();
-    const float sill = sillfld_->sldr()->getValue();
-    const float range = rangefld_->sldr()->getValue();
+    const float sill = sillfld_->getValue();
+    const float range = rangefld_->getValue();
 
     for ( int ilag=0; ilag<size; ilag++ )
 	xaxisvals.set( ilag, axes_->get(curcomp,ilag) );

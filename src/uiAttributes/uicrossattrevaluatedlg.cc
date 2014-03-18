@@ -85,11 +85,11 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     calcbut->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSliderExtra( this, "Slice", "Slice slider" );
+    sliderfld = new uiSlider( this, uiSlider::Setup("Slice"), "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->sldr()->valueChanged.notify(
+    sliderfld->valueChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,sliderMove) );
-    sliderfld->sldr()->setTickMarks( uiSlider::Below );
+    sliderfld->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
 
     storefld = new uiCheckBox( this, "Store slices on 'Accept'" );
@@ -158,7 +158,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	return;
 
     attrset_.usePar( initpar_ );
-    sliderfld->sldr()->setValue(0);
+    sliderfld->setValue(0);
     lbls_.erase();
     specs_.erase();
     srcspecids_.erase();
@@ -230,8 +230,8 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
     if ( enabstore_ ) storefld->setSensitive( true );
     sliderfld->setSensitive( true );
-    sliderfld->sldr()->setMaxValue( mCast(float,nrsteps-1) );
-    sliderfld->sldr()->setTickStep( 1 );
+    sliderfld->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld->setTickStep( 1 );
     sliderMove(0);
 }
 
@@ -277,7 +277,7 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
 
 void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
 {
-    const int sliceidx = sliderfld->sldr()->getIntValue();
+    const int sliceidx = sliderfld->getIntValue();
     if ( sliceidx >= lbls_.size() )
 	return;
 
@@ -291,7 +291,7 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
     if ( !paramsfld_ || srcspecids_.isEmpty() )
 	return true;
 
-    const int sliceidx = sliderfld->sldr()->getIntValue();
+    const int sliceidx = sliderfld->getIntValue();
     seldesc_ = attrset_.getDesc( srcspecids_[sliceidx] );
 
     return true;
@@ -300,7 +300,7 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 
 BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const
 {
-    const int sliceidx = sliderfld->sldr()->getIntValue();
+    const int sliceidx = sliderfld->getIntValue();
     return defstr_.get(sliceidx);
 }
 

@@ -27,7 +27,7 @@ class WaveletAttrib;
 
 template <class T> class Array1DImpl;
 
-mExpClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog 
+mExpClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog
 {
 public:
 				~uiSeisWvltSliderDlg();
@@ -39,17 +39,17 @@ protected:
 				uiSeisWvltSliderDlg(uiParent*,Wavelet&);
 
     WaveletAttrib*		wvltattr_;
-    uiSliderExtra*		sliderfld_;
-    Wavelet* 			wvlt_;
-    const Wavelet* 		orgwvlt_;
+    uiSlider*			sliderfld_;
+    Wavelet*			wvlt_;
+    const Wavelet*		orgwvlt_;
 
     virtual void		act(CallBacker*) {}
-    void			constructSlider(uiSliderExtra::Setup&,
-	    					const Interval<float>&);
+    void			constructSlider(uiSlider::Setup&,
+						const Interval<float>&);
 };
 
 
-mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
+mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg
 {
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
@@ -59,18 +59,18 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
+mExpClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg
 {
 public:
 				uiSeisWvltTaperDlg(uiParent*,Wavelet&);
 				~uiSeisWvltTaperDlg();
-protected: 
-    
+protected:
+
     bool			isfreqtaper_;
     int				wvltsz_;
 
-    Array1DImpl<float>* 	wvltvals_;
-    Array1DImpl<float>* 	freqvals_;
+    Array1DImpl<float>*		wvltvals_;
+    Array1DImpl<float>*		freqvals_;
     Interval<float>		timerange_;
     Interval<float>		freqrange_;
 
@@ -106,9 +106,9 @@ private:
     int                         wvltsz_;
     ObjectSet<uiFunctionDisplay>  attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
-    
+
     WaveletAttrib*		wvltattr_;
-    
+
     Interval<float>		timerange_;
     Interval<float>		freqrange_;
 

@@ -17,88 +17,15 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class LinScaler;
-class uiSliderBody;
+
 class uiLabel;
 class uiLineEdit;
+class uiSliderObj;
 
-mExpClass(uiBase) uiSlider : public uiObject
+
+mExpClass(uiBase) uiSlider : public uiGroup
 {
 public:
-
-                        uiSlider(uiParent*,const char* nm="Slider",
-				 int nrdec=0,bool log=false, bool vert=false);
-			~uiSlider();
-
-    enum		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2,
-				      Right=Below, Both=3 };
-
-    void		setText(const char*);
-    const char*		text() const;
-
-    void		setValue(int);
-    void		setValue(float);
-    int			getIntValue() const;
-    float		getValue() const;
-
-    void		setMinValue(float);
-    float		minValue() const;
-    void		setMaxValue(float);
-    float		maxValue() const;
-    void		setStep(float);
-    void		setScale(float fact,float constant);
-    float		step() const;
-
-    void		setInterval(const StepInterval<int>&);
-    void		setInterval(int start,int stop,int step=1);
-    void		setInterval(const StepInterval<float>&);
-    void		setInterval(float start,float stop,float step);
-    void		getInterval(StepInterval<float>&) const;
-    void		setLinearScale(double,double);
-
-    void		setTickMarks(TickPosition);
-    TickPosition	tickMarks() const;
-    void		setTickStep(int);
-    int			tickStep() const;
-    void		setOrientation(Orientation);
-    Orientation		getOrientation() const;
-
-    void		setInverted(bool);
-    bool		isInverted() const;
-    void		setInvertedControls(bool);
-    bool		hasInvertedControls() const;
-
-    bool		isLogScale()			{ return logscale_; }
-
-    Notifier<uiSlider>	valueChanged;
-    Notifier<uiSlider>	sliderMoved;
-    Notifier<uiSlider>	sliderPressed;
-    Notifier<uiSlider>	sliderReleased;
-
-    float		getLinearFraction() const;
-    void		setLinearFraction(float fraction);
-
-private:
-
-    mutable BufferString result_;
-    LinScaler*		scaler_;
-    bool		logscale_;
-
-    uiSliderBody*	body_;
-    uiSliderBody&	mkbody(uiParent*,const char*);
-
-    void		sliderMove(CallBacker*);
-
-    float		userValue(int) const;
-    int			sliderValue(float) const;
-
-};
-
-/*! Slider with extrqa features, like label and user box to type value */
-
-mExpClass(uiBase) uiSliderExtra : public uiGroup
-{
-public:
-
     mExpClass(uiBase) Setup
     {
     public:
@@ -121,29 +48,81 @@ public:
 	mDefSetupMemb(BufferString,lbl)
     };
 
-			uiSliderExtra(uiParent*,const Setup&,
-				      const char* nm=0);
+			uiSlider(uiParent*,const Setup&,const char* nm=0);
+			~uiSlider();
 
-    uiSlider*		sldr()			{ return slider_; }
-    uiLabel*		label()			{ return lbl_; }
+    enum		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2,
+				      Right=Below, Both=3 };
 
     void		processInput();
+    void		setToolTip(const uiString&);
+    void		setText(const char*);
+    const char*		text() const;
+
+    void		setValue(int);
+    void		setValue(float);
+    int			getIntValue() const;
+    float		getValue() const;
     float		editValue() const;
-			//!<The val in the ed field, which may be outside range
 
-    Notifier<uiSliderExtra> valueChanged;
+    void		setMinValue(float);
+    float		minValue() const;
+    void		setMaxValue(float);
+    float		maxValue() const;
+    void		setStep(float);
+    void		setScale(float fact,float constant);
+    float		step() const;
 
-protected:
+    void		setInterval(const StepInterval<int>&);
+    void		setInterval(int start,int stop,int step=1);
+    void		setInterval(const StepInterval<float>&);
+    void		setInterval(float start,float stop,float step);
+    void		getInterval(StepInterval<float>&) const;
+    void		setLinearScale(double,double);
 
-    uiSlider*		slider_;
+    void		setTickMarks(TickPosition);
+    TickPosition	tickMarks() const;
+    void		setTickStep(int);
+    int			tickStep() const;
+    void		setOrientation(uiObject::Orientation);
+    uiObject::Orientation getOrientation() const;
+
+    void		setInverted(bool);
+    bool		isInverted() const;
+    void		setInvertedControls(bool);
+    bool		hasInvertedControls() const;
+
+    bool		isLogScale()			{ return logscale_; }
+
+    Notifier<uiSlider>	valueChanged;
+    Notifier<uiSlider>	sliderMoved;
+    Notifier<uiSlider>	sliderPressed;
+    Notifier<uiSlider>	sliderReleased;
+
+    float		getLinearFraction() const;
+    void		setLinearFraction(float fraction);
+
+    const uiLabel*	label() const			{ return lbl_; }
+    uiLabel*		label()				{ return lbl_; }
+
+private:
+
+    uiSliderObj*	slider_;
     uiLabel*		lbl_;
     uiLineEdit*		editfld_;
 
+    mutable BufferString result_;
+    LinScaler*		scaler_;
+    bool		logscale_;
+
     void		init(const Setup&,const char*);
-    void		editRetPress(CallBacker*);
+
     void		sliderMove(CallBacker*);
+    void		editRetPress(CallBacker*);
+
+    float		userValue(int) const;
+    int			sliderValue(float) const;
 
 };
-
 
 #endif

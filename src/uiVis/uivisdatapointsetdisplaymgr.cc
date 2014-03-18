@@ -75,23 +75,23 @@ uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
 {
     setCtrlStyle( uiDialog::CloseOnly );
     const float fsz = (float)pointsetdisp_->getPointSize();
-    slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Size"), "Size" );
-    slider_->sldr()->setInterval( StepInterval<float>(fsz-10.0f,
+    slider_ = new uiSlider( this, uiSlider::Setup("Size"), "Size" );
+    slider_->setInterval( StepInterval<float>(fsz-10.0f,
 							   fsz+10.0f, 1.0f) );
-    slider_->sldr()->setMinValue( 1 );
-    slider_->sldr()->setMaxValue( 15 );
-    slider_->sldr()->setValue( fsz );
-    slider_->sldr()->setTickMarks( uiSlider::Below );
-    slider_->sldr()->setTickStep( 1 );
-    slider_->sldr()->sliderMoved.notify( mCB(this,uiSetSizeDlg,sizeChangedCB) );
+    slider_->setMinValue( 1 );
+    slider_->setMaxValue( 15 );
+    slider_->setValue( fsz );
+    slider_->setTickMarks( uiSlider::Below );
+    slider_->setTickStep( 1 );
+    slider_->sliderMoved.notify( mCB(this,uiSetSizeDlg,sizeChangedCB) );
 }
 
 void sizeChangedCB( CallBacker* )
 {
-    pointsetdisp_->setPointSize( slider_->sldr()->getIntValue() );
+    pointsetdisp_->setPointSize( slider_->getIntValue() );
 }
 
-    uiSliderExtra*		slider_;
+    uiSlider*			slider_;
     visSurvey::PointSetDisplay* pointsetdisp_;
 };
 

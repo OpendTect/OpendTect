@@ -66,13 +66,13 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     dispfld_->setPrefWidth( 260 );
     dispfld_->setPrefHeight( GetGoldenMinor(260) );
 
-    uiSliderExtra::Setup slsu( "" );
+    uiSlider::Setup slsu;
     slsu.withedit( true );
-    valueslider_ = new uiSliderExtra( this, slsu, "Value" );
+    valueslider_ = new uiSlider( this, slsu, "Value" );
     valueslider_->valueChanged.notify(
 	    mCB(this,uiSynthToRealScaleStatsDisp,sliderChgCB) );
     valueslider_->attach( alignedBelow, dispfld_ );
-    valueslider_->sldr()->setStretch( 2, 1 );
+    valueslider_->setStretch( 2, 1 );
 
     uiLabel* lbl = new uiLabel( this, nm );
     dispfld_->attach( centeredBelow, lbl );
@@ -83,15 +83,15 @@ void updateSlider( float val )
 {
     const uiAxisHandler* xaxis = dispfld_->xAxis();
     const StepInterval<float> xrg = xaxis->range();
-    valueslider_->sldr()->setScale( xrg.step/1000, 0 );
-    valueslider_->sldr()->setInterval( xrg );
-    valueslider_->sldr()->setValue( val );
+    valueslider_->setScale( xrg.step/1000, 0 );
+    valueslider_->setInterval( xrg );
+    valueslider_->setValue( val );
     drawMarkerLine( val );
 }
 
 void sliderChgCB( CallBacker* )
 {
-    usrval_ = valueslider_->sldr()->getValue();
+    usrval_ = valueslider_->getValue();
     drawMarkerLine( usrval_ );
     usrValChanged.trigger();
 }
@@ -103,7 +103,7 @@ void drawMarkerLine( float val )
     if ( valx < xaxis->getPix( xaxis->range().start) ||
 	 valx > xaxis->getPix( xaxis->range().stop) )
 	return;
-    
+
     const uiAxisHandler* yaxis = dispfld_->yAxis(false);
     const int valytop = yaxis->getPix( yaxis->range().start );
     const int valybottom = yaxis->getPix( yaxis->range().stop );
@@ -123,7 +123,7 @@ void drawMarkerLine( float val )
     float		usrval_;
 
     uiHistogramDisplay*	dispfld_;
-    uiSliderExtra*	valueslider_;
+    uiSlider*		valueslider_;
     uiLineItem*		markerlineitem_;
     Notifier<uiSynthToRealScaleStatsDisp>	usrValChanged;
 
@@ -158,7 +158,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 
     uiSeisSel::Setup sssu( is2d_, false );
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
-	    		      sssu );
+			      sssu );
 
     const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( BufferString("Horizon for '",lvlnm,"'") );
@@ -177,7 +177,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     evfld_->attach( alignedBelow, polyfld_ );
 
     uiPushButton* gobut = new uiPushButton( this, "&Extract amplitudes",
-	    			mCB(this,uiSynthToRealScale,goPush), true );
+				mCB(this,uiSynthToRealScale,goPush), true );
     gobut->attach( alignedBelow, evfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "separator" );
@@ -190,9 +190,9 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     uiGroup* statsgrp = new uiGroup( this, "Stats displays" );
 
     synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetics",
-	    					      true );
+						      true );
     realstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Real Seismics",
-	    					     false );
+						     false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
@@ -343,7 +343,7 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     , seldata_(0)
 {
     if ( dlg_.polygon_ )
-    	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );
+	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );
     if ( seldata_ )
 	totalnr_ = seldata_->expectedNrTraces( dlg_.is2d_ );
     else
@@ -506,6 +506,6 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     outwvltid_ = ioobj->key();
     Wavelet::markScaled( outwvltid_, inpwvltid_, horfld_->key(),
-	    		seisfld_->ioobj()->key(), evfld_->levelName() );
+			 seisfld_->ioobj()->key(), evfld_->levelName() );
     return true;
 }

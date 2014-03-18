@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiColorInput;
 class ui3DViewer;
-class uiSliderExtra;
+class uiSlider;
 class uiGenInputDlg;
 class uiPushButton;
 
@@ -30,8 +30,8 @@ namespace visSurvey { class Scene; }
 mExpClass(uiVis) uiScenePropertyDlg : public uiDialog
 {
 public:
-			uiScenePropertyDlg(uiParent*,const 
-					ObjectSet<ui3DViewer>&,int);
+			uiScenePropertyDlg(uiParent*,const
+					   ObjectSet<ui3DViewer>&,int);
 			~uiScenePropertyDlg();
 
 protected:
@@ -65,7 +65,7 @@ protected:
     uiPushButton*		annotfontbut_;
     uiCheckBox*			survboxfld_;
     uiColorInput*		bgcolfld_;
-    uiSliderExtra*		markersizefld_;
+    uiSlider*			markersizefld_;
     uiColorInput*		markercolfld_;
     uiColorInput*		annotcolfld_;
     uiGenInputDlg*		separationdlg_;

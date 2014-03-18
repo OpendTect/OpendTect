@@ -27,7 +27,6 @@ class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
-class uiSliderExtra;
 class ui3DViewer;
 class uiThumbWheel;
 class uiTreeFactorySet;
@@ -131,8 +130,8 @@ public:
 
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
-    int			addRandomLineItem(int,int sceneid=-1);
-    int			add2DLineSetItem(const MultiID&,const char*,
+    int				addRandomLineItem(int,int sceneid=-1);
+    int				add2DLineSetItem(const MultiID&,const char*,
 							int,int);
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
@@ -169,7 +168,6 @@ protected:
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;
     uiTreeFactorySet*		tifs_;
-    uiSliderExtra*		zoomslider_;
     uiWindowGrabber*		wingrabber_;
 
     void			wheelMoved(CallBacker*,int wh,float&);

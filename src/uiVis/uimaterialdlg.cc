@@ -101,7 +101,7 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 
 
 // uiTextureInterpolateGrp
-uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p, 
+uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 						  visSurvey::SurveyObject* so )
     : uiDlgGroup(p,"Texture")
     , survobj_(so)
@@ -111,9 +111,9 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 
     const bool intpenabled = so->textureInterpolationEnabled();
 
-    textclasssify_ = new uiGenInput( this, "Data:   ", 
+    textclasssify_ = new uiGenInput( this, "Data:   ",
 	    BoolInpSpec(intpenabled,"Interpolation","Classification") );
-    textclasssify_->valuechanged.notify( 
+    textclasssify_->valuechanged.notify(
 	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
 }
 
@@ -183,13 +183,11 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
 {
     if ( !domk ) return;
 
-    uiSliderExtra::Setup ss( lbltxt ); ss.withedit(true);
-    uiSliderExtra* se = new uiSliderExtra( this, ss,
-	    				   BufferString(lbltxt," slider") );
-    slider = se->sldr();
+    uiSlider::Setup ss( lbltxt ); ss.withedit(true);
+    slider = new uiSlider( this, ss, BufferString(lbltxt," slider") );
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
-    if ( prevobj_ ) se->attach( alignedBelow, prevobj_ );
-    prevobj_ = se;
+    if ( prevobj_ ) slider->attach( alignedBelow, prevobj_ );
+    prevobj_ = slider;
 }
 
 

@@ -15,15 +15,14 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
-class uiSliderExtra;
-
+class uiSlider;
 
 mExpClass(uiVis) uiAttribTransDlg : public uiDialog
 {
 public:
-    				uiAttribTransDlg( uiParent*,
-						  visSurvey::SurveyObject&,
-				       		  int attrib	);
+				uiAttribTransDlg(uiParent*,
+						 visSurvey::SurveyObject&,
+						 int attrib);
 protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
@@ -32,9 +31,8 @@ protected:
     unsigned char		initaltrans_;
     int				attrib_;
     visSurvey::SurveyObject&	so_;
-    uiSliderExtra*		slider_;
+    uiSlider*			slider_;
 };
-
 
 #endif
 

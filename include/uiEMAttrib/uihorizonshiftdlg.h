@@ -21,7 +21,7 @@ ________________________________________________________________________
 class uiAttrSel;
 class uiCheckBox;
 class uiGenInput;
-class uiSliderExtra;
+class uiSlider;
 class uiPushButton;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; }
@@ -32,10 +32,10 @@ public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
 					     const Attrib::DescSet&,
 					     float initialshift,
-			       		     bool cancalcattrib);
+					     bool cancalcattrib);
 			~uiHorizonShiftDialog();
     const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
-    StepInterval<float>  	shiftRg() const;
+    StepInterval<float>	shiftRg() const;
     int				nrSteps() const;
     Attrib::DescID		attribID() const;
     float			getShift() const;
@@ -44,7 +44,7 @@ public:
     const EM::ObjectID&		emID() const		{ return emid_; }
     const char*			getAttribName() const;
     const char*			getAttribBaseName() const;
-    
+
     Notifier<uiHorizonShiftDialog>	calcAttribPushed;
     Notifier<uiHorizonShiftDialog>	horShifted;
 
@@ -56,11 +56,11 @@ protected:
     void			attribChangeCB(CallBacker*);
     void			calcAttrib(CallBacker*);
     void			shiftCB(CallBacker*);
-    bool                	acceptOK(CallBacker*);
+    bool	acceptOK(CallBacker*);
 
     uiAttrSel*			attrinpfld_;
     uiGenInput*			rangeinpfld_;
-    uiSliderExtra*		slider_;
+    uiSlider*		slider_;
     uiPushButton*		calbut_;
     uiCheckBox*			storefld_;
     uiGenInput*			namefld_;

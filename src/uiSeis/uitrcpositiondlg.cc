@@ -48,7 +48,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
     altdimnmflds_->selectionChanged.notify(
 	    mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
-    possldr_ = new uiSlider( this );
+    possldr_ = new uiSlider( this, uiSlider::Setup() );
     possldr_->valueChanged.notify( mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
     StepInterval<double> posdatarg = fdp_->posData().range( true );
     StepInterval<float> floatrg( mCast(float,posdatarg.start),
@@ -153,7 +153,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7")
-	   		     .modal(false) )
+			     .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
     , inlfld_( 0 )
@@ -198,7 +198,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 
     pickretriever_ = PickRetriever::getInstance();
     pickretriever_->finished()->notify(
-	    			mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
+				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
     zrg_.setFrom( cs.zrg );
 }
 
@@ -207,7 +207,7 @@ uiTrcPositionDlg::~uiTrcPositionDlg()
 {
     if ( pickretriever_ )
 	pickretriever_->finished()->remove(
-	    			mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
+				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
 }
 
 
@@ -248,7 +248,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
 	{
 	    BufferString msg( "Please pick trace on line:",
-		    	      linesfld_->box()->text() );
+			      linesfld_->box()->text() );
 	    uiMSG().message( msg );
 	    return;
 	}

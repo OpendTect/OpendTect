@@ -114,15 +114,15 @@ void uiObjectItemViewWin::makeSliders()
     dummylbl->setStretch( 0, 2 );
     dummylbl->attach( ensureRightOf, infobar_ );
 
-    uiSliderExtra::Setup su;
+    uiSlider::Setup su;
     su.sldrsize_ = 250;
     su.withedit_ = false;
     StepInterval<float> sintv( 1, mSldUnits, 1 );
     su.isvertical_ = true;
-    versliderfld_ = new uiSliderExtra( this, su, "Vertical Scale" );
-    versliderfld_->sldr()->setInterval( sintv );
-    versliderfld_->sldr()->setInverted( true );
-    versliderfld_->sldr()->sliderReleased.notify(
+    versliderfld_ = new uiSlider( this, su, "Vertical Scale" );
+    versliderfld_->setInterval( sintv );
+    versliderfld_->setInverted( true );
+    versliderfld_->sliderReleased.notify(
 				mCB(this,uiObjectItemViewWin,reSizeSld) );
     versliderfld_->attach( centeredBelow, dummylbl );
     versliderfld_->setStretch( 0, 0 );
@@ -132,9 +132,9 @@ void uiObjectItemViewWin::makeSliders()
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
     su.isvertical_ = false;
-    horsliderfld_ = new uiSliderExtra( this, su, "Horizontal Scale" );
-    horsliderfld_->sldr()->setInterval( sintv );
-    horsliderfld_->sldr()->sliderReleased.notify(
+    horsliderfld_ = new uiSlider( this, su, "Horizontal Scale" );
+    horsliderfld_->setInterval( sintv );
+    horsliderfld_->sliderReleased.notify(
 				    mCB(this,uiObjectItemViewWin,reSizeSld));
     horsliderfld_->setStretch( 0, 0 );
     horsliderfld_->attach( leftOf, fittoscreenbut_ );
@@ -151,8 +151,8 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
     const float prevhslval = hslval_;
     const float prevvslval = vslval_;
 
-    uiSlider* hsldr = horsliderfld_->sldr();
-    uiSlider* vsldr = versliderfld_->sldr();
+    uiSlider* hsldr = horsliderfld_;
+    uiSlider* vsldr = versliderfld_;
     hslval_ = hsldr->getValue();
     vslval_ = vsldr->getValue();
 
@@ -303,8 +303,8 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     if ( ( newhslval == hslval_ ) && ( newvslval == vslval_ ) )
 	return;
 
-    horsliderfld_->sldr()->setValue( newhslval );
-    versliderfld_->sldr()->setValue( newvslval );
+    horsliderfld_->setValue( newhslval );
+    versliderfld_->setValue( newvslval );
 
     zoomratiofld_->setChecked(false);
     screensz_ = screensz;
@@ -315,8 +315,8 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
 void uiObjectItemViewWin::fillPar( IOPar& iop ) const
 {
     if ( !versliderfld_ || !horsliderfld_ ) return;
-    iop.set( sKeyVZoomVal(), versliderfld_->sldr()->getValue() );
-    iop.set( sKeyHZoomVal(), horsliderfld_->sldr()->getValue() );
+    iop.set( sKeyVZoomVal(), versliderfld_->getValue() );
+    iop.set( sKeyHZoomVal(), horsliderfld_->getValue() );
 }
 
 
@@ -326,8 +326,8 @@ void uiObjectItemViewWin::usePar( const IOPar& iop )
     float hval, vval;
     iop.get( sKeyHZoomVal(), hval );
     iop.get( sKeyVZoomVal(), vval );
-    horsliderfld_->sldr()->setValue( hval );
-    versliderfld_->sldr()->setValue( vval );
+    horsliderfld_->setValue( hval );
+    versliderfld_->setValue( vval );
     reSizeSld(0);
 }
 
@@ -356,8 +356,8 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     float newverfac = yfac*vslval_;
     scaleVal( newverfac, false, false );
 
-    uiSlider* hsldr = horsliderfld_->sldr();
-    uiSlider* vsldr = versliderfld_->sldr();
+    uiSlider* hsldr = horsliderfld_;
+    uiSlider* vsldr = versliderfld_;
     NotifyStopper nsh( hsldr->sliderReleased );
     NotifyStopper nsv( vsldr->sliderReleased );
     hsldr->setValue( newhorfac );

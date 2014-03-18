@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiLabeledComboBox;
 class uiFileInput;
-class uiSliderExtra;
+class uiSlider;
 class uiLabel;
 class uiMainWin;
 class Timer;
@@ -37,7 +37,7 @@ public:
 protected:
     uiLabeledComboBox*	windowfld_;
     uiFileInput*	fileinputfld_;
-    uiSliderExtra*	qualityfld_;
+    uiSlider*		qualityfld_;
     uiLabel*		infofld_;
 
     ObjectSet<uiMainWin> windowlist_;

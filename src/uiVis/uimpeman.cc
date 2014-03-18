@@ -1308,17 +1308,15 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     attribfld_->selectionChanged.notify( mCB(mpeman_,uiMPEMan,attribSel) );
     lcb->attach( leftAlignedBelow, coltabgrp );
 
-    uiSliderExtra* se = new uiSliderExtra( this,
-					   uiSliderExtra::Setup("Transparency")
-					   .nrdec(2), "Slider" );
-    transfld_ = se->sldr();
-    transfld_->setOrientation( uiSlider::Horizontal );
+    transfld_ = new uiSlider( this, uiSlider::Setup("Transparency")
+				    .nrdec(2), "Slider" );
+    transfld_->setOrientation( uiObject::Horizontal );
     transfld_->setMaxValue( 1 );
     transfld_->setToolTip( "Transparency" );
     transfld_->setStretch( 0, 0 );
     transfld_->setValue( displays_[0]->getDraggerTransparency() );
     transfld_->valueChanged.notify( mCB(this,uiPropertiesDialog,transpChg) );
-    se->attach( alignedBelow, lcb );
+    transfld_->attach( alignedBelow, lcb );
 
     updateAttribNames();
 }
