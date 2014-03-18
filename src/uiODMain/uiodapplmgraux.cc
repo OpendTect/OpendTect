@@ -143,7 +143,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch ( at )
 	{
 	mCase(Exp):	am_.seisserv_->exportSeis( opt );	break;
-	mCase(Man):	am_.seisserv_->manageSeismics(opt==1);	break;
+	mCase(Man):	am_.seisserv_->manageSeismics( opt );	break;
 	mCase(Imp):
 	    if ( opt > 0 && opt < 5 )
 		am_.wellattrserv_->doSEGYTool( 0, opt%2?0:1 );

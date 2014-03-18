@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 
+#include "uibatchtime2depthsetup.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
@@ -42,26 +43,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
-#include "uiseismulticubeps.h"
+#include "uisegyexp.h"
+#include "uisegyread.h"
+#include "uisegyresortdlg.h"
+#include "uisegysip.h"
 #include "uiseiscbvsimp.h"
-#include "uiseisiosimple.h"
+#include "uiseiscbvsimpfromothersurv.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
+#include "uiseisiosimple.h"
+#include "uiseismulticubeps.h"
+#include "uiseispsman.h"
 #include "uiseisrandto2dline.h"
-#include "uiseiscbvsimpfromothersurv.h"
-#include "uisegyread.h"
-#include "uisegyexp.h"
-#include "uisegysip.h"
-#include "uisurvinfoed.h"
 #include "uiseissel.h"
 #include "uiseiswvltimpexp.h"
 #include "uiseiswvltman.h"
 #include "uiseispreloadmgr.h"
-#include "uisegyresortdlg.h"
 #include "uiselsimple.h"
 #include "uisurvey.h"
+#include "uisurvinfoed.h"
 #include "uitaskrunner.h"
-#include "uibatchtime2depthsetup.h"
 #include "uivelocityvolumeconversion.h"
 
 
@@ -116,10 +117,19 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
-void uiSeisPartServer::manageSeismics( bool is2d )
+void uiSeisPartServer::manageSeismics( int opt )
 {
-    uiSeisFileMan dlg( parent(), is2d );
-    dlg.go();
+    PtrMan<uiDialog> dlg = 0;
+    if ( opt==0 )
+	dlg = new uiSeisFileMan( parent(), false );
+    else if ( opt==1 )
+	dlg = new uiSeisFileMan( parent(), true );
+    else if ( opt==2 )
+	dlg = new uiSeisPreStackMan( parent(), false );
+    else if ( opt==3 )
+	dlg = new uiSeisPreStackMan( parent(), true );
+
+    if ( dlg ) dlg->go();
 }
 
 
@@ -307,7 +317,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
-    const IODir iodir( 
+    const IODir iodir(
 	MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 

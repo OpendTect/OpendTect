@@ -30,7 +30,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
 #define mCapt \
-    is2d ? "Manage 2D Prestack seismics" : "Manage 3D Prestack seismics"
+    is2d ? "Manage 2D Prestack Seismics" : "Manage 3D Prestack Seismics"
 #define mHelpID is2d ? "103.4.1" : "103.4.0"
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)

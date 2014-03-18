@@ -396,6 +396,8 @@ void uiODMenuMgr::fillManMenu()
 		 mManPDFMnuItm, "man_prdfs" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 			"man_seis" );
+    create2D3DMnu( manmnu_, "Seismics Prestack", mManSeisPS2DMnuItm,
+		   mManSeisPS3DMnuItm, "man_ps" );
     mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, uiIcon::None())
     mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
 			"man_strat" )
@@ -791,6 +793,9 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
     mantb_ ->setButtonMenu( mnuid, popmnu ); }
 
+#define mAddPopupMnu( mnu, txt, itm ) \
+    mnu->insertItem( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
+
 void uiODMenuMgr::fillManTB()
 {
     const int seisid =
@@ -805,9 +810,18 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_wvlt","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat","Manage Stratigraphy",false,manStrat);
 
-    if ( SI().survDataType() == SurveyInfo::Both2DAnd3D )
-	mAddPopUp( "Seismics Menu", "2D Seismics", "3D Seismics",
-		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
+    uiMenu* seispopmnu = new uiMenu( &appl_, "Seismics Menu" );
+    if ( SI().has2D() )
+    {
+	mAddPopupMnu( seispopmnu, "2D Seismics", mManSeis2DMnuItm )
+	mAddPopupMnu( seispopmnu, "2D Prestack Seismics", mManSeisPS2DMnuItm )
+    }
+    if ( SI().has3D() )
+    {
+	mAddPopupMnu( seispopmnu, "3D Seismics", mManSeis3DMnuItm )
+	mAddPopupMnu( seispopmnu, "3D Prestack Seismics", mManSeisPS3DMnuItm )
+    }
+    mantb_->setButtonMenu( seisid, seispopmnu );
 
     if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
@@ -1070,8 +1084,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
-    case mManSeis3DMnuItm:		mDoOp(Man,Seis,2); break;
+    case mManSeis3DMnuItm:		mDoOp(Man,Seis,0); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;
+    case mManSeisPS3DMnuItm:		mDoOp(Man,Seis,2); break;
+    case mManSeisPS2DMnuItm:		mDoOp(Man,Seis,3); break;
     case mManHor3DMnuItm:		mDoOp(Man,Hor,2); break;
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
