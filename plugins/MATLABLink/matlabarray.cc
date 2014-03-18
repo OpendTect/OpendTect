@@ -38,7 +38,7 @@ bool ArrayNDCopier::init( bool managemxarr )
     const int nrdim = arrnd_.info().getNDim();
     mwSize dims[nrdim];
     for ( int idx=0; idx<nrdim; idx++ )
-	dims[idx] = arrnd_.info().getSize( idx );
+	dims[idx] = arrnd_.info().getSize( nrdim-1-idx );
 
     mxarr_ = mxCreateNumericArray( nrdim, dims, mxDOUBLE_CLASS, mxREAL );
     managemxarr_ = managemxarr;
@@ -79,9 +79,9 @@ bool mxArrayCopier::init()
 {
     totalnr_ = arrnd_.info().getTotalSz();
     const mwSize* dimsz = mxGetDimensions( &mxarr_ );
-    const bool samesz = dimsz[0]==arrnd_.info().getSize(0) &&
+    const bool samesz = dimsz[0]==arrnd_.info().getSize(2) &&
 			dimsz[1]==arrnd_.info().getSize(1) &&
-			dimsz[2]==arrnd_.info().getSize(2);
+			dimsz[2]==arrnd_.info().getSize(0);
     return samesz;
 
     // TODO: what if dimensions don't match?
