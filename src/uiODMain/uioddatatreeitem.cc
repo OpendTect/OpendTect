@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ bool uiODDataTreeItem::init()
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
 	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
-		    		     attribNr() ) );
+				     attribNr() ) );
     }
 
     MenuHandler* tb = visserv->getToolBarHandler();
@@ -256,9 +256,14 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
 			  true, false )
+	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
+			  true, false )
     }
     else
+    {
 	mResetMenuItem( &amplspectrumitem_ )
+	mResetMenuItem( &fkspectrumitem_ )
+    }
 
     mAddMenuOrTBItem( istb, menu, menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
@@ -375,7 +380,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		const int tmpdtpackid =
 				DPM(DataPackMgr::FlatID()).packs()[idx]->id();
 		const FixedString tmpnm =
-		    		DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
+				DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
 		if ( tmpnm == as->userRef() )
 		{
 		    dpid = tmpdtpackid;
@@ -429,7 +434,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removemnuitem_.id )
     {
-	const int attribnr = attribNr(); 
+	const int attribnr = attribNr();
 	visserv->removeAttrib( displayID(), attribnr );
 	applMgr()->updateColorTable( displayID(), attribnr ? attribnr-1 : 0 );
 
