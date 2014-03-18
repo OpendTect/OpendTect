@@ -85,17 +85,17 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 void uiGridLinesDlg::showGridLineCB( CallBacker* cb )
 {
     if ( inlspacingfld_ )
-	inlspacingfld_->display( inlfld_->isChecked() );
+	inlspacingfld_->setSensitive( inlfld_->isChecked() );
     
     if ( crlspacingfld_ )
-	crlspacingfld_->display( crlfld_->isChecked() );
+	crlspacingfld_->setSensitive( crlfld_->isChecked() );
     
     if ( zspacingfld_ )
-	zspacingfld_->display( zfld_->isChecked() );
+	zspacingfld_->setSensitive( zfld_->isChecked() );
     
-    lsfld_->display( (inlfld_ && inlfld_->isChecked()) ||
-	    	     (crlfld_ && crlfld_->isChecked()) ||
-		     (zfld_ && zfld_->isChecked()) );
+    lsfld_->setSensitive( (inlfld_ && inlfld_->isChecked()) ||
+	    		  (crlfld_ && crlfld_->isChecked()) ||
+			  (zfld_ && zfld_->isChecked()) );
 }
 
 
