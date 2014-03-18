@@ -317,6 +317,26 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	return false;
     }
 
+    if ( ads_.is2D() )
+    {
+	BufferString outputnm( outpfld_->getInput() );
+	BufferString attrnm = LineKey( outputnm ).attrName();
+	const int nroccuer = countCharacter( attrnm.buf(), '|' );
+	replaceCharacter( attrnm.buf(), '|', '_' );
+	if ( nroccuer )
+	{
+	    BufferString msg( "Invalid charactor '|' " );
+	    msg.add( " found in attribute name. " )
+	       .add( "It will be renamed to: '" )
+	       .add( attrnm.buf() ).add("'." )
+	       .add( "\nDo you want to continue?" );
+	    if ( !uiMSG().askGoOn( msg.buf() ) )
+		return false;
+
+	    outpfld_->setAttrNm( attrnm );
+	}
+    }
+
     bool haveoutput = outpfld_->commitInput();
     if ( !haveoutput || !ctioout_.ioobj )
     {
@@ -546,11 +566,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 		if ( ioobj )
 		{
 		    seissubselfld_->setInput( *ioobj );
-		    BufferString inptxt =
-			LineKey( IOM().nameOf( lk.lineName().buf() ),
-				 attrfld_->getInput() );
-		    outpfld_->setInputText( inptxt.buf() );
-
+		    outpfld_->setInputText( attrfld_->getInput() );
 		    outpfld_->processInput();
 		}
 	    }
