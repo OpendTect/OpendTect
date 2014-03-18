@@ -79,7 +79,7 @@ public:
 
     uiSize		actualsize( bool include_border) const
 			{
-			    if ( mainObject() ) 
+			    if ( mainObject() )
 				return mainObject()->actualsize(include_border);
 			    return uiSize();
 			}
@@ -88,12 +88,14 @@ public:
     int			prefVNrPics() const	  { mRetMO(prefVNrPics,-1); }
     void		setPrefHeight( int h )    { mIfMO()->setPrefHeight(h); }
     void		setPrefWidth( int w )     { mIfMO()->setPrefWidth(w); }
-    void		setPrefWidthInChar( float w )		 
+    void		setPrefWidthInChar( float w )
+			    { mIfMO()->setPrefWidthInChar(w); }
+    void		setPrefWidthInChar( int w )
 			    { mIfMO()->setPrefWidthInChar(w); }
     void		setPrefHeightInChar( float h )
 			    { mIfMO()->setPrefHeightInChar(h); }
 
-    virtual void	reDraw( bool deep ) 	  { mIfMO()->reDraw( deep ); }
+    virtual void	reDraw( bool deep )	  { mIfMO()->reDraw( deep ); }
     void		shallowRedraw( CallBacker* =0 )         {reDraw(false);}
     void		deepRedraw( CallBacker* =0 )            {reDraw(true); }
 
