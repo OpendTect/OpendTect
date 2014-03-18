@@ -42,7 +42,7 @@ mDefODPluginInfo(uiGMT)
 	"GMT link",
 	"dGB (Raman)",
 	"3.2",
-    	"A link to the GMT mapping tool."
+	"A link to the GMT mapping tool."
 	    "\nThis is the User interface of the link."
 	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" ));
     return &retpi;
@@ -80,7 +80,7 @@ void gmtPush( CallBacker* )
 {
     uiDesktopServices::openUrl(
 	    __islinux__ ? "http://www.opendtect.org/index.php/download.html"
-	    		: "http://www.soest.hawaii.edu/gmt" );
+			: "http://www.soest.hawaii.edu/gmt" );
 }
 
 bool acceptOK( CallBacker* )
@@ -126,16 +126,16 @@ uiGMTMgr::~uiGMTMgr()
 void uiGMTMgr::updateToolBar( CallBacker* )
 {
     appl_->menuMgr().dtectTB()->addButton( "gmt_logo", "GMT Mapping Tool",
-	    				   mCB(this,uiGMTMgr,createMap) );
+					   mCB(this,uiGMTMgr,createMap) );
 }
 
 
 void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
-    uiAction* newitem = new uiAction( "GMT Mapping Tool ...",
-	    				  mCB(this,uiGMTMgr,createMap),
-	   				  "gmt_logo" );
+    uiAction* newitem = new uiAction( "&GMT Mapping Tool ...",
+					  mCB(this,uiGMTMgr,createMap),
+					  "gmt_logo" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }
 
@@ -167,7 +167,7 @@ mDefODInitPlugin(uiGMT)
     mgr = new uiGMTMgr( ODMainWin() );
 
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
-	    		      "GMT data" );
+			      "GMT data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
     if ( id != ODGMT::sKeyGMTSelKey() )
 	return "Cannot create 'GMT' directory in survey";

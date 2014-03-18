@@ -475,10 +475,8 @@ void uiODMenuMgr::fillProcMenu()
 		   mCompBetweenHor3DMnuItm, "betweenhors" );
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
 		   mCompAlongHor3DMnuItm, "alonghor" );
-    mInsertItem( csoitm, "(Re-)Start Batch &Job...", mStartBatchJobMnuItm );
     csoitm->insertItem( new uiAction("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
-    mInsertItem( csoitm, "&Settings ...", mProcSettingsItm );
 
     procmnu_->insertItem( csoitm );
 
@@ -487,6 +485,8 @@ void uiODMenuMgr::fillProcMenu()
 		   mCreateSurf3DMnuItm, "ongrid" );
     procmnu_->insertItem( grditm );
 
+    mInsertItem( procmnu_, "(Re-)Start Batch &Job...", mStartBatchJobMnuItm );
+    mInsertItem( procmnu_, "&Settings ...", mProcSettingsItm );
 }
 
 
