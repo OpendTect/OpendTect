@@ -109,7 +109,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	    break;
 	    case Seis::LinePS:
 		drdr_ = new SEGYDirect2DPSReader( ioobj->fullUserExpr(true),
-		       				  lnm );
+						  lnm );
 	    break;
 	    case Seis::Line:
 		msg_ = "2D seismics not supported";
@@ -385,16 +385,16 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	    return false;
 	}
 	odstrm.setPosition( 0 );
-	SEGYSeisTrcTranslator tr( "SEGY", "SEG-Y" );
-	tr.usePar( fds().segyPars() );
+	SEGYSeisTrcTranslator trctr( "SEGY", "SEG-Y" );
+	trctr.usePar( fds().segyPars() );
 	StreamConn* sc = new StreamConn( odstrm );
-	if ( !tr.initRead(sc) || !tr.commitSelections() )
+	if ( !trctr.initRead(sc) || !trctr.commitSelections() )
 	{
 	    msg_ = "Cannot read SEG-Y file details. Corrupt file? -\n";
 	    msg_.add( inpfnms_.get(fidx) );
 	    return false;
 	}
-	trcbytes_ = tr.traceSizeOnDisk();
+	trcbytes_ = trctr.traceSizeOnDisk();
 	trcbuf_ = new unsigned char [trcbytes_];
     }
 
