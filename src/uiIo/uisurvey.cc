@@ -468,11 +468,11 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     copybut->attach( alignedBelow, editbut_ );
 
     uiToolButton* expbut = new uiToolButton( grp, "export",
-	"Pack survey into a zip file", mCB(this,uiSurvey,exportButPushed) );
+	"Compress survey as zip archive", mCB(this,uiSurvey,exportButPushed) );
     expbut->attach( alignedBelow, copybut );
 
     uiToolButton* impbut = new uiToolButton( grp, "import",
-	"Import survey from zip file", mCB(this,uiSurvey,importButPushed) );
+	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed) );
     impbut->attach( alignedBelow, expbut );
 
     rmbut_ = new uiToolButton( grp, "trashcan", "Remove Survey",
@@ -828,24 +828,25 @@ static void osrbuttonCB( void* )
 void uiSurvey::exportButPushed( CallBacker* )
 {
     const BufferString survnm( selectedSurveyName() );
-    const BufferString title( "Pack ", survnm, " survey into zip file" );
+    const BufferString title( "Compress ", survnm, " survey as zip archive" );
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,"0.3.12"));
-    uiFileInput* filepinput = new uiFileInput( &dlg,"Select output destination",
+    uiFileInput* fnmfld = new uiFileInput( &dlg,"Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
-    filepinput->setFilter( sZipFileMask );
+    fnmfld->setDefaultExtension( "zip" );
+    fnmfld->setFilter( sZipFileMask );
     uiLabel* sharfld = new uiLabel( &dlg,
 			   "You can share surveys to Open Seismic Repository."
 			   "To know more " );
-    sharfld->attach( leftAlignedBelow,  filepinput );
+    sharfld->attach( leftAlignedBelow,  fnmfld );
     uiPushButton* osrbutton = new uiPushButton( &dlg,
 				    "Click here", mSCB(osrbuttonCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
 
-    FilePath exportzippath( filepinput->fileName() );
+    FilePath exportzippath( fnmfld->fileName() );
     BufferString zipext = exportzippath.extension();
     if ( zipext != "zip" )
 	mErrRetVoid( "Please add .zip extension to the file name" )
