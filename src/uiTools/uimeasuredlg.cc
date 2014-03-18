@@ -224,4 +224,5 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     distfld_->setValue( totrealdist );
     if ( dist2fld_ ) dist2fld_->setValue( convdist );
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
+    raise();
 }
