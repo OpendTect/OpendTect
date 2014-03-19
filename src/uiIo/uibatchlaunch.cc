@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uilabel.h"
 #include "uitoolbutton.h"
-#include "uibuttongroup.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
@@ -75,16 +74,16 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     uiGroup* topgrp = new uiGroup( this, "Top Group" );
 
     uiLabeledListBox* llb = new uiLabeledListBox( topgrp, "Stored Batch Job" );
+    llb->setPrefHeightInChar( 10 );
     jobsfld_ = llb->box();
     jobsfld_->addItem( "Scanning Proc directory ...." );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Man buttons",
-	    					uiObject::Vertical );
-    bgrp->attach( rightOf, llb );
-    vwfilebut_ = new uiToolButton( bgrp, "info", "View/Edit job file",
+    vwfilebut_ = new uiToolButton( topgrp, "info", "View/Edit job file",
 	    	      mCB(this,uiStartBatchJobDialog,viewFile) );
-    rmfilebut_ = new uiToolButton( bgrp, "trashcan", "Remove job file",
+    vwfilebut_->attach( rightOf, llb );
+    rmfilebut_ = new uiToolButton( topgrp, "trashcan", "Remove job file",
 	    	      mCB(this,uiStartBatchJobDialog,rmFile) );
+    rmfilebut_->attach( centeredRightOf, llb );
 
     topgrp->setFrame( true );
     topgrp->setHAlignObj( llb );
@@ -186,9 +185,20 @@ void uiStartBatchJobDialog::rmFile( CallBacker* )
     const int selidx = jobsfld_->currentItem();
     if ( selidx < 0 )
 	{ pErrMsg("Huh"); return; }
-    const BufferString& fnm( filenames_.get(selidx) );
 
-    uiMSG().error( "TODO: implement remove job file:\n", fnm );
+    const BufferString& fnm( filenames_.get(selidx) );
+    if ( !File::remove(fnm) )
+	{ uiMSG().error( "Could not remove job file" ); return; }
+
+    jobsfld_->removeItem( selidx );
+    filenames_.removeSingle( selidx );
+    int newsel = selidx;
+    if ( newsel >= filenames_.size() )
+	newsel--;
+    if ( newsel >= 0 )
+	jobsfld_->setCurrentItem( newsel );
+    else
+	itmSel( 0 );
 }
 
 
