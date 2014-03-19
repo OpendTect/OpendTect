@@ -17,7 +17,7 @@ static void parsePassedExpr( const char* inp )
 {
     Stats::randGen().init();
 
-    if ( !inp || !*inp ) inp = "| x + |y|z| |";
+    if ( !inp || !*inp ) inp = "abs(x + idiv(y,z))";
     od_cout() << "Expression:\n" << inp << "\n\n";
     MathExpressionParser mep( inp );
     MathExpression* me = mep.parse();
@@ -39,6 +39,8 @@ static void parsePassedExpr( const char* inp )
 
 	od_cout() << "\nResult: " << me->getValue() << od_endl;
     }
+    if ( mep.foundOldAbs() )
+	od_cout() << "\n[Old abs value used]" << od_endl;
 }
 
 #define mTestExpression( exp, expectation, eps ) \
@@ -117,15 +119,14 @@ static bool testAbs()
 {
     MathExpressionParser mep;
 
-    mTestExpression( "|-8|+|-4|", 12, 1e-5 );
-    mTestExpression( "|-8|-|-4|", 4, 1e-5 );
-    mTestExpression( "|-8|*|-4|", 32, 1e-5 );
-    mTestExpression( "|-8|/|-4|", 2, 1e-5 );
-    mTestExpression( "|-9|%|-4|", 1, 1e-5 );
-    mTestExpression( "(|-3|)/(|-2|)", 1.5, 1e-5 );
-    mTestExpression( "16+|-8/-4|-|-8|/|-4|+|-8|*|-4|", 48, 1e-5 );
-    mTestExpression( "|0 ? -2:-3|>0 ? |-4 ? -5:-6| : |-5 ? -6:-7|", 5, 1e-5 );
-    mTestExpression( "|(-3<2)||(2>3)| ? |-4 ? -5:-6| : |-5 ? -6:-7|", 5, 1e-5 );
+    mTestExpression( "abs(-8)+abs(-4)", 12, 1e-5 );
+    mTestExpression( "abs(-8)-abs(-4)", 4, 1e-5 );
+    mTestExpression( "abs(-8)*abs(-4)", 32, 1e-5 );
+    mTestExpression( "abs(-8)/abs(-4)", 2, 1e-5 );
+    mTestExpression( "abs(-9)%abs(-4)", 1, 1e-5 );
+    mTestExpression( "abs(-3)/abs(-2)", 1.5, 1e-5 );
+    mTestExpression( "abs(0 ? -2:-3)>0 ? abs(-4 ? -5:-6) : abs(-5 ? -6:-7)",
+					5, 1e-5 );
     return true;
 }
 

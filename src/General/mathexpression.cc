@@ -43,9 +43,6 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("*","Multiply",true,2);
     mAddDesc("/","Divide",true,2);
     mAddDesc("^","Power",true,2);
-    mAddDesc("|","Integer division",true,2);
-    mAddDesc("%","Rest after integer division",true,2);
-    mAddDesc("| |","Absolute value",true,1);
     *ret += grp;
 
     grp = new MathExpressionOperatorDescGroup;
@@ -73,6 +70,9 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("asin","ArcSinus",false,1);
     mAddDesc("acos","ArcCosinus",false,1);
     mAddDesc("atan","ArcTangent",false,1);
+    mAddDesc("abs","Absolute value",false,1);
+    mAddDesc("idiv","Integer division",false,2);
+    mAddDesc("mod","Modulo, rest after integer division",false,2);
     *ret += grp;
 
     grp = new MathExpressionOperatorDescGroup;
@@ -817,6 +817,7 @@ bool MathExpressionParser::findOuterAbs( char* str, int len,
 	MathExpression* absexp = new MathExpressionAbs;
 	absexp->setInput( 0, ret );
 	ret = absexp;
+	abswarn_ = true;
 	return true;
     }
 
@@ -1035,12 +1036,11 @@ bool MathExpressionParser::findOtherOper( BufferString& workstr, int len,
     char* str = workstr.getCStr();
     bool inabs = false; int parenslevel = 0;
 
-#define mParseOperator( op, clss, chkabs ) \
+#define mParseOperator( op, clss ) \
     inabs = false; parenslevel = 0; \
     for ( int idx=0; idx<len; idx++ ) \
     { \
-	if ( chkabs ) { mIfInAbsContinue(); } mWithinParensContinue(); \
- \
+	mIfInAbsContinue(); mWithinParensContinue(); \
 	if ( curch == op ) \
 	{ \
 	    if ( idx == 0 || idx == len-1 ) \
@@ -1058,16 +1058,27 @@ bool MathExpressionParser::findOtherOper( BufferString& workstr, int len,
 	} \
     }
 
-    mParseOperator( '*', Multiply, true );
-    mParseOperator( '/', Divide, true );
-    mParseOperator( '%', IntDivRest, true );
-    mParseOperator( '^', Power, true );
-
-    const int nrpipes = workstr.count( '|' );
-    if ( nrpipes == 1 )
-	{ mParseOperator( '|', IntDivide, false ); }
+    mParseOperator( '*', Multiply );
+    mParseOperator( '/', Divide );
+    mParseOperator( '^', Power );
+    mParseOperator( '%', IntDivRest );
 
     return false;
+}
+
+
+static char* findLooseComma( char* str )
+{
+    bool inabs = false; int parenslevel = 0;
+    int idx = 0;
+    while ( *str )
+    {
+	mIfInAbsContinue(); mWithinParensContinue();
+	if ( *str == ',' )
+	    return str;
+	idx++; str++;
+    }
+    return 0;
 }
 
 
@@ -1086,6 +1097,7 @@ bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
 	return true; \
     } \
     }
+    mParseFunction( abs, Abs )
     mParseFunction( sqrt, Sqrt )
     mParseFunction( exp, Exp )
 
@@ -1101,6 +1113,28 @@ bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
 
     mParseFunction( rand, Random )
     mParseFunction( randg, GaussRandom )
+
+#   define mParse2ArgsFunction( nm, clss ) { \
+    if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
+    { \
+	workstr[len-1] = '\0'; \
+	const int fnnameskipsz = FixedString( #nm ).size() + 1; \
+	char* ptrcomma = findLooseComma( str+fnnameskipsz ); \
+	if ( !ptrcomma ) \
+	    mErrRet( #nm " function takes 2 arguments" ) \
+	*ptrcomma++ = '\0'; \
+	MathExpression* inp0 = parse( str + fnnameskipsz ); \
+	MathExpression* inp1 = parse( ptrcomma ); \
+	if ( !inp0 || !inp1 ) return true; \
+	ret = new MathExpression##clss; \
+	ret->setInput( 0, inp0 ); \
+	ret->setInput( 1, inp1 ); \
+	return true; \
+    } \
+    }
+
+    mParse2ArgsFunction( idiv, IntDivide )
+    mParse2ArgsFunction( mod, IntDivRest )
 
     return false;
 }

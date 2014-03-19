@@ -107,7 +107,7 @@ mExpClass(General) MathExpressionParser
 public:
 
 				MathExpressionParser( const char* str=0 )
-				    : inp_(str)		{}
+				    : inp_(str), abswarn_(false)	{}
 
     void			setInput( const char* s ) { inp_ = s; }
     MathExpression*		parse() const;
@@ -116,12 +116,14 @@ public:
     static MathExpression::VarType varTypeOf(const char*);
     static int			constIdxOf(const char*);
 
-    const char*			errMsg() const	{ return errmsg_.str(); }
+    const char* 		errMsg() const		{ return errmsg_; }
+    bool			foundOldAbs() const	{ return abswarn_; }
 
 protected:
 
     BufferString	inp_;
     mutable BufferString errmsg_;
+    mutable bool	abswarn_;
 
     MathExpression*	parse(const char*) const;
 
