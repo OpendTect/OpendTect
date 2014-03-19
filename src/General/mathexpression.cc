@@ -1229,8 +1229,6 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
 
     if ( findOuterParens( str, len, ret ) )
 	return ret;
-    else if ( findOuterAbs( str, len, ret ) )
-	return ret;
     else if ( findQMarkOper( str, len, ret ) )
 	return ret;
     else if ( findAndOrOr( str, len, ret ) )
@@ -1240,6 +1238,8 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
     else if ( findPlusAndMinus( str, len, ret ) )
 	return ret;
     else if ( findOtherOper( workstr, len, ret ) )
+	return ret;
+    else if ( findOuterAbs( str, len, ret ) )
 	return ret;
 
     double dres = mUdf(double);
