@@ -132,16 +132,6 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     if ( dpfids_.size() )
 	replaceStoredByInMem();
 
-    if ( attrinf_->ioobjnms_.isEmpty() )
-    {
-	new uiLabel( this, tr("No seismic data available.\n"
-			      "Please import data first") );
-	setCaption( uiStrings::sError() );
-	setCancelText( uiStrings::sOk() );
-	setOkText( uiStrings::sEmptyString() );
-	return;
-    }
-
     setCaption( uiStrings::sSelect() );
 
     uiString title = uiStrings::sSelect(true).arg( seltxt );
