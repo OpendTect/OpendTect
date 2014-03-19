@@ -401,11 +401,11 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	{
 	    BufferString msg( "Cannot write new logs for well ",ioobj->name() );
 	    msg.add( "\n" ).add( "Check the permissions of the *.wll files" );
-	    mErrContinue( msg.buf() );
-
 	    wls.remove( wls.size()-1 );
-	    //Do not keep in memory what is not on disk
+	    // Do not keep in memory what is not on disk
+	    mErrContinue( msg.buf() );
 	}
+
 	successfulonce = true;
     }
 
