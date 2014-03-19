@@ -48,13 +48,18 @@ protected:
     uiBatchJobDispatcherSel*	batchfld_;
     uiGenInput*			resumefld_;
     uiLabel*			invalidsellbl_;
+    uiButton*			vwfilebut_;
+    uiButton*			rmfilebut_;
 
     void			fillList(CallBacker*);
     void			itmSel(CallBacker*);
     void			launcherSel(CallBacker*);
+    void			viewFile(CallBacker*);
+    void			rmFile(CallBacker*);
     bool			acceptOK(CallBacker*);
 
     bool			canRun() const;
+    void			setButSens();
 
 };
 

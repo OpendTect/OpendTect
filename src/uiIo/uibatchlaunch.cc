@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uilabel.h"
+#include "uitoolbutton.h"
+#include "uibuttongroup.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
@@ -24,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "file.h"
 #include "dirlist.h"
 #include "ascstream.h"
 #include "od_istream.h"
@@ -66,21 +69,34 @@ bool uiProcSettings::acceptOK( CallBacker* )
 
 
 uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
-    : uiDialog(p,Setup("Start a batch job",mNoDlgTitle,"101.2.1"))
+    : uiDialog(p,Setup("(Re-)Start a batch job",mNoDlgTitle,"101.2.1"))
     , canresume_(false)
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Stored Batch Job" );
+    uiGroup* topgrp = new uiGroup( this, "Top Group" );
+
+    uiLabeledListBox* llb = new uiLabeledListBox( topgrp, "Stored Batch Job" );
     jobsfld_ = llb->box();
     jobsfld_->addItem( "Scanning Proc directory ...." );
 
+    uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Man buttons",
+	    					uiObject::Vertical );
+    bgrp->attach( rightOf, llb );
+    vwfilebut_ = new uiToolButton( bgrp, "info", "View/Edit job file",
+	    	      mCB(this,uiStartBatchJobDialog,viewFile) );
+    rmfilebut_ = new uiToolButton( bgrp, "trashcan", "Remove job file",
+	    	      mCB(this,uiStartBatchJobDialog,rmFile) );
+
+    topgrp->setFrame( true );
+    topgrp->setHAlignObj( llb );
+
     invalidsellbl_ = new uiLabel( this, "<Invalid Job>" );
-    invalidsellbl_->attach( alignedBelow, llb );
+    invalidsellbl_->attach( alignedBelow, topgrp );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::Attrib );
     batchfld_->selectionChange.notify(
 				mCB(this,uiStartBatchJobDialog,launcherSel) );
-    batchfld_->attach( alignedBelow, llb );
+    batchfld_->attach( alignedBelow, topgrp );
 
     resumefld_ = new uiGenInput( this, "Use already processed data",
 			BoolInpSpec(false,"Yes","No (start from scratch)") );
@@ -130,6 +146,8 @@ void uiStartBatchJobDialog::itmSel( CallBacker* )
     const bool canrun = canRun();
     invalidsellbl_->display( !canrun );
     batchfld_->display( canrun );
+    setButSens();
+
     launcherSel(0);
 }
 
@@ -152,9 +170,41 @@ void uiStartBatchJobDialog::launcherSel( CallBacker* )
 }
 
 
+void uiStartBatchJobDialog::viewFile( CallBacker* )
+{
+    const int selidx = jobsfld_->currentItem();
+    if ( selidx < 0 )
+	{ pErrMsg("Huh"); return; }
+    const BufferString& fnm( filenames_.get(selidx) );
+
+    uiMSG().error( "TODO: implement view/edit job file:\n", fnm );
+}
+
+
+void uiStartBatchJobDialog::rmFile( CallBacker* )
+{
+    const int selidx = jobsfld_->currentItem();
+    if ( selidx < 0 )
+	{ pErrMsg("Huh"); return; }
+    const BufferString& fnm( filenames_.get(selidx) );
+
+    uiMSG().error( "TODO: implement remove job file:\n", fnm );
+}
+
+
 bool uiStartBatchJobDialog::canRun() const
 {
     return !batchfld_->jobSpec().prognm_.isEmpty();
+}
+
+
+void uiStartBatchJobDialog::setButSens()
+{
+    const int selidx = jobsfld_->currentItem();
+    const bool haveselection = filenames_.validIdx( selidx );
+    vwfilebut_->setSensitive( haveselection );
+    rmfilebut_->setSensitive( haveselection
+			   && File::isWritable(filenames_.get(selidx)) );
 }
 
 
