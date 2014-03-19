@@ -377,12 +377,23 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
+
+#ifndef __win__
+	localcmd.add( " --needmonitor" );
+	if ( !monitorfnm_.isEmpty() )
+	    localcmd.add( " --monitorfnm " ).add( monitorfnm_.buf() );
+
+	BufferString launchercmd(
+		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
+	launchercmd.add( " " ).add( localcmd );
+	return doExecute( launchercmd, pars.launchtype_==Wait4Finish );
+#else
 	if ( monitorfnm_.isEmpty() )
 	{
 	    monitorfnm_ = FilePath::getTempName("txt");
 	    redirectoutput_ = true;
-	    localcmd.add( __iswin__ ? "" : BufferString(" >",monitorfnm_) );
 	}
+#endif
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish );
