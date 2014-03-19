@@ -567,6 +567,10 @@ int uiTreeView::indexOfItem( uiTreeViewItem* it ) const
 void uiTreeView::clear()
 {
     mBlockCmdRec;
+
+    for ( int idx=0; idx<nrItems(); idx++ )
+	delete getItem( idx );
+
     ((QTreeWidget*)body_)->clear();
 }
 
