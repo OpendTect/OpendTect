@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigroup.h"
 #include "uimain.h"
 #include "uimainwin.h"
+#include "uimsg.h"
 #include "uistatusbar.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -68,6 +69,7 @@ protected:
     void	saveFn(CallBacker*);
 
     void	handleProcessStatus();
+    bool	closeOK();
     void	appendToText();
     void	addChar(char);
 };
@@ -111,8 +113,6 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
 
     if ( deswidth > txtfld->defaultWidth() )
 	txtfld->setPrefWidth( deswidth );
-
-    windowClosed.notify( mCB(this,uiProgressViewer,quitFn) );
 
     timer_ = new Timer( "Progress" );
     timer_->tick.notify( mCB(this,uiProgressViewer,doWork) );
@@ -182,15 +182,16 @@ void uiProgressViewer::doWork( CallBacker* )
     else
     {
 	handleProcessStatus();
-/*	if ( !haveProcess() )
+	if ( !haveProcess() )
 	{
 	    sleepSeconds( 1 );
 	    strm_.reOpen();
 	    strm_.getAll( curline_ );
 	    txtfld->setText( curline_ );
+	    txtfld->scrollToBottom();
 	    statusBar()->message( processEnded() ? "Processing ended" : "" );
 	    return;
-	}*/ //TODO: On Linux, how to pass pid. On windows, how to use it.
+	}
 
 	strm_.reOpen();
 	strm_.ignore( nrcharsread_ );
@@ -205,9 +206,22 @@ void uiProgressViewer::doWork( CallBacker* )
 
 void uiProgressViewer::quitFn( CallBacker* )
 {
+    if ( closeOK() )
+	uiMain::theMain().exit(0);
+}
+
+
+bool uiProgressViewer::closeOK()
+{
     if ( haveProcess() )
+    {
+	if ( !uiMSG().askGoOn("Do you want to terminate the process?") )
+	    return false;
+
 	SignalHandling::stopProcess( pid_ );
-    uiMain::theMain().exit(0);
+    }
+
+    return true;
 }
 
 

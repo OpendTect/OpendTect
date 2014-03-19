@@ -72,6 +72,9 @@ void uiTextEditBase::allowTextSelection( bool yn )
 void uiTextEditBase::hideFrame()
 { qte().setFrameShape( QFrame::NoFrame ); }
 
+void uiTextEditBase::scrollToBottom()
+{ qte().moveCursor( QTextCursor::End ); }
+
 void uiTextEditBase::hideScrollBar( bool vertical )
 {
     if ( vertical )
@@ -463,9 +466,6 @@ void uiTextBrowser::forward()
 
 void uiTextBrowser::home()
 { body_->home(); }
-
-void uiTextBrowser::scrollToBottom()
-{ body_->moveCursor( QTextCursor::End ); }
 
 void uiTextBrowser::recordScrollPos()
 { body_->recordScrollPos(); }

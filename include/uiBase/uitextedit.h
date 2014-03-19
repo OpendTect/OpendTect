@@ -41,6 +41,7 @@ public:
 
     void		hideFrame();
     void		hideScrollBar(bool vertical);
+    void		scrollToBottom();
 
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
@@ -105,7 +106,6 @@ public:
     void		forward();
     void		home();
     void		reload();
-    void		scrollToBottom();
     void		showToolTip(const char*);
     void		recordScrollPos();
     void		restoreScrollPos();
