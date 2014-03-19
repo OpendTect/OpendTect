@@ -21,39 +21,40 @@ class IOObj;
 class SeisPSReader;
 
 namespace PreStack { class ProcessManager; }
-namespace visBase 
+namespace visBase
 {
     class DepthTabPlaneDragger;
     class FaceSet;
     class FlatViewer;
 }
 
-namespace visSurvey 
-{ 
+namespace visSurvey
+{
 
-class PlaneDataDisplay; 
+class PlaneDataDisplay;
 class Seis2DDisplay;
 
 
-mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
-    		 public visSurvey::SurveyObject
+mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl,
+		 public visSurvey::SurveyObject
 {
 public:
 
 				PreStackDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PreStackDisplay,
 				    "PreStackDisplay", sFactoryKeyword() );
 
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);
     BufferString		getObjectName() const;
-    bool			isInlCrl() const 	{ return true; }
+    bool			isInlCrl() const	{ return true; }
     bool			isOrientationInline() const;
-    const Coord			getBaseDirection() const; 
-    const StepInterval<int>	getTraceRange(const BinID& bid) const;
+    const Coord			getBaseDirection() const;
+    StepInterval<int>		getTraceRange(const BinID&,
+					      bool oncurrentline=true) const;
 
-    				//for 3D only at present
+				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
     DataPack::ID		preProcess();
 
@@ -64,22 +65,22 @@ public:
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
     PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
 
-    				//3D case
+				//3D case
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
     void			setSectionDisplay(PlaneDataDisplay*);
     const PlaneDataDisplay*	getSectionDisplay() const;
-    
+
     Notifier<PreStackDisplay>	draggermoving;
     NotifierAccess*		getMovementNotifier() { return &draggermoving;}
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
-   				//2D case 
+				//2D case
     const Seis2DDisplay*	getSeis2DDisplay() const;
-    bool			setSeis2DData(const IOObj* ioobj); 
+    bool			setSeis2DData(const IOObj* ioobj);
     bool			setSeis2DDisplay(Seis2DDisplay*,int trcnr);
     void			setTraceNr(int trcnr);
-    int				traceNr() const 	  { return trcnr_; }
+    int				traceNr() const	  { return trcnr_; }
     const char*			lineName() const;
 
     bool                        displayAutoWidth() const { return autowidth_; }
@@ -93,28 +94,28 @@ public:
     BinID			getBinID() const { return bid_; }
     virtual MultiID		getMultiID() const { return mid_; }
     virtual void		getMousePosInfo( const visBase::EventInfo& ei,
-	    					 IOPar& iop ) const
+						 IOPar& iop ) const
 				{ SurveyObject::getMousePosInfo(ei,iop); }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-	    					Coord3&,
-				  		BufferString& val,
+						Coord3&,
+						BufferString& val,
 						BufferString& info) const;
-    void			otherObjectsMoved( 
-	    				const ObjectSet<const SurveyObject>&, 
+    void			otherObjectsMoved(
+					const ObjectSet<const SurveyObject>&,
 					int whichobj );
 
-     
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
     static const char*		sKeyParent()	{ return "Parent"; }
     static const char*		sKeyFactor()	{ return "Factor"; }
-    static const char*		sKeyWidth() 	{ return "Width"; }
+    static const char*		sKeyWidth()	{ return "Width"; }
     static const char*		sKeyAutoWidth() { return "AutoWidth"; }
-    static const char*		sKeySide() 	{ return "ShowSide"; }
+    static const char*		sKeySide()	{ return "ShowSide"; }
 
 protected:
-    				~PreStackDisplay();
+				~PreStackDisplay();
     void			setDisplayTransformation(const mVisTrans*);
     void			dataChangedCB(CallBacker*);
     void			sectionMovedCB(CallBacker*);
@@ -128,18 +129,18 @@ protected:
 
     BinID			bid_;
     BinID			draggerpos_;
-    visBase::DepthTabPlaneDragger* 	planedragger_;
+    visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
     PreStack::ProcessManager*	preprocmgr_;
-    
+
     MultiID			mid_;
     PlaneDataDisplay*		section_;
     Seis2DDisplay*		seis2d_;
-    int 			trcnr_;
+    int				trcnr_;
     Coord			basedirection_;
     Coord			seis2dpos_;
     Coord			seis2dstoppos_;
-    
+
     bool			posside_;
     bool			autowidth_;
     float			factor_;
