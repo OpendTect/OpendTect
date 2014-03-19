@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 
 #include <QToolBar>
+#include <QToolButton>
 #include "i_qtoolbar.h"
 
 mUseQtnamespace
@@ -84,7 +85,7 @@ int uiToolBar::addButton( const char* fnm, const char* tt, const CallBack& cb,
 
 
 int uiToolBar::addButton( const uiToolButtonSetup& su )
-{    
+{
     uiAction* action = new uiAction( su.name_, su.cb_, su.filename_ );
     action->setToolTip( su.tooltip_ );
     action->setCheckable( su.istoggle_ );
@@ -94,7 +95,7 @@ int uiToolBar::addButton( const uiToolButtonSetup& su )
     {
 	pErrMsg("Not implemented yet");
     }
-    
+
     return insertAction( action );
 }
 
@@ -161,7 +162,7 @@ bool uiToolBar::isOn( int id ) const
 void uiToolBar::setSensitive( int id, bool yn )
 {
     mGetAction( , return );
-    
+
     action->setEnabled( yn );
 }
 
@@ -212,6 +213,10 @@ void uiToolBar::setButtonMenu( int id, uiMenu* mnu )
 {
     mGetAction( , return );
     action->setMenu( mnu );
+    QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
+    mDynamicCastGet(QToolButton*,qtb,qw)
+    if ( qtb )
+	qtb->setPopupMode( QToolButton::MenuButtonPopup );
 }
 
 
@@ -222,7 +227,7 @@ void uiToolBar::display( bool yn, bool, bool )
     else
 	qtoolbar_->hide();
 
-    if ( toolbarmenuaction_ ) 
+    if ( toolbarmenuaction_ )
 	toolbarmenuaction_->setChecked( yn );
 }
 
