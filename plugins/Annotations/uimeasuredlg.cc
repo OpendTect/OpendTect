@@ -32,7 +32,7 @@ static const char* sKeyLineStyle = "Measure LineStyle";
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog( p, Setup("Measured Distance",mNoDlgTitle,"50.0.15")
-	    		.modal(false) )
+			.modal(false) )
     , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
@@ -44,6 +44,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 {
     setOkText( "" );
     setCancelText( "" );
+    showAlwaysOnTop();
 
     BufferString str;
     mSettUse(get,"dTect",sKeyLineStyle,str);
@@ -55,7 +56,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    BufferString zdistlbl( "Vertical Distance ", SI().getZUnitString() ); 
+    BufferString zdistlbl( "Vertical Distance ", SI().getZUnitString() );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
@@ -87,7 +88,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     }
 
     inlcrldistfld_ = new uiGenInput( topgrp, "Inl/Crl Distance",
-	    			     IntInpIntervalSpec(Interval<int>(0,0))
+				     IntInpIntervalSpec(Interval<int>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
@@ -133,7 +134,7 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpID) );
     dlg.setCtrlStyle( uiDialog::LeaveOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
-	    			uiSelLineStyle::Setup().drawstyle(false) );
+				uiSelLineStyle::Setup().drawstyle(false) );
     linestylefld->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
     dlg.go();
 
