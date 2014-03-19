@@ -97,7 +97,10 @@ set( OD_MODULE_SOURCES
 	zdomain.cc
 )
 
-set ( OD_MODULE_PROGS od_batch_launcher.cc test_exit_program.cc )
+set ( OD_MODULE_PROGS test_exit_program.cc )
+if ( UNIX )
+    set ( OD_MODULE_PROGS ${OD_MODULE_PROGS} od_batch_launcher.cc )
+endif()
 
 if ( ITTNOTIFY_FOUND )
     set ( OD_MODULE_STATIC_LIBS ${ITTNOTIFY_LIBRARY} )
