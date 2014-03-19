@@ -18,8 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "bufstring.h"
 
-#include <math.h>
-
 #ifndef M_PI
 # define M_PI		3.14159265358979323846
 #endif
