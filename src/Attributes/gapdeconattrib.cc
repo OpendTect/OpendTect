@@ -331,6 +331,9 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	GenericConvolve( HALFLENGTH*2+1, -HALFLENGTH, hilbfilter_, nrsamples,
 			 0, masker, nrsamples, 0, outparr );
 
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    outparr[idx] *= -1.f;
+
 	delete tmpdh;
     }
 
