@@ -79,6 +79,7 @@ void uiArray1DInterpolSel::setDistanceUnit( const char* du )
 
 void uiArray1DInterpolSel::setInterpolators( int totalnr )
 {
+    results_.erase();
     for ( int idx=0; idx<totalnr; idx++ )
     {
 	if ( methodsel_->currentItem()==1 )

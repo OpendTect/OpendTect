@@ -300,7 +300,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 	uiMSG().message( "Horizon successfully gridded/interpolated" );
     }
 
-    return false;
+    return !inputhorsel_;
 }
 
 
