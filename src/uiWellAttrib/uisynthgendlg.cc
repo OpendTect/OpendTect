@@ -50,60 +50,54 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 			  mCB(this,uiSynthGenDlg,removeSyntheticsCB), true );
     rembut->attach( leftAlignedBelow, llb );
 
-    uiGroup* pargrp = new uiGroup( this, "Parameter Group" );
-    pargrp->setStretch( 1, 1 );
+    uiGroup* rightgrp = new uiGroup( this, "Parameter Group" );
+    rightgrp->setStretch( 1, 1 );
+
+    uiGroup* toppargrp = new uiGroup( rightgrp, "Parameter Group - top part" );
     BufferStringSet types( SynthGenParams::SynthTypeNames() );
     uiLabeledComboBox* lblcbx =
-	new uiLabeledComboBox( pargrp, types, "Synthethic type" );
+	new uiLabeledComboBox( toppargrp, types, "Synthethic type" );
     typefld_ = lblcbx->box();
     typefld_->selectionChanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
-    psselfld_ = new uiLabeledComboBox( pargrp, "Input PreStack" );
+    psselfld_ = new uiLabeledComboBox( toppargrp, "Input PreStack" );
     psselfld_->attach( alignedBelow, lblcbx );
 
     FloatInpIntervalSpec finpspec(false);
     finpspec.setLimits( Interval<float>(0,90) );
     finpspec.setDefaultValue( Interval<float>(0,30) );
-    angleinpfld_ = new uiGenInput( pargrp, "Angle Range", finpspec );
+    angleinpfld_ = new uiGenInput( toppargrp, "Angle Range", finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
-    rtsel_ = new uiRayTracerSel( pargrp, rsu );
+    rtsel_ = new uiRayTracerSel( toppargrp, rsu );
     rtsel_->usePar( stratsynth_.genParams().raypars_ );
     rtsel_->attach( alignedBelow, angleinpfld_ );
     rtsel_->offsetChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
-    wvltfld_ = new uiSeisWaveletSel( pargrp );
+    wvltfld_ = new uiSeisWaveletSel( toppargrp );
     wvltfld_->newSelection.notify( mCB(this,uiSynthGenDlg,parsChanged) );
     wvltfld_->attach( alignedBelow, rtsel_ );
     wvltfld_->setFrame( false );
 
-    nmofld_ = new uiGenInput( pargrp, "Apply NMO corrections",
-			      BoolInpSpec(true) );
-    mAttachCB( nmofld_->valuechanged, uiSynthGenDlg::parsChanged);
-    nmofld_->attach( alignedBelow, wvltfld_ );
-    nmofld_->setValue( true );
+    uisynthcorrgrp_ = new uiSynthCorrectionsGrp( rightgrp );
+    uisynthcorrgrp_->attach( alignedBelow, toppargrp );
+    uisynthcorrgrp_->nmoparsChanged_.notify(
+					mCB(this,uiSynthGenDlg,parsChanged) );
 
-    FloatInpSpec inpspec;
-    inpspec.setLimits( Interval<float>(1,500) );
-    stretchmutelimitfld_ = new uiGenInput(pargrp, "Stretch mute (%)", inpspec );
-    stretchmutelimitfld_->attach( alignedBelow, nmofld_ );
+    uiGroup* botpargrp = new uiGroup( rightgrp, "Parameter Group - Last Part" );
+    botpargrp->attach( centeredBelow, uisynthcorrgrp_ );
 
-    mutelenfld_ = new uiGenInput( pargrp, "Mute taper-length (ms)",
-				      FloatInpSpec() );
-    mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
-
-    namefld_ = new uiGenInput( pargrp, "Name" );
-    namefld_ ->attach( alignedBelow, mutelenfld_ );
+    namefld_ = new uiGenInput( botpargrp, "		  Name" );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
-    gennewbut_ = new uiPushButton( pargrp, "&Add as new", true );
+    gennewbut_ = new uiPushButton( botpargrp, "&Add as new", true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( alignedBelow, namefld_ );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( syntlistgrp );
-    splitter->addGroup( pargrp );
+    splitter->addGroup( rightgrp );
 
     postFinalise().notify( mCB(this,uiSynthGenDlg,finaliseDone) );
 }
@@ -236,13 +230,11 @@ void uiSynthGenDlg::updateFieldSensitivity()
     const bool isps = synthtype==SynthGenParams::PreStack;
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
-    nmofld_->display( isps );
+    uisynthcorrgrp_->display( isps );
     rtsel_->display( isps );
     rtsel_->current()->displayOffsetFlds( isps || psbased );
     psselfld_->display( psbased );
     wvltfld_->display( !psbased );
-    mutelenfld_->display( isps );
-    stretchmutelimitfld_->display( isps );
     angleinpfld_->display( psbased );
 }
 
@@ -290,22 +282,21 @@ void uiSynthGenDlg::putToScreen()
     TypeSet<float> offsets;
     genparams.raypars_.get( RayTracer1D::sKeyOffset(), offsets );
 
-    bool donmo = true;
-    genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
-    nmofld_->setValue( donmo );
-
     if ( isps )
     {
+	bool donmo = true;
+	genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
+
 	float mutelen = Seis::SynthGenBase::cStdMuteLength();
-	genparams.raypars_.get(
-		Seis::SynthGenBase::sKeyMuteLength(), mutelen );
-	mutelenfld_->setValue(
-	    mIsUdf(mutelen) ? mutelen : mutelen *ZDomain::Time().userFactor());
+	genparams.raypars_.get( Seis::SynthGenBase::sKeyMuteLength(), mutelen );
+	if ( !mIsUdf(mutelen) )
+	   mutelen = mutelen *ZDomain::Time().userFactor();
 
 	float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
 	genparams.raypars_.get(
 			Seis::SynthGenBase::sKeyStretchLimit(), stretchlimit );
-	stretchmutelimitfld_->setValue( mToPercent( stretchlimit ) );
+
+	uisynthcorrgrp_->setValues( donmo, mutelen, mToPercent( stretchlimit ));
     }
 
     rtsel_->usePar( genparams.raypars_ );
@@ -318,15 +309,6 @@ bool uiSynthGenDlg::getFromScreen()
     const char* nm = namefld_->text();
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
-
-    if ( mutelenfld_->attachObj()->isDisplayed() &&
-	 (mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0) )
-	mErrRet( "The mutelength must be more than zero.", return false );
-
-    if ( stretchmutelimitfld_->attachObj()->isDisplayed() &&
-	(mIsUdf(stretchmutelimitfld_->getfValue()) ||
-	 stretchmutelimitfld_->getfValue()<0) )
-	mErrRet( "The stretch mute must be more than 0%", return false );
 
     stratsynth_.genParams().raypars_.setEmpty();
 
@@ -361,17 +343,17 @@ bool uiSynthGenDlg::getFromScreen()
 
     genparams.wvltnm_ = wvltfld_->getName();
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
-    bool donmo = isps ? nmofld_->getBoolValue() : false;
+    bool donmo = isps ? uisynthcorrgrp_->wantNMOCorr() : false;
     genparams.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), donmo );
     genparams.name_ = namefld_->text();
 
     if ( isps )
     {
 	genparams.raypars_.set( Seis::SynthGenBase::sKeyMuteLength(),
-		     mutelenfld_->getfValue() / ZDomain::Time().userFactor() );
+	     uisynthcorrgrp_->getMuteLength() / ZDomain::Time().userFactor() );
 	genparams.raypars_.set(
 		Seis::SynthGenBase::sKeyStretchLimit(),
-		mFromPercent( stretchmutelimitfld_->getfValue()) );
+		mFromPercent( uisynthcorrgrp_->getStrechtMutePerc()) );
     }
 
     return true;
@@ -435,6 +417,104 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     }
 
     genNewReq.trigger();
+    return true;
+}
+
+
+class uiSynthCorrAdvancedDlg : public uiDialog
+{
+    public:
+				uiSynthCorrAdvancedDlg(uiParent*);
+
+    uiGenInput* 		stretchmutelimitfld_;
+    uiGenInput* 		mutelenfld_;
+
+    protected:
+
+    bool			acceptOK(CallBacker*);
+};
+
+
+uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
+    : uiGroup( p, "Synth corrections parameters" )
+    , nmoparsChanged_(this)
+{
+    nmofld_ = new uiGenInput( this, "Apply NMO corrections",
+			      BoolInpSpec(true) );
+    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::parsChanged);
+    nmofld_->setValue( true );
+
+    CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
+    advbut_ = new uiPushButton( this, "&Advanced", cbadv, false );
+    advbut_->attach( alignedBelow, nmofld_ );
+
+    uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );
+}
+
+
+void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
+{
+    advbut_->display( wantNMOCorr() );
+    nmoparsChanged_.trigger();
+}
+
+
+bool uiSynthCorrectionsGrp::wantNMOCorr() const
+{
+    return nmofld_->getBoolValue();
+}
+
+
+float uiSynthCorrectionsGrp::getStrechtMutePerc() const
+{
+    return uiscadvdlg_->stretchmutelimitfld_->getfValue();
+}
+
+
+float uiSynthCorrectionsGrp::getMuteLength() const
+{
+    return uiscadvdlg_->mutelenfld_->getfValue();
+}
+
+
+void uiSynthCorrectionsGrp::getAdvancedPush( CallBacker* )
+{
+    uiscadvdlg_->go();
+}
+
+
+void uiSynthCorrectionsGrp::setValues( bool donmo, float mutelen,
+				       float stretchlim )
+{
+    nmofld_->setValue( donmo );
+    uiscadvdlg_->mutelenfld_->setValue( mutelen );
+    uiscadvdlg_->stretchmutelimitfld_->setValue( stretchlim );
+}
+
+
+uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
+    : uiDialog( p, uiDialog::Setup("Synthetic Corrections advanced options",
+		"Specify advanced options", mTODOHelpKey) )
+{
+    FloatInpSpec inpspec;
+    inpspec.setLimits( Interval<float>(1,500) );
+    stretchmutelimitfld_ = new uiGenInput(this, "Stretch mute (%)", inpspec );
+
+    mutelenfld_ = new uiGenInput( this, "Mute taper-length (ms)",
+				  FloatInpSpec() );
+    mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
+}
+
+
+bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
+{
+    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
+	mErrRet( "The mutelength must be more than zero.", return false );
+
+    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
+	 stretchmutelimitfld_->getfValue()<0 )
+	mErrRet( "The stretch mute must be more than 0%", return false );
+
     return true;
 }
 

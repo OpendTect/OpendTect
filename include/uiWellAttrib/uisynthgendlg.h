@@ -27,6 +27,7 @@ class uiPushButton;
 class uiSynthGenDlg;
 class uiSeisWaveletSel;
 
+class uiSynthCorrectionsGrp;
 
 mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 {
@@ -51,9 +52,6 @@ protected:
     uiLabeledComboBox*		psselfld_;
     uiGenInput*  		angleinpfld_;
     uiGenInput*  		namefld_;
-    uiGenInput*			nmofld_;
-    uiGenInput*			stretchmutelimitfld_;
-    uiGenInput*			mutelenfld_;
     uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
@@ -61,6 +59,7 @@ protected:
     uiPushButton*		savebut_;
     uiListBox*			synthnmlb_;
     StratSynth&			stratsynth_;
+    uiSynthCorrectionsGrp*	uisynthcorrgrp_;
 
 
     void			getPSNames(BufferStringSet&);
@@ -73,6 +72,30 @@ protected:
     void			nameChanged(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			finaliseDone(CallBacker*);
+};
+
+
+class uiSynthCorrAdvancedDlg;
+
+mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
+{
+public:
+				uiSynthCorrectionsGrp(uiParent*);
+
+    bool			wantNMOCorr() const;
+    float			getStrechtMutePerc() const;
+    float			getMuteLength() const;
+    void			setValues(bool,float mutelen,float stretchlim);
+
+    Notifier<uiSynthCorrectionsGrp> nmoparsChanged_;
+
+protected:
+    uiGenInput* 		nmofld_;
+    uiPushButton*		advbut_;
+    uiSynthCorrAdvancedDlg*	uiscadvdlg_;
+
+    void			getAdvancedPush(CallBacker*);
+    void			parsChanged(CallBacker*);
 };
 
 #endif
