@@ -49,7 +49,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , savefldgrp_( 0 )
     , finished(this)
 {
-    setCtrlStyle( RunAndClose );
+    if ( !hor )
+	setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
 	horizon_->ref();
