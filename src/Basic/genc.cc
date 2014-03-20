@@ -192,14 +192,14 @@ mExternC(Basic) void ForkProcess(void)
 }
 
 
-#define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
-
 bool isProcessAlive( int pid )
 {
 #ifdef __win__
     HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE,
-				   GetPID() );
-    return !isBadHandle(hProcess);
+				   pid );
+    const bool ret = hProcess != NULL;
+    CloseHandle( hProcess );
+    return ret;
 #else
     const int res = kill( pid, 0 );
     return res == 0;
