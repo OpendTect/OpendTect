@@ -80,7 +80,7 @@ static const char* scenestr = "Scene ";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
-    for ( int idx=0; idx<scenes_.size(); idx++ ) \
+    for ( int idx=0; idx<scenes_.size() && scenes_[idx]->memb; idx++ ) \
 	scenes_[idx]->memb->fn( arg )
 
 
