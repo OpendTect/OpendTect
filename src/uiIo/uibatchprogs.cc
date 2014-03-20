@@ -295,7 +295,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 	browser->setFileName( targetex );
     else
     {
-	browser = new uiTextFileDlg( this, false, false, targetex );
+	browser = new uiTextFileDlg( this, targetex );
 	browser->editor()->fileNmChg.notify(
 				mCB(this,uiBatchProgLaunch,filenmUpd) );
     }

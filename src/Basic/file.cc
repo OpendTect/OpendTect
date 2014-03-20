@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ptrman.h"
 #include "od_istream.h"
+#include "oscommand.h"
 
 #ifdef __win__
 # include <direct.h>
@@ -603,18 +604,18 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 }
 
 
-od_int64 getTimeInSeconds( const char* fnm )
+od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    return qfi.lastModified().toTime_t();
+    return lastmodif ? qfi.lastModified().toTime_t() : qfi.created().toTime_t();
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
     if (status != 0)
 	return 0;
 
-    return st_buf.st_mtime;
+    return lastmodif ? st_buf.st_mtime : st_buf.st_ctim;
 #endif
 }
 
@@ -718,5 +719,26 @@ const char* getRootPath( const char* path )
 #endif
     return ret.buf();
 }
+
+
+bool launchViewer( const char* fnm, const ViewPars& vp )
+{
+    if ( !exists(fnm) )
+	return false;
+
+    BufferString cmd( "od_FileBrowser" );
+    if ( vp.style_ != Text )
+	cmd.add( " --style ")
+	   .add( vp.style_ == File::Table	? "table"
+	      : (vp.style_ == File::Log		? "log" : "bin") );
+    if ( vp.editable_ )
+	cmd.add( " --edit" );
+    cmd.add( " --maxlines " ).add( vp.maxnrlines_ );
+    cmd.add( " " ).add( fnm );
+
+    OS::CommandLauncher cl = OS::MachineCommand( cmd );
+    return cl.execute();
+}
+
 
 } // namespace File

@@ -72,7 +72,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     filegrp = new uiGroup( this, "File group" );
     uiFileInput::Setup fipsetup( lastinpfile );
     fipsetup.forread(true).withexamine(true)
-	    .examstyle(uiFileInput::Setup::Table).defseldir(GetDataDir());
+	    .examstyle(File::Table).defseldir(GetDataDir());
     inpfilefld = new uiFileInput( filegrp, "Input file", fipsetup );
 
     fipsetup.fnm = lastoutfile;

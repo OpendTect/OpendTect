@@ -15,13 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "posinfodetector.h"
 #include "iopar.h"
-#include "oscommand.h"
 #include "od_istream.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "file.h"
 
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
@@ -182,7 +182,7 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecODProgram( "od_FileBrowser", fnm );
+    File::launchViewer( fnm );
 }
 
 

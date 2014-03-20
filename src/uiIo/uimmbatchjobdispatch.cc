@@ -359,8 +359,9 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
     logfp.setExtension( ".log", false );
 
     delete logvwer_;
-    logvwer_ = new uiTextFileDlg( this, uiTextFileDlg::Setup(logfp.fullPath())
-					.scroll2bottom(true) );
+    const BufferString fnm( logfp.fullPath() );
+    logvwer_ = new uiTextFileDlg( this, uiTextFile::Setup(File::Log),
+				  uiTextFileDlg::Setup(fnm), fnm );
     logvwer_->go();
 }
 

@@ -34,7 +34,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
+		      .withexamine(true).examstyle(File::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
@@ -46,7 +46,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     sep->attach( stretchedBelow, dataselfld_ );
 
     scalefld_ = new uiGenInput( this, "Scale factor for samples",
-	    			FloatInpSpec(1) );
+				FloatInpSpec(1) );
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );
 

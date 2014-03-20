@@ -50,7 +50,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , velocityfld_(0)
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
+		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
@@ -313,7 +313,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
-		.withexamine(true).examstyle(uiFileInput::Setup::Table) );
+		.withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
@@ -447,7 +447,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     , fd_(BulkD2TModelAscIO::getDesc())
 {
     uiFileInput::Setup fs;
-    fs.withexamine(true).examstyle(uiFileInput::Setup::Table);
+    fs.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileInput( this, "Input Depth/Time Model file", fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );

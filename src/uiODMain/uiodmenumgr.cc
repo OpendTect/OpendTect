@@ -1280,10 +1280,10 @@ mDefManCBFn(PDF)
 
 void uiODMenuMgr::showLogFile()
 {
-    uiTextFileDlg::Setup su( od_ostream::logStream().fileName() );
-    su.modal( true );
-    uiTextFileDlg dlg( &appl_, su );
-    dlg.go();
+    uiTextFileDlg* dlg = new uiTextFileDlg( &appl_,
+				od_ostream::logStream().fileName(), true );
+    dlg->setDeleteOnClose( true );
+    dlg->go();
 }
 
 

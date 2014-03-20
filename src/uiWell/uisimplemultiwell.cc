@@ -164,7 +164,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     , fd_("Simple multi-welldata")
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
+		      .withexamine(true).examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );

@@ -23,28 +23,35 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
 
     int argidx = 1;
-    bool edit = false, table = false, dofork = true, logview = false;
-    int maxlines = mUdf(int);
+    File::ViewPars vp;
+    bool dofork = true;
 
     while ( argc > argidx )
     {
 	const FixedString arg( argv[argidx]+2 );
 #define mArgIs(s) arg == #s
 	if ( mArgIs(edit) )
-	    edit = true;
-	else if ( mArgIs(table) )
-	    table = true;
+	    vp.editable_ = true;
 	else if ( mArgIs(maxlines) )
-	    { argidx++; maxlines = toInt(argv[argidx]); }
+	    { argidx++; vp.maxnrlines_ = toInt(argv[argidx]); }
+	else if ( mArgIs(style) )
+	{
+	    argidx++; const BufferString stl( argv[argidx] );
+	    if ( stl == "table" )
+		vp.style_ = File::Table;
+	    else if ( stl == "log" )
+		vp.style_ = File::Log;
+	    else if ( stl == "bin" )
+		vp.style_ = File::Bin;
+	}
 	else if ( mArgIs(nofork) || mArgIs(fg) )
 	    dofork = false;
-	else if ( mArgIs(log) )
-	    logview = true;
 	else if ( mArgIs(h) || mArgIs(help) )
 	{
 	    od_cout() << "Usage: " << argv[0]
-		<< " [--edit|--table|--log|--maxlines nrlines] [filename]\n"
-		<< "Note: filename must be with FULL path." << od_endl;
+		<< " [--readonly|--maxlines nrlines|--style table|log|bin]"
+		   " [filename]\nNote: filename has to be with FULL path."
+		<< od_endl;
 	    return ExitProgram( 0 );
 	}
 	argidx++;
@@ -63,12 +70,9 @@ int main( int argc, char** argv )
 	fnm = const_cast<char*>(File::linkTarget(fnm));
 #endif
 
-    uiTextFile::Setup tfsetup( !edit, table, fnm );
-    tfsetup.maxlines( maxlines );
-    tfsetup.logviewmode( logview );
     uiTextFileDlg::Setup fdsetup( fnm );
-    fdsetup.allowopen(edit).allowsave(edit);
-    uiTextFileDlg* dlg = new uiTextFileDlg( 0, tfsetup, fdsetup );
+    fdsetup.allowopen( vp.editable_ ).allowsave( true );
+    uiTextFileDlg* dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
     app.setTopLevel( dlg );
     dlg->show();
 

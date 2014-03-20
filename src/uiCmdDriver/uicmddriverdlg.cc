@@ -119,7 +119,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.filter("Script files (*.odcmd *.cmd)")
 			.forread(true)
 			.withexamine(true)
-			.examstyle(uiFileInput::Setup::Edit)
+			.exameditable(true)
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
@@ -127,7 +127,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			uiFileInput::Setup()
 			.forread(false)
 			.withexamine(true)
-			.examstyle(uiFileInput::Setup::Log)
+			.examstyle(File::Log)
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
@@ -137,7 +137,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.forread(false)
 			.confirmoverwrite(false)
 			.withexamine(true)
-			.examstyle(uiFileInput::Setup::Log)
+			.examstyle(File::Log)
 			.displaylocalpath(true) );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 

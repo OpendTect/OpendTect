@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "file.h"
 class uiTextEdit;
 class uiTextBrowser;
 class uiTable;
@@ -23,40 +24,20 @@ mExpClass(uiTools) uiTextFile : public CallBacker
 {
 public:
 
-    mExpClass(uiTools) Setup
-    {
-    public:
+    typedef File::ViewPars Setup;
 
-			Setup( bool rdonly, bool tbl, const char* fname=0 )
-			    : readonly_(rdonly)
-			    , table_(tbl)
-			    , filename_(fname)
-			    , maxlines_(mUdf(int))
-			    , logviewmode_(false)
-			{
-			}
-
-	mDefSetupMemb(bool,readonly)
-	mDefSetupMemb(bool,table)
-	mDefSetupMemb(BufferString,filename)
-	mDefSetupMemb(int,maxlines)
-	mDefSetupMemb(bool,logviewmode)
-
-    };
-
-    			uiTextFile( uiParent* p, const Setup& s )
+			uiTextFile( uiParent* p, const char* fnm,
+				    const Setup& s=Setup() )
 			    : setup_(s)
-			    , fileNmChg(this)	{ init(p); }
-    			uiTextFile( uiParent* p, bool rdonly, bool tbl,
-						 const char* fname )
-			    : setup_(rdonly,tbl,fname)
+			    , filename_(fnm)
 			    , fileNmChg(this)	{ init(p); }
 
-    virtual bool	isEditable() const	{ return !setup_.readonly_; }
-    bool		isModified () const;
-    virtual bool	isTable() const		{ return setup_.table_; }
-    const char*		fileName() const	{ return setup_.filename_; }
-    int			maxLines() const	{ return setup_.maxlines_; }
+    const char*		fileName() const	{ return filename_; }
+    bool		isModified () const	{ return ismodified_; }
+    int			maxLines() const	{ return setup_.maxnrlines_; }
+    virtual bool	isEditable() const	{ return setup_.editable_; }
+    virtual bool	isTable() const		{ return setup_.style_ ==
+								 File::Table; }
 
     bool		open(const char*);
     bool		reLoad();
@@ -78,11 +59,17 @@ public:
 protected:
 
     Setup		setup_;
+    BufferString	filename_;
+    mutable bool	ismodified_;
+
     uiTextEdit*		txted_;
     uiTextBrowser*	txtbr_;
     uiTable*		tbl_;
 
     void		init(uiParent*);
+    void		setFileName(const char*);
+
+    void		valChg(CallBacker*);
 
 };
 
@@ -95,8 +82,8 @@ public:
     {
     public:
 
-			Setup( const char* fname=0 )
-			    : uiDialog::Setup(fname?fname:"File viewer",
+			Setup( const char* winttl=0 )
+			    : uiDialog::Setup(winttl?winttl:"File viewer",
 						0,mNoHelpKey)
 			    , scroll2bottom_(false)
 			    , allowopen_(false)
@@ -106,29 +93,27 @@ public:
 			    .separator(false).modal(false).menubar(true);
 			}
 
-	mDefSetupMemb(bool,	scroll2bottom)
-	mDefSetupMemb(bool,	allowopen)
-	mDefSetupMemb(bool,	allowsave)
+	mDefSetupMemb(bool, scroll2bottom)
+	mDefSetupMemb(bool, allowopen)
+	mDefSetupMemb(bool, allowsave)
 
     };
 
-    			uiTextFileDlg(uiParent* p,bool rdonly,bool tbl,
-				      const char* fnm);
-			uiTextFileDlg(uiParent* p,const Setup&);
+			uiTextFileDlg(uiParent* p,const char* fnm,
+					bool rdonly=false,bool tbl=false);
+			uiTextFileDlg( uiParent* p,const Setup&);
 			uiTextFileDlg( uiParent* p, const uiTextFile::Setup& ts,
-						    const Setup& s )
-			    : uiDialog(p,s)	{ init(s,ts); }
+					const Setup& s, const char* fnm )
+			    : uiDialog(p,s)	{ init(s,ts,fnm); }
 
     uiTextFile*		editor()		{ return editor_; }
-    bool		setFileName( const char* fn )
-						{ return editor_->open(fn); }
-    const char*		fileName() const
-						{ return editor_->fileName(); }
+    void		setFileName(const char*);
+    const char*		fileName() const	{ return editor_->fileName(); }
 
 protected:
 
     uiTextFile*		editor_;
-    bool		scroll2bottom_;
+    bool		captionisfilename_;
 
     void		open(CallBacker*);
     void		save(CallBacker*);
@@ -138,7 +123,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     void		fileNmChgd(CallBacker*);
-    void		init(const Setup&,const uiTextFile::Setup&);
+    void		init(const Setup&,const uiTextFile::Setup&,const char*);
     bool		okToExit();
     int			doMsg(const char*,bool iserr=true);
 };

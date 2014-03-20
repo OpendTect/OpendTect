@@ -109,7 +109,7 @@ public:
 
     void		set(const MachineCommand&);
 
-    bool		execute(const CommandExecPars& pars);
+    bool		execute(const CommandExecPars& pars=CommandExecPars());
 
     int			processID() const	{ return processid_; }
     const char*		monitorFileName() const	{ return monitorfnm_; }

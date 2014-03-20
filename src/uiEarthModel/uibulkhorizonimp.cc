@@ -45,7 +45,7 @@ static Table::FormatDesc* getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkHorizon" );
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+			StringInpSpec(sKey::FloatUdf()), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
@@ -63,7 +63,7 @@ bool getData( BufferString& hornm, Coord3& crd )
     {
 	if ( !getHdrVals(strm_) )
 	    return false;
-	
+
 	udfval_ = getfValue( 0 );
 	finishedreadingheader_ = true;
     }
@@ -90,7 +90,7 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
     , fd_(BulkHorizonAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
+		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );

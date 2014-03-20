@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "cubesampling.h"
 #include "posinfodetector.h"
-#include "oscommand.h"
 #include "sorting.h"
 #include "oddirs.h"
 #include "ioobj.h"
@@ -22,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "conn.h"
 #include "math2.h"
+#include "file.h"
 
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
@@ -207,7 +207,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
     IOPar iopar( startpar ); report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecODProgram( "od_FileBrowser", fnm );
+    File::launchViewer( fnm );
 }
 
 

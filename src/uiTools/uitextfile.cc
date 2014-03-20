@@ -23,37 +23,39 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
-
 void uiTextFile::init( uiParent* p )
 {
     txted_ = 0; txtbr_ = 0; tbl_ = 0;
-    if ( setup_.table_ )
+    const CallBack modifcb( mCB(this,uiTextFile,valChg) );
+
+    if ( setup_.style_ == File::Table )
     {
 	uiTable::Setup tsu;
 	tsu.rowdesc("Row").coldesc("Col").fillrow(false).fillcol(true)
 	    .defcollbl(true).defrowlbl(true);
-	tbl_ = new uiTable( p, tsu, setup_.filename_ );
-	tbl_->setTableReadOnly( setup_.readonly_ );
+	tbl_ = new uiTable( p, tsu, filename_ );
+	tbl_->setTableReadOnly( !setup_.editable_ );
+	tbl_->valueChanged.notify( modifcb );
 	tbl_->setStretch( 2, 2 );
 	tbl_->setPrefHeight( 200 );
     }
-    else if ( !setup_.readonly_ )
-	txted_ = new uiTextEdit( p, setup_.filename_ );
+    else if ( !setup_.editable_ || setup_.style_ == File::Bin )
+	txtbr_ = new uiTextBrowser( p, filename_, setup_.maxnrlines_,
+				    true, setup_.style_ == File::Log );
     else
-	txtbr_ = new uiTextBrowser( p, setup_.filename_, setup_.maxlines_,
-				    true, setup_.logviewmode_ );
+    {
+	txted_ = new uiTextEdit( p, filename_ );
+	txted_->textChanged.notify( modifcb );
+    }
 
-    BufferString nm( setup_.filename_ );
-    setup_.filename_ = "";
-    open( nm );
+    open( filename_ );
+    ismodified_ = false;
 }
 
 
-bool uiTextFile::isModified() const
+void uiTextFile::valChg( CallBacker* )
 {
-    return setup_.readonly_ ? false : (mTxtEd() ? mTxtEd()->isModified()
-					//TODO : tbl_->isModified());
-						: false );
+    ismodified_ = true;
 }
 
 
@@ -125,30 +127,33 @@ bool uiTextFile::open( const char* fnm )
 	    return false;
 
 	Table::WSImportHandler imphndlr( strm );
-	uiTableExpHandler exphndlr( tbl_, setup_.maxlines_ );
+	uiTableExpHandler exphndlr( tbl_, setup_.maxnrlines_ );
 	Table::Converter cnvrtr( imphndlr, exphndlr );
 	cnvrtr.execute();
     }
 
-    if ( setup_.filename_ != fnm )
-    {
-	setup_.filename_ = fnm;
-	fileNmChg.trigger();
-    }
 
+    setFileName( fnm );
     return true;
+}
+
+
+void uiTextFile::setFileName( const char* fnm )
+{
+    if ( filename_ != fnm )
+	{ filename_ = fnm; fileNmChg.trigger(); }
 }
 
 
 bool uiTextFile::reLoad()
 {
-    return open( setup_.filename_ );
+    return open( filename_ );
 }
 
 
 bool uiTextFile::save()
 {
-    return saveAs( setup_.filename_ );
+    return saveAs( filename_ );
 }
 
 
@@ -167,14 +172,10 @@ bool uiTextFile::saveAs( const char* fnm )
 	strm << text();
 	if ( !strm.isOK() )
 	    return false;
-	// tbl_->setModified( false );
     }
 
-    if ( setup_.filename_ != fnm )
-    {
-	setup_.filename_ = fnm;
-	fileNmChg.trigger();
-    }
+    setFileName( fnm );
+    ismodified_ = false;
     return true;
 }
 
@@ -186,7 +187,10 @@ int uiTextFile::nrLines() const
     else if ( tbl_ )
 	return tbl_->nrRows();
     else
-	return 100; // TODO
+    {
+	BufferString txt( text() );
+	return txt.isEmpty() ? 0 : txt.count( '\n' );
+    }
 }
 
 
@@ -199,8 +203,8 @@ void uiTextFile::toLine( int lnr )
     if ( mTxtEd() )
     {
 	//TODO implement correctly
-	if ( txtbr_ && lnr > 1 )
-	    txtbr_->scrollToBottom();
+	if ( lnr > 1 )
+	    mTxtEd()->scrollToBottom();
     }
     else
 	tbl_->setCurrentCell( RowCol(lnr,0) );
@@ -241,42 +245,46 @@ uiObject* uiTextFile::uiObj()
 }
 
 
-uiTextFileDlg::uiTextFileDlg( uiParent* p, bool rdonly, bool tbl,
-			      const char* fnm )
+uiTextFileDlg::uiTextFileDlg( uiParent* p, const char* fnm, bool rdonly,
+				bool tbl )
 	: uiDialog(p,Setup(fnm))
 {
     Setup dlgsetup( fnm );
     dlgsetup.allowopen(!rdonly).allowsave(!rdonly);
-    init( dlgsetup, uiTextFile::Setup(rdonly,tbl,fnm) );
+    uiTextFile::Setup tfsu( tbl ? File::Table : File::Text );
+    tfsu.editable_ = !rdonly;
+    init( dlgsetup, tfsu, fnm );
 }
 
 
 uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& dlgsetup )
 	: uiDialog(p,dlgsetup)
 {
-    init( dlgsetup, uiTextFile::Setup(true,false,
-				      dlgsetup.wintitle_.getFullString()) );
+    init( dlgsetup, uiTextFile::Setup(), dlgsetup.wintitle_.getFullString() );
 }
 
 
 void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
-			  const uiTextFile::Setup& tsetup )
+			  const uiTextFile::Setup& tsetup, const char* fnm )
 {
-    scroll2bottom_ = dlgsetup.scroll2bottom_;
+    if ( FixedString(caption()).isEmpty() )
+	setCaption( fnm );
+    captionisfilename_ = FixedString(caption()) == fnm;
 
-    editor_ = new uiTextFile( this, tsetup );
+    editor_ = new uiTextFile( this, fnm, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
 
     uiMenu* filemnu = new uiMenu( this, "&File" );
     if ( dlgsetup.allowopen_ )
 	filemnu->insertItem( new uiAction(sOpen(false),
-		    	     mCB(this,uiTextFileDlg,open)) );
+			     mCB(this,uiTextFileDlg,open)) );
     if ( dlgsetup.allowsave_ )
     {
-	filemnu->insertItem( new uiAction(sSave(false),
-		    	     mCB(this,uiTextFileDlg,save)) );
+	if ( tsetup.editable_ )
+	    filemnu->insertItem( new uiAction(sSave(false),
+				 mCB(this,uiTextFileDlg,save)) );
 	filemnu->insertItem( new uiAction( sSaveAs(),
-		    	     mCB(this,uiTextFileDlg,saveAs)) );
+			     mCB(this,uiTextFileDlg,saveAs)) );
     }
     filemnu->insertItem( new uiAction("&Quit",
 			 mCB(this,uiTextFileDlg,dismiss)) );
@@ -284,12 +292,21 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 }
 
 
+void uiTextFileDlg::setFileName( const char* fnm )
+{
+    if ( captionisfilename_ )
+	setCaption( fnm );
+    editor_->open( fnm );
+}
+
+
 void uiTextFileDlg::fileNmChgd( CallBacker* )
 {
-    FilePath fp( editor_->fileName() );
+    const BufferString fnm( editor_->fileName() );
+    FilePath fp( fnm );
     setName( fp.fileName() );
-    setCaption( fp.fullPath() );
-    setTitleText( editor_->fileName() );
+    if ( captionisfilename_ )
+	setCaption( fnm );
 }
 
 
@@ -298,11 +315,7 @@ void uiTextFileDlg::open( CallBacker* )
     uiFileDialog dlg( this, uiFileDialog::ExistingFile,
 		      editor_->fileName(), "", "Select file" );
     if ( dlg.go() )
-    {
 	editor_->open( dlg.fileName() );
-	if ( scroll2bottom_ )
-	    editor_->toLine( mUdf(int) );
-    }
 }
 
 
@@ -315,7 +328,7 @@ void uiTextFileDlg::save( CallBacker* )
 void uiTextFileDlg::saveAs( CallBacker* )
 {
     uiFileDialog dlg( this, uiFileDialog::AnyFile,
-	    	      editor_->fileName(), "", "Select new file name" );
+		      editor_->fileName(), "", "Select new file name" );
     if ( dlg.go() )
 	editor_->saveAs( dlg.fileName() );
 }
@@ -368,20 +381,13 @@ bool uiTextFileDlg::okToExit()
     if ( !editor_->isModified() )
 	return true;
 
-    BufferString msg( "File:\n" );
-    msg += editor_->fileName();
-    msg += "\nwas modified. Save now?";
+    const BufferString msg( "File:\n", editor_->fileName(),
+			"\nwas modified. Save now?" );
     int opt = doMsg( msg, false );
     if ( opt == 2 )
 	return false;
-    else if ( opt == 0 )
-    {
-	if ( !editor_->save() )
-	{
-	    doMsg( "Could not save file. Please try 'Save As'" );
-	    return false;
-	}
-    }
+    else if ( opt == 0 && !editor_->save() )
+	{ doMsg( "Could not save.\nPlease try 'Save As'" ); return false; }
 
     return true;
 }

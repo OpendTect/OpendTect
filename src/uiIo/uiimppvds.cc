@@ -41,7 +41,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     , is2d_(is2d)
 {
     uiFileInput::Setup su( uiFileDialog::Txt );
-    su.withexamine(true).examstyle(uiFileInput::Setup::Table).forread(true);
+    su.withexamine(true).examstyle(File::Table).forread(true);
     inpfld_ = new uiFileInput( this, "Input file", su );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );

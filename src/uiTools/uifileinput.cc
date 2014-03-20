@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uilineedit.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -25,7 +26,8 @@ uiFileInput::Setup::Setup( const char* filenm )
     : fnm(filenm)
     , forread_(true)
     , withexamine_(false)
-    , examstyle_(View)
+    , examstyle_(File::Text)
+    , exameditable_(false)
     , directories_(false)
     , allowallextensions_(true)
     , confirmoverwrite_(true)
@@ -40,11 +42,12 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
     : fnm(filenm)
     , forread_(true)
     , withexamine_(t==uiFileDialog::Txt)
-    , examstyle_(View)
-    , confirmoverwrite_(true)
-    , filedlgtype_(t)
+    , examstyle_(t==uiFileDialog::Img?File::Bin:File::Text)
+    , exameditable_(false)
     , directories_(false)
     , allowallextensions_(true)
+    , confirmoverwrite_(true)
+    , filedlgtype_(t)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
 {
@@ -63,18 +66,17 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
     , examstyle_(setup.examstyle_)
+    , exameditable_(setup.exameditable_)
     , confirmoverwrite_(setup.confirmoverwrite_)
 {
     setFileName( setup.fnm );
     setWithSelect( true );
     if ( setup.withexamine_ )
     {
-	examinebut_ = new uiPushButton( this,
-			    (examstyle_==Setup::Edit ? "&Edit" : "&Examine"),
+	const char* buttxt = exameditable_ ? "&Edit" : "&Examine";
+	examinebut_ = new uiPushButton( this, buttxt,
 			    mCB(this,uiFileInput,examineFile), false );
-
-	examinebut_->setName(
-	    BufferString(examstyle_==Setup::Edit ? "Edit " : "Examine ",txt) );
+	examinebut_->setName( BufferString(buttxt+1," ",txt) );
     }
     if ( setup.directories_ )
     {
@@ -253,17 +255,9 @@ void uiFileInput::examineFile( CallBacker* )
 	excb_.doCall( this );
     else
     {
-	BufferString cmd( "od_FileBrowser" );
-	if ( examstyle_ == Setup::Table )
-	    cmd += " --table --maxlines 250";
-	else
-	    cmd += " --maxlines 5000";
-
-	if ( examstyle_ == Setup::Log )
-	    cmd += " --log";
-	if ( examstyle_ == Setup::Edit )
-	    cmd += " --edit";
-
-	ExecODProgram( cmd, fileName() );
+	File::ViewPars vp( examstyle_ );
+	vp.editable_ = exameditable_;
+	if ( !File::launchViewer(fileName(),vp) )
+	    uiMSG().error( "Cannot launch file browser" );
     }
 }

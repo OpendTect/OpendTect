@@ -37,7 +37,7 @@ public:
     void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
     bool		isModified() const;
-    void        allowTextSelection(bool);
+    void		allowTextSelection(bool);
 
     void		hideFrame();
     void		hideScrollBar(bool vertical);
@@ -46,13 +46,13 @@ public:
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
-    virtual mQtclass(QTextEdit&)	qte()			    = 0;
-    const mQtclass(QTextEdit&)		qte() const 
+    virtual mQtclass(QTextEdit&) qte()		= 0;
+    const mQtclass(QTextEdit&)   qte() const
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
     int			defaultwidth_;
     int			defaultheight_;
-    virtual int		maxLines() const		{ return -1; }
+    virtual int		maxLines() const	{ return -1; }
 
     mutable BufferString result_;
 };
@@ -66,7 +66,7 @@ public:
 				   bool readonly=false);
 
     void		setText(const char*,bool trigger_notif=false);
-    void		append(const char*); 
+    void		append(const char*);
     Notifier<uiTextEdit> textChanged;
 
 protected:
@@ -96,7 +96,7 @@ public:
     void		setHtmlText(const char*);
     void		getHtmlText(BufferString&) const;
     const char*		source() const;
-    void		setSource(const char*); 
+    void		setSource(const char*);
     void		setMaxLines(int);
 
     enum		LinkBehavior { None, FollowLocal, FollowAll };
@@ -112,7 +112,7 @@ public:
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
-    const char* 	lastLink()		{ return lastlink_; }
+    const char*	lastLink()		{ return lastlink_; }
 
     Notifier<uiTextBrowser>	goneForwardOrBack;
     Notifier<uiTextBrowser>	linkHighlighted;
@@ -127,9 +127,9 @@ protected:
     bool		forceplaintxt_;
     int			maxlines_;
 
-    virtual int		maxLines() const		{ return maxlines_; }
+    virtual int		maxLines() const	{ return maxlines_; }
 
-    virtual mQtclass(QTextEdit&)	qte();
+    virtual mQtclass(QTextEdit&) qte();
 
     void		readTailCB(CallBacker*);
     Timer*		timer_;

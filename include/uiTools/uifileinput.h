@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigeninput.h"
 #include "uifiledlg.h"
+#include "file.h"
 
 class uiPushButton;
 class BufferStringSet;
@@ -42,20 +43,18 @@ public:
 
 	BufferString	fnm;
 
-	enum ExamStyle	{ View, Table, Log, Edit };
+	mDefSetupMemb(BufferString,filter)	//!< empty
+	mDefSetupMemb(BufferString,defseldir)	//!< empty
+	mDefSetupMemb(bool,forread)		//!< true
+	mDefSetupMemb(bool,withexamine)		//!< false (unless spec. Txt)
+	mDefSetupMemb(File::ViewStyle,examstyle) //!< File::Text (Bin if Img)
+	mDefSetupMemb(bool,exameditable)	//!< false
+	mDefSetupMemb(bool,displaylocalpath)	//!< false
 
-	mDefSetupMemb(BufferString,filter)
-	mDefSetupMemb(BufferString,defseldir)
-	mDefSetupMemb(bool,displaylocalpath)
-	mDefSetupMemb(bool,forread)
-	mDefSetupMemb(bool,withexamine)
-	mDefSetupMemb(ExamStyle,examstyle)
-
-	mDefSetupMemb(bool,directories)
-	mDefSetupMemb(bool,allowallextensions)
-	mDefSetupMemb(bool,confirmoverwrite)
-	mDefSetupMemb(uiFileDialog::Type,filedlgtype)
-				//!< if not Gen, overrules some other members
+	mDefSetupMemb(bool,directories)		//!< false
+	mDefSetupMemb(bool,allowallextensions)	//!< true
+	mDefSetupMemb(bool,confirmoverwrite)	//!< true
+	mDefSetupMemb(uiFileDialog::Type,filedlgtype) //!< Gen
     };
 
 			uiFileInput(uiParent*,const char* seltxt,
@@ -99,7 +98,8 @@ protected:
     bool		displaylocalpath_;
     BufferString	selfltr_;
     bool		addallexts_;
-    Setup::ExamStyle	examstyle_;
+    File::ViewStyle	examstyle_;
+    bool		exameditable_;
     bool		confirmoverwrite_;
     CallBack		excb_;
     BufferString	defaultext_;

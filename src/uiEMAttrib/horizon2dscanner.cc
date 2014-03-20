@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "oscommand.h"
+#include "file.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
@@ -162,7 +162,7 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
-    ExecODProgram( "od_FileBrowser", fnm );
+    File::launchViewer( fnm );
 }
 
 
