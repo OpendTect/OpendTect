@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "keystrs.h"
 #include "emmanager.h"
+#include "emobject.h"
 #include "emsurfaceiodata.h"
 #include "iopar.h"
 
@@ -83,17 +84,18 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
     if ( !Vw2DDataObject::usePar( par ) )
 	return false;
     MultiID mid;
-    par.get( sKeyMID(), mid );
-    EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sel( sd );
-    Executor* exec = EM::EMM().objectLoader( mid, &sel);
+    if ( !par.get(sKeyMID(),mid) )
+	return false;
+
     TaskRunner exectr;
-    if ( exec && TaskRunner::execute( &exectr, *exec ) )
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, &exectr );
+    if ( emobj )
     {
-	emid_ = EM::EMM().getObjectID( mid );
+	emid_ = emobj->id();
 	setEditors();
 	return true;
     }
+
     return false;
 }
 
