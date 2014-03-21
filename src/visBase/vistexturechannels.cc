@@ -524,6 +524,8 @@ TextureChannels::TextureChannels()
     osgtexture_->invertUndefLayers();
     osgtexture_->setDataLayerFilterType( osgtexture_->compositeLayerId(),
 					 mGetFilterType );
+    osgtexture_->setAnisotropicPower( 1 );
+    osgtexture_->setSeamPower( 1 );
     osgtexture_->ref();
 
     addChannel();
