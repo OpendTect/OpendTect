@@ -426,6 +426,8 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	if ( !fillPar(*iop) )
 	    return false;
 
+	iop->set( sKey::DataRoot(), GetBaseDataDir() );
+	iop->set( sKey::Survey(), IOM().surveyName() );
 	uiClusterJobProv dlg( this, *iop, procprognm_.buf(),
 			      multiparfname_.buf() );
 	return dlg.go();
