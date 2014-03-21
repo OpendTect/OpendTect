@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
+#include "uitextfile.h"
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
 
@@ -32,6 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
+static const char* sKeyNoParFiles = "<No job files found>";
+
 
 static bool enabClusterProc()
 {
@@ -88,7 +91,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     topgrp->setFrame( true );
     topgrp->setHAlignObj( llb );
 
-    invalidsellbl_ = new uiLabel( this, "<Invalid Job>" );
+    invalidsellbl_ = new uiLabel( this, sKeyNoParFiles );
     invalidsellbl_->attach( alignedBelow, topgrp );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -120,33 +123,46 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
     if ( !filenames_.isEmpty() )
 	jobsfld_->setCurrentItem( 0 );
     else
-	invalidsellbl_->setText( "(No Proc/*.par files)" );
+    {
+	batchfld_->display( false );
+	resumefld_->display( false );
+    }
 }
 
 
 void uiStartBatchJobDialog::itmSel( CallBacker* )
 {
-    const int selidx = jobsfld_->currentItem();
-    if ( selidx >= 0 )
+    const bool haveparfiles = !jobsfld_->isEmpty();
+    bool emptyfile = false;
+    batchfld_->jobSpec().prognm_.setEmpty();
+    if ( haveparfiles )
     {
-	od_istream strm( filenames_.get(selidx) );
-	if ( strm.isOK() )
+	const int selidx = jobsfld_->currentItem();
+	if ( selidx >= 0 )
 	{
-	    ascistream astrm( strm );
-	    IOPar iop( astrm );
-	    strm.close();
-	    batchfld_->jobSpec().prognm_.setEmpty();
-	    batchfld_->jobSpec().usePar( iop );
-	    batchfld_->jobSpecUpdated();
-	    batchfld_->setJobName( jobsfld_->textOfItem(selidx) );
+	    od_istream strm( filenames_.get(selidx) );
+	    if ( !strm.isOK() )
+		emptyfile = true;
+	    else
+	    {
+		ascistream astrm( strm );
+		IOPar iop( astrm );
+		strm.close();
+		batchfld_->jobSpec().usePar( iop );
+		batchfld_->jobSpecUpdated();
+		batchfld_->setJobName( jobsfld_->textOfItem(selidx) );
+	    }
 	}
     }
 
     const bool canrun = canRun();
-    invalidsellbl_->display( !canrun );
     batchfld_->display( canrun );
-    setButSens();
+    invalidsellbl_->display( !canrun );
+    if ( !canrun )
+	invalidsellbl_->setText( !haveparfiles ? sKeyNoParFiles
+			   : (emptyfile ? "<Empty file>" : "<Pre-5.0 Job>") );
 
+    setButSens();
     launcherSel(0);
 }
 
@@ -174,9 +190,11 @@ void uiStartBatchJobDialog::viewFile( CallBacker* )
     const int selidx = jobsfld_->currentItem();
     if ( selidx < 0 )
 	{ pErrMsg("Huh"); return; }
-    const BufferString& fnm( filenames_.get(selidx) );
 
-    uiMSG().error( "TODO: implement view/edit job file:\n", fnm );
+    uiTextFileDlg* dlg = new uiTextFileDlg( this, filenames_.get(selidx) );
+    dlg->setDeleteOnClose( true );
+    dlg->setCaption( BufferString( "Job: ", jobsfld_->textOfItem(selidx) ) );
+    dlg->go();
 }
 
 
