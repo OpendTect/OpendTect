@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "moddepmgr.h"
 #include "keystrs.h"
 #include "plugins.h"
 #include "prog.h"
@@ -37,20 +38,21 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
-    
+    OD::ModDeps().ensureLoaded( "uiSeis" );
+
     CommandLineParser parser;
 
     const bool withdelete = !parser.hasKey( "nodelete" );
     const bool dosubmit = parser.hasKey( "dosubmit" );
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
-    
+
     if ( normalargs.isEmpty() )
     {
 	mPrintHelpMsg;
 	ExitProgram( 1 );
     }
-    
+
     const BufferString parfilenm = normalargs.last()->buf();
 
     StreamProvider spin( parfilenm );
