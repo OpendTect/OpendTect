@@ -274,7 +274,10 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 			      ? firstlay->zBot() : depthrg.stop;
 	    croppedlay->setThickness( zbase - ztop );
 	}
-	seq.layers() += croppedlay;
+
+	if ( croppedlay->thickness() > 1e-3f )
+	    seq.layers() += croppedlay;
+
 	seq.z0_ = ztop;
     }
 
@@ -299,7 +302,8 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 	    croppedlay->setThickness( zbase - ztop );
 	}
 
-	seq.layers() += croppedlay;
+	if ( croppedlay->thickness() > 1e-3f )
+	    seq.layers() += croppedlay;
     }
 
     seq.prepareUse();

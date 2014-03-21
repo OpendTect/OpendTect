@@ -36,14 +36,14 @@ mExpClass(Strat) LaySeqAttribCalc
 {
 public:
 
-    			LaySeqAttribCalc(const LaySeqAttrib&,const LayerModel&);
+			LaySeqAttribCalc(const LaySeqAttrib&,const LayerModel&);
 
     float		getValue(const LayerSequence&,
-	    			 const Interval<float>& zrange) const;
+				 const Interval<float>& zrange) const;
 
     bool		isDist() const;
     bool		isVel() const;
-    
+
 protected:
 
     const LaySeqAttrib&			attr_;
@@ -55,7 +55,7 @@ protected:
     ObjectSet<const Strat::Lithology>	liths_;
 
     float		getLocalValue(const LayerSequence&,
-	    			      const Interval<float>&) const;
+				      const Interval<float>&) const;
     float		getGlobalValue(const LayerSequence&) const;
     void		applyTransform(TypeSet<float>&) const;
 
@@ -69,14 +69,12 @@ public:
 
     typedef TypeSet<Interval<float> > ExtrGateSet;
 
-    			LayModAttribCalc(const LayerModel&,
+			LayModAttribCalc(const LayerModel&,
 				     const LaySeqAttribSet&,
 				     DataPointSet&);
 			~LayModAttribCalc();
 
-    			// point-specific extraction gates have precedence over
-    			// global calczwdth_
-    void		setCalcZWidth( float w ) { calczwdth_ = w; }
+			// will use nearest layer if no extraction gates
     void		setExtrGates(const ObjectSet<ExtrGateSet>&,
 				const Strat::Level* stoplvl=0);
 
@@ -96,7 +94,6 @@ protected:
     TypeSet<int>		dpscidxs_;
     DataPointSet&		dps_;
     BufferString		msg_;
-    float			calczwdth_;
     ObjectSet<ExtrGateSet>	extrgates_;
     const Strat::Level*		stoplvl_;
 

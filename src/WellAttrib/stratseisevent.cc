@@ -15,18 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 
 
-Strat::SeisEvent::SeisEvent( const Strat::Level* lvl, VSEvent::Type evtyp )
-    : level_(lvl)
-    , evtype_(evtyp)
-    , offs_(0)
-    , extrwin_(0,0,4)
-    , downtolevel_(0)
-{
-    if ( SI().zIsTime() )
-	extrwin_.step = SI().zStep();
-}
-
-
 bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
 {
     float reftm = snappedTime( trc );
@@ -58,8 +46,9 @@ float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
 
 	ValueSeriesEvent<float,float> ev = evf.find( evtype_, findwin );
 	if ( !mIsUdf(ev.pos) )
-	    return ev.pos; 
+	    return ev.pos;
     }
 
     return mUdf(float);
 }
+

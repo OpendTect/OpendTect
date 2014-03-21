@@ -251,7 +251,7 @@ bool uiSynthToRealScale::getEvent()
     if ( !evfld_->getFromScreen() )
 	return false;
     seisev_ = evfld_->event();
-    const bool isrms = seisev_.extrwin_.nrSteps() > 0;
+    const bool isrms = evfld_->getFullExtrWin().nrSteps() > 0;
     valislbl_->setText( isrms ? sKeyRMSVals : sKeyAmplVals );
     return true;
 }
@@ -289,12 +289,13 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 {
     const int lastsamp = trc.size() - 1;
     const Interval<float> trg( trc.startPos(), trc.samplePos(lastsamp) );
-    const int nrtms = seisev_.extrwin_.nrSteps() + 1;
+    const StepInterval<float> extrwin( evfld_->getFullExtrWin() );
+    const int nrtms = extrwin.nrSteps() + 1;
     const bool calcrms = nrtms > 1;
     float sumsq = 0;
     for ( int itm=0; itm<nrtms; itm++ )
     {
-	float extrtm = reftm + seisev_.extrwin_.atIndex(itm);
+	float extrtm = reftm + extrwin.atIndex( itm );
 	float val;
 	if ( extrtm <= trg.start )
 	    val = trc.get( 0, 0 );

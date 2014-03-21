@@ -371,13 +371,8 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     , dps_(res)
     , seqidx_(0)
     , msg_("Extracting layer attributes")
-    , calczwdth_(SI().zRange(false).step / 2)
     , stoplvl_(0)
 {
-    // calczwdth_ default only used if no valid extrgates_ is provided
-    if ( SI().zIsTime() )
-	calczwdth_ *= 2000;
-
     for ( int idx=0; idx<lsas.size(); idx++ )
     {
 	const LaySeqAttrib& lsa = *lsas[idx];
@@ -444,10 +439,9 @@ int Strat::LayModAttribCalc::nextStep()
 	const int seqnb = mCast( int, seqidx_ );
 	if ( extrgates_.isEmpty() )
 	{
-	    if( mIsUdf(calczwdth_) )
-		mErrRet( "Neither calculation width nor extraction gate set" )
-
-	    zrg.setFrom( Interval<float>(z-calczwdth_, z+calczwdth_) );
+	    const float ilay = seq.nearestLayerIdxAtZ( z );
+	    const float halfwdth = seq.layers()[ilay]->thickness() / 2.f;
+	    zrg.setFrom( Interval<float>(z-halfwdth, z+halfwdth) );
 	}
 	else
 	{
@@ -470,9 +464,9 @@ int Strat::LayModAttribCalc::nextStep()
 	bool paststop = false;
 	if ( !mIsUdf(stoplvldpth) )
 	{
-	    if ( stoplvldpth < zrg.center() )
+	    if ( zrg.start > stoplvldpth )
 		paststop = true;
-	    else
+	    else if ( zrg.stop > stoplvldpth )
 		zrg.stop = stoplvldpth;
 	}
 
