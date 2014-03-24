@@ -171,13 +171,13 @@ TextTranslateMgr::getQTranslator( const char* application ) const
 void TextTranslateMgr::loadInfo()
 {
     FilePath basedir( GetSoftwareDir(false), "data", "localizations" );
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.ts");
+    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
 
     BufferStringSet applications;
 
     for( int idx=0; idx<dl.size(); idx++ )
     {
-	const FilePath path = dl[0]->str();
+	const FilePath path = dl.fullPath( idx );
 	BufferString filename = path.baseName();
 
 	BufferString application;
