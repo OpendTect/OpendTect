@@ -62,7 +62,7 @@ protected:
     void			readInput();
     void			updateUI();
     void			setBoxValues(uiSpinBox*,
-	    				     const StepInterval<int>&,int);
+					     const StepInterval<int>&,int);
 
     uiLabeledSpinBox*           inl0fld_;
     uiLabeledSpinBox*           crl0fld_;
@@ -89,7 +89,7 @@ protected:
 mExpClass(uiTools) uiSliceSelDlg : public uiDialog
 {
 public:
-    				uiSliceSelDlg(uiParent*,
+				uiSliceSelDlg(uiParent*,
 					      const CubeSampling& csin,
 					      const CubeSampling& maxcs,
 					      const CallBack& applycb,
@@ -97,7 +97,7 @@ public:
 					      const ZDomain::Info&);
 
     const CubeSampling&		getCubeSampling() const
-    				{ return slicesel_->getCubeSampling(); }
+				{ return slicesel_->getCubeSampling(); }
     void			setCubeSampling( const CubeSampling& cs )
 				{ slicesel_->setCubeSampling( cs ); }
 

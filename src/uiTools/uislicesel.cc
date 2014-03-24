@@ -581,7 +581,8 @@ bool uiSliceSelDlg::acceptOK( CallBacker* )
 
 // uiLinePosSelDlg
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const PosInfo::Line2DKey& l2d )
-    : uiDialog( p, uiDialog::Setup("Select line position",mNoDlgTitle,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup("Select line position",
+				   mNoDlgTitle,mNoHelpKey) )
     , prefcs_(0)
     , is2d_(true)
     , inlcrlfld_(0)
@@ -597,7 +598,8 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const PosInfo::Line2DKey& l2d )
 
 
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const CubeSampling& cs )
-    : uiDialog( p, uiDialog::Setup("Select line position",mNoDlgTitle,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup("Select line position",
+				   mNoDlgTitle,mNoHelpKey) )
     , cs_( cs )
     , prefcs_(0)
     , is2d_(false)
