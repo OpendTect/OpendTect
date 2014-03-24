@@ -734,7 +734,7 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( vp.editable_ )
 	cmd.add( " --edit" );
     cmd.add( " --maxlines " ).add( vp.maxnrlines_ );
-    cmd.add( " " ).add( fnm );
+    cmd.add( " " ).add(" \" ").add( fnm ).add(" \" ");
 
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
     return cl.execute();
