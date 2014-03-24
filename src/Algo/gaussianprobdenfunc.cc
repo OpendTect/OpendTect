@@ -35,7 +35,7 @@ void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 
 float Gaussian1DProbDenFunc::gtVal( float pos ) const
 {
-    const float gfac = 1 / (std_ * Math::Sqrt(2 * M_PI));
+    const float gfac = (float)(1 / (std_ * Math::Sqrt(2 * M_PI)));
     pos -= exp_; pos /= std_;
     const float epow = -0.5f * pos * pos;
     return gfac * Math::Exp( epow );
@@ -172,7 +172,7 @@ float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
     if ( cc_ > 1 - 1e-6f )
 	return 0;
 
-    const float gfac = 1 / (2 * M_PI * std0_ * std1_ * Math::Sqrt(1 - cc_*cc_));
+    const float gfac = (float)(1 / (2*M_PI*std0_*std1_*Math::Sqrt(1-cc_*cc_)));
     const float efac = -1 / (2 * ( 1 - cc_*cc_ ));
     p0 -= exp0_; p0 /= std0_;
     p1 -= exp1_; p1 /= std1_;
@@ -224,7 +224,7 @@ void GaussianNDProbDenFunc::setDimName( int idim, const char* nm )
     if ( vars_.validIdx(idim) )
 	vars_[idim].name_ = nm;
     else
-	pErrMsg("bad dim");
+	{ pErrMsg("bad dim"); }
 }
 
 
