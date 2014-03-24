@@ -57,6 +57,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     infobar_->setSceneLayoutPos( su.layoutpos_ );
     infobar_->setStretch( 2, 0 );
     infobar_->disableScrollZoom();
+    infobar_->viewareareset.notify( mCB(this,uiObjectItemViewWin,scrollBarCB) );
 
     uiGraphicsView* dummyview = new uiGraphicsView( this, "Dummy view" );
     dummyview->setNoBackGround();
