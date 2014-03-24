@@ -50,6 +50,45 @@ void uiFlatViewWin::setDarkBG( bool yn )
 
 void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
+    FixedString valstr = pars.find( sKey::Position() );
+    mesg.setEmpty();
+    if ( valstr && *valstr )
+	mesg.add("Pos=").add( valstr ).addTab();
+    else
+    {
+	valstr = pars.find( sKey::TraceNr() );
+	if ( valstr && *valstr )
+	    mesg.add("TrcNr=").add( valstr );
+	else
+	{
+	    valstr = pars.find( "Inline" );
+	    if ( !valstr ) valstr = pars.find( "In-line" );
+	    if ( valstr && *valstr )
+		mesg.add( valstr );
+	    valstr = pars.find( "Crossline" );
+	    if ( !valstr ) valstr = pars.find( "Cross-line" );
+	    if ( valstr && *valstr )
+		mesg.add( "/" ).add( valstr );
+	}
+
+	Coord3 crd;
+	valstr = pars.find( "X" );
+	if ( !valstr ) valstr = pars.find( "X-coordinate" );
+	if ( valstr && *valstr ) crd.x = toDouble( valstr );
+
+	valstr = pars.find( "Y" );
+	if ( !valstr ) valstr = pars.find( "Y-coordinate" );
+	if ( valstr && *valstr ) crd.y = toDouble( valstr );
+
+	valstr = pars.find( "Z" );
+	if ( !valstr ) valstr = pars.find( "Z-Coord" );
+	if ( valstr && *valstr ) crd.z = toDouble( valstr );
+
+	mesg.addTab().add( "(" ).add( toString(crd.x,0) );
+	mesg.add( ", " ).add( toString(crd.y,0) );
+	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" ).addTab();
+    }
+
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
@@ -88,50 +127,13 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += " "; mesg += SI().getXYUnitString();
     }
 
-    FixedString valstr = pars.find( sKey::Azimuth() );
+    valstr = pars.find( sKey::Azimuth() );
     if ( valstr && valstr!="0" )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
-    valstr = pars.find( "Z" );
+    valstr = pars.find( "Reference position" );
     if ( valstr && *valstr )
-	{ mAddSep(); mesg += "Z="; mesg += valstr; }
-    valstr = pars.find( sKey::Position() );
-    if ( valstr && *valstr )
-	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
-    else
-    {
-	valstr = pars.find( "X" );
-	if ( !valstr ) valstr = pars.find( "X-coordinate" );
-	if ( valstr && *valstr )
-	    { mAddSep(); mesg += "X="; mesg += valstr; }
-	valstr = pars.find( "Y" );
-	if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-	if ( valstr && *valstr )
-	    { mAddSep(); mesg += "Y="; mesg += valstr; }
-
-	valstr = pars.find( sKey::TraceNr() );
-	if ( valstr && *valstr )
-	{
-	    mAddSep(); mesg += "TrcNr="; mesg += valstr;
-	    valstr = pars.find( "Reference position" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
-	    valstr = pars.find( "Z-Coord" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "Z="; mesg += valstr; }
-	}
-	else
-	{
-	    valstr = pars.find( "Inline" );
-	    if ( !valstr ) valstr = pars.find( "In-line" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "Inline="; mesg += valstr; }
-	    valstr = pars.find( "Crossline" );
-	    if ( !valstr ) valstr = pars.find( "Cross-line" );
-	    if ( valstr && *valstr )
-		{ mAddSep(); mesg += "Crossline="; mesg += valstr; }
-	}
-    }
+	{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
 }
 
 
