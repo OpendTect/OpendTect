@@ -439,7 +439,7 @@ int Strat::LayModAttribCalc::nextStep()
 	const int seqnb = mCast( int, seqidx_ );
 	if ( extrgates_.isEmpty() )
 	{
-	    const float ilay = seq.nearestLayerIdxAtZ( z );
+	    const int ilay = seq.nearestLayerIdxAtZ( z );
 	    const float halfwdth = seq.layers()[ilay]->thickness() / 2.f;
 	    zrg.setFrom( Interval<float>(z-halfwdth, z+halfwdth) );
 	}
