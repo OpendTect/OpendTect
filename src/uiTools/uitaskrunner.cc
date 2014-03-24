@@ -88,7 +88,10 @@ bool uiTaskRunner::execute( Task& t )
 
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
-    prevmessage_ = ""; prevnrdonetext_ = prevmessage_;
+    prevmessage_ = sKey::EmptyString();
+    if ( statusBar() )
+	statusBar()->message( prevmessage_.buf(), 0 );
+    prevnrdonetext_ = prevmessage_;
     execnm_ = task_->name();
 
     updateFields();
