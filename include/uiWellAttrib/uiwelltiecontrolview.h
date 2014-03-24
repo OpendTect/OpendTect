@@ -21,9 +21,10 @@ class uiRect;
 
 namespace WellTie
 {
-    class DispParams;
-    class uiMrkDispDlg;
-    class Server;
+
+class DispParams;
+class uiMrkDispDlg;
+class Server;
 
 mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
 {
@@ -32,75 +33,46 @@ public:
 					uiFlatViewer*,Server&);
 			~uiControlView(){};
 
-    void        	setNewView(Geom::Point2D<double>& centre,
-				   Geom::Size2D<double>& size );   
-    bool 		isZoomAtStart() const;
-    void 		setEditOn(bool);
+    void		setNewView(Geom::Point2D<double>& centre,
+				   Geom::Size2D<double>& size );
+    bool		isZoomAtStart() const;
+    void		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 
     void		usePar(const IOPar& iop);
-    void		fillPar(IOPar& iop) const; 
+    void		fillPar(IOPar& iop) const;
 
     Notifier<uiControlView> redrawNeeded;
     Notifier<uiControlView> redrawAnnotNeeded;
-    
+
 protected:
-    
+
     bool                manip_;
-    
+
     uiToolBar*		toolbar_;
     uiToolButton*	horbut_;
     uiToolButton*	hormrkdispbut_;
     uiIOObjSelDlg*	selhordlg_;
     uiWorldRect		curview_;
-   
+
     uiMrkDispDlg*	mrkrdlg_;
     Server&		server_;
 
-    bool 		checkIfInside(double,double);
+    bool		checkIfInside(double,double);
     bool		handleUserClick(int vwridx);
-   
+
     void                applyProperties(CallBacker*);
-    void 		keyPressCB(CallBacker*);
+    void		keyPressCB(CallBacker*);
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);
     void		rubBandCB(CallBacker*);
     void		reDrawNeeded(CallBacker*);
-    void 		wheelMoveCB(CallBacker*);
+    void		wheelMoveCB(CallBacker*);
 
     friend class	uiTieWin;
 };
 
-/*
-mExpClass(uiWellAttrib) uiTieClippingDlg : public uiDialog
-{
-public:
-				uiTieClippingDlg(uiParent*);
-				~uiTieClippingDlg();
-
-protected :
-
-    mStruct(uiWellAttrib) ClipData
-    {
-	float			cliprate_;			
-	bool			issynthetic_;			
-	Interval<float> 	timerange_;
-    };
-
-    uiGenInput*                 tracetypechoicefld_;
-    uiSliderExtra*              sliderfld_;
-    uiGenInput*                 timerangefld_;
-
-    ClipData 			cd_;
-
-    void 			getFromScreen(Callbacker*);
-    void 			putToScreen(Callbacker*);
-    void 			applyClipping(CallBacker*);
-};
-*/
-
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
-
 
