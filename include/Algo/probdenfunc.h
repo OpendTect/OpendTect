@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 /*!
 \brief Base class for Probability Density Functions.
-  
+
   The values may not be normalized; if you need them to be: multiply with
   'normFac()'. What you are getting can for example be the values from a
   histogram. All we require is that the value() implementation always returns
@@ -54,17 +54,17 @@ public:
 
     virtual bool	isCompatibleWith(const ProbDenFunc&) const;
     void		getIndexTableFor(const ProbDenFunc& pdf,
-	    				 TypeSet<int>& tbl) const;
-    			//!< tbl[0] tells what my index is for pdf's index '0'
-    
+					 TypeSet<int>& tbl) const;
+			//!< tbl[0] tells what my index is for pdf's index '0'
+
     virtual void	prepareRandDrawing() const		{}
     virtual void	drawRandomPos(TypeSet<float>&) const	= 0;
     static const char*	sKeyNrDim();
 
 protected:
 
-    			ProbDenFunc()				{}
-    			ProbDenFunc(const ProbDenFunc&);
+			ProbDenFunc()				{}
+			ProbDenFunc(const ProbDenFunc&);
 
 };
 
@@ -101,12 +101,11 @@ public:
 
 protected:
 
-    			ProbDenFunc1D( const char* vnm )
+			ProbDenFunc1D( const char* vnm="" )
 			    : varnm_(vnm)	{}
-    			ProbDenFunc1D( const ProbDenFunc1D& pdf )
+			ProbDenFunc1D( const ProbDenFunc1D& pdf )
 			    : ProbDenFunc(pdf)
 			    , varnm_(pdf.varnm_)		{}
-    ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
 
     virtual float	gtAvgPos() const	= 0;
     virtual float	gtVal(float) const	= 0;
@@ -147,9 +146,10 @@ public:
 
 protected:
 
-    			ProbDenFunc2D( const char* vnm0, const char* vnm1 )
+			ProbDenFunc2D( const char* vnm0="Dim 0",
+					const char* vnm1="Dim 1" )
 			    : dim0nm_(vnm0), dim1nm_(vnm1)	{}
-    			ProbDenFunc2D( const ProbDenFunc2D& pdf )
+			ProbDenFunc2D( const ProbDenFunc2D& pdf )
 			    : ProbDenFunc(pdf)
 			    , dim0nm_(pdf.dim0nm_)
 			    , dim1nm_(pdf.dim1nm_)		{}

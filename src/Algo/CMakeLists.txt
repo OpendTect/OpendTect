@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Algorithms
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt 32184 2013-10-30 11:27:28Z kristofer.tingdahl@dgbes.com $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Basic )
@@ -29,6 +29,7 @@ set(OD_MODULE_SOURCES
 	    fftfilter.cc
 	    fourier.cc
 	    fourierinterpol.cc
+	    gaussianprobdenfunc.cc
 	    genericnumer.cc
 	    gridder2d.cc
 	    hilberttransform.cc

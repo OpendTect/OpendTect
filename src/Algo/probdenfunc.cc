@@ -104,13 +104,6 @@ bool ProbDenFunc::isCompatibleWith( const ProbDenFunc& pdf ) const
 }
 
 
-ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pd )
-{
-    if ( this != & pd )
-	{ varnm_ = pd.varnm_; setName( pd.name() ); }
-    return *this;
-}
-
 
 ProbDenFunc2D& ProbDenFunc2D::operator =( const ProbDenFunc2D& pd )
 {

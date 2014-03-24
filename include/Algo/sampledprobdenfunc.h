@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 /*!
 \brief PDF based on ArrayND implementation.
-  
+
   This interface should allow read/write generalized from disk.
 */
 
@@ -45,13 +45,13 @@ public:
     virtual const ArrayND<float>& getData() const
 		{ return getArrND(); }
     virtual ArrayND<float>&	getData()
-    		{ return const_cast<ArrayND<float>&>(getArrND()); }
+		{ return const_cast<ArrayND<float>&>(getArrND()); }
     virtual ArrayND<float>*	getArrClone() const	= 0;
 
     virtual SamplingData<float>	sampling( int dim ) const
 		{ return getSampling(dim); }
     virtual SamplingData<float>& sampling( int dim )
-    		{ return const_cast<SamplingData<float>&>(getSampling(dim)); }
+		{ return const_cast<SamplingData<float>&>(getSampling(dim)); }
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -79,9 +79,6 @@ protected:
 };
 
 
-#define mDefSampledProbDenFuncClone(clss) \
-    clss* clone() const	{ return new clss(*this); }
-
 #define mDefArrayNDProbDenFuncFns(nm) \
     virtual nm##ProbDenFunc*	clone() const \
 				{ return new nm##ProbDenFunc(*this); } \
@@ -103,20 +100,20 @@ mExpClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
 public:
 
 			Sampled1DProbDenFunc();
-    			Sampled1DProbDenFunc(const Array1D<float>&);
-    			Sampled1DProbDenFunc(const TypeSet<float>&);
-    			Sampled1DProbDenFunc(const float*,int);
-    			Sampled1DProbDenFunc(const Sampled1DProbDenFunc&);
+			Sampled1DProbDenFunc(const Array1D<float>&);
+			Sampled1DProbDenFunc(const TypeSet<float>&);
+			Sampled1DProbDenFunc(const float*,int);
+			Sampled1DProbDenFunc(const Sampled1DProbDenFunc&);
     Sampled1DProbDenFunc& operator =(const Sampled1DProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
-    			mDefArrayNDProbDenFuncFns(Sampled1D)
+			mDefArrayNDProbDenFuncFns(Sampled1D)
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
     virtual void	dump(od_ostream&,bool binary) const;
     virtual bool	obtain(od_istream&,bool binary);
-    virtual ArrayND<float>* getArrClone() const	
-    			{ return new Array1DImpl<float>(bins_); }
+    virtual ArrayND<float>* getArrClone() const
+			{ return new Array1DImpl<float>(bins_); }
 
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
@@ -143,18 +140,18 @@ mExpClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
 public:
 
 			Sampled2DProbDenFunc();
-    			Sampled2DProbDenFunc(const Array2D<float>&);
-    			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
+			Sampled2DProbDenFunc(const Array2D<float>&);
+			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
     Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
-    			mDefArrayNDProbDenFuncFns(Sampled2D)
+			mDefArrayNDProbDenFuncFns(Sampled2D)
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
     virtual void	dump(od_ostream&,bool binary) const;
     virtual bool	obtain(od_istream&,bool binary);
-    virtual ArrayND<float>* getArrClone() const	
-    			{ return new Array2DImpl<float>(bins_); }
+    virtual ArrayND<float>* getArrClone() const
+			{ return new Array2DImpl<float>(bins_); }
     virtual float	averagePos( int dim ) const
 			{ return getAveragePos( dim ); }
 
@@ -176,7 +173,7 @@ protected:
 
 /*!
 \brief Multi-dimensional PDF based on binned data.
-  
+
   If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
 */
 
@@ -186,11 +183,11 @@ mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
 public:
 
 			SampledNDProbDenFunc(int nrdims);
-    			SampledNDProbDenFunc(const ArrayND<float>&);
-    			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
+			SampledNDProbDenFunc(const ArrayND<float>&);
+			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
-    			mDefArrayNDProbDenFuncFns(SampledND)
+			mDefArrayNDProbDenFuncFns(SampledND)
 
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;
@@ -200,8 +197,8 @@ public:
 			{ return getAveragePos( dim ); }
     virtual float	value(const TypeSet<float>&) const;
     virtual void	drawRandomPos(TypeSet<float>&) const;
-    virtual ArrayND<float>* getArrClone() const	
-    			{ return new ArrayNDImpl<float>(bins_); }
+    virtual ArrayND<float>* getArrClone() const
+			{ return new ArrayNDImpl<float>(bins_); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
