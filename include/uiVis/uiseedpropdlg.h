@@ -16,13 +16,12 @@ ________________________________________________________________________
 #include "emobject.h"
 
 class uiColorInput;
-class uiSliderExtra;
 
 mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
 {
 public:
-    			uiSeedPropDlg(uiParent*,EM::EMObject*);
-			
+			uiSeedPropDlg(uiParent*,EM::EMObject*);
+
 protected:
 
     EM::EMObject*	emobject_;
