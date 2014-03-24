@@ -59,9 +59,6 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 	const char* xcollbls[] = { "Select input for", 0 };
 	vartable_->setColumnLabels( xcollbls );
 	vartable_->setNrRows( 2 );
-	vartable_->setStretch( 2, 0 );
-	vartable_->setRowResizeMode( uiTable::Fixed );
-	vartable_->setColumnResizeMode( uiTable::Fixed );
 	vartable_->attach( alignedBelow, inpfld_ );
 	vartable_->display( false );
     }
