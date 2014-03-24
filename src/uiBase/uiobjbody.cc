@@ -492,14 +492,14 @@ uiSize uiObjectBody::actualsize( bool include_border ) const
 }
 
 
-void uiObjectBody::setToolTip( const char* txt )
+void uiObjectBody::setToolTip( const uiString& txt )
 {
-    qwidget()->setToolTip( txt );
+    qwidget()->setToolTip( txt.getQtString() );
 }
 
 
-void uiObjectBody::uisetCaption( const char* str )
-    { qwidget()->setWindowTitle( QString(str) ); }
+void uiObjectBody::uisetCaption( const uiString& str )
+    { qwidget()->setWindowTitle( str.getQtString() ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }

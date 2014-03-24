@@ -382,7 +382,7 @@ void uiCheckBox::click()
 
 uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 {
-    if ( forcetb || istoggle_ || name_ == tooltip_ )
+    if ( forcetb || istoggle_ || name_ == tooltip_.getFullString() )
 	return new uiToolButton( p, *this );
 
     uiPushButton* pb = new uiPushButton( p, name_, ioPixmap(filename_),

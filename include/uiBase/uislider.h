@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
+#include "uistring.h"
 
 class LinScaler;
 
@@ -29,7 +30,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup(const char* l=0)
+			Setup(const uiString& l=0)
 			    : lbl_(l)
 			    , withedit_(false)
 			    , nrdec_(0)
@@ -45,7 +46,7 @@ public:
 	mDefSetupMemb(int,nrdec)
 	mDefSetupMemb(int,sldrsize)
 	mDefSetupMemb(bool,isinverted)
-	mDefSetupMemb(BufferString,lbl)
+	mDefSetupMemb(uiString,lbl)
     };
 
 			uiSlider(uiParent*,const Setup&,const char* nm=0);

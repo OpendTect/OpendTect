@@ -22,18 +22,20 @@ class uiFont;
 class FontData;
 
 
-mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0, const char* nm=0 );
+mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0,
+			     const uiString& title=0 );
 	/*!< \brief pops a selector box to select a new font
 	     \return true if new font selected
 	*/
 
-mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,const char* nm = 0);
+mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,
+			     const uiString& title = 0);
 
 mExpClass(uiBase) uiSetFonts : public uiDialog
 {
 public:
 
-		uiSetFonts(uiParent*,const char*);
+		uiSetFonts(uiParent*,const uiString& title);
 
 protected:
 
@@ -48,7 +50,7 @@ mExpClass(uiBase) uiSelFonts : public uiDialog
 {
 public:
 
-		uiSelFonts(uiParent*,const char*,const char*);
+		uiSelFonts(uiParent*,const uiString& title,const HelpKey&);
 		~uiSelFonts();
 
     void	add(const char* str,const char* stdfontkey);

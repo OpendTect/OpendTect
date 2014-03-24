@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisystemtrayicon.h"
 #include "i_qsystemtrayicon.h"
+#include "uistring.h"
 
 #include "pixmap.h"
 
@@ -47,8 +48,8 @@ void uiSystemTrayIcon::setPixmap( const ioPixmap& pm )
 }
 
 
-void uiSystemTrayIcon::setToolTip( const char* tt )
-{ qsystemtrayicon_->setToolTip( tt ); }
+void uiSystemTrayIcon::setToolTip( const uiString& tt )
+{ qsystemtrayicon_->setToolTip( tt.getQtString() ); }
 
 void uiSystemTrayIcon::show()
 { qsystemtrayicon_->show(); }

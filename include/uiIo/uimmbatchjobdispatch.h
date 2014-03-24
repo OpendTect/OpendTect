@@ -29,7 +29,7 @@ class uiTextFileDlg;
 
 
 mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
-{
+{ mODTextTranslationClass(uiMMBatchJobDispatcher)
 public:
                         uiMMBatchJobDispatcher(uiParent*,const IOPar&,
 						const HelpKey& helpkey=0);

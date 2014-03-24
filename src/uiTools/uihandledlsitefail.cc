@@ -71,13 +71,13 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
     proxybut_->activated.notify( mCB(this,uiHandleDLSiteFail,proxyButCB) );
     proxybut_->attach( rightOf, lcb );
 
-    timeoutfld_ = new uiSlider( this, "Timeout" );
+    timeoutfld_ = new uiSlider( this, uiSlider::Setup(tr("Timeout (1-60 s)")),
+				"Timeout" );
     timeoutfld_->setInterval( StepInterval<float>(1,60,1) );
     timeoutfld_->setTickMarks( uiSlider::Below );
     timeoutfld_->setValue( dlsite.timeout() );
     if ( lcb )
 	timeoutfld_->attach( alignedBelow, lcb );
-    new uiLabel( this, "Timeout (1-60 s)", timeoutfld_ );
 }
 
 

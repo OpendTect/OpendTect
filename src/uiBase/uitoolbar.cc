@@ -75,8 +75,8 @@ uiToolBar::~uiToolBar()
 }
 
 
-int uiToolBar::addButton( const char* fnm, const char* tt, const CallBack& cb,
-			  bool toggle )
+int uiToolBar::addButton( const char* fnm, const uiString& tt,
+			  const CallBack& cb, bool toggle )
 {
     uiToolButtonSetup su( fnm, tt, cb );
     su.istoggle( toggle );
@@ -176,7 +176,7 @@ bool uiToolBar::isSensitive() const
 { return qtoolbar_->isEnabled(); }
 
 
-void uiToolBar::setToolTip( int id, const char* tip )
+void uiToolBar::setToolTip( int id, const uiString& tip )
 {
     mGetAction( , return );
     action->setToolTip( tip );

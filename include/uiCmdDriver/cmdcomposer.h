@@ -51,7 +51,6 @@ public: \
 
 mExpClass(uiCmdDriver) CmdComposer : public CallBacker
 {
-
 public:
 
     mDefineFactory1ParamInClass( CmdComposer, CmdRecorder&, factory );

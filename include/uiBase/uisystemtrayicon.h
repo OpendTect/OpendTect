@@ -18,6 +18,7 @@ ________________________________________________________________________
 mFDQtclass(QSystemTrayIcon)
 mFDQtclass(QSystemTrayIconMessenger)
 class ioPixmap;
+class uiString;
 
 mExpClass(uiBase) uiSystemTrayIcon : public CallBacker
 {
@@ -27,7 +28,7 @@ public:
 			~uiSystemTrayIcon();
 
     void		setPixmap(const ioPixmap&);
-    void		setToolTip(const char*);
+    void		setToolTip(const uiString&);
     void		show();
     void		hide();
 

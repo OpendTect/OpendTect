@@ -72,7 +72,7 @@ private:
 mExpClass(uiBase) uiToolButtonSetup
 {
 public:
-			uiToolButtonSetup( const char* fnm, const char* tt,
+			uiToolButtonSetup( const char* fnm, const uiString& tt,
 					   const CallBack& c, const char* nm=0 )
 			    : filename_(fnm)
 			    , cb_(c)
@@ -81,10 +81,10 @@ public:
 			    , ison_(false)
 			    , isimmediate_(false)
 			    , arrowtype_(uiToolButton::NoArrow)
-			    , name_(nm && *nm ? nm : tt)	{}
+			    , name_(nm && *nm ? nm : tt.getFullString()) {}
 
     mDefuiTBSUMemb(BufferString,filename);
-    mDefuiTBSUMemb(BufferString,tooltip);
+    mDefuiTBSUMemb(uiString,tooltip);
     mDefuiTBSUMemb(CallBack,cb);
 
     mDefuiTBSUMemb(bool,istoggle);

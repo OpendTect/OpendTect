@@ -545,15 +545,15 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
 
 #define mFindMdiAreaSubWin( subwinnames, mdiobj, winstr, selnr ) \
 \
-    BufferStringSet subwinnames; \
+    TypeSet<uiString> subwinnames; \
     mdiobj->getWindowNames( subwinnames ); \
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
-	if ( !mSearchKey(winstr).isMatching(*subwinnames[idx]) ) \
+	if ( !mSearchKey(winstr).isMatching(subwinnames[idx].getFullString()) )\
 	    subwinnames.removeSingle(idx); \
     } \
     mParStrPre( "subwindow", subwinnames, 0, winstr, selnr, "string", true ); \
-    wildcardMan().check( mSearchKey(winstr), subwinnames.get(0) );
+    wildcardMan().check( mSearchKey(winstr), subwinnames[0].getFullString() );
 
 bool CloseCmd::act( const char* parstr )
 {
@@ -579,7 +579,8 @@ bool CloseCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    mActivate( MdiAreaClose, Activator(*mdiarea,subwinnames.get(0)) );
+    mActivate( MdiAreaClose,
+	       Activator(*mdiarea,subwinnames[0].getFullString()) );
     return true;
 }
 
@@ -667,11 +668,13 @@ bool ShowCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    const uiMdiAreaWindow* mdiwin = mdiarea->getWindow( subwinnames.get(0) );
+    const uiMdiAreaWindow* mdiwin =
+	mdiarea->getWindow( subwinnames[0].getFullString() );
     mParShowTagPre( "subwindow", mdiwin ? mdiwin->isMinimized() : false,
 		    mdiwin ? mdiwin->isMaximized() : false, minnormmax );
 
-    mActivate( MdiAreaShow, Activator(*mdiarea,*subwinnames[0],minnormmax) );
+    mActivate( MdiAreaShow, Activator(*mdiarea,subwinnames[0].getFullString(),
+				      minnormmax) );
 
     return true;
 }
@@ -739,7 +742,8 @@ bool IsShownCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    mGetShowStatus(answer, mdiarea->getWindow(subwinnames.get(0)), minnormmax);
+    mGetShowStatus(answer, mdiarea->getWindow(subwinnames[0].getFullString()),
+		   minnormmax);
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -1010,11 +1014,11 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
     char* msgnexxt;
     const int curwinidx = strtol( msgnext, &msgnexxt, 0 );
 
-    BufferStringSet subwinnames;
+    TypeSet<uiString> subwinnames;
     mDynamicCastGet(const uiMdiArea*,mdiarea,ev.object_);
     mdiarea->getWindowNames( subwinnames );
 
-    BufferString curwintitle = subwinnames.get( curwinidx );
+    BufferString curwintitle = subwinnames[curwinidx].getFullString();
     mDressNameString( curwintitle, sWinName );
 
     bool titlecasedep = false;
@@ -1023,7 +1027,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
 
     for ( int idx=0; idx<subwinnames.size(); idx++ )
     {
-	const char* wintitle = subwinnames.get( idx );
+	const BufferString wintitle = subwinnames[idx].getFullString();
 	if ( SearchKey(curwintitle,false).isMatching(wintitle) )
 	{
 	    if ( SearchKey(curwintitle,true).isMatching(wintitle) )

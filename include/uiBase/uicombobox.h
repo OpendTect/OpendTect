@@ -99,7 +99,7 @@ private:
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
-    void		adjustWidth(const char*);
+    void		adjustWidth(const uiString&);
     int			curwidth_;
 
 public:

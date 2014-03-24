@@ -608,7 +608,7 @@ const char* windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
 	if ( aliasnr == 0 )
 	    return uimw->name();
 	if ( aliasnr == 1 )
-	    return uimw->caption( true );
+	    return uimw->caption( true ).getFullString();
     }
 
     if ( aliasnr > 0 )
@@ -621,7 +621,7 @@ const char* windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
 	return uiMainWin::activeModalQDlgTitle();
     }
 
-    return uimw->caption( true );
+    return uimw->caption( true ).getFullString();
 }
 
 

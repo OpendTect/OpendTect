@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "bufstringset.h"
 #include "perthreadrepos.h"
+#include "keystrs.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -163,7 +164,7 @@ uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
-	if ( !strcmp(nm,grps_[idx]->getTitle()) )
+	if ( !strcmp(nm,grps_[idx]->getTitle().getFullString()) )
 	    return grps_[idx];
     }
 
@@ -229,15 +230,26 @@ const char* uiMdiArea::getActiveWin() const
 {
     mDeclStaticString( nm );
     QWidget* widget = body_->activeSubWindow();
-    nm = widget ? widget->windowTitle() : "";
+
+    nm = sKey::EmptyString();
+
+    if ( widget )
+    {
+	for ( int idx=0; idx<grps_.size(); idx++ )
+	{
+	    if ( grps_[idx]->qWidget()==widget )
+		nm = grps_[idx]->getTitle().getFullString();
+	}
+    }
+
     return nm.buf();
 }
 
 
-void uiMdiArea::getWindowNames( BufferStringSet& nms ) const
+void uiMdiArea::getWindowNames( TypeSet<uiString>& nms ) const
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
-	nms.add( grps_[idx]->getTitle() );
+	nms += grps_[idx]->getTitle();
 }
 
 
@@ -274,28 +286,21 @@ void closeEvent( QCloseEvent* ev )
 };
 
 // uiMdiAreaWindow
-uiMdiAreaWindow::uiMdiAreaWindow( const char* nm )
-    : uiGroup(0,nm)
+uiMdiAreaWindow::uiMdiAreaWindow( const uiString& title )
+    : uiGroup(0,title.getFullString())
     , changed(this)
 {
     qmdisubwindow_ = new ODMdiSubWindow();
     qmdisubwindow_->setWidget( attachObj()->body()->qwidget() );
-    setTitle( nm );
+    setTitle( title );
 }
 
 
-void uiMdiAreaWindow::setTitle( const char* nm )
+void uiMdiAreaWindow::setTitle( const uiString& title )
 {
-    qmdisubwindow_->setWindowTitle( nm );
+    qmdisubwindow_->setWindowTitle( title.getQtString() );
+    title_ = title;
     changed.trigger();
-}
-
-
-const char* uiMdiAreaWindow::getTitle() const
-{
-    mDeclStaticString( title );
-    title = qmdisubwindow_->windowTitle();
-    return title.buf();
 }
 
 
@@ -312,6 +317,11 @@ NotifierAccess& uiMdiAreaWindow::closed()
 
 QMdiSubWindow* uiMdiAreaWindow::qWidget()
 { return qmdisubwindow_; }
+
+const QMdiSubWindow* uiMdiAreaWindow::qWidget() const
+{ return qmdisubwindow_; }
+
+
 
 void uiMdiAreaWindow::show()		{ qmdisubwindow_->showNormal(); }
 void uiMdiAreaWindow::close()		{ qmdisubwindow_->close(); }

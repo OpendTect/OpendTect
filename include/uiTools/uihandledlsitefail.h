@@ -34,7 +34,7 @@ class uiSlider;
 
 
 mExpClass(uiTools) uiHandleDLSiteFail : public uiDialog
-{
+{ mODTextTranslationClass(uiHandleDLSiteFail)
 public:
 
     			uiHandleDLSiteFail(uiParent*,const ODDLSite&,

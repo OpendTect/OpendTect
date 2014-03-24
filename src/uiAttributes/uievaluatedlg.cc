@@ -299,7 +299,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSlider( this, "Slice", "Slice slider" );
+    sliderfld = new uiSlider( this, tr("Slice"), "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
     sliderfld->setTickMarks( uiSlider::Below );

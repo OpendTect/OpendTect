@@ -66,7 +66,7 @@ protected:
 
 
 mExpClass(uiAttributes) uiEvaluateDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiEvaluateDlg);
 public:
 				uiEvaluateDlg(uiParent*,uiAttrDescEd&,
 					      bool enabstore=true);

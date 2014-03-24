@@ -157,9 +157,9 @@ int uiFont::ascent() const
 #define mImplGetFont( qfont, oldfont ) \
 bool ok; \
 qfont  = QFontDialog::getFont( &ok, oldfont, \
-			      parnt ? parnt->pbody()->qwidget() : 0, nm )
+		    parnt ? parnt->pbody()->qwidget() : 0, nm.getQtString() )
 
-bool select( uiFont& fnt, uiParent* parnt, const char* nm )
+bool select( uiFont& fnt, uiParent* parnt, const uiString& nm )
 {
     QFont fontNew;
     mImplGetFont( fontNew, fnt.qFont() );
@@ -172,7 +172,7 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
     return ok;
 }
 
-bool select( FontData& fnt, uiParent* parnt, const char* nm )
+bool select( FontData& fnt, uiParent* parnt, const uiString& nm )
 {
     mQtclass(QFont) qfont;
     uiFont::setFontData( qfont, fnt );
@@ -347,8 +347,9 @@ void uiFontList::update( Settings& settings )
 }
 
 
-uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
-	: uiDialog(p,uiDialog::Setup("Fonts",nm,"0.2.2").mainwidgcentered(true))
+uiSetFonts::uiSetFonts( uiParent* p, const uiString& title )
+	: uiDialog(p,
+	       uiDialog::Setup("Fonts",title,"0.2.2").mainwidgcentered(true))
 {
     setCancelText( "" );
     FontList().initialise();
@@ -384,8 +385,9 @@ void uiSetFonts::butPushed( CallBacker* obj )
 
 
 
-uiSelFonts::uiSelFonts( uiParent* p, const char* nm, const char* winid )
-	: uiDialog(p,uiDialog::Setup("Fonts",nm,winid))
+uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
+			const HelpKey& helpkey )
+	: uiDialog(p,uiDialog::Setup("Fonts",title,helpkey))
 {
     FontList().listKeys( ids );
 }

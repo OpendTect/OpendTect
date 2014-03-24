@@ -285,7 +285,7 @@ void uiColorInput::setColor( const Color& col )
 }
 
 
-void uiColorInput::setLblText( const char* txt )
+void uiColorInput::setLblText( const uiString& txt )
 {
     if ( lbl_ ) lbl_->setText( txt );
 }

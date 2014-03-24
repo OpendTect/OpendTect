@@ -386,12 +386,15 @@ void uiTreeView::setColumnText( int col, const uiString& label )
 }
 
 
-const char* uiTreeView::columnText( int col ) const
+uiString uiTreeView::getColumnText( int col ) const
 {
     if ( !labels_.validIdx(col) ) return sKey::EmptyString();
 
-    return labels_[col].getFullString();
+    return labels_[col];
 }
+
+const char* uiTreeView::columnText(int column) const
+{ return getColumnText(column).getFullString(); }
 
 
 void uiTreeView::setColumnWidth( int col, int w )
@@ -685,7 +688,7 @@ void uiTreeViewItem::init( const Setup& setup )
     if ( setup.labels_.size() )
     {
 	for( int idx=0; idx<setup.labels_.size() ; idx++ )
-	{ setText( *setup.labels_[idx], idx ); }
+	{ setText( setup.labels_[idx], idx ); }
     }
 }
 

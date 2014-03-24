@@ -36,20 +36,13 @@ public:
     int			size() const
 			{ return qthing()->children().size(); }
 
-    void		message( const char* msg, int idx, int msecs )
+    void		message( const uiString& msg, int idx, int msecs )
 			{
-			    if ( !msgs.isEmpty() )
-			    {
-#ifdef __debug__
-				if ( msecs >= 0 )
-				    pErrMsg("No auto-erase for SB with fields");
-#endif
-				if ( idx > 0 && idx < msgs.size() && msgs[idx] )
-				    msgs[idx]->setText(msg);
-				else msgs[0]->setText(msg);
-			    }
-			    else if ( msg && *msg )
-				qthing()->showMessage( msg, msecs<0?0:msecs );
+			    if ( msgs_.validIdx(idx) && msgs_[idx] )
+				    msgs_[idx]->setText(msg.getQtString());
+			    else if ( !msg.isEmpty() )
+				qthing()->showMessage( msg.getQtString(),
+						       msecs<0?0:msecs );
 			    else
 				qthing()->clearMessage();
 			}
@@ -57,12 +50,8 @@ public:
     void		setBGColor( int idx, const Color& col )
 			{
 			    QWidget* widget = 0;
-			    if ( msgs.size()>0 && msgs[0] )
-			    {
-				if ( idx>0 && idx<msgs.size() && msgs[idx] )
-				    widget = msgs[idx];
-				else widget = msgs[0];
-			    }
+			    if ( msgs_.validIdx(idx) && msgs_[idx] )
+				    widget = msgs_[idx];
 			    else
 				widget = qthing();
 
@@ -76,12 +65,8 @@ public:
     Color		getBGColor( int idx )
 			{
 			    const QWidget* widget = 0;
-			    if ( msgs.size()>0 && msgs[0] )
-			    {
-				if ( idx>0 && idx<msgs.size() && msgs[idx] )
-				    widget = msgs[idx];
-				else widget = msgs[0];
-			    }
+			    if ( msgs_.validIdx(idx) && msgs_[idx] )
+				widget = msgs_[idx];
 			    else
 				widget = qthing();
 
@@ -92,15 +77,16 @@ public:
 			    return Color( qc.red(), qc.green(), qc.blue() );
 			}
 
-    int			addMsgFld( const char* lbltxt, int stretch )
+    int 		addMsgFld( const uiString& lbltxt, int stretch )
 			{
-			    QLabel* msg_ = new QLabel( lbltxt );
-			    int idx = msgs.size();
-			    msgs += msg_;
+			    QLabel* msg_ = new QLabel( lbltxt.getQtString() );
+			    int idx = msgs_.size();
+			    msgs_ += msg_;
 
-			    if ( lbltxt )
+			    if ( !lbltxt.isEmpty() )
 			    {
-				QLabel* txtlbl = new QLabel( lbltxt );
+				QLabel* txtlbl =
+					new QLabel( lbltxt.getQtString() );
 				msg_->setBuddy( txtlbl );
 
 				qthing()->addWidget( txtlbl );
@@ -114,8 +100,8 @@ public:
     void		repaint()
 			    {
 				qthing()->repaint();
-				for( int idx=0; idx<msgs.size(); idx++)
-				    if (msgs[idx]) msgs[idx]->repaint();
+				for( int idx=0; idx<msgs_.size(); idx++)
+				    if (msgs_[idx]) msgs_[idx]->repaint();
 			     }
 
 protected:
@@ -123,7 +109,7 @@ protected:
     virtual const QWidget*	managewidg_() const
 							{ return qwidget(); }
 
-    ObjectSet<QLabel>		msgs;
+    ObjectSet<QLabel>		msgs_;
 
 };
 
@@ -167,7 +153,7 @@ void uiStatusBar::setEmpty( int startat )
 }
 
 
-void uiStatusBar::message( const char* msg, int fldidx, int msecs )
+void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
 {
     body_->message( msg, fldidx, msecs );
     body_->repaint();
@@ -187,7 +173,7 @@ Color uiStatusBar::getBGColor( int fldidx ) const
 }
 
 
-int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
+int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 			    Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( lbltxt, stretch );
@@ -199,7 +185,7 @@ int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
     return idx;
 }
 
-int uiStatusBar::addMsgFld( const char* tooltip,
+int uiStatusBar::addMsgFld( const uiString& tooltip,
 			    Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( 0, stretch );
@@ -211,30 +197,29 @@ int uiStatusBar::addMsgFld( const char* tooltip,
 }
 
 
-void uiStatusBar::setToolTip( int idx, const char* tooltip )
+void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
 {
-    if ( ! body_->msgs.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) ) return;
 
-    if ( tooltip && *tooltip && body_->msgs[idx] )
-	body_->msgs[idx]->setToolTip( tooltip );
+    if ( !tooltip.isEmpty() && body_->msgs_[idx] )
+	body_->msgs_[idx]->setToolTip( tooltip.getQtString() );
 }
 
 
 void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
 {
-    if ( ! body_->msgs.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) ) return;
 
     Alignment al( hal );
-    body_->msgs[idx]->setAlignment( (Qt::Alignment)al.hPos() );
+    body_->msgs_[idx]->setAlignment( (Qt::Alignment)al.hPos() );
 }
 
 
-void uiStatusBar::setLabelTxt( int idx, const char* lbltxt )
+void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 {
-    if ( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( !body_->msgs_.validIdx(idx) ) return;
 
-    QLabel* lbl =
-		     dynamic_cast<QLabel*>(body_->msgs[idx]->buddy());
+    QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
 
-    if ( lbl ) lbl->setText( lbltxt );
+    if ( lbl ) lbl->setText( lbltxt.getQtString() );
 }

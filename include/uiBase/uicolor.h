@@ -74,7 +74,7 @@ public:
     void			setColor(const Color&);
     bool			doDraw() const;
     void			setDoDraw(bool);
-    void			setLblText(const char*);
+    void			setLblText(const uiString&);
 
     Notifier<uiColorInput> 	colorChanged;
     Notifier<uiColorInput> 	doDrawChanged;

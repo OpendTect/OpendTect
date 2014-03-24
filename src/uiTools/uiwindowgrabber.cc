@@ -54,11 +54,12 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     getTopLevelWindows( windowlist_ );
     if ( !desktop && !windowlist_.isEmpty() )
     {
-	BufferStringSet windownms;
+	TypeSet<uiString> windownms;
 	for ( int idx=0; idx<windowlist_.size(); idx++ )
 	    windownms.add( windowlist_[idx]->caption(true) );
 
-	windowfld_ = new uiLabeledComboBox( this, windownms, "Grab window" );
+	windowfld_ = new uiLabeledComboBox( this, tr("Grab window") );
+	windowfld_->box()->addItems( windownms );
     }
 
     if ( dirname_.isEmpty() )

@@ -74,7 +74,7 @@ public:
 
     const uiFont*	font() const		  { mRetMO(font,0); }
     void		setFont( const uiFont& f) { mIfMO()->setFont(f); }
-    void		setCaption(const char* c) { mIfMO()->setCaption(c); }
+    void		setCaption(const uiString& c) { mIfMO()->setCaption(c);}
     void		setCursor(const MouseCursor& c) {mIfMO()->setCursor(c);}
 
     uiSize		actualsize( bool include_border) const

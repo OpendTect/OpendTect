@@ -177,11 +177,10 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
 
-    nicefld_ = new uiSlider( jrppolgrp, "Nice level" );
+    nicefld_ = new uiSlider( jrppolgrp,
+		uiSlider::Setup(tr("'Nice' level (0-19)")), "Nice level" );
     nicefld_->setMinValue( -0.5 ); nicefld_->setMaxValue( 19.5 );
     nicefld_->setValue( hdl_.defNiceLevel() );
-    uiLabel* nicelbl = new uiLabel( jrppolgrp, "'Nice' level (0-19)" );
-    nicelbl->attach( rightOf, nicefld_ );
     if ( avmachfld_ )
 	nicefld_->setPrefWidthInChar( hostnmwdth );
 

@@ -26,7 +26,7 @@ class Timer;
 /*!Dialog to specify the grab window and the output image file */
 
 mExpClass(uiTools) uiWindowGrabDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWindowGrabDlg);
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
 

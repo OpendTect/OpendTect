@@ -52,7 +52,7 @@ public:
 			~uiToolBar();
 
     int 		addButton(const uiToolButtonSetup&);
-    int 		addButton(const char* fnm,const char* tooltip,
+    int 		addButton(const char* fnm,const uiString& tooltip,
 	    			  const CallBack& =CallBack(),
 				  bool toggle=false);
     int			addButton(const MenuItem&);
@@ -63,7 +63,7 @@ public:
     void		setToggle(int id, bool);
     void		setIcon(int id,const char*);
     void		setIcon(int id,const ioPixmap&);
-    void		setToolTip(int id,const char*);
+    void		setToolTip(int id,const uiString&);
     void		setShortcut(int id,const char*);
     void		turnOn(int id,bool yn);
     			/*!< Does only work on toggle-buttons */

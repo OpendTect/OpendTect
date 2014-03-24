@@ -83,8 +83,8 @@ public:
 
     static uiMainWin*	activeWindow();
 
-    void		setCaption(const char*);
-    const char*		caption(bool unique=false) const;
+    void		setCaption(const uiString&);
+    const uiString&	caption(bool unique=false) const;
     void		setIcon(const ioPixmap&);
 			//!< Default icon is set in uiMain
     void		setIconText(const char*);
@@ -206,6 +206,7 @@ protected:
     PopupArea		popuparea_;
 
     uiString		caption_;
+uiString		uniquecaption_;
     int			languagedirtycount_;
 
 public:

@@ -108,7 +108,6 @@ public:
     void		setVSpacing( int );
     void		setBorder( int );
 
-    void		setCaption( const uiString& txt );
     void		setModal(bool yn);
     bool		isModal() const;
 

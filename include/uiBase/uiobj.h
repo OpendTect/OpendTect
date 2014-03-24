@@ -129,7 +129,7 @@ public:
 
     void		setFont(const uiFont&);
     const uiFont*	font() const;
-    void		setCaption(const char*);
+    void		setCaption(const uiString&);
 
 
     void		shallowRedraw(CallBacker* =0)	{ reDraw( false ); }

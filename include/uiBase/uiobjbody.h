@@ -42,7 +42,7 @@ public:
 
     virtual		~uiObjectBody();
 
-    void		setToolTip(const char*);
+    void		setToolTip(const uiString&);
 
     void 		display(bool yn,bool shrink=false,
 				bool maximised=false);
@@ -94,7 +94,7 @@ public:
     virtual uiSize	minimumsize() const
 			{ return uiSize(mUdf(int),mUdf(int)); }
 
-    void		uisetCaption(const char*);
+    void		uisetCaption(const uiString&);
 
     virtual void	reDraw(bool);
 

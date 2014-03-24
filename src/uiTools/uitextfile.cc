@@ -267,9 +267,10 @@ uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& dlgsetup )
 void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 			  const uiTextFile::Setup& tsetup, const char* fnm )
 {
-    if ( FixedString(caption()).isEmpty() )
+    if ( caption().isEmpty() )
 	setCaption( fnm );
-    captionisfilename_ = FixedString(caption()) == fnm;
+
+    captionisfilename_ = FixedString(caption().getFullString()) == fnm;
 
     editor_ = new uiTextFile( this, fnm, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );

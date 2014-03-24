@@ -28,7 +28,7 @@ class uiPushButton;
 class uiSlider;
 
 mExpClass(uiAttributes) uiCrossAttrEvaluateDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCrossAttrEvaluateDlg)
 public:
 				uiCrossAttrEvaluateDlg(uiParent*,
 					uiAttribDescSetEd&,bool enabstore=true);

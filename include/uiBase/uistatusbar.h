@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uibaseobject.h"
 #include "draw.h"
+#include "uistring.h"
+
 
 mFDQtclass(QStatusBar)
 class uiStatusBarBody;
@@ -29,21 +31,21 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int			addMsgFld(const char* lbltxt=0,
-				  const char* tooltip =0,
+    int 		addMsgFld(const uiString& lbltxt=0,
+				  const uiString& tooltip =0,
 				  Alignment::HPos al=Alignment::Left,
 				  int stretch=1);
 
-    int			addMsgFld(const char* tooltip,
+    int 		addMsgFld(const uiString& tooltip,
 				  Alignment::HPos al=Alignment::Left,
 				  int stretch=1);
 
-    void		setToolTip(int,const char*);
+    void		setToolTip(int,const uiString&);
     void		setTxtAlign(int,Alignment::HPos);
-    void		setLabelTxt(int,const char*);
+    void		setLabelTxt(int,const uiString&);
 
     int			nrFields() const;
-    void		message(const char*,int fldidx=0, int msecs=-1);
+    void		message(const uiString&,int fldidx=0, int msecs=-1);
     void		setEmpty(int startat=0);
     void		setBGColor(int fldidx,const Color&);
     Color		getBGColor(int fldidx) const;

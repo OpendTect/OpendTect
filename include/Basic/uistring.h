@@ -64,7 +64,7 @@ mFDQtclass( QTranslator );
   -# The .qm file should be placed in
      data/localizations/<application>_<lang>_<country>.ts in the release. For
      example, a localization of OpendTect to traditional Chinese/Taiwan would be
-    saved as od_zh_TW.ts.
+    saved as od_zh_TW.qm.
  */
 
 

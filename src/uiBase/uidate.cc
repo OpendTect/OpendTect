@@ -58,9 +58,9 @@ DateInfo uiCalendar::getDate() const
 }
 
 
-uiDateSel::uiDateSel( uiParent* p,const char* label, const DateInfo* di )
+uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     : uiGroup( p )
-    , label_( label ? new uiLabel( this, label) : 0 )
+    , label_( !label.isEmpty() ? new uiLabel( this, label ) : 0 )
 {
     dayfld_ = new uiComboBox( this, DateInfo::sAllDaysInMonth(), 0 );
     dayfld_->setHSzPol( uiObject::SmallVar );

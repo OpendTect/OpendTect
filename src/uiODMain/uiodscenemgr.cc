@@ -719,7 +719,15 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 
 void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active ) const
 {
-    mdiarea_->getWindowNames( nms );
+    TypeSet<uiString> windownames;
+    mdiarea_->getWindowNames( windownames );
+
+    nms.setEmpty();
+    for ( int idx=0; idx<windownames.size(); idx++ )
+    {
+	nms.add( windownames[idx].getFullString() );
+    }
+
     const char* activenm = mdiarea_->getActiveWin();
     active = nms.indexOf( activenm );
 }
@@ -776,7 +784,8 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
     uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle(), scn.sovwr_->sceneID() );
+	new uiODSceneTreeItem( scn.mdiwin_->getTitle().getFullString(),
+			       scn.sovwr_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
 
     TypeSet<int> idxs;

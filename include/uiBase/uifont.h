@@ -24,7 +24,7 @@ class uiString;
 mExpClass(uiBase) uiFont : public CallBacker
 {			//!< font stuff that needs Qt.
 
-    friend bool		select(uiFont&,uiParent*,const char*); 
+    friend bool 	select(uiFont&,uiParent*,const uiString&);
     friend class	uiFontList;
 
 protected:

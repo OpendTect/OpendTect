@@ -25,28 +25,33 @@ mFDQtclass(QMdiSubWindow)
 mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
-    			uiMdiAreaWindow(const char* nm=0);
-			~uiMdiAreaWindow()	{}
+				uiMdiAreaWindow(const uiString& title=0);
+				~uiMdiAreaWindow()	{}
 
-    void		setTitle(const char*);
-    const char*		getTitle() const;
+    void			setTitle(const uiString&);
+    const uiString&		getTitle() const { return title_; }
 
-    void		setIcon(const char* img[]);
+    void			setIcon(const char* img[]);
 
-    void		show();
-    void		close();
-    void		showMinimized();
-    void		showMaximized();
-    bool		isMinimized() const;
-    bool		isMaximized() const;
+    void			show();
+    void			close();
+    void			showMinimized();
+    void			showMaximized();
+    bool			isMinimized() const;
+    bool			isMaximized() const;
 
-    NotifierAccess&	closed();
-    mQtclass(QMdiSubWindow*)	qWidget();
+    NotifierAccess&		closed();
+    Notifier<uiMdiAreaWindow>	changed;
 
-    Notifier<uiMdiAreaWindow> changed;
 
-protected:
-    mQtclass(QMdiSubWindow*)	qmdisubwindow_;
+    mQtclass(QMdiSubWindow*)		qWidget();
+    const mQtclass(QMdiSubWindow*)	qWidget() const;
+
+
+private:
+    uiString				title_;
+
+    mQtclass(QMdiSubWindow*)		qmdisubwindow_;
 
 };
 
@@ -72,7 +77,7 @@ public:
     void		setActiveWin(const char*);
     void		setActiveWin(uiMdiAreaWindow*);
     const char*		getActiveWin() const;
-    void		getWindowNames(BufferStringSet&) const;
+    void		getWindowNames(TypeSet<uiString>&) const;
 
     Notifier<uiMdiArea> windowActivated;
 

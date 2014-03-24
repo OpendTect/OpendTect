@@ -535,7 +535,7 @@ uiSize uiObject::actualsize( bool include_border ) const
     { return mConstBody()->actualsize( include_border ); }
 
 
-void uiObject::setCaption( const char* c )
+void uiObject::setCaption( const uiString& c )
     { mBody()->uisetCaption(c); }
 
 

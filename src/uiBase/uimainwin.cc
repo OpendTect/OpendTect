@@ -114,8 +114,6 @@ public:
     void		setModal(bool yn);
     bool		isModal() const			{ return modal_; }
 
-    void		setWindowTitle(const uiString&);
-
     void		activateInGUIThread(const CallBack&,bool busywait);
 
 protected:
@@ -151,6 +149,7 @@ protected:
 
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
+    uiString		windowtitle_;
 
 private:
 
@@ -250,7 +249,7 @@ Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 
 void uiMainWinBody::doShow( bool minimized )
 {
-    setWindowTitle( handle_.caption(false) );
+    setWindowTitle( handle_.caption(false).getQtString() );
     eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
     managePopupPos();
 
@@ -601,13 +600,6 @@ void uiMainWinBody::readSettings()
 }
 
 
-void uiMainWinBody::setWindowTitle( const uiString& txt )
-{
-    QMainWindow::setWindowTitle(
-		uiMainWin::uniqueWinTitle(txt,this,0).getQtString() );
-}
-
-
 #define mExecMutex( statements ) \
     activatemutex_.lock(); statements; activatemutex_.unLock();
 
@@ -817,18 +809,17 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 
-void uiMainWin::setCaption( const char* txt )
+void uiMainWin::setCaption( const uiString& txt )
 {
     caption_ = txt;
-    body_->setWindowTitle( txt );
+    uniquecaption_ = uniqueWinTitle(txt,body_,0);
+    body_->setWindowTitle( uniquecaption_.getQtString() );
 }
 
 
-const char* uiMainWin::caption( bool unique ) const
+const uiString& uiMainWin::caption( bool unique ) const
 {
-    mDeclStaticString( capt );
-    capt = unique ? body_->windowTitle() : caption_.getFullString();
-    return capt;
+    return unique ? uniquecaption_ : caption_;
 }
 
 
@@ -1974,8 +1965,6 @@ bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
-void uiDialog::setCaption( const uiString& txt )
-    { caption_ = txt; mBody->setWindowTitle( txt ); }
 
 int uiDialog::titlepos_ = 0; // default is centered.
 int uiDialog::titlePos()			{ return titlepos_; }

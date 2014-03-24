@@ -120,7 +120,7 @@ uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 }
 
 
-void uiComboBox::adjustWidth( const char* txt )
+void uiComboBox::adjustWidth( const uiString& txt )
 {
     const uiFont& controlfont =
 	uiFontList::getInst().get( FontData::key(FontData::Control) );
@@ -250,7 +250,7 @@ void uiComboBox::setItemText( int idx, const uiString& txt )
 {
     if ( idx >= 0 && idx < body_->count() )
     {
-	adjustWidth( txt.getFullString() );
+	adjustWidth( txt );
 	body_->setItemText( idx, txt.getQtString() );
 	itemstrings_[idx] = txt;
     }
@@ -289,7 +289,7 @@ void uiComboBox::addItem( const uiString& str )
 void uiComboBox::addItem( const uiString& txt, int id )
 {
     mBlockCmdRec;
-    adjustWidth( txt.getFullString() );
+    adjustWidth( txt );
     body_->addItem( txt.getQtString() );
     itemids_ += id;
     itemstrings_ += txt;
@@ -317,7 +317,7 @@ void uiComboBox::addSeparator()
 void uiComboBox::insertItem( const uiString& txt, int index, int id )
 {
     mBlockCmdRec;
-    adjustWidth( txt.getFullString() );
+    adjustWidth( txt );
     body_->insertItem( index, txt.getQtString() );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
@@ -328,7 +328,7 @@ void uiComboBox::insertItem( const ioPixmap& pm, const uiString& txt,
 			     int index, int id )
 {
     mBlockCmdRec;
-    adjustWidth( txt.getFullString() );
+    adjustWidth( txt );
     body_->insertItem( index, *pm.qpixmap(), txt.getQtString() );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );

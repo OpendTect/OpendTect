@@ -44,7 +44,7 @@ private:
 mExpClass(uiBase) uiDateSel : public uiGroup
 {
 public:
-			uiDateSel(uiParent*,const char* label,
+			uiDateSel(uiParent*,const uiString& label,
 				  const DateInfo* = 0 );
 
     void		setDate(const DateInfo&);

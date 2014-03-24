@@ -60,7 +60,7 @@ public:
 
     void		removeColumn(int index);
     void		setColumnText(int column,const uiString& label);
-    const char*		columnText(int column) const;
+    uiString		getColumnText(int column) const;
     void		setColumnWidth(int column,int width);
     void		setFixedColumnWidth(int column,int width);
     int			columnWidth(int column) const;
@@ -171,6 +171,10 @@ private:
     uiTreeViewBody*		body_;
 
     TypeSet<uiString>		labels_;
+
+public:
+    const char* 		columnText(int column) const;
+				//Commandline driver usage only
 };
 
 
@@ -201,12 +205,12 @@ public:
 	mDefSetupMemb(uiTreeViewItem*,after)
 	mDefSetupMemb(const ioPixmap*,pixmap)
 	mDefSetupMemb(bool,setcheck)
-	BufferStringSet		labels_;
+	TypeSet<uiString>		labels_;
 
-	Setup& 			label( const char* txt )
+	Setup&			label( const uiString& txt )
 				{
-				    if( txt )
-					labels_ += new BufferString( txt );
+				    if ( !txt.isEmpty() )
+					labels_ += txt;
 				    return *this;
 				}
     };
