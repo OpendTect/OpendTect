@@ -756,7 +756,7 @@ int uiODSceneMgr::getActiveSceneID() const
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
 //    const bool wasparalysed = mdiarea_->paralyse( true );
-    menuMgr().updateSceneMenu();
+    if ( &menuMgr() ) menuMgr().updateSceneMenu();
 //    mdiarea_->paralyse( wasparalysed );
     activeSceneChanged.trigger();
 }
@@ -952,9 +952,19 @@ void uiODSceneMgr::disabTrees( bool yn )
 }
 
 
+#define mGetOrAskForScene \
+    Scene* scene = getScene( sceneid ); \
+    if ( !scene ) \
+    { \
+	sceneid = askSelectScene(); \
+	scene = getScene( sceneid ); \
+    } \
+    if ( !scene ) return -1;
+
 int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 {
-    Scene* scene = getScene( sceneid );
+    mGetOrAskForScene
+
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !scene || !ioobj ) return -1;
 
@@ -969,13 +979,7 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
-    Scene* scene = getScene( sceneid );
-    if ( !scene )
-    {
-	sceneid = askSelectScene();
-	scene = getScene( sceneid );
-	if ( !scene ) return -1;
-    }
+    mGetOrAskForScene
 
     FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
@@ -999,10 +1003,19 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 }
 
 
+int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
+{
+    mGetOrAskForScene
+
+    uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( -1, ps );
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
 int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 {
-    Scene* scene = getScene( sceneid );
-    if ( !scene ) return -1;
+    mGetOrAskForScene
 
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
     scene->itemmanager_->addChild( itm, false );
@@ -1013,8 +1026,7 @@ int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
 				    int displayid, int sceneid )
 {
-    Scene* scene = getScene( sceneid );
-    if ( !scene ) return -1;
+    mGetOrAskForScene
 
     uiOD2DLineSetTreeItem* itm = new uiOD2DLineSetTreeItem( mid );
     scene->itemmanager_->addChild( itm, false );

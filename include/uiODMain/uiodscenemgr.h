@@ -33,6 +33,7 @@ class uiTreeFactorySet;
 class uiTreeItem;
 class uiWindowGrabber;
 class ZAxisTransform;
+namespace Pick { class Set; }
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -128,9 +129,10 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
-    int				addWellItem(const MultiID&,int sceneid=-1);
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
+    int				addPickSetItem(Pick::Set&,int sceneid=-1);
     int				addRandomLineItem(int,int sceneid=-1);
+    int				addWellItem(const MultiID&,int sceneid=-1);
     int				add2DLineSetItem(const MultiID&,const char*,
 							int,int);
     void			removeTreeItem(int displayid);
