@@ -83,7 +83,7 @@ public:
     LineStyle			linestyle_;
     Color			fillcolor_;
     FillPattern			fillpattern_;
-    int				zvalue_; 	//overlay zvalue ( max=on top )
+    int				zvalue_; //!<overlay zvalue ( max=on top )
 
     bool			displayed_;
     bool			close_;
