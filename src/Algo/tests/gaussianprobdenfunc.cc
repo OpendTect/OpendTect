@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "linear.h"
 #include "statrand.h"
+#include "statruncalc.h"
 #include "testprog.h"
 
 
@@ -32,17 +33,29 @@ static bool test2DPDF()
 
     LinStats2D ls2d;
     ls2d.use( x0, x1, mNrPts2Draw );
-    const float tol = 500.0f / mNrPts2Draw;
+    const float cctol = 500.0f / mNrPts2Draw;
 
-    const bool failed = ls2d.corrcoeff < mCorrCoeff-tol
-		     || ls2d.corrcoeff > mCorrCoeff+tol;
+    const bool failed = ls2d.corrcoeff < mCorrCoeff-cctol
+		     || ls2d.corrcoeff > mCorrCoeff+cctol;
 
     if ( failed )
-	od_cout() << "Failed. ";
+	od_cout() << "Failed: ";
 
     if ( !quiet || failed )
+    {
 	od_cout() << "Corr coeff=" << ls2d.corrcoeff
-	    	  << ", expected " << mCorrCoeff << " +/- " << tol << od_endl;
+	    	  << ", expected " << mCorrCoeff << " +/- " << cctol << od_endl;
+
+	Stats::CalcSetup csu;
+	csu.require( Stats::Average ).require( Stats::StdDev );
+	Stats::RunCalc<float> x0rc( csu ); Stats::RunCalc<float> x1rc( csu );
+	x0rc.addValues( mNrPts2Draw, x0 ); x1rc.addValues( mNrPts2Draw, x1 );
+	od_cout() << "X0: exp=" << pdf.exp0_ << " std=" << pdf.std0_
+	    	  << " => avg=" << x0rc.average() << " std=" << x0rc.stdDev();
+	od_cout() << "\nX1: exp=" << pdf.exp1_ << " std=" << pdf.std1_
+	    	  << " => avg=" << x1rc.average() << " std=" << x1rc.stdDev();
+	od_cout() << od_endl;
+    }
 
     return !failed;
 }
