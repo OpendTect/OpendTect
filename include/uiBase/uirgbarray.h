@@ -37,6 +37,10 @@ public:
     bool                reSize(int,int);	//!< inter/extrapolates
     void		clear(const Color&);
 
+    bool		save(const char* fnm,const char* fmt=0,
+			     int quality=-1) const;
+    static void 	supportedImageFormats(BufferStringSet&);
+
     const mQtclass(QImage&) qImage() const	{ return *qimg_; } ;
     mQtclass(QImage&)	qImage()		{ return *qimg_; } ;
 

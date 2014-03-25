@@ -12,9 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 
 #include "arraynd.h"
-#include "arrayndimpl.h"
-#include "bufstringset.h"
-#include "color.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "file.h"
@@ -220,9 +217,7 @@ bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
 
 void ioPixmap::supportedImageFormats( BufferStringSet& list )
 {
-    QList<QByteArray> qlist = QImageWriter::supportedImageFormats();
-    for ( int idx=0; idx<qlist.size(); idx++ )
-	list.add( qlist[idx].constData() );
+    return uiRGBArray::supportedImageFormats( list );
 }
 
 

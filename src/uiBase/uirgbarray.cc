@@ -11,9 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uirgbarray.h"
 
+#include "bufstringset.h"
+
 #include <QImage>
 #include <QColor>
 #include <QColormap>
+#include <QImageWriter>
 
 mUseQtnamespace
 
@@ -117,3 +120,19 @@ int uiRGBArray::getSize( bool isx ) const
 {
     return isx ? qimg_->width() : qimg_->height();
 }
+
+
+bool uiRGBArray::save(const char* fnm,const char* fmt,
+		      int quality ) const
+{
+    return qimg_->save( fnm, fmt, quality );
+}
+
+
+void uiRGBArray::supportedImageFormats( BufferStringSet& list )
+{
+    QList<QByteArray> qlist = QImageWriter::supportedImageFormats();
+    for ( int idx=0; idx<qlist.size(); idx++ )
+	list.add( qlist[idx].constData() );
+}
+
