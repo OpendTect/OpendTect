@@ -128,8 +128,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	const bool hasrg = dataset_->getRanges( lineidx, trcrg, zrg );
 
 	PosInfo::Line2DData l2dd;
-	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom )
 	if ( geom2d )
 	    l2dd = geom2d->data();
 	if ( !geom2d || l2dd.isEmpty() )
