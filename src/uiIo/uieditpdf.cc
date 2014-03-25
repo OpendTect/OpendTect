@@ -275,8 +275,8 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	{
 	    vwwin1d_ =
 		new uiPDF1DViewWin( this, xvals.arr(), data.getData(), sz );
-	    vwwin1d_->disp_->xAxis()->setName( pdf_.dimName(0) );
-	    vwwin1d_->disp_->yAxis(false)->setName( "Value" );
+	    vwwin1d_->disp_->xAxis()->setCaption( pdf_.dimName(0) );
+	    vwwin1d_->disp_->yAxis(false)->setCaption( "Value" );
 	    vwwin1d_->setDeleteOnClose( true );
 	    vwwin1d_->windowClosed.notify( clsecb );
 	}

@@ -122,16 +122,16 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     uiFuncTaperDisp::Setup s;
     bool istime = SI().zIsTime();
     s.datasz_ = istime ? (int) ( 0.5/SI().zStep() ) : 100;
-    s.xaxnm_ = istime ? "Time (s)" : "Depth (m)";
-    s.yaxnm_ = "Taper Amplitude";
+    s.xaxcaption_ = istime ? "Time (s)" : "Depth (m)";
+    s.yaxcaption_ = "Taper Amplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
     s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
-    s.xaxnm_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
-    s.yaxnm_ = "Gain (dB)";
+    s.xaxcaption_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
+    s.yaxcaption_ = "Gain (dB)";
     s.fillbelowy2_ = true;
     s.drawliney_ = false;
     freqdrawer_ = new uiFuncTaperDisp( this, s );
@@ -286,8 +286,8 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFunctionDisplay::Setup fdsu;
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    BufferString xname = SI().zIsTime() ? "Frequency (Hz)" : "Wavenumber (/m)";
-    BufferString yname = "Amplitude";
+    uiString xname = SI().zIsTime() ? "Frequency (Hz)" : "Wavenumber (/m)";
+    uiString yname = "Amplitude";
     fdsu.ywidth_ = 2;
 
     if ( attridx == 0 )
@@ -304,8 +304,8 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
     if ( attridx )
 	attrdisps_[attridx]->attach( alignedBelow, attrdisps_[attridx-1] );
 
-    attrdisps_[attridx]->xAxis()->setName( xname );
-    attrdisps_[attridx]->yAxis(false)->setName( yname );
+    attrdisps_[attridx]->xAxis()->setCaption( xname );
+    attrdisps_[attridx]->yAxis(false)->setCaption( yname );
 }
 
 

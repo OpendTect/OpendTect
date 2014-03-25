@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
+#include "uistring.h"
 #include "fontdata.h"
 
 class uiGraphicsScene;
@@ -47,7 +48,7 @@ template <class T> class LineParameters;
   ahndlr.setRange( StepInterval<float>(al.sd.start,al.stop,al.sd.step) );
 */
 
-mExpClass(uiTools) uiAxisHandler : public NamedObject
+mExpClass(uiTools) uiAxisHandler
 {
 public:
 
@@ -88,7 +89,7 @@ public:
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(LineStyle,gridlinestyle)
-	mDefSetupMemb(BufferString,name)
+	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(int,zval)
@@ -103,7 +104,8 @@ public:
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
 
-    void		setName(const char*);
+    void		setCaption(const uiString&);
+    uiString		getCaption() const	{ return setup_.caption_; }
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}
@@ -123,7 +125,7 @@ public:
     int			getRelPosPix(float relpos) const;
 
     void		updateScene(); //!< update gridlines if appropriate
-    void		annotAtEnd(const char*);
+    void		annotAtEnd(const uiString&);
 
     const Setup&	setup() const	{ return setup_; }
     Setup&		setup()	{ return setup_; }
@@ -168,7 +170,7 @@ protected:
     uiTextItem*		nameitm_;
     void		reCalc();
     int			calcwdth_;
-    BufferStringSet	strs_;
+    TypeSet<uiString>	strs_;
     TypeSet<float>	pos_;
     float		endpos_;
     int			devsz_;
@@ -180,7 +182,7 @@ protected:
     int			ticSz() const;
     void		updateAxisLine();
     void		drawGridLine(int);
-    void		annotPos(int,const char*,const LineStyle&);
+    void		annotPos(int,const uiString&,const LineStyle&);
     void		updateName();
 
     bool		doPlotExtreme(float plottextrmval,bool isstart) const;

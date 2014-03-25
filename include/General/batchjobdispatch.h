@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "oscommand.h"
 #include "iopar.h"
+#include "uistring.h"
 
 
 namespace Batch
@@ -74,7 +75,7 @@ public:
 
     virtual		~JobDispatcher()		{}
 
-    virtual const char*	description() const		= 0;
+    virtual uiString	description() const		= 0;
     virtual bool	isSuitedFor(const char* prognm) const = 0;
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const { return false; }
@@ -120,7 +121,7 @@ public:
 			SingleJobDispatcher();
     virtual		~SingleJobDispatcher()		{}
 
-    virtual const char*	description() const;
+    virtual uiString	description() const;
     virtual bool	isSuitedFor(const char*) const	{ return true; }
 
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,

@@ -186,7 +186,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	spec.getSpectrumData( *funcvals_ );
 	drawer_->setup().fillbelowy2_ = true;
 	drawer_->setFunction( *funcvals_, spec.getPosRange() );
-	drawer_->yAxis(true)->setName( "Power (dB)" );
+	drawer_->yAxis(true)->setCaption( tr("Power (dB)") );
     }
 }
 
@@ -450,8 +450,8 @@ uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     rightd_.rg_ = s.rightrg_;	rightd_.refrg_ = s.rightrg_;
     setWindows( 0, 0 );
 
-    xAxis()->setName( s.xaxnm_ );
-    yAxis(false)->setName( s.yaxnm_ );
+    xAxis()->setCaption( s.xaxcaption_ );
+    yAxis(false)->setCaption( s.yaxcaption_ );
 }
 
 

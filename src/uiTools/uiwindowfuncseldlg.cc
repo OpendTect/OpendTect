@@ -60,7 +60,7 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 
     xax_->setBegin( yax_ );		yax_->setBegin( xax_ );
     xax_->setBounds( su.xaxrg_ );	yax_->setBounds( su.yaxrg_ );
-    xax_->setName( su.xaxname_ );	yax_->setName( su.yaxname_ );
+    xax_->setCaption( su.xaxcaption_ ); yax_->setCaption( su.yaxcaption_ );
 
     reSize.notify( mCB( this, uiFunctionDrawer, draw ) );
 }
@@ -98,6 +98,12 @@ void uiFunctionDrawer::setFrame()
     borderrectitem_->setPenStyle( LineStyle() );
     borderrect.setTop( borderrect.top() + 3 );
     transform_->resetUiRect( borderrect );
+}
+
+
+void uiFunctionDrawer::clearFunction( int idx )
+{
+    delete functions_.removeSingle(idx);
 }
 
 

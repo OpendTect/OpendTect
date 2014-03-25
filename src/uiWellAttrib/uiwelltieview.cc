@@ -427,8 +427,8 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
     fdsu.border_.setRight( 0 );
     fdsu.epsaroundzero_ = 1e-3;
     disp_ = new uiFunctionDisplay( this, fdsu );
-    disp_->xAxis()->setName( "Lags (ms)" );
-    disp_->yAxis(false)->setName( "Coefficient" );
+    disp_->xAxis()->setCaption( "Lags (ms)" );
+    disp_->yAxis(false)->setCaption( "Coefficient" );
     lbl_ = new uiLabel( this,"" );
     lbl_->attach( centeredAbove, disp_ );
 }

@@ -53,13 +53,12 @@ void uiTabStack::tabSel( CallBacker* cb )
 }
 
 
-void uiTabStack::addTab( uiGroup* grp, const char* txt )
+void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    uiTab* tab = new uiTab( *grp );
-    BufferString tabname = txt && *txt ? txt : (const char*)grp->name();
-    tab->setName( tabname );
+    const uiString tabcaption = txt.isEmpty() ? txt : (const char*)grp->name();
+    uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );
 
     if ( !hAlignObj() )

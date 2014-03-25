@@ -39,7 +39,7 @@ public:
 			// use this as parent for groups to add
     uiGroup*		tabGroup()			{ return tabgrp_; }
 
-    void		addTab(uiGroup*,const char* txt=0);
+    void		addTab(uiGroup*,const uiString& =0);
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(uiGroup*,bool);

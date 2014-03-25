@@ -26,8 +26,13 @@ in a tabstack (uiTabStackDlg) */
 mExpClass(uiTools) uiDlgGroup : public uiGroup
 {
 public:
-    			uiDlgGroup(uiParent* p,const char* nm)
-			    : uiGroup( p, nm )		{}
+			uiDlgGroup(uiParent* p,const uiString& caption )
+			    : uiGroup( p, caption.getFullString() )
+			    , caption_( caption )
+			{}
+
+    void		setCaption( const uiString& c ) { caption_ = c; }
+    const uiString&	getCaption() const		{ return caption_; }
 
     virtual bool	acceptOK()			{ return true; }
     			/*!<Commit changes. Return true if success. */
@@ -44,6 +49,9 @@ public:
     virtual const char*	errMsg() const			{ return 0; }
 
     virtual HelpKey	helpKey() const 		{ return 0; }
+
+protected:
+    uiString		caption_;
     			
 };
 

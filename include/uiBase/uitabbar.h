@@ -39,7 +39,7 @@ public:
 
     void		setCurrentTab(int idx);
     int			currentTabId() const;
-    const char*		textOfTab(int idx) const;
+    uiString		textOfTab(int idx) const;
     
     int			size() const;
 
@@ -59,18 +59,23 @@ protected:
 };
 
 
-mExpClass(uiBase) uiTab : public NamedObject
+mExpClass(uiBase) uiTab
 {
 friend class		uiTabBar;
 public:
-			uiTab(uiGroup&);
+			uiTab(uiGroup&,const uiString& caption);
 
-    uiGroup&		group()		{ return grp_; }
-    const uiGroup&	group() const	{ return grp_; }
+    void		setCaption(const uiString&);
+    const uiString&	getCaption() const		{ return caption_; }
+
+
+    uiGroup&		group() 			{ return grp_; }
+    const uiGroup&	group() const			{ return grp_; }
 
 protected:
 
     uiGroup&		grp_;
+    uiString		caption_;
 };
 
 #endif

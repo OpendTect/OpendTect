@@ -39,7 +39,7 @@ public:
 
     Batch::JobSpec&	jobSpec()		{ return jobspec_; }
     const char*		selected() const;
-    const char*		selectedInfo() const;
+    const uiString	selectedInfo() const;
     uiBatchJobDispatcherLauncher* selectedLauncher();
 
     bool		wantBatch() const;	//! can be false if isoptional

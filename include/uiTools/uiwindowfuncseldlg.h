@@ -49,16 +49,14 @@ public:
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
 			    , yaxrg_(0,1,0.25) 
-			    , funcrg_(-1.2,1.2) 
-			    , xaxname_("")	       
-			    , yaxname_("")
-			    {}
+			    , funcrg_(-1.2,1.2)
+			{}
 					      
 	mDefSetupMemb(StepInterval<float>,xaxrg)
 	mDefSetupMemb(StepInterval<float>,yaxrg)	
 	mDefSetupMemb(const char*,name)	
-	mDefSetupMemb(BufferString,xaxname)	
-	mDefSetupMemb(BufferString,yaxname)	
+	mDefSetupMemb(uiString,xaxcaption)
+	mDefSetupMemb(uiString,yaxcaption)
 	mDefSetupMemb(Interval<float>,funcrg)	
     };
 
@@ -79,7 +77,7 @@ public:
     
     void		addFunction(DrawFunction* f) { functions_ += f; }
     void		clearFunctions(){ deepErase( functions_ ); }
-    void		clearFunction(int idx) {delete functions_.removeSingle(idx);}
+    void		clearFunction(int idx);
     void		draw(CallBacker*);
     Interval<float>& 	getFunctionRange() { return funcrg_; }
     void 		setSelItems(TypeSet<int> s) { selitemsidx_ = s; }

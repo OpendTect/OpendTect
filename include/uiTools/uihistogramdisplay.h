@@ -23,7 +23,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 class DataPointSet;
 
 mExpClass(uiTools) uiHistogramDisplay : public uiFunctionDisplay
-{
+{ mODTextTranslationClass(uiHistogramDisplay);
 public:
 
     				uiHistogramDisplay(uiParent*,Setup&,

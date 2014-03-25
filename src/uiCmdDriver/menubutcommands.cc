@@ -756,7 +756,7 @@ bool IsShownCmd::act( const char* parstr )
     int nrgreytabs = 0; \
     for ( int idx=0; idx<uitabbar->size(); idx++ ) \
     { \
-	mGetAmpFilteredStr( tabtxt, uitabbar->textOfTab(idx) ); \
+	mGetAmpFilteredStr( tabtxt, uitabbar->textOfTab(idx).getFullString() );\
 	tabtexts.add( tabtxt ); \
 	if ( !mSearchKey(tabstr).isMatching(tabtxt) ) \
 	    continue; \
@@ -851,7 +851,8 @@ bool CurTabCmd::act( const char* parstr )
 
     const int curtabidx = uitabbar->currentTabId();
     mCountTabs( uitabbar, curtabidx, count );
-    mParForm( answer, form, uitabbar->textOfTab(curtabidx), count );
+    mParForm( answer, form, uitabbar->textOfTab(curtabidx).getFullString(),
+	      count );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -875,7 +876,8 @@ bool GetTabCmd::act( const char* parstr )
     mParTabSelPre( uitabbar, tabstr, tabnr, tabidxs );
 
     mCountTabs( uitabbar, tabidxs[0], count );
-    mParForm( answer, form, uitabbar->textOfTab(tabidxs[0]), count );
+    mParForm( answer, form, uitabbar->textOfTab(tabidxs[0]).getFullString(),
+	      count );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -1067,7 +1069,8 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 
     mDynamicCastGet( const uiTabBar*, uitabs, ev.object_ );
 
-    mGetAmpFilteredStr( curtabname, uitabs->textOfTab(uitabs->currentTabId()) );
+    mGetAmpFilteredStr( curtabname,
+		uitabs->textOfTab(uitabs->currentTabId()).getFullString() );
     mDressNameString( curtabname, sItemName );
 
     bool namecasedep = false;
@@ -1079,7 +1082,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 	if ( !uitabs->isTabEnabled(idx) )
 	    continue;
 
-	mGetAmpFilteredStr( tabtxt, uitabs->textOfTab(idx) );
+	mGetAmpFilteredStr( tabtxt, uitabs->textOfTab(idx).getFullString() );
 	if ( SearchKey(curtabname,false).isMatching(tabtxt) )
 	{
 	    if ( SearchKey(curtabname,true).isMatching(tabtxt) )

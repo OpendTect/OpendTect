@@ -153,8 +153,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     disp_ = new uiFunctionDisplay( this, fdsu );
     BufferString xnmstr = "Lag distance ";
     xnmstr += ishor ? SI().getXYUnitString() : "(ms)";
-    disp_->xAxis()->setName( xnmstr.buf() );
-    disp_->yAxis(false)->setName( "Normalized Variance" );
+    disp_->xAxis()->setCaption( xnmstr.buf() );
+    disp_->yAxis(false)->setCaption( "Normalized Variance" );
     disp_->attach( rightOf, sillfld_ );
 
     rangefld_ = new uiSlider( this, uiSlider::Setup("range").withedit(true).

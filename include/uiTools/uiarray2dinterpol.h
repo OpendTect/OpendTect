@@ -30,15 +30,15 @@ public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
 
     				uiArray2DInterpolSel(uiParent*,bool filltype,
-				bool holesz, bool withclassification,
-				const Array2DInterpol* oldvals,
-				bool withstep=false);
+					bool holesz, bool withclassification,
+					const Array2DInterpol* oldvals,
+					bool withstep=false);
 
     bool			acceptOK();
     Array2DInterpol*		getResult();
     				//!<\note Becomes caller's
 				
-    void			setDistanceUnit(const char*);
+    void			setDistanceUnit(const uiString&);
     				//!<A unitstring in [] that tells what the
 				//!<unit is for going from one cell to another
     
@@ -72,12 +72,12 @@ public:
     			//*!Dose only work if provided object is of 'your' type.
 
     bool		acceptOK()					= 0;
-    virtual void	setDistanceUnit(const char*)			{}
+    virtual void	setDistanceUnit(const uiString&)		{}
 
     Array2DInterpol*	getResult();
 			//!<Becomes caller's
 protected:
-    			uiArray2DInterpol(uiParent*,const char* nm);
+			uiArray2DInterpol(uiParent*,const uiString& caption);
     			~uiArray2DInterpol();
 
     virtual Array2DInterpol*	createResult() const	{ return 0; }
@@ -107,7 +107,7 @@ protected:
 
 
 mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
-{
+{ mODTextTranslationClass(uiInverseDistanceArray2DInterpol);
 public:
 
     				uiInverseDistanceArray2DInterpol(uiParent*);
@@ -117,7 +117,7 @@ public:
 
     void			setValuesFrom(const Array2DInterpol&);
     bool			acceptOK();
-    void			setDistanceUnit(const char*);
+    void			setDistanceUnit(const uiString&);
 
     HelpKey			helpKey() const { return "104.0.13"; }
 
@@ -140,7 +140,7 @@ protected:
 
 
 mExpClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
-{
+{ mODTextTranslationClass(uiTriangulationArray2DInterpol);
 public:
 
     				uiTriangulationArray2DInterpol(uiParent*);
@@ -149,7 +149,7 @@ public:
     static uiArray2DInterpol*	create(uiParent*);
 
     bool			acceptOK();
-    void			setDistanceUnit(const char*);
+    void			setDistanceUnit(const uiString&);
 
     HelpKey			helpKey() const { return "104.0.13"; }
 

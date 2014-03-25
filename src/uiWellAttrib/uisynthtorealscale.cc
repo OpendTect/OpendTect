@@ -62,7 +62,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     uiFunctionDisplay::Setup su;
     su.annoty( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
     dispfld_ = new uiHistogramDisplay( this, su );
-    dispfld_->xAxis()->setName( "" );
+    dispfld_->xAxis()->setCaption( "" );
     dispfld_->setPrefWidth( 260 );
     dispfld_->setPrefHeight( GetGoldenMinor(260) );
 

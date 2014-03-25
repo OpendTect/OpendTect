@@ -61,8 +61,8 @@ public:
     void			handleAutoScale(const Stats::RunCalc<float>&);
     void			handleAutoScale(const DataClipper&);
     void			newDevSize();
-    void			renewAxis(const char*,uiGraphicsScene*,int w,
-	    				  int h,const Interval<float>*);
+    void			renewAxis(const uiString&,uiGraphicsScene*,
+					  int w,int h,const Interval<float>*);
 };
 
 #endif

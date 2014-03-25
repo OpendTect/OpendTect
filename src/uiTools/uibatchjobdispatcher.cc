@@ -189,7 +189,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 }
 
 
-const char* uiBatchJobDispatcherSel::selectedInfo() const
+const uiString uiBatchJobDispatcherSel::selectedInfo() const
 {
     const int selidx = selIdx();
     return selidx < 0 ? "" : uidispatchers_[selidx]->getInfo();
@@ -274,10 +274,15 @@ bool uiBatchJobDispatcherLauncher::canHandleJobSpec() const
 }
 
 
-const char* uiBatchJobDispatcherLauncher::getInfo() const
+uiString uiBatchJobDispatcherLauncher::getInfo() const
 {
     return dispatcher().description();
 }
+
+
+const Batch::JobDispatcher& uiBatchJobDispatcherLauncher::dispatcher() const
+{ return const_cast<uiBatchJobDispatcherLauncher*>(this)->gtDsptchr(); }
+
 
 
 uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher(

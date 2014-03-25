@@ -147,8 +147,8 @@ void uiWellDahDisplay::gatherInfo()
 			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0;
     BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name()
 			 : ld1_->dahobj_ ? ld1_->dahobj_->name() : 0;
-    ld1_->xax_.setName( axis1nm );
-    ld2_->xax_.setName( axis2nm );
+    ld1_->xax_.setCaption( axis1nm );
+    ld2_->xax_.setCaption( axis2nm );
 }
 
 

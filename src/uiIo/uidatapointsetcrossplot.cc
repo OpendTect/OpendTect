@@ -561,8 +561,9 @@ void uiDataPointSetCrossPlotter::mouseClickedCB( CallBacker* )
     curselarea_ = selgrp->size() - 1;
     SelectionArea& selarea = getCurSelArea();
     if ( !axisHandler(0) || !axisHandler(1) ) return;
-    selarea.xaxisnm_ = axisHandler(0)->name();
-    selarea.yaxisnm_ = axisHandler( isy1selectable_ ? 1 : 2 )->name();
+    selarea.xaxisnm_ = axisHandler(0)->getCaption().getFullString();
+    selarea.yaxisnm_ =
+	axisHandler( isy1selectable_ ? 1 : 2 )->getCaption().getFullString();
 }
 
 

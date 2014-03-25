@@ -29,8 +29,7 @@ static const float logof2 = logf(2);
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
-    : NamedObject(su.name_)
-    , mDefInitList
+    : mDefInitList
     , scene_(scene)
     , setup_(su)
     , height_(su.height_)
@@ -55,9 +54,9 @@ uiAxisHandler::~uiAxisHandler()
 }
 
 
-void uiAxisHandler::setName( const char* nm )
+void uiAxisHandler::setCaption( const uiString& caption )
 {
-    NamedObject::setName( nm );
+    setup_.caption_ = caption;
     reCalc();
 }
 
@@ -154,7 +153,7 @@ void uiAxisHandler::reCalc()
     const bool allocspaceforname = !setup_.noaxisannot_
 				&& !setup_.annotinside_
 				&& !setup_.fixedborder_
-				&& !name().isEmpty();
+				&& !setup_.caption_.isEmpty();
     if ( allocspaceforname )
 	calcwdth_ += font.height();
 
@@ -342,7 +341,7 @@ void uiAxisHandler::updateAnnotations()
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
 	const float relpos = pos_[idx] / endpos_;
-	annotPos( getRelPosPix(relpos), strs_.get(idx), setup_.style_ );
+	annotPos( getRelPosPix(relpos), strs_[idx], setup_.style_ );
     }
 }
 
@@ -400,7 +399,7 @@ void uiAxisHandler::updateScene()
 
     updateAnnotations();
 
-    if ( !setup_.noaxisannot_ && !name().isEmpty() )
+    if ( !setup_.noaxisannot_ && !setup_.caption_.isEmpty() )
 	updateName();
 
     if ( setup_.noaxisannot_ ) return;
@@ -531,7 +530,7 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 }
 
 
-void uiAxisHandler::annotAtEnd( const char* txt )
+void uiAxisHandler::annotAtEnd( const uiString& txt )
 {
     const int edgepix = pixToEdge();
     int xpix, ypix; Alignment al;
@@ -562,7 +561,7 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 }
 
 
-void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
+void uiAxisHandler::annotPos( int pix, const uiString& txt, const LineStyle& ls)
 {
     if ( setup_.noaxisannot_ || setup_.noannotpos_ ) return;
     const int edgepix = pixToEdge();
@@ -652,9 +651,9 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
 void uiAxisHandler::updateName()
 {
     if ( !nameitm_ )
-	nameitm_ = scene_->addItem( new uiTextItem(name()) );
+	nameitm_ = scene_->addItem( new uiTextItem( setup_.caption_ ) );
     else
-	nameitm_->setText( name() );
+	nameitm_->setText( setup_.caption_ );
 
     Alignment al( Alignment::HCenter, Alignment::VCenter );
     uiPoint pt;

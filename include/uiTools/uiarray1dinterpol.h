@@ -24,7 +24,7 @@ template <class T> class Array1D;
 
 
 mExpClass(uiTools) uiArray1DInterpolSel : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiArray1DInterpolSel);
 public:
     				uiArray1DInterpolSel( uiParent*,bool extrapol,
 						      bool holesz);
@@ -34,7 +34,7 @@ public:
     bool			acceptOK();
     Array1DInterpol*		getResult(int);
 				
-    void			setDistanceUnit(const char*);
+    void			setDistanceUnit(const uiString&);
     void			setInterpolators(int totalnr);
     void			setArraySet(ObjectSet< Array1D<float> >&);
     

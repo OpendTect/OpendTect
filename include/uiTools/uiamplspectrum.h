@@ -29,16 +29,16 @@ template <class T> class Array1DImpl;
 
 
 mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
-{
+{ mODTextTranslationClass(uiAmplSpectrum);
 public:
     struct Setup
     {
-			Setup( const char* t=0, bool iscep=false, 
+			Setup( const uiString& t=0, bool iscep=false,
 			       float nyqst=SI().zStep() )
 			    : caption_(t)
 			    , nyqvistspspace_(nyqst)
 			    , iscepstrum_(iscep)	{}
-	mDefSetupMemb(BufferString,caption)
+	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(float,nyqvistspspace)
 	mDefSetupMemb(bool,iscepstrum)
     };

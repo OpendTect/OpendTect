@@ -51,9 +51,9 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       .xrg(zrg).ycol(Color(255,0,0));
 
     funcdisp_ = new uiFunctionDisplay( this, su );
-    funcdisp_->xAxis()->setName( "Z" );
-    funcdisp_->yAxis(true)->setName( "RMS Amplitude" ); 
-    funcdisp_->yAxis(false)->setName( "Scale Factor" ); 
+    funcdisp_->xAxis()->setCaption( "Z" );
+    funcdisp_->yAxis(true)->setCaption( "RMS Amplitude" );
+    funcdisp_->yAxis(false)->setCaption( "Scale Factor" );
 
     uiGroup* mandispgrp = new uiGroup( this );
     mandispgrp->attach( alignedBelow, funcdisp_ );
@@ -127,7 +127,7 @@ void uiGainAnalysisDlg::setData( bool sety )
     BufferString label( "RMS Amplitude" );
     label += linear ? "(Linear)" : "(dB)";
 
-    funcdisp_->yAxis(true)->setName( label ); 
+    funcdisp_->yAxis(true)->setCaption( label );
     
     TypeSet<float> avgrmsvals;
 

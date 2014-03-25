@@ -16,10 +16,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-uiTab::uiTab( uiGroup& grp )
-    : NamedObject( grp.name() )
+uiTab::uiTab( uiGroup& grp, const uiString& caption )
+    : caption_( caption_.isEmpty() ? grp_.name() : caption  )
     , grp_( grp )
 {}
+
+
+void uiTab::setCaption( const uiString& caption )
+{ caption_ = caption; }
 
 
 class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
@@ -73,7 +77,7 @@ int uiTabBar::addTab( uiTab* tab )
     if ( !tab ) return -1;
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), QString(tab->name()) ); 
+    return body_->insertTab( tabs_.size(), tab->getCaption().getQtString() );
 }
 
 
@@ -123,8 +127,8 @@ int uiTabBar::currentTabId() const
 { return body_->currentIndex(); }
 
 
-const char* uiTabBar::textOfTab( int idx ) const
-{ return idx>=0 && idx<size() ? tabs_[idx]->name().buf() : 0; }
+uiString uiTabBar::textOfTab( int idx ) const
+{ return idx>=0 && idx<size() ? tabs_[idx]->getCaption() : uiString(); }
 
 
 int uiTabBar::size() const

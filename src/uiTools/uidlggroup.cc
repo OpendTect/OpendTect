@@ -59,7 +59,7 @@ uiParent* uiTabStackDlg::tabParent()
 void uiTabStackDlg::addGroup( uiDlgGroup* grp )
 {
     groups_ += grp;
-    tabstack_->addTab( grp );
+    tabstack_->addTab( grp, grp->getCaption() );
 }
 
 

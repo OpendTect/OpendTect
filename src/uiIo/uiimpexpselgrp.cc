@@ -605,22 +605,24 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
 {
     bool hasy2 = plotter.axisHandler(2);
     BufferStringSet nms;
-    nms.add( plotter.axisHandler(0)->name() );
-    nms.add( plotter.axisHandler(1)->name() );
+    nms.add( plotter.axisHandler(0)->getCaption().getFullString() );
+    nms.add( plotter.axisHandler(1)->getCaption().getFullString() );
     if ( hasy2 )
-	nms.add( plotter.axisHandler(2)->name() );
+	nms.add( plotter.axisHandler(2)->getCaption().getFullString() );
 
     inpfld_ = new uiSGSel( this, true );
     inpfld_->selGrpSelected.notify( mCB(this,uiReadSelGrp,selectedCB) );
 
     uiLabeledComboBox* xselfld =
-	new uiLabeledComboBox( this, plotter.axisHandler(0)->name() );
+	new uiLabeledComboBox( this,
+		    plotter.axisHandler(0)->getCaption().getFullString() );
     xselfld_ = xselfld->box();
     xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
 
     uiLabeledComboBox* yselfld =
-	new uiLabeledComboBox( this, plotter.axisHandler(1)->name() );
+	new uiLabeledComboBox( this,
+		    plotter.axisHandler(1)->getCaption().getFullString() );
     yselfld_ = yselfld->box();
     yselfld->attach( alignedBelow, xselfld );
     yselfld_->display( false, false );
@@ -633,7 +635,8 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     if ( hasy2 )
     {
 	uiLabeledComboBox* y2selfld =
-	    new uiLabeledComboBox( this,plotter.axisHandler(2)->name() );
+	    new uiLabeledComboBox( this,
+			plotter.axisHandler(2)->getCaption().getFullString() );
 	y2selfld_ = y2selfld->box();
 	y2selfld->attach( alignedBelow, yselfld );
 	y2selfld_->display( false, false );
@@ -671,10 +674,10 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     selgrpset_ = inpfld_->selGrpSet();
 
     BufferStringSet axisnms;
-    axisnms.add( plotter_.axisHandler(0)->name() );
-    axisnms.add( plotter_.axisHandler(1)->name() );
+    axisnms.add( plotter_.axisHandler(0)->getCaption().getFullString() );
+    axisnms.add( plotter_.axisHandler(1)->getCaption().getFullString() );
     if ( plotter_.axisHandler(2) )
-	axisnms.add( plotter_.axisHandler(2)->name() );
+	axisnms.add( plotter_.axisHandler(2)->getCaption().getFullString() );
 
     xname_ = inpfld_->xName();
     yname_ = inpfld_->yName();
@@ -918,11 +921,14 @@ bool uiReadSelGrp::adjustSelectionGrps()
 	    if ( plotter_.checkSelArea(actselarea) )
 	    {
 		actselarea.id_ = selareaid;
-		actselarea.xaxisnm_ = plotter_.axisHandler(0)->name();
+		actselarea.xaxisnm_ =
+			plotter_.axisHandler(0)->getCaption().getFullString();
 		actselarea.yaxisnm_ =
-		    plotter_.axisHandler( yaxis < 0 ? 2 : 1 )->name();
+		    plotter_.axisHandler( yaxis < 0 ? 2 : 1 )
+			->getCaption().getFullString();
 		if ( hasalt && y2axis >=0 )
-		    actselarea.altyaxisnm_ = plotter_.axisHandler(2)->name();
+		    actselarea.altyaxisnm_ =
+		    plotter_.axisHandler(2)->getCaption().getFullString();
 		newselgrp->addSelection( actselarea );
 		selareaid++;
 	    }

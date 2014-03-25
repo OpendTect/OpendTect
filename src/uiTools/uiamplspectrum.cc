@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
-    : uiMainWin( p,"Amplitude Spectrum", 0, false, false )
+    : uiMainWin( p,tr("Amplitude Spectrum"), 0, false, false )
     , timedomain_(0)
     , freqdomain_(0)
     , freqdomainsum_(0)
@@ -49,11 +49,11 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
     disp_ = new uiFunctionDisplay( this, su );
-    disp_->xAxis()->setName( SI().zIsTime() ? !setup_.iscepstrum_
-						    ? "Frequency (Hz)"
-						    : "Quefrency (ms)"
-					    : "Wavenumber (/m)" );
-    disp_->yAxis(false)->setName( "Power (dB)" );
+    disp_->xAxis()->setCaption( SI().zIsTime() ? !setup_.iscepstrum_
+						    ? tr("Frequency (Hz)")
+						    : tr("Quefrency (ms)")
+					    : tr("Wavenumber (/m)") );
+    disp_->yAxis(false)->setCaption( tr("Power (dB)") );
     disp_->getMouseEventHandler().movement.notify(
 	    mCB(this,uiAmplSpectrum,valChgd) );
 

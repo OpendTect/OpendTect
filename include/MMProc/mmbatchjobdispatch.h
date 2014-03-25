@@ -45,7 +45,7 @@ public:
 			MMJobDispatcher();
     virtual		~MMJobDispatcher()		{}
 
-    virtual const char*	description() const;
+    virtual uiString	description() const;
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const;

@@ -80,8 +80,8 @@ public:
 			    , datasz_((int)(0.5/SI().zStep()))
 			    , logscale_(false)
 			    {
-				xaxnm_ = "Frequency (Hz)";
-				yaxnm_ = "Gain Factor (dB)";
+				xaxcaption_ = "Frequency (Hz)";
+				yaxcaption_ = "Gain Factor (dB)";
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;
@@ -90,8 +90,8 @@ public:
 			    }
 
 	mDefSetupMemb(int,datasz);
-	mDefSetupMemb(const char*,xaxnm);
-	mDefSetupMemb(const char*,yaxnm);
+	mDefSetupMemb(uiString,xaxcaption);
+	mDefSetupMemb(uiString,yaxcaption);
 	mDefSetupMemb(Interval<float>,leftrg)
 	mDefSetupMemb(Interval<float>,rightrg)
 	mDefSetupMemb(bool,is2sided);
@@ -184,7 +184,7 @@ protected :
 
 
 mExpClass(uiSeis) uiFreqTaperDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiFreqTaperDlg);
 public:
 
 			uiFreqTaperDlg(uiParent*,const FreqTaperSetup&);

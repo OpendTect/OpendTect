@@ -26,21 +26,20 @@ mExpClass(uiTools) uiBatchJobDispatcherLauncher
 {
 public:
 
-			uiBatchJobDispatcherLauncher( Batch::JobSpec& js )
-			    : jobspec_(js)		{}
+				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
+				    : jobspec_(js)		{}
 
-    virtual bool	isSuitedFor(const char* prognm) const;
-    virtual bool	canHandleJobSpec() const;
-    virtual bool	hasOptions() const		{ return false;}
-    virtual void	editOptions(uiParent*)		{}
-    virtual const char*	getInfo() const;
-    virtual bool	go(uiParent*);
+    virtual bool		isSuitedFor(const char* prognm) const;
+    virtual bool		canHandleJobSpec() const;
+    virtual bool		hasOptions() const		{ return false;}
+    virtual void		editOptions(uiParent*)		{}
+    virtual uiString		getInfo() const;
+    virtual bool		go(uiParent*);
 
-    Batch::JobSpec&	jobSpec()			{ return jobspec_; }
-    const Batch::JobSpec& jobSpec() const		{ return jobspec_; }
-    Batch::JobDispatcher& dispatcher()			{ return gtDsptchr(); }
-    const Batch::JobDispatcher& dispatcher() const
-    { return const_cast<uiBatchJobDispatcherLauncher*>(this)->gtDsptchr(); }
+    Batch::JobSpec&		jobSpec()		{ return jobspec_; }
+    const Batch::JobSpec&	jobSpec() const 	{ return jobspec_; }
+    Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
+    const Batch::JobDispatcher& dispatcher() const;
 
     const char*		name() const { return factoryDisplayName(); }
 

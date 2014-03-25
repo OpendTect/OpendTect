@@ -61,18 +61,12 @@ uiArray1DInterpolSel::~uiArray1DInterpolSel()
 }
 
 
-void uiArray1DInterpolSel::setDistanceUnit( const char* du )
+void uiArray1DInterpolSel::setDistanceUnit( const uiString& du )
 {
     if ( maxgapszfld_ )
     {
-	BufferString res = "Keep holes larger than";
-	if ( du )
-	{
-	    res += " ";
-	    res += du;
-	}
-
-	maxgapszfld_->setTitleText( res.buf() );
+	uiString res = tr("Keep holes larger than %1").arg( du );
+	maxgapszfld_->setTitleText( res );
     }
 }
 

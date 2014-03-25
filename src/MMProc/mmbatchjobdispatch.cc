@@ -25,7 +25,7 @@ Batch::MMJobDispatcher::MMJobDispatcher()
 }
 
 
-const char* Batch::MMJobDispatcher::description() const
+uiString Batch::MMJobDispatcher::description() const
 {
     return "The job will be split into parts that can each "
 	   "run on a separate computer.";

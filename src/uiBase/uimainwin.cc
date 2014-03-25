@@ -707,9 +707,9 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
 }
 
 
-uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
+uiMainWin::uiMainWin( uiParent* parnt, const uiString& caption,
 		      int nrstatusflds, bool withmenubar, bool modal )
-    : uiParent(nm,0)
+    : uiParent(caption.getFullString(),0)
     , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
@@ -717,14 +717,16 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
-    , caption_(nm)
+    , caption_(caption)
     , afterpopuptimer_(0)
     , languagedirtycount_( TrMgr().dirtyCount() )
 {
-    body_ = new uiMainWinBody( *this, parnt, nm, modal );
+    body_ = new uiMainWinBody( *this, parnt, caption_.getFullString(), modal );
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
-    body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
+    body_->setWindowIconText( caption_.isEmpty()
+			     ? "OpendTect"
+			     : caption_.getQtString() );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 
     mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );

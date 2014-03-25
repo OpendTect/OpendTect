@@ -158,18 +158,12 @@ HelpKey uiArray2DInterpolSel::helpKey() const
 }
 
 
-void uiArray2DInterpolSel::setDistanceUnit( const char* du )
+void uiArray2DInterpolSel::setDistanceUnit( const uiString& du )
 {
     if ( maxholeszfld_ )
     {
-	BufferString res = "Keep holes larger than";
-	if ( du )
-	{
-	    res += " ";
-	    res += du;
-	}
-
-	maxholeszfld_->setTitleText( res.buf() );
+	uiString res = tr("Keep holes larger than %1").arg( du );
+	maxholeszfld_->setTitleText( res );
     }
 
     for ( int idx=0; idx<params_.size(); idx++ )
@@ -289,8 +283,8 @@ Array2DInterpol* uiArray2DInterpolSel::getResult()
 }
 
 
-uiArray2DInterpol::uiArray2DInterpol( uiParent* p, const char* nm )
-    : uiDlgGroup( p, nm )
+uiArray2DInterpol::uiArray2DInterpol( uiParent* p, const uiString& caption )
+    : uiDlgGroup( p, caption )
     , result_( 0 )
 {
 }
@@ -368,16 +362,12 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 }
 
 
-void uiInverseDistanceArray2DInterpol::setDistanceUnit( const char* d )
+void uiInverseDistanceArray2DInterpol::setDistanceUnit( const uiString& d )
 {
-    BufferString res = "Search radius";
-    if ( d )
-    {
-	res += " ";
-	res += d;
-    }
+    uiString res = tr("Search radius %1").arg( d );
+    radiusfld_->setTitleText( res );
 
-    radiusfld_->setTitleText( res.buf() );
+
 }
 
 void uiTriangulationArray2DInterpol::initClass()
@@ -415,16 +405,10 @@ void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 }
 
 
-void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
+void uiTriangulationArray2DInterpol::setDistanceUnit( const uiString& d )
 {
-    BufferString res = "Max interpolate distance";
-    if ( d )
-    {
-	res += " ";
-	res += d;
-    }
-
-    maxdistfld_->setTitleText( res.buf() );
+    uiString res = tr("Max interpolate distance %1").arg( d );
+    maxdistfld_->setTitleText( res );
 }
 
 
