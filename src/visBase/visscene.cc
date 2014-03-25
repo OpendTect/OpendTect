@@ -112,7 +112,8 @@ Scene::~Scene()
 
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
 
-    camera_->unRef();
+    if ( camera_ ) 
+	camera_->unRef();
 
     if ( osgsceneroot_ )
 	osgsceneroot_->unref();
