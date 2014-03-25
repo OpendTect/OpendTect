@@ -101,7 +101,7 @@ void StratSynthExporter::prepareWriter()
     delete writer_;
     writer_ = new SeisTrcWriter( isps ? psctxt->ioobj : &outobj_ );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    seldata->lineKey() = LineKey( linegeom_.lineName(), synthnm );
+    seldata->setGeomID( Survey::GM().getGeomID(linegeom_.lineName()) );
     writer_->setSelData( seldata );
     writer_->setAttrib( synthnm );
 }

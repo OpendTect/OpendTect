@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
-				    const LineKey& lk, int trcinit,
+				    const Pos::GeomID geomid, int trcinit,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
     , rdr_(0)
@@ -39,7 +39,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     if ( seldata )
     {
-	seldata->lineKey() = lk;
+	seldata->setGeomID( geomid );
 	wrr_->setSelData( seldata );
     }
 
@@ -296,8 +296,8 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	else if ( strsuffix.size() == 2 )
 	    linenm += "0";
 	linenm += strsuffix;
-	LineKey lk( linenm, outpattrib_.buf() );
-	SeisRandLineTo2D exec( *inpobj_, *outpobj_, lk, 1, *rln );
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	SeisRandLineTo2D exec( *inpobj_, *outpobj_, geomid, 1, *rln );
 	strm_ << "Creating 2D line " << linenm << ":" << od_endl;
 	if ( !exec.go(strm_) )
 	    strm_ << "Failedto create line " << linenm << od_endl;

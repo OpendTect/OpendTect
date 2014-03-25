@@ -4,7 +4,7 @@
 /*+
 ________________________________________________________________________
 
- (C)		dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2002
 
@@ -48,6 +48,7 @@ namespace sKey
     inline FixedString DataRoot()	{ return "Data Root"; }
     inline FixedString DataStorage()	{ return "Data storage"; }
     inline FixedString DataType()	{ return "DataType"; }
+    inline FixedString DataSet()	{ return "DataSet"; }
     inline FixedString Date()		{ return "Date"; }
     inline FixedString DateTime()	{ return "Date/Time"; }
     inline FixedString Default()	{ return "Default"; }

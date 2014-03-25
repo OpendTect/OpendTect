@@ -119,7 +119,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     wrr_ = new SeisTrcWriter( &ioobj );
     Seis::RangeSelData* rsd = new Seis::RangeSelData;
     rsd->setIsAll( true );
-    rsd->lineKey() = lk;
+    rsd->setGeomID( Survey::GM().getGeomID(lk.lineName()) );
     wrr_ = new SeisTrcWriter( &ioobj );
     wrr_->setSelData( rsd );
 

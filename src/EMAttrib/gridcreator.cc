@@ -57,7 +57,7 @@ public:
 			Seis2DLineCreator(const IOObj& input,
 					  const CubeSampling&,
 					  const IOObj& output,
-					  const LineKey&);
+					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
 
     virtual const char* message() const		{ return msg_; }
@@ -76,7 +76,7 @@ protected:
 
 
 Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
-	const CubeSampling& cs, const IOObj& output, const LineKey& lk )
+    const CubeSampling& cs, const IOObj& output, Pos::GeomID geomid )
     : Executor("Creating 2D line")
     , nrdone_(0)
     , totalnr_(cs.hrg.totalNr())
@@ -89,7 +89,7 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     if ( seldata )
     {
-	seldata->lineKey() = lk;
+	seldata->setGeomID( geomid );
 	wrr_->setSelData( seldata );
     }
 }
@@ -197,8 +197,9 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.inl() = cs.hrg.stop.inl() = inlines[idx];
-	LineKey lk( BufferString(inlstr.str(),inlines[idx]), attribname );
-	add( new Seis2DLineCreator(input,cs,output,lk) );
+	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(inlstr.str(),
+							  inlines[idx]).buf() );
+	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
     TypeSet<int> crosslines;
@@ -222,8 +223,9 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.crl() = cs.hrg.stop.crl() = crosslines[idx];
-	LineKey lk( BufferString(crlstr.str(),crosslines[idx]), attribname );
-	add( new Seis2DLineCreator(input,cs,output,lk) );
+	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(crlstr.str(),
+						      crosslines[idx]).buf() );
+	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
     return true;
@@ -264,11 +266,12 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	if ( !line )
 	    continue;
 
-	LineKey lk( BufferString(parstr.str(),idx), attribname );
+	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(parstr.str(),
+								   idx).buf() );
 	Geometry::RandomLine rdl;
 	rdl.addNode( line->start_ );
 	rdl.addNode( line->stop_ );
-	add( new SeisRandLineTo2D(input,output,lk,1,rdl) );
+	add( new SeisRandLineTo2D(input,output,geomid,1,rdl) );
     }
 
     FixedString perstr = par.find( sKeyCrlPrefix() );
@@ -278,11 +281,12 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	if ( !line )
 	    continue;
 
-	LineKey lk( BufferString(perstr.str(),idx), attribname );
+	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(perstr.str(),
+								   idx).buf() );
 	Geometry::RandomLine rdl;
 	rdl.addNode( line->start_ );
 	rdl.addNode( line->stop_ );
-	add( new SeisRandLineTo2D(input,output,lk,1,rdl) );
+	add( new SeisRandLineTo2D(input,output,geomid,1,rdl) );
     }
 
     return true;

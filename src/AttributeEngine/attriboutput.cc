@@ -96,18 +96,12 @@ TypeSet<Interval<int> > Output::getLocalZRanges( const Coord& c, float f,
 }
 
 
-const LineKey& Output::curLineKey() const
-{
-    return seldata_->lineKey();
-}
-
-
 void Output::ensureSelType( Seis::SelType st )
 {
     if ( seldata_->type() != st )
     {
 	Seis::SelData* newseldata = Seis::SelData::get( st );
-	newseldata->lineKey() = seldata_->lineKey();
+	newseldata->setGeomID( seldata_->geomID() );
 	delete seldata_; seldata_ = newseldata;
     }
 }
@@ -120,6 +114,10 @@ void Output::doSetGeometry( const CubeSampling& cs )
     ensureSelType( Seis::Range );
     ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
 }
+
+
+Pos::GeomID Output::curGeomID() const
+{ return seldata_->geomID(); }
 
 
 DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
@@ -298,7 +296,7 @@ void DataCubesOutput::init( float refstep )
 
 
 SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
-				      const LineKey& lk )
+				      const Pos::GeomID geomid )
     : desiredvolume_(cs)
     , auxpars_(0)
     , storid_(*new MultiID)
@@ -310,8 +308,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
     , scaler_(0)
     , growtrctosi_(false)
 {
-    seldata_->lineKey() = lk;
-    attribname_ = lk.attrName();
+    seldata_->setGeomID( geomid );
 }
 
 
@@ -435,8 +432,6 @@ bool SeisTrcStorOutput::doInit()
     }
 
     desiredvolume_.normalise();
-    seldata_->lineKey().setAttrName( "" );
-
     if ( !is2d_ )
     {
 	CubeSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
@@ -448,20 +443,17 @@ bool SeisTrcStorOutput::doInit()
 
 
 
-class COLineKeyProvider : public LineKeyProvider
+class COLineKeyProvider : public GeomIDProvider
 {
 public:
 
-COLineKeyProvider( const char* a, const char* lk )
-	: attrnm_(a) , linename_(lk) {}
+    COLineKeyProvider( Pos::GeomID geomid )
+    : geomid_( geomid ) {}
 
-LineKey lineKey() const
-{
-    LineKey lk(linename_,attrnm_);
-    return lk;
-}
-    BufferString        attrnm_;
-    BufferString	linename_;
+Pos::GeomID geomID() const
+{ return geomid_; }
+
+Pos::GeomID geomid_;
 
 };
 
@@ -537,13 +529,7 @@ void SeisTrcStorOutput::writeTrc()
     {
 	SeisTrcTranslator* transl = 0;
 	if ( writer_->is2D() )
-	{
-	    if ( IOObj::isKey(attribname_) )
-		attribname_ = IOM().nameOf(attribname_);
-
-	    writer_->setLineKeyProvider(
-		new COLineKeyProvider( attribname_, curLineKey().lineName()) );
-	}
+	    writer_->setGeomIDProvider( new COLineKeyProvider(curGeomID()) );
 	else
 	{
 	    transl = writer_->seisTranslator();
@@ -614,11 +600,11 @@ bool SeisTrcStorOutput::finishWrite()
 
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
-			const LineKey& lk )
+			Pos::GeomID geomid)
     : errmsg_(0)
     , output_( 0 )
 {
-    seldata_->lineKey() = lk;
+    seldata_->setGeomID( geomid );
     setGeometry( trg, zrg );
     const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
     seldata_->setIsAll( undeftrg );
@@ -659,7 +645,6 @@ bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
 
 bool TwoDOutput::doInit()
 {
-    seldata_->lineKey().setAttrName( "" );
     const Interval<int> rg( seldata_->crlRange() );
     if ( rg.start <= 0 && Values::isUdf(rg.stop) )
 	seldata_->setIsAll( true );
@@ -929,9 +914,9 @@ void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 }
 
 
-void TrcSelectionOutput::setLineKey( const LineKey& linekey )
+void TrcSelectionOutput::setGeomID( Pos::GeomID geomid )
 {
-    seldata_->lineKey() = linekey;
+    seldata_->setGeomID( geomid );
 }
 
 
@@ -989,10 +974,10 @@ const CubeSampling Trc2DVarZStorOutput::getCS()
 }
 
 
-Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
+Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
 					  DataPointSet* poszvalues,
 					  float outval )
-    : SeisTrcStorOutput( getCS(), lk )
+    : SeisTrcStorOutput( getCS(), geomid )
     , poszvalues_(poszvalues)
     , outval_(outval)
 {
@@ -1052,8 +1037,6 @@ bool Trc2DVarZStorOutput::doInit()
     }
 
     desiredvolume_.normalise();
-    seldata_->lineKey().setAttrName( "" );
-
     return true;
 }
 

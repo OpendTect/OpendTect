@@ -83,8 +83,8 @@ public:
     			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
-    LineKey		lineKey() const;
-    LineKeyProvider*	lineKeyProvider() const;
+    Pos::GeomID		geomID() const;
+    GeomIDProvider*	geomIDProvider() const;
 
 protected:
 

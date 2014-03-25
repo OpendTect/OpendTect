@@ -95,7 +95,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == '2' || *ioobj.translator() == '2';
+    const bool trok = *ioobj.group() == 'T' || *ioobj.translator() == 'T';
     return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D() );
 }
 
@@ -524,16 +524,16 @@ bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
 
 
 bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
-				   const char* lk )
+				   const char* lnm )
 {
     PtrMan<Translator> transl = ioobj.createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
     PtrMan<Seis::SelData> sd = 0;
-    if ( lk && *lk )
+    if ( lnm && *lnm )
     {
 	sd = Seis::SelData::get( Seis::Range );
-	sd->lineKey() = lk;
+	sd->setGeomID( Survey::GM().getGeomID(lnm) );
 	tr->setSelData( sd );
     }
 

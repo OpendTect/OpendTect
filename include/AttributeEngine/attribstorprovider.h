@@ -46,7 +46,6 @@ public:
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
-    PosInfo::Line2DKey	getLine2DKey() const;
 
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }

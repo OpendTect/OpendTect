@@ -345,9 +345,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( is2d )
     {
 	if ( linenm && *linenm )
-	    sd->lineKey().setLineName( linenm );
-	if ( !isps )
-	    sd->lineKey().setAttrName( attrnm );
+	    sd->setGeomID(Survey::GM().getGeomID(linenm) );
 	wrr->setSelData( sd->clone() );
     }
 

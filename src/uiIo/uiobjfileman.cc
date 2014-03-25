@@ -273,8 +273,9 @@ BufferString uiObjFileMan::getFileInfo()
     if ( !curioobj_ )
 	return txt;
 
+    const bool isdir = File::isDirectory( curioobj_->fullUserExpr() );
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
-    if ( !conn )
+	if ( !conn && !isdir )
     {
 	const BufferString conntyp( curioobj_->connType() );
 	if ( conntyp != StreamConn::sType() )
@@ -285,9 +286,9 @@ BufferString uiObjFileMan::getFileInfo()
     }
     else
     {
-	BufferString fname( conn->fileName() );
+	BufferString fname( isdir ? curioobj_->fullUserExpr() 
+				  : conn->fileName() );
 	FilePath fp( fname );
-	const bool isdir = File::isDirectory( fname );
 	int nrfiles = 0;
 	const double totsz = getFileSize( fname, nrfiles );
 
@@ -301,8 +302,11 @@ BufferString uiObjFileMan::getFileInfo()
 	if ( !timestr.isEmpty() ) { txt += "\nLast modified: ";txt += timestr; }
 	int txtsz = txt.size()-1;
 	if ( txt[ txtsz ] != '\n' ) txt += "\n";
-	conn->close();
-	delete conn;
+	if ( conn )
+	{
+	    conn->close();
+	    delete conn;
+	}
     }
 
     BufferString crspec;

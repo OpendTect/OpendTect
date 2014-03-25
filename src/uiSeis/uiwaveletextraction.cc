@@ -160,8 +160,8 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	for ( int idx=0; idx<sellineset.size(); idx++ )
 	{
 	    StepInterval<float> zrg( 0, 0, 1 );
-	    LineKey lkey( sellineset[idx]->buf(), attrnm );
-	    if ( !si->getRanges( lkey, trcrg, zrg ) )
+	    Pos::GeomID geomid = Survey::GM().getGeomID(sellineset[idx]->buf());
+	    if ( !si->getRanges( geomid, trcrg, zrg ) )
 		return;
 
 	    if ( !idx )
@@ -344,8 +344,8 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
 	    BufferString linenm = sellines.get(lidx).buf();
 	    BufferString attrnm = linesel2dfld_->getAttribName();
-	    LineKey lk( linenm, attrnm );
-	    range.lineKey() = lk;
+	    Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	    range.setGeomID( geomid );
 	    sd_ = range.clone();
 	    sdset += sd_;
 	}

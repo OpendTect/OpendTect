@@ -154,8 +154,8 @@ void Processor::useFullProcess( int& res )
     if ( res == 0 && !nrdone_ )
     {
 	errmsg_ = "No positions processed.\n"
-	"Most probably, your input volume(s) are not available in the "
-	"selected region\nor the required stepout traces are not available";
+	"Most probably, your input volume(s) are not available in the \n"
+	"selected region or the required stepout traces are not available";
 	return;
     }
     else if ( res != 0 )
@@ -407,7 +407,7 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	{
 	    possvol.hrg.stop.inl() = possvol.hrg.start.inl() = 0;
 	    possvol.hrg.start.crl() = 0;
-	    possvol.hrg.stop.crl() = INT_MAX/3*2;	//unlikely; still, a limitation.
+	    possvol.hrg.stop.crl() = INT_MAX/3*2;//unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 

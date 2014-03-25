@@ -16,10 +16,9 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "samplingdata.h"
 #include "seistype.h"
-#include "linekey.h"
+#include "bufstring.h"
 
 class IOObj;
-class LineKey;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
@@ -72,9 +71,9 @@ public:
     static BufferString	def3DDispName(const char* defkey,
 	    			      const char* ioobjnm=0);
 
-    int			nrComponents(LineKey lk=LineKey()) const;
+    int			nrComponents(Pos::GeomID geomid=-1) const;
     void		getComponentNames(BufferStringSet&,
-	    				LineKey lk=LineKey()) const;
+					  Pos::GeomID geomid=-1) const;
 
     mStruct(Seis) Opts2D
     {
@@ -102,7 +101,8 @@ public:
 	    				       BufferStringSet& b,
 					       Opts2D o2d=Opts2D() ) const
 				{ getNmsSubSel(nm,b,o2d,true); }
-    bool		getRanges(const LineKey& lk,StepInterval<int>& trcrg,
+    bool		getRanges(const Pos::GeomID geomid,
+				  StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
 
     static void		initDefault(const char* type=0);
@@ -113,7 +113,7 @@ public:
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,
 				      TypeSet<BufferStringSet>* linenames=0);
-    static void		getCompNames(const LineKey&,BufferStringSet&);
+    static void		getCompNames(const Pos::GeomID,BufferStringSet&);
     			//!< Function useful in attribute environments
     			//!< The 'LineKey' must be IOObj_ID|attrnm
 
@@ -128,7 +128,7 @@ protected:
     void		getNms(BufferStringSet&,const Opts2D&,bool) const;
     void		getNmsSubSel(const char*,BufferStringSet&,const Opts2D&,
 	    			     bool) const;
-    int			getComponentInfo(LineKey,BufferStringSet*) const;
+    int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
 
 };
 

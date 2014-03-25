@@ -42,7 +42,7 @@ public:
     void		fillPar(IOPar&,bool linename_is_iopar_name) const;
     bool		usePar(const IOPar&,bool linename_is_iopar_name);
 
-    static const char*	sKeyDefAttrib()		{ return "Seis"; }
+    static const char*	sKeyDefAttrib()		{ return ""; }
     static BufferString	defKey2DispName(const char* defkey,
 	    				const char* ioobjnm=0,
 					bool embed=true);
@@ -56,12 +56,12 @@ public:
 \brief Class providing a current line key.
 */
 
-mExpClass(General) LineKeyProvider
+mExpClass(General) GeomIDProvider
 {
 public:
 
-    virtual		~LineKeyProvider()		{}
-    virtual LineKey	lineKey() const			= 0;
+    virtual		~GeomIDProvider()		{}
+    virtual Pos::GeomID	geomID() const			= 0;
 
 };
 

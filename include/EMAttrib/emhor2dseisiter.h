@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "multiid.h"
-class Seis2DLineSet;
+class Seis2DDataSet;
 namespace EM { class Horizon2D; class Horizon2DGeometry; }
 
 
@@ -45,8 +45,8 @@ public:
 
     const Horizon2D*	horizon() const			{ return h2d_; }
     const Horizon2DGeometry& geometry() const		{ return *geom_; }
-    Seis2DLineSet*	lineSet()			{ return lset_; }
-    const Seis2DLineSet* lineSet() const		{ return lset_; }
+    Seis2DDataSet*	dataSet()			{ return dataset_; }
+    const Seis2DDataSet* dataSet() const		{ return dataset_; }
 
 protected:
 
@@ -54,7 +54,7 @@ protected:
     const Horizon2DGeometry*	geom_;
     int				lineidx_;
     const int			nrlines_;
-    Seis2DLineSet*		lset_;
+    Seis2DDataSet*		dataset_;
     MultiID			curlsid_;
 
 private:

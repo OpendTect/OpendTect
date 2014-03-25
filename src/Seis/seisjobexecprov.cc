@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisjobexecprov.h"
 #include "seiscbvs.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seissingtrcproc.h"
 #include "posinfo2d.h"
 #include "jobdescprov.h"
@@ -59,7 +59,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 	, ctio_(*new CtxtIOObj(SeisTrcTranslatorGroup::ioContext()) )
 	, nrrunners_(0)
 	, is2d_(false)
-	, outls_(0)
+	, outds_(0)
 {
     ctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     seisoutkey_ = outputKey( iopar_ );
@@ -80,7 +80,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 
 SeisJobExecProv::~SeisJobExecProv()
 {
-    delete outls_;
+    delete outds_;
     delete &iopar_;
     delete &outioobjpars_;
     delete &ctio_;
@@ -118,22 +118,20 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     IOObj* ioobj = IOM().get( ioobjkey );
     if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
     {
-	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
+	Seis2DDataSet* inpls = new Seis2DDataSet( *ioobj );
 	if ( nms.isEmpty() )
 	{
 	    for ( int idx=0; idx<inpls->nrLines(); idx++ )
 		nms.addIfNew( inpls->lineName(idx) );
 	}
 
-	FixedString attrnm = iopar_.find( sKey::Target() );
+	FixedString lnm = iopar_.find( sKey::Target() );
 
 	if ( doresume )
 	{
-	    S2DPOS().setCurLineSet( inpls->name() );
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		LineKey lk( nms.get(idx) );
-		lk.setAttrName( attrnm );
 		const int lidx = inpls->indexOf( lk );
 		if ( lidx >= 0 )
 		{
@@ -161,14 +159,14 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	const char* outkeyword = iopar_.find( "Output Key" );
 	if ( !outkeyword ) outkeyword = "Output.0.Seismic.ID";
 	ioobjkey = iopar_.find( outkeyword );
-	delete outls_; outls_ = inpls;
+	delete outds_; outds_ = inpls;
 	BufferString datatype;
 	if ( ioobjkey )
 	{
 	    IOObj* outioobj = IOM().get( ioobjkey );
 	    if ( outioobj && outioobj->key() != ioobj->key() )
 	    {
-		outls_ = new Seis2DLineSet( outioobj->fullUserExpr(true) );
+		outds_ = new Seis2DDataSet( *outioobj );
 		delete outioobj;
 	    }
 	    //Look for DataType specification
@@ -176,8 +174,8 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	    if ( sepstr[2] && *sepstr[2] )
 		datatype += sepstr[2];
 	}
-	inpls->addLineKeys( *outls_, attrnm, 0, datatype.buf() );
-	if ( inpls != outls_ )
+	inpls->addLineFrom( *outds_, lnm, datatype.buf() );
+	if ( inpls != outds_ )
 	    delete inpls;
     }
     delete ioobj;
@@ -192,22 +190,18 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
 bool SeisJobExecProv::emitLSFile( const char* fnm ) const
 {
-    if ( !outls_ ) return false;
+    if ( !outds_ ) return false;
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	return false;
 
-    outls_->putTo( strm );
     return !File::isEmpty( fnm );
 }
 
 
 void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
-{
-    if ( outls_ )
-	outls_->preparePreSet( iop, reallskey );
-}
+{}
 
 
 bool SeisJobExecProv::isRestart( const IOPar& iop )

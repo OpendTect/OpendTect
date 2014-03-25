@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 
 
@@ -137,15 +138,13 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    cs_.set2DDef();
 
 	    cs_.hrg.start.inl() = cs_.hrg.stop.inl() = 0;
-	    MultiID lsid;
-	    iopar.get( "Input Line Set", lsid );
-	    PtrMan<IOObj> lsobj = IOM().get( lsid );
-	    if ( lsobj )
+	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+	    const Survey::Geometry* geometry = Survey::GM().getGeometry(geomid);
+	    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
+	    PosInfo::Line2DData l2dd;
+	    if ( geom2d )
 	    {
-		const PosInfo::Line2DKey& l2dkey =
-		    S2DPOS().getLine2DKey( lsobj->name(), linename );
-		PosInfo::Line2DData l2dd;
-		S2DPOS().getGeometry( l2dkey, l2dd );
+		l2dd = geom2d->data();
 		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
 		cs_.zrg = l2dd.zRange();
 	    }
@@ -238,7 +237,8 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
-	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
+	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, 
+				    Survey::GM().getGeomID(lkey.lineName()) );
 	outp->setGeometry(cs_);
 	const bool res = outp->doUsePar( pars );
 	if ( !res ) { errmsg = outp->errMsg(); delete outp; outp = 0; }
@@ -550,7 +550,8 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
 
     Interval<int> trcrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
-    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
+    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, 
+					  Survey::GM().getGeomID(linekey_) );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
@@ -1010,10 +1011,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 	attrout->setTrcsBounds( *cubezbounds );
 
     if ( !linekey_.isEmpty() )
-    {
-	LineKey lk( linekey_.buf() );
-	attrout->setLineKey( lk );
-    }
+	attrout->setGeomID( Survey::GM().getGeomID(linekey_) );
 
     proc->addOutput( attrout );
     proc->setRdmPaths( trueknotspos, snappedpos );
@@ -1038,9 +1036,9 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    LineKey lkey( linename, proc->getAttribUserRef() );
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, datapointset,
-							    outval );
+    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid,
+							datapointset, outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );

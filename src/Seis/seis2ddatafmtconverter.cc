@@ -153,8 +153,8 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
     {
 	for ( int lineidx=0; lineidx<all2dseisiopars_[idx]->size(); lineidx++ )
-	    filepaths.add( SeisCBVS2DLineIOProvider::getFileName( 
-					  *(*all2dseisiopars_[idx])[lineidx]) );
+	    filepaths.add( SeisCBVS2DLineIOProvider::getFileName(
+				    *(*all2dseisiopars_[idx])[lineidx],false) );
     }
 
     return;
@@ -216,12 +216,13 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFiles(
 	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
 	{
 	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
-	    BufferString attrname = (*all2dseisiopars_[idx])[lineidx]->getValue(
-					      iop->indexOf(sKey::Attribute()) );
-	    int idxfnm = iop->indexOf( sKey::FileName() );
-	    FilePath oldfnm( iop->getValue(idxfnm) );
+	    BufferString attrname;
+	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
+	    BufferString fnm;
+	    iop->get( sKey::FileName(), fnm );
+	    FilePath oldfnm( fnm );
 	    BufferString oldfullfnm( SeisCBVS2DLineIOProvider::getFileName(
-									*iop) );
+								*iop,false) );
 	    if ( oldfnm.isAbsolute() || oldfnm.nrLevels()>1 )
 	    {
 		delete iop;

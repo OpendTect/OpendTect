@@ -68,7 +68,7 @@ public:
     virtual void		writeTrc()		{};
     virtual void		deleteTrc()		{};
     const Seis::SelData&	getSelData()		{ return *seldata_; }
-    const LineKey&		curLineKey() const;
+    Pos::GeomID			curGeomID() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
     virtual bool		finishWrite()		{ return false; }
 
@@ -142,7 +142,7 @@ mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
-						  const LineKey&);
+						  const Pos::GeomID);
 				~SeisTrcStorOutput();
     
     virtual bool		doInit();
@@ -210,7 +210,7 @@ public:
 mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
-				Trc2DVarZStorOutput(const LineKey&,
+				Trc2DVarZStorOutput(Pos::GeomID,
 						    DataPointSet*,float);
     
     bool			doInit();
@@ -249,7 +249,7 @@ mExpClass(AttributeEngine) TwoDOutput : public Output
 public:
 				TwoDOutput(const Interval<int>&, 
 					   const Interval<float>&,
-					   const LineKey&);
+					   Pos::GeomID);
 				~TwoDOutput();
     
     bool			doInit();
@@ -332,7 +332,7 @@ public:
     void			setTrcsBounds(Interval<float>);
     virtual void		collectData(const DataHolder&,float,
 	    				    const SeisTrcInfo&);
-    void			setLineKey(const LineKey&);
+    void			setGeomID(Pos::GeomID);
     
 protected:
     const BinIDValueSet&	bidvalset_;

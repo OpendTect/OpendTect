@@ -554,7 +554,7 @@ bool SeisFixedCubeProvider::isEmpty() const
 { return !data_; }
 
 
-bool SeisFixedCubeProvider::calcTrcDist( const LineKey& lk )
+bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 {
     trcdist_ = SI().crlDistance();
     const SeisIOObjInfo si( ioobj_->key() );
@@ -562,11 +562,10 @@ bool SeisFixedCubeProvider::calcTrcDist( const LineKey& lk )
 	return true;
 
     BufferStringSet nms;
-    si.getComponentNames( nms, lk );
+    si.getComponentNames( nms, geomid );
     if ( nms.size() > 1 && nms.get(1)=="Line dip" )
     {
-	PosInfo::Line2DData l2dd( lk.lineName() );
-	S2DPOS().setCurLineSet( ioobj_->name() );
+	PosInfo::Line2DData l2dd( Survey::GM().getName(geomid) );
 	const bool res = S2DPOS().getGeometry( l2dd );
 	if ( !res )
 	{ errmsg_ = "Cannot read 2D geometry"; return false; }
@@ -591,7 +590,7 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs, TaskRunner* tr )
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
-				      const LineKey* lk, TaskRunner* tr )
+				      const Pos::GeomID geomid, TaskRunner* tr )
 {
     if ( !ioobj_ )
 	mErrRet( "Failed to find the input dataset" )
@@ -601,10 +600,10 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 
     cs_ = cs;
     Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
-    if ( lk )
+    if ( geomid )
     {
-	sd->lineKey() = *lk;
-	if ( !calcTrcDist(*lk) )
+	sd->setGeomID( geomid );
+	if ( !calcTrcDist(geomid) )
 	    return false;
     }
 
@@ -617,7 +616,7 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 	    data_->set( idx, idy, 0 );
 
     PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, lk );
+	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, geomid );
     const bool res = TaskRunner::execute( tr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )

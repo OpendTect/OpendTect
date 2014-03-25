@@ -38,7 +38,7 @@ mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 public:
 
 			SeisTrcWriter(const IOObj*,
-				      const LineKeyProvider* r=0);
+				      const GeomIDProvider* r=0);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
 			SeisTrcWriter(const char*,bool is_2d,bool is_ps);
@@ -63,9 +63,9 @@ public:
     const SeisPSWriter*	psWriter() const		{ return pswriter_; }
 
 			// 2D
-    const LineKeyProvider* lineKeyProvider() const	{ return lkp_; }
-    void		setLineKeyProvider( const LineKeyProvider* l )
-							{ lkp_ = l; }
+    const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
+    void		setGeomIDProvider( const GeomIDProvider* l )
+							{ gidp_ = l; }
 				//!< If no lineKeyProvider set,
 				//!< seldata's linekey will be used
     void		setAttrib( const char* a )	{ attribnm_ = a; }
@@ -106,8 +106,8 @@ protected:
     Seis2DLinePutter*	putter_;
     Survey::Geometry2D&	geom2d_;
     IOPar&		lineauxiopar_;
-    LineKey		prevlk_;
-    const LineKeyProvider* lkp_;
+    Pos::GeomID		prevgeomid_;
+    const GeomIDProvider* gidp_;
     BufferString	datatype_;
     bool		next2DLine();
     bool		put2D(const SeisTrc&);

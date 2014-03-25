@@ -50,7 +50,7 @@ Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 
 
 int Horizon2DGeometry::nrLines() const
-{ return l2dkeys_.size(); }
+{ return l2dkeys_.size() <= 0 ? geomids_.size() : l2dkeys_.size(); }
 
 
 int Horizon2DGeometry::lineIndex( const PosInfo::Line2DKey& l2dkey ) const
@@ -365,7 +365,8 @@ StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
 }
 
 
-StepInterval<int> Horizon2DGeometry::colRange( const PosInfo::Line2DKey& gid) const
+StepInterval<int> Horizon2DGeometry::colRange( 
+					const PosInfo::Line2DKey& gid) const
 {
     StepInterval<int> res(0,0,0);
     bool isset = false;
@@ -427,6 +428,7 @@ void Horizon2DGeometry::fillPar( IOPar& iopar ) const
 bool Horizon2DGeometry::usePar( const IOPar& par )
 {
     l2dkeys_.erase();
+    geomids_.erase();
 
     if ( par.find(sKey::GeomID()) )
     {

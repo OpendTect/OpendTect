@@ -90,7 +90,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 	psioprov_ = SPSIOPF().provider( ioobj_->translator() );
     else if ( is2d_ )
     {
-	dataset_ = new Seis2DDataSet( ioobj_->fullUserExpr(true) );
+	dataset_ = new Seis2DDataSet( *ioobj_ );
 	lset_ = new Seis2DLineSet( ioobj_->fullUserExpr(true) );
 	if ( !ioobj_->name().isEmpty() )
 	{
@@ -186,7 +186,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     if ( !seldata_ )
 	seldata_ = Seis::SelData::get( iopar );
-    if ( seldata_->isAll() && seldata_->lineKey().isEmpty() )
+    if ( seldata_->isAll() && (seldata_->geomID()<0) )
 	{ delete seldata_; seldata_ = 0; }
 
     if ( strl() )

@@ -19,16 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 
 
-class Cube2LineDataLineKeyProvider : public LineKeyProvider
+class Cube2LineDataLineKeyProvider : public GeomIDProvider
 {
 public:
 Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
-LineKey lineKey() const
+Pos::GeomID geomID() const
 {
-    return LineKey( lde_.usedlinenames_.isEmpty() ?
-		    sKey::EmptyString().str() : lde_.usedlinenames_[0]->str(),
-		    lde_.attrnm_ );
+    return Pos::GeomID( lde_.usedlinenames_.isEmpty() ? -1 
+		    : Survey::GM().getGeomID(lde_.usedlinenames_[0]->str()) );
 }
 
     SeisCube2LineDataExtracter&	lde_;
@@ -67,7 +66,7 @@ void SeisCube2LineDataExtracter::closeDown()
     deepErase( fetchers_ );
     usedlinenames_.erase();
     delete c2ldlkp_; c2ldlkp_ = 0;
-    wrr_.setLineKeyProvider(0);
+    wrr_.setGeomIDProvider(0);
 }
 
 
@@ -82,7 +81,7 @@ int SeisCube2LineDataExtracter::nextStep()
 	else
 	{
 	    c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
-	    wrr_.setLineKeyProvider( c2ldlkp_ );
+	    wrr_.setGeomIDProvider( c2ldlkp_ );
 	    msg_ = "Handling traces";
 	}
 

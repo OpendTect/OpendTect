@@ -666,7 +666,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 
     if ( isStored() )
     {
-	LineKey lk( str );
+	BufferString lk( str );
 	if ( *str == '[' && *(str+lk.size()-1) == ']' )
 	{
 	    lk = str + 1;
@@ -679,8 +679,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	if ( !getParamString(defstr,params_[0]->getKey(),parstr) )
 	    return false;
 
-	const bool is2ddefstr =
-	    parstr == lk.lineName() && lk.attrName()==LineKey::sKeyDefAttrib();
+	const bool is2ddefstr = parstr == lk;
 	if ( parstr == str || is2ddefstr )
 	    return true;
     }

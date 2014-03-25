@@ -140,10 +140,10 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     if ( !rdl )
 	mErrRet("Selected Random line is empty");
 
-    LineKey lk( linenm, attrnm );
+    Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
     SeisRandLineTo2D exec( *basegrp_->getInputIOObj(),
 	    		   *basegrp_->getOutputIOObj(),
-	    		   lk, trcnrstart, *rdl );
+	    		   geomid, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
     if ( !TaskRunner::execute( &dlg, exec ) )
 	return false;

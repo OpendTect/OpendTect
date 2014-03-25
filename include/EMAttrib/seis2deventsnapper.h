@@ -35,13 +35,13 @@ public:
     mExpClass(EMAttrib) Setup
     {
     public:
-				Setup(const IOObj* seisobj,const LineKey& l,
+				Setup(const IOObj* seisobj,Pos::GeomID gmid,
 				      const Interval<float>& gt)
 				    : ioobj_(seisobj)
-				    , lk_(l)
+				    , geomid_(gmid)
 				    , gate_(gt)	{}
 	mDefSetupMemb(const IOObj*,ioobj)
-	mDefSetupMemb(LineKey,lk)
+	mDefSetupMemb(Pos::GeomID,geomid)
 	mDefSetupMemb(Interval<float>,gate)
     };
 				Seis2DEventSnapper(const EM::Horizon2D&,
@@ -52,7 +52,7 @@ public:
 protected:
     virtual int			nextStep();
 
-    PosInfo::Line2DKey		horl2dkey_;
+    Pos::GeomID			geomid_;
     SeisTrc			trc_;
     SeisTrcReader*		seisrdr_;
     const EM::Horizon2D&	orghor_;

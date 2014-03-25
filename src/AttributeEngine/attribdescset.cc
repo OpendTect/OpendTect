@@ -91,22 +91,7 @@ DescID DescSet::ensureDefStoredPresent() const
     if ( defpars )
     {
 	if ( is2d_ )
-	{
-	    const FixedString lsid = mGetPar( sKeyDefault2D );
-	    PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
-	    BufferString attrnm = mGetPar( sKeyDefaultAttrib );
-	    if ( lsobj && attrnm.isEmpty() )
-	    {
-		SeisIOObjInfo seisinfo( lsobj );
-		BufferStringSet attrnms;
-		SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
-		seisinfo.getAttribNames( attrnms, o2d );
-		if ( !attrnms.isEmpty() )
-		    attrnm = attrnms.get(0);
-	    }
-
-	    idstr = LineKey( lsid, attrnm );
-	}
+	    idstr = mGetPar( sKeyDefault2D );
 	else
 	    idstr = mGetPar( sKeyDefault3D );
     }
@@ -896,7 +881,8 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( 
+					Survey::GM().getGeomID(lk.str()), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
@@ -920,8 +906,7 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 DescID DescSet::createStoredDesc( const char* lk, int selout,
 				  const BufferString& compnm )
 {
-    LineKey newlk( lk );
-    BufferString bstring = newlk.lineName();
+    BufferString bstring = lk;
     const char* linenm = bstring.buf();
     BufferString objnm;
     if ( linenm && *linenm == '#' )
@@ -946,10 +931,9 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef();	// "Missing component name"
 
-    BufferString userref = LineKey( objnm, is2d_ ? newlk.attrName() : "" );
+    BufferString userref = objnm;
     if ( !compnm.isEmpty() )
     {
-	if ( is2d_ ) userref = newlk.attrName();
 	userref += "|";
 	userref += compnm.buf();
     }

@@ -23,7 +23,7 @@ class Executor;
 class CtxtIOObj;
 class JobRunner;
 class JobDescProv;
-class Seis2DLineSet;
+class Seis2DDataSet;
 
 /*!\brief Provides job runners and postprocessor for seismic processing.
 
@@ -88,7 +88,7 @@ protected:
     mutable BufferString errmsg_;
     int			nrrunners_;
     StepInterval<int>	todoinls_;
-    Seis2DLineSet*	outls_;
+    Seis2DDataSet*	outds_;
 
 
     JobDescProv*	mk2DJobProv();

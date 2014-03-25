@@ -152,14 +152,13 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     if ( seldata )
     {
 	if ( linenm2d && *linenm2d )
-	    seldata->lineKey().setLineName( linenm2d );
-	seldata->lineKey().setAttrName( attrnm2d );
+	    seldata->setGeomID( Survey::GM().getGeomID(linenm2d) );
 	seldata->fillPar( iop );
     }
     else if ( setup_.is2d_ )
     {
-	LineKey lk( linenm2d, attrnm2d );
-	iop.set( sKey::LineKey(), lk );
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenm2d );
+	iop.set( sKey::GeomID(), geomid );
     }
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,

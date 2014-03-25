@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "ptrman.h"
 #include "seisjobexecprov.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "separstr.h"
 #include "jobcommunic.h"
 #include "moddepmgr.h"
@@ -66,9 +66,6 @@ bool BatchProgram::go( od_ostream& strm )
 	else if ( !File::isWritable(tempdir) )
 	    mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
     }
-
-    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
-				  SeisJobExecProv::sKeyWorkLS() );
 
     const char* selspec = pars().find( "Output.1.In-line range" );
     if ( selspec && *selspec )
@@ -167,14 +164,14 @@ bool BatchProgram::go( od_ostream& strm )
     BufferStringSet alllinenames;
     if ( linename.isEmpty() && is2d ) //processing lineset on a single machine
     {
-	MultiID lsid;
-	pars().get( "Input Line Set", lsid );
-	PtrMan<IOObj> lsobj = IOM().get( lsid );
-	if ( lsobj )
+	MultiID dsid;
+	pars().get( "Input Line Set", dsid );
+	PtrMan<IOObj> dsobj = IOM().get( dsid );
+	if ( dsobj )
 	{
-	    Seis2DLineSet ls(*lsobj);
-	    for ( int idx=0; idx<ls.nrLines(); idx++ )
-		alllinenames.addIfNew(ls.lineName(idx));
+	    Seis2DDataSet ds(*dsobj);
+	    for ( int idx=0; idx<ds.nrLines(); idx++ )
+		alllinenames.addIfNew(ds.lineName(idx));
 	}
     }
 

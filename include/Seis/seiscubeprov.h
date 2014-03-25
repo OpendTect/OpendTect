@@ -144,7 +144,7 @@ public:
     void		clear();
     bool		isEmpty() const;
     bool		readData(const CubeSampling&,TaskRunner* tr=0);
-    bool		readData(const CubeSampling&,const LineKey* lk,
+    bool		readData(const CubeSampling&,const Pos::GeomID geomid,
 				 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
@@ -161,7 +161,7 @@ protected:
     BufferString	errmsg_;
     float		trcdist_;
 
-    bool		calcTrcDist(const LineKey&);
+    bool		calcTrcDist(const Pos::GeomID);
 };
 
 #endif

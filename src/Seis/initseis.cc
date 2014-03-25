@@ -50,6 +50,7 @@ mDefModInitFn(Seis)
     // The first one is the default unless explicitly changed.
     CBVSSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
+    TwoDDataSeisTrcTranslator::initClass();
     SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
     SEGYDirectSeisPS3DTranslator::initClass();

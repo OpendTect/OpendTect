@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisioobjinfo.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -38,8 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetLineSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
  \
-    PtrMan<Seis2DLineSet> nm \
-	= new Seis2DLineSet( ioobj_->fullUserExpr(true) ); \
+    PtrMan<Seis2DDataSet> nm \
+	= new Seis2DDataSet( *ioobj_ ); \
     if ( nm->nrLines() == 0 ) \
 	return rv
 
@@ -293,15 +293,13 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     else if ( isPS() )
 	{ pErrMsg("2D PS not supported getting def keys"); return; }
 
-    PtrMan<Seis2DLineSet> lset
-	= new Seis2DLineSet( ioobj_->fullUserExpr(true) );
-    if ( lset->nrLines() == 0 )
+    PtrMan<Seis2DDataSet> dataset
+	= new Seis2DDataSet( *ioobj_ );
+    if ( dataset->nrLines() == 0 )
 	return;
 
-    BufferStringSet attrnms;
-    lset->getAvailableAttributes( attrnms );
-    for ( int idx=0; idx<attrnms.size(); idx++ )
-	bss.add( LineKey(key.buf(),attrnms[idx]->buf()) );
+    for ( int idx=0; idx<dataset->nrLines(); idx++ )
+	bss.add( dataset->lineName(idx) );
 
     bss.sort();
 }
@@ -313,8 +311,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 #define mChkOpts \
    if ( o2d.steerpol_ != 2 ) \
     { \
-	const char* lndt = lset->datatype(idx); \
-	const char* attrnm = lset->attribute(idx); \
+	const char* lndt = lset->dataType(); \
+	const char* attrnm = lset->name(); \
 	const bool issteer = (lndt && sKey::Steering()==lndt) || \
 				(!lndt && sKey::Steering()==attrnm); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
@@ -337,13 +335,18 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	return;
     }
 
-    mGetLineSet(lset,);
+   if ( !isOK() || !is2D() || isPS() ) return;
+ 
+    PtrMan<Seis2DDataSet> dset 
+	= new Seis2DDataSet( *ioobj_ ); 
+    if ( dset->nrLines() == 0 ) 
+	return;
     mGetZDomainGE;
 
     BufferStringSet rejected;
-    for ( int idx=0; idx<lset->nrLines(); idx++ )
+    for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
-	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
+	const char* nm = dset->lineName(idx);
 	if ( bss.isPresent(nm) )
 	    continue;
 
@@ -351,13 +354,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	{
 	    if ( rejected.isPresent(nm) )
 		continue;
-	    if ( !lset->haveMatch(idx,*o2d.bvs_) )
-	    {
-		rejected.add( nm );
-		continue;
-	    }
 	}
-	mChkOpts;
 
 	bss.add( nm );
     }
@@ -377,9 +374,8 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
 	const char* lnm = lset->lineName( idx );
-	const char* anm = lset->attribute( idx );
-	const char* requested = l4a ? anm : lnm;
-	const char* listadd = l4a ? lnm : anm;
+	const char* requested = lnm;
+	const char* listadd = lnm;
 
 	if ( target == requested )
 	{
@@ -392,19 +388,21 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 }
 
 
-bool SeisIOObjInfo::getRanges( const LineKey& lk, StepInterval<int>& trcrg,
+bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid, 
+			       StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
 {
     mChk(false);
-    PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(ioobj_->fullUserExpr(true));
-    if ( lset->nrLines() == 0 )
+    PtrMan<Seis2DDataSet> dataset = 
+				new Seis2DDataSet( *ioobj_ );
+    if ( dataset->nrLines() == 0 )
 	return false;
 
-    const int lidx = lset->indexOf( lk );
+    const int lidx = dataset->indexOf( geomid );
     if ( lidx < 0 )
 	return false;
 
-    return lset->getRanges( lidx, trcrg, zrg );
+    return dataset->getRanges( lidx, trcrg, zrg );
 }
 
 
@@ -493,27 +491,29 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 }
 
 
-int SeisIOObjInfo::nrComponents( LineKey lk ) const
+int SeisIOObjInfo::nrComponents( Pos::GeomID geomid ) const
 {
-    return getComponentInfo( lk, 0 );
+    return getComponentInfo( geomid, 0 );
 }
 
 
-void SeisIOObjInfo::getComponentNames( BufferStringSet& nms, LineKey lk ) const
+void SeisIOObjInfo::getComponentNames( BufferStringSet& nms, 
+				       Pos::GeomID geomid ) const
 {
-    getComponentInfo( lk, &nms );
+    getComponentInfo( geomid, &nms );
 }
 
 
-void SeisIOObjInfo::getCompNames( const LineKey& lk, BufferStringSet& nms )
+void SeisIOObjInfo::getCompNames( const Pos::GeomID geomid, 
+				  BufferStringSet& nms )
 {
-    SeisIOObjInfo ioobjinf( MultiID(lk.lineName()) );
-    LineKey tmplk( "", ioobjinf.is2D() ? lk.attrName() : "" );
-    ioobjinf.getComponentNames( nms, tmplk );
+    SeisIOObjInfo ioobjinf( MultiID(Survey::GM().getName(geomid)) );
+    ioobjinf.getComponentNames( nms, geomid );
 }
 
 
-int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
+int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid, 
+				     BufferStringSet* nms ) const
 {
     int ret = 0; if ( nms ) nms->erase();
     mChk(ret);
@@ -539,24 +539,17 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
     }
     else
     {
-	PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(
-						ioobj_->fullUserExpr(true));
-	if ( !lset || lset->nrLines() == 0 )
+	PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
+	if ( !dataset || dataset->nrLines() == 0 )
 	    return 0;
 	int lidx = 0;
-	const bool haveline = !lk.lineName().isEmpty();
-	const BufferString attrnm( lk.attrName() );
-	if ( haveline )
-	    lidx = lset->indexOf( lk );
-	else
-	{
-	    for ( int idx=0; idx<lset->nrLines(); idx++ )
-		if ( attrnm == lset->attribute(idx) )
-		    { lidx = idx; break; }
-	}
+	const char* linename = Survey::GM().getName( geomid );
+	if ( linename )
+	    lidx = dataset->indexOf( linename );
+
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
-	Executor* ex = lset->lineFetcher( lidx, tbuf, 1 );
+	Executor* ex = dataset->lineFetcher( lidx, tbuf, 1 );
 	if ( ex ) ex->doStep();
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
@@ -594,7 +587,7 @@ void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( !SeisTrcTranslator::is2D(ioobj,true)
+	if ( !(*ioobj.group() == '2' || *ioobj.translator() == '2')
 	  || SeisTrcTranslator::isPS(ioobj) ) continue;
 
 	linesets.add( ioobj.name() );

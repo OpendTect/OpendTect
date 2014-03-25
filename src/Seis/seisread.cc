@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsread.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seisbuf.h"
@@ -106,7 +107,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	}
 	psrdr_ = psioprov_->make3DReader( fnm );
     }
-    if ( (is2d_ && !lset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
+    if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
     {
 	errmsg_ = "No data interpreter available for '";
 	errmsg_ += ioobj_->name(); errmsg_ += "'";
@@ -449,78 +450,56 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 }
 
 
-LineKey SeisTrcReader::lineKey() const
+Pos::GeomID SeisTrcReader::geomID() const
 {
-    if ( lset_ )
+    if ( dataset_ )
     {
-	if ( curlineidx >= 0 && lset_->nrLines() > curlineidx )
-	    return lset_->lineKey( curlineidx );
+	if ( curlineidx >= 0 && dataset_->nrLines() > curlineidx )
+	    return dataset_->geomID( curlineidx );
     }
-    if ( seldata_ )
-	return seldata_->lineKey();
-    else if ( ioobj_ )
-	return LineKey(ioobj_->name(),ioobj_->pars().find(sKey::Attribute()));
 
-    return LineKey(0,0);
+    if ( seldata_ )
+	return seldata_->geomID();
+    else if ( ioobj_ )
+	return Survey::GM().getGeomID( ioobj_->name() );
+
+    return -1;
 }
 
 
-class SeisTrcReaderLKProv : public LineKeyProvider
+class SeisTrcReaderLKProv : public GeomIDProvider
 {
 public:
     SeisTrcReaderLKProv( const SeisTrcReader& r )
 				: rdr(r) {}
-    LineKey lineKey() const	{ return rdr.lineKey(); }
+    Pos::GeomID geomID() const	{ return rdr.geomID(); }
     const SeisTrcReader&	rdr;
 };
 
 
-LineKeyProvider* SeisTrcReader::lineKeyProvider() const
+GeomIDProvider* SeisTrcReader::geomIDProvider() const
 {
     return new SeisTrcReaderLKProv( *this );
-}
-
-
-bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
-{
-    const int nrlines = lset_->nrLines();
-    while ( curlineidx < nrlines )
-    {
-	if ( attrnm == lset_->attribute(curlineidx) )
-	    break;
-	curlineidx++;
-    }
-
-    bool ret = curlineidx < nrlines;
-    if ( !ret && nrfetchers < 1 )
-	errmsg_ = "No line found matching selection";
-    return ret;
 }
 
 
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf_->deepErase();
-    LineKey lk( seldata_ ? seldata_->lineKey() : "" );
-    const BufferString attrnm = lk.attrName();
-    const bool islinesel = !lk.lineName().isEmpty();
+    Pos::GeomID geomid( seldata_ ? seldata_->geomID() : -1 );
+    const bool islinesel = geomid < 0 ? false : true;
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
-    const int nrlines = lset_->nrLines();
+    const int nrlines = dataset_->nrLines();
 
     if ( !islinesel )
     {
-	if ( !ensureCurLineAttribOK(attrnm) )
-	    return false;
-
 	if ( istable )
 	{
 	    // Chances are we do not need to go through this line at all
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    while ( !lset_->haveMatch(curlineidx,tsd->binidValueSet()) )
+	    while ( !dataset_->haveMatch(curlineidx,tsd->binidValueSet()) )
 	    {
 	    	curlineidx++;
-		if ( !ensureCurLineAttribOK(attrnm) )
-		    return false;
 	    }
 	}
     }
@@ -532,19 +511,18 @@ bool SeisTrcReader::mkNextFetcher()
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )
 	{
-	    if ( lk == lset_->lineKey(curlineidx) )
+	    if ( geomid == dataset_->geomID(curlineidx) )
 		{ found = true; break; }
 	}
 	if ( !found )
 	{
 	    errmsg_ = "Line key not found in line set: ";
-	    errmsg_ += seldata_->lineKey();
 	    return false;
 	}
     }
 
     StepInterval<float> zrg;
-    lset_->getRanges( curlineidx, curtrcnrrg, zrg );
+    dataset_->getRanges( curlineidx, curtrcnrrg, zrg );
     if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
     {
 	if ( seldata_->crlRange().start > curtrcnrrg.start )
@@ -554,7 +532,7 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     prev_inl = mUdf(int);
-    fetcher = lset_->lineFetcher( curlineidx, *tbuf_, 1, seldata_ );
+    fetcher = dataset_->lineFetcher( curlineidx, *tbuf_, 1, seldata_ );
     nrfetchers++;
     return fetcher;
 }
@@ -777,22 +755,22 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
 
-    if ( !lset_ || lset_->nrLines() < 1 )
+    if ( !dataset_ || dataset_->nrLines() < 1 )
 	return 0;
 
     Seis::Bounds2D* b2d = new Seis::Bounds2D;
 
     for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
-	S2DPOS().setCurLineSet( lset_->name() );
-	for ( int iln=0; iln<lset_->nrLines(); iln++ )
+	for ( int iln=0; iln<dataset_->nrLines(); iln++ )
 	{
-	    if ( seldata_ && !seldata_->lineKey().isEmpty()
-	      && seldata_->lineKey() != lset_->lineKey(iln) )
+	    if ( seldata_ && !(seldata_->geomID() < 0)
+		&& seldata_->geomID() != dataset_->geomID(iln) )
 		continue;
 
-	    LineKey lk = seldata_ ? seldata_->lineKey() : lset_->lineKey( iln );
-	    PosInfo::Line2DData l2dd( lk.lineName() );
+	    Pos::GeomID geomid = seldata_ ? seldata_->geomID() 
+					  : dataset_->geomID( iln );
+	    PosInfo::Line2DData l2dd( Survey::GM().getName(geomid) );
 	    if ( !S2DPOS().getGeometry(l2dd) )
 		continue;
 

@@ -220,7 +220,7 @@ Provider::Provider( Desc& nd )
     , desbufferstepout_( 0, 0 )
     , providertask_( 0 )
     , currentbid_( -1, -1 )
-    , curlinekey_( 0, 0 )
+    , geomid_(-1)
     , linebuffer_( 0 )
     , refstep_( 0 )
     , alreadymoved_(0)
@@ -1410,22 +1410,11 @@ void Provider::setRefStep( float step )
 
 void Provider::setCurLineName( const char* linename )
 {
-    BufferString attrname;
-    if ( !desc_.isStored() )
-	attrname = desc_.userRef();
-    else
-    {
-	const ValParam* idpar = desc_.getValParam( StorageProvider::keyStr() );
-	LineKey lk( idpar->getStringValue() );
-	attrname = lk.attrName();
-    }
-
-    curlinekey_.setLineName( linename );
-    curlinekey_.setAttrName( attrname );
+    geomid_ = Survey::GM().getGeomID( linename );
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {   
 	if ( !inputs_[idx] ) continue;
-	inputs_[idx]->setCurLineName( curlinekey_.lineName() );
+	inputs_[idx]->setCurLineName( linename );
     }
 }
 
@@ -1502,7 +1491,7 @@ float Provider::lineDist() const
 float Provider::trcDist() const
 {
     return is2D() && useInterTrcDist() ?
-	getDistBetwTrcs( false, curlinekey_.lineName() ) : SI().crlDistance();
+     getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
 }
 
 
@@ -1770,7 +1759,7 @@ bool Provider::useInterTrcDist() const
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
     if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
-	return getDistBetwTrcs( false, curlinekey_.lineName() );
+	return getDistBetwTrcs( false, Survey::GM().getName(geomid_) );
 
     return crlDist();
 }

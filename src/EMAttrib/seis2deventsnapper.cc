@@ -25,9 +25,9 @@ Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
     , orghor_(orghor)
     , newhor_(newhor)
 {
-    horl2dkey_ = S2DPOS().getLine2DKey( su.ioobj_->name(), su.lk_.lineName() );
+    geomid_ = su.geomid_;
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
-    seldata->lineKey() = su.lk_;
+    seldata->setGeomID( su.geomid_ );
     seisrdr_ = new SeisTrcReader( su.ioobj_ );
     seisrdr_->setSelData( seldata );
     seisrdr_->prepareWork();
@@ -54,8 +54,8 @@ int Seis2DEventSnapper::nextStep()
 	return MoreToDo();
 
     EM::SectionID sid(0);
-    Coord3 coord = orghor_.getPos( sid, horl2dkey_, trc_.info().nr );
-    newhor_.setPos( sid, horl2dkey_, trc_.info().nr,
+    Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().nr );
+    newhor_.setPos( sid, geomid_, trc_.info().nr,
 	    	    findNearestEvent(trc_,(float) coord.z), false );
     nrdone_ ++;
 
@@ -73,7 +73,7 @@ Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
     , gate_(su.gate_)
 {
     hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
-    while ( hor2diterator_->next() )
+    /*while ( hor2diterator_->next() )
     {
 	const int lineid = hor2diterator_->lineSetIndex( attribnm_ );
 	const LineKey& lk = hor2diterator_->lineSet()->lineKey( lineid );
@@ -83,7 +83,7 @@ Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
 		    		    Seis2DEventSnapper::Setup(ioobj,lk,gate_) );
 	snapper->setEvent( VSEvent::Type(type_) );
 	add( snapper );
-    }
+    }*/
 }
 
 

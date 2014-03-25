@@ -180,13 +180,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
-		BufferString attrnm;
-		LineKey lk( desc->userRef() );
-		attrnm = lk.attrName();
-		if ( !desc->is2D() && attrnm == LineKey::sKeyDefAttrib() )
-		    ncdesc->setUserRef( ioobj->name() );
-		else
-		    ncdesc->setUserRef( LineKey(ioobj->name(),attrnm) );
+		ncdesc->setUserRef( ioobj->name() );
 	    }
 	}
 
@@ -400,14 +394,13 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
     SeisIOObjInfo info( ioobj );
     SeisIOObjInfo::Opts2D opt;
     opt.steerpol_ = issteer ? 1 : 0;
-    info.getAttribNames( nms, opt );
+    info.getLineNames( nms, opt );
 
     if ( onlymulticomp )
     {
 	for ( int idx=nms.size()-1; idx>=0; idx-- )
 	{
-	    LineKey tmpkey( "", nms.get(idx).buf() );
-	    if ( SeisIOObjInfo(*ioobj).nrComponents(tmpkey) < 2 )
+	    if ( SeisIOObjInfo(*ioobj).nrComponents() < 2 )
 		nms.removeSingle( idx );
 	}
     }

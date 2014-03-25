@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linesetposinfo.h"
 #include "multiid.h"
 #include "ptrman.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "threadwork.h"
 #include "task.h"
@@ -83,8 +84,6 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     }
 
     const MultiID key( linenm );
-    const BufferString attrnm = lk.attrName();
-
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
@@ -98,17 +97,16 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 
     if ( rdr.is2D() )
     {
-	if ( !rdr.lineSet() )
+	if ( !rdr.dataSet() )
 	{
-	    BufferString errmsg = "No line set available for '";
+	    BufferString errmsg = "No dataset available for '";
 	    errmsg += ioobj->name(); errmsg += "'";
 //	    desc.setErrMsg( errmsg );
 	    return;
 	}
 
-	BufferStringSet steernms;
-	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	if ( !steernms.isPresent( attrnm ) )
+	FixedString datatype = rdr.dataSet()->dataType();
+	if ( datatype != sKey::Steering() )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
 	    if ( !transl )
@@ -116,7 +114,8 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	    else if ( transl->componentInfo().isEmpty() )
 	    {
 		BufferStringSet complist;
-		SeisIOObjInfo::getCompNames( lk, complist );
+		SeisIOObjInfo::getCompNames( Survey::GM().getGeomID(linenm),
+					     complist );
 		desc.setNrOutputs( Seis::UnknowData, complist.size() );
 		if ( compnms )
 		    compnms->operator =( complist );
@@ -132,7 +131,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	{
 	    desc.setNrOutputs( Seis::Dip, 2 );
 	    if ( compnms )
-		compnms->operator =( steernms );
+		compnms->add( rdr.dataSet()->name() );
 	}
     }
     else
@@ -229,11 +228,11 @@ bool StorageProvider::checkInpAndParsAtStart()
 	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
     else
     {
-	Seis2DLineSet* lset = mscprov_->reader().lineSet();
-	if ( !lset )
-	    mErrRet( "2D seismic data/No line set found" );
+	Seis2DDataSet* dset = mscprov_->reader().dataSet();
+	if ( !dset )
+	    mErrRet( "2D seismic data/No data set found" );
 
-	int lineidx = lset->indexOf( lk.buf() );
+	int lineidx = dset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
 	{
 	    storedvolume_.hrg.start.inl() = 0;
@@ -242,16 +241,15 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
 	    storedvolume_.hrg.step.crl() = 1; // what else?
 	    BufferStringSet candidatelines;
-	    lset->getLineNamesWithAttrib( candidatelines, lk.attrName() );
+	    dset->getLineNames( candidatelines );
 	    bool foundone = false;
 	    for ( int idx=0; idx<candidatelines.size(); idx++ )
 	    {
-		LineKey tmplk( candidatelines.get(idx).buf(), lk.attrName() );
-		lineidx = lset->indexOf( tmplk );
+		lineidx = dset->indexOf( candidatelines.get(idx).buf() );
 		if ( lineidx> -1 )
 		{
 		    StepInterval<int> trcrg; StepInterval<float> zrg;
-		    if ( lset->getRanges( lineidx, trcrg, zrg ) )
+		    if ( dset->getRanges( lineidx, trcrg, zrg ) )
 		    {
 			if ( foundone )
 			{
@@ -275,7 +273,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl()
 					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !lset->getRanges( lineidx, trcrg, zrg ) )
+	    if ( !dset->getRanges( lineidx, trcrg, zrg ) )
 		mErrRet("Cannot get needed trace range from 2D line set")
 	    else
 	    {
@@ -556,10 +554,8 @@ bool StorageProvider::setTableSelData()
     seldata->extendZ( extraz_ );
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.is2D() )
-    {
 	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	seldata->lineKey().setAttrName( lk.attrName() );
-    }
+
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
     if ( !transl ) return false;
@@ -580,20 +576,19 @@ bool StorageProvider::set2DRangeSelData()
     Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
 				      : new Seis::RangeSelData( true );
     SeisTrcReader& reader = mscprov_->reader();
-    Seis2DLineSet* lset = reader.lineSet();
-    if ( !lset )
+    Seis2DDataSet* dset = reader.dataSet();
+    if ( !dset )
     {
 	if ( !rsd && seldata ) delete seldata;
 	return false;
     }
 
-    seldata->lineKey().setAttrName( curlinekey_.attrName() );
-    if ( !curlinekey_.lineName().isEmpty() )
+    if ( geomid_ >= 0 )
     {
-	seldata->lineKey().setLineName( curlinekey_.lineName() );
-	int idx = lset->indexOf( curlinekey_ );
+	seldata->setGeomID( geomid_ );
+	int idx = dset->indexOf( geomid_ );
 	StepInterval<float> lsetzrg; StepInterval<int> trcrg;
-	if ( idx >= 0 && lset->getRanges(idx,trcrg,lsetzrg) )
+	if ( idx >= 0 && dset->getRanges(idx,trcrg,lsetzrg) )
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,lsetzrg) )
 		return false;
@@ -847,11 +842,11 @@ void StorageProvider::adjust2DLineStoredVolume()
     const SeisTrcReader& reader = mscprov_->reader();
     if ( !reader.is2D() ) return;
 
-    const Seis2DLineSet* lset = reader.lineSet();
-    const int idx = lset->indexOf( curlinekey_ );
+    const Seis2DDataSet* dset = reader.dataSet();
+    const int idx = dset->indexOf( geomid_ );
     StepInterval<int> trcrg;
     StepInterval<float> zrg;
-    if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
+    if ( idx >= 0 && dset->getRanges(idx,trcrg,zrg) )
     {
 	storedvolume_.hrg.start.crl() = trcrg.start;
 	storedvolume_.hrg.stop.crl() = trcrg.stop;
@@ -859,16 +854,6 @@ void StorageProvider::adjust2DLineStoredVolume()
 	storedvolume_.zrg.stop = zrg.stop;
 	storedvolume_.zrg.step = zrg.step;
     }
-}
-
-
-PosInfo::Line2DKey StorageProvider::getLine2DKey() const
-{
-    const ValParam* idpar = desc_.getValParam( keyStr() );
-    LineKey lk( idpar->getStringValue() );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-    return !ioobj ? PosInfo::Line2DKey()
-	      : S2DPOS().getLine2DKey( ioobj->name(), curlinekey_.lineName() );
 }
 
 
@@ -947,28 +932,24 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     const SeisTrcReader& reader = mscprov_->reader();
     if ( !reader.is2D() ) return false;
 
-    const Seis2DLineSet* lset = reader.lineSet();
-    if ( !lset ) return false;
+    const Seis2DDataSet* dset = reader.dataSet();
+    if ( !dset ) return false;
 
-    if ( !force )
-    {
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	const BufferString attrnm = lk.attrName();
-	BufferStringSet steernms;
-	lset->getAvailableAttributes( steernms, sKey::Steering() );
-	if ( !steernms.isPresent( attrnm ) ) return false;
-    }
-
-    S2DPOS().setCurLineSet( lset->name() );
     if ( ls2ddata_ ) delete ls2ddata_;
     ls2ddata_ = new PosInfo::LineSet2DData();
-    for ( int idx=0; idx<lset->nrLines(); idx++ )
+    for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(lset->lineName(idx));
+	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(dset->lineName(idx));
+	const Survey::Geometry* geom = Survey::GM().getGeometry( 
+							    dset->geomID(idx) );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
+	if ( !geom2d ) continue;
+
+	linegeom = geom2d->data();
 	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
-	    ls2ddata_->removeLine( lset->lineName(idx) );
+	    ls2ddata_->removeLine( dset->lineName(idx) );
 	    return false;
 	}
     }
@@ -996,34 +977,28 @@ bool StorageProvider::useInterTrcDist() const
 	const MultiID key( lk.lineName() );
 	PtrMan<IOObj> ioobj = IOM().get( key );
 	SeisTrcReader rdr( ioobj );
-	if ( rdr.ioObj() && rdr.lineSet() )
+	if ( rdr.ioObj() && rdr.dataSet() )
 	{
-	    BufferStringSet steernms;
-	    rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	    if ( steernms.isPresent( attrnm ) )
-	    {
-		int lineidx = rdr.lineSet()->indexOf( curlinekey_.buf() );
-		if ( lineidx<0 ) return false;
-		IOPar linepars = rdr.lineSet()->getInfo( lineidx );
-		FixedString fname = linepars.find( sKey::FileName() );
-		FilePath fp( fname );
-		if ( !fp.isAbsolute() )
-		    fp.setPath( IOObjContext::getDataDirName(
-							IOObjContext::Seis) );
-		PtrMan<CBVSSeisTrcTranslator> tmptransl =
+	    int lineidx = rdr.dataSet()->indexOf( geomid_ );
+	    if ( lineidx<0 ) return false;
+	    IOPar linepars = rdr.dataSet()->getInfo( lineidx );
+	    FixedString fname = linepars.find( sKey::FileName() );
+	    FilePath fp( fname );
+	    if ( !fp.isAbsolute() )
+	        fp.setPath( IOObjContext::getDataDirName( IOObjContext::Seis) );
+	    PtrMan<CBVSSeisTrcTranslator> tmptransl =
 		    CBVSSeisTrcTranslator::make( fp.fullPath(), true, true, 0 );
-		if ( !tmptransl )
-		    return false;
+	    if ( !tmptransl )
+	        return false;
 
-		BufferStringSet compnms;
-		tmptransl->getComponentNames( compnms );
-		if ( compnms.size()>=2
+	    BufferStringSet compnms;
+	    tmptransl->getComponentNames( compnms );
+	    if ( compnms.size()>=2
 		    && compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
-		{
-		    const_cast<Attrib::StorageProvider*>(this)
-					->useintertrcdist_ = true;
-		    return useintertrcdist_;
-		}
+	    {
+		const_cast<Attrib::StorageProvider*>(this)
+						      ->useintertrcdist_ = true;
+		return useintertrcdist_;
 	    }
 	}
     }

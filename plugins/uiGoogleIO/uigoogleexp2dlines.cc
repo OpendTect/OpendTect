@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "survinfo.h"
 #include "seistrctr.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "posinfo2dsurv.h"
 #include "bendpointfinder.h"
 #include "latlong.h"
@@ -54,7 +54,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
-    mImplFileNameFld(s2dfm_->lineset_->name());
+    mImplFileNameFld(s2dfm_->name());
     fnmfld_->attach( alignedBelow, lsfld_ );
 }
 
@@ -95,7 +95,7 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 
 bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
 {
-    mCreateWriter( s2dfm_->lineset_->name(), SI().name() );
+    mCreateWriter( s2dfm_->name(), SI().name() );
 
     BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
     ins += lsfld_->getColor().getStdStr(false,-1);
@@ -124,11 +124,9 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
 void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
 				    int iattr )
 {
-    const Seis2DLineSet& lset( *s2dfm_->lineset_ );
-    LineKey lk( lnm, lset.attribute(iattr) );
-    const int iln = lset.indexOf( lk );
-    S2DPOS().setCurLineSet( lset.name() );
-    PosInfo::Line2DData l2dd( lk.lineName() );
+    const Seis2DDataSet& dset( *s2dfm_->dataset_ );
+    const int iln = dset.indexOf( lnm );
+    PosInfo::Line2DData l2dd( lnm );
     if ( iln < 0 || !S2DPOS().getGeometry(l2dd) )
 	return;
     const int nrposns = l2dd.positions().size();

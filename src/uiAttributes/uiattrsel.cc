@@ -279,9 +279,6 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
-    attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec());
-    attr2dfld_->attach( alignedBelow, storoutfld_ );
-
     filtfld_ = new uiGenInput( this, "Filter", "*" );
     filtfld_->attach( alignedBelow, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
@@ -381,10 +378,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
     const int seltyp = selType();
     if ( seltyp==2 || seltyp==3 )
-    {
-	attr2dfld_->display( false );
 	return;
-    }
 
     BufferString ioobjkey;
     if ( seltyp==0 )
@@ -414,32 +408,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     const bool is2d = ioobjkey.isEmpty()
 	? false : SelInfo::is2D( ioobjkey.buf() );
     const bool isstoreddata = seltyp==0 || seltyp==1;
-    attr2dfld_->display( is2d );
     filtfld_->display( !is2d && isstoreddata );
-    if ( is2d )
-    {
-	BufferStringSet nms;
-	SelInfo::getAttrNames( ioobjkey.buf(), nms );
-
-	int attridx = 0;
-	const Desc* desc = attrdata_.attribid_.isValid()
-			? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
-	const Attrib::ValParam* param = desc
-	    ? desc->getValParam( Attrib::StorageProvider::keyStr() )
-	    : 0;
-
-	if ( param && param->getStringValue( 0 ) )
-	{
-	    const LineKey lk( param->getStringValue( 0 ) );
-	    const BufferString linename = lk.lineName();
-	    if ( linename == ioobjkey )
-		attridx = nms.indexOf( lk.attrName().buf() );
-	}
-
-	attr2dfld_->newSpec( StringListInpSpec(nms), 0 );
-	if ( attridx<0 ) attridx=0;
-	attr2dfld_->setValue( attridx );
-    }
 
     compfld_->box()->setCurrentItem(0);
     const MultiID key( ioobjkey.buf() );
@@ -508,32 +477,12 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    attrdata_.compnr_ = 0;
 	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
 					 : attrinf_->steerids_.get( selidx );
-	LineKey linekey( ioobjkey );
-	if ( SelInfo::is2D(ioobjkey) )
-	{
-	    int attrnr = attr2dfld_->getIntValue();
-	    BufferStringSet nms;
-	    SelInfo::getAttrNames( ioobjkey, nms );
-	    if ( nms.isEmpty() )
-	    {
-		uiMSG().error( "No data available" );
-		return false;
-	    }
-
-	    if ( attrnr>=nms.size() )
-		attrnr = 0;
-
-	    const char* attrnm = nms.get(attrnr).buf();
-	    if ( needattrmatch )
-		linekey.setAttrName( attrnm );
-	}
-
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = canuseallcomps && attrdata_.compnr_==-1
-	    ? descset->getStoredID( linekey, attrdata_.compnr_, true,true,"ALL")
-	    : descset->getStoredID( linekey, attrdata_.compnr_, true );
+	    ? descset->getStoredID(ioobjkey, attrdata_.compnr_, true,true,"ALL")
+	    : descset->getStoredID( ioobjkey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
 	{
 	    BufferString msg( "Could not find the seismic data " );

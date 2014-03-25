@@ -364,7 +364,7 @@ protected:
     DataHolderLineBuffer*	linebuffer_;
     BinID			currentbid_;
     int				prevtrcnr_;
-    LineKey			curlinekey_;
+    Pos::GeomID			geomid_;
     const Seis::SelData*	seldata_;
     Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;

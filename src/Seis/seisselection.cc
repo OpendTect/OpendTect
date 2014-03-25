@@ -29,23 +29,19 @@ static const char* sKeyBinIDSel = "BinID selection";
 
 
 Seis::SelData::SelData()
-    : linekey_(*new LineKey)
-    , isall_(false)
+    : isall_(false)
     , geomid_(-1)
 {
 }
 
 
 Seis::SelData::~SelData()
-{
-    delete &linekey_;
-}
+{}
 
 
 void Seis::SelData::copyFrom( const Seis::SelData& sd )
 {
     isall_ = sd.isall_;
-    linekey_ = sd.linekey_;
     geomid_ = sd.geomID();
 }
 
@@ -123,11 +119,6 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 	iop.removeWithKey( sKey::GeomID() );
     else
 	iop.set( sKey::GeomID(), geomid_ );
-
-    if ( linekey_.isEmpty() )
-	iop.removeWithKey( sKey::LineKey() );
-    else
-	iop.set( sKey::LineKey(), linekey_ );
 }
 
 
@@ -139,10 +130,6 @@ void Seis::SelData::usePar( const IOPar& iop )
     isall_ = !res || !*res || *res == *sKey::None();
 
     iop.get( sKey::GeomID(), geomid_ );
-    iop.get( sKey::LineKey(), linekey_ );
-    res = iop.find( sKey::Attribute() );
-    if ( res && *res )
-	linekey_.setAttrName( res );
 }
 
 
@@ -313,9 +300,11 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 
-    int inlres = cs_.hrg.start.inl() > bid.inl() || cs_.hrg.stop.inl() < bid.inl()
+    int inlres = cs_.hrg.start.inl() > bid.inl() || 
+		 cs_.hrg.stop.inl() < bid.inl()
 		? 2 : 0;
-    int crlres = cs_.hrg.start.crl() > bid.crl() || cs_.hrg.stop.crl() < bid.crl()
+    int crlres = cs_.hrg.start.crl() > bid.crl() || 
+		 cs_.hrg.stop.crl() < bid.crl()
 		? 2 : 0;
     int rv = inlres + 256 * crlres;
     if ( rv != 0 ) return rv;

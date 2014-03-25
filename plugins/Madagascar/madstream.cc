@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -202,8 +202,6 @@ void MadStream::initRead( IOPar* par )
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
     const char* attrnm = par->find( sKey::Attribute() );
-    if ( attrnm && *attrnm && seldata )
-	seldata->lineKey().setAttrName( attrnm );
 
     if ( !isps_ )
     {
@@ -214,9 +212,10 @@ void MadStream::initRead( IOPar* par )
     }
     else
     {
-	const LineKey lk = seldata->lineKey();
+	const Pos::GeomID geomid = seldata->geomID();
 	if ( is2d_ )
-	    psrdr_ = SPSIOPF().get2DReader( *ioobj, lk.lineName() );
+	    psrdr_ = SPSIOPF().get2DReader( *ioobj, 
+					     Survey::GM().getName(geomid) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
@@ -250,21 +249,16 @@ void MadStream::initWrite( IOPar* par )
     }
     else
     {
-	const LineKey lk = seldata ? seldata->lineKey() : 0;
-	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,lk.lineName())
+	const Pos::GeomID geomid = seldata ? seldata->geomID() : -1;
+	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,
+						Survey::GM().getName(geomid))
 		       : SPSIOPF().get3DWriter(*ioobj);
 	if ( !pswrr_ ) mErrRet( "Cannot write to output object" );
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
 
     if ( is2d_ && !isps_ )
-    {
-	const char* attrnm = par->find( sKey::Attribute() );
-	if ( attrnm && *attrnm && seldata )
-	    seldata->lineKey().setAttrName( attrnm );
-
 	seiswrr_->setSelData(seldata);
-    }
 
     fillHeaderParsFromStream();
 }
@@ -335,15 +329,14 @@ void MadStream::fillHeaderParsFromSeis()
 	const IOObj* ioobj = seisrdr_->ioObj();
 	if ( !ioobj ) mErrRet( "No nput object" );
 
-	Seis2DLineSet lset( *ioobj );
-	S2DPOS().setCurLineSet( lset.name() );
+	Seis2DDataSet dset( *ioobj );
 	const Seis::SelData* seldata = seisrdr_->selData();
 	if ( !seldata ) mErrRet( "Invalid data subselection" );
 
-	const int lidx = lset.indexOf( seldata->lineKey() );
+	const int lidx = dset.indexOf( seldata->geomID() );
 	if ( lidx < 0 ) mErrRet( "2D Line not found" );
 
-	PosInfo::Line2DData geom( seldata->lineKey().lineName() );
+	PosInfo::Line2DData geom( Survey::GM().getName(seldata->geomID()) );
 	if ( !S2DPOS().getGeometry(geom) )
 	    mErrRet( "Line geometry not available" );
 

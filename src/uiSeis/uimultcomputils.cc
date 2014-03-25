@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "survgeom.h"
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
@@ -58,10 +59,10 @@ uiMultCompSel::~uiMultCompSel()
 }
 
 
-void uiMultCompSel::setUpList( LineKey lkey )
+void uiMultCompSel::setUpList( Pos::GeomID geomid )
 {
     compnms_.erase();
-    SeisIOObjInfo::getCompNames( lkey, compnms_ );
+    SeisIOObjInfo::getCompNames( geomid, compnms_ );
     butPush.notify( mCB(this,uiMultCompSel,doDlg) );
     prepareDlg();
 }

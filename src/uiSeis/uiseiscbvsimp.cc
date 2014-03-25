@@ -462,9 +462,7 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
     if ( !par.get(sKey::ZRange(),zrg) )
 	zrg = SI().zRange( false );
 
-    outattrnm_ = par.find( IOPar::compKey(sKey::Output(),sKey::Attribute()) );
     sd_.cubeSampling().zrg = zrg;
-    sd_.lineKey().setAttrName( inattrnm_.buf() );
 }
 
 
@@ -492,11 +490,10 @@ bool initNextLine()
 	return false;
 
     sd_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
-    sd_.lineKey().setLineName( sellines_.get(lineidx_).buf() );
+    sd_.setGeomID( Survey::GM().getGeomID(sellines_.get(lineidx_).buf()) );
     rdr_->setSelData( sd_.clone() );
     Seis::SelData* wrrsd = sd_.clone();
     wrrsd->setIsAll( true );
-    wrrsd->lineKey().setAttrName( outattrnm_.buf() );
     wrr_->setSelData( wrrsd );
     rdr_->prepareWork();
     return true;
@@ -570,7 +567,7 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
     : uiDialog(p,Setup("Copy 2D Seismic Data","","103.1.8"))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,false))
 {
-    uiSeis2DMultiLineSel::Setup su( "Select Lineset to copy" );
+    uiSeis2DMultiLineSel::Setup su( "Select Data Set to copy" );
     inpfld_ = new uiSeis2DMultiLineSel( this, su.withattr(true).withz(true) );
     if ( obj )
 	inpfld_->setLineSet( obj->key() );
@@ -597,7 +594,7 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
     if ( scaler )
 	par.set( sKey::Scale(), scaler->toString() );
 
-    par.set( IOPar::compKey( sKey::Output(), sKey::Attribute() ),
+    par.set( IOPar::compKey( sKey::Output(), sKey::DataSet() ),
 					outpfld_->attrNm() );
     Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
     uiTaskRunner dlg( this );

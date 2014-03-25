@@ -48,10 +48,7 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     case Seis::Vol:
 	return forread ? tr("Input Cube") : tr("Output Cube");
     case Seis::Line:
-	return forread ? (setup.selattr_ ? tr("Input Line Set|Attribute")
-					 : tr("Input Line Set") )
-		       : (setup.selattr_ ? tr("Output Line Set|Attribute")
-					 : tr("Output Line Set") );
+	return forread ?  tr("Input Data Set") : tr("Output Data Set");
     default:
 	return forread ? tr("Input Data Store") : tr("Output Data Store");
     }
@@ -64,7 +61,7 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
     if ( su.geom_ == Seis::Line )
-	ctxt.toselect.allowtransls_ = "2D";
+	ctxt.toselect.allowtransls_ = "TwoD DataSet";
     else
     {
 	if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
@@ -74,7 +71,7 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     }
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = su.geom_ == Seis::Line ? "2D"
+	ctxt.deftransl = su.geom_ == Seis::Line ? "TwoD DataSet"
 				: CBVSSeisTrcTranslator::translKey();
 
     if ( !ctxt.forread )
@@ -103,9 +100,7 @@ static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
     : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false,sssu.allowsetsurvdefault_)
-    , attrfld_(0)
     , compfld_(0)
-    , attrlistfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
 {
@@ -114,10 +109,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
 
-    if ( is2d && !sssu.allowlinesetsel_ )
+    if ( is2d )
     {
-	selgrp_->getTopGroup()->display( false, true );
-	selgrp_->getNameField()->display( false, true );
+	selgrp_->getTopGroup()->display( true, true );
+	selgrp_->getNameField()->display( true, true );
+	selgrp_->getListField()->display( true, true );
 
 	if ( c.ioobj )
 	{
@@ -133,54 +129,26 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     else
 	titletxt = titletxt.arg( isps
                 ? tr("Data Store")
-                : (is2d ? tr("Line Set") : tr("Cube")) );
+                : (is2d ? tr("Dataset") : tr("Cube")) );
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
 
     if ( sssu.selattr_ && is2d && !isps )
-    {
-	if ( selgrp_->getCtxtIOObj().ctxt.forread )
-	{
-	    attrfld_ = new uiGenInput(selgrp_,"Attribute",StringListInpSpec());
+	selgrp_->getListField()->selectionChanged.notify(
+					    mCB(this,uiSeisSelDlg,attrNmSel) );
+    else
+	selgrp_->getListField()->selectionChanged.notify(
+					    mCB(this,uiSeisSelDlg,entrySel) );
 
-	    if ( selgrp_->getNameField() )
-		attrfld_->attach( alignedBelow, selgrp_->getNameField() );
-	    else
-		attrfld_->attach( ensureBelow, topgrp );
-	}
-	else
-	{
-	    attrfld_ = new uiGenInput( selgrp_, "Attribute" );
-	    attrlistfld_ = new uiListBox( selgrp_, "Existing List" );
-
-	    if ( selgrp_->getNameField() )
-		attrlistfld_->attach( alignedBelow, selgrp_->getNameField() );
-	    else
-		attrlistfld_->attach( ensureBelow, topgrp );
-
-	    const CallBack cb( mCB(this,uiSeisSelDlg,attrNmSel) );
-	    attrlistfld_->selectionChanged.notify( cb );
-	    attrlistfld_->doubleClicked.notify( cb );
-	    attrfld_->attach( alignedBelow, attrlistfld_ );
-	}
-    }
-
-    selgrp_->getListField()->selectionChanged.notify(
-				mCB(this,uiSeisSelDlg,entrySel) );
     if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
-    if ( attrlistfld_ && selgrp_->getCtxtIOObj().ctxt.forread )
-	attrNmSel(0);
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
     {
 	compfld_ = new uiLabeledComboBox( selgrp_, "Component", "Compfld" );
-	if ( attrfld_ )
-	    compfld_->attach( rightTo, attrfld_ );
-	else
-	    compfld_->attach( alignedBelow, topgrp );
+	compfld_->attach( alignedBelow, topgrp );
 
 	entrySel(0);
     }
@@ -191,63 +159,31 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 {
     // ioobj should already be filled by base class
     const IOObj* ioobj = ioObj();
-    if ( !ioobj || ( !attrfld_ && !compfld_ ) )
+    if ( !ioobj || ( !compfld_ ) )
 	return;
 
     IOObjContext ctxt = selgrp_->getCtxtIOObj().ctxt;
 
-    BufferStringSet nms;
-    if ( attrfld_ )
+    if ( ctxt.forread && compfld_ )
     {
-	SeisIOObjInfo oinf( *ioobj );
-	const bool is2d = oinf.is2D();
-	const bool isps = oinf.isPS();
-	attrfld_->display( is2d && !isps );
-	SeisIOObjInfo::Opts2D o2d;
-	o2d.steerpol_ = (int)steerpol_;
-	o2d.zdomky_ = zdomainkey_;
-	oinf.getAttribNames( nms, o2d );
-    }
 
-    if ( ctxt.forread )
-    {
-	if ( attrfld_ )
-	{
-	    const int defidx = nms.indexOf( LineKey::sKeyDefAttrib() );
-	    attrfld_->newSpec( StringListInpSpec(nms), 0 );
-	    if ( defidx >= 0 )
-		attrfld_->setValue( defidx );
-	}
-
-	if ( compfld_ )
-	{
-	    compfld_->box()->setCurrentItem(0);
-	    SeisTrcReader rdr( ioobj );
-	    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-	    SeisTrcTranslator* transl = rdr.seisTranslator();
-	    if ( !transl ) return;
-	    BufferStringSet compnms;
-	    transl->getComponentNames( compnms );
-	    compfld_->box()->setEmpty();
-	    compfld_->box()->addItems( compnms );
-	    compfld_->display( transl->componentInfo().size()>1 );
-	}
-    }
-    else
-    {
-	if ( !attrfld_ ) return;
-
-	const BufferString attrnm( attrfld_->text() );
-        attrlistfld_->setEmpty();
-	attrlistfld_->addItems( nms );
-	attrfld_->setText( attrnm );
+        compfld_->box()->setCurrentItem(0);
+	SeisTrcReader rdr( ioobj );
+	if ( !rdr.prepareWork(Seis::PreScan) ) return;
+	SeisTrcTranslator* transl = rdr.seisTranslator();
+	if ( !transl ) return;
+	BufferStringSet compnms;
+	transl->getComponentNames( compnms );
+	compfld_->box()->setEmpty();
+	compfld_->box()->addItems( compnms );
+	compfld_->display( transl->componentInfo().size()>1 );
     }
 }
 
 
 void uiSeisSelDlg::attrNmSel( CallBacker* )
 {
-    attrfld_->setText( attrlistfld_->getText() );
+    selgrp_->getNameField()->setText( selgrp_->getListField()->getText() );
 }
 
 
@@ -273,23 +209,23 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
     SeisIOObjInfo oinf( *ioobj );
     const bool is2d = oinf.is2D();
 
-    if ( is2d && attrfld_ )
+    if ( is2d )
     {
-	BufferString attrnm( attrfld_->text() );
-	const int nroccuer = attrnm.count( '|' );
-	attrnm.replace( '|', '_' );
+	BufferString dsnm( selgrp_->getNameField()->text() );
+	const int nroccuer = dsnm.count( '|' );
+	dsnm.replace( '|', '_' );
 	if( nroccuer )
 	{
 	    BufferString msg( "Invalid charactor  '|' " );
 	    msg.add( " found in attribute name. " )
 	       .add( "It will be renamed to: '" )
-	       .add( attrnm.buf() ).add("'." )
+	       .add( dsnm.buf() ).add("'." )
 	       .add( "\nDo you want to continue?" );
 	    if( !uiMSG().askGoOn( msg.buf() ) )
 		return;
 	}
 
-	iopar.set( sKey::Attribute(), attrnm );
+	iopar.set( sKey::DataSet(), dsnm );
     }
 
     if ( compfld_ )
@@ -307,16 +243,18 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
 
-    if ( attrfld_ || compfld_ )
+    if ( compfld_ )
 	entrySel(0);
 
-    if ( attrfld_ )
+    if ( iopar.find( sKey::DataSet() ) )
     {
-	const char* selattrnm = iopar.find( sKey::Attribute() );
-	if ( selattrnm )
+	const char* seldatasetnm = iopar.find( sKey::DataSet() );
+	if ( seldatasetnm )
 	{
-	    if ( attrlistfld_ ) attrlistfld_->setCurrentItem( selattrnm );
-	    attrfld_->setText( selattrnm );
+	    uiListBox* listfld = selgrp_->getListField();
+	    if ( listfld ) listfld->setCurrentItem( seldatasetnm );
+	    uiGenInput* nmfld = selgrp_->getNameField();
+	    if (nmfld ) nmfld->setText( seldatasetnm );
 	}
     }
     if ( compfld_ )
@@ -474,7 +412,7 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 {
     ctxt.forread = forread;
     if ( geom == Seis::Line )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl = "2D";
+	ctxt.toselect.allowtransls_ = ctxt.deftransl = "TwoD DataSet";
     else
 	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
     if ( !forread )
@@ -505,8 +443,7 @@ IOObj* uiSeisSel::createEntry( const char* nm )
     if ( !iostrm )
 	return newctio.ioobj;
 
-    iostrm->setTranslator( "2D" );
-    iostrm->setExt( "2ds" );
+    iostrm->setTranslator( "TwoD DataSet" );
     return iostrm;
 }
 
@@ -528,8 +465,6 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
 
     LineKey lk( txt );
     curusrnm_ = uiIOObjSel::userNameFromKey( lk.lineName() );
-    if ( is2D() )
-	curusrnm_ = LineKey( curusrnm_, lk.attrName() );
     return curusrnm_.buf();
 }
 

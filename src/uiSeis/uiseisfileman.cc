@@ -14,7 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "cbvsreadmgr.h"
 #include "cubesampling.h"
+#include "dirlist.h"
 #include "file.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -54,7 +56,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , browsebut_(0)
 {
     if ( is2d_ )
-	ctxt_.toselect.allowtransls_ = "2D";
+	ctxt_.toselect.allowtransls_ = "TwoD DataSet";
     else
     {
 	FileMultiString fms( CBVSSeisTrcTranslator::translKey() );
@@ -68,7 +70,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj", is2d ? "Copy lineset" : "Copy cube",
+    manipgrp->addButton( "copyobj", is2d ? "Copy dataset" : "Copy cube",
 			 mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
@@ -125,9 +127,6 @@ void uiSeisFileMan::mkFileInfo()
 	BufferStringSet nms;
 	oinf.getLineNames( nms );
 	txt += "Number of lines: "; txt += nms.size();
-	nms.erase(); oinf.getAttribNames( nms );
-	if ( nms.size() > 1 )
-	    { txt += "\nNumber of attributes: "; txt += nms.size(); }
     }
 
 #define mAddRangeTxt(line) \
@@ -237,17 +236,34 @@ void uiSeisFileMan::mkFileInfo()
 
 double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( File::isEmpty(filenm) ) return -1;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
 
     double totalsz = 0;
     nrfiles = 0;
-    while ( true )
+    if ( File::isDirectory(filenm) )
     {
-	BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	if ( !File::exists(fullnm) ) break;
+	DirList dl( filenm, DirList::FilesOnly );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    FilePath filepath = dl.fullPath( idx );
+	    FixedString ext = filepath.extension();
+	    if ( ext != "cbvs" )
+		continue;
 
-	totalsz += (double)File::getKbSize( fullnm );
-	nrfiles++;
+	    totalsz += (double)File::getKbSize( filepath.fullPath() );
+	    nrfiles++;
+	}
+    }
+    else
+    {
+	while ( true )
+	{
+	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
+	    if ( !File::exists(fullnm) ) break;
+
+	    totalsz += (double)File::getKbSize( fullnm );
+	    nrfiles++;
+	}
     }
 
     return totalsz;

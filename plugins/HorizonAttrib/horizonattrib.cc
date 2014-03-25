@@ -189,12 +189,7 @@ void Horizon::prepareForComputeData()
 void Horizon::fillLineID()
 {
     mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_);
-    MultiID lsid( desc_.getStoredID(true) );
-    PtrMan<IOObj> lsobj = IOM().get( lsid );
-    if ( !lsobj ) return;
-    PosInfo::Line2DKey l2dkey = S2DPOS().getLine2DKey( lsobj->name(),
-	    					  curlinekey_.lineName() );
-    const int lineidx = hor2d->geometry().lineIndex( l2dkey );
+    const int lineidx = hor2d->geometry().lineIndex( geomid_ );
     horizon2dlineid_ = lineidx==-1 ? mUdf(int) : lineidx;
 }
 

@@ -98,8 +98,6 @@ bool TwoDSeisTrcTranslator::initRead_()
     lset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
     addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
 
-    if ( seldata )
-	curlinekey = seldata->lineKey();
     if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
 	{ errmsg = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
@@ -107,9 +105,9 @@ bool TwoDSeisTrcTranslator::initRead_()
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop =cs.hrg.stop.inl();
     pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
-    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop = cs.hrg.stop.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop =cs.hrg.stop.crl();
     return true;
 }
 
@@ -118,7 +116,7 @@ bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
-    Seis2DDataSet ds( fnm );
+    Seis2DDataSet ds( *ioobj );
     const int nrlines = ds.nrLines();
     TypeSet<int> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
@@ -126,10 +124,6 @@ bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 
     for ( int iln=0; iln<nrlines; iln++ )
 	ds.remove( geomids[iln] );
-
-    BufferString bakfnm( fnm ); bakfnm += ".bak";
-    if ( File::exists(bakfnm) )
-	File::remove( bakfnm );
 
     return File::remove( fnm );
 }
@@ -164,7 +158,7 @@ bool TwoDDataSeisTrcTranslator::initRead_()
     BufferString fnm( conn->ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) ) return false;
 
-    Seis2DDataSet dset( fnm );
+    Seis2DDataSet dset( *(conn->ioobj) );
     if ( dset.nrLines() < 1 )
 	{ errmsg = "Data set is empty"; return false; }
     dset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
@@ -176,13 +170,12 @@ bool TwoDDataSeisTrcTranslator::initRead_()
     if ( dset.indexOf(geomid) < 0 )
 	{ errmsg = "Cannot find GeomID in data set"; return false; }
     CubeSampling cs( true );
-    errmsg = dset.getCubeSampling( cs, geomid );
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop =cs.hrg.stop.inl();
     pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
-    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop = cs.hrg.stop.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop =cs.hrg.stop.crl();
     return true;
 }
 

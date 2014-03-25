@@ -117,16 +117,14 @@ public:
     virtual void	include(const SelData&)		= 0;
 
 			// Interesting in some 2D situations:
-    inline LineKey&	lineKey()		{ return linekey_; }
-    inline const LineKey& lineKey() const	{ return linekey_; }
     inline Pos::GeomID  geomID() const	{ return geomid_; }
+    inline void		setGeomID(Pos::GeomID geomid) { geomid_ = geomid; }
 
 protected:
 
 			SelData();
 
     bool		isall_;
-    LineKey&		linekey_;	//!< 2D only
     Pos::GeomID		geomid_;
 
     int			tracesInSI() const;

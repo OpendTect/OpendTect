@@ -150,7 +150,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	SeisTrcReader rdr( objinfo.ioObj() );
 
 	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
-	sd->lineKey() = LineKey( lineposdlg.getLineName(), attrnm_ );
+	sd->setGeomID( Survey::GM().getGeomID(lineposdlg.getLineName()) );
 	rdr.setSelData( sd );
 	rdr.prepareWork();
 

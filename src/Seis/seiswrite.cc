@@ -28,17 +28,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Survey;
 
-#define mCurLineKey (lkp_ \
-    ? lkp_->lineKey() \
-    : (seldata_ ? seldata_->lineKey():""))
+#define mCurGeomID (gidp_ \
+    ? gidp_->geomID() \
+    : (seldata_ ? seldata_->geomID():-1))
 
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	: SeisStoreAccess(ioob)
 	, lineauxiopar_(*new IOPar)
-	, lkp_(l)
+	, gidp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
 	, geom2d_(*new Geometry2D())
@@ -51,7 +51,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
 	, lineauxiopar_(*new IOPar)
-	, lkp_(0)
+	, gidp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
 	, geom2d_(*new Geometry2D())
@@ -88,9 +88,9 @@ bool SeisTrcWriter::close()
 
     if ( is2D() )
     {
-	LineKey lk = mCurLineKey;
-	const BufferString lnm = lk.lineName();
-	const int lineidx = lset_ ? lset_->indexOf(lk) : -1;
+	Pos::GeomID geomid = mCurGeomID;
+	const BufferString lnm = Survey::GM().getName( geomid );
+	const int lineidx = dataset_ ? dataset_->indexOf(geomid) : -1;
 
 	if ( lineidx>=0 && !lnm.isEmpty() )
 	{
@@ -127,7 +127,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg_ += ioobj_->name(); errmsg_ += "'";
 	return false;
     }
-    if ( is2d_ && !lkp_ && ( !seldata_ || seldata_->lineKey().isEmpty() ) )
+    if ( is2d_ && !gidp_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
     {
 	errmsg_ = "Internal: 2D seismic can only be stored if line key known";
 	return false;
@@ -146,8 +146,9 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     else if ( psioprov_ )
     {
 	const char* psstorkey = ioobj_->fullUserExpr(true);
-	const LineKey lk = mCurLineKey;
-	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, lk.lineName() )
+	const Pos::GeomID geomid = mCurGeomID;
+	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, 
+						  Survey::GM().getName(geomid) )
 			  : psioprov_->make3DWriter( psstorkey );
 	if ( !pswriter_ )
 	{
@@ -243,27 +244,25 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 
 bool SeisTrcWriter::next2DLine()
 {
-    LineKey lk = mCurLineKey;
-    if ( !attribnm_.isEmpty() )
-	lk.setAttrName( attribnm_ );
-    BufferString lnm = lk.lineName();
+    Pos::GeomID geomid = mCurGeomID;
+    BufferString lnm = Survey::GM().getName( geomid );
     if ( lnm.isEmpty() )
     {
 	errmsg_ = "Cannot write to empty line name";
 	return false;
     }
 
-    prevlk_ = lk;
+    prevgeomid_ = geomid;
     delete putter_;
 
     IOPar* lineiopar = new IOPar;
-    lk.fillPar( *lineiopar, true );
+    lineiopar->set( sKey::GeomID(), geomid );
 
     if ( !datatype_.isEmpty() )
 	lineiopar->set( sKey::DataType(), datatype_.buf() );
 
     lineiopar->merge( lineauxiopar_ );
-    putter_ = lset_->linePutter( lineiopar );
+    putter_ = dataset_->linePutter( lineiopar );
 
     if ( !putter_ )
     {
@@ -279,7 +278,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
     if ( !putter_ ) return false;
 
-    if ( mCurLineKey != prevlk_ )
+    if ( mCurGeomID != prevgeomid_ )
     {
 	if ( !next2DLine() )
 	    return false;

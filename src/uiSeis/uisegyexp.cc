@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seissingtrcproc.h"
+#include "survgeom.h"
 #include "uimsg.h"
 #include "uitoolbutton.h"
 #include "uilabel.h"
@@ -463,8 +464,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	if ( oinf.isOK() && oinf.nrComponents() > 1 && selcomp_ < 0 )
 	{
-	    const LineKey lk( linenm, attrnm );
-	    BufferStringSet cnms; oinf.getComponentNames( cnms, lk );
+	    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	    BufferStringSet cnms; oinf.getComponentNames( cnms, geomid );
 	    uiSelectFromList dlg( this,
 		uiSelectFromList::Setup("Please select the component",cnms) );
 	    dlg.setHelpKey("103.0.15");

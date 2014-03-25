@@ -31,7 +31,7 @@ mExpClass(Seis) SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
-					 const LineKey&, int trcinit,
+					 const Pos::GeomID, int trcinit,
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 

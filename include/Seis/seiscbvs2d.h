@@ -48,7 +48,7 @@ private:
 
 public:
 
-    static const char*	getFileName(const IOPar&);
+    static const char*	getFileName(const IOPar& iop,bool newfmt=true);
 
 };
 

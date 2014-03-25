@@ -67,7 +67,8 @@ bool SeismicExtractor::collectTracesAroundPath()
 
     if ( rdr_->is2D() )
     {
-	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl(),bidset_[0].inl()) );
+	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl(),
+					    bidset_[0].inl()) );
 	cs_->hrg.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
     }
     else
@@ -75,14 +76,16 @@ bool SeismicExtractor::collectTracesAroundPath()
 	for ( int idx=0; idx<bidset_.size(); idx++ )
 	{
 	    BinID bid = bidset_[idx];
-	    cs_->hrg.include( BinID( bid.inl() + radius_, bid.crl() + radius_ ) );
-	    cs_->hrg.include( BinID( bid.inl() - radius_, bid.crl() - radius_ ) );
+	    cs_->hrg.include( BinID( bid.inl() + radius_, 
+				     bid.crl() + radius_ ) );
+	    cs_->hrg.include( BinID( bid.inl() - radius_, 
+				     bid.crl() - radius_ ) );
 	}
     }
     cs_->hrg.snapToSurvey();
     cs_->zrg = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
-    sd->lineKey() = *linekey_;
+    sd->setGeomID( Survey::GM().getGeomID(linekey_->lineName()) );
 
     rdr_->setSelData( sd );
     rdr_->prepareWork();

@@ -19,6 +19,7 @@ class uiTextEdit;
 class uiToolButton;
 class uiManipButGrp;
 class Seis2DLineSet;
+class Seis2DDataSet;
 class uiSeisIOObjInfo;
 
 
@@ -30,11 +31,11 @@ public:
 			~uiSeis2DFileMan();
 
     uiListBox*		getListBox( bool attrs )
-			{ return attrs ? attrfld_ : linefld_; }
+			{ return linefld_; }
     uiManipButGrp*	getButGroup( bool attrs )
-			{ return attrs ? attrgrp_ : linegrp_; }
+			{ return linegrp_; }
 
-    Seis2DLineSet*	lineset_;
+    Seis2DDataSet*	dataset_;
     uiSeisIOObjInfo*	objinfo_;
 
     mDeclInstanceCreatedNotifierAccess(uiSeis2DFileMan);
@@ -45,23 +46,16 @@ protected:
     void		redoAllLists();
     bool		rename(const char*,BufferString&);
     void		lineSel(CallBacker*);
-    void		attribSel(CallBacker*);
-    void		browsePush(CallBacker*);
     void		renameLine(CallBacker*);
     void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
-    void		removeAttrib(CallBacker*);
-    void		renameAttrib(CallBacker*);
     void		extrFrom3D(CallBacker*);
-    void		makeDefault(CallBacker*);
 
     uiListBox*		linefld_;
-    uiListBox*		attrfld_;
     uiTextEdit*		infofld_;
     uiToolButton*	browsebut_;
     uiToolButton*	mkdefbut_;
     uiManipButGrp*	linegrp_;
-    uiManipButGrp*	attrgrp_;
 
     const bool		issidomain;
     const bool		zistm;

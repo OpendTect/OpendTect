@@ -10,10 +10,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dlineio.h"
 #include "seisbuf.h"
+#include "seisioobjinfo.h"
 #include "survgeom2d.h"
+#include "survgeom.h"
 #include "linesetposinfo.h"
+#include "ioman.h"
+#include "seis2dline.h"
 #include "safefileio.h"
 #include "ascstream.h"
+#include "binidvalset.h"
+#include "posinfo2dsurv.h"
+#include "dirlist.h"
 #include "survinfo.h"
 #include "file.h"
 #include "filepath.h"
@@ -23,8 +30,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 Seis2DDataSet::Seis2DDataSet( const IOObj& ioobj )
-    : NamedObject("")
+    : NamedObject(ioobj.name())
 {
+    IOPar& iopar = ioobj.pars();
+    iopar.get( sKey::DataType(), datatype_ );
     init( ioobj.fullUserExpr(true) );
 }
 
@@ -39,7 +48,7 @@ Seis2DDataSet& Seis2DDataSet::operator =( const Seis2DDataSet& dset )
 {
     if ( &dset == this ) return *this;
     fname_ = dset.fname_;
-    readFile( false );
+    readDir();
     return *this;
 }
 
@@ -49,7 +58,7 @@ void Seis2DDataSet::init( const char* fnm )
     readonly_ = false;
     fname_ = fnm;
     BufferString typestr = "CBVS";
-    readFile( false, &typestr );
+    readDir();
 
     liop_ = 0;
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
@@ -85,6 +94,22 @@ Pos::GeomID Seis2DDataSet::geomID( int idx ) const
 }
 
 
+Pos::GeomID Seis2DDataSet::geomID( const char* filename ) const
+{
+    FilePath fp( filename );
+    BufferString fnm( fp.fileName() );
+    int cidx = 0;
+    while ( cidx < fnm.size() && fnm[cidx] != '^')
+	cidx++;
+    int pointidx = cidx;
+    while ( pointidx < fnm.size() && fnm[pointidx] != '.')
+	pointidx++;
+    fnm[pointidx] = '\0';
+    BufferString strgeomid( fnm + cidx+1 );
+    return strgeomid.toInt();
+}
+
+
 int Seis2DDataSet::indexOf( const char* linename ) const
 {
     const int geomid = Survey::GM().getGeomID( linename );
@@ -102,93 +127,49 @@ int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
 }
 
 
+const char* Seis2DDataSet::zDomainKey( int idx ) const
+{
+    const char* res = idx >=0 && idx < pars_.size()
+		    ? pars_[idx]->find(ZDomain::sKey()) : 0;
+    return res && *res ? res : ZDomain::SI().key();
+}
+
+
 static const char* sKeyFileType = "2D Data Set";
 
 
-void Seis2DDataSet::readFile( bool mklock, BufferString* typestr )
+void Seis2DDataSet::readDir()
 {
     deepErase( pars_ );
+    DirList dl( fname_, DirList::FilesOnly );
+    if ( dl.size() <= 0 )
+	File::createDir( fname_ );
 
-    SafeFileIO sfio( fname_, true );
-    if ( !sfio.open(true) )
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
-	if ( name().isEmpty() )
-	{
-	    FilePath fp( fname_ );
-	    fp.setExtension( 0 );
-	    setName( fp.fileName() );
-	}
-	return;
-    }
+	FilePath filepath = dl.get( idx );
+	FixedString ext = filepath.extension();
+	if ( !ext.isEqual( "cbvs" ) )
+	    continue;
 
-    getFrom( sfio.istrm(), typestr );
-    sfio.closeSuccess( mklock );
-}
-
-
-void Seis2DDataSet::getFrom( od_istream& strm, BufferString* typestr )
-{
-    ascistream astrm( strm, true );
-    if ( !astrm.isOfFileType(sKeyFileType) )
-	return;
-    //TODO: review and add Nr of lines info.
-    if ( !atEndOfSection(astrm.next()) )
-    {
-	if ( astrm.hasKeyword(sKey::Name()) )
-	    setName( astrm.value() );
-	if ( astrm.hasKeyword(sKey::Type()) && typestr )
-	    *typestr = astrm.value();
-    }
-
-    while ( astrm.type() != ascistream::EndOfFile )
-    {
 	IOPar* newpar = new IOPar;
-	while ( !atEndOfSection(astrm.next()) )
-	{
-	    if ( astrm.hasKeyword(sKey::GeomID()) )
-		newpar->set( sKey::GeomID(), astrm.value() );
-	    else if ( !astrm.hasValue("") )
-		newpar->set( astrm.keyWord(), astrm.value() );
-	}
-	if ( newpar->size() < 1 )
-	    delete newpar;
-	else
-	    pars_ += newpar;
+	newpar->set( sKey::FileName(), filepath.fileName() );
+	filepath.setExtension("");
+	BufferString filenm( filepath.fileName() );
+	int cidx = 0;
+	while ( cidx < filenm.size() && filenm[cidx] != '^')
+	    cidx++;
+
+	if ( !cidx || cidx >= filenm.size() )
+	    continue;
+	
+	BufferString strgeomid( filenm.buf()+cidx+1 );
+	Pos::GeomID geomid = strgeomid.toInt();
+	newpar->set( sKey::GeomID(), geomid );
+	pars_ += newpar;
     }
 
     return;
-}
-
-
-void Seis2DDataSet::writeFile() const
-{
-    if ( !readonly_ )
-    {
-	SafeFileIO sfio( fname_, true );
-	if ( sfio.open(false,true) )
-	{
-	    putTo( sfio.ostrm() );
-	    sfio.closeSuccess();
-	}
-    }
-}
-
-
-void Seis2DDataSet::putTo( od_ostream& strm ) const
-{
-    ascostream astrm( strm );
-    if ( !astrm.putHeader(sKeyFileType) )
-	return;
-
-    astrm.put( sKeyNoOfLines, pars_.size() );
-    astrm.newParagraph();
-
-    for ( int ipar=0; ipar<pars_.size(); ipar++ )
-    {
-	IOPar iopar = *pars_[ipar];
-	iopar.setName("");
-	iopar.putTo( astrm );
-    }
 }
 
 
@@ -202,11 +183,19 @@ bool Seis2DDataSet::getGeometry( int ipar, PosInfo::Line2DData& geom ) const
 
     if ( ipar < 0 || ipar >= pars_.size() )
     {
-	ErrMsg("Line number requested not found in Line Set");
+	ErrMsg("Line number requested not found in Dataset");
 	return 0;
     }
 
     return liop_->getGeometry( *pars_[ipar], geom );
+}
+
+
+void Seis2DDataSet::getLineNames( BufferStringSet& nms ) const
+{
+    nms.erase();
+    for ( int idx=0; idx<nrLines(); idx++ )
+	nms.addIfNew( lineName(idx) );
 }
 
 
@@ -221,7 +210,7 @@ Executor* Seis2DDataSet::lineFetcher( int ipar, SeisTrcBuf& tbuf, int ntps,
 
     if ( ipar < 0 || ipar >= pars_.size() )
     {
-	ErrMsg("Line number requested not found in Line Set");
+	ErrMsg("Line number requested not found in Dataset");
 	return 0;
     }
 
@@ -246,7 +235,7 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( IOPar* newiop )
     if ( !newiop->get(sKey::GeomID(),newgeomid) )
 	return 0; // TODO: add error message
 
-    readFile( true );
+    BufferString typestr( "CBVS" );
 
     Seis2DLinePutter* res = 0;
     int paridx = indexOf( newgeomid );
@@ -265,17 +254,63 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( IOPar* newiop )
     }
     else
     {
-	BufferString msg( "Read-only Data set chg req: " );
+	BufferString msg( "Read-only Dataset chg req: " );
 	msg += Survey::GM().getName(newgeomid); msg += " not yet in set ";
 	msg += name();
 	pErrMsg( msg );
     }
 
-    if ( res )
-	writeFile();
-
     // Phew! Made it.
     return res;
+}
+
+
+bool Seis2DDataSet::addLineFrom( Seis2DDataSet& ds, const char* lnm, 
+				 const char* dtyp )
+{
+    if ( !ds.liop_ )
+    {
+	ErrMsg("No suitable 2D line creation object found");
+	return 0;
+    }
+
+    if ( pars_.size() < 1 )
+	{ return true; }
+
+    BufferStringSet lnms;
+    for ( int ipar=0; ipar<pars_.size(); ipar++ )
+	lnms.addIfNew( pars_[ipar]->name() );
+
+    TypeSet<Pos::GeomID> geomidtoadd;
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	const BufferString curlnm( lnms.get(idx) );
+	if ( curlnm == lnm )
+	{
+	    Pos::GeomID geomid = geomID( curlnm );
+	    if ( ds.indexOf(geomid) < 0 )
+		geomidtoadd += geomid;
+	}
+    }
+
+    if ( geomidtoadd.size() == 0 )
+	{ return true; }
+
+    for ( int idx=0; idx<geomidtoadd.size(); idx++ )
+    {
+	IOPar* newiop = new IOPar( ds.name() );
+
+	newiop->set( sKey::GeomID(), geomidtoadd[idx] );
+	if ( dtyp )
+	    newiop->set( sKey::DataType(), dtyp );
+
+	const IOPar* previop = ds.pars_.size() ? ds.pars_[ds.pars_.size()-1]
+						: 0;
+	ds.pars_ += newiop;
+	delete ds.liop_->getAdder( *newiop, previop, ds.name() );
+    }
+
+    return true;
 }
 
 
@@ -289,7 +324,6 @@ bool Seis2DDataSet::remove( Pos::GeomID geomid )
 {
     if ( readonly_ ) return false;
 
-    readFile( true );
     int ipar = indexOf( geomid );
     if ( ipar < 0 )
 	{ return true; }
@@ -300,60 +334,27 @@ bool Seis2DDataSet::remove( Pos::GeomID geomid )
     pars_ -= iop;
     delete iop;
 
-    writeFile();
     return true;
 }
 
 
-bool Seis2DDataSet::renameFiles( const char* newnm )
+bool Seis2DDataSet::renameFiles( const char* newname )
 {
-    BufferString cleannm( newnm );
-    cleannm.clean();
-    if ( fname_.isEmpty() )
-	return false;
-
-    setName( cleannm.buf() );
-    BufferString oldnm;
-    if ( !pars_.size() )
-	return false;
-
-    pars_[0]->get( sKey::FileName(), oldnm );
-    int index = 0;
-    while ( true )
+    DirList dl( fname_, DirList::FilesOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
-	if ( oldnm[index] == '^' || oldnm[index] == '.' )
-	    break;
-	index++;
-    }
-
-    oldnm[index] = '\0';
-
-    FilePath fp( fname_ );
-    for ( int idx=0; idx<nrLines(); idx++ )
-    {
-	BufferString filenm, oldfilenm;
-	pars_[idx]->get( sKey::FileName(), filenm );
-	oldfilenm = filenm;
-	filenm.replace( oldnm.buf(), cleannm.buf() );
-	FilePath newfp( fp.pathOnly(), filenm );
-	FilePath oldfp( fp.pathOnly(), oldfilenm );
-	if ( oldfp.isEmpty() || newfp.isEmpty() || oldfp == newfp )
-	    continue;
-
-	if ( !File::rename(oldfp.fullPath(),newfp.fullPath()) )
-	{
-	    renameFiles( oldnm );
+	FilePath oldfp = dl.fullPath( idx );
+	Pos::GeomID geomid = geomID( oldfp.fileName() ); 
+	const char* ext = oldfp.extension();
+	BufferString newfnm( newname );
+	newfnm += "^"; newfnm += geomid;
+	FilePath newfullfilepath( oldfp.pathOnly() );
+	newfullfilepath.add( newfnm );
+	newfullfilepath.setExtension( ext );
+	if ( !File::rename(oldfp.fullPath(), newfullfilepath.fullPath()) )
 	    return false;
-	}
-
-	newfp.setExtension( "par" );
-	oldfp.setExtension( "par" );
-	File::rename( oldfp.fullPath(), newfp.fullPath() );
-
-	pars_[idx]->set( sKey::FileName(), filenm );
     }
 
-    writeFile();
     return true;
 }
 
@@ -372,190 +373,18 @@ bool Seis2DDataSet::getRanges( int ipar, StepInterval<int>& sii,
 }
 
 
-const char* Seis2DDataSet::getCubeSampling( CubeSampling& cs, int lnr ) const
+bool Seis2DDataSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 {
-    cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
-    cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = nrLines()-1;
-    cs.hrg.start.crl() = 0; cs.hrg.stop.crl() = mUdf(int);
-    cs.zrg = SI().zRange(false);
-    const int nrlines = nrLines();
-    if ( nrlines < 1 )
-	return "No lines in Data Set";
+    PosInfo::Line2DData geom( lineName(ipar) );
+    if ( !S2DPOS().getGeometry(geom) )
+	return false;
 
-    bool havelinesel = lnr >= 0;
-    if ( !havelinesel )
-	lnr = 0;
-    else
-	cs.hrg.start.inl() = cs.hrg.stop.inl() = lnr;
-
-    StepInterval<int> trg; StepInterval<float> zrg;
-    bool foundone = false;
-
-    if ( getRanges(lnr,trg,zrg) )
-	foundone = true;
-
-    if ( !havelinesel )
+    for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
-	StepInterval<int> newtrg; StepInterval<float> newzrg;
-	for ( int iln=1; iln<nrlines; iln++ )
-	{
-	    if ( getRanges(iln,newtrg,newzrg) )
-	    {
-		foundone = true;
-		if ( newtrg.start < trg.start ) trg.start = newtrg.start;
-		if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
-		if ( newtrg.step < trg.step ) trg.step = newtrg.step;
-		if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
-		if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
-		if ( newzrg.step < zrg.step ) zrg.step = newzrg.step;
-	    }
-	}
+	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
+	    return true;
     }
 
-    if ( !foundone )
-	return "No range info present";
-
-    cs.hrg.start.crl() = trg.start; cs.hrg.stop.crl() = trg.stop;
-    cs.hrg.step.crl() = trg.step;
-    cs.zrg = zrg;
-    return 0;
+    return false;
 }
 
-
-class Seis2DGeomDumper : public Executor
-{
-public:
-
-Seis2DGeomDumper( const Seis2DDataSet& l, od_ostream& o, bool inr, float z,
-		  const char* lk )
-	: Executor("Geometry extraction")
-	, ds(l)
-	, strm(o)
-	, donr(inr)
-	, curidx(-1)
-	, totalnr(-1)
-	, lnshandled(0)
-	, ptswritten(0)
-	, zval(z)
-	, incz(!mIsUdf(z))
-	, dolnm(true)
-{
-    lastidx = ds.nrLines() - 1;
-    if ( lastidx < 0 )
-    {
-	curmsg = "No lines in data set";
-	return;
-    }
-
-    curidx = 0;
-    if ( lk && *lk )
-    {
-	curidx = ds.indexOf( lk );
-	if ( curidx < 0 )
-	{
-	    curmsg = "Could not find the line  '";
-	    curmsg += lk; curmsg += "' in data set";
-	    return;
-	}
-
-	lastidx = curidx;
-	dolnm = false;
-    }
-
-    totalnr = lastidx - curidx + 1;
-    curmsg = "Extracting geometry";
-}
-
-const char* message() const	{ return curmsg.buf(); }
-const char* nrDoneText() const	{ return "Lines handled"; }
-od_int64 nrDone() const		{ return lnshandled; }
-od_int64 totalNr() const	{ return totalnr; }
-
-
-int nextStep()
-{
-    if ( curidx < 0 )
-	return ErrorOccurred();
-    if ( !strm.isOK() )
-    {
-	curmsg = "Cannot write to file";
-	return ErrorOccurred();
-    }
-
-    if ( curidx > lastidx )
-    {
-	if ( ptswritten == 0 )
-	{
-	    curmsg = "No output created";
-	    return ErrorOccurred();
-	}
-	return Finished();
-    }
-
-    Survey::Geometry2D* geom2d = (Survey::Geometry2D*)Survey::GM().getGeometry
-							( ds.geomID(curidx) );
-    /*S2DPOS().setCurLineSet( ds.name() );
-    PosInfo::Line2DData geom( ds.lineKey(curidx).lineName() );*/
-    if ( geom2d->data().isEmpty()/*!S2DPOS().getGeometry(geom)*/ )
-    {
-	curmsg = "Couldn't get geometry for '";
-	curmsg += ds.lineName( curidx );
-	curmsg += "'";
-	return totalnr == 1		? ErrorOccurred()
-	     : (curidx == lastidx	? Finished()
-					: WarningAvailable());
-    }
-
-    BufferString outstr;
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
-    const TypeSet<PosInfo::Line2DPos>& posns = geom2d->data().positions();
-    for ( int idx=0; idx<posns.size(); idx++ )
-    {
-	const PosInfo::Line2DPos& pos = posns[idx];
-	outstr = "";
-	if ( dolnm )
-	    { outstr += ds.lineName(curidx); outstr += "\t"; }
-	if ( donr )
-	    { outstr += pos.nr_; outstr += "\t"; }
-	outstr += pos.coord_.x; outstr += "\t";
-	outstr += pos.coord_.y;
-	if ( incz )
-	    { outstr += "\t"; outstr += zval * zfac; }
-	strm << outstr << '\n';
-	ptswritten++;
-    }
-    strm.flush();
-
-    if ( !strm.isOK() )
-    {
-	curmsg = "Error during write to file";
-	return ErrorOccurred();
-    }
-
-    lnshandled++;
-    curidx++;
-    return curidx > lastidx ? Finished() : MoreToDo();
-}
-
-    const Seis2DDataSet&	ds;
-    od_ostream&			strm;
-    BufferString		attrnm;
-    const bool			incz;
-    const float			zval;
-    bool			donr;
-    bool			dolnm;
-    int				curidx;
-    int				lastidx;
-    int				totalnr;
-    int				lnshandled;
-    int				ptswritten;
-    BufferString		curmsg;
-
-};
-
-
-Executor* Seis2DDataSet::geometryDumper( od_ostream& strm, bool incnr,
-					 float z, const char* lk ) const
-{
-    return new Seis2DGeomDumper( *this, strm, incnr, z, lk );
-}

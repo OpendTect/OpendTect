@@ -137,7 +137,7 @@ int uiSeisSubSel::expectedNrSamples() const
 int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )                              
+    mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )
     if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hrg.totalNr());
 
     return mCast( int, pp->estNrPos() );
@@ -236,10 +236,10 @@ void uiSeis2DSubSel::setInputWithAttrib( const IOObj& ioobj,
     info.getLineNamesWithAttrib( attribnm, curlnms_ );
     for ( int idx=0; idx<curlnms_.size(); idx++ )
     {
-	LineKey lk( curlnms_.get(idx), attribnm );
+	Pos::GeomID geomid = Survey::GM().getGeomID( curlnms_.get(idx) );
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	if ( !info.getRanges(lk,trcrg,zrg) )
+	if ( !info.getRanges(geomid,trcrg,zrg) )
 	    break;
 
 	trcrgs_ += trcrg;

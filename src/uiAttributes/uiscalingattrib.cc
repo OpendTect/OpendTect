@@ -540,7 +540,9 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    SeisIOObjInfo seisinfo( ioobj );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
-	    seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
+	    Pos::GeomID geomid = Survey::GM().getGeomID( 
+					    subseldlg.lineKey().lineName() );
+	    seisinfo.getRanges( geomid, trcrg, zrg );
 	    cs.hrg.setCrlRange( trcrg );
 	    cs.hrg.setInlRange( Interval<int>(0,0) );
 	    cs.zrg = zrg;

@@ -128,8 +128,6 @@ public:
 
 protected:
 
-    uiListBox*		attrlistfld_;
-    uiGenInput*		attrfld_;
     uiLabeledComboBox*	compfld_;
     int			steerpol_;
     BufferString	notalloweddatatype_;	// 2D only

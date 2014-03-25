@@ -129,10 +129,10 @@ bool SeisZAxisStretcher::isOK() const
 }
 
 
-void SeisZAxisStretcher::setLineKey( const char* lk )
+void SeisZAxisStretcher::setLineKey( const char* lnm )
 {
     Seis::RangeSelData sd; sd.copyFrom( *seisreader_->selData() );
-    sd.lineKey() = lk;
+    sd.setGeomID( Survey::GM().getGeomID(lnm) );
     seisreader_->setSelData( sd.clone() );
     if ( !seisreader_->prepareWork() )
     {
@@ -154,7 +154,7 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 
     sd.copyFrom( seiswriter_->selData() ? *seiswriter_->selData()
 	    				: *new Seis::RangeSelData(true) );
-    sd.lineKey() = lk;
+    sd.setGeomID( Survey::GM().getGeomID(lnm) );
     seiswriter_->setSelData( sd.clone() );
 }
 
@@ -177,8 +177,8 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
 	if ( is2d_ && seisreader_ && seisreader_->selData() )
-	    sampler->setLineName( 
-			seisreader_->selData()->lineKey().lineName() );
+	    sampler->setLineName( Survey::GM().getName(
+					    seisreader_->selData()->geomID()));
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
@@ -460,7 +460,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 	{
 	    //TODO verify how to get lineidx if it's necessary
 	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
-			    seisreader_->selData()->lineKey().lineName() ) : 0;
+		   Survey::GM().getName(seisreader_->selData()->geomID()) ) : 0;
 	    curbid.crl() = trc.info().nr;
 	}
 
@@ -524,7 +524,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
 	{
 	    //TODO verify how to get lineidx if it's necessary
 	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
-		    seisreadertdmodel_->selData()->lineKey().lineName() ) : 0;
+	    Survey::GM().getName(seisreadertdmodel_->selData()->geomID()) ) : 0;
 	    curbid.crl() = trc.info().nr;
 	}
 

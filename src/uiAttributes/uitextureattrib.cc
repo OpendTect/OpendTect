@@ -280,7 +280,8 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     {
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisinfo.getRanges( subseldlg.lineKey(), trcrg, zrg );
+	seisinfo.getRanges( Survey::GM().getGeomID(
+				  subseldlg.lineKey().lineName()), trcrg, zrg );
 	cs.hrg.setCrlRange( trcrg );
 	cs.hrg.setInlRange( Interval<int>(0,0) );
 	cs.zrg = zrg;

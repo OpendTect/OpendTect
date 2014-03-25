@@ -124,13 +124,13 @@ public:
     BufferString		getAttribName() const;
     const BufferStringSet&	getSelLines() const;
     bool			isAll() const;
-    const StepInterval<float>&	getZRange() const;
+    const TypeSet<StepInterval<float> >& getZRange() const;
     const TypeSet<StepInterval<int> >&	getTrcRgs() const;
 
     void			setLineSet(const MultiID&,const char* attr=0);
     void			setSelLines(const BufferStringSet&);
     void			setAll(bool);
-    void			setZRange(const StepInterval<float>&);
+    void			setZRange(const TypeSet<StepInterval<float> >&);
     void			setTrcRgs(const TypeSet<StepInterval<int> >&);
 
     bool			fillPar(IOPar&) const;
@@ -144,7 +144,7 @@ protected:
     CtxtIOObj&			ctio_;
     BufferString		attrnm_;
     BufferStringSet		sellines_;
-    StepInterval<float>		zrg_;
+    TypeSet<StepInterval<float> > zrg_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
     void			doDlg(CallBacker*);
@@ -165,7 +165,7 @@ public:
     const char*			getAttribName() const;
     void			getSelLines(BufferStringSet&) const;
     bool			isAll() const;
-    void			getZRange(StepInterval<float>&) const;
+    void			getZRanges(TypeSet<StepInterval<float> >&)const;
     void			getTrcRgs(TypeSet<StepInterval<int> >&) const;
 
     void			setLineSet(const MultiID&,const char* attr=0);
@@ -179,13 +179,14 @@ protected:
     const uiSeis2DMultiLineSel::Setup&	setup_;
 
     CtxtIOObj&			ctio_;
-    uiSeisSel*			linesetfld_;
+    uiSeisSel*			datasetfld_;
     uiListBox*			lnmsfld_;
     uiSelNrRange*		trcrgfld_;
     uiSelZRange*		zrgfld_;
 
     TypeSet<StepInterval<int> >	maxtrcrgs_;
     TypeSet<StepInterval<int> >	trcrgs_;
+    TypeSet<StepInterval<float> > zrgs_;
 
     void			finalised(CallBacker*);
     void			lineSetSel(CallBacker*);

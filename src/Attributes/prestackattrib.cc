@@ -483,8 +483,8 @@ void PSAttrib::prepPriorToBoundsCalc()
 		    " in object manager")
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
-					    curlinekey_.lineName().buf() );
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, 
+					    Survey::GM().getName(geomid_) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 

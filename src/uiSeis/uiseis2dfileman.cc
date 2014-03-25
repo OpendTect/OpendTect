@@ -17,11 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "zdomain.h"
 #include "linesetposinfo.h"
@@ -53,7 +55,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     setCtrlStyle( CloseOnly );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
-    lineset_ = new Seis2DLineSet( ioobj.fullUserExpr(true) );
+    dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
@@ -74,23 +76,6 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_ );
 
-    uiLabeledListBox* allb = new uiLabeledListBox( topgrp, "Attributes", true,
-						   uiLabeledListBox::AboveMid );
-    attrfld_ = allb->box();
-    attrfld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,attribSel) );
-    allb->attach( rightOf, lllb );
-
-    attrgrp_ = new uiManipButGrp( allb );
-    attrgrp_->addButton( uiManipButGrp::Rename, "Rename attribute",
-	    	       mCB(this,uiSeis2DFileMan,renameAttrib) );
-    attrgrp_->addButton( uiManipButGrp::Remove, "Remove selected attribute(s)",
-	    		mCB(this,uiSeis2DFileMan,removeAttrib) );
-    browsebut_ = attrgrp_->addButton( "browseseis", "Browse/edit this line",
-	    	       mCB(this,uiSeis2DFileMan,browsePush) );
-    mkdefbut_ = attrgrp_->addButton( "makedefault",
-	    "Set as default", mCB(this,uiSeis2DFileMan,makeDefault) );
-    attrgrp_->attach( rightOf, attrfld_ );
-
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
     infofld_ = new uiTextEdit( botgrp, "File Info", true );
     infofld_->setPrefHeightInChar( 8 );
@@ -110,7 +95,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 uiSeis2DFileMan::~uiSeis2DFileMan()
 {
     delete objinfo_;
-    delete lineset_;
+    delete dataset_;
 }
 
 
@@ -128,143 +113,81 @@ void uiSeis2DFileMan::fillLineBox()
 
 void uiSeis2DFileMan::lineSel( CallBacker* )
 {
-    BufferStringSet sellines;
-    linefld_->getSelectedItems( sellines );
-    BufferStringSet sharedattribs;
-    for ( int idx=0; idx<sellines.size(); idx++ )
+    infofld_->setText( "" );
+    BufferStringSet linenms;
+    linefld_->getSelectedItems( linenms );
+    BufferString txt;
+    for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-	BufferStringSet attrs;
-	objinfo_->ioObjInfo().
-	    getAttribNamesForLine( sellines.get(idx), attrs, opts2d );
-	if ( !idx )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linenms.get(idx) );
+	const int lineidx = dataset_->indexOf( geomid );
+	if ( lineidx < 0 ) { pErrMsg("Huh"); continue; }
+
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	const bool hasrg = dataset_->getRanges( lineidx, trcrg, zrg );
+
+	PosInfo::Line2DData l2dd;
+	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	if ( geom2d )
+	    l2dd = geom2d->data();
+	if ( !geom2d || l2dd.isEmpty() )
 	{
-	    sharedattribs = attrs;
+	    txt += ( "\nCannot find geometry for line: " ); 
+	    txt += linenms.get(idx);
 	    continue;
 	}
 
-	BufferStringSet strs2rem;
-	for ( int ida=0; ida<sharedattribs.size(); ida++ )
+	const int sz = trcrg.nrSteps() + 1;
+	PosInfo::Line2DPos firstpos, lastpos;
+	l2dd.getPos( trcrg.start, firstpos );
+	l2dd.getPos( trcrg.stop, lastpos );
+
+	if ( hasrg )
 	{
-	    const char* str = sharedattribs.get(ida);
-	    int index = attrs.indexOf( str );
-	    if ( index<0 ) strs2rem.add( str );
-	}
-
-	for ( int ida=0; ida<strs2rem.size(); ida++ )
-	{
-	    const int index = sharedattribs.indexOf( strs2rem.get(ida) );
-	    sharedattribs.removeSingle( index );
-	}
-    }
-
-    attrfld_->setEmpty();
-    sharedattribs.sort();
-    attrfld_->addItems( sharedattribs );
-    attrfld_->setSelected( 0, true );
-}
-
-
-void uiSeis2DFileMan::attribSel( CallBacker* )
-{
-    infofld_->setText( "" );
-    BufferStringSet linenms, attribnms;
-    linefld_->getSelectedItems( linenms );
-    attrfld_->getSelectedItems( attribnms );
-    if ( linenms.isEmpty() || attribnms.isEmpty() )
-    {
-	browsebut_->setSensitive( false );
-	mkdefbut_->setSensitive( false );
-	return;
-    }
-
-    const LineKey linekey( linenms.get(0), attribnms.get(0) );
-    const int lineidx = lineset_->indexOf( linekey );
-    if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
-
-    StepInterval<int> trcrg;
-    StepInterval<float> zrg;
-    const bool hasrg = lineset_->getRanges( lineidx, trcrg, zrg );
-
-    S2DPOS().setCurLineSet( lineset_->name() );
-    PosInfo::Line2DData l2dd( linekey.lineName() );
-    if ( !S2DPOS().getGeometry(l2dd) || l2dd.isEmpty() )
-    {
-	infofld_->setText( "Cannot find geometry for this line" );
-	return;
-    }
-
-    const int sz = trcrg.nrSteps() + 1;
-    PosInfo::Line2DPos firstpos, lastpos;
-    l2dd.getPos( trcrg.start, firstpos );
-    l2dd.getPos( trcrg.stop, lastpos );
-
-    BufferString txt;
-    if ( hasrg )
-    {
-	txt += "Number of traces: "; txt += sz;
-	txt += "\nFirst trace: ";
-	if ( l2dd.getPos(trcrg.start,firstpos) )
-	    txt.add( firstpos.nr_ )
-		.add( " " ).add( firstpos.coord_.toString() );
-	txt += "\nLast trace: ";
-	if ( l2dd.getPos(trcrg.stop,lastpos) )
-	    txt.add( lastpos.nr_ )
-		.add( " " ).add( lastpos.coord_.toString() );
+	    if ( idx > 0 )
+		txt += "\n\n";
+	    txt += "Details for line: "; txt += linenms.get(idx);
+	    txt += "\nNumber of traces: "; txt += sz;
+	    txt += "\nFirst trace: ";
+	    if ( l2dd.getPos(trcrg.start,firstpos) )
+		txt.add( firstpos.nr_ )
+		   .add( " " ).add( firstpos.coord_.toString() );
+	    txt += "\nLast trace: ";
+	    if ( l2dd.getPos(trcrg.stop,lastpos) )
+		txt.add( lastpos.nr_ )
+		   .add( " " ).add( lastpos.coord_.toString() );
 
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT32(1000*memb) : memb
-	txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
-	mAddZRangeTxt(zrg.stop);
-	txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
+	    txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
+	    mAddZRangeTxt(zrg.stop);
+	    txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
+	}
+	else
+	{
+	    txt += "\nCannot read ranges for line: "; txt += linenms.get(idx);
+	    txt += "\nCBVS file might be corrupt or missing.\n";
+	}
+
+	SeisIOObjInfo sobinf( objinfo_->ioObj() );
+	const int nrcomp = sobinf.nrComponents( geomid );
+	if ( nrcomp > 1 )
+	    { txt += "\nNumber of components: "; txt += nrcomp; }
+
+	const IOPar& iopar = dataset_->getInfo( lineidx );
+	BufferString fname( SeisCBVS2DLineIOProvider::getFileName(iopar) );
+	FilePath fp( fname );
+
+	txt += "\nLocation: "; txt += fp.pathOnly();
+	txt += "\nFile name: "; txt += fp.fileName();
+	txt += "\nFile size: "; 
+	txt += uiObjFileMan::getFileSizeString( File::getKbSize(fname) );
+	const char* timestr = File::timeLastModified( fname );
+	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     }
-    else
-    {
-	txt += "Cannot read ranges. CBVS file might be corrupt or missing.\n";
-    }
 
-    SeisIOObjInfo sobinf( objinfo_->ioObj() );
-    const int nrcomp = sobinf.nrComponents( linekey );
-    if ( nrcomp > 1 )
-	{ txt += "\nNumber of components: "; txt += nrcomp; }
-
-    const IOPar& iopar = lineset_->getInfo( lineidx );
-    BufferString fname(iopar.find(sKey::FileName()) );
-    FilePath fp( fname );
-    if ( !fp.isAbsolute() )
-	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
-    fname = fp.fullPath();
-
-    txt += "\nLocation: "; txt += fp.pathOnly();
-    txt += "\nFile name: "; txt += fp.fileName();
-    txt += "\nFile size: "; 
-    txt += uiObjFileMan::getFileSizeString( File::getKbSize(fname) );
-    const char* timestr = File::timeLastModified( fname );
-    if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     infofld_->setText( txt );
-
-    browsebut_->setSensitive( true );
-    mkdefbut_->setSensitive( true );
-}
-
-
-void uiSeis2DFileMan::browsePush( CallBacker* )
-{
-    if ( !objinfo_ || !objinfo_->ioObj() ) return;
-
-    const LineKey lk( linefld_->getText(), attrfld_->getText());
-    uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
-}
-
-
-void uiSeis2DFileMan::makeDefault( CallBacker* )
-{
-    if ( !objinfo_ || !objinfo_->ioObj() ) return;
-
-    BufferString attrnm = attrfld_->getText();
-    BufferString key = IOPar::compKey(sKey::Default(),
-		SeisTrcTranslatorGroup::sKeyDefaultAttrib());
-    SI().getPars().set( key, attrnm );
-    SI().savePars();
 }
 
 
@@ -273,48 +196,15 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     BufferStringSet sellines;
     linefld_->getSelectedItems( sellines );
     if ( sellines.isEmpty() ||
-	!uiMSG().askRemove("All selected lines and associated attributes "
+	!uiMSG().askRemove("All selected lines "
 	    "will be removed. Do you want to continue?") )
 	return;
 
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
-	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-	BufferStringSet attrnms;
-	objinfo_->ioObjInfo().getAttribNamesForLine( linenm, attrnms, opts2d );
-	for ( int ida=0; ida<attrnms.size(); ida++ )
-	{
-	    LineKey linekey( linenm, attrnms.get(ida) );
-	    lineset_->remove( linekey );
-	}
+        dataset_->remove( Survey::GM().getGeomID(linenm) );
     }
-}
-
-
-void uiSeis2DFileMan::removeAttrib( CallBacker* )
-{
-    BufferStringSet attribnms;
-    attrfld_->getSelectedItems( attribnms );
-    if ( attribnms.isEmpty()
-      || !uiMSG().askRemove("All selected attributes will be removed.\n"
-			     "Do you want to continue?") )
-	return;
-
-    BufferStringSet sellines;
-    linefld_->getSelectedItems( sellines );
-    for ( int idx=0; idx<sellines.size(); idx++ )
-    {
-	const char* linename = sellines.get(idx);
-	for ( int ida=0; ida<attribnms.size(); ida++ )
-	{
-	    LineKey linekey( linename, attribnms.get(ida) );
-	    if ( !lineset_->remove(linekey) )
-		uiMSG().error( "Could not remove attribute" );
-	}
-    }
-
-    fillLineBox();
 }
 
 
@@ -345,48 +235,13 @@ void uiSeis2DFileMan::renameLine( CallBacker* )
 	return;
     }
 
-    if ( !lineset_->renameLine( linenm, newnm ) )
+    /*if ( !dataset_->renameLine( linenm, newnm ) )
     {
 	uiMSG().error( "Could not rename line" );
 	return;
-    }
+    }*/
 
     fillLineBox();
-}
-
-
-void uiSeis2DFileMan::renameAttrib( CallBacker* )
-{
-    BufferStringSet attribnms;
-    attrfld_->getSelectedItems( attribnms );
-    if ( attribnms.isEmpty() ) return;
-
-    const char* attribnm = attribnms.get(0);
-    BufferString newnm;
-    if ( !rename(attribnm,newnm) ) return;
-
-    if ( attrfld_->isPresent(newnm) )
-    {
-	uiMSG().error( "Attribute name already in use" );
-	return;
-    }
-
-    BufferStringSet sellines;
-    linefld_->getSelectedItems( sellines );
-    for ( int idx=0; idx<sellines.size(); idx++ )
-    {
-	const char* linenm = sellines.get(idx);
-	LineKey oldlk( linenm, attribnm );
-	if ( !lineset_->rename(oldlk,LineKey(linenm,newnm)) )
-	{
-	    BufferString err( "Could not rename attribute: " );
-	    err += oldlk;
-	    uiMSG().error( err );
-	    continue;
-	}
-    }
-
-    lineSel(0);
 }
 
 
@@ -510,8 +365,8 @@ void uiSeis2DFileMan::redoAllLists()
     objinfo_ = new uiSeisIOObjInfo( lsid );
     if ( objinfo_->isOK() )
     {
-	delete lineset_;
-	lineset_ = new Seis2DLineSet( objinfo_->ioObj()->fullUserExpr(true) );
+	delete dataset_;
+	dataset_ = new Seis2DDataSet( *(objinfo_->ioObj()) );
     }
     fillLineBox();
 }

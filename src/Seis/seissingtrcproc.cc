@@ -218,7 +218,7 @@ void SeisSingleTraceProc::nextObj()
     SeisTrcReader* currdr = rdrset_[currentobj_];
     currdr->prepareWork();
     if ( wrr_ )
-	wrr_->setLineKeyProvider( currdr->lineKeyProvider() );
+	wrr_->setGeomIDProvider( currdr->geomIDProvider() );
 }
 
 
@@ -251,11 +251,11 @@ const char* SeisSingleTraceProc::message() const
 	    ret += "data";
 	else
 	{
-	    LineKey lk( currdr->lineKey() );
-	    if ( lk.isEmpty() )
+	    Pos::GeomID geomid = currdr->geomID();
+	    if ( geomid < 0 )
 		ret += "data";
 	    else
-		{ ret += "'"; ret += lk; ret += "'"; }
+		{ ret += "'"; ret += geomid; ret += "'"; }
 	}
 	msg = ret.buf();
     }
@@ -426,7 +426,7 @@ bool SeisSingleTraceProc::writeTrc()
     {
 	const SeisTrcReader& currdr = *rdrset_[currentobj_];
 	SeisTrcTranslator& wrtr = *wrr_->seisTranslator();
-	wrtr.setCurLineKey( currdr.lineKey() );
+	wrtr.setCurGeomID( currdr.geomID() );
 	if ( currdr.is2D() )
 	    wrtr.packetInfo().crlrg = currdr.curTrcNrRange();
 	else

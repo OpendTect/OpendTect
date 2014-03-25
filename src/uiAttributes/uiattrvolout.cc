@@ -68,7 +68,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , datastorefld_(0)
 {
     const bool is2d = ad.is2D();
-    setCaption( is2d ? "Create LineSet Attribute" :
+    setCaption( is2d ? "Create Data Attribute" :
 	( multioutput ? "Create Multi-attribute Output"
 		      : "Create Volume Attribute") );
 
@@ -241,36 +241,31 @@ bool uiAttrVolOut::prepareProcessing()
 
 	if ( todofld_->is2D() )
 	{
-	    const char* outputnm = objfld_->getInput();
+	    BufferString outputnm = objfld_->getInput();
 	    BufferString attrnm = LineKey( outputnm ).attrName();
-	    const int nroccuer = attrnm.count( '|' );
-	    attrnm.replace( '|', '_' );
+	    const int nroccuer = outputnm.count( '|' );
+	    outputnm.replace( '|', '_' );
 	    if( nroccuer )
 	    {
 		BufferString msg( "Invalid charactor  '|' " );
 		msg.add( " found in attribute name. " )
 		   .add( "It will be renamed to: '" )
-		   .add( attrnm.buf() ).add("'." )
+		   .add( outputnm.buf() ).add("'." )
 		   .add( "\nDo you want to continue?" );
 		if( !uiMSG().askGoOn( msg.buf() ) )
 		    return false;
 	    }
 
-	    if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
+	    if ( outputnm.isEmpty() )
 	    {
-		const bool res = uiMSG().askGoOn(
-		    "No attribute name given. Do you want to continue? "
-		    "Click on 'Yes' if you want 'Seis' as attribute name. "
-		    "Click on 'No' to provide another name." );
-		if ( !res ) return false;
+		uiMSG().error(
+		       "No dataset name given. Please provide a valid name. " );
+		return false;
 	    }
-
-	    if ( attrnm.isEmpty() )
-		attrnm = LineKey::sKeyDefAttrib();
 
 	    SeisIOObjInfo info( ctio_.ioobj );
 	    BufferStringSet lnms;
-	    info.getLineNamesWithAttrib( attrnm.buf(), lnms );
+	    info.getLineNames( lnms );
 	    const bool singline = transffld_->selFld2D()->isSingLine();
 	    const char* lnm =
 		singline ? transffld_->selFld2D()->selectedLine() : 0;
@@ -448,8 +443,6 @@ bool uiAttrVolOut::fillPar()
     const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
     BufferString outseisid;
     outseisid += ctio_.ioobj->key();
-    if ( is2d )
-	{ outseisid += "|"; outseisid += objfld_->attrNm(); }
 
     iop.set( IOPar::compKey(keybase,Attrib::SeisTrcStorOutput::seisidkey()),
 			    outseisid);

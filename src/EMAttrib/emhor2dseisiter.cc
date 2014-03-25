@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 #include "emhorizon2d.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
 #include "ioman.h"
@@ -42,7 +42,7 @@ EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const MultiID& mid )
 
 void EM::Hor2DSeisLineIterator::init( const Horizon2D* h2d )
 {
-    lset_ = 0; curlsid_ = "0"; lineidx_ = -1;
+    dataset_ = 0; curlsid_ = "0"; lineidx_ = -1;
 
     h2d_ = h2d;
     if ( h2d_ )
@@ -58,7 +58,7 @@ EM::Hor2DSeisLineIterator::~Hor2DSeisLineIterator()
 {
     if ( h2d_ )
 	h2d_->unRef();
-    delete lset_;
+    delete dataset_;
 }
 
 
@@ -83,21 +83,21 @@ void EM::Hor2DSeisLineIterator::reset()
 void EM::Hor2DSeisLineIterator::getLineSet()
 {
     if ( !isValid() )
-	{ delete lset_; lset_ = 0; return; }
+	{ delete dataset_; dataset_ = 0; return; }
 
-    const char* lsnm = S2DPOS().getLineSet( geom_->lineKey(lineidx_).lsID());
-    if ( !lset_ || lset_->name() != lsnm )
+    Pos::GeomID geomid = geom_->geomID( lineidx_ );
+    /*if ( !dataset_ )
     {
-	delete lset_; lset_ = 0;
+	delete dataset_; dataset_ = 0;
 	IOM().to( MultiID("100010") );
 	IOObj* ioobj = IOM().getLocal( lsnm, 0 );
 	if ( ioobj )
 	{
-	    lset_ = new Seis2DLineSet( *ioobj );
+	    dataset_ = new Seis2DDataSet( *ioobj );
 	    curlsid_ = ioobj->key();
 	    delete ioobj;
 	}
-    }
+    }*/
 }
 
 
@@ -111,14 +111,14 @@ const char* EM::Hor2DSeisLineIterator::lineName() const
 
 int EM::Hor2DSeisLineIterator::lineSetIndex( const char* attrnm ) const
 {
-    if ( !isValid() || !lset_ ) return -1;
+    /*if ( !isValid() || !dataset_ ) return -1;
 
     const LineKey lk( lineName(), attrnm );
-    for ( int iln=0; iln<lset_->nrLines(); iln++ )
+    for ( int iln=0; iln<dataset_->nrLines(); iln++ )
     {
-	if ( lset_->lineKey(iln) == lk )
+	if ( dataset_->lineKey(iln) == lk )
 	    return iln;
-    }
+    }*/
 
     return -1;
 }

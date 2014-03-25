@@ -1099,7 +1099,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     Attrib::DescID attribid = attrserv->getStoredID( lk, true );
 
     BufferStringSet complist;
-    SeisIOObjInfo::getCompNames( lk, complist );
+    SeisIOObjInfo::getCompNames(Survey::GM().getGeomID(lk.lineName()),complist);
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
