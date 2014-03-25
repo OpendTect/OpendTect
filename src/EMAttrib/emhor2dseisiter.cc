@@ -85,8 +85,8 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !isValid() )
 	{ delete dataset_; dataset_ = 0; return; }
 
-    Pos::GeomID geomid = geom_->geomID( lineidx_ );
-    /*if ( !dataset_ )
+    /*Pos::GeomID geomid = geom_->geomID( lineidx_ );
+    if ( !dataset_ )
     {
 	delete dataset_; dataset_ = 0;
 	IOM().to( MultiID("100010") );
