@@ -28,6 +28,7 @@ public:
 
 				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
 				    : jobspec_(js)		{}
+    virtual			~uiBatchJobDispatcherLauncher() {}
 
     virtual bool		isSuitedFor(const char* prognm) const;
     virtual bool		canHandleJobSpec() const;
