@@ -181,14 +181,26 @@ float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
 }
 
 
+static inline float draw01Normal()
+{
+    return (float)Stats::randGen().getNormal( 0, 1 );
+}
+
+
+static inline float draw01Correlated( float othdraw, float cc )
+{
+    const float draw = draw01Normal();
+    return cc * othdraw + Math::Sqrt(1 - cc*cc) * draw;
+}
+
+
 void Gaussian2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 {
-    const float x0 = (float)Stats::randGen().getNormal( 0, 1 );
+    const float x0 = draw01Normal();
     p0 = exp0_ + std0_ * x0;
 
-    const float x1 = (float)Stats::randGen().getNormal( 0, 1 );
-    const float x1corr = cc_ * x0 + Math::Sqrt(1 - cc_*cc_) * x1;
-    p1 = exp1_ + std1_ * x1corr;
+    const float x1 = draw01Correlated( x0, cc_ );
+    p1 = exp1_ + std1_ * x1;
 }
 
 
@@ -203,6 +215,7 @@ GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
 
 GaussianNDProbDenFunc::~GaussianNDProbDenFunc()
 {
+    deepErase( corrs4vars_ );
 }
 
 
@@ -271,24 +284,61 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& vals ) const
 
 void GaussianNDProbDenFunc::prepareRandDrawing() const
 {
-    /*
+    ObjectSet<TypeSet<int> >& c4v
+	= const_cast<GaussianNDProbDenFunc*>(this)->corrs4vars_;
+    deepErase( c4v );
+
     const int nrdims = nrDims();
-    BoolTypeSet isconn( nrdims, false );
-    TypeSet<float> randpos;
+    for ( int idim=0; idim<nrdims; idim++ )
+	c4v += new TypeSet<int>;
+
     for ( int icorr=0; icorr<corrs_.size(); icorr++ )
     {
+	const Corr& corr = corrs_[icorr];
+	*c4v[corr.idx0_] += icorr; *c4v[corr.idx1_] += icorr;
     }
-    */
 }
 
 
 void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 {
-    //TODO implement properly. Now just uncorrelated.
+    const int nrdims = nrDims();
+    poss.setSize( nrdims, 0 );
+    BoolTypeSet drawn( nrdims, false );
+
     for ( int idim=0; idim<vars_.size(); idim++ )
     {
-	const float x0 = (float)Stats::randGen().getNormal( 0, 1 );
-	poss += vars_[idim].exp_ + vars_[idim].std_ * x0;
+	if ( drawn[idim] )
+	    continue;
+
+	const TypeSet<int>& corrs4var = *corrs4vars_[idim];
+	const int nrcorrs4var = corrs4var.size();
+
+	if ( nrcorrs4var < 1 )
+	    poss[idim] = draw01Normal();
+	else
+	{
+	    int chosencorr = 0;
+	    if ( nrcorrs4var > 1 )
+		chosencorr = Stats::randGen().getIndex( nrcorrs4var );
+	    const Corr& corr = corrs_[ corrs4var[chosencorr] ];
+	    if ( drawn[chosencorr] )
+		poss[idim] = draw01Correlated( poss[chosencorr], corr.cc_ );
+	    else
+	    {
+		poss[idim] = draw01Normal();
+		poss[chosencorr] = draw01Correlated( poss[idim], corr.cc_ );
+		drawn[chosencorr] = true;
+	    }
+	}
+
+	drawn[idim] = true;
+    }
+
+    for ( int idim=0; idim<vars_.size(); idim++ )
+    {
+	const VarDef& vd = vars_[idim];
+	poss[idim] *= vd.std_; poss[idim] += vd.exp_;
     }
 }
 

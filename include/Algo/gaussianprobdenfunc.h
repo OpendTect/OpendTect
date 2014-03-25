@@ -142,6 +142,11 @@ public:
     TypeSet<VarDef>	vars_;
     TypeSet<Corr>	corrs_;
 
+protected:
+
+
+    ObjectSet<TypeSet<int> > corrs4vars_;
+
 };
 
 
