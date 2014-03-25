@@ -580,7 +580,9 @@ void uiODMenuMgr::fillViewMenu()
     if ( !viewmnu_ ) return;
 
     viewmnu_->clear();
+#ifdef __debug__
     mInsertItem( viewmnu_, "&Base Map ...", mBaseMapMnuItm );
+#endif
     mInsertItem( viewmnu_, "&Work area ...", mWorkAreaMnuItm );
     mInsertItem( viewmnu_, "&Z-scale ...", mZScaleMnuItm );
     uiPopupMenu* stereoitm = new uiPopupMenu( &appl_, "&Stereo viewing" );
