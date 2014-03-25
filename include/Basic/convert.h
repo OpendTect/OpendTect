@@ -205,7 +205,7 @@ namespace Conv \
     { \
 	if ( !s || !*s ) { return; } \
     \
-	char* endptr; \
+	char* endptr = 0; \
 	type tmpval = (type) function; \
 	if ( s != endptr ) \
 	    _to = (type) tmpval; \
@@ -216,7 +216,7 @@ namespace Conv \
     { \
 	if ( !s ) { return; } \
     \
-	char* endptr; \
+	char* endptr = 0; \
 	type tmpval = (type) function; \
 	if ( s.str() != endptr ) \
 	    _to = (type) tmpval; \

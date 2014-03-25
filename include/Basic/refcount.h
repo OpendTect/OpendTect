@@ -239,6 +239,7 @@ inline void ReferenceCounter::ref()
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
 	    DBG::forceCrash(false);
+	    newcount = 0; //To fool unitialized code warning
 #else
 	    newcount = 1; //Hoping for the best
 #endif
@@ -263,6 +264,7 @@ inline bool ReferenceCounter::unRef()
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__
 	    DBG::forceCrash(false);
+	    newcount = 0; //To fool unitialized code warning
 #else
 	    return false;
 #endif
@@ -315,6 +317,7 @@ inline void ReferenceCounter::unRefDontInvalidate()
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__
 	    DBG::forceCrash(false);
+	    newcount = 0; //Fool the unitialized warning
 #else
 	    newcount = 0; //Hope for the best
 #endif
