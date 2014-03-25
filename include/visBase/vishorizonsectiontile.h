@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "rowcol.h"
 #include "visdata.h"
+#include "vishorizonsection.h"
 
 #if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
 #include <osg/BoundingBox>
@@ -53,49 +54,53 @@ class HorizonSectionTile : CallBacker
 public:
     HorizonSectionTile(const visBase::HorizonSection&,const RowCol& origin);
     ~HorizonSectionTile();
-    char		    getActualResolution() const;
-    void		    updateAutoResolution(const osg::CullStack*);
-    /*<Update only when the resolution is -1. */
-    void		    setPos(int row,int col, const Coord3&,int res);
-    void		    setPositions(const TypeSet<Coord3>&);
-    //Call by the end of each render
-    //Makes object ready for render
-    void		    updateNormals( char res);
-    void		    tesselateResolution(char,bool onlyifabsness);
-    void		    applyTesselation(char res);
-    //!<Should be called from rendering thread
-    void		    ensureGlueTesselated();
-    void		    setLineColor(Color& color);
-    void		    setTexture( const Coord& origin, 
-					const Coord& opposite );
-    //!<Sets origin and opposite in global texture
-    void		    addTileTesselator( int res );
-    void		    addTileGlueTesselator();
-    void		    setDisplayTransformation(const mVisTrans*);
+    char			getActualResolution() const;
+    void			updateAutoResolution(const osg::CullStack*);
+				/*<Update only when the resolution is -1. */
+    void			setPos(int row,int col, const Coord3&,int res);
+    void			setPositions(const TypeSet<Coord3>&);
+				//Call by the end of each render
+				//Makes object ready for render
+    void			updateNormals( char res);
+    void			tesselateResolution(char,bool onlyifabsness);
+    void			applyTesselation(char res);
+				//!<Should be called from rendering thread
+    void			ensureGlueTesselated();
+    void			setLineColor(Color& color);
+    void			setTexture( const Coord& origin, 
+					    const Coord& opposite );
+				//!<Sets origin and opposite in global texture
+    void			addTileTesselator( int res );
+    void			addTileGlueTesselator();
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
 
-    void		    setNeighbor(int neighbor,HorizonSectionTile*);
-    //!<The neighbor is numbered from 0 to 8
+    void			setNeighbor(int neighbor,HorizonSectionTile*);
+				//!<The neighbor is numbered from 0 to 8
 
-    void		    setResolution(char);
-    /*!<Resolution -1 means it is automatic. */
+    void			setResolution(char);
+				/*!<Resolution -1 means it is automatic. */
 
-    void		    useWireframe(bool);
-    void		    turnOnWireframe(char res);
+    bool			allNormalsInvalid(char res) const;
+    void			setAllNormalsInvalid(char res,bool yn);
+    void			emptyInvalidNormalsList(char res);
 
-    bool		    allNormalsInvalid(char res) const;
-    void		    setAllNormalsInvalid(char res,bool yn);
-    void		    emptyInvalidNormalsList(char res);
+    bool			hasDefinedCoordinates(int idx) const;
+				/*!<idx is the index of coordinates 
+				in the highest resolution vertices. */
 
-    bool		    isDefined(int row,int col) const;
-    //!<Row/Col is local to this tile
+    const HorizonSectionTile*	getNeighborTile(int idx) const;
+				//!<idx is bewteen 0 and 8
 
-    void		    setDisplayGeometryType(unsigned int geometrytype);
+    void			enableGeometryTypeDisplay(GeometryType type, 
+							  bool yn);
+				/*!<type 0 is triangle,1 is line, 
+				2 is point, 3 is wire frame */
 
-    void		    updatePrimitiveSets();
-    const visBase::Coordinates*   getHighestResolutionCoordinates();
-    void		    dirtyGeometry();
+    void			updatePrimitiveSets();
+    const visBase::Coordinates* getHighestResolutionCoordinates();
+    void			dirtyGeometry();
 
 
 protected:
@@ -120,18 +125,17 @@ protected:
     osg::BoundingBox		bbox_;
     const RowCol		origin_;
     const HorizonSection&	hrsection_;
-    unsigned int		dispgeometrytype_;
+    bool			wireframedisplayed_;
 
     char			desiredresolution_;
     int				nrdefinedvertices_;
 
-    bool			usewireframe_;
     bool			resolutionhaschanged_;
     bool			needsupdatebbox_;
 
     int				tesselationqueueid_;
     char			glueneedsretesselation_;
-    //!<0 - updated, 1 - needs update, 2 - dont disp
+				//!<0 - updated, 1 - needs update, 2 - dont disp
 
     osg::StateSet*		stateset_;
     int				txunit_;

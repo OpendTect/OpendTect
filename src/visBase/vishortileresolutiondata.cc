@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishortileresolutiondata.h"
 #include "vishorizonsection.h"
 #include "vishorizonsectiontile.h"
-#include "vishorizonsectiondef.h"
 
 #include "binidsurface.h"
 #include "survinfo.h"
@@ -30,6 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace visBase;
 
+const char cTowardDown  = 0;
+const char cTowardRight = 1;
 
 #define mGetOsgGeode(dtcntr,idx) ( (osg::Geode*) dtcntr->getUserObject( idx ) )
 
@@ -86,11 +87,10 @@ TileResolutionData::~TileResolutionData()
 void TileResolutionData::setTexture( const unsigned int unit, 
     osg::Array* tcarr, osg::StateSet* stateset )
 {
-    const unsigned int dispgeometrytype = sectile_->dispgeometrytype_; 
-    if ( dispgeometrytype > geodes_->getNumUserObjects() ) 
+    if ( dispgeometrytype_ > geodes_->getNumUserObjects() )
 	return;
-
-    osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype );
+    
+    osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype_ );
     if ( !geode ) return;
 
     osg::Geometry* geom = mGetOsgGeometry( geode );
@@ -102,17 +102,17 @@ void TileResolutionData::setTexture( const unsigned int unit,
 }
 
 
-void TileResolutionData::setDisplayGeometryType( int dispgeometrytype )
+void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
 {
     osgswitch_->setAllChildrenOff();
     osgswitch_->setValue( Triangle, true );
     osgswitch_->setValue( Line, true );
-    if ( dispgeometrytype != Triangle ) 
+    if ( type >=Triangle && type <= WireFrame )
     {
-	osgswitch_->setValue( dispgeometrytype, true );
+        osgswitch_->setValue( type, yn );
+	if ( yn ) dispgeometrytype_ = type;
     }
     
-    dispgeometrytype_ = dispgeometrytype;
 }
 
 
@@ -287,16 +287,23 @@ void TileResolutionData::setSingleVertex( int row, int col,
     pointsps_->clear();\
 
 
+
+#define mClearOsgPrimitiveSet\
+    if ( trianglesosgps_ ) trianglesosgps_->clear();\
+    if ( wireframesosgps_ ) wireframesosgps_->clear();\
+    if ( linesosgps_ ) linesosgps_->clear();\
+    if ( pointsosgps_ ) pointsosgps_->clear();\
+
+
 void TileResolutionData::hideFromDisplay()
 {
     mClearPrimitiveSet;
-   
 }
 
 
 bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 {
-   if ( needsetposition_ )
+   if ( needsetposition_ || vertices_->size() == 0 )
    {
      if ( !setVerticesFromHighestResolution() )
 	 return false;
@@ -322,7 +329,6 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 
     updateprimitiveset_ = true;
     needsretesselation_ = cNoTesselationNeeded;
-
     return true;
 }
 
@@ -387,20 +393,20 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
     osg::Geometry* geom = mGetOsgGeometry( geode );
     if( !geom ) return;
 
+    geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
     if ( geomps->size() )
-    {
-	geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
 	geom->addPrimitiveSet( geomps );
-    }
+    else
+	geom->addPrimitiveSet( 0 );
 }
 
 
 #define mSetOsgPrimitiveSet( geomtype,geom )\
-if( geomtype##ps_->size() )\
-{\
-    geomtype##osgps_ = new osg::DrawElementsUShort( *geomtype##ps_ );\
-    setPrimitiveSet( geom, geomtype##osgps_ );\
-}\
+if ( geomtype##osgps_ )\
+    unRefOsgPtr(  geomtype##osgps_ );\
+geomtype##osgps_ = new osg::DrawElementsUShort( *geomtype##ps_ );\
+refOsgPtr(geomtype##osgps_);\
+setPrimitiveSet( geom, geomtype##osgps_ );\
 
 
 void TileResolutionData::updatePrimitiveSets()
@@ -494,7 +500,7 @@ void TileResolutionData::tesselateCell( int idxthis )
 	    if ( !rightbottomisdef )
 	    {
 		mAddLineIndexes( wireframesps_,idxthis, idxbottom  );
-		if ( section.displaysTrackingLine() )
+		if ( detectIsolatedLine( idxthis, cTowardDown ) )
 		    mAddLineIndexes( linesps_,idxthis, idxbottom );
 	    }
 	    else 
@@ -502,8 +508,6 @@ void TileResolutionData::tesselateCell( int idxthis )
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
 					      idxrightbottom, idxbottom );
 		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
-		if ( section.displaysTrackingLine() )
-		    mAddLineIndexes( linesps_, idxthis, idxbottom );
 	    }
 
 	}
@@ -520,21 +524,11 @@ void TileResolutionData::tesselateCell( int idxthis )
 					      idxright, idxrightbottom );
 		mAddLineIndexes( wireframesps_, idxthis, idxright );
 		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
-		if ( section.displaysTrackingLine() )
-		{
-		    mAddLineIndexes( linesps_, idxthis, idxright );
-		    mAddLineIndexes( linesps_, idxthis, idxbottom );
-		}
 	    }
 	    else if ( !rightbottomisdef ) 
 	    {
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis, 
 					      idxright, idxbottom );
-		if ( section.displaysTrackingLine() )
-		{
-		    mAddLineIndexes( linesps_, idxthis, idxright );
-		    mAddLineIndexes( linesps_, idxthis, idxbottom );
-		}
 		mAddLineIndexes( wireframesps_, idxthis, idxright );
 		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
 	    }
@@ -546,17 +540,129 @@ void TileResolutionData::tesselateCell( int idxthis )
 		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
 					      idxright, idxrightbottom );
 		mAddLineIndexes( wireframesps_, idxthis, idxright );
-		if ( section.displaysTrackingLine() )
-		     mAddLineIndexes( linesps_,idxthis, idxright );
 	    }
 	    else 
 	    {
 		mAddLineIndexes( wireframesps_, idxthis, idxright );
-		if ( section.displaysTrackingLine() )
+		if ( detectIsolatedLine( idxthis, cTowardRight ) )
 		    mAddLineIndexes( linesps_,idxthis, idxright );
 	    }
 	}
     }
+}
+
+
+bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
+{
+    
+    HorizonSectionTile* curtile = const_cast<HorizonSectionTile*>( sectile_ );
+    const HorizonSection& section = curtile->hrsection_;
+    const int spacing = section.spacing_[resolution_];
+
+    const int curroworcol = resolution_ == 0 ?
+			    section.nrcoordspertileside_/spacing :
+			    section.nrcoordspertileside_/spacing + 1;	
+
+    if ( curroworcol == 0 ) return false;
+    
+    const int currow = (int)floor( (double) curidx/curroworcol );
+    const int curcol = curidx - currow*curroworcol;
+   
+    const bool isfirstrow = currow == 0 ? true : false;
+    const bool isfirstcol = curcol == 0 ? true : false;
+    const bool islastrow =  currow == curroworcol - 1 ? true : false;
+    const bool islastcol =  curcol == curroworcol - 1 ? true : false;
+
+    const int nrroworcol = section.nrcoordspertileside_;
+
+    int highestresidx = ( currow*nrroworcol + curcol )*spacing;
+    if ( islastcol ) highestresidx --;
+    if ( islastrow ) highestresidx -= section.nrcoordspertileside_;
+    
+    //00 01 02
+    //10 11 12 -- 11 is this
+    //20 21 22
+
+    bool                  nbdef01 = false, nbdef02 = false;
+    bool nbdef10 = false,		   nbdef12 = false;
+    bool nbdef20 = false, nbdef21 = false, nbdef22 = false;
+
+    unsigned int sum = 0;
+    if ( direction == cTowardDown )
+    {
+	if ( isfirstcol )
+	{
+	    const HorizonSectionTile* lefttile = 
+		curtile->getNeighborTile(LEFTTILE);
+	    if ( !lefttile )
+	    {
+		nbdef10 = false; 
+		nbdef20 = false;
+	    }
+	    else
+	    {
+		nbdef10 = lefttile->hasDefinedCoordinates(
+		    highestresidx + nrroworcol - 1 );
+		nbdef20 = lefttile->hasDefinedCoordinates(
+		    highestresidx + 2*nrroworcol - 1 );
+	    }
+
+	    nbdef12 =curtile->hasDefinedCoordinates( highestresidx + 1 );
+	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+
+	}
+	else 
+	{ 
+	    nbdef10 =curtile->hasDefinedCoordinates( highestresidx - 1 );
+	    nbdef20 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
+	    nbdef12 =curtile->hasDefinedCoordinates( highestresidx + 1 );
+	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}
+	sum = nbdef10 + nbdef20 + nbdef12 + nbdef22;
+    }
+    else if ( direction == cTowardRight )
+    {
+	if ( isfirstrow )
+	{
+	    const HorizonSectionTile* uptile = curtile->getNeighborTile(UPTILE);
+	    if ( !uptile )
+	    {
+		nbdef01 = false; 
+		nbdef02 = false;
+	    }
+	    else
+	    {
+		const int size = nrroworcol*( nrroworcol - 1 );
+		nbdef01 =uptile->hasDefinedCoordinates( size + highestresidx );
+		nbdef02 =uptile->hasDefinedCoordinates( size+highestresidx+1 );
+	    }
+	    nbdef21 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
+	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}
+	else
+	{ 
+	    nbdef01 =curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
+	    nbdef02 =curtile->hasDefinedCoordinates(highestresidx-nrroworcol+1);
+	    nbdef21 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
+	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}
+	sum = nbdef01 + nbdef02 + nbdef21 + nbdef22;
+    }
+    else 
+    {
+	pErrMsg( "No implementation for other directions." );
+	return false;
+    }
+
+    return sum == 0 ? true : false;    
+}
+
+
+bool TileResolutionData::hasDefinedCoordinates( int idx ) const
+{
+    if ( vertices_ )
+	return vertices_->isDefined( idx );
+    return false;
 }
 
 
@@ -666,6 +772,10 @@ void TileResolutionData::buildOsgGeometres()
 	geodes_->addUserObject( geode );
     }
 
+    osgswitch_->setAllChildrenOff();
+    osgswitch_->setValue( Triangle, true );
+    osgswitch_->setValue( Line, true );
+
     buildTraingleGeometry( Triangle );
     buildLineGeometry( Line );
     buildLineGeometry( WireFrame );
@@ -739,6 +849,7 @@ void TileResolutionData::buildLineGeometry( int idx )
     linegeom->setNormalBinding( osg::Geometry::BIND_OVERALL );
     linegeom->getStateSet()->setAttributeAndModes( linewidth );
     linegeom->getStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+
 }
 
 

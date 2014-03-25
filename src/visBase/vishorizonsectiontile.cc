@@ -7,9 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "vishorizonsectiontile.h"
-#include "vishorizonsection.h"
 #include "vishortileresolutiondata.h"
-#include "vishorizonsectiondef.h"
 #include "vishorizonsectiontileglue.h"
 
 
@@ -39,12 +37,11 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     , desiredresolution_( cNoneResolution )
     , resolutionhaschanged_( false )
     , needsupdatebbox_( false )
-    , usewireframe_( false )
     , nrdefinedvertices_( 0 )
     , origin_( origin )
     , hrsection_( section )
     , updatenewpoint_( false )
-    , dispgeometrytype_( Triangle )
+    , wireframedisplayed_( false )
     , righttileglue_( new HorizonSectionTileGlue )
     , bottomtileglue_( new HorizonSectionTileGlue )
     , stateset_( new osg::StateSet )
@@ -223,11 +220,11 @@ void HorizonSectionTile::updateBBox()
 }
 
 
-void HorizonSectionTile::setDisplayGeometryType( unsigned int dispgeometrytype )
+void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
 { 
-    dispgeometrytype_ = dispgeometrytype; 
+    wireframedisplayed_ = ( ( type== WireFrame ) && yn ) ? true : false; 
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	tileresolutiondata_[res]->setDisplayGeometryType( dispgeometrytype_ );
+	tileresolutiondata_[res]->enableGeometryTypeDisplay( type, yn );
 }
 
 void HorizonSectionTile::setLineColor( Color& color)
@@ -313,9 +310,8 @@ void HorizonSectionTile::setActualResolution( char resolution )
 	    resolution = hrsection_.lowestresidx_;
 	osgswitchnode_->setAllChildrenOff();
 	osgswitchnode_->setValue( resolution, true );
-	tileresolutiondata_[resolution]->setDisplayGeometryType( 
-	    ( GeometryType ) dispgeometrytype_ );
-	if ( dispgeometrytype_ == Triangle )
+
+	if ( !wireframedisplayed_ )
 	{
 	    osgswitchnode_->setValue(osgswitchnode_->getNumChildren()-1, true);
 	    osgswitchnode_->setValue(osgswitchnode_->getNumChildren()-2, true);
@@ -357,10 +353,6 @@ void HorizonSectionTile::applyTesselation( char res )
     osgswitchnode_->setChildValue( osgswitchnode_->getChild( res ), true );
     resolutionhaschanged_ = false;
 }
-
-
-void HorizonSectionTile::useWireframe( bool yn )
-{ usewireframe_=yn; }
 
 
 void HorizonSectionTile::setDisplayTransformation( const mVisTrans* nt )
@@ -442,23 +434,43 @@ void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
 {
-    bool dohide( false );
-    const int spacing = hrsection_.spacing_[res];
+    if ( row >=0 && row <= hrsection_.nrcoordspertileside_ &&
+	 col>=0 && col <= hrsection_.nrcoordspertileside_ )
+    {
+	const int spacing = hrsection_.spacing_[res];
 
-    const int tilerow = row/spacing;
-    const int tilecol = col/spacing;
+	if ( ( row%spacing ) && ( col%spacing ) )
+	{
+	    tileresolutiondata_[res]->needsetposition_ = true;
+	    tileresolutiondata_[res]->needsretesselation_ = cMustRetesselate;
+	    return;
+	}
 
-    datalock_.lock();
+	if( res !=0 )
+	    return;
 
-    tileresolutiondata_[res]->setSingleVertex( tilerow, tilecol, pos, dohide );
-    datalock_.unLock();
+	const int resrow = (int)( row/spacing );
+	const int rescol = (int)( col/spacing );
 
-    if ( dohide )
-	setActualResolution( -1 );
+	bool dohide( false );
+	datalock_.lock();
 
-    needsupdatebbox_ = true;
-    glueneedsretesselation_ = true;
-    updatenewpoint_ = true;
+	if ( res == 0 )
+	{
+	    tileresolutiondata_[res]->setSingleVertex(
+		resrow, rescol, pos, dohide);
+	}
+	
+	
+	datalock_.unLock();
+
+	if ( dohide )
+	    setActualResolution( -1 );
+
+	needsupdatebbox_ = true;
+	glueneedsretesselation_ = true;
+	updatenewpoint_ = true;
+    }
    
 }
 
@@ -516,3 +528,18 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
     txunit_ = tcit->_textureUnit ;
 }
 
+
+ bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
+ {
+       if ( tileresolutiondata_[0] )
+	   return tileresolutiondata_[0]->hasDefinedCoordinates( idx );
+       return false;
+ }
+ 
+
+  const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
+  {
+      if ( neighbors_ && idx>=0 && idx < 9 )
+	  return neighbors_[idx];
+      return 0;
+  }

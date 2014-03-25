@@ -65,7 +65,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	if ( tilerowidx==nrrowsz && !tilerow )
 	{
 	    tilerowidx--;
-	    tilerow = horsection_->nrcoordspertileside_;
+	    tilerow =  tilesidesize;
 	}
 
 	int tilecolidx = rc.col()/tilesidesize;
@@ -73,7 +73,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	if ( tilecolidx==nrcolsz && !tilecol )
 	{
 	    tilecolidx--;
-	    tilecol = horsection_->nrcoordspertileside_;
+	    tilecol =  tilesidesize;
 	}
 
 	/*If we already set work area and the position is out of the area,
@@ -245,7 +245,6 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
     HorizonSectionTile* tile = new HorizonSectionTile(*horsection_, tileorigin);
 
     tile->setResolution( horsection_->desiredresolution_ );
-    tile->useWireframe( horsection_->usewireframe_ );
 
     horsection_->writeLock();
     horsection_->tiles_.set( tilerowidx, tilecolidx, tile );
@@ -373,6 +372,7 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 	}
     }
     spinlock_.unLock();
+
 }
 
 

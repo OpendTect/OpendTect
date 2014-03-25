@@ -152,12 +152,6 @@ public:
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
 
-    bool			usesWireframe() const;
-    void			useWireframe(bool);
-
-    bool			displaysTrackingLine() const;
-    void			displaysTrackingLine(bool);
-
     void			setEdgeLineRadius(float);
     float			getEdgeLineRadius() const;
 
@@ -250,7 +244,6 @@ protected:
     bool				enabletextureinterp_;
 
     bool				usestexture_;
-    bool				useswireframe_;
     char				resolution_;
     int					curtextureidx_;
     float				edgelineradius_;
@@ -264,11 +257,9 @@ protected:
     ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
     bool				displaysurfacegrid_;
-    bool				displaytrackingline_;
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();
-    static const char*			sKeyWireFrame();
     static const char*			sKeyResolution();
     static const char*			sKeyEdgeLineRadius();
     static const char*			sKeyRowRange();

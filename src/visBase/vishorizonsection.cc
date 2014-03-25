@@ -7,7 +7,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "vishorizonsection.h"
-#include "vishorizonsectiondef.h"
 #include "vishordatahandler.h"
 #include "vishorizontexturehandler.h"
 #include "vishorizonsectiontile.h"
@@ -152,7 +151,6 @@ HorizonSection::HorizonSection()
     , userchangedisplayrg_( false )			      
     , tiles_( 0, 0 )					  
     , desiredresolution_( cNoneResolution )
-    , usewireframe_( false )
     , tesselationlock_( false )
     , nrcoordspertileside_( 0 )
     , tilesidesize_( 0 )
@@ -161,7 +159,7 @@ HorizonSection::HorizonSection()
     , nrhorsectnrres_( 0 )
     , osghorizon_( new osg::Group )
     , forceupdate_( false )
-    , displaygeometrytype_( 0 )
+    , wireframedisplayed_( 0 )
     , hordatahandler_( new HorizonSectionDataHandler( this ) )
     , hortexturehandler_( new HorizonTextureHandler( this ) )
     , hortilescreatorandupdator_( new HorTilesCreatorAndUpdator(this) )
@@ -169,7 +167,6 @@ HorizonSection::HorizonSection()
     , texturecallbackhandler_( 0 )
     , isredrawing_( false )
     , zaxistransform_( 0 )
-    , displaytrackingline_( false )
 {
     setLockable();
     osghorizon_->ref();
@@ -413,52 +410,23 @@ char  HorizonSection::nrResolutions() const
 { return nrhorsectnrres_; }
 
 
-bool HorizonSection::usesWireframe() const
-{ return usewireframe_; }
-
-
 const mVisTrans* HorizonSection::getDisplayTransformation() const
 { return transformation_; }
 
 
-void HorizonSection::useWireframe( bool yn )
-{
-    if ( usewireframe_==yn )
-	return;
-
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    usewireframe_ = yn;
-
-    HorizonSectionTile** tileptrs = tiles_.getData();
-    const int tilesz = tiles_.info().getTotalSz();
-
-    Threads::MutexLocker renderemutex( updatelock_ );
-    for ( int idx=0; idx<tilesz; idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->useWireframe( yn );
-}
-
-
-bool HorizonSection::displaysTrackingLine() const
-{ return displaytrackingline_; }
-
-
-void HorizonSection::displaysTrackingLine( bool yn )
-{
-    displaytrackingline_ = yn;
-}
-
-
-
-void HorizonSection::setDisplayGeometryType( int dispgeometrytype )
+void HorizonSection::enableGeometryTypeDisplay( GeometryType type, bool yn )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     const int tilesz = tiles_.info().getTotalSz();
 
     Threads::MutexLocker renderemutex( updatelock_ );
     for ( int idx=0; idx<tilesz; idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->setDisplayGeometryType(
-	    dispgeometrytype );
-    displaygeometrytype_ = dispgeometrytype;
+	if ( tileptrs[idx] ) tileptrs[idx]->enableGeometryTypeDisplay(
+	    type, yn );
+ 
+    wireframedisplayed_ = ( ( type == WireFrame ) && yn ) ? 
+			    true : false;
+
 }
 
 
@@ -577,7 +545,9 @@ const TextureChannel2RGBA* HorizonSection::getChannels2RGBA() const
 
 
 void HorizonSection::useChannel( bool yn )
-{ hortexturehandler_->useChannel( yn ); }
+{ 
+    hortexturehandler_->useChannel( yn ); 
+}
 
 
 int HorizonSection::nrChannels() const

@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
+#include "vishorizonsectiontile.h"
+
 #include "thread.h"
 
 #if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
@@ -60,7 +62,7 @@ public:
     void		setDisplayTransformation( const mVisTrans* t ); 
     void		setTexture(const unsigned int unit, osg::Array* arr,
 				    osg::StateSet* stateset);
-    void		setDisplayGeometryType(int geometrytype);
+    void		enableGeometryTypeDisplay(GeometryType type, bool yn);
 
     void		calcNormals(bool allownormalinvalid = true );
     bool		tesselateResolution(bool onlyifabsness);
@@ -71,6 +73,9 @@ public:
     void		setLineColor(Color& color);
     visBase::Coordinates*	getCoordinates() { return vertices_; };
     void		dirtyGeometry();
+    bool		hasDefinedCoordinates(int idx) const;
+			/*!<idx is the index of coordinates in the 
+			highest resolution vertices.*/
 
 protected:
 
@@ -120,8 +125,9 @@ private:
 
     void			tesselateCell(int cellidx);
     void			computeNormal(int nmidx, osg::Vec3&);
-    double	calcGradient(int row,int col,const StepInterval<int>& rcrange,
-		             bool isrow);
+    double			calcGradient(int row,int col,
+					     const StepInterval<int>& rcrange,
+					     bool isrow);
     void			refOsgPrimitiveSets();
     void			unRefOsgPrimitiveSets();
     void			createPrimitiveSets();
@@ -131,6 +137,7 @@ private:
     void			setInvalidNormal(int row,int col);
     bool			setVerticesFromHighestResolution();
     void			hideFromDisplay();
+    bool			detectIsolatedLine(int crdidx,char direction);
 
 
 };

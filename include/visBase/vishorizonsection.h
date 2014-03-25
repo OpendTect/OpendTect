@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "visobject.h"
 #include "geomelement.h"
+#include "vishorizonsectiondef.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -106,12 +107,6 @@ public:
     void			setDisplayRange(const StepInterval<int>&,
 	    					const StepInterval<int>&);
 
-    void			useWireframe(bool);
-    bool			usesWireframe() const;
-
-    void			displaysTrackingLine(bool);
-    bool			displaysTrackingLine() const;
-
     char	 		nrResolutions() const;
     char 			currentResolution() const;
     void			setResolution(char,TaskRunner*);
@@ -120,11 +115,12 @@ public:
     osgGeo::LayeredTexture*	getOsgTexture() const;
     void			updatePrimitiveSets();
     void			turnOsgOn( bool );
-    void			setDisplayGeometryType( int type );
-				/*!< 0 is triangle--surface, 1 is line--grid */
-    int				displayGeometryType() const
-				{ return displaygeometrytype_ ; }
-				/*!< 0 is triangle--surface, 1 is line--grid */
+    void			enableGeometryTypeDisplay(GeometryType type, 
+							  bool yn);
+				/*!<type 0 is triangle,1 is line, 
+				2 is point, 3 is wire frame */
+    bool			isWireframeDisplayed() const
+				{ return wireframedisplayed_ ; }
 
     void			forceRedraw(bool=true);
 
@@ -174,8 +170,6 @@ protected:
 
 
     Array2DImpl<HorizonSectionTile*> tiles_;
-    bool			usewireframe_;
-    bool			displaytrackingline_;
 
     const mVisTrans*		transformation_;
 				
@@ -201,8 +195,7 @@ protected:
 
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		  updatedtileresolutions_;
-    int				displaygeometrytype_;
-				/*!< 0:triangle--surface,1:line--grid */
+    bool			  wireframedisplayed_;
 
 };
 

@@ -52,7 +52,6 @@ namespace visSurvey
 
 const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
 const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
-const char* HorizonDisplay::sKeyWireFrame()	{ return "WireFrame on"; }
 const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
 const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
@@ -67,7 +66,6 @@ HorizonDisplay::HorizonDisplay()
     , parcolrg_( -1, -1, -1 )
     , curtextureidx_( 0 )
     , usestexture_( false )
-    , useswireframe_( false )
     , translation_( 0 )
     , edgelineradius_( 3.5 )
     , validtexture_( false )
@@ -77,7 +75,6 @@ HorizonDisplay::HorizonDisplay()
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
-    , displaytrackingline_( false )
 {
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -905,32 +902,6 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 }
 
 
-bool HorizonDisplay::displaysTrackingLine() const 
-{ return displaytrackingline_; }
-
-
-void HorizonDisplay::displaysTrackingLine( bool yn )
-{
-    displaytrackingline_ = yn;
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->displaysTrackingLine( yn );
-
-}
-
-
-bool HorizonDisplay::usesWireframe() const { return useswireframe_; }
-
-
-void HorizonDisplay::useWireframe( bool yn )
-{
-    useswireframe_ = yn;
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->useWireframe( yn );
-}
-
-
 void HorizonDisplay::setEdgeLineRadius(float nr)
 {
     edgelineradius_ = nr;
@@ -983,7 +954,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 
     surf->getChannels2RGBA()->allowShading( allowshading_ );
     surf->getChannels()->enableTextureInterpolation( enabletextureinterp_ );
-    surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
     surf->setMaterial( 0 );
@@ -1145,8 +1115,9 @@ int HorizonDisplay::getResolution() const
 
 bool HorizonDisplay::displaysSurfaceGrid() const
 {
-    return ( sections_.size() && 
-	     sections_[0]->displayGeometryType() == WireFrame ) ? true : false;
+    if ( sections_.size() )
+       return  sections_[0]->isWireframeDisplayed();
+    return false;
 }
 
 void HorizonDisplay::setResolution( int res, TaskRunner* tr )
@@ -1160,9 +1131,8 @@ void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 void HorizonDisplay::displaysSurfaceGrid( bool yn )
 {
     displaysurfacegrid_ = yn;
-    int geometrytype = yn ? WireFrame : Triangle ;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setDisplayGeometryType( geometrytype );
+	sections_[idx]->enableGeometryTypeDisplay( WireFrame, yn );
 }
 
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
@@ -2068,7 +2038,6 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     }
 
     par.setYN( sKeyTexture(), usesTexture() );
-    par.setYN( sKeyWireFrame(), usesWireframe() );
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
     par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
@@ -2121,10 +2090,6 @@ bool HorizonDisplay::usePar( const IOPar& par )
     if ( !par.getYN(sKeyTexture(),usestexture_) )
 	usestexture_ = true;
 
-    bool usewireframe = false;
-    par.getYN( sKeyWireFrame(), usewireframe );
-    useWireframe( usewireframe );
-    
     int resolution = 0;
     par.get( sKeyResolution(), resolution );
     setResolution( resolution, 0 );
