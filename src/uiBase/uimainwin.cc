@@ -707,9 +707,9 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
 }
 
 
-uiMainWin::uiMainWin( uiParent* parnt, const uiString& caption,
+uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 		      int nrstatusflds, bool withmenubar, bool modal )
-    : uiParent(caption.getFullString(),0)
+    : uiParent(cpt.getFullString(),0)
     , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
@@ -717,7 +717,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& caption,
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
-    , caption_(caption)
+    , caption_(cpt)
     , afterpopuptimer_(0)
     , languagedirtycount_( TrMgr().dirtyCount() )
 {
