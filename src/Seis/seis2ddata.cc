@@ -135,9 +135,6 @@ const char* Seis2DDataSet::zDomainKey( int idx ) const
 }
 
 
-static const char* sKeyFileType = "2D Data Set";
-
-
 void Seis2DDataSet::readDir()
 {
     deepErase( pars_ );
@@ -147,8 +144,8 @@ void Seis2DDataSet::readDir()
 
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	FilePath filepath = dl.get( idx );
-	FixedString ext = filepath.extension();
+	FilePath filepath( dl.get(idx) );
+	FixedString ext( filepath.extension() );
 	if ( !ext.isEqual( "cbvs" ) )
 	    continue;
 
