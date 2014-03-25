@@ -70,6 +70,7 @@ int main( int argc, char** argv )
     uiTextFileDlg::Setup fdsetup( fnm );
     fdsetup.allowopen(edit).allowsave(edit);
     uiTextFileDlg* dlg = new uiTextFileDlg( 0, tfsetup, fdsetup );
+    dlg->showAlwaysOnTop();
     app.setTopLevel( dlg );
     dlg->show();
     ExitProgram( app.exec() ); return 0;
