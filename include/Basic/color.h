@@ -51,6 +51,8 @@ public:
     Color		complementaryColor() const;
     Color		operator*(float) const;
     void		lighter( float f=1.1 );
+			/*!<Values below 1 blends to black (0=black),
+			    Values above 1 blends to white (2=white). */
     void        	setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);

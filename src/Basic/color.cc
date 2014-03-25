@@ -81,9 +81,23 @@ void Color::lighter( float f )
 {
     if ( f < 0 ) f = -f;
 
-    float newred = r()*f;
-    float newgreen = g()*f;
-    float newblue = b()*f;
+    const float change = f-1.0f;
+
+    float newred, newgreen, newblue;
+
+    //Blend linearly to black or white depending on change
+    if ( change<0 )
+    {
+	newred = r() * f;
+	newgreen = g() * f;
+	newblue = b() * f;
+    }
+    else
+    {
+	newred = r() * change + (f-1)*256;
+	newgreen = g() * change + (f-1)*256;
+	newblue = b() * change + (f-1)*256;
+    }
 
     float overflow = 0;
     int nroverflows = 0;
