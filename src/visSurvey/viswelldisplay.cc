@@ -571,7 +571,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setLogColor( lp.col_, side );
     well_->setLogLineWidth( mCast(float,lp.size_), side );
-    well_->setLogWidth( lp.logwidth_, side );
+    well_->setLogScreenWidth( lp.logwidth_, side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -602,20 +602,20 @@ void WellDisplay::setLogColor( const Color& col, visBase::Well::Side side )
 { well_->setLogColor( col, side ); }
 
 
-float WellDisplay::logLineWidth( visBase::Well::Side side ) const
-{ return well_->logLineWidth( side ); }
+float WellDisplay::getLogScreenWidth( visBase::Well::Side side ) const
+{ return well_->getLogScreenWidth( side ); }
 
 
-void WellDisplay::setLogLineWidth( float width, visBase::Well::Side side )
+void WellDisplay::setLogScreenWidth( float width, visBase::Well::Side side )
+{ well_->setLogScreenWidth( (int)width, side ); }
+
+
+int WellDisplay::getLogLineWidth() const
+{ return well_->getLogLineWidth(); }
+
+
+void WellDisplay::setLogLineWidth( int width, visBase::Well::Side side )
 { well_->setLogLineWidth( width, side ); }
-
-
-int WellDisplay::logWidth() const
-{ return well_->logWidth(); }
-
-
-void WellDisplay::setLogWidth( int width, visBase::Well::Side side )
-{ well_->setLogWidth( width, side ); }
 
 
 bool WellDisplay::logsShown() const

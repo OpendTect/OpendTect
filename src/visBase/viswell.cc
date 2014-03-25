@@ -732,23 +732,7 @@ bool Well::logLineDisplayed( Side side ) const
 }
 
 
-void Well::setLogLineWidth( float width, Side side )
-{
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-    logdisplay->setLineWidth( width );
-}
-
-
-float Well::logLineWidth( Side side ) const
-{
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-    return logdisplay->getLineWidth();
-}
-
-
-void Well::setLogWidth( int width, Side side )
+void Well::setLogScreenWidth( float width, Side side )
 {
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
@@ -756,9 +740,25 @@ void Well::setLogWidth( int width, Side side )
 }
 
 
-int Well::logWidth() const
+float Well::getLogScreenWidth( Side side ) const
 {
-    return mNINT32( leftlogdisplay_->getScreenWidth() );
+    osgGeo::WellLog* logdisplay =
+	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    return logdisplay->getScreenWidth();
+}
+
+
+void Well::setLogLineWidth( int width, Side side )
+{
+    osgGeo::WellLog* logdisplay =
+	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    logdisplay->setLineWidth( width );
+}
+
+
+int Well::getLogLineWidth() const
+{
+    return  mNINT32( leftlogdisplay_->getLineWidth() );
 }
 
 
@@ -851,7 +851,7 @@ void Well::fillPar( IOPar& par ) const
     par.setYN( showlogsstr(), logsShown() );
     par.setYN( showlognmstr(), logNameShown() );
     par.set( markerszstr(), markersize_ );
-    par.set( logwidthstr(), logWidth() );
+    par.set( logwidthstr(), getLogLineWidth() );
 }
 
 

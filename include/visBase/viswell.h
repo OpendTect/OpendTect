@@ -161,10 +161,10 @@ public:
 
     void			setLogLineDisplayed(bool,Side);
     bool			logLineDisplayed(Side) const;
-    void			setLogLineWidth(float,Side);
-    float			logLineWidth(Side) const;
-    void			setLogWidth(int,Side);
-    int				logWidth() const;
+    void			setLogScreenWidth(float,Side);
+    float			getLogScreenWidth(Side) const;
+    void			setLogLineWidth(int,Side);
+    int				getLogLineWidth() const;
     void			showLogs(bool);
     void			showLog(bool,Side);
     bool			logsShown() const;

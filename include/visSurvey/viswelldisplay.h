@@ -100,10 +100,10 @@ public:
     void			setOneLogDisplayed(bool);
     const Color&		logColor(visBase::Well::Side) const;
     void			setLogColor(const Color&,visBase::Well::Side);
-    float			logLineWidth(visBase::Well::Side) const;
-    void			setLogLineWidth(float,visBase::Well::Side);
-    int				logWidth() const;
-    void			setLogWidth(int,visBase::Well::Side);
+    float			getLogScreenWidth(visBase::Well::Side) const;
+    void			setLogScreenWidth(float,visBase::Well::Side);
+    int				getLogLineWidth() const;
+    void			setLogLineWidth(int,visBase::Well::Side);
     bool			logsShown() const;
     void			showLogs(bool);
     bool			logNameShown() const;
