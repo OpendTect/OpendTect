@@ -24,6 +24,7 @@ mClass(uiODMain) MeasureToolMan : public CallBacker
 {
 public:
 			MeasureToolMan(uiODMain&);
+			~MeasureToolMan();
 
 protected:
 

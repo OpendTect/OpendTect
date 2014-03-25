@@ -92,7 +92,7 @@ int ODMain( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
-    uiODMain* odmain = new uiODMain( *new uiMain(argc,argv) );
+    PtrMan<uiODMain> odmain = new uiODMain( *new uiMain(argc,argv) );
     manODMainWin( odmain );
 
     bool dodlg = true;
@@ -101,8 +101,8 @@ int ODMain( int argc, char** argv )
     if ( dodlg && pimdata.size() )
     {
 	uiPluginSel dlg( odmain );
-	if ( dlg.nrPlugins() )
-	    dlg.go();
+	if ( dlg.nrPlugins() && !dlg.go() )
+	    return 1;
     }
 
     OD::ModDeps().ensureLoaded( "uiODMain" );
@@ -111,9 +111,7 @@ int ODMain( int argc, char** argv )
 	return 1;
 
     odmain->initScene();
-
     odmain->go();
-    delete odmain;
     return 0;
 }
 
@@ -156,7 +154,7 @@ uiODMain::uiODMain( uiMain& a )
     BufferString errmsg;
     OD_Convert_2DLineSets_To_2DDataSets( errmsg );
     if ( !errmsg.isEmpty() )
-	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n", 
+	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n",
 		       errmsg.buf() );
 
     applmgr_ = new uiODApplMgr( *this );
@@ -192,6 +190,7 @@ uiODMain::~uiODMain()
     delete menumgr_;
     delete viewer2dmgr_;
     delete scenemgr_;
+    delete applmgr_;
 }
 
 
@@ -548,7 +547,7 @@ void uiODMain::doRestoreSession()
 
 void uiODMain::handleStartupSession()
 {
-    bool douse = false; 
+    bool douse = false;
     MultiID id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id.isEmpty() )
@@ -597,7 +596,7 @@ bool uiODMain::go()
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     tm.start( 200, true );
     int rv = uiapp_.exec();
-    delete applmgr_; applmgr_ = 0;
+//    delete applmgr_; applmgr_ = 0;
     return rv ? false : true;
 }
 
@@ -697,15 +696,12 @@ bool uiODMain::closeOK()
 	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
 	    return false;
     }
-    
+
     IOM().applClosing();
 
     removeDockWindow( ctabwin_ );
-    delete scenemgr_;
-    delete menumgr_;
-
-    scenemgr_ = 0;
-    menumgr_ = 0;
+    delete menumgr_; menumgr_ = 0;
+    delete scenemgr_; scenemgr_ = 0;
 
     return true;
 }

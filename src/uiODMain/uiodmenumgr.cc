@@ -108,9 +108,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillCoinTB( sceneman );
     fillManTB();
 
-#ifdef __debug__
     measuretoolman_ = new MeasureToolMan( appl_ );
-#endif
 }
 
 
@@ -613,7 +611,9 @@ void uiODMenuMgr::fillViewMenu()
     if ( !viewmnu_ ) return;
 
     viewmnu_->clear();
+#ifdef __debug__
     mInsertItem( viewmnu_, "&Base Map ...", mBaseMapMnuItm );
+#endif
     mInsertItem( viewmnu_, "&Work area ...", mWorkAreaMnuItm );
     mInsertItem( viewmnu_, "&Z-scale ...", mZScaleMnuItm );
     uiMenu* stereoitm = new uiMenu( &appl_, "&Stereo viewing" );
@@ -1259,8 +1259,8 @@ void uiODMenuMgr::manHor( CallBacker* )
 
 void uiODMenuMgr::manSeis( CallBacker* )
 {
-    const int opt = ask2D3D( "Manage 2D or 3D Seismics", 1, 2, 0 );
-    if ( opt == 0 ) return;
+    const int opt = ask2D3D( "Manage 2D or 3D Seismics", 1, 0, -1 );
+    if ( opt == -1 ) return;
 
     mDoOp(Man,Seis,opt);
 }

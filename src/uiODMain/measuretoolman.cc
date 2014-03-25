@@ -52,6 +52,24 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
 }
 
 
+MeasureToolMan::~MeasureToolMan()
+{
+    appl_.sceneMgr().treeToBeAdded.remove(
+			mCB(this,MeasureToolMan,sceneAdded) );
+    appl_.sceneMgr().sceneClosed.remove(
+			mCB(this,MeasureToolMan,sceneClosed) );
+    appl_.sceneMgr().activeSceneChanged.remove(
+			mCB(this,MeasureToolMan,sceneChanged) );
+
+    visBase::DM().selMan().selnotifier.remove(
+			mCB(this,MeasureToolMan,objSelected) );
+    IOM().surveyChanged.remove( mCB(this,MeasureToolMan,surveyChanged) );
+    picksetmgr_.locationChanged.remove( mCB(this,MeasureToolMan,changeCB) );
+
+    delete measuredlg_;
+}
+
+
 void MeasureToolMan::objSelected( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);

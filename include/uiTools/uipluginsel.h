@@ -15,12 +15,13 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
+
 class uiCheckBox;
 
 mExpClass(uiTools) uiPluginSel : public uiDialog
 {
 public:
-    				uiPluginSel(uiParent*);
+				uiPluginSel(uiParent*);
     int				nrPlugins() const { return pluginnms_.size(); }
 
     static const char*		sKeyDoAtStartup();
@@ -29,10 +30,9 @@ protected:
 
     BufferStringSet		pluginnms_;
     ObjectSet<uiCheckBox>	cbs_;
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
 };
-
 
 #endif
 

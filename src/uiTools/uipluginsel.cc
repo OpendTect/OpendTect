@@ -31,8 +31,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     titl += GetFullODVersion(); titl += ": Candidate auto-loaded plugins";
     setCaption( titl );
 
-    setCtrlStyle( uiDialog::CloseOnly );
-    setCancelText( sOk() );
+    setOkText( "Start OpendTect" );
     setSaveButtonChecked( true );
 
     BufferStringSet dontloadlist;
@@ -94,7 +93,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 }
 
 
-bool uiPluginSel::rejectOK( CallBacker* )
+bool uiPluginSel::acceptOK( CallBacker* )
 {
     FileMultiString dontloadlist;
     for ( int idx=0; idx<cbs_.size(); idx++ )
@@ -105,7 +104,6 @@ bool uiPluginSel::rejectOK( CallBacker* )
 
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
     Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
-
     Settings::common().write();
 
     return true;
