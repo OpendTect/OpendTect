@@ -247,9 +247,17 @@ public:
 			    it is removed later when object is
 			    deleted.
 			    \returns if it was attached. */
+    bool		attachCB(NotifierAccess* notif,const CallBack& cb,
+				 bool onlyifnew=false)
+			{ return notif ? attachCB(*notif,cb,onlyifnew):false; }
+    			/*!<\note Attaches only if \param notif is not null.*/
+
     void		detachCB(NotifierAccess&,const CallBack&);
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
+    void		detachCB(NotifierAccess* notif,const CallBack& cb)
+			{ if( notif ) detachCB( notif, cb ); }
+    			/*!<\note Detaches only if \param notif is not null.*/
 
     bool		isNotifierAttached(NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
