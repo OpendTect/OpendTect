@@ -193,6 +193,7 @@ protected:
 
     ObjectSet<Scene>		scenes_;
     Scene&			mkNewScene();
+    void			removeScene(Scene& scene);
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;

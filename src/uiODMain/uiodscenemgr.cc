@@ -228,6 +228,26 @@ void uiODSceneMgr::sceneTimerCB( CallBacker* )
 	tile();
 }
 
+
+void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
+{
+    appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
+    appl_.removeDockWindow( scene.dw_ );
+
+    if ( scene.itemmanager_ )
+    {
+	scene.itemmanager_->askContinueAndSaveIfNeeded( false );
+	scene.itemmanager_->prepareForShutdown();
+	visServ().removeScene( scene.itemmanager_->sceneID() );
+	sceneClosed.trigger( scene.itemmanager_->sceneID() );
+    }
+
+    scene.mdiwin_->closed().remove( mWSMCB(removeScene) );
+    scenes_ -= &scene;
+    delete &scene;
+}
+
+
 void uiODSceneMgr::removeScene( CallBacker* cb )
 {
     mDynamicCastGet(uiGroupObj*,grp,cb)
@@ -244,17 +264,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     if ( idxnr < 0 ) return;
 
     uiODSceneMgr::Scene* scene = scenes_[idxnr];
-    scene->itemmanager_->askContinueAndSaveIfNeeded( false );
-    scene->itemmanager_->prepareForShutdown();
-    appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
-    visServ().removeScene( scene->itemmanager_->sceneID() );
-
-    appl_.removeDockWindow( scene->dw_ );
-
-    scene->mdiwin_->closed().remove( mWSMCB(removeScene) );
-    scenes_ -= scene;
-    sceneClosed.trigger( scene->itemmanager_->sceneID() );
-    delete scene;
+    removeScene( *scene );
 }
 
 
@@ -301,7 +311,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	Scene& scn = mkNewScene();
 	if ( !scn.sovwr_->usePar(*scenepar) )
 	{
-	    removeScene( scn.mdiwin_->mainObject() );
+	    removeScene( scn );
 	    continue;
 	}
 
@@ -538,7 +548,7 @@ void uiODSceneMgr::layoutScenes()
     const int nrgrps = scenes_.size();
     if ( nrgrps == 1 && scenes_[0] )
 	scenes_[0]->mdiwin_->display( true, false, true );
-    else if ( scenes_[0] )
+    else if ( nrgrps>1 && scenes_[0] )
 	tile();
 }
 
