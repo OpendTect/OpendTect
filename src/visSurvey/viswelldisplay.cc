@@ -570,8 +570,8 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
     well_->setLogLineDisplayed( lp.size_ > 0, side );
 
     well_->setLogColor( lp.col_, side );
-    well_->setLogLineWidth( mCast(float,lp.size_), side );
-    well_->setLogScreenWidth( lp.logwidth_, side );
+    well_->setLogLineWidth( lp.size_, side );
+    well_->setLogScreenWidth( mCast(float,lp.logwidth_), side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -607,7 +607,7 @@ float WellDisplay::getLogScreenWidth( visBase::Well::Side side ) const
 
 
 void WellDisplay::setLogScreenWidth( float width, visBase::Well::Side side )
-{ well_->setLogScreenWidth( (int)width, side ); }
+{ well_->setLogScreenWidth( width, side ); }
 
 
 int WellDisplay::getLogLineWidth() const
