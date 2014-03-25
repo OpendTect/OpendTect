@@ -201,8 +201,6 @@ void MadStream::initRead( IOPar* par )
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
-    const char* attrnm = par->find( sKey::Attribute() );
-
     if ( !isps_ )
     {
 	seisrdr_ = new SeisTrcReader( ioobj );
