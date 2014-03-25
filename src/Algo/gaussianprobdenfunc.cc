@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "separstr.h"
 #include "perthreadrepos.h"
-#include "od_iostream.h"
 
 static const char* sKeyDimStats = "DimStats";
 static const char* sKeyCorr = "Corr";
@@ -65,30 +64,6 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void Gaussian1DProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{
-    if ( !binary )
-	strm << exp_ << od_tab << std_ << od_endl;
-    else
-    {
-	strm.addBin( &exp_, sizeof(float) );
-	strm.addBin( &std_, sizeof(float) );
-    }
-}
-
-bool Gaussian1DProbDenFunc::obtain( od_istream& strm, bool binary )
-{
-    if ( !binary )
-	strm >> exp_ >> std_;
-    else
-    {
-	strm.getBin( &exp_, sizeof(float) );
-	strm.getBin( &std_, sizeof(float) );
-    }
-    return !strm.isBad();
-}
-
-
 inline static float toDistribPos( float v, float exp, float sd )
 {
     v -= exp; v /= sd; return v;
@@ -132,39 +107,6 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
     return true;
 }
-
-
-void Gaussian2DProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{
-    if ( !binary )
-	strm << exp0_ << od_tab << exp1_ << od_tab
-	     << std0_ << od_tab << std1_ << od_tab
-	     << cc_ << od_endl;
-    else
-    {
-	strm.addBin( &exp0_, sizeof(float) );
-	strm.addBin( &exp1_, sizeof(float) );
-	strm.addBin( &std0_, sizeof(float) );
-	strm.addBin( &std1_, sizeof(float) );
-	strm.addBin( &cc_, sizeof(float) );
-    }
-}
-
-bool Gaussian2DProbDenFunc::obtain( od_istream& strm, bool binary )
-{
-    if ( binary )
-	strm >> exp0_ >> exp1_ >> std0_ >> std1_ >> cc_;
-    else
-    {
-	strm.getBin( &exp0_, sizeof(float) );
-	strm.getBin( &exp1_, sizeof(float) );
-	strm.getBin( &std0_, sizeof(float) );
-	strm.getBin( &std1_, sizeof(float) );
-	strm.getBin( &cc_, sizeof(float) );
-    }
-    return !strm.isBad();
-}
-
 
 
 float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
@@ -408,11 +350,3 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
 
     return true;
 }
-
-
-void GaussianNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{ pErrMsg("not impl"); }
-
-bool GaussianNDProbDenFunc::obtain( od_istream& strm, bool binary )
-{ pErrMsg("not impl"); return false; }
-

@@ -47,10 +47,11 @@ public:
     virtual void	scale(float)				{}
     virtual float	normFac() const				{ return 1; }
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&)			{ return true; }
-    virtual void	dump(od_ostream&,bool binary) const	{}
-    virtual bool	obtain(od_istream&,bool binary)		{ return true; }
+    			// Used for file store/retrieve:
+    virtual void	fillPar(IOPar&) const			= 0;
+    virtual bool	usePar(const IOPar&)			= 0;
+    virtual void	writeBulk(od_ostream&,bool binary) const {}
+    virtual bool	readBulk(od_istream&,bool binary)	{ return true; }
 
     virtual bool	isCompatibleWith(const ProbDenFunc&) const;
     void		getIndexTableFor(const ProbDenFunc& pdf,

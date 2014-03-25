@@ -30,51 +30,51 @@ mExpClass(Algo) ArrayNDProbDenFunc
 {
 public:
 
-				ArrayNDProbDenFunc()
-				: cumbins_(0)		{}
-				ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
-				: cumbins_(0)		{ *this = oth; }
-    virtual			~ArrayNDProbDenFunc()	{}
-    ArrayNDProbDenFunc& operator =(const ArrayNDProbDenFunc&);
+			ArrayNDProbDenFunc()
+			: cumbins_(0)		{}
+			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
+			: cumbins_(0)		{ *this = oth; }
+    virtual		~ArrayNDProbDenFunc()	{}
+    ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
-    int				size( int dim ) const
-		{ return getArrND().info().getSize(dim); }
-    od_uint64			totalSize() const
-		{ return getArrND().info().getTotalSz(); }
+    int			size( int dim ) const
+			{ return getArrND().info().getSize(dim); }
+    od_uint64		totalSize() const
+			{ return getArrND().info().getTotalSz(); }
 
     virtual const ArrayND<float>& getData() const
-		{ return getArrND(); }
-    virtual ArrayND<float>&	getData()
-		{ return const_cast<ArrayND<float>&>(getArrND()); }
-    virtual ArrayND<float>*	getArrClone() const	= 0;
+			{ return getArrND(); }
+    virtual ArrayND<float>& getData()
+			{ return const_cast<ArrayND<float>&>(getArrND()); }
+    virtual ArrayND<float>* getArrClone() const	= 0;
 
     virtual SamplingData<float>	sampling( int dim ) const
-		{ return getSampling(dim); }
+			{ return getSampling(dim); }
     virtual SamplingData<float>& sampling( int dim )
-		{ return const_cast<SamplingData<float>&>(getSampling(dim)); }
+			{ return const_cast<SamplingData<float>&>(
+							getSampling(dim)); }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-    void			dump(od_ostream&,bool binary) const;
-    bool			obtain(od_istream&,bool binary);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		writeBulkData(od_ostream&,bool) const;
+    bool		readBulkData(od_istream&,bool);
 
-    float			getAveragePos(int dim) const;
-    static float		findAveragePos(const float*,int,
-					       float grandtotal);
+    float		getAveragePos(int dim) const;
+    static float	findAveragePos(const float*,int,float grandtotal);
 
 protected:
 
     virtual const ArrayND<float>& getArrND() const	= 0;
     virtual const SamplingData<float>& getSampling(int) const	= 0;
-    virtual float		getNormFac() const;
-    virtual void		doScale(float);
+    virtual float	getNormFac() const;
+    virtual void	doScale(float);
 
-    mutable float*		cumbins_;
+    mutable float*	cumbins_;
 
-    void			prepRndDrw() const;
-    void			fillCumBins() const;
-    od_uint64			getRandBin() const;
-    od_uint64			getBinPos(float) const;
+    void		prepRndDrw() const;
+    void		fillCumBins() const;
+    od_uint64		getRandBin() const;
+    od_uint64		getBinPos(float) const;
 
 };
 
@@ -95,7 +95,7 @@ protected:
 */
 
 mExpClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
-			    , public ArrayNDProbDenFunc
+				     , public ArrayNDProbDenFunc
 {
 public:
 
@@ -110,8 +110,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
+    virtual void	writeBulk(od_ostream&,bool binary) const;
+    virtual bool	readBulk(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array1DImpl<float>(bins_); }
 
@@ -135,7 +135,7 @@ protected:
 */
 
 mExpClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
-			    , public ArrayNDProbDenFunc
+				     , public ArrayNDProbDenFunc
 {
 public:
 
@@ -148,8 +148,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
+    virtual void	writeBulk(od_ostream&,bool binary) const;
+    virtual bool	readBulk(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const
 			{ return new Array2DImpl<float>(bins_); }
     virtual float	averagePos( int dim ) const
@@ -178,7 +178,7 @@ protected:
 */
 
 mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
-			    , public ArrayNDProbDenFunc
+				     , public ArrayNDProbDenFunc
 {
 public:
 
@@ -202,22 +202,23 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
+    virtual void	writeBulk(od_ostream&,bool binary) const;
+    virtual bool	readBulk(od_istream&,bool binary);
 
-    TypeSet< SamplingData<float> >	sds_;
-    ArrayNDImpl<float>			bins_;
-    BufferStringSet			dimnms_;
+    TypeSet< SamplingData<float> > sds_;
+    ArrayNDImpl<float>	bins_;
+    BufferStringSet	dimnms_;
 
 protected:
 
-    virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
-    virtual const SamplingData<float>&	getSampling( int d ) const
-					{ return sds_[d]; }
+    virtual const ArrayND<float>& getArrND() const
+    			{ return bins_;}
+    virtual const SamplingData<float>& getSampling( int d ) const
+			{ return sds_[d]; }
 
 public:
 
-					SampledNDProbDenFunc();
+			SampledNDProbDenFunc();
 
 };
 

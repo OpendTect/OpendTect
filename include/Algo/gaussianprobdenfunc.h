@@ -41,8 +41,6 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
 
     float		exp_;
     float		std_;
@@ -69,8 +67,6 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
     virtual float	averagePos( int dim ) const
 			{ return dim ? exp1_ : exp0_; }
 
@@ -92,7 +88,7 @@ mExpClass(Algo) GaussianNDProbDenFunc : public ProbDenFunc
 {
 public:
 
-			GaussianNDProbDenFunc(int nrdims);
+			GaussianNDProbDenFunc(int nrdims=3);
 			~GaussianNDProbDenFunc();
     virtual void	copyFrom(const ProbDenFunc&);
 			mDefGaussianProbDenFuncFns(GaussianND)
@@ -109,8 +105,6 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(od_ostream&,bool binary) const;
-    virtual bool	obtain(od_istream&,bool binary);
 
     mExpClass(Algo) VarDef
     {

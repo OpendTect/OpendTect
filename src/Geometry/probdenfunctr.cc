@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "sampledprobdenfunc.h"
+#include "gaussianprobdenfunc.h"
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
 defineTranslator(od,ProbDenFunc,mdTectKey);
@@ -99,13 +100,19 @@ ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
 	pdf = new Sampled2DProbDenFunc();
     else if ( type == SampledNDProbDenFunc::typeStr() )
 	pdf = new SampledNDProbDenFunc();
+    else if ( type == Gaussian1DProbDenFunc::typeStr() )
+	pdf = new Gaussian1DProbDenFunc();
+    else if ( type == Gaussian2DProbDenFunc::typeStr() )
+	pdf = new Gaussian2DProbDenFunc();
+    else if ( type == GaussianNDProbDenFunc::typeStr() )
+	pdf = new GaussianNDProbDenFunc();
 
     if ( !pdf->usePar(par) )
 	{ delete pdf; return 0; }
 
     binary_ = false;
     par.getYN( sKey::Binary(), binary_ );
-    if ( !pdf->obtain(strm,binary_) )
+    if ( !pdf->readBulk(strm,binary_) )
 	{ delete pdf; pdf = 0; }
 
     return pdf;
@@ -125,6 +132,6 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf, od_ostream& strm )
     par.setYN( sKey::Binary(), binary_ );
     par.putTo( astrm );
 
-    pdf.dump( strm, binary_ );
+    pdf.writeBulk( strm, binary_ );
     return strm.isOK();
 }

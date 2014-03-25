@@ -159,7 +159,7 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     constspec float* values = array.getData(); \
     if ( !values ) return retval
 
-void ArrayNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
+void ArrayNDProbDenFunc::writeBulkData( od_ostream& strm, bool binary ) const
 {
     mDefArrVars(,const);
     const ArrayNDInfo& info = array.info();
@@ -181,7 +181,7 @@ void ArrayNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
 }
 
 
-bool ArrayNDProbDenFunc::obtain( od_istream& strm, bool binary )
+bool ArrayNDProbDenFunc::readBulkData( od_istream& strm, bool binary )
 {
     mDefArrVars(false,);
 
@@ -443,11 +443,11 @@ bool Sampled1DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void Sampled1DProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{ ArrayNDProbDenFunc::dump( strm, binary ); }
+void Sampled1DProbDenFunc::writeBulk( od_ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::writeBulkData( strm, binary ); }
 
-bool Sampled1DProbDenFunc::obtain( od_istream& strm, bool binary )
-{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
+bool Sampled1DProbDenFunc::readBulk( od_istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
 
 // 2D
@@ -569,11 +569,11 @@ bool Sampled2DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void Sampled2DProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{ ArrayNDProbDenFunc::dump( strm, binary ); }
+void Sampled2DProbDenFunc::writeBulk( od_ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::writeBulkData( strm, binary ); }
 
-bool Sampled2DProbDenFunc::obtain( od_istream& strm, bool binary )
-{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
+bool Sampled2DProbDenFunc::readBulk( od_istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
 
 // ND
@@ -778,9 +778,9 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void SampledNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
-{ ArrayNDProbDenFunc::dump( strm, binary ); }
+void SampledNDProbDenFunc::writeBulk( od_ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::writeBulkData( strm, binary ); }
 
-bool SampledNDProbDenFunc::obtain( od_istream& strm, bool binary )
-{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
+bool SampledNDProbDenFunc::readBulk( od_istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
