@@ -73,6 +73,7 @@ int main( int argc, char** argv )
     uiTextFileDlg::Setup fdsetup( fnm );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
     uiTextFileDlg* dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
+    dlg->showAlwaysOnTop();
     app.setTopLevel( dlg );
     dlg->show();
 
