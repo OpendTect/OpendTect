@@ -27,7 +27,7 @@ else \
 }
 
 
-bool testReadBendPointFile( const char* file )
+static bool testReadBendPointFile( const char* file )
 {
     if ( !File::exists( file ) )
     {

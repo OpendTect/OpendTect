@@ -6,7 +6,7 @@
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Basic )
-set( OD_TEST_PROGS velocitycalc.cc simpnumer.cc )
+set( OD_TEST_PROGS velocitycalc.cc simpnumer.cc gaussianprobdenfunc.cc )
 set( OD_NIGHTLY_TEST_PROGS fourier.cc bendpoints2coords.cc )
 
 set(OD_MODULE_SOURCES

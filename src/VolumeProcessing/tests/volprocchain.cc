@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 
 
-bool testConnectionSetup()
+static bool testConnectionSetup()
 {
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
 
