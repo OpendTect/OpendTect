@@ -256,7 +256,7 @@ public:
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
     void		detachCB(NotifierAccess* notif,const CallBack& cb)
-			{ if( notif ) detachCB( notif, cb ); }
+			{ if ( notif ) detachCB( *notif, cb ); }
     			/*!<\note Detaches only if \param notif is not null.*/
 
     bool		isNotifierAttached(NotifierAccess*) const;
