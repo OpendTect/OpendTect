@@ -11,11 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocvolreader.h"
 #include "volprocbodyfiller.h"
 
-#include "commandlineparser.h"
-#include "keystrs.h"
+#include "testprog.h"
 
 
-bool testConnectionSetup( bool quiet )
+bool testConnectionSetup()
 {
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
 
@@ -37,14 +36,11 @@ bool testConnectionSetup( bool quiet )
 
 
 
-int main( int narg, char** argv )
+int main( int argc, char** argv )
 {
-    od_init_test_program( narg, argv );
+    mInitTestProg();
 
-    CommandLineParser parser;
-    const bool quiet = parser.hasKey( sKey::Quiet() );
-
-    if ( !testConnectionSetup(quiet) )
+    if ( !testConnectionSetup() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

@@ -8,8 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bendpoints2coords.h"
 
-#include "commandlineparser.h"
-#include "keystrs.h"
+#include "testprog.h"
 #include "file.h"
 
 #include "od_iostream.h"
@@ -28,7 +27,7 @@ else \
 }
 
 
-bool testReadBendPointFile( bool quiet, const char* file )
+bool testReadBendPointFile( const char* file )
 {
     if ( !File::exists( file ) )
     {
@@ -54,20 +53,18 @@ bool testReadBendPointFile( bool quiet, const char* file )
 
 int main( int argc, char** argv )
 {
-    od_init_test_program( argc, argv );
-
-    const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+    mInitTestProg();
 
     BufferStringSet normalargs;
-    CommandLineParser().getNormalArguments(normalargs);
+    clparser.getNormalArguments(normalargs);
 
-    if ( !normalargs.size() )
+    if ( normalargs.isEmpty() )
     {
 	od_ostream::logStream() << "No input file specified";
 	ExitProgram( 1 );
     }
 
-    if ( !testReadBendPointFile( quiet, normalargs.get(0).buf() ))
+    if ( !testReadBendPointFile( normalargs.get(0) ) )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
