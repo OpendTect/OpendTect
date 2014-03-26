@@ -313,16 +313,16 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 	const float v0 = inpdata.get( idim0, idim1 );
 	const float v1 = idim1 < szdim1_-1
 		       ? inpdata.get( idim0, idim1+1 ) : v0;
-	if ( !pars_.nointerpol_ && idim1 != previdim1 )
+	float val = dim1offs < 0.5 ? v0 : v1;
+	if ( !pars_.nointerpol_ )
 	{
-	    pr1d.set( idim1 > 0 ? inpdata.get( idim0, idim1-1 ) : v0,
-		      v0,
-		      v1,
+	    if ( idim1 != previdim1 )
+		pr1d.set( idim1 > 0 ? inpdata.get( idim0, idim1-1 ) : v0,
+			  v0, v1,
 		      idim1 < szdim1_-2 ? inpdata.get( idim0, idim1+2 ) : v1 );
+	    val = pr1d.apply( dim1offs );
 	}
 
-	float val = pars_.nointerpol_ ? (dim1offs < 0.5 ? v0 : v1)
-				      : pr1d.apply( dim1offs );
 	drawVal( idim0, iy, val, prevval, midval, middim0pos );
 
 	prevval = val;
