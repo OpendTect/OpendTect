@@ -720,7 +720,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
+	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    PreStack::Gather* gather = new PreStack::Gather();
 	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 		{ delete gather; continue; }
@@ -748,7 +748,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
+	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    SeisTrcPropChg stpc( *tbuf->get( 0 ) );
 	    while ( tbuf->size() > 1 )
 	    {
@@ -756,9 +756,11 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		stpc.stack( *trc );
 		delete trc;
 	    }
-	    dptrcbuf->add( *tbuf );
+
+	    SeisTrc* stackedtrc = new SeisTrc( stpc.trace() );
+	    dptrcbuf->add( stackedtrc );
 	}
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *dptrcbuf, Seis::Line,
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
 				   SeisTrcInfo::TrcNr, synthgenpar.name_ );
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
@@ -776,11 +778,35 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	if ( tmpd2ts.isEmpty() )
 	    continue;
 
+	adjustD2TModels( tmpd2ts );
 	while ( tmpd2ts.size() )
 	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
     }
 
     return sd;
+}
+
+
+void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
+{
+    for ( int imdl=0; imdl<d2tmodels.size(); imdl++ )
+    {
+	TimeDepthModel* d2tmodel = d2tmodels[imdl];
+	if ( !d2tmodel ) continue;
+	const int d2tmsz = d2tmodel->size();
+	TypeSet<float> depths;
+	depths.setSize( d2tmsz );
+	TypeSet<float> times;
+	times.setSize( d2tmsz );
+	for ( int isamp=0; isamp<d2tmsz; isamp++ )
+	{
+	    depths[isamp] = d2tmodel->getDepth( isamp ) -
+			    mCast(float,SI().seismicReferenceDatum());
+	    times[isamp] = d2tmodel->getTime( isamp );
+	}
+
+	d2tmodel->setModel( depths.arr(), times.arr(), d2tmsz );
+    }
 }
 
 
@@ -816,6 +842,7 @@ StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 {
 }
 
+
 od_int64 nrIterations() const
 { return lm_.size(); }
 
@@ -839,17 +866,16 @@ bool doPrepare( int nrthreads )
 	sd_.postStackPack().posData().range( false );
 
     layermodels_.setEmpty();
-    ManagedObjectSet<Strat::LayerModel> layermodels;
     const int sz = zrg.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
 	layermodels_ += new Strat::LayerModel();
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
+	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
 	SeisTrcBufDataPack* seisbuf =
-	    new SeisTrcBufDataPack( sd_.postStackPack() );
-	SeisTrcBuf* trcbuf = new SeisTrcBuf( seisbuf->trcBuf() );
-	seisbuf->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
+	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				    props[iprop]->name() );
 	seisbufdps_ += seisbuf;
     }
 
