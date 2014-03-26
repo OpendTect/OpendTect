@@ -873,7 +873,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 
     if ( trc.size() < 1 ) return;
 
-    float v0, z0 = mUdf(float); int isamp;
+    float v0 = mUdf(float), z0 = mUdf(float); int isamp;
     for ( isamp=0; isamp<trc.size(); isamp++ )
     {
 	const float v = trc.get( isamp, 0 );

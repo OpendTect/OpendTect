@@ -275,7 +275,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 		isinl_ ? trcrange_.stop + 10*step: nr_ );
     int& stopvar = isinl_ ? stop.crl() : stop.inl();
     step = -step;
-    float stoptopz, stopbotz;
+    float stoptopz = mUdf(float), stopbotz = mUdf(float);
     float prevstoptopz = mUdf(float), prevstopbotz = mUdf(float);
     BinID stoptopbid, stopbotbid, prevstoptopbid, prevstopbotbid;
     bool foundtop = false, foundbot = false;
