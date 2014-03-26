@@ -22,9 +22,9 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "statparallelcalc.h"
 
-uiHistogramDisplay::uiHistogramDisplay( uiParent* p, 
+uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 					uiHistogramDisplay::Setup& su,
-       					bool withheader	)
+					bool withheader	)
     : uiFunctionDisplay( p, su.fillbelow( true ).yannotinint(true).
 			    yrg(Interval<float>(0,mUdf(float))) )
     , rc_(*new Stats::ParallelCalc<float>(Stats::CalcSetup(false)
@@ -33,15 +33,15 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 					    .require(Stats::Average)
 					    .require(Stats::Median)
 					    .require(Stats::StdDev)
-					    .require(Stats::RMS)) ) 
+					    .require(Stats::RMS)) )
     , nrinpvals_(0)
-    , nrclasses_(0)		   
+    , nrclasses_(0)
     , withheader_(withheader)
     , header_(0)
     , nitm_(0)
     , mydrawrg_(mUdf(float),mUdf(float))
-    , usemydrawrg_(false) 
-    , drawRangeChanged(this)  
+    , usemydrawrg_(false)
+    , drawRangeChanged(this)
 {
     xAxis()->setCaption( tr("Value") );
     yAxis(false)->setCaption( tr("Count") );
@@ -49,7 +49,7 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 
 
 uiHistogramDisplay::~uiHistogramDisplay()
-{ 
+{
     delete &rc_; delete header_; delete nitm_;
 }
 
@@ -99,7 +99,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
 	setData( *dpset );
     }
-    else 
+    else
 	return false;
 
     if ( withheader_ )
@@ -130,7 +130,7 @@ void uiHistogramDisplay::setData( const DataPointSet& dpset )
 
 	valarr += val;
     }
-    setData( valarr.arr(), valarr.size() ); 
+    setData( valarr.arr(), valarr.size() );
 }
 
 
@@ -153,7 +153,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	{
 	    const float val = array->get( idx0, idx1 );
 	    if ( mIsUdf(val) ) continue;
-	    
+
 	    valarr += val;
 	}
     }
@@ -168,25 +168,25 @@ void uiHistogramDisplay::setData( const float* array, int sz )
 
     if ( array != originaldata_.arr() )
     {
-    	originaldata_.erase();
-    	for ( int idx=0; idx<sz; idx++ )
-    	    originaldata_ += array[idx];
+	originaldata_.erase();
+	for ( int idx=0; idx<sz; idx++ )
+	    originaldata_ += array[idx];
     }
 
-    const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) && 
+    const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
 	!mIsUdf(mydrawrg_.stop);
     if ( usedrawrg )
     {
 	mydisplaydata_.erase();
 	for ( int idx=0; idx<sz; idx++ )
 	{
-    	    if ( mIsUdf(array[idx]) )
-     		continue;
-      	    
+	    if ( mIsUdf(array[idx]) )
+		continue;
+
 	    if ( mydrawrg_.includes(array[idx],false) )
-    		mydisplaydata_ += array[idx];
+		mydisplaydata_ += array[idx];
 	}
-    
+
 	rc_.setValues( mydisplaydata_.arr(), mydisplaydata_.size() );
     }
     else
@@ -235,27 +235,27 @@ void uiHistogramDisplay::updateHistogram()
     }
 
     setHistogram( histdata, Interval<float>(min + 0.5f*step, max - 0.5f*step),
-	    	  nrinpvals_ );
+		  nrinpvals_ );
 }
 
 
-void uiHistogramDisplay::useDrawRange( bool yn )    
+void uiHistogramDisplay::useDrawRange( bool yn )
 {
    if ( usemydrawrg_==yn )
       return;
 
-    usemydrawrg_ = yn; 
+    usemydrawrg_ = yn;
     if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
     {
 	setData( originaldata_.arr(), originaldata_.size() );
-    	drawRangeChanged.trigger();
+	drawRangeChanged.trigger();
     }
 }
 
 
 void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
 {
-    if ( mIsEqual(ni.start,mydrawrg_.start,1e-5) && 
+    if ( mIsEqual(ni.start,mydrawrg_.start,1e-5) &&
 	 mIsEqual(ni.stop,mydrawrg_.stop,1e-5) )
 	return;
 
@@ -263,7 +263,7 @@ void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
     if ( usemydrawrg_ )
     {
 	setData( originaldata_.arr(), originaldata_.size() );
-    	drawRangeChanged.trigger();
+	drawRangeChanged.trigger();
     }
 }
 
