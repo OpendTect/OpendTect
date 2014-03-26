@@ -144,11 +144,6 @@ macro(OD_SETUP_QT)
 	    endforeach()
 
 	endif()
-
-	if ( WIN32 )
-	    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
-	endif( WIN32 )
-
     endif()
 endmacro( OD_SETUP_QT )
 
