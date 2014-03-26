@@ -146,7 +146,8 @@ mClass(Algo) PolyReg1DWithUdf
 {
 public:
 
-PolyReg1DWithUdf()	{}
+PolyReg1DWithUdf()	
+{ set ( 0, 0, 0, 0 ); }
 
 PolyReg1DWithUdf( const T* v )
 {

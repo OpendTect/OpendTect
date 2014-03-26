@@ -339,7 +339,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 		mDoCorner( ++, ++, ++ );
 	    }
 
-	    od_int64 cursize;
+	    od_int64 cursize = 0; 
 	    bodysize.get( curbodyid, cursize );
 	    bodysize.set( curbodyid, cursize + nradded );
 
