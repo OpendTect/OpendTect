@@ -562,7 +562,7 @@ int uiActionContainer::insertItem( uiMenu* pm )
 
 uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
 {
-    uiAction* submenuitem = new uiAction( pm->name() );
+    uiAction* submenuitem = new uiAction( pm->text() );
     submenuitem->setMenu( pm );
 
     uiAction* beforeaction = 0;

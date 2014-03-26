@@ -105,25 +105,27 @@ QWidget* uiMenuBar::getWidget()
 
 static CallBackSet interceptors_;
 
-uiMenu::uiMenu( uiParent* p, const uiString& nm, const char* pmnm )
-    : uiBaseObject( nm.getFullString() )
+uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
+    : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)( p ? p->getWidget() : 0 ) )
+    , text_(txt)
 {
-    qmenu_->setTitle( nm.getQtString() );
+    qmenu_->setTitle( txt.getQtString() );
 }
 
 
-uiMenu::uiMenu( const uiString& nm, const char* pmnm )
-    : uiBaseObject( nm.getFullString() )
+uiMenu::uiMenu( const uiString& txt, const char* pmnm )
+    : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)( 0 ) )
+    , text_(txt)
 {
-    qmenu_->setTitle( nm.getQtString() );
+    qmenu_->setTitle( txt.getQtString() );
 }
 
 
-uiMenu::~uiMenu() 
+uiMenu::~uiMenu()
 {
     removeAllActions();
     delete qmenu_;
@@ -143,7 +145,7 @@ void uiMenu::setAction( uiAction* action )
 bool uiMenu::isCheckable() const
 { return submenuaction_->isCheckable(); }
 
-void uiMenu::setCheckable( bool yn ) 
+void uiMenu::setCheckable( bool yn )
 { submenuaction_->setCheckable( yn ); }
 
 bool uiMenu::isChecked() const
@@ -159,12 +161,17 @@ void uiMenu::setEnabled( bool yn )
 { submenuaction_->setEnabled( yn ); }
 
 
-void uiMenu::setName( const char* nm )
+void uiMenu::setText( const uiString& txt )
 {
-    uiBaseObject::setName( nm );
+    uiBaseObject::setName( txt.getFullString() );
+    text_ = txt;
     if ( submenuaction_ )
-	submenuaction_->setText( nm );
+	submenuaction_->setText( txt );
 }
+
+
+const uiString& uiMenu::text() const
+{ return text_; }
 
 
 int uiMenu::exec()
@@ -191,7 +198,7 @@ int uiMenu::exec()
     return getID( qaction );
 }
 
-    
+
 void uiMenu::doIntercept( bool yn, uiAction* interceptaction )
 {
     if ( !dointercept_ && yn )
@@ -208,13 +215,13 @@ void uiMenu::doIntercept( bool yn, uiAction* interceptaction )
 
 
 void uiMenu::removeInterceptor( const CallBack& cb )
-{ 
+{
     interceptors_ -= cb;
 }
 
 
 void uiMenu::addInterceptor( const CallBack& cb )
-{ 
+{
     interceptors_ += cb;
 }
 
@@ -232,13 +239,13 @@ void uiMenu::doInsertAction(mQtclass(QAction)* action,
     qmenu_->insertAction( before, action );
 }
 
-	     
+
 void uiMenu::doInsertSeparator(QAction* before)
 {
     qmenu_->insertSeparator( before );
 }
-	     
-	     
+
+
 void uiMenu::doClear()
 {
     qmenu_->clear();

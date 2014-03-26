@@ -35,18 +35,18 @@ mExpClass(uiBase) uiMenuBar : public uiActionContainer, public uiBaseObject
 public:
 
     void			setSensitive(bool yn);
-    				/*!< Works on complete menubar */
+				/*!< Works on complete menubar */
     bool			isSensitive() const;
-    
+
     mQtclass(QWidget*)		getWidget();
     void			clear() { removeAllActions(); }
-    
+
 protected:
 				uiMenuBar(uiParent*,const char* nm);
 				uiMenuBar(uiParent*,const char* nm,
 					  mQtclass(QMenuBar)*);
-    				~uiMenuBar();
-    
+				~uiMenuBar();
+
     void			doInsertMenu(mQtclass(QMenu)*,
 				   mQtclass(QAction)* before);
     void			doInsertAction(mQtclass(QAction)*,
@@ -54,7 +54,7 @@ protected:
     void			doRemoveAction(mQtclass(QAction)*);
     void			doInsertSeparator(mQtclass(QAction)* before);
     void			doClear();
-    
+
     mQtclass(QMenuBar)*		qmenubar_;
 };
 
@@ -66,14 +66,14 @@ protected:
 mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 {
 
-public:                        
+public:
 				uiMenu(const uiString& nm="uiMenu",
 				       const char* pixmapfilenm=0);
 
 				~uiMenu();
 
     bool			isStandAlone() const { return !submenuaction_; }
-    				/*!\returns true if this menu is not
+				/*!\returns true if this menu is not
 				    inserted into a menu with an item that
 				    owns it. */
 
@@ -88,16 +88,17 @@ public:
 
 				/*! \brief pops-up at mouse position
 
-				    The return code is the id of the selected 
-				    item in either the popup menu or one of 
+				    The return code is the id of the selected
+				    item in either the popup menu or one of
 				    its submenus, or -1 if no item is selected
-				    (normally because the user presses Escape). 
+				    (normally because the user presses Escape).
 				*/
     int				exec();
-    
-    void			setName(const char*);
+
+    void			setText(const uiString&);
+    const uiString&		text() const;
     void			clear() { removeAllActions(); }
-    
+
     mQtclass(QMenu)*		getQMenu() { return qmenu_; }
     mQtclass(QWidget*)		getWidget();
 
@@ -106,11 +107,13 @@ private:
 
     void			setAction(uiAction*);
 
+    uiString			text_;
+
     mQtclass(QMenu)*		qmenu_;
     uiAction*			submenuaction_;
     uiAction*			interceptaction_;
     bool			dointercept_;
-    
+
     void			doInsertMenu(mQtclass(QMenu)*,
 					   mQtclass(QAction)* before);
     void			doInsertAction(mQtclass(QAction)*,
