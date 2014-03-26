@@ -102,6 +102,14 @@ BufferString& BufferString::assignTo( const char* s )
 }
 
 
+BufferString& BufferString::add( char s )
+{
+    char tmp[2];
+    tmp[0] = s; tmp[1] = '\0';
+    return add( tmp );
+}
+
+
 BufferString& BufferString::add( const char* s )
 {
     if ( s && *s )

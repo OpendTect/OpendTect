@@ -97,6 +97,7 @@ public:
     BufferString&	setLim(float,int maxnrchars);
     BufferString&	setLim(double,int maxnrchars);
 
+    BufferString&	add(char);
     BufferString&	add(const char*);
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
     BufferString&	add(const QString&);
