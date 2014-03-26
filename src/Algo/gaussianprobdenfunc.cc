@@ -32,12 +32,12 @@ void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 }
 
 
+static const float oneoversqrt2pi = (float)(1 / Math::Sqrt(2 * M_PI));
+
 float Gaussian1DProbDenFunc::gtVal( float pos ) const
 {
-    const float gfac = (float)(1 / (std_ * Math::Sqrt(2 * M_PI)));
-    pos -= exp_; pos /= std_;
-    const float epow = -0.5f * pos * pos;
-    return gfac * Math::Exp( epow );
+    const float x = (pos - exp_) / std_;
+    return oneoversqrt2pi * Math::Exp( -0.5f*x*x );
 }
 
 
@@ -114,12 +114,13 @@ float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
     if ( cc_ > 1 - 1e-6f )
 	return 0;
 
-    const float gfac = (float)(1 / (2*M_PI*std0_*std1_*Math::Sqrt(1-cc_*cc_)));
-    const float efac = -1 / (2 * ( 1 - cc_*cc_ ));
-    p0 -= exp0_; p0 /= std0_;
-    p1 -= exp1_; p1 /= std1_;
-    const float epow = efac * ( p0*p0 + p1*p1 + 2*cc_*p0*p1 );
-    return gfac * Math::Exp( epow );
+    const float x1 = (p0 - exp0_) / std0_;
+    const float x2 = (p1 - exp1_) / std1_;
+    const float onemccsq = 1 - cc_*cc_;
+
+    const float fac = (float)(0.5 / (M_PI*Math::Sqrt(onemccsq)));
+    const float epow = -0.5f * (x1*x1 + x2*x2 + 2*cc_*x1*x2) / onemccsq;
+    return fac * Math::Exp( epow );
 }
 
 
@@ -205,22 +206,78 @@ void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-float GaussianNDProbDenFunc::value( const TypeSet<float>& vals ) const
+float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 {
-    // This is a bogus 'boxcar'; a real implementation is not feasible
     const int nrdims = nrDims();
-    float ret = 1;
-    for ( int idim=0; idim<nrdims; idim++ )
-    {
-	const float stdev = vars_[idim].std_;
-	const float val = vals[idim] - vars_[idim].exp_;
-	if ( val < -stdev || val > stdev )
-	    return 0;
+    if ( poss.size() < nrdims )
+	{ pErrMsg("not enough positions"); return mUdf(float); }
 
-	ret /= 2 * stdev;
+    if ( nrdims == 1 )
+    {
+	const VarDef& vd = vars_[0];
+	Gaussian1DProbDenFunc pdf1d( vd.exp_, vd.std_ );
+	return pdf1d.value( poss[0] );
+    }
+    else if ( nrdims == 2 )
+    {
+	const VarDef& vd0 = vars_[0]; const VarDef& vd1 = vars_[1];
+	Gaussian2DProbDenFunc pdf2d;
+	pdf2d.exp0_ = vd0.exp_; pdf2d.std0_ = vd0.std_;
+	pdf2d.exp1_ = vd1.exp_; pdf2d.std1_ = vd1.std_;
+	if ( !corrs_.isEmpty() )
+	    pdf2d.cc_ = corrs_[0].cc_;
+	return pdf2d.value( poss[0], poss[1] );
+    }
+    if ( nrdims > 3 )
+    {
+	// This is a bogus 'boxcar'; a real implementation is not feasible
+	float ret = 1;
+	for ( int idim=0; idim<nrdims; idim++ )
+	{
+	    const float stdev = vars_[idim].std_;
+	    const float val = poss[idim] - vars_[idim].exp_;
+	    if ( val < -stdev || val > stdev )
+		return 0;
+
+	    ret /= 2 * stdev;
+	}
     }
 
-    return ret;
+
+    // The Trivariate Gaussian:
+
+    float r12 = 0, r13 = 0, r23 = 0;
+    for ( int icorr=0; icorr<corrs_.size(); icorr++ )
+    {
+	const Corr& corr = corrs_[icorr];
+	if ( (corr.idx0_ == 0 && corr.idx1_ == 1)
+	  || (corr.idx1_ == 0 && corr.idx0_ == 1) )
+	    r12 = corr.cc_;
+	else if ( (corr.idx0_ == 0 && corr.idx1_ == 2)
+	       || (corr.idx1_ == 0 && corr.idx0_ == 2) )
+	    r13 = corr.cc_;
+	else if ( (corr.idx0_ == 1 && corr.idx1_ == 2)
+	       || (corr.idx1_ == 1 && corr.idx0_ == 2) )
+	    r23 = corr.cc_;
+    }
+    if ( r12 > 1-1e-6f || r13 > 1-1e-6f || r23 > 1-1e-6f )
+	return 0;
+
+    const float x1 = (poss[0]-vars_[0].exp_) / vars_[0].std_;
+    const float x2 = (poss[1]-vars_[1].exp_) / vars_[1].std_;
+    const float x3 = (poss[2]-vars_[2].exp_) / vars_[2].std_;
+    const float x1sq = x1*x1, x2sq = x2*x2, x3sq =x3*x3;
+    const float x12 = x1*x2, x13 = x1*x3, x23 =x2*x3;
+    const float r12sq = r12*r12, r13sq = r13*r13, r23sq =r23*r23;
+
+    const float dividend = 0.5f *
+	  x1sq*(r23-1) + x2sq*(r13-1) + x3sq*(r12-1)
+	+ 2*x12*r12 + 2*x13*r13 + 2*x23*r23
+	- 2*x12*r13*r23 - 2*x13*r12*r23 - 2*x23*r12*r13;
+    const float discr = 1 + 2*r12*r13*r23 - r12sq - r13sq - r23sq;
+    const float gfac = 1.0f / (M_PI * Math::Sqrt( 8 * M_PI * discr ));
+
+    return gfac * (discr ? Math::Exp( dividend / discr ) : 1.0f);
 }
 
 
