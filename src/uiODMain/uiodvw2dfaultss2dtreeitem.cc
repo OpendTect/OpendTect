@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
-#include "uiflatviewmainwin.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -182,10 +181,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     if ( displayid_ < 0 ) 
 	viewer2D()->dataMgr()->addObject( fssview_ );
 
-    mDynamicCastGet(uiFlatViewMainWin*,fwmainwin,viewer2D()->viewwin());
-    if( fwmainwin )
-	mAttachCB( fwmainwin->editModeToggled,
-		   uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
+    mAttachCB( viewer2D()->viewControl()->editPushed(),
+	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
 
     return true;
 }

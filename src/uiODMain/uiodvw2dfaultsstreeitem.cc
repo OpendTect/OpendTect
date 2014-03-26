@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
-#include "uiflatviewmainwin.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -163,11 +162,9 @@ bool uiODVw2DFaultSSTreeItem::init()
 
     if ( displayid_ < 0 )
 	viewer2D()->dataMgr()->addObject( fssview_ );
-
-    mDynamicCastGet(uiFlatViewMainWin*,fwmainwin,viewer2D()->viewwin());
-    if( fwmainwin )
-	mAttachCB( fwmainwin->editModeToggled,
-		   uiODVw2DFaultSSTreeItem::enableKnotsCB );
+    
+    mAttachCB( viewer2D()->viewControl()->editPushed(),
+	       uiODVw2DFaultSSTreeItem::enableKnotsCB );
 
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )

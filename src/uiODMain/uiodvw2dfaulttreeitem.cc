@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiodvw2dfaulttreeitem.h"
 
 #include "uiempartserv.h"
-#include "uiflatviewmainwin.h"
+#include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -162,10 +162,8 @@ bool uiODVw2DFaultTreeItem::init()
     if ( displayid_ < 0 )
 	viewer2D()->dataMgr()->addObject( faultview_ );
 
-    mDynamicCastGet(uiFlatViewMainWin*,fwmainwin,viewer2D()->viewwin());
-    if( fwmainwin )
-	mAttachCB( fwmainwin->editModeToggled,
-		   uiODVw2DFaultTreeItem::enableKnotsCB );
+    mAttachCB( viewer2D()->viewControl()->editPushed(),
+	       uiODVw2DFaultTreeItem::enableKnotsCB );
 
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
