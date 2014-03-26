@@ -111,9 +111,12 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     if ( is2d )
     {
-	selgrp_->getTopGroup()->display( true, true );
-	selgrp_->getNameField()->display( true, true );
-	selgrp_->getListField()->display( true, true );
+	if ( selgrp_->getTopGroup() )
+	    selgrp_->getTopGroup()->display( true, true );
+	if ( selgrp_->getNameField() )
+	    selgrp_->getNameField()->display( true, true );
+	if ( selgrp_->getListField() )
+	    selgrp_->getListField()->display( true, true );
 
 	if ( c.ioobj )
 	{
