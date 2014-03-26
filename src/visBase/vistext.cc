@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "oddirs.h"
 #include "filepath.h"
+#include "texttranslator.h"
 
 
 #include <osgText/Text>
@@ -31,13 +32,13 @@ namespace visBase
 {
 
 Text::Text()
-    : text_( new osgText::Text )
+    : osgtext_( new osgText::Text )
     , displaytrans_( 0 )
 {
-    text_->ref();
-    text_->setAxisAlignment( osgText::TextBase::SCREEN );
-    text_->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS );
-    text_->setDataVariance( osg::Object::DYNAMIC );
+    osgtext_->ref();
+    osgtext_->setAxisAlignment( osgText::TextBase::SCREEN );
+    osgtext_->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS );
+    osgtext_->setDataVariance( osg::Object::DYNAMIC );
     setFontData( fontdata_ ); //trigger update of font_
 }
 
@@ -45,21 +46,21 @@ Text::Text()
 Text::~Text()
 {
     if ( displaytrans_ ) displaytrans_->unRef();
-    text_->unref();
+    osgtext_->unref();
 }
 
 
 osg::Drawable& Text::getDrawable()
-{ return *text_; }
+{ return *osgtext_; }
 
 
 const osg::Drawable& Text::getDrawable() const
-{ return *text_; }
+{ return *osgtext_; }
 
 
 void Text::setPosition( const osg::Vec3f& pos )
 {
-    text_->setPosition( pos );
+    osgtext_->setPosition( pos );
 }
 
 
@@ -78,7 +79,7 @@ void Text::setPosition( const Coord3& pos, bool scenespace )
 Coord3 Text::getPosition() const
 {
     Coord3 pos;
-    Transformation::transformBack( displaytrans_, text_->getPosition(), pos );
+    Transformation::transformBack( displaytrans_, osgtext_->getPosition(), pos);
     return pos;
 }
 
@@ -89,45 +90,40 @@ void Text::setFontData( const FontData& fd )
 
     osg::ref_ptr<osgText::Font> osgfont = OsgFontCreator::create( fontdata_ );
     if ( osgfont )
-	text_->setFont( osgfont );
-    text_->setCharacterSize( fontdata_.pointSize() );
+	osgtext_->setFont( osgfont );
+    osgtext_->setCharacterSize( fontdata_.pointSize() );
 }
 
 
 
-void Text::setText( const char* newtext )
+void Text::setText( const uiString& newtext )
 {
-    text_->setText( newtext );
-}
-
-
-void Text::getText( BufferString& res ) const
-{
-    std::string str = text_->getText().createUTF8EncodedString();
-    res = str.data();
+    ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
+    osgtext_->setText( wcharbuf );
+    text_ = newtext;
 }
 
 
 void Text::setJustification( Justification just )
 {
     if ( just==Center )
-	text_->setAlignment(osgText::TextBase::CENTER_CENTER );
+	osgtext_->setAlignment(osgText::TextBase::CENTER_CENTER );
     else if ( just==Left )
-	text_->setAlignment( osgText::TextBase::LEFT_CENTER );
+	osgtext_->setAlignment( osgText::TextBase::LEFT_CENTER );
     else
-	text_->setAlignment( osgText::TextBase::RIGHT_CENTER );
+	osgtext_->setAlignment( osgText::TextBase::RIGHT_CENTER );
 }
 
 
 void Text::setColor( const Color& col )
 {
-    text_->setColor( Conv::to<osg::Vec4>(col) );
+    osgtext_->setColor( Conv::to<osg::Vec4>(col) );
 }
 
 
 Color Text::getColor() const
 {
-    return Conv::to<Color>( text_->getColor() );
+    return Conv::to<Color>( osgtext_->getColor() );
 }
 
 
@@ -148,6 +144,7 @@ Text2::Text2()
     , geode_( new osg::Geode )
     , displaytransform_( 0 )
 {
+    mAttachCB( TrMgr().languageChange, Text2::translationChangeCB );
     geode_->ref();
     geode_->setNodeMask( ~visBase::cBBoxTraversalMask() );
     addChild( geode_ );
@@ -157,6 +154,7 @@ Text2::Text2()
 
 Text2::~Text2()
 {
+    detachAllNotifiers();
     if ( displaytransform_ ) displaytransform_->unRef();
     geode_->unref();
 }
@@ -223,6 +221,13 @@ void Text2::setDisplayTransformation( const mVisTrans* newtr )
 	texts_[idx]->setDisplayTransformation( newtr );
 }
 
+    
+void Text2::translationChangeCB(CallBacker *)
+{
+    for ( int idx=0; idx<texts_.size(); idx++ )
+        texts_[idx]->setText( texts_[idx]->getText() );
+}
+
 
 PtrMan<OsgFontCreator> creator = 0;
 
@@ -237,6 +242,8 @@ void OsgFontCreator::setCreator( OsgFontCreator* cr)
 {
     creator = cr;
 }
+
+
 
 
 }; // namespace visBase

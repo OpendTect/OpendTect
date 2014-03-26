@@ -1068,8 +1068,7 @@ void uiContourTreeItem::updateZShift()
 	Coord3 pos = labels_->text(idx)->getPosition();
 	pos.z += deltaz;
 	labels_->text(idx)->setPosition( pos );
-	BufferString txt;
-	labels_->text(idx)->getText( txt );
+	BufferString txt = labels_->text(idx)->getText().getFullString();
 	float labelval = txt.toFloat();
 	labelval += deltaz * SI().zDomain().userFactor();
 	labels_->text(idx)->setText( toString( (int)labelval ) );

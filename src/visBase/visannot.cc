@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "axislayout.h"
 #include "iopar.h"
 #include "survinfo.h"
+#include "uistring.h"
 #include "vistransform.h"
 
 #include <osg/Geode>
@@ -198,7 +199,7 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
-void Annotation::setText( int dim, const char* string )
+void Annotation::setText( int dim, const uiString& string )
 {
     axisnames_->text(dim)->setText( string );
 }
@@ -429,18 +430,6 @@ void Annotation::fillPar( IOPar& par ) const
 	key += idx;
 	const osg::Vec3 pos = cornercoords[idx];
 	par.set( key, pos[0], pos[1], pos[2] );
-    }
-
-    for ( int dim=0; dim<3; dim++ )
-    {
-	key = textprefixstr();
-	key += dim;
-	const Text* text = axisnames_->text(dim);
-	if ( !text ) continue;
-
-	BufferString str;
-	text->getText( str );
-	par.set( key, str.buf() );
     }
 
     par.setYN( showtextstr(), isTextShown() );

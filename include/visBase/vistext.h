@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "fontdata.h"
 #include "visobject.h"
 #include "position.h"
+#include "uistring.h"
 
 namespace osgText { class Text; class Font; }
 
@@ -41,8 +42,8 @@ public:
     void			setFontData(const FontData&);
     const FontData&		getFontData() const	{ return fontdata_; }
 
-    void			setText(const char*);
-    void			getText(BufferString&) const;
+    void			setText(const uiString&);
+    const uiString&		getText() const 	{ return text_; }
 
     void			setColor(const Color&);
     Color			getColor() const;
@@ -56,7 +57,8 @@ public:
 
 protected:
     const mVisTrans*		displaytrans_;
-    osgText::Text*		text_;
+    osgText::Text*		osgtext_;
+    uiString			text_;
 
     FontData			fontdata_;
 };
@@ -92,6 +94,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
 
 protected:
+    void			translationChangeCB(CallBacker*);
 				~Text2();
     osg::Geode*			geode_;
     ManagedObjectSet<Text>	texts_;

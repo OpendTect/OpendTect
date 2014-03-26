@@ -112,6 +112,9 @@ public:
 				 next call. */
     const char*			getOriginalString() const;
     const mQtclass(QString&)	getQtString() const;
+    wchar_t*			createWCharString() const;
+				/*!<Result becomes owners and should be
+				    deleted using the [] operator. */
 
     static const char*		sODLocalizationApplication() { return "od"; }
 

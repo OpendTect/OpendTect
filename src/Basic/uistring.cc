@@ -192,6 +192,25 @@ const QString& uiString::getQtString() const
 }
 
 
+wchar_t* uiString::createWCharString() const
+{
+    QString qstr;
+    data_->fillQString( qstr, TrMgr().getQTranslator(data_->application_) );
+    if ( !qstr.size() )
+	return 0;
+
+    mDeclareAndTryAlloc( wchar_t*, res, wchar_t[qstr.size()+1] );
+
+    if ( !res )
+	return 0;
+
+    const int nrchars = qstr.toWCharArray( res );
+    res[nrchars] = 0;
+
+    return res;
+}
+
+
 uiString& uiString::operator=( const uiString& str )
 {
     str.data_->ref();

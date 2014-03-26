@@ -25,6 +25,7 @@ ________________________________________________________________________
 class AxisInfo;
 class FontData;
 class Color;
+class uiString;
 
 namespace osg
 {
@@ -73,9 +74,9 @@ public:
 
     void		setAnnotScale(int dim,int scale);
 
-    void		setText( int dim, const char * );
-    void		fillPar( IOPar& ) const;
-    bool		usePar( const IOPar& );
+    void		setText(int dim,const uiString&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
     void		setDisplayTransformation(const mVisTrans*);
 
