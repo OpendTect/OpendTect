@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mSldUnits 250
 #define mMaxObjectSize 10 //6 x object size
-#define mScrollBarSize mainviewer_->scrollBarSize(false).width()
+#define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     : uiMainWin(p,su.wintitle_)
