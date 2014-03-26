@@ -78,7 +78,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     stepoutfld_->setFieldNames( "Stepout Inl", "Stepout Crl" );
     stepoutfld_->attach( alignedBelow, steerfld_ );
 
-    actionfld_ = new uiGenInput( this, "Output", 
+    actionfld_ = new uiGenInput( this, "Output",
 		    StringListInpSpec(actionstr) );
     actionfld_->attach( alignedBelow, stepoutfld_ );
 
@@ -92,7 +92,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     globalmaxfld_ = new uiGenInput( this, "", FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
-    
+
     uiPushButton* analysebut = new uiPushButton( this, "Compute",
 				 mCB(this,uiTextureAttrib,analyseCB), false );
     analysebut->attach( rightOf, globalmaxfld_ );
@@ -105,7 +105,7 @@ bool uiTextureAttrib::setParameters( const Desc& desc )
     if ( desc.attribName()!=Texture::attribName() )
 	return false;
 
-    mIfGetFloatInterval( Texture::gateStr(), 
+    mIfGetFloatInterval( Texture::gateStr(),
 			gate, gatefld_->setValue(gate) );
     mIfGetFloat( Texture::globalminStr(), globalmin,
 		globalminfld_->setValue(globalmin) );
@@ -138,12 +138,12 @@ bool uiTextureAttrib::getParameters( Desc& desc )
 {
     if ( desc.attribName()!=Texture::attribName() )
 	return false;
-    
+
     const float globalmin = globalminfld_->getfValue();
     const float globalmax = globalmaxfld_->getfValue();
     if ( mIsEqual( globalmin, globalmax, 1e-3 ))
     {
-	BufferString errstr = 
+	BufferString errstr =
 	    "Minimum and Maximum values cannot be the same.\n";
 	errstr += "Values represent the clipping range of the input.";
 	uiMSG().error( errstr.buf() );
@@ -153,7 +153,7 @@ bool uiTextureAttrib::getParameters( Desc& desc )
     mSetFloatInterval( Texture::gateStr(), gatefld_->getFInterval() );
     mSetFloat( Texture::globalminStr(), globalmin );
     mSetFloat( Texture::globalmaxStr(), globalmax );
-  
+
     BinID stepout( stepoutfld_->getBinID() );
     mSetBinID( Texture::stepoutStr(), stepout );
     const bool dosteer = steerfld_->willSteer();
@@ -193,23 +193,24 @@ class uiSubSelForAnalysis : public uiDialog
 {
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup("Select data for analysis",
+				 mNoDlgTitle,mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
 {
     nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
-	    			IntInpSpec(50) );
-    
+				IntInpSpec(50) );
+
     if ( is2d )
     {
 	SeisIOObjInfo objinfo( mid );
 	BufferStringSet linenames;
 	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
-	linesfld_ = new uiLabeledComboBox( this, "Analyisis on line:" );
+	linesfld_ = new uiLabeledComboBox( this, "Analysis on line:" );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
-	
+
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else
@@ -225,7 +226,7 @@ int nrTrcs()
 LineKey lineKey() const
 { return LineKey( linesfld_ ? linesfld_->box()->text() : "", attribnm_ ); }
 
-bool acceptOK(CallBacker*) 
+bool acceptOK(CallBacker*)
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {
@@ -248,7 +249,7 @@ CubeSampling subVol() const
 protected:
 
     BufferString	attribnm_;
-    
+
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
     uiLabeledComboBox*	linesfld_;
@@ -270,7 +271,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     }
 
     uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D(),
-	    			   lk.attrName() );
+				   lk.attrName() );
     if ( !subseldlg.go() )
 	return;
 
@@ -280,8 +281,9 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     {
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisinfo.getRanges( Survey::GM().getGeomID(
-				  subseldlg.lineKey().lineName()), trcrg, zrg );
+	seisinfo.getRanges(
+		Survey::GM().getGeomID(subseldlg.lineKey().lineName()),
+		trcrg, zrg );
 	cs.hrg.setCrlRange( trcrg );
 	cs.hrg.setInlRange( Interval<int>(0,0) );
 	cs.zrg = zrg;
@@ -300,7 +302,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
 }
 
 
-bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const CubeSampling& cs, 
+bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const CubeSampling& cs,
 				      int nrtrcs, const LineKey& lk) const
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
@@ -353,7 +355,7 @@ static void checkAndSetSymmetric( Interval<float>& range )
     if ( mIsZero(leftarm,1e-6) || mIsZero(rightarm,1e-6) )
 	return;
 
-    const float ratio = ( leftarm<rightarm ? leftarm/rightarm 
+    const float ratio = ( leftarm<rightarm ? leftarm/rightarm
 					   : rightarm/leftarm );
     if ( ratio<0.8 )
 	return;
