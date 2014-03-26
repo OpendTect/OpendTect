@@ -57,7 +57,7 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    const uiString tabcaption = txt.isEmpty() ? txt : (const char*)grp->name();
+    const uiString tabcaption = !txt.isEmpty() ? txt : (const char*)grp->name();
     uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );
 
@@ -92,7 +92,7 @@ int uiTabStack::size() const
 
 
 void uiTabStack::setCurrentPage( int id )
-{ 
+{
     tabbar_->setCurrentTab( id );
     tabSel(0);
 }
@@ -113,3 +113,4 @@ uiGroup* uiTabStack::page( int id ) const
 
 int uiTabStack::currentPageId() const
 { return tabbar_->currentTabId(); }
+
