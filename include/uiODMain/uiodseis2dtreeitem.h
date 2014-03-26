@@ -86,10 +86,10 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiOD2DLineSetSubItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 {
 public:
-			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
+			uiOD2DLineTreeItem(const char* nm,int displayid=-1);
 
     bool		addStoredData(const char*,int component,uiTaskRunner&);
     void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
@@ -98,7 +98,7 @@ public:
     void		removeAttrib(const char*);
 
 protected:
-			~uiOD2DLineSetSubItem();
+			~uiOD2DLineTreeItem();
     bool		init();
     const char*		parentType() const;
     BufferString	createDisplayName() const;

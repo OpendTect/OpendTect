@@ -1041,7 +1041,7 @@ int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
     uiOD2DLineSetTreeItem* itm = new uiOD2DLineSetTreeItem( mid );
     scene->itemmanager_->addChild( itm, false );
 
-    uiOD2DLineSetSubItem* subitm = new uiOD2DLineSetSubItem( name, displayid );
+    uiOD2DLineTreeItem* subitm = new uiOD2DLineTreeItem( name, displayid );
     itm->addChild( subitm, false );
     return subitm->displayID();
 }
