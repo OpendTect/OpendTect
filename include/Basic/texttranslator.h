@@ -32,38 +32,39 @@ mExpClass(Basic) TextTranslateMgr : public CallBacker
 public:
 				TextTranslateMgr()
 				    : dirtycount_(0)
+				    , currentlanguageidx_(-1)
 				    , languageChange(this)
-				    , currenttranslatoridx_(-1)
 				{
 				    loadInfo();
 				}
 
 				~TextTranslateMgr();
 
-    int 			nrSupportedLanguages() const;
+    int				nrSupportedLanguages() const;
     uiString			getLanguageUserName(int) const;
     BufferString		getLanguageName(int) const;
     bool			setLanguage(int,uiString& errmsg);
 				//!<0 means Default (English)
+    int				currentLanguage() const;
 
     Notifier<TextTranslateMgr>	languageChange;
 
-    int 			dirtyCount() const	{ return dirtycount_; }
+    int				dirtyCount() const	{ return dirtycount_; }
 				//Increased every time language is changed
 
-    const mQtclass(QTranslator)*	getQTranslator(const char* appl) const;
+    const mQtclass(QTranslator)* getQTranslator(const char* appl) const;
 
-    static BufferString 		getLocalizationName(const char* appl,
-							    const char* lang);
-    static char 			cApplicationEnd() { return '_'; }
+    static BufferString		getLocalizationName(const char* appl,
+						    const char* lang);
+    static char			cApplicationEnd() { return '_'; }
 
 protected:
 
-    void				loadInfo();
+    void			loadInfo();
 
-    int 				dirtycount_;
+    int				dirtycount_;
     ObjectSet<TranslatorLanguageInfo>	languages_;
-    int 				currenttranslatoridx_;
+    int				currentlanguageidx_;
 };
 
 

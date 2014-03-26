@@ -12,11 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 
 #include "bufstring.h"
-#include "refcount.h"
-#include "ptrman.h"
-#include "typeset.h"
+#include "envvars.h"
+#include "od_iostream.h"
 #include "perthreadrepos.h"
+#include "ptrman.h"
+#include "refcount.h"
 #include "texttranslator.h"
+#include "typeset.h"
 
 #include <QString>
 #include <QTranslator>
@@ -61,17 +63,17 @@ public:
     void set(const char* orig);
     void fillQString(QString&,const QTranslator* translator=0) const;
 
-    TypeSet<uiString>		arguments_;
+    TypeSet<uiString>	arguments_;
 
-    QString			qstring_;
+    QString		qstring_;
 
-    BufferString		originalstring_;
-    const char* 		translationcontext_;
-    const char* 		application_;
-    const char* 		translationdisambiguation_;
-    int 			translationpluralnumber_;
+    BufferString	originalstring_;
+    const char*		translationcontext_;
+    const char*		application_;
+    const char*		translationdisambiguation_;
+    int			translationpluralnumber_;
 
-    int 			dirtycount_;
+    int			dirtycount_;
 };
 
 
@@ -103,16 +105,28 @@ void uiStringData::fillQString( QString& res,
 	return;
 
     if ( translator )
+    {
 	res = translator->translate( translationcontext_, originalstring_,
 				     translationdisambiguation_,
 				     translationpluralnumber_ );
-    else
+	mDefineStaticLocalObject(bool,dbgtransl,
+				 = GetEnvVarYN("OD_DEBUG_TRANSLATION"));
+	if ( dbgtransl )
+	{
+	    BufferString info( translationcontext_, " : " );
+	    info.add( originalstring_ ).add( " : " )
+		.add( translationdisambiguation_ ).add( " : " )
+		.add( translationpluralnumber_ ).add( " : " )
+		.add( res );
+	    od_cout() << info << od_endl;
+	}
+    }
+
+    if ( !translator || res.isEmpty() )
 	res = originalstring_;
 
     for ( int idx=0; idx<arguments_.size(); idx++ )
-    {
 	res = res.arg( arguments_[idx].getQtString() );
-    }
 }
 
 

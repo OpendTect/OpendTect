@@ -35,7 +35,7 @@ class uiAction;
 */
 
 mExpClass(uiODMain) uiODMenuMgr : public CallBacker
-{
+{mODTextTranslationClass(uiODMenuMgr)
 
     friend class	uiODMain;
     friend class	uiODHelpMenuMgr;
@@ -105,6 +105,7 @@ protected:
     uiMenu*		preloadmnu_;
     uiMenu*		helpmnu_;
     uiMenu*		settmnu_;
+    uiMenu*		langmnu_;
     uiMenu*		toolsmnu_;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;

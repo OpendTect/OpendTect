@@ -146,7 +146,7 @@ ________________________________________________________________________
 
 /* 'Processing' menu */
 
-#define mUseHorMnu       	(mProcMnu + 30)
+#define mUseHorMnu		(mProcMnu + 30)
 
 
 #define mSeisOutMnuItm		(mProcMnu + 20)
@@ -195,6 +195,7 @@ ________________________________________________________________________
 /* 'Utilities' menu */
 
 #define mUtilSettingMnu		(mUtilMnu + 100)
+#define mLanguageMnu		(mUtilMnu + 500) // until mUtilMnu+999
 
 #define mBatchProgMnuItm	(mUtilMnu + 10)
 #define mPluginsMnuItm		(mUtilMnu + 20)

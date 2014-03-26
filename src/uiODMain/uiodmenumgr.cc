@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "od_ostream.h"
 #include "survinfo.h"
+#include "texttranslator.h"
 #include "thread.h"
 
 
@@ -56,14 +57,15 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , helpmgr_(0)
     , measuretoolman_(0)
     , inviewmode_(false)
+    , langmnu_(0)
 {
-    surveymnu_ = appl_.menuBar()->addMenu( new uiMenu("&Survey") );
-    analmnu_ = appl_.menuBar()->addMenu( new uiMenu( "&Analysis" ) );
-    procmnu_ = appl_.menuBar()->addMenu( new uiMenu( "&Processing" ) );
-    scenemnu_ = appl_.menuBar()->addMenu( new uiMenu( "S&cenes" ) );
-    viewmnu_ = appl_.menuBar()->addMenu( new uiMenu( "&View" ) );
-    utilmnu_ = appl_.menuBar()->addMenu( new uiMenu( "&Utilities" ) );
-    helpmnu_ = appl_.menuBar()->addMenu( new uiMenu( "&Help" ) );
+    surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Survey")) );
+    analmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Analysis")) );
+    procmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Processing")) );
+    scenemnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("S&cenes")) );
+    viewmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&View")) );
+    utilmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Utilities")) );
+    helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Help")) );
 
     dtecttb_ = new uiToolBar( &appl_, "OpendTect tools", uiToolBar::Top );
     cointb_ = new uiToolBar( &appl_, "Graphical tools", uiToolBar::Left );
@@ -679,10 +681,35 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
+static void updateTranslateMenu( uiMenu& mnu )
+{
+    for ( int idx=0; idx<mnu.actions().size(); idx++ )
+    {
+	uiAction* itm = const_cast<uiAction*>(mnu.actions()[idx]);
+	itm->setChecked( idx==TrMgr().currentLanguage() );
+    }
+}
+
+
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = new uiMenu( &appl_, "&Settings" );
     utilmnu_->insertItem( settmnu_ );
+    if ( TrMgr().nrSupportedLanguages() > 1 )
+    {
+	langmnu_ = new uiMenu( &appl_, tr("Language") );
+	settmnu_->insertItem( langmnu_ );
+	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
+	{
+	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
+					  mCB(this,uiODMenuMgr,handleClick) );
+	    itm->setCheckable( true );
+	    langmnu_->insertItem( itm, mLanguageMnu+idx );
+	}
+
+	updateTranslateMenu( *langmnu_ );
+    }
+
     mInsertItem( settmnu_, "&Fonts ...", mSettFontsMnuItm );
     mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
@@ -1212,6 +1239,16 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    const char* scenenm = itm->text().getFullString();
 	    sceneMgr().setActiveScene( scenenm );
 	    itm->setChecked( true );
+	}
+
+	if ( id>=mLanguageMnu && id<mLanguageMnu+499 )
+	{
+	    const int langidx = id - mLanguageMnu;
+	    uiString errmsg;
+	    if ( !TrMgr().setLanguage(langidx,errmsg) )
+		uiMSG().error( errmsg );
+
+	    updateTranslateMenu( *langmnu_ );
 	}
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )

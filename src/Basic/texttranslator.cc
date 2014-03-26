@@ -41,13 +41,10 @@ public:
 
 
 const QTranslator*
-TranslatorLanguageInfo::getTranslator( const char* appl ) const
+    TranslatorLanguageInfo::getTranslator( const char* appl ) const
 {
     const int idx = applications_.indexOf( appl );
-    if ( idx>=0 )
-	return translators_[idx];
-
-    return 0;
+    return translators_.validIdx(idx) ? translators_[idx] : 0;
 }
 
 
@@ -69,11 +66,10 @@ bool TranslatorLanguageInfo::load()
 
 	const BufferString filename( applications_[idx]->buf(),
 				     filenamepostfix );
-
 	const FilePath filepath( GetLocalizationDir().fullPath(), filename );
 
 	QTranslator* trans = new QTranslator;
-	if ( trans->load( filepath.fullPath().buf() ) )
+	if ( !trans->load(filepath.fullPath().buf()) )
 	{
 	    delete trans;
 	    continue;
@@ -88,7 +84,8 @@ bool TranslatorLanguageInfo::load()
 }
 
 
-mGlobal( Basic )  TextTranslateMgr& TrMgr()
+// TextTranslateMgr
+mGlobal(Basic) TextTranslateMgr& TrMgr()
 {
     mDefineStaticLocalObject( PtrMan<TextTranslateMgr>, trmgr, = 0 );
     if ( !trmgr ) trmgr = new TextTranslateMgr();
@@ -136,7 +133,7 @@ BufferString TextTranslateMgr::getLanguageName(int idx) const
 bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 {
     idx--; //Compensate for default language
-    if ( idx==currenttranslatoridx_ )
+    if ( idx==currentlanguageidx_ )
 	return true;
 
     if ( languages_.validIdx(idx) )
@@ -150,8 +147,13 @@ bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 	    }
 	}
     }
+    else if ( idx>=0 )
+    {
+	errmsg = tr("Cannot find selected language");
+	return false;
+    }
 
-    currenttranslatoridx_ = idx;
+    currentlanguageidx_ = idx;
     dirtycount_++;
     languageChange.trigger();
 
@@ -159,11 +161,15 @@ bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 }
 
 
+int TextTranslateMgr::currentLanguage() const
+{ return currentlanguageidx_+1; }
+
+
 const QTranslator*
-TextTranslateMgr::getQTranslator( const char* application ) const
+    TextTranslateMgr::getQTranslator( const char* application ) const
 {
-    return languages_.validIdx(currenttranslatoridx_)
-	? languages_[currenttranslatoridx_]->getTranslator( application )
+    return languages_.validIdx(currentlanguageidx_)
+	? languages_[currentlanguageidx_]->getTranslator( application )
 	: 0;
 }
 
@@ -210,19 +216,18 @@ void TextTranslateMgr::loadInfo()
 	tli->applications_.add( application );
 	tli->translators_ += 0;
 
-	 if ( application==uiString::sODLocalizationApplication() )
-	 {
-	     QTranslator maintrans;
-	     if ( !maintrans.load( path.fullPath().buf() ))
-	     {
-		 tli->username_ = tli->name_;
-	     }
-	     else
-	     {
-		 tr("Language Name").translate( maintrans, tli->username_ );
-	     }
-	 }
+	if ( application==uiString::sODLocalizationApplication() )
+	{
+	    QTranslator maintrans;
+	    if ( !maintrans.load(path.fullPath().buf()) )
+	    {
+		tli->username_ = tli->name_;
+	    }
+	    else
+	    {
+		tr("Language Name").translate( maintrans, tli->username_ );
+	    }
+	}
     }
 }
-
 
