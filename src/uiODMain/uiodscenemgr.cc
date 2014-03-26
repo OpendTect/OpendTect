@@ -160,7 +160,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
 uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
-    scn.mdiwin_->closed().notify( mWSMCB(removeScene) );
+    scn.mdiwin_->closed().notify( mWSMCB(removeSceneCB) );
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
@@ -242,13 +242,13 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 	sceneClosed.trigger( scene.itemmanager_->sceneID() );
     }
 
-    scene.mdiwin_->closed().remove( mWSMCB(removeScene) );
+    scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
     scenes_ -= &scene;
     delete &scene;
 }
 
 
-void uiODSceneMgr::removeScene( CallBacker* cb )
+void uiODSceneMgr::removeSceneCB( CallBacker* cb )
 {
     mDynamicCastGet(uiGroupObj*,grp,cb)
     if ( !grp ) return;

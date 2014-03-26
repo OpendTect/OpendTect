@@ -51,7 +51,6 @@ public:
     int				addScene(bool maximized,ZAxisTransform* =0,
 					 const char* nm=0);
 				//!<Returns scene id
-    void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
     const char*			getSceneName(int sceneid) const;
     CNotifier<uiODSceneMgr,int>	sceneClosed;
@@ -194,6 +193,7 @@ protected:
     ObjectSet<Scene>		scenes_;
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
+    void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;
