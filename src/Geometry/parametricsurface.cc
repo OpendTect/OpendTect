@@ -432,7 +432,7 @@ void ParametricSurface::trimUndefParts()
     StepInterval<int> rowrng = rowRange();
     StepInterval<int> colrng = colRange();
 
-    int prev;
+    int prev = mUdf(int);
     mRemovePart( row, start, +=, col, removeRow );
     mRemovePart( row, stop,  -=, col, removeRow );
     mRemovePart( col, start, +=, row, removeCol );
