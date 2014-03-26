@@ -275,7 +275,7 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 	+ 2*x12*r12 + 2*x13*r13 + 2*x23*r23
 	- 2*x12*r13*r23 - 2*x13*r12*r23 - 2*x23*r12*r13;
     const float discr = 1 + 2*r12*r13*r23 - r12sq - r13sq - r23sq;
-    const float gfac = 1.0f / (M_PI * Math::Sqrt( 8 * M_PI * discr ));
+    const float gfac = (float)(1 / (M_PI * Math::Sqrt( 8 * M_PI * discr )));
 
     return gfac * (discr ? Math::Exp( dividend / discr ) : 1.0f);
 }
