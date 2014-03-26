@@ -74,7 +74,7 @@ template <class T>
 inline T linear1D( float x0, T v0, float x1, T v1, float x )
 {
     return v0 + (x-x0) * (v1-v0) / (x1-x0);
-} 
+}
 
 /*!> Same as above, use when iT is from int family */
 template <class iT>
@@ -82,7 +82,7 @@ inline iT linear1Di( float x0, iT v0, float x1, iT v1, float x )
 {
     const float tmp = v0 + (x-x0) * (v1-v0) / (x1-x0);
     return mRounded( iT, tmp );
-} 
+}
 
 
 
@@ -93,7 +93,10 @@ mClass(Algo) PolyReg1D
 {
 public:
 
-PolyReg1D() {}
+PolyReg1D()
+{
+    set( 0, 0, 0, 0 );
+}
 
 PolyReg1D( const T* v )
 {
@@ -198,7 +201,7 @@ template <class T>
 inline T parabolic1D( float x0, T v0, float x1, T v1, float x2, T v2, float x )
 {
     float xx0 = x - x0, xx1 = x-x1, xx2 = x-x2;
-    return 	v0 * xx1 * xx2 / ((x0 - x1) * (x0 - x2)) +
+    return	v0 * xx1 * xx2 / ((x0 - x1) * (x0 - x2)) +
 		v1 * xx0 * xx2 / ((x1 - x0) * (x1 - x2)) +
 		v2 * xx0 * xx1 / ((x2 - x0) * (x2 - x1));
 }
@@ -211,11 +214,11 @@ inline T parabolic1D( float x0, T v0, float x1, T v1, float x2, T v2, float x )
 */
 
 template <class T>
-inline T poly1D( float x0, T v0, float x1, T v1, float x2, T v2, 
+inline T poly1D( float x0, T v0, float x1, T v1, float x2, T v2,
 		 float x3, T v3, float x )
 {
     float xx0 = x - x0, xx1 = x-x1, xx2 = x-x2, xx3 = x-x3;
-    return 	v0 * xx1 * xx2 * xx3 / ((x0 - x1) * (x0 - x2) * (x0 - x3)) +
+    return	v0 * xx1 * xx2 * xx3 / ((x0 - x1) * (x0 - x2) * (x0 - x3)) +
 		v1 * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
 		v2 * xx0 * xx1 * xx3 / ((x2 - x0) * (x2 - x1) * (x2 - x3)) +
 		v3 * xx0 * xx1 * xx2 / ((x3 - x0) * (x3 - x1) * (x3 - x2));
