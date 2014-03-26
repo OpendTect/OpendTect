@@ -709,7 +709,7 @@ void uiODMenuMgr::fillUtilMenu()
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    mInsertItem( instmgrmnu, "Installation &Manager ...",
+	    mInsertItem( instmgrmnu, "OpendTect Installation &Manager ...",
 			 mInstMgrMnuItem );
 	if ( !aitfixed )
 	    mInsertItem( instmgrmnu, "&Auto-update policy ...",
