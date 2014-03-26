@@ -523,7 +523,8 @@ void PluginManager::loadAuto( bool late )
 
 	data.isloaded_ = true;
 
-	bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
+	mDefineStaticLocalObject(bool,shw_load,
+				 = GetEnvVarYN("OD_SHOW_PLUGIN_LOAD"))
 	if ( shw_load )
 	{
 	    BufferString msg;
