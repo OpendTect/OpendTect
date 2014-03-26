@@ -47,6 +47,7 @@ SET(OD_MODULE_SOURCES
 	    uiposfiltgroup.cc
 	    uiposprovider.cc
 	    uiposprovgroup.cc
+	    uiprobdenfuncgen.cc
 	    uiprobdenfuncman.cc
 	    uiprobdenfunvarsel.cc
 	    uisetdatadir.cc

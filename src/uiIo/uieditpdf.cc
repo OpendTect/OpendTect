@@ -61,7 +61,8 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	setCtrlStyle( uiDialog::CloseOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
-    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
+    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(),
+					nrdims_ < 2 ? "Name" : "Names" );
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	BufferString txt;
@@ -81,7 +82,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     if ( !andpdf || nrdims_ > 3 )
 	return;
 
-    uiGroup* grp = new uiGroup( tabstack_->tabGroup(), "Values group" );
+    uiGroup* grp = new uiGroup( tabstack_->tabGroup(), "Values" );
     mkTable( grp );
     tabstack_->addTab( grp, "Values" );
     tabstack_->selChange().notify( mCB(this,uiEditProbDenFunc,tabChg) );
