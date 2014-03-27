@@ -152,6 +152,7 @@ public:
     static void			requestSingleRedraw();
 
     static void			setCommonViewer(osgViewer::CompositeViewer*);
+    static osgViewer::CompositeViewer* getCommonViewer();
 
 protected:
 

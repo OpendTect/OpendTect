@@ -119,14 +119,16 @@ public:
 
 
 
+
 protected:
     void				setupTouch();
     void				setupHUD();
     void				setupView();
     void				qtEventCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
-
     static osgViewer::CompositeViewer*	getCompositeViewer();
+
+
     virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
 
@@ -150,7 +152,7 @@ protected:
     RefMan<visBase::ThumbWheel>				horthumbwheel_;
     RefMan<visBase::ThumbWheel>				verthumbwheel_;
     RefMan<visBase::ThumbWheel>				distancethumbwheel_;
-    osg::Group*						sceneroot_;
+    osg::Switch*					offscreenrenderswitch_;
     osgViewer::CompositeViewer*				compositeviewer_;
     osgViewer::View*					view_;
     osg::Viewport*					viewport_;

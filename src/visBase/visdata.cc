@@ -320,6 +320,12 @@ void DataObject::setCommonViewer( osgViewer::CompositeViewer* nv )
 }
 
 
+osgViewer::CompositeViewer* DataObject::getCommonViewer()
+{
+    return commonviewer_;
+}
+
+
 void DataObject::requestSingleRedraw()
 {
     if ( commonviewer_ && commonviewer_->getNumViews() )

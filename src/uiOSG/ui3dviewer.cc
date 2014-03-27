@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/TrackballManipulator>
 #include <osg/MatrixTransform>
 #include <osgGeo/ThumbWheel>
+#include <osg/Version>
 
 
 #include "envvars.h"
@@ -183,7 +184,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody( parnt, 0 )
     , handle_( h )
     , printpar_(*new IOPar)
-    , sceneroot_( new osg::Group )
+    , offscreenrenderswitch_( new osg::Switch )
     , hudview_( 0 )
     , hudscene_( 0 )
     , viewport_( new osg::Viewport )
@@ -195,7 +196,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , setinitialcamerapos_( true )
 {
     manipmessenger_->ref();
-    sceneroot_->ref();
+    offscreenrenderswitch_->ref();
     viewport_->ref();
     eventfilter_.addEventType( uiEventFilter::KeyPress );
     eventfilter_.addEventType( uiEventFilter::Resize );
@@ -220,7 +221,7 @@ ui3DViewerBody::~ui3DViewerBody()
 	compositeviewer_->unref();
     }
     viewport_->unref();
-    sceneroot_->unref();
+    offscreenrenderswitch_->unref();
     detachAllNotifiers();
 }
 
@@ -257,7 +258,6 @@ void ui3DViewerBody::setupHUD()
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
-        compositeviewer_->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
 	compositeviewer_->ref();
     }
 
@@ -329,7 +329,7 @@ void ui3DViewerBody::setupView()
 
     view_ = new osgViewer::View;
     view_->setCamera( osgcamera );
-    view_->setSceneData( sceneroot_ );
+    view_->setSceneData( offscreenrenderswitch_ );
     view_->addEventHandler( new osgViewer::StatsHandler );
 
     // Unlike Coin, default OSG headlight has zero ambiance
@@ -393,6 +393,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 	viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
 	viewer->getEventVisitor()->setTraversalMask(
 					visBase::cEventTraversalMask() );
+	viewer->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
 	viewer->setKeyEventSetsDone( 0 );
 	osgQt::setViewer( viewer.get() );
         visBase::DataObject::setCommonViewer( viewer );
@@ -413,6 +414,7 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
     return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
 }
 
+#if OSG_VERSION_LESS_THAN(3,3,0)
 
 osgGA::GUIEventAdapter::TouchPhase
     translateQtGestureState( Qt::GestureState state )
@@ -438,6 +440,7 @@ osgGA::GUIEventAdapter::TouchPhase
 }
 
 
+
 void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
 {
     bool accept = false;
@@ -445,18 +448,20 @@ void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
     if ( QPinchGesture* pinch =
 	    static_cast<QPinchGesture *>(qevent->gesture(Qt::PinchGesture) ) )
     {
-	const QPointF qcenter = pinch->centerPoint();
-	const osg::Vec2 center( qcenter.x(), qcenter.y() );
-	const float angle = pinch->rotationAngle();
-	const float scale = pinch->scaleFactor();
+	const QPointF qcenterf = pinch->centerPoint();
+	const QPoint pinchcenter = qwidget()->mapFromGlobal(qcenterf.toPoint());
+	const osg::Vec2 osgcenter( pinchcenter.x(), 
+	    qwidget()->height() - pinchcenter.y() );
+	const float angle = pinch->totalRotationAngle();
+	const float scale = pinch->totalScaleFactor();
 
 	//We don't have absolute positions of the two touches, only a scale and
 	//rotation. Hence we create pseudo-coordinates which are reasonable, and
 	//centered around the real position
 	const float radius = (qwidget()->width()+qwidget()->height())/4;
 	const osg::Vec2 vector(scale*cos(angle)*radius,scale*sin(angle)*radius);
-	const osg::Vec2 p0 = center+vector;
-	const osg::Vec2 p1 = center-vector;
+	const osg::Vec2 p0 = osgcenter+vector;
+	const osg::Vec2 p1 = osgcenter-vector;
 
 	osg::ref_ptr<osgGA::GUIEventAdapter> event = 0;
 	const osgGA::GUIEventAdapter::TouchPhase touchPhase =
@@ -488,6 +493,7 @@ void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
 	qevent->accept();
 }
 
+#endif // Qtgesture
 
 #define mLongSideDistance	15
 #define mShortSideDistance	40
@@ -591,14 +597,15 @@ visBase::SceneColTab* ui3DViewerBody::getSceneColTab() const
 
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
+#if OSG_VERSION_LESS_THAN(3,3,0)
     if ( eventfilter_.getCurrentEventType()==
 	uiEventFilter::Gesture )
     {
 	QGestureEvent* gestureevent =
 	    static_cast<QGestureEvent*> ( eventfilter_.getCurrentEvent() );
-
 	handleGestureEvent( gestureevent );
     }
+#endif
 
     if ( eventfilter_.getCurrentEventType()==
 	uiEventFilter::Show && setinitialcamerapos_ )
@@ -709,7 +716,9 @@ void ui3DViewerBody::setSceneID( int sceneid )
     mDynamicCastGet(visBase::Scene*,newscene,obj)
     if ( !newscene ) return;
 
-    sceneroot_->addChild( newscene->osgNode() );
+    offscreenrenderswitch_->removeChildren(0,
+			    offscreenrenderswitch_->getNumChildren());
+    offscreenrenderswitch_->addChild( newscene->osgNode() );
     scene_ = newscene;
 
     if ( camera_ ) newscene->setCamera( camera_ );
