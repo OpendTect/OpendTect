@@ -68,7 +68,6 @@ public:
 			}
     };
 
-			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
 			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiSeisSel();
 
@@ -88,8 +87,6 @@ public:
     virtual bool	existingTyped() const;
     virtual void	updateInput();
 
-    static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
-				//!< returns new default CtxtIOObj
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
     static void		fillContext(Seis::GeomType,bool forread,IOObjContext&);
 
@@ -113,6 +110,14 @@ protected:
     void		mkOthDomBox();
 
     virtual const char* getDefaultKey(Seis::GeomType) const;
+
+public:
+
+/*! The following functions are deprecated and should not be used anymore. */
+
+			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
+
+    static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
 };
 
 
