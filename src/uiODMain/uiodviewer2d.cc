@@ -535,8 +535,10 @@ void uiODViewer2D::usePar( const IOPar& iop )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	ConstDataPackRef<Attrib::Flat3DDataPack> dp3d = vwr.obtainPack(iswva);
-	if ( dp3d ) setPos( cs );
+	ConstDataPackRef<DataPack> dp = vwr.obtainPack(iswva);
+	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr());
+	if ( dp3d || zatdp3d ) setPos( cs );
     }
 
     datamgr_->usePar( iop, viewwin(), dataEditor() );
@@ -599,10 +601,12 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 
     const BinID bid = SI().transform( info.surveypos_.coord() );
     FlatView::Point& pt = marker_->poly_[0];
+    const double z = !hasZAxisTransform() ? info.surveypos_.z
+			: datatransform_->transform(info.surveypos_);
     if ( cs_.defaultDir() == CubeSampling::Inl )
-	pt = FlatView::Point( bid.crl(), info.surveypos_.z );
+	pt = FlatView::Point( bid.crl(), z );
     else if ( cs_.defaultDir() == CubeSampling::Crl )
-	pt = FlatView::Point( bid.inl(), info.surveypos_.z );
+	pt = FlatView::Point( bid.inl(), z );
     else
 	pt = FlatView::Point( bid.inl(), bid.crl() );
 
