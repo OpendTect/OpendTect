@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sampledprobdenfunc.h"
 #include "gaussianprobdenfunc.h"
 #include "probdenfunctr.h"
+#include "statruncalc.h"
 
 static const float cMaxCC = 1.0f - 1e-6f;
 static const float cMaxProbVal = 100.0f;
@@ -251,83 +252,100 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 // Note that a Sampled PDF's SD starts at the center of a bin
 // Thus, to get user's range, we need to start and stop half a step inward
 #define mSetSD( sd, rg ) \
-	ret->sd.step = (rg.stop-rg.start) / nrbins_; \
-	ret->sd.start = rg.start + ret->sd.step / 2
+	spdf->sd.step = (rg.stop-rg.start) / nrbins_; \
+	spdf->sd.start = rg.start + spdf->sd.step / 2
 
 
 ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 {
+    Stats::CalcSetup csu; csu.require( Stats::Max );
+    Stats::RunCalc<float> rc( csu );
+    ProbDenFunc* ret = 0;
     if ( nrdims_ == 1 )
     {
-	Gaussian1DProbDenFunc pdf( exps_[0], stds_[0] );
-	Sampled1DProbDenFunc* ret = new Sampled1DProbDenFunc;
-	ret->bins_.setSize( nrbins_ );
+	Gaussian1DProbDenFunc gpdf( exps_[0], stds_[0] );
+	Sampled1DProbDenFunc* spdf = new Sampled1DProbDenFunc;
+	spdf->bins_.setSize( nrbins_ );
 	mSetSD( sd_, rgs_[0] );
 	for ( int idx=0; idx<nrbins_; idx++ )
 	{
-	    const float pos = ret->sd_.atIndex( idx );
-	    ret->bins_.set( idx, pdf.value(pos) );
+	    const float pos = spdf->sd_.atIndex( idx );
+	    const float val = gpdf.value( pos );
+	    spdf->bins_.set( idx, val );
+	    rc.addValue( val );
 	}
-	ret->setDimName( 0, dimnms_.get(0) );
-	return ret;
+	spdf->setDimName( 0, dimnms_.get(0) );
+	ret = spdf;
     }
     else if ( nrdims_ == 2 )
     {
-	Gaussian2DProbDenFunc pdf;
-	pdf.exp0_ = exps_[0]; pdf.std0_ = stds_[0];
-	pdf.exp1_ = exps_[1]; pdf.std1_ = stds_[1];
-	pdf.cc_ = ccs_[0];
+	Gaussian2DProbDenFunc gpdf;
+	gpdf.exp0_ = exps_[0]; gpdf.std0_ = stds_[0];
+	gpdf.exp1_ = exps_[1]; gpdf.std1_ = stds_[1];
+	gpdf.cc_ = ccs_[0];
 
-	Sampled2DProbDenFunc* ret = new Sampled2DProbDenFunc;
-	ret->bins_.setSize( nrbins_, nrbins_ );
+	Sampled2DProbDenFunc* spdf = new Sampled2DProbDenFunc;
+	spdf->bins_.setSize( nrbins_, nrbins_ );
 	mSetSD( sd0_, rgs_[0] );
 	mSetSD( sd1_, rgs_[1] );
 	for ( int i0=0; i0<nrbins_; i0++ )
 	{
-	    const float p0 = ret->sd0_.atIndex( i0 );
+	    const float p0 = spdf->sd0_.atIndex( i0 );
 	    for ( int i1=0; i1<nrbins_; i1++ )
 	    {
-		const float p1 = ret->sd1_.atIndex( i1 );
-		ret->bins_.set( i0, i1, pdf.value(p0,p1) );
+		const float p1 = spdf->sd1_.atIndex( i1 );
+		const float val = gpdf.value( p0, p1 );
+		spdf->bins_.set( i0, i1, val );
+		rc.addValue( val );
 	    }
 	}
-	ret->setDimName( 0, dimnms_.get(0) );
-	ret->setDimName( 1, dimnms_.get(1) );
-	return ret;
+	spdf->setDimName( 0, dimnms_.get(0) );
+	spdf->setDimName( 1, dimnms_.get(1) );
+	ret = spdf;
     }
-
-    GaussianNDProbDenFunc pdf( 3 );
-    for ( int idim=0; idim<nrdims_; idim++ )
-	pdf.vars_[idim] = GaussianNDProbDenFunc::VarDef( dimnms_.get(idim),
-					    exps_[idim], stds_[idim] );
-    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 1, ccs_[0] );
-    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 2, ccs_[1] );
-    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 1, 2, ccs_[2] );
-
-    SampledNDProbDenFunc* ret = new SampledNDProbDenFunc( 3 );
-    const TypeSet<int> szs( 3, nrbins_ );
-    ret->bins_.setSize( szs.arr() );
-    mSetSD( sds_[0], rgs_[0] );
-    mSetSD( sds_[1], rgs_[1] );
-    mSetSD( sds_[2], rgs_[2] );
-
-    TypeSet<float> poss( 3, 0.0f );
-    TypeSet<int> idxs( 3, 0 );
-    for ( idxs[0]=0; idxs[0]<nrbins_; idxs[0]++ )
+    else
     {
-	poss[0] = ret->sds_[0].atIndex( idxs[0] );
-	for ( idxs[1]=0; idxs[1]<nrbins_; idxs[1]++ )
+	GaussianNDProbDenFunc gpdf( 3 );
+	for ( int idim=0; idim<nrdims_; idim++ )
+	    gpdf.vars_[idim] = GaussianNDProbDenFunc::VarDef( dimnms_.get(idim),
+						exps_[idim], stds_[idim] );
+	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 1, ccs_[0] );
+	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 2, ccs_[1] );
+	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 1, 2, ccs_[2] );
+
+	SampledNDProbDenFunc* spdf = new SampledNDProbDenFunc( 3 );
+	const TypeSet<int> szs( 3, nrbins_ );
+	spdf->bins_.setSize( szs.arr() );
+	mSetSD( sds_[0], rgs_[0] );
+	mSetSD( sds_[1], rgs_[1] );
+	mSetSD( sds_[2], rgs_[2] );
+
+	TypeSet<float> poss( 3, 0.0f );
+	TypeSet<int> idxs( 3, 0 );
+	for ( idxs[0]=0; idxs[0]<nrbins_; idxs[0]++ )
 	{
-	    poss[1] = ret->sds_[1].atIndex( idxs[1] );
-	    for ( idxs[2]=0; idxs[2]<nrbins_; idxs[2]++ )
+	    poss[0] = spdf->sds_[0].atIndex( idxs[0] );
+	    for ( idxs[1]=0; idxs[1]<nrbins_; idxs[1]++ )
 	    {
-		poss[2] = ret->sds_[2].atIndex( idxs[2] );
-		ret->bins_.setND( idxs.arr(), pdf.value(poss) );
+		poss[1] = spdf->sds_[1].atIndex( idxs[1] );
+		for ( idxs[2]=0; idxs[2]<nrbins_; idxs[2]++ )
+		{
+		    poss[2] = spdf->sds_[2].atIndex( idxs[2] );
+		    const float val = gpdf.value( poss );
+		    spdf->bins_.setND( idxs.arr(), val );
+		    rc.addValue( val );
+		}
 	    }
 	}
+
+	spdf->dimnms_ = dimnms_;
+	ret = spdf;
     }
 
-    ret->dimnms_ = dimnms_;
+    const float maxval = rc.max();
+    if ( maxval )
+	ret->scale( cMaxProbVal / maxval );
+
     return ret;
 }
 
