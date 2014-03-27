@@ -33,9 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/TiledOffScreenRenderer>
 
 
-static bool prevsavestate = true;
-
-
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
