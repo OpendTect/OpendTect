@@ -543,17 +543,19 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     const bool remote = !machine.isKnownAs( HostData::localHostName() );
 
     cmd = "@";
+    
+    
 
 #ifdef __msvc__
 // Do not use od_remexe if host is local
-    BufferString remhostaddress = System::hostAddress( machine.name() );
+    const BufferString remhostaddress = machine.address();
     if ( remhostaddress != System::localAddress() )
     {
 	cmd.add( "od_remexec" );
-	cmd.add( machine.name() );
+	cmd.add( machine.address() );
     }
     cmd.add( progname );
-    cmd.addFlag( "-masterhost", GetLocalIP() );
+    cmd.addFlag( "-masterhost", System::localAddress() );
     cmd.addFlag( "-masterport", iohdlr_.port() );
     cmd.addFlag( "-jobid", ji.descnr_ );
     FilePath parfp( iopfp );
@@ -564,7 +566,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     if ( remote )
     {
-	cmd.add( machine.name() );
+	cmd.add( machine.address() );
 	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
 	if ( machine.isWin()  ) cmd.add( "--iswin" );
 
@@ -592,7 +594,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     cmd.addFlag( "--nice", niceval_ );
     cmd.addFlag( "--inbg", progname );
-    cmd.addFlag( "-masterhost", HostData::localHostName() );
+    cmd.addFlag( "-masterhost", System::localAddress() );
     cmd.addFlag( "-masterport", iohdlr_.port() );
     cmd.addFlag( "-jobid", ji.descnr_ );
 

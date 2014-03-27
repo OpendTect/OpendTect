@@ -59,6 +59,7 @@ public:
     virtual		~HostData()	{ deepErase(aliases_); }
 
     const char*		name() const	{ return (const char*)name_; }
+    const char*		address() const {  return GetIPFromHostName( name() ); }
     const char*		pass() const	{ mRetNoneIfEmpty(pass_) }
 
     int			nrAliases() const
