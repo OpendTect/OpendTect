@@ -205,7 +205,7 @@ bool DataObject::isOn() const
 
 void DataObject::setPickable( bool actively, bool passively )
 {
-    enableTraversal( cDraggerIntersecTraversalMask(), actively || passively );
+    enableTraversal( cDraggerIntersecTraversalMask(), actively );
     enableTraversal( cActiveIntersecTraversalMask(), actively );
     enableTraversal( cPassiveIntersecTraversalMask(), passively );
 }

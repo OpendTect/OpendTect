@@ -1109,6 +1109,7 @@ void uiVisPartServer::turnSelectionModeOn( bool yn )
 		   : (int) visBase::PolygonSelection::Rectangle; // Dummy
 
     setSelectionMode( selectionmode_ );
+    updateDraggers();
 }
 
 
@@ -1200,6 +1201,10 @@ void uiVisPartServer::updateDraggers()
     for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
     {
 	visSurvey::Scene* scene = scenes_[sceneidx];
+
+	scene->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
+				scene->isPickable() &&
+				seltype_==(int)visBase::PolygonSelection::Off );
 
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
