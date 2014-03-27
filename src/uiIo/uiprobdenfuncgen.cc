@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gaussianprobdenfunc.h"
 #include "probdenfunctr.h"
 
-static const float sqrt2pi = Math::Sqrt(2*M_PIf);
+static const float cMaxCC = 1.0f - 1e-6f;
 static const float cMaxProbVal = 100.0f;
 
 
@@ -34,32 +34,25 @@ public:
 			uiProbDenFuncGenSampled(uiParent*,int nrdim,bool gauss,
 						MultiID&);
 
-    uiSpinBox*		nrnodesfld_;
+    uiSpinBox*		nrbinsfld_;
     ObjectSet<uiGenInput> nmflds_;
     ObjectSet<uiGenInput> rgflds_;
     ObjectSet<uiGenInput> expstdflds_;
-    uiGenInput*		dir01fld_;
-    uiGenInput*		dir02fld_;
-    uiGenInput*		dir12fld_;
+    ObjectSet<uiGenInput> ccflds_;
     uiIOObjSel*		outfld_;
 
-    const int		nrdims_;
-    TypeSet<float>	sigmas_;
-    TypeSet<float>	mus_;
-    int			nrnodes_;
-    TypeSet<StepInterval<float> > ranges_;
     MultiID&		ioobjky_;
+    const int		nrdims_;
+    int			nrbins_;
+    TypeSet<Interval<float> > rgs_;
+    TypeSet<float>	exps_;
+    TypeSet<float>	stds_;
+    TypeSet<float>	ccs_;
+    BufferStringSet	dimnms_;
 
     inline bool		isGauss() const	{ return !expstdflds_.isEmpty(); }
-    bool		chkInputFields();
-    void		readInput();
-    ProbDenFunc*	calcPDF1D() const;
-    ProbDenFunc*	calcPDF2D() const;
-    ProbDenFunc*	calcPDF3D() const;
-    bool		savePDF(const ProbDenFunc&) const;
-    float		calcGaussian1D(float) const;
-    float		calcGaussian2D(float,float) const;
-    float		calcGaussian3D(float,float,float) const;
+    bool		getFromScreen();
+    ProbDenFunc*	getPDF() const;
 
     bool		acceptOK(CallBacker*);
     void		chgCB(CallBacker*);
@@ -131,9 +124,6 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     : uiDialog(p,Setup("Generate editable PDF",mNoDlgTitle,mTODOHelpKey))
     , nrdims_(nrdim)
     , ioobjky_(ky)
-    , dir01fld_(0)
-    , dir02fld_(0)
-    , dir12fld_(0)
 {
     for ( int idx=0; idx<nrdims_; idx++ )
     {
@@ -148,10 +138,10 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     }
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-	    nrdims_ == 1 ? "Number of cells" : "Number of cells per dimension");
-    nrnodesfld_ = lsb->box();
-    nrnodesfld_->setInterval( 3, 10000, 1 );
-    nrnodesfld_->setValue( 25 );
+	    nrdims_ == 1 ? "Number of bins" : "Number of bins per dimension");
+    nrbinsfld_ = lsb->box();
+    nrbinsfld_->setInterval( 3, 10000, 1 );
+    nrbinsfld_->setValue( 25 );
     lsb->attach( alignedBelow, nmflds_[nmflds_.size()-1] );
 
     uiGroup* alfld = lsb;
@@ -169,23 +159,21 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 	    alfld = expstdfld;
 	}
 
+#define	mMkCorrFld(s,pos,att) \
+	fld = new uiGenInput( this, s, FloatInpSpec(0) ); \
+	fld->setElemSzPol( uiObject::Small ); \
+	fld->attach( pos, att ); \
+	ccflds_ += fld;
 	if ( nrdims_ > 1 )
 	{
-	    dir01fld_ = new uiGenInput( this, "Angle (deg) Dim 1 -> Dim 2",
-					FloatInpSpec(0) );
-	    dir01fld_->setElemSzPol( uiObject::Small );
-	    dir01fld_->attach( rightOf, expstdflds_[1] );
-	}
-	if ( nrdims_ == 3 )
-	{
-	    dir02fld_ = new uiGenInput( this, "Angle Dim 1 -> 3",
-					FloatInpSpec(0) );
-	    dir02fld_->attach( alignedBelow, dir01fld_ );
-	    dir02fld_->setElemSzPol( uiObject::Small );
-	    dir12fld_ = new uiGenInput( this, "Angle Dim 2 -> 3",
-						FloatInpSpec(0) );
-	    dir12fld_->attach( rightOf, dir02fld_ );
-	    dir12fld_->setElemSzPol( uiObject::Small );
+	    uiGenInput* fld;
+	    mMkCorrFld( nrdims_ == 2 ? "Correlation" : "Correlation 1 -> 2",
+			rightOf, expstdflds_[1] );
+	    if ( nrdims_ > 2 )
+	    {
+		mMkCorrFld( "Correlation 1 -> 3", alignedBelow, ccflds_[0] );
+		mMkCorrFld( "Correlation 2 -> 3", rightOf, ccflds_[1] );
+	    }
 	}
     }
 
@@ -200,213 +188,163 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 }
 
 
-#define mErrRet(s1,s2) { uiMSG().error(s1,s2); return false; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiProbDenFuncGenSampled::chkInputFields()
-{
-    for ( int idx=0; idx<nrdims_ ; idx++  )
-    {
-	Interval<float> range( rgflds_[idx]->getfValue(0),
-			       rgflds_[idx]->getfValue(1) );
-	if ( nmflds_[idx]->isUndef() )
-		mErrRet( "Please enter a name for Dimension ",
-			 toString(idx+1) );
-	if ( rgflds_[idx]->isUndef(0) || rgflds_[idx]->isUndef(1) )
-		mErrRet( "Please enter a valid range for Dimension ",
-			 toString(idx+1) );
-	if ( range.start > range.stop )
-		mErrRet( "Range start is greater than range stop in Dimension ",
-			 toString(idx+1) );
-	if ( isGauss() )
-	{
-	    if ( expstdflds_[idx]->isUndef(0)  )
-		mErrRet( "Please provide an Expected value for Dimension ",
-			 toString(idx+1) );
-	    if ( expstdflds_[idx]->isUndef(1) )
-		mErrRet( "Please provide a Standard Deviation for Dimension ",
-			 toString(idx+1) );
-	}
-    }
-
-    return true;
+#define mGetCCValue(ifld) \
+{ \
+    float cc = ccflds_[ifld]->getfValue(); \
+    if ( mIsUdf(cc) ) cc = 0; \
+    if ( cc < -cMaxCC || cc > cMaxCC ) \
+	mErrRet( BufferString("Correlation coefficients should be " \
+		    "in range <-1,1>.\nMaximum correlation is", cMaxCC ) ) \
+    ccs_ += cc; \
 }
 
 
-bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
+bool uiProbDenFuncGenSampled::getFromScreen()
 {
-    if ( !chkInputFields() )
+    nrbins_= nrbinsfld_->getValue();
+    od_int64 totalbins = nrbins_;
+    totalbins = Math::IntPowerOf( totalbins, nrdims_ );
+    if ( totalbins > 100000
+      && !uiMSG().askGoOn(BufferString("You have requested a total of ",
+	      totalbins, " bins.\nAre you sure this is what you want?")) )
 	return false;
-    readInput();
-    bool ret = false;
-    switch ( nrdims_ )
+
+    dimnms_.setEmpty(); rgs_.setEmpty();
+    exps_.setEmpty(); stds_.setEmpty(); ccs_.setEmpty();
+    for ( int idim=0; idim<nrdims_; idim++ )
     {
-	case 1 : ret = savePDF( *calcPDF1D() ); break;
-	case 2 : ret = savePDF( *calcPDF2D() ); break;
-	case 3 : ret = savePDF( *calcPDF3D() ); break;
+	dimnms_.add( nmflds_[idim]->text() );
+	if ( dimnms_.get(idim).isEmpty() )
+	    mErrRet( "Please enter a name for each variable" )
+
+	float exp = expstdflds_[idim]->getfValue(0);
+	float stdev = expstdflds_[idim]->getfValue(1);
+	if ( mIsUdf(exp) || mIsUdf(stdev) )
+	    mErrRet( "Please fill all expectations and standard deviations" )
+	exps_ += exp; stds_ += stdev;
+
+	Interval<float> rg;
+	rg.start = rgflds_[idim]->getfValue(0);
+	rg.stop = rgflds_[idim]->getfValue(1);
+	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	    mErrRet( "Please fill all variable ranges" )
+	rg.sort();
+	rgs_ += rg;
+
+	if ( idim == 1 )
+	    mGetCCValue( 0 )
+	if ( idim == 2 )
+	    { mGetCCValue( 1 ) mGetCCValue( 2 ) }
     }
 
-    return ret;
-}
-
-
-ProbDenFunc* uiProbDenFuncGenSampled::calcPDF1D() const
-{
-    float val = cMaxProbVal;
-    Array1DImpl<float> arr( nrnodes_ );
-    if ( !isGauss() )
-	arr.setAll( val );
-    else
-    {
-	const float scalefactor = cMaxProbVal / calcGaussian1D(mus_[0]);
-	for ( int idx=0; idx<nrnodes_; idx++ )
-	{
-	    const float xval = ranges_[0].start + idx * ranges_[0].step;
-	    arr.set( idx, scalefactor * calcGaussian1D(xval) );
-	}
-    }
-
-    Sampled1DProbDenFunc* pdf = new Sampled1DProbDenFunc( arr );
-    pdf->sd_.start = ranges_[0].start; pdf->sd_.step = ranges_[0].step;
-    pdf->setDimName( 0, nmflds_[0]->text() );
-    return pdf ;
-}
-
-
-ProbDenFunc* uiProbDenFuncGenSampled::calcPDF2D() const
-{
-    const float val = cMaxProbVal;
-    Array2DImpl<float> arr( nrnodes_, nrnodes_ );
-    if ( !isGauss() )
-	arr.setAll( val );
-    else
-    {
-	float scalefactor = cMaxProbVal / calcGaussian2D( mus_[0], mus_[1] );
-	for ( int idx=0; idx<nrnodes_; idx++ )
-	{
-	    const float xval = ranges_[0].start + idx * ranges_[0].step;
-	    for ( int idy=0; idy<nrnodes_; idy++ )
-	    {
-		const float yval = ranges_[1].start + idy * ranges_[1].step;
-		arr.set( idx, idy, scalefactor * calcGaussian2D(xval,yval) );
-	    }
-	}
-    }
-
-    Sampled2DProbDenFunc* pdf = new Sampled2DProbDenFunc( arr );
-    pdf->sd0_.start = ranges_[0].start; pdf->sd0_.step = ranges_[0].step;
-    pdf->sd1_.start = ranges_[1].start; pdf->sd1_.step = ranges_[1].step;
-    pdf->setDimName( 0, nmflds_[0]->text() );
-    pdf->setDimName( 1, nmflds_[1]->text() );
-    return pdf;
-}
-
-
-ProbDenFunc* uiProbDenFuncGenSampled::calcPDF3D() const
-{
-    const float val = cMaxProbVal;
-    Array3DImpl<float> arr( nrnodes_, nrnodes_, nrnodes_ );
-    if ( !isGauss() )
-	arr.setAll( val );
-    else
-    {
-	float scalefactor = cMaxProbVal / calcGaussian3D( mus_[0], mus_[1],
-								    mus_[2] );
-	for ( int idx=0; idx<nrnodes_; idx++ )
-	{
-	    const float xval = ranges_[0].start + idx * ranges_[0].step;
-	    for ( int idy=0; idy<nrnodes_; idy++ )
-	    {
-		const float yval = ranges_[1].start + idy * ranges_[1].step;
-		for ( int idz=0; idz<nrnodes_; idz++ )
-		{
-		    const float zval = ranges_[2].start + idz * ranges_[2].step;
-		    arr.set( idx, idy, idz,
-				scalefactor * calcGaussian3D(xval,yval,zval) );
-		}
-	    }
-	}
-    }
-
-    SampledNDProbDenFunc* pdf = new SampledNDProbDenFunc( arr );
-    pdf->sds_[0].start = ranges_[0].start; pdf->sds_[0].step = ranges_[0].step;
-    pdf->sds_[1].start = ranges_[1].start; pdf->sds_[1].step = ranges_[1].step;
-    pdf->sds_[2].start = ranges_[2].start; pdf->sds_[2].step = ranges_[2].step;
-    pdf->setDimName( 0, nmflds_[0]->text() );
-    pdf->setDimName( 1, nmflds_[1]->text() );
-    pdf->setDimName( 2, nmflds_[2]->text() );
-    return pdf;
-}
-
-
-float uiProbDenFuncGenSampled::calcGaussian1D( float x ) const
-{
-    float res = exp( - ( pow(x-mus_[0],2) / (2*pow(sigmas_[0],2)) ) )
-		/ ( sqrt2pi*pow (sigmas_[0],2) );
-    return res;
-}
-
-
-float uiProbDenFuncGenSampled::calcGaussian2D( float x, float y ) const
-{
-    float ang01 = 0;
-    if ( !dir01fld_->isUndef() )
-	ang01 = dir01fld_->getfValue()*3.14f/180;
-
-    float val1 = (  ((cos(ang01)*cos(ang01))/ (2*sigmas_[0]*sigmas_[0])) +
-                ((sin(ang01)*sin(ang01))/(2*sigmas_[1]*sigmas_[1])) );
-
-    float val2 = ( -(sin(2*ang01)/(4*sigmas_[0]*sigmas_[0])) +
-		    ( sin(2*ang01)/(4*sigmas_[1]*sigmas_[1])) );
-
-    float val3 = ( ((cos(ang01)*cos(ang01))/ (2*sigmas_[1]*sigmas_[1])) +
-                 ((sin(ang01)*sin(ang01))/(2*sigmas_[0]*sigmas_[0])) );
-
-    return exp( -(pow(val1*(x-mus_[0]),2) + 2*val2*(x-mus_[0])*(y-mus_[1])
-					    + pow(val3*(y-mus_[1]),2)) );
-}
-
-
-float uiProbDenFuncGenSampled::calcGaussian3D( float x, float y, float z ) const
-{
-    float val1 = pow( x-mus_[0], 2 ) / ( 2*sigmas_[0]*sigmas_[0] );
-    float val2 = pow( y-mus_[1], 2 ) / ( 2*sigmas_[1]*sigmas_[1] );
-    float val3 = pow( z-mus_[2], 2 ) / ( 2*sigmas_[2]*sigmas_[2] );
-    return exp( -(val1+val2+val3) );
-}
-
-
-bool uiProbDenFuncGenSampled::savePDF( const ProbDenFunc& pdf ) const
-{
     const IOObj* pdfioobj = outfld_->ioobj();
     if ( !pdfioobj )
 	return false;
 
     ioobjky_ = pdfioobj->key();
-    if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj) )
-    {
-	uiMSG().error( "Could not write PDF to disk" );
-	return false;
-    }
-
     return true;
 }
 
 
-void uiProbDenFuncGenSampled::readInput()
+// Note that a Sampled PDF's SD starts at the center of a bin
+// Thus, to get user's range, we need to start and stop half a step inward
+#define mSetSD( sd, rg ) \
+	ret->sd.step = (rg.stop-rg.start) / nrbins_; \
+	ret->sd.start = rg.start + ret->sd.step / 2
+
+
+ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 {
-    nrnodes_= nrnodesfld_->getValue();
-    for ( int idx=0; idx<nrdims_; idx++ )
+    if ( nrdims_ == 1 )
     {
-	Interval<float> range( rgflds_[idx]->getfValue(0),
-			       rgflds_[idx]->getfValue(1) );
-	ranges_ += StepInterval<float>( range.start, range.stop,
-				      range.width() / (nrnodes_-1) );
-	if ( isGauss() )
+	Gaussian1DProbDenFunc pdf( exps_[0], stds_[0] );
+	Sampled1DProbDenFunc* ret = new Sampled1DProbDenFunc;
+	ret->bins_.setSize( nrbins_ );
+	mSetSD( sd_, rgs_[0] );
+	for ( int idx=0; idx<nrbins_; idx++ )
 	{
-	    mus_ += expstdflds_[idx]->getfValue(0);
-	    sigmas_ += expstdflds_[idx]->getfValue(1);
+	    const float pos = ret->sd_.atIndex( idx );
+	    ret->bins_.set( idx, pdf.value(pos) );
+	}
+	ret->setDimName( 0, dimnms_.get(0) );
+	return ret;
+    }
+    else if ( nrdims_ == 2 )
+    {
+	Gaussian2DProbDenFunc pdf;
+	pdf.exp0_ = exps_[0]; pdf.std0_ = stds_[0];
+	pdf.exp1_ = exps_[1]; pdf.std1_ = stds_[1];
+	pdf.cc_ = ccs_[0];
+
+	Sampled2DProbDenFunc* ret = new Sampled2DProbDenFunc;
+	ret->bins_.setSize( nrbins_, nrbins_ );
+	mSetSD( sd0_, rgs_[0] );
+	mSetSD( sd1_, rgs_[1] );
+	for ( int i0=0; i0<nrbins_; i0++ )
+	{
+	    const float p0 = ret->sd0_.atIndex( i0 );
+	    for ( int i1=0; i1<nrbins_; i1++ )
+	    {
+		const float p1 = ret->sd1_.atIndex( i1 );
+		ret->bins_.set( i0, i1, pdf.value(p0,p1) );
+	    }
+	}
+	ret->setDimName( 0, dimnms_.get(0) );
+	ret->setDimName( 1, dimnms_.get(1) );
+	return ret;
+    }
+
+    GaussianNDProbDenFunc pdf( 3 );
+    for ( int idim=0; idim<nrdims_; idim++ )
+	pdf.vars_[idim] = GaussianNDProbDenFunc::VarDef( dimnms_.get(idim),
+					    exps_[idim], stds_[idim] );
+    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 1, ccs_[0] );
+    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 2, ccs_[1] );
+    pdf.corrs_ += GaussianNDProbDenFunc::Corr( 1, 2, ccs_[2] );
+
+    SampledNDProbDenFunc* ret = new SampledNDProbDenFunc( 3 );
+    const TypeSet<int> szs( 3, nrbins_ );
+    ret->bins_.setSize( szs.arr() );
+    mSetSD( sds_[0], rgs_[0] );
+    mSetSD( sds_[1], rgs_[1] );
+    mSetSD( sds_[2], rgs_[2] );
+
+    TypeSet<float> poss( 3, 0.0f );
+    TypeSet<int> idxs( 3, 0 );
+    for ( idxs[0]=0; idxs[0]<nrbins_; idxs[0]++ )
+    {
+	poss[0] = ret->sds_[0].atIndex( idxs[0] );
+	for ( idxs[1]=0; idxs[1]<nrbins_; idxs[1]++ )
+	{
+	    poss[1] = ret->sds_[1].atIndex( idxs[1] );
+	    for ( idxs[2]=0; idxs[2]<nrbins_; idxs[2]++ )
+	    {
+		poss[2] = ret->sds_[2].atIndex( idxs[2] );
+		ret->bins_.setND( idxs.arr(), pdf.value(poss) );
+	    }
 	}
     }
+
+    ret->dimnms_ = dimnms_;
+    return ret;
+}
+
+
+bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
+{
+    if ( !getFromScreen() )
+	return false;
+
+    PtrMan<ProbDenFunc> pdf = getPDF();
+    if ( !pdf )
+	return false;
+
+    if ( !ProbDenFuncTranslator::write(*pdf,*outfld_->ioobj()) )
+	mErrRet("Could not write PDF to disk")
+
+    return true;
 }
 
 

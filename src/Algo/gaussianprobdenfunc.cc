@@ -267,17 +267,16 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
     const float x2 = (poss[1]-vars_[1].exp_) / vars_[1].std_;
     const float x3 = (poss[2]-vars_[2].exp_) / vars_[2].std_;
     const float x1sq = x1*x1, x2sq = x2*x2, x3sq =x3*x3;
-    const float x12 = x1*x2, x13 = x1*x3, x23 =x2*x3;
     const float r12sq = r12*r12, r13sq = r13*r13, r23sq =r23*r23;
 
-    const float dividend = 0.5f *
-	  x1sq*(r23-1) + x2sq*(r13-1) + x3sq*(r12-1)
-	+ 2*x12*r12 + 2*x13*r13 + 2*x23*r23
-	- 2*x12*r13*r23 - 2*x13*r12*r23 - 2*x23*r12*r13;
     const float discr = 1 + 2*r12*r13*r23 - r12sq - r13sq - r23sq;
+    float dividend =
+	  x1sq*(r23sq-1) + x2sq*(r13sq-1) + x3sq*(r12sq-1)
+	+ 2*x1*x2*(r12-r13*r23) + 2*x1*x3*(r13-r12*r23) + 2*x2*x3*(r23-r12*r13);
+
     const float gfac = (float)(1 / (M_PI * Math::Sqrt( 8 * M_PI * discr )));
 
-    return gfac * (discr ? Math::Exp( dividend / discr ) : 1.0f);
+    return gfac * (discr ? Math::Exp( 0.5f * dividend / discr ) : 1.0f);
 }
 
 

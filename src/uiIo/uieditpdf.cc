@@ -61,15 +61,14 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	setCtrlStyle( uiDialog::CloseOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
-    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(),
-					nrdims_ < 2 ? "Name" : "Names" );
+    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Names group" );
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	BufferString txt;
 	if ( nrdims_ > 1 )
-	    txt.add( "Name of dimension " ).add( idim + 1 );
+	    txt.set( "Name of dimension " ).add( idim + 1 );
 	else
-	    txt = "Variable name";
+	    txt.set( "Variable name" );
 	uiGenInput* nmfld = new uiGenInput( dimnmgrp, txt, pdf_.dimName(idim) );
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
@@ -82,7 +81,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     if ( !andpdf || nrdims_ > 3 )
 	return;
 
-    uiGroup* grp = new uiGroup( tabstack_->tabGroup(), "Values" );
+    uiGroup* grp = new uiGroup( tabstack_->tabGroup(), "Values group" );
     mkTable( grp );
     tabstack_->addTab( grp, "Values" );
     tabstack_->selChange().notify( mCB(this,uiEditProbDenFunc,tabChg) );
