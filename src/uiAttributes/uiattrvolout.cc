@@ -203,7 +203,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	PtrMan<IOObj> ioobj = 0;
 	if ( prov )
 	{
-	    MultiID mid = desc->getStoredID();
+	    MultiID mid ( desc->getStoredID().buf() );
 	    ioobj = IOM().get( mid );
 	}
 
