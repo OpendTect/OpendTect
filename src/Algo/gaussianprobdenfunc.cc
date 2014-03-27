@@ -119,7 +119,7 @@ float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
     const float onemccsq = 1 - cc_*cc_;
 
     const float fac = (float)(0.5 / (M_PI*Math::Sqrt(onemccsq)));
-    const float epow = -0.5f * (x1*x1 + x2*x2 + 2*cc_*x1*x2) / onemccsq;
+    const float epow = -0.5f * (x1*x1 + x2*x2 - 2*cc_*x1*x2) / onemccsq;
     return fac * Math::Exp( epow );
 }
 
