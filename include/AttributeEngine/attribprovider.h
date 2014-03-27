@@ -97,6 +97,7 @@ public:
     void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
     virtual PosInfo::Line2DKey	getLine2DKey() const;
+    virtual Pos::GeomID		getGeomID() const;
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);

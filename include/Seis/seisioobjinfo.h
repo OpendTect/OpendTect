@@ -113,9 +113,9 @@ public:
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,
 				      TypeSet<BufferStringSet>* linenames=0);
-    static void		getCompNames(const Pos::GeomID,BufferStringSet&);
+    static void		getCompNames(const MultiID&,BufferStringSet&);
     			//!< Function useful in attribute environments
-    			//!< The 'LineKey' must be IOObj_ID|attrnm
+    			//!< The 'MultiID' must be IOObj_ID
 
 protected:
 

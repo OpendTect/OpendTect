@@ -1444,6 +1444,23 @@ PosInfo::Line2DKey Provider::getLine2DKey() const
 }
 
 
+Pos::GeomID  Provider::getGeomID() const
+{
+    Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+        if ( !inputs_[idx] )
+            continue;
+
+        geomid = inputs_[idx]->getGeomID();
+	if ( !Values::isUdf(geomid) )
+            return geomid;
+    }
+
+    return geomid;
+}
+
+
 void Provider::setSelData( const Seis::SelData* seldata )
 {
     seldata_ = seldata;

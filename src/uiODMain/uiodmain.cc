@@ -70,6 +70,18 @@ extern void OD_Convert_2DLineSets_To_2DDataSets(BufferString& errmsg);
 static const int cCTHeight = 200;
 
 
+static void OD_Convert_OD4_Data_To_OD5( CallBacker* cb = 0 )
+{
+    Survey::GMAdmin().fetchFrom2DGeom();
+    Survey::GMAdmin().fillGeometries(0);
+    BufferString errmsg;
+    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n",
+		       errmsg.buf() );
+}
+
+
 static uiODMain* manODMainWin( uiODMain* i )
 {
     mDefineStaticLocalObject( uiODMain*, theinst, = 0 );
@@ -149,13 +161,8 @@ uiODMain::uiODMain( uiMain& a )
 	::exit( 0 );
 
     OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
-    Survey::GMAdmin().fetchFrom2DGeom();
-    Survey::GMAdmin().fillGeometries(0);
-    BufferString errmsg;
-    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n",
-		       errmsg.buf() );
+    OD_Convert_OD4_Data_To_OD5(0);
+    IOM().surveyChanged.notify( mSCB(OD_Convert_OD4_Data_To_OD5) );
 
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )

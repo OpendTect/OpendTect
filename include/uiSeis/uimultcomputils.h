@@ -46,7 +46,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 			uiMultCompSel(uiParent*);
 			~uiMultCompSel();
 
-    void		setUpList(Pos::GeomID);
+    void		setUpList(const MultiID&);
     void		setUpList(const BufferStringSet&);
     bool		allowChoice() const	{ return compnms_.size()>1; }
 

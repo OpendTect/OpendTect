@@ -223,12 +223,6 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFiles(
 	    FilePath oldfnm( fnm );
 	    BufferString oldfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 								*iop,false) );
-	    if ( oldfnm.isAbsolute() || oldfnm.nrLevels()>1 )
-	    {
-		delete iop;
-		continue;
-	    }
-
 	    FilePath newfnm( attrname );
 	    newfnm.add( BufferString(attrname).add(mCapChar).add( Survey::GM().
 			getGeomID(lineset.lineName(lineidx),lineset.name()) ) );

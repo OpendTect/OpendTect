@@ -114,8 +114,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	    else if ( transl->componentInfo().isEmpty() )
 	    {
 		BufferStringSet complist;
-		SeisIOObjInfo::getCompNames( Survey::GM().getGeomID(linenm),
-					     complist );
+		SeisIOObjInfo::getCompNames(key, complist);
 		desc.setNrOutputs( Seis::UnknowData, complist.size() );
 		if ( compnms )
 		    compnms->operator =( complist );
@@ -857,6 +856,10 @@ void StorageProvider::adjust2DLineStoredVolume()
 }
 
 
+Pos::GeomID StorageProvider::getGeomID() const
+{ return geomid_; }
+
+
 void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 {
     if ( !mscprov_ ) return;
@@ -946,7 +949,6 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
 	if ( !geom2d ) continue;
 
 	linegeom = geom2d->data();
-	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
 	    ls2ddata_->removeLine( dset->lineName(idx) );

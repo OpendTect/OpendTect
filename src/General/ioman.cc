@@ -186,6 +186,8 @@ void IOMan::init()
 	dirptr_->doWrite();
 	to( emptykey, true );
     }
+
+    Survey::GMAdmin().fillGeometries(0);
 }
 
 

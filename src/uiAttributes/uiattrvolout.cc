@@ -203,10 +203,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	PtrMan<IOObj> ioobj = 0;
 	if ( prov )
 	{
-	    PosInfo::Line2DKey l2dkey = prov->getLine2DKey();
-	    BufferString lsnm = S2DPOS().getLineSet( l2dkey.lsID() );
-	    SeisIOObjInfo info( lsnm );
-	    ioobj = info.ioObj() ? info.ioObj()->clone() : 0;
+	    MultiID mid = desc->getStoredID();
+	    ioobj = IOM().get( mid );
 	}
 
 	if ( !ioobj )

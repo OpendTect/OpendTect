@@ -59,10 +59,10 @@ uiMultCompSel::~uiMultCompSel()
 }
 
 
-void uiMultCompSel::setUpList( Pos::GeomID geomid )
+void uiMultCompSel::setUpList( const MultiID& mid )
 {
     compnms_.erase();
-    SeisIOObjInfo::getCompNames( geomid, compnms_ );
+    SeisIOObjInfo::getCompNames( mid, compnms_ );
     butPush.notify( mCB(this,uiMultCompSel,doDlg) );
     prepareDlg();
 }

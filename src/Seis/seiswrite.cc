@@ -86,24 +86,6 @@ bool SeisTrcWriter::close()
     if ( putter_ )
 	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
 
-    if ( is2D() )
-    {
-	Pos::GeomID geomid = mCurGeomID;
-	const BufferString lnm = Survey::GM().getName( geomid );
-	const int lineidx = dataset_ ? dataset_->indexOf(geomid) : -1;
-
-	if ( lineidx>=0 && !lnm.isEmpty() )
-	{
-	    const bool hasgeom = S2DPOS().hasLine( lnm, lset_->name() );
-	    if ( !hasgeom )
-	    {
-		geom2d_.data().setLineName( lnm );
-		S2DPOS().setCurLineSet( lset_->name() );
-		PosInfo::POS2DAdmin().setGeometry( geom2d_.data() );
-	    }
-	}
-    }
-
     delete putter_; putter_ = 0;
     delete pswriter_; pswriter_ = 0;
     psioprov_ = 0;

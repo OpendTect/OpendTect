@@ -245,9 +245,8 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( IOPar* newiop )
     }
     else if ( !readonly_ )
     {
-	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
 	pars_ += newiop;
-	res = liop_->getAdder( *newiop, previop, name() );
+	res = liop_->getAdder( *newiop, 0, name() );
     }
     else
     {

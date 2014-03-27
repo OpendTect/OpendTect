@@ -504,11 +504,10 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 }
 
 
-void SeisIOObjInfo::getCompNames( const Pos::GeomID geomid, 
-				  BufferStringSet& nms )
+void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
 {
-    SeisIOObjInfo ioobjinf( MultiID(Survey::GM().getName(geomid)) );
-    ioobjinf.getComponentNames( nms, geomid );
+    SeisIOObjInfo ioobjinf( mid );
+    ioobjinf.getComponentNames( nms, Survey::GM().cUndefGeomID() );
 }
 
 
@@ -542,11 +541,8 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
 	if ( !dataset || dataset->nrLines() == 0 )
 	    return 0;
-	int lidx = 0;
-	const char* linename = Survey::GM().getName( geomid );
-	if ( linename )
-	    lidx = dataset->indexOf( linename );
 
+	int lidx = dataset->indexOf( geomid );
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
 	Executor* ex = dataset->lineFetcher( lidx, tbuf, 1 );
