@@ -167,12 +167,10 @@ void LocationDisplay::fullRedraw( CallBacker* )
     int idx=0;
     for ( ; idx<nrpicks; idx++ )
     {
-	bool turnon = true;
 	Pick::Location loc = (*set_)[idx];
 	if ( !transformPos( loc ) )
 	{
 	    invalidpicks_ += idx;
-	    turnon = false;
 	}
 	else
 	{
@@ -462,12 +460,10 @@ void LocationDisplay::locChg( CallBacker* cb )
 
     if ( cd->ev_==Pick::SetMgr::ChangeData::Added )
     {
-	bool turnon = true;
 	Pick::Location loc = (*set_)[cd->loc_];
 	if ( !transformPos( loc ) )
 	{
 	    invalidpicks_ += cd->loc_;
-	    turnon = false;
 	}
 
 	setPosition( cd->loc_,loc );
@@ -479,13 +475,11 @@ void LocationDisplay::locChg( CallBacker* cb )
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
     {
-	bool turnon = true;
 	Pick::Location loc = (*set_)[cd->loc_];
 	if ( !transformPos( loc ) )
 	{
 	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
 		invalidpicks_ += cd->loc_;
-	    turnon = false;
 	}
 	else
 	{
