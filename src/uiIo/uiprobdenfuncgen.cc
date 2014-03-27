@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "probdenfunctr.h"
 #include "statruncalc.h"
 
-static const float cMaxCC = 1.0f - 1e-6f;
+static const float cMaxCC = 0.99999f; // if changed, also change error message
 static const float cMaxProbVal = 100.0f;
 
 
@@ -57,6 +57,7 @@ public:
 
     bool		acceptOK(CallBacker*);
     void		chgCB(CallBacker*);
+    void		rgChg(CallBacker*);
 };
 
 
@@ -132,6 +133,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 		"Variable name" : BufferString("Dimension ",idx+1,": Name") );
 	uiGenInput* rgfld = new uiGenInput( this, "Value range",
 				FloatInpSpec(), FloatInpSpec() );
+	rgfld->valuechanged.notify( mCB(this,uiProbDenFuncGenSampled,rgChg) );
 	nmflds_ += nmfld; rgflds_ += rgfld;
 	if ( idx )
 	    nmfld->attach( alignedBelow, nmflds_[idx-1] );
@@ -189,6 +191,26 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 }
 
 
+void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
+{
+    mDynamicCastGet(uiGenInput*,ginp,cb)
+    if ( !ginp )
+	{ pErrMsg("Huh? ginp null"); return; }
+    const int dimidx = rgflds_.indexOf( ginp );
+    if ( dimidx < 0 )
+	{ pErrMsg("Huh? dimidx<0"); return; }
+    uiGenInput* stdfld = expstdflds_[dimidx];
+    if ( !stdfld->isUndef(0) )
+	return;
+
+    const Interval<float> rg( ginp->getFInterval() );
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	return;
+
+    stdfld->setValue( rg.center(), 0 );
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 #define mGetCCValue(ifld) \
@@ -197,7 +219,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxCC || cc > cMaxCC ) \
 	mErrRet( BufferString("Correlation coefficients should be " \
-		    "in range <-1,1>.\nMaximum correlation is", cMaxCC ) ) \
+		    "in range <-1,1>.\nMaximum correlation is 0.99999" ) ) \
     ccs_ += cc; \
 }
 
