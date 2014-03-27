@@ -395,9 +395,16 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
     }
     else if ( !readonly_ )
     {
-	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
 	pars_ += newiop;
-	res = liop_->getAdder( *newiop, previop, name() );
+	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
+	bool usepreviop = false;
+	if ( previop )
+	{
+	    FilePath fnm ( previop->find(sKey::FileName()).str() );
+	    usepreviop = !(fnm.nrLevels()>1 && !fnm.isAbsolute()); 
+	}
+
+	    res = liop_->getAdder( *newiop, usepreviop ? previop : 0, name());
     }
     else
     {
