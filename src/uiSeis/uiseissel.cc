@@ -580,6 +580,10 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
+    if ( is2D() && workctio_.ctxt.forread && workctio_.ioobj
+	    && workctio_.ioobj->translator() != "2D" )
+	workctio_.setObj( 0 );
+
     if ( workctio_.ioobj )
 	ioobjkey = workctio_.ioobj->key();
 
