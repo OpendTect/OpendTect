@@ -43,9 +43,8 @@ public:
 			Setup()
 			    : pdown_( true )
 			    , pup_( true )
-			    , doreflectivity_(true)
-			{
-			}
+			    , doreflectivity_(true) {}
+	virtual 	~Setup()	{}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);

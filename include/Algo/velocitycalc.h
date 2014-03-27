@@ -215,6 +215,7 @@ mExpClass(Algo) Vrms2Vint
 {
 public:
 			mDefineFactoryInClass( Vrms2Vint, factory );
+    virtual		~Vrms2Vint()	{}
 
     virtual bool	compute(const float* Vrms, float t0, float v0,
 	    			const float* t, int nrlayers, float* Vint) = 0;
@@ -230,6 +231,7 @@ mExpClass(Algo) DixConversion : public Vrms2Vint
 public:
 		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, "Dix",
 					      sFactoryKeyword() );
+
     bool	compute(const float* Vrms, float t0, float v0,
 	    		const float* t, int nrlayers, float* Vint)
 		{ return computeDix( Vrms, t0, v0, t, nrlayers, Vint ); }

@@ -27,7 +27,7 @@ public:
 			ZoeppritzCoeff();
 
 
-    virtual void 	setInterface(float p,
+    void		setInterface(float p,
 					const ElasticLayer& el_layer1,
 					const ElasticLayer& el_layer2 );
 
