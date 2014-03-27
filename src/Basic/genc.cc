@@ -25,6 +25,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifndef __win__
 # include <unistd.h>
 # include <errno.h>
+# include <netdb.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 # include <sys/types.h>
 # include <signal.h>
 #else
@@ -42,7 +46,7 @@ mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 const char* GetIPFromHostName( const char* hostnm )
 {
-    static char ret[16];
+    static char ret[256];
     struct in_addr addr;
     struct hostent* remotehost = gethostbyname( hostnm );
     addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
