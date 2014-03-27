@@ -127,7 +127,7 @@ bool createBaseDir()
 	{
 	    BufferString msg( "Cannot create " );
 	    msg += sKeySelGrp();
-	    msg += "for crossplot selctions. Check write permissions";
+	    msg += "for cross-plot selections. Check write permissions";
 	    uiMSG().error( msg );
 	    return false;
 	}
