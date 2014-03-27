@@ -22,15 +22,6 @@ class Sphere;
 namespace Pick { class Set; class Location; class SetMgr; }
 template <class T> class Selector;
 
-namespace visBase
-{
-    class DrawStyle;
-    class EventCatcher;
-    class PolyLine;
-    class Transformation;
-    class MarkerSet;
-};
-
 
 namespace visSurvey
 {
@@ -63,9 +54,7 @@ public:
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
     
-    void                        createLine();
-    void                        showLine(bool);
-    bool                        lineShown() const;
+ 
     virtual BufferString	getManipulationString() const;
     void			getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const
@@ -104,11 +93,14 @@ protected:
 				LocationDisplay();
     virtual void		setPosition(int idx,
 	    				    const Pick::Location&);
+    virtual void		removePosition(int);
+    virtual void		removeAll();
+
     virtual bool		hasDirection() const { return false; }
     virtual bool		hasText() const { return false; }
-    int				clickedMarkerIndex(
+    virtual int			clickedMarkerIndex(
 					const visBase::EventInfo& evi)const;
-    bool			isMarkerClick(
+    virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
@@ -138,15 +130,12 @@ protected:
 
     TypeSet<int>		invalidpicks_;
 
-    bool			needline_;
     bool			showall_;
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
 
-    visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
-    visBase::PolyLine*          polyline_;
     const mVisTrans*		transformation_;
     ZAxisTransform*		datatransform_;
 

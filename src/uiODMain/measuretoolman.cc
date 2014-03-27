@@ -268,7 +268,6 @@ void MeasureToolMan::clearCB( CallBacker* )
 
 	ps->erase();
 	picksetmgr_.reportChange( this, *ps );
-	displayobjs_[idx]->createLine();
     }
 
     if ( measuredlg_ )

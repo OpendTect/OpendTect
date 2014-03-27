@@ -47,6 +47,7 @@ public:
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
+    void		removeAllPoints();
     void		setLineStyle(const LineStyle&);
     const LineStyle&	lineStyle() const;
 

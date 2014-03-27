@@ -8,21 +8,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vislocationdisplay.h"
 
-#include "draw.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
+
 #include "pickset.h"
 #include "picksettr.h"
 #include "selector.h"
-#include "separstr.h"
-#include "survinfo.h"
-#include "viscoord.h"
+
 #include "visevent.h"
-#include "visdataman.h"
 #include "vismaterial.h"
-#include "vismarkerset.h"
-#include "vispolyline.h"
 #include "vissower.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
@@ -57,7 +50,6 @@ static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 
 LocationDisplay::LocationDisplay()
     : VisualObjectImpl( true )
-    , markerset_( visBase::MarkerSet::create() )
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , showall_( true )
@@ -67,14 +59,9 @@ LocationDisplay::LocationDisplay()
     , waitsfordirectionid_( -1 )
     , waitsforpositionid_( -1 )
     , datatransform_( 0 )
-    , polyline_(0)
-    , needline_(false)
     , pickedsobjid_(-1)
     , voiidx_(-1)
 {
-    markerset_->ref();
-    addChild( markerset_->osgNode() );
-
     setSetMgr( &Pick::Mgr() );
 
     sower_ = new Sower( this );
@@ -85,15 +72,6 @@ LocationDisplay::LocationDisplay()
 LocationDisplay::~LocationDisplay()
 {
     setSceneEventCatcher( 0 );
-
-    removeChild( markerset_->osgNode() );
-    markerset_->unRef();
-
-    if ( polyline_ )
-    {
-	removeChild( polyline_->osgNode() );
-	unRefAndZeroPtr( polyline_ );
-    }
 
     if ( transformation_ ) transformation_->unRef();
     setSetMgr( 0 );
@@ -124,16 +102,6 @@ void LocationDisplay::setSet( Pick::Set* s )
 
     set_ = s; 
     setName( set_->name() );
-
-    MarkerStyle3D markerstyle;
-    markerstyle.size_ = set_->disp_.pixsize_;
-    markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
-    markerset_->setMaterial( 0 );
-    markerset_->setMarkerStyle( markerstyle );
-    markerset_->setMarkersSingleColor( set_->disp_.color_ );
-
-    //   if ( scene_ ) // should do later
-    //markerset->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
 
     fullRedraw();
 
@@ -187,10 +155,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
     }
     
     getMaterial()->setColor( set_->disp_.color_ );
-    const int nrpicks = set_->size();
-
+   
     invalidpicks_.erase();
-
+    
+    const int nrpicks = set_->size();
+    if ( !nrpicks )
+    {
+	removeAll();
+	return;
+    }
     int idx=0;
     for ( ; idx<nrpicks; idx++ )
     {
@@ -207,76 +180,25 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	}
 
 	setPosition( idx, loc );
-	markerset_->turnMarkerOn( idx, turnon );
-
     }
+}
 
-    while ( idx<markerset_->getCoordinates()->size() )
-	markerset_->removeMarker( idx );
 
-    showLine( set_->disp_.connect_ != Pick::Set::Disp::None );
+void LocationDisplay::removeAll()
+{
+    if ( !set_ )
+	return;
 }
 
 
 void LocationDisplay::showAll( bool yn )
 {
     showall_ = yn;
-    if ( !showall_ && scene_ )
+    if ( scene_ )
     {
 	scene_->objectMoved(0);
 	return;
     }
-    markerset_->turnOn( true );
-}
-
-
-void LocationDisplay::createLine()
-{
-    if ( !polyline_ ) 
-    {
-	polyline_ = visBase::PolyLine::create();
-	polyline_->ref();
-	addChild( polyline_->osgNode() );
-	polyline_->setDisplayTransformation( transformation_ );
-	polyline_->setMaterial( 0 );
-    }
-
-    int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
-    ls.width_ = pixsize;
-    polyline_->setLineStyle( ls );
-    while ( polyline_->size() > set_->size() )
-	polyline_->removePoint( 0 );
-
-    for ( int idx=0; idx<set_->size(); idx++ )
-    {
-	Coord3 pos = (*set_)[idx].pos_;
-	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
-	    polyline_->setPoint( idx, pos );
-    }
-
-    int nrnodes = polyline_->size();
-    if ( nrnodes && set_->disp_.connect_==Pick::Set::Disp::Close ) 
-	polyline_->setPoint( nrnodes, polyline_->getPoint(0) );
-
-    polyline_->dirtyCoordinates();
-} 
-
-
-void LocationDisplay::showLine( bool yn )
-{
-    if ( yn ) needline_ = true;
-    if ( !needline_ ) return;
-    if ( !polyline_ || polyline_->size() <= set_->size() ) createLine();
-    polyline_->turnOn( yn );
-}
-
-
-bool LocationDisplay::lineShown() const
-{
-    return polyline_ ? polyline_->isOn() : false;
 }
 
 
@@ -438,7 +360,6 @@ void LocationDisplay::pickCB( CallBacker* cb )
 }
 
 
-
 bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 				      Coord3& newpos, Coord3& normal ) const
 {
@@ -550,12 +471,10 @@ void LocationDisplay::locChg( CallBacker* cb )
 	}
 
 	setPosition( cd->loc_,loc );
-	markerset_->turnOn( turnon );
-
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
     {
-	markerset_->removeMarker( cd->loc_ );
+	removePosition( cd->loc_ );
 	invalidpicks_ -= cd->loc_;
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
@@ -573,11 +492,8 @@ void LocationDisplay::locChg( CallBacker* cb )
 	    invalidpicks_ -= cd->loc_;
 	}
 
-	markerset_->turnOn( turnon );
 	setPosition( cd->loc_, loc );
     }
-
-    if ( needline_ ) createLine();
 }
 
 
@@ -600,8 +516,6 @@ void LocationDisplay::setChg( CallBacker* cb )
 void LocationDisplay::dispChg( CallBacker* )
 {
     getMaterial()->setColor( set_->disp_.color_ );
-    markerset_->setMarkersSingleColor( set_->disp_.color_  );
-    showLine( set_->disp_.connect_ != Pick::Set::Disp::None );
 }
 
 
@@ -712,8 +626,6 @@ void LocationDisplay::removePick( int removeidx )
 				 set_, removeidx );
     set_->removeSingle( removeidx );
     picksetmgr_->reportChange( 0, cd );
-    
-    if ( needline_ ) createLine();
 }
 
 
@@ -738,50 +650,6 @@ void LocationDisplay::otherObjectsMoved(
 {
     if ( showall_ && invalidpicks_.isEmpty() ) return;
 
-    for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
-    {
-	Coord3 pos = (*set_)[idx].pos_;
-	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
-
-	if ( scene_ )
-	    scene_->getUTM2DisplayTransform()->transform( pos );
-
-	bool newstatus;
-	if ( !pos.isDefined() )
-	    newstatus = false;
-	else if ( showall_ )
-	    newstatus = true;
-	else
-	{
-	    newstatus = false;
-
-	    for ( int idy=0; idy<objs.size(); idy++ )
-	    {
-		const float dist = objs[idy]->calcDist(pos);
-		if ( dist<objs[idy]->maxDist() )
-		{
-		    newstatus = true;
-		    break;
-		}
-	    }
-	}
-
-	if ( newstatus && invalidpicks_.indexOf(idx)!=-1 )
-	{
-	    Pick::Location loc = (*set_)[idx];
-	    if ( transformPos(loc) )
-	    {
-		invalidpicks_ -= idx;
-		setPosition( idx, loc );
-	    }
-	    else
-	    {
-		newstatus = false;
-	    }
-	}
-
-	markerset_->turnMarkerOn( idx, newstatus );
-    }
 }
 
 
@@ -791,6 +659,13 @@ void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
 	return;
     
     (*set_)[idx] = nl;
+}
+
+
+void LocationDisplay::removePosition( int idx )
+{
+    if ( !set_ || idx<0 || idx>=(*set_).size() )
+	return;
 }
 
 
@@ -807,11 +682,7 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
     if ( transformation_ )
 	transformation_->ref();
     
-    if ( polyline_ )
-	polyline_->setDisplayTransformation( transformation_ );
-
     sower_->setDisplayTransformation( newtr );
-    markerset_->setDisplayTransformation( newtr );
 }
 
 
@@ -892,16 +763,13 @@ const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 
 int LocationDisplay::clickedMarkerIndex(const visBase::EventInfo& evi) const
 {
-    if ( !isMarkerClick( evi ) )
-	return -1;
-
-    return  markerset_->findClosestMarker( evi.displaypickedpos, true );
+    return -1;
 }
 
 
 bool LocationDisplay::isMarkerClick(const visBase::EventInfo& evi) const
 { 
-    return evi.pickedobjids.isPresent( markerset_->id() );
+    return false;
 }
 
 

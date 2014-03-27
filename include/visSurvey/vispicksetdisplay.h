@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vislocationdisplay.h"
 
-namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
+namespace visBase { class MarkerSet; class PolyLine;
+		    class DrawStyle; class RandomPos2Body; }
 
 namespace visSurvey
 {
@@ -36,32 +37,63 @@ public:
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PickSetDisplay,
 				    "PickSetDisplay", sFactoryKeyword() );
+    
+    void			setSet(Pick::Set*);
 
-    void			getPickingMessage(BufferString&) const;
+    bool			hasColor() const	{ return true; }
+    void			setColor(Color);
 
     void			displayBody(bool);
     bool			isBodyDisplayed() const;
+
     bool			setBodyDisplay();
     visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
+
+    void			getPickingMessage(BufferString&) const;
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
+    bool			needLine();
+    void                        createLine();
+    void			redrawLine();
+    void                        showLine(bool);
+    bool                        lineShown() const;
 
+    void			redrawAll();
+    
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-
+    
 protected:
 				~PickSetDisplay();
+
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
+    void			removePosition(int idx);
+    void			removeAll();
+
+    void			setPolylinePos(int,const Coord3&);
+    void			removePolylinePos(int);
+    
+    
+
     ::Sphere			getDirection(int loc) const;
 
     void			dispChg(CallBacker*);
     void			locChg(CallBacker*);
-    void			setChg(CallBacker*);
-    bool			hasColor() const	{ return true; }
-    void			setColor(Color);
+
+    int				clickedMarkerIndex(
+					   const visBase::EventInfo& evi) const;
+    bool			isMarkerClick(
+					   const visBase::EventInfo& evi) const;
+
+    void			otherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,int);
+    
+    visBase::MarkerSet*		markerset_;
+    visBase::PolyLine*          polyline_;
+    bool			needline_;
 
     static const char*		sKeyNrPicks();
     static const char*		sKeyPickPrefix();

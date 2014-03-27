@@ -71,6 +71,13 @@ void PolyLine::removePoint( int idx )
 }
 
 
+void PolyLine::removeAllPoints()
+{
+   for ( int idx=size()-1; idx>=0; idx-- )
+       removePoint( idx );
+}
+
+
 void PolyLine::setLineStyle( const LineStyle& lst )
 {
     if ( !drawstyle_ )
