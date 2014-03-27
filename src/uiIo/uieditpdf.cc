@@ -66,7 +66,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     {
 	BufferString txt;
 	if ( nrdims_ > 1 )
-	    txt.set( "Name of dimension " ).add( idim + 1 );
+	    txt.set( "Variable " ).add( idim + 1 );
 	else
 	    txt.set( "Variable name" );
 	uiGenInput* nmfld = new uiGenInput( dimnmgrp, txt, pdf_.dimName(idim) );

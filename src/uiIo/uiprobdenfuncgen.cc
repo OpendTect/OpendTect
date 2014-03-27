@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uichecklist.h"
 #include "uiioobjsel.h"
 #include "uiseparator.h"
+#include "uitabstack.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
 #include "sampledprobdenfunc.h"
@@ -71,10 +73,17 @@ public:
     MultiID&		ioobjky_;
 
     uiTabStack*		tabstack_;
+    uiGenInput*		ccfld_;
+    ObjectSet<uiGenInput> nmflds_;
+    ObjectSet<uiGenInput> expflds_;
+    ObjectSet<uiGenInput> stdflds_;
 
+    void		mkCorrTab(uiGroup*);
+    void		tabChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
+
 
 
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
@@ -388,19 +397,83 @@ bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
 }
 
 
-#include "uilabel.h" // for TODO
 
 uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
 						    MultiID& ky )
     : uiDialog(p,Setup("Generate Gaussian PDF",mNoDlgTitle,mTODOHelpKey))
     , nrdims_(nrdim)
     , ioobjky_(ky)
+    , tabstack_(0)
+    , ccfld_(0)
 {
-    new uiLabel( this, "TODO: implement" );
+    uiGroup* varsgrp = 0;
+    if ( nrdims_ < 3 )
+	varsgrp = new uiGroup( this, "Vars group" );
+    else
+    {
+	tabstack_ = new uiTabStack( this, "Tabs" );
+	varsgrp = new uiGroup( tabstack_->tabGroup(), "Vars group" );
+    }
+
+    for ( int idim=0; idim<nrdims_; idim++ )
+    {
+	BufferString varnm;
+	if ( idim != 0 )
+	    varnm.set( "Var " ).add( idim+1 );
+	uiGenInput* nmfld = new uiGenInput( varsgrp, "", StringInpSpec(varnm) );
+	uiGenInput* expfld = new uiGenInput( varsgrp, "", FloatInpSpec() );
+	uiGenInput* stdfld = new uiGenInput( varsgrp, "", FloatInpSpec() );
+	if ( idim > 0 )
+	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
+	else
+	{
+	    varsgrp->setHAlignObj( expfld );
+	    uiLabel* lbl = new uiLabel( varsgrp, "Variable name" );
+	    lbl->attach( centeredAbove, nmfld );
+	    lbl = new uiLabel( varsgrp, "Expectation" );
+	    lbl->attach( centeredAbove, expfld );
+	    lbl = new uiLabel( varsgrp, "Standard Deviation" );
+	    lbl->attach( centeredAbove, stdfld );
+	}
+	expfld->attach( rightOf, nmfld );
+	stdfld->attach( rightOf, nmfld );
+	nmflds_ += nmfld; expflds_ += expfld; stdflds_ += stdfld;
+    }
+
+    if ( nrdims_ > 1 )
+    {
+	uiGroup* ccgrp = 0;
+	if ( nrdims_ == 2 )
+	{
+	    ccfld_ = new uiGenInput( this, "Correlation", FloatInpSpec(0));
+	    ccfld_->attach( alignedBelow, varsgrp );
+	}
+	else
+	{
+	    ccgrp = new uiGroup( tabstack_->tabGroup(), "CC group" );
+	    mkCorrTab( ccgrp );
+	    tabstack_->addTab( varsgrp, "Distributions" );
+	    tabstack_->addTab( ccgrp, "Correlations" );
+	    tabstack_->selChange().notify(
+				mCB(this,uiProbDenFuncGenGaussian,tabChg) );
+	}
+    }
+}
+
+
+void uiProbDenFuncGenGaussian::mkCorrTab( uiGroup* ccgrp )
+{
+    new uiLabel( ccgrp, "TODO: implement" );
+}
+
+
+void uiProbDenFuncGenGaussian::tabChg( CallBacker* )
+{
 }
 
 
 bool uiProbDenFuncGenGaussian::acceptOK( CallBacker* )
 {
+    uiMSG().error( "TODO: implement" );
     return true;
 }
