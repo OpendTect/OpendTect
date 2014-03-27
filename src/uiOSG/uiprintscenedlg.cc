@@ -25,19 +25,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "visscene.h"
+#include "uimain.h"
+#include "visscene.h"
+#include "viscamera.h"
 
-#include <Inventor/actions/SoToVRML2Action.h>
-#include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/VRMLnodes/SoVRMLGroup.h>
-#include <Inventor/SoOffscreenRenderer.h>
-#include <Inventor/SoOutput.h>
+#include "uirgbarray.h"
+#include <osgGeo/TiledOffScreenRenderer>
+
 
 static bool prevsavestate = true;
-static StepInterval<float> pixelsize_range(1,9999,1);
+
 
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
+
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
@@ -47,10 +49,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     , dovrmlfld_(0)
     , selfld_(0)
 {
-    screendpi_ = SoOffscreenRenderer::getScreenPixelsPerInch();
-    SbViewportRegion vp;
-    SoOffscreenRenderer sor( vp );
-    const int nrfiletypes = sor.getNumWriteFiletypes();
+    screendpi_ = uiMain::getDPI();
+    const int nrfiletypes = 1; // at least one image type is supported by osg
 
     bool showvrml = false;
     Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
@@ -59,12 +59,10 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	uiLabel* label mUnusedVar = new uiLabel( this,
 	    "No output file types found.\n"
 	    "Probably, 'libsimage.so' is not installed or invalid." );
-	setCtrlStyle( LeaveOnly );
+	setCtrlStyle( RunAndClose );
 	return;
     }
 
-    SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
-    pixelsize_range.stop = mMIN(maxres[0],maxres[1]);
 
     uiObject* fldabove = 0;
     if ( viewers_.size() > 1 )
@@ -125,23 +123,24 @@ void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
 					   const char** frmtdesc,
 					   BufferString& filters )
 {
-    if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
-	filters = "VRML (*.wrl)";
-    else
+    BufferStringSet supportedimageformats;
+    ioPixmap::supportedImageFormats( supportedimageformats );
+
+    int idx = 0;
+    while ( imagefrmt[idx] )
     {
-	SbViewportRegion vp;
-	SoOffscreenRenderer sor( vp );
-	int idx = 0;
-	while ( imagefrmt[idx] )
+	for ( int idxfmt = 0; idxfmt<supportedimageformats.size(); idxfmt++ )
 	{
-	    if ( sor.isWriteSupported(imagefrmt[idx]) )
+	    if ( supportedimageformats.get(idxfmt) == imagefrmt[idx] )
 	    {
 		if ( !filters.isEmpty() ) filters += ";;";
 		filters += frmtdesc[idx];
+		break;
 	    }
-	    idx++;
 	}
+	idx++;
     }
+
 }
 
 
@@ -198,86 +197,52 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
-    if ( !filenameOK() ) return false;
+    if ( !filenameOK() || !widthfld_ ) 
+	return false;
 
-    const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const ui3DViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
     setDirName( filepath.pathOnly() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
+    const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
+    const ui3DViewer* vwr = viewers_[vwridx];
+    osg::View* osgview =  
+	vwr->getScene()->getCamera()->osgCamera()->getView();
+    mDynamicCastGet( osgViewer::View*,view,osgview);
+
+    osgGeo::TiledOffScreenRenderer offrenderer( view,
+				visBase::DataObject::getCommonViewer() );
+
+    offrenderer.setOutputSize( mNINT32(sizepix_.width()), 
+	mNINT32(sizepix_.height()) );
+
+    if ( offrenderer.createOutput() )
     {
-	if ( !uiMSG().askContinue("The VRML output in in pre apha testing "
-		  	      "status,\nis not officially supported and is \n"
-			      "known to be very unstable.\n\n"
-			      "Do you want to continue?") )
+	osg::ref_ptr<osg::Image> outputimage = (osg::Image*) 
+	    offrenderer.getOutput()->clone(osg::CopyOp::DEEP_COPY_ALL);
+	
+	if ( !outputimage || (outputimage->getPixelFormat()   !=
+	    GL_RGBA && outputimage->getPixelFormat()!=GL_RGB ) || 
+	    !outputimage->isDataContiguous() )
 	{
+	    pErrMsg("Image is in the wrong format");
 	    return false;
 	}
 
-	SoToVRML2Action tovrml2;
-	SoNode* root = vwr->getSceneGraph();
-	root->ref();
-	tovrml2.apply( root );
-	SoVRMLGroup* newroot = tovrml2.getVRML2SceneGraph();
-	newroot->ref();
-	root->unref();
+	uiRGBArray rgbimage(outputimage->getPixelFormat()==GL_RGBA);
+	rgbimage.setSize( outputimage->s(), outputimage->t() );
 
-	SoOutput out;
-	if ( !out.openFile( filepath.fullPath().buf() ) )
-	{
-	    BufferString msg =  "Cannot open file ";
-	    msg += filepath.fullPath();
-	    msg += ".";
+	if ( outputimage->getOrigin()==osg::Image::BOTTOM_LEFT )
+	    outputimage->flipVertical();
 
-	    uiMSG().error( msg );
-	    return false;
-	}
+	rgbimage.put( outputimage->data(), false, true );
 
-	out.setHeaderString("#VRML V2.0 utf8");
-	SoWriteAction wra(&out);
-	wra.apply(newroot);
-	out.closeFile();
-
-	newroot->unref();
-	return true;
+	const char* fmt = uiSaveImageDlg::getExtension();
+	return rgbimage.save( filepath.fullPath().buf(),fmt );
     }
 
-
-    if ( !widthfld_ ) return true;
-
-    SbViewportRegion viewport;
-    viewport.setWindowSize( mNINT32(sizepix_.width()),
-			    mNINT32(sizepix_.height()) );
-    viewport.setPixelsPerInch( dpifld_->box()->getValue() );
-
-    prevsavestate = saveButtonChecked();
-    if ( prevsavestate )
-	writeToSettings();
-
-    PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
-
-#define col2f(rgb) float(col.rgb())/255
-    const Color col = vwr->getBackgroundColor();
-    sor->setBackgroundColor( SbColor(col2f(r),col2f(g),col2f(b)) );
-
-    SoNode* scenegraph = vwr->getSceneGraph();
-    if ( !sor->render(scenegraph) )
-    {
-	uiMSG().error( "Cannot render scene" );
-	return false;
-    }
-
-    const char* extension = getExtension();
-    if ( !sor->writeToFile(filepath.fullPath().buf(),extension) )
-    {
-	uiMSG().error( "Couldn't write to specified file" );
-	return false;
-    }
-
-    return true;
+    return false;
 }
 
 
@@ -293,8 +258,6 @@ void uiPrintSceneDlg::writeToSettings()
 
 const char* uiPrintSceneDlg::getExtension()
 {
-    if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
-	return "wrl";
-
     return uiSaveImageDlg::getExtension();
 }
+

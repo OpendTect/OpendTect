@@ -629,16 +629,13 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
     if ( snapdlg.getSnapshotType() == uiSnapshotDlg::Scene )
     {
-	/*
+	
 	ObjectSet<ui3DViewer> viewers;
 	getSoViewers( viewers );
 	if ( viewers.size() == 0 ) return;
 
 	uiPrintSceneDlg printdlg( &appl_, viewers );
 	printdlg.go();
-	// TODO: save settings in iopar
-	 */
-	pErrMsg("Print screen not implemented with osg.");
     }
     else
     {

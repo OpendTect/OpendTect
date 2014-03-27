@@ -25,29 +25,34 @@ namespace OD
 mExpClass(Basic) RGBImage
 {
 public:
-    virtual			~RGBImage()			{}
+    virtual		~RGBImage()			{}
 
-    virtual char		nrComponents() const		= 0;
-				/*!<\retval 1 grayscale
-				    \retval 2 grayscale+alpha
-				    \retval 3 rgb
-				    \retval 4 rgb+alpha */
-    virtual bool		hasAlpha() const;
-    virtual bool		setSize(int,int)		= 0;
-    virtual int			getSize(bool xdir) const	= 0;
-    virtual Color		get(int,int) const		= 0;
-    virtual bool		set(int,int,const Color&)	= 0;
-
-    virtual int			bufferSize() const;
-    virtual void		fill(unsigned char*) const;
-				/*!Fills array with content. Each
-				    pixel's components are the fastest
-				    dimension, slowet is xdir. Caller
-				    must ensure sufficient mem is
-				    allocated. */
-    virtual bool		put(const unsigned char*);
-    virtual bool		putFromBitmap(const unsigned char*
-				    bitmap, const unsigned char* mask = 0);
+    virtual char	nrComponents() const		= 0;
+			/*!<\retval 1 grayscale
+			    \retval 2 grayscale+alpha
+			    \retval 3 rgb
+			    \retval 4 rgb+alpha */
+    virtual bool	hasAlpha() const;
+    virtual bool	setSize(int,int)		= 0;
+    virtual int		getSize(bool xdir) const	= 0;
+    virtual Color	get(int,int) const		= 0;
+    virtual bool	set(int,int,const Color&)	= 0;
+	    
+    virtual int		bufferSize() const;
+    virtual void	fill(unsigned char*) const;
+			/*!Fills array with content. Each
+			   pixel's components are the fastest
+			   dimension, slowest is xdir. Caller
+			   must ensure sufficient mem is
+			   allocated. */
+    virtual bool	put(const unsigned char*,bool xdir_slowest=true,
+			    bool with_opacity=false);
+			/*!Fills image with data from array.param xdir_slowest 
+			   False if ydir is the slowest dimension, param 
+			   with_opacity If true, eventual 4th component will be
+			   treated as a opacity instead of a transparency.*/
+    virtual bool	putFromBitmap(const unsigned char* bitmap, 
+				      const unsigned char* mask = 0);
     
     virtual const unsigned char*	getData() const		{ return 0; }
     virtual unsigned char*		getData() 		{ return 0; }
