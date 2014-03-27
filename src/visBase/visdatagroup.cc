@@ -46,7 +46,8 @@ int DataObjectGroup::size() const
 no->ref(); \
 no->setRightHandSystem( isRightHandSystem() ); \
 no->setParent( this ); \
-change.trigger()
+change.trigger(); \
+requestSingleRedraw();
 
 void DataObjectGroup::addObject( DataObject* no )
 {
@@ -138,6 +139,7 @@ void DataObjectGroup::removeObject( int idx )
     sceneobject->setParent( 0 );
     sceneobject->unRef();
     change.trigger();
+    requestSingleRedraw();
 }
 
 
