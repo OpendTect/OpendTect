@@ -408,7 +408,7 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
     const int nrends = endids.size();
     if ( nrends<3 ) return;
 
-    int startidx, stopidx, maxdist=0;
+    int startidx=mUdf(int), stopidx=mUdf(int), maxdist=0;
     for ( int i=0; i<nrends; i++ )
     {
 	for ( int j=i+1; j<nrends; j++ )
@@ -425,8 +425,11 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
 	}
     }
 
-    endids -= startidx;
-    endids -= stopidx;
+    if ( !mIsUdf(startidx) )
+    {
+	endids -= startidx;
+	endids -= stopidx;
+    }
 
     toremove.erase();
     for ( int idx=0; idx<comp.size(); idx++ )

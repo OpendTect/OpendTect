@@ -139,8 +139,8 @@ double PolyLineND<T>::distTo( const T& pt, int* segmentidxptr,
 template <class T> inline
 T PolyLineND<T>::closestPoint( const T& pt ) const
 {
-    int idx;
-    double frac;
+    int idx = 0;
+    double frac = 0;
     if ( mIsUdf( distTo(pt,&idx,&frac) ) )
 	return T::udf();
 
@@ -180,8 +180,8 @@ double PolyLineND<T>::arcLength( int index, double frac ) const
 template <class T> inline
 double PolyLineND<T>::arcLength( const T& pt ) const
 {
-    int idx;
-    double frac;
+    int idx = 0;
+    double frac = 0;
     if ( mIsUdf( distTo(pt,&idx,&frac) ) )
 	return mUdf(double);
 
