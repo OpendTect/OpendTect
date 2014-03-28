@@ -11,10 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-//General 0
-// General_support 1
-view_progress 3
-uiBatchLaunch 4
+//General 000
+// General_support 01
+#define		view_progress 0000103
+#define		uiBatchLaunch 0000104
 uiBatchProgLaunch 5
 // General Setup 2
 uiSettings 1
