@@ -1706,7 +1706,7 @@ void HorizonDisplay::updateIntersectionLines(
 		    linestoupdate += objectid;
 		}
 
-		lineshouldexist[idy] = false;
+		lineshouldexist[idy] = true;
 	    }
 	}
     }
