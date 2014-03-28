@@ -56,6 +56,7 @@ set( OD_MODULES
 
 set( OD_PLUGINS
 	ExpAttribs
+	GLCM
 	GMT
 	Hello
 	HorizonAttrib
@@ -66,6 +67,7 @@ set( OD_PLUGINS
 	VoxelConnectivityFilter
 	uiDPSDemo
 	uiExpAttribs
+	uiGLCM
 	uiGMT
 	uiGoogleIO
 	uiGrav
