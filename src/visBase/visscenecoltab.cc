@@ -142,6 +142,8 @@ void SceneColTab::setPos( Pos pos )
 	setOrientation( true );
 	setPos( winx_/2 - width_/2, 10 );
     }
+
+    requestSingleRedraw();
 }
 
 
