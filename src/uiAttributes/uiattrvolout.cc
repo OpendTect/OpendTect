@@ -158,7 +158,6 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 { \
     objfld_->setInputText( s ); \
     objfld_->processInput(); \
-    if( is2d ) objfld_->inpBox()->setReadOnly( true ); \
 }
 
 void uiAttrVolOut::attrSel( CallBacker* )

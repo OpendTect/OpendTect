@@ -314,9 +314,6 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
-    if ( is2D() )
-	inpBox()->setReadOnly( true );
-
 }
 
 
@@ -331,9 +328,6 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
-    if ( is2D() )
-	inpBox()->setReadOnly( true );
-
 }
 
 
