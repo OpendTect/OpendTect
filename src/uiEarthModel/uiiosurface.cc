@@ -672,7 +672,8 @@ public:
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( !ioobj ) continue;
 
-	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj, 0 );
+	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj,
+		    fltpar_.defaultoptidx_ );
 	}
 
 	removebut_->setSensitive( fltpar_.selfaultids_.size() );
@@ -742,6 +743,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
+    , defaultoptidx_(0)
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
     uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
@@ -847,10 +849,11 @@ BufferString uiFaultParSel::getSummary() const
 }
 
 
-void uiFaultParSel::setActOptions( const BufferStringSet& opts )
+void uiFaultParSel::setActOptions( const BufferStringSet& opts, int dftoptidx )
 {
     optnms_.erase();
     optnms_ = opts;
+    defaultoptidx_ = opts.validIdx(dftoptidx) ? dftoptidx : 0;
 }
 
 

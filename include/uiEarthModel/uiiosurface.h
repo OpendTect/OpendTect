@@ -177,7 +177,8 @@ public:
 					      bool use_act_option=false);
 
 				/*Set my own options on selected, optional*/
-    void			setActOptions(const BufferStringSet&);
+    void			setActOptions(const BufferStringSet&,
+					      int defaultoptidx=0);
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
     void			setSelectedFaults(const TypeSet<MultiID>&,
@@ -205,6 +206,7 @@ protected:
     bool			useoptions_;
     BufferStringSet		optnms_;
     TypeSet<int>		optids_;
+    int				defaultoptidx_;
 };
 
 
