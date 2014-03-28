@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. TIngdahl
+ Author:        K. Tingdahl
  Date:          March 2014
- RCS:           $Id$
+ RCS:           $Id: $
 ________________________________________________________________________
 
 -*/
