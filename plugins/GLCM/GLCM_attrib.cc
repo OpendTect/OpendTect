@@ -1366,10 +1366,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 		setOutputValue( output, 0, idx, z0, outval );
 
-		while ( (temp = LinkedList) )
+		temp = LinkedList;
+		while ( temp )
 		{
 			LinkedList = temp->next;
 			delete temp;
+			temp = LinkedList;
 		}
 
 	}
