@@ -328,7 +328,7 @@ bool GeometryManager::fillGeometries( TaskRunner* tr )
     deepUnRef( geometries_ );
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 				        .create(sKey::TwoD());
-    return geomreader->read( geometries_, tr );
+    return geomreader ? geomreader->read( geometries_, tr ) : false;
 }
 
 
