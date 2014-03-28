@@ -112,8 +112,6 @@ void uiProbDenFuncMan::mkFileInfo()
     mGetPDF(pdf);
     if ( pdf )
     {
-	IOPar par;
-	pdf->fillPar( par );
 	txt += BufferString( "Type: ", pdf->getTypeStr() );
 	for ( int idx=0; idx<pdf->nrDims(); idx++ )
 	{

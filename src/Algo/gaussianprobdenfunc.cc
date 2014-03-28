@@ -389,8 +389,11 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
     }
 
     for ( int idx=0; idx<nrdims; idx++ )
+    {
 	par.get( IOPar::compKey(sKeyDimStats,idx), vars_[idx].exp_,
 						   vars_[idx].std_ );
+	par.get( IOPar::compKey(sKey::Name(),idx), vars_[idx].name_ );
+    }
     corrs_.erase();
     for ( int idx=0; ; idx++ )
     {
