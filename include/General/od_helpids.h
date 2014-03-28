@@ -427,7 +427,7 @@ uiImpRokDocPDF 0
 uiExpRokDocPDF 1
 // Probability_density_functions Manage 1
 uiProbDenFuncMan 0
-uiEditProbDenFunc 1
+uiEditProbDenFuncDlg 1
 uiProbGenFuncGen 2
 
 #endif

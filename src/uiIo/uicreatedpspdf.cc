@@ -358,7 +358,7 @@ bool uiCreateDPSPDF::createPDF()
 
 void uiCreateDPSPDF::viewPDF()
 {
-    uiEditProbDenFunc editdlg( this, *pdf_, true );
+    uiEditProbDenFuncDlg editdlg( this, *pdf_, true );
     editdlg.go();
     mSavePDF( return );
 }
