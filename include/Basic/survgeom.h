@@ -84,6 +84,8 @@ public:
     const Geometry*		getGeometry(Geometry::ID) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
+    int 			nrGeometries() const;
+
     Geometry::ID		getGeomID(const TrcKey&) const;
     Geometry::ID		getGeomID(const char* survname) const;
     Geometry::ID		getGeomID(const char* lnm,
@@ -105,6 +107,9 @@ public:
     void			removeGeometry(Geometry::ID);
     
     bool			fillGeometries(TaskRunner*);
+    bool			getList(BufferStringSet& names,
+					TypeSet<Geometry::ID>& ids,
+					bool is2d) const;
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     TrcKey::SurvID		default3DSurvID() const;

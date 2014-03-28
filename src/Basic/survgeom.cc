@@ -86,16 +86,13 @@ bool Geometry::exists( const TrcKey& tk )
 
 
 GeometryManager::GeometryManager()
-{
-    hasduplnms_ = hasDuplicateLineNames();
-}
-
+{ hasduplnms_ = hasDuplicateLineNames(); }
 
 GeometryManager::~GeometryManager()
-{
-    deepUnRef( geometries_ );
-}
+{ deepUnRef( geometries_ ); }
 
+int GeometryManager::nrGeometries() const
+{ return geometries_.size(); }
 
 void GeometryManager::ensureSIPresent() const
 {
@@ -332,4 +329,22 @@ bool GeometryManager::fillGeometries( TaskRunner* tr )
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 				        .create(sKey::TwoD());
     return geomreader->read( geometries_, tr );
+}
+
+
+bool GeometryManager::getList( BufferStringSet& names,
+			       TypeSet<Geometry::ID>& geomids, bool is2d ) const
+{
+    names.erase();
+    geomids.erase();
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+    {
+	if ( geometries_[idx]->is2D() == is2d )
+	{
+	    names.add( geometries_[idx]->getName() );
+	    geomids += geometries_[idx]->getID();
+	}
+    }
+
+    return true;
 }
