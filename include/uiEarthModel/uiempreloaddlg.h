@@ -23,10 +23,8 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
 {
 public:
-			uiEMPreLoadDlg( uiParent* p )
-			    : uiDialog( p, Setup("Pre-load manager"
-						  ,"Pre-loaded horizons"
-						  , "103.0.13") )	{}
+			uiEMPreLoadDlg(uiParent*,const Setup&);
+
 protected:
     virtual void	unloadPushCB(CallBacker*)		=0;
     virtual void	selCB(CallBacker*)			=0;
@@ -36,6 +34,7 @@ protected:
     uiPushButton*	unloadbut_;
     uiToolButton*	savebut_;
 };
+
 
 mExpClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 {

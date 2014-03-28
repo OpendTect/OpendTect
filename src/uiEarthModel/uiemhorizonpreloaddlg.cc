@@ -38,8 +38,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 
 
+// uiEMPreLoadDlg
+uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
+    : uiDialog(p,s)
+{}
+
+
+// uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
-    : uiEMPreLoadDlg(p)
+    : uiEMPreLoadDlg(p,uiDialog::Setup("Horizon Pre-load Manager",
+				       mNoDlgTitle,"103.0.13"))
 {
     setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", true );
@@ -57,19 +65,19 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 					       uiObject::Vertical );
     butgrp->attach( rightOf, listfld_ );
 
-    uiPushButton* add3dbut mUnusedVar =
-	new uiPushButton( butgrp, "Add 3D Horizon",
-			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
-
     if ( SI().has2D() )
     {
 	uiPushButton* add2dbut mUnusedVar =
-	    new uiPushButton( butgrp, "Add 2D Horizon",
+	    new uiPushButton( butgrp, "Load 2D",
 			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
     }
 
+    uiPushButton* add3dbut mUnusedVar =
+	new uiPushButton( butgrp, "Load 3D",
+			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
+
     unloadbut_ = new uiPushButton( this, "Unload selected",
-	    	mCB(this,uiHorizonPreLoadDlg,unloadPushCB), false );
+		mCB(this,uiHorizonPreLoadDlg,unloadPushCB), false );
     unloadbut_->attach( alignedBelow, butgrp );
 
     infofld_ = new uiTextEdit( this, "Info", true );
