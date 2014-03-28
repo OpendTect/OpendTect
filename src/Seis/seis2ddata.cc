@@ -384,3 +384,27 @@ bool Seis2DDataSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     return false;
 }
 
+
+void Seis2DDataSet::getDataSetsOnLine( const char* lnm, BufferStringSet& ds )
+{ Seis2DDataSet::getDataSetsOnLine( Survey::GM().getGeomID(lnm), ds ); }
+
+
+void Seis2DDataSet::getDataSetsOnLine( const Pos::GeomID geomid, 
+				       BufferStringSet& ds )
+{
+    ds.erase();
+    TypeSet<BufferStringSet> linenames;
+    BufferStringSet datasets;
+    SeisIOObjInfo::get2DDataSetInfo( datasets, 0, &linenames );
+    for ( int idx=0; idx<datasets.size(); idx++ )
+    {
+	for ( int lineidx=0; lineidx<linenames[idx].size(); lineidx++ )
+	{
+	    if ( Survey::GM().getGeomID(linenames[idx].get(lineidx)) == geomid )
+	    {
+		ds.add( datasets.get(idx) );
+		break;
+	    }
+	}
+    }
+}

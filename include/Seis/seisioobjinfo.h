@@ -110,6 +110,10 @@ public:
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
 
+    static void		get2DDataSetInfo(BufferStringSet& datasets,
+	    				 TypeSet<MultiID>* setids=0,
+					 TypeSet<BufferStringSet>* linenames=0);
+
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,
 				      TypeSet<BufferStringSet>* linenames=0);

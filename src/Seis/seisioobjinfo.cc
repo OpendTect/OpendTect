@@ -573,6 +573,35 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 }
 
 
+void SeisIOObjInfo::get2DDataSetInfo( BufferStringSet& datasets,
+				      TypeSet<MultiID>* setids,
+				      TypeSet<BufferStringSet>* linenames )
+{
+    datasets.erase();
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T')
+	  || SeisTrcTranslator::isPS(ioobj) ) continue;
+
+	datasets.add( ioobj.name() );
+	if ( setids )
+	    *setids += ioobj.key();
+
+	if ( linenames )
+	{
+	    SeisIOObjInfo oinf( ioobj );
+	    BufferStringSet lnms;
+	    oinf.getLineNames( lnms );
+	    *linenames += lnms;
+	}
+    }
+}
+
+
 void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 				   TypeSet<MultiID>* setids,
 				   TypeSet<BufferStringSet>* linenames )

@@ -80,6 +80,11 @@ public:
     bool		    remove(Pos::GeomID);
     				//!< Also removes from disk
 
+    static void		    getDataSetsOnLine(const char* lnm,
+					      BufferStringSet& ds);
+    static void		    getDataSetsOnLine(const Pos::GeomID geomid,
+					      BufferStringSet& ds);
+
 protected:
 
     Seis2DLineIOProvider*   liop_;
