@@ -204,10 +204,8 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& res )
     uiSelectFromList dlg( parent(), setup );
     dlg.setHelpKey("50.0.17");
     if ( dlg.selFld() )
-    {
 	dlg.selFld()->setMultiSelect();
-	dlg.selFld()->selectAll( true );
-    }
+
     if ( !dlg.go() )
 	return false;
 
