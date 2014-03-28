@@ -13,12 +13,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dipfilterattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribfactory.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "seisbuf.h"
+#include "seisbufadapters.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
 #include "survinfo.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
+#include "uifkspectrum.h"
 #include "uigeninput.h"
+#include "uislicesel.h"
 #include "uispinbox.h"
 
 using namespace Attrib;
@@ -40,64 +51,104 @@ mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp())
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.2")
-	  
-{
-    inpfld = createInpFld( is2d );
 
-    szfld = new uiLabeledSpinBox( this, "Filter size" );
-    szfld->box()->setMinValue( cMinVal );
-    szfld->box()->setStep( cStepVal, true );
-    szfld->attach( alignedBelow, inpfld );
+{
+    inpfld_ = createInpFld( is2d );
+
+    szfld_ = new uiLabeledSpinBox( this, "Filter size" );
+    szfld_->box()->setMinValue( cMinVal );
+    szfld_->box()->setStep( cStepVal, true );
+    szfld_->attach( alignedBelow, inpfld_ );
 
     BufferString fltrlbl;
     fltrlbl = zIsTime() ? "Velocity " : "Dip ";
     fltrlbl += "to pass";
-    fltrtpfld = new uiGenInput( this, fltrlbl, StringListInpSpec(fltrstrs) );
-    fltrtpfld->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
-    fltrtpfld->attach( alignedBelow, szfld );
+    fltrtpfld_ = new uiGenInput( this, fltrlbl, StringListInpSpec(fltrstrs) );
+    fltrtpfld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
+    fltrtpfld_->attach( alignedBelow, szfld_ );
 
     BufferString lbl( "Min/max " );
     lbl += zIsTime() ? "velocity (m/s)" : "dip (deg)";
     const char* fldnm = zIsTime() ? " velocity" : " dip";
-    velfld = new uiGenInput( this, lbl,
+    velfld_ = new uiGenInput( this, lbl,
 		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),
 		FloatInpSpec().setName( BufferString("Max",fldnm).buf() ) );
-    velfld->setElemSzPol( uiObject::Small );
-    velfld->attach( alignedBelow, fltrtpfld );
+    velfld_->setElemSzPol( uiObject::Small );
+    velfld_->attach( alignedBelow, fltrtpfld_ );
 
-    azifld = new uiGenInput( this, "Azimuth filter", BoolInpSpec(true) );
-    azifld->setValue( false );
-    azifld->attach( alignedBelow, velfld );
-    azifld->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
+    uiPushButton* dispbut = new uiPushButton( this, "Display F-K panel", false);
+    dispbut->activated.notify( mCB(this,uiDipFilterAttrib,panelbutCB) );
+    dispbut->attach( rightTo, velfld_ );
 
-    aziintfld = new uiGenInput( this, "Azimuth to pass (min/max)",
+    azifld_ = new uiGenInput( this, "Azimuth filter", BoolInpSpec(true) );
+    azifld_->setValue( false );
+    azifld_->attach( alignedBelow, velfld_ );
+    azifld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
+
+    aziintfld_ = new uiGenInput( this, "Azimuth to pass (min/max)",
 				FloatInpIntervalSpec().setName("Min Azimuth",0)
 				.setName("Max Azimuth",1) );
-    aziintfld->attach( alignedBelow, azifld );
+    aziintfld_->attach( alignedBelow, azifld_ );
 
-    taperfld = new uiGenInput( this, "Taper length (%)", 
+    taperfld_ = new uiGenInput( this, "Taper length (%)",
 			       FloatInpSpec().setName("Taper length") );
-    taperfld->attach( alignedBelow, aziintfld );
+    taperfld_->attach( alignedBelow, aziintfld_ );
 
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
     filtSel(0);
     aziSel(0);
 }
 
 
+void uiDipFilterAttrib::panelbutCB( CallBacker* )
+{
+    PtrMan<uiLinePosSelDlg> dlg = 0;
+    if ( is2d_ )
+    {
+    }
+    else
+    {
+	CubeSampling cs; inpfld_->getRanges( cs );
+	dlg = new uiLinePosSelDlg( this, cs );
+    }
+
+    if ( !dlg->go() )
+	return;
+
+    const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
+    if ( !inpdesc ) return;
+
+    const MultiID mid( inpdesc->getStoredID() );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return;
+
+    SeisTrcReader rdr( ioobj );
+    rdr.setSelData( new Seis::RangeSelData(dlg->getCubeSampling()) );
+    rdr.prepareWork();
+    SeisTrcBuf tbuf( true );
+    SeisBufReader bufrdr( rdr, tbuf );
+    if ( !bufrdr.execute() ) return;
+
+    SeisTrcBufArray2D arr2d( &tbuf, false, 0 );
+    uiFKSpectrum*  uifk = new uiFKSpectrum( this );
+    uifk->setData( arr2d );
+    uifk->show();
+}
+
+
 void uiDipFilterAttrib::filtSel( CallBacker* )
 {
-    int val = fltrtpfld->getIntValue();
+    int val = fltrtpfld_->getIntValue();
     bool mode0 = ( val==1 || val==2 );
     bool mode1 = ( !val || val==2 );
-    velfld->setSensitive( mode0, 0, 0 );
-    velfld->setSensitive( mode1, 0, 1 );
+    velfld_->setSensitive( mode0, 0, 0 );
+    velfld_->setSensitive( mode1, 0, 1 );
 }
 
 
 void uiDipFilterAttrib::aziSel( CallBacker* )
 {
-    aziintfld->display( azifld->getBoolValue() );
+    aziintfld_->display( azifld_->getBoolValue() );
 }
 
 
@@ -106,20 +157,20 @@ bool uiDipFilterAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != DipFilter::attribName() )
 	return false;
 
-    mIfGetInt( DipFilter::sizeStr(), size, szfld->box()->setValue(size) )
-    mIfGetEnum( DipFilter::typeStr(), type, fltrtpfld->setValue(type) )
+    mIfGetInt( DipFilter::sizeStr(), size, szfld_->box()->setValue(size) )
+    mIfGetEnum( DipFilter::typeStr(), type, fltrtpfld_->setValue(type) )
     mIfGetFloat( DipFilter::minvelStr(), minvel,
-		 velfld->setValue(minvel,0) )
+		 velfld_->setValue(minvel,0) )
     mIfGetFloat( DipFilter::maxvelStr(), maxvel,
-		 velfld->setValue(maxvel,1) )
+		 velfld_->setValue(maxvel,1) )
     mIfGetBool( DipFilter::filteraziStr(), filterazi,
-		azifld->setValue(filterazi) )
+		azifld_->setValue(filterazi) )
     mIfGetFloat( DipFilter::minaziStr(), minazi,
-		 aziintfld->setValue(minazi,0) )
+		 aziintfld_->setValue(minazi,0) )
     mIfGetFloat( DipFilter::maxaziStr(), maxazi,
-		 aziintfld->setValue(maxazi,1) )
+		 aziintfld_->setValue(maxazi,1) )
     mIfGetFloat( DipFilter::taperlenStr(), taperlen,
-		 taperfld->setValue(taperlen) )
+		 taperfld_->setValue(taperlen) )
     filtSel(0);
     aziSel(0);
     return true;
@@ -128,7 +179,7 @@ bool uiDipFilterAttrib::setParameters( const Desc& desc )
 
 bool uiDipFilterAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
     return true;
 }
 
@@ -138,14 +189,14 @@ bool uiDipFilterAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != DipFilter::attribName() )
 	return false;
 
-    mSetInt( DipFilter::sizeStr(), szfld->box()->getValue() );
-    mSetEnum( DipFilter::typeStr(), fltrtpfld->getIntValue() );
-    mSetFloat( DipFilter::minvelStr(), velfld->getfValue(0) );
-    mSetFloat( DipFilter::maxvelStr(), velfld->getfValue(1) );
-    mSetBool( DipFilter::filteraziStr(), azifld->getBoolValue() );
-    mSetFloat( DipFilter::minaziStr(), aziintfld->getfValue(0) );
-    mSetFloat( DipFilter::maxaziStr(), aziintfld->getfValue(1) );
-    mSetFloat( DipFilter::taperlenStr(), taperfld->getfValue() );
+    mSetInt( DipFilter::sizeStr(), szfld_->box()->getValue() );
+    mSetEnum( DipFilter::typeStr(), fltrtpfld_->getIntValue() );
+    mSetFloat( DipFilter::minvelStr(), velfld_->getfValue(0) );
+    mSetFloat( DipFilter::maxvelStr(), velfld_->getfValue(1) );
+    mSetBool( DipFilter::filteraziStr(), azifld_->getBoolValue() );
+    mSetFloat( DipFilter::minaziStr(), aziintfld_->getfValue(0) );
+    mSetFloat( DipFilter::maxaziStr(), aziintfld_->getfValue(1) );
+    mSetFloat( DipFilter::taperlenStr(), taperfld_->getfValue() );
 
     return true;
 }
@@ -153,7 +204,7 @@ bool uiDipFilterAttrib::getParameters( Desc& desc )
 
 bool uiDipFilterAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
+    fillInp( inpfld_, desc, 0 );
     return true;
 }
 
@@ -162,7 +213,7 @@ void uiDipFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( filterszstr(), DipFilter::sizeStr() );
 
-    int val = fltrtpfld->getIntValue();
+    int val = fltrtpfld_->getIntValue();
     bool mode0 = ( val==1 || val==2 );
     bool mode1 = ( !val || val==2 );
     if ( mode0 )

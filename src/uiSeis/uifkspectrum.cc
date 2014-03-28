@@ -11,9 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifkspectrum.h"
 
-#include "uimsg.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
+#include "uigeninput.h"
+#include "uigraphicsview.h"
+#include "uimsg.h"
+#include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
 #include "bufstring.h"
@@ -21,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "fourier.h"
 #include "keystrs.h"
+#include "mouseevent.h"
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p )
@@ -38,6 +42,26 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p )
     vwr.appearance().ddpars_.wva_.allowuserchange_ = false;
     vwr.appearance().ddpars_.vd_.show_ = true;
     addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
+
+    vwr.rgbCanvas().getMouseEventHandler().movement.notify(
+	mCB(this,uiFKSpectrum,mouseMoveCB) );
+
+    lineitm_ = vwr.createAuxData(0);
+    lineitm_->linestyle_.type_ = LineStyle::Solid;
+    lineitm_->linestyle_.width_ = 2;
+    lineitm_->linestyle_.color_ = Color::Black();
+    vwr.addAuxData( lineitm_ );
+
+//TODO: Support setting min/max velocity for f-k bandpass filtering
+    ffld_ = new uiGenInput( this, SI().zIsTime() ? "F" : "Kz" );
+    ffld_->setReadOnly();
+    kfld_ = new uiGenInput( this, "K" );
+    kfld_->setReadOnly();
+    velfld_ = new uiGenInput( this, SI().zIsTime() ? "Vel (m/s)" : "Dip (deg)");
+    velfld_->setReadOnly();
+    ffld_->attach( alignedBelow, &vwr );
+    kfld_->attach( rightTo, ffld_ );
+    velfld_->attach( rightTo, kfld_ );
 }
 
 
@@ -49,18 +73,34 @@ uiFKSpectrum::~uiFKSpectrum()
 }
 
 
+void uiFKSpectrum::mouseMoveCB( CallBacker* )
+{
+    lineitm_->poly_.erase();
+
+    const MouseEvent& ev = viewer().rgbCanvas().getMouseEventHandler().event();
+    uiWorld2Ui w2u;
+    viewer().getWorld2Ui( w2u );
+    uiWorldPoint wp = w2u.transform( ev.pos() );
+    lineitm_->poly_ += wp;
+    lineitm_->poly_ += FlatView::Point( 0, 0 );
+    lineitm_->poly_ += FlatView::Point( -wp.x, wp.y );
+
+    ffld_->setValue( wp.y );
+    kfld_->setValue( wp.x );
+    velfld_->setValue( mIsZero(wp.x,mDefEps)? 0 : abs(wp.y/wp.x) );
+
+    viewer().handleChange( FlatView::Viewer::Auxdata );
+}
+
+
 void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
-    if ( datapack )
-	setCaption( !datapack ? "No data"
+    setCaption( !datapack ? "No data"
 	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
 
-    if ( dmid == DataPackMgr::CubeID() )
-    {
-    }
-    else if ( dmid == DataPackMgr::FlatID() )
+    if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,dp,datapack);
 	if ( dp )

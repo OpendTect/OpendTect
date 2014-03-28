@@ -3,14 +3,14 @@
 
 /*
 ________________________________________________________________________
-            
+
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
 RCS:           $Id$
 ______________________________________________________________________
-                       
-*/   
+
+*/
 
 #include "uiseismod.h"
 #include "uiflatviewmainwin.h"
@@ -18,15 +18,15 @@ ______________________________________________________________________
 #include "survinfo.h"
 #include "odcomplex.h"
 
-
 namespace Fourier { class CC; }
 template <class T> class Array2D;
-
+namespace FlatView { class AuxData; }
+class uiGenInput;
 
 mExpClass(uiSeis) uiFKSpectrum : public uiFlatViewMainWin
 {
 public:
-    				uiFKSpectrum(uiParent*);
+				uiFKSpectrum(uiParent*);
 				~uiFKSpectrum();
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
@@ -37,13 +37,18 @@ protected:
     void			initFFT(int,int);
     bool			compute(const Array2D<float>&);
     bool			view(Array2D<float>&);
+    void			mouseMoveCB(CallBacker*);
 
     Fourier::CC*		fft_;
     Array2D<float_complex>*	input_;
     Array2D<float_complex>*	output_;
     Array2D<float>*		spectrum_;
-};
+    FlatView::AuxData*		lineitm_;
 
+    uiGenInput*			ffld_;
+    uiGenInput*			kfld_;
+    uiGenInput*			velfld_;
+};
 
 #endif
 

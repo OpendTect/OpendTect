@@ -31,13 +31,13 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiLabeledSpinBox*	szfld;
-    uiGenInput*		fltrtpfld;
-    uiGenInput*		velfld;
-    uiGenInput*		azifld;
-    uiGenInput*		aziintfld;
-    uiGenInput*		taperfld;
+    uiAttrSel*		inpfld_;
+    uiLabeledSpinBox*	szfld_;
+    uiGenInput*		fltrtpfld_;
+    uiGenInput*		velfld_;
+    uiGenInput*		azifld_;
+    uiGenInput*		aziintfld_;
+    uiGenInput*		taperfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -45,10 +45,11 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
+    void		panelbutCB(CallBacker*);
     void		filtSel(CallBacker*);
     void		aziSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 
