@@ -888,6 +888,8 @@ void uiSurvey::dataRootPushed( CallBacker* )
     const char* ptr = GetSurveyName();
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
+    
+    selChange( 0 );
 }
 
 
