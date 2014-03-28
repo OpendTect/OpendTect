@@ -111,7 +111,7 @@ protected:
 };
 
 
-class uiLinePosSelDlg: public uiDialog
+mExpClass(uiTools) uiLinePosSelDlg: public uiDialog
 {
 public:
 			uiLinePosSelDlg(uiParent*,const PosInfo::Line2DKey&);
