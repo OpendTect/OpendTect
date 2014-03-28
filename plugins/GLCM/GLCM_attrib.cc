@@ -273,7 +273,8 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
 
 int GLCM_attrib::computeGreyLevel( float trcval) const
 {
-    int trcvali = ceil((trcval-minlimit_)/((abs(maxlimit_)+abs(minlimit_))/(usegreylevels_-1)));
+    trcval = ceil((trcval-minlimit_)/((abs(maxlimit_)+abs(minlimit_))/(usegreylevels_-1)));
+    int trcvali = mNINT32(trcval);
     if ( trcvali < 0 )
 	trcvali=0;
     if ( trcvali > (usegreylevels_-1) )
@@ -365,8 +366,8 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 								const int steeridx = posandsteeridx_.steerindexes_[posidx];
 								shift = getInputValue( *steerdata_, steeridx, idx, z0 );
 							}
-							const float valI = getInputValue( *inpdata_[posidx], dataidx_, idx + isamp+shift, z0 );
-							const float valJ = getInputValue( *inpdata_[posidx+1], dataidx_, idx + isamp+shift, z0 );
+							const float valI = getInterpolInputValue( *inpdata_[posidx], dataidx_, idx + isamp+shift, z0 );
+							const float valJ = getInterpolInputValue( *inpdata_[posidx+1], dataidx_, idx + isamp+shift, z0 );
 
 							greyI = computeGreyLevel( valI );
 							greyJ = computeGreyLevel( valJ );
@@ -500,8 +501,8 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 				{
 					for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
 					{
-						const float valI = getInterpolInputValue( *inpdata_[posidx], dataidx_, idx+isamp, z0 );
-						const float valJ = getInterpolInputValue( *inpdata_[posidx], dataidx_, idx+isamp+1, z0 );
+						const float valI = getInputValue( *inpdata_[posidx], dataidx_, idx+isamp, z0 );
+						const float valJ = getInputValue( *inpdata_[posidx], dataidx_, idx+isamp+1, z0 );
 						greyI = computeGreyLevel( valI );
 							greyJ = computeGreyLevel( valJ );
 
