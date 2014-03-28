@@ -43,7 +43,7 @@ public:
     			//!< opt == (int)uiSeisSEGYEntry::DataType
 
     bool		select2DSeis(MultiID&,bool with_attr=false);
-    bool		select2DLines(const MultiID&,BufferStringSet&);
+    bool		select2DLines(BufferStringSet&);
     static bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
 	    				  PosInfo::Line2DData&);
     static void		get2DLineSetName(const MultiID&,BufferString&);

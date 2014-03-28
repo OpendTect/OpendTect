@@ -195,12 +195,11 @@ void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
 }
 
 
-bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
+bool uiSeisPartServer::select2DLines( BufferStringSet& res )
 {
     BufferStringSet linenames;
-    uiSeisIOObjInfo objinfo( mid );
-    objinfo.ioObjInfo().getLineNames( linenames );
-
+    TypeSet<Pos::GeomID> geomids;
+    Survey::GM().getList( linenames, geomids, true );
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( parent(), setup );
     dlg.setHelpKey("50.0.17");
