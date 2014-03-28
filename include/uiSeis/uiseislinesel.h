@@ -36,13 +36,12 @@ mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
-			uiSeis2DLineSel(uiParent*,const char* lsnm=0);
+			uiSeis2DLineSel(uiParent*);
 
     bool		inputOK(bool emit_uimsg=true) const;
     inline const char*	lineName() const	{ return lnm_.str(); }
-    inline const char*	lineSetName() const	{ return lsnm_.str(); }
-    MultiID		lineSetID() const;
-    void		set(const char* lsnm,const char* lnm=0);
+    inline Pos::GeomID	geomID() const		{ return geomid_; }
+    void		set(const char* lnm=0);
 
     const PosInfo::Line2DKey& getLine2DKey() const;
     void		set(const PosInfo::Line2DKey&);
@@ -51,9 +50,8 @@ public:
 protected:
 
     BufferString	lnm_;
-    BufferString	lsnm_;
-    bool		fixedlsname_;
     PosInfo::Line2DKey	l2dky_;
+    Pos::GeomID		geomid_;
 
     BufferString	getSummary() const;
 
@@ -69,7 +67,7 @@ public:
 
     const char*		getInput() const;
     void		setInput(const char*);
-    void		setLineSet(const MultiID&);
+    void		setDataSet(const MultiID&); //!< Only when forread
     void		fillWithAll();
 
     int			getLineIndex() const; //!< Only usable when forread
@@ -80,7 +78,7 @@ protected:
 
     uiComboBox*		fld_;
     bool		forread_;
-    MultiID		lsid_;
+    MultiID		dsid_;
 
     void		addLineNames(const MultiID&);
     void		selChg( CallBacker* )	{ nameChanged.trigger(); }

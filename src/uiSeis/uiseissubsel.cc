@@ -222,7 +222,7 @@ void uiSeis2DSubSel::clear()
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
     clear();
-    lnmfld_->setLineSet( ioobj.key() );
+    lnmfld_->setDataSet( ioobj.key() );
 }
 
 

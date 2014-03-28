@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "transl.h"
 
@@ -271,9 +272,9 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     if ( is2d_ )
     {
 	BufferString lsnm, lnm;
-	mIfGetString( FingerPrint::reflinesetStr(), ls, lsnm = ls )
+//	mIfGetString( FingerPrint::reflinesetStr(), ls, lsnm = ls )
 	mIfGetString( FingerPrint::ref2dlineStr(), l, lnm = l )
-	linefld_->set( lsnm, lnm );
+	linefld_->set( lnm );
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
@@ -376,7 +377,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	if ( is2d_ )
 	{
-	    mSetString( FingerPrint::reflinesetStr(), linefld_->lineSetID() )
+//	    mSetString( FingerPrint::reflinesetStr(), linefld_->lineSetID() )
 	    mSetString( FingerPrint::ref2dlineStr(), linefld_->lineName() )
 	}
     }
@@ -593,35 +594,20 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 
 
 BinID uiFingerPrintAttrib::get2DRefPos() const
-{
+{ 
     const BinID undef( mUdf(int), mUdf(int) );
     if ( !is2d_ )
 	return undef;
 
-    PtrMan<IOObj> ioobj = IOM().get( linefld_->lineSetID() );
-    if ( !ioobj )
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+	    	    Survey::GM().getGeometry(linefld_->lineName()) );
+    if ( !geom2d )
 	return undef;
 
-    BufferString fnm = ioobj->fullUserExpr(true);
-    Seis2DLineSet lineset( fnm );
-    S2DPOS().setCurLineSet( lineset.name() );
-    for ( int idx=0 ;idx<lineset.nrLines();idx++ )
-    {
-	const int lineindex =
-	    lineset.indexOfFirstOccurrence( linefld_->lineName() );
-	if ( lineindex > -1 )
-	{
-	    PosInfo::Line2DData* geometry =
-		new PosInfo::Line2DData( lineset.lineName(idx) );
-	    if ( !S2DPOS().getGeometry(*geometry) )
-		{ delete geometry; return undef; }
-
-	    const int trcnr = refposfld_->getBinID().crl();
-	    const int trcidx = geometry->indexOf( trcnr );
-	    if ( geometry->positions().validIdx(trcidx) )
-		return SI().transform( geometry->positions()[trcidx].coord_ );
-	}
-    }
+    const int trcnr = refposfld_->getBinID().crl();
+    const int trcidx = geom2d->data().indexOf( trcnr );
+    if ( geom2d->data().positions().validIdx(trcidx) )
+	return SI().transform( geom2d->data().positions()[trcidx].coord_ );
 
     return undef;
 }

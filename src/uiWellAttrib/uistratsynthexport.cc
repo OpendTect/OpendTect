@@ -287,7 +287,7 @@ void uiStratSynthExport::geomSel( CallBacker* )
 
 void uiStratSynthExport::lsSel( CallBacker* )
 {
-    existlinenmsel_->setLineSet( linesetsel_->key() );
+    existlinenmsel_->setDataSet( linesetsel_->key() );
 }
 
 

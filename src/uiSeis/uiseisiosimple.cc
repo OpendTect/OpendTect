@@ -357,7 +357,7 @@ void uiSeisIOSimple::lsSel( CallBacker* )
     if ( !lnmfld_ ) return;
     seisfld_->commitInput();
     if ( ctio_.ioobj )
-	lnmfld_->setLineSet( ctio_.ioobj->key() );
+	lnmfld_->setDataSet( ctio_.ioobj->key() );
 }
 
 

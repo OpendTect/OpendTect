@@ -34,10 +34,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, const char* lsnm )
+uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p )
     : uiCompoundParSel(p,"Line name")
-    , fixedlsname_(lsnm && *lsnm)
-    , lsnm_(lsnm)
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
 }
@@ -46,8 +45,6 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, const char* lsnm )
 BufferString uiSeis2DLineSel::getSummary() const
 {
     BufferString ret( lnm_ );
-    if ( !lnm_.isEmpty() )
-	{ ret += " ["; ret += lsnm_; ret += "]"; }
     return ret;
 }
 
@@ -60,12 +57,7 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
 	    uiMSG().error( "Please select the line" );
 	return false;
     }
-    if ( lsnm_.isEmpty() )
-    {
-	if ( doerr )
-	    uiMSG().error( "Please select the Line Set" );
-	return false;
-    }
+
     return true;
 }
 
@@ -74,36 +66,9 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
 
 void uiSeis2DLineSel::selPush( CallBacker* )
 {
-    BufferString newlsnm( lsnm_ );
-    if ( !fixedlsname_ )
-    {
-	BufferStringSet lsnms;
-	SeisIOObjInfo::get2DLineInfo( lsnms );
-	if ( lsnms.isEmpty() )
-	    mErrRet("No line sets available.\nPlease import 2D data first")
-
-	if ( lsnms.size() == 1 )
-	    newlsnm = lsnm_ = lsnms.get( 0 );
-	else
-	{
-	    uiSelectFromList::Setup su( "Select Line Set", lsnms );
-	    su.current_ = lsnm_.isEmpty() ? 0 : lsnms.indexOf( lsnm_ );
-	    if ( su.current_ < 0 ) su.current_ = 0;
-	    uiSelectFromList dlg( this, su );
-	    if ( !dlg.go() || dlg.selection() < 0 )
-		return;
-	    newlsnm = lsnms.get( dlg.selection() );
-	}
-    }
-
     BufferStringSet lnms;
-    SeisIOObjInfo ioinf( newlsnm );
-    if ( !ioinf.isOK() )
-	mErrRet("Invalid line set selected")
-    if ( ioinf.isPS() || !ioinf.is2D() )
-	mErrRet("Selected Line Set duplicates name with other object")
-
-    ioinf.getLineNames( lnms );
+    TypeSet<Pos::GeomID> geomids;
+    Survey::GM().getList( lnms, geomids, true );
     uiSelectFromList::Setup su( "Select 2D line", lnms );
     su.current_ = lnm_.isEmpty() ? 0 : lnms.indexOf( lnm_ );
     if ( su.current_ < 0 ) su.current_ = 0;
@@ -111,15 +76,13 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     if ( !dlg.go() || dlg.selection() < 0 )
 	return;
 
-    lsnm_ = newlsnm;
     lnm_ = lnms.get( dlg.selection() );
-    l2dky_ = S2DPOS().getLine2DKey( lsnm_, lnm_ );
+    geomid_ = geomids[dlg.selection()];
 }
 
 
-void uiSeis2DLineSel::set( const char* lsnm, const char* lnm )
+void uiSeis2DLineSel::set( const char* lnm )
 {
-    lsnm_ = IOObj::isKey(lsnm) ? IOM().nameOf( MultiID(lsnm) ) : lsnm;
     lnm_ = lnm;
     updateSummary();
 }
@@ -128,7 +91,6 @@ void uiSeis2DLineSel::set( const char* lsnm, const char* lnm )
 void uiSeis2DLineSel::set( const PosInfo::Line2DKey& l2dky )
 {
     l2dky_ = l2dky;
-    lsnm_ = S2DPOS().getLineSet( l2dky_.lsID() );
     lnm_ = S2DPOS().getLineName( l2dky_.lineID() );
     updateSummary();
 }
@@ -136,20 +98,6 @@ void uiSeis2DLineSel::set( const PosInfo::Line2DKey& l2dky )
 
 const PosInfo::Line2DKey& uiSeis2DLineSel::getLine2DKey() const
 { return l2dky_; }
-
-
-MultiID uiSeis2DLineSel::lineSetID() const
-{
-    TypeSet<MultiID> mids; BufferStringSet lsnms;
-    SeisIOObjInfo::get2DLineInfo( lsnms, &mids );
-    for ( int idx=0; idx<lsnms.size(); idx++ )
-    {
-	const MultiID& key = mids[idx];
-	if ( lsnms.get(idx) == lsnm_ )
-	    return key;
-    }
-    return MultiID("");
-}
 
 
 uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
@@ -170,17 +118,17 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
 
 void uiSeis2DLineNameSel::fillAll( CallBacker* )
 {
-    if ( lsid_.isEmpty() )
+    if ( dsid_.isEmpty() )
 	fillWithAll();
 }
 
 
 void uiSeis2DLineNameSel::fillWithAll()
 {
-    const IODir iodir( mIOObjContext(SeisTrc).getSelKey() );
-    const ObjectSet<IOObj>& objs = iodir.getObjs();
-    for ( int idx=0; idx<objs.size(); idx++ )
-	addLineNames( objs[idx]->key() );
+    BufferStringSet lnms;
+    TypeSet<Pos::GeomID> geomids;
+    Survey::GM().getList( lnms, geomids, true );
+    fld_->addItems( lnms );
     if ( fld_->size() )
 	fld_->setCurrentItem( 0 );
 }
@@ -193,12 +141,7 @@ void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
 
     BufferStringSet lnms; oi.getLineNames( lnms );
     nameChanged.disable();
-    for ( int idx=0; idx<lnms.size(); idx++ )
-    {
-	const char* lnm = lnms.get( idx );
-	if ( !fld_->isPresent(lnm) )
-	    fld_->addItem( lnm );
-    }
+    fld_->addItems( lnms );
     nameChanged.enable();
 }
 
@@ -231,9 +174,9 @@ void uiSeis2DLineNameSel::setInput( const char* nm )
 }
 
 
-void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
+void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 {
-    lsid_ = ky;
+    dsid_ = ky;
     fld_->setEmpty();
     if ( !forread_ ) fld_->addItem( "" );
     addLineNames( ky );

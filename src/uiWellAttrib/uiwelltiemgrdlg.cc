@@ -248,7 +248,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 	{
 	    setLine();
 	    if ( seisctio2d_.ioobj )
-		seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
+		seislinefld_->setDataSet( seisctio2d_.ioobj->key() );
 	}
     }
 }
