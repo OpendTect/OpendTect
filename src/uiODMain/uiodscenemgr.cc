@@ -105,7 +105,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODVolrenTreeItemFactory, 3100, SurveyInfo::No2D );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 3500,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new Seis2DTreeItemFactory, 4000, SurveyInfo::Only2D );
+    tifs_->addFactory( new Line2DTreeItemFactory, 4000, SurveyInfo::Only2D );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000,
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000,
@@ -1035,12 +1035,13 @@ int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
 {
     mGetOrAskForScene
 
-    uiOD2DLineSetTreeItem* itm = new uiOD2DLineSetTreeItem( mid );
-    scene->itemmanager_->addChild( itm, false );
+//    uiOD2DLineSetTreeItem* itm = new uiOD2DLineSetTreeItem( mid );
+//    scene->itemmanager_->addChild( itm, false );
 
-    uiOD2DLineTreeItem* subitm = new uiOD2DLineTreeItem( name, displayid );
-    itm->addChild( subitm, false );
-    return subitm->displayID();
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( name, displayid );
+    scene->itemmanager_->addChild( itm, false );
+//    itm->addChild( subitm, false );
+    return itm->displayID();
 }
 
 

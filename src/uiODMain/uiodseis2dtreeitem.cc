@@ -44,19 +44,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 
 
 static const char* sKeyUnselected = "<Unselected>";
 static const char* sKeyRightClick = "<right-click>";
 static TypeSet<int> selcomps;
 
-uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
-    : uiODTreeItem("2D Seismics" )
+uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
+    : uiODTreeItem("2D Line" )
 {
 }
 
 
-bool uiODSeis2DParentTreeItem::showSubMenu()
+bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
@@ -68,14 +69,12 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	MultiID mid;
-	const bool success =
-	    ODMainWin()->applMgr().seisServer()->select2DSeis( mid );
-	if ( !success ) return false;
-
-	uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
-	addChild( newitm, false );
-	newitm->selectAddLines();
+	BufferStringSet linenames;
+	applMgr()->seisServer()->select2DLines( linenames );
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	for ( int idx=linenames.size()-1; idx>=0; idx-- )
+	    addChild( new uiOD2DLineTreeItem(linenames.get(idx)), false );
+	cursorchgr.restore();
     }
     else if ( mnuid == 1 )
 	ODMainWin()->applMgr().create2Dfrom3D();
@@ -89,7 +88,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
 
 
 uiTreeItem*
-    Seis2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
+    Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
@@ -101,6 +100,7 @@ uiTreeItem*
     if ( subitm )
 	return newsubitm;
 
+    /*
     const MultiID& setid = s2d->lineSetID();
     BufferString linesetname;
     ODMainWin()->applMgr().seisServer()->get2DLineSetName( setid, linesetname );
@@ -113,11 +113,11 @@ uiTreeItem*
 
     uiOD2DLineSetTreeItem* newlinesetitm = new uiOD2DLineSetTreeItem( setid );
     treeitem->addChild( newlinesetitm, true );
-    newlinesetitm->addChild( newsubitm, true );
+    newlinesetitm->addChild( newsubitm, true ); */
     return 0;
 }
 
-
+/*
 uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     : uiODTreeItem("")
     , setid_( mid )
@@ -579,7 +579,7 @@ void uiOD2DLineSetTreeItem::selectNewAttribute( const char* attribnm )
 
 
 const char* uiOD2DLineSetTreeItem::parentType() const
-{ return typeid(uiODSeis2DParentTreeItem).name(); }
+{ return typeid(uiODLine2DParentTreeItem).name(); }
 
 
 bool uiOD2DLineSetTreeItem::init()
@@ -588,7 +588,7 @@ bool uiOD2DLineSetTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiOD2DLineSetTreeItem,checkCB) );
     return true;
 }
-
+*/
 
 uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, int displayid )
     : linenmitm_("Show line&name")
@@ -610,7 +610,7 @@ uiOD2DLineTreeItem::~uiOD2DLineTreeItem()
 
 
 const char* uiOD2DLineTreeItem::parentType() const
-{ return typeid(uiOD2DLineSetTreeItem).name(); }
+{ return typeid(uiODLine2DParentTreeItem).name(); }
 
 
 bool uiOD2DLineTreeItem::init()
@@ -618,12 +618,11 @@ bool uiOD2DLineTreeItem::init()
     bool newdisplay = false;
     if ( displayid_==-1 )
     {
-	mDynamicCastGet(uiOD2DLineSetTreeItem*,lsitm,parent_)
-	if ( !lsitm ) return false;
+	mDynamicCastGet(uiODLine2DParentTreeItem*,parentitm,parent_)
+	if ( !parentitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = new visSurvey::Seis2DDisplay;
 	visserv_->addObject( s2d, sceneID(), true );
-	s2d->setLineInfo( lsitm->lineSetID(), name_ );
 	displayid_ = s2d->id();
 
 	s2d->turnOn( true );
@@ -634,16 +633,18 @@ bool uiOD2DLineTreeItem::init()
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return false;
 
-    PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
-    if ( !applMgr()->seisServer()->get2DLineGeometry(s2d->lineSetID(),name_,
-	  *geometry) )
+    Pos::GeomID geomid = Survey::GM().getGeomID( name_ );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
+    if ( !geom2d )
 	return false;
 
+    s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
-    if ( newdisplay && (geometry->positions().size() > 300000000 ||
-			geometry->zRange().nrSteps() > 299999999) )
+    if ( newdisplay && (geom2d->data().positions().size() > 300000000 ||
+			geom2d->data().zRange().nrSteps() > 299999999) )
     {
 	BufferString msg = "Either trace size or z size is beyond max display";
 	msg += " size of 3 X 10 e8. You can right click the line name to ";
@@ -651,7 +652,7 @@ bool uiOD2DLineTreeItem::init()
 	uiMSG().warning( msg );
     }
 
-    s2d->setGeometry( *geometry );
+    s2d->setGeometry( geom2d->data() );
     if ( !newdisplay )
     {
 	if ( !oldtrcnrrg.isUdf() )
@@ -665,7 +666,7 @@ bool uiOD2DLineTreeItem::init()
 	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
 	if ( hasworkzrg )
 	{
-	    StepInterval<float> newzrg = geometry->zRange();
+	    StepInterval<float> newzrg = geom2d->data().zRange();
 	    newzrg.limitTo( SI().zRange(true) );
 	    s2d->setZRange( newzrg );
 	}
@@ -947,14 +948,14 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject( displayID() ))
     if ( !menu || !s2d || istb ) return;
 
-    uiSeisPartServer* seisserv = applMgr()->seisServer();
+//    uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-    const char* objnm = visserv_->getObjectName( displayID() );
+//    const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames, 0 );
+  //  seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames, 0 );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
@@ -982,7 +983,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
     BufferStringSet steerdatanames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
+    //seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
@@ -1003,8 +1004,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     {
 	zattritm_.enabled = false;
 	BufferStringSet zattribnms;
-	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
-				       scene->zDomainKey(), zattribnms );
+//	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
+//				       scene->zDomainKey(), zattribnms );
 	if ( zattribnms.size() )
 	{
 	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );

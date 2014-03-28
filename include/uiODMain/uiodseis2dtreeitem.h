@@ -23,18 +23,18 @@ ________________________________________________________________________
 
 class uiTaskRunner;
 
-mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( Line2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
-mExpClass(uiODMain) Seis2DTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODSeis2DParentTreeItem; }
+    			{ return new uiODLine2DParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
-
+/*
 mExpClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
 {
 public:
@@ -84,7 +84,7 @@ protected:
     MenuItem		expanditm_;
     MenuItem		collapseitm_;
 };
-
+*/
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 {
