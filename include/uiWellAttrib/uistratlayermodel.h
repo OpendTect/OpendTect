@@ -56,10 +56,8 @@ public:
     const Strat::LayerModel&            layerModel() const;
     Strat::LayerModel&                  layerModel();
     const char*				levelName() const; //!< null if none
-    const SeisTrcBuf&			postStackTraces() const;
-    const SeisTrcBuf&			postStackTraces(const char* nm) const;
-    const SeisTrcBuf&			modelTraces(const PropertyRef&) const;
     const StratSynth&   		currentStratSynth() const;
+    StratSynth& 			currentStratSynth();
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;

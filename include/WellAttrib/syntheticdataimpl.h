@@ -44,7 +44,8 @@ public:
 };
 
 
-mExpClass(WellAttrib) PSBasedPostStackSyntheticData : public PostStackSyntheticData
+mExpClass(WellAttrib) PSBasedPostStackSyntheticData
+				: public PostStackSyntheticData
 {
 public:
 				PSBasedPostStackSyntheticData(
@@ -135,6 +136,8 @@ public:
 							const PropertyRef&);
 
     const PropertyRef&		propRef() const { return prop_; }
+    SynthGenParams::SynthType	synthType() const
+				{ return SynthGenParams::StratProp; }
 
 protected:
     const PropertyRef& 		prop_;

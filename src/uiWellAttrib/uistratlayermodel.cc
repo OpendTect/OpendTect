@@ -61,6 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uichecklist.h"
 
+#include "seistrc.h"
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -438,21 +439,9 @@ const char* uiStratLayerModel::levelName() const
 }
 
 
-const SeisTrcBuf& uiStratLayerModel::postStackTraces() const
+StratSynth& uiStratLayerModel::currentStratSynth()
 {
-    return synthdisp_->postStackTraces();
-}
-
-
-const SeisTrcBuf& uiStratLayerModel::postStackTraces( const char* nm ) const
-{
-    return synthdisp_->postStackTraces( nm );
-}
-
-
-const SeisTrcBuf& uiStratLayerModel::modelTraces( const PropertyRef& pr ) const
-{
-    return synthdisp_->postStackTraces( &pr );
+    return synthdisp_->curSS();
 }
 
 

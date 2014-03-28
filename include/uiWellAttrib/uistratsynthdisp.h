@@ -53,14 +53,14 @@ public:
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
 			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
+    inline StratSynth&	curSS()
+			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline const StratSynth& altSS() const
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
     SyntheticData*	getSyntheticData(const char* nm);
-    const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
-    const SeisTrcBuf&   postStackTraces(const char* nm) const;
     const PropertyRefSelection&	modelPropertyRefs() const;
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
@@ -163,8 +163,6 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
-    inline StratSynth&	curSS()
-			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline StratSynth&	altSS()
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 

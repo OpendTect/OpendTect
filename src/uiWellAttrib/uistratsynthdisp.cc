@@ -631,7 +631,7 @@ float uiStratSynthDisp::centralTrcShift() const
     bool forward = false;
     int forwardidx = mNINT32( vwr_->curView().centre().x );
     int backwardidx = forwardidx-1;
-    const SeisTrcBuf& trcbuf = postStackTraces();
+    const SeisTrcBuf& trcbuf = curTrcBuf();
     if ( !trcbuf.size() ) return 0.0f;
     while ( true )
     {
@@ -1230,62 +1230,6 @@ void uiStratSynthDisp::offsetChged( CallBacker* )
 	 currentwvasynthetic_ && currentwvasynthetic_->isPS() )
 	displayPostStackSynthetic( currentvdsynthetic_, false );
 }
-
-
-const SeisTrcBuf& uiStratSynthDisp::postStackTraces(
-				const PropertyRef* pr ) const
-{
-    const SyntheticData* sd = pr
-			?  const_cast<StratSynth&>(curSS()).getSynthetic(*pr)
-			: currentwvasynthetic_;
-
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-    const SeisTrcBuf* tb = presd ? presd->getTrcBuf( offset, 0 )
-				 : &postsd->postStackPack().trcBuf();
-    static SeisTrcBuf emptytb( true );
-    if ( !tb ) return emptytb;
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( sd, curd2tmodels, offset );
-    if ( !curd2tmodels.isEmpty() )
-    {
-	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( *tb );
-	curSS().getLevelTimes( tbuf, curd2tmodels );
-    }
-    return *tb;
-}
-
-
-const SeisTrcBuf& uiStratSynthDisp::postStackTraces(
-                                const char* nm ) const
-{
-    const SyntheticData* sd = nm
-                        ?  const_cast<StratSynth&>(curSS()).getSynthetic(nm)
-                        : currentwvasynthetic_;
-
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-    const SeisTrcBuf* tb = presd ? presd->getTrcBuf( offset, 0 )
-				 : &postsd->postStackPack().trcBuf();
-    static SeisTrcBuf emptytb( true );
-    if ( !tb ) return emptytb;
-
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( sd, curd2tmodels, offset );
-    if ( !curd2tmodels.isEmpty() )
-    {
-        SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( *tb );
-        curSS().getLevelTimes( tbuf, curd2tmodels );
-    }
-    return *tb;
-}
-
 
 
 const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const

@@ -53,6 +53,9 @@ public:
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
 			      				   : 0; }
+    void		getSyntheticNames(BufferStringSet&,
+					  SynthGenParams::SynthType) const;
+    void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
     SyntheticData* 	getSynthetic(int id);
     SyntheticData* 	getSynthetic(const PropertyRef&);
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
@@ -86,6 +89,7 @@ public:
 				TypeSet<float>&) const;
     void		getLevelTimes(SeisTrcBuf&,
 				const ObjectSet<const TimeDepthModel>&) const;
+    bool		setLevelTimes(const char* sdnm);
 
     void		flattenTraces(SeisTrcBuf&) const;
     void		trimTraces(SeisTrcBuf&,

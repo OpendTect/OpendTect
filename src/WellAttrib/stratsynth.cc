@@ -370,6 +370,30 @@ int StratSynth::syntheticIdx( const PropertyRef& pr ) const
 }
 
 
+void StratSynth::getSyntheticNames( BufferStringSet& nms, bool wantprest ) const
+{
+    nms.erase();
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	if ( synthetics_[idx]->isPS()==wantprest )
+	    nms.add( synthetics_[idx]->name() );
+    }
+}
+
+
+void StratSynth::getSyntheticNames( BufferStringSet& nms,
+				    SynthGenParams::SynthType synthtype ) const
+{
+    nms.erase();
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	const SyntheticData* sd = synthetics_[idx];
+	if ( sd->synthType()==synthtype )
+	    nms.add( sd->name() );
+    }
+}
+
+
 SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
@@ -1206,6 +1230,19 @@ static void convD2T( TypeSet<float>& zvals,
     for ( int imdl=0; imdl<zvals.size(); imdl++ )
 	zvals[imdl] = d2ts.validIdx(imdl) && !mIsUdf(zvals[imdl]) ?
 		d2ts[imdl]->getTime( zvals[imdl] ) : mUdf(float);
+}
+
+
+bool StratSynth::setLevelTimes( const char* sdnm )
+{
+    SyntheticData* sd = getSynthetic( sdnm );
+    if ( !sd ) return false;
+
+    mDynamicCastGet(PostStackSyntheticData*,postsd,sd);
+    if ( !postsd ) return false;
+    SeisTrcBuf& tb = postsd->postStackPack().trcBuf();
+    getLevelTimes( tb, sd->d2tmodels_ );
+    return true;
 }
 
 

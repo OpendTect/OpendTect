@@ -21,7 +21,8 @@ mStruct(WellAttrib) SynthGenParams
 {
 			SynthGenParams();
 
-    enum SynthType	{ PreStack, ZeroOffset, AngleStack, AVOGradient };
+    enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,
+			  AVOGradient };
     			DeclareEnumUtils(SynthType);
 
     SynthType		synthtype_;
