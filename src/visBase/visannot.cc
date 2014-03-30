@@ -41,7 +41,7 @@ Annotation::Annotation()
     , geode_( new osg::Geode )
     , axisnames_( Text2::create() )
     , axisannot_( Text2::create() )
-    , gridlines_( new osgGeo::OneSideRenderNode )
+    , gridlines_( new osgGeo::OneSideRender )
     , displaytrans_( 0 )
 {
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );

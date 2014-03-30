@@ -38,7 +38,7 @@ namespace osg
 
 namespace osgGeo
 {
-    class OneSideRenderNode;
+    class OneSideRender;
 }
 
 namespace visBase
@@ -95,7 +95,7 @@ protected:
     osg::Geometry*		box_;
     osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;
-    osgGeo::OneSideRenderNode*	gridlines_;
+    osgGeo::OneSideRender*	gridlines_;
     RefMan<Text2>		axisnames_;
     RefMan<Text2>		axisannot_;
 
