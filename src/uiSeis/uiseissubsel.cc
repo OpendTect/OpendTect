@@ -203,6 +203,7 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
     clear();
     lnmfld_->setInput( ioobj.key() );
+    inpkey_ = ioobj.key();
 }
 
 

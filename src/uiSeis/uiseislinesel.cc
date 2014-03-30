@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
-    : uiCompoundParSel(p,"Line name")
+    : uiCompoundParSel(p,multisel?"Select 2D lines":"Select 2D line")
     , ismultisel_(multisel)
     , selectionChanged(this)
 {
@@ -112,7 +112,7 @@ void uiSeis2DLineSel::setInput( const MultiID& datasetid )
 BufferString uiSeis2DLineSel::getSummary() const
 {
     BufferString ret( "No lines selected" );
-    if ( !selidxs_.isEmpty() )
+    if ( selidxs_.isEmpty() )
 	return ret;
 
     ret = lnms_.get( selidxs_[0] );
