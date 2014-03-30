@@ -14,11 +14,13 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "bufstringset.h"
+#include "multiid.h"
 #include "seisselection.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "ranges.h"
 #include "sets.h"
+
 class IOObj;
 class HorSampling;
 class CubeSampling;
@@ -29,7 +31,7 @@ class uiLineSel;
 class uiPosSubSel;
 class uiSeis2DSubSel;
 class uiSelSubline;
-class uiSeis2DLineNameSel;
+class uiSeis2DLineSel;
 
 
 mExpClass(uiSeis) uiSeisSubSel : public uiGroup
@@ -91,30 +93,20 @@ public:
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setInput(const IOObj&);
-    void		setInputWithAttrib(const IOObj&,const char* attribnm);
 
     Notifier<uiSeis2DSubSel> lineSel;
-    Notifier<uiSeis2DSubSel> singLineSel;
     bool		isSingLine() const;
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
-    const BufferStringSet& curLineNames() const		{ return curlnms_; }
-
 protected:
 
-    uiSeis2DLineNameSel* lnmfld_;
-    uiCheckBox*		onelnbox_;
+    uiSeis2DLineSel*	lnmfld_;
 
     bool		multiln_;
-    BufferStringSet&	curlnms_;
-
-    TypeSet<StepInterval<int> >		trcrgs_;
-    TypeSet<StepInterval<float> >	zrgs_;
+    MultiID		inpkey_;
 
     void		lineChg(CallBacker*);
-    void		singLineChg(CallBacker*);
-
 };
 
 #endif

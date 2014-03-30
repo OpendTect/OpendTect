@@ -36,26 +36,41 @@ mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
-			uiSeis2DLineSel(uiParent*);
+			uiSeis2DLineSel(uiParent*,bool multisel=false);
 
     bool		inputOK(bool emit_uimsg=true) const;
-    inline const char*	lineName() const	{ return lnm_.str(); }
-    inline Pos::GeomID	geomID() const		{ return geomid_; }
-    void		set(const char* lnm=0);
+
+    const char*		lineName() const;
+    Pos::GeomID		geomID() const;
+    void		setSelLine(const char* lnm);
+
+    void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		getSelLineNames(BufferStringSet&) const;
+    void		setSelLineNames(const BufferStringSet&);
+
+    void		setInput(const MultiID&);
+    void		setInput(const BufferStringSet& lnms);
 
     const PosInfo::Line2DKey& getLine2DKey() const;
-    void		set(const PosInfo::Line2DKey&);
+    void		setSelLine(const PosInfo::Line2DKey&);
 
+    void		clearSelection();
+    
+    Notifier<uiSeis2DLineSel>	selectionChanged;
 
 protected:
 
-    BufferString	lnm_;
+    BufferStringSet	lnms_;
+    TypeSet<Pos::GeomID>	geomids_;
+    TypeSet<int>	selidxs_;
+    bool		ismultisel_;
+    
     PosInfo::Line2DKey	l2dky_;
-    Pos::GeomID		geomid_;
 
     BufferString	getSummary() const;
 
     void		selPush(CallBacker*);
+    void		clearAll();
 };
 
 

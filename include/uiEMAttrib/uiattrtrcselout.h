@@ -51,7 +51,7 @@ protected:
     void                cubeBoundsSel(CallBacker*);
     void                extraParsCB(CallBacker*);
     void                extraDlgDone(CallBacker*);
-    void                singLineSel(CallBacker*);
+    void                lineSel(CallBacker*);
 
     void		createSingleHorUI();
     void		createTwoHorUI();

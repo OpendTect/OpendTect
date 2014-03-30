@@ -209,13 +209,8 @@ void uiMadIOSelDlg::selChg( CallBacker* )
     uiSeisSubSel* subsel = seisSubSel( gt );
     if ( !ioobj )
 	subsel->clear();
-    else if ( gt == Seis::Line )
-    {
-	mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel);
-	subsel2d->setInputWithAttrib( *ioobj, seisSel(gt)->attrNm() );
-    }
-    else
-	subsel->setInput( *ioobj );
+    
+    subsel->setInput( *ioobj );
 }
 
 

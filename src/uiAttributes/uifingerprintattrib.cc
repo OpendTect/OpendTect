@@ -274,7 +274,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	BufferString lsnm, lnm;
 //	mIfGetString( FingerPrint::reflinesetStr(), ls, lsnm = ls )
 	mIfGetString( FingerPrint::ref2dlineStr(), l, lnm = l )
-	linefld_->set( lnm );
+	linefld_->setSelLine( lnm );
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
@@ -471,7 +471,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
     else
     {
 	refposfld_->setValue( pickretriever_->getTrcNr() );
-	linefld_->set( pickretriever_->getLine2DKey() );
+	linefld_->setSelLine( pickretriever_->getLine2DKey() );
     }
 
     refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );

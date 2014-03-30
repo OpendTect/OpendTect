@@ -199,7 +199,7 @@ void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 						       : (uiGroup*)obj2fld_ );
     mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
     if ( seis2dsubsel )
-	seis2dsubsel->singLineSel.notify(mCB(this,uiAttrTrcSelOut,singLineSel));
+	seis2dsubsel->lineSel.notify(mCB(this,uiAttrTrcSelOut,lineSel));
 }
 
 
@@ -564,7 +564,8 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 		}
 	    }
 	}
-	singLineSel(0);
+
+	lineSel(0);
     }
 }
 
@@ -637,7 +638,7 @@ CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
 }
 
 
-void uiAttrTrcSelOut::singLineSel( CallBacker* )
+void uiAttrTrcSelOut::lineSel( CallBacker* )
 {
     if ( !ads_.is2D() ) return;
 

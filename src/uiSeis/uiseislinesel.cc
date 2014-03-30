@@ -33,25 +33,105 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 
 
-
-uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p )
+uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     : uiCompoundParSel(p,"Line name")
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
+    , ismultisel_(multisel)
+    , selectionChanged(this)
 {
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
+    Survey::GM().getList( lnms_, geomids_, true );
+}
+
+
+const char* uiSeis2DLineSel::lineName() const
+{
+    return selidxs_.isEmpty() ? "" : lnms_.get( selidxs_[0] ).buf();
+}
+
+
+Pos::GeomID uiSeis2DLineSel::geomID() const
+{
+    return selidxs_.isEmpty() ? Survey::GeometryManager::cUndefGeomID()
+			      : geomids_[selidxs_[0]];
+}
+
+
+void uiSeis2DLineSel::getSelGeomIDs( TypeSet<Pos::GeomID>& selids ) const
+{
+    selids.erase();
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	selids += geomids_[selidxs_[idx]];
+}
+
+
+void uiSeis2DLineSel::getSelLineNames( BufferStringSet& selnms ) const
+{
+    deepErase( selnms );
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	selnms.add( lnms_.get(selidxs_[idx]) );
+}
+
+
+void uiSeis2DLineSel::setSelLineNames( const BufferStringSet& selnms )
+{
+    selidxs_.erase();
+    for ( int idx=0; idx<selnms.size(); idx++ )
+    {
+	const int index = lnms_.indexOf( selnms.get(idx) );
+	if ( index >= 0 )
+	    selidxs_ += index;
+    }
+    
+    updateSummary();
+}
+
+
+void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
+{
+    clearAll();
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    continue;
+
+	geomids_ += geomid;
+	lnms_.add( lnms.get(idx) );
+    }
+}
+
+
+void uiSeis2DLineSel::setInput( const MultiID& datasetid )
+{
+    const SeisIOObjInfo oi( datasetid );
+    BufferStringSet lnms; oi.getLineNames( lnms );
+    setInput( lnms );
 }
 
 
 BufferString uiSeis2DLineSel::getSummary() const
 {
-    BufferString ret( lnm_ );
+    BufferString ret( "No lines selected" );
+    if ( !selidxs_.isEmpty() )
+	return ret;
+
+    ret = lnms_.get( selidxs_[0] );
+    if ( !ismultisel_ || selidxs_.size()==1 )
+	return ret;
+
+    if ( selidxs_.size() == lnms_.size() )
+	ret = "All";
+    else
+	ret = selidxs_.size();
+	
+    ret += " lines";
     return ret;
 }
 
 
 bool uiSeis2DLineSel::inputOK( bool doerr ) const
 {
-    if ( lnm_.isEmpty() )
+    if ( selidxs_.isEmpty() )
     {
 	if ( doerr )
 	    uiMSG().error( "Please select the line" );
@@ -62,37 +142,61 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
 }
 
 
+void uiSeis2DLineSel::clearAll()
+{
+    deepErase( lnms_ );
+    geomids_.erase();
+    clearSelection();
+}
+
+
+void uiSeis2DLineSel::clearSelection()
+{
+    selidxs_.erase();
+    updateSummary();
+}
+
 #define mErrRet(s) { uiMSG().error(s); return; }
 
 void uiSeis2DLineSel::selPush( CallBacker* )
 {
-    BufferStringSet lnms;
-    TypeSet<Pos::GeomID> geomids;
-    Survey::GM().getList( lnms, geomids, true );
-    uiSelectFromList::Setup su( "Select 2D line", lnms );
-    su.current_ = lnm_.isEmpty() ? 0 : lnms.indexOf( lnm_ );
-    if ( su.current_ < 0 ) su.current_ = 0;
+    if ( lnms_.isEmpty() )
+	mErrRet( "No 2D lines available" )
+
+    uiSelectFromList::Setup su( "Select 2D line", lnms_ );
+    su.current_ = ismultisel_ || selidxs_.isEmpty() ? 0 : selidxs_[0];
     uiSelectFromList dlg( this, su );
-    if ( !dlg.go() || dlg.selection() < 0 )
+    if ( ismultisel_ && dlg.selFld() )
+    {
+	dlg.selFld()->setMultiSelect();
+	dlg.selFld()->setSelectedItems( selidxs_ );
+    }
+
+    if ( !dlg.go() || !dlg.selFld() )
 	return;
 
-    lnm_ = lnms.get( dlg.selection() );
-    geomid_ = geomids[dlg.selection()];
+    selidxs_.erase();
+    dlg.selFld()->getSelectedItems( selidxs_ );
+    selectionChanged.trigger();
 }
 
 
-void uiSeis2DLineSel::set( const char* lnm )
+void uiSeis2DLineSel::setSelLine( const char* lnm )
 {
-    lnm_ = lnm;
+    selidxs_.erase();
+    const int idx = lnms_.indexOf( lnm );
+    if ( idx >= 0 )
+	selidxs_ += idx;
+
     updateSummary();
 }
 
 
-void uiSeis2DLineSel::set( const PosInfo::Line2DKey& l2dky )
+void uiSeis2DLineSel::setSelLine( const PosInfo::Line2DKey& l2dky )
 {
     l2dky_ = l2dky;
-    lnm_ = S2DPOS().getLineName( l2dky_.lineID() );
-    updateSummary();
+    const char* lnm = S2DPOS().getLineName( l2dky_.lineID() );
+    setSelLine( lnm );
 }
 
 
