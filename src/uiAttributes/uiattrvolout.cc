@@ -190,31 +190,25 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    }
 	}
     }
-    else if ( !is2d )
-	mSetObjFld( desc->isStored() ? "" : todofld_->getInput() )
     else
     {
-        BufferString attrnm( todofld_->getAttrName() );
-
-	BufferString errmsg;
-	RefMan<Attrib::Provider> prov =
-		Attrib::Provider::create( *desc, errmsg );
-	PtrMan<IOObj> ioobj = 0;
-	if ( prov )
+	mSetObjFld( desc->isStored() ? "" : todofld_->getInput() )
+	if ( is2d )
 	{
-	    MultiID mid( desc->getStoredID(true).buf() );
-	    ioobj = IOM().get( mid );
-	}
+	    BufferString attrnm( todofld_->getAttrName() );
 
-	if ( !ioobj )
-	    mSetObjFld( LineKey(attrnm) )
-	else
-	{
-	    if ( desc->isStored() )
-		mSetObjFld( LineKey(todofld_->getInput()) )
-	    else
-		mSetObjFld( LineKey(ioobj->name(),attrnm) )
-	    transffld_->setInput( *ioobj );
+	    BufferString errmsg;
+	    RefMan<Attrib::Provider> prov =
+		    Attrib::Provider::create( *desc, errmsg );
+	    PtrMan<IOObj> ioobj = 0;
+	    if ( prov )
+	    {
+		MultiID mid( desc->getStoredID(true).buf() );
+		ioobj = IOM().get( mid );
+	    }
+
+	    if ( ioobj )
+		transffld_->setInput( *ioobj );
 	}
     }
 
