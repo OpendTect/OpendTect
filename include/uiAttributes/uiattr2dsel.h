@@ -33,8 +33,8 @@ mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 public:
 
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
-				       const MultiID&,const NLAModel* nla,
-				       const char* curnm=0);
+				       const Pos::GeomID geomid,
+				       const NLAModel* nla,const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType()		{ return seltype_; }
@@ -44,7 +44,7 @@ public:
 protected:
 
     Attrib::SelInfo*	attrinf_;
-    const MultiID&	setid_;
+    Pos::GeomID    	geomid_;
     Attrib::DescID	descid_;
     const NLAModel*	nla_;
     int			seltype_;

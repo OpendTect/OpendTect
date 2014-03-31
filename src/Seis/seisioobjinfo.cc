@@ -311,15 +311,18 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 #define mChkOpts \
    if ( o2d.steerpol_ != 2 ) \
     { \
-	const char* lndt = lset->dataType(); \
-	const char* attrnm = lset->name(); \
+	const char* lndt = dset->dataType(); \
+	const char* attrnm = dset->name(); \
 	const bool issteer = (lndt && sKey::Steering()==lndt) || \
 				(!lndt && sKey::Steering()==attrnm); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
     } \
-    if ( !zdomge.matches(lset->zDomainKey(idx)) ) \
+    BufferString zdomainkey; \
+    if ( !ioobj_->pars().get(ZDomain::sKey(),zdomainkey) ) \
+	zdomainkey = ZDomain::SI().key(); \
+    if ( !zdomge.matches(zdomainkey.buf()) ) \
 	continue
 
 
@@ -356,6 +359,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 		continue;
 	}
 
+	mChkOpts;
 	bss.add( nm );
     }
 
@@ -368,12 +372,12 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 {
     if ( !nm || !*nm ) return;
 
-    mGetLineSet(lset,);
+    mGetLineSet(dset,);
     mGetZDomainGE;
     const BufferString target( nm );
-    for ( int idx=0; idx<lset->nrLines(); idx++ )
+    for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
-	const char* lnm = lset->lineName( idx );
+	const char* lnm = dset->lineName( idx );
 	const char* requested = lnm;
 	const char* listadd = lnm;
 
@@ -570,6 +574,27 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
     }
 
     return ret;
+}
+
+
+void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm, 
+					BufferStringSet& datasets, Opts2D o2d )
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T')
+	  || SeisTrcTranslator::isPS(ioobj) ) continue;
+
+	SeisIOObjInfo ibjinfo( ioobj );
+	BufferStringSet lnms;
+	ibjinfo.getLineNames( lnms, o2d );
+	if ( !lnm || lnms.isPresent(lnm) )
+	    datasets.add( ioobj.name() );
+    }
 }
 
 

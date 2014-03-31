@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -73,20 +73,7 @@ void SelSpec::setZDomainKey( const Desc& desc )
     if ( !ioobj )
 	return;
 
-    if ( !desc.is2D() )
-	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
-    else
-    {
-	Seis2DLineSet ls2d( *ioobj );
-	LineKey lk( storedid );
-	BufferStringSet lnms;
-	ls2d.getLineNamesWithAttrib( lnms, lk.attrName() );
-	if ( lnms.isEmpty() )
-	    return;
-
-	const int lineidx = ls2d.indexOf( LineKey(lnms.get(0),lk.attrName()) );
-	zdomainkey_ = ls2d.zDomainKey( lineidx );
-    }
+    ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
 }
 
 
@@ -304,8 +291,8 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( res && ( (!steerdata && res==sKey::Steering() )
 	         || ( steerdata && res!=sKey::Steering() ) ) )
 	    continue;
-
-	if ( !res && steerdata && !is2d ) continue;
+	else if ( !res &&  steerdata )
+	    continue;
 
 	const char* ioobjnm = ioobj.name().buf();
 	if ( ge && !ge->matches(ioobjnm) )

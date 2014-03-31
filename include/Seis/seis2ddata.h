@@ -57,7 +57,6 @@ public:
     Pos::GeomID		    geomID(const char* filename) const;
     int			    indexOf(const char* linename) const;
     int			    indexOf(Pos::GeomID) const;
-    const char*		    zDomainKey(int) const;
     const char*		    dataType() const		{   return datatype_; }
     void		    getLineNames(BufferStringSet&) const;
     

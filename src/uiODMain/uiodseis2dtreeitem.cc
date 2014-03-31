@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
+#include "seis2ddata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 
@@ -52,7 +53,7 @@ static const char* sKeyRightClick = "<right-click>";
 static TypeSet<int> selcomps;
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODTreeItem("2D line" )
+    : uiODTreeItem("2D Line" )
 {
 }
 
@@ -75,6 +76,56 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	for ( int idx=linenames.size()-1; idx>=0; idx-- )
 	    addChild( new uiOD2DLineTreeItem(linenames.get(idx)), false );
 	cursorchgr.restore();
+	if ( !linenames.isEmpty() )
+	{
+	    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( 
+									true );
+	    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
+	    Pos::GeomID geomid = Survey::GM().getGeomID( linenames.get(0) );
+	    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomid, nla, sKeyRightClick );
+	    if ( !dlg.go() ) return false;
+	    uiTaskRunner uitr( ODMainWin() );
+	    ObjectSet<uiTreeItem> set;
+	    findChildren( sKeyRightClick, set );
+	    const int attrtype = dlg.getSelType();
+	    if ( attrtype == 0 )
+	    {
+		const char* newattrnm = dlg.getStoredAttrName();
+		for ( int idx=0; idx<set.size(); idx++ )
+		{
+		    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		    if ( item ) item->displayStoredData( newattrnm, -1, uitr );
+		}
+	    }
+	    else if ( attrtype == 1 || attrtype == 2 )
+	    {
+		Attrib::SelSpec as;
+		if ( attrtype == 1 )
+		{
+		    const Attrib::Desc* desc =  ds->getDesc(dlg.getSelDescID());
+		    if ( !desc )
+		    {
+			uiMSG().error("Selected attribute is not available");
+			return true;
+		    }
+
+		    as.set( *desc );
+		}
+		else if ( nla )
+		{
+		    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+		    as.setObjectRef( applMgr()->nlaServer()->modelName() );
+		    as.setRefFromID( *nla );
+		}
+
+		as.set2DFlag( true );
+		for ( int idx=0; idx<set.size(); idx++ )
+		{
+		    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		    item->setAttrib( as, uitr );
+		}
+	    }
+	}
     }
     else if ( mnuid == 1 )
 	ODMainWin()->applMgr().create2Dfrom3D();
@@ -639,6 +690,7 @@ bool uiOD2DLineTreeItem::init()
     if ( !geom2d )
 	return false;
 
+    s2d->setGeomID( geomid );
     s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
@@ -948,14 +1000,14 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject( displayID() ))
     if ( !menu || !s2d || istb ) return;
 
-//    uiSeisPartServer* seisserv = applMgr()->seisServer();
+    uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-//    const char* objnm = visserv_->getObjectName( displayID() );
+    const char* objnm = visserv_->getObjectName( displayID() );
 
-    BufferStringSet attribnames;
-  //  seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames, 0 );
+    BufferStringSet datasets;
+    seisserv->get2DStoredAttribs( objnm, datasets, 0 );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
@@ -964,9 +1016,9 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 
     bool docheckparent = false;
     storeditm_.removeItems();
-    for ( int idx=0; idx<attribnames.size(); idx++ )
+    for ( int idx=0; idx<datasets.size(); idx++ )
     {
-	FixedString nm = attribnames.get(idx).buf();
+	FixedString nm = datasets.get(idx).buf();
 	MenuItem* item = new MenuItem(nm);
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
@@ -983,7 +1035,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
     BufferStringSet steerdatanames;
-//seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
+    seisserv->get2DStoredAttribs( objnm, steerdatanames, 1 );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
@@ -1004,8 +1056,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     {
 	zattritm_.enabled = false;
 	BufferStringSet zattribnms;
-//	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
-//				       scene->zDomainKey(), zattribnms );
+	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
+				       scene->zDomainKey(), zattribnms );
 	if ( zattribnms.size() )
 	{
 	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );
@@ -1087,20 +1139,21 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 		    visserv->getObject( displayID() ))
     if ( !s2d ) return false;
 
-    BufferStringSet attribnms;
-    SeisIOObjInfo objinfo( s2d->lineSetID() );
+    BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
+    BufferStringSet lnms;
+    SeisIOObjInfo objinfo( attribnm );
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-    objinfo.getAttribNamesForLine( s2d->name(), attribnms, opts2d );
-    if ( !attribnms.isPresent(attribnm) )
+    objinfo.getLineNames( lnms, opts2d );
+    if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    LineKey lk( s2d->lineSetID(), attribnm );
+    LineKey lk( objinfo.ioObj()->key() );
     //First time to ensure all components are available
     Attrib::DescID attribid = attrserv->getStoredID( lk, true );
 
     BufferStringSet complist;
-    SeisIOObjInfo::getCompNames(Survey::GM().getGeomID(lk.lineName()),complist);
+    SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
@@ -1134,7 +1187,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), 0 );
     Attrib::SelSpec myas( *as );
-    LineKey linekey( s2d->name(), attribnm );
+    LineKey linekey( s2d->name() );
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
     const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );

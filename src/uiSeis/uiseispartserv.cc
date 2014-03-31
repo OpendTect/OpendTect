@@ -236,7 +236,7 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
     if ( lineidx < 0 )
     {
 	BufferStringSet attribs;
-	get2DStoredAttribs( mid, linenm, attribs );
+	get2DStoredAttribs( linenm, attribs );
 	if ( attribs.isEmpty() ) return false;
 
 	StepInterval<int> trcrg;
@@ -285,14 +285,12 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 }
 
 
-void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
-					   const char* linenm,
-					   BufferStringSet& attribs,
+void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
+					   BufferStringSet& datasets,
 					   int steerpol )
 {
-    uiSeisIOObjInfo objinfo( mid );
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = steerpol;
-    objinfo.ioObjInfo().getAttribNamesForLine( linenm, attribs, o2d );
+    SeisIOObjInfo::getDataSetNamesForLine( linenm, datasets, o2d );
 }
 
 

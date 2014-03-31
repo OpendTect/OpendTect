@@ -338,7 +338,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     {
 	MultiID mid( selspec.objectRef() );
 	uiAttr2DSelDlg dlg( parent(), adsman->descSet(),
-			    mid, attrdata.nlamodel_ );
+			    Survey::GM().cUndefGeomID(), attrdata.nlamodel_ );
 	if ( !dlg.go() )
 	    return false;
 
@@ -991,9 +991,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 	if ( docheck ) mnu->checked = true;
 	if ( usesubmnu )
 	{
-	    SelInfo attrinf( DSHolder().getDescSet(true,true), 0, true,
-			     DescID::undef(), issteer, issteer );
-	    const MultiID mid( attrinf.ioobjids_.get(idx) );
+	    const MultiID mid( bfset.get(idx) );
 	    BufferStringSet nms = get2DStoredItems( mid, issteer, onlymultcomp);
 	    if ( nms.isEmpty() ) continue;
 	    *lsets2dmnuitem += itm;
@@ -1068,8 +1066,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 
     const bool isstored = ds && ds->getDesc( as.id() )
 	? ds->getDesc( as.id() )->isStored() : false;
-    BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
-		: (issteer ? attrinf.steerids_ : attrinf.ioobjids_);
+    BufferStringSet bfset = issteer ? attrinf.steerids_ : attrinf.ioobjids_;
 
     MenuItem* mnu = menu;
     if ( multcomp && needext )

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "linekey.h"
 #include "cubesampling.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
@@ -42,10 +43,10 @@ using namespace Attrib;
 
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
-				const MultiID& lsid, const NLAModel* nla,
+				const Pos::GeomID geomid, const NLAModel* nla,
 				const char* curnm )
-	: uiDialog(p,Setup("Select Attribute","Select Attribute",mNoHelpKey))
-	, setid_(lsid)
+	: uiDialog(p,Setup("Select Dataset","Select Dataset",mNoHelpKey))
+	, geomid_(geomid)
 	, nla_(nla)
 	, descid_(-1,true)
 	, curnm_(curnm)
@@ -116,7 +117,7 @@ void uiAttr2DSelDlg::createSelectionFields()
     const bool haveattribs = attrinf_->attrnms_.size();
 
     BufferStringSet nms;
-    SelInfo::getAttrNames( setid_, nms );
+    SeisIOObjInfo::getDataSetNamesForLine( Survey::GM().getName(geomid_), nms );
 
     storoutfld_ = new uiListBox( this, nms, "Stored cubes", false );
     storoutfld_->setHSzPol( uiObject::Wide );

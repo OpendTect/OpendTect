@@ -49,9 +49,11 @@ public:
 				    "Seis2DDisplay", sFactoryKeyword() );
 
     void			setLineInfo(const MultiID& lid,const char* lnm);
+    void			setGeomID( Pos::GeomID id ) { geomid_ = id; }
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
     PosInfo::Line2DKey		getLine2DKey() const;
+    Pos::GeomID			getGeomID()		    { return geomid_; }
     MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
@@ -179,7 +181,7 @@ protected:
     visBase::TexturePanelStrip*			panelstrip_;
     ObjectSet<const Attrib::Data2DArray>	cache_;
     TypeSet<DataPack::ID>			datapackids_;
-    MultiID					linesetid_;
+    MultiID					datasetid_;
 
     PosInfo::Line2DData&			geometry_;
 
@@ -200,6 +202,7 @@ protected:
     Notifier<Seis2DDisplay>	geomchanged_;
 
     PosInfo::Line2DKey		l2dkey_;
+    Pos::GeomID			geomid_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
 

@@ -33,7 +33,7 @@ Seis2DDataSet::Seis2DDataSet( const IOObj& ioobj )
     : NamedObject(ioobj.name())
 {
     IOPar& iopar = ioobj.pars();
-    iopar.get( sKey::DataType(), datatype_ );
+    iopar.get( sKey::Type(), datatype_ );
     init( ioobj.fullUserExpr(true) );
 }
 
@@ -124,14 +124,6 @@ int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
 	    return idx;
 
     return -1;
-}
-
-
-const char* Seis2DDataSet::zDomainKey( int idx ) const
-{
-    const char* res = idx >=0 && idx < pars_.size()
-		    ? pars_[idx]->find(ZDomain::sKey()) : 0;
-    return res && *res ? res : ZDomain::SI().key();
 }
 
 

@@ -90,6 +90,31 @@ public:
     void		getLineNames( BufferStringSet& b,
 	    			      Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d,false); }
+    bool		getRanges(const Pos::GeomID geomid,
+				  StepInterval<int>& trcrg,
+	    			  StepInterval<float>& zrg) const;
+
+    static void		initDefault(const char* type=0);
+    			//!< Only does something if there is not yet a default
+    static const MultiID& getDefault(const char* type=0);
+    static void		setDefault(const MultiID&,const char* type=0);
+
+    static void		getDataSetNamesForLine( const char* nm,
+						BufferStringSet& b,
+						Opts2D o2d=Opts2D() );
+    static void		get2DDataSetInfo(BufferStringSet& datasets,
+	    				 TypeSet<MultiID>* setids=0,
+					 TypeSet<BufferStringSet>* linenames=0);
+
+    static void		get2DLineInfo(BufferStringSet& linesets,
+	    			      TypeSet<MultiID>* setids=0,
+				      TypeSet<BufferStringSet>* linenames=0);
+    static void		getCompNames(const MultiID&,BufferStringSet&);
+    			//!< Function useful in attribute environments
+    			//!< The 'MultiID' must be IOObj_ID
+
+			
+    //!< Do not use these functions. Will be removed shortly.
     void		getAttribNames( BufferStringSet& b,
 					Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d,true); }
@@ -101,25 +126,6 @@ public:
 	    				       BufferStringSet& b,
 					       Opts2D o2d=Opts2D() ) const
 				{ getNmsSubSel(nm,b,o2d,true); }
-    bool		getRanges(const Pos::GeomID geomid,
-				  StepInterval<int>& trcrg,
-	    			  StepInterval<float>& zrg) const;
-
-    static void		initDefault(const char* type=0);
-    			//!< Only does something if there is not yet a default
-    static const MultiID& getDefault(const char* type=0);
-    static void		setDefault(const MultiID&,const char* type=0);
-
-    static void		get2DDataSetInfo(BufferStringSet& datasets,
-	    				 TypeSet<MultiID>* setids=0,
-					 TypeSet<BufferStringSet>* linenames=0);
-
-    static void		get2DLineInfo(BufferStringSet& linesets,
-	    			      TypeSet<MultiID>* setids=0,
-				      TypeSet<BufferStringSet>* linenames=0);
-    static void		getCompNames(const MultiID&,BufferStringSet&);
-    			//!< Function useful in attribute environments
-    			//!< The 'MultiID' must be IOObj_ID
 
 protected:
 

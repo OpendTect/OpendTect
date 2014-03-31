@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "task.h"
 #include "valseriesinterpol.h"
 
@@ -1376,10 +1377,10 @@ int Provider::getTotalNrPos( bool is2d )
 
     if ( is2d )
     {
-	const PosInfo::Line2DKey l2dky = getLine2DKey();
-	PosInfo::Line2DData l2dd;
-	cs.hrg.step.crl() = S2DPOS().getGeometry(l2dky,l2dd) ?
-	    l2dd.trcNrRange().step : 1;
+	const Pos::GeomID geomid = getGeomID();
+	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
+	cs.hrg.step.crl() = geom2d ? geom2d->data().trcNrRange().step : 1;
 	return cs.nrCrl();
     }
 

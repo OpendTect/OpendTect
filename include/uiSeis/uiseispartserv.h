@@ -49,9 +49,8 @@ public:
     static void		get2DLineSetName(const MultiID&,BufferString&);
     static void		get2DLineInfo(BufferStringSet&,TypeSet<MultiID>&,
 	    			      TypeSet<BufferStringSet>&);
-    static void		get2DStoredAttribs(const MultiID&,
-				    const char* linenm,BufferStringSet& attribs,
-				    int steerpol=2);
+    static void		get2DStoredAttribs(const char* linenm,
+				       BufferStringSet& attribs,int steerpol=2);
     void		get2DZdomainAttribs(const MultiID&, const char* linenm,
 	    				    const char* zdomainstr,
 					    BufferStringSet& attribs);

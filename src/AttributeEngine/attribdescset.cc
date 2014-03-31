@@ -881,8 +881,7 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( 
-					Survey::GM().getGeomID(lk.str()), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
