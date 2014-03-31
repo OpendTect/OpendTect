@@ -273,7 +273,8 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
 
 int GLCM_attrib::computeGreyLevel( float trcval) const
 {
-    trcval = ceil((trcval-minlimit_)/((abs(maxlimit_)+abs(minlimit_))/(usegreylevels_-1)));
+    trcval = ceil( (trcval-minlimit_) /
+	    ((Math::Abs(maxlimit_)+Math::Abs(minlimit_))/(usegreylevels_-1)));
     int trcvali = mNINT32(trcval);
     if ( trcvali < 0 )
 	trcvali=0;
@@ -1784,7 +1785,7 @@ double GLCM_attrib::computeF13(struct Node *LinkedList, int elements) const
 	double SquarePart=1-exp(-2*(HXY2-f9));
 		if (SquarePart >= 0)
 		{
-			trcval = sqrt(SquarePart);
+			trcval = Math::Sqrt(SquarePart);
 		}
 		else if (SquarePart < 0)
 		{
@@ -1804,7 +1805,7 @@ double GLCM_attrib::computeHomogeneity(struct Node *LinkedList, int elements) co
 		int i = values->nodeI;
 		int j = values->nodeJ;
 		double mval=values->numbercoocurrence / static_cast<double>(elements);
-		trcval += mval/ (1+ abs(i-j+2));
+		trcval += mval / double(1+ Math::Abs(i-j+2));
 		values=values->next;
 	}
 	return trcval;
@@ -1910,7 +1911,7 @@ double GLCM_attrib::computeDissimilarity(struct Node *LinkedList, int elements) 
 		int i = values->nodeI;
 		int j = values->nodeJ;
 		double mval=values->numbercoocurrence / static_cast<double>(elements);
-		trcval += mval*abs(static_cast<double>(i-j+2));
+		trcval += mval*Math::Abs(static_cast<double>(i-j+2));
 		values=values->next;
 	}
 	return trcval;
