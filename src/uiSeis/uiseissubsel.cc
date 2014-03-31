@@ -264,6 +264,7 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 {
     if ( isSingLine() )
     {
+	selfld_->setSensitive( true );
 	const Pos::GeomID selid = lnmfld_->geomID();
 	SeisIOObjInfo oif( inpkey_ );
 	StepInterval<float> zrg;
@@ -277,6 +278,8 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	    selfld_->provSel()->setInputLimit( cs );
 	}
     }
+    else
+	selfld_->setSensitive( false );
 
     lineSel.trigger();
 }

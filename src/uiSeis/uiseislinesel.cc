@@ -97,7 +97,11 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
 
 	geomids_ += geomid;
 	lnms_.add( lnms.get(idx) );
+	selidxs_ += selidxs_.size();
     }
+
+    updateSummary();
+    selectionChanged.trigger();
 }
 
 
