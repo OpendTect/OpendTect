@@ -78,6 +78,8 @@ mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
 mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
 mGlobal(Basic) unsigned int Abs(int i);
 mGlobal(Basic) od_uint64 Abs(od_int64 i);
+mGlobal(Basic) float Abs(float);
+mGlobal(Basic) double Abs(double);
 
 mGlobal(Basic)	float Atan2(float y, float x);
 mGlobal(Basic)	double Atan2(double y, double x);
