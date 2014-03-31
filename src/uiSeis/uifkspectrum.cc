@@ -11,11 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifkspectrum.h"
 
+#include "uitoolbutton.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
@@ -27,12 +29,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mouseevent.h"
 
 
-uiFKSpectrum::uiFKSpectrum( uiParent* p )
+uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     : uiFlatViewMainWin(p,Setup("FK Spectrum"))
     , fft_(0)
     , input_(0)
     , output_(0)
     , spectrum_(0)
+    , minfld_(0), minvelitm_(0)
+    , maxfld_(0), maxvelitm_(0)
 {
     uiFlatViewer& vwr = viewer();
     vwr.setInitialSize( uiSize(600,400) );
@@ -41,27 +45,48 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p )
     vwr.appearance().annot_.setAxesAnnot(true);
     vwr.appearance().ddpars_.wva_.allowuserchange_ = false;
     vwr.appearance().ddpars_.vd_.show_ = true;
-    addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
+    addControl( new uiFlatViewStdControl(vwr,
+			uiFlatViewStdControl::Setup(0).withthumbnail(false)) );
 
     vwr.rgbCanvas().getMouseEventHandler().movement.notify(
 	mCB(this,uiFKSpectrum,mouseMoveCB) );
+    vwr.rgbCanvas().getMouseEventHandler().buttonPressed.notify(
+	mCB(this,uiFKSpectrum,mousePressCB) );
 
-    lineitm_ = vwr.createAuxData(0);
-    lineitm_->linestyle_.type_ = LineStyle::Solid;
-    lineitm_->linestyle_.width_ = 2;
-    lineitm_->linestyle_.color_ = Color::Black();
-    vwr.addAuxData( lineitm_ );
+    lineitm_ = initAuxData();
 
-//TODO: Support setting min/max velocity for f-k bandpass filtering
     ffld_ = new uiGenInput( this, SI().zIsTime() ? "F" : "Kz" );
     ffld_->setReadOnly();
     kfld_ = new uiGenInput( this, "K" );
     kfld_->setReadOnly();
     velfld_ = new uiGenInput( this, SI().zIsTime() ? "Vel (m/s)" : "Dip (deg)");
     velfld_->setReadOnly();
-    ffld_->attach( alignedBelow, &vwr );
+    ffld_->attach( leftAlignedBelow, &vwr );
     kfld_->attach( rightTo, ffld_ );
     velfld_->attach( rightTo, kfld_ );
+
+    if ( setbp )
+    {
+	uiSeparator* sep = new uiSeparator( this, "HorSep",
+					    uiObject::Horizontal );
+	sep->attach( stretchedBelow, ffld_ );
+	minfld_ = new uiGenInput( this, "Min Vel", FloatInpSpec() );
+	minfld_->attach( leftAlignedBelow, ffld_ );
+	minfld_->attach( ensureBelow, sep );
+	minsetbut_ = new uiToolButton( this, "pick", "Set min velocity",
+				       mCB(this,uiFKSpectrum,setVelCB) );
+	minsetbut_->setToggleButton();
+	minsetbut_->attach( rightTo, minfld_ );
+	maxfld_ = new uiGenInput( this, "Max Vel", FloatInpSpec() );
+	maxfld_->attach( rightOf, minsetbut_ );
+	maxsetbut_ = new uiToolButton( this, "pick", "Set max velocity",
+				       mCB(this,uiFKSpectrum,setVelCB) );
+	maxsetbut_->setToggleButton();
+	maxsetbut_->attach( rightTo, maxfld_ );
+
+	minvelitm_ = initAuxData();
+	maxvelitm_ = initAuxData();
+    }
 }
 
 
@@ -70,6 +95,40 @@ uiFKSpectrum::~uiFKSpectrum()
     delete input_;
     delete output_;
     delete fft_;
+}
+
+
+FlatView::AuxData* uiFKSpectrum::initAuxData()
+{
+    FlatView::AuxData* ad = viewer().createAuxData(0);
+    ad->linestyle_.type_ = LineStyle::Solid;
+    ad->linestyle_.width_ = 2;
+    ad->linestyle_.color_ = Color::Black();
+    viewer().addAuxData( ad );
+    return ad;
+}
+
+
+float uiFKSpectrum::getMinValue() const
+{ return minfld_ ? minfld_->getfValue() : mUdf(float); }
+
+float uiFKSpectrum::getMaxValue() const
+{ return maxfld_ ? maxfld_->getfValue() : mUdf(float); }
+
+
+
+static void updateTB( uiToolButton& tb, bool quietmode )
+{
+    tb.setPixmap( quietmode ? "pick" : "stop" );
+    tb.setToolTip( quietmode ? "Set velocity" : "Cancel" );
+}
+
+
+void uiFKSpectrum::setVelCB( CallBacker* cb )
+{
+    uiToolButton* but = cb==minsetbut_ ? minsetbut_ : maxsetbut_;
+    const bool quietmode = !but->isOn();
+    updateTB( *but, quietmode );
 }
 
 
@@ -85,9 +144,34 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
     lineitm_->poly_ += FlatView::Point( 0, 0 );
     lineitm_->poly_ += FlatView::Point( -wp.x, wp.y );
 
-    ffld_->setValue( wp.y );
-    kfld_->setValue( wp.x );
-    velfld_->setValue( mIsZero(wp.x,mDefEps)? 0 : Math::Abs(wp.y/wp.x) );
+    const int nrdec = SI().zIsTime() ? 1 : 3;
+    ffld_->setText( toString(wp.y,nrdec) );
+    kfld_->setText( toString(wp.x,4) );
+    const float vel = mIsZero(wp.x,mDefEps)? 0 : Math::Abs(wp.y/wp.x);
+    velfld_->setText( toString(vel,nrdec) );
+
+    viewer().handleChange( FlatView::Viewer::Auxdata );
+}
+
+
+void uiFKSpectrum::mousePressCB( CallBacker* )
+{
+    if ( !minvelitm_ ) return;
+
+    if ( minsetbut_->isOn() )
+    {
+	minvelitm_->poly_ = lineitm_->poly_;
+	minfld_->setText( velfld_->text() );
+	updateTB( *minsetbut_, true );
+	minsetbut_->setOn( false );
+    }
+    if ( maxsetbut_->isOn() )
+    {
+	maxvelitm_->poly_ = lineitm_->poly_;
+	maxfld_->setText( velfld_->text() );
+	updateTB( *maxsetbut_, true );
+	maxsetbut_->setOn( false );
+    }
 
     viewer().handleChange( FlatView::Viewer::Auxdata );
 }

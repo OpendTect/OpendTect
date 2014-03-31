@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uifkspectrum.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uislicesel.h"
 #include "uispinbox.h"
 
@@ -105,6 +106,8 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     PtrMan<uiLinePosSelDlg> dlg = 0;
     if ( is2d_ )
     {
+	uiMSG().message( "No support for 2D yet" );
+	return;
     }
     else
     {
@@ -130,9 +133,22 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     if ( !bufrdr.execute() ) return;
 
     SeisTrcBufArray2D arr2d( &tbuf, false, 0 );
-    uiFKSpectrum*  uifk = new uiFKSpectrum( this );
+    uiFKSpectrum*  uifk = new uiFKSpectrum( this, true );
+    uifk->windowClosed.notify( mCB(this,uiDipFilterAttrib,fkWinCloseCB) );
     uifk->setData( arr2d );
     uifk->show();
+}
+
+
+void uiDipFilterAttrib::fkWinCloseCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiFKSpectrum*,uifks,cb);
+    if ( !uifks ) return;
+
+    float val = uifks->getMinValue();
+    if ( !mIsUdf(val) ) velfld_->setValue( val, 0 );
+    val = uifks->getMaxValue();
+    if ( !mIsUdf(val) ) velfld_->setValue( val, 1 );
 }
 
 

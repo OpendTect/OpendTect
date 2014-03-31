@@ -46,6 +46,7 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		panelbutCB(CallBacker*);
+    void		fkWinCloseCB(CallBacker*);
     void		filtSel(CallBacker*);
     void		aziSel(CallBacker*);
 
