@@ -51,6 +51,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 
     disableScrollZoom();
     scene().setMouseEventActive( true );
+    setSceneBorder( 2 );
     createDispParamGrp();
     setRange();
     reDraw( 0 );
@@ -352,6 +353,7 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
 }
 
 
+static int border = 20;
 
 uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
     : data_(ad) 
@@ -370,9 +372,9 @@ void uiStratDrawer::initAxis()
     uiAxisHandler* xaxis = new uiAxisHandler( &scene_, xsu );
     xaxis->setBounds( Interval<float>( 0, 100 ) );
     setNewAxis( xaxis, true );
-    uiBorder border = uiBorder( 20 );
+    uiBorder uiborder = uiBorder( border );
     uiAxisHandler::Setup ysu( uiRect::Left );
-    ysu.border( border ).nogridline( true );
+    ysu.border( uiborder ).nogridline( true );
     uiAxisHandler* yaxis = new uiAxisHandler( &scene_, ysu );
     setNewAxis( yaxis, false );
 }
@@ -479,7 +481,8 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( colitm.name_ ) );
     ti->setTextColor( Color::Black() );
-    ti->setPos( mCast(float,x1), mCast(float,y1 - 18) );
+    ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
+    ti->setAlignment( Alignment::HCenter );
     ti->setZValue( 2 );
     colitm.bordertxtitm_ = ti;
 }
@@ -578,13 +581,13 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 	uiTextItem* ti = scene_.addItem( new uiTextItem( unm ) );
 	ti->setTextColor( Color::Black() );
-	ti->setPos( mCast(float,x1), mCast(float,y2 - abs((y2-y1)/2) -10) );
+	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
+	ti->setAlignment( Alignment::HCenter );
 	ti->setZValue( 2 );
 	colitm.txtitms_ += ti;
 	colitm.unititms_ += pli;
     }
 }
-
 
 
 
@@ -636,33 +639,27 @@ void uiStratViewControl::setSensitive( bool yn )
 }
 
 
+static float zoomfwdfac = 0.8;
+
 void uiStratViewControl::zoomCB( CallBacker* but )
 {
     const bool zoomin = but == zoominbut_;
-    const Interval<float> rg( range_ );
-    const float margin = rg.width()/4;
+    const Interval<float>& brge = boundingrange_;
+    if ( (!zoomin && range_==brge) || (zoomin && range_.width()<=0.1) ) return;
+
     const MouseEventHandler& meh = mouseEventHandler();
-    if ( zoomin && rg.width() > 0.001 ) 
-    {
-	if ( meh.hasEvent() )
-	{
-	    const Geom::Point2D<int> pos = meh.event().pos();
-	    const uiRect& allarea = viewer_.getSceneRect();
-	    Interval<float> allrg( mCast(float,allarea.topLeft().y), 
-				   mCast(float,allarea.bottomRight().y) );
-	    LinScaler scaler( allrg.start, range_.start, 
-			      allrg.stop, range_.stop );
-	    const float rgpos = (float) scaler.scale( pos.y );
-	    range_.set( rgpos -margin, rgpos + margin );
-	}
-	else
-	    range_.set( rg.start + margin, rg.stop - margin );
-    }
-    else 
-    {
-	range_.set( rg.start - margin, rg.stop + margin );
-    }
-    range_.limitTo( boundingrange_ );
+    const uiRect& allarea = viewer_.getSceneRect();
+    LinScaler scaler( allarea.top()+border, range_.start,
+		      allarea.bottom()-border, range_.stop );
+    float rgpos = meh.hasEvent() ? (float)scaler.scale(meh.event().pos().y)
+				 : range_.center();
+    const float zoomfac = zoomin ? zoomfwdfac : 1/zoomfwdfac;
+    const float twdth = (rgpos-range_.start) * zoomfac;
+    const float bwdth = (range_.stop-rgpos) * zoomfac;
+
+    if ( rgpos - twdth < brge.start )	rgpos = brge.start + twdth;
+    if ( rgpos + bwdth > brge.stop )	rgpos = brge.stop - bwdth;
+    range_.set( rgpos - twdth, rgpos + bwdth );
 
     rangeChanged.trigger();
 }
@@ -713,66 +710,55 @@ void uiStratViewControl::handDragStarted( CallBacker* )
 }
 
 
-#define mHandDragFac width/80
 void uiStratViewControl::handDragging( CallBacker* )
 {
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag 
 	|| !mousepressed_ || !manip_ ) return;
-    viewdragged_ = true;
-    const float newpos = mCast( float, mouseEventHandler().event().pos().y );
-    const float fac = mCast( float, ( startdragpos_ > newpos )? -1 : 1 );
+
+    const float newpos = mCast(float,mouseEventHandler().event().pos().y);
+    const uiRect& allarea = viewer_.getSceneRect();
+    LinScaler scaler( allarea.top()+border, range_.start,
+		      allarea.bottom()-border, range_.stop );
+    const float shift=(float)(scaler.scale(newpos)-scaler.scale(startdragpos_));
     startdragpos_ = newpos;
+
     Interval<float> rg( range_ );
-    const float width = rg.width();
-    const float shift = mHandDragFac < 0.0005f ? 0.0005f : mHandDragFac;
-    const float center = rg.start + width/2 - fac*shift;
-    rg.set( center - width/2, center + width/2 );
+    rg.set( rg.start - shift, rg.stop - shift );
     if ( rg.start < boundingrange_.start )
 	rg.set( boundingrange_.start, range_.stop ); 
     if ( rg.stop > boundingrange_.stop )
 	rg.set( range_.start, boundingrange_.stop );
-
     range_ = rg;
+
     rangeChanged.trigger();
 }
 
 
-void uiStratViewControl::handDragged( CallBacker* )
+void uiStratViewControl::handDragged( CallBacker* cb )
 {
+    handDragging( cb );
     mousepressed_ = false;
-    if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag )
-	return;
-    viewdragged_ = false;
 }
 
 
 void uiStratViewControl::rubBandCB( CallBacker* )
 {
-    //Why is the navigationMouseEventHandler not used for rubberbanding ?
-    if ( viewer_.getMouseEventHandler().hasEvent()
-	    && viewer_.getMouseEventHandler().event().rightButton() )
-	return;
-
     const uiRect* selarea = viewer_.getSelectedArea();
     if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) 
 	    || (selarea->width()<5 && selarea->height()<5) )
 	return;
+
+    Interval<float> rg( range_ );
     const uiRect& allarea = viewer_.getSceneRect();
+    LinScaler scaler( allarea.top()+border, range_.start,
+		      allarea.bottom()-border, range_.stop );
+    rg.set( mCast(float,scaler.scale(selarea->top())),
+	    mCast(float,scaler.scale(selarea->bottom())) );
+    if ( rg.width()<=0.1 ) return;
 
-    Interval<float> selrg( mCast(float,selarea->topLeft().y), 
-			   mCast(float,selarea->bottomRight().y) );
-    selrg.sort();
-    const uiFont& font = FontList().get();
-    const int border = 2*font.height();
-
-    Interval<float> allrg( mCast(float,allarea.topLeft().y + border),
-			    mCast(float,allarea.bottomRight().y - border) );
-    allrg.sort();
-
-    LinScaler scaler( allrg.start, range_.start, allrg.stop, range_.stop );
-    range_.set( (float) scaler.scale( selrg.start ), 
-				    (float) scaler.scale( selrg.stop ) );
+    range_ = rg;
     range_.limitTo( boundingrange_ );
+
     rangeChanged.trigger();
 }
 

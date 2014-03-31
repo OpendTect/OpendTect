@@ -195,7 +195,6 @@ protected:
 
     float			startdragpos_;
     bool 			mousepressed_;
-    bool 			viewdragged_;
     bool 			manip_;
 
     MouseEventHandler& 		mouseEventHandler();
