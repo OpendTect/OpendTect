@@ -35,7 +35,7 @@ protected:
 
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
-    uiCheckBox*		zbox_;
+    uiGenInput*		zbox_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_;
     uiFileInput*	outfld_;

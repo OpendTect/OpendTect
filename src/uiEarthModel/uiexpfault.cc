@@ -41,14 +41,13 @@ static const char* rcsID mUsedVar = "$Id$";
     mGet( tp, "Export FaultStickSet", "Export Fault" )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup(mGetTitle(typ),
-				 "Specify output format","104.1.1"))
+    : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,"104.1.1"))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {
     setModal( false );
     setDeleteOnClose( false );
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     BufferString inplbl( "Input ");
     inplbl += typ;
@@ -60,13 +59,14 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     bool setchk = true;
     if ( SI().zIsTime() )
-	zbox_ = new uiCheckBox( this, "Z in msec" );
+	zbox_ = new uiGenInput( this, "Z in", BoolInpSpec(true,"msec","s") );
     else
     {
-	zbox_ = new uiCheckBox( this, "Z in feet" );
+	zbox_ = new uiGenInput( this, "Z in",
+				BoolInpSpec(true,"feet","meter") );
 	setchk = SI().depthsInFeet();
     }
-    zbox_->setChecked( setchk );
+    zbox_->setValue( setchk );
     zbox_->attach( rightTo, coordfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
@@ -83,7 +83,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, "Output Ascii file",
+    outfld_ = new uiFileInput( this, "Output ASCII file",
 			       uiFileInput::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
@@ -160,7 +160,7 @@ bool uiExportFault::writeAscii()
     }
 
     BufferString str;
-    const float zfac = !zbox_->isChecked() ? 1
+    const float zfac = !zbox_->getBoolValue() ? 1
 		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
@@ -234,5 +234,7 @@ bool uiExportFault::acceptOK( CallBacker* )
       && !uiMSG().askOverwrite("Output file exists. Overwrite?"))
 	return false;
 
-    return writeAscii();
+    const bool res = writeAscii();
+    if ( res ) uiMSG().message( "Fault successfully exported" );
+    return false;
 }
