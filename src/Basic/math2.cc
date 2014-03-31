@@ -111,7 +111,7 @@ int Math::HCFOf( int num1, int num2 )
 
 unsigned int Math::Abs( int val )	{ return abs(val); }
 od_uint64 Math::Abs( od_int64 val )	{ return llabs(val); }
-float Math::Abs( float val )		{ return mCast(float,fabs(val)); }
+float Math::Abs( float val )		{ return fabs(val); }
 double Math::Abs( double val )		{ return fabs(val); }
 
 
