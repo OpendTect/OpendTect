@@ -87,7 +87,7 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
 
     ffld_->setValue( wp.y );
     kfld_->setValue( wp.x );
-    velfld_->setValue( mIsZero(wp.x,mDefEps)? 0 : abs(wp.y/wp.x) );
+    velfld_->setValue( mIsZero(wp.x,mDefEps)? 0 : Math::Abs(wp.y/wp.x) );
 
     viewer().handleChange( FlatView::Viewer::Auxdata );
 }
