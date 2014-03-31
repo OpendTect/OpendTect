@@ -40,15 +40,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 
-#define mGetTitle(tp) \
-    mGet( tp, "Import FaultStickSet", "Import Fault" )
+#define mGetCaption(tp) \
+    mGet( tp, (is2d ? "Import FaultStickSet 2D" : "Import FaultStickSet"), \
+	  "Import Fault" )
 
-#define mGetHelpID(tp) \
+#define mGetHelpKey(tp) \
     mGet( tp, (is2d ? "104.1.4" : "104.1.3"), "104.1.0" )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
-    : uiDialog(p,uiDialog::Setup(mGetTitle(type),"Specify parameters",
-				 mGetHelpID(type)))
+    : uiDialog(p,uiDialog::Setup(mGetCaption(type),mNoDlgTitle,
+				 mGetHelpKey(type)).modal(false))
     , ctio_(mGetCtio(type))
     , isfss_(mGet(type,true,false))
     , fd_(0)
@@ -60,10 +61,9 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     , is2d_(is2d)
     , importReady(this)
 {
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
     enableSaveButton( "Display after import" );
-    setModal( false );
-    setCtrlStyle( RunAndClose );
-    setOkText( uiStrings::sImport() );
 }
 
 
@@ -77,14 +77,14 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileInput( this, "Input ascii file",
+    infld_ = new uiFileInput( this, "Input ASCII file",
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(GetDataDir()) );
     infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
 
     if ( !isfss_ )
     {
-	BufferStringSet types; types.add( "Plain ascii" );
+	BufferStringSet types; types.add( "Plain ASCII" );
 	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
