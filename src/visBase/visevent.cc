@@ -110,6 +110,7 @@ public:
 		EventCatchHandler( EventCatcher& eventcatcher )
 		    : eventcatcher_( eventcatcher )
 		    , ishandled_( true )
+		    , wasdragging_( false )
 		{
 		    initKeyMap();
 		}
@@ -126,6 +127,7 @@ protected:
 
     EventCatcher&				eventcatcher_;
     bool					ishandled_;
+    bool					wasdragging_;
 
     typedef std::map<int,OD::KeyboardKey>	KeyMap;
     KeyMap					keymap_;
@@ -270,6 +272,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     {
 	eventinfo.type = MouseMovement;
 	eventinfo.dragging = true;
+	wasdragging_ = true;
     }
     else if ( ea.getEventType() == osgGA::GUIEventAdapter::MOVE )
     {
@@ -281,6 +284,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     {
 	eventinfo.type = MouseClick;
 	eventinfo.pressed = true;
+	wasdragging_ = false;
     }
     else if ( ea.getEventType() == osgGA::GUIEventAdapter::RELEASE )
     {
@@ -308,7 +312,11 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	if ( ea.getButton() == osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON )
 	    buttonstate += OD::MidButton;
 	if ( ea.getButton() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+	{
 	    buttonstate += OD::RightButton;
+	    if ( !eventinfo.pressed && !wasdragging_ )
+		isactivepickevent = false;
+	}
     }
 
     if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT )

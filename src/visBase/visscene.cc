@@ -182,10 +182,13 @@ EventCatcher& Scene::eventCatcher() { return events_; }
 
 void Scene::mousePickCB( CallBacker* cb )
 {
-    if ( blockmousesel_ || !isPickable() )
+    if ( blockmousesel_ )
 	return;
 
     mCBCapsuleUnpack(const EventInfo&,eventinfo,cb);
+    if ( !isPickable() && eventinfo.pickedobjids.isEmpty() )
+	return;
+
     if ( events_.isHandled() )
     {
 	if ( eventinfo.type==MouseClick )
