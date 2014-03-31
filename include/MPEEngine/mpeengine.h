@@ -61,35 +61,17 @@ public:
 mExpClass(MPEEngine) DataHolder : public AbstDataHolder
 {
 public:
-				DataHolder()
-				    : AbstDataHolder()
-				    , is2d_( false )
-				    , dcdata_(0)
-				    , d2dhdata_(0)
-				{ cs_.setEmpty(); }
+				DataHolder();
 	    
     bool			is2D() const		{ return is2d_; }
     void			setCubeSampling(const CubeSampling cs)
-				{ cs_ = cs; }
-    CubeSampling		getCubeSampling() const
-				{ return cs_; }
-    void			set3DData(const Attrib::DataCubes* dc)
-				{ is2d_ = false; dcdata_ = dc; }
+							{ cs_ = cs; }
+    CubeSampling		getCubeSampling() const	{ return cs_; }
+    void			set3DData(const Attrib::DataCubes* dc);
     const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
-    void			set2DData(const Attrib::Data2DArray* d2h)
-				{ is2d_ = true; d2dhdata_ = d2h; }
+    void			set2DData(const Attrib::Data2DArray* d2h);
     const Attrib::Data2DArray*	get2DData() const	{ return d2dhdata_; }
-    int			nrCubes() const
-				{
-				    if ( !dcdata_ && !d2dhdata_ )
-					return 0;
-				    if ( !is2d_ && dcdata_ )
-					return dcdata_->nrCubes();
-				    if ( is2d_ && d2dhdata_ )
-					return d2dhdata_->nrTraces();
-
-				    return 0;
-				}
+    int				nrCubes() const;
 
 protected:
     CubeSampling		cs_;
@@ -98,20 +80,8 @@ protected:
     bool			is2d_;
 
 private:
-    void		refNotify() const
-    			{
-			    if ( !is2d_ && dcdata_ )
-				dcdata_->ref();
-			    if ( is2d_ && d2dhdata_ )
-				d2dhdata_->ref();
-			}
-    void		unRefNotify() const
-			{
-			    if ( !is2d_ && dcdata_ )
-				dcdata_->unRef();
-			    if ( is2d_ && d2dhdata_ )
-				d2dhdata_->unRef();
-			}
+			        ~DataHolder();
+    void			releaseMemory();
 };
 
 

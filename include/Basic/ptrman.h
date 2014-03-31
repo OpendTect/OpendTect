@@ -43,8 +43,10 @@ public:
 
     inline bool			operator !() const	{ return !ptr_; }
 
-    inline void			set(T* p, bool doerase=true);
+    inline T*			set(T* p, bool doerase=true);
+				//!<Returns old pointer if not erased
     inline void			erase() { set( 0, true ); }
+
     inline bool			setIfNull(T* p);
 
 protected:
@@ -187,14 +189,19 @@ PtrManBase<T>::PtrManBase( PtrFunc setfunc, PtrFunc deletor, T* p )
 
 
 template <class T> inline
-void PtrManBase<T>::set( T* p, bool doerase )
+T* PtrManBase<T>::set( T* p, bool doerase )
 {
     if ( setfunc_ && p )
 	setfunc_(p);
 
     T* oldptr = ptr_.exchange(p);
     if ( doerase )
+    {
 	deletefunc_( oldptr );
+	return 0;
+    }
+
+    return oldptr;
 }
 
 

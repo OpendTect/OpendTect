@@ -48,6 +48,60 @@ MPE::Engine& MPE::engine()
 namespace MPE
 {
 
+DataHolder::DataHolder()
+	: AbstDataHolder()
+	, is2d_( false )
+	, dcdata_( 0 )
+	, d2dhdata_( 0 )
+{ 
+    cs_.setEmpty(); 
+}
+
+
+DataHolder::~DataHolder()
+{
+    releaseMemory();
+}
+
+
+void DataHolder::set3DData( const Attrib::DataCubes* dc )
+{
+    releaseMemory(); 
+    is2d_ = false; 
+    dcdata_ = dc; 
+    refPtr( dcdata_ ); 
+}
+
+
+void DataHolder::set2DData( const Attrib::Data2DArray* d2h )
+{
+    releaseMemory(); 
+    is2d_ = true; 
+    d2dhdata_ = d2h; 
+    refPtr( d2dhdata_ ); 
+}
+
+
+int DataHolder::nrCubes() const
+{
+    if ( !dcdata_ && !d2dhdata_ )
+	return 0;
+    if ( !is2d_ && dcdata_ )
+	return dcdata_->nrCubes();
+    if ( is2d_ && d2dhdata_ )
+	return d2dhdata_->nrTraces();
+
+    return 0;
+}
+
+
+void DataHolder::releaseMemory() 
+{
+    unRefAndZeroPtr( dcdata_ );
+    unRefAndZeroPtr( d2dhdata_ );
+}
+
+
 Engine::Engine()
     : trackplanechange( this )
     , trackplanetrack( this )
@@ -56,14 +110,14 @@ Engine::Engine()
     , loadEMObject( this )
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
-    , isactivevolshown_(false)
+    , isactivevolshown_( false )
     , activefaultid_( -1 )
     , activefssid_( -1 )
     , activefaultchanged_( this )
     , activefsschanged_( this )
 {
-    trackers_.allowNull(true);
-    flatcubescontainer_.allowNull(true);
+    trackers_.allowNull( true );
+    flatcubescontainer_.allowNull( true );
     init();
 }
 
@@ -486,7 +540,7 @@ const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
     if ( !datapack )
 	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid );
 
-    DataHolder* dh = new DataHolder();
+    RefMan<DataHolder> dh = new DataHolder();
 
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
     if ( cdp )
@@ -508,10 +562,14 @@ const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
 	dh->set2DData( dp2d->dataarray() );
     }
 
-    if ( dh->getCubeSampling().isEmpty() )
-    { delete dh; return 0; }
-    else
-	return dh;
+    if ( !dh->getCubeSampling().isEmpty() )
+    {
+	DataHolder* res = dh.set( 0, false );
+	res->unRefNoDelete();
+	return res;
+    }
+
+    return 0;
 }
 
 
@@ -536,19 +594,19 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    const DataHolder* newdata = getAttribCache( cacheid );
+	    ConstRefMan<DataHolder> newdata = getAttribCache( cacheid );
 	    if ( newdata )
 	    {
 		attribcache_[idx]->unRef();
 		attribcachedatapackids_[idx] = cacheid;
 		attribcache_.replace( idx, newdata );
-		newdata->ref();
+		attribcache_[idx]->ref();
 	    }
 	}
     }
     else if ( cacheid > DataPack::cNoID() )
     {
-	const DataHolder* newdata = getAttribCache( cacheid );
+	ConstRefMan<DataHolder> newdata = getAttribCache( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -557,7 +615,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 	    attribcachedatapackids_ += cacheid;
 	    attribcache_ += newdata;
-	    newdata->ref();
+	    attribcache_[attribcache_.size()-1]->ref();
 	}
     }
 
@@ -600,7 +658,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const CubeSampling& cs )
 {
-    const DataHolder* cache = getAttribCache( as );
+    ConstRefMan<DataHolder> cache = getAttribCache( as );
     if ( !cache )
 	return false;
 
