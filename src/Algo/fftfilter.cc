@@ -462,7 +462,7 @@ bool FFTFilter::deTrend( Array1DImpl<float>& outp, bool isimag )
 	trend->set( idx, outp[idx] );
     }
 
-    if ( !removeBias<float,float>(&inp,&outp,false) )
+    if ( !removeTrend<float,float>(inp,outp) )
 	return false;
 
     for ( int idx=0; idx<sz; idx++ )

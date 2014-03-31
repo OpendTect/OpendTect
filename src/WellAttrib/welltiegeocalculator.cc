@@ -384,12 +384,12 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     Array1DImpl<float> inputvals( inpsz );
     OD::memCopy( inputvals.getData(), inp, inpsz*sizeof(float) );
     window.apply( &inputvals );
-    removeBias<float,float>( &inputvals );
+    removeBias<float,float>( inputvals );
 
     Array1DImpl<float_complex> cfiltervals( inpsz );
     OD::memCopy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
-    removeBias<float_complex,float>( &cfiltervals );
+    removeBias<float_complex,float>( cfiltervals );
 
     DeconvolveData dcinp( inpsz ), dcfilter( inpsz );
     const int cidx = mCast(int, inpsz/2 );

@@ -21,22 +21,21 @@ ________________________________________________________________________
 #include "periodicvalue.h"
 
 
-#define mComputeTrendAandB( sz ) \
-	aval = ( (TT)sz * crosssum - sum * (TT)sumindexes ) / \
-	       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );\
-	bval = ( sum * (TT)sumsqidx - (TT)sumindexes * crosssum ) / \
-	       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );
+#define mComputeTrendAandB( sz ) { \
+	aval = ( (fT)sz * crosssum - sum * (fT)sumindexes ) / \
+	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes );\
+	bval = ( sum * (fT)sumsqidx - (fT)sumindexes * crosssum ) / \
+	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes ); }
 
-/*!
-Removes the DC component from an ArrayND. If no output is given, removeBias()
-will store the result in the input ArrayND. User can choose to remove only the
-average or an eventual linear trend.
-*/
 
-template <class T, class TT>
-inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
+/*!\brief [do not use, helper function] */
+
+template <class T, class fT>
+inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 {
-    ArrayND<T>* out = out_ ? out_ : in; 
+    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>(in_); 
+    if ( out && in_.info() != out_.info() )
+	return false;
 
     T avg = 0;
     T sum = 0;
@@ -46,12 +45,10 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
     T aval = mUdf(T);
     T bval = mUdf(T);
 
-    if ( out_ && in->info() != out_->info() ) return false;
+    const od_int64 sz = in_.info().getTotalSz();
 
-    const od_int64 sz = in->info().getTotalSz();
-
-    T* inpptr = in->getData();
-    T* outptr = out->getData();
+    const T* inpptr = in_.getData();
+    T* outptr = out_.getData();
 
     if ( inpptr && outptr )
     {
@@ -64,70 +61,69 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 
 	    sum += inpptr[idx];
 	    count++;
-	    if ( onlyavg )
+	    if ( !trend )
 		continue;
 
 	    sumindexes += idx;
 	    sumsqidx += idx * idx;
-	    crosssum += inpptr[idx] * (TT)idx;
+	    crosssum += inpptr[idx] * (fT)idx;
 	}
 
 	if ( count <= 1 )
 	    return false;
 
-	if ( onlyavg )
-	    avg = sum / (TT)count;
-	else
+	if ( trend )
 	    mComputeTrendAandB(count)
+	else
+	    avg = sum / (fT)count;
 
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const T value = inpptr[idx];
-	    outptr[idx] = mIsUdf(value ) ? mUdf(T)
-					 : onlyavg ? value - avg
-					 : value - (aval*(TT)idx+bval);
+	    outptr[idx] = mIsUdf(value) ? mUdf(T)
+					: (trend ? value - (aval*(fT)idx+bval)
+					:  value - avg);
 	}
     }
     else
     {
-	ArrayNDIter iter( in->info() );
-	int index = 0;
-	int count = 0;
+	ArrayNDIter iter( in_.info() );
+	int index = 0, count = 0;
 
 	do
 	{
-	    const T value = in->getND( iter.getPos() );
+	    const T value = in_.getND( iter.getPos() );
 	    index++;
 	    if ( mIsUdf(value) )
 		continue;
 
 	    sum += value;
 	    count++;
-	    if ( onlyavg )
+	    if ( !trend )
 		continue;
 
 	    sumindexes += index;
 	    sumsqidx += index * index;
-	    crosssum += value * (TT)index;
+	    crosssum += value * (fT)index;
 	} while ( iter.next() );
 
 	iter.reset();
 	if ( count <= 1 )
 	    return false;
 
-	if ( onlyavg )
-	    avg = sum / (TT)count;
-	else
+	if ( trend )
 	    mComputeTrendAandB(count)
+	else
+	    avg = sum / (fT)count;
 
 	index = 0;
 	do
 	{
-	    const T inpval = in->getND( iter.getPos() );
+	    const T inpval = in_.getND( iter.getPos() );
 	    const T outval = mIsUdf(inpval) ? mUdf(T)
-			   : onlyavg ? inpval - avg
-			   	     : inpval - avg-(aval*(TT)index+bval);
-	    out->setND(iter.getPos(), outval );
+			   : (trend ? inpval - avg-(aval*(fT)index+bval)
+				    : inpval - avg);
+	    out_.setND(iter.getPos(), outval );
 	    index++;
 	} while ( iter.next() );
     }
@@ -135,10 +131,42 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
     return true;
 }
 
-/*!
-   This function returns the average of all defined values in the Arrray1D.
-   Only if the array is empty or contains only undef values it returns udf.
-*/
+
+/*!\brief Removes the bias from an ArrayND. */
+
+template <class T, class fT>
+inline bool removeBias( ArrayND<T>& inout )
+{
+    return removeLinPart<T,fT>( inout, 0, false );
+}
+
+/*!\brief Fills an ArrayND with an unbiased version of another. */
+
+template <class T, class fT>
+inline bool removeBias( const ArrayND<T>& in, ArrayND<T>& out )
+{
+    return removeLinPart<T,fT>( in, &out, false );
+}
+
+/*!\brief Removes a linear trend from an ArrayND. */
+
+template <class T, class fT>
+inline bool removeTrend( ArrayND<T>& inout )
+{
+    return removeLinPart<T,fT>( inout, 0, true );
+}
+
+/*!\brief Fills an ArrayND with a de-trended version of another. */
+
+template <class T, class fT>
+inline bool removeTrend( const ArrayND<T>& in, ArrayND<T>& out )
+{
+    return removeLinPart<T,fT>( in, &out, true );
+}
+
+
+/*!\brief returns the average of all defined values in the Arrray1D.
+   Returns UDF if empty or only udfs encountered. */
 
 template <class T>
 inline T getAverage( const ArrayND<T>& in )
@@ -147,28 +175,22 @@ inline T getAverage( const ArrayND<T>& in )
     if ( sz < 1 )
 	return mUdf(T);
 
-    T avg = 0; int count = 0;
+    T sum = 0; int count = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const T val = in.get( idx );
 	if ( !mIsUdf(val) )
-	{
-	    avg += val;
-	    count++;
-	}
+	    { sum += val; count++; }
     }
 
     if ( count == 0 )
 	return mUdf(T);
 
-    avg /= count;
-    return avg;
+    return sum / count;
 }
 
 
-/*!
-   Returns whether there are undefs in the Array1D.
-*/
+/*!\brief Returns whether there are undefs in the Array1D.  */
 
 template <class fT>
 inline bool hasUndefs( const Array1D<fT>& in )
