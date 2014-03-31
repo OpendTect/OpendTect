@@ -80,7 +80,6 @@ uiODDataTreeItem::~uiODDataTreeItem()
 
     delete statswin_;
     delete ampspectrumwin_;
-    delete fkspectrumwin_;
 
     uiVisPartServer* visserv = applMgr()->visServer();
     MenuHandler* tb = visserv->getToolBarHandler();
@@ -279,14 +278,10 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    visserv->getSelSpec( displayID(), attribNr() );
 	const bool hasattrib =
 	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
-	if ( isvert )
-	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
-			      hasattrib, false)
-	else
-	    mResetMenuItem( &view2dwvaitem_ );
 
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )
+	mResetMenuItem( &view2dwvaitem_ );
     }
     else
     {
@@ -415,7 +410,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		}
 		else
 		{
-		    delete fkspectrumwin_;
 		    fkspectrumwin_ =
 			new uiFKSpectrum( applMgr()->applService().parent() );
 		    fkspectrumwin_->setDataPackID( dpid, dmid );
