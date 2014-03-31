@@ -21,6 +21,17 @@ static const char* sKeyCorr = "Corr";
 
 // 1D
 
+Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
+					const Gaussian1DProbDenFunc& oth )
+{
+    if ( this != &oth )
+    {
+	ProbDenFunc1D::copyFrom( oth );
+	exp_ = oth.exp_; std_ = oth.std_;
+    }
+    return *this;
+}
+
 
 void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 {
@@ -29,6 +40,14 @@ void Gaussian1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 	*this = *gpdf1d;
     else
 	ProbDenFunc1D::copyFrom( pdf );
+}
+
+
+bool Gaussian1DProbDenFunc::isEq( const ProbDenFunc& oth ) const
+{
+    mDynamicCastGet(const Gaussian1DProbDenFunc&,gpdf1d,oth)
+    return isFPEqual(exp_,gpdf1d.exp_,mDefEpsF)
+	&& isFPEqual(std_,gpdf1d.std_,mDefEpsF);
 }
 
 
@@ -78,6 +97,19 @@ inline static float fromDistribPos( float v, float exp, float sd )
 
 // 2D
 
+Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
+					const Gaussian2DProbDenFunc& oth )
+{
+    if ( this != &oth )
+    {
+	ProbDenFunc2D::copyFrom( oth );
+	exp0_ = oth.exp0_; exp1_ = oth.exp1_;
+	std0_ = oth.std0_; std1_ = oth.std1_;
+	cc_ = oth.cc_;
+    }
+    return *this;
+}
+
 
 void Gaussian2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 {
@@ -86,6 +118,17 @@ void Gaussian2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 	*this = *gpdf2d;
     else
 	ProbDenFunc2D::copyFrom( pdf );
+}
+
+
+bool Gaussian2DProbDenFunc::isEq( const ProbDenFunc& oth ) const
+{
+    mDynamicCastGet(const Gaussian2DProbDenFunc&,gpdf2d,oth)
+    return isFPEqual(exp0_,gpdf2d.exp0_,mDefEpsF)
+	&& isFPEqual(std0_,gpdf2d.std0_,mDefEpsF)
+	&& isFPEqual(exp1_,gpdf2d.exp1_,mDefEpsF)
+	&& isFPEqual(std1_,gpdf2d.std1_,mDefEpsF)
+	&& isFPEqual(cc_,gpdf2d.cc_,mDefEpsF);
 }
 
 
@@ -162,6 +205,64 @@ GaussianNDProbDenFunc::~GaussianNDProbDenFunc()
 }
 
 
+GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
+					const GaussianNDProbDenFunc& oth )
+{
+    if ( this != &oth )
+    {
+	setName( oth.name() );
+	vars_ = oth.vars_;
+	corrs_ = oth.corrs_;
+	deepCopy( corrs4vars_, oth.corrs4vars_ );
+    }
+    return *this;
+}
+
+
+void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
+{
+    mDynamicCastGet(const GaussianNDProbDenFunc*,gpdfnd,&pdf)
+    if ( gpdfnd )
+	*this = *gpdfnd;
+    else
+    {
+	setName( pdf.name() );
+	for ( int idx=0; idx<nrDims(); idx++ )
+	    setDimName( idx, pdf.dimName(idx) );
+    }
+}
+
+
+bool GaussianNDProbDenFunc::isEq( const ProbDenFunc& oth ) const
+{
+    mDynamicCastGet(const GaussianNDProbDenFunc&,gpdfnd,oth)
+
+    if ( vars_.size() != gpdfnd.vars_.size()
+      || corrs_.size() != gpdfnd.corrs_.size() )
+	return false;
+
+    for ( int idx=0; idx<vars_.size(); idx++ )
+    {
+	const VarDef& myvd = vars_[idx];
+	const VarDef& othvd = gpdfnd.vars_[idx];
+	if ( !(myvd == othvd) || !isFPEqual(myvd.exp_,othvd.exp_,mDefEpsF)
+			      || !isFPEqual(myvd.std_,othvd.std_,mDefEpsF) )
+	    return false;
+    }
+
+    for ( int idx=0; idx<corrs_.size(); idx++ )
+    {
+	const Corr& mycorr = corrs_[idx];
+	const Corr& othcorr = gpdfnd.corrs_[idx];
+	if ( !(mycorr == othcorr)
+	  || !isFPEqual(mycorr.cc_,othcorr.cc_,mDefEpsF) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 const char* GaussianNDProbDenFunc::dimName( int idim ) const
 {
     if ( !vars_.validIdx(idim) )
@@ -189,20 +290,6 @@ float GaussianNDProbDenFunc::averagePos( int idim ) const
     if ( !vars_.validIdx(idim) )
 	{ pErrMsg("bad dim"); return 0; }
     return vars_[idim].exp_;
-}
-
-
-void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
-{
-    mDynamicCastGet(const GaussianNDProbDenFunc*,gpdfnd,&pdf)
-    if ( gpdfnd )
-	*this = *gpdfnd;
-    else
-    {
-	setName( pdf.name() );
-	for ( int idx=0; idx<nrDims(); idx++ )
-	    setDimName( idx, pdf.dimName(idx) );
-    }
 }
 
 

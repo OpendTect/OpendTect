@@ -62,6 +62,25 @@ ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
 }
 
 
+bool ProbDenFunc::isEqual( const ProbDenFunc& oth ) const
+{
+    if ( FixedString(getTypeStr()) != oth.getTypeStr() )
+	return false;
+
+    const int nrdims = nrDims();
+    if ( nrdims != oth.nrDims() )
+	return false;
+
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	if ( FixedString(dimName(idim)) != oth.dimName(idim) )
+	    return false;
+    }
+
+    return isEq( oth );
+}
+
+
 void ProbDenFunc::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), getTypeStr() );
@@ -158,6 +177,24 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 	return retval; \
     constspec float* values = array.getData(); \
     if ( !values ) return retval
+
+bool ArrayNDProbDenFunc::gtIsEq( const ProbDenFunc& pdf ) const
+{
+    mDynamicCastGet(const ArrayNDProbDenFunc&,oth,pdf)
+    mDefArrVars(true,const);
+
+    if ( totalsz != oth.getData().info().getTotalSz() )
+	return false;
+
+    const float* othvalues = oth.getData().getData();
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+    {
+	if ( !isFPEqual(values[idx],othvalues[idx],mDefEpsF) )
+	    return false;
+    }
+
+    return true;
+}
 
 void ArrayNDProbDenFunc::writeBulkData( od_ostream& strm, bool binary ) const
 {

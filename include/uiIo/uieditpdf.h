@@ -39,7 +39,7 @@ public:
 			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);
 
     virtual bool	commitChanges()			= 0;
-    virtual bool	isChanged() const		= 0;
+    inline bool		isChanged() const		{ return chgd_; }
 
 protected:
 
@@ -47,6 +47,7 @@ protected:
     const ProbDenFunc&	inpdf_;
     const int		nrdims_;
     const bool		editable_;
+    bool		chgd_;
 
 };
 
@@ -79,11 +80,9 @@ public:
 			~uiEditSampledProbDenFunc();
 
     virtual bool	commitChanges();
-    virtual bool	isChanged() const	{ return chgd_; }
 
 protected:
 
-    bool		chgd_;
     int			curdim2_;
 
     uiTabStack*		tabstack_;
@@ -121,7 +120,6 @@ public:
 						bool editable,bool isnew=false);
 
     virtual bool	commitChanges();
-    virtual bool	isChanged() const	{ return true; }
 
 protected:
 

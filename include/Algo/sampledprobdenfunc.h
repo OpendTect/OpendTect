@@ -68,6 +68,7 @@ protected:
     virtual const SamplingData<float>& getSampling(int) const	= 0;
     virtual float	getNormFac() const;
     virtual void	doScale(float);
+    virtual bool	gtIsEq(const ProbDenFunc&) const;
 
     mutable float*	cumbins_;
 
@@ -84,10 +85,12 @@ protected:
 				{ return new nm##ProbDenFunc(*this); } \
     static const char*		typeStr()		{ return #nm; } \
     virtual const char*		getTypeStr() const	{ return typeStr(); } \
-    virtual float		normFac() const		{ return getNormFac(); } \
+    virtual float		normFac() const		{ return getNormFac();}\
     virtual bool		canScale() const	{ return true; } \
     virtual void		scale( float f )	{ doScale(f); } \
-    virtual void		prepareRandDrawing() const { prepRndDrw(); }
+    virtual void		prepareRandDrawing() const { prepRndDrw(); } \
+    virtual bool		isEq( const ProbDenFunc& oth ) const \
+							{ return gtIsEq(oth); }
 
 
 /*!

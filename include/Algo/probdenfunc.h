@@ -35,6 +35,7 @@ public:
     virtual ProbDenFunc* clone() const				= 0;
     virtual		~ProbDenFunc()				{}
     virtual void	copyFrom(const ProbDenFunc&)		= 0;
+    virtual bool	isEqual(const ProbDenFunc&) const;
 
     virtual const char*	getTypeStr() const			= 0;
     virtual int		nrDims() const				= 0;
@@ -66,6 +67,9 @@ protected:
 
 			ProbDenFunc()				{}
 			ProbDenFunc(const ProbDenFunc&);
+
+    virtual bool	isEq(const ProbDenFunc&) const		= 0;
+    			//!< already checked for type, name and dim names
 
 };
 

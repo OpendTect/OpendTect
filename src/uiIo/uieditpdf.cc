@@ -31,10 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sampledprobdenfunc.h"
 #include "gaussianprobdenfunc.h"
 
-static const float cMaxCC = 0.99999f; // if changed, also change error message
-static const char* sCCRangeErr = "Correlation coefficients should be "
-                    "in range <-1,1>.\nMaximum correlation is 0.99999.";
-
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     : uiGroup(p,"ProbDenFunc editor")
@@ -42,6 +38,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , editable_(ed)
     , pdf_(*pdf.clone())
     , nrdims_(pdf.nrDims())
+    , chgd_(false)
 {
 }
 
@@ -94,7 +91,6 @@ bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
 uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 				ProbDenFunc& pdf, bool ed )
     : uiEditProbDenFunc(p,pdf,ed)
-    , chgd_(false)
     , vwwin1d_(0)
     , vwwinnd_(0)
     , tbl_(0)
@@ -485,13 +481,16 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
     , pdf1d_(0)
     , pdf2d_(0)
     , pdfnd_(0)
+    , var1fld_(0)
+    , addsetbut_(0)
+    , rmbut_(0)
 {
     if ( nrdims_ == 1 )
-	mDynamicCast(Gaussian1DProbDenFunc*,pdf1d_,&pdf)
+	mDynamicCast(Gaussian1DProbDenFunc*,pdf1d_,&pdf_)
     else if ( nrdims_ == 2 )
-	mDynamicCast(Gaussian2DProbDenFunc*,pdf2d_,&pdf)
+	mDynamicCast(Gaussian2DProbDenFunc*,pdf2d_,&pdf_)
     else
-	mDynamicCast(GaussianNDProbDenFunc*,pdfnd_,&pdf)
+	mDynamicCast(GaussianNDProbDenFunc*,pdfnd_,&pdf_)
 
     uiGroup* varsgrp = 0;
     if ( !pdfnd_ )
@@ -542,6 +541,12 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	expfld->attach( rightOf, nmfld );
 	stdfld->attach( rightOf, expfld );
 	nmflds_ += nmfld; expflds_ += expfld; stdflds_ += stdfld;
+	if ( !editable_ )
+	{
+	    nmfld->setReadOnly( true );
+	    expfld->setReadOnly( true );
+	    stdfld->setReadOnly( true );
+	}
     }
 
     if ( !pdf1d_ )
@@ -553,6 +558,8 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    ccfld_->attach( alignedBelow, varsgrp );
 	    if ( !isnew )
 		ccfld_->setValue( pdf2d_->cc_ );
+	    if ( !editable_ )
+		ccfld_->setReadOnly( true );
 	}
 	else
 	{
@@ -570,56 +577,62 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 
 void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 {
-    uiGroup* topgrp = new uiGroup( ccgrp, "CC top group" );
-    var1fld_ = new uiComboBox( topgrp, "Var 1" );
-    var2fld_ = new uiComboBox( topgrp, "Var 2" );
-    ccfld_ = new uiGenInput( topgrp, "", FloatInpSpec(0));
-    var2fld_->attach( rightOf, var1fld_ );
-    ccfld_->attach( rightOf, var2fld_ );
-    const CallBack varselcb( mCB(this,uiEditGaussianProbDenFunc,varSel) );
-    var1fld_->selectionChanged.notify( varselcb );
-    var2fld_->selectionChanged.notify( varselcb );
-    uiLabel* lbl = new uiLabel( topgrp, "Correlate" );
-    lbl->attach( centeredAbove, var1fld_ );
-    lbl = new uiLabel( topgrp, "With" );
-    lbl->attach( centeredAbove, var2fld_ );
-    lbl = new uiLabel( topgrp, "Coefficient" );
-    lbl->attach( centeredAbove, ccfld_ );
+    if ( editable_ )
+    {
+	uiGroup* topgrp = new uiGroup( ccgrp, "CC top group" );
+	topgrp->setFrame( true );
+	var1fld_ = new uiComboBox( topgrp, "Var 1" );
+	var2fld_ = new uiComboBox( topgrp, "Var 2" );
+	ccfld_ = new uiGenInput( topgrp, "", FloatInpSpec(0));
+	var2fld_->attach( rightOf, var1fld_ );
+	ccfld_->attach( rightOf, var2fld_ );
+	const CallBack varselcb( mCB(this,uiEditGaussianProbDenFunc,varSel) );
+	var1fld_->selectionChanged.notify( varselcb );
+	var2fld_->selectionChanged.notify( varselcb );
+	uiLabel* lbl = new uiLabel( topgrp, "Correlate" );
+	lbl->attach( centeredAbove, var1fld_ );
+	lbl = new uiLabel( topgrp, "With" );
+	lbl->attach( centeredAbove, var2fld_ );
+	lbl = new uiLabel( topgrp, "Coefficient" );
+	lbl->attach( centeredAbove, ccfld_ );
 
-    addsetbut_ = new uiPushButton( ccgrp, "&Add",
-	   		mCB(this,uiEditGaussianProbDenFunc,addSetPush), true );
-    addsetbut_->attach( centeredBelow, topgrp );
+	const CallBack cb( mCB(this,uiEditGaussianProbDenFunc,addSetPush) );
+	addsetbut_ = new uiPushButton( ccgrp, "&Add", cb, true );
+	addsetbut_->attach( centeredBelow, topgrp );
+	ccfld_->updateRequested.notify( cb );
+    }
 
     defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations", false );
-    defcorrsfld_->attach( centeredBelow, addsetbut_ );
+    if ( editable_ )
+	defcorrsfld_->attach( centeredBelow, addsetbut_ );
     defcorrsfld_->setStretch( 2, 2 );
     defcorrsfld_->selectionChanged.notify(
 	    			mCB(this,uiEditGaussianProbDenFunc,corrSel) );
 
-    rmbut_ = new uiToolButton( ccgrp, "trashcan",
-	    			"Remove selected correlation",
+    if ( editable_ )
+    {
+	rmbut_ = new uiToolButton( ccgrp, "trashcan",
+				"Remove selected correlation",
 				mCB(this,uiEditGaussianProbDenFunc,rmPush) );
-    rmbut_->attach( rightOf, defcorrsfld_ );
+	rmbut_->attach( rightOf, defcorrsfld_ );
+    }
 }
 
 
 int uiEditGaussianProbDenFunc::findCorr() const
 {
-    const int idx0 = var1fld_->currentItem();
-    const int idx1 = var2fld_->currentItem();
-    for ( int icorr=0; icorr<pdfnd_->corrs_.size(); icorr++ )
-    {
-	const GaussianNDProbDenFunc::Corr& corr = pdfnd_->corrs_[icorr];
-	if ( (corr.idx0_ == idx0 && corr.idx1_ == idx1)
-	  || (corr.idx1_ == idx0 && corr.idx0_ == idx1) )
-	    return icorr;
-    }
-    return -1;
+    if ( !var1fld_ ) return -1;
+
+    const GaussianNDProbDenFunc::Corr corr( var1fld_->currentItem(),
+	    				    var2fld_->currentItem() );
+    return pdfnd_->corrs_.indexOf( corr );
 }
 
 
 void uiEditGaussianProbDenFunc::updateCorrList( int cursel )
 {
+    if ( !editable_ ) return;
+
     NotifyStopper stopper( defcorrsfld_->selectionChanged );
     defcorrsfld_->setEmpty();
     if ( pdfnd_->corrs_.isEmpty() )
@@ -664,10 +677,13 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 	varnms.add( vd.name_ );
     }
 
-    NotifyStopper stopper1( var1fld_->selectionChanged );
-    NotifyStopper stopper2( var2fld_->selectionChanged );
-    var1fld_->setEmpty(); var2fld_->setEmpty();
-    var1fld_->addItems( varnms ); var2fld_->addItems( varnms );
+    if ( var1fld_ )
+    {
+	NotifyStopper stopper1( var1fld_->selectionChanged );
+	NotifyStopper stopper2( var2fld_->selectionChanged );
+	var1fld_->setEmpty(); var2fld_->setEmpty();
+	var1fld_->addItems( varnms ); var2fld_->addItems( varnms );
+    }
 
     corrSel( 0 );
 }
@@ -675,6 +691,8 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 
 void uiEditGaussianProbDenFunc::corrSel( CallBacker* )
 {
+    if ( !editable_ ) return;
+
     const int selidx = defcorrsfld_->currentItem();
     rmbut_->setSensitive( selidx >= 0 );
     if ( selidx < 0 )
@@ -691,6 +709,8 @@ void uiEditGaussianProbDenFunc::corrSel( CallBacker* )
 
 void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 {
+    if ( !editable_ ) return;
+
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
 	    ? "-" : (icorr < 0 ? "&Add" : "&Set") );
@@ -702,8 +722,8 @@ float uiEditGaussianProbDenFunc::getCC() const
     const float cc = ccfld_->getfValue();
     if ( mIsUdf(cc) )
 	return cc;
-    if ( cc < -cMaxCC || cc > cMaxCC )
-	{ uiMSG().error( sCCRangeErr ); return mUdf(float); }
+    if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
+	{ uiMSG().error( sGaussianCCRangeErrMsg() ); return mUdf(float); }
     return cc;
 }
 
@@ -790,6 +810,7 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 	    return false;
     }
 
+    chgd_ = !inpdf_.isEqual( pdf_ );
     const_cast<ProbDenFunc&>(inpdf_).copyFrom( pdf_ );
     return true;
 }

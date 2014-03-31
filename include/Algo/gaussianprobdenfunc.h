@@ -19,12 +19,23 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "bufstringset.h"
 
+inline float cMaxGaussianCC()		{ return 0.99999f; }
+inline const char* sGaussianCCRangeErrMsg()
+{ return "Correlation coefficients should be in range <-1,1>.\n"
+	 "Maximum correlation is 0.99999."; }
 
 #define mDefGaussianProbDenFuncFns(nm) \
+				nm##ProbDenFunc( const nm##ProbDenFunc& fn ) \
+							{ *this = fn; } \
+    nm##ProbDenFunc&		operator =(const nm##ProbDenFunc&); \
     virtual nm##ProbDenFunc*	clone() const \
 				{ return new nm##ProbDenFunc(*this); } \
+    virtual void		copyFrom(const ProbDenFunc&); \
     static const char*		typeStr()		{ return #nm; } \
-    virtual const char*		getTypeStr() const	{ return typeStr(); }
+    virtual const char*		getTypeStr() const	{ return typeStr(); } \
+    virtual void		fillPar(IOPar&) const; \
+    virtual bool		usePar(const IOPar&); \
+    virtual bool		isEq(const ProbDenFunc&) const;
 
 
 /*!\brief One dimensional Gaussian PDF. */
@@ -36,11 +47,7 @@ public:
 			Gaussian1DProbDenFunc( float exp=0, float stdev=1 )
 			    : exp_(exp), std_(stdev)	{}
 
-    virtual void	copyFrom(const ProbDenFunc&);
 			mDefGaussianProbDenFuncFns(Gaussian1D)
-
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
 
     float		exp_;
     float		std_;
@@ -62,11 +69,9 @@ public:
 
 			Gaussian2DProbDenFunc()
 			    : exp0_(0),exp1_(0), std0_(1), std1_(1), cc_(0) {}
-    virtual void	copyFrom(const ProbDenFunc&);
+
 			mDefGaussianProbDenFuncFns(Gaussian2D)
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
     virtual float	averagePos( int dim ) const
 			{ return dim ? exp1_ : exp0_; }
 
@@ -90,7 +95,7 @@ public:
 
 			GaussianNDProbDenFunc(int nrdims=3);
 			~GaussianNDProbDenFunc();
-    virtual void	copyFrom(const ProbDenFunc&);
+
 			mDefGaussianProbDenFuncFns(GaussianND)
 
     virtual int		nrDims() const		{ return vars_.size(); }
@@ -102,9 +107,6 @@ public:
     virtual void	drawRandomPos(TypeSet<float>&) const;
     virtual float	value(const TypeSet<float>&) const;
 			//!< Not properly implemented because it can't be done
-
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
 
     mExpClass(Algo) VarDef
     {
@@ -125,8 +127,9 @@ public:
     public:
 			Corr( int i0=0, int i1=0, float cc=1 )
 			    : idx0_(i0), idx1_(i1), cc_(cc)	{}
-	bool		operator ==( const Corr& c ) const
-			{ return idx0_ == c.idx0_ && idx1_ == c.idx1_; }
+	bool		operator ==( const Corr& oth ) const
+			{ return (idx0_ == oth.idx0_ && idx1_ == oth.idx1_)
+			      || (idx0_ == oth.idx1_ && idx1_ == oth.idx0_); }
 
 	int		idx0_, idx1_;
 	float		cc_;
