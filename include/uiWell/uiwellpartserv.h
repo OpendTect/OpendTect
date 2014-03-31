@@ -106,6 +106,7 @@ protected:
     bool			isdisppropopened_;
 
     void			importReadyCB(CallBacker*);
+    void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
     void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
