@@ -603,7 +603,6 @@ bool uiODMain::go()
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     tm.start( 200, true );
     int rv = uiapp_.exec();
-//    delete applmgr_; applmgr_ = 0;
     return rv ? false : true;
 }
 
@@ -659,6 +658,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
+    applMgr().visServer()->showMPEToolbar( false );
     handleStartupSession();
 }
 
@@ -685,6 +685,7 @@ void uiODMain::updateCaption()
 
 bool uiODMain::closeOK()
 {
+    applMgr().visServer()->showMPEToolbar( false );
     saveSettings();
 
     bool askedanything = false;
