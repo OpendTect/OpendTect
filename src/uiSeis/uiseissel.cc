@@ -186,7 +186,8 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
 void uiSeisSelDlg::attrNmSel( CallBacker* )
 {
-    selgrp_->getNameField()->setText( selgrp_->getListField()->getText() );
+    if ( selgrp_->getNameField() && selgrp_->getListField() )
+	selgrp_->getNameField()->setText( selgrp_->getListField()->getText() );
 }
 
 
@@ -214,7 +215,12 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 
     if ( is2d )
     {
-	BufferString dsnm( selgrp_->getNameField()->text() );
+	uiGenInput* nmfld = selgrp_->getNameField();
+	uiListBox* listfld = selgrp_->getListField();
+	BufferString dsnm;
+	if ( nmfld ) dsnm = nmfld->text();
+	else if ( listfld ) dsnm = listfld->getText();
+
 	const int nroccuer = dsnm.count( '|' );
 	dsnm.replace( '|', '_' );
 	if( nroccuer )
@@ -257,7 +263,7 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 	    uiListBox* listfld = selgrp_->getListField();
 	    if ( listfld ) listfld->setCurrentItem( seldatasetnm );
 	    uiGenInput* nmfld = selgrp_->getNameField();
-	    if (nmfld ) nmfld->setText( seldatasetnm );
+	    if ( nmfld ) nmfld->setText( seldatasetnm );
 	}
     }
     if ( compfld_ )
