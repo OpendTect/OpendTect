@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
-    : uiDialog(p,Setup("Pre-load manager","Pre-loaded seismic data",
+    : uiDialog(p,Setup("Seismic Data Pre-load Manager",mNoDlgTitle,
 			"103.0.13"))
 {
     setCtrlStyle( CloseOnly );
@@ -256,7 +256,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     if ( StreamProvider::isPreLoaded(id,true) )
     {
 	if ( !uiMSG().askGoOn("This cube is already pre-loaded.\n"
-		    	      "Do you want to re-load?") )
+			      "Do you want to re-load?") )
 	    return;
 	spl.unLoad();
     }
@@ -295,10 +295,10 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
     lssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
     uiGroup* boxgrp = new uiGroup( this, "List boxes" );
     uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)", true,
-	    			 uiLabeledListBox::AboveMid );
+				 uiLabeledListBox::AboveMid );
     linesel_ = lllb->box();
     uiLabeledListBox* allb = new uiLabeledListBox( boxgrp, "Attribute(s)", true,
-	    			 uiLabeledListBox::AboveMid );
+				 uiLabeledListBox::AboveMid );
     allb->attach( rightOf, lllb );
     attrsel_ = allb->box();
     boxgrp->setHAlignObj( allb );
@@ -387,7 +387,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     uiIOObjSelDlg dlg( this, *ctio, "Select data store/part to load" );
     dlg.setCaption( "Select data store" );
     uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
-	    				uiSelNrRange::Inl, false );
+					uiSelNrRange::Inl, false );
     inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 

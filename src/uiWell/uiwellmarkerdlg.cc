@@ -97,7 +97,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	new uiPushButton( this,	"Set as regional markers",
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
-    
+
     uiToolButton* stratbut = new uiToolButton( this, "man_strat",
 	    			"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
@@ -219,7 +219,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 float uiMarkerDlg::zFactor() const
 {
     const bool unitval = !unitfld_->isChecked();
-    
+
     if ( SI().zIsTime() )
 	return unitval ? 1 : mToFeetFactorF;
 
@@ -393,12 +393,11 @@ class uiReadMarkerFile : public uiDialog
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Markers",
-				 "Specify Marker import",
-				 "107.1.4"))
+    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle,"107.1.4"))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
-    fnmfld_ = new uiFileInput( this, "Input Ascii file",
+    setOkText( uiStrings::sImport() );
+    fnmfld_ = new uiFileInput( this, "Input ASCII file",
 	    		uiFileInput::Setup().withexamine(true)
 					    .forread(true));
 
@@ -529,7 +528,7 @@ class uiMarkersList : public uiDialog
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers", 
+	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers",
 					mNoHelpKey) )
 {
     list_ = new uiListBox( this, "Markers" );
@@ -635,7 +634,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 	 << header.get( cTVDCol ) << od_tab
 	 << header.get( cTVDSSCol ) << od_tab
 	 << header.get( cNameCol ) << od_newline;
-    
+
     const float kbelev = track_.getKbElev();
     const float zfac = zFactor();
     for ( int idx=0; idx<mset.size(); idx++ )

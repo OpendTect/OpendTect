@@ -53,7 +53,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     , importReady(this)
 {
     enableSaveButton( "Display after import" );
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     havetrckbox_ = new uiCheckBox( this, "" );
     havetrckbox_->setChecked( true );

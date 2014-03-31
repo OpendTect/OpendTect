@@ -105,13 +105,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
 
     haveposfld_ = new uiGenInput( this,
-	    		isimp_ ? "Traces start with a position"
-			      : "Output a position for every trace",
-	   		BoolInpSpec(true) );
+			isimp_ ? "Traces start with a position"
+			       : "Output a position for every trace",
+			BoolInpSpec(true) );
     haveposfld_->setValue( data().havepos_ );
     haveposfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
     haveposfld_->attach( alignedBelow, isimp_ ? fnmfld_->attachObj()
-	    				     : remnullfld_->attachObj() );
+					     : remnullfld_->attachObj() );
     if ( sep ) haveposfld_->attach( ensureBelow, sep );
 
     uiObject* attachobj = haveposfld_->attachObj();
@@ -134,9 +134,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
     else
     {
-	isxyfld_ = new uiGenInput( this, isimp_ ? "Position in file is"
-					       : "Position in file will be",
-				 BoolInpSpec(true,"X Y","Inline Xline") );
+	isxyfld_ = new uiGenInput( this, isimp_
+		? "Position in file is" : "Position in file will be",
+		BoolInpSpec(true,"X Y","Inline Xline") );
 	isxyfld_->setValue( data().isxy_ );
 	isxyfld_->attach( alignedBelow, attachobj );
 	if ( !isimp_ )
@@ -164,17 +164,17 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    inldeffld_ = new uiGenInput( this, "Inline definition: start, step",
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
-			  	IntInpSpec(data().inldef_.step)
+				IntInpSpec(data().inldef_.step)
 						.setName("Inl def step") );
 	    inldeffld_->attach( alignedBelow, attachobj );
 	    crldeffld_ = new uiGenInput( this,
 			"Xline definition: start, step, # per inline",
 			   IntInpSpec(data().crldef_.start)
-			   			.setName("Crl def start"),
+						.setName("Crl def start"),
 			   IntInpSpec(data().crldef_.step)
-			   			.setName("Crl def step"),
+						.setName("Crl def step"),
 			   IntInpSpec(data().nrcrlperinl_)
-			   			.setName("per inl") );
+						.setName("per inl") );
 	    crldeffld_->attach( alignedBelow, inldeffld_ );
 	    attachobj = crldeffld_->attachObj();
 	}
@@ -193,11 +193,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 					 PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
 	    startnrfld_ = new uiGenInput( this, "",
-		    			 IntInpSpec(data().nrdef_.start) );
+					 IntInpSpec(data().nrdef_.start) );
 	    startnrfld_->setElemSzPol( uiObject::Small );
 	    startnrfld_->attach( rightOf, startposfld_ );
 	    stepnrfld_ = new uiGenInput( this, "",
-		    			IntInpSpec(data().nrdef_.step) );
+					IntInpSpec(data().nrdef_.step) );
 	    stepnrfld_->setElemSzPol( uiObject::Small );
 	    stepnrfld_->attach( rightOf, stepposfld_ );
 	    attachobj = stepposfld_->attachObj();
@@ -205,7 +205,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( isps )
 	{
 	    haveoffsbut_ = new uiCheckBox( this, "Offset",
-		    			 mCB(this,uiSeisIOSimple,haveoffsSel) );
+					 mCB(this,uiSeisIOSimple,haveoffsSel) );
 	    haveoffsbut_->attach( alignedBelow, attachobj );
 	    haveoffsbut_->setChecked( data().haveoffs_ );
 	    haveazimbut_ = new uiCheckBox( this, "Azimuth" );
@@ -215,21 +215,21 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,
-		    	   "Offset definition: start, stop, step",
+			   "Offset definition: start, stop, step",
 			   FloatInpSpec(data().offsdef_.start).setName("Start"),
 			   FloatInpSpec(stopoffs).setName("Stop"),
-		   	   FloatInpSpec(data().offsdef_.step).setName("Step") );
+			   FloatInpSpec(data().offsdef_.step).setName("Step") );
 	    offsdeffld_->attach( alignedBelow, haveoffsbut_ );
 	    attachobj = offsdeffld_->attachObj();
 	}
     }
 
-    havesdfld_ = new uiGenInput( this, isimp_
-	    			    ? "File start contains sampling info"
-				    : "Put sampling info in file start",
-				    BoolInpSpec(true)
-				      .setName("Info in file start Yes",0)
-	   			      .setName("Info in file start No",1) );
+    havesdfld_ = new uiGenInput( this,
+		isimp_ ? "File start contains sampling info"
+		       : "Put sampling info in file start",
+		BoolInpSpec(true)
+			.setName("Info in file start Yes",0)
+			.setName("Info in file start No",1) );
     havesdfld_->setValue( data().havesd_ );
     havesdfld_->attach( alignedBelow, attachobj );
     havesdfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
@@ -242,7 +242,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
-	sdfld_ = new uiGenInput( this, txt, 
+	sdfld_ = new uiGenInput( this, txt,
 			DoubleInpSpec(sd.start).setName("SampInfo start"),
 			DoubleInpSpec(sd.step).setName("SampInfo step"),
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
@@ -277,7 +277,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 void uiSeisIOSimple::mkIsAscFld()
 {
     isascfld_ = new uiGenInput( this, "File type",
-	    		       BoolInpSpec(true,"Ascii","Binary") );
+				BoolInpSpec(true,"ASCII","Binary") );
     isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
     isascfld_->setValue( data().isasc_ );
 }
@@ -297,14 +297,14 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 
     scalefld_ = new uiScaler( this, 0, true );
     scalefld_->attach( alignedBelow, isimp_ ? sdfld_->attachObj()
-	    				   : subselfld_->attachObj() );
+					   : subselfld_->attachObj() );
     if ( isimp_ ) scalefld_->attach( ensureBelow, sep );
     remnullfld_ = new uiGenInput( this, "Null traces",
-				 BoolInpSpec(true,"Discard","Pass") );
+				  BoolInpSpec(true,"Discard","Pass") );
     remnullfld_->attach( alignedBelow, scalefld_ );
 
     multcompfld_ = new uiGenInput( this, "Component to export",
-	    			   StringListInpSpec() );
+				   StringListInpSpec() );
     multcompfld_->display( false );
     multcompfld_->setSensitive( false );
 

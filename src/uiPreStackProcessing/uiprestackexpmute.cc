@@ -32,7 +32,7 @@ uiExportMute::uiExportMute( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Mute Function",mNoDlgTitle,"103.2.6"))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sExport() );
 
     infld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
 
@@ -40,7 +40,7 @@ uiExportMute::uiExportMute( uiParent* p )
 			        BoolInpSpec(true,"X/Y","Inl/Crl") );
     coordfld_->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiFileInput( this, "Output Ascii file",
+    outfld_ = new uiFileInput( this, "Output ASCII file",
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordfld_ );
 }

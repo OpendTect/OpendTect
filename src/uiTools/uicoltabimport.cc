@@ -33,6 +33,8 @@ uiColTabImport::uiColTabImport( uiParent* p )
     , dirfld_(0)
     , dtectusrfld_(0)
 {
+    setOkText( uiStrings::sImport() );
+
     choicefld_ = new uiGenInput( this, "Import from",
 	BoolInpSpec(true,"Other user","File") );
     choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
@@ -134,7 +136,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	const char* nm = subpar->find( sKey::Name() );
 	if ( !nm )
 	    { delete subpar; nrinvalididx++; continue; }
-	
+
 	ColTab::Sequence* seq = new ColTab::Sequence;
 	seq->usePar( *subpar );
 	seqs_ += seq;

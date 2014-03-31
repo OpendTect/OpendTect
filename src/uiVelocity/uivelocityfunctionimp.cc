@@ -35,15 +35,15 @@ namespace Vel
 {
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
-    : uiDialog( p,uiDialog::Setup( "Import Velocity Function",
-				   mNoDlgTitle,"103.2.8") )
+    : uiDialog( p,uiDialog::Setup("Import Velocity Function",
+				  mNoDlgTitle,"103.2.8") )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File",
-	    		       uiFileInput::Setup().withexamine(true)
+			       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
     uiVelocityDesc::Setup su;
@@ -70,7 +70,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 
     postFinalise().notify( mCB(this,uiImportVelFunc,formatSel) );
     velTypeChangeCB( 0 );
-}	
+}
 
 
 uiImportVelFunc::~uiImportVelFunc()
@@ -119,13 +119,13 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     bool success;
     if ( filesize>2 )
     {
-    	uiTaskRunner tr( this );
+	uiTaskRunner tr( this );
 	success = TaskRunner::execute( &tr, velascio );
     }
     else
         success = velascio.execute();
 
-    
+
     if ( !success )
 	mErrRet( "Failed to convert into compatible data" );
 

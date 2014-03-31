@@ -121,7 +121,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	Well::D2TModelAscIO aio( fd_ );
 	if ( !aio.get(strm,d2t,wd) )
 	{
-	    errmsg_ = "Ascii TD model import failed for well ";
+	    errmsg_ = "ASCII TD model import failed for well ";
 	    errmsg_.add( wd.name() );
 	    errmsg_.addNewLine();
 	    if ( aio.errMsg() )

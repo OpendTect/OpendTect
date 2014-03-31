@@ -34,12 +34,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
-    : uiDialog(p,uiDialog::Setup("Import cross-plot data",
+    : uiDialog(p,uiDialog::Setup("Import Cross-plot Data",
 				 mNoDlgTitle,
 				 "111.0.7"))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {
+    setOkText( uiStrings::sImport() );
+
     uiFileInput::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(File::Table).forread(true);
     inpfld_ = new uiFileInput( this, "Input file", su );

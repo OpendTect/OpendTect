@@ -73,9 +73,11 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup("Import GPR Seismics","Import DZT Seismics","103.0.16"))
+    : uiDialog(p,Setup("Import GPR-DZT Seismics",mNoDlgTitle,"103.0.16"))
     , inpfld_(0)
 {
+    setOkText( uiStrings::sImport() );
+
     if ( !SI().has2D() )
 	{ new uiLabel(this,"TODO: implement 3D loading"); return; }
 
@@ -88,10 +90,10 @@ uiDZTImporter( uiParent* p )
 				IntInpSpec(1), IntInpSpec(1) );
     nrdeffld_->attach( alignedBelow, inpfld_ );
     startposfld_ = new uiGenInput( this, "Start position (X,Y)",
-	    			PositionInpSpec(SI().minCoord(true)) );
+				PositionInpSpec(SI().minCoord(true)) );
     startposfld_->attach( alignedBelow, nrdeffld_ );
     stepposfld_ = new uiGenInput( this, "Step in X/Y", FloatInpSpec(),
-	    				FloatInpSpec(0) );
+					FloatInpSpec(0) );
     stepposfld_->attach( alignedBelow, startposfld_ );
 
     zfacfld_ = new uiGenInput( this, "Z Factor", FloatInpSpec(1) );
@@ -101,7 +103,7 @@ uiDZTImporter( uiParent* p )
     lnmfld_->attach( alignedBelow, zfacfld_ );
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
-	    		     uiSeisSel::Setup(Seis::Line) );
+			     uiSeisSel::Setup(Seis::Line) );
     outfld_->attach( alignedBelow, lnmfld_ );
 }
 

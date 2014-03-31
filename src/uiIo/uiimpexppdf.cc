@@ -43,7 +43,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Probability Density Function",
 				 mNoDlgTitle,"112.0.0"))
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File",
 	    uiFileInput::Setup(uiFileDialog::Gen)
@@ -56,12 +56,12 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     varnmsfld_->attach( alignedBelow, inpfld_ );
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
-    xrgfld_ = new uiGenInput( grp, "Output var1 Range", FloatInpIntervalSpec());
-    xnrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec() );
+    xrgfld_ = new uiGenInput( grp, "Output var1 range", FloatInpIntervalSpec());
+    xnrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec(10,1) );
     xnrbinfld_->setElemSzPol( uiObject::Small );
     xnrbinfld_->attach( rightOf, xrgfld_ );
-    yrgfld_ = new uiGenInput( grp, "Output var2 Range", FloatInpIntervalSpec());
-    ynrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec() );
+    yrgfld_ = new uiGenInput( grp, "Output var2 range", FloatInpIntervalSpec());
+    ynrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec(10,1) );
     ynrbinfld_->setElemSzPol( uiObject::Small );
     yrgfld_->attach( alignedBelow, xrgfld_ );
     ynrbinfld_->attach( rightOf, yrgfld_ );
@@ -287,9 +287,9 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
-				 "Specify parameters","112.0.1"))
+				 mNoDlgTitle,"112.0.1"))
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sExport() );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = true;

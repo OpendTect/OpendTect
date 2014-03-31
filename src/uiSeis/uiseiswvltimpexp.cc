@@ -33,7 +33,9 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
-    inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
+    setOkText( uiStrings::sImport() );
+
+    inpfld_ = new uiFileInput( this, "Input ASCII file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
@@ -127,17 +129,20 @@ MultiID uiSeisWvltImp::selKey() const
 }
 
 
+// uiSeisWvltExp
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Wavelet",mNoDlgTitle,"103.3.1"))
 {
+    setOkText( uiStrings::sExport() );
+
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
 
-    addzfld_ = new uiGenInput( this, BufferString("Put ",
+    addzfld_ = new uiGenInput( this, BufferString("Output ",
 				     SI().zIsTime()?"time":"depth"),
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
 
-    outpfld_ = new uiFileInput( this, "Output file", uiFileInput::Setup()
+    outpfld_ = new uiFileInput( this, "Output ASCII file", uiFileInput::Setup()
 				.forread(false) );
     outpfld_->attach( alignedBelow, addzfld_ );
 }

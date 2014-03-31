@@ -64,7 +64,7 @@ void uiImportHorizon::initClass()
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup("Import Horizon",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,
 				 "104.0.2").modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
@@ -77,8 +77,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
-    setCtrlStyle( RunAndClose );
-    setOkText( uiStrings::sImport() );
+    setCaption( isgeom ? "Import Horizon" : "Import Horizon Data" );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
 

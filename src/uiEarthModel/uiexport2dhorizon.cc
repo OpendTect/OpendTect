@@ -44,15 +44,15 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				      const ObjectSet<SurfaceInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export 2D Horizon",
-				     "Specify output parameters","104.0.1"))
+				     mNoDlgTitle,"104.0.1"))
 	, hinfos_(hinfos)
 {
-    setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sExport() );
 
     uiLabeledComboBox* lcbox = new uiLabeledComboBox( this, "Select Horizon",
 						      "Select 2D Horizon" );
     horselfld_ = lcbox->box();
+    horselfld_->setHSzPol( uiObject::MedVar );
     horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	horselfld_->addItem( hinfos_[idx]->name );
@@ -66,7 +66,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     headerfld_->attach( alignedBelow, llbox );
 
     udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
-			     StringInpSpec(sKey::FloatUdf()) );
+			      FloatInpSpec(sKey::FloatUdf()) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
@@ -78,7 +78,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
-    outfld_ = new uiFileInput( this, "Output Ascii file",
+    outfld_ = new uiFileInput( this, "Output ASCII file",
 			      uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, optsfld_ );
 

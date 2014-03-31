@@ -52,7 +52,7 @@ static const char* sKeyRightClick = "<right-click>";
 static TypeSet<int> selcomps;
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODTreeItem("2D Line" )
+    : uiODTreeItem("2D line" )
 {
 }
 
@@ -983,7 +983,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
     BufferStringSet steerdatanames;
-    //seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
+//seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames, 1 );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )

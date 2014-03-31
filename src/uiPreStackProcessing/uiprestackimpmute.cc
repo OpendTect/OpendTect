@@ -37,24 +37,24 @@ uiImportMute::uiImportMute( uiParent* p )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII File", 
+    inpfld_ = new uiFileInput( this, "Input ASCII File",
 	                       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
     inpfilehaveposfld_ = new uiGenInput( this, "File contains position",
-	   				 BoolInpSpec(true) );
+					 BoolInpSpec(true) );
     inpfilehaveposfld_->attach( alignedBelow, inpfld_ );
     inpfilehaveposfld_->valuechanged.notify(
-	      			mCB(this,uiImportMute,changePrefPosInfo) );
-  
-    inlcrlfld_ = new uiGenInput( this, "Inl/Crl", 
+				mCB(this,uiImportMute,changePrefPosInfo) );
+
+    inlcrlfld_ = new uiGenInput( this, "Inl/Crl",
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.7" );
-    dataselfld_->attach( alignedBelow, inlcrlfld_ ); 
+    dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
     ctio_.ctxt.forread = false;
     outfld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
@@ -81,7 +81,7 @@ void uiImportMute::formatSel( CallBacker* )
 void uiImportMute::changePrefPosInfo( CallBacker* cb )
 {
     BinID center( SI().inlRange(false).center(),
-	    	  SI().crlRange(false).center() );
+		  SI().crlRange(false).center() );
     SI().snap( center );
     inlcrlfld_->setValue( center );
 
@@ -125,7 +125,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
-		    
+
    PtrMan<MuteDefTranslator> tr =
 	    (MuteDefTranslator*)ctio_.ioobj->createTranslator();
     if ( !tr ) return false;

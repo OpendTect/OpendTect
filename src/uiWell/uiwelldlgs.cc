@@ -1106,6 +1106,8 @@ static const float defundefval = -999.25;
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Import Well Logs",mNoDlgTitle,"107.1.2"))
 {
+    setOkText( uiStrings::sImport() );
+
     lasfld_ = new uiFileInput( this, "Input (pseudo-)LAS logs file",
 			       uiFileInput::Setup(uiFileDialog::Gen)
 			       .filter(lasfileflt).withexamine(true) );

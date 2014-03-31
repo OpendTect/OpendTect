@@ -26,8 +26,11 @@ namespace PreStack
 {
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
-    : uiDialog( p, uiDialog::Setup("Prestack event export",0,"dgb:104.0.2") )
+    : uiDialog( p, uiDialog::Setup("Export Prestack Events",mNoDlgTitle,
+				   "dgb:104.0.2") )
 {
+    setOkText( uiStrings::sExport() );
+
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread = true;
     eventsel_ = new uiIOObjSel( this, ctxt, "Prestack Events" );
@@ -37,8 +40,8 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outputfile_ = new uiFileInput( this, "Output file",
-	    			   uiFileInput::Setup(0).forread(false) );
+    outputfile_ = new uiFileInput( this, "Output ASCII file",
+				   uiFileInput::Setup(0).forread(false) );
     outputfile_->attach( alignedBelow, subsel_ );
 }
 
@@ -57,7 +60,7 @@ bool uiEventExport::acceptOK( CallBacker* )
     RefMan<EventManager> events = new EventManager;
     PtrMan<Executor> loader =
 	events->setStorageID( eventsel_->key(), false );
-    
+
     if ( loader && !loader->execute() )
     {
 	uiMSG().error( "Cannot load prestack events" );

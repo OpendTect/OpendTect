@@ -492,7 +492,7 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODTreeItem( "Inline" )
+    : uiODTreeItem( "In-line" )
 { }
 
 
@@ -531,7 +531,7 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODTreeItem( "Crossline" )
+    : uiODTreeItem( "Cross-line" )
 { }
 
 

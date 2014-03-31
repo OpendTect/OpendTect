@@ -86,10 +86,13 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Horizons",mNoDlgTitle,"104.0.16"))
+    : uiDialog(p,uiDialog::Setup("Import Multiple Horizons",
+				 mNoDlgTitle,"104.0.16"))
     , fd_(BulkHorizonAscIO::getDesc())
 {
-    inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
+    setOkText( uiStrings::sImport() );
+
+    inpfld_ = new uiFileInput( this, "Input ASCII file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );

@@ -34,7 +34,7 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis", "Merge CrossPlot",
+    manipgrp->addButton( "mergeseis", "Merge Cross-plot",
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
     selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
@@ -79,7 +79,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     BufferString masternm( dps->name() );
     if ( masternm == seldlg.ioObj()->name() )
 	return uiMSG().error( "Cannot merge same crossplots." );
-    
+
     PosVecDataSet spvds;
     BufferString errmsg;
     bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);

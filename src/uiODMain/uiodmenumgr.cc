@@ -252,14 +252,14 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwell );
     impmnu_->insertSeparator();
 
-    mInsertItem( impattr, "&Ascii ...", mImpAttrMnuItm );
+    mInsertItem( impattr, "&ASCII ...", mImpAttrMnuItm );
     mInsertItem( impattr, "&From other survey ...", mImpAttrOthSurvMnuItm );
-    mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
-    mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
-    mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
-    mInsertItem( impcpd, "&Ascii ...", mImpPVDSAsciiMnuItm );
-    mInsertItem( impvelfn, "&Ascii ...", mImpVelocityAsciiMnuItm );
-    mInsertItem( imppdf, "RokDoc &Ascii ...", mImpPDFAsciiMnuItm );
+    mInsertItem( imppick, "&ASCII ...", mImpPickAsciiMnuItm );
+    mInsertItem( impwvlt, "&ASCII ...", mImpWvltAsciiMnuItm );
+    mInsertItem( impmute, "&ASCII ...", mImpMuteDefAsciiMnuItm );
+    mInsertItem( impcpd, "&ASCII ...", mImpPVDSAsciiMnuItm );
+    mInsertItem( impvelfn, "&ASCII ...", mImpVelocityAsciiMnuItm );
+    mInsertItem( imppdf, "RokDoc &ASCII ...", mImpPDFAsciiMnuItm );
 
     mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y s&canned ...", mImpSeisSEGYDirectMnuItm );
@@ -275,18 +275,18 @@ void uiODMenuMgr::fillImportMenu()
 					   mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
-    uiMenu* imphorasc = new uiMenu( &appl_, "&Ascii" );
+    uiMenu* imphorasc = new uiMenu( &appl_, "&ASCII" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
     mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
     mInsertItem( imphorasc, "&Geometry 2D ...", mImpHor2DAsciiMnuItm );
     mInsertItem( imphorasc, "&Bulk 3D ...", mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
-    mInsertItem( impfault, "&Ascii ...", mImpFaultMnuItm );
-    mInsertItem( impfaultstick, "&Ascii 3D ...", mImpFaultSSAscii3DMnuItm );
-    mInsertItem( impfaultstick, "&Ascii 2D ...", mImpFaultSSAscii2DMnuItm );
+    mInsertItem( impfault, "&ASCII ...", mImpFaultMnuItm );
+    mInsertItem( impfaultstick, "&ASCII 3D ...", mImpFaultSSAscii3DMnuItm );
+    mInsertItem( impfaultstick, "&ASCII 2D ...", mImpFaultSSAscii2DMnuItm );
 
-    uiMenu* impwellasc = new uiMenu( &appl_, "&Ascii" );
+    uiMenu* impwellasc = new uiMenu( &appl_, "&ASCII" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
     mInsertItem( impwellasc, "&Logs ...", mImpWellAsciiLogsMnuItm );
     mInsertItem( impwellasc, "&Markers ...", mImpWellAsciiMarkersMnuItm );
@@ -345,14 +345,14 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( expseissimple, "&Prestack 3D ...", mExpSeisSimplePS3DMnuItm );
     expseis->insertItem( expseissimple );
 
-    mInsertItem( exphor, "Ascii &3D...", mExpHorAscii3DMnuItm );
-    mInsertItem( exphor, "Ascii &2D...", mExpHorAscii2DMnuItm );
-    mInsertItem( expflt, "&Ascii ...", mExpFltAsciiMnuItm );
-    mInsertItem( expfltss, "&Ascii ...", mExpFltSSAsciiMnuItm );
-    mInsertItem( exppick, "&Ascii ...", mExpPickAsciiMnuItm );
-    mInsertItem( expwvlt, "&Ascii ...", mExpWvltAsciiMnuItm );
-    mInsertItem( expmute, "&Ascii ...", mExpMuteDefAsciiMnuItm );
-    mInsertItem( exppdf, "RokDoc &Ascii ...", mExpPDFAsciiMnuItm );
+    mInsertItem( exphor, "ASCII &3D...", mExpHorAscii3DMnuItm );
+    mInsertItem( exphor, "ASCII &2D...", mExpHorAscii2DMnuItm );
+    mInsertItem( expflt, "&ASCII ...", mExpFltAsciiMnuItm );
+    mInsertItem( expfltss, "&ASCII ...", mExpFltSSAsciiMnuItm );
+    mInsertItem( exppick, "&ASCII ...", mExpPickAsciiMnuItm );
+    mInsertItem( expwvlt, "&ASCII ...", mExpWvltAsciiMnuItm );
+    mInsertItem( expmute, "&ASCII ...", mExpMuteDefAsciiMnuItm );
+    mInsertItem( exppdf, "RokDoc &ASCII ...", mExpPDFAsciiMnuItm );
 
     expmnus_.erase();
     expmnus_.allowNull();
@@ -367,12 +367,12 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
-    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm,
+    mInsertPixmapItem( manmnu_, "&Attribute Sets ...", mManAttrMnuItm,
 			"man_attrs" );
-    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm, "man_body" );
+    mInsertPixmapItem( manmnu_, "&Bodies ...", mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, "Color Tables ...", mManColTabMnuItm,
 		       uiIcon::None() );
-    mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
+    mInsertPixmapItem( manmnu_, "&Cross-plot data ...", mManCrossPlotItm,
 			"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
     mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,

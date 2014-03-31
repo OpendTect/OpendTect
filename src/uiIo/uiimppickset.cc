@@ -56,10 +56,10 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     , constzfld_(0)
     , dataselfld_(0)
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( import_ ? uiStrings::sImport() : uiStrings::sExport() );
 
     BufferString label( import_ ? "Input " : "Output " );
-    label += "Ascii file";
+    label += "ASCII file";
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
 					    .forread(import_) );

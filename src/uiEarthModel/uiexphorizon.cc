@@ -50,8 +50,7 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 uiExportHorizon::uiExportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,"104.0.1"))
 {
-    setCtrlStyle( RunAndClose );
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );
     setDeleteOnClose( false );
 
@@ -91,7 +90,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileInput( this, "Output Ascii file",
+    outfld_ = new uiFileInput( this, "Output ASCII file",
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
 

@@ -232,12 +232,14 @@ void zdomainChg( CallBacker* cb )
 
 uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
-	: uiDialog(p,uiDialog::Setup("Create new survey",
+	: uiDialog(p,uiDialog::Setup("Create New Survey",
 		    "Specify new survey parameters",mTODOHelpKey))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
 {
+    setOkText( uiStrings::sNext() );
+
     survnmfld_ = new uiGenInput( this, "Survey name" );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
