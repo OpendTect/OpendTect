@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
 
     const bool hastransform = scene && scene->getZAxisTransform();
 
@@ -67,7 +67,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(uiStrings::sAdd(true)), mAddIdx );
     mnu.insertItem( new uiAction(tr("Add &color blended...")), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( uiStrings::sNew(true) );
+    uiAction* newmenu = new uiAction( tr("&Track new") );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
@@ -89,7 +89,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     if ( mnuid == mAddIdx || mnuid==mAddCBIdx )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, false ); 
+	applMgr()->EMServer()->selectHorizons( objs, false );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
@@ -109,7 +109,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	if ( !applMgr()->visServer()->
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
 	    return true;
-	
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
@@ -252,7 +252,7 @@ void uiODHorizonTreeItem::initMenuItems()
 void uiODHorizonTreeItem::initNotify()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
-	    	    emd,visserv_->getObject(displayid_));
+		    emd,visserv_->getObject(displayid_));
     if ( emd )
 	emd->changedisplay.notify( mCB(this,uiODHorizonTreeItem,dispChangeCB) );
 }
@@ -302,7 +302,7 @@ bool uiODHorizonTreeItem::init()
     }
 
     visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
-    const bool geodf = !sect ? false    
+    const bool geodf = !sect ? false
 	: (hd->geometryRowRange().width() && hd->geometryColRange().width());
     if ( geodf )
     {
@@ -310,10 +310,10 @@ bool uiODHorizonTreeItem::init()
 	const StepInterval<int> crg = hd->geometryColRange();
 	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
 	bool userchanged = rg.inlRange()!=rrg || rg.crlRange()!=crg;
-	if ( rg.inlRange().start<rrg.start || rg.inlRange().stop>rrg.stop || 
+	if ( rg.inlRange().start<rrg.start || rg.inlRange().stop>rrg.stop ||
 	     rg.crlRange().start<crg.start || rg.crlRange().stop>crg.stop )
-	    userchanged = false;		
-	
+	    userchanged = false;
+
 	if ( rg.isDefined() && userchanged )
 	{
 	    sect->setDisplayRange( rg.inlRange(), rg.crlRange() );
@@ -321,7 +321,7 @@ bool uiODHorizonTreeItem::init()
 	    {
 		if ( hd->hasDepth(idx) ) hd->setDepthAsAttrib( idx );
 		else applMgr()->calcRandomPosAttrib( displayID(), idx );
-	    }	    
+	    }
 	}
     }
 
@@ -384,7 +384,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
-	
+
 	mAddMenuItem( menu, &algomnuitem_, true, false );
 	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
@@ -471,8 +471,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	setup.allownone_ = true;
 	setup.seltxt( "Area subselection" );
 	setup.cs_ = maxcs;
-	
-	uiDialog dlg( getUiParent(), 
+
+	uiDialog dlg( getUiParent(),
 		uiDialog::Setup("Positions","Specify positions", "103.1.6") );
 	uiPosProvider pp( &dlg, setup );
 
@@ -486,7 +486,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	pp.fillPar( displaypar );
-	
+
 	CubeSampling newcs;
 	if ( pp.isAll() )
 	    newcs = maxcs;
@@ -495,7 +495,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
 	emserv->setHorizon3DDisplayRange( newcs.hrg );
-	
+
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
 	{
 	    if ( hd->hasDepth(idx) )
@@ -509,7 +509,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	BoolTypeSet isenabled;
 	const int nrattrib = visserv_->getNrAttribs( visid );
 	for ( int idx=0; idx<nrattrib; idx++ )
-	    isenabled += visserv_->isAttribEnabled( visid, idx ); 
+	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
 	float curshift = (float) visserv_->getTranslation( visid ).z;
 	if ( mIsUdf( curshift ) ) curshift = 0;
@@ -533,11 +533,11 @@ uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
 bool uiODHorizon2DParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction( uiStrings::sAdd(true) ), 0 );
-    uiAction* newmenu = new uiAction( uiStrings::sNew(true) );
+    uiAction* newmenu = new uiAction( tr("&Track new") );
     mnu.insertItem( newmenu, 1 );
     mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 2 );
     newmenu->setEnabled( !hastransform );
@@ -553,7 +553,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, true ); 
+	applMgr()->EMServer()->selectHorizons( objs, true );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
@@ -570,12 +570,12 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	if ( !applMgr()->visServer()->
 			clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
-	    return true; 
+	    return true;
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 			applMgr()->attrServer()->curDescSet(true) );
-	
+
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
     }
@@ -662,9 +662,9 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
 
 uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
     : uiODEarthModelSurfaceTreeItem( 0 )
-{ 
+{
     initMenuItems();
-    displayid_=id; 
+    displayid_=id;
 }
 
 
@@ -681,7 +681,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
 void uiODHorizon2DTreeItem::initNotify()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
-	    	    emd,visserv_->getObject(displayid_));
+		    emd,visserv_->getObject(displayid_));
     if ( emd )
 	emd->changedisplay.notify(mCB(this,uiODHorizon2DTreeItem,dispChangeCB));
 }
