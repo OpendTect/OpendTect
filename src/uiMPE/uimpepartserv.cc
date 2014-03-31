@@ -105,7 +105,7 @@ uiMPEPartServer::~uiMPEPartServer()
     setupbeingupdated_ = false;
 
     sendEvent( uiMPEPartServer::evEndSeedPick() );
-    sendEvent( uiMPEPartServer::evShowToolbar() );
+    sendEvent( uiMPEPartServer::evHideToolBar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
@@ -1013,7 +1013,7 @@ void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
 
     const EM::SectionID sid = emobj->sectionID(0);
     const MPE::SectionTracker* sectracker =
-			       emtracker->getSectionTracker( sid, true );
+			       emtracker->getSectionTracker( sid, false );
 
     if ( sectracker && !sectracker->hasInitializedSetup() )
 	readSetup( emobj->multiID() );
