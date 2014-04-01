@@ -537,32 +537,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
-	    return;
-
-	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
-			visserv->getObject(visid) );
-	if ( !vishor ) 
-	    return;
-
-	const StepInterval<int>& grrg = vishor->geometryRowRange();
-	const StepInterval<int>& gcrg = vishor->geometryColRange();
-	const visBase::HorizonSection* horsect = vishor->getSection( 0 );
-	StepInterval<int> loadrrg = horsect ? horsect->displayedRowRange()
-	    				    : grrg;
-	StepInterval<int> loadcrg = horsect ? horsect->displayedColRange()
-	    				    : gcrg;
-	CubeSampling cs( true );
-	cs.hrg.set( loadrrg, loadcrg );
-
-	TypeSet<float> shifts;
-	DataPointSet vals( false, true );
-	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts, &cs );
-	setDataPointSet( vals );
-
-	vishor->setAttribShift( attribnr, shifts );
-
-	updateColumnText( uiODSceneMgr::cNameColumn() );
+	selectAndLoadAuxData();
 	changed_ = false;
     }
     else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id
@@ -593,12 +568,42 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !res || mnuid==horvariogrammnuitem_.id )
 	    return;
-	
+
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( visid, attribnr, &vals );
 	changed_ = true;
     }
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
+{
+    if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
+	return;
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
+		    applMgr()->visServer()->getObject(displayID()) );
+    if ( !vishor )
+	return;
+
+    const StepInterval<int>& grrg = vishor->geometryRowRange();
+    const StepInterval<int>& gcrg = vishor->geometryColRange();
+    const visBase::HorizonSection* horsect = vishor->getSection( 0 );
+    StepInterval<int> loadrrg = horsect ? horsect->displayedRowRange()
+					: grrg;
+    StepInterval<int> loadcrg = horsect ? horsect->displayedColRange()
+					: gcrg;
+    CubeSampling cs( true );
+    cs.hrg.set( loadrrg, loadcrg );
+
+    TypeSet<float> shifts;
+    DataPointSet vals( false, true );
+    applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts, &cs );
+    setDataPointSet( vals );
+    vishor->setAttribShift( attribNr(), shifts );
+
+    updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 

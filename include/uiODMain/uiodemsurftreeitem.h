@@ -78,6 +78,7 @@ public:
 				       uiVisEMObject*,const char* parenttype);
 
     void		setDataPointSet(const DataPointSet&);
+    void		selectAndLoadAuxData();
 
 protected:
     void		createMenu(MenuHandler*,bool istb);

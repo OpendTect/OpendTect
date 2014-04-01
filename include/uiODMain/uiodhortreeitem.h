@@ -53,6 +53,7 @@ protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
     uEMHorizonShiftDialog* horshiftdlg_;
+    MenuItem		hordatamnuitem_;
     MenuItem		algomnuitem_;
     MenuItem		workflowsmnuitem_;
     MenuItem		fillholesmnuitem_;
@@ -94,7 +95,7 @@ protected:
 
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
-    
+
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
     MenuItem		algomnuitem_;

@@ -64,10 +64,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), mAddIdx );
-    mnu.insertItem( new uiAction(tr("Add &color blended...")), mAddCBIdx );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
+    mnu.insertItem( new uiAction(tr("Add &color blended ...")), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( tr("&Track new") );
+    uiAction* newmenu = new uiAction( tr("&Track new ...") );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
@@ -238,6 +238,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
 
 void uiODHorizonTreeItem::initMenuItems()
 {
+    hordatamnuitem_.text = "&Horizon Data";
     algomnuitem_.text = "&Tools";
     workflowsmnuitem_.text = "Workflows";
     positionmnuitem_.text = "&Position ...";
@@ -369,7 +370,15 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
-    if ( !menu || menu->menuID()!=displayID() || hastransform )
+    if ( !menu || menu->menuID()!=displayID() )
+        return;
+
+    const bool islocked = visserv_->isLocked( displayID() );
+    const bool canadd = visserv_->canAddAttrib( displayID() );
+
+    mAddMenuItem( &addmnuitem_, &hordatamnuitem_, !islocked && canadd, false );
+
+    if ( hastransform )
     {
 	mResetMenuItem( &positionmnuitem_ );
 	mResetMenuItem( &shiftmnuitem_ );
@@ -378,23 +387,19 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &geom2attrmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
+	return;
     }
-    else
-    {
-	mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
 
-	const bool islocked = visserv_->isLocked( displayID() );
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
+    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
+    mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
+    mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, !islocked, false );
+    mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
 
-	mAddMenuItem( menu, &algomnuitem_, true, false );
-	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
-	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
-	mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
-	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, !islocked, false );
-	mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
-
-	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
-	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
-    }
+    mAddMenuItem( menu, &workflowsmnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
 }
 
 
@@ -517,6 +522,12 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( emid_, isenabled, curshift,
 				     visserv_->canAddAttrib( visid, 1) );
+    }
+    else if ( mnuid==hordatamnuitem_.id )
+    {
+	uiODDataTreeItem* itm = addAttribItem();
+	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+	if ( emitm ) emitm->selectAndLoadAuxData();
     }
     else
 	handled = false;
