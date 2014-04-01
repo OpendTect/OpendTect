@@ -32,8 +32,9 @@ template <class fT>
 mClass(Algo) Array2DMatrix
 {
 public:
-			Array2DMatrix( int sz0, int sz1=-1 )
-			    : a2d_(sz0,sz1<1?sz0:sz1)	{ setAll(); }
+			Array2DMatrix( int sz0=1, int sz1=0 )
+			    : a2d_(sz0<1?1:sz0,
+				   sz1<1?(sz0<1?1:sz0):sz1)	{ setAll(); }
 			Array2DMatrix( const Array2DMatrix& oth )
 			    : a2d_(oth.a2d_)		{}
 			Array2DMatrix( const Array2DImpl<fT>& a2d )
@@ -61,6 +62,7 @@ public:
     inline void		multiply(const Array1DVector&,Array1DVector&) const;
     inline void		multiply(const Array2DMatrix&,Array2DMatrix&) const;
 
+    inline void		getTransposed(Array2DMatrix&);
     inline bool		getCholesky(Array2DMatrix&) const;
 
     Array2DImpl<fT>	a2d_;
@@ -119,6 +121,20 @@ inline void Array2DMatrix<fT>::setToIdentity()
     {
 	for ( int idx1=0; idx1<sz1; idx1++ )
 	    set( idx0, idx1, idx0==idx1 ? fT(1) : fT(0) );
+    }
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::getTransposed( Array2DMatrix<fT>& out )
+{
+    mDefineImplA2DMatSizes;
+    out.a2d_.setSize( sz1, sz0 );
+
+    for ( int idx0=0; idx0<sz0; idx0++ )
+    {
+	for ( int idx1=0; idx1<sz1; idx1++ )
+	    out.set( idx1, idx0, get( idx0, idx1 ) );
     }
 }
 
