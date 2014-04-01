@@ -44,7 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uiobjdisposer.h"
 #include "uispinbox.h"
 #include "uistatsdisplaywin.h"
 #include "uistatusbar.h"
@@ -536,9 +535,7 @@ void uiDataPointSet::handleAxisColChg()
 {
     updColNames();
     if ( xplotwin_ )
-    {
 	xplotwin_->handleAxisChg( xcol_, ycol_, y2col_ );
-    }
 
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
@@ -626,10 +623,13 @@ void uiDataPointSet::selYCol( CallBacker* )
 	handleAxisColChg();
     }
 
-    if ( xplotwin_ && y2col_ == tid )
-	xplotwin_->setSelComboSensitive( true );
+    if ( xplotwin_ )
+    {
+	if ( y2col_ == tid )
+	    xplotwin_->setSelComboSensitive( true );
 
-    if ( xplotwin_ ) xplotwin_->setGrpColors();
+	xplotwin_->setGrpColors();
+    }
 }
 
 
@@ -646,10 +646,13 @@ void uiDataPointSet::unSelYCol( CallBacker* )
 
     handleAxisColChg();
 
-    if ( xplotwin_ && y2col_==-1 )
-	xplotwin_->setSelComboSensitive( false );
+    if ( xplotwin_ )
+    {
+	if ( y2col_==-1 )
+	    xplotwin_->setSelComboSensitive( false );
 
-    if ( xplotwin_ ) xplotwin_->setGrpColors();
+	xplotwin_->setGrpColors();
+    }
 }
 
 
@@ -848,6 +851,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xplotwin_->plotter().pointsSelected.notify(
 		mCB(this,uiDataPointSet,showStatusMsg) );
 	xplotwin_->windowClosed.notify( mCB(this,uiDataPointSet,xplotClose) );
+	xplotwin_->setDeleteOnClose( true );
     }
 
     disptb_->setSensitive( xplottbid_, false );
@@ -994,15 +998,13 @@ void uiDataPointSet::redoAll()
 
 void uiDataPointSet::xplotClose( CallBacker* )
 {
-    uiOBJDISP()->go( xplotwin_ );
-    disptb_->setSensitive( xplottbid_, true );
     xplotwin_ = 0;
+    disptb_->setSensitive( xplottbid_, true );
 }
 
 
 void uiDataPointSet::statsClose( CallBacker* )
 {
-    uiOBJDISP()->go( statswin_ );
     statswin_ = 0;
 }
 
@@ -1090,6 +1092,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_ =
 	    new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
+	statswin_->setDeleteOnClose( true );
     }
 
     statswin_->setData( rc.medvals_.arr(), rc.medvals_.size() );
