@@ -29,7 +29,7 @@ pErrMsg, and do whatever seems to be reasonable then.
 
 
 template <class fT>
-mExpClass(Algo) Array2DMatrix
+mClass(Algo) Array2DMatrix
 {
 public:
 			Array2DMatrix( int sz0, int sz1=-1 )
