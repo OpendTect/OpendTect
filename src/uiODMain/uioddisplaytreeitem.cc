@@ -194,7 +194,7 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 
     uitreeviewitem_->setPixmap( 0, *pixmap );
 
-    lockmnuitem_.text = getLockMenuText(); 
+    lockmnuitem_.text = getLockMenuText();
     lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
 }
 
@@ -216,7 +216,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    uiTreeItem::updateColumnText( col );
 	    return;
 	}
-	
+
 	PtrMan<ioPixmap> pixmap = 0;
 	if ( so->hasColor() )
 	{
@@ -260,8 +260,8 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 }
 
 
-const char* uiODDisplayTreeItem::getLockMenuText() 
-{ 
+const char* uiODDisplayTreeItem::getLockMenuText()
+{
     return visserv_->isLocked(displayid_) ? "Un&lock" : "&Lock";
 }
 
@@ -384,9 +384,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const int attrib = newitem->attribNr();
 	if ( visserv_->getAttributeFormat(id,attrib) == uiVisPartServer::Cube )
 	{
-	const bool selok = applMgr()->selectAttrib( id, attrib );
-	if ( selok )
-	    applMgr()->getNewData( id, attrib );
+	    const bool selok = applMgr()->selectAttrib( id, attrib );
+	    if ( selok )
+		applMgr()->getNewData( id, attrib );
 	}
 	newitem->select();
 	applMgr()->updateColorTable( id, attrib );
