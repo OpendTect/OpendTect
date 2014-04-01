@@ -242,6 +242,8 @@ void uiWellMan::edMarkers( CallBacker* )
 	wd = curwds_[0];
     }
 
+    const Well::MarkerSet origmarkers = wd->markers();
+
     wd->track().setName( curioobj_->name() );
     uiMarkerDlg dlg( this, wd->track() );
     dlg.setMarkerSet( wd->markers() );
@@ -250,7 +252,10 @@ void uiWellMan::edMarkers( CallBacker* )
     dlg.getMarkerSet( wd->markers() );
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putMarkers() )
+    {
 	uiMSG().error( "Cannot write new markers to disk" );
+	wd->markers() = origmarkers;
+    }
 
     wd->markerschanged.trigger();
 }
@@ -266,12 +271,21 @@ void uiWellMan::edWellTrack( CallBacker* )
     else
 	wd = curwds_[0];
 
+    const Well::Track origtrck = wd->track();
+    const Coord origpos = wd->info().surfacecoord;
+    const float origgl = wd->info().groundelev;
+
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() ) return;
 
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putInfoAndTrack( ) )
+    {
 	uiMSG().error( "Cannot write new track to disk" );
+	wd->track() = origtrck;
+	wd->info().surfacecoord = origpos;
+	wd->info().groundelev = origgl;
+    }
 
     wd->trackchanged.trigger();
     mkFileInfo();
@@ -311,11 +325,40 @@ void uiWellMan::defD2T( bool chkshot )
     if ( chkshot && !wd->checkShotModel() )
 	wd->setCheckShotModel( new Well::D2TModel );
 
+    const float oldreplvel = wd->info().replvel;
+    Well::D2TModel* origd2t =
+	new Well::D2TModel(*(chkshot ? wd->checkShotModel() : wd->d2TModel()));
+
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() ) return;
+
+    BufferString errmsg;
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
-	uiMSG().error( "Cannot write new model to disk" );
+    {
+	errmsg.add( "Cannot write new model to disk" );
+	if ( chkshot )
+	    wd->setCheckShotModel( origd2t );
+	else
+	{
+	    wd->setD2TModel( origd2t );
+	    wd->info().replvel = oldreplvel;
+	}
+    }
+    else if ( !mIsEqual(oldreplvel,wd->info().replvel,1e-2f) &&
+	      !wtr.putInfoAndTrack() )
+    {
+	if ( !errmsg.isEmpty() ) errmsg.addNewLine();
+	errmsg.add( "Cannot write new replacement velocity to disk" );
+	wd->info().replvel = oldreplvel;
+    }
+
+    if ( !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
+
+    wd->d2tchanged.trigger();
+    wd->trackchanged.trigger();
+    mkFileInfo();
 }
 
 

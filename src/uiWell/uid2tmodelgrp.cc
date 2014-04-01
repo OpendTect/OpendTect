@@ -113,7 +113,6 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( !strm.isOK() )
 	    mErrRet( "Could not open input file" )
 
-	BufferString errmsg;
 	if ( !dataselfld_->commit() )
 	    mErrRet( "Please specify data format" )
 
@@ -131,7 +130,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	    }
 
 	    errmsg_.add( "Change your format definition "
-			 " or edit your data or press cancel." );
+			 "or edit your data or press cancel." );
 	    return false;
 	}
 

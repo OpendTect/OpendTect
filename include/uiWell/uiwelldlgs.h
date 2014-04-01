@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiselsimple.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "position.h"
 
 class uiButtonGroup;
 class uiCheckBox;
@@ -25,6 +26,7 @@ class uiFileInput;
 class uiGenInput;
 class uiLabel;
 class uiLabeledListBox;
+class uiPushButton;
 class uiTable;
 class uiTableImpDataSel;
 class uiWellSel;
@@ -53,13 +55,39 @@ protected:
     Table::FormatDesc&		fd_;
     uiTable*			tbl_;
     uiCheckBox*			zinftfld_;
+    uiGenInput* 		wellheadxfld_;
+    uiGenInput* 		wellheadyfld_;
+    uiGenInput* 		kbelevfld_;
+    uiPushButton*		updatefld_;
+    uiPushButton*		wellheadxupdbut_;
+    uiPushButton*		wellheadyupdbut_;
+    uiPushButton*		kbelevupdbut_;
+
+    Coord3			origpos_;
+    float			origgl_;
 
     bool			fillTable(CallBacker* cb=0);
+    void			fillSetFields(CallBacker* cb=0);
     bool			updNow(CallBacker*);
     void			readNew(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			exportCB(CallBacker*);
+    void			updateXpos(CallBacker*);
+    void			updateYpos(CallBacker*);
+    void			updateKbElev(CallBacker*);
+
+    double			getX(int row) const;
+    double			getY(int row) const;
+    double			getZ(int row) const;
+    float			getMD(int row) const;
+    void			setX(int row,double);
+    void			setY(int row,double);
+    void			setZ(int row,double);
+    void			setMD(int row,float);
+
+    void			updatePos(bool isx);
+    bool			rowIsIncomplete(int) const;
 };
 
 
@@ -74,14 +102,20 @@ protected:
     Well::Data&			wd_;
     bool			cksh_;
     Well::D2TModel*		orgd2t_; // Must be declared *below* others
+    float			origreplvel_;
 
     uiTable*			tbl_;
     uiCheckBox*			unitfld_;
     uiCheckBox*			timefld_;
+    uiPushButton*		updatefld_;
+    uiGenInput* 		replvelfld_;
+    uiPushButton*		replvelupdbut_;
 
     void			fillTable(CallBacker*);
+    void			fillReplVel(CallBacker*);
     bool			getFromScreen();
     void			updNow(CallBacker*);
+    void			updReplVelNow(CallBacker*);
     void			dtpointChangedCB(CallBacker*);
     void			dtpointRemovedCB(CallBacker*);
     bool			updateDtpointDepth(int row);
