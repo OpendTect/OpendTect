@@ -49,7 +49,7 @@ public:
 					const DataInterpreter<short>*);
 
     bool		fromStream(od_istream&);
-    bool		toStream(od_ostream&, bool binary );
+    bool		toStream(od_ostream&,bool binary);
 
     int			nrEvents() const;
     void		setNrEvents(int);
@@ -94,9 +94,9 @@ public:
 protected:
 
     bool	isWanted(const BinID&) const;
-    int 	readInt16(od_istream&) const;
-    int 	readInt32(od_istream&) const;
-    int 	readUInt8(od_istream&) const;
+    int	readInt16(od_istream&) const;
+    int	readInt32(od_istream&) const;
+    int	readUInt8(od_istream&) const;
     float	readFloat(od_istream&) const;
 
     DataInterpreter<int>*	int32interpreter_;
@@ -1032,7 +1032,7 @@ void EventPatchFileHeader::setFileOffset( int idx, od_stream::Pos offsetval )
     if ( int32interpreter_ )
 	int32interpreter_->put( baseptr, 0,  offsetval );
     else
-	*((int*) baseptr) = offsetval;
+	*((int*)baseptr) = (int)offsetval;
 }
 
 
