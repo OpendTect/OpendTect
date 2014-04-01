@@ -778,7 +778,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
+	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    PreStack::Gather* gather = new PreStack::Gather();
 	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 		{ delete gather; continue; }
@@ -806,7 +806,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
 	while ( tbufs.size() )
 	{
-	    SeisTrcBuf* tbuf = tbufs.removeSingle( 0 );
+	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    SeisTrcPropChg stpc( *tbuf->get( 0 ) );
 	    while ( tbuf->size() > 1 )
 	    {
@@ -814,7 +814,9 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		stpc.stack( *trc );
 		delete trc;
 	    }
-	    dptrcbuf->add( *tbuf );
+
+	    SeisTrc* stackedtrc = new SeisTrc( stpc.trace() );
+	    dptrcbuf->add( stackedtrc );
 	}
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *dptrcbuf, Seis::Line,
 				   SeisTrcInfo::TrcNr, synthgenpar.name_ );
@@ -921,7 +923,6 @@ bool doPrepare( int nrthreads )
 	sd_.postStackPack().posData().range( false );
 
     layermodels_.setEmpty();
-    ManagedObjectSet<Strat::LayerModel> layermodels;
     const int sz = zrg.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
 	layermodels_ += new Strat::LayerModel();
