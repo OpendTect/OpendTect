@@ -284,7 +284,7 @@ void VW2DPickSet::drawAll()
 		const float depth = (dip/1000000) * zfac;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		const float z = zat ? zat->transform(pos) : pos.z;
+		const double z = zat ? zat->transform(pos) : pos.z;
 		FlatView::Point point( oninl ? bid.crl():bid.inl(), z );
 		picks->poly_ += point;
 	    }

@@ -239,7 +239,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 		     && knotbinid.crl()==extrbid1.crl()) )
 	    {
 		const BinID bid = SI().transform( pos.coord() );
-		const float z = zat ? zat->transform(pos) : pos.z;
+		const double z = zat ? zat->transform(pos) : pos.z;
 		if ( cs_.defaultDir() == CubeSampling::Inl )
 		    stickauxdata.poly_ += FlatView::Point( bid.crl(), z );
 		else if ( cs_.defaultDir() == CubeSampling::Crl )

@@ -215,7 +215,7 @@ void HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 	return;
     }
 
-    const float z = zat ? zat->transform(crd) : crd.z;
+    const double z = zat ? zat->transform(crd) : crd.z;
     if ( cs_.nrInl() == 1 )
     {
 	marker.marker_->poly_ += FlatView::Point( bid.crl(), z );

@@ -607,7 +607,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     const BinID bid = SI().transform( info.surveypos_.coord() );
     FlatView::Point& pt = marker_->poly_[0];
     ConstRefMan<ZAxisTransform> zat = getZAxisTransform();
-    const float z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
+    const double z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
 
     if ( cs_.defaultDir() == CubeSampling::Inl )
 	pt = FlatView::Point( bid.crl(), z );
