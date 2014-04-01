@@ -676,6 +676,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
+    applMgr().visServer()->showMPEToolbar( false );
     handleStartupSession();
 }
 
