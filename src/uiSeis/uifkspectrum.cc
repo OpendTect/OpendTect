@@ -147,7 +147,7 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
     const int nrdec = SI().zIsTime() ? 1 : 3;
     ffld_->setText( toString(wp.y,nrdec) );
     kfld_->setText( toString(wp.x,4) );
-    const float vel = mIsZero(wp.x,mDefEps)? 0 : Math::Abs(wp.y/wp.x);
+    const double vel = mIsZero(wp.x,mDefEps)? 0 : Math::Abs(wp.y/wp.x);
     velfld_->setText( toString(vel,nrdec) );
 
     viewer().handleChange( FlatView::Viewer::Auxdata );
