@@ -69,24 +69,6 @@ mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 
-const char* GetIPFromHostName( BufferString hostnm )
-{
-    mDefineStaticLocalObject( char, ret, [256] );
-
-    struct in_addr addr;
-    struct hostent* remotehost = gethostbyname( hostnm );
-    addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
-    strcpy( ret, inet_ntoa(addr) );
-    return ret;
-}
-
-
-const char* GetLocalIP(void)
-{
-    return GetIPFromHostName( GetLocalHostName() );
-}
-
-
 #ifdef __win__
 int initWinSock()
 {

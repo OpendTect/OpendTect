@@ -43,7 +43,7 @@ namespace System
 const char* localHostName()
 {
     mDeclStaticString( str );
-    str = QHostInfo::localHostName().toLatin1().constData();
+    str = QHostInfo::localHostName();
     return str.buf();
 }
 
@@ -56,7 +56,7 @@ const char* hostName( const char* ip )
 {
     mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( ip );
-    str = qhi.hostName().toLatin1().constData();
+    str = qhi.hostName();
     return str.buf();
 }
 
@@ -70,7 +70,7 @@ const char* hostAddress( const char* hostname )
     {
 	if ( addresses[idx] == QHostAddress::LocalHost ||
 	     addresses[idx].toString().contains(':') ) continue;
-	str = addresses[idx].toString().toLatin1().constData();
+	str = addresses[idx].toString();
     }
 
     return str.buf();
@@ -87,8 +87,8 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	if ( !flags.testFlag(QNetworkInterface::CanBroadcast) )
 	    continue;
 
-	names.add( qni.name().toLatin1().constData() );
-	addresses.add( qni.hardwareAddress().toLatin1().constData() );
+	names.add( qni.name() );
+	addresses.add( qni.hardwareAddress() );
     }
 }
 
@@ -168,7 +168,7 @@ const char* getFileSystemName( const char* path )
 
     GetVolumeInformationA( path, volumename, ARRAYSIZE(volumename),
 			   0, 0, 0, filesystemname,
-			   ARRAYSIZE(filesystemname) );  
+			   ARRAYSIZE(filesystemname) );
     return filesystemname;
 #else
     pFreeFnErrMsg( "Not implemented yet", "System::getFileSystemName" );

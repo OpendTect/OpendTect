@@ -20,19 +20,19 @@ class IOObj;
 
 namespace System
 {
-    mGlobal(Network) const char*		localHostName();
-    mGlobal(Network) const char*		localAddress();
+    mGlobal(Network) const char*	localHostName();
+    mGlobal(Network) const char*	localAddress();
 
-    mGlobal(Network) const char*		hostName(const char* ip);
-    mGlobal(Network) const char*		hostAddress(const char* hostname);
+    mGlobal(Network) const char*	hostName(const char* ip);
+    mGlobal(Network) const char*	hostAddress(const char* hostname);
 
     mGlobal(Network) void		macAddresses(BufferStringSet& names,
-					     BufferStringSet& addresses);
+						    BufferStringSet& addresses);
 
-    mGlobal(Network) int			getFreeMBOnDisk(const char* path);
-    mGlobal(Network) int			getFreeMBOnDisk(const IOObj&);
+    mGlobal(Network) int		getFreeMBOnDisk(const char* path);
+    mGlobal(Network) int		getFreeMBOnDisk(const IOObj&);
     mGlobal(Network) void		getFreeMBOnDiskMsg(int,BufferString&);
-    mGlobal(Network) const char*		getFileSystemName(const char* path);
+    mGlobal(Network) const char*	getFileSystemName(const char* path);
 }
 
 #endif

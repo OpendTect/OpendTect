@@ -540,7 +540,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	cmd.add( machine.name() );
     }
     cmd.add( progname );
-    cmd.addFlag( "-masterhost", GetLocalIP() );
+    cmd.addFlag( "-masterhost", System::localAddress() );
     cmd.addFlag( "-masterport", iohdlr_.port() );
     cmd.addFlag( "-jobid", ji.descnr_ );
     FilePath parfp( iopfp );
