@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "separstr.h"
 #include "perthreadrepos.h"
+#include "array2dmatrix.h"
 
 static const char* sKeyDimStats = "DimStats";
 static const char* sKeyCorr = "Corr";
@@ -193,6 +194,7 @@ void Gaussian2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 // ND
 
 GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
+    : cholesky_(0)
 {
     for ( int idx=0; idx<nrdims; idx++ )
 	vars_ += VarDef( BufferString("Dim ",idx) );
@@ -369,18 +371,40 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 
 void GaussianNDProbDenFunc::prepareRandDrawing() const
 {
-    ObjectSet<TypeSet<int> >& c4v
-	= const_cast<GaussianNDProbDenFunc*>(this)->corrs4vars_;
-    deepErase( c4v );
+    GaussianNDProbDenFunc& self = *const_cast<GaussianNDProbDenFunc*>( this );
+    delete self.cholesky_; self.cholesky_ = 0;
+
+    deepErase( self.corrs4vars_ );
 
     const int nrdims = nrDims();
     for ( int idim=0; idim<nrdims; idim++ )
-	c4v += new TypeSet<int>;
+	self.corrs4vars_ += new TypeSet<int>;
 
     for ( int icorr=0; icorr<corrs_.size(); icorr++ )
     {
 	const Corr& corr = corrs_[icorr];
-	*c4v[corr.idx0_] += icorr; *c4v[corr.idx1_] += icorr;
+	*self.corrs4vars_[corr.idx0_] += icorr;
+	*self.corrs4vars_[corr.idx1_] += icorr;
+    }
+
+    bool docholesky = false;
+    for ( int idim=0; idim<nrdims; idim++ )
+	if ( corrs4vars_[idim]->size() > 1 )
+	    { docholesky = true; break; }
+
+    if ( docholesky )
+    {
+	Array2DMatrix<float> corrmat( nrdims );
+	corrmat.setToIdentity();
+	for ( int icorr=0; icorr<corrs_.size(); icorr++ )
+	{
+	    const Corr& corr = corrs_[icorr];
+	    corrmat.set( corr.idx0_, corr.idx1_, corr.cc_ );
+	    corrmat.set( corr.idx1_, corr.idx0_, corr.cc_ );
+	}
+	self.cholesky_ = new Array2DMatrix<float>( nrdims );
+	if ( !corrmat.getCholesky(*self.cholesky_) )
+	    { delete self.cholesky_; self.cholesky_ = 0; }
     }
 }
 
@@ -389,35 +413,51 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 {
     const int nrdims = nrDims();
     poss.setSize( nrdims, 0 );
-    BoolTypeSet drawn( nrdims, false );
 
-    for ( int idim=0; idim<vars_.size(); idim++ )
+    if ( cholesky_ )
     {
-	if ( drawn[idim] )
-	    continue;
+	Array1DVector vec( nrdims );
+	for ( int idim=0; idim<nrdims; idim++ )
+	    vec.set( idim, draw01Normal() );
+	Array1DVector corrvec( nrdims );
+	cholesky_->multiply( vec, corrvec );
+	for ( int idim=0; idim<nrdims; idim++ )
+	    poss[idim] = corrvec.get( idim );
+    }
+    else
+    {
+	// No Cholesky available. Do some juggling.
 
-	const TypeSet<int>& corrs4var = *corrs4vars_[idim];
-	const int nrcorrs4var = corrs4var.size();
+	BoolTypeSet drawn( nrdims, false );
 
-	if ( nrcorrs4var < 1 )
-	    poss[idim] = draw01Normal();
-	else
+	for ( int idim=0; idim<vars_.size(); idim++ )
 	{
-	    int chosencorr = 0;
-	    if ( nrcorrs4var > 1 )
-		chosencorr = Stats::randGen().getIndex( nrcorrs4var );
-	    const Corr& corr = corrs_[ corrs4var[chosencorr] ];
-	    if ( drawn[chosencorr] )
-		poss[idim] = draw01Correlated( poss[chosencorr], corr.cc_ );
+	    if ( drawn[idim] )
+		continue;
+
+	    const TypeSet<int>& corrs4var = *corrs4vars_[idim];
+	    const int nrcorrs4var = corrs4var.size();
+
+	    if ( nrcorrs4var < 1 )
+		poss[idim] = draw01Normal();
 	    else
 	    {
-		poss[idim] = draw01Normal();
-		poss[chosencorr] = draw01Correlated( poss[idim], corr.cc_ );
-		drawn[chosencorr] = true;
+		int chosencorr = 0;
+		if ( nrcorrs4var > 1 )
+		    chosencorr = Stats::randGen().getIndex( nrcorrs4var );
+		const Corr& corr = corrs_[ corrs4var[chosencorr] ];
+		if ( drawn[chosencorr] )
+		    poss[idim] = draw01Correlated( poss[chosencorr], corr.cc_ );
+		else
+		{
+		    poss[idim] = draw01Normal();
+		    poss[chosencorr] = draw01Correlated( poss[idim], corr.cc_ );
+		    drawn[chosencorr] = true;
+		}
 	    }
-	}
 
-	drawn[idim] = true;
+	    drawn[idim] = true;
+	}
     }
 
     for ( int idim=0; idim<vars_.size(); idim++ )

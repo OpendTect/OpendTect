@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "arrayndimpl.h"
 #include "bufstringset.h"
+template <class T> class Array2DMatrix;
+
 
 inline float cMaxGaussianCC()		{ return 0.99999f; }
 inline const char* sGaussianCCRangeErrMsg()
@@ -142,7 +144,8 @@ public:
 protected:
 
 
-    ObjectSet<TypeSet<int> > corrs4vars_;
+    ObjectSet<TypeSet<int> >	corrs4vars_;
+    Array2DMatrix<float>*	cholesky_;
 
 };
 
