@@ -95,11 +95,16 @@ void Text::setFontData( const FontData& fd )
 }
 
 
-
+static const wchar_t emptystring[] =  { 0 } ;
 void Text::setText( const uiString& newtext )
 {
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
-    osgtext_->setText( wcharbuf );
+
+    if ( !wcharbuf )
+	osgtext_->setText( emptystring );
+    else
+	osgtext_->setText( wcharbuf );
+
     text_ = newtext;
 }
 
