@@ -48,8 +48,8 @@ public:
     void		setInterpreters(const DataInterpreter<int>*,
 					const DataInterpreter<short>*);
 
-    bool		fromStream(std::istream&);
-    bool		toStream(std::ostream&, bool binary );
+    bool		fromStream(od_istream&);
+    bool		toStream(od_ostream&, bool binary );
 
     int			nrEvents() const;
     void		setNrEvents(int);
@@ -57,8 +57,8 @@ public:
     BinID		getBinID(int) const;
     void		setBinID(int,const BinID&);
 
-    int			getOffset(int) const;
-    void		setOffset(int,int);
+    od_stream::Pos	getFileOffset(int) const;
+    void		setFileOffset(int,od_stream::Pos);
 
     const char*		errMsg() const	{ return errmsg_; }
 
@@ -94,10 +94,10 @@ public:
 protected:
 
     bool	isWanted(const BinID&) const;
-    int		readInt16(std::istream&) const;
-    int		readInt32(std::istream&) const;
-    int		readUInt8(std::istream&) const;
-    float	readFloat(std::istream&) const;
+    int 	readInt16(od_istream&) const;
+    int 	readInt32(od_istream&) const;
+    int 	readUInt8(od_istream&) const;
+    float	readFloat(od_istream&) const;
 
     DataInterpreter<int>*	int32interpreter_;
     DataInterpreter<int>*	int16interpreter_;
@@ -134,10 +134,10 @@ public:
 
 protected:
 
-    bool	writeInt16(std::ostream&,int val,const char*) const;
-    bool	writeInt32(std::ostream&,int val,const char*) const;
-    bool	writeUInt8(std::ostream&,int val,const char*) const;
-    bool	writeFloat(std::ostream&,float val,const char*) const;
+    bool	writeInt16(od_ostream&,int val,const char*) const;
+    bool	writeInt32(od_ostream&,int val,const char*) const;
+    bool	writeUInt8(od_ostream&,int val,const char*) const;
+    bool	writeFloat(od_ostream&,float val,const char*) const;
 
     EventPatchReader*		reader_;
     EventPatchFileHeader	fileheader_;
@@ -148,7 +148,7 @@ protected:
     BufferString		filename_;
     SafeFileIO			fileio_;
     HorSampling			horsel_;
-    int				fileheaderoffset_;
+    od_stream::Pos		fileheaderoffset_;
     BufferString		errmsg_;
 };
 
@@ -880,66 +880,52 @@ EventPatchFileHeader::~EventPatchFileHeader()
 { delete [] buffptr_; }
 
 
-bool EventPatchFileHeader::fromStream( std::istream& strm )
+bool EventPatchFileHeader::fromStream( od_istream& strm )
 {
     int nrevents;
     if ( int16interpreter_ )
     {
 	const int sz = int32interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	if ( !strm.read(buf,sz) )
-	{
-	    errmsg_ = "Cannot read stream";
-	    return false;
-	}
+	if ( !strm.getBin(buf,sz) )
+	    { errmsg_ = "Cannot read #events from stream (bin)"; return false; }
 
 	nrevents = int16interpreter_->get(buf,0);
     }
     else
     {
 	strm >> nrevents;
-	if ( !strm )
-	{
-	    errmsg_ = "Cannot read stream";
-	    return false;
-	}
+	if ( !strm.isOK() )
+	    { errmsg_ = "Cannot read #events from stream (asc)"; return false; }
     }
 
     setNrEvents( nrevents );
 
+#   define mErrRetNoEvents(s) \
+    { \
+	nrevents_ = 0; \
+	delete [] buffptr_; buffptr_ = 0; \
+	errmsg_ = s; \
+	return false; \
+    }
+
     if ( int16interpreter_ )
     {
 	const int chunksize = nrevents_*mHeaderEventSize;
-	if ( !strm.read( buffptr_, chunksize ) )
-	{
-	    nrevents_ = 0;
-	    delete [] buffptr_;
-	    buffptr_ = 0;
-	    errmsg_ = "Cannot read binary header";
-	    return false;
-	}
-
+	if ( !strm.getBin( buffptr_, chunksize ) )
+	    mErrRetNoEvents("Cannot read header (bin)")
 	return true;
     }
 
     for ( int idx=0; idx<nrevents_; idx++ )
     {
-	BinID bid;
-	int offset;
-	strm >> bid.inl();
-	strm >> bid.crl();
-	strm >> offset;
-	if ( !strm )
-	{
-	    nrevents_ = 0;
-	    delete [] buffptr_;
-	    buffptr_ = 0;
-	    errmsg_ = "Cannot read text header";
-	    return false;
-	}
+	BinID bid; od_stream::Pos offset;
+	strm >> bid.inl() >> bid.crl() >> offset;
+	if ( !strm.isOK() )
+	    mErrRetNoEvents("Cannot read header (asc)")
 
 	setBinID( idx, bid );
-	setOffset( idx, offset );
+	setFileOffset( idx, offset );
     }
 
     return true;
@@ -960,12 +946,12 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 }
 
 
-bool EventPatchFileHeader::toStream( std::ostream& strm, bool binary )
+bool EventPatchFileHeader::toStream( od_ostream& strm, bool binary )
 {
     if ( binary )
     {
-	strm.write( (const char*) &nrevents_, sizeof(nrevents_) );
-	strm.write( (const char*) buffptr_, nrevents_*mHeaderEventSize );
+	strm.addBin( &nrevents_, sizeof(nrevents_) );
+	strm.addBin( buffptr_, nrevents_*mHeaderEventSize );
     }
     else
     {
@@ -974,15 +960,12 @@ bool EventPatchFileHeader::toStream( std::ostream& strm, bool binary )
 	{
 	    mWriteFixedCharVal( getBinID(idx).inl(), '\t' );
 	    mWriteFixedCharVal( getBinID(idx).crl(), '\t' );
-	    mWriteFixedCharVal( getOffset(idx), '\n' );
+	    mWriteFixedCharVal( getFileOffset(idx), '\n' );
 	}
     }
 
-    if ( !strm )
-    {
-	errmsg_ = "Cannot write header";
-	return false;
-    }
+    if ( strm.isBad() )
+	{ errmsg_ = "Cannot write header"; return false; }
 
     return true;
 }
@@ -1033,7 +1016,7 @@ void EventPatchFileHeader::setBinID( int idx, const BinID& bid )
 }
 
 
-int EventPatchFileHeader::getOffset( int idx ) const
+od_stream::Pos EventPatchFileHeader::getFileOffset( int idx ) const
 {
     const int offset = idx * mHeaderEventSize;
     const char* baseptr = buffptr_+offset+sizeof(int)*2;
@@ -1042,7 +1025,7 @@ int EventPatchFileHeader::getOffset( int idx ) const
 }
 
 
-void EventPatchFileHeader::setOffset( int idx, int offsetval )
+void EventPatchFileHeader::setFileOffset( int idx, od_stream::Pos offsetval )
 {
     const int offset = idx * mHeaderEventSize;
     char* baseptr = buffptr_+offset+sizeof(int)*2;
@@ -1066,22 +1049,13 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
     , readdip_( true )
 {
     if ( !conn_ || !conn_->forRead() )
-    {
-	errmsg_ = "Cannot open connection ";
-	errmsg_ += ((StreamConn*)conn_)->fileName();
-	return;
-    }
+	{ errmsg_.set( "Bad input file: cannot read events" ); return; }
 
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
     od_istream& strm = sconn.iStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( EventReader::sFileType() ) )
-    {
-	errmsg_ = "Invalid filetype on ";
-	errmsg_ += ((StreamConn*)conn_)->fileName();
-
-	return;
-    }
+	{ errmsg_.set( "Invalid filetype: " ).add( strm.fileName() ); return; }
 
     astream.next();
     IOPar par( astream );
@@ -1115,10 +1089,10 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 	readdip_ = false;
     }
 
-    if ( !fileheader_.fromStream( strm.stdStream() ) )
+    if ( !fileheader_.fromStream(strm) )
     {
 	const BufferString firstmsg( "Could not read file header from ",
-				strm.fileName(), "." );
+				    strm.fileName(), "." );
 	FileMultiString fms( firstmsg.buf() );
 	fms += fileheader_.errMsg();
 	errmsg_ = fms.buf();
@@ -1180,25 +1154,19 @@ int EventPatchReader::nextStep()
 {
     if ( !eventmanager_ ) return Finished();
 
-    std::istream& strm = ((StreamConn*)conn_)->iStream().stdStream();
+    od_istream& strm = ((StreamConn*)conn_)->iStream();
 
     BinID curbid;
     while ( headeridx_<fileheader_.nrEvents() )
     {
 	curbid = fileheader_.getBinID(headeridx_);
 	if ( !isWanted(curbid) )
-	{
-	    headeridx_++;
-	    continue;
-	}
+	    { headeridx_++; continue; }
 
 	RefMan<EventSet> ge =
 	    eventmanager_->getEvents( curbid, false, false );
 	if ( ge && ge->ischanged_ )
-	{
-	    headeridx_++;
-	    continue;
-	}
+	    { headeridx_++; continue; }
 
 	break;
     }
@@ -1206,16 +1174,20 @@ int EventPatchReader::nextStep()
     if ( headeridx_>=fileheader_.nrEvents() )
 	return Finished();
 
-    StrmOper::seek( strm, (fileheader_.getOffset( headeridx_ )),
-		    std::ios::beg );
+    strm.setPosition( fileheader_.getFileOffset(headeridx_) );
     const int nrevents = readInt16( strm );
-    if ( !strm )
-    {
-	errmsg_ = "Could not read nr events from ";
-	errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		.add( " at " ).add( curbid.toString() );
-	return ErrorOccurred();
+
+#   define mErrRetCantReadAt(s,more) \
+    { \
+	errmsg_.set( "Could not read " ).add( s ). add( " from " ) \
+		.add( strm.fileName() ) \
+		.add( " at " ).add( curbid.toString() ); \
+	more; \
+	return ErrorOccurred(); \
     }
+
+    if ( !strm.isOK() )
+	mErrRetCantReadAt("nr events",)
 
     EventSet* ge = eventmanager_->getEvents( curbid, false, true );
     ge->ref();
@@ -1224,17 +1196,11 @@ int EventPatchReader::nextStep()
     for ( int idx=0; idx<nrevents; idx++ )
     {
 	const int nrpicks = readUInt8( strm );
-	if ( !strm )
+	if ( strm.isBad() )
 	{
 	    deepErase( ge->events_ );
 	    ge->unRef();
-
-	    errmsg_ = "Could not read nr picks from ";
-	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		    .add( " at " ).add( curbid.toString() );
-	    errmsg_ += ". Event nr="; errmsg_ +=idx;
-
-	    return ErrorOccurred();
+	    mErrRetCantReadAt("nr picks",errmsg_.add(".\nEvent nr=").add(idx))
 	}
 
 	Event* pse = new Event( nrpicks, true );
@@ -1261,15 +1227,11 @@ int EventPatchReader::nextStep()
 	    pse->offsetazimuth_[idy].setFrom( readInt32( strm ) );
 	}
 
-	if ( !strm )
+	if ( strm.isBad() )
 	{
 	    deepErase( ge->events_ );
 	    ge->unRef();
-	    errmsg_ = "Could not event from ";
-	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		    .add( " at " ).add( curbid.toString() );
-	    errmsg_ += ". Event nr="; errmsg_ +=idx;
-	    return ErrorOccurred();
+	    mErrRetCantReadAt("event",errmsg_.add(".\nEvent nr=").add(idx))
 	}
 
 	ge->events_ += pse;
@@ -1297,13 +1259,13 @@ bool EventPatchReader::isWanted( const BinID& bid ) const
 }
 
 
-int EventPatchReader::readInt16( std::istream& strm ) const
+int EventPatchReader::readInt16( od_istream& strm ) const
 {
     if ( int16interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return int16interpreter_->get(buf,0);
     }
 
@@ -1313,12 +1275,12 @@ int EventPatchReader::readInt16( std::istream& strm ) const
 }
 
 
-int EventPatchReader::readUInt8( std::istream& strm ) const
+int EventPatchReader::readUInt8( od_istream& strm ) const
 {
     if ( int16interpreter_ )
     {
 	char res;
-	strm.read(&res,1);
+	strm.getBin(&res,1);
 	return (unsigned char) res;
     }
 
@@ -1328,13 +1290,13 @@ int EventPatchReader::readUInt8( std::istream& strm ) const
 }
 
 
-int EventPatchReader::readInt32( std::istream& strm ) const
+int EventPatchReader::readInt32( od_istream& strm ) const
 {
     if ( int32interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return int32interpreter_->get(buf,0);
     }
 
@@ -1344,13 +1306,13 @@ int EventPatchReader::readInt32( std::istream& strm ) const
 }
 
 
-float EventPatchReader::readFloat( std::istream& strm ) const
+float EventPatchReader::readFloat( od_istream& strm ) const
 {
     if ( floatinterpreter_ )
     {
 	const int sz = floatinterpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return floatinterpreter_->get(buf,0);
     }
 
@@ -1411,13 +1373,8 @@ int EventPatchWriter::nextStep()
     if ( reader_ )
     {
 	const int res = reader_->nextStep();
-	if ( !res )
-	{
-	    delete reader_;
-	    reader_ = 0;
-	    return MoreToDo();
-	}
-
+	if ( res == 0 )
+	    { delete reader_; reader_ = 0; return MoreToDo(); }
 	return res;
     }
 
@@ -1485,43 +1442,41 @@ int EventPatchWriter::nextStep()
 
 	if ( !fileio_.open( false ) )
 	{
-	    errmsg_ = "Cannot open file ";
-	    errmsg_ += fileio_.fileName();
+	    errmsg_.set( "Cannot open file " ).add( fileio_.fileName() );
 	    return ErrorOccurred();
 	}
 
 	ascostream astream( fileio_.ostrm() );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
-	std::ostream& ostrm = astream.stream().stdStream();
-	fileheaderoffset_ = mCast(int,ostrm.tellp());
+	od_ostream& ostrm = astream.stream();
+	fileheaderoffset_ = ostrm.position();
 	if ( !fileheader_.toStream( ostrm, binary_ ) )
 	{
-	    errmsg_ = "Cannot write file header to stream ";
-	    errmsg_ += fileio_.fileName();
+	    errmsg_.set( "Cannot write file header in " )
+		   .add( fileio_.fileName() );
 	    fileio_.closeFail();
 	    return ErrorOccurred();
 	}
     }
 
-    std::ostream& strm = fileio_.ostrm().stdStream();
+    od_ostream& strm = fileio_.ostrm();
     if ( headeridx_>=fileheader_.nrEvents() )
     {
-	strm.seekp( fileheaderoffset_, std::ios::beg );
+	strm.setPosition( fileheaderoffset_ );
 	fileheader_.toStream( strm, binary_ );
 	if ( !fileio_.closeSuccess() )
 	{
-	    errmsg_ = "Cannot close file ";
-	    errmsg_ += fileio_.fileName();
+	    errmsg_.set( "Cannot close file " ).add( fileio_.fileName() );
 	    return ErrorOccurred();
 	}
 
 	return Finished();
     }
 
-    std::streamoff curoffset = strm.tellp();
+    od_stream::Pos curoffset = strm.position();
     const BinID bid = fileheader_.getBinID( headeridx_ );
-    fileheader_.setOffset( headeridx_, mCast(int,curoffset) );
+    fileheader_.setFileOffset( headeridx_, curoffset );
 
     RefMan<EventSet> pses = eventmanager_.getEvents( bid, false, false);
 
@@ -1560,69 +1515,63 @@ int EventPatchWriter::nextStep()
 	}
     }
 
-    if ( !strm )
+    if ( !strm.isOK() )
     {
-	errmsg_ = "Was not able to write to stream ";
-	errmsg_ += fileio_.fileName();
-
+	errmsg_.set( "Error during write to " ).add( fileio_.fileName() );
 	fileio_.closeFail();
 	return ErrorOccurred();
     }
-
-    //pses->ischanged_ = false;
-    //eventmanager_->reportChange( curbid );
-    //done by resetChangeFlag by end of EventWriter.
 
     headeridx_++;
     return MoreToDo();
 }
 
 
-bool EventPatchWriter::writeInt16( std::ostream& strm, int val,
+bool EventPatchWriter::writeInt16( od_ostream& strm, int val,
 						 const char* post ) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool EventPatchWriter::writeInt32( std::ostream& strm, int val,
+bool EventPatchWriter::writeInt32( od_ostream& strm, int val,
 						 const char* post ) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool EventPatchWriter::writeUInt8( std::ostream& strm, int val,
+bool EventPatchWriter::writeUInt8( od_ostream& strm, int val,
 						 const char* post ) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool EventPatchWriter::writeFloat( std::ostream& strm, float val,
+bool EventPatchWriter::writeFloat( od_ostream& strm, float val,
 						 const char* post ) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
