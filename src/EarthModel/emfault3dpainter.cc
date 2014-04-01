@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "flatposdata.h"
+#include "zaxistransform.h"
 #include "positionlist.h"
 #include "survinfo.h"
 #include "trigonometry.h"
@@ -225,6 +226,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	extrcoord1 = SI().transform( extrbid1 );
 	extrcoord2 = SI().transform( extrbid2 );
 
+	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
 	for ( rc.col()=crg.start; rc.col()<=crg.stop; rc.col()+=crg.step )
 	{
 	    const Coord3& pos = fss.getKnot( rc );
@@ -236,12 +238,12 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 		 || (cs_.defaultDir()==CubeSampling::Crl
 		     && knotbinid.crl()==extrbid1.crl()) )
 	    {
+		const BinID bid = SI().transform( pos.coord() );
+		const float z = zat ? zat->transform(pos) : pos.z;
 		if ( cs_.defaultDir() == CubeSampling::Inl )
-		    stickauxdata.poly_ += FlatView::Point(
-				    SI().transform(pos.coord()).crl(), pos.z);
+		    stickauxdata.poly_ += FlatView::Point( bid.crl(), z );
 		else if ( cs_.defaultDir() == CubeSampling::Crl )
-		    stickauxdata.poly_ += FlatView::Point(
-				    SI().transform(pos.coord()).inl(), pos.z);
+		    stickauxdata.poly_ += FlatView::Point( bid.inl(), z );
 	    }
 	}
     }
@@ -268,6 +270,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 				   FlatView::AuxData& stickauxdata )
 {
     BinID bid;
+    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     for ( rc.col()=crg.start;rc.col()<=crg.stop;rc.col()+=crg.step )
     {
 	const Coord3 pos = fss.getKnot( rc );
@@ -287,8 +290,8 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	if ( !equinormal )
 	    return false;
 
-	stickauxdata.poly_ += FlatView::Point( flatposdata_->position(true,idx),
-					       pos.z );
+	stickauxdata.poly_ += FlatView::Point(flatposdata_->position(true,idx),
+					      zat ? zat->transform(pos):pos.z);
     }
     return true;
 }
@@ -426,6 +429,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
     intsecauxdat->linestyle_.color_ = f3d.preferredColor();
     intsecauxdat->enabled_ = linenabled_;
 
+    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     for ( int idx=0; idx<coordps->size(); idx++ )
     {
 	if ( coordps->get(idx) == -1 )
@@ -457,9 +461,11 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	if ( cs_.nrZ() == 1 )
 	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), posbid.crl());
 	else if ( cs_.nrCrl() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), pos.z );
+	    intsecauxdat->poly_ +=
+		FlatView::Point( posbid.inl(), zat? zat->transform(pos):pos.z );
 	else if ( cs_.nrInl() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.crl(), pos.z );
+	    intsecauxdat->poly_ +=
+		FlatView::Point( posbid.crl(), zat? zat->transform(pos):pos.z );
     }
 
     viewer_.addAuxData( intsecauxdat );

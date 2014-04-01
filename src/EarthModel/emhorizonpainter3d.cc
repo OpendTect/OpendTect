@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "flatposdata.h"
+#include "zaxistransform.h"
 
 namespace EM
 {
@@ -204,29 +205,28 @@ void HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 					const EM::Horizon3D& hor3d,
 					Marker3D& marker, int idx )
 {
+    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     if ( path_ )
     {
 	double dist = flatposdata_->position( true, idx );
 	marker.marker_->poly_ += FlatView::Point( dist, crd.z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-	    markerseeds_->marker_->poly_ +=
-				FlatView::Point( dist, crd.z );
+	    markerseeds_->marker_->poly_ += FlatView::Point( dist, crd.z );
 	return;
     }
 
+    const float z = zat ? zat->transform(crd) : crd.z;
     if ( cs_.nrInl() == 1 )
     {
-	marker.marker_->poly_ += FlatView::Point( bid.crl(), crd.z );
+	marker.marker_->poly_ += FlatView::Point( bid.crl(), z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-	    markerseeds_->marker_->poly_ +=
-				FlatView::Point( bid.crl(), crd.z );
+	    markerseeds_->marker_->poly_ += FlatView::Point( bid.crl(), z );
     }
     else if ( cs_.nrCrl() == 1 )
     {
-	marker.marker_->poly_ += FlatView::Point( bid.inl(), crd.z );
+	marker.marker_->poly_ += FlatView::Point( bid.inl(), z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-	    markerseeds_->marker_->poly_ +=
-				FlatView::Point( bid.inl(), crd.z );
+	    markerseeds_->marker_->poly_ += FlatView::Point( bid.inl(), z );
     }
 }
 

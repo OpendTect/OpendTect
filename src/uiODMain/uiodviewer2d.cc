@@ -219,6 +219,11 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
     if ( datatransform_ )
 	datatransform_->ref();
 
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	viewwin()->viewer(ivwr).setZAxisTransform( datatransform_ );
+    }
+
     return true;
 }
 
@@ -601,8 +606,9 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 
     const BinID bid = SI().transform( info.surveypos_.coord() );
     FlatView::Point& pt = marker_->poly_[0];
-    const double z = !hasZAxisTransform() ? info.surveypos_.z
-			: datatransform_->transform(info.surveypos_);
+    ConstRefMan<ZAxisTransform> zat = getZAxisTransform();
+    const float z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
+
     if ( cs_.defaultDir() == CubeSampling::Inl )
 	pt = FlatView::Point( bid.crl(), z );
     else if ( cs_.defaultDir() == CubeSampling::Crl )

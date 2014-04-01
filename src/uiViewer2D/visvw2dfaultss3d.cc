@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "zaxistransformdatapack.h"
 #include "emeditor.h"
 #include "flatauxdataeditor.h"
 #include "faultstickseteditor.h"
@@ -59,8 +60,9 @@ void VW2DFaultSS3D::setEditors()
 	}
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr())
-	if ( !(dp3d||dprdm) )
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d )
 	{
 	    fsseds_ += 0;
 	    continue;
@@ -102,7 +104,8 @@ void VW2DFaultSS3D::draw()
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
 	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	if ( !(dp3d||dprdm) ) continue;
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d ) continue;
 
 	if ( fsseds_[ivwr] )
 	{
@@ -114,6 +117,9 @@ void VW2DFaultSS3D::draw()
 		fsseds_[ivwr]->setPath( dprdm->pathBIDs() );
 		fsseds_[ivwr]->setFlatPosData( &dprdm->posData() );
 	    }
+
+	    if ( zatdp3d )
+		fsseds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
 
 	    fsseds_[ivwr]->drawFault();
 	}

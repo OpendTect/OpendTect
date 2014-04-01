@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "visvw2dhorizon3d.h"
 
 #include "attribdatapack.h"
+#include "zaxistransformdatapack.h"
 #include "emseedpicker.h"
 #include "flatauxdataeditor.h"
 #include "horflatvieweditor3d.h"
@@ -54,7 +55,8 @@ void Vw2DHorizon3D::setEditors()
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
 	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	if ( !(dp3d||dprdm) )
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d )
 	{
 	    horeds_ += 0;
 	    continue;
@@ -115,7 +117,8 @@ void Vw2DHorizon3D::draw()
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
 	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	if ( !(dp3d||dprdm) ) continue;
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d ) continue;
 
 	if ( horeds_[ivwr] )
 	{
@@ -129,6 +132,10 @@ void Vw2DHorizon3D::draw()
 		horeds_[ivwr]->setPath( dprdm->pathBIDs() );
 		horeds_[ivwr]->setFlatPosData( &dprdm->posData() );
 	    }
+
+	    if ( zatdp3d )
+		horeds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
+
 	    horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	    horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	    horeds_[ivwr]->paint();

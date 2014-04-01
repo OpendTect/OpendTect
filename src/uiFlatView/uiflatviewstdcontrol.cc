@@ -321,7 +321,9 @@ void uiFlatViewStdControl::editCB( CallBacker* )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
 	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
-	vwrs_[idx]->appearance().annot_.editable_ = editbut_->isOn();
+	vwrs_[idx]->appearance().annot_.editable_ =
+	    !vwrs_[idx]->hasZAxisTransform() && editbut_->isOn();
+	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
 }
 

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 
 class FlatView_CB_Rcvr;
-
+class ZAxisTransform;
 
 namespace FlatView
 {
@@ -323,6 +323,12 @@ public:
     const Appearance&	appearance() const
     			{ return const_cast<Viewer*>(this)->appearance(); }
 
+    ZAxisTransform*	getZAxisTransform() const
+			{ return datatransform_; }
+    bool		setZAxisTransform(ZAxisTransform*);
+    bool		hasZAxisTransform() const
+			{ return datatransform_; }
+
     void		addPack(::DataPack::ID);
 			/*!< Adds to list and obtains the DataPack, but does not
 			 use for WVA or VD. DataPack gets released in the
@@ -401,6 +407,7 @@ protected:
     TypeSet< ::DataPack::ID>	ids_;
     Appearance*			defapp_;
     DataPackMgr&		dpm_;
+    ZAxisTransform*		datatransform_;
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
 

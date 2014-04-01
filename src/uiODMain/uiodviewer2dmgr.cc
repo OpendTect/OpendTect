@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiodvw2dwigglevararea.h"
 #include "uitreeitemmanager.h"
 #include "uivispartserv.h"
+#include "zaxistransform.h"
 
 #include "attribsel.h"
 #include "survinfo.h"
@@ -71,9 +72,6 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	curvwr = &addViewer2D( visid );
-	const ZAxisTransform* zat =
-	    visServ().getZAxisTransform( visServ().getSceneID(visid) );
-	curvwr->setZAxisTransform( const_cast<ZAxisTransform*>(zat) );
 	mAttachCB( curvwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else
@@ -90,6 +88,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setUpView( dtpackid, dowva );
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
+
+    ConstRefMan<ZAxisTransform> zat =
+	visServ().getZAxisTransform( visServ().getSceneID(visid) );
+    curvwr->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
 
     FlatView::DataDispPars& ddp =
 	curvwr->viewwin()->viewer().appearance().ddpars_;

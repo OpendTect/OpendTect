@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "flatposdata.h"
+#include "zaxistransform.h"
 #include "survinfo.h"
 #include "trigonometry.h"
 
@@ -111,6 +112,7 @@ bool FaultStickPainter::addPolyLine()
 	ObjectSet<StkMarkerInfo>* secmarkerlines = new ObjectSet<StkMarkerInfo>;
 	sectionmarkerlines_ += secmarkerlines;
 
+	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
 	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
 	    StepInterval<int> colrg = fss->colRange( rc.row() );
@@ -242,12 +244,14 @@ bool FaultStickPainter::addPolyLine()
 			    || (cs_.defaultDir()==CubeSampling::Crl
 				&& knotbinid.crl()==extrbid1.crl()) )
 			{
+			    const BinID bid = SI().transform( pos.coord() );
+			    const float z = zat ? zat->transform(pos) : pos.z;
 			    if ( cs_.defaultDir() == CubeSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).crl(),pos.z);
+								bid.crl(), z );
 			    else if ( cs_.defaultDir() == CubeSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).inl(),pos.z);
+								bid.inl(), z );
 			}
 		    }
 		}

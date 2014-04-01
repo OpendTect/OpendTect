@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltab.h"
 #include "coltabmapper.h"
 #include "datapackbase.h"
+#include "zaxistransform.h"
 
 namespace FlatView
 {
@@ -425,6 +426,7 @@ FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
     , dpm_(DPM(DataPackMgr::FlatID()))
     , defapp_(0)
+    , datatransform_(0)
     , wvapack_(0)
     , vdpack_(0)
 {
@@ -438,10 +440,27 @@ FlatView::Viewer::~Viewer()
     dpm_.packToBeRemoved.remove( mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
     delete defapp_;
     delete cbrcvr_;
+
+    if ( datatransform_ )
+	datatransform_->unRef();
+
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
 	dpm_.release( ids_[idx] );
     }
+}
+
+
+bool FlatView::Viewer::setZAxisTransform( ZAxisTransform* zat )
+{
+    if ( datatransform_ )
+	datatransform_->unRef();
+
+    datatransform_ = zat;
+    if ( datatransform_ )
+	datatransform_->ref();
+
+    return true;
 }
 
 

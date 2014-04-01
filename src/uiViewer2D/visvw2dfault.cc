@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "zaxistransformdatapack.h"
 #include "faulteditor.h"
 #include "flatauxdataeditor.h"
 #include "mpeengine.h"
@@ -60,8 +61,9 @@ void VW2DFault::setEditors()
 	}
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr())
-	if ( !(dp3d||dprdm) )
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d )
 	{
 	    faulteds_ += 0;
 	    continue;
@@ -102,8 +104,9 @@ void VW2DFault::draw()
 	if ( !fdp ) continue;
 
 	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr())
-	if ( !(dp3d||dprdm) ) continue;
+	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+	if ( !dp3d && !dprdm && !zatdp3d ) continue;
 
 	if ( faulteds_[ivwr] )
 	{
@@ -115,6 +118,9 @@ void VW2DFault::draw()
 		faulteds_[ivwr]->setPath( dprdm->pathBIDs() );
 		faulteds_[ivwr]->setFlatPosData( &dprdm->posData() );
 	    }
+
+	    if ( zatdp3d )
+		faulteds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
 
 	    faulteds_[ivwr]->drawFault();
 	}

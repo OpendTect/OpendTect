@@ -14,7 +14,10 @@ ________________________________________________________________________
 #include "angles.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "zaxistransform.h"
+#include "zaxistransformdatapack.h"
 #include "cubesampling.h"
+#include "binidvalue.h"
 #include "flatposdata.h"
 #include "indexinfo.h"
 #include "ioobj.h"
@@ -167,16 +170,19 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 {
     ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-    if ( dp3d )
+    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+    ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
+    if ( dp3d || zatdp3d )
     {
-	const CubeSampling cs = dp3d->cube().cubeSampling();
+	const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling()
+				     : zatdp3d->inputCS();
 	BinID bid; float z;
-	if ( dp3d->dataDir() == CubeSampling::Inl )
+	if ( cs.defaultDir() == CubeSampling::Inl )
 	{
 	    bid = BinID( cs.hrg.start.inl(), (int)pt.x );
 	    z = (float) pt.y;
 	}
-	else if ( dp3d->dataDir() == CubeSampling::Crl )
+	else if ( cs.defaultDir() == CubeSampling::Crl )
 	{
 	    bid = BinID( (int)pt.x, cs.hrg.start.crl() );
 	    z = (float) pt.y;
@@ -188,7 +194,8 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	}
 
 	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ?
-	    Coord3( SI().transform(bid), z ) : Coord3::udf();
+	    Coord3( SI().transform(bid),
+		    zat->transformBack(BinIDValue(bid,z)) ) : Coord3::udf();
     }
 
     return Coord3::udf();
@@ -230,12 +237,15 @@ void VW2DPickSet::drawAll()
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
     mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-    if ( !dp3d && !dprdm ) return;
+    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+    if ( !dp3d && !dprdm && !zatdp3d ) return;
 
-    const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;
+    const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling()
+				 : zatdp3d->inputCS();
+    const bool oninl = cs.defaultDir() == CubeSampling::Inl;
 
-    if ( dp3d )
-	updateSetIdx( dp3d->cube().cubeSampling() );
+    if ( dp3d || zatdp3d )
+	updateSetIdx( cs );
     else if ( dprdm->pathBIDs() )
 	updateSetIdx( *dprdm->pathBIDs() );
 
@@ -258,12 +268,13 @@ void VW2DPickSet::drawAll()
 	picks->markerstyles_.erase();
 	MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
 	const int nrpicks = picksetidxs_.size();
+	ConstRefMan<ZAxisTransform> zat = vwr.getZAxisTransform();
 	for ( int idx=0; idx<nrpicks; idx++ )
 	{
 	    const int pickidx = picksetidxs_[idx];
 	    const Coord3& pos = (*pickset_)[pickidx].pos_;
 	    const BinID bid = SI().transform(pos);
-	    if ( dp3d )
+	    if ( dp3d || zatdp3d )
 	    {
 		BufferString dipval;
 		(*pickset_)[pickidx].getText( "Dip" , dipval );
@@ -271,10 +282,10 @@ void VW2DPickSet::drawAll()
 		const float dip = oninl ? dipstr.getFValue( 1 )
 					: dipstr.getFValue( 0 );
 		const float depth = (dip/1000000) * zfac;
-		markerstyle.rotation_ =
-			    mIsUdf(dip) ? 0
+		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		FlatView::Point point( (oninl ? bid.crl() : bid.inl()), pos.z );
+		const float z = zat ? zat->transform(pos) : pos.z;
+		FlatView::Point point( oninl ? bid.crl():bid.inl(), z );
 		picks->poly_ += point;
 	    }
 	    else if ( dprdm )
