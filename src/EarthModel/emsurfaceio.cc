@@ -882,11 +882,11 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-        const bool validrowidx  = linesets_.validIdx(rowindex_) && 
+        const bool validrowidx  = linesets_.validIdx(rowindex_) &&
                                   linenames_.validIdx(rowindex_);
         const bool validids = linesets_.get(rowindex_)!=sKeyUndefLineSet() &&
 	                      linenames_.get(rowindex_)!=sKeyUndefLine();
-        const bool validgeomids = geomids_.validIdx(rowindex_) && 
+        const bool validgeomids = geomids_.validIdx(rowindex_) &&
                                   geomids_[rowindex_] > 0;
 
 	if ( (!validrowidx || !validids) && !validgeomids )
@@ -1163,7 +1163,7 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 	}
 
 	const int nrcols = readInt32( strm );
-	if ( !strm.isOK() ) 
+	if ( !strm.isOK() )
 	{
 	    msg_ = strm.errMsg();
 	    return ErrorOccurred();
@@ -1853,7 +1853,7 @@ bool dgbSurfaceWriter::writeInt16( od_ostream& strm, unsigned short val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.addBin( &val, sizeof(val) );
+	strm.addBin( val );
     else
 	strm << val << post;
 
@@ -1865,7 +1865,7 @@ bool dgbSurfaceWriter::writeInt32( od_ostream& strm, od_int32 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.addBin( &val, sizeof(val) );
+	strm.addBin( val );
     else
 	strm << val << post;
 
@@ -1877,7 +1877,7 @@ bool dgbSurfaceWriter::writeInt64( od_ostream& strm, od_int64 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.addBin( &val, sizeof(val) );
+	strm.addBin( val );
     else
     {
 	BufferString valstr; valstr = val;
@@ -2124,7 +2124,7 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
 				       const char* post) const
 {
     if ( binary_ )
-	strm.addBin( &val, sizeof(val) );
+	strm.addBin( val );
     else
 	strm << toString(val) << post;
 

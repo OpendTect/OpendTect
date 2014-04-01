@@ -407,7 +407,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	for ( od_int64 idy=0; idy<datasz; idy++ )
 	{
 	    if ( binary )
-		strm.addBin( &vals[idy], sizeof(float) );
+		strm.addBin( vals[idy] );
 	    else
 		strm << vals[idy] << od_tab;
 	}
@@ -422,7 +422,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	    {
 		const float val = dataset_[sdidx]->data->get( idx, jdx );
 		if ( binary )
-		    strm.addBin( &val, sizeof(float) );
+		    strm.addBin( val );
 		else
 		    strm << val << od_tab;
 	    }
@@ -496,7 +496,7 @@ bool FaultAuxData::loadData( int sdidx )
     {
 	float val;
 	if ( binary )
-	    strm.getBin( &val, sizeof(float) );
+	    strm.getBin( val );
 	else
 	    strm >> val;
 	arr[idx] = val;

@@ -80,9 +80,9 @@ bool SEGY::FileDataSet::StoredData::getKey( od_stream_Pos pos, Seis::PosKey& pk,
     if ( !DataInterpreter<int>::get( int32di_, *istrm_, bid.inl() ) ||
 	 !DataInterpreter<int>::get( int32di_, *istrm_, bid.crl() ) ||
 	 !DataInterpreter<int>::get( int32di_, *istrm_, offsetazimuth ) ||
-	 !istrm_->getBin( &usable, sizeof(bool) ) )
+	 istrm_->getBin( usable ).isBad() )
 	 return false;
-  
+
     OffsetAzimuth oa; oa.setFrom( offsetazimuth );
 
     pk.setBinID( bid );
@@ -92,7 +92,7 @@ bool SEGY::FileDataSet::StoredData::getKey( od_stream_Pos pos, Seis::PosKey& pk,
 }
 
 
-bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable ) 
+bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable )
 {
     if ( !ostrm_ || !ostrm_->isOK() )
 	return false;
@@ -100,13 +100,13 @@ bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable )
     const int inl = pk.binID().inl();
     const int crl = pk.binID().crl();
 
-    ostrm_->addBin( &inl, sizeof(inl) );
-    ostrm_->addBin( &crl, sizeof(crl) );
+    ostrm_->addBin( inl );
+    ostrm_->addBin( crl );
 
     const OffsetAzimuth oa( pk.offset(), 0 );
     const int oaint = oa.asInt();
-    ostrm_->addBin( &oaint, sizeof(oaint) );
-    ostrm_->addBin( &usable, sizeof(usable) );
+    ostrm_->addBin( oaint );
+    ostrm_->addBin( usable );
 
     return ostrm_->isOK();
 }
@@ -329,7 +329,7 @@ bool SEGY::FileDataSet::readVersion1( ascistream& astrm )
     Seis::GeomType gt;
     if ( !Seis::getFromPar(segypars_,gt) )
 	return false;
-    
+
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	if ( !readVersion1File(astrm) )
@@ -542,7 +542,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 	    if ( getDetails( firstok, pk, usable ) && usable )
 		break;
 	}
-	    
+
 	if ( firstok >= totalsz_ ) return;
 
 	hs.start = hs.stop = pk.binID();

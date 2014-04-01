@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const float cNanoFac = 1e-9;
 
 
-#define mRdVal(v) strm.getBin( &v, sizeof(v) )
+#define mRdVal(v) strm.getBin( v )
 
 DZT::FileHeader::FileHeader()
     : nsamp(0)

@@ -27,29 +27,29 @@ const unsigned char MarchingCubesModel::cUdfAxisPos = 255;
 const unsigned char MarchingCubesModel::cMaxAxisPos = 254;
 const unsigned char MarchingCubesModel::cAxisSpacing = 255;
 
-const double  mInitValue = 1e+10;  
+const double  mInitValue = 1e+10;
 
 
 class MarchingCubesSurfaceWriter: public Executor
 {
 public:
-    	MarchingCubesSurfaceWriter( od_ostream& strm,
+	MarchingCubesSurfaceWriter( od_ostream& strm,
 		const MarchingCubesSurface& s, bool binary )
 	    : Executor("MarchingCubes surface writer")
 	    , surface_( s )
 	    , strm_( strm )
-    	    , binary_( binary )
-    	    , nrdone_( 0 )
+	    , binary_( binary )
+	    , nrdone_( 0 )
 	    {
-	    	totalnr_= s.models_.totalSize();
-	    	idx_[0] = -1;
-	    	idx_[1] = -1;
-	    	idx_[2] = -1;
+		totalnr_= s.models_.totalSize();
+		idx_[0] = -1;
+		idx_[1] = -1;
+		idx_[2] = -1;
 	    }
 
     od_int64    totalNr() const { return totalnr_; }
     od_int64	nrDone() const { return nrdone_; }
-    int     	nextStep()
+    int	nextStep()
 		{
 		    if ( !nrdone_ )
 			writeInt32( totalnr_, '\n' );
@@ -60,37 +60,37 @@ public:
 		    {
 			if ( !models.next( idx_ ) )
 			    return Finished();
-			
+
 			int pos[3];
 			if ( !models.getPos( idx_, pos ) )
 			    return ErrorOccurred();
-			
+
 			writeInt32( pos[mX], '\t' );
 			writeInt32( pos[mY], '\t' );
 			writeInt32( pos[mZ], '\t' );
-			
+
 			if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
 			    return ErrorOccurred();
 
 			nrdone_++;
 		    }
-		    
+
 		    return MoreToDo();
 		}
 
 	void    writeInt32( int val, char post )
 		{
 		    if ( binary_ )
-			strm_.addBin( &val,sizeof(val));
+			strm_.addBin( val );
 		    else
 			strm_ << val << post;
 		}
 
 protected:
-    int                 	idx_[3];
-    bool                	binary_;
-    int                 	nrdone_;
-    int                 	totalnr_;
+    int	idx_[3];
+    bool	binary_;
+    int	nrdone_;
+    int	totalnr_;
     const MarchingCubesSurface& surface_;
     od_ostream&			strm_;
 };
@@ -143,7 +143,7 @@ int nextStep()
 	if ( nrdone_==totalnr_ )
 	    return Finished();
     }
-    
+
     return MoreToDo();
 }
 
@@ -165,8 +165,8 @@ int readInt32()
 
 
 protected:
-    Threads::Atomic<int>       		nrdone_;
-    int                 		totalnr_;
+    Threads::Atomic<int>		nrdone_;
+    int		totalnr_;
     MarchingCubesSurface&		surface_;
     od_istream&				strm_;
     const DataInterpreter<od_int32>*	dt_;
@@ -376,7 +376,7 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 {
     const bool wasempty = models_.isEmpty();
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
-	    			      *this );
+				      *this );
     const bool res = TaskRunner::execute( tr, converter );
 
     if ( wasempty )
@@ -441,24 +441,24 @@ Executor* MarchingCubesSurface::readFrom( od_istream& strm,
 
 
 Implicit2MarchingCubes:: Implicit2MarchingCubes( int posx, int posy, int posz,
-						 const Array3D<float>& arr, 
+						 const Array3D<float>& arr,
 						 float threshold,
 						 MarchingCubesSurface& mcs )
     : surface_( mcs )
     , threshold_( threshold )
-    , array_( arr )			    
+    , array_( arr )
     , xorigin_( posx )
     , yorigin_( posy )
-    , zorigin_( posz )		      
+    , zorigin_( posz )
 {}
-    
+
 Implicit2MarchingCubes::~Implicit2MarchingCubes() {}
 
 
 od_int64 Implicit2MarchingCubes::nrIterations() const
 {
     return array_.info().getTotalSz();
-}   
+}
 
 
 bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
@@ -493,7 +493,7 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 		    continue;
 
 		if ( lckr.convertToWriteLock() || surface_.models_.findFirst(
-			    				pos, idxs ) )
+							pos, idxs ) )
 		    surface_.models_.remove( idxs );
 	    }
 	}
@@ -503,14 +503,14 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-/*!Fills an array3d with data from an MarchingCubes surface. Does only 
+/*!Fills an array3d with data from an MarchingCubes surface. Does only
    set the adjacent to the surface itself. */
 
 class MarchingCubes2ImplicitDistGen : public ParallelTask
 {
 public:
     MarchingCubes2ImplicitDistGen( MarchingCubes2Implicit& mc2i,
-	   			      bool nodistance )
+				      bool nodistance )
 	: mc2i_( mc2i )
 	, totalnr_( mc2i.surface_.models_.totalSize() )
 	, nodistance_( nodistance )
@@ -561,7 +561,7 @@ protected:
 		    continue;
 
 		int dist = model.axispos_[dim];
-		
+
 		if ( !isset || dist<mindist )
 		{
 		    mindist = dist;
@@ -574,7 +574,7 @@ protected:
 		if ( dimranges[dim].includes( neighborpos[dim], false ) )
 		{
 		    neighbordist = MarchingCubesModel::cAxisSpacing-dist;
-	  	    const od_int64 offset = mc2i_.result_.info().getOffset(
+		    const od_int64 offset = mc2i_.result_.info().getOffset(
 			    neighborpos[mX]-mc2i_.originx_,
 			    neighborpos[mY]-mc2i_.originy_,
 			    neighborpos[mZ]-mc2i_.originz_ );
@@ -597,9 +597,9 @@ protected:
 		    if ( mc2i_.surface_.models_.findFirst( neighborpos,
 						     neighboridxs ) )
 			continue;
-		    
+
 		    neighbordist = MarchingCubesModel::cAxisSpacing+dist;
-	  	    const od_int64 offset = mc2i_.result_.info().getOffset(
+		    const od_int64 offset = mc2i_.result_.info().getOffset(
 			    neighborpos[mX]-mc2i_.originx_,
 			    neighborpos[mY]-mc2i_.originy_,
 			    neighborpos[mZ]-mc2i_.originz_ );
@@ -613,7 +613,7 @@ protected:
 		    }
 		}
 	    }
-	    
+
 	    if ( isset )
 	    {
 		const od_int64 offset = mc2i_.result_.info().getOffset(
@@ -640,7 +640,7 @@ protected:
 	    mc2i_.setValue( offsets[idx], vals[idx], true );
 
 	mutex_.unLock();
-	
+
 	return true;
     }
 
@@ -651,10 +651,10 @@ protected:
 };
 
 
-MarchingCubes2Implicit::MarchingCubes2Implicit( 
+MarchingCubes2Implicit::MarchingCubes2Implicit(
 		const MarchingCubesSurface& surface,
 	        Array3D<int>& arr, int originx, int originy, int originz,
-       		bool nodistance	)
+		bool nodistance	)
     : surface_( surface )
     , result_( arr )
     , originx_( originx )
@@ -732,7 +732,7 @@ bool MarchingCubes2Implicit::doWork( od_int64 start, od_int64 stop,
 
 	barrier_.waitForAll();
 
-	//Divide the seeds in activefloodfillers_ between the threads and 
+	//Divide the seeds in activefloodfillers_ between the threads and
 	//process them in paralell.
 	const int nrseeds = activefloodfillers_.size();
 	if ( !nrseeds )
@@ -830,7 +830,7 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 
 	//Secondly, go to 26 connectivity, but don't change any udf values
 	//to defined. This may spread cause the fill to pass the iso-surface.
-	
+
 	const bool doprevy = arrpos[mY]>0;
 	const bool donexty = arrpos[mY]<size_[mY]-1;
 	const bool doprevz = arrpos[mZ]>0;
@@ -848,7 +848,7 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 		if ( donextz )
 		    mChkN( -doff[mX]	-doff[mY]	+doff[mZ]	, m2d );
 	    }
-	
+
 	    if ( doprevz )
 		mChkN(	   -doff[mX]			-doff[mZ]	, m2d );
 	    if ( donextz )
@@ -869,17 +869,17 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 	if ( doprevy )
 	{
 	    if ( doprevz )
-		mChkN( 			-doff[mY]	-doff[mZ]	, m2d );
+		mChkN(			-doff[mY]	-doff[mZ]	, m2d );
 	    if ( donextz )
-		mChkN( 			-doff[mY]	+doff[mZ]	, m2d );
+		mChkN(			-doff[mY]	+doff[mZ]	, m2d );
 	}
 
 	if ( donexty )
 	{
 	    if ( doprevz )
-		mChkN( 			 doff[mY]	-doff[mZ]	, m2d );
+		mChkN(			 doff[mY]	-doff[mZ]	, m2d );
 	    if ( donextz )
-		mChkN( 			 doff[mY]	+doff[mZ]	, m2d );
+		mChkN(			 doff[mY]	+doff[mZ]	, m2d );
 	}
 
 	if ( arrpos[mX]<size_[mX]-1 )
@@ -887,28 +887,28 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 	    if ( doprevy )
 	    {
 		if ( doprevz )
-		    mChkN(   doff[mX] 	-doff[mY]	-doff[mZ]	, m2d );
+		    mChkN(   doff[mX]	-doff[mY]	-doff[mZ]	, m2d );
 
-		mChkN(	     doff[mX] 	-doff[mY]			, m2d );
+		mChkN(	     doff[mX]	-doff[mY]			, m2d );
 
 		if ( donextz )
-		    mChkN(   doff[mX] 	-doff[mY]	+doff[mZ]	, m2d );
+		    mChkN(   doff[mX]	-doff[mY]	+doff[mZ]	, m2d );
 	    }
 
 	    if ( doprevz )
-		mChkN(	     doff[mX] 			-doff[mZ]	, m2d );
+		mChkN(	     doff[mX]			-doff[mZ]	, m2d );
 	    if ( donextz )
-		mChkN(	     doff[mX] 			+doff[mZ]	, m2d );
+		mChkN(	     doff[mX]			+doff[mZ]	, m2d );
 
 	    if ( donexty )
 	    {
 		if ( doprevz )
-		    mChkN(   doff[mX] 	+doff[mY]	-doff[mZ]	, m2d );
+		    mChkN(   doff[mX]	+doff[mY]	-doff[mZ]	, m2d );
 
-		mChkN(	     doff[mX] 	+doff[mY]			, m2d );
+		mChkN(	     doff[mX]	+doff[mY]			, m2d );
 
 		if ( donextz )
-		    mChkN(   doff[mX] 	+doff[mY]	+doff[mZ]	, m2d );
+		    mChkN(   doff[mX]	+doff[mY]	+doff[mZ]	, m2d );
 	    }
 	}
     }
@@ -933,13 +933,13 @@ bool MarchingCubes2Implicit::shouldSetValue( od_int64 offset, int newval )
     {
 	const bool prevsign = prevvalue>0;
 	const bool newsign = newval>0;
-	
+
 	if ( prevsign!=newsign )
 	    return false;
 
 	const int prevdist = abs(prevvalue);
 	const int newdist = abs(newval);
-	
+
 	if ( prevdist<=newdist )
 	    return false;
     }

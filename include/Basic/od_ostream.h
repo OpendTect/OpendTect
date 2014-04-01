@@ -72,6 +72,9 @@ public:
     od_ostream&		add( od_ostream& )	{ return *this; }
 
     bool		addBin(const void*,Count nrbytes);
+    template <class T>
+    od_ostream&		addBin(const T&);
+
     std::ostream&	stdStream();
     void		flush();
 
@@ -100,6 +103,12 @@ typedef od_ostream& (*od_ostreamFunction)(od_ostream&);
 inline od_ostream& operator <<( od_ostream& s, od_ostreamFunction fn )
 { return (*fn)( s ); }
 
+template <class T>
+inline od_ostream& od_ostream::addBin( const T& t )
+{
+    addBin( &t, sizeof(T) );
+    return *this;
+}
 
 
 #endif

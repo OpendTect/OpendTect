@@ -69,7 +69,7 @@ bool ascbinistream::isOK() const
 ascbinistream& ascbinistream::get( typ& t ) \
 { \
     if ( binary_ ) \
-	return getBin( &t, sizeof(typ) ); \
+	return getBin( t ); \
 \
     strm_.get( t ); \
     return *this; \

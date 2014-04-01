@@ -344,7 +344,7 @@ const IOPar* SEGY::DirectDef::segyPars() const
 }\
     par.set( string, dc )
 
-#define mWriteOffset(var) strm.addBin( &var, sizeof(var) )
+#define mWriteOffset(var) strm.addBin( var )
 #define mWriteOffsets \
     mWriteOffset(datastart_); mWriteOffset(textparstart_); \
     mWriteOffset(cubedatastart_); mWriteOffset(indexstart_)

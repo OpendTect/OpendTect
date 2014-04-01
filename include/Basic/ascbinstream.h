@@ -23,7 +23,7 @@ ________________________________________________________________________
   In Ascii mode every write will get a post-character or post-string written,
   usually either a tab (default) or a newline. In binary mode the bytes of
   the input values are simply dumped to the stream.
- 
+
  */
 
 
@@ -40,21 +40,24 @@ public:
     ascbinostream&      add(typ,char post=od_tab); \
     ascbinostream&      add(typ,const char* post)
 
-    			mDeclascbinostreamAddFns(char);
-    			mDeclascbinostreamAddFns(unsigned char);
-    			mDeclascbinostreamAddFns(od_int16);
-    			mDeclascbinostreamAddFns(od_uint16);
-    			mDeclascbinostreamAddFns(od_int32);
-    			mDeclascbinostreamAddFns(od_uint32);
-    			mDeclascbinostreamAddFns(od_int64);
-    			mDeclascbinostreamAddFns(od_uint64);
-    			mDeclascbinostreamAddFns(float);
-    			mDeclascbinostreamAddFns(double);
+			mDeclascbinostreamAddFns(char);
+			mDeclascbinostreamAddFns(unsigned char);
+			mDeclascbinostreamAddFns(od_int16);
+			mDeclascbinostreamAddFns(od_uint16);
+			mDeclascbinostreamAddFns(od_int32);
+			mDeclascbinostreamAddFns(od_uint32);
+			mDeclascbinostreamAddFns(od_int64);
+			mDeclascbinostreamAddFns(od_uint64);
+			mDeclascbinostreamAddFns(float);
+			mDeclascbinostreamAddFns(double);
 
     template <class T>
     ascbinostream&      addEOL( T t )		{ return add( t, od_newline ); }
 
     ascbinostream&	addBin(const void*,od_stream_Count nrbytes);
+    template <class T>
+    inline ascbinostream& addBin( const T& t )
+			{ return addBin( &t, sizeof(T) ); }
 
     od_ostream&		stream()		{ return strm_; }
 
@@ -88,7 +91,11 @@ public:
     ascbinistream&	get(od_uint64&);
     ascbinistream&	get(float&);
     ascbinistream&	get(double&);
+
     ascbinistream&	getBin(void*,od_stream_Count nrbytes);
+    template <class T>
+    inline ascbinistream& getBin( T& t )
+			{ return getBin( &t, sizeof(T) ); }
 
     od_istream&		stream()		{ return strm_; }
 

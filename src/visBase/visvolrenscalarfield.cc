@@ -614,7 +614,7 @@ const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
     vh.images = hton_uint32(sz0_);
     vh.bits_per_voxel = hton_uint32(8);
 
-    if ( !strm.addBin( &vh, sizeof(struct VolFileHeader) ) )
+    if ( strm.addBin(vh).isBad() )
 	return writeerr;
 
     const od_int64 totalsz = sz0_*sz1_*sz2_;

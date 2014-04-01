@@ -172,7 +172,7 @@ bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
 
 	v[1] = wl.value( idx );
 	if ( binwrlogs_ )
-	    strm.addBin( &v, sizeof(v) );
+	    strm.addBin( v );
 	else
 	{
 	    strm << v[0] << od_tab;

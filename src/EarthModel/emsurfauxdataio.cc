@@ -203,7 +203,7 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
 #define mWriteData() \
     if ( !stream_ ) return false; \
     if ( binary_ ) \
-	stream_->addBin( &val, sizeof(val) ); \
+	stream_->addBin( val ); \
     else \
 	stream_->add( val ).add( od_newline ); \
     return true

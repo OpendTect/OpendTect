@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
-       			      bool excludeunreasonable )
+			      bool excludeunreasonable )
     : pkl_(pkl)
     , strm_( 0 )
     , int32interp_( 0 )
@@ -69,7 +69,7 @@ void Seis::PosIndexer::empty()
 }
 
 
-#define mWrite( val ) strm.addBin( &val, sizeof(val) )
+#define mWrite( val ) strm.addBin( val )
 
 bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 {
@@ -128,7 +128,7 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 	var = interp->get( buf, 0 ); \
     } \
     else \
-	strm_->getBin( &var, sizeof(var) )
+	strm_->getBin( var )
 
 #   define mRet(yn) { strm_ = 0; return yn; }
 
@@ -249,14 +249,14 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 }
 
 
-bool Seis::PosIndexer::readHeader( 
+bool Seis::PosIndexer::readHeader(
 	DataInterpreter<int>* int32interp,
 	DataInterpreter<od_int64>* int64interp,
         DataInterpreter<float>* floatinterp )
 {
     empty();
-    strm_->getBin( &is2d_, sizeof(is2d_) );
-    strm_->getBin( &isps_, sizeof(isps_) );
+    strm_->getBin( is2d_ );
+    strm_->getBin( isps_ );
 
     mRead ( inlrg_.start, int32interp, 4 );
     mRead ( inlrg_.stop, int32interp, 4 );
@@ -329,7 +329,7 @@ bool Seis::PosIndexer::readHeader(
 }
 
 
-   
+
 inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 {
     int ret;
@@ -446,7 +446,7 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 	PosKey curpk;
 	if ( !pkl_.key( ret, curpk ) )
 	    return -1;
-	
+
 	if ( curpk.isUndef() )
 	    continue;
 	else if ( curpk.binID() != pk.binID() )
@@ -510,7 +510,7 @@ TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
     {
 	if ( !pkl_.key(idx,curpk) )
 	    break;
-	
+
 	if ( curpk.isUndef() )
 	    continue;
 	else if ( curpk.binID() != pk.binID() )
@@ -527,13 +527,13 @@ void Seis::PosIndexer::reIndex()
     empty();
 
     const od_int64 sz = pkl_.size();
-    
+
     PosKey curpk;
     for ( od_int64 idx=0; idx<sz; idx++ )
     {
 	if ( !pkl_.key( idx, curpk ) )
 	    return;
-	
+
 	add( curpk, idx );
     }
 }

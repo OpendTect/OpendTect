@@ -76,6 +76,8 @@ public:
     bool		getAll(BufferString&);
 
     bool		getBin(void*,Count nrbytes);
+    template <class T>
+    od_istream&		getBin(T&);
 
     char		peek() const;
     void		ignore(Count);
@@ -97,6 +99,13 @@ public:
 
 template <class T> inline od_istream& operator >>( od_istream& s, T& t )
 { return s.get( t ); }
+
+template <class T>
+inline od_istream& od_istream::getBin( T& t )
+{
+    getBin( &t, sizeof(T) );
+    return *this;
+}
 
 
 #endif

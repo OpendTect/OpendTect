@@ -513,7 +513,7 @@ void Well::Reader::readLogData( Well::Log& wl, od_istream& strm,
 	    strm >> v[0] >> v[1];
 	else
 	{
-	    strm.getBin( (char*)v, 2 * sizeof(float) );
+	    strm.getBin( v, 2 * sizeof(float) );
 	    if ( (bintype > 0) != __islittle__ )
 	    {
 		SwapBytes( v, sizeof(float) );

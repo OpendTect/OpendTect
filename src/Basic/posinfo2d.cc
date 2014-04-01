@@ -31,9 +31,9 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
     int i0 = 0, i1 = sz - 1;
     int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
     if ( nr < nr0 )
-    	{ found = false; return -1; }
+	{ found = false; return -1; }
     if ( nr > nr1 )
-    	{ found = false; return sz-1; }
+	{ found = false; return sz-1; }
 
     found = true;
     if ( nr == nr0 || nr == nr1 )
@@ -199,17 +199,11 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
     if ( asc )
 	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
     else
-    {
-	float buf[3];
-	strm.getBin( buf, 3 * sizeof(float) );
-	zrg_.start = buf[0];
-	zrg_.stop = buf[1];
-	zrg_.step = buf[2];
-	strm.getBin( &linesz, sizeof(int) );
-    }
+	strm.getBin( zrg_.start ).getBin( zrg_.stop ).getBin( zrg_.step )
+	    .getBin( linesz );
 
 
-    if ( !strm.isOK() || linesz < 0 ) 
+    if ( !strm.isOK() || linesz < 0 )
 	return false;
 
     posns_.erase();
@@ -219,7 +213,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	if ( asc )
 	    strm >> trcnr;
 	else
-	    strm.getBin( &trcnr, sizeof(int) );
+	    strm.getBin( trcnr );
 	if ( trcnr<0 || !strm.isOK() )
 	    return false;
 
@@ -227,11 +221,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	if ( asc )
 	    strm >> pos.coord_.x >> pos.coord_.y;
 	else
-	{
-	    double dbuf[2];
-	    strm.getBin( dbuf, 2 * sizeof(double) );
-	    pos.coord_.x = dbuf[0]; pos.coord_.y = dbuf[1];
-	}
+	    strm.getBin( pos.coord_.x ).getBin( pos.coord_.y );
 	posns_ += pos;
     }
 
@@ -243,36 +233,28 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 				 bool withnls ) const
 {
     const int linesz = posns_.size();
-    if ( asc )
+    if ( !asc )
+	strm.addBin( zrg_.start ).addBin( zrg_.stop ).addBin( zrg_.step )
+	    .addBin( linesz );
+    else
     {
 	strm << zrg_.start << ' ' << zrg_.stop << ' ' << zrg_.step
 	     << ' ' << linesz;
 	if ( withnls && linesz ) strm << od_newline;
     }
-    else
-    {
-	float buf[] = { zrg_.start, zrg_.stop, zrg_.step };
-	strm.addBin( buf, 3 * sizeof(float) );
-	strm.addBin( &linesz, sizeof(int) );
-    }
 
     for ( int idx=0; idx<linesz; idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	if ( asc )
+	if ( !asc )
+	    strm.addBin(pos.nr_).addBin(pos.coord_.x).addBin(pos.coord_.y);
+	else
 	{
 	    BufferString str; str.set( pos.coord_.x );
 	    strm << '\t' << pos.nr_ << '\t' << str;
 	    str.set( pos.coord_.y );
 	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << od_newline;
-	}
-	else
-	{
-	    double dbuf[2];
-	    dbuf[0] = pos.coord_.x; dbuf[1] = pos.coord_.y;
-	    strm.addBin( &pos.nr_, sizeof(int) );
-	    strm.addBin( dbuf, 2 * sizeof(double) );
 	}
     }
 
@@ -357,6 +339,6 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 	median = mCast( float,
 			Math::Sqrt( medset[ mCast(int, medset.size()/2) ] ) );
     }
-   
+
     max = mCast( float, Math::Sqrt(maxsq) );
 }

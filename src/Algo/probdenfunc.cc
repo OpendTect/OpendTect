@@ -205,7 +205,7 @@ void ArrayNDProbDenFunc::writeBulkData( od_ostream& strm, bool binary ) const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
-	    strm.addBin( &values[idx], sizeof(float) );
+	    strm.addBin( values[idx] );
 	else
 	{
 	    strm << values[idx];
@@ -226,7 +226,7 @@ bool ArrayNDProbDenFunc::readBulkData( od_istream& strm, bool binary )
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
-	    strm.getBin( &val, sizeof(float) );
+	    strm.getBin( val );
 	else
 	    strm >> val;
 

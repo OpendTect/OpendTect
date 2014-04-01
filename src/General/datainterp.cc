@@ -649,7 +649,7 @@ bool DataInterpreter<type>::get( const DataInterpreter<type>* di, \
 	return true; \
     } \
     \
-    return strm.getBin( &res, sizeof(type) ); \
+    return !strm.getBin( res ).isBad(); \
 } \
  \
 template <> \
