@@ -118,7 +118,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     uiGroup* kbelevgrp = new uiButtonGroup( actbutgrp, "Elevation buttons",
 					    uiObject::Horizontal );
     kbelevfld_ = new uiGenInput( kbelevgrp, "Reference Datum Elevation",
-				 FloatInpSpec(mUdf(double)) );
+				 FloatInpSpec(mUdf(float)) );
     kbelevupdbut_ = new uiPushButton( kbelevgrp, "&Set",
 			     mCB(this,uiWellTrackDlg,updateKbElev), true);
     kbelevupdbut_->attach( rightOf, kbelevfld_ );
@@ -482,11 +482,11 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
     const float shift = kbelevorig - newkbelev;
     for ( int irow=0; irow<tbl_->nrRows(); irow++ )
     {
-	const float zval = getZ( irow );
+	const double zval = getZ( irow );
 	if ( mIsUdf(zval) )
 	    continue;
 
-	setZ( irow, zval + shift * fac );
+	setZ( irow, mCast(float,zval) + shift * fac );
     }
 
     updNow(0); //write the new table data back to the track
@@ -1363,14 +1363,14 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     }
 
     const float kbelev = track.getKbElev();
-    const float srdelev = SI().seismicReferenceDatum();
+    const float srdelev = mCast(float,SI().seismicReferenceDatum());
     const bool kbabovesrd = srdelev < kbelev;
     const float firstdah = kbabovesrd ? track.getDahForTVD(-1.f*srdelev) : 0.f;
     const float firsttwt = d2t->getTime( firstdah, track );
     if ( mIsUdf(firstdah) || mIsUdf(firsttwt) )
 	return;
 
-    const float zwllhead = track.pos(0).z;
+    const float zwllhead = track.value(0);
     const float replveldz = zwllhead + srdelev;
     const float timeshift = kbabovesrd ? firsttwt
 				       : 2.f * replveldz / replvel - firsttwt;
