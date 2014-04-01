@@ -54,7 +54,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , amplspectrumitem_("Show &Amplitude Spectrum ...")
     , fkspectrumitem_("Show &F-K Spectrum ...")
     , view2dwvaitem_("2D Viewer - &Wiggle")
-    , view2dvditem_("2D Viewer - &VD")
+    , view2dvditem_("2D Viewer")
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "stop";
@@ -86,21 +86,6 @@ uiODDataTreeItem::~uiODDataTreeItem()
     tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 }
-
-/*
-uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
-					    const char* pt )
-{
-    for ( int idx=0; idx<creators_.size(); idx++)
-    {
-        uiODDataTreeItem* res = creators_[idx]( as, pt );
-	if ( res )
-	    return res;
-    }
-
-    return 0;
-}
-*/
 
 
 int uiODDataTreeItem::uiTreeViewItemType() const
@@ -251,12 +236,14 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     else
 	mResetMenuItem( &statisticsitem_ )
 
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+    const bool hastransform = scene && scene->getZAxisTransform();
     if ( hasdatapack && isvert )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
 			  true, false )
 	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
-			  true, false )
+			  !hastransform, false )
     }
     else
     {
