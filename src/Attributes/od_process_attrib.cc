@@ -138,7 +138,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetJobErr( "No outputs found" )
 
     PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
-    int indexoutp = 0; BufferString linename;
+    int indexoutp = 0; BufferStringSet alllinenames;
     while ( true )
     {
         BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
@@ -150,19 +150,21 @@ bool BatchProgram::go( od_ostream& strm )
 	    else
 	        break;
 	}
-	linename = output->find( sKey::LineKey() );
+
+	output->get( sKey::LineKey(), alllinenames );
 	indexoutp++;
     }
 
     PtrMan<IOPar> subselpar = pars().subselect(
 	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
-    if ( linename.isEmpty() && subselpar )
-	linename = subselpar->find( sKey::LineKey() );
+    if ( alllinenames.isEmpty() && subselpar )
+	subselpar->get( sKey::LineKey(), alllinenames );
 
     const char* attrtypstr = pars().find( "Attributes.Type" );
     const bool is2d = attrtypstr && *attrtypstr == '2';
-    BufferStringSet alllinenames;
-    if ( linename.isEmpty() && is2d ) //processing lineset on a single machine
+
+    //processing dataset on a single machine
+    if ( alllinenames.isEmpty() && is2d ) 
     {
 	MultiID dsid;
 	pars().get( "Input Line Set", dsid );
@@ -174,9 +176,6 @@ bool BatchProgram::go( od_ostream& strm )
 		alllinenames.addIfNew(ds.lineName(idx));
 	}
     }
-
-    if ( alllinenames.isEmpty() )	//all other cases
-	alllinenames.add(linename);
 
     TextStreamProgressMeter progressmeter(strm);
     for ( int idx=0; idx<alllinenames.size(); idx++ )
