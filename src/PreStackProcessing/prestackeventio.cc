@@ -960,7 +960,7 @@ bool EventPatchFileHeader::toStream( od_ostream& strm, bool binary )
 	{
 	    mWriteFixedCharVal( getBinID(idx).inl(), '\t' );
 	    mWriteFixedCharVal( getBinID(idx).crl(), '\t' );
-	    mWriteFixedCharVal( getFileOffset(idx), '\n' );
+	    mWriteFixedCharVal( (int) getFileOffset(idx), '\n' );
 	}
     }
 
@@ -1030,7 +1030,7 @@ void EventPatchFileHeader::setFileOffset( int idx, od_stream::Pos offsetval )
     const int offset = idx * mHeaderEventSize;
     char* baseptr = buffptr_+offset+sizeof(int)*2;
     if ( int32interpreter_ )
-	int32interpreter_->put( baseptr, 0,  offsetval );
+	int32interpreter_->put( baseptr, 0, (int) offsetval );
     else
 	*((int*)baseptr) = (int)offsetval;
 }
