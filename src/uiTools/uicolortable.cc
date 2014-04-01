@@ -612,7 +612,7 @@ void uiColorTableToolBar::init()
     mAddTBObj( minfld_, 2 );
     mAddTBObj( canvas_, 2 );
     mAddTBObj( maxfld_, 2 );
-    mAddTBObj( selfld_, 4 );
+    tb->addObject( selfld_ );
 }
 
 
