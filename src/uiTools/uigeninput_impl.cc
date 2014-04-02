@@ -218,7 +218,7 @@ uiGenInputBoolFld::uiGenInputBoolFld( uiParent* p, const char* truetext,
 			  const char* falsetext, bool initval, const char* nm)
     : uiGroup( p, nm )
     , UserInputObjImpl<bool>()
-    , butgrp( 0 ), checkbox( 0 ), rb1( 0 ), rb2( 0 ), yn( initval )
+    , butgrp_( 0 ), checkbox_( 0 ), rb1_( 0 ), rb2_( 0 ), yn_( initval )
     , valueChanged( this )
 {
     init( p, truetext, falsetext, initval );
@@ -228,7 +228,7 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 				     const char* nm)
     : uiGroup( p, nm )
     , UserInputObjImpl<bool>()
-    , butgrp( 0 ), checkbox( 0 ), rb1( 0 ), rb2( 0 ), yn( false )
+    , butgrp_( 0 ), checkbox_( 0 ), rb1_( 0 ), rb2_( 0 ), yn_( false )
     , valueChanged( this )
 {
     const BoolInpSpec* spc = dynamic_cast<const BoolInpSpec*>(&spec);
@@ -238,113 +238,128 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
     {
 	init( p, spc->trueFalseTxt(true), 
 		spc->trueFalseTxt(false), spc->getBoolValue() );
-	if ( rb1 && spec.name(0) ) rb1->setName( spec.name(0) );
-	if ( rb2 && spec.name(1) ) rb2->setName( spec.name(1) );
+	if ( rb1_ && spec.name(0) ) rb1_->setName( spec.name(0) );
+	if ( rb2_ && spec.name(1) ) rb2_->setName( spec.name(1) );
     }
 }
 
 
-void uiGenInputBoolFld::init( uiParent* p, const char* truetext,
-			const char* falsetext, bool yn_ )
-{
-    truetxt = truetext;
-    falsetxt = falsetext;
-    yn = yn_;
+const char* uiGenInputBoolFld::text() const
+{ return yn_ ? truetxt_.getFullString() : falsetxt_.getFullString(); }
 
-    if ( truetxt.isEmpty()  || falsetxt.isEmpty() )
+
+void uiGenInputBoolFld::setText( const char* t )	
+{  
+    bool newval;
+    if ( truetxt_.getFullString() == t ) newval = true;
+    else if ( falsetxt_.getFullString()==t ) newval = false;
+    else newval = toBool(t);
+
+    setvalue_(newval);
+}
+
+
+void uiGenInputBoolFld::init( uiParent* p, const uiString& truetext,
+			const uiString& falsetext, bool yn )
+{
+    truetxt_ = truetext;
+    falsetxt_ = falsetext;
+    yn_ = yn;
+
+    if ( truetxt_.isEmpty()  || falsetxt_.isEmpty() )
     { 
-	checkbox = new uiCheckBox( p, (truetxt=="") ? 
-				(const char*) name() : (const char*)truetxt );
-	checkbox->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
+	checkbox_ = new uiCheckBox( p, (truetxt_.isEmpty()) ? 
+				(const char*) name() : truetxt_ );
+	checkbox_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
 	setvalue_( yn );
 	return; 
     }
 
     // we have two labelTxt()'s, so we'll make radio buttons
     uiGroup* grp_ = new uiGroup( p, name() ); 
-    butgrp = grp_->mainObject();
+    butgrp_ = grp_->mainObject();
 
-    rb1 = new uiRadioButton( grp_, truetxt );
-    rb1->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
-    rb2 = new uiRadioButton( grp_, falsetxt );
-    rb2->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
+    rb1_ = new uiRadioButton( grp_, truetxt_ );
+    rb1_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
+    rb2_ = new uiRadioButton( grp_, falsetxt_ );
+    rb2_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
 
-    rb2->attach( rightTo, rb1 );
-    grp_->setHAlignObj( rb1 );
+    rb2_->attach( rightTo, rb1_ );
+    grp_->setHAlignObj( rb1_ );
 
-    setvalue_( yn );
+    setvalue_( yn_ );
 }
 
 
 uiObject* uiGenInputBoolFld::mainobject()
 {
-    if ( checkbox )
-	return checkbox;
-    return butgrp;
+    if ( checkbox_ )
+	return checkbox_;
+    return butgrp_;
 }
 
 
 void uiGenInputBoolFld::setToolTip( const uiString& tt )
 {
-    if ( checkbox )
-	checkbox->setToolTip( tt );
-    if ( rb1 )
-	rb1->setToolTip( tt );
-    if ( rb2 )
-	rb2->setToolTip( tt );
+    if ( checkbox_ )
+	checkbox_->setToolTip( tt );
+    if ( rb1_ )
+	rb1_->setToolTip( tt );
+    if ( rb2_ )
+	rb2_->setToolTip( tt );
 }
 
 
 void uiGenInputBoolFld::selected(CallBacker* cber)
 {
-    bool yn_ = yn;
-    if ( cber == rb1 )		{ yn = rb1->isChecked(); }
-    else if( cber == rb2 )	{ yn = !rb2->isChecked(); }
-    else if( cber == checkbox )	{ yn = checkbox->isChecked(); }
+    bool newyn = false;
+
+    if ( cber == rb1_ )		{ newyn = rb1_->isChecked(); }
+    else if( cber == rb2_ )	{ newyn = !rb2_->isChecked(); }
+    else if( cber == checkbox_ ){ newyn = checkbox_->isChecked(); }
     else return;
 
-    if ( yn != yn_ )		
+    if ( newyn != yn_ )		
     {
+	setvalue_( newyn );
 	valueChanged.trigger(*this);
-	setvalue_( yn );
     }
 }
 
 
 void uiGenInputBoolFld::setvalue_( bool b )
 {
-    yn = b ? true : false; 
+    yn_ = b;
+    if ( checkbox_ ) { checkbox_->setChecked( yn_ ); return; }
 
-    if ( checkbox ) { checkbox->setChecked( yn ); return; }
-
-    if ( !rb1 || !rb2 )
+    if ( !rb1_ || !rb2_ )
 	{ pErrMsg("Huh?"); return; }
 
-    rb1->setChecked(yn); 
-    rb2->setChecked(!yn); 
+    rb1_->setChecked(yn_); 
+    rb2_->setChecked(!yn_); 
 }
 
 
 void uiGenInputBoolFld::setReadOnly( bool ro )
 {
-    if ( checkbox ) { checkbox->setSensitive( !ro ); return; }
+    if ( checkbox_ ) { checkbox_->setSensitive( !ro ); return; }
 
-    if ( !rb1 || !rb2 )
+    if ( !rb1_ || !rb2_ )
 	{ pErrMsg("Huh?"); return; }
 
-    rb1->setSensitive(!ro); 
-    rb2->setSensitive(!ro); 
+    rb1_->setSensitive(!ro); 
+    rb2_->setSensitive(!ro); 
 }
 
 
 bool uiGenInputBoolFld::isReadOnly() const
 {
-    if ( checkbox )		return checkbox->sensitive();
+    if ( checkbox_ )		return checkbox_->sensitive();
 
-    if ( !rb1 || !rb2 )
+    if ( !rb1_ || !rb2_ )
     	{ pErrMsg("Huh?"); return false; }
 
-    return !rb1->sensitive() && !rb2->sensitive(); 
+    return !rb1_->sensitive() && !rb2_->sensitive(); 
 }
 
 

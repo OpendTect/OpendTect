@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "typeset.h"
 #include "keystrs.h"
-
+#include "uistring.h"
 
 /*!
 \brief Data type.
@@ -615,16 +615,17 @@ It does not change the underlying true/false texts.
 mExpClass(General) BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
-				    const char* falsetxt=sKey::No(),
+			BoolInpSpec(bool yesno,
+				    const uiString& truetxt=sKey::Yes(),
+				    const uiString& falsetxt=sKey::No(),
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 
     virtual bool	isUndef(int idx=0) const;
 
     virtual DataInpSpec* clone() const;
-    const char*		trueFalseTxt(bool tf=true) const;
-    void		setTrueFalseTxt(bool,const char*);
+    uiString		trueFalseTxt(bool tf=true) const;
+    void		setTrueFalseTxt(bool,const uiString&);
 
     bool		checked() const;
     void		setChecked(bool yesno);
@@ -648,8 +649,8 @@ public:
 
 protected:
 
-    BufferString	truetext_;
-    BufferString	falsetext_;
+    uiString		truetext_;
+    uiString		falsetext_;
     bool		yn_;
     bool		defaultyn_;
     bool		isset_;

@@ -150,7 +150,8 @@ bool BoolParam::setCompositeValue( const char* str )
 BufferString BoolParam::getDefaultValue() const
 {
     const bool yn = getDefaultBoolValue();
-    BufferString str = reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt(yn);
+    BufferString str =
+	reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt(yn).getFullString();
     return str;
 }
 

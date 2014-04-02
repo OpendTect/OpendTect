@@ -228,19 +228,19 @@ DataInpSpec* FileNameInpSpec::clone() const
 
 
 
-BoolInpSpec::BoolInpSpec( bool yesno, const char* truetxt,
-			  const char* falsetxt, bool setyn )
+BoolInpSpec::BoolInpSpec( bool yesno, const uiString& truetxt,
+			  const uiString& falsetxt, bool setyn )
     : DataInpSpec( DataTypeImpl<bool>() )
-    , truetext_(truetxt ? truetxt : (const char*) sKey::Yes() )
+    , truetext_(!truetxt.isEmpty() ? truetxt : (const char*) sKey::Yes() )
     , yn_(yesno)
     , defaultyn_(true)
     , isset_(setyn)
 {
-    if ( falsetxt ) falsetext_ = falsetxt;
+    if ( !falsetxt.isEmpty() ) falsetext_ = falsetxt;
     if ( !truetext_.isEmpty() )
-	setName( truetext_, 0 );
+	setName( truetext_.getFullString(), 0 );
     if ( !falsetext_.isEmpty() )
-	setName( falsetext_, 1 );
+	setName( falsetext_.getFullString(), 1 );
 }
 
 
@@ -263,18 +263,18 @@ DataInpSpec* BoolInpSpec::clone() const
 { return new BoolInpSpec( *this ); }
 
 
-const char* BoolInpSpec::trueFalseTxt( bool tf ) const
+uiString BoolInpSpec::trueFalseTxt( bool tf ) const
 { return tf ? truetext_ : falsetext_; }
 
 
-void BoolInpSpec::setTrueFalseTxt( bool tf, const char* txt )
+void BoolInpSpec::setTrueFalseTxt( bool tf, const uiString& txt )
 {
     if ( tf )
 	truetext_=txt;
     else
 	falsetext_=txt;
 
-    setName( txt, tf ? 0 : 1 );
+    setName( txt.getFullString(), tf ? 0 : 1 );
 }
 
 
@@ -288,14 +288,14 @@ void BoolInpSpec::setChecked( bool yesno )
 
 const char* BoolInpSpec::text( int idx ) const
 {
-    return yn_ ? (const char*)truetext_
-	      : (const char*)falsetext_;
+    return yn_ ? truetext_.getFullString()
+	      : falsetext_.getFullString();
 }
 
 
 bool BoolInpSpec::setText( const char* s, int idx )
 {
-    yn_ = s && falsetext_!=s;
+    yn_ = s && falsetext_.getFullString()!=s;
     isset_ = true;
     return true;
 }

@@ -102,34 +102,26 @@ public:
 				    const DataInpSpec& spec,
 				    const char* nm="Bool Input");
 
-    virtual const char*	text() const{ return yn ? truetxt : falsetxt; }
-    virtual void        setText( const char* t )	
-			    {  
-				if ( truetxt == t ) yn = true;
-				else if ( falsetxt==t ) yn = false;
-				else yn = toBool(t);
+    virtual const char*	text() const;
+    virtual void        setText(const char* t);
 
-				setvalue_(yn);
-			    }
-
-
-    bool		notifyValueChanged(const CallBack& cb )
+    bool		notifyValueChanged( const CallBack& cb )
 			    { valueChanged.notify(cb); return true; }
 
     Notifier<uiGenInputBoolFld> valueChanged;
 
-    virtual void	setReadOnly( bool ro=true );
+    virtual void	setReadOnly(bool ro=true);
     virtual bool	isReadOnly() const;
 
-    virtual bool	update_( const DataInpSpec& spec );
+    virtual bool	update_(const DataInpSpec& spec);
 
     virtual void	setToolTip(const uiString&);
 
 protected:
 
-    void 		init( uiParent*, const char*, const char*, bool);
+    void 		init(uiParent*,const uiString&,const uiString&,bool);
 
-    virtual bool	getvalue_() const			{ return yn; }
+    virtual bool	getvalue_() const			{ return yn_; }
     virtual void	setvalue_( bool );
 
     virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
@@ -141,13 +133,13 @@ protected:
 
     virtual uiObject*	mainobject();
 
-    BufferString	truetxt;
-    BufferString	falsetxt;
-    bool		yn;
-    uiObject*		butgrp;
-    uiCheckBox*		checkbox;
-    uiRadioButton*	rb1;
-    uiRadioButton*	rb2;
+    uiString		truetxt_;
+    uiString		falsetxt_;
+    bool		yn_;
+    uiObject*		butgrp_;
+    uiCheckBox*		checkbox_;
+    uiRadioButton*	rb1_;
+    uiRadioButton*	rb2_;
 };
 
 
