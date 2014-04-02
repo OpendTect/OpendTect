@@ -70,14 +70,19 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 	uiSeparator* sep = new uiSeparator( this, "HorSep",
 					    uiObject::Horizontal );
 	sep->attach( stretchedBelow, ffld_ );
-	minfld_ = new uiGenInput( this, "Min Vel", FloatInpSpec() );
+	uiString minlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
+	minfld_ = new uiGenInput( this, minlbl );
+	minfld_->setReadOnly();
 	minfld_->attach( leftAlignedBelow, ffld_ );
 	minfld_->attach( ensureBelow, sep );
 	minsetbut_ = new uiToolButton( this, "pick", "Set min velocity",
 				       mCB(this,uiFKSpectrum,setVelCB) );
 	minsetbut_->setToggleButton();
 	minsetbut_->attach( rightTo, minfld_ );
-	maxfld_ = new uiGenInput( this, "Max Vel", FloatInpSpec() );
+
+	uiString maxlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
+	maxfld_ = new uiGenInput( this, maxlbl );
+	maxfld_->setReadOnly();
 	maxfld_->attach( rightOf, minsetbut_ );
 	maxsetbut_ = new uiToolButton( this, "pick", "Set max velocity",
 				       mCB(this,uiFKSpectrum,setVelCB) );
