@@ -82,7 +82,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 
     int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
     nrtrcexfld_ = new uiGenInput( this, "Number of traces to examine",
-			    IntInpSpec(nrex).setLimits(Interval<int>(1,10000))
+			    IntInpSpec(nrex).setLimits(Interval<int>(0,10000))
 					    .setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );
     nrtrcexfld_->attach( ensureBelow, sep );
@@ -93,7 +93,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
 
     postFinalise().notify( mCB(this,uiSEGYDefDlg,initFlds) );
-    	// Need this to get zero padding right
+	// Need this to get zero padding right
 }
 
 
@@ -163,7 +163,7 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
 {
     int nrex = nrTrcExamine();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
-    nrtrcexfld_->setValue( nrex );   
+    nrtrcexfld_->setValue( nrex );
     const char* res = iop.find( sKey::Geometry() );
     if ( res && *res && geomfld_ )
     {
