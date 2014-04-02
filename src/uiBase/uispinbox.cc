@@ -441,7 +441,7 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const uiString& txt, int dec,
 				    const char* nm )
 	: uiGroup(p,"LabeledSpinBox")
 {
-    sb_ = new uiSpinBox( this, dec, nm && *nm ? nm : txt.getFullString() );
+    sb_ = new uiSpinBox( this, dec, nm && *nm ? nm : txt.getFullString().buf());
     BufferString sblbl;
     lbl_ = new uiLabel( this, txt, sb_ );
     lbl_->setAlignment( Alignment::Right );

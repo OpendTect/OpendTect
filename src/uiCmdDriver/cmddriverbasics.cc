@@ -779,7 +779,7 @@ bool UIEntity::sensitive() const
 const char* UIEntity::name() const
 {
     if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->name().buf() : uiact_->text().getFullString();
+    return uiobj_ ? uiobj_->name() : uiact_->text().getFullString();
 }
 
 

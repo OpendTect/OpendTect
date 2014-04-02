@@ -179,7 +179,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 	    for ( int col=0; col<uilview->nrColumns(); col++ ) \
 	    { \
 		const BufferString itemtxt = row<0 \
-			? uilview->getColumnText(col).getFullString() \
+			? uilview->getColumnText(col).getFullString().buf() \
 			: nodes[row]->text(col); \
 		itemtexts.add( itemtxt ); \
 		if ( mSearchKey(itemstr).isMatching(itemtxt) ) \

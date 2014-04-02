@@ -140,8 +140,8 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     }
     colbut_ = new uiPushButton( this,"", false );
     colbut_->setName( (nm && *nm)
-            ? nm
-            : (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString() : "Color" ) );
+	? nm
+	: (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString().buf() : "Color" ) );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     if ( dodrawbox_ )
 	colbut_->attach( rightOf, dodrawbox_ );

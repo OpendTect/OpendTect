@@ -81,7 +81,7 @@ public:
 			    , ison_(false)
 			    , isimmediate_(false)
 			    , arrowtype_(uiToolButton::NoArrow)
-			    , name_(nm && *nm ? nm : tt.getFullString()) {}
+			    , name_(nm && *nm ? nm : tt.getFullString().buf()){}
 
     mDefuiTBSUMemb(BufferString,filename);
     mDefuiTBSUMemb(uiString,tooltip);

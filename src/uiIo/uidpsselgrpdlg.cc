@@ -148,7 +148,7 @@ void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
     const BufferString axisname1 =
 	plotter_.axisHandler(1)->getCaption().getFullString();
     const BufferString axisname2 = plotter_.axisHandler(2)
-	? plotter_.axisHandler(2)->getCaption().getFullString()
+	? plotter_.axisHandler(2)->getCaption().getFullString().buf()
 	: (const char*) 0;
 
     uiExpSelectionArea::Setup su( axisname0,
