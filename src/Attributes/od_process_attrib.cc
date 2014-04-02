@@ -177,6 +177,9 @@ bool BatchProgram::go( od_ostream& strm )
 	}
     }
 
+    if ( alllinenames.isEmpty() && !is2d )	//all other cases
+	alllinenames.add("");
+
     TextStreamProgressMeter progressmeter(strm);
     for ( int idx=0; idx<alllinenames.size(); idx++ )
     {
