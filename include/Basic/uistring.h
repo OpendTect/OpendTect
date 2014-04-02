@@ -104,7 +104,7 @@ public:
     uiString&			arg(const BufferString&);
     uiString&			arg(const uiString&);
 
-    const char* 		getFullString() const;
+    const BufferString& 	getFullString() const;
 				/*!<Constructs the result from the original
 				    string and the arguments,
 				without translation.

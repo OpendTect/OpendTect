@@ -58,7 +58,7 @@ public:
 	qstring_ = qstr;
     }
 
-    const char* getFullString() const;
+    const BufferString& getFullString() const;
 
     void set(const char* orig);
     void fillQString(QString&,const QTranslator* translator=0) const;
@@ -83,17 +83,17 @@ void uiStringData::set( const char* orig )
 }
 
 
-const char* uiStringData::getFullString() const
+const BufferString& uiStringData::getFullString() const
 {
     if ( !arguments_.size() )
-	return originalstring_.buf();
+	return originalstring_;
 
     QString qres;
     fillQString( qres, 0 );
 
     mDeclStaticString( ret );
     ret = qres;
-    return ret.buf();
+    return ret;
 }
 
 
@@ -192,7 +192,7 @@ const char* uiString::getOriginalString() const
 }
 
 
-const char* uiString::getFullString() const
+const BufferString& uiString::getFullString() const
 {
     return data_->getFullString();
 }
