@@ -146,6 +146,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		"Horizon Data", true, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
+	attribfld_->setHSzPol( uiObject::Wide );
 	attribfld_->setToolTip(
 		"Horizon Data (Attributes stored in Horizon format)" );
 
