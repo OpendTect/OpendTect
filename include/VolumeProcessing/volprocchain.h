@@ -263,6 +263,7 @@ public:
 				~ChainExecutor();
 
     const char*			errMsg() const;
+    const char*			nrDoneText() const;
 
     bool			setCalculationScope(const HorSampling&,
 						    const StepInterval<int>&);

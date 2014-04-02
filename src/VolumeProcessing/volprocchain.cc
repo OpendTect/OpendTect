@@ -463,7 +463,8 @@ od_int64 ChainExecutor::nrDone() const
 {
     //Threads::Locker lckr( curtasklock_ );
     const float percentperepoch = 100.f/totalnrepochs_;
-    const int epochsdone = totalnrepochs_-epochs_.size();
+    const int epochsdone =
+	epochs_.isEmpty() ? 0 : totalnrepochs_-(epochs_.size()-1);
     float percentagedone = percentperepoch*epochsdone;
 
     if ( curepoch_ )
@@ -474,8 +475,8 @@ od_int64 ChainExecutor::nrDone() const
 	const od_int64 totalnr = curtask.totalNr();
 	if ( nrdone>=0 && totalnr>0 )
 	{
-	    const float curtaskpercentatge = percentperepoch * nrdone / totalnr;
-	    percentagedone += curtaskpercentatge;
+	    const float curtaskpercentage = percentperepoch * nrdone / totalnr;
+	    percentagedone += curtaskpercentage;
 	}
     }
 
@@ -483,10 +484,12 @@ od_int64 ChainExecutor::nrDone() const
 }
 
 
+const char* ChainExecutor::nrDoneText() const
+{ return curepoch_ ? curepoch_->getTask().nrDoneText() : "Positions done"; }
+
+
 od_int64 ChainExecutor::totalNr() const
-{
-    return 100;
-}
+{ return 100; }
 
 
 const char* ChainExecutor::message() const
