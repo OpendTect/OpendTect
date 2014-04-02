@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "segydirecttr.h"
@@ -56,7 +57,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , browsebut_(0)
 {
     if ( is2d_ )
-	ctxt_.toselect.allowtransls_ = "TwoD DataSet";
+	ctxt_.toselect.allowtransls_ = TwoDDataSeisTrcTranslator::translKey();
     else
     {
 	FileMultiString fms( CBVSSeisTrcTranslator::translKey() );

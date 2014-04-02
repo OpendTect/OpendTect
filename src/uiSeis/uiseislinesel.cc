@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -520,7 +521,7 @@ uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
     if ( !setup_.filldef_ )
     {
 	ctio_.destroyAll();
-	ctio_.ctxt.deftransl = "TwoD Dataset";
+	ctio_.ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
     }
 
     updateFromLineset();

@@ -120,7 +120,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     const IOObjContext& iocontext = mIOObjContext(SeisTrc);
     if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
-    ctio.ctxt.deftransl.add( "TwoD DataSet" );
+    ctio.ctxt.deftransl.add( TwoDDataSeisTrcTranslator::translKey() );
     if ( iop.find(sKey::DataType()) )
     {
 	BufferString datatype;

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselection.h"
@@ -61,7 +62,7 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
     if ( su.geom_ == Seis::Line )
-	ctxt.toselect.allowtransls_ = "TwoD DataSet";
+	ctxt.toselect.allowtransls_ = TwoDDataSeisTrcTranslator::translKey();
     else
     {
 	if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
@@ -71,8 +72,9 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     }
 
     if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = su.geom_ == Seis::Line ? "TwoD DataSet"
-				: CBVSSeisTrcTranslator::translKey();
+	ctxt.deftransl = su.geom_ == Seis::Line ?
+			TwoDDataSeisTrcTranslator::translKey()
+			: CBVSSeisTrcTranslator::translKey();
 
     if ( !ctxt.forread )
 	ctxt.toselect.allowtransls_ = ctxt.deftransl;
@@ -415,7 +417,8 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 {
     ctxt.forread = forread;
     if ( geom == Seis::Line )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl = "TwoD DataSet";
+	ctxt.toselect.allowtransls_ = ctxt.deftransl =
+					TwoDDataSeisTrcTranslator::translKey();
     else
 	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
     if ( !forread )
@@ -446,7 +449,7 @@ IOObj* uiSeisSel::createEntry( const char* nm )
     if ( !iostrm )
 	return newctio.ioobj;
 
-    iostrm->setTranslator( "TwoD DataSet" );
+    iostrm->setTranslator( TwoDDataSeisTrcTranslator::translKey() );
     return iostrm;
 }
 
