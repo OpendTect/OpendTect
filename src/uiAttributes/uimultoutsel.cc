@@ -28,16 +28,13 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 {
     BufferString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
-    Provider* tmpprov = Provider::create( ds, errmsg );
+    RefMan<Provider> tmpprov = Provider::create( ds, errmsg );
     if ( !tmpprov ) return;
-    tmpprov->ref();
 
     //compute and set refstep, needed to get nr outputs for some attribs
     //( SpecDecomp for ex )
     tmpprov->computeRefStep();
-
     tmpprov->getCompNames( outnames );
-    tmpprov->ref();
 }
 
 
