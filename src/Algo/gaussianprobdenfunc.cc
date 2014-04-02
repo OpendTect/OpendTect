@@ -203,7 +203,7 @@ GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
 
 GaussianNDProbDenFunc::~GaussianNDProbDenFunc()
 {
-    deepErase( corrs4vars_ );
+    delete cholesky_;
 }
 
 
@@ -215,7 +215,6 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 	setName( oth.name() );
 	vars_ = oth.vars_;
 	corrs_ = oth.corrs_;
-	deepCopy( corrs4vars_, oth.corrs4vars_ );
     }
     return *this;
 }
@@ -369,39 +368,49 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 }
 
 
+static void fillCorrMat( Array2DMatrix<float>& mat )
+{
+    const int sz = mat.size();
+    for ( int idx0=0; idx0<sz; idx0++ )
+    {
+	for ( int idx1=0; idx1<sz; idx1++ )
+	{
+	    float& val = mat.get( idx0, idx1 );
+	    if ( !mIsUdf(val) )
+		continue;
+	    float corr = 1;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float v0 = mat.get( idx0, idx );
+		if ( !mIsUdf(v0) ) corr *= v0;
+		const float v1 = mat.get( idx, idx1 );
+		if ( !mIsUdf(v1) ) corr *= v1;
+	    }
+
+	    val = corr>cMaxGaussianCC() || corr<-cMaxGaussianCC() ? 0.f : corr;
+	}
+    }
+}
+
+
 void GaussianNDProbDenFunc::prepareRandDrawing() const
 {
     GaussianNDProbDenFunc& self = *const_cast<GaussianNDProbDenFunc*>( this );
     delete self.cholesky_; self.cholesky_ = 0;
 
-    deepErase( self.corrs4vars_ );
-
     const int nrdims = nrDims();
-    for ( int idim=0; idim<nrdims; idim++ )
-	self.corrs4vars_ += new TypeSet<int>;
-
-    for ( int icorr=0; icorr<corrs_.size(); icorr++ )
-    {
-	const Corr& corr = corrs_[icorr];
-	*self.corrs4vars_[corr.idx0_] += icorr;
-	*self.corrs4vars_[corr.idx1_] += icorr;
-    }
-
-    bool docholesky = false;
-    for ( int idim=0; idim<nrdims; idim++ )
-	if ( corrs4vars_[idim]->size() > 1 )
-	    { docholesky = true; break; }
-
-    if ( docholesky )
+    if ( corrs_.size() >= nrdims )
     {
 	Array2DMatrix<float> corrmat( nrdims );
-	corrmat.setToIdentity();
+	corrmat.setAll( mUdf(float) );
+	corrmat.setDiagonal( 1 );
 	for ( int icorr=0; icorr<corrs_.size(); icorr++ )
 	{
 	    const Corr& corr = corrs_[icorr];
 	    corrmat.set( corr.idx0_, corr.idx1_, corr.cc_ );
 	    corrmat.set( corr.idx1_, corr.idx0_, corr.cc_ );
 	}
+	fillCorrMat( corrmat );
 	self.cholesky_ = new Array2DMatrix<float>( nrdims );
 	if ( !corrmat.getCholesky(*self.cholesky_) )
 	    { delete self.cholesky_; self.cholesky_ = 0; }
@@ -426,38 +435,29 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
     }
     else
     {
-	// No Cholesky available. Do some juggling.
+	// No Cholesky ... well, let's honor as many corrs as possible ...
 
 	BoolTypeSet drawn( nrdims, false );
-
-	for ( int idim=0; idim<vars_.size(); idim++ )
+	for ( int icorr=0; icorr<corrs_.size(); icorr++ )
 	{
-	    if ( drawn[idim] )
+	    const Corr& corr = corrs_[ icorr ];
+	    if ( drawn[corr.idx0_] && drawn[corr.idx1_] )
 		continue;
-
-	    const TypeSet<int>& corrs4var = *corrs4vars_[idim];
-	    const int nrcorrs4var = corrs4var.size();
-
-	    if ( nrcorrs4var < 1 )
-		poss[idim] = draw01Normal();
-	    else
+	    else if ( !drawn[corr.idx0_] && !drawn[corr.idx1_] )
 	    {
-		int chosencorr = 0;
-		if ( nrcorrs4var > 1 )
-		    chosencorr = Stats::randGen().getIndex( nrcorrs4var );
-		const Corr& corr = corrs_[ corrs4var[chosencorr] ];
-		if ( drawn[chosencorr] )
-		    poss[idim] = draw01Correlated( poss[chosencorr], corr.cc_ );
-		else
-		{
-		    poss[idim] = draw01Normal();
-		    poss[chosencorr] = draw01Correlated( poss[idim], corr.cc_ );
-		    drawn[chosencorr] = true;
-		}
+		poss[corr.idx0_] = draw01Normal();
+		drawn[corr.idx0_] = true;
 	    }
 
-	    drawn[idim] = true;
+	    const int idx2draw = drawn[corr.idx0_] ? corr.idx1_ : corr.idx0_;
+	    const int idx2use = drawn[corr.idx0_] ? corr.idx0_ : corr.idx1_;
+	    poss[idx2draw] = draw01Correlated( poss[idx2use], corr.cc_ );
+	    drawn[idx2draw] = true;
 	}
+
+	for ( int idim=0; idim<nrdims; idim++ )
+	    if ( !drawn[idim] )
+		poss[idim] = draw01Normal();
     }
 
     for ( int idim=0; idim<vars_.size(); idim++ )
