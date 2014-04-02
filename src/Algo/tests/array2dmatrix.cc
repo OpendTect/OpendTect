@@ -17,18 +17,17 @@ static bool testMultiply()
 {
     // example from:
     // http://www.mathsisfun.com/algebra/matrix-multiplying.html
-    Array2DMatrix<float> mat1( 1, 3 );
+    Array2DMatrix<float> mat( 1, 3 );
     Array2DMatrix<float> mat2( 3, 4 );
-    mat1.get(0,0) = 3; mat1.get(0,1) = 4; mat1.get(0,2) = 2;
+    mat.get(0,0) = 3; mat.get(0,1) = 4; mat.get(0,2) = 2;
     mat2.get(0,0) = 13; mat2.get(0,1) = 9; mat2.get(0,2) = 7; mat2.get(0,3)= 15;
     mat2.get(1,0) = 8; mat2.get(1,1) = 7; mat2.get(1,2) = 4; mat2.get(1,3)= 6;
     mat2.get(2,0) = 6; mat2.get(2,1) = 4; mat2.get(2,2) = 0; mat2.get(2,3)= 3;
 
-    Array2DMatrix<float> out( 1, 4 );
-    mat1.multiply( mat2, out );
+    mat.multiply( mat2 );
     Array2DMatrix<float> exp( 1, 4 );
     exp.get(0,0) = 83; exp.get(0,1) = 63; exp.get(0,2) = 37; exp.get(0,3) = 75;
-    if ( !out.isEq(exp.a2d_,0.0001) )
+    if ( !mat.isEq(exp.a2d_,0.0001) )
 	{ od_cout() << "Failed: Matrix multiply" << od_endl; return false; }
 
     return true;

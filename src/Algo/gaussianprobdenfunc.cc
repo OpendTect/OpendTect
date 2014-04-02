@@ -429,7 +429,7 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 	for ( int idim=0; idim<nrdims; idim++ )
 	    vec.set( idim, draw01Normal() );
 	Array1DVector corrvec( nrdims );
-	cholesky_->multiply( vec, corrvec );
+	cholesky_->getProduct( vec, corrvec );
 	for ( int idim=0; idim<nrdims; idim++ )
 	    poss[idim] = corrvec.get( idim );
     }

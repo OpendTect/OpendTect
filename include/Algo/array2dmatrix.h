@@ -60,9 +60,15 @@ public:
     inline void		setDiagonal(fT);
     inline void		setToIdentity()		{ setAll(0); setDiagonal(1); }
 
-    inline void		multiply(const Array1DVector&,Array1DVector&) const;
-    inline void		multiply(const Array2DMatrix&,Array2DMatrix&) const;
+    inline void		add(fT);
+    inline void		add(const Array2DMatrix&);
+    inline void		multiply(fT);
+    inline void		multiply(const Array2DMatrix&);
+    inline void		transpose();
 
+    inline void		getSum(const Array2DMatrix&,Array2DMatrix&) const;
+    inline void		getProduct(const Array1DVector&,Array1DVector&) const;
+    inline void		getProduct(const Array2DMatrix&,Array2DMatrix&) const;
     inline void		getTransposed(Array2DMatrix&);
     inline bool		getCholesky(Array2DMatrix&) const;
 
@@ -125,16 +131,50 @@ inline void Array2DMatrix<fT>::setDiagonal( fT v )
 
 
 template <class fT>
-inline void Array2DMatrix<fT>::getTransposed( Array2DMatrix<fT>& out )
+inline void Array2DMatrix<fT>::add( fT val )
 {
     mDefineImplA2DMatSizes;
-    out.a2d_.setSize( sz1, sz0 );
-
     for ( int idx0=0; idx0<sz0; idx0++ )
-    {
 	for ( int idx1=0; idx1<sz1; idx1++ )
-	    out.set( idx1, idx0, get( idx0, idx1 ) );
+	    get( idx0, idx1 ) += val;
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::add( const Array2DMatrix& in )
+{
+    mDefineImplA2DMatSizes;
+    mDefineA2DMatSizes( in, insz );
+    const int outsz0 = insz0 > sz0 ? sz0 : insz0;
+    const int outsz1 = insz1 > sz1 ? sz1 : insz1;
+
+    for ( int idx0=0; idx0<outsz0; idx0++ )
+    {
+	for ( int idx1=0; idx1<outsz1; idx1++ )
+	{
+	    fT res = 0;
+	    for ( int idx=0; idx<sz1; idx++ )
+		get( idx0, idx1 ) += in.get( idx0, idx1 );
+	}
     }
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::multiply( fT fac )
+{
+    mDefineImplA2DMatSizes;
+    for ( int idx0=0; idx0<sz0; idx0++ )
+	for ( int idx1=0; idx1<sz1; idx1++ )
+	    get( idx0, idx1 ) *= fac;
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::multiply( const Array2DMatrix& in )
+{
+    const Array2DMatrix copy( *this );
+    copy.getProduct( in, *this );
 }
 
 
@@ -151,11 +191,31 @@ if ( v1 != v2 ) \
 
 
 template <class fT>
-inline void Array2DMatrix<fT>::multiply( const Array1DVector& vin,
+inline void Array2DMatrix<fT>::getSum( const Array2DMatrix& in,
+					Array2DMatrix& out ) const
+{
+    mDefineImplA2DMatSizes;
+    mDefineA2DMatSizes( in, insz );
+    const int outsz0 = insz0 > sz0 ? sz0 : insz0;
+    const int outsz1 = insz1 > sz1 ? sz1 : insz1;
+    out.a2d_.setSize( outsz0, outsz1 );
+
+    for ( int idx0=0; idx0<outsz0; idx0++ )
+    {
+	for ( int idx1=0; idx1<outsz1; idx1++ )
+	{
+	    fT res = 0;
+	    for ( int idx=0; idx<sz1; idx++ )
+		out.set( idx0, idx1, get(idx0,idx1) + in.get(idx0,idx1) );
+	}
+    }
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::getProduct( const Array1DVector& vin,
 				    Array1DVector& vout ) const
 {
-    //TODO: maybe this is mirrored
-
     mDefineImplA2DMatSizes;
     const int vsz = vin.info().getSize(0);
     mA2DMatHandleDimErr(vsz,sz1)
@@ -172,15 +232,13 @@ inline void Array2DMatrix<fT>::multiply( const Array1DVector& vin,
 
 
 template <class fT>
-inline void Array2DMatrix<fT>::multiply( const Array2DMatrix& min,
-				    Array2DMatrix& mout ) const
+inline void Array2DMatrix<fT>::getProduct( const Array2DMatrix& in,
+				    Array2DMatrix& out ) const
 {
-    //TODO: maybe this is mirrored
-
     mDefineImplA2DMatSizes;
-    mDefineA2DMatSizes( min, insz );
+    mDefineA2DMatSizes( in, insz );
     mA2DMatHandleDimErr(sz1,insz0)
-    mout.a2d_.setSize( sz0, insz1 );
+    out.a2d_.setSize( sz0, insz1 );
 
     for ( int idx0=0; idx0<sz0; idx0++ )
     {
@@ -188,21 +246,43 @@ inline void Array2DMatrix<fT>::multiply( const Array2DMatrix& min,
 	{
 	    fT res = 0;
 	    for ( int idx=0; idx<sz1; idx++ )
-		res += min.get( idx, idx1 ) * get( idx0, idx );
-	    mout.set( idx0, idx1, res );
+		res += in.get( idx, idx1 ) * get( idx0, idx );
+	    out.set( idx0, idx1, res );
 	}
     }
 }
 
 
 template <class fT>
-inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& mout ) const
+inline void Array2DMatrix<fT>::transpose()
+{
+    const Array2DMatrix copy( *this );
+    copy.getTransposed( *this );
+}
+
+
+template <class fT>
+inline void Array2DMatrix<fT>::getTransposed( Array2DMatrix<fT>& out )
+{
+    mDefineImplA2DMatSizes;
+    out.a2d_.setSize( sz1, sz0 );
+
+    for ( int idx0=0; idx0<sz0; idx0++ )
+    {
+	for ( int idx1=0; idx1<sz1; idx1++ )
+	    out.set( idx1, idx0, get( idx0, idx1 ) );
+    }
+}
+
+
+template <class fT>
+inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& out ) const
 {
     mDefineImplA2DMatSizes;
     mA2DMatHandleDimErr(sz0,sz1)
-    mout.a2d_.setSize( sz0, sz1 );
+    out.a2d_.setSize( sz0, sz1 );
 
-    mout.setAll();
+    out.setAll();
 
     for ( int idx0=0; idx0<sz0; idx0++ )
     {
@@ -210,9 +290,9 @@ inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& mout ) const
 	{
 	    fT val = get( idx0, idx1 );
 	    for ( int idx=0; idx<idx0; idx++ )
-		val -= mout.get(idx0,idx) * mout.get(idx1,idx);
+		val -= out.get(idx0,idx) * out.get(idx1,idx);
 
-	    fT& diagval = mout.get( idx0, idx0 );
+	    fT& diagval = out.get( idx0, idx0 );
 	    if ( idx0 == idx1 )
 	    {
 		if ( val <= 0 )
@@ -223,14 +303,13 @@ inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& mout ) const
 	    {
 		if ( !diagval )
 		    return false;
-		mout.set( idx1, idx0, val / diagval );
+		out.set( idx1, idx0, val / diagval );
 	    }
 	}
     }
 
     return true;
 }
-
 
 
 #endif
