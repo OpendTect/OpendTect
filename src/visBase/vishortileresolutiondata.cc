@@ -396,8 +396,6 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
     geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
     if ( geomps->size() )
 	geom->addPrimitiveSet( geomps );
-    else
-	geom->addPrimitiveSet( 0 );
 }
 
 
