@@ -172,9 +172,13 @@ void partSort( T* arr, I istart, I istop,
     I ipivot, ileft, iright;
     T pivotval, tmp;
     static long int seed = 0L;
+	static Threads::SpinLock seedlock;
 
-    seed = (seed * FA + FC) % FM;
-    ipivot = (int)(istart + (istop-istart) * (float)seed / (float)FM + .5);
+    seedlock.lock();
+    long int localseed = seed = (seed * FA + FC) % FM;
+    seedlock.unLock();
+
+    ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM + .5);
     if ( ipivot < istart ) ipivot = istart;
     if ( ipivot > istop ) ipivot = istop;
     pivotval = arr[ipivot];
@@ -289,9 +293,13 @@ void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
     T pivotval, tmp;
     IT itmp;
     static long int seed = 0L;
+	static Threads::SpinLock seedlock;
 
-    seed = (seed * FA + FC) % FM;
-    ipivot = (int)(istart + (istop-istart) * (float)seed / (float)FM);
+    seedlock.lock();
+    long int localseed = seed = (seed * FA + FC) % FM;
+    seedlock.unLock();
+
+    ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM);
     if ( ipivot < istart ) ipivot = istart;
     if ( ipivot > istop ) ipivot = istop;
     pivotval = arr[ipivot];

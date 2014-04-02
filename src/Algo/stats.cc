@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "envvars.h"
 #include "settings.h"
+#include "threadlock.h"
 
 DefineNameSpaceEnumNames(Stats,Type,3,"Statistic type")
 {
@@ -70,40 +71,43 @@ Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 }
 
 
+static int medianhandling = -2;
+static Threads::Lock medianhandlinglock;
+
+
 int Stats::CalcSetup::medianEvenHandling()
 {
-    static int ret = -2;
-    if ( ret != -2 ) return ret;
+    Threads::Locker locker( medianhandlinglock ); 
+    if ( medianhandling != -2 ) return medianhandling;
 
     if ( GetEnvVarYN("OD_EVEN_MEDIAN_AVERAGE") )
-	ret = 0;
+	medianhandling = 0;
     else if ( GetEnvVarYN("OD_EVEN_MEDIAN_LOWMID") )
-	ret = -1;
+	medianhandling = -1;
     else
     {
 	bool yn = false;
 	Settings::common().getYN( "dTect.Even Median.Average", yn );
 	if ( yn )
-	    ret = 0;
+	    medianhandling = 0;
 	else
 	{
 	    Settings::common().getYN( "dTect.Even Median.LowMid", yn );
-	    ret = yn ? -1 : 1;
+	    medianhandling = yn ? -1 : 1;
 	}
     }
 
-    return ret;
+    return medianhandling;
 }
 
 
 double Stats::RandGen::get()
 {
 #ifdef __win__
-    static const unsigned int rmax_ = UINT_MAX;
     unsigned int rand = 0;
     rand_s( &rand );
     double ret = rand;
-    ret /= rmax_;
+    ret /= UINT_MAX;
     return ret;
 #else
     return drand48();
