@@ -9,7 +9,6 @@
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
 if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
-     (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) AND
     ((NOT DEFINED osgGeo_DIR) OR
 	(osgGeo_DIR STREQUAL "") OR
 	(osgGeo_DIR MATCHES "-NOTFOUND")) AND
@@ -22,19 +21,20 @@ if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
     if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
 	 (CMAKE_GENERATOR STREQUAL "Ninja") )
 	if ( NOT EXISTS ${CMAKE_BINARY_DIR}/external/osgGeo )
-	    execute_process ( COMMAND ${CMAKE_COMMAND} -E create_directory
+	    execute_process ( COMMAND ${CMAKE_COMMAND} -E make_directory
 			      "${osgGeo_DIR}" )
 
 	endif()
-	execute_process ( COMMAND ${CMAKE_COMMAND} . -DOSG_DIR=${OSG_DIR}
+	execute_process ( COMMAND ${CMAKE_COMMAND} -DOSG_DIR=${OSG_DIR}
 		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-		-DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}/external/osgGeo
+		--build ${CMAKE_BINARY_DIR}/external/osgGeo
 		-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
 		-G${CMAKE_GENERATOR}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/osgGeo/ )
+		${CMAKE_SOURCE_DIR}/external/osgGeo/ 
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external/osgGeo/ )
 
 	execute_process ( COMMAND ${CMAKE_COMMAND}
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
+		    --build ${CMAKE_BINARY_DIR}/external/osgGeo
 		    --target osgGeo )
     else()
 	execute_process ( COMMAND ${CMAKE_COMMAND} . -DOSG_DIR=${OSG_DIR}
@@ -80,6 +80,7 @@ macro(OD_SETUP_OSG)
 
     list(APPEND CMAKE_MODULE_PATH ${osgGeo_DIR}/share/CMakeModules )
     list(APPEND CMAKE_MODULE_PATH ${osgGeo_DIR}/CMakeModules )
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
     list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
 
     #SET DEBUG POSTFIX
