@@ -95,10 +95,11 @@ void WellLog::prepareForComputeData()
 	return;
 
     StepInterval<float> zrg = logsamp.zRange();
+    zrg.step = SI().zStep();
     arrzrg_ = SI().zRange( false );
     const int arrsz = arrzrg_.nrSteps()+1;
     logvals_ = new Array1DImpl<float>( arrsz );
-    
+
     for ( int idx=0; idx<arrsz; idx++ )
     {
 	const float depth = arrzrg_.atIndex( idx );
