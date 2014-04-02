@@ -42,7 +42,6 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     llb->attach( alignedBelow, wellfld_ );
 
     setHAlignObj( wellfld_ );
-    selDone( 0 );
 }
 
 
@@ -68,13 +67,14 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != WellLog::attribName() )
 	return false;
 
-    const ValParam* par = desc.getValParam( WellLog::logName() );
-    if ( par )
-	logsfld_->setCurrentItem( par->getStringValue(0) );
-
-    par = desc.getValParam( WellLog::keyStr() );
+    const ValParam* par = desc.getValParam( WellLog::keyStr() );
     if ( par )
 	wellfld_->setInput( MultiID(par->getStringValue(0)) );
+
+    selDone( 0 );
+    par = desc.getValParam( WellLog::logName() );
+    if ( par )
+	logsfld_->setCurrentItem( par->getStringValue(0) );
 
     return true;
 }
