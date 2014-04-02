@@ -280,31 +280,36 @@ inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& out ) const
 {
     mDefineImplA2DMatSizes;
     mA2DMatHandleDimErr(sz0,sz1)
-    out.a2d_.setSize( sz0, sz1 );
+    out.a2d_.setSize( sz0, sz0 );
 
-    out.setAll();
+    out.setAll( 0 );
 
-    for ( int idx0=0; idx0<sz0; idx0++ )
+    for( int idx0=0; idx0<sz0; idx0++ )
     {
-	for ( int idx1=0; idx1<sz1; idx1++ )
+	for ( int idx1=0; idx1<=idx0; idx1++ )
 	{
-	    fT val = get( idx0, idx1 );
-	    for ( int idx=0; idx<idx0; idx++ )
-		val -= out.get(idx0,idx) * out.get(idx1,idx);
+	    fT sum = 0;
+	    for ( int j=0; j<idx1; j++ )
+		sum += out.get( idx0, j ) * out.get( idx1, j );
 
-	    fT& diagval = out.get( idx0, idx0 );
+	    fT val = 0;
 	    if ( idx0 == idx1 )
 	    {
-		if ( val <= 0 )
+		val = get( idx0, idx0 ) - sum;
+		if ( val < 0 )
 		    return false;
-		diagval = Math::Sqrt( val );
+		val = Math::Sqrt( val );
 	    }
-	    else if ( idx0 < idx1 )
+	    else
 	    {
-		if ( !diagval )
+		const fT dividend = get( idx0, idx1 ) - sum;
+		const fT divideby = out.get( idx1, idx1 );
+		if ( divideby )
+		    val = dividend / divideby;
+		else if ( dividend )
 		    return false;
-		out.set( idx1, idx0, val / diagval );
 	    }
+	    out.set( idx0, idx1, val );
 	}
     }
 

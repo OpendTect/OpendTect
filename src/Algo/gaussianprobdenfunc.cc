@@ -378,16 +378,24 @@ static void fillCorrMat( Array2DMatrix<float>& mat )
 	    float& val = mat.get( idx0, idx1 );
 	    if ( !mIsUdf(val) )
 		continue;
+
 	    float corr = 1;
+	    int nrcorrs = 0;
 	    for ( int idx=0; idx<sz; idx++ )
 	    {
-		const float v0 = mat.get( idx0, idx );
-		if ( !mIsUdf(v0) ) corr *= v0;
-		const float v1 = mat.get( idx, idx1 );
-		if ( !mIsUdf(v1) ) corr *= v1;
+#		define mAddCorr(v,i1,i2) \
+		if ( i1 != i2 ) \
+		{ \
+		    const float v = mat.get( i1, i2 ); \
+		    if ( !mIsUdf(v) ) \
+			{ nrcorrs++; corr *= v; if ( nrcorrs == 2 ) break; } \
+		}
+
+		mAddCorr( v0, idx0, idx )
+		mAddCorr( v1, idx, idx1 )
 	    }
 
-	    val = corr>cMaxGaussianCC() || corr<-cMaxGaussianCC() ? 0.f : corr;
+	    val = nrcorrs > 1 ? corr : 0;
 	}
     }
 }
