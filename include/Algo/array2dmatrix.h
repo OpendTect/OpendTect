@@ -56,8 +56,9 @@ public:
     inline fT&		get(int i0,int i1);
     inline fT		get( int i0, int i1 ) const { return a2d_.get(i0,i1); }
 
-    inline void		setAll( fT v=fT(0) )		{ a2d_.setAll( v ); }
-    inline void		setToIdentity();
+    inline void		setAll( fT v=fT(0) )	{ a2d_.setAll( v ); }
+    inline void		setDiagonal(fT);
+    inline void		setToIdentity()		{ setAll(0); setDiagonal(1); }
 
     inline void		multiply(const Array1DVector&,Array1DVector&) const;
     inline void		multiply(const Array2DMatrix&,Array2DMatrix&) const;
@@ -113,15 +114,13 @@ inline bool Array2DMatrix<fT>::isEq( const Array2D<fT>& a2d, fT eps ) const
 
 
 template <class fT>
-inline void Array2DMatrix<fT>::setToIdentity()
+inline void Array2DMatrix<fT>::setDiagonal( fT v )
 {
     mDefineImplA2DMatSizes;
+    const int sz = sz0 > sz1 ? sz1 : sz0;
 
-    for ( int idx0=0; idx0<sz0; idx0++ )
-    {
-	for ( int idx1=0; idx1<sz1; idx1++ )
-	    set( idx0, idx1, idx0==idx1 ? fT(1) : fT(0) );
-    }
+    for ( int idx=0; idx<sz; idx++ )
+	set( idx, idx, v );
 }
 
 
