@@ -69,8 +69,8 @@ public:
     void		toHomePos();
     void		saveHomePos();
     void		showRotAxis(bool);
-    void		setAxisAnnotColor(const Color&);
-    Color		getAxisAnnotColor() const;
+    void		setAnnotationColor(const Color&);
+    Color		getAnnotationColor() const;
     bool		rotAxisShown() const;
     void		toggleCameraType();
     bool		isCameraPerspective() const;

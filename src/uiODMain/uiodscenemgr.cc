@@ -586,7 +586,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
-	scenes_[idx]->sovwr_->setAxisAnnotColor( col );
+	scenes_[idx]->sovwr_->setAnnotationColor( col );
     }
 }
 
@@ -629,7 +629,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
     if ( snapdlg.getSnapshotType() == uiSnapshotDlg::Scene )
     {
-	
+
 	ObjectSet<ui3DViewer> viewers;
 	getSoViewers( viewers );
 	if ( viewers.size() == 0 ) return;

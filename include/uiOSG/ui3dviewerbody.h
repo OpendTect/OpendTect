@@ -56,14 +56,14 @@ namespace osg
 mClass(uiOSG) ui3DViewerBody : public uiObjectBody
 {
 public:
-    			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
+			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
     virtual		~ui3DViewerBody();
 
     void			viewAll( bool animate );
 
     void			setSceneID(int);
     visBase::Scene*		getScene()		{ return scene_; }
-    const visBase::Scene*	getScene() const 	{ return scene_; }
+    const visBase::Scene*	getScene() const	{ return scene_; }
 
     bool			serializeScene(const char*) const;
 
@@ -92,25 +92,25 @@ public:
     void			setCameraZoom(float val);
     float			getCameraZoom() const;
 
-    				//Not sure were to put these
+				//Not sure were to put these
     bool			isViewMode() const;
     virtual void		setViewMode(bool viewmode,bool trigger);
 
     Coord3			getCameraPosition() const;
-    visBase::Camera*		getVisCamera() { return camera_; }
+    visBase::Camera*		getVisCamera()		{ return camera_; }
 
     virtual void		reSizeEvent(CallBacker*);
     void			toggleViewMode(CallBacker*);
 
     void			setAnimationEnabled(bool) {} // OSG-TODO
-    bool			isAnimationEnabled() { return true; }
+    bool			isAnimationEnabled()	{ return true; }
     void			showRotAxis(bool);
     bool			isAxisShown() const;
-    void			setAxisAnnotColor(const Color&);
+    void			setAnnotColor(const Color&);
     visBase::PolygonSelection*	getPolygonSelector() const;
-    visBase::SceneColTab* 	getSceneColTab() const;
-    void			notifyManipulatorMovement(float dh, float dv,
-                                                          float df );
+    visBase::SceneColTab*	getSceneColTab() const;
+    void			notifyManipulatorMovement(float dh,float dv,
+                                                          float df);
     void			toHomePos();
     void			saveHomePos();
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }
@@ -139,35 +139,35 @@ protected:
     osg::Camera*			getOsgCamera();
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
-						     const osg::Vec3f&, bool);
-    
+						     const osg::Vec3f&,bool);
+
     void				thumbWheelRotationCB(CallBacker*);
 
 
-    ui3DViewer&						handle_;
-    IOPar&						printpar_;
+    ui3DViewer&				handle_;
+    IOPar&				printpar_;
 
-    RefMan<visBase::Camera>				camera_;
-    RefMan<visBase::Scene>				scene_;
-    RefMan<visBase::ThumbWheel>				horthumbwheel_;
-    RefMan<visBase::ThumbWheel>				verthumbwheel_;
-    RefMan<visBase::ThumbWheel>				distancethumbwheel_;
-    osg::Switch*					offscreenrenderswitch_;
-    osgViewer::CompositeViewer*				compositeviewer_;
-    osgViewer::View*					view_;
-    osg::Viewport*					viewport_;
+    RefMan<visBase::Camera>		camera_;
+    RefMan<visBase::Scene>		scene_;
+    RefMan<visBase::ThumbWheel>		horthumbwheel_;
+    RefMan<visBase::ThumbWheel>		verthumbwheel_;
+    RefMan<visBase::ThumbWheel>		distancethumbwheel_;
+    osg::Switch*			offscreenrenderswitch_;
+    osgViewer::CompositeViewer*		compositeviewer_;
+    osgViewer::View*			view_;
+    osg::Viewport*			viewport_;
 
-    osgViewer::View*					hudview_;
-    RefMan<visBase::DataObjectGroup>			hudscene_;
+    osgViewer::View*			hudview_;
+    RefMan<visBase::DataObjectGroup>	hudscene_;
 
-    uiEventFilter					eventfilter_;
-    RefMan<visBase::Axes>				axes_;
-    RefMan<visBase::PolygonSelection>			polygonselection_;
-    TrackBallManipulatorMessenger*			manipmessenger_;
+    uiEventFilter			eventfilter_;
+    RefMan<visBase::Axes>		axes_;
+    RefMan<visBase::PolygonSelection>	polygonselection_;
+    TrackBallManipulatorMessenger*	manipmessenger_;
 
-    bool			    			setinitialcamerapos_;
-    IOPar						homepos_;
-    RefMan<visBase::SceneColTab>			visscenecoltab_;
+    bool				setinitialcamerapos_;
+    IOPar				homepos_;
+    RefMan<visBase::SceneColTab>	visscenecoltab_;
 };
 
 #endif

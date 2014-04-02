@@ -158,7 +158,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
     if ( vwr )
     {
 	vwr->setBackgroundColor( bgcolfld_->color() );
-	vwr->setAxisAnnotColor( annotcolfld_->color() );
+	vwr->setAnnotationColor( annotcolfld_->color() );
 	vwr->enableAnimation( animationfld_->isChecked() );
     }
 
@@ -211,7 +211,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     if ( vwr )
     {
 	vwr->setBackgroundColor( oldbgcolor_ );
-	vwr->setAxisAnnotColor( annotcolor_ );
+	vwr->setAnnotationColor( annotcolor_ );
 	vwr->enableAnimation( hadanimation_ );
     }
 
@@ -281,7 +281,7 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	if ( vwr )
 	{
 	    vwr->setBackgroundColor( bgcolfld_->color() );
-	    vwr->setAxisAnnotColor( annotcolfld_->color() );
+	    vwr->setAnnotationColor( annotcolfld_->color() );
 	    vwr->enableAnimation( animationfld_->isChecked() );
 	}
     }

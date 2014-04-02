@@ -450,7 +450,7 @@ void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
     {
 	const QPointF qcenterf = pinch->centerPoint();
 	const QPoint pinchcenter = qwidget()->mapFromGlobal(qcenterf.toPoint());
-	const osg::Vec2 osgcenter( pinchcenter.x(), 
+	const osg::Vec2 osgcenter( pinchcenter.x(),
 	    qwidget()->height() - pinchcenter.y() );
 	const float angle = pinch->totalRotationAngle();
 	const float scale = pinch->totalScaleFactor();
@@ -579,9 +579,13 @@ bool ui3DViewerBody::isAxisShown() const
 }
 
 
-void ui3DViewerBody::setAxisAnnotColor( const Color& color )
+void ui3DViewerBody::setAnnotColor( const Color& col )
 {
-    axes_->setAnnotationColor( color );
+    axes_->setAnnotationColor( col );
+
+    horthumbwheel_->setAnnotationColor( col );
+    verthumbwheel_->setAnnotationColor( col );
+    distancethumbwheel_->setAnnotationColor( col );
 }
 
 
@@ -802,10 +806,6 @@ void ui3DViewerBody::setBackgroundColor( const Color& col )
 {
     osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
     getOsgCamera()->setClearColor( osgcol );
-
-    horthumbwheel_->setBackgroundColor( col );
-    verthumbwheel_->setBackgroundColor( col );
-    distancethumbwheel_->setBackgroundColor( col );
 }
 
 
@@ -1121,7 +1121,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 
     bool res = false;
     mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
-    mGetProp( get, sKeyAnnotColor(), Color, col, setAxisAnnotColor );
+    mGetProp( get, sKeyAnnotColor(), Color, col, setAnnotationColor );
     mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
 }
 
@@ -1184,11 +1184,11 @@ void ui3DViewer::setBackgroundColor( const Color& col )
 Color ui3DViewer::getBackgroundColor() const
 { return osgbody_->getBackgroundColor(); }
 
-void ui3DViewer::setAxisAnnotColor( const Color& col )
-{ osgbody_->setAxisAnnotColor( col ); }
+void ui3DViewer::setAnnotationColor( const Color& col )
+{ osgbody_->setAnnotColor( col ); }
 
 
-Color ui3DViewer::getAxisAnnotColor() const
+Color ui3DViewer::getAnnotationColor() const
 {
     mDynamicCastGet(const visSurvey::Scene*,survscene,getScene());
     return survscene ? survscene->getAnnotColor() : Color::White();
@@ -1370,7 +1370,7 @@ void ui3DViewer::savePropertySettings() const
     Settings::common().set( BufferString(sKeydTectScene(),str), func );
 
     mSaveProp( set, sKeyBGColor(), getBackgroundColor() );
-    mSaveProp( set, sKeyAnnotColor(), getAxisAnnotColor() );
+    mSaveProp( set, sKeyAnnotColor(), getAnnotationColor() );
     mSaveProp( setYN, sKeyAnimate(), isAnimationEnabled() );
     Settings::common().write();
 }
@@ -1380,7 +1380,7 @@ void ui3DViewer::fillPar( IOPar& par ) const
 {
     par.set( sKeySceneID(), getScene()->id() );
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
-    par.set( sKeyAnnotColor(), (int)getAxisAnnotColor().rgb() );
+    par.set( sKeyAnnotColor(), (int)getAnnotationColor().rgb() );
     par.set( sKeyStereo(), toString( getStereoType() ) );
     float offset = getStereoOffset();
     par.set( sKeyStereoOff(), offset );
@@ -1409,7 +1409,7 @@ bool ui3DViewer::usePar( const IOPar& par )
     if ( par.get(sKeyAnnotColor(),col) )
     {
 	Color newcol; newcol.setRgb( col );
-	setAxisAnnotColor( newcol );
+	setAnnotationColor( newcol );
     }
 
     StereoType stereotype;
