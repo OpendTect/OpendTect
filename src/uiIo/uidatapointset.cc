@@ -1290,7 +1290,6 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( 0 );
     mDPM.release( dps_.id() );
-    delete xplotwin_; delete statswin_;
     return true;
 }
 
