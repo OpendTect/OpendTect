@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id: segytr.cc 32653 2013-12-04 23:20:42Z bert.bril@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -808,13 +808,9 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
     if ( !conn || !conn->isStream() )
-	mErrRet("Cannot read from input stream")
+	return noErrMsg();
     od_istream& strm = sConn().iStream();
     if ( !strm.getBin(headerbuf_,mSEGYTraceHeaderBytes) )
-	mPosErrRet("Error reading trace header")
-    if ( strm.isBad() )
-	mErrRet("Something terribly wrong in input stream" )
-    if ( !strm.isOK() )
 	return noErrMsg();
 
     return true;
