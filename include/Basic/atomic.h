@@ -144,6 +144,8 @@ public:
     //*!<\returns old value
     
     inline	operator T*() const;
+    inline T*	operator->();
+    inline const T* operator->() const;
     
     inline T*	operator+=(int);
     inline T*	operator-=(int);
@@ -749,6 +751,14 @@ void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
 
 template <class T> inline
 AtomicPointer<T>::operator T*() const { return (T*) ptr_.get(); }
+
+
+template <class T> inline
+T* AtomicPointer<T>::operator->() { return (T*) ptr_.get(); }
+
+
+template <class T> inline
+const T* AtomicPointer<T>::operator->() const { return (T*) ptr_.get(); }
 
 
 template <class T> inline
