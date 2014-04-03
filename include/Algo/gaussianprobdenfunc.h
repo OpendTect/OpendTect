@@ -141,6 +141,8 @@ public:
     TypeSet<VarDef>	vars_;
     TypeSet<Corr>	corrs_;
 
+    const char*		firstUncorrelated() const;
+
 protected:
 
 

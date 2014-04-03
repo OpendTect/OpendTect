@@ -568,7 +568,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    tabstack_->addTab( varsgrp, "Distributions" );
 	    tabstack_->addTab( ccgrp, "Correlations" );
 	    tabstack_->selChange().notify(
-		   		mCB(this,uiEditGaussianProbDenFunc,tabChg) );
+				mCB(this,uiEditGaussianProbDenFunc,tabChg) );
 	    postFinalise().notify( mCB(this,uiEditGaussianProbDenFunc,initGrp));
 	}
     }
@@ -607,7 +607,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	defcorrsfld_->attach( centeredBelow, addsetbut_ );
     defcorrsfld_->setStretch( 2, 2 );
     defcorrsfld_->selectionChanged.notify(
-	    			mCB(this,uiEditGaussianProbDenFunc,corrSel) );
+				mCB(this,uiEditGaussianProbDenFunc,corrSel) );
 
     if ( editable_ )
     {
@@ -624,7 +624,7 @@ int uiEditGaussianProbDenFunc::findCorr() const
     if ( !var1fld_ ) return -1;
 
     const GaussianNDProbDenFunc::Corr corr( var1fld_->currentItem(),
-	    				    var2fld_->currentItem() );
+					    var2fld_->currentItem() );
     return pdfnd_->corrs_.indexOf( corr );
 }
 
@@ -721,7 +721,7 @@ float uiEditGaussianProbDenFunc::getCC() const
 {
     const float cc = ccfld_->getfValue();
     if ( mIsUdf(cc) )
-	return cc;
+	return 0;
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
 	{ uiMSG().error( sGaussianCCRangeErrMsg() ); return mUdf(float); }
     return cc;
@@ -802,7 +802,14 @@ bool uiEditGaussianProbDenFunc::commitChanges()
     }
 
     if ( pdfnd_ )
+    {
 	tabChg( 0 );
+	const char* uncorr = pdfnd_->firstUncorrelated();
+	if ( uncorr && *uncorr && !uiMSG().askGoOn(
+		BufferString( "Variable '", uncorr, "' is not correlated."
+			"\nDo you wish to leave uncorrelated variables?") ) )
+	    return false;
+    }
     else if ( pdf2d_ )
     {
 	pdf2d_->cc_ = getCC();

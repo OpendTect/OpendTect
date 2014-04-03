@@ -476,17 +476,36 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 }
 
 
+const char* GaussianNDProbDenFunc::firstUncorrelated() const
+{
+    const int nrdims = nrDims();
+    BoolTypeSet havecorr( nrdims, false );
+    for ( int icorr=0; icorr<corrs_.size(); icorr++ )
+    {
+	const Corr& corr = corrs_[icorr];
+	havecorr[corr.idx0_] = havecorr[corr.idx1_] = true;
+    }
+
+    for ( int idim=0; idim<nrdims; idim++ )
+	if ( !havecorr[idim] )
+	    return vars_[idim].name_.buf();
+
+    return 0;
+}
+
+
 void GaussianNDProbDenFunc::fillPar( IOPar& par ) const
 {
+    const int nrdims = nrDims();
     ProbDenFunc::fillPar( par );
-    if ( nrDims() == 1 )
+    if ( nrdims == 1 )
     {
 	Gaussian1DProbDenFunc pdf1d( vars_[0].exp_, vars_[0].std_ );
 	pdf1d.setName( name() );
 	pdf1d.varnm_ = vars_[0].name_;
 	pdf1d.fillPar( par );
     }
-    else if ( nrDims() == 2 )
+    else if ( nrdims == 2 )
     {
 	Gaussian2DProbDenFunc pdf2d;
 	pdf2d.setName( name() );
@@ -497,12 +516,12 @@ void GaussianNDProbDenFunc::fillPar( IOPar& par ) const
 	pdf2d.fillPar( par );
     }
 
-    for ( int idx=0; idx<vars_.size(); idx++ )
-	par.set( IOPar::compKey(sKeyDimStats,idx), vars_[idx].exp_,
-						   vars_[idx].std_ );
-    for ( int idx=0; idx<corrs_.size(); idx++ )
-	par.set( IOPar::compKey(sKeyCorr,idx), corrs_[idx].idx0_,
-					corrs_[idx].idx1_, corrs_[idx].cc_ );
+    for ( int ivar=0; ivar<vars_.size(); ivar++ )
+	par.set( IOPar::compKey(sKeyDimStats,ivar), vars_[ivar].exp_,
+						    vars_[ivar].std_ );
+    for ( int icorr=0; icorr<corrs_.size(); icorr++ )
+	par.set( IOPar::compKey(sKeyCorr,icorr), corrs_[icorr].idx0_,
+				    corrs_[icorr].idx1_, corrs_[icorr].cc_ );
 }
 
 
