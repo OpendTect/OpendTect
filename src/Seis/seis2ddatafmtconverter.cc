@@ -35,10 +35,10 @@ protected:
     void		    makeListOfLineSets(ObjectSet<IOObj>&);
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
-    bool		    copyDataAndAddToDelList(BufferStringSet&,
-						    BufferStringSet&,
-						    BufferString&);
-    void		    update2DSFiles(ObjectSet<IOObj>& ioobjlist);
+    bool		    copyData(BufferStringSet&,BufferString&);
+    void		    update2DSFilesAndAddToDelList(
+						    ObjectSet<IOObj>& ioobjlist,
+						    BufferStringSet&);
     void		    removeDuplicateData(BufferStringSet&);
     
 
@@ -58,7 +58,7 @@ mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( BufferString& errmsg )
 
 
 OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
-{ deepErase( all2dseisiopars_ ); }
+{}
 
 
 void OD_2DLineSetTo2DDataSetConverter::doConversion( BufferString& errmsg )
@@ -68,9 +68,10 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( BufferString& errmsg )
     fillIOParsFrom2DSFile( all2dsfiles );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
-    copyDataAndAddToDelList( filepathsofold2ddata, filestobedeleted, errmsg );
-    update2DSFiles( all2dsfiles );
+    copyData( filepathsofold2ddata, errmsg );
+    update2DSFilesAndAddToDelList( all2dsfiles, filestobedeleted );
     removeDuplicateData( filestobedeleted );
+    deepErase( all2dseisiopars_ );
     return;
 }
 
@@ -161,19 +162,16 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 }
 
 
-#define mCopyFileAndAddToDeleteList \
+#define mCopyFile \
     if ( File::exists(oldfp.fullPath()) && !File::exists(newfp.fullPath()) ) \
     { \
-	if ( File::copy(oldfp.fullPath(),newfp.fullPath(),&errmsg) ) \
-	    filestobedeleted.add( oldfp.fullPath() ); \
-	else \
+	if ( !File::copy(oldfp.fullPath(),newfp.fullPath(),&errmsg) ) \
 	    return false; \
     }
 
 
-bool OD_2DLineSetTo2DDataSetConverter::copyDataAndAddToDelList( 
-	BufferStringSet& oldfilepaths, BufferStringSet& filestobedeleted,
-	BufferString& errmsg )
+bool OD_2DLineSetTo2DDataSetConverter::copyData( 
+			   BufferStringSet& oldfilepaths, BufferString& errmsg )
 {
     int numberoflines = 0;
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
@@ -196,10 +194,10 @@ bool OD_2DLineSetTo2DDataSetConverter::copyDataAndAddToDelList(
 	    if ( oldfp == newfp )
 		continue;
 
-	    mCopyFileAndAddToDeleteList
+	    mCopyFile
 	    oldfp.setExtension( "par" );
 	    newfp.setExtension( "par" );
-	    mCopyFileAndAddToDeleteList
+	    mCopyFile
 	}
     }
 
@@ -207,8 +205,8 @@ bool OD_2DLineSetTo2DDataSetConverter::copyDataAndAddToDelList(
 }
 
 
-void OD_2DLineSetTo2DDataSetConverter::update2DSFiles( 
-						   ObjectSet<IOObj>& ioobjlist )
+void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList( 
+		ObjectSet<IOObj>& ioobjlist,BufferStringSet& filestobedeleted )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
     {
@@ -216,13 +214,14 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFiles(
 	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
 	{
 	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
-	    BufferString attrname;
-	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
 	    BufferString fnm;
 	    iop->get( sKey::FileName(), fnm );
 	    FilePath oldfnm( fnm );
 	    BufferString oldfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 								*iop,false) );
+	    BufferString attrname;
+	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
+	    attrname.clean( BufferString::AllowDots );
 	    FilePath newfnm( attrname );
 	    newfnm.add( BufferString(attrname).add(mCapChar).add( Survey::GM().
 			getGeomID(lineset.lineName(lineidx),lineset.name()) ) );
@@ -230,9 +229,18 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFiles(
 	    iop->set( sKey::FileName(), newfnm.fullPath() );
 	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 									*iop) );
-	    if ( File::exists(newfullfnm.buf()) || !File::exists(
-							    oldfullfnm.buf()) )
-		delete lineset.linePutter( iop );
+	    if ( newfullfnm == oldfullfnm )
+		continue;
+
+	    if ( File::exists(newfullfnm.buf()) )
+	    {
+		Seis2DLinePutter* ret = lineset.linePutter( iop );
+		if ( ret )
+		{
+		    delete ret;
+		    filestobedeleted.add( oldfullfnm );
+		}
+	    }
 	}
     }
 
@@ -244,7 +252,12 @@ void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
 						  BufferStringSet& oldfilepath )
 {
     for ( int idx=0; idx<oldfilepath.size(); idx++ )
-	File::remove( oldfilepath.get(idx) );
+    {
+	FilePath fp( oldfilepath.get(idx) );
+	File::remove( fp.fullPath() );
+	fp.setExtension( "par" );
+	File::remove( fp.fullPath() );
+    }
 
     return;
 }
