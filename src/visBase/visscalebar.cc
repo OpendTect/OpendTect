@@ -82,7 +82,7 @@ void ScaleBar::setLength( double l )
 
 void ScaleBar::setOnInlCrl( bool yn )
 {
-    if ( oninlcrl_ = yn )
+    if ( oninlcrl_ == yn )
 	return;
 
     oninlcrl_ = yn;
