@@ -148,8 +148,9 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     odgraphicsscene_->setBackgroundBrush( Qt::white );
     ctrlCPressed.notify( mCB(this,uiGraphicsScene,CtrlCPressedCB) );
 
+    BufferString queuename("Graphics Scene ", nm );
     queueid_ = Threads::WorkManager::twm().addQueue(
-	    Threads::WorkManager::Manual, "GraphicsScene" );
+	    Threads::WorkManager::Manual, queuename );
 }
 
 
