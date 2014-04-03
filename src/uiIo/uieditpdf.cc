@@ -332,6 +332,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    uiFlatViewer& vwr = vwwinnd_->viewer();
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
+	    app.ddpars_.vd_.ctab_ = "Rainbow";
 	    app.ddpars_.vd_.blocky_ = true;
 	    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0,0);
 	    FlatView::Annotation& ann = app.annot_;

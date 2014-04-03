@@ -39,7 +39,7 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 				mCB(this,uiProbDenFuncMan,browsePush) );
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "browseprdf",
+    manipgrp->addButton( "editprdf",
 			 "Browse/edit this Probability Density Function",
 			 mCB(this,uiProbDenFuncMan,browsePush) );
     manipgrp->addButton( "genprdf",
