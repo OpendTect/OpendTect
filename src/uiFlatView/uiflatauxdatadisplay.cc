@@ -72,11 +72,14 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	return;
     }
 
-    if ( !display_ )
-	display_ = new uiGraphicsItemGroup( true );
+    getDisplay(); //Ensures that display is created
 
-    //Todo: remove all ?
-    
+    if ( !display_ )
+    {
+	pErrMsg("Should never happen!!" );
+	return;
+    }
+
     if ( !enabled_ || isEmpty() )
     {
 	display_->setVisible( false );

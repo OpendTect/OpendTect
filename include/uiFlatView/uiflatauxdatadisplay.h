@@ -39,7 +39,14 @@ public:
 
 				~uiAuxDataDisplay();
     uiGraphicsItemGroup*	getDisplay();
-    void			removeDisplay() { display_ = 0; }
+    void			removeDisplay()
+    				{
+				    display_ = 0;
+				    polygonitem_ = 0;
+				    polylineitem_ = 0;
+				    markeritems_.erase();
+				    nameitem_ = 0;
+				}
 
 
 protected:
