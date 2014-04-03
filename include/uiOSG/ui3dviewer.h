@@ -103,7 +103,6 @@ private:
     static const char* sKeySceneID()	{ return "Scene ID"; }
     static const char* sKeyAnimate()	{ return "Animate"; }
     static const char* sKeyBGColor()	{ return "Background color"; }
-    static const char* sKeyAnnotColor() { return "Annotation color"; }
     static const char* sKeyStereo()	{ return "Stereo viewing"; }
     static const char* sKeyQuadBuf()	{ return "Quad buffer"; }
     static const char* sKeyStereoOff()	{ return "Stereo offset"; }

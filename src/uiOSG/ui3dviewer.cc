@@ -43,7 +43,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "vispolygonselection.h"
-#include "visscene.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "vistext.h"
@@ -725,6 +724,10 @@ void ui3DViewerBody::setSceneID( int sceneid )
     offscreenrenderswitch_->addChild( newscene->osgNode() );
     scene_ = newscene;
 
+    mDynamicCastGet(visSurvey::Scene*, survscene, scene_.ptr() );
+    if ( survscene )
+	setAnnotColor( survscene->getAnnotColor() );
+
     if ( camera_ ) newscene->setCamera( camera_ );
 }
 
@@ -1121,7 +1124,6 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 
     bool res = false;
     mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
-    mGetProp( get, sKeyAnnotColor(), Color, col, setAnnotationColor );
     mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
 }
 
@@ -1183,6 +1185,7 @@ void ui3DViewer::setBackgroundColor( const Color& col )
 
 Color ui3DViewer::getBackgroundColor() const
 { return osgbody_->getBackgroundColor(); }
+
 
 void ui3DViewer::setAnnotationColor( const Color& col )
 { osgbody_->setAnnotColor( col ); }
