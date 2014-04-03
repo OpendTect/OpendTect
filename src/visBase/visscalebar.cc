@@ -124,7 +124,7 @@ void ScaleBar::updateVis( const Pick::Location& loc )
 }
 
 
-void ScaleBar::setColor( ::Color& c )
+void ScaleBar::setColor( const ::Color& c )
 {
     markers_->setMarkersSingleColor( c );
 }

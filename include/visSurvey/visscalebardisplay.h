@@ -41,7 +41,7 @@ public:
     void			setLength(double);
     double			getLength() const;
 
-    void			setColors(::Color&);
+    void			setColors(const ::Color&);
     
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;

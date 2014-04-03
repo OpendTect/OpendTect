@@ -64,7 +64,7 @@ public:
 						BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
     virtual Color		getColor() const;
-    virtual void		setColor(Color);
+    virtual void		setColor(const Color&);
 
     virtual bool		allowsPicks() const	{ return true; }
     virtual bool		isPicking() const;
