@@ -228,7 +228,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 	const Well::Marker& mrk = markerdraw.mrk_;
 	uiLineItem& li = *markerdraw.lineitm_;
 
-	if ( abs( li.getPos().y - mousepos )<2 )
+	if ( abs(li.lineRect().centre().y-mousepos) < 2 )
 	{
 	    selmrk = const_cast<Well::Marker*>( &mrk );
 	    break;
