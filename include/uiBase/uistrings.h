@@ -41,6 +41,7 @@ public:
     static inline uiString sNo()		{ return tr("&No"); }
     static inline uiString sOk()		{ return tr("&OK"); }
     static inline uiString sOpen(bool immediate);
+    static inline uiString sProperties(bool immediate);
     static inline uiString sRemove(bool immediate);
     static inline uiString sRun()		{ return tr("&Run"); }
     static inline uiString sSave(bool immediate);
@@ -102,6 +103,10 @@ inline uiString uiStrings::sNew( bool immediate )
 
 inline uiString uiStrings::sOpen(bool immediate)
 { return immediate ? "&Open" : "&Open ..."; }
+
+
+inline uiString uiStrings::sProperties(bool immediate)
+{ return immediate ? tr("&Properties") : tr("&Properties ..."); }
 
 
 inline uiString uiStrings::sRemove(bool immediate)
