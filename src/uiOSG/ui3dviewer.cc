@@ -1373,7 +1373,6 @@ void ui3DViewer::savePropertySettings() const
     Settings::common().set( BufferString(sKeydTectScene(),str), func );
 
     mSaveProp( set, sKeyBGColor(), getBackgroundColor() );
-    mSaveProp( set, sKeyAnnotColor(), getAnnotationColor() );
     mSaveProp( setYN, sKeyAnimate(), isAnimationEnabled() );
     Settings::common().write();
 }
@@ -1383,7 +1382,6 @@ void ui3DViewer::fillPar( IOPar& par ) const
 {
     par.set( sKeySceneID(), getScene()->id() );
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
-    par.set( sKeyAnnotColor(), (int)getAnnotationColor().rgb() );
     par.set( sKeyStereo(), toString( getStereoType() ) );
     float offset = getStereoOffset();
     par.set( sKeyStereoOff(), offset );
@@ -1409,12 +1407,7 @@ bool ui3DViewer::usePar( const IOPar& par )
 	setBackgroundColor( newcol );
     }
 
-    if ( par.get(sKeyAnnotColor(),col) )
-    {
-	Color newcol; newcol.setRgb( col );
-	setAnnotationColor( newcol );
-    }
-
+    
     StereoType stereotype;
     if ( parseEnum( par, sKeyStereo(), stereotype ) )
 	setStereoType( stereotype );
