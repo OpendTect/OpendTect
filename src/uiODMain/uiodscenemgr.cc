@@ -53,6 +53,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 
 // For factories
+#include "uiodannottreeitem.h"
 #include "uiodbodydisplaytreeitem.h"
 #include "uioddatatreeitem.h"
 #include "uiodemsurftreeitem.h"
@@ -120,6 +121,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
+		       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODAnnotTreeItemFactory, 9000,
 		       SurveyInfo::Both2DAnd3D );
 
     mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
