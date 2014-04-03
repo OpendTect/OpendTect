@@ -199,7 +199,11 @@ endif()
 
 add_custom_target( sources ${CMAKE_COMMAND}
 		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+
+		   -DBINARY_DIR=${CMAKE_BINARY_DIR}
+		   ${CMAKE_SOURCE_DIR} 
 		   -P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake
+		   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		   COMMENT "Installing sources" )
 
 add_custom_target( docpackages ${CMAKE_COMMAND}
