@@ -22,10 +22,11 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    "-DOD_THIRD_PARTY_LIBS_DEBUG=\"${OD_THIRD_PARTY_LIBS_DEBUG}\""
 	    -DOD_PLFSUBDIR=${OD_PLFSUBDIR} 
 	    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
-	    -DPSD=${OD_BINARY_BASEDIR}
+	    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+	    -DBINARY_DIR=${CMAKE_BINARY_DIR}
 	    -DBREAKPAD_DIR=${BREAKPAD_DIR}
 	    -DCODESIGN_COMMAND=${CODESIGN_COMMAND}
-	    -P ${OD_BINARY_BASEDIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
+	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    DEPENDS sources
 	    COMMENT "Creating packages" ) 
 endmacro()
