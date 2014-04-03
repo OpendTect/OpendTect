@@ -387,21 +387,21 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="uiStrLstInpFld" )
 			    : uiGenInputInputFld( p, dis )
-			    , cbb( *new uiComboBox(p,mName(dis,0,nm)) )
+			    , cbb_( *new uiComboBox(p,mName(dis,0,nm)) )
 			{
 			    init();
 
-			    cbb.setReadOnly( true );
+			    cbb_.setReadOnly( true );
 
-			    cbb.selectionChanged.notify(
+			    cbb_.selectionChanged.notify(
 				mCB(this,uiGenInputInputFld,valChangedNotify) );
 			}
 
     virtual bool	isUndef(int) const		{ return false; }
 
-    virtual const char*	text(int idx) const		{ return cbb.text();}
+    virtual const char*	text(int idx) const		{ return cbb_.text();}
     virtual void	setText( const char* t,int idx)
-			    { cbb.setCurrentItem(t); }
+			    { cbb_.setCurrentItem(t); }
 
     virtual void	setReadOnly( bool yn = true, int idx=0 )
 			{
@@ -409,17 +409,17 @@ public:
 			      { pErrMsg("Stringlist input must be read-only"); }
 			}
 
-    virtual UserInputObj* element( int idx=0 )		{ return &cbb; }
-    virtual uiObject*	mainObj()			{ return &cbb; }
+    virtual UserInputObj* element( int idx=0 )		{ return &cbb_; }
+    virtual uiObject*	mainObj()			{ return &cbb_; }
 
 protected:
 
     virtual void	setvalue_( int i, int idx )
-			    { cbb.setCurrentItem(i); }
+			    { cbb_.setCurrentItem(i); }
     virtual int		getvalue_( int idx )	const
-			    { return cbb.currentItem(); }
+			    { return cbb_.currentItem(); }
 
-    uiComboBox&		cbb;
+    uiComboBox&		cbb_;
 };
 
 typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
