@@ -8,12 +8,17 @@
 #TODO Add date
 file( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in lic_temp )
 message( "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}" )
-message( "inst dir: ${CMAKE_INSTALL_PREFIX}" )
-file( STRINGS ${CMAKE_SOURCE_DIR}/CMakeModules/sourcefiles_od.txt DEVELSTUFF )
+message( "BINARY_DIR: ${BINARY_DIR}" )
+file( STRINGS ${BINARY_DIR}/CMakeModules/sourcefiles_od.txt DEVELSTUFF )
 foreach( FIL ${DEVELSTUFF} )
     get_filename_component( FPATH ${FIL} PATH )
-    file( INSTALL DESTINATION ${CMAKE_INSTALL_PREFIX}/${FPATH}
-	          TYPE FILE FILES ${CMAKE_SOURCE_DIR}/${FIL} )
+    if ( EXISTS ${CMAKE_SOURCE_DIR}/${FIL} )
+	file( INSTALL DESTINATION ${CMAKE_INSTALL_PREFIX}/${FPATH}
+	      TYPE FILE FILES ${CMAKE_SOURCE_DIR}/${FIL} )
+    elseif( EXISTS ${BINARY_DIR}/${FIL} )
+	file( INSTALL DESTINATION ${CMAKE_INSTALL_PREFIX}/${FPATH}
+	      TYPE FILE FILES ${BINARY_DIR}/${FIL} )
+    endif()
     get_filename_component( FEXT ${FIL} EXT )
     if( ("${FEXT}" STREQUAL ".h") OR ("${FEXT}" STREQUAL ".cc") OR ("${FEXT}" STREQUAL ".c"))
 	get_filename_component( FNAME ${FIL} NAME )
