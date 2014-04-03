@@ -280,7 +280,7 @@ bool uiProbDenFuncGenSampled::getFromScreen()
     }
 
     const IOObj* pdfioobj = outfld_->ioobj();
-    if ( !outfld_->ioobj() )
+    if ( !pdfioobj )
 	return false;
 
     ioobjky_ = pdfioobj->key();
