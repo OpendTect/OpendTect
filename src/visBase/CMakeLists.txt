@@ -49,6 +49,7 @@ SET(OD_MODULE_SOURCES
 	   vispolyline.cc
 	   visrandomtrackdragger.cc
 	   visrgbatexturechannel2rgba.cc
+	   visscalebar.cc
 	   visscene.cc
 	   visscenecoltab.cc
 	   visselman.cc

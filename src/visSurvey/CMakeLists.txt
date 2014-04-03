@@ -29,6 +29,7 @@ SET(OD_MODULE_SOURCES
 		vispseventdisplay.cc
 		visrandomposbodydisplay.cc
 		visrandomtrackdisplay.cc
+		visscalebardisplay.cc
 		visseis2ddisplay.cc
 		vissower.cc
 		vissurvobj.cc

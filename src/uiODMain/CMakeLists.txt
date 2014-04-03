@@ -17,6 +17,8 @@ set(OD_MODULE_SOURCES
 	inituiodmain.cc
 	measuretoolman.cc
 	odsession.cc
+	uiscalebaritem.cc
+	uiodannottreeitem.cc
 	uiodapplmgr.cc
 	uiodapplmgraux.cc
 	uiodapplmgrattrvis.cc
