@@ -158,10 +158,10 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
     }
     else
     {
+	dpifld_->box()->setValue( screendpi_ );
 	sceneSel( 0 );
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
-	dpifld_->box()->setValue( screendpi_ );
     }
 }
 
