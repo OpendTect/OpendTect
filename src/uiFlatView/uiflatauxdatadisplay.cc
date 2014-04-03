@@ -64,6 +64,13 @@ uiGraphicsItemGroup* uiAuxDataDisplay::getDisplay()
 }
 
 
+void uiAuxDataDisplay::removeDisplay()
+{
+    display_ = 0; polygonitem_ = 0; polylineitem_ = 0; nameitem_ = 0;
+    markeritems_.erase();
+}
+
+
 void uiAuxDataDisplay::updateCB( CallBacker* cb )
 {
     if ( !isMainThreadCurrent() )
@@ -72,19 +79,14 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	return;
     }
 
-    if ( !display_ )
-	display_ = new uiGraphicsItemGroup( true );
+    if ( !getDisplay() ) return;
 
-    //Todo: remove all ?
-    
     if ( !enabled_ || isEmpty() )
     {
 	display_->setVisible( false );
 	return;
     }
 
-    //dispids_.erase();
-    
     display_->setZValue( zvalue_ );
     display_->setVisible( displayed_ );
 
@@ -105,12 +107,10 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	if ( close_ )
 	{
-	    //Handle fill ... ?
 	    if ( !polygonitem_ )
 	    {
 		polygonitem_ = new uiPolygonItem( poly_,fillcolor_.isVisible());
 		display_->add( polygonitem_ );
-		//dispids_ += polygonitem_->id();
 	    }
 	    else
 	    {
@@ -133,7 +133,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    {
 		polylineitem_ = new uiPolyLineItem( poly_ );
 		display_->add( polylineitem_ );
-		//dispids_ += polylineitem_->id();
 	    }
 	    else
 	    {
@@ -187,7 +186,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	{
 	    item = new uiMarkerItem( style );
 	    markeritems_ += item;
-	    //dispids_ += item->id();
 	    display_->add( item );
 	}
 	else
@@ -198,8 +196,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	item->setPenColor( style.color_ );
 	item->setFillColor( style.color_ );
 	item->setPos( poly_[idx] );
-	//item->setZValue( 2 );
-	//item->setVisible( ad.displayed_ );
     }
 
     if ( !name_.isEmpty() && !mIsUdf(namepos_) )
@@ -212,7 +208,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	{
 	    nameitem_ = new uiTextItem; 
 	    display_->add( nameitem_ );
-	    //dispids_ += nameitem_->id();
 	}
 	nameitem_->setText( name_ );
 	nameitem_->setAlignment( namealignment_ );

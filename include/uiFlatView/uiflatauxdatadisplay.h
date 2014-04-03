@@ -38,9 +38,9 @@ public:
     void			touch() 	{ updateCB(0); }
 
 				~uiAuxDataDisplay();
-    uiGraphicsItemGroup*	getDisplay();
-    void			removeDisplay() { display_ = 0; }
 
+    uiGraphicsItemGroup*	getDisplay();
+    void			removeDisplay();
 
 protected:
     				friend class ::uiFlatViewer;
