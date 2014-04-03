@@ -11,17 +11,6 @@ macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
 		    @ONLY )
 endmacro()
 
-if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-     (CMAKE_GENERATOR STREQUAL "Ninja") )
-    add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
-	    		WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-else()
-    add_custom_target( do_install
-	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Debug
-	COMMAND
-	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Release
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-endif()
 
 macro( OD_ADD_PACKAGES_TARGET )
     add_custom_target( packages  ${CMAKE_COMMAND} 
@@ -37,6 +26,6 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBREAKPAD_DIR=${BREAKPAD_DIR}
 	    -DCODESIGN_COMMAND=${CODESIGN_COMMAND}
 	    -P ${OD_BINARY_BASEDIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
-	    DEPENDS do_install sources
+	    DEPENDS sources
 	    COMMENT "Creating packages" ) 
 endmacro()
