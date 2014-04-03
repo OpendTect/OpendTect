@@ -71,10 +71,12 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
     {
 	BufferStringSet linenames;
-	applMgr()->seisServer()->select2DLines( linenames );
+	TypeSet<Pos::GeomID> geomids;
+	applMgr()->seisServer()->select2DLines( linenames, geomids );
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	for ( int idx=linenames.size()-1; idx>=0; idx-- )
-	    addChild( new uiOD2DLineTreeItem(linenames.get(idx)), false );
+	    addChild( new uiOD2DLineTreeItem(linenames.get(idx),geomids[idx]),
+		      false );
 	cursorchgr.restore();
 	if ( !linenames.isEmpty() )
 	{
@@ -146,7 +148,7 @@ uiTreeItem*
     if ( !s2d || !treeitem ) return 0;
 
     uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( s2d->name(), visid );
+	new uiOD2DLineTreeItem( s2d->name(), s2d->getGeomID(), visid );
     mDynamicCastGet(uiOD2DLineTreeItem*,subitm,treeitem)
     if ( subitm )
 	return newsubitm;
@@ -641,8 +643,10 @@ bool uiOD2DLineSetTreeItem::init()
 }
 */
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, int displayid )
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, Pos::GeomID geomid,
+					int displayid )
     : linenmitm_("Show line&name")
+    , geomid_(geomid)
     , positionitm_("&Position ...")
 {
     name_ = nm;
@@ -684,13 +688,12 @@ bool uiOD2DLineTreeItem::init()
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return false;
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( name_ );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
     if ( !geom2d )
 	return false;
 
-    s2d->setGeomID( geomid );
+    s2d->setGeomID( geomid_ );
     s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();

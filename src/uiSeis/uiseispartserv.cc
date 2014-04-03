@@ -195,8 +195,11 @@ void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
 }
 
 
-bool uiSeisPartServer::select2DLines( BufferStringSet& res )
+bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
+				      TypeSet<Pos::GeomID>& selids )
 {
+    selnames.erase(); selids.erase();
+
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
@@ -210,8 +213,17 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& res )
 	return false;
 
     if ( dlg.selFld() )
-	dlg.selFld()->getSelectedItems( res );
-    return res.size();
+    {
+	TypeSet<int> selidxs;
+	dlg.selFld()->getSelectedItems( selidxs );
+	for ( int idx=0; idx<selidxs.size(); idx++ )
+	{
+	    selnames.add( linenames.get(selidxs[idx]) );
+	    selids += geomids[selidxs[idx]];
+	}
+    }
+
+    return selids.size();
 }
 
 

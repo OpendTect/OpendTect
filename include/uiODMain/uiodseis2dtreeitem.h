@@ -89,13 +89,16 @@ protected:
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 {
 public:
-			uiOD2DLineTreeItem(const char* nm,int displayid=-1);
+			uiOD2DLineTreeItem(const char* nm,Pos::GeomID,
+					   int displayid=-1);
 
     bool		addStoredData(const char*,int component,uiTaskRunner&);
     void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
+
+    Pos::GeomID 	getGeomID() const { return geomid_; }
 
 protected:
 			~uiOD2DLineTreeItem();
@@ -110,6 +113,8 @@ protected:
     void		getNewData(CallBacker*);
 
 private:
+
+    Pos::GeomID 	geomid_;
     MenuItem		linenmitm_;
     MenuItem		positionitm_;
 };
