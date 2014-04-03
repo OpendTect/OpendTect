@@ -18,7 +18,6 @@ class uiListBox;
 class uiTextEdit;
 class uiToolButton;
 class uiManipButGrp;
-class Seis2DLineSet;
 class Seis2DDataSet;
 class uiSeisIOObjInfo;
 
