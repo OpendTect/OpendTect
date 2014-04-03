@@ -4,8 +4,11 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
-include( CMakeModules/packagescripts/packages.cmake )
-include( ${PSD}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+message( "SOURCE_DIR: ${SOURCE_DIR}" )
+message( "BINARY_DIR: ${BINARY_DIR}" )
+
+include( ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake )
+include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 #Genarate Symbols and then Strip the binaries
 OD_GENERATE_BREAKPAD_SYMBOLS()
@@ -15,13 +18,13 @@ if( APPLE OR WIN32 )
 endif()
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
+	include( ${SOURCE_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
 
 foreach ( PACKAGE ${PACKAGELIST} )
-    include(CMakeModules/packagescripts/${PACKAGE}.cmake)
+	include(${SOURCE_DIR}/CMakeModules/packagescripts/${PACKAGE}.cmake)
     if( NOT DEFINED OpendTect_VERSION_MAJOR )
 	message( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
     endif()
@@ -35,8 +38,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
     endif()
 
     if( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	if( NOT EXISTS "${PSD}/bin/win64/zip.exe" )
-	    message( FATAL_ERROR "${PSD}/bin/win64/zip.exe is not existed. Unable to create packages." )
+	    if( NOT EXISTS "${SOURCE_DIR}/bin/win64/zip.exe" )
+		message( FATAL_ERROR "${SOURCE_DIR}/bin/win64/zip.exe is not existed. Unable to create packages." )
 	endif()
     endif()
 
@@ -47,4 +50,4 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	create_package( ${PACK} )
     endif()
 endforeach()
-message( "\n Created packages are available under ${PSD}/packages" )
+message( "\n Created packages are available under ${SOURCE_DIR}/packages" )

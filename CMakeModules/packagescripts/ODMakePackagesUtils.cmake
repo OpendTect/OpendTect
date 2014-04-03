@@ -266,11 +266,11 @@ macro( init_destinationdir  PACKAGE_NAME )
 	endif()
     endif()
 
-    if( NOT EXISTS ${PSD}/packages )
-        file( MAKE_DIRECTORY ${PSD}/packages )
+    if( NOT EXISTS ${SOURCE_DIR}/packages )
+	    file( MAKE_DIRECTORY ${SOURCE_DIR}/packages )
     endif()
 
-    set( PACKAGE_DIR ${PSD}/packages )
+    set( PACKAGE_DIR ${SOURCE_DIR}/packages )
     if( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
 	file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     endif()
@@ -297,19 +297,19 @@ macro( create_develpackages )
     file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
 			 ${DESTINATION_DIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${PSD}/CMakeLists.txt ${DESTINATION_DIR} )
+	    	     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
 		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/pluginexample
 		     ${DESTINATION_DIR}/doc/Programmer/pluginexample )
-    file( GLOB HTMLFILES ${PSD}/doc/Programmer/*.html )
+	     file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
     foreach( HTMLFILE ${HTMLFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${HTMLFILE} ${DESTINATION_DIR}/doc/Programmer )
     endforeach()
-    file( GLOB PNGFILES ${PSD}/doc/Programmer/*.png )
+    file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
     foreach( PNGFILE ${PNGFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
@@ -336,8 +336,8 @@ macro( create_develpackages )
 	    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				 ${PSD}/bin/od_cr_dev_env.bat
-				 ${DESTINATION_DIR}/bin )
+			 ${SOURCE_DIR}/bin/od_cr_dev_env.bat
+			 ${DESTINATION_DIR}/bin )
     endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -452,7 +452,7 @@ endmacro( create_docpackages )
 macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
 	message( "Using ${OD_PLFSUBDIR} zip command" )
-	execute_process( COMMAND ${PSD}/bin/win64/zip -r -q
+	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
 			 	 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
