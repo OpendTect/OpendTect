@@ -120,7 +120,7 @@ void ScaleBarDisplay::setOnInlCrl( bool yn )
 }
 
 
-void ScaleBarDisplay::setColors( const ::Color& color )
+void ScaleBarDisplay::setColors( Color color )
 {
     mToGroup( setColor, color );
 }

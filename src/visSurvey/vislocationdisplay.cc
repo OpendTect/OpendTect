@@ -513,7 +513,7 @@ void LocationDisplay::dispChg( CallBacker* )
 }
 
 
-void LocationDisplay::setColor( const Color& nc )
+void LocationDisplay::setColor( Color nc )
 {
     if ( set_ )
     	set_->disp_.color_ = nc;

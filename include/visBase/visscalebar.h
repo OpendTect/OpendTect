@@ -44,7 +44,7 @@ public:
 
     void			setOnInlCrl(bool);
     void			setOrientation(int);
-    void			setColor(const ::Color& c);
+    void			setColor(Color c);
     Coord3			getPos() const { return pos_; }
 
     void			setDisplayTransformation(const mVisTrans*);
