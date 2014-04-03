@@ -600,7 +600,7 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 
     cs_ = cs;
     Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
-    if ( geomid )
+    if ( geomid != Survey::GM().cUndefGeomID() )
     {
 	sd->setGeomID( geomid );
 	if ( !calcTrcDist(geomid) )
