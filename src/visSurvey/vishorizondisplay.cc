@@ -1845,8 +1845,9 @@ void HorizonDisplay::updateIntersectionLines(
 
 	visBase::VertexShape* line = intersectionlines_[lineidx];
 	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[lineidx];
-
-	line->getCoordinates()->removeAfter(-1);
+	
+	line->getCoordinates()->setEmpty();
+	line->removeAllPrimitiveSets();
 
 	while ( pointgroup->size()>1 ) pointgroup->removeObject( 1 );
 	int cii = 0;
