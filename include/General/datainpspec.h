@@ -666,6 +666,7 @@ mExpClass(General) StringListInpSpec : public DataInpSpec
 {
 public:
 			StringListInpSpec(const BufferStringSet&);
+			StringListInpSpec(const TypeSet<uiString>&);
 			StringListInpSpec(const char** sl=0);
 			StringListInpSpec(const StringListInpSpec&);
 			~StringListInpSpec();
@@ -674,11 +675,11 @@ public:
 
     virtual DataInpSpec* clone() const;
 
-    const BufferStringSet& strings() const;
+    const TypeSet<uiString>& strings() const;
 
     void		addString(const char* txt);
     virtual const char*	text(int idx=0) const;
-    void		setItemText(int idx, const char* s);
+    void		setItemText(int idx, const uiString&);
     virtual bool	setText(const char* s,int nr);
 
     virtual int		getIntValue(int idx=0) const;
@@ -702,7 +703,7 @@ public:
 
 protected:
 
-    BufferStringSet	strings_;
+    TypeSet<uiString>	strings_;
     int			cur_;
     int			defaultval_;
     bool		isset_;

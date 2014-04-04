@@ -184,12 +184,12 @@ void EnumParam::addEnum( const char* ne )
 BufferString EnumParam::getDefaultValue() const
 {
     int strindex = getDefaultIntValue();
-    const BufferStringSet& strings =
+    const TypeSet<uiString>& strings =
 	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
     if ( strindex < 0 || strindex >= strings.size() )
 	strindex = 0;
 
-    return strings.get(strindex);
+    return strings[strindex].getFullString();
 }
 
 

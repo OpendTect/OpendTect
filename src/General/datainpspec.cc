@@ -319,11 +319,13 @@ void BoolInpSpec::setDefaultValue( bool b, int idx )
 
 StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
     : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
-    , strings_(bss)
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
-{}
+{
+    for ( int idx=0; idx<bss.size(); idx++ )
+	strings_ += uiString( bss.get(idx).buf() );
+}
 
 
 StringListInpSpec::StringListInpSpec( const char** sl )
@@ -334,7 +336,7 @@ StringListInpSpec::StringListInpSpec( const char** sl )
 {
     if ( !sl ) return;
     for ( int idx=0; sl[idx]; idx++ )
-	strings_.add( sl[idx] );
+	strings_.add( uiString(sl[idx]) );
 }
 
 
@@ -343,7 +345,21 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     , cur_(oth.cur_)
     , defaultval_(oth.defaultval_)
     , isset_(oth.isset_)
-{ strings_ = oth.strings_; }
+{
+    for ( int idx=0; idx<oth.strings_.size(); idx++ )
+	strings_.add( uiString().setFrom( oth.strings_[idx] ) );
+}
+
+
+StringListInpSpec::StringListInpSpec( const TypeSet<uiString>& sl )
+    : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
+    , cur_(0)
+    , defaultval_(0)
+    , isset_(0)
+{
+    for ( int idx=0; idx<sl.size(); idx++ )
+	strings_.add( uiString().setFrom( sl[idx] ) );
+}
 
 
 StringListInpSpec::~StringListInpSpec()
@@ -358,7 +374,7 @@ DataInpSpec* StringListInpSpec::clone() const
 { return new StringListInpSpec( *this ); }
 
 
-const BufferStringSet& StringListInpSpec::strings() const
+const TypeSet<uiString>& StringListInpSpec::strings() const
 { return strings_; }
 
 
@@ -368,19 +384,19 @@ void StringListInpSpec::addString( const char* txt )
 
 const char* StringListInpSpec::text( int idx ) const
 {
-    return isUndef() ? "" : strings_.get( cur_ ).buf();
+    return isUndef() ? "" : strings_[idx].getFullString();
 }
 
 
-void StringListInpSpec::setItemText( int idx, const char* s )
-{ strings_.get( cur_ ) = s; }
+void StringListInpSpec::setItemText( int idx, const uiString& s)
+{ strings_[cur_].setFrom( s ); }
 
 
 bool StringListInpSpec::setText( const char* s, int nr )
 {
     for ( int idx=0; idx<strings_.size(); idx++ )
     {
-	if ( strings_.get(idx) == s )
+	if ( strings_[idx].getFullString() == s )
 	{ cur_ = idx; isset_ = true; return true; }
     }
 
