@@ -64,7 +64,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , seltb_(*new uiToolBar(this,"Cross-plot selection toolbar"))
     , maniptb_(*new uiToolBar(this,"Cross-plot manipulation toolbar",
 			      uiToolBar::Left))
-    , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
+    , colortb_(*new uiColorTableToolBar(this,ColTab::Sequence("Rainbow"),true))
     , grpfld_(0)
     , refineseldlg_(0)
     , propdlg_(0)
@@ -86,17 +86,19 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     const int nrpts = plotter_.y2_.axis_ ? uidps.pointSet().nrActive()*2
 					 : uidps.pointSet().nrActive();
     const float perc = (float)( 100/(1 + nrpts/minptsfordensity_) );
-    uiGroup* dispgrp = new uiGroup( &disptb_, "Display grp" );
 
-    eachfld_ = new uiSpinBox( dispgrp, 2, "Percentage" );
+    uiLabel* lbl = new uiLabel( 0, "Show" );
+    disptb_.addObject( lbl );
+
+    eachfld_ = new uiSpinBox( 0, 2, "Percentage" );
+    eachfld_->setSuffix( "%" );
     eachfld_->setValue( perc );
     eachfld_->setInterval( StepInterval<float>((float)0,(float)100,0.10) );
+    eachfld_->setToolTip( "Percentage of points displayed" );
     eachfld_->valueChanged.notify(
 			mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
     plotter_.plotperc_ = perc;
-
-    new uiLabel( dispgrp, "% points displayed", eachfld_ );
-    disptb_.addObject( dispgrp->attachObj() );
+    disptb_.addObject( eachfld_ );
 
     densityplottbid_ = disptb_.addButton( "densityplot","Show density plot",
 		  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot), true );
@@ -105,27 +107,25 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  mCB(this,uiDataPointSetCrossPlotWin,showY2), true );
     disptb_.turnOn( showy2tbid_, false );
 
-    coltabfld_ = new uiColorTableGroup( &colortb_, ColTab::Sequence("Rainbow"));
-    coltabfld_->enableManage( false );
-    coltabfld_->seqChanged.notify(
+    colortb_.enableManage( false );
+    colortb_.seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
-    coltabfld_->scaleChanged.notify(
+    colortb_.scaleChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
-    colortb_.addObject( coltabfld_->attachObj() );
-    plotter_.setColTab( coltabfld_->colTabSeq() );
-    plotter_.setCTMapper( coltabfld_->colTabMapperSetup() );
+
+    plotter_.setColTab( colortb_.colTabSeq() );
+    plotter_.setCTMapper( colortb_.colTabMapperSetup() );
     plotter_.initDraw();
     plotter_.drawContent();
 
-    uiGroup* selgrp = new uiGroup( &seltb_, "Each grp" );
-    selfld_ = new uiComboBox( selgrp, "Selection Option" );
+    selfld_ = new uiComboBox( 0, "Selection Option" );
     selfld_->addItem( "Select only Y1" );
     selfld_->addItem( "Select only Y2" );
     selfld_->addItem( "Select both" );
     selfld_->selectionChanged.notify( mCB(this,uiDataPointSetCrossPlotWin,
 					  selOption) );
     selfld_->setSensitive( false );
-    seltb_.addObject( selgrp->attachObj() );
+    seltb_.addObject( selfld_ );
 
     setselecttbid_ = seltb_.addButton( "altview", "Set selectable",
 		  mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
@@ -182,7 +182,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	mnu->insertItem( itm, 0 );
 	maniptb_.setButtonMenu( multicolcodtbid_, mnu );
 
-	grpfld_ = new uiComboBox( dispgrp, "Group selection" );
+	grpfld_ = new uiComboBox( 0, "Group selection" );
 	BufferString txt( nrgrps == 2 ? "Both " : "All " );
 	txt += uidps_.groupType();
 	if ( uidps_.groupType() )
@@ -204,10 +204,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    plotter_.y1grpColors().add( coly1 );
 	    plotter_.y2grpColors().add( coly2 );
 	}
-	grpfld_->attach( rightOf, eachfld_ );
 	grpfld_->setCurrentItem( 0 );
 	grpfld_->selectionChanged.notify(
 			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
+	disptb_.addObject( grpfld_ );
     }
 
     setSelectable( 0 );
@@ -274,16 +274,16 @@ void uiDataPointSetCrossPlotWin::drawTypeChangedCB( CallBacker* cb )
 void uiDataPointSetCrossPlotWin::coltabRgChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( Interval<float>, range , cb );
-    coltabfld_->setInterval( range );
+    colortb_.setInterval( range );
 }
 
 
 void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 {
-    plotter_.setColTab( coltabfld_->colTabSeq() );
-    ColTab::MapperSetup mapsetup = coltabfld_->colTabMapperSetup();
+    plotter_.setColTab( colortb_.colTabSeq() );
+    ColTab::MapperSetup mapsetup = colortb_.colTabMapperSetup();
     mapsetup.maxpts_ = 20000;
-    plotter_.setCTMapper( coltabfld_->colTabMapperSetup() );
+    plotter_.setCTMapper( colortb_.colTabMapperSetup() );
     plotter_.drawContent();
     plotter_.reDrawSelections();
 }

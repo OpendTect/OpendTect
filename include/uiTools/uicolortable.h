@@ -29,7 +29,7 @@ namespace ColTab { class Sequence; class MapperSetup; }
 mExpClass(uiTools) uiColorTableSel : public uiComboBox
 {
 public:
-    			uiColorTableSel(uiParent*,const char* nm);
+			uiColorTableSel(uiParent*,const char* nm);
 			~uiColorTableSel();
 
     void		update();
@@ -53,11 +53,11 @@ public:
 
     void		setSequence(const char*,bool emitnotif=true);
     void		setSequence(const ColTab::Sequence*,bool allowedit,
-	    			    bool emitnotif=true);
-    			/*!If ptr is null, sequence edit will be disabled. */
+				    bool emitnotif=true);
+			/*!If ptr is null, sequence edit will be disabled. */
     void		setMapperSetup(const ColTab::MapperSetup*,
-	    			       bool emitnotif=true);
-    			/*!If ptr is null, mapper edit will be disabled. */
+				       bool emitnotif=true);
+			/*!If ptr is null, mapper edit will be disabled. */
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
     void		enableTransparencyEdit(bool);
@@ -130,8 +130,9 @@ protected:
 mExpClass(uiTools) uiColorTableToolBar : public uiToolBar , public uiColorTable
 {
 public:
-			uiColorTableToolBar(uiParent*,const ColTab::Sequence&);
-			uiColorTableToolBar(uiParent*);
+			uiColorTableToolBar(uiParent*,const ColTab::Sequence&,
+					    bool newline=false);
+			uiColorTableToolBar(uiParent*,bool newline=false);
 			~uiColorTableToolBar();
 
 protected:

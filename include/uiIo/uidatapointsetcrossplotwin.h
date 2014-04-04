@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "uiprogressbar.h"
 #include "uimainwin.h"
 
-class uiDPSSelGrpDlg;
+class uiColorTableToolBar;
+class uiComboBox;
 class uiDataPointSetCrossPlotterPropDlg;
 class uiDPSRefineSelDlg;
-class uiColorTableGroup;
-class uiComboBox;
+class uiDPSSelGrpDlg;
 class uiToolBar;
 
 /*!\brief Data Point Set Cross Plotter Main window */
@@ -30,7 +30,7 @@ mExpClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 
-    				uiDataPointSetCrossPlotWin(uiDataPointSet&);
+				uiDataPointSetCrossPlotWin(uiDataPointSet&);
 				~uiDataPointSetCrossPlotWin();
 
     uiDataPointSet&		uiPointSet()	{ return uidps_; }
@@ -40,11 +40,12 @@ public:
 
     static uiDataPointSetCrossPlotter::Setup	defsetup_;
 
-    void 			setSelComboSensitive(bool);
+    void			setSelComboSensitive(bool);
     void			setButtonStatus()	{ setSelectable(0); }
     void			setPercDisp(float);
     void			handleAxisChg(uiDataPointSet::TColID,
-	    			 uiDataPointSet::TColID,uiDataPointSet::TColID);
+					      uiDataPointSet::TColID,
+					      uiDataPointSet::TColID);
     void			setGrpColors();
 
 protected:
@@ -57,11 +58,10 @@ protected:
     uiToolBar&			disptb_;
     uiToolBar&			seltb_;
     uiToolBar&			maniptb_;
-    uiToolBar&			colortb_;
+    uiColorTableToolBar&	colortb_;
     uiSpinBox*			eachfld_;
     uiComboBox*			grpfld_;
     uiComboBox*			selfld_;
-    uiColorTableGroup*		coltabfld_;
 
     bool			wantnormalplot_;
     int				densityplottbid_;
@@ -79,7 +79,7 @@ protected:
     int				overlayproptbid_;
 
     static const char*		sKeyMinDPPts()
-    				{ return "Minimum pts for Density Plot"; }
+				{ return "Minimum pts for Density Plot"; }
 
     void			closeNotif(CallBacker*);
     void			showTableSel(CallBacker*);

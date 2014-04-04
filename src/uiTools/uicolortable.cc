@@ -88,7 +88,7 @@ void updateFields()
 {
     doclipfld->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
 
-    Interval<float> cliprate( ms_.cliprate_.start*100, 
+    Interval<float> cliprate( ms_.cliprate_.start*100,
 			      ms_.cliprate_.stop*100 );
     clipfld->setValue( cliprate );
     autosymfld->setValue( ms_.autosym0_ );
@@ -111,14 +111,14 @@ void clipPush( CallBacker* )
 
 void symPush( CallBacker* )
 {
-    midvalfld->display( doclipfld->getBoolValue() && 
-			!autosymfld->getBoolValue() && 
+    midvalfld->display( doclipfld->getBoolValue() &&
+			!autosymfld->getBoolValue() &&
 			symfld->getBoolValue() );
 }
 
 void autoSymPush( CallBacker* )
 {
-    symfld->display( doclipfld->getBoolValue() && 
+    symfld->display( doclipfld->getBoolValue() &&
 		     !autosymfld->getBoolValue() );
     symPush( 0 );
 }
@@ -406,7 +406,7 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, "Action" );
-    if ( hasmapper ) 
+    if ( hasmapper )
     {
 	uiAction* itm =
 	    new uiAction("Flipped", mCB(this,uiColorTable,doFlip));
@@ -458,7 +458,7 @@ void uiColorTable::rangeEntered( CallBacker* )
 void uiColorTable::editScaling( CallBacker* )
 {
     if ( !scalingdlg_ )
-	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_, 
+	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_,
 					      scaleChanged );
 
     scalingdlg_->enabDefSetts( enabmanage_ );
@@ -468,7 +468,7 @@ void uiColorTable::editScaling( CallBacker* )
 
 
 void uiColorTable::doFlip( CallBacker* )
-{ 
+{
     mapsetup_.flipseq_ = !mapsetup_.flipseq_;
     canvas_->setFlipped( mapsetup_.flipseq_ );
     canvas_->setRGB();
@@ -564,7 +564,7 @@ void uiColorTableGroup::init( bool vertical, bool nominmax )
 	minfld_->attach( centeredBelow, canvas_, 2 );
 	selfld_->attach( centeredBelow, minfld_, 2 );
     }
-    else 
+    else
     {
 	canvas_->attach( rightOf, minfld_ );
 	maxfld_->attach( rightOf, canvas_ );
@@ -583,8 +583,8 @@ uiColorTableGroup::~uiColorTableGroup()
 
 
 // uiColorTableToolBar
-uiColorTableToolBar::uiColorTableToolBar( uiParent* p )
-    : uiToolBar(p,"Color table toolbar")
+uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
+    : uiToolBar(p,"Color table toolbar",uiToolBar::Top,newline)
     , uiColorTable(ColTab::Sequence(""))
 {
     init();
@@ -592,8 +592,9 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p )
 
 
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
-					  const ColTab::Sequence& seq )
-    : uiToolBar(p,"Color table toolbar")
+					  const ColTab::Sequence& seq,
+					  bool newline )
+    : uiToolBar(p,"Color table toolbar",uiToolBar::Top,newline)
     , uiColorTable(seq)
 {
     init();
