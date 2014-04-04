@@ -89,10 +89,6 @@ public:
 
     Geometry::ID		getGeomID(const TrcKey&) const;
     Geometry::ID		getGeomID(const char* survname) const;
-    Geometry::ID		getGeomID(const char* lnm,
-                                          const char* lsnm) const;
-                                /*! Use only if you are converting 
-                                    od4 geometries to od5 geometries */
     const char*			getName(Geometry::ID) const;
     
     Coord			toCoord(const TrcKey&) const;
@@ -130,7 +126,10 @@ public:
 				// returns new GeomID.
     bool			removeGeometry(Geometry::ID);
 
-
+    Geometry::ID		getGeomID(const char* lsm,
+					  const char* linenm) const;
+				/*! Use only if you are converting 
+				    od4 geometries to od5 geometries */
     bool			fetchFrom2DGeom();
 				//converts od4 geometries to od5 geometries.
 };

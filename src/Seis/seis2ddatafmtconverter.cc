@@ -105,8 +105,8 @@ void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
 	{
 	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
-	    iop->add( sKey::GeomID(), Survey::GM().getGeomID(
-				    lineset.lineName(lineidx),lineset.name()) );
+	    iop->add( sKey::GeomID(), Survey::GM().getGeomID(lineset.name(),
+						lineset.lineName(lineidx)) );
 	    *all2dseisiopars_[idx] += iop;
 	}
     }
@@ -223,8 +223,10 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
 	    attrname.clean( BufferString::AllowDots );
 	    FilePath newfnm( attrname );
-	    newfnm.add( BufferString(attrname).add(mCapChar).add( Survey::GM().
-			getGeomID(lineset.lineName(lineidx),lineset.name()) ) );
+	    newfnm.add( BufferString(attrname)
+		    .add(mCapChar)
+		    .add( Survey::GM().getGeomID(lineset.name(),
+						 lineset.lineName(lineidx)) ) );
 	    newfnm.setExtension( oldfnm.extension() );
 	    iop->set( sKey::FileName(), newfnm.fullPath() );
 	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(

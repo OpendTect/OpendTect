@@ -87,7 +87,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDTo2DHorPara(
 
     for ( int idy=0; idy<lnms.size(); idy++ )
     {
-        int geomid = Survey::GM().getGeomID( lnms.get(idy), lsetnms.get(idy) );
+	int geomid = Survey::GM().getGeomID( lsetnms.get(idy), lnms.get(idy) );
 	BufferString key = IOPar::compKey( sKey::GeomID(), idy );
 	surfacepara_->set( key, geomid );
 	surfacepara_->set( IOPar::compKey(key,
@@ -121,8 +121,8 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 	    IOObj* lsioobj = IOM().get(lsid);
 	    if ( !lsioobj ) continue;
 
-            int geomid = Survey::GM().getGeomID( linename.buf(), 
-                                                 lsioobj->name() );
+	    int geomid = Survey::GM().getGeomID( lsioobj->name(),
+						 linename.buf() );
 	    mDefStickKey("GeomID",geomstr,secids[secididx],stickidx);
 	    surfacepara_->set( geomstr, geomid );
 	}

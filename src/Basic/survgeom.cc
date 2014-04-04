@@ -177,8 +177,8 @@ Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 }
 
 
-Geometry::ID GeometryManager::getGeomID( const char* lnnm, 
-                                         const char* lsnm ) const
+Geometry::ID GeometryManager::getGeomID( const char* lsnm,
+					 const char* lnnm ) const
 {
     if ( !hasduplnms_ )
         return getGeomID( lnnm );
