@@ -106,6 +106,12 @@ bool SeisTrcTranslator::isPS( const IOObj& ioobj )
 }
 
 
+bool SeisTrcTranslator::isLineSet( const IOObj& ioobj )
+{
+    return *ioobj.group() == '2' || *ioobj.translator() == '2';
+}
+
+
 void SeisTrcTranslator::cleanUp()
 {
     close();

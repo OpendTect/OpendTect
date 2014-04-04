@@ -209,6 +209,9 @@ public:
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);
     bool		isPS() const			{ return is_prestack; }
+    static bool		isLineSet(const IOObj&);
+			/*!< Should only be used to filter out 
+			     old LineSet entries in .omf */
 
     static const char*	sKeyIs2D();
     static const char*	sKeyIsPS();

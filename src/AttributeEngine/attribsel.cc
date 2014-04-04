@@ -279,7 +279,8 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( *ioobj.group() == 'W' ) continue;
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
-	const bool isvalid3d = !is2d && ioobj.isReadDefault();
+	const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
+	const bool isvalid3d = !is2d  && !islineset && ioobj.isReadDefault();
 
 	if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
 	    continue;
