@@ -501,6 +501,8 @@ bool SeisTrcReader::mkNextFetcher()
 	    while ( !dataset_->haveMatch(curlineidx,tsd->binidValueSet()) )
 	    {
 	    	curlineidx++;
+		if ( curlineidx >= nrlines )
+		    return false;
 	    }
 	}
     }

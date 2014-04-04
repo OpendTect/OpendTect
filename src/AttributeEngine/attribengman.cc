@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nlamodel.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -785,16 +785,19 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
 
-    const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
-    S2DPOS().setCurLineSet( lset.name() );
+    const Seis2DDataSet dset( *ioobj );
     PosInfo::LineSet2DData linesetgeom;
-    for ( int idx=0; idx<lset.nrLines(); idx++ )
+    for ( int idx=0; idx<dset.nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
-	S2DPOS().getGeometry( linegeom );
+	PosInfo::Line2DData& linegeom = linesetgeom.addLine(dset.lineName(idx));
+	Pos::GeomID geomid = Survey::GM().getGeomID( dset.lineName(idx) );
+	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	if ( geom2d )
+	    linegeom = geom2d->data();
 	if ( linegeom.positions().isEmpty() )
 	{
-	    linesetgeom.removeLine( lset.lineName(idx) );
+	    linesetgeom.removeLine( dset.lineName(idx) );
 	    continue;
 	}
     }

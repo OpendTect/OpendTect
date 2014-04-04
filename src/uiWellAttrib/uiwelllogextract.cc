@@ -138,7 +138,6 @@ void uiWellLogExtractGrp::adsChg()
     
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	BufferStringSet bss;
 	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
 	if ( sii.isPS() && sii.is2D() )
 	{
@@ -146,14 +145,21 @@ void uiWellLogExtractGrp::adsChg()
 	    idx--;
 	    continue;
 	}
-	sii.getDefKeys( bss, true );
-	for ( int inm=0; inm<bss.size(); inm++ )
+	
+	const char* defkey = attrinf.ioobjids_.get(idx);
+	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
+	attrsfld_->addItem( attrinf.is2D(defkey)
+			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+    }
+
+    if ( ads_->is2D() )
+    {
+	for ( int idx=0; idx<attrinf.steerids_.size(); idx++ )
 	{
-	    const char* defkey = bss.get(inm).buf();
-	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    attrsfld_->addItem( attrinf.is2D(defkey)
-		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+	    const char* defkey = attrinf.steerids_.get(idx);
+	    const char* ioobjnm = attrinf.steernms_.get(idx).buf();
+	    attrsfld_->addItem( SeisIOObjInfo::defKey2DispName(defkey,ioobjnm));
 	}
     }
 }

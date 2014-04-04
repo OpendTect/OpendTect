@@ -420,9 +420,6 @@ BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
     if ( !ioobj )
 	return BufferString( "" );
 
-    if ( SeisTrcTranslator::is2D(*ioobj,false) )
-	return LineKey::defKey2DispName( defkey, ioobjnm );
-
     BufferString ret( "[",
 		      ioobjnm && *ioobjnm ? ioobjnm : ioobj->name().buf(),
 		      "]" );

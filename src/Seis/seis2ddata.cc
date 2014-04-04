@@ -363,10 +363,11 @@ bool Seis2DDataSet::getRanges( int ipar, StepInterval<int>& sii,
 
 bool Seis2DDataSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 {
-    PosInfo::Line2DData geom( lineName(ipar) );
-    if ( !S2DPOS().getGeometry(geom) )
-	return false;
-
+    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomID(ipar) );
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+    if ( !geom2d ) return false;
+    
+    const PosInfo::Line2DData& geom = geom2d->data();
     for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
 	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
