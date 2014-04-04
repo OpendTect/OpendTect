@@ -17,7 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "task.h"
 
-using namespace Survey;
+
+namespace Survey
+{
 
 static Pos::GeomID cSIGeomID = -1;
 
@@ -26,10 +28,10 @@ mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 
 
-const GeometryManager& Survey::GM()
+const GeometryManager& GM()
 {
     mDefineStaticLocalObject( GeometryManager*, theinst, = 0 );
-    if( !theinst )
+    if ( !theinst )
 	{ theinst = new GeometryManager; }
     return *theinst;
 }
@@ -96,7 +98,18 @@ int GeometryManager::nrGeometries() const
 
 void GeometryManager::ensureSIPresent() const
 {
-    if ( geometries_.isEmpty() )
+    bool has3d = false;
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+    {
+	const bool is2d = geometries_[idx]->is2D();
+	if ( !is2d )
+	{
+	    has3d = true;
+	    break;
+	}
+    }
+
+    if ( !has3d )
     {
 	RefMan<Geometry3D> rm = SI().get3DGeometry( false );
 	Geometry3D* survicsys = rm.ptr();
@@ -109,8 +122,6 @@ void GeometryManager::ensureSIPresent() const
 
 TrcKey::SurvID GeometryManager::default3DSurvID() const
 {
-    ensureSIPresent();
-
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( !geometries_[idx]->is2D() )
 	    return geometries_[idx]->getID();
@@ -164,8 +175,6 @@ Geometry::ID GeometryManager::getGeomID( const TrcKey& tk ) const
 
 Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 {
-    ensureSIPresent();
-
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -182,7 +191,7 @@ Geometry::ID GeometryManager::getGeomID( const char* lsnm,
 {
     if ( !hasduplnms_ )
         return getGeomID( lnnm );
-        
+
     BufferString newlnm = lsnm;
     newlnm.add( "-" );
     newlnm.add( lnnm );
@@ -267,10 +276,10 @@ bool GeometryManager::hasDuplicateLineNames()
 		    return true;
 	    }
 	}
-	
+
 	linenames.add( lnames, false );
     }
-	
+
     return false;
 }
 
@@ -335,8 +344,6 @@ bool GeometryManager::removeGeometry( Geometry::ID geomid )
 
 int GeometryManager::indexOf( Geometry::ID geomid ) const
 {
-    ensureSIPresent();
-
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
 	    return idx;
@@ -348,6 +355,7 @@ int GeometryManager::indexOf( Geometry::ID geomid ) const
 bool GeometryManager::fillGeometries( TaskRunner* tr )
 {
     deepUnRef( geometries_ );
+    ensureSIPresent();
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 				        .create(sKey::TwoD());
     return geomreader ? geomreader->read( geometries_, tr ) : false;
@@ -370,3 +378,5 @@ bool GeometryManager::getList( BufferStringSet& names,
 
     return true;
 }
+
+} // namespace Survey
