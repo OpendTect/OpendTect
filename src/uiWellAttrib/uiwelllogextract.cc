@@ -152,16 +152,6 @@ void uiWellLogExtractGrp::adsChg()
 			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
 			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
     }
-
-    if ( ads_->is2D() )
-    {
-	for ( int idx=0; idx<attrinf.steerids_.size(); idx++ )
-	{
-	    const char* defkey = attrinf.steerids_.get(idx);
-	    const char* ioobjnm = attrinf.steernms_.get(idx).buf();
-	    attrsfld_->addItem( SeisIOObjInfo::defKey2DispName(defkey,ioobjnm));
-	}
-    }
 }
 
 
