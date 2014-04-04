@@ -160,9 +160,7 @@ protected:
     TypeSet<int>	factors_;
 };
 
-
-};//end of namespace Fourier
-
+} // namespace Fourier
 
 #endif
 

@@ -16,10 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rowcolsurface.h"
 #include "survinfo.h"
 
-using namespace EM;
+namespace EM
+{
 
 RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
-       				const CubeSampling* cs	)
+				const CubeSampling* cs	)
     : surf_( surf )
     , sid_( sectionid )
     , cursection_( 0 )
@@ -33,7 +34,7 @@ RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
 
 
 RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
-       				const StepInterval<int> rowbnd,
+				const StepInterval<int> rowbnd,
 				const StepInterval<int> colbnd )
     : surf_( surf )
     , sid_( sectionid )
@@ -51,7 +52,7 @@ RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
 
 PosID RowColIterator::next()
 {
-    while ( true ) 
+    while ( true )
     {
 	if ( !cursection_ )
 	{
@@ -80,7 +81,7 @@ PosID RowColIterator::next()
 	if ( !cursection_->isKnotDefined( rc_ ) )
 	    continue;
 
-	if ( !csbound_ ) 
+	if ( !csbound_ )
 	    break;
 
 	pos_ = surf_.getPos( sid_, rc_.toInt64() );
@@ -112,7 +113,7 @@ int RowColIterator::maximumSize() const
 int RowColIterator::maximumSize( const SectionID& cursid ) const
 {
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-	    	     surf_.sectionGeometry(cursid) );
+		     surf_.sectionGeometry(cursid) );
     if ( !rcs ) return 0;
 
     StepInterval<int> rowrg = rcs->rowRange();
@@ -135,17 +136,17 @@ int RowColIterator::maximumSize( const SectionID& cursid ) const
 bool RowColIterator::initSection()
 {
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-	    	     surf_.sectionGeometry(sid_) );
+		     surf_.sectionGeometry(sid_) );
     if ( !rcs )
 	return nextSection();
 
     cursection_ = rcs;
 
     rowrg_ = rcs->rowRange();
-    if ( rowrg_.stop < rowrg_.start ) 
+    if ( rowrg_.stop < rowrg_.start )
 	return false;
     colrg_ = rcs->colRange( rowrg_.start );
-    if ( colrg_.stop < colrg_.start ) 
+    if ( colrg_.stop < colrg_.start )
 	return false;
 
     if ( rowcolbounded_ )
@@ -181,3 +182,4 @@ bool RowColIterator::nextSection()
     return false;
 }
 
+} // namespace EM

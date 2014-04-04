@@ -83,6 +83,6 @@ public:
 
 };
 
-}
+} // namespace Survey
 
 #endif

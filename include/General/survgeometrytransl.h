@@ -25,7 +25,7 @@ mExpClass(General) SurvGeomTranslatorGroup : public TranslatorGroup
 			isTranslatorGroup(SurvGeom);
 
 public:
-    			mDefEmptyTranslatorGroupConstructor(SurvGeom);
+			mDefEmptyTranslatorGroupConstructor(SurvGeom);
     const char*		defExtension() const	{ return "geom"; }
     static FixedString	keyword();
 };
@@ -34,13 +34,13 @@ public:
 mExpClass(General) SurvGeomTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(SurvGeom);
+			mDefEmptyTranslatorBaseConstructor(SurvGeom);
 };
 
 
 mExpClass(General) dgb2DSurvGeomTranslator : public SurvGeomTranslator
 {
-    			isTranslator(dgb2D,SurvGeom);
+			isTranslator(dgb2D,SurvGeom);
 public:
 			mDefEmptyTranslatorConstructor(dgb2D,SurvGeom);
 
@@ -49,12 +49,12 @@ public:
 
 mExpClass(General) dgb3DSurvGeomTranslator : public SurvGeomTranslator
 {
-    			isTranslator(dgb3D,SurvGeom);
+			isTranslator(dgb3D,SurvGeom);
 public:
 			mDefEmptyTranslatorConstructor(dgb3D,SurvGeom);
 
 };
 
-}
+} // namespace Survey
 
 #endif

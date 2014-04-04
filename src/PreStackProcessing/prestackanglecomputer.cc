@@ -22,8 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
-using namespace PreStack;
-
+namespace PreStack
+{
 
 DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 {
@@ -166,7 +166,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	}
 
 	const int zsizeintime = mCast( int, layertwt/deftimestep );
-	if ( mIsUdf(layertwt) || layertwt < 0 || layertwt > maxtwttime || 
+	if ( mIsUdf(layertwt) || layertwt < 0 || layertwt > maxtwttime ||
 	     zsizeintime <= 0 )
 	{
 	    arr1doutput = arr1doutput + zsize;
@@ -598,3 +598,4 @@ Gather* ModelBasedAngleComputer::computeAngles()
     return computeAngleData();
 }
 
+} // namespace PreStack

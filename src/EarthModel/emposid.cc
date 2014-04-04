@@ -9,7 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emposid.h"
 #include "iopar.h"
 
-using namespace EM;
+namespace EM
+{
 
 const char* PosID::emobjStr() { return "Object"; }
 const char* PosID::sectionStr() { return  "Patch"; }
@@ -19,7 +20,7 @@ const char* PosID::subidStr() { return  "Sub ID"; }
 const PosID& PosID::udf()
 {
     mDefineStaticLocalObject( PosID, undef, ( -1, -1, -1 ) );
-    return undef; 
+    return undef;
 }
 
 
@@ -53,3 +54,5 @@ bool PosID::usePar( const IOPar& par )
 
     return res;
 }
+
+} // namespace EM

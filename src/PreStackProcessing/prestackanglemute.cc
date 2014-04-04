@@ -25,8 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "windowfunction.h"
 
 
-using namespace PreStack;
-
+namespace PreStack
+{
 
 AngleCompParams::AngleCompParams()
     : mutecutoff_(30)
@@ -39,9 +39,9 @@ AngleCompParams::AngleCompParams()
     smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 15.0f );
     // defaults for other types:
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinFunc(),
-	    	       HanningWindow::sName() );
+		       HanningWindow::sName() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(),
-	    	       100.0f/SI().zDomain().userFactor() );
+		       100.0f/SI().zDomain().userFactor() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
 
     RayTracer1D::Setup setup;
@@ -50,10 +50,10 @@ AngleCompParams::AngleCompParams()
     raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
 
     const StepInterval<float> defoffsrange4metres( 0, 6000, 100 );
-    const StepInterval<float> defoffsrange4feet( 0, 19800*mFromFeetFactorF, 
+    const StepInterval<float> defoffsrange4feet( 0, 19800*mFromFeetFactorF,
 						 330*mFromFeetFactorF );
-    const StepInterval<float>& offsrange = 
-				SI().xyInFeet() ? defoffsrange4feet 
+    const StepInterval<float>& offsrange =
+				SI().xyInFeet() ? defoffsrange4feet
 						: defoffsrange4metres;
     TypeSet<float> offsetvals;
     for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
@@ -74,7 +74,7 @@ AngleMuteBase::AngleMuteBase()
 AngleMuteBase::~AngleMuteBase()
 {
     delete params_;
-    deepErase( rtrunners_ ); 
+    deepErase( rtrunners_ );
     velsource_->unRef();
 }
 
@@ -90,7 +90,7 @@ void AngleMuteBase::fillPar( IOPar& par ) const
 }
 
 
-bool AngleMuteBase::usePar( const IOPar& par  ) 
+bool AngleMuteBase::usePar( const IOPar& par  )
 {
     params_->raypar_.merge( par );
     par.get( sKeyVelVolumeID(), params_->velvolmid_ );
@@ -114,9 +114,9 @@ bool AngleMuteBase::setVelocityFunction()
 
 
 
-bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model, 
+bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 			       SamplingData<float>& sd, int resamplesz )
-{ 
+{
     TypeSet<float> vels;
     RefMan<Vel::VolumeFunction> velfun = velsource_->createFunction( bid );
     if ( !velfun || !velsource_->getVel(bid,sd,vels) )
@@ -139,7 +139,7 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
     const StepInterval<float> zrg = velfun->getAvailableZ();
     TypeSet<float> depths;
     depths.setSize( nrlayers, 0 );
-    
+
     if ( velsource_->zIsTime() )
     {
 	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrlayers );
@@ -159,9 +159,9 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 
     int il = 1;
     for ( il=1; il<nrlayers; il++ )
-	model += ElasticLayer(depths[il]-depths[il-1], 
+	model += ElasticLayer(depths[il]-depths[il-1],
 			vels[il], mUdf(float), mUdf(float) );
-    model += ElasticLayer(depths[il-1]-depths[il-2], 
+    model += ElasticLayer(depths[il-1]-depths[il-2],
 			vels[il-1], mUdf(float), mUdf(float) );
 
     bool doblock = false; float blockratiothreshold;
@@ -176,9 +176,9 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 }
 
 
-float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers, 
-					int ioff, bool tail, int startlayer, 
-					bool belowcutoff ) const 
+float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
+					int ioff, bool tail, int startlayer,
+					bool belowcutoff ) const
 {
     float mutelayer = mUdf(float);
     const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PI / 180 );
@@ -192,7 +192,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	    if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && il<nrlayers/2) )
 		continue; //Ordered down, get rid of edge 0.
 
-	    bool ismuted = ( sini < cutoffsin && belowcutoff ) || 
+	    bool ismuted = ( sini < cutoffsin && belowcutoff ) ||
 				( sini > cutoffsin && !belowcutoff );
 	    if ( ismuted )
 	    {
@@ -220,9 +220,9 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	    if ( mIsUdf(sini) )
 		continue;
 
-	    bool ismuted = ( sini > cutoffsin && belowcutoff ) || 
+	    bool ismuted = ( sini > cutoffsin && belowcutoff ) ||
 				( sini < cutoffsin && !belowcutoff );
-	    if ( ismuted ) 
+	    if ( ismuted )
 	    {
 		if ( previdx!=-1 && !mIsZero(sini-prevsin,1e-5) )
 		{
@@ -250,7 +250,7 @@ AngleMute::AngleMute()
 
 
 AngleMute::~AngleMute()
-{ 
+{
     deepErase( muters_ );
 }
 
@@ -311,7 +311,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;
 
-	const int nrblockedlayers = layers.size();	
+	const int nrblockedlayers = layers.size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
@@ -331,7 +331,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
-	    float mutelayer = 
+	    float mutelayer =
 		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
 	    nrblockedlayers, ioffs, params().tail_ );
 	    if ( mIsUdf( mutelayer ) )
@@ -365,7 +365,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 			float thk = layers[il].thickness_;
 			if ( il == muteintlayer+1 )
 			    thk *= ( mutelayer - muteintlayer);
-			
+
 			depth += thk;
 		    }
 		    mutelayer = sd.getfIndex( depth );
@@ -386,3 +386,4 @@ AngleMute::AngleMutePars& AngleMute::params()
 const AngleMute::AngleMutePars& AngleMute::params() const
 { return static_cast<AngleMute::AngleMutePars&>(*params_); }
 
+} // namespace PreStack

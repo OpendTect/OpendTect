@@ -1,6 +1,6 @@
 #ifndef horizontracker_h
 #define horizontracker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -32,7 +32,8 @@ class SeisTrc;
 
 
 
-namespace MPE {
+namespace MPE
+{
 
 /*!
 \brief SequentialTask to autotrack EM::Horizon.
@@ -40,35 +41,35 @@ namespace MPE {
 
 mExpClass HorizonAutoTracker : public SequentialTask
 {
-public:	
-    				HorizonAutoTracker( EM::Horizon& );
+public:
+				HorizonAutoTracker( EM::Horizon& );
                                 ~HorizonAutoTracker();
-    
+
     void			set3DSurvGeom(const Survey::Geometry3D&);
-    
+
     bool			init();
-    
-    const ObjectSet<EM::Fault>&	getFaults() const 	{ return faults_; }
+
+    const ObjectSet<EM::Fault>&	getFaults() const	{ return faults_; }
     void			addFault(EM::Fault&);
     void			removeFault(EM::Fault&);
-    
+
     int				doStep();
-    
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    
+
     const char*			errMsg() const { return errmsg_.str(); }
     const EM::Horizon&		horizon() const { return horizon_; }
-    
+
     static FixedString		sNrHorizons()	{ return "Nr Horizons"; }
     static FixedString		sKeyHorizonID()	{ return "Horizon ID"; }
-    
+
     struct			TrackTarget
     {
 	friend			class HorizonAutoTrackerTask;
 	TrackTarget( HorizonAutoTracker* );
 	void			reset();
-	
+
 	static unsigned char	getSourceMask(EM::SubID from,EM::SubID to);
 	static unsigned char	cSourcePP() { return 1; }
 	static unsigned char	cSourcePS() { return 2; }
@@ -78,72 +79,72 @@ public:
 	static unsigned char	cSourceNP() { return 32; }
 	static unsigned char	cSourceNS() { return 64; }
 	static unsigned char	cSourceNN() { return 128; }
-	
+
         void			computeProposal();
-        
+
         EM::PosID		pid_;
-        
+
         float			score_;
         float			proposedz_;
         unsigned char		sources_;
-        
+
         HorizonAutoTracker*	tracker_;
-	
+
 	bool			istarget_;
 	bool			needsrecalc_;
 	bool			isvalid_;
     };
 
-    
+
 protected:
     void			removeAll();
-    
+
     RowCol			getArrayPos(const EM::PosID&) const;
-    
-        
+
+
     float			getInterpolZ(const EM::PosID&) const;
     void			computeScores();
     void			addSeed(EM::SectionID,EM::SubID);
     int				addPossibleTarget(EM::SectionID,EM::SubID);
-				//Returns index (to array) if target should be computed
+				/*Returns index (to array) if target should
+				  be computed*/
     void			getSources(const EM::PosID&,
 					   TypeSet<EM::PosID>&) const;
-    
+
     const SeisTrc*		getTrace(EM::SubID) const;
-    				//Waits until it is loaded
+				//Waits until it is loaded
     void			requestTrace(EM::SubID);
-    				//Tell that you want it to be loaded
-    
+				//Tell that you want it to be loaded
+
     BufferString		errmsg_;
-    
+
     EM::Horizon2D*		hor2d_;
     EM::Horizon3D*		hor3d_;
     EM::Horizon&		horizon_;
-    
+
     ObjectSet<EM::Fault>	faults_;
-    
+
     /* For 2D, there is one row in the arrays per line in the survey, and one
        column per trace, using the step of the horizon.
        For 3D, there is one row per inline in the survey, and one column per
        trace, both with the step of the horizon. */
-    
+
     PtrMan<Array2DImpl<TrackTarget> >		targetarray_;
-    
+
     PtrMan<Array2DImpl<unsigned char> >		history_;
-    
+
     PtrMan<Array2DImpl<PtrMan<SeisTrc> > >	trcs_;
     PtrMan<Array2DImpl<PtrMan<SeisTrc> > >	diptrcs_;
     PtrMan<Array2DImpl<bool> >			tracewanted_;
-    
+
     RowCol					arrayorigin_;
     RowCol					step_;
-    
+
     RefMan<Survey::Geometry3D>			s3dgeom_;
 
 };
-    
 
-}; // namespace MPE
+} // namespace MPE
 
 #endif
 

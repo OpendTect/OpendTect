@@ -33,8 +33,8 @@ static const char* sValnms = "Value Names";
 static const char* sSections = "Patches";
 
 
-using namespace EM;
-
+namespace EM
+{
 
 void SurfaceIOData::clear()
 {
@@ -72,7 +72,7 @@ void SurfaceIOData::use( const Surface& surf )
 	for ( int idx=0; idx<horizon->auxdata.nrAuxData(); idx++ )
 	    valnames += new BufferString( horizon->auxdata.auxDataName(idx) );
     }
-   
+
     linenames.erase();
     linesets.erase();
     trcranges.erase();
@@ -109,7 +109,7 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     IOPar sectionpar;
     sections.fillPar( sectionpar );
     iopar.mergeComp( sectionpar, sSections );
-    
+
     for ( int idx=0; idx<linesets.size(); idx++ )
     {
 	PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey( linesets.get(idx),
@@ -255,7 +255,7 @@ Executor* Surface::loader() { return geometry().loader(); }
 Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
 { return geometry().sectionGeometry(sid); }
 
-EMObjectIterator* Surface::createIterator( const SectionID& sid, 
+EMObjectIterator* Surface::createIterator( const SectionID& sid,
 					   const CubeSampling* cs ) const
 { return geometry().createIterator( sid, cs ); }
 
@@ -278,7 +278,7 @@ void Surface::apply( const Pos::Filter& pf )
 	if ( pid.objectID()==-1 )
 	    break;
 
-	const Coord3 pos = getPos( pid ); 
+	const Coord3 pos = getPos( pid );
 	if ( !pf.includes( (Coord) pos, (float) pos.z) )
 	   unSetPos( pid, false );
     }
@@ -312,3 +312,5 @@ void Surface::fillPar( IOPar& par ) const
     EMObject::fillPar( par );
     geometry().fillPar( par );
 }
+
+} // namespace EM

@@ -13,7 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackgather.h"
 
 
-using namespace PreStack;
+namespace PreStack
+{
 
 Stack::Stack()
     : Processor( sFactoryKeyword() )
@@ -126,3 +127,5 @@ od_int64 Stack::nrIterations() const
 
     return max;
 }
+
+} // namespace PreStack

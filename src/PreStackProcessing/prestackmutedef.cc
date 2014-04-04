@@ -16,12 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "survinfo.h"
 
-using namespace PreStack;
-
+namespace PreStack
+{
 
 MuteDef::MuteDef( const char* nm )
     : NamedObject( nm )
-    , ischanged_( false )  
+    , ischanged_( false )
 {}
 
 
@@ -69,9 +69,9 @@ const BinID& MuteDef::getPos( int idx ) const
 
 
 void MuteDef::add( PointBasedMathFunction* fn , const BinID& pos )
-{ 
-    fns_ += fn; 
-    pos_ += pos; 
+{
+    fns_ += fn;
+    pos_ += pos;
     ischanged_ = true;
 }
 
@@ -172,7 +172,7 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
 	itv.start = mutezvals[imute];
 	if ( mutezvals.validIdx(imute+1) )
 	    itv.stop = mutezvals[imute+1];
-	res += itv; 
+	res += itv;
     }
 }
 
@@ -182,9 +182,9 @@ void MuteDef::getAllZVals( TypeSet<float>& zvals ) const
     for ( int ifn=0; ifn<fns_.size(); ifn++ )
     {
 	for ( int idx=0; idx<fns_[ifn]->size(); idx ++ )
-	    zvals += fns_[ifn]->xVals()[idx]; 
+	    zvals += fns_[ifn]->xVals()[idx];
     }
-    sort_array( zvals.arr(), zvals.size() ); 
+    sort_array( zvals.arr(), zvals.size() );
 }
 
 
@@ -194,3 +194,5 @@ void MuteDef::setReferenceHorizon( const MultiID& mid )
 
 const MultiID& MuteDef::getReferenceHorizon() const
 { return refhor_; }
+
+} // namespace PreStack

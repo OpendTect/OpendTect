@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "od_iostream.h"
 
-using namespace Survey;
+namespace Survey
+{
 
 #define mReturn return ++nrdone_ < totalNr() ? MoreToDo() : Finished();
 
@@ -28,14 +29,14 @@ class GeomFileReader : public Executor
 public:
 
     GeomFileReader( const ObjectSet<IOObj>& objs,
-	    	    ObjectSet<Geometry>& geometries )
+		    ObjectSet<Geometry>& geometries )
 	: Executor( "Loading Files" )
 	, objs_(objs)
 	, geometries_(geometries)
 	, nrdone_(0)
     {}
 
-	    
+
     od_int64 nrDone() const
     { return nrdone_; }
 
@@ -48,14 +49,14 @@ protected:
     int nextStep()
     {
 	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
-	if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() || 
+	if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() ||
 	     ioobj->key().nrKeys() != 2 )
 	    mReturn
 
 	od_istream strm( ioobj->fullUserExpr() );
 	if ( !strm.isOK() )
 	    mReturn
-	    
+
 	PosInfo::Line2DData* data = new PosInfo::Line2DData;
 	if ( !data->read(strm,false) )
 	    { delete data; mReturn }
@@ -71,7 +72,7 @@ protected:
 
     const ObjectSet<IOObj>&	objs_;
     ObjectSet<Geometry>&	geometries_;
-    od_int64		    	nrdone_;
+    od_int64			nrdone_;
 
 };
 
@@ -120,7 +121,7 @@ void GeometryWriter3D::initClass()
 }
 
 
-bool GeometryReader2D::read( ObjectSet<Geometry>& geometries, 
+bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom);
@@ -145,3 +146,4 @@ void GeometryReader3D::initClass()
     GeometryReader::factory().addCreator( create3DReader, sKey::ThreeD() );
 }
 
+} // namespace Survey

@@ -16,9 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mType		      float
 #define mCplxType	      float_complex
 
-using namespace Fourier;
-
-
+namespace Fourier
+{
 
 mImplFactory( CC, CC::factory );
 
@@ -4262,3 +4261,4 @@ int CC::npfaro( int nmin, int nmax )
     return 2*npfao((nmin+1)/2,(nmax+1)/2);
 }
 
+} // namespace Fourier

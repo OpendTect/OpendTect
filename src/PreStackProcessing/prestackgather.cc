@@ -27,7 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "keystrs.h"
 
-using namespace PreStack;
+namespace PreStack
+{
 
 const char* Gather::sDataPackCategory()		{ return "Pre-Stack Gather"; }
 const char* Gather::sKeyIsAngleGather()		{ return "Angle Gather"; }
@@ -477,5 +478,4 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
     return tbuf.size() > gatheridx ? tbuf.get( gatheridx ) : 0;
 }
 
-
-
+} // namespace PreStack

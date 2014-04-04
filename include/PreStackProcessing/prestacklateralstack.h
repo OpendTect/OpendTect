@@ -28,19 +28,19 @@ namespace PreStack
 mExpClass(PreStackProcessing) LateralStack : public Processor
 {
 public:
-    			mDefaultFactoryInstanciationBase(
+			mDefaultFactoryInstanciationBase(
 				"LateralStack", "Super Gather" );
     static Processor*	createInstance();
 
- 			LateralStack();
-    			~LateralStack();
+			LateralStack();
+			~LateralStack();
 
     bool		reset();
 
     bool		wantsInput(const BinID&) const;
     bool		setPattern(const BinID& stepout,bool cross);
-    			//If cross if false, it will be a rectangle
-    bool		isCross() const 	{ return iscross_; }
+			//If cross if false, it will be a rectangle
+    bool		isCross() const	{ return iscross_; }
     const BinID&	getPatternStepout() const { return patternstepout_; }
     const BinID&	getInputStepout() const { return inputstepout_; }
     bool		setOutputInterest(const BinID& relbid,bool);
@@ -69,8 +69,7 @@ protected:
     TypeSet<OffsetAzimuth>	offsetazi_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
 

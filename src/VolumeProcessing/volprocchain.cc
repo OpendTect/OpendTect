@@ -96,10 +96,7 @@ protected:
     BufferString	errmsg_;
 };
 
-} // namespace Volproc
 
-
-using namespace VolProc;
 
 ChainExecutor::ChainExecutor( Chain& vr )
     : Executor( "Volume processing" )
@@ -1085,3 +1082,6 @@ Task* Step::createTask()
 
     return 0;
 }
+
+} // namespace Volproc
+

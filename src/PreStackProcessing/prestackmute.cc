@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackmutedeftransl.h"
 #include "separstr.h"
 
-using namespace PreStack;
+namespace PreStack
+{
 
 Mute::Mute()
     : Processor( sFactoryKeyword() )
@@ -93,20 +94,20 @@ bool Mute::setMuteDefID( const MultiID& mid )
     if ( mid.isEmpty() )
 	mErrRet("No MuteDef ID provided.")
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) 
+    if ( !ioobj )
 	mErrRet(BufferString("Cannot find MuteDef ID '", mid,
-		    	     "' in Object Manager."))
+			     "' in Object Manager."))
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
     {
 	FileMultiString fms( BufferString( "Mute definition \"", ioobj->name(),
-		    			   "\" cannot be read." ) );
+					   "\" cannot be read." ) );
 	fms += errmsg_;
 	mErrRet( fms.buf() );
     }
-    
+
     id_ = mid;
-    
+
     return true;
 }
 
@@ -178,3 +179,5 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
+
+} // namespace PreStack

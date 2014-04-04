@@ -22,9 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "selector.h"
 #include "survinfo.h"
 
-using namespace EM;
-
-
+namespace EM
+{
 
 int EMObject::sPermanentControlNode() {return PosAttrib::PermanentControlNode;}
 int EMObject::sTemporaryControlNode() {return PosAttrib::TemporaryControlNode;}
@@ -32,7 +31,7 @@ int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
 int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 
-const char* EMObject::prefcolorstr() 	    { return "Color"; }
+const char* EMObject::prefcolorstr()	    { return "Color"; }
 const char* EMObject::posattrprefixstr()    { return "Pos Attrib "; }
 const char* EMObject::posattrsectionstr()   { return " Section"; }
 const char* EMObject::posattrposidstr()	    { return " SubID"; }
@@ -118,7 +117,7 @@ const Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) const
 { return const_cast<EMObject*>(this)->sectionGeometryInternal(sec); }
 
 
-Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) 
+Geometry::Element* EMObject::sectionGeometry( const SectionID& sec )
 { return sectionGeometryInternal(sec); }
 
 
@@ -146,7 +145,7 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 #define mRetErr( msg ) { errmsg_ = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
-			bool addtoundo ) 
+			bool addtoundo )
 {
     if ( pid.objectID()!=id() )
 	mRetErr("");
@@ -156,7 +155,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 
 
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
-			const Coord3& newpos, bool addtoundo ) 
+			const Coord3& newpos, bool addtoundo )
 {
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( "" );
@@ -298,7 +297,7 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
     change.trigger( cbdata );
 
     /*The unset must be after the trigger, becaues otherwise the old pos
-	cannot be retrieved for the cb. In addition, the posattrib status of 
+	cannot be retrieved for the cb. In addition, the posattrib status of
 	the node is needed during the cbs, and that is removed when unsetting
 	the pos.  */
     unSetPos( from, false );
@@ -317,7 +316,7 @@ bool EMObject::isDefined( const PosID& pid ) const
 
 bool EMObject::isDefined( const EM::SectionID& sid,
 			  const EM::SubID& subid ) const
-{ 
+{
     const Geometry::Element* element = sectionGeometry( sid );
     return element && element->isDefined( subid );
 }
@@ -333,7 +332,7 @@ void EMObject::addPosAttrib( int attr )
 	posattribs_[idx]->type_ = (PosAttrib::Type)attr;
 	posattribs_[idx]->locked_ = false;
     }
-}    
+}
 
 
 void EMObject::removePosAttribList( int attr, bool addtoundo )
@@ -344,7 +343,7 @@ void EMObject::removePosAttribList( int attr, bool addtoundo )
 
     const TypeSet<PosID>& attrlist = posattribs_[idx]->posids_;
 
-    while ( attrlist.size() ) 
+    while ( attrlist.size() )
 	setPosAttrib( attrlist[0], attr, false, addtoundo );
 }
 
@@ -363,7 +362,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     const int idx = attribs_.indexOf(attr);
     if ( idx == -1 )
 	return;
-    
+
     TypeSet<PosID>& posids = posattribs_[idx]->posids_;
     const int idy=posids.indexOf( pid );
 
@@ -371,7 +370,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 	posids += pid;
     else if ( idy!=-1 && !yn )
 	posids.removeSingle( idy, false );
-    else 
+    else
 	return;
 
     if ( addtoundo )
@@ -412,7 +411,7 @@ const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 }
 
 
-const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr ) 
+const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
 {
     addPosAttrib( attr );
     const int idx=attribs_.indexOf( attr );
@@ -420,12 +419,12 @@ const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
 }
 
 
-void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms ) 
+void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
 {
     addPosAttrib( attr );
     const int idx=attribs_.indexOf( attr );
     posattribs_[idx]->style_ = ms;
-    
+
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
     cbdata.attrib = attr;
@@ -445,7 +444,7 @@ void EMObject::lockPosAttrib( int attr, bool yn )
 bool EMObject::isPosAttribLocked( int attr ) const
 {
     const int idx=attribs_.indexOf( attr );
-    return idx!=-1 ? posattribs_[idx]->locked_ : false; 
+    return idx!=-1 ? posattribs_[idx]->locked_ : false;
 }
 
 
@@ -458,7 +457,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     removebypolyposbox_.setEmpty();
 
     insideselremoval_ = true;
-//#ifdef    
+//#ifdef
     for ( int idx=0; idx<nrSections(); idx++ )
     {
 	Geometry::Element* ge = sectionGeometry( sectionID(idx) );
@@ -473,7 +472,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	int nrcols = surface->colRange().nrSteps() + 1 ;
 
 	EMObjectRowColSelRemoval selremoval( *this, sectionID(idx), selector,
-					     nrrows, nrcols, 
+					     nrrows, nrcols,
 					     startrow, startcol );
 	selremoval.executeParallel( tr );
 
@@ -491,9 +490,9 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
-		    			      = bid;
+					      = bid;
 		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
-		    			      = (float) pos.z;
+					      = (float) pos.z;
 	    }
 	    else
 	    {
@@ -506,7 +505,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 		ge->blockCallBacks( true, true );
 		poscount = 0;
 	    }
-	} 
+	}
 	ge->blockCallBacks( false, true );
 	setBurstAlert( false );
     }
@@ -525,7 +524,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    unSetPos( pid, true );
 	    if ( !selremoving_ )
 		selremoving_ = true;
-	    
+
 	    dummypid = pid;
 
 	    if ( !pos.isDefined() ||
@@ -536,9 +535,9 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
-		    			      = bid;
+					      = bid;
 		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
-		    			      = pos.z;
+					      = pos.z;
 	    }
 	    else
 	    {
@@ -553,7 +552,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 
 
 void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
-       				   const EM::SectionID& sectionid )
+				   const EM::SectionID& sectionid )
 {
     for ( int sididx = 0; sididx < subids.size(); sididx++ )
     {
@@ -663,7 +662,7 @@ bool EMObject::usePar( const IOPar& par )
 	BufferString markerstyleparstr;
 	if ( par.get(markerstylekey.buf(),markerstyleparstr) )
 	    posattribs_[curposattridx]->style_.fromString(
-		    			markerstyleparstr.buf() );
+					markerstyleparstr.buf() );
     }
 
     return true;
@@ -700,7 +699,7 @@ void EMObject::fillPar( IOPar& par ) const
 
 	par.set( patchkey.buf(), attrpatches );
 	par.set( subidkey.buf(), subids );
-	
+
 	BufferString markerstylekey = attribkey;
 	markerstylekey += markerstylestr();
 	BufferString markerstyleparstr;
@@ -733,3 +732,5 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 	}
     }
 }
+
+} // namespace EM

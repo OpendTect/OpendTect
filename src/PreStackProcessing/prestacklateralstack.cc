@@ -15,7 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 
 
-using namespace PreStack;
+namespace PreStack
+{
 
 void LateralStack::initClass()
 {
@@ -89,7 +90,8 @@ bool LateralStack::wantsInput( const BinID& relbid ) const
 {
     for ( int oinl=-outputstepout_.inl(); oinl<=outputstepout_.inl(); oinl++ )
     {
-	for ( int ocrl=-outputstepout_.crl(); ocrl<=outputstepout_.crl(); ocrl++ )
+	for ( int ocrl=-outputstepout_.crl();
+					ocrl<=outputstepout_.crl(); ocrl++ )
 	{
 	    const BinID outputbid( oinl, ocrl );
 	    const int outputoffset = getRelBidOffset(outputbid,outputstepout_);
@@ -97,11 +99,11 @@ bool LateralStack::wantsInput( const BinID& relbid ) const
 	    if ( !outputinterest_[outputoffset] )
 		continue;
 
-	    for ( int pinl=-patternstepout_.inl(); pinl<=patternstepout_.inl();
-		  pinl++ )
+	    for ( int pinl=-patternstepout_.inl();
+					pinl<=patternstepout_.inl(); pinl++ )
 	    {
-		for ( int pcrl=-patternstepout_.crl(); pcrl<=patternstepout_.crl();
-		      pcrl++ )
+		for ( int pcrl=-patternstepout_.crl();
+					pcrl<=patternstepout_.crl(); pcrl++ )
 		{
 		    const BinID patternbid( pinl, pcrl );
 		    const BinID bid = outputbid + patternbid;
@@ -146,7 +148,7 @@ bool LateralStack::prepareWork()
     const int nroffsets = centergather->size(Gather::offsetDim()==0);
     for ( int idx=0; idx<nroffsets; idx++ )
 	offsetazi_ += centergather->getOffsetAzimuth( idx );
-    
+
     return true;
 }
 
@@ -173,9 +175,11 @@ bool LateralStack::doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int ioffs=mCast(int,start); ioffs<=stop; ioffs++, addToNrDone(1) )
     {
-	for ( int oinl=-outputstepout_.inl(); oinl<=outputstepout_.inl(); oinl++ )
+	for ( int oinl=-outputstepout_.inl();
+					oinl<=outputstepout_.inl(); oinl++ )
 	{
-	    for ( int ocrl=-outputstepout_.crl(); ocrl<=outputstepout_.crl();ocrl++)
+	    for ( int ocrl=-outputstepout_.crl();
+					ocrl<=outputstepout_.crl(); ocrl++ )
 	    {
 		processOutput( offsetazi_[ioffs], BinID(oinl,ocrl) );
 	    }
@@ -203,7 +207,7 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 	{
 	    outputtrc = outputgather->data().getData();
 	    if ( outputtrc )
-    		outputtrc += outputgather->data().info().getOffset( idx, 0 );
+		outputtrc += outputgather->data().info().getOffset( idx, 0 );
 
 	    break;
 	}
@@ -219,7 +223,8 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 
     for ( int oinl=-patternstepout_.inl(); oinl<=patternstepout_.inl(); oinl++ )
     {
-	for ( int ocrl=-patternstepout_.crl(); ocrl<=patternstepout_.crl(); ocrl++ )
+	for ( int ocrl=-patternstepout_.crl();
+					ocrl<=patternstepout_.crl(); ocrl++ )
 	{
 	    const BinID patternbid( oinl, ocrl );
 	    if ( !isInPattern( patternbid ) )
@@ -227,7 +232,7 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 
 	    const BinID relbid = center + patternbid;
 	    const int gatheroffset = getRelBidOffset(relbid,getInputStepout());
-	    
+
 	    const Gather* gather = inputs_[gatheroffset];
 	    if ( !gather )
 		continue;
@@ -267,3 +272,5 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 
     return true;
 }
+
+} // namespace PreStack
