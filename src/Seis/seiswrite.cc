@@ -6,27 +6,27 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiswrite.h"
+
+#include "executor.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
-#include "seistrctr.h"
-#include "seistrc.h"
+#include "posinfo2dsurv.h"
+#include "seispsioprov.h"
+#include "seispscubetr.h"
+#include "seispswrite.h"
 #include "seisselection.h"
+#include "seistrc.h"
+#include "seistrctr.h"
 #include "seis2ddata.h"
 #include "seis2dline.h"
 #include "seis2dlineio.h"
-#include "seispsioprov.h"
-#include "seispswrite.h"
-#include "seispscubetr.h"
-#include "executor.h"
-#include "iostrm.h"
-#include "ioman.h"
 #include "separstr.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 #include "thread.h"
 #include "threadwork.h"
-#include "iopar.h"
 
-using namespace Survey;
 
 #define mCurGeomID (gidp_ \
     ? gidp_->geomID() \
@@ -41,7 +41,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	, gidp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
-	, geom2d_(*new Geometry2D())
+	, geom2d_(*new Survey::Geometry2D())
 {
     geom2d_.ref();
     init();
@@ -54,7 +54,7 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
-	, geom2d_(*new Geometry2D())
+	, geom2d_(*new Survey::Geometry2D())
 {
     geom2d_.ref();
     init();
@@ -129,7 +129,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     {
 	const char* psstorkey = ioobj_->fullUserExpr(true);
 	const Pos::GeomID geomid = mCurGeomID;
-	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, 
+	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey,
 						  Survey::GM().getName(geomid) )
 			  : psioprov_->make3DWriter( psstorkey );
 	if ( !pswriter_ )

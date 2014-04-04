@@ -77,7 +77,7 @@ public:
     static float	cStdStretchLimit() { return 0.2f; }
 
     static const char*	sKeyFourier()	{ return "Convolution Domain"; }
-    static const char*	sKeyNMO() 	{ return "Use NMO"; }
+    static const char*	sKeyNMO()	{ return "Use NMO"; }
     static const char*  sKeyInternal()  { return "Internal Multiples"; }
     static const char*  sKeySurfRefl()	{ return "Surface Reflection coef"; }
     static const char*	sKeyMuteLength(){ return "Mute length"; }
@@ -266,10 +266,7 @@ protected:
     bool			raytracingdone_;
 };
 
-} //namespace
-
+} // namespace Seis
 
 #endif
-
-
 

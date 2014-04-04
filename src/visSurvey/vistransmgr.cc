@@ -19,12 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linsolv.h"
 
 
-using namespace visSurvey;
-
-
-SceneTransformManager& visSurvey::STM()
+namespace visSurvey
 {
-    mDefineStaticLocalObject( SceneTransformManager*, tm, 
+
+SceneTransformManager& STM()
+{
+    mDefineStaticLocalObject( SceneTransformManager*, tm,
 			      = new SceneTransformManager );
     return *tm;
 }
@@ -41,7 +41,7 @@ void SceneTransformManager::computeUTM2DisplayTransform(
     const float ztransl = mComputeZTranslation( 1 );
 
     res->setA(	1,	0,	0,		-startpos.x,
-	    	0,	1,	0,		-startpos.y,
+		0,	1,	0,		-startpos.y,
 		0,	0,	zfactor,	ztransl,
 		0,	0,	0,		1 );
 }
@@ -82,7 +82,7 @@ void SceneTransformManager::computeICRotationTransform(
     double x[3];
 
     LinSolver<double> linsolver( A );
-    
+
     const int inlwidth = hs.inlRange().width();
     const int crlwidth = hs.crlRange().width();
 
@@ -93,7 +93,7 @@ void SceneTransformManager::computeICRotationTransform(
 	    rotation->reset();
 	    return;
 	}
-	
+
 	x[0] = 1;
 	x[1] = b[1] / (crlwidth*crldist);
 	x[2] = -startbid.inl()*inldist - x[1] * startbid.crl()*crldist;
@@ -116,7 +116,7 @@ void SceneTransformManager::computeICRotationTransform(
 	x[2] = -x[0] * startbid.inl()*inldist - startbid.crl()*crldist;
     }
     else
-    	linsolver.apply( b, x );
+	linsolver.apply( b, x );
 
     const double mat21 = x[0];
     const double mat22 = x[1];
@@ -139,3 +139,4 @@ void SceneTransformManager::computeICRotationTransform(
 			 0,		0,		0,		1 );
 }
 
+} // namespace visSurvey

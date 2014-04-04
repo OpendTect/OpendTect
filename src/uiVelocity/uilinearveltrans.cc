@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uizrangeinput.h"
 
-using namespace Vel;
-
+namespace Vel
+{
 
 void uiLinearVelTransform::initClass()
 {
@@ -30,16 +30,16 @@ void uiLinearVelTransform::initClass()
 
 uiZAxisTransform* uiLinearVelTransform::create( uiParent* p,
 					        const char* fromdomain,
-				       		const char* todomain )
+						const char* todomain )
 {
     if ( !fromdomain || !todomain )
 	return 0;
-    
+
     if ( fromdomain==ZDomain::sKeyTime() && todomain==ZDomain::sKeyDepth() )
 	return new uiLinearVelTransform( p, true );
     else if ( fromdomain==ZDomain::sKeyDepth() && todomain==ZDomain::sKeyTime())
 	return new uiLinearVelTransform( p, false );
-    
+
     return 0;
 }
 
@@ -56,8 +56,8 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     velfld_ = new uiGenInput( this, velfldlbl.buf(),
 			     FloatInpSpec(SI().zInFeet() ? 6000.f : 2000.f ) );
     mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
-    
-   
+
+
     gradientfld_ = new uiGenInput( this, "Gradient (1/s)", FloatInpSpec(0) );
     gradientfld_->attach( alignedBelow, velfld_ );
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
@@ -69,17 +69,17 @@ void uiLinearVelTransform::enableTargetSampling()
 {
     if ( rangefld_ )
 	return;
-    
+
     if ( finalised() )
     {
 	pErrMsg("You're to late");
 	return;
     }
-    
+
     rangefld_ = new uiZRangeInput( this, t2d_, true );
     rangefld_->attach( alignedBelow, gradientfld_ );
     mAttachCB( finaliseDone, uiLinearVelTransform::finalizeDoneCB );
-    
+
     velChangedCB( 0 );
 }
 
@@ -100,7 +100,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 {
     if ( !rangefld_ )
 	return;
-    
+
     if ( !rangechanged_ )
     {
 	StepInterval<float> range( StepInterval<float>::udf() );
@@ -116,7 +116,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	    else
 		range.step = range.width()/nrsamples;
 	}
-	
+
 	NotifyStopper stopper( rangefld_->valuechanging );
 	rangefld_->setZRange( range );
     }
@@ -135,14 +135,14 @@ ZAxisTransform*	uiLinearVelTransform::getSelection()
     const float vel = velfld_->getfValue();
     if ( mIsUdf(vel) )
 	return 0;
-    
+
     const float gradient = gradientfld_->getfValue();
     if ( mIsUdf(gradient) )
 	return 0;
-    
+
     if ( t2d_ )
 	return new LinearT2DTransform( vel, gradient );
-    
+
     return new LinearD2TTransform( vel, gradient );
 }
 
@@ -155,14 +155,14 @@ bool uiLinearVelTransform::acceptOK()
 	uiMSG().error("Velocity is not set");
 	return false;
     }
-    
+
     const float gradient = gradientfld_->getfValue();
     if ( mIsUdf(gradient) )
     {
 	uiMSG().error("Gradient is not set");
 	return false;
     }
-    
+
     if ( rangefld_ )
     {
 	const StepInterval<float> range = rangefld_->getFZRange();
@@ -172,7 +172,8 @@ bool uiLinearVelTransform::acceptOK()
 	    return false;
 	}
     }
-    
+
     return true;
 }
 
+} // namespace Vel
