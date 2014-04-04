@@ -97,7 +97,8 @@ void relocStart( const char* msg )
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const uiString& seltxt, bool multisel,
-			      bool havereloc, bool havesetsurvdefault )
+			      bool havereloc, bool havesetsurvdefault,
+			      bool needremove )
     : uiGroup(p)
     , ctio_(c)
     , ismultisel_(multisel && ctio_.ctxt.forread)
@@ -159,7 +160,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     {
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
-							 havereloc );
+							 havereloc,
+							 needremove );
 
 	if ( havesetsurvdefault )
 	{

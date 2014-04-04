@@ -57,7 +57,8 @@ public:
 					      const uiString& seltxt=0,
 					      bool multisel=false,
 					      bool needreloc=false,
-					      bool setdefaultbut=false);
+					      bool setdefaultbut=false,
+					      bool needremove=true);
 				~uiIOObjSelGrp();
     bool			isEmpty() const;
     int				size() const;

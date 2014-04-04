@@ -102,20 +102,23 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 }
 
 
-uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
+uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
+				      bool withremove )
 	: uiManipButGrp(s.obj_->parent())
 	, subj_(s)
 	, locbut(0)
+	, rembut(0)
 {
     subj_.grp_ = this;
 
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
-    if ( reloc )
+    if ( withreloc )
 	locbut = addButton( FileLocation, "Change location on disk", cb );
     renbut = addButton( Rename, "Rename this object", cb );
     robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
     setAlternative( robut, "unlock", "Toggle Read only : editable" );
-    rembut = addButton( Remove, "Remove this object", cb );
+    if ( withremove )
+	rembut = addButton( Remove, "Remove this object", cb );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -143,7 +146,7 @@ void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
     if ( tp == FileLocation && locbut )	locbut->click();
     else if ( tp == Rename )		renbut->click();
     else if ( tp == ReadOnly )		robut->click();
-    else if ( tp == Remove )		rembut->click();
+    else if ( tp == Remove && rembut )		rembut->click();
 }
 
 
@@ -158,7 +161,7 @@ void uiIOObjManipGroup::selChg()
     if ( locbut ) locbut->setSensitive( iostrm && !isreadonly );
     useAlternative( robut, !isreadonly );
     renbut->setSensitive( ioobj );
-    rembut->setSensitive( ioobj && !isreadonly );
+    if ( rembut ) rembut->setSensitive( ioobj && !isreadonly );
 }
 
 

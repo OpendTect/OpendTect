@@ -56,7 +56,8 @@ protected:
     void			readNotes();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char
-    void			createDefaultUI(bool needreloc=false);
+    void			createDefaultUI(bool needreloc=false,
+						bool needremove=true);
     void			getTimeStamp(const char*,BufferString&);
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();

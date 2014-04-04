@@ -13,97 +13,43 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dgeomman.h"
 
 #include "bufstringset.h"
-#include "file.h"
 #include "geom2dascio.h"
-#include "posinfo2dsurv.h"
+#include "ioman.h"
 #include "od_istream.h"
+#include "posinfo2d.h"
+#include "survgeom2d.h"
+#include "survgeometrytransl.h"
 
-#include "uitoolbutton.h"
+#include "uibutton.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uiioobjmanip.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
-#include "uilistbox.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 
-static const char* remmsg =
-    "All the related 2D lines & horizons will become invalid. "
-    "Do you want to go ahead?";
-
-ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
-				 "103.1.14"))
+static IOObjContext mkCtxt()
 {
-    setCtrlStyle( CloseOnly );
-
-    BufferStringSet linesets;
-    S2DPOS().getLineSets( linesets );
-    uiLabeledListBox* lslb = new uiLabeledListBox( this, linesets, "Linesets",
-				false, uiLabeledListBox::AboveMid );
-    linesetfld_ = lslb->box();
-    linesetfld_->selectionChanged.notify(
-	    mCB(this,ui2DGeomManageDlg,lineSetSelCB) );
-    linesetfld_->setPrefWidth( 200 );
-
-    uiToolButton* removelsgeombut = new uiToolButton( this, "trashcan",
-				"Remove LineSet Geometry",
-				mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
-    removelsgeombut->attach( centeredRightOf, lslb );
-
-    uiSeparator* versep = new uiSeparator( this, "", uiObject::Vertical );
-    versep->attach( centeredRightOf, removelsgeombut );
-
-    uiLabeledListBox* lnlb = new uiLabeledListBox( this, "Linenames", false,
-				uiLabeledListBox::AboveMid );
-    lnlb->attach( rightTo, versep );
-    linenamefld_ = lnlb->box();
-    linenamefld_->setPrefWidth( 200 );
-
-    uiToolButton* mangeombut = new uiToolButton( this, "browse2dgeom",
-				"Manage Line Geometry",
-				mCB(this,ui2DGeomManageDlg,manLineGeom) );
-    mangeombut->attach( centeredRightOf, lnlb );
-
-    uiToolButton* remgeombut = new uiToolButton( this, "trashcan",
-				"Remove Line Geometry",
-				mCB(this,ui2DGeomManageDlg,removeLineGeom) );
-    remgeombut->attach( alignedBelow, mangeombut );
-
-    lineSetSelCB( 0 );
+    IOObjContext ret( mIOObjContext(Survey::SurvGeom) );
+    ret.toselect.allowtransls_= Survey::dgb2DSurvGeomTranslator::translKey();
+    return ret;
 }
 
+ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
+    : uiObjFileMan(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
+				 "103.1.14"),mkCtxt())
+{
+    createDefaultUI( false, false );
+    selgrp_->getManipGroup()->addButton( "trashcan", "Remove this Line",
+			 mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
+    selgrp_->getManipGroup()->addButton( "browse2dgeom", "Manage Line Geometry",
+			 mCB(this,ui2DGeomManageDlg,manLineGeom) );
+}
 
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
 {
-}
-
-
-void ui2DGeomManageDlg::lineSetSelCB( CallBacker* )
-{
-    if ( linesetfld_->isEmpty() )
-	{ linenamefld_->setEmpty(); return; }
-
-    BufferStringSet linenames;
-    S2DPOS().setCurLineSet( linesetfld_->getText() );
-    S2DPOS().getLines( linenames );
-    linenamefld_->setEmpty();
-    linenamefld_->addItems( linenames );
-}
-
-
-void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
-{
-    if ( linesetfld_->isEmpty() || !linesetfld_->nrSelected() ||
-	 linesetfld_->currentItem() < 0 || !uiMSG().askGoOn(remmsg) )
-	    return;
-
-    PosInfo::POS2DAdmin().removeLineSet( linesetfld_->getText() );
-    linesetfld_->removeItem( linesetfld_->currentItem() );
-    if ( !linesetfld_->isEmpty() )
-	linesetfld_->setCurrentItem( 0 );
-    lineSetSelCB( 0 );
 }
 
 
@@ -118,17 +64,21 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 				   mNoDlgTitle,"103.1.15"))
     , linenm_(linenm)
 {
-    BufferString lbl( "Lineset : ");
-    lbl.add( S2DPOS().curLineSet() );
-    lbl.add( ", Linename : ");
+    BufferString lbl( "Linename : ");
     lbl.add( linenm );
 
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
 
-    PosInfo::Line2DData geom( linenm );
-    S2DPOS().getGeometry( geom );
-    const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(linenm) )
+    if ( !geom2d )
+    {
+	uiMSG().error( "Cannot find geometry for ", linenm );
+	return;
+    }
+
+    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, titllbl );
     table_->setPrefWidth( 400 );
@@ -139,13 +89,13 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     FloatInpIntervalSpec spec( true );
     rgfld_ = new uiGenInput( this, "Z-Range", spec );
     rgfld_->attach( leftAlignedBelow, table_ );
-    rgfld_->setValue( geom.zRange() );
+    rgfld_->setValue( geom2d->data().zRange() );
 
     readnewbut_ = new uiPushButton( this, "Read New Geometry ...",
 			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
     readnewbut_->attach( centeredBelow, rgfld_ );
 
-    fillTable( geom );
+    fillTable( geom2d->data() );
 }
 
 
@@ -215,20 +165,28 @@ void fillTable( const PosInfo::Line2DData& geom )
 
 bool acceptOK( CallBacker* )
 {
-    if ( !uiMSG().askGoOn("Do you really want to change the geometry?") )
+    if ( !uiMSG().askGoOn("Do you really want to change the geometry?\n"
+			  "This will affect all associated data.") )
 	return false;
 
-    PosInfo::Line2DData geom( linenm_ );
+    Pos::GeomID geomid = Survey::GM().getGeomID( linenm_ );
+    mDynamicCastGet(Survey::Geometry2D*,geom2d,
+		    Survey::GMAdmin().getGeometry(geomid) )
+    if ( !geom2d )
+	return true;
+
+    PosInfo::Line2DData& geomdata = geom2d->data();
+    geomdata.setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)) );
 	l2d.coord_.x = table_->getdValue( RowCol(idx,1) );
 	l2d.coord_.y = table_->getdValue( RowCol(idx,2) );
-	geom.add( l2d );
+	geomdata.add( l2d );
     }
 
-    geom.setZRange( rgfld_->getFStepInterval() );
-    PosInfo::POS2DAdmin().setGeometry( geom );
+    geomdata.setZRange( rgfld_->getFStepInterval() );
+    Survey::GMAdmin().write( *geom2d );
     return true;
 }
 
@@ -241,28 +199,45 @@ bool acceptOK( CallBacker* )
 
 //-----------------------------------------------------
 
-#define mNoSelectionAvailable() ( \
-	linenamefld_->isEmpty() \
-     || linenamefld_->nrSelected() < 1 \
-     || linenamefld_->currentItem() < 0 )
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( mNoSelectionAvailable() )
-	return;
+    if ( !curioobj_ ) return;
 
-    uiManageLineGeomDlg dlg( this, linenamefld_->getText() );
+    uiManageLineGeomDlg dlg( this, curioobj_->name() );
     dlg.go();
 }
 
 
-void ui2DGeomManageDlg::removeLineGeom( CallBacker* )
+void ui2DGeomManageDlg::ownSelChg()
 {
-    if ( mNoSelectionAvailable() || !uiMSG().askGoOn(remmsg) )
+}
+
+
+void ui2DGeomManageDlg::mkFileInfo()
+{
+}
+
+
+void ui2DGeomManageDlg::lineRemoveCB( CallBacker* cb )
+{
+    if ( !curioobj_ ) return;
+    const BufferString lnm( curioobj_->name() );
+    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	return;
 
-    PosInfo::POS2DAdmin().removeLine( linenamefld_->getText() );
-    linenamefld_->removeItem( linenamefld_->currentItem() );
-    linenamefld_->setCurrentItem( 0 );
-    lineSetSelCB( 0 );
+    if ( !uiMSG().askGoOn("Do you really want to remove this line?\n"
+	    "This will invalidate all other data associated with this line.") )
+	return;
+
+    if ( !fullImplRemove(*curioobj_) )
+    {
+	uiMSG().error( "Cannot remove this line from the database" );
+	return;
+    }
+
+    IOM().permRemove( curioobj_->key() );
+    Survey::GMAdmin().removeGeometry( geomid );
+    selgrp_->fullUpdate( curioobj_->key() );
 }

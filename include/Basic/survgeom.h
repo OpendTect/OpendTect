@@ -82,6 +82,7 @@ public:
 				~GeometryManager();
 
     const Geometry*		getGeometry(Geometry::ID) const;
+    const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
     int 			nrGeometries() const;
@@ -96,16 +97,6 @@ public:
     
     Coord			toCoord(const TrcKey&) const;
 
-    bool			fetchFrom2DGeom();
-				//converts od4 geometries to od5 geometries.
-
-    bool			write(Geometry&);
-
-    IOObj*			createEntry(const char* name,const bool is2d);
-				// returns new GeomID.
-    
-    void			removeGeometry(Geometry::ID);
-    
     bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,
 					TypeSet<Geometry::ID>& ids,
@@ -128,6 +119,20 @@ protected:
 
     bool                        hasduplnms_;
 
+public:
+
+    /*! Admin functions:
+      Use the following functions only when you know what you are doing. */
+
+    Geometry*			getGeometry(Geometry::ID);
+    bool			write(Geometry&);
+    IOObj*			createEntry(const char* name,const bool is2d);
+				// returns new GeomID.
+    bool			removeGeometry(Geometry::ID);
+
+
+    bool			fetchFrom2DGeom();
+				//converts od4 geometries to od5 geometries.
 };
 
 
@@ -159,6 +164,7 @@ public:
 
     virtual bool	write(Geometry&) const		{ return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
+    virtual bool	removeEntry(const char*) const	{ return 0; }
 
 };
 

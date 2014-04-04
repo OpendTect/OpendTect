@@ -56,12 +56,12 @@ uiObjFileMan::~uiObjFileMan()
 }
 
 
-void uiObjFileMan::createDefaultUI( bool needreloc )
+void uiObjFileMan::createDefaultUI( bool needreloc, bool needremove )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
-				 needreloc, true );
+				 needreloc, true, needremove );
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 

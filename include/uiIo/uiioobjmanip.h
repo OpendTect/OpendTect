@@ -84,7 +84,8 @@ mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
 public:
 
 			uiIOObjManipGroup(uiIOObjManipGroupSubj&,
-					  bool havereloc);
+					  bool havereloc,
+					  bool haveremove=true);
 			~uiIOObjManipGroup();
 
     void		selChg();

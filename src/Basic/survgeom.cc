@@ -121,12 +121,15 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 
 const Geometry* GeometryManager::getGeometry( Geometry::ID geomid ) const
 {
-    ensureSIPresent();
+    const int idx = indexOf( geomid );
+    return idx<0 ? 0 : geometries_[idx];
+}
 
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->getID() == geomid )
-	    return geometries_[idx];
-    return 0;
+
+Geometry* GeometryManager::getGeometry( Geometry::ID geomid )
+{
+    const int idx = indexOf( geomid );
+    return idx<0 ? 0 : geometries_[idx];
 }
 
 
@@ -134,6 +137,17 @@ const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
     if ( mid.nrKeys() == 2 )
 	return getGeometry( mid.ID(1) );
+
+    return 0;
+}
+
+
+const Geometry* GeometryManager::getGeometry( const char* nm ) const
+{
+    const FixedString namestr( nm );
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+	if ( namestr == geometries_[idx]->getName() )
+	    return geometries_[idx];
 
     return 0;
 }
@@ -274,8 +288,12 @@ bool GeometryManager::write( Geometry& geom )
 	    return false;
 	}
 
-	addGeometry( geom );
-	geom.unRef();
+	if ( indexOf(geom.getID()) < 0 )
+	{
+	    addGeometry( geom );
+	    geom.unRef();
+	}
+
 	return true;
     }
     else
@@ -297,17 +315,21 @@ IOObj* GeometryManager::createEntry( const char* name, const bool is2d )
 }
 
 
-void GeometryManager::removeGeometry( Geometry::ID geomid )
+bool GeometryManager::removeGeometry( Geometry::ID geomid )
 {
     const int index = indexOf( geomid );
     if ( geometries_.validIdx(index) )
     {
-	Geometry* geom = geometries_.removeSingle( index );
+	Geometry* geom = geometries_[ index ];
+	if ( !geom )
+	    return false;
+
+	geometries_.removeSingle( index );
 	geom->unRef();
+	return true;
     }
 
-    return;
-    
+    return false;
 }
 
 

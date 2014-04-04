@@ -12,10 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uidialog.h"
+#include "uiobjfileman.h"
 class uiListBox;
 
-mExpClass(uiIo) ui2DGeomManageDlg : public uiDialog
+mExpClass(uiIo) ui2DGeomManageDlg : public uiObjFileMan
 {
 public:
 
@@ -24,15 +24,10 @@ public:
 
 protected:
 
-    void		lineSetSelCB(CallBacker*);
-    void		lineNameSelCB(CallBacker*);
     void		manLineGeom(CallBacker*);
-
-    uiListBox*		linesetfld_;
-    uiListBox*		linenamefld_;
-
-    void		removeLineGeom(CallBacker*);
-    void		removeLineSetGeom(CallBacker*);
+    void		lineRemoveCB(CallBacker*);
+    void		ownSelChg();
+    void		mkFileInfo();
 };
 
 
