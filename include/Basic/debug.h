@@ -13,9 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "gendefs.h"  
+#include "gendefs.h"
 #include "bufstring.h"
- 
+
 namespace google_breakpad { class ExceptionHandler; }
 
 /*!\brief Defines a generic interface for supplying debug/runtime info.
@@ -32,15 +32,15 @@ namespace google_breakpad { class ExceptionHandler; }
 
 namespace DBG
 {
-    mGlobal(Basic) bool isOn( int flag=0xffff ); 
+    mGlobal(Basic) bool isOn( int flag=0xffff );
 
     mGlobal(Basic) void message( const char* );     // default: to stderr
-    mGlobal(Basic) void message( int flag, const char* msg ); 
+    mGlobal(Basic) void message( int flag, const char* msg );
 // { if ( isOn(flag) ) message(msg); }
     mGlobal(Basic) void putProgInfo(int,char**);
-    			//!< one line; more if isOn()
-    mGlobal(Basic) void forceCrash(bool withdump); 
-    mGlobal(Basic) bool crashOnNaN(); 
+			//!< one line; more if isOn()
+    mGlobal(Basic) void forceCrash(bool withdump);
+    mGlobal(Basic) bool crashOnNaN();
 };
 
 extern "C" {
@@ -86,17 +86,17 @@ private:
 
     void				init();
 
-    static CrashDumper* 		theinst_;
+    static CrashDumper*			theinst_;
 
     BufferString			sendappl_;
     google_breakpad::ExceptionHandler*	handler_;
 };
 
-}; //Namespace System
+} // namespace System
 
 #endif	// HAS_BREAKPAD
 
-/* 
+/*
     This is a list of reserved debug masks, in order to avoid conflicts.
     Don't just throw any of these away or change a value, adding new masks
     should be OK.
