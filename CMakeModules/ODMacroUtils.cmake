@@ -569,7 +569,7 @@ endmacro()
 #Get current year
 macro ( OD_CURRENT_YEAR RESULT)
     if (WIN32)
-        execute_process(COMMAND "powershell" " /C (get-date).year" OUTPUT_VARIABLE ${RESULT})
+        execute_process(COMMAND "powershell" "(get-date).year" OUTPUT_VARIABLE ${RESULT})
     elseif(UNIX)
         execute_process(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
 	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} ) 
