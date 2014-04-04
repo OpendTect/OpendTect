@@ -43,6 +43,7 @@ SET( OD_MODULE_SOURCES
 	uigridder2d.cc
 	uihandledlsitefail.cc
 	uihistogramdisplay.cc
+	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
 	uistratlvlsel.cc

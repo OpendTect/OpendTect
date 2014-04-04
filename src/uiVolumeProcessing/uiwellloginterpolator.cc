@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidialog.h"
 #include "uigeninput.h"
+#include "uiinterpollayermodel.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
 #include "uivolprocchain.h"
@@ -30,11 +31,14 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 {
     setHelpKey( mTODOHelpKey );
 
+    layermodelfld_ = new uiInterpolationLayerModel( this );
+
     const char* ext[] = { "None", "By top/bottom values only",
 			  "By parallel to top/base", 0 };
     extensfld_ = new uiGenInput( this, "Vertical Extension",
 	    StringListInpSpec(ext) );
     extensfld_->setText( ext[hwi.extensionMethod()] );
+    extensfld_->attach( alignedBelow, layermodelfld_ );
 
     logextenfld_ = new uiGenInput( this, "Log extension if needed",
 	    BoolInpSpec(hwi.useLogExtension()) );
@@ -108,6 +112,10 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 {
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
+
+    IOPar laymodpar;
+    layermodelfld_->fillPar( laymodpar );
+    hwinterpolator_.setLayerModel( laymodpar );
 
     hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
     hwinterpolator_.extensionMethod(

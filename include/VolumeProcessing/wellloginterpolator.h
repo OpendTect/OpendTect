@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Gridder2D;
+class InterpolationLayerModel;
 
 namespace Well { class Data; class Log; }
 
@@ -37,7 +38,7 @@ public:
 				mDefaultFactoryInstantiation( Step,
 				    WellLogInterpolator,
 				    "WellLog Interpolator",
-				    sFactoryKeyword() );
+				    sFactoryKeyword() )
 
 				WellLogInterpolator();
 				~WellLogInterpolator();
@@ -56,8 +57,11 @@ public:
     const char*			getGridderName() const;
     float			getSearchRadius() const;
 
+    bool			setLayerModel(const IOPar&);
+    bool			getLayerModel(IOPar&) const;
+
     enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
-				DeclareEnumUtils(ExtensionModel);
+				DeclareEnumUtils(ExtensionModel)
     ExtensionModel		extensionMethod() const	{ return extension_; }
     void			extensionMethod(ExtensionModel ext)
 				{ extension_ = ext; }
@@ -80,7 +84,9 @@ protected:
     bool			prepareComp(int);
     bool			computeBinID(const BinID&,int);
 
+    InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
+    ObjectSet<WellLogInfo>	infos_;
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;
 

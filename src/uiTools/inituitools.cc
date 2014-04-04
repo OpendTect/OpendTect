@@ -10,11 +10,11 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
-#include "uigridder2d.h"
 #include "uiarray2dinterpol.h"
-#include "uiraytrace1d.h"
-#include "uiraytrace1d.h"
 #include "uibatchjobdispatcherlauncher.h"
+#include "uigridder2d.h"
+#include "uiinterpollayermodel.h"
+#include "uiraytrace1d.h"
 
 mDefModInitFn(uiTools)
 {
@@ -27,4 +27,5 @@ mDefModInitFn(uiTools)
     uiVrmsRayTracer1D::initClass();
 
     uiSingleBatchJobDispatcherLauncher::initClass();
+    uiZSliceInterpolationModel::initClass();
 }

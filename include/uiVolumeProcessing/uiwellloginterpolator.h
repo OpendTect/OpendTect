@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "wellloginterpolator.h"
 
 class uiGenInput;
+class uiInterpolationLayerModel;
 class uiMultiWellLogSel;
 
 namespace VolProc
@@ -46,6 +47,7 @@ protected:
 
     WellLogInterpolator&	hwinterpolator_;
 
+    uiInterpolationLayerModel*	layermodelfld_;
     uiGenInput*			algosel_;
     uiGenInput*			radiusfld_;
     uiGenInput*			extensfld_;

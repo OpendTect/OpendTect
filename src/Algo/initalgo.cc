@@ -10,13 +10,14 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
-#include "gridder2d.h"
 #include "array2dinterpolimpl.h"
-#include "posfilterstd.h"
-#include "windowfunction.h"
 #include "fourier.h"
+#include "gridder2d.h"
+#include "interpollayermodel.h"
+#include "posfilterstd.h"
 #include "raytrace1d.h"
 #include "statrand.h"
+#include "windowfunction.h"
 
 mDefModInitFn(Algo)
 {
@@ -41,4 +42,5 @@ mDefModInitFn(Algo)
     Fourier::CC::initClass();
 
     VrmsRayTracer1D::initClass();
+    ZSliceInterpolationModel::initClass();
 }

@@ -46,6 +46,7 @@ set( OD_MODULE_SOURCES
 	histequalizer.cc
 	houghtransform.cc
 	initalgo.cc
+	interpollayermodel.cc
 	isocontourtracer.cc
 	linear.cc
 	mathfunc.cc
