@@ -527,6 +527,7 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 	updatedynpixmap_ = true;
 	dynamicrev_[0] = false;
 	dynamicrev_[1] = false;
+	imagecond_.wakeAll();
     }
     else
     {
@@ -560,7 +561,26 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 			      QWidget* widget )
 {
     if ( updateResolution( painter ) )
+    {
+	mDynamicCastGet( QImage*, paintimage, painter->device() );
+
+	imagelock_.lock();
 	wantsData.trigger();
+
+	if ( paintimage )
+	{
+	    const QSize wantedscreensz = wantedscreensz_;
+
+	    int nrretries = 3;
+	    while ( nrretries && wantedscreensz!=dynamicimage_.size() )
+	    {
+		imagecond_.wait( &imagelock_ );
+		nrretries--;
+	    }
+	}
+								    
+	imagelock_.unlock();
+    }
 
     const QTransform worldtrans = painter->worldTransform();
 

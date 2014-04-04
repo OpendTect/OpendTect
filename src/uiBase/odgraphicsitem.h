@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <QString>
 #include <QTextOption>
 #include <QMutex>
+#include <QWaitCondition>
 #include <QFont>
 
 #include "draw.h"
@@ -197,6 +198,7 @@ protected:
     QSize			wantedscreensz_;
 
     QMutex			imagelock_;
+    QWaitCondition		imagecond_;
     bool			updatedynpixmap_;
     QImage			dynamicimage_;
     QRectF			dynamicimagebbox_;
