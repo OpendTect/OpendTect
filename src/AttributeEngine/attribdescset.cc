@@ -1101,13 +1101,13 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
     }
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	    const char* defkey = attrinf.ioobjids_.get(idx).buf();
-	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	    FileMultiString fms(is2D()
-		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
-	    fms += defkey;
-	    attrdefs.add( fms );
+	const char* defkey = attrinf.ioobjids_.get(idx).buf();
+	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
+	FileMultiString fms(is2D()
+			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+	fms += defkey;
+	attrdefs.add( fms );
     }
 }
 
