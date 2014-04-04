@@ -86,9 +86,9 @@ const char* Seis2DDataSet::lineName( int idx ) const
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
 {
     if ( !pars_.validIdx(idx) )
-	return -1;
+	return Survey::GM().cUndefGeomID();
 
-    int ret = -1;
+    int ret = Survey::GM().cUndefGeomID();
     pars_[idx]->get( sKey::GeomID(), ret );
     return ret;
 }

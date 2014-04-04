@@ -247,7 +247,8 @@ void MadStream::initWrite( IOPar* par )
     }
     else
     {
-	const Pos::GeomID geomid = seldata ? seldata->geomID() : -1;
+	const Pos::GeomID geomid = seldata ? seldata->geomID() : 
+						    Survey::GM().cUndefGeomID();
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,
 						Survey::GM().getName(geomid))
 		       : SPSIOPF().get3DWriter(*ioobj);

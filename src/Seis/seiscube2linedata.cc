@@ -26,8 +26,8 @@ Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
 Pos::GeomID geomID() const
 {
-    return Pos::GeomID( lde_.usedlinenames_.isEmpty() ? -1 
-		    : Survey::GM().getGeomID(lde_.usedlinenames_[0]->str()) );
+    return lde_.usedlinenames_.isEmpty() ? Survey::GM().cUndefGeomID()
+		    : Survey::GM().getGeomID(lde_.usedlinenames_[0]->str() );
 }
 
     SeisCube2LineDataExtracter&	lde_;

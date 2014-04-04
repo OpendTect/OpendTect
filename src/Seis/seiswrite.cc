@@ -30,7 +30,7 @@ using namespace Survey;
 
 #define mCurGeomID (gidp_ \
     ? gidp_->geomID() \
-    : (seldata_ ? seldata_->geomID():-1))
+    : (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID()))
 
 const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 

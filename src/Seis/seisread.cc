@@ -463,7 +463,7 @@ Pos::GeomID SeisTrcReader::geomID() const
     else if ( ioobj_ )
 	return Survey::GM().getGeomID( ioobj_->name() );
 
-    return -1;
+    return Survey::GM().cUndefGeomID();
 }
 
 
@@ -486,8 +486,9 @@ GeomIDProvider* SeisTrcReader::geomIDProvider() const
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf_->deepErase();
-    Pos::GeomID geomid( seldata_ ? seldata_->geomID() : -1 );
-    const bool islinesel = geomid < 0 ? false : true;
+    Pos::GeomID geomid( seldata_ ? seldata_->geomID() 
+				 : Survey::GM().cUndefGeomID() );
+    const bool islinesel = mIsUdf( geomid ) ? false : true;
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 

@@ -30,7 +30,7 @@ static const char* sKeyBinIDSel = "BinID selection";
 
 Seis::SelData::SelData()
     : isall_(false)
-    , geomid_(-1)
+    , geomid_(Survey::GM().cUndefGeomID())
 {
 }
 
@@ -115,7 +115,7 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
     iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
-    if ( geomid_ == -1 )
+    if ( geomid_ == Survey::GM().cUndefGeomID() )
 	iop.removeWithKey( sKey::GeomID() );
     else
 	iop.set( sKey::GeomID(), geomid_ );

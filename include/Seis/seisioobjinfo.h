@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "samplingdata.h"
 #include "seistype.h"
+#include "survgeom.h"
 #include "bufstring.h"
 
 class IOObj;
@@ -71,9 +72,11 @@ public:
     static BufferString	def3DDispName(const char* defkey,
 	    			      const char* ioobjnm=0);
 
-    int			nrComponents(Pos::GeomID geomid=-1) const;
+    int			nrComponents(Pos::GeomID geomid=
+					    Survey::GM().cUndefGeomID()) const;
     void		getComponentNames(BufferStringSet&,
-					  Pos::GeomID geomid=-1) const;
+					  Pos::GeomID geomid=
+					    Survey::GM().cUndefGeomID()) const;
 
     mStruct(Seis) Opts2D
     {
