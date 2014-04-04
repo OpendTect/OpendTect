@@ -22,6 +22,7 @@ mExpClass(Algo) InterpolationLayerModel
 {
 public:
 			mDefineFactoryInClass(InterpolationLayerModel,factory)
+    virtual		~InterpolationLayerModel();
 
     virtual int		nrLayers() const				= 0;
     virtual float	getZ(const BinID&,int layer) const		= 0;

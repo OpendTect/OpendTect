@@ -15,7 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iopar.h"
 
+// InterpolationLayerModel
 mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )
+
+InterpolationLayerModel::~InterpolationLayerModel()
+{}
 
 const char* InterpolationLayerModel::sKeyModelType()
 { return "Interpolation Layer Model"; }
@@ -24,6 +28,7 @@ void InterpolationLayerModel::fillPar( IOPar& par ) const
 { par.set( sKeyModelType(), factoryKeyword() ); }
 
 
+// ZSliceInterpolationModel
 void ZSliceInterpolationModel::setCubeSampling( const CubeSampling& cs )
 { cs_ = cs; }
 
