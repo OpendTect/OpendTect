@@ -232,6 +232,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , usercolor_( Color(0,0,255) )
     , randomcolor_ ( getRandStdDrawColor() )
     , flashcolor_( Color(0,0,0) )
+    , curemid_(-1)
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
