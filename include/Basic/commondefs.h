@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "plfdefs.h"
 
+#include <stdexcept>
+
 
 //--- FP rounding and equality
 
