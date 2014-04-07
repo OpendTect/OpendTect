@@ -44,6 +44,7 @@ void SurfaceIOData::clear()
     deepErase(sections);
     deepErase(linenames);
     deepErase(linesets);
+    geomids.erase();
     trcranges.erase();
 }
 
@@ -75,6 +76,7 @@ void SurfaceIOData::use( const Surface& surf )
 
     linenames.erase();
     linesets.erase();
+    geomids.erase();
     trcranges.erase();
     mDynamicCastGet(const Horizon2D*,horizon2d,&surf);
     if ( horizon2d )
@@ -82,13 +84,10 @@ void SurfaceIOData::use( const Surface& surf )
 	const Horizon2DGeometry& emgeom = horizon2d->geometry();
 	for ( int idx=0; idx<emgeom.nrLines(); idx++ )
 	{
-	    const PosInfo::Line2DKey l2dkey = emgeom.lineKey( idx );
-	    linesets.add( S2DPOS().getLineSet(l2dkey.lsID()) );
-	    S2DPOS().setCurLineSet( l2dkey.lsID() );
-	    linenames.add( S2DPOS().getLineName(l2dkey.lineID()) );
-	    const Geometry::Horizon2DLine* geom =
-		emgeom.sectionGeometry( emgeom.sectionID(0) );
-	    trcranges += geom->colRange( geom->getRowIndex(l2dkey) );
+	    const Pos::GeomID geomid = emgeom.geomID( idx );
+	    linenames.add( emgeom.lineName(idx) );
+	    geomids += geomid;
+	    trcranges += emgeom.colRange( geomid );
 	}
     }
 }
@@ -110,16 +109,25 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     sections.fillPar( sectionpar );
     iopar.mergeComp( sectionpar, sSections );
 
-    for ( int idx=0; idx<linesets.size(); idx++ )
+    int nrlines = geomids.size();
+    if ( !nrlines ) nrlines = linenames.size();
+    iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
+    for ( int idx=0; idx<nrlines; idx++ )
     {
-	PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey( linesets.get(idx),
-						     linenames.get(idx) );
-	if ( !l2dky.isOK() )
-	    continue;
+	if ( geomids.validIdx(idx)
+		&& geomids[idx] != Survey::GeometryManager::cUndefGeomID() )
+	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids[idx] );
+	else if ( linesets.validIdx(idx) && linenames.validIdx(idx) )
+	{
+	    Pos::GeomID geomid = Survey::GM().getGeomID( linesets.get(idx),
+							 linenames.get(idx) );
+	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+		continue;
+
+	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomid );
+	}
 
 	BufferString key = IOPar::compKey( "Line", idx );
-	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		   l2dky.toString() );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		   trcranges[idx] );
     }
@@ -139,64 +147,38 @@ void SurfaceIOData::usePar( const IOPar& iopar )
     IOPar* sectionpar = iopar.subselect(sSections);
     if ( sectionpar ) sections.usePar( *sectionpar );
 
-    if ( iopar.find(sKey::GeomID()) )
+    if ( iopar.find(Horizon2DGeometry::sKeyNrLines()) )
     {
 	int nrlines = 0;
 	iopar.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    BufferString key = IOPar::compKey( "Line", idx );
-	    int geomid;
-	    iopar.get( key, geomid );
-	    geomids_.add( geomid );
-	    StepInterval<int> trcrange;
-	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
-		       trcrange );
-	    trcranges += trcrange;
-	}
-    }
-    else if ( iopar.find(Horizon2DGeometry::sKeyNrLines()) )
-    {
-	int nrlines = 0;
-	iopar.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
-	for ( int idx=0; idx<nrlines; idx++ )
-	{
-	    BufferString key = IOPar::compKey( "Line", idx );
-	    BufferString idstr;
-	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
-	    linesets.add( S2DPOS().getLineSet(l2dkey.lsID()) );
-
-	    StepInterval<int> trcrange;
-	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
-		       trcrange );
-	    trcranges += trcrange;
-	}
-
-	return;
-    }
-
-    IOPar* linenamespar = iopar.subselect( Horizon2DGeometry::sKeyLineNames() );
-    if ( linenamespar ) linenames.usePar( *linenamespar );
-
-    TypeSet<int> lineids;
-    if ( iopar.get( Horizon2DGeometry::sKeyLineIDs(), lineids) )
-    {
-	for ( int idx=0; idx<lineids.size(); idx++ )
-	{
-	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
-	    BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
-	    linesetkey += idx;
-	    trcrangekey += idx;
-	    StepInterval<int> trcrange;
-	    if ( iopar.get(trcrangekey,trcrange) )
-		trcranges += trcrange;
-	    MultiID linesetid;
-	    if ( iopar.get(linesetkey,linesetid) )
+	    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	    if ( !iopar.get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
-		IOObj* ioobj = IOM().get( linesetid );
-		linesets.add( ioobj->name() );
+		BufferString idstr;
+		if ( iopar.get(IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
+			       idstr) )
+		{
+		    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
+		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
+			S2DPOS().setCurLineSet( l2dkey.lsID() );
+		    geomid = Survey::GM().getGeomID(
+				S2DPOS().getLineSet(l2dkey.lsID()),
+				S2DPOS().getLineName(l2dkey.lineID()) );
+		}
 	    }
+
+	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+		continue;
+
+	    geomids += geomid;
+	    linenames.add( Survey::GM().getName(geomid) );
+	    StepInterval<int> trcrange;
+	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
+		       trcrange );
+	    trcranges += trcrange;
 	}
     }
 }
@@ -211,6 +193,10 @@ void SurfaceIODataSelection::setDefault()
 	selvalues += idx;
     for ( int idx=0; idx<sd.sections.size(); idx++ )
 	selsections += idx;
+
+    sellinenames = sd.linenames;
+    selgeomids = sd.geomids;
+    seltrcranges = sd.trcranges;
 }
 
 

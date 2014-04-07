@@ -78,7 +78,7 @@ public:
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int rowindex) const;
     StepInterval<int>	colRange(const PosInfo::Line2DKey&) const;
-    StepInterval<int>	columnRange(Pos::GeomID geomid) const;
+    StepInterval<int>	colRangeForGeomID(Pos::GeomID geomid) const;
     virtual StepInterval<int> colRange() const
 			{ return RowColSurface::colRange(); }
     Interval<float>	zRange(const PosInfo::Line2DKey&) const;
@@ -107,11 +107,11 @@ public:
     bool		isDefined(GeomPosID pid) const;
 
 protected:
+
     int			colIndex(int rowidx,int colid) const;
     int			rowIndex(int rowid) const;
 
     bool		checksupport_;
-    int			firstrow_;
 
     ObjectSet<TypeSet<Coord3> >	rows_;
     TypeSet<SamplingData<int> >	colsampling_;

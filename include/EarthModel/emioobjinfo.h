@@ -78,8 +78,8 @@ public:
 					      TypeSet<MultiID>&);
 
     // 2D Horizons
-    bool		getLineSets(BufferStringSet&) const;
     bool		getLineNames(BufferStringSet&) const;
+    bool		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
     bool		hasGeomIDs() const;
 

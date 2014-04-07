@@ -191,22 +191,23 @@ const char* IOObjInfo::getMessage() const
 }
 
 
-bool IOObjInfo::getLineSets( BufferStringSet& linesets ) const
-{
-    mGetReaderRet
-
-    for ( int idx=0; idx<reader_->nrLines(); idx++ )
-	linesets.add( reader_->lineSet(idx) );
-    return true;
-}
-
-
 bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 {
     mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
 	linenames.add( reader_->lineName(idx) );
+    return true;
+}
+
+
+bool IOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+{
+    mGetReaderRet
+
+    for ( int idx=0; idx<reader_->nrLines(); idx++ )
+	geomids.add( reader_->lineGeomID(idx) );
+
     return true;
 }
 

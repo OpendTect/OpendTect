@@ -361,7 +361,7 @@ StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
 					       Pos::GeomID geomid ) const
 {
     const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(sid) );
-    return geom ? geom->colRange( geomid ) : StepInterval<int>(0,0,0);
+    return geom ? geom->colRangeForGeomID( geomid ) : StepInterval<int>(0,0,0);
 }
 
 
@@ -407,21 +407,29 @@ void Horizon2DGeometry::fillPar( IOPar& iopar ) const
     const Geometry::Horizon2DLine* cgeom = sectionGeometry( sectionID(0) );
     if ( !cgeom ) return;
 
-    Geometry::Horizon2DLine* geom = cgeom->clone();
+    PtrMan<Geometry::Horizon2DLine> geom = cgeom->clone();
     geom->trimUndefParts();
-    for ( int idx=0; idx<l2dkeys_.size(); idx++ )
+    int nrlines = geomids_.size();
+    if ( !nrlines )
+	l2dkeys_.size();
+
+    iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
+    for ( int idx=0; idx<nrlines; idx++ )
     {
 	BufferString key = IOPar::compKey( "Line", idx );
-	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		   l2dkeys_[idx].toString() );
-	const int rowidx = geom->getRowIndex( l2dkeys_[idx] );
+	if ( l2dkeys_.validIdx(idx) )
+	    iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
+		       l2dkeys_[idx].toString() );
+	if ( geomids_.validIdx(idx) )
+	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids_[idx] );
+
+	int rowidx = geom->getRowIndex( geomids_[idx] );
+	if ( rowidx < 0 )
+	    rowidx = geom->getRowIndex( l2dkeys_[idx] );
+
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		   geom->colRange(rowidx) );
     }
-
-    iopar.set( Horizon2DGeometry::sKeyNrLines(), l2dkeys_.size() );
-
-    delete geom;
 }
 
 
@@ -430,57 +438,43 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
     l2dkeys_.erase();
     geomids_.erase();
 
-    if ( par.find(sKey::GeomID()) )
+    int nrlines = 0;
+    if ( par.get(Horizon2DGeometry::sKeyNrLines(),nrlines) )
     {
-	int nrlines = 0;
-	par.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
-	    BufferString key = IOPar::compKey( sKey::GeomID(), idx );
-
-	    int geomid;
-	    par.get( key, geomid );
-	    geomids_ += geomid;
-	    PosInfo::Line2DData linegeom( ((Survey::Geometry2D*)Survey::GM().
-						getGeometry(geomid))->data() );
-	    if ( linegeom.isEmpty() )
-		continue;
-
-	    for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
-	    {
-		Geometry::Horizon2DLine* section =
-		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
-		section->syncRow( geomid, linegeom );
-	    }
-	}
-
-	return true;
-    }
-
-    if ( par.find(Horizon2DGeometry::sKeyNrLines()) )
-    {
-	int nrlines = 0;
-	par.get( Horizon2DGeometry::sKeyNrLines(), nrlines );
-	for ( int idx=0; idx<nrlines; idx++ )
-	{
-	    BufferString key = IOPar::compKey( "Line", idx );
-
 	    BufferString idstr;
-	    par.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
-	    l2dkeys_ += l2dkey;
-	    if( S2DPOS().curLineSetID() != l2dkey.lsID() )
-		S2DPOS().setCurLineSet( l2dkey.lsID() );
-	    PosInfo::Line2DData linegeom(
-			S2DPOS().getLineName(l2dkey.lineID()));
-	    if ( !S2DPOS().getGeometry(linegeom) )
+	    PosInfo::Line2DKey l2dkey;
+	    Pos::GeomID geomid;
+	    if ( !par.get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
+	    {
+		BufferString key = IOPar::compKey( "Line", idx );
+		if ( par.get(IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
+			     idstr))
+		{
+		    l2dkey.fromString( idstr );
+		    l2dkeys_ += l2dkey;
+
+		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
+			S2DPOS().setCurLineSet( l2dkey.lsID() );
+
+		    geomid = Survey::GM().getGeomID(
+				    S2DPOS().getLineSet(l2dkey.lsID()),
+				    S2DPOS().getLineName(l2dkey.lineID()) );
+		}
+	    }
+
+	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			    Survey::GM().getGeometry(geomid));
+	    if ( !geom2d )
 		continue;
 
+	    geomids_ += geomid;
 	    for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
 	    {
 		Geometry::Horizon2DLine* section =
 		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
-		section->syncRow( l2dkey, linegeom );
+		section->syncRow( geomid, geom2d->data() );
 	    }
 	}
 
@@ -505,20 +499,19 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) continue;
 
-	PosInfo::Line2DKey l2dkey = S2DPOS().getLine2DKey( ioobj->name(),
-						     linenames[idx]->buf() );
-	if ( !l2dkey.isOK() ) continue;
-	l2dkeys_ += l2dkey;
-
-	PosInfo::Line2DData linegeom( linenames[idx]->buf() );
-	if ( !S2DPOS().getGeometry(linegeom) )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
+							   linenames.get(idx) );
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			Survey::GM().getGeometry(geomid));
+	if ( !geom2d )
 	    continue;
 
+	geomids_ += geomid;
 	for ( int secidx=sections_.size()-1; secidx>=0; secidx-- )
 	{
 	    Geometry::Horizon2DLine* section =
-		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
-	    section->syncRow( l2dkey, linegeom );
+	    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[secidx] );
+	    section->syncRow( geomid, geom2d->data() );
 	}
     }
 
@@ -661,7 +654,7 @@ Coord3 Horizon2D::getPos( EM::SectionID sid, const PosInfo::Line2DKey& l2dkey,
 }
 
 
-Coord3 Horizon2D::getPosition( EM::SectionID sid, Pos::GeomID l2dkey,
+Coord3 Horizon2D::getPos( EM::SectionID sid, Pos::GeomID l2dkey,
 			       int trcnr ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
@@ -729,7 +722,7 @@ Coord3 Horizon2D::getPos( const EM::SectionID& sid, const EM::SubID& sub ) const
 { return EMObject::getPos(sid,sub); }
 
 
-Coord3 Horizon2D::getPos( EM::SectionID sid, int lineidx, int trcnr ) const
+Coord3 Horizon2D::getPosition( EM::SectionID sid, int lineidx, int trcnr ) const
 {
     return getPos( sid, RowCol(lineidx,trcnr).toInt64() );
 }

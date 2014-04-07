@@ -54,7 +54,7 @@ public:
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
     PosInfo::Line2DKey		getLine2DKey() const;
-    Pos::GeomID			getGeomID()		   { return geomid_; }
+    Pos::GeomID 		getGeomID() const	   { return geomid_; }
     MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);

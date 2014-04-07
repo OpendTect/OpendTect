@@ -61,15 +61,8 @@ protected:
 
 mExpClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
 {
-public:
-    void		setLineSetID(const MultiID&);
-
 protected:
 			uiSurface2DSel(uiParent*,const IOObjContext&);
-
-    MultiID		linesetid_;
-    TypeSet<MultiID>	subselmids_;
-    BufferStringSet	subselnames_;
 };
 
 

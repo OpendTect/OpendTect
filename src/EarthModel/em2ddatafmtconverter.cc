@@ -79,20 +79,11 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
 void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDTo2DHorPara(
                                                        EM::IOObjInfo& ioobjinfo)
 {
-    BufferStringSet lsetnms, lnms;
+    TypeSet<Pos::GeomID> geomids;
     TypeSet< StepInterval<int> > trcranges;
-    ioobjinfo.getLineSets( lsetnms );
-    ioobjinfo.getLineNames( lnms );
-    ioobjinfo.getTrcRanges( trcranges );
-
-    for ( int idy=0; idy<lnms.size(); idy++ )
-    {
-	int geomid = Survey::GM().getGeomID( lsetnms.get(idy), lnms.get(idy) );
-	BufferString key = IOPar::compKey( sKey::GeomID(), idy );
-	surfacepara_->set( key, geomid );
-	surfacepara_->set( IOPar::compKey(key,
-			   EM::Horizon2DGeometry::sKeyTrcRg()),trcranges[idy] );
-    }
+    ioobjinfo.getGeomIDs( geomids );
+    for ( int idy=0; idy<geomids.size(); idy++ )
+	surfacepara_->set( IOPar::compKey(sKey::GeomID(),idy), geomids[idy] );
 }
 
 

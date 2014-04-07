@@ -664,18 +664,10 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
 void lineSel( CallBacker* )
 {
     const int curitm = linelist_->currentItem();
-    BufferStringSet linesets;
-    eminfo_.getLineSets( linesets );
-    if ( !linesets.validIdx(curitm) )
-    {
-	infofld_->setText( "" );
-	return;
-    }
-
-    BufferString txt( "LineSet name: ", linesets.get(curitm), "\n" );
     TypeSet< StepInterval<int> > trcranges;
     eminfo_.getTrcRanges( trcranges );
 
+    BufferString txt;
     if ( trcranges.validIdx(curitm) )
     {
 	StepInterval<int> trcrg = trcranges[ curitm ];

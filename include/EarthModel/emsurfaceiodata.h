@@ -45,10 +45,11 @@ public:
     TypeSet<float>	valshifts_;
     BufferStringSet	sections;
 
-    BufferStringSet	linenames;		// 2D only
-    BufferStringSet	linesets;		// 2D only
-    TypeSet<Pos::GeomID>	geomids_;
-    TypeSet<StepInterval<int> >	trcranges;	// 2D only
+    /*! For 2D Only: */
+    BufferStringSet	linenames;
+    BufferStringSet	linesets;
+    TypeSet<Pos::GeomID>	geomids;
+    TypeSet<StepInterval<int> > trcranges;
 };
 
 
@@ -70,6 +71,7 @@ public:
     TypeSet<int>		selsections; // Indexes in sd.sections
 
     BufferStringSet		sellinenames;
+    TypeSet<Pos::GeomID>	selgeomids;
     TypeSet<StepInterval<int> >	seltrcranges;
 
     void			setDefault(); // selects all

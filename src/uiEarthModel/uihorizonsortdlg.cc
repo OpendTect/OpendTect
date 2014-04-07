@@ -48,16 +48,6 @@ uiHorizonSortDlg::~uiHorizonSortDlg()
 { deepUnRef( horizons_ ); }
 
 
-void uiHorizonSortDlg::setLineID( const MultiID& mid )
-{
-    if ( is2d_ )
-    {
-	mDynamicCastGet( uiSurface2DSel*, s2dsel, horsel_ ); 
-	s2dsel->setLineSetID( mid );
-    }
-}
-
-
 void uiHorizonSortDlg::setConstSelected( const TypeSet<MultiID>& horids )
 {
     constselids_ = horids;

@@ -133,11 +133,12 @@ public:
     Coord3			getPos(const EM::SectionID&,
 				       const EM::SubID&) const;
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
-    Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
+    Coord3			getPosition(EM::SectionID,int lidx,
+					    int trcnr) const;
 
     Coord3			getPos(EM::SectionID,const PosInfo::Line2DKey&,
 				       int trcnr) const;
-    Coord3			getPosition(EM::SectionID,Pos::GeomID geomid
+    Coord3			getPos(EM::SectionID,Pos::GeomID geomid
 					    ,int trcnr) const;
 
     bool			setPos(EM::SectionID,const PosInfo::Line2DKey&,

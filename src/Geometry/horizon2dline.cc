@@ -20,21 +20,18 @@ namespace Geometry
 {
 
 Horizon2DLine::Horizon2DLine()
-    : firstrow_(0)
 {}
 
 
 Horizon2DLine::Horizon2DLine( int lineid, const TypeSet<Coord>& path, int start,
 			      int step )
-    : firstrow_(0)
 {
     addRow( lineid, path, start, step );
 }
 
 
 Horizon2DLine::Horizon2DLine( const Horizon2DLine& ln )
-    : firstrow_(ln.firstrow_)
-    , colsampling_(ln.colsampling_)
+    : colsampling_(ln.colsampling_)
     , l2dkeys_(ln.l2dkeys_)
     , geomids_(ln.geomids_)
 {
@@ -106,10 +103,8 @@ bool Horizon2DLine::addUdfRow( const PosInfo::Line2DKey& l2dkey, int start,
 bool Horizon2DLine::addUdfRow( Pos::GeomID geomid, int start, int stop,
 								  int step )
 {
-    TypeSet<Coord> coords;
-    for ( int idx=start; idx<=stop; idx+=step )
-	coords += Coord::udf();
-
+    const int nrnodes = (stop - start) / step + 1;
+    TypeSet<Coord> coords( nrnodes, Coord::udf() );
     return addRow( geomid, coords, start, step );
 }
 
@@ -270,17 +265,10 @@ void Horizon2DLine::removeRow( const PosInfo::Line2DKey& l2dkey )
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
-    delete rows_.removeSingle( rowidx, false );
-    l2dkeys_.removeSingle( rowidx, false );
-    colsampling_.removeSingle( rowidx, false );
-    if ( !rowidx )
-    {
-	if ( rows_.size() ) firstrow_++; //Inrcease only if we still have rows.
-    }
-    else
-    {
-	//TODO notify
-    }
+    delete rows_.removeSingle( rowidx, true );
+    l2dkeys_.removeSingle( rowidx, true );
+    colsampling_.removeSingle( rowidx, true );
+    //TODO notify?
 }
 
 
@@ -293,14 +281,7 @@ void Horizon2DLine::removeRow( Pos::GeomID geomid )
     delete rows_.removeSingle( rowidx, false );
     geomids_.removeSingle( rowidx, false );
     colsampling_.removeSingle( rowidx, false );
-    if ( !rowidx )
-    {
-	if ( rows_.size() ) firstrow_++; //Inrcease only if we still have rows.
-    }
-    else
-    {
-	//TODO notify
-    }
+    //TODO notify?
 }
 
 
@@ -412,7 +393,7 @@ void Horizon2DLine::setRow( Pos::GeomID geomid, const TypeSet<Coord>& path,
 
 
 StepInterval<int> Horizon2DLine::rowRange() const
-{ return StepInterval<int>( firstrow_, firstrow_+rows_.size()-1, 1 ); }
+{ return StepInterval<int>( 0, rows_.size()-1, 1 ); }
 
 
 StepInterval<int> Horizon2DLine::colRange( int rowidx ) const
@@ -433,7 +414,7 @@ StepInterval<int> Horizon2DLine::colRange(
 }
 
 
-StepInterval<int> Horizon2DLine::columnRange( Pos::GeomID geomid ) const
+StepInterval<int> Horizon2DLine::colRangeForGeomID( Pos::GeomID geomid ) const
 {
     return colRange( getRowIndex(geomid) );
 }
@@ -766,20 +747,21 @@ bool Horizon2DLine::hasSupport( const RowCol& rc ) const
 
 void Horizon2DLine::trimUndefParts()
 {
-    StepInterval<int> rowrg = rowRange();
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    const int nrlines = geomids_.size();
+    for ( int idx = 0; idx<nrlines; idx++ )
     {
-	StepInterval<int> colrg = colRange( row );
+	Pos::GeomID geomid = geomids_[idx];
+	StepInterval<int> colrg = colRangeForGeomID( geomid );
 	bool founddefknot = false;
 	for ( int col=colrg.start; col<colrg.stop; col+=colrg.step )
 	{
-	    if ( isKnotDefined(RowCol(row,col)) )
+	    if ( isKnotDefined(RowCol(idx,col)) )
 		founddefknot = true;
 	    else
 		continue;
 
 	    if ( founddefknot && col!=colrg.start )
-		removeCols( row, colrg.start, col-colrg.step );
+		removeCols( geomid, colrg.start, col-colrg.step );
 
 	    break;
 	}
@@ -787,13 +769,13 @@ void Horizon2DLine::trimUndefParts()
 	founddefknot = false;
 	for ( int col=colrg.stop; col>=colrg.start; col-=colrg.step )
 	{
-	    if ( isKnotDefined(RowCol(row,col)) )
+	    if ( isKnotDefined(RowCol(idx,col)) )
 		founddefknot = true;
 	    else
 		continue;
 
 	    if ( founddefknot && col!=colrg.stop )
-		removeCols( row, col+colrg.step, colrg.stop );
+		removeCols( geomid, col+colrg.step, colrg.stop );
 
 	    break;
 	}

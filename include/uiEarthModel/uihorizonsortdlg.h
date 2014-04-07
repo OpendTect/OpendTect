@@ -38,7 +38,6 @@ public:
     void			getSortedHorizonIDs(TypeSet<MultiID>&) const;
     void			setConstSelected(const TypeSet<MultiID>&);
     CubeSampling		getBoundingBox() const	{ return bbox_; }
-    void			setLineID(const MultiID&);
 
 protected:
 

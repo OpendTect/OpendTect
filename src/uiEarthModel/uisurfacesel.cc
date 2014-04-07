@@ -104,41 +104,8 @@ uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
 
 uiSurface2DSel::uiSurface2DSel( uiParent* p, const IOObjContext& ct )
     : uiSurfaceSel( p, ct )
-    , linesetid_(-1)
 {
     getFullList();
-}
-
-
-void uiSurface2DSel::setLineSetID( const MultiID& mid )
-{
-    linesetid_ = mid;
-    
-    const IODir iodir( ctxt_.getSelKey() );
-    const IODirEntryList del( iodir, ctxt_ );
-
-    names_.erase();
-    mids_.erase();
-    listfld_->setEmpty();
-    for ( int idx=0; idx<del.size(); idx++ )
-    {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj ) continue;
-
-	EM::IOObjInfo eminfo( ioobj->key() );
-	BufferStringSet linesets;
-	eminfo.getLineSets( linesets );
-	for ( int idz=0; idz<linesets.size(); idz++ )
-	{
-	    IOObj* selobj = IOM().get( mid );
-	    if ( selobj && linesets.get(idz) == selobj->name() )
-	    {
-		mids_.addIfNew( ioobj->key() );
-		names_.addIfNew( ioobj->name() );
-	    }
-	}
-    }
-    listfld_->addItems( names_ );
 }
 
 
