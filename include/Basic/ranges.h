@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "ptrman.h"
+#include "varlenarray.h"
 
 
 
@@ -306,8 +307,8 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b, bool allowrev ) const
 	return false;
     }
 
-    ArrPtrMan<T> vector = new T [ndim];
-    ArrPtrMan<bool> isstart = new bool [ndim];
+    mAllocLargeVarLenArr( T, vector, ndim );
+    mAllocLargeVarLenArr( bool, isstart, ndim );
     for ( int dim=0; dim<ndim; dim++ )
     {
 	vector[dim] = ranges[dim].start;

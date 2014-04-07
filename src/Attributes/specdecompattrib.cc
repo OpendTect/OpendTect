@@ -314,7 +314,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 	return false;
 
     const int nrscales = exactPower( len, 2 ) + 1;
-    ArrPtrMan<float> spectrum =  new float[nrscales];
+    mAllocLargeVarLenArr( float, spectrum, nrscales );
     spectrum[0] = fabs(transformed.get(0)); // scale 0 (dc)
     spectrum[1] = fabs(transformed.get(1)); // scale 1
 

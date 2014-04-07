@@ -442,8 +442,7 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
     if ( !fft )
 	mErrRet( "Cannot allocate memory for FFT", false )
 
-    mDeclareAndTryAlloc( ArrPtrMan<float_complex>, cres,
-			 float_complex[convolvesize_] );
+    mAllocLargeVarLenArr( float_complex, cres, convolvesize_ );
     if ( !cres )
 	mErrRet( "Cannot allocate memory for FFT", false )
 

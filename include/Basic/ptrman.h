@@ -15,6 +15,10 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "atomic.h"
 
+#ifdef __debug__
+# include "debug.h"
+#endif
+
 #define mImpPtrManPointerAccess( type ) \
     inline type*		ptr() const		{ return this->ptr_; } \
     inline			operator type*() const	{ return this->ptr_; } \
@@ -106,17 +110,26 @@ mClass(Basic) ArrPtrMan : public PtrManBase<T>
 {
 public:
 				ArrPtrMan(const ArrPtrMan<T>&);
-				//Don't use
+				//!<Don't use
     inline			ArrPtrMan(T* = 0);
     ArrPtrMan<T>&		operator=( T* p );
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//!<Don't use
-
+			
 				mImpPtrManPointerAccess( T )
+
+#ifdef __debug__
+    T&				operator[](od_int64);
+    const T&			operator[](od_int64) const;
+
+#endif
+    void			setSize(size_t size) { size_=size; }
+
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
 
+    size_t		size_;
 };
 
 
@@ -301,6 +314,7 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
 template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
     : PtrManBase<T>( 0, deleteFunc, p )
+    , size_(-1)
 {}
 
 
@@ -310,6 +324,31 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
     this->set( p );
     return *this;
 }
+
+
+#ifdef __debug__
+template <class T> inline
+T& ArrPtrMan<T>::operator[]( od_int64 idx )
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return ptr_[(size_t) idx];
+}
+
+template <class T> inline
+const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return ptr_[(size_t) idx];
+}
+
+#endif
+
 
 
 template <class T> inline

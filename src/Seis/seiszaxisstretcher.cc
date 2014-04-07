@@ -166,7 +166,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 {
     StepInterval<float> trcrg = outcs_.zrg;
     SamplingData<float> sd( trcrg );
-    ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
+    mAllocLargeVarLenArr( float, outputptr, trcrg.nrSteps()+1 );
 
     SeisTrc intrc;
     SeisTrc modeltrc;

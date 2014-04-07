@@ -153,7 +153,7 @@ int readInt32()
     if ( dt_ )
     {
 	const int sz = dt_->nrBytes();
-	ArrPtrMan<char> buf = new char [sz];
+	mAllocLargeVarLenArr( char, buf, sz );
 	strm_.getBin(buf,sz);
 	return dt_->get(buf,0);
     }

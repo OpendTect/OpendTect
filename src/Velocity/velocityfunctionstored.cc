@@ -76,8 +76,7 @@ bool StoredFunction::moveTo( const BinID& bid )
 
     sort_coupled( zval_.arr(), mVarLenArr(idxs), zval_.size() );
 
-    ArrPtrMan<float> vels;
-    mTryAllocPtrMan( vels, float[vel_.size()] );
+    mAllocLargeVarLenArr( float, vels, vel_.size() );
     if ( !vels ) return false;
 
     for ( int idx=zval_.size()-1; idx>=0; idx-- )

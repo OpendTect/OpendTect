@@ -328,7 +328,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
 
     int ndim = info().getNDim();
 
-    ArrPtrMan<int> pos = new int[ndim];
+    mAllocLargeVarLenArr( int, pos, ndim );
     OD::memCopy(pos,i, (int) sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;

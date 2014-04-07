@@ -387,7 +387,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 
     const int nrtraces = (1+stepout_.inl()*2) * (1+stepout_.crl()*2);
 
-    ArrPtrMan<bool> docalculate = new bool[nrofkernels];
+    mAllocLargeVarLenArr( bool, docalculate, nrofkernels );
     const bool customcalc = !isOutputEnabled(0);
     for ( int idx=0; idx<nrofkernels; idx++ )
 	docalculate[idx] = customcalc ? isOutputEnabled(idx+1) : true;
@@ -397,7 +397,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	ArrPtrMan<float> res = new float[nrofkernels];
+	mAllocLargeVarLenArr( float, res, nrofkernels );
 	for ( int idy=0; idy<nrofkernels; idy++ )
 	    res[idy] = 0;
 
@@ -408,7 +408,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 
 	    const int valoffset = idy * sgwidth;
 
-	    ArrPtrMan<float> vals = new float[sgwidth];
+	    mAllocLargeVarLenArr( float, vals, sgwidth );
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
 		vals[valindex] = getInputValue( *inputdata_[idy], dataidx_,
 					        idx+sg_.start+valindex, z0 );

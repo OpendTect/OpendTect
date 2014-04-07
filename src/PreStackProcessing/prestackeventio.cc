@@ -886,7 +886,7 @@ bool EventPatchFileHeader::fromStream( od_istream& strm )
     if ( int16interpreter_ )
     {
 	const int sz = int32interpreter_->nrBytes();
-	ArrPtrMan<char> buf = new char [sz];
+	mAllocLargeVarLenArr( char, buf, sz );
 	if ( !strm.getBin(buf,sz) )
 	    { errmsg_ = "Cannot read #events from stream (bin)"; return false; }
 
@@ -1264,7 +1264,7 @@ int EventPatchReader::readInt16( od_istream& strm ) const
     if ( int16interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
-	ArrPtrMan<char> buf = new char [sz];
+	mAllocLargeVarLenArr( char, buf, sz );
 	strm.getBin(buf,sz);
 	return int16interpreter_->get(buf,0);
     }
@@ -1295,7 +1295,7 @@ int EventPatchReader::readInt32( od_istream& strm ) const
     if ( int32interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
-	ArrPtrMan<char> buf = new char [sz];
+	mAllocLargeVarLenArr( char, buf, sz );
 	strm.getBin(buf,sz);
 	return int32interpreter_->get(buf,0);
     }
@@ -1311,7 +1311,7 @@ float EventPatchReader::readFloat( od_istream& strm ) const
     if ( floatinterpreter_ )
     {
 	const int sz = floatinterpreter_->nrBytes();
-	ArrPtrMan<char> buf = new char [sz];
+	mAllocLargeVarLenArr( char, buf, sz );
 	strm.getBin(buf,sz);
 	return floatinterpreter_->get(buf,0);
     }

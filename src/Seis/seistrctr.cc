@@ -197,8 +197,8 @@ bool SeisTrcTranslator::commitSelections()
 	}
     }
 
-    ArrPtrMan<int> selnrs = new int[sz];
-    ArrPtrMan<int> inpnrs = new int[sz];
+    mAllocLargeVarLenArr( int, selnrs, sz );
+    mAllocLargeVarLenArr( int, inpnrs, sz );
     int nrsel = 0;
     for ( int idx=0; idx<sz; idx++ )
     {

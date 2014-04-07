@@ -341,7 +341,7 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
     mChkSize();
 
     const int quadsz = 1 + 2 * mHalfHilbertLength;
-    ArrPtrMan<float> trcdata = new float[ quadsz ];
+    mAllocLargeVarLenArr( float, trcdata, quadsz );
     int start = isamp - mHalfHilbertLength;
     int stop = isamp + mHalfHilbertLength;
     for ( int idx=start; idx<=stop; idx++ )
@@ -349,7 +349,7 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
         int trcidx = idx < 0 ? 0 : (idx>=sz ? sz-1 : idx);
         trcdata[idx-start] = trc.get( trcidx, curcomp );
     }
-    ArrPtrMan<float> quadtrc = new float[ quadsz ];
+    mAllocLargeVarLenArr( float, quadtrc, quadsz );
     Hilbert( quadsz, trcdata, quadtrc );
 
     const float q = quadtrc[mHalfHilbertLength];

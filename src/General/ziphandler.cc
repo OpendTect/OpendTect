@@ -365,9 +365,8 @@ bool ZipHandler::doZCompress()
 	mErrRet( "Error Details:Initialization required to compress data \
 		fails.\n", "Error type:", ret )
 
-    ArrPtrMan<char> in, out;
-    mTryAllocPtrMan( in, char [chunksize] );
-    mTryAllocPtrMan( out, char [upperbound] );
+    mAllocLargeVarLenArr( char, in, chunksize );
+    mAllocLargeVarLenArr( char, out, upperbound );
     if ( !in || !out )
 	mErrRet("Cannot allocate memory.","System is out of memory","")
 
@@ -1269,8 +1268,7 @@ bool ZipHandler::extractNextFile()
     {
 	const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
 	od_int64 count = chunksize;
-	ArrPtrMan<char> in;
-	mTryAllocPtrMan( in, char [chunksize] );
+	mAllocLargeVarLenArr( char, in, chunksize );
 	if ( !in )
 	    mErrRet("Cannot allocate memory.","System is out of memory","")
 
@@ -1444,9 +1442,8 @@ bool ZipHandler::doZUnCompress()
     }
 
     const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
-    ArrPtrMan<char> in, out;
-    mTryAllocPtrMan( in, char [chunksize] );
-    mTryAllocPtrMan( out, char [chunksize] );
+    mAllocLargeVarLenArr( char, in, chunksize );
+    mAllocLargeVarLenArr( char, out, chunksize );
     if ( !in || !out )
     { mErrRet("Cannot allocate memory.","System is out of memory","") }
     od_int64 count = chunksize;

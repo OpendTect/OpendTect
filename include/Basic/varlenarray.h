@@ -20,13 +20,29 @@ ________________________________________________________________________
 # define __varlenwithptr__
 #endif
 
+#ifdef __lux__
+# ifdef __debug__
+#  define __varlenwithptr__
+# endif
+#endif
+
+#define mAllocLargeVarLenArr( type, varnm, __size ) \
+ArrPtrMan<type> varnm; \
+{ \
+    const size_t __allocsize = __size; \
+    if ( __allocsize ) \
+    { \
+	mTryAllocPtrMan( varnm, type [__allocsize] ); \
+    } \
+    varnm.setSize( __allocsize ); \
+}
+
+
 #ifdef __varlenwithptr__ 
 # include "ptrman.h"
 
 # define mAllocVarLenArr( type, varnm, __size ) \
-  ArrPtrMan<type> varnm; \
-  if ( __size ) \
-      mTryAllocPtrMan( varnm, type [__size] );
+    mAllocLargeVarLenArr( type, varnm, __size )
 
 # define mVarLenArr(varnm)	varnm.ptr()
 # define mIsVarLenArrOK(varnm)	((bool)varnm.ptr())

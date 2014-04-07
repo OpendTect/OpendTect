@@ -249,7 +249,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );
     mAllocVarLenArr( float, wiener, ngap_ );
     mAllocVarLenArr( float, spiker, ngap_ );
-    ArrPtrMan<float> autocorr = new float[safelcorr];
+    mAllocLargeVarLenArr( float, autocorr, safelcorr );
 
     OD::memZero( wiener, ngap_ * sizeof( float ) );
     OD::memZero( spiker, ngap_ * sizeof( float ) );

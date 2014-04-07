@@ -439,7 +439,7 @@ int ExtremeFinderND::nextStep()
 
     for ( int dir=0; dir<n_; dir++ )
     {
-	ArrPtrMan<float> xit = new float [n_];
+	mAllocLargeVarLenArr( float, xit, n_ );
 	for ( int idy=0; idy<n_; idy++ )
 	    xit[idy] = xi_[dir][idy];
 
@@ -458,8 +458,8 @@ int ExtremeFinderND::nextStep()
     if ( iter_==itermax_ )
 	return -1;
 
-    ArrPtrMan<float> xit = new float [n_];
-    ArrPtrMan<float> ptt = new float [n_];
+    mAllocLargeVarLenArr( float, xit, n_ );
+    mAllocLargeVarLenArr( float, ptt, n_ );
     for ( int idx=0; idx<n_; idx++ )
     {
 	ptt[idx] = 2.0f*p_[idx]-pt_[idx];

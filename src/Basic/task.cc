@@ -377,7 +377,7 @@ bool ParallelTask::executeParallel( bool parallel )
     const od_int64 size = nriterations;
     if ( !size ) return true;
 
-    ArrPtrMan<ParallelTaskRunner> runners = new ParallelTaskRunner[nrthreads];
+    mAllocLargeVarLenArr( ParallelTaskRunner, runners, nrthreads );
     mAllocVarLenArr( Threads::Work, tasks, nrthreads );
 
     od_int64 start = 0;

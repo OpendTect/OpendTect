@@ -124,8 +124,8 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     const float* dataptr = data->getData();
     const int datasize = mCast(int, data->info().getTotalSz());
 
-    ArrPtrMan<float> datacopy = new float[datasize];
-    ArrPtrMan<unsigned int> indexes = new unsigned int[datasize];
+    mAllocLargeVarLenArr( float, datacopy, datasize );
+    mAllocLargeVarLenArr( unsigned int, indexes, datasize );
 
     int nrsamples = 0;
     for ( int idx=0; idx<datasize; idx++ )

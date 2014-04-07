@@ -276,7 +276,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	    return true;
 	}
 
-	ArrPtrMan<ZoeppritzCoeff> coefs = new ZoeppritzCoeff[nrinterfaces];
+	mAllocLargeVarLenArr( ZoeppritzCoeff, coefs, nrinterfaces );
         for ( int iidx=0; iidx<nrinterfaces; iidx++ )
 	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
 

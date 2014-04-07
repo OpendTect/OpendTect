@@ -210,7 +210,7 @@ void PosVecDataSet::mergeColDefs( const PosVecDataSet& vds, ColMatchPol cmpol,
 void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 			   ColMatchPol cmpol )
 {
-    ArrPtrMan<int> colidxs = new int [ vds.coldefs_.size() ];
+    mAllocLargeVarLenArr( int, colidxs, vds.coldefs_.size() );
     const int orgnrcds = coldefs_.size();
     mergeColDefs( vds, cmpol, colidxs );
     pars_.merge( vds.pars_ );

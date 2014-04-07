@@ -228,7 +228,7 @@ int HorizonSorter::nextStep()
 	    binid_.crl() = trcrgs_[binid_.inl()].start;
 
 	const int nrhors = horizons_.size();
-	ArrPtrMan<float> depths = new float [nrhors];
+	mAllocLargeVarLenArr( float, depths, nrhors );
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
 	    const EM::SectionID sid = horizons_[idx]->sectionID(0);

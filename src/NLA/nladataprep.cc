@@ -53,7 +53,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     }
 
     const int nrvals = bvs_.nrVals();
-    ArrPtrMan< Interval<float> > rgs = new Interval<float> [nrvals];
+    mAllocLargeVarLenArr( Interval<float>, rgs, nrvals );
     BinIDValueSet::SPos pos; BinID bid;
     bool first_pos = true;
     while ( bvs_.next(pos) )
@@ -124,7 +124,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    bvsnew.add( bid, vals );
 	else
 	{
-	    ArrPtrMan<float> newvals = new float [nrvals];
+	    mAllocLargeVarLenArr( float, newvals, nrvals );
 	    for ( int validx=0; validx<nrvals; validx++ )
 	    {
 		float wdth = rgs[validx].stop - rgs[validx].start;

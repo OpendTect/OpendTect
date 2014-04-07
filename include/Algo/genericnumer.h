@@ -124,16 +124,18 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 	return 0;
 
     const float rt = 
-	    (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
+	   (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
     return 1 - rt;
 }
 
 
-mGlobal(Algo) float similarity(const FloatMathFunction&,const FloatMathFunction&, 
+mGlobal(Algo) float similarity(const FloatMathFunction&,
+		 const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
 
 
-mGlobal(Algo) float semblance( const ObjectSet<float>& signals,const Interval<int>& );
+mGlobal(Algo) float semblance( const ObjectSet<float>& signals,
+			       const Interval<int>& );
 
 mGlobal(Algo) float semblance( const ObjectSet<float>& signals,int signalsize,
 			 const TypeSet<float>& signalstarts,
@@ -147,8 +149,8 @@ There is no use to have a tolerance lower than the square root of the system's
 float-precision. */
 
 
-mGlobal(Algo) bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
-	       float targetval = 0,float tol=1e-5);
+mGlobal(Algo) bool findValue(const FloatMathFunction&,float x1,float x2,
+			float& res,float targetval = 0,float tol=1e-5);
 
 
 /*!> findValueInAperture is similar to findValue, with the difference that
@@ -169,8 +171,8 @@ f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUdf(float) is returned;
 */
 
-mGlobal(Algo) float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
-		  float tol = 1e-5);
+mGlobal(Algo) float findExtreme(const FloatMathFunction&,bool minima,float x1,
+				float x2,float tol = 1e-5);
 
 
 template <class A, class B> inline
@@ -205,7 +207,7 @@ inline void genericCrossCorrelation( int lx, int ifx, const A& x,
 			     	     int ly, int ify, const B& y,
 			     	     int lz, int ifz, C& z)
 {
-    ArrPtrMan<float> xreversed = new float[lx];
+    mAllocLargeVarLenArr( float, xreversed, lx );
 
     for ( int i=0,j=lx-1; i<lx; ++i,--j)
 	xreversed[i] = x[j];

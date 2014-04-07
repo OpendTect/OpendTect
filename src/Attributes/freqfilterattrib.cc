@@ -236,8 +236,8 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 	csamp = z0 - mNINT32((float) nrsamp/2) + mNINT32((float) nrsamples/2);
     }
 
-    ArrPtrMan<float> data = new float [nrsamp];
-    ArrPtrMan<float> outp = new float [nrsamp];
+    mAllocLargeVarLenArr( float, data, nrsamp );
+    mAllocLargeVarLenArr( float, outp, nrsamp );
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
@@ -268,7 +268,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     else
     {
 	float cutoff = refstep_ * maxfreq_;
-	ArrPtrMan<float> tmp = new float [nrsamp];
+	mAllocLargeVarLenArr( float, tmp, nrsamp );
 	BFlowpass( nrpoles_, cutoff, nrsamp, data, tmp );
 	cutoff = refstep_ * minfreq_;
 	BFhighpass( nrpoles_, cutoff, nrsamp, tmp, outp );

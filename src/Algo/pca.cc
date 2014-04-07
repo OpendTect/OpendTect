@@ -210,7 +210,7 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 		f = 0.0;
 		for ( int idy=1; idy<=last; idy++)
 		{
-		    /* Next statement can be omitted if eigenvectors not wanted */
+		/* Next statement can be omitted if eigenvectors not wanted */
 		    a[idy][idx]=a[idx][idy]/h;
 		    g=0.0;
 		    for ( int idz=1; idz<=idy; idz++)
@@ -280,8 +280,8 @@ bool PCA::calculate()
 	    	Threads::WorkManager::cDefaultQueueID() );
 
     // Now, get the eigenvalues
-    ArrPtrMan<float> d = new float [nrvars_+1];
-    ArrPtrMan<float> e = new float [nrvars_+1];
+    mAllocLargeVarLenArr( float, d, nrvars_+1 );
+    mAllocLargeVarLenArr( float, e, nrvars_+1 );
     ObjectSet<float> a;
 
     float* ptr = covariancematrix_.getData();
