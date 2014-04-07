@@ -20,28 +20,29 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visBase 
-{ 
+namespace visBase
+{
     class DrawStyle;
     class Lines;
     class MarkerSet;
     class Transformation;
 }
 
-namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
 namespace EM { class FaultStickSet; }
+namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
 namespace MPE { class FaultStickSetEditor; }
 
 namespace visSurvey
 {
+
 class MPEEditor;
 class Seis2DDisplay;
 
 /*!\brief Display class for FaultStickSets
 */
 
-mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl,
-			     public SurveyObject
+mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl
+					  , public SurveyObject
 {
 public:
 				FaultStickSetDisplay();
@@ -85,7 +86,7 @@ public:
     Notifier<FaultStickSetDisplay> displaymodechange;
 
     void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);
+						TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
     void			setDisplayOnlyAtSections(bool yn);
@@ -97,7 +98,7 @@ public:
     bool			allowsPicks() const		{ return true; }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
@@ -109,8 +110,8 @@ public:
 protected:
     virtual			~FaultStickSetDisplay();
 
-    void   			otherObjectsMoved(
-	    				const ObjectSet<const SurveyObject>&,
+    void			otherObjectsMoved(
+					const ObjectSet<const SurveyObject>&,
 					int whichobj);
 
     void			setActiveStick(const EM::PosID&);
@@ -156,8 +157,8 @@ protected:
 
     visBase::Lines*		sticks_;
     visBase::Lines*		activestick_;
-    visBase::DrawStyle* 	stickdrawstyle_;
-    visBase::DrawStyle* 	activestickdrawstyle_;
+    visBase::DrawStyle*		stickdrawstyle_;
+    visBase::DrawStyle*		activestickdrawstyle_;
 
     bool			displayonlyatsections_;
     bool			stickselectmode_;
@@ -168,7 +169,7 @@ protected:
     struct StickIntersectPoint
     {
 	Coord3			pos_;
-	int 			sid_;
+	int			sid_;
 	int			sticknr_;
     };
 
@@ -177,7 +178,6 @@ protected:
 };
 
 } // namespace VisSurvey
-
 
 #endif
 
