@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "atomic.h"
+#include <stdlib.h>
 
 #ifdef __debug__
 # include "debug.h"
