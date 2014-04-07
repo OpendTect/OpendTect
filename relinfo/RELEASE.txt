@@ -1,7 +1,7 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0j: April 4, 2014
+v4.6.0j: April 10, 2014
  * Added auto extension (.sgy) for output file if no extension given in SEGY
    export
  * Fix for crash while changing survey
