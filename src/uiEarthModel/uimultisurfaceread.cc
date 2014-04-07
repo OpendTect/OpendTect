@@ -25,9 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
-    : uiDialog(p,uiDialog::Setup( BufferString( type," selection" ),
-				  BufferString( "Select Input ",type,"(s)" ),
-				  "104.3.0").nrstatusflds(1) )
+    : uiDialog(p,uiDialog::Setup( BufferString( "Select Input ",type,"(s)" ),
+				  mNoDlgTitle,"104.3.0").nrstatusflds(1) )
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type );
     surfacefld_->objselGrp()->newStatusMsg.notify(
