@@ -1,7 +1,34 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0i: March 6. 2014
+v4.6.0j: April 10, 2014
+ * Added auto extension (.sgy) for output file if no extension given in SEGY
+   export
+ * Fix for crash while changing survey
+ * Fix for crash while calculating similarity attribute with steering
+ * Fix for crash while applying frequency filter
+ * Fix for crash in horizon interpolation
+ * Fix for crash while restoring session
+ * Fix for crash in scene snapshot dialog
+ * Fix for crash while closing attribute window
+ * Fix for crash while importing multiple SEGY files
+ * Fix for importing well track
+ * Fix for wrong error messages while importing SEGY file
+ * Fix for disappearing of Measure Distance dialog behind OpendTect main
+   window  after each click in the scene
+ * Displaying an error message if attempts are made to display pre-stack data
+   on a section where none are available
+ * Fix for applying Gap Decon attribute
+ * Fix for selection of survey after changing survey data root
+ * Fix for scaling problem of 'Add columns' window in Crossplot utility
+ * Removed 'Basemap' option from 'View' menu
+ * Examine window for input Ascii files are now always on Top
+ * Fix for blank output file while exporting a horizon with area sub selection
+   set to 'All'
+ * Fix for Cluster processing parameter file to make it work
+ * Fix for demo license installation for Sitfal
+
+v4.6.0i: March 6, 2014
  * Fix for crash while closing OpendTect if the crossplot settings dialog
    is open
  * Fix in script generation for cluster processing
