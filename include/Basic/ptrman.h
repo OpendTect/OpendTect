@@ -335,7 +335,7 @@ T& ArrPtrMan<T>::operator[]( od_int64 idx )
     {
 	DBG::forceCrash(true);
     }
-    return ptr_[(size_t) idx];
+    return this->ptr_[(size_t) idx];
 }
 
 template <class T> inline
@@ -345,7 +345,7 @@ const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
     {
 	DBG::forceCrash(true);
     }
-    return ptr_[(size_t) idx];
+    return this->ptr_[(size_t) idx];
 }
 
 #endif
