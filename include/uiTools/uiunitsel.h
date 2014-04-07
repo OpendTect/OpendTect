@@ -37,10 +37,32 @@ class UnitOfMeasure;
 mExpClass(uiTools) uiUnitSel : public uiGroup
 {
 public:
-    				uiUnitSel(uiParent*,PropertyRef::StdType,
-					  const char* lbltxt=0,
-					  bool dispsymbols=false,
-					  bool withempty=false);
+
+    mExpClass(uiTools) Setup
+    {
+    public:
+
+	enum Mode		{ SymbolsOnly, NamesOnly, Full };
+
+				Setup( PropertyRef::StdType st,
+					const char* labeltxt=0 )
+				    : ptype_(st)
+				    , lbltxt_(labeltxt)
+				    , mode_(Full)
+				    , selproptype_(false)
+				    , withnone_(false)	{}
+
+	mDefSetupMemb(PropertyRef::StdType,ptype)
+	mDefSetupMemb(BufferString,lbltxt)
+	mDefSetupMemb(Mode,mode)
+	mDefSetupMemb(bool,selproptype)
+	mDefSetupMemb(bool,withnone)
+    };
+
+				uiUnitSel(uiParent*,const Setup&);
+				uiUnitSel(uiParent*,PropertyRef::StdType);
+				uiUnitSel(uiParent*,const char* lbltxt=0);
+					//!< For survey Z unit
 
     void			setUnit(const UnitOfMeasure* uom=0);
     void			setUnit(const char*);
@@ -53,12 +75,13 @@ public:
     double			getInternalValue(double uservalue) const;
 
 
-    PropertyRef::StdType	propType() const	{ return proptype_; }
+    PropertyRef::StdType	propType() const	{ return setup_.ptype_;}
     void			setPropType(PropertyRef::StdType);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }
 
     Notifier<uiUnitSel>		selChange;
+    Notifier<uiUnitSel>		propSelChange;
 
     void			fillPar(IOPar&,const char* altkey=0) const;
     bool			usePar(const IOPar&,const char* altkey=0);
@@ -71,17 +94,22 @@ public:
 
 protected:
 
-    PropertyRef::StdType	proptype_;
+    Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;
-    bool			symbolsdisp_;
     BufferString		tblkey_;
 
     uiComboBox*			inpfld_;
-    bool 			withempty_;
+    uiComboBox*			propfld_;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
+    void			propSelChg(CallBacker*);
     void			update();
+    const char*			getSelTxt(const UnitOfMeasure*) const;
     const UnitOfMeasure*	gtUnit() const;
+
+private:
+
+    void			init();
 
 };
 

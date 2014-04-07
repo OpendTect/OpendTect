@@ -19,32 +19,77 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 
-uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
-		      bool symb, bool withempty )
+uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")
-    , proptype_(typ)
-    , symbolsdisp_(symb)
-    , tblkey_(txt)
+    , setup_(su)
     , selChange(this)
-    , withempty_(withempty)
+    , propSelChange(this)
 {
+    init();
+}
+
+
+uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
+    : uiGroup(p,"UnitSel")
+    , setup_(st)
+    , selChange(this)
+    , propSelChange(this)
+{
+    init();
+}
+
+
+uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
+    : uiGroup(p,"UnitSel")
+    , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,lbltxt)
+    , selChange(this)
+    , propSelChange(this)
+{
+    init();
+}
+
+
+void uiUnitSel::init()
+{
+    tblkey_ = setup_.lbltxt_;
     if ( tblkey_.isEmpty() )
-	tblkey_ = PropertyRef::StdTypeNames()[proptype_];
+	tblkey_ = PropertyRef::StdTypeNames()[setup_.ptype_];
+
+    propfld_ = 0;
+    if ( setup_.selproptype_ )
+    {
+	propfld_ = new uiComboBox( this, "Properties" );
+	propfld_->addItems( PropertyRef::StdTypeNames() );
+	propfld_->setCurrentItem( (int)setup_.ptype_ );
+	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
+    }
 
     inpfld_ = new uiComboBox( this, "Units" );
-    if ( symbolsdisp_ )
+    if ( setup_.mode_ == Setup::SymbolsOnly )
 	inpfld_->setHSzPol( uiObject::Small );
     inpfld_->selectionChanged.notify( mCB(this,uiUnitSel,selChg) );
+    if ( propfld_ )
+	inpfld_->attach( rightOf, propfld_ );
 
-    if ( txt && *txt )
-    {
-	uiLabel* lbl = new uiLabel( this, txt );
-	inpfld_->attach( rightOf, lbl );
+    uiComboBox* leftcb = propfld_ ? propfld_ : inpfld_;
+    if ( setup_.lbltxt_.isEmpty() )
 	setHAlignObj( inpfld_ );
+    else
+    {
+	uiLabel* lbl = new uiLabel( this, setup_.lbltxt_ );
+	lbl->attach( leftOf, leftcb );
+	setHAlignObj( leftcb );
     }
 
     update();
     usePar( lastUsed() );
+}
+
+
+void uiUnitSel::propSelChg( CallBacker* )
+{
+    update();
+    propSelChange.trigger();
 }
 
 
@@ -68,13 +113,10 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
 {
     if ( !un )
     {
-	if ( !withempty_ )
-	    un = UoMR().getInternalFor( proptype_ );
+	if ( !setup_.withnone_ )
+	    un = UoMR().getInternalFor( setup_.ptype_ );
 	else
-	{
-	    inpfld_->setCurrentItem( 0 );
-	    return;
-	}
+	    { inpfld_->setCurrentItem( 0 ); return; }
     }
 
     if ( un )
@@ -96,7 +138,10 @@ void uiUnitSel::setUnit( const char* unitnm )
 	    const BufferString unnm( un.name() );
 	    const BufferString unsymb( un.symbol() );
 	    if ( unnm == unitnm || unsymb == unitnm )
-		{ inpfld_->setCurrentItem( withempty_ ? idx+1 : idx ); break; }
+		{
+		    inpfld_->setCurrentItem( setup_.withnone_ ? idx+1 : idx );
+		    break;
+		}
 	}
     }
     fillPar( lastUsed() );
@@ -113,7 +158,8 @@ const UnitOfMeasure* uiUnitSel::getUnit() const
 const UnitOfMeasure* uiUnitSel::gtUnit() const
 {
     int selidx = inpfld_->currentItem();
-    if ( withempty_ ) selidx -= 1;
+    if ( setup_.withnone_ )
+	selidx -= 1;
     return units_.validIdx( selidx ) ? units_[selidx] : 0;
 }
 
@@ -123,7 +169,7 @@ const char* uiUnitSel::getUnitName() const
     fillPar( lastUsed() );
 
     int selidx = inpfld_->currentItem();
-    if ( selidx < 0 || (withempty_ && selidx == 0) )
+    if ( selidx < 0 || (setup_.withnone_ && selidx == 0) )
 	return 0;
 
     return inpfld_->text();
@@ -158,10 +204,15 @@ double uiUnitSel::getInternalValue( double val ) const
 
 void uiUnitSel::setPropType( PropertyRef::StdType typ )
 {
-    if ( typ == proptype_ )
+    if ( typ == setup_.ptype_ )
 	return;
 
-    proptype_ = typ;
+    setup_.ptype_ = typ;
+    if ( propfld_ )
+    {
+	NotifyStopper nst( propfld_->selectionChanged );
+	propfld_->setCurrentItem( (int)typ );
+    }
     update();
     usePar( lastUsed() );
 }
@@ -186,24 +237,37 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 }
 
 
+const char* uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
+{
+    if ( !un )
+	return "";
+    else if ( setup_.mode_ == Setup::SymbolsOnly )
+	return un->symbol();
+    else if ( setup_.mode_ == Setup::NamesOnly )
+	return un->name();
+
+    mDeclStaticString( ret );
+    ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
+    return ret;
+}
+
+
 void uiUnitSel::update()
 {
     const BufferString olddef( inpfld_->isEmpty() ? "" : inpfld_->text() );
     inpfld_->setEmpty();
+    if ( propfld_ )
+	setup_.ptype_ = (PropertyRef::StdType)propfld_->currentItem();
 
-    if ( withempty_ )
+    if ( setup_.withnone_ )
 	inpfld_->addItem( "-" );
     units_.erase();
-    UoMR().getRelevant( proptype_, units_ );
+    UoMR().getRelevant( setup_.ptype_, units_ );
     for ( int idx=0; idx<units_.size(); idx++ )
-    {
-	const char* disp = symbolsdisp_ ? units_[idx]->symbol()
-					: units_[idx]->name().buf();
-	inpfld_->addItem( disp );
-    }
+	inpfld_->addItem( getSelTxt(units_[idx]) );
 
     if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
 	inpfld_->setText( olddef );
-    else if ( proptype_ == PropertyRef::Dist && SI().depthsInFeet() )
-	inpfld_->setText( symbolsdisp_ ? "ft" : "Feet" );
+    else if ( setup_.ptype_ == PropertyRef::Dist )
+	inpfld_->setText( getSelTxt(UnitOfMeasure::surveyDefDepthUnit()) );
 }

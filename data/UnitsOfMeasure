@@ -26,8 +26,8 @@ Feet/second x Gram/cm3: Impedance`ft/s x g/cc`304.8
 Kg/m3 / Microseconds/feet: Impedance`kg/m3 / us/ft`304800
 Gram/ft2s: Impedance`g/ft2s`0.0107639
 Fraction: Volumetrics``1
-Ratio: Elastic Ratio/Anisotropy``1
-Percent: Volumetrics/Elastic Ratio/Anisotropy`%`0.01
+Ratio: Elastic Ratio|Anisotropy``1
+Percent: Volumetrics|Elastic Ratio|Anisotropy`%`0.01
 Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1

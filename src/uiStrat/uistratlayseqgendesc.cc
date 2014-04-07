@@ -476,7 +476,8 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
     valfld_ = new uiGenInput( this, "", FloatInpSpec() );
     rgfld_ = new uiGenInput( this, "", FloatInpSpec(), FloatInpSpec() );
-    unfld_ = new uiUnitSel( this, pr.stdType(), 0, true );
+    uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
+    unfld_ = new uiUnitSel( this, ussu );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );

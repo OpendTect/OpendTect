@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
-#include "uicombobox.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
@@ -23,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uiunitsel.h"
 #include "uiwellsel.h"
 
 #include "ctxtioobj.h"
@@ -1909,40 +1909,23 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey))
     , log_(wl)
 {
-    BufferString ttl( "Edit unit of measure :" );
-    ttl += wl.name();
-    setCaption( ttl.buf() );
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Unit of measure" );
-    unfld_ = lcb->box();
-    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
-    unfld_->addItem( "-" );
-    for ( int idx=0; idx<uns.size(); idx++ )
-	unfld_->addItem( uns[idx]->name() );
-
     const char* curruom = log_.unitMeasLabel();
     const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
-    unfld_->setCurrentItem( uom ? uom->name() : 0 );
+    BufferString ttl( uom?"Change":"Set", " unit of measure for ", wl.name() );
+    setCaption( ttl );
+
+    PropertyRef::StdType ptyp = PropertyRef::Other;
+    if ( uom ) ptyp = uom->propType();
+    uiUnitSel::Setup ussu( ptyp, "Log values are" );
+    ussu.selproptype( true );
+    unfld_ = new uiUnitSel( this, ussu );
+    unfld_->setUnit( uom );
 }
 
 
 bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
-    BufferString uiunit = unfld_->text();
-    BufferString curlogunit = log_.unitMeasLabel();
-
-    if ( uiunit.isEqual( "-" ) )
-	curlogunit.setEmpty();
-
-    const UnitOfMeasure* newuom = UnitOfMeasure::getGuessed( uiunit );
-    if ( newuom )
-    {
-	if ( *newuom->symbol() != '\0' )
-	    curlogunit = newuom->symbol();
-	else if ( *newuom->name() != '\0' )
-	    curlogunit = newuom->name();
-    }
-
-    log_.setUnitMeasLabel( curlogunit );
-
+    const UnitOfMeasure* newuom = unfld_->getUnit();
+    log_.setUnitMeasLabel( newuom ? newuom->name().buf() : 0 );
     return true;
 }

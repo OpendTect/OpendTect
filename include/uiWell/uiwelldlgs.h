@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class uiButtonGroup;
 class uiCheckBox;
-class uiComboBox;
 class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
@@ -29,6 +28,7 @@ class uiLabeledListBox;
 class uiPushButton;
 class uiTable;
 class uiTableImpDataSel;
+class uiUnitSel;
 class uiWellSel;
 class BufferStringSet;
 class IOObj;
@@ -55,9 +55,9 @@ protected:
     Table::FormatDesc&		fd_;
     uiTable*			tbl_;
     uiCheckBox*			zinftfld_;
-    uiGenInput* 		wellheadxfld_;
-    uiGenInput* 		wellheadyfld_;
-    uiGenInput* 		kbelevfld_;
+    uiGenInput*		wellheadxfld_;
+    uiGenInput*		wellheadyfld_;
+    uiGenInput*		kbelevfld_;
     uiPushButton*		updatefld_;
     uiPushButton*		wellheadxupdbut_;
     uiPushButton*		wellheadyupdbut_;
@@ -108,7 +108,7 @@ protected:
     uiCheckBox*			unitfld_;
     uiCheckBox*			timefld_;
     uiPushButton*		updatefld_;
-    uiGenInput* 		replvelfld_;
+    uiGenInput*		replvelfld_;
     uiPushButton*		replvelupdbut_;
 
     void			fillTable(CallBacker*);
@@ -215,18 +215,19 @@ protected:
 };
 
 
-/* brief some editable uom for the logs */
+/* brief edit the logs's unit of measure */
+
 mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 {
 public:
-				uiWellLogUOMDlg(uiParent*,Well::Log&);
+			uiWellLogUOMDlg(uiParent*,Well::Log&);
 
 protected:
 
-    uiComboBox*                 unfld_;
-    Well::Log&			log_;
+    uiUnitSel*		unfld_;
+    Well::Log&		log_;
 
-    bool			acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*);
 };
 
 #endif

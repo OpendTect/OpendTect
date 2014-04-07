@@ -95,7 +95,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     PropertyRef::StdType proptyp = tinf_.propertyType();
     if ( proptyp != PropertyRef::Other )
     {
-	unitfld_ = new uiUnitSel( this, proptyp, "Unit" );
+	unitfld_ = new uiUnitSel( this, uiUnitSel::Setup(proptyp,"Unit") );
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );

@@ -42,7 +42,8 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 			       mCB( this, uiPropSelFromList, updateSelCB ) );
     typelbl_ = new uiLabel( this, pr.name(), typefld_ );
 
-    unfld_ = new uiUnitSel( this, propref_.stdType(), 0, false, true );
+    uiUnitSel::Setup ussu( propref_.stdType() ); ussu.withnone( true );
+    unfld_ = new uiUnitSel( this, ussu );
     unfld_->setUnit( propref_.disp_.unit_ );
     unfld_->attach( rightOf, typefld_ );
 

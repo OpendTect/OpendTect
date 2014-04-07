@@ -88,8 +88,9 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     *ret += grp;
 
     grp = new MathExpressionOperatorDescGroup;
-    grp->name_ = "Various";
-    mAddDesc("pi","PI",true,0);
+    grp->name_ = "Constants";
+    mAddDesc("pi","PI=3.14...",true,0);
+    mAddDesc("euler","e=2.71...",true,0);
     mAddDesc("undef","Undefined",true,0);
     *ret += grp;
 
@@ -1288,6 +1289,8 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
 
     if ( workstr.isEqual("pi",CaseInsensitive) )
 	return new MathExpressionConstant( M_PI );
+    if ( workstr.isEqual("euler",CaseInsensitive) )
+	return new MathExpressionConstant( 2.7182818284590452353602874713 );
     else if ( workstr.isEqual("undef",CaseInsensitive) )
 	return new MathExpressionConstant( mUdf(double) );
 

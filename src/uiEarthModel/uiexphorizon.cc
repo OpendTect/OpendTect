@@ -79,8 +79,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
 
-    unitsel_ = new uiUnitSel( this,
-	SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist, "Z Unit" );
+    unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
     headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );
