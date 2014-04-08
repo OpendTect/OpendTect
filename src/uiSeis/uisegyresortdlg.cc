@@ -103,7 +103,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	newinleachfld_->attach( alignedBelow, outfld_ );
 	newinleachfld_->checked.notify( mCB(this,uiResortSEGYDlg,nrinlSel) );
 	inlnmsfld_ = new uiGenInput( this, "Name files using",
-			BoolInpSpec(true,"Sequence number","Inline range") );
+			BoolInpSpec(true,"Sequence number","In-line range") );
 	inlnmsfld_->attach( alignedBelow, newinleachfld_ );
     }
 }
@@ -154,7 +154,7 @@ void uiResortSEGYDlg::nrinlSel( CallBacker* )
 
 Seis::GeomType uiResortSEGYDlg::geomType() const
 {
-    return geomfld_ ? Seis::geomTypeOf( geomfld_->text() ) : Seis::LinePS; 
+    return geomfld_ ? Seis::geomTypeOf( geomfld_->text() ) : Seis::LinePS;
 }
 
 

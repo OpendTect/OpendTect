@@ -65,8 +65,8 @@ static const char* outpstrsext[] =
 
 static const char* outpdip3dstrs[] =
 {
-	"Inline Dip",
-	"Crossline Dip",
+	"In-line Dip",
+	"Cross-line Dip",
 	0
 };
 

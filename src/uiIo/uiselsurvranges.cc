@@ -110,7 +110,7 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
 StepInterval<float> uiSelZRange::getRange() const
 {
-    StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(), 
+    StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(),
 	    		     stepfld_ ? stepfld_->getFValue() : 1 );
     zrg.scale( 1.f / zddef_.userFactor() );
     if ( !stepfld_ )
@@ -207,8 +207,8 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
 
 
 uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
-	: uiGroup(p,typ == Inl ? "Inline range selection"
-		 : (typ == Crl ? "Crossline range selection"
+	: uiGroup(p,typ == Inl ? "In-line range selection"
+		 : (typ == Crl ? "Cross-line range selection"
 			       : "Number range selection"))
 	, stepfld_(0)
 	, icstopfld_(0)
@@ -225,7 +225,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
 	const HorSampling& whs( SI().sampling(true).hrg );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
-	nm = typ == Inl ? "Inline" : "Crossline";
+	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
     }
 
@@ -378,7 +378,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
 	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );
-	lbl = "Inline/Crossline steps";
+	lbl = "In-line/Cross-line steps";
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
     crlfld_->setInterval( StepInterval<int>(stp.crl(),cUnLim,stp.crl()) );
@@ -419,8 +419,8 @@ uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
 
 uiSelHRange::uiSelHRange( uiParent* p, const HorSampling& hslimit, bool wstep )
     : uiGroup(p,"Hor range selection")
-    , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,"Inline"))
-    , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,"Crossline"))
+    , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,sKey::Inline()))
+    , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,sKey::Crossline()))
 {
     crlfld_->attach( alignedBelow, inlfld_ );
     setHAlignObj( inlfld_ );

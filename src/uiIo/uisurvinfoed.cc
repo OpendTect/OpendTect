@@ -660,7 +660,7 @@ bool uiSurveyInfoEditor::setRanges()
 	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
     if ( !hs.totalNr() )
-	mErrRet("Please specify inline/crossline ranges")
+	mErrRet("Please specify in-line/cross-line ranges")
     if ( cs.zrg.nrSteps() == 0 )
 	mErrRet("Please specify a valid Z range")
 

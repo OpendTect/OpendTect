@@ -142,9 +142,9 @@ void uiSeisFileMan::mkFileInfo()
 	{
 	    txt = "";
 	    if ( !mIsUdf(cs.hrg.stop.inl()) )
-		{ txt.add("Inline") mAddRangeTxt(inl()); }
+	    { txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hrg.stop.crl()) )
-		{ txt.add("\nCrossline") mAddRangeTxt(crl()); }
+	    { txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
 	    float area = SI().getArea( cs.hrg.inlRange(), cs.hrg.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 

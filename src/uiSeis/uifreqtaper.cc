@@ -97,7 +97,7 @@ uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
     }
     else
 	inlcrlfld_ = new uiGenInput( this, complbl,
-			    BoolInpSpec(true,"Inline","Crossline") );
+			BoolInpSpec(true,sKey::Inline(),sKey::Crossline()) );
     setOkText( uiStrings::sNext() );
 }
 

@@ -81,7 +81,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 
 void uiSliceSel::createInlFld()
 {
-    BufferString label( isinl_ ? "Inline nr" : "Inline range" );
+    BufferString label( isinl_ ? "In-line nr" : "In-line range" );
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -93,7 +93,7 @@ void uiSliceSel::createInlFld()
 void uiSliceSel::createCrlFld()
 {
     BufferString label = is2d_ ? "Trace range"
-			       : ( iscrl_ ? "Xline nr" : "Xline range" );
+		: ( iscrl_ ? "Cross-line nr" : "Cross-line range" );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
@@ -607,7 +607,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const CubeSampling& cs )
     , posdlg_(0)
 {
     inlcrlfld_ = new uiGenInput( this, "Compute on:",
-				 BoolInpSpec(true,"Inline","Crossline") );
+			BoolInpSpec(true,sKey::Inline(),sKey::Crossline()) );
     setOkText( uiStrings::sNext() );
 }
 

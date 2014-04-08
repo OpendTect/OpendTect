@@ -44,8 +44,8 @@ static const char* kerstrs[] =
 static const char* outpstrs3d[] =
 {
 	"Average gradient",
-        "Inline gradient",
-        "Crossline gradient",
+        "In-line gradient",
+        "Cross-line gradient",
         "Time gradient",
         0
 };

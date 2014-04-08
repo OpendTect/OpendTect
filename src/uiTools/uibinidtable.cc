@@ -29,8 +29,8 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 						.selmode(uiTable::Multi),
 			  "BinID Table" );
     table_->setNrCols( 2 );
-    table_->setColumnLabel( 0, "Inline" );
-    table_->setColumnLabel( 1, "Crossline" );
+    table_->setColumnLabel( 0, sKey::Inline() );
+    table_->setColumnLabel( 1, sKey::Crossline() );
     table_->setNrRows( 5 );
 
     uiSeparator* hsep = new uiSeparator( this, "Separator" );

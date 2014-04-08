@@ -75,7 +75,7 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 	ManagedObjectSet<uiSurvey::Util>* newutils =
 				    new ManagedObjectSet<uiSurvey::Util>;
 	*newutils += new uiSurvey::Util( "xy2ic",
-		"Convert (X,Y) to/from (Inline,Crossline)", CallBack() );
+		"Convert (X,Y) to/from (In-line,Cross-line)", CallBack() );
 	*newutils += new uiSurvey::Util( "spherewire",
 				"Setup geographical coordinates",
 				      CallBack() );

@@ -462,8 +462,8 @@ void uiSurfaceMan::mkFileInfo()
     else
     {
 	StepInterval<int> range;
-	txt = "Inline range: "; mAddRangeTxt(true)
-	txt += "Crossline range: "; mAddRangeTxt(false)
+	txt = "In-line range: "; mAddRangeTxt(true)
+	txt += "Cross-line range: "; mAddRangeTxt(false)
 	Interval<float> zrange = eminfo.getZRange();
 	if ( !zrange.isUdf() )
 	{

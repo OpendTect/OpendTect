@@ -516,9 +516,9 @@ void uiODViewer2D::setWinTitle( bool fromcs )
 	    info += cs_.zrg.start * zdef.userFactor();
 	}
 	else if ( cs_.defaultDir() == CubeSampling::Crl )
-	{ info = "Crossline: "; info += cs_.hrg.start.crl(); }
+	{ info = "Cross-line: "; info += cs_.hrg.start.crl(); }
 	else
-	{ info = "Inline: "; info += cs_.hrg.start.inl(); }
+	{ info = "In-line: "; info += cs_.hrg.start.inl(); }
     }
 
     basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );

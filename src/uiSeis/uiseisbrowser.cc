@@ -227,7 +227,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     mAddButton( "info",infoPush,"Information",false );
     if ( !is2d_ )
 	crlwisebutidx_ = mAddButton( "crlwise",switchViewTypePush,
-				     "Switch to Crossline",true );
+				     "Switch to Cross-line",true );
     mAddButton( "leftarrow",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow",rightArrowPush,"Move right",false );
     showwgglbutidx_ = mAddButton( "vd",dispTracesPush,

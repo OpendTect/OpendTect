@@ -28,11 +28,11 @@ static const char* outpstrs3d[] =
     "X",
     "Y",
     "Z",
-    "Inline nr",
-    "Crossline nr",
+    "In-line nr",
+    "Cross-line nr",
     "Sample nr",
-    "Inline index",
-    "Crossline index",
+    "In-line index",
+    "Cross-line index",
     "Z index",
     0
 };
@@ -55,10 +55,10 @@ mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.11")
-    
+
 {
     inpfld = createInpFld( is2d );
-    
+
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );
     outpfld3d->attach( alignedBelow, inpfld );
@@ -98,7 +98,7 @@ bool uiReferenceAttrib::getOutput( Desc& desc )
 {
     is2d_ ? fillOutput( desc, outpfld2d->getIntValue() ) :
 	    fillOutput( desc, outpfld3d->getIntValue() );
-    
+
     return true;
 }
 

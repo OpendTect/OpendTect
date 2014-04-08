@@ -1010,8 +1010,8 @@ void uiDataPointSet::statsClose( CallBacker* )
 
 
 #define mGetHPosName( dcid ) ( did == -nrPosCols() ) ? \
-	( showbids_ ? "Inline" : "X-Coord" ) : \
-	( showbids_ ? "Crossline" : "Y-Coord" )
+	( showbids_ ? sKey::Inline() : sKey::XCoord() ) : \
+	( showbids_ ? sKey::Crossline() : sKey::YCoord() )
 
 #define mIsZ( dcid ) dps_.is2D() ? dcid == -2 : dcid == -1
 

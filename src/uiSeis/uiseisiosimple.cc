@@ -136,7 +136,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	isxyfld_ = new uiGenInput( this, isimp_
 		? "Position in file is" : "Position in file will be",
-		BoolInpSpec(true,"X Y","Inline Xline") );
+		BoolInpSpec(true,"X Y","Inl Crl") );
 	isxyfld_->setValue( data().isxy_ );
 	isxyfld_->attach( alignedBelow, attachobj );
 	if ( !isimp_ )

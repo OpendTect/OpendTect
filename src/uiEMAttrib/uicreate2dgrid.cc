@@ -85,7 +85,7 @@ void update()
 {
     itemgrp_->removeAll( true );
     lines_.erase();
-    
+
     if ( !grid_ || !transform_ ) return;
 
     LineStyle ls;
@@ -157,19 +157,19 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 						  const HorSampling& hs )
     : ui2DGridLines(p,hs)
 {
-    inlmodefld_ = new uiGenInput( this, "Inline",
+    inlmodefld_ = new uiGenInput( this, sKey::Inline(),
 				  BoolInpSpec(true,"Range","Loose") );
     inlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
     inlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     inlrgfld_->attach( alignedBelow, inlmodefld_ );
-    inlsfld_ = new uiGenInput( this, "Inlines (comma separated)" );
+    inlsfld_ = new uiGenInput( this, "In-lines (comma separated)" );
     inlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     inlsfld_->attach( alignedBelow, inlmodefld_ );
 
-    crlmodefld_ = new uiGenInput( this, "Crossline",
+    crlmodefld_ = new uiGenInput( this, sKey::Crossline(),
 				  BoolInpSpec(true,"Range","Loose") );
     crlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
@@ -177,7 +177,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     crlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     crlrgfld_->attach( alignedBelow, crlmodefld_ );
-    crlsfld_ = new uiGenInput( this, "Crosslines (comma separated)" );
+    crlsfld_ = new uiGenInput( this, "Cross-lines (comma separated)" );
     crlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     crlsfld_->attach( alignedBelow, crlmodefld_ );
@@ -337,7 +337,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     pardistfld_ = new uiGenInput( this, lbltxt.buf(),
 				  IntInpSpec().setLimits(spacinglimits) );
     pardistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
-					  paramsChgCB) );	
+					  paramsChgCB) );
     if ( !rdl || rdl->nrNodes() != 2 )
     {
 	rdlfld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
@@ -352,7 +352,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     perdistfld_ = new uiGenInput( this, lbltxt.buf(),
 				  IntInpSpec().setLimits(spacinglimits) );
     perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
-					  paramsChgCB) );	
+					  paramsChgCB) );
     perdistfld_->attach( alignedBelow, pardistfld_ );
 
     const Coord maxcoord = SI().maxCoord(false);

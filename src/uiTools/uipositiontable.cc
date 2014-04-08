@@ -57,12 +57,12 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     table_->setNrRows( 5 );
     attachObj()->setMinimumWidth( withxy_ && withic_ ? 400 : 200 );
 
-    table_->setColumnLabel( 0, withxy_ ? "X" : "Inline" );
-    table_->setColumnLabel( 1, withxy_ ? "Y" : "Crossline" );
+    table_->setColumnLabel( 0, withxy_ ? "X" : sKey::Inline() );
+    table_->setColumnLabel( 1, withxy_ ? "Y" : sKey::Crossline() );
     if ( withxy_ && withic_ )
     {
-	table_->setColumnLabel( 2, "Inline" );
-	table_->setColumnLabel( 3, "Crossline" );
+	table_->setColumnLabel( 2, sKey::Inline() );
+	table_->setColumnLabel( 3, sKey::Crossline() );
     }
 
     if ( withz_ )
@@ -214,7 +214,7 @@ void uiPositionTable::setZRange( const Interval<float>& zrg )
 
 void uiPositionTable::getZRange( Interval<float>& zrg ) const
 {
-    zrg.setFrom( withz_ ? zfld_->getFInterval() 
+    zrg.setFrom( withz_ ? zfld_->getFInterval()
 	    		: (Interval<float>)SI().zRange(false) );
 }
 

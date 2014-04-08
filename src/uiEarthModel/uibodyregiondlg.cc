@@ -678,10 +678,10 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
     BufferStringSet sidenms;
     if ( isfault )
     {
-	sidenms.add("Between min Inline and fault");
-	sidenms.add("Between max Inline and fault");
-	sidenms.add("Between min Crossline and fault");
-	sidenms.add("Between max Crossline and fault");
+	sidenms.add("Between min In-line and fault");
+	sidenms.add("Between max In-line and fault");
+	sidenms.add("Between min Cross-line and fault");
+	sidenms.add("Between max Cross-line and fault");
     }
     else if ( !singlehormod )
     {

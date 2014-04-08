@@ -222,9 +222,9 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	return;
 
     CubeSampling survey = scene_->getCubeSampling();
-    const Interval<float> inlrg( mCast(float,survey.hrg.start.inl()), 
+    const Interval<float> inlrg( mCast(float,survey.hrg.start.inl()),
 				    mCast(float,survey.hrg.stop.inl()) );
-    const Interval<float> crlrg( mCast(float,survey.hrg.start.crl()), 
+    const Interval<float> crlrg( mCast(float,survey.hrg.start.crl()),
 				    mCast(float,survey.hrg.stop.crl()) );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
@@ -264,9 +264,9 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 {
     CubeSampling res( cs );
-    const Interval<float> inlrg( mCast(float,res.hrg.start.inl()), 
+    const Interval<float> inlrg( mCast(float,res.hrg.start.inl()),
 				    mCast(float,res.hrg.stop.inl()) );
-    const Interval<float> crlrg( mCast(float,res.hrg.start.crl()), 
+    const Interval<float> crlrg( mCast(float,res.hrg.start.crl()),
 				    mCast(float,res.hrg.stop.crl()) );
     const Interval<float> zrg( res.zrg );
 
@@ -297,7 +297,7 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 {
     if ( orientation_==Zslice )
 	return Coord3(0,0,1);
-    
+
     return Coord3( orientation_==Inline
 		  ? s3dgeom_->binID2Coord().rowDir()
 		  : s3dgeom_->binID2Coord().colDir(), 0 );
@@ -312,17 +312,17 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     const BinID binid = s3dgeom_->transform( Coord(xytpos.x,xytpos.y) );
 
     const CubeSampling cs = getCubeSampling(false,true);
-    
+
     BinID inlcrldist( 0, 0 );
     float zdiff = 0;
 
     inlcrldist.inl() =
-	binid.inl()>=cs.hrg.start.inl() && binid.inl()<=cs.hrg.stop.inl() 
+	binid.inl()>=cs.hrg.start.inl() && binid.inl()<=cs.hrg.stop.inl()
 	     ? 0
 	     : mMIN( abs(binid.inl()-cs.hrg.start.inl()),
 		     abs( binid.inl()-cs.hrg.stop.inl()) );
     inlcrldist.crl() =
-	binid.crl()>=cs.hrg.start.crl() && binid.crl()<=cs.hrg.stop.crl() 
+	binid.crl()>=cs.hrg.start.crl() && binid.crl()<=cs.hrg.stop.crl()
 	     ? 0
 	     : mMIN( abs(binid.crl()-cs.hrg.start.crl()),
 		     abs( binid.crl()-cs.hrg.stop.crl()) );
@@ -451,7 +451,7 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 {
     triggerRightClick( dragger_->rightClickedEventInfo() );
 }
- 
+
 #define mDefineCenterAndWidth( thecs ) \
     const Coord3 center( (thecs.hrg.start.inl()+thecs.hrg.stop.inl())/2.0, \
 		         (thecs.hrg.start.crl()+thecs.hrg.stop.crl())/2.0, \
@@ -584,7 +584,7 @@ void PlaneDataDisplay::removeCache( int attrib )
 	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
     delete displaycache_.removeSingle( attrib );
-    
+
     for ( int idx=0; idx<displaycache_.size(); idx++ )
 	updateFromDisplayIDs( idx, 0 );
 }
@@ -605,7 +605,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
 
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
-    
+
     if ( displaycache_[attrib] )
     {
 	TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
@@ -686,7 +686,7 @@ void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
 
     setRandomPosDataNoCache( attrib, &data->bivSet(), tr );
 
-    if ( rposcache_[attrib] ) 
+    if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
 
     rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet()) : 0 );
@@ -810,11 +810,11 @@ float PlaneDataDisplay::getDisplayMinDataStep( bool x0 ) const
 }
 
 
-void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib, 
+void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 			const Attrib::Flat3DDataPack* f3ddp )
 {
     if ( !f3ddp ) return;
-    
+
     //set display datapack.
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
 
@@ -862,11 +862,11 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	for ( int idx=0; idx<displaypacks.size(); idx++ )
 	{
 	    mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
-		ZAxisTransformDataPack( *displaypacks[idx], 
+		ZAxisTransformDataPack( *displaypacks[idx],
 		f3ddp->cube().cubeSampling(), *datatransform_ ) );
 
 	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
-	    
+
 	    CubeSampling outputcs = getCubeSampling( true, true );
 	    outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
 	    if ( scene_ )
@@ -882,13 +882,13 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    dpman.release( displaypacks[idx] );
 	}
     }
-    
+
     const bool usetf = tfpacks.size();
     if ( nrAttribs()>1 )
     {
 	const int oldchannelsz0 = channels_->getSize(1);
 	const int oldchannelsz1 = channels_->getSize(2);
-	
+
 	//check current attribe sizes
 	int newsz0 = 0, newsz1 = 0;
 	bool hassamesz = true;
@@ -896,7 +896,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	{
 	    for ( int idx=0; idx<attridpids.size(); idx++ )
 	    {
-		const int sz0 = usetf ? tfpacks[idx]->data().info().getSize(0) 
+		const int sz0 = usetf ? tfpacks[idx]->data().info().getSize(0)
 		    : displaypacks[idx]->data().info().getSize(0);
 		const int sz1 = usetf ? tfpacks[idx]->data().info().getSize(1)
 		    : displaypacks[idx]->data().info().getSize(1);
@@ -947,7 +947,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 			FlatDataPack( dp->category(), arr ) );
 
 		rg0.step = newsz0!=1 ? rg0.width()/(newsz0-1) : rg0.width();
-		rg1.step = newsz1!=1 ? rg1.width()/(newsz1-1) : rg1.width(); 
+		rg1.step = newsz1!=1 ? rg1.width()/(newsz1-1) : rg1.width();
 		if ( rg0.step < minx0step_ ) minx0step_ = (float) rg0.step;
 		if ( rg1.step < minx1step_ ) minx1step_ = (float) rg1.step;
 
@@ -975,7 +975,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     }
 
     setDisplayDataPackIDs( attrib, attridpids );
-    
+
     for ( int idx=0; idx<attridpids.size(); idx++ )
 	dpman.release( attridpids[idx] );
 }
@@ -983,7 +983,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 
 DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
-    return volumecache_.validIdx(attrib) &&  volumecache_[attrib] 
+    return volumecache_.validIdx(attrib) &&  volumecache_[attrib]
 	? volumecache_[attrib]->id() : DataPack::cNoID();
 }
 
@@ -1013,10 +1013,10 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
         DPM(DataPackMgr::FlatID()).addAndObtain( fdp );
         attridpids += fdp->id();
 
-    	float* texturedataptr = arr->getData();    
+    	float* texturedataptr = arr->getData();
     	for ( int idy=0; idy<arr->info().getTotalSz(); idy++ )
     	    (*texturedataptr++) = mUdf(float);
-	
+
     	BinIDValueSet::SPos pos;
     	BinID bid;
     	while ( bivset->next(pos,true) )
@@ -1092,7 +1092,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
     }
-   
+
     channels_->turnOn( true );
 }
 
@@ -1117,7 +1117,7 @@ const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 
 void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					Coord3& pos,
-					BufferString& val, 
+					BufferString& val,
 					BufferString& info ) const
 {
     info = getManipulationString();
@@ -1129,12 +1129,12 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 {
     if ( orientation_==Inline )
     {
-	info = "Inline: ";
+	info = "In-line: ";
 	info += getCubeSampling(true,true).hrg.start.inl();
     }
     else if ( orientation_==Crossline )
     {
-	info = "Crossline: ";
+	info = "Cross-line: ";
 	info += getCubeSampling(true,true).hrg.start.crl();
     }
     else

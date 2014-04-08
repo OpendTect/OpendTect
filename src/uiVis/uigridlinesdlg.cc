@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	    				IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
-    
+
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options","50.0.3"))
     , pdd_( pdd )
@@ -44,10 +44,10 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 {
     BufferString label;
     CubeSampling cs( pdd->getCubeSampling(true,true) );
-    if ( cs.nrInl()>1 ) 
-	{ mCreateGridFld( inl, "inline" ) }
+    if ( cs.nrInl()>1 )
+	{ mCreateGridFld( inl, "in-line" ) }
     if ( cs.nrCrl()>1 )
-    	{ mCreateGridFld( crl, "crossline" ) }
+    	{ mCreateGridFld( crl, "cross-line" ) }
     if ( cs.nrZ()>1 )
     	{ mCreateGridFld( z, "z" ) }
 
@@ -56,11 +56,11 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 
     LineStyle lst;
     pdd->gridlines()->getLineStyle( lst );
-    
+
     lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
     if ( zfld_ )
     {
-	zfld_->attach( leftAlignedBelow, inlfld_ ? inlspacingfld_ 
+	zfld_->attach( leftAlignedBelow, inlfld_ ? inlspacingfld_
 						 : crlspacingfld_ );
 	lsfld_->attach( alignedBelow, zspacingfld_ );
     }
@@ -72,12 +72,12 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 	allmsg += "inlines";
     else if ( visSurvey::PlaneDataDisplay::Crossline == pdd_->getOrientation() )
 	allmsg += "crosslines";
-    else 
+    else
 	allmsg += "z slices";
     applyallfld_ = new uiCheckBox( this, allmsg.buf() );
     applyallfld_->setChecked( true );
     applyallfld_->attach( alignedBelow, lsfld_ );
-    
+
     setParameters();
 }
 
@@ -86,13 +86,13 @@ void uiGridLinesDlg::showGridLineCB( CallBacker* cb )
 {
     if ( inlspacingfld_ )
 	inlspacingfld_->setSensitive( inlfld_->isChecked() );
-    
+
     if ( crlspacingfld_ )
 	crlspacingfld_->setSensitive( crlfld_->isChecked() );
-    
+
     if ( zspacingfld_ )
 	zspacingfld_->setSensitive( zfld_->isChecked() );
-    
+
     lsfld_->setSensitive( (inlfld_ && inlfld_->isChecked()) ||
 	    		  (crlfld_ && crlfld_->isChecked()) ||
 			  (zfld_ && zfld_->isChecked()) );
@@ -126,9 +126,9 @@ static void getDefaultZSampling( StepInterval<float>& zrg )
 {
     const float width = (zrg.stop-zrg.start) * SI().zDomain().userFactor();
     zrg.step = getDefaultStep( width );
-    zrg.start = zrg.step * 
+    zrg.start = zrg.step *
 	ceil( (float)zrg.start * SI().zDomain().userFactor() /(float)zrg.step );
-    zrg.stop = zrg.step * 
+    zrg.stop = zrg.step *
 	floor( (float)zrg.stop * SI().zDomain().userFactor() /(float)zrg.step );
 }
 
@@ -144,13 +144,13 @@ void uiGridLinesDlg::setParameters()
     }
     else
     {
-	getDefaultHorSampling( cs.hrg.start.inl(), cs.hrg.stop.inl(), 
+	getDefaultHorSampling( cs.hrg.start.inl(), cs.hrg.stop.inl(),
 			       cs.hrg.step.inl() );
-	getDefaultHorSampling( cs.hrg.start.crl(), cs.hrg.stop.crl(), 
+	getDefaultHorSampling( cs.hrg.start.crl(), cs.hrg.stop.crl(),
 			       cs.hrg.step.crl() );
 	getDefaultZSampling( cs.zrg );
     }
-    
+
     if ( inlfld_ )
     {
 	inlfld_->setChecked( pdd_->gridlines()->areInlinesShown() );
@@ -210,7 +210,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
 	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() )
 	   continue;
-	
+
 	if ( !applyall && pdd!=pdd_ )
 	    continue;
 

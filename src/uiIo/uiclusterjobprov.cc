@@ -125,7 +125,7 @@ int nextStep()
 
     IOPar iop;
     jobprov_.getJob( curidx_, iop );
-    BufferString desc( "Inline " );
+    BufferString desc( "In-line " );
     desc.add( jobprov_.objName(curidx_++) );
     iop.set( sKey::Desc(), desc.buf() );
     BufferString filenm( "Job" );

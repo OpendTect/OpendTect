@@ -155,7 +155,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		newpos.crl() = location;
 	    else
 	    {
-		BufferString msg = "The crossline should be between ";
+		BufferString msg = "The cross-line should be between ";
 		msg += crlrg.start;
 		msg += " and ";
 		msg += crlrg.stop;
@@ -173,7 +173,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		newpos.inl() = location;
 	    else
 	    {
-		BufferString msg = "The inline should be between ";
+		BufferString msg = "The in-line should be between ";
 		msg += inlrg.start;
 		msg += " and ";
 		msg += inlrg.stop;
