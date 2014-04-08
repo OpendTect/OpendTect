@@ -124,9 +124,7 @@ void uiAttribCrossPlot::adsChg()
 
     for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
     {
-	BufferStringSet bss;
 	SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
-	sii.getDefKeys( bss, true );
 	if ( sii.isPS() && sii.is2D() )
 	{
 	    attrinfo_->ioobjids_.removeSingle( idx );
@@ -134,14 +132,11 @@ void uiAttribCrossPlot::adsChg()
 	    continue;
 	}
 
-	for ( int inm=0; inm<bss.size(); inm++ )
-	{
-	    const char* defkey = bss.get(inm).buf();
-	    const char* ioobjnm = attrinfo_->ioobjnms_.get(idx).buf();
-	    attrsfld_->addItem( attrinfo_->is2D(defkey)
-		    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-		    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
-	}
+	const char* defkey = attrinfo_->ioobjids_.get(idx);
+	const char* ioobjnm = attrinfo_->ioobjnms_.get(idx).buf();
+	attrsfld_->addItem( attrinfo_->is2D(defkey)
+			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
+			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
     }
 
     if ( !attrsfld_->isEmpty() )
@@ -173,20 +168,9 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     const bool isstored = curitem >= attrsz;
     if ( isstored )
     {
-	int storedidx = -1;
-	for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
-	{
-	    BufferStringSet bss;
-	    SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
-	    sii.getDefKeys( bss, true );
-	    storedidx += bss.size();
-	    if ( (curitem-attrsz) <= storedidx )
-	    {
-		BufferString ioobjid( attrinfo_->ioobjids_[idx]->buf() );
-		MultiID mid( ioobjid );
-		return mid;
-	    }
-	}
+	const int ioobjidx = curitem - attrsz;
+	if ( attrinfo_->ioobjids_.validIdx(ioobjidx) )
+	    return MultiID( attrinfo_->ioobjids_[ioobjidx]->buf() );
 
 	return MultiID();
     }
@@ -210,29 +194,7 @@ void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
 {
     const MultiID mid = getSelectedID();
     const SeisIOObjInfo seisinfo( mid );
-
-    const char* curattrnm = attrsfld_->getText();
-    const bool isstored = !attrinfo_->attrnms_.isPresent( curattrnm );
-    if ( isstored )
-    {
-	BufferString attrnm( attrsfld_->getText() );
-	const int nmsz = attrnm.size();
-	char* ptrattrnm = attrnm.getCStr();
-	if ( attrnm[0] == '[' && attrnm[nmsz-1] == ']' )
-	{
-	    ptrattrnm[nmsz-1] = '\0';
-	    ptrattrnm++;
-	}
-	const LineKey lk( ptrattrnm );
-	seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
-    }
-    else
-    {
-	const LineKey lk( mid );
-	seisinfo.isPS() ? seisinfo.getLineNames( linenames )
-			: seisinfo.getLineNamesWithAttrib( lk.attrName(),
-							   linenames );
-    }
+    seisinfo.getLineNames( linenames );
 }
 
 
@@ -296,10 +258,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
 	lnmfld_->addItem( linenames.get(lidx) );
-	if ( idxof >= 0 && linenmsset_[idxof].isPresent(linenames.get(lidx)) )
-	    lnmfld_->setSelected( lidx, true );
-	else
-	    lnmfld_->setSelected( lidx, false );
+	lnmfld_->setSelected( lidx, false );
     }
 }
 
@@ -359,33 +318,14 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
 	    BufferStringSet lnms = linenmsset_[lsidx];
 	    linenames.add( lnms, false );
-	    SeisIOObjInfo seisinfo( lsobj );
-	    if ( seisinfo.isPS() )
+	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
 	    {
-		BufferStringSet linesetnms;
-		S2DPOS().getLineSets( linesetnms );
-		for ( int lidx=0; lidx<lnms.size(); lidx++ )
-		{
-		    const char* linenm = lnms[lidx]->buf();
-		    for ( int ls2didx=0; ls2didx<linesetnms.size(); ls2didx++ )
-		    {
-			const char* lsnm = linesetnms[ls2didx]->buf();
-			if ( S2DPOS().hasLine(linenm,lsnm) )
-			   p2d->addLineKey( S2DPOS().getLine2DKey(lsnm,linenm));
-		    }
-		}
-	    }
-	    else
-	    {
-		S2DPOS().setCurLineSet( lsobj->name() );
-
-		for ( int lidx=0; lidx<lnms.size(); lidx++ )
-		{
-		    PosInfo::Line2DKey l2dkey =
-			S2DPOS().getLine2DKey( lsobj->name(), lnms.get(lidx) );
-		    if ( l2dkey.isOK() )
-			p2d->addLineKey( l2dkey );
-		}
+		const Pos::GeomID geomid = Survey::GM().getGeomID( 
+							    lnms.get(lidx) );
+		if ( geomid == Survey::GM().cUndefGeomID() )
+		    continue;
+		
+		p2d->addGeomID( geomid );
 	    }
 	}
     }

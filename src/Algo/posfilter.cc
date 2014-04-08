@@ -58,12 +58,12 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D::~Filter2D()
 {
-    l2dkeys_.erase(); 
+    geomids_.erase(); 
 }
 
 
 int Pos::Filter2D::nrLines() const
-{ return l2dkeys_.size(); }
+{ return geomids_.size(); }
 
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
@@ -79,19 +79,20 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 }
 
 
-void Pos::Filter2D::addLineKey( const PosInfo::Line2DKey& l2dkey )
-{ l2dkeys_ += l2dkey; }
+void Pos::Filter2D::addGeomID( const Pos::GeomID geomid )
+{ geomids_ += geomid; }
 
 
-void Pos::Filter2D::removeLineKey( int lidx )
+void Pos::Filter2D::removeGeomID( int lidx )
 {
-    if ( l2dkeys_.validIdx(lidx) )
-	l2dkeys_.removeSingle( lidx );
+    if ( geomids_.validIdx(lidx) )
+	geomids_.removeSingle( lidx );
 }
 
 
-PosInfo::Line2DKey Pos::Filter2D::lineKey( int lidx ) const
-{ return l2dkeys_.validIdx(lidx) ? l2dkeys_[lidx] : PosInfo::Line2DKey(); }
+Pos::GeomID Pos::Filter2D::geomID( int lidx ) const
+{ return geomids_.validIdx(lidx) ? geomids_[lidx] 
+				 : Survey::GM().cUndefGeomID(); }
 
 
 Pos::FilterSet::~FilterSet()
@@ -346,7 +347,8 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
 	CubeSampling provcs( true ); prov3d->getCubeSampling( provcs );
-	float provnr = (float) provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
+	float provnr = (float) provcs.hrg.totalNr(); 
+	provnr *= provcs.zrg.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }
 }

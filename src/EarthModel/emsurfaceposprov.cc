@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 
 
 namespace Pos
@@ -390,10 +391,13 @@ bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const
     PosInfo::Line2DPos pos;
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	PosInfo::Line2DData l2d;
-	if ( !S2DPOS().getGeometry(lineKey(lidx),l2d) )
+	const Survey::Geometry* geometry = Survey::GM().getGeometry( 
+								geomID(lidx) );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	if ( !geom2d )
 	    continue;
 
+	const PosInfo::Line2DData& l2d = geom2d->data();
 	if ( l2d.getPos(c,pos,SI().inlDistance()))
 	{
 	    if ( includes(pos.nr_,z,lidx) )
@@ -407,9 +411,12 @@ bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 
 bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 {
-    PosInfo::Line2DData l2d;
-    if ( !S2DPOS().getGeometry(lineKey(lidx),l2d) )
+    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomID(lidx) );
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+    if ( !geom2d )
 	return false;
+    
+    const PosInfo::Line2DData& l2d = geom2d->data();
     if ( l2d.lineName().isEmpty() || l2d.indexOf(nr)<0 )
 	return false;
 
