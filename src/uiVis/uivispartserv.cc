@@ -1209,11 +1209,17 @@ void uiVisPartServer::updateDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
-	    bool isdraggeron = selected.isPresent(obj->id()) &&
-		(workmode_ == uiVisPartServer::Interactive);
-
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
-	    if ( so ) so->showManipulator(isdraggeron && !so->isLocked() );
+
+	    if ( so )
+	    {
+		const bool turndraggeron = !so->isLocked() &&
+				    selected.isPresent(obj->id()) &&
+				    workmode_==uiVisPartServer::Interactive;
+
+		if ( so->isManipulatorShown() != turndraggeron )
+		    so->showManipulator( turndraggeron );
+	    }
 	}
     }
 }
