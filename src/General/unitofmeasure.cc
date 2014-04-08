@@ -157,19 +157,21 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	FileMultiString fms( stream.value() );
 	const int sz = fms.size();
 	if ( sz < 3 ) continue;
-	BufferString ptypestr = fms[0];
-	BufferString symb = fms[1];
-	double fac = toDouble( fms[2] );
-	PropertyRef::StdType stdtype;
-	PropertyRef::parseEnumStdType( ptypestr, stdtype );
-	UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
-	if ( sz > 3 )
+	SeparString types( fms[0], '|' );
+	const BufferString symb = fms[1];
+	double fac = fms.getDValue( 2 );
+	double shft = sz > 3 ? fms.getDValue( 3 ) : 0.;
+
+	const int nrtypes = types.size();
+	for ( int ityp=0; ityp<nrtypes; ityp++ )
 	{
-	    double shft = toDouble( fms[3] );
+	    PropertyRef::StdType stdtype;
+	    PropertyRef::parseEnumStdType( types[ityp], stdtype );
+	    UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
 	    un.setScaler( LinScaler(shft,fac) );
+	    un.setSource( src );
+	    add( un );
 	}
-	un.setSource( src );
-	add( un );
     }
 
     sd.close();
