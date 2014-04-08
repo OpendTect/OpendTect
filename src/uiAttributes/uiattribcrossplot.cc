@@ -249,7 +249,6 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 {
     if ( !lnmfld_ ) return;
 
-    const int idxof = selidxs_.indexOf( attrsfld_->currentItem() );
     NotifyStopper notifystop( lnmfld_->selectionChanged );
     lnmfld_->setEmpty();
 
