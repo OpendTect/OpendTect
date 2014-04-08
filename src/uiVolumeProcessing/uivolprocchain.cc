@@ -205,7 +205,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
     factorylist_ = new uiListBox( flowgrp,
-				  uiStepDialog::factory().getNames(true) );
+				  uiStepDialog::factory().getUserNames() );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
@@ -497,7 +497,7 @@ void uiChain::addStepPush(CallBacker*)
     if ( sel == -1 )
 	return;
 
-    const char* steptype = uiStepDialog::factory().getNames(false)[sel]->buf();
+    const char* steptype = uiStepDialog::factory().getNames()[sel]->buf();
     Step* step = Step::factory().create( steptype );
     if ( !step ) return;
 

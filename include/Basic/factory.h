@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "ptrman.h"
 #include "typeset.h"
+#include "uistring.h"
 
 /*!
 \brief Base class for Factories ( Factory, Factory1Param, Factory2Param
@@ -28,7 +29,8 @@ mExpClass(Basic) FactoryBase
 public:
     virtual			~FactoryBase();
     bool			hasName(const char* n) {return indexOf(n)>=0;}
-    const BufferStringSet&	getNames(bool username=false) const;
+    const BufferStringSet&	getNames() const;
+    const TypeSet<uiString>&	getUserNames() const;
     void			setDefaultName(int idx);
     				//!<idx refers to names in names_,
 				//!<or -1 for none
@@ -49,8 +51,8 @@ public:
 
 protected:
     int				indexOf(const char*) const;
-    void			addNames(const char*,const char*);
-    void			setNames(int,const char*,const char*);
+    void			addNames(const char*,const uiString&);
+    void			setNames(int,const char*,const uiString&);
 
     mutable StaticStringManager	errmsgs_;
     mutable StaticStringManager currentname_;
@@ -58,7 +60,7 @@ protected:
 private:
     
     BufferStringSet		names_;
-    BufferStringSet		usernames_;
+    TypeSet<uiString>		usernames_;
     BufferStringSet		aliases_;
     BufferString		defaultname_;
 };

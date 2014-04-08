@@ -88,12 +88,12 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	prevfld = isclassificationfld_->attachObj();
     }
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
+    const BufferStringSet& methods = Array2DInterpol::factory().getNames();
     int methodidx;
     if ( methods.size()>1 )
     {
 	methodsel_ = new uiGenInput( this, "Algorithm",
-	    StringListInpSpec(Array2DInterpol::factory().getNames(true) ) );
+	    StringListInpSpec(Array2DInterpol::factory().getUserNames() ) );
 
 	if ( prevfld )
 	    methodsel_->attach( alignedBelow, prevfld );
@@ -216,7 +216,7 @@ bool uiArray2DInterpolSel::acceptOK()
 	return false;
     }
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
+    const BufferStringSet& methods = Array2DInterpol::factory().getNames();
     const int methodidx = methodsel_ ? methodsel_->getIntValue() : 0;
     
     if ( methodidx>=methods.size() )

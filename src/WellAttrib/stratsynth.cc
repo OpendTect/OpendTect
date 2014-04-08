@@ -70,7 +70,7 @@ SynthGenParams::SynthGenParams()
 {
     synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
     anglerg_ = sDefaultAngleRange;
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
+    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
     if ( !facnms.isEmpty() )
 	raypars_.set( sKey::Type(), facnms.get(0) );
 

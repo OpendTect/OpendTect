@@ -20,15 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     : uiGroup(p,"Interpolation Layer Model Selection")
 {
-    const BufferStringSet& usrnms =
-	uiInterpolationLayerModelGrp::factory().getNames( true );
+    const TypeSet<uiString>& usrnms =
+	uiInterpolationLayerModelGrp::factory().getUserNames();
     layermodelfld_ = new uiGenInput( this, "Interpolate along",
 				     StringListInpSpec(usrnms) );
     layermodelfld_->valuechanged.notify(
 		mCB(this,uiInterpolationLayerModel,selCB) );
 
     const BufferStringSet& names =
-	uiInterpolationLayerModelGrp::factory().getNames( false );
+	uiInterpolationLayerModelGrp::factory().getNames();
     for ( int idx=0; idx<names.size(); idx++ )
     {
 	uiInterpolationLayerModelGrp* grp =

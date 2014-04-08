@@ -30,14 +30,14 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	, fullsurvbut_(0)
 {
     const BufferStringSet& factnms( setup_.is2d_
-	    ? Pos::Provider2D::factory().getNames(false)
-	    : Pos::Provider3D::factory().getNames(false) );
+	    ? Pos::Provider2D::factory().getNames()
+	    : Pos::Provider3D::factory().getNames() );
 
-    const BufferStringSet& factusrnms( setup_.is2d_
-           ? Pos::Provider2D::factory().getNames(true)
-           : Pos::Provider3D::factory().getNames(true) );
+    const TypeSet<uiString>& factusrnms( setup_.is2d_
+	   ? Pos::Provider2D::factory().getUserNames()
+	   : Pos::Provider3D::factory().getUserNames() );
 
-    BufferStringSet nms;
+    TypeSet<uiString> nms;
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
     {
@@ -63,7 +63,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 				.create(nm,this,setup_,true);
 	if ( !grp ) continue;
 
-	nms.add( factusrnms.get(idx).buf() );
+	nms.add( factusrnms[idx] );
 	grp->setName( nm );
 	grps_ += grp;
     }

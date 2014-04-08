@@ -196,7 +196,7 @@ SynthGenerator::~SynthGenerator()
 SynthGenerator* SynthGenerator::create( bool advanced )
 {
     SynthGenerator* sg = 0;
-    const BufferStringSet& fnms = SynthGenerator::factory().getNames(false);
+    const BufferStringSet& fnms = SynthGenerator::factory().getNames();
 
     if ( !fnms.isEmpty() && advanced )
 	sg = factory().create( fnms.get( fnms.size()-1 ) );

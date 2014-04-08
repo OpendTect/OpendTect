@@ -145,7 +145,7 @@ void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 	tmpholders += holders_[idx];
 
 	const BufferStringSet& names =
-	    DisplayPropertyLink::factory().getNames( false );
+		DisplayPropertyLink::factory().getNames();
 
 	for ( int idy=names.size()-1; idy>=0; idy-- )
 	{

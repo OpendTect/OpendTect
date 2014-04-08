@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "raytracerrunner.h"
 
 RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims, 
-				    const IOPar& raypars ) 
+				  const IOPar& raypars )
     : aimodels_(aims)
     , raypar_(raypars)		
 {
@@ -56,7 +56,7 @@ bool RayTracerRunner::prepareRayTracers()
     if ( aimodels_.isEmpty() )
 	mErrRet( "No AI model set" );
 
-    if ( RayTracer1D::factory().getNames(false).isEmpty() )
+    if ( RayTracer1D::factory().getNames().isEmpty() )
 	return false;
 
     BufferString errmsg;
@@ -67,7 +67,7 @@ bool RayTracerRunner::prepareRayTracers()
 	if ( !rt1d )
 	{
 	    rt1d = RayTracer1D::factory().create( 
-		    *RayTracer1D::factory().getNames(false)[0] );
+		    *RayTracer1D::factory().getNames()[0] );
 	    rt1d->usePar( raypar_ );
 	}
 

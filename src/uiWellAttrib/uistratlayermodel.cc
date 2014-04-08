@@ -98,8 +98,9 @@ void startCB( CallBacker* cb )
 {
     if ( haveExistingDlg() )
 	return;
-    const BufferStringSet& nms =
-			uiLayerSequenceGenDesc::factory().getNames( true );
+    const TypeSet<uiString>& usrnms =
+			uiLayerSequenceGenDesc::factory().getUserNames();
+    const BufferStringSet& nms = uiLayerSequenceGenDesc::factory().getNames();
     mDynamicCastGet(uiToolButton*,tb,cb)
     if ( Strat::RT().isEmpty() || nms.isEmpty() )
 	{ pErrMsg("Pre-condition not met"); return; }
@@ -111,7 +112,7 @@ void startCB( CallBacker* cb )
     int defmodnr = -1;
     bool givechoice = nms.size() > 1;
     if ( modnm.isEmpty() )
-	modnm = nms.get( nms.size() - 1 );
+	modnm = *nms.last();
     else
     {
 	FileMultiString fms( modnm );
@@ -128,7 +129,7 @@ void startCB( CallBacker* cb )
 
     if ( givechoice )
     {
-	uiSelectFromList::Setup sflsu( "Select modeling type", nms );
+	uiSelectFromList::Setup sflsu( "Select modeling type", usrnms );
 	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
 	uiSelectFromList dlg( par, sflsu );
 	uiCheckList* defpol = new uiCheckList( &dlg, uiCheckList::Chain1st,

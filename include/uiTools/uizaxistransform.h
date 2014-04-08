@@ -40,7 +40,7 @@ protected:
 
 /*!Selects a ZAxisTransform. */
 mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiZAxisTransformSel);
 public:
     				uiZAxisTransformSel(uiParent*, bool withnone,
 						    const char* fromdomain=0,

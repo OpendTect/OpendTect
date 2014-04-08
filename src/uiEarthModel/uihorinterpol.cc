@@ -328,9 +328,9 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     maxholeszfld_->setWithCheck( true );
     maxholeszfld_->attach( alignedBelow, stepfld_ );
 
-    const BufferStringSet& methods = uiHor3DInterpol::factory().getNames(false);
+    const BufferStringSet& methods = uiHor3DInterpol::factory().getNames();
     methodsel_ = new uiGenInput( this, "Algorithm",
-	    	StringListInpSpec(uiHor3DInterpol::factory().getNames(true) ) );
+		StringListInpSpec(uiHor3DInterpol::factory().getUserNames() ) );
     methodsel_->attach( alignedBelow, maxholeszfld_ );
     methodsel_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,methodSelCB) );
 

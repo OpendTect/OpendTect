@@ -178,9 +178,9 @@ uiAddFunction::uiAddFunction( uiParent* p )
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
-	uiFunctionSettings::factory().getNames( false );
-    const BufferStringSet& sourceusernames =
-	uiFunctionSettings::factory().getNames( true );
+	uiFunctionSettings::factory().getNames();
+    const TypeSet<uiString>& sourceusernames =
+	uiFunctionSettings::factory().getUserNames();
     typesel_ = new uiGenInput( this, "Type",StringListInpSpec(sourceusernames));
     typesel_->valuechanged.notify(
 			    mCB(this,uiAddFunction,typeSelChangeCB));

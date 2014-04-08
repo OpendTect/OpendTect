@@ -28,15 +28,15 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     , selfld_(0)
     , ynfld_(0)
 {
-    BufferStringSet nms;
+    TypeSet<uiString> nms;
 
     const BufferStringSet& filtnms( setup_.is2d_
 	    		? Pos::Filter2D::factory().getNames()
 			: Pos::Filter3D::factory().getNames() );
     
-    const BufferStringSet& usrfiltnms( setup_.is2d_
-				   ? Pos::Filter2D::factory().getNames(true)
-				   : Pos::Filter3D::factory().getNames(true) );
+    const TypeSet<uiString>& usrfiltnms( setup_.is2d_
+				   ? Pos::Filter2D::factory().getUserNames()
+				   : Pos::Filter3D::factory().getUserNames() );
     for ( int idx=0; idx<filtnms.size(); idx++ )
     {
 	const BufferString& nm( filtnms.get(idx) );
@@ -44,7 +44,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	    			.create(nm,this,setup_,true);
 	if ( grp )
 	{
-	    nms.add( usrfiltnms.get(idx) );
+	    nms.add( usrfiltnms[idx] );
 	    grp->setName( nm );
 	    grps_ += grp;
 	    issel_ += false;
@@ -57,9 +57,9 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 			    ? Pos::Provider2D::factory().getNames()
 			    : Pos::Provider3D::factory().getNames() );
 	
-	const BufferStringSet& usrprovnms( setup_.is2d_
-			       ? Pos::Provider2D::factory().getNames(true)
-			       : Pos::Provider3D::factory().getNames(true) );
+	const TypeSet<uiString>& usrprovnms( setup_.is2d_
+			       ? Pos::Provider2D::factory().getUserNames()
+			       : Pos::Provider3D::factory().getUserNames() );
 	for ( int idx=0; idx<provnms.size(); idx++ )
 	{
 	    const BufferString& nm( provnms.get(idx) );
@@ -68,7 +68,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 				    .create(nm,this,ppgsu,true);
 	    if ( grp )
 	    {
-		nms.add( usrprovnms.get(idx) );
+		nms.add( usrprovnms[idx] );
 		grp->setName( nm );
 		grps_ += grp;
 		issel_ += false;
@@ -87,7 +87,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 
     if ( nms.size() == 1 )
     {
-	uiLabel* nmlbl = new uiLabel( this, nms.get(0) );
+	uiLabel* nmlbl = new uiLabel( this, nms[0] );
 	new uiLabel( this, "Filter: ", nmlbl );
 	ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
 	ynfld_->attach( alignedBelow, nmlbl );
@@ -136,7 +136,8 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
     for ( int ipar=0; ; ipar++ )
     {
-	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter(),ipar));
+	PtrMan<IOPar> subiop =
+		iop.subselect(IOPar::compKey(sKey::Filter(),ipar));
 	if ( !subiop || !subiop->size() ) break;
 	const char* typ = subiop->find( sKey::Type() );
 	if ( !typ ) continue;

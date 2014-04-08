@@ -28,28 +28,33 @@ BufferString& FactoryBase::errMsg() const
 { return currentname_.getObject(); }
 
 
-void FactoryBase::addNames( const char* name, const char* username )
+void FactoryBase::addNames( const char* name, const uiString& username )
 {
     SeparString sep( name, cSeparator() );
     names_.add( (const char*) sep[0] );
     aliases_.add( name );
-    usernames_.add( username ? username : (const char*) sep[0] );
+    usernames_.add( !username.isEmpty() ? username : (const char*) sep[0] );
 }
 
 
-void FactoryBase::setNames( int idx, const char* name, const char* username )
+void FactoryBase::setNames( int idx, const char* name,
+			    const uiString& username )
 {
     SeparString sep( name, cSeparator() );
     (*names_[idx]) = (const char*) sep[0];
     (*aliases_[idx]) = name;
-    (*usernames_[idx]) = username ? username : (const char*) sep[0];
+    usernames_[idx] = !username.isEmpty() ? username : (const char*) sep[0];
 }
 
 
-const BufferStringSet& FactoryBase::getNames( bool username ) const
+const BufferStringSet& FactoryBase::getNames() const
 {
-    return username ? usernames_ : names_;
+    return names_;
 }
+
+
+const TypeSet<uiString>& FactoryBase::getUserNames() const
+{ return usernames_; }
 
 
 void FactoryBase::setDefaultName( int idx )

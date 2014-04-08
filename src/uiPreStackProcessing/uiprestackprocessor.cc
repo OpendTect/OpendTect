@@ -38,7 +38,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     uiLabel* label = new uiLabel( this, "Preprocessing methods" );
 
-    factorylist_ = new uiListBox( this, Processor::factory().getNames(true) );
+    factorylist_ = new uiListBox( this, Processor::factory().getUserNames() );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );
@@ -113,9 +113,9 @@ void uiProcessorManager::updateList()
     {
 	const char* procnm =  manager_.getProcessor(idx)->name();
 	const int factoryidx =
-	    Processor::factory().getNames(false).indexOf(procnm);
-	const char* text =
-	    Processor::factory().getNames(true)[factoryidx]->buf();
+	    Processor::factory().getNames().indexOf(procnm);
+	const uiString& text =
+	    Processor::factory().getUserNames()[factoryidx];
 
 	if ( idx>=processorlist_->size() )
 	    processorlist_->addItem( text, false);
@@ -212,7 +212,7 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
 	return;
 
     const char* nm =
-       Processor::factory().getNames(false)[factorylist_->currentItem()]->buf();
+       Processor::factory().getNames()[factorylist_->currentItem()]->buf();
     Processor* proc = Processor::factory().create( nm );
     if ( !proc ) return;
 

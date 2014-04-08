@@ -24,8 +24,8 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     , raytracerselfld_(0)
     , offsetChanged(this)
 {
-    const BufferStringSet& usernms = uiRayTracer1D::factory().getNames( true );
-    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames( false );
+    const TypeSet<uiString>& usernms = uiRayTracer1D::factory().getUserNames();
+    const BufferStringSet& facnms = uiRayTracer1D::factory().getNames();
 
     if ( facnms.size() > 1 )
     {
@@ -39,8 +39,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
 	const BufferString& facnm( facnms.get(idx) );
-	const BufferString& usernm( usernms.validIdx(idx) ?
-				usernms.get(idx ) : facnm );
+	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] : facnm );
 
 	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
 	if ( grp )
@@ -52,7 +51,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    if ( raytracerselfld_ ) 
 	    {
 		raytracerselfld_->box()->addItem( usernm );
-		raytracerselfld_->box()->setCurrentItem( usernm );
+		raytracerselfld_->box()->setCurrentItem(usernm.getFullString());
 		grp->attach( alignedBelow, raytracerselfld_ );
 		grp->setName( facnm );
 	    }

@@ -42,13 +42,13 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     , selfld_( 0 )
 {
     transflds_.allowNull( true );
-    TypeSet<const char*> names;
+    TypeSet<uiString> names;
 
     const BufferStringSet& factorynames =
 	uiZAxisTransform::factory().getNames();
 
-    const BufferStringSet& usernames =
-	uiZAxisTransform::factory().getNames(true);
+    const TypeSet<uiString>& usernames =
+	uiZAxisTransform::factory().getUserNames();
 
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
@@ -61,12 +61,12 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	    uizat->enableTargetSampling();
 
 	transflds_ += uizat;
-	names += usernames[idx]->buf();
+	names += usernames[idx];
     }
     
     const bool hastransforms = names.size();
 
-    const char* nonestr = "None";
+    const uiString nonestr = tr("None");
 
     if ( hastransforms && withnone )
     {
@@ -76,10 +76,8 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 
     if ( names.size()>1 )
     {
-    	names += 0;
-    
 	selfld_ = new uiGenInput( this, "Z transform",
-		StringListInpSpec(names.arr()) );
+		StringListInpSpec(names) );
 	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
 
 	setHAlignObj( selfld_ );
