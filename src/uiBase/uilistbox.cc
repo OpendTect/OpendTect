@@ -308,6 +308,17 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
 }
 
 
+uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
+		     const char* nm, bool ms, int nl, int pfw )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw))
+    mStdInit
+{
+    addItems( items );
+    setName( "Select Data" );
+    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
+}
+
+
 uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 				  int nl, int pfw )
 {
@@ -461,6 +472,15 @@ void uiListBox::addItems( const BufferStringSet& strs )
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
+    setCurrentItem( curidx < 0 ? 0 : curidx );
+}
+
+
+void uiListBox::addItems( const TypeSet<uiString>& strs )
+{
+    int curidx = currentItem();
+    for ( int idx=0; idx<strs.size(); idx++ )
+	addItem( strs[idx] );
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 

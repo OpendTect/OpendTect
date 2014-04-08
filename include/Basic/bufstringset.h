@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "manobjectset.h"
 class GlobExpr;
+class uiString;
 
 /*!
 \brief Set of BufferString objects.
@@ -61,6 +62,9 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
+
+    void		fill(TypeSet<uiString>&) const;
+    void		use(const TypeSet<uiString>&);
 
     BufferString	cat(char sepchar='\n') const;
     void		unCat(const char*,char sepchar='\n');

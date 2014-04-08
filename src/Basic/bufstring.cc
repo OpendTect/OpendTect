@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "string2.h"
 #include "globexpr.h"
+#include "uistring.h"
 
 #include <QString>
 
@@ -767,6 +768,25 @@ void BufferStringSet::usePar( const IOPar& iopar )
 
 	add( iopar.getValue(idx) );
     }
+}
+
+
+void BufferStringSet::fill( TypeSet<uiString>& res ) const
+{
+    res.erase();
+
+    for ( int idx=0; idx<size(); idx++ )
+	res += uiString( get(idx).buf() );
+}
+
+
+
+void BufferStringSet::use( const TypeSet<uiString>& from )
+{
+    erase();
+
+    for ( int idx=0; idx<from.size(); idx++ )
+	add( from[idx].getFullString() );
 }
 
 

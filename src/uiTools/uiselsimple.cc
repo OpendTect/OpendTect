@@ -64,7 +64,7 @@ void uiSelectFromList::filtChg( CallBacker* )
     GlobExpr ge( filt );
     for ( int idx=0; idx<setup_.items_.size(); idx++ )
     {
-	const char* itm = setup_.items_.get( idx );
+	const char* itm = setup_.items_[idx].getFullString();
 	if ( ge.matches(itm) )
 	    selfld_->addItem( itm );
     }

@@ -49,8 +49,10 @@ public:
                         uiListBox(uiParent*,const char* nm=0,
 				  bool multiselect=false,
 				  int prefNrLines=0,int prefFieldWidth=0);
-
 			uiListBox(uiParent*,const BufferStringSet&,
+				  const char* nm=0,bool multiselect=false,
+				  int prefNrLines=0,int prefFieldWidth=0);
+			uiListBox(uiParent*,const TypeSet<uiString>&,
 				  const char* nm=0,bool multiselect=false,
 				  int prefNrLines=0,int prefFieldWidth=0);
 
@@ -85,6 +87,7 @@ public:
     void		addItem(const uiString&,const Color&,int id=-1);
     void		addItems(const char**);
     void		addItems(const BufferStringSet&);
+    void		addItems(const TypeSet<uiString>&);
     void		insertItem(const uiString&,int idx=-1,
 				   bool marked=false,int id=-1);
     void		insertItem(const uiString&,const ioPixmap&,

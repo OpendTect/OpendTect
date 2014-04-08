@@ -30,14 +30,19 @@ public:
     mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
-			Setup( const char* wintitl, const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,mNoHelpKey)
-			, items_(its)
-			, current_(0)		{}
+			Setup( const char* wintitl,
+				   const TypeSet<uiString>& its )
+			    : uiDialog::Setup(wintitl,0,mNoHelpKey)
+			    , items_(its)
+			    , current_(0)		{}
+			Setup( const char* wintitl,
+				  const BufferStringSet& its )
+			    : uiDialog::Setup(wintitl,0,mNoHelpKey)
+			    , current_(0)		{ its.fill(items_); }
 
 	mDefSetupMemb(int,current);
 
-	const BufferStringSet&	items_;
+	TypeSet<uiString>	items_;
 
     };
 
