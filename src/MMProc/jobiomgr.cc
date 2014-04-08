@@ -427,7 +427,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     FilePath remoteparfp = getConvertedFilePath( remotemachine, basefp );
     BufferString bs( remoteparfp.fullPath() );
-    replaceCharacter( bs.buf(), '.',  '_' );
+    bs.replace( '.',  '_' );
     FilePath logfp( bs );
     remoteparfp.setExtension( ".par", false );
     logfp.setExtension( ".log", false );
