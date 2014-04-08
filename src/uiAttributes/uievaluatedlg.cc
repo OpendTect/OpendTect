@@ -348,12 +348,15 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     if ( sel >= grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
-    Desc& srcad = *attrset_->getDesc( srcid_ );
-    BufferString userchosenref = srcad.userRef();
+    Attrib::Desc* desc = attrset_->getDesc( srcid_ );
+    if ( !desc )
+	return;
+
+    BufferString userchosenref = desc->userRef();
     const int nrsteps = nrstepsfld->box()->getValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
-	Desc* newad = idx ? new Desc(srcad) : &srcad;
+	Desc* newad = idx ? new Desc(*desc) : desc;
 	if ( !newad ) return;
 	pargrp->updatePars( *newad, idx );
 	pargrp->updateDesc( *newad, idx );
