@@ -419,29 +419,26 @@ static FilePath getConvertedFilePath( const HostData& hd, const FilePath& fp )
 
 
 bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
-			    const HostData& machine, const IOPar& iop )
+			    const HostData& remotemachine, const IOPar& iop )
 {
-    FilePath remotefp = getConvertedFilePath( machine, basefp );
     iopfp = basefp; iopfp.setExtension( ".par", false );
-    const BufferString iopfnm( iopfp.fullPath() );
-
-    BufferString bs( remotefp.fullPath() );
-    bs.replace( '.',  '_' );
-    FilePath logfp( bs );
-    remotefp.setExtension( ".par", false );
-    logfp.setExtension( ".log", false );
-
-    const BufferString logfnm( logfp.fullPath(machine.pathStyle()) );
-    FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
-
     IOPar newiop( iop );
-    newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
+    const FilePath::Style machpathstyle(remotemachine.pathStyle());
 
-    FilePath remdata = machine.prefixFilePath( HostData::Data );
+    FilePath remoteparfp = getConvertedFilePath( remotemachine, basefp );
+    BufferString bs( remoteparfp.fullPath() );
+    replaceCharacter( bs.buf(), '.',  '_' );
+    FilePath logfp( bs );
+    remoteparfp.setExtension( ".par", false );
+    logfp.setExtension( ".log", false );
+    const FilePath remotelogfp( logfp );
+    newiop.set( sKey::LogFile(), remotelogfp.fullPath(machpathstyle) );
+
+    const FilePath remdata = remotemachine.prefixFilePath( HostData::Data );
     const char* tmpstor = iop.find( sKey::TmpStor() );
     if ( tmpstor )
     {
-	FilePath path = machine.convPath( HostData::Data, tmpstor );
+	const FilePath path( tmpstor );
 	FilePath remotetmpdir( remdata.nrLevels() ? remdata.fullPath()
 						  : path.fullPath() );
 	if ( remdata.nrLevels() )
@@ -450,29 +447,30 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 			.add( path.fileName() );
 	}
 
-	newiop.set( sKey::TmpStor(),
-		    remotetmpdir.fullPath(machine.pathStyle()) );
+	newiop.set( sKey::TmpStor(),remotetmpdir.fullPath(machpathstyle) );
     }
 
-    newiop.set( sKey::DataRoot(), remdata.fullPath(machine.pathStyle()) );
+    newiop.set( sKey::DataRoot(), remdata.fullPath(machpathstyle) );
     newiop.set( sKey::Survey(), IOM().surveyName() );
 
-    if ( File::exists(iopfnm) ) File::remove( iopfnm );
-    if ( File::exists(logfnm) ) File::remove( logfnm );
+    const BufferString remotelogfnm( logfp.fullPath(machpathstyle) );
+    const BufferString remoteiopfnm( iopfp.fullPath() );
+    if ( File::exists(remotelogfnm) ) File::remove( remotelogfnm );
+    if ( File::exists(remoteiopfnm) ) File::remove( remoteiopfnm );
 
-    od_ostream iopstrm( iopfnm );
+    od_ostream iopstrm( remoteiopfnm );
     if ( !iopstrm.isOK() )
     {
-	const BufferString s( "Cannot open '", iopfnm, "' for write ..." );
+	const BufferString s( "Cannot open '", remoteiopfnm, "' for write ...");
 	mErrRet(s)
     }
     else if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
-	const BufferString s( "Cannot write parameters into '", iopfnm, "'" );
+	const BufferString s("Cannot write parameters into '",remoteiopfnm,"'");
 	mErrRet(s)
     }
 
-    iopfp.set( remotefp.fullPath(machine.pathStyle()) );
+    iopfp.set( remoteparfp.fullPath(machpathstyle) );
     return true;
 }
 
