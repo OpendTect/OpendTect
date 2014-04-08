@@ -205,8 +205,9 @@ protected:
 
     PopupArea		popuparea_;
 
+    void		updateCaption();
     uiString		caption_;
-uiString		uniquecaption_;
+    uiString		uniquecaption_;
     int			languagedirtycount_;
 
 public:

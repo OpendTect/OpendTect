@@ -249,7 +249,7 @@ Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 
 void uiMainWinBody::doShow( bool minimized )
 {
-    setWindowTitle( handle_.caption(false).getQtString() );
+    handle_.updateCaption();
     eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
     managePopupPos();
 
@@ -811,10 +811,18 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 
+
 void uiMainWin::setCaption( const uiString& txt )
 {
     caption_ = txt;
-    uniquecaption_ = uniqueWinTitle(txt,body_,0);
+    updateCaption();
+
+}
+
+
+void uiMainWin::updateCaption()
+{
+    uniquecaption_ = uniqueWinTitle(caption_,body_,0);
     body_->setWindowTitle( uniquecaption_.getQtString() );
 }
 
