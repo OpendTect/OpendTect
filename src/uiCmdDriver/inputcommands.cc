@@ -411,12 +411,12 @@ bool SpinCmdComposer::accept( const CmdRecEvent& ev )
     if ( !mIsUdf(pendinginput_) )
     {
 	mRecOutStrm << "Input \"" << ev.keystr_ << "\" " << pendinginput_
-		    << enterword << std::endl;
+		    << enterword << od_endl;
     }
     else if ( pendingsteps_ )
     {
 	mRecOutStrm << "Spin \"" << ev.keystr_ << "\" " << pendingsteps_
-		    << enterword << std::endl;
+		    << enterword << od_endl;
     }
 
     if ( valuechanging )
@@ -441,7 +441,7 @@ bool SliderCmdComposer::accept( const CmdRecEvent& ev )
 	mDynamicCastGet( const uiSlider*, uislider, ev.object_ );
 	const float perc = 100 * uislider->getLinearFraction();
 	insertWindowCaseExec( ev );
-	mRecOutStrm << "Slider \"" << ev.keystr_ << "\" " << perc << std::endl;
+	mRecOutStrm << "Slider \"" << ev.keystr_ << "\" " << perc << od_endl;
     }
 
     return true;

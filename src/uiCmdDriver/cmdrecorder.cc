@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "oddirs.h"
 #include "strmprov.h"
-#include "od_ostream.h"
+#include "od_strstream.h"
 #include "timer.h"
 
 #include "uigroup.h"
@@ -41,14 +41,14 @@ CmdRecorder::CmdRecorder( const uiMainWin& aw )
 	: rec_(*this)
 	, applwin_(&aw)
 	, outputfnm_(0)
-	, outputsd_(*new StreamData)
+	, outputstrm_(*new od_ostream)
 	, recording_(false)
 	, dynamicpopupmenu_(0)
 	, openqdialog_(false)
 	, lastobjsearched_(0)
 	, ignorecmddriverwindows_(true)
 	, writetailonly_(false)
-	, bufstream_(*new std::ostringstream())
+	, bufstream_(*new od_ostrstream)
 	, bufsize_(0)
 {
     CmdComposer::initStandardComposers();
@@ -60,8 +60,8 @@ CmdRecorder::~CmdRecorder()
     if ( recording_ )
 	stop();
 
-    outputsd_.close();
-    delete &outputsd_;
+    outputstrm_.close();
+    delete &outputstrm_;
     delete &bufstream_;
 }
 
@@ -72,7 +72,7 @@ void CmdRecorder::ignoreCmdDriverWindows( bool yn )
 
 bool CmdRecorder::mustSkip() const
 {
-    if ( !outputsd_.usable() )
+    if ( !outputstrm_.isOK() )
 	return true;
 
     if ( ignorecmddriverwindows_ && isCmdDriverWindow(winstack_.topWin()) )
@@ -88,12 +88,11 @@ bool CmdRecorder::start()
     if ( outputfnm_.isEmpty() )
 	return false;
 
-    outputsd_ = StreamProvider(outputfnm_).makeOStream( false );
-    if ( !outputsd_.usable() )
+    outputstrm_.open(outputfnm_);
+    if ( !outputstrm_.isOK() )
 	return false;
 
-    od_ostream strm( *outputsd_.ostrm );
-    ascostream astrm( strm );
+    ascostream astrm( outputstrm_ );
     if ( !astrm.putHeader("OpendTect commands") )
 	return false;
 
@@ -149,9 +148,9 @@ void CmdRecorder::stop( bool fatal )
 	dummy.qdlgtitle_ = uiMainWin::activeModalQDlgTitle();
 	insertWinAssertion( dummy );
 
-	mRecOutStrm << std::endl << std::endl
+	mRecOutStrm << od_endl << od_endl
 		    << "###  OpendTect terminated unexpectedly: "
-		    << Time::getDateTimeString() << std::endl << std::endl;
+		    << Time::getDateTimeString() << od_endl << od_endl;
 
 	const int curcounter = outputcounter_;
 
@@ -164,8 +163,8 @@ void CmdRecorder::stop( bool fatal )
 
 	if ( curcounter != outputcounter_ )
 	{
-	    mRecOutStrm << std::endl << "###  Command line(s) above were "
-			<< "under construction at that time!" << std::endl;
+	    mRecOutStrm << od_endl << "###  Command line(s) above were "
+			<< "under construction at that time!" << od_endl;
 	}
     }
     else if ( ignorecmddriverwindows_ )
@@ -730,13 +729,13 @@ void CmdRecorder::insertWinAssertion( const CmdRecEvent& ev )
 
     if ( winstr!=winassertion_ || hasbecomecasedep )
     {
-	mRecOutStrm << std::endl;
+	mRecOutStrm << od_endl;
 	flush();
 
 	if ( ciwinlist.size() > cswinlist.size() )
-	    mRecOutStrm << "Case Sensitive" << std::endl;
+	    mRecOutStrm << "Case Sensitive" << od_endl;
 
-	mRecOutStrm << "[" << winstr << "]" << std::endl;
+	mRecOutStrm << "[" << winstr << "]" << od_endl;
 
 	winassertion_ = winstr;
 	winassertcasedep_ = winstrcasedep;
@@ -753,26 +752,25 @@ void CmdRecorder::updateCmdComposers()
 }
 
 
-std::ostream& CmdRecorder::outputStrm() const
-{ return writetailonly_ || bufsize_>99 ? bufstream_ : *outputsd_.ostrm; }
+od_ostream& CmdRecorder::outputStrm() const
+{ return writetailonly_ || bufsize_>99 ? bufstream_ : outputstrm_; }
 
 
 void CmdRecorder::flush()
 {
-    if ( &outputStrm() == outputsd_.ostrm )
+    if ( &outputStrm() == &outputstrm_ )
 	return;
 
     int sz = bufstr_.size();
-    const int nrchars = bufstream_.str().size();
+    const int nrchars = strlen( bufstream_.result() );
     bufstr_.setBufSize( mMAX(sz+nrchars+1, 2*bufsize_) );
 
     for ( int idx=0; idx<nrchars; idx++ )
-	bufstr_.getCStr()[sz++] = bufstream_.str()[idx];
+	bufstr_.getCStr()[sz++] = bufstream_.result()[idx];
 
     bufstr_[sz] = '\0';
 
-    bufstream_.str( "" );
-    bufstream_.clear();
+    bufstream_.setEmpty();
 
     int nrvoidchars = 0;
     while ( writetailonly_ && bufsize_<sz )
@@ -791,16 +789,16 @@ void CmdRecorder::flush()
 
     if ( !recording_ && nrparskipped_ )
     {
-	 *outputsd_.ostrm << std::endl << "###  < ... " << nrparskipped_
+	 outputstrm_ << od_endl << "###  < ... " << nrparskipped_
 			  << " paragraph" << (nrparskipped_>1 ? "s" : "")
-			  << " skipped ... >" << std::endl << std::endl;
+			  << " skipped ... >" << od_endl << od_endl;
 	 nrparskipped_ = 0;
     }
 
     if ( !recording_ || (!writetailonly_ && bufsize_<sz) )
     {
-	*outputsd_.ostrm << bufstr_.buf()+nrvoidchars;
-	outputsd_.ostrm->flush();
+	outputstrm_ << bufstr_.buf()+nrvoidchars;
+	outputstrm_.flush();
 	nrvoidchars = sz;
     }
 

@@ -127,7 +127,7 @@ bool CanvasMenuCmdComposer::accept( const CmdRecEvent& ev )
 
 	insertWindowCaseExec( ev, eventlist_[0]->casedep_ );
 	mRecOutStrm << "CanvasMenu \"" << eventlist_[0]->keystr_ << "\" \""
-		    << ev.menupath_ << "\"" << onoff << std::endl;
+		    << ev.menupath_ << "\"" << onoff << od_endl;
     }
     else if ( !mMatchCI(ev.msg_, "rightButtonPressed" ) )
 	mRefuseAndQuit();

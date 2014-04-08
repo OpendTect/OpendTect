@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicmddrivermod.h"
 #include "callback.h"
 #include "separstr.h"
+#include "od_ostream.h"
 
 #include "cmddriverbasics.h"
 
@@ -80,7 +81,7 @@ public:
     void		writeTailOnly(bool yn)		{ writetailonly_ = yn; }
     void		ignoreCmdDriverWindows(bool);
 
-    std::ostream&	outputStrm() const;
+    od_ostream& 	outputStrm() const;
     bool		mustSkip() const;
 
     bool		start();
@@ -106,7 +107,7 @@ protected:
     CmdRecorder&	rec_;
     bool		recording_;
     BufferString	outputfnm_;
-    StreamData&		outputsd_;
+    od_ostream& 	outputstrm_;
     uiMenu*	        dynamicpopupmenu_;
     BufferString	winassertion_;
     bool		winassertcasedep_;
@@ -123,7 +124,7 @@ protected:
     ObjectSet<CmdComposer>	composers_;
 
     bool		writetailonly_;
-    std::ostringstream&	bufstream_;
+    od_ostrstream&	bufstream_;
     BufferString	bufstr_;
     int			bufsize_;
     int			nrparskipped_;

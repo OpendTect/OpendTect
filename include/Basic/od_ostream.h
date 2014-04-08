@@ -87,6 +87,10 @@ public:
 //!< common access to the user log file, or std::cout in batch progs
 inline mGlobal(Basic) od_ostream& od_cout() { return od_ostream::logStream(); }
 
+//!< Never redirected
+mGlobal(Basic) od_ostream& od_cerr();
+
+
 
 template <class T>
 inline od_ostream& operator <<( od_ostream& s, const T& t )
@@ -98,6 +102,11 @@ inline od_ostream& od_endl( od_ostream& strm )
     strm.add( od_newline ).flush();
     return strm;
 }
+
+
+mGlobal(Basic) std::ostream& od_endl( std::ostream& strm );
+//Just to give linker errors
+
 
 typedef od_ostream& (*od_ostreamFunction)(od_ostream&);
 inline od_ostream& operator <<( od_ostream& s, od_ostreamFunction fn )

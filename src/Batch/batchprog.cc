@@ -131,7 +131,7 @@ void BatchProgram::init()
 			    ": Input file ",parfilnm);
 	errmsg += " is not a parameter file";
 	errorMsg( errmsg );
-	std::cerr << aistrm.fileType() << std::endl;
+	od_cerr() << aistrm.fileType() << od_endl;
 	return;
     }
 

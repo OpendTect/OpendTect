@@ -302,11 +302,11 @@ void CmdComposer::insertWindowCaseExec( const CmdRecEvent& event,
     {
 	mRecOutStrm << "Pause \"The user may determine the waiting time at "
 	    << "this point. Click 'Resume' or replace the current script line "
-	    << "by an isochronous Sleep-command.\"" << std::endl;
+	    << "by an isochronous Sleep-command.\"" << od_endl;
     }
 
     if ( event.casedep_ || casedep )
-	mRecOutStrm << "Case Sensitive" << std::endl;
+	mRecOutStrm << "Case Sensitive" << od_endl;
 
     mRecOutStrm << event.execprefix_;
 }

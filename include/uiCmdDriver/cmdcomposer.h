@@ -214,7 +214,7 @@ public: \
     { \
 	insertWindowCaseExec( *eventlist_[0] ); \
 	mRecOutStrm << "Input \"" << eventlist_[0]->keystr_ << "\" " \
-		    << inpptr << (enter ? "Enter" : "Hold") << std::endl; \
+		    << inpptr << (enter ? "Enter" : "Hold") << od_endl; \
     } \
 }
 

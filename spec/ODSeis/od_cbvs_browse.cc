@@ -49,12 +49,14 @@ static void getInt( int& i )
 
 int main( int argc, char** argv )
 {
+    SetProgramArgs( argc, argv );
+
     if ( argc < 2 )
     {
-	std::cerr << "Usage: " << argv[0] << " cbvs_file" << od_endl;
+	od_cerr() << "Usage: " << argv[0] << " cbvs_file" << od_endl;
 	ExitProgram( 1 );
     }
-    SetProgramArgs( argc, argv );
+
 
     FilePath fp( argv[1] );
     if ( !fp.isAbsolute() )
@@ -62,7 +64,7 @@ int main( int argc, char** argv )
     const BufferString fname = fp.fullPath();
     if ( !File::exists(fname) )
     {
-        std::cerr << fname << " does not exist" << od_endl;
+	od_cerr() << fname << " does not exist" << od_endl;
         ExitProgram( 1 );
     }
 

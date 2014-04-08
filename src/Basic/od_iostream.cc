@@ -700,3 +700,11 @@ void od_ostrstream::setEmpty()
     stdstrstrm.clear();
     errmsg_.setEmpty();
 }
+
+od_ostream& od_cerr()
+{
+    mDefineStaticLocalObject( PtrMan<od_ostream>, cout,
+			     (new od_ostream( std::cerr )) );
+    return *cout;
+}
+
