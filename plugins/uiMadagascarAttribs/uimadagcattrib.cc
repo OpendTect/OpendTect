@@ -13,8 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "madagcattrib.h"
 #include "attribdesc.h"
 #include "attribparam.h"
+
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
@@ -27,9 +29,11 @@ uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d, "Input Data");
 
-    smoothzradiusfld_ = new uiGenInput( this, "Z smoothing radius (samples)",
+    smoothzradiusfld_ = new uiGenInput( this, "Z smoothing radius",
 					IntInpSpec(0) );
     smoothzradiusfld_->attach( alignedBelow, inpfld_ );
+    uiLabel* lbl = new uiLabel( this, "(samples)" );
+    lbl->attach( rightTo, smoothzradiusfld_ );
 
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Smoothing stepout" ).allowneg( false );
