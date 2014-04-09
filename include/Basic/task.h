@@ -61,8 +61,9 @@ protected:
     Control			control_;
     Threads::ConditionVar*	workcontrolcondvar_;
 
-public:
+    //Use uiMessage instead
     virtual const char* message() const 		{ return "Working"; }
+    //Use uiNrDoneText instead
     virtual const char* nrDoneText() const		{ return "Nr Done"; }
 };
 
