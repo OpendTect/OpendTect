@@ -288,6 +288,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
 			? *as : newas );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
+	    info().setGeomID( seis2ddisp->getGeomID() );
 	    info().setObjLineName( seis2ddisp->name() );
 	    click.trigger();
 	    eventcatcher_->setHandled();
@@ -317,9 +318,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !hor2d ) return;
 
     const int lineidx = nodepid.getRowCol().row();
-    const PosInfo::Line2DKey& l2dkey = hor2d->geometry().lineKey( lineidx );
-    S2DPOS().setCurLineSet( l2dkey.lsID() );
-    BufferString linenm = S2DPOS().getLineName( l2dkey.lineID() );
+    const Pos::GeomID geomid = hor2d->geometry().geomID( lineidx );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
@@ -339,7 +338,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 
-	if ( !l2dkey.isOK() )
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
@@ -356,7 +355,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    continue;
 	}
 
-	if ( /*lineset==seis2ddisp->lineSetID() &&*/linenm==seis2ddisp->name() )
+	if ( geomid == seis2ddisp->getGeomID() )
 	{
 	    mindisttoseis2d = 0;
 	    seis2dclosest = seis2ddisp;
@@ -384,19 +383,10 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	info().setObjDataPackID( datapackid );
 
 	const Attrib::SelSpec* as = seis2dclosest->getSelSpec( attrib );
-	Attrib::SelSpec newas;
 	if ( as )
-	{
-	    newas = *as;
-	    PtrMan<IOObj> lsioobj = IOM().get( seis2dclosest->lineSetID() );
-	    BufferString lsnm = lsioobj ? lsioobj->name() : 0;
-	    newas.setUserRef( LineKey(lsnm,as->userRef()) );
-	}
-	info().setObjDataSelSpec(
-		newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
-				? *as : newas );
-	info().setObjLineSet( seis2dclosest->lineSetID() );
-	info().setObjLineName( seis2dclosest->name() );
+	    info().setObjDataSelSpec( *as );
+
+	info().setGeomID( seis2dclosest->getGeomID() );
 	info().setObjID( seis2dclosest->id() );
 	click.trigger();
     }
@@ -602,6 +592,9 @@ const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
 const MultiID& MPEClickInfo::getObjLineSet() const
 { return lineset_; }
 
+Pos::GeomID MPEClickInfo::getGeomID() const
+{ return geomid_; }
+
 
 const char* MPEClickInfo::getObjLineName() const
 { return linename_[0] ? (const char*) linename_ : 0; }
@@ -675,6 +668,10 @@ void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec& as )
 
 void MPEClickInfo::setObjLineSet( const MultiID& mid )
 { lineset_ = mid; }
+
+
+void MPEClickInfo::setGeomID( Pos::GeomID geomid )
+{ geomid_ = geomid; }
 
 
 void MPEClickInfo::setObjLineName( const char* str )

@@ -76,10 +76,11 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
 
-    void			setLineSetID( const MultiID& lsetid )
-				{ linesetid_ = lsetid; }
-    const MultiID&		lineSetID() const
-				{ return linesetid_; }
+    MultiID			lineSetID()	{ return MultiID(-1); }
+    void			setGeomID( Pos::GeomID geomid )
+				{ geomid_ = geomid; }
+    Pos::GeomID 		geomID() const
+				{ return geomid_; }
     uiFlatViewStdControl*	viewControl()
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
@@ -120,7 +121,7 @@ protected:
     FlatView::AuxData*		marker_;
     ZAxisTransform*		datatransform_;
 
-    MultiID			linesetid_;
+    Pos::GeomID 		geomid_;
     CubeSampling		cs_;
 
     int				polyseltbid_;

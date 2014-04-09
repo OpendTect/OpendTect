@@ -43,6 +43,9 @@ public:
 	    			    const Coord3& pos,const Coord3& editnormal,
 				    const MultiID* pickedmid,
 				    const char* pickednm,bool addtohistory);
+    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    Pos::GeomID pickedgeomid,bool addtohistory);
     bool		removeStick(const SectionID&,int sticknr,
 	    			    bool addtohistory);
     bool		insertKnot(const SectionID&,const SubID&,
@@ -78,7 +81,7 @@ protected:
     {
 	int			sid;
 	int			sticknr;
-	Pos::GeomID		geomid;
+	Pos::GeomID		pickedgeomid;
 	MultiID			pickedmid;
 	BufferString		pickednm;
     };

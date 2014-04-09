@@ -27,11 +27,10 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
-#include "posinfo.h"
+#include "posinfo2d.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
-#include "seis2dline.h"
-#include "posinfo2dsurv.h"
+#include "survgeom2d.h"
 #include "undo.h"
 
 #include "uimsg.h"
@@ -48,8 +47,7 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , mehandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
-    , linenm_(0)
-    , lsetid_(-1)
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , seedpickingon_(false)
     , trackersetupactive_(false)
     , updseedpkingstatus_(this)
@@ -89,10 +87,10 @@ void HorizonFlatViewEditor2D::setCubeSampling( const CubeSampling& cs )
 }
 
 
-void HorizonFlatViewEditor2D::setLineName( const char* lnm )
+void HorizonFlatViewEditor2D::setGeomID( Pos::GeomID geomid )
 {
-    linenm_ = lnm;
-    horpainter_->setLineName( lnm );
+    geomid_ = geomid;
+    horpainter_->setGeomID( geomid );
 }
 
 
@@ -430,7 +428,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     if ( !seedpicker.canAddSeed() )
 	return false;
 
-    MPE::engine().setActive2DLine( lsetid_, linenm_ );
+    MPE::engine().setActive2DLine( geomid_ );
     mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, &seedpicker );
     if ( h2dsp )
 	h2dsp->setSelSpec( as );
@@ -441,7 +439,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     if ( !h2dsp || !h2dsp->canAddSeed(*as) )
 	return false;
 
-    h2dsp->setLine( lsetid_, linenm_ );
+    h2dsp->setLine( geomid_ );
     if ( !h2dsp->startSeedPick() )
 	return false;
 
@@ -560,35 +558,19 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return false;
 
-    PtrMan<IOObj> ioobj = IOM().get( lsetid_ );
-    if ( !ioobj ) return false;
-
-    const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
-    S2DPOS().setCurLineSet( lset.name() );
-    PosInfo::LineSet2DData linesetgeom;
-    for ( int idx=0; idx<lset.nrLines(); idx++ )
-    {
-	PosInfo::Line2DData& linegeom = linesetgeom.addLine(lset.lineName(idx));
-	linegeom.setLineName( lset.lineName(idx) );
-	S2DPOS().getGeometry( linegeom );
-	if ( linegeom.positions().isEmpty() )
-	{
-	    linesetgeom.removeLine( lset.lineName(idx) );
-	    continue;
-	}
-    }
-
-    PosInfo::Line2DPos pos;
-    if ( !linesetgeom.getLineData( linenm_ ) )
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(geomid_) );
+    if ( !geom2d )
 	return false;
 
-    linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mUdf(float) );
+    PosInfo::Line2DPos pos;
+    geom2d->data().getPos( crd, pos, mUdf(float) );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
     if ( !hor2d ) return false;
 
     BinID bid;
-    bid.inl() = hor2d->geometry().lineIndex( linenm_ );
+    bid.inl() = hor2d->geometry().lineIndex( geomid_ );
     bid.crl() = pos.nr_;
 
     for ( int idx=0; idx<emobj->nrSections(); idx++ )
@@ -630,7 +612,7 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
-	bid.inl() = hor2d->geometry().lineIndex( linenm_ );
+	bid.inl() = hor2d->geometry().lineIndex( geomid_ );
 
 	int posidx = horpainter_->getDistances().indexOf(
 				mCast( float, getAuxData(selectedids[ids])->

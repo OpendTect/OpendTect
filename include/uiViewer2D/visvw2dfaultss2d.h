@@ -31,9 +31,8 @@ public:
     				mCreateVw2DDataObj(VW2DFaultSS2D,id,win,ed);
 			~VW2DFaultSS2D();
 
-    void		setLineName(const char*);
-    void		setLineSetID( const MultiID& lsetid )
-			{ lsetid_ = lsetid; }
+    void		setGeomID( Pos::GeomID geomid )
+			{ geomid_ = geomid; }
 
     void		draw();
     void		enablePainting(bool yn);
@@ -46,8 +45,7 @@ protected:
     void		triggerDeSel();
     void		setEditors();
 
-    const char*			linenm_;
-    MultiID			lsetid_;
+    Pos::GeomID 	geomid_;
 
     MPE::FaultStickSetEditor*	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;

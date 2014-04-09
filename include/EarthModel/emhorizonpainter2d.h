@@ -31,7 +31,7 @@ public:
 			~HorizonPainter2D();
 
     void		setCubeSampling(const CubeSampling&,bool upd=false);
-    void		setLineName(const char*);
+    void		setGeomID(Pos::GeomID);
 
     void		enableLine(bool);
     void		enableSeed(bool);
@@ -74,7 +74,7 @@ protected:
     MarkerStyle2D       markerstyle_;
     FlatView::Viewer&   viewer_;
 
-    const char*		linenm_;
+    Pos::GeomID 	geomid_;
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
 

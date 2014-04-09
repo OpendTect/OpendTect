@@ -49,6 +49,7 @@ mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
@@ -67,7 +68,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , datatransform_(0)
 {
     setWinTitle();
-    linesetid_.setEmpty();
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );

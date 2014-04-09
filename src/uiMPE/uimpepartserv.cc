@@ -757,16 +757,8 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
 }
 
 
-const MultiID& uiMPEPartServer::get2DLineSet() const
-{ return linesetid_; }
-
-
 const char* uiMPEPartServer::get2DLineName() const
-{ return linename_.size() ? (const char*) linename_ : 0; }
-
-
-const char* uiMPEPartServer::get2DAttribName() const
-{ return attribname_.size() ? (const char*) attribname_ : 0; }
+{ return Survey::GM().getName(geomid_); }
 
 
 void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)

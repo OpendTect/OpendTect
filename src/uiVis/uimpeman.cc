@@ -370,10 +370,8 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( tracker->is2D() )
     {
-	const MultiID& lset = clickcatcher->info().getObjLineSet();
-	const BufferString& lname = clickcatcher->info().getObjLineName();
-
-	engine.setActive2DLine( lset, lname );
+	Pos::GeomID geomid = clickcatcher->info().getGeomID();
+	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
@@ -390,7 +388,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	if ( datapackid > DataPack::cNoID() )
 	    engine.setAttribData( *clickedas, datapackid );
 
-	h2dsp->setLine( lset, lname );
+	h2dsp->setLine( geomid );
 	if ( !h2dsp->startSeedPick() )
 	    mSeedClickReturn();
     }

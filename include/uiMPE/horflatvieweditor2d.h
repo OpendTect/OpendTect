@@ -45,10 +45,7 @@ public:
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
     EM::HorizonPainter2D* getPainter() const 		{ return horpainter_; }
 
-    void		setLineName(const char*);
-    void		setLineSetID( const MultiID& lsetid )
-			{ lsetid_ = lsetid; }
-
+    void		setGeomID(Pos::GeomID);
     TypeSet<int>&	getPaintingCanvTrcNos();
     TypeSet<float>&	getPaintingCanDistances();
     void		enableLine(bool);
@@ -104,8 +101,7 @@ protected:
     const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
-    const char*			linenm_;
-    MultiID			lsetid_;
+    Pos::GeomID 		geomid_;
 
     bool			seedpickingon_;
     bool			trackersetupactive_;    

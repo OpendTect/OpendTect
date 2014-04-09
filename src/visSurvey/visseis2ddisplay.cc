@@ -1146,6 +1146,22 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 }
 
 
+Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( Pos::GeomID geomid )
+{
+    TypeSet<int> ids;
+    visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
+	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
+	if (s2dd && s2dd->getGeomID()==geomid )
+	    return s2dd;
+    }
+
+    return 0;
+}
+
+
 Coord3 Seis2DDisplay::projectOnNearestPanel( const Coord3& pos,
 					     int* nearestpanelidxptr )
 {

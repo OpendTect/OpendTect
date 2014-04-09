@@ -946,15 +946,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	DataPack::ID datapackid = attrserv_->createOutput( cs, olddatapackid );
 	mpeserv_->setAttribData( *as, datapackid );
     }
-    else if ( evid==uiMPEPartServer::evCreate2DSelSpec() )
-    {
-	LineKey lk( mpeserv_->get2DLineSet(), mpeserv_->get2DAttribName() );
-	const Attrib::DescID attribid = attrServer()->getStoredID( lk, true );
-	if ( !attribid.isValid() ) return false;
-
-	const Attrib::SelSpec as( mpeserv_->get2DAttribName(), attribid );
-	mpeserv_->set2DSelSpec( as );
-    }
     else if ( evid==uiMPEPartServer::evShowToolbar() )
     {
 	visserv_->disabToolBars( false );

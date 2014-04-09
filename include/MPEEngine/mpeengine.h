@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "survgeom.h"
 #include "trackplane.h"
 
 class BufferStringSet;
@@ -107,10 +108,9 @@ public:
     bool		isActiveVolShown()	{ return isactivevolshown_; }
     Notifier<Engine>	activevolumechange;
 
-    void		setActive2DLine(const MultiID& linesetid,
-	    				const char* linename);
-    const MultiID&	active2DLineSetID() const;
-    const BufferString&	active2DLineName() const;
+    void		setActive2DLine(Pos::GeomID);
+    Pos::GeomID 	activeGeomID() const;
+    BufferString	active2DLineName() const;
     
     const TrackPlane&	trackPlane() const;
     bool		setTrackPlane(const TrackPlane&,bool track);
@@ -210,7 +210,7 @@ protected:
     TrackPlane			trackplane_;
     bool			isactivevolshown_;
 
-    MultiID			active2dlinesetid_;
+    Pos::GeomID 		activegeomid_;
     BufferString		active2dlinename_;
 
     ObjectSet<EMTracker>	trackers_;
@@ -222,14 +222,13 @@ protected:
     struct CacheSpecs
     {
 				CacheSpecs(const Attrib::SelSpec& as,
-					   const MultiID& id=MultiID(-1),
-					   const char* nm=0)
-				    : attrsel_(as),linesetid_(id),linename_(nm)
+					Pos::GeomID geomid=
+					Survey::GeometryManager::cUndefGeomID())
+				    : attrsel_(as),geomid_(geomid)
 				{}
 				
 	Attrib::SelSpec		attrsel_;
-	MultiID			linesetid_;
-	BufferString		linename_;
+	Pos::GeomID		geomid_;
     };
 
     TypeSet<DataPack::ID>  		attribcachedatapackids_;   

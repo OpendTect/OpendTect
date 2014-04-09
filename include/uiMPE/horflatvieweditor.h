@@ -44,9 +44,8 @@ public:
     void			set2D(bool is2d)	{ is2d_ = is2d; }
 
     FlatView::AuxDataEditor*	getEditor()	{ return editor_; }
-    void			setLineName(const char* lnm)							{ linenm_ = lnm; }
-    void			setLineSetID(const MultiID& lsetid)
-				{ lsetid_ = lsetid; }
+    void			setGeomID(Pos::GeomID geomid)
+				{ geomid_ = geomid; }
     void			setMouseEventHandler(MouseEventHandler*);
     void			setSeedPickingStatus(bool);
     void			setTrackerSetupActive(bool bn)
@@ -85,8 +84,7 @@ protected:
     const Attrib::SelSpec* 	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
-    const char*			linenm_;
-    MultiID			lsetid_;
+    Pos::GeomID 		geomid_;
 
     bool			is2d_;
     bool			seedpickingon_;

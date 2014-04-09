@@ -92,7 +92,7 @@ public:
 					      const Attrib::Data2DArray*);
 
     static int			evCreate2DSelSpec();
-    const MultiID&		get2DLineSet() const;
+    Pos::GeomID 		getGeomID() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
@@ -162,9 +162,7 @@ protected:
     int				cursceneid_;
 
     				//2D interaction
-    BufferString		linename_;
-    BufferString		attribname_;
-    MultiID			linesetid_;
+    Pos::GeomID 		geomid_;
     Attrib::SelSpec		lineselspec_;
     
     void			aboutToAddRemoveSeed(CallBacker*);

@@ -36,9 +36,7 @@ public:
 			~Vw2DHorizon2D();
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    void		setLineName(const char*);
-    void		setLineSetID( const MultiID& lsetid )
-    			{ lsetid_ = lsetid; }
+    void		setGeomID(Pos::GeomID);
 
     void		setCubeSampling(const CubeSampling&, bool upd=false );
 
@@ -59,8 +57,7 @@ protected:
     void				triggerDeSel();
     void				setEditors();
     
-    const char*				linenm_;
-    MultiID				lsetid_;
+    Pos::GeomID 			geomid_;
     const Attrib::SelSpec*		vdselspec_;
     const Attrib::SelSpec*		wvaselspec_;
 

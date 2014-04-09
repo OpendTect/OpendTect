@@ -54,7 +54,8 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	    if ( colrg.isUdf() ) continue;
 
-	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start; rc.col()-=colrg.step )
+	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
+							rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
 		if ( !pf.includes( (Coord) pos, (float) pos.z) )
@@ -187,6 +188,44 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 }
 
 
+bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
+					 int firstcol, const Coord3& pos,
+					 const Coord3& editnormal,
+					 Pos::GeomID pickedgeomid,
+					 bool addtohistory )
+{
+    Geometry::FaultStickSet* fss = sectionGeometry( sid );
+
+    if ( !fss )
+	return false;
+
+    const bool firstrowchange = sticknr < fss->rowRange().start;
+
+    if ( !fss->insertStick(pos,editnormal,sticknr,firstcol) )
+	return false;
+
+    for ( int idx=0; !firstrowchange && idx<stickinfo_.size(); idx++ )
+    {
+	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr>=sticknr )
+	    stickinfo_[idx]->sticknr++;
+    }
+
+    stickinfo_.insertAt( new StickInfo, 0 );
+    stickinfo_[0]->sid = sid;
+    stickinfo_[0]->sticknr = sticknr;
+    stickinfo_[0]->pickedgeomid = pickedgeomid;
+    if ( addtohistory )
+    {
+	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
+	UndoEvent* undo = new FaultStickUndoEvent( posid );
+	EMM().undo().addEvent( undo, 0 );
+    }
+
+    mTriggerSurfaceChange( surface_ );
+    return true;
+}
+
+
 bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
 					 bool addtohistory )
 {
@@ -283,7 +322,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
 bool FaultStickSetGeometry::pickedOnPlane( const SectionID& sid,
 					   int sticknr ) const
 {
-    if ( pickedMultiID(sid,sticknr) || pickedName(sid,sticknr) )
+    if ( pickedMultiID(sid,sticknr) || pickedOn2DLine(sid,sticknr) )
 	return false;
 
     const Coord3& editnorm = getEditPlaneNormal( sid, sticknr );
@@ -303,7 +342,7 @@ bool FaultStickSetGeometry::pickedOnHorizon( const SectionID& sid,
 bool FaultStickSetGeometry::pickedOn2DLine( const SectionID& sid,
 					    int sticknr ) const
 {
-    return !pickedOnPlane(sid,sticknr) && !pickedOnHorizon(sid,sticknr);
+    return pickedGeomID(sid,sticknr) != Survey::GeometryManager::cUndefGeomID();
 }
 
 
@@ -336,13 +375,13 @@ const char* FaultStickSetGeometry::pickedName( const SectionID& sid,
 
 
 Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
-						     int sticknr) const
+						 int sticknr) const
 {
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )
-        return stickinfo_[idx]->geomid;
+	return stickinfo_[idx]->pickedgeomid;
 	
-    return -1;
+    return Survey::GeometryManager::cUndefGeomID();
 }
 
 
@@ -361,7 +400,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
 #define mDefPickedNameStr( pickednmstr, sid, sticknr ) \
     mDefStickInfoStr( "Picked name", pickednmstr, sid, sticknr )
 #define mDefGeomIDStr( geomidstr, sid, sticknr ) \
-	mDefStickInfoStr( "GeomID", geomidstr, sid, sticknr )
+	mDefStickInfoStr( "Picked GeomID", geomidstr, sid, sticknr )
 
 
 
@@ -385,11 +424,11 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 		par.set( pickedmidstr.buf(), *pickedmid );
 	    }
 
-	    const char* pickednm = pickedName( sid, sticknr );
-	    if ( pickednm )
+	    Pos::GeomID geomid = pickedGeomID( sid, sticknr );
+	    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	    {
-		mDefPickedNameStr( pickednmstr, sid, sticknr );
-		par.set( pickednmstr.buf(), pickednm );
+		mDefGeomIDStr( geomidstr, sid, sticknr );
+		par.set( geomidstr.buf(), geomid );
 	    }
 	}
     }
@@ -419,12 +458,13 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    mDefGeomIDStr( geomidstr, sid, sticknr );
 	    mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
 	    mDefLineSetStr( linesetstr, sid, sticknr );
-	    if ( !par.get(geomidstr.buf(), stickinfo_[0]->geomid) && 
+	    if ( !par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) &&
 		 !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) &&
 		 !par.get(linesetstr.buf(), stickinfo_[0]->pickedmid) )
 	    {
 		stickinfo_[0]->pickedmid = MultiID(-1);
-		stickinfo_[0]->geomid = -1;
+		stickinfo_[0]->pickedgeomid =
+				Survey::GeometryManager::cUndefGeomID();
 	    }
 
 	    mDefPickedNameStr( pickednmstr, sid, sticknr );

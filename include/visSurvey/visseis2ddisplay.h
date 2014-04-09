@@ -141,6 +141,7 @@ public:
     				{ return &geomchanged_; }
 
     static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
+    static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
 
     virtual void		annotateNextUpdateStage(bool yn);
 

@@ -71,11 +71,10 @@ public:
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
-    void		setLineName( const char* ln ) 	{ linenm_ = ln; }
-    const char*		getLineName() const		{ return linenm_; }
-    void		setLineID( const MultiID& lsetid )	
-    			{ lsetid_ = lsetid; }
-    const MultiID&	getLineSetID() const		{ return lsetid_; }
+    const char* 	getLineName() const;
+    void		setGeomID( Pos::GeomID geomid )
+			{ geomid_ = geomid; }
+    Pos::GeomID 	getGeomID() const		{ return geomid_; }
     Coord		getNormalToTrace( int trcnr ) const;
     Coord		getNormalInRandLine( int idx ) const; 
     			//<! idx of BinID in path_ of RandomLine
@@ -116,8 +115,7 @@ protected:
     int			activestickid_;
 
     bool		is2d_;
-    const char*		linenm_;
-    MultiID		lsetid_;
+    Pos::GeomID 	geomid_;
     
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;

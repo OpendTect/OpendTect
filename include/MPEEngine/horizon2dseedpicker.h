@@ -31,7 +31,8 @@ mExpClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
     			~Horizon2DSeedPicker()		{}
-    void		setLine(const MultiID& lineset,const char*linename);
+
+    void		setLine(Pos::GeomID);
 
     bool		canSetSectionID() const;
     bool		setSectionID(const EM::SectionID&);
@@ -105,10 +106,7 @@ protected:
 
     EM::SectionID		sectionid_;
     bool			didchecksupport_;
-    PosInfo::Line2DKey		l2dkey_;
-
-    BufferString		linename_;
-    MultiID			lineset_;
+    Pos::GeomID 		geomid_;
 
     int				seedconmode_;
     bool			blockpicking_;

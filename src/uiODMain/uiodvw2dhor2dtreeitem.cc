@@ -231,8 +231,8 @@ bool uiODVw2DHor2DTreeItem::init()
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
     
-    if ( !viewer2D()->lineSetID().isEmpty() )
-	horview_->setLineSetID( viewer2D()->lineSetID() );
+    if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
+	horview_->setGeomID( viewer2D()->geomID() );
 
     horview_->draw();
 

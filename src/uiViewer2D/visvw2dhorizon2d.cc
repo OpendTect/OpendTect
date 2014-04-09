@@ -29,7 +29,7 @@ mCreateVw2DFactoryEntry( Vw2DHorizon2D );
 Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
     : Vw2DEMDataObject(oid,win,auxdataedtors)
-    , linenm_(0)
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , deselted_( this )
     , vdselspec_( 0 )
     , wvaselspec_( 0 )
@@ -95,9 +95,9 @@ void Vw2DHorizon2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 }
 
 
-void Vw2DHorizon2D::setLineName( const char* ln )
+void Vw2DHorizon2D::setGeomID( Pos::GeomID geomid )
 {
-    linenm_ = ln;
+    geomid_ = geomid;
 }
 
 
@@ -120,10 +120,7 @@ void Vw2DHorizon2D::draw()
 	 horeds_[ivwr]->setCubeSampling(dp2ddh->dataarray()->cubesampling_);
 	 horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	 horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	 horeds_[ivwr]->setLineSetID( lsetid_ );
-	 BufferString* bs = new BufferString(); //TODO remove new
-	 dp2ddh->getLineName( *bs );
-	 horeds_[ivwr]->setLineName( *bs );
+	 horeds_[ivwr]->setGeomID( geomid_ );
 	 dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
 		 		  horeds_[ivwr]->getPaintingCanDistances() );
 	 horeds_[ivwr]->paint();

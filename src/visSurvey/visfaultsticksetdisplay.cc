@@ -517,6 +517,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     Seis2DDisplay* s2dd = 0;
     HorizonDisplay* hordisp = 0;
     const MultiID* pickedmid = 0;
+    Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
     const char* pickednm = 0;
     PtrMan<Coord3> normal = 0;
     ConstPtrMan<MultiID> horid;
@@ -527,8 +528,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	const int sticknr = mousepid.getRowCol().row();
 	pos = emfss_->getPos( mousepid );
-	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
-	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
+	pickedgeomid = fssg.pickedGeomID( mousepid.sectionID(), sticknr );
 	zdragoffset = 0;
     }
     else
@@ -541,8 +541,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    mDynamicCast(Seis2DDisplay*,s2dd,dataobj);
 	    if ( s2dd )
 	    {
-		pickedmid = &s2dd->lineSetID();
-		pickednm = s2dd->name();
+		pickedgeomid = s2dd->getGeomID();
 		break;
 	    }
 	    mDynamicCast(HorizonDisplay*,hordisp,dataobj);
@@ -577,7 +576,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
-    fsseditor_->getInteractionInfo(insertpid, pickedmid, pickednm, pos, normal);
+    fsseditor_->getInteractionInfo( insertpid, pickedmid, pickedgeomid, pos,
+				    normal);
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( insertpid );
@@ -641,8 +641,13 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
 	editpids_.erase();
-	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			  pickedmid, pickednm, true );
+	if ( pickedmid )
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+			      pickedmid, pickednm, true );
+	else
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+			      pickedgeomid, true );
+
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
 	setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
@@ -772,13 +777,14 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	RowCol rc = cbdata.pid0.getRowCol();
 
 	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row() );
+	const Pos::GeomID geomid = emfss_->geometry().pickedGeomID( sid,
+								    rc.row() );
 	if ( mid && !emfss_->geometry().pickedOnPlane(sid, rc.row()) )
 	{
-	    const char* nm = emfss_->geometry().pickedName( sid, rc.row() );
 	    const Coord3 dragpos = emfss_->getPos( cbdata.pid0 );
 	    Coord3 pos = dragpos;
 
-	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( *mid, nm );
+	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( geomid );
 	    if ( s2dd )
 		pos = s2dd->getNearestSubPos( pos, true );
 
@@ -801,8 +807,8 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 
 		    if ( displaytransform_ )
 			displaytransform_->transformBack( pos );
-		    if ( nm )
-			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
+//		    if ( nm ) What is this?
+//			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
 
 		    zdragoffset = (float) ( pos.z - dragpos.z );
 		}

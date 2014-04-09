@@ -111,6 +111,7 @@ Engine::Engine()
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
     , isactivevolshown_( false )
+    , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , activefaultid_( -1 )
     , activefssid_( -1 )
     , activefaultchanged_( this )
@@ -170,19 +171,14 @@ void Engine::setActiveVolume( const CubeSampling& nav )
 }
 
 
-void Engine::setActive2DLine( const MultiID& linesetid, const char* linename )
-{
-    active2dlinesetid_ = linesetid;
-    active2dlinename_ = linename;
-}
+void Engine::setActive2DLine( Pos::GeomID geomid )
+{ activegeomid_ = geomid; }
 
+Pos::GeomID Engine::activeGeomID() const
+{ return activegeomid_; }
 
-const MultiID& Engine::active2DLineSetID() const
-{ return active2dlinesetid_; }
-
-
-const BufferString& Engine::active2DLineName() const
-{ return active2dlinename_; }
+BufferString Engine::active2DLineName() const
+{ return Survey::GM().getName( activegeomid_ ); }
 
 
 const TrackPlane& Engine::trackPlane() const
@@ -514,8 +510,7 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 	if ( !as.is2D() )
 	    return idx;
 
-	if ( attribcachespecs_[idx]->linesetid_ != active2DLineSetID() ||
-	     attribcachespecs_[idx]->linename_  != active2DLineName()   )
+	if ( attribcachespecs_[idx]->geomid_ != activeGeomID() )
 	    continue;
 
 	return idx;
@@ -610,7 +605,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
-		new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
+		new CacheSpecs( as, activeGeomID() ) :
 		new CacheSpecs( as ) ;
 
 	    attribcachedatapackids_ += cacheid;
@@ -644,7 +639,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     else if (newdata)
     {
 	attribcachespecs_ += as.is2D() ?
-	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
+	    new CacheSpecs( as, activeGeomID() ) :
 	    new CacheSpecs( as ) ;
 
 	attribcache_ += newdata;

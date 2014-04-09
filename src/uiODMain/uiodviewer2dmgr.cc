@@ -112,7 +112,7 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 			visServ().getObject(visid));
     if ( s2d )
-	vwr->setLineSetID(  s2d->lineSetID() );
+	vwr->setGeomID(  s2d->getGeomID() );
 
     vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;

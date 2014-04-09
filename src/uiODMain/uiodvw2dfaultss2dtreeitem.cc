@@ -169,8 +169,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     displayMiniCtab();
 
-    if ( !viewer2D()->lineSetID().isEmpty() )
-	fssview_->setLineSetID( viewer2D()->lineSetID() );
+    if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
+	fssview_->setGeomID( viewer2D()->geomID() );
 
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )

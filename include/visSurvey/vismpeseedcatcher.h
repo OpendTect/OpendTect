@@ -59,6 +59,7 @@ public:
     const Attrib::DataCubes*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
+    Pos::GeomID 		getGeomID() const;
     const MultiID&		getObjLineSet() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
@@ -80,6 +81,7 @@ protected:
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
     void			setObjLineSet(const MultiID&);
+    void			setGeomID(Pos::GeomID);
     void			setObjLineName(const char*);
     void			setObjLineData(const Attrib::Data2DHolder*);
 
@@ -95,6 +97,7 @@ protected:
     Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
+    Pos::GeomID 			geomid_;
     MultiID				lineset_;
     BufferString			linename_;
     DataPack::ID			datapackid_;

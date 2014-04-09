@@ -415,8 +415,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     EM::PosID pid;
     mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
-    fsseditor->getInteractionInfo( pid, &fsspainter_->getLineSetID(),
-				   fsspainter_->getLineName(), pos, &normal );
+    fsseditor->getInteractionInfo( pid, 0, fsspainter_->getGeomID(), pos,
+				   &normal );
 
     if ( pid.isUdf() )
 	return; 
@@ -545,8 +545,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     EM::PosID interactpid;
     mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
-    fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
-				   fsspainter_->getLineName(), pos, &normal );
+    fsseditor->getInteractionInfo( interactpid, 0, fsspainter_->getGeomID(),
+				   pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
 	 && !mouseevent.shiftStatus() )
@@ -574,13 +574,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     {
 	mGetNormal( editnormal );
 
-	const MultiID* lineset = 0;
-	const char* linenm = 0;
-
+	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
 	if ( cs_.isEmpty() )
 	{
-	    lineset = &fsspainter_->getLineSetID();
-	    linenm = fsspainter_->getLineName();
+	    geomid = fsspainter_->getGeomID();
 	    editnormal = Coord3( fsspainter_->getNormalToTrace(trcnr), 0 );
 	}
 
@@ -589,8 +586,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const int insertsticknr = !fss || fss->isEmpty() 
 	    			  ? 0 : fss->rowRange().stop+1;
 
-	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			  lineset, linenm, true );
+	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, geomid,
+			  true );
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),sid,subid) );
 	mSetUserInteractionEnd();
@@ -660,12 +657,8 @@ void FaultStickSetFlatViewEditor::set2D( bool yn )
 { fsspainter_->set2D( yn ); }
 
 
-void FaultStickSetFlatViewEditor::setLineName( const char* ln )
-{ fsspainter_->setLineName( ln ); }
-
-
-void FaultStickSetFlatViewEditor::setLineID( const MultiID& lsetid )
-{ fsspainter_->setLineID( lsetid ); }
+void FaultStickSetFlatViewEditor::setGeomID( Pos::GeomID geomid )
+{ fsspainter_->setGeomID( geomid ); }
 
 
 TypeSet<int>& FaultStickSetFlatViewEditor::getTrcNos()

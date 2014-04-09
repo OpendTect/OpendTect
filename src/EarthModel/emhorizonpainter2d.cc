@@ -59,9 +59,9 @@ void HorizonPainter2D::setCubeSampling( const CubeSampling& cs, bool update )
 }
 
 
-void HorizonPainter2D::setLineName( const char* ln )
+void HorizonPainter2D::setGeomID( Pos::GeomID geomid )
 {
-    linenm_ = ln;
+    geomid_ = geomid;
 }
 
 
@@ -110,10 +110,10 @@ bool HorizonPainter2D::addPolyLine()
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl();
-	    if ( hor2d->geometry().lineIndex( linenm_ ) < 0 )
+	    if ( hor2d->geometry().lineIndex( geomid_ ) < 0 )
 		continue;
 	    else
-		bid.inl() = hor2d->geometry().lineIndex( linenm_ );
+		bid.inl() = hor2d->geometry().lineIndex( geomid_ );
 	    
 	    const Coord3 crd = hor2d->getPos( sid, bid.toInt64() );
 	    EM::PosID posid( id_, sid, bid.toInt64() );

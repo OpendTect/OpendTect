@@ -31,10 +31,9 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( -1 )
     , is2d_( false )
-    , linenm_( 0 )
     , path_(0)
     , flatposdata_(0)
-    , lsetid_( 0 )
+    , geomid_( Survey::GeometryManager::cUndefGeomID() )
     , abouttorepaint_( this )
     , repaintdone_( this )
     , linenabled_(true)
@@ -64,17 +63,14 @@ FaultStickPainter::~FaultStickPainter()
 }
 
 
-void FaultStickPainter::setCubeSampling( const CubeSampling& cs, bool update )
-{
-    cs_ = cs;
-}
+const char* FaultStickPainter::getLineName() const
+{ return Survey::GM().getName( geomid_ ); }
 
+void FaultStickPainter::setCubeSampling( const CubeSampling& cs, bool update )
+{ cs_ = cs; }
 
 void FaultStickPainter::setPath( const TypeSet<BinID>* path )
-{
-    path_ = path;
-}
-
+{ path_ = path; }
 
 void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
 {
@@ -131,12 +127,10 @@ bool FaultStickPainter::addPolyLine()
 
 	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row()) )
 	    {
-		const MultiID* lset =
-			    emfss->geometry().pickedMultiID( sid, rc.row() );
-		FixedString lnm = emfss->geometry().pickedName( sid, rc.row() );
+		const Pos::GeomID geomid =
+			    emfss->geometry().pickedGeomID( sid, rc.row() );
 
-		if ( !is2d_ || !lnm.isStartOf(linenm_) ||
-		     !lset || *lset!=lsetid_ )
+		if ( !is2d_ || geomid != geomid_ )
 		    continue;
 	    }
 	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row()) )

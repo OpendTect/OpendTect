@@ -78,7 +78,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 {
     BinID srcbid = BinID::fromInt64( srcsubid );
     const StepInterval<int> colrange =
-	surface_.geometry().colRange( sid_, l2dkey_ );
+	surface_.geometry().colRange( sid_, geomid_ );
     EM::SubID neighborsubid;
     Coord3 neighborpos;
     BinID neighbrbid = srcbid;

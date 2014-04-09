@@ -47,8 +47,7 @@ public:
     void		enableKnots(bool);
 
     void		set2D(bool yn);
-    void		setLineName(const char*);
-    void		setLineID(const MultiID&);
+    void		setGeomID(Pos::GeomID);
 
     TypeSet<int>&	getTrcNos();
     TypeSet<float>&	getDistances();

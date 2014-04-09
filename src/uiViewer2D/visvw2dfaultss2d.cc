@@ -83,12 +83,6 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 }
 
 
-void VW2DFaultSS2D::setLineName( const char* ln )
-{
-    linenm_ = ln;
-}
-
-
 void VW2DFaultSS2D::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
@@ -106,10 +100,7 @@ void VW2DFaultSS2D::draw()
 		    		     fsseds_[ivwr]->getDistances() );
 	    dp2ddh->getCoordDataTable( fsseds_[ivwr]->getTrcNos(),
 		    		       fsseds_[ivwr]->getCoords() );
-	    BufferString* bs = new BufferString(); //TODO remove new
-	    dp2ddh->getLineName( *bs );
-	    fsseds_[ivwr]->setLineName( *bs );
-	    fsseds_[ivwr]->setLineID( lsetid_ );
+	    fsseds_[ivwr]->setGeomID( geomid_ );
 	    fsseds_[ivwr]->set2D( true );
 	    fsseds_[ivwr]->drawFault();
 	}
