@@ -86,7 +86,7 @@ public:
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     BinID		getPos() const;
     int			getTrcNr() const;
@@ -117,7 +117,7 @@ protected:
     enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
     ReadState		readstate_;
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     mutable int		estnrtrcs_;
 
     			// Indexes of new pos ready, equals -1 while buffering.

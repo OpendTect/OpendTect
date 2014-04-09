@@ -323,7 +323,7 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 						const Attrib::DescSet& attrs )
 {
-    BufferString errmsg;
+    uiString errmsg;
     PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
 
     PtrMan<Executor> exec = aem->getTableExtractor(dps,attrs,errmsg,2,false);

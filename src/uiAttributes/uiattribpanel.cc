@@ -50,7 +50,7 @@ uiAttribPanel::~uiAttribPanel()
 
 FlatDataPack* uiAttribPanel::computeAttrib()
 {
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 

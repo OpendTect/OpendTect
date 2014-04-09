@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "datapack.h"
 #include "sets.h"
+#include "uistring.h"
 
 class BinIDValueSet;
 class CubeSampling;
@@ -52,11 +53,12 @@ public:
 
     virtual bool		isIndexes() const	{ return false; }
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 
-mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&,
+		      ExtAttrFact );
 
 
 } // namespace Attrib

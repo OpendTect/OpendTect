@@ -129,7 +129,7 @@ int StratAmpCalc::init( const IOPar& pars )
     }
     else
     {
-	BufferString errmsg;
+	uiString errmsg;
 	BufferString linename; //TODO: function used in 2d?
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
 	proc_ = attrengman->usePar( pars, *descset_, linename, errmsg );

@@ -72,7 +72,7 @@ SeisImporter::~SeisImporter()
 }
 
 
-const char* SeisImporter::message() const
+uiStringCopy SeisImporter::uiMessage() const
 {
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
@@ -89,7 +89,7 @@ od_int64 SeisImporter::nrDone() const
 }
 
 
-const char* SeisImporter::nrDoneText() const
+uiStringCopy SeisImporter::uiNrDoneText() const
 {
     return state_ == ReadBuf ? "Traces read" : "Traces written";
 }
@@ -119,7 +119,7 @@ int SeisImporter::nextStep()
     if ( state_ == WriteBuf )
     {
 	Threads::MutexLocker lock( lock_ );
-	if ( errmsg_.str() )
+	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
 
 	lock.unLock();
@@ -136,7 +136,7 @@ int SeisImporter::nextStep()
     if ( state_ == ReadWrite )
     {
 	Threads::MutexLocker lock( lock_ );
-	if ( errmsg_.str() )
+	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
 	lock.unLock();
 
@@ -181,7 +181,7 @@ public:
 
     bool execute()
     {
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !writer_.put( trc_ ) )
 	{
 	    errmsg = writer_.errMsg();
@@ -192,8 +192,8 @@ public:
 	    }
 	}
 
-	importer_.reportWrite( errmsg.str() );
-	return !errmsg.str();
+	importer_.reportWrite( errmsg );
+	return errmsg.isEmpty();
     }
 
 
@@ -205,11 +205,11 @@ protected:
 };
 
 
-void SeisImporter::reportWrite( const char* errmsg )
+void SeisImporter::reportWrite( const uiString& errmsg )
 {
     nrwritten_++;
     Threads::MutexLocker lock( lock_ );
-    if ( errmsg )
+    if ( !errmsg.isEmpty() )
     {
 	errmsg_ = errmsg;
 	Threads::WorkManager::twm().emptyQueue( queueid_, false );
@@ -229,7 +229,7 @@ int SeisImporter::doWrite( SeisTrc& trc )
     while ( Threads::WorkManager::twm().queueSize( queueid_ )>maxqueuesize_ )
 	lock_.wait();
 
-    if ( errmsg_.str() )
+    if ( !errmsg_.isEmpty() )
 	return Executor::ErrorOccurred();
 
     lock.unLock();
@@ -321,17 +321,18 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	{
 	    if ( is2d )
 	    {
-		errmsg_ = "Importing stopped at trace number: ";
-		errmsg_ += trc.info().nr;
-		errmsg_ += "\nbecause before this trace, the rule was:\n";
+		errmsg_ = uiString("Importing stopped at trace number: %1"
+			    "\nbecause before this trace, the rule was:\n%2")
+		.arg( toString(trc.info().nr) ).arg( sorting_->description() );
 	    }
 	    else
 	    {
-		errmsg_ = "Importing stopped because trace position found: ";
-		errmsg_ += bid.toString();
-		errmsg_ += "\nviolates previous trace sorting:\n";
+		errmsg_ = uiString( "Importing stopped because trace position "
+				    "found: %1 \nviolates previous trace "
+				    "sorting:\n%2")
+		    .arg( bid.toString() ).arg( sorting_->description() );
 	    }
-	    errmsg_ += sorting_->description();
+
 	    rv = false;
 	}
     }

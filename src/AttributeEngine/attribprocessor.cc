@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
-Processor::Processor( Desc& desc , const char* lk, BufferString& err )
+Processor::Processor( Desc& desc , const char* lk, uiString& err )
     : Executor("Attribute Processor")
     , desc_(desc)
     , provider_(Provider::create(desc,err))
@@ -81,10 +81,10 @@ int Processor::nextStep()
     if ( !isinited_ )
 	init();
 
-    if ( errmsg_.size() )
+    if ( !errmsg_.isEmpty() )
 	return ErrorOccurred();
 
-    if ( provider_->errMsg() )
+    if ( !provider_->errMsg().isEmpty() )
     {
 	errmsg_ = provider_->errMsg();
 	return ErrorOccurred();
@@ -98,11 +98,11 @@ int Processor::nextStep()
     if ( res < 0 || !nriter_ )
     {
 	errmsg_ = provider_->errMsg();
-	if ( errmsg_.size() )
+	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
     }
     useshortcuts_ ? useSCProcess( res ) : useFullProcess( res );
-    if ( errmsg_.size() )
+    if ( !errmsg_.isEmpty() )
 	return ErrorOccurred();
 
     provider_->resetMoved();
@@ -414,8 +414,8 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	provider_->setDesiredVolume( possvol );
 	if ( !provider_->getPossibleVolume( -1, possvol ) )
 	{
-	    errmsg_="Not possible to output required attribute in this area.\n";
-	    errmsg_ += "Please confront stepouts/timegates with available data";
+	    errmsg_="Not possible to output required attribute in this area.\n"
+		    "Please confront stepouts/timegates with available data";
 	    return;
 	}
 
@@ -481,8 +481,8 @@ od_int64 Processor::nrDone() const
 { return nrdone_; }
 
 
-const char* Processor::message() const
-{ return errmsg_.isEmpty() ? "Processing" : errmsg_.buf(); }
+uiStringCopy Processor::uiMessage() const
+{ return errmsg_.isEmpty() ? "Processing" : errmsg_; }
 
 
 void Processor::addOutputInterest( int sel )

@@ -60,7 +60,7 @@ public:
 					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
 
-    virtual const char* message() const		{ return msg_; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totalnr_; }
     virtual int		nextStep();
@@ -68,7 +68,7 @@ public:
 protected:
     od_int64		nrdone_;
     od_int64		totalnr_;
-    BufferString	msg_;
+    uiString		msg_;
 
     SeisTrcReader*	rdr_;
     SeisTrcWriter*	wrr_;
@@ -116,14 +116,14 @@ int Seis2DLineCreator::nextStep()
     if ( !rdr_->get(trc) )
     {
 	msg_ = "Error reading input trace\n";
-	msg_.add( rdr_->errMsg() );
+	msg_.append( rdr_->errMsg() );
 	return ErrorOccurred();
     }
 
     if ( !wrr_->put(trc) )
     {
 	msg_ = "Error writing output trace\n";
-	msg_.add( wrr_->errMsg() );
+	msg_.append( wrr_->errMsg() );
 	return ErrorOccurred();
     }
 

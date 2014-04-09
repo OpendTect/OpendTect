@@ -615,15 +615,15 @@ bool StorageProvider::set2DRangeSelData()
 
 
 #define mInitErrMsg() \
-    errmsg_ = "'"; errmsg_ += desc_.userRef(); errmsg_ += "'"; \
-    errmsg_ += " contains no data in selected area:\n"
+    errmsg_ = uiString("'%1' contains no data in selected area:\n") \
+		  .arg( desc_.userRef() ); \
 
 #define mAdd2ErrMsg(varwrong,s,start,stop) \
     if ( varwrong ) \
     { \
-	errmsg_ += s; errmsg_ += " range is: "; \
-	errmsg_ += start; errmsg_ += "-"; errmsg_ += stop; \
-	errmsg_ += "\n"; \
+	errmsg_.append( uiString( "%1 range is: %2-%3\n").arg( s ) \
+			 .arg( toString(start) ) \
+			 .arg( toString(stop) ) ); \
     }
 
 bool StorageProvider::checkDesiredVolumeOK()
@@ -665,8 +665,8 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef();
-	errmsg_ += "'"; errmsg_ += " has no desired volume\n";
+	errmsg_ = uiString("internal error, '%1' "" has no desired volume\n")
+		      .arg( desc_.userRef() );
 	return false;
     }
 

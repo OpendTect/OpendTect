@@ -87,10 +87,10 @@ public:
 			~SeisIOSimple();
 
     int			nextStep();
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     od_int64		nrDone() const;
     od_int64		totalNr() const;
-    const char*		nrDoneText() const;
+   uiStringCopy 	uiNrDoneText() const;
 
 protected:
 
@@ -108,7 +108,7 @@ protected:
     int			offsnr_;
     int			prevnr_;
     BinID		prevbid_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     const bool		zistm_;
 
     void		startImpRead();

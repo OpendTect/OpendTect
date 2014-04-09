@@ -39,7 +39,7 @@ class SeisTrcWriter;
   */
 
 mExpClass(Seis) SeisBayesClass : public Executor
-{
+{ mODTextTranslationClass(SeisBayesClass)
 public:
 
     				SeisBayesClass(const IOPar&);
@@ -54,7 +54,7 @@ public:
     static const char*		sKeyPreScale();
 
     int				nextStep();
-    const char*			message() const;
+    uiStringCopy		uiMessage() const;
     const char*			nrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
@@ -81,7 +81,7 @@ protected:
     const bool			needclass_;
     od_int64			nrdone_;
     od_int64			totalnr_;
-    BufferString		msg_;
+    uiString			msg_;
     BufferStringSet		pdfnames_;
     int				initstep_;
     mutable TypeSet<float>	pdfinpvals_;

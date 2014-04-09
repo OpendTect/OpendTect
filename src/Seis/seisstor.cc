@@ -264,7 +264,7 @@ bool Seis::ODSeqInp::usePar( const IOPar& iop )
     {
 	rdr_ = new SeisTrcReader;
 	rdr_->usePar( iop );
-	if ( rdr_->errMsg() )
+	if ( !rdr_->errMsg().isEmpty() )
 	{
 	    errmsg_ = rdr_->errMsg();
 	    delete rdr_; rdr_ = 0;
@@ -383,7 +383,7 @@ bool Seis::ODSeqOut::usePar( const IOPar& iop )
     if ( wrr_ ) delete wrr_;
     IOObj* i = 0; wrr_ = new SeisTrcWriter( i );
     wrr_->usePar( iop );
-    if ( wrr_->errMsg() )
+    if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
 	delete wrr_; wrr_ = 0;

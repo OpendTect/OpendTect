@@ -120,17 +120,16 @@ ChainExecutor::~ChainExecutor()
 }
 
 
-const char* ChainExecutor::errMsg() const
-{ return errmsg_.str(); }
+uiStringCopy ChainExecutor::errMsg() const
+{ return errmsg_; }
 
 
 #define mGetStep( var, id, errret ) \
 Step* var = chain_.getStepFromID( id ); \
 if ( !var ) \
 { \
-    errmsg_ = "Cannot find output step with id "; \
-    errmsg_ += id; \
-    errmsg_ += "."; \
+    errmsg_ = uiString("Cannot find output step with id %1") \
+		  .arg( toString(id) ); \
     return errret; \
 }
 
@@ -481,22 +480,22 @@ od_int64 ChainExecutor::nrDone() const
 }
 
 
-const char* ChainExecutor::nrDoneText() const
-{ return curepoch_ ? curepoch_->getTask().nrDoneText() : "Positions done"; }
+uiStringCopy ChainExecutor::uiNrDoneText() const
+{ return curepoch_ ? curepoch_->getTask().uiNrDoneText() : "Positions done"; }
 
 
 od_int64 ChainExecutor::totalNr() const
 { return 100; }
 
 
-const char* ChainExecutor::message() const
+uiStringCopy ChainExecutor::uiMessage() const
 {
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
 
     //Threads::Locker lckr( curtasklock_ );
     if ( curepoch_ )
-	return curepoch_->getTask().message();
+	return curepoch_->getTask().uiMessage();
     return 0;
 }
 
@@ -856,8 +855,8 @@ bool Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
 }
 
 
-const char* Chain::errMsg() const
-{ return errmsg_.str(); }
+uiStringCopy Chain::errMsg() const
+{ return errmsg_; }
 
 
 void Chain::Web::getConnections( Step::ID stepid, bool isinput,

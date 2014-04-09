@@ -65,7 +65,7 @@ protected:
 
     int                 nrdone_;
     mutable int         totnr_;
-    BufferString        errmsg_;
+    uiString		errmsg_;
     const char*		fullusrexp_;
 
     Interpol		interpol_;

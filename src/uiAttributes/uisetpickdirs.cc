@@ -272,9 +272,9 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 	    tmpspec.setIDFromRef(nlamdl_);
 	    aem.setAttribSpec( tmpspec );
 	    DescID nlaid(-1, false);
-	    BufferString errmsg;
+	    uiString errmsg;
 	    createdset_ = aem.createNLAADS( nlaid, errmsg, ads_ );
-	    if ( errmsg.size() ) mErrRet( errmsg );
+	    if ( !errmsg.isEmpty() ) mErrRet( errmsg );
 	    ids += nlaid;
 	    continue;
 	}
@@ -311,7 +311,7 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
 
 bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
 {
-    BufferString errmsg; Attrib::EngineMan aem;
+    uiString errmsg; Attrib::EngineMan aem;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr =
 		    aem.getTableExtractor( locations, *createdset_, errmsg );

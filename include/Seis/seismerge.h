@@ -35,10 +35,10 @@ public:
 			SeisMerger(const IOPar&);	//For post-processing
     virtual		~SeisMerger();
 
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     od_int64		nrDone() const		{ return nrpos_; }
     od_int64		totalNr() const		{ return totnrpos_; }
-    const char*		nrDoneText() const	{ return "Positions handled"; }
+    uiStringCopy	uiNrDoneText() const	{ return "Positions handled"; }
     int			nextStep();
     void		setScaler(Scaler*);
 
@@ -52,7 +52,7 @@ protected:
     int				currdridx_;
     int				nrpos_;
     int				totnrpos_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     BinID			curbid_;
     SeisTrcBuf&			trcbuf_;

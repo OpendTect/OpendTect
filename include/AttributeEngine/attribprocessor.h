@@ -35,7 +35,7 @@ mExpClass(AttributeEngine) Processor : public Executor
 {
 public:
 				Processor(Desc&,const char* linenm,
-					  BufferString&);
+					  uiString& errmsg);
 				~Processor();
 
     virtual bool		isOK() const;
@@ -46,8 +46,8 @@ public:
     void			init();
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    const char*         	message() const;
-    const char*			nrDoneText() const
+    uiStringCopy		uiMessage() const;
+    uiStringCopy		uiNrDoneText() const
     				{ return "Positions processed"; }
 
     void			addOutputInterest(int sel);
@@ -84,7 +84,7 @@ protected:
     int			nrdone_;
     bool 		is2d_;
     TypeSet<int>	outpinterest_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     bool		isinited_;
     bool		useshortcuts_;
 

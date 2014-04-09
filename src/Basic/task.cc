@@ -99,6 +99,19 @@ bool Task::shouldContinue()
 }
 
 
+
+uiStringCopy Task::uiMessage() const
+{
+    return message();
+}
+
+
+uiStringCopy Task::uiNrDoneText() const
+{
+    return nrDoneText();
+}
+
+
 TaskGroup::TaskGroup()
     : curtask_(-1)
     , lock_(true)
@@ -131,17 +144,21 @@ od_int64 TaskGroup::totalNr() const
 }
 
 
-const char* TaskGroup::message() const
+uiStringCopy TaskGroup::uiMessage() const
 {
     Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->message() : 0;
+    return tasks_.validIdx(curtask_)
+	? tasks_[curtask_]->uiMessage()
+	: 0;
 }
 
 
-const char* TaskGroup::nrDoneText() const
+uiStringCopy TaskGroup::uiNrDoneText() const
 {
     Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDoneText() : 0;
+    return tasks_.validIdx(curtask_)
+	? tasks_[curtask_]->uiNrDoneText()
+	: 0;
 }
 
 

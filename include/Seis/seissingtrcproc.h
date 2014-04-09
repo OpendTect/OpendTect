@@ -58,8 +58,8 @@ public:
     void		setTracesPerStep( int n ) { trcsperstep_ = n; }
     			//!< default is 10
 
-    virtual const char*	message() const;
-    virtual const char*	nrDoneText() const;
+    uiStringCopy	uiMessage() const;
+    uiStringCopy	uiNrDoneText() const;
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
     virtual int		nextStep();
@@ -89,7 +89,7 @@ protected:
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
     BufferString	msg_;
-    BufferString	curmsg_;
+    uiString		curmsg_;
     bool		skipcurtrc_;
     int			nrwr_;
     int			nrskipped_;

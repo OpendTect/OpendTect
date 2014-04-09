@@ -14,10 +14,12 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "uistring.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
 class FilePath;
 class StreamData;
+
 
 
 /*!\brief OD base class for stream read/write
@@ -49,7 +51,7 @@ then isOK() will be your choice anyway.
 
 
 mExpClass(Basic) od_stream
-{
+{ mODTextTranslationClass(od_stream);
 public:
 
     typedef od_stream_Count	Count;
@@ -60,8 +62,8 @@ public:
     bool			isOK() const;	//!< eof is not OK
     bool			isBad() const;	//!< eof is not Bad
 
-    const char*			errMsg() const;
-				//!< see also below. Returns 0 if empty
+    uiString			errMsg() const;
+				//!< see also below.
     bool			forRead() const;
     bool			forWrite() const;
 
@@ -81,8 +83,12 @@ public:
     void			close();
 
     void			addErrMsgTo(BufferString&) const;
+    void			addErrMsgTo(uiString&)const;
     static od_stream*		create(const char*,bool forread,
 					BufferString& errmsg);
+				//!< returns null on failure, never a bad stream
+    static od_stream*		create(const char*,bool forread,
+					   uiString& errmsg);
 				//!< returns null on failure, never a bad stream
     static const char*		sStdIO();
 				//!< pass this as filename to get cin or cout
@@ -102,7 +108,7 @@ protected:
     StreamData&		sd_;
     bool		mine_;
     bool		noclose_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
 };
 

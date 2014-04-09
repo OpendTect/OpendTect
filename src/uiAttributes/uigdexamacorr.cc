@@ -59,7 +59,7 @@ GapDeconACorrView::~GapDeconACorrView()
 
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 

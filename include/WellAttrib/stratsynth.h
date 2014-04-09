@@ -98,7 +98,7 @@ public:
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
-    const char* 	errMsg() const;
+    uiStringCopy	errMsg() const;
     const char* 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 
@@ -114,7 +114,7 @@ protected:
     int				lastsyntheticid_;
     const Wavelet*		wvlt_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     BufferString		infomsg_;
     TaskRunner*			tr_;
 

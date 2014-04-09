@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "attribdescid.h"
 #include "attribsel.h"
+#include "uistring.h"
 
 class BinIDValueSet;
 class BufferStringSet;
@@ -43,22 +44,22 @@ class Data2DHolder;
 */
 
 mExpClass(AttributeEngine) EngineMan
-{
+{ mODTextTranslationClass(Attrib::EngineMan);
 public:
 			EngineMan();
     virtual		~EngineMan();
 
     Processor*		usePar(const IOPar&,DescSet&,
-	    		       const char* linename,BufferString&); 
+			       const char* linename,uiString&);
 
     static Processor*	createProcessor(const DescSet&,const char*,
-	    				const DescID&,BufferString&);
+					const DescID&,uiString& errmsg);
     static void		getPossibleVolume(DescSet&,CubeSampling&,
 	    				  const char* linename,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
-	    			   const NLAModel*,BufferString&);
+				   const NLAModel*,uiString&);
 
-    SeisTrcStorOutput* 	createOutput(const IOPar&,const LineKey&,BufferString&);
+    SeisTrcStorOutput*	createOutput(const IOPar&,const LineKey&,uiString&);
 
     const DescSet* 	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
@@ -73,12 +74,12 @@ public:
     void		setCubeSampling(const CubeSampling&);
     void		setLineKey( const char* lk )	{ linekey_ = lk; }
     void		setUndefValue( float v )	{ udfval_ = v; }
-    DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
+    DescSet*		createNLAADS(DescID& outid,uiString& errmsg,
 	    			     const DescSet* addtoset=0);
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
-	    				  BufferString&);
+					  uiString&);
 
-    Processor*		createDataCubesOutput(BufferString& errmsg,
+    Processor*		createDataCubesOutput(uiString& errmsg,
 	    			      	      const DataCubes* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
@@ -87,30 +88,31 @@ public:
     Executor* 		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
 
-    Processor*		createScreenOutput2D(BufferString& errmsg,
+    Processor*		createScreenOutput2D(uiString& errmsg,
 	    				     Data2DHolder&);
-    Processor*		createLocationOutput(BufferString& errmsg,
+    Processor*		createLocationOutput(uiString& errmsg,
 					     ObjectSet<BinIDValueSet>&);
 
-    Processor*		createTrcSelOutput(BufferString& errmsg,
+    Processor*		createTrcSelOutput(uiString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
 	    				   SeisTrcBuf&, float outval=0,
 					   Interval<float>* cubezbounds=0,
 					   TypeSet<BinID>* trueknotspos=0,
 					   TypeSet<BinID>* path=0);
-    Processor*		create2DVarZOutput(BufferString& errmsg,
+    Processor*		create2DVarZOutput(uiString& errmsg,
 	    				   const IOPar& pars,
 	    				   DataPointSet* bidvalset,
 	    				   float outval=0,
 					   Interval<float>* cubezbounds = 0);
     Processor*		getTableOutExecutor(DataPointSet& datapointset,
-	    				    BufferString& errmsg,int firstcol);
+					    uiString& errmsg,
+					    int firstcol);
     Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&,
-	    				  BufferString& errmsg,int firstcol =0,
+					  uiString& errmsg,int firstcol =0,
 					  bool needprep=true);
     static bool		ensureDPSAndADSPrepared(DataPointSet&,
 	    					const Attrib::DescSet&,
-						BufferString&);
+						uiString& errmsg);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;
@@ -129,7 +131,7 @@ protected:
     int			curattridx_;
     TypeSet<SelSpec>	attrspecs_;
 
-    Processor*		getProcessor(BufferString& err);
+    Processor*		getProcessor(uiString& err);
     void		setExecutorName(Executor*);
 
 private:

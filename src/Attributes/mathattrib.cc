@@ -132,7 +132,7 @@ Attrib::Math::Math( Desc& dsc )
 
     ::Math::ExpressionParser mep( expr->getStringValue() );
     expression_ = mep.parse();
-    errmsg_ += mep.errMsg();
+    errmsg_ = mep.errMsg();
     if ( mep.errMsg() ) return;
 
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())

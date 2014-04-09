@@ -31,7 +31,8 @@ static bool fnnm() \
 	od_cout() << #fnnm << "[" << #cond << "]" \
 		  << (isok ? " OK" : " Fail") << od_endl; \
 	if ( strm.isBad() ) \
-		od_cout() << "\terrmsg=" << strm.errMsg() << od_endl; \
+		od_cout() << "\terrmsg=" << strm.errMsg().getFullString() \
+			  << od_endl; \
     } \
     return isok; \
 }

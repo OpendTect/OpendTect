@@ -17,6 +17,8 @@ Trace storage objects handle seismic data storage.
 
 #include "seismod.h"
 #include "seisinfo.h"
+#include "uistring.h"
+
 class Conn;
 class IOObj;
 class Translator;
@@ -41,8 +43,7 @@ public:
     Seis::GeomType	geomType() const
 			{ return Seis::geomTypeOf(is2D(),isPS()); }
 
-    const char*		errMsg() const
-			{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
     int			tracesHandled() const
 			{ return nrtrcs_; }
 
@@ -95,7 +96,7 @@ protected:
     Seis2DDataSet*		dataset_;
     Seis::SelData*		seldata_;
     const SeisPSIOProvider*	psioprov_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     SeisTrcTranslator*		strl() const;
 

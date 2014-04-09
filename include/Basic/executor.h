@@ -83,15 +83,16 @@ public:
     virtual void	add( Executor* );
     			/*!< You will become mine if ownsexecs_ is true!! */
 
-    virtual const char*	message() const;
+    uiStringCopy	uiMessage() const;
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    virtual const char*	nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
     
     int			nrExecutors() { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }
 
-    void		setNrDoneText(const char* txt) { nrdonetext_ = txt; }
+    void		setNrDoneText(const uiString& txt)
+			{ nrdonetext_ = txt; }
     			//!< If set, will use this and the counted nrdone
 
 protected:
@@ -104,7 +105,7 @@ protected:
     int			sumstop_;
     const bool		parallel_;
     int			currentexec_;
-    BufferString	nrdonetext_;
+    uiString		nrdonetext_;
     ObjectSet<Executor>& executors_;
     TypeSet<int>	executorres_;
     bool		ownsexecs_;

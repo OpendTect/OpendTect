@@ -158,9 +158,9 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     else
     {
 	sfio.closeFail();
-	const BufferString errmsg(
-		"Error writing Cross-plot Selection index file.\n",
-		sfio.ostrm().errMsg() );
+	const uiString errmsg = uiString(
+		"Error writing Cross-plot Selection index file.\n%1")
+		    .arg( sfio.ostrm().errMsg() );
 	uiMSG().error( errmsg );
 	return false;
     }

@@ -296,7 +296,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 #define mErrRet(s) \
 { \
     if ( dps ) mDPM.release(dps->id()); \
-    if ( s ) uiMSG().error(s); return false; \
+    if ( !s.isEmpty() ) uiMSG().error(s); return false; \
 }
 
 bool uiAttribCrossPlot::acceptOK( CallBacker* )
@@ -304,7 +304,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     DataPointSet* dps = 0;
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
-	mErrRet("Internal: no Pos::Provider")
+	mErrRet(uiString("Internal: no Pos::Provider"))
 
     mDynamicCastGet(Pos::Provider2D*,p2d,prov.ptr())
     BufferStringSet linenames;
@@ -329,8 +329,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	}
     }
 
-    uiTaskRunner tr( this );
-    if ( !prov->initialize( &tr ) )
+    uiTaskRunner taskrunner( this );
+    if ( !prov->initialize( &taskrunner ) )
 	return false;
 
     ObjectSet<DataColDef> dcds;
@@ -342,20 +342,20 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     }
 
     if ( dcds.isEmpty() )
-	mErrRet("Please select at least one attribute to evaluate")
+	mErrRet(tr("Please select at least one attribute to evaluate"))
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
     MouseCursorManager::restoreOverride();
-    if ( filt && !filt->initialize(&tr) )
+    if ( filt && !filt->initialize(&taskrunner) )
 	return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( *prov, dcds, filt );
     MouseCursorManager::restoreOverride();
     if ( dps->isEmpty() )
-	mErrRet("No positions selected")
+	mErrRet(tr("No positions selected"))
 
     BufferString dpsnm; prov->getSummary( dpsnm );
     if ( filt )
@@ -369,7 +369,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
     mDPM.addAndObtain( dps );
 
-    BufferString errmsg; Attrib::EngineMan aem;
+    uiString errmsg; Attrib::EngineMan aem;
     //if ( lnmfld_ )
 	//aem.setLineKey( lnmfld_->getInput() );
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -377,7 +377,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
-    if ( !TaskRunner::execute( &tr, *tabextr ) )
+    if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
     {
 	mDPM.release( dps->id() );
 	return false;

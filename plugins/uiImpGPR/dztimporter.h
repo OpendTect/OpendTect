@@ -69,7 +69,7 @@ public:
 			Importer(const char* fnm,const IOObj&,const LineKey&);
 			~Importer();
 
-    const char*		message() const		{ return msg_; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
     const char*		nrDoneText() const	{ return "Traces handled"; }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
@@ -91,7 +91,7 @@ protected:
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-    BufferString	msg_;
+    uiString	msg_;
 
     int			closeAll();
 

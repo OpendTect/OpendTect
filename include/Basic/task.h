@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "threadlock.h"
+#include "uistring.h"
 
 class ProgressMeter;
 namespace Threads { class ConditionVar; }
@@ -41,8 +42,9 @@ public:
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
 			         progress. */
-    virtual const char*	message() const			{ return "Working"; }
-    virtual const char*	nrDoneText() const		{ return "Nr Done"; }
+
+    virtual uiStringCopy uiMessage() const;
+    virtual uiStringCopy uiNrDoneText() const;
 
     virtual bool	execute()			= 0;
 
@@ -59,6 +61,9 @@ protected:
     Control			control_;
     Threads::ConditionVar*	workcontrolcondvar_;
 
+public:
+    virtual const char* message() const 		{ return "Working"; }
+    virtual const char* nrDoneText() const		{ return "Nr Done"; }
 };
 
 
@@ -78,8 +83,8 @@ public:
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
 
-    virtual const char*	message() const;
-    virtual const char*	nrDoneText() const;
+    uiStringCopy	uiMessage() const;
+    uiStringCopy	uiNrDoneText() const;
 
     virtual bool	execute();
 

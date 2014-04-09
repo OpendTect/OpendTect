@@ -28,7 +28,7 @@ namespace Attrib { class DescSet; }
 
 
 mExpClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiWellLogExtractGrp);
 public:
 
     struct Setup

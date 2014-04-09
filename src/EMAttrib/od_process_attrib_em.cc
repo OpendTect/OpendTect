@@ -67,7 +67,7 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
     DescSet initialset( false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
     if ( !initialset.usePar(*attribs) )
-	mErrRet( initialset.errMsg() )
+	mErrRet( initialset.errMsg().getFullString() )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
     const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
@@ -198,8 +198,8 @@ static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
-		    BufferString err = writer->errMsg()
-			?  writer->errMsg()
+		    BufferString err = !writer->errMsg().isEmpty()
+			?  writer->errMsg().getFullString()
 			: "ERROR: no trace computed";
 		    mErrRet( err );
 		}
@@ -230,7 +230,7 @@ static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 	if ( !useoutwfunc && tbuf )
 	{
 	    if ( !writer->put(*(tbuf->get(0))) )
-	    { mErrRet( writer->errMsg() ); }
+	    { mErrRet( writer->errMsg().getFullString() ); }
 
 	    SeisTrc* trc = tbuf->remove(0);
 	    delete trc;
@@ -408,7 +408,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !attribs ) mErrRetNoProc( "No Attributes specified" );
 
     if ( !attribset.usePar(*attribs) )
-	mErrRetNoProc( attribset.errMsg() )
+	mErrRetNoProc( attribset.errMsg().getFullString() )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !output ) mErrRetNoProc( "No output specified" );
@@ -452,8 +452,9 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
-	Processor* proc = aem.createLocationOutput( errmsg, bivs );
-	if ( !proc ) mErrRet( errmsg );
+	uiString uierrmsg;
+	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
+	if ( !proc ) mErrRet( uierrmsg.getFullString() );
 
 	if ( !process( strm, proc, false ) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
@@ -539,12 +540,13 @@ bool BatchProgram::go( od_ostream& strm )
 	}
 
 	SeisTrcBuf seisoutp( false );
+	uiString uierrmsg;
 	Processor* proc =
-	    is2d ? aem.create2DVarZOutput( errmsg, pars(), dtps, outval,
+	    is2d ? aem.create2DVarZOutput( uierrmsg, pars(), dtps, outval,
 					   zboundsset ? &zbounds : 0 )
-		 : aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
+		 : aem.createTrcSelOutput( uierrmsg, bivs, seisoutp, outval,
 					   zboundsset ? &zbounds : 0 );
-	if ( !proc ) mErrRet( errmsg );
+	if ( !proc ) mErrRet( uierrmsg.getFullString() );
 	if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
 
 	delete dtps;

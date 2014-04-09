@@ -74,7 +74,8 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 				   const char* linename, const DescID& outid )
 {
     TypeSet<DescID> desiredids(1,outid);
-    BufferString errmsg;
+
+    uiString errmsg;
     DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
     PtrMan<Processor> proc =
 			createProcessor( attribset, linename, evalid, errmsg );
@@ -87,7 +88,7 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 
 
 Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
-			      const char* linename, BufferString& errmsg )
+			      const char* linename, uiString& errmsg )
 {
     int outputidx = 0;
     TypeSet<DescID> ids;
@@ -177,7 +178,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
 Processor* EngineMan::createProcessor( const DescSet& attribset,
 				       const char* linename,const DescID& outid,
-				       BufferString& errmsg )
+				       uiString& errmsg )
 {
     Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
     if ( !targetdesc ) return 0;
@@ -231,7 +232,7 @@ void EngineMan::setExecutorName( Executor* ex )
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    const LineKey& lkey,
-					    BufferString& errmsg )
+					    uiString& errmsg )
 {
     const FixedString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
@@ -392,7 +393,7 @@ void EngineMan::setCubeSampling( const CubeSampling& newcs )
 }
 
 
-DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
+DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
 				  const DescSet* addtoset )
 {
     if ( attrspecs_.isEmpty() ) return 0;
@@ -422,24 +423,24 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
 
 void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			    DescSet& descset, int outputnr,
-			    const NLAModel* nlamdl, BufferString& errmsg )
+			    const NLAModel* nlamdl, uiString& errmsg )
 {
     RefMan<Desc> desc = PF().createDescCopy( "NN" );
     desc->setDescSet( &descset );
 
     if ( !desc->parseDefStr(specstr) )
     {
-	errmsg = "Invalid definition string for NLA model:\n";
-	errmsg += specstr;
+	errmsg = tr("Invalid definition string for NLA model:\n%1")
+		    .arg( specstr );
 	return;
     }
     desc->setHidden( true );
 
     // Need to make a Provider because the inputs and outputs may
     // not be known otherwise
-    const char* emsg = Provider::prepare( *desc );
-    if ( emsg )
-	{ errmsg = emsg; return; }
+    errmsg = Provider::prepare( *desc );
+    if ( !errmsg.isEmpty() )
+	{ return; }
 
     const int nrinputs = desc->nrInputs();
     for ( int idx=0; idx<nrinputs; idx++ )
@@ -465,9 +466,8 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		    descid = descset.addDesc( stordesc );
 		    if ( !descid.isValid() )
 		    {
-			errmsg = "NLA input '";
-			errmsg += inpname;
-			errmsg += "' cannot be found in the provided set.";
+			errmsg = tr("NLA input '%1' cannot be found in "
+				    "the provided set.").arg( inpname );
 			return;
 		    }
 		}
@@ -479,8 +479,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     if ( outputnr > desc->nrOutputs() )
     {
-	errmsg = "Output "; errmsg += outputnr;
-	errmsg += " not present.";
+	errmsg = tr("Output %1 not present.").arg( toString(outputnr) );
 	return;
     }
 
@@ -496,7 +495,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
 DescID EngineMan::createEvaluateADS( DescSet& descset,
 				     const TypeSet<DescID>& outids,
-				     BufferString& errmsg )
+				     uiString& errmsg )
 {
     if ( outids.isEmpty() ) return DescID::undef();
     if ( outids.size() == 1 ) return outids[0];
@@ -536,7 +535,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 #define mStepEps 1e-3
 
 
-Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
+Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 					    Data2DHolder& output )
 {
     Processor* proc = getProcessor( errmsg );
@@ -560,7 +559,7 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
 
 #define mRg(dir) (cachecs.dir##rg)
 
-Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
+Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 					    const DataCubes* prev )
 {
     if ( cache_ )
@@ -704,39 +703,40 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     ObjectSet<BinIDValueSet>& bvs =
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
 
-    proc = aem.createLocationOutput( errmsg, bvs );
+    proc_ = aem.createLocationOutput( errmsg_, bvs );
 }
 
-~AEMFeatureExtracter()		{ delete proc; }
+~AEMFeatureExtracter()		{ delete proc_; }
 
-od_int64 totalNr() const	{ return proc ? proc->totalNr() : -1; }
-od_int64 nrDone() const		{ return proc ? proc->nrDone() : 0; }
-const char* nrDoneText() const	{ return proc ? proc->nrDoneText() : ""; }
+od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
+od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
+uiStringCopy uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
 
-const char* message() const
+uiStringCopy uiMessage() const
 {
-    return *(const char*)errmsg ? errmsg.buf()
-	: (proc ? proc->message() : "Cannot create output");
+    return !errmsg_.isEmpty()
+	? errmsg_
+	: (proc_ ? proc_->uiMessage() : "Cannot create output" );
 }
 
-int haveError( const char* msg )
+int haveError( const uiString& msg )
 {
-    if ( msg ) errmsg = msg;
+    if ( !msg.isEmpty() ) errmsg_ = msg;
     return -1;
 }
 
 int nextStep()
 {
-    if ( !proc ) return haveError( 0 );
+    if ( !proc_ ) return haveError( 0 );
 
-    int rv = proc->doStep();
+    int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc->message() );
+    return haveError( proc_->uiMessage() );
 }
 
-    BufferString		errmsg;
-    Processor*			proc;
-    TypeSet<DescID>		outattribs;
+    uiString			errmsg_;
+    Processor*			proc_;
+    TypeSet<DescID>		outattribs_;
 };
 
 
@@ -818,7 +818,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 }
 
 
-Processor* EngineMan::createLocationOutput( BufferString& errmsg,
+Processor* EngineMan::createLocationOutput( uiString& errmsg,
 					    ObjectSet<BinIDValueSet>& bidzvset )
 {
     if ( bidzvset.size() == 0 ) return 0;
@@ -869,45 +869,46 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	aem.attrspecs_.addIfNew( ss );
     }
 
-    proc = aem.getTableOutExecutor( datapointset, errmsg, firstcol );
+    proc_ = aem.getTableOutExecutor( datapointset, errmsg_, firstcol );
 }
 
-~AEMTableExtractor()		{ delete proc; }
+~AEMTableExtractor()		{ delete proc_; }
 
-od_int64 totalNr() const	{ return proc ? proc->totalNr() : -1; }
-od_int64 nrDone() const		{ return proc ? proc->nrDone() : 0; }
-const char* nrDoneText() const	{ return proc ? proc->nrDoneText() : ""; }
+od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
+od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
+uiStringCopy uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
 
-const char* message() const
+uiStringCopy uiMessage() const
 {
-    return *(const char*)errmsg ? errmsg.buf()
-	: (proc ? proc->message() : "Cannot create output");
+    return !errmsg_.isEmpty()
+	? errmsg_
+	: (proc_ ? proc_->Task::uiMessage() : "Cannot create output");
 }
 
-int haveError( const char* msg )
+int haveError( const uiString& msg )
 {
-    if ( msg ) errmsg = msg;
+    if ( !msg.isEmpty() ) errmsg_ = msg;
     return -1;
 }
 
 int nextStep()
 {
-    if ( !proc ) return haveError( 0 );
+    if ( !proc_ ) return haveError( 0 );
 
-    int rv = proc->doStep();
+    int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc->message() );
+    return haveError( proc_->uiMessage() );
 }
 
-    BufferString		errmsg;
-    Processor*			proc;
-    TypeSet<DescID>		outattribs;
+    uiString			errmsg_;
+    Processor*			proc_;
+    TypeSet<DescID>		outattribs_;
 };
 
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 					const Attrib::DescSet& descset,
-					BufferString& errmsg, int firstcol,
+					uiString& errmsg, int firstcol,
 					bool needprep )
 {
     if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
@@ -916,14 +917,14 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
     setAttribSet( &descset );
     AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
 						      descset, firstcol );
-    if ( tabex && !tabex->errmsg.isEmpty() )
-	errmsg = tabex->errmsg;
+    if ( tabex && !tabex->errmsg_.isEmpty() )
+	errmsg = tabex->errmsg_.getFullString();
     return tabex;
 }
 
 
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
-					   BufferString& errmsg, int firstcol )
+					   uiString& errmsg, int firstcol )
 {
     if ( !datapointset.size() ) return 0;
 
@@ -945,7 +946,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 
 #define mErrRet(s) { errmsg = s; return 0; }
 
-Processor* EngineMan::getProcessor( BufferString& errmsg )
+Processor* EngineMan::getProcessor( uiString& errmsg )
 {
     if ( procattrset_ )
 	{ delete procattrset_; procattrset_ = 0; }
@@ -976,7 +977,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     {
 	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset_ = createNLAADS( nlaid, errmsg );
-	if ( *(const char*)errmsg )
+	if ( !errmsg.isEmpty() )
 	    mErrRet(errmsg)
 	outid = nlaid;
     }
@@ -997,7 +998,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 }
 
 
-Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
+Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
 					  Interval<float>* cubezbounds,
@@ -1023,7 +1024,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 }
 
 
-Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
+Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  const IOPar& pars,
 					  DataPointSet* datapointset,
 					  float outval,
@@ -1062,7 +1063,7 @@ int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 
 bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 					 const Attrib::DescSet& descset,
-					 BufferString& errmsg )
+					 uiString& errmsg )
 {
     BufferStringSet attrrefs;
     descset.fillInAttribColRefs( attrrefs );

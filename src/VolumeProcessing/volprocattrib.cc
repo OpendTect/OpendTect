@@ -70,8 +70,7 @@ void VolProcAttrib::prepareForComputeData()
 	errmsg_ = "Cannot read processing setup.";
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_ += " Reason given: ";
-	    errmsg_ += errmsg;
+	    errmsg_.append(uiString(" Reason given: %1").arg( errmsg ) );
 	}
 
 	return;
@@ -94,7 +93,7 @@ void VolProcAttrib::prepareForComputeData()
 
     if ( !executor_->execute() )
     {
-	if ( executor_->errMsg() )
+	if ( !executor_->errMsg().isEmpty() )
 	    errmsg_ = executor_->errMsg();
 	else
 	    errmsg_ = "Error while calculating.";
@@ -191,8 +190,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 	errmsg_ = "Cannot read processing setup.";
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_ += " Reason given: ";
-	    errmsg_ += errmsg;
+	    errmsg_.append( uiString( " Reason given: %1").arg( errmsg ) );
 	}
 
 	return false;
@@ -206,7 +204,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 						     DataPack::ID dpid,
-						     TaskRunner* tr )
+						     TaskRunner* taskrunner )
 {
     if ( !chain_ || !chain_->nrSteps() )
     {
@@ -227,9 +225,9 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	return DataPack::cNoID();
     }
 
-    if ( !TaskRunner::execute(tr,executor) )
+    if ( !TaskRunner::execute(taskrunner,executor) )
     {
-	if ( executor.errMsg() )
+	if ( !executor.errMsg().isEmpty() )
 	    errmsg_ = executor.errMsg();
 	else
 	    errmsg_ = "Error while calculating.";

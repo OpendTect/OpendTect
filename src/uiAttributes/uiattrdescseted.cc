@@ -708,7 +708,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	    if ( !newdesc ) return false;
 
 	    attrset_->removeDesc( id );
-	    if ( attrset_->errMsg() )
+	    if ( !attrset_->errMsg().isEmpty() )
 	    {
 		uiMSG().error( attrset_->errMsg() );
 		newdesc->unRef();

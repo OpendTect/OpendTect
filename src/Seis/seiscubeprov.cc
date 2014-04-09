@@ -282,10 +282,10 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	switch ( rv )
 	{
 	case 1:		break;
-	case -1:	errmsg_ = rdr_.errMsg();	return -1;
-	case 0:						return 0;
+	case -1:	errmsg_ = rdr_.errMsg();		return -1;
+	case 0: 						 return 0;
 	case 2:
-	default:					return 2;
+	default:						 return 2;
 	}
 
 	if ( rdr_.get(trc) )
@@ -297,7 +297,7 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 		msg += trc.info().nr;
 	    else
 		msg += trc.info().binid.toString();
-	    msg.add( ": " ).add( rdr_.errMsg() );
+	    msg.add( ": " ).add( rdr_.errMsg().getFullString() );
 	    ErrMsg( msg );
 	}
     }

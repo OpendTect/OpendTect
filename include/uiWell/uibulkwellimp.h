@@ -30,7 +30,7 @@ protected:
 
     void		readFile(od_istream&);
     void		addD2T(BufferString&);
-    void		write(BufferStringSet&);
+    void		write(TypeSet<uiString>&);
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	inpfld_;

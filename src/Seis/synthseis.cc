@@ -545,7 +545,7 @@ bool SynthGenerator::computeReflectivities()
     sampler.doTimeReflectivities();
     bool isok = sampler.execute();
     if ( !isok )
-	mErrRet( sampler.message(), false );
+	mErrRet( sampler.uiMessage().getFullString(), false );
 
     creflectivities_ = sampler.reflectivities( true );
     sampler.getTimeReflectivities( reflectivities_ );

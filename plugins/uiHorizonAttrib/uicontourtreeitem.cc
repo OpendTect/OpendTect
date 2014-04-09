@@ -776,7 +776,7 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
         {
             BufferString errmsg( "Could not save file");
 
-            if ( stream.errMsg() )
+	    if ( stream.errMsg().getFullString() )
                 stream.addErrMsgTo( errmsg );
             else
                 errmsg.add( "." );

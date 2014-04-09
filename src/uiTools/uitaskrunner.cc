@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uilabel.h"
 
+#include "fixedstring.h"
 #include "timer.h"
 #include "uimsg.h"
 #include "thread.h"
@@ -90,7 +91,7 @@ bool uiTaskRunner::execute( Task& t )
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
     prevmessage_ = sKey::EmptyString();
     if ( statusBar() )
-	statusBar()->message( prevmessage_.buf(), 0 );
+	statusBar()->message( prevmessage_, 0 );
     prevnrdonetext_ = prevmessage_;
     execnm_ = task_->name();
 
@@ -127,15 +128,15 @@ void uiTaskRunner::updateFields()
     Threads::Locker lckr( dispinfolock_ );
     const int totalnr = mCast( int, task_->totalNr() );
     const int nrdone = mCast( int, task_->nrDone() );
-    const BufferString nrdonetext = task_->nrDoneText();
+    const uiString nrdonetext = task_->uiNrDoneText();
 #ifdef __debug__
-    if ( nrdonetext=="Nr Done" )
+    if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
     {
         pErrMsg("Nr Done is not an acceptable name in a UI. "
                 "Make class implement nrDoneText");
     }
 #endif
-    const BufferString message = task_->message();
+    const uiString message = task_->uiMessage();
 
     if ( nrdone < 0 )
     {
@@ -145,12 +146,12 @@ void uiTaskRunner::updateFields()
 
     if ( prevmessage_!=message )
     {
-	sb.message( message.buf(), 0 );
+	sb.message( message, 0 );
 	prevmessage_ = message;
     }
     if ( prevnrdonetext_!=nrdonetext )
     {
-	sb.message( nrdonetext.buf(), 1 );
+	sb.message( nrdonetext, 1 );
 	prevnrdonetext_ = nrdonetext;
     }
 
@@ -232,7 +233,7 @@ void uiTaskRunner::timerTick( CallBacker* )
 
     if ( state<1 )
     {
-	BufferString message;
+	uiString message;
 
 	Threads::Locker trlckr( uitaskrunnerthreadlock_,
 				Threads::Locker::DontWaitForLock );
@@ -254,9 +255,9 @@ void uiTaskRunner::timerTick( CallBacker* )
 }
 
 
-BufferString uiTaskRunner::finalizeTask()
+uiString uiTaskRunner::finalizeTask()
 {
-    BufferString message;
+    uiString message;
     if ( thread_ )
     {
 	thread_->waitForFinish();
@@ -264,7 +265,7 @@ BufferString uiTaskRunner::finalizeTask()
 	thread_ = 0;
     }
 
-    if ( task_ ) message = task_->message();
+    if ( task_ ) message = task_->uiMessage();
     task_ = 0;
 
     return message;

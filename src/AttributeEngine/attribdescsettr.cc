@@ -59,7 +59,8 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 
 const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 {
-    warningmsg = "";
+    warningmsg_.setEmpty();
+
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
 
@@ -70,7 +71,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
     ads.removeAll( false );
-    BufferStringSet parseerrmsgs;
+    TypeSet<uiString> parseerrmsgs;
     ads.usePar( iopar, &parseerrmsgs );
 
     if ( ads.isEmpty() )
@@ -81,17 +82,16 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 
     if ( parseerrmsgs.size() )
     {
-	warningmsg = *parseerrmsgs[0];
+	warningmsg_ = parseerrmsgs[0];
 	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
 	for ( int idx=1; idx<nrdispl; idx++ )
 	{
-	    warningmsg += "\n";
-	    warningmsg += *parseerrmsgs[idx];
+	    warningmsg_.append( "\n" );
+	    warningmsg_.append( parseerrmsgs[idx] );
 	}
 	if ( parseerrmsgs.size() > 4 )
 	{
-	    warningmsg += "\n";
-	    warningmsg += "[More warnings omitted]";
+	    warningmsg_.append(tr("\n[More warnings omitted]"));
 	}
     }
 
@@ -102,7 +102,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
 						Conn& conn )
 {
-    warningmsg = "";
+    warningmsg_.setEmpty();
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 

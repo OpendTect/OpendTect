@@ -92,10 +92,10 @@ void ExecutorGroup::findNextSumStop()
     {
 	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
 	{
-	    BufferString nrdonetxt = executors_[idx]->nrDoneText();
-	    BufferString msgtxt = executors_[idx]->message();
-	    if ( nrdonetxt != executors_[idx-1]->nrDoneText() ||
-		 msgtxt != executors_[idx-1]->message() )
+	    if ( executors_[idx]->uiNrDoneText()!=
+		 executors_[idx-1]->uiNrDoneText() ||
+		executors_[idx]->uiMessage()!=
+		 executors_[idx-1]->uiMessage() )
 	    {
 		sumstop_ = idx-1;
 		return;
@@ -158,10 +158,12 @@ bool ExecutorGroup::goToNextExecutor()
 }
 
 
-const char* ExecutorGroup::message() const
+uiStringCopy ExecutorGroup::uiMessage() const
 {
-    return executors_.size() ? executors_[currentexec_]->message()
-			    : Executor::message();
+    if ( executors_.size() )
+	return executors_[currentexec_]->uiMessage();
+
+    return Executor::uiMessage();
 }
 
 
@@ -198,15 +200,17 @@ od_int64 ExecutorGroup::nrDone() const
 }
 
 
-const char* ExecutorGroup::nrDoneText() const
+uiStringCopy ExecutorGroup::uiNrDoneText() const
 {
-    const char* txt = (const char*)nrdonetext_;
-    if ( *txt ) return txt;
+    if ( !nrdonetext_.isEmpty() )
+    {
+	return nrdonetext_;
+    }
 
     if ( executors_.isEmpty() )
-	return Executor::nrDoneText();
+	return Executor::uiNrDoneText();
 
-    return executors_[currentexec_]->nrDoneText();
+    return executors_[currentexec_]->uiNrDoneText();
 }
 
 

@@ -133,9 +133,9 @@ bool uiAttrEMOut::addNLA( DescID& id )
     defstr += nlaid_;
 
     const int outputnr = attrfld_->outputNr();
-    BufferString errmsg;
+    uiString errmsg;
     EngineMan::addNLADesc( defstr, id, ads_, outputnr, nlamodel_, errmsg );
-    if ( errmsg.size() )
+    if ( !errmsg.isEmpty() )
 	mErrRet( errmsg );
 
     return true;

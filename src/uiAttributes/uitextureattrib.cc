@@ -329,7 +329,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const CubeSampling& cs,
     for ( int idx=0; idx<bidset.size(); idx++ )
 	bidvals.add( bidset[idx] );
 
-    BufferString errmsg;
+    uiString errmsg;
     Interval<float> zrg( cs.zrg );
     PtrMan<Processor> proc =
 	aem->createTrcSelOutput( errmsg, bidvals, buf, 0, &zrg );

@@ -448,7 +448,7 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
     if ( !res && errmsg )
-	errmsg->add( copier->message() );
+	errmsg->add( copier->uiMessage().getFullString() );
 #else
 
     BufferString cmd;

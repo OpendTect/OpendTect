@@ -120,7 +120,7 @@ int StratSynthExporter::nextStep()
 }
 
 
-const char* StratSynthExporter::errMsg() const
+uiStringCopy StratSynthExporter::errMsg() const
 { return writer_->errMsg(); }
 
 

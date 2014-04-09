@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
+#include "uistring.h"
+
 class Conn;
 namespace Attrib { class DescSet; }
 
@@ -49,7 +51,8 @@ public:
     static bool		retrieve(Attrib::DescSet&,const IOObj*,BufferString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool		store(const Attrib::DescSet&,const IOObj*,BufferString&);
+    static bool 	store(const Attrib::DescSet&,const IOObj*,
+			      BufferString&);
 			//!< BufferString has errmsg, if any
 };
 
@@ -58,16 +61,18 @@ public:
 \brief Actual Translator class for I/O of DescSet.
 */
 
-mExpClass(AttributeEngine) dgbAttribDescSetTranslator : public AttribDescSetTranslator
-{			     isTranslator(dgb,AttribDescSet)
+mExpClass(AttributeEngine)
+dgbAttribDescSetTranslator : public AttribDescSetTranslator
+{ isTranslator(dgb,AttribDescSet);
+  mODTextTranslationClass(dgbAttribDescSetTranslator);
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
 
     const char*		read(Attrib::DescSet&,Conn&);
-    const char*		warningMsg() const		  { return warningmsg; }
+    const char* 	warningMsg() const {return warningmsg_.getFullString();}
     const char*		write(const Attrib::DescSet&,Conn&);
 
-    BufferString	warningmsg;
+    uiString		warningmsg_;
 };
 
 

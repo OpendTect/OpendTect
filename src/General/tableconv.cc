@@ -69,7 +69,7 @@ const char* Table::ExportHandler::getStrmMsg() const
 {
     if ( strm_.isOK() )
 	return 0;
-    const char* ret = strm_.errMsg();
+    const char* ret = strm_.errMsg().getFullString();
     return ret && *ret ? ret : "Error writing to output";
 }
 

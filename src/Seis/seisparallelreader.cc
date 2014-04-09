@@ -138,7 +138,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 
     if ( !reader->prepareWork() )
     {
-	errmsg_ = reader->errMsg();
+	errmsg_ = reader->errMsg().getFullString();
 	return false;
     }
 

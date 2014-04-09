@@ -63,11 +63,11 @@ void Tut::SeisTools::setRange( const CubeSampling& cs )
 { cs_ = cs; }
 
 
-const char* Tut::SeisTools::message() const
+uiStringCopy Tut::SeisTools::uiMessage() const
 {
     static const char* acts[] = { "Scaling", "Squaring", "Smoothing",
 				  "Changing" };
-    return errmsg_.isEmpty() ? acts[action_] : errmsg_.buf();
+    return errmsg_.isEmpty() ? acts[action_] : errmsg_;
 }
 
 
@@ -122,13 +122,19 @@ int Tut::SeisTools::nextStep()
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
-	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
+    {
+	errmsg_ = rdr_->errMsg();
+	return Executor::ErrorOccurred();
+    }
     else if ( rv == 0 )
 	return Executor::Finished();
     else if ( rv == 1 )
     {
 	if ( !rdr_->get(trcin_) )
-	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
+	{
+	    errmsg_ = rdr_->errMsg();
+	    return Executor::ErrorOccurred();
+	}
 
 	trcout_ = trcin_;
 	handleTrace();

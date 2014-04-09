@@ -306,7 +306,7 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     if ( !editdesc ) return 0;
 
     getParameters( *editdesc );
-    errmsg_ = Provider::prepare( *editdesc );
+    errmsg_ = Provider::prepare( *editdesc ).getFullString();
     editdesc->updateParams();	//needed before getInput to set correct input nr
     getInput( *editdesc );
     getOutput( *editdesc );

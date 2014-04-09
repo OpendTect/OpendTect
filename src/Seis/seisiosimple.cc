@@ -169,7 +169,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	sa = wrr_ = new SeisTrcWriter( ioobj );
     else
 	sa = rdr_ = new SeisTrcReader( ioobj );
-    errmsg_ = sa->errMsg();
+    errmsg_ = sa->errMsg().getFullString();
     if ( !errmsg_.isEmpty() )
 	return;
 
@@ -182,9 +182,13 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     sa->setSelData( seldata );
 
-    strm_ = od_stream::create( data_.fname_, isimp_, errmsg_ );
+    BufferString errmsg;
+    strm_ = od_stream::create( data_.fname_, isimp_, errmsg );
     if ( !strm_ )
+    {
+	errmsg_ = errmsg;
 	return;
+    }
 
     if ( isimp_ )
 	startImpRead();
@@ -257,12 +261,12 @@ void SeisIOSimple::startImpRead()
 }
 
 
-const char* SeisIOSimple::message() const
+uiStringCopy SeisIOSimple::uiMessage() const
 {
     if ( importer_ )
-	return importer_->message();
+	return importer_->uiMessage();
 
-    return errmsg_.isEmpty() ? "Handling traces" : errmsg_.buf();
+    return errmsg_.isEmpty() ? "Handling traces" : errmsg_;
 }
 
 
@@ -278,9 +282,9 @@ od_int64 SeisIOSimple::totalNr() const
 }
 
 
-const char* SeisIOSimple::nrDoneText() const
+uiStringCopy SeisIOSimple::uiNrDoneText() const
 {
-    return importer_ ? importer_->nrDoneText() : "Traces written";
+    return importer_ ? importer_->uiNrDoneText() : "Traces written";
 }
 
 
@@ -433,7 +437,7 @@ int SeisIOSimple::readExpTrc()
 	return 0;
     else if ( readres < 0 || !rdr_->get( trc_ ) )
     {
-	errmsg_ = rdr_->errMsg();
+	errmsg_ = rdr_->errMsg().getFullString();
 	return -1;
     }
 

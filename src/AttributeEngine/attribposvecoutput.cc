@@ -55,12 +55,17 @@ PosVecOutputGen::~PosVecOutputGen()
 }
 
 
-const char* PosVecOutputGen::message() const
+uiStringCopy PosVecOutputGen::uiMessage() const
 {
     if ( outex_ )
-	msg_ = outex_->message();
+	return outex_->uiMessage();
+
     return msg_.buf();
 }
+
+
+uiStringCopy PosVecOutputGen::uiNrDoneText() const
+{ return outex_ ? outex_->uiNrDoneText() : "Positions handled"; }
 
 
 int PosVecOutputGen::nextStep()

@@ -396,8 +396,6 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 }
 
 
-
-
 void ErrMsg( const char* msg, bool progr )
 {
     if ( progr && !ErrMsgClass::printProgrammerErrs )

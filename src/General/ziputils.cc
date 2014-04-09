@@ -245,7 +245,8 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 }
 
 
-bool ZipUtils::unZipArchives( const BufferStringSet& archvs,const char* basepath,
+bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
+			     const char* basepath,
 			     BufferString& errmsg, TaskRunner* tr )
 {
     ExecutorGroup execgrp( "Archive unpacker" );
@@ -258,7 +259,7 @@ bool ZipUtils::unZipArchives( const BufferStringSet& archvs,const char* basepath
 
     if ( !(TaskRunner::execute(tr,execgrp)) )
     {
-	errmsg = execgrp.message();
+	errmsg = execgrp.uiMessage().getFullString();
 	return false;
     }
 

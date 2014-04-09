@@ -11,6 +11,7 @@
 #include "seistype.h"
 #include "bufstring.h"
 #include "factory.h"
+#include "uistring.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -36,13 +37,13 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		= 0;
 
-    const char*		errMsg() const			{ return errmsg_.str(); }
+    uiStringCopy	errMsg() const			{ return errmsg_; }
 
     static const char*	sKeyODType;
 
 protected:
 
-    mutable BufferString errmsg_;
+    mutable uiString errmsg_;
 };
 
 

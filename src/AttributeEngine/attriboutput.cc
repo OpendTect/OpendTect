@@ -332,7 +332,7 @@ bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 	PtrMan<IOObj> ioseisout = IOM().get( storid );
 	if ( !ioseisout )
 	{
-	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid;
+	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid );
 	    return false;
 	}
     }
@@ -371,14 +371,14 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 
     if ( !outppar )
     {
-        errmsg_ = "Could not find Output keyword in parameter file";
+	errmsg_ = tr("Could not find Output keyword in parameter file");
 	return false;
     }
 
     const char* storid = outppar->find( seisidkey() );
     if ( !setStorageID( storid ) )
     {
-        errmsg_ = "Could not find output ID: "; errmsg_ += storid;
+	errmsg_ = tr("Could not find output ID: %1").arg( storid );
         return false;
     }
 
@@ -413,7 +413,7 @@ bool SeisTrcStorOutput::doInit()
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
 	{
-	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid_;
+	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );
 	    return false;
 	}
 
@@ -1017,15 +1017,15 @@ bool Trc2DVarZStorOutput::doInit()
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
 	{
-	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid_;
+	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );
 	    return false;
 	}
 
 	writer_ = new SeisTrcWriter( ioseisout );
 	if ( !writer_->is2D() )
 	{
-	    errmsg_ = "Seismic data with ID: "; errmsg_ += storid_;
-	    errmsg_ +="is not 2D\nCannot create 2D output.";
+	    errmsg_ = tr( "Seismic data with ID: %1 is not 2D\n"
+			 "Cannot create 2D output.").arg( storid_ );
 	    return false;
 	}
 

@@ -664,7 +664,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    cache = 0;
     }
 
-    BufferString errmsg;
+    uiString errmsg;
     Processor* process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
@@ -694,7 +694,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	    if ( !process->execute() )
 	    {
-		BufferString msg( process->message() );
+		const uiString msg( process->uiMessage() );
 		if ( !msg.isEmpty() )
 		    uiMSG().error( msg );
 		delete process;
@@ -734,7 +734,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return false;
 
-    BufferString errmsg;
+    uiString errmsg;
     PtrMan<Processor> process =
 			aem->getTableOutExecutor( posvals, errmsg, firstcol );
     if ( !process )
@@ -752,7 +752,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 				       int firstcol )
 {
     ExecutorGroup execgrp( "Calculating Attribute", true );
-    BufferString errmsg;
+    uiString errmsg;
 
     ObjectSet<EngineMan> aems;
     for ( int idx=0; idx<dpss.size(); idx++ )
@@ -803,7 +803,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return 0;
 
-    BufferString errmsg;
+    uiString errmsg;
     PtrMan<Processor> process = aem->createTrcSelOutput( errmsg, bidset,
 							 output, mUdf(float), 0,
 							 trueknotspos,
@@ -825,7 +825,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
     if ( !aem ) return -1;
 
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Data2DHolder> data2d = new Data2DHolder;
     PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !process )
@@ -896,10 +896,10 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
-	BufferString err;
+	uiString err;
 	DataPointSet& dps = *dpss[idx];
 	Executor* tabextr = aem.getTableExtractor( dps, *ads, err );
-	if ( !tabextr ) { pErrMsg(err); return 0; }
+	if ( !tabextr ) { pErrMsg(err.getFullString()); return 0; }
 
 	if ( TaskRunner::execute( &taskrunner, *tabextr ) )
 	    somesuccess = true;
@@ -1712,7 +1712,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
     DescSet* ads = eDSHolder().getDescSet( is2d, isstored );
     if ( ads )
     {
-	BufferStringSet errmsgs;
+	TypeSet<uiString> errmsgs;
 	const int odversion = iopar.odVersion();
 	if ( isstored && odversion<411 )	//backward compatibility v<4.1.1
 	{
@@ -1732,25 +1732,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	BufferString basemsg = "Error during restore of ";
 	basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";
 
-	if ( errmsgs.size()<4 )
-	{
-	    BufferString errmsg;
-	    for ( int idx=0; idx<errmsgs.size(); idx++ )
-	    {
-		if ( !idx )
-		{
-		    errmsg = basemsg;
-		    errmsg += ":";
-		}
-
-		errmsg += "\n";
-		errmsg += errmsgs.get( idx );
-	    }
-	    if ( !errmsg.isEmpty() )
-		uiMSG().error( errmsg );
-	}
-	else
-	    uiMSG().errorWithDetails( errmsgs, basemsg );
+	uiMSG().errorWithDetails( errmsgs, basemsg );
 
 	set2DEvent( is2d );
 	sendEvent( evNewAttrSet() );

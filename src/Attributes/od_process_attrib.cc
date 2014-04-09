@@ -130,7 +130,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	PtrMan<IOPar> attribs = pars().subselect("Attributes");
 	if ( !attribset.usePar(*attribs) )
-	    mRetJobErr( attribset.errMsg() )
+	    mRetJobErr( attribset.errMsg().getFullString() )
     }
 
     PtrMan<IOPar> outputs = pars().subselect("Output");
@@ -183,11 +183,11 @@ bool BatchProgram::go( od_ostream& strm )
     TextStreamProgressMeter progressmeter(strm);
     for ( int idx=0; idx<alllinenames.size(); idx++ )
     {
-	BufferString errmsg;
+	uiString errmsg;
 	proc = attrengman->usePar( pars(), attribset, alllinenames.get(idx),
 				   errmsg );
 	if ( !proc )
-	    mRetJobErr( errmsg );
+	    mRetJobErr( errmsg.getFullString() );
 
 	mSetCommState(Working);
 
@@ -254,7 +254,7 @@ bool BatchProgram::go( od_ostream& strm )
 		{
 		    if ( res == -1 )
 			mRetJobErr( BufferString("Cannot reach next position",
-						 ": ",proc->message()) )
+				    ": ",proc->uiMessage().getFullString()) )
 		    break;
 		}
 

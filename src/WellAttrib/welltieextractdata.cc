@@ -92,7 +92,7 @@ bool SeismicExtractor::collectTracesAroundPath()
 
     SeisBufReader sbfr( *rdr_, *trcbuf_ );
     if ( !sbfr.execute() )
-	mErrRet( sbfr.message() ); 
+	mErrRet( sbfr.uiMessage() );
     return true;
 }
 

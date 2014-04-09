@@ -197,7 +197,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	{
 	    BufferString attrnm( todofld_->getAttrName() );
 
-	    BufferString errmsg;
+	    uiString errmsg;
 	    RefMan<Attrib::Provider> prov =
 		    Attrib::Provider::create( *desc, errmsg );
 	    PtrMan<IOObj> ioobj = 0;
@@ -505,7 +505,7 @@ bool uiAttrVolOut::fillPar()
 	    BufferString storedid = desc->getStoredID();
 	    if ( storedid.isEmpty() )
 	    {
-		BufferString errmsg;
+		uiString errmsg;
 		RefMan<Attrib::Provider> prov =
 		    Attrib::Provider::create( *desc, errmsg );
 		if ( prov )
@@ -549,11 +549,11 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
     BufferString defstr("NN specification=");
     defstr += nlaid_;
 
-    BufferString errmsg;
+    uiString errmsg;
     Attrib::EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
-    if ( errmsg.size() )
+    if ( !errmsg.isEmpty() )
         uiMSG().error( errmsg );
 }
 

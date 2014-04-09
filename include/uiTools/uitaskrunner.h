@@ -31,7 +31,7 @@ public:
 			~uiTaskRunner();
 
     bool		execute(Task& t);
-    const char*		lastMsg() const		{ return prevmessage_.buf(); }
+    uiString		lastMsg() const 	{ return prevmessage_; }
     int			getState() const	{ return state_; }
     void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
 
@@ -49,8 +49,8 @@ protected:
     int			prevtotalnr_;
     int			prevnrdone_;
     int			prevpercentage_;
-    BufferString	prevmessage_;
-    BufferString	prevnrdonetext_;
+    uiString		prevmessage_;
+    uiString		prevnrdonetext_;
     bool		dispmsgonerr_;
 
     Threads::Lock	statelock_;	
@@ -61,7 +61,7 @@ protected:
     Threads::Lock	uitaskrunnerthreadlock_;
     void		doWork(CallBacker*);	//!< Method with work thread
 
-    BufferString	finalizeTask();
+    uiString		finalizeTask();
     void		updateFields();
     void		onFinalise(CallBacker*);
     void		timerTick(CallBacker*);

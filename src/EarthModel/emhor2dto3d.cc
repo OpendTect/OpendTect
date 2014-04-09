@@ -150,7 +150,8 @@ void Hor2DTo3D::addSections( const HorSampling& hs )
 	if ( mIsUdf(minbid.inl()) || minbid == maxbid )
 	    continue;
 
-	if ( curinterp_ && (minbid.inl()==maxbid.inl() || minbid.crl()==maxbid.crl()) ) 
+	if ( curinterp_ &&
+	     (minbid.inl()==maxbid.inl() || minbid.crl()==maxbid.crl()) )
 	{
 	    int extendedsize = 1;
 	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
@@ -197,9 +198,9 @@ Hor2DTo3D::~Hor2DTo3D()
 }
 
 
-const char* Hor2DTo3D::nrDoneText() const
+uiStringCopy Hor2DTo3D::uiNrDoneText() const
 {
-    return curinterp_ ? curinterp_->nrDoneText() : "";
+    return curinterp_ ? curinterp_->uiNrDoneText() : "";
 }
 
 

@@ -36,8 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 #define mErrRet(msg) { \
-    if ( !errmsg_.isEmpty() ) errmsg_ += ". "; \
-    errmsg_ += msg; return false; }
+    if ( !errmsg_.isEmpty() ) { errmsg_.append( ". "); errmsg_.append( msg ); }\
+    else errmsg_ = msg;\
+    return false; }
 
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     : data_(data)
@@ -116,9 +117,8 @@ bool DataPlayer::extractSeismics()
 
     if ( !TaskRunner::execute(data_.trunner_,seisextr) )
     {
-	BufferString msg;
-	msg += "Can not extract seismic: ";
-	msg += seisextr.errMsg();
+	uiString msg = "Can not extract seismic: %1";
+	msg.arg( seisextr.errMsg() );
 	mErrRet( msg );
     }
 

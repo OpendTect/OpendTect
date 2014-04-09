@@ -50,7 +50,7 @@ bool System::IssueReporter::readReport( const char* filename )
 { \
     errmsg_ = "Cannot " #op; \
     errmsg_.add( filename ).add( ". Reason: "); \
-    errmsg_.add( fstream.errMsg() ); \
+    errmsg_.add( fstream.errMsg().getFullString() ); \
     return false; \
 }
 

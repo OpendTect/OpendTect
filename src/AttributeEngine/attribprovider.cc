@@ -86,7 +86,7 @@ protected:
 };
 
 
-Provider* Provider::create( Desc& desc, BufferString& errstr )
+Provider* Provider::create( Desc& desc, uiString& errstr )
 {
     ObjectSet<Provider> existing;
     bool issame = false;
@@ -99,7 +99,7 @@ Provider* Provider::create( Desc& desc, BufferString& errstr )
 
 
 Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing, 
-				    bool& issame, BufferString& errstr )
+				    bool& issame, uiString& errstr )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
@@ -116,7 +116,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     if ( desc.nrInputs() && !desc.descSet() )
     {
-	errstr = "No attribute set specified";
+	errstr = tr("No attribute set specified");
 	return 0;
     }
 
@@ -129,27 +129,24 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    if ( errmsg=="Parameter 'id' is not correct" &&
 		 desc.isStored() )
 	    {
-		errstr = "Impossible to find stored data '";          
-		errstr += desc.userRef();                                       
-		errstr += "' \nused as input for other attribute(s). \n";
-		errstr += "Data might have been deleted or corrupted.\n";
-		errstr += "Please check your attribute set \n";
-		errstr += "Please select valid stored data.";
+		errstr = tr( "Impossible to find stored data '%1'\n"
+				 "used as input for other attribute(s). \n"
+				 "Data might have been deleted or corrupted.\n"
+				 "Please check your attribute set \n"
+				 "Please select valid stored data.")
+				.arg( desc.userRef() );
 	    }
 	    else
 	    {
 		errstr = desc.errMsg();
-		errstr +=" for '";
-		errstr += desc.userRef();
-		errstr += "' attribute.";
+		errstr = tr( "%1 for '%2' attribute.")
+		    .arg( errmsg ).arg( desc.userRef() );
 	    }
 	}
 	else
 	{
-	    errstr = "error in definition";
-	    errstr +=" of ";
-	    errstr += desc.attribName(); 
-	    errstr += " "; errstr += "attribute.";
+	    errstr = tr( "Error in definition of %1 attribute." )
+			.arg( desc.attribName() );
 	}
 	return 0;
     }
@@ -179,7 +176,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
-	    errstr = "Input is not correct. One of the inputs depend on itself";
+	    errstr =
+		tr("Input is not correct. One of the inputs depend on itself");
 	    return 0;
 	}
 
@@ -194,14 +192,13 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	BufferString attribnm = newprov->desc_.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
-	    errstr = "Cannot load Stored Cube '";
-	    errstr += newprov->desc_.userRef(); errstr += "'";
+	    errstr = tr("Cannot load Stored Cube '%1'.")
+			.arg( newprov->desc_.userRef() );
 	}
 	else
 	{
-	    errstr = "Attribute \""; errstr += newprov->desc_.userRef(); 
-	    errstr += "\" of type \""; errstr += attribnm;
-	    errstr += "\" cannot be initialized";
+	    errstr = tr("Attribute \"%1\" of type \"%2\" cannot be initialized")
+			.arg( newprov->desc_.userRef() ).arg( attribnm );
 	}
 	newprov->unRef();
 	return 0;
@@ -241,7 +238,7 @@ Provider::Provider( Desc& nd )
 
 
     if ( !desc_.descSet() )
-	errmsg_ = "No attribute set specified";
+	errmsg_ = tr("No attribute set specified");
 }
 
 
@@ -1105,14 +1102,14 @@ bool Provider::checkInpAndParsAtStart()
 }
 
 
-const char* Provider::prepare( Desc& desc )
+uiString Provider::prepare( Desc& desc )
 {
     if ( !desc.needProvInit() )
 	return 0;
 
     desc.setNeedProvInit( false );
 
-    mDefineStaticLocalObject( BufferString, errmsg, );
+    uiString errmsg;
     RefMan<Provider> prov = PF().create( desc );
     if ( prov && prov->isOK() )
 	return 0;
@@ -1122,10 +1119,11 @@ const char* Provider::prepare( Desc& desc )
 	errmsg = prov->errMsg();
     if ( errmsg.isEmpty() )
     {
-	errmsg = "Cannot initialise '"; errmsg += desc.attribName();
-	errmsg += "' Attribute properly";
+	errmsg = tr("Cannot initialise '%1' Attribute properly")
+		    .arg( desc.attribName() );
     }
-    return errmsg.buf();
+
+    return errmsg;
 }
 
 
@@ -1512,16 +1510,15 @@ float Provider::trcDist() const
      getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
 }
 
-
-const char* Provider::errMsg() const
+uiString Provider::errMsg() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs_[idx] && inputs_[idx]->errMsg() )
+	if ( inputs_[idx] && !inputs_[idx]->errMsg().isEmpty() )
 	    return inputs_[idx]->errMsg();
     }
     
-    return errmsg_.str();
+    return errmsg_;
 }
 
 

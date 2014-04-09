@@ -222,7 +222,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     if ( !strm.isOK() )
     {
 	BufferString msg( "Cannot open '",fnm,"':\n");
-	msg.add( strm.errMsg() );
+	msg.add( strm.errMsg().getFullString() );
 	mErrRet( msg )
     }
 

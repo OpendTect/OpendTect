@@ -450,7 +450,7 @@ bool acceptOK( CallBacker* )
     
     if ( !TaskRunner::execute( &tr, extr ) )
     {
-	uiMSG().error( extr.message() );
+	uiMSG().error( extr.uiMessage() );
 	return false;
     }
     

@@ -130,7 +130,7 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
 {
 }
 
-const char* message() const	{ return msg_.buf(); }
+uiStringCopy uiMessage() const	{ return msg_; }
 const char* nrDoneText() const	{ return "Traces written"; }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totnr_; }
@@ -185,7 +185,7 @@ int nextStep()
     SeisTrc		outtrc_;
     int			nrdone_;
     int			totnr_;
-    BufferString	msg_;
+    uiString		msg_;
 };
 
 

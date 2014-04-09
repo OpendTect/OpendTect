@@ -597,7 +597,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     for ( int idx=0; idx<bidset.size(); idx++ )
        bidvals.add( bidset[idx] );	
 
-    BufferString errmsg;
+    uiString errmsg;
     SeisTrcBuf bufs( true );
     Interval<float> zrg( cs.zrg );
     PtrMan<Processor> proc =

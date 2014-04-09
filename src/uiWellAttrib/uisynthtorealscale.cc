@@ -356,7 +356,7 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     delete seldata_;
 }
 
-const char* message() const	{ return msg_; }
+uiStringCopy uiMessage() const	{ return msg_; }
 const char* nrDoneText() const	{ return "Traces handled"; }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
@@ -438,7 +438,7 @@ int nextStep()
     SeisTrcReader&	rdr_;
     Seis::SelData*	seldata_;
     SeisTrc		trc_;
-    BufferString	msg_;
+    uiString		msg_;
     od_int64		nrdone_;
     od_int64		totalnr_;
     BinID		bid_;

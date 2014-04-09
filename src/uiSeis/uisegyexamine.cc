@@ -227,8 +227,8 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
 
     SeisTrcReader* rdr = new SeisTrcReader( ioobj );
     delete ioobj;
-    if ( rdr->errMsg() || !rdr->prepareWork(Seis::PreScan) )
-	{ emsg = rdr->errMsg(); delete rdr; return 0; }
+    if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
+	{ emsg = rdr->errMsg().getFullString(); delete rdr; return 0; }
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr->translator())
     if ( !tr )

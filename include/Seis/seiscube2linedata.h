@@ -28,18 +28,18 @@ class Cube2LineDataLineKeyProvider;
 mExpClass(Seis) SeisCube2LineDataExtracter : public Executor
 {
 public:
-		SeisCube2LineDataExtracter(const IOObj& cubein,
+			SeisCube2LineDataExtracter(const IOObj& cubein,
 					   const IOObj& lsout,
 					   const char* attrnm,
 					   const BufferStringSet* lnms=0);
-		~SeisCube2LineDataExtracter();
+			~SeisCube2LineDataExtracter();
 
-    const char*	message() const		{ return msg_; }
-    const char*	nrDoneText() const	{ return "Traces written"; }
-    od_int64	nrDone() const		{ return nrdone_; }
-    od_int64	totalNr() const		{ return totalnr_; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Traces written"; }
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const 	{ return totalnr_; }
 
-    int		nextStep();
+    int 		nextStep();
 
 protected:
 
@@ -48,7 +48,7 @@ protected:
     SeisTrcWriter&	wrr_;
     SeisTrcBuf&		tbuf_;
     const BufferString	attrnm_;
-    BufferString	msg_;
+    uiString		msg_;
     BufferStringSet	lnms_;
     
     ObjectSet<Executor>	fetchers_; //linked with usedlinenames_

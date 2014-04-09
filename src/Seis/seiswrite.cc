@@ -105,8 +105,8 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 
     if ( !psioprov_ && ((is2d_ && !lset_) || (!is2d_ && !trl_)) )
     {
-	errmsg_ = "No data storer available for '";
-	errmsg_ += ioobj_->name(); errmsg_ += "'";
+	errmsg_ = uiString("No data storer available for '%1'")
+		      .arg( ioobj_->name() );
 	return false;
     }
     if ( is2d_ && !gidp_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
@@ -184,8 +184,8 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
     if ( !conn || conn->isBad() || !trl_ )
     {
-	errmsg_ = "Cannot write to ";
-	errmsg_ += ioobj_->fullUserExpr(false);
+	errmsg_ = uiString( "Cannot write to %1")
+		      .arg( ioobj_->fullUserExpr(false) );
 	delete conn;
 	return false;
     }
@@ -421,7 +421,7 @@ public:
 	BufferString errmsg;
 	if ( !writer_.put(*trc_) )
 	{
-	    errmsg = writer_.errMsg();
+	    errmsg = writer_.errMsg().getFullString();
 	    if ( errmsg.isEmpty() )
 	    {
 		pErrMsg( "Need an error message from writer" );

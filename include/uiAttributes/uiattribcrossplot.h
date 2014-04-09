@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioobj.h"
 
+
 #include "uidialog.h"
 
 class DataPointSet;
@@ -30,7 +31,7 @@ namespace Attrib { class DescSet; class SelInfo; }
 
 
 mExpClass(uiAttributes) uiAttribCrossPlot : public uiDialog
-{
+{ mODTextTranslationClass(uiAttribCrossPlot);
 public:
 					uiAttribCrossPlot(uiParent*,
 						  const Attrib::DescSet&);

@@ -695,7 +695,7 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 
 
 #define mErrRet(s,act) \
-{ uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
+{ uiMsgMainWinSetter mws( mainwin() ); if (!s.isEmpty()) uiMSG().error(s); act;}
 
 void uiStratSynthDisp::modelChanged()
 {
@@ -1085,7 +1085,7 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !autoupdate_ && !forceupdate_ ) return;
 
-    if ( curSS().errMsg() )
+    if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
     if ( curSS().infoMsg() )
     {
@@ -1217,7 +1217,7 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 void uiStratSynthDisp::exportSynth( CallBacker* )
 {
     if ( layerModel().isEmpty() )
-	mErrRet( "No valid layer model present", return )
+	mErrRet( uiString("No valid layer model present"), return )
     uiStratSynthExport dlg( this, curSS() );
     dlg.go();
 }

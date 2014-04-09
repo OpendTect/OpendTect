@@ -51,7 +51,7 @@ public:
 	virtual bool		fetch(SeisTrc&)			= 0;
 	virtual int		totalNr() const			{ return -1; }
 
-	BufferString		errmsg_;
+	uiString		errmsg_;
     };
 
 
@@ -59,9 +59,9 @@ public:
 				//!< Reader becomes mine. Has to be non-null.
     virtual		~SeisImporter();
 
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     od_int64		nrDone() const;
-    const char*		nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
     od_int64		totalNr() const;
     int			nextStep();
 
@@ -93,9 +93,9 @@ protected:
     int				readIntoBuf();
 
     friend			class SeisImporterWriterTask;
-    void			reportWrite(const char*);
+    void			reportWrite(const uiString&);
 
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
     mutable BufferString	hndlmsg_;
 };
 

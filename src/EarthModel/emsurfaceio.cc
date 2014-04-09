@@ -795,7 +795,7 @@ int dgbSurfaceReader::nextStep()
 
     if ( !prepareRowRead(strm) )
     {
-	msg_ = strm.errMsg();
+	msg_ = strm.errMsg().getFullString();
         return ErrorOccurred();
     }
 
@@ -950,7 +950,7 @@ int dgbSurfaceReader::prepareNewSection( od_istream& strm )
     nrrows_ = readInt32( strm );
     if ( !strm.isOK() )
     {
-	msg_ = strm.errMsg();
+	msg_ = strm.errMsg().getFullString();
         return ErrorOccurred();
     }
 
@@ -1124,7 +1124,7 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 	const int nrcols = readInt32( strm );
 	if ( !strm.isOK() )
 	{
-	    msg_ = strm.errMsg();
+	    msg_ = strm.errMsg().getFullString();
 	    return ErrorOccurred();
 	}
 
@@ -1142,7 +1142,7 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 	    strm.setPosition( offset, od_stream::Rel );
 	    if ( !strm.isOK() )
 	    {
-		msg_ = strm.errMsg();
+		msg_ = strm.errMsg().getFullString();
 		return ErrorOccurred();
 	    }
 	}

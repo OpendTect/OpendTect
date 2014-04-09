@@ -26,7 +26,7 @@ using namespace Attrib;
 void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 					BufferStringSet& outnames )
 {
-    BufferString errmsg;
+    uiString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
     RefMan<Provider> tmpprov = Provider::create( ds, errmsg );
     if ( !tmpprov ) return;

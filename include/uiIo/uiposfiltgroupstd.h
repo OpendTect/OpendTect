@@ -1,5 +1,5 @@
 #ifndef uiposfiltgroupstd_h
-#define uiposfiltgroup_stdh
+#define uiposfiltgroupstd_h
 
 /*+
 ________________________________________________________________________

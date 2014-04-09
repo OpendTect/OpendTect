@@ -103,13 +103,13 @@ int SeisCube2LineDataExtracter::nextStep()
 	}
 	else
 	{
-	    msg_ = fetchers_[0]->message();
+	    msg_ = fetchers_[0]->uiMessage();
 	    return ErrorOccurred();
 	}
     }
 
     res = handleTrace();
-    msg_ = fetchers_[0]->message();
+    msg_ = fetchers_[0]->uiMessage();
     return res;
 }
 

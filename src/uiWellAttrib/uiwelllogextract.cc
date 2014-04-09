@@ -169,7 +169,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
 
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 					     const BufferStringSet& lognms,
@@ -180,11 +180,11 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getfValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
-    uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, wts ) )
+    uiTaskRunner taskrunner( this );
+    if ( !TaskRunner::execute( &taskrunner, wts ) )
 	return false;
     if ( dpss.isEmpty() )
-	mErrRet("No wells found")
+	mErrRet(tr("No wells found"))
     bool founddata = false;
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
@@ -194,11 +194,11 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     if ( !founddata )
     {
 	if ( dpss.size() == 1 )
-	    mErrRet("No valid data points found in the well\n"
-		    "(check ranges, undefined sections ....)")
+	    mErrRet(tr("No valid data points found in the well\n"
+		    "(check ranges, undefined sections ....)"))
 	else
-	    mErrRet("No valid data points found in any of the wells\n"
-		    "(check ranges, undefined sections ....)")
+	    mErrRet(tr("No valid data points found in any of the wells\n"
+		    "(check ranges, undefined sections ....)"))
     }
 
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -206,7 +206,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
 	wlde.samppol_ = welllogselfld_->params().samppol_; 
-	if ( !TaskRunner::execute( &tr, wlde ) )
+	if ( !TaskRunner::execute( &taskrunner, wlde ) )
 	    return false;
     }
 
@@ -221,13 +221,13 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
     const_cast<PosVecDataSet*>( &(dps.dataSet()) )->pars() = descsetpars;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    Attrib::EngineMan aem; BufferString errmsg;
+    Attrib::EngineMan aem; uiString errmsg;
     PtrMan<Executor> tabextr = aem.getTableExtractor( dps, *ads_, errmsg, c1 );
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg)
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, *tabextr );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, *tabextr );
 }
 
 
@@ -272,8 +272,8 @@ bool uiWellLogExtractGrp::extractDPS()
 	filt = Pos::Filter::make( iop, false );
 	if ( filt )
 	{
-	    uiTaskRunner tr( this );
-	    if ( !filt->initialize(&tr) )
+	    uiTaskRunner taskrunner( this );
+	    if ( !filt->initialize(&taskrunner) )
 		return false;
 	}
     }

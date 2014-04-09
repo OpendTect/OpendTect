@@ -38,11 +38,11 @@ public:
 
     void		setComponent(int);
 
-    const char*		errMsg() const		{ return errmsg_; }
+    uiStringCopy	errMsg() const		{ return errmsg_; }
 
 protected:
 
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     bool		getSingle(int,SeisTrcInfo&,int& res);
     BinID		getBinID(int,const SeisTrcInfo&) const;

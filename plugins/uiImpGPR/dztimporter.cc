@@ -105,8 +105,12 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     if ( !istream_.isOK() )
 	return;
 
-    if ( !fh_.getFrom( istream_, msg_ ) )
+    BufferString msg;
+    if ( !fh_.getFrom( istream_, msg ) )
+    {
+	msg_ = msg;
 	return;
+    }
 
     DataCharacteristics dc( fh_.dtype < 9, fh_.dtype %2 );
     dc.setNrBytes( fh_.dtype > 1 ? (fh_.dtype > 3 ? 4 : 2) : 1 );

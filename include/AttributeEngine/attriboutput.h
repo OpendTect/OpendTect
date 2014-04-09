@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "seistype.h"
 #include "typeset.h"
+#include "uistring.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -139,7 +140,7 @@ protected:
 */
 
 mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
-{
+{ mODTextTranslationClass(Attrib::SeisTrcStorOutput)
 public:
 				SeisTrcStorOutput(const CubeSampling&,
 						  const Pos::GeomID);
@@ -169,7 +170,7 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    const char*			errMsg() const	{ return errmsg_.str(); }
+    uiString			errMsg() const { return errmsg_; }
 
     static const char*		seisidkey();
     static const char*		attribkey();
@@ -184,7 +185,7 @@ protected:
     TypeSet< Interval<int> >	sampleinterval_;
     IOPar*			auxpars_;
     bool			is2d_;
-    BufferString 		errmsg_;
+    uiString			errmsg_;
 
     SeisTrc*			trc_;
     SeisTrcWriter*		writer_;
@@ -208,7 +209,7 @@ public:
 */
 
 mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
-{
+{ mODTextTranslationClass(Attrib::Trc2DVarZStorOutput)
 public:
 				Trc2DVarZStorOutput(Pos::GeomID,
 						    DataPointSet*,float);

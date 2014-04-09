@@ -51,10 +51,10 @@ public:
     						{ weaksmooth_ = yn; }
 
 			// Executor compliance functions
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    const char*		nrDoneText() const	{ return "Traces handled"; }
+    uiStringCopy	uiNrDoneText() const	{ return "Traces handled"; }
 			// This is where it actually happens
     int			nextStep();
 
@@ -75,7 +75,7 @@ protected:
     SeisTrc&            trcout_;
     int			nrdone_;
     mutable int		totnr_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
     bool		createReader();
     bool		createWriter();

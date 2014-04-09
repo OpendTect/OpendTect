@@ -468,7 +468,7 @@ bool uiStratSynthExport::createHor2Ds()
 	PtrMan<Executor> saver = horizon2d->saver();
 	uiTaskRunner tr( this );
 	if ( !TaskRunner::execute(&tr,*saver) )
-	    mErrRet( saver->message(), false );
+	    mErrRet( saver->uiMessage(), false );
     }
 
     return false;

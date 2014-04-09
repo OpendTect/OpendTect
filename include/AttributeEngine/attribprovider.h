@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "sets.h"
 #include "posinfo2dsurv.h"
+#include "uistring.h"
 
 class BinDataDesc;
 class CubeSampling;
@@ -46,13 +47,14 @@ class ProviderTask;
 */
 
 mExpClass(AttributeEngine) Provider
-{				mRefCountImpl(Provider);
+{ mRefCountImpl(Provider);
+  mODTextTranslationClass(Attrib::Provider)
 
     friend class		ProviderTask;
 
 public:
 
-    static Provider*		create(Desc&,BufferString&);
+    static Provider*		create(Desc&,uiString& errmsg);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
     virtual bool		isOK() const;
@@ -140,7 +142,7 @@ public:
     virtual BinID		getStepoutStep() const;
     ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
-    const char*         	errMsg() const;
+    uiString			errMsg() const;
 
     virtual void		initSteering()				{}
     virtual void		prepSteeringForStepout(const BinID&)	{}
@@ -154,7 +156,7 @@ public:
 				  and desired- volumes are computed*/
     virtual void		prepareForComputeData();
     				/*!< Everything is known now. */
-    static const char*		prepare(Desc&);
+    static uiString		prepare(Desc&);
     				//!< Must be called before getting
     				//!< inputs/outputs etc. from a Desc
     virtual void                fillDataCubesWithTrc(DataCubes*) const	{}
@@ -183,7 +185,7 @@ protected:
 
     virtual SeisMSCProvider*	getMSCProvider(bool&) const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
-					       bool& issame,BufferString&);
+					       bool& issame,uiString&);
     				/*!< Creates the provider needed and all its
 				  input providers*/
 
@@ -377,7 +379,7 @@ protected:
 
     bool			isusedmulttimes_;
     bool			needinterp_;
-    BufferString 		errmsg_;
+    uiString			errmsg_;
 };
 
 

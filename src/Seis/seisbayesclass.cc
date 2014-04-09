@@ -59,7 +59,9 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
     msg_ = "Initializing";
 }
 
-#define mAddIdxRank(idx) msg_ += idx+1; msg_ += getRankPostFix(idx+1)
+#define mAddIdxRank(idx) arg( uiString("%1%2") \
+				.arg(toString(idx+1)) \
+				.arg( getRankPostFix(idx+1)) )
 
 
 SeisBayesClass::~SeisBayesClass()
@@ -94,13 +96,18 @@ bool SeisBayesClass::getPDFs()
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
 	if ( !ioobj )
 	{
-	    msg_ = "Cannot find object for "; mAddIdxRank(ipdf);
-	    msg_ += " PDF in data store"; return false;
+	    msg_ = tr("Cannot find object for %1 PDF in data store")
+			.mAddIdxRank(ipdf);
+	    return false;
 	}
 
-	ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &msg_ );
+	BufferString errmsg;
+	ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &errmsg );
 	if ( !pdf )
+	{
+	    msg_ = errmsg;
 	    return false;
+	}
 
 	inppdfs_ += pdf;
 	pdfnames_.add( ioobj->name() );
@@ -168,14 +175,13 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
     if ( !ioobj )
     {
-	msg_.setEmpty(); const ProbDenFunc& pdf0 = *inppdfs_[0];
+	const ProbDenFunc& pdf0 = *inppdfs_[0];
 	if ( isdim )
-	    msg_.add( "Cannot find input cube for " )
-		.add( pdf0.dimName(idx) );
+	    msg_ = tr("Cannot find input cube for %1" ).arg(pdf0.dimName(idx));
 	else
-	    msg_.add( "Cannot find a priori scaling cube for " )
-		.add( pdf0.name() );
-	msg_.add( "\nID found is " ).add( id );
+	    msg_ = tr( "Cannot find a priori scaling cube for %1"
+		      "\nID found is %2").arg( pdf0.name() ).arg( id );
+
 	return 0;
     }
 
@@ -183,8 +189,7 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
     rdr->usePar( pars_ );
     if ( !rdr->prepareWork() )
     {
-	msg_.setEmpty();
-	msg_.add( "For " ).add( ioobj->name() ).add(":\n").add( rdr->errMsg() );
+	msg_ = tr( "For %1:\n%2" ).arg( ioobj->name() ).arg( rdr->errMsg() );
 	delete rdr; return 0;
     }
 
@@ -204,9 +209,8 @@ bool SeisBayesClass::getReaders()
 	const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idim) );
 	if ( !id || !*id )
 	{
-	    msg_ = "Cannot find "; mAddIdxRank(idim);
-	    msg_ += " input cube (for "; msg_ += pdf0.dimName(idim);
-	    msg_ += ") in parameters";
+	    msg_ = tr("Cannot find %1  input cube (for %2) in parameters")
+		    .mAddIdxRank(idim).arg( pdf0.dimName(idim) );
 	    return false;
 	}
 
@@ -238,9 +242,11 @@ bool SeisBayesClass::getWriters()
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
 	if ( !ioobj )
 	{
-	    msg_ = "Cannot find output cube for ";
-	    msg_ += pdfnames_.get( ipdf );
-	    msg_ += "\nID found is "; msg_ += id; return false;
+	    msg_ = tr("Cannot find output cube for %1"
+		       "\nID found is %2)")
+		      .arg( pdfnames_.get( ipdf ) )
+		      .arg( id );
+	    return false;
 	}
 
 	wrrs_ += new SeisTrcWriter( ioobj );
@@ -256,7 +262,7 @@ bool SeisBayesClass::getWriters()
 }
 
 
-const char* SeisBayesClass::message() const
+uiStringCopy SeisBayesClass::uiMessage() const
 {
     return msg_;
 }

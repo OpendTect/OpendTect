@@ -239,28 +239,31 @@ void SeisSingleTraceProc::setResampler( SeisResampler* r )
 }
 
 
-const char* SeisSingleTraceProc::message() const
+uiStringCopy SeisSingleTraceProc::uiMessage() const
 {
-    const char* msg = curmsg_.buf();
-    if ( !*msg && currentobj_ < rdrset_.size() )
+    if ( !curmsg_.isEmpty() )
+	return curmsg_;
+
+    if ( currentobj_ < rdrset_.size() )
     {
 	const SeisTrcReader* currdr = rdrset_[currentobj_];
-	mDeclStaticString( ret );
-	ret = "Handling ";
+
+	uiString ret;
 	if ( !currdr->is2D() )
-	    ret += "data";
+	    ret  = "data";
 	else
 	{
 	    Pos::GeomID geomid = currdr->geomID();
 	    if ( geomid < 0 )
-		ret += "data";
+		ret = "data";
 	    else
-		{ ret += "'"; ret += geomid; ret += "'"; }
+		{ ret = uiString("'%1'").arg( toString(geomid) ); }
 	}
-	msg = ret.buf();
+
+	return uiString( "Handling %1").arg( ret );
     }
 
-    return msg;
+    return 0;
 }
 
 
@@ -268,7 +271,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 { return nrwr_; }
 
 
-const char* SeisSingleTraceProc::nrDoneText() const
+uiStringCopy SeisSingleTraceProc::uiNrDoneText() const
 {
     return "Traces handled";
 }

@@ -257,7 +257,7 @@ bool Seis2DLineMerger::nextAttr()
 	have2_ = getLineID( lnm2_, lid2_ );
     }
 
-    msg_ = "Merging '"; msg_ += attrnms_.get(curattridx_); msg_ += "'";
+    msg_ = uiString("Merging '%1'").arg( attrnms_.get(curattridx_) );
     currentlyreading_ = 0;
     return nextFetcher();
 }
@@ -266,8 +266,8 @@ bool Seis2DLineMerger::nextAttr()
 
 #define mErrRet(s) \
     { \
-	msg_ = s; msg_ += " "; msg_ += lnm; msg_ += " ("; \
-	msg_ += attrnms_.get(curattridx_); msg_ += ")"; \
+	msg_ = uiString( "%1 %2 (%3)").arg(s).arg( lnm ). \
+			arg(attrnms_.get(curattridx_) ); \
 	return false; \
     }
 
@@ -343,7 +343,7 @@ int Seis2DLineMerger::doWork()
     {
 	const int res = fetcher_->doStep();
 	if ( res < 0 )
-	    { msg_ = fetcher_->message(); return res; }
+	    { msg_ = fetcher_->uiMessage(); return res; }
 	else if ( res == 1 )
 	    { nrdone_++; return Executor::MoreToDo(); }
 

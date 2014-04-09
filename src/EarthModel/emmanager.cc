@@ -235,7 +235,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 	    if ( loader )
 	    {
 		if ( !execgrp->nrExecutors() )
-		    execgrp->setNrDoneText( loader->nrDoneText() );
+		    execgrp->setNrDoneText( loader->uiNrDoneText() );
 		execgrp->add( loader );
 	    }
 	}

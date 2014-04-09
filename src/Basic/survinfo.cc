@@ -948,7 +948,7 @@ bool SurveyInfo::write( const char* basedir ) const
     {
 	sfio.closeFail();
 	BufferString msg( "Error during write of survey info file!" );
-	msg += strm.errMsg();
+	msg += strm.errMsg().getFullString();
 	ErrMsg( msg );
 	return false;
     }

@@ -45,8 +45,8 @@ public:
     void		setAttrNm(const char* nm) { attrnm_ = nm; }
 
     const SeisTrc&	result() const		{ return *outtrc_; }
-    const char* 	errMsg() const	
-    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    uiString		errMsg() const
+			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
     
 protected:
 
@@ -60,7 +60,7 @@ protected:
     SeisTrcReader* 	rdr_;
     StepInterval<float> extrintv_;
     const LineKey*	linekey_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
   
     bool		collectTracesAroundPath();
 };

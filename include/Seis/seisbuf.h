@@ -99,8 +99,8 @@ mExpClass(Seis) SeisBufReader : public Executor
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
 
-    const char*		message() const		{ return msg_.buf(); }
-    const char*		nrDoneText() const	{ return "Traces read"; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Traces read"; }
     od_int64		nrDone() const		{ return buf_.size(); }
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();
@@ -110,7 +110,7 @@ protected:
     SeisTrcReader&	rdr_;
     SeisTrcBuf&		buf_;
     int			totnr_;
-    BufferString	msg_;
+    uiString		msg_;
 
 };
 

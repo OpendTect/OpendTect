@@ -245,10 +245,9 @@ void StratSynth::clearSynthetics()
 
 #define mErrRet( msg, act )\
 {\
-    errmsg_ = "Can not generate synthetics ";\
-    errmsg_ += synthgenpar.name_;\
-    errmsg_ += " :\n";\
-    errmsg_ += msg;\
+    errmsg_ = uiString("Can not generate synthetics %1 : %2\n") \
+		    .arg( synthgenpar.name_ ) \
+		    .arg( msg ); \
     act;\
 }
 
@@ -483,17 +482,18 @@ for ( int idx=0; idx<gathers.size(); idx++ ) \
     bidvals.add( gathers[idx]->getBinID() ); \
 SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true ); \
 Interval<float> zrg( cs.zrg ); \
+uiString errmsg; \
 PtrMan<Attrib::Processor> proc = \
-    aem->createTrcSelOutput( errmsg_, bidvals, *dptrcbufs, 0, &zrg); \
+    aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg); \
 if ( !proc || !proc->getProvider() ) \
-    mErrRet( errmsg_, delete sd; return 0 ) ; \
+    mErrRet( errmsg, delete sd; return 0 ) ; \
 proc->getProvider()->setDesiredVolume( cs ); \
 proc->getProvider()->setPossibleVolume( cs );
 
 
 #define mCreateSeisBuf() \
 if ( !TaskRunner::execute(tr_,*proc) ) \
-    mErrRet( proc->message(), delete sd; return 0 ) ; \
+    mErrRet( proc->uiMessage(), delete sd; return 0 ) ; \
 const int crlstep = SI().crlStep(); \
 const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
 		  SI().crlRange(false).stop + crlstep ); \
@@ -520,7 +520,7 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetProc();
     mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
     if ( !psattr )
-	mErrRet( proc->message(), delete sd; return 0 ) ;
+	mErrRet( proc->uiMessage(), delete sd; return 0 ) ;
     PreStack::ModelBasedAngleComputer* anglecomp =
 	new PreStack::ModelBasedAngleComputer;
     anglecomp->setFFTSmoother( 10.f, 15.f );
@@ -1064,9 +1064,9 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 }
 
 
-const char* StratSynth::errMsg() const
+uiStringCopy StratSynth::errMsg() const
 {
-    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+    return errmsg_.isEmpty() ? 0 : errmsg_;
 }
 
 
@@ -1166,27 +1166,27 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	     invalidvelcount>=aimodel.size() ||
 	     invaliddenscount>=aimodel.size() )
 	{
-	    errmsg_.setEmpty();
-	    errmsg_ += "Cannot generate elastic model as all the values "
-		       "of the properties ";
 	    const ElasticLayer& layer = aimodel[0];
+	    uiString props;
 	    if ( invaliddenscount>=aimodel.size() )
 	    {
-		errmsg_ += "'Density' ";
+		props.append( "'Density' ");
 		mAddValToMsg( layer.den_, true );
 	    }
 	    if ( invalidvelcount>=aimodel.size() )
 	    {
-		errmsg_ += "'Pwave Velocity' ";
+		props.append("'Pwave Velocity' ");
 		mAddValToMsg( layer.vel_, false );
 	    }
 	    if ( invalidsvelcount>=aimodel.size() )
 	    {
-		errmsg_ += "'Swave Velocity' ";
+		props.append( "'Swave Velocity' ");
 		mAddValToMsg( layer.svel_, false );
 	    }
 
-	    errmsg_ += "are invalid. Probably units are not set correctly";
+	    errmsg_ = uiString("Cannot generate elastic model as all the "
+		    "values of the properties %1 are invalid. Probably units "
+		    "are not set correctly.").arg( props );
 	    return false;
 	}
 

@@ -53,13 +53,13 @@ SeisScanner::~SeisScanner()
 }
 
 
-const char* SeisScanner::message() const
+uiStringCopy SeisScanner::uiMessage() const
 {
-    return rdr_.errMsg() ? rdr_.errMsg() : curmsg_.buf();
+    return !rdr_.errMsg().isEmpty() ? rdr_.errMsg() : curmsg_;
 }
 
 
-const char* SeisScanner::nrDoneText() const
+uiStringCopy SeisScanner::uiNrDoneText() const
 {
     return "Traces handled";
 }
@@ -213,7 +213,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 
 int SeisScanner::nextStep()
 {
-    if ( rdr_.errMsg() )
+    if ( !rdr_.errMsg().isEmpty() )
 	return Executor::ErrorOccurred();
 
     int res = rdr_.get( trc_.info() );
@@ -223,17 +223,22 @@ int SeisScanner::nextStep()
 	curmsg_ = "Done";
 	if ( res != 0 )
 	{
-	    curmsg_ = "Error during read of trace header after ";
+	    uiString posmsg;
 	    if ( dtctor_.nrPositions(false) == 0 )
-		curmsg_ += "opening file";
+		posmsg = "opening file";
 	    else
 	    {
 		const BinID& bid( dtctor_.lastPosition().binid_ );
 		if ( dtctor_.is2D() )
-		    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
+		    { posmsg = uiString("trace number %1")
+					.arg( toString(bid.crl()) ); }
 		else
-		    { curmsg_ += bid.toString(); }
+		    { posmsg = bid.toString(); }
 	    }
+
+	    curmsg_ = uiString( "Error during read of trace header after %1")
+				.arg( posmsg );
+
 	}
 	wrapUp();
 	return res;
@@ -244,12 +249,14 @@ int SeisScanner::nextStep()
     if ( !rdr_.get( trc_ ) )
     {
 	dtctor_.finish();
-	curmsg_ = "Error during read of trace data at ";
+
 	const BinID& bid( trc_.info().binid );
+	uiString posmsg;
 	if ( dtctor_.is2D() )
-	    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
+	    { posmsg = uiString( "trace number %1").arg( toString(bid.crl()) );}
 	else
-	    { curmsg_ += bid.toString(); }
+	    { posmsg = bid.toString(); }
+	curmsg_ = uiString("Error during read of trace data at %1").arg(posmsg);
 	wrapUp();
 	return Executor::ErrorOccurred();
     }

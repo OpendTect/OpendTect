@@ -154,7 +154,8 @@ bool SeisPSImpDataMgr::writeGather()
 	    { lbuf = lines_[idx]; break; }
     }
     if ( !lbuf || lbuf->gathers_.isEmpty() )
-	{ delete lbuf; towrite_.removeSingle(0); return true; } // shouldn't happen
+	{ delete lbuf; towrite_.removeSingle(0); return true; }
+	// shouldn't happen
 
     SeisTrcBuf* gath2write = lbuf->gathers_.removeSingle( 0 );
     const bool lbufempty = lbuf->gathers_.isEmpty();
@@ -174,7 +175,7 @@ bool SeisPSImpDataMgr::writeGather()
     {
 	res = wrr_->put( *gath2write->get(idx) );
 	if ( !res )
-	    { errmsg_ = wrr_->errMsg(); break; }
+	    { errmsg_ = wrr_->errMsg().getFullString(); break; }
     }
 
     if ( gathersize_ == 0 )

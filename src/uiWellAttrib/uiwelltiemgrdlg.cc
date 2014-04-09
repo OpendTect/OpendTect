@@ -501,7 +501,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	return false;
 
     Server* server = new Server( wtsetup_ );
-    if ( server->errMSG() )
+    if ( !server->errMSG().isEmpty() )
 	{ uiMSG().error( server->errMSG() ); delete server; return false; }
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )

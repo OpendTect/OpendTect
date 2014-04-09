@@ -443,7 +443,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	int varxidx = toInt( ptr );
 	if ( varxidx >= oldinputs.size() )
 	{
-	    const_cast<DescSet*>(this)->errmsg_ +=
+	    const_cast<DescSet*>(this)->errmsg_ =
 					"Cannot use old Math expression";
 	    return;
 	}
@@ -464,7 +464,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += new BufferString(errmsg_); \
+    (*errmsgs) += uiStringCopy(errmsg_); \
     continue; \
 }
 
@@ -474,20 +474,19 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     if ( !errmsgs ) \
 	return 0; \
 \
-    (*errmsgs) += new BufferString(str); \
+    (*errmsgs) += uiString(str); \
     return 0;\
 }
 
 
 Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 			   const BufferString& defstring,
-			   BufferStringSet* errmsgs )
+			   TypeSet<uiString>* errmsgs )
 {
     Desc* dsc = PF().createDescCopy( attrname );
     if ( !dsc )
     {
-	BufferString err = "Cannot find factory-entry for ";
-	err += attrname;
+	uiString err = tr("Cannot find factory-entry for %1").arg( attrname );
 	mHandleDescErr(err);
     }
 
@@ -495,8 +494,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	if ( !dsc->isStored() )
 	{
-	    BufferString err = "Cannot parse: ";
-	    err += defstring;
+	    uiString err = tr("Cannot parse: %1").arg( defstring );
 	    mHandleDescErr(err);
 	}
     }
@@ -541,10 +539,12 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 			   const BufferString& defstring )
 {
-    BufferStringSet* errmsgs = new BufferStringSet();
+    errmsg_.setEmpty();
+    PtrMan<TypeSet<uiString> > errmsgs = new TypeSet<uiString>;
     Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
-    errmsg_ = errmsgs && !errmsgs->isEmpty() ? errmsgs->get(0) : "";
-    delete errmsgs;
+    if ( errmsgs && !errmsgs->isEmpty() )
+	errmsg_ = (*errmsgs)[0];
+
     return newdesc;
 }
 
@@ -562,7 +562,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 
 
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
-				BufferStringSet* errmsgs )
+				TypeSet<uiString>* errmsgs )
 {
     TypeSet<int> toberemoved;
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
@@ -591,22 +591,22 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
-	    BufferString err;
+	    uiString err;
 	    FixedString dscerr = dsc.errMsg();
 	    if ( dscerr=="Parameter 'id' is not correct" &&
 		 dsc.isStored() )
 	    {
-		err = "Impossible to find stored data '";
-		err += dsc.userRef();
-		err += "' used as input for other attribute(s). \n";
-		err += "Data might have been deleted or corrupted.\n";
-		err += "Please check your attribute set ";
-		err += "and select valid stored data as input.";
+		err = tr( "Impossible to find stored data '%1'"
+			"used as input for other attribute(s). \n"
+			"Data might have been deleted or corrupted.\n"
+			"Please check your attribute set "
+			"and select valid stored data as input." )
+			.arg( dsc.userRef() );
 	    }
 	    else
 	    {
-		err = dsc.errMsg(); err += " for ";
-		err += dsc.userRef(); err += " attribute ";
+		err = tr( "%1 for %2 attribute.")
+			.arg( dsc.errMsg() ).arg( dsc.userRef() );
 	    }
 
             toberemoved += idx;
@@ -621,7 +621,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
-bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
+bool DescSet::usePar( const IOPar& par, TypeSet<uiString>* errmsgs )
 {
     const char* typestr = par.find( sKey::Type() );
     if ( typestr )
@@ -663,8 +663,8 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	if ( !dsc )
 	    { res = false; continue; }
 
-	const char* emsg = Provider::prepare( *dsc );
-	if ( emsg )
+	uiString emsg = Provider::prepare( *dsc );
+	if ( !emsg.isEmpty() )
 	 {
 	     if ( errmsgs )
 		 errmsgs->add( emsg );
@@ -698,7 +698,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 
 bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
-				 BufferStringSet* errmsgs )
+				 TypeSet<uiString>* errmsgs )
 {
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
@@ -741,14 +741,14 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += new BufferString(errmsg_); \
+    (*errmsgs) += uiStringCopy(errmsg_); \
 }
 
 
 bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  BufferString defstring,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
-				  BufferStringSet* errmsgs )
+				  TypeSet<uiString>* errmsgs )
 {
     FixedString steeringtype = steeringpar.find( sKey::Type() );
     BufferString steeringdef = steeringtype.str();
@@ -777,7 +777,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
     BufferString attribname;
     if ( !Desc::getAttribName(steeringdef,attribname) )
-	mHandleSteeringParseErr("Cannot find attribute name");
+	mHandleSteeringParseErr(tr("Cannot find attribute name"));
 
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )
@@ -831,9 +831,9 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 }
 
 
-const char* DescSet::errMsg() const
+uiString DescSet::errMsg() const
 {
-    return errmsg_.str();
+    return errmsg_;
 }
 
 

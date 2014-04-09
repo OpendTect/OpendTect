@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
+#include "uistring.h"
 
 class LineKey;
 class Wavelet;
@@ -46,7 +47,7 @@ public:
     void		setCrossCorrZrg( const Interval<float>& zrg )
     								{ zrg_ = zrg; }
 
-    const char*		errMSG() const		{ return errmsg_.buf(); } 
+    uiString		errMSG() const		{ return errmsg_; }
    
 protected:
 
@@ -70,7 +71,7 @@ protected:
     float*		syntarr_; //!< waveform for cross-correlation
     float*		seisarr_; //!< waveform for cross-correlation
 
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 };
 
 };//namespace WellTie

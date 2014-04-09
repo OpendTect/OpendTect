@@ -109,8 +109,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
     if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
     {
-	errmsg_ = "No data interpreter available for '";
-	errmsg_ += ioobj_->name(); errmsg_ += "'";
+	errmsg_ = uiString("No data interpreter available for '%1'").
+			arg( ioobj_->name() );
 	return false;
     }
 
@@ -121,8 +121,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     Conn* conn = openFirst();
     if ( !conn )
     {
-	errmsg_ = "Cannot open data files for '";
-	errmsg_ += ioobj_->name(); errmsg_ += "'";
+	errmsg_ = uiString("Cannot open data files for '%1'").
+			arg( ioobj_->name());
 	return false;
     }
 
@@ -219,8 +219,8 @@ bool SeisTrcReader::initRead( Conn* conn )
     mDynamicCastGet(SeisTrcTranslator*,sttrl,trl_)
     if ( !sttrl )
     {
-	errmsg_ = trl_->userName();
-	errmsg_ +=  "found where seismic cube was expected";
+	errmsg_ =  uiString("%1 found where seismic cube was expected").
+			arg( trl_->userName() );
 	cleanUp(); return false;
     }
 
@@ -549,7 +549,7 @@ bool SeisTrcReader::readNext2D()
     int res = fetcher->doStep();
     if ( res == Executor::ErrorOccurred() )
     {
-	errmsg_ = fetcher->message();
+	errmsg_ = fetcher->uiMessage();
 	return false;
     }
     else if ( res == 0 )

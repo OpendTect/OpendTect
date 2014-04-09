@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ascstream.h"
 #include "perthreadrepos.h"
+#include "uistring.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -181,22 +182,34 @@ bool od_istream::atEOF() const
 }
 
 
-const char* od_stream::errMsg() const
+uiString od_stream::errMsg() const
 {
     if ( errmsg_.isEmpty() )
     {
 	const char* sysmsg = StrmOper::getErrorMessage( streamData() );
 	return sysmsg && *sysmsg ? sysmsg : 0;
     }
-    return errmsg_.buf();
+
+    return errmsg_;
 }
 
 
 void od_stream::addErrMsgTo( BufferString& msg ) const
 {
-    const char* foundmsg = errMsg();
-    if ( foundmsg )
-	msg.add( ":\n" ).add( foundmsg );
+    uiString res = msg;
+    addErrMsgTo( res );
+    msg = res.getFullString();
+}
+
+
+void od_stream::addErrMsgTo( uiString& msg ) const
+{
+    uiString foundmsg = errMsg();
+    if ( !foundmsg.isEmpty() )
+    {
+	uiStringCopy oldmsg = msg;
+	msg = uiString( "%1:\n%1").arg( oldmsg ).arg( foundmsg );
+    }
 }
 
 
@@ -327,9 +340,22 @@ bool od_ostream::open( const char* fnm, bool useexist )
 	{ close(); setFileName(fnm); return false; }
 }
 
+od_stream* od_stream::create( const char* fnm, bool forread,
+			     BufferString& errmsg )
+{
+    uiString uimsg;
+    od_stream* res = create( fnm, forread, uimsg );
+    if ( !res )
+    {
+	errmsg = uimsg.getFullString();
+    }
+
+    return res;
+}
+
 
 od_stream* od_stream::create( const char* fnm, bool forread,
-			      BufferString& errmsg )
+			      uiString& errmsg )
 {
     od_stream* ret = 0;
     if ( forread )
@@ -342,7 +368,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 	    errmsg = "Out of memory";
 	else if ( !ret->isOK() )
 	{
-	    errmsg.set( "Cannot open " ).add( fnm ).add( " for read" );
+	    errmsg = tr( "Cannot open %1 for read" ).arg( fnm );
 	    ret->addErrMsgTo( errmsg );
 	    delete ret; return 0;
 	}
@@ -357,7 +383,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 	    errmsg = "Out of memory";
 	else if ( !ret->isOK() )
 	{
-	    errmsg.set( "Cannot open " ).add( fnm ).add( " for write" );
+	    errmsg = tr( "Cannot open %1 for write" ).arg( fnm );
 	    ret->addErrMsgTo( errmsg );
 	    delete ret; return 0;
 	}
@@ -382,7 +408,7 @@ od_stream::Count od_istream::lastNrBytesRead() const
 }
 
 
-static void fillNumberFmtErrMsg( od_istream& strm, BufferString& errmsg )
+static void fillNumberFmtErrMsg( od_istream& strm, uiString& errmsg )
 {
     std::istream& stdstrm = strm.stdStream();
     if ( !stdstrm.fail() )
@@ -392,17 +418,17 @@ static void fillNumberFmtErrMsg( od_istream& strm, BufferString& errmsg )
 	stdstrm.clear(); BufferString word;
 	StrmOper::readWord( stdstrm, true, &word );
 	stdstrm.clear(std::ios::badbit);
-	errmsg.set( "Invalid number found: '" ).add( word ).add( "'" );
+	errmsg = uiString("Invalid number found: '%1'" ).arg( word );
     }
 }
 
 
 #define mNumberNotPresentErrRet() \
-	{ errmsg.set( "Number not present on last line" ); \
+	{ errmsg = "Number not present on last line"; \
 	    stdstrm.setstate(std::ios::failbit); return false; } \
 
 template <class T>
-static bool getNumberWithRetry( od_istream& strm, T& t, BufferString& errmsg )
+static bool getNumberWithRetry( od_istream& strm, T& t, uiString& errmsg )
 {
     std::istream& stdstrm = strm.stdStream();
     t = (T)0;

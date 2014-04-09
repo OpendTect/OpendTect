@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-#define mErrRet(m) errmsg+=m; errmsg+="from well "; errmsg+=wd.name(); return false; 
+#define mErrRet(m) errmsg+=m; errmsg+="from well "; \
+		   errmsg+=wd.name(); return false;
 bool AttribLogCreator::doWork( Well::Data& wd, BufferString& errmsg )
 {
     Attrib::EngineMan aem;
@@ -119,7 +120,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 
 bool AttribLogExtractor::extractData( Attrib::EngineMan& aem, TaskRunner* tr )
 {
-    BufferString errmsg;
+    uiString errmsg;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bidset_;
     PtrMan<Attrib::Processor> process =

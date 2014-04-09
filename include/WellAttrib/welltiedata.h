@@ -17,9 +17,11 @@ ________________________________________________________________________
 #include "color.h"
 #include "iopar.h"
 #include "multiid.h"
+#include "uistring.h"
 #include "welldisp.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
+
 
 class CtxtIOObj;
 class SeisTrc;
@@ -273,8 +275,7 @@ public :
     DataWriter&			dataWriter()	{ return *datawriter_; } 
     const Data&			data() const 	{ return *data_; }
 
-    const char* 		errMSG() const	
-    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    uiString			errMSG() const	{ return errmsg_; }
 
     bool			is2D() const	{ return is2d_; }
 
@@ -303,7 +304,7 @@ protected :
     const MultiID&		wellid_;
 
     bool			is2d_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     void			wellDataDel( CallBacker* );
 };

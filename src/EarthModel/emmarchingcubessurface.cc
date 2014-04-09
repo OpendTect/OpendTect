@@ -115,12 +115,13 @@ public:
 
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-    const char*	nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
-    const char*	message() const
+    uiStringCopy	uiNrDoneText() const
+			{ return exec_ ? exec_->uiNrDoneText() : 0; }
+    uiStringCopy	uiMessage() const
     {
 	return errmsg_.isEmpty()
 	    ? "Loading body"
-	    : errmsg_.str();
+	    : errmsg_;
      }
 
 protected:
@@ -129,7 +130,7 @@ protected:
     Executor*			exec_;
     DataInterpreter<od_int32>*	int32interpreter_;
     Conn*			conn_;
-    FixedString			errmsg_;
+    uiString			errmsg_;
 };
 
 
@@ -196,12 +197,12 @@ int nextStep()
 
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-const char* nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
-const char*       message() const
+uiStringCopy uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText() : 0; }
+uiStringCopy uiMessage() const
 {
     return errmsg_.isEmpty()
 	? "Loading body"
-	: errmsg_.str();
+	: errmsg_;
 }
 
 
@@ -209,7 +210,7 @@ protected:
 
     Executor*			exec_;
     Conn*			conn_;
-    FixedString			errmsg_;
+    uiString			errmsg_;
     MarchingCubesSurface&	surface_;
 };
 

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "callback.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 
 class Task;
@@ -36,8 +37,8 @@ public:
     virtual void	setName(const char*)		{}
     virtual void	setTotalNr(od_int64)		{}
     virtual void	setNrDone(od_int64)		{}
-    virtual void	setNrDoneText(const char*)	{}
-    virtual void	setMessage(const char*)		{}
+    virtual void	setNrDoneText(const uiString&)	{}
+    virtual void	setMessage(const uiString&)	{}
 
     virtual void	operator++()			= 0;
 };
@@ -61,7 +62,7 @@ public:
     void		setFinished();
     void		setNrDone(od_int64);
     void		setTotalNr(od_int64 t)		{ totalnr_ = t; }
-    void		setMessage(const char*);
+    void		setMessage(const uiString&);
 
     void		operator++();
     od_int64		nrDone() const			{ return nrdone_; }
@@ -71,7 +72,7 @@ protected:
     void		addProgress(int);
 
     od_ostream&		strm_;
-    BufferString	message_;
+    uiString		message_;
     BufferString	name_;
     unsigned short	rowlen_;
     unsigned char	distcharidx_;

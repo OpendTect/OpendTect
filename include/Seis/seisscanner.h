@@ -36,10 +36,10 @@ public:
 				    int max_nr_trcs=-1);
 			~SeisScanner();
 
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
-    const char*		nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
     int			nextStep();
 
     void		report(IOPar&) const;
@@ -58,7 +58,7 @@ protected:
 
     SeisTrc&		trc_;
     SeisTrcReader&	rdr_;
-    mutable BufferString curmsg_;
+    mutable uiString	curmsg_;
     Seis::GeomType	geom_;
     int			maxnrtrcs_;
     int			totalnr_;

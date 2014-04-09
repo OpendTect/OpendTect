@@ -98,8 +98,8 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	rdr->setComponent( comp );
 	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{
-	    if ( rdr->errMsg() )
-		errmsg_ = rdr->errMsg();
+	    if ( !rdr->errMsg().isEmpty() )
+		errmsg_ = rdr->errMsg().getFullString();
 	    else
 	    {
 		errmsg_ = "Error creating reader for '";
@@ -240,7 +240,7 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
     if ( !rdr.seisTranslator()->goTo(bid) )
 	{ delete trc; trc = 0; }
     else if ( !rdr.get(*trc) )
-	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
+	{ errmsg_ = rdr.errMsg().getFullString(); delete trc; trc = 0; }
     else
 	trc->info().offset = offs_[nr];
 

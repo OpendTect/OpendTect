@@ -59,7 +59,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     wrr_ = new SeisTrcWriter( 0 );
     wrr_->usePar( outiop );
-    if ( wrr_->errMsg() )
+    if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
@@ -108,7 +108,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
 
     wrr_ = new SeisTrcWriter( 0 );
     wrr_->usePar( *outiop );
-    if ( wrr_->errMsg() )
+    if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
@@ -132,9 +132,9 @@ SeisMerger::~SeisMerger()
 }
 
 
-const char* SeisMerger::message() const
+uiStringCopy SeisMerger::uiMessage() const
 {
-    return errmsg_.isEmpty() ? errmsg_.buf() : "Handling traces";
+    return errmsg_.isEmpty() ? errmsg_ : "Handling traces";
 }
 
 
