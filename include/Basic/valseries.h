@@ -143,7 +143,7 @@ protected:
 
 #undef mImplArr
 
-#ifdef __win32__
+#ifdef __is32bits__
 #define mChunkSize	0x20000000
 #else
 #define mChunkSize	0x800000000
