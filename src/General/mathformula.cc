@@ -143,7 +143,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	    expr_->setVariableValue( ivar, vals[inpidx] );
 	else
 	{
-	    float val = 0;
+	    double val = 0;
 	    if ( varshifts_[ivar] > 0 )
 	    {
 		const int idx = prevvals_.size() - 1 - varshifts_[ivar];
