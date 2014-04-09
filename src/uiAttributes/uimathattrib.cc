@@ -102,8 +102,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 void uiMathAttrib::parsePush( CallBacker* )
 {
     const BufferString usrinp( inpfld_->text() );
-    Math::ExpressionParser mep( usrinp );
-    Math::Expression* expr = mep.parse();
+    ::Math::ExpressionParser mep( usrinp );
+    ::Math::Expression* expr = mep.parse();
     if ( !usrinp.isEmpty() && !expr )
     {
 	BufferString errmsg = "Invalid formula:\n";
@@ -120,7 +120,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 }
 
 
-void uiMathAttrib::getVarsNrAndNms( Math::Expression* expr )
+void uiMathAttrib::getVarsNrAndNms( ::Math::Expression* expr )
 {
     //TODO check what extra for specs
     nrvars_ = 0;
@@ -131,11 +131,11 @@ void uiMathAttrib::getVarsNrAndNms( Math::Expression* expr )
     for ( int idx=0; expr && idx<expr->nrUniqueVarNames(); idx++ )
     {
 	const char* varnm = expr->uniqueVarName( idx );
-	const Math::Expression::VarType vtyp
-		= Math::ExpressionParser::varTypeOf( varnm );
+	const ::Math::Expression::VarType vtyp
+		= ::Math::ExpressionParser::varTypeOf( varnm );
 	switch ( vtyp )
 	{
-	    case Math::Expression::Variable :
+	    case ::Math::Expression::Variable :
 	    {
 		if ( !Attrib::Math::getSpecVars().isPresent(varnm) )
 		{
@@ -144,7 +144,7 @@ void uiMathAttrib::getVarsNrAndNms( Math::Expression* expr )
 		}
 		break;
 	    }
-	    case Math::Expression::Constant :
+	    case ::Math::Expression::Constant :
 	    {
 		nrcsts_++;
 		cstnms.add( varnm );
@@ -267,17 +267,17 @@ bool uiMathAttrib::getParameters( Desc& desc )
 
     mSetString( Attrib::Math::expressionStr(), inpfld_->text() );
 
-    Math::ExpressionParser mep( inpfld_->text() );
-    Math::Expression* expr = mep.parse();
+    ::Math::ExpressionParser mep( inpfld_->text() );
+    ::Math::Expression* expr = mep.parse();
     if ( !expr )
 	mErrRet( BufferString("Incorrect formula:\n",mep.errMsg()), false )
 
     int nrconsts = 0;
     for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
     {
-	const Math::Expression::VarType vtyp =
-		Math::ExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
-	if ( vtyp == Math::Expression::Constant )
+	const ::Math::Expression::VarType vtyp =
+		::Math::ExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
+	if ( vtyp == ::Math::Expression::Constant )
 	    nrconsts++;
     }
 
