@@ -370,13 +370,13 @@ int GeometryManager::indexOf( Geometry::ID geomid ) const
 }
 
 
-bool GeometryManager::fillGeometries( TaskRunner* tr )
+bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
 {
     deepUnRef( geometries_ );
     ensureSIPresent();
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 				        .create(sKey::TwoD());
-    return geomreader ? geomreader->read( geometries_, tr ) : false;
+    return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
 }
 
 
