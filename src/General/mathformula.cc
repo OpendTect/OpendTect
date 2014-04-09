@@ -122,7 +122,7 @@ void Math::Formula::setInputUnit( int idx, const UnitOfMeasure* uom )
 }
 
 
-void Math::Formula::startNewSeries()
+void Math::Formula::startNewSeries() const
 {
     prevvals_ = recstartvals_;
 }
@@ -139,6 +139,14 @@ float Math::Formula::getValue( const float* vals, bool internuns ) const
 
 double Math::Formula::getValue( const double* vals, bool internuns ) const
 {
+    if ( prevvals_.size() < maxshift_ )
+    {
+	startNewSeries();
+	for ( int idx=prevvals_.size(); idx<maxshift_; idx++ )
+	    prevvals_ += 0;
+
+    }
+
     for ( int ivar=0; ivar<inpidxs_.size(); ivar++ )
     {
 	const int inpidx = inpidxs_[ivar];
@@ -155,7 +163,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	    double val = 0;
 	    if ( varshifts_[ivar] > 0 )
 	    {
-		const int idx = prevvals_.size() - 1 - varshifts_[ivar];
+		const int idx = prevvals_.size() - varshifts_[ivar];
 		if ( idx >= 0 )
 		    val = prevvals_[idx];
 	    }
@@ -163,10 +171,9 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	}
     }
 
-    double outval = expr_->getValue();
-    if ( internuns && outputunit_ )
-	outval = outputunit_->getSIValue( outval );
-    prevvals_ += outval;
+    const double formval = expr_->getValue();
+    prevvals_ += formval;
 
-    return outval;
+    return outputunit_ && internuns ? outputunit_->getSIValue( formval )
+				    : formval;
 }

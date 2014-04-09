@@ -55,7 +55,7 @@ public:
     void		setOutputUnit( const UnitOfMeasure* uom )
 						{ outputunit_ = uom; }
 
-    void		startNewSeries(); // resets recursive values
+    void		startNewSeries() const; // resets recursive values
     float		getValue(const float*,bool internal_units=true) const;
     double		getValue(const double*,bool internal_units=true) const;
 

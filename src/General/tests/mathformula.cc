@@ -9,17 +9,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathformula.h"
 #include "testprog.h"
+#include "unitofmeasure.h"
 
 
-#define mTestFail(var) \
-    { od_cout() << "Fail:\n" << #var << '=' << var << od_endl; return false; }
+#define mTestValErr(var,val) \
+	{ od_cout() << "Fail:\n" << #var <<'='<< var << \
+	    ", not " << val << od_endl; return false; }
+#define mTestValSucces(var,val) \
+    if ( !quiet ) od_cout() << "Success: " << #var <<'='<< var << od_endl
+
+#define mTestVal(var,val) \
+    if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
+#define mTestValF(var,val) \
+    if ( !mIsEqual(var,val,0.001) ) mTestValErr(var,val) mTestValSucces(var,val)
+
 
 static bool testSimpleFormula()
 {
-     const char* expr = "c0 * x + y";
+     const char* expr = "c0 * x + y - this[-2]";
 
     if ( !quiet )
-	od_cout() << "Expression:\n" << expr << "\n\n";
+	od_cout() << "Expression: '" << expr << "'\n";
 
     Math::Formula form( expr );
 
@@ -27,8 +37,57 @@ static bool testSimpleFormula()
 	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
-    if ( nrinp != 3 )
-	mTestFail(nrinp)
+    mTestVal(nrinp,3);
+
+    const int nrshft = form.maxRecursiveShift();
+    mTestVal(nrshft,2);
+
+    form.recursiveStartVals()[0] = 3;
+    form.recursiveStartVals()[1] = 4;
+
+    form.setInputUnit( 1, UoMR().get("ft") );
+
+    float inpvals[3];
+    inpvals[0] = 1; inpvals[1] = 2; inpvals[2] = 3;
+    float val = form.getValue( inpvals, true );
+    mTestValF(val,6.56168);
+
+    val = form.getValue( inpvals, true );
+    mTestValF(val,5.56168);
+
+    form.startNewSeries();
+    form.setOutputUnit( UoMR().get("ms") );
+    val = form.getValue( inpvals, false );
+    mTestValF(val,6.56168);
+    val = form.getValue( inpvals, true );
+    mTestValF(val,0.00556168);
+
+    return true;
+}
+
+
+static bool testRepeatingVar()
+{
+     const char* expr = "x + x + y";
+
+    if ( !quiet )
+	od_cout() << "Expression: '" << expr << "'\n";
+
+    Math::Formula form( expr );
+
+    if ( !form.isOK() )
+	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
+
+    const int nrinp = form.nrInputs();
+    mTestVal(nrinp,2);
+
+    const int nrshft = form.maxRecursiveShift();
+    mTestVal(nrshft,0);
+
+    float inpvals[2];
+    inpvals[0] = 3; inpvals[1] = 7;
+    float val = form.getValue( inpvals, true );
+    mTestValF(val,13);
 
     return true;
 }
@@ -39,6 +98,9 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     if ( !testSimpleFormula() )
+	ExitProgram( 1 );
+
+    if ( !testRepeatingVar() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
