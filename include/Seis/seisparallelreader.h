@@ -57,7 +57,6 @@ public:
 
 			~ParallelReader();
 
-    const FixedString&	errMsg() const			{ return errmsg_; }
     const ObjectSet<Array3D<float> >* getArrays() const	{ return arrays_; }
 
 protected:
@@ -66,7 +65,8 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
     const char*		nrDoneText() const { return "Traces read"; }
-    const char*		message() const { return !errmsg_ ?"Reading" : errmsg_;}
+    uiStringCopy	uiMessage() const { return errmsg_.isEmpty() ?
+					   "Reading" : errmsg_;}
 
 
     TypeSet<int>		components_;
@@ -79,7 +79,7 @@ protected:
     IOObj*			ioobj_;
     od_int64			totalnr_;
 
-    FixedString			errmsg_;
+    uiString			errmsg_;
 };
 
 } // namespace Seis
