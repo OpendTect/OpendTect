@@ -12,16 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "matlablinkmod.h"
 #include "paralleltask.h"
 
 // MATLAB header files
-#include "matrix.h"
+#include <matrix.h>
 
 template <class T> class ArrayND;
 
 
-mClass(MATLABLink) ArrayNDCopier : public ParallelTask
+class ArrayNDCopier : public ParallelTask
 {
 public:
 			ArrayNDCopier(const ArrayND<float>&);
@@ -42,7 +41,7 @@ protected:
 };
 
 
-mClass(MATLABLink) mxArrayCopier : public ParallelTask
+class mxArrayCopier : public ParallelTask
 {
 public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);

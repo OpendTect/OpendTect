@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "ranges.h"
+#include "seisioobjinfo.h"
 #include "seisparallelreader.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -39,8 +40,8 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     if ( nrhs != 1 )
 	mErrRet( "Usage: readcbvs parameter-file" );
 
-    if ( nlhs != 1 )
-	mErrRet( "One output required." );
+    if ( nlhs == 0 )
+	mErrRet( "At least one output required." );
 
     char* progname = (char*)"readcbvs";
     int argc = 1;
@@ -100,17 +101,40 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 	mErrRet( errmsg );
     }
 
+    SeisIOObjInfo seisinfo( *ioobj );
+    const int nrcomponents = seisinfo.nrComponents();
+
+    if ( nlhs != nrcomponents )
+    {
+	errmsg.set( "Input cube has " ).add( nrcomponents ).add( " components" )
+	      .add( " but " ).add( nlhs ).add( " outputs are provided.\n" );
+	errmsg.add( "Please provide " ).add( nrcomponents ).add( " outputs." );
+	mErrRet( errmsg );
+    }
+
     CubeSampling cs;
     cs.usePar( par );
 
+    mexPrintf( "Reading: %s\n", ioobj->name().buf() );
     BufferString csinfo;
     cs.hrg.toString( csinfo );
+    csinfo.add( "\nZ range: " );
+    csinfo.add( cs.zrg.start ).add( " - " ).add( cs.zrg.stop )
+	  .add( " [" ).add( cs.zrg.step ).add( "]" );
     mexPrintf( csinfo.buf() ); mexPrintf( "\n" );
 
-    Seis::ParallelReader rdr( *ioobj, cs );
-    rdr.execute();
-
+    mexPrintf( "Nr of components: %d\n", nrcomponents );
     mexPrintf( "Nr of traces: %d\n", cs.hrg.totalNr() );
+    mexPrintf( "Nr of samples: %d\n", cs.nrZ() );
+
+    Seis::ParallelReader rdr( *ioobj, cs );
+    if ( !rdr.execute() )
+    {
+	errmsg = "Error reading input.";
+	if ( !rdr.errMsg().isEmpty() )
+	    errmsg.add("\n").add( rdr.errMsg() );
+	mErrRet( errmsg );
+    }
 
     const ObjectSet<Array3D<float> >* arrays = rdr.getArrays();
     if ( !arrays )
