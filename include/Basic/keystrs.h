@@ -64,6 +64,7 @@ namespace sKey
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
+    inline FixedString Input()		{ return "Input"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString Keys()		{ return "Keys"; }

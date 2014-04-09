@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathformula.h"
 #include "testprog.h"
 #include "unitofmeasure.h"
+#include "iopar.h"
 
 
 #define mTestValErr(var,val) \
@@ -61,6 +62,22 @@ static bool testSimpleFormula()
     mTestValF(val,6.56168);
     val = form.getValue( inpvals, true );
     mTestValF(val,0.00556168);
+
+    if ( !quiet )
+    {
+	IOPar iop;
+	form.fillPar( iop );
+	BufferString str;
+	iop.dumpPretty( str );
+	od_cout() << str << od_endl;
+	Math::Formula form2( "" );
+	form2.usePar( iop );
+	IOPar iop2;
+	form2.fillPar( iop2 );
+	str.setEmpty();
+	iop2.dumpPretty( str );
+	od_cout() << str << od_endl;
+    }
 
     return true;
 }

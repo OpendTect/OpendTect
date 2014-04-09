@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathformula.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
+#include "iopar.h"
 
 
 Math::Formula::Formula( const char* txt )
@@ -115,6 +116,13 @@ void Math::Formula::setText( const char* inp )
 }
 
 
+void Math::Formula::setInputName( int idx, const char* nm )
+{
+    if ( inps_.validIdx(idx) )
+	inps_[idx].name_ = nm;
+}
+
+
 void Math::Formula::setInputUnit( int idx, const UnitOfMeasure* uom )
 {
     if ( inps_.validIdx(idx) )
@@ -176,4 +184,48 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 
     return outputunit_ && internuns ? outputunit_->getSIValue( formval )
 				    : formval;
+}
+
+
+void Math::Formula::fillPar( IOPar& iop ) const
+{
+    iop.update( sKeyExpression(), text_ );
+    iop.update( sKey::Output(), outputunit_ ? outputunit_->name().buf() : 0 );
+
+    if ( recstartvals_.isEmpty() )
+	iop.removeWithKey( sKeyRecStartVals() );
+    else
+	iop.set( sKeyRecStartVals(), recstartvals_ );
+
+    iop.removeWithKeyPattern( BufferString(sKey::Input(),".*") );
+    for ( int idx=0; idx<inps_.size(); idx++ )
+    {
+	const InpDef& id = inps_[idx];
+	BufferString unstr;
+	if ( id.unit_ ) unstr = id.unit_->name();
+	iop.set( IOPar::compKey(sKey::Input(),idx), id.name_, unstr );
+    }
+
+
+}
+
+
+void Math::Formula::usePar( const IOPar& iop )
+{
+    setText( iop.find(sKeyExpression()) );
+    if ( !isOK() )
+	return;
+
+    BufferString unstr;
+    iop.get( sKey::Output(), unstr );
+    outputunit_ = unstr.isEmpty() ? 0 : UoMR().get( unstr );
+
+    iop.get( sKeyRecStartVals(), recstartvals_ );
+
+    for ( int idx=0; idx<inps_.size(); idx++ )
+    {
+	InpDef& id = inps_[idx];
+	iop.get( IOPar::compKey(sKey::Input(),idx), id.name_, unstr );
+	id.unit_ = UoMR().get( unstr );
+    }
 }

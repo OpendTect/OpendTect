@@ -43,7 +43,8 @@ uiTutODMad::uiTutODMad( uiParent* p )
 bool uiTutODMad::acceptOK( CallBacker* )
 {
     iop_.setEmpty();
-    iop_.set( IOPar::compKey("Input",sKey::Type()), ODMad::sKeyMadagascar() );
+    iop_.set( IOPar::compKey(sKey::Input(),sKey::Type()),
+		ODMad::sKeyMadagascar() );
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
@@ -51,7 +52,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
 	return false;
     }
 
-    iop_.set( IOPar::compKey("Input",sKey::FileName()), fnm );
+    iop_.set( IOPar::compKey(sKey::Input(),sKey::FileName()), fnm );
     ODMad::MadStream madstream_( iop_ );
     if ( !madstream_.isOK() )
     {
@@ -68,9 +69,9 @@ bool uiTutODMad::acceptOK( CallBacker* )
     SeisTrcInfo::Fld seisifld = (SeisTrcInfo::Fld)0;
     if ( trcbuf && trcbuf->get(0) && trcbuf->get(1) )
 	seisifld = (SeisTrcInfo::Fld) trcbuf->get(0)->info().
-	    			getDefaultAxisFld(geom,&trcbuf->get(1)->info());
+				getDefaultAxisFld(geom,&trcbuf->get(1)->info());
     bufdtpack_ = new SeisTrcBufDataPack( trcbuf, geom, seisifld,
-	    				 "Madagascar data" );
+					 "Madagascar data" );
     bufdtpack_->trcBufArr2D().setBufMine( true );
     madstream_.setStorBufMine( false );
     DPM(DataPackMgr::FlatID()).add( bufdtpack_ );
@@ -82,7 +83,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
 
 void uiTutODMad::createAndDisplay2DViewer()
 {
-    uiFlatViewMainWin* fvwin = new uiFlatViewMainWin( 0, 
+    uiFlatViewMainWin* fvwin = new uiFlatViewMainWin( 0,
 		    uiFlatViewMainWin::Setup("Madagascar data",true) );
     uiFlatViewer& vwr = fvwin->viewer();
     bool dowiggles = dowigglesfld_->getBoolValue();

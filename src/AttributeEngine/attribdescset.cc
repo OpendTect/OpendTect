@@ -721,7 +721,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    Desc* dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
-		BufferString inputstr = IOPar::compKey( "Input", idx );
+		BufferString inputstr = IOPar::compKey( sKey::Input(), idx );
 		if ( FixedString(descpar->find(inputstr))=="-1" )
 		{
 		    const char* newkey =

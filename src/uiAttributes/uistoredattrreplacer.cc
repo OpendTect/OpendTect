@@ -82,7 +82,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	int inpidx=0;
 	while ( true )
 	{
-	    const char* key = IOPar::compKey( "Input", inpidx );
+	    const char* key = IOPar::compKey( sKey::Input(), inpidx );
 	    int descidx=-1;
 	    if ( !descpar->get(key,descidx) ) break;
 	    if ( descidx < 0 ) continue;

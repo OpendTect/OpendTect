@@ -39,10 +39,11 @@ public:
 
     const char*		text() const		{ return text_; }
     int			nrInputs() const	{ return inps_.size(); }
-    const char*		input( int iinp ) const	{ return inps_[iinp].name_; }
     bool		isConst( int iinp )	{ return inps_[iinp].isconst_; }
     int			indexOf(const char* varnm) const;
     const UnitOfMeasure* outputUnit() const	{ return outputunit_; }
+    const char*		inputName( int iinp ) const
+						{ return inps_[iinp].name_; }
     const UnitOfMeasure* inputUnit( int iinp ) const
 						{ return inps_[iinp].unit_; }
 
@@ -51,6 +52,7 @@ public:
     bool		isRecursive() const	{ return maxshift_ > 0; }
 
     void		setText(const char*);
+    void		setInputName(int,const char*);
     void		setInputUnit(int,const UnitOfMeasure*);
     void		setOutputUnit( const UnitOfMeasure* uom )
 						{ outputunit_ = uom; }
@@ -63,6 +65,9 @@ public:
     void		usePar(const IOPar&);
 
     const Expression*	expression() const	{ return expr_; };
+
+    static const char*	sKeyExpression()	{ return "Expression"; }
+    static const char*	sKeyRecStartVals()	{ return "Recursion start"; }
 
 protected:
 

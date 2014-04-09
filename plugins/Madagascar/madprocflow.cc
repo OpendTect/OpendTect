@@ -13,8 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistype.h"
 #include "ascstream.h"
 
-const char* ODMad::ProcFlow::sKeyInp()		{ return "Input"; }
-const char* ODMad::ProcFlow::sKeyOutp()		{ return "Output"; }
+const char* ODMad::ProcFlow::sKeyInp()		{ return sKey::Input(); }
+const char* ODMad::ProcFlow::sKeyOutp()		{ return sKey::Output(); }
 const char* ODMad::ProcFlow::sKeyProc()		{ return "Proc"; }
 const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 
@@ -170,7 +170,7 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
     mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
 		 ioobj->createTranslator());
     if ( !tr )
-    	{ bs = "Selected object is not a processing flow"; return false; }
+	{ bs = "Selected object is not a processing flow"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -193,7 +193,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( pf, *conn );
-    
+
     return bs.isEmpty();
 }
 

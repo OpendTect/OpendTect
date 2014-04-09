@@ -54,7 +54,7 @@ static void prBidCoord( std::ostream& strm, const Pos::IdxPair2Coord& b2c,
 bool BatchProgram::go( std::ostream& logstrm )
 {
     BufferString fname( StreamProvider::sStdIO() );
-    pars().get( "Input", fname );
+    pars().get( sKey::Input(), fname );
     StreamProvider sp( fname );
     sp.addPathIfNecessary( File::getCurrentPath() );
     if ( !sp.exists(true) )

@@ -29,8 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Vel
 {
 
-const char* VolumeConverter::sKeyInput() { return "Input"; }
-const char* VolumeConverter::sKeyOutput() { return "Output"; }
+const char* VolumeConverter::sKeyInput() { return sKey::Input(); }
+const char* VolumeConverter::sKeyOutput() { return sKey::Output(); }
 
 VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
 				  const HorSampling& ranges,
@@ -214,7 +214,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 		    return false;
 		}
 	    }
-	    if ( velinpdesc_.type_ == VelocityDesc::Avg ) 
+	    if ( velinpdesc_.type_ == VelocityDesc::Avg )
 	    {
 		 if ( !computeVint( inputptr, timesamps[0], timesamps.arr(),
 			trc.size(), interptr ? interptr : outptr ) )
@@ -223,15 +223,15 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 		    outputtrc = 0;
 		}
 	    }
-	    else 
+	    else
 	    {
-		if ( !computeDix( inputptr, sd, trc.size(), 
+		if ( !computeDix( inputptr, sd, trc.size(),
 					interptr ? interptr :outptr ) )
 		{
 		    delete outputtrc;
 		    outputtrc = 0;
 		}
-	    }	
+	    }
 	}
 
 	if ( veloutpdesc_.type_ == VelocityDesc::Avg )
@@ -245,7 +245,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	}
 	else if ( veloutpdesc_.type_ == VelocityDesc::RMS )
 	{
-	    if ( !computeVrms( interptr ? interptr : inputptr, sd, trc.size(), 
+	    if ( !computeVrms( interptr ? interptr : inputptr, sd, trc.size(),
 				outptr ) )
 	    {
 		delete outputtrc;
@@ -258,7 +258,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	sequentialwriter_->submitTrace( outputtrc, true );
 	addToNrDone( 1 );
 
-	Threads::MutexLocker lock( lock_ );	
+	Threads::MutexLocker lock( lock_ );
 	res = getNewTrace( trc, threadidx );
     }
 
