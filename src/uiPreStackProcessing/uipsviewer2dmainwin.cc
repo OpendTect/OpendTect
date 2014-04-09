@@ -1446,4 +1446,4 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
     }
 }
 
-}; //namepsace
+}; //namespace

@@ -5,8 +5,8 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Bert
- Date:          Mar 2008
+ Author:        Satyaki
+ Date:          Aug 2009
  RCS:           $Id$
 ________________________________________________________________________
 
@@ -14,15 +14,18 @@ ________________________________________________________________________
 
 #include "uidatapointsetcrossplot.h"
 
-#include "uidatapointset.h"
-#include "uiworld2ui.h"
-
 #include "arraynd.h"
 #include "mathexpression.h"
 #include "polygon.h"
 #include "rowcol.h"
 #include "task.h"
 #include "threadlock.h"
+
+#include "uidatapointset.h"
+#include "uiworld2ui.h"
+
+
+//!\brief calculates densities for teh density display of a crossplot
 
 mClass(uiIo) DensityCalc : public ParallelTask
 {
@@ -41,7 +44,7 @@ public:
     bool		isSelectionValid(uiDataPointSet::DRowID);
     void		setNrBins(int nrbinx,int nrbiny);
     void		setWorld2Ui(const uiWorld2Ui&);
-    void		setMathObj(MathExpression*);
+    void		setMathObj(Math::Expression*);
     void		setModifiedColIds(
 				const TypeSet<uiDataPointSet::DColID>&);
 
@@ -66,7 +69,7 @@ public:
 protected:
     uiDataPointSet&			uidps_;
     DataPointSet&			dps_;
-    MathExpression*			mathobj_;
+    Math::Expression*			mathobj_;
     const ObjectSet<SelectionGrp>&	selgrpset_;
     uiWorld2Ui				w2ui_;
     TypeSet<RowCol>			selrowcols_;
@@ -129,9 +132,57 @@ DensityCalc::DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
     }
 }
 
-od_int64 DensityCalc::nrDone() const		{ return nrdone_; }
-const char* DensityCalc::nrDoneText() const	{ return "Points done"; }
-od_int64 DensityCalc::nrIterations() const	{ return dps_.size(); }
+inline od_int64 DensityCalc::nrDone() const
+{ return nrdone_; }
+
+inline const char* DensityCalc::nrDoneText() const
+{ return "Points done";}
+
+inline od_int64 DensityCalc::nrIterations() const
+{ return dps_.size(); }
+
+inline void DensityCalc::setWorld2Ui( const uiWorld2Ui& w2ui )
+{ w2ui_ = w2ui; }
+
+inline void DensityCalc::setMathObj( Math::Expression* mobj )
+{ mathobj_ = mobj; }
+
+inline void DensityCalc::setModifiedColIds(
+	const TypeSet<uiDataPointSet::DColID>& ids )
+{ modcolidxs_ = ids; }
+
+inline void DensityCalc::setDPSChangeable( bool yn )
+{ changedps_ = yn; }
+
+inline void DensityCalc::setRemSelected( bool yn )
+{ removesel_ = yn; }
+
+inline void DensityCalc::setCurGroup( int curgrp )
+{ curgrp_ = curgrp; }
+
+inline void DensityCalc::setCellXSize( float sz )
+{ cellxsize_ = sz; }
+
+inline void DensityCalc::setCellYSize( float sz )
+{ cellysize_ = sz; }
+
+inline void DensityCalc::setCellSize( float sz)
+{ cellxsize_ = cellysize_ = sz; }
+
+inline int DensityCalc::indexSize() const
+{ return indexsz_; }
+
+inline const TypeSet<RowCol>& DensityCalc::selRCs() const
+{ return selrowcols_; }
+
+inline const Interval<int>& DensityCalc::usedXPixRg() const
+{ return usedxpixrg_; }
+
+inline void DensityCalc::setAreaType(int areatype)
+{ areatype_ = areatype; }
+
+inline int DensityCalc::areaType() const
+{ return areatype_; }
 
 bool DensityCalc::isSelectionValid( uiDataPointSet::DRowID rid )
 {
@@ -261,37 +312,6 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
     return true;
 }
 
-void DensityCalc::setWorld2Ui( const uiWorld2Ui& w2ui )	{ w2ui_ = w2ui; }
-
-void DensityCalc::setMathObj( MathExpression* mathobj )	{ mathobj_ = mathobj; }
-
-void DensityCalc::setModifiedColIds( const TypeSet<uiDataPointSet::DColID>& colids )
-{ modcolidxs_ = colids; }
-
-void DensityCalc::setDPSChangeable( bool changedps )	{ changedps_ = changedps; }
-
-void DensityCalc::setRemSelected( bool removesel )	{ removesel_ = removesel; }
-
-void DensityCalc::setCurGroup( int curgrp )		{ curgrp_ = curgrp; }
-
-void DensityCalc::setCellXSize( float sz )		{ cellxsize_ = sz; }
-
-void DensityCalc::setCellYSize( float sz )		{ cellysize_ = sz; }
-
-void DensityCalc::setCellSize( float sz)
-{
-    cellxsize_ = cellysize_ = sz;
-}
-
-int DensityCalc::indexSize() const			{ return indexsz_; }
-
-const TypeSet<RowCol>& DensityCalc::selRCs() const	{ return selrowcols_; }
-
-const Interval<int>& DensityCalc::usedXPixRg() const	{ return usedxpixrg_; }
-
-void DensityCalc::setAreaType(int areatype)		{ areatype_ = areatype; }
-
-int DensityCalc::areaType() const			{ return areatype_; }
 
 void DensityCalc::getFreqData( Array2D<float>& freqdata ) const
 {

@@ -33,24 +33,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 
 
-namespace PreStackView 
+namespace PreStackView
 {
-    
+
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     : uiObjectItemViewWin(p,title)
     , posdlg_(0)
     , control_(0)
-    , slicepos_(0)	 
+    , slicepos_(0)
     , seldatacalled_(this)
     , isinl_(false)
     , axispainter_(0)
     , linename_(0)
-    , cs_(false)	  
+    , cs_(false)
 {
 }
 
 
-void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl, 
+void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl,
 	const StepInterval<int>& trcrg, const char* linename )
 {
     mids_ += mid;
@@ -84,7 +84,7 @@ void uiViewer2DMainWin::init( const MultiID& mid, int gatherid, bool isinl,
 	    slicepos_ = new uiSlicePos2DView( this );
 	    slicepos_->setCubeSampling( cs_ );
 	    slicepos_->positionChg.notify(
-		    		mCB(this,uiViewer2DMainWin,posSlcChgCB));
+				mCB(this,uiViewer2DMainWin,posSlcChgCB));
 	}
 	cs_.zrg.setFrom( gather->posData().range( false ) );
 	setGathers( bid );
@@ -128,9 +128,9 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
 
 void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
-    if ( slicepos_ ) 
+    if ( slicepos_ )
 	cs_ = slicepos_->getCubeSampling();
-    if ( posdlg_ ) 
+    if ( posdlg_ )
 	posdlg_->setCubeSampling( cs_ );
 
     setUpView();
@@ -139,9 +139,9 @@ void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 void uiViewer2DMainWin::posDlgChgCB( CallBacker* )
 {
-    if ( posdlg_ ) 
+    if ( posdlg_ )
 	posdlg_->getCubeSampling( cs_ );
-    if ( slicepos_ ) 
+    if ( slicepos_ )
 	slicepos_->setCubeSampling( cs_ );
 
     setUpView();
@@ -190,13 +190,13 @@ void uiViewer2DMainWin::reSizeItems()
 void uiViewer2DMainWin::setGathers( const BinID& bid )
 {
     uiGatherDisplay* gd;
-    PreStack::Gather* gather; 
+    PreStack::Gather* gather;
     Interval<float> zrg( mUdf(float), 0 );
     for ( int idx=0; idx<mids_.size(); idx++ )
     {
 	gd = new uiGatherDisplay( 0 );
 	gather = new PreStack::Gather;
-	if ( (is2d_ && gather->readFrom(mids_[idx],bid.crl,linename_,0)) 
+	if ( (is2d_ && gather->readFrom(mids_[idx],bid.crl,linename_,0))
 		|| (!is2d_ && gather->readFrom(mids_[idx],bid)) )
 	{
 	    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
@@ -229,17 +229,17 @@ void uiViewer2DMainWin::setGathers( const BinID& bid )
 	{
 	    uiFlatViewer* dummyfv = new uiFlatViewer(0);
 	    uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_,
-		   						*dummyfv ); 
+								*dummyfv );
 	    delete dummyfv;
 	    ctrl->posdlgcalled_.notify(
-		    		mCB(this,uiViewer2DMainWin,posDlgPushed));
+				mCB(this,uiViewer2DMainWin,posDlgPushed));
 	    ctrl->datadlgcalled_.notify(
-		    		mCB(this,uiViewer2DMainWin,dataDlgPushed));
+				mCB(this,uiViewer2DMainWin,dataDlgPushed));
 	    ctrl->infoChanged.notify( mCB(this,uiViewer2DMainWin,displayInfo) );
 	    control_ = ctrl;
 	    uiToolBar* tb = control_->toolBar();
 	    if ( tb )
-		tb->addButton( 
+		tb->addButton(
 		    new uiToolButton( tb, "contexthelp", "Help",
 			mCB(this,uiViewer2DMainWin,doHelp) ) );
 	}
@@ -355,4 +355,4 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
     return uiFlatViewControl::doPropertiesDialog( ivwr, dowva );
 }
 
-}; //namepsace
+}; //namespace

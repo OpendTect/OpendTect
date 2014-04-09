@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id$: 
+ RCS:           $Id$:
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     inpfld_->setElemSzPol( uiObject::WideMax );
     inpfld_->updateRequested.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSRefineSelDlg,checkMathExpr) );
-    label->attach( leftAlignedAbove, inpfld_ ); 
+    label->attach( leftAlignedAbove, inpfld_ );
 
     setbut_ = new uiPushButton( this, "Set", true );
     setbut_->activated.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
@@ -82,7 +82,7 @@ void uiDPSRefineSelDlg::checkMathExpr( CallBacker* )
 void uiDPSRefineSelDlg::parsePush( CallBacker* )
 {
     mathexprstring_ = inpfld_->text();
-    MathExpressionParser mep( mathexprstring_ );
+    Math::ExpressionParser mep( mathexprstring_ );
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
@@ -105,7 +105,7 @@ void uiDPSRefineSelDlg::updateDisplay()
 {
     const int nrvars = mathobj_->nrVariables();
     vartable_->setNrRows( nrvars );
- 
+
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
     for ( ; dcid<dps.nrCols(); dcid++ )
@@ -141,7 +141,7 @@ bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
 	setPlotter();
 	return true;
     }
- 
+
     TypeSet<int> colids;
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
@@ -159,7 +159,7 @@ bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
 	dcolids_ += colids[box->currentItem()];
     }
 
-    PtrMan<MathExpression> testexpr = mathobj_->clone();
+    PtrMan<Math::Expression> testexpr = mathobj_->clone();
     nrvars = testexpr->nrVariables();
     for ( int idx=0; idx<nrvars; idx++ )
 	testexpr->setVariableValue( idx, 100 );

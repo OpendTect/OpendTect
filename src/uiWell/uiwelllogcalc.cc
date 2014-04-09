@@ -212,7 +212,7 @@ void uiWellLogCalc::getMathExpr()
     const BufferString inp( formfld_->text() );
     if ( inp.isEmpty() ) return;
 
-    MathExpressionParser mep( inp );
+    Math::ExpressionParser mep( inp );
     expr_ = mep.parse();
 
     if ( !expr_ )
@@ -481,14 +481,14 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
     for ( int iexpr=0; iexpr<expr_->nrVariables(); iexpr++ )
     {
 	InpData inpd;
-	const MathExpression::VarType typ = expr_->getType( iexpr );
+	const Math::Expression::VarType typ = expr_->getType( iexpr );
 	const BufferString fullvarexpr( expr_->fullVariableExpression(iexpr) );
-	const BufferString varnm = MathExpressionParser::varNameOf( fullvarexpr,
-							      &inpd.shift_ );
+	const BufferString varnm
+	    = Math::ExpressionParser::varNameOf( fullvarexpr, &inpd.shift_ );
 
 	switch ( typ )
 	{
-	case MathExpression::Recursive:
+	case Math::Expression::Recursive:
 	{
 	    if ( inpd.shift_ == 0 )
 	    {
@@ -500,8 +500,8 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 	    recvaridxs_ += iexpr;
 	} break;
 
-	case MathExpression::Constant:
-	case MathExpression::Variable:
+	case Math::Expression::Constant:
+	case Math::Expression::Variable:
 	{
 	    inpd.specidx_ = specvars.indexOf( varnm.buf() );
 	    if ( inpd.specidx_ < 0 )

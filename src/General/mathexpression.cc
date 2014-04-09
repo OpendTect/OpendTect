@@ -23,21 +23,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-const ObjectSet<const MathExpressionOperatorDescGroup>&
-			MathExpressionOperatorDescGroup::supported()
+const ObjectSet<const Math::ExpressionOperatorDescGroup>&
+			Math::ExpressionOperatorDescGroup::supported()
 {
     mDefineStaticLocalObject(
-	PtrMan<ManagedObjectSet<const MathExpressionOperatorDescGroup> >,
+	PtrMan<ManagedObjectSet<const Math::ExpressionOperatorDescGroup> >,
 	ret, = 0 );
 
     if ( ret ) return *ret;
-    ret = new ManagedObjectSet<const MathExpressionOperatorDescGroup>;
+    ret = new ManagedObjectSet<const Math::ExpressionOperatorDescGroup>;
 
-    MathExpressionOperatorDescGroup* grp = new MathExpressionOperatorDescGroup;
+    Math::ExpressionOperatorDescGroup* grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Basic";
 
 #   define mAddDesc(s,d,i,n) \
-    grp->opers_ += new MathExpressionOperatorDesc(s,d,i,n)
+    grp->opers_ += new Math::ExpressionOperatorDesc(s,d,i,n)
     mAddDesc("+","Add",true,2);
     mAddDesc("-","Subtract",true,2);
     mAddDesc("*","Multiply",true,2);
@@ -45,7 +45,7 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("^","Power",true,2);
     *ret += grp;
 
-    grp = new MathExpressionOperatorDescGroup;
+    grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Logical";
     mAddDesc("<","Less than",true,2);
     mAddDesc(">","Greater than",true,2);
@@ -58,7 +58,7 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("||","OR",true,2);
     *ret += grp;
 
-    grp = new MathExpressionOperatorDescGroup;
+    grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "MathFunctions";
     mAddDesc("sqrt","Square root",false,1);
     mAddDesc("exp","E-power",false,1);
@@ -75,7 +75,7 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("mod","Modulo, rest after integer division",false,2);
     *ret += grp;
 
-    grp = new MathExpressionOperatorDescGroup;
+    grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Statistical";
     mAddDesc("rand","Random number",false,0);
     mAddDesc("randg","Gaussian random number",false,0);
@@ -87,7 +87,7 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
     mAddDesc("var","Variance",false,3);
     *ret += grp;
 
-    grp = new MathExpressionOperatorDescGroup;
+    grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Constants";
     mAddDesc("pi","PI=3.14...",true,0);
     mAddDesc("euler","e=2.71...",true,0);
@@ -99,11 +99,14 @@ const ObjectSet<const MathExpressionOperatorDescGroup>&
 
 
 
-class MathExpressionVariable : public MathExpression
+namespace Math
+{
+
+class ExpressionVariable : public Expression
 {
 public:
-				MathExpressionVariable( const char* str )
-				    : MathExpression( 0 )
+				ExpressionVariable( const char* str )
+				    : Expression( 0 )
 				    , str_(str) { addIfOK(str_.buf()); }
 
     const char*			fullVariableExpression( int ) const
@@ -116,10 +119,10 @@ public:
     void			setVariableValue( int, double nv )
 							{ val_ = nv; }
 
-    MathExpression*		clone() const
+    Expression*		clone() const
 				{
-				    MathExpression* res =
-					new MathExpressionVariable(str_.buf());
+				    Expression* res =
+					new ExpressionVariable(str_.buf());
 				    copyInput( res );
 				    return res;
 				}
@@ -132,13 +135,14 @@ protected:
 };
 
 
-class MathExpressionConstant : public MathExpression
+
+class ExpressionConstant : public Expression
 {
 public:
 
-MathExpressionConstant( double val )
+ExpressionConstant( double val )
     : val_ ( val )
-    , MathExpression( 0 )
+    , Expression( 0 )
 {
 }
 
@@ -147,9 +151,9 @@ double getValue() const
     return val_;
 }
 
-MathExpression* clone() const
+Expression* clone() const
 {
-    MathExpression* res = new MathExpressionConstant(val_);
+    Expression* res = new ExpressionConstant(val_);
     copyInput( res );
     return res;
 }
@@ -168,18 +172,18 @@ protected:
 
 #define mMathExpressionClass( clss, nr ) \
      \
-class MathExpression##clss : public MathExpression \
+class Expression##clss : public Expression \
 { \
 public: \
-MathExpression##clss() : MathExpression( nr ) \
+Expression##clss() : Expression( nr ) \
 { \
 } \
  \
 double getValue() const; \
  \
-MathExpression* clone() const \
+Expression* clone() const \
 { \
-    MathExpression* res = new MathExpression##clss(); \
+    Expression* res = new Expression##clss(); \
     copyInput( res ); \
     return res; \
 } \
@@ -188,7 +192,7 @@ MathExpression* clone() const \
 
 
 mMathExpressionClass( Plus, 2 )
-double MathExpressionPlus::getValue() const
+double ExpressionPlus::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -199,7 +203,7 @@ double MathExpressionPlus::getValue() const
 
 
 mMathExpressionClass( Minus, 2 )
-double MathExpressionMinus::getValue() const
+double ExpressionMinus::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -211,7 +215,7 @@ double MathExpressionMinus::getValue() const
 
 
 mMathExpressionClass( Multiply, 2 )
-double MathExpressionMultiply::getValue() const
+double ExpressionMultiply::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -223,7 +227,7 @@ double MathExpressionMultiply::getValue() const
 
 
 mMathExpressionClass( Divide, 2 )
-double MathExpressionDivide::getValue() const
+double ExpressionDivide::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -238,7 +242,7 @@ double MathExpressionDivide::getValue() const
 
 
 mMathExpressionClass( IntDivide, 2 )
-double MathExpressionIntDivide::getValue() const
+double ExpressionIntDivide::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -255,7 +259,7 @@ double MathExpressionIntDivide::getValue() const
 
 
 mMathExpressionClass( IntDivRest, 2 )
-double MathExpressionIntDivRest::getValue() const
+double ExpressionIntDivRest::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -272,14 +276,14 @@ double MathExpressionIntDivRest::getValue() const
 
 
 mMathExpressionClass( Abs, 1 )
-double MathExpressionAbs::getValue() const
+double ExpressionAbs::getValue() const
 {
     return fabs(inputs_[0]->getValue());
 }
 
 
 mMathExpressionClass( Power, 2 )
-double MathExpressionPower::getValue() const
+double ExpressionPower::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -298,7 +302,7 @@ double MathExpressionPower::getValue() const
 
 
 mMathExpressionClass( Condition, 3 )
-double MathExpressionCondition::getValue() const
+double ExpressionCondition::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -311,7 +315,7 @@ double MathExpressionCondition::getValue() const
 
 
 mMathExpressionClass( LessOrEqual, 2 )
-double MathExpressionLessOrEqual::getValue() const
+double ExpressionLessOrEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -323,7 +327,7 @@ double MathExpressionLessOrEqual::getValue() const
 
 
 mMathExpressionClass( Less, 2 )
-double MathExpressionLess::getValue() const
+double ExpressionLess::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -335,7 +339,7 @@ double MathExpressionLess::getValue() const
 
 
 mMathExpressionClass( MoreOrEqual, 2 )
-double MathExpressionMoreOrEqual::getValue() const
+double ExpressionMoreOrEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -347,7 +351,7 @@ double MathExpressionMoreOrEqual::getValue() const
 
 
 mMathExpressionClass( More, 2 )
-double MathExpressionMore::getValue() const
+double ExpressionMore::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -359,7 +363,7 @@ double MathExpressionMore::getValue() const
 
 
 mMathExpressionClass( Equal, 2 )
-double MathExpressionEqual::getValue() const
+double ExpressionEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -378,7 +382,7 @@ double MathExpressionEqual::getValue() const
 
 
 mMathExpressionClass( NotEqual, 2 )
-double MathExpressionNotEqual::getValue() const
+double ExpressionNotEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -397,7 +401,7 @@ double MathExpressionNotEqual::getValue() const
 
 
 mMathExpressionClass( OR, 2 )
-double MathExpressionOR::getValue() const
+double ExpressionOR::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -409,7 +413,7 @@ double MathExpressionOR::getValue() const
 
 
 mMathExpressionClass( AND, 2 )
-double MathExpressionAND::getValue() const
+double ExpressionAND::getValue() const
 {
     double val0 = inputs_[0]->getValue();
     double val1 = inputs_[1]->getValue();
@@ -427,7 +431,7 @@ static int ensureRandInited()
 }
 
 mMathExpressionClass( Random, 1 )
-double MathExpressionRandom::getValue() const
+double ExpressionRandom::getValue() const
 {
     double maxval = inputs_[0]->getValue();
     if ( Values::isUdf(maxval) )
@@ -439,7 +443,7 @@ double MathExpressionRandom::getValue() const
 
 
 mMathExpressionClass( GaussRandom, 1 )
-double MathExpressionGaussRandom::getValue() const
+double ExpressionGaussRandom::getValue() const
 {
     const double stdev = inputs_[0]->getValue();
     if ( Values::isUdf(stdev) )
@@ -451,12 +455,12 @@ double MathExpressionGaussRandom::getValue() const
 
 
 #define mMathExpressionOper( clss, func ) \
-class MathExpression##clss : public MathExpression \
+class Expression##clss : public Expression \
 { \
 public: \
 \
-MathExpression##clss() \
-    : MathExpression( 1 ) \
+Expression##clss() \
+    : Expression( 1 ) \
 {} \
 \
 double getValue() const \
@@ -469,9 +473,9 @@ double getValue() const \
     return out == out ? out : mUdf(double); \
 } \
 \
-MathExpression* clone() const \
+Expression* clone() const \
 { \
-    MathExpression* res = new MathExpression##clss(); \
+    Expression* res = new Expression##clss(); \
     copyInput( res ); \
     return res; \
 } \
@@ -480,24 +484,24 @@ MathExpression* clone() const \
 
 
 mMathExpressionOper( Sine, sin )
-mMathExpressionOper( ArcSine, Math::ASin )
+mMathExpressionOper( ArcSine, ASin )
 mMathExpressionOper( Cosine, cos )
-mMathExpressionOper( ArcCosine, Math::ACos )
+mMathExpressionOper( ArcCosine, ACos )
 mMathExpressionOper( Tangent, tan )
 mMathExpressionOper( ArcTangent, atan )
-mMathExpressionOper( Log, Math::Log10 )
-mMathExpressionOper( NatLog, Math::Log )
-mMathExpressionOper( Exp, Math::Exp )
-mMathExpressionOper( Sqrt, Math::Sqrt );
+mMathExpressionOper( Log, Log10 )
+mMathExpressionOper( NatLog, Log )
+mMathExpressionOper( Exp, Exp )
+mMathExpressionOper( Sqrt, Sqrt );
 
 
 #define mMathExpressionStats( statnm ) \
-class MathExpression##statnm : public MathExpression \
+class Expression##statnm : public Expression \
 { \
 public: \
 \
-MathExpression##statnm( int nrvals ) \
-    : MathExpression( nrvals ) \
+Expression##statnm( int nrvals ) \
+    : Expression( nrvals ) \
 {} \
 \
 double getValue() const \
@@ -510,10 +514,9 @@ double getValue() const \
     return (double)stats.getValue( Stats::statnm ); \
 } \
 \
-MathExpression* clone() const \
+Expression* clone() const \
 { \
-    MathExpression* res = \
-	new MathExpression##statnm( inputs_.size() ); \
+    Expression* res = new Expression##statnm( inputs_.size() ); \
     copyInput( res ); \
     return res; \
 } \
@@ -528,8 +531,10 @@ mMathExpressionStats( Median );
 mMathExpressionStats( Average );
 mMathExpressionStats( Variance );
 
+} // namespace Math
 
-const char* MathExpression::fullVariableExpression( int var ) const
+
+const char* Math::Expression::fullVariableExpression( int var ) const
 {
     if ( var>=nrVariables() ) return 0;
 
@@ -539,7 +544,7 @@ const char* MathExpression::fullVariableExpression( int var ) const
 }
 
 
-void MathExpression::setVariableValue( int var, double val )
+void Math::Expression::setVariableValue( int var, double val )
 {
     if ( var>=nrVariables() || var<0 ) return;
 
@@ -553,7 +558,7 @@ void MathExpression::setVariableValue( int var, double val )
 }
 
 
-bool MathExpression::setInput( int inp, MathExpression* obj )
+bool Math::Expression::setInput( int inp, Math::Expression* obj )
 {
     if ( inp>=0 && inp<nrInputs() )
     {
@@ -592,21 +597,21 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 }
 
 
-MathExpression::VarType MathExpression::getType( int ivar ) const
+Math::Expression::VarType Math::Expression::getType( int ivar ) const
 {
-    const BufferString varnm( MathExpressionParser::varNameOf(
+    const BufferString varnm( Math::ExpressionParser::varNameOf(
 			      fullVariableExpression(ivar) ) );
-    return MathExpressionParser::varTypeOf( varnm.buf() );
+    return Math::ExpressionParser::varTypeOf( varnm.buf() );
 }
 
 
-int MathExpression::getConstIdx( int ivar ) const
+int Math::Expression::getConstIdx( int ivar ) const
 {
-    return MathExpressionParser::constIdxOf( fullVariableExpression(ivar) );
+    return Math::ExpressionParser::constIdxOf( fullVariableExpression(ivar) );
 }
 
 
-MathExpression::MathExpression( int sz )
+Math::Expression::Expression( int sz )
     : isrecursive_(false)
 {
     inputs_.allowNull();
@@ -615,7 +620,7 @@ MathExpression::MathExpression( int sz )
 }
 
 
-MathExpression::~MathExpression( )
+Math::Expression::~Expression( )
 {
     deepErase( inputs_ );
     deepErase( variableobj_ );
@@ -623,13 +628,13 @@ MathExpression::~MathExpression( )
 }
 
 
-int MathExpression::nrVariables() const
+int Math::Expression::nrVariables() const
 {
     return variableobj_.size();
 }
 
 
-void MathExpression::copyInput( MathExpression* target ) const
+void Math::Expression::copyInput( Math::Expression* target ) const
 {
     const int sz = nrInputs();
 
@@ -638,10 +643,10 @@ void MathExpression::copyInput( MathExpression* target ) const
 }
 
 
-void MathExpression::addIfOK( const char* str )
+void Math::Expression::addIfOK( const char* str )
 {
-    BufferString varnm = MathExpressionParser::varNameOf( str );
-    if ( MathExpressionParser::varTypeOf( varnm ) == Recursive )
+    BufferString varnm = Math::ExpressionParser::varNameOf( str );
+    if ( Math::ExpressionParser::varTypeOf( varnm ) == Recursive )
     {
 	isrecursive_ = true;
 	return;
@@ -651,13 +656,13 @@ void MathExpression::addIfOK( const char* str )
 }
 
 
-int MathExpression::firstOccurVarName( const char* fullvnm ) const
+int Math::Expression::firstOccurVarName( const char* fullvnm ) const
 {
-    BufferString varnm = MathExpressionParser::varNameOf( fullvnm );
+    BufferString varnm = Math::ExpressionParser::varNameOf( fullvnm );
     for ( int idx=0; idx<nrVariables(); idx++ )
     {
 	BufferString fullvar( fullVariableExpression(idx) );
-	BufferString checkvarnm = MathExpressionParser::varNameOf( fullvar );
+	BufferString checkvarnm = Math::ExpressionParser::varNameOf( fullvar );
 	if ( varnm == checkvarnm )
 	    return idx;
     }
@@ -666,13 +671,13 @@ int MathExpression::firstOccurVarName( const char* fullvnm ) const
 }
 
 
-const char* MathExpression::type() const
+const char* Math::Expression::type() const
 {
     return ::className(*this) + 14;
 }
 
 
-void MathExpression::doDump( BufferString& str, int nrtabs ) const
+void Math::Expression::doDump( BufferString& str, int nrtabs ) const
 {
     const int nrvars = nrVariables();
     const int nrinps = inputs_.size();
@@ -695,7 +700,7 @@ void MathExpression::doDump( BufferString& str, int nrtabs ) const
 //--- Parser
 
 
-BufferString MathExpressionParser::varNameOf( const char* str, int* shift )
+BufferString Math::ExpressionParser::varNameOf( const char* str, int* shift )
 {
     if ( shift ) *shift = 0;
 
@@ -715,24 +720,24 @@ BufferString MathExpressionParser::varNameOf( const char* str, int* shift )
 }
 
 
-MathExpression::VarType MathExpressionParser::varTypeOf( const char* varnm )
+Math::Expression::VarType Math::ExpressionParser::varTypeOf( const char* varnm )
 {
     const BufferString vnm( varnm );
 
     if ( vnm.isEqual("this",CaseInsensitive)
       || vnm.isEqual("out",CaseInsensitive) )
-	return MathExpression::Recursive;
+	return Math::Expression::Recursive;
 
     if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && isdigit(vnm[1]) )
-	return MathExpression::Constant;
+	return Math::Expression::Constant;
 
-    return MathExpression::Variable;
+    return Math::Expression::Variable;
 }
 
 
-int MathExpressionParser::constIdxOf( const char* varstr )
+int Math::ExpressionParser::constIdxOf( const char* varstr )
 {
-    if ( varTypeOf(varstr) != MathExpression::Constant )
+    if ( varTypeOf(varstr) != Math::Expression::Constant )
 	return -1;
 
     const BufferString varnm( varNameOf( varstr ) );
@@ -758,8 +763,8 @@ int MathExpressionParser::constIdxOf( const char* varstr )
 	if ( parenslevel ) continue
 
 
-bool MathExpressionParser::findOuterParens( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findOuterParens( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     if ( str[0] != '(' || str[len-1] != ')' )
 	return false;
@@ -800,8 +805,8 @@ bool MathExpressionParser::findOuterParens( char* str, int len,
 }
 
 
-bool MathExpressionParser::findOuterAbs( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findOuterAbs( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     if ( str[0] != '|' || str[len-1] != '|' )
 	return false;
@@ -815,7 +820,7 @@ bool MathExpressionParser::findOuterAbs( char* str, int len,
     ret = parse( workstr );
     if ( ret )
     {
-	MathExpression* absexp = new MathExpressionAbs;
+	Math::Expression* absexp = new Math::ExpressionAbs;
 	absexp->setInput( 0, ret );
 	ret = absexp;
 	abswarn_ = true;
@@ -826,8 +831,8 @@ bool MathExpressionParser::findOuterAbs( char* str, int len,
 }
 
 
-bool MathExpressionParser::findQMarkOper( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findQMarkOper( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     bool inabs = false; int parenslevel = 0;
     int qmarkpos = -1;
@@ -852,16 +857,16 @@ bool MathExpressionParser::findQMarkOper( char* str, int len,
 	    if ( idx == len - 1 )
 		mErrRet( "Please add a value for the 'false' condition" )
 	    str[qmarkpos] = str[idx] = '\0';
-	    MathExpression* cond = parse( str );
+	    Math::Expression* cond = parse( str );
 	    if ( !cond )
 		return true;
-	    MathExpression* trueexp = parse( str + qmarkpos + 1 );
+	    Math::Expression* trueexp = parse( str + qmarkpos + 1 );
 	    if ( !trueexp )
 		{ delete cond; return true; }
-	    MathExpression* falseexp = parse( str + idx + 1 );
+	    Math::Expression* falseexp = parse( str + idx + 1 );
 	    if ( !falseexp )
 		{ delete cond; delete trueexp; return 0; }
-	    ret = new MathExpressionCondition;
+	    ret = new Math::ExpressionCondition;
 	    ret->setInput( 0, cond );
 	    ret->setInput( 1, trueexp );
 	    ret->setInput( 2, falseexp );
@@ -873,8 +878,8 @@ bool MathExpressionParser::findQMarkOper( char* str, int len,
 }
 
 
-bool MathExpressionParser::findAndOrOr( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findAndOrOr( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     bool inabs = false; int parenslevel = 0;
 
@@ -891,17 +896,17 @@ bool MathExpressionParser::findAndOrOr( char* str, int len,
 		mErrRet( "No right-hand side for '&&' or '||' found" )
 
 	    str[idx] = '\0';
-	    MathExpression* inp0 = parse( str );
+	    Math::Expression* inp0 = parse( str );
 	    if ( !inp0 )
 		return true;
-	    MathExpression* inp1 = parse( str + idx + 2 );
+	    Math::Expression* inp1 = parse( str + idx + 2 );
 	    if ( !inp1 )
 		{ delete inp0; return true; }
 
 	    if ( isand )
-		ret = new MathExpressionAND;
+		ret = new Math::ExpressionAND;
 	    else
-		ret = new MathExpressionOR;
+		ret = new Math::ExpressionOR;
 	    ret->setInput( 0, inp0 );
 	    ret->setInput( 1, inp1 );
 	    return true;
@@ -912,8 +917,8 @@ bool MathExpressionParser::findAndOrOr( char* str, int len,
 }
 
 
-bool MathExpressionParser::findInequality( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findInequality( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     bool inabs = false; int parenslevel = 0;
 
@@ -940,32 +945,32 @@ bool MathExpressionParser::findInequality( char* str, int len,
 		mErrRet( "No right-hand side for (in-)equality operator found" )
 
 	    str[idx] = '\0';
-	    MathExpression* inp0 = parse( str );
+	    Math::Expression* inp0 = parse( str );
 	    if ( !inp0 )
 		return true;
 	    const int nrchars = nextch == '=' ? 2 : 1;
-	    MathExpression* inp1 = parse( str + idx + nrchars );
+	    Math::Expression* inp1 = parse( str + idx + nrchars );
 	    if ( !inp1 )
 		{ delete inp0; return true; }
 
 	    if ( islt )
 	    {
 		if ( nextch == '=' )
-		    ret = new MathExpressionLessOrEqual;
+		    ret = new Math::ExpressionLessOrEqual;
 		else
-		    ret = new MathExpressionLess;
+		    ret = new Math::ExpressionLess;
 	    }
 	    else if ( isgt )
 	    {
 		if ( nextch == '=' )
-		    ret = new MathExpressionMoreOrEqual;
+		    ret = new Math::ExpressionMoreOrEqual;
 		else
-		    ret = new MathExpressionMore;
+		    ret = new Math::ExpressionMore;
 	    }
 	    else if ( iseq )
-		ret = new MathExpressionEqual;
+		ret = new Math::ExpressionEqual;
 	    else
-		ret = new MathExpressionNotEqual;
+		ret = new Math::ExpressionNotEqual;
 
 	    ret->setInput( 0, inp0 );
 	    ret->setInput( 1, inp1 );
@@ -977,8 +982,8 @@ bool MathExpressionParser::findInequality( char* str, int len,
 }
 
 
-bool MathExpressionParser::findPlusAndMinus( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     bool inabs = false; int parenslevel = 0;
 
@@ -999,15 +1004,15 @@ bool MathExpressionParser::findPlusAndMinus( char* str, int len,
 		&& !isalpha(str[idx-2]) )
 		continue;
 
-	    MathExpression* inp1 = parse( curch == '+' ? str+idx+1 : str+idx );
+	    Math::Expression* inp1 = parse( curch == '+' ? str+idx+1 : str+idx );
 	    if ( !inp1 )
 		return true;
 	    str[idx] = '\0';
-	    MathExpression* inp0 = parse( str );
+	    Math::Expression* inp0 = parse( str );
 	    if ( !inp0 )
 		{ delete inp1; return true; }
 
-	    ret = new MathExpressionPlus;
+	    ret = new Math::ExpressionPlus;
 	    ret->setInput( 0, inp0 );
 	    ret->setInput( 1, inp1 );
 	    return true;
@@ -1017,11 +1022,11 @@ bool MathExpressionParser::findPlusAndMinus( char* str, int len,
     // unary '-'
     if ( str[0]== '-' )
     {
-	MathExpression* inp0 = new MathExpressionConstant( -1 );
-	MathExpression* inp1 = parse( str+1 );
+	Math::Expression* inp0 = new Math::ExpressionConstant( -1 );
+	Math::Expression* inp1 = parse( str+1 );
 	if ( !inp1 )
 	    return true;
-	ret = new MathExpressionMultiply;
+	ret = new Math::ExpressionMultiply;
 	ret->setInput( 0, inp0 );
 	ret->setInput( 1, inp1 );
 	return true;
@@ -1031,8 +1036,8 @@ bool MathExpressionParser::findPlusAndMinus( char* str, int len,
 }
 
 
-bool MathExpressionParser::findOtherOper( BufferString& workstr, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findOtherOper( BufferString& workstr, int len,
+					      Math::Expression*& ret ) const
 {
     char* str = workstr.getCStr();
     bool inabs = false; int parenslevel = 0;
@@ -1047,12 +1052,12 @@ bool MathExpressionParser::findOtherOper( BufferString& workstr, int len,
 	    if ( idx == 0 || idx == len-1 ) \
 		continue; \
 	    str[idx] = '\0'; \
-	    MathExpression* inp0 = parse( str ); \
+	    Math::Expression* inp0 = parse( str ); \
 	    if ( !inp0 ) return true; \
-	    MathExpression* inp1 = parse( str+idx+1 ); \
+	    Math::Expression* inp1 = parse( str+idx+1 ); \
 	    if ( !inp1 ) \
 		{ delete inp0; return true; } \
-	    ret = new MathExpression##clss; \
+	    ret = new Math::Expression##clss; \
 	    ret->setInput( 0, inp0 ); \
 	    ret->setInput( 1, inp1 ); \
 	    return true; \
@@ -1083,17 +1088,17 @@ static char* findLooseComma( char* str )
 }
 
 
-bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
+					      Math::Expression*& ret ) const
 {
     char* str = workstr.getCStr();
 #   define mParseFunction( nm, clss ) { \
     if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
     { \
 	workstr[len-1] = '\0'; \
-	MathExpression* inp = parse( str + FixedString( #nm "(" ).size() ); \
+	Math::Expression* inp = parse( str + FixedString( #nm "(" ).size() ); \
 	if ( !inp ) return true; \
-	ret = new MathExpression##clss; \
+	ret = new Math::Expression##clss; \
 	ret->setInput( 0, inp ); \
 	return true; \
     } \
@@ -1124,10 +1129,10 @@ bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
 	if ( !ptrcomma ) \
 	    mErrRet( #nm " function takes 2 arguments" ) \
 	*ptrcomma++ = '\0'; \
-	MathExpression* inp0 = parse( str + fnnameskipsz ); \
-	MathExpression* inp1 = parse( ptrcomma ); \
+	Math::Expression* inp0 = parse( str + fnnameskipsz ); \
+	Math::Expression* inp1 = parse( ptrcomma ); \
 	if ( !inp0 || !inp1 ) return true; \
-	ret = new MathExpression##clss; \
+	ret = new Math::Expression##clss; \
 	ret->setInput( 0, inp0 ); \
 	ret->setInput( 1, inp1 ); \
 	return true; \
@@ -1141,8 +1146,8 @@ bool MathExpressionParser::findMathFunction( BufferString& workstr, int len,
 }
 
 
-bool MathExpressionParser::findStatsFunction( BufferString& workstr, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
+					      Math::Expression*& ret ) const
 {
     char* str = workstr.getCStr();
 #   define mGetIsFnMatch(nm) \
@@ -1174,10 +1179,10 @@ bool MathExpressionParser::findStatsFunction( BufferString& workstr, int len,
 	    }
 	}
 
-	ObjectSet<MathExpression> inputs_;
+	ObjectSet<Math::Expression> inputs_;
 	for ( int idx=0; idx<args.size(); idx++ )
 	{
-	    MathExpression* inp = parse( args.get(idx) );
+	    Math::Expression* inp = parse( args.get(idx) );
 	    if ( !inp )
 	    {
 		deepErase( inputs_ );
@@ -1189,17 +1194,17 @@ bool MathExpressionParser::findStatsFunction( BufferString& workstr, int len,
 
 	const int inpssz = inputs_.size();
 	if ( ismax )
-	    ret = new MathExpressionMax( inpssz );
+	    ret = new Math::ExpressionMax( inpssz );
 	else if ( ismin )
-	    ret = new MathExpressionMin( inpssz );
+	    ret = new Math::ExpressionMin( inpssz );
 	else if ( issum )
-	    ret = new MathExpressionSum( inpssz );
+	    ret = new Math::ExpressionSum( inpssz );
 	else if ( ismed )
-	    ret = new MathExpressionMedian( inpssz );
+	    ret = new Math::ExpressionMedian( inpssz );
 	else if ( isavg )
-	    ret = new MathExpressionAverage( inpssz );
+	    ret = new Math::ExpressionAverage( inpssz );
 	else if ( isvar )
-	    ret = new MathExpressionVariance( inpssz );
+	    ret = new Math::ExpressionVariance( inpssz );
 	if ( !ret )
 	    return true;
 
@@ -1212,8 +1217,8 @@ bool MathExpressionParser::findStatsFunction( BufferString& workstr, int len,
 }
 
 
-bool MathExpressionParser::findVariable( char* str, int len,
-					      MathExpression*& ret ) const
+bool Math::ExpressionParser::findVariable( char* str, int len,
+					      Math::Expression*& ret ) const
 {
     bool isvariable = true;
     for ( int idx=0; idx<len; idx++ )
@@ -1226,7 +1231,7 @@ bool MathExpressionParser::findVariable( char* str, int len,
     }
     if ( isvariable )
     {
-	if ( varTypeOf(str)== MathExpression::Recursive )
+	if ( varTypeOf(str)== Math::Expression::Recursive )
 	{
 	    int recshift; varNameOf( str, &recshift );
 	    if ( recshift >= 0 )
@@ -1238,7 +1243,7 @@ bool MathExpressionParser::findVariable( char* str, int len,
 	    }
 	}
 
-	ret = new MathExpressionVariable( str );
+	ret = new Math::ExpressionVariable( str );
 	return true;
     }
 
@@ -1246,7 +1251,7 @@ bool MathExpressionParser::findVariable( char* str, int len,
 }
 
 
-MathExpression* MathExpressionParser::parse( const char* inpstr ) const
+Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 {
     errmsg_.setEmpty();
     if ( FixedString(inpstr).isEmpty() )
@@ -1258,7 +1263,7 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
     if ( len < 1 )
 	return 0;
     char* str = workstr.getCStr();
-    MathExpression* ret = 0;
+    Math::Expression* ret = 0;
 
     if ( findOuterParens( str, len, ret ) )
 	return ret;
@@ -1277,7 +1282,7 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
 
     double dres = mUdf(double);
     if ( getFromString(dres,str,mUdf(float)) )
-	return new MathExpressionConstant( dres );
+	return new Math::ExpressionConstant( dres );
 
     if ( str[len-1] == ')' )
     {
@@ -1288,11 +1293,11 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
     }
 
     if ( workstr.isEqual("pi",CaseInsensitive) )
-	return new MathExpressionConstant( M_PI );
+	return new Math::ExpressionConstant( M_PI );
     if ( workstr.isEqual("euler",CaseInsensitive) )
-	return new MathExpressionConstant( 2.7182818284590452353602874713 );
+	return new Math::ExpressionConstant( 2.7182818284590452353602874713 );
     else if ( workstr.isEqual("undef",CaseInsensitive) )
-	return new MathExpressionConstant( mUdf(double) );
+	return new Math::ExpressionConstant( mUdf(double) );
 
     if ( findVariable( str, len, ret ) )
 	return ret;
@@ -1302,7 +1307,7 @@ MathExpression* MathExpressionParser::parse( const char* inpstr ) const
 }
 
 
-MathExpression* MathExpressionParser::parse() const
+Math::Expression* Math::ExpressionParser::parse() const
 {
     if ( inp_.isEmpty() )
 	{ errmsg_ = "Empty input"; return 0; }

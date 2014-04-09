@@ -30,7 +30,7 @@ public:
 			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
 			~uiWellLogCalcInpData();
 
-    virtual void	use(const MathExpression*);
+    virtual void	use(const Math::Expression*);
     virtual void	setUnit(const char*);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);

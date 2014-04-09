@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 
-class MathExpression;
+namespace Math { class Expression; }
 
 namespace Attrib
 {
@@ -28,7 +28,7 @@ mExpClass(Attributes) Math : public Provider
 {
 public:
     static void			initClass();
-    				Math(Desc&);
+				Math(Desc&);
 
     static const char*		attribName()		{ return "Math"; }
     static const char*		expressionStr()		{ return "expression"; }
@@ -40,14 +40,14 @@ public:
     static const BufferStringSet&	getSpecVars();
 
 protected:
-    				~Math()	{}
+				~Math()	{}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			getInputOutput(int in,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);
     bool			computeData(const DataHolder&,const BinID& pos,
-	    				    int t0,int nrsamples,
+					    int t0,int nrsamples,
 					    int threadid) const;
 
     bool			allowParallelComputation() const;
@@ -61,7 +61,7 @@ private:
     TypeSet<int>		inputidxs_;
 
     TypeSet<double>		csts_;
-    MathExpression*		expression_;
+    ::Math::Expression*		expression_;
     TypeSet<double>		recstartvals_;
     float			recstartpos_;
     Interval<float>		desintv_;
@@ -78,13 +78,13 @@ private:
 					, shift_( shift )
 					, sampgate_( Interval<int>(shift,0) )
 				{ sampgate_.sort(); }
-				
+
 	bool			operator ==(VAR var) const
 				{ return var.varidx_ == varidx_
-				    	 && var.inputidx_ == inputidx_
+					 && var.inputidx_ == inputidx_
 					 && var.shift_ == shift_; }
 
-	int			varidx_;	//index of var in expression_ 
+	int			varidx_;	//index of var in expression_
 	int			inputidx_;	//corresponding inputdata_
 	int			shift_;		//corresponding sample shift
 	Interval<int>		sampgate_;	//sample gate (for convenience)
@@ -96,12 +96,12 @@ private:
 					: fexpvaridx_( fexpvaridx )
 					, cstidx_( cstidx )
 				{}
-				
+
 	bool			operator ==(CSTS csts) const
 				{ return csts.fexpvaridx_ == fexpvaridx_
-				    	 && csts.cstidx_ == cstidx_; }
+					 && csts.cstidx_ == cstidx_; }
 
-	int			fexpvaridx_;	//index of var in expression_ 
+	int			fexpvaridx_;	//index of var in expression_
 	int			cstidx_;	//corresponding ConstantN param
     };
 
@@ -111,10 +111,10 @@ private:
 					: fexpvaridx_( fexpvaridx )
 					, specidx_( specidx )
 				{}
-				
+
 	bool			operator ==(SPECS specs) const
 				{ return specs.fexpvaridx_ == fexpvaridx_
-				    	 && specs.specidx_ == specidx_; }
+					 && specs.specidx_ == specidx_; }
 
 	int			fexpvaridx_;	//index of var in expression_
 	int			specidx_;	//corresponding special item idx
@@ -124,7 +124,7 @@ private:
     TypeSet<VAR>		varstable_;
     TypeSet<CSTS>		cststable_;
     TypeSet<SPECS>		specstable_;
-    
+
 };
 
 }; // namespace Attrib

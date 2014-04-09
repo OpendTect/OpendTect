@@ -15,12 +15,12 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "property.h"
-class MathExpression;
 class UnitOfMeasure;
+namespace Math { class Expression; }
 
 
 /*!\brief Calculated property
- 
+
   When creating a formula, be sure to use ensureGoodVariableName() on the
   property names. This will be done on the available properties too to
   create the match. In theory, this may create ambiguous formulas, but
@@ -31,8 +31,8 @@ class UnitOfMeasure;
 mExpClass(General) MathProperty : public Property
 {
 public:
-    			MathProperty(const PropertyRef&,const char* def=0);
-    			MathProperty(const MathProperty&);
+			MathProperty(const PropertyRef&,const char* def=0);
+			MathProperty(const MathProperty&);
 			~MathProperty();
 
     int			nrInputs() const;
@@ -46,7 +46,7 @@ public:
     const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
-    			//!< Must be done for all inputs after each setDef()
+			//!< Must be done for all inputs after each setDef()
     float		constValue(int) const;
     void		setConst(int,float);
 
@@ -67,7 +67,7 @@ protected:
     const UnitOfMeasure*	uom_;
     const UnitOfMeasure*	formulauom_;
 
-    mutable MathExpression*	expr_;
+    mutable Math::Expression*	expr_;
     mutable ObjectSet<const Property> inps_;
     mutable ObjectSet<const UnitOfMeasure> inpunits_;
     mutable TypeSet<float>	consts_;
@@ -75,7 +75,7 @@ protected:
     mutable BufferString	fulldef_;
 
     const Property*		findInput(const PropertySet&,const char*,
-	    				  bool) const;
+					  bool) const;
     void			addDefInpUnit() const;
 
 };

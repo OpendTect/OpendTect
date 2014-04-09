@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 #include "uidialog.h"
 
-class MathExpression;
+namespace Math { class Expression; }
 class uiMathExpression;
 class uiMathExpressionVariable;
 class uiComboBox;
@@ -42,15 +42,15 @@ public:
 
 protected:
 
-    MathProperty&       prop_;                                                  
-    uiMathExpression*   formfld_;                                               
-    uiListBox*          propfld_;                                               
-    MathExpression*     expr_;                                                  
-    BufferStringSet     inputunits_;                                            
-    int                 nrvars_;                                                
-    uiPushButton*       replbut_;                                               
+    MathProperty&       prop_;
+    uiMathExpression*   formfld_;
+    uiListBox*          propfld_;
+    Math::Expression*     expr_;
+    BufferStringSet     inputunits_;
+    int                 nrvars_;
+    uiPushButton*       replbut_;
     uiComboBox*         outunfld_;
-    ObjectSet<uiMathExpressionVariable> inpdataflds_;                           
+    ObjectSet<uiMathExpressionVariable> inpdataflds_;
 };
 
 #endif

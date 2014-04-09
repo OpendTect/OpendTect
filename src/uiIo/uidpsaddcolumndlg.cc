@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id$: 
+ RCS:           $Id$:
 ________________________________________________________________________
 
 -*/
@@ -35,15 +35,15 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
     if ( withmathop )
     {
 	uiLabel* label = new uiLabel( this, "Define Mathematical Operation" );
-	label->attach( alignedBelow, nmfld_ ); 
-	
+	label->attach( alignedBelow, nmfld_ );
+
 	inpfld_ = new uiGenInput( this, "Define Math Operation" );
 	inpfld_->setElemSzPol( uiObject::WideMax );
 	inpfld_->updateRequested.notify(
 		mCB(this,uiDPSAddColumnDlg,parsePush) );
 	inpfld_->valuechanging.notify(
 		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
-	inpfld_->attach( alignedBelow, label ); 
+	inpfld_->attach( alignedBelow, label );
 
 	setbut_ = new uiPushButton( this, "Set", true );
 	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
@@ -92,7 +92,7 @@ void uiDPSAddColumnDlg::parsePush( CallBacker* )
     if ( !withmathop_ ) return;
 
     mathexprstring_ = inpfld_->text();
-    MathExpressionParser mep( mathexprstring_ );
+    Math::ExpressionParser mep( mathexprstring_ );
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {

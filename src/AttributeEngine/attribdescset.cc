@@ -414,8 +414,8 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) ) return;
     ValParam* expr = tmpdesc->getValParam( "expression" );
     if ( !expr ) return;
-    MathExpressionParser mep( expr->getStringValue() );
-    PtrMan<MathExpression> formula = mep.parse();
+    Math::ExpressionParser mep( expr->getStringValue() );
+    PtrMan<Math::Expression> formula = mep.parse();
     if ( !formula ) return;
 
     TypeSet<int> oldinputs;
@@ -432,8 +432,8 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 
     for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
     {
-	if ( MathExpressionParser::varTypeOf( formula->uniqueVarName(idx) ) !=
-		MathExpression::Variable ) continue;
+	if ( Math::ExpressionParser::varTypeOf( formula->uniqueVarName(idx) )
+		!= Math::Expression::Variable ) continue;
 
 	const BufferString varnm( formula->uniqueVarName(idx) );
 	const char* ptr = varnm.buf();

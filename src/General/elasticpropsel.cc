@@ -154,14 +154,14 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 
 	    ElasticFormula fm( elasnm, rpf->def_, tp );
 
-	    MathExpressionParser mep( rpf->def_ );
-	    MathExpression* me = mep.parse();
+	    Math::ExpressionParser mep( rpf->def_ );
+	    Math::Expression* me = mep.parse();
 	    if ( !me ) continue;
 
 	    int cstidx = 0; int varidx = 0;
 	    for ( int idvar=0; idvar<me->nrVariables(); idvar++)
 	    {
-		if ( me->getType( idvar ) == MathExpression::Constant )
+		if ( me->getType( idvar ) == Math::Expression::Constant )
 		{
 		    if ( rpf->constdefs_.validIdx( cstidx ) )
 			fm.variables().add(
@@ -463,10 +463,10 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
     if ( selvars.isEmpty() )
 	return mUdf( float );
 
-    MathExpression* expr = 0;
+    Math::Expression* expr = 0;
     if ( ef.expression() )
     {
-	MathExpressionParser mep( ef.expression() ); expr = mep.parse();
+	Math::ExpressionParser mep( ef.expression() ); expr = mep.parse();
     }
 
     float val = mUdf(float);

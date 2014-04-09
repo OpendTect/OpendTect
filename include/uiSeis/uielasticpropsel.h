@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
-class MathExpression;
 class PropertyRefSelection;
+namespace Math { class Expression; }
 
 class uiLabeledComboBox;
 class uiComboBox;
@@ -33,7 +33,7 @@ class uiTabStack;
 mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 {
 public:
-    				uiElasticPropSelGrp(uiParent*,
+				uiElasticPropSelGrp(uiParent*,
 					 const BufferStringSet&,
 					 ElasticPropertyRef&,
 					 const TypeSet<ElasticFormula>&);
@@ -45,21 +45,21 @@ public:
     void			putToScreen();
 
     const char*			quantityName() const;
-    bool			isDefinedQuantity() const; 
+    bool			isDefinedQuantity() const;
 
     void			updateRefPropNames();
 
 protected:
 
     uiGenInput*                 formfld_;
-    uiLabeledComboBox* 		selmathfld_;
+    uiLabeledComboBox*		selmathfld_;
     const BufferStringSet&	propnms_;
 
     ElasticPropertyRef&		elpropref_;
     ElasticFormula&		elformsel_;
     const TypeSet<ElasticFormula> availableformulas_;
 
-    MathExpression*	   	expr_;
+    Math::Expression*		expr_;
 
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     {
@@ -69,23 +69,23 @@ protected:
 	const char*		textOfVariable() const;
 	void			setVariable(const char*,float val);
 
-	bool			isActive() 	{ return isactive_; }
-	void			use(MathExpression*);
+	bool			isActive()	{ return isactive_; }
+	void			use(Math::Expression*);
 
 	void			fillList();
     protected:
-	int 			idx_;
+	int			idx_;
 	bool			isactive_;
 	bool			isconstant_;
 	const BufferStringSet&	propnms_;
 
 	uiComboBox*		inpfld_;
-	uiGenInput* 		varnmfld_;
+	uiGenInput*		varnmfld_;
 	uiGenInput*		ctefld_;
 
 	void			selVarCB(CallBacker*);
     };
-    ObjectSet<uiSelInpGrp> 	inpgrps_;
+    ObjectSet<uiSelInpGrp>	inpgrps_;
     uiLabeledComboBox*		singleinpfld_;
 
     uiGenInput*			storenamefld_;
@@ -105,9 +105,9 @@ public:
 					ElasticPropSelection&);
 				~uiElasticPropSelDlg();
 
-    const ElasticPropSelection&	elasticSel() const 	{ return elpropsel_; }
-    const MultiID& 		storedKey() const 	{ return storedmid_; }
-    bool			propSaved() const 	{ return propsaved_; }
+    const ElasticPropSelection&	elasticSel() const	{ return elpropsel_; }
+    const MultiID&		storedKey() const	{ return storedmid_; }
+    bool			propSaved() const	{ return propsaved_; }
 
 protected:
 
@@ -121,7 +121,7 @@ protected:
     ElasticPropSelection&	elpropsel_;
     ElasticPropSelection&	orgelpropsel_;
     MultiID			storedmid_;
-    bool 			propsaved_;
+    bool			propsaved_;
 
     bool			doRead(const MultiID&);
     bool			doStore(const IOObj&);
@@ -129,7 +129,7 @@ protected:
     void			updateFields();
     bool			openPropSel();
     void                        openPropSelCB(CallBacker*) { openPropSel(); }
-    bool			savePropSel(); 
+    bool			savePropSel();
     void                        savePropSelCB(CallBacker*) { savePropSel(); }
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

@@ -185,15 +185,15 @@ MathProperty::~MathProperty()
 }
 
 
-static int getNrVars( const MathExpression* me, bool var )
+static int getNrVars( const Math::Expression* me, bool var )
 {
     if ( !me ) return 0;
     const int nrvars = me->nrVariables();
     int ret = 0;
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	if (  (var && me->getType(idx) == MathExpression::Variable)
-	  || (!var && me->getType(idx) == MathExpression::Constant) )
+	if (  (var && me->getType(idx) == Math::Expression::Variable)
+	  || (!var && me->getType(idx) == Math::Expression::Constant) )
 	    ret++;
     }
     return ret;
@@ -212,15 +212,15 @@ int MathProperty::nrConsts() const
 }
 
 
-static const char* getVarName( const MathExpression* me, int nr, bool var )
+static const char* getVarName( const Math::Expression* me, int nr, bool var )
 {
     if ( !me || nr < 0 ) return 0;
     const int nrvars = me->nrVariables();
     int varnr = -1;
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	if (  (var && me->getType(idx) == MathExpression::Variable)
-	  || (!var && me->getType(idx) == MathExpression::Constant) )
+	if (  (var && me->getType(idx) == Math::Expression::Variable)
+	  || (!var && me->getType(idx) == Math::Expression::Constant) )
 	    varnr++;
 	if ( varnr == nr )
 	    return me->fullVariableExpression( idx );
@@ -461,7 +461,7 @@ void MathProperty::setDef( const char* s )
     inps_.erase(); consts_.erase(); inpunits_.erase();
     FileMultiString fms( s );
     def_ = fms[0];
-    MathExpressionParser mep( def_ );
+    Math::ExpressionParser mep( def_ );
     delete expr_; expr_ = mep.parse();
     if ( !expr_ ) return;
 
@@ -506,14 +506,14 @@ bool MathProperty::isUdf() const
 }
 
 
-static int getMathVarIdx( const MathExpression& me, int nr, bool var )
+static int getMathVarIdx( const Math::Expression& me, int nr, bool var )
 {
     const int nrvars = me.nrVariables();
     int curnr = -1;
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	if (  (var && me.getType(idx) == MathExpression::Variable)
-	  || (!var && me.getType(idx) == MathExpression::Constant) )
+	if (  (var && me.getType(idx) == Math::Expression::Variable)
+	  || (!var && me.getType(idx) == Math::Expression::Constant) )
 	    curnr++;
 	if ( curnr == nr )
 	    return idx;

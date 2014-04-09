@@ -26,9 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
 
-uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp, 
+uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 				const BufferStringSet& posinpnms,
-       				int curselidx, bool displayuom )
+				int curselidx, bool displayuom )
     : uiGroup(inpgrp,"Inp data group")
     , idx_(curselidx)
     , posinpnms_(posinpnms)
@@ -36,7 +36,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 {
     BufferString lblstr = "For 'input' use";
     inpfld_ = new uiLabeledComboBox( this, posinpnms_, lblstr.buf(),
-	    			     BufferString("input ",curselidx) );
+				     BufferString("input ",curselidx) );
     inpfld_->label()->setPrefWidthInChar( 35 );
     inpfld_->label()->setAlignment( Alignment::Right );
     inpfld_->box()->addItem( "Constant" );
@@ -44,7 +44,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
     if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size();
     inpfld_->box()->setCurrentItem( selidx );
     inpfld_->box()->selectionChanged.notify(
-	    		mCB(this,uiMathExpressionVariable,selChg) );
+			mCB(this,uiMathExpressionVariable,selChg) );
 
     if ( displayuom )
     {
@@ -65,7 +65,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 }
 
 
-void uiMathExpressionVariable::use( const MathExpression* expr )
+void uiMathExpressionVariable::use( const Math::Expression* expr )
 {
     varnm_.setEmpty();
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;

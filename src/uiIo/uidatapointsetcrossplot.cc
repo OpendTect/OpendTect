@@ -169,7 +169,7 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 #define mHandleAxisAutoScale(axis) \
     axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) );
 
-void uiDataPointSetCrossPlotter::setMathObj( MathExpression* mathobj )
+void uiDataPointSetCrossPlotter::setMathObj( Math::Expression* mathobj )
 {
     if ( mathobj )
 	mathobj_ = mathobj->clone();

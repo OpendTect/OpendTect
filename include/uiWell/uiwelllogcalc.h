@@ -23,9 +23,10 @@ class uiCheckBox;
 class uiComboBox;
 class uiLabeledComboBox;
 class uiMathExpression;
-class MathExpression;
 class uiWellLogCalcInpData;
+namespace Math { class Expression; }
 namespace Well { class D2TModel; class Log; class LogSet; class Track;}
+
 
 /*! \brief Dialog for marker specifications */
 
@@ -66,7 +67,7 @@ protected:
     TypeSet<int>		specvaridxs_;
     BoolTypeSet			isspecvar_;
     TypeSet<float>		startvals_;
-    MathExpression*		expr_;
+    Math::Expression*		expr_;
     bool			havenew_;
     float			zsampintv_;
     BufferStringSet		lognms_;

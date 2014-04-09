@@ -15,17 +15,21 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "bufstringset.h"
 
+
+namespace Math
+{
+
 /*!
 \brief Parsed Math expression.
 
-  A MathExpression can be queried about its variables with getNrVariables(),
+  A Expression can be queried about its variables with getNrVariables(),
   and each variable's name can be queried with getVariableStr( int ).
 
   When a calculations should be done, all variables must be set with
   setVariable( int, double ). Then, the calculation can be done with getValue().
 -*/
 
-mExpClass(General) MathExpression
+mExpClass(General) Expression
 {
 public:
 
@@ -36,45 +40,45 @@ public:
     virtual void	setVariableValue(int,double);
 
 			// recursive "out" or "this" excluded
-    int 	nrUniqueVarNames() const
+    int	nrUniqueVarNames() const
 			{ return varnms_.size(); }
     const char* uniqueVarName( int idx ) const
 			{ return varnms_.get(idx).buf(); }
-    int 	indexOfUnVarName( const char* nm )
+    int	indexOfUnVarName( const char* nm )
 			{ return varnms_.indexOf( nm ); }
-    int 	firstOccurVarName(const char*) const;
+    int	firstOccurVarName(const char*) const;
 
     enum VarType	{ Variable, Constant, Recursive };
     VarType		getType(int varidx) const;
-    int 	getConstIdx(int varidx) const;
+    int	getConstIdx(int varidx) const;
 
     bool		isRecursive() const
 			{ return isrecursive_; }
 
-    virtual MathExpression* clone() const = 0;
+    virtual Expression*	clone() const = 0;
 
-    virtual		~MathExpression();
+    virtual		~Expression();
 
     const char* type() const;
     void		dump( BufferString& str ) const { doDump(str,0); }
 
 protected:
 
-			MathExpression(int nrinputs);
+			Expression(int nrinputs);
 
-    int 	nrInputs() const { return inputs_.size(); }
-    bool		setInput( int, MathExpression* );
-    void		copyInput( MathExpression* target ) const;
+    int	nrInputs() const { return inputs_.size(); }
+    bool		setInput( int, Expression* );
+    void		copyInput( Expression* target ) const;
 
     void		addIfOK(const char*);
 
     ObjectSet<TypeSet<int> > variableobj_;
     ObjectSet<TypeSet<int> > variablenr_;
-    ObjectSet<MathExpression> inputs_;
+    ObjectSet<Expression> inputs_;
     BufferStringSet	varnms_;
     bool		isrecursive_;
 
-    friend class	MathExpressionParser;
+    friend class	ExpressionParser;
 
     void		doDump(BufferString&,int nrtabs) const;
     virtual void	dumpSpecifics(BufferString&,int nrtabs) const	{}
@@ -102,21 +106,21 @@ protected:
   Then, errmsg_ should contain info.
 -*/
 
-mExpClass(General) MathExpressionParser
+mExpClass(General) ExpressionParser
 {
 public:
 
-				MathExpressionParser( const char* str=0 )
+				ExpressionParser( const char* str=0 )
 				    : inp_(str), abswarn_(false)	{}
 
     void			setInput( const char* s ) { inp_ = s; }
-    MathExpression*		parse() const;
+    Expression*		parse() const;
 
     static BufferString		varNameOf(const char* fullvarnm,int* shift=0);
-    static MathExpression::VarType varTypeOf(const char*);
+    static Expression::VarType varTypeOf(const char*);
     static int			constIdxOf(const char*);
 
-    const char* 		errMsg() const		{ return errmsg_; }
+    const char*		errMsg() const		{ return errmsg_; }
     bool			foundOldAbs() const	{ return abswarn_; }
 
 protected:
@@ -125,20 +129,20 @@ protected:
     mutable BufferString errmsg_;
     mutable bool	abswarn_;
 
-    MathExpression*	parse(const char*) const;
+    Expression*		parse(const char*) const;
 
-    bool		findOuterParens(char*,int,MathExpression*&) const;
-    bool		findOuterAbs(char*,int,MathExpression*&) const;
-    bool		findQMarkOper(char*,int,MathExpression*&) const;
-    bool		findAndOrOr(char*,int,MathExpression*&) const;
-    bool		findInequality(char*,int,MathExpression*&) const;
-    bool		findPlusAndMinus(char*,int,MathExpression*&) const;
-    bool		findOtherOper(BufferString&,int,MathExpression*&) const;
-    bool		findVariable(char*,int,MathExpression*&) const;
+    bool		findOuterParens(char*,int,Expression*&) const;
+    bool		findOuterAbs(char*,int,Expression*&) const;
+    bool		findQMarkOper(char*,int,Expression*&) const;
+    bool		findAndOrOr(char*,int,Expression*&) const;
+    bool		findInequality(char*,int,Expression*&) const;
+    bool		findPlusAndMinus(char*,int,Expression*&) const;
+    bool		findOtherOper(BufferString&,int,Expression*&) const;
+    bool		findVariable(char*,int,Expression*&) const;
     bool		findMathFunction(BufferString&,int,
-					 MathExpression*&) const;
+					 Expression*&) const;
     bool		findStatsFunction(BufferString&,int,
-					  MathExpression*&) const;
+					  Expression*&) const;
 
 };
 
@@ -147,10 +151,10 @@ protected:
 \brief Expression desc to build UI.
 */
 
-mExpClass(General) MathExpressionOperatorDesc
+mExpClass(General) ExpressionOperatorDesc
 {
 public:
-			MathExpressionOperatorDesc( const char* s,
+			ExpressionOperatorDesc( const char* s,
 					const char* d, bool isop, int n )
 			    : symbol_(s), desc_(d)
 			    , isoperator_(isop), nrargs_(n)	{}
@@ -166,16 +170,17 @@ public:
 \brief Group of similar expression descs.
 */
 
-mExpClass(General) MathExpressionOperatorDescGroup
+mExpClass(General) ExpressionOperatorDescGroup
 {
 public:
 
     BufferString				name_;
-    ObjectSet<MathExpressionOperatorDesc>	opers_;
+    ObjectSet<ExpressionOperatorDesc>	opers_;
 
-    static const ObjectSet<const MathExpressionOperatorDescGroup>& supported();
+    static const ObjectSet<const ExpressionOperatorDescGroup>& supported();
 
 };
 
-#endif
+} // namespace Math
 
+#endif

@@ -153,7 +153,7 @@ void uiMathPropEdDlg::updateMathExpr()
     const BufferString inp( formfld_->text() );
     if ( inp.isEmpty() ) return;
 
-    MathExpressionParser mep( inp );
+    Math::ExpressionParser mep( inp );
     expr_ = mep.parse();
 
     if ( !expr_ )

@@ -18,10 +18,10 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "od_iosfwd.h"
 class Executor;
-class MathExpression;
 class BufferStringSet;
+namespace Math { class Expression; }
 
- 
+
 namespace SEGY
 {
 class BinHeader;
@@ -57,7 +57,7 @@ public:
 				{ return ObjectSet<HdrCalc>::indexOf(he); }
     bool			set(int,const char* def,BufferString* emsg=0);
     bool			add(const HdrEntry&,const char* def,
-	    			    BufferString* emsg=0);
+				    BufferString* emsg=0);
     bool			add(const char* dispstr);
     void			discard(int);
     void			setEmpty();
@@ -65,7 +65,7 @@ public:
     void			reSetSeqNr( int seqnr=1 ) { seqnr_ = seqnr; }
     void			apply(void*,bool needswap) const;
     Executor*			getApplier(od_istream&,od_ostream&,
-	    				   int data_bytes_per_trace,
+					   int data_bytes_per_trace,
 					   const BinHeader* bh=0,
 					   const TxtHeader* th=0) const;
 
@@ -79,12 +79,12 @@ protected:
 
     const HdrDef&		hdef_;
     HdrEntry			trcidxhe_;
-    ObjectSet<MathExpression>	exprs_;
+    ObjectSet<Math::Expression>	exprs_;
     ObjectSet< TypeSet<int> >	heidxs_;
     mutable int			seqnr_;
 
-    MathExpression*		gtME(const char*,TypeSet<int>&,
-	    			     BufferString*) const;
+    Math::Expression*		gtME(const char*,TypeSet<int>&,
+				     BufferString*) const;
 
 };
 

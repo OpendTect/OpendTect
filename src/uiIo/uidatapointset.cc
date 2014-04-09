@@ -1669,7 +1669,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	BinIDValueSet& bvs = dps_.bivSet();
 	BinIDValueSet::SPos pos;
 	TypeSet<int> colids = dlg.usedColIDs();
-	MathExpression* mathobj = dlg.mathObject();
+	Math::Expression* mathobj = dlg.mathObject();
 	if ( !mathobj ) return;
 	while ( bvs.next(pos,false) )
 	{

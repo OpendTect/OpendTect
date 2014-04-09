@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- RCS:           $Id$: 
+ RCS:           $Id$:
 ________________________________________________________________________
 
 -*/
@@ -21,32 +21,32 @@ class uiDataPointSetCrossPlotter;
 class uiGenInput;
 class uiPushButton;
 class uiTable;
+namespace Math { class Expression; }
 
-class MathExpression;
 
 mExpClass(uiIo) uiDPSRefineSelDlg : public uiDialog
 {
 public:
 
 				uiDPSRefineSelDlg(uiDataPointSetCrossPlotter&);
-    MathExpression*		mathObject()		{ return mathobj_; }
+				Math::Expression*		mathObject()		{ return mathobj_; }
 
 protected:
 
     int				cColIds(int dcolid);
     void			updateDisplay();
     void			setPlotter();
-    
+
     void			checkMathExpr(CallBacker*);
     void			parsePush(CallBacker*);
     bool			acceptOK(CallBacker*);
-    
+
     uiDataPointSetCrossPlotter&	plotter_;
     BufferString		mathexprstring_;
     BufferStringSet		colnms_;
-    MathExpression*		mathobj_;
+    Math::Expression*		mathobj_;
     TypeSet<int>		dcolids_;
-    
+
     uiGenInput*			inpfld_;
     uiPushButton*		setbut_;
     uiTable*			vartable_;

@@ -66,11 +66,11 @@ bool SEGY::HdrCalcSet::add( const char* dispstr )
 }
 
 
-MathExpression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
+Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
 					BufferString* emsg ) const
 {
-    MathExpressionParser mep( def );
-    MathExpression* me = mep.parse();
+    Math::ExpressionParser mep( def );
+    Math::Expression* me = mep.parse();
     if ( !me )
     {
 	if ( emsg ) *emsg = mep.errMsg();
@@ -81,15 +81,15 @@ MathExpression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
     const int nrvars = me->nrVariables();
     for ( int ivar=0; ivar<nrvars; ivar++ )
     {
-	const MathExpression::VarType vt = me->getType( ivar );
+	const Math::Expression::VarType vt = me->getType( ivar );
 	const BufferString varnm( me->fullVariableExpression(ivar) );
-	if ( vt != MathExpression::Variable )
+	if ( vt != Math::Expression::Variable )
 	{
 	    if ( emsg )
 	    {
 		*emsg = "'";
 		emsg->add( varnm ).add( "' is a ")
-		    .add( vt == MathExpression::Constant
+		    .add( vt == Math::Expression::Constant
 			? "named constant" : "recursive expression" )
 		    .add( "\nThese are not supported." );
 	    }
@@ -122,7 +122,7 @@ bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
 			    BufferString* emsg )
 {
     TypeSet<int>* heidxs = new TypeSet<int>;
-    MathExpression* me = gtME( def, *heidxs, emsg );
+    Math::Expression* me = gtME( def, *heidxs, emsg );
     if ( !me )
 	{ delete heidxs; return false; }
 
@@ -139,7 +139,7 @@ bool SEGY::HdrCalcSet::set( int heidx, const char* def, BufferString* emsg )
 	return false;
 
     TypeSet<int>* heidxs = new TypeSet<int>;
-    MathExpression* me = gtME( def, *heidxs, emsg );
+    Math::Expression* me = gtME( def, *heidxs, emsg );
     if ( !me )
 	{ delete heidxs; return false; }
 
@@ -167,7 +167,7 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 
     for ( int iexpr=0; iexpr<exprs_.size(); iexpr++ )
     {
-	MathExpression& me = *(const_cast<MathExpression*>(exprs_[iexpr]));
+	Math::Expression& me = *(const_cast<Math::Expression*>(exprs_[iexpr]));
 	const TypeSet<int>& heidxs = *heidxs_[iexpr];
 	for ( int ivar=0; ivar<heidxs.size(); ivar++ )
 	{

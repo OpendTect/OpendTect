@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          July 2011
- RCS:           $Id$: 
+ RCS:           $Id$:
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,11 @@ class uiColorTableGroup;
 class uiDataPointSetCrossPlotter;
 class uiGenInput;
 
-class MathExpression;
 
 mExpClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
 {
 public:
-    				uiDPSSelectednessDlg(uiParent*,
+				uiDPSSelectednessDlg(uiParent*,
 					uiDataPointSetCrossPlotter&);
     bool			acceptOK(CallBacker*);
 
@@ -38,13 +37,14 @@ protected:
 
     void			showOverlayClicked(CallBacker*);
     void			show3DSceneClicked(CallBacker*);
-    
+
     uiCheckBox*			showoverlayfld_;
     uiCheckBox*			showin3dscenefld_;
     uiColorTableGroup*		coltabfld_;
     uiGenInput*			selaxisfld_;
     uiDataPointSetCrossPlotter&	plotter_;
+
 };
 
-#endif
 
+#endif

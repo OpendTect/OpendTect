@@ -297,7 +297,7 @@ void getMathExpr()
     const BufferString inp( formfld_->text() );
     if ( inp.isEmpty() ) return;
 
-    MathExpressionParser mep( inp );
+    Math::ExpressionParser mep( inp );
     expr_ = mep.parse();
 
     if ( !expr_ )
@@ -309,7 +309,7 @@ void getMathExpr()
 
     const PropertyRef&	pr_;
     uiMathExpression*	formfld_;
-    MathExpression*	expr_;
+    Math::Expression*	expr_;
     ObjectSet<uiLabeledComboBox> unflds_;
 };
 */

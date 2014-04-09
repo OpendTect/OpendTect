@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 class BufferStringSet;
-class MathExpression;
+namespace Math { class Expression; }
 class uiGenInput;
 class uiLabeledComboBox;
 class UnitOfMeasure;
@@ -29,7 +29,7 @@ public:
 						int curselidx=0,
 						bool displayuom=true);
 
-    virtual void		use(const MathExpression*);
+    virtual void		use(const Math::Expression*);
     bool                        hasVarName(const char*) const;
     BufferString		getVarName() const;
 

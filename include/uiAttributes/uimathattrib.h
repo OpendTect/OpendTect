@@ -20,7 +20,7 @@ class uiAttrSel;
 class uiGenInput;
 class uiPushButton;
 class uiTable;
-class MathExpression;
+namespace Math { class Expression; }
 
 /*! \brief Math Attribute description editor */
 
@@ -47,10 +47,10 @@ protected:
     int			nrspecs_;
     BufferStringSet	varnms;
     BufferStringSet	cstnms;
-    
-    void 		parsePush(CallBacker*);
+
+    void		parsePush(CallBacker*);
     void		updateDisplay(bool);
-    void		getVarsNrAndNms(MathExpression*);
+    void		getVarsNrAndNms(Math::Expression*);
     void		setupOneRow(const uiAttrSelData&,int,bool);
 
     bool		setParameters(const Attrib::Desc&);
@@ -58,9 +58,9 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-    
 
-    			mDeclReqAttribUIFns
+
+			mDeclReqAttribUIFns
 };
 
 #endif

@@ -50,8 +50,8 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	uiGroup* insgrp = new uiGroup( this, "insert group" );
 
 	grpfld_ = new uiComboBox( insgrp, "Formula group" );
-	const ObjectSet<const MathExpressionOperatorDescGroup>& grps =
-		    MathExpressionOperatorDescGroup::supported();
+	const ObjectSet<const Math::ExpressionOperatorDescGroup>& grps =
+		    Math::ExpressionOperatorDescGroup::supported();
 	for ( int idx=0; idx<grps.size(); idx++ )
 	    grpfld_->addItem( grps[idx]->name_ );
 	grpfld_->setCurrentItem( 2 );
@@ -132,11 +132,11 @@ void uiMathExpression::grpSel( CallBacker* )
 {
     fnfld_->setEmpty();
     const int grpidx = grpfld_->currentItem();
-    const MathExpressionOperatorDescGroup& grp =
-		*MathExpressionOperatorDescGroup::supported()[grpidx];
+    const Math::ExpressionOperatorDescGroup& grp =
+		*Math::ExpressionOperatorDescGroup::supported()[grpidx];
     for ( int idx=0; idx<grp.opers_.size(); idx++ )
     {
-	const MathExpressionOperatorDesc& oper = *grp.opers_[idx];
+	const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
 	BufferString str( oper.symbol_ );
 	str.add( " (" ).add( oper.desc_ ).add( ")" );
 	fnfld_->addItem( str );
@@ -148,9 +148,9 @@ void uiMathExpression::doIns( CallBacker* )
 {
     const int grpidx = grpfld_->currentItem();
     const int opidx = fnfld_->currentItem();
-    const MathExpressionOperatorDescGroup& grp =
-		*MathExpressionOperatorDescGroup::supported()[grpidx];
-    const MathExpressionOperatorDesc& oper = *grp.opers_[opidx];
+    const Math::ExpressionOperatorDescGroup& grp =
+		*Math::ExpressionOperatorDescGroup::supported()[grpidx];
+    const Math::ExpressionOperatorDesc& oper = *grp.opers_[opidx];
 
     BufferString txt( oper.symbol_ );
     if ( !oper.isoperator_ )

@@ -19,8 +19,8 @@ static void parsePassedExpr( const char* inp )
 
     if ( !inp || !*inp ) inp = "abs(x + idiv(y,z))";
     od_cout() << "Expression:\n" << inp << "\n\n";
-    MathExpressionParser mep( inp );
-    MathExpression* me = mep.parse();
+    Math::ExpressionParser mep( inp );
+    Math::Expression* me = mep.parse();
     if ( !me )
 	od_cout() << "Fail:\n" << mep.errMsg() << od_endl;
     else
@@ -47,7 +47,7 @@ static void parsePassedExpr( const char* inp )
 { \
     const char* expression = exp; \
     mep.setInput( expression ); \
-    PtrMan<MathExpression> me = mep.parse(); \
+    PtrMan<Math::Expression> me = mep.parse(); \
     \
     mRunStandardTest( me, BufferString("Parsing ", expression ) ); \
     mRunStandardTest( mIsEqual(me->getValue(),expectation, eps), \
@@ -57,7 +57,7 @@ static void parsePassedExpr( const char* inp )
 
 static bool testArithmeticOrder()
 {
-    MathExpressionParser mep;
+    Math::ExpressionParser mep;
 
     mTestExpression( "3+4*5", 23, 1e-5 );
     mTestExpression( "4*5+3", 23, 1e-5 );
@@ -99,7 +99,7 @@ static bool testArithmeticOrder()
 
 static bool testParenthesis()
 {
-    MathExpressionParser mep;
+    Math::ExpressionParser mep;
 
     mTestExpression( "16+(8/4)", 18, 1e-5 );
     mTestExpression( "(16+8)/4", 6, 1e-5 );
@@ -117,7 +117,7 @@ static bool testParenthesis()
 
 static bool testAbs()
 {
-    MathExpressionParser mep;
+    Math::ExpressionParser mep;
 
     mTestExpression( "abs(-8)+abs(-4)", 12, 1e-5 );
     mTestExpression( "abs(-8)-abs(-4)", 4, 1e-5 );

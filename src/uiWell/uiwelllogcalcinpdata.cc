@@ -58,7 +58,7 @@ uiWellLogCalcInpData::~uiWellLogCalcInpData()
 }
 
 
-void uiWellLogCalcInpData::use( const MathExpression* expr )
+void uiWellLogCalcInpData::use( const Math::Expression* expr )
 {
     forceunit_ = false;
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
