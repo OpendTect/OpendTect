@@ -207,9 +207,9 @@ mImplTranslatorGroupTheInst( clss, usrnm )
 public: \
     Translator* getNew() const \
     { \
-	Translator* tr = new spec##clss##Translator(typeName().buf(), \
+	Translator* trans = new spec##clss##Translator(typeName().buf(), \
 						    userName().buf()); \
-	tr->setGroup( group_ ); return tr; \
+	trans->setGroup( group_ ); return trans; \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
