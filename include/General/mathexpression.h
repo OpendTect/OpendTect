@@ -35,7 +35,7 @@ public:
 
     virtual double	getValue() const		= 0;
 
-    virtual int nrVariables() const;
+    virtual int		nrVariables() const;
     virtual const char* fullVariableExpression(int) const;
     virtual void	setVariableValue(int,double);
 
@@ -110,18 +110,18 @@ mExpClass(General) ExpressionParser
 {
 public:
 
-				ExpressionParser( const char* str=0 )
-				    : inp_(str), abswarn_(false)	{}
+			ExpressionParser( const char* str=0 )
+			    : inp_(str), abswarn_(false)	{}
 
-    void			setInput( const char* s ) { inp_ = s; }
+    void		setInput( const char* s ) { inp_ = s; }
     Expression*		parse() const;
 
-    static BufferString		varNameOf(const char* fullvarnm,int* shift=0);
+    static BufferString	varNameOf(const char* fullvarnm,int* shift=0);
     static Expression::VarType varTypeOf(const char*);
-    static int			constIdxOf(const char*);
+    static int		constIdxOf(const char*);
 
     const char*		errMsg() const		{ return errmsg_; }
-    bool			foundOldAbs() const	{ return abswarn_; }
+    bool		foundOldAbs() const	{ return abswarn_; }
 
 protected:
 
@@ -174,7 +174,7 @@ mExpClass(General) ExpressionOperatorDescGroup
 {
 public:
 
-    BufferString				name_;
+    BufferString			name_;
     ObjectSet<ExpressionOperatorDesc>	opers_;
 
     static const ObjectSet<const ExpressionOperatorDescGroup>& supported();

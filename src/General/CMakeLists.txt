@@ -50,6 +50,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    linekey.cc
 	    linesetposinfo.cc
 	    mathexpression.cc
+	    mathformula.cc
 	    menuhandler.cc
 	    mousecursor.cc
 	    mouseevent.cc
