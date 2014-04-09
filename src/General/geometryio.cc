@@ -81,7 +81,7 @@ void GeometryWriter2D::initClass()
 { GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() ); }
 
 
-bool GeometryWriter2D::write( Geometry& geom ) const
+bool GeometryWriter2D::write( Geometry& geom, BufferString& errmsg) const
 {
     RefMan< Geometry2D > geom2d;
     mDynamicCast( Geometry2D*, geom2d, &geom );
@@ -96,6 +96,9 @@ bool GeometryWriter2D::write( Geometry& geom ) const
     od_ostream strm( ioobj->fullUserExpr() );
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );
+    if ( !res )
+	errmsg = strm.errMsg();
+
     return res;
 }
 

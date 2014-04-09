@@ -221,12 +221,14 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 }
 
 
-bool GeometryManager::fetchFrom2DGeom()
+bool GeometryManager::fetchFrom2DGeom( BufferString& errmsg )
 {
+    fillGeometries(0);
     PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
 				       .create(sKey::TwoD());
     BufferStringSet lsnames;
     S2DPOS().getLineSets( lsnames );
+    bool fetchedgeometry = false;
     for ( int lsidx=0; lsidx<lsnames.size(); lsidx++ )
     {
 	BufferStringSet lnames;
@@ -234,6 +236,12 @@ bool GeometryManager::fetchFrom2DGeom()
 	S2DPOS().setCurLineSet( lsnames.get(lsidx).buf() );
 	for ( int lidx=0; lidx<lnames.size(); lidx++ )
 	{
+	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx), 
+						 lnames.get(lidx) );
+	    if ( geomid != GM().cUndefGeomID() )
+		continue;
+
+	    fetchedgeometry = true;
 	    PosInfo::Line2DData* data = new PosInfo::Line2DData;
 	    data->setLineName( lnames.get(lidx) );
 	    if ( !S2DPOS().getGeometry( *data ) )
@@ -251,9 +259,13 @@ bool GeometryManager::fetchFrom2DGeom()
 	    }
 
 	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
-	    geomwriter->write( *geom2d );
+	    if ( !geomwriter->write(*geom2d,errmsg) )
+		return false;
 	}
     }
+
+    if ( fetchedgeometry )
+	fillGeometries(0);
 
     return true;
 }
@@ -284,14 +296,14 @@ bool GeometryManager::hasDuplicateLineNames()
 }
 
 
-bool GeometryManager::write( Geometry& geom )
+bool GeometryManager::write( Geometry& geom, BufferString& errmsg )
 {
     if ( geom.is2D() )
     {
 	PtrMan<GeometryWriter> geomwriter =GeometryWriter::factory()
 						    .create( sKey::TwoD() );
 	geom.ref();
-	if ( !geomwriter->write(geom) )
+	if ( !geomwriter->write(geom,errmsg) )
 	{
 	    geom.unRef();
 	    return false;

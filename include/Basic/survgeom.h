@@ -121,7 +121,7 @@ public:
       Use the following functions only when you know what you are doing. */
 
     Geometry*			getGeometry(Geometry::ID);
-    bool			write(Geometry&);
+    bool			write(Geometry&,BufferString&);
     IOObj*			createEntry(const char* name,const bool is2d);
 				// returns new GeomID.
     bool			removeGeometry(Geometry::ID);
@@ -130,7 +130,7 @@ public:
 					  const char* linenm) const;
 				/*! Use only if you are converting 
 				    od4 geometries to od5 geometries */
-    bool			fetchFrom2DGeom();
+    bool			fetchFrom2DGeom(BufferString& errmsg);
 				//converts od4 geometries to od5 geometries.
 };
 
@@ -161,7 +161,7 @@ public:
     virtual		~GeometryWriter()		{};
 			mDefineFactoryInClass(GeometryWriter,factory);
 
-    virtual bool	write(Geometry&) const		{ return true; }
+    virtual bool	write(Geometry&,BufferString&) const	{ return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
     virtual bool	removeEntry(const char*) const	{ return 0; }
 
