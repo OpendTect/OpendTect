@@ -42,7 +42,10 @@ public:
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
 		    'Details ...' button, separated by new lines. */
-    void	errorWithDetails(const BufferStringSet&,const char* firstmsg=0);
+    void	errorWithDetails(const TypeSet<uiString>&,
+				 const uiString& firstmsg);
+    void	errorWithDetails(const TypeSet<uiString>&);
+    void	errorWithDetails(const BufferStringSet&);
 
     // Interaction
     int		question(const uiString&,const uiString& textyes=0,

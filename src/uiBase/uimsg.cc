@@ -215,21 +215,43 @@ void uiMsg::error( const uiString& str )
 }
 
 
-void uiMsg::errorWithDetails( const BufferStringSet& bss, const char* before )
+void uiMsg::errorWithDetails( const TypeSet<uiString>& bss,
+			      const uiString& before )
 {
-    FileMultiString fms;
-    if ( before && *before )
-	fms = before;
+    TypeSet<uiString> strings;
 
-    fms += bss;
+    if ( !before.isEmpty() )
+	strings += before;
 
-    errorWithDetails( fms );
+    strings.append( bss );
+
+    errorWithDetails( strings );
+}
+
+
+void uiMsg::errorWithDetails( const BufferStringSet& bss )
+{
+    TypeSet<uiString> strings;
+    bss.fill( strings );
+
+    errorWithDetails( strings );
 }
 
 
 void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
-    if ( !fms.size() )
+    TypeSet<uiString> strings;
+
+    for ( int idx=0; idx<fms.size(); idx++ )
+	strings.add( fms[idx] );
+
+    errorWithDetails( strings );
+}
+
+
+void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
+{
+    if ( !strings.size() )
 	return;
 
     MouseCursorChanger cc( MouseCursor::Arrow );
@@ -238,18 +260,19 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
     const int refnr = beginCmdRecEvent( utfwintitle.buf() );
 
     QMessageBox msgbox( QMessageBox::Critical, wintitle.getQtString(),
-			QString(fms[0]), QMessageBox::Ok, popParnt() );
-    if ( fms.size()>1 )
+			strings[0].getQtString(), QMessageBox::Ok, popParnt() );
+    if ( strings.size()>1 )
     {
-	BufferString detailed;
-	for ( int idx=0; idx<fms.size(); idx++ )
+	uiString detailed;
+	detailed.setFrom( strings[0] );
+
+	for ( int idx=1; idx<strings.size(); idx++ )
 	{
-	    if ( idx>0 )
-		detailed += "\n";
-	    detailed  += fms[idx];
+	    uiStringCopy old = detailed;
+	    detailed = uiString( "%1\n%2").arg( old ).arg( strings[idx] );
 	}
 
-	msgbox.setDetailedText( QString( detailed.buf() ) );
+	msgbox.setDetailedText( detailed.getQtString() );
     }
 
     msgbox.exec();
