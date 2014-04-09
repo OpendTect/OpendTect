@@ -478,7 +478,7 @@ mImplSimpleAddGetFns(od_uint32)
 mImplSimpleAddGetFns(od_int64)
 mImplSimpleAddGetFns(od_uint64)
 
-#ifdef __lux__
+#ifdef __lux64__
 mImplSimpleAddGetFns(long long)
 mImplSimpleAddGetFns(unsigned long long)
 #else

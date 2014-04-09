@@ -49,7 +49,7 @@ public:
     od_istream&		get(od_uint32&);
     od_istream&		get(od_int64&);
     od_istream&		get(od_uint64&);
-#ifdef __lux__
+#ifdef __lux64__
     od_istream&		get(long long&);
     od_istream&		get(unsigned long long&);
 #else
