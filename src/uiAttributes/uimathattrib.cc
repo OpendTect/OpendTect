@@ -36,9 +36,11 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	, nrspecs_(0)
 
 {
-    inpfld_ = new uiGenInput( this, "Formula (e.g. nearstk + c0 * farstk)",
-			     StringInpSpec().setName("Formula") );
+    inpfld_ = new uiGenInput( this, "Formula",
+			      StringInpSpec().setName("Formula") );
     inpfld_->updateRequested.notify( mCB(this,uiMathAttrib,parsePush) );
+    inpfld_->setToolTip( "e.g. nearstk + c0 * farstk\n"
+			 "Click on '?' for more examples" );
 
     parsebut_ = new uiPushButton( this, "Set", true );
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
@@ -99,19 +101,19 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 { uiMSG().error( "Could not parse this equation" ); return retval; }
 
 
-void uiMathAttrib::parsePush( CallBacker* )
+void uiMathAttrib::parsePush( CallBacker* cb )
 {
     const BufferString usrinp( inpfld_->text() );
     ::Math::ExpressionParser mep( usrinp );
     ::Math::Expression* expr = mep.parse();
-    if ( !usrinp.isEmpty() && !expr )
+    if ( cb && (usrinp.isEmpty() || !expr) )
     {
 	BufferString errmsg = "Invalid formula:\n";
-	errmsg += mep.errMsg();
-	errmsg += "\nFormula should have variable names";
-	errmsg += " or constants c0, c1, c2 ...\n";
-	errmsg += "Please read documentation for detailed examples\n ";
-	errmsg += "on recursive formulas, shift....";
+	errmsg.add(mep.errMsg()).addNewLine(2)
+	      .add("Formula should have variable names ")
+	      .add("or constants like c0, c1, c2.").addNewLine()
+	      .add("Please read documentation for supported math functions\n")
+	      .add("and detailed examples on recursive formulas, shifts, etc.");
 	uiMSG().error( errmsg.buf() );
     }
 
