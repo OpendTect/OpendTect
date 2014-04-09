@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "matlablinkmod.h"
-#include "paralleltask.h"
+#include "task.h"
 
 // MATLAB header files
 #include "matrix.h"
