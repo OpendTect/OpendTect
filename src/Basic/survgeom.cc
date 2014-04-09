@@ -221,7 +221,7 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 }
 
 
-bool GeometryManager::fetchFrom2DGeom( BufferString& errmsg )
+bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
     fillGeometries(0);
     PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
@@ -259,8 +259,14 @@ bool GeometryManager::fetchFrom2DGeom( BufferString& errmsg )
 	    }
 
 	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
-	    if ( !geomwriter->write(*geom2d,errmsg) )
+	    uiString errormsg;
+	    if ( !geomwriter->write(*geom2d,errormsg) )
+	    {
+		errmsg = tr(
+		    "Unable to convert 2D geometries to OD5.0 format.\n%1").
+								arg( errormsg );
 		return false;
+	    }
 	}
     }
 
@@ -296,7 +302,7 @@ bool GeometryManager::hasDuplicateLineNames()
 }
 
 
-bool GeometryManager::write( Geometry& geom, BufferString& errmsg )
+bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 {
     if ( geom.is2D() )
     {

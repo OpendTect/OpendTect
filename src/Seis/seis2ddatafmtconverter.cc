@@ -22,20 +22,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mCapChar "^"
 
 class OD_2DLineSetTo2DDataSetConverter
-{
+{mODTextTranslationClass(OD_2DLineSetTo2DDataSetConverter);
 public:
 
 			    OD_2DLineSetTo2DDataSetConverter()	    {}
 			    ~OD_2DLineSetTo2DDataSetConverter();
 
-    void		    doConversion(BufferString& errmsg);
+    void		    doConversion(uiString& errmsg);
 
 protected:
 
     void		    makeListOfLineSets(ObjectSet<IOObj>&);
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
-    bool		    copyData(BufferStringSet&,BufferString&);
+    bool		    copyData(BufferStringSet&,uiString&);
     void		    update2DSFilesAndAddToDelList(
 						    ObjectSet<IOObj>& ioobjlist,
 						    BufferStringSet&);
@@ -49,8 +49,8 @@ protected:
 };
 
 
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( BufferString& errmsg );
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( BufferString& errmsg )
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg );
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg )
 {
     mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
     converter.doConversion( errmsg );
@@ -61,7 +61,7 @@ OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
 {}
 
 
-void OD_2DLineSetTo2DDataSetConverter::doConversion( BufferString& errmsg )
+void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg )
 {
     ObjectSet<IOObj> all2dsfiles;
     makeListOfLineSets( all2dsfiles );
@@ -165,13 +165,18 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 #define mCopyFile \
     if ( File::exists(oldfp.fullPath()) && !File::exists(newfp.fullPath()) ) \
     { \
-	if ( !File::copy(oldfp.fullPath(),newfp.fullPath(),&errmsg) ) \
+	BufferString errormsg; \
+	if ( !File::copy(oldfp.fullPath(),newfp.fullPath(),&errormsg) ) \
+	{ \
+	    errmsg = tr("Unable to convert Seismic data to OD5.0 format.\n%1").\
+							    arg( errormsg ); \
 	    return false; \
+	} \
     }
 
 
 bool OD_2DLineSetTo2DDataSetConverter::copyData( 
-			   BufferStringSet& oldfilepaths, BufferString& errmsg )
+			    BufferStringSet& oldfilepaths, uiString& errmsg )
 {
     int numberoflines = 0;
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )

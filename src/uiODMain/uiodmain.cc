@@ -66,24 +66,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 extern "C" const char* GetSettingsDataDir();
 extern void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
-extern void OD_Convert_2DLineSets_To_2DDataSets(BufferString& errmsg);
+extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg);
 static const int cCTHeight = 200;
 
 
 static void OD_Convert_OD4_Data_To_OD5( CallBacker* cb = 0 )
 {
-    BufferString errmsg;
+    uiString errmsg;
     if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
     {
-	uiMSG().error( "Unable to convert 2D geometries to OD5.0 format.\n",
-		       errmsg.buf() );
+	uiMSG().error( errmsg );
 	return;
     }
 
     OD_Convert_2DLineSets_To_2DDataSets( errmsg );
     if ( !errmsg.isEmpty() )
-	uiMSG().error( "Unable to convert Seismic data to OD5.0 format.\n",
-		       errmsg.buf() );
+	uiMSG().error( errmsg );
 }
 
 

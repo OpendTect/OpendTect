@@ -81,7 +81,7 @@ void GeometryWriter2D::initClass()
 { GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() ); }
 
 
-bool GeometryWriter2D::write( Geometry& geom, BufferString& errmsg) const
+bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg) const
 {
     RefMan< Geometry2D > geom2d;
     mDynamicCast( Geometry2D*, geom2d, &geom );

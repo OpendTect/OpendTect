@@ -186,7 +186,7 @@ bool acceptOK( CallBacker* )
     }
 
     geomdata.setZRange( rgfld_->getFStepInterval() );
-    BufferString errmsg;
+    uiString errmsg;
     if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
     {
 	uiMSG().error( errmsg );
