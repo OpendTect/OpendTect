@@ -82,6 +82,7 @@ public:
 				~uiString();
 
     bool			isEmpty() const;
+    void			setEmpty() { *this = sKey::EmptyString(); }
 
     uiString&			operator=(const uiString&);
 				/*!<\note Does not copy data, will use the same
@@ -98,11 +99,26 @@ public:
     uiString&			operator=(const BufferString&);
     bool			operator==(const uiString& b) const
 				{ return b.data_==data_; }
+    bool			operator!=(const uiString& b) const
+				{ return b.data_!=data_; }
 
     uiString&			arg(const char*);
     uiString&			arg(const FixedString&);
     uiString&			arg(const BufferString&);
     uiString&			arg(const uiString&);
+
+    uiString&			append(const char*);
+				/*!Appends. In most cases, use arg to allow
+				  translator to change ordering. */
+    uiString&			append(const FixedString&);
+				/*!Appends. In most cases, use arg to allow
+				translator to change ordering. */
+    uiString&			append(const BufferString&);
+				/*!Appends. In most cases, use arg to allow
+				 translator to change ordering. */
+    uiString&			append(const uiString&);
+				/*!Appends. In most cases, use arg to allow
+				 translator to change ordering. */
 
     const BufferString& 	getFullString() const;
 				/*!<Constructs the result from the original
@@ -131,6 +147,28 @@ public:
     void			translate(const mQtclass(QTranslator)&,
 					  mQtclass(QString)&) const;
 
+
+
+};
+
+/*!Wrapper class with fewer constructor that ensures that it is completely
+   decoupled from its input. */
+
+mExpClass(Basic) uiStringCopy : public uiString
+{
+public:
+				uiStringCopy(const uiString& in)
+				    : uiString( (const char*) 0 )
+				{ setFrom(in); }
+				uiStringCopy(const char* in = 0)
+				    : uiString(in)
+				{}
+				uiStringCopy(const FixedString& in)
+				    : uiString(in)
+				{}
+				uiStringCopy(const BufferString& in)
+				    : uiString(in)
+				{}
 
 
 };

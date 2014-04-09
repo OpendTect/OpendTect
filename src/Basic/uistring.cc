@@ -297,10 +297,32 @@ uiString& uiString::arg( const char* newarg )
 }
 
 
+uiString& uiString::append( const uiString& txt )
+{
+    uiStringCopy self( *this );
+    *this = uiString("%1%2").arg( self ).arg( txt );
+    return *this;;
+}
+
+
+uiString& uiString::append( const FixedString& a )
+{ return append( a.str() ); }
+
+
+uiString& uiString::append( const BufferString& a )
+{ return append( a.str() ); }
+
+
+uiString& uiString::append( const char* newarg )
+{
+    return append( uiString(newarg) );
+}
+
+
+
 void uiString::translate( const QTranslator& tr , QString& res ) const
 {
     data_->fillQString( res, &tr );
 
 }
-
 
