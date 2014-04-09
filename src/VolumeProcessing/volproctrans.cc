@@ -76,7 +76,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 }
 
 
-const char* dgbVolProcessingTranslator::read( VolProc::Chain& tr,
+const char* dgbVolProcessingTranslator::read( VolProc::Chain& chain,
 					      Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
@@ -93,14 +93,14 @@ const char* dgbVolProcessingTranslator::read( VolProc::Chain& tr,
     par.getFrom( astrm );
     if ( par.isEmpty() )
 	return "Input file contains no data";
-    if ( !tr.usePar( par ) )
-	return tr.errMsg();
+    if ( !chain.usePar( par ) )
+	return chain.errMsg().getFullString();
 
     return 0;
 }
 
 
-const char* dgbVolProcessingTranslator::write( const VolProc::Chain& tr,
+const char* dgbVolProcessingTranslator::write( const VolProc::Chain& chain,
 					   Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
@@ -112,7 +112,7 @@ const char* dgbVolProcessingTranslator::write( const VolProc::Chain& tr,
 	return "Cannot write to output Volume Processing setup file";
 
     IOPar par;
-    tr.fillPar( par );
+    chain.fillPar( par );
     par.putTo( astrm );
 
     return astrm.isOK() ? 0
