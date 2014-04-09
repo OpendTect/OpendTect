@@ -109,6 +109,9 @@ void Math::Formula::setText( const char* inp )
 	if ( maxshift_ < shft )
 	    maxshift_ = shft;
     }
+
+    for ( int idx=0; idx<maxshift_; idx++ )
+	recstartvals_ += 0;
 }
 
 
@@ -140,7 +143,13 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
     {
 	const int inpidx = inpidxs_[ivar];
 	if ( inpidx >= 0 )
-	    expr_->setVariableValue( ivar, vals[inpidx] );
+	{
+	    double val = vals[inpidx];
+	    if ( inps_[inpidx].unit_ && !mIsUdf(val) )
+		val = inps_[inpidx].unit_->getUserValueFromSI( val );
+
+	    expr_->setVariableValue( ivar, val );
+	}
 	else
 	{
 	    double val = 0;
@@ -155,9 +164,9 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
     }
 
     double outval = expr_->getValue();
-    prevvals_ += outval;
     if ( internuns && outputunit_ )
 	outval = outputunit_->getSIValue( outval );
+    prevvals_ += outval;
 
     return outval;
 }

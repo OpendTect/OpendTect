@@ -9,7 +9,7 @@ set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
-list ( APPEND OD_TEST_PROGS mathexpression.cc )
+list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
