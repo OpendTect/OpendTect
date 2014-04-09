@@ -19,18 +19,23 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-uiProcSel::uiProcSel( uiParent* p, const char* lbl,
-				   const MultiID* mid ) 
+uiProcSel::uiProcSel( uiParent* p, const char* lbl, const MultiID* mid,
+		      bool withedit )
     : uiGroup( p )
+    , editbut_(0)
 {
     const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
     selfld_ = new uiIOObjSel( this, ctxt, lbl );
     ConstPtrMan<IOObj> ioobj = mid ? IOM().get(*mid) : 0;
     if ( ioobj ) selfld_->setInput( *ioobj );
     selfld_->selectionDone.notify( mCB(this,uiProcSel,selDoneCB));
-    editbut_ = new uiPushButton( this, "",
-	    mCB(this,uiProcSel,editPushCB), false );
-    editbut_->attach( rightOf, selfld_ );
+
+    if ( withedit )
+    {
+	editbut_ = new uiPushButton( this, "",
+		mCB(this,uiProcSel,editPushCB), false );
+	editbut_->attach( rightOf, selfld_ );
+    }
 
     setHAlignObj( selfld_ );
     selDoneCB( 0 );
@@ -61,6 +66,8 @@ bool uiProcSel::getSel( MultiID& mid ) const
 
 void uiProcSel::selDoneCB( CallBacker* cb )
 {
+    if ( !editbut_ ) return;
+
     const IOObj* ioobj = selfld_->ioobj( true );
     editbut_->setText( ioobj ? "Edit ..." : "Create ..." );
 }

@@ -25,13 +25,13 @@ namespace PreStack
 mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
 {
 public:
-    			uiProcSel(uiParent*,const char* label,
-					  const MultiID*);
+			uiProcSel(uiParent*,const char* label,
+				  const MultiID*,bool withedit=true);
     void		setSel(const MultiID&);
     bool		getSel(MultiID&) const;
 
 protected:
-    			~uiProcSel();
+			~uiProcSel();
 
     void		editPushCB(CallBacker*);
     void		selDoneCB(CallBacker*);
@@ -41,7 +41,7 @@ protected:
 };
 
 
-}; //namespace
+} // namespace PreStack
 
 #endif
 
