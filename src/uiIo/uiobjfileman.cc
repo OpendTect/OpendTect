@@ -60,7 +60,7 @@ void uiObjFileMan::createDefaultUI( bool needreloc, bool needremove )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
-    selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
+    selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, true,
 				 needreloc, true, needremove );
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
@@ -286,7 +286,7 @@ BufferString uiObjFileMan::getFileInfo()
     }
     else
     {
-	BufferString fname( isdir ? curioobj_->fullUserExpr() 
+	BufferString fname( isdir ? curioobj_->fullUserExpr()
 				  : conn->fileName() );
 	FilePath fp( fname );
 	int nrfiles = 0;

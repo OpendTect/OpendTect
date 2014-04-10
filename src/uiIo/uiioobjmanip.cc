@@ -10,24 +10,26 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiioobjmanip.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "iodir.h"
 #include "iodirentry.h"
-#include "uiioobj.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "oddirs.h"
+#include "pixmap.h"
+#include "ptrman.h"
+#include "transl.h"
+
+#include "uibuttongroup.h"
 #include "uifiledlg.h"
+#include "uiioobj.h"
 #include "uigeninputdlg.h"
 #include "uimsg.h"
 #include "uitoolbutton.h"
-#include "uibuttongroup.h"
-#include "pixmap.h"
-#include "ptrman.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "iostrm.h"
-#include "iopar.h"
-#include "transl.h"
-#include "ptrman.h"
-#include "file.h"
-#include "filepath.h"
-#include "oddirs.h"
 
 
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
@@ -128,10 +130,12 @@ uiIOObjManipGroup::~uiIOObjManipGroup()
 }
 
 
-IOObj* uiIOObjManipGroup::gtIOObj() const
+void uiIOObjManipGroup::getIOObjs( ObjectSet<IOObj>& objs ) const
 {
-    const MultiID* curid = subj_.curID();
-    return curid ? IOM().get( *curid ) : 0;
+    objs.allowNull();
+    TypeSet<MultiID> mids; subj_.selectedIDs( mids );
+    for ( int idx=0; idx<mids.size(); idx++ )
+	objs += IOM().get( mids[idx] );
 }
 
 
@@ -152,57 +156,69 @@ void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 
 void uiIOObjManipGroup::selChg()
 {
-    PtrMan<IOObj> ioobj = gtIOObj();
-    if ( !ioobj ) return;
-    mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
+    ObjectSet<IOObj> objs;
+    getIOObjs( objs );
+    const bool singlesel = objs.size() == 1;
 
-    const bool isexisting = ioobj && ioobj->implExists(true);
-    const bool isreadonly = isexisting && ioobj->implReadOnly();
-    if ( locbut ) locbut->setSensitive( iostrm && !isreadonly );
+    IOObj* firstioobj = !objs.isEmpty() ? objs[0] : 0;
+    mDynamicCastGet(IOStream*,iostrm,firstioobj)
+
+    const bool isexisting = firstioobj && firstioobj->implExists(true);
+    const bool isreadonly = isexisting && firstioobj->implReadOnly();
+    if ( locbut ) locbut->setSensitive( singlesel && iostrm && !isreadonly );
     useAlternative( robut, !isreadonly );
-    renbut->setSensitive( ioobj );
-    if ( rembut ) rembut->setSensitive( ioobj && !isreadonly );
+    renbut->setSensitive( singlesel && firstioobj );
+    if ( rembut ) rembut->setSensitive( firstioobj && !isreadonly );
+    deepErase( objs );
 }
 
 
 void uiIOObjManipGroup::tbPush( CallBacker* c )
 {
-    PtrMan<IOObj> ioobj = gtIOObj();
-    if ( !ioobj ) return;
     mDynamicCastGet(uiToolButton*,tb,c)
     if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
 
-    MultiID prevkey( ioobj->key() );
-    PtrMan<Translator> tr = ioobj->createTranslator();
+    mDynamicCastGet(uiMainWin*,mw,subj_.obj_->mainwin())
+    uiMsgMainWinSetter mws( mw );
 
+    ObjectSet<IOObj> ioobjs;
+    getIOObjs( ioobjs );
+
+    IOObj* firstioobj = !ioobjs.isEmpty() ? ioobjs[0] : 0;
+    if ( !firstioobj ) return;
+
+    PtrMan<Translator> tr = firstioobj->createTranslator();
     bool chgd = false;
     if ( tb == locbut )
-	chgd = relocEntry( ioobj, tr );
+	chgd = relocEntry( firstioobj, tr );
     else if ( tb == robut )
-	chgd = readonlyEntry( ioobj, tr );
+    {
+	const bool isro =
+		tr ? tr->implReadOnly(firstioobj) : firstioobj->implReadOnly();
+	for ( int idx=0; idx<ioobjs.size(); idx++ )
+	{
+	    IOObj* ioobj = ioobjs[idx];
+	    if ( !ioobj ) continue;
+	    readonlyEntry( ioobj, tr, !isro );
+	}
+	chgd = false;
+    }
     else if ( tb == renbut )
-	chgd = renameEntry( ioobj, tr );
+	chgd = renameEntry( firstioobj, tr );
     else if ( tb == rembut )
     {
-	const bool exists = tr ? tr->implExists(ioobj,true)
-				: ioobj->implExists(true);
-	const bool readonly = tr ? tr->implReadOnly(ioobj)
-				: ioobj->implReadOnly();
-	bool shldrm = tr ? tr->implShouldRemove(ioobj)
-				: ioobj->implShouldRemove();
-	if ( exists && readonly && shldrm )
+	for ( int idx=0; idx<ioobjs.size(); idx++ )
 	{
-	    if ( !uiMSG().askContinue(
-	    "This entry is not writable; the actual data will not be removed.\n"
-	    "The entry will only disappear from the list.\nContinue?") )
-		return;
-	    shldrm = false;
+	    IOObj* ioobj = ioobjs[idx];
+	    if ( !ioobj ) continue;
+	    const bool res = rmEntry( ioobj );
+	    if ( !chgd && res ) chgd = res;
 	}
-	chgd = rmEntry( ioobj, exists, shldrm );
     }
 
     if ( chgd )
 	subj_.chgsOccurred();
+    deepErase( ioobjs );
 }
 
 
@@ -285,10 +301,26 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 }
 
 
-bool uiIOObjManipGroup::rmEntry( IOObj* ioobj, bool rmabl, bool mustrm )
+bool uiIOObjManipGroup::rmEntry( IOObj* ioobj )
 {
-    return rmabl ? uiIOObj(*ioobj).removeImpl( true, mustrm )
-		 : IOM().permRemove( ioobj->key() );
+    PtrMan<Translator> tr = ioobj->createTranslator();
+    const bool exists = tr ? tr->implExists(ioobj,true)
+			   : ioobj->implExists(true);
+    const bool readonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
+    bool shldrm = tr ? tr->implShouldRemove(ioobj) : ioobj->implShouldRemove();
+    if ( exists && readonly && shldrm )
+    {
+	BufferString msg( "'", ioobj->name(), "' " );
+	msg.add( "is not writable; the actual data will not be removed." )
+	   .addNewLine()
+	   .add( "The entry will only disappear from the list.\nContinue?" );
+	if ( !uiMSG().askContinue(msg) )
+	    return false;
+	shldrm = false;
+    }
+
+    return exists ? uiIOObj(*ioobj).removeImpl( true, shldrm )
+		  : IOM().permRemove( ioobj->key() );
 }
 
 
@@ -326,7 +358,8 @@ bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
 }
 
 
-bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
+bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr,
+				       bool set2ro )
 {
     if ( !ioobj ) { pErrMsg("Huh"); return false; }
 
@@ -336,15 +369,18 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
 
     const bool oldreadonly = tr ? tr->implReadOnly(ioobj)
 				: ioobj->implReadOnly();
-    bool newreadonly = !oldreadonly;
+    bool newreadonly = set2ro;
+    if ( oldreadonly == newreadonly )
+	return false;
+
     if ( tr )
     {
-	tr->implSetReadOnly(ioobj,newreadonly);
-	newreadonly = tr->implReadOnly(ioobj);
+	tr->implSetReadOnly( ioobj, newreadonly );
+	newreadonly = tr->implReadOnly( ioobj );
     }
     else
     {
-	ioobj->implSetReadOnly(newreadonly);
+	ioobj->implSetReadOnly( newreadonly );
 	newreadonly = ioobj->implReadOnly();
     }
 

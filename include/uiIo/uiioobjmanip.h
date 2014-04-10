@@ -26,7 +26,7 @@ class BufferStringSet;
 mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 {
 public:
-    			uiManipButGrp(uiParent* p)
+			uiManipButGrp(uiParent* p)
 			    : uiButtonGroup(p,"ManipButtons",uiObject::Vertical)
 			{ altbutdata.allowNull(); }
 			~uiManipButGrp()
@@ -36,9 +36,9 @@ public:
 
     uiToolButton*	addButton(Type,const char* ttip,const CallBack&);
     uiToolButton*	addButton(const char* iconfnm,const char* ttip,
-	    			  const CallBack&);
+				  const CallBack&);
     void		setAlternative(uiToolButton*,const char* icfnm,
-	    				const char* ttip);
+				       const char* ttip);
     void		useAlternative(uiToolButton*,bool);
 
 protected:
@@ -65,15 +65,15 @@ public:
 				uiIOObjManipGroupSubj( uiObject* o )
 				    : obj_(o), grp_(0)		{}
 
-    virtual const MultiID*	curID() const			= 0;
-    virtual const char*		defExt() const			= 0;
-    virtual const BufferStringSet& names() const		= 0;
+    virtual void		selectedIDs(TypeSet<MultiID>&) const	= 0;
+    virtual const char*		defExt() const				= 0;
+    virtual const BufferStringSet& names() const			= 0;
 
-    virtual void		chgsOccurred()			= 0;
+    virtual void		chgsOccurred()				= 0;
     virtual void		relocStart(const char*)		{}
 
-    uiIOObjManipGroup*	grp_;
-    uiObject*		obj_;
+    uiIOObjManipGroup*		grp_;
+    uiObject*			obj_;
 };
 
 
@@ -82,7 +82,6 @@ public:
 mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
 {
 public:
-
 			uiIOObjManipGroup(uiIOObjManipGroupSubj&,
 					  bool havereloc,
 					  bool haveremove=true);
@@ -101,14 +100,15 @@ protected:
     uiToolButton*	renbut;
     uiToolButton*	rembut;
 
-    IOObj*		gtIOObj() const;
+
+    void		getIOObjs(ObjectSet<IOObj>&) const;
     void		tbPush(CallBacker*);
     void		relocCB(CallBacker*);
 
-    bool		rmEntry(IOObj*,bool,bool);
+    bool		rmEntry(IOObj*);
     bool		renameEntry(IOObj*,Translator*);
     bool		relocEntry(IOObj*,Translator*);
-    bool		readonlyEntry(IOObj*,Translator*);
+    bool		readonlyEntry(IOObj*, Translator*,bool set2ro);
     void		commitChgs(IOObj*);
 
     bool		doReloc(Translator*,IOStream&,IOStream&);

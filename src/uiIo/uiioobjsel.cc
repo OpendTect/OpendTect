@@ -55,13 +55,9 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     selgrp_->selectionChg.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
 }
 
-const MultiID* curID() const
-{
-    int selidx = selgrp_->listfld_->currentItem();
-    if ( selidx >= selgrp_->ioobjids_.size() )
-	selidx = selgrp_->ioobjids_.size() - 1;
-    return selidx < 0 ? 0 : selgrp_->ioobjids_[selidx];
-}
+
+void selectedIDs( TypeSet<MultiID>& mids ) const
+{ selgrp_->getSelected( mids ); }
 
 const char* defExt() const
 {
@@ -156,7 +152,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    if ( !ismultisel_ && ctio_.ctxt.maydooper )
+    if ( ctio_.ctxt.maydooper )
     {
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
@@ -168,7 +164,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
 		"makedefault", "Set as default",
 		mCB(this,uiIOObjSelGrp,makeDefaultCB) );
-    }
+	}
     }
 
     listfld_->setHSzPol( uiObject::Wide );
