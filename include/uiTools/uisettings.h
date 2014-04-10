@@ -15,11 +15,11 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "uidlggroup.h"
 
 class Settings;
 class uiTable;
 class uiGenInput;
-class uiLabeledComboBox;
 struct LooknFeelSettings;
 
 
@@ -30,7 +30,7 @@ public:
 				   const char* settskey=0);
     virtual		~uiSettings();
 
-    			// Specify this to edit the survey defaults
+			// Specify this to edit the survey defaults
     static const char*	sKeySurveyDefs()	{ return "SurvDefs"; }
 
 protected:
@@ -55,10 +55,10 @@ protected:
 };
 
 
-mExpClass(uiTools) uiLooknFeelSettings : public uiDialog
+mExpClass(uiTools) uiLooknFeelSettings : public uiTabStackDlg
 {
 public:
-			uiLooknFeelSettings(uiParent*,const char* titl);
+			uiLooknFeelSettings(uiParent*);
     virtual		~uiLooknFeelSettings();
 
     bool		isChanged() const	{ return changed_; }
@@ -69,19 +69,6 @@ protected:
     LooknFeelSettings&	lfsetts_;
     bool		changed_;
 
-    uiGenInput*		iconszfld_;
-    uiGenInput*		colbarhvfld_;
-    uiGenInput*		colbarontopfld_;
-    uiGenInput*		showwheelsfld_;
-    uiGenInput*		showinlprogressfld_;
-    uiGenInput*		showcrlprogressfld_;
-    uiLabeledComboBox*	textureresfactorfld_;
-    uiGenInput*		useshadingfld_;
-    uiGenInput*		volrenshadingfld_;
-
-    void		updateSettings(bool oldval,bool newval,const char* key);
-
-    void		shadingChange(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 

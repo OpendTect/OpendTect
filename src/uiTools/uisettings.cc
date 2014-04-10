@@ -253,7 +253,6 @@ static int theiconsz = -1;
 #define mCBarKey		"dTect.ColorBar.show vertical"
 #define mShowInlProgress	"dTect.Show inl progress"
 #define mShowCrlProgress	"dTect.Show crl progress"
-#define mShowWheels		"dTect.Show wheels"
 #define mTextureResFactor	"dTect.Default texture resolution factor"
 #define mNoShading		"dTect.No shading"
 #define mVolRenShading		"dTect.Use VolRen shading"
@@ -262,8 +261,7 @@ struct LooknFeelSettings
 {
 		LooknFeelSettings()
 		    : iconsz(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-		    , isvert(true)
-		    , showwheels(true)
+		    , vertcoltab(true)
 		    , showinlprogress(true)
 		    , showcrlprogress(true)
 		    , textureresfactor(0)
@@ -271,8 +269,7 @@ struct LooknFeelSettings
 		    , volrenshading(false)		{}
 
     int		iconsz;
-    bool	isvert;
-    bool	showwheels;
+    bool	vertcoltab;
     bool	showinlprogress;
     bool	showcrlprogress;
     int		textureresfactor;
@@ -282,38 +279,116 @@ struct LooknFeelSettings
 };
 
 
+class uiSettingsGroup : public uiDlgGroup
+{
+public:
+uiSettingsGroup( uiParent* p, const uiString& caption,
+		 Settings& setts, LooknFeelSettings& lfsetts, bool& changed )
+    : uiDlgGroup(p,caption)
+    , setts_(setts)
+    , lfsetts_(lfsetts)
+    , changed_(changed)
+{
+}
 
-uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
-	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
-	, setts_(Settings::common())
-	, lfsetts_(*new LooknFeelSettings)
-	, changed_(false)
+const char* errMsg() const
+{ return errmsg_.buf(); }
+
+void updateSettings( bool oldval, bool newval, const char* key )
+{
+    if ( oldval != newval )
+    {
+	changed_ = true;
+	setts_.setYN( key, newval );
+    }
+}
+
+    BufferString	errmsg_;
+    Settings&		setts_;
+    LooknFeelSettings&	lfsetts_;
+    bool&		changed_;
+};
+
+
+class uiGeneralSettingsGroup : public uiSettingsGroup
+{
+public:
+uiGeneralSettingsGroup( uiParent* p, Settings& setts,
+			LooknFeelSettings& lfsetts, bool& changed )
+    : uiSettingsGroup(p,"General",setts,lfsetts,changed)
 {
     iconszfld_ = new uiGenInput( this, "Icon Size",
 				 IntInpSpec(lfsetts_.iconsz,10,64) );
 
-    setts_.getYN( mCBarKey, lfsetts_.isvert );
+    setts_.getYN( mCBarKey, lfsetts_.vertcoltab );
     colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
-			BoolInpSpec(lfsetts_.isvert,"Vertical","Horizontal") );
+		BoolInpSpec(lfsetts_.vertcoltab,"Vertical","Horizontal") );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
     setts_.getYN( mShowInlProgress, lfsetts_.showinlprogress );
     showinlprogressfld_ = new uiGenInput( this,
-	    "Show progress when loading stored data on inlines",
+	    "Show progress when loading stored data on in-lines",
 	    BoolInpSpec(lfsetts_.showinlprogress) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
     setts_.getYN( mShowCrlProgress, lfsetts_.showcrlprogress );
     showcrlprogressfld_ = new uiGenInput( this,
-	    "Show progress when loading stored data on crosslines",
+	    "Show progress when loading stored data on cross-lines",
 	    BoolInpSpec(lfsetts_.showcrlprogress) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
+}
 
-    setts_.getYN( mShowWheels, lfsetts_.showwheels );
-    showwheelsfld_ = new uiGenInput( this, "Show Zoom/Rotation tools",
-				    BoolInpSpec(lfsetts_.showwheels) );
-    showwheelsfld_->attach( alignedBelow, showcrlprogressfld_ );
 
+bool acceptOK()
+{
+    const int newiconsz = iconszfld_->getIntValue();
+    if ( newiconsz < 10 || newiconsz > 64 )
+    {
+	errmsg_.set( "Please specify an icon size in the range 10-64" );
+	return false;
+    }
+
+    if ( newiconsz != lfsetts_.iconsz )
+    {
+	IOPar* iopar = setts_.subselect( mIconsKey );
+	if ( !iopar ) iopar = new IOPar;
+	iopar->set( "size", newiconsz );
+	setts_.mergeComp( *iopar, mIconsKey );
+	changed_ = true;
+	delete iopar;
+	theiconsz = newiconsz;
+    }
+
+    updateSettings( lfsetts_.vertcoltab, colbarhvfld_->getBoolValue(),
+		    mCBarKey );
+
+    updateSettings( lfsetts_.showinlprogress,
+		    showinlprogressfld_->getBoolValue(),
+		    mShowInlProgress );
+    updateSettings( lfsetts_.showcrlprogress,
+		    showcrlprogressfld_->getBoolValue(),
+		    mShowCrlProgress );
+
+    return true;
+}
+
+protected:
+
+    uiGenInput*		iconszfld_;
+    uiGenInput*		colbarhvfld_;
+    uiGenInput*		showinlprogressfld_;
+    uiGenInput*		showcrlprogressfld_;
+
+};
+
+
+class uiVisSettingsGroup : public uiSettingsGroup
+{
+public:
+uiVisSettingsGroup( uiParent* p, Settings& setts,
+			LooknFeelSettings& lfsetts, bool& changed )
+    : uiSettingsGroup(p,"Visualisation",setts,lfsetts,changed)
+{
     setts_.get( mTextureResFactor, lfsetts_.textureresfactor );
     textureresfactorfld_ = new uiLabeledComboBox( this,
 		"Default texture resolution factor" );
@@ -336,14 +411,13 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     }
 
     textureresfactorfld_->box()->setCurrentItem( selection );
-    textureresfactorfld_->attach( alignedBelow, showwheelsfld_ );
 
     setts_.getYN( mNoShading, lfsetts_.noshading );
     useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
 				    BoolInpSpec(!lfsetts_.noshading) );
     useshadingfld_->attach( alignedBelow, textureresfactorfld_ );
     useshadingfld_->valuechanged.notify(
-			mCB(this,uiLooknFeelSettings,shadingChange) );
+			mCB(this,uiVisSettingsGroup,shadingChange) );
     setts_.getYN( mVolRenShading, lfsetts_.volrenshading );
     volrenshadingfld_ = new uiGenInput( this, "Also for volume rendering?",
 				    BoolInpSpec(lfsetts_.volrenshading) );
@@ -353,51 +427,8 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 }
 
 
-uiLooknFeelSettings::~uiLooknFeelSettings()
+bool acceptOK()
 {
-    delete &lfsetts_;
-}
-
-
-void uiLooknFeelSettings::shadingChange( CallBacker* )
-{
-    volrenshadingfld_->display( useshadingfld_->getBoolValue() );
-}
-
-
-void uiLooknFeelSettings::updateSettings( bool oldval, bool newval,
-					  const char* key )
-{
-    if ( oldval != newval )
-    {
-	changed_ = true;
-	setts_.setYN( key, newval );
-    }
-}
-
-
-bool uiLooknFeelSettings::acceptOK( CallBacker* )
-{
-    const int newiconsz = iconszfld_->getIntValue();
-    if ( newiconsz < 10 || newiconsz > 64 )
-    {
-	uiMSG().setNextCaption( "Yeah right" );
-	uiMSG().error( "Please specify an icon size in the range 10-64" );
-	return false;
-    }
-
-    if ( newiconsz != lfsetts_.iconsz )
-    {
-	IOPar* iopar = setts_.subselect( mIconsKey );
-	if ( !iopar ) iopar = new IOPar;
-	iopar->set( "size", newiconsz );
-	setts_.mergeComp( *iopar, mIconsKey );
-	changed_ = true;
-	delete iopar;
-	theiconsz = newiconsz;
-    }
-
-    updateSettings( lfsetts_.isvert, colbarhvfld_->getBoolValue(), mCBarKey );
     const bool newnoshading = !useshadingfld_->getBoolValue();
     updateSettings( lfsetts_.noshading, newnoshading, mNoShading );
 
@@ -405,15 +436,6 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
     if ( newvolrenshading )
 	newvolrenshading = volrenshadingfld_->getBoolValue();
     updateSettings( lfsetts_.volrenshading, newvolrenshading, mVolRenShading );
-
-    updateSettings( lfsetts_.showwheels, showwheelsfld_->getBoolValue(),
-		    mShowWheels );
-    updateSettings( lfsetts_.showinlprogress,
-		    showinlprogressfld_->getBoolValue(),
-		    mShowInlProgress );
-    updateSettings( lfsetts_.showcrlprogress,
-		    showcrlprogressfld_->getBoolValue(),
-		    mShowCrlProgress );
 
     bool textureresfacchanged = false;
     // track this change separately as this will be applied with immediate
@@ -426,7 +448,52 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	setts_.set( mTextureResFactor, val );
     }
 
-    if ( ( changed_ || textureresfacchanged ) && !setts_.write() )
+    if ( textureresfacchanged ) changed_ = true;
+
+    return true;
+}
+
+protected:
+
+void shadingChange( CallBacker* )
+{
+    volrenshadingfld_->display( useshadingfld_->getBoolValue() );
+}
+
+    uiLabeledComboBox*	textureresfactorfld_;
+    uiGenInput*		useshadingfld_;
+    uiGenInput*		volrenshadingfld_;
+
+};
+
+
+
+uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p )
+    : uiTabStackDlg(p,uiDialog::Setup("Look and Feel Settings",mNoDlgTitle,
+				      "0.2.3"))
+    , setts_(Settings::common())
+    , lfsetts_(*new LooknFeelSettings)
+    , changed_(false)
+{
+    addGroup( new uiGeneralSettingsGroup(tabstack_->tabGroup(),
+					 setts_,lfsetts_,changed_) );
+    addGroup( new uiVisSettingsGroup(tabstack_->tabGroup(),
+					 setts_,lfsetts_,changed_) );
+}
+
+
+uiLooknFeelSettings::~uiLooknFeelSettings()
+{
+    delete &lfsetts_;
+}
+
+
+bool uiLooknFeelSettings::acceptOK( CallBacker* cb )
+{
+    if ( !uiTabStackDlg::acceptOK(cb) )
+	return false;
+
+    if ( changed_ && !setts_.write() )
     {
 	changed_ = false;
 	uiMSG().error( "Cannot write settings" );

@@ -884,12 +884,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
     if ( !separateviewbuttons )
     {
-	viewselectid_ = cointb_->addButton( "cube_inl","View Inline",
+	viewselectid_ = cointb_->addButton( "cube_inl","View In-line",
 				mCB(this,uiODMenuMgr,handleViewClick), false );
 
 	uiMenu* vwmnu = new uiMenu( &appl_, "View Menu" );
-	mAddMnuItm( vwmnu, "View Inline", handleViewClick, "cube_inl", 0 );
-	mAddMnuItm( vwmnu, "View Crossline", handleViewClick, "cube_crl", 1 );
+	mAddMnuItm( vwmnu, "View In-line", handleViewClick, "cube_inl", 0 );
+	mAddMnuItm( vwmnu, "View Cross-line", handleViewClick, "cube_crl", 1 );
 	mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z", 2 );
 	mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N", 3 );
 	mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ", 4 );
@@ -900,8 +900,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     {
 #define mAddVB(img,txt) cointb_->addButton( img, txt, \
 			mCB(this,uiODMenuMgr,handleViewClick), false );
-	viewinlid_ = mAddVB( "cube_inl", "View Inline" );
-	viewcrlid_ = mAddVB( "cube_crl", "View Crossline" );
+	viewinlid_ = mAddVB( "cube_inl", "View In-line" );
+	viewcrlid_ = mAddVB( "cube_crl", "View Cross-line" );
 	viewzid_ = mAddVB( "cube_z", "View Z" );
 	viewnid_ = mAddVB( "view_N", "View North" );
 	viewnzid_ = mAddVB( "view_NZ", "View North Z" );
@@ -938,34 +938,21 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 void uiODMenuMgr::handleViewClick( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,itm,cb)
-    mDynamicCastGet(uiToolButton*,tb,cb)
+    if ( !itm ) return;
 
-    if ( viewselectid_ < 0 )
-    {
-	if ( !tb ) return;
-	const int clickid = tb->id();
-	if ( clickid == viewinlid_ ) curviewmode_ = ui3DViewer::Inl;
-	if ( clickid == viewcrlid_ ) curviewmode_ = ui3DViewer::Crl;
-	if ( clickid == viewzid_ ) curviewmode_ = ui3DViewer::Z;
-	if ( clickid == viewnid_ ) curviewmode_ = ui3DViewer::Y;
-	if ( clickid == viewnzid_ ) curviewmode_ = ui3DViewer::YZ;
-    }
-
-    if ( tb )
+    const int itmid = itm->getID();
+    if ( itmid==viewselectid_ )
     {
 	sceneMgr().setViewSelectMode( curviewmode_ );
 	return;
     }
 
-    if ( !itm ) return;
-
-    int itmid = itm->getID();
     BufferString pm( "cube_inl" );
-    BufferString tt( "View Inline" );
+    BufferString tt( "View In-line" );
     curviewmode_ = ui3DViewer::Inl;
     switch( itmid )
     {
-	case 1: pm = "cube_crl"; tt = "View Crossline";
+	case 1: pm = "cube_crl"; tt = "View Cross-line";
 		curviewmode_ = ui3DViewer::Crl; break;
 	case 2: pm = "cube_z"; tt = "View Z";
 		curviewmode_ = ui3DViewer::Z; break;
@@ -1179,7 +1166,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
 
     case mSettLkNFlMnuItm: {
-	uiLooknFeelSettings dlg( &appl_, "Set Look and Feel Settings" );
+	uiLooknFeelSettings dlg( &appl_ );
 	if ( dlg.go() && dlg.isChanged() )
 	    uiMSG().message("Your new settings will become active\nthe next "
 			    "time OpendTect is started.");
