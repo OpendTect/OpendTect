@@ -120,17 +120,21 @@ public:
 				mImpPtrManPointerAccess( T )
 
 #ifdef __debug__
+    T&				operator[](size_t);
+    const T&			operator[](size_t) const;
+    T&				operator[](int);
+    const T&			operator[](int) const;
     T&				operator[](od_int64);
     const T&			operator[](od_int64) const;
 
 #endif
-    void			setSize(od_int64 size) { size_=size; }
+    void			setSize(size_t size) { size_=size; }
 
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
 
-    od_int64		size_;
+    size_t		size_;
 };
 
 
@@ -329,6 +333,50 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
 
 #ifdef __debug__
 template <class T> inline
+T& ArrPtrMan<T>::operator[]( size_t idx )
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return this->ptr_[idx];
+}
+
+
+template <class T> inline
+const T& ArrPtrMan<T>::operator[]( size_t idx ) const
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return this->ptr_[idx];
+}
+
+
+template <class T> inline
+T& ArrPtrMan<T>::operator[]( int idx )
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return this->ptr_[(size_t) idx];
+}
+
+
+template <class T> inline
+const T& ArrPtrMan<T>::operator[]( int idx ) const
+{
+    if ( idx<0 || (size_>=0 && idx>=size_) )
+    {
+	DBG::forceCrash(true);
+    }
+    return this->ptr_[(size_t) idx];
+}
+
+
+template <class T> inline
 T& ArrPtrMan<T>::operator[]( od_int64 idx )
 {
     if ( idx<0 || (size_>=0 && idx>=size_) )
@@ -337,6 +385,7 @@ T& ArrPtrMan<T>::operator[]( od_int64 idx )
     }
     return this->ptr_[(size_t) idx];
 }
+
 
 template <class T> inline
 const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
