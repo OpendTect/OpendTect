@@ -757,7 +757,7 @@ bool uiStratLayerModel::openGenDesc()
     }
 
     //Before calculation
-    if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
+    gentools_->usePar( desc_.getWorkBenchParams() );
     setWinTitle();
     return true;
 }

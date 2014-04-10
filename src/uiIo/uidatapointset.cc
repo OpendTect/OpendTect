@@ -1320,7 +1320,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )
-    { delete newdps; uiMSG().error("Data set is not suitable"); return; }
+	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
     setCaption( seldlg.ioObj()->name() );
     removeSelPts( 0 );
@@ -1442,7 +1442,11 @@ bool uiDataPointSet::doSave()
     if ( !ret )
 	uiMSG().error( errmsg );
     else
+    {
 	unsavedchgs_ = false;
+	if ( uidpss.ctio_.ioobj && !uidpss.istab_ )
+	    setCaption( uidpss.ctio_.ioobj->name() );
+    }
 
     return ret;
 }
