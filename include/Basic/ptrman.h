@@ -116,7 +116,7 @@ public:
     ArrPtrMan<T>&		operator=( T* p );
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//!<Don't use
-			
+
 				mImpPtrManPointerAccess( T )
 
 #ifdef __debug__
@@ -317,7 +317,7 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
 template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
     : PtrManBase<T>( 0, deleteFunc, p )
-    , size_(-1)
+    , size_((size_t)-1)
 {}
 
 
