@@ -20,7 +20,7 @@ namespace Attrib
 
 /*!
 \brief Sample Value Attribute
-  
+
   Shortcut for dummies (like us) to Shift or Mathematics or ... attribute's
   functionality.
 */
@@ -37,9 +37,10 @@ protected:
 
     static Provider*		createInstance(Desc&);
 
+    bool			allowParallelComputation() const;
     bool			getInputData(const BinID&,int);
     bool			computeData(const DataHolder&,
-	    				    const BinID&,int,int,int) const;
+					    const BinID&,int,int,int) const;
 
     const DataHolder*		inputdata_;
     int				dataidx_;
@@ -47,7 +48,6 @@ protected:
 };
 
 } // namespace Attrib
-
 
 #endif
 
