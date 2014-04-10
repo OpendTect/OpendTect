@@ -122,6 +122,7 @@ Attrib::Math::Math( Desc& dsc )
     , reqintv_( Interval<int>(0,0) )
     , recstartpos_( 0 )
     , maxshift_( 0 )
+    , expression_(0)
 {
     if ( !isOK() ) return;
 
@@ -132,8 +133,8 @@ Attrib::Math::Math( Desc& dsc )
 
     ::Math::ExpressionParser mep( expr->getStringValue() );
     expression_ = mep.parse();
-    errmsg_ = mep.errMsg();
-    if ( mep.errMsg() ) return;
+    if ( !expression_ )
+    { errmsg_ = mep.errMsg(); return; }
 
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
