@@ -47,7 +47,6 @@ protected:
 
     void			advPushButCB(CallBacker*);
 
-    uiGenInput*			velsource_;
     uiVelSel*			velfuncsel_;
     uiGenInput*			anglefld_;
     uiLabel*			anglelbl_;
@@ -112,7 +111,7 @@ protected:
     void		selDoneCB(CallBacker*);
 
     AngleMute*		processor_;
-    
+
     uiAngleCompGrp*	anglecompgrp_;
     uiGenInput*		taperlenfld_;
     uiGenInput*		topfld_;

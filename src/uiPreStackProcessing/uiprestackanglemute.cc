@@ -27,26 +27,18 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars, 
+uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 				bool dooffset, bool isformute )
     : uiGroup(p,"Angle Mute Group")
     , params_(pars)
     , isformute_(isformute)
     , anglelbl_(0)
 {
-    BufferStringSet velsourcestring;
-    velsourcestring.add( "Stored volume" );
-    velsource_ = new uiGenInput( this, "Velocity source", 
-				 StringListInpSpec(velsourcestring) );
-
-    IOObjContext ctxt = uiVelSel::ioContext(); 
-    velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
-
-
+    IOObjContext ctxt = uiVelSel::ioContext();
+    velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol), false);
     velfuncsel_->setLabelText( "Input velocity volume" );
-    velfuncsel_->attach( alignedBelow, velsource_ );
     if ( !params_.velvolmid_.isUdf() )
-       velfuncsel_->setInput( params_.velvolmid_ ); 
+       velfuncsel_->setInput( params_.velvolmid_ );
 
     if ( isformute_ )
     {
@@ -56,8 +48,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglefld_->setValue( params_.mutecutoff_ );
     }
     else
-    {	
-	anglefld_ = new uiGenInput( this, "Angle range", 
+    {
+	anglefld_ = new uiGenInput( this, "Angle range",
 				    IntInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
 	anglelbl_ = new uiLabel( this, "degrees" );
@@ -66,7 +58,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 
     advpushbut_ = new uiPushButton( this, "Advanced Parameters", true );
     advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
-    advpushbut_->attach( alignedBelow, anglefld_ );
+    advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
     advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset, isformute);
     setHAlignObj( velfuncsel_ );
@@ -95,7 +87,7 @@ bool uiAngleCompGrp::acceptOK()
 	params_.mutecutoff_ = anglefld_->getfValue();
 	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
 	{
-	    uiMSG().error( 
+	    uiMSG().error(
 		    "Please select the mute cutoff between 0 and 90 degree" );
 	    return false;
 	}
@@ -110,7 +102,7 @@ bool uiAngleCompGrp::acceptOK()
 	    uiMSG().error("Please provide angle range between 0 and 90 degree");
 	    return false;
 	}
-	
+
 	params_.anglerange_ = anglerange;
     }
 
@@ -121,11 +113,11 @@ bool uiAngleCompGrp::acceptOK()
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
     advpardlg_->updateFromParams();
-    advpardlg_->go(); 
+    advpardlg_->go();
 }
 
 
-uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p, 
+uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
     : uiDialog(p, uiDialog::Setup("Advanced Parameter",
@@ -143,8 +135,8 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     , freqf4fld_(0)
     , freqf4lbl_(0)
 {
-    uiRayTracer1D::Setup rsu; 
-    rsu.dooffsets_ = offset; 
+    uiRayTracer1D::Setup rsu;
+    rsu.dooffsets_ = offset;
     rsu.doreflectivity_ = false;
     raytracerfld_ = new uiRayTracerSel( this, rsu );
 
@@ -165,7 +157,7 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 					     smoothTypeSel) );
 
     const BufferStringSet& windowfunctions = WINFUNCS().getNames();
-    smoothwindowfld_ = new uiGenInput( this, "Window/Taper", 
+    smoothwindowfld_ = new uiGenInput( this, "Window/Taper",
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
     smoothwindowfld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
@@ -198,14 +190,14 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 {
     raytracerfld_->fillPar( params_.raypar_ );
     if ( isformute_ )
-	return true; 
+	return true;
 
     IOPar& iopar = params_.smoothingpar_;
     iopar.set( PreStack::AngleComputer::sKeySmoothType(),
 	       smoothtypefld_->getIntValue() );
     if ( isSmoothTypeMovingAverage() )
     {
-	iopar.set( PreStack::AngleComputer::sKeyWinLen(), 
+	iopar.set( PreStack::AngleComputer::sKeyWinLen(),
 		smoothwinlengthfld_->getfValue()/SI().zDomain().userFactor() );
 	iopar.set( PreStack::AngleComputer::sKeyWinFunc(),
 		   smoothwindowfld_->text() );
@@ -219,7 +211,7 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
     }
     else if ( isSmoothTypeFFTFilter() )
     {
-	iopar.set( PreStack::AngleComputer::sKeyFreqF3(), 
+	iopar.set( PreStack::AngleComputer::sKeyFreqF3(),
 		   freqf3fld_->getfValue() );
 	iopar.set( PreStack::AngleComputer::sKeyFreqF4(),
 		   freqf4fld_->getfValue() );
@@ -233,7 +225,7 @@ void uiAngleCompAdvParsDlg::updateFromParams()
 {
     raytracerfld_->usePar( params_.raypar_ );
     if ( isformute_ )
-	return; 
+	return;
 
     const IOPar& iopar = params_.smoothingpar_;
     int smoothtype = 0;
@@ -248,7 +240,7 @@ void uiAngleCompAdvParsDlg::updateFromParams()
     float windowlength;
     iopar.get( PreStack::AngleComputer::sKeyWinLen(), windowlength );
     smoothwinlengthfld_->setValue( windowlength * SI().zDomain().userFactor() );
-    
+
     float freqf3;
     iopar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
     freqf3fld_->setValue( freqf3 );
@@ -289,7 +281,7 @@ void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
     freqf4fld_->display( isfftfilter );
     freqf3lbl_->display( isfftfilter );
     freqf4lbl_->display( isfftfilter );
-    
+
     smoothWindowSel(0);
 }
 
@@ -335,7 +327,7 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,"103.2.20") )
-    , processor_( rt )		      
+    , processor_( rt )
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params() );
 
