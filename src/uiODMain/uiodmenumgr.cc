@@ -831,9 +831,9 @@ void uiODMenuMgr::fillManTB()
 	mAddTB(mantb_,"man_hor","Manage Horizons",false,manHor);
     const int fltid =
 	mAddTB(mantb_,"man_flt","Manage Faults",false,manFlt);
-    mAddTB(mantb_,"man_wll","Manage well data",false,manWll);
+    mAddTB(mantb_,"man_wll","Manage Well data",false,manWll);
     mAddTB(mantb_,"man_picks","Manage PickSets/Polygons",false,manPick);
-    //mAddTB(mantb_,"man_body","Manage body",false,manBody);
+    mAddTB(mantb_,"man_body","Manage Bodies/Regions",false,manBody);
     mAddTB(mantb_,"man_wvlt","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat","Manage Stratigraphy",false,manStrat);
 
