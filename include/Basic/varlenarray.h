@@ -29,7 +29,7 @@ ________________________________________________________________________
 #define mAllocLargeVarLenArr( type, varnm, __size ) \
 ArrPtrMan<type> varnm; \
 { \
-    const std::size_t __allocsize = __size; \
+    const std::size_t __allocsize = mCast(std::size_t,__size); \
     if ( __allocsize ) \
     { \
 	mTryAllocPtrMan( varnm, type [__allocsize] ); \
