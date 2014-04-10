@@ -82,6 +82,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 
 void setPars( const ScaleBarPars& pars )
 {
+    pars_ = pars;
     objectfld_->setValue( pars.oninlcrl_ );
     if ( pars.oninlcrl_ )
 	horverfld_->setValue( !pars.orientation_ );
@@ -116,6 +117,20 @@ void updateOrientationFld()
     inlcrlfld_->display( !objectfld_->getBoolValue() );
 }
 
+bool acceptOK(CallBacker*)
+{
+    changeCB(0);
+    return true;
+}
+
+bool rejectOK(CallBacker*)
+{
+    setPars( pars_ );
+    propertyChange.trigger();
+    return true;
+}
+
+
 void changeCB( CallBacker* )
 {
     unitlbl_->setText( !objectfld_->getBoolValue() ||
@@ -131,6 +146,7 @@ void changeCB( CallBacker* )
     uiLabel*			unitlbl_;
     uiSelLineStyle*		linestylefld_;
     const ZDomain::Info&	zinf_;
+    ScaleBarPars		pars_;
 };
 
 
