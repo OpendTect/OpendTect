@@ -58,7 +58,7 @@ Math::Formula::~Formula()
 int Math::Formula::indexOf( const char* varnm ) const
 {
     for ( int idx=0; idx<inps_.size(); idx++ )
-	if ( inps_[idx].name_ == varnm )
+	if ( inps_[idx].varname_ == varnm )
 	    return idx;
     return -1;
 }
@@ -116,10 +116,10 @@ void Math::Formula::setText( const char* inp )
 }
 
 
-void Math::Formula::setInputName( int idx, const char* nm )
+void Math::Formula::setInputDef( int idx, const char* def )
 {
     if ( inps_.validIdx(idx) )
-	inps_[idx].name_ = nm;
+	inps_[idx].inpdef_ = def;
 }
 
 
@@ -203,7 +203,7 @@ void Math::Formula::fillPar( IOPar& iop ) const
 	const InpDef& id = inps_[idx];
 	BufferString unstr;
 	if ( id.unit_ ) unstr = id.unit_->name();
-	iop.set( IOPar::compKey(sKey::Input(),idx), id.name_, unstr );
+	iop.set( IOPar::compKey(sKey::Input(),idx), id.inpdef_, unstr );
     }
 
 
@@ -225,7 +225,7 @@ void Math::Formula::usePar( const IOPar& iop )
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	InpDef& id = inps_[idx];
-	iop.get( IOPar::compKey(sKey::Input(),idx), id.name_, unstr );
+	iop.get( IOPar::compKey(sKey::Input(),idx), id.inpdef_, unstr );
 	id.unit_ = UoMR().get( unstr );
     }
 }
