@@ -100,16 +100,12 @@ uiIOSelect::~uiIOSelect()
 }
 
 
-void uiIOSelect::stretchHor( bool yn )
-{
-    inp_->setHSzPol( uiObject::MedMax );
-}
+void uiIOSelect::setHSzPol( uiObject::SzPolicy pol )
+{ inp_->setHSzPol( pol ); }
 
 
 void uiIOSelect::doFinalise( CallBacker* cb )
-{
-    updateFromEntries();
-}
+{ updateFromEntries(); }
 
 
 void uiIOSelect::updateFromEntries()

@@ -154,7 +154,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld_->setInput( tmpstordir );
 	    tmpstordirfld_->selectDirectory( true );
-	    tmpstordirfld_->stretchHor( true );
+	    tmpstordirfld_->setHSzPol( uiObject::MedMax );
 	    inlperjobattach = tmpstordirfld_->mainObject();
 	}
 

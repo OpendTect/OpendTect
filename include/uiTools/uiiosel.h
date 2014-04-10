@@ -86,7 +86,7 @@ public:
     void		setLabelText(const uiString&);
     void		setLabelSelectable(bool yn=true);
 
-    void		stretchHor(bool);
+    void		setHSzPol(uiObject::SzPolicy);
 
     uiComboBox*		inpBox()		{ return inp_; }
     uiObject*		endObj(bool left);
