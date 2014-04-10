@@ -1446,7 +1446,11 @@ bool uiDataPointSet::doSave()
     if ( !ret )
 	uiMSG().error( errmsg );
     else
+    {
 	unsavedchgs_ = false;
+	if ( uidpss.ctio_.ioobj && !uidpss.istab_ )
+	    setCaption( uidpss.ctio_.ioobj->name() );
+    }
 
     return ret;
 }
