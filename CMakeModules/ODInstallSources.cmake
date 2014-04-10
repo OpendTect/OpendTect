@@ -6,8 +6,7 @@
 #_______________________________________________________________________________
 
 #TODO Add date
-file( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in lic_temp )
-message( "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}" )
+file( READ ${BINARY_DIR}/CMakeModules/license.txt lic_temp )
 message( "BINARY_DIR: ${BINARY_DIR}" )
 file( STRINGS ${BINARY_DIR}/CMakeModules/sourcefiles_od.txt DEVELSTUFF )
 foreach( FIL ${DEVELSTUFF} )
