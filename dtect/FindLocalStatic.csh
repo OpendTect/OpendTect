@@ -5,4 +5,4 @@
 
 set SCRIPTDIR=`dirname $0`
 
-"${SCRIPTDIR}/FindKeyword.csh" --keyword '\)\s*{[^}]*\s+static\s+' $*
+"${SCRIPTDIR}/FindKeyword.csh" --message "Local static variables are not allowed. Use mDefineStaticLocalObject macro instead." --grepcommand egrep --keyword '\)\s*{[^}]*\s+static\s+' $*
