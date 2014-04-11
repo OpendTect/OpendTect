@@ -126,13 +126,13 @@ public:
     const T&			operator[](od_int64) const;
 
 #endif
-    void			setSize(size_t size) { size_=size; }
+    void			setSize(od_int64 size) { size_=size; }
 
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
 
-    size_t		size_;
+    od_int64		size_;
 };
 
 
@@ -317,7 +317,7 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
 template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
     : PtrManBase<T>( 0, deleteFunc, p )
-    , size_((size_t)-1)
+    , size_(-1)
 {}
 
 
