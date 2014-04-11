@@ -10,6 +10,7 @@ set exceptionfile=""
 set listfile=""
 set keyword=""
 set message="Keyword found"
+set grepcommand=grep
 
 if ( $#argv<2 ) then
     goto syntax
@@ -49,6 +50,12 @@ else if ( "${1}" == "--message" ) then
 	goto syntax
     endif
     shift
+else if ( "${1}" == "--grepcommand" ) then
+    set grepcommand = "${2}"
+    if ( "${grepcommand}" == "" ) then
+	goto syntax
+    endif
+    shift
 else
    goto do_it
 endif
@@ -60,10 +67,10 @@ do_it:
 
 if ( "${listfile}" != "" ) then
     if ( "${exceptionfile}" != "" ) then
-	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile} --message "${message}"
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile} --message "${message}" --grepcommand "${grepcommand}"
 	exit ${status}
     else
-	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --message "${message}"
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --message "${message}" --grepcommand "${grepcommand}"
 	exit ${status}
     endif
 endif
@@ -83,10 +90,10 @@ endif
 
 shift 
 
-cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | egrep -q "${keyword}"
+cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | ${grepcommand} -q "${keyword}"
 if ( ${status} == 0 ) then
     if ( "${exceptionfile}" != "" ) then
-	grep -q ${filename} ${exceptionfile}
+	${grepcommand} -q ${filename} ${exceptionfile}
 	if ( ${status} == 0 ) then
 	    goto nextfile
 	endif
