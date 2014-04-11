@@ -193,10 +193,6 @@ void SurfaceIODataSelection::setDefault()
 	selvalues += idx;
     for ( int idx=0; idx<sd.sections.size(); idx++ )
 	selsections += idx;
-
-    sellinenames = sd.linenames;
-    selgeomids = sd.geomids;
-    seltrcranges = sd.trcranges;
 }
 
 
