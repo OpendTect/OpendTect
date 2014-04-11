@@ -226,7 +226,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 
     BufferString compwindtxt( "Compare window " );
     compwindtxt += SI().getZUnitString();
-    compwinfld_ = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
+    compwinfld_ = new uiGenInput( grp, compwindtxt, IntInpIntervalSpec() );
     compwinfld_->attach( alignedBelow, usesimifld_ );
     compwinfld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
@@ -513,9 +513,11 @@ void uiHorizonSetupGroup::initSimiGroup()
 {
     usesimifld_->setValue( !horadj_->trackByValue() );
 
-    Interval<float> simiintv(
-	    horadj_->similarityWindow().start * SI().zDomain().userFactor(),
-	    horadj_->similarityWindow().stop * SI().zDomain().userFactor() );
+    const Interval<int> simiintv(
+	    mCast(int,horadj_->similarityWindow().start * 
+		      SI().zDomain().userFactor()),
+	    mCast(int,horadj_->similarityWindow().stop * 
+		      SI().zDomain().userFactor()) );
 
     compwinfld_->setValue( simiintv );
 
