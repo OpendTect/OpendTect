@@ -129,6 +129,7 @@ public:
     void			disabTrees( bool yn );
 
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
+    int				addPickSetItem(const MultiID&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
     int				addRandomLineItem(int,int sceneid=-1);
     int				addWellItem(const MultiID&,int sceneid=-1);

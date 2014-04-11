@@ -13,8 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scene.xpm"
 
 #include "uiattribpartserv.h"
-#include "uiodapplmgr.h"
 #include "uiempartserv.h"
+#include "uiodapplmgr.h"
+#include "uipickpartserv.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 
@@ -406,7 +407,7 @@ void uiODSceneMgr::setToViewMode( bool yn )
 }
 
 
-void uiODSceneMgr::setToWorkMode(uiVisPartServer::WorkMode wm)
+void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 {
     bool yn = ( wm == uiVisPartServer::View ) ? true : false;
 
@@ -1010,6 +1011,15 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
+}
+
+
+int uiODSceneMgr::addPickSetItem( const MultiID& mid, int sceneid )
+{
+    Pick::Set* ps = applMgr().pickServer()->loadSet( mid );
+    if ( !ps ) return -1;
+
+    return addPickSetItem( *ps, sceneid );
 }
 
 
