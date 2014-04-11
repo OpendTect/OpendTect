@@ -200,6 +200,9 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> mousepos,
 						 const uiWorldRect& view,
 						 const uiWorldRect& bbox )
 {
+    if ( mIsZero(newsz.width(),mDefEps) || mIsZero(newsz.height(),mDefEps) )
+	return view;
+
     uiWorldRect cv( view ); cv.sortCorners(true,false);
     uiWorldRect bb( bbox ); bb.sortCorners(true,false);
 
@@ -236,7 +239,6 @@ void uiFlatViewControl::flip( bool hor )
 
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
-    //TODO handle when zoom is disabled
     const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
     if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) ||
 	 (selarea->width()<5 && selarea->height()<5) )
@@ -254,7 +256,6 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 
 void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 {
-    //TODO what if more than one viewer? Also functions below
     uiFlatViewer& vwr = *vwrs_[vieweridx];
     BufferStringSet annots;
     const int selannot = vwr.getAnnotChoices( annots ); 
