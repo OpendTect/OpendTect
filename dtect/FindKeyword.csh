@@ -9,6 +9,7 @@ set progname = $0
 set exceptionfile=""
 set listfile=""
 set keyword=""
+set message="Keyword found"
 
 if ( $#argv<2 ) then
     goto syntax
@@ -42,6 +43,12 @@ else if ( "${1}" == "--listfile" ) then
 	exit 1
     endif
     shift
+else if ( "${1}" == "--message" ) then
+    set message = "${2}"
+    if ( "${message}" == "" ) then
+	goto syntax
+    endif
+    shift
 else
    goto do_it
 endif
@@ -53,10 +60,10 @@ do_it:
 
 if ( "${listfile}" != "" ) then
     if ( "${exceptionfile}" != "" ) then
-	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile}
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --exceptionfile ${exceptionfile} --message "${message}"
 	exit ${status}
     else
-	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}"
+	cat ${listfile} | xargs -P 0 -n 200 ${progname} --keyword "${keyword}" --message "${message}"
 	exit ${status}
     endif
 endif
@@ -68,6 +75,9 @@ nextfile:
 set filename = ${1}
 
 if ( "${filename}" == "" ) then
+    if ( ${failure} == 1 ) then
+	echo ${message}
+    endif
     exit ${failure}
 endif
 
@@ -95,6 +105,6 @@ echo present in an exceptionfile.
 echo
 echo Returns 0 if keyword is not found, otherwise 1
 echo
-echo "Syntax ${progname} --keyword <kw> [--exceptionfile <file>] <--listfile <listfile> | files ..>"
+echo "Syntax ${progname} --keyword <kw> [--message <msg>] [--exceptionfile <file>] <--listfile <listfile> | files ..>"
 echo
 exit 1
