@@ -48,8 +48,7 @@ RockPhysics::Formula& RockPhysics::Formula::operator =(
 	def_ = fm.def_;
 	desc_ = fm.desc_;
 	src_ = fm.src_;
-	formulaunit_ = fm.formulaunit_;
-	outputunit_ = fm.outputunit_;
+	unit_ = fm.unit_;
 	deepCopy( vardefs_, fm.vardefs_ );
 	deepCopy( constdefs_, fm.constdefs_ );
     }
@@ -74,8 +73,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     setName( nm );
     type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
-    iop.get( IOPar::compKey( sKeyDef, sKey::Unit() ), formulaunit_ );
-    iop.get( sKey::Unit(), outputunit_ );
+    iop.get( sKey::Unit(), unit_ );
     iop.get( sKey::Desc(), desc_ );
     desc_ = getStrFromFMS( desc_ );
 
@@ -137,8 +135,7 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
     iop.set( name(), toString(type_) );
     iop.set( sKeyDef, def_ );
     setIOPWithNLs( iop, sKey::Desc(), desc_ );
-    iop.set( IOPar::compKey( sKeyDef, sKey::Unit() ), formulaunit_ );
-    iop.set( sKey::Unit(), outputunit_ );
+    iop.set( sKey::Unit(), unit_ );
     for ( int idx=0; idx<vardefs_.size(); idx++ )
     {
 	const VarDef& vd = *vardefs_[idx];
@@ -234,7 +231,7 @@ void createSet()
 	    sfio.closeSuccess();
 	    break;
 	}
-	
+
 	sfio.closeSuccess();
     }
 

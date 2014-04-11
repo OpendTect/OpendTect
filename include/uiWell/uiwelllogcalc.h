@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "propertyref.h"
 
+class uiUnitSel;
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
-class uiLabeledComboBox;
 class uiMathExpression;
 class uiWellLogCalcInpData;
-namespace Math { class Expression; }
+namespace Math { class Formula; }
 namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 
 
@@ -42,32 +42,18 @@ public:
     void			setOutputLogName(const char* nm);
     const char*			getOutputLogName() const;
 
-    static void			getSuitableLogs(const Well::LogSet&,
-	                                        BufferStringSet& lognms,
-						TypeSet<int>& propidx,
-						TypeSet<int>& isaltpropref,
-						const PropertyRef& propref,
-						const PropertyRef* altpropref);
-
-
 protected:
 
     uiMathExpression*		formfld_;
     uiGenInput*			nmfld_;
     uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
-    uiLabeledComboBox*		formulaunfld_;
-    uiComboBox*			outunfld_;
+    uiUnitSel*			formulaunfld_;
+    uiUnitSel*			outunfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
     bool			mywelllogs_;
 
-    int				nrvars_;
-    int				nrspecvars_;
-    TypeSet<int>		recvaridxs_;
-    TypeSet<int>		specvaridxs_;
-    BoolTypeSet			isspecvar_;
-    TypeSet<float>		startvals_;
-    Math::Expression*		expr_;
+    Math::Formula&		form_;
     bool			havenew_;
     float			zsampintv_;
     BufferStringSet		lognms_;
@@ -95,22 +81,27 @@ protected:
 	bool		iscst_;
     };
 
-    void			getAllLogs();
-    void			getMathExpr();
-    void			setCurWls(const Well::LogSet&);
-    bool			getInpData(TypeSet<InpData>&);
-    bool			getRecInfo();
-    bool			calcLog(Well::Log&,const TypeSet<InpData>&,
-					Well::Track&,Well::D2TModel*);
+    bool		checkValidNrInputs(const Math::Formula&) const;
+    bool		updateForm(Math::Formula&) const;
+    bool		useForm(const Math::Formula&,
+				const TypeSet<PropertyRef::StdType>* t=0);
+    void		getAllLogs();
+    void		setCurWls(const Well::LogSet&);
+    bool		getInpData(const Math::Formula&,
+				   TypeSet<InpData>&);
+    bool		getRecInfo(Math::Formula&);
+    bool		calcLog(Well::Log&,const Math::Formula&,
+				const TypeSet<InpData>&,
+				Well::Track&,Well::D2TModel*);
 
-    void			initWin(CallBacker*);
-    void			rockPhysReq(CallBacker*);
-    void			feetSel(CallBacker*);
-    void			formSet(CallBacker*);
-    void			inpSel(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    void		initWin(CallBacker*);
+    void		rockPhysReq(CallBacker*);
+    void		feetSel(CallBacker*);
+    void		formSet(CallBacker*);
+    void		inpSel(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 
-#endif
 
+#endif

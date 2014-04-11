@@ -14,11 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sets.h"
 #include "position.h"
 #include "ranges.h"
-
+#include "propertyref.h"
 class BufferStringSet;
+
 
 namespace Well
 {
@@ -58,6 +58,10 @@ public:
 
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
+
+    TypeSet<int>	getSuitable(PropertyRef::StdType,
+				    const PropertyRef* altpr=0,
+				    BoolTypeSet* isalt=0) const;
 
 protected:
 

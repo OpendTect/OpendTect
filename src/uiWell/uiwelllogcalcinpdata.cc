@@ -12,20 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelllogcalcinpdata.h"
 
-#include "uicombobox.h"
 #include "uitoolbutton.h"
-#include "uilabel.h"
-#include "uimathexpression.h"
 #include "uimsg.h"
-#include "uirockphysform.h"
-#include "uiwelllogcalc.h"
+#include "uicombobox.h"
 #include "uiwelllogdisplay.h"
+#include "uiunitsel.h"
 
 #include "welllogset.h"
 #include "welllog.h"
-#include "separstr.h"
-#include "mathexpression.h"
 #include "unitofmeasure.h"
+
 
 static const char* specvararr[] = { "MD", "DZ", "TVDSS", "TVD", "TVDSD", "TWT",
 				    "VINT", 0 };
@@ -36,11 +32,7 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     : uiMathExpressionVariable(inpgrp,p->lognms_,fieldnr)
     , wls_(&p->wls_)
     , convertedlog_(0)
-    , forceunit_(false)
 {
-    inpfld_->box()->selectionChanged.notify(
-				    mCB( this,uiWellLogCalcInpData,inputSel ) );
-    inpfld_->box()->selectionChanged.notify( mCB(p,uiWellLogCalc,inpSel) );
     uiToolButton* tb = new uiToolButton( this, "view_log", "Display this log",
 				mCB(this,uiWellLogCalcInpData,vwLog) );
     tb->attach( rightOf, inpfld_ );
@@ -48,35 +40,16 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 
     udfbox_ = new uiCheckBox( this, "Fill empty sections" );
     udfbox_->setChecked();
-    udfbox_->attach( rightOf, unfld_ ? unfld_ : inpfld_ );
+    if ( unfld_ )
+	udfbox_->attach( rightOf, unfld_ );
+    else
+	udfbox_->attach( rightOf, inpfld_ );
 }
 
 
 uiWellLogCalcInpData::~uiWellLogCalcInpData()
 {
     delete convertedlog_;
-}
-
-
-void uiWellLogCalcInpData::use( const Math::Expression* expr )
-{
-    forceunit_ = false;
-    const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
-    if ( idx_ >= nrvars )
-	{ display( false ); return; }
-    const BufferString varnm = expr->uniqueVarName( idx_ );
-    if ( specvars.isPresent(varnm.buf()) )
-	{ display( false ); return; }
-
-    varnm_ = varnm;
-    display( true );
-    BufferString inplbl = "For '"; inplbl += varnm; inplbl += "' use";
-    inpfld_->label()->setText( inplbl.buf() );
-    const int nearidx = posinpnms_.nearestMatch( varnm );
-    if ( nearidx >= 0 )
-	inpfld_->box()->setCurrentItem( nearidx );
-
-    inputSel(0);
 }
 
 
@@ -129,34 +102,6 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 }
 
 
-void uiWellLogCalcInpData::inputSel( CallBacker* )
-{
-    if ( !unfld_ || forceunit_ ) return;
-    const Well::Log* wl = getLog();
-    if ( !wl ) return;
-
-    ObjectSet<const UnitOfMeasure> possibleunits;
-    const BufferString logunitnm = wl->unitMeasLabel();
-    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed(logunitnm);
-    if ( !logun )
-	possibleunits = UoMR().all();
-    else
-	UoMR().getRelevant( logun->propType(), possibleunits );
-
-    uiComboBox& cbb = *unfld_->box();
-    cbb.setEmpty(); cbb.addItem( "-" );
-    for ( int idx=0; idx<possibleunits.size(); idx++ )
-	cbb.addItem( possibleunits[idx]->name() );
-
-    if ( logun && cbb.isPresent(logun->name()) )
-	cbb.setText( logun->name() );
-    else if ( cbb.isPresent(logunitnm) )
-	cbb.setText( logunitnm );
-    else
-	cbb.setText( "-" );
-}
-
-
 void uiWellLogCalcInpData::vwLog( CallBacker* )
 {
     const Well::Log* wl = getLog();
@@ -172,36 +117,12 @@ void uiWellLogCalcInpData::vwLog( CallBacker* )
 
 void uiWellLogCalcInpData::restrictLogChoice( const PropertyRef::StdType& type )
 {
-    if ( !wls_ ) return;
-    PropertyRef property( "dummy", type );
-    BufferStringSet lognms;
-    TypeSet<int> propidx;
-    TypeSet<int> isaltpropref;
-    uiWellLogCalc::getSuitableLogs( *wls_, lognms, propidx, isaltpropref,
-				    property, 0 );
-    const_cast<BufferStringSet&>(posinpnms_) = lognms;
+    if ( !wls_ )
+	return;
+
+    TypeSet<int> propidxs = wls_->getSuitable( type );
     inpfld_->box()->setEmpty();
-    inpfld_->box()->addItems( lognms );
+    for ( int idx=0; idx<propidxs.size(); idx++ )
+	inpfld_->box()->addItem( wls_->getLog(idx).name() );
     inpfld_->box()->addItem( "Constant" );
-}
-
-
-void uiWellLogCalcInpData::resetLogRestriction()
-{
-    if ( !wls_ ) return;
-    BufferStringSet lognms;
-    for ( int idlog=0; idlog<wls_->size(); idlog++ )
-	lognms.add( wls_->getLog(idlog).name() );
-
-    const_cast<BufferStringSet&>(posinpnms_) = lognms;
-    inpfld_->box()->setEmpty();
-    inpfld_->box()->addItems( lognms );
-    inpfld_->box()->addItem( "Constant" );
-}
-
-
-void uiWellLogCalcInpData::setUnit( const char* s )
-{
-    forceunit_ = true;
-    uiMathExpressionVariable::setUnit(s);
 }

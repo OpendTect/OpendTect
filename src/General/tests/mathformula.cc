@@ -40,11 +40,11 @@ static bool testSimpleFormula()
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,3);
 
-    const int nrshft = form.maxRecursiveShift();
+    const int nrshft = form.maxRecShift();
     mTestVal(nrshft,2);
 
-    form.recursiveStartVals()[0] = 3;
-    form.recursiveStartVals()[1] = 4;
+    form.recStartVals()[0] = 3;
+    form.recStartVals()[1] = 4;
 
     form.setInputUnit( 1, UoMR().get("ft") );
 
@@ -98,7 +98,7 @@ static bool testRepeatingVar()
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,2);
 
-    const int nrshft = form.maxRecursiveShift();
+    const int nrshft = form.maxRecShift();
     mTestVal(nrshft,0);
 
     float inpvals[2];

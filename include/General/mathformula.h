@@ -53,26 +53,29 @@ public:
 			~Formula();
     Formula&		operator =(const Formula&);
 
-    bool		isOK() const		{ return expr_; }
-    const char*		errMsg() const		{ return errmsg_; }
+		// 1. Things known after construction or set()
 
-		// 1. Things know after construction or set()
+    bool		isOK() const		{ return expr_; }
+    bool		isBad() const		{ return !expr_
+						      && !text_.isEmpty(); }
+    const char*		errMsg() const		{ return errmsg_; }
 
     const char*		text() const		{ return text_; }
     int			nrInputs() const	{ return inps_.size(); }
     const char*		variableName( int iinp ) const
 						{ return inps_[iinp].varname_; }
     bool		isConst( int iinp )	{ return inps_[iinp].isconst_; }
-    bool		isRecursive() const	{ return maxshift_ > 0; }
-    int			maxRecursiveShift() const { return maxshift_; }
+    bool		isRecursive() const	{ return maxRecShift() > 0; }
+    int			maxRecShift() const	{ return recstartvals_.size(); }
 
-		// 2. Things to set before calculation, or store
+		// 2. Things to set before calculation or store
+
     void		setText(const char*);
     void		setInputDef(int,const char*);
     void		setInputUnit(int,const UnitOfMeasure*);
     void		setOutputUnit( const UnitOfMeasure* uom )
 						{ outputunit_ = uom; }
-    TypeSet<double>&	recursiveStartVals()	{ return recstartvals_; }
+    TypeSet<double>&	recStartVals()		{ return recstartvals_; }
 
 		// 3. Things you have set yourself or that were retrieved
 
@@ -126,7 +129,6 @@ protected:
 
     TypeSet<int>	inpidxs_;
     TypeSet<int>	varshifts_;
-    int			maxshift_;
     mutable TypeSet<double> prevvals_;
     mutable BufferString errmsg_;
 

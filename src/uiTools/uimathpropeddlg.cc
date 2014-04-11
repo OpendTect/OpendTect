@@ -137,7 +137,7 @@ void uiMathPropEdDlg::updVarsOnScreen( CallBacker* cb )
     {
 	uiMathExpressionVariable* uimev = inpdataflds_[idx];
 	uimev->use( expr_ );
-	uimev->setCurSelIdx( possinps.nearestMatch( uimev->getVarName() ) );
+	uimev->setCurSelIdx( possinps.nearestMatch( uimev->varName() ) );
     }
 
     if ( nrvars_ )
@@ -194,7 +194,7 @@ void uiMathPropEdDlg::replaceInputsInFormula()
 	if ( !inpdataflds_[idx]->attachObj()->isDisplayed() )
 	    continue;
 
-	formulastr.replace( inpdataflds_[idx]->getVarName(),
+	formulastr.replace( inpdataflds_[idx]->varName(),
 			    inpdataflds_[idx]->getInput() );
     }
 

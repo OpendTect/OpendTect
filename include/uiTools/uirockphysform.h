@@ -21,6 +21,8 @@ class uiLabel;
 class uiPushButton;
 class uiTextEdit;
 class uiRockPhysCstFld;
+namespace Math { class Formula; }
+namespace RockPhysics { class Formula; }
 
 
 mExpClass(uiTools) uiRockPhysForm : public uiGroup
@@ -32,15 +34,12 @@ public:
 
     PropertyRef::StdType getType() const;
     void		setType(PropertyRef::StdType);
-    				//!< only works when 1st constructor used
-    const char*		formulaName() const;
-    void		setFormulaName(const char*);
+				//!< only works when 1st constructor used
 
-    bool		getFormulaInfo(BufferString&,BufferString&,
-				       BufferString&,BufferStringSet&,
-				       TypeSet<PropertyRef::StdType>&,
-				       bool) const;
-    BufferString	getText(bool usecstevals) const;
+    bool		getFormulaInfo(Math::Formula&,
+				    TypeSet<PropertyRef::StdType>* tps=0) const;
+    const char*		getText(bool replace_consts=true) const;
+
     const char*		errMsg() const		{ return errmsg_.buf(); }
     bool		isOK();
 
@@ -56,37 +55,13 @@ protected:
     void		nameSel(CallBacker*);
 
     void		createFlds(uiObject*);
+    BufferString	getFormText(const RockPhysics::Formula&,bool) const;
 
     ObjectSet<uiRockPhysCstFld>	cstflds_;
 
     BufferString	errmsg_;
-};
 
-
-mExpClass(uiTools) uiRockPhysCstFld : public uiGroup
-{
-public:
-
-			uiRockPhysCstFld(uiParent*);
-
-    float		getCstVal() const;
-    void		updField(BufferString,Interval<float>,BufferString,
-	    			 float val = mUdf(float));
-
-    const char*		cstnm_;
-
-
-protected:
-
-    void		descPush(CallBacker*);
-
-    uiGenInput*		valfld_;
-    uiLabel*		nmlbl_;
-    uiLabel*		rangelbl_;
-    uiPushButton*	descbutton_;
-    BufferString	desc_;
 };
 
 
 #endif
-

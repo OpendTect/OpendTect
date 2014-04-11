@@ -43,9 +43,9 @@ public:
 			Formula( PropType t, const char* nm=0 )
 			    : NamedObject(nm)
 			    , type_(t)		{}
-    
+
     static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
-			~Formula();		
+			~Formula();
 			Formula( const Formula& f ) { *this = f; }
     Formula&		operator =(const Formula&);
     inline bool		operator ==( const Formula& pr ) const
@@ -81,11 +81,10 @@ public:
     PropType		type_;
     BufferString	def_;
     BufferString	desc_;
+    BufferString	unit_;
     ObjectSet<ConstDef>	constdefs_;
     ObjectSet<VarDef>	vardefs_;
     Repos::Source	src_;
-    BufferString	formulaunit_;
-    BufferString	outputunit_;
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -99,11 +98,11 @@ public:
 mExpClass(General) FormulaSet : public ObjectSet<const Formula>
 {
 public:
-    			~FormulaSet()
+			~FormulaSet()
 			{ deepErase( *(ObjectSet<Formula>*)this ); }
     int			getIndexOf(const char*) const;
     void		getRelevant(PropertyRef::StdType,
-	    			    BufferStringSet&) const;
+				    BufferStringSet&) const;
 
     const Formula*	get( const char* nm ) const
 			{

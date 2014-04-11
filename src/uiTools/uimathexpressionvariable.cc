@@ -17,9 +17,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimathexpression.h"
 #include "uimsg.h"
+#include "uiunitsel.h"
 #include "uirockphysform.h"
 
 #include "separstr.h"
+#include "mathformula.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
 
@@ -28,19 +30,20 @@ static const BufferStringSet specvars( specvararr );
 
 uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 				const BufferStringSet& posinpnms,
-				int curselidx, bool displayuom )
+				int varidx, bool displayuom )
     : uiGroup(inpgrp,"Inp data group")
-    , idx_(curselidx)
+    , varidx_(varidx)
     , posinpnms_(posinpnms)
     , unfld_(0)
+    , inpSel(this)
 {
     BufferString lblstr = "For 'input' use";
     inpfld_ = new uiLabeledComboBox( this, posinpnms_, lblstr.buf(),
-				     BufferString("input ",curselidx) );
+				     BufferString("input ",varidx_) );
     inpfld_->label()->setPrefWidthInChar( 35 );
     inpfld_->label()->setAlignment( Alignment::Right );
     inpfld_->box()->addItem( "Constant" );
-    int selidx = curselidx;
+    int selidx = varidx_;
     if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size();
     inpfld_->box()->setCurrentItem( selidx );
     inpfld_->box()->selectionChanged.notify(
@@ -48,12 +51,9 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 
     if ( displayuom )
     {
-	unfld_ = new uiLabeledComboBox( this, "convert to:",
-					BufferString( "unitbox ",curselidx ));
-	const ObjectSet<const UnitOfMeasure>& alluom( UoMR().all() );
-	unfld_->box()->addItem( "-" );
-	for ( int idx=0; idx<alluom.size(); idx++ )
-	    unfld_->box()->addItem( alluom[idx]->name() );
+	uiUnitSel::Setup uussu( PropertyRef::Other, "convert to:" );
+	uussu.withnone( true );
+	unfld_ = new uiUnitSel( this, uussu );
 	unfld_->attach( rightTo, inpfld_ );
     }
 
@@ -65,26 +65,40 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 }
 
 
-void uiMathExpressionVariable::use( const Math::Expression* expr )
+bool uiMathExpressionVariable::newVar( const char* varnm )
 {
-    varnm_.setEmpty();
-    const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
-    if ( idx_ >= nrvars )
-	{ display( false ); return; }
-    const BufferString varnm = expr->uniqueVarName( idx_ );
-    if ( specvars.isPresent(varnm.buf()) )
-	{ display( false ); return; }
-
     varnm_ = varnm;
     display( true );
-    BufferString inplbl = "For '"; inplbl += varnm; inplbl += "' use";
+    BufferString inplbl = "For '"; inplbl += varnm_; inplbl += "' use";
     inpfld_->label()->setText( inplbl.buf() );
+    return true;
 }
 
 
-bool uiMathExpressionVariable::hasVarName( const char* nm ) const
+bool uiMathExpressionVariable::use( const Math::Expression* expr )
 {
-    return varnm_ == nm;
+    varnm_.setEmpty();
+    const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
+    if ( varidx_ >= nrvars )
+	{ display( false ); return false; }
+    const BufferString varnm = expr->uniqueVarName( varidx_ );
+    if ( specvars.isPresent(varnm.buf()) )
+	{ display( false ); return false; }
+    return newVar( varnm );
+}
+
+
+bool uiMathExpressionVariable::use( const Math::Formula& form )
+{
+    varnm_.setEmpty();
+    const int nrvars = form.nrInputs();
+    if ( varidx_ >= nrvars )
+	{ display( false ); return false; }
+    const BufferString varnm = form.variableName( varidx_ );
+    if ( specvars.isPresent(varnm.buf()) )
+	{ display( false ); return false; }
+
+    return newVar( varnm );
 }
 
 
@@ -97,14 +111,22 @@ const char* uiMathExpressionVariable::getInput() const
 void uiMathExpressionVariable::setUnit( const char* s )
 {
     if ( unfld_ )
-	unfld_->box()->setText( s );
+	unfld_->setUnit( s );
+}
+
+
+void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
+{
+    if ( unfld_ )
+	unfld_->setUnit( uom );
 }
 
 
 const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
 {
-    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() ) return 0;
-    return UoMR().get( unfld_->box()->text() );
+    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
+	return 0;
+    return unfld_->getUnit();
 }
 
 
@@ -127,12 +149,8 @@ void uiMathExpressionVariable::selChg( CallBacker* )
     const bool iscst = selidx == posinpnms_.size();
     if ( unfld_ ) unfld_->display( !iscst );
     if ( cstvalfld_ ) cstvalfld_->display( iscst );
-}
 
-
-BufferString uiMathExpressionVariable::getVarName() const
-{
-    return varnm_;
+    inpSel.trigger();
 }
 
 

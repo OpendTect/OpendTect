@@ -14,10 +14,11 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 class BufferStringSet;
-namespace Math { class Expression; }
+class UnitOfMeasure;
+namespace Math { class Formula; class Expression; }
+class uiUnitSel;
 class uiGenInput;
 class uiLabeledComboBox;
-class UnitOfMeasure;
 
 
 mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
@@ -26,30 +27,41 @@ public:
 
 				uiMathExpressionVariable(uiGroup*,
 						const BufferStringSet&,
-						int curselidx=0,
+						int varidx,
 						bool displayuom=true);
 
-    virtual void		use(const Math::Expression*);
-    bool                        hasVarName(const char*) const;
-    BufferString		getVarName() const;
+    virtual bool		use(const Math::Formula&);
+				    //!< returns whether field is displayed
+    virtual bool		use(const Math::Expression*);
+				    //!< returns whether field is displayed
+
+    const BufferString&		varName() const		{ return varnm_; }
+    bool                        hasVarName( const char* nm ) const
+							{ return varnm_ == nm; }
 
     const char*			getInput() const;
-    virtual void		setUnit(const char*);
+    void			setUnit(const UnitOfMeasure*);
+    void			setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     float			getCstVal() const;
     bool			isCst() const;
     void			setCurSelIdx(int);
 
+    Notifier<uiMathExpressionVariable> inpSel;
+
 protected:
 
     void			selChg(CallBacker*);
 
-    const int			idx_;			//needed?
-    uiLabeledComboBox*	inpfld_;
-    uiLabeledComboBox*	unfld_;
-    uiGenInput* cstvalfld_;
-    const BufferStringSet&      posinpnms_;
+    const int			varidx_;
+    uiLabeledComboBox*		inpfld_;
+    uiUnitSel*			unfld_;
+    uiGenInput*			cstvalfld_;
+    const BufferStringSet&	posinpnms_;
     BufferString		varnm_;
+
+    bool			newVar(const char*);
+
 };
 
 

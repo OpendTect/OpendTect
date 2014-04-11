@@ -11,11 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
-#include "mathexpression.h"
+#include "mathformula.h"
 #include "mathproperty.h"
+#include "unitofmeasure.h"
 #include "pixmap.h"
 
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -23,6 +24,35 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 
 #define mMaxNrCsts	5
+
+
+
+
+class uiRockPhysCstFld : public uiGroup
+{
+public:
+
+			uiRockPhysCstFld(uiParent*);
+
+    float		getCstVal() const;
+    void		updField(BufferString,Interval<float>,BufferString,
+				 float val = mUdf(float));
+
+    BufferString	cstnm_;
+    BufferString	desc_;
+
+protected:
+
+    void		descPush(CallBacker*);
+
+    uiGenInput*		valfld_;
+    uiLabel*		nmlbl_;
+    uiLabel*		rangelbl_;
+    uiToolButton*	descbutton_;
+
+};
+
+
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
@@ -94,7 +124,8 @@ PropertyRef::StdType uiRockPhysForm::getType() const
 	return fixedtype_;
 
     const char* txt = typfld_->text();
-    if ( !txt || !*txt ) return PropertyRef::Other;
+    if ( !txt || !*txt )
+	return PropertyRef::Other;
 
     return PropertyRef::parseEnumStdType(txt);
 }
@@ -115,11 +146,10 @@ void uiRockPhysForm::setType( PropertyRef::StdType typ )
 	nmfld_->setCurrentItem( 0 );
     else
     {
-	BufferString msg = "The category '";
-	msg += PropertyRef::toString(typ);
-	msg += "' does not contain any formula yet.\n";
-	msg += "Please add a formula to the repository ";
-	msg += "or select another category.";
+	BufferString msg( "The category '", PropertyRef::toString(typ),
+		"' does not contain any formula yet.\n"
+		"Please add a formula to the repository "
+		"or select another category." );
 	uiMSG().warning( msg );
 
 	descriptionfld_->setText("");
@@ -134,18 +164,6 @@ void uiRockPhysForm::setType( PropertyRef::StdType typ )
 }
 
 
-const char* uiRockPhysForm::formulaName() const
-{
-    return nmfld_->text();
-}
-
-
-void uiRockPhysForm::setFormulaName( const char* fmnm )
-{
-    nmfld_->setText( fmnm );
-}
-
-
 void uiRockPhysForm::typSel( CallBacker* cb )
 {
     if ( !typfld_ ) return;
@@ -157,6 +175,36 @@ void uiRockPhysForm::typSel( CallBacker* cb )
 }
 
 
+BufferString uiRockPhysForm::getFormText( const RockPhysics::Formula& rpfm,
+					  bool fortxtdisp ) const
+{
+    BufferString formstr( rpfm.def_ );
+    Math::Formula form( formstr );
+    int ivardef = 0; int iconstdef = 0;
+    for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
+    {
+	BufferString formval;
+	if ( form.isConst(iinp) )
+	{
+	    if ( fortxtdisp )
+		formval = rpfm.constdefs_[iconstdef]->name();
+	    else
+		formval.set( cstflds_[iconstdef]->getCstVal() );
+	    iconstdef++;
+	}
+	else
+	{
+	    formval = rpfm.vardefs_[ivardef]->name();
+	    formval.clean();
+	    ivardef++;
+	}
+	formstr.replace( form.variableName(iinp), formval );
+    }
+
+    return formstr;
+}
+
+
 void uiRockPhysForm::nameSel( CallBacker* cb )
 {
     const char* txt = nmfld_->text();
@@ -164,103 +212,74 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
-	{ uiMSG().error( "Internal [impossible?]: formula not found" ); return;}
+	{ uiMSG().error( "Internal: formula not found" ); return;}
+    const RockPhysics::Formula& rpfm = *fm;
 
-    MathProperty* mp = fm->getProperty();
-    if ( !mp )
-	{ uiMSG().error( "No property defined for this type" ); return; }
-
-    int nrconsts = mp->nrConsts();
-    if ( nrconsts != fm->constdefs_.size() )
-	{ uiMSG().error( "Formula doesn't match repository [c]!" ); return; }
-    if ( mp->nrInputs() != fm->vardefs_.size() )
-	{ uiMSG().error( "Formula doesn't match repository [v]!" ); return; }
-
+    const int nrconsts = rpfm.constdefs_.size();
     for ( int idx=0; idx<cstflds_.size(); idx++ )
     {
-	bool dodisp = idx<nrconsts;
+	bool dodisp = idx < nrconsts;
 	cstflds_[idx]->display( dodisp );
 	if ( dodisp )
-	    cstflds_[idx]->updField( fm->constdefs_[idx]->name(),
-				     fm->constdefs_[idx]->typicalrg_,
-				     fm->constdefs_[idx]->desc_,
-				     fm->constdefs_[idx]->defaultval_ );
+	    cstflds_[idx]->updField( rpfm.constdefs_[idx]->name(),
+				     rpfm.constdefs_[idx]->typicalrg_,
+				     rpfm.constdefs_[idx]->desc_,
+				     rpfm.constdefs_[idx]->defaultval_ );
     }
 
-    descriptionfld_->setText( fm->desc_ );
-
-    formulafld_->setText( getText(false).buf() );
+    formulafld_->setText( getFormText(rpfm,true) );
+    descriptionfld_->setText( rpfm.desc_ );
 }
 
 
-BufferString uiRockPhysForm::getText( bool usecstvals ) const
+const char* uiRockPhysForm::getText( bool replcst ) const
 {
-    BufferString formula;
-    BufferString formulaunit;
-    BufferString outunit;
-    BufferStringSet varsunits;
-    TypeSet<PropertyRef::StdType> varstypes;
-    if ( getFormulaInfo( formula, formulaunit, outunit, varsunits,
-			 varstypes, usecstvals ) )
-	return formula;
+    if ( !replcst )
+	return nmfld_->text();
 
-    return 0;
+    Math::Formula form; getFormulaInfo( form );
+    mDeclStaticString(ret);
+    ret = form.text();
+    return ret;
 }
 
 
-bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
-				     BufferString& formulaunit,
-				     BufferString& outputunit,
-				     BufferStringSet& varsunits,
-				     TypeSet<PropertyRef::StdType>& varstypes,
-				     bool usecstvals ) const
+bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
+			     TypeSet<PropertyRef::StdType>* sttypes ) const
 {
-    varsunits.setEmpty();
-    varstypes.erase();
-    char* txt = const_cast<char*>(nmfld_->text());
+    if ( sttypes )
+	sttypes->setEmpty();
+
+    const char* txt = nmfld_->text();
     if ( !txt || !*txt )
-    {
-	uiMSG().error( "No formula name selected" );
-	return false;
-    }
+	{ uiMSG().error( "No formula name selected" ); return false; }
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
+	{ uiMSG().error( "Internal: formula not found" ); return false; }
+    const RockPhysics::Formula& rpfm = *fm;
+
+    form.setText( getFormText(rpfm,false) );
+
+    int nrinps = form.nrInputs();
+    if ( nrinps != fm->vardefs_.size() )
     {
-	uiMSG().error( "Internal [impossible?]: formula not found" );
-	return false;
+	BufferString msg; msg.set(nrinps).add("!=").add(fm->vardefs_.size());
+	pErrMsg( msg );
+	if ( nrinps > fm->vardefs_.size() )
+	    nrinps = fm->vardefs_.size();
     }
 
-    BufferString ret(fm->def_);
-    MathProperty* mp = fm->getProperty();
-    if ( !mp )
-	{ uiMSG().error( "No property defined for this type" ); return false; }
-
-    for ( int idx=0; idx<mp->nrInputs(); idx++ )
+    for ( int idx=0; idx<nrinps; idx++ )
     {
-	BufferString cleanvarnm = fm->vardefs_[idx]->name();
-	cleanvarnm.clean();
-	ret.replace( mp->inputName(idx), cleanvarnm );
-
-	varsunits += new BufferString( fm->vardefs_[idx]->unit_ );
-	varstypes += fm->vardefs_[idx]->type_;
-    }
-    for ( int idx=0; idx<mp->nrConsts(); idx++ )
-    {
-	if ( usecstvals )
-	    ret.replace( mp->constName(idx),
-			   toString(cstflds_[idx]->getCstVal()) );
-	else
-	{
-	    BufferString cleancstnm = fm->constdefs_[idx]->name();
-	    cleancstnm.clean();
-	    ret.replace( mp->constName( idx ), cleancstnm );
-	}
+	const RockPhysics::Formula::VarDef& vd = *fm->vardefs_[idx];
+	form.setInputDef( idx, vd.name() );
+	form.setInputUnit( idx, UoMR().get(vd.unit_) );
+	if ( sttypes )
+	    sttypes += vd.type_;
     }
 
-    cleanformula = ret;
-    formulaunit = fm->formulaunit_;
-    outputunit = fm->outputunit_;
+    form.setOutputUnit( UoMR().get(fm->unit_) );
     return true;
 }
 
@@ -286,20 +305,19 @@ bool uiRockPhysForm::isOK()
 uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
-    nmlbl_ = new uiLabel( this, 0 );
+    nmlbl_ = new uiLabel( this, "" );
     nmlbl_->setPrefWidthInChar( 35 );
     nmlbl_->setAlignment( Alignment::Right );
 
     valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
 
-    rangelbl_ = new uiLabel( this, 0 );
+    rangelbl_ = new uiLabel( this, "" );
     rangelbl_->setPrefWidthInChar( 35 );
     rangelbl_->attach( rightOf, valfld_ );
 
     CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
-    descbutton_ = new uiPushButton( this, "", ioPixmap("info"), cb, true );
-    descbutton_->setPrefWidthInChar( 5 );
+    descbutton_ = new uiToolButton( this, "info", "Info on this constant", cb );
     descbutton_->attach( rightOf, rangelbl_ );
 }
 
@@ -324,9 +342,9 @@ void uiRockPhysCstFld::updField( BufferString nm, Interval<float> range,
     else
 	valfld_->clear();
 
-    BufferString suffix = "Typical range is ["; suffix += range.start;
-    suffix += ","; suffix += range.stop; suffix += "]";
-    rangelbl_->setText( suffix.buf() );
+    BufferString suffix( "Typical range: [", range.start, "," );
+    suffix.add( range.stop ).add( "]" );
+    rangelbl_->setText( suffix );
 
     rangelbl_->display( !range.isUdf() );
     descbutton_->display( !desc_.isEmpty() );

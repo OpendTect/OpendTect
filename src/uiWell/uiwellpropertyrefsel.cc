@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uiunitsel.h"
 #include "uimsg.h"
-#include "uiwelllogcalc.h"
 #include "uiwelllogdisplay.h"
+#include "uiwelllogcalc.h"
 
 #include "elasticprop.h"
 #include "elasticpropsel.h"
@@ -219,14 +219,15 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	const PropertyRef& propref = propflds_[iprop]->propRef();
 	const PropertyRef* altpropref = propflds_[iprop]->altPropRef();
 
-	TypeSet<int> propidx;
-	TypeSet<int> isaltpropref;
-	uiWellLogCalc::getSuitableLogs( logs, lognms, propidx, isaltpropref,
-					propref, altpropref );
+	BoolTypeSet isaltpropref;
+	TypeSet<int> logidxs = logs.getSuitable( propref.stdType(),
+						 altpropref, &isaltpropref );
+	for ( int idx=0; idx<logidxs.size(); idx++ )
+	    lognms.add( logs.getLog(idx).name() );
 
 	propflds_[iprop]->setNames( lognms );
 
-	if ( lognms.size() < 2 || !propidx.size() )
+	if ( lognms.size() < 2 || logidxs.isEmpty() )
 	{
 	    propertyhasnoinput = true;
 	    const UnitOfMeasure* nouom = 0;
@@ -235,16 +236,16 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	    continue;
 	}
 
-	int logidx = -1;
-	int logidxalt = -1;
+	int logidx = -1; int logidxalt = -1;
 	const PropertyRef& proptomatch = preferaltpropref_ && altpropref
 				       ? *altpropref : propref;
 	const PropertyRef* altproptomatch = altpropref
 			  ? ( preferaltpropref_ ? &propref : altpropref ) : 0;
-	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
+	for ( int ipropidx=0; ipropidx<logidxs.size(); ipropidx++)
 	{
-	    BufferString lognm = logs.getLog(propidx[ipropidx]).name();
-	    const char* uomlbl = logs.getLog(propidx[ipropidx]).unitMeasLabel();
+	    const int curlogidx = logidxs[ipropidx];
+	    BufferString lognm = logs.getLog(curlogidx).name();
+	    const char* uomlbl = logs.getLog(curlogidx).unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
 	    if ( uom && uom->propType() == proptomatch.stdType() )
 	    {
@@ -283,9 +284,9 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	    else
 		logidx = logidxalt;
 	}
-	const char* uomlbl = logs.getLog(propidx[logidx]).unitMeasLabel();
+	const char* uomlbl = logs.getLog(logidxs[logidx]).unitMeasLabel();
 	const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
-	propflds_[iprop]->set( logs.getLog(propidx[logidx]).name(),
+	propflds_[iprop]->set( logs.getLog(logidxs[logidx]).name(),
 			       isaltpropref[logidx], uom );
     }
 

@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 namespace Well { class Log; class LogSet; }
+namespace Math { class Formula; }
 
 
 /*!\brief group to select the well logs which will be used as input
@@ -30,12 +31,9 @@ public:
 			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
 			~uiWellLogCalcInpData();
 
-    virtual void	use(const Math::Expression*);
-    virtual void	setUnit(const char*);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);
     void		restrictLogChoice(const PropertyRef::StdType&);
-    void		resetLogRestriction();
 
     const Well::LogSet* wls_;
 
@@ -44,9 +42,7 @@ protected:
     uiCheckBox*		udfbox_;
 
     Well::Log*          convertedlog_;
-    bool		forceunit_;
 
-    void		inputSel(CallBacker*);
     void		vwLog(CallBacker*);
 
 };

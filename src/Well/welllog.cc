@@ -10,10 +10,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "iopar.h"
 #include "idxable.h"
+#include "unitofmeasure.h"
 
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
+
+
+// ---- Well::LogSet
 
 
 void Well::LogSet::getNames( BufferStringSet& nms ) const
@@ -93,6 +97,37 @@ void Well::LogSet::removeTopBottomUdfs()
     for ( int idx=0; idx<logs.size(); idx++ )
 	logs[idx]->removeTopBottomUdfs();
 }
+
+
+TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
+	const PropertyRef* altpr, BoolTypeSet* arealt ) const
+{
+    TypeSet<int> ret;
+    if ( arealt )
+	arealt->setEmpty();
+
+    for ( int idx=0; idx<logs.size(); idx++ )
+    {
+	const char* loguomlbl = logs[idx]->unitMeasLabel();
+	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
+	bool isalt = false;
+	bool isok = !loguom || ptype == PropertyRef::Other
+	         || loguom->propType() == ptype;
+	if ( !isok && altpr )
+	    isok = isalt = loguom->propType() == altpr->stdType();
+	if ( isok )
+	{
+	    ret += idx;
+	    if ( arealt )
+		*arealt += isalt;
+	}
+    }
+
+    return ret;
+}
+
+
+// ---- Well::Log
 
 
 Well::Log& Well::Log::operator =( const Well::Log& l )

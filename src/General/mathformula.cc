@@ -43,7 +43,6 @@ Math::Formula& Math::Formula::operator =( const Math::Formula& oth )
 	prevvals_ = oth.prevvals_;
 	inpidxs_ = oth.inpidxs_;
 	varshifts_ = oth.varshifts_;
-	maxshift_ = oth.maxshift_;
     }
     return *this;
 }
@@ -71,8 +70,8 @@ void Math::Formula::setText( const char* inp )
     inpidxs_.setEmpty();
     varshifts_.setEmpty();
     recstartvals_.setEmpty();
-    maxshift_ = 0;
 
+    int maxshift = 0;
     text_ = inp;
     ExpressionParser mep( inp );
     expr_ = mep.parse();
@@ -107,11 +106,11 @@ void Math::Formula::setText( const char* inp )
 	}
 	inpidxs_ += inpidx;
 	varshifts_ += shft;
-	if ( maxshift_ < shft )
-	    maxshift_ = shft;
+	if ( maxshift < shft )
+	    maxshift = shft;
     }
 
-    for ( int idx=0; idx<maxshift_; idx++ )
+    for ( int idx=0; idx<maxshift; idx++ )
 	recstartvals_ += 0;
 }
 
@@ -147,10 +146,10 @@ float Math::Formula::getValue( const float* vals, bool internuns ) const
 
 double Math::Formula::getValue( const double* vals, bool internuns ) const
 {
-    if ( prevvals_.size() < maxshift_ )
+    if ( prevvals_.size() < maxRecShift() )
     {
 	startNewSeries();
-	for ( int idx=prevvals_.size(); idx<maxshift_; idx++ )
+	for ( int idx=prevvals_.size(); idx<maxRecShift(); idx++ )
 	    prevvals_ += 0;
 
     }
