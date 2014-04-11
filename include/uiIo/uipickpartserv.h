@@ -13,24 +13,26 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uipicksetmgr.h"
 #include "uiapplserv.h"
+
+#include "bufstringset.h"
+#include "horsampling.h"
 #include "ranges.h"
 #include "multiid.h"
-#include "datapointset.h"
-#include "bufstringset.h"
-#include "cubesampling.h"
 
-class SurfaceInfo;
+class BinIDValueSet;
+class DataPointSet;
 class RandLocGenPars;
+class SurfaceInfo;
+class uiImpExpPickSet;
+class uiPickSetMgr;
 namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
 
 
 /*! \brief Service provider for application level - seismics */
 
-mExpClass(uiIo) uiPickPartServer  : public uiApplPartServer
-			, public uiPickSetMgr
+mExpClass(uiIo) uiPickPartServer : public uiApplPartServer
 {
 public:
 				uiPickPartServer(uiApplService&);
@@ -41,8 +43,17 @@ public:
 				// Services
     void			managePickSets();
     Pick::Set*			pickSet()		{ return ps_; }
-    void			impexpSet(bool import);
+    void			importSet();
+    void			exportSet();
+
+    bool			storePickSets();
+    bool			storePickSet(const Pick::Set&);
+    bool			storePickSetAs(const Pick::Set&);
+    bool			pickSetsStored() const;
+    void			mergePickSets(MultiID&);
+
     void			fetchHors(bool);
+    Pick::Set*			loadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
     				//!< Load set(s) by user sel
     bool			createEmptySet(bool aspolygon);
@@ -59,11 +70,12 @@ public:
     static int		        evFillPickSet();
     static int			evGet2DLineInfo();
     static int			evGet2DLineDef();
-
+    static int			evDisplayPickSet();
 
 				// Interaction stuff
     BinIDValueSet&			genDef()	{ return gendef_; }
     ObjectSet<PosInfo::Line2DData>&	lineGeoms()	{ return linegeoms_; }
+    MultiID			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
@@ -78,18 +90,18 @@ public:
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
-    uiParent*			parent()
-    				{ return appserv().parent(); }
-
 protected:
 
-    BinIDValueSet 			gendef_;
+    Pick::SetMgr&		psmgr_;
+    uiPickSetMgr&		uipsmgr_;
     ObjectSet<PosInfo::Line2DData>	linegeoms_;
+    BinIDValueSet& 		gendef_;
 
     ObjectSet<SurfaceInfo> 	hinfos_;
     ObjectSet<MultiID>		selhorids_;
     HorSampling			selhs_;
     Pick::Set*			ps_;
+    MultiID			picksetid_;
     MultiID			horid_;
 
     BufferStringSet		linesets_;
@@ -100,9 +112,12 @@ protected:
     TypeSet<Coord>		coords2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
+    uiImpExpPickSet*		imppsdlg_;
+    uiImpExpPickSet*		exppsdlg_;
+
+    void			survChangedCB(CallBacker*);
+    void			importReadyCB(CallBacker*);
     bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
 };
 
-
 #endif
-

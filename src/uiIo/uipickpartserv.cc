@@ -11,62 +11,144 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uipickpartserv.h"
 
-#include "mousecursor.h"
 #include "uicreatepicks.h"
 #include "uiimppickset.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipicksetman.h"
+#include "uipicksetmgr.h"
 
+#include "binidvalset.h"
+#include "color.h"
+#include "datapointset.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "surfaceinfo.h"
-#include "color.h"
-#include "ioobj.h"
-#include "survinfo.h"
 #include "posinfo2d.h"
-#include "statrand.h"
 #include "ptrman.h"
+#include "statrand.h"
+#include "surfaceinfo.h"
+#include "survinfo.h"
 
-int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
-int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
-int uiPickPartServer::evGetHorDef3D()	{ return 2; }
-int uiPickPartServer::evGetHorDef2D()	{ return 3; }
-int uiPickPartServer::evFillPickSet()	{ return 4; }
-int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
-int uiPickPartServer::evGet2DLineDef()	{ return 6; }
+int uiPickPartServer::evGetHorInfo2D()		{ return 0; }
+int uiPickPartServer::evGetHorInfo3D()		{ return 1; }
+int uiPickPartServer::evGetHorDef3D()		{ return 2; }
+int uiPickPartServer::evGetHorDef2D()		{ return 3; }
+int uiPickPartServer::evFillPickSet()		{ return 4; }
+int uiPickPartServer::evGet2DLineInfo()		{ return 5; }
+int uiPickPartServer::evGet2DLineDef()		{ return 6; }
+int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
-	: uiApplPartServer(a)
-	, uiPickSetMgr(Pick::Mgr())
-    	, gendef_(2,true)
-    	, selhs_(true)
-	, ps_(0)
+    : uiApplPartServer(a)
+    , psmgr_(Pick::Mgr())
+    , uipsmgr_(*new uiPickSetMgr(parent(),psmgr_))
+    , gendef_(*new BinIDValueSet(2,true))
+    , selhs_(true)
+    , ps_(0)
+    , imppsdlg_(0)
+    , exppsdlg_(0)
 {
+    IOM().surveyChanged.notify( mCB(this,uiPickPartServer,survChangedCB) );
 }
 
 
 uiPickPartServer::~uiPickPartServer()
 {
+    delete &uipsmgr_;
+    delete &gendef_;
     deepErase( selhorids_ );
     deepErase( linegeoms_ );
 }
 
 
+void uiPickPartServer::survChangedCB( CallBacker* )
+{
+    delete imppsdlg_; imppsdlg_ = 0;
+    delete exppsdlg_; exppsdlg_ = 0;
+}
+
+
 void uiPickPartServer::managePickSets()
 {
-    uiPickSetMan dlg( appserv().parent() );
+    uiPickSetMan dlg( parent() );
     dlg.go();
 }
 
 
-void uiPickPartServer::impexpSet( bool import )
+void uiPickPartServer::importSet()
 {
-    uiImpExpPickSet dlg( this, import );
-    dlg.go();
+    if ( !imppsdlg_ )
+    {
+	imppsdlg_ = new uiImpExpPickSet( parent(), this, true );
+	imppsdlg_->importReady.notify(
+		mCB(this,uiPickPartServer,importReadyCB) );
+    }
+
+    imppsdlg_->show();
+    imppsdlg_->raise();
+}
+
+
+void uiPickPartServer::importReadyCB( CallBacker* cb )
+{
+    if ( imppsdlg_ && cb==imppsdlg_ )
+    {
+	picksetid_ = imppsdlg_->getStoredID();
+	sendEvent( evDisplayPickSet() );
+    }
+}
+
+
+void uiPickPartServer::exportSet()
+{
+    if ( !exppsdlg_ )
+	exppsdlg_ = new uiImpExpPickSet( parent(), this, false );
+
+    exppsdlg_->show();
+    exppsdlg_->raise();
+}
+
+
+bool uiPickPartServer::storePickSets()
+{ return uipsmgr_.storeSets(); }
+
+bool uiPickPartServer::storePickSet( const Pick::Set& ps )
+{ return uipsmgr_.storeSet( ps ); }
+
+bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
+{ return uipsmgr_.storeSetAs( ps ); }
+
+bool uiPickPartServer::pickSetsStored() const
+{ return uipsmgr_.pickSetsStored(); }
+
+void uiPickPartServer::mergePickSets( MultiID& mid )
+{ uipsmgr_.mergeSets( mid ); }
+
+
+Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const int setidx = psmgr_.indexOf( mid );
+    if ( setidx<0 )
+    {
+	Pick::Set* ps = new Pick::Set;
+	BufferString bs;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,bs) )
+	{
+	    psmgr_.set( mid, ps );
+	    return ps;
+	}
+
+	delete ps;
+	return 0;
+    }
+
+    return &(psmgr_.get(setidx));
 }
 
 
@@ -84,7 +166,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     if ( poly )
 	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
-    uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
+    uiIOObjSelDlg dlg( parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
 
     bool retval = false;
@@ -94,13 +176,13 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	const MultiID id = dlg.selected(idx);
 	psids += id;
 	PtrMan<IOObj> ioobj = IOM().get( id );
-	const int setidx = setmgr_.indexOf( ioobj->key() );
-	Pick::Set* ps = setidx < 0 ? new Pick::Set : &(setmgr_.get(setidx));
+	const int setidx = psmgr_.indexOf( ioobj->key() );
+	Pick::Set* ps = setidx < 0 ? new Pick::Set : &(psmgr_.get(setidx));
 	BufferString bs;
 	if ( PickSetTranslator::retrieve(*ps,ioobj,true, bs) )
 	{
 	    if ( setidx < 0 )
-		setmgr_.set( ioobj->key(), ps );
+		psmgr_.set( ioobj->key(), ps );
 
 	    psids.addIfNew( ioobj->key() );
 	    retval = true;
@@ -110,7 +192,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	    if ( setidx < 0 )
 		delete ps;
 	    else
-		setmgr_.set( ioobj->key(), 0 ); //Remove from Mgr if present.
+		psmgr_.set( ioobj->key(), 0 ); //Remove from Mgr if present.
 
 	    if ( idx == 0 )
 	    {
@@ -139,7 +221,7 @@ bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
     uiCreatePicks dlg( parent(), aspolygon );
     mHandleDlg();
-    return newps ? storeNewSet( newps ) : false;
+    return newps ? uipsmgr_.storeSetAs( *newps ) : false;
 }
 
 
@@ -147,7 +229,7 @@ bool uiPickPartServer::create3DGenSet()
 {
     uiGenPosPicks dlg( parent() );
     mHandleDlg();
-    return newps ? storeNewSet( newps ) : false;
+    return newps ? uipsmgr_.storeSetAs( *newps ) : false;
 }
 
 
@@ -172,7 +254,7 @@ bool uiPickPartServer::createRandom2DSet()
     if ( !mkRandLocs2D(*newps,dlg.randPars()) )
     { delete newps; newps = 0; }
     if ( newps )
-	return storeNewSet( newps );
+	return uipsmgr_.storeSetAs( *newps );
 
     return false;
 }
@@ -209,7 +291,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 		coords2d_ += posns[ipos].coord_;
 	}
-	
+
 	deepErase( linegeoms_ );
     }
 
@@ -220,8 +302,8 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     {
 	const int posidx = Stats::randGen().getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = (float) ( zrg.start + 
-				  Stats::randGen().get() * zrg.width(false) ); 
+	float val = (float) ( zrg.start +
+				  Stats::randGen().get() * zrg.width(false) );
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 
@@ -231,9 +313,9 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
 void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 {
-    const int setidx = setmgr_.indexOf( pickset.name() );
+    const int setidx = psmgr_.indexOf( pickset.name() );
     const bool isnew = setidx < 0;
-    Pick::Set* ps = isnew ? 0 : &setmgr_.get( setidx );
+    Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
     if ( ps )
 	ps->erase();
     else
@@ -245,13 +327,11 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
     *ps = pickset;
 
     if ( isnew )
-	storeNewSet( ps );
+	uipsmgr_.storeSetAs( *ps );
     else
     {
-	PtrMan<IOObj> ioobj = getSetIOObj( *ps );
-	if ( ioobj )
-	    doStore( *ps, *ioobj );
-	setmgr_.reportChange( 0, *ps );
+	uipsmgr_.storeSet( *ps );
+	psmgr_.reportChange( 0, *ps );
     }
 }
 
@@ -259,9 +339,9 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
     const char* sKeyMisClass = "Misclassified [NN]";
-    int setidx = setmgr_.indexOf( sKeyMisClass );
+    int setidx = psmgr_.indexOf( sKeyMisClass );
     const bool isnew = setidx < 0;
-    Pick::Set* ps = isnew ? 0 : &setmgr_.get( setidx );
+    Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
     if ( ps )
 	ps->erase();
     else
@@ -277,13 +357,9 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     }
 
     if ( isnew )
-	storeNewSet( ps );
+	uipsmgr_.storeSetAs( *ps );
     else
-    {
-	PtrMan<IOObj> ioobj = getSetIOObj( *ps );
-	if ( ioobj )
-	    doStore( *ps, *ioobj );
-    }
+	uipsmgr_.storeSet( *ps );
 }
 
 

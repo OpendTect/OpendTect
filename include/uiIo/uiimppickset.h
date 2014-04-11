@@ -14,12 +14,14 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+#include "multiid.h"
+
 class uiCheckBox;
 class uiColorInput;
-class uiLabeledComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiLabeledComboBox;
 class uiPickPartServer;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
@@ -29,7 +31,12 @@ namespace Table { class FormatDesc; }
 mExpClass(uiIo) uiImpExpPickSet : public uiDialog
 {
 public:
-			uiImpExpPickSet(uiPickPartServer*,bool);
+			uiImpExpPickSet(uiParent*,uiPickPartServer*,bool);
+			~uiImpExpPickSet();
+
+    const MultiID&	getStoredID() const	{ return storedid_; }
+
+    Notifier<uiImpExpPickSet> importReady;
 
 protected:
 
@@ -54,6 +61,8 @@ protected:
 
     bool		import_;
     Table::FormatDesc&  fd_;
+
+    MultiID		storedid_;
 };
 
 

@@ -153,9 +153,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	display_on_add = true;
 	TypeSet<MultiID> mids;
-	const bool res = 
+	const bool res =
 	    applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
-	if ( !res ) 
+	if ( !res )
 	    return false;
 	display_on_add = false;
 	for ( int idx=0; idx<mids.size(); idx++ )
@@ -193,7 +193,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid==mSaveIdx )
     {
-	if ( !applMgr()->pickServer()->storeSets() )
+	if ( !applMgr()->pickServer()->storePickSets() )
 	    uiMSG().error( "Problem saving changes. Check write protection." );
     }
     else if ( mnuid==mDisplayIdx || mnuid==mShowAllIdx )
@@ -209,7 +209,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid==mMergeIdx )
-	{ MultiID mid; applMgr()->pickServer()->mergeSets( mid ); }
+	{ MultiID mid; applMgr()->pickServer()->mergePickSets( mid ); }
     else
 	handleStandardItems( mnuid );
 
@@ -392,7 +392,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	emps->copyFrom( set_ );
 	emps->setPreferredColor( set_.disp_.color_ );
 	emps->setName( set_.name() );
-	
+
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =
 	    new visSurvey::RandomPosBodyDisplay;
 
@@ -404,11 +404,11 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
         visserv_->addObject( npsd, sceneID(), true );
 	visserv_->showMPEToolbar();
 	visserv_->turnSeedPickingOn( false );
-	
+
 	prepareForShutdown();
 	visserv_->removeObject( displayid_, sceneID() );
 	parent_->removeChild( this );
-	
+
 	return;
     }
 

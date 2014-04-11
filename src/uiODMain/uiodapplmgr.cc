@@ -398,13 +398,13 @@ void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv_->selectWells( wellids ); }
 
 bool uiODApplMgr::storePickSets()
-{ return pickserv_->storeSets(); }
+{ return pickserv_->storePickSets(); }
 
 bool uiODApplMgr::storePickSet( const Pick::Set& ps )
-{ return pickserv_->storeSet( ps ); }
+{ return pickserv_->storePickSet( ps ); }
 
 bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
-{ return pickserv_->storeSetAs( ps ); }
+{ return pickserv_->storePickSetAs( ps ); }
 
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 {
@@ -1307,6 +1307,10 @@ bool uiODApplMgr::handlePickServEv( int evid )
 					  geom );
 	    pickserv_->lineGeoms() += new PosInfo::Line2DData( geom );
 	}
+    }
+    else if ( evid == uiPickPartServer::evDisplayPickSet() )
+    {
+	sceneMgr().addPickSetItem( pickserv_->pickSetID() );
     }
     else
     {

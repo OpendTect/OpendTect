@@ -45,18 +45,22 @@ static const char* zoptions[] =
 };
 
 
-uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
-    : uiDialog(p->parent(),uiDialog::Setup(imp ? "Import Pickset/Polygon"
-			: "Export PickSet/Polygon", mNoDlgTitle,
-			imp ? "105.0.1" : "105.0.2"))
-    , serv_(p)
+uiImpExpPickSet::uiImpExpPickSet( uiParent* p, uiPickPartServer* pps, bool imp )
+    : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset/Polygon"
+				     : "Export PickSet/Polygon", mNoDlgTitle,
+				 imp ? "105.0.1" : "105.0.2").modal(false))
+    , serv_(pps)
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true))
     , zfld_(0)
     , constzfld_(0)
     , dataselfld_(0)
+    , importReady(this)
+    , storedid_(MultiID::udf())
 {
-    setOkText( import_ ? uiStrings::sImport() : uiStrings::sExport() );
+    setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
+		     uiStrings::sClose() );
+    if ( import_ ) enableSaveButton( "Display after import" );
 
     BufferString label( import_ ? "Input " : "Output " );
     label += "ASCII file";
@@ -119,8 +123,13 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 }
 
 
+uiImpExpPickSet::~uiImpExpPickSet()
+{}
+
+
 void uiImpExpPickSet::inputChgd( CallBacker* )
 {
+    storedid_.setUdf();
     FilePath fnmfp( filefld_->fileName() );
     objfld_->setInputText( fnmfp.baseName() );
 }
@@ -181,6 +190,29 @@ bool uiImpExpPickSet::doImport()
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
 	mErrRet(errmsg);
 
+    storedid_ = ioobj->key();
+    if ( saveButtonChecked() )
+    {
+	Pick::SetMgr& psmgr = Pick::Mgr();
+	int setidx = psmgr.indexOf( storedid_ );
+	if ( setidx < 0 )
+	{
+	    Pick::Set* newps = new Pick::Set( ps );
+	    psmgr.set( storedid_, newps );
+	    setidx = psmgr.indexOf( storedid_ );
+	    importReady.trigger();
+	}
+	else
+	{
+	    Pick::Set& oldps = psmgr.get( setidx );
+	    oldps = ps;
+	    psmgr.reportChange( 0, oldps );
+	    psmgr.reportDispChange( 0, oldps );
+	}
+
+	psmgr.setUnChanged( setidx, true );
+    }
+
     return true;
 }
 
@@ -219,13 +251,17 @@ bool uiImpExpPickSet::doExport()
 
 bool uiImpExpPickSet::acceptOK( CallBacker* )
 {
+    uiMsgMainWinSetter mws( this );
+
     if ( !checkInpFlds() ) return false;
     bool ret = import_ ? doImport() : doExport();
     if ( !ret ) return false;
 
-    uiMSG().message( BufferString("Pickset successfully ",
-				  import_ ? "imported" : "exported") );
-    return false;
+    BufferString msg( "Pickset successfully ",
+		      import_ ? "imported" : "exported" );
+    msg.addNewLine().add( "Do you want to " ).add(import_ ? "import" : "export")
+       .add( " more PickSets?" );
+    return !uiMSG().askGoOn( msg, uiStrings::sYes(), "No, close window" );
 }
 
 
@@ -253,7 +289,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    if ( SI().zIsTime() ) constz /= 1000;
 
 	    if ( !SI().zRange(false).includes( constz,false ) )
-		mErrRet( "Please Enter a valid Z value" );
+		mErrRet( "Please enter a valid Z value" );
 	}
     }
 

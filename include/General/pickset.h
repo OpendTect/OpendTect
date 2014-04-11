@@ -74,7 +74,7 @@ public:
     			{ return !mIsZero(dir_.radius,mDefEps)
 			      || !mIsZero(dir_.theta,mDefEps)
 			      || !mIsZero(dir_.phi,mDefEps); }
-	
+
 };
 
 
@@ -118,14 +118,14 @@ public:
 
 /*!\brief Utility to manage pick set lifecycles.
           Also supports change notifications.
- 
+
  You can create your own set manager for your own special pick sets.
  There is a OD-wide Mgr() available which is supposed to hold all 'plain'
  picksets loaded in the OD-tree.
 
  A new special-purpose manager is created by passing your own name to the
  static getMgr() method.
- 
+
  */
 
 mExpClass(General) SetMgr : public NamedObject
@@ -166,7 +166,7 @@ public:
 	const int	loc_;
 			//<refers to the idx in set_
     };
-    
+
     void		reportChange(CallBacker* sender,const ChangeData&);
     void		reportChange(CallBacker* sender,const Set&);
     void		reportDispChange(CallBacker* sender,const Set&);
@@ -179,9 +179,10 @@ public:
     void		removeCBs(CallBacker*);
 
     bool		isChanged( int idx ) const
-			{ return idx < changed_.size() ? (bool) changed_[idx] : false;}
+			{ return idx < changed_.size()
+				? (bool) changed_[idx] : false;}
     void		setUnChanged( int idx, bool yn=true )
-			{ if ( idx < changed_.size() ) changed_[idx] = !yn; }
+			{ if ( changed_.validIdx(idx) ) changed_[idx] = !yn; }
 
     static SetMgr&	getMgr(const char*);
 

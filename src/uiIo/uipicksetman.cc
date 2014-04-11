@@ -110,19 +110,9 @@ void uiPickSetMan::mkFileInfo()
 }
 
 
-class uiPickSetManPickSetMgr : public uiPickSetMgr
-{
-public:
-uiPickSetManPickSetMgr( uiParent* p ) : uiPickSetMgr(Pick::Mgr()), par_(p) {}
-uiParent* parent() { return par_; }
-
-    uiParent*	par_;
-
-};
-
 void uiPickSetMan::mergeSets( CallBacker* )
 {
-    uiPickSetManPickSetMgr mgr( this );
+    uiPickSetMgr mgr( this, Pick::Mgr() );
     MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
     mgr.mergeSets( curkey );
 

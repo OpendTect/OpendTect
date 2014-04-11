@@ -24,8 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 
 
-uiPickSetMgr::uiPickSetMgr( Pick::SetMgr& m )
-    	: setmgr_(m)
+uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
+    : setmgr_(m)
+    , parent_(p)
 {
 }
 
@@ -118,7 +119,7 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     if ( ispoly )
 	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     ctio->setName( oldname );
-    uiIOObjSelDlg dlg( parent(), *ctio );
+    uiIOObjSelDlg dlg( parent_, *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
@@ -197,8 +198,7 @@ bool acceptOK( CallBacker* )
 
 void uiPickSetMgr::mergeSets( MultiID& mid )
 {
-    CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    uiMergePickSets dlg( parent(), mid );
+    uiMergePickSets dlg( parent_, mid );
     if ( !dlg.go() ) return;
 
     ObjectSet<const Pick::Set> pss;

@@ -257,8 +257,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Pick):
 	switch ( at )
 	{
-	mCase(Imp):	am_.pickserv_->impexpSet( true );	break;
-	mCase(Exp):	am_.pickserv_->impexpSet( false );	break;
+	mCase(Imp):	am_.pickserv_->importSet();		break;
+	mCase(Exp):	am_.pickserv_->exportSet();		break;
 	mCase(Man):	am_.pickserv_->managePickSets();	break;
 	}
     break;

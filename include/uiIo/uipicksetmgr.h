@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class IOObj;
 class uiParent;
-namespace Pick { class Set; class SetMgr; };
+namespace Pick { class Set; class SetMgr; }
 
 
 /*! \brief base class for management of a Pick::SetMgr */
@@ -25,7 +25,7 @@ namespace Pick { class Set; class SetMgr; };
 mExpClass(uiIo) uiPickSetMgr : public CallBacker
 {
 public:
-			uiPickSetMgr(Pick::SetMgr&);
+			uiPickSetMgr(uiParent*,Pick::SetMgr&);
 
     bool		storeSets();	//!< Stores all changed sets
     bool		storeSet(const Pick::Set&);
@@ -33,10 +33,9 @@ public:
     void		mergeSets(MultiID&);
     bool		pickSetsStored() const;
 
-    virtual uiParent*	parent()		= 0;
-
 protected:
 
+    uiParent*		parent_;
     Pick::SetMgr&	setmgr_;
 
     virtual bool	storeNewSet(Pick::Set*&) const;
