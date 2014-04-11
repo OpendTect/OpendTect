@@ -281,7 +281,6 @@ void uiColorTable::createFields( uiParent* parnt, bool vert )
 
 uiColorTable::~uiColorTable()
 {
-    delete canvas_;
     delete &coltabseq_;
     delete &mapsetup_;
 }
@@ -578,7 +577,9 @@ void uiColorTableGroup::init( bool vertical, bool nominmax )
 
 
 uiColorTableGroup::~uiColorTableGroup()
-{}
+{
+    delete canvas_;
+}
 
 
 

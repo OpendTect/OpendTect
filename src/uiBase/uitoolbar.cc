@@ -67,6 +67,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 uiToolBar::~uiToolBar()
 {
     removeAllActions();
+    deepErase( addedobjects_ );
 
     delete qtoolbar_;
     delete msgr_;
@@ -251,7 +252,7 @@ void uiToolBar::setToolBarMenuAction( uiAction* action )
 void uiToolBar::clear()
 {
     removeAllActions();
-    addedobjects_.erase();
+    deepErase( addedobjects_ );
 }
 
 
