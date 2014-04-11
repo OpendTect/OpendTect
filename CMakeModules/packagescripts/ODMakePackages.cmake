@@ -19,7 +19,9 @@ endif()
 include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 #Genarate Symbols and then Strip the binaries
-OD_GENERATE_BREAKPAD_SYMBOLS()
+if ( UNIX AND (${OD_ENABLE_BREAKPAD} STREQUAL "ON") )
+    OD_GENERATE_BREAKPAD_SYMBOLS()
+endif()
 
 if( APPLE OR WIN32 )
     od_sign_libs()
