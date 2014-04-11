@@ -98,6 +98,7 @@ public:
     bool		clickablesInScene(const char* trackertype,
 					  int sceneid) const;
     const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
+    void		getSceneIds(TypeSet<int>& sceneids) const;
 
     void		getChildIds(int id,TypeSet<int>&) const;
 			/*!< Gets a scenes' children or a volumes' parts

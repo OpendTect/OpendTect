@@ -517,6 +517,10 @@ const ZDomain::Info* uiVisPartServer::zDomainInfo( int sceneid ) const
 }
 
 
+void uiVisPartServer::getSceneIds( TypeSet<int>& sceneids ) const
+{ getChildIds( -1, sceneids ); }
+
+
 void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 {
     childids.erase();
