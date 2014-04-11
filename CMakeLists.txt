@@ -99,6 +99,8 @@ OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
 OD_ADD_KEYWORD_TEST( "atan2(" atan2 "Use Math::Atan2() instead of atan2" )
+OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^;]*new\\\\s+" mAllocLargeVarLenArr
+		     "ArrPtrMan<Type> var = new is not allowed. Use mAllocLargeVarLenArr instead." )
 OD_ADD_LOCAL_STATIC_TEST()
 OD_ADD_LINEEND_TEST()
 OD_ADD_EXIT_PROGRAM_TEST()
