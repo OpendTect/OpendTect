@@ -670,9 +670,7 @@ void uiSeis2DMultiLineSel::updateFromLineset()
     if ( !lnms.size() )
 	return;
 
-    CubeSampling cs;
-    if ( oinf.getRanges(cs) )
-	zrg_ = cs.zrg;
+    zrg_ = SI().zRange( true );
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
