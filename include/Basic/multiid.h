@@ -63,10 +63,8 @@ public:
 			{ *this += toString(i); return *this; }
 
     static const MultiID& udf();
-    inline bool		isUdf() const
-			{ return *this == udf(); }
-
+    inline void		setUdf()		{ *this = udf(); }
+    inline bool		isUdf() const		{ return *this == udf(); }
 };
-
 
 #endif
