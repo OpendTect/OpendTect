@@ -25,6 +25,8 @@ class Color;
 
 namespace visBase
 {
+    class DrawStyle;
+    class PolyLine;
     class Text2;
     class Transformation;
     class TexturePanelStrip;
@@ -44,18 +46,14 @@ mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
 				Seis2DDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Seis2DDisplay,
-				    "Seis2DDisplay", sFactoryKeyword() );
+				    "Seis2DDisplay", sFactoryKeyword() )
 
-    void			setLineInfo(const MultiID& lid,const char* lnm);
-    void			setGeomID( Pos::GeomID geomid ) 
-							   { geomid_ = geomid; }
+    void			setGeomID(Pos::GeomID geomid);
     const char*			getLineName() const;
-    const MultiID&		lineSetID() const;
     PosInfo::Line2DKey		getLine2DKey() const;
-    Pos::GeomID 		getGeomID() const	   { return geomid_; }
-    MultiID			getMultiID() const;
+    Pos::GeomID		getGeomID() const	   { return geomid_; }
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -69,14 +67,14 @@ public:
     const StepInterval<int>&	getMaxTraceNrRange() const;
 
     bool			setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
+					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
     void			setTraceData(int attrib,
-	    				     const Attrib::Data2DArray&,
+					     const Attrib::Data2DArray&,
 					     TaskRunner*);
     virtual void		setTraceData( int attrib, SeisTrcBuf& tb,
 					     TaskRunner* tr )
@@ -86,9 +84,18 @@ public:
 
     bool			allowsPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
+    bool			hasColor() const		{ return true; }
+    Color			getColor() const;
+    void			setColor(Color);
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
 
-    void			showLineName(bool);
-    bool			lineNameShown() const;
+    void			showPanel(bool yn);
+    bool			isPanelShown() const;
+    void			showPolyLine(bool yn);
+    bool			isPolyLineShown() const;
+    void			showLineName(bool yn);
+    bool			isLineNameShown() const;
 
     bool			canDuplicate() const		{ return true; }
     SurveyObject*		duplicate(TaskRunner*) const;
@@ -102,10 +109,10 @@ public:
     void			setResolution(int,TaskRunner*);
 
     Pol2D3D                     getAllowedDataType() const	{return Only2D;}
-    SurveyObject::AttribFormat 	getAttributeFormat(int attrib) const;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					Coord3&,BufferString&,
-	    					BufferString&) const;
+						Coord3&,BufferString&,
+						BufferString&) const;
     void			getMousePosInfo(const visBase::EventInfo&,
 						IOPar&) const;
     void			getObjectInfo(BufferString&) const;
@@ -136,9 +143,9 @@ public:
 
     virtual void		setAnnotColor(Color);
     virtual Color		getAnnotColor() const;
-    
+
     NotifierAccess*		getMovementNotifier()
-    				{ return &geomchanged_; }
+				{ return &geomchanged_; }
 
     static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
     static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
@@ -153,7 +160,7 @@ protected:
 				~Seis2DDisplay();
     friend			class Seis2DTextureDataArrayFiller;
     friend			class Seis2DArray;
-    
+
     virtual void		addCache();
     void			removeCache(int);
     void			swapCache(int,int);
@@ -165,14 +172,14 @@ protected:
     const Interval<int>		getSampleRange() const;
 
     void			updatePanelStripPath();
-    				/*!<Sets the coordinates to the path in
+				/*!<Sets the coordinates to the path in
 				    geometry_, limited by current trcnrrg_.
 				    Will also update texture coordinates.*/
     void			updatePanelStripZRange();
 
     void			updateLineNamePos();
     void			setData(int attrib,const Attrib::Data2DArray&,
-	    				TaskRunner*);
+					TaskRunner*);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);
@@ -180,12 +187,15 @@ protected:
 
     mutable int			prevtrcidx_;
 
-    visBase::TexturePanelStrip*			panelstrip_;
-    ObjectSet<const Attrib::Data2DArray>	cache_;
-    TypeSet<DataPack::ID>			datapackids_;
-    MultiID					datasetid_;
+    visBase::PolyLine*		polyline_;
+    visBase::DrawStyle*		polylineds_;
+    visBase::TexturePanelStrip* panelstrip_;
 
-    PosInfo::Line2DData&			geometry_;
+    ObjectSet<const Attrib::Data2DArray> cache_;
+    TypeSet<DataPack::ID>	datapackids_;
+    MultiID			datasetid_;
+
+    PosInfo::Line2DData&	geometry_;
 
     struct TraceDisplayInfo
     {
@@ -219,9 +229,16 @@ protected:
     static const char*		sKeyTrcNrRange();
     static const char*		sKeyZRange();
     static const char*		sKeyShowLineName();
+    static const char*		sKeyShowPanel();
+    static const char*		sKeyShowPolyLine();
 
 				//Old format
     static const char*		sKeyTextureID();
+
+public:
+// old stuff, only here to keep other code compiling
+    MultiID			getMultiID() const	{ return datasetid_; }
+    const MultiID&		lineSetID() const	{ return datasetid_; }
 };
 
 } // namespace visSurvey

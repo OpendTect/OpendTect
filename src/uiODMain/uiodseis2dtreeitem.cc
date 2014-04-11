@@ -58,17 +58,60 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 }
 
 
+#define mAdd		0
+#define mFrom3D		1
+#define mTo3D		2
+
+#define mDispNames	10
+#define mDispPanels	11
+#define mDispPolyLines	12
+#define mHideNames	13
+#define mHidePanels	14
+#define mHidePolyLines	15
+
+
+#define mInsertItm( menu, name, id, enable ) \
+{ \
+    uiAction* itm = new uiAction( name ); \
+    menu->insertItem( itm, id ); \
+    itm->setEnabled( enable ); \
+}
+
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
     if ( SI().has3D() )
-	mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 1 );
+	mnu.insertItem( new uiAction(tr("&Create from 3D ...")), mFrom3D );
 
-    mnu.insertItem( new uiAction(tr("&Generate 3D cube...")), 2 );
+    mnu.insertItem( new uiAction(tr("&Generate 3D cube...")), mTo3D );
+
+    if ( !children_.isEmpty() )
+    {
+	mnu.insertSeparator();
+	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("&Display all") );
+	mInsertItm( dispmnu, tr("Line names"), mDispNames, true );
+	mInsertItm( dispmnu, tr("Panels"), mDispPanels, true );
+	mInsertItm( dispmnu, tr("Poly lines"), mDispPolyLines, true );
+	mnu.insertItem( dispmnu );
+
+	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("&Hide all") );
+	mInsertItm( hidemnu, tr("Line names"), mHideNames, true );
+	mInsertItm( hidemnu, tr("Panels"), mHidePanels, true );
+	mInsertItm( hidemnu, tr("Poly lines"), mHidePolyLines, true );
+	mnu.insertItem( hidemnu );
+    }
+
+    addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 )
+    return mnuid<0 ? false : handleSubMenu( mnuid );
+}
+
+
+bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
+{
+    if ( mnuid == mAdd )
     {
 	BufferStringSet linenames;
 	TypeSet<Pos::GeomID> geomids;
@@ -78,9 +121,10 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	    addChild( new uiOD2DLineTreeItem(linenames.get(idx),geomids[idx]),
 		      false );
 	cursorchgr.restore();
+	/*
 	if ( !linenames.isEmpty() )
 	{
-	    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( 
+	    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet(
 									true );
 	    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
 	    Pos::GeomID geomid = Survey::GM().getGeomID( linenames.get(0) );
@@ -128,13 +172,34 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 		}
 	    }
 	}
+	*/
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == mFrom3D )
 	ODMainWin()->applMgr().create2Dfrom3D();
-    else if ( mnuid == 2 )
+    else if ( mnuid == mTo3D )
 	ODMainWin()->applMgr().create3Dfrom2D();
+    else if ( mnuid >= mDispNames && mnuid <= mHidePolyLines )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
+	    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
+	    if ( !s2d ) continue;
+
+	    switch ( mnuid )
+	    {
+		case mDispNames: s2d->showLineName( true ); break;
+		case mDispPanels: s2d->showPanel( true ); break;
+		case mDispPolyLines: s2d->showPolyLine( true ); break;
+		case mHideNames: s2d->showLineName( false ); break;
+		case mHidePanels: s2d->showPanel( false ); break;
+		case mHidePolyLines: s2d->showPolyLine( false ); break;
+	    }
+	}
+    }
     else
-	return false;
+	handleStandardItems( mnuid );
 
     return true;
 }
@@ -645,15 +710,19 @@ bool uiOD2DLineSetTreeItem::init()
 
 uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, Pos::GeomID geomid,
 					int displayid )
-    : linenmitm_("Show line&name")
+    : linenmitm_("Show linename")
+    , panelitm_("Show panel")
+    , polylineitm_("Show line")
+    , positionitm_("Position ...")
     , geomid_(geomid)
-    , positionitm_("&Position ...")
 {
     name_ = nm;
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";
     linenmitm_.checkable = true;
+    panelitm_.checkable = true;
+    polylineitm_.checkable = true;
 }
 
 
@@ -760,8 +829,13 @@ void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 		    visserv_->getObject(displayid_))
     if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
 
-    mAddMenuOrTBItem(istb, 0, menu, &linenmitm_, true, s2d->lineNameShown());
-    mAddMenuOrTBItem(istb, menu, &displaymnuitem_, &positionitm_, true, false);
+    mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &linenmitm_,
+		      true, s2d->isLineNameShown() );
+    mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &panelitm_,
+		      true, s2d->isPanelShown() );
+    mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &polylineitm_,
+		      true, s2d->isPolyLineShown() );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false);
 }
 
 
@@ -781,7 +855,17 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==linenmitm_.id )
     {
 	menu->setIsHandled(true);
-	s2d->showLineName( !s2d->lineNameShown() );
+	s2d->showLineName( !s2d->isLineNameShown() );
+    }
+    else if ( mnuid==panelitm_.id )
+    {
+	menu->setIsHandled(true);
+	s2d->showPanel( !s2d->isPanelShown() );
+    }
+    else if ( mnuid==polylineitm_.id )
+    {
+	menu->setIsHandled(true);
+	s2d->showPolyLine( !s2d->isPolyLineShown() );
     }
     else if ( mnuid==positionitm_.id )
     {
@@ -1223,6 +1307,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     s2d->setSelSpec( attribNr(), myas );
     applMgr()->useDefColTab( displayID(), attribNr() );
     s2d->setDataPackID( attribNr(), dpid, 0 );
+    s2d->showPanel( true );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );

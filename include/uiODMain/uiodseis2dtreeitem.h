@@ -23,14 +23,15 @@ ________________________________________________________________________
 
 class uiTaskRunner;
 
-mDefineItem( Line2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( Line2DParent, TreeItem, TreeTop,
+	     mShowMenu bool handleSubMenu(int); mMenuOnAnyButton )
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODLine2DParentTreeItem; }
+			{ return new uiODLine2DParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -38,7 +39,7 @@ public:
 mExpClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
 {
 public:
-    			uiOD2DLineSetTreeItem(const MultiID&);
+			uiOD2DLineSetTreeItem(const MultiID&);
     void		selectAddLines();
     bool		showSubMenu();
 
@@ -46,7 +47,7 @@ public:
     int			selectionKey() const;
 
 protected:
-    			~uiOD2DLineSetTreeItem();
+			~uiOD2DLineSetTreeItem();
     bool		init();
     int			uiTreeViewItemType() const;
 
@@ -98,7 +99,7 @@ public:
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
 
-    Pos::GeomID 	getGeomID() const { return geomid_; }
+    Pos::GeomID		getGeomID() const { return geomid_; }
 
 protected:
 			~uiOD2DLineTreeItem();
@@ -114,8 +115,10 @@ protected:
 
 private:
 
-    Pos::GeomID 	geomid_;
+    Pos::GeomID		geomid_;
     MenuItem		linenmitm_;
+    MenuItem		panelitm_;
+    MenuItem		polylineitm_;
     MenuItem		positionitm_;
 };
 
@@ -123,23 +126,22 @@ private:
 mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
-				uiOD2DLineSetAttribItem(const char* parenttype);
-    bool			displayStoredData(const char*,int component,
-						  uiTaskRunner&);
-    void			setAttrib(const Attrib::SelSpec&,
+			uiOD2DLineSetAttribItem(const char* parenttype);
+    bool		displayStoredData(const char*,int component,
 					  uiTaskRunner&);
-    void			clearAttrib();
+    void		setAttrib(const Attrib::SelSpec&,
+				  uiTaskRunner&);
+    void		clearAttrib();
 
 protected:
-    void			createMenu(MenuHandler*,bool istb);
-    void			handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
 
-    MenuItem			storeditm_;
-    MenuItem			steeringitm_;
-    MenuItem			zattritm_;
-    MenuItem			attrnoneitm_;
+    MenuItem		storeditm_;
+    MenuItem		steeringitm_;
+    MenuItem		zattritm_;
+    MenuItem		attrnoneitm_;
 };
-
 
 #endif
 

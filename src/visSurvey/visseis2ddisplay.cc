@@ -14,8 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "viscoord.h"
 #include "visdataman.h"
+#include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismaterial.h"
+#include "vispolyline.h"
 #include "vistext.h"
 #include "vistexturechannels.h"
 #include "vistexturechannel2rgba.h"
@@ -57,12 +59,15 @@ const char* Seis2DDisplay::sKeyTrcNrRange()	{ return "Trc Nr Range"; }
 const char* Seis2DDisplay::sKeyZRange()		{ return "Z Range"; }
 const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
 const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
+const char* Seis2DDisplay::sKeyShowPanel()	{ return "Show panel"; }
+const char* Seis2DDisplay::sKeyShowPolyLine()	{ return "Show polyline"; }
 
 Seis2DDisplay::Seis2DDisplay()
     : transformation_(0)
     , geometry_(*new PosInfo::Line2DData)
-    , panelstrip_( visBase::TexturePanelStrip::create() )
-    , linename_( visBase::Text2::create() )
+    , panelstrip_(visBase::TexturePanelStrip::create())
+    , polyline_(visBase::PolyLine::create())
+    , linename_(visBase::Text2::create())
     , geomchanged_(this)
     , maxtrcnrrg_(0,mUdf(int),1)
     , datatransform_(0)
@@ -71,6 +76,15 @@ Seis2DDisplay::Seis2DDisplay()
 {
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
     cache_.allowNull();
+
+    polyline_->ref();
+    polyline_->setMaterial( new visBase::Material );
+    addChild( polyline_->osgNode() );
+
+    polylineds_ = polyline_->addNodeState( new visBase::DrawStyle );
+    polylineds_->setLineStyle( LineStyle(LineStyle::Solid,3,Color::White()) );
+    setColor( Color::White() );
+    polylineds_->ref();
 
     panelstrip_->ref();
     addChild( panelstrip_->osgNode() );
@@ -82,10 +96,13 @@ Seis2DDisplay::Seis2DDisplay()
     addChild( linename_->osgNode() );
     linename_->addText();
 
-    getMaterial()->setColor( Color::White() );
-    getMaterial()->setAmbience( 0.8 );
-    getMaterial()->setDiffIntensity( 0.2 );
+    setMaterial(0);
+    panelstrip_->setMaterial( new visBase::Material );
+    panelstrip_->getMaterial()->setColor( Color::White() );
+    panelstrip_->getMaterial()->setAmbience( 0.8 );
+    panelstrip_->getMaterial()->setDiffIntensity( 0.2 );
     init();
+    showPanel( false );
 }
 
 
@@ -103,24 +120,56 @@ Seis2DDisplay::~Seis2DDisplay()
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
 
+    polyline_->removeNodeState( polylineds_ );
+    polylineds_->unRef();
+    polyline_->unRef();
+
     panelstrip_->unRef();
     setZAxisTransform( 0,0 );
 }
 
 
-void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
-{
-    datasetid_ = lid;
-    PtrMan<IOObj> seis2dobj = IOM().get( lid );
-    if ( !seis2dobj )
-	return;
+void Seis2DDisplay::setColor( Color nc )
+{ polyline_->getMaterial()->setColor( nc ); }
 
-    if ( lnm )
-    {
-	geomid_ = Survey::GM().getGeomID( lnm );
-	setName( lnm );
-	linename_->text()->setText( lnm );
-    }
+
+Color Seis2DDisplay::getColor() const
+{ return polyline_->getMaterial()->getColor(); }
+
+
+const LineStyle* Seis2DDisplay::lineStyle() const
+{ return &polylineds_->lineStyle(); }
+
+
+void Seis2DDisplay::setLineStyle( const LineStyle& ls )
+{
+    polylineds_->setLineStyle( ls );
+    requestSingleRedraw();
+}
+
+
+void Seis2DDisplay::showPanel( bool yn )
+{ panelstrip_->turnOn( yn ); }
+
+void Seis2DDisplay::showPolyLine( bool yn )
+{ polyline_->turnOn( yn ); }
+
+bool Seis2DDisplay::isPanelShown() const
+{ return panelstrip_->isOn(); }
+
+bool Seis2DDisplay::isPolyLineShown() const
+{ return polyline_->isOn(); }
+
+
+void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
+{
+    geomid_ = geomid;
+    BufferString lnm = Survey::GM().getName( geomid_ );
+    if ( lnm.isEmpty() )
+	lnm = geomid;
+
+    setName( lnm );
+    linename_->text()->setText( lnm );
 
     if ( scene_ )
     {
@@ -598,10 +647,13 @@ void Seis2DDisplay::updatePanelStripPath()
     path.setCapacity( knots.size() );
     mapping.setCapacity( knots.size() );
 
+    polyline_->removeAllPoints();
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
 	mapping += mCast( float, knots[idx]-tdi.rg_.start );
+
+	polyline_->addPoint( Coord3(path[idx],SI().zRange(true).start) );
     }
 
     panelstrip_->setPath( path );
@@ -673,7 +725,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
-    s2dd->setLineInfo( datasetid_, getLineName() );
+    s2dd->setGeomID( geomid_ );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -724,6 +776,7 @@ void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
     transformation_ = tf;
     transformation_->ref();
 
+    polyline_->setDisplayTransformation( transformation_ );
     panelstrip_->setDisplayTransformation( transformation_ );
     linename_->setDisplayTransformation( transformation_ );
 }
@@ -745,7 +798,7 @@ void Seis2DDisplay::showLineName( bool yn )
 }
 
 
-bool Seis2DDisplay::lineNameShown() const
+bool Seis2DDisplay::isLineNameShown() const
 { return linename_->isOn(); }
 
 
@@ -996,13 +1049,6 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
     const Coord& crd = geometry_.positions()[trcidx].coord_;
     pos.x = crd.x; pos.y = crd.y;
 }
-
-
-const MultiID& Seis2DDisplay::lineSetID() const
-{ return datasetid_; }
-
-MultiID Seis2DDisplay::getMultiID() const
-{ return datasetid_; }
 
 
 bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
@@ -1267,8 +1313,9 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
     par.set( "GeomID", geomid_ );
-    par.set( sKeyLineSetID(), datasetid_ );
-    par.setYN( sKeyShowLineName(), lineNameShown() );
+    par.setYN( sKeyShowLineName(), isLineNameShown() );
+    par.setYN( sKeyShowPanel(), isPanelShown() );
+    par.setYN( sKeyShowPolyLine(), isPolyLineShown() );
     if ( !trcdisplayinfo_.alltrcnrs_.isEmpty() )
     {
 	const Interval<int> trcnrrg(
@@ -1308,28 +1355,23 @@ bool Seis2DDisplay::usePar( const IOPar& par )
 	}
     }
 
-    bool showlinename = false;
-    par.getYN( sKeyShowLineName(), showlinename );
-    showLineName( showlinename );
+    bool doshow = false;
+    par.getYN( sKeyShowLineName(), doshow );
+    showLineName( doshow );
+
+    if ( par.getYN(sKeyShowPanel(),doshow) )
+	showPanel( doshow );
+
+    if ( par.getYN(sKeyShowPolyLine(),doshow) )
+	showPolyLine( doshow );
 
     par.get( sKeyZRange(), trcdisplayinfo_.zrg_ );
 
-    BufferString linename( name() );
-    par.get( sKeyLineSetID(), datasetid_ );
     Pos::GeomID geomid;
     if ( par.get("GeomID",geomid) )
-	linename = Survey::GM().getName( geomid );
-
-    setName( linename );
-
-    if ( scene_ )
-    {
-	setAnnotColor( scene_->getAnnotColor() );
-	linename_->text()->setFontData( scene_->getAnnotFont() );
-    }
-    linename_->text()->setText( linename.buf() );
+	setGeomID( geomid );
 
     return true;
 }
 
-}; // namespace visSurvey
+} // namespace visSurvey
