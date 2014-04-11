@@ -26,10 +26,10 @@ Threads::Lock DataPackMgr::mgrlistlock_;
 
 DataPack::ID DataPack::getNewID()
 {
-    static Threads::Lock lock( true );
+    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
     Threads::Locker lckr( lock );
 
-    static DataPack::ID curid = 1;
+    mDefineStaticLocalObject( DataPack::ID, curid, = 1 );
     return curid++;
 }
 
@@ -71,7 +71,7 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
-    static DataPackMgr* emptymgr = 0;
+    mDefineStaticLocalObject( DataPackMgr*, emptymgr, = 0 );
     if ( emptymgr ) delete emptymgr;
     emptymgr = new DataPackMgr( manid );
     return *emptymgr;
