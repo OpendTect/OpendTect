@@ -395,8 +395,8 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
     }
     else if ( !readonly_ )
     {
-	pars_ += newiop;
 	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
+	pars_ += newiop;
 	bool usepreviop = false;
 	if ( previop )
 	{
