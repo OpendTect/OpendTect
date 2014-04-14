@@ -47,19 +47,28 @@ static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
 
 
-uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly )
+uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
     : uiDialog(p,uiDialog::Setup(
-			aspoly ? "Polygon Creation" : "Pick Set Creation",
 			aspoly ? "Create new Polygon" : "Create new PickSet",
-			"105.0.0"))
+			mNoDlgTitle,"105.0.0"))
     , aspolygon_(aspoly)
 {
+    if ( addstdflds )
+	addStdFields( 0 );
+}
+
+
+void uiCreatePicks::addStdFields( uiObject* lastobject )
+{
     nmfld_ = new uiGenInput( this,
-		BufferString("Name for new ",aspoly ? "Polygon" : "PickSet") );
+		BufferString("Name for new ",aspolygon_ ? "Polygon"
+							: "PickSet") );
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
 			      lbltxt("Color") );
     colsel_->attach( alignedBelow, nmfld_ );
+    if ( lastobject )
+	nmfld_->attach( alignedBelow, lastobject );
 }
 
 
@@ -83,23 +92,22 @@ bool uiCreatePicks::acceptOK( CallBacker* )
 
 
 uiGenPosPicks::uiGenPosPicks( uiParent* p )
-    : uiCreatePicks(p)
+    : uiCreatePicks(p,false,false)
     , posprovfld_(0)
     , dps_(0)
 {
-    setTitleText( "Create new pickset" );
-
     uiPosProvider::Setup psu( false, true, true );
     psu .seltxt( "Generate locations by" )
 	.choicetype( uiPosProvider::Setup::All );
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
-    posprovfld_->attach( alignedBelow, colsel_);
 
     uiPosFilterSet::Setup fsu( false );
     fsu.seltxt( "Remove locations" ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
+
+    addStdFields( posfiltfld_->attachObj() );
 }
 
 
@@ -139,7 +147,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     const od_int64 dpssize = dps_->size();
     if ( dpssize>50000 )
     {
-	BufferString msg( "Pickset would contain " );
+	BufferString msg( "PickSet would contain " );
 	msg += dpssize;
 	msg += " points which might consume unexpected time & memory.";
 	msg += "Do you want to continue?";
@@ -178,15 +186,13 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 				  const BufferStringSet& lsets,
 				  const TypeSet<BufferStringSet>& lnms )
-    : uiCreatePicks(p)
+    : uiCreatePicks(p,false,false)
     , geomfld_(0)
     , hornms_(hornms)
     , linenms_(lnms)
 {
-    setTitleText( "Create new pickset with random positions" );
     nrfld_ = new uiGenInput( this, "Number of picks to generate",
 		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
-    nrfld_->attach( alignedBelow, colsel_);
 
     if ( hornms_.size() )
     {
@@ -229,6 +235,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
 
+    addStdFields( zfld_->attachObj() );
     preFinalise().notify( mCB(this,uiGenRandPicks2D,geomSel) );
 }
 
@@ -323,8 +330,9 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
 	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
-	if ( !survzrg.includes(zrg.start,false) || !survzrg.includes(zrg.stop,false) )
-		mErrRet( "Please Enter a valid Z Range" );
+	if ( !survzrg.includes(zrg.start,false) ||
+		!survzrg.includes(zrg.stop,false) )
+	    mErrRet( "Please Enter a valid Z Range" );
     }
 
     mkRandPars();

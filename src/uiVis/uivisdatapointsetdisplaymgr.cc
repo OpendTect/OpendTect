@@ -180,7 +180,7 @@ class uiCreatePicksDlg : public uiCreatePicks
 public:
 
 uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiCreatePicks( p )
+    : uiCreatePicks(p,false,false)
     , selfld_( 0 )
     , rgfld_( 0 )
 {
@@ -199,14 +199,14 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	    selfld_->setPixmap( pixmap, idx );
 	}
 
-	cbx->attach( alignedAbove, nmfld_ );
+	addStdFields( cbx->attachObj() );
     }
     else
     {
 	rgfld_ = new uiGenInput( this, "Create body from value range",
 				 FloatInpIntervalSpec(false) );
 	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
-	rgfld_->attach( alignedAbove, nmfld_ );
+	addStdFields( rgfld_->attachObj() );
     }
 }
 

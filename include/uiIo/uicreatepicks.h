@@ -52,7 +52,8 @@ public:
 mExpClass(uiIo) uiCreatePicks : public uiDialog 
 {
 public:
-			uiCreatePicks(uiParent*,bool aspolygon=false);
+			uiCreatePicks(uiParent*,bool aspolygon=false,
+				      bool addstdfields=true);
 			~uiCreatePicks() {}
 
     virtual Pick::Set*	getPickSet() const;	//!< Set is yours
@@ -66,6 +67,7 @@ protected:
     bool		aspolygon_;
 
     virtual bool	acceptOK(CallBacker*);
+    virtual void	addStdFields(uiObject* lastobj=0);
 };
 
 
