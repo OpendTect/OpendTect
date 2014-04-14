@@ -16,11 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const char* captn, int nrln )
     : uiMainWin(p,captn,0,false,false)
 {
-    setPrefWidthInChar( 80 );
-    setPrefHeightInChar( nrln );
     setDeleteOnClose( true );
 
     uitb_ = new uiTextBrowser( this, captn, mUdf(int), false );
+    uitb_->setPrefHeightInChar( nrln );
+    uitb_->setPrefWidthInChar( 80 );
 }
 
 
