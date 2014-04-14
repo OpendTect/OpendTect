@@ -90,7 +90,7 @@ mClass(Basic) ViewPars
 public:
 
 				ViewPars( ViewStyle vs=Text )
-				    : style_(Text)
+				    : style_(vs)
 				    , editable_(false)
 				    , maxnrlines_(vs==Table?500:10000)	{}
 
