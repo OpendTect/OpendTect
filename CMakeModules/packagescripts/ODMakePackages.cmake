@@ -19,7 +19,7 @@ endif()
 include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 #Genarate Symbols and then Strip the binaries
-if ( UNIX AND (${OD_ENABLE_BREAKPAD} STREQUAL "ON") )
+if ( UNIX AND ("${OD_ENABLE_BREAKPAD}" STREQUAL "ON") )
     OD_GENERATE_BREAKPAD_SYMBOLS()
 endif()
 
