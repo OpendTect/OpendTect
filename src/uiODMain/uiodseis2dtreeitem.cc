@@ -91,14 +91,14 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("&Display all") );
 	mInsertItm( dispmnu, tr("Line names"), mDispNames, true );
-	mInsertItm( dispmnu, tr("Panels"), mDispPanels, true );
-	mInsertItm( dispmnu, tr("Poly lines"), mDispPolyLines, true );
+	mInsertItm( dispmnu, tr("2D planes"), mDispPanels, true );
+	mInsertItm( dispmnu, tr("Line geometry"), mDispPolyLines, true );
 	mnu.insertItem( dispmnu );
 
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("&Hide all") );
 	mInsertItm( hidemnu, tr("Line names"), mHideNames, true );
-	mInsertItm( hidemnu, tr("Panels"), mHidePanels, true );
-	mInsertItm( hidemnu, tr("Poly lines"), mHidePolyLines, true );
+	mInsertItm( hidemnu, tr("2D planes"), mHidePanels, true );
+	mInsertItm( hidemnu, tr("Line geometry"), mHidePolyLines, true );
 	mnu.insertItem( hidemnu );
     }
 
@@ -711,8 +711,8 @@ bool uiOD2DLineSetTreeItem::init()
 uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, Pos::GeomID geomid,
 					int displayid )
     : linenmitm_("Show linename")
-    , panelitm_("Show panel")
-    , polylineitm_("Show line")
+    , panelitm_("Show 2D plane")
+    , polylineitm_("Show line geometry")
     , positionitm_("Position ...")
     , geomid_(geomid)
 {
