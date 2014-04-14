@@ -20,6 +20,7 @@ class uiGenInput;
 class uiLabel;
 class uiPushButton;
 class uiTextEdit;
+class uiTextBrowser;
 class uiRockPhysConstantFld;
 namespace Math { class Formula; }
 namespace RockPhysics { class Formula; }
@@ -48,7 +49,7 @@ protected:
     uiComboBox*		typfld_;
     uiComboBox*		nmfld_;
     uiTextEdit*		formulafld_;
-    uiTextEdit*		descriptionfld_;
+    uiTextBrowser*	descriptionfld_;
     ObjectSet<uiRockPhysConstantFld>	cstflds_;
 
     const PropertyRef::StdType fixedtype_;

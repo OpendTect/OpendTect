@@ -44,25 +44,25 @@ public:
     unsigned int	rgb() const;
     unsigned int&	rgb();
 
-    void         	set( unsigned char r_, unsigned char g_,
+    void		set( unsigned char r_, unsigned char g_,
 			     unsigned char b_, unsigned char t_=0 );
 
     float		average() const { return ((float) r()+g()+b())/3.0f; }
     Color		complementaryColor() const;
-    Color		operator*(float) const;
-    void		lighter( float f=1.1 );
-			/*!<Values below 1 blends to black (0=black),
-			    Values above 1 blends to white (2=white). */
-    void        	setRgb( unsigned int rgb_  );
+    Color		lighter(float fac) const;
+    Color		darker( float fac ) const
+					{ return lighter( -fac ); }
+
+    void		setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
     void		getHSV(unsigned char&,unsigned char&,
-	    		       unsigned char&) const;
+			       unsigned char&) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
     const char*		getStdStr(bool withhash=true,
-	    			  int transpopt=0) const;
-    			//!< without hash Google KML standard -> order reversed
-    			//!< transpopt -1=opacity 0=not 1=transparency
+				  int transpopt=0) const;
+			//!< without hash Google KML standard -> order reversed
+			//!< transpopt -1=opacity 0=not 1=transparency
 
     void		fill(BufferString&) const;
     bool		use(const char*);
@@ -81,11 +81,11 @@ public:
     static int		nrStdDrawColors();
     static Color	stdDrawColor(int);
 
-    const char*				largeUserInfoString() const;
-    const char*				getDescription() const;
-    bool				fromDescription(const char*);
-    static const BufferStringSet&	descriptions();
-    static const TypeSet<Color>&	descriptionCenters();
+    const char*		largeUserInfoString() const;
+    const char*		getDescription() const;
+    bool		fromDescription(const char*);
+    static const BufferStringSet& descriptions();
+    static const TypeSet<Color>& descriptionCenters();
 
 protected:
 

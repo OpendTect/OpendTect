@@ -160,7 +160,7 @@ FaultDisplay::~FaultDisplay()
     if ( emfault_ )
     {
 	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
-       	emfault_->unRef();
+	emfault_->unRef();
 	emfault_ = 0;
     }
 
@@ -194,7 +194,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
     }
 
     eventcatcher_ = vec;
-    
+
     if ( eventcatcher_ )
     {
 	eventcatcher_->ref();
@@ -234,7 +234,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	if ( paneldisplay_ ) paneldisplay_->turnOn( false );
 	if ( intersectiondisplay_ ) intersectiondisplay_->turnOn( false );
 	for ( int idx=0; idx<horintersections_.size(); idx++ )
-    	    horintersections_[idx]->turnOn( false );
+	    horintersections_[idx]->turnOn( false );
 
 	if ( stickdisplay_ ) stickdisplay_->turnOn( false );
 	return false;
@@ -320,14 +320,14 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
     paneldisplay_->setSurface( explicitpanels_ );
-    explicitpanels_->setSurface( fss ); 
+    explicitpanels_->setSurface( fss );
     paneldisplay_->touch( true );
 
     explicitintersections_->setShape( *explicitpanels_ );
     intersectiondisplay_->setSurface( explicitintersections_ );
-    
+
     stickdisplay_->setSurface( explicitsticks_ );
-    explicitsticks_->setSurface( fss ); 
+    explicitsticks_->setSurface( fss );
     stickdisplay_->touch( true );
 
     if ( !viseditor_ )
@@ -347,7 +347,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     if ( faulteditor_ ) faulteditor_->ref();
 
     viseditor_->setEditor( faulteditor_ );
-    
+
     displaysticks_ = emfault_->isEmpty();
 
     mSetStickIntersectPointColor( emfault_->preferredColor() );
@@ -401,7 +401,8 @@ void FaultDisplay::updateSingleColor()
     channels_->turnOn( !usesinglecolor );
 
     const Color prevcol = getMaterial()->getColor();
-    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
+    const Color newcol = usesinglecolor ? nontexturecol_.darker(0.3)
+					: Color::White();
     if ( newcol != prevcol )
     {
 	getMaterial()->setColor( newcol );
@@ -442,10 +443,10 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     const Attrib::SelSpec as( "", Attrib::SelSpec::cNoAttrib(), false, "" );
     setSelSpec( attrib, as );
 
-    TypeSet<DataPointSet::DataRow> pts; 
-    BufferStringSet nms; 
-    DataPointSet positions( pts, nms, false, true ); 
-    getRandomPos( positions, 0 ); 
+    TypeSet<DataPointSet::DataRow> pts;
+    BufferStringSet nms;
+    DataPointSet positions( pts, nms, false, true );
+    getRandomPos( positions, 0 );
 
     if ( !positions.size() ) return;
 
@@ -505,7 +506,7 @@ void FaultDisplay::updateStickDisplay()
     }
 
     updateKnotMarkers();
-    updateEditorMarkers();	
+    updateEditorMarkers();
 }
 
 
@@ -534,7 +535,7 @@ void FaultDisplay::updateHorizonIntersectionDisplay()
 	setLineRadius( horintersections_[idx] );
 
 	const bool dodisplay = areHorizonIntersectionsDisplayed() &&
-			       arePanelsDisplayed(); 
+			       arePanelsDisplayed();
 	if ( dodisplay )
 	    horintersections_[idx]->touch( false );
 
@@ -557,16 +558,16 @@ void FaultDisplay::triangulateAlg( mFltTriProj projplane )
     if ( !explicitpanels_ || projplane==explicitpanels_->triangulateAlg() )
 	return;
 
-    explicitpanels_->triangulateAlg( projplane ); 
+    explicitpanels_->triangulateAlg( projplane );
     paneldisplay_->touch( true );
     updateIntersectionDisplay();
 }
 
 
 mFltTriProj FaultDisplay::triangulateAlg() const
-{ 
-    return explicitpanels_ ? explicitpanels_->triangulateAlg() 
-	 		   : Geometry::ExplFaultStickSurface::None; 
+{
+    return explicitpanels_ ? explicitpanels_->triangulateAlg()
+			   : Geometry::ExplFaultStickSurface::None;
 }
 
 
@@ -721,8 +722,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     faulteditor_->setSowingPivot( disp2world(viseditor_->sower().pivotPos()) );
     if ( viseditor_->sower().accept(eventinfo) )
 	return;
-   
-    CubeSampling mouseplanecs; 
+
+    CubeSampling mouseplanecs;
     mouseplanecs.setEmpty();
     Coord3 editnormal = Coord3::udf();
 
@@ -787,7 +788,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		bool res;
 		const int rmstick = pid.getRowCol().row();
 
-		EM::Fault3DGeometry& f3dg = emfault_->geometry(); 
+		EM::Fault3DGeometry& f3dg = emfault_->geometry();
 		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
 		    res = f3dg.removeStick( pid.sectionID(), rmstick, true );
 		else
@@ -1046,7 +1047,7 @@ void FaultDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ && areSticksDisplayed();
     if ( viseditor_ )
-	viseditor_->turnOn( show && !stickselectmode_ );	
+	viseditor_->turnOn( show && !stickselectmode_ );
 
     if ( activestickmarker_ )
 	activestickmarker_->turnOn( show && !stickselectmode_);
@@ -1117,7 +1118,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	texuredatas_ += 0;
 
     mDeclareAndTryAlloc( Array2D<float>*, texturedata,
-	    		 Array2DImpl<float>(sz.col(),sz.row()) );
+			 Array2DImpl<float>(sz.col(),sz.row()) );
 
     float* texturedataptr = texturedata->getData();
     for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )
@@ -1144,7 +1145,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     channels_->setSize( 1, texturedata->info().getSize(0),
 			   texturedata->info().getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
-	    			OD::UsePtr, tr );
+				OD::UsePtr, tr );
     validtexture_ = true;
     usestexture_ = true;
     updateSingleColor();
@@ -1286,7 +1287,7 @@ bool FaultDisplay::canDisplayHorizonIntersections() const
 }
 
 
-void FaultDisplay::updateHorizonIntersections( int whichobj, 
+void FaultDisplay::updateHorizonIntersections( int whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !emfault_ )
@@ -1301,7 +1302,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	    continue;
 	if ( hor->getOnlyAtSectionsDisplay() )
 	    continue;
-	    
+
 	activehordisps += const_cast<HorizonDisplay*>( hor );
 	activehorids += hor->id();
     }
@@ -1317,7 +1318,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	horintersections_[idx]->turnOn( false );
 	horintersections_.removeSingle( idx )->unRef();
 	delete horshapes_.removeSingle( idx );
-	horintersectids_.removeSingle( idx ); 
+	horintersectids_.removeSingle( idx );
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -1331,7 +1332,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	EM::SectionID sid = activehordisps[idx]->getSectionIDs()[0];
 	Geometry::BinIDSurface* surf =
 	    activehordisps[idx]->getHorizonSection(sid)->getSurface();
-	
+
 	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
 	line->ref();
 	if ( !line->getMaterial() )
@@ -1358,7 +1359,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	horshapes_ += shape;
 	horintersectids_ += activehorids[idx];
     }
-    
+
     updateHorizonIntersectionDisplay();
 }
 
@@ -1367,7 +1368,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 				      int whichobj )
 {
     updateHorizonIntersections( whichobj, objs );
-    
+
     if ( !explicitintersections_ ) return;
 
     ObjectSet<const SurveyObject> usedobjects;
@@ -1510,7 +1511,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
 	Geometry::FaultStickSet* fss =
-	    		emfault_->geometry().sectionGeometry( sip->sid_ );
+			emfault_->geometry().sectionGeometry( sip->sid_ );
 
 	if ( !fss || fss->isStickSelected(sip->sticknr_)!=ctrldown_ )
 	    continue;
@@ -1531,7 +1532,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 	const int sticknr = pid.getRowCol().row();
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss =
-	    			 emfault_->geometry().sectionGeometry( sid );
+				 emfault_->geometry().sectionGeometry( sid );
 
 	if ( fss->isStickSelected(sticknr) != ctrldown_ )
 		continue;
@@ -1555,7 +1556,7 @@ void FaultDisplay::updateEditorMarkers()
 {
     if ( !emfault_ || !viseditor_ )
 	return;
-    
+
     PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
     while ( true )
     {
@@ -1653,7 +1654,7 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	const float onestepdist = 
+	const float onestepdist =
 	    mCast( float, Coord3(1,1,mZScale()).dot(
 		    s3dgeom_->oneStepTranslation(Coord3(0,0,1)) ) );
 
@@ -1695,7 +1696,7 @@ bool FaultDisplay::coincidesWithPlane(
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
-	const float onestepdist = 
+	const float onestepdist =
 	    mCast( float, Coord3(1,1,mZScale()).dot(
 		    s3dgeom_->oneStepTranslation(planenormal) ) );
 

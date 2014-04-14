@@ -144,15 +144,20 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
     formulafld_->setPrefHeightInChar( 2 );
     formulafld_->setPrefWidthInChar( 80 );
     formulafld_->setStretch(2,0);
+    formulafld_->setBackgroundColor(
+				mainwin()->backgroundColor().lighter(0.5f) );
     formulafld_->attach( ensureBelow, lcb );
 
     if ( attobj )
 	attobj->attach( alignedAbove, lcb );
 
-    descriptionfld_ = new uiTextEdit( this, "Formula Desc", true );
-    descriptionfld_->setPrefHeightInChar( 3 );
+    descriptionfld_ = new uiTextBrowser( this, "Formula Desc", mUdf(int),
+					 false );
+    descriptionfld_->setPrefHeightInChar( 4 );
     descriptionfld_->setPrefWidthInChar( 80 );
     descriptionfld_->setStretch(2,0);
+    descriptionfld_->setBackgroundColor(
+				mainwin()->backgroundColor().lighter(1.0f) );
     descriptionfld_->attach( ensureBelow, formulafld_ );
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
@@ -261,7 +266,7 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 	cstflds_[idx]->update( idx<nrconsts ? rpfm.constdefs_[idx] : 0 );
 
     formulafld_->setText( getFormText(rpfm,true) );
-    descriptionfld_->setText( rpfm.desc_ );
+    descriptionfld_->setHtmlText( rpfm.desc_ );
 }
 
 

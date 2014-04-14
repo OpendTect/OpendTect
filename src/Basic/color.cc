@@ -66,54 +66,33 @@ void Color::set( unsigned char r_, unsigned char g_,
 
 
 Color Color::complementaryColor() const
-{ return Color(255-r(), 255-g(), 255-b(), t() ); }
-
-
-Color Color::operator*( float f ) const
 {
-    Color res = *this;
-    res.lighter( f );
-    return res;
+    return Color(255-r(), 255-g(), 255-b(), t() );
 }
 
 
-void Color::lighter( float f )
+Color Color::lighter( float fac ) const
 {
-    if ( f < 0 ) f = -f;
+    if ( fac == 0 )
+	return Color( *this );
 
-    const float change = f-1.0f;
-
-    float newred, newgreen, newblue;
-
-    //Blend linearly to black or white depending on change
-    if ( change<0 )
+    float newr, newg, newb;
+    if ( fac > 0 )
     {
-	newred = r() * f;
-	newgreen = g() * f;
-	newblue = b() * f;
+	newr = 255 - ((255.0f - r()) / (fac + 1));
+	newg = 255 - ((255.0f - g()) / (fac + 1));
+	newb = 255 - ((255.0f - b()) / (fac + 1));
     }
     else
     {
-	newred = r() * change + (f-1)*256;
-	newgreen = g() * change + (f-1)*256;
-	newblue = b() * change + (f-1)*256;
+	newr = r() / (1 - fac);
+	newg = g() / (1 - fac);
+	newb = b() / (1 - fac);
     }
 
-    float overflow = 0;
-    int nroverflows = 0;
-    if ( newred>255 ) { overflow += (newred-255); nroverflows++; }
-    if ( newgreen>255 ) { overflow += (newgreen-255); nroverflows++; }
-    if ( newblue>255 ) { overflow += (newblue-255); nroverflows++; }
-
-    if ( overflow && nroverflows<3 )
-    {
-	if ( newred<255 ) newred += overflow/(3-nroverflows);
-	if ( newgreen<255 ) newgreen += overflow/(3-nroverflows);
-	if ( newblue<255 ) newblue += overflow/(3-nroverflows);
-    }
-
-    set( getUChar(newred), getUChar(newgreen), getUChar(newblue) );
+    return Color( getUChar(newr), getUChar(newg), getUChar(newb) );
 }
+
 
 void Color::setRgb( unsigned int rgb_  )
 { col_ = rgb_; }

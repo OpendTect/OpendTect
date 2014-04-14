@@ -21,12 +21,13 @@ uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const char* captn, int nrln )
     uitb_ = new uiTextBrowser( this, captn, mUdf(int), false );
     uitb_->setPrefHeightInChar( nrln );
     uitb_->setPrefWidthInChar( 80 );
+    uitb_->setBackgroundColor( backgroundColor() );
 }
 
 
 void uiOfferInfoWin::setText( const char* txt )
 {
-    uitb_->setText( txt );
+    uitb_->setHtmlText( txt );
 }
 
 
