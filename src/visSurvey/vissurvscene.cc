@@ -815,7 +815,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
     if ( defined && !basemapcursor_ )
     {
 	basemapcursor_ = new BaseMapMarkers;
-	basemapcursor_->setMarkerStyle(
+	basemapcursor_->setMarkerStyle(0,
 		MarkerStyle2D(MarkerStyle2D::Target,5) );
     }
 

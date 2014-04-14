@@ -24,7 +24,7 @@ public:
 				BaseMapMarkers();
 				~BaseMapMarkers();
 
-    void			setMarkerStyle(const MarkerStyle2D&);
+    void			setMarkerStyle(int,const MarkerStyle2D&);
     const MarkerStyle2D*	getMarkerStyle(int) const
     				{ return &markerstyle_;}
 
@@ -36,7 +36,7 @@ public:
     const char*			getType() const { return "Markers"; }
 
     int				nrShapes() const { return 1; }
-    void			getPoints(int shapeidx,TypeSet<Coord>&) const; 
+    void			getPoints(int shapeidx,TypeSet<Coord>&) const;
     char			connectPoints(int shapeidx) const{ return false; }
 
 protected:

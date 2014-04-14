@@ -44,11 +44,11 @@ BaseMapMarkers::~BaseMapMarkers()
 { }
 
 
-void BaseMapMarkers::setMarkerStyle( const MarkerStyle2D& ms )
+void BaseMapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
 {
     if ( markerstyle_==ms )
 	return;
-    
+
     markerstyle_ = ms;
 }
 

@@ -42,10 +42,11 @@ public:
 
     virtual int			nrShapes() const;
     virtual const char*		getShapeName(int shapeidx) const;
-    virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const; 
+    virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
     				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
+    virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}
