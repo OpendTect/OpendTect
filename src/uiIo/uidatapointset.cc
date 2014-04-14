@@ -851,7 +851,6 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xplotwin_->plotter().pointsSelected.notify(
 		mCB(this,uiDataPointSet,showStatusMsg) );
 	xplotwin_->windowClosed.notify( mCB(this,uiDataPointSet,xplotClose) );
-	xplotwin_->setDeleteOnClose( true );
     }
 
     disptb_->setSensitive( xplottbid_, false );
@@ -878,6 +877,7 @@ void uiDataPointSet::showStatusMsg( CallBacker* )
 
 void uiDataPointSet::notifySelectedCell()
 {
+    if ( !xplotwin_ ) return;
     TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().getSelectedCells() );
     if ( selectedrowcols.isEmpty() )
     {
@@ -998,14 +998,14 @@ void uiDataPointSet::redoAll()
 
 void uiDataPointSet::xplotClose( CallBacker* )
 {
-    xplotwin_ = 0;
+   delete xplotwin_;  xplotwin_ = 0;
     disptb_->setSensitive( xplottbid_, true );
 }
 
 
 void uiDataPointSet::statsClose( CallBacker* )
 {
-    statswin_ = 0;
+    delete statswin_; statswin_ = 0;
 }
 
 
@@ -1092,7 +1092,6 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 	statswin_ =
 	    new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
-	statswin_->setDeleteOnClose( true );
     }
 
     statswin_->setData( rc.medvals_.arr(), rc.medvals_.size() );
@@ -1290,6 +1289,8 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( 0 );
     mDPM.release( dps_.id() );
+    delete xplotwin_; xplotwin_ = 0;
+    delete statswin_; statswin_ = 0;
     return true;
 }
 
@@ -1480,7 +1481,7 @@ void uiDataPointSet::showSelPts( CallBacker* )
 
 void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
 {
-    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() ) return;
+    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() || !xplotwin_ ) return;
 
     const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
 
@@ -1649,6 +1650,7 @@ int uiDataPointSet::getSelectionGroupIdx( int selareaid ) const
 
 void uiDataPointSet::calcSelectedness()
 {
+    if ( !xplotwin_ ) return;
     uiDPSSelectednessDlg dlg( this, xplotwin_->plotter() );
     dlg.go();
 }

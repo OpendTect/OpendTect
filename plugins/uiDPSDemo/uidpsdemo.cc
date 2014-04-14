@@ -107,7 +107,6 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     su.canaddrow( true );
     uiDataPointSet* uidps =
 	new uiDataPointSet( parent(), *dps_, su, dpsdispmgr_ );
-    uidps->setDeleteOnClose( true );
     if ( sectionnms.size() > 1 )
 	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
 
