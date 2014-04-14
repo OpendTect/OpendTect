@@ -204,9 +204,16 @@ const ObjectSet<uiBaseObject>* uiParent::childList() const
 }
 
 
+Color uiObject::roBackgroundColor() const
+{
+    return backgroundColor().lighter( 2.5f );
+}
+
+
 Color uiParent::backgroundColor() const
 {
-    return mainObject() ? mainObject()->backgroundColor() : *new Color();
+    return mainObject() ? mainObject()->backgroundColor()
+			: uiMain::theMain().windowColor();
 }
 
 

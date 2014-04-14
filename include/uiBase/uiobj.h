@@ -86,6 +86,7 @@ public:
 
 
     virtual Color	backgroundColor() const;
+    Color		roBackgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
     virtual void	setBackgroundPixmap(const ioPixmap&);
     virtual void	setTextColor(const Color&);

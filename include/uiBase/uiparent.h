@@ -88,12 +88,14 @@ public:
     int			prefVNrPics() const	  { mRetMO(prefVNrPics,-1); }
     void		setPrefHeight( int h )    { mIfMO()->setPrefHeight(h); }
     void		setPrefWidth( int w )     { mIfMO()->setPrefWidth(w); }
+    void		setPrefHeightInChar( int h )
+			    { mIfMO()->setPrefWidthInChar(h); }
+    void		setPrefHeightInChar( float h )
+			    { mIfMO()->setPrefHeightInChar(h); }
     void		setPrefWidthInChar( float w )
 			    { mIfMO()->setPrefWidthInChar(w); }
     void		setPrefWidthInChar( int w )
 			    { mIfMO()->setPrefWidthInChar(w); }
-    void		setPrefHeightInChar( float h )
-			    { mIfMO()->setPrefHeightInChar(h); }
 
     virtual void	reDraw( bool deep )	  { mIfMO()->reDraw( deep ); }
     void		shallowRedraw( CallBacker* =0 )         {reDraw(false);}
@@ -102,7 +104,8 @@ public:
     void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
 
     Color		backgroundColor() const;
-    void		setBackgroundColor(const Color& c)
+    Color		roBackgroundColor() const;
+    void		setBackgroundColor( const Color& c )
 			    { mIfMO()->setBackgroundColor(c); }
 
     void		translateText();

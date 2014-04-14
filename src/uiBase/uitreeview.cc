@@ -248,6 +248,7 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     itemChanged.notify( mCB(this,uiTreeView,itemChangedCB) );
     mouseButtonClicked.notify( mCB(this,uiTreeView,cursorSelectionChanged) );
     setRootDecorated( dec );
+    setBackgroundColor( roBackgroundColor() );
 }
 
 

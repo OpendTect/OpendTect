@@ -229,8 +229,8 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
     : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
     , messenger_(*new i_TextEditMessenger(this,&hndl))
 {
-    setReadOnly( ro );
     setStretch( 2, 2 );
+    setReadOnly( ro );
 }
 
 
@@ -249,6 +249,8 @@ uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
 {
     setPrefWidth( defaultWidth() );
     setPrefHeight( defaultHeight() );
+    if ( ro )
+	setBackgroundColor( roBackgroundColor() );
 }
 
 
@@ -326,7 +328,7 @@ void uiTextBrowserBody::restoreScrollPos()
 
 uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
 			      bool forceplaintxt, bool lvmode )
-    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forceplaintxt) )
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,true) )
     , goneForwardOrBack(this)
     , linkHighlighted(this)
     , linkClicked(this)
@@ -342,6 +344,7 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
 
     timer_ = new Timer();
     timer_->tick.notify( mCB(this,uiTextBrowser,readTailCB) );
+    setBackgroundColor( roBackgroundColor() );
 }
 
 

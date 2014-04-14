@@ -74,7 +74,7 @@ public:
 			{
 			    if ( !items_.validIdx(idx) )
 				return;
-			    
+
 			    delete takeItem(idx);
 			    items_.removeSingle( idx );
 			    itemstrings_.removeSingle( idx );
@@ -82,7 +82,7 @@ public:
 			}
     uiString&		getItemText(int idx) { return itemstrings_[idx]; }
     BoolTypeSetType&	getItemMark(int idx) { return itemmarked_[idx]; }
-    bool		validItemIndex(int idx)  
+    bool		validItemIndex(int idx)
 			{ return itemstrings_.validIdx( idx ); }
 
     void		updateText(int idx);
@@ -121,7 +121,7 @@ private:
     i_listMessenger&		messenger_;
     ObjectSet<uiListBoxItem>	items_;
     TypeSet<uiString>		itemstrings_;
-    BoolTypeSet 		itemmarked_;
+    BoolTypeSet		itemmarked_;
 };
 
 
@@ -294,6 +294,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     mStdInit
 {
     rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
+    setBackgroundColor( roBackgroundColor() );
 }
 
 
@@ -305,6 +306,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
     addItems( items );
     setName( "Select Data" );
     rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
+    setBackgroundColor( roBackgroundColor() );
 }
 
 
@@ -316,6 +318,7 @@ uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
     addItems( items );
     setName( "Select Data" );
     rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
+    setBackgroundColor( roBackgroundColor() );
 }
 
 

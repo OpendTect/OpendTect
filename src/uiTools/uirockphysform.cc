@@ -144,8 +144,6 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
     formulafld_->setPrefHeightInChar( 2 );
     formulafld_->setPrefWidthInChar( 80 );
     formulafld_->setStretch(2,0);
-    formulafld_->setBackgroundColor(
-				mainwin()->backgroundColor().lighter(0.5f) );
     formulafld_->attach( ensureBelow, lcb );
 
     if ( attobj )
@@ -156,8 +154,6 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
     descriptionfld_->setPrefHeightInChar( 4 );
     descriptionfld_->setPrefWidthInChar( 80 );
     descriptionfld_->setStretch(2,0);
-    descriptionfld_->setBackgroundColor(
-				mainwin()->backgroundColor().lighter(1.0f) );
     descriptionfld_->attach( ensureBelow, formulafld_ );
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
