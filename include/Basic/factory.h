@@ -115,7 +115,7 @@ mClass(Basic) Factory : public FactoryBase
 public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
-	    				   const char* username = 0);
+					   const uiString& username = 0);
     				/*!<Name may be not be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -185,7 +185,7 @@ mClass(Basic) Factory1Param : public FactoryBase
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm=0,
-	    				   const char* usernm = 0);
+					   const uiString& usernm = 0);
     				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -211,7 +211,7 @@ mClass(Basic) Factory2Param : public FactoryBase
 public:
     typedef			T* (*Creator)(P0,P1);
     inline void			addCreator(Creator,const char* nm=0,
-	    				   const char* usernm = 0);
+					   const uiString& usernm = 0);
     				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -238,7 +238,7 @@ mClass(Basic) Factory3Param : public FactoryBase
 public:
     typedef			T* (*Creator)(P0,P1,P2);
     inline void			addCreator(Creator,const char* nm=0,
-	    				   const char* usernm = 0);
+					   const uiString& usernm = 0);
     				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -336,7 +336,7 @@ static baseclss*	createInstance( parclss p1 ) \
 
 template <class T> inline
 void Factory<T>::addCreator( Creator cr, const char* name,
-			     const char* username )
+			     const uiString& username )
 {
     if ( !name ) return;\
     mAddCreator;
@@ -352,7 +352,7 @@ T* Factory<T>::create( const char* name ) const
 
 template <class T, class P> inline
 void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
-				     const char* username )
+				     const uiString& username )
 {
     mAddCreator;
 }
@@ -367,7 +367,7 @@ T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 
 template <class T, class P0, class P1> inline
 void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
-					 const char* username )
+					 const uiString& username )
 {
     mAddCreator;
 }
@@ -383,7 +383,7 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 
 template <class T, class P0, class P1, class P2> inline
 void Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
-					 const char* username )
+					 const uiString& username )
 {
     mAddCreator;
 }

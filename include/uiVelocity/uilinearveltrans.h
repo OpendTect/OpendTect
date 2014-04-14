@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uizaxistransform.h"
 #include "uivelocitymod.h"
+#include "uitime2depthzaxistrans.h"
 
 class uiGenInput;
 class uiZRangeInput;
@@ -21,30 +21,26 @@ class uiZRangeInput;
 namespace Vel
 {
 
-mExpClass(uiVelocity) uiLinearVelTransform : public uiZAxisTransform
+mExpClass(uiVelocity) uiLinearVelTransform : public uiTime2DepthZTransformBase
 {
 public:
     static void		initClass();
     			uiLinearVelTransform(uiParent*,bool t2d);
 
-    void                enableTargetSampling();
-    bool                getTargetSampling(StepInterval<float>&) const;
-
     ZAxisTransform*	getSelection();
 
+    FixedString 	toDomain() const;
+    FixedString 	fromDomain() const;
+    bool		canBeField() const			{ return true; }
+
 protected:
-    static uiZAxisTransform*	create(uiParent*,const char*,const char*);
+    static uiZAxisTransform*	createInstance(uiParent*,const char*,
+					       const char*);
     bool			acceptOK();
     void			velChangedCB(CallBacker*);
-    void			rangeChangedCB(CallBacker*);
-    void			finalizeDoneCB(CallBacker*);
 
     uiGenInput*			velfld_;
     uiGenInput*			gradientfld_;
-    uiZRangeInput*		rangefld_;
-
-    bool			t2d_;
-    bool			rangechanged_;
 };
 
 }; //namespace

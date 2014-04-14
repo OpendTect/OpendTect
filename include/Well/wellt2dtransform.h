@@ -23,7 +23,7 @@ namespace Well { class Data; }
 */
 
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
-{
+{ mODTextTranslationClass(WellT2DTransform);
 public:
 
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
@@ -32,6 +32,7 @@ public:
 				WellT2DTransform();
 				WellT2DTransform(const MultiID&);
 
+    bool			isOK() const;
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
@@ -42,9 +43,13 @@ public:
     Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
 
+    bool			setWellID(const MultiID&);
+
     bool			usePar(const IOPar&);
 
 protected:
+
+				~WellT2DTransform();
 
     Well::Data*			data_;
     TypeSet<float>		times_;

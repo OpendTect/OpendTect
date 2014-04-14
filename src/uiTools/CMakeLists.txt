@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
+#	RCS :		$Id: CMakeLists.txt 34037 2014-04-04 14:31:09Z nanne.hemstra@dgbes.com $
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS uiBase Network )
@@ -81,6 +81,7 @@ SET( OD_MODULE_SOURCES
 	uitblimpexpdatasel.cc
 	uitaskrunner.cc
 	uitextfile.cc
+	uitime2depthzaxistrans.cc
 	uitreeitemmanager.cc
 	uiunitsel.cc
 	uivalseriestracker.cc

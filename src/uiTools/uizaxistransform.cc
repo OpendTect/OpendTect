@@ -19,8 +19,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "uimsg.h"
 
-mImplFactory3Param( uiZAxisTransform, uiParent*, const char*, const char*,
-		    uiZAxisTransform::factory );
+mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
+		    const char*, uiZAxisTransform::factory );
+
+bool uiZAxisTransform::isField( const uiParent* p )
+{
+    mDynamicCastGet( const uiZAxisTransformSel*, sel, p );
+    return sel && sel->isField();
+}
 
 
 uiZAxisTransform::uiZAxisTransform( uiParent* p ) 
@@ -37,10 +43,18 @@ bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 
 
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
-	const char* fromdomain, const char* todomain, bool withsampling )
+	const char* fromdomain, const char* todomain, bool withsampling,
+	bool isfield )
     : uiDlgGroup( p, 0 )
     , selfld_( 0 )
+    , isfield_( isfield )
 {
+    if ( isfield_ && withsampling )
+    {
+	pErrMsg( "Field style cannot be used with sampling" );
+	return;
+    }
+
     transflds_.allowNull( true );
     TypeSet<uiString> names;
 
@@ -56,7 +70,13 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 		factorynames[idx]->buf(), this, fromdomain, todomain );
 	if ( !uizat )
 	    continue;
-	
+
+	if ( isfield_ && !uizat->canBeField() )
+	{
+	    delete uizat;
+	    continue;
+	}
+
 	if ( withsampling )
 	    uizat->enableTargetSampling();
 
@@ -85,8 +105,11 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     
 	for ( int idx=0; idx<transflds_.size(); idx++ )
 	{
-	    if ( transflds_[idx] )
-		transflds_[idx]->attach( alignedBelow, selfld_ );
+	    if ( !transflds_[idx] )
+		continue;
+
+	    transflds_[idx]->attach( isfield_ ? rightOf : alignedBelow,
+				     selfld_ );
 	}
     }
     else if ( hastransforms )
@@ -98,9 +121,15 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 }
 
 
-bool uiZAxisTransformSel::isOK() const
+bool uiZAxisTransformSel::isField() const
 {
-    return nrTransforms();
+    return isfield_;
+}
+
+
+void uiZAxisTransformSel::setLabel(const uiString& lbl )
+{
+    selfld_->setTitleText( lbl );
 }
 
 
@@ -135,6 +164,16 @@ ZAxisTransform* uiZAxisTransformSel::getSelection()
 {
     const int idx = mGetSel;
     return transflds_[idx] ? transflds_[idx]->getSelection() : 0;
+}
+
+
+FixedString uiZAxisTransformSel::selectedToDomain() const
+{
+    const int idx = mGetSel;
+    if ( transflds_.validIdx(idx) )
+	return transflds_[idx]->toDomain();
+
+    return sKey::EmptyString();
 }
 
 

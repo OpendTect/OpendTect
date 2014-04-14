@@ -61,7 +61,6 @@ SET(OD_MODULE_SOURCES
 		uitrcpositiondlg.cc	
 		uiveldesc.cc		
 		uivelocityvolumeconversion.cc  
-		uit2dvelconvselgroup.cc	
 		uiwaveletextraction.cc	
 )
 

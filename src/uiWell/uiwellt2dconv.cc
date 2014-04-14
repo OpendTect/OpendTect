@@ -7,47 +7,75 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uiwellt2dconv.cc 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $";
 
 #include "uiwellt2dconv.h"
+
 #include "uiioobjsel.h"
 #include "welltransl.h"
-#include "keystrs.h"
+#include "wellt2dtransform.h"
+#include "uimsg.h"
+#include "zdomain.h"
 
 
-uiT2DWellConvSelGroup::uiT2DWellConvSelGroup( uiParent* p )
-    : uiT2DConvSelGroup(p,"Well T2D conv sel")
+uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
+    : uiTime2DepthZTransformBase(p, true )
+    , transform_( 0 )
 {
     fld_ = new uiIOObjSel( this, mIOObjContext(Well), "" );
+    setHAlignObj( fld_ );
 }
 
 
-bool uiT2DWellConvSelGroup::usePar( const IOPar& iop )
+uiWellT2DTransform::~uiWellT2DTransform()
 {
-    const IOObj* ioobj = fld_->ioobj(true);
-    MultiID ky; if ( ioobj ) ky = ioobj->key();
-
-    const bool havekey = iop.get( sKey::ID(), ky );
-    if ( havekey )
-	fld_->setInput( ky );
-
-    return havekey;
+    unRefAndZeroPtr( transform_ );
 }
 
 
-bool uiT2DWellConvSelGroup::fillPar( IOPar& iop ) const
+ZAxisTransform* uiWellT2DTransform::getSelection()
 {
-    const IOObj* ioobj = fld_->ioobj();
+    return transform_;
+}
+
+
+bool uiWellT2DTransform::acceptOK()
+{
+    unRefAndZeroPtr( transform_ );
+
+    const IOObj* ioobj = fld_->ioobj( false );
     if ( !ioobj )
-	iop.removeWithKey("ID");
-    else
-	iop.set( "ID", ioobj->key() );
+	return false;
 
-    return (bool)ioobj;
+    transform_ = new WellT2DTransform( ioobj->key() );
+    refPtr( transform_ );
+    if ( !transform_ || !transform_->isOK() )
+    {
+	uiMSG().error( tr("Could not create well-transform") );
+	unRefAndZeroPtr( transform_ );
+	return false;
+    }
+
+    return true;
 }
 
 
-void uiT2DWellConvSelGroup::initClass()
+
+void uiWellT2DTransform::initClass()
 {
-    uiT2DConvSelGroup::factory().addCreator( create, "Well" );
+    uiZAxisTransform::factory().addCreator( createInstance,
+				    WellT2DTransform::sFactoryKeyword(),
+				    "Well's Depth model");
 }
+
+
+uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
+				const char* fromdomain, const char* todomain )
+{
+    if ( fromdomain!=ZDomain::sKeyTime() || todomain!=ZDomain::sKeyDepth() )
+	return 0;
+
+    return new uiWellT2DTransform( p );
+}
+
+

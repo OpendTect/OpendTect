@@ -43,7 +43,7 @@ public:
 				          caller's responsibility to unref. */
 
     virtual bool		isOK() const		{ return true; }
-    virtual const char*		errMsg() const		{ return errmsg_; }
+    virtual uiString		errMsg() const		{ return errmsg_; }
 
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const CubeSampling&,
@@ -125,7 +125,7 @@ protected:
 
     ZDomain::Info&		tozdomaininfo_;
     ZDomain::Info&		fromzdomaininfo_;
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
 };
 
 

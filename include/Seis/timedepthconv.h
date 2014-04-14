@@ -33,7 +33,6 @@ mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
-    const char*			errMsg() const 		{ return errmsg_; }
 
     static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
     static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
@@ -41,8 +40,6 @@ public:
 protected:
     				VelocityStretcher(const ZDomain::Def& from,
 						  const ZDomain::Def& to);
-    mutable const char*		errmsg_;
-
 };
 
 

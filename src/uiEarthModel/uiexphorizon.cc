@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uiexphorizon.cc 34057 2014-04-07 17:03:36Z bert.bril@dgbes.com $";
 
 #include "uiexphorizon.h"
 
@@ -196,13 +196,9 @@ bool uiExportHorizon::writeAscii()
     const bool dogf = typfld_->getIntValue() == 2;
 
     RefMan<ZAxisTransform> zatf = 0;
-    IOPar iop;
     if ( zfld_->getIntValue()==2 )
     {
-	if ( !transfld_->fillPar( iop ) )
-	    return false;
-
-	zatf = ZAxisTransform::create( iop );
+	zatf = transfld_->getSelection();
 	if ( !zatf )
 	{
 	    uiMSG().message("Transform of selected option is not implemented");
@@ -428,6 +424,12 @@ bool uiExportHorizon::writeAscii()
 
 bool uiExportHorizon::acceptOK( CallBacker* )
 {
+    if ( zfld_->getIntValue()==2 )
+    {
+	if ( !transfld_->acceptOK() )
+	    return false;
+    }
+
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( "Please select output file" );
@@ -490,14 +492,10 @@ void uiExportHorizon::addZChg( CallBacker* )
 FixedString uiExportHorizon::getZDomain() const
 {
     FixedString zdomain = ZDomain::SI().key();
-    RefMan<ZAxisTransform> zat = 0;
+
     if ( typfld_->getIntValue()==2 || zfld_->getIntValue()==2 )
     {
-	IOPar iop;
-	transfld_->fillPar( iop, true );
-	zat = ZAxisTransform::create( iop );
-	if ( zat )
-	    zdomain = zat->toZDomainKey();
+	zdomain = transfld_->selectedToDomain();
     }
 
     return zdomain;

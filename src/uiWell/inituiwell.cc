@@ -18,5 +18,6 @@ mDefModInitFn(uiWell)
     mIfNotFirstTime( return );
 
     uiWellPosProvGroup::initClass();
-    uiT2DWellConvSelGroup::initClass();
+    uiWellT2DTransform::initClass();
+
 }

@@ -24,11 +24,11 @@ namespace Vel
 
 void uiLinearVelTransform::initClass()
 {
-    uiZAxisTransform::factory().addCreator( create, "Linear velocity" );
+    uiZAxisTransform::factory().addCreator( createInstance, "Linear velocity" );
 }
 
 
-uiZAxisTransform* uiLinearVelTransform::create( uiParent* p,
+uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
 					        const char* fromdomain,
 						const char* todomain )
 {
@@ -45,10 +45,7 @@ uiZAxisTransform* uiLinearVelTransform::create( uiParent* p,
 
 
 uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
-    : uiZAxisTransform( p )
-    , t2d_( t2d )
-    , rangefld_( 0 )
-    , rangechanged_( false )
+    : uiTime2DepthZTransformBase( p, t2d )
 {
     BufferString velfldlbl( VelocityDesc::toString(VelocityDesc::Interval), " ",
 			    VelocityDesc::getVelUnit(true) );
@@ -62,37 +59,6 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     gradientfld_->attach( alignedBelow, velfld_ );
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
     setHAlignObj( gradientfld_ );
-}
-
-
-void uiLinearVelTransform::enableTargetSampling()
-{
-    if ( rangefld_ )
-	return;
-
-    if ( finalised() )
-    {
-	pErrMsg("You're to late");
-	return;
-    }
-
-    rangefld_ = new uiZRangeInput( this, t2d_, true );
-    rangefld_->attach( alignedBelow, gradientfld_ );
-    mAttachCB( finaliseDone, uiLinearVelTransform::finalizeDoneCB );
-
-    velChangedCB( 0 );
-}
-
-
-void uiLinearVelTransform::finalizeDoneCB(CallBacker*)
-{
-    mAttachCB( rangefld_->valuechanging, uiLinearVelTransform::rangeChangedCB );
-}
-
-
-void uiLinearVelTransform::rangeChangedCB(CallBacker*)
-{
-    rangechanged_ = true;
 }
 
 
@@ -123,10 +89,15 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 }
 
 
-bool uiLinearVelTransform::getTargetSampling( StepInterval<float>& res ) const
+FixedString uiLinearVelTransform::toDomain() const
 {
-    res = rangefld_->getFZRange();
-    return true;
+    return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
+}
+
+
+FixedString uiLinearVelTransform::fromDomain() const
+{
+    return t2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth();
 }
 
 

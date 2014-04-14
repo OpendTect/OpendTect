@@ -26,7 +26,7 @@ class VelocityStretcher;
 /*!Group that allows the user to edit VelocityDesc information. */
 
 mExpClass(uiSeis) uiVelocityDesc : public uiGroup
-{
+{ mODTextTranslationClass(uiVelocityDesc);
 public:
 
     mExpClass(uiSeis) Setup
@@ -58,7 +58,7 @@ protected:
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
 mExpClass(uiSeis) uiVelocityDescDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiVelocityDescDlg)
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
 					  const uiVelocityDesc::Setup* s=0);
@@ -116,21 +116,38 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiTimeDepthBase : public uiZAxisTransform
+mExpClass(uiSeis) uiTime2DepthZTransformBase : public uiZAxisTransform
 {
 public:
+    FixedString 	toDomain() const;
+    FixedString 	fromDomain() const;
+
+    void		enableTargetSampling();
+    bool		getTargetSampling(StepInterval<float>&) const;
+
+protected:
+			uiTime2DepthZTransformBase(uiParent*,bool t2d);
+
+    bool		t2d_;
+    uiZRangeInput*	rangefld_;
+};
+
+
+mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
+{ mODTextTranslationClass(uiVelModelZAxisTransform);
+public:
+    void			enableTargetSampling();
     bool			acceptOK();
 
     ZAxisTransform*		getSelection();
-    bool			getTargetSampling(StepInterval<float>&) const;
-    StepInterval<float>		getZRange() const;
-				//!use getTargetSampling instead
 
     const char*			selName() const;
     const MultiID&		selID() const { return selkey_; }
+
+    bool			canBeField() const { return true; }
 protected:
-    				uiTimeDepthBase(uiParent*,bool);
-    				~uiTimeDepthBase();
+				uiVelModelZAxisTransform(uiParent*,bool);
+				~uiVelModelZAxisTransform();
     FixedString			getZDomain() const;
 
     void			setZRangeCB(CallBacker*);
@@ -142,25 +159,26 @@ protected:
     uiZRangeInput*		rangefld_;
 
     uiVelSel*			velsel_;
-    bool 			t2d_;
 };
 
 
-mExpClass(uiSeis) uiTime2Depth : public uiTimeDepthBase
-{
+mExpClass(uiSeis) uiTime2Depth : public uiVelModelZAxisTransform
+{ mODTextTranslationClass(uiTime2Depth);
 public:
     static void			initClass();
-    static uiZAxisTransform*	create(uiParent*,const char*,const char*);
+    static uiZAxisTransform*	createInstance(uiParent*,
+					       const char*,const char*);
 
 				uiTime2Depth(uiParent*);
 };
 
 
-mExpClass(uiSeis) uiDepth2Time : public uiTimeDepthBase
-{
+mExpClass(uiSeis) uiDepth2Time : public uiVelModelZAxisTransform
+{ mODTextTranslationClass(uiDepth2Time);
 public:
     static void			initClass();
-    static uiZAxisTransform*	create(uiParent*,const char*,const char*);
+    static uiZAxisTransform*	createInstance(uiParent*,
+					       const char*,const char*);
 
 				uiDepth2Time(uiParent*);
 };

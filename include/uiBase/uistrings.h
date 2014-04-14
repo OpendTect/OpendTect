@@ -29,6 +29,7 @@ public:
     static inline uiString sClose()		{ return tr("&Close"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
     static inline uiString sCopy()		{ return tr("&Copy"); }
+    static inline uiString sCreate(bool immediate);
     static inline uiString sEdit(bool immediate);
     static inline uiString sEmptyString()	{ return uiString(""); }
     static inline uiString sError()		{ return tr("Error"); }
@@ -86,6 +87,12 @@ inline FixedString sSaveAsDefault()
 inline uiString uiStrings::sAdd( bool immediate )
 {
     return immediate ? tr("&Add") : tr("&Add ...");
+}
+
+
+inline uiString uiStrings::sCreate( bool immediate )
+{
+    return immediate ? tr("&Create") : tr("&Create ...");
 }
 
 

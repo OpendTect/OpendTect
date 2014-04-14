@@ -280,7 +280,6 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 }
 
 
-
 int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("&Don't save");

@@ -32,7 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 				      const ZDomain::Def& to )
     : ZAxisTransform(from,to)
-    , errmsg_(0)
 {
 }
 

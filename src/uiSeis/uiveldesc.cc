@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uizrangeinput.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uistrings.h"
 #include "uimsg.h"
 #include "uistaticsdesc.h"
 #include "uitaskrunner.h"
@@ -35,12 +36,13 @@ static const char* sKeyDefVelCube = "Default.Cube.Velocity";
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     : uiGroup( p, "Velocity type selector" )
 {
-    typefld_ = new uiGenInput( this, "Velocity type",
+    typefld_ = new uiGenInput( this, tr("Velocity type"),
 			StringListInpSpec(VelocityDesc::TypeNames()) );
     typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,updateFlds) );
 
     uiGroup* vigrp = new uiGroup( this, "Vel info grp" );
-    hasstaticsfld_ = new uiGenInput( vigrp, "Has statics", BoolInpSpec(true) );
+    hasstaticsfld_ = new uiGenInput( vigrp, tr("Has statics"),
+				     BoolInpSpec(true) );
     hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
     staticsfld_ = new uiStaticsDesc( vigrp, 0 );
     staticsfld_->attach( alignedBelow, hasstaticsfld_ );
@@ -104,7 +106,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
     if ( !get( desc, disperr ) )
 	return false;
 
-    const char* errmsg = "Cannot write velocity information";
+    uiString errmsg = tr("Cannot write velocity information");
 
     if ( desc.type_ != VelocityDesc::Unknown )
     {
@@ -129,11 +131,12 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
-    : uiDialog( p, uiDialog::Setup("Specify velocity information",0,"103.6.7") )
+    : uiDialog( p,
+	       uiDialog::Setup(tr("Specify velocity information"),0,"103.6.7") )
     , toprange_( mUdf(float), mUdf(float ) )
     , bottomrange_( mUdf(float), mUdf(float ) )
 {
-    uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
+    uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( tr("Velocity cube") );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
 				ssu );
     if ( sel )
@@ -205,14 +208,14 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
     if ( !ioobj )
     {
-	uiMSG().error("Please select a valid volume cube.");
+	uiMSG().error(tr("Please select a valid volume cube."));
 	return false;
     }
 
     VelocityDesc desc;
     if ( !veldescfld_->get( desc, true ) )
     {
-	uiMSG().error("Please provide valid velocity type");
+	uiMSG().error(tr("Please provide valid velocity type"));
 	return false;
     }
 
@@ -336,13 +339,16 @@ void uiVelSel::selectionDoneCB( CallBacker* cb )
 void uiVelSel::updateEditButton()
 {
     if ( editcubebutt_ )
-	editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
+	editcubebutt_->setText( ioobj(true)
+		    ? uiStrings::sEdit(false)
+		    : uiStrings::sCreate(false) );
 }
 
-uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
-    : uiZAxisTransform( p )
+
+uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
+    : uiTime2DepthZTransformBase( p, t2d )
     , transform_ ( 0 )
-    , t2d_( t2d )
+    , rangefld_( 0 )
 {
     IOObjContext ctxt = uiVelSel::ioContext();
     ctxt.forread = true;
@@ -351,48 +357,38 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     su.seltxt( VelocityDesc::getVelVolumeLabel() );
     velsel_ = new uiVelSel( this, ctxt, su );
     velsel_->velrgchanged.notify(
-	    mCB(this,uiTimeDepthBase,setZRangeCB) );
+	    mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
     velsel_->selectionDone.notify(
-	    mCB(this,uiTimeDepthBase,setZRangeCB) );
+	    mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 
-    rangefld_ = new uiZRangeInput(this,t2d,true);
-    rangefld_->attach( alignedBelow, velsel_ );
-
-    setHAlignObj( rangefld_ );
-
-    setZRangeCB( 0 );
+    setHAlignObj( velsel_ );
 }
 
 
-uiTimeDepthBase::~uiTimeDepthBase()
+uiVelModelZAxisTransform::~uiVelModelZAxisTransform()
 {
-    if ( transform_ ) transform_->unRef();
+    unRefAndZeroPtr( transform_ );
 }
 
 
-ZAxisTransform* uiTimeDepthBase::getSelection()
+ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 {
     return transform_;
 }
 
 
-StepInterval<float> uiTimeDepthBase::getZRange() const
+void uiVelModelZAxisTransform::enableTargetSampling()
 {
-    StepInterval<float> res;
-    getTargetSampling( res );
-    return res;
+    uiTime2DepthZTransformBase::enableTargetSampling();
+    setZRangeCB( 0 );
 }
 
 
-bool uiTimeDepthBase::getTargetSampling( StepInterval<float>& res ) const
+void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
 {
-    res = rangefld_->getFZRange();
-    return true;
-}
+    if ( !rangefld_ )
+	return;
 
-
-void uiTimeDepthBase::setZRangeCB( CallBacker* )
-{
     StepInterval<float> rg;
     const StepInterval<float> zrg = SI().zRange(true);
     const Interval<float> topvelrg = velsel_->getVelocityTopRange();
@@ -417,16 +413,16 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
 }
 
 
-const char* uiTimeDepthBase::selName() const
+const char* uiVelModelZAxisTransform::selName() const
 { return selname_.buf(); }
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
-bool uiTimeDepthBase::acceptOK()
+bool uiVelModelZAxisTransform::acceptOK()
 {
-    if ( transform_ ) transform_->unRef();
-    transform_ = 0;
+    unRefAndZeroPtr( transform_ );
 
     const IOObj* ioobj = velsel_->ioobj( false );
     if ( !ioobj )
@@ -434,7 +430,7 @@ bool uiTimeDepthBase::acceptOK()
 
     VelocityDesc desc;
     if ( !GetVelocityTag( *ioobj, desc ) )
-	mErrRet("Cannot read velocity information for selected model");
+	mErrRet(tr("Cannot read velocity information for selected model"));
 
     BufferString zdomain = ioobj->pars().find( ZDomain::sKey() );
     if ( zdomain.isEmpty() )
@@ -457,14 +453,16 @@ bool uiTimeDepthBase::acceptOK()
     }
 
     if ( !transform_ )
-	mErrRet("Could not allocate memory");
+	mErrRet(tr("Could not allocate memory"));
 
     transform_->ref();
     if ( !transform_->setVelData( ioobj->key()  ) || !transform_->isOK() )
     {
-	FileMultiString fms("Internal: Could not initialize transform" );
-	fms += transform_->errMsg();
-	uiMSG().errorWithDetails( fms );
+	TypeSet<uiString> msgs(1,
+			tr("Internal: Could not initialize transform") );
+	if ( !transform_->errMsg().isEmpty() )
+	    msgs += transform_->errMsg();
+	uiMSG().errorWithDetails( msgs );
 	return false;
     }
 
@@ -475,7 +473,7 @@ bool uiTimeDepthBase::acceptOK()
 }
 
 
-FixedString uiTimeDepthBase::getZDomain() const
+FixedString uiVelModelZAxisTransform::getZDomain() const
 {
     return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }
@@ -483,13 +481,14 @@ FixedString uiTimeDepthBase::getZDomain() const
 
 void uiTime2Depth::initClass()
 {
-    uiZAxisTransform::factory().addCreator( create,
-		Time2DepthStretcher::sFactoryKeyword(), "Velocity volume" );
+    uiZAxisTransform::factory().addCreator( createInstance,
+		Time2DepthStretcher::sFactoryKeyword(), tr("Velocity volume") );
 }
 
 
-uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain,
-					const char* todomain )
+uiZAxisTransform* uiTime2Depth::createInstance( uiParent* p,
+				       const char* fromdomain,
+				       const char* todomain )
 {
     if ( fromdomain && fromdomain!=ZDomain::sKeyTime() )
 	return 0;
@@ -502,19 +501,19 @@ uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain,
 
 
 uiTime2Depth::uiTime2Depth( uiParent* p )
-    : uiTimeDepthBase( p, true )
+    : uiVelModelZAxisTransform( p, true )
 {}
 
 
 void uiDepth2Time::initClass()
 {
-    uiZAxisTransform::factory().addCreator( create,
-		Depth2TimeStretcher::sFactoryKeyword(), "Velocity Model" );
+    uiZAxisTransform::factory().addCreator( createInstance,
+		Depth2TimeStretcher::sFactoryKeyword(), tr("Velocity Model") );
 }
 
 
-uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain,
-					const char* todomain )
+uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
+			const char* fromdomain, const char* todomain )
 {
     if ( fromdomain && fromdomain!=ZDomain::sKeyDepth() )
 	return 0;
@@ -527,5 +526,5 @@ uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain,
 
 
 uiDepth2Time::uiDepth2Time( uiParent* p )
-    : uiTimeDepthBase( p, false )
+    : uiVelModelZAxisTransform( p, false )
 {}

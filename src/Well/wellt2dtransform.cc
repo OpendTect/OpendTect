@@ -35,7 +35,17 @@ WellT2DTransform::WellT2DTransform( const MultiID& wllid )
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
     , data_(0)
 {
-    tozdomaininfo_.pars_.set( sKey::ID(), wllid );
+    setWellID( wllid );
+}
+
+
+WellT2DTransform::~WellT2DTransform()
+{}
+
+
+bool WellT2DTransform::isOK() const
+{
+    return data_ && times_.size() && times_.size() == depths_.size();
 }
 
 
@@ -58,7 +68,8 @@ bool WellT2DTransform::calcDepths()
     }
     if ( mIsUdf(dah0) )
     {
-	errmsg_ = "Z Transform: Well Depth to time model has no valid points";
+	errmsg_ =
+	    tr("Z Transform: Well Depth to time model has no valid points");
 	return false;
     }
 
@@ -170,20 +181,35 @@ Interval<float> WellT2DTransform::getZInterval( bool time ) const
 }
 
 
-bool WellT2DTransform::usePar( const IOPar& iop )
+bool WellT2DTransform::setWellID( const MultiID& mid )
 {
-    if ( !ZAxisTransform::usePar(iop) )
-	return false;
-    if ( !tozdomaininfo_.hasID() )
-	{ errmsg_ = "Z Transform: No ID for Well provided"; return false; }
+    deleteAndZeroPtr( data_ );
+    tozdomaininfo_.pars_.set( sKey::ID(), mid );
 
-    data_ = Well::MGR().get( MultiID(tozdomaininfo_.getID()) );
+    data_ = Well::MGR().get( mid );
+
     if ( !data_ )
     {
-	errmsg_ = "Z Transform: Cannot find Well with ID ";
-	errmsg_ += tozdomaininfo_.getID();
+	errmsg_ = tr("Z Transform: Cannot find Well with ID %1")
+		    .arg( tozdomaininfo_.getID() );
+
 	return false;
     }
 
     return calcDepths();
+}
+
+
+bool WellT2DTransform::usePar( const IOPar& iop )
+{
+    if ( !ZAxisTransform::usePar(iop) )
+	return false;
+
+    if ( !tozdomaininfo_.hasID() )
+	{ errmsg_ = tr("Z Transform: No ID for Well provided"); return false; }
+
+    if ( !setWellID(MultiID(tozdomaininfo_.getID() ) ) )
+	return false;
+
+    return true;
 }
