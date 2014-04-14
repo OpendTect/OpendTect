@@ -22,35 +22,77 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitextedit.h"
+#include "uiofferinfo.h"
 
 #define mMaxNrCsts	5
 
 
-
-
-class uiRockPhysCstFld : public uiGroup
+class uiRockPhysConstantFld : public uiGroup
 {
 public:
 
-			uiRockPhysCstFld(uiParent*);
 
-    float		getCstVal() const;
-    void		updField(BufferString,Interval<float>,BufferString,
-				 float val = mUdf(float));
+uiRockPhysConstantFld( uiParent* p )
+    : uiGroup(p,"Rock Physics Constant Field")
+{
+    nmlbl_ = new uiLabel( this, "" );
+    nmlbl_->setPrefWidthInChar( 30 );
+    nmlbl_->setAlignment( Alignment::Right );
+
+    valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    valfld_->attach( rightOf, nmlbl_ );
+
+    infofld_ = new uiOfferInfo( this, false );
+    infofld_->attach( rightOf, valfld_ );
+
+    rangelbl_ = new uiLabel( this, "" );
+    rangelbl_->setPrefWidthInChar( 30 );
+    rangelbl_->attach( rightOf, infofld_ );
+
+    setHAlignObj( valfld_ );
+}
+
+
+float value() const
+{
+    return valfld_->getfValue();
+}
+
+
+void update( const RockPhysics::Formula::ConstDef* pcd )
+{
+    display( pcd );
+    if ( !pcd )
+	{ cstnm_.setEmpty(); infofld_->setInfo( "" ); return; }
+
+    const RockPhysics::Formula::ConstDef& cd = *pcd;
+    cstnm_ = cd.name();
+
+    nmlbl_->setText( BufferString("Value for '",cstnm_,"'") );
+    infofld_->setInfo( cd.desc_, BufferString("Information on '",cstnm_,"'") );
+    valfld_->setValue( cd.defaultval_ );
+
+    const bool haverg = !cd.typicalrg_.isUdf();
+    if ( haverg )
+    {
+	BufferString rgstr( "Typical range: [", cd.typicalrg_.start, "," );
+	rgstr.add( cd.typicalrg_.stop ).add( "]" );
+	rangelbl_->setText( rgstr );
+    }
+    rangelbl_->display( haverg );
+}
+
 
     BufferString	cstnm_;
     BufferString	desc_;
 
-protected:
-
-    void		descPush(CallBacker*);
-
     uiGenInput*		valfld_;
     uiLabel*		nmlbl_;
     uiLabel*		rangelbl_;
-    uiToolButton*	descbutton_;
+    uiOfferInfo*	infofld_;
 
 };
+
 
 
 
@@ -58,13 +100,24 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
     , fixedtype_(PropertyRef::Den)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-				PropertyRef::StdTypeNames(), "Property Type" );
+    BufferStringSet typnms( PropertyRef::StdTypeNames() );
+    for ( int idx=0; idx<typnms.size(); idx++ )
+    {
+	BufferStringSet nms;
+	const PropertyRef::StdType typ
+			= PropertyRef::parseEnumStdType( typnms.get(idx) );
+	ROCKPHYSFORMS().getRelevant( typ, nms );
+	if ( nms.isEmpty() )
+	    { typnms.removeSingle( idx ); idx--; }
+    }
+
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, typnms,
+						    "Property Type" );
     typfld_ = lcb->box();
     typfld_->setHSzPol( uiObject::MedMax );
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
 
-    createFlds( lcb->attachObj() );
+    createFlds( lcb );
 }
 
 
@@ -77,7 +130,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 }
 
 
-void uiRockPhysForm::createFlds( uiObject* attobj )
+void uiRockPhysForm::createFlds( uiGroup* attobj )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
     lcb->box()->setHSzPol( uiObject::WideMax );
@@ -89,26 +142,29 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
 
     formulafld_ = new uiTextEdit( this, "Formula", true );
     formulafld_->setPrefHeightInChar( 2 );
-    formulafld_->setPrefWidthInChar( 100 );
+    formulafld_->setPrefWidthInChar( 80 );
     formulafld_->setStretch(2,0);
-    formulafld_->attach( ensureBelow, lcb->attachObj() );
+    formulafld_->attach( ensureBelow, lcb );
 
     if ( attobj )
 	attobj->attach( alignedAbove, lcb );
 
     descriptionfld_ = new uiTextEdit( this, "Formula Desc", true );
     descriptionfld_->setPrefHeightInChar( 3 );
-    descriptionfld_->setPrefWidthInChar( 100 );
+    descriptionfld_->setPrefWidthInChar( 80 );
     descriptionfld_->setStretch(2,0);
-    descriptionfld_->attach( alignedBelow, formulafld_ );
+    descriptionfld_->attach( ensureBelow, formulafld_ );
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
      {
-	uiRockPhysCstFld* rpcfld = new uiRockPhysCstFld( this );
+	uiRockPhysConstantFld* rpcfld = new uiRockPhysConstantFld( this );
 	if ( idx )
 	    rpcfld->attach( alignedBelow, cstflds_[idx-1] );
 	else
-	    rpcfld->attach( alignedBelow, descriptionfld_ );
+	{
+	    rpcfld->attach( alignedBelow, lcb );
+	    rpcfld->attach( ensureBelow, descriptionfld_ );
+	}
 
 	cstflds_ += rpcfld;
     }
@@ -140,25 +196,10 @@ void uiRockPhysForm::setType( PropertyRef::StdType typ )
     ROCKPHYSFORMS().getRelevant( typ, nms );
 
     NotifyStopper ns( nmfld_->selectionChanged );
+
     nmfld_->setEmpty();
     nmfld_->addItems( nms );
-    if ( !nms.isEmpty() )
-	nmfld_->setCurrentItem( 0 );
-    else
-    {
-	BufferString msg( "The category '", PropertyRef::toString(typ),
-		"' does not contain any formula yet.\n"
-		"Please add a formula to the repository "
-		"or select another category." );
-	uiMSG().warning( msg );
-
-	descriptionfld_->setText("");
-	formulafld_->setText("");
-	for ( int idx=0; idx<cstflds_.size(); idx++ )
-	    cstflds_[idx]->display( false );
-
-	return;
-    }
+    nmfld_->setCurrentItem( 0 );
 
     nameSel( 0 );
 }
@@ -189,7 +230,7 @@ BufferString uiRockPhysForm::getFormText( const RockPhysics::Formula& rpfm,
 	    if ( fortxtdisp )
 		formval = rpfm.constdefs_[iconstdef]->name();
 	    else
-		formval.set( cstflds_[iconstdef]->getCstVal() );
+		formval.set( cstflds_[iconstdef]->value() );
 	    iconstdef++;
 	}
 	else
@@ -213,19 +254,11 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
 	{ uiMSG().error( "Internal: formula not found" ); return;}
-    const RockPhysics::Formula& rpfm = *fm;
 
+    const RockPhysics::Formula& rpfm = *fm;
     const int nrconsts = rpfm.constdefs_.size();
     for ( int idx=0; idx<cstflds_.size(); idx++ )
-    {
-	bool dodisp = idx < nrconsts;
-	cstflds_[idx]->display( dodisp );
-	if ( dodisp )
-	    cstflds_[idx]->updField( rpfm.constdefs_[idx]->name(),
-				     rpfm.constdefs_[idx]->typicalrg_,
-				     rpfm.constdefs_[idx]->desc_,
-				     rpfm.constdefs_[idx]->defaultval_ );
-    }
+	cstflds_[idx]->update( idx<nrconsts ? rpfm.constdefs_[idx] : 0 );
 
     formulafld_->setText( getFormText(rpfm,true) );
     descriptionfld_->setText( rpfm.desc_ );
@@ -289,7 +322,7 @@ bool uiRockPhysForm::isOK()
     for ( int idx=0; idx<cstflds_.size(); idx++ )
     {
 	if ( cstflds_[idx]->attachObj()->isDisplayed()
-	     && mIsUdf( cstflds_[idx]->getCstVal() ) )
+	     && mIsUdf( cstflds_[idx]->value() ) )
 	{
 	    errmsg_ += "Please provide a value for constant '";
 	    errmsg_ += cstflds_[idx]->cstnm_; errmsg_ += "'\n";
@@ -297,61 +330,4 @@ bool uiRockPhysForm::isOK()
 	}
     }
     return true;
-}
-
-
-//-----------------------------------------------------------------------------
-
-uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
-    : uiGroup(p,"Rock Physics Constant Field")
-{
-    nmlbl_ = new uiLabel( this, "" );
-    nmlbl_->setPrefWidthInChar( 35 );
-    nmlbl_->setAlignment( Alignment::Right );
-
-    valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
-    valfld_->attach( rightOf, nmlbl_ );
-
-    rangelbl_ = new uiLabel( this, "" );
-    rangelbl_->setPrefWidthInChar( 35 );
-    rangelbl_->attach( rightOf, valfld_ );
-
-    CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
-    descbutton_ = new uiToolButton( this, "info", "Info on this constant", cb );
-    descbutton_->attach( rightOf, rangelbl_ );
-}
-
-
-float uiRockPhysCstFld::getCstVal() const
-{
-    return valfld_->getfValue();
-}
-
-
-void uiRockPhysCstFld::updField( BufferString nm, Interval<float> range,
-				 BufferString desc, float val )
-{
-    cstnm_ = nm;
-    desc_ = desc;
-
-    BufferString prefix = "Value for '"; prefix += nm; prefix += "'";
-    nmlbl_->setText( prefix.buf() );
-
-    if ( !mIsUdf(val) )
-	valfld_->setValue( val );
-    else
-	valfld_->clear();
-
-    BufferString suffix( "Typical range: [", range.start, "," );
-    suffix.add( range.stop ).add( "]" );
-    rangelbl_->setText( suffix );
-
-    rangelbl_->display( !range.isUdf() );
-    descbutton_->display( !desc_.isEmpty() );
-}
-
-
-void uiRockPhysCstFld::descPush( CallBacker* )
-{
-    uiMSG().message( desc_.buf() );
 }

@@ -81,7 +81,7 @@ Unit: Gram/cm3
 Variable.0.Type: Porosity
 Variable.0.Name: Porosity
 Constant.0.Name: Matrix density
-Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.72`Dolomite: 2.81
+Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`<i>Typical values:</i>`<ul><li>Sandstone: 2.65</li>`<li>Limestone: 2.72</li>`<li>Dolomite: 2.81</li></ul>
 Constant.0.Default: 2.65
 Constant.0.Typical Range: 2.2`2.9
 Constant.1.Name: Fluid density

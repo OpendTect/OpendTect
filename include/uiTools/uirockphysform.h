@@ -20,7 +20,7 @@ class uiGenInput;
 class uiLabel;
 class uiPushButton;
 class uiTextEdit;
-class uiRockPhysCstFld;
+class uiRockPhysConstantFld;
 namespace Math { class Formula; }
 namespace RockPhysics { class Formula; }
 
@@ -49,17 +49,16 @@ protected:
     uiComboBox*		nmfld_;
     uiTextEdit*		formulafld_;
     uiTextEdit*		descriptionfld_;
+    ObjectSet<uiRockPhysConstantFld>	cstflds_;
+
     const PropertyRef::StdType fixedtype_;
+    BufferString	errmsg_;
 
     void		typSel(CallBacker*);
     void		nameSel(CallBacker*);
 
-    void		createFlds(uiObject*);
+    void		createFlds(uiGroup*);
     BufferString	getFormText(const RockPhysics::Formula&,bool) const;
-
-    ObjectSet<uiRockPhysCstFld>	cstflds_;
-
-    BufferString	errmsg_;
 
 };
 

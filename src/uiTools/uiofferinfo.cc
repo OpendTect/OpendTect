@@ -1,0 +1,98 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        A.H. Bril
+ Date:          Dec 2001
+________________________________________________________________________
+
+-*/
+static const char* rcsID mUsedVar = "$Id$";
+
+#include "uiofferinfo.h"
+#include "uitextedit.h"
+
+
+uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const char* captn, int nrln )
+    : uiMainWin(p,captn,0,false,false)
+{
+    setPrefWidthInChar( 80 );
+    setPrefHeightInChar( nrln );
+    setDeleteOnClose( true );
+
+    uitb_ = new uiTextBrowser( this, captn, mUdf(int), false );
+}
+
+
+void uiOfferInfoWin::setText( const char* txt )
+{
+    uitb_->setText( txt );
+}
+
+
+uiOfferInfo::uiOfferInfo( uiParent* p, bool setinsens )
+	: uiToolButton(p,"info","View info",mCB(this,uiOfferInfo,infoReq) )
+	, insens_(setinsens)
+	, infowin_(0)
+	, caption_("Information")
+{
+    setInfo( 0, "Information" );
+}
+
+
+void uiOfferInfo::updateWin()
+{
+    if ( infowin_ )
+    {
+	if ( info_.isEmpty() )
+	    { delete infowin_; infowin_ = 0; }
+	else
+	{
+	    infowin_->setCaption( caption_ );
+	    infowin_->setText( info_ );
+	}
+    }
+}
+
+
+void uiOfferInfo::setInfo( const char* txt, const char* captn )
+{
+    info_ = txt;
+    if ( captn && *captn )
+	caption_ = captn;
+
+    const bool isactive = !info_.isEmpty();
+    if ( insens_ )
+	setSensitive( isactive );
+    else
+	display( isactive );
+
+    updateWin();
+}
+
+
+void uiOfferInfo::infoReq( CallBacker* )
+{
+    if ( !infowin_ )
+    {
+	if ( info_.isEmpty() )
+	    return;
+
+	int nrlines = info_.count( '\n' ) + 1;
+	if ( nrlines < 5 ) nrlines = 5;
+	if ( nrlines > 20 ) nrlines = 20;
+	infowin_ = new uiOfferInfoWin( mainwin(), caption_, nrlines );
+	infowin_->windowClosed.notify( mCB(this,uiOfferInfo,winClose) );
+	infowin_->show();
+    }
+
+    updateWin();
+    if ( infowin_ )
+	infowin_->raise();
+}
+
+
+void uiOfferInfo::winClose( CallBacker* )
+{
+    infowin_ = 0;
+}
