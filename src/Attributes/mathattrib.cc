@@ -24,11 +24,11 @@ static const char* specvararr[] = { "DZ", "Inl", "Crl", 0 };
 
 namespace Attrib
 {
-mAttrDefCreateInstance(Math)
+mAttrDefCreateInstance(Mathematics)
 }; // namespace Attrib
 
 
-void Attrib::Math::initClass()
+void Attrib::Mathematics::initClass()
 {
     mAttrStartInitClassWithUpdate
 
@@ -55,7 +55,7 @@ void Attrib::Math::initClass()
 }
 
 
-void Attrib::Math::updateDesc( Desc& desc )
+void Attrib::Mathematics::updateDesc( Desc& desc )
 {
     ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
@@ -109,14 +109,14 @@ void Attrib::Math::updateDesc( Desc& desc )
 }
 
 
-const BufferStringSet& Attrib::Math::getSpecVars()
+const BufferStringSet& Attrib::Mathematics::getSpecVars()
 {
     mDefineStaticLocalObject( const BufferStringSet, res, (specvararr) );
     return res;
 }
 
 
-Attrib::Math::Math( Desc& dsc )
+Attrib::Mathematics::Mathematics( Desc& dsc )
     : Provider( dsc )
     , desintv_( Interval<float>(0,0) )
     , reqintv_( Interval<int>(0,0) )
@@ -174,19 +174,19 @@ Attrib::Math::Math( Desc& dsc )
 }
 
 
-bool Attrib::Math::allowParallelComputation() const
+bool Attrib::Mathematics::allowParallelComputation() const
 {
     return !expression_->isRecursive();
 }
 
 
-bool Attrib::Math::getInputOutput( int input, TypeSet<int>& res ) const
+bool Attrib::Mathematics::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );
 }
 
 
-bool Attrib::Math::getInputData( const BinID& relpos, int zintv )
+bool Attrib::Mathematics::getInputData( const BinID& relpos, int zintv )
 {
     int nrinputs = expression_->nrUniqueVarNames() -
 				   ( csts_.size() + specstable_.size() );
@@ -209,8 +209,9 @@ bool Attrib::Math::getInputData( const BinID& relpos, int zintv )
 }
 
 
-bool Attrib::Math::computeData( const DataHolder& output, const BinID& relpos,
-			int z0, int nrsamples, int threadid ) const
+bool Attrib::Mathematics::computeData( const DataHolder& output,
+				       const BinID& relpos, int z0,
+				       int nrsamples, int threadid ) const
 {
     PtrMan< ::Math::Expression > mathobj
 		= expression_ ? expression_->clone() : 0;
@@ -319,7 +320,7 @@ bool Attrib::Math::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-void Attrib::Math::setUpVarsSets()
+void Attrib::Mathematics::setUpVarsSets()
 {
     int nrcsts = 0;
     int nrspecs = 0;
@@ -394,7 +395,7 @@ void Attrib::Math::setUpVarsSets()
 }
 
 
-const Interval<int>* Attrib::Math::reqZSampMargin( int inp, int ) const
+const Interval<int>* Attrib::Mathematics::reqZSampMargin( int inp, int ) const
 {
     //Trick: as call to this function is not multithreaded
     //we use a single address for reqintv_ which will be reset for every input
@@ -412,13 +413,13 @@ const Interval<int>* Attrib::Math::reqZSampMargin( int inp, int ) const
 }
 
 
-const Interval<float>* Attrib::Math::desZMargin( int inp, int ) const
+const Interval<float>* Attrib::Mathematics::desZMargin( int inp, int ) const
 {
     return &desintv_;
 }
 
 
-void Attrib::Math::adjustVarSampReqs()
+void Attrib::Mathematics::adjustVarSampReqs()
 {
     for ( int idx=0; idx<varstable_.size(); idx++ )
     {

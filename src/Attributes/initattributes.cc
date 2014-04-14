@@ -53,7 +53,7 @@ mDefModInitFn(Attributes)
     Attrib::Hilbert::initClass();
     Attrib::Instantaneous::initClass();
     Attrib::MatchDelta::initClass();
-    Attrib::Math::initClass();
+    Attrib::Mathematics::initClass();
     Attrib::PSAttrib::initClass();
     Attrib::Position::initClass();
     Attrib::Reference::initClass();

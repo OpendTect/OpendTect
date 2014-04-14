@@ -24,11 +24,11 @@ namespace Attrib
 \brief %Math Attribute
 */
 
-mExpClass(Attributes) Math : public Provider
+mExpClass(Attributes) Mathematics : public Provider
 {
 public:
     static void			initClass();
-				Math(Desc&);
+				Mathematics(Desc&);
 
     static const char*		attribName()		{ return "Math"; }
     static const char*		expressionStr()		{ return "expression"; }
@@ -40,7 +40,7 @@ public:
     static const BufferStringSet&	getSpecVars();
 
 protected:
-				~Math()	{}
+				~Mathematics()	{}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

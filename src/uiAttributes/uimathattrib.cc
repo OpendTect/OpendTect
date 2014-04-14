@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-mInitAttribUI(uiMathAttrib,Attrib::Math,"Mathematics",sKeyBasicGrp())
+mInitAttribUI(uiMathAttrib,Attrib::Mathematics,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.9")
@@ -139,7 +139,7 @@ void uiMathAttrib::getVarsNrAndNms( ::Math::Expression* expr )
 	{
 	    case ::Math::Expression::Variable :
 	    {
-		if ( !Attrib::Math::getSpecVars().isPresent(varnm) )
+		if ( !Attrib::Mathematics::getSpecVars().isPresent(varnm) )
 		{
 		    nrvars_++;
 		    varnms.add( varnm );
@@ -207,16 +207,17 @@ void uiMathAttrib::setupOneRow( const uiAttrSelData& asd, int rowidx,
 
 bool uiMathAttrib::setParameters( const Desc& desc )
 {
-    if ( desc.attribName() != Attrib::Math::attribName() )
+    if ( desc.attribName() != Attrib::Mathematics::attribName() )
 	return false;
 
-    mIfGetString( Attrib::Math::expressionStr(), expression,
+    mIfGetString( Attrib::Mathematics::expressionStr(), expression,
 		  inpfld_->setText(expression) );
     parsePush(0);
 
-    if ( desc.getParam(Attrib::Math::cstStr()) )
+    if ( desc.getParam(Attrib::Mathematics::cstStr()) )
     {
-	mDescGetConstParamGroup(DoubleParam,cstset,desc,Attrib::Math::cstStr());
+	mDescGetConstParamGroup(DoubleParam,cstset,desc,
+				Attrib::Mathematics::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
 	    if ( ctable_->nrRows() < idx+1 )
@@ -229,21 +230,22 @@ bool uiMathAttrib::setParameters( const Desc& desc )
     }
 
     //backward compatibility v3.3 and previous
-    if ( desc.getValParam( Attrib::Math::recstartStr() ) )
+    if ( desc.getValParam( Attrib::Mathematics::recstartStr() ) )
     {
 	double recstart =
-	    desc.getValParam( Attrib::Math::recstartStr() )->getdValue(0);
+	    desc.getValParam(Attrib::Mathematics::recstartStr())->getdValue(0);
 	if ( !mIsUdf( recstart ) )
 	    recstartfld_->setText( toString(recstart) );
     }
 
-    mIfGetString( Attrib::Math::recstartvalsStr(), recstartvals,
+    mIfGetString( Attrib::Mathematics::recstartvalsStr(), recstartvals,
 		  recstartfld_->setText(recstartvals) );
 
-    if ( desc.getValParam( Attrib::Math::recstartposStr() ) )
+    if ( desc.getValParam( Attrib::Mathematics::recstartposStr() ) )
     {
 	double recstartpos =
-	    desc.getValParam( Attrib::Math::recstartposStr() )->getdValue(0);
+	    desc.getValParam(Attrib::Mathematics::recstartposStr())->
+	    							getdValue(0);
 	if ( !mIsUdf( recstartpos ) )
 	    recstartposfld_->setValue(
 		    recstartpos * SI().zDomain().userFactor() );
@@ -264,10 +266,10 @@ bool uiMathAttrib::setInput( const Desc& desc )
 
 bool uiMathAttrib::getParameters( Desc& desc )
 {
-    if ( desc.attribName() != Attrib::Math::attribName() )
+    if ( desc.attribName() != Attrib::Mathematics::attribName() )
 	return false;
 
-    mSetString( Attrib::Math::expressionStr(), inpfld_->text() );
+    mSetString( Attrib::Mathematics::expressionStr(), inpfld_->text() );
 
     ::Math::ExpressionParser mep( inpfld_->text() );
     ::Math::Expression* expr = mep.parse();
@@ -283,7 +285,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	    nrconsts++;
     }
 
-    mDescGetParamGroup(DoubleParam,cstset,desc,Attrib::Math::cstStr())
+    mDescGetParamGroup(DoubleParam,cstset,desc,Attrib::Mathematics::cstStr())
     cstset->setSize( nrconsts );
     if ( ctable_->nrRows() < nrconsts ) return false;
 
@@ -293,8 +295,8 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	dparam.setValue( ctable_->getdValue( RowCol(idx,0) ) );
     }
 
-    mSetString( Attrib::Math::recstartvalsStr(), recstartfld_->text() );
-    mSetDouble( Attrib::Math::recstartposStr(),
+    mSetString( Attrib::Mathematics::recstartvalsStr(), recstartfld_->text() );
+    mSetDouble( Attrib::Mathematics::recstartposStr(),
 	       recstartposfld_->getdValue() / SI().zDomain().userFactor() );
     return true;
 }
@@ -317,12 +319,13 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     if ( !curDesc() ) return;
 
     mDescGetConstParamGroup(DoubleParam,cstset,(*curDesc()),
-			    Attrib::Math::cstStr());
+			    Attrib::Mathematics::cstStr());
     BufferString constantbase = "constant c";
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	BufferString constantstr = constantbase;
 	constantstr +=idx;
-	params += EvalParam( constantstr, Attrib::Math::cstStr(), 0, idx );
+	params += EvalParam( constantstr, Attrib::Mathematics::cstStr(), 0,
+			     idx );
     }
 }
