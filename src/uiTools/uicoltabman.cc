@@ -78,8 +78,9 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
       .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
       .canvasheight(mTransHeight).drawscattery1(true) .ycol(Color(255,0,0))
       .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
-      .pointsz(3).ptsnaptol(0.08).noxaxis(true).noyaxis(true).noy2axis(true)
-      .drawborder(true).borderstyle(ls);
+      .pointsz(3).ptsnaptol(0.08).noxaxis(true).noxgridline(true).noyaxis(true)
+      .noygridline(true).noy2axis(true).noy2gridline(true).drawborder(true)
+      .borderstyle(ls);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     if ( enabletrans_ )
     {

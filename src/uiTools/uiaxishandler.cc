@@ -256,8 +256,10 @@ float uiAxisHandler::getRelPos( float v ) const
 
 int uiAxisHandler::getRelPosPix( float relpos ) const
 {
-    return isHor() ? (int)(pixBefore() + axsz_ * relpos + .5)
-		   : (int)(pixAfter() + axsz_ * (1 - relpos) + .5);
+    return isHor() ? (int)( (rgisrev_ ? pixAfter() : pixBefore()) +
+			     axsz_ * relpos + .5)
+		   : (int)( (rgisrev_ ? pixBefore() : pixAfter()) +
+			     axsz_ * (1 - relpos) + .5);
 }
 
 
@@ -293,17 +295,37 @@ int uiAxisHandler::pixToEdge( bool withborder ) const
 
 int uiAxisHandler::pixBefore() const
 {
-    if ( beghndlr_ ) return beghndlr_->pixToEdge();
-    uiRect::Side beforeside = isHor() ? uiRect::Left : uiRect::Bottom;
-    return setup_.border_.get( beforeside );
+    int pixbefore  = 0;
+    if ( beghndlr_ )
+	pixbefore = beghndlr_->pixToEdge();
+    else
+    {
+	uiRect::Side beforeside;
+	if ( endhndlr_ )
+	    beforeside = uiRect::across( endhndlr_->setup_.side_ );
+	else
+	    beforeside = isHor() ? uiRect::Left : uiRect::Bottom;
+	pixbefore = setup_.border_.get( beforeside );
+    }
+
+    return pixbefore;
 }
 
 
 int uiAxisHandler::pixAfter() const
 {
-    if ( endhndlr_ ) return endhndlr_->pixToEdge();
-    uiRect::Side afterside = isHor() ? uiRect::Right : uiRect::Top;
-    return setup_.border_.get( afterside );
+    int pixafter = 0;
+    if ( endhndlr_ )
+	pixafter =  endhndlr_->pixToEdge();
+    else
+    {
+	uiRect::Side afterside = isHor() ? uiRect::Right : uiRect::Top;
+	if ( beghndlr_ )
+	    afterside = uiRect::across( beghndlr_->setup_.side_ );
+	pixafter = setup_.border_.get( afterside );
+    }
+
+    return pixafter;
 }
 
 
@@ -370,7 +392,7 @@ void uiAxisHandler::updateGridLines()
 	else if ( gridlineitmgrp_ )
 	    gridlineitmgrp_->removeAll( true );
 
-	if ( setup_.nogridline_ && setup_.noaxisannot_ ) return;
+	if ( setup_.nogridline_ ) return;
 
 	Interval<int> toplot( 0, pos_.size()-1 );
 	for ( int idx=0; idx<pos_.size(); idx++ )
@@ -402,7 +424,6 @@ void uiAxisHandler::updateScene()
     if ( !setup_.noaxisannot_ && !setup_.caption_.isEmpty() )
 	updateName();
 
-    if ( setup_.noaxisannot_ ) return;
     updateGridLines();
 }
 
@@ -435,8 +456,8 @@ void uiAxisHandler::updateAxisLine()
     }
     else
     {
-	const int startpix = pixAfter();
-	const int endpix = devsz_ - pixBefore();
+	const int startpix = rgisrev_ ? pixBefore() : pixAfter();
+	const int endpix = devsz_ - ( rgisrev_ ? pixAfter() : pixBefore() );
 	const int pixpos = setup_.side_ == uiRect::Left
 			 ? edgepix : width_ - edgepix;
 
@@ -622,8 +643,7 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
     const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
     int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
     if ( hndlr )
-	endpix = setup_.side_ == uiRect::Left || setup_.side_ == uiRect::Bottom
-		? hndlr->pixAfter() : hndlr->pixBefore();
+	endpix = beghndlr_ ? hndlr->pixAfter() : hndlr->pixBefore();
     const int startpix = pixToEdge();
 
     uiLineItem* lineitem = new uiLineItem();

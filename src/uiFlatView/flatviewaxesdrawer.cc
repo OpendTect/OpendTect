@@ -49,8 +49,8 @@ void FlatView::AxesDrawer::updateScene()
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     setAnnotInInt( true, annot.x1_.annotinint_ );
     setAnnotInInt( false, annot.x2_.annotinint_ );
-    enableXAxis( annot.x1_.showannot_ );
-    enableYAxis( annot.x2_.showannot_ );
+    xaxis_->setup().noannot( !annot.x1_.showannot_ );
+    yaxis_->setup().noannot( !annot.x2_.showannot_ );
     xaxis_->setup().nogridline( !annot.x1_.showgridlines_ );
     yaxis_->setup().nogridline( !annot.x2_.showgridlines_ );
     updateViewRect();
