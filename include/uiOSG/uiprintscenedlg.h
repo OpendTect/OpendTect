@@ -18,6 +18,11 @@ class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;
 
+namespace osgViewer
+{ class View; }
+namespace osg
+{ class Image; }
+
 /*!
 \brief Print scene dialog box.
 */
@@ -38,10 +43,18 @@ protected:
 					    const char** frmtdesc,
 					    BufferString& filters);
 
+    enum		{InvalidImages=0, OnlyMainViewImage, MainAndHudImages };
     void		setFldVals(CallBacker*);
     void		typeSel(CallBacker*);
     void		sceneSel(CallBacker*);
     bool		acceptOK(CallBacker*);
+    osg::Image*		offScreenRenderViewToImage(osgViewer::View*) const;
+			/*! The returned image is not referenced yet. */
+    const int		validateImages(
+				     const osg::Image*,const osg::Image*)const;
+    bool		hasImageValidFormat(const osg::Image*)const;
+    void		flipImageVertical(osg::Image*) const;
+    bool		saveImages(const osg::Image*,const osg::Image*);
 
     const ObjectSet<ui3DViewer>& viewers_;
 };

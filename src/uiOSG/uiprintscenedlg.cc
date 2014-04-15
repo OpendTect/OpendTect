@@ -30,13 +30,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscamera.h"
 
 #include "uirgbarray.h"
+#include <osgViewer/View>
 #include <osgGeo/TiledOffScreenRenderer>
 
 
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
-
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
@@ -194,52 +194,162 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
-    if ( !filenameOK() || !widthfld_ ) 
+  
+    bool ret = false;
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
+    const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
+    ui3DViewer* vwr = const_cast<ui3DViewer*>(viewers_[vwridx]);
+
+    osgViewer::View* mainview = 
+	const_cast<osgViewer::View*>( vwr->getOsgViewerMainView() );
+
+    osgViewer::View* hudview = 
+	const_cast<osgViewer::View*>( vwr->getOsgViewerHudView() );
+
+    vwr->showThumbWheels( false );
+    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
+    vwr->showThumbWheels( true );
+
+    osg::ref_ptr<osg::Image> mainviewimage = 
+					offScreenRenderViewToImage( mainview );
+
+
+    const int validresult = validateImages( mainviewimage, hudimage );
+
+    if ( validresult == InvalidImages )
+	return false;
+    else if ( validresult == OnlyMainViewImage )
+    {
+	flipImageVertical( mainviewimage );
+	ret = saveImages( mainviewimage, 0 );
+    }
+    else 
+    {
+	flipImageVertical( hudimage );
+	flipImageVertical( mainviewimage );
+	ret = saveImages( mainviewimage, hudimage );
+    }
+
+   return ret;
+
+}
+
+
+const int uiPrintSceneDlg::validateImages(const osg::Image* mainimage, 
+				          const osg::Image* hudimage)const
+{
+    if ( !mainimage || !hasImageValidFormat(mainimage) ) 
+    {
+	uiMSG().error( " Image creation is failed. " );
+	return InvalidImages;
+    }
+
+    bool validsize (false);
+    if ( hudimage && mainimage )
+    {
+	validsize = mainimage->s() == hudimage->s() && 
+		    mainimage->t() == hudimage->t(); 
+	if ( !validsize )
+	   pErrMsg("The size of main view image is different from hud image's");
+    }
+    
+    if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
+    {
+	uiMSG().warning(
+	    "Cannot include HUD items (color bar and axis) in screen shot." );
+	return OnlyMainViewImage;
+    }
+
+    return MainAndHudImages;
+}
+
+
+bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
+				  const osg::Image* hudimg ) 
+{
+    if ( !filenameOK() || !widthfld_ || !mainimg ) 
 	return false;
 
     FilePath filepath( fileinputfld_->fileName() );
     setDirName( filepath.pathOnly() );
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    const char* fmt = uiSaveImageDlg::getExtension();
 
-    const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const ui3DViewer* vwr = viewers_[vwridx];
-    osg::View* osgview =  
-	vwr->getScene()->getCamera()->osgCamera()->getView();
-    mDynamicCastGet( osgViewer::View*,view,osgview);
-
-    osgGeo::TiledOffScreenRenderer offrenderer( view,
-				visBase::DataObject::getCommonViewer() );
-
-    offrenderer.setOutputSize( mNINT32(sizepix_.width()), 
-	mNINT32(sizepix_.height()) );
-
-    if ( offrenderer.createOutput() )
+    uiRGBArray rgbhudimage( true );
+    if ( hudimg && hudimg->getPixelFormat() == GL_RGBA )
     {
-	osg::ref_ptr<osg::Image> outputimage = (osg::Image*) 
-	    offrenderer.getOutput()->clone(osg::CopyOp::DEEP_COPY_ALL);
-	
-	if ( !outputimage || (outputimage->getPixelFormat()   !=
-	    GL_RGBA && outputimage->getPixelFormat()!=GL_RGB ) || 
-	    !outputimage->isDataContiguous() )
-	{
-	    pErrMsg("Image is in the wrong format");
-	    return false;
-	}
-
-	uiRGBArray rgbimage(outputimage->getPixelFormat()==GL_RGBA);
-	rgbimage.setSize( outputimage->s(), outputimage->t() );
-
-	if ( outputimage->getOrigin()==osg::Image::BOTTOM_LEFT )
-	    outputimage->flipVertical();
-
-	rgbimage.put( outputimage->data(), false, true );
-
-	const char* fmt = uiSaveImageDlg::getExtension();
-	return rgbimage.save( filepath.fullPath().buf(),fmt );
+	rgbhudimage.setSize( hudimg->s(), hudimg->t() );
+	rgbhudimage.put( hudimg->data(),false,true );
     }
 
-    return false;
+    uiRGBArray rgbmainimage( mainimg->getPixelFormat()==GL_RGBA );
+    rgbmainimage.setSize( mainimg->s(), mainimg->t() );
+
+    if ( !rgbmainimage.put( mainimg->data(), false, true ) )
+	return false;
+
+    if ( rgbhudimage.bufferSize()>0 )
+	rgbmainimage.blendWith( rgbhudimage );
+
+    rgbmainimage.save( filepath.fullPath().buf(),fmt );
+
+    return true;
+
+}
+
+
+osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
+			     osgViewer::View* view ) const
+{
+    osg::Image* outputimage = 0;
+    
+    osgGeo::TiledOffScreenRenderer tileoffrenderer( view,
+	visBase::DataObject::getCommonViewer() );
+    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ), 
+	mNINT32( sizepix_.height() ) );
+  
+    tileoffrenderer.setOutputBackgroundTransparency( 0 );
+
+    if ( tileoffrenderer.createOutput() )
+    {
+	const osg::Image* outimg = tileoffrenderer.getOutput();
+
+	if ( outimg )
+	    outputimage = (osg::Image*)outimg->clone( 
+	    osg::CopyOp::DEEP_COPY_ALL );
+
+    }
+
+    return outputimage;
+}
+
+
+bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image) const
+{
+    bool ret = true;
+
+    if ( ( image->getPixelFormat() != GL_RGBA && 
+	 image->getPixelFormat() !=GL_RGB ) || 
+	 !image->isDataContiguous() )
+    {
+	pErrMsg( "Image is in the wrong format." ) ;
+	ret = false;
+    }
+
+    return ret;
+}
+
+
+void uiPrintSceneDlg::flipImageVertical(osg::Image* image) const
+{
+    if ( !image ) return;
+    
+    if ( image->getOrigin()==osg::Image::BOTTOM_LEFT )
+    {
+	image->flipVertical();
+    }
+    
 }
 
 
