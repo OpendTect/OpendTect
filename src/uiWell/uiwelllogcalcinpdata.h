@@ -43,7 +43,7 @@ protected:
     uiCheckBox*		udfbox_;
     uiToolButton*	vwbut_;
 
-    Well::Log*          convertedlog_;
+    Well::Log*          loginsi_;
 
     void		showHideVwBut(CallBacker*);
     void		vwLog(CallBacker*);

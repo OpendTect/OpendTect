@@ -32,7 +32,7 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
     : uiMathExpressionVariable(inpgrp,fieldnr,true,&p->lognms_)
     , wls_(&p->wls_)
-    , convertedlog_(0)
+    , loginsi_(0)
 {
     vwbut_ = new uiToolButton( varfld_, "view_log", "Display this log",
 				mCB(this,uiWellLogCalcInpData,vwLog) );
@@ -47,7 +47,7 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 
 uiWellLogCalcInpData::~uiWellLogCalcInpData()
 {
-    delete convertedlog_;
+    delete loginsi_;
 }
 
 
@@ -90,23 +90,20 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 
     const char* logunitnm = inpdata.wl_->unitMeasLabel();
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
-    const UnitOfMeasure* convertun = getUnit();
-    if ( logun == convertun )
+    if ( !logun )
 	return true;
 
-    delete convertedlog_;
-    convertedlog_ = new Well::Log( *inpdata.wl_ );
+    delete loginsi_;
+    loginsi_ = new Well::Log( *inpdata.wl_ );
     for ( int idx=0; idx<inpdata.wl_->size(); idx++ )
     {
 	const float initialval = inpdata.wl_->value( idx );
 	const float valinsi = logun
 		? logun->getSIValue( initialval ) : initialval;
-	const float convertedval = convertun
-		? convertun->getUserValueFromSI( valinsi ) : valinsi;
-	convertedlog_->valArr()[idx] = convertedval;
+	loginsi_->valArr()[idx] = valinsi;
     }
 
-    inpdata.wl_ = convertedlog_;
+    inpdata.wl_ = loginsi_;
     return true;
 }
 
