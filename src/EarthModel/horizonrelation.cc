@@ -76,7 +76,8 @@ void RelationTree::Node::fillChildren( const FileMultiString& fms,
 	if ( !node )
 	    continue;
 
-	children_ += node;
+	if ( !node->hasChild(this) )
+	    children_ += node;
     }
 }
 
@@ -158,11 +159,13 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RelationTree::Node* parentnode = nodes_[parents[idx]];
-	parentnode->children_.removeSingle( parentnode->children_.indexOf(node) );
+	parentnode->children_.removeSingle( 
+		parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
-	    if ( !parentnode->hasChild(childnode) )
+	    if ( !parentnode->hasChild(childnode) && 
+		 !childnode->hasChild(parentnode) )
 		parentnode->children_ += childnode;
 	}
     }
@@ -192,7 +195,7 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
 	nodes_ += node2;
     }
 
-    if ( !node1->hasChild(node2) )
+    if ( !node1->hasChild(node2) && !node2->hasChild(node1) )
     {
 	node1->children_ += node2;
 	if ( dowrite )
