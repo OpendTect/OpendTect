@@ -50,8 +50,7 @@ protected:
     bool		acceptOK(CallBacker*);
     osg::Image*		offScreenRenderViewToImage(osgViewer::View*);
 			/*! The returned image is not referenced yet. */
-    const int		validateImages(
-				     const osg::Image*,const osg::Image*);
+    int			validateImages(const osg::Image*,const osg::Image*);
     bool		hasImageValidFormat(const osg::Image*);
     void		flipImageVertical(osg::Image*);
     bool		saveImages(const osg::Image*,const osg::Image*);
