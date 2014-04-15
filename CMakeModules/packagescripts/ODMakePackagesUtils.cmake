@@ -4,6 +4,8 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
+#TODO Change macro names to CAPITAL letters.
+
 macro ( create_package PACKAGE_NAME )
     file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin )
 
@@ -138,6 +140,25 @@ macro( copy_thirdpartylibs )
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
 		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
 endmacro( copy_thirdpartylibs )
+
+macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
+    if( WIN32 )
+	foreach( THIRDPARTYDLL ${OD_THIRD_PARTY_LIBS} )
+	    get_filename_component(FILENM ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${THIRDPARTYDLL} NAME_WE)
+	    string( FIND ${FILENM} "4" ISQTFILE )
+	    string( FIND ${FILENM} "osg" ISOSGFILE )
+	    string( FIND ${FILENM} "OpenThreads" OSGOTFILE )
+	if ( NOT "${ISQTFILE}" EQUAL -1 ) #  File is Qt
+	    string(REGEX REPLACE "4" "d4" QTDEBUGFILENAME ${FILENM} )
+	    list(APPEND ${DEBUGFILELIST} ${QTDEBUGFILENAME}.dll )
+	elseif ( (NOT "${ISOSGFILE}" EQUAL -1) OR (NOT "${OSGOTFILE}" EQUAL -1) ) # File is osg
+	    string(REGEX REPLACE "${FILENM}" "${FILENM}d" OSGDEBUGFILENAME ${FILENM} )
+	    list(APPEND ${DEBUGFILELIST} ${OSGDEBUGFILENAME}.dll )
+	endif()
+	endforeach()
+	list(REMOVE_DUPLICATES ${DEBUGFILELIST} )
+    endif()
+endmacro()
 
 macro( copy_unix_systemlibs )
     message( "Copying ${OD_PLFSUBDIR} system libraries" )
@@ -338,6 +359,12 @@ macro( create_develpackages )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${SOURCE_DIR}/bin/od_cr_dev_env.bat
 			 ${DESTINATION_DIR}/bin )
+	PREPARE_WIN_THIRDPARTY_DEBUGLIST( DEBUGLIST )
+	foreach( TLIB ${DEBUGLIST} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${TLIB}
+				${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+		endforeach()
     endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
