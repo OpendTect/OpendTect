@@ -15,6 +15,7 @@ SET( INCLUDES
     ODDocumentation
     ODPackages
     ODTesting
+    ODTranslation
     ODIttNotifyUtils
 )
 
