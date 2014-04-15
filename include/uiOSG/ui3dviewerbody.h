@@ -50,6 +50,7 @@ namespace osg
     class Viewport;
 }
 
+namespace osgViewer { class View; }
 
 //!Baseclass for different body implementation (direct & indirect) of OSG
 
@@ -105,6 +106,7 @@ public:
     void			setAnimationEnabled(bool) {} // OSG-TODO
     bool			isAnimationEnabled()	{ return true; }
     void			showRotAxis(bool);
+    void			showThumbWheels(bool);
     bool			isAxisShown() const;
     void			setAnnotColor(const Color&);
     visBase::PolygonSelection*	getPolygonSelector() const;
@@ -116,6 +118,9 @@ public:
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }
     void			fillCameraPos(IOPar&) const;
     bool			useCameraPos(const IOPar&);
+    const osgViewer::View*	getOsgViewerMainView() const { return view_; }
+    const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
+
 
 
 
@@ -158,6 +163,7 @@ protected:
     osg::Viewport*			viewport_;
 
     osgViewer::View*			hudview_;
+    osg::Switch*			offscreenrenderhudswitch_;
     RefMan<visBase::DataObjectGroup>	hudscene_;
 
     uiEventFilter			eventfilter_;

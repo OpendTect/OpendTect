@@ -184,6 +184,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , handle_( h )
     , printpar_(*new IOPar)
     , offscreenrenderswitch_( new osg::Switch )
+    , offscreenrenderhudswitch_( new osg::Switch )
     , hudview_( 0 )
     , hudscene_( 0 )
     , viewport_( new osg::Viewport )
@@ -196,6 +197,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
+    offscreenrenderhudswitch_->ref();
     viewport_->ref();
     eventfilter_.addEventType( uiEventFilter::KeyPress );
     eventfilter_.addEventType( uiEventFilter::Resize );
@@ -221,6 +223,7 @@ ui3DViewerBody::~ui3DViewerBody()
     }
     viewport_->unref();
     offscreenrenderswitch_->unref();
+    offscreenrenderhudswitch_->unref();
     detachAllNotifiers();
 }
 
@@ -253,7 +256,11 @@ void ui3DViewerBody::setupHUD()
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
-    hudview_->setSceneData( hudscene_->osgNode() );
+    offscreenrenderhudswitch_->removeChild( 
+	0, offscreenrenderhudswitch_->getNumChildren() );
+    offscreenrenderhudswitch_->addChild( hudscene_->osgNode() );
+    hudview_->setSceneData( offscreenrenderhudswitch_ );
+
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
@@ -280,7 +287,7 @@ void ui3DViewerBody::setupHUD()
     {
 	axes_ = visBase::Axes::create();
 	axes_->setSize( 5.0f, 55.0f );
-	hudcamera->addChild( axes_->osgNode() );
+	hudscene_->addObject( axes_ );
 	if ( camera_ )
 	    axes_->setMasterCamera( camera_ );
     }
@@ -296,7 +303,10 @@ void ui3DViewerBody::setupHUD()
     {
 	visscenecoltab_ = visBase::SceneColTab::create();
 	hudscene_->addObject( visscenecoltab_ );
-	visscenecoltab_->setAnnotFont( FontData() );
+	
+	FontData ftdata;
+	ftdata.setPointSize( 18 );
+	visscenecoltab_->setAnnotFont( ftdata );
 	visscenecoltab_->turnOn( false );
 	visscenecoltab_->setPos( visBase::SceneColTab::Bottom );
     }
@@ -575,6 +585,14 @@ void ui3DViewerBody::showRotAxis( bool yn )
 bool ui3DViewerBody::isAxisShown() const
 {
     return axes_->isOn();
+}
+
+
+void ui3DViewerBody::showThumbWheels( bool yn )
+{
+   horthumbwheel_->turnOn( yn );
+   verthumbwheel_->turnOn( yn );
+   distancethumbwheel_->turnOn( yn );
 }
 
 
@@ -1336,6 +1354,11 @@ void ui3DViewer::showRotAxis( bool yn )
     osgbody_->showRotAxis( yn );
 }
 
+void ui3DViewer::showThumbWheels( bool yn )
+{
+    osgbody_->showThumbWheels( yn );
+}
+
 
 bool ui3DViewer::rotAxisShown() const
 {
@@ -1445,4 +1468,17 @@ visBase::Scene* ui3DViewer::getScene()
 
 const visBase::Scene* ui3DViewer::getScene() const
 { return const_cast<ui3DViewer*>(this)->getScene(); }
+
+
+const osgViewer::View*	ui3DViewer::getOsgViewerMainView() const
+{
+    return osgbody_->getOsgViewerMainView();
+}
+
+
+const osgViewer::View*	ui3DViewer::getOsgViewerHudView() const
+{
+    return osgbody_->getOsgViewerHudView();
+}
+
 

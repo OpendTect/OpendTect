@@ -24,6 +24,7 @@ class ui3DViewerBody;
 class BufferStringSet;
 
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; };
+namespace osgViewer { class View; }
 
 mExpClass(uiOSG) ui3DViewer : public uiObject
 {
@@ -69,6 +70,7 @@ public:
     void		toHomePos();
     void		saveHomePos();
     void		showRotAxis(bool);
+    void		showThumbWheels(bool);
     void		setAnnotationColor(const Color&);
     Color		getAnnotationColor() const;
     bool		rotAxisShown() const;
@@ -97,6 +99,8 @@ public:
     void                setHeadOnLightIntensity(float);
     visBase::PolygonSelection*	getPolygonSelector() const;
     visBase::SceneColTab*	getSceneColTab() const;
+    const osgViewer::View*	getOsgViewerMainView() const;
+    const osgViewer::View*	getOsgViewerHudView() const;
 
 private:
 
