@@ -251,7 +251,10 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 	validsize = mainimage->s() == hudimage->s() && 
 		    mainimage->t() == hudimage->t(); 
 	if ( !validsize )
-	{pErrMsg("The size of main view image is different from hud image.");}
+	{
+	    pErrMsg("The size of main view image is different from hud image.");
+	    return OnlyMainViewImage;
+	}
     }
     
     if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
