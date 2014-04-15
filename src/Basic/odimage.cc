@@ -46,9 +46,11 @@ void RGBImage::fill( unsigned char* res ) const
 }
 
 
-bool RGBImage::put( unsigned char const* source, 
-		    bool xdir_slowest, bool opacity )
+bool RGBImage::put(unsigned char const* source,bool xdir_slowest, bool opacity)
 {
+    if ( !source )
+	return false;
+
     const int xsize = getSize( true );
     const int ysize = getSize( false );
     const char nrcomponents = nrComponents();
@@ -68,12 +70,14 @@ bool RGBImage::put( unsigned char const* source,
 		col.set( *pixelsource, *pixelsource, *pixelsource, 0 );
 	    else if ( nrcomponents==2 )
 		col.set( *pixelsource, *pixelsource, *pixelsource,
-			 pixelsource[1] );
+		pixelsource[1] );
 	    else if ( nrcomponents==3 )
 		col.set( *pixelsource, pixelsource[1], pixelsource[2], 0 );
 	    else
+	    {
 		col.set( *pixelsource, pixelsource[1], pixelsource[2],
-		         opacity ? 255-pixelsource[3] : pixelsource[3] );
+		opacity ? 255-pixelsource[3] : pixelsource[3] );
+	    }
 
 	    if ( !set( idx, idy, col ) )
 		return false;
@@ -82,7 +86,60 @@ bool RGBImage::put( unsigned char const* source,
 
     return true;
 }
-    
+
+
+bool RGBImage::blendWith( const RGBImage& sourceimage, 
+			  bool blendequaltransparency  )
+{
+    if ( sourceimage.bufferSize() != bufferSize() )
+	return false;
+
+    const int xsize = getSize( true );
+    const int ysize = getSize( false );
+
+    if ( sourceimage.getSize( true )  != xsize || 
+	 sourceimage.getSize( false ) != ysize )
+	return false;
+
+
+    for ( int idx=0; idx<xsize; idx++ )
+    {
+	for ( int idy=0; idy<ysize; idy++ )
+	{
+	    const Color color = get( idx, idy );
+	    const Color srccolor = sourceimage.get( idx, idy );
+
+	    double a2 = .0f;
+	    double a1 = .0f;
+
+	    if ( !blendequaltransparency )
+	    {
+		a1 = ( color.t()==srccolor.t()  ) ? 1.0f : color.t() / 255.0f;
+		a2 = ( color.t()==srccolor.t()  ) ? 0.0f : srccolor.t()/255.0f;
+	    }
+	    else
+	    {
+		a1 = color.t() / 255.0f;
+		a2 = srccolor.t()/255.0f;
+	    }
+
+	    const unsigned char r = 
+		(unsigned char)(a1 * color.r() + a2 * (1 - a1) * srccolor.r());
+	    const unsigned char g = 
+		(unsigned char)(a1 * color.g() + a2 * (1 - a1) * srccolor.g());
+	    const unsigned char b = 
+		(unsigned char)(a1 * color.b() + a2 * (1 - a1) * srccolor.b());
+	    const unsigned char t = 
+		(unsigned char)( 255 * (a1 + a2 * (1 - a1) ) );
+
+	    if ( !set( idx, idy, Color( r, g, b, t ) ) )
+		return false;
+	}
+    }
+
+    return true;
+}
+
 
 bool RGBImage::putFromBitmap(const unsigned char* bitmap,
     const unsigned char* maskptr )

@@ -51,6 +51,14 @@ public:
 			   False if ydir is the slowest dimension, param 
 			   with_opacity If true, eventual 4th component will be
 			   treated as a opacity instead of a transparency.*/
+   virtual bool		blendWith(const RGBImage& sourceimage,
+				  bool blendequaltransparency = false);
+			/*!<Blends image with another image of same size. The
+			    provided images' transparency will be used to blend 
+			    the two images proportionally.param 
+			    blendequaltransparency if false,the color will be 
+			    not blended when sourceimage has same transparency 
+			    as this image has.*/
     virtual bool	putFromBitmap(const unsigned char* bitmap, 
 				      const unsigned char* mask = 0);
     
