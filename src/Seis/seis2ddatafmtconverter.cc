@@ -186,6 +186,9 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData(
 	    IOPar* iop = (*all2dseisiopars_[idx])[lineidx];
 	    FilePath oldfp( oldfilepaths.get(numberoflines) );
 	    numberoflines++;
+	    if ( !File::exists(oldfp.fullPath()) )
+		continue;
+
 	    FilePath newfp( getAttrFolderPath( *iop ) );
 	    File::createDir( newfp.fullPath() );
 	    BufferString newfn( newfp.fileName() );
