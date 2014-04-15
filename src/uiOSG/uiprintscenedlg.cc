@@ -237,7 +237,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
 
 const int uiPrintSceneDlg::validateImages(const osg::Image* mainimage, 
-				          const osg::Image* hudimage)const
+				          const osg::Image* hudimage)
 {
     if ( !mainimage || !hasImageValidFormat(mainimage) ) 
     {
@@ -251,7 +251,7 @@ const int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 	validsize = mainimage->s() == hudimage->s() && 
 		    mainimage->t() == hudimage->t(); 
 	if ( !validsize )
-	   pErrMsg("The size of main view image is different from hud image's");
+	   pErrMsg("The size of main view image is different from hud image.");
     }
     
     if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
@@ -300,7 +300,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 
 
 osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
-			     osgViewer::View* view ) const
+			     osgViewer::View* view )
 {
     osg::Image* outputimage = 0;
     
@@ -325,7 +325,7 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 }
 
 
-bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image) const
+bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image)
 {
     bool ret = true;
 
@@ -341,7 +341,7 @@ bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image) const
 }
 
 
-void uiPrintSceneDlg::flipImageVertical(osg::Image* image) const
+void uiPrintSceneDlg::flipImageVertical(osg::Image* image)
 {
     if ( !image ) return;
     

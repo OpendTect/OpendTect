@@ -48,12 +48,12 @@ protected:
     void		typeSel(CallBacker*);
     void		sceneSel(CallBacker*);
     bool		acceptOK(CallBacker*);
-    osg::Image*		offScreenRenderViewToImage(osgViewer::View*) const;
+    osg::Image*		offScreenRenderViewToImage(osgViewer::View*);
 			/*! The returned image is not referenced yet. */
     const int		validateImages(
-				     const osg::Image*,const osg::Image*)const;
-    bool		hasImageValidFormat(const osg::Image*)const;
-    void		flipImageVertical(osg::Image*) const;
+				     const osg::Image*,const osg::Image*);
+    bool		hasImageValidFormat(const osg::Image*);
+    void		flipImageVertical(osg::Image*);
     bool		saveImages(const osg::Image*,const osg::Image*);
 
     const ObjectSet<ui3DViewer>& viewers_;
