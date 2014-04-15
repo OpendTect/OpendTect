@@ -44,7 +44,7 @@ public:
 			{ return varnms_.size(); }
     const char* uniqueVarName( int idx ) const
 			{ return varnms_.get(idx).buf(); }
-    int	indexOfUnVarName( const char* nm )
+    int	indexOfUnVarName( const char* nm ) const
 			{ return varnms_.indexOf( nm ); }
     int	firstOccurVarName(const char*) const;
 

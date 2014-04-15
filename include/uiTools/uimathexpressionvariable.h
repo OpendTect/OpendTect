@@ -25,42 +25,46 @@ mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
 {
 public:
 
-				uiMathExpressionVariable(uiGroup*,
-						const BufferStringSet&,
-						int varidx,
-						bool displayuom=true);
+				uiMathExpressionVariable(uiParent*,
+					    int varidx,bool displayuom=true,
+					    const BufferStringSet* inpnms=0);
 
-    virtual bool		use(const Math::Formula&);
-				    //!< returns whether field is displayed
-    virtual bool		use(const Math::Expression*);
-				    //!< returns whether field is displayed
+    virtual void		use(const Math::Formula&);
+    virtual void		use(const Math::Expression*);
 
     const BufferString&		varName() const		{ return varnm_; }
     bool                        hasVarName( const char* nm ) const
 							{ return varnm_ == nm; }
 
+    bool			isActive() const	{ return isactive_; }
+    bool			isConst() const		{ return isconst_; }
     const char*			getInput() const;
+    const UnitOfMeasure*	getUnit() const;
+    void			fill(Math::Formula&) const;
+
+    void			selectInput(const char*,bool exact=false);
     void			setUnit(const UnitOfMeasure*);
     void			setUnit(const char*);
-    const UnitOfMeasure*	getUnit() const;
-    float			getCstVal() const;
-    bool			isCst() const;
-    void			setCurSelIdx(int);
 
     Notifier<uiMathExpressionVariable> inpSel;
 
 protected:
 
+    void			initFlds(CallBacker*);
     void			selChg(CallBacker*);
 
     const int			varidx_;
-    uiLabeledComboBox*		inpfld_;
-    uiUnitSel*			unfld_;
-    uiGenInput*			cstvalfld_;
-    const BufferStringSet&	posinpnms_;
     BufferString		varnm_;
+    bool			isactive_;
+    bool			isconst_;
 
-    bool			newVar(const char*);
+    uiLabeledComboBox*		varfld_;
+    uiGenInput*			constfld_;
+    uiUnitSel*			unfld_;
+
+    void			updateDisp();
+    void			setActive(bool);
+    void			setVariable(const char*);
 
 };
 

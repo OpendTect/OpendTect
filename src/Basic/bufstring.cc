@@ -592,17 +592,37 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 
 int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 {
-    if ( isEmpty() ) return -1;
     const int sz = size();
-    if ( sz < 2 ) return 0;
+    if ( sz < 2 )
+	return sz - 1;
     if ( !s ) s = "";
 
-    int mindist = -1; int minidx = -1;
-    for ( int idx=0; idx<sz; idx++ )
+    const CaseSensitivity cs = caseinsens ? CaseInsensitive : CaseSensitive;
+    TypeSet<int> candidates;
+    if ( FixedString(s).size() > 1 )
     {
-	const int curdist = getMatchDist( get(idx), s, !caseinsens );
+	for ( int idx=0; idx<sz; idx++ )
+	    if ( get(idx).startsWith(s,cs) )
+		candidates += idx;
+	if ( candidates.isEmpty() )
+	{
+	    const BufferString matchstr( "*", s, "*" );
+	    for ( int idx=0; idx<sz; idx++ )
+		if ( get(idx).matches(matchstr,cs) )
+		    candidates += idx;
+	}
+    }
+    if ( candidates.isEmpty() )
+	for ( int idx=0; idx<sz; idx++ )
+	    candidates += idx;
+
+    int mindist = -1; int minidx = -1;
+    for ( int idx=0; idx<candidates.size(); idx++ )
+    {
+	const int myidx = candidates[idx];
+	const int curdist = getMatchDist( get(myidx), s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
-	    { mindist = curdist; minidx = idx; }
+	    { mindist = curdist; minidx = myidx; }
     }
     return minidx;
 }

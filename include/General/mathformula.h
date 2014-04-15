@@ -64,7 +64,8 @@ public:
     int			nrInputs() const	{ return inps_.size(); }
     const char*		variableName( int iinp ) const
 						{ return inps_[iinp].varname_; }
-    bool		isConst( int iinp )	{ return inps_[iinp].isconst_; }
+    bool		isConst( int iinp ) const
+						{ return inps_[iinp].isconst_; }
     bool		isRecursive() const	{ return maxRecShift() > 0; }
     int			maxRecShift() const	{ return recstartvals_.size(); }
 
@@ -76,6 +77,7 @@ public:
     void		setOutputUnit( const UnitOfMeasure* uom )
 						{ outputunit_ = uom; }
     TypeSet<double>&	recStartVals()		{ return recstartvals_; }
+    void		clearInputDefs();
 
 		// 3. Things you have set yourself or that were retrieved
 

@@ -97,6 +97,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     setCtrlStyle( RunAndClose );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
+    const CallBack formunitcb( mCB(this,uiWellLogCalc,formUnitSel) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
     uiMathExpression::Setup mesu( "Formula (like 'den / son')" );
@@ -125,6 +126,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formulaunfld_ = new uiUnitSel( inpgrp, uussu );
     formulaunfld_->attach( alignedBelow,
 		    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
+    formulaunfld_->propSelChange.notify( formunitcb );
+    formulaunfld_->selChange.notify( formunitcb );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
@@ -219,11 +222,7 @@ bool uiWellLogCalc::updateForm( Math::Formula& form ) const
 	return false;
 
     for ( int idx=0; idx<form.nrInputs(); idx++ )
-    {
-	const uiWellLogCalcInpData& inpfld = *inpdataflds_[idx];
-	form.setInputDef( idx, inpfld.getInput() );
-	form.setInputUnit( idx, inpfld.getUnit() );
-    }
+	inpdataflds_[idx]->fill( form );
 
     form.setOutputUnit( formulaunfld_->getUnit() );
     return true;
@@ -235,24 +234,34 @@ bool uiWellLogCalc::useForm( const Math::Formula& form,
 {
     const bool isbad = form.isBad();
     formfld_->setText( isbad ? "" : form.text() );
-    formulaunfld_->setUnit( isbad ? 0 : form.outputUnit() );
+    const UnitOfMeasure* formun = isbad ? 0 : form.outputUnit();
+    formulaunfld_->setUnit( formun );
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
 	uiWellLogCalcInpData& inpfld = *inpdataflds_[idx];
-	inpfld.use( form );
-	if ( !isbad )
+	if ( !isbad && idx<form.nrInputs() )
 	{
 	    const PropertyRef::StdType ptyp
 		= inputtypes && inputtypes->validIdx(idx) ? (*inputtypes)[idx]
 							  : PropertyRef::Other;
-	    inpfld.restrictLogChoice( ptyp );
+	    inpfld.setProp( ptyp );
 	}
+	inpfld.use( form );
     }
 
     if ( isbad )
     {
 	uiMSG().error( BufferString("Invalid expression:\n",form.errMsg()));
 	return false;
+    }
+
+    const PropertyRef::StdType prevtyp = outunfld_->propType();
+    const PropertyRef::StdType newtyp = formun ? formun->propType()
+					       : PropertyRef::Other;
+    if ( prevtyp != newtyp )
+    {
+	outunfld_->setPropType( newtyp );
+	outunfld_->setUnit( UoMR().getInternalFor(newtyp) );
     }
 
     return checkValidNrInputs( form );
@@ -298,6 +307,10 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
 	return;
 
     useForm( newform, &inputtypes );
+
+    const UnitOfMeasure* outun = newform.outputUnit();
+    if ( outun )
+	outunfld_->setPropType( outun->propType() );
 }
 
 
@@ -316,7 +329,21 @@ void uiWellLogCalc::formSet( CallBacker* )
 {
     Math::Formula form;
     if ( updateForm(form) )
+    {
+	form.clearInputDefs();
 	useForm( form );
+    }
+}
+
+
+void uiWellLogCalc::formUnitSel( CallBacker* )
+{
+    const UnitOfMeasure* formun = formulaunfld_->getUnit();
+    if ( !formun ) return;
+
+    const UnitOfMeasure* curoutun = outunfld_->getUnit();
+    if ( !curoutun || curoutun->propType() != formun->propType() )
+	outunfld_->setUnit( formun );
 }
 
 
@@ -329,7 +356,7 @@ void uiWellLogCalc::inpSel( CallBacker* )
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
 	const Well::Log* wl = inpdataflds_[idx]->getLog();
-	if ( !wl && !inpdataflds_[idx]->isCst() )
+	if ( !wl && !inpdataflds_[idx]->isConst() )
 		{ pErrMsg("Huh"); continue; }
 	if ( !wl || wl->isEmpty() )
 	    continue;
@@ -579,8 +606,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout, const Math::Formula& form,
 		const float val = inpd.wl_->getValue( curdah, inpd.noudf_ );
 		inpvals[iinp] = val;
 	    }
-	    else if ( inpd.iscst_ )
-		inpvals[iinp] = inpd.cstval_;
+	    else if ( inpd.isconst_ )
+		inpvals[iinp] = inpd.constval_;
 	    else
 	    {
 		float val = mUdf(float);

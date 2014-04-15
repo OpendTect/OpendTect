@@ -28,83 +28,170 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
 
-uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
-				const BufferStringSet& posinpnms,
-				int varidx, bool displayuom )
-    : uiGroup(inpgrp,"Inp data group")
+uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
+		    int varidx, bool displayuom, const BufferStringSet* inpnms )
+    : uiGroup(p,BufferString("MathExprVar ",varidx))
     , varidx_(varidx)
-    , posinpnms_(posinpnms)
+    , isconst_(false)
+    , isactive_(true)
     , unfld_(0)
     , inpSel(this)
 {
-    BufferString lblstr = "For 'input' use";
-    inpfld_ = new uiLabeledComboBox( this, posinpnms_, lblstr.buf(),
+    BufferStringSet emptybss;
+    if ( !inpnms ) inpnms = &emptybss;
+    const BufferString lblstr( "For input number ", varidx_, " use" );
+    varfld_ = new uiLabeledComboBox( this, *inpnms, lblstr,
 				     BufferString("input ",varidx_) );
-    inpfld_->label()->setPrefWidthInChar( 35 );
-    inpfld_->label()->setAlignment( Alignment::Right );
-    inpfld_->box()->addItem( "Constant" );
+    varfld_->label()->setPrefWidthInChar( 35 );
+    varfld_->label()->setAlignment( Alignment::Right );
     int selidx = varidx_;
-    if ( selidx >= posinpnms_.size() ) selidx = posinpnms_.size();
-    inpfld_->box()->setCurrentItem( selidx );
-    inpfld_->box()->selectionChanged.notify(
+    if ( selidx >= inpnms->size() )
+	selidx = inpnms->size() - 1;
+    varfld_->box()->setCurrentItem( selidx );
+    varfld_->box()->selectionChanged.notify(
 			mCB(this,uiMathExpressionVariable,selChg) );
+
+    constfld_ = new uiGenInput( this, "Value for 'c0'", FloatInpSpec() );
+    constfld_->attach( alignedWith, varfld_ );
 
     if ( displayuom )
     {
 	uiUnitSel::Setup uussu( PropertyRef::Other, "convert to:" );
 	uussu.withnone( true );
 	unfld_ = new uiUnitSel( this, uussu );
-	unfld_->attach( rightTo, inpfld_ );
     }
 
-    cstvalfld_ = new uiGenInput( this, "value", FloatInpSpec() );
-    cstvalfld_->attach( rightOf, inpfld_ );
-    cstvalfld_->display( false );
-
-    setHAlignObj( inpfld_ );
+    setHAlignObj( varfld_ );
+    preFinalise().notify( mCB(this,uiMathExpressionVariable,initFlds) );
 }
 
 
-bool uiMathExpressionVariable::newVar( const char* varnm )
+void uiMathExpressionVariable::initFlds( CallBacker* )
+{
+    updateDisp();
+    if ( unfld_ )
+    {
+	unfld_->attach( rightTo, varfld_ );
+	unfld_->attach( ensureRightOf, constfld_ );
+    }
+}
+
+
+void uiMathExpressionVariable::updateDisp()
+{
+    varfld_->display( isactive_ && !isconst_ );
+    constfld_->display( isactive_ && isconst_ );
+    if ( unfld_ )
+	unfld_->display( isactive_ && !isconst_ );
+}
+
+
+void uiMathExpressionVariable::setActive( bool yn )
+{
+    isactive_ = yn;
+    updateDisp();
+}
+
+
+void uiMathExpressionVariable::setVariable( const char* varnm )
 {
     varnm_ = varnm;
-    display( true );
-    BufferString inplbl = "For '"; inplbl += varnm_; inplbl += "' use";
-    inpfld_->label()->setText( inplbl.buf() );
-    return true;
+    BufferString lbltxt( "For '", varnm_,  "' use" );
+    varfld_->label()->setText( lbltxt.buf() );
+    lbltxt.set( "Value for '" ).add( varnm_ ).add( "'" );
+    constfld_->setTitleText( lbltxt );
+    setActive( true );
 }
 
 
-bool uiMathExpressionVariable::use( const Math::Expression* expr )
+void uiMathExpressionVariable::use( const Math::Expression* expr )
 {
     varnm_.setEmpty();
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     if ( varidx_ >= nrvars )
-	{ display( false ); return false; }
+	{ setActive( false ); return; }
     const BufferString varnm = expr->uniqueVarName( varidx_ );
     if ( specvars.isPresent(varnm.buf()) )
-	{ display( false ); return false; }
-    return newVar( varnm );
+	{ setActive( false ); return; }
+
+    const int varidx = expr->indexOfUnVarName( expr->uniqueVarName(varidx_) );
+    isconst_ = expr->getType(varidx) == Math::Expression::Constant;
+    setVariable( varnm );
 }
 
 
-bool uiMathExpressionVariable::use( const Math::Formula& form )
+void uiMathExpressionVariable::use( const Math::Formula& form )
 {
     varnm_.setEmpty();
     const int nrvars = form.nrInputs();
     if ( varidx_ >= nrvars )
-	{ display( false ); return false; }
+	{ setActive( false ); return; }
     const BufferString varnm = form.variableName( varidx_ );
     if ( specvars.isPresent(varnm.buf()) )
-	{ display( false ); return false; }
+	{ setActive( false ); return; }
 
-    return newVar( varnm );
+    isconst_ = form.isConst( varidx_ );
+    setVariable( varnm );
+
+    if ( isconst_ )
+	constfld_->setValue( toFloat(form.inputDef(varidx_)) );
+    else
+    {
+	BufferString inpdef( form.inputDef(varidx_) );
+	selectInput( inpdef.isEmpty() ? varnm.buf() : inpdef.buf() );
+	constfld_->setValue( mUdf(float) );
+    }
+
+    setUnit( form.inputUnit(varidx_) );
+}
+
+
+void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
+{
+    if ( !inpnm ) inpnm = "";
+
+    if ( varfld_->box()->isEmpty() )
+    {
+	isconst_ = true;
+	updateDisp();
+	return;
+    }
+
+    isconst_ = false;
+    updateDisp();
+    BufferString varnm( inpnm );
+    if ( !exact )
+    {
+	BufferStringSet avnms; varfld_->box()->getItems( avnms );
+	const int nearidx = avnms.nearestMatch( inpnm );
+	varnm = avnms.get( nearidx );
+    }
+
+    varfld_->box()->setCurrentItem( varnm );
 }
 
 
 const char* uiMathExpressionVariable::getInput() const
 {
-    return inpfld_->box()->text();
+    return isconst_ ? constfld_->text() : varfld_->box()->text();
+}
+
+
+const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
+{
+    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
+	return 0;
+    return unfld_->getUnit();
+}
+
+
+void uiMathExpressionVariable::fill( Math::Formula& form ) const
+{
+    if ( form.nrInputs() <= varidx_ )
+	return;
+
+    form.setInputDef( varidx_, getInput() );
+    form.setInputUnit( varidx_, getUnit() );
 }
 
 
@@ -122,39 +209,7 @@ void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
 }
 
 
-const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
-{
-    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
-	return 0;
-    return unfld_->getUnit();
-}
-
-
-float uiMathExpressionVariable::getCstVal() const
-{
-    return cstvalfld_->mainObject()->isDisplayed() ? cstvalfld_->getfValue()
-						   : mUdf(float);
-}
-
-
-bool uiMathExpressionVariable::isCst() const
-{
-    return cstvalfld_->mainObject()->isDisplayed();
-}
-
-
 void uiMathExpressionVariable::selChg( CallBacker* )
 {
-    const int selidx = inpfld_->box()->currentItem();
-    const bool iscst = selidx == posinpnms_.size();
-    if ( unfld_ ) unfld_->display( !iscst );
-    if ( cstvalfld_ ) cstvalfld_->display( iscst );
-
     inpSel.trigger();
-}
-
-
-void uiMathExpressionVariable::setCurSelIdx( int idx )
-{
-    inpfld_->box()->setCurrentItem( idx );
 }

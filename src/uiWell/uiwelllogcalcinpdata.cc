@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uiwelllogdisplay.h"
 #include "uiunitsel.h"
 
@@ -29,21 +30,18 @@ static const BufferStringSet specvars( specvararr );
 
 uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 					    int fieldnr )
-    : uiMathExpressionVariable(inpgrp,p->lognms_,fieldnr)
+    : uiMathExpressionVariable(inpgrp,fieldnr,true,&p->lognms_)
     , wls_(&p->wls_)
     , convertedlog_(0)
 {
-    uiToolButton* tb = new uiToolButton( this, "view_log", "Display this log",
+    vwbut_ = new uiToolButton( varfld_, "view_log", "Display this log",
 				mCB(this,uiWellLogCalcInpData,vwLog) );
-    tb->attach( rightOf, inpfld_ );
-    unfld_->attach( ensureRightOf, tb );
+    vwbut_->attach( rightOf, varfld_->box() );
+    inpSel.notify( mCB(this,uiWellLogCalcInpData,showHideVwBut) );
 
-    udfbox_ = new uiCheckBox( this, "Fill empty sections" );
+    udfbox_ = new uiCheckBox( unfld_, "Fill empty sections" );
     udfbox_->setChecked();
-    if ( unfld_ )
-	udfbox_->attach( rightOf, unfld_ );
-    else
-	udfbox_->attach( rightOf, inpfld_ );
+    udfbox_->attach( rightOf, unfld_->inpFld() );
 }
 
 
@@ -53,18 +51,29 @@ uiWellLogCalcInpData::~uiWellLogCalcInpData()
 }
 
 
+void uiWellLogCalcInpData::showHideVwBut( CallBacker* )
+{
+    vwbut_->display( !isConst() );
+}
+
+
 const Well::Log* uiWellLogCalcInpData::getLog()
 {
-    return wls_->getLog( inpfld_->box()->text() );
+    return wls_->getLog( varfld_->box()->text() );
 }
 
 
 bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
 {
-    if ( isCst() )
+    inpdata.isconst_ = isConst();
+    if ( inpdata.isconst_ )
     {
-	inpdata.iscst_ = true;
-	inpdata.cstval_ = getCstVal();
+	inpdata.constval_ = toFloat( getInput() );
+	if ( mIsUdf(inpdata.constval_) )
+	{
+	    uiMSG().error( BufferString("Please enter a value for ",varnm_) );
+	    return false;
+	}
 	return true;
     }
 
@@ -83,7 +92,7 @@ bool uiWellLogCalcInpData::getInp( uiWellLogCalc::InpData& inpdata )
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     const UnitOfMeasure* convertun = getUnit();
     if ( logun == convertun )
-	return inpdata.wl_;
+	return true;
 
     delete convertedlog_;
     convertedlog_ = new Well::Log( *inpdata.wl_ );
@@ -115,14 +124,16 @@ void uiWellLogCalcInpData::vwLog( CallBacker* )
 }
 
 
-void uiWellLogCalcInpData::restrictLogChoice( const PropertyRef::StdType& type )
+void uiWellLogCalcInpData::setProp( const PropertyRef::StdType& type )
 {
     if ( !wls_ )
 	return;
 
     TypeSet<int> propidxs = wls_->getSuitable( type );
-    inpfld_->box()->setEmpty();
+    varfld_->box()->setEmpty();
     for ( int idx=0; idx<propidxs.size(); idx++ )
-	inpfld_->box()->addItem( wls_->getLog(idx).name() );
-    inpfld_->box()->addItem( "Constant" );
+	varfld_->box()->addItem( wls_->getLog(propidxs[idx]).name() );
+
+    if ( unfld_ )
+	unfld_->setPropType( type );
 }

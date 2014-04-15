@@ -70,7 +70,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     for ( int idx=0; idx<cMaxNrInps; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(
-				varsgrp, availpropnms, idx, true );
+				varsgrp, idx, true, &availpropnms );
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
 	inpdataflds_ += fld;
@@ -131,13 +131,11 @@ void uiMathPropEdDlg::updVarsOnScreen( CallBacker* cb )
 {
     updateMathExpr();
     nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;
-    BufferStringSet possinps;
-    propfld_->getItems( possinps );
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
 	uiMathExpressionVariable* uimev = inpdataflds_[idx];
 	uimev->use( expr_ );
-	uimev->setCurSelIdx( possinps.nearestMatch( uimev->varName() ) );
+	uimev->selectInput( uimev->varName() );
     }
 
     if ( nrvars_ )

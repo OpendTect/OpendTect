@@ -103,6 +103,8 @@ protected:
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			propSelChg(CallBacker*);
+    void			setPropFld(PropertyRef::StdType);
+    void			setUnFld(const UnitOfMeasure*);
     void			update();
     const char*			getSelTxt(const UnitOfMeasure*) const;
     const UnitOfMeasure*	gtUnit() const;

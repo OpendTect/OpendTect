@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "ioman.h"
 
+static const char* sDispNone = "-";
+
 
 uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")
@@ -51,6 +53,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
 
 void uiUnitSel::init()
 {
+    units_.allowNull( true );
     tblkey_ = setup_.lbltxt_;
     if ( tblkey_.isEmpty() )
 	tblkey_ = PropertyRef::StdTypeNames()[setup_.ptype_];
@@ -82,7 +85,6 @@ void uiUnitSel::init()
     }
 
     update();
-    usePar( lastUsed() );
 }
 
 
@@ -109,42 +111,57 @@ IOPar& uiUnitSel::lastUsed()
 }
 
 
+void uiUnitSel::setPropFld( PropertyRef::StdType typ )
+{
+    setup_.ptype_ = typ;
+    if ( propfld_ )
+    {
+	NotifyStopper nst( propfld_->selectionChanged );
+	propfld_->setCurrentItem( (int)typ );
+	inpfld_->setCurrentItem( 0 );
+    }
+    update();
+}
+
+
+void uiUnitSel::setUnFld( const UnitOfMeasure* un )
+{
+    if ( !un && !setup_.withnone_ )
+	un = UoMR().getInternalFor( setup_.ptype_ );
+
+    int selidx = -1;
+    for ( int idx=0; idx<units_.size(); idx++ )
+    {
+	if ( units_[idx] == un )
+	    { selidx = idx; break; }
+    }
+    if ( selidx < 0 && setup_.withnone_ )
+	selidx = 0;
+
+    if ( selidx >= 0 )
+    {
+	inpfld_->setCurrentItem( selidx );
+	if ( selidx > 0 || !setup_.withnone_ )
+	    fillPar( lastUsed() );
+    }
+}
+
+
 void uiUnitSel::setUnit( const UnitOfMeasure* un )
 {
-    if ( !un )
-    {
-	if ( !setup_.withnone_ )
-	    un = UoMR().getInternalFor( setup_.ptype_ );
-	else
-	    { inpfld_->setCurrentItem( 0 ); return; }
-    }
-
-    if ( un )
-	setUnit( un->name() );
+    setPropFld( un ? un->propType() : PropertyRef::Other );
+    setUnFld( un );
 }
 
 
 void uiUnitSel::setUnit( const char* unitnm )
 {
-    if ( !unitnm || !*unitnm )
-	{ const UnitOfMeasure* un = 0; setUnit( un ); }
-    else if ( inpfld_->isPresent(unitnm) )
-	inpfld_->setCurrentItem( unitnm );
-    else
-    {
-	for ( int idx=0; idx<units_.size(); idx++ )
-	{
-	    const UnitOfMeasure& un = *units_[idx];
-	    const BufferString unnm( un.name() );
-	    const BufferString unsymb( un.symbol() );
-	    if ( unnm == unitnm || unsymb == unitnm )
-		{
-		    inpfld_->setCurrentItem( setup_.withnone_ ? idx+1 : idx );
-		    break;
-		}
-	}
-    }
-    fillPar( lastUsed() );
+    const FixedString unnm( unitnm );
+    const UnitOfMeasure* un = 0;
+
+    if ( !unnm.isEmpty() && unnm != "-" )
+	un = UoMR().get( unitnm );
+    setUnit( un );
 }
 
 
@@ -158,8 +175,6 @@ const UnitOfMeasure* uiUnitSel::getUnit() const
 const UnitOfMeasure* uiUnitSel::gtUnit() const
 {
     int selidx = inpfld_->currentItem();
-    if ( setup_.withnone_ )
-	selidx -= 1;
     return units_.validIdx( selidx ) ? units_[selidx] : 0;
 }
 
@@ -204,16 +219,7 @@ double uiUnitSel::getInternalValue( double val ) const
 
 void uiUnitSel::setPropType( PropertyRef::StdType typ )
 {
-    if ( typ == setup_.ptype_ )
-	return;
-
-    setup_.ptype_ = typ;
-    if ( propfld_ )
-    {
-	NotifyStopper nst( propfld_->selectionChanged );
-	propfld_->setCurrentItem( (int)typ );
-    }
-    update();
+    setPropFld( typ );
     usePar( lastUsed() );
 }
 
@@ -240,7 +246,7 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 const char* uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 {
     if ( !un )
-	return "";
+	return sDispNone;
     else if ( setup_.mode_ == Setup::SymbolsOnly )
 	return un->symbol();
     else if ( setup_.mode_ == Setup::NamesOnly )
@@ -254,15 +260,17 @@ const char* uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 
 void uiUnitSel::update()
 {
-    const BufferString olddef( inpfld_->isEmpty() ? "" : inpfld_->text() );
+    const BufferString olddef( !inpfld_->isEmpty() ? inpfld_->text()
+				    : (setup_.withnone_ ? sDispNone : "") );
     inpfld_->setEmpty();
     if ( propfld_ )
 	setup_.ptype_ = (PropertyRef::StdType)propfld_->currentItem();
 
-    if ( setup_.withnone_ )
-	inpfld_->addItem( "-" );
     units_.erase();
     UoMR().getRelevant( setup_.ptype_, units_ );
+    if ( setup_.withnone_ )
+	units_.insertAt( 0, 0 );
+
     for ( int idx=0; idx<units_.size(); idx++ )
 	inpfld_->addItem( getSelTxt(units_[idx]) );
 

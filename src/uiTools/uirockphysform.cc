@@ -307,10 +307,9 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
     for ( int idx=0; idx<nrinps; idx++ )
     {
 	const RockPhysics::Formula::VarDef& vd = *fm->vardefs_[idx];
-	form.setInputDef( idx, vd.name() );
 	form.setInputUnit( idx, UoMR().get(vd.unit_) );
 	if ( sttypes )
-	    sttypes += vd.type_;
+	    *sttypes += vd.type_;
     }
 
     form.setOutputUnit( UoMR().get(fm->unit_) );

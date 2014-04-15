@@ -129,6 +129,16 @@ void Math::Formula::setInputUnit( int idx, const UnitOfMeasure* uom )
 }
 
 
+void Math::Formula::clearInputDefs()
+{
+    for ( int idx=0; idx<inps_.size(); idx++ )
+    {
+	inps_[idx].inpdef_.setEmpty();
+	inps_[idx].unit_ = 0;
+    }
+}
+
+
 void Math::Formula::startNewSeries() const
 {
     prevvals_ = recstartvals_;

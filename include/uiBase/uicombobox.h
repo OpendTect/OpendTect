@@ -66,6 +66,7 @@ public:
 				   int index=-1,int id=-1);
 
     const char*		textOfItem(int) const;
+    void		getItems(BufferStringSet&) const;
 
     void		setItemText(int,const uiString&);
     void		setPixmap(const ioPixmap&,int index);

@@ -68,17 +68,15 @@ protected:
     {
 			InpData( const Well::Log* w=0, int s=0, bool n=false )
 			    : wl_(w), shift_(s), noudf_(n), specidx_(-1)
-			    , cstval_(mUdf(float)), iscst_(false) {}
+			    , isconst_(false), constval_(0)	{}
 	bool		operator ==( const InpData& id ) const
-			{ return shift_ == id.shift_
-			    && iscst_ ? mIsEqual(cstval_,id.cstval_, 1e-3)
-				      : wl_ == id.wl_; }
+			{ return shift_ == id.shift_ && wl_ == id.wl_; }
 	const Well::Log* wl_;
 	int		shift_;
 	bool		noudf_;
 	int		specidx_;
-	float		cstval_;
-	bool		iscst_;
+	bool		isconst_;
+	float		constval_;
     };
 
     bool		checkValidNrInputs(const Math::Formula&) const;
@@ -98,6 +96,7 @@ protected:
     void		rockPhysReq(CallBacker*);
     void		feetSel(CallBacker*);
     void		formSet(CallBacker*);
+    void		formUnitSel(CallBacker*);
     void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 

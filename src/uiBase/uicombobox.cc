@@ -125,7 +125,7 @@ void uiComboBox::adjustWidth( const uiString& txt )
     const uiFont& controlfont =
 	uiFontList::getInst().get( FontData::key(FontData::Control) );
     const int txtwidth = controlfont.width( txt );
-    
+
     curwidth_ = curwidth_ >= txtwidth ? curwidth_ : txtwidth;
     body_->view()->setMinimumWidth( curwidth_ + 50 );
 }
@@ -346,6 +346,13 @@ int uiComboBox::getItemID( int index ) const
 
 int uiComboBox::getItemIndex( int id ) const
 { return itemids_.indexOf( id ); }
+
+
+void uiComboBox::getItems( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	nms.add( textOfItem( idx ) );
+}
 
 
 void uiComboBox::notifyHandler( bool selectionchanged )

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiwelllogcalc.h"
 
 class uiCheckBox;
+class uiToolButton;
 namespace Well { class Log; class LogSet; }
 namespace Math { class Formula; }
 
@@ -31,18 +32,20 @@ public:
 			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
 			~uiWellLogCalcInpData();
 
+    void		setProp(const PropertyRef::StdType&);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);
-    void		restrictLogChoice(const PropertyRef::StdType&);
 
     const Well::LogSet* wls_;
 
 protected:
 
     uiCheckBox*		udfbox_;
+    uiToolButton*	vwbut_;
 
     Well::Log*          convertedlog_;
 
+    void		showHideVwBut(CallBacker*);
     void		vwLog(CallBacker*);
 
 };
