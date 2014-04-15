@@ -480,7 +480,7 @@ void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
 {
     const bool multisel = lnmsfld_->nrSelected() > 1;
     trcrgfld_->setSensitive( !multisel );
-    zrgfld_->setSensitive( !multisel );
+    if ( zrgfld_ ) zrgfld_->setSensitive( !multisel );
     if ( multisel ) return;
 
     NotifyStopper ns( trcrgfld_->rangeChanged );
