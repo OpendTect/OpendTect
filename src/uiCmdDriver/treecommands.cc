@@ -880,7 +880,7 @@ void TreeCmdComposer::init()
     voideventnames_.add( "currentChanged" );
     voideventnames_.add( "itemChanged" );
     voideventnames_.add( "leftButtonPressed" );
-    voideventnames_.add( "rightButtonPressed" );
+    voideventnames_.add( "rightButtonClicked" );
     voideventnames_.add( "mouseButtonPressed" );
     voideventnames_.add( "mouseButtonClicked" );
     voideventnames_.add( "contextMenuRequested" );
@@ -1086,7 +1086,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
         mDynamicCastGet( uiTreeView*, uilview, ev.object_ );
 
 	const bool notileft = mMatchCI( notifiername, "leftButtonClicked" );
-	const bool notiright = mMatchCI( notifiername, "rightButtonClicked" );
+	const bool notiright = mMatchCI( notifiername, "rightButtonPressed" );
 
 	if ( stagenr_ == -1 )
 	    return true;
