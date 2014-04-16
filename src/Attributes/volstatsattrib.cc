@@ -78,6 +78,14 @@ void VolStatsBase::initDesc( Desc& desc )
     int res =0;
     while ( outputtypes[res++] != -1 )
 	desc.addOutputDataType( Seis::UnknowData );
+
+    EnumParam* shape = new EnumParam( shapeStr() );
+    //Note: Ordering must be the same as numbering!
+    shape->addEnum( shapeTypeStr(mShapeRectangle) );
+    shape->addEnum( shapeTypeStr(mShapeEllipse) );
+    shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
+    shape->setDefaultValue( mShapeEllipse );
+    desc.addParam( shape );
 }
 
 
@@ -204,15 +212,7 @@ void VolStats::initClass()
 {
     mAttrStartInitClassWithDescAndDefaultsUpdate
     initDesc( *desc );
-
-    EnumParam* shape = new EnumParam( shapeStr() );
-    //Note: Ordering must be the same as numbering!
-    shape->addEnum( shapeTypeStr(mShapeRectangle) );
-    shape->addEnum( shapeTypeStr(mShapeEllipse) );
-    shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
-    shape->setDefaultValue( mShapeEllipse );
-    desc->addParam( shape );
-
+        
     BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
     edgeeffect->setDefaultValue( true );
     edgeeffect->setRequired( false );
