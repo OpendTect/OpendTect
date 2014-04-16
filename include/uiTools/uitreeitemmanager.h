@@ -34,18 +34,19 @@ class uiParent;
 mExpClass(uiTools) uiTreeItem	: public CallBacker
 {
 public:
-    				uiTreeItem(const char* nm);
+				uiTreeItem(const char* nm=0);
     virtual			~uiTreeItem();
     virtual void		prepareForShutdown();
-    				/*!<Override if you want to popup dlg
+				/*!<Override if you want to popup dlg
 				    for saving various things (or similar) */
-    				
+
     virtual bool		askContinueAndSaveIfNeeded(bool withcancel);
+    void			setName( const char* nm )	{ name_ = nm; }
     const char*			name() const;
 
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
-    				/*!<Selects this item */
+				/*!<Selects this item */
     virtual bool		isSelected() const;
     void			setChecked(bool yn,bool trigger=false);
     bool			isChecked() const;
@@ -54,7 +55,7 @@ public:
     void			collapse();
 
     virtual int			siblingIndex() const;
-    				/*\returns the index of this item among
+				/*\returns the index of this item among
 				   its siblings.
 				  \note this index is not neseccarely the same
 				        as the item's index in the parent's
@@ -69,9 +70,9 @@ public:
     int				nrChildren() const { return children_.size(); }
     const uiTreeItem*		getChild(int) const;
     uiTreeItem*			getChild(int);
-				 
+
     virtual bool		addChild(uiTreeItem* child,bool below);
-    				/*!<Adds a child. If the child does not fit
+				/*!<Adds a child. If the child does not fit
 				    (i.e. the child's parentType() is not
 				    the same as this), it will try to find
 				    a valid parent somewhere else in the tree.
@@ -79,58 +80,58 @@ public:
 				    shoule be added above or below eventual
 				    existing siblings.
 				    \note child becomes mine regardless of
-				    	  return value.  */
+					  return value.  */
     virtual void		removeChild( uiTreeItem* );
     virtual const uiTreeItem*	findChild( const char* name ) const;
-    				/*!<Finds a child in the tree below
+				/*!<Finds a child in the tree below
 				    this item.  */
     virtual const uiTreeItem*	findChild( int selkey ) const;
-    				/*!<Finds a child in the tree below
+				/*!<Finds a child in the tree below
 				    this item.  */
     virtual uiTreeItem*		findChild( const char* name );
-    				/*!<Finds a child in the tree below
+				/*!<Finds a child in the tree below
 				    this item.  */
     virtual uiTreeItem*		findChild( int selkey );
-    				/*!<Finds a child in the tree below
+				/*!<Finds a child in the tree below
 				    this item.  */
     virtual void		findChildren(const char*,
-	    				     ObjectSet<uiTreeItem>&);
-    				/*!<Finds all children in the tree below this
+					     ObjectSet<uiTreeItem>&);
+				/*!<Finds all children in the tree below this
 				    item. */
 
     template<class T> inline void setProperty(const char* key, const T&);
-    				/*!<Sets a keyed value that has been retrieved
+				/*!<Sets a keyed value that has been retrieved
 				    with getProperty().
 				    \note		Should not be used if T
-				    			is a pointer. Use
+							is a pointer. Use
 							setPropertyPtr(
 							const char*, T& )
 							instead.
 				*/
     inline void			setPropertyPtr(const char* key,void*);
-    				/*!<Sets a keyed pointer that may have been
+				/*!<Sets a keyed pointer that may have been
 				    retrieved with getPropertyPtr().
 				*/
     template<class T> inline bool getProperty(const char* key, T& res) const;
-    				/*!<Gets a keyed value that has been stored
+				/*!<Gets a keyed value that has been stored
 				    with setProperty().
 				    \retval true	the key was found and
-				    			res is set
+							res is set
 				    \retval false	the key was not found
-				    			and res is not set
+							and res is not set
 				    \note		Should not be used if T
-				    			is a pointer. Use
+							is a pointer. Use
 							getPropertyPtr(
 							const char*, T& )
 							instead.
 				*/
     inline bool			getPropertyPtr(const char* key,void*&) const;
-    				/*!<Gets a keyed pointer that has been stored
+				/*!<Gets a keyed pointer that has been stored
 				    with setPropertyPtr().
 				    \retval true	the key was found and
-				    			res is set
+							res is set
 				    \retval false	the key was not found
-				    			and res is not set
+							and res is not set
 				*/
 
     virtual void		updateColumnText(int col);
@@ -144,7 +145,7 @@ protected:
     virtual uiParent*		getUiParent() const;
 
     virtual bool		addChld(uiTreeItem*,bool below,bool downwards);
-    				/*!< Adds a child to this item. If the child
+				/*!< Adds a child to this item. If the child
 				    does not fit (i.e. its parentType() is not
 				    equal to this), the object tries to add
 				    it to its parent if downwards is false.
@@ -156,7 +157,7 @@ protected:
 				*/
 
     virtual const char*		parentType() const = 0;
-    				/*!<\returns typeid(parentclass).name() */
+				/*!<\returns typeid(parentclass).name() */
     virtual bool		init() { return true; }
 
     virtual bool		rightClick(uiTreeViewItem* item);
@@ -170,12 +171,12 @@ protected:
 
     virtual bool		isSelectable() const { return false; }
     virtual bool		isExpandable() const { return true; }
-    
+
     virtual void		updateSelection(int selectionKey,
-	    					bool dw=false );
-    				/*!< Does only update the display */
+						bool dw=false );
+				/*!< Does only update the display */
     virtual bool		shouldSelect(int selectionkey) const;
-    				/*!\returns true if the item should be marked
+				/*!\returns true if the item should be marked
 				    as selected given the selectionkey. */
 
     IOPar			properties_;
@@ -199,7 +200,7 @@ mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
 public:
     uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
     int nextStep();
-			            
+
 protected:
     uiTreeItem* parent_;
     uiTreeItem* child_;
@@ -213,11 +214,11 @@ public:
                         uiTreeTopItem(uiTreeView*, bool=false );
     virtual bool	addChild(uiTreeItem*,bool below);
     virtual void	updateSelection(int selectionkey, bool=false );
-    			/*!< Does only update the display */
+			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
 
-    void		disabRightClick(bool yn) 	{ disabrightclick_=yn; }
-    void		disabAnyClick(bool yn) 		{ disabanyclick_=yn; }
+    void		disabRightClick(bool yn)	{ disabrightclick_=yn; }
+    void		disabAnyClick(bool yn)		{ disabanyclick_=yn; }
 
 			~uiTreeTopItem();
 protected:
@@ -229,7 +230,7 @@ protected:
     void		anyButtonClickCB(CallBacker*);
     void		handleSelectionChanged(bool frmbtclk);
 
-    virtual const char*	parentType() const { return 0; } 
+    virtual const char*	parentType() const { return 0; }
     virtual uiParent*	getUiParent() const;
 
     uiTreeView*		listview_;
@@ -255,12 +256,12 @@ public:
 					uiTreeFactorySet();
 					~uiTreeFactorySet();
     void				addFactory(uiTreeItemFactory* ptr,
-	    					   int placementindex=-1,
+						   int placementindex=-1,
 						   int pol2d=1);
 					/*!<\param ptr	pointer to new factory.
 							Object is managed by me.
 					    \param placementindex
-					    		Indicates how the
+							Indicates how the
 							created treeitems should
 							be placed when making
 							a new tree.
