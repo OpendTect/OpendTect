@@ -173,20 +173,27 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     FilePath fp( swdir, "bin" );
 #ifdef __win__
-    BufferString cmd( "od_cr_dev_env.bat" );
+    BufferString cmd;
     fp.add( "od_cr_dev_env.bat" );
     cmd += fp.fullPath();
     cmd += " "; cmd += swdir;
     char shortpath[1024];
     GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
+    
+    OS::CommandExecPars execpars( true );
+    execpars.launchtype( OS::Wait4Finish )
+	    .isconsoleuiprog( true );
+    OS::MachineCommand mc( cmd );
+    OS::CommandLauncher cl( mc );
+    cl.execute( execpars );
 #else
     fp.add( "od_cr_dev_env" );
     BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-#endif
     OS::ExecCommand( cmd );
+#endif
 
     BufferString cmakefile =
 			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
