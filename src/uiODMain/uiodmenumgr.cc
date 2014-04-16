@@ -498,8 +498,8 @@ void uiODMenuMgr::fillAnalMenu()
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
 	uiMenu* aitm = new uiMenu( &appl_, "&Attributes", attrpm );
-	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
-	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
+	mInsertPixmapItem( aitm, "&2D ...", mEdit2DAttrMnuItm, "attributes_2d");
+	mInsertPixmapItem( aitm, "&3D ...", mEdit3DAttrMnuItm, "attributes_3d");
 
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
@@ -517,11 +517,13 @@ void uiODMenuMgr::fillAnalMenu()
 				VolProc::uiChain::pixmapFileName() ) );
     }
 
-    uiMenu* crsplot = new uiMenu( &appl_, "&Cross-plot", "xplot");
-    mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
-    mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
-    mInsertItem( crsplot, "&Open Cross-plot ...", mOpenXplotMnuItm );
-    analmnu_->insertItem( crsplot );
+    uiMenu* xplotmnu = new uiMenu( &appl_, "&Cross-plot", "xplot");
+    mInsertPixmapItem( xplotmnu, "&Well logs <--> Attributes ...",
+		       mXplotMnuItm, "xplot_wells" );
+    mInsertPixmapItem( xplotmnu, "&Attributes <--> Attributes ...",
+		       mAXplotMnuItm, "xplot_attribs" );
+    mInsertItem( xplotmnu, "&Open Cross-plot ...", mOpenXplotMnuItm );
+    analmnu_->insertItem( xplotmnu );
 
     analwellmnu_ = new uiMenu( &appl_, "&Wells", "well" );
     analwellmnu_->insertItem( new uiAction( "&Edit logs ...",
