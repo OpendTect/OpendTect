@@ -43,6 +43,7 @@ mGlobal(Basic) bool		isLink(const char*);
 mGlobal(Basic) const char*	linkTarget(const char* linkname);
 mGlobal(Basic) const char*	linkValue(const char* linkname);
 
+mGlobal(Basic) void		hide(const char*,bool yn); //!<only Windows
 mGlobal(Basic) bool		isHidden(const char*);
 mGlobal(Basic) bool		isWritable(const char*);
 mGlobal(Basic) bool		makeWritable(const char*,bool yesno,

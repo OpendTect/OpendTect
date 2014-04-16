@@ -293,6 +293,26 @@ bool isLink( const char* fnm )
 }
 
 
+void hide( const char* fnm, bool yn )
+{
+    if ( !exists(fnm) ) return;
+
+#ifdef __win__
+    const int attr = GetFileAttributes( fnm );
+    if ( yn )
+    {
+	if ( (attr & FILE_ATTRIBUTE_HIDDEN) == 0 )
+	    SetFileAttributes( fnm, attr | FILE_ATTRIBUTE_HIDDEN );
+    }
+    else
+    {
+	if ( (attr & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN )
+	    SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_HIDDEN );
+    }
+#endif
+}
+
+
 bool isHidden( const char* fnm )
 {
 #ifndef OD_NO_QT
@@ -739,6 +759,5 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
     return cl.execute();
 }
-
 
 } // namespace File
