@@ -34,10 +34,8 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     , wls_(&p->wls_)
     , loginsi_(0)
 {
-    vwbut_ = new uiToolButton( varfld_, "view_log", "Display this log",
+    addInpViewIcon( "view_log", "Display this log",
 				mCB(this,uiWellLogCalcInpData,vwLog) );
-    vwbut_->attach( rightOf, varfld_->box() );
-    inpSel.notify( mCB(this,uiWellLogCalcInpData,showHideVwBut) );
 
     udfbox_ = new uiCheckBox( unfld_, "Fill empty sections" );
     udfbox_->setChecked();
@@ -48,12 +46,6 @@ uiWellLogCalcInpData::uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 uiWellLogCalcInpData::~uiWellLogCalcInpData()
 {
     delete loginsi_;
-}
-
-
-void uiWellLogCalcInpData::showHideVwBut( CallBacker* )
-{
-    vwbut_->display( !isConst() );
 }
 
 
@@ -117,12 +109,15 @@ void uiWellLogCalcInpData::vwLog( CallBacker* )
     wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
     uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
     dlg->setLog( wl, true );
+    dlg->setDeleteOnClose( true );
     dlg->show();
 }
 
 
-void uiWellLogCalcInpData::setProp( const PropertyRef::StdType& type )
+void uiWellLogCalcInpData::setProp( PropertyRef::StdType type )
 {
+    setPropType( type );
+
     if ( !wls_ )
 	return;
 
@@ -130,7 +125,4 @@ void uiWellLogCalcInpData::setProp( const PropertyRef::StdType& type )
     varfld_->box()->setEmpty();
     for ( int idx=0; idx<propidxs.size(); idx++ )
 	varfld_->box()->addItem( wls_->getLog(propidxs[idx]).name() );
-
-    if ( unfld_ )
-	unfld_->setPropType( type );
 }

@@ -32,7 +32,7 @@ public:
 			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
 			~uiWellLogCalcInpData();
 
-    void		setProp(const PropertyRef::StdType&);
+    void		setProp(PropertyRef::StdType);
     const Well::Log*	getLog();
     bool		getInp(uiWellLogCalc::InpData&);
 

@@ -13,11 +13,13 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "propertyref.h"
 class BufferStringSet;
 class UnitOfMeasure;
 namespace Math { class Formula; class Expression; }
 class uiUnitSel;
 class uiGenInput;
+class uiToolButton;
 class uiLabeledComboBox;
 
 
@@ -25,46 +27,52 @@ mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
 {
 public:
 
-				uiMathExpressionVariable(uiParent*,
-					    int varidx,bool displayuom=true,
-					    const BufferStringSet* inpnms=0);
+			uiMathExpressionVariable(uiParent*,int varidx,
+				    bool displayuom=true,
+				    const BufferStringSet* inpnms=0);
 
-    virtual void		use(const Math::Formula&);
-    virtual void		use(const Math::Expression*);
+    void		addInpViewIcon(const char* inm,const char* tooltip,
+	    				const CallBack&);
 
-    const BufferString&		varName() const		{ return varnm_; }
-    bool                        hasVarName( const char* nm ) const
+    virtual void	use(const Math::Formula&);
+    virtual void	use(const Math::Expression*);
+
+    const BufferString&	varName() const		{ return varnm_; }
+    bool		hasVarName( const char* nm ) const
 							{ return varnm_ == nm; }
 
-    bool			isActive() const	{ return isactive_; }
-    bool			isConst() const		{ return isconst_; }
-    const char*			getInput() const;
-    const UnitOfMeasure*	getUnit() const;
-    void			fill(Math::Formula&) const;
+    bool		isActive() const	{ return isactive_; }
+    bool		isConst() const		{ return isconst_; }
+    const char*		getInput() const;
+    const UnitOfMeasure* getUnit() const;
+    void		fill(Math::Formula&) const;
 
-    void			selectInput(const char*,bool exact=false);
-    void			setUnit(const UnitOfMeasure*);
-    void			setUnit(const char*);
+    void		selectInput(const char*,bool exact=false);
+    void		setUnit(const UnitOfMeasure*);
+    void		setUnit(const char*);
+    void		setPropType(PropertyRef::StdType);
 
     Notifier<uiMathExpressionVariable> inpSel;
 
 protected:
 
-    void			initFlds(CallBacker*);
-    void			selChg(CallBacker*);
+    void		initFlds(CallBacker*);
+    void		selChg(CallBacker*);
+    void		showHideVwBut(CallBacker*);
 
-    const int			varidx_;
-    BufferString		varnm_;
-    bool			isactive_;
-    bool			isconst_;
+    const int		varidx_;
+    BufferString	varnm_;
+    bool		isactive_;
+    bool		isconst_;
 
-    uiLabeledComboBox*		varfld_;
-    uiGenInput*			constfld_;
-    uiUnitSel*			unfld_;
+    uiLabeledComboBox*	varfld_;
+    uiGenInput*		constfld_;
+    uiUnitSel*		unfld_;
+    uiToolButton*	vwbut_;
 
-    void			updateDisp();
-    void			setActive(bool);
-    void			setVariable(const char*);
+    void		updateDisp();
+    void		setActive(bool);
+    void		setVariable(const char*);
 
 };
 

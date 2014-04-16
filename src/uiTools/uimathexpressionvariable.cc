@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimathexpression.h"
 #include "uimsg.h"
 #include "uiunitsel.h"
+#include "uitoolbutton.h"
 #include "uirockphysform.h"
 
 #include "separstr.h"
@@ -29,12 +30,13 @@ static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
 
 uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
-		    int varidx, bool displayuom, const BufferStringSet* inpnms )
+		    int varidx, bool withunit, const BufferStringSet* inpnms )
     : uiGroup(p,BufferString("MathExprVar ",varidx))
     , varidx_(varidx)
     , isconst_(false)
     , isactive_(true)
     , unfld_(0)
+    , vwbut_(0)
     , inpSel(this)
 {
     BufferStringSet emptybss;
@@ -54,7 +56,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     constfld_ = new uiGenInput( this, "Value for 'c0'", FloatInpSpec() );
     constfld_->attach( alignedWith, varfld_ );
 
-    if ( displayuom )
+    if ( withunit )
     {
 	uiUnitSel::Setup uussu( PropertyRef::Other, "convert to:" );
 	uussu.withnone( true );
@@ -66,6 +68,15 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 }
 
 
+void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
+						const CallBack& cb )
+{
+    vwbut_ = new uiToolButton( varfld_, "view_log", tt, cb );
+    vwbut_->attach( rightOf, varfld_->box() );
+    inpSel.notify( mCB(this,uiMathExpressionVariable,showHideVwBut) );
+}
+
+
 void uiMathExpressionVariable::initFlds( CallBacker* )
 {
     updateDisp();
@@ -74,6 +85,13 @@ void uiMathExpressionVariable::initFlds( CallBacker* )
 	unfld_->attach( rightTo, varfld_ );
 	unfld_->attach( ensureRightOf, constfld_ );
     }
+}
+
+
+void uiMathExpressionVariable::showHideVwBut( CallBacker* )
+{
+    if ( vwbut_ )
+	vwbut_->display( !isConst() );
 }
 
 
@@ -206,6 +224,13 @@ void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
 {
     if ( unfld_ )
 	unfld_->setUnit( uom );
+}
+
+
+void uiMathExpressionVariable::setPropType( PropertyRef::StdType typ )
+{
+    if ( unfld_ )
+	unfld_->setPropType( typ );
 }
 
 
