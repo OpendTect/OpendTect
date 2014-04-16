@@ -53,7 +53,11 @@ public:
 			~Formula();
     Formula&		operator =(const Formula&);
 
-		// 1. Things known after construction or set()
+    		// 0. Specify the formula text. Will construct a new Expression
+
+    void		setText(const char*);
+
+		// 1. Things known after construction or setText()
 
     bool		isOK() const		{ return expr_; }
     bool		isBad() const		{ return !expr_
@@ -71,7 +75,6 @@ public:
 
 		// 2. Things to set before calculation or store
 
-    void		setText(const char*);
     void		setInputDef(int,const char*);
     void		setInputUnit(int,const UnitOfMeasure*);
     void		setOutputUnit( const UnitOfMeasure* uom )
