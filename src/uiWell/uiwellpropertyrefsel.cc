@@ -200,7 +200,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
     bool isreverted;
     if ( propref.stdType() == logun->propType() )
 	isreverted = false;
-    else if ( altpropref->stdType() == logun->propType() )
+    else if ( altpropref && altpropref->stdType() == logun->propType() )
 	isreverted = true;
     else return;
     fld->setUseAlternate( isreverted );
@@ -223,7 +223,7 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	TypeSet<int> logidxs = logs.getSuitable( propref.stdType(),
 						 altpropref, &isaltpropref );
 	for ( int idx=0; idx<logidxs.size(); idx++ )
-	    lognms.add( logs.getLog(idx).name() );
+	    lognms.add( logs.getLog(logidxs[idx]).name() );
 
 	propflds_[iprop]->setNames( lognms );
 
