@@ -121,7 +121,7 @@ BufferString getSummary() const
 
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Zero-offset VSP",
-				 "Import Zero-offset VSP as Well Log",
+				 mNoDlgTitle,
 				 "107.0.1") )
     , istimefld_(0)
     , unitfld_(0)
@@ -129,7 +129,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     , isdpth_(false)
 {
     const bool definft = SI().xyInFeet();
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
 
     bparsfld_ = new uiSEGYVSPBasicPars( this );
 
