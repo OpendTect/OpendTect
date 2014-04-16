@@ -30,6 +30,7 @@ protected:
 
 private:
     void		initWin(CallBacker*);
+    void		initTree();
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
