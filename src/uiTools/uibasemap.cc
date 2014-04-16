@@ -62,8 +62,10 @@ void uiBaseMapObject::update()
 	{
 	    while ( itemgrp_->size()>itemnr )
 	    {
-		mDynamicCastGet(uiPolyLineItem*,itm,itemgrp_->getUiItem(itemnr));
-		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		mDynamicCastGet(uiPolyLineItem*,itm,
+				itemgrp_->getUiItem(itemnr));
+		if ( !itm )
+		    itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		else break;
 	    }
 
@@ -90,7 +92,8 @@ void uiBaseMapObject::update()
 	    while ( itemgrp_->size()>itemnr )
 	    {
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_->getUiItem(itemnr));
-		if ( !itm ) itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		if ( !itm )
+		    itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		else break;
 	    }
 
@@ -115,7 +118,8 @@ void uiBaseMapObject::update()
 	    {
 		while ( itemgrp_->size()>itemnr )
 		{
-		    mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
+		    mDynamicCastGet(uiMarkerItem*,itm,
+				    itemgrp_->getUiItem(itemnr));
 		    if ( !itm )
 			itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
 		    else break;
@@ -126,7 +130,31 @@ void uiBaseMapObject::update()
 
 		mDynamicCastGet(uiMarkerItem*,itm,itemgrp_->getUiItem(itemnr));
 		itm->setMarkerStyle( *bmobject_->getMarkerStyle(idx) );
-		itm->setPos( transform_->transform( uiWorldPoint(crds[ptidx]) ) );
+		itm->setPos( transform_->transform(uiWorldPoint(crds[ptidx])) );
+		itemnr++;
+	    }
+	}
+
+	const char* shapenm = bmobject_->getShapeName( idx );
+	if ( shapenm )
+	{
+	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+	    {
+		while ( itemgrp_->size()>itemnr )
+		{
+		    mDynamicCastGet(uiTextItem*,itm,
+				    itemgrp_->getUiItem(itemnr));
+		    if ( !itm )
+			itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		    else break;
+		}
+
+		if ( itemgrp_->size()<=itemnr )
+		    itemgrp_->add( new uiTextItem() );
+
+		mDynamicCastGet(uiTextItem*,itm,itemgrp_->getUiItem(itemnr));
+		itm->setText( shapenm );
+		itm->setPos( transform_->transform(uiWorldPoint(crds[ptidx])) );
 		itemnr++;
 	    }
 	}
