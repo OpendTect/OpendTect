@@ -38,7 +38,7 @@ static int cMaxNrPDFs = 3;
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
-				 "Specify parameters","111.0.3"))
+				 mNoDlgTitle,"111.0.3"))
     , plotter_(plotter)
     , dps_(plotter_->dps())
     , createfrmfld_(0)
@@ -53,7 +53,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
-				 "Specify parameters","111.0.3"))
+				 mNoDlgTitle,"111.0.3"))
     , plotter_(0)
     , dps_(dps)
     , createfrmfld_(0)
@@ -248,7 +248,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	SamplingData<float>& sd = pdf.sampling( dimnr );
 	sd.start = dimrg.start + dimrg.step/2;
 	sd.step = dimrg.step;
-	
+
 	DPSDensityCalcND::AxisParam* axparam =
 	    new DPSDensityCalcND::AxisParam();
 	axparam->colid_ = probflds_[dimnr]->selColID();
@@ -325,18 +325,18 @@ bool uiCreateDPSPDF::createPDF()
     if ( nrdisp_ == 1 )
     {
 	Array1DImpl<float> pdfarr = Array1DImpl<float>( 0 );
-	Sampled1DProbDenFunc pdf( pdfarr ); 
+	Sampled1DProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
-	
+
 	pdf_ = pdf.clone();
 	mSavePDF( return false );
     }
     else if ( nrdisp_ == 2 )
     {
 	Array2DImpl<float> pdfarr = Array2DImpl<float>( Array2DInfoImpl() );
-	Sampled2DProbDenFunc pdf( pdfarr ); 
+	Sampled2DProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
-	
+
 	pdf_ = pdf.clone();
 	mSavePDF( return false );
     }
@@ -344,9 +344,9 @@ bool uiCreateDPSPDF::createPDF()
     {
 	ArrayNDImpl<float> pdfarr =
 	    ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
-	SampledNDProbDenFunc pdf( pdfarr ); 
+	SampledNDProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
-	
+
 	pdf_ = pdf.clone();
 	mSavePDF( return false );
     }

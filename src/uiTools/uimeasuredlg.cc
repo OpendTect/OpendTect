@@ -41,7 +41,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , clearPressed(this)
     , velocityChange(this)
 {
-    setOkCancelText( "", "" );
+    setCtrlStyle( CloseOnly );
     showAlwaysOnTop();
 
     BufferString str;

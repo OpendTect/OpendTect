@@ -43,8 +43,7 @@ Array2DFilterPars uiArr2DFilterPars::getInput() const
 
 uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 					    const Array2DFilterPars* prs )
-    : uiDialog(p,uiDialog::Setup("Filter parameters",
-				 "Specify parameters for fill","104.0.7"))
+    : uiDialog(p,uiDialog::Setup("Filter parameters",mNoDlgTitle,"104.0.7"))
 {
     fld = new uiArr2DFilterPars( this, prs );
 }

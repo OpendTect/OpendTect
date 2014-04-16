@@ -8,8 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-
-
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
@@ -28,12 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( "create 3D cube from to 2D LineSet",
-			      "Specify process parameters",
-			      "103.2.24") )
-    	, inctio_(*mMkCtxtIOObj(SeisTrc))
-    	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
-	, seis2dto3d_(*new Seis2DTo3D)	 
+	: uiDialog(p,Setup("Create 3D Cube From 2D Data",
+			   mNoDlgTitle,"103.2.24"))
+	, inctio_(*mMkCtxtIOObj(SeisTrc))
+	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
+	, seis2dto3d_(*new Seis2DTo3D)
 {
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
     interpoltypefld_ = new uiGenInput( this, "Type of interpolation",
@@ -41,7 +38,7 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     interpoltypefld_->attach( alignedBelow, inpfld_ );
     interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
 
-    winfld_ = new uiGenInput( this,"Interpolation window (Inl/Crl)", 
+    winfld_ = new uiGenInput( this,"Interpolation window (Inl/Crl)",
 							IntInpIntervalSpec() );
     winfld_->attach( alignedBelow, interpoltypefld_ );
     winfld_->setValue( Interval<float>(150,150) );
@@ -85,7 +82,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 
     seis2dto3d_.setInput( *inctio_.ioobj, inpfld_->attrNm() );
 
-    CubeSampling cs(false); 
+    CubeSampling cs(false);
     outsubselfld_->getSampling( cs.hrg );
     outsubselfld_->getZRange( cs.zrg );
 
@@ -115,7 +112,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 
 
 void uiSeis2DTo3D::typeChg( CallBacker* )
-{ 
+{
     bool isfft = !interpoltypefld_->getBoolValue();
     winfld_->display( isfft );
     reusetrcsbox_->display( isfft );

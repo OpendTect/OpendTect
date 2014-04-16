@@ -51,9 +51,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const Attrib::DescSet* attrib ,
 					    const NLAModel* mdl,
 					    bool singlewell )
-    : uiDialog(p,uiDialog::Setup("Create Attribute Log",
-				 "Specify parameters for the new attribute log",
-				 "107.3.0") )
+    : uiDialog(p,uiDialog::Setup("Create Attribute Log",mNoDlgTitle,"107.3.0"))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
     , sellogidx_(-1)

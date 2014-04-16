@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create 2D horizon from 3D",
-				 "Specify parameters","104.0.12"))
+				 mNoDlgTitle,"104.0.12"))
 {
     uiSurfaceRead::Setup srsu( "Horizon" );
     srsu.withattribfld( false );
@@ -85,7 +85,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 
     horizon2d->ref();
     set2DHorizon( *horizon2d );
-    
+
     PtrMan<Executor> saver = horizon2d->saver();
     uiTaskRunner writedlg( this );
     TaskRunner::execute( &writedlg, *saver );
@@ -145,5 +145,5 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 
 bool uiHor2DFrom3DDlg::doDisplay() const
 {
-    return displayfld_->isChecked(); 
+    return displayfld_->isChecked();
 }

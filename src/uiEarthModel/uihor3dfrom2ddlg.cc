@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
-    : uiDialog( p, Setup("Derive 3D Horizon","Specify parameters","104.0.5") )
+    : uiDialog( p, Setup("Derive 3D Horizon",mNoDlgTitle,"104.0.5") )
     , hor2d_( h2d )
     , emserv_( ems )
     , hor3d_( 0 )
@@ -70,7 +70,7 @@ MultiID uiHor3DFrom2DDlg::getSelID() const
 bool uiHor3DFrom2DDlg::doDisplay() const
 {
     return displayfld_ && displayfld_->isChecked();
-} 
+}
 
 
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
@@ -87,12 +87,12 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     const BufferString typ = EM::Horizon3D::typeStr();
 
     const bool nameandtypeexist = ioobj && typ==ioobj->group();
-    
+
     EM::EMManager& em = EM::EMM();
 
     if ( emserv_ && nameandtypeexist )
 	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
-    
+
     const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
     mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
     if ( !hor3d )

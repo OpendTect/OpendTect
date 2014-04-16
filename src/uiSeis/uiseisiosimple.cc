@@ -61,7 +61,7 @@ mDefData(ps,VolPS)
 uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	: uiDialog( p, Setup( imp ? "Import seismics from simple flat file"
 				  : "Export seismics to simple flat file",
-			      "Specify parameters for I/O",
+			      mNoDlgTitle,
 			      imp ? "103.0.11" : "103.0.12") )
 	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
 	, sdfld_(0)
@@ -80,7 +80,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	, isimp_(imp)
 	, geom_(gt)
 {
-    setCtrlStyle( uiDialog::RunAndClose );
+    setOkText( imp ? uiStrings::sImport() : uiStrings::sExport() );
 
     data().clear( survChanged() );
     const bool is2d = is2D();
