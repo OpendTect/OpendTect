@@ -33,6 +33,8 @@ set( CMAKE_FILES ${CMAKE_FILES} ${TEMPLATE_FILES} )
 OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
+install ( FILES ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake
+	  DESTINATION CMakeModules )
 install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE
 	  PATTERN "*.swp" EXCLUDE
