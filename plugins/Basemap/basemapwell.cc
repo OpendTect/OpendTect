@@ -47,7 +47,7 @@ void WellObject::updateGeometry()
 
 int WellObject::nrShapes() const	{ return 1; }
 
-const char* WellObject::getShapeName(int shapeidx) const
+const char* WellObject::getShapeName( int ) const
 { return name(); }
 
 
