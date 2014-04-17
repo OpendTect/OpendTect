@@ -34,6 +34,7 @@ MarkerSet::MarkerSet()
     , markerset_( new osgGeo::MarkerSet )
     , displaytrans_( 0 )
     , coords_( Coordinates::create() )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     markerset_->ref();
     addChild( markerset_ );
@@ -179,10 +180,23 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 }
 
 
+void MarkerSet::setPixelDensity( float dpi )
+{
+    DataObject::setPixelDensity( dpi );
+
+    if ( dpi==pixeldensity_ )
+	return;
+
+    setScreenSize( markerstyle_.size_ ); //Force update
+}
+
+
 void MarkerSet::setScreenSize( float sz )
 {
     markerstyle_.size_ = (int)sz;
-    markerset_->setMarkerSize( mOSGMarkerScaleFactor*sz );
+
+    const float screenfactor = pixeldensity_/getDefaultPixelDensity();
+    markerset_->setMarkerSize( mOSGMarkerScaleFactor*sz*screenfactor );
 }
 
 

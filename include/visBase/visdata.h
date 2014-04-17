@@ -133,6 +133,10 @@ public:
 				    right or left handed. */
     virtual bool		isRightHandSystem() const	{ return true; }
 
+    virtual void		setPixelDensity(float dpi);
+    static float		getDefaultPixelDensity();
+    virtual float		getPixelDensity() const;
+
     virtual const char*		errMsg() const	{ return 0; }
 
     bool			serialize(const char* filename,

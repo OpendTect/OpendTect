@@ -63,8 +63,8 @@ Well::Well()
     , voiidx_(-1)
     , leftlogdisplay_( new osgGeo::PlaneWellLog )
     , rightlogdisplay_( new osgGeo::PlaneWellLog )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
-
     markerset_ = MarkerSet::create();
     markerset_->ref();
     addChild( markerset_->osgNode() );
@@ -192,6 +192,27 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 }
 
 
+void Well::setPixelDensity(float dpi)
+{
+    const float leftscreenwidth = getLogScreenWidth( Left );
+    const float rightscreenwidth = getLogScreenWidth( Right );
+
+    DataObject::setPixelDensity( dpi );
+    pixeldensity_ = dpi;
+
+    track_->setPixelDensity( dpi );
+    markerset_->setPixelDensity( dpi );
+    welltoptxt_->setPixelDensity( dpi );
+    wellbottxt_->setPixelDensity( dpi );
+    markernames_->setPixelDensity( dpi );
+    lognmleft_->setPixelDensity( dpi );
+    lognmright_->setPixelDensity( dpi );
+
+    setLogScreenWidth( leftscreenwidth, Left );
+    setLogScreenWidth( rightscreenwidth, Right );
+}
+
+
 void Well::setTrack( const TypeSet<Coord3>& pts )
 {
     CubeSampling cs( false );
@@ -258,7 +279,7 @@ void Well::setText( Text* tx, const char* chr, Coord3* pos,
 		    const FontData& fnt )
 {
     tx->setText( chr );
-    tx->setFontData( fnt );
+    tx->setFontData( fnt, getPixelDensity() );
     if ( !SI().zRange(true).includes(pos->z, false) )
 	pos->z = SI().zRange(true).limitValue( pos->z );
     tx->setPosition( *pos );
@@ -736,7 +757,10 @@ void Well::setLogScreenWidth( float width, Side side )
 {
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-    logdisplay ->setScreenWidth( width );
+
+    const float factor = pixeldensity_/getDefaultPixelDensity();
+
+    logdisplay ->setScreenWidth( width * factor );
 }
 
 
@@ -744,7 +768,9 @@ float Well::getLogScreenWidth( Side side ) const
 {
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-    return logdisplay->getScreenWidth();
+
+    const float factor = pixeldensity_/getDefaultPixelDensity();
+    return logdisplay->getScreenWidth() / factor;
 }
 
 

@@ -181,6 +181,8 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+    void			setPixelDensity(float);
+    float			getPixelDensity() const { return pixeldensity_;}
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     void			setLogData(const TypeSet<Coord3Value>& crdvals,
@@ -220,6 +222,7 @@ protected:
     bool			showlogs_;
     float			constantlogsizefac_;
 
+    float			pixeldensity_;
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
     bool			displaytube_[2];

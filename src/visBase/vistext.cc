@@ -39,7 +39,9 @@ Text::Text()
     osgtext_->setAxisAlignment( osgText::TextBase::SCREEN );
     osgtext_->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS );
     osgtext_->setDataVariance( osg::Object::DYNAMIC );
-    setFontData( fontdata_ ); //trigger update of font_
+
+    //trigger update of font_
+    setFontData( fontdata_, DataObject::getDefaultPixelDensity() );
 }
 
 
@@ -84,14 +86,23 @@ Coord3 Text::getPosition() const
 }
 
 
-void Text::setFontData( const FontData& fd )
+void Text::setFontData( const FontData& fd, float pixeldensity )
 {
     fontdata_ = fd;
 
     osg::ref_ptr<osgText::Font> osgfont = OsgFontCreator::create( fontdata_ );
     if ( osgfont )
 	osgtext_->setFont( osgfont );
-    osgtext_->setCharacterSize( fontdata_.pointSize() );
+
+    updateFontSize( pixeldensity );
+}
+
+
+void Text::updateFontSize( float pixeldensity )
+{
+    const float sizefactor =
+	pixeldensity / DataObject::getDefaultPixelDensity();
+    osgtext_->setCharacterSize( fontdata_.pointSize() * sizefactor );
 }
 
 
@@ -148,6 +159,7 @@ Text2::Text2()
     : VisualObjectImpl( false )
     , geode_( new osg::Geode )
     , displaytransform_( 0 )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     mAttachCB( TrMgr().languageChange, Text2::translationChangeCB );
     geode_->ref();
@@ -212,7 +224,7 @@ Text* Text2::text( int idx )
 void Text2::setFontData( const FontData& fd )
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
-	texts_[idx]->setFontData( fd );
+	texts_[idx]->setFontData( fd, pixeldensity_ );
 }
 
 
@@ -224,6 +236,18 @@ void Text2::setDisplayTransformation( const mVisTrans* newtr )
 
     for ( int idx=0; idx<texts_.size(); idx++ )
 	texts_[idx]->setDisplayTransformation( newtr );
+}
+
+
+void Text2::setPixelDensity( float dpi )
+{
+    if ( pixeldensity_==dpi )
+	return;
+
+    pixeldensity_ = dpi;
+
+    for ( int idx=0; idx<texts_.size(); idx++ )
+	texts_[idx]->updateFontSize( pixeldensity_ );
 }
 
     
@@ -247,8 +271,6 @@ void OsgFontCreator::setCreator( OsgFontCreator* cr)
 {
     creator = cr;
 }
-
-
 
 
 }; // namespace visBase

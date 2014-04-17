@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdataset.h"
 #include "indexedshape.h"
 #include "viscoord.h"
+#include "visdrawstyle.h"
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexturechannels.h"
@@ -50,11 +51,14 @@ GeomIndexedShape::GeomIndexedShape()
     , geomshapetype_( Triangle )
     , linestyle_( LineStyle::Solid,2,Color(0,255,0) )
     , useosgnormal_( false )
+    , drawstyle_( new visBase::DrawStyle )
 {
     singlematerial_->ref();
     coltabmaterial_->ref();
+    drawstyle_->ref();
 
     vtexshape_->ref();
+    vtexshape_->addNodeState( drawstyle_ );
     addChild( vtexshape_->osgNode() );
 
     vtexshape_->setMaterial( singlematerial_ );
@@ -70,11 +74,13 @@ GeomIndexedShape::GeomIndexedShape()
 
 GeomIndexedShape::~GeomIndexedShape()
 {
-    singlematerial_->unRef();
-    coltabmaterial_->unRef();
+    unRefAndZeroPtr( singlematerial_ );
+    unRefAndZeroPtr( coltabmaterial_ );
+
     delete colorhandler_;
 
-    vtexshape_->unRef();
+    unRefAndZeroPtr( drawstyle_ );
+    unRefAndZeroPtr( vtexshape_ );
 
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
@@ -257,6 +263,7 @@ void GeomIndexedShape::setDisplayTransformation( const mVisTrans* nt )
 	if ( !renderside_ )
 	    vtexshape_->getNormals()->inverse();
     }
+
     vtexshape_->setDisplayTransformation( nt );
     vtexshape_->dirtyCoordinates();
     vtexshape_->turnOn( true );
@@ -349,7 +356,7 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
 	if ( idxgeom->primitivetype_ == Geometry::IndexedGeometry::Lines &&
 	    geomshapetype_ > Triangle )
 	{
-	    vtexshape_->setLineStyle( linestyle_ );
+	    drawstyle_->setLineStyle( linestyle_ );
 	}
     }
 
@@ -475,8 +482,8 @@ void GeomIndexedShape::setLineStyle( const LineStyle& lnstyle)
 
     linestyle_ = lnstyle;
 
-    if ( vtexshape_ )
-        vtexshape_->setLineStyle( linestyle_ );
+    if ( drawstyle_ )
+	drawstyle_->setLineStyle( linestyle_ );
     else
 	touch( true );
 }
@@ -499,6 +506,7 @@ void GeomIndexedShape::setIndexedGeometryShapeType( GeomShapeType geomshapetype)
 
     vtexshape_->ref();
     vtexshape_->setMaterial( singlematerial_ );
+
     addChild( vtexshape_->osgNode() );
 
     geomshapetype_ = geomshapetype;

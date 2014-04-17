@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uimain.h"
 #include "uimpeman.h"
 #include "uimapperrangeeditordlg.h"
 #include "uiselsurvranges.h"
@@ -223,6 +224,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
+    newscene->setPixelDensity( uiMain::getDPI() );
     scenes_ += newscene;
     pickretriever_->addScene( newscene );
     if ( isSoloMode() )

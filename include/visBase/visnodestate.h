@@ -30,6 +30,7 @@ public:
 
     void			attachStateSet(osg::StateSet*);
     void			detachStateSet(osg::StateSet*);
+    virtual void		setPixelDensity(float)			{}
 
 protected:
 				NodeState();

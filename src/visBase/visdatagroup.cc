@@ -25,6 +25,7 @@ DataObjectGroup::DataObjectGroup()
     , separate_( true )
     , change( this )
     , righthandsystem_( true )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     setOsgNode( osggroup_ );
 }
@@ -45,6 +46,7 @@ int DataObjectGroup::size() const
 #define mNewObjectOperations \
 no->ref(); \
 no->setRightHandSystem( isRightHandSystem() ); \
+no->setPixelDensity( getPixelDensity() ); \
 no->setParent( this ); \
 change.trigger(); \
 requestSingleRedraw();
@@ -84,6 +86,17 @@ void DataObjectGroup::setRightHandSystem( bool yn )
 
     for ( int idx=0; idx<objects_.size(); idx++ )
 	objects_[idx]->setRightHandSystem( yn );
+}
+
+
+void DataObjectGroup::setPixelDensity( float dpi )
+{
+    DataObject::setPixelDensity( dpi );
+
+    pixeldensity_ = dpi;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->setPixelDensity( dpi );
 }
 
 

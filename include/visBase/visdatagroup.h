@@ -69,6 +69,9 @@ public:
     void			setRightHandSystem(bool);
     bool			isRightHandSystem() const;
 
+    void			setPixelDensity(float dpi);
+    float			getPixelDensity() const { return pixeldensity_;}
+
     Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
 protected:
 
@@ -77,6 +80,7 @@ protected:
     osg::Group*			osggroup_;
 
     bool			righthandsystem_;
+    float			pixeldensity_;
 
 protected:
 

@@ -26,6 +26,7 @@ class DataPointSet;
 
 namespace visBase
 {
+class DrawStyle;
 class Transformation;
 class Coordinates;
 class Normals;
@@ -112,6 +113,7 @@ protected:
 
     Geometry::IndexedShape*			shape_;
     VertexShape*				vtexshape_;
+    DrawStyle*					drawstyle_;
     bool					colortableenabled_ ;
     int						renderside_;
        					    /*!< 0 = visisble from both sides.

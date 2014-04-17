@@ -54,6 +54,9 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
+    void			setPixelDensity(float);
+    float			getPixelDensity() const;
+
     bool			needLine();
     void                        createLine();
     void			redrawLine();

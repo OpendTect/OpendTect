@@ -35,7 +35,6 @@ mExpClass(visBase) DrawStyle : public NodeState
 public:
 			DrawStyle();
     enum Style		{ Filled, Lines, Points, Invisible };
-    			DeclareEnumUtils(Style);
 
     void		setDrawStyle( Style );
     Style		getDrawStyle() const;
@@ -51,22 +50,19 @@ public:
     void 		setLineWidth(int);
     const LineStyle&	lineStyle() const 		{ return linestyle_; }
 
-    int			usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    void		setPixelDensity(float);
 
 protected:
 
     void			updateLineStyle();
 
     LineStyle			linestyle_;
+    float			pointsize_;
+    float			pixeldensity_;
 
-    osg::Point*			pointsize_;
-    osg::LineStipple*		linestipple_;
-    osg::LineWidth*		linewidth_;
-
-    static const char*	linestylestr();
-    static const char*	drawstylestr();
-    static const char*	pointsizestr();
+    osg::Point* 		pointsizeattrib_;
+    osg::LineStipple*		linestippleattrib_;
+    osg::LineWidth*		linewidthattrib_;
 };
 
 };

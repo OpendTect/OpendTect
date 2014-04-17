@@ -20,17 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visBase
 {
 
-DefineEnumNames( DrawStyle, Style, 1, "Style" )
-{ "Filled", "Lines", "Points", "Invisible", 0 };
-
-const char* DrawStyle::linestylestr()  { return "Line Style"; }
-const char* DrawStyle::drawstylestr()  { return "Draw Style"; }
-const char* DrawStyle::pointsizestr()  { return "Point Size"; }
-
 DrawStyle::DrawStyle()
-    : pointsize_(0)
-    , linestipple_(0)
-    , linewidth_(0)
+    : pointsizeattrib_(0)
+    , pointsize_( 0.0f )
+    , linestippleattrib_(0)
+    , linewidthattrib_(0)
+    , pixeldensity_( DataObject::getDefaultPixelDensity() )
 {}
 
 
@@ -49,16 +44,19 @@ DrawStyle::Style DrawStyle::getDrawStyle() const
 
 void DrawStyle::setPointSize( float nsz )
 {
-    if ( !pointsize_ )
-	pointsize_ = addAttribute( new osg::Point );
+    if ( !pointsizeattrib_ )
+	pointsizeattrib_ = addAttribute( new osg::Point );
 
-    pointsize_->setSize( nsz );
+    pointsize_ = nsz;
+
+    pointsizeattrib_->setSize(
+		nsz * pixeldensity_ / DataObject::getDefaultPixelDensity());
 }
 
 
 float DrawStyle::getPointSize() const
 {
-    return pointsize_ ? pointsize_->getSize() : 1;
+    return pointsize_;
 }
 
 
@@ -80,13 +78,16 @@ void DrawStyle::setLineWidth( int width )
 void DrawStyle::updateLineStyle()
 {
 
-    if ( !linestipple_ )
-	linestipple_ = addAttribute( new osg::LineStipple );
+    if ( !linestippleattrib_ )
+	linestippleattrib_ = addAttribute( new osg::LineStipple );
 
-    if ( !linewidth_ )
-	linewidth_ = addAttribute( new osg::LineWidth );
+    if ( !linewidthattrib_ )
+	linewidthattrib_ = addAttribute( new osg::LineWidth );
 
-    linewidth_->setWidth( linestyle_.width_ );
+    const float widthfactor =
+	pixeldensity_ / DataObject::getDefaultPixelDensity();
+
+    linewidthattrib_->setWidth( linestyle_.width_ * widthfactor );
 
     unsigned short pattern;
 
@@ -97,45 +98,17 @@ void DrawStyle::updateLineStyle()
     else if ( linestyle_.type_==LineStyle::DashDot ) pattern = 0xF6F6;
     else pattern = 0xEAEA;
 
-    linestipple_->setPattern( pattern );
-
-    //TODO set Factor as well?
- }
-
-
-int DrawStyle::usePar( const IOPar& par )
-{
-    const char* linestylepar = par.find( linestylestr() );
-    if ( !linestylepar ) return -1;
-
-    linestyle_.fromString( linestylepar );
-    updateLineStyle();
-
-    const char* stylepar = par.find( drawstylestr() );
-    if ( !stylepar ) return -1;
-
-    int enumid = getIndexInStringArrCI( stylepar, StyleNames(), 0, 1, -1 );
-    if ( enumid<0 ) return -1;
-
-    setDrawStyle( (Style)enumid );
-
-    float pointsize;
-    if ( !par.get( pointsizestr(), pointsize ) )
-	return -1;
-    setPointSize( pointsize );
-
-    return 1;
+    linestippleattrib_->setPattern( pattern );
 }
 
 
-void DrawStyle::fillPar( IOPar& par ) const
+void DrawStyle::setPixelDensity( float dpi )
 {
-    BufferString linestyleval;
-    linestyle_.toString( linestyleval );
-    par.set( linestylestr(), linestyleval );
+    pixeldensity_ = dpi;
+    updateLineStyle();
 
-    par.set( drawstylestr(), StyleNames()[(int)getDrawStyle()] );
-    par.set( pointsizestr(), getPointSize() );
+    if ( pointsizeattrib_ )
+	setPointSize( getPointSize() );
 }
 
 }; // namespace visBase

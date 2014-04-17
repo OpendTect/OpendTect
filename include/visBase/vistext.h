@@ -39,8 +39,10 @@ public:
 					    bool scenespace = false);
     Coord3			getPosition() const;
 
-    void			setFontData(const FontData&);
+    void			setFontData(const FontData&, float pixeldens);
     const FontData&		getFontData() const	{ return fontdata_; }
+
+    void			updateFontSize(float pixeldensity);
 
     void			setText(const uiString&);
     const uiString&		getText() const 	{ return text_; }
@@ -92,12 +94,15 @@ public:
     Text*			text(int idx=0);
 
     void			setDisplayTransformation(const mVisTrans*);
+    void			setPixelDensity(float);
+    float			getPixelDensity() const { return pixeldensity_;}
 
 protected:
     void			translationChangeCB(CallBacker*);
 				~Text2();
     osg::Geode*			geode_;
     ManagedObjectSet<Text>	texts_;
+    float			pixeldensity_;
     const mVisTrans*		displaytransform_;
 };
 

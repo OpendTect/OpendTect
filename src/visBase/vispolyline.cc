@@ -108,6 +108,7 @@ void PolyLine::setDisplayTransformation( const mVisTrans* trans)
 
 PolyLine3D::PolyLine3D()
     : VertexShape( Geometry::PrimitiveSet::Other, false )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     node_ = osgpoly_ = new osgGeo::PolyLineNode;
     osgpoly_->ref();
@@ -119,7 +120,14 @@ PolyLine3D::PolyLine3D()
 void PolyLine3D::setLineStyle( const LineStyle& lst )
 {
     lst_ = lst_;
-    osgpoly_->setRadius( lst.width_ );
+    updateRadius();
+}
+
+
+void PolyLine3D::updateRadius()
+{
+    const float factor = pixeldensity_ / getDefaultPixelDensity();
+    osgpoly_->setRadius( lst_.width_ * factor );
 }
 
 
@@ -140,6 +148,15 @@ void PolyLine3D::setResolution( int res )
 int PolyLine3D::getResolution() const
 {
     return osgpoly_->getResolution();
+}
+
+
+void PolyLine3D::setPixelDensity( float dpi )
+{
+    VertexShape::setPixelDensity( dpi );
+
+    pixeldensity_ = dpi;
+    updateRadius();
 }
 
 
@@ -173,5 +190,8 @@ void PolyLine3D::setDisplayTransformation( const mVisTrans* trans)
     VertexShape::setDisplayTransformation( trans );
     setCoordinates( coords_ );
 }
+
+
+
 
 }; // namespace visBase

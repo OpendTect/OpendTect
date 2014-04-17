@@ -83,9 +83,14 @@ public:
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 
+    void		setPixelDensity(float);
+    float		getPixelDensity() const 	{ return pixeldensity_;}
+
 protected:
+    void			updateRadius();
     osgGeo::PolyLineNode*	osgpoly_;
     LineStyle			lst_;
+    float			pixeldensity_;
 };
 
 

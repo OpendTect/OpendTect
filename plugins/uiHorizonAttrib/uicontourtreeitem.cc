@@ -387,7 +387,7 @@ void uiContourTreeItemContourGenerator::addContourLabel(
     {
 	label->setText( lbl );
 	label->setPosition( pos, true );
-	label->setFontData( FontData( 18 ) );
+	label->setFontData( FontData( 18 ), labels_->getPixelDensity() );
     }
 }
 

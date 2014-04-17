@@ -103,6 +103,9 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
+    void			setPixelDensity(float);
+    float			getPixelDensity() const {return pixeldensity_;}
+
     float			calcDist(const Coord3&) const;
 
     int				nrResolutions() const;
@@ -217,6 +220,7 @@ protected:
     Pos::GeomID			geomid_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
+    float			pixeldensity_;
 
     struct UpdateStageInfo
     {

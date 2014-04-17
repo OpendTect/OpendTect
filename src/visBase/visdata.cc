@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
 
+#define mDefaultPixelDensity	72
+
 using namespace visBase;
 
 const void* DataObject::visualizationthread_ = 0;
@@ -111,6 +113,21 @@ visBase::NodeState* DataObject::removeNodeState( visBase::NodeState* ns )
 
     return ns;
 }
+
+
+void DataObject::setPixelDensity( float dpi )
+{
+    for ( int idx=0; idx<nodestates_.size(); idx++ )
+	nodestates_[idx]->setPixelDensity( dpi );
+}
+
+
+float DataObject::getDefaultPixelDensity()
+{ return mDefaultPixelDensity; }
+
+
+float DataObject::getPixelDensity() const
+{ return getDefaultPixelDensity(); }
 
 
 NodeState* DataObject::getNodeState( int idx )

@@ -73,6 +73,7 @@ Seis2DDisplay::Seis2DDisplay()
     , datatransform_(0)
     , voiidx_(-1)
     , prevtrcidx_(0)
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
     cache_.allowNull();
@@ -174,7 +175,8 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
     if ( scene_ )
     {
 	setAnnotColor( scene_->getAnnotColor() );
-	linename_->text()->setFontData( scene_->getAnnotFont() );
+	linename_->text()->setFontData( scene_->getAnnotFont(),
+					getPixelDensity() );
     }
 }
 
@@ -785,6 +787,16 @@ void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 const mVisTrans* Seis2DDisplay::getDisplayTransformation() const
 {
     return transformation_;
+}
+
+
+void Seis2DDisplay::setPixelDensity( float dpi )
+{
+    visBase::DataObject::setPixelDensity( dpi );
+    pixeldensity_ = dpi;
+
+    if ( linename_ )
+	linename_->text()->updateFontSize( dpi );
 }
 
 

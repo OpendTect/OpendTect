@@ -41,11 +41,9 @@ PickSetDisplay::PickSetDisplay()
 
 PickSetDisplay::~PickSetDisplay()
 {
-    if ( bodydisplay_ ) 
-	bodydisplay_->unRef();
-
+    unRefAndZeroPtr( bodydisplay_ );
     removeChild( markerset_->osgNode() );
-    markerset_->unRef();
+    unRefAndZeroPtr( markerset_ );
 
     if ( polyline_ )
     {
@@ -313,6 +311,7 @@ bool PickSetDisplay::setBodyDisplay()
 	bodydisplay_ = visBase::RandomPos2Body::create();
 	bodydisplay_->ref();
 	addChild( bodydisplay_->osgNode() );
+	bodydisplay_->setPixelDensity( getPixelDensity() );
     }
     
     if ( !bodydisplay_->getMaterial() )
@@ -454,6 +453,16 @@ void PickSetDisplay::setColor( Color nc )
     markerset_->setMarkersSingleColor( nc );
 }
 
+
+void PickSetDisplay::setPixelDensity( float dpi )
+{
+    markerset_->setPixelDensity( dpi );
+    if ( bodydisplay_ ) bodydisplay_->setPixelDensity( dpi );
+}
+
+
+float PickSetDisplay::getPixelDensity() const
+{ return markerset_->getPixelDensity(); }
 
 
 void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )

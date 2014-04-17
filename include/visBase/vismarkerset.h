@@ -95,6 +95,9 @@ public:
     void		setDisplayTransformation( const mVisTrans* );
     const mVisTrans*	getDisplayTransformation() const;
 
+    void		setPixelDensity(float);
+    float		getPixelDensity() const { return pixeldensity_; }
+
     void		removeMarker(int idx);
 
     void		clearMarkers();
@@ -122,6 +125,8 @@ protected:
     RefMan<const mVisTrans>	displaytrans_;
     osgGeo::MarkerSet*		markerset_;
     MarkerStyle3D		markerstyle_;
+
+    float			pixeldensity_;
 
     //void		setArrowDir(const ::Sphere&);
 };
