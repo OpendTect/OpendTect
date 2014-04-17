@@ -33,16 +33,15 @@ public:
     void		mergeSets(MultiID&);
     bool		pickSetsStored() const;
 
+    virtual bool	storeNewSet(Pick::Set*&) const;
+
 protected:
 
     uiParent*		parent_;
     Pick::SetMgr&	setmgr_;
 
-    virtual bool	storeNewSet(Pick::Set*&) const;
     virtual IOObj*	getSetIOObj(const Pick::Set&) const;
-    virtual bool	doStore(const Pick::Set&,const IOObj&) const;
-
-    friend class	uiPickPartServer;		
+    virtual bool	doStore(const Pick::Set&,const IOObj&) const;	
 };
 
 

@@ -221,7 +221,7 @@ bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
     uiCreatePicks dlg( parent(), aspolygon );
     mHandleDlg();
-    return newps ? uipsmgr_.storeSetAs( *newps ) : false;
+    return newps ? uipsmgr_.storeNewSet( newps ) : false;
 }
 
 
@@ -332,7 +332,7 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
     *ps = pickset;
 
     if ( isnew )
-	uipsmgr_.storeSetAs( *ps );
+	uipsmgr_.storeNewSet( ps );
     else
     {
 	uipsmgr_.storeSet( *ps );
@@ -362,7 +362,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     }
 
     if ( isnew )
-	uipsmgr_.storeSetAs( *ps );
+	uipsmgr_.storeNewSet( ps );
     else
 	uipsmgr_.storeSet( *ps );
 }
