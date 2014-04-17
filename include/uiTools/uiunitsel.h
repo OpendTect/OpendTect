@@ -86,9 +86,10 @@ public:
     void			fillPar(IOPar&,const char* altkey=0) const;
     bool			usePar(const IOPar&,const char* altkey=0);
 
-    void			setKey(const char*);
+    const char*			tblKey() const;
 				    //!< For UnitOfMeasure::currentDefaults()
-				    //!< default is lbltxt, or else prop std nm
+				    //!< default is prop std nm, else lbltxt
+    void			setFallbackKey(const char*);
     static IOPar&		lastUsed();
 				    //!< == UnitOfMeasure::currentDefaults()
 

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "propertyref.h"
+#include "mathformula.h"
 class BufferStringSet;
 class UnitOfMeasure;
 namespace Math { class Formula; class Expression; }
@@ -29,20 +29,23 @@ public:
 
 			uiMathExpressionVariable(uiParent*,int varidx,
 				    bool displayuom=true,
-				    const BufferStringSet* inpnms=0);
+				    const Math::SpecVarSet* svs=0);
 
     void		addInpViewIcon(const char* inm,const char* tooltip,
-	    				const CallBack&);
+					const CallBack&);
+    void		setRegularInputs(const BufferStringSet&);
 
     virtual void	use(const Math::Formula&);
     virtual void	use(const Math::Expression*);
 
+    int			varIdx() const		{ return varidx_; }
     const BufferString&	varName() const		{ return varnm_; }
     bool		hasVarName( const char* nm ) const
-							{ return varnm_ == nm; }
+						{ return varnm_ == nm; }
 
     bool		isActive() const	{ return isactive_; }
     bool		isConst() const		{ return isconst_; }
+    int			specIdx() const		{ return specidx_; }
     const char*		getInput() const;
     const UnitOfMeasure* getUnit() const;
     void		fill(Math::Formula&) const;
@@ -54,6 +57,9 @@ public:
 
     Notifier<uiMathExpressionVariable> inpSel;
 
+    uiGroup*		rightMostField();
+    const uiToolButton*	viewBut() const		{ return vwbut_; }
+
 protected:
 
     void		initFlds(CallBacker*);
@@ -62,17 +68,22 @@ protected:
 
     const int		varidx_;
     BufferString	varnm_;
+    BufferStringSet	reginputs_;
     bool		isactive_;
     bool		isconst_;
+    int			specidx_;
+    Math::SpecVarSet	specvars_;
 
     uiLabeledComboBox*	varfld_;
     uiGenInput*		constfld_;
     uiUnitSel*		unfld_;
     uiToolButton*	vwbut_;
 
+    void		getInpNms(BufferStringSet&) const;
     void		updateDisp();
+    void		updateInpNms();
     void		setActive(bool);
-    void		setVariable(const char*);
+    void		setVariable(const char*,bool);
 
 };
 

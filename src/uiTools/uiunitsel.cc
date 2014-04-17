@@ -95,7 +95,7 @@ void uiUnitSel::propSelChg( CallBacker* )
 }
 
 
-void uiUnitSel::setKey( const char* newky )
+void uiUnitSel::setFallbackKey( const char* newky )
 {
     if ( tblkey_ == newky )
 	return;
@@ -149,7 +149,8 @@ void uiUnitSel::setUnFld( const UnitOfMeasure* un )
 
 void uiUnitSel::setUnit( const UnitOfMeasure* un )
 {
-    setPropFld( un ? un->propType() : PropertyRef::Other );
+    if ( un )
+	setPropFld( un->propType() );
     setUnFld( un );
 }
 
@@ -224,20 +225,33 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 }
 
 
+const char* uiUnitSel::tblKey() const
+{
+    if ( setup_.ptype_ != PropertyRef::Other )
+	return PropertyRef::StdTypeNames()[setup_.ptype_];
+    return tblkey_;
+}
+
+
 void uiUnitSel::fillPar( IOPar& iop, const char* altkey ) const
 {
     const UnitOfMeasure* un = gtUnit();
-    iop.update( altkey ? altkey : tblkey_.buf(), un ? un->name().buf() : 0 );
+    iop.update( altkey ? altkey : tblKey(), un ? un->name().buf() : 0 );
 }
 
 
 bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 {
-    const char* res = iop.find( altkey ? altkey : tblkey_.buf() );
+    const char* res = iop.find( altkey ? altkey : tblKey() );
     if ( res && *res )
     {
-	setUnit( res );
-	return true;
+	const UnitOfMeasure* un = UoMR().get( res );
+	if ( setup_.ptype_ == PropertyRef::Other
+		|| (un && un->propType() == setup_.ptype_) )
+	{
+	    setUnFld( un );
+	    return true;
+	}
     }
     return false;
 }

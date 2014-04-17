@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Math { class Expression; }
 class uiMathExpression;
 class uiMathExpressionVariable;
-class uiComboBox;
+class uiUnitSel;
 class uiListBox;
 class uiPushButton;
 
@@ -42,14 +42,14 @@ public:
 
 protected:
 
-    MathProperty&       prop_;
-    uiMathExpression*   formfld_;
-    uiListBox*          propfld_;
-    Math::Expression*     expr_;
-    BufferStringSet     inputunits_;
-    int                 nrvars_;
-    uiPushButton*       replbut_;
-    uiComboBox*         outunfld_;
+    MathProperty&	prop_;
+    uiMathExpression*	formfld_;
+    uiListBox*		propfld_;
+    Math::Expression*	expr_;
+    BufferStringSet	inputunits_;
+    int			nrvars_;
+    uiPushButton*	replbut_;
+    uiUnitSel*		outunfld_;
     ObjectSet<uiMathExpressionVariable> inpdataflds_;
 };
 

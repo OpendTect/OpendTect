@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathexpression.h"
 #include "mathproperty.h"
 #include "separstr.h"
-#include "uicombobox.h"
+#include "uiunitsel.h"
 #include "uilineedit.h"
 #include "uilistbox.h"
 #include "uimathexpression.h"
@@ -51,8 +51,6 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 	if ( ref != &pr.ref() )
 	    availpropnms.add( ref->name() );
     }
-    availpropnms.add( "Depth" );
-    availpropnms.add( "XPos" );
 
     const CallBack inspropcb( mCB(this,uiMathPropEdDlg,insProp) );
     uiToolButton* but = new uiToolButton( formgrp, uiToolButton::LeftArrow,
@@ -66,11 +64,15 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 
     propfld_->doubleClicked.notify( inspropcb );
 
+    Math::SpecVarSet svs;
+    svs.add( "Depth", "Vertical depth", true, PropertyRef::Dist );
+    svs.add( "XPos", "Relative horizontal position (0-1)" );
     uiGroup* varsgrp = new uiGroup( this, "Variable selection group" );
     for ( int idx=0; idx<cMaxNrInps; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(
-				varsgrp, idx, true, &availpropnms );
+				varsgrp, idx, true, &svs );
+	fld->setRegularInputs( availpropnms );
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
 	inpdataflds_ += fld;
@@ -84,15 +86,11 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				 replcb, true );
     replbut_->display( false );
 
-    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-						"Output unit of measure" );
-    outunfld_ = lcb->box();
-    outunfld_->addItem( "-" );
-    for ( int idx=0; idx<uns.size(); idx++ )
-	outunfld_->addItem( uns[idx]->name() );
-    outunfld_->setText( fms[pr.nrConsts()+1] );
-    lcb->attach( alignedBelow, replbut_ );
+    uiUnitSel::Setup uussu( pr.ref().stdType(), "Output is" );
+    uussu.selproptype( false ).withnone( true );
+    outunfld_ = new uiUnitSel( this, uussu );
+    outunfld_->setUnit( fms[pr.nrConsts()+1] );
+    outunfld_->attach( alignedBelow, replbut_ );
 
     varsgrp->attach( alignedBelow, formgrp );
     replbut_->attach( centeredBelow, varsgrp );
@@ -166,7 +164,7 @@ bool uiMathPropEdDlg::acceptOK( CallBacker* )
     updVarsOnScreen();
 
     FileMultiString fms( formfld_->text() );
-    fms.add( outunfld_->text() ? outunfld_->text() : "" );
+    fms.add( outunfld_->getUnitName() );
     for ( int idx=0; idx<nrvars_; idx++ )
     {
 	const UnitOfMeasure* uom = inpdataflds_[idx]->getUnit();

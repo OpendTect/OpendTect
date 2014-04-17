@@ -14,14 +14,18 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "propertyref.h"
+#include "mathformula.h"
+class UnitOfMeasure;
 class uiButton;
 class uiUnitSel;
 class uiToolButton;
 class uiToolButtonSetup;
 class uiMathExpression;
 class uiMathExpressionVariable;
-namespace Math { class Formula; }
+namespace Math { class Form; }
+
+
+/* edits a Math::Formula */
 
 
 mExpClass(uiTools) uiMathFormula : public uiGroup
@@ -34,46 +38,60 @@ public:
 			Setup( const char* lbl=0 )
 			    : label_(lbl)
 			    , withunits_(true)
-			    , maxnrvars_(6)		{}
+			    , maxnrinps_(6)		{}
 
 	mDefSetupMemb(BufferString,label);
 	mDefSetupMemb(bool,withunits);
-	mDefSetupMemb(int,maxnrvars);
+	mDefSetupMemb(int,maxnrinps);
 
     };
 
-			uiMathFormula(uiParent*,const Setup&);
+			uiMathFormula(uiParent*,Math::Formula&,const Setup&);
+    void		setRegularInputs(const BufferStringSet&,int iinp=-1);
+					//!< iinp == -1 does all
 
     bool		setText(const char*);
     const char*		text();
 
-    bool		useForm(const Math::Formula&,
-	    		    const TypeSet<PropertyRef::StdType>* inputtypes=0);
-    bool		updateForm(Math::Formula&) const;
+    bool		useForm(const TypeSet<PropertyRef::StdType>* inptyps=0);
+    bool		updateForm() const;
+
+			// shortcuts for things available in form
+    int			nrInputs() const;
+    const char*		getInput(int) const;
+    bool		isSpec(int) const;
+    bool		isConst(int) const;
+    double		getConstVal(int) const;
+    const UnitOfMeasure* getUnit() const;
 
     uiButton*		addButton(const uiToolButtonSetup&);
     void		addInpViewIcon(const char* icnm,const char* tooltip,
-	    				const CallBack&);
+					const CallBack&);
 
     Notifier<uiMathFormula> formSet;
     Notifier<uiMathFormula> inpSet;
     Notifier<uiMathFormula> formUnitSet;
 
     uiMathExpression*	exprFld()		{ return exprfld_; }
-    uiMathExpressionVariable* varFld( int idx )	{ return varflds_[idx]; }
+    int			nrInpFlds() const	{ return inpflds_.size(); }
+    uiMathExpressionVariable* inpFld( int idx )	{ return inpflds_[idx]; }
     uiUnitSel*		unitFld()		{ return unitfld_; }
+    int			inpSelNotifNr() const	{ return notifinpnr_; }
+    int			vwLogInpNr(CallBacker*) const;
 
 protected:
 
+    Math::Formula&	form_;
     uiMathExpression*	exprfld_;
-    ObjectSet<uiMathExpressionVariable> varflds_;
+    ObjectSet<uiMathExpressionVariable> inpflds_;
     uiUnitSel*		unitfld_;
     uiToolButton*	recbut_;
+    int			notifinpnr_;
 
     Setup		setup_;
     TypeSet<double>	recvals_;
 
-    bool		checkValidNrInputs(const Math::Formula&) const;
+    bool		checkValidNrInputs() const;
 
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);

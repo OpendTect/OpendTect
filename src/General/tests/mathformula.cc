@@ -85,26 +85,36 @@ static bool testSimpleFormula()
 
 static bool testRepeatingVar()
 {
-     const char* expr = "x + x + y";
+     const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
 
     if ( !quiet )
 	od_cout() << "Expression: '" << expr << "'\n";
 
-    Math::Formula form( expr );
+    Math::SpecVarSet svs;
+    svs += Math::SpecVar( "Aap", "Dit is aapje", true, PropertyRef::Dist );
+    svs += Math::SpecVar( "Noot", "Dit is nootje", false );
+    Math::Formula form( expr, &svs );
 
     if ( !form.isOK() )
 	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
-    mTestVal(nrinp,2);
+    mTestVal(nrinp,3);
 
     const int nrshft = form.maxRecShift();
-    mTestVal(nrshft,0);
+    mTestVal(nrshft,1);
 
-    float inpvals[2];
-    inpvals[0] = 3; inpvals[1] = 7;
+    const int nrinpvals = form.nrValues2Provide();
+    mTestVal(nrinpvals,4);
+    mTestVal(form.isSpec(0),false);
+    mTestVal(form.isSpec(2),true);
+
+    float inpvals[4];
+    inpvals[0] = -3; inpvals[1] = 7; // values for x[-1] and x[1]
+    inpvals[2] = 11; // value for y
+    inpvals[3] = -10; // value for aap
     float val = form.getValue( inpvals, true );
-    mTestValF(val,13);
+    mTestValF(val,16);
 
     return true;
 }

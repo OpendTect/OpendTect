@@ -14,23 +14,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitoolbutton.h"
 #include "uigeninput.h"
-#include "uimathexpression.h"
+#include "uimathformula.h"
+#include "uimathexpressionvariable.h"
 #include "uirockphysform.h"
-#include "uicombobox.h"
 #include "uimsg.h"
-#include "uitable.h"
 #include "uilabel.h"
-#include "uilineedit.h"
 #include "uiseparator.h"
-#include "uiwelllogcalcinpdata.h"
 #include "uiunitsel.h"
+#include "uiwelllogdisplay.h"
 
 #include "ioman.h"
 #include "ioobj.h"
 #include "mathformula.h"
-#include "separstr.h"
 #include "survinfo.h"
-#include "mathexpression.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -39,18 +35,33 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "wellwriter.h"
 
-#define mMDIdx	0
-#define mDZIdx	1
+#define mMDIdx		0
+#define mTVDIdx		1
 #define mTVDSSIdx	2
-#define mTVDIdx	3
-#define mTVDSDIdx	4
-#define	mTWTIdx	5
-#define	mVelIdx	6
+#define mTVDSDIdx	3
+#define mDZIdx		4
+#define	mTWTIdx		5
+#define	mVelIdx		6
 
-static const int cMaxNrInps = 6;
-static const char* specvararr[] = { "MD", "DZ", "TVDSS", "TVD", "TVDSD", "TWT",
-				    "VINT", 0 };
-static const BufferStringSet specvars( specvararr );
+
+static Math::SpecVarSet& getSpecVars()
+{
+    mDefineStaticLocalObject( Math::SpecVarSet, svs, );
+    svs.setEmpty();
+
+    svs.add( "MD", "MD, Depth Along Hole", true, PropertyRef::Dist );
+    svs.add( "TVD", "Z coordinate", true, PropertyRef::Dist );
+    svs.add( "TVDSS", "TVD below SS", true, PropertyRef::Dist );
+    svs.add( "TVDSD", "TVD below SD", true, PropertyRef::Dist );
+    svs.add( "DZ", "Delta Z", true, PropertyRef::Dist );
+    if ( SI().zIsTime() )
+    {
+	svs.add( "TWT", "Two-way traveltime", true, PropertyRef::Time );
+	svs.add( "VINT", "Interval velocity", true, PropertyRef::Vel );
+    }
+    return svs;
+}
+
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
@@ -72,8 +83,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     getDlgTitle(wllids),
 				     "107.1.10"))
-	, wls_(*new Well::LogSet)
-	, form_(*new Math::Formula)
+	, superwls_(*new Well::LogSet)
+	, form_(*new Math::Formula(&getSpecVars()))
 	, wellids_(wllids)
 	, formfld_(0)
 	, havenew_(false)
@@ -87,7 +98,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     getAllLogs();
-    if ( wls_.isEmpty() || lognms_.isEmpty() )
+    if ( superwls_.isEmpty() || lognms_.isEmpty() )
     {
 	new uiLabel( this, "Selected wells have no logs.\n"
 			   "Please import at least one." );
@@ -98,46 +109,30 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     setCtrlStyle( RunAndClose );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
     const CallBack formunitcb( mCB(this,uiWellLogCalc,formUnitSel) );
+    const CallBack inpselcb( mCB(this,uiWellLogCalc,inpSel) );
 
-    uiGroup* inpgrp = new uiGroup( this, "inp grp" );
-    uiMathExpression::Setup mesu( "Formula (like 'den / son')" );
-    mesu.withsetbut( true ).fnsbelow( false );
-    formfld_ = new uiMathExpression( inpgrp, mesu );
+    uiMathFormula::Setup mfsu( "Formula (like 'den / son')" );
+    formfld_ = new uiMathFormula( this, form_, mfsu );
+    formfld_->addInpViewIcon( "view_log", "Display this log",
+			      mCB(this,uiWellLogCalc,vwLog) );
+    formfld_->setRegularInputs( lognms_ );
+    formfld_->inpSet.notify( inpselcb );
     formfld_->formSet.notify( formsetcb );
+    formfld_->formUnitSet.notify( formunitcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 			    rockphyscb, "&Rock Physics");
     formfld_->addButton( tbsu );
-    inpgrp->setHAlignObj( formfld_ );
-
-    for ( int idx=0; idx<cMaxNrInps; idx++ )
-    {
-	uiWellLogCalcInpData* fld = new uiWellLogCalcInpData(this,inpgrp,idx);
-	if ( idx )
-	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
-	else
-	    fld->attach( alignedBelow, formfld_ );
-	fld->inpSel.notify( mCB(this,uiWellLogCalc,inpSel) );
-	inpdataflds_ += fld;
-    }
-
-    uiUnitSel::Setup uussu( PropertyRef::Other, "Formula result is" );
-    uussu.selproptype( true ).withnone( true );
-    formulaunfld_ = new uiUnitSel( inpgrp, uussu );
-    formulaunfld_->attach( alignedBelow,
-		    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
-    formulaunfld_->propSelChange.notify( formunitcb );
-    formulaunfld_->selChange.notify( formunitcb );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );
-    sep->attach( stretchedBelow, inpgrp );
+    sep->attach( stretchedBelow, formfld_ );
 
     float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
-    if ( !wls_.isEmpty() )
-	defsr = wls_.getLog(0).dahStep( false );
+    if ( !superwls_.isEmpty() )
+	defsr = superwls_.getLog(0).dahStep( false );
     srfld_ = new uiGenInput( this, "Output sample distance",
 			     FloatInpSpec(defsr) );
-    srfld_->attach( alignedBelow, inpgrp );
+    srfld_->attach( alignedBelow, formfld_ );
     srfld_->attach( ensureBelow, sep );
     ftbox_ = new uiCheckBox( this, "Feet" );
     ftbox_->setChecked( SI().depthsInFeet() );
@@ -147,7 +142,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     nmfld_ = new uiGenInput( this, "Name for new log" );
     nmfld_->attach( alignedBelow, srfld_ );
 
-    uussu.lbltxt( "Output unit of measure" );
+    uiUnitSel::Setup uussu( PropertyRef::Other, "Output unit of measure" );
+    uussu.withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, nmfld_ );
 
@@ -182,8 +178,8 @@ void uiWellLogCalc::getAllLogs()
 	    for ( int ilog=0; ilog<wd.logs().size(); ilog++ )
 	    {
 		const Well::Log& wl = wd.logs().getLog( ilog );
-		if ( !wls_.getLog(wl.name()) )
-		    wls_.add( new Well::Log(wl) );
+		if ( !superwls_.getLog(wl.name()) )
+		    superwls_.add( new Well::Log(wl) );
 	    }
 	}
 	delete ioobj;
@@ -194,67 +190,29 @@ void uiWellLogCalc::getAllLogs()
 uiWellLogCalc::~uiWellLogCalc()
 {
     delete &form_;
-    delete &wls_;
+    delete &superwls_;
 }
 
 
-bool uiWellLogCalc::checkValidNrInputs( const Math::Formula& form ) const
-{
-    if ( form.nrInputs() > inpdataflds_.size() )
-    {
-	BufferString msg( "Sorry, the expression contains ", form.nrInputs(),
-			  "variables.\nThe maximum number is " );
-	msg.add( inpdataflds_.size() );
-	uiMSG().error( msg );
-	return false;
-    }
-    return true;
-}
-
-
-bool uiWellLogCalc::updateForm( Math::Formula& form ) const
+bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 {
     if ( !formfld_ )
 	return false;
-
-    form.setText( formfld_->text() );
-    if ( !checkValidNrInputs(form) )
-	return false;
-
-    for ( int idx=0; idx<form.nrInputs(); idx++ )
-	inpdataflds_[idx]->fill( form );
-
-    form.setOutputUnit( formulaunfld_->getUnit() );
-    return true;
-}
-
-
-bool uiWellLogCalc::useForm( const Math::Formula& form,
-			     const TypeSet<PropertyRef::StdType>* inputtypes )
-{
-    const bool isbad = form.isBad();
-    formfld_->setText( isbad ? "" : form.text() );
-    const UnitOfMeasure* formun = isbad ? 0 : form.outputUnit();
-    formulaunfld_->setUnit( formun );
-    for ( int idx=0; idx<inpdataflds_.size(); idx++ )
+    if ( inputtypes )
     {
-	uiWellLogCalcInpData& inpfld = *inpdataflds_[idx];
-	if ( !isbad && idx<form.nrInputs() )
+	if ( !formfld_->useForm(inputtypes) )
+	    return false;
+	for ( int idx=0; idx<inputtypes->size(); idx++ )
 	{
-	    const PropertyRef::StdType ptyp
-		= inputtypes && inputtypes->validIdx(idx) ? (*inputtypes)[idx]
-							  : PropertyRef::Other;
-	    inpfld.setProp( ptyp );
+	    TypeSet<int> propidxs = superwls_.getSuitable( (*inputtypes)[idx] );
+	    BufferStringSet nms;
+	    for ( int ilog=0; ilog<propidxs.size(); ilog++ )
+		nms.add( superwls_.getLog(propidxs[ilog]).name() );
+	    formfld_->setRegularInputs( nms, idx );
 	}
-	inpfld.use( form );
     }
 
-    if ( isbad )
-    {
-	uiMSG().error( BufferString("Invalid expression:\n",form.errMsg()));
-	return false;
-    }
-
+    const UnitOfMeasure* formun = formfld_->getUnit();
     const PropertyRef::StdType prevtyp = outunfld_->propType();
     const PropertyRef::StdType newtyp = formun ? formun->propType()
 					       : PropertyRef::Other;
@@ -264,7 +222,7 @@ bool uiWellLogCalc::useForm( const Math::Formula& form,
 	outunfld_->setUnit( UoMR().getInternalFor(newtyp) );
     }
 
-    return checkValidNrInputs( form );
+    return true;
 }
 
 
@@ -275,23 +233,18 @@ public:
 uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup("Rock Physics",
 				 "Use a rock physics formula", "107.1.12"))
-{
-    formgrp_ = new uiRockPhysForm( this );
-}
+{ formgrp_ = new uiRockPhysForm( this ); }
 
 bool acceptOK( CallBacker* )
 {
-    if ( !formgrp_->isOK() )
-	{ uiMSG().error( formgrp_->errMsg() ); return false; }
-
-    return true;
+    bool rv = formgrp_->isOK();
+    if ( !rv ) uiMSG().error( formgrp_->errMsg() );
+    return rv;
 }
 
 bool getFormulaInfo( Math::Formula& form,
 		     TypeSet<PropertyRef::StdType>& varstypes ) const
-{
-    return formgrp_->getFormulaInfo(form,&varstypes);
-}
+{ return formgrp_->getFormulaInfo(form,&varstypes); }
 
     uiRockPhysForm*	formgrp_;
 
@@ -301,16 +254,15 @@ bool getFormulaInfo( Math::Formula& form,
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
     uiWellLogCalcRockPhys dlg( this );
-    Math::Formula newform;
     TypeSet<PropertyRef::StdType> inputtypes;
-    if ( !dlg.go() || !dlg.getFormulaInfo(newform,inputtypes) )
+    if ( !dlg.go() || !dlg.getFormulaInfo(form_,inputtypes) )
 	return;
 
-    useForm( newform, &inputtypes );
+    useForm( &inputtypes );
 
-    const UnitOfMeasure* outun = newform.outputUnit();
-    if ( outun )
-	outunfld_->setPropType( outun->propType() );
+    const UnitOfMeasure* formun = form_.outputUnit();
+    if ( formun )
+	outunfld_->setPropType( formun->propType() );
 }
 
 
@@ -327,23 +279,23 @@ void uiWellLogCalc::feetSel( CallBacker* )
 
 void uiWellLogCalc::formSet( CallBacker* )
 {
-    Math::Formula form;
-    if ( updateForm(form) )
-    {
-	form.clearInputDefs();
-	useForm( form );
-    }
+    useForm();
 }
 
 
 void uiWellLogCalc::formUnitSel( CallBacker* )
 {
-    const UnitOfMeasure* formun = formulaunfld_->getUnit();
-    if ( !formun ) return;
-
-    const UnitOfMeasure* curoutun = outunfld_->getUnit();
-    if ( !curoutun || curoutun->propType() != formun->propType() )
+    const UnitOfMeasure* formun = formfld_->getUnit();
+    if ( !formun )
+	outunfld_->setPropType( PropertyRef::Other );
+    else
 	outunfld_->setUnit( formun );
+}
+
+
+Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, int varnr )
+{
+    return wls.getLog( formfld_->getInput(varnr) );
 }
 
 
@@ -353,11 +305,9 @@ void uiWellLogCalc::inpSel( CallBacker* )
     if ( !mIsUdf(sr) )
 	return;
 
-    for ( int idx=0; idx<inpdataflds_.size(); idx++ )
+    for ( int idx=0; idx<formfld_->nrInputs(); idx++ )
     {
-	const Well::Log* wl = inpdataflds_[idx]->getLog();
-	if ( !wl && !inpdataflds_[idx]->isConst() )
-		{ pErrMsg("Huh"); continue; }
+	const Well::Log* wl = getLog4InpIdx( superwls_, idx );
 	if ( !wl || wl->isEmpty() )
 	    continue;
 
@@ -374,6 +324,22 @@ void uiWellLogCalc::inpSel( CallBacker* )
 }
 
 
+void uiWellLogCalc::vwLog( CallBacker* cb )
+{
+    const int inpnr = formfld_->vwLogInpNr( cb );
+    if ( inpnr < 0 ) return;
+    const Well::Log* wl = getLog4InpIdx( superwls_, inpnr );
+    if ( !wl ) return;
+
+    uiWellLogDisplay::Setup wldsu;
+    wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    dlg->setLog( wl, true );
+    dlg->setDeleteOnClose( true );
+    dlg->show();
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 #define mErrContinue(s) { uiMSG().error(s); continue; }
@@ -383,11 +349,13 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 {
     if ( !formfld_ )
 	return true;
+    else if ( !formfld_->updateForm() )
+	return false;
 
     const BufferString newnm = nmfld_->text();
     if ( newnm.isEmpty() )
 	mErrRet("Please provide a name for the new log")
-    if ( lognms_.isPresent(newnm) || wls_.getLog(newnm) )
+    if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
 	mErrRet("A log with this name already exists."
 		"\nPlease enter a different name for the new log")
 
@@ -397,57 +365,38 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( ftbox_->isChecked() )
 	zsampintv_ *= mFromFeetFactorF;
 
-    Math::Formula form;
-    if ( !updateForm(form) )
-	return false;
 
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( wellids_[iwell] );
 	if ( !ioobj )
-	{
-	    BufferString msg = "Impossible to retrieve the ";
-	    msg += "selected well number ";
-	    msg += iwell;
-	    mErrContinue( msg.buf());
-	}
+	    mErrContinue( BufferString("Cannot find ",wellids_[iwell]) )
+
 	Well::Data wd;
 	const BufferString fnm( ioobj->fullUserExpr(true) );
 	Well::Reader rdr( fnm, wd );
 	if ( !rdr.getLogs() )
-	{
-	    BufferString msg( "Cannot read well logs for well ",ioobj->name() );
-	    mErrContinue( msg.buf());
-	}
+	    mErrContinue( BufferString("Cannot read logs for ",ioobj->name()) )
+
 	Well::LogSet& wls = wd.logs();
-	setCurWls( wls );
-	TypeSet<InpData> inpdata;
-	if ( !getInpData(form,inpdata) || !getRecInfo(form) )
+	TypeSet<InpData> inpdatas;
+	if ( !getInpDatas(wls,inpdatas) )
 	    continue;
 
-	if ( SI().zIsTime() )
-	{
-	    if ( !rdr.getD2T() )
-	    {
-		BufferString msg( "Cannot read time-depth model for well ",
-				  ioobj->name() );
-		mErrContinue( msg.buf() );
-	    }
-	}
+	if ( SI().zIsTime() && !rdr.getD2T() )
+	    mErrContinue( BufferString("Cannot read Time-Depth model for ",
+					ioobj->name()) )
 
 	Well::Log* newwl = new Well::Log( newnm );
-	if ( !calcLog(*newwl,form,inpdata,wd.track(),wd.d2TModel()) )
-	{
-	    delete newwl;
-	    BufferString msg( "Cannot compute well log '", newnm, "'" );
-	    mErrContinue( msg.buf() );
-	}
+	wls.add( newwl );
+	if ( !calcLog(*newwl,inpdatas,wd.track(),wd.d2TModel()) )
+	    mErrContinue( BufferString("Cannot compute log for ",ioobj->name()))
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
 	if ( outun )
 	{
-	    const UnitOfMeasure* logun = form.outputUnit();
+	    const UnitOfMeasure* logun = form_.outputUnit();
 	    for ( int idx=0; idx<newwl->size(); idx++ )
 	    {
 		const float initialval = newwl->value( idx );
@@ -461,21 +410,15 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	wls.add( newwl );
 	Well::Writer wtr( fnm, wd );
 	if ( !wtr.putLogs() )
-	{
-	    BufferString msg( "Cannot write new logs for well ",ioobj->name() );
-	    msg.addNewLine().add( "Check the permissions of the *.wll files" );
-	    wls.remove( wls.size()-1 );
-	    //Do not keep in memory what is not on disk
-	    mErrContinue( msg.buf() );
-	}
+	    mErrContinue( BufferString("Cannot write new log for ",
+			  ioobj->name(),
+			  "\nCheck the permissions of the *.wll files") )
 
 	successfulonce = true;
     }
 
-    setCurWls( wls_ );
     if ( !successfulonce )
 	return false;
 
@@ -485,121 +428,100 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 }
 
 
-void uiWellLogCalc::setCurWls( const Well::LogSet& wls )
+bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
+				TypeSet<uiWellLogCalc::InpData>& inpdatas )
 {
-    for ( int idx=0; idx<inpdataflds_.size(); idx++ )
-	inpdataflds_[idx]->wls_ = &wls;
-}
-
-
-bool uiWellLogCalc::getInpData( const Math::Formula& form,
-				TypeSet<uiWellLogCalc::InpData>& inpdata )
-{
-    for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
+    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
     {
-	InpData inpd;
-
-	const BufferString varnm( form.variableName(iinp) );
-	inpd.specidx_ = specvars.indexOf( varnm.buf() );
-	if ( inpd.specidx_ < 0 )
+	if ( form_.isConst(iinp) )
 	{
-	    uiWellLogCalcInpData* inpfld = 0;
-	    for ( int ivar=0; ivar<inpdataflds_.size(); ivar++ )
+	    InpData inpd; inpd.isconst_ = true;
+	    inpd.constval_ = form_.getConstVal( iinp );
+	    if ( mIsUdf(inpd.constval_) )
+		mErrRet(BufferString("Please enter a value for ",
+					form_.variableName(iinp)))
+	    inpdatas += inpd;
+	    continue;
+	}
+
+	const int specidx = form_.specIdx( iinp );
+	const TypeSet<int>& reqshifts = form_.getShifts( iinp );
+	for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
+	{
+	    InpData inpd;
+	    inpd.shift_ = reqshifts[ishft];
+	    if ( specidx < 0 )
 	    {
-		if ( inpdataflds_[ivar]->hasVarName(varnm) )
-		    { inpfld = inpdataflds_[ivar]; break; }
+		inpd.noudf_ = true; //TODO implement
+		inpd.wl_ = getInpLog( wls, iinp, ishft==0 );
+		if ( !inpd.wl_ )
+		    mErrRet(BufferString(form_.inputDef(iinp),": empty log"))
 	    }
-	    if ( !inpfld || !inpfld->getInp(inpd) )
-		mErrRet(BufferString(
-		    "Internal: Can't find log corresponding to variable: '",
-		     varnm.buf(),"'") )
-	    if ( inpd.wl_ && inpd.wl_->isEmpty() )
-		mErrRet(BufferString("The well log chosen for variable: '",
-				     varnm.buf(),"' is empty."))
-	}
-	else if ( !SI().zIsTime() &&
-		  (inpd.specidx_ == mTWTIdx || inpd.specidx_ == mVelIdx) )
-	{
-	    mErrRet(BufferString("Cannot use: '",
-				  varnm.buf(),"' in a depth survey."))
-	}
 
-	inpdata += inpd;
+	    inpd.specidx_ = specidx;
+	    inpdatas += inpd;
+	}
     }
 
     return true;
 }
 
 
-bool uiWellLogCalc::getRecInfo( Math::Formula& form )
+Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
+				     bool convtosi )
 {
-    if ( !form_.isRecursive() )
-	return true;
+    Well::Log* ret = getLog4InpIdx( wls, inpidx );
+    if ( !ret || ret->isEmpty() )
+	return 0;
 
-    const int maxshft = form_.maxRecShift();
-    const char* addeds = maxshft > 0 ? "s" : 0;
-    uiDialog dlg( this, uiDialog::Setup(BufferString("Recursion start value",
-				addeds),mNoDlgTitle,mNoHelpKey) );
-    uiLabel* lbl = new uiLabel( &dlg, BufferString(
-		"Recursive calculation: Please enter starting value", addeds) );
-
-    BufferString txt( "Start value" );
-    if ( maxshft > 1 )
-	txt.add( "s (" ).add( maxshft ).add( " comma-separated values)" );
-    uiGenInput* fld = new uiGenInput( &dlg, txt, StringInpSpec() );
-    fld->attach( centeredBelow, lbl );
-    lbl = new uiLabel( &dlg, "This will provide the first 'out' value(s)" );
-    lbl->attach( centeredBelow, fld );
-    if ( !dlg.go() )
-	return false;
-
-    const SeparString usrinp( fld->text() );
-    int nrvals = usrinp.size();
-    if ( nrvals > maxshft ) nrvals = maxshft;
-    for ( int idx=0; idx<nrvals; idx++ )
+    if ( convtosi )
     {
-	float val = toFloat( usrinp[idx] );
-	if ( mIsUdf(val) )
-	    break;
-	form.recStartVals()[idx] = val;
+	const char* logunitnm = ret->unitMeasLabel();
+	const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
+	if ( logun )
+	{
+	    float* valarr = ret->valArr();
+	    for ( int idx=0; idx<ret->size(); idx++ )
+		valarr[idx] = logun->getSIValue( valarr[idx] );
+	}
     }
 
-    return true;
+    return ret;
 }
 
 
-bool uiWellLogCalc::calcLog( Well::Log& wlout, const Math::Formula& form,
-			     const TypeSet<uiWellLogCalc::InpData>& inpdata,
+bool uiWellLogCalc::calcLog( Well::Log& wlout,
+			     const TypeSet<uiWellLogCalc::InpData>& inpdatas,
 			     Well::Track& track, Well::D2TModel* d2t )
 {
-    if ( inpdata.isEmpty() )
+    if ( inpdatas.isEmpty() )
 	{ pErrMsg("Wrong equation: check syntax"); return false; }
-    form.startNewSeries();
+    form_.startNewSeries();
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
-    for ( int iinp=0; iinp<inpdata.size(); iinp++ )
+    for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
     {
-	if ( !inpdata[iinp].wl_ )
+	if ( !inpdatas[iinp].wl_ )
 	    continue;
 
 	if ( dahrg.isUdf() )
-	    dahrg = inpdata[iinp].wl_->dahRange();
+	    dahrg = inpdatas[iinp].wl_->dahRange();
 	else
-	    dahrg.include( inpdata[iinp].wl_->dahRange(), false );
+	    dahrg.include( inpdatas[iinp].wl_->dahRange(), false );
     }
     if ( dahrg.isUdf() )
 	dahrg = track.dahRange();
 
     StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
     const int nrsamps = samprg.nrSteps() + 1;
-    TypeSet<float> inpvals( form.nrInputs(), 0 );
+    TypeSet<float> inpvals( inpdatas.size(), 0 );
     for ( int rgidx=0; rgidx<nrsamps; rgidx++ )
     {
 	const float dah = samprg.atIndex( rgidx );
 	inpvals.setAll( 0 );
-	for ( int iinp=0; iinp<inpdata.size(); iinp++ )
+	for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
 	{
-	    const uiWellLogCalc::InpData& inpd = inpdata[iinp];
+	    const uiWellLogCalc::InpData& inpd = inpdatas[iinp];
 	    const float curdah = dah + samprg.step * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
@@ -612,7 +534,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout, const Math::Formula& form,
 	    {
 		float val = mUdf(float);
 		if ( inpd.specidx_ == mMDIdx )	val = curdah;
-		else if ( inpd.specidx_ == mDZIdx )	val = samprg.step;
+		else if ( inpd.specidx_ == mDZIdx )
+		    val = samprg.step;
 		else if ( inpd.specidx_ == mTVDSSIdx ||
 			  inpd.specidx_ == mTVDIdx ||
 			  inpd.specidx_ == mTVDSDIdx )
@@ -643,7 +566,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout, const Math::Formula& form,
 	    }
 	}
 
-	const float formval = form.getValue( inpvals.arr(), false );
+	const float formval = form_.getValue( inpvals.arr(), false );
 	wlout.addValue( dah, formval );
     }
 

@@ -22,8 +22,7 @@ class uiUnitSel;
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
-class uiMathExpression;
-class uiWellLogCalcInpData;
+class uiMathFormula;
 namespace Math { class Formula; }
 namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 
@@ -44,33 +43,26 @@ public:
 
 protected:
 
-    uiMathExpression*		formfld_;
+    uiMathFormula*		formfld_;
     uiGenInput*			nmfld_;
     uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
-    uiUnitSel*			formulaunfld_;
     uiUnitSel*			outunfld_;
-    ObjectSet<uiWellLogCalcInpData> inpdataflds_;
-    bool			mywelllogs_;
 
+    Well::LogSet&		superwls_;
     Math::Formula&		form_;
-    bool			havenew_;
     float			zsampintv_;
     BufferStringSet		lognms_;
-    Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
-    BufferStringSet		inputunits_;
-    TypeSet<PropertyRef::StdType> inputtypes_;
-
-    friend class		uiWellLogCalcInpData;
+    bool			havenew_;
 
     struct InpData
     {
-			InpData( const Well::Log* w=0, int s=0, bool n=false )
-			    : wl_(w), shift_(s), noudf_(n), specidx_(-1)
+			InpData( const Well::Log* w=0, bool n=false )
+			    : wl_(w), shift_(0), noudf_(n), specidx_(-1)
 			    , isconst_(false), constval_(0)	{}
 	bool		operator ==( const InpData& id ) const
-			{ return shift_ == id.shift_ && wl_ == id.wl_; }
+			{ return wl_ == id.wl_; }
 	const Well::Log* wl_;
 	int		shift_;
 	bool		noudf_;
@@ -79,17 +71,13 @@ protected:
 	float		constval_;
     };
 
-    bool		checkValidNrInputs(const Math::Formula&) const;
-    bool		updateForm(Math::Formula&) const;
-    bool		useForm(const Math::Formula&,
-				const TypeSet<PropertyRef::StdType>* t=0);
     void		getAllLogs();
-    void		setCurWls(const Well::LogSet&);
-    bool		getInpData(const Math::Formula&,
-				   TypeSet<InpData>&);
-    bool		getRecInfo(Math::Formula&);
-    bool		calcLog(Well::Log&,const Math::Formula&,
-				const TypeSet<InpData>&,
+    bool		useForm(const TypeSet<PropertyRef::StdType>* t=0);
+    Well::Log*		getLog4InpIdx(Well::LogSet&,int varnr);
+
+    bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&);
+    Well::Log*		getInpLog(Well::LogSet&,int,bool);
+    bool		calcLog(Well::Log&,const TypeSet<InpData>&,
 				Well::Track&,Well::D2TModel*);
 
     void		initWin(CallBacker*);
@@ -98,6 +86,8 @@ protected:
     void		formSet(CallBacker*);
     void		formUnitSel(CallBacker*);
     void		inpSel(CallBacker*);
+    void		vwLog(CallBacker*);
+
     bool		acceptOK(CallBacker*);
 
 };

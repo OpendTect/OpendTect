@@ -16,18 +16,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimathexpressionvariable.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 
 #include "mathformula.h"
 
 
-uiMathFormula::uiMathFormula( uiParent* p, const uiMathFormula::Setup& su )
+uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
+				const uiMathFormula::Setup& su )
 	: uiGroup(p,"Math Formula")
+	, form_(form)
 	, setup_(su)
 	, unitfld_(0)
 	, formSet(this)
 	, inpSet(this)
 	, formUnitSet(this)
+	, notifinpnr_(-1)
 {
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
     const CallBack inpsetcb( mCB(this,uiMathFormula,inpSetCB) );
@@ -39,16 +44,16 @@ uiMathFormula::uiMathFormula( uiParent* p, const uiMathFormula::Setup& su )
     exprfld_->formSet.notify( formsetcb );
     setHAlignObj( exprfld_ );
 
-    for ( int idx=0; idx<setup_.maxnrvars_; idx++ )
+    for ( int idx=0; idx<setup_.maxnrinps_; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(this,idx,
-							setup_.withunits_);
+				    setup_.withunits_,&form_.specVars());
 	if ( idx )
-	    fld->attach( alignedBelow, varflds_[idx-1] );
+	    fld->attach( alignedBelow, inpflds_[idx-1] );
 	else
 	    fld->attach( alignedBelow, exprfld_ );
 	fld->inpSel.notify( inpsetcb );
-	varflds_ += fld;
+	inpflds_ += fld;
     }
 
     if ( setup_.withunits_ )
@@ -57,13 +62,13 @@ uiMathFormula::uiMathFormula( uiParent* p, const uiMathFormula::Setup& su )
 	uussu.selproptype( true ).withnone( true );
 	unitfld_ = new uiUnitSel( this, uussu );
 	unitfld_->attach( alignedBelow,
-				varflds_[varflds_.size()-1]->attachObj() );
+				inpflds_[inpflds_.size()-1]->attachObj() );
 	unitfld_->propSelChange.notify( unitsetcb );
 	unitfld_->selChange.notify( unitsetcb );
     }
 
     recbut_ = new uiToolButton( this, "recursion",
-	    			"Set start valus for recursion",
+				"Set start values for recursion",
 				mCB(this,uiMathFormula,recButPush) );
     if ( unitfld_ )
 	recbut_->attach( rightTo, unitfld_ );
@@ -82,21 +87,31 @@ uiButton* uiMathFormula::addButton( const uiToolButtonSetup& tbs )
 }
 
 
-void uiMathFormula::addInpViewIcon( const char* icnm, const char* tooltip,
-					const CallBack& cb )
+void uiMathFormula::setRegularInputs( const BufferStringSet& inps, int ivar )
 {
-    for ( int idx=0; idx<varflds_.size(); idx++ )
-	varflds_[idx]->addInpViewIcon( icnm, tooltip, cb );
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+    {
+	if ( ivar < 0 || ivar == idx )
+	    inpflds_[idx]->setRegularInputs( inps );
+    }
 }
 
 
-bool uiMathFormula::checkValidNrInputs( const Math::Formula& form ) const
+void uiMathFormula::addInpViewIcon( const char* icnm, const char* tooltip,
+					const CallBack& cb )
 {
-    if ( form.nrInputs() > varflds_.size() )
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+	inpflds_[idx]->addInpViewIcon( icnm, tooltip, cb );
+}
+
+
+bool uiMathFormula::checkValidNrInputs() const
+{
+    if ( form_.nrInputs() > inpflds_.size() )
     {
-	BufferString msg( "Sorry, the expression contains ", form.nrInputs(),
-			  "variables.\nThe maximum number is " );
-	msg.add( varflds_.size() );
+	BufferString msg( "Sorry, the expression contains ", form_.nrInputs(),
+			  "inputs.\nThe maximum number is " );
+	msg.add( inpflds_.size() );
 	uiMSG().error( msg );
 	return false;
     }
@@ -106,76 +121,136 @@ bool uiMathFormula::checkValidNrInputs( const Math::Formula& form ) const
 
 bool uiMathFormula::setText( const char* txt )
 {
-    Math::Formula form( txt );
-    return useForm( form );
+    form_.setText( txt );
+    return useForm();
 }
 
 
-bool uiMathFormula::updateForm( Math::Formula& form ) const
+bool uiMathFormula::updateForm() const
 {
-    form.setText( exprfld_->text() );
-    if ( !checkValidNrInputs(form) )
+    form_.setText( exprfld_->text() );
+    if ( !checkValidNrInputs() )
 	return false;
 
-    for ( int idx=0; idx<form.nrInputs(); idx++ )
-	varflds_[idx]->fill( form );
+    for ( int idx=0; idx<form_.nrInputs(); idx++ )
+	inpflds_[idx]->fill( form_ );
 
     if ( unitfld_ )
-	form.setOutputUnit( unitfld_->getUnit() );
+	form_.setOutputUnit( unitfld_->getUnit() );
 
-    const int nrrec = form.maxRecShift();
+    const int nrrec = form_.maxRecShift();
     for ( int idx=0; idx<nrrec; idx++ )
-	form.recStartVals()[idx] = idx >= recvals_.size() ? 0 : recvals_[idx];
+	form_.recStartVals()[idx] = idx >= recvals_.size() ? 0 : recvals_[idx];
 
     return true;
 }
 
 
-bool uiMathFormula::useForm( const Math::Formula& form,
-			     const TypeSet<PropertyRef::StdType>* inputtypes )
+bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 {
-    const bool isbad = form.isBad();
-    exprfld_->setText( isbad ? "" : form.text() );
-    const UnitOfMeasure* formun = isbad ? 0 : form.outputUnit();
+    const bool isbad = form_.isBad();
+    exprfld_->setText( isbad ? "" : form_.text() );
+    const UnitOfMeasure* formun = isbad ? 0 : form_.outputUnit();
     if ( unitfld_ )
 	unitfld_->setUnit( formun );
-    for ( int idx=0; idx<varflds_.size(); idx++ )
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
     {
-	uiMathExpressionVariable& inpfld = *varflds_[idx];
-	if ( !isbad && idx<form.nrInputs() )
+	uiMathExpressionVariable& inpfld = *inpflds_[idx];
+	if ( !isbad && idx<form_.nrInputs() )
 	{
 	    const PropertyRef::StdType ptyp
 		= inputtypes && inputtypes->validIdx(idx) ? (*inputtypes)[idx]
 							  : PropertyRef::Other;
 	    inpfld.setPropType( ptyp );
 	}
-	inpfld.use( form );
+	inpfld.use( form_ );
     }
-    recbut_->display( form.isRecursive() );
+    recbut_->display( form_.isRecursive() );
 
     if ( isbad )
     {
-	uiMSG().error( BufferString("Invalid expression:\n",form.errMsg()));
+	uiMSG().error( BufferString("Invalid expression:\n",form_.errMsg()));
 	return false;
     }
 
-    return checkValidNrInputs( form );
+    return checkValidNrInputs();
+}
+
+
+int uiMathFormula::vwLogInpNr( CallBacker* cb ) const
+{
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+	if ( inpflds_[idx]->viewBut() == cb )
+	    return idx;
+
+    return -1;
+}
+
+
+int uiMathFormula::nrInputs() const
+{
+    int nrinps = 0;
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+	if ( inpflds_[idx]->isActive() )
+	    nrinps++;
+    return nrinps;
+}
+
+
+const char* uiMathFormula::getInput( int inpidx ) const
+{
+    return inpflds_.validIdx(inpidx) ? inpflds_[inpidx]->getInput() : "";
+}
+
+
+bool uiMathFormula::isConst( int inpidx ) const
+{
+    if ( !inpflds_.validIdx(inpidx) )
+	return false;
+    const uiMathExpressionVariable& fld = *inpflds_[inpidx];
+    return fld.isActive() && fld.isConst();
+}
+
+
+bool uiMathFormula::isSpec( int inpidx ) const
+{
+    if ( !inpflds_.validIdx(inpidx) )
+	return false;
+    const uiMathExpressionVariable& fld = *inpflds_[inpidx];
+    return fld.isActive() && fld.specIdx() >= 0;
+}
+
+
+double uiMathFormula::getConstVal( int inpidx ) const
+{
+    return isConst(inpidx) ? toDouble( getInput(inpidx) )
+			   : mUdf(double);
+}
+
+
+const UnitOfMeasure* uiMathFormula::getUnit() const
+{
+    return unitfld_ ? unitfld_->getUnit() : 0;
 }
 
 
 void uiMathFormula::formSetCB( CallBacker* )
 {
-    Math::Formula form;
-    if ( updateForm(form) )
-    {
-	form.clearInputDefs();
-	useForm( form );
-    }
+    form_.setText( exprfld_->text() );
+    form_.clearInputDefs();
+    useForm();
+    formSet.trigger();
 }
 
 
-void uiMathFormula::inpSetCB( CallBacker* )
+void uiMathFormula::inpSetCB( CallBacker* cb )
 {
+    notifinpnr_ = -1;
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+    {
+	if ( inpflds_[idx] == cb )
+	    { notifinpnr_ = idx; break; }
+    }
     inpSet.trigger();
 }
 
@@ -186,7 +261,53 @@ void uiMathFormula::formUnitSetCB( CallBacker* )
 }
 
 
+class uiMathFormulaEdRec : public uiDialog
+{
+public:
+
+uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
+    : uiDialog( this, Setup(
+	BufferString("Recursion start value",s_if_2),
+	BufferString("Recursive formula: Starting value",s_if_2),
+	mNoHelpKey) )
+    , form_(form)
+{
+    for ( int idx=0; idx<form_.maxRecShift(); idx++ )
+    {
+	inpflds_ += new uiGenInput( this, BufferString("Value at ",-1-idx),
+				    DoubleInpSpec(form_.recStartVals()[idx]) );
+	if ( idx > 0 )
+	    inpflds_[idx]->attach( alignedBelow, inpflds_[idx-1] );
+    }
+}
+
+bool acceptOK( CallBacker* )
+{
+    for ( int idx=0; idx<form_.maxRecShift(); idx++ )
+    {
+	const double val = inpflds_[idx]->getdValue();
+	if ( mIsUdf(val) )
+	    { uiMSG().error( "Please specify all values" ); return false; }
+	form_.recStartVals()[idx] = val;
+    }
+    return true;
+}
+
+    ObjectSet<uiGenInput>	inpflds_;
+    Math::Formula&		form_;
+
+};
+
+
 void uiMathFormula::recButPush( CallBacker* )
 {
-    uiMSG().error( "TODO: set recursion start values" );
+    if ( !updateForm() ) return;
+    if ( !form_.isRecursive() )
+	{ if ( recbut_ ) recbut_->display(false); return; }
+
+    uiMathFormulaEdRec dlg( this, form_, form_.maxRecShift() > 1 ? "s" : 0 );
+    if ( !dlg.go() )
+	return;
+
+    recvals_ = form_.recStartVals();
 }
