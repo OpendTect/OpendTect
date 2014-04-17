@@ -54,6 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
+#include "uiattrgetfile.h"
 #include "uiattrsel.h"
 #include "uiattr2dsel.h"
 #include "uiattrvolout.h"
@@ -939,7 +940,8 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 
 void uiAttribPartServer::importAttrSetFromFile()
 {
-    uiMSG().message( "Not implemented yet" );
+    uiImpAttrSet dlg( parent() );
+    dlg.go();
 }
 
 

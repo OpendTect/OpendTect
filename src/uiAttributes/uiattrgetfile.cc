@@ -155,19 +155,20 @@ uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 static BufferString sImportDir;
 
 uiImpAttrSet::uiImpAttrSet( uiParent* p )
-    : uiDialog(p,Setup("Import Attribute Set",mNoDlgTitle,mTODOHelpKey)
-		 .modal(false))
+    : uiDialog(p,Setup("Import Attribute Set",mNoDlgTitle,mTODOHelpKey))
 {
-    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+    setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
 
     if ( sImportDir.isEmpty() )
 	sImportDir = GetDataDir();
 
     const char* fltr = "Attribute Sets (*.attr)";
-    fileinpfld_ = new uiFileInput( this, "Select",
+    fileinpfld_ = new uiFileInput( this, "Select Input File",
 	uiFileInput::Setup().defseldir(sImportDir).forread(true).filter(fltr) );
 
-    attrsetfld_ = new uiIOObjSel( this, mIOObjContext(AttribDescSet) );
+    IOObjContext ctxt = mIOObjContext(AttribDescSet);
+    ctxt.forread = false;
+    attrsetfld_ = new uiIOObjSel( this, ctxt, "Output Attribute Set" );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 
