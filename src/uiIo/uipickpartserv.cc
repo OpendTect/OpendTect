@@ -229,7 +229,7 @@ bool uiPickPartServer::create3DGenSet()
 {
     uiGenPosPicks dlg( parent() );
     mHandleDlg();
-    return newps ? uipsmgr_.storeSetAs( *newps ) : false;
+    return newps ? uipsmgr_.storeNewSet( newps ) : false;
 }
 
 
