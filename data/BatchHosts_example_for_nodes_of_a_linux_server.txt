@@ -1,0 +1,18 @@
+dTect V4.6
+Batch Processing Hosts
+Thu Apr 17 14:48:49 2014
+!
+-- Remote shell: Should be rsh or ssh
+Remote shell: rsh
+-- Default 'nice' level should hardly ever not be 19.
+Default nice level: 19
+-- Rarely changed:
+First port: 37500
+!
+-- The list of hosts that are available for batch processing.
+-- Format is:
+-- real_hostname: name_in_user_displays
+proc1:	Proc 1 (2 x 2.2 GHz) Linux 32-bits
+proc2:	Proc 2 (2 x 2.2 GHz) Linux 32-bits
+proc3:	Proc 3 (2 x 2.2 GHz) Linux 64-bits
+proc4:	Proc 4 (2 x 2.2 GHz) Linux 64-bits
