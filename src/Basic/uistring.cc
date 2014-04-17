@@ -48,6 +48,11 @@ public:
 	application_ = d.application_;
     }
 
+    void addLegacyVersion( const uiString& legacy )
+    {
+        legacyversions_.add( legacy );
+    }
+
     void setFrom( const QString& qstr )
     {
 	originalstring_.setEmpty();
@@ -61,13 +66,14 @@ public:
     const BufferString& getFullString() const;
 
     void set(const char* orig);
-    void fillQString(QString&,const QTranslator* translator=0) const;
+    bool fillQString(QString&,const QTranslator* translator=0) const;
 
     TypeSet<uiString>	arguments_;
 
     QString		qstring_;
 
     BufferString	originalstring_;
+    TypeSet<uiString>	legacyversions_;
     const char*		translationcontext_;
     const char*		application_;
     const char*		translationdisambiguation_;
@@ -98,17 +104,36 @@ const BufferString& uiStringData::getFullString() const
 
 
 
-void uiStringData::fillQString( QString& res,
+bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator ) const
 {
     if ( !originalstring_ || !*originalstring_ )
-	return;
+	return false;
+
+    bool translationres = false;
 
     if ( translator )
     {
 	res = translator->translate( translationcontext_, originalstring_,
 				     translationdisambiguation_,
 				     translationpluralnumber_ );
+
+        if ( QString(originalstring_.buf())!=res )
+            translationres = true;
+
+        if ( legacyversions_.size() && !translationres )
+        {
+            for ( int idx=0; idx<legacyversions_.size(); idx++ )
+            {
+                QString legacytrans;
+                if ( legacyversions_[idx].translate( *translator, legacytrans) )
+                {
+                    res = legacytrans;
+                    translationres = true;
+                    break;
+                }
+            }
+        }
 	mDefineStaticLocalObject(bool,dbgtransl,
 				 = GetEnvVarYN("OD_DEBUG_TRANSLATION"));
 	if ( dbgtransl )
@@ -123,10 +148,14 @@ void uiStringData::fillQString( QString& res,
     }
 
     if ( !translator || res.isEmpty() )
+    {
 	res = originalstring_;
+    }
 
     for ( int idx=0; idx<arguments_.size(); idx++ )
 	res = res.arg( arguments_[idx].getQtString() );
+
+    return translationres;
 }
 
 
@@ -146,6 +175,13 @@ uiString::uiString( const char* originaltext, const char* context,
 			      disambiguation, pluralnr ))
 {
     data_->ref();
+}
+
+
+
+void uiString::addLegacyVersion( const uiString& legacy )
+{
+    data_->addLegacyVersion( legacy );
 }
 
 
@@ -319,10 +355,9 @@ uiString& uiString::append( const char* newarg )
 }
 
 
-
-void uiString::translate( const QTranslator& tr , QString& res ) const
+bool uiString::translate( const QTranslator& tr , QString& res ) const
 {
-    data_->fillQString( res, &tr );
+    return data_->fillQString( res, &tr );
 
 }
 

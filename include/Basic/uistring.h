@@ -144,8 +144,14 @@ public:
 					 const char* application,
 					 const char* disambiguation,
 					 int pluralnr);
-    void			translate(const mQtclass(QTranslator)&,
+    void			addLegacyVersion(const uiString&);
+				/*!If this string was previously known by
+                                   another origianl string, it can be added here
+                                */
+
+    bool			translate(const mQtclass(QTranslator)&,
 					  mQtclass(QString)&) const;
+				//!Returns true if the translation succeeded
 
 
 
