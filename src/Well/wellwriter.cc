@@ -30,8 +30,9 @@ static const char* rcsID mUsedVar = "$Id$";
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f)
 	, wd(w)
-	, binwrlogs_(false)
+	, binwrlogs_(true)
 {
+    mSettUse(getYN,"dTect.Well logs","Binary format",binwrlogs_);
 }
 
 
