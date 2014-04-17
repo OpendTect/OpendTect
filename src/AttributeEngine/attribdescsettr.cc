@@ -26,7 +26,7 @@ mDefSimpleTranslatorioContext(AttribDescSet, Attr)
 
 
 static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
-				   BufferString& warningmsg)
+				   uiString& warningmsg )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
 	return "File has wrong file type";
@@ -34,7 +34,7 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
     ads.removeAll( false );
-    BufferStringSet parseerrmsgs;
+    TypeSet<uiString> parseerrmsgs;
     ads.usePar( iopar, &parseerrmsgs );
     if ( ads.isEmpty() )
     {
@@ -44,18 +44,18 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
 
     if ( parseerrmsgs.size() )
     {
-	warningmsg = *parseerrmsgs[0];
+	warningmsg = parseerrmsgs[0];
 	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
 	for ( int idx = 1; idx<nrdispl; idx++ )
 	{
-	    warningmsg += "\n";
-	    warningmsg += *parseerrmsgs[idx];
+	    warningmsg.append( "\n" );
+	    warningmsg.append( parseerrmsgs[idx] );
 	}
 
 	if ( parseerrmsgs.size() > 4 )
 	{
-	    warningmsg += "\n";
-	    warningmsg += "[More warnings omitted]";
+	    warningmsg.append( "\n" );
+	    warningmsg.append( "[More warnings omitted]" );
 	}
     }
 
@@ -74,7 +74,9 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 
     od_istream odstrm( fnm );
     ascistream astream( odstrm );
-    const char* res = readFromStream( astream, ads, bs );
+    uiString uistr;
+    const char* res = readFromStream( astream, ads, uistr );
+    bs = uistr.getFullString();
     if ( bs.isEmpty() ) bs.set( res );
     return !res;
 }
