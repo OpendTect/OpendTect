@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "keystrs.h"
 #include "envvars.h"
+#include "settings.h"
 
 #define mGetOutStream(ext,nr,todo) \
         od_ostream strm( getFileName(ext,nr) ); \
