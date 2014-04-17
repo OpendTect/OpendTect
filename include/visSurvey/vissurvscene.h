@@ -32,7 +32,6 @@ namespace ZDomain { class Info; }
 namespace visBase
 {
     class Annotation;
-    class EventCatcher;
     class MarkerSet;
     class PolygonSelection;
     class SceneColTab;
