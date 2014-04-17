@@ -384,7 +384,7 @@ void StringListInpSpec::addString( const char* txt )
 
 const char* StringListInpSpec::text( int idx ) const
 {
-    return isUndef() ? "" : strings_[idx].getFullString();
+    return isUndef() ? "" : strings_[idx].getFullString().buf();
 }
 
 
