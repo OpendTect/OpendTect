@@ -133,7 +133,8 @@ void uiMathPropEdDlg::updVarsOnScreen( CallBacker* cb )
     {
 	uiMathExpressionVariable* uimev = inpdataflds_[idx];
 	uimev->use( expr_ );
-	uimev->selectInput( uimev->varName() );
+	if ( uimev->specIdx() < 0 )
+	    uimev->selectInput( uimev->varName() );
     }
 
     if ( nrvars_ )
