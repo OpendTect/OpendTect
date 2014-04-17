@@ -1293,10 +1293,6 @@ bool uiODApplMgr::handlePickServEv( int evid )
 				  pickserv_->getHor2DZRgs() );
     else if ( evid == uiPickPartServer::evFillPickSet() )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
-    else if ( evid == uiPickPartServer::evGet2DLineInfo() )
-	seisserv_->get2DLineInfo( pickserv_->lineSets(),
-				  pickserv_->lineSetIds(),
-				  pickserv_->lineNames());
     else if ( evid == uiPickPartServer::evGet2DLineDef() )
     {
 	BufferStringSet& lnms = pickserv_->selectLines();

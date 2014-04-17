@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "statrand.h"
 #include "surfaceinfo.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 
 int uiPickPartServer::evGetHorInfo2D()		{ return 0; }
@@ -38,7 +39,6 @@ int uiPickPartServer::evGetHorInfo3D()		{ return 1; }
 int uiPickPartServer::evGetHorDef3D()		{ return 2; }
 int uiPickPartServer::evGetHorDef2D()		{ return 3; }
 int uiPickPartServer::evFillPickSet()		{ return 4; }
-int uiPickPartServer::evGet2DLineInfo()		{ return 5; }
 int uiPickPartServer::evGet2DLineDef()		{ return 6; }
 int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
@@ -240,22 +240,22 @@ bool uiPickPartServer::createRandom2DSet()
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	hornms.add( hinfos_[idx]->name );
 
-    deepErase( linesets_ );
-    linenms_.erase();
-    sendEvent( evGet2DLineInfo() );
-    if ( linesets_.isEmpty() || linenms_.isEmpty() )
+    BufferStringSet linenames;
+    TypeSet<Pos::GeomID> geomids;
+    Survey::GM().getList( linenames, geomids, true );
+    uiGenRandPicks2D dlg( parent(), hornms, linenames );
+    if ( linenames.isEmpty() )
     {
-	uiMSG().message( "No 2D lines were found" );
+	uiMSG().warning( "No 2D lines are available in this survey" );
 	return false;
     }
 
-    uiGenRandPicks2D dlg( parent(), hornms, linesets_, linenms_ );
     mHandleDlg();
     if ( !mkRandLocs2D(*newps,dlg.randPars()) )
     { delete newps; newps = 0; }
     if ( newps )
-	return uipsmgr_.storeSetAs( *newps );
-
+	return uipsmgr_.storeNewSet( newps );
+   
     return false;
 }
 
@@ -265,7 +265,6 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     Stats::randGen().init();
-    setid_ = setids_[rp.lsetidx_];
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
     deepErase( selhorids_ );
@@ -284,10 +283,16 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     }
     else
     {
-	for ( int iln=0; iln<linegeoms_.size(); iln++ )
+	for ( int iln=0; iln<selectlines_.size(); iln++ )
 	{
-	    const TypeSet<PosInfo::Line2DPos>& posns
-					= linegeoms_[iln]->positions();
+	    const Survey::Geometry* geom = 
+		Survey::GM().getGeometry( selectlines_.get(iln) );
+	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
+	    if ( !geom2d )
+		continue;
+
+	    const TypeSet<PosInfo::Line2DPos>& posns = 
+				    geom2d->data().positions();
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 		coords2d_ += posns[ipos].coord_;
 	}

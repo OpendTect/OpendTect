@@ -68,7 +68,6 @@ public:
     static int			evGetHorDef3D();
     static int		        evGetHorDef2D();
     static int		        evFillPickSet();
-    static int			evGet2DLineInfo();
     static int			evGet2DLineDef();
     static int			evDisplayPickSet();
 

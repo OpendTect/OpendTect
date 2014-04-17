@@ -42,6 +42,7 @@ protected:
     virtual IOObj*	getSetIOObj(const Pick::Set&) const;
     virtual bool	doStore(const Pick::Set&,const IOObj&) const;
 
+    friend class	uiPickPartServer;		
 };
 
 

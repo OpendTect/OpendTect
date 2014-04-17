@@ -44,7 +44,6 @@ public:
     Interval<float>	zrg_;
     int			horidx_;
     int			horidx2_;
-    int			lsetidx_;
     BufferStringSet	linenms_;
 };
 
@@ -94,8 +93,7 @@ mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
 public:
 
     			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
-					const BufferStringSet&,
-					const TypeSet<BufferStringSet>&);
+					 const BufferStringSet&);
 
     const RandLocGenPars& randPars() const      { return randpars_; }
 
@@ -108,13 +106,11 @@ protected:
     uiGenInput*		geomfld_;
     uiLabeledComboBox*	horselfld_;
     uiComboBox*		horsel2fld_;
-    uiGenInput*		linesetfld_;
     uiLabeledListBox*	linenmfld_;
     uiGenInput*		zfld_;
 
-    TypeSet<BufferStringSet>	linenms_;
+    BufferStringSet	linenms_;
 
-    void		lineSetSel(CallBacker*);
     bool                acceptOK(CallBacker*);
     void                mkRandPars();
 

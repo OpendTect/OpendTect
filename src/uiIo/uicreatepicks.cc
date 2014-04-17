@@ -184,8 +184,7 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 
 
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
-				  const BufferStringSet& lsets,
-				  const TypeSet<BufferStringSet>& lnms )
+				    const BufferStringSet& lnms )
     : uiCreatePicks(p,false,false)
     , geomfld_(0)
     , hornms_(hornms)
@@ -208,13 +207,8 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 						 uiGenRandPicks2D,hor2Sel) );
     }
 
-    linesetfld_ = new uiGenInput( this, "Line Set",
-				  StringListInpSpec(lsets) );
-    linesetfld_->attach( alignedBelow, nrfld_ );
-    linesetfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,lineSetSel) );
-
-    linenmfld_ = new uiLabeledListBox( this, lnms[0], "Select Lines", true);
-    linenmfld_->attach( alignedBelow, linesetfld_ );
+    linenmfld_ = new uiLabeledListBox( this, lnms, "Select Lines", true);
+    linenmfld_->attach( alignedBelow, nrfld_ );
 
     if ( hornms.size() )
     {
@@ -280,22 +274,11 @@ void uiGenRandPicks2D::geomSel( CallBacker* cb )
 }
 
 
-void uiGenRandPicks2D::lineSetSel( CallBacker* cb )
-{
-    const int setidx = linesetfld_->getIntValue();
-    linenmfld_->box()->setEmpty();
-    if ( setidx<0 || setidx>=linenms_.size() ) return;
-
-    linenmfld_->box()->addItems( linenms_[setidx] );
-}
-
-
 void uiGenRandPicks2D::mkRandPars()
 {
     randpars_.nr_ = nrfld_->getIntValue();
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
 
-    randpars_.lsetidx_ = linesetfld_->getIntValue();
     linenmfld_->box()->getSelectedItems( randpars_.linenms_ );
     if ( randpars_.needhor_ )
     {
