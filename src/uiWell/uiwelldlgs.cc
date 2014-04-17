@@ -68,10 +68,6 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, wellheadxfld_(0)
 	, wellheadyfld_(0)
 	, kbelevfld_(0)
-	, updatefld_(0)
-	, wellheadxupdbut_(0)
-	, wellheadyupdbut_(0)
-	, kbelevupdbut_(0)
 	, origpos_(mUdf(Coord3))
 	, origgl_(d.info().groundelev)
 {
@@ -91,40 +87,33 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillSetFields ) );
     zinftfld_->attach( rightAlignedBelow, tbl_ );
 
-    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp",
-				      uiObject::Vertical );
+    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
 
-    updatefld_ = new uiPushButton( actbutgrp, "&Update display",
+    uiPushButton* updbut = new uiPushButton( actbutgrp, "&Update display",
 				   mCB(this,uiWellTrackDlg,updNow), true );
 
-    uiGroup* wellheadxgrp = new uiButtonGroup( actbutgrp,"X-Coordinate buttons",
-					       uiObject::Horizontal );
-    wellheadxfld_ = new uiGenInput( wellheadxgrp, "X-Coordinate of well head",
+    wellheadxfld_ = new uiGenInput( actbutgrp, "X-Coordinate of well head",
 				    DoubleInpSpec(mUdf(double)) );
-    wellheadxupdbut_ = new uiPushButton( wellheadxgrp, "&Set",
+    wellheadxfld_->attach( ensureBelow, updbut );
+    uiPushButton* setbut = new uiPushButton( actbutgrp, "&Set",
 				    mCB(this,uiWellTrackDlg,updateXpos), true );
-    wellheadxupdbut_->attach( rightOf, wellheadxfld_ );
-    wellheadxgrp->attach( leftAlignedBelow, updatefld_ );
+    setbut->attach( rightOf, wellheadxfld_ );
 
-    uiGroup* wellheadygrp = new uiButtonGroup( actbutgrp,"Y-Coordinate buttons",
-					       uiObject::Horizontal );
-    wellheadyfld_ = new uiGenInput( wellheadygrp, "Y-Coordinate of well head",
+    wellheadyfld_ = new uiGenInput( actbutgrp, "Y-Coordinate of well head",
 				    DoubleInpSpec(mUdf(double)) );
-    wellheadyupdbut_ = new uiPushButton( wellheadygrp, "&Set",
+    wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
+    setbut = new uiPushButton( actbutgrp, "&Set",
 				    mCB(this,uiWellTrackDlg,updateYpos), true );
-    wellheadyupdbut_->attach( rightOf, wellheadyfld_ );
-    wellheadygrp->attach( leftAlignedBelow, wellheadxgrp );
+    setbut->attach( rightOf, wellheadyfld_ );
 
-    uiGroup* kbelevgrp = new uiButtonGroup( actbutgrp, "Elevation buttons",
-					    uiObject::Horizontal );
-    kbelevfld_ = new uiGenInput( kbelevgrp, "Reference Datum Elevation",
+    kbelevfld_ = new uiGenInput( actbutgrp, "Reference Datum Elevation",
 				 FloatInpSpec(mUdf(float)) );
-    kbelevupdbut_ = new uiPushButton( kbelevgrp, "&Set",
-			     mCB(this,uiWellTrackDlg,updateKbElev), true);
-    kbelevupdbut_->attach( rightOf, kbelevfld_ );
-    kbelevgrp->attach( leftAlignedBelow, wellheadygrp );
+    setbut = new uiPushButton( actbutgrp, "&Set",
+			     mCB(this,uiWellTrackDlg,updateKbElev), true );
+    setbut->attach( rightOf, kbelevfld_ );
+    kbelevfld_->attach( alignedBelow, wellheadyfld_ );
 
-    actbutgrp->attach( leftAlignedBelow, tbl_ );
+    actbutgrp->attach( centeredBelow, tbl_ );
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   uiObject::Horizontal );
@@ -602,9 +591,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
 	, origreplvel_(wd.info().replvel)
         , tbl_(0)
-	, updatefld_(0)
 	, replvelfld_(0)
-	, replvelupdbut_(0)
         , unitfld_(0)
         , timefld_(0)
 {
@@ -643,26 +630,23 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
     unitfld_->attach( rightAlignedBelow, timefld_ );
 
-    uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons",
-					    uiObject::Vertical );
+    uiGroup* actbutgrp = 0;
     if ( !cksh_ )
     {
-	updatefld_ = new uiPushButton( actbutgrp, "&Update display",
+	actbutgrp = new uiGroup( this, "Action buttons" );
+	uiButton* updbut = new uiPushButton( actbutgrp, "&Update display",
 				       mCB(this,uiD2TModelDlg,updNow), true );
 
-	uiGroup* replvelgrp = new uiButtonGroup( actbutgrp, "Replvel buttons",
-						 uiObject::Horizontal );
-
-	replvelfld_ = new uiGenInput( replvelgrp, "Replacement velocity",
+	replvelfld_ = new uiGenInput( actbutgrp, "Replacement velocity",
 				      FloatInpSpec(mUdf(float)) );
+	replvelfld_->attach( ensureBelow, updbut );
 	replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	replvelupdbut_ = new uiPushButton( replvelgrp, "&Set",
+	updbut = new uiPushButton( actbutgrp, "&Set",
 			  mCB(this,uiD2TModelDlg,updReplVelNow), true );
-	replvelupdbut_->attach( rightOf, replvelfld_ );
-	replvelgrp->attach( leftAlignedBelow, updatefld_ );
+	updbut->attach( rightOf, replvelfld_ );
 
-	actbutgrp->attach( leftAlignedBelow, tbl_ );
+	actbutgrp->attach( ensureBelow, tbl_ );
 	unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillReplVel) );
     }
 
@@ -672,10 +656,10 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 		      false );
     new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
 		      false );
-    if ( cksh_ )
-	iobutgrp->attach( leftAlignedBelow, tbl_ );
+    if ( actbutgrp )
+	iobutgrp->attach( ensureBelow, actbutgrp );
     else
-	iobutgrp->attach( leftAlignedBelow, actbutgrp );
+	iobutgrp->attach( ensureBelow, tbl_ );
 
     fillTable(0);
     if ( !cksh_ )
