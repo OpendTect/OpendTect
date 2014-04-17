@@ -145,19 +145,19 @@ if( WIN32 )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
 	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
     endif()
-    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
+    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
+    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-    install( DIRECTORY ${OD_EXEC_RELPATH_RELEASE}
+    install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Release
 	    FILES_MATCHING
@@ -224,3 +224,4 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
         -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
          COMMENT "Preparing doc packages" )
 include ( ODSubversion )
+
