@@ -666,16 +666,20 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
     getCurD2TModel( currentwvasynthetic_, curd2tmodels, 0.0f );
     if ( !curd2tmodels.isEmpty() )
     {
-	for ( int idx=0; idx<curd2tmodels.size(); idx++ )
+	Interval<float> twtrg( mCast(float,timewr.top()),
+			       mCast(float,timewr.bottom()) );
+	Interval<double> depthrg( curd2tmodels[0]->getDepth(twtrg.start),
+				  curd2tmodels[0]->getDepth(twtrg.stop) );
+	for ( int idx=1; idx<curd2tmodels.size(); idx++ )
 	{
 	    const TimeDepthModel& d2t = *curd2tmodels[idx];
-	    const double top = d2t.getDepth((float)timewr.top());
-	    const double bottom = d2t.getDepth((float)timewr.bottom());
-	    if ( idx==0 || top<depthwr.top() )
-		depthwr.setTop( top );
-	    if ( idx==0 || bottom>depthwr.bottom() )
-		depthwr.setBottom( bottom );
+	    Interval<double> curdepthrg( d2t.getDepth(twtrg.start),
+					 d2t.getDepth(twtrg.stop) );
+	    if ( !curdepthrg.isUdf() )
+		depthrg.include( curdepthrg );
 	}
+	depthwr.setTop( depthrg.start );
+	depthwr.setBottom( depthrg.stop );
     }
 
     return depthwr;
