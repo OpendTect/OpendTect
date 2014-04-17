@@ -224,7 +224,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
-    newscene->setPixelDensity( uiMain::getDPI() );
+    newscene->setPixelDensity( (float) uiMain::getDPI() );
     scenes_ += newscene;
     pickretriever_->addScene( newscene );
     if ( isSoloMode() )
