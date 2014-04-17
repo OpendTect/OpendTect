@@ -70,6 +70,7 @@ Math::Formula::Formula( const char* txt, const SpecVarSet* svs )
 
 Math::Formula::Formula( const Math::Formula& oth )
     : expr_(0)
+    , specvars_(emptysvs)
 {
     *this = oth;
 }
