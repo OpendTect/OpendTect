@@ -7,11 +7,13 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescsettr.h"
+
 #include "ascstream.h"
 #include "attrfact.h"
 #include "attribdescset.h"
 #include "bufstringset.h"
 #include "conn.h"
+#include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -19,8 +21,63 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 
 
-mDefSimpleTranslatorSelector(AttribDescSet,sKeyAttribDescSetTranslatorGroup)
-mDefSimpleTranslatorioContext(AttribDescSet,Attr)
+mDefSimpleTranslatorSelector(AttribDescSet, sKeyAttribDescSetTranslatorGroup)
+mDefSimpleTranslatorioContext(AttribDescSet, Attr)
+
+
+static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
+				   BufferString& warningmsg)
+{
+    if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
+	return "File has wrong file type";
+
+    IOPar iopar( astream );
+    IOPar bupar; ads.fillPar( bupar );
+    ads.removeAll( false );
+    BufferStringSet parseerrmsgs;
+    ads.usePar( iopar, &parseerrmsgs );
+    if ( ads.isEmpty() )
+    {
+	ads.usePar( bupar );
+	return "Could not find any attribute definitions in file";
+    }
+
+    if ( parseerrmsgs.size() )
+    {
+	warningmsg = *parseerrmsgs[0];
+	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
+	for ( int idx = 1; idx<nrdispl; idx++ )
+	{
+	    warningmsg += "\n";
+	    warningmsg += *parseerrmsgs[idx];
+	}
+
+	if ( parseerrmsgs.size() > 4 )
+	{
+	    warningmsg += "\n";
+	    warningmsg += "[More warnings omitted]";
+	}
+    }
+
+    return 0;
+}
+
+
+bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
+					const char* fnm, BufferString& bs )
+{
+    if ( !File::exists(fnm) )
+    {
+	bs.set("File ").add(fnm).add(" does not exist.");
+	return false;
+    }
+
+    od_istream odstrm( fnm );
+    ascistream astream( odstrm );
+    const char* res = readFromStream( astream, ads, bs );
+    if ( bs.isEmpty() ) bs.set( res );
+    return !res;
+}
 
 
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
@@ -33,6 +90,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
+
     bs = tr->read( ads, *conn );
     bool rv = bs.isEmpty();
     if ( rv ) bs = tr->warningMsg();
@@ -65,37 +123,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
-	return "File has wrong file type";
-
-    IOPar iopar( astream );
-    IOPar bupar; ads.fillPar( bupar );
-    ads.removeAll( false );
-    TypeSet<uiString> parseerrmsgs;
-    ads.usePar( iopar, &parseerrmsgs );
-
-    if ( ads.isEmpty() )
-    {
-	ads.usePar( bupar );
-	return "Could not find any attribute definitions in file";
-    }
-
-    if ( parseerrmsgs.size() )
-    {
-	warningmsg_ = parseerrmsgs[0];
-	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
-	for ( int idx=1; idx<nrdispl; idx++ )
-	{
-	    warningmsg_.append( "\n" );
-	    warningmsg_.append( parseerrmsgs[idx] );
-	}
-	if ( parseerrmsgs.size() > 4 )
-	{
-	    warningmsg_.append(tr("\n[More warnings omitted]"));
-	}
-    }
-
-    return 0;
+    return readFromStream( astream, ads, warningmsg_ );
 }
 
 

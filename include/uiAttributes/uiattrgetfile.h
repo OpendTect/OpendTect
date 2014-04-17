@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiFileInput;
+class uiIOObjSel;
 class uiTextEdit;
 class uiFileInput;
 namespace Attrib { class DescSet; }
@@ -47,5 +48,21 @@ protected:
 };
 
 
-#endif
+/*!
+\brief
+*/
 
+mExpClass(uiAttributes) uiImpAttrSet : public uiDialog
+{
+public:
+			uiImpAttrSet(uiParent*);
+			~uiImpAttrSet();
+
+protected:
+    bool		acceptOK(CallBacker*);
+
+    uiFileInput*	fileinpfld_;
+    uiIOObjSel*		attrsetfld_;
+};
+
+#endif

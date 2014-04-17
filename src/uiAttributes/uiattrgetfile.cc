@@ -10,25 +10,29 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrgetfile.h"
-#include "uiattrsrchprocfiles.h"
-#include "uiseissel.h"
-#include "uisrchprocfiles.h"
-#include "uifileinput.h"
-#include "uibutton.h"
-#include "uitextedit.h"
-#include "uimsg.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "seistrctr.h"
-#include "iopar.h"
-#include "oddirs.h"
+#include "attribdescsettr.h"
 #include "file.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "oddirs.h"
+#include "seistrctr.h"
+
+#include "uiattrsrchprocfiles.h"
+#include "uibutton.h"
+#include "uifileinput.h"
+#include "uimsg.h"
+#include "uiseissel.h"
+#include "uisrchprocfiles.h"
+#include "uistoredattrreplacer.h"
+#include "uitextedit.h"
+
 
 // uiAttrSrchProcFiles implementation at end of file
 
 using namespace Attrib;
-
 
 uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     : uiDialog(p,uiDialog::Setup(
@@ -143,4 +147,67 @@ CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 {
     delete ctioptr_;
+}
+
+
+// uiImpAttrSet
+
+static BufferString sImportDir;
+
+uiImpAttrSet::uiImpAttrSet( uiParent* p )
+    : uiDialog(p,Setup("Import Attribute Set",mNoDlgTitle,mTODOHelpKey)
+		 .modal(false))
+{
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+
+    if ( sImportDir.isEmpty() )
+	sImportDir = GetDataDir();
+
+    const char* fltr = "Attribute Sets (*.attr)";
+    fileinpfld_ = new uiFileInput( this, "Select",
+	uiFileInput::Setup().defseldir(sImportDir).forread(true).filter(fltr) );
+
+    attrsetfld_ = new uiIOObjSel( this, mIOObjContext(AttribDescSet) );
+    attrsetfld_->attach( alignedBelow, fileinpfld_ );
+}
+
+
+uiImpAttrSet::~uiImpAttrSet()
+{}
+
+
+bool uiImpAttrSet::acceptOK( CallBacker* )
+{
+    const char* fnm = fileinpfld_->fileName();
+    if ( !File::exists(fnm) )
+    {
+	uiMSG().error( "Please select existing file.");
+	return false;
+    }
+
+    const IOObj* ioobj = attrsetfld_->ioobj();
+    if ( !ioobj ) return false;
+
+    BufferString errmsg;
+    Attrib::DescSet ds( false );
+    bool res = AttribDescSetTranslator::retrieve( ds, fnm, errmsg );
+    if ( !res )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    uiStoredAttribReplacer sar( this, &ds );
+    sar.go();
+
+    res = AttribDescSetTranslator::store( ds, ioobj, errmsg );
+    if ( !res )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    res = uiMSG().askGoOn( "Attribute Set successfully imported.\n"
+			   "Do you want to import more Attribute Sets?" );
+    return !res;
 }

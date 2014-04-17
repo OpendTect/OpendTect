@@ -42,12 +42,16 @@ mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
 
-    virtual const char*	read(Attrib::DescSet&,Conn&)	= 0;
+    virtual const char*	read(Attrib::DescSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	warningMsg() const		= 0;
-    virtual const char*	write(const Attrib::DescSet&,Conn&) = 0;
+    virtual const char*	warningMsg() const			= 0;
+    virtual const char*	write(const Attrib::DescSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
+    static bool		retrieve(Attrib::DescSet&,const char* fnm,
+				 BufferString&);
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
     static bool		retrieve(Attrib::DescSet&,const IOObj*,BufferString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
@@ -67,7 +71,6 @@ dgbAttribDescSetTranslator : public AttribDescSetTranslator
   mODTextTranslationClass(dgbAttribDescSetTranslator);
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
-
     const char*		read(Attrib::DescSet&,Conn&);
     const char* 	warningMsg() const {return warningmsg_.getFullString();}
     const char*		write(const Attrib::DescSet&,Conn&);
