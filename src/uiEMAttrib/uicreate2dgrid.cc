@@ -215,11 +215,13 @@ void ui2DGridLinesFromInlCrl::updateRange()
     crlrgfld_->rangeChanged.disable();
     StepInterval<int> inlrg = hs_.inlRange();
     StepInterval<int> crlrg = hs_.crlRange();
+    inlrgfld_->setLimitRange( inlrg );
+    crlrgfld_->setLimitRange( crlrg );
+
     inlrg.step = 100; crlrg.step = 100;
     inlrgfld_->setRange( inlrg );
-    inlrgfld_->setLimitRange( inlrg );
     crlrgfld_->setRange( crlrg );
-    crlrgfld_->setLimitRange( crlrg );
+
     inlrgfld_->rangeChanged.enable();
     crlrgfld_->rangeChanged.enable();
     ui2DGridLines::updateRange();
@@ -343,7 +345,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 	rdlfld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
 				  "Input RandomLine" );
 	rdlfld_->selectionDone.notify( mCB(this,ui2DGridLinesFromRandLine,
-		    			   paramsChgCB) );
+					   paramsChgCB) );
 	pardistfld_->attach( alignedBelow, rdlfld_ );
     }
 
@@ -522,7 +524,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
 	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, cs_.hrg );
 	inlcrlgridgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
-		    				 updatePreview) );
+						 updatePreview) );
 	inlcrlgridgrp_->attach( alignedBelow, sourceselfld_ );
 	randlinegrdgrp_->attach( alignedBelow, sourceselfld_ );
     }
@@ -544,7 +546,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
     uiGroup* grp = new uiGroup( this, "Horizon group" );
 
     horcheckfld_ = new uiCheckBox( grp, "Extract horizons for the new grid",
-	    			   mCB(this,uiCreate2DGrid,horCheckCB) );
+				   mCB(this,uiCreate2DGrid,horCheckCB) );
     IOObjContext horctxt = mIOObjContext( EMHorizon3D );
     horselfld_ = new uiIOObjSelGrp( grp, horctxt, "Select horizons", true );
     horselfld_->attach( alignedBelow, horcheckfld_ );
