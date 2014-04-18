@@ -436,7 +436,7 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	if ( form_.isConst(iinp) )
 	{
 	    InpData inpd; inpd.isconst_ = true;
-	    inpd.constval_ = form_.getConstVal( iinp );
+	    inpd.constval_ = (float)form_.getConstVal( iinp );
 	    if ( mIsUdf(inpd.constval_) )
 		mErrRet(BufferString("Please enter a value for ",
 					form_.variableName(iinp)))
