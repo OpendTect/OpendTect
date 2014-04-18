@@ -293,8 +293,8 @@ void uiDirectionalPlot::drawColTab()
 	coltabitm_->setColTabSequence( *colseq_ );
 
     const uiRect br( coltabitm_->boundingRect() );
-    uiPoint targettl( 10, height() - br.height() - 10 );
-    coltabitm_->setPos( uiPoint(10,height()-br.height()-10) );
+    uiPoint targettl( 5, height() - br.height() - 5 );
+    coltabitm_->setPos( targettl );
 }
 
 
