@@ -50,6 +50,7 @@ public:
 mExpClass(General) SpecVarSet : public TypeSet<SpecVar>
 {
 public:
+    			SpecVarSet()		{}
 
     int			getIndexOf(const char* varnm) const;
     void		getNames(BufferStringSet&,bool usrdisp=true) const;
@@ -115,8 +116,9 @@ mExpClass(General) Formula
 {
 public:
 
-			Formula(const SpecVarSet* s=0);
-			Formula(const char* txt,const SpecVarSet* s=0);
+			Formula(bool inputsareseries=true,const char* txt=0);
+			Formula(bool inputsareseries,const SpecVarSet&,
+				const char* txt=0);
 			Formula(const Formula&);
 			~Formula();
     Formula&		operator =(const Formula&);
@@ -182,6 +184,7 @@ public:
 
     const Expression*	expression() const	{ return expr_; };
     const SpecVarSet&	specVars() const	{ return specvars_; }
+    bool		inputsAreSeries() const	{ return inputsareseries_; }
 
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }
@@ -216,6 +219,7 @@ protected:
     const UnitOfMeasure* outputunit_;
     TypeSet<double>	recstartvals_;
     const SpecVarSet	specvars_;
+    const bool		inputsareseries_;
 
     Expression*		expr_;
 

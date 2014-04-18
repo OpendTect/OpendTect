@@ -21,6 +21,7 @@ SET(OD_MODULE_SOURCES
 		uiwelldlgs.cc
 		uiwellimpasc.cc
 		uiwelllogcalc.cc
+		uiwelllogimpexp.cc
 		uiwelllogdisplay.cc
 		uiwelllogtools.cc
 		uiwellman.cc

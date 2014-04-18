@@ -83,7 +83,7 @@ void uiMathExpressionVariable::getInpNms( BufferStringSet& nms ) const
 {
     nms.setEmpty();
     if ( specidx_ < 0 )
-	nms = reginputs_;
+	nms = nonspecinputs_;
     else
 	specvars_.getNames( nms );
 }
@@ -100,9 +100,9 @@ void uiMathExpressionVariable::updateInpNms()
 }
 
 
-void uiMathExpressionVariable::setRegularInputs( const BufferStringSet& rinms )
+void uiMathExpressionVariable::setNonSpecInputs( const BufferStringSet& nms )
 {
-    reginputs_ = rinms;
+    nonspecinputs_ = nms;
     updateInpNms();
 }
 

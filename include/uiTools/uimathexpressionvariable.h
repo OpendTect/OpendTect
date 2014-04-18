@@ -33,7 +33,7 @@ public:
 
     void		addInpViewIcon(const char* inm,const char* tooltip,
 					const CallBack&);
-    void		setRegularInputs(const BufferStringSet&);
+    void		setNonSpecInputs(const BufferStringSet&);
 
     virtual void	use(const Math::Formula&);
     virtual void	use(const Math::Expression*);
@@ -68,7 +68,7 @@ protected:
 
     const int		varidx_;
     BufferString	varnm_;
-    BufferStringSet	reginputs_;
+    BufferStringSet	nonspecinputs_;
     bool		isactive_;
     bool		isconst_;
     int			specidx_;

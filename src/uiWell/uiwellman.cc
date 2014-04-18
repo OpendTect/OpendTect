@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
+#include "uiwelllogimpexp.h"
 #include "uiwelllogcalc.h"
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"

@@ -29,6 +29,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	, form_(form)
 	, setup_(su)
 	, unitfld_(0)
+	, recbut_(0)
 	, formSet(this)
 	, inpSet(this)
 	, formUnitSet(this)
@@ -67,15 +68,18 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	unitfld_->selChange.notify( unitsetcb );
     }
 
-    recbut_ = new uiToolButton( this, "recursion",
-				"Set start values for recursion",
-				mCB(this,uiMathFormula,recButPush) );
-    if ( unitfld_ )
-	recbut_->attach( rightTo, unitfld_ );
-    else
-	recbut_->attach( rightTo, exprfld_ );
-    recbut_->attach( rightBorder );
-    recbut_->display( false );
+    if ( form_.inputsAreSeries() )
+    {
+	recbut_ = new uiToolButton( this, "recursion",
+				    "Set start values for recursion",
+				    mCB(this,uiMathFormula,recButPush) );
+	if ( unitfld_ )
+	    recbut_->attach( rightTo, unitfld_ );
+	else
+	    recbut_->attach( rightTo, exprfld_ );
+	recbut_->attach( rightBorder );
+	recbut_->display( false );
+    }
 
     postFinalise().notify( formsetcb );
 }
@@ -87,12 +91,12 @@ uiButton* uiMathFormula::addButton( const uiToolButtonSetup& tbs )
 }
 
 
-void uiMathFormula::setRegularInputs( const BufferStringSet& inps, int ivar )
+void uiMathFormula::setNonSpecInputs( const BufferStringSet& inps, int ivar )
 {
     for ( int idx=0; idx<inpflds_.size(); idx++ )
     {
 	if ( ivar < 0 || ivar == idx )
-	    inpflds_[idx]->setRegularInputs( inps );
+	    inpflds_[idx]->setNonSpecInputs( inps );
     }
 }
 
@@ -165,7 +169,9 @@ bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	}
 	inpfld.use( form_ );
     }
-    recbut_->display( form_.isRecursive() );
+
+    if ( recbut_ )
+	recbut_->display( form_.isRecursive() );
 
     if ( isbad )
     {
@@ -301,9 +307,10 @@ bool acceptOK( CallBacker* )
 
 void uiMathFormula::recButPush( CallBacker* )
 {
-    if ( !updateForm() ) return;
+    if ( !recbut_ || !updateForm() )
+	return;
     if ( !form_.isRecursive() )
-	{ if ( recbut_ ) recbut_->display(false); return; }
+	{ recbut_->display(false); return; }
 
     uiMathFormulaEdRec dlg( this, form_, form_.maxRecShift() > 1 ? "s" : 0 );
     if ( !dlg.go() )

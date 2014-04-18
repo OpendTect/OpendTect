@@ -221,7 +221,7 @@ BufferString uiRockPhysForm::getFormText( const RockPhysics::Formula& rpfm,
 					  bool fortxtdisp ) const
 {
     BufferString formstr( rpfm.def_ );
-    Math::Formula form( formstr );
+    Math::Formula form( true, formstr );
     int ivardef = 0; int iconstdef = 0;
     for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
     {

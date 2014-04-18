@@ -110,8 +110,10 @@ mExpClass(General) ExpressionParser
 {
 public:
 
-			ExpressionParser( const char* str=0 )
-			    : inp_(str), abswarn_(false)	{}
+			ExpressionParser( const char* str=0,
+					  bool inputsareseries=true )
+			    : inp_(str), abswarn_(false)
+			    , inputsareseries_(inputsareseries)	{}
 
     void		setInput( const char* s ) { inp_ = s; }
     Expression*		parse() const;
@@ -126,6 +128,7 @@ public:
 protected:
 
     BufferString	inp_;
+    const bool		inputsareseries_;
     mutable BufferString errmsg_;
     mutable bool	abswarn_;
 

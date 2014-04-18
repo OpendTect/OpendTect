@@ -32,10 +32,18 @@ static bool testSimpleFormula()
     if ( !quiet )
 	od_cout() << "Expression: '" << expr << "'\n";
 
-    Math::Formula form( expr );
+    Math::Formula tryform( false, expr );
+    if ( tryform.isOK() )
+	{ od_cout() << "Fail:\n" << expr
+	    << " should not parse in single mode" << od_endl; return false; }
+    if ( !quiet )
+	od_cout() << "OK, single mode err msg='" << tryform.errMsg() << "'\n";
+
+    Math::Formula form( true, expr );
 
     if ( !form.isOK() )
-	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
+	{ od_cout() << "Fail:\ndata series mode errmsg="
+	    		<< form.errMsg() << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,3);
@@ -70,7 +78,7 @@ static bool testSimpleFormula()
 	BufferString str;
 	iop.dumpPretty( str );
 	od_cout() << str << od_endl;
-	Math::Formula form2( "" );
+	Math::Formula form2( true, "" );
 	form2.usePar( iop );
 	IOPar iop2;
 	form2.fillPar( iop2 );
@@ -93,7 +101,7 @@ static bool testRepeatingVar()
     Math::SpecVarSet svs;
     svs += Math::SpecVar( "Aap", "Dit is aapje", true, PropertyRef::Dist );
     svs += Math::SpecVar( "Noot", "Dit is nootje", false );
-    Math::Formula form( expr, &svs );
+    Math::Formula form( true, svs, expr );
 
     if ( !form.isOK() )
 	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }

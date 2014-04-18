@@ -84,7 +84,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 				     getDlgTitle(wllids),
 				     "107.1.10"))
 	, superwls_(*new Well::LogSet)
-	, form_(*new Math::Formula(&getSpecVars()))
+	, form_(*new Math::Formula(true,getSpecVars()))
 	, wellids_(wllids)
 	, formfld_(0)
 	, havenew_(false)
@@ -115,7 +115,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
 			      mCB(this,uiWellLogCalc,vwLog) );
-    formfld_->setRegularInputs( lognms_ );
+    formfld_->setNonSpecInputs( lognms_ );
     formfld_->inpSet.notify( inpselcb );
     formfld_->formSet.notify( formsetcb );
     formfld_->formUnitSet.notify( formunitcb );
@@ -208,7 +208,7 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	    BufferStringSet nms;
 	    for ( int ilog=0; ilog<propidxs.size(); ilog++ )
 		nms.add( superwls_.getLog(propidxs[ilog]).name() );
-	    formfld_->setRegularInputs( nms, idx );
+	    formfld_->setNonSpecInputs( nms, idx );
 	}
     }
 

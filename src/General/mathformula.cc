@@ -47,22 +47,20 @@ Interval<int> Math::Formula::InpDef::shftRg() const
 }
 
 
-static const Math::SpecVarSet emptysvs;
-
-
-Math::Formula::Formula( const SpecVarSet* svs )
+Math::Formula::Formula( bool inpseries, const char* txt )
     : expr_(0)
+    , inputsareseries_(inpseries)
     , outputunit_(0)
-    , specvars_(svs ? *svs : emptysvs)
 {
-    setText( 0 );
+    setText( txt );
 }
 
 
-Math::Formula::Formula( const char* txt, const SpecVarSet* svs )
+Math::Formula::Formula( bool inpseries, const SpecVarSet& svs, const char* txt )
     : expr_(0)
+    , specvars_(svs)
+    , inputsareseries_(inpseries)
     , outputunit_(0)
-    , specvars_(svs ? *svs : emptysvs)
 {
     setText( txt );
 }
@@ -70,7 +68,7 @@ Math::Formula::Formula( const char* txt, const SpecVarSet* svs )
 
 Math::Formula::Formula( const Math::Formula& oth )
     : expr_(0)
-    , specvars_(emptysvs)
+    , inputsareseries_(true)
 {
     *this = oth;
 }
@@ -90,6 +88,7 @@ Math::Formula& Math::Formula::operator =( const Math::Formula& oth )
 	inpidxs_ = oth.inpidxs_;
 	validxs_ = oth.validxs_;
 	recshifts_ = oth.recshifts_;
+	const_cast<bool&>(inputsareseries_) = oth.inputsareseries_;
 	const_cast<SpecVarSet&>(specvars_) = oth.specvars_;
     }
     return *this;
@@ -131,7 +130,7 @@ void Math::Formula::setText( const char* inp )
 
     int maxrecshift = 0;
     text_ = inp;
-    ExpressionParser mep( inp );
+    ExpressionParser mep( inp, inputsareseries_ );
     expr_ = mep.parse();
     if ( !expr_ )
     {

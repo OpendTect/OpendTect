@@ -1220,34 +1220,52 @@ bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 bool Math::ExpressionParser::findVariable( char* str, int len,
 					      Math::Expression*& ret ) const
 {
-    bool isvariable = true;
+    bool isok = true;
+    int distfromopeningbracket = -1;
+    bool hasvaridx = false;
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( (!idx&&isdigit(str[idx])) || !isalnum(str[idx]) )
+	if ( hasvaridx )
+	    return false; // there are chars after []
+
+	if ( distfromopeningbracket < 0 )
 	{
-	    isvariable = str[idx] == '_' || str[idx] == '[' || str[idx] == ']';
-	    break;
-	}
-    }
-    if ( isvariable )
-    {
-	if ( varTypeOf(str)== Math::Expression::Recursive )
-	{
-	    int recshift; varNameOf( str, &recshift );
-	    if ( recshift >= 0 )
+	    isok = idx == 0 ? isalpha( str[idx] ) : isalnum( str[idx] );
+	    if ( !isok && str[idx] == '_' )
+		isok = true;
+	    if ( !isok )
 	    {
-		errmsg_.set( "Invalid recursive expression:\n'" )
-		       .add( str ).add( "'\nRecursive expression must be "
-					"of type 'THIS[-n]' or 'OUT[-n]'" );
-		return true;
+		if ( str[idx] != '['  )
+		    return false;
+		distfromopeningbracket = 0;
+		isok = true;
 	    }
 	}
-
-	ret = new Math::ExpressionVariable( str );
-	return true;
+	else
+	{
+	    isok = isdigit( str[idx] );
+	    if ( !isok )
+	    {
+		if ( distfromopeningbracket == 0 )
+		    isok = str[idx] == '+' || str[idx] == '-';
+		else if ( str[idx] == ']' )
+		    { hasvaridx = true; isok = true; }
+	    }
+	    distfromopeningbracket++;
+	}
+	if ( !isok )
+	    return false;
     }
 
-    return false;
+    if ( hasvaridx && !inputsareseries_ )
+    {
+	errmsg_.set( "Found recursive or shifted variables."
+		"\nBut the formula is not for data series" );
+	return false;
+    }
+
+    ret = new Math::ExpressionVariable( str );
+    return true;
 }
 
 
@@ -1302,7 +1320,8 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
     if ( findVariable( str, len, ret ) )
 	return ret;
 
-    errmsg_.set( "Cannot parse this:\n'" ).add( inpstr ).add( "'" );
+    if ( errmsg_.isEmpty() )
+	errmsg_.set( "Cannot parse this:\n'" ).add( inpstr ).add( "'" );
     return 0;
 }
 

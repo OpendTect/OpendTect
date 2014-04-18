@@ -24,15 +24,12 @@ class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
 class uiLabel;
-class uiLabeledListBox;
 class uiPushButton;
 class uiTable;
 class uiTableImpDataSel;
 class uiUnitSel;
 class uiWellSel;
 class BufferStringSet;
-class IOObj;
-class od_ostream;
 
 namespace Table { class FormatDesc; }
 namespace Well { class Data; class Track; class D2TModel; class Log; }
@@ -130,60 +127,6 @@ protected:
     bool		rowIsIncomplete(int row) const;
     int			getPreviousCompleteRowIdx(int row) const;
     int			getNextCompleteRowIdx(int row) const;
-};
-
-
-
-/*! \brief
-Dialog for loading logs from las file
-*/
-
-mExpClass(uiWell) uiImportLogsDlg : public uiDialog
-{
-public:
-			uiImportLogsDlg(uiParent*,const IOObj*);
-
-protected:
-
-    uiFileInput*	lasfld_;
-    uiGenInput*		intvfld_;
-    uiGenInput*		intvunfld_;
-    uiGenInput*		istvdfld_;
-    uiGenInput*		udffld_;
-    uiLabel*		unitlbl_;
-    uiLabeledListBox*	logsfld_;
-    uiWellSel*		wellfld_;
-
-    bool		acceptOK(CallBacker*);
-    void		lasSel(CallBacker*);
-};
-
-
-
-mExpClass(uiWell) uiExportLogs : public uiDialog
-{
-public:
-			uiExportLogs(uiParent*,
-				const ObjectSet<Well::Data>&,
-				const BufferStringSet&);
-
-protected:
-
-    const ObjectSet<Well::Data>& wds_;
-    const BufferStringSet& logsel_;
-
-    uiGenInput*		typefld_;
-    uiButtonGroup*	zunitgrp_;
-    uiGenInput*		zrangefld_;
-    uiFileInput*	outfld_;
-    uiGenInput*		multiwellsnamefld_;
-
-    void		setDefaultRange(bool);
-    void		writeHeader(od_ostream&,const Well::Data&);
-    void		writeLogs(od_ostream&,const Well::Data&);
-
-    void		typeSel(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
 };
 
 

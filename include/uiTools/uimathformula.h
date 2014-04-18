@@ -47,7 +47,7 @@ public:
     };
 
 			uiMathFormula(uiParent*,Math::Formula&,const Setup&);
-    void		setRegularInputs(const BufferStringSet&,int iinp=-1);
+    void		setNonSpecInputs(const BufferStringSet&,int iinp=-1);
 					//!< iinp == -1 does all
 
     bool		setText(const char*);

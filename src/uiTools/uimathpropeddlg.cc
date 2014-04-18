@@ -72,7 +72,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(
 				varsgrp, idx, true, &svs );
-	fld->setRegularInputs( availpropnms );
+	fld->setNonSpecInputs( availpropnms );
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
 	inpdataflds_ += fld;
