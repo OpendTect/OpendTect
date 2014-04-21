@@ -24,7 +24,8 @@ mFDQtclass( QString );
 mFDQtclass( QTranslator );
 
 
-/*!String that is able to hold wide character strings for the user interface.
+/*!
+   String that is able to hold wide character strings for the user interface.
    These strings can be in different encodings and should only be used to pass
    text to the ui.
 
@@ -64,7 +65,7 @@ mFDQtclass( QTranslator );
   -# The .qm file should be placed in
      data/localizations/<application>_<lang>_<country>.ts in the release. For
      example, a localization of OpendTect to traditional Chinese/Taiwan would be
-    saved as od_zh_TW.qm.
+     saved as od_zh_TW.qm.
  */
 
 
@@ -138,23 +139,25 @@ private:
     friend class		uiStringData;
     uiStringData*		data_;
 public:
-				//Only for expert users
-				uiString(const char* original,
-					 const char* context,
-					 const char* application,
-					 const char* disambiguation,
-					 int pluralnr);
-    void			addLegacyVersion(const uiString&);
-				/*!If this string was previously known by
-                                   another origianl string, it can be added here
-                                */
+		//Only for expert users
+		uiString(const char* original,
+			 const char* context,
+			 const char* application,
+			 const char* disambiguation,
+			 int pluralnr);
+    void	addLegacyVersion(const uiString&);
+		/*!<If this string was previously known by another origial
+		    string, it can be added here. This is normally done with the
+		    legacyTr function.
+		    \code
+			uiString str = tr("New version");
+			str.addLegacyVersion( legacyTr("Old ver") );
+		    \endcode
+                */
 
-    bool			translate(const mQtclass(QTranslator)&,
-					  mQtclass(QString)&) const;
-				//!Returns true if the translation succeeded
-
-
-
+    bool	translate(const mQtclass(QTranslator)&,
+	    		  mQtclass(QString)&) const;
+		//!<Returns true if the translation succeeded
 };
 
 /*!Wrapper class with fewer constructor that ensures that it is completely
@@ -183,6 +186,10 @@ public:
 private: \
  static inline uiString tr( const char* text, const char* disambiguation = 0,  \
  int pluralnr=-1 ) \
+ { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
+ static inline uiString legacyTr( const char* text, \
+	 			  const char* disambiguation = 0,  \
+				  int pluralnr=-1 ) \
  { return uiString( text, #clss, application, disambiguation, pluralnr ); }
 
 #define mODTextTranslationClass(clss) \
