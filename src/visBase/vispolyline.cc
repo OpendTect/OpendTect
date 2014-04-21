@@ -119,7 +119,7 @@ PolyLine3D::PolyLine3D()
 
 void PolyLine3D::setLineStyle( const LineStyle& lst )
 {
-    lst_ = lst_;
+    lst_ = lst;
     updateRadius();
 }
 
