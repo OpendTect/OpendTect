@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "separstr.h"
+#include "survinfo.h"
 
 
 const char* Seis2DGridCreator::sKeyInput()	{ return "Input ID"; }
@@ -191,12 +192,17 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
-    FixedString inlstr = par.find( sKeyInlPrefix() );
+    BufferString inlcrlnr; inlcrlnr = SI().inlRange(false).stop;
+    int maxnrsz = inlcrlnr.size();
+    FixedString prefix = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.inl = cs.hrg.stop.inl = inlines[idx];
-	LineKey lk( BufferString(inlstr.str(),inlines[idx]), attribname );
+	BufferString inlstr; inlstr = inlines[idx];
+	while ( inlstr.size() < maxnrsz )
+	    inlstr.insertAt( 0, "0" );
+	LineKey lk( BufferString(prefix.str(),inlstr), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }
 
@@ -216,12 +222,17 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    crosslines += str.getIValue(idx);
     }
 
-    FixedString crlstr = par.find( sKeyCrlPrefix() );
+    inlcrlnr = SI().crlRange(false).stop;
+    maxnrsz = inlcrlnr.size();
+    prefix = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.crl = cs.hrg.stop.crl = crosslines[idx];
-	LineKey lk( BufferString(crlstr.str(),crosslines[idx]), attribname );
+	BufferString crlstr; crlstr = crosslines[idx];
+	while ( crlstr.size() < maxnrsz )
+	    crlstr.insertAt( 0, "0" );
+	LineKey lk( BufferString(prefix.str(),crlstr), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }
 
