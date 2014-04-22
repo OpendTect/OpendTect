@@ -326,53 +326,37 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
     toolbar_->addSeparator();
 
-    visBase::DM().selMan().selnotifier.notify(
-				mCB(this,uiODFaultToolMan,treeItemSelCB) );
-    visBase::DM().selMan().deselnotifier.notify(
-				mCB(this,uiODFaultToolMan,treeItemDeselCB) );
-
-    EM::EMM().addRemove.notify( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
-    appl_.applMgr().visServer()->objectaddedremoved.notify(
-				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
-
-    appl_.postFinalise().notify( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
-    deseltimer_.tick.notify( mCB(this,uiODFaultToolMan,deselTimerCB) );
-    editreadytimer_.tick.notify( mCB(this,uiODFaultToolMan,editReadyTimerCB) );
-    flashtimer_.tick.notify( mCB(this,uiODFaultToolMan,flashOutputTimerCB) );
-    EM::EMM().undo().undoredochange.notify(
-				mCB(this,uiODFaultToolMan,updateToolbarCB) );
-    uiMain::keyboardEventHandler().keyPressed.notify(
-				mCB(this,uiODFaultToolMan,keyPressedCB) );
-    uiMain::keyboardEventHandler().keyReleased.notify(
-				mCB(this,uiODFaultToolMan,keyReleasedCB) );
+    mAttachCB( visBase::DM().selMan().selnotifier, 
+	       uiODFaultToolMan::treeItemSelCB );
+    mAttachCB( visBase::DM().selMan().deselnotifier, 
+	       uiODFaultToolMan::treeItemDeselCB );
+    mAttachCB( EM::EMM().addRemove, 
+	       uiODFaultToolMan::addRemoveEMObjCB );
+    mAttachCB( appl_.applMgr().visServer()->objectaddedremoved, 
+	       uiODFaultToolMan::addRemoveVisObjCB );
+    mAttachCB( appl_.postFinalise(), 
+	       uiODFaultToolMan::finaliseDoneCB );
+    mAttachCB( deseltimer_.tick, 
+	       uiODFaultToolMan::deselTimerCB );
+    mAttachCB( editreadytimer_.tick, 
+	       uiODFaultToolMan::editReadyTimerCB );
+    mAttachCB( flashtimer_.tick, 
+	       uiODFaultToolMan::flashOutputTimerCB );
+    mAttachCB( EM::EMM().undo().undoredochange, 
+	       uiODFaultToolMan::updateToolbarCB );
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed, 
+	       uiODFaultToolMan::keyPressedCB );
+    mAttachCB( uiMain::keyboardEventHandler().keyReleased, 
+	       uiODFaultToolMan::keyReleasedCB );
 }
 
 
 uiODFaultToolMan::~uiODFaultToolMan()
 {
-    visBase::DM().selMan().selnotifier.remove(
-				mCB(this,uiODFaultToolMan,treeItemSelCB) );
-    visBase::DM().selMan().deselnotifier.remove(
-				mCB(this,uiODFaultToolMan,treeItemDeselCB) );
-
-    EM::EMM().addRemove.remove( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
-    appl_.applMgr().visServer()->objectaddedremoved.remove(
-				mCB(this,uiODFaultToolMan,addRemoveVisObjCB) );
-
-    appl_.postFinalise().remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
-    IOM().surveyChanged.remove( mCB(this,uiODFaultToolMan,surveyChg) );
-    EM::EMM().undo().undoredochange.remove(
-				mCB(this,uiODFaultToolMan,updateToolbarCB) );
-
+    detachAllNotifiers();
     delete appl_.removeToolBar( toolbar_ );
-
     if ( settingsdlg_ )
 	delete settingsdlg_;
-
-    uiMain::keyboardEventHandler().keyPressed.remove(
-				mCB(this,uiODFaultToolMan,keyPressedCB) );
-    uiMain::keyboardEventHandler().keyReleased.remove(
-				mCB(this,uiODFaultToolMan,keyReleasedCB) );
 }
 
 
@@ -418,14 +402,19 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	processOutputName();
 	enableToolbar( true );
 
-	IOM().surveyChanged.notifyIfNotNotified(
-				    mCB(this,uiODFaultToolMan,surveyChg) );
+	mAttachCBIfNotAttached( IOM().surveyChanged, 
+				uiODFaultToolMan::surveyChg );
 
-	CallBack cb = mCB(this,uiODFaultToolMan,displayModeChg);
 	if ( curfssd_ )
-	    curfssd_->displaymodechange.notify( cb );
+	{
+	    mAttachCB( curfssd_->displaymodechange, 
+		       uiODFaultToolMan::displayModeChg );
+	}
 	if ( curfltd_ )
-	    curfltd_->displaymodechange.notify( cb );
+	{
+	    mAttachCB( curfltd_->displaymodechange, 
+		       uiODFaultToolMan::displayModeChg );
+	}
     }
     else
 	clearCurDisplayObj();
@@ -440,11 +429,16 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
     mDynamicCastGet( visSurvey::FaultDisplay*, oldfltd, dataobj );
     if ( oldfssd==curfssd_ && oldfltd==curfltd_ )
     {
-	CallBack cb = mCB(this,uiODFaultToolMan,displayModeChg);
 	if ( curfssd_ )
-	    curfssd_->displaymodechange.remove( cb );
+	{
+	    mDetachCB( curfssd_->displaymodechange, 
+		       uiODFaultToolMan::displayModeChg );
+	}
 	if ( curfltd_ )
-	    curfltd_->displaymodechange.remove( cb );
+	{
+	    mDetachCB( curfltd_->displaymodechange, 
+		       uiODFaultToolMan::displayModeChg );
+	}
 
 	deseltimer_.start( 100, true );
     }
