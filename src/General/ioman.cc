@@ -715,7 +715,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	BufferString trnm( ctio.ctxt.deftransl.isEmpty()
 			 ? (tr ? tr->userName().buf() : "")
 			 : ctio.ctxt.deftransl.buf() );
-	if ( trnm.isEmpty() ) trnm = "OD"; // shouldn't happen
+	if ( trnm.isEmpty() ) trnm = "od"; // happens for empty bundles
 	iostrm->setTranslator( trnm );
 	const char* dirnm = getTranslDirNm( tr );
 	if ( dirnm )

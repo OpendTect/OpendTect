@@ -50,7 +50,7 @@ public:
 mExpClass(General) SpecVarSet : public TypeSet<SpecVar>
 {
 public:
-    			SpecVarSet()		{}
+			SpecVarSet()		{}
 
     int			getIndexOf(const char* varnm) const;
     void		getNames(BufferStringSet&,bool usrdisp=true) const;
@@ -188,6 +188,7 @@ public:
 
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }
+    static const char*	sKeyFileType()		{ return "Math Formula"; }
 
 protected:
 

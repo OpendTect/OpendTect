@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "iopar.h"
 
-mDefSimpleTranslators(MathFormula,"Math Formula",od,Misc);
+mDefSimpleTranslators(MathFormula,Math::Formula::sKeyFileType(),od,Misc);
 
 
 int Math::SpecVarSet::getIndexOf( const char* varnm ) const

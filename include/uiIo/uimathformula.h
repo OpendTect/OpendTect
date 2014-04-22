@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "mathformula.h"
-class UnitOfMeasure;
 class uiButton;
 class uiUnitSel;
 class uiToolButton;
 class uiToolButtonSetup;
 class uiMathExpression;
 class uiMathExpressionVariable;
+class CtxtIOObj;
+class UnitOfMeasure;
 namespace Math { class Form; }
 
 
@@ -38,18 +39,19 @@ public:
 			Setup( const char* lbl=0 )
 			    : label_(lbl)
 			    , withunits_(true)
-			    , withio_(true)
 			    , maxnrinps_(6)		{}
 
 	mDefSetupMemb(BufferString,label);
 	mDefSetupMemb(bool,withunits);
 	mDefSetupMemb(int,maxnrinps);
-	mDefSetupMemb(int,withio);
+	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
 
     };
 
 			uiMathFormula(uiParent*,Math::Formula&,const Setup&);
 			~uiMathFormula();
+
+
     void		setNonSpecInputs(const BufferStringSet&,int iinp=-1);
 					//!< iinp == -1 does all
 
@@ -95,9 +97,10 @@ protected:
 
     Setup		setup_;
     TypeSet<double>	recvals_;
-    //CtxtIOObj&		ctio_;
+    CtxtIOObj&		ctio_;
 
     bool		checkValidNrInputs() const;
+    BufferString	getIOFileName(bool forread);
 
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);

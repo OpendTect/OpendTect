@@ -112,6 +112,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     const CallBack inpselcb( mCB(this,uiWellLogCalc,inpSel) );
 
     uiMathFormula::Setup mfsu( "Formula (like 'den / son')" );
+    mfsu.stortype_ = "Log calculation";
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
 			      mCB(this,uiWellLogCalc,vwLog) );

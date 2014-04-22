@@ -32,6 +32,7 @@ mDefModInitFn(General)
     dgbPreLoadsTranslator::initClass();
     dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
+    odMathFormulaTranslator::initClass();
 
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();

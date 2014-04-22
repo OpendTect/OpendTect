@@ -19,17 +19,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 #include "uidialog.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
 
 #include "mathformula.h"
-//#include "mathformulatr.h"
+#include "mathformulatransl.h"
+#include "od_iostream.h"
+#include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
 
 
 uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 				const uiMathFormula::Setup& su )
 	: uiGroup(p,"Math Formula")
 	, form_(form)
-//	, ctio_(*mMkCtxtIOObj(MathFormula))
+	, ctio_(*mMkCtxtIOObj(MathFormula))
 	, setup_(su)
 	, unitfld_(0)
 	, recbut_(0)
@@ -38,6 +43,9 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	, formUnitSet(this)
 	, notifinpnr_(-1)
 {
+    bool wantio = !setup_.stortype_.isEmpty();
+    if ( wantio )
+	ctio_.ctxt.toselect.require_.set( sKey::Type(), setup_.stortype_ );
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
     const CallBack inpsetcb( mCB(this,uiMathFormula,inpSetCB) );
     const CallBack unitsetcb( mCB(this,uiMathFormula,formUnitSetCB) );
@@ -72,14 +80,14 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     }
 
     uiButtonGroup* bgrp = 0;
-    if ( setup_.withio_ || form_.inputsAreSeries() )
+    if ( wantio || form_.inputsAreSeries() )
 	bgrp = new uiButtonGroup( this, "tool buts", uiObject::Horizontal );
 
     if ( form_.inputsAreSeries() )
 	recbut_ = new uiToolButton( bgrp, "recursion",
 				    "Set start values for recursion",
 				    mCB(this,uiMathFormula,recButPush) );
-    if ( setup_.withio_ )
+    if ( wantio )
     {
 	new uiToolButton( bgrp, "open", "Open stored formula",
 				    mCB(this,uiMathFormula,readReq) );
@@ -102,8 +110,8 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
 uiMathFormula::~uiMathFormula()
 {
-    // delete ctio_.ioobj;
-    // delete &ctio_;
+    delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
@@ -342,11 +350,61 @@ void uiMathFormula::recButPush( CallBacker* )
 }
 
 
+BufferString uiMathFormula::getIOFileName( bool forread )
+{
+    BufferString fnm;
+    ctio_.ctxt.forread = forread;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( !dlg.go() )
+	return fnm;
+
+    fnm = dlg.ioObj()->fullUserExpr( forread );
+    const bool doesexist = File::exists( fnm );
+    if ( forread && !doesexist )
+	{ uiMSG().error("File does not exist"); fnm.setEmpty(); }
+
+    ctio_.setObj( dlg.ioObj()->clone() );
+    return fnm;
+}
+
+
 void uiMathFormula::readReq( CallBacker* )
 {
+    const BufferString fnm = getIOFileName( true );
+    if ( fnm.isEmpty() )
+	return;
+
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	{ uiMSG().error("Cannot open input file"); return; }
+
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )
+	{ uiMSG().error("Input file is not of 'Math Formula' type"); return; }
+    IOPar iop( astrm );
+    form_.usePar( iop );
+    recvals_ = form_.recStartVals();
+    useForm();
 }
 
 
 void uiMathFormula::writeReq( CallBacker* )
 {
+    if ( !updateForm() )
+	return;
+
+    const BufferString fnm = getIOFileName( false );
+    if ( fnm.isEmpty() )
+	return;
+
+    FilePath fp( fnm ); fp.setExtension( "formula" );
+    od_ostream strm( fp.fullPath() );
+    if ( !strm.isOK() )
+	{ uiMSG().error("Cannot open output file"); return; }
+    ascostream astrm( strm );
+    if ( !astrm.putHeader(Math::Formula::sKeyFileType()) )
+	{ uiMSG().error("Cannot write file header"); return; }
+
+    IOPar iop; form_.fillPar( iop );
+    iop.putTo( astrm );
 }
