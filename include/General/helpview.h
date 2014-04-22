@@ -61,7 +61,7 @@ public:
 
 
 			//This constructor is for legacy stuff. Remove.
-			HelpKey(const char* arg=0)
+			HelpKey(const char* arg)
 			    : providername_("od")
 			    , argument_( arg )
 			{}
