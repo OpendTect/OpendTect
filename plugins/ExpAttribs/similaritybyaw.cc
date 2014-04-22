@@ -1,3 +1,13 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Haibin Di
+ SVN:		$Id$
+________________________________________________________________________
+
+-*/
+
 
 #include "similaritybyaw.h"
 
@@ -13,7 +23,7 @@
 
 #include "statruncalc.h"
 
-namespace Attrib 
+namespace Attrib
 {
 
 mAttrDefCreateInstance( SimilaritybyAW )
@@ -49,15 +59,15 @@ void SimilaritybyAW::initClass()
     InputSpec steeringspec( "Steering Data", false );
     steeringspec.issteering_ = true;
     desc -> addInput( steeringspec );
-	
+
     mAttrEndInitClass
 }
 
 
 void SimilaritybyAW::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled_ = 
-        desc.getValParam(sKey::Steering()) -> getBoolValue();
+    desc.inputSpec(1).enabled_ =
+	desc.getValParam(sKey::Steering()) -> getBoolValue();
 }
 
 
@@ -98,7 +108,7 @@ SimilaritybyAW::SimilaritybyAW( Desc& desc )
 	    posandsteeridx_.steeridx_ += steeridx;
 	}
     }
-   
+
     inputdata_.allowNull( true );
 }
 
@@ -109,12 +119,12 @@ void SimilaritybyAW::initSteering()
 
 bool SimilaritybyAW::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if( !input )
+    if ( !input )
 	return Provider::getInputOutput( input, res );
 
     for( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	res += posandsteeridx_.steeridx_[idx];
-	
+
     return true;
 }
 
@@ -127,7 +137,7 @@ bool SimilaritybyAW::getInputData( const BinID& relpos, int zintv )
     const DataHolder* inpdata = inputs_[0] -> getData( relpos, zintv );
     if( !inpdata ) return false;
     inputdata_.replace( 0, inpdata );
-   
+
     const int maxlength = mMAX(horgate_.inl(), horgate_.crl())*2+1;
     while( inputdata_.size()<maxlength*maxlength )
         inputdata_ += 0;
@@ -135,7 +145,7 @@ bool SimilaritybyAW::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
     {
-        if( posandsteeridx_.steeridx_[idx]==0 ) 
+	if( posandsteeridx_.steeridx_[idx]==0 )
 	    continue;
 
         const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
@@ -162,35 +172,35 @@ bool SimilaritybyAW::computeData( const DataHolder& output,
 	const int inlnum = 2 * inlstep_ + 1;
 	const int crlnum = 2 * crlstep_ + 1;
 	const int znum   = 2 * verstep_ + 1;
-		
+
 	float* inpvolume = new float [inlnum*crlnum*znum*sizeof(float)];
 	for( int iter=0; iter<inlnum*crlnum*znum; iter++ )
 	    *(inpvolume+iter) = 0;
-		
+
 	for(int posidx=0; posidx<inlnum*crlnum; posidx++ )
 	{
 	    int posidx_true_ = posandsteeridx_.steeridx_[posidx];
-	
+
 	    if( !inputdata_[posidx_true_] ) continue;
-			
+
 	    float shift = steeringdata_ ?
 		getInputValue( *steeringdata_, posidx_true_, idx, z0 ) : 0;
             int ishift = mIsUdf(shift) ? 0 : mNINT32(shift);
 	    if( ishift<-desstep_ || ishift>desstep_ )
 	        ishift = 0;
-			
-	    const int sampidx = idx + ishift - verstep_;			
+
+	    const int sampidx = idx + ishift - verstep_;
 	    for( int isamp=0; isamp<znum; isamp++ )
 	    {
 		float val = getInputValue( *inputdata_[posidx_true_],
-			dataidx_, sampidx+isamp, z0 );			
+			dataidx_, sampidx+isamp, z0 );
 		if( mIsUdf(val) ) val = 0.0;
-		
+
 		*(inpvolume+posidx*znum+isamp) = val;
 	    }
 	}
-		
-	const float outval = calSimilaritybyAW(inpvolume);	
+
+	const float outval = calSimilaritybyAW(inpvolume);
 	setOutputValue( output, 0, idx, z0, outval );
 	delete [] inpvolume;
     }
@@ -203,7 +213,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 {
     const int crlsize = 2 * crlstep_ + 1;
     const int versize = 2 * verstep_ + 1;
-    const int centralpos = inlstep_*crlsize*versize + 
+    const int centralpos = inlstep_*crlsize*versize +
 			   crlstep_*versize + verstep1_;
     float OptR_ = 0.0;
     int OptW_ = 0;
@@ -212,23 +222,23 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
     int W_Max = 0;
     float R_Min = 1.0;
     int W_Min = 0;
-	
+
     for( int iter=-verstep1_; iter<=verstep1_; iter++ )
     {
 	const int pos0_ = centralpos+iter;
-	const int pos1_ = 
+	const int pos1_ =
 	    centralpos+iter - inlstep_*crlsize*versize - crlstep_*versize;
 	const int pos2_ = centralpos+iter - inlstep_*crlsize*versize;
-	const int pos3_ = 
+	const int pos3_ =
 	    centralpos+iter - inlstep_*crlsize*versize + crlstep_*versize;
 	const int pos4_ = centralpos+iter + crlstep_*versize;
-	const int pos5_ = 
+	const int pos5_ =
 	    centralpos+iter + inlstep_*crlsize*versize + crlstep_*versize;
 	const int pos6_ = centralpos+iter + inlstep_*crlsize*versize;
-	const int pos7_ = 
+	const int pos7_ =
 	    centralpos+iter + inlstep_*crlsize*versize - crlstep_*versize;
 	const int pos8_ = centralpos+iter - crlstep_*versize;
-	
+
 	const float R1_ = calSimilarity
 		(inpvolume+pos0_, inpvolume+pos1_, 2*(verstep0_-iter)+1);
 	const float R2_ = calSimilarity
@@ -246,10 +256,10 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 	const float R8_ = calSimilarity
 		(inpvolume+pos0_, inpvolume+pos8_, 2*(verstep0_-iter)+1);
 	const float R_ = mCast(float,0.125*(R1_+R2_+R3_+R4_+R5_+R6_+R7_+R8_));
-	
+
 	if( iter==0 )
 	    R_Std = R_;
-	
+
 	if( R_ >= R_Max )
 	{
 	    R_Max = R_;
@@ -270,7 +280,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 	OptR_ = R_Min;
 	OptW_ = W_Min;
     }
-	
+
     float output = 0.0;
     if( attribute_ == 0 )
 	output = 1.0f - OptR_;
@@ -284,7 +294,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
     return output;
 }
 
-float SimilaritybyAW::calSimilarity( float *data1, float*data2, 
+float SimilaritybyAW::calSimilarity( float *data1, float*data2,
 				     int datalen ) const
 {
     float xy = 0.0;
@@ -295,12 +305,12 @@ float SimilaritybyAW::calSimilarity( float *data1, float*data2,
     {
 	const float a = (*(data1+iter));
 	const float b = (*(data2+iter));
-	
+
 	xy += (a-b) * (a-b);
 	xx += a * a;
 	yy += b * b;
     }
-    
+
     float output = Math::Sqrt(xy)/(Math::Sqrt(xx)+Math::Sqrt(yy));
     output = 1.0f - fabs(output);
     return output;
