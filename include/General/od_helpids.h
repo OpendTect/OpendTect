@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
+ Author:        K. TIngdahl
  Date:          March 2014
  RCS:           $Id$
 ________________________________________________________________________
@@ -13,422 +13,423 @@ ________________________________________________________________________
 
 //General 000
 // General_support 01
-#define		view_progress 0000103
-#define		uiBatchLaunch 0000104
-uiBatchProgLaunch 5
-// General Setup 2
-uiSettings 1
-uiSetFonts 2
-uiLooknFeelSettings 3
-uiShortcutsDlg 4
-uiPluginMan 5
-uiPluginSel 6
-uiODSceneMgr::setKeyBindings 7
-uiSettings 8
-uiLicInstallDlg 9
-uiTranslateDlg 10
-// General Survey 3
-uiSurvey 1
-uiSurveyInfoEditor 2
-uiSurveyMapDlg 3
-uiWorkAreaDlg 4
-uiAttrib::DescSetEdimportSet 5
-uiCopySurveySIP 6
-uiConvertPos 7
-uiSurveyInfoEditor 8
-uiLatLong2CoordDlg 9
-uiGoogleExportSurvey 10
-uiSeisWvltMan::getFromOtherSurvey 11
-// General Other 4
-uiSliceSel 1
-uiSliceScroll 2
-uimcmddriverimps 3
-uiODApplMgr::addTimeDepthScene 4
-uiODApplMgrDispatcher:setAutoUpdatePol 5
-uiHandleDLSiteFail 6
-uiProxyDlg 7
-// General Installation 5
-uiODInstMgr 1
-uiODInstPkgMgr 2
-uiODInstMgr::checkInstDir 3
-uiODInstMgr::getPackageChoice 4
-uiSetupDlg 5
-//Object-Management 8
-// Object-Management Basic 0
-uiSetDataDir 1
-Selection 1
-uiIOObjSelDlg 1
+#define	        mProgressViewerHelpID				0x00001003
+#define	        mBatchLaunchHelpID				0x00001004
+#define		mBatchProgLaunchHelpID                          0x00001005
+// General Setup 02
+#define		mSettingsHelpID				        0x00002001
+#define		mSetFontsHelpID 				0x00002002
+#define		mLooknFeelSettingsHelpID 			0x00002003
+#define		mShortcutsDlgHelpID 				0x00002004
+#define		mPluginManHelpID 				0x00002005
+#define		mPluginSelHelpID	 			0x00002006
+#define		mODSceneMgrsetKeyBindingsHelpID 		0x00002007
+#define		mSurveySettingsHelpID 				0x00002008
+#define         mLicInstallDlgHelpID 		        	0x00002009
+
+// General Survey 03
+#define         mSurveyHelpID 				        0x00003001
+#define		mSurveyInfoEditorHelpID 	                0x00003002
+#define	        mSurveyMapDlgHelpID     			0x00003003
+#define		mWorkAreaDlgHelpID 				0x00003004
+#define		mAttribDescSetEdimportSetHelpID 		0x00003005
+#define		mCopySurveySIPHelpID 			        0x00003006
+#define		mConvertPosHelpID 				0x00003007
+#define		m2DDefSurvInfoDlgHelpID 			0x00003008
+#define		mLatLong2CoordDlgHelpID 			0x00003009
+#define		mGoogleExportSurveyHelpID 			0x00003010
+#define		mSeisWvltMangetFromOtherSurveyHelpID 	        0x00003011
+#define         mSurveyexportButPushedHelpID                    0x00003012
+// General Other 04
+#define		mSliceSelHelpID 				0x00004001
+#define		mSliceScrollHelpID 				0x00004002
+#define		mmcmddriverimpsHelpID 			        0x00004003
+#define		mODApplMgraddTimeDepthSceneHelpID 		0x00004004
+#define		mODApplMgrDispatchersetAutoUpdatePolHelpID 	0x00004005
+#define		mHandleDLSiteFailHelpID 			0x00004006
+#define		mProxyDlgHelpID 				0x00004007
+// General Installation 05
+#define	        mODInstMgrHelpID 				0x00005001
+#define	        mODInstPkgMgrHelpID 				0x00005002
+#define	        mODInstMgrcheckInstDirHelpID		        0x00005003
+#define	        mODInstMgrgetPackageChoiceHelpID 		0x00005004
+#define         mSetupDlgHelpID 				0x00005005
+//Object-Management 008
+// Object-Management Basic 00
+#define		mSetDataDirHelpID 				0x00800001
+// Object-Management Selection 01
+#define		mIOObjSelDlgHelpID 				0x00801001
 //Visualisation 50
-3D 0
-uiSnapshotDlg 1
-uiStereoDlg 2
-uiGridLinesDlg 3
-uiPropertiesDlg 4
-uiScenePropertyDlg 5
-uiColorBarDialog 6
-uiZScaleDlg 7
-uiPSViewerSettingDlg 8
-uiPrintSceneDlg 9
-uiWindowGrabDlg 10
-uiWindowGrabDlg 11
-uiMultiMapperRangeEditWin 12
-uiSurvTopBotImageDlg 13
-uiArrowDialog 14
-uiMeasureDlg 15
-uiVolrenTreeItem 16
-uiSeisPartServer::select2DLines 17
-uiDirLightDlg 18
-uiScenePropertyDlg 19
-uiViewer3DPositionsDlg 20
-Colors 1
-ColorTableDlg 1
-uiColorAttrSel 2
-uiAutoRangeClipDlg 3
-uiColTabImport 4
-uiODEditAttribColorDlg 5
-Sessions 3
-uiODMainAutoSessionDlg 1
+// Visualization 3D 00
+#define		mSnapshotDlgHelpID 				0x05000001
+#define		mStereoDlgHelpID 				0x05000002
+#define		mGridLinesDlgHelpID 				0x05000003
+#define		mPropertiesDlgHelpID 			        0x05000004
+#define		mScenePropertyDlgHelpID 			0x05000005
+#define	        mColorBarDialog 			        0x05000006
+#define		mZScaleDlgHelpID 				0x05000007
+#define		mPSViewerSettingDlgHelpID 			0x05000008
+#define		mPrintSceneDlgHelpID 			        0x05000009
+#define		mWindowGrabDlgWindowHelpID 			0x05000010
+#define		mWindowGrabDlgDesktopHelpID 			0x05000011
+#define		mMultiMapperRangeEditWinHelpID 		        0x05000012
+#define		mSurvTopBotImageDlgHelpID 			0x05000013
+#define		mArrowDialogHelpID 				0x05000014
+#define		mMeasureDlgHelpID 				0x05000015
+#define		mVolrenTreeItemHelpID 			        0x05000016
+#define		mSeisPartServerselect2DLinesHelpID 	        0x05000017
+#define		mDirLightDlgHelpID 				0x05000018
+#define		mScenePropertyDlgLineSurfSepHelpID 		0x05000019
+#define		mViewer3DPositionsDlgHelpID 			0x05000020
+// Visualization Colors 01
+#define		mColTabMarkerDlgHelpID 				0x05001001
+#define	        mColorTableManHelpID			        0x05001002
+#define		mAutoRangeClipDlgHelpID 			0x05001003
+#define		mColTabImportHelpID 				0x05001004
+#define		mODEditAttribColorDlgHelpID 			0x05001005
+// Visualization Sessions 03
+#define		mODMainAutoSessionDlgHelpID 			0x05003001
 //Flat_displays 51
-Display 0
-uiFlatViewStdControl 0
-uiFlatViewPropDlg 1
-uiEMObjectTabsWin 2
-2DPSViewer 1
-uiViewer2DMainWin 0
-uiViewer2DPosDlg 1
-uiViewer2DSelDataDlg 2
-uiViewer2DMainWin::displayAngle 3
+// Flat_displays Display 00
+#define		mFlatViewStdControlHelpID 			0x05100000
+#define		mFlatViewPropDlgHelpID 			        0x05100001
+//#define	mEMObjectTabsWin 			        0x05100002
+// Flat_displays 2DPSViewer 01
+#define		mViewer2DMainWinHelpID 			        0x05101000
+#define		mViewer2DPosDlgHelpID 			        0x05101001
+#define		mViewer2DSelDataDlgHelpID 			0x05101002
+#define		mViewer2DMainWindisplayAngleHelpID 	        0x05101003
 //Attributes 101
-Definition 0
-uiCoherencyAttrib 0
-uiConvolveAttrib 1
-uiDipFilterAttrib 2
-uiEnergyAttrib 3
-uiEventAttrib 4
-uiFingerPrintAttrib 5
-uiFrequencyAttrib 6
-uiFreqFilterAttrib 7
-uiInstantaneousAttrib 8
-uiMathAttrib 9
-uiPositionAttrib 10
-uiReferenceAttrib 11
-uiScalingAttrib 12
-uiShiftAttrib 13
-uiSimilarityAttrib 14
-uiSpecDecompAttrib 15
-uiVolumeStatisticsAttrib 16
-uiPreStackAttrib 17
-uiHorizonAttrib 100
-uiGapDecon 101
-uiMatchDelta 102
-uiDeltaResample 103
-uiTextureAttrib 104
-uiSampleValueAttrib 105
-Selection 1
-uiAttribDescSetEd 0
-uiAttrSelDlg(No_NN) 1
-uiAttrInpDlg 2
-uiGetFileForAttrSet 3
-uiAttrSrchProcFiles 4
-uiAutoAttrSelDlg 5
-uiAttribDescSetEd::defaultSet 6
-uiTrcPositionDlg 7
-Output 2
-uiAttrVolOut 0
-uiRestartBatchDialog 1
-uiClusterJobProv 2
-uiMultOutSel 3
-Utilities 3
-uiAttrSetMan 0
-uiEvaluateDlg 1
-uiFPAdvancedDlg 2
-uiFreqTaperDlg 3
+// Attributes Definition 00
+#define	        mCoherencyAttrib 			        0x10100000
+#define		mConvolveAttribHelpID 			        0x10100001
+#define		mDipFilterAttribHelpID 			        0x10100002
+#define		mEnergyAttribHelpID 				0x10100003
+#define		mEventAttribHelpID 				0x10100004
+#define		mFingerPrintAttribHelpID 			0x10100005
+#define		mFrequencyAttribHelpID 			        0x10100006
+#define		mFreqFilterAttribHelpID 			0x10100007
+#define		mInstantaneousAttribHelpID 			0x10100008
+#define		mMathAttribHelpID 				0x10100009
+#define		mPositionAttribHelpID 			        0x10100010
+#define		mReferenceAttribHelpID 			        0x10100011
+#define		mScalingAttribHelpID 			        0x10100012
+#define		mShiftAttribHelpID 				0x10100013
+#define		mSimilarityAttribHelpID 			0x10100014
+#define		mSpecDecompAttribHelpID 			0x10100015
+#define		mVolumeStatisticsAttribHelpID 		        0x10100016
+#define		mPreStackAttribHelpID 			        0x10100017
+#define		mHorizonAttribHelpID 			        0x10100100
+#define		mGapDeconHelpID 				0x10100101
+#define		mMatchDeltaHelpID 				0x10100102
+#define		mDeltaResampleHelpID 			        0x10100103
+#define		mTextureAttribHelpID 			        0x10100104
+#define		mSampleValueAttribHelpID 			0x10100105
+// Attributes Selection 01
+#define		mAttribDescSetEdHelpID 			        0x10101000
+#define		mAttrSelDlgNo_NNHelpID			        0x10101001
+#define		mAttrInpDlgHelpID 				0x10101002
+#define		mGetFileForAttrSetHelpID 			0x10101003
+#define		mAttrSrchProcFilesHelpID 			0x10101004
+#define		mAutoAttrSelDlgHelpID 			        0x10101005
+#define		mAttribDescSetEddefaultSetHelpID 		0x10101006
+#define		mTrcPositionDlgHelpID 			        0x10101007
+// Attributes Output 02
+#define		mAttrVolOutHelpID 				0x10102000
+#define		mRestartBatchDialogHelpID 			0x10102001
+#define		mClusterJobProvHelpID 			        0x10102002
+#define		mMultOutSelHelpID 				0x10102003
+// Attributes Utilities 03
+#define		mAttrSetManHelpID 				0x10103000
+#define		mEvaluateDlgHelpID 				0x10103001
+#define		mFPAdvancedDlgHelpID 			        0x10103002
+#define		mFreqTaperDlgHelpID 				0x10103003
 //Seismics 103
-I/O 0
-uiSeisImpCBVS(I) 1
-uiSEGYExpMore 2
-uiSEGYExpTxtHeaderDlg 3
-uiSEGYImpSimilarDlg 4
-uiSEGYExamine 5
-uiSEGYDefDlg 6
-uiSEGYExp 7
-uiSEGYReadRev1Question 8
-uiSEGYReadDlg 9
-uiSEGYReadPreScanner 10
-uiSeisIOSimple(I) 11
-uiSeisIOSimple(E) 12
-uiSeisPreLoadMgr 13
-uiSeisPreLoadMgrSel2D 14
-uiSEGYExp::doWork 15
-uiDZTImporter 16
-uiSeisFmtScaleDlg 17
-uiSEGYFileManip 19
-uiSEGYBinHdrEdDlg 20
-uiSEGYFileManipHdrCalcEd 21
-uiSeisImpCBVSFromOtherSurveyDlg 22
-Manage 1
-uiSeisFileMan::3D 0
-uiSeisImpCBVS(C) 1
-uiMergeSeis 2
-uiSeis2DMan 3
-uiSeisDump2DGeom 4
-uiSeisBrowser 5
-uiPosProvSel 6
-uiSeisMultiCubePS 7
-uiSeisCopyLineSet 8
-uiSeis2DFileManMergeDlg 9
-uiSeis2DExtractFrom3D 10
-uiSeisFileMan::2D 11
-uiGoogleExport2DSeis 12
-uiSeis2DMultiLineSelDlg 13
-ui2DGeomManageDlg 14
-uiManageLineGeomDlg 15
-uiGeom2DImpDlg 16
-uiDataPointSetMan 17
-uiDataPointSetMerger 18
-uiBodyOperatorDlg 19
-uiBodyRegionDlg 20
-uiImplicitBodyValueSwitchDlg 21
-uiImplBodyCalDlg 22
-Processing 2
-uiSeisMMProc 0
-PreStack::uiAGC 1
-PreStack::uiMute 2
-PreStack::uiVerticalStack 3
-VolProc::uiChain 4
-PreStack::uiImportMute 5
-PreStack::uiExportMute 6
-PreStack::uiImportMute(Pars) 7
-uiImportVelFunc 8
-uiImportVelFunc(Pars) 9
-PreStack:uiBatchProcSetup 10
-Vol::ProcuiBatchSetup 11
-uiBatchTime2DepthSetup 12
-PreStack::uiProcSel 13:
-Vel:uiBatchVolumeConversion 14:
-uiSeisBayesPDFInp 15
-uiSeisBayesNorm 16
-uiSeisBayesSeisInp 17
-uiSeisBayesOut 18
-uiAngleMuteComputer 19
-uiAngleMute 20
-uiResortSEGYDlg 21
-uiMultiWellCreateLogCubeDlg 22
-uiCreate2DGrid 23
-uiSeis2DTo3D 24
-uiCreateLogCubeDlg 25
-uiAngleCompAdvParsDlg 26
-uiProcSettings 27
-Wavelets 3
-uiSeisWvltMan 0
-uiSeisWvltImp 1
-uiSeisWvltManCrWvlt 2
-uiSeisWvltImp(Pars) 3
-uiWaveletExtraction 4
-uiSeisWvltSliderDlg 5
-uiSeisWvltTaperDlg 6
-uiSeisWvltMerge 7
-uiWaveletDispPropDlg 8
-Prestack 4
-uiSeisPrestackMan::3D 0:
-uiSeisPrestackMan::2D 1:
-uiPreStackCopyDlg 2
-uiPreStackMergeDlg 3
-uiRayTrcParamsDlg 4
-LINKS 5
-uiMadagascarMain 0
-uiMadIOSelDlg 1
-uiGMTMainWin 2
-Analysis 6
-uiChain 0
-uiStepDialog 1
-uiStepDialog 2
-uiStepDialog 3
-uiStepDialog 4
-uiStepDialog 5
-uiAddFunction 6
-uiVelocityDescDlg 7
-uiStepDialog 8
-uiEditFunction 9
-uiVoxelConnectivityFilter 10
+// Seismics I/O 00
+#define		mSeisImpCBVSHelpID 			        0x10300001
+#define		mSEGYExpMoreHelpID 				0x10300002
+#define		mSEGYExpTxtHeaderDlgHelpID 			0x10300003
+#define		mSEGYImpSimilarDlgHelpID 			0x10300004
+#define		mSEGYExamineHelpID 				0x10300005
+#define		mSEGYDefDlgHelpID 				0x10300006
+#define		mSEGYExpHelpID 				        0x10300007
+#define		mSEGYReadRev1QuestionHelpID 			0x10300008
+#define		mSEGYReadDlgHelpID 				0x10300009
+#define		mSEGYReadPreScannerHelpID 			0x10300010
+#define		mSeisIOSimpleImpHelpID 			        0x10300011
+#define		mSeisIOSimpleExpHelpID 			        0x10300012
+#define		mSeisPreLoadMgrHelpID 			        0x10300013
+#define		mSeisPreLoadMgrSel2DHelpID			0x10300014
+#define		mSEGYExpdoWorkHelpID 			        0x10300015
+#define		mDZTImporterHelpID 				0x10300016
+#define		mSeisFmtScaleDlgHelpID 			        0x10300017
+#define		mSEGYFileManipHelpID 			        0x10300019
+#define		mSEGYBinHdrEdDlgHelpID 			        0x10300020
+#define		mSEGYFileManipHdrCalcEdHelpID 		        0x10300021
+#define		mSeisImpCBVSFromOtherSurveyDlgHelpID 	        0x10300022
+// Seismics Manage 01
+#define		mSeisFileMan3DHelpID 			        0x10301000
+#define		mSeisImpCBVSCHelpID 			        0x10301001
+#define		mMergeSeisHelpID 				0x10301002
+#define		mSeis2DManHelpID 				0x10301003
+#define		mSeisDump2DGeomHelpID 			        0x10301004
+#define		mSeisBrowserHelpID 				0x10301005
+#define		mPosProvSelHelpID 				0x10301006
+#define		mSeisMultiCubePSHelpID 			        0x10301007
+#define		mSeisCopyLineSetHelpID 			        0x10301008
+#define		mSeis2DFileManMergeDlgHelpID 		        0x10301009
+#define		mSeis2DExtractFrom3DHelpID 			0x10301010
+#define		mSeisFileMan2DHelpID 			        0x10301011
+#define		mGoogleExport2DSeisHelpID 			0x10301012
+#define		mSeis2DMultiLineSelDlgHelpID 		        0x10301013
+#define		m2DGeomManageDlgHelpID 			        0x10301014
+#define		mManageLineGeomDlgHelpID 			0x10301015
+#define		mGeom2DImpDlgHelpID 				0x10301016
+#define		mDataPointSetManHelpID 			        0x10301017
+#define		mDataPointSetMergerHelpID 			0x10301018
+#define		mBodyOperatorDlgHelpID 			        0x10301019
+#define		mBodyRegionDlgHelpID 			        0x10301020
+#define		mImplicitBodyValueSwitchDlgHelpID 		0x10301021
+#define		mImplBodyCalDlgHelpID 			        0x10301022
+// Seismics Processing 02
+#define		mSeisMMProcHelpID 				0x10302000
+#define		mPreStackAGCHelpID 			        0x10302001
+#define		mPreStackMuteHelpID 			        0x10302002
+#define		mPreStackVerticalStackHelpID 		        0x10302003
+#define		mPreStackImportMuteHelpID 			0x10302005
+#define		mPreStackExportMuteHelpID 			0x10302006
+#define		mPreStackImportMuteParsHelpID 		        0x10302007
+#define		mImportVelFuncHelpID 			        0x10302008
+#define		mImportVelFuncParsHelpID 			0x10302009
+#define		mPreStackBatchProcSetupHelpID 		        0x10302010
+#define		mVolProcBatchSetupHelpID 			0x10302011
+#define		mBatchTime2DepthSetupHelpID 			0x10302012
+#define		mPreStackProcSelHelpID 			        0x10302013
+#define		mVelBatchVolumeConversionHelpID 		0x10302014
+#define		mSeisBayesPDFInpHelpID 			        0x10302015
+#define		mSeisBayesNormHelpID 			        0x10302016
+#define		mSeisBayesSeisInpHelpID 			0x10302017
+#define		mSeisBayesOutHelpID 				0x10302018
+#define		mAngleMuteComputerHelpID 			0x10302019
+#define		mAngleMuteHelpID 				0x10302020
+#define		mResortSEGYDlg 			                0x10302021
+#define	        mMultiWellCreateLogCubeDlg 		        0x10302022
+#define		mCreate2DGridHelpID 				0x10302023
+#define		mSeis2DTo3DHelpID 				0x10302024
+#define		mCreateLogCubeDlgHelpID 			0x10302025
+#define		mAngleCompAdvParsDlgHelpID 			0x10302026
+#define		mProcSettingsHelpID 				0x10302027
+// Seismics Wavelets 03
+#define		mSeisWvltManHelpID 				0x10303000
+#define		mSeisWvltImpHelpID 				0x10303001
+#define		mSeisWvltManCrWvltHelpID 			0x10303002
+#define		mSeisWvltImpParsHelpID 			        0x10303003
+#define		mWaveletExtractionHelpID 			0x10303004
+#define		mSeisWvltSliderDlgHelpID 			0x10303005
+#define		mSeisWvltTaperDlgHelpID 			0x10303006
+#define		mSeisWvltMergeHelpID 			        0x10303007
+#define		mWaveletDispPropDlgHelpID 			0x10303008
+// Seismics Prestack 04
+#define		mSeisPrestackMan3DHelpID 			0x10304000
+#define		mSeisPrestackMan2DHelpID 			0x10304001
+#define		mPreStackCopyDlgHelpID 			        0x10304002
+#define		mPreStackMergeDlgHelpID 			0x10304003
+#define		mRayTrcParamsDlgHelpID 			        0x10304004
+// Seismics LINKS 05
+#define		mMadagascarMainHelpID 			        0x10305000
+#define		mMadIOSelDlgHelpID 				0x10305001
+#define		mGMTMainWinHelpID 				0x10305002
+// Seismics Analysis 06
+#define		mChainHelpID 				        0x10306000
+#define		mBodyFillerHelpID 				0x10306002
+#define		mLateralSmootherHelpID 				0x10306003
+#define		mVolumeSmootherHelpID 				0x10306004
+#define		mVelocityGridderHelpID 				0x10306005
+#define		mAddFunctionHelpID 				0x10306006
+#define		mVelocityDescDlg 			        0x10306007
+#define		mVolumeReaderHelpID 				0x10306008
+#define		mEditFunctionHelpID 				0x10306009
+#define		mVoxelConnectivityFilterHelpID 		        0x10306010
 //Surfaces 104
-Horizons 0
-uiImportHorizon 0
-uiExportHorizon 1
-uiImportHorAttrib 2
-uiChangeSurfaceDlg 3
-uiEMHorizonEditorSetting 4
-uiHor3DFrom2DDlg 5
-uiArr2DFilterParsDlg 7
-uiTableImpDataSel(3DSurfaces) 8
-uiTableImpDataSel(2DSurfaces) 9
-uiflattenedcube 10
-uisnapptoevent 11
-uiHor2DFrom3DDlg 12
-uiInverseDistanceArray2DInterpol 13
-uiImportHorizon2D 14
-uiHorizonShiftDialog 15
-uiBulkHorizonImport 16
-Faults 1
-uiImportFault 0
-uiExportFault 1
-uiTableImpDataSel(Faults) 2
-uiImportFaultStick 3
-uiImportFaultStick 4
-uiExportFaultStick 5
-uiTableImpDataSel(FaultStickSet3D) 6
-uiTableImpDataSel(FaultStickSet2D) 7
-uiFaultStickTransferDlg 8
-Manage 2
-uiSurfaceMan 0
-uiSurface2DMan 1
-uiHorizonRelationsDlg 2
-HorizonModifyDlg 3
-uiFaultStickSetsManage 4
-uiFaultsManage 5
-uiCopySurface::3D 6:
-uiCopySurface::2D 7:
-uiCopySurface:StickSets 8:
-uiCopySurface:Faults 9:
-uiHorizonMergeDlg 10
-Display 3
-uiMultiSurfaceReadDlg 0
-uiWriteSurfaceDlg 1
-uiContourParsDlg 2
-Attributes 4
-uiAttrSurfaceOut 0
-uiAttrTrcSelOut 1
-uiAttrTrcSelOut 2
-uiAttrStrAmplOut 3
-uiIsopachMaker 4
-uiCalcPoly2HorVol 5
-uiStoreAuxData 6
-uiHorAttr2Geom 7
-uiHorGeom2Attr 8
+// Surfaces Horizons 00
+#define		mImportHorizonHelpID 			        0x10400000
+#define		mExportHorizonHelpID 			        0x10400001
+#define		mImportHorAttribHelpID 			        0x10400002
+#define		mChangeSurfaceDlgHelpID 			0x10400003
+#define		mEMHorizonEditorSettingHelpID 		        0x10400004
+#define		mHor3DFrom2DDlgHelpID 			        0x10400005
+#define		mArr2DFilterParsDlgHelpID 			0x10400007
+#define		mTableImpDataSel3DSurfacesHelpID		0x10400008
+#define		mTableImpDataSel2DSurfacesHelpID 		0x10400009
+#define		mFlattenedCubeHelpID 			        0x10400010
+#define		mSnapToEventHelpID 				0x10400011
+#define		mHor2DFrom3DDlgHelpID 			        0x10400012
+#define		mInverseDistanceArray2DInterpolHelpID 	        0x10400013
+#define		mImportHorizon2DHelpID 			        0x10400014
+#define		mHorizonShiftDialogHelpID 			0x10400015
+#define		mBulkHorizonImportHelpID 			0x10400016
+// Surfaces Faults 01
+#define		mImportFaultHelpID 				0x10401000
+#define		mExportFaultHelpID 				0x10401001
+#define		mTableImpDataSelFaultsHelpID 		        0x10401002
+#define		mImportFaultStick3DHelpID 			0x10401003
+#define		mImportFaultStick2DHelpID 			0x10401004
+#define	        mExportFaultStick 			        0x10401005
+#define		mTableImpDataSelFaultStickSet3DHelpID 	        0x10401006
+#define		mTableImpDataSelFaultStickSet2DHelpID 	        0x10401007
+#define		mFaultStickTransferDlgHelpID 		        0x10401008
+// Surfaces Manage 02
+#define		mSurfaceManHelpID 				0x10402000
+#define		mSurface2DManHelpID 				0x10402001
+#define		mHorizonRelationsDlgHelpID 			0x10402002
+#define		HorizonModifyDlgHelpID 			        0x10402003
+#define		mFaultStickSetsManageHelpID 			0x10402004
+#define		mFaultsManageHelpID 				0x10402005
+#define		mCopySurface3DHelpID 			        0x10402006
+#define		mCopySurface2DHelpID 			        0x10402007
+#define		mCopySurfaceStickSetsHelpID 		        0x10402008
+#define		mCopySurfaceFaultsHelpID 			0x10402009
+#define		mHorizonMergeDlgHelpID 			        0x10402010
+// Surfaces Display 03
+#define		mMultiSurfaceReadDlgHelpID 			0x10403000
+#define		mWriteSurfaceDlgHelpID 			        0x10403001
+#define		mContourParsDlgHelpID 			        0x10403002
+// Surfaces Attributes 04
+#define		mAttrSurfaceOutHelpID 			        0x10404000
+#define		mAttrTrcSelOutBetweenHelpID 			0x10404001
+#define		mAttrTrcSelOutSliceHelpID 			0x10404002
+#define	        mAttrStrAmplOut 			        0x10404003
+#define		mIsopachMakerHelpID				0x10404004
+#define		mCalcPoly2HorVolHelpID 			        0x10404005
+#define		mStoreAuxDataHelpID 				0x10404006
+#define		mHorAttr2GeomHelpID 				0x10404007
+#define		mHorGeom2AttrHelpID 				0x10404008
 //Picking 105
-I/O 0
-uiFetchPicks 0
-uiImpExpPickSet 1
-uiImpExpPickSet 2
-uiStorePicks 3
-uiMergePickSets 4
-uiTableImpDataSel(picks) 5
-uiPickSetMan 6
-Other 1
-uiGoogleExportPolygon 0
-uiSetPickDirs 1
+// Picking I/O 00
+#define		mFetchPicksHelpID 				0x10500000
+#define		mImpPickSetHelpID 			        0x10500001
+#define		mExpPickSetHelpID 			        0x10500002
+#define		mStorePicksHelpID	 			0x10500003
+#define		mMergePickSetsHelpID 			        0x10500004
+#define		mTableImpDataSelpicksHelpID		        0x10500005
+#define		mPickSetManHelpID 				0x10500006
+// Picking Other 01
+#define		mGoogleExportPolygonHelpID 			0x10501000
+#define		mSetPickDirsHelpID 				0x10501001
 //Wells 107
-I/O 0
-uiWellImportAsc 0
-uiWellImpSegyVsp 1
-uiWellImportAsc 2
-uiD2TModelGroup 3
-uiWellImpPptDlg 4
-uiNewWellDlg 5
-uiStoreWellDlg 6
-uiSimpleMultiWellCreate 7
-uiSimpleMultiWellCreateReadData 8
-uiTableImpDataSel(wells) 9
-uiBulkTrackImport 10
-uiBulkLogImport 11
-uiBulkMarkerImport 12
-Manage 1
-uiWellMan 0
-uiMarkerDlg 1
-uiLoadLogsDlg 2
-uiExportLogs 3
-uiReadMarkerFile 4
-uiD2TModelDlg 5
-uiD2TModelReadDlg 6
-uiWellTrackDlg 7
-uiWellTrackReadDlg 8
-uiTableImpDataSel(markers) 9
-uiWellLogCalc 10
-uiGoogleExportWells 11
-uiWellLogCalcRockPhys 12
-Display 2
-uiWellDispPropDlg 0
-Attributes 3
-uiCreateAttribLogDlg 0
-uiWellLogToolWinMgr 1
-Well_Ties 4
-WellTie::uiMgrDlg 0:
-WellTie::uiTieWin 1:
-WellTie::uiInfoDlg 2:
-WellTie::uiSaveDataDlg 3:
-uiCheckShotEdit 4
+// Wells I/O 00
+#define		mWellImportAscHelpID 			        0x10700000
+#define		mWellImpSegyVspHelpID 			        0x10700001
+#define		mWellImportAscDataSelHelpID 			0x10700002
+#define		mD2TModelGroupHelpID 			        0x10700003
+#define		mWellImpPptDlgHelpID 			        0x10700004
+#define         mNewWellTrackDlgHelpID 				0x10700005
+#define	        mStoreWellDlg 				        0x10700006
+#define		mSimpleMultiWellCreateHelpID 		        0x10700007
+#define		mSimpleMultiWellCreateReadDataHelpID 	        0x10700008
+#define		mTableImpDataSelwellsHelpID 		        0x10700009
+#define		mBulkTrackImportHelpID 			        0x10700010
+#define		mBulkLogImportHelpID 			        0x10700011
+#define		mBulkMarkerImportHelpID 			0x10700012
+// Wells Manage 01
+#define		mWellManHelpID 				        0x10701000
+#define		mMarkerDlgHelpID 				0x10701001
+#define		mLoadLogsDlgHelpID 				0x10701002
+#define		mExportLogsHelpID 				0x10701003
+#define		mReadMarkerFileHelpID 			        0x10701004
+#define		mD2TModelDlgHelpID 				0x10701005
+#define		mD2TModelReadDlgHelpID 			        0x10701006
+#define		mWellTrackDlgHelpID 				0x10701007
+#define		mWellTrackReadDlgHelpID 			0x10701008
+#define		mTableImpDataSelmarkersHelpID 		        0x10701009
+#define		mWellLogCalcHelpID 				0x10701010
+#define		mGoogleExportWellsHelpID 			0x10701011
+#define		mWellLogCalcRockPhysHelpID 			0x10701012
+// Wells Display 02
+#define		mWellDispPropDlgHelpID 			        0x10702000
+// Wells Attributes 03
+#define		mCreateAttribLogDlgHelpID 			0x10703000
+#define		mWellLogToolWinMgrHelpID 			0x10703001
+// Wells Well_Ties 04
+#define		mWellTiMgrDlemgHelpID			        0x10704000
+#define		mWellTieTieWinHelpID 			        0x10704001
+#define		mWellTieInfoDlgHelpID 			        0x10704002
+#define		mWellTieSaveDataDlgHelpID 			0x10704003
+#define		mCheckShotEditHelpID 			        0x10704004
 //Tracking 108
-I/O 0
-Tracking::Wizard 0:
-Tracking::uiSetupGroup 1:
-Display 1
-uiSurfaceRelationDlg 0
+// Trakcing I/O 00
+#define	        mTrackingWizardHelpID 			        0x10800000
+#define		mTrackingSetupGroupHelpID 			0x10800001
+// Tracking Display 01
+#define	        mSurfaceRelationDlgHelpID 			0x10801000
+#define         mMathPropEdDlgHelpID                            0x10801004
+#define         mMathPropEdDlgrockPhysReqHelpID                 0x10801005
 //Random_lines 109
-General 0
-uiWell2RandomLineDlg 0
-uiGenRanLinesByContour 1
-uiGenRanLinesByShift 2
-uiGenRanLinesFromPolygon 3
-uiODRandomLineTreeItem 4
-uiSeisRandTo2DLineDlg 5
-uiRandomLinePolyLineDlg 6
-uiGoogleExportRandomLine 7
+// Random_lines General 00
+#define		mWell2RandomLineDlgHelpID 			0x10900000
+#define		mGenRanLinesByContourHelpID 			0x10900001
+#define		mGenRanLinesByShiftHelpID 			0x10900002
+#define		mGenRanLinesFromPolygonHelpID 		        0x10900003
+#define		mODRandomLineTreeItemHelpID 			0x10900004
+#define		mSeisRandTo2DLineDlgHelpID 			0x10900005
+#define		mRandomLinePolyLineDlgHelpID 		        0x10900006
+#define		mGoogleExportRandomLineHelpID 		        0x10900007
 //Stratigraphy 110
-General 0
-uiStratTreeWin 0
-uiStratUnitDlg 1
-uiStratLevelDlg 2
-uiStratLinkLvlUnitDlg 3
-uiStratLithoDlg 4
-uiStratContentsDlg 5
-uiEditPropRefMathDef 6
-uiEditPropRefMathDef:RockPhysReq 7:
-uiStratSynthExport 8
-uiStartSynthOutSel 9
-uiStratSynthLayerModFRPPropSelector 10
-uiStratEditLayer 11
-uiStratSimpleLayerModDisp 12
-Properties 1
-uiManPROPS 0
-uiEditPropRef 1
-uiSelectPropRefs 2
-uiElasticPropSelDlg 3
-BasicModelling 2
-uiSingleLayerGeneratorEd 0
-uiSynthToRealScale 1
-uiStratLayerModel:checkUnscaledWavelet 2:
-Crossplotting 3
-uiStratSynthCrossplot 0
-uiSingleAttribEd 1
-uiLaySeqAttribEd 2
+// Stratigraphy General 00
+#define		mStratTreeWinHelpID 				0x11000000
+#define		mStratUnitDlgHelpID 				0x11000001
+#define		mStratLevelDlgHelpID 			        0x11000002
+#define		mStratLinkLvlUnitDlgHelpID 			0x11000003
+#define		mStratLithoDlgHelpID 			        0x11000004
+#define		mStratContentsDlgHelpID 			0x11000005
+#define		mEditPropRefMathDefHelpID 			0x11000006
+#define		mEditPropRefMathDefRockPhysReqHelpID 	        0x11000007
+#define		mStratSynthExportHelpID 			0x11000008
+#define		mStartSynthOutSelHelpID 			0x11000009
+#define		mStratSynthLayerModFRPPropSelectorHelpID 	0x11000010
+#define		mStratEditLayerHelpID 			        0x11000011
+#define		mStratSimpleLayerModDispHelpID 		        0x11000012
+// Stratigraphy Properties 01
+#define		mManPROPSHelpID 				0x11001000
+#define		mEditPropRefHelpID 				0x11001001
+#define		mSelectPropRefsHelpID 			        0x11001002
+#define		mElasticPropSelDlgHelpID 			0x11001003
+// Stratigraphy BasicModelling 02
+#define		mSingleLayerGeneratorEdHelpID 		        0x11002000
+#define		mSynthToRealScaleHelpID 			0x11002001
+#define		mStratLayerModelcheckUnscaledWaveletHelpID 	0x11002002
+// Stratigraphy Crossplotting 03
+#define		mStratSynthCrossplotHelpID 			0x11003000
+#define		mSingleAttribEdHelpID 			        0x11003001
+#define		mLaySeqAttribEdHelpID 			        0x11003002
 //Crossplots 111
-General 0
-uiDataPointSet 0
-uidataPointSetSave 1
-uiDataPointSetCrossPlotterPropDlg 2
-uiCreateDPSPDF 3
-uiSelectionSettDlg 4
-uiDPSOverlayPropDlg 5
-uiSelColorDlg 6
-uiImpPVDS 7
-uiTableImpDataSel(pvds) 8
-uiExpSelectionArea 9
-uiReadSelGrp 10
-uiDPSSelectednessDlg 11
-uiVariogramDlg 12
-uiVariogramDisplay 13
-Extraction 1
-uiAttribCrossPlot 0
-uiWellAttribCrossPlot 1
-uiPosFilterSetSel 2
+// Crossplots General 00
+#define		mDataPointSetHelpID 				0x11100000
+#define		mdataPointSetSaveHelpID 			0x11100001
+#define		mDataPointSetCrossPlotterPropDlgHelpID 	        0x11100002
+#define		mCreateDPSPDFHelpID 				0x11100003
+#define		mSelectionSettDlgHelpID 			0x11100004
+#define		mDPSOverlayPropDlgHelpID 			0x11100005
+#define		mSelColorDlgHelpID 				0x11100006
+#define		mImpPVDSHelpID 				        0x11100007
+#define		mTableImpDataSelpvdsHelpID 		        0x11100008
+#define		mExpSelectionAreaHelpID 			0x11100009
+#define		mReadSelGrpHelpID 				0x11100010
+#define		mDPSSelectednessDlgHelpID 			0x11100011
+#define		mVariogramDlgHelpID 				0x11100012
+#define		mVariogramDisplayHelpID 			0x11100013
+// Crossplots Extraction 01
+#define		mAttribCrossPlotHelpID 			        0x11101000
+#define		mWellAttribCrossPlotHelpID 			0x11101001
+#define		mPosFilterSetSelHelpID 			        0x11101002
 //Probability_density_functions 112
 // Probability_density_functions_I/O 0
-uiImpRokDocPDF 0
-uiExpRokDocPDF 1
+#define		mImpRokDocPDFHelpID 				0x11200000
+#define		mExpRokDocPDFHelpID 				0x11200001
 // Probability_density_functions Manage 1
-uiProbDenFuncMan 0
-uiEditProbDenFuncDlg 1
-uiProbGenFuncGen 2
+#define		mProbDenFuncManHelpID 			        0x11201000
+#define		mEditProbDenFuncHelpID 			        0x11201001
+#define		mProbGenFuncGenHelpID 			        0x11201002
 
 #endif
 
