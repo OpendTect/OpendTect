@@ -1362,8 +1362,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( isstored )
     {
 	BufferStringSet complist;
-	Pos::GeomID geomid = Survey::GM().getGeomID( idlkey.lineName() );
-	SeisIOObjInfo::getCompNames( geomid, complist );
+	SeisIOObjInfo::getCompNames( idlkey.buf(), complist );
 	if ( complist.size()>1 )
 	{
 	    TypeSet<int> selcomps;
