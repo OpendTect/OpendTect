@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "price.h"
 #include "mathproperty.h"
 #include "elasticpropseltransl.h"
+#include "mathformulatransl.h"
 #include "preloads.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
@@ -24,6 +25,7 @@ mDefModInitFn(General)
     mIfNotFirstTime( return );
 
     ElasticPropSelectionTranslatorGroup::initClass();
+    MathFormulaTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
 

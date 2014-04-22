@@ -10,9 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathformula.h"
+#include "mathformulatransl.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
 #include "iopar.h"
+
+mDefSimpleTranslators(MathFormula,"Math Formula",od,Misc);
 
 
 int Math::SpecVarSet::getIndexOf( const char* varnm ) const

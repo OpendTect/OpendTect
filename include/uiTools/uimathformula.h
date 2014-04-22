@@ -38,15 +38,18 @@ public:
 			Setup( const char* lbl=0 )
 			    : label_(lbl)
 			    , withunits_(true)
+			    , withio_(true)
 			    , maxnrinps_(6)		{}
 
 	mDefSetupMemb(BufferString,label);
 	mDefSetupMemb(bool,withunits);
 	mDefSetupMemb(int,maxnrinps);
+	mDefSetupMemb(int,withio);
 
     };
 
 			uiMathFormula(uiParent*,Math::Formula&,const Setup&);
+			~uiMathFormula();
     void		setNonSpecInputs(const BufferStringSet&,int iinp=-1);
 					//!< iinp == -1 does all
 
@@ -86,10 +89,13 @@ protected:
     ObjectSet<uiMathExpressionVariable> inpflds_;
     uiUnitSel*		unitfld_;
     uiToolButton*	recbut_;
+    uiToolButton*	openbut_;
+    uiToolButton*	savebut_;
     int			notifinpnr_;
 
     Setup		setup_;
     TypeSet<double>	recvals_;
+    //CtxtIOObj&		ctio_;
 
     bool		checkValidNrInputs() const;
 
@@ -97,6 +103,8 @@ protected:
     void		inpSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);
     void		recButPush(CallBacker*);
+    void		readReq(CallBacker*);
+    void		writeReq(CallBacker*);
 
 };
 

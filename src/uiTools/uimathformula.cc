@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
+#include "uibuttongroup.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "uidialog.h"
@@ -21,12 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 #include "mathformula.h"
+//#include "mathformulatr.h"
 
 
 uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 				const uiMathFormula::Setup& su )
 	: uiGroup(p,"Math Formula")
 	, form_(form)
+//	, ctio_(*mMkCtxtIOObj(MathFormula))
 	, setup_(su)
 	, unitfld_(0)
 	, recbut_(0)
@@ -68,20 +71,39 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	unitfld_->selChange.notify( unitsetcb );
     }
 
+    uiButtonGroup* bgrp = 0;
+    if ( setup_.withio_ || form_.inputsAreSeries() )
+	bgrp = new uiButtonGroup( this, "tool buts", uiObject::Horizontal );
+
     if ( form_.inputsAreSeries() )
-    {
-	recbut_ = new uiToolButton( this, "recursion",
+	recbut_ = new uiToolButton( bgrp, "recursion",
 				    "Set start values for recursion",
 				    mCB(this,uiMathFormula,recButPush) );
+    if ( setup_.withio_ )
+    {
+	new uiToolButton( bgrp, "open", "Open stored formula",
+				    mCB(this,uiMathFormula,readReq) );
+	new uiToolButton( bgrp, "save", "Save this formula",
+				    mCB(this,uiMathFormula,writeReq) );
+    }
+
+    if ( bgrp )
+    {
 	if ( unitfld_ )
-	    recbut_->attach( rightTo, unitfld_ );
+	    bgrp->attach( rightTo, unitfld_ );
 	else
-	    recbut_->attach( rightTo, exprfld_ );
-	recbut_->attach( rightBorder );
-	recbut_->display( false );
+	    bgrp->attach( rightTo, exprfld_ );
+	bgrp->attach( rightBorder );
     }
 
     postFinalise().notify( formsetcb );
+}
+
+
+uiMathFormula::~uiMathFormula()
+{
+    // delete ctio_.ioobj;
+    // delete &ctio_;
 }
 
 
@@ -317,4 +339,14 @@ void uiMathFormula::recButPush( CallBacker* )
 	return;
 
     recvals_ = form_.recStartVals();
+}
+
+
+void uiMathFormula::readReq( CallBacker* )
+{
+}
+
+
+void uiMathFormula::writeReq( CallBacker* )
+{
 }
