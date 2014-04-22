@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "uiiomod.h"
 #include "uigroup.h"
 #include "mathformula.h"
 class uiButton;
@@ -29,11 +29,11 @@ namespace Math { class Form; }
 /* edits a Math::Formula */
 
 
-mExpClass(uiTools) uiMathFormula : public uiGroup
+mExpClass(uiIo) uiMathFormula : public uiGroup
 {
 public:
 
-    mExpClass(uiTools) Setup
+    mExpClass(uiIo) Setup
     {
     public:
 			Setup( const char* lbl=0 )
