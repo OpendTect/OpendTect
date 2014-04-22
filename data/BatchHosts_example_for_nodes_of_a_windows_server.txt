@@ -1,0 +1,16 @@
+dTect V4.6
+Batch Processing Hosts
+Thu Apr 17 14:25:39 2014
+!
+First port: 37500
+!
+-- The list of hosts that are available for batch processing.
+-- Format is:
+-- real_hostname: name_in_user_displays [: platform] [:data root ]
+-- mind the ";" replacing the ":" in windows paths to data root
+proc1: 64 bit Windows Machine : win : S;\Surveys
+proc2: 32 bit Windows Machine : win : P;\ODData
+proc3: 64 bit Linux Machine : lux : /dsk/d2/MMsurveys
+proc4: 32 bit Linux Machine : lux : /dsk/d2/MMsurveys
+-- S;\Surveys, P;\ODData and /dsk/d2/MMsurveys should be pointing
+-- to the same, unique, physical folder
