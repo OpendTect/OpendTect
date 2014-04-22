@@ -82,7 +82,9 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
     if ( nrrgfld_ )
     {
 	const StepInterval<int>& curnrrg = nrrgfld_->getRange();
-	nrrgfld_->setLimitRange( cs.hrg.crlRange() );
+	StepInterval<int> trcrg = cs.hrg.crlRange();
+	iop.get( IOPar::compKey(sKey::TrcRange(),0), trcrg );
+	nrrgfld_->setLimitRange( trcrg );
 	nrrgfld_->setRange( curnrrg );
     }
 }
@@ -92,6 +94,14 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
     CubeSampling cs; getCubeSampling( cs );
+
+    if ( setup_.is2d_ )
+    {
+	iop.set( IOPar::compKey(sKey::TrcRange(),0),
+		 cs.hrg.crlRange() );
+	return true;
+    }
+
     cs.fillPar( iop );
     return true;
 }
