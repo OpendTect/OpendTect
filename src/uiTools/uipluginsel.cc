@@ -21,74 +21,107 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
+struct PluginProduct
+{
+    BufferString	    productname_;
+    BufferStringSet	    libs_;
+};
+
 
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup("",mNoDlgTitle,"0.2.6")
 			.savebutton(true)
-			.savetext("Show this dialog at startup"))
+			.savetext(tr("Show this dialog at startup")))
+	, maxpluginname_(0)
 {
     BufferString titl( "OpendTect V" );
-    titl += GetFullODVersion(); titl += ": Candidate auto-loaded plugins";
-    setCaption( titl );
+    titl += GetFullODVersion(); titl +=
+			  tr(": Candidate auto-loaded plugins").getFullString();
+    setCaption( tr(titl) );
 
-    setOkText( "Start OpendTect" );
+    setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
+        
+    const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
+    makeProductList( pimdata );
+    
+    createUI();
+}
 
-    BufferStringSet dontloadlist;
-    PIM().getNotLoadedByUser( dontloadlist );
 
-    ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
-    BufferStringSet piusrnms;
-    TypeSet<int> pluginidx;
+uiPluginSel::~uiPluginSel()
+{
+    deepErase( products_ );
+}
+
+
+void uiPluginSel::makeProductList(
+				const ObjectSet<PluginManager::Data>& pimdata )
+{
+    PluginProduct* product = 0;
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
-	PluginManager::Data& data = *pimdata[idx];
+	const PluginManager::Data& data = *pimdata[idx];
 	if ( data.sla_ && data.sla_->isOK()
-	  && data.autotype_ == PI_AUTO_INIT_LATE )
+			&& data.autotype_ == PI_AUTO_INIT_LATE )
 	{
-	    pluginidx += idx;
-	    piusrnms.add( PIM().userName(data.name_) );
+	    const FixedString prodnm = data.info_->productname_;
+	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL 
+				      || prodnm == "OpendTect (dGB)" )
+		continue;
+	    
+	    const int prodidx = getProductIndex( data.info_->productname_ );
+	    if ( !product || prodidx < 0 )
+	    {
+		product = new PluginProduct();
+		product->productname_ = data.info_->productname_;
+		product->libs_.add( PIM().userName(data.name_) );
+		products_ += product;
+	    }
+	    else
+		products_[prodidx]->libs_.addIfNew( PIM().userName(data.name_));
+
+	    const int strln = strlen( product->productname_ );
+	    maxpluginname_ = maxpluginname_ < strln ? strln : maxpluginname_;
 	}
     }
+}
 
-    ArrPtrMan<int> sortindices = piusrnms.getSortIndexes();
 
-    const int maxlen = piusrnms.maxLength();
-    const float rowspercol = maxlen / 10.f;
-    const int nrplugins = piusrnms.size();
-    int nrcols = (int)(Math::Sqrt( rowspercol * nrplugins ) + .5);
-    if ( nrcols < 1 ) nrcols = 1;
-    if ( nrcols > 3 ) nrcols = 3;
-    int nrows = nrplugins / nrcols;
-    if ( nrplugins % nrcols )
-	nrows++;
-
-    uiLabel* lbl = new uiLabel( this, "Please select the plugins to auto-load");
+void uiPluginSel::createUI()
+{
+    uiLabel* lbl = new uiLabel( this, tr("Please select the plugins to load"));
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
     grp->attach( centeredBelow, lbl );
 
-    for ( int idx=0; idx<nrplugins; idx++ )
+    const int nrproducts = products_.size();
+    const int nrrows = nrproducts % 2 == 0 ? (nrproducts/2) : (nrproducts/2)+1;
+    for ( int idx=0; idx<nrproducts; idx++ )
     {
-	const int realidx = sortindices[idx];
-	const int colnr = idx / nrows;
-	const int rownr = idx - colnr * nrows;
-
-	BufferString dispnm = piusrnms.get( realidx );
-	uiCheckBox* cb = new uiCheckBox( grp, dispnm );
-
-	PluginManager::Data& pdata = *pimdata[pluginidx[realidx]];
-	pluginnms_.add( pdata.name_ );
-	cb->setChecked( dontloadlist.indexOf(dispnm) < 0 );
+	uiCheckBox* cb = new uiCheckBox( grp, products_[idx]->productname_ );
+	cb->setPrefWidthInChar( maxpluginname_+5.f );
+	cb->setChecked( true );
 	cbs_ += cb;
-	if ( colnr != nrcols - 1 )
-	    cb->setPrefWidthInChar( maxlen+5.f );
-	if ( idx == 0 ) continue;
 
-	if ( rownr == 0 )
-	    cb->attach( rightOf, cbs_[(colnr-1)*nrows] );
-	else
+	if ( idx < nrrows )
+	{
+	    if ( idx == 0 )
+		continue;
 	    cb->attach( alignedBelow, cbs_[idx-1] );
+	}
+	else
+	    cb->attach( rightOf, cbs_[(idx-nrrows)] );
+    }
+
+    BufferStringSet dontloadlist;
+    PIM().getNotLoadedByUser( dontloadlist );
+    for ( int idx=0; idx<dontloadlist.size() && !cbs_.isEmpty(); idx++ )
+    {
+	const int prodidx = getProductIndexForLib( dontloadlist.get(idx) );
+	if( prodidx < 0 )
+	    continue;
+	cbs_[prodidx]->setChecked( false );
     }
 }
 
@@ -99,7 +132,10 @@ bool uiPluginSel::acceptOK( CallBacker* )
     for ( int idx=0; idx<cbs_.size(); idx++ )
     {
 	if ( !cbs_[idx]->isChecked() )
-	    dontloadlist += PIM().userName( pluginnms_.get(idx) );
+	{
+	    for( int idp=0; idp<products_[idx]->libs_.size(); idp++ )
+		dontloadlist += products_[idx]->libs_.get(idp);
+	}
     }
 
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
@@ -107,4 +143,28 @@ bool uiPluginSel::acceptOK( CallBacker* )
     Settings::common().write();
 
     return true;
+}
+
+
+int uiPluginSel::getProductIndex( const char* prodnm ) const
+{
+    for ( int idx=0; idx<products_.size(); idx++ )
+    {
+	if ( products_[idx]->productname_ == prodnm )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+int uiPluginSel::getProductIndexForLib( const char* libnm ) const
+{
+    for ( int idx=0; idx<products_.size(); idx++ )
+    {
+	if ( products_[idx]->libs_.isPresent(libnm) )
+	    return idx;
+    }
+
+    return -1;
 }

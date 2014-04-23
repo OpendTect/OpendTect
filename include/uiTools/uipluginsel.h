@@ -14,24 +14,37 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "plugins.h"
 #include "bufstringset.h"
 
 class uiCheckBox;
+struct PluginProduct;
 
 mExpClass(uiTools) uiPluginSel : public uiDialog
-{
+{mODTextTranslationClass(uiPluginSel);
 public:
 				uiPluginSel(uiParent*);
-    int				nrPlugins() const { return pluginnms_.size(); }
+				~uiPluginSel();
+
+    int				nrPlugins() const { return products_.size(); }
+
 
     static const char*		sKeyDoAtStartup();
 
 protected:
 
-    BufferStringSet		pluginnms_;
-    ObjectSet<uiCheckBox>	cbs_;
+    void			makeProductList(
+					const ObjectSet<PluginManager::Data>&);
+    void			createUI();
+
+    int				getProductIndex(const char* prodnm) const;
+    int				getProductIndexForLib(const char* libnm) const;
+
     bool			acceptOK(CallBacker*);
 
+    int				maxpluginname_;
+    ObjectSet<uiCheckBox>	cbs_;
+    ObjectSet<PluginProduct>	products_;
 };
 
 #endif
