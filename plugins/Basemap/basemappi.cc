@@ -14,9 +14,10 @@ mDefODPluginInfo(Basemap)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Basemap (base)",
+	"OpendTect",
 	"dGB (Nanne)",
 	"=od",
-    	"Basemap - base") );
+	"Basemap - base") );
     return &retpi;
 }
 

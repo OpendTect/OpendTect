@@ -22,6 +22,7 @@ mDefODPluginInfo(uiBasemap)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Basemap",
+	"OpendTect",
 	"dGB (Nanne)",
 	"",
 	"Basemap") );
