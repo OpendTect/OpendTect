@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "vispointset.h"
 #include "visdrawstyle.h"
+#include "vismaterial.h"
 
 mCreateFactoryEntry( visBase::PointSet );
 
@@ -21,12 +22,27 @@ namespace visBase
 
 PointSet::PointSet()
     : VertexShape( Geometry::PrimitiveSet::Points, true )
-    , drawstyle_( new DrawStyle )
 {
-    drawstyle_->ref();
+    drawstyle_ = addNodeState( new DrawStyle );
+    refPtr( drawstyle_ );
     drawstyle_->setPointSize( 5.0 );
-    pErrMsg("Fix drawstyle.");
-    //insertNode( drawstyle_->getInventorNode() );
+
+    setMaterial( new Material );
+    getMaterial()->setColorMode( Material::Diffuse );
+    setColorBindType( VertexShape::BIND_PER_VERTEX );
+
+}
+
+
+PointSet::~PointSet()
+{
+    unRefAndZeroPtr( drawstyle_ );
+}
+
+
+int PointSet::size() const 
+{ 
+    return coords_->size();
 }
 
 
@@ -37,7 +53,35 @@ void PointSet::setPointSize( int sz )
 
 
 int PointSet::getPointSize() const
-{ return mNINT32(drawstyle_->getPointSize()); }
+{ 
+    return mNINT32( drawstyle_->getPointSize() ); 
+}
 
 
-}; // namespace visBase
+int PointSet::addPoint( const Coord3& pos )
+{
+     coords_->addPos( pos );
+     return size()-1;
+}
+
+
+const Coord3 PointSet::getPoint( int idx ) const
+{
+    return coords_->getPos( idx ); 
+}
+
+
+void PointSet::removeAllPoints()
+{
+    coords_->setEmpty();
+}
+
+
+void PointSet::setDisplayTransformation( const mVisTrans* trans )
+{
+     VertexShape::setDisplayTransformation( trans );
+}
+
+
+};
+// namespace visBase

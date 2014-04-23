@@ -40,7 +40,6 @@ public:
     int				getPointSize() const;
 
     void			setDispProp(const DataPointSetDisplayProp*);
-    void			setPointSet();
     bool			hasColor() const 	{ return true; }
 
     void			update();

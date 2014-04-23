@@ -244,7 +244,7 @@ bool doPrepare( int nrthreads )
 {
     curidx_ = 0;
     nrthreads_ = nrthreads;
-    points_->getCoordinates()->setEmpty();
+    points_->removeAllPoints();
     lines_->removeAllPrimitiveSets();
     return true;
 }
@@ -306,7 +306,7 @@ void sendPositions( TypeSet<Coord3>& positions )
 
     if ( positions.size()==1 )
     {
-	points_->getCoordinates()->addPos( positions[0] );
+	points_->addPoint( positions[0] );
     }
     else
     {
@@ -365,7 +365,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     {
 	ps = visBase::PointSet::create();
 	ps->ref();
-	ps->getCoordinates()->removeAfter(-1);
+	ps->removeAllPoints();
 	ps->setDisplayTransformation( transformation_ );
 	points_.replace( idx, ps );
 	addChild( ps->osgNode() );

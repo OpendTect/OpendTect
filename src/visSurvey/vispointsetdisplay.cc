@@ -26,9 +26,10 @@ PointSetDisplay::PointSetDisplay()
     , transformation_(0)
     , eventcatcher_(0)
     , dpsdispprop_(0)
+    , pointset_( visBase::PointSet::create() )
 {
-    setMaterial( 0 );
-    setPointSet();
+    refPtr( pointset_ );
+    addChild( pointset_->osgNode());
 }
 
 
@@ -39,19 +40,9 @@ PointSetDisplay::~PointSetDisplay()
     if ( data_ )
 	DPM( DataPackMgr::PointID() ).release( data_->id() );
     delete dpsdispprop_;
-}
 
+    unRefAndZeroPtr( pointset_ );
 
-void PointSetDisplay::setPointSet()
-{
-    visBase::PointSet* pst = visBase::PointSet::create();
-    pst->setMaterial( new visBase::Material );
-    pst->setMaterialBinding(
-	    visBase::Shape::cPerVertexMaterialBinding() );
-
-    if ( transformation_ )
-	pst->setDisplayTransformation( transformation_ );
-    pointset_ = pst;
 }
 
 
@@ -64,7 +55,8 @@ void PointSetDisplay::setDispProp( const DataPointSetDisplayProp* prop )
 
 void PointSetDisplay::setPointSize( int sz )
 {
-    pointset_->setPointSize( sz );
+    if ( pointset_ )
+        pointset_->setPointSize( sz );
 }
 
 int PointSetDisplay::getPointSize() const
@@ -86,8 +78,13 @@ bool PointSetDisplay::setDataPack( int dpsid )
 
 void PointSetDisplay::update()
 {
-    pointset_->getCoordinates()->removeAfter(-1);
+    if ( !pointset_ ) return;
+    
+    pointset_->removeAllPoints();
+    pointset_->removeAllPrimitiveSets();
+    pointset_->getMaterial()->clear();
 
+    TypeSet<int> pointidxs;
     for ( int idx=0; idx<data_->size(); idx++ )
     {
 	if ( dpsdispprop_->showSelected() && !data_->isSelected(idx) )
@@ -108,12 +105,26 @@ void PointSetDisplay::update()
 	    col = dpsdispprop_->getColor( val );
 	}
 
-	const int ptidx = pointset_->getCoordinates()->addPos(
+	const int ptidx = pointset_->addPoint(
 				Coord3(data_->coord(idx),data_->z(idx)) );
+	pointidxs += ptidx;
+
 	pointset_->getMaterial()->setColor( col, ptidx );
 	const float transp = (float)col.t();
+
 	pointset_->getMaterial()->setTransparency( transp/(float)255, ptidx );
     }
+
+    if ( pointidxs.size()>0 )
+    {
+	Geometry::PrimitiveSet* pointsetps = 
+	    Geometry::IndexedPrimitiveSet::create( true );
+	pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+	pointsetps->append( pointidxs.arr(), pointidxs.size() );
+	pointset_->addPrimitiveSet( pointsetps );
+	pointset_->materialChangeCB( 0 );
+    }
+    
 }
 
 
@@ -153,8 +164,9 @@ void PointSetDisplay::setDisplayTransformation( const mVisTrans* nt )
     transformation_ = nt;
     if ( transformation_ )
 	transformation_->ref();
-
-    pointset_->setDisplayTransformation( transformation_ );
+    
+    if ( pointset_ )
+        pointset_->setDisplayTransformation( transformation_ );
 }
 
 

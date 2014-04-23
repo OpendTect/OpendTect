@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "visshape.h"
 #include "position.h"
 
-class SoPointSet;
-
 namespace visBase
 {
 
@@ -34,8 +32,19 @@ public:
     void		setPointSize(int);
     int			getPointSize() const;
 
+    int			addPoint( const Coord3& pos );
+    const Coord3	getPoint( int ) const;
+    void		removeAllPoints();
+    int			size() const ;
+
+    void		setDisplayTransformation( const mVisTrans* );
+    			/*!<\note The transformation is forwarded to the
+			     the coordinates, if you change coordinates,
+			     you will have to setTransformation again.  */
+
 protected:
-    DrawStyle*		drawstyle_;
+					~PointSet();
+    DrawStyle*				drawstyle_;
 };
 
 
