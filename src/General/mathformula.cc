@@ -260,7 +260,7 @@ float Math::Formula::getValue( const float* vals, bool internuns ) const
 
 double Math::Formula::getValue( const double* vals, bool internuns ) const
 {
-    if ( prevvals_.size() < maxRecShift() )
+    if ( inputsareseries_ && prevvals_.size() < maxRecShift() )
     {
 	startNewSeries();
 	for ( int idx=prevvals_.size(); idx<maxRecShift(); idx++ )
@@ -278,7 +278,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	    if ( inps_[inpidx].unit_ && !mIsUdf(val) )
 		val = inps_[inpidx].unit_->getUserValueFromSI( val );
 	}
-	else
+	else if ( inputsareseries_ )
 	{
 	    if ( recshifts_[ivar] > 0 )
 	    {
@@ -292,7 +292,8 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
     }
 
     const double formval = expr_->getValue();
-    prevvals_ += formval;
+    if ( inputsareseries_ )
+	prevvals_ += formval;
 
     return outputunit_ && internuns ? outputunit_->getSIValue( formval )
 				    : formval;
