@@ -48,6 +48,7 @@ protected:
     uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
     uiUnitSel*			outunfld_;
+    uiComboBox*			interppolfld_;
 
     Well::LogSet&		superwls_;
     Math::Formula&		form_;
@@ -59,13 +60,12 @@ protected:
     struct InpData
     {
 			InpData( const Well::Log* w=0, bool n=false )
-			    : wl_(w), shift_(0), noudf_(n), specidx_(-1)
+			    : wl_(w), shift_(0), specidx_(-1)
 			    , isconst_(false), constval_(0)	{}
 	bool		operator ==( const InpData& id ) const
 			{ return wl_ == id.wl_; }
 	const Well::Log* wl_;
 	int		shift_;
-	bool		noudf_;
 	int		specidx_;
 	bool		isconst_;
 	float		constval_;

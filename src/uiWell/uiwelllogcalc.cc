@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uilabel.h"
 #include "uiseparator.h"
+#include "uicombobox.h"
 #include "uiunitsel.h"
 #include "uiwelllogdisplay.h"
 
@@ -43,6 +44,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDZIdx		4
 #define	mTWTIdx		5
 #define	mVelIdx		6
+
+#define mInterpNone	0
+#define mInterpMax1	1
+#define mInterpNotAll	2
+#define mInterpAll	3
+#define mGetInterpols() \
+    BufferStringSet pols; \
+    pols.add("No").add("One log max").add("Unless all undef").add("Yes")
 
 
 static Math::SpecVarSet& getSpecVars()
@@ -141,8 +150,15 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, srfld_ );
 
+    mGetInterpols();
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
+					    "Interpolate undefined values?");
+    interppolfld_ = lcb->box();
+    interppolfld_->setCurrentItem( 2 );
+    lcb->attach( alignedBelow, srfld_ );
+
     nmfld_ = new uiGenInput( this, "Name for new log" );
-    nmfld_->attach( alignedBelow, srfld_ );
+    nmfld_->attach( alignedBelow, lcb );
 
     uiUnitSel::Setup uussu( PropertyRef::Other, "Output unit of measure" );
     uussu.withnone( true );
@@ -455,7 +471,6 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    inpd.shift_ = reqshifts[ishft];
 	    if ( specidx < 0 )
 	    {
-		inpd.noudf_ = true; //TODO implement
 		inpd.wl_ = getInpLog( wls, iinp, ishft==0 );
 		if ( !inpd.wl_ )
 		    mErrRet(BufferString(form_.inputDef(iinp),": empty log"))
@@ -493,6 +508,39 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 }
 
 
+static bool selectInpVals( const TypeSet<float>& noudfinpvals,
+			const int interppol, TypeSet<float>& inpvals )
+{
+    if ( interppol == mInterpAll )
+	{ inpvals = noudfinpvals; return true; }
+
+    int nrudf = 0;
+    const int sz = inpvals.size();
+    for ( int idx=0; idx<sz; idx++ )
+	if ( mIsUdf(inpvals[idx]) )
+	    nrudf++;
+
+    if ( interppol == mInterpNone )
+	return nrudf == 0;
+
+    const bool ismax1 = interppol == mInterpMax1;
+
+    if ( sz == 1 )
+    {
+	if ( !ismax1 )
+	    return nrudf == 0;
+	inpvals = noudfinpvals;
+	return true;
+    }
+
+    if ( nrudf == 0 || nrudf == sz || (ismax1 && nrudf > 1) )
+	return nrudf == 0;
+
+    inpvals = noudfinpvals;
+    return true;
+}
+
+
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdatas,
 			     Well::Track& track, Well::D2TModel* d2t )
@@ -517,22 +565,27 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
     StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
     const int nrsamps = samprg.nrSteps() + 1;
+    const int interppol = interppolfld_->currentItem();
     TypeSet<float> inpvals( inpdatas.size(), 0 );
+    TypeSet<float> noudfinpvals( inpdatas.size(), 0 );
     for ( int rgidx=0; rgidx<nrsamps; rgidx++ )
     {
 	const float dah = samprg.atIndex( rgidx );
-	inpvals.setAll( 0 );
+	inpvals.setAll( mUdf(float) );
+	noudfinpvals.setAll( mUdf(float) );
 	for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
 	{
 	    const uiWellLogCalc::InpData& inpd = inpdatas[iinp];
 	    const float curdah = dah + samprg.step * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
-		const float val = inpd.wl_->getValue( curdah, inpd.noudf_ );
+		const float val = inpd.wl_->getValue( curdah, false );
 		inpvals[iinp] = val;
+		noudfinpvals[iinp] = !mIsUdf(val) ? val
+		    		   : inpd.wl_->getValue( curdah, true );
 	    }
 	    else if ( inpd.isconst_ )
-		inpvals[iinp] = inpd.constval_;
+		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;
 	    else
 	    {
 		float val = mUdf(float);
@@ -565,11 +618,13 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		    if ( uom ) val = uom->userValue( val );
 		}
 
-		inpvals[iinp] = val;
+		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;
 	    }
 	}
 
-	const float formval = form_.getValue( inpvals.arr(), false );
+	float formval = mUdf(float);
+	if ( selectInpVals(noudfinpvals,interppol,inpvals) )
+	    formval = form_.getValue( inpvals.arr(), false );
 	wlout.addValue( dah, formval );
     }
 
