@@ -31,9 +31,11 @@ static bool checkIfDataDir( const char* path )
 
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
-				      const char* dataroot )
-    : uiDialog(p,uiDialog::Setup("Survey Selection",
-				 "Select Survey",mNoHelpKey))
+				      const char* dataroot, bool forread )
+    : uiDialog(p,uiDialog::Setup("Select Data Root and Survey",
+				 mNoDlgTitle,mTODOHelpKey))
+    , forread_(forread)
+    , surveyfld_(0)
 
 {
     datarootfld_ = new uiFileInput( this, "Data Root",
@@ -48,8 +50,12 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
     surveylistfld_->selectionChanged.notify(
 		mCB(this,uiSurveySelectDlg,surveySelCB) );
 
-    surveyfld_ = new uiGenInput( this, "Name" );
-    surveyfld_->attach( alignedBelow, surveylistfld_ );
+    if ( !forread_ )
+    {
+	surveyfld_ = new uiGenInput( this, "Name" );
+	surveyfld_->attach( alignedBelow, surveylistfld_ );
+    }
+
     fillSurveyList();
     setSurveyName( survnm );
 }
@@ -75,7 +81,7 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 { surveylistfld_->setCurrentItem( nm ); }
 
 const char* uiSurveySelectDlg::getSurveyName() const
-{ return surveyfld_->text(); }
+{ return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText(); }
 
 const BufferString uiSurveySelectDlg::getSurveyPath() const
 {
@@ -85,7 +91,7 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 
 void uiSurveySelectDlg::fillSurveyList()
 {
-    if( !checkIfDataDir(getDataRoot()) )
+    if ( !checkIfDataDir(getDataRoot()) )
     {
 	uiMSG().error( "Selected directory is not a valid Data Root" );
 	return;
@@ -106,19 +112,20 @@ void uiSurveySelectDlg::rootSelCB( CallBacker* )
 
 void uiSurveySelectDlg::surveySelCB( CallBacker* )
 {
-    surveyfld_->setText( surveylistfld_->getText() );
+    if ( surveyfld_ )
+	surveyfld_->setText( surveylistfld_->getText() );
 }
 
 
 bool uiSurveySelectDlg::isNewSurvey() const
 {
-   return !surveylistfld_->isPresent( surveyfld_->text() );
+   return surveyfld_ && !surveylistfld_->isPresent( surveyfld_->text() );
 }
 
 
 // uiSurveySelect
 uiSurveySelect::uiSurveySelect( uiParent* p, const char* lbl )
-    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey Select" ),
+    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey" ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
     , surveyname_(0)

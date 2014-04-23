@@ -24,7 +24,8 @@ mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 {
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
-					  const char* dataroot=0);
+					  const char* dataroot=0,
+					  bool forread=true);
 			~uiSurveySelectDlg();
 
     void		setDataRoot(const char*);
@@ -36,14 +37,16 @@ public:
     bool		isNewSurvey() const;
 
 protected:
-    
+
     void		rootSelCB(CallBacker*);
     void		surveySelCB(CallBacker*);
     void		fillSurveyList();
- 
+
     uiFileInput*	datarootfld_;
     uiListBox*		surveylistfld_;
     uiGenInput*		surveyfld_;
+
+    bool		forread_;
 };
 
 

@@ -13,16 +13,17 @@ ________________________________________________________________________
 -*/
 
 /*! brief get an object from an other survey ( type is given by the CtxtIOObj ).
-  will first pop-up a list to select the survey, then a list of the objects 
+  will first pop-up a list to select the survey, then a list of the objects
   belonging to that survey !*/
 
 
 #include "uiiomod.h"
-#include "uiselsimple.h"
+#include "uidialog.h"
 
 class CtxtIOObj;
+class uiSurveySelect;
 
-mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiSelectFromList
+mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
 {
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
@@ -36,6 +37,7 @@ public:
 
 protected:
 
+    uiSurveySelect*	selfld_;
     CtxtIOObj&		ctio_;
     BufferString	fulluserexpression_;
     BufferString	othersurveyrootdir_;

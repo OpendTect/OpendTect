@@ -11,48 +11,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiselobjothersurv.h"
 
-#include "bufstringset.h"
 #include "ctxtioobj.h"
-#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
-#include "survinfo.h"
-#include "uilistbox.h"
+
 #include "uiioobjsel.h"
 #include "uimsg.h"
-
-
-static BufferStringSet getSurvList()
-{
-    BufferStringSet bss; bss.erase();
-    const char* basedir = GetBaseDataDir();
-    if ( basedir )
-    {
-	PtrMan<DirList> dirlist = new DirList( basedir, DirList::DirsOnly );
-	for ( int idx=0; idx<dirlist->size(); idx++ )
-	{
-	    const BufferString& dirnm = dirlist->get( idx );
-	    if ( dirnm.startsWith("_New_Survey_") )
-		continue;
-
-	    const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName());
-	    if ( File::exists(fp.fullPath()) )
-		bss.add( dirnm );
-	}
-	bss.sort();
-    }
-    return bss;
-}
-
+#include "uisurveyselect.h"
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
-    : uiSelectFromList(p,uiSelectFromList::Setup("Select Survey",getSurvList()))
+    : uiDialog(p,Setup("Select survey",mNoDlgTitle,mTODOHelpKey))
     , ctio_(ctio)
 {
+    selfld_ = new uiSurveySelect( this );
     othersurveyrootdir_.setEmpty();
 }
 
@@ -66,9 +41,9 @@ uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 
 bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 {
-    const char* basedir = GetBaseDataDir();
-    if ( !basedir ) return false;
-    othersurveyrootdir_ = FilePath(basedir,selFld()->getText()).fullPath();
+    if ( !selfld_->getFullSurveyPath(othersurveyrootdir_) )
+	return false;
+
     if ( !File::exists( othersurveyrootdir_ ) )
     {
 	othersurveyrootdir_.setEmpty();

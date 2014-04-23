@@ -54,6 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiselobjothersurv.h"
+#include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uistoredattrreplacer.h"
