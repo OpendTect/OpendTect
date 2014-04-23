@@ -41,6 +41,7 @@ mDefODPluginInfo(uiDPSDemo)
 
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"DataPointSet demo",
+	"OpendTect",
 	"Bert",
 	"7.8.9",
 	commenttxt->buf() ) );

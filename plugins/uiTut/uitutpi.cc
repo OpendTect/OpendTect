@@ -34,6 +34,7 @@ mDefODPluginInfo(uiTut)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin",
+	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
     	"Shows some simple plugin development basics."

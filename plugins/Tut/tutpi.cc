@@ -17,6 +17,7 @@ mDefODPluginInfo(Tut)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin Base",
+	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
     	"Back-end for the plugin that shows simple plugin development basics."

@@ -24,6 +24,7 @@ mDefODPluginInfo(ExpAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,
 	( "Experimental Attributes (Base)",
+	"OpendTect",
 	"dGB Earth Sciences (Nanne)",
 	"=od",
 	"" ) );

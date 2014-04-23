@@ -44,6 +44,7 @@ mDefODPluginInfo(uiHorizonAttrib)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute",
+	"OpendTect",
 	"dGB - Nanne Hemstra",
 	"=od",
 	"The 'Horizon' Attribute allows getting values from horizons.\n"

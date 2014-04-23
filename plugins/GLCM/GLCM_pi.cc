@@ -15,9 +15,11 @@ mDefODPluginInfo(GLCM)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GLCM (Joanneum Research)",
+	"OpendTect",
 	"Christoph Eichkitz",
 	"1.0",
-	"Plugin for the calculation of Grey level co-occurrence matrix-based attributes" ) );
+	"Plugin for the calculation of Grey level co-occurrence"
+	" matrix-based attributes" ) );
     return &retpi;
 }
 

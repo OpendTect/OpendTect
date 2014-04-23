@@ -28,6 +28,7 @@ mDefODPluginInfo(uiMadagascar)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar link",
+	"OpendTect",
 	"dGB (Bert, Raman)",
 	"3.2",
     	"A link to the Madagascar system."

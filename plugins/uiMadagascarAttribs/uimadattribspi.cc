@@ -14,6 +14,7 @@ mDefODPluginInfo(uiMadagascarAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Attributes",
+	"OpendTect",
 	"dGB - Helene Huck",
 	"=od",
 	"Transforming Madagascar routines into OpendTect attributes." ) );

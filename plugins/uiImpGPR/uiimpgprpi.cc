@@ -33,6 +33,7 @@ mDefODPluginInfo(uiImpGPR)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GPR: .DZT import",
+	"OpendTect",
 	"Bert",
 	"0.0.2",
 	"Imports GPR data in DZT format."

@@ -23,6 +23,7 @@ mDefODPluginInfo(uiExpAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Experimental Attributes (UI)",
+	"OpendTect",
 	"dGB",
 	"=od",
 	"" ));

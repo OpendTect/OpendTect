@@ -25,6 +25,7 @@ mDefODPluginInfo(CmdDriver)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Command driver",
+	"OpendTect",
 	"dGB (Bert/Jaap)",
 	"=od",
 	"Used for testing and general 'scripting'." ));

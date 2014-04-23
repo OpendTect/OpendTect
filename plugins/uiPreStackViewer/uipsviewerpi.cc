@@ -16,6 +16,7 @@ mDefODPluginInfo(uiPreStackViewer)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
     "Prestack Viewer",
+    "OpendTect",
     "dGB - Kristofer/Yuancheng",
     "1.1.1",
     "This is the PreStack Viewer in the 3D scene."

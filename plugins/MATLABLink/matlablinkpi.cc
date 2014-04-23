@@ -15,6 +15,7 @@ mDefODPluginInfo(MATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB (base)",
+	"OpendTect",
 	"dGB Earth Sciences",
 	"=od",
 	"MATLAB - base" ) );

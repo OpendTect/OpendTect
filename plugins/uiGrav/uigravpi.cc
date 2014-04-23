@@ -21,6 +21,7 @@ mDefODPluginInfo(uiGrav)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Gravity calculation",
+	"OpendTect",
 	"Bert",
 	"0.0.1",
 	"Calculates gravity between horizons" ) );

@@ -14,6 +14,7 @@ mDefODPluginInfo(uiVoxelConnectivityFilter)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"VoxelConnectivityFilter plugin",
+	"OpendTect",
 	"Kristofer",
 	"1.0",
    	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies."));

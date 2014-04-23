@@ -15,6 +15,7 @@ mDefODPluginInfo(GMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GMT (base)",
+	"OpendTect",
 	"dGB (Raman)",
 	"=od",
     	"GMT mapping tool - base" ));

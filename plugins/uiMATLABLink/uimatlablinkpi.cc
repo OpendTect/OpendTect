@@ -16,6 +16,7 @@ mDefODPluginInfo(uiMATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB link",
+	"OpendTect",
 	"dGB Earth Sciences",
 	"=od",
 	"A link to MATLAB."

@@ -40,6 +40,7 @@ mDefODPluginInfo(uiGMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GMT link",
+	"OpendTect",
 	"dGB (Raman)",
 	"3.2",
 	"A link to the GMT mapping tool."
