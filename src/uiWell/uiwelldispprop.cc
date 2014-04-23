@@ -667,16 +667,8 @@ void uiWellLogDispProperties::setWellLogSel()
 
 void uiWellLogDispProperties::setTubeSel()
 {
-    setStyleSensitive( false );
-    singlfillcolfld_->display( true );
-    coltablistfld_->display( true );
-    logfilltypefld_->display( true );
-    filllogsfld_->display( true );
-    colorrangefld_->display( true );
-    flipcoltabfld_->display( true );
-    logwidthfld_->display ( true );
-    colfld_->display( true );
-    szfld_->display( true );
+    setWellLogSel();
+    szfld_->setSensitive( false );
 }
 
 
