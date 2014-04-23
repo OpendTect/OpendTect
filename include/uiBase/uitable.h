@@ -56,7 +56,7 @@ public:
 
 		    Setup(int nrrows=-1,int nrcols=-1)
 			: size_(nrrows,nrcols)
-			, rowdesc_("Row")	
+			, rowdesc_("Row")
 			, coldesc_("Column")
 			, insertrowallowed_(true)
 			, removerowallowed_(true)
@@ -82,7 +82,7 @@ public:
 			, defrowstartidx_(1)
 				    //!< default row label: start counting at 1
 			, rightclickdisabled_(false)
-		       		   //!<default enables right click popup	
+		       		   //!<default enables right click popup
 			, enablecopytext_(false)
 				{}
 
@@ -260,7 +260,7 @@ public:
     const TypeSet<int>&	getNotifRCs() const
 			{ return seliscols_ ? notifcols_ : notifrows_; }
     const TypeSet<RowCol>& getNotifCells() const { return notifcells_; }
-    
+
     Notifier<uiTable>	valueChanged;
     Notifier<uiTable>	leftClicked;
     Notifier<uiTable>	rightClicked;
@@ -337,6 +337,7 @@ protected:
 
     void		geometrySet_(CallBacker*);
     void		updateCellSizes(const uiSize* sz=0);
+    void		cellObjChangedCB(CallBacker*);
 
     bool		getSelected();
     void		removeRCs(const TypeSet<int>&,bool col);

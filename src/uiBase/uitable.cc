@@ -1434,7 +1434,12 @@ RowCol uiTable::getCell( uiGroup* grp )
 void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
 {
     mBlockCmdRec;
+    clearCellObject( rc );
     body_->setCellObject( rc, obj );
+
+    mDynamicCastGet(uiComboBox*,cb,obj)
+    if ( cb )
+	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
 }
 
 
@@ -1445,12 +1450,28 @@ uiObject* uiTable::getCellObject( const RowCol& rc ) const
 void uiTable::clearCellObject( const RowCol& rc )
 {
     mBlockCmdRec;
+
+    uiObject* obj = getCellObject( rc );
+    mDynamicCastGet(uiComboBox*,cb,obj)
+    if ( cb )
+	cb->selectionChanged.remove( mCB(this,uiTable,cellObjChangedCB) );
+
     body_->clearCellObject( rc );
 }
 
 
 RowCol uiTable::getCell( uiObject* obj )
 { return body_->getCell( obj ); }
+
+
+void uiTable::cellObjChangedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiObject*,obj,cb)
+    if ( !obj ) return;
+
+    notifcell_ = getCell( obj );
+    valueChanged.trigger();
+}
 
 
 const ObjectSet<uiTable::SelectionRange>& uiTable::selectedRanges() const
