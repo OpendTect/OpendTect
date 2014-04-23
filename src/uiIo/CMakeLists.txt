@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES
 	uilatlong.cc
 	uimanprops.cc
 	uimathformula.cc
+	uimathpropeddlg.cc
 	uimmbatchjobdispatch.cc
 	uiobjfileman.cc
 	uipickpartserv.cc

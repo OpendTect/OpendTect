@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "uiiomod.h"
 
 #include "mathproperty.h"
 #include "propertyref.h"
@@ -23,7 +23,7 @@ class uiUnitSel;
 class uiListBox;
 class uiPushButton;
 
-mExpClass(uiTools) uiMathPropEdDlg : public uiDialog
+mExpClass(uiIo) uiMathPropEdDlg : public uiDialog
 {
 public:
 			uiMathPropEdDlg(uiParent*,MathProperty&,
