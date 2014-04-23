@@ -70,11 +70,16 @@ endif
 
 shift 
 
-(svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
+(svn proplist --verbose ${filename} > ${tmpfile} ) >& ${tmperrfile}
 set errsize=`ls -la ${tmperrfile} | awk '{ print $5 }'`
 if ( ${errsize} == 0 ) then
     set localfail = 0
     cat ${tmpfile} | grep -q "svn:eol-style"
+    if ( ${status} == 1 ) then
+	echo ${filename}
+	set localfail=1
+    endif
+    cat ${tmpfile} | grep -q "LF"
     if ( ${status} == 1 ) then
 	echo ${filename}
 	set localfail=1
