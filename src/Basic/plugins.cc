@@ -306,7 +306,8 @@ const char* PluginManager::moduleName( const char* nm )
 static PluginInfo* mkEmptyInfo()
 {
     return new PluginInfo( sKeyNoDispName, sKey::EmptyString(),
-                           sKey::EmptyString(),"No info available");
+			   sKey::EmptyString(),
+			   sKey::EmptyString(),"No info available");
 }
 
 
