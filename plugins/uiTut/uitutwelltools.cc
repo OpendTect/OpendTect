@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "wellwriter.h"
 #include "tutlogtools.h"
+#include "od_helpids.h"
 
 
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
@@ -29,7 +30,7 @@ static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 	: uiDialog( p, Setup( "Log Smoothing",
 			      "Specify parameters for smoothing",
-			      "tut:105.0.3") )
+			      mODHelpKey(mStorePicksHelpID) ) )
 	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid))
 {

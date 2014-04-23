@@ -22,13 +22,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "vissurvscene.h"
 #include "veldesc.h"
+#include "od_helpids.h"
+
 #include <typeinfo>
 
 #define mZStretchStr "Z stretch"
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
-	       uiDialog::Setup("Z Scaling","Set scaling factor","50.0.7")
+	       uiDialog::Setup("Z Scaling","Set scaling factor",
+                                mODHelpKey(mZScaleDlgHelpID) )
 	       .canceltext(""))
     , valchgd_(false)
     , vwallbut_(0)

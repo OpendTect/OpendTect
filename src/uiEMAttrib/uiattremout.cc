@@ -26,13 +26,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uibatchjobdispatchersel.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 			  const NLAModel* n, const MultiID& mid,
 			  const char* dlgnm )
-    : uiDialog(p,Setup(dlgnm,mNoDlgTitle,""))
+    : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey))
     , ads_(const_cast<DescSet&>(ad))
     , nlamodel_(n)
     , nlaid_(mid)

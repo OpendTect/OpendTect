@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uieditobjectlist.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "od_helpids.h"
 
 static const char* sNoLevelTxt      = "--Undefined--";
 
@@ -36,7 +37,7 @@ static const char* sNoLevelTxt      = "--Undefined--";
 uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Editor",
 				 "Edit the unit properties",
-				 "110.0.1"))
+				 mODHelpKey(mStratUnitDlgHelpID) ))
     , unit_(unit)
     , entrancename_(unit.code())
 {
@@ -51,7 +52,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
-    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)" );
+    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, "Time range (My)");
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
@@ -249,7 +250,8 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage Lithologies",mNoDlgTitle,"110.0.4"))
+    : uiDialog(p,uiDialog::Setup("Manage Lithologies",mNoDlgTitle,
+                                 mODHelpKey(mStratLithoDlgHelpID) ))
     , prevlith_(0)
     , nmfld_(0)
     , anychg_(false)
@@ -413,7 +415,8 @@ public:
 
 uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     : uiDialog(p,uiDialog::Setup(isadd?"Add content":"Edit Content",
-		isadd?"Add content":"Edit content properties","110.0.5"))
+		isadd?"Add content":"Edit content properties",
+                                  mODHelpKey(mStratContentsDlgHelpID) ))
     , cont_(c)
     , anychg_(chg)
 {
@@ -534,7 +537,8 @@ void itemSwitch( bool up )
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Contents",
-		"Define special layer contents","110.0.5"))
+		"Define special layer contents", 
+                mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
@@ -543,7 +547,8 @@ uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
 
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
+    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,
+                                 mODHelpKey(mStratLevelDlgHelpID) ))
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
@@ -594,7 +599,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")
 						      .rowgrow(true)
 						      .defrowlbl("")
-						      .selmode(uiTable::Multi));
+						     .selmode(uiTable::Multi));
     table_->setColumnLabels( unitcollbls );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -602,7 +607,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
     table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
-    table_->selectionDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits));
+    table_->selectionDeleted.notify(mCB(this,uiStratUnitDivideDlg,resetUnits));
     table_->setMinimumWidth( 450 );
 
     if ( table_->nrRows() )
@@ -663,7 +668,7 @@ void uiStratUnitDivideDlg::addUnitToTable( int irow,
 }
 
 
-void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units )
+void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units)
 {
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
@@ -772,7 +777,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 						Strat::LeavedUnitRef& ur )
     : uiDialog(p,uiDialog::Setup("",
-		mNoDlgTitle,"110.0.3"))
+		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
     , lvlid_(-1)
     , unit_(ur)
 {

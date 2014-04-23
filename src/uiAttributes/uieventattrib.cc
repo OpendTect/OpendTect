@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "od_helpids.h"
 
 
 static const char* evtypestrs[] =
@@ -50,7 +51,7 @@ mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp())
 
 
 uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
-        : uiAttrDescEd(p,is2d,"101.0.4")
+        : uiAttrDescEd(p,is2d, mODHelpKey(mEventAttribHelpID) )
 	  
 {
     inpfld = createInpFld( is2d );

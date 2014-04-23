@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
@@ -141,7 +142,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     contfld_->attach( rightOf, lvlfld_ );
     contfld_->setHSzPol( uiObject::Small );
     contfld_->selectionChanged.notify(
-	    			mCB(this,uiStratLayModEditTools,selContentCB) );
+	    			mCB(this,uiStratLayModEditTools,selContentCB));
 
     eachlbl_ = new uiLabel( leftgrp, "each" );
     eachlbl_->attach( rightOf, contfld_ );
@@ -424,12 +425,12 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel )
+					const PropertyRefSelection& proprefsel)
 	: uiDialog(p,uiDialog::Setup("Property Selector",
 		    		     "There are multiple properties referenced"
 				     " with the same type. \n" 
 				     "Please specify which one to use as: ",
-				     "110.0.10") )
+		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 {
     mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
     mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );

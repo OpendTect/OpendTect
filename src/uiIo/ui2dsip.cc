@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "od_helpids.h"
 
 static const char* dlgtitle =
 "Specify working area values.\n"
@@ -33,7 +34,8 @@ public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
-				 dlgtitle,"0.3.8"))
+				 dlgtitle, 
+                                 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
     DoubleInpSpec dis;
@@ -60,9 +62,9 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
     const BufferString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
     zmaxfld_ = new uiGenInput( optgrp,
-	   		       BufferString( "[Z-max ", zunitlbl, "]" ), fis );
+	       BufferString( "[Z-max ", zunitlbl, "]" ), fis );
     srfld_ = new uiGenInput( optgrp,
-		 BufferString( "[Default sampling rate ", zunitlbl, "]" ), fis);
+	     BufferString( "[Default sampling rate ", zunitlbl, "]" ), fis);
     srfld_->attach( alignedBelow, zmaxfld_ );
 
     optgrp->attach( alignedBelow, maingrp );

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -341,7 +342,7 @@ void uiPosProvSel::setToAll()
 void uiPosProvSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Positions","Specify positions",
-					"103.1.6" ) );
+					mODHelpKey(mPosProvSelHelpID) ) );
     uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
     pp->usePar( iop_ );
     if ( dlg.go() )

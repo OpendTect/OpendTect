@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "odver.h"
 #include "timefun.h"
+#include "od_helpids.h"
 
 static const char* sKeyXLogType = "X Log Type";
 static const char* sKeyYLogType = "Y Log Type";
@@ -41,7 +42,7 @@ static const char* filefilter = "Text (*.txt *.dat)";
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Probability Density Function",
-				 mNoDlgTitle,"112.0.0"))
+				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID) ))
 {
     setOkText( uiStrings::sImport() );
 
@@ -287,7 +288,7 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
-				 mNoDlgTitle,"112.0.1"))
+				 mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) ))
 {
     setOkText( uiStrings::sExport() );
 

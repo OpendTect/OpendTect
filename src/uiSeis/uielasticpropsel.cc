@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathexpression.h"
 #include "propertyref.h"
 #include "strmprov.h"
+#include "od_helpids.h"
 
 uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
 				const BufferStringSet& ppnms, int idx )
@@ -311,7 +312,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 					ElasticPropSelection& elsel )
     : uiDialog(p,uiDialog::Setup("Elastic Model",
 		"Specify how to obtain density and p-wave and s-wave velocities"
-		,"110.1.3"))
+		,mODHelpKey(mElasticPropSelDlgHelpID) ))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection))
     , elpropsel_(elsel)
     , orgelpropsel_(elsel)

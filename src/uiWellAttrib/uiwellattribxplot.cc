@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidatapointset.h"
 #include "uiwelllogextract.h"
+#include "od_helpids.h"
 
 
 using namespace Attrib;
@@ -23,7 +24,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 					      const Attrib::DescSet* d )
 	: uiDialog(p,uiDialog::Setup("Attribute/Well cross-plotting",
 		     "Select attributes and logs for cross-plot"
-		     ,"111.1.1").modal(false))
+		     ,mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
     	, dpsdispmgr_(0)
 {
     wellextractgrp_ =

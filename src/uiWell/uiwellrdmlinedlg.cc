@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 #include "uiioobjsel.h"
 #include "uiwellpartserv.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -350,7 +351,8 @@ void uiWellSelGrp::ptsSel( CallBacker* cb )
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
     : uiDialog(p,uiDialog::Setup("Create Random line",
 				 "Select wells to set up the random line path",
-				 "109.0.0").modal(false))
+				 mODHelpKey(mWell2RandomLineDlgHelpID) )
+                                 .modal(false))
     , wellserv_(ws)
     , previewbutton_(0)
     , dispfld_(0)

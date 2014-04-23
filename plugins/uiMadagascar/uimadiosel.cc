@@ -24,13 +24,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "file.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 
 static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
 		    BufferString("Specify the ",isinp?"input to":"output of",
-					 " the processing flow"),"103.5.1") )
+					 " the processing flow"), 
+                                         mODHelpKey(mMadIOSelDlgHelpID) ) )
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)

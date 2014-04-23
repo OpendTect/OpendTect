@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "property.h"
 #include "keyenum.h"
+#include "od_helpids.h"
 
 
 mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
@@ -593,7 +594,8 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
-				"Define layer generation","110.2.0"))
+				"Define layer generation", 
+                                 mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
     , inpun_(inpun)
     , rt_(rt)
     , anychg_(true) //TODO really keep track of changes

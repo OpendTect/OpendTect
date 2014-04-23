@@ -28,11 +28,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "od_helpids.h"
 
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     : uiDialog(p,uiDialog::Setup("Create Log Cube",
 				 "Select logs to create new cubes",
-				 "103.2.25") )
+				 mODHelpKey(mCreateLogCubeDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 

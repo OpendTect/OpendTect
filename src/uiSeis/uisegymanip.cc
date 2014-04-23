@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "oddirs.h"
 #include "od_iostream.h"
+#include "od_helpids.h"
 
 static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -46,7 +47,8 @@ class uiSEGYBinHdrEdDlg : public uiDialog
 public:
 
 uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
-    : uiDialog(p,Setup("SEG-Y Binary Header",mNoDlgTitle,"103.0.20"))
+    : uiDialog(p,Setup("SEG-Y Binary Header",mNoDlgTitle,
+                        mODHelpKey(mSEGYBinHdrEdDlgHelpID) ))
     , hdr_(h)
     , def_(SEGY::BinHeader::hdrDef())
     , orgns_(h.nrSamples())
@@ -187,7 +189,7 @@ void doDlg( CallBacker* )
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     : uiDialog(p,uiDialog::Setup("Manipulate SEG-Y File",
 				  BufferString("Manipulate '",fnm,"'"),
-				  "103.0.19") )
+				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
     , binhdr_(*new SEGY::BinHeader)
@@ -423,7 +425,8 @@ public:
 
 uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     : uiDialog( p, Setup("Header Calculation",cs.indexOf(hc.he_.name()) < 0 ?
-	    "Add header calculation":"Edit header calculation","103.0.21") )
+	                 "Add header calculation":"Edit header calculation",
+                          mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
     , hc_(hc)
     , calcset_(cs)
 {

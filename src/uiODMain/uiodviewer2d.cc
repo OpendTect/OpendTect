@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransformdatapack.h"
 #include "visvw2ddataman.h"
 #include "visvw2ddata.h"
+#include "od_helpids.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
@@ -270,7 +271,8 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
-	    uiFlatViewStdControl::Setup(controlparent).helpkey("51.0.0")
+	    uiFlatViewStdControl::Setup(controlparent).helpkey(
+                                        mODHelpKey(mFlatViewStdControlHelpID) )
 						      .withedit(true) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     createPolygonSelBut( viewstdcontrol_->toolBar() );

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiiosel.h"
 #include "uimsg.h"
 #include "uigeninput.h"
+#include "od_helpids.h"
 
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
@@ -85,7 +86,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
-    : uiMMBatchJobDispatcher(p,iop,"103.2.0")
+    : uiMMBatchJobDispatcher(p,iop, mODHelpKey(mSeisMMProcHelpID) )
     , parfnm_(iop.find(sKey::FileName()))
     , tmpstordirfld_(0), inlperjobfld_(0)
     , jobprov_(0)

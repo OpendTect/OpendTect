@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sampledprobdenfunc.h"
 #include "simpnumer.h"
 #include "probdenfunctr.h"
+#include "od_helpids.h"
 
 static const int cPrefWidth = 75;
 static const float cMaxProbVal = 100.0f;
@@ -31,7 +32,8 @@ static const float cMaxProbVal = 100.0f;
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Probability Density Functions",
 				     mNoDlgTitle,
-				     "112.1.0").nrstatusflds(1),
+				     mODHelpKey(mProbDenFuncManHelpID) )
+                                     .nrstatusflds(1),
 	           ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();

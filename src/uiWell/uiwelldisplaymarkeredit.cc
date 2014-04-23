@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldata.h"
+#include "od_helpids.h"
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
@@ -87,7 +88,8 @@ void uiAddEditMrkrDlg::putToScreen()
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
-			    mNoDlgTitle,"dgb:107.0.3").modal(false))
+		                 mNoDlgTitle, mODHelpKey(mD2TModelGroupHelpID) )
+                                .modal(false))
     , curmrk_(0)
     , hasedited_(false)
     , needsave_(false)

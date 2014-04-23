@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "mousecursor.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -38,7 +39,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 	: uiDialog(p,Setup("Create flattened seismics",
 			    BufferString("Create seismics flattened on '",
 					 getHorNm(horid),"'")
-		    	  ,"104.0.10"))
+		    	  , mODHelpKey(mFlattenedCubeHelpID) ))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
 	, hormid_(EM::EMM().getMultiID(horid))

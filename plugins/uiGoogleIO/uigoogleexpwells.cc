@@ -24,11 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "latlong.h"
 #include "od_ostream.h"
+#include "od_helpids.h"
 
 
 uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Wells to KML",
-				 "Specify wells to output","107.1.11") )
+				 "Specify wells to output", 
+                                 mODHelpKey(mGoogleExportWellsHelpID) ) )
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
     selfld_ = llb->box();

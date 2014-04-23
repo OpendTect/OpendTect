@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -46,7 +47,8 @@ public:
 uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 		    Notifier<uiColorTable>& nf )
     : uiDialog(p,uiDialog::Setup("Ranges/Clipping",mNoDlgTitle,
-				 "50.1.3").modal(false))
+				 mODHelpKey(mAutoRangeClipDlgHelpID) )
+                                 .modal(false))
     , ms_(ms)
     , scaleChanged(nf)
 {

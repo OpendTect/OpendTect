@@ -23,13 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "keystrs.h"
 #include "polygon.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage PickSets/Polygons",mNoDlgTitle,
-				     "105.0.6").nrstatusflds(1),
+				     mODHelpKey(mPickSetManHelpID) )
+                                     .nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

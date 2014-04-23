@@ -34,10 +34,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitoolbar.h"
+#include "od_helpids.h"
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,"103.5.2")
+    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,
+                                 mODHelpKey(mGMTMainWinHelpID) )
 				.modal(false) )
     , addbut_(0)
     , editbut_(0)

@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "od_iostream.h"
+#include "od_helpids.h"
 
 #define mMaxLineBuf 32000
 static BufferString lastinpfile;
@@ -26,7 +27,7 @@ static BufferString lastoutfile;
 
 uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 	: uiDialog(p, uiDialog::Setup("Convert Positions",
-		   mNoDlgTitle,"0.3.7").modal(mod))
+		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID) ).modal(mod))
 	, survinfo(si)
 {
     ismanfld = new uiGenInput( this, "Conversion",

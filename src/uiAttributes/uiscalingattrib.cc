@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsurvranges.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -79,7 +80,7 @@ mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp())
 
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.12")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mScalingAttribHelpID) )
 	, parent_(p)
 {
     inpfld = createInpFld( is2d );

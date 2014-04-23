@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rowcol.h"
 #include "sorting.h"
 #include "settings.h"
+#include "od_helpids.h"
 
 static const int cMinPtsForDensity = 20000;
 
@@ -351,7 +352,8 @@ public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
-    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","","111.0.6") )
+    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","", 
+                                    mODHelpKey(mSelColorDlgHelpID) ) )
     , names_( names )
     , y1cols_( y1cols )
     , y2cols_( y2cols )

@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseisfmtscale.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -35,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiMergeSeis::uiMergeSeis( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Seismic file merging",
 				 "Specify input/output seismics",
-				 "103.1.2"))
+				 mODHelpKey(mMergeSeisHelpID) ))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     const IODir iodir( ctio_.ctxt.getSelKey() );

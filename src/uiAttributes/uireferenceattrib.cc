@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -54,7 +55,7 @@ mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.11")
+    : uiAttrDescEd(p,is2d, mODHelpKey(mReferenceAttribHelpID) )
 
 {
     inpfld = createInpFld( is2d );

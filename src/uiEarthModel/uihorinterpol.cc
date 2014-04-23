@@ -36,11 +36,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   "104.0.16").modal(true) )
+				   mODHelpKey(mBulkHorizonImportHelpID) )
+                                   .modal(true) )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )

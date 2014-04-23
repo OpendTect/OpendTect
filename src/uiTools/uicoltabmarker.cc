@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "mouseevent.h"
 #include "rowcol.h"
+#include "od_helpids.h"
+
 #include <math.h>
 
 
@@ -35,7 +37,7 @@ static const int cColorCol = 1;
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     : uiDialog(p,uiDialog::Setup("Manage Marker","Add, remove, change Markers",
-				 "50.1.1"))
+				 mODHelpKey(mColTabMarkerDlgHelpID) ))
     , ctab_(ctab)
     , markersChanged(this)
 {
@@ -149,7 +151,7 @@ void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
     RowCol rc = table_->currentCell();
     const float newpos = table_->getfValue( rc );
-    if ( ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos )
+    if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
 	uiMSG().error( "Please enter position between 0 & 1 for Markers " );
 	table_->setValue( rc, ctab_.position(rc.row()) );

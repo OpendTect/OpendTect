@@ -98,7 +98,7 @@ static const char* directionstr[]=
 mInitAttribUI( uiGLCM_attrib, GLCM_attrib, "GLCM", sKeyBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
-	:uiAttrDescEd( p, is2d )
+	:uiAttrDescEd( p, is2d, mNoHelpKey )
 {
 	inpfld_ = createInpFld( is2d );
 

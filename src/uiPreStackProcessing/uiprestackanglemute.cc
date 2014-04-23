@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiraytrace1d.h"
 #include "uiseparator.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 
 namespace PreStack
@@ -121,7 +122,8 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
     : uiDialog(p, uiDialog::Setup("Advanced Parameter",
-				  "Advanced angle parameters", "103.2.26"))
+				  "Advanced angle parameters", 
+                                  mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
     , params_(pars)
     , isformute_(isformute)
     , smoothtypefld_(0)
@@ -326,7 +328,8 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
-    : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,"103.2.20") )
+    : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,
+                                    mODHelpKey(mAngleMuteHelpID) ) )
     , processor_( rt )
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params() );

@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "";
 #include "mathexpression.h"
 
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
-    : uiDialog(p,uiDialog::Setup("Add Column","",""))
+    : uiDialog(p,uiDialog::Setup("Add Column", sKey::EmptyString(),mNoHelpKey))
     , mathobj_(0)
     , withmathop_(withmathop)
     , inpfld_(0)

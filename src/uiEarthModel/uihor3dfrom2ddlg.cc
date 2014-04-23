@@ -29,11 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
-    : uiDialog( p, Setup("Derive 3D Horizon",mNoDlgTitle,"104.0.5") )
+    : uiDialog( p, Setup("Derive 3D Horizon",mNoDlgTitle,
+			 mODHelpKey(mHor3DFrom2DDlgHelpID)) )
     , hor2d_( h2d )
     , emserv_( ems )
     , hor3d_( 0 )

@@ -18,10 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 
 
 uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup("SEG-Y Scan",mNoDlgTitle,"103.0.9")
+    : uiDialog::Setup("SEG-Y Scan",mNoDlgTitle, mODHelpKey(mSEGYReadDlgHelpID) )
     , geom_(gt) 
     , rev_(uiSEGYRead::Rev0)
 {

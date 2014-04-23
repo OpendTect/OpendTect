@@ -22,13 +22,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welldisp.h"
 #include "wellmarker.h"
+#include "od_helpids.h"
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 #define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
-	   "","107.2.0").savetext(sSaveAsDefault()).savebutton(true)
+	   "", mODHelpKey(mWellDispPropDlgHelpID) ).savetext(sSaveAsDefault())
+           .savebutton(true)
 					.savechecked(false)
 					.modal(false))
 	, wd_(d)

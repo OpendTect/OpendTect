@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "velocityfunction.h"
+#include "od_helpids.h"
 
 
 namespace Vel
@@ -174,7 +175,7 @@ void uiFunctionSel::colorChanged(CallBacker*)
 
 uiAddFunction::uiAddFunction( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Add velocity function source",0,
-				   "103.6.6") )
+				   mODHelpKey(mAddFunctionHelpID) ) )
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
@@ -225,7 +226,7 @@ bool uiAddFunction::acceptOK(CallBacker*)
 
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
     : uiDialog( p, uiDialog::Setup("Edit velocity functions",0,
-				   "103.6.9") )
+				   mODHelpKey(mEditFunctionHelpID) ) )
     , dlggrp_( 0 )
 {
     dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );

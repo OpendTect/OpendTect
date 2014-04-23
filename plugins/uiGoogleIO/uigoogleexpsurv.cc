@@ -17,12 +17,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "latlong.h"
 #include "draw.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 
 uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     : uiDialog(uisurv,uiDialog::Setup("Export Survey boundaries to KML",
-				      "Specify output parameters","0.3.10") )
+				      "Specify output parameters",
+                                      mODHelpKey(mGoogleExportSurveyHelpID) ) )
     , si_(uisurv->curSurvInfo())
 {
     const LineStyle ls( LineStyle::Solid, 20, Color(255,170,80,100) );

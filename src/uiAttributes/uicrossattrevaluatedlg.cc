@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -33,8 +34,8 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
     : uiDialog(p,uiDialog::Setup("Cross attribute parameter evaluation",
-		mNoDlgTitle,
-		"101.3.1").modal(false).oktext("Accept").canceltext(""))
+		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
+                                 .modal(false).oktext("Accept").canceltext(""))
     , calccb(this)
     , showslicecb(this)
     , initpar_(*new IOPar)

@@ -26,11 +26,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "od_helpids.h"
 
 
-uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,bool is2d,
-					const char* txt )
-    : uiDialog (p, Setup(txt,mNoDlgTitle,"104.0.3") )
+uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
+                                        bool is2d, const char* txt )
+    : uiDialog (p, Setup(txt,mNoDlgTitle, 
+                         mODHelpKey(mChangeSurfaceDlgHelpID) ) )
     , horizon_( hor )
     , is2d_( is2d )		   
     , savefldgrp_( 0 )		   

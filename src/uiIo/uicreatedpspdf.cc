@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sampledprobdenfunc.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "od_helpids.h"
 
 
 static int cMaxNrPDFs = 3;
@@ -38,7 +39,7 @@ static int cMaxNrPDFs = 3;
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
-				 mNoDlgTitle,"111.0.3"))
+				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(plotter)
     , dps_(plotter_->dps())
     , createfrmfld_(0)
@@ -53,7 +54,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
-				 mNoDlgTitle,"111.0.3"))
+				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(0)
     , dps_(dps)
     , createfrmfld_(0)

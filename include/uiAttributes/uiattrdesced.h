@@ -129,8 +129,7 @@ public:
 
 protected:
 
-			uiAttrDescEd(uiParent*,bool is2d,
-				     const HelpKey& helpkey=0);
+			uiAttrDescEd(uiParent*,bool is2d,const HelpKey&);
 
     virtual bool	setParameters(const Desc&)	{ return true; }
     virtual bool	getParameters(Desc&)		{ return true; }

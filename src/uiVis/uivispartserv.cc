@@ -57,6 +57,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "zdomain.h"
+#include "od_helpids.h"
 
 
 int uiVisPartServer::evUpdateTree()		    { return 0; }
@@ -1308,7 +1309,8 @@ class uiWorkAreaDlg : public uiDialog
 {
 public:
 uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Set work volume","","0.3.4"))
+    : uiDialog(p,uiDialog::Setup("Set work volume","",
+                                    mODHelpKey(mWorkAreaDlgHelpID) ) )
 {
     selfld_ = new uiSelSubvol( this, false );
     fullbut_ = new uiToolButton( this, "exttofullsurv",

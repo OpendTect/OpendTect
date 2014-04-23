@@ -25,11 +25,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "bendpointfinder.h"
 #include "latlong.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",
-				 "Specify how to export","103.1.12") )
+				 "Specify how to export",
+                                 mODHelpKey (mGoogleExport2DSeisHelpID) ) )
     , s2dfm_(p)
     , putallfld_(0)
     , allsel_(false)

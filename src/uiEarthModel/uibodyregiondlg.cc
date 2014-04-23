@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "varlenarray.h"
+#include "od_helpids.h"
 
 
 #define mBelow 0
@@ -545,11 +546,12 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog( p, Setup("Region constructor","Boundary settings","103.1.20") )
+    : uiDialog( p, Setup("Region constructor","Boundary settings",
+                        mODHelpKey(mBodyRegionDlgHelpID) ) )
     , singlehoradded_(false)
 {
     setCtrlStyle( RunAndClose );
-    //setHelpID( "dgb:104.0.4" );
+    //setHelpID( mODHelpKey(mEMHorizonEditorSetting) );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).

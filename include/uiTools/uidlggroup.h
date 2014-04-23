@@ -48,7 +48,8 @@ public:
 			*/
     virtual const char*	errMsg() const			{ return 0; }
 
-    virtual HelpKey	helpKey() const 		{ return 0; }
+    virtual HelpKey	helpKey() const 
+                        { return mNoHelpKey; }
 
 protected:
     uiString		caption_;

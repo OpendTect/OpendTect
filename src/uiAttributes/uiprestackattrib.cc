@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
@@ -44,7 +45,7 @@ static const char*	statTypeAverageStr()	{ return "Stack"; }
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.17")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
 	, params_(*new PreStack::AngleCompParams)
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );

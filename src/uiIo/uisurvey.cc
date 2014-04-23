@@ -54,6 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "settings.h"
 #include "od_ostream.h"
+#include "od_helpids.h"
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
@@ -205,8 +206,8 @@ protected:
     BufferString	survName() const { return survnmfld_->text(); }
     bool		has3D() const	 { return pol2dfld_->isChecked(0); }
     bool		has2D() const	 { return pol2dfld_->isChecked(1); }
-    bool		isTime() const	 { return zistimefld_->getBoolValue(); }
-    bool		isInFeet() const { return zinfeetfld_->getBoolValue(); }
+    bool		isTime() const	 { return zistimefld_->getBoolValue();}
+    bool		isInFeet() const { return zinfeetfld_->getBoolValue();}
 
     void		setSip(bool for2donly);
 
@@ -230,7 +231,7 @@ void zdomainChg( CallBacker* cb )
 };
 
 
-uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p, const char* dataroot,
+uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,uiDialog::Setup("Create New Survey",
 		    "Specify new survey parameters",mTODOHelpKey))
@@ -366,7 +367,7 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
 
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey Setup and Selection",
-				 mNoDlgTitle,"0.3.1"))
+				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
     , initialsurveyname_(GetSurveyName())
@@ -474,7 +475,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     expbut->attach( alignedBelow, copybut );
 
     uiToolButton* impbut = new uiToolButton( grp, "import",
-	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed) );
+	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed));
     impbut->attach( alignedBelow, expbut );
 
     rmbut_ = new uiToolButton( grp, "trashcan", "Remove Survey",
@@ -699,7 +700,7 @@ void uiSurvey::newButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    FilePath fp( GetSoftwareDir(0), "data", SurveyInfo::sKeyBasicSurveyName() );
+    FilePath fp( GetSoftwareDir(0), "data", SurveyInfo::sKeyBasicSurveyName());
     SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
     if ( !newsurvinfo )
     {
@@ -832,7 +833,8 @@ void uiSurvey::exportButPushed( CallBacker* )
     const BufferString survnm( selectedSurveyName() );
     const BufferString title( "Compress ", survnm, " survey as zip archive" );
     uiDialog dlg( this,
-    uiDialog::Setup(title,mNoDlgTitle,"0.3.12"));
+    uiDialog::Setup(title,mNoDlgTitle, 
+                    mODHelpKey(mSurveyexportButPushedHelpID) ));
     uiFileInput* fnmfld = new uiFileInput( &dlg,"Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
@@ -1043,7 +1045,7 @@ void uiSurvey::putToScreen()
 
 	zinfo.add( " (" ).add( si.getZUnitString(false) ).add( "): ");
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
-	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): " );
+	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
 	if ( si.sampling(false).hrg.totalNr() > 0 )
 	{

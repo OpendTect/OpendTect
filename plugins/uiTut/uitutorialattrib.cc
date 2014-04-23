@@ -40,7 +40,7 @@ mInitAttribUI(uiTutorialAttrib,Tutorial,"Tutorial",sKeyBasicGrp())
 
 
 uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d, mNoHelpKey)
 {
     inpfld_ = createInpFld( is2d );
 

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "uivispartserv.h"
 #include "visscalebardisplay.h"
+#include "od_helpids.h"
 
 
 struct ScaleBarPars
@@ -46,7 +47,7 @@ class uiScaleBarDialog : public uiDialog
 public:
 uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     : uiDialog(p,Setup(tr("%1 properties").arg("ScalarBar")
-		,mNoDlgTitle,"50.0.14"))
+		,mNoDlgTitle, mODHelpKey(mArrowDialogHelpID) ))
     , propertyChange(this)
     , zinf_(zinf)
 {

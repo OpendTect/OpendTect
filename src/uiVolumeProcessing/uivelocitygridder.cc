@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitygridder.h"
 #include "velocityfunction.h"
 #include "volprocchain.h"
+#include "od_helpids.h"
 
 namespace VolProc
 {
@@ -35,7 +36,7 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
     : uiStepDialog( p, VelGriddingStep::sFactoryDisplayName(), ro )
     , operation_( ro )
 {
-    setHelpKey( "103.6.5" );
+    setHelpKey( mODHelpKey(mVelocityGridderHelpID) );
 
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
 

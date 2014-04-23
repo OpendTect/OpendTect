@@ -26,13 +26,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segytr.h"
 #include "seisioobjinfo.h"
 #include "settings.h"
+#include "od_helpids.h"
 
 #define sKeySettNrTrcExamine \
     IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
 
 
 uiSEGYDefDlg::Setup::Setup()
-    : uiDialog::Setup("SEG-Y tool","Specify basic properties","103.0.6")
+    : uiDialog::Setup("SEG-Y tool","Specify basic properties",
+                      mODHelpKey(mSEGYDefDlgHelpID) )
     , defgeom_(Seis::Vol)
 {
 }

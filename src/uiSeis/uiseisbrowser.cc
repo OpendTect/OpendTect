@@ -53,6 +53,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "keystrs.h"
 #include "zdomain.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 
@@ -82,7 +84,7 @@ protected:
 
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
-    : uiDialog::Setup("",mNoDlgTitle,"103.1.5")
+    : uiDialog::Setup("",mNoDlgTitle, mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , geom_(gt)
     , startpos_(mUdf(int),mUdf(int))

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uivolprocchain.h"
+#include "od_helpids.h"
 
 namespace VolProc
 {
@@ -43,7 +44,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
     : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
 {
-    setHelpKey( "103.6.10" );
+    setHelpKey( mODHelpKey(mVoxelConnectivityFilterHelpID) );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
 				  "Values between", "Values outside", 0 };
     cutofftypefld_ = new uiGenInput( this, "Keep",

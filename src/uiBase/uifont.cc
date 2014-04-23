@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiparentbody.h"
 #include "uilabel.h"
 #include "bufstringset.h"
+#include "od_helpids.h"
 
 #include "uibody.h"
 
@@ -349,7 +350,8 @@ void uiFontList::update( Settings& settings )
 
 uiSetFonts::uiSetFonts( uiParent* p, const uiString& title )
 	: uiDialog(p,
-	       uiDialog::Setup("Fonts",title,"0.2.2").mainwidgcentered(true))
+	       uiDialog::Setup("Fonts",title,mODHelpKey(mSetFontsHelpID))
+                    .mainwidgcentered(true))
 {
     setCancelText( "" );
     FontList().initialise();

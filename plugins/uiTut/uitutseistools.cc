@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 static const char* actions[] = { "Scale", "Square", "Smooth",
     				 "Replace sampling", 0 };
@@ -28,7 +29,7 @@ static const char* actions[] = { "Scale", "Square", "Smooth",
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 	: uiDialog( p, Setup( "Tut seismic tools",
 			      "Specify process parameters",
-			      "tut:105.0.1") )
+			      mNoHelpKey ) )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
     	, geom_(gt)

@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "perthreadrepos.h"
+#include "od_helpids.h"
 
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
@@ -30,7 +31,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
 		       issteer ? "Select Steering input"
 			       : "Select Seismic input",
-				 "101.1.2"))
+				 mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(true)
     , is2d_(is2d)
     , seisinpfld_(0)
@@ -80,7 +81,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
 	       hassteer ? (hasseis ? "Select Seismic & Steering input"
 			: "Select Steering input") : "Select Seismic input",
-				 "101.1.2"))
+				 mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(false)
     , is2d_(is2d)
     , seisinpfld_(0)

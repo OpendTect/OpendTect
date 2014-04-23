@@ -23,13 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "coltabsequence.h"
 #include "settings.h"
+#include "od_helpids.h"
 
 
 static const char* getLabel( bool fromusr )
 { return fromusr ? "User's HOME directory" : "File"; }
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Color Table",mNoDlgTitle,"50.1.4"))
+    : uiDialog(p,uiDialog::Setup("Import Color Table",mNoDlgTitle,
+                                 mODHelpKey(mColTabImportHelpID) ))
     , dirfld_(0)
     , dtectusrfld_(0)
 {

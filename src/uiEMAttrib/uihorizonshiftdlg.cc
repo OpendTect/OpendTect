@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uislider.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 
 const char* uiHorizonShiftDialog::sDefaultAttribName()
@@ -35,7 +36,8 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
-    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,"104.0.15").
+    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,
+                                 mODHelpKey(mHorizonShiftDialogHelpID) ).
 				  modal(false) )
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)

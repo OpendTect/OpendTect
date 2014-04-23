@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -30,7 +31,7 @@ using namespace Attrib;
 mInitAttribUI(uiMathAttrib,Attrib::Mathematics,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.9")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mMathAttribHelpID) )
 	, nrvars_(0)
 	, nrcsts_(0)
 	, nrspecs_(0)

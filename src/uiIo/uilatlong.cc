@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilineedit.h"
 #include "uispinbox.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 
 class uiLatLongDMSInp : public uiGroup
@@ -189,7 +190,7 @@ uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
     : uiDialog(p,uiDialog::Setup("Lat/Long vs Coordinates",
 	     "Estimation of geographical coordinates from/to "
 	     "the rectangular survey coordinates",
-				 "0.3.9"))
+				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
     , ll2c_(*new LatLong2Coord(l))
     , si_(si?si:&SI())
 {

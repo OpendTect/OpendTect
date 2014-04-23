@@ -32,13 +32,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "variogrammodels.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
 uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     : uiDialog(p,uiDialog::Setup("Semi-variogram parameters",
 				 "Specify semi-variogram parameters",
-				 "111.0.12" ) )
+				 mODHelpKey(mVariogramDlgHelpID) ) )
 {
     const int dxmin = SI().inlDistance() <= SI().crlDistance() ?
 		(int)SI().inlDistance() : (int)SI().crlDistance();
@@ -125,7 +126,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 					 BufferStringSet* labels,
 					 int maxrg, bool ishor )
 	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
-				     "111.0.13" ).modal(false))
+				     mODHelpKey(mVariogramDisplayHelpID) )
+                                     .modal(false))
 	, maxrg_(maxrg)
 {
     if ( !data || ! axes || !labels ) return;

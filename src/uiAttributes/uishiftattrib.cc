@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -28,7 +29,7 @@ using namespace Attrib;
 mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp())
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.13")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mShiftAttribHelpID) )
 
 {
     inpfld_ = createInpFld( is2d );

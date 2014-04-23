@@ -51,6 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -65,7 +66,8 @@ void uiImportHorizon::initClass()
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,
-				 "104.0.2").modal(false))
+				 mODHelpKey(mImportHorAttribHelpID) )
+                                 .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , filludffld_(0)
@@ -111,7 +113,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrllb );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.8" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, attrllb );
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
@@ -138,7 +141,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     }
     else
     {
-	setHelpKey("104.0.0");
+	setHelpKey(mODHelpKey(mImportHorizonHelpID) );
 	filludffld_ = new uiGenInput( this, "Fill undefined parts",
 				      BoolInpSpec(true) );
 	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));
@@ -187,7 +190,7 @@ void uiImportHorizon::descChg( CallBacker* cb )
 void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup("Interpolation settings",
-			  (const char*) 0, (const char*) 0 ) );
+			  (const char*) 0, mNoHelpKey ) );
 
     uiArray2DInterpolSel* arr2dinterpfld =
 	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );

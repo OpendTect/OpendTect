@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "separstr.h"
 #include "odver.h"
+#include "od_helpids.h"
+
 #include <math.h>
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
@@ -29,7 +31,8 @@ struct PluginProduct
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
-	: uiDialog(p,Setup("",mNoDlgTitle,"0.2.6")
+	: uiDialog(p,Setup("",mNoDlgTitle,
+                            mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))
 	, maxpluginname_(0)

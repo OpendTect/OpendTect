@@ -119,7 +119,7 @@ public:
     bool			acceptOK();
     void			setDistanceUnit(const uiString&);
 
-    HelpKey			helpKey() const { return "104.0.13"; }
+    HelpKey			helpKey() const;
 
 protected:
 
@@ -151,8 +151,6 @@ public:
     bool			acceptOK();
     void			setDistanceUnit(const uiString&);
 
-    HelpKey			helpKey() const { return "104.0.13"; }
-
 protected:
 
     void			intCB(CallBacker*);
@@ -173,8 +171,6 @@ public:
     static uiArray2DInterpol*	create(uiParent*);
 
     bool			acceptOK();
-
-    HelpKey			helpKey() const { return "104.0.13"; }
 
 protected:
 

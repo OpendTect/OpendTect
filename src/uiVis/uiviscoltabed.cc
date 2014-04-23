@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdata.h"
 #include "vissurvobj.h"
 #include "uicolortable.h"
+#include "od_helpids.h"
 
 
 const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
@@ -129,7 +130,8 @@ void uiVisColTabEd::fillPar( IOPar& par )
 
 // ----- uiColorBarDialog -----
 uiColorBarDialog::uiColorBarDialog( uiParent* p, const char* title )
-    : uiDialog(p, uiDialog::Setup(title,0,mNoHelpKey).modal(false)
+    : uiDialog(p, uiDialog::Setup(title,0, 
+                                  mODHelpKey(mColorBarDialog) ).modal(false)
 	       .oktext("Exit").dlgtitle("").canceltext(""))
     , winClosing( this )
 {

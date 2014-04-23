@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
-
+#include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
@@ -41,7 +41,8 @@ static const char* rcsID mUsedVar = "$Id$";
     mGet( tp, "Export FaultStickSet", "Export Fault" )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,"104.1.1"))
+    : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
+                                 mODHelpKey(mExportFaultHelpID) ))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {

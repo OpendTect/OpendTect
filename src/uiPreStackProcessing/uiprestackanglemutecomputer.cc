@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 
 namespace PreStack
@@ -28,7 +29,8 @@ namespace PreStack
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Angle Mute Computer",
-				    mNoDlgTitle,"103.2.19") )
+				    mNoDlgTitle, 
+                                    mODHelpKey(mAngleMuteComputerHelpID) ) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer) 
 {

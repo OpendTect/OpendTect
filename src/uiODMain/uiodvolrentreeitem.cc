@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+#include "od_helpids.h"
 
 
 /* OSG-TODO: Port VolrenDisplay and OrthogonalSlice occurences to OSG
@@ -296,7 +297,8 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0, "50.0.16" ) );
+		uiDialog::Setup( "Iso value selection", 0, 
+                                mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
 

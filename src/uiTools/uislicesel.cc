@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "thread.h"
 #include "timer.h"
+#include "od_helpids.h"
 
 static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
@@ -130,7 +131,8 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),
+                                        mODHelpKey(mSliceScrollHelpID) )
 				      .modal(false))
 	, slcsel_(ss)
 	, inauto_(false)
@@ -562,7 +564,8 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 			const CallBack& acb, uiSliceSel::Type type,
 			const ZDomain::Info& zdominfo )
     : uiDialog(p,uiDialog::Setup("Positioning",
-				 "Specify the element's position","0.4.1")
+				 "Specify the element's position",
+                                 mODHelpKey(mSliceSelHelpID) )
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo );

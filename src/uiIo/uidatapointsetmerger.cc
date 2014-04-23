@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 DPSMerger::DPSMerger( const DPSMergerProp& prop )
@@ -172,7 +173,8 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup("Cross-plot data merging","","103.1.18") )
+    : uiDialog(p,uiDialog::Setup("Cross-plot data merging","",
+                                 mODHelpKey(mDataPointSetMergerHelpID) ) )
     , mdps_(mdps)
     , sdps_(sdps)
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())

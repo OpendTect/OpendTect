@@ -26,10 +26,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizonmerger.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "od_helpids.h"
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Merge 3D Horizons","","104.2.10"))
+    : uiDialog(p,Setup("Merge 3D Horizons","", 
+                       mODHelpKey(mHorizonMergeDlgHelpID) ))
 {
     horselfld_ = new uiHorizon3DSel( this );
 

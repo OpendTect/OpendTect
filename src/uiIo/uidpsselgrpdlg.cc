@@ -20,11 +20,13 @@ static const char* rcsID mUsedVar = "";
 #include "uitoolbutton.h"
 
 #include "randcolor.h"
+#include "od_helpids.h"
 
 
 uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
-    : uiDialog( p.parent(), uiDialog::Setup("Selection Settings",0, "111.0.4")
+    : uiDialog( p.parent(), uiDialog::Setup("Selection Settings",0, 
+                                     mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
 				    .savetext("Select on Ok").modal(false) )
     , plotter_( p )
@@ -192,7 +194,7 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 void uiDPSSelGrpDlg::calcSelectedness( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 )
-	return uiMSG().error("Select a selection group to map its likeliness.");
+       return uiMSG().error("Select a selection group to map its likeliness.");
 
     plotter_.uidps().calcSelectedness();
 }

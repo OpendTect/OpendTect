@@ -45,13 +45,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "od_helpids.h"
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
 {
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
-    : uiDialog(p,Setup("Create Random Line from Polyline","","109.0.6")
+    : uiDialog(p,Setup("Create Random Line from Polyline","",
+                        mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
     , rtd_(rtd) 
 {
@@ -257,7 +259,7 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 {
     uiDialog dlg( getUiParent(),
 	    	  uiDialog::Setup("Random lines","Specify node positions",
-		      		  "109.0.4") );
+		      		  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
@@ -495,7 +497,7 @@ void uiODRandomLineTreeItem::editNodes()
     rtd->getAllKnotPos( bids );
     uiDialog dlg( getUiParent(),
 	    	  uiDialog::Setup("Random lines","Specify node positions",
-		      		  "109.0.4") );
+		      		  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 

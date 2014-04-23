@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "oddirs.h"
 #include "timer.h"
+#include "od_helpids.h"
 
 namespace CmdDrive
 {
@@ -92,7 +93,7 @@ const char* optstrs[] = { "Run", "Record", 0 };
 uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			    const char* defscriptsdir, const char* deflogdir )
         : uiDialog( 0, Setup( controllerTitle(), "Specify your command script",
-			      "0.4.3").modal(false))
+			      mODHelpKey(mmcmddriverimpsHelpID) ).modal(false))
 	, drv_(d), rec_(r)
 	, inpfldsurveycheck_(false)
 	, outfldsurveycheck_(false)

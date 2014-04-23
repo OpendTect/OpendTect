@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uiwindowfunctionsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -41,7 +42,7 @@ mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp())
 
 
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.6")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mFrequencyAttribHelpID) )
 
 {
     inpfld = createImagInpFld( is2d );
@@ -78,8 +79,8 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetString( Frequency::windowStr(), window,
 	        winfld->setWindowName(window) );
     mIfGetFloat( Frequency::paramvalStr(), variable,
-	    	 const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
-	         winfld->setWindowParamValue(resvar) );
+	   const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
+	   winfld->setWindowParamValue(resvar) );
 
     return true;
 }

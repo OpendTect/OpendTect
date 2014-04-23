@@ -24,12 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Wavelet",mNoDlgTitle,"103.3.1"))
+    : uiDialog(p,uiDialog::Setup("Import Wavelet",mNoDlgTitle,
+                                 mODHelpKey(mSeisWvltImpHelpID) ))
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
@@ -40,7 +42,8 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "103.3.3" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                  mODHelpKey(mSeisWvltImpHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
     dataselfld_->attach( ensureBelow, sep );
 
@@ -131,7 +134,8 @@ MultiID uiSeisWvltImp::selKey() const
 
 // uiSeisWvltExp
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Wavelet",mNoDlgTitle,"103.3.1"))
+    : uiDialog(p,uiDialog::Setup("Export Wavelet",mNoDlgTitle,
+                                 mODHelpKey(mSeisWvltImpHelpID) ))
 {
     setOkText( uiStrings::sExport() );
 

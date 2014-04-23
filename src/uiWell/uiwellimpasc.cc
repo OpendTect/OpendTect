@@ -38,15 +38,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsurvranges.h"
 #include "uitblimpexpdatasel.h"
 #include "uiwellsel.h"
-
-
-static const char* sHelpID = "107.0.0";
-static const char* nHelpID = "107.0.4";
+#include "od_helpids.h"
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",mNoDlgTitle,
-				 sHelpID).modal(false))
+				 mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -68,7 +65,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.2" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                      mODHelpKey(mWellImportAscDataSelHelpID) );
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
@@ -179,7 +177,8 @@ public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
     : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
-				 "Advanced and Optional",nHelpID))
+				 "Advanced and Optional",
+                                 mODHelpKey(mWellImpPptDlgHelpID)))
     , uwia_(p)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {

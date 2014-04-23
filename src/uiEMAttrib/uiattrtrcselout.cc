@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uibatchjobdispatchersel.h"
+#include "od_helpids.h"
 
 
 using namespace Attrib;
@@ -61,7 +62,9 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , xparsdlg_(0)
 {
     setCtrlStyle( RunAndClose );
-    setHelpKey( usesinglehor_ ? "104.4.2" : "104.4.1" );
+    setHelpKey( usesinglehor_
+        ? mODHelpKey(mAttrTrcSelOutSliceHelpID)
+        : mODHelpKey(mAttrTrcSelOutBetweenHelpID) );
 
     if ( usesinglehor_ )
 	createSingleHorUI();
@@ -102,7 +105,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
 {
     xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
 						    "Select extra options",
-						    "104.4.1" ) );
+			        mODHelpKey(mAttrTrcSelOutBetweenHelpID) ) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
     ctio_.ctxt.forread = true;

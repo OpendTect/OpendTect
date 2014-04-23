@@ -48,13 +48,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
 #include "uiwelllogdisplay.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wells",mNoDlgTitle,
-				     "107.1.0").nrstatusflds(1),
+				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
 {
     createDefaultUI();

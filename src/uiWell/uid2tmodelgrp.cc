@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
-
+#include "od_helpids.h"
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
@@ -49,7 +49,8 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.3" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                                        mODHelpKey(mD2TModelGroupHelpID) );
     dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
 							    : filefld_ );
 

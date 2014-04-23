@@ -36,12 +36,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"
+#include "od_helpids.h"
 
 const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup("Seismic Data Pre-load Manager",mNoDlgTitle,
-			"103.0.13"))
+			mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
@@ -279,7 +280,7 @@ public:
 
 uiSeisPreLoadMgrSel2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Preload selection","Select lines/attributes",
-				 "103.0.14"))
+				 mODHelpKey(mSeisPreLoadMgrSel2DHelpID) ))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     ctio_.ctxt.toselect.allowtransls_ = "2D";

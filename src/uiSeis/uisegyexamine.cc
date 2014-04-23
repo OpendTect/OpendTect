@@ -38,12 +38,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_strstream.h"
 #include "oddirs.h"
 #include "ioman.h"
+#include "od_helpids.h"
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )
-    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle,"103.0.5")
+    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle, 
+                      mODHelpKey(mSEGYExamineHelpID) )
     , nrtrcs_(nrtraces)
     , fp_(true)
 {

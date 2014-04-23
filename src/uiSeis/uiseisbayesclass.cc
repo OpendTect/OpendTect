@@ -27,11 +27,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
+#include "od_helpids.h"
 
-#define mInpPDFsHelpID	"103.2.15"
-#define mGetNormHelpID	"103.2.16"
-#define mInpSeisHelpID	"103.2.17"
-#define mOutputHelpID	"103.2.18"
+#define mInpPDFsHelpID	mODHelpKey(mSeisBayesPDFInp)
+#define mGetNormHelpID	mODHelpKey(mSeisBayesNorm)
+#define mInpSeisHelpID	mODHelpKey(mSeisBayesSeisInp)
+#define mOutputHelpID	mODHelpKey(mSeisBayesOut)
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
@@ -103,7 +104,8 @@ public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,"[1] Specify PDF input",
-				 mInpPDFsHelpID), pars,Start)
+				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
+                                 pars,Start)
     , nrdisp_(1)
 {
     rmbuts_.allowNull(); addbuts_.allowNull();
@@ -120,7 +122,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	else
 	{
 	    fld->attach( alignedBelow, flds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, "<- Less", pushcb, true );
+	    uiButton* rmbut = new uiPushButton( this, "<- Less", pushcb, true);
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
@@ -128,7 +130,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, "More ->", pushcb, true);
+	    uiButton* addbut = new uiPushButton( this, "More ->", pushcb,true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -241,7 +243,7 @@ public:
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 			"[2] Normalization/Scaling",
-			 mGetNormHelpID), pars,Middle)
+			 mODHelpKey(mSeisBayesNormHelpID) ), pars,Middle)
     , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)
     , nrpdfs_(0)
@@ -409,7 +411,7 @@ public:
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 			"[3] Specify Seismic input",
-			 mInpSeisHelpID), pars,Middle)
+			 mODHelpKey(mSeisBayesSeisInpHelpID) ), pars,Middle)
     , lsfld_(0)
     , is2d_(*pars[sKey::Type()] == '2')
 {
@@ -501,7 +503,8 @@ public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
-		    "[4] Select and specify output",mOutputHelpID), pars,End)
+		    "[4] Select and specify output",
+                    mODHelpKey(mSeisBayesOutHelpID) ), pars,End)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {

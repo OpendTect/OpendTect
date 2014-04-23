@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "unitofmeasure.h"
+#include "od_helpids.h"
 
 
 class uiBuildPROPS : public uiBuildListFromList
@@ -110,9 +111,10 @@ public:
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 				bool supportform )
     : uiDialog(p,uiDialog::Setup("Property definition",
-		BufferString(isadd?"Add '":"Edit '",
-		    PropertyRef::toString(pr.stdType()),"' property"),
-		"110.1.1"))
+		                 BufferString(isadd?"Add '":"Edit '",
+		                 PropertyRef::toString(pr.stdType()),
+                                 "' property"),
+		                 mODHelpKey(mEditPropRefHelpID) ))
     , pr_(pr)
     , withform_(supportform)
     , curunit_(0)
@@ -183,13 +185,14 @@ public:
 uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 			const UnitOfMeasure* un )
     : uiDialog(p,Setup(BufferString("Set ",pr.name()," default to formula"),
-		mNoDlgTitle,"110.0.6") )
+		mNoDlgTitle, mODHelpKey(mEditPropRefMathDef) ) )
     , pr_(pr)
 {
     uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
     formfld_ = new uiMathExpression( this, mesu );
     formfld_->formSet.notify( mCB(this,uiEditPropRefMathDef,formSet) );
-    FileMultiString defstr( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
+    FileMultiString defstr( pr_.disp_.defval_ ? 
+    pr_.disp_.defval_->def() : "" );
     BufferString curdef = defstr[0];
     if ( !pr_.disp_.defval_ )
     {
@@ -226,7 +229,8 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 void rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", "110.0.7") );
+		  "Use a rock physics formula", 
+                  mODHelpKey(mEditPropRefMathDefRockPhysReq) ) );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, pr_.stdType() );
 
     BufferString formula;
@@ -249,7 +253,7 @@ void rockPhysReq( CallBacker* )
 	    ObjectSet<const UnitOfMeasure> possibleunits;
 	    UoMR().getRelevant( inputtypes[idx], possibleunits );
 	    const UnitOfMeasure* un =
-			    UnitOfMeasure::getGuessed( inputunits[idx]->buf() );
+			   UnitOfMeasure::getGuessed( inputunits[idx]->buf() );
 
 	    uiComboBox& cbb = *unflds_[idx]->box();
 	    cbb.setEmpty(); cbb.addItem( "-" );
@@ -426,7 +430,8 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 uiManPROPS::uiManPROPS( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Layer Properties - Definition",
-				"Define possible layer properties","110.1.0"))
+				"Define possible layer properties",
+                                 mODHelpKey(mManPROPSHelpID) ))
 {
     setCtrlStyle( CloseOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
@@ -472,7 +477,8 @@ bool uiManPROPS::haveUserChange() const
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 			      const char* lbl )
     : uiDialog(p,uiDialog::Setup("Layer Properties - Selection",
-				"Select layer properties to use","110.1.2"))
+				"Select layer properties to use",
+                                mODHelpKey(mSelectPropRefsHelpID) ))
     , props_(PROPS())
     , prsel_(prs)
     , thref_(&PropertyRef::thickness())

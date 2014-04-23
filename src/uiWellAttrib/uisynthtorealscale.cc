@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 static const char* sKeyAmplVals = "       [Amplitude values]       ";
 static const char* sKeyRMSVals = "[Amplitude RMS values]";
@@ -133,7 +134,7 @@ void drawMarkerLine( float val )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
     : uiDialog(p,Setup("Scale synthetics","Determine scaling for synthetics",
-			"110.2.1"))
+			mODHelpKey(mSynthToRealScaleHelpID) ))
     , seisev_(*new Strat::SeisEvent)
     , is2d_(is2d)
     , synth_(tb)

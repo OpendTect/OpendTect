@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "valseriesevent.h"
+#include "od_helpids.h"
 
 
 
@@ -49,7 +50,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
 			const ObjectSet<SyntheticData>& synths )
     : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
-			mNoDlgTitle,"110.3.0"))
+			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
     , lm_(lm)
     , synthdatas_(synths)
 {

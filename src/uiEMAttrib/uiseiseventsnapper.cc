@@ -33,12 +33,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2deventsnapper.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
     : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,
-		       "104.0.11").modal(false))
+		       mODHelpKey(mSnapToEventHelpID) ).modal(false))
     , seisctio_(*uiSeisSel::mkCtxtIOObj(is2d ? Seis::Line : Seis::Vol,true))
     , horizon_(0)
     , is2d_(is2d)

@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "od_helpids.h"
 
 
 class uiSEGYVSPBasicPars : public uiCompoundParSel
@@ -122,7 +123,7 @@ BufferString getSummary() const
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Zero-offset VSP",
 				 mNoDlgTitle,
-				 "107.0.1") )
+				 mODHelpKey(mWellImpSegyVspHelpID) ) )
     , istimefld_(0)
     , unitfld_(0)
     , dispinpsamp_(mUdf(float),1)

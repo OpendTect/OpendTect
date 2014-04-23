@@ -32,7 +32,7 @@ mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 { mODTextTranslationClass(uiMMBatchJobDispatcher)
 public:
                         uiMMBatchJobDispatcher(uiParent*,const IOPar&,
-						const HelpKey& helpkey=0);
+                                         const HelpKey& helpkey=mNoHelpKey );
 			~uiMMBatchJobDispatcher();
 
     static bool		initMMProgram(int argc,char** argv,IOPar& jobpars);

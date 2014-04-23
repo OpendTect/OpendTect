@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "oddlsite.h"
 #include "genc.h"
+#include "od_helpids.h"
 
 
 static BufferString gtWinTitle( const ODDLSite& dlsite )
@@ -44,7 +45,7 @@ static BufferString gtCaption( const ODDLSite& dlsite, bool isfatal )
 uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 				    bool isfatal, const BufferStringSet* sites )
 	: uiDialog(p,Setup(gtWinTitle(dlsite),gtCaption(dlsite,isfatal),
-						"0.4.6"))
+					mODHelpKey(mHandleDLSiteFailHelpID) ))
 	, isfatal_(isfatal)
 	, site_(dlsite.host())
 	, dlsitefld_(0)

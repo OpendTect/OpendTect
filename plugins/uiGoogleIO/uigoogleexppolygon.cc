@@ -17,12 +17,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "latlong.h"
 #include "pickset.h"
 #include "draw.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 
 uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     : uiDialog(p,uiDialog::Setup("Export Polygon to KML",
-				 "Specify output parameters","105.1.0") )
+				 "Specify output parameters",
+                                 mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
 {
     Color defcol( ps_.disp_.color_ ); defcol.setTransparency( 150 );

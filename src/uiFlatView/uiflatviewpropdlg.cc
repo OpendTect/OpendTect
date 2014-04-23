@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 
 #include "datapackbase.h"
+#include "od_helpids.h"
 
 
 uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
@@ -808,7 +809,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const BufferStringSet* annots,
 				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup("Specify Display Properties",
-				      mNoDlgTitle,"51.0.1"))
+				      mNoDlgTitle, 
+                                      mODHelpKey(mFlatViewPropDlgHelpID) ))
     , vwr_(vwr)
     , applycb_(applcb)
     , selannot_(selannot)

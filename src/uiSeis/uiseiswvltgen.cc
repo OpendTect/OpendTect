@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiwindowfuncseldlg.h"
+#include "od_helpids.h"
 
 
 uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su ) 
@@ -69,7 +70,7 @@ MultiID uiSeisWvltCreate::storeKey() const
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     : uiSeisWvltCreate(p,uiDialog::Setup("Create Wavelet",
 				 "Specify wavelet creation parameters",
-				 "103.3.2"))
+				 mODHelpKey(mSeisWvltManCrWvltHelpID) ))
 {
     isrickfld_ = new uiGenInput( this, "Wavelet type",
 				BoolInpSpec(true,"Ricker","Sinc") );
@@ -120,7 +121,7 @@ static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup("Merge Wavelets",
 				 "Select two ore more wavelets to be stacked",
-				 "103.3.7"))
+				 mODHelpKey(mSeisWvltMergeHelpID) ))
     , maxwvltsize_(0)					      
     , stackedwvlt_(0)					      
     , curwvltnm_(curwvltnm)

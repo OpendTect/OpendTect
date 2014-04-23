@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uiattrdescseted.h"
+#include "od_helpids.h"
 
 
 
@@ -41,7 +42,7 @@ using namespace Attrib;
 uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
         : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
 		                     "Set auto-load Attribute-Set",
-				     "101.1.5"))
+				     mODHelpKey(mAutoAttrSelDlgHelpID) ))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
 {
@@ -132,7 +133,8 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				BufferStringSet& anm)
 	: uiDialog(p,uiDialog::Setup("Open Attribute Set",
-	                             "Select an Attribute-Set to open",		                                      "100.0.0"))
+	                             "Select an Attribute-Set to open",
+                                     mNoHelpKey))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, attribfiles_(afl)
 	, attribnames_(anm)

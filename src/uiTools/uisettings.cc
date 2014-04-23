@@ -18,11 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "oddirs.h"
 #include "dirlist.h"
+#include "od_helpids.h"
 
 #include "uigeninput.h"
 #include "uitable.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 static const char* sKeyCommon = "<general>";
 
@@ -57,7 +59,8 @@ static void getGrps( BufferStringSet& grps )
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value","0.2.1"))
+	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value",
+                                     mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 {
@@ -65,7 +68,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     if ( issurvdefs_ )
     {
 	setTitleText( "Set Survey default value" );
-	setHelpKey( "0.2.8" );
+	setHelpKey( mODHelpKey(mSurveySettingsHelpID) );
     }
     else
     {
@@ -470,7 +473,7 @@ void shadingChange( CallBacker* )
 
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p )
     : uiTabStackDlg(p,uiDialog::Setup("Look and Feel Settings",mNoDlgTitle,
-				      "0.2.3"))
+				      mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
     , lfsetts_(*new LooknFeelSettings)
     , changed_(false)

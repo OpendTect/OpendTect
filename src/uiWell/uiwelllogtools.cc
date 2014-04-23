@@ -41,10 +41,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
+#include "od_helpids.h"
 
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
-	: uiDialog( p, Setup( "Well log tools", "Select logs", "107.3.1" ) )
+	: uiDialog( p, Setup( "Well log tools", "Select logs", 
+                             mODHelpKey(mWellLogToolWinMgrHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
     uiWellExtractParams::Setup su;

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaxishandler.h"
 #include "uilineedit.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 static const int cMinPtsForDensity = 20000;
 
@@ -834,7 +835,8 @@ void cellSzChanged( CallBacker* )
 	cellsz = cellsizefld_->getIntValue();
     }
 
-    wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea().width()/cellsz) );
+    wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea()
+                          .width()/cellsz) );
     hcellszfld_->setValue(
 			mNINT32( (float) plotter_.arrArea().height()/cellsz) );
 }
@@ -846,7 +848,8 @@ void wCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     hcellszfld_->setValue( wcellszfld_->getIntValue()/aspectratio );
     cellsizefld_->setValue(
-       mNINT32((float) plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
+       mNINT32((float) plotter_.arrArea().width()/wcellszfld_->
+       getIntValue()) );
 
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );
@@ -899,8 +902,9 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"111.0.2")
-						.modal(false) )
+	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,
+                          mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+			  .modal(false) )
 	, plotter_(*p)
 	, bdroptab_(0)
 {

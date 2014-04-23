@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "zaxistransform.h"
+#include "od_helpids.h"
 
 
 #define mAddIdx		0
@@ -478,7 +479,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	setup.cs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
-		uiDialog::Setup("Positions","Specify positions", "103.1.6") );
+		uiDialog::Setup("Positions","Specify positions", 
+                                mODHelpKey(mPosProvSelHelpID) ) );
 	uiPosProvider pp( &dlg, setup );
 
 	IOPar displaypar;

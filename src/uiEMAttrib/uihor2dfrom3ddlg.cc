@@ -30,11 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
 #include "uibutton.h"
+#include "od_helpids.h"
 
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create 2D horizon from 3D",
-				 mNoDlgTitle,"104.0.12"))
+				 mNoDlgTitle,mODHelpKey(mHor2DFrom3DDlgHelpID)))
 {
     uiSurfaceRead::Setup srsu( "Horizon" );
     srsu.withattribfld( false );

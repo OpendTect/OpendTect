@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "visprestackdisplay.h"
 #include "visseis2ddisplay.h"
+#include "od_helpids.h"
 
 
 namespace PreStackView
@@ -25,7 +26,8 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      visSurvey::PreStackDisplay& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,"50.0.20")
+    : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,
+                         mODHelpKey(mViewer3DPositionsDlgHelpID) )
 			.modal(false) )
     , viewer_(vwr)
     , applybox_(0)

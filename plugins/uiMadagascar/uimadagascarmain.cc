@@ -29,11 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "seisioobjinfo.h"
 #include "strmprov.h"
+#include "od_helpids.h"
 
 const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiDialog(p,Setup("Madagascar processing",mNoDlgTitle,"103.5.0" )
+	: uiDialog(p,Setup("Madagascar processing",mNoDlgTitle,
+                            mODHelpKey(mMadagascarMainHelpID) )
 			   .modal(false) )
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)

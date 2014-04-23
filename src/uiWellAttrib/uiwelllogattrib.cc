@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uilistbox.h"
 #include "uiwellsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -30,7 +31,7 @@ mInitAttribUI(uiWellLogAttrib,WellLog,"WellLog",sKeyBasicGrp())
 
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.3")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mEnergyAttribHelpID) )
 
 {
     wellfld_ = new uiWellSel( this, true );

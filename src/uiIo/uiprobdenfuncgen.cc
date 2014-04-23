@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gaussianprobdenfunc.h"
 #include "probdenfunctr.h"
 #include "statruncalc.h"
+#include "od_helpids.h"
 
 
 static const float cMaxSampledBinVal = 100.0f;
@@ -96,7 +97,8 @@ public:
 
 
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
-    : uiDialog(p,Setup("Generate a PDF",mNoDlgTitle,"112.1.2"))
+    : uiDialog(p,Setup("Generate a PDF",mNoDlgTitle,
+                 mODHelpKey(mProbGenFuncGenHelpID) ))
 {
 
     choicefld_ = new uiCheckList( this, uiCheckList::OneOnly );

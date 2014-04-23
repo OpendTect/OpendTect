@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "";
 #include "dpsdispmgr.h"
 #include "posvecdataset.h"
 #include "mathexpression.h"
+#include "od_helpids.h"
 
 uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& plotter )
@@ -39,7 +40,7 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     capt += curgrp->name();
     capt += "'";
     setCaption( capt );
-    setHelpKey( "111.0.11" );
+    setHelpKey( mODHelpKey(mDPSSelectednessDlgHelpID) );
 
     BufferString msg( "A new column will be added with selectedness values.\n"
 	    	      "Specify the name of the new column." );

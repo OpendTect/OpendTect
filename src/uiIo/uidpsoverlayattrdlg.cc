@@ -15,12 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicolortable.h"
+#include "od_helpids.h"
 
 uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& pltr )
     : uiDialog(p,uiDialog::Setup("Overlay Properties",
 				 "Display Properties within points",
-				 "111.0.5"))
+				 mODHelpKey(mDPSOverlayPropDlgHelpID) ))
     , plotter_(pltr)
 {
     const DataPointSet& dps = plotter_.dps();

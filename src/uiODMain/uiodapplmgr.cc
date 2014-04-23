@@ -83,6 +83,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
+#include "od_helpids.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
@@ -331,7 +332,8 @@ void uiODApplMgr::setStereoOffset()
 void uiODApplMgr::addTimeDepthScene()
 {
     uiDialog::Setup setup("Velocity model",
-		"Select velocity model to base scene on","0.4.4");
+		"Select velocity model to base scene on",
+                mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
 
     uiSingleGroupDlg dlg( &appl_, setup );
 

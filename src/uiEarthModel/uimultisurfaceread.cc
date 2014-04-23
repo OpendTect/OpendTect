@@ -22,11 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
     : uiDialog(p,uiDialog::Setup( BufferString( "Select Input ",type,"(s)" ),
-				  mNoDlgTitle,"104.3.0").nrstatusflds(1) )
+				  mNoDlgTitle, 
+                                  mODHelpKey(mMultiSurfaceReadDlgHelpID) )
+                                  .nrstatusflds(1) )
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type );
     surfacefld_->objselGrp()->newStatusMsg.notify(

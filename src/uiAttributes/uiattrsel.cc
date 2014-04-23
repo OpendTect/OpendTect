@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 const Attrib::DescSet& emptyads2d()
 {
@@ -87,7 +88,7 @@ bool uiAttrSelData::is2D() const
 }
 
 #define mImplInitVar \
-	: uiDialog(p,uiDialog::Setup("",0,atd.nlamodel_?"":"101.1.1")) \
+	: uiDialog(p,uiDialog::Setup("","",mODHelpKey(mAttrSelDlgNo_NNHelpID)))\
 	, attrdata_(atd) \
 	, selgrp_(0) \
 	, storoutfld_(0) \
@@ -103,21 +104,20 @@ bool uiAttrSelData::is2D() const
 	, showsteerdata_(stp.showsteeringdata_) \
 	, usedasinput_(stp.isinp4otherattrib_)
 
+
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
-			    const Setup& stp )
-mImplInitVar
+                            const Setup& stp )
+    mImplInitVar
 {
     initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
-
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const TypeSet<DataPack::FullID>& dpfids,
 			    const Setup& stp )
-mImplInitVar
+    mImplInitVar
 {
     dpfids_ = dpfids;
-
     initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 

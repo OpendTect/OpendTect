@@ -48,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 const char* uiAttrVolOut::sKeyMaxCrlRg()  { return "Maximum Crossline Range"; }
 const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
@@ -56,7 +57,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup("",mNoDlgTitle,"101.2.0"))
+    : uiDialog(p,Setup("",mNoDlgTitle, mODHelpKey(mAttrVolOutHelpID) ))
     , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)

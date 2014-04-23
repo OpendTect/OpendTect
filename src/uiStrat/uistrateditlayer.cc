@@ -22,12 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
     : uiDialog(p,Setup("Layer properties",
-		    BufferString("Layer: '",lay.name(),"'"),"110.0.11"))
+		    BufferString("Layer: '",lay.name(),"'"),
+                       mODHelpKey(mStratEditLayerHelpID) ))
     , editable_(editable)
     , lay_(lay)
 {

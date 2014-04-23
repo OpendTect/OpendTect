@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uistepoutsel.h"
 #include "uitable.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -95,7 +96,7 @@ class uiFPAdvancedDlg: public uiDialog
 
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.5")
+    : uiAttrDescEd(p,is2d, mODHelpKey(mFingerPrintAttribHelpID) )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
     , linefld_(0)
@@ -630,7 +631,8 @@ bool uiFingerPrintAttrib::areUIParsOK()
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
-				   "Specify advanced options", "101.3.2") )
+				   "Specify advanced options", 
+                                   mODHelpKey(mFPAdvancedDlgHelpID) ) )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
 {

@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "windowfunction.h"
+#include "od_helpids.h"
 
 
 static int sStartNrViewers = 8;
@@ -108,12 +109,13 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing","","103.2.13") )
+    : uiDialog(p,uiDialog::Setup("Preprocessing","", 
+                                 mODHelpKey(mPreStackProcSelHelpID) ) )
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
     uiPushButton* applybut =
-	new uiPushButton( this, "Apply", mCB(this,uiPSPreProcessingDlg,applyCB),
+	new uiPushButton( this, "Apply",mCB(this,uiPSPreProcessingDlg,applyCB),
 			  true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }
@@ -213,7 +215,7 @@ void uiViewer2DMainWin::reSizeItems()
 
 void uiViewer2DMainWin::doHelp( CallBacker* )
 {
-    HelpProvider::provideHelp( HelpKey("51.1.0") );
+    HelpProvider::provideHelp( HelpKey(mODHelpKey(mViewer2DMainWinHelpID) ) );
 }
 
 
@@ -384,7 +386,7 @@ class uiPSMultiPropDlg : public uiDialog
 public:
 uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 		     const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Set properties for data","",""))
+    : uiDialog(p,uiDialog::Setup("Set properties for data","",mNoHelpKey))
     , vwrs_(vwrs)
     , cb_(cb)
 {
@@ -573,7 +575,7 @@ bool uiViewer2DMainWin::isStored() const
 
 
 void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
-	const StepInterval<int>& trcrg, bool isinl, TypeSet<BinID>& bids ) const
+	const StepInterval<int>& trcrg, bool isinl, TypeSet<BinID>& bids )const
 {
     bids.erase();
     int approxstep = trcrg.width()/sStartNrViewers;
@@ -605,7 +607,7 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 }
 
 
-uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title )
+uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title)
     : uiViewer2DMainWin(p,title)
     , linename_(0)
     , angleparams_(0)
@@ -724,7 +726,7 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name() : "";
-    info->setData( ginfo.bid_, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm );
+    info->setData( ginfo.bid_, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm);
 }
 
 
@@ -792,7 +794,8 @@ class uiAngleCompParDlg : public uiDialog
 public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
-    : uiDialog(p,uiDialog::Setup("","","51.1.3"))
+    : uiDialog(p,uiDialog::Setup("","", 
+                               mODHelpKey(mViewer2DMainWindisplayAngleHelpID)))
 {
     FixedString windowtitle = isag ? "Angle Gather Display"
 				   : "Angle Data Display";
@@ -1426,7 +1429,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
 	if (
-	    (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
+	   (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
 	    || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
 	{
 	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );

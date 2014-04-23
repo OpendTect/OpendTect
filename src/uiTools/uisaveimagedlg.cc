@@ -26,6 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "od_helpids.h"
+
 #include <math.h>
 #include <string.h>
 
@@ -56,7 +58,8 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     : uiDialog(p,uiDialog::Setup("Create snapshot",
-				 "Enter image size and filename","50.0.9")
+				 "Enter image size and filename",
+                                 mODHelpKey(mPrintSceneDlgHelpID) )
 		 .savebutton(true).savetext("Save settings on OK"))
     , sizesChanged(this)
     , heightfld_(0)

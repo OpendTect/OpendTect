@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselobjothersurv.h"
 #include "uitextedit.h"
 #include "uiwaveletextraction.h"
+#include "od_helpids.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
@@ -43,7 +44,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
-                                     "103.3.0").nrstatusflds(1),
+                                     mODHelpKey(mSeisWvltManHelpID) )
+                                     .nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
     , wvltext_(0)
     , wvltpropdlg_(0)			 
@@ -197,7 +199,7 @@ void uiSeisWvltMan::mkFileInfo()
 	    else
 	    {
 		tmp.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
-		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
+		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'");
 		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
 		tmp.add( " at '").add( lvlnm ).add( "')" );
 	    }
@@ -233,7 +235,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     ctio.ctxt.forread = true;
 
     uiSelObjFromOtherSurvey dlg( this, ctio );
-    dlg.setHelpKey("0.3.11");
+    dlg.setHelpKey(mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     Wavelet* wvlt = 0;
     bool didsel = true;
     if ( dlg.go() ) 

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "embodytr.h"
 #include "separstr.h"
+#include "od_helpids.h"
 
 
 namespace VolProc
@@ -35,7 +36,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), mp )
     , bodyfiller_( mp )
 {
-    setHelpKey( "103.6.2" );
+    setHelpKey( mODHelpKey(mBodyFillerHelpID) );
 
     IOObjContext ctxt = mIOObjContext( EMBody );
     ctxt.forread = true;

@@ -165,7 +165,7 @@ bool init()
 int totalNrJobs()
 { return jobs_.size(); };
 
-void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg )
+void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 {
     nrjobsfinished = 0;
     nrjobswitherr = 0;
@@ -215,7 +215,8 @@ protected:
 
 
 uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
-    : uiDialog(p,uiDialog::Setup("Cluster Processing","Progress window",""))
+    : uiDialog(p,uiDialog::Setup("Cluster Processing","Progress window", 
+                                 mNoHelpKey))
     , pars_(iop)
     , scriptdirnm_(iop.find(uiClusterProc::sKeyScriptDir()))
     , proc_(*new ClusterProc(iop))

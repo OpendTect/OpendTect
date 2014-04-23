@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiedata.h"
 #include "welltiepickset.h"
 #include "welltiesetup.h"
+#include "od_helpids.h"
 
 namespace WellTie
 {
@@ -246,7 +247,7 @@ void uiTieWin::drawFields()
 
 void uiTieWin::provideWinHelp( CallBacker* )
 {
-    HelpProvider::provideHelp( HelpKey("107.4.1") );
+    HelpProvider::provideHelp( HelpKey(mODHelpKey(mWellTieTieWinHelpID) ) );
 }
 
 
@@ -533,7 +534,8 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
-				     "107.4.2").modal(false))
+				     mODHelpKey(mWellTieInfoDlgHelpID) )
+                                     .modal(false))
 	, server_(server)
 	, selidx_(0)
 	, crosscorr_(0)

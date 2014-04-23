@@ -21,10 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "odnetworkaccess.h"
 #include "settings.h"
+#include "od_helpids.h"
 
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,"0.4.7"))
+    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,
+    mODHelpKey(mProxyDlgHelpID) ))
 {
     useproxyfld_ = new uiGenInput( this, "Use proxy", BoolInpSpec(true) );
     useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );

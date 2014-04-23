@@ -31,12 +31,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "tableascio.h"
+#include "od_helpids.h"
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     : uiDialog(p,uiDialog::Setup("Import Cross-plot Data",
 				 mNoDlgTitle,
-				 "111.0.7"))
+				 mODHelpKey(mImpPVDSHelpID) ))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {
@@ -49,8 +50,9 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     if ( is2d_ )
-	fd_.bodyinfos_ += new Table::TargetInfo( "Trace number", IntInpSpec() );
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "111.0.8" );
+	fd_.bodyinfos_ += new Table::TargetInfo("Trace number", IntInpSpec() );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                  mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, "First row contains",

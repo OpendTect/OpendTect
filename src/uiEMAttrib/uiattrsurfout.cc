@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -39,7 +40,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     : uiAttrEMOut( p, ad, n, mid, "Calculate Horizon Data" )
     , interpol_(0)
 {
-    setHelpKey( "104.4.0" );
+    setHelpKey( mODHelpKey(mAttrSurfaceOutHelpID) );
     setCtrlStyle( RunAndClose );
 
     attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
@@ -90,7 +91,8 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
 void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup("Interpolation",
-					     "Interpolation Settings","") );
+					     "Interpolation Settings",
+                                                mNoHelpKey) );
     uiArray2DInterpolSel* interpolsel =
 		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
     dlg.setGroup( interpolsel );

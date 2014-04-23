@@ -42,13 +42,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
-				 "103.1.3"))
+				 mODHelpKey(mSeis2DManHelpID) ))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
@@ -252,7 +253,7 @@ public:
 uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
     : uiDialog(p,Setup("Merge lines","Merge two lines into a new one",
-		       "103.1.9") )
+		       mODHelpKey(mSeis2DFileManMergeDlgHelpID) ) )
     , objinf_(objinf)
 {
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
@@ -408,7 +409,7 @@ public:
 uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
     : uiDialog(p,Setup("Extract from 3D","Extract 2D attribute from 3D data",
-		       "103.1.10") )
+		       mODHelpKey(mSeis2DExtractFrom3DHelpID) ) )
     , objinf_(objinf)
     , sellns_(sellns)
 {

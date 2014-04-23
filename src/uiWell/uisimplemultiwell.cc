@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
+#include "od_helpids.h"
 
 
 class uiSMWCData
@@ -53,7 +54,8 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,"107.0.7")
+    : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,
+                         mODHelpKey(mSimpleMultiWellCreateHelpID) )
 			.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
     , zinft_(SI().depthsInFeet())
@@ -159,7 +161,7 @@ public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup("Multi-well creation","Create multiple wells",
-				 "107.0.8"))
+		            mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
@@ -176,7 +178,8 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti->setName( "Ground Level Elevation" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                                       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

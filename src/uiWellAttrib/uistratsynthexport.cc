@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "syntheticdataimpl.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
+#include "od_helpids.h"
 
 
 #define mErrRet( msg, rettyp ) \
@@ -64,7 +65,8 @@ uiStratSynthOutSel( uiParent* p, const char* seltxt,
 
 void selItems( CallBacker* )
 {
-    uiDialog::Setup su( BufferString("Select ",nm_), mNoDlgTitle, "110.0.9" );
+    uiDialog::Setup su( BufferString("Select ",nm_), mNoDlgTitle, 
+                        mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
     uiListBox* lb = new uiListBox( &dlg, nm_ );
     lb->addItems( nms_ );
@@ -120,7 +122,8 @@ virtual BufferString getSummary() const
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup("Save synthetic seismics and horizons",
-				 getWinTitle(ss), "110.0.8") )
+				 getWinTitle(ss), 
+                                 mODHelpKey(mStratSynthExportHelpID) ) )
     , ss_(ss)
     , randlinesel_(0)
 {

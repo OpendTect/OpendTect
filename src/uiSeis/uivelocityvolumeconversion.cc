@@ -20,10 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Velocity conversion",
-				   "Velocity conversion","103.2.14") )
+			"Velocity conversion", 
+                        mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
     velctxt.forread = true;

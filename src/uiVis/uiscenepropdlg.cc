@@ -24,13 +24,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "fontdata.h"
 #include "uifontsel.h"
+#include "od_helpids.h"
 
 bool uiScenePropertyDlg::savestatus_ = true;
 
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
-    : uiDialog(p,uiDialog::Setup("Scene properties","","50.0.5"))
+    : uiDialog(p,uiDialog::Setup("Scene properties","",
+                                    mODHelpKey(mScenePropertyDlgHelpID) ))
     , hadsurveybox_(true)
     , hadannot_(true)
     , hadannotscale_(true)
@@ -232,7 +234,8 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 
 	separationdlg_ =
 	    new uiGenInputDlg( this, "Line/Surface separation", entries );
-	separationdlg_->setHelpKey( "od:50.0.19");
+	separationdlg_->setHelpKey(
+            mODHelpKey(mScenePropertyDlgLineSurfSepHelpID) );
     }
 
     while ( true )

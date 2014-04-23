@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "";
 
 uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       TypeSet<float>& zvals, TypeSet<float>& scalefac )
-    : uiDialog(p,uiDialog::Setup("Analyse Gain","",""))
+    : uiDialog(p,uiDialog::Setup("Analyse Gain", 0, mNoHelpKey))
     , zvals_(zvals)
     , scalefactors_(scalefac)
     , trcbuf_(traces)

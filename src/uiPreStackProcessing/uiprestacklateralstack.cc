@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestacklateralstack.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 namespace PreStack
 {
@@ -37,7 +38,8 @@ uiDialog* uiLateralStack::create( uiParent* p, Processor* sgp )
 
 
 uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
-    : uiDialog( p, uiDialog::Setup("Super Gather setup",0,"103.2.3") )
+    : uiDialog( p, uiDialog::Setup("Super Gather setup",0,
+                                    mODHelpKey(mPreStackVerticalStackHelpID) ) )
     , processor_( sgvs )
 {
     stepoutfld_ = new uiGenInput( this, "Stepout (inl/crl)",

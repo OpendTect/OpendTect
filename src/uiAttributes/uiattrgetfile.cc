@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "seistrctr.h"
+#include "od_helpids.h"
 
 #include "uiattrsrchprocfiles.h"
 #include "uibutton.h"
@@ -39,7 +40,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
 		isads ? "Get Attribute Set" : "Get attributes from job file",
 		isads ? "Select file containing an attribute set"
 		      : "Select job specification file",
-		 "101.1.3"))
+		 mODHelpKey(mGetFileForAttrSetHelpID) ))
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
@@ -131,7 +132,7 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p, bool is2d )
     : uiSrchProcFiles(p,mkCtio(is2d),"Output.0.Seismic.ID")
 {
-    setHelpKey( "101.1.4" );
+    setHelpKey( mODHelpKey(mAttrSrchProcFilesHelpID) );
 }
 
 

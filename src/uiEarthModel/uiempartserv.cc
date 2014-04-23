@@ -1119,7 +1119,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	uiSingleGroupDlg dlg( parent(),
 		uiDialog::Setup( "Interpolate horizon Data",
 				 "Interpolation parameters",
-				  (const char*) 0 ) );
+				  mNoHelpKey ) );
 
 	uiArray2DInterpolSel* settings =
 	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );

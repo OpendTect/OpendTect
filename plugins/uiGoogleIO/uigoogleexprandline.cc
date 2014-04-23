@@ -18,13 +18,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "survinfo.h"
 #include "latlong.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 		const TypeSet<Coord>& crds, const char* nm )
     : uiDialog(p,uiDialog::Setup("Export Random Line to KML",
-				 "Specify how to export","109.0.7") )
+				 "Specify how to export",
+                                 mODHelpKey(mGoogleExportRandomLineHelpID) ) )
     , crds_(crds)
 {
     const char* choices[]

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 uiSeisRandTo2DBase::uiSeisRandTo2DBase( uiParent* p, bool rdlsel )
@@ -102,7 +103,8 @@ const char* uiSeisRandTo2DBase::getAttribName() const
 
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
-    : uiDialog(p,uiDialog::Setup("Save as 2D line","","109.0.5"))
+    : uiDialog(p,uiDialog::Setup("Save as 2D line","",
+                                 mODHelpKey(mSeisRandTo2DLineDlgHelpID) ))
     , rdlgeom_(rln)
 {
     basegrp_ = new uiSeisRandTo2DBase( this, !rln );

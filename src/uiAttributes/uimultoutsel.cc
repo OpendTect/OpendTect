@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimultcomputils.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -40,7 +41,8 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
-			   "Select the outputs to compute", "101.2.3"))
+			   "Select the outputs to compute", 
+                           mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
 	, outallfld_(0)
 {

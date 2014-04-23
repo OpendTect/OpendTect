@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odplugin.h"
 
 #include "uiimpgprmod.h"
+#include "od_helpids.h"
 
 
 static const char* menunm = "&GPR: DZT ...";
@@ -74,7 +75,8 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup("Import GPR-DZT Seismics",mNoDlgTitle,"103.0.16"))
+    : uiDialog(p,Setup("Import GPR-DZT Seismics",mNoDlgTitle,
+                        mODHelpKey(mDZTImporterHelpID) ))
     , inpfld_(0)
 {
     setOkText( uiStrings::sImport() );

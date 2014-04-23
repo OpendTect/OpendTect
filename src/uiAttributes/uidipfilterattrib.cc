@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uislicesel.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -51,7 +52,7 @@ mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp())
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.2")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mDipFilterAttribHelpID) )
 
 {
     inpfld_ = createInpFld( is2d );

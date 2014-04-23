@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -45,10 +46,13 @@ static const char* zoptions[] =
 };
 
 
-uiImpExpPickSet::uiImpExpPickSet( uiParent* p, uiPickPartServer* pps, bool imp )
+uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset/Polygon"
-				     : "Export PickSet/Polygon", mNoDlgTitle,
-				 imp ? "105.0.1" : "105.0.2").modal(false))
+			: "Export PickSet/Polygon", mNoDlgTitle,
+				 imp
+					? mODHelpKey(mImpPickSetHelpID)
+					: mODHelpKey(mExpPickSetHelpID) )
+				.modal(false))
     , serv_(pps)
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true))
@@ -100,7 +104,8 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, uiPickPartServer* pps, bool imp )
 	uiSeparator* sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, constzfld_ );
 
-	dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
+	dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                      mODHelpKey(mTableImpDataSelpicksHelpID) );
 	dataselfld_->attach( alignedBelow, constzfld_ );
 	dataselfld_->attach( ensureBelow, sep );
 
@@ -182,7 +187,7 @@ bool uiImpExpPickSet::doImport()
     else
     {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
-	ioobj->pars().set( sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
+	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
     }
 
     IOM().commitChanges( *ioobj );
@@ -259,7 +264,8 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
 
     BufferString msg( "Pickset successfully ",
 		      import_ ? "imported" : "exported" );
-    msg.addNewLine().add( "Do you want to " ).add(import_ ? "import" : "export")
+    msg.addNewLine().add( "Do you want to " )
+        .add(import_ ? "import" : "export")
        .add( " more PickSets?" );
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), "No, close window" );
 }

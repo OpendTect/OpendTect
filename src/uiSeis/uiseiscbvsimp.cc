@@ -47,11 +47,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseistransf.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup("Import CBVS cube",
 			   "Specify import parameters",
-			   "103.0.1"))
+			   mODHelpKey(mSeisImpCBVSHelpID) ))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
 	, modefld(0)
@@ -67,7 +68,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
 			   "Specify copy parameters",
-			   "103.1.1"))
+			   mODHelpKey(mSeisImpCBVSHelpID) ))
 	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
 	, modefld(0)
@@ -564,7 +565,8 @@ int nextStep()
 
 
 uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
-    : uiDialog(p,Setup("Copy 2D Seismic Data","","103.1.8"))
+    : uiDialog(p,Setup("Copy 2D Seismic Data","", 
+                       mODHelpKey(mSeisCopyLineSetHelpID) ))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,false))
 {
     uiSeis2DMultiLineSel::Setup su( "Select Data Set to copy" );

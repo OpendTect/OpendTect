@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisioobjinfo.h"
 #include "zdomain.h"
+#include "od_helpids.h"
 
 
 namespace PreStackView
@@ -34,7 +35,8 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const CubeSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
     : uiDialog(p,uiDialog::Setup("Prestack Gather display positions",
-				0,"51.1.1").modal(false))
+				0, mODHelpKey(mViewer2DPosDlgHelpID) )
+                                .modal(false))
     , okpushed_(this)
     , is2d_(is2d)
 {
@@ -185,7 +187,8 @@ void uiGatherPosSliceSel::reDoTable()
 	    inpfld->setWithCheck( true );
 	    inpfld->setChecked( gatherinfos_[gatheridx].isselected_ );
 	    inpfld->setValue( issynthetic_ ? modelnr : gatherpos );
-	    inpfld->checked.notify(mCB(this,uiGatherPosSliceSel,gatherChecked));
+	    inpfld->checked.notify(mCB(this,uiGatherPosSliceSel,
+                                       gatherChecked));
 	    inpfld->valuechanging.notify(
 		    mCB(this,uiGatherPosSliceSel,gatherPosChanged));
 	    inpfld->preFinalise().trigger();
@@ -420,7 +423,8 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
-				"Add PS Gather","51.1.2"))
+				"Add PS Gather", 
+                                mODHelpKey(mViewer2DSelDataDlgHelpID) ))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers", true );

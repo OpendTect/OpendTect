@@ -21,10 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     : uiDialog( p,Setup("Time to depth volume conversion",
-			"Time/Depth conversion","103.2.12") )
+			"Time/Depth conversion", 
+                        mODHelpKey(mBatchTime2DepthSetupHelpID) ) )
 {
     directionsel_ = new uiGenInput( this, "Direction",
 	    BoolInpSpec(true, "Time to Depth", "Depth to Time", true ) );

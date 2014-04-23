@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "od_helpids.h"
 
 static IOObjContext mkCtxt()
 {
@@ -39,7 +40,7 @@ static IOObjContext mkCtxt()
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
-				 "103.1.14"),mkCtxt())
+				 mODHelpKey(m2DGeomManageDlgHelpID) ),mkCtxt())
 {
     createDefaultUI( false, false );
     selgrp_->getManipGroup()->addButton( "trashcan", "Remove this Line",
@@ -61,7 +62,8 @@ public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
     : uiDialog( p, uiDialog::Setup("Manage Line Geometry",
-				   mNoDlgTitle,"103.1.15"))
+				   mNoDlgTitle, 
+                                   mODHelpKey (mManageLineGeomDlgHelpID) ))
     , linenm_(linenm)
 {
     BufferString lbl( "Linename : ");
@@ -106,21 +108,22 @@ class uiGeom2DImpDlg : public uiDialog
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,"103.1.16"))
-{
+    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,
+                                mODHelpKey(mGeom2DImpDlgHelpID) ))
+    {
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
     geom2dinfld_ = new uiFileInput( this, "2D geometry File",
 				    uiFileInput::Setup().withexamine(true) );
-    dataselfld_ = new uiTableImpDataSel( this, *geomfd, "" );
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
     dataselfld_->attach( alignedBelow, geom2dinfld_ );
-}
+    }
 
 bool acceptOK( CallBacker* )
-{
+    {
     if ( File::isEmpty(geom2dinfld_->fileName()) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
     return true;
-}
+    }
 
     uiFileInput*	geom2dinfld_;
     uiTableImpDataSel*	dataselfld_;

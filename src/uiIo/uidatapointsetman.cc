@@ -23,12 +23,13 @@ static const char* rcsID mUsedVar = "$";
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "ptrman.h"
+#include "od_helpids.h"
 
 static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Cross-plot Data",mNoDlgTitle,
-				     "103.1.17").nrstatusflds(1),
+		   mODHelpKey(mDataPointSetManHelpID) ).nrstatusflds(1),
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

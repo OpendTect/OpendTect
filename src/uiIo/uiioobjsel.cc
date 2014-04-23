@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
+#include "od_helpids.h"
 
 #define mObjTypeName ctio_.ctxt.objectTypeName()
 
@@ -605,7 +606,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      bool havesetsurvdefault)
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
-			mNoDlgTitle,"8.1.1")
+			mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) )
 		.nrstatusflds(1))
 	, selgrp_( 0 )
 {

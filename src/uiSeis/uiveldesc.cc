@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uistaticsdesc.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 static const char* sKeyDefVelCube = "Default.Cube.Velocity";
@@ -131,8 +132,8 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
-    : uiDialog( p,
-	       uiDialog::Setup(tr("Specify velocity information"),0,"103.6.7") )
+    : uiDialog( p, uiDialog::Setup(tr("Specify velocity information"),0,
+                                    mODHelpKey(mVelocityDescDlg) ) )
     , toprange_( mUdf(float), mUdf(float ) )
     , bottomrange_( mUdf(float), mUdf(float ) )
 {
@@ -488,7 +489,7 @@ void uiTime2Depth::initClass()
 
 uiZAxisTransform* uiTime2Depth::createInstance( uiParent* p,
 				       const char* fromdomain,
-				       const char* todomain )
+					const char* todomain )
 {
     if ( fromdomain && fromdomain!=ZDomain::sKeyTime() )
 	return 0;

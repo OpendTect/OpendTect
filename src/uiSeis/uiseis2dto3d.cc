@@ -24,12 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog(p,Setup("Create 3D Cube From 2D Data",
-			   mNoDlgTitle,"103.2.24"))
-	, inctio_(*mMkCtxtIOObj(SeisTrc))
-	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
+	: uiDialog( p, Setup( "create 3D cube from to 2D LineSet",
+			      mNoDlgTitle,
+			      mODHelpKey(mSeis2DTo3DHelpID) ) )
+    	, inctio_(*mMkCtxtIOObj(SeisTrc))
+    	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
 	, seis2dto3d_(*new Seis2DTo3D)
 {
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );

@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "od_helpids.h"
+#include "helpview.h"
 
 #include "commandlineparser.h"
 #include "filepath.h"
@@ -227,8 +229,7 @@ bool uiProgressViewer::closeOK()
 
 void uiProgressViewer::helpFn( CallBacker* )
 {
-    const FilePath fp( mGetUserDocDir(), "base", "index.html" );
-    uiDesktopServices::openUrl( fp.fullPath() );
+    HelpProvider::provideHelp( mODHelpKey(mProgressViewerHelpID) );
 }
 
 

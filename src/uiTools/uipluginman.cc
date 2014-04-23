@@ -24,11 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "settings.h"
 #include "odver.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
-
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup("Plugins",mNoDlgTitle,"0.2.5"))
+	: uiDialog(p,Setup("Plugins", mNoDlgTitle,
+                            mODHelpKey(mPluginManHelpID) ) )
 {
     setCtrlStyle( uiDialog::CloseOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );

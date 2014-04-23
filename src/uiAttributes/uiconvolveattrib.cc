@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -64,7 +65,7 @@ mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp())
 
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.1")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mConvolveAttribHelpID) )
 {
     inpfld_ = createInpFld( is2d );
 

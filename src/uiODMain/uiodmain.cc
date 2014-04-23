@@ -59,8 +59,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 #include "timer.h"
 #include "odsysmem.h"
-
 #include "visdata.h"
+#include "od_helpids.h"
+
 #include <iostream>
 
 
@@ -395,7 +396,8 @@ class uiODMainAutoSessionDlg : public uiDialog
 public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
-    : uiDialog(p,uiDialog::Setup("Auto-load session",mNoDlgTitle,"50.3.1"))
+    : uiDialog(p,uiDialog::Setup("Auto-load session",mNoDlgTitle,
+                                 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );

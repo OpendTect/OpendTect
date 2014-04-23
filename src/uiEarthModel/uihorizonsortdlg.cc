@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
-    : uiDialog(p,Setup("Horizon sorter","Select horizons",""))
+    : uiDialog(p,Setup("Horizon sorter","Select horizons",mNoHelpKey))
     , is2d_( is2d )
     , loadneeded_(loadneeded)
 {

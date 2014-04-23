@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 #include "segybatchio.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 
 
 
@@ -125,7 +126,8 @@ public:
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
 		     const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
-				     "Specify file details","103.0.4"))
+				     "Specify file details",
+                                     mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)

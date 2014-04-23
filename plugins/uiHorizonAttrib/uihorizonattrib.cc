@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -36,7 +37,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.100")
+    : uiAttrDescEd(p,is2d, mODHelpKey(mHorizonAttribHelpID) )
     , nrouttypes_( 2 )
 {
     inpfld_ = createInpFld( is2d );

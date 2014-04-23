@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
+
 
 
 static const char* sSupportedStates[] =
@@ -22,7 +24,8 @@ static const char* sSupportedStates[] =
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
     : uiDialog( p,uiDialog::Setup( "Set up shortcuts",
-				   "Select keys used as shortcuts", "0.2.4" ) )
+				   "Select keys used as shortcuts",
+                                   mODHelpKey(mShortcutsDlgHelpID) ) )
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {
     lblspinboxes_.allowNull();

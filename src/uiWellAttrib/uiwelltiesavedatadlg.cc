@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uitable.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
@@ -37,7 +38,8 @@ namespace WellTie
 
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     : uiDialog( p, uiDialog::Setup("Save current data",
-		"Check the items to be saved","107.4.3") )
+		"Check the items to be saved", 
+                mODHelpKey(mWellTieSaveDataDlgHelpID) ) )
     , data_(d)
     , datawriter_(wdr)
 {

@@ -32,11 +32,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitrcpositiondlg.h"
 
 #include "attribstorprovider.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
 
-mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomposition",sKeyFreqGrp())
+mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomposition",
+              sKeyFreqGrp())
 
 
 const char* uiSpecDecompAttrib::sKeyBinID() { return "BinID"; }
@@ -44,7 +46,7 @@ const char* uiSpecDecompAttrib::sKeyLineName() { return "Line Name"; }
 const char* uiSpecDecompAttrib::sKeyTrcNr() { return "Trace Number"; }
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.15")
+    : uiAttrDescEd(p,is2d, mODHelpKey(mSpecDecompAttribHelpID) )
     , nyqfreq_(0)
     , nrsamples_(0)
     , ds_(0)

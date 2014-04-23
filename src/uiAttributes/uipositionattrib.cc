@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -36,7 +37,7 @@ mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp())
 
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.10")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mPositionAttribHelpID) )
 
 {
     inpfld = createInpFld(  is2d, "Input attribute" );

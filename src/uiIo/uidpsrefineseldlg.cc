@@ -20,13 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "od_helpids.h"
 
 #include "mathexpression.h"
 
 uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     : uiDialog(p.parent(),uiDialog::Setup("Refine selection",
 					  "Define mathematical operation",
-					  "111.0.4")
+					  mODHelpKey(mSelectionSettDlgHelpID) )
 			    .savebutton(!p.isADensityPlot())
 			    .savetext("Select on Ok").modal(false) )
     , plotter_(p)

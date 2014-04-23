@@ -60,6 +60,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
@@ -76,7 +77,8 @@ using namespace Attrib;
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 				      const char* prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
-					: "Attribute Set 3D","","101.1.0")
+					: "Attribute Set 3D","",
+                                        mODHelpKey(mAttribDescSetEdHelpID) )
 	.savebutton(true).savetext("Save on OK  ")
 	.menubar(true)
 	.modal(false))
@@ -967,7 +969,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup sflsu( "Default Attribute Sets", attribnames );
     sflsu.dlgtitle( "Select default attribute set" );
     uiSelectFromList dlg( this, sflsu );
-    dlg.setHelpKey("101.1.6");
+    dlg.setHelpKey(mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
@@ -1085,7 +1087,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     if ( !offerSetSave() ) return;
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
-    objdlg.setHelpKey( "0.3.5" );
+    objdlg.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
     IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
     if ( objdlg.go() && setctio_.ioobj )
     {

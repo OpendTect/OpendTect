@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "";
 #include "od_iostream.h"
 #include "survinfo.h"
 #include "timefun.h"
+#include "od_helpids.h"
 
 static const char* sKeyFileType = "CrossPlot Selection";
 static const char* sKeyNrSelGrps = "Nr of Selection Groups";
@@ -299,7 +300,8 @@ class uiRenameDlg : public uiDialog
 public:
 
 uiRenameDlg( uiParent* p, const char* nm )
-    : uiDialog(p,uiDialog::Setup("Rename Selection Group Set","","") )
+    : uiDialog(p,uiDialog::Setup("Rename Selection Group Set", 
+                                 0, mNoHelpKey) )
 {
     namefld_ = new uiGenInput( this, "Selection Group Set Name" );
     namefld_->setText( nm );
@@ -488,7 +490,8 @@ class uiSGSelDlg : public uiDialog
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups","",""))
+    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups", 
+                                 0, mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
@@ -598,7 +601,7 @@ const char* uiSGSel::selGrpFileNm()
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     : uiDialog(p,uiDialog::Setup("Open Cross-plot Selection",mNoDlgTitle,
-				"111.0.10"))
+				mODHelpKey(mReadSelGrpHelpID) ))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
     , y2selfld_(0)
@@ -971,7 +974,8 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup("Save Selection Area",
-				 "Specify parameters","111.0.9"))
+				 "Specify parameters", 
+                                 mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)
     , setup_(su)
 {

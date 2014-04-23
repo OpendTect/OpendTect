@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uidialog.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 
 
 uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
@@ -212,7 +213,7 @@ BufferString uiPosFilterSetSel::getSummary() const
 void uiPosFilterSetSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Filters","Specify Filters",
-					"111.1.2" ) );
+					mODHelpKey(mPosFilterSetSelHelpID) ) );
     uiPosFilterSet* pfs = new uiPosFilterSet( &dlg, setup_ );
     pfs->usePar( iop_ );
     if ( dlg.go() )

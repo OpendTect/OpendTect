@@ -183,7 +183,7 @@ class uiSelContourAttribDlg : public uiDialog
 public:
 
 uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
-    : uiDialog(p,uiDialog::Setup("Select Attribute to contour","",""))
+    : uiDialog(p,uiDialog::Setup("Select Attribute to contour", 0, mNoHelpKey))
 {
     const MultiID mid = EM::EMM().getMultiID( id );
     PtrMan<IOObj> emioobj = IOM().get( mid );

@@ -26,13 +26,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
+#include "od_helpids.h"
 
 static const BufferStringSet emptylnms;
 
 
 uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Dump 2D line geometry to file",
-				 mNoDlgTitle,"103.1.4"))
+				 mNoDlgTitle,
+				 mODHelpKey(mSeisDump2DGeomHelpID)))
     , ctio(*mMkCtxtIOObj(SeisTrc))
 {
     CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
@@ -52,7 +54,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     lnmsfld->attach( alignedBelow, seisfld );
 
     outfld = new uiFileInput( this, "Output file",
-				uiFileInput::Setup().forread(false) );
+	    			uiFileInput::Setup().forread(false) );
     outfld->attach( alignedBelow, lnmsfld );
 }
 

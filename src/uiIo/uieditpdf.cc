@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "sampledprobdenfunc.h"
 #include "gaussianprobdenfunc.h"
+#include "od_helpids.h"
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -50,7 +51,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 	BufferString( ed ? "Edit '" : "Browse '",
 		      pdf.name().isEmpty() ? "PDF" : pdf.name().buf(),
 		      "'"),
-	"112.1.1"))
+	mODHelpKey(mEditProbDenFuncHelpID) ))
     , edfld_(0)
 {
     if ( !ed )
@@ -106,7 +107,7 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 	    txt.set( "Variable " ).add( idim + 1 );
 	else
 	    txt.set( "Variable name" );
-	uiGenInput* nmfld = new uiGenInput( dimnmgrp, txt, pdf_.dimName(idim) );
+	uiGenInput* nmfld = new uiGenInput(dimnmgrp, txt, pdf_.dimName(idim) );
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
 	nmflds_ += nmfld;
@@ -261,7 +262,8 @@ bool uiEditSampledProbDenFunc::getValsFromScreen( bool* chgd )
 class uiEditSampledProbDenFunc2DDataPack : public FlatDataPack
 {
 public:
-uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d, const ProbDenFunc& pdf )
+uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d, 
+      const ProbDenFunc& pdf )
     : FlatDataPack("Probability Density Function",a2d)
     , pdf_(pdf)
 {
@@ -280,7 +282,7 @@ class uiPDF1DViewWin : public uiDialog
 public:
 
 uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
-    : uiDialog(p,uiDialog::Setup("1D PDF Viewer","","").modal(false) )
+    : uiDialog(p,uiDialog::Setup("1D PDF Viewer", 0, mNoHelpKey).modal(false) )
 {
     setCtrlStyle( uiDialog::CloseOnly );
     disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
@@ -360,7 +362,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 		arr2d->set( idxs[0], idxs[1], data.getND(idxs) );
 	    }
 	}
-	FlatDataPack* dp = new uiEditSampledProbDenFunc2DDataPack( arr2d, pdf_ );
+	FlatDataPack* dp = new uiEditSampledProbDenFunc2DDataPack(arr2d, pdf_);
 
 	SamplingData<float> sd( andpdf->sampling(0) );
 	StepInterval<double> rg( sd.start,
@@ -570,7 +572,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    tabstack_->addTab( ccgrp, "Correlations" );
 	    tabstack_->selChange().notify(
 				mCB(this,uiEditGaussianProbDenFunc,tabChg) );
-	    postFinalise().notify( mCB(this,uiEditGaussianProbDenFunc,initGrp));
+	    postFinalise().notify(mCB(this,uiEditGaussianProbDenFunc,initGrp));
 	}
     }
 }

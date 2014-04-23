@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -208,7 +209,7 @@ protected:
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import 2D Horizon",mNoDlgTitle,
-				 "104.0.14").modal(false))
+		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
     , scanner_(0)
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
@@ -249,7 +250,8 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 				mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                              mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, horbox );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 

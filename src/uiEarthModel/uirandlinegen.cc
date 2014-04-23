@@ -33,12 +33,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uispinbox.h"
 #include "uilabel.h"
+#include "od_helpids.h"
 
 #include <limits.h>
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "109.0.1") )
+			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
     , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , polyctio_(*mMkCtxtIOObj(PickSet))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
@@ -198,7 +199,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "109.0.2") )
+			 mODHelpKey(mGenRanLinesByShiftHelpID) ) )
     , inctio_(*mMkCtxtIOObj(RandomLineSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
@@ -288,7 +289,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 
 uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "109.0.3") )
+			 mODHelpKey(mGenRanLinesFromPolygonHelpID) ) )
     , inctio_(*mMkCtxtIOObj(PickSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {

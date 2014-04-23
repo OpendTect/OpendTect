@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -35,7 +36,7 @@ mInitAttribUI(uiEnergyAttrib,Energy,"Energy",sKeyBasicGrp())
 
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.3")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mEnergyAttribHelpID) )
 
 {
     inpfld_ = createInpFld( is2d );

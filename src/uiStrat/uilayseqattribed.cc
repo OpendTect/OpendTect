@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistratselunits.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
 {
@@ -35,7 +36,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_?"Add attribute":"Edit attribute",
-		    gtDlgTitle(lsa,edsu.isnew_),"110.3.2"))
+		                 gtDlgTitle(lsa,edsu.isnew_), 
+                                 mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
     , nmchgd_(false)
@@ -236,7 +238,7 @@ bool uiLaySeqAttribEd::getFromScreen()
     const int tridx = havetr ? trfldidx - 1 : 0;
     const float trval = havetr ? valfld_->getfValue() : mUdf(float);
     if ( havetr
-      && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)) )
+      && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)))
     {
 	uiMSG().error(
 		tr("Please enter a correct %1").arg( valfld_->titleText() ));
@@ -274,7 +276,7 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
 	    const Strat::LaySeqAttrib& lsa = lsas.attr( idx );
 	    if ( &lsa != &attr_ && newnm == lsa.name() )
 	    {
-		uiMSG().error("The name is already used for another attribute");
+	    uiMSG().error("The name is already used for another attribute");
 		return false;
 	    }
 	}

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -44,11 +45,12 @@ const char* uiInstantaneousAttrib::outstrs[] =
 };
 
 
-mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",sKeyBasicGrp())
+mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",
+              sKeyBasicGrp())
 
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.8")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mInstantaneousAttribHelpID) )
 
 {
     inpfld = createImagInpFld( is2d );

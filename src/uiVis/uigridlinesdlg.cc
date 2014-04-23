@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "visgridlines.h"
 #include "visplanedatadisplay.h"
+#include "od_helpids.h"
+
 #include <math.h>
 
 
@@ -33,7 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
-    : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options","50.0.3"))
+    : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options",
+                                    mODHelpKey(mGridLinesDlgHelpID) ))
     , pdd_( pdd )
     , inlfld_( 0 )
     , crlfld_( 0 )

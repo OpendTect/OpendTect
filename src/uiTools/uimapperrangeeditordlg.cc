@@ -22,11 +22,14 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
+#include "od_helpids.h"
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
-				  mNoDlgTitle,"50.0.12").modal(false)
+				  mNoDlgTitle,
+                                  mODHelpKey(mMultiMapperRangeEditWinHelpID) )
+                                  .modal(false)
 							.menubar(true) )
     , activeattrbid_(-1)
     , activectbmapper_(0)	      

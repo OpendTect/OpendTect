@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 
 DefineEnumNames(uiSurfaceMan,Type,0,"Surface type")
@@ -101,15 +102,15 @@ static BufferString getActStr( uiSurfaceMan::Type typ, const char* act )
     }
 }
 
-static const char* getHelpID( uiSurfaceMan::Type typ )
+static HelpKey getHelpID( uiSurfaceMan::Type typ )
 {
     switch ( typ )
     {
-	case uiSurfaceMan::Hor2D:	return "104.2.1";
-	case uiSurfaceMan::StickSet:	return "104.2.4";
-	case uiSurfaceMan::Flt3D:	return "104.2.5";
-	case uiSurfaceMan::Body:	return "104.2.6";
-	default:			return "104.2.0";
+case uiSurfaceMan::Hor2D:	return mODHelpKey(mSurface2DManHelpID);
+case uiSurfaceMan::StickSet:	return mODHelpKey(mFaultStickSetsManageHelpID);
+case uiSurfaceMan::Flt3D:	return mODHelpKey(mFaultsManageHelpID);
+case uiSurfaceMan::Body:	return mODHelpKey(mCopySurface3DHelpID);
+default:			return mODHelpKey(mSurfaceManHelpID);
     }
 }
 
@@ -516,7 +517,7 @@ class uiSurfaceStratDlg : public uiDialog
 {
 public:
 uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
-    : uiDialog(p,uiDialog::Setup("Stratigraphy",mNoDlgTitle,""))
+    : uiDialog(p,uiDialog::Setup("Stratigraphy",mNoDlgTitle,mNoHelpKey))
     , objids_(ids)
 {
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
@@ -634,7 +635,7 @@ public:
 
 uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     :uiDialog(p,uiDialog::Setup("2D Horizons management","Manage 2D horizons",
-				"104.2.1"))
+				mODHelpKey(mSurface2DManHelpID) ))
     , eminfo_(info)
 {
     setCtrlStyle( CloseOnly );

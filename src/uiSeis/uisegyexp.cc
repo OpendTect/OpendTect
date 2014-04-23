@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "zdomain.h"
 #include "strmprov.h"
+#include "od_helpids.h"
 
 static const char* txtheadtxt =
 "Define the SEG-Y text header. Note that:"
@@ -53,7 +54,8 @@ class uiSEGYExpTxtHeaderDlg : public uiDialog
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,"103.0.3"))
+    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,
+                        mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
 {
@@ -167,7 +169,8 @@ BufferString getSummary() const
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y","103.0.7"))
+	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y",
+                                     mODHelpKey(mSEGYExpHelpID) ))
 	, Usage::Client("SEG-Y")
 	, geom_(gt)
 	, morebox_(0)
@@ -236,7 +239,8 @@ public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
-				     "Specify file details","103.0.2"))
+				     "Specify file details",
+                                     mODHelpKey(mSEGYExpMoreHelpID) ))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
@@ -468,7 +472,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    BufferStringSet cnms; oinf.getComponentNames( cnms, geomid );
 	    uiSelectFromList dlg( this,
 		uiSelectFromList::Setup("Please select the component",cnms) );
-	    dlg.setHelpKey("103.0.15");
+	    dlg.setHelpKey(mODHelpKey(mSEGYExpdoWorkHelpID) );
 	    if ( !dlg.go() )
 		return false;
 	    selcomp_ = dlg.selection();

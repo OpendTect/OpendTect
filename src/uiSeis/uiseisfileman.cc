@@ -45,13 +45,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseis2dgeom.h"
 #include "uisplitter.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
 #define mCapt is2d ? "Manage 2D Seismics" : "Manage 3D Seismics"
-#define mHelpID is2d ? "103.1.11" : "103.1.0"
+#define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
+                       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID).nrstatusflds(1),
+    :uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID).nrstatusflds(1),
 		   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
@@ -171,8 +173,8 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 
-	    if ( curioobj_->pars().get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	    && curioobj_->pars().get(VelocityStretcher::sKeyBotVavg(),botvavg) )
+	    if (curioobj_->pars().get(VelocityStretcher::sKeyTopVavg(),topvavg)
+	    && curioobj_->pars().get(VelocityStretcher::sKeyBotVavg(),botvavg))
 	    {
 		StepInterval<float> rg;
 		StepInterval<float> zrg = SI().zRange(true);

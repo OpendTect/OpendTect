@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "picksettr.h"
 #include "ptrman.h"
+#include "od_helpids.h"
 
 
 uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
@@ -152,7 +153,7 @@ public:
 
 uiMergePickSets( uiParent* p, MultiID& mid )
     : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge",
-				 "105.0.4"))
+				 mODHelpKey(mMergePickSetsHelpID) ))
     , ctioin_( PickSetTranslatorGroup::ioContext() )
     , ctioout_( PickSetTranslatorGroup::ioContext() )
     , mid_(mid)

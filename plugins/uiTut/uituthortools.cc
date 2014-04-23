@@ -23,12 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut Horizon tools",
 			      "Specify process parameters",
-			      "tut:105.0.2") )
+			      mNoHelpKey ) )
 {
     taskfld_= new uiGenInput( this, "Task",
 	    		BoolInpSpec(true,"Thickness between two horizons",

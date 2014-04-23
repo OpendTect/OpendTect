@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 #include <stdio.h>
 
@@ -44,7 +45,8 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				      const ObjectSet<SurfaceInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export 2D Horizon",
-				     mNoDlgTitle,"104.0.1"))
+				     mNoDlgTitle,
+                                     mODHelpKey(mExportHorizonHelpID) ))
 	, hinfos_(hinfos)
 {
     setOkText( uiStrings::sExport() );

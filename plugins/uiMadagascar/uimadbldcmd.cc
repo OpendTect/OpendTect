@@ -124,7 +124,7 @@ BufferString uiMadagascarBldPlotCmd::getSummary() const
 
 void uiMadagascarBldPlotCmd::doDlg( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Create plot command","","") );
+    uiDialog dlg( this, uiDialog::Setup("Create plot command", 0, mNoHelpKey) );
     BufferString lbltxt = "Command to generate plot (e.g. sfwiggle)";
     uiLabel* lbl1 = new uiLabel( &dlg, lbltxt.buf() );
     uiLineEdit* genplotfld = new uiLineEdit( &dlg, "gen cmd" );

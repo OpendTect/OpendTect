@@ -20,13 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Attribute Sets",mNoDlgTitle,
-				     "101.3.0").nrstatusflds(1),
+		    mODHelpKey(mAttrSetManHelpID) ).nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

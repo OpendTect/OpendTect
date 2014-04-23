@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellimpasc.h"
 #include "welltrack.h"
 #include "welltransl.h"
+#include "od_helpids.h"
 
 static const int cNrEmptyRows = 5;
 
@@ -58,7 +59,8 @@ static const int cLevelCol = 5;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
-	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", "107.1.1"))
+	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", 
+                                     mODHelpKey(mMarkerDlgHelpID) ))
     	, track_(t)
         , oldmrkrs_(0)
         , table_(0)
@@ -393,7 +395,8 @@ class uiReadMarkerFile : public uiDialog
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle,"107.1.4"))
+    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle, 
+                                 mODHelpKey(mReadMarkerFileHelpID) ))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -401,7 +404,8 @@ uiReadMarkerFile( uiParent* p )
 	    		uiFileInput::Setup().withexamine(true)
 					    .forread(true));
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.1.9" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                      mODHelpKey(mTableImpDataSelmarkersHelpID) );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, "Existing markers (if any)",

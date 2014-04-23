@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 
 
 static bool survChanged()
@@ -62,7 +63,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	: uiDialog( p, Setup( imp ? "Import seismics from simple flat file"
 				  : "Export seismics to simple flat file",
 			      mNoDlgTitle,
-			      imp ? "103.0.11" : "103.0.12") )
+			      imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
+                                  : mODHelpKey(mSeisIOSimpleExpHelpID) ) )
 	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
 	, sdfld_(0)
 	, havenrfld_(0)

@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "transl.h"
+#include "od_helpids.h"
 
 
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
@@ -295,7 +296,8 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 
 uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 					const uiSeis2DMultiLineSel::Setup& su )
-    : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,"103.1.13") )
+    : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,
+                                    mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
     , setup_(su)
     , ctio_(c)
     , datasetfld_(0)

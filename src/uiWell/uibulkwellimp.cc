@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uid2tmodelgrp.h"
+#include "od_helpids.h"
 
 using namespace Well;
 
@@ -45,14 +46,16 @@ using namespace Well;
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Multi-Well Import: Well Tracks",
-		 mNoDlgTitle,"107.0.10"))
+		                 mNoDlgTitle, 
+                                 mODHelpKey(mBulkTrackImportHelpID) ))
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+                                       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     if ( SI().zIsTime() )
@@ -221,7 +224,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 // uiBulkLogImport
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Multi-Well Import: Logs",
-		 mNoDlgTitle,"107.0.11"))
+		 mNoDlgTitle, mODHelpKey(mBulkLogImportHelpID) ))
 {
     inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
@@ -309,13 +312,14 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 // uiBulkMarkerImport
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Multi-Well Import: Markers",
-		 mNoDlgTitle,"107.0.12"))
+		 mNoDlgTitle, mODHelpKey(mBulkMarkerImportHelpID) ))
     , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
 		.withexamine(true).examstyle(File::Table) );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+                                       mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
@@ -450,7 +454,8 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     fs.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileInput( this, "Input Depth/Time Model file", fs );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+        mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

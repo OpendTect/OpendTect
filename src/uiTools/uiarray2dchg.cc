@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dchg.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
+#include "od_helpids.h"
 
 uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
 				      const Array2DFilterPars* prs )
@@ -43,7 +44,8 @@ Array2DFilterPars uiArr2DFilterPars::getInput() const
 
 uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 					    const Array2DFilterPars* prs )
-    : uiDialog(p,uiDialog::Setup("Filter parameters",mNoDlgTitle,"104.0.7"))
+    : uiDialog(p,uiDialog::Setup("Filter parameters",mNoDlgTitle,
+				 mODHelpKey(mArr2DFilterParsDlgHelpID)))
 {
     fld = new uiArr2DFilterPars( this, prs );
 }

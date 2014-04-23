@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellreader.h"
 #include "welltrack.h"
 #include "wellwriter.h"
+#include "od_helpids.h"
 
 #define mMDIdx		0
 #define mTVDIdx		1
@@ -82,7 +83,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     getDlgTitle(wllids),
-				     "107.1.10"))
+				     mODHelpKey(mWellLogCalcHelpID) ))
 	, superwls_(*new Well::LogSet)
 	, form_(*new Math::Formula(true,getSpecVars()))
 	, wellids_(wllids)
@@ -233,7 +234,8 @@ public:
 
 uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup("Rock Physics",
-				 "Use a rock physics formula", "107.1.12"))
+				 "Use a rock physics formula", 
+                                  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
 bool acceptOK( CallBacker* )

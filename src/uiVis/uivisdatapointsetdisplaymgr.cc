@@ -70,7 +70,7 @@ class uiSetSizeDlg : public uiDialog
 {
 public:
 uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
-    : uiDialog( p, uiDialog::Setup("Set size of points","","") )
+    : uiDialog( p, uiDialog::Setup("Set size of points", 0, mNoHelpKey) )
     , pointsetdisp_(disp)
 {
     setCtrlStyle( uiDialog::CloseOnly );

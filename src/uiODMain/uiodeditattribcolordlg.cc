@@ -21,12 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
+#include "od_helpids.h"
 
 
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
 						const char* attrnm )
-    : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,"50.1.5"))
+    : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,
+                                 mODHelpKey(mODEditAttribColorDlgHelpID) ))
     , items_(set)
     , uicoltab_( 0 )
 {

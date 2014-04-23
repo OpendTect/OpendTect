@@ -21,7 +21,7 @@ mInitAttribUI( uiCurvGrad, CurvGrad, "Curvature Gradient", "Experimental" )
 
 
 uiCurvGrad::uiCurvGrad( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d)
+    : uiAttrDescEd(p,is2d, mNoHelpKey)
 {
     inputfld_ = createInpFld( is2d, "Curvature Data" );
 

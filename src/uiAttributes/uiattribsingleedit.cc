@@ -16,11 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescsetman.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 
 uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     : uiDialog(p,Setup(isnew ? "Add attribute" : "Edit attribute",
-		    "Define attribute parameters","110.3.1"))
+		    "Define attribute parameters",
+                    mODHelpKey(mSingleAttribEdHelpID) ))
     , desc_(ad)
     , setman_(new Attrib::DescSetMan(ad.is2D(),ad.descSet(),false))
     , nmchgd_(false)

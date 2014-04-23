@@ -24,12 +24,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackmutedeftransl.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Mute Function",mNoDlgTitle,"103.2.6"))
+    : uiDialog(p,uiDialog::Setup("Export Mute Function",mNoDlgTitle,
+                                 mODHelpKey(mPreStackExportMuteHelpID) ))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setOkText( uiStrings::sExport() );

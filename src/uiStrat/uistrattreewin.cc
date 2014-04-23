@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
+#include "od_helpids.h"
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
 #define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
@@ -434,7 +435,7 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 
 void uiStratTreeWin::helpCB( CallBacker* )
 {
-    HelpProvider::provideHelp( HelpKey("110.0.0") );
+    HelpProvider::provideHelp( HelpKey(mODHelpKey(mStratTreeWinHelpID) ) );
 }
 
 

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "dirlist.h"
 
+#include "od_helpids.h"
 
 
 class BatchProgPar
@@ -167,7 +168,8 @@ void BatchProgInfoList::getEntries( const char* fnm )
 
 uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Run batch program",
-		   "Specify batch program and parameters","0.1.5"))
+		   "Specify batch program and parameters",
+                   mODHelpKey(mBatchProgLaunchHelpID) ) )
 	, pil(*new BatchProgInfoList)
 	, progfld(0)
 	, browser(0)

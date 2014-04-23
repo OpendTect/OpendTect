@@ -53,6 +53,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "zaxistransform.h"
 #include "executor.h"
+#include "od_helpids.h"
 
 static const int cMinNrNodesForLbl = 25;
 const char* uiContourTreeItem::sKeyContourDefString(){return "Contour Display";}
@@ -399,7 +400,8 @@ public:
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const LineStyle& ls,
 		  int sceneid )
-    : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,"104.3.2")
+    : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,
+                        mODHelpKey(mContourParsDlgHelpID) )
 		 .nrstatusflds(1))
     , rg_(rg)
     , contourintv_(intv)

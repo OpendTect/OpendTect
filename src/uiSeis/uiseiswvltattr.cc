@@ -26,10 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wavelet.h"
 #include "waveletattrib.h"
 #include "windowfunction.h"
+#include "od_helpids.h"
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
-    : uiDialog(p,uiDialog::Setup("","","103.3.5"))
+    : uiDialog(p,uiDialog::Setup("","", mODHelpKey(mSeisWvltSliderDlgHelpID) ))
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
     , sliderfld_(0)
@@ -101,7 +102,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , freqvals_(new Array1DImpl<float>(mPadSz))
 {
     setCaption( "Taper Wavelet" );
-    setHelpKey("103.3.6");
+    setHelpKey( mODHelpKey(mSeisWvltTaperDlgHelpID) );
     uiSlider::Setup su;
     su.lbl_ = "Taper Wavelet (%)";
     su.sldrsize_ = 220;
@@ -117,7 +118,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     mutefld_->activated.notify( mCB( this, uiSeisWvltTaperDlg, act )  );
 
     wvltvals_ = new Array1DImpl<float>( wvltsz_ );
-    OD::memCopy( wvltvals_->getData(), wvlt_->samples(), sizeof(float)*wvltsz_);
+    OD::memCopy( wvltvals_->getData(), wvlt_->samples(),sizeof(float)*wvltsz_);
 
     uiFuncTaperDisp::Setup s;
     bool istime = SI().zIsTime();
@@ -246,7 +247,8 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-            : uiDialog(p,Setup(w.name(),"","103.3.8")
+            : uiDialog(p,Setup(w.name(),"", 
+                               mODHelpKey(mWaveletDispPropDlgHelpID) )
 			 .modal(false))
 {
     setCtrlStyle( CloseOnly );
@@ -264,7 +266,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    , wvltattr_(new WaveletAttrib(wvlt))
 	    , wvltsz_(wvlt.size())
 {
-    timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
+    timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
     const float maxfreq = 1.f / wvlt.sampleRate();
     freqrange_.set( 0, maxfreq );
 

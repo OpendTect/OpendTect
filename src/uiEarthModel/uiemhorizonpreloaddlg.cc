@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "strmprov.h"
 #include "transl.h"
+#include "od_helpids.h"
 
 
 // uiEMPreLoadDlg
@@ -47,7 +48,8 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 // uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg(p,uiDialog::Setup("Horizon Pre-load Manager",
-				       mNoDlgTitle,"103.0.13"))
+				       mNoDlgTitle,
+                                       mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", true );

@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
+#include "od_helpids.h"
 
 
 
@@ -465,7 +466,7 @@ bool ui2DGridLinesFromRandLine::fillPar( IOPar& par ) const
 
 uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     : uiDialog(p,uiDialog::Setup("Create 2D Seismic grid",mNoDlgTitle,
-				 "103.2.23") )
+				 mODHelpKey(mCreate2DGridHelpID) ) )
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , cs_(*new CubeSampling(true))
 {

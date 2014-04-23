@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "statrand.h"
 #include "datapointset.h"
+#include "od_helpids.h"
 
 FixedString selstr( "Select" );
 
@@ -50,7 +51,7 @@ static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
     : uiDialog(p,uiDialog::Setup(
 			aspoly ? "Create new Polygon" : "Create new PickSet",
-			mNoDlgTitle,"105.0.0"))
+			mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
 {
     if ( addstdflds )
@@ -315,7 +316,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) ||
 		!survzrg.includes(zrg.stop,false) )
-	    mErrRet( "Please Enter a valid Z Range" );
+		mErrRet( "Please Enter a valid Z Range" );
     }
 
     mkRandPars();

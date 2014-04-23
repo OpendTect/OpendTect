@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivolprocchain.h"
 #include "volprocchain.h"
 #include "zdomain.h"
+#include "od_helpids.h"
 
 namespace VolProc
 {
@@ -49,7 +50,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), hp )
     , surfacefiller_( hp )
 {
-    setHelpKey( "dgb:104.0.4" );
+    setHelpKey( mODHelpKey(mEMHorizonEditorSettingHelpID) );
 
     if ( !surfacefiller_ ) return;
 	

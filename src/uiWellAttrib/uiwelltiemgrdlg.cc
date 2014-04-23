@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellpropertyrefsel.h"
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecheckshotedit.h"
+#include "od_helpids.h"
 
 
 namespace WellTie
@@ -54,7 +55,8 @@ namespace WellTie
 
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
-		"Select Data to tie Well to Seismic","107.4.0")
+		"Select Data to tie Well to Seismic", 
+                mODHelpKey(mWellTiMgrDlemgHelpID) )
 		.savetext(sSaveAsDefault())
 		.savebutton(true)
 		.savechecked(false)

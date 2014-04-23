@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -56,7 +57,7 @@ mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
 	      sKeyStatsGrp())
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d,"101.0.16")
+    : uiAttrDescEd(p,is2d, mODHelpKey(mVolumeStatisticsAttribHelpID) )
 {
     inpfld_ = createInpFld( is2d );
 

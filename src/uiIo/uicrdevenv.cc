@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "settings.h"
 #include "oscommand.h"
+#include "od_helpids.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -42,7 +43,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
 	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
 				     "Specify a work directory",
-				     "8.0.1"))
+				     mODHelpKey(mSetDataDirHelpID) ))
 	, workdirfld(0)
 	, basedirfld(0)
 {

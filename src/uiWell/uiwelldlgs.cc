@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellreader.h"
 #include "welltrack.h"
 #include "wellimpasc.h"
+#include "od_helpids.h"
 
 
 static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
@@ -56,7 +57,7 @@ static const int cMDTrackCol = 3;
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well Track",
 				     "Edit Well Track",
-				     "107.1.7"))
+				     mODHelpKey(mWellTrackDlgHelpID) ))
 	, wd_(d)
 	, track_(d.track())
 	, orgtrack_(new Well::Track(d.track()))
@@ -263,13 +264,14 @@ public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	: uiDialog(p,uiDialog::Setup("Read new Well Track",
-				     "Specify new Well Track","107.1.8"))
+				     "Specify new Well Track", 
+                                     mODHelpKey(mWellTrackReadDlgHelpID) ))
 	, track_(track)
 {
     wtinfld_ = new uiFileInput( this, "Well Track File",
     uiFileInput::Setup().withexamine(true) );
 
-    uiTableImpDataSel* dataselfld = new uiTableImpDataSel( this, fd, 0 );
+    uiTableImpDataSel* dataselfld = new uiTableImpDataSel(this, fd, mNoHelpKey);
     dataselfld->attach( alignedBelow, wtinfld_ );
 }
 
@@ -582,7 +584,7 @@ static const int cTVDCol = 1;
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 		 BufferString("Edit ",cksh?"Checkshot":"Time/Depth"," model"),
-				     "107.1.5"))
+				     mODHelpKey(mD2TModelDlgHelpID) ))
 	, wd_(wd)
 	, cksh_(cksh)
 	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
@@ -1179,7 +1181,8 @@ public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Read new data",
-				     "Specify input file","107.1.6"))
+				     "Specify input file",
+                                     mODHelpKey(mD2TModelReadDlgHelpID) ))
 	, cksh_(cksh)
 	, wd_(wd)
 {
@@ -1433,6 +1436,7 @@ uiNewWellDlg::uiNewWellDlg( uiParent* p )
         : uiGetObjectName(p,uiGetObjectName::Setup("New Well",mkWellNms())
 				.inptxt("New well name") )
 {
+    setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt("Color") );
     colsel_->attach( alignedBelow, inpFld() );

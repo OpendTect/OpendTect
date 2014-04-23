@@ -37,10 +37,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "od_helpids.h"
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,"104.2.2"))
+    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle, 
+                       mODHelpKey(mHorizonRelationsDlgHelpID) ))
     , is2d_( is2d )
 {
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
@@ -103,7 +105,8 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
-    : uiDialog(p,Setup("Horizon relations (Solve crossings)","","104.2.3"))
+    : uiDialog(p,Setup("Horizon relations (Solve crossings)","",
+                        mODHelpKey(HorizonModifyDlgHelpID) ))
     , mid1_(mid1)
     , mid2_(mid2)
     , is2d_(is2d)

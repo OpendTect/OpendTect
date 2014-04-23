@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "synthseis.h"
 #include "stratsynth.h"
 #include "syntheticdataimpl.h"
+#include "od_helpids.h"
 
 
 #define mErrRet(s,act) \
@@ -30,7 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
-				 "103.4.4").modal(false))
+				 mODHelpKey(mRayTrcParamsDlgHelpID) )
+                                 .modal(false))
     , stratsynth_(gp)
     , genNewReq(this)
     , synthRemoved(this)

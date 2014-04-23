@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 #include "settings.h"
 #include "timer.h"
+#include "od_helpids.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";
 
@@ -48,8 +49,9 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 					     "Window grabber"),
 				  (desktop ? "Specify image file" :
 					     "Specify window and image file"),
-				  desktop ? "50.0.11" : "50.0.10") )
-    , windowfld_(0)
+		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) : 
+                           mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
+    , windowfld_(0) 
 {
     getTopLevelWindows( windowlist_ );
     if ( !desktop && !windowlist_.isEmpty() )

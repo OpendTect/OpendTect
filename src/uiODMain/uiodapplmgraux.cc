@@ -78,6 +78,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
+#include "od_helpids.h"
 
 
 bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
@@ -408,7 +409,8 @@ void uiODApplMgrDispatcher::showBaseMap()
 			am_.visserv_->getObject(sceneid) );
 	if ( !scene ) return;
 
-	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map","","") );
+	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map", 0, 
+                                                          mNoHelpKey) );
 	basemapdlg_->setModal( false );
 	basemapdlg_->setCtrlStyle( uiDialog::CloseOnly );
 	basemap_ = new uiSurveyMap( basemapdlg_ );
@@ -449,9 +451,9 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
 					    bvsarr );
     StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
     StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
-    StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
+    StepInterval<double> inlrg( (double)tempinlrg.start,(double)tempinlrg.stop,
 				(double)tempinlrg.step );
-    StepInterval<double> crlrg( (double)tempcrlrg.start, (double)tempcrlrg.stop,
+    StepInterval<double> crlrg( (double)tempcrlrg.start,(double)tempcrlrg.stop,
 				(double)tempcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
@@ -521,14 +523,15 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 #endif
 
     uiGetChoice dlg( par_, options,
-			"Select policy for auto-update", true, "0.4.5" );
+			"Select policy for auto-update", true, 
+                       mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
     dlg.setDefaultChoice( idx < 0 ? 0 : idx );
     if ( !dlg.go() )
 	return;
     ODInst::AutoInstType newait = (ODInst::AutoInstType)
-				alloptions.indexOf( options.get(dlg.choice()) );
+				alloptions.indexOf( options.get(dlg.choice()));
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
     if ( newait == ODInst::InformOnly )

@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiwindowfunctionsel.h"
 #include "uifreqtaper.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -30,7 +31,7 @@ mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp())
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.7")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mFreqFilterAttribHelpID) )
 
 {
     inpfld_ = createImagInpFld( is2d );

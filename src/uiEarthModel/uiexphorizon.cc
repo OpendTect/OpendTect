@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uiexphorizon.cc 34057 2014-04-07 17:03:36Z bert.bril@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiexphorizon.h"
 
@@ -39,6 +39,8 @@ static const char* rcsID mUsedVar = "$Id: uiexphorizon.cc 34057 2014-04-07 17:03
 #include "uit2dconvsel.h"
 #include "uiunitsel.h"
 #include "od_ostream.h"
+#include "od_helpids.h"
+
 #include <stdio.h> // for sprintf
 
 
@@ -48,7 +50,8 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,"104.0.1"))
+    : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,
+                                 mODHelpKey(mExportHorizonHelpID) ))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );

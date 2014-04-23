@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackagc.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 namespace PreStack
 {
@@ -32,7 +33,8 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 
 
 uiAGC::uiAGC( uiParent* p, AGC* sgagc )
-    : uiDialog( p, uiDialog::Setup("AGC setup",0,"103.2.1") )
+    : uiDialog( p, uiDialog::Setup("AGC setup",0,
+                                    mODHelpKey(mPreStackAGCHelpID) ) )
     , processor_( sgagc )
 {
     BufferString label = "Window width ";

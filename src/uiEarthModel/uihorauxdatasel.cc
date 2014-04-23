@@ -22,13 +22,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 class uiHorizonAuxDataDlg: public uiDialog
 {
 public:
 		uiHorizonAuxDataDlg( uiParent* p, 
 			const uiHorizonAuxDataSel::HorizonAuxDataInfo& info )
-		: uiDialog( p, uiDialog::Setup("Horizon data selection","",""))
+		: uiDialog( p, uiDialog::Setup("Horizon data selection", 0,
+                                            mNoHelpKey ))
 		, auxidx_( 0 )
 		, selmid_( 0 )
 		, auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )

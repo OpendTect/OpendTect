@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 namespace MPE
 {
@@ -43,7 +44,8 @@ protected:
 
 uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 						    HorizonEditor* he )
-    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings","104.0.4") )
+    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings",
+                                   mODHelpKey(mEMHorizonEditorSettingHelpID) ))
     , editor( he )
 {
     horshapefld = new uiGenInput( this, "Horizontal shape",
@@ -79,7 +81,7 @@ bool uiEMHorizonEditorSetting::acceptOK(CallBacker*)
     }
 
     editor->setEditArea(rc);
-    if ( vertshapefld ) editor->setAlongMovingStyle(vertshapefld->getIntValue());
+    if (vertshapefld) editor->setAlongMovingStyle(vertshapefld->getIntValue());
     editor->setBoxEditArea(horshapefld->getBoolValue());
 
     return true;
@@ -180,7 +182,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
     
 	int dummy;
 	bool dummybool;
-	canstop = canMakeStopLine( *lineset, interactionline, dummy, dummybool);
+	canstop = canMakeStopLine(*lineset, interactionline, dummy, dummybool);
     }
 
 //  mAddMenuItem( menu, &splitsectionmnuitem, noneonedge, false );
@@ -205,7 +207,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
     bool handled = false;
 /*
-    EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );
+    EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true);
     if ( !lineset )
         return;
 
@@ -229,7 +231,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 
 	EM::EdgeLineSet* lineset2 =
 	    surface.edgelinesets.getEdgeLineSet(newsection,false); 
-										        const int mainlineidx2 = lineset2->getMainLine();
+	    const int mainlineidx2 = lineset2->getMainLine();
 	EM::EdgeLine* mainline2 = lineset2->getLine(mainlineidx2);
 	if ( !mainline2 )
 	    return;
@@ -251,7 +253,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 		EM::TerminationEdgeLineSegment::create( surface, sid );
 	terminationsegment->copyNodesFrom( &interactionlineseg, !forward );
 
-	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true );
+	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true);
 	handled =true;
     }
     */
@@ -281,9 +283,11 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	}
 
 	TypeSet<EM::PosID> nodestoremove;
-	for ( RowCol rc(start.row(),0); rc.row()<=stop.row(); rc.row()+=step.row() )
+	for ( RowCol rc(start.row(),0); rc.row()<=stop.row(); 
+             rc.row()+=step.row() )
 	{
-	    for ( rc.col()=start.col(); rc.col()<=stop.col(); rc.col()+=step.col() )
+	    for ( rc.col()=start.col(); rc.col()<=stop.col(); 
+                 rc.col()+=step.col() )
 	    {
 		pid.setSubID( rc.toInt64() );
 		const int idx = interactionlineseg.indexOf(rc);
@@ -348,7 +352,7 @@ bool uiEMHorizonEditor::canMakeStopLine( const EM::EdgeLineSet& lineset,
 
 	EM::EdgeLineIterator fwditer(*curline,true,firstsegment,firstsegpos);
 	if ( !fwditer.isOK() ) continue;
-	EM::EdgeLineIterator backiter(*curline,false,firstsegment,firstsegpos );
+	EM::EdgeLineIterator backiter(*curline,false,firstsegment,firstsegpos);
 	if ( !backiter.isOK() ) continue;
 
 	canstop = true;

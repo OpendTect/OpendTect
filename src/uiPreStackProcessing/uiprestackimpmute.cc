@@ -27,13 +27,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackmutedeftransl.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_helpids.h"
 
 
 namespace PreStack
 {
 
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Mute Function",mNoDlgTitle,"103.2.5"))
+    : uiDialog( p,uiDialog::Setup("Import Mute Function",mNoDlgTitle,
+                                  mODHelpKey(mPreStackImportMuteHelpID) ))
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
@@ -53,7 +55,8 @@ uiImportMute::uiImportMute( uiParent* p )
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.7" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                      mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
     ctio_.ctxt.forread = false;

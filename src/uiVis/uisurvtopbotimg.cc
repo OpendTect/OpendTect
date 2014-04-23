@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "survinfo.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 
 
 class uiSurvTopBotImageGrp : public uiGroup
@@ -153,7 +154,7 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 					    visSurvey::Scene* scene )
     : uiDialog(p, uiDialog::Setup("Top/Bottom Images",
 				  "Set Top and/or Bottom Images",
-				  "50.0.13") )
+				  mODHelpKey(mSurvTopBotImageDlgHelpID) ) )
     , scene_( scene )
 {
     setCtrlStyle( CloseOnly );

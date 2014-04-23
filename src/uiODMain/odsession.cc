@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 #include "uitextedit.h"
+#include "od_helpids.h"
 
 
 const char* ODSession::visprefix()	{ return "Vis"; }
@@ -291,7 +292,8 @@ mDefineInstanceCreatedNotifierAccess(uiSessionMan)
 
 uiSessionMan::uiSessionMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Sessions",
-				     mNoDlgTitle,"101.3.0").nrstatusflds(1),
+				     mNoDlgTitle, mODHelpKey(mAttrSetManHelpID) 
+                                     ).nrstatusflds(1),
 		   ODSessionTranslatorGroup::ioContext())
 {
     createDefaultUI();

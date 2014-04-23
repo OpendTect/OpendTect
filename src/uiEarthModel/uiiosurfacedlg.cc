@@ -35,11 +35,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uitaskrunner.h"
 #include "uipossubsel.h"
+#include "od_helpids.h"
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				      float shift )
-    : uiDialog(p,uiDialog::Setup("Output selection",mNoDlgTitle,"104.3.1"))
+    : uiDialog(p,uiDialog::Setup("Output selection",mNoDlgTitle,
+                                 mODHelpKey(mWriteSurfaceDlgHelpID) ))
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
@@ -106,7 +108,7 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 
 uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
-				 "104.4.6"))
+				 mODHelpKey(mStoreAuxDataHelpID) ))
     , surface_(surf)
 {
     attrnmfld_ = new uiGenInput( this, "Attribute" );
@@ -167,7 +169,10 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 							    : flt3d )))
 
 #define mGetHelpID(ioobj) \
-    mGet( ioobj, "104.2.7", "104.2.6", "104.2.8", "104.2.9")
+    mGet( ioobj, mODHelpKey(mCopySurface2DHelpID), \
+          mODHelpKey(mCopySurface3DHelpID), \
+          mODHelpKey(mCopySurfaceStickSetsHelpID), \
+          mODHelpKey(mCopySurfaceFaultsHelpID) )
 
 #define mGetWinNm(ioobj) \
     mGet( ioobj, "Copy 2D horizon", "Copy 3D horizon", "Copy faultStickSet",\

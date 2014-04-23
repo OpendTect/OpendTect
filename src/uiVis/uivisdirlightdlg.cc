@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vislight.h"
 #include "vissurvscene.h"
 #include "uivispartserv.h"
-
+#include "od_helpids.h"
 
 #define mInitAzimuth		0
 #define mInitDip		90
@@ -33,7 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,uiDialog::Setup("Light properties",
-				 "Set light properties","50.0.18").modal(false))
+				 "Set light properties",
+                                 mODHelpKey(mDirLightDlgHelpID) ).modal(false))
     , visserv_(visserv)
     , pd_(0)
     , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram",

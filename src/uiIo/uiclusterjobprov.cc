@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "transl.h"
+#include "od_helpids.h"
 
 
 const char* uiClusterJobProv::sKeySeisOutIDKey()
@@ -162,7 +163,8 @@ protected:
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
-    : uiDialog(p,uiDialog::Setup("Cluster job generator","","101.2.2")
+    : uiDialog(p,uiDialog::Setup("Cluster job generator","",
+                                  mODHelpKey(mClusterJobProvHelpID) )
 			   .oktext("Continue"))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())

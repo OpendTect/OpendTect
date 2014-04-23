@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -44,7 +45,7 @@ static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
-					  const Strat::LayerModelProvider& lmp )
+					  const Strat::LayerModelProvider& lmp)
     : uiGroup(t.parent(),"LayerModel display")
     , tools_(t)
     , lmp_(lmp)
@@ -115,7 +116,7 @@ void uiStratLayerModelDisp::displayFRText()
     if ( !frtxtitm_ )
 	frtxtitm_ = scene().addItem( new uiTextItem( "<---empty--->",
 				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText( isbrinefilled_ ? "Brine filled" : "Hydrocarbon filled");
+    frtxtitm_->setText(isbrinefilled_ ? "Brine filled" : "Hydrocarbon filled");
     frtxtitm_->setPenColor( Color::Black() );
     const int xpos = mNINT32( scene().width()/2 );
     const int ypos = mNINT32( scene().height()-10 );
@@ -191,7 +192,7 @@ bool uiStratLayerModelDisp::getCurPropDispPars(
 }
 
 
-bool uiStratLayerModelDisp::setPropDispPars( const LMPropSpecificDispPars& pars)
+bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
 {
     BufferStringSet propnms;
     for ( int idx=0; idx<layerModel().propertyRefs().size(); idx++ )
@@ -247,7 +248,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     xahsu.border( border ).nogridline( true ).annotinint( true );
     xax_ = new uiAxisHandler( &scene(), xahsu );
     uiAxisHandler::Setup yahsu( uiRect::Left );
-    const BufferString zlbl( "Depth (", SI().depthsInFeet() ? "ft" : "m", ")" );
+    const BufferString zlbl( "Depth (", SI().depthsInFeet() ? "ft" : "m", ")");
     yahsu.border( border ).caption( zlbl ).annotinint( false );
     yax_ = new uiAxisHandler( &scene(), yahsu );
     yax_->setEnd( xax_ );
@@ -392,7 +393,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     {
 
 	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
-		    BufferString("Remove '",lay.name(),"'"),"110.0.12") );
+		                  BufferString("Remove '",lay.name(),"'"),
+                                  mODHelpKey(mStratSimpleLayerModDispHelpID)));
 	uiGenInput* gi = new uiGenInput( &dlg, "Remove", BoolInpSpec(true,
 		    "Only this layer","All layers with this ID") );
 	if ( dlg.go() )
@@ -556,7 +558,7 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
 	    const float val = \
-	       getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
+	      getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
 
 #define mEndLayLoop() \
 	} \
@@ -612,7 +614,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
 int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
 {
     const float margin = 0.05f;
-    relx = (1-margin) * relx + margin * .5f; // get relx between 0.025 and 0.975
+    relx = (1-margin) * relx + margin * .5f;// get relx between 0.025 and 0.975
     relx *= dispeach_;
     return xax_->getPix( iseq + 1 + relx );
 }
@@ -681,7 +683,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
-    bool dofill = fillmdls_ || totalNrLayersToDisplay() < cMaxNrLayers4RectDisp;
+    bool dofill = fillmdls_ || totalNrLayersToDisplay() <cMaxNrLayers4RectDisp;
     float prevrelx = mUdf(float);
 
     int lineitmidx=0, rectitmidx=0;
@@ -766,7 +768,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	    uiLineItem* lineitm = 0; \
 	    if ( lineitmidx < logblcklineitms_.size() ) \
 	    { \
-		mDynamicCast(uiLineItem*,lineitm,logblcklineitms_[lineitmidx]) \
+		mDynamicCast(uiLineItem*,lineitm,logblcklineitms_[lineitmidx])\
 		lineitm->show(); \
 	    } \
 	    else \

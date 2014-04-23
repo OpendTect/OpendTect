@@ -21,10 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "veldesc.h"
+#include "od_helpids.h"
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup("Calculate volume","Body volume estimation","103.1.22"))
+    : uiDialog(p,Setup("Calculate volume","Body volume estimation",
+                        mODHelpKey(mImplBodyCalDlgHelpID) ))
     , embody_(eb)  
     , velfld_(0)
     , volfld_(0)

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
+#include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
@@ -45,7 +46,9 @@ static const char* rcsID mUsedVar = "$Id$";
 	  "Import Fault" )
 
 #define mGetHelpKey(tp) \
-    mGet( tp, (is2d ? "104.1.4" : "104.1.3"), "104.1.0" )
+    mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
+                    : mODHelpKey(mImportFaultStick3DHelpID) ), \
+    mODHelpKey(mImportFaultHelpID) )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     : uiDialog(p,uiDialog::Setup(mGetCaption(type),mNoDlgTitle,
@@ -114,9 +117,10 @@ void uiImportFault::createUI()
 	sortsticksfld_->attach( alignedBelow, stickselfld_ );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_,
-					isfss_ ? (is2d_ ? "104.1.7" :"104.1.6")
-					      : "104.1.2" );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, isfss_ ? (is2d_ ? 
+                  mODHelpKey(mTableImpDataSelFaultStickSet2DHelpID) :
+                  mODHelpKey(mTableImpDataSelFaultStickSet3DHelpID) )
+		: mODHelpKey(mTableImpDataSelFaultsHelpID) );
     if ( !isfss_  )
 	dataselfld_->attach( alignedBelow, sortsticksfld_ );
     else

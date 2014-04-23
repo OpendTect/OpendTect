@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 #define mAddMSFld(txt,att) \
     if ( SI().zIsTime() ) \
@@ -42,7 +43,7 @@ uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
     , msfld_(0)
 {
     hor_.ref();
-    setHelpKey( "104.4.8" );
+    setHelpKey( mODHelpKey(mHorGeom2AttrHelpID) );
 
     mAddMSFld("Store in",inpfld_)
 }
@@ -104,7 +105,8 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
        				const DataPointSet& dps, int colid )
     : uiDialog(p, Setup("Set horizon Z values",
 		  BufferString("Set Z values from '",
-		      dps.dataSet().colDef(colid).name_,"'"),"104.4.7"))
+		      dps.dataSet().colDef(colid).name_,"'"),
+                        mODHelpKey(mHorAttr2GeomHelpID) ))
     , hor_(hor)
     , dps_(dps)
     , colid_(colid-dps.nrFixedCols())

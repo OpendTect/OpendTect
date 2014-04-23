@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
@@ -48,7 +49,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      const DescSet* a, const NLAModel* n, float vel )
 	: uiDialog(p,uiDialog::Setup("Add direction to Pick Set",
 				     "Specify directions for picks",
-				     "105.1.1"))
+				     mODHelpKey(mSetPickDirsHelpID) ))
 	, ps_( s )
 	, ads_( a ? new DescSet(*a) : new DescSet(false) )
 	, nlamdl_( n )

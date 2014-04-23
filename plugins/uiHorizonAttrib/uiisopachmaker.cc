@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
         : uiGroup(p,"Create isopach")
@@ -189,7 +190,8 @@ bool uiIsopachMakerBatch::acceptOK( CallBacker* )
 
 //uiIsopachMakerDlg
 uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
-    : uiDialog(p,Setup("Create isopach",mNoDlgTitle, "104.4.4"))
+    : uiDialog(p,Setup("Create isopach",mNoDlgTitle,
+                        mODHelpKey(mIsopachMakerHelpID) ))
     , dps_( new DataPointSet(false,true) )
 {
     grp_ = new uiIsopachMakerGrp( this, emid );

@@ -41,13 +41,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
 #include "uiseislinesel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
 		     "Select attributes and locations for cross-plot"
-		     ,"111.1.0").modal(false))
+		     ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
 	, lnmfld_(0)
 	, curdps_(0)

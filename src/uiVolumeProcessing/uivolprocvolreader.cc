@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uivolprocchain.h"
+#include "od_helpids.h"
 
 
 namespace VolProc
@@ -27,7 +28,7 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     , volumereader_( vr )
     , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {
-    setHelpKey( "103.6.8" );
+    setHelpKey( mODHelpKey(mVolumeReaderHelpID) );
 
     if ( vr )
 	ctio_->setObj( vr->getVolumeID() );

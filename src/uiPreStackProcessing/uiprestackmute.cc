@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 namespace PreStack
 {
@@ -34,7 +35,8 @@ uiDialog* uiMute::create( uiParent* p, Processor* sgp )
 
 
 uiMute::uiMute( uiParent* p, Mute* sgmute )
-    : uiDialog( p, uiDialog::Setup("Mute setup",0,"103.2.2") )
+    : uiDialog( p, uiDialog::Setup("Mute setup",0,
+                                   mODHelpKey(mPreStackMuteHelpID) ) )
     , processor_( sgmute )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
 {

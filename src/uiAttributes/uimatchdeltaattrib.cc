@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -22,7 +23,7 @@ mInitAttribUI(uiMatchDeltaAttrib,MatchDelta,"Match delta","Trace match")
 
 
 uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.102")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mMatchDeltaHelpID) )
 {
     refcubefld_ = createInpFld( is2d, "Reference Cube");
     

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattrsel.h"
 #include "uiattribfactory.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -23,7 +24,7 @@ using namespace Attrib;
 mInitAttribUI(uiSampleValueAttrib,SampleValue,"Sample value",sKeyBasicGrp())
 
 uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.105")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mSampleValueAttribHelpID) )
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );

@@ -41,6 +41,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uicombobox.h"
 #include "uiselsurvranges.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -62,7 +63,7 @@ static const char* actionstr[] =
 mInitAttribUI(uiTextureAttrib,Texture,"Texture",sKeyBasicGrp())
 
 uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.104")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mTextureAttribHelpID) )
 {
     inpfld_ = createInpFld( is2d );
 

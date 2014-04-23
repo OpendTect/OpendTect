@@ -28,7 +28,7 @@ mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
 	"Similarity by Adaptive Time Gate", "Experimental" )
 
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
-    :  uiAttrDescEd(p, is2d)
+    :  uiAttrDescEd(p, is2d, mNoHelpKey)
 {
     inputfld_ = createInpFld( is2d, "Input Data" );
 

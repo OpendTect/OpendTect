@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
+#include "od_helpids.h"
 
 namespace PreStack
 {
@@ -89,7 +90,8 @@ void uiProcSel::editPushCB( CallBacker* )
 
     title += " prestack processing";
 
-    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, "103.2.13") );
+    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, 
+                                        mODHelpKey(mPreStackProcSelHelpID) ) );
     dlg.enableSaveButton("Save on OK");
     dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );

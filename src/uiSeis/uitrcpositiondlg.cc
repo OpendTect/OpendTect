@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uislider.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     : uiGroup(p)
@@ -90,7 +91,8 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7")
+    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,
+                                    mODHelpKey(mTrcPositionDlgHelpID) )
 			     .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
@@ -152,7 +154,8 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,"101.1.7")
+    : uiDialog( p, uiDialog::Setup("Attribute trace position", 0,
+                                   mODHelpKey(mTrcPositionDlgHelpID) )
 			     .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )

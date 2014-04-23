@@ -23,13 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segydirecttr.h"
 #include "survinfo.h"
 #include "posprovider.h"
+#include "od_helpids.h"
 
 static const char* sKeySEGYDirect = "SEGYDirect";
 
 
 uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Re-sort SEG-Y scanned",
-		"Produce new SEG-Y file from scanned data","103.2.21") )
+		"Produce new SEG-Y file from scanned data",
+                                    mODHelpKey(mResortSEGYDlg) ) )
     , geomfld_(0)
     , volfld_(0)
     , ps3dfld_(0)

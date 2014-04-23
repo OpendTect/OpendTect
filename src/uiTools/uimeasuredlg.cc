@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
+#include "od_helpids.h"
+
 #include <math.h>
 
 
@@ -31,7 +33,8 @@ static const char* sKeyLineStyle = "Measure LineStyle";
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog(p,Setup("Measure Distance",mNoDlgTitle,"50.0.15").modal(false))
+    : uiDialog(p,Setup("Measure Distance",mNoDlgTitle,
+                        mODHelpKey(mMeasureDlgHelpID) ).modal(false))
     , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)

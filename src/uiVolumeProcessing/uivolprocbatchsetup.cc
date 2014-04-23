@@ -25,13 +25,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
+#include "od_helpids.h"
 
 namespace VolProc
 {
 
 uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     : uiDialog( p, uiDialog::Setup("Volume Builder: Create output",
-				   mNoDlgTitle,"103.2.11" ) )
+				   mNoDlgTitle, 
+                                   mODHelpKey(mVolProcBatchSetupHelpID) ) )
     , chain_( 0 )
 {
     IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();

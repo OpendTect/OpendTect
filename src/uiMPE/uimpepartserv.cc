@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 int uiMPEPartServer::evGetAttribData()		    { return 0; }
 int uiMPEPartServer::evStartSeedPick()		    { return 1; }
@@ -855,7 +856,7 @@ const MPE::DataHolder*
 { return MPE::engine().getAttribCache( spec ); }
 
 
-CubeSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as ) const
+CubeSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as )const
 { return MPE::engine().getAttribCube(as); }
 
 
@@ -1121,11 +1122,12 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-				uiDialog::Setup("Tracking Setup",0,"108.0.1")
+				uiDialog::Setup("Tracking Setup",0,
+                                 mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
-						  setupdlg, emobj->getTypeStr(),
+						  setupdlg,emobj->getTypeStr(),
 						  0 );
 
     if ( !setupgrp_ ) return false;
@@ -1148,9 +1150,9 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				    sectracker->hasInitializedSetup();
 	if ( !setupavailable )
 	    seedpicker->setSeedConnectMode(
-					seedpicker->defaultSeedConMode(false) );
+					seedpicker->defaultSeedConMode(false));
 
-	setupgrp_->setAttribSelSpec(sectracker->adjuster()->getAttributeSel(0));
+       setupgrp_->setAttribSelSpec(sectracker->adjuster()->getAttributeSel(0));
     }
 
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
@@ -1166,7 +1168,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 
     NotifierAccess* propchgenotifier = setupgrp_->propertyChangeNotifier();
     if ( propchgenotifier )
-	propchgenotifier->notify( mCB(this,uiMPEPartServer,propertyChangedCB) );
+	propchgenotifier->notify( mCB(this,uiMPEPartServer,propertyChangedCB));
 
     NotifierAccess* evchgenotifier = setupgrp_->eventChangeNotifier();
     if ( evchgenotifier )
@@ -1176,7 +1178,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     NotifierAccess* simichgenotifier = setupgrp_->similartyChangeNotifier();
     if ( simichgenotifier )
 	simichgenotifier->notify(
-			  mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB));
+			 mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB));
 
     if ( cursceneid_ != -1 )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );

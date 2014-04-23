@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volstatsattrib.h"
 #include "hilbertattrib.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -64,7 +65,7 @@ class uiGDPositionDlg: public uiDialog
 
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.101")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mGapDeconHelpID) )
 	, acorrview_ ( new GapDeconACorrView(p) )
 	, positiondlg_(0)
 {

@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 static int getWellIndex( const char* nm )
@@ -51,7 +52,8 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const Attrib::DescSet* attrib ,
 					    const NLAModel* mdl,
 					    bool singlewell )
-    : uiDialog(p,uiDialog::Setup("Create Attribute Log",mNoDlgTitle,"107.3.0"))
+    : uiDialog(p,uiDialog::Setup("Create Attribute Log",mNoDlgTitle,
+				 mODHelpKey(mCreateAttribLogDlgHelpID)))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
     , sellogidx_(-1)

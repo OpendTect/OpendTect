@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "odver.h"
 #include "survinfo.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -253,7 +254,7 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters"
-				,"101.3.1")
+				,mODHelpKey(mEvaluateDlgHelpID) )
 		.modal(false)
 	        .oktext("Accept")
 	        .canceltext(""))

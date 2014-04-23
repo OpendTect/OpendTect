@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "od_helpids.h"
 #include "uiodscenemgr.h"
 #include "scene.xpm"
 
@@ -506,7 +507,7 @@ void uiODSceneMgr::setKeyBindings()
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->sovwr_->getCurrentKeyBindings(), 0 );
     uiGenInputDlg dlg( &appl_, "Select Mouse Controls", "Select", inpspec );
-    dlg.setHelpKey("0.2.7");
+    dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
     if ( dlg.go() )
 	mDoAllScenes(sovwr_,setKeyBindings,dlg.text());
 }
@@ -610,7 +611,8 @@ protected:
 
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Specify snapshot",
-				   "Select area to take snapshot","50.0.1") )
+				   "Select area to take snapshot",
+                                   mODHelpKey(mSnapshotDlgHelpID) ) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type", uiObject::Vertical );
     butgrp_->setExclusive( true );

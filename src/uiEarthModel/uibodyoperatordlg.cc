@@ -30,10 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
+#include "od_helpids.h"
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,"103.1.19") )
+    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,
+                                 mODHelpKey(mBodyOperatorDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 
@@ -395,7 +397,7 @@ bool uiBodyOperatorDlg::bodyOprand::operator==( const bodyOprand& v ) const
 uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p, 
 	const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
-		mNoDlgTitle,"103.1.21") )
+		mNoDlgTitle, mODHelpKey(mImplicitBodyValueSwitchDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
     

@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uitable.h"
 #include "uitabstack.h"
+#include "od_helpids.h"
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
@@ -365,7 +366,7 @@ void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 {
     const MarkerStyle3D::Type newtype =
-	(MarkerStyle3D::Type) (MarkerStyle3D::None+seedtypefld_->getIntValue());
+	(MarkerStyle3D::Type)(MarkerStyle3D::None+seedtypefld_->getIntValue());
     if ( markerstyle_.type_ == newtype )
 	return;
     markerstyle_.type_ = newtype;
@@ -399,7 +400,8 @@ class uiStepDialog : public uiDialog
 public:
 
 uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking","","108.0.1"))
+    : uiDialog(p,Setup("Stepwise tracking","", 
+                       mODHelpKey(mTrackingWizardHelpID) ))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
 						       .rowgrow(true)
@@ -617,7 +619,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	Interval<float> intval = compwinfld_->getFInterval();
 	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
-	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
+	    mErrRet("Compare window should be minus to positive, ex. -20, 20");
 	Interval<float> relintval(
 		(float)intval.start/SI().zDomain().userFactor(),
 	        (float)intval.stop/SI().zDomain().userFactor() );

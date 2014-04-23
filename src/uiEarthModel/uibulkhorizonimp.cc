@@ -28,6 +28,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
+#include "od_helpids.h"
 
 
 class BulkHorizonAscIO : public Table::AscIO
@@ -87,7 +88,8 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Multiple Horizons",
-				 mNoDlgTitle,"104.0.16"))
+				 mNoDlgTitle,
+                                 mODHelpKey(mBulkHorizonImportHelpID) ))
     , fd_(BulkHorizonAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -95,7 +97,8 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
     inpfld_ = new uiFileInput( this, "Input ASCII file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
+                                    mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

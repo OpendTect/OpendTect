@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 
 class uiSeisMultiCubePSEntry
 {
@@ -49,7 +50,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	: uiDialog(p,uiDialog::Setup(
 		   ky && *ky ? "Edit/Create MultiCube Prestack data store"
 			     : "Create MultiCube Prestack data store",
-		   mNoDlgTitle,"103.1.7"))
+		   mNoDlgTitle, mODHelpKey(mSeisMultiCubePSHelpID) ))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
 	, curselidx_(-1)

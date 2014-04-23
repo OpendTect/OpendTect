@@ -25,13 +25,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestkmergedlg.h"
 #include "uiseismulticubeps.h"
 #include "uitextedit.h"
+#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
 #define mCapt \
     is2d ? "Manage 2D Prestack Seismics" : "Manage 3D Prestack Seismics"
-#define mHelpID is2d ? "103.4.1" : "103.4.0"
+#define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
+                       mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1),

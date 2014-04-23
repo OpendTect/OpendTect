@@ -31,13 +31,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselobjothersurv.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters", "103.0.22"))
+			"Specify import parameters", 
+                        mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     , import_(0)

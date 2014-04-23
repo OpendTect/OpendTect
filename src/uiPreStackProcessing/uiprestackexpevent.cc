@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissubsel.h"
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
 
 
 namespace PreStack
@@ -27,7 +28,7 @@ namespace PreStack
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     : uiDialog( p, uiDialog::Setup("Export Prestack Events",mNoDlgTitle,
-				   "dgb:104.0.2") )
+				   mODHelpKey(mImportHorAttribHelpID) ) )
 {
     setOkText( uiStrings::sExport() );
 

@@ -39,10 +39,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletextractor.h"
+#include "od_helpids.h"
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog( p,Setup("Extract Wavelet",mNoDlgTitle,"103.3.4")
+    : uiDialog( p,Setup("Extract Wavelet",mNoDlgTitle, 
+                        mODHelpKey(mWaveletExtractionHelpID) )
 	             .modal(false) )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , wvltctio_(*mMkCtxtIOObj(Wavelet))
@@ -58,7 +60,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     if ( !is2d )
     {
 	seisctio_.ctxt.forread = true;
-	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering());
+	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(),sKey::Steering());
 
 	seissel3dfld_ = new uiSeisSel( this, seisctio_,
 				     uiSeisSel::Setup(false,false) );
@@ -160,7 +162,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	for ( int idx=0; idx<sellineset.size(); idx++ )
 	{
 	    StepInterval<float> zrg( 0, 0, 1 );
-	    Pos::GeomID geomid = Survey::GM().getGeomID(sellineset[idx]->buf());
+	    Pos::GeomID geomid =Survey::GM().getGeomID(sellineset[idx]->buf());
 	    if ( !si->getRanges( geomid, trcrg, zrg ) )
 		return;
 
@@ -244,7 +246,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180 )
+    if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180)
     {
 	uiMSG().error( "Please enter Phase between -180 and 180" );
 	wvltphasefld_->setValue( 0 );
@@ -262,7 +264,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 bool uiWaveletExtraction::checkWaveletSize()
 {
     wvltsize_ = mNINT32( wtlengthfld_->getIntValue() /
-		      (datastep_ * ((float) SI().zDomain().userFactor())) ) + 1;
+		      (datastep_ * ((float) SI().zDomain().userFactor()))) + 1;
     if ( wvltsize_ < 3 )
     {
 	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
@@ -338,7 +340,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	ObjectSet<Seis::SelData> sdset;
 	StepInterval<int> trcrg;
 	BufferStringSet sellines = linesel2dfld_->getSelLines();
-	const TypeSet<StepInterval<int> >&  trcrgs = linesel2dfld_->getTrcRgs();
+	const TypeSet<StepInterval<int> >& trcrgs = linesel2dfld_->getTrcRgs();
 	for ( int lidx=0; lidx<sellines.size(); lidx++ )
 	{
 	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
@@ -380,7 +382,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 					      Seis::TableSelData& tsd )
 {
     const char* extrazkey = IOPar::compKey( sKey::Surface(),
-					  Pos::EMSurfaceProvider::extraZKey() );
+					  Pos::EMSurfaceProvider::extraZKey());
     Interval<float> extz( 0, 0 );
     if ( surfacepar.get(extrazkey,extz) )
 	tsd.extendZ( extz );

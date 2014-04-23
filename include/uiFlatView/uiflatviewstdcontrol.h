@@ -34,7 +34,6 @@ public:
     {
 			Setup( uiParent* p=0 )
 			    : parent_(p)
-			    , helpkey_("")
 			    , withcoltabed_(true)
 			    , withedit_(false)
 			    , withthumbnail_(true)		      
@@ -43,7 +42,7 @@ public:
 			    , withsnapshot_(true)
 			    , withflip_(true)
 			    , withrubber_(true)
-			    , tba_(-1)		      	{}
+                            , tba_(-1)	{}	      	
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)

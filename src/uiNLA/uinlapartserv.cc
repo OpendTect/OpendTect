@@ -125,7 +125,7 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps),"dgb:102.2.3"))
+    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps), mNoHelpKey))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -273,7 +273,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
        		const char* lognm )
     	: uiDialog(p,uiDialog::Setup("Manage codes",
 				     "Specify how to handle codes",
-				     "dgb:102.2.2"))
+				     mNoHelpKey))
 	, usrsels(usels)
 {
     BufferStringSet opts;

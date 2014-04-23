@@ -35,3 +35,7 @@ bool HelpKey::isEmpty() const
 {
     return !providername_ || !*providername_;
 }
+
+
+HelpKey HelpKey::emptyHelpKey()
+{ return HelpKey( 0 , sKey::EmptyString() ); }

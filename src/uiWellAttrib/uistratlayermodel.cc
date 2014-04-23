@@ -62,6 +62,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uichecklist.h"
 
 #include "seistrc.h"
+#include "od_helpids.h"
+
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -555,7 +557,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
     uiGetChoice dlg( this, opts,
 	    "The wavelet seems to be unscaled.\n"
 	    "For most purposes, you will need a scaled wavelet.\n", true );
-    dlg.setHelpKey( "110.2.2" );
+    dlg.setHelpKey( mODHelpKey(mStratLayerModelcheckUnscaledWaveletHelpID) );
     dlg.go(); const int choice = dlg.choice();
     if ( choice < 0 )
 	return false;
@@ -1092,7 +1094,8 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 
 
 void uiStratLayerModel::helpCB( CallBacker* )
-{ HelpProvider::provideHelp( HelpKey("110.2.0") ); }
+{ HelpProvider::provideHelp( 
+    HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID) ) ); }
 
 
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )

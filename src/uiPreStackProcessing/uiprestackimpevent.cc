@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
+#include "od_helpids.h"
 
 #include <fstream>
 
@@ -32,7 +33,7 @@ namespace PreStack
 
 uiEventImport::uiEventImport( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Import Prestack Events",mNoDlgTitle,
-				   "dgb:104.0.3") )
+				   mNoHelpKey ) )
     , fd_(*EventAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -41,7 +42,8 @@ uiEventImport::uiEventImport( uiParent* p )
 				uiFileInput::Setup(0).forread(true)
 						     .withexamine(true) );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                                      mODHelpKey(mTableImpDataSelpicksHelpID));
     dataselfld_->attach( alignedBelow, filefld_ );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );

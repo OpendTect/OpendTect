@@ -49,12 +49,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uivispartserv.h"
 #include "pixmap.h"
+#include "od_helpids.h"
 
 
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su )
     : uiDialog( &appl, uiDialog::Setup("Faultstick transfer",
-			"Transfer settings","104.1.8").modal(false) )
+			               "Transfer settings",
+                                      mODHelpKey(mFaultStickTransferDlgHelpID))
+                                        .modal(false) )
     , displayifnot_( su.displayifnot_ )
     , saveifdisplayed_( su.saveifdisplayed_ )
     , colormodechg( this )
@@ -234,7 +237,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , flashcolor_( Color(0,0,0) )
     , curemid_(-1)
 {
-    toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
+    toolbar_ = new uiToolBar( &appl_, "Fault stick control",uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
@@ -529,7 +532,7 @@ void uiODFaultToolMan::showSettings( bool yn )
 
 	if ( yn )
 	{
-	    settingsdlg_ = new uiFaultStickTransferDlg( appl_, settingssetup_ );
+	    settingsdlg_ = new uiFaultStickTransferDlg(appl_, settingssetup_ );
 	    settingsdlg_->colormodechg.notify(
 				mCB(this,uiODFaultToolMan,colorModeChg) );
 	    settingsdlg_->windowClosed.notify(
@@ -921,7 +924,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
     srcfault->geometry().removeSelectedSticks( true );
     srcfault->setChangedFlag();
-    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID());
 }
 
 
@@ -1003,7 +1006,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	setup.addtohistory_ = displayAfterwards();
 	if ( destf3d->isEmpty() )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Auto;
-	else if ( destf3d->geometry().areSticksVertical(destf3d->sectionID(0)) )
+	else if ( destf3d->geometry().areSticksVertical(destf3d->sectionID(0)))
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Vertical;
 	else
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Horizontal;
@@ -1013,9 +1016,9 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     }
 
     if ( copy )
-	srcfault->geometry().selectStickDoubles( false, &destfault->geometry());
+	srcfault->geometry().selectStickDoubles(false, &destfault->geometry());
     else
-	srcfault->geometry().removeSelectedDoubles(true,&destfault->geometry());
+       srcfault->geometry().removeSelectedDoubles(true,&destfault->geometry());
 
     if ( curfssd_ )
 	curfssd_->updateKnotMarkers();

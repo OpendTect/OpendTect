@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
 
@@ -154,7 +155,7 @@ uiArray2DInterpolSel::~uiArray2DInterpolSel()
 HelpKey uiArray2DInterpolSel::helpKey() const
 {
     const int sel = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
-    return params_[sel] ? params_[sel]->helpKey() : 0;
+    return params_[sel] ? params_[sel]->helpKey() : HelpKey::emptyHelpKey();
 }
 
 
@@ -370,6 +371,11 @@ void uiInverseDistanceArray2DInterpol::setDistanceUnit( const uiString& d )
 
 }
 
+
+HelpKey uiInverseDistanceArray2DInterpol::helpKey() const
+{ return mODHelpKey(mInverseDistanceArray2DInterpolHelpID); }
+
+
 void uiTriangulationArray2DInterpol::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
@@ -487,7 +493,8 @@ bool uiExtensionArray2DInterpol::acceptOK()
 uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
 					      int stepsz, int nrsteps )
     : uiDialog(p,Setup("Inverse distance - parameters",
-		       "Inverse distance with search radius","104.0.13") )
+		       "Inverse distance with search radius",
+                       mODHelpKey(mInverseDistanceArray2DInterpolHelpID) ) )
 {
     cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
 					BoolInpSpec(cornersfirst) );

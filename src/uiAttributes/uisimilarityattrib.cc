@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
+#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -74,7 +75,7 @@ mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp())
 
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.14")
+	: uiAttrDescEd(p,is2d, mODHelpKey(mSimilarityAttribHelpID) )
 
 {
     inpfld_ = createInpFld( is2d );

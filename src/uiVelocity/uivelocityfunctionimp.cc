@@ -30,13 +30,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocityfunctionascio.h"
 #include "velocityfunctionstored.h"
 #include "uiveldesc.h"
+#include "od_helpids.h"
 
 namespace Vel
 {
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
     : uiDialog( p,uiDialog::Setup("Import Velocity Function",
-				  mNoDlgTitle,"103.2.8") )
+				  mNoDlgTitle, 
+                                  mODHelpKey(mImportVelFuncHelpID) ) )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
@@ -56,7 +58,8 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.9" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+                                        mODHelpKey(mImportVelFuncHelpID) );
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 

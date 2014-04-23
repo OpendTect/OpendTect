@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
+#include "od_helpids.h"
 
 
 extern "C" const char* GetBaseDataDir();
@@ -46,7 +47,9 @@ static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
 	: uiDialog(p,uiDialog::Setup("Edit Survey Parameters",
-				     mNoDlgTitle,"0.3.2").nrstatusflds(1))
+				     mNoDlgTitle,
+                                     mODHelpKey(mSurveyInfoEditorHelpID) )
+                                     .nrstatusflds(1))
 	, rootdir_(GetBaseDataDir())
 	, orgdirname_(si_.dirname_.buf())
 	, si_(si)
@@ -244,7 +247,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     else
 	zunitfld_->setCurrentItem( si_.depthsinfeet_ ? 2 : 1 );
 
-    zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
+    zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit));
 
     const bool depthinft = si_.depthsInFeet();
 
@@ -561,7 +564,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     const BufferString newdirnm( dirName() );
     const BufferString olddir(
 			FilePath(orgstorepath_).add(orgdirname_).fullPath() );
-    const BufferString newdir( FilePath(newstorepath).add(newdirnm).fullPath());
+    const BufferString newdir(FilePath(newstorepath).add(newdirnm).fullPath());
     const bool storepathchanged = orgstorepath_ != newstorepath;
     dirnamechanged = orgdirname_ != newdirnm;
 
@@ -712,7 +715,7 @@ void uiSurveyInfoEditor::updatePar( CallBacker* cb )
 
     const bool zistime = zunitfld_->currentItem() == 0;
     const bool zdepthft = zunitfld_->currentItem() == 2;
-    const bool depthinft = xyinft || zdepthft || !depthdispfld_->getBoolValue();
+    const bool depthinft = xyinft || zdepthft ||!depthdispfld_->getBoolValue();
 
     si_.setZUnit( zistime, zistime ? depthinft : zdepthft );
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
@@ -808,7 +811,7 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
-	if ( mIsUdf(irg.step) || !irg.step || irg.step>irg.width() ) irg.step=1;
+	if ( mIsUdf(irg.step) || !irg.step || irg.step>irg.width() )irg.step=1;
 	if ( irg.isUdf() ) return;
 
 	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
@@ -817,7 +820,7 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
-	if ( mIsUdf(crg.step) || !crg.step || crg.step>crg.width() ) crg.step=1;
+	if ( mIsUdf(crg.step) || !crg.step || crg.step>crg.width() )crg.step=1;
 	if ( crg.isUdf() ) return;
 
 	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
@@ -873,7 +876,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
     uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpKey("0.3.6");
+    dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;
 }
 
@@ -893,7 +896,7 @@ bool uiCopySurveySIP::getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hrg.start );
     crd[1] = survinfo->transform( cs.hrg.stop );
-    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
+    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()));
 
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);

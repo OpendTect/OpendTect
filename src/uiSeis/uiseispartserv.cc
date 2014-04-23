@@ -64,6 +64,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurvinfoed.h"
 #include "uitaskrunner.h"
 #include "uivelocityvolumeconversion.h"
+#include "od_helpids.h"
 
 
 static const char* sKeyPreLoad()	{ return "PreLoad"; }
@@ -205,7 +206,7 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
     Survey::GM().getList( linenames, geomids, true );
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( parent(), setup );
-    dlg.setHelpKey("50.0.17");
+    dlg.setHelpKey(mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiSelect();
 

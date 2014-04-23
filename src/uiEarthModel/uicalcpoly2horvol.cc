@@ -29,12 +29,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "od_helpids.h"
 
 #include <math.h>
 
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
-	: uiDialog(p,Setup("Calculate volume",dlgtxt,"104.4.5"))
+	: uiDialog(p,Setup("Calculate volume",dlgtxt,
+                    mODHelpKey(mCalcPoly2HorVolHelpID) ))
 	, zinft_(SI().depthsInFeet())
 	, velfld_(0)
 	, valfld_(0)

@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "ascstream.h"
 #include "od_istream.h"
+#include "od_helpids.h"
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
@@ -48,7 +49,8 @@ static bool enabClusterProc()
 
 
 uiProcSettings::uiProcSettings( uiParent* p )
-    : uiDialog(p,Setup("Processing settings",mNoDlgTitle,"103.2.27"))
+    : uiDialog(p,Setup("Processing settings",
+                       mNoDlgTitle, mODHelpKey(mProcSettingsHelpID) ))
 {
     const int nrinl = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, "Default number of inlines per job",
@@ -71,7 +73,8 @@ bool uiProcSettings::acceptOK( CallBacker* )
 
 
 uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
-    : uiDialog(p,Setup("(Re-)Start a batch job",mNoDlgTitle,"101.2.1"))
+    : uiDialog(p,Setup("(Re-)Start a batch job",mNoDlgTitle,
+                        mODHelpKey(mRestartBatchDialogHelpID) ))
     , canresume_(false)
 {
     uiGroup* topgrp = new uiGroup( this, "Top Group" );

@@ -14,11 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uislider.h"
 #include "ui3dviewer.h"
+#include "od_helpids.h"
 
 
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs_ )
 	: uiDialog(p, uiDialog::Setup("Stereo viewing",
-				      "Set stereo offset","50.0.2")
+				      "Set stereo offset",
+                                      mODHelpKey(mStereoDlgHelpID) )
 		      .canceltext(""))
 	, vwrs(vwrs_)
 {

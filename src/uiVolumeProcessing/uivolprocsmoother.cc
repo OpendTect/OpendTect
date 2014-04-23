@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwindowfunctionsel.h"
 #include "uivolprocchain.h"
 #include "volprocsmoother.h"
+#include "od_helpids.h"
 
 
 #define mMaxNrSteps	10
@@ -29,7 +30,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
 {
-    setHelpKey( "103.6.4" );
+    setHelpKey( mODHelpKey(mVolumeSmootherHelpID) );
 
     uiWindowFunctionSel::Setup su; su.label_= "Operator";
     su.winname_ = smoother_->getOperatorName(); 

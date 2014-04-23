@@ -28,12 +28,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonbodydisplay.h"
 #include "visemobjdisplay.h"
 #include "vismarchingcubessurfacedisplay.h"
+#include "od_helpids.h"
 
 
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
-				      mNoDlgTitle,"50.0.4"))
+				      mNoDlgTitle, 
+                                      mODHelpKey(mPropertiesDlgHelpID) ))
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {

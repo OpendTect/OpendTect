@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-    	: uiDialog(p,uiDialog::Setup("Data component selection","","") )
+    	: uiDialog(p,uiDialog::Setup("Data component selection", 0, 
+                                     mNoHelpKey) )
 	, compfld_(0)
 {
     BufferString instructions = "After loading multiple components,\n";
@@ -122,7 +123,7 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
 {
     useallfld_ = new uiGenInput( this, "Components to use:",
 	    			 BoolInpSpec( true, "All", "Subselection" ) );
-    useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg) );
+    useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     outlistfld_ = new uiLabeledListBox( this, names, "Available components",
 				       false, uiLabeledListBox::AboveMid );

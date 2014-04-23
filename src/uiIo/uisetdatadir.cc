@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odinst.h"
 #include "settings.h"
 #include "ziputils.h"
+#include "od_helpids.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -53,7 +54,7 @@ static const char* doSetRootDataDir( const char* inpdatadir )
 uiSetDataDir::uiSetDataDir( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Set Data Directory",
 				     "Specify a data storage directory",
-				     "8.0.1"))
+				     mODHelpKey(mSetDataDirHelpID) ))
 	, curdatadir_(GetBaseDataDir())
 {
     const bool oldok = IOMan::isValidDataRoot( curdatadir_ );

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "od_helpids.h"
 
 
 namespace VolProc
@@ -189,7 +190,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
 // uiChain
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",
-				   mNoDlgTitle,"103.6.0")
+				   mNoDlgTitle, mODHelpKey(mChainHelpID) )
 	    .modal(!withprocessnow) )
     , chain_(chn)
 {

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visflatviewer.h"
 #include "visprestackdisplay.h"
 #include "prestackprocessor.h"
+#include "od_helpids.h"
 
 namespace PreStackView
 {
@@ -28,7 +29,9 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
     : uiTabStackDlg( p, uiDialog::Setup("Prestack display properties", 
-			viewer.getObjectName(),"50.0.8").modal(false) ) 
+			          viewer.getObjectName(), 
+                                  mODHelpKey(mPSViewerSettingDlgHelpID) 
+                                  ).modal(false) ) 
     , preproctab_(0)
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );

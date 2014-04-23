@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "timefun.h"
 #include "odusginfo.h"
+#include "od_helpids.h"
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -227,7 +228,8 @@ class uiSEGYReadPreScanner : public uiDialog
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,"103.0.10"))
+    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0, 
+                                 mODHelpKey(mSEGYReadPreScannerHelpID) ))
     , pars_(pars)
     , geom_(gt)
     , scanner_(0)
@@ -343,7 +345,8 @@ class uiSEGYReadRev1Question : public uiVarWizardDlg
 public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
-    : uiVarWizardDlg(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8"),
+    : uiVarWizardDlg(p,Setup("Determine SEG-Y revision",rev1info,
+                             mODHelpKey(mSEGYReadRev1QuestionHelpID) ),
 				iop,Middle)
     , initialpol_(pol)
 {

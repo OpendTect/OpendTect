@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uivolprocchain.h"
 #include "volproclateralsmoother.h"
+#include "od_helpids.h"
 
 
 namespace VolProc
@@ -26,7 +27,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
 {
-    setHelpKey( "103.6.3" );
+    setHelpKey( mODHelpKey(mLateralSmootherHelpID) );
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );

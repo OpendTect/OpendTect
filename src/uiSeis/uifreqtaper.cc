@@ -32,11 +32,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
+#include "od_helpids.h"
 
 
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     : uiDialog( p, uiDialog::Setup("Frequency taper",
-		    "Select taper parameters at cut-off frequency","101.3.3"))
+		                "Select taper parameters at cut-off frequency",
+                                    mODHelpKey(mFreqTaperDlgHelpID) ))
     , cs_(new CubeSampling())
     , posdlg_(0)
     , funcvals_(0)
@@ -46,7 +48,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     setCtrlStyle( CloseOnly );
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-    previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview, true);
+    previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview,true);
 
     uiFuncTaperDisp::Setup su;
     su.leftrg_ = s.minfreqrg_;
@@ -518,11 +520,11 @@ void uiFuncTaperDisp::setWindows( float leftvar, float rightvar )
 	rightd_.winsz_ = 2*( datasz_ - (int)rightd_.rg_.start );
 	delete rightd_.window_; rightd_.window_ = 0;
 	if ( rightvar && rightd_.winsz_>= 0 )
-	    rightd_.window_ = new ArrayNDWindow(Array1DInfoImpl(rightd_.winsz_),
+	   rightd_.window_ = new ArrayNDWindow(Array1DInfoImpl(rightd_.winsz_),
 						false, winname, 1-rightvar );
     }
     delete window_; window_ =0 ;
-    window_ = new ArrayNDWindow(Array1DInfoImpl(datasz_),false,winname,leftvar);
+    window_ =new ArrayNDWindow(Array1DInfoImpl(datasz_),false,winname,leftvar);
 
     taperChged(0);
 }
@@ -542,7 +544,7 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 		val = 1-leftd_.window_->getValues()[leftd_.winsz_/2+idx];
 
 	    if ( rightd_.window_ && idx > (int)rightd_.rg_.start )
-		val= 1-rightd_.window_->getValues()[idx-(int)rightd_.rg_.start];
+	       val= 1-rightd_.window_->getValues()[idx-(int)rightd_.rg_.start];
 
 	    window_->setValue( idx,  val );
 

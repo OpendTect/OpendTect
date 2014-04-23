@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uivariogram.h"
+#include "od_helpids.h"
 
 static const int cNrPosCols = 3;
 static const int cMinPtsForDensity = 20000;
@@ -62,7 +63,8 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup("Display Properties","","").modal(false))
+    : uiDialog(this,uiDialog::Setup("Display Properties", 0, 
+                                    mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
@@ -135,7 +137,8 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
-    : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"111.0.0")
+    : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,
+                      mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
@@ -690,7 +693,8 @@ class uiSelectPosDlg : public uiDialog
 {
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
-    : uiDialog( p, uiDialog::Setup("Select Position for new row","","") )
+    : uiDialog( p, uiDialog::Setup("Select Position for new row", 
+                                   0, mNoHelpKey) )
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, "Position type",
@@ -1347,7 +1351,8 @@ class uiDataPointSetSave : public uiDialog
 public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Create output","Specify output","111.0.1"))
+    : uiDialog(p,uiDialog::Setup("Create output","Specify output",
+                                 mODHelpKey(mdataPointSetSaveHelpID) ))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)
 {

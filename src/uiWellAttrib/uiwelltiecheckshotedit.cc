@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
+#include "od_helpids.h"
 
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
@@ -76,7 +77,7 @@ int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
     : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
 		"Edit depth/time model based on checkshot",
-		"107.4.4").nrstatusflds(1))
+		mODHelpKey(mCheckShotEditHelpID) ).nrstatusflds(1))
     , server_(server)					     
     , wd_(*server.wd())   
     , d2tlineitm_(0)	     

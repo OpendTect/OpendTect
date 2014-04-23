@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "seistrc.h"
 #include "uigeninput.h"
+#include "od_helpids.h"
 
 
 class uiSeisFmtScaleData
@@ -60,7 +61,7 @@ public:
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl, bool withext )
     : uiDialog(p,uiDialog::Setup("Format / Scaling","Format and scaling",
-				 "103.0.17"))
+				 mODHelpKey(mSeisFmtScaleDlgHelpID) ))
     , optimfld_(0)
     , trcgrowfld_(0)
     , data_(d)

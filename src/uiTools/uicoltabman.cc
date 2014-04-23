@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 #include "uistrings.h"
+#include "od_helpids.h"
 
 #define mTransHeight	150
 #define mTransWidth	200
@@ -48,7 +49,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
     : uiDialog(p,uiDialog::Setup("Manage Color Tables",
 				 "Add, remove, change color tables",
-				 "50.1.1"))
+				 mODHelpKey(mColorTableManHelpID) ))
     , ctab_(ctab)
     , orgctab_(0)
     , issaved_(true)

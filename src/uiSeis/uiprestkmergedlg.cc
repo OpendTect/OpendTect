@@ -37,12 +37,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "transl.h"
 #include "uiioobjsel.h"
+#include "od_helpids.h"
 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Merge Prestack Data",
 				 "Select data stores to merge into one",
-				 "103.4.3"))
+				 mODHelpKey(mPreStackMergeDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
     , volsbox_(0), selvolsbox_(0)
@@ -283,7 +284,8 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","","103.4.2"))
+    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","", 
+                                 mODHelpKey(mPreStackCopyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {
