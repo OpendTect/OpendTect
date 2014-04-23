@@ -198,18 +198,11 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
     const int idx2 = idx1 + 1;
     const float v1 = val_[idx1];
     const float v2 = val_[idx2];
-    if ( mIsUdf(v1) || mIsUdf(v2) )
-	return mUdf(float);
-
-    if ( iscode_ )
-	return mIsUdf(v2) ? v2 : v1;
 
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
-    if ( mIsUdf(v1) )
-	return d1 > d2 ? v2 : mUdf(float);
-    if ( mIsUdf(v2) )
-	return d2 > d1 ? v1 : mUdf(float);
+    if ( iscode_ || mIsUdf(v1) || mIsUdf(v2) )
+	return d1 > d2 ? v2 : v1;
 
     return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
 }
