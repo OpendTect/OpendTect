@@ -31,23 +31,44 @@ extern "C" {
 #define PI_AUTO_INIT_EARLY	1
 #define PI_AUTO_INIT_LATE	2
 
-/*!\brief Information about plugin for outside world */
+/*!\brief Information about plugin for outside world 
+    
+    dispname_	 -  The name shown in the PluginInfo window.
+    productname_ -  Same as the name of the commercial product as marketed to be
+		    shown in the plugin selection window.
+    LicenseType	 -  By default it is GPL, and will not be shown in the
+		    plugin selection window.
+		    Only commercial(COMMERCIAL)
+		    products should be shown in the plugin selection window
+
+    Note: Two different plugins(different display names) can have same product
+    name if they belong to the same product
+    
+    e.g. Multi-Variate Analysis and Neural Networks both belong to the
+    Neural Networks product.
+*/
+
 
 struct PluginInfo
 {
-    PluginInfo(const char* dispname, const char* creator,
-               const char* version, const char* text)
-        : dispname_( dispname )
-        , creator_( creator )
-        , version_( version )
-        , text_( text )
-    {}
+    enum LicenseType{ GPL, COMMERCIAL };
 
+    PluginInfo(const char* dispname, const char* prodnm, const char* creator,
+               const char* version, const char* text, LicenseType lt=GPL )
+        : dispname_(dispname)
+	, productname_(prodnm)
+        , creator_(creator)
+        , version_(version)
+        , text_(text)
+	, lictype_(lt)
+    {}
+   
     const char*	dispname_;
+    const char*	productname_;
     const char*	creator_;
     const char*	version_;
     const char*	text_;
-
+    LicenseType lictype_;
 };
 
 /* } -- for the extern "C" */
