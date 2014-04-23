@@ -84,8 +84,8 @@ void uiPluginSel::makeProductList(
 	    else
 		products_[prodidx]->libs_.addIfNew( PIM().userName(data.name_));
 
-	    const int strln = strlen( product->productname_ );
-	    maxpluginname_ = maxpluginname_ < strln ? strln : maxpluginname_;
+	    const int strsz = FixedString(product->productname_).size();
+	    maxpluginname_ = maxpluginname_ < strsz ? strsz : maxpluginname_;
 	}
     }
 }
