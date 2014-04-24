@@ -51,6 +51,7 @@ public:
 					  bool attrsneedupdt =false);
 			~uiAttribDescSetEd();
 
+    void		setDescSetMan(Attrib::DescSetMan*);
     Attrib::DescSet*	getSet()		{ return attrset_; }
     const MultiID&	curSetID() const	{ return setid_; }
 
@@ -75,6 +76,7 @@ public:
     Notifier<uiAttribDescSetEd>		evalattrcb;
     Notifier<uiAttribDescSetEd>		crossevalattrcb;
     Notifier<uiAttribDescSetEd>		xplotcb;
+    Notifier<uiAttribDescSetEd>		applycb;
 
     static const char*	sKeyUseAutoAttrSet;
     static const char*	sKeyAuto2DAttrSetID;

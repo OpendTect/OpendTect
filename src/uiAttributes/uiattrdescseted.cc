@@ -80,9 +80,8 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
 					: "Attribute Set 3D","",
                                         mODHelpKey(mAttribDescSetEdHelpID) )
-	.savebutton(true).savetext("Save on OK  ")
-	.menubar(true)
-	.modal(false))
+	.savebutton(true).savetext("Save on Apply")
+	.menubar(true).modal(false))
     , inoutadsman_(adsm)
     , userattrnames_(*new BufferStringSet)
     , setctio_(*mMkCtxtIOObj(AttribDescSet))
@@ -92,10 +91,12 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , evalattrcb(this)
     , crossevalattrcb(this)
     , xplotcb(this)
+    , applycb(this)
     , adsman_(0)
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
+    setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
 					   adsm->is2D() ? "3D" : "2D" );
 
@@ -260,8 +261,9 @@ void uiAttribDescSetEd::createGroups()
 
 void uiAttribDescSetEd::init()
 {
-    delete attrset_; attrset_ = 0;
+    delete attrset_;
     attrset_ = new Attrib::DescSet( *inoutadsman_->descSet() );
+    delete adsman_;
     adsman_ = new DescSetMan( inoutadsman_->is2D(), attrset_ );
     adsman_->fillHist();
     adsman_->setSaved( inoutadsman_->isSaved() );
@@ -342,6 +344,13 @@ uiAttribDescSetEd::~uiAttribDescSetEd()
     delete &userattrnames_;
     delete &setctio_;
     delete adsman_;
+}
+
+
+void uiAttribDescSetEd::setDescSetMan( DescSetMan* adsman )
+{
+    inoutadsman_ = adsman;
+    init();
 }
 
 
@@ -579,7 +588,8 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
 
     prevsavestate = saveButtonChecked();
     nmprefgrp_ = attrtypefld_->group();
-    return true;
+    applycb.trigger();
+    return false;
 }
 
 
@@ -956,6 +966,8 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	    }
 	}
     }
+
+    applycb.trigger();
 }
 
 

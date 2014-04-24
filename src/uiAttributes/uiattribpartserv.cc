@@ -172,15 +172,19 @@ void uiAttribPartServer::useAutoSet( bool is2d )
 bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 {
     DescSet* ads = new DescSet(is2d);
-    if ( !ads->usePar(iopar) )
+    TypeSet<uiString> errmsgs;
+    if ( !ads->usePar(iopar,&errmsgs) )
     {
 	delete ads;
+	uiMSG().errorWithDetails( errmsgs );
 	return false;
     }
     eDSHolder().replaceAttribSet( ads );
 
     DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
     adsman->attrsetid_ = "";
+    if ( attrsetdlg_ && attrsetdlg_->is2D()==is2d )
+	attrsetdlg_->setDescSetMan( adsman );
     set2DEvent( is2d );
     sendEvent( evNewAttrSet() );
     return true;
@@ -225,7 +229,7 @@ bool uiAttribPartServer::editSet( bool is2d )
     delete attrsetdlg_;
     attrsetdlg_ = new uiAttribDescSetEd( parent(),
 					 const_cast<DescSetMan*>(adsman), 0 );
-    attrsetdlg_->applyPushed.notify(
+    attrsetdlg_->applycb.notify(
 		mCB(this,uiAttribPartServer,attrsetDlgApply) );
     attrsetdlg_->dirshowcb.notify(
 		mCB(this,uiAttribPartServer,directShowAttr) );
