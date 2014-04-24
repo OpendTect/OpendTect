@@ -425,9 +425,9 @@ void MathProperty::setInput( int iinp, const Property* p )
 }
 
 
-const char* MathProperty::formText() const
+const char* MathProperty::formText( bool usrdisp ) const
 {
-    return form_.text();
+    return usrdisp ? form_.userDispText() : form_.text();
 }
 
 

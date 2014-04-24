@@ -70,13 +70,18 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     if ( setup_.withunits_ )
     {
-	uiUnitSel::Setup uussu( PropertyRef::Other, "Formula result is" );
-	uussu.selproptype( true ).withnone( true );
+	const bool haveproptype = setup_.proptype_ != PropertyRef::Other;
+	uiUnitSel::Setup uussu( PropertyRef::Other,
+		haveproptype ? "Formula output unit" : "Formula result is" );
+	uussu.selproptype( !haveproptype ).withnone( true );
 	unitfld_ = new uiUnitSel( this, uussu );
 	unitfld_->attach( alignedBelow,
 				inpflds_[inpflds_.size()-1]->attachObj() );
-	unitfld_->propSelChange.notify( unitsetcb );
 	unitfld_->selChange.notify( unitsetcb );
+	if ( haveproptype )
+	    unitfld_->setPropType( setup_.proptype_ );
+	else
+	    unitfld_->propSelChange.notify( unitsetcb );
     }
 
     uiButtonGroup* bgrp = 0;
@@ -104,7 +109,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	bgrp->attach( rightBorder );
     }
 
-    postFinalise().notify( formsetcb );
+    postFinalise().notify( mCB(this,uiMathFormula,initFlds) );
 }
 
 
@@ -267,6 +272,16 @@ double uiMathFormula::getConstVal( int inpidx ) const
 const UnitOfMeasure* uiMathFormula::getUnit() const
 {
     return unitfld_ ? unitfld_->getUnit() : 0;
+}
+
+
+void uiMathFormula::initFlds( CallBacker* )
+{
+    if ( form_.isOK() )
+    {
+	useForm();
+	formSet.trigger();
+    }
 }
 
 

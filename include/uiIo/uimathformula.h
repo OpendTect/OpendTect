@@ -38,13 +38,15 @@ public:
     public:
 			Setup( const char* lbl=0 )
 			    : label_(lbl)
+			    , maxnrinps_(6)
 			    , withunits_(true)
-			    , maxnrinps_(6)		{}
+			    , proptype_(PropertyRef::Other)	{}
 
 	mDefSetupMemb(BufferString,label);
-	mDefSetupMemb(bool,withunits);
 	mDefSetupMemb(int,maxnrinps);
 	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
+	mDefSetupMemb(bool,withunits);
+	mDefSetupMemb(PropertyRef::StdType,proptype); // used if withunits_
 
     };
 
@@ -102,6 +104,7 @@ protected:
     bool		checkValidNrInputs() const;
     BufferString	getIOFileName(bool forread);
 
+    void		initFlds(CallBacker*);
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);

@@ -11,46 +11,31 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-
-#include "mathproperty.h"
-#include "propertyref.h"
 #include "uidialog.h"
 
-namespace Math { class Expression; }
-class uiMathExpression;
-class uiMathExpressionVariable;
-class uiUnitSel;
-class uiListBox;
-class uiPushButton;
+namespace Math { class Formula; }
+class MathProperty;
+class PropertyRefSelection;
+class uiMathFormula;
+
 
 mExpClass(uiIo) uiMathPropEdDlg : public uiDialog
 {
 public:
+
 			uiMathPropEdDlg(uiParent*,MathProperty&,
 					const PropertyRefSelection&);
 
 			~uiMathPropEdDlg();
 
-    void		insProp(CallBacker*);
-    void		rockPhysReq(CallBacker*);
-    void		updVarsOnScreen(CallBacker* cb=0);
-    void		updateMathExpr();
-    bool		acceptOK(CallBacker*);
-    void		replPushed(CallBacker*);
-    void		replaceInputsInFormula();
-    BufferString	formulaStr() const;
-
 protected:
 
     MathProperty&	prop_;
-    uiMathExpression*	formfld_;
-    uiListBox*		propfld_;
-    Math::Expression*	expr_;
-    BufferStringSet	inputunits_;
-    int			nrvars_;
-    uiPushButton*	replbut_;
-    uiUnitSel*		outunfld_;
-    ObjectSet<uiMathExpressionVariable> inpdataflds_;
+    uiMathFormula*	formfld_;
+
+    void		rockPhysReq(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
 };
 
 #endif

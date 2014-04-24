@@ -101,6 +101,7 @@ public:
     uiGenInput*		deffld_;
 
     const UnitOfMeasure* curunit_;
+    MathProperty	mathprop_;
 
     void		setForm(CallBacker*);
     void		unitSel(CallBacker*);
@@ -116,6 +117,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
                                  "' property"),
 		                 mODHelpKey(mEditPropRefHelpID) ))
     , pr_(pr)
+    , mathprop_(pr)
     , withform_(supportform)
     , curunit_(0)
 {
@@ -152,7 +154,10 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     deffld_ = new uiGenInput( this, "[Default value (if supported)]" );
     deffld_->attach( alignedBelow, rgfld_ );
     if ( pr_.disp_.defval_ )
-	deffld_->setText( pr_.disp_.defval_->def() );
+    {
+	mathprop_.setDef( pr_.disp_.defval_->def() );
+	deffld_->setText( mathprop_.formText(true) );
+    }
     if ( withform_ )
     {
 	uiPushButton* but = new uiPushButton( this, "&Formula",
@@ -191,7 +196,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
     formfld_ = new uiMathExpression( this, mesu );
     formfld_->formSet.notify( mCB(this,uiEditPropRefMathDef,formSet) );
-    FileMultiString defstr( pr_.disp_.defval_ ? 
+    FileMultiString defstr( pr_.disp_.defval_ ?
     pr_.disp_.defval_->def() : "" );
     BufferString curdef = defstr[0];
     if ( !pr_.disp_.defval_ )
@@ -229,7 +234,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 void rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", 
+		  "Use a rock physics formula",
                   mODHelpKey(mEditPropRefMathDefRockPhysReq) ) );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, pr_.stdType() );
 
@@ -321,14 +326,13 @@ void getMathExpr()
 void uiEditPropRef::setForm( CallBacker* )
 {
     PropertyRefSelection prsel;
+    prsel += &PropertyRef::thickness();
     for ( int idx=0; idx<PROPS().size(); idx++ )
-	prsel+= PROPS()[idx];
+	prsel += PROPS()[idx];
 
-    MathProperty mathprop( pr_ );
-
-    uiMathPropEdDlg dlg( parent(), mathprop, prsel );
+    uiMathPropEdDlg dlg( parent(), mathprop_, prsel );
     if ( dlg.go() )
-	deffld_->setText( dlg.formulaStr() );
+	deffld_->setText( mathprop_.formText(true) );
 }
 
 
@@ -365,10 +369,10 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 	{ delete pr_.disp_.defval_; pr_.disp_.defval_ = 0; }
     else
     {
-	if ( withform_ && defvalstr.isNumber() )
+	if ( !withform_ || defvalstr.isNumber() )
 	    pr_.disp_.defval_ = new ValueProperty( pr_, defvalstr.toFloat() );
 	else
-	    pr_.disp_.defval_ = new MathProperty( pr_, defvalstr );
+	    pr_.disp_.defval_ = new MathProperty( mathprop_ );
     }
 
     return true;
@@ -387,7 +391,7 @@ void uiBuildPROPS::editReq( bool isadd )
     {
 	PropertyRef::StdType typ = PropertyRef::Other;
 	PropertyRef::parseEnumStdType( nm, typ );
-	pr = new PropertyRef( "", typ );
+	pr = new PropertyRef( nm, typ );
     }
     if ( !pr ) return;
 

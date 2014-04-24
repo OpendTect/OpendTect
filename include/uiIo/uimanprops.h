@@ -23,13 +23,13 @@ class uiGenInput;
 class uiListBox;
 
 
-/*!\brief Manages the PROPS(). */
+/*!\brief Manages the PROPS() */
 
 mExpClass(uiIo) uiManPROPS : public uiDialog
 {
 public:
 
-    			uiManPROPS(uiParent*);
+			uiManPROPS(uiParent*);
 
     bool		haveUserChange() const;
 
@@ -52,14 +52,14 @@ protected:
   uiSelectPropRefs dlg( this, prs );
   if ( dlg.go() || dlg.structureChanged() )
       handleRefChanges();
- 
+
  */
 
 mExpClass(uiIo) uiSelectPropRefs : public uiDialog
 {
 public:
 
-    			uiSelectPropRefs(uiParent*,PropertyRefSelection&,
+			uiSelectPropRefs(uiParent*,PropertyRefSelection&,
 					 const char* lbltxt=0);
 
     bool		structureChanged() const	{ return structchg_; }

@@ -50,7 +50,7 @@ public:
     mDefPropertyFns(MathProperty,"Math");
 
 			// convenience, shielding from Math::Formula
-    const char*		formText() const;
+    const char*		formText(bool user_display=false) const;
     int			nrInputs() const;
     const char*		inputName(int) const;
     const UnitOfMeasure* inputUnit(int) const;
