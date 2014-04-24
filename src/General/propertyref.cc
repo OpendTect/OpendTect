@@ -521,3 +521,38 @@ PropertyRefSelection PropertyRefSelection::subselect(
 
     return subsel;
 }
+
+
+PropertyRefSelection PropertyRefSelection::getAll( bool withth,
+					const PropertyRef* exclude )
+{
+    PropertyRefSelection ret;
+    if ( !withth )
+	ret -= &PropertyRef::thickness();
+
+    const PropertyRefSet& props = PROPS();
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const PropertyRef* pr = props[idx];
+	if ( pr != exclude )
+	    ret += pr;
+    }
+    return ret;
+}
+
+
+PropertyRefSelection PropertyRefSelection::getAll( PropertyRef::StdType typ )
+{
+    PropertyRefSelection ret;
+    if ( typ != PropertyRef::Dist )
+	ret -= &PropertyRef::thickness();
+
+    const PropertyRefSet& props = PROPS();
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const PropertyRef* pr = props[idx];
+	if ( pr->stdType() == typ )
+	    ret += pr;
+    }
+    return ret;
+}

@@ -184,10 +184,10 @@ MathProperty* RockPhysics::Formula::getProperty( const PropertyRef* pr ) const
 {
     if ( !pr )
     {
-	const int idxfirst = PROPS().indexOf( type_ );
-	if ( idxfirst < 0 )
+	PropertyRefSelection prs = PropertyRefSelection::getAll( type_ );
+	if ( prs.isEmpty() )
 	    return 0;
-	pr = PROPS()[idxfirst];
+	pr = prs[0];
     }
     return new MathProperty( *pr, def_ );
 }

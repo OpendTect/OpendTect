@@ -65,7 +65,7 @@ public:
 			{ return stdtype_ == t; }
     inline bool		isCompatibleWith( const PropertyRef& pr ) const
 			{ return hasType(pr.stdType()); }
-    inline void		setStdType( StdType t ) 	{ stdtype_ = t; }
+    inline void		setStdType( StdType t )	{ stdtype_ = t; }
 
     inline BufferStringSet& aliases()			{ return aliases_; }
     inline const BufferStringSet& aliases() const	{ return aliases_; }
@@ -92,7 +92,7 @@ public:
     DispDefs		disp_;
 
     static const PropertyRef& thickness();
-    		//!< use this always. It has automatic defaults from SI()
+		//!< use this always. It has automatic defaults from SI()
     inline bool		isThickness() const	{ return this == &thickness(); }
 
 protected:
@@ -111,14 +111,14 @@ mExpClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
-    			PropertyRefSet()		{}
-    			PropertyRefSet( const PropertyRefSet& prs )
+			PropertyRefSet()		{}
+			PropertyRefSet( const PropertyRefSet& prs )
 							{ *this = prs; }
 			~PropertyRefSet()		{ deepErase(*this); }
     PropertyRefSet&	operator =(const PropertyRefSet&);
 
     inline bool		isPresent( const char* nm ) const
-     			{ return indexOf(nm) >= 0; }
+			{ return indexOf(nm) >= 0; }
     int			indexOf(const char*) const;
     int			indexOf(PropertyRef::StdType,int occ=0) const;
     inline PropertyRef*	find( const char* nm )		{ return fnd(nm); }
@@ -126,11 +126,11 @@ public:
 
     int			add(PropertyRef*);
 			//!< refuses if another one isKnownAs. If not added,
-     			//!< clean up the mess yourself (i.e. delete it)
+			//!< clean up the mess yourself (i.e. delete it)
     virtual PropertyRefSet& operator +=( PropertyRef* pr )
-     			{ add(pr); return *this; }
+			{ add(pr); return *this; }
     int			ensurePresent(PropertyRef::StdType,const char* nm1,
-	    			      const char* nm2=0,const char* nm3=0);
+				      const char* nm2=0,const char* nm3=0);
 
     bool		save(Repos::Source) const;
 
@@ -158,7 +158,7 @@ mExpClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
 {
 public:
 
-    			PropertyRefSelection();
+			PropertyRefSelection();
     bool		operator ==(const PropertyRefSelection&) const;
 
     int			indexOf(const char*) const;
@@ -176,9 +176,12 @@ public:
 			  return idx < 0 ? 0 : (*this)[idx]; }
 
     PropertyRefSelection subselect(PropertyRef::StdType) const;
+
+    static PropertyRefSelection getAll(bool with_thickness=true,
+					const PropertyRef* exclude=0);
+    static PropertyRefSelection getAll(PropertyRef::StdType);
+
 };
 
 
 #endif
-
-

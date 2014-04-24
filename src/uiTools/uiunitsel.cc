@@ -85,6 +85,7 @@ void uiUnitSel::init()
     }
 
     update();
+    usePar( lastUsed() );
 }
 
 

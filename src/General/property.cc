@@ -400,8 +400,9 @@ PropertyRef::StdType MathProperty::inputType( int iinp ) const
 	    return inp->ref().stdType();
     }
 
+    PropertyRefSelection prs( PropertyRefSelection::getAll(true,&ref()) );
     const char* propnm = form_.inputDef( iinp );
-    const PropertyRef* pr = PROPS().find( propnm );
+    const PropertyRef* pr = prs.get( propnm );
     if ( pr )
 	return pr->stdType();
 
