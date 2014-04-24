@@ -1192,6 +1192,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 			   mCB(this,uiMPEPartServer,trackerWinClosedCB) );
     setupdlg->go();
     sendEvent( uiMPEPartServer::evSetupLaunched() );
+    sendEvent( uiMPEPartServer::evShowToolbar() );
 
     return true;
 }
