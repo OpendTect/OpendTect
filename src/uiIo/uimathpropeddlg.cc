@@ -37,8 +37,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 
     uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( false );
     formfld_ = new uiMathExpression( formgrp, mesu );
-    FileMultiString fms( prop_.def() );
-    formfld_->setText( fms[0] );
+    formfld_->setText( prop_.formText() );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 		    mCB(this,uiMathPropEdDlg,rockPhysReq), "&Rock Physics");
     formfld_->addButton( tbsu )->attach( centeredAbove, formfld_->textField() );
@@ -68,6 +67,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     svs.add( "Depth", "Vertical depth", true, PropertyRef::Dist );
     svs.add( "XPos", "Relative horizontal position (0-1)" );
     uiGroup* varsgrp = new uiGroup( this, "Variable selection group" );
+    const int nrinps = prop_.nrInputs();
     for ( int idx=0; idx<cMaxNrInps; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(
@@ -76,7 +76,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );
 	inpdataflds_ += fld;
-	const UnitOfMeasure* uom = prop_.inputUnit( idx );
+	const UnitOfMeasure* uom = idx < nrinps ? prop_.inputUnit( idx ) : 0;
 	if ( uom )
 	    fld->setUnit( uom->name() );
     }
@@ -89,7 +89,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     uiUnitSel::Setup uussu( pr.ref().stdType(), "Output is" );
     uussu.selproptype( false ).withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
-    outunfld_->setUnit( fms[pr.nrConsts()+1] );
+    outunfld_->setUnit( prop_.unit() );
     outunfld_->attach( alignedBelow, replbut_ );
 
     varsgrp->attach( alignedBelow, formgrp );

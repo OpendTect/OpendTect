@@ -8,17 +8,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathproperty.h"
 #include "propertyref.h"
-#include "mathexpression.h"
+#include "mathformula.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include "separstr.h"
 #include <typeinfo>
-
-static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
-static const ValueProperty depthprop( depthpropref, 0 );
-static const PropertyRef xpospropref( "XPos", PropertyRef::Volum );
-static const ValueProperty xposprop( xpospropref, 0 );
 
 
 const char* Property::name() const
@@ -73,6 +68,9 @@ Property* Property::get( const IOPar& iop )
 }
 
 
+//------- ValueProperty ----------
+
+
 const char* ValueProperty::def() const
 {
     return ::toString( val_ );
@@ -96,6 +94,9 @@ float ValueProperty::gtVal( Property::EvalOpts ) const
 {
     return val_;
 }
+
+
+//------- RangeProperty ----------
 
 
 const char* RangeProperty::def() const
@@ -152,144 +153,89 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 }
 
 
+//------- MathProperty ----------
+
+static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
+static const ValueProperty depthprop( depthpropref, 0 );
+static const PropertyRef xpospropref( "XPos", PropertyRef::Volum );
+static const ValueProperty xposprop( xpospropref, 0 );
+static const FixedString sKeyMathForm( "Formula: " );
+
+
+static Math::SpecVarSet& getSpecVars()
+{
+    mDefineStaticLocalObject( Math::SpecVarSet, svs, );
+
+    if ( svs.isEmpty() )
+    {
+	    svs.add( "Depth", "Depth", true, PropertyRef::Dist );
+	    svs.add( "Z", "Depth", true, PropertyRef::Dist );
+	    svs.add( "XPos", "Relative horizontal position (0-1)" );
+    }
+
+    return svs;
+}
+
+
 MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
-    , expr_(0)
-    , uom_(0)
-    , formulauom_(0)
+    , form_(*new Math::Formula(false,getSpecVars()))
 {
-    inps_.allowNull( true ); inpunits_.allowNull( true );
+    inps_.allowNull( true );
     if ( df && *df )
 	setDef( df );
 }
 
 
-MathProperty::MathProperty( const MathProperty& mp )
-    : Property(mp.ref())
-    , expr_(0)
-    , uom_(mp.uom_)
-    , formulauom_(mp.formulauom_)
+MathProperty::MathProperty( const MathProperty& oth )
+    : Property(oth.ref())
+    , form_(*new Math::Formula(oth.form_))
+    , inps_(oth.inps_)
 {
-    inps_.allowNull( true ); inpunits_.allowNull( true );
-    if ( !mp.def_.isEmpty() )
-	setDef( mp.def_ );
-    inpunits_.erase();
-    for ( int idx=0; idx<mp.inpunits_.size(); idx++ )
-	inpunits_ += mp.inpunits_[idx];
 }
 
 
 MathProperty::~MathProperty()
 {
-    delete expr_;
+    delete &form_;
 }
 
 
-static int getNrVars( const Math::Expression* me, bool var )
+bool MathProperty::init( const PropertySet& ps ) const
 {
-    if ( !me ) return 0;
-    const int nrvars = me->nrVariables();
-    int ret = 0;
-    for ( int idx=0; idx<nrvars; idx++ )
+    if ( !form_.isOK() )
+	{ errmsg_.set( "No valid definition for " ).add(name()); return false; }
+
+    const int nrinps = form_.nrInputs();
+    inps_.erase();
+    for ( int iinp=0; iinp<nrinps; iinp++ )
     {
-	if (  (var && me->getType(idx) == Math::Expression::Variable)
-	  || (!var && me->getType(idx) == Math::Expression::Constant) )
-	    ret++;
+	const Property* prop = 0;
+	if ( form_.isSpec(iinp) )
+	    prop = form_.specIdx(iinp) < 2 ? &depthprop : &xposprop;
+	else if ( !form_.isConst(iinp) )
+	{
+	    const char* inpnm = form_.inputDef( iinp );
+	    prop = ps.find( inpnm );
+	    if ( !prop )
+	    {
+		errmsg_ = "Missing input or dependency loop for '";
+		errmsg_.add(name()).add("': '").add(inpnm).add("'");
+		return false;
+	    }
+	}
+
+	if ( prop && dependsOn(*prop) )
+	{
+	    errmsg_ = "Cyclic dependency loop for '";
+	    errmsg_.add(name()).add("': '").add(prop->name()).add("'");
+	    return false;
+	}
+
+	inps_ += prop;
     }
-    return ret;
-}
 
-
-int MathProperty::nrInputs() const
-{
-    return getNrVars( expr_, true );
-}
-
-
-int MathProperty::nrConsts() const
-{
-    return getNrVars( expr_, false );
-}
-
-
-static const char* getVarName( const Math::Expression* me, int nr, bool var )
-{
-    if ( !me || nr < 0 ) return 0;
-    const int nrvars = me->nrVariables();
-    int varnr = -1;
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	if (  (var && me->getType(idx) == Math::Expression::Variable)
-	  || (!var && me->getType(idx) == Math::Expression::Constant) )
-	    varnr++;
-	if ( varnr == nr )
-	    return me->fullVariableExpression( idx );
-    }
-    return 0;
-}
-
-
-const char* MathProperty::inputName( int idx ) const
-{
-    return getVarName( expr_, idx, true );
-}
-
-
-PropertyRef::StdType MathProperty::inputType( int idx ) const
-{
-    const Property* inp = inps_[idx];
-    if ( !inp ) return PropertyRef::Other;
-
-    return inp->ref().stdType();
-}
-
-
-const char* MathProperty::constName( int idx ) const
-{
-    return getVarName( expr_, idx, false );
-}
-
-
-void MathProperty::setInput( int idx, const Property* p )
-{
-    if ( p && p->dependsOn(*this) )
-    {
-	BufferString msg( "Invalid cyclic dependency for property " );
-	msg += ref().name();
-	ErrMsg( msg );
-	p = 0;
-    }
-    inps_.replace( idx, p );
-}
-
-
-const UnitOfMeasure* MathProperty::inputUnit( int idx ) const
-{
-    return idx >= 0 && idx<inpunits_.size() ? inpunits_[idx] : 0;
-}
-
-
-void MathProperty::setInputUnit( int idx, const UnitOfMeasure* un )
-{
-    if ( idx < 0 || idx >= inps_.size() )
-	return;
-    while ( inpunits_.size() <= idx )
-	addDefInpUnit();
-    inpunits_.replace( idx, un );
-}
-
-
-float MathProperty::constValue( int idx ) const
-{
-    return idx < 0 || idx >= consts_.size() ? 0 : consts_[idx];
-}
-
-
-void MathProperty::setConst( int idx, float f )
-{
-    while ( consts_.size() <= idx )
-	consts_ += 0;
-    consts_[ idx ] = f;
+    return true;
 }
 
 
@@ -308,224 +254,94 @@ bool MathProperty::dependsOn( const Property& p ) const
 }
 
 
-void MathProperty::ensureGoodVariableName( char* nm )
-{
-    if ( !nm || !*nm )
-        { pFreeFnErrMsg("Knurft","ensureGoodVariableName"); return; }
-
-    // squeeze out all crap
-    const int len = FixedString(nm).size();
-    int curidx = 0;
-    for ( int ich=0; ich<len; ich++ )
-    {
-	const char ch = nm[ich];
-	if ( isalnum(ch) || ch == '_' )
-	    { nm[curidx] = ch; curidx++; }
-    }
-    nm[curidx] = '\0';
-}
-
-
-static bool isMathMatch( const BufferString& reqnm, const char* str )
-{
-    BufferString depnm( str );
-    MathProperty::ensureGoodVariableName( depnm.getCStr() );
-    return depnm == reqnm;
-}
-
-
-const Property* MathProperty::findInput( const PropertySet& ps, const char* nm,
-					 bool mainname ) const
-{
-    if ( !nm || !*nm || caseInsensitiveEqual(nm,"depth")
-		     || caseInsensitiveEqual(nm,"z") )
-	return &depthprop;
-    else if ( caseInsensitiveEqual(nm,"xpos") )
-	return &xposprop;
-
-    BufferString reqnm( nm ); ensureGoodVariableName( reqnm.getCStr() );
-    const Property* ret = 0;
-    for ( int idx=0; idx<ps.size(); idx++ )
-    {
-	const Property& depp = ps.get( idx );
-	if ( this == &depp ) continue;
-	if ( mainname )
-	{
-	    if ( isMathMatch(reqnm,depp.name()) )
-		ret = &depp;
-	}
-	else
-	{
-	    for ( int ial=0; ial<depp.ref().aliases().size(); ial++ )
-	    {
-		if ( isMathMatch(reqnm,depp.ref().aliases().get(ial).buf()) )
-		    { ret = &depp; break; }
-	    }
-	}
-	if ( ret ) break;
-    }
-    if ( !ret )
-	return ret;
-
-    mDynamicCastGet(const MathProperty*,mp,ret)
-    return mp && mp->isDepOn(*this) ? 0 : ret;
-}
-
-
-bool MathProperty::isDepOn( const Property& p ) const
-{
-    if ( &p == this ) return true;
-
-    for ( int idep=0; idep<inps_.size(); idep++ )
-    {
-	const Property* inp = inps_[idep];
-	if ( inp == &p )
-	    return true;
-
-	mDynamicCastGet(const MathProperty*,mpinp,inp)
-	if ( mpinp && mpinp->isDepOn(p) )
-	    return true;
-    }
-    return false;
-}
-
-
-void MathProperty::addDefInpUnit() const
-{
-    const int inpidx = inpunits_.size();
-    const Property* pr = inps_[inpidx];
-    const UnitOfMeasure* uom = 0;
-    if ( pr )
-	uom = UoMR().get( pr->ref().stdType(), pr->ref().disp_.unit_ );
-    inpunits_ += uom;
-}
-
-
-bool MathProperty::init( const PropertySet& ps ) const
-{
-    if ( !expr_ )
-    {
-	errmsg_ = "No valid definition for "; errmsg_.add(name());
-	return false;
-    }
-
-    const int nrinps = expr_->nrVariables();
-    inps_.erase();
-    while ( nrinps > inps_.size() )
-	inps_ += findInput( ps, inputName(inps_.size()), true );
-    while ( inpunits_.size() < nrinps )
-	addDefInpUnit();
-
-    for ( int idep=0; idep<nrinps; idep++ )
-    {
-	if ( inps_[idep] ) continue;
-	const char* nm = inputName( idep );
-	inps_.replace( idep, findInput( ps, nm, false ) );
-	if ( !inps_[idep] )
-	{
-	    errmsg_ = "Missing input or dependency loop for '";
-	    errmsg_.add(name()).add("': '").add(nm).add("'");
-	    return false;
-	}
-    }
-
-    return true;
-}
-
-
 const char* MathProperty::def() const
 {
-    FileMultiString fms( def_ );
-    const int nrconsts = nrConsts();
-    for ( int idx=0; idx<nrconsts; idx++ )
-    {
-	BufferString cdef( "c", idx, "=" );
-	cdef.add( constValue(idx) );
-	fms += cdef;
-    }
-    if ( formulauom_ )
-	fms += formulauom_->name();
-    else
-	fms.add( "" );
-
-    for ( int idx=0; idx<inpunits_.size(); idx++ )
-	fms.add( inpunits_[idx] ? inpunits_[idx]->name() : "" );
-
-    fulldef_ = fms;
+    IOPar iop;
+    form_.fillPar( iop );
+    BufferString iopdef;
+    iop.putTo( iopdef );
+    fulldef_.set( sKeyMathForm ).add( iopdef );
     return fulldef_.buf();
 }
 
 
-void MathProperty::setDef( const char* s )
+void MathProperty::setDef( const char* defstr )
 {
-    inps_.erase(); consts_.erase(); inpunits_.erase();
-    FileMultiString fms( s );
-    def_ = fms[0];
-    Math::ExpressionParser mep( def_ );
-    delete expr_; expr_ = mep.parse();
-    if ( !expr_ ) return;
+    inps_.erase(); form_.clearInputDefs();
 
-    const int varsz = getNrVars( expr_, true );
-    const int constsz = getNrVars( expr_, false );
+    if ( !FixedString(defstr).startsWith(sKeyMathForm) )
+	{ setPreV5Def( defstr ); return; }
+
+    defstr += sKeyMathForm.size();
+    IOPar iop; iop.getFrom( defstr );
+    form_.usePar( iop );
+}
+
+
+void MathProperty::setPreV5Def( const char* inpstr )
+{
+    FileMultiString fms( inpstr );
     const int fmssz = fms.size();
+    BufferString defstr( fms[0] );
+    if ( defstr.isEmpty() )
+	return;
 
-    for ( int idx=0; idx<fmssz; idx++ )
+    // Variables were the property names, need to replace them with "propX"
+    const PropertyRefSet& props = PROPS();
+    BufferStringSet propnms;
+    for ( int idx=-1; idx<props.size(); idx++ )
     {
-	BufferString word( fms[idx] );
-	const int wordlen = word.size();
-	if ( wordlen < 3 || wordlen > 4 )
+	const char* propnm = idx<0 ? "Thickness" : props[idx]->name().buf();
+	if ( !defstr.contains(propnm) )
 	    continue;
-	if ( word[0] == 'c' && isdigit(word[1]) && word[2] == '=' )
-	    consts_ += toFloat( word.buf() + 3 );
+	const BufferString varnm( "prop", propnms.size()+1 );
+	defstr.replace( propnm, varnm );
+	propnms.add( propnm );
+    }
+    form_.setText( defstr );
+    if ( !form_.isOK() )
+	return;
+
+    const int nrinps = form_.nrInputs();
+    for ( int iinp=0; iinp<nrinps; iinp++ )
+    {
+	const BufferString varnm( form_.variableName(iinp) );
+	if ( !varnm.startsWith("prop") )
+	{
+	    ErrMsg( BufferString("Could not fully use Pre-V5 math property."
+			"\nPlease replace '", inpstr, "'" ) );
+	    continue;
+	}
+
+	const int propidx = toInt( varnm.buf() + 4 ) - 1;
+	if ( !propnms.validIdx(propidx) )
+	    { pErrMsg("Huh"); continue; }
+
+	form_.setInputDef( iinp, propnms.get(propidx) );
     }
 
-    while ( constsz > consts_.size() )
-	consts_ += 0;
-    while ( varsz > inps_.size() )
-	inps_ += 0;
+    if ( fmssz > 1 )
+	form_.setOutputUnit( UoMR().get(fms[1]) );
 
-    if ( fmssz > constsz+1 )
-	formulauom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
-
-    for ( int idx=0; idx<inps_.size(); idx++ )
+    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
     {
-	const Property* inp = inps_[idx];
-	if ( fmssz <= constsz + 2 + idx )
-	    addDefInpUnit();
-	else if ( !inp )
-	    inpunits_ += UoMR().get( fms[constsz+2+idx] );
-	else
-	    inpunits_ += UoMR().get( inp->ref().stdType(), fms[constsz+2+idx] );
+	const UnitOfMeasure* uom = 0;
+	if ( fmssz > 2 + iinp )
+	    uom = UoMR().get( fms[2+iinp] );
+	form_.setInputUnit( iinp, uom );
     }
 }
 
 
 bool MathProperty::isUdf() const
 {
-    return def_.isEmpty();
-}
-
-
-static int getMathVarIdx( const Math::Expression& me, int nr, bool var )
-{
-    const int nrvars = me.nrVariables();
-    int curnr = -1;
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	if (  (var && me.getType(idx) == Math::Expression::Variable)
-	  || (!var && me.getType(idx) == Math::Expression::Constant) )
-	    curnr++;
-	if ( curnr == nr )
-	    return idx;
-    }
-    pFreeFnErrMsg("Huh?","getMathVarIdx");
-    return 0;
+    return !form_.isOK();
 }
 
 
 float MathProperty::gtVal( Property::EvalOpts eo ) const
 {
-    if ( !expr_ )
+    if ( isUdf() )
 	return mUdf(float);
 
     EvalOpts nonmatheo( eo );
@@ -533,40 +349,119 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	nonmatheo.valopt_ = EvalOpts::Prev;
     const EvalOpts matheo( eo );
 
-    for ( int idx=0; idx<inps_.size(); idx++ )
+    TypeSet<float> inpvals;
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
-	const Property* p = inps_[idx];
-	if ( !p ) return mUdf(float);
-	float v = eo.curz_;
-	if ( p == &xposprop )
-	    v = eo.relpos_;
-	else if ( p != &depthprop )
+	const Property* prop = inps_[iinp];
+	float val;
+	if ( !prop )
+	    val = form_.getConstVal( iinp );
+	else
 	{
-	    mDynamicCastGet(const MathProperty*,mp,p)
-	    v = p->value( mp ? matheo : nonmatheo );
-	    const UnitOfMeasure* uom = inpunits_[idx];
-	    if ( uom )
-		v = uom->getUserValueFromSI( v );
+	    if ( prop == &xposprop )
+		val = eo.relpos_;
+	    else if ( prop == &depthprop )
+	    {
+		val = eo.curz_;
+		if ( SI().depthsInFeet() )
+		    val *= mToFeetFactorF;
+	    }
+	    else
+	    {
+		mDynamicCastGet(const MathProperty*,mp,prop)
+		val = prop->value( mp ? matheo : nonmatheo );
+		const UnitOfMeasure* uom = form_.inputUnit( iinp );
+		if ( uom )
+		    val = uom->getUserValueFromSI( val );
+	    }
 	}
-	else if ( SI().depthsInFeet() )
-	    v *= mToFeetFactorF;
-	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
+	inpvals += val;
     }
 
-    for ( int idx=0; idx<consts_.size(); idx++ )
-	expr_->setVariableValue( getMathVarIdx(*expr_,idx,false),
-				 constValue(idx) );
-
-    float res = mCast(float,expr_->getValue());
-    if ( formulauom_ )
-	res = formulauom_->getSIValue( res );
-
-    if ( uom_ )
-	res = uom_->getUserValueFromSI( res );
-
-    return res;
+    return form_.getValue( inpvals.arr() );
 }
 
+
+PropertyRef::StdType MathProperty::inputType( int iinp ) const
+{
+    if ( iinp < 0 || iinp >= nrInputs() )
+	return PropertyRef::Other;
+
+    if ( inps_.validIdx(iinp) )
+    {
+	const Property* inp = inps_[iinp];
+	if ( inp )
+	    return inp->ref().stdType();
+    }
+
+    const char* propnm = form_.inputDef( iinp );
+    const PropertyRef* pr = PROPS().find( propnm );
+    if ( pr )
+	return pr->stdType();
+
+    return PropertyRef::Other;
+}
+
+
+void MathProperty::setInput( int iinp, const Property* p )
+{
+    if ( !inps_.validIdx(iinp) )
+	{ pErrMsg("idx out of range"); return; }
+
+    if ( p && p->dependsOn(*this) )
+    {
+	BufferString msg( "Invalid cyclic dependency for ", ref().name() );
+	ErrMsg( msg );
+	p = 0;
+    }
+
+    inps_.replace( iinp, p );
+}
+
+
+const char* MathProperty::formText() const
+{
+    return form_.text();
+}
+
+
+int MathProperty::nrInputs() const
+{
+    return form_.nrInputs();
+}
+
+
+const char* MathProperty::inputName( int iinp ) const
+{
+    return form_.inputDef( iinp );
+}
+
+
+const UnitOfMeasure* MathProperty::inputUnit( int iinp ) const
+{
+    return form_.inputUnit( iinp );
+}
+
+
+bool MathProperty::isConst( int iinp ) const
+{
+    return form_.isConst( iinp );
+}
+
+
+void MathProperty::setUnit( const UnitOfMeasure* uom )
+{
+    form_.setOutputUnit( uom );
+}
+
+
+const UnitOfMeasure* MathProperty::unit() const
+{
+    return form_.outputUnit();
+}
+
+
+//------- PropertySet ----------
 
 PropertySet::PropertySet( const PropertyRefSelection& prs )
 {
@@ -592,6 +487,7 @@ void PropertySet::replace( int idx, Property* p )
     if ( p )
 	delete props_.replace( idx, p );
 }
+
 
 int PropertySet::indexOf( const char* nm, bool matchaliases ) const
 {

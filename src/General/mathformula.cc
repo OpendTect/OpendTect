@@ -104,11 +104,24 @@ Math::Formula::~Formula()
 }
 
 
+const char* Math::Formula::userDispText() const
+{
+    mDeclStaticString( ret );
+    ret.set( text_ );
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+    {
+	if ( !isConst(iinp) && !isSpec(iinp) )
+	    ret.replace( variableName(iinp), inputDef(iinp) );
+    }
+    return ret;
+}
+
+
 int Math::Formula::varNameIdx( const char* varnm ) const
 {
-    for ( int idx=0; idx<inps_.size(); idx++ )
-	if ( inps_[idx].varname_ == varnm )
-	    return idx;
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+	if ( inps_[iinp].varname_ == varnm )
+	    return iinp;
     return -1;
 }
 
@@ -196,26 +209,26 @@ void Math::Formula::setText( const char* inp )
 }
 
 
-void Math::Formula::setInputDef( int idx, const char* def )
+void Math::Formula::setInputDef( int iinp, const char* def )
 {
-    if ( inps_.validIdx(idx) )
-	inps_[idx].inpdef_ = def;
+    if ( inps_.validIdx(iinp) )
+	inps_[iinp].inpdef_ = def;
 }
 
 
-void Math::Formula::setInputUnit( int idx, const UnitOfMeasure* uom )
+void Math::Formula::setInputUnit( int iinp, const UnitOfMeasure* uom )
 {
-    if ( inps_.validIdx(idx) )
-	inps_[idx].unit_ = uom;
+    if ( inps_.validIdx(iinp) )
+	inps_[iinp].unit_ = uom;
 }
 
 
 void Math::Formula::clearInputDefs()
 {
-    for ( int idx=0; idx<inps_.size(); idx++ )
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
-	inps_[idx].inpdef_.setEmpty();
-	inps_[idx].unit_ = 0;
+	inps_[iinp].inpdef_.setEmpty();
+	inps_[iinp].unit_ = 0;
     }
 }
 
@@ -229,6 +242,16 @@ int Math::Formula::specIdx( int iinp ) const
 double Math::Formula::getConstVal( int iinp ) const
 {
     return isConst( iinp ) ? toDouble( inputDef(iinp) ) : mUdf(double);
+}
+
+
+int Math::Formula::nrConsts() const
+{
+    int nr = 0;
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+	if ( isConst(iinp) )
+	    nr++;
+    return nr;
 }
 
 
@@ -252,8 +275,8 @@ float Math::Formula::getValue( const float* vals, bool internuns ) const
 {
     const int nrinpvals = nrValues2Provide();
     TypeSet<double> dvals;
-    for ( int idx=0; idx<nrinpvals; idx++ )
-	dvals += vals[idx];
+    for ( int ival=0; ival<nrinpvals; ival++ )
+	dvals += vals[ival];
     return (float)getValue( dvals.arr(), internuns );
 }
 
@@ -263,7 +286,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
     if ( inputsareseries_ && prevvals_.size() < maxRecShift() )
     {
 	startNewSeries();
-	for ( int idx=prevvals_.size(); idx<maxRecShift(); idx++ )
+	for ( int ishift=prevvals_.size(); ishift<maxRecShift(); ishift++ )
 	    prevvals_ += 0;
 
     }
@@ -301,7 +324,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 
 
 #define mDefInpKeybase \
-    const BufferString inpkybase( IOPar::compKey(sKey::Input(),idx) )
+    const BufferString inpkybase( IOPar::compKey(sKey::Input(),iinp) )
 #define mOutUnKy IOPar::compKey(sKey::Output(),sKey::Unit())
 #define mInpDefKy IOPar::compKey(inpkybase,"Def")
 #define mInpUnKy IOPar::compKey(inpkybase,sKey::Unit())
@@ -318,9 +341,9 @@ void Math::Formula::fillPar( IOPar& iop ) const
 	iop.set( sKeyRecStartVals(), recstartvals_ );
 
     iop.removeWithKeyPattern( BufferString(sKey::Input(),".*") );
-    for ( int idx=0; idx<inps_.size(); idx++ )
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
-	const InpDef& id = inps_[idx];
+	const InpDef& id = inps_[iinp];
 	mDefInpKeybase;
 
 	iop.set( mInpDefKy, id.inpdef_ );
@@ -343,9 +366,9 @@ void Math::Formula::usePar( const IOPar& iop )
 
     iop.get( sKeyRecStartVals(), recstartvals_ );
 
-    for ( int idx=0; idx<inps_.size(); idx++ )
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
-	InpDef& id = inps_[idx];
+	InpDef& id = inps_[iinp];
 	mDefInpKeybase;
 
 	iop.get( mInpDefKy, id.inpdef_ );

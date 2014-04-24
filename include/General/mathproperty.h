@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "property.h"
 class UnitOfMeasure;
-namespace Math { class Expression; }
+namespace Math { class Formula; }
 
 
 /*!\brief Calculated property
@@ -35,48 +35,37 @@ public:
 			MathProperty(const MathProperty&);
 			~MathProperty();
 
-    int			nrInputs() const;
-    const char*		inputName(int) const;
+    Math::Formula&	getForm()		{ return form_; }
+    const Math::Formula& getForm() const	{ return form_; }
+
     PropertyRef::StdType inputType(int) const;
-    const UnitOfMeasure* inputUnit(int) const;
-    const UnitOfMeasure* formulaOutputUnit() const;
-    void		setInputUnit(int idx,const UnitOfMeasure*);
-    void		setFormulaOutputUnit(const UnitOfMeasure*);
-    int			nrConsts() const;
-    const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
 			//!< Must be done for all inputs after each setDef()
-    float		constValue(int) const;
-    void		setConst(int,float);
 
     virtual bool	init(const PropertySet&) const;
     virtual const char*	errMsg() const		{ return errmsg_.buf(); }
     virtual bool	dependsOn(const Property&) const;
-    void		setUnit( const UnitOfMeasure* u )	{ uom_ = u; }
-    const UnitOfMeasure* unit() const				{ return uom_; }
 
     mDefPropertyFns(MathProperty,"Math");
 
-    static void		ensureGoodVariableName(char*);
-    bool		isDepOn(const Property&) const;
+			// convenience, shielding from Math::Formula
+    const char*		formText() const;
+    int			nrInputs() const;
+    const char*		inputName(int) const;
+    const UnitOfMeasure* inputUnit(int) const;
+    bool		isConst(int) const;
+    void		setUnit(const UnitOfMeasure*);
+    const UnitOfMeasure* unit() const;
 
 protected:
 
-    BufferString		def_;
-    const UnitOfMeasure*	uom_;
-    const UnitOfMeasure*	formulauom_;
-
-    mutable Math::Expression*	expr_;
+    Math::Formula&		form_;
     mutable ObjectSet<const Property> inps_;
-    mutable ObjectSet<const UnitOfMeasure> inpunits_;
-    mutable TypeSet<float>	consts_;
     mutable BufferString	errmsg_;
     mutable BufferString	fulldef_;
 
-    const Property*		findInput(const PropertySet&,const char*,
-					  bool) const;
-    void			addDefInpUnit() const;
+    void			setPreV5Def(const char*);
 
 };
 

@@ -166,10 +166,13 @@ bool RockPhysics::Formula::setDef( const char* str )
 
     const int nrvars = mp->nrInputs();
     for ( int idx=0; idx<nrvars; idx++ )
-	vardefs_ += new VarDef( mp->inputName(idx), mp->inputType(idx) );
-    const int nrconsts = mp->nrConsts();
-    for ( int idx=0; idx<nrconsts; idx++ )
-	constdefs_ += new ConstDef( BufferString("c",idx) );
+    {
+	const char* inpnm = mp->inputName( idx );
+	if ( mp->isConst(idx) )
+	    constdefs_ += new ConstDef( inpnm );
+	else
+	    vardefs_ += new VarDef( inpnm, mp->inputType(idx) );
+    }
 
     delete mp;
     return true;

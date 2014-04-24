@@ -185,6 +185,8 @@ public:
     const Expression*	expression() const	{ return expr_; };
     const SpecVarSet&	specVars() const	{ return specvars_; }
     bool		inputsAreSeries() const	{ return inputsareseries_; }
+    int			nrConsts() const;
+    const char*		userDispText() const;
 
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }
