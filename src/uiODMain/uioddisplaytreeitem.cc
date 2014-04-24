@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
 {
-    removemnuitem_.iconfnm = "stop";
+    removemnuitem_.iconfnm = "trashcan";
     histogrammnuitem_.iconfnm = "histogram";
     lockmnuitem_.iconfnm = "lock_small";
 }
@@ -202,7 +202,7 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 void uiODDisplayTreeItem::updateColumnText( int col )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,
-	    	    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( col==uiODSceneMgr::cNameColumn() )
     {
 	name_ = createDisplayName();
@@ -221,7 +221,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	if ( so->hasColor() )
 	{
 	    pixmap = new ioPixmap( uiODDataTreeItem::cPixmapWidth(),
-		    		   uiODDataTreeItem::cPixmapHeight() );
+				   uiODDataTreeItem::cPixmapHeight() );
 	    pixmap->fill( so->getColor() );
 	}
 
