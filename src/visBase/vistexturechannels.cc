@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturechannel2rgba.h"
 #include "coltabmapper.h"
+#include "mousecursor.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osg/Image>
@@ -512,11 +513,24 @@ void ChannelInfo::updateOsgImages()
 }
 
 
+class TextureChannels::TextureCallbackHandler :
+					public osgGeo::LayeredTexture::Callback
+{
+public:
+    TextureCallbackHandler()						{}
+    virtual void startWorkInProgress() const
+			{ MouseCursorManager::setOverride(MouseCursor::Wait); }
+    virtual void stopWorkInProgress() const
+			{ MouseCursorManager::restoreOverride(); }
+};
+
+
 #define mGetFilterType (interpolatetexture_ ? osgGeo::Linear : osgGeo::Nearest)
 
 TextureChannels::TextureChannels()
     : tc2rgba_( 0 )
     , osgtexture_( new osgGeo::LayeredTexture )
+    , texturecallbackhandler_( new TextureCallbackHandler() )
     , interpolatetexture_( true )
 {
     turnOn( true );
@@ -526,7 +540,10 @@ TextureChannels::TextureChannels()
 					 mGetFilterType );
     osgtexture_->setAnisotropicPower( 1 );
     osgtexture_->setSeamPower( 1 );
+
     osgtexture_->ref();
+    texturecallbackhandler_->ref();
+    osgtexture_->addCallback( texturecallbackhandler_ );
 
     addChannel();
 }
@@ -537,6 +554,8 @@ TextureChannels::~TextureChannels()
     deepErase( channelinfo_ );
     setChannels2RGBA( 0 );
 
+    osgtexture_->removeCallback( texturecallbackhandler_ );
+    texturecallbackhandler_->unref();
     osgtexture_->unref();
 }
 
@@ -954,6 +973,18 @@ void TextureChannels::enableTextureInterpolation( bool yn )
 bool TextureChannels::textureInterpolationEnabled() const
 {
     return interpolatetexture_;
+}
+
+
+void TextureChannels::setNonShaderResolution( int resolution )
+{
+    osgtexture_->setCompositeSubsampleSteps( resolution+1 );
+}
+
+
+int TextureChannels::getNonShaderResolution() const
+{
+    return osgtexture_->getCompositeSubsampleSteps()-1;
 }
 
 

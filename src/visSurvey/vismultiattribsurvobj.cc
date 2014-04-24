@@ -86,6 +86,9 @@ bool MultiTextureSurveyObject::init()
 	    resolution_ = toInt( envvar );
     }
 
+    if ( channels_ )
+	channels_->setNonShaderResolution( resolution_ );
+
     if ( resolution_ >= nrResolutions() )
         resolution_ = nrResolutions()-1;
 

@@ -49,6 +49,8 @@ store the instantaneous power of the signal.
 
 mExpClass(visBase) TextureChannels : public DataObject
 {
+    class TextureCallbackHandler;
+
 public:
     static TextureChannels*	create()
 				mCreateDataObj(TextureChannels);
@@ -109,6 +111,9 @@ public:
     void			enableTextureInterpolation(bool);
     bool			textureInterpolationEnabled() const;
 
+    void			setNonShaderResolution(int);
+    int 			getNonShaderResolution() const;
+
     unsigned char		nrDataBands() const;
     inline unsigned char	nrUdfBands() const	   { return 1; }
     inline unsigned char	nrTextureBands() const
@@ -121,6 +126,7 @@ protected:
     void			update(ChannelInfo*,bool tc2rgba);
     				~TextureChannels();
 
+    TextureCallbackHandler*	texturecallbackhandler_;
     ObjectSet<ChannelInfo>	channelinfo_;
 
     TextureChannel2RGBA*	tc2rgba_;

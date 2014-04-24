@@ -257,8 +257,8 @@ static int theiconsz = -1;
 #define mShowInlProgress	"dTect.Show inl progress"
 #define mShowCrlProgress	"dTect.Show crl progress"
 #define mTextureResFactor	"dTect.Default texture resolution factor"
-#define mNoShading		"dTect.No shading"
-#define mVolRenShading		"dTect.Use VolRen shading"
+#define mUseSurfShaders 	"dTect.Use surface shaders"
+#define mUseVolShaders		"dTect.Use volume shaders"
 
 struct LooknFeelSettings
 {
@@ -268,8 +268,8 @@ struct LooknFeelSettings
 		    , showinlprogress(true)
 		    , showcrlprogress(true)
 		    , textureresfactor(0)
-		    , noshading(false)
-		    , volrenshading(false)		{}
+		    , usesurfshaders(true)
+		    , usevolshaders(true)		{}
 
     int		iconsz;
     bool	vertcoltab;
@@ -277,8 +277,8 @@ struct LooknFeelSettings
     bool	showcrlprogress;
     int		textureresfactor;
 		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
-    bool	noshading;
-    bool	volrenshading;
+    bool	usesurfshaders;
+    bool	usevolshaders;
 };
 
 
@@ -392,12 +392,24 @@ uiVisSettingsGroup( uiParent* p, Settings& setts,
 			LooknFeelSettings& lfsetts, bool& changed )
     : uiSettingsGroup(p,"Visualisation",setts,lfsetts,changed)
 {
+    setts_.getYN( mUseSurfShaders, lfsetts_.usesurfshaders );
+    usesurfshadersfld_ = new uiGenInput( this,
+					 "Use OpenGL shading when available",
+					 BoolInpSpec(lfsetts_.usesurfshaders) );
+    usesurfshadersfld_->valuechanged.notify(
+				mCB(this,uiVisSettingsGroup,shadersChange) );
+    setts_.getYN( mUseVolShaders, lfsetts_.usevolshaders );
+    usevolshadersfld_ = new uiGenInput( this, "Also for volume rendering?",
+					BoolInpSpec(lfsetts_.usevolshaders) );
+    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
+
     setts_.get( mTextureResFactor, lfsetts_.textureresfactor );
     textureresfactorfld_ = new uiLabeledComboBox( this,
 		"Default texture resolution factor" );
     textureresfactorfld_->box()->addItem( "Standard" );
     textureresfactorfld_->box()->addItem( "Higher" );
     textureresfactorfld_->box()->addItem( "Highest" );
+    textureresfactorfld_->attach( alignedBelow, usesurfshadersfld_ );
 
     int selection = 0;
 
@@ -415,30 +427,18 @@ uiVisSettingsGroup( uiParent* p, Settings& setts,
 
     textureresfactorfld_->box()->setCurrentItem( selection );
 
-    setts_.getYN( mNoShading, lfsetts_.noshading );
-    useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
-				    BoolInpSpec(!lfsetts_.noshading) );
-    useshadingfld_->attach( alignedBelow, textureresfactorfld_ );
-    useshadingfld_->valuechanged.notify(
-			mCB(this,uiVisSettingsGroup,shadingChange) );
-    setts_.getYN( mVolRenShading, lfsetts_.volrenshading );
-    volrenshadingfld_ = new uiGenInput( this, "Also for volume rendering?",
-				    BoolInpSpec(lfsetts_.volrenshading) );
-    volrenshadingfld_->attach( alignedBelow, useshadingfld_ );
-
-    shadingChange(0);
+    shadersChange(0);
 }
 
 
 bool acceptOK()
 {
-    const bool newnoshading = !useshadingfld_->getBoolValue();
-    updateSettings( lfsetts_.noshading, newnoshading, mNoShading );
+    const bool usesurfshaders = usesurfshadersfld_->getBoolValue();
+    updateSettings( lfsetts_.usesurfshaders, usesurfshaders, mUseSurfShaders );
 
-    bool newvolrenshading = !newnoshading;
-    if ( newvolrenshading )
-	newvolrenshading = volrenshadingfld_->getBoolValue();
-    updateSettings( lfsetts_.volrenshading, newvolrenshading, mVolRenShading );
+    const bool usevolshaders = usesurfshaders &&
+			       usevolshadersfld_->getBoolValue();
+    updateSettings( lfsetts_.usevolshaders, usevolshaders, mUseVolShaders );
 
     bool textureresfacchanged = false;
     // track this change separately as this will be applied with immediate
@@ -458,14 +458,15 @@ bool acceptOK()
 
 protected:
 
-void shadingChange( CallBacker* )
+void shadersChange( CallBacker* )
 {
-    volrenshadingfld_->display( useshadingfld_->getBoolValue() );
+    usevolshadersfld_->display( usesurfshadersfld_->getBoolValue() );
+    textureresfactorfld_->display( !usesurfshadersfld_->getBoolValue() );
 }
 
     uiLabeledComboBox*	textureresfactorfld_;
-    uiGenInput*		useshadingfld_;
-    uiGenInput*		volrenshadingfld_;
+    uiGenInput* 	usesurfshadersfld_;
+    uiGenInput* 	usevolshadersfld_;
 
 };
 

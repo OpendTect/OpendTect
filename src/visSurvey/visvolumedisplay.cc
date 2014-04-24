@@ -1556,6 +1556,6 @@ void VolumeDisplay::enableTextureInterpolation( bool yn )
 
 
 bool VolumeDisplay::canUseVolRenShading()
-{ return Settings::common().isTrue("dTect.Use VolRen shading"); }
+{ return !Settings::common().isFalse("dTect.Use volume shaders"); }
 
 } // namespace visSurvey

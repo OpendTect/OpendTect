@@ -49,7 +49,6 @@ const char* Scene::sKeyAnnotColor()	{ return "Annotation color"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
-const char* Scene::sKeyAppAllowShading(){ return "Allow shading";}
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
@@ -70,7 +69,6 @@ Scene::Scene()
     , mouseposstr_("")
     , curzstretch_( 2 )
     , datatransform_( 0 )
-    , appallowshad_(true)
     , userwantsshading_(true)
     , mousecursor_( 0 )
     , polyselector_( 0 )
@@ -88,15 +86,10 @@ Scene::Scene()
     setAmbientLight( 1 );
     setup();
 
-    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING") )
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )
 	userwantsshading_ = false;
-
-    if ( userwantsshading_ )
-    {
-	bool noshading = false;
-	Settings::common().getYN( "dTect.No shading", noshading );
-	userwantsshading_ = !noshading;
-    }
+    else
+	Settings::common().getYN("dTect.Use surface shaders",userwantsshading_);
 }
 
 
@@ -392,7 +385,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
-	so->allowShading( userwantsshading_ && appallowshad_ );
+	so->allowShading( userwantsshading_ );
     }
 
     if ( vo )
@@ -914,7 +907,6 @@ void Scene::fillPar( IOPar& par ) const
     par.setYN( sKeyShowGrid(), isAnnotGridShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZStretch(), curzstretch_ );
-    par.setYN( sKeyAppAllowShading(), appallowshad_ );
     par.setYN( sKeyShowColTab(), scenecoltab_->isOn() );
 
     BufferString font;

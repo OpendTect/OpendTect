@@ -183,14 +183,6 @@ public:
     void			setMarkerColor(const Color&);
     visBase::TopBotImage*	getTopBotImage(bool istop);
 
-    void			allowAppShading(bool yn){ appallowshad_ = yn; }
-    bool			allowsAppShading() const{return appallowshad_;}
-				/*!<The application may allow or disallow
-				    shading for a scene. Even if app wants
-				    shading, it's not guaranteed as either the
-				    system cannot do it, or the user has
-				    disabled it. */
-
     void			fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
@@ -240,7 +232,6 @@ protected:
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
 
-    bool			appallowshad_;	   //from application
     bool			userwantsshading_; //from settings
     CubeSampling		cs_;
 
