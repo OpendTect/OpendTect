@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 class TabletInfo;
+class Timer;
 
 namespace osg { class Node; }
 
@@ -94,6 +95,11 @@ public:
     void			setEventType( int type );
     int				eventType() const { return type_; }
 
+    void			releaseEventsPostOsg( bool yn );
+				/*!True by default to enable scene update from
+				   right-click menu dialogs, but only sound
+				   when being last in event handling chain. */
+
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
     CNotifier<EventCatcher, const EventInfo&>		nothandled;
 
@@ -106,16 +112,24 @@ public:
 protected:
     				~EventCatcher();
 
+    void			releaseEventsCB();
+
     int				type_;
     ObjectSet<Transformation>	utm2display_;
 
     static const char*		eventtypestr();
 
+    bool			ishandled_;
     bool			rehandling_;
     bool			rehandled_;
 
     osg::Node*			osgnode_;
     EventCatchHandler*		eventcatchhandler_;
+
+    ObjectSet<EventInfo>	eventqueue_;
+    Threads::Lock		eventqueuelock_;
+    bool			eventreleasepostosg_;
+    Timer*			eventreleasetimer_;
 };
 
 }; // Namespace

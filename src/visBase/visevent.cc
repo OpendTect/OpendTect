@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "iopar.h"
 #include "mouseevent.h"
+#include "timer.h"
 
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
@@ -109,7 +110,6 @@ class EventCatchHandler : public osgGA::GUIEventHandler
 public:
 		EventCatchHandler( EventCatcher& eventcatcher )
 		    : eventcatcher_( eventcatcher )
-		    , ishandled_( true )
 		    , wasdragging_( false )
 		{
 		    initKeyMap();
@@ -118,15 +118,12 @@ public:
     using	osgGA::GUIEventHandler::handle;
     bool	handle(const osgGA::GUIEventAdapter&,osgGA::GUIActionAdapter&);
 
-    void 	setHandled()			{ ishandled_ = true; }
-    bool	isHandled() const		{ return ishandled_; }
     void	initKeyMap();
 
 protected:
     void	traverse(EventInfo&,unsigned int mask,osgViewer::View*) const;
 
     EventCatcher&				eventcatcher_;
-    bool					ishandled_;
     bool					wasdragging_;
 
     typedef std::map<int,OD::KeyboardKey>	KeyMap;
@@ -341,14 +338,14 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     traverse( passiveinfo, cPassiveIntersecTraversalMask(), view );
     traverse( activeinfo, cActiveIntersecTraversalMask(), view );
 
-    const EventInfo* foremostinfoptr = &eventinfo;
+    EventInfo* foremostinfo = new EventInfo( eventinfo );
 
     if ( !isactivepickevent && !mIsUdf(passiveinfo.pickdepth) )
     {
 	if ( mIsUdf(activeinfo.pickdepth) ||
 	     passiveinfo.pickdepth <= activeinfo.pickdepth )
 	{
-	    foremostinfoptr = &passiveinfo;
+	    *foremostinfo = passiveinfo;
 	}
     }
 
@@ -357,25 +354,23 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	if ( mIsUdf(passiveinfo.pickdepth) ||
 	     activeinfo.pickdepth <= passiveinfo.pickdepth )
 	{
-	    foremostinfoptr = &activeinfo;
+	    *foremostinfo = activeinfo;
 	}
     }
 
-    ishandled_ = false;
+    Threads::Locker locker( eventcatcher_.eventqueuelock_ );
+    eventcatcher_.eventqueue_ += foremostinfo;
+    locker.unlockNow();
 
-    if ( eventcatcher_.eventType()==Any ||
-	 eventcatcher_.eventType()==eventinfo.type )
+    if ( !eventcatcher_.eventreleasepostosg_ )
     {
-	eventcatcher_.eventhappened.trigger( *foremostinfoptr, &eventcatcher_ );
+	eventcatcher_.releaseEventsCB();
+	return eventcatcher_.ishandled_;
     }
 
-    if ( !ishandled_ )
-	eventcatcher_.nothandled.trigger( *foremostinfoptr, &eventcatcher_ );
-
-    const bool res = ishandled_;
-    ishandled_ = true;
-
-    return res;
+    // 0 times out if all events in window system's queue have been processed
+    eventcatcher_.eventreleasetimer_->start( 0, true );
+    return false;
 }
 
 
@@ -522,15 +517,19 @@ EventCatcher::EventCatcher()
     : eventhappened( this )
     , nothandled( this )
     , type_( Any )
+    , ishandled_( true )
     , rehandling_( false )
     , rehandled_( false )
     , osgnode_( 0 )
     , eventcatchhandler_( 0 )
+    , eventreleasepostosg_( true )
+    , eventreleasetimer_( new Timer() )
 {
     osgnode_ = setOsgNode( new osg::Node );
     eventcatchhandler_ = new EventCatchHandler( *this );
     eventcatchhandler_->ref();
     osgnode_->setEventCallback( eventcatchhandler_ );
+    mAttachCB( eventreleasetimer_->tick, EventCatcher::releaseEventsCB );
 }
 
 
@@ -538,6 +537,9 @@ void EventCatcher::setEventType( int type )
 {
     type_ = type;
 }
+
+void EventCatcher::releaseEventsPostOsg( bool yn )
+{ eventreleasepostosg_ = yn; }
 
 
 void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
@@ -554,6 +556,7 @@ EventCatcher::~EventCatcher()
 
     osgnode_->removeEventCallback( eventcatchhandler_ );
     eventcatchhandler_->unref();
+    delete eventreleasetimer_;
 }
 
 
@@ -561,7 +564,7 @@ bool EventCatcher::isHandled() const
 {
     if ( rehandling_ ) return rehandled_;
 
-    return eventcatchhandler_->isHandled();
+    return ishandled_;
 }
 
 
@@ -569,7 +572,7 @@ void EventCatcher::setHandled()
 {
     if ( rehandling_ ) { rehandled_ = true; return; }
 
-    eventcatchhandler_->setHandled();
+    ishandled_ = true;
 }
 
 
@@ -580,6 +583,30 @@ void EventCatcher::reHandle( const EventInfo& eventinfo )
     eventhappened.trigger( eventinfo, this );
     rehandled_ = true;
     rehandling_ = false;
+}
+
+
+void EventCatcher::releaseEventsCB()
+{
+    while ( true )
+    {
+	Threads::Locker locker( eventqueuelock_ );
+	if ( eventqueue_.isEmpty() )
+	    return;
+
+	const EventInfo* curevent = eventqueue_.removeSingle( 0 );
+	locker.unlockNow();
+
+	ishandled_ = false;
+
+	if ( type_==Any || type_==curevent->type )
+	    eventhappened.trigger( *curevent, this );
+
+	if ( !ishandled_ )
+	    nothandled.trigger( *curevent, this );
+
+	delete curevent;
+    }
 }
 
 
