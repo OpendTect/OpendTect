@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisurvey.h"
 
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uidesktopservices.h"
@@ -445,6 +446,12 @@ uiSurvey::~uiSurvey()
 }
 
 
+static void osrbuttonCB( void* )
+{
+    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+}
+
+
 void uiSurvey::fillLeftGroup( uiGroup* grp )
 {
     dirfld_ = new uiListBox( grp, "Surveys" );
@@ -454,33 +461,26 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     dirfld_->setHSzPol( uiObject::WideVar );
     dirfld_->setStretch( 2, 2 );
 
-    uiToolButton* dbbut = new uiToolButton( grp, "database",
+    uiButtonGroup* butgrp =
+	new uiButtonGroup( grp, "Buttons", uiObject::Vertical );
+    butgrp->attach( rightTo, dirfld_ );
+    new uiToolButton( butgrp, "database",
 	"Select Survey Data Root", mCB(this,uiSurvey,dataRootPushed) );
-    dbbut->attach( rightTo, dirfld_ );
-
-    uiToolButton* newbut = new uiToolButton( grp, "addnew",
+    new uiToolButton( butgrp, "addnew",
 	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
-    newbut->attach( alignedBelow, dbbut );
-
-    editbut_ = new uiToolButton( grp, "edit", "Edit Survey Parameters",
+    editbut_ = new uiToolButton( butgrp, "edit", "Edit Survey Parameters",
 				 mCB(this,uiSurvey,editButPushed) );
-    editbut_->attach( alignedBelow, newbut );
-
-    uiToolButton* copybut = new uiToolButton( grp, "copyobj",
+    new uiToolButton( butgrp, "copyobj",
 	"Copy Survey", mCB(this,uiSurvey,copyButPushed) );
-    copybut->attach( alignedBelow, editbut_ );
-
-    uiToolButton* expbut = new uiToolButton( grp, "export",
+    new uiToolButton( butgrp, "export",
 	"Compress survey as zip archive", mCB(this,uiSurvey,exportButPushed) );
-    expbut->attach( alignedBelow, copybut );
-
-    uiToolButton* impbut = new uiToolButton( grp, "import",
-	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed));
-    impbut->attach( alignedBelow, expbut );
-
-    rmbut_ = new uiToolButton( grp, "trashcan", "Remove Survey",
+    new uiToolButton( butgrp, "import",
+	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed) );
+    new uiToolButton( butgrp, "share",
+	"Share surveys through the OpendTect Seismic Repository",
+	 mSCB(osrbuttonCB) );
+    rmbut_ = new uiToolButton( butgrp, "trashcan", "Remove Survey",
 			       mCB(this,uiSurvey,rmButPushed) );
-    rmbut_->attach( alignedBelow, impbut );
 }
 
 
@@ -822,18 +822,12 @@ void uiSurvey::importButPushed( CallBacker* )
 }
 
 
-static void osrbuttonCB( void* )
-{
-    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
-}
-
-
 void uiSurvey::exportButPushed( CallBacker* )
 {
     const BufferString survnm( selectedSurveyName() );
     const BufferString title( "Compress ", survnm, " survey as zip archive" );
     uiDialog dlg( this,
-    uiDialog::Setup(title,mNoDlgTitle, 
+    uiDialog::Setup(title,mNoDlgTitle,
                     mODHelpKey(mSurveyexportButPushedHelpID) ));
     uiFileInput* fnmfld = new uiFileInput( &dlg,"Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
