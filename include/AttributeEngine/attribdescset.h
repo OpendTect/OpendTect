@@ -127,6 +127,10 @@ public:
     			//!<DescID`definition string
     void		fillInAttribColRefs(BufferStringSet&) const;
 
+			//!<will prepare strings for each desc, format :
+			//!<Attrib,[stored], [{prestack}]
+    void		fillInUIInputList(BufferStringSet&) const;
+
     			//!<will create an empty DataPointSet
     DataPointSet*	createDataPointSet(Attrib::DescSetup,
 	    				   bool withstored=true) const;

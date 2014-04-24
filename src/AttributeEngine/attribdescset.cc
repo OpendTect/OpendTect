@@ -1112,6 +1112,17 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 }
 
 
+void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
+{
+    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false );
+    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+	inplist.addIfNew( attrinf.attrnms_.get(idx) );
+
+    for ( int idx=0; idx<attrinf.ioobjnms_.size(); idx++ )
+	inplist.addIfNew( BufferString("[",attrinf.ioobjnms_.get(idx),"]") );
+}
+
+
 void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 	                                const TypeSet<int>& seloutputs,
 					const BufferStringSet& seloutnms,
