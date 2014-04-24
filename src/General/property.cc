@@ -294,9 +294,13 @@ void MathProperty::setPreV5Def( const char* inpstr )
 	const char* propnm = idx<0 ? "Thickness" : props[idx]->name().buf();
 	if ( !defstr.contains(propnm) )
 	    continue;
-	const BufferString varnm( "prop", propnms.size()+1 );
-	defstr.replace( propnm, varnm );
 	propnms.add( propnm );
+
+	BufferString cleanpropnm( propnm ); cleanpropnm.clean();
+	BufferString varnm( "v_", propnms.size(), "_" );
+	varnm.add( cleanpropnm );
+
+	defstr.replace( propnm, varnm );
     }
     form_.setText( defstr );
     if ( !form_.isOK() )
@@ -305,15 +309,17 @@ void MathProperty::setPreV5Def( const char* inpstr )
     const int nrinps = form_.nrInputs();
     for ( int iinp=0; iinp<nrinps; iinp++ )
     {
-	const BufferString varnm( form_.variableName(iinp) );
-	if ( !varnm.startsWith("prop") )
+	BufferString varnm( form_.variableName(iinp) );
+	if ( !varnm.startsWith("v_") )
 	{
 	    ErrMsg( BufferString("Could not fully use Pre-V5 math property."
 			"\nPlease replace '", inpstr, "'" ) );
 	    continue;
 	}
 
-	const int propidx = toInt( varnm.buf() + 4 ) - 1;
+	BufferString varidxstr( varnm.buf() + 2 );
+	varidxstr.replace( '_', '\0' );
+	const int propidx = toInt( varidxstr.buf() ) - 1;
 	if ( !propnms.validIdx(propidx) )
 	    { pErrMsg("Huh"); continue; }
 
