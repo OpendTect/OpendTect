@@ -50,7 +50,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), hp )
     , surfacefiller_( hp )
 {
-    setHelpKey( mODHelpKey(mEMHorizonEditorSettingHelpID) );
+    setHelpKey( mODHelpKey(mSurfaceLimitedFillerHelpID) );
 
     if ( !surfacefiller_ ) return;
 	

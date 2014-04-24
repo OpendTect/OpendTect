@@ -68,7 +68,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
 			   "Specify copy parameters",
-			   mODHelpKey(mSeisImpCBVSHelpID) ))
+			   mODHelpKey(mSeisImpCBVSCopyHelpID) ))
 	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
 	, modefld(0)

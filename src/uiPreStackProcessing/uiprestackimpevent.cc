@@ -33,7 +33,7 @@ namespace PreStack
 
 uiEventImport::uiEventImport( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Import Prestack Events",mNoDlgTitle,
-				   mNoHelpKey ) )
+				   mODHelpKey(mPreStackEventImportHelpID) ) )
     , fd_(*EventAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );

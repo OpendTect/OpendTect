@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 
 #include "od_iostream.h"
+#include "od_helpids.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -43,7 +44,8 @@ static const float defundefval = -999.25;
 
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup("Import Well Logs",mNoDlgTitle,"107.1.2"))
+    : uiDialog(p,uiDialog::Setup("Import Well Logs",mNoDlgTitle,
+				 mODHelpKey(mImportLogsHelpID)))
 {
     setOkText( uiStrings::sImport() );
 
@@ -206,7 +208,8 @@ static const float cTWTFac  = 1000.f;
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
     : uiDialog(p,uiDialog::Setup("Export Well logs",
-				 "Specify format","107.1.3"))
+				 "Specify format",
+				 mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
     , multiwellsnamefld_(0)

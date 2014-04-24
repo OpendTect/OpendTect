@@ -28,7 +28,7 @@ namespace PreStack
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     : uiDialog( p, uiDialog::Setup("Export Prestack Events",mNoDlgTitle,
-				   mODHelpKey(mImportHorAttribHelpID) ) )
+				   mODHelpKey(mPreStackEventExportHelpID) ) )
 {
     setOkText( uiStrings::sExport() );
 

@@ -88,7 +88,8 @@ void uiAddEditMrkrDlg::putToScreen()
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
-		                 mNoDlgTitle, mODHelpKey(mD2TModelGroupHelpID) )
+		                 mNoDlgTitle, mODHelpKey(
+				     mDispEditMarkerDlgHelpID) )
                                 .modal(false))
     , curmrk_(0)
     , hasedited_(false)

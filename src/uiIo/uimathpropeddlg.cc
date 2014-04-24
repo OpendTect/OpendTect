@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
 #include "unitofmeasure.h"
+#include "od_helpids.h"
 
 static const int cMaxNrInps = 6;
 
@@ -29,7 +30,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				  const PropertyRefSelection& prs )
     : uiDialog( p, Setup("Math property",
 		BufferString("Value generation by formula for ",pr.name()),
-		"dgb:108.1.4"))
+		mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
     , expr_(0)
 {
@@ -115,7 +116,8 @@ void uiMathPropEdDlg::insProp( CallBacker* )
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", "dgb:108.1.5") );
+		  "Use a rock physics formula",
+		  mODHelpKey(mRockPhysFormHelpID)) );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
     if ( dlg.go() )
     {

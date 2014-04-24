@@ -551,7 +551,6 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     , singlehoradded_(false)
 {
     setCtrlStyle( RunAndClose );
-    //setHelpID( mODHelpKey(mEMHorizonEditorSetting) );
 
     subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).

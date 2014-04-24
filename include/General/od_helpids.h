@@ -14,7 +14,6 @@ ________________________________________________________________________
 //General 000
 // General_support 01
 #define	        mProgressViewerHelpID				0x00001003
-#define	        mBatchLaunchHelpID				0x00001004
 #define		mBatchProgLaunchHelpID                          0x00001005
 // General Setup 02
 #define		mSettingsHelpID				        0x00002001
@@ -30,7 +29,6 @@ ________________________________________________________________________
 // General Survey 03
 #define         mSurveyHelpID 				        0x00003001
 #define		mSurveyInfoEditorHelpID 	                0x00003002
-#define	        mSurveyMapDlgHelpID     			0x00003003
 #define		mWorkAreaDlgHelpID 				0x00003004
 #define		mAttribDescSetEdimportSetHelpID 		0x00003005
 #define		mCopySurveySIPHelpID 			        0x00003006
@@ -169,7 +167,7 @@ ________________________________________________________________________
 #define		mSeisImpCBVSFromOtherSurveyDlgHelpID 	        0x10300022
 // Seismics Manage 01
 #define		mSeisFileMan3DHelpID 			        0x10301000
-#define		mSeisImpCBVSCHelpID 			        0x10301001
+#define		mSeisImpCBVSCopyHelpID 			        0x10301001
 #define		mMergeSeisHelpID 				0x10301002
 #define		mSeis2DManHelpID 				0x10301003
 #define		mSeisDump2DGeomHelpID 			        0x10301004
@@ -219,6 +217,7 @@ ________________________________________________________________________
 #define		mCreateLogCubeDlgHelpID 			0x10302025
 #define		mAngleCompAdvParsDlgHelpID 			0x10302026
 #define		mProcSettingsHelpID 				0x10302027
+#define		mSurfaceLimitedFillerHelpID			0x10302028
 // Seismics Wavelets 03
 #define		mSeisWvltManHelpID 				0x10303000
 #define		mSeisWvltImpHelpID 				0x10303001
@@ -304,6 +303,10 @@ ________________________________________________________________________
 #define		mStoreAuxDataHelpID 				0x10404006
 #define		mHorAttr2GeomHelpID 				0x10404007
 #define		mHorGeom2AttrHelpID 				0x10404008
+// Prestack events 05
+#define		mPreStackEventExportHelpID			0x10405000
+#define		mPreStackEventImportHelpID			0x10405001
+
 //Picking 105
 // Picking I/O 00
 #define		mFetchPicksHelpID 				0x10500000
@@ -334,7 +337,7 @@ ________________________________________________________________________
 // Wells Manage 01
 #define		mWellManHelpID 				        0x10701000
 #define		mMarkerDlgHelpID 				0x10701001
-#define		mLoadLogsDlgHelpID 				0x10701002
+#define		mImportLogsHelpID 				0x10701002
 #define		mExportLogsHelpID 				0x10701003
 #define		mReadMarkerFileHelpID 			        0x10701004
 #define		mD2TModelDlgHelpID 				0x10701005
@@ -347,6 +350,7 @@ ________________________________________________________________________
 #define		mWellLogCalcRockPhysHelpID 			0x10701012
 // Wells Display 02
 #define		mWellDispPropDlgHelpID 			        0x10702000
+#define		mDispEditMarkerDlgHelpID			0x10702001
 // Wells Attributes 03
 #define		mCreateAttribLogDlgHelpID 			0x10703000
 #define		mWellLogToolWinMgrHelpID 			0x10703001
@@ -360,10 +364,7 @@ ________________________________________________________________________
 // Trakcing I/O 00
 #define	        mTrackingWizardHelpID 			        0x10800000
 #define		mTrackingSetupGroupHelpID 			0x10800001
-// Tracking Display 01
-#define	        mSurfaceRelationDlgHelpID 			0x10801000
-#define         mMathPropEdDlgHelpID                            0x10801004
-#define         mMathPropEdDlgrockPhysReqHelpID                 0x10801005
+
 //Random_lines 109
 // Random_lines General 00
 #define		mWell2RandomLineDlgHelpID 			0x10900000
@@ -430,6 +431,15 @@ ________________________________________________________________________
 #define		mProbDenFuncManHelpID 			        0x11201000
 #define		mEditProbDenFuncHelpID 			        0x11201001
 #define		mProbGenFuncGenHelpID 			        0x11201002
+
+//SynthRock 113
+#define		mRockPhysFormHelpID				0x11300000
+#define		mMathPropEdDlgHelpID				0x11300001
+
+
+//NLA 114
+#define		mPrepNLADataHelpID				0x11400000
+#define		mLithCodeManHelpID				0x11400001
 
 #endif
 

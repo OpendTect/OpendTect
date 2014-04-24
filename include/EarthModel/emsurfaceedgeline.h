@@ -25,7 +25,6 @@ namespace EM
 
 class EdgeLineSegment;
 class Horizon3D;
-class SurfaceRelation;
 typedef EdgeLineSegment*(*EdgeLineCreationFunc)(EM::Horizon3D&, const SectionID&);
 
 /*!\brief

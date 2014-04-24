@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "nlacrdesc.h"
 #include "nladataprep.h"
+#include "od_helpids.h"
 #include "picksettr.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
@@ -125,7 +126,8 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps), mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps), 
+		mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -273,7 +275,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
        		const char* lognm )
     	: uiDialog(p,uiDialog::Setup("Manage codes",
 				     "Specify how to handle codes",
-				     mNoHelpKey))
+				     mODHelpKey(mLithCodeManHelpID)))
 	, usrsels(usels)
 {
     BufferStringSet opts;

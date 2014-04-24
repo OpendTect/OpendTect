@@ -29,7 +29,7 @@ mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp())
 
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,"101.0.0")
+	: uiAttrDescEd(p,is2d,mODHelpID(mCoherencyAttrib))
     	, is1fld(0)
     	, stepoutfld(0)
 {
