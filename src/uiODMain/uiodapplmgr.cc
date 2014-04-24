@@ -302,11 +302,7 @@ void uiODApplMgr::editAttribSet()
 { editAttribSet( SI().has2D() ); }
 
 void uiODApplMgr::editAttribSet( bool is2d )
-{
-    enableMenusAndToolBars( false );
-    enableSceneManipulation( false );
-    attrserv_->editSet( is2d );
-}
+{ attrserv_->editSet( is2d ); }
 
 void uiODApplMgr::processTime2Depth( CallBacker* )
 { seisserv_->processTime2Depth(); }
