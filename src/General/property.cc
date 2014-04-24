@@ -355,7 +355,7 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	const Property* prop = inps_[iinp];
 	float val;
 	if ( !prop )
-	    val = form_.getConstVal( iinp );
+	    val = (float)form_.getConstVal( iinp );
 	else
 	{
 	    if ( prop == &xposprop )
