@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 		uibatchtime2depthsetup.cc
 		uiclusterproc.cc	
 		uielasticpropsel.cc	
+		uielasticmodelprov.cc
 		uifkspectrum.cc
 		uifreqtaper.cc		
 		uimergeseis.cc		
