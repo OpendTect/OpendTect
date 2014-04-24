@@ -93,12 +93,14 @@ if ( BUILD_USERDOC )
 
 	set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
 
-	add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
+	add_custom_target( "userdoc" ALL "${MADCAP_FLARE_EXEC}"
 			    -project "${USERDOC_PROJECT}"
 			    -target ${USERDOC_TARGET}
 			    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${USERDOC_OUTPUT_DIR} ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME} 
 			    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			    COMMENT "Building user documentation" )
+	install( DIRECTORY ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME}
+		 DESTINATION doc/userdoc/${USERDOC_NAME} )
     endif( WIN32 )
 
 endif( BUILD_USERDOC )
