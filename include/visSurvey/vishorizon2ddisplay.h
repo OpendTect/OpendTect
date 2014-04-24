@@ -31,21 +31,22 @@ mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 {
 public:
 				Horizon2DDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
 				    "Horizon2DDisplay", sFactoryKeyword() );
 
     void			setDisplayTransformation(const mVisTrans*);
 
     void			getMousePosInfo(const visBase::EventInfo& e,
-	    					IOPar& i ) const
+						IOPar& i ) const
 				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,
 						BufferString& val,
-					       	BufferString& info) const;
+						BufferString& info) const;
     void			setLineStyle(const LineStyle&);
 
+    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::SectionID		getSectionID(int visid) const;
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
@@ -60,7 +61,7 @@ public:
 
 protected:
     friend			class Horizon2DDisplayUpdater;
-    				~Horizon2DDisplay();
+				~Horizon2DDisplay();
     void			removeSectionDisplay(const EM::SectionID&);
     bool			addSection(const EM::SectionID&,TaskRunner*);
 
@@ -73,17 +74,16 @@ protected:
     static bool			withinRanges(const RowCol&,float z,
 					     const LineRanges& );
     void			updateSection(int idx,const LineRanges* lr=0);
-					      
+
     void			emChangeCB(CallBacker*);
-    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
     void			updateLinesOnSections(
-	    				const ObjectSet<const Seis2DDisplay>&);
+					const ObjectSet<const Seis2DDisplay>&);
     void			updateSeedsOnSections(
-	    				const ObjectSet<const Seis2DDisplay>&);
+					const ObjectSet<const Seis2DDisplay>&);
 
     void			zAxisTransformChg(CallBacker*);
 
@@ -96,8 +96,7 @@ protected:
     LineStyle					linestyle_;
 };
 
-
-};
+} // namespace visSurvey
 
 #endif
 
