@@ -24,7 +24,6 @@ ________________________________________________________________________
 #define		mPluginSelHelpID	 			0x00002006
 #define		mODSceneMgrsetKeyBindingsHelpID 		0x00002007
 #define		mSurveySettingsHelpID 				0x00002008
-#define         mLicInstallDlgHelpID 		        	0x00002009
 
 // General Survey 03
 #define         mSurveyHelpID 				        0x00003001
