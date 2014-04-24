@@ -84,8 +84,16 @@ bool uiSelectFromList::acceptOK( CallBacker* )
     if ( selidx < 0 ) return false;
 
     const char* seltxt = selfld_->textOfItem( selidx );
-    setup_.current_ = setup_.items_.indexOf( seltxt );
-    return true;
+    for ( int idx=0; idx<setup_.items_.size(); idx++ )
+    {
+	if ( setup_.items_[idx].getFullString() == seltxt )
+	{
+	    setup_.current_ = idx;
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 
