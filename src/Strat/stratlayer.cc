@@ -43,6 +43,13 @@ Color Strat::Layer::dispColor( bool lith ) const
 }
 
 
+void Strat::Layer::values( float* outval ) const
+{
+    for ( int idx=0; idx<vals_.size(); idx++ )
+	outval[idx] = value( idx );
+}
+
+
 const Strat::RefTree& Strat::Layer::refTree() const
 {
     return unitRef().refTree();
@@ -57,15 +64,84 @@ Strat::Layer::ID Strat::Layer::id() const
 
 float Strat::Layer::value( int ival ) const
 {
-    return ival < vals_.size() ? vals_[ival] : mUdf(float);
+    if ( ival >= vals_.size() || ival >= inpidxes_.size() || !vals_[ival] )
+       return mUdf(float);
+
+    TypeSet<int> inpindexes = inpidxes_[ival];
+    const int nrinputs = inpindexes.size();
+    float inpvals[nrinputs];
+    for ( int idx=0; idx<nrinputs; idx++ )
+    {
+	//remember: there is no shift possible
+	if ( !vals_[ inpindexes[idx] ] ) return mUdf(float);
+
+	inpvals[idx] = value( inpindexes[idx] );
+    }
+
+    //TODO: risk of endless loop in case of interdependant variables
+    //how to prevent that?
+
+    return vals_[ival]->value(inpvals);
+}
+
+
+float Strat::Layer::thickness() const
+{
+    float* inpvals;
+    return vals_[0] ? vals_[0]->value(inpvals)
+		    : mUdf(float);//Udf should never happen
+}
+
+
+void Strat::Layer::setThickness( float v )
+{
+    if ( vals_[0] )
+	vals_[0]->setValue( v );
 }
 
 
 void Strat::Layer::setValue( int ival, float val )
 {
     while ( vals_.size() <= ival )
-	vals_ += mUdf(float);
-    vals_[ival] = val;
+	vals_ += 0;
+
+    if ( !vals_[ival] )
+	vals_.replace( ival, new Strat::SimpleLayerValue(val) );
+    else
+	vals_[ival]->setValue( val );
+}
+
+
+void Strat::Layer::setFormula( int ival, const Math::Formula& formula )
+{
+    while ( vals_.size() <= ival )
+	vals_ += 0;
+
+    if ( !vals_[ival] )
+	vals_.replace( ival, new FormulaLayerValue( formula ) );
+    else
+	vals_[ival]->setFormula( formula );
+}
+
+
+Strat::FormulaLayerValue::FormulaLayerValue( Math::Formula formula )
+    : formula_( formula )
+{
+    //TODO: verify if some init is needed?
+}
+
+
+void Strat::FormulaLayerValue::setFormula( Math::Formula formula )
+{
+    formula_ = formula;
+    //TODO: verify if some init is needed?
+
+}
+
+
+float Strat::FormulaLayerValue::value( float* inputvals ) const
+{
+    return formula_.getValue( inputvals );
 }
 
 

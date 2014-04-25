@@ -14,9 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
-#include "stratcontent.h"
 #include "compoundkey.h"
+#include "mathformula.h"
+#include "stratcontent.h"
 #include "typeset.h"
+
 class PropertyRef;
 
 namespace Strat
@@ -24,13 +26,14 @@ namespace Strat
 class LeafUnitRef;
 class RefTree;
 class Lithology;
+class LayerValue;
 
 /*!\brief data for a layer.
 
   Layers are atached to a UnitRef. To understand the values, you need access to
   the governing PropertyRefSet, usually attached to the LayerSequence that
   the Layer is part of.
- 
+
  */
 
 mExpClass(Strat) Layer
@@ -49,12 +52,13 @@ public:
     const Content&	content() const;
 
     inline float	zTop() const			{ return ztop_; }
-    inline float	thickness() const		{ return vals_[0]; }
     inline int		nrValues() const		{ return vals_.size(); }
+    float		thickness() const;
     float		value(int) const;		//!< can be undef
     inline void		setZTop( float v )		{ ztop_ = v; }
-    inline void		setThickness( float v )		{ vals_[0] = v; }
+    void		setThickness(float v);
     void		setValue(int,float);
+    void		setFormula(int,const Math::Formula&);
     void		setContent( const Content& c )	{ content_ = &c; }
 
     inline float	zBot() const	{ return zTop() + thickness(); }
@@ -63,17 +67,58 @@ public:
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
 
-    const float*	values() const	{ return vals_.arr(); }
+    void		values(float*) const;
 
     static const PropertyRef& thicknessRef();
 
 protected:
 
-    const LeafUnitRef*	ref_;
-    float		ztop_;
-    TypeSet<float>	vals_;
-    const Content*	content_;
+    const LeafUnitRef*		ref_;
+    float			ztop_;
+    ObjectSet<LayerValue>	vals_;
+    TypeSet<TypeSet<int> >	inpidxes_;
+    const Content*		content_;
 
+};
+
+
+mExpClass(Strat) LayerValue
+{
+public:
+
+    virtual float	value(float*) const				=0;
+    virtual void	setFormula(Math::Formula)			{};
+    virtual void	setValue(float)					{};
+};
+
+
+mExpClass(Strat) SimpleLayerValue : public LayerValue
+{
+public:
+			SimpleLayerValue()
+			    : val_ (mUdf(float))	{};
+			SimpleLayerValue( float val )
+			    : val_ (val)		{};
+
+    virtual float	value(float*) const		{ return val_; }
+    void		setValue(float val)		{ val_ = val; }
+
+protected:
+
+    float		val_;
+};
+
+
+mExpClass(Strat) FormulaLayerValue : public LayerValue
+{
+public:
+			FormulaLayerValue(Math::Formula);
+    virtual float	value(float*) const;
+    virtual void	setFormula(Math::Formula);
+
+protected:
+
+    Math::Formula	formula_;
 };
 
 

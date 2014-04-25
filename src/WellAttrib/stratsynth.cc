@@ -618,7 +618,9 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	    continue;
 
 	float dval =mUdf(float), pval = mUdf(float), sval = mUdf(float);
-	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
+	float* layervals;
+	lay->values( layervals );
+	elpgen.getVals( dval, pval, sval, layervals, props.size() );
 
 	// Detect water - reset Vs
 	if ( pval < cMaximumVpWaterVel() )
