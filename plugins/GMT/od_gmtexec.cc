@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	StreamProvider( outputfp.fullPath() ).remove(); \
 	\
     File::changeDir( cwd.buf() ); \
-    *sd.ostrm << "Failed" << std::endl; \
+    if ( sd.usable() ) *sd.ostrm << "Failed" << std::endl; \
     sd.close(); \
     finishmsg_ = "Failed to create map"; \
     return false; \
@@ -106,7 +106,7 @@ bool BatchProgram::go( std::ostream& strm )
     StreamProvider( outputfp.fullPath() ).remove();
     File::changeDir( cwd.buf() );
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
-    *sd.ostrm << "Finished" << std::endl;
+    if ( sd.usable() ) *sd.ostrm << "Finished" << std::endl;
     sd.close();
     return true;
 }
