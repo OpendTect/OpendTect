@@ -61,10 +61,6 @@ public:
 
 
 			//This constructor is for legacy stuff. Remove.
-			HelpKey(const char* arg)
-			    : providername_("od")
-			    , argument_( arg )
-			{}
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", toString(arg) )

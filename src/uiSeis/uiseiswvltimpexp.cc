@@ -43,7 +43,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     sep->attach( stretchedBelow, inpfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                  mODHelpKey(mSeisWvltImpHelpID)  );
+                  mODHelpKey(mSeisWvltImpParsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
     dataselfld_->attach( ensureBelow, sep );
 

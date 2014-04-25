@@ -59,7 +59,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     sep->attach( stretchedBelow, typefld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                                        mODHelpKey(mImportVelFuncHelpID) );
+                                        mODHelpKey(mImportVelFuncParsHelpID) );
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 

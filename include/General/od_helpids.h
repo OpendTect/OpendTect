@@ -50,7 +50,6 @@ ________________________________________________________________________
 #define	        mODInstPkgMgrHelpID 				0x00005002
 #define	        mODInstMgrcheckInstDirHelpID		        0x00005003
 #define	        mODInstMgrgetPackageChoiceHelpID 		0x00005004
-#define         mSetupDlgHelpID 				0x00005005
 //Object-Management 008
 // Object-Management Basic 00
 #define		mSetDataDirHelpID 				0x00800001
@@ -296,7 +295,7 @@ ________________________________________________________________________
 #define		mAttrSurfaceOutHelpID 			        0x10404000
 #define		mAttrTrcSelOutBetweenHelpID 			0x10404001
 #define		mAttrTrcSelOutSliceHelpID 			0x10404002
-#define	        mAttrStrAmplOut 			        0x10404003
+#define	        mStratAmpCalcHelpID 			        0x10404003
 #define		mIsopachMakerHelpID				0x10404004
 #define		mCalcPoly2HorVolHelpID 			        0x10404005
 #define		mStoreAuxDataHelpID 				0x10404006
@@ -326,7 +325,6 @@ ________________________________________________________________________
 #define		mD2TModelGroupHelpID 			        0x10700003
 #define		mWellImpPptDlgHelpID 			        0x10700004
 #define         mNewWellTrackDlgHelpID 				0x10700005
-#define	        mStoreWellDlg 				        0x10700006
 #define		mSimpleMultiWellCreateHelpID 		        0x10700007
 #define		mSimpleMultiWellCreateReadDataHelpID 	        0x10700008
 #define		mTableImpDataSelwellsHelpID 		        0x10700009
@@ -382,8 +380,6 @@ ________________________________________________________________________
 #define		mStratLinkLvlUnitDlgHelpID 			0x11000003
 #define		mStratLithoDlgHelpID 			        0x11000004
 #define		mStratContentsDlgHelpID 			0x11000005
-#define		mEditPropRefMathDefHelpID 			0x11000006
-#define		mEditPropRefMathDefRockPhysReqHelpID 	        0x11000007
 #define		mStratSynthExportHelpID 			0x11000008
 #define		mStartSynthOutSelHelpID 			0x11000009
 #define		mStratSynthLayerModFRPPropSelectorHelpID 	0x11000010
@@ -434,7 +430,6 @@ ________________________________________________________________________
 //SynthRock 113
 #define		mRockPhysFormHelpID				0x11300000
 #define		mMathPropEdDlgHelpID				0x11300001
-
 
 //NLA 114
 #define		mPrepNLADataHelpID				0x11400000

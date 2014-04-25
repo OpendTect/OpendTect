@@ -30,7 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup("StratalAmplitude",mNoDlgTitle,mTODOHelpKey) )
+    : uiDialog( p, Setup("StratalAmplitude",mNoDlgTitle,
+			 mODHelpKey(mStratAmpCalcHelpID)))
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , isoverwrite_(false)

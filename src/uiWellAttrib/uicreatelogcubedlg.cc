@@ -33,7 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     : uiDialog(p,uiDialog::Setup("Create Log Cube",
 				 "Select logs to create new cubes",
-				 mODHelpKey(mCreateLogCubeDlgHelpID) ) )
+				 mid ? mODHelpKey(mCreateLogCubeDlgHelpID)
+	       			     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
 {
     setCtrlStyle( RunAndClose );
 
