@@ -196,7 +196,7 @@ void uiComboBox::setText( const char* txt )
 
 bool uiComboBox::isPresent( const char* txt ) const
 {
-    return indexOf( txt ) > 0;
+    return indexOf( txt ) >= 0;
 }
 
 
