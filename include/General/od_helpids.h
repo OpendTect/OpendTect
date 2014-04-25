@@ -272,7 +272,7 @@ ________________________________________________________________________
 #define		mTableImpDataSelFaultsHelpID 		        0x10401002
 #define		mImportFaultStick3DHelpID 			0x10401003
 #define		mImportFaultStick2DHelpID 			0x10401004
-#define	        mExportFaultStick 			        0x10401005
+#define	        mExportFaultStickHelpID 		        0x10401005
 #define		mTableImpDataSelFaultStickSet3DHelpID 	        0x10401006
 #define		mTableImpDataSelFaultStickSet2DHelpID 	        0x10401007
 #define		mFaultStickTransferDlgHelpID 		        0x10401008

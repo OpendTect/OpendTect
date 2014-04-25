@@ -42,7 +42,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
-                                 mODHelpKey(mExportFaultHelpID) ))
+                                 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
+				          mODHelpKey(mExportFaultHelpID)) ))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {

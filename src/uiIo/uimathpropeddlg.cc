@@ -21,7 +21,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				  const PropertyRefSelection& prs )
     : uiDialog( p, Setup("Math property",
 		BufferString("Value generation by formula for ",pr.name()),
-		mODHelpKey(mRockPhysFormHelpID)) )
+		mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
 {
     uiMathFormula::Setup umfsu( "Formula (like den * vel)" );
@@ -52,7 +52,8 @@ uiMathPropEdDlg::~uiMathPropEdDlg()
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", "dgb:108.1.5") );
+		  "Use a rock physics formula",
+		  mODHelpKey(mRockPhysFormHelpID)) );
     uiRockPhysForm* rpffld = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
     TypeSet<PropertyRef::StdType> inputtypes;
     if ( dlg.go() && rpffld->getFormulaInfo(prop_.getForm(),&inputtypes) )
