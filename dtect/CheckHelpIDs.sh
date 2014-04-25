@@ -34,7 +34,7 @@ then
    exit 1
 fi
 
-helpids=`egrep '^\s*#\s*define\s+[A-Za-z0-9]+\s+[A-Za-z0-9]+' ${headerfile} | awk '{print $2}'`
+helpids=`egrep '^[[:space:]]*#[[:space:]]*define[[:space:]]+[A-Za-z0-9]+[[:space:]]+[A-Za-z0-9]+' ${headerfile} | awk '{print $2}'`
 
 haserror=0
 for helpid in ${helpids}
