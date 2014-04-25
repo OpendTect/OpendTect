@@ -171,7 +171,7 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
 }
 
 
-void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg, 
+void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 				   const float* yvals,
 				   int sz )
 {
@@ -180,9 +180,9 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
     {
 	const float dx = (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
-	{ 
-	    y2xvals_ += xrg.start + idx * dx; 
-	    y2yvals_ += yvals[idx]; 
+	{
+	    y2xvals_ += xrg.start + idx * dx;
+	    y2yvals_ += yvals[idx];
 	}
     }
 
@@ -211,6 +211,43 @@ void uiFunctionDisplay::setEmpty()
     setVals( 0, 0, 0 );
     setY2Vals( 0, 0, 0 );
     cleanUp();
+}
+
+
+Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
+{
+    const uiAxisHandler* axis = xAxis();
+    if ( !axis ) return Geom::Point2D<float>::udf();
+
+    const float xval = axis->getVal( xpix );
+    const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;
+    const TypeSet<float>& yvals = y2 ? y2yvals_ : yvals_;
+    float mindist = mUdf(float);
+    int xidx = -1;
+    // Not most optimal search
+    for ( int idx=0; idx<xvals.size(); idx++ )
+    {
+	const float dist = Math::Abs( xval-xvals[idx] );
+	if ( dist<mindist )
+	{
+	    mindist = dist;
+	    xidx = idx;
+	}
+    }
+
+    return xidx==-1 ? Geom::Point2D<float>::udf()
+		    : Geom::Point2D<float>( xvals[xidx], yvals[xidx] );
+}
+
+
+Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
+				const Geom::Point2D<int>& pix, bool y2 ) const
+{
+    const uiAxisHandler* xaxis = xAxis();
+    const uiAxisHandler* yaxis = yAxis( y2 );
+    return Geom::Point2D<float>(
+		xaxis ? xaxis->getVal( pix.x ) : mUdf(float),
+		yaxis ? yaxis->getVal( pix.y ) : mUdf(float) );
 }
 
 
@@ -257,7 +294,7 @@ void uiFunctionDisplay::getRanges(
 	}
     }
 
-    if ( !setup_.fixdrawrg_ ) 
+    if ( !setup_.fixdrawrg_ )
 	return;
 
     if ( !mIsUdf(setupxrg.start) ) xrg.start = setupxrg.start;
@@ -300,7 +337,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	const int xpix = xax_->getPix( y2 ? y2xvals_[idx] : xvals_[idx] );
-	const int ypix = y2 ? y2ax_->getPix(y2yvals_[idx]) 
+	const int ypix = y2 ? y2ax_->getPix(y2yvals_[idx])
 			    : yax_->getPix(yvals_[idx]);
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
@@ -309,7 +346,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	    ptlist += pt;
 	}
     }
-	
+
     if ( setup_.closepolygon_ && fillbelow )
 	ptlist += uiPoint( pt.x, closept.y );
 }
@@ -341,8 +378,8 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
     if ( polydrawn )
     {
 	LineStyle ls;
-	ls.width_ = setup_.ywidth_;    
-	ls.color_ = setup_.ycol_;    
+	ls.width_ = setup_.ywidth_;
+	ls.color_ = setup_.ycol_;
 	ypolyitem_->setPenStyle( ls );
 	ypolyitem_->setZValue( setup_.curvzvaly_ );
 	ypolyitem_->setVisible( true );
@@ -380,8 +417,8 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
     if ( polydrawn )
     {
 	LineStyle ls;
-	ls.width_ = setup_.y2width_;    
-	ls.color_ = setup_.y2col_;    
+	ls.width_ = setup_.y2width_;
+	ls.color_ = setup_.y2col_;
 	y2polyitem_->setPenStyle( ls );
 	y2polyitem_->setZValue( setup_.curvzvaly2_ );
 	y2polyitem_->setVisible( true );
@@ -403,7 +440,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 		    y2markeritems_->setVisible( false );
 		return;
 	    }
-	    
+
 	    y2markeritems_ = new uiGraphicsItemGroup( true );
 	    scene().addItemGrp( y2markeritems_ );
 	}
@@ -415,7 +452,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 		    ymarkeritems_->setVisible( false );
 		return;
 	    }
-	    
+
 	    ymarkeritems_ = new uiGraphicsItemGroup( true );
 	    scene().addItemGrp( ymarkeritems_ );
 	}
@@ -457,12 +494,12 @@ void uiFunctionDisplay::drawBorder()
 		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );
 
 	if ( !borderrectitem_ )
-	    borderrectitem_ = scene().addRect( mCast(float,r.left()), 
-					       mCast(float,r.top()), 
-					       mCast(float,r.right()), 
-					       mCast(float,r.bottom()) ); 
+	    borderrectitem_ = scene().addRect( mCast(float,r.left()),
+					       mCast(float,r.top()),
+					       mCast(float,r.right()),
+					       mCast(float,r.bottom()) );
 	else
-	    borderrectitem_->setRect( r.left(), r.top(), 
+	    borderrectitem_->setRect( r.left(), r.top(),
 				      r.right(), r.bottom() );
 	borderrectitem_->setPenStyle( setup_.borderstyle_ );
     }
@@ -631,7 +668,7 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 
     float xval = xax_->getVal(ev.pos().x);
     float yval = yax_->getVal(ev.pos().y);
-    
+
     if ( xval > xax_->range().stop )
 	xval = xax_->range().stop;
     else if ( xval < xax_->range().start )

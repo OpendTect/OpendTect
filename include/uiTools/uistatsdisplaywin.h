@@ -28,7 +28,7 @@ public:
     				uiStatsDisplayWin(uiParent*,
 					const uiStatsDisplay::Setup&,int nr=1,
 					bool ismodal=true);
-    
+
     uiStatsDisplay*		statsDisplay(int nr=0)	{ return disps_[nr]; }
     void                        setData(const float* medarr,int medsz,int nr=0);
     void			addDataNames(const BufferStringSet&);
@@ -42,6 +42,8 @@ protected:
     uiComboBox*			statnmcb_;
 
     void			dataChanged(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
+    int				currentdispidx_;
 };
 
 

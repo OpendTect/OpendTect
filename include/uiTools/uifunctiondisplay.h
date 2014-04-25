@@ -30,7 +30,7 @@ class uiGraphicsItemGroup;
   * You cannot change Setup::editable_ after construction.
   * Y2 is just an optional annotation. It can not be edited, it does not
     determine the X axis scale. Also, no markers are drawn.
- 
+
  */
 
 mExpClass(uiTools) uiFunctionDisplay : public uiGraphicsView
@@ -46,15 +46,15 @@ public:
 				    , bgcol_(Color::White())
 				    , ycol_(0,0,150)
 				    , y2col_(0,200,0)
-				    , ywidth_(2)			
-				    , y2width_(2)			
+				    , ywidth_(2)
+				    , y2width_(2)
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
 				    , border_(20,20,20,10)
 				    , annotx_(true)
 				    , annoty_(true)
 				    , annoty2_(true)
-				    , epsaroundzero_(1e-100)	    
+				    , epsaroundzero_(1e-100)
 				    , noxaxis_(false)
 				    , noyaxis_(false)
 				    , noy2axis_(false)
@@ -116,7 +116,7 @@ public:
 	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 	mDefSetupMemb(float,epsaroundzero)
-	mDefSetupMemb(bool,fixdrawrg)		
+	mDefSetupMemb(bool,fixdrawrg)
 	mDefSetupMemb(bool,xannotinint)
 	mDefSetupMemb(bool,yannotinint)
 
@@ -153,7 +153,14 @@ public:
     const TypeSet<float>&	yVals() const	{ return yvals_; }
     uiAxisHandler*		xAxis()		{ return xax_; }
     uiAxisHandler*		yAxis( bool y2) { return y2 ? y2ax_ : yax_; }
+    const uiAxisHandler*	xAxis() const	{ return xax_; }
+    const uiAxisHandler*	yAxis( bool y2) const
+						{ return y2 ? y2ax_ : yax_; }
     Setup&			setup()		{ return setup_; }
+
+    Geom::Point2D<float>	getFuncXY(int xpix,bool y2) const;
+    Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
+					     bool y2) const;
 
     int				size() const	{ return xvals_.size(); }
 
@@ -187,8 +194,8 @@ protected:
     uiLineItem*			ymarkline2item_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
-    TypeSet<float>		y2yvals_;
     TypeSet<float>		y2xvals_;
+    TypeSet<float>		y2yvals_;
     float			xmarklineval_;
     float			ymarklineval_;
     float			xmarkline2val_;

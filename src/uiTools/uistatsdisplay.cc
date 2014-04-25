@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 
+#include "uiaxishandler.h"
 #include "uicombobox.h"
 #include "uihistogramdisplay.h"
 #include "uigeninput.h"
@@ -24,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "datapointset.h"
+#include "mouseevent.h"
 #include "statparallelcalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
@@ -59,23 +61,23 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
 	if ( setup_.withname_ )
-	    valgrp->attach( alignedBelow, namefld_ );	
+	    valgrp->attach( alignedBelow, namefld_ );
 	minmaxfld_ = new uiGenInput( valgrp, "Value range",
 				     FloatInpSpec(), FloatInpSpec() );
 	minmaxfld_->setReadOnly();
 	avgstdfld_ = new uiGenInput( valgrp, "Mean/Std Deviation",
 				     DoubleInpSpec(), DoubleInpSpec() );
-	avgstdfld_->attach( alignedBelow, minmaxfld_ );	
+	avgstdfld_->attach( alignedBelow, minmaxfld_ );
 	avgstdfld_->setReadOnly();
 	medrmsfld_ = new uiGenInput( valgrp, "Median/RMS",
 				     FloatInpSpec(), DoubleInpSpec() );
-	medrmsfld_->attach( alignedBelow, avgstdfld_ );	
+	medrmsfld_->attach( alignedBelow, avgstdfld_ );
 	medrmsfld_->setReadOnly();
 	if ( !putcountinplot )
 	{
 	    countfld_ = new uiGenInput( valgrp, "Number of values" );
 	    countfld_->setReadOnly();
-	    countfld_->attach( alignedBelow, medrmsfld_ );	
+	    countfld_->attach( alignedBelow, medrmsfld_ );
 	}
 
 	if ( sep )
@@ -103,7 +105,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     TypeSet<float> valarr;
-    if ( !histgramdisp_ || 
+    if ( !histgramdisp_ ||
 	 (histgramdisp_ && !histgramdisp_->setDataPackID(dpid,dmid)) )
     {
 	Stats::ParallelCalc<float> rc( (Stats::CalcSetup()
@@ -137,11 +139,11 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    else if ( fdp )
 		array = &fdp->data();
 
-	    if ( !array ) 
+	    if ( !array )
 		return false;
 
 	    if ( array->getData() )
-		rc.setValues( array->getData(), 
+		rc.setValues( array->getData(),
 				mCast(int,array->info().getTotalSz()) );
 	    else
 	    {
@@ -178,7 +180,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	setData( rc );
 	return false;
     }
-    
+
     setData( histgramdisp_->getStatCalc() );
     return true;
 }
@@ -218,8 +220,8 @@ void uiStatsDisplay::setData( const Stats::ParallelCalc<float>& rc )
     minmaxfld_->setValue( rc.max(), 1 );
     avgstdfld_->setValue( rc.average(), 0 );
     avgstdfld_->setValue( rc.stdDev(), 1 );
-    medrmsfld_->setValue( rc.median(), 0 ); 
-    medrmsfld_->setValue( rc.rms(), 1 ); 
+    medrmsfld_->setValue( rc.median(), 0 );
+    medrmsfld_->setValue( rc.rms(), 1 );
 }
 
 
@@ -238,15 +240,16 @@ void uiStatsDisplay::putN()
 
 uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 					const uiStatsDisplay::Setup& su,
-       					int nr, bool ismodal )
-    : uiMainWin(p,"Data statistics",-1,false,ismodal)
+					int nr, bool ismodal )
+    : uiMainWin(p,"Data statistics",1,false,ismodal)
     , statnmcb_(0)
+    , currentdispidx_(-1)
 {
     uiLabeledComboBox* lblcb=0;
     if ( nr > 1 )
     {
 	lblcb = new uiLabeledComboBox( this, "Select Data" );
-	statnmcb_ = lblcb->box(); 
+	statnmcb_ = lblcb->box();
     }
 
     for ( int idx=0; idx<nr; idx++ )
@@ -255,6 +258,8 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 	if ( statnmcb_ )
 	    disp->attach( rightAlignedBelow, lblcb );
 
+	disp->funcDisp()->getMouseEventHandler().movement.notify(
+		mCB(this,uiStatsDisplayWin,mouseMoveCB) );
 	disps_ += disp;
 	disp->display( false );
     }
@@ -268,8 +273,27 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 
 void uiStatsDisplayWin::showStat( int idx )
 {
+    currentdispidx_ = idx;
     if ( disps_.validIdx(idx) )
 	disps_[idx]->display( true );
+}
+
+
+void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb)
+    if ( !meh ) return;
+
+    uiHistogramDisplay* disp = disps_.validIdx( currentdispidx_ )
+		? disps_[currentdispidx_]->funcDisp() : 0;
+    if ( !disp ) return;
+
+    const Geom::Point2D<int>& pos = disp->getMouseEventHandler().event().pos();
+    Geom::Point2D<float> val = disp->getFuncXY( pos.x, false );
+    BufferString str;
+    str.add( "Value/Count: ").add( toString(val.x,4) );
+    str.add( " / " ).add( toString(val.y,0) );
+    toStatusBar( str );
 }
 
 
@@ -301,7 +325,7 @@ void uiStatsDisplayWin::setDataName( const char* nm, int idx )
     if ( statnmcb_ )
     {
 	idx > statnmcb_->size()-1 ? statnmcb_->addItem(nm)
-	    			  : statnmcb_->setItemText(idx,nm);
+				  : statnmcb_->setItemText(idx,nm);
 	return;
     }
 
