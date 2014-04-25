@@ -37,16 +37,18 @@ namespace visBase
 {
 
 SceneColTab::SceneColTab()
-    : VisualObjectImpl(false)
-    , osgcolorbar_(new mScalarBarType)
-    , flipseq_(false)
-    , width_(20)
-    , height_(250)
-    , horizontal_(false)
-    , pos_(Bottom)
-    , aspratio_(1)
-    , winx_(100)
-    , winy_(100)
+    : VisualObjectImpl( false )
+    , osgcolorbar_( new mScalarBarType )
+    , flipseq_( false )
+    , width_( 20 )
+    , height_( 250 )
+    , horizontal_( false )
+    , pos_( Bottom )
+    , aspratio_( 1 )
+    , winx_( 100 )
+    , winy_( 100 )
+    , fontsize_( 18 )
+    , pixeldensity_( getDefaultPixelDensity() )
 {
     addChild( osgcolorbar_ );
     mScalarBar->setOrientation( mScalarBarType::VERTICAL );
@@ -77,8 +79,25 @@ void SceneColTab::setLegendColor( const Color& col )
 void SceneColTab::setAnnotFont( const FontData& fd )
 {
     mScalarBarType::TextProperties tp;
-    tp._characterSize = fd.pointSize();
+    const float sizefactor = pixeldensity_/getDefaultPixelDensity();
+    tp._characterSize = fd.pointSize()*sizefactor;
     mScalarBar->setTextProperties( tp );
+    fontsize_ = fd.pointSize();
+}
+
+
+void SceneColTab::setPixelDensity( float dpi )
+{
+    if ( dpi==pixeldensity_ ) return;
+
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    pixeldensity_ = dpi;
+
+    FontData fd;
+    fd.setPointSize( fontsize_ );
+
+    setAnnotFont( fd );
 }
 
 

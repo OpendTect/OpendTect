@@ -27,6 +27,8 @@ namespace visBase
 Axes::Axes()
     : axesnode_(new osgGeo::AxesNode)
     , mastercamera_(0)
+    , pixeldensity_( getDefaultPixelDensity() )
+    , annottextsize_(18)
 {
     setOsgNode( axesnode_ );
 }
@@ -82,6 +84,26 @@ void Axes::setAnnotationColor( const Color& annotcolor )
 		      mColTof(annotcolor.g()),
 		      mColTof(annotcolor.b()), 1.0f );
     axesnode_->setAnnotationColor( anncol );
+}
+
+
+void Axes::setAnnotationTextSize( int size )
+{
+    const float sizefactor = pixeldensity_/getDefaultPixelDensity();
+    axesnode_->setAnnotationTextSize(size*sizefactor);
+    annottextsize_ = size;
+}
+
+
+void Axes::setPixelDensity(float dpi)
+{
+    if ( dpi==pixeldensity_ )
+	return;
+
+    DataObject::setPixelDensity( dpi );
+
+    pixeldensity_ = dpi;
+    setAnnotationTextSize( annottextsize_ );
 }
 
 

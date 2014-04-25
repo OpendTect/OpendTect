@@ -1272,4 +1272,21 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
     return true;
 }
 
+
+void FaultStickSetDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( sticks_ )
+	sticks_->setPixelDensity( dpi );
+
+    if ( activestick_ )
+	activestick_ ->setPixelDensity( dpi );
+    
+    for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
+        knotmarkersets_[idx]->setPixelDensity( dpi );
+
+}
+
+
 } // namespace visSurvey

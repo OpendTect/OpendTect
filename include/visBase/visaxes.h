@@ -35,7 +35,10 @@ public:
     void			setPosition(float,float);
     void			setSize(float rad, float len);
     void			setAnnotationColor(const Color&);
+    void			setAnnotationTextSize(int);
     void			setMasterCamera(visBase::Camera*);
+
+    virtual void		setPixelDensity(float dpi);
 
 protected:
     				~Axes();
@@ -43,6 +46,8 @@ protected:
     osgGeo::AxesNode*		axesnode_;
     Camera*			mastercamera_;
     bool			ison_;
+    float			pixeldensity_;
+    int				annottextsize_;
 };
 
 } // namespace visBase

@@ -57,6 +57,7 @@ public:
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
+    virtual void		setPixelDensity(float);
 
 
 protected:
@@ -93,7 +94,6 @@ protected:
     ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
-    LineStyle					linestyle_;
 };
 
 } // namespace visSurvey

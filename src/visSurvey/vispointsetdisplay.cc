@@ -185,6 +185,16 @@ void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
     eventcatcher_->ref();
 }
 
+
+void PointSetDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( pointset_ )
+	pointset_->setPixelDensity( dpi );
+}
+
+
 /*void PointSetDisplay::eventCB( CallBacker* cb )
 {
     if ( !isOn() || isLocked() ) return;

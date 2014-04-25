@@ -106,6 +106,7 @@ public:
 
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
+    virtual void		setPixelDensity(float dpi);
 
 protected:
     virtual			~FaultStickSetDisplay();

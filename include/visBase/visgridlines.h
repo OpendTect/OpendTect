@@ -53,6 +53,7 @@ public:
     bool			areCrosslinesShown() const;
     void			showZlines(bool);
     bool			areZlinesShown() const;
+    virtual void		setPixelDensity(float);
 
 protected:
 

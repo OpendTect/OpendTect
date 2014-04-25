@@ -205,8 +205,6 @@ void Well::setPixelDensity(float dpi)
     welltoptxt_->setPixelDensity( dpi );
     wellbottxt_->setPixelDensity( dpi );
     markernames_->setPixelDensity( dpi );
-    lognmleft_->setPixelDensity( dpi );
-    lognmright_->setPixelDensity( dpi );
 
     setLogScreenWidth( leftscreenwidth, Left );
     setLogScreenWidth( rightscreenwidth, Right );

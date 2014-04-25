@@ -142,6 +142,7 @@ public:
     
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
+    virtual void		setPixelDensity(float);
     const char*			errMsg() const { return errmsg_.str(); }
 
 

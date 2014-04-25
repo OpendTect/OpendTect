@@ -51,6 +51,9 @@ public:
     bool		turnOn(bool);
     void		setSize(int w,int h);
     Geom::Size2D<int>	getSize();
+
+    virtual void	setPixelDensity(float dpi);
+
         
 protected:
 			~SceneColTab();
@@ -68,6 +71,8 @@ protected:
     float		aspratio_;
     int			winx_;
     int			winy_;
+    float		pixeldensity_;
+    int			fontsize_;
 };
 
 } // class visBase

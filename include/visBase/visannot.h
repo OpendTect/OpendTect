@@ -79,6 +79,7 @@ public:
     bool		usePar(const IOPar&);
 
     void		setDisplayTransformation(const mVisTrans*);
+    virtual void	setPixelDensity(float);
 
 protected:
     			~Annotation();

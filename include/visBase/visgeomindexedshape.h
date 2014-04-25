@@ -88,6 +88,8 @@ public:
     void			addNodeState(visBase::NodeState*);
 
     void			setTextureChannels(TextureChannels*);
+    virtual void	        setPixelDensity(float);
+
 
 protected:
 				~GeomIndexedShape();

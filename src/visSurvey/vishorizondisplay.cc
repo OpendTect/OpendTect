@@ -2176,4 +2176,16 @@ HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 }
 
 
+void HorizonDisplay::setPixelDensity( float dpi )
+{
+    EMObjectDisplay::setPixelDensity( dpi );
+
+    for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	intersectionlines_[idx]->setPixelDensity( dpi );
+    
+    for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
+	intersectionpointsets_[idx]->setPixelDensity( dpi );
+}
+
+
 }; // namespace visSurvey

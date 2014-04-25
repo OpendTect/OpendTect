@@ -158,6 +158,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     virtual void		annotateNextUpdateStage(bool yn);
+    virtual void		setPixelDensity(float);
 
 				
 protected:

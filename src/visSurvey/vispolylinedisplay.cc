@@ -47,4 +47,15 @@ void PolyLineDisplay::setDisplayTransformation( const mVisTrans* nt )
 const mVisTrans* PolyLineDisplay::getDisplayTransformation() const
 { return polyline_->getDisplayTransformation(); }
 
+
+void PolyLineDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( polyline_ )
+	polyline_->setPixelDensity( dpi );
+    
+}
+
+
 }//namespace

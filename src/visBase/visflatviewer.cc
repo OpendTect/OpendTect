@@ -326,4 +326,16 @@ void FlatViewer::setDisplayTransformation( const mVisTrans* trans )
 
 }
 
+
+void FlatViewer::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( x1gridlines_ )
+	x1gridlines_->setPixelDensity( dpi );
+    if ( x2gridlines_ )
+	x2gridlines_->setPixelDensity( dpi );
+
+}
+
 }; // Namespace

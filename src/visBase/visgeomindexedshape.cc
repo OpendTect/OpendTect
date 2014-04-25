@@ -477,13 +477,11 @@ void GeomIndexedShape::reClip()
 
 void GeomIndexedShape::setLineStyle( const LineStyle& lnstyle)
 {
-    if ( lnstyle == linestyle_ )
+    if ( lnstyle == drawstyle_->lineStyle() )
 	return;
 
-    linestyle_ = lnstyle;
-
     if ( drawstyle_ )
-	drawstyle_->setLineStyle( linestyle_ );
+	drawstyle_->setLineStyle( lnstyle );
     else
 	touch( true );
 }
@@ -521,6 +519,16 @@ void GeomIndexedShape::useOsgNormal( bool yn )
 void GeomIndexedShape::setTextureChannels( TextureChannels* channels )
 {
     vtexshape_->setTextureChannels( channels );
+}
+
+
+void GeomIndexedShape::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( vtexshape_ )
+	vtexshape_->setPixelDensity( dpi );
+
 }
 
 

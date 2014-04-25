@@ -56,6 +56,8 @@ public:
     FlatView::AuxData*	       removeAuxData(FlatView::AuxData* a) { return a;}
     FlatView::AuxData*	       removeAuxData(int idx) { return 0; }
     void		       setDisplayTransformation(const mVisTrans*);
+    virtual void	       setPixelDensity(float);
+
 
 protected:
     			       ~FlatViewer();

@@ -1871,4 +1871,24 @@ void FaultDisplay::matChangeCB(CallBacker*)
 }
 
 
+void FaultDisplay::setPixelDensity( float dpi )
+{
+    MultiTextureSurveyObject::setPixelDensity( dpi );
+    
+    if ( paneldisplay_ )
+	paneldisplay_->setPixelDensity( dpi );
+    if ( stickdisplay_ )
+	stickdisplay_->setPixelDensity( dpi );
+    
+    if ( intersectiondisplay_ )
+	intersectiondisplay_->setPixelDensity( dpi );
+
+    if ( activestickmarker_ )
+	activestickmarker_->setPixelDensity( dpi );
+    
+    for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
+	knotmarkersets_[idx]->setPixelDensity( dpi );
+}
+
+
 }; // namespace visSurvey

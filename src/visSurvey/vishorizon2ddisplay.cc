@@ -487,7 +487,7 @@ void Horizon2DDisplay::updateSeedsOnSections(
 		markerset->getCoordinates();
 	    if ( markercoords->size() )
 	    {
-		 Coord3 markerpos = markercoords->getPos( idy );
+		Coord3 markerpos = markercoords->getPos( idy, true );
 	         if ( zaxistransform_ )
 		    markerpos.z = zaxistransform_->transform( markerpos );
 		for ( int idz=0; idz<seis2dlist.size(); idz++ )
@@ -588,4 +588,17 @@ void Horizon2DDisplay::doOtherObjectsMoved(
 {
     otherObjectsMoved( objs, whichobj );
 }
+
+
+void Horizon2DDisplay::setPixelDensity( float dpi )
+{
+    EMObjectDisplay::setPixelDensity( dpi );
+
+    for ( int idx =0; idx<lines_.size(); idx++ )
+	lines_[idx]->setPixelDensity( dpi );
+
+    for ( int idx=0; idx<points_.size(); idx++ )
+	points_[idx]->setPixelDensity( dpi );
+}
+
 }; // namespace visSurvey

@@ -189,6 +189,14 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
 }
 
 
+void Annotation::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    axisnames_->setPixelDensity( dpi );
+    axisannot_->setPixelDensity( dpi );
+}
+
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {

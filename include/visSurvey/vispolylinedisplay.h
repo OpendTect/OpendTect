@@ -42,6 +42,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     const char*			errMsg() const { return errmsg_.str(); }
+    virtual			void setPixelDensity(float);
 
 protected:
 

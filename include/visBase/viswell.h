@@ -214,8 +214,6 @@ protected:
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
     Text2*			markernames_;
-    Text2*			lognmleft_;
-    Text2*			lognmright_;
     const mVisTrans*		transformation_;
 
     bool			showmarkers_;

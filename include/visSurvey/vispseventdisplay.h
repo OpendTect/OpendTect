@@ -62,6 +62,7 @@ public:
     virtual bool		canSetColTabSequence() const { return true; }
     virtual int			nrAttribs() const { return 1; }
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
+    virtual void		setPixelDensity(float);
     
     enum DisplayMode		{ None, ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };

@@ -331,5 +331,20 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
 }
 
 
+void GridLines::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( inlines_ ) inlines_->setPixelDensity( dpi );
+    if ( crosslines_ ) crosslines_->setPixelDensity( dpi );
+    if ( zlines_ ) zlines_->setPixelDensity( dpi );
+    if ( trcnrlines_ ) trcnrlines_->setPixelDensity( dpi );
+    
+    for ( int idx =0; idx< polylineset_.size(); idx++ )
+	polylineset_[idx]->setPixelDensity( dpi );
+  
+}
+
+
 } // namespace visBase
 

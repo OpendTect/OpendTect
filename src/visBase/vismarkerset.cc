@@ -182,11 +182,12 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 
 void MarkerSet::setPixelDensity( float dpi )
 {
-    DataObject::setPixelDensity( dpi );
+    VisualObjectImpl::setPixelDensity( dpi );
 
     if ( dpi==pixeldensity_ )
 	return;
 
+    pixeldensity_ = dpi;
     setScreenSize( markerstyle_.size_ ); //Force update
 }
 

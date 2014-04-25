@@ -575,6 +575,8 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
+    
+    requestSingleRedraw();
 }
 
 
@@ -989,6 +991,18 @@ bool WellDisplay::usePar( const IOPar& par )
 
     return true;
 }
+
+
+void WellDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( markerset_ )
+	markerset_->setPixelDensity( dpi );
+    if ( well_ )
+	well_->setPixelDensity( dpi );
+}
+
 
 } // namespace visSurvey
 

@@ -712,4 +712,13 @@ void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
 }
 
 
+void EMObjectDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+	posattribmarkers_[idx]->setPixelDensity( dpi );
+
+}
+
+
 }; // namespace visSurvey

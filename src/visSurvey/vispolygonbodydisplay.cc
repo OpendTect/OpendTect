@@ -987,4 +987,15 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 }
 
 
+void PolygonBodyDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( bodydisplay_ ) bodydisplay_->setPixelDensity( dpi );
+    if ( polygondisplay_ ) polygondisplay_->setPixelDensity( dpi );
+    if ( intersectiondisplay_ ) intersectiondisplay_->setPixelDensity( dpi );
+    if ( nearestpolygonmarker_ ) nearestpolygonmarker_->setPixelDensity( dpi );
+}
+
+
 }; // namespace visSurvey

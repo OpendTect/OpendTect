@@ -792,7 +792,7 @@ const mVisTrans* Seis2DDisplay::getDisplayTransformation() const
 
 void Seis2DDisplay::setPixelDensity( float dpi )
 {
-    visBase::DataObject::setPixelDensity( dpi );
+    VisualObjectImpl::setPixelDensity( dpi );
     pixeldensity_ = dpi;
 
     if ( linename_ )

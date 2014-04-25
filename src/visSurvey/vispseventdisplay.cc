@@ -778,4 +778,17 @@ PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
     markerset_->unRef();
 }
 
+
+void PSEventDisplay::setPixelDensity( float dpi )
+{
+    VisualObjectImpl::setPixelDensity( dpi );
+
+    if ( eventmarkerset_ )
+        eventmarkerset_->setPixelDensity( dpi );
+
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
+	parentattached_[idx]->objectgroup_->setPixelDensity( dpi );
+    
+}
+
 } // namespace

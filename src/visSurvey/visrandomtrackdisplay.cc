@@ -1329,4 +1329,17 @@ bool RandomTrackDisplay::createFromPolyLine()
     return setKnotPositions( bids );
 }
 
+
+void RandomTrackDisplay::setPixelDensity( float dpi )
+{
+    MultiTextureSurveyObject::setPixelDensity( dpi );
+
+    if ( polyline_ )
+	polyline_->setPixelDensity( dpi );
+  
+    if ( markerset_ )
+	markerset_->setPixelDensity( dpi );
+}
+
+
 } // namespace visSurvey

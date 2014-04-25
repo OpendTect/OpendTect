@@ -182,7 +182,7 @@ public:
     void			doOtherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
 					int whichobj );
-
+    virtual void		setPixelDensity(float);
 
 protected:
 				~HorizonDisplay();
