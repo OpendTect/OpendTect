@@ -92,9 +92,7 @@ void Horizon2DScanner::report( IOPar& iopar ) const
 
     BufferString str = "Report for horizon file(s):\n";
     for ( int idx=0; idx<filenames_.size(); idx++ )
-    {
-	str += filenames_.get(idx).buf(); str += "\n";
-    }
+	str.add( filenames_.get(idx).buf() ).add( "\n" );
     str += "\n\n";
     iopar.setName( str.buf() );
 
@@ -108,26 +106,8 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     }
 
     iopar.set( "Valid lines found", nrlines );
-    BufferString msg;
-    for ( int idx=0; idx<validnms_.size(); idx++ )
-    {
-	if ( idx ) msg += ", ";
-	msg += validnms_.get( idx );
-    }
-
-    iopar.add( "Line names", msg );
-    const int nrinvalids = invalidnms_.size();
-    if ( nrinvalids )
-	{
-	msg = "";
-	for ( int idx=0; idx<nrinvalids; idx++ )
-	{
-	    if ( idx ) msg += ", ";
-	    msg += invalidnms_.get( idx );
-	}
-
-	iopar.add( "Rejected line names", msg );
-    }
+    iopar.add( "Line names", validnms_.getDispString(-1,false) );
+    iopar.add( "Rejected line names", invalidnms_.getDispString(-1,false) );
 
     const int nrpos = mCast( int, bvalset_ ? bvalset_->totalSize() : 0 );
     if ( !nrpos )

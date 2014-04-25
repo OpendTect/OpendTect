@@ -74,26 +74,8 @@ void uiSeisPreStackMan::mkFileInfo()
 	{
 	    BufferStringSet nms;
 	    SPSIOPF().getLineNames( *curioobj_, nms );
-	    if ( nms.size() > 0 )
-	    {
-		if ( nms.size() > 4 )
-		    { txt = "Number of lines: "; txt += nms.size(); }
-		else
-		{
-		    if ( nms.size() == 1 )
-			{ txt = "Line: "; txt += nms.get( 0 ); }
-		    else
-		    {
-			txt = "Lines: ";
-			for ( int idx=0; idx<nms.size(); idx++ )
-			{
-			    if ( idx ) txt += ", ";
-			    txt += nms.get( idx );
-			}
-		    }
-		}
-		txt += "\n\n";
-	    }
+	    txt.set( "Line" ).add( nms.size() != 1 ? "s: " : ": " )
+		.add( nms.getDispString(3,false) ).add( "\n\n" );
 	}
 	else
 	{

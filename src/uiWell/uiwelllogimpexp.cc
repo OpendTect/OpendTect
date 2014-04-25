@@ -75,9 +75,10 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
                     FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs to import", true);
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs to import" );
     logsfld_ = llb->box();
     llb->attach( alignedBelow, udffld_ );
+    logsfld_->setItemsCheckable( true );
 
     wellfld_ = new uiWellSel( this, true, "Add to Well" );
     if ( ioobj ) wellfld_->setInput( *ioobj );
@@ -98,7 +99,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
     logsfld_->setEmpty();
     logsfld_->addItems( lfi.lognms );
-    logsfld_->selectAll( true );
+    logsfld_->setAllItemsChecked( true );
 
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
     unitlbl_->setText( lbl );
@@ -121,6 +122,9 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
 bool uiImportLogsDlg::acceptOK( CallBacker* )
 {
     const IOObj* wellioobj = wellfld_->ioobj();
@@ -129,7 +133,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     Well::Data wd;
     Well::Reader rdr( wellioobj->fullUserExpr(true), wd );
     if ( !rdr.getLogs() )
-	{ uiMSG().error( "Cannot read logs for selected well" ); return false; }
+	mErrRet( "Cannot read logs for selected well" )
 
     Well::LASImporter wdai( wd );
     Well::LASImporter::FileInfo lfi;
@@ -149,44 +153,45 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
-	{ uiMSG().error("Enter valid filename"); return false; }
+	mErrRet( "Please enter a valid file name" )
 
-    BufferStringSet lognms;
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
-    {
-	if ( logsfld_->isSelected(idx) )
-	    lognms += new BufferString( logsfld_->textOfItem(idx) );
-    }
+    BufferStringSet lognms; logsfld_->getCheckedItems( lognms );
+    if ( lognms.isEmpty() )
+	mErrRet( "Please select at least one log to import" )
 
-    BufferString existlogmsg;
+    BufferStringSet existlogs;
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
     {
-	if ( wd.logs().getLog( lognms.get( idx ) ) )
+	const char* lognm = lognms.get(idx).buf();
+	if ( wd.logs().getLog(lognm) )
 	{
-	    if ( !existlogmsg.isEmpty() )
-		existlogmsg += ", ";
-	    existlogmsg += lognms.get( idx );
+	    existlogs.add( lognm );
 	    lognms.removeSingle( idx );
 	}
     }
-    if ( !existlogmsg.isEmpty() )
+    const int nrexisting = existlogs.size();
+    if ( nrexisting > 0 )
     {
-	existlogmsg.add( " already exist(s) and will not be loaded."
-	    "\n\nPlease remove them from the existing logs before import." );
-	uiMSG().warning( existlogmsg );
+	const bool issingle = nrexisting == 1;
+	BufferString msg( "Existing log", issingle ? ":" : "s:\n",
+			  existlogs.getDispString() );
+	msg.add( "\nalready exist" ).add( issingle ? "" : "s" )
+	    .add( " and will not be loaded.\n\nPlease remove " )
+	    .add( issingle ? "it" : "these" )
+	    .add( " from the existing logs before import." );
+	if ( lognms.isEmpty() )
+	    mErrRet( msg )
+	uiMSG().warning( msg );
     }
-    else if ( lognms.isEmpty() )
-	{ uiMSG().error("Please select at least one log"); return false; }
-
 
     lfi.lognms = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
     if ( res )
-	{ uiMSG().error( res ); return false; }
+	mErrRet( res )
 
     Well::Writer wtr( wellioobj->fullUserExpr(true), wd );
     if ( !wtr.putLogs() )
-	{ uiMSG().error( "Cannot write logs to disk" ); return false; }
+	mErrRet( "Cannot write logs to disk" )
 
     return true;
 }
@@ -205,10 +210,33 @@ static const char* exptypes[] =
 static const float cTWTFac  = 1000.f;
 
 
+static BufferString getDlgTitle( const ObjectSet<Well::Data>& wds,
+				 const BufferStringSet& lognms )
+{
+    BufferStringSet wllnms; addNames( wds, wllnms );
+    const int nrwells = wllnms.size();
+    const int nrlogs = lognms.size();
+    if ( nrwells < 1 || nrlogs < 1 )
+	return BufferString("No wells/logs selected");
+
+    const BufferString wllstxt( wllnms.getDispString(3) );
+    const BufferString logstxt( lognms.getDispString(3) );
+
+    BufferString ret;
+    if ( nrlogs == 1 )
+	ret.set( "Export " ).add( logstxt ).add( " for " ).add( wllstxt );
+    else if ( nrwells == 1 )
+	ret.set( wllstxt ).add( ": export " ).add( logstxt );
+    else
+	ret.set( "For " ).add( wllstxt ).add( " export " ).add( logstxt );
+
+    return ret;
+}
+
+
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,uiDialog::Setup("Export Well logs",
-				 "Specify format",
+    : uiDialog(p,uiDialog::Setup("Export Well logs",getDlgTitle(wds,logsel),
 				 mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
@@ -235,7 +263,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
 	if ( !wds_[idwell]->haveD2TModel() )
-	{ have2dtmodel = false; break; }
+	    { have2dtmodel = false; break; }
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
@@ -297,9 +325,6 @@ void uiExportLogs::typeSel( CallBacker* )
     zunitgrp_->setSensitive( 2, typefld_->getIntValue() );
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
 }
-
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiExportLogs::acceptOK( CallBacker* )
 {

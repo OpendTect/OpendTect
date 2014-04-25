@@ -108,5 +108,5 @@ BufferString uiWellParSel::getSummary() const
 	names.add( ioobj->name() );
     }
 
-    return names.isEmpty() ? BufferString(" - ") : names.cat( ',' );
+    return names.getDispString( -1, false );
 }

@@ -45,22 +45,15 @@ static void addAttrNms( const Attrib::DescSet& attrset, BufferString& txt,
 			bool stor )
 {
     const int totnrdescs = attrset.nrDescs( true, true );
-    int nrdisp = 0;
+    BufferStringSet nms;
     for ( int idx=0; idx<totnrdescs; idx++ )
     {
-	const Attrib::Desc* desc = attrset.desc( idx );
-	if ( desc->isHidden()
-	  || (stor && !desc->isStored()) || (!stor && desc->isStored()) )
-	    continue;
-
-	if ( nrdisp > 0 )
-	    txt += ", ";
-	txt += desc->userRef();
-
-	nrdisp++;
-	if ( nrdisp > 2 )
-	    { txt += ", ..."; break; }
+	const Attrib::Desc& desc = *attrset.desc( idx );
+	if ( !desc.isHidden() && stor == desc.isStored() )
+	    nms.add( desc.userRef() );
     }
+
+    txt.add( nms.getDispString(2) );
 }
 
 

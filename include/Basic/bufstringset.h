@@ -55,9 +55,10 @@ public:
 
     int			maxLength() const;
     void		sort(bool caseinsens=true,bool asc=true);
+
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
     			//!< returns new int [size()] for you to 'delete []'
-    			//!< does NOT sort!! you should do useIndexes afterwards
+    			//!< does NOT sort but provides data for useIndexes
     void		useIndexes(const int*);
 
     virtual void	fillPar(IOPar&) const;
@@ -66,11 +67,12 @@ public:
     void		fill(TypeSet<uiString>&) const;
     void		use(const TypeSet<uiString>&);
 
-    BufferString	cat(char sepchar='\n') const;
-    void		unCat(const char*,char sepchar='\n');
+    BufferString	cat(const char* sepstr="\n") const;
+    void		unCat(const char*,const char* sepstr="\n");
+
+    BufferString	getDispString(int maxnritems=-1,bool quoted=true) const;
 
 };
 
 
 #endif
-

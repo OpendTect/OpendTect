@@ -590,6 +590,36 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 }
 
 
+BufferString BufferStringSet::getDispString( int maxnritems, bool quoted ) const
+{
+    const int sz = size();
+    BufferString ret;
+    if ( sz < 1 )
+	{ ret.set( "-" ); return ret; }
+
+    if ( maxnritems < 1 || maxnritems > sz )
+	maxnritems = sz;
+
+#   define mAddItm2Str(idx) \
+    if ( quoted ) \
+	ret.add( BufferString(get(idx)).quote() ); \
+    else \
+	ret.add( get(idx) )
+
+    mAddItm2Str(0);
+    for ( int idx=1; idx<maxnritems; idx++ )
+    {
+	ret.add( idx == sz-1 ? " and " : ", " );
+	mAddItm2Str( idx );
+    }
+
+    if ( sz > maxnritems )
+	ret.add( ", ..." );
+
+    return ret;
+}
+
+
 int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 {
     const int sz = size();
@@ -810,10 +840,9 @@ void BufferStringSet::use( const TypeSet<uiString>& from )
 }
 
 
-BufferString BufferStringSet::cat( char sepchar ) const
+BufferString BufferStringSet::cat( const char* sepstr ) const
 {
     BufferString ret;
-    char sepstr[2]; sepstr[0] = sepchar; sepstr[1] = '\0';
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( idx )
@@ -824,18 +853,25 @@ BufferString BufferStringSet::cat( char sepchar ) const
 }
 
 
-void BufferStringSet::unCat( const char* inpstr, char sepchar )
+void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 {
+    const int sepstrsz = FixedString(sepstr).size();
+    if ( sepstrsz < 1 )
+	{ add( inpstr ); return; }
+
     BufferString str( inpstr );
     char* ptr = str.getCStr();
 
     while ( *ptr )
     {
-	char* nlptr = ::firstOcc( ptr, sepchar );
-	if ( nlptr )
-	    *nlptr++ = '\0';
+	char* sepptr = ::firstOcc( ptr, sepstr );
+	if ( sepptr )
+	{
+	    *sepptr = '\0';
+	    sepptr += sepstrsz;
+	}
 	add( ptr );
-	ptr = nlptr;
+	ptr = sepptr;
     }
 
     if ( *ptr )

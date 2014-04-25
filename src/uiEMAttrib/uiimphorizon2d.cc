@@ -435,25 +435,15 @@ bool uiImportHorizon2D::doImport()
 		existinglines.add( linenm );
 	}
 
-	if ( !existinglines.isEmpty() )
+	const int nrexist = existinglines.size();
+	if ( nrexist > 0 )
 	{
-	    BufferString msg = "Horizon ";
-	    msg += nm;
-	    msg += " already exists for ";
-	    if ( existinglines.size() == 1 )
-	    {
-		msg += "2D line "; msg += existinglines.get(0);
-	    }
-	    else
-	    {
-		msg += "some 2D lines ( ";
-		msg += existinglines.get(0); msg += ", ";
-		msg += existinglines.get(1);
-		if ( existinglines.size() > 2 ) msg += ", ...";
-		msg += " )";
-	    }
-
-	    msg += ", and will be overwritten.";
+	    BufferString msg( "Horizon ", nm, " already exists for " );
+	    msg.add( nrexist==1 ? "2D line " : "some 2D lines (" );
+	    msg.add( existinglines.getDispString(3,false) );
+	    if ( nrexist > 1 )
+		msg.add( ")" );
+	    msg.add( ", and will be overwritten." );
 	    if ( !uiMSG().askOverwrite(msg) )
 		mDeburstRet( false, unRef );
 	}

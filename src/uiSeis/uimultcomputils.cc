@@ -105,12 +105,11 @@ BufferString uiMultCompSel::getSummary() const
 	ret = "-- All components --";
     else
     {
+	BufferStringSet selnms;
 	for ( int idx=0; idx<compnms_.size(); idx++ )
 	    if ( dlg_->outlistfld_->box()->isItemChecked( idx) )
-	    {
-		if ( ret.size() ) ret += ", ";
-		ret += compnms_.get(idx);
-	    }
+		selnms.add( compnms_.get(idx) );
+	ret = selnms.getDispString();
     }
 
     return ret;

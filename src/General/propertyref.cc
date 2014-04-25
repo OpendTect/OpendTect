@@ -284,12 +284,13 @@ void createSet()
 	    continue;
 
 	ascistream astrm( sfio.istrm(), true );
-	PropertyRefSet* tmp = new PropertyRefSet;
-	tmp->readFrom( astrm );
-	if ( tmp->isEmpty() )
-	    delete tmp;
+	PropertyRefSet* oldprs = prs_;
+	prs_ = new PropertyRefSet;
+	prs_->readFrom( astrm );
+	if ( prs_->isEmpty() )
+	    { delete prs_; prs_ = oldprs; }
 	else
-	    { prs_ = tmp; sfio.closeSuccess(); break; }
+	    { delete oldprs; sfio.closeSuccess(); break; }
     }
 
     if ( !prs_ )

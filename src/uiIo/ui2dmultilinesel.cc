@@ -46,45 +46,36 @@ void ui2DMultiLineSel::openDlg( CallBacker* )
 
 BufferString ui2DMultiLineSel::getSummary() const
 {
+    const int nrgeomids = geomids_.size();
     BufferString ret;
-    int alllines = 0;
+    if ( nrgeomids < 1 )
+    {
+	BufferStringSet lsnms; S2DPOS().getLineSets( lsnms );
+	ret.add( lsnms.getDispString(-1,false) ).add( " (0 Lines)" );
+	return ret;
+    }
+
+    int linecount = 0;
+    BufferStringSet itms;
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	alllines++;
+	linecount++;
 	if ( (idx+1) != geomids_.size() ? 
 	    geomids_[idx].lsID() != geomids_[idx+1].lsID() : true )
 	{
-	    if ( ret.size() > 0 ) 
-		ret += ", ";
-
-	    ret += S2DPOS().getLineSet( geomids_[idx].lsID() );
+	    BufferString itm( S2DPOS().getLineSet(geomids_[idx].lsID()), " (" );
 	    BufferStringSet lines;
 	    S2DPOS().getLines( lines, geomids_[idx].lsID() );
-	    ret += " (";
-	    if ( alllines == 1 )
-		ret += " (1 Line)";
+	    if ( linecount == 1 )
+		itm += " (1 Line)";
 	    else
-	    {
-		if ( alllines == lines.size() )
-		    ret += "all";
-		else
-		    ret += alllines;
-
-		ret += " Lines)";
-	    }
-
-	    alllines = 0;
+		ret.add( lines.size()==linecount ? "all" : toString(linecount) )
+		    .add( " Lines)" );
+	    linecount = 0;
 	}
     }
 
-    if ( geomids_.size() == 0 )
-    {
-	BufferStringSet lsnms;
-	S2DPOS().getLineSets( lsnms );
-	ret = lsnms.get(0);
-	ret += " ( 0 Line)";
-    }
-
+    ret = itms.getDispString( -1, false );
     return ret;
 }
 
