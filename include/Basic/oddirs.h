@@ -102,7 +102,7 @@ mGlobal(Basic) const char* GetBinPlfDir(void);
 
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
-#define mGetUserDocDir()	GetDocFileDir("User")
+#define mGetUserDocDir()	GetDocFileDir("userdoc")
 #define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
 #define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
 
