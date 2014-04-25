@@ -69,7 +69,8 @@ float Strat::Layer::value( int ival ) const
 
     TypeSet<int> inpindexes = inpidxes_[ival];
     const int nrinputs = inpindexes.size();
-    float inpvals[nrinputs];
+    TypeSet<float> inpvals;
+    inpvals.setSize(nrinputs);
     for ( int idx=0; idx<nrinputs; idx++ )
     {
 	//remember: there is no shift possible
@@ -81,7 +82,7 @@ float Strat::Layer::value( int ival ) const
     //TODO: risk of endless loop in case of interdependant variables
     //how to prevent that?
 
-    return vals_[ival]->value(inpvals);
+    return vals_[ival]->value(inpvals.arr());
 }
 
 
