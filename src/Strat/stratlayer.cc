@@ -87,7 +87,7 @@ float Strat::Layer::value( int ival ) const
 
 float Strat::Layer::thickness() const
 {
-    float* inpvals;
+    float* inpvals =0;
     return vals_[0] ? vals_[0]->value(inpvals)
 		    : mUdf(float);//Udf should never happen
 }
