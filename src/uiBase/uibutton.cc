@@ -257,6 +257,16 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 }
 
 
+void uiPushButton::setMenu( uiMenu* menu )
+{
+    QAbstractButton* qbut = qButton();
+    mDynamicCastGet(QPushButton*,qpushbut,qbut)
+    if ( !qpushbut ) return;
+
+    qpushbut->setMenu( menu->getQMenu() );
+}
+
+
 void uiPushButton::updateIconSize()
 {
     const QString buttxt = text_.getQtString();

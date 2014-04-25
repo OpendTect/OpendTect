@@ -82,6 +82,7 @@ public:
 
     void		setDefault(bool yn=true);
     void		click();
+    void		setMenu(uiMenu*);
 
 private:
 
