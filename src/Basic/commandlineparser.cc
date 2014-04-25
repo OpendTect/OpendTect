@@ -40,9 +40,16 @@ bool CommandLineParser::hasKey( const char* key ) const
 }
 
 
-void CommandLineParser::setKeyHasValue( const char* key )
+void CommandLineParser::setKeyHasValue( const char* key, int nrvals )
 {
-    keyswithvalue_.addIfNew( key );
+    const int nrvalsidx = keyswithvalue_.indexOf( key );
+    if ( nrvalsidx<0 )
+    {
+	keyswithvalue_.add( key );
+	nrvalues_.add( nrvals );
+    }
+    else
+	nrvalues_[nrvalsidx] = nrvals;
 }
 
 
@@ -63,17 +70,25 @@ const BufferString& CommandLineParser::lastArg() const
 
 bool CommandLineParser::isKeyValue( int idx ) const
 {
-    if ( !isKey(idx-1) || isKey(idx) )
+    int keyidx = idx;
+    while ( keyidx>=0 && !isKey(keyidx) )
+	keyidx--;
+
+    if ( keyidx==idx || keyidx<0 )
 	return false;
     
-    const char* keyptr = getArg( idx-1 );
+    const char* keyptr = getArg( keyidx );
     while ( *keyptr=='-' )
 	keyptr++;
     
     if ( !*keyptr )
 	return false;
-    
-    return keyswithvalue_.isPresent(keyptr);
+
+    const int nrvalsidx = keyswithvalue_.indexOf( keyptr );
+    if ( nrvalsidx < 0 )
+	return false;
+
+    return nrvalues_[nrvalsidx]<1 || nrvalues_[nrvalsidx]>=idx-keyidx;
 }
 
 

@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmdrecorder.h"
 #include "uicmddriverdlg.h"
 
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -69,7 +70,7 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 
     if ( !applwin_.finalised() )
     {
-	applwin_.postFinalise().notify( mCB(this,uiCmdDriverMgr,delayedStartCB) );
+	applwin_.postFinalise().notify(mCB(this,uiCmdDriverMgr,delayedStartCB));
 	tim_->tick.notify( mCB(this,uiCmdDriverMgr,timerCB) );
     }
 }
@@ -203,42 +204,19 @@ void uiCmdDriverMgr::commandLineParsing()
     if ( !cmdlineparsing_ )
 	return;
 
-    BufferStringSet cmdline;
-    uiMain::theMain().getCmdLineArgs( cmdline );
-    for ( int idx=1; idx<cmdline.size(); idx++ )
-    {
-	char* ptr = cmdline.get(idx).find( '=' );
-	if ( !ptr )
-	    continue;
+    const CommandLineParser clp;
+    BufferString cmdfilename;
+    int valnr=0;
 
-	*ptr++ = '\0';
-	if ( cmdline.get(idx) == "cmd" )
-	{
+    while ( clp.getVal("cmd", cmdfilename, false, ++valnr) )
+	addCmdLineScript( cmdfilename );
 
-	    BufferString fnm( ptr );
-	    if ( fnm == "noautoexec" )
-	    {
-		settingsautoexec_ = false;
-		surveyautoexec_ = false;
-		continue;
-	    }
-	    if ( fnm == "nosettingsautoexec" )
-	    {
-		settingsautoexec_ = false;
-		continue;
-	    }
-	    if ( fnm == "nosurveyautoexec" )
-	    {
-		surveyautoexec_ = false;
-		continue;
-	    }
+    clp.getVal( "cmdlog", cmdlogname_ );
 
-	    addCmdLineScript( fnm );
-	}
-
-	if ( cmdline.get(idx) == "cmdlog" )
-	    cmdlogname_ = ptr;
-    }
+    if ( clp.hasKey("noautoexec") || clp.hasKey("nosettingsautoexec") )
+	settingsautoexec_ = false;
+    if ( clp.hasKey("noautoexec") || clp.hasKey("nosurveyautoexec") )
+	surveyautoexec_ = false;
 }
 
 
