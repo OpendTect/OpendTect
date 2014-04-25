@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiioobjsel.h"
 #include "uipossubsel.h"
+#include "od_helpids.h"
 
 
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
