@@ -102,7 +102,7 @@ public:
     const osgViewer::View*	getOsgViewerMainView() const;
     const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
-    const float			getScenesPixelDensity() const; 
+    float			getScenesPixelDensity() const; 
 
 private:
 

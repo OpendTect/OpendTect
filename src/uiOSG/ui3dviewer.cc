@@ -1502,7 +1502,7 @@ void ui3DViewer::setScenesPixelDensity(float dpi)
 }
 
 
-const float ui3DViewer::getScenesPixelDensity() const
+float ui3DViewer::getScenesPixelDensity() const
 {
     return getScene()->getPixelDensity();
 }
