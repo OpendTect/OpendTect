@@ -1,5 +1,5 @@
-#ifndef uiwelllogetool_h
-#define uiwelllogetool_h
+#ifndef uiwelllogtools_h
+#define uiwelllogtools_h
 /*+
 ________________________________________________________________________
 
@@ -28,10 +28,12 @@ class uiLabeledComboBox;
 class uiLabeledSpinBox;
 class uiPushButton;
 class uiSpinBox;
+class uiTable;
 class uiWellLogDisplay;
 
 
-namespace Well { class Data; class Log; class LogSet; class D2TModel; class Track; }
+namespace Well
+{ class Data; class Log; class LogSet; class D2TModel; class Track; }
 
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
@@ -46,7 +48,7 @@ public:
 				~LogData();
 
 	MultiID			wellid_;
-	BufferString	wellname_;
+	BufferString		wellname_;
 	Interval<float>		dahrg_;
 
 	int			setSelectedLogs(BufferStringSet&);
@@ -68,7 +70,7 @@ public:
 				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&);
 				~uiWellLogToolWin();
 
-    bool	needSave() const        { return needsave_; }
+    bool			needSave() const        { return needsave_; }
 
     void			getLogDatas(ObjectSet<LogData>& lds) const
 				{ lds = logdatas_; }
@@ -117,7 +119,23 @@ protected:
 };
 
 
+mExpClass(uiWell) uiWellLogEditor : public uiDialog
+{
+public:
+			uiWellLogEditor(uiParent*,Well::Log&);
+			~uiWellLogEditor();
+
+    void		selectMD(float md);
+
+    Notifier<uiWellLogEditor>	valueChanged;
+
+protected:
+    bool		acceptOK(CallBacker*);
+    void		fillTable();
+
+    Well::Log&		log_;
+    uiTable*		table_;
+};
 
 #endif
-
 

@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimultiwelllogsel.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uitable.h"
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
 #include "od_helpids.h"
@@ -535,3 +536,46 @@ void uiWellLogToolWin::displayLogs()
 }
 
 
+// uiWellLogEditor
+uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
+    : uiDialog(p,Setup("Edit Well log",mNoDlgTitle,mTODOHelpKey))
+    , log_(log)
+    , valueChanged(this)
+{
+    uiTable::Setup ts( log_.size(), 2 );
+    table_ = new uiTable( this, ts, "Well log table" );
+
+    BufferStringSet colnms; colnms.add("MD").add(log_.name());
+    table_->setColumnLabels( colnms );
+
+    fillTable();
+}
+
+
+uiWellLogEditor::~uiWellLogEditor()
+{
+}
+
+
+void uiWellLogEditor::fillTable()
+{
+    const int sz = log_.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	table_->setValue( RowCol(idx,0), log_.dah(idx) );
+	table_->setValue( RowCol(idx,1), log_.value(idx) );
+    }
+}
+
+
+void uiWellLogEditor::selectMD( float md )
+{
+    const int mdidx = log_.indexOf( md );
+    table_->selectRow( mdidx );
+}
+
+
+bool uiWellLogEditor::acceptOK( CallBacker* )
+{
+    return true;
+}
