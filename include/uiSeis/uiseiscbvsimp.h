@@ -79,13 +79,10 @@ mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
 public:
 
 			uiSeisCopyLineSet(uiParent*,const IOObj*);
-			~uiSeisCopyLineSet();
-
 protected:
 
-    CtxtIOObj&		outctio_;
-
-    uiSeis2DMultiLineSel* inpfld_;
+    uiSeisSel* 		inpfld_;
+    uiSeis2DMultiLineSel* subselfld_;
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;
 

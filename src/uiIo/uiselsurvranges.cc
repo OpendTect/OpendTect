@@ -27,6 +27,7 @@ static const float cMaxUnsnappedZStep = 0.999f;
     , stepfld_(0) \
     , isrel_(isrel) \
     , zddef_(ZDomain::Def::get(domky)) \
+    , rangeChanged(this) \
     , othdom_(&zddef_ != &ZDomain::SI()) \
     , cansnap_( !othdom_ \
 	&& SI().zRange(false).step > cMaxUnsnappedZStep / zddef_.userFactor() )
@@ -179,9 +180,7 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 
 void uiSelZRange::valChg( CallBacker* cb )
 {
-    if ( isrel_ ) return;
-
-    if ( startfld_->getValue() > stopfld_->getValue() )
+    if ( !isrel_ && startfld_->getValue() > stopfld_->getValue() )
     {
 	const bool chgstart = cb == stopfld_;
 	if ( chgstart )
@@ -189,6 +188,8 @@ void uiSelZRange::valChg( CallBacker* cb )
 	else
 	    stopfld_->setValue( startfld_->getValue() );
     }
+
+    rangeChanged.trigger();
 }
 
 void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )

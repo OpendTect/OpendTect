@@ -42,6 +42,7 @@ public:
     virtual bool		waiting() const				= 0;
     virtual const Coord3&	getPos() const				= 0;
     virtual const PosInfo::Line2DKey& getLine2DKey() const		= 0;
+    virtual Pos::GeomID		getGeomID() const			= 0;
     virtual int			getTrcNr() const			= 0;
     virtual int			getSceneID() const			= 0;
     virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;

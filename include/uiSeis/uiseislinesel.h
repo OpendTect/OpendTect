@@ -46,15 +46,21 @@ public:
 
     void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getSelLineNames(BufferStringSet&) const;
+
+    void		setSelGeomIDs(const TypeSet<Pos::GeomID>&);
     void		setSelLineNames(const BufferStringSet&);
 
     void		setInput(const MultiID&);
     void		setInput(const BufferStringSet& lnms);
+    void		setInput(const TypeSet<Pos::GeomID>& geomid);
 
     const PosInfo::Line2DKey& getLine2DKey() const;
     void		setSelLine(const PosInfo::Line2DKey&);
 
     void		clearSelection();
+    void		setAll(bool yn);
+    bool		isAll() const;
+    int			nrSelected() const;
     
     Notifier<uiSeis2DLineSel>	selectionChanged;
 
@@ -69,8 +75,8 @@ protected:
 
     BufferString	getSummary() const;
 
-    void		selPush(CallBacker*);
-    void		clearAll();
+    virtual void	selPush(CallBacker*);
+    virtual void	clearAll();
 };
 
 
@@ -102,111 +108,37 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiCompoundParSel
+mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiSeis2DLineSel
 {
 public:
+			uiSeis2DMultiLineSel(uiParent*,const char* text=0,
+					  bool withz=false,bool withstep=false);
+			~uiSeis2DMultiLineSel();
 
-    struct Setup
-    {
-				Setup( const char* txt=0 )
-				    : lbltxt_(txt)
-				    , withlinesetsel_(true)
-				    , withz_(false)
-				    , withattr_(false)
-				    , allattribs_(true)
-				    , steering_(false)
-				    , withstep_(false)
-				    , filldef_(true)	{}
+    bool		isAll() const;
 
-	mDefSetupMemb(BufferString,lbltxt)
-	mDefSetupMemb(bool,withlinesetsel)
-	mDefSetupMemb(bool,withz)
-	mDefSetupMemb(bool,withattr)
-	mDefSetupMemb(bool,allattribs)
-	mDefSetupMemb(bool,steering)
-	mDefSetupMemb(bool,withstep)
-	mDefSetupMemb(bool,filldef)
-    };
+    const TypeSet<StepInterval<float> >& getZRanges() const;
+    const TypeSet<StepInterval<int> >&	getTrcRanges() const;
 
-				uiSeis2DMultiLineSel(uiParent*,const Setup&);
-				~uiSeis2DMultiLineSel();
+    void		setSelLines(const BufferStringSet&);
+    void		setAll(bool);
+    void		setZRanges(const TypeSet<StepInterval<float> >&);
+    void		setTrcRanges(const TypeSet<StepInterval<int> >&);
 
-    BufferString		getSummary() const;
-    IOObj*			getIOObj();		// becomes yours
-    const IOObj*		ioObj() const;
-    BufferString		getAttribName() const;
-    const BufferStringSet&	getSelLines() const;
-    bool			isAll() const;
-    const TypeSet<StepInterval<float> >& getZRange() const;
-    const TypeSet<StepInterval<int> >&	getTrcRgs() const;
-
-    void			setLineSet(const MultiID&,const char* attr=0);
-    void			setSelLines(const BufferStringSet&);
-    void			setAll(bool);
-    void			setZRange(const TypeSet<StepInterval<float> >&);
-    void			setTrcRgs(const TypeSet<StepInterval<int> >&);
-
-    bool			fillPar(IOPar&) const;
-    void			usePar(const IOPar&);
+    bool		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
 protected:
 
-    Setup&			setup_;
-
-    bool			isall_;
-    CtxtIOObj&			ctio_;
-    BufferString		attrnm_;
-    BufferStringSet		sellines_;
-    TypeSet<StepInterval<float> > zrg_;
-    TypeSet<StepInterval<int> >	trcrgs_;
-
-    void			doDlg(CallBacker*);
-    void			updateFromLineset();
-};
-
-
-mExpClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
-{
-public:
-				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
-					const uiSeis2DMultiLineSel::Setup&);
-				~uiSeis2DMultiLineSelDlg()	{}
-
-    BufferString		getSummary() const;
-
-    IOObj*			getIOObj();
-    const char*			getAttribName() const;
-    void			getSelLines(BufferStringSet&) const;
-    bool			isAll() const;
-    void			getZRanges(TypeSet<StepInterval<float> >&)const;
-    void			getTrcRgs(TypeSet<StepInterval<int> >&) const;
-
-    void			setLineSet(const MultiID&,const char* attr=0);
-    void			setSelection(const BufferStringSet&,
-				       const TypeSet<StepInterval<int> >* rg=0);
-    void			setAll(bool);
-    void			setZRange(const StepInterval<float>&);
-
-protected:
-
-    const uiSeis2DMultiLineSel::Setup&	setup_;
-
-    CtxtIOObj&			ctio_;
-    uiSeisSel*			datasetfld_;
-    uiListBox*			lnmsfld_;
-    uiSelNrRange*		trcrgfld_;
-    uiSelZRange*		zrgfld_;
-
-    TypeSet<StepInterval<int> >	maxtrcrgs_;
-    TypeSet<StepInterval<int> >	trcrgs_;
     TypeSet<StepInterval<float> > zrgs_;
+    TypeSet<StepInterval<int> >	trcrgs_;
 
-    void			finalised(CallBacker*);
-    void			lineSetSel(CallBacker*);
-    void			lineSel(CallBacker*);
-    void			trcRgChanged(CallBacker*);
+    bool		isall_;
+    bool		withstep_;
+    bool		withz_;
 
-    virtual bool		acceptOK(CallBacker*);
+
+    void		selPush(CallBacker*);
 };
 
 #endif

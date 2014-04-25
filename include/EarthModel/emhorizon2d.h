@@ -138,8 +138,7 @@ public:
 
     Coord3			getPos(EM::SectionID,const PosInfo::Line2DKey&,
 				       int trcnr) const;
-    Coord3			getPos(EM::SectionID,Pos::GeomID geomid
-					    ,int trcnr) const;
+    Coord3			getPos(EM::SectionID,Pos::GeomID,int trc) const;
 
     bool			setPos(EM::SectionID,const PosInfo::Line2DKey&,
 				       int trcnr,float z,bool addtohistory);

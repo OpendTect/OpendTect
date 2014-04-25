@@ -534,7 +534,7 @@ bool uiSurfaceRead::processInput()
 class uiFSS2DLineSelDlg : public uiDialog
 {
 public:
-    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::Line2DKey>& geoids )
+    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
 	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
 		    "Available for 2D lines",mNoHelpKey))
     {
@@ -555,15 +555,9 @@ public:
 	    const int nrsticks = fss->geometry().nrSticks( sid );
 
 	    bool fssvalid = false;
-	    for ( int gidx=0; gidx<geoids.size(); gidx++ )
+	    for ( int gidx=0; gidx<geomids.size(); gidx++ )
 	    {
 		if ( fssvalid ) break;
-
-		S2DPOS().setCurLineSet(geoids[gidx].lsID());
-		PosInfo::Line2DData linegeom;
-		if ( !S2DPOS().getGeometry(geoids[gidx].lineID(),linegeom) )
-		    return;
-
 		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 		{
 		    const Geometry::FaultStickSet* fltgeom =
@@ -574,19 +568,9 @@ public:
 		    if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
 			continue;
 
-		    const MultiID* lsid =
-			fss->geometry().pickedMultiID(sid,sticknr);
-		    if ( !lsid ) continue;
-
-		    PtrMan<IOObj> lsobj = IOM().get( *lsid );
-		    if ( !lsobj ) continue;
-
-		    const char* lnnm = fss->geometry().pickedName(sid,sticknr);
-		    if ( !lnnm ) continue;
-
-		    if ( geoids[gidx]==S2DPOS().
-				getLine2DKey(lsobj->name(),lnnm) )
-			{ fssvalid = true; break; }
+		    if ( geomids[gidx] ==
+			    	fss->geometry().pickedGeomID(sid,sticknr))
+		    { fssvalid = true; break; }
 		}
 	    }
 
@@ -784,10 +768,10 @@ void uiFaultParSel::clearPush( CallBacker* )
 }
 
 
-void uiFaultParSel::set2DLineKeys( const TypeSet<PosInfo::Line2DKey>& keys )
+void uiFaultParSel::setGeomIDs( const TypeSet<Pos::GeomID>& geomids )
 {
-    l2dkeys_.erase();
-    l2dkeys_ = keys;
+    geomids_.erase();
+    geomids_ = geomids;
 }
 
 
@@ -798,9 +782,9 @@ void uiFaultParSel::doDlg( CallBacker* )
 	uiFaultOptSel dlg( this, *this );
 	if ( !dlg.go() ) return;
     }
-    else if ( is2d_ && l2dkeys_.size() )
+    else if ( is2d_ && geomids_.size() )
     {
-	uiFSS2DLineSelDlg dlg( this, l2dkeys_ );
+	uiFSS2DLineSelDlg dlg( this, geomids_ );
 	dlg.setSelectedItems( selfaultnms_ );
 	if ( !dlg.go() ) return;
 

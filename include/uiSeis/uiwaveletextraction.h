@@ -55,7 +55,7 @@ protected:
     uiGenInput*			taperfld_;
     uiIOObjSel*			outputwvltfld_;
     uiPosProvGroup* 		surfacesel_;
-    uiSeisSel*			seissel3dfld_;
+    uiSeisSel*			seisselfld_;
     uiSeis2DMultiLineSel*	linesel2dfld_;
     uiSeis3DSubSel*		subselfld3d_;
     uiSelZRange*		zrangefld_;

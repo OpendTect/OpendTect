@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
+#include "moddepmgr.h"
 #include "strmprov.h"
 #include "filepath.h"
 #include "sighndl.h"
@@ -70,6 +71,7 @@ void BatchProgram::init()
 {
     delete clparser_;
 
+    OD::ModDeps().ensureLoaded( "Batch" );
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyMasterHost() );
     clparser_->setKeyHasValue( sKeyMasterPort() );

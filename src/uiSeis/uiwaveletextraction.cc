@@ -52,34 +52,30 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     , zrangefld_(0)
     , extractionDone(this)
     , sd_(0)
-    , seissel3dfld_(0)
+    , seisselfld_(0)
     , linesel2dfld_(0)
     , datastep_(SI().zStep())
 {
     setCtrlStyle( RunAndClose );
+    seisctio_.ctxt.forread = true;
+    seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering());
+
+    seisselfld_ = new uiSeisSel( this, seisctio_,
+				 uiSeisSel::Setup(is2d,false) );
+    seisselfld_->selectionDone.notify(
+			    mCB(this,uiWaveletExtraction,inputSelCB) );
     if ( !is2d )
     {
-	seisctio_.ctxt.forread = true;
-	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(),sKey::Steering());
-
-	seissel3dfld_ = new uiSeisSel( this, seisctio_,
-				     uiSeisSel::Setup(false,false) );
-	seissel3dfld_->selectionDone.notify(
-				mCB(this,uiWaveletExtraction,inputSelCB) );
-
 	subselfld3d_ = new uiSeis3DSubSel( this, Seis::SelSetup(false,false)
 					         .onlyrange(true)
 					         .withstep(true)
 					         .withoutz(true) );
-	subselfld3d_->attach( alignedBelow, seissel3dfld_ );
+	subselfld3d_->attach( alignedBelow, seisselfld_ );
     }
     else
     {
-	uiSeis2DMultiLineSel::Setup lnsetup( "Select lines" );
-	lnsetup.withattr( true ).allattribs( false ).steering( false );
-	linesel2dfld_ = new uiSeis2DMultiLineSel( this, lnsetup );
-	linesel2dfld_->butPush.notify(
-				mCB(this,uiWaveletExtraction,inputSelCB) );
+	linesel2dfld_ = new uiSeis2DMultiLineSel( this );
+	linesel2dfld_->attach( alignedBelow, seisselfld_ );
     }
 
     createCommonUIFlds();
@@ -145,25 +141,22 @@ void uiWaveletExtraction::choiceSelCB( CallBacker* )
 void uiWaveletExtraction::inputSelCB( CallBacker* )
 {
     CubeSampling cs;
-    PtrMan<SeisIOObjInfo> si=0;
+    PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( seisselfld_->ioobj() );
     if ( !linesel2dfld_ )
     {
-	si = new SeisIOObjInfo( seissel3dfld_->ioobj() );
 	si->getRanges( cs );
 	datastep_ = cs.zrg.step;
     }
     else
     {
-	BufferString attrnm = linesel2dfld_->getAttribName();
-	BufferStringSet sellineset = linesel2dfld_->getSelLines();
-	si = new SeisIOObjInfo( linesel2dfld_->getIOObj() );
 	StepInterval<int> trcrg;
 	StepInterval<float> commonzrg;
-	for ( int idx=0; idx<sellineset.size(); idx++ )
+	TypeSet<Pos::GeomID> geomids;
+	linesel2dfld_->getSelGeomIDs( geomids );
+	for ( int idx=0; idx<geomids.size(); idx++ )
 	{
 	    StepInterval<float> zrg( 0, 0, 1 );
-	    Pos::GeomID geomid =Survey::GM().getGeomID(sellineset[idx]->buf());
-	    if ( !si->getRanges( geomid, trcrg, zrg ) )
+	    if ( !si->getRanges( geomids[idx], trcrg, zrg ) )
 		return;
 
 	    if ( !idx )
@@ -194,7 +187,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	cs.zrg = commonzrg;
     }
 
-    if ( !linesel2dfld_ && subselfld3d_ )
+    if ( subselfld3d_ )
     {
 	cs.hrg.step.inl() = cs.hrg.step.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
@@ -210,24 +203,18 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 
 bool uiWaveletExtraction::acceptOK( CallBacker* )
 {
-    if ( !linesel2dfld_ )
-    {
-	if ( !seissel3dfld_->ioobj() || !outputwvltfld_->ioobj() )
+    if ( !seisselfld_->ioobj() || !outputwvltfld_->ioobj() )
 	    return false;
-    }
-    else
-    {
-       if ( !check2DFlds() )
-	   return false;
-    }
+
+    if ( linesel2dfld_ && !check2DFlds() )
+	return false;
 
     IOPar inputpars, surfacepars;
-    if ( !linesel2dfld_ )
-	seissel3dfld_->fillPar( inputpars );
+    seisselfld_->fillPar( inputpars );
 
     outputwvltfld_->fillPar( inputpars );
 
-    if ( subselfld3d_ && !linesel2dfld_ )
+    if ( subselfld3d_ )
 	subselfld3d_->fillPar( inputpars );
 
     if ( !checkWaveletSize() )
@@ -290,20 +277,11 @@ bool uiWaveletExtraction::checkWaveletSize()
 
 bool uiWaveletExtraction::check2DFlds()
 {
-    if ( !linesel2dfld_->getIOObj() )
-    {
-	uiMSG().warning( "Please select LineSet name" );
-	return false;
-    }
-
-    if ( linesel2dfld_->getSelLines().isEmpty() )
+    if ( !linesel2dfld_->nrSelected() )
     {
 	uiMSG().error( "Select at least one line from LineSet" );
 	return false;
     }
-
-    if ( !outputwvltfld_->ioobj() )
-	return false;
 
     if ( linesel2dfld_ && !zextraction_->getBoolValue() )
     {
@@ -320,13 +298,13 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 				     const IOPar& surfacepar )
 {
     const int phase = wvltphasefld_->getIntValue();
-    PtrMan<WaveletExtractor> extractor=0;
+    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( *seisctio_.ioobj,
+	    						      wvltsize_ );
     if ( !linesel2dfld_ )
     {
 	if ( !getSelData(rangepar,surfacepar) || !sd_ )
 	    return false;
 
-	extractor = new WaveletExtractor( *seisctio_.ioobj, wvltsize_ );
 	extractor->setSelData( *sd_ );
     }
     else
@@ -339,21 +317,20 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 
 	ObjectSet<Seis::SelData> sdset;
 	StepInterval<int> trcrg;
-	BufferStringSet sellines = linesel2dfld_->getSelLines();
-	const TypeSet<StepInterval<int> >& trcrgs = linesel2dfld_->getTrcRgs();
-	for ( int lidx=0; lidx<sellines.size(); lidx++ )
+
+	TypeSet<Pos::GeomID> geomids;
+	linesel2dfld_->getSelGeomIDs( geomids );
+	const TypeSet<StepInterval<int> >&  trcrgs =
+	    				linesel2dfld_->getTrcRanges();
+	for ( int lidx=0; lidx<geomids.size(); lidx++ )
+
 	{
 	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
-	    BufferString linenm = sellines.get(lidx).buf();
-	    BufferString attrnm = linesel2dfld_->getAttribName();
-	    Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	    range.setGeomID( geomid );
+	    range.setGeomID( geomids[lidx] );
 	    sd_ = range.clone();
 	    sdset += sd_;
 	}
 
-	extractor = new WaveletExtractor( *linesel2dfld_->getIOObj(),
-					  wvltsize_ );
 	extractor->setSelData( sdset );
     }
 

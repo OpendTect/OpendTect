@@ -42,8 +42,7 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     srsu.withsectionfld( false );
     hor3dsel_ = new uiSurfaceRead( this, srsu );
 
-    uiSeis2DMultiLineSel::Setup su( "Select lines" );
-    linesetinpsel_ = new uiSeis2DMultiLineSel( this, su );
+    linesetinpsel_ = new uiSeis2DMultiLineSel( this );
     linesetinpsel_->attach( alignedBelow, hor3dsel_ );
 
     out2dfld_ = new uiSurfaceWrite( this, uiSurfaceWrite::Setup("2D Horizon") );
@@ -122,8 +121,8 @@ bool uiHor2DFrom3DDlg::checkFlds()
 {
     if ( !hor3dsel_->getObjSel()->commitInput() )
 	mErrRet( "Pease select a valid 3d Horizon. " )
-    if ( linesetinpsel_->getSummary().isEmpty() )
-	mErrRet( "Pease select a valid Lineset. " )
+    if ( !linesetinpsel_->nrSelected() )
+	mErrRet( "Pease select at least one 2D line" )
     if ( !out2dfld_->getObjSel()->commitInput() )
 	mErrRet( "Enter the output Horizon where you want to write. " )
     return true;
@@ -132,12 +131,13 @@ bool uiHor2DFrom3DDlg::checkFlds()
 
 void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
-    const BufferStringSet sellinenames = linesetinpsel_->getSelLines();
+    TypeSet<Pos::GeomID> geomids;
+    linesetinpsel_->getSelGeomIDs( geomids );
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
     Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
-    creator.init( sellinenames, linesetinpsel_->ioObj()->name() );
+    creator.init( geomids );
 
     uiTaskRunner tr( this );
     TaskRunner::execute( &tr, creator );

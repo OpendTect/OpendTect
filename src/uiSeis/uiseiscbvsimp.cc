@@ -433,7 +433,6 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
     , rdr_(0),wrr_(0)
     , doscale_(false)
 {
-    inattrnm_ = par.find( sKey::Attribute() );
     PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
@@ -443,13 +442,19 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
 	if ( !linepar )
 	    break;
 
-	FixedString lnm = linepar->find( sKey::Name() );
-	StepInterval<int> trcrg;
-	if ( !lnm || !linepar->get(sKey::TrcRange(),trcrg) )
+	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	if ( !linepar->get(sKey::GeomID(),geomid) )
 	    continue;
 
-	sellines_.add( lnm );
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	if ( !linepar->get(sKey::TrcRange(),trcrg) ||
+		!linepar->get(sKey::ZRange(),zrg))
+	    continue;
+
+	selgeomids_ += geomid;
 	trcrgs_ += trcrg;
+	zrgs_ += zrg;
     }
 
     FixedString scalestr = par.find( sKey::Scale() );
@@ -458,12 +463,6 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
 	doscale_ = true;
 	scaler_.fromString( scalestr );
     }
-
-    StepInterval<float> zrg;
-    if ( !par.get(sKey::ZRange(),zrg) )
-	zrg = SI().zRange( false );
-
-    sd_.cubeSampling().zrg = zrg;
 }
 
 
@@ -487,11 +486,12 @@ bool initNextLine()
 	return false;
 
     lineidx_++;
-    if ( lineidx_ >= sellines_.size() || lineidx_ >= trcrgs_.size() )
+    if ( lineidx_ >= selgeomids_.size() || lineidx_ >= trcrgs_.size() )
 	return false;
 
     sd_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
-    sd_.setGeomID( Survey::GM().getGeomID(sellines_.get(lineidx_).buf()) );
+    sd_.cubeSampling().zrg = zrgs_[lineidx_];
+    sd_.setGeomID( selgeomids_[lineidx_] );
     rdr_->setSelData( sd_.clone() );
     Seis::SelData* wrrsd = sd_.clone();
     wrrsd->setIsAll( true );
@@ -525,14 +525,13 @@ protected:
     SeisTrcWriter*		wrr_;
     Seis::RangeSelData		sd_;
 
-    BufferStringSet		sellines_;
+    TypeSet<Pos::GeomID>	selgeomids_;
     TypeSet<StepInterval<int> > trcrgs_;
+    TypeSet<StepInterval<float> > zrgs_;
     LinScaler			scaler_;
     bool			doscale_;
     int				lineidx_;
     int				nrdone_;
-    BufferString		inattrnm_;
-    BufferString		outattrnm_;
 
 int nextStep()
 {
@@ -567,38 +566,32 @@ int nextStep()
 uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
     : uiDialog(p,Setup("Copy 2D Seismic Data","", 
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
-    , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,false))
 {
-    uiSeis2DMultiLineSel::Setup su( "Select Data Set to copy" );
-    inpfld_ = new uiSeis2DMultiLineSel( this, su.withattr(true).withz(true) );
+    IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
+    inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
+
+    subselfld_ = new uiSeis2DMultiLineSel( this, "Selet Lines to copy", true );
     if ( obj )
-	inpfld_->setLineSet( obj->key() );
+	subselfld_->setInput( obj->key() );
 
     scalefld_ = new uiScaler( this, "Scale values", true );
     scalefld_->attach( alignedBelow, inpfld_ );
 
-    outpfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Line) );
+    ioctxt.forread = false;
+    outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     outpfld_->attach( alignedBelow, scalefld_ );
-}
-
-
-uiSeisCopyLineSet::~uiSeisCopyLineSet()
-{
-    delete &outctio_;
 }
 
 
 bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 {
     IOPar par;
-    inpfld_->fillPar( par );
+    subselfld_->fillPar( par );
     Scaler* scaler = scalefld_->getScaler();
     if ( scaler )
 	par.set( sKey::Scale(), scaler->toString() );
 
-    par.set( IOPar::compKey( sKey::Output(), sKey::DataSet() ),
-					outpfld_->attrNm() );
-    Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
+    Seis2DCopier exec( inpfld_->ioobj(), outpfld_->ioobj(), par );
     uiTaskRunner dlg( this );
 
     return TaskRunner::execute( &dlg, exec );

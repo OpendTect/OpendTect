@@ -34,6 +34,8 @@ public:
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
     void		setRangeLimits(const StepInterval<float>&);
+    
+    Notifier<uiSelZRange>	rangeChanged;
 
     const ZDomain::Def&	zDomainDef() const	{ return zddef_; }
 

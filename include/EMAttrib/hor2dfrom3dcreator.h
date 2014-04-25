@@ -28,7 +28,10 @@ public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
 						      EM::Horizon2D&);
 				~Hor2DFrom3DCreatorGrp();
-   void				init(const BufferStringSet&,const char* lsnm);
+   void				init(const TypeSet<Pos::GeomID>&);
+
+   void				init(const BufferStringSet&,const char*);
+   				//TODO: Remove once the one above is deployed.
 
 protected:
     const EM::Horizon3D&	hor3d_;
@@ -46,7 +49,7 @@ public:
     				Hor2DFrom3DCreator(const EM::Horizon3D&,
 						   EM::Horizon2D&);
 
-    bool			setCreator(const char* linenm,const char* lsnm);
+    bool			setCreator(Pos::GeomID);
     virtual int			nextStep();
     virtual od_int64		nrDone() const		{ return nrdone_; }
     virtual od_int64		totalNr() const		{ return totalnr_; }
@@ -56,7 +59,6 @@ protected:
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
-    PosInfo::Line2DKey		l2dkey_;
     Pos::GeomID			geomid_;
     
     PosInfo::Line2DData		posdata_;
