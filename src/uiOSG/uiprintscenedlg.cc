@@ -194,12 +194,22 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
-  
+    if ( !filenameOK() ) 
+	return false;
+
     bool ret = false;
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     ui3DViewer* vwr = const_cast<ui3DViewer*>(viewers_[vwridx]);
+
+    const float scenesDPI =  vwr->getScenesPixelDensity();
+    const float renderDPI =  dpifld_->box()->getValue();
+    
+    const bool changedpi = scenesDPI != renderDPI;
+
+    if ( changedpi )
+        vwr->setScenesPixelDensity( renderDPI );
 
     osgViewer::View* mainview = 
 	const_cast<osgViewer::View*>( vwr->getOsgViewerMainView() );
@@ -214,6 +224,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     osg::ref_ptr<osg::Image> mainviewimage = 
 					offScreenRenderViewToImage( mainview );
 
+    if ( changedpi )
+        vwr->setScenesPixelDensity( scenesDPI );
 
     const int validresult = validateImages( mainviewimage, hudimage );
 

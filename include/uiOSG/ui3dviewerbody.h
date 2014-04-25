@@ -120,6 +120,7 @@ public:
     bool			useCameraPos(const IOPar&);
     const osgViewer::View*	getOsgViewerMainView() const { return view_; }
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
+    void			setScenesPixelDensity(float dpi);
 
 
 

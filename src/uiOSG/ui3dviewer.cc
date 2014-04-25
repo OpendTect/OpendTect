@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewerbody.h"
 #include "ui3dindirectviewer.h"
 #include "uirgbarray.h"
+#include "uimain.h"
 
 #include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
@@ -253,6 +254,7 @@ void ui3DViewerBody::setupHUD()
     hudcamera->setAllowEventFocus(false);
 
     hudscene_ = visBase::DataObjectGroup::create();
+    hudscene_->setPixelDensity( (float) uiMain::getDPI() );
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
@@ -287,6 +289,7 @@ void ui3DViewerBody::setupHUD()
     {
 	axes_ = visBase::Axes::create();
 	axes_->setSize( 5.0f, 55.0f );
+	axes_->setAnnotationTextSize( FontData::defaultPointSize() + 6 );
 	hudscene_->addObject( axes_ );
 	if ( camera_ )
 	    axes_->setMasterCamera( camera_ );
@@ -1119,6 +1122,17 @@ void ui3DViewerBody::saveHomePos()
     SI().savePars();
 }
 
+
+void ui3DViewerBody::setScenesPixelDensity( float dpi )
+{
+    if ( scene_ )
+	scene_->setPixelDensity( dpi );
+    if ( hudscene_ )
+	hudscene_->setPixelDensity( dpi );
+    requestRedraw();
+}
+
+
 //------------------------------------------------------------------------------
 
 
@@ -1482,3 +1496,13 @@ const osgViewer::View*	ui3DViewer::getOsgViewerHudView() const
 }
 
 
+void ui3DViewer::setScenesPixelDensity(float dpi)
+{
+    osgbody_->setScenesPixelDensity( dpi );
+}
+
+
+const float ui3DViewer::getScenesPixelDensity() const
+{
+    return getScene()->getPixelDensity();
+}
