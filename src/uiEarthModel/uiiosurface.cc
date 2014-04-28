@@ -733,6 +733,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
     clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
     clearbut->attach( rightOf, selbut_ );
+    txtfld_->setElemSzPol( uiObject::Wide );
 }
 
 
