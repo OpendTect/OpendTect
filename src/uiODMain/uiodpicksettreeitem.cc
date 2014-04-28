@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     , picksetmgr_(Pick::Mgr())
 {
     Pick::Mgr().setToBeRemoved.notify(
-	    			mCB(this,uiODPickSetParentTreeItem,setRm) );
+				mCB(this,uiODPickSetParentTreeItem,setRm) );
 }
 
 
@@ -114,7 +114,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    applMgr()->visServer()->getObject(sceneID()));
+		    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
@@ -154,7 +154,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	display_on_add = true;
 	TypeSet<MultiID> mids;
 	const bool res = applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
-	if ( !res ) 
+	if ( !res )
 	    return false;
 	display_on_add = false;
 	for ( int idx=0; idx<mids.size(); idx++ )
@@ -260,7 +260,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
     if ( !ps || &set_!=ps ) return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
@@ -391,7 +391,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	emps->copyFrom( set_ );
 	emps->setPreferredColor( set_.disp_.color_ );
 	emps->setName( set_.name() );
-	
+
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =
 	    visSurvey::RandomPosBodyDisplay::create();
 
@@ -401,13 +401,12 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	addChild( new uiODBodyDisplayTreeItem(npsd->id(),true), false );
 
         visserv_->addObject( npsd, sceneID(), true );
-	visserv_->showMPEToolbar();
 	visserv_->turnSeedPickingOn( false );
-	
+
 	prepareForShutdown();
 	visserv_->removeObject( displayid_, sceneID() );
 	parent_->removeChild( this );
-	
+
 	return;
     }
 

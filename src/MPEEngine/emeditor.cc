@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 
-namespace MPE 
+namespace MPE
 {
 
 mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
@@ -42,6 +42,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     , interactionline( 0 )
 {
     emobject.ref();
+    nrusersmanager.setParam( this, 0 );
 }
 
 
@@ -58,7 +59,7 @@ static bool nodecloningenabled = false;
 static int nodeclonecountdown = -1;
 
 void ObjectEditor::enableNodeCloning( bool yn )
-{ nodecloningenabled = yn; } 
+{ nodecloningenabled = yn; }
 
 
 void ObjectEditor::startEdit(const EM::PosID& pid)
@@ -179,7 +180,7 @@ bool ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
 void ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
 
 
-void ObjectEditor::addUser() 
+void ObjectEditor::addUser()
 {
     int nruser = nrusersmanager.getParam( this );
     nruser++;
@@ -187,7 +188,7 @@ void ObjectEditor::addUser()
 }
 
 
-void ObjectEditor::removeUser() 
+void ObjectEditor::removeUser()
 {
     int nruser = nrusersmanager.getParam( this );
     nruser--;
@@ -337,7 +338,7 @@ void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 
 bool ObjectEditor::closeInteractionLine( bool doit )
 {
-    if ( !interactionline || 
+    if ( !interactionline ||
 	 !interactionline->nrLines() ||
 	 !interactionline->getLine(0)->nrSegments() ||
 	 !interactionline->getLine(0)->getSegment(0)->size())
@@ -346,7 +347,7 @@ bool ObjectEditor::closeInteractionLine( bool doit )
     const RowCol rc(  (*interactionline->getLine(0)->getSegment(0))[0] );
 
     const EM::PosID pid( interactionline->getHorizon().id(),
-	    		 interactionline->getSection(),
+			 interactionline->getSection(),
 			 rc.toInt64() );
 
     return interactionLineInteraction( pid, doit );
@@ -354,7 +355,7 @@ bool ObjectEditor::closeInteractionLine( bool doit )
 
 
 bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
-       					       bool doit )
+					       bool doit )
 {
     if ( !interactionline || interactionline->getSection()!=pid.sectionID() ||
 	 !interactionline->nrLines() ||
