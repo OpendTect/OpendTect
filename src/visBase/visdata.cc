@@ -19,7 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
 
+#if __win__
+#define mDefaultPixelDensity	96
+#else
 #define mDefaultPixelDensity	72
+#endif
+
 
 using namespace visBase;
 

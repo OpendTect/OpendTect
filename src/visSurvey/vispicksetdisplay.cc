@@ -456,8 +456,15 @@ void PickSetDisplay::setColor( Color nc )
 
 void PickSetDisplay::setPixelDensity( float dpi )
 {
-    markerset_->setPixelDensity( dpi );
-    if ( bodydisplay_ ) bodydisplay_->setPixelDensity( dpi );
+    LocationDisplay::setPixelDensity( dpi );
+
+    if ( markerset_ )
+       markerset_->setPixelDensity( dpi );
+    if ( bodydisplay_ )
+	bodydisplay_->setPixelDensity( dpi );
+    if ( polyline_ )
+	polyline_->setPixelDensity( dpi );
+    
 }
 
 
