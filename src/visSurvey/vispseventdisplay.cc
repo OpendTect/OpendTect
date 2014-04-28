@@ -503,27 +503,31 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     int cii = 0;
     int lastmarker = 0;
 
-    PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
-
-    ObjectSet<PreStack::EventSet> eventsetstounref = pao->eventsets_;
     pao->eventsets_.erase();
     pao->hrg_ = cs.hrg;
-
+    pao->objectgroup_->addObject( pao->markerset_ );
+    pao->markerset_->setMarkerStyle( markerstyle_ );
+    
     if ( fullevent && !pao->lines_ )
     {
-	pao->lines_ = visBase::PolyLine::create();
+	pao->lines_ = visBase::PolyLine3D::create();
+	pao->lines_->ref();
+	pao->lines_->setLineStyle( linestyle_->lineStyle() );
 	pao->objectgroup_->addObject( pao->lines_ );
+	pao->lines_->setDisplayTransformation( displaytransform_ );
+	
     }
 
     TypeSet<float> values;
 
     do
     {
-	RefMan<PreStack::EventSet> eventset = eventman_ ?
+	PreStack::EventSet* eventset = eventman_ ?
 	    eventman_->getEvents( bid, true, false ) : 0;
 	if ( !eventset )
 	    continue;
 
+	eventset->ref();
 	Interval<int> eventrg( 0, eventset->events_.size()-1 );
 	if ( horid_!=-1 )
 	{
@@ -535,10 +539,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 
 	pao->eventsets_ += eventset;
-	eventset->ref();
+	
 
 	if ( markercolor_==Single )
-	    pao->markerset_->setMaterial( 0 );
+	    pao->markerset_->setMarkersSingleColor( eventman_->getColor() );
 	else
 	{
 	    if ( !pao->markerset_->getMaterial() )
@@ -586,7 +590,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 		lastmarker++;
 		if ( doline )
-		    pao->lines_->addPoint( pos );
+		    pao->lines_->getCoordinates()->addPos( pos );
 	    }
 
 	    pao->markerset_->forceRedraw( true );
@@ -597,9 +601,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    {
 		Geometry::RangePrimitiveSet* ps =
 		    Geometry::RangePrimitiveSet::create();
-		Interval<int> range( cii,size - 1 );
+		Interval<int> range( cii,size-1 );
 		ps->setRange( range );
 		ps->ref();
+		pao->lines_->addPrimitiveSet( ps );
 		cii = pao->lines_->getCoordinates()->size();
 	    }
 	}
@@ -627,9 +632,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     for ( int idx=pao->markerset_->getCoordinates()->size()-1;
 	idx>=lastmarker; idx-- )
 	pao->markerset_->removeMarker( idx );
-
-    deepUnRef( eventsetstounref );
-    
 }
 
 
@@ -733,14 +735,17 @@ void PSEventDisplay::retriveParents()
     if ( !scene_ )
 	return;
     
-    TypeSet<int> visids;
-    for ( int idx=0; idx<scene_->size(); idx++ )
-	visids += scene_->getObject( idx )->id();
+#define mCreatPao \
+    ParentAttachedObject* pao = \
+	new ParentAttachedObject( parentid ); \
+    addChild( pao->objectgroup_->osgNode() ); \
+    parentattached_ += pao; \
+    pao->objectgroup_->setDisplayTransformation( displaytransform_); \
+    updateDisplay( pao ); 
 
-    for ( int idx=0; idx<visids.size(); idx++ )
+    for ( int idx=0; idx<scene_->size(); idx++ )
     {
-	mDynamicCastGet( visSurvey::SurveyObject*, so,
-		scene_->getObject(visids[idx])  );
+	mDynamicCastGet( visSurvey::SurveyObject*, so, scene_->getObject(idx));
 	if ( !so ) continue;
 	
 	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,so);
@@ -748,11 +753,21 @@ void PSEventDisplay::retriveParents()
 	if ( gather || (pdd && pdd->isOn() &&
 	     pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) )
 	{
-	    ParentAttachedObject* pao = new ParentAttachedObject( visids[idx] );
-	    addChild( pao->objectgroup_->osgNode() );
-	    parentattached_ += pao;
-	    pao->objectgroup_->setDisplayTransformation( displaytransform_ );
-	    updateDisplay( pao );
+	    const int parentid = scene_->getObject(idx)->id();
+	    if ( parentattached_.isEmpty() )
+	    {
+		mCreatPao
+	    }
+	    else
+	    {
+		for ( int idy=0; idy<parentattached_.size(); idy++ )
+		{
+		    if ( parentattached_[idy]->parentid_ == parentid )
+			continue;
+		
+		    mCreatPao
+		}
+	    }
 	}
     }
 }
@@ -772,10 +787,10 @@ PSEventDisplay::ParentAttachedObject::ParentAttachedObject( int parent )
 
 PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
 {
-    objectgroup_->unRef();
+    unRefPtr( objectgroup_ );
+    unRefPtr( markerset_ );
+    unRefPtr( lines_ );
     deepUnRef( eventsets_ );
-
-    markerset_->unRef();
 }
 
 

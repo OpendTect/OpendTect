@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 namespace visBase 
 { 
-    class PolyLine;
+    class PolyLine3D;
     class DrawStyle;
     class DataObjectGroup;
 };
@@ -106,7 +106,7 @@ protected:
 					ParentAttachedObject(int);
 					~ParentAttachedObject();
 	visBase::DataObjectGroup*	objectgroup_;
-	visBase::PolyLine*		lines_;
+	visBase::PolyLine3D*		lines_;
 
 	visBase::MarkerSet*		markerset_;
 	ObjectSet<PreStack::EventSet>	eventsets_;

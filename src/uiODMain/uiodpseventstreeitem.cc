@@ -202,6 +202,7 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
+	MouseCursorChanger cursorchanger( MouseCursor::Wait );
 	eventdisplay_->setDisplayMode(
 	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
 	menu->setIsHandled( true );
@@ -233,6 +234,7 @@ void uiODPSEventsTreeItem::updateDisplay()
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
 	eventdisplay_->setName( eventname_ );
+	eventdisplay_->setLineStyle( LineStyle(LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 	
 	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 

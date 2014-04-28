@@ -81,7 +81,7 @@ public:
 */
 
 mExpClass(PreStackProcessing) EventSet
-{ mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
+{ mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), delete this; );
 public:
     			EventSet();
     			EventSet(const EventSet&);
