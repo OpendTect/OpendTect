@@ -1,0 +1,60 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# $Id: $
+#
+#_______________________________________________________________________________
+
+# The purpose of this script is to make a .pro file to tell lupdate which
+# files to scan and for which languages a ts file has to be created.
+# It will:
+# - make  a copy of an od directory
+# - replace mExpClass and mClass by class
+# - create lupdate.pro
+
+if (  $#argv < 2 ) then
+    echo "Usage : $0 od_directory tmp_od_directory"
+    exit
+endif
+
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    echo "$0  ++++++"
+    echo "args: $*"
+    set verbose=yes
+    set echo=on
+endif
+
+set oddir=$1
+set tmpoddir=$2
+
+if ( -e $tmpoddir ) then
+    \rm -rf $tmpoddir
+endif
+
+mkdir $tmpoddir
+cp -a $oddir/{CMakeModules,data,src,include,plugins} $tmpoddir/.
+
+set files = `find $tmpoddir -path "*.h"`
+foreach fnm ( $files )
+    sed -i 's/mExpClass(.*)/class/g' $fnm
+    sed -i 's/mClass(.*)/class/g' $fnm
+end
+
+set srcdir=$tmpoddir/data/localizations/source
+set profnm=$srcdir/lupdate.pro
+
+# TODO Create a list of target .ts files
+echo "TRANSLATIONS = $srcdir/od_fy-nl.ts $srcdir/od_nl-nl.ts " > $profnm
+echo " "
+echo "HEADERS = \" >> $profnm
+foreach fnm ( $files )
+    echo "    $fnm \" >> $profnm
+end
+
+set files = `find $tmpoddir -path "*.cc"`
+echo "SOURCES = \" >> $profnm
+foreach fnm ( $files )
+    echo "    $fnm \" >> $profnm
+end
+
