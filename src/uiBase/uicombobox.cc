@@ -204,8 +204,8 @@ const char* uiComboBox::textOfItem( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return sKey::EmptyString();
 
-    if ( isReadOnly() ||
-	 body_->itemText(idx)==itemstrings_[idx].getQtString() )
+    if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
+	 body_->itemText(idx)==itemstrings_[idx].getQtString()) )
     {
 	rettxt_ = itemstrings_[idx].getFullString();
     }
