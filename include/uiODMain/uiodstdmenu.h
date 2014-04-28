@@ -161,7 +161,6 @@ ________________________________________________________________________
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mStartBatchJobMnuItm	(mProcMnu + 50)
-#define mProcSettingsItm	(mProcMnu + 55)
 
 
 /* 'Scenes' menu */
@@ -198,6 +197,7 @@ ________________________________________________________________________
 #define mLanguageMnu		(mUtilMnu + 500) // until mUtilMnu+999
 
 #define mBatchProgMnuItm	(mUtilMnu + 10)
+#define mSetupBatchItm		(mUtilMnu + 15)
 #define mPluginsMnuItm		(mUtilMnu + 20)
 #define mPosconvMnuItm		(mUtilMnu + 25)
 #define mCrDevEnvMnuItm		(mUtilMnu + 30)

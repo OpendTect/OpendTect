@@ -1813,8 +1813,8 @@ void uiODApplMgr::resortSEGY( CallBacker* )
 { dispatcher_.resortSEGY(); }
 void uiODApplMgr::startBatchJob()
 { dispatcher_.startBatchJob(); }
-void uiODApplMgr::setProcSettings()
-{ dispatcher_.setProcSettings(); }
+void uiODApplMgr::setupBatchHosts()
+{ dispatcher_.setupBatchHosts(); }
 void uiODApplMgr::batchProgs()
 { dispatcher_.batchProgs(); }
 void uiODApplMgr::pluginMan()

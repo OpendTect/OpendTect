@@ -180,7 +180,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     nicefld_ = new uiSlider( jrppolgrp,
 		uiSlider::Setup(tr("'Nice' level (0-19)")), "Nice level" );
     nicefld_->setMinValue( -0.5 ); nicefld_->setMaxValue( 19.5 );
-    nicefld_->setValue( hdl_.defNiceLevel() );
+    nicefld_->setValue( hdl_.niceLevel() );
     if ( avmachfld_ )
 	nicefld_->setPrefWidthInChar( hostnmwdth );
 
@@ -251,8 +251,8 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     }
 
     jobrunner_->setFirstPort( hdl_.firstPort() );
-    jobrunner_->setRshComm( hdl_.rshComm() );
-    jobrunner_->setNiceNess( hdl_.defNiceLevel() );
+    jobrunner_->setRshComm( hdl_.loginCmd() );
+    jobrunner_->setNiceNess( hdl_.niceLevel() );
 
     jobrunner_->preJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobPrep) );
     jobrunner_->postJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobStart));
@@ -697,7 +697,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 #ifndef __win__
 	BufferString errmsg;
 	if ( !hd->isKnownAs(HostData::localHostName())
-		&& !hostOK(*hd,hdl_.rshComm(),errmsg) )
+		&& !hostOK(*hd,hdl_.loginCmd(),errmsg) )
 	    { progrfld_->append( errmsg.buf() ); continue; }
 #endif
 

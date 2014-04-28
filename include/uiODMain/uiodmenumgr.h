@@ -54,6 +54,7 @@ public:
     uiMenu*		helpMnu()		{ return helpmnu_; }
     uiMenu*		settMnu()		{ return settmnu_; }
     uiMenu*		toolsMnu()		{ return toolsmnu_; }
+    uiMenu*		installMnu()		{ return installmnu_; }
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
 
     uiMenu*		getBaseMnu(uiODApplMgr::ActType);
@@ -107,6 +108,7 @@ protected:
     uiMenu*		settmnu_;
     uiMenu*		langmnu_;
     uiMenu*		toolsmnu_;
+    uiMenu*		installmnu_;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
 

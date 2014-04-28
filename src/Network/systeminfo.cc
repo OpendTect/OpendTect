@@ -77,6 +77,36 @@ const char* hostAddress( const char* hostname )
 }
 
 
+bool lookupHost( const char* host_ip, BufferString& msg )
+{
+    msg.set( host_ip ).add( ": " );
+    QHostInfo hi = QHostInfo::fromName( host_ip );
+    if ( hi.error() != QHostInfo::NoError )
+    {
+	msg.add( hi.errorString() );
+	return false;
+    }
+
+    QHostAddress qha;
+    const bool isip = qha.setAddress( host_ip );
+    if ( isip )
+    {
+	const BufferString hostname = hostName( host_ip );
+	if ( hostname==host_ip )
+	{
+	    msg.add( "Not found" );
+	    return false;
+	}
+
+	msg.add( "Found with hostname " ).add( hostName(host_ip) );
+    }
+    else
+	msg.add( "Found with IP address " ).add( hostAddress(host_ip) );
+
+    return true;
+}
+
+
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 {
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();

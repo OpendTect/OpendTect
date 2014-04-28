@@ -9,6 +9,8 @@ SET(OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
 SET(OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
+	ui2dsip.cc
+	uibatchhostsdlg.cc
 	uibatchlaunch.cc
 	uibatchprogs.cc
 	uiclusterjobprov.cc
@@ -62,7 +64,6 @@ SET(OD_MODULE_SOURCES
 	uisurvinfoed.cc
 	uisurvmap.cc
 	uit2dconvsel.cc
-	ui2dsip.cc
 	inituiio.cc
 )
 OD_INIT_MODULE()

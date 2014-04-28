@@ -10,18 +10,22 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "hostdata.h"
-#include "strmoper.h"
-#include "strmprov.h"
+
 #include "ascstream.h"
+#include "debug.h"
 #include "envvars.h"
+#include "filepath.h"
 #include "genc.h"
+#include "iopar.h"
 #include "msgh.h"
 #include "oddirs.h"
-#include "separstr.h"
-#include "filepath.h"
-#include "debug.h"
 #include "od_strstream.h"
 #include "oscommand.h"
+#include "safefileio.h"
+#include "separstr.h"
+#include "strmoper.h"
+#include "strmprov.h"
+
 #ifdef __win__
 # include <windows.h>
 #else
@@ -31,9 +35,58 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDebugOn        (DBG::isOn(DBG_FILEPATH))
 
+static const char* sKeyDispName()	{ return "Display Name"; }
+static const char* sKeyHostName()	{ return "Hostname"; }
+static const char* sKeyPlatform()	{ return "Platform"; }
+
+HostData::HostData( const char* nm )
+    : localhd_(0)
+    , sharedata_(0)
+{ init( nm ); }
+
+
+HostData::HostData( const char* nm, const OD::Platform& plf )
+    : platform_(plf)
+    , localhd_(0)
+    , sharedata_(0)
+{ init( nm ); }
+
+
+HostData::HostData( const char* nm, const HostData& localhost,
+		    const OD::Platform& plf )
+    : platform_(plf)
+    , localhd_(&localhost)
+    , sharedata_(0)
+{ init( nm ); }
+
+
+HostData::HostData( const HostData& oth )
+    : aliases_( oth.aliases_ )
+    , platform_( oth.platform_ )
+    , appl_pr_( oth.appl_pr_ )
+    , data_pr_( oth.data_pr_ )
+    , pass_( oth.pass_ )
+    , localhd_( oth.localhd_ )
+    , sharedata_( oth.sharedata_ )
+{
+    init( oth.name_ );
+}
+
+
+HostData::~HostData()
+{}
+
+
 const char* HostData::localHostName()
 {
     return GetLocalHostName();
+}
+
+
+void HostData::setAlias( const char* nm )
+{
+    aliases_.erase();
+    aliases_.add( nm );
 }
 
 
@@ -52,7 +105,7 @@ void HostData::addAlias( const char* nm )
     if ( !nm || !*nm || name_ == nm ) return;
     for ( int idx=0; idx<aliases_.size(); idx++ )
 	if ( *aliases_[idx] == nm ) return;
-    aliases_ += new BufferString( nm );
+    aliases_.add( nm );
 }
 
 
@@ -63,6 +116,28 @@ BufferString HostData::getFullDispString() const
 	ret.add( " / " ).add( alias(idx) );
     return ret;
 }
+
+
+void HostData::setPlatform( const OD::Platform& plf )
+{ platform_ = plf; }
+
+const OD::Platform& HostData::getPlatform() const
+{ return platform_; }
+
+bool HostData::isWindows() const
+{ return platform_.isWindows(); }
+
+FilePath::Style HostData::pathStyle() const
+{ return platform_.isWindows() ? FilePath::Windows : FilePath::Unix; }
+
+const FilePath& HostData::prefixFilePath( PathType pt ) const
+{ return pt == Appl ? appl_pr_ : data_pr_; }
+
+void HostData::setDataRoot( const char* dataroot )
+{ data_pr_ = dataroot; }
+
+const char* HostData::getDataRoot() const
+{ return data_pr_.fullPath(); }
 
 
 void HostData::init( const char* nm )
@@ -140,11 +215,44 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 
-HostDataList::HostDataList( bool readhostfile )
-	: realaliases_(false)
-	, rshcomm_("rsh")
-	, defnicelvl_(19)
-	, portnr_(1963)
+void HostData::fillPar( IOPar& par ) const
+{
+    par.set( sKeyHostName(), name() );
+    par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
+    par.set( sKeyPlatform(), platform_.shortName() );
+    BufferString dataroot = data_pr_.fullPath();
+    dataroot.replace( ":", ";" );
+    par.set( sKey::DataRoot(), dataroot );
+}
+
+
+void HostData::usePar( const IOPar& par )
+{
+    par.get( sKeyHostName(), name_ );
+    BufferString res = name_;
+    par.get( sKeyDispName(), res );
+    if ( name_ != res ) addAlias( res );
+
+    res.setEmpty();
+    par.get( sKeyPlatform(), res );
+    if ( !res.isEmpty() ) platform_.set( res, true );
+
+    res.setEmpty();
+    par.get( sKey::DataRoot(), res );
+    res.replace( ";", ":" );
+    if ( !res.isEmpty() ) data_pr_ = res;
+}
+
+
+
+static const char* sKeyLoginCmd()	{ return "Remote login command"; }
+static const char* sKeyNiceLevel()	{ return "Nice level"; }
+static const char* sKeyFirstPort()	{ return "First port"; }
+
+HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
+	: logincmd_("rsh")
+	, nicelvl_(19)
+	, firstport_(37500)
 {
     BufferString bhfnm = "BatchHosts";
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
@@ -155,6 +263,7 @@ HostDataList::HostDataList( bool readhostfile )
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
+    batchhostsfnm_ = fname;
     if ( readhostfile )
     {
 #ifdef __win__
@@ -177,14 +286,60 @@ HostDataList::HostDataList( bool readhostfile )
 		*this += newhd;
 	    }
 	    endhostent();
-	    realaliases_ = true;
 	}
 #endif
     }
-    handleLocal();
+
+    if ( addlocalhost )
+	handleLocal();
 }
 
-bool HostDataList::readHostFile( const char* fname )
+
+void HostDataList::setNiceLevel( int lvl )		{ nicelvl_ = lvl; }
+int HostDataList::niceLevel() const			{ return nicelvl_; }
+void HostDataList::setFirstPort( int port )		{ firstport_ = port; }
+int HostDataList::firstPort() const			{ return firstport_; }
+void HostDataList::setLoginCmd( const char* cmd )	{ logincmd_ = cmd; }
+const char* HostDataList::loginCmd() const		{ return logincmd_; }
+
+
+bool HostDataList::readHostFile( const char* fnm )
+{
+    SafeFileIO sfio( fnm, true );
+    if ( !sfio.open(true) )
+	return false;
+
+    IOPar par;
+    ascistream astrm( sfio.istrm() );
+    par.getFrom( astrm );
+
+    if ( par.odVersion() < 470 )
+    {
+	sfio.closeSuccess();
+	return readOldHostFile( fnm );
+    }
+
+    par.get( sKeyLoginCmd(), logincmd_ );
+    par.get( sKeyNiceLevel(), nicelvl_ );
+    par.get( sKeyFirstPort(), firstport_ );
+
+    deepErase( *this );
+    for ( int idx=0; ; idx++ )
+    {
+	PtrMan<IOPar> hdpar = par.subselect(IOPar::compKey("Host",idx) );
+	if ( !hdpar ) break;
+
+	HostData* hd = new HostData(0);
+	hd->usePar( *hdpar );
+	(*this) += hd;
+    }
+
+    sfio.closeSuccess();
+    return true;
+}
+
+
+bool HostDataList::readOldHostFile( const char* fname )
 {
     od_istream strm( fname );
     if ( !strm.isOK() )
@@ -205,11 +360,11 @@ bool HostDataList::readHostFile( const char* fname )
     while ( !atEndOfSection(astrm) )
     {
 	if ( astrm.hasKeyword("Remote shell") )
-	    { rshcomm_ = astrm.value(); foundrsh = !rshcomm_.isEmpty(); }
+	    { logincmd_ = astrm.value(); foundrsh = !logincmd_.isEmpty(); }
 	if ( astrm.hasKeyword("Default nice level") )
-	    defnicelvl_ = astrm.getIValue();
+	    nicelvl_ = astrm.getIValue();
 	if ( astrm.hasKeyword("First port") )
-	    portnr_ = astrm.getIValue();
+	    firstport_ = astrm.getIValue();
 	if ( astrm.hasKeyword("Win appl prefix") )
 	    win_appl_pr_.set( (char*) astrm.value() );
 	if ( astrm.hasKeyword("Unx appl prefix") )
@@ -232,7 +387,7 @@ bool HostDataList::readHostFile( const char* fname )
     }
 
     if ( foundrsh )
-	OS::MachineCommand::setDefaultRemExec( rshcomm_ );
+	OS::MachineCommand::setDefaultRemExec( logincmd_ );
 
     while ( !atEndOfSection(astrm.next()) )
     {
@@ -250,36 +405,38 @@ bool HostDataList::readHostFile( const char* fname )
 		newhd->aliases_.add( vstr );
 
 	    mGetVStr(1);
-	    newhd->iswin_ = vstr == "win";
+	    newhd->platform_.set( vstr == "win", false );
 
 	    mGetVStr(2);
 	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ )
+		if ( newhd->isWindows() )
 		    vstr.replace( ';', ':' );
 		newhd->data_pr_ = vstr;
 	    }
 	    else
-		newhd->data_pr_ = newhd->iswin_ ? win_data_pr_ : unx_data_pr_;
+		newhd->data_pr_ =
+			newhd->isWindows() ? win_data_pr_ : unx_data_pr_;
 
 	    mGetVStr(3);
 	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ )
+		if ( newhd->isWindows() )
 		    vstr.replace( ';', ':' );
 		newhd->appl_pr_ = vstr;
 	    }
 	    else
-		newhd->appl_pr_ = newhd->iswin_ ? win_appl_pr_ : unx_appl_pr_;
+		newhd->appl_pr_ =
+			newhd->isWindows() ? win_appl_pr_ : unx_appl_pr_;
 
 	    mGetVStr(4);
 	    if ( !vstr.isEmpty() )
 	    {
-		if ( newhd->iswin_ )
+		if ( newhd->isWindows() )
 		    vstr.replace( ';', ':' );
 		newhd->pass_ = vstr;
 	    }
-	    else if ( newhd->iswin_ )
+	    else if ( newhd->isWindows() )
 		newhd->pass_ = sharedata_.pass_;
 
 	    newhd->setShareData( &sharedata_ );
@@ -317,14 +474,44 @@ bool HostDataList::readHostFile( const char* fname )
 }
 
 
+bool HostDataList::writeHostFile( const char* fnm )
+{
+    IOPar par;
+    par.set( sKeyLoginCmd(), logincmd_ );
+    par.set( sKeyNiceLevel(), nicelvl_ );
+    par.set( sKeyFirstPort(), firstport_ );
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	IOPar hostpar;
+	(*this)[idx]->fillPar( hostpar );
+	par.mergeComp( hostpar, IOPar::compKey("Host",idx) );
+    }
+
+    SafeFileIO sfio( fnm, true );
+    if ( !sfio.open(false) )
+	return false;
+
+    ascostream astrm( sfio.ostrm() );
+    astrm.putHeader( "Batch Processing Hosts" );
+    par.putTo( astrm );
+    if ( astrm.isOK() )
+	sfio.closeSuccess();
+    else
+	sfio.closeFail();
+
+    return true;
+}
+
+
 #define mPrMemb(obj,x) { strm << "-- " << #x << "='" << obj->x << "'\n"; }
 
 void HostDataList::dump( od_ostream& strm ) const
 {
     strm << "\n\n-- Host data list:\n--\n";
-    mPrMemb(this,rshcomm_)
-    mPrMemb(this,defnicelvl_)
-    mPrMemb(this,portnr_)
+    mPrMemb(this,logincmd_)
+    mPrMemb(this,nicelvl_)
+    mPrMemb(this,firstport_)
     mPrMemb(this,win_appl_pr_.fullPath())
     mPrMemb(this,unx_appl_pr_.fullPath())
     mPrMemb(this,win_data_pr_.fullPath())
@@ -343,7 +530,7 @@ void HostDataList::dump( od_ostream& strm ) const
     {
 	const HostData* hd = (*this)[idx];
 	mPrMemb(hd,name_)
-	mPrMemb(hd,iswin_)
+	mPrMemb(hd,isWindows())
 	mPrMemb(hd,appl_pr_.fullPath())
 	mPrMemb(hd,data_pr_.fullPath())
 	mPrMemb(hd,pass_)
@@ -405,7 +592,7 @@ void HostDataList::handleLocal()
     if ( hnm.isEmpty() ) return;
     if ( !localhd )
     {
-	localhd = new HostData( hnm, __iswin__ );
+	localhd = new HostData( hnm );
 	localhd->addAlias( localhoststd );
 	insertAt( localhd, 0 );
     }
@@ -466,3 +653,7 @@ void HostDataList::fill( BufferStringSet& bss, bool inclocalhost ) const
     for ( int idx=(inclocalhost?0:1); idx<size(); idx++ )
 	bss.add( (*this)[idx]->getFullDispString() );
 }
+
+
+const char* HostDataList::getBatchHostsFilename() const
+{ return batchhostsfnm_.buf(); }

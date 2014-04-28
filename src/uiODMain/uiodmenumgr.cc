@@ -253,7 +253,7 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertSeparator();
 
     mInsertItem( impattr, "&ASCII ...", mImpAttrMnuItm );
-    mInsertItem( impattr, "&From other survey ...", mImpAttrOthSurvMnuItm );
+//    mInsertItem( impattr, "&From other survey ...", mImpAttrOthSurvMnuItm );
     mInsertItem( imppick, "&ASCII ...", mImpPickAsciiMnuItm );
     mInsertItem( impwvlt, "&ASCII ...", mImpWvltAsciiMnuItm );
     mInsertItem( impmute, "&ASCII ...", mImpMuteDefAsciiMnuItm );
@@ -486,7 +486,6 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( grditm );
 
     mInsertItem( procmnu_, "(Re-)Start Batch &Job...", mStartBatchJobMnuItm );
-    mInsertItem( procmnu_, "&Settings ...", mProcSettingsItm );
 }
 
 
@@ -727,25 +726,28 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
     mInsertItem( toolsmnu_, "&Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
-    mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
+    installmnu_ = new uiMenu( &appl_, "&Installation" );
+    utilmnu_->insertItem( installmnu_ );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller && !__ismac__ )
     {
-	uiMenu* instmgrmnu = new uiMenu( &appl_, "&Installation" );
-	utilmnu_->insertItem( instmgrmnu );
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    mInsertItem( instmgrmnu, "OpendTect Installation &Manager ...",
+	    mInsertItem( installmnu_, "OpendTect Installation &Manager ...",
 			 mInstMgrMnuItem );
 	if ( !aitfixed )
-	    mInsertItem( instmgrmnu, "&Auto-update policy ...",
+	    mInsertItem( installmnu_, "&Auto-update policy ...",
 			 mInstAutoUpdPolMnuItm );
-	mInsertItem( instmgrmnu, "&Connection Settings ...",
+	mInsertItem( installmnu_, "&Connection Settings ...",
 		     mInstConnSettsMnuItm );
+	installmnu_->insertSeparator();
     }
+
+    mInsertItem( installmnu_, "&Plugins ...", mPluginsMnuItm );
+    mInsertItem( installmnu_, "&Setup Batch Processing ...", mSetupBatchItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
@@ -1139,7 +1141,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
     case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
-    case mProcSettingsItm:	applMgr().setProcSettings(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
@@ -1156,6 +1157,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mZScaleMnuItm:	applMgr().setZStretch(); break;
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
+    case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;

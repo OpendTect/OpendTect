@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "ui2dgeomman.h"
+#include "uibatchhostsdlg.h"
 #include "uibatchlaunch.h"
 #include "uibatchprestackproc.h"
 #include "uibatchprogs.h"
@@ -409,7 +410,7 @@ void uiODApplMgrDispatcher::showBaseMap()
 			am_.visserv_->getObject(sceneid) );
 	if ( !scene ) return;
 
-	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map", 0, 
+	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map", 0,
                                                           mNoHelpKey) );
 	basemapdlg_->setModal( false );
 	basemapdlg_->setCtrlStyle( uiDialog::CloseOnly );
@@ -523,7 +524,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 #endif
 
     uiGetChoice dlg( par_, options,
-			"Select policy for auto-update", true, 
+			"Select policy for auto-update", true,
                        mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
@@ -569,5 +570,5 @@ void uiODApplMgrDispatcher::process2D3D( bool to2d )
 }
 
 
-void uiODApplMgrDispatcher::setProcSettings()
-{ uiProcSettings dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::setupBatchHosts()
+{ uiBatchHostsDlg dlg( par_ ); dlg.go(); }

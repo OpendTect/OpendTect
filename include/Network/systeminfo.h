@@ -25,6 +25,8 @@ namespace System
 
     mGlobal(Network) const char*	hostName(const char* ip);
     mGlobal(Network) const char*	hostAddress(const char* hostname);
+    mGlobal(Network) bool		lookupHost(const char* host_ip,
+						   BufferString& msg);
 
     mGlobal(Network) void		macAddresses(BufferStringSet& names,
 						    BufferStringSet& addresses);

@@ -32,7 +32,7 @@ namespace Attrib { class SelSpec; }
 mExpClass(uiODMain) uiODApplService : public uiApplService
 {
 public:
-    			uiODApplService( uiParent* p, uiODApplMgr& am )
+			uiODApplService( uiParent* p, uiODApplMgr& am )
 			    : par_(p), applman_(am)	{}
     uiParent*		parent() const;
     bool		eventOccurred(const uiApplPartServer*,int);
@@ -49,7 +49,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 {
     friend class	uiODApplMgr;
 
-    			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
+			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
 			    : am_(a), par_(p), convposdlg_(0)
 			    , basemap_(0), basemapdlg_(0)
 			    {}
@@ -67,7 +67,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		bayesClass(bool is2d);
     void		resortSEGY();
     void		startBatchJob();
-    void		setProcSettings();
+    void		setupBatchHosts();
     void		batchProgs();
     void		pluginMan();
     void		manageShortcuts();
@@ -95,7 +95,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 {
     friend class	uiODApplMgr;
 
-    			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
+			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
 			    : am_(a), par_(p)		{}
     void		survChg(bool);
 
@@ -109,7 +109,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		setHistogram(int,int);
     void		colMapperChg();
     void		createAndSetMapDataPack(int,int,
-	    					const DataPointSet&,int);
+						const DataPointSet&,int);
     void		pageUpDownPressed(bool);
     void		updateColorTable(int,int);
     void		colSeqChg();
@@ -117,7 +117,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		useDefColTab(int,int);
     void		saveDefColTab(int,int);
     bool		set2DDataFileName(int visid,const Attrib::SelSpec*,
-	    			      const IOObj&,FilePath&);
+				      const IOObj&,FilePath&);
 
     uiODApplMgr&	am_;
     uiParent*		par_;

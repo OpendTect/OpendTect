@@ -17,8 +17,10 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "manobjectset.h"
 #include "od_iosfwd.h"
+#include "odplatform.h"
 
 class HostDataList;
+class IOPar;
 class ShareData;
 
 #define mRetNoneIfEmpty( bs ) \
@@ -32,76 +34,63 @@ class ShareData;
 mExpClass(Basic) HostData
 {
 public:
+			HostData(const char* nm);
+			HostData(const char* nm,const HostData& localhost,
+				 const OD::Platform&);
+			HostData(const HostData&);
+    virtual		~HostData();
 
     enum PathType	{ Appl, Data };
 
-protected:
-    			HostData( const char* nm, bool iswin=false )
-			    : iswin_(iswin)
-			    , localhd_(0)
-			    , sharedata_(0)	{ init(nm); }
-public:
-    			HostData( const char* nm, const HostData& localhost,
-				  bool iswin=false )
-			    : iswin_(iswin)
-			    , localhd_(&localhost)
-			    , sharedata_(0)	{ init(nm); }
-
-
-    			HostData( const HostData& oth )
-			    : aliases_( oth.aliases_ )
-			    , iswin_( oth.iswin_ )
-			    , appl_pr_( oth.appl_pr_ )
-			    , data_pr_( oth.data_pr_ )
-			    , pass_( oth.pass_ )
-			    , localhd_( oth.localhd_ )
-			    , sharedata_( oth.sharedata_ ) { init(oth.name_); }
-
-    virtual		~HostData()	{ deepErase(aliases_); }
-
-    const char*		name() const	{ return (const char*)name_; }
+    void		setName( const char* nm )	{ name_ = nm; }
+    const char*		name() const			{ return name_; }
     const char*		pass() const	{ mRetNoneIfEmpty(pass_) }
 
     int			nrAliases() const
 			{ return aliases_.size(); }
+    void		setAlias(const char*);
     const char*		alias( int idx ) const
-			{ return (const char*)(*aliases_[idx]); }
+			{ return aliases_.get(idx); }
     bool		isKnownAs(const char*) const;
-    			//!< true if name or an alias matches
+			//!< true if name or an alias matches
     void		addAlias(const char*);
-    			//!< only adds if !isKnownAs
+			//!< only adds if !isKnownAs
     BufferString	getFullDispString() const;
 
-    bool		isWin() const 		{ return iswin_; }
-    FilePath::Style	pathStyle() const
-			    {
-				return iswin_ ? FilePath::Windows
-					      : FilePath::Unix;
-			    }
+    void		setPlatform(const OD::Platform&);
+    const OD::Platform& getPlatform() const;
+    bool		isWindows() const;
+    FilePath::Style	pathStyle() const;
 			//! As is on remote host.
-    const FilePath&	prefixFilePath( PathType pt ) const
-			    { return pt == Appl ? appl_pr_ : data_pr_; }
+    const FilePath&	prefixFilePath(PathType) const;
+
+    const char*		getDataRoot() const;
+    void		setDataRoot(const char*);
 
     FilePath		convPath( PathType pt, const FilePath&,
 				  const HostData* from = 0 ) const;
     FilePath		convPath( PathType pt, const char* fn,
 				  const HostData* from = 0 ) const
-			    { return convPath(pt, FilePath(fn), from ); }
+			{ return convPath(pt, FilePath(fn), from ); }
 
     static const char*	localHostName();
     void		setLocalHost( const HostData& hd )
 			{ localhd_ = &hd; }
     const HostData&	localHost() const
-    			{ return localhd_ ? *localhd_ : *this; }
+			{ return localhd_ ? *localhd_ : *this; }
 
     const ShareData*	shareData() const	{ return sharedata_; }
     void		setShareData( const ShareData* sd ) { sharedata_ = sd; }
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
 protected:
+			HostData(const char* nm,const OD::Platform&);
 
     BufferString	name_;
     BufferStringSet	aliases_;
-    bool		iswin_;
+    OD::Platform	platform_;
     FilePath		appl_pr_;
     FilePath		data_pr_;
     BufferString	pass_;
@@ -126,7 +115,7 @@ public:
     const HostData*	host() const	{ return host_; }
     const char*		hostName() const
 			{
-			    if ( host() ) return host()->name(); 
+			    if ( host() ) return host()->name();
 			    return "_none_";
 			}
 
@@ -136,7 +125,7 @@ public:
     const char*		pass() const
 			{
 			    if ( pass_ != "" ) return pass_;
-			    if ( host() ) return host()->pass(); 
+			    if ( host() ) return host()->pass();
 			    return "_none_";
 			}
 protected:
@@ -160,11 +149,15 @@ protected:
 mExpClass(Basic) HostDataList : public ManagedObjectSet<HostData>
 {
 public:
-			HostDataList(bool readhostfile=true);
+			HostDataList(bool readhostfile=true,
+				     bool addlocalhost=true);
 
-    int			defNiceLevel() const	{ return defnicelvl_; }
-    int			firstPort() const	{ return portnr_; }
-    const char*		rshComm() const		{ return rshcomm_; }
+    void		setNiceLevel(int);
+    int			niceLevel() const;
+    void		setFirstPort(int);
+    int			firstPort() const;
+    void		setLoginCmd(const char*);
+    const char*		loginCmd() const;
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
@@ -172,12 +165,14 @@ public:
     void		fill(BufferStringSet&,bool inclocalhost=true) const;
     void		dump(od_ostream&) const;
 
+    const char*		getBatchHostsFilename() const;
+    bool		writeHostFile(const char* fnm);
+
 protected:
 
-    bool		realaliases_;
-    BufferString	rshcomm_;
-    int			defnicelvl_;
-    int			portnr_;
+    BufferString	logincmd_;
+    int			nicelvl_;
+    int			firstport_;
     FilePath		win_appl_pr_;
     FilePath		unx_appl_pr_;
     FilePath		win_data_pr_;
@@ -186,8 +181,9 @@ protected:
 
     void		handleLocal();
     bool		readHostFile(const char*);
+    bool		readOldHostFile(const char*);
     HostData*		findHost(const char*) const;
-
+    BufferString	batchhostsfnm_;
 };
 
 #undef mRetNoneIfEmpty

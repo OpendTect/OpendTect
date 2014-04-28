@@ -551,7 +551,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     {
 	cmd.add( machine.name() );
 	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
-	if ( machine.isWin()  ) cmd.add( "--iswin" );
+	if ( machine.isWindows()  ) cmd.add( "--iswin" );
 
 	cmd.addFilePathFlag( "--with-dtect-appl",
 			     machine.convPath(HostData::Appl,GetSoftwareDir(0)),
@@ -565,7 +565,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	cmd.addFilePathFlag( "--with-remote-file-base",
 	    machine.convPath(HostData::Data, basefp), FilePath::Unix );
 
-	if ( machine.isWin() && machine.shareData() )
+	if ( machine.isWindows() && machine.shareData() )
 	{
 	    const ShareData& sd = *machine.shareData();
 	    cmd.addFlag( "--data-host", sd.hostName() );
@@ -582,7 +582,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     cmd.addFlag( "-jobid", ji.descnr_ );
 
     FilePath riopfp( remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
-    const bool winstyle = machine.isWin() && FixedString(rshcomm) == "rcmd";
+    const bool winstyle = machine.isWindows() && FixedString(rshcomm) == "rcmd";
     cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
 #endif
 }

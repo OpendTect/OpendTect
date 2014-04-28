@@ -96,7 +96,6 @@ public:
 				//!< Create crossplot from file
     void			createHorOutput(int,bool);
     void			startBatchJob();
-    void			setProcSettings();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
     void			createMultiCubeDS(CallBacker* =0);
@@ -121,6 +120,7 @@ public:
 
     // Utility menu operations
     void			batchProgs();
+    void			setupBatchHosts();
     void			pluginMan();
     void			posConversion();
     void			crDevEnv();
