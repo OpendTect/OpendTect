@@ -15,6 +15,7 @@ ________________________________________________________________________
 // General_support 01
 #define	        mProgressViewerHelpID				0x00001003
 #define		mBatchProgLaunchHelpID                          0x00001005
+#define		mBatchHostsDlgHelpID				0x00001006
 // General Setup 02
 #define		mSettingsHelpID				        0x00002001
 #define		mSetFontsHelpID 				0x00002002
