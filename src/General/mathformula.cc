@@ -17,6 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefSimpleTranslators(MathFormula,Math::Formula::sKeyFileType(),od,Misc);
 
+static Math::SpecVarSet emptyspecvarset;
+
+
+const Math::SpecVarSet& Math::SpecVarSet::getEmpty()
+{
+    return emptyspecvarset;
+}
+
 
 int Math::SpecVarSet::getIndexOf( const char* varnm ) const
 {
@@ -52,6 +60,7 @@ Interval<int> Math::Formula::InpDef::shftRg() const
 
 Math::Formula::Formula( bool inpseries, const char* txt )
     : expr_(0)
+    , specvars_(&SpecVarSet::getEmpty())
     , inputsareseries_(inpseries)
     , outputunit_(0)
 {
@@ -61,7 +70,7 @@ Math::Formula::Formula( bool inpseries, const char* txt )
 
 Math::Formula::Formula( bool inpseries, const SpecVarSet& svs, const char* txt )
     : expr_(0)
-    , specvars_(svs)
+    , specvars_(&svs)
     , inputsareseries_(inpseries)
     , outputunit_(0)
 {
@@ -91,8 +100,8 @@ Math::Formula& Math::Formula::operator =( const Math::Formula& oth )
 	inpidxs_ = oth.inpidxs_;
 	validxs_ = oth.validxs_;
 	recshifts_ = oth.recshifts_;
+	specvars_ = oth.specvars_;
 	const_cast<bool&>(inputsareseries_) = oth.inputsareseries_;
-	const_cast<SpecVarSet&>(specvars_) = oth.specvars_;
     }
     return *this;
 }
@@ -179,7 +188,7 @@ void Math::Formula::setText( const char* inp )
 	    else
 	    {
 		InpDef::Type typ = vtyp == Expression::Constant	? InpDef::Const
-			    : (specvars_.isPresent(varnm)	? InpDef::Spec
+			    : (specvars_->isPresent(varnm)	? InpDef::Spec
 								: InpDef::Var);
 		InpDef id( varnm, typ );
 		inps_ += id;
@@ -235,7 +244,7 @@ void Math::Formula::clearInputDefs()
 
 int Math::Formula::specIdx( int iinp ) const
 {
-    return isSpec(iinp) ? specvars_.getIndexOf( variableName(iinp) ) : -1;
+    return isSpec(iinp) ? specvars_->getIndexOf( variableName(iinp) ) : -1;
 }
 
 

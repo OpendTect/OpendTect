@@ -277,11 +277,9 @@ const UnitOfMeasure* uiMathFormula::getUnit() const
 
 void uiMathFormula::initFlds( CallBacker* )
 {
+    useForm();
     if ( form_.isOK() )
-    {
-	useForm();
 	formSet.trigger();
-    }
 }
 
 

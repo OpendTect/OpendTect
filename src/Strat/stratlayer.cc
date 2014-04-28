@@ -10,11 +10,87 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayermodel.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
-#include "property.h"
+#include "mathformula.h"
 #include "separstr.h"
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "elasticpropsel.h"
+
+
+
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
+	const Strat::Layer& lay, const PropertyRefSelection& prs, float xpos )
+    : form_(form)
+    , lay_(lay)
+    , xpos_(xpos)
+{
+    const int nrinps = form_.nrInputs();
+
+    for ( int iinp=0; iinp<nrinps; iinp++ )
+    {
+	int inpidx = -1;
+	float inpval = 0.f;
+	if ( form_.isConst(iinp) )
+	   inpval = (float)form_.getConstVal( iinp );
+        else if ( !form_.isSpec(iinp) )
+	{
+	    const char* pnm = form.inputDef( iinp );
+	    inpidx = prs.indexOf( pnm );
+	    if ( inpidx < 0 )
+	    {
+		errmsg_.set( "Formula cannot be resolved: '" )
+		    .add( form_.text() ).add( "'\nCannot find '" ).add( pnm )
+		    .add( "'" );
+		return;
+	    }
+	}
+
+	inpidxs_ += inpidx; // not more than one because no shifts allowed
+	inpvals_ += inpval;
+    }
+}
+
+
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
+					const Strat::Layer& lay, float xpos )
+    : form_(form)
+    , lay_(lay)
+    , xpos_(xpos)
+{
+}
+
+
+Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone() const
+{
+    FormulaLayerValue* ret = new FormulaLayerValue( form_, lay_, xpos_ );
+    ret->inpidxs_ = inpidxs_;
+    ret->inpvals_ = inpvals_;
+    ret->errmsg_ = errmsg_;
+    return ret;
+}
+
+
+float Strat::FormulaLayerValue::value() const
+{
+    if ( isBad() )
+	return mUdf(float);
+
+    const int nrinps = form_.nrInputs();
+    for ( int iinp=0; iinp<nrinps; iinp++ )
+    {
+	const int inpidx = inpidxs_[iinp];
+	if ( inpidx >= 0 )
+	    inpvals_[iinp] = lay_.value( inpidx );
+	else
+	{
+	    if ( form_.isSpec(iinp) )
+		inpvals_[iinp] = form_.specIdx(iinp)<2 ? lay_.depth() : xpos_;
+	    // consts are already filled
+	}
+    }
+
+    return form_.getValue( inpvals_.arr() );
+}
 
 
 const PropertyRef& Strat::Layer::thicknessRef()
@@ -27,7 +103,39 @@ Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
     , content_(0)
 {
-    setValue( 0, 0 ); // layers always have a thickness
+    vals_.allowNull( true );
+    setThickness( 0.0f );
+}
+
+
+Strat::Layer::Layer( const Strat::Layer& oth )
+{
+    vals_.allowNull( true );
+    *this = oth;
+}
+
+
+Strat::Layer::~Layer()
+{
+    deepErase( vals_ );
+}
+
+
+Strat::Layer& Strat::Layer::operator =( const Strat::Layer& oth )
+{
+    if ( this != &oth )
+    {
+	content_ = oth.content_;
+	ref_ = oth.ref_;
+	ztop_ = oth.ztop_;
+	deepErase( vals_ );
+	for ( int ival=0; ival<oth.vals_.size(); ival++ )
+	{
+	    const LayerValue* lv = oth.vals_[ival];
+	    vals_ += lv ? lv->clone() : 0;
+	}
+    }
+    return *this;
 }
 
 
@@ -43,10 +151,12 @@ Color Strat::Layer::dispColor( bool lith ) const
 }
 
 
-void Strat::Layer::values( float* outval ) const
+void Strat::Layer::getValues( TypeSet<float>& out ) const
 {
-    for ( int idx=0; idx<vals_.size(); idx++ )
-	outval[idx] = value( idx );
+    const int nrvals = nrValues();
+    out.setSize( nrvals );
+    for ( int ival=0; ival<nrvals; ival++ )
+	out[ival] = value( ival );
 }
 
 
@@ -64,40 +174,8 @@ Strat::Layer::ID Strat::Layer::id() const
 
 float Strat::Layer::value( int ival ) const
 {
-    if ( ival >= vals_.size() || ival >= inpidxes_.size() || !vals_[ival] )
-       return mUdf(float);
-
-    TypeSet<int> inpindexes = inpidxes_[ival];
-    const int nrinputs = inpindexes.size();
-    TypeSet<float> inpvals;
-    inpvals.setSize(nrinputs);
-    for ( int idx=0; idx<nrinputs; idx++ )
-    {
-	//remember: there is no shift possible
-	if ( !vals_[ inpindexes[idx] ] ) return mUdf(float);
-
-	inpvals[idx] = value( inpindexes[idx] );
-    }
-
-    //TODO: risk of endless loop in case of interdependant variables
-    //how to prevent that?
-
-    return vals_[ival]->value(inpvals.arr());
-}
-
-
-float Strat::Layer::thickness() const
-{
-    float* inpvals =0;
-    return vals_[0] ? vals_[0]->value(inpvals)
-		    : mUdf(float);//Udf should never happen
-}
-
-
-void Strat::Layer::setThickness( float v )
-{
-    if ( vals_[0] )
-	vals_[0]->setValue( v );
+    const LayerValue* lv = vals_.validIdx(ival) ? vals_[ival] : 0;
+    return lv ? lv->value() : mUdf(float);
 }
 
 
@@ -106,43 +184,36 @@ void Strat::Layer::setValue( int ival, float val )
     while ( vals_.size() <= ival )
 	vals_ += 0;
 
-    if ( !vals_[ival] )
-	vals_.replace( ival, new Strat::SimpleLayerValue(val) );
+    Strat::LayerValue* lv = vals_[ival];
+    if ( lv && lv->isSimple() )
+	static_cast<SimpleLayerValue*>(lv)->setValue( val );
     else
-	vals_[ival]->setValue( val );
+	vals_.replace( ival, new SimpleLayerValue(val) );
 }
 
 
-void Strat::Layer::setFormula( int ival, const Math::Formula& formula )
+void Strat::Layer::setValue( int ival, const Math::Formula& form,
+			     const PropertyRefSelection& prs, float xpos )
 {
     while ( vals_.size() <= ival )
 	vals_ += 0;
 
-    if ( !vals_[ival] )
-	vals_.replace( ival, new FormulaLayerValue( formula ) );
-    else
-	vals_[ival]->setFormula( formula );
+    delete vals_.replace( ival, new FormulaLayerValue(form,*this,prs,xpos) );
 }
 
 
-Strat::FormulaLayerValue::FormulaLayerValue( Math::Formula formula )
-    : formula_( formula )
+float Strat::Layer::thickness() const
 {
-    //TODO: verify if some init is needed?
+    float val = value( 0 );
+    if ( val < 0 )
+	{ pErrMsg("thckness < 0 found" ); val = 0.0f; }
+    return val;
 }
 
 
-void Strat::FormulaLayerValue::setFormula( Math::Formula formula )
+void Strat::Layer::setThickness( float v )
 {
-    formula_ = formula;
-    //TODO: verify if some init is needed?
-
-}
-
-
-float Strat::FormulaLayerValue::value( float* inputvals ) const
-{
-    return formula_.getValue( inputvals );
+    setValue( 0, v );
 }
 
 
@@ -167,7 +238,7 @@ Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
 
 Strat::LayerSequence::~LayerSequence()
 {
-    deepErase( layers_ );
+    setEmpty();
 }
 
 
@@ -256,7 +327,8 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 float Strat::LayerSequence::depthOf( const Strat::Level& lvl ) const
 {
     const int sz = size();
-    if ( sz < 1 ) return 0;
+    if ( sz < 1 )
+	return 0;
     const int idx = indexOf( lvl, 0 );
     return idx < 0 ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
@@ -298,9 +370,11 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
 float Strat::LayerSequence::depthPositionOf( const Strat::Level& lvl ) const
 {
     const int sz = size();
-    if ( sz < 1 ) return 0;
+    if ( sz < 1 )
+	return 0;
     const int idx = positionOf( lvl );
-    if ( idx < 0 ) return 0;
+    if ( idx < 0 )
+	return 0;
     return idx >= sz ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
 
@@ -309,12 +383,14 @@ void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
 					 ObjectSet<const Layer>& lys ) const
 {
     const int sz = size();
-    if ( sz < 1 ) return;
-    if ( !ur ) ur = &refTree();
+    if ( sz < 1 )
+	return;
+    if ( !ur )
+	ur = &refTree();
 
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int ilay=0; ilay<sz; ilay++ )
     {
-	const Layer* ly = layers_[idx];
+	const Layer* ly = layers_[ilay];
 	if ( ur == &ly->unitRef() || ur->isParentOf(ly->unitRef()) )
 	    lys += ly;
     }
@@ -323,76 +399,41 @@ void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
 
 void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 					    bool cropfirstlast,
-					    LayerSequence& seq ) const
+					    LayerSequence& out ) const
 {
+    out.setEmpty();
     const int sz = size();
-    if ( sz < 1 ) return;
-    if ( depthrg.isUdf() ) return;
-
-    Interval<int> laysidx( layerIdxAtZ( depthrg.start ),
-			   layerIdxAtZ( depthrg.stop ) );
-
-    if ( laysidx.isUdf() ) return;
-    if ( laysidx.start == -1 )
-	laysidx.start = 0;
-
-    if ( laysidx.stop == -1 )
-	laysidx.stop = sz - 1;
-
-    const Layer* firstlay = layers_[laysidx.start];
-    if ( firstlay )
-    {
-	Layer* croppedlay = new Layer( *firstlay );
-	const float ztop = firstlay->zTop() > depthrg.start
-			 ? firstlay->zTop() : depthrg.start;
-	if ( cropfirstlast && croppedlay )
-	{
-	    const float zbase = firstlay->zBot() < depthrg.stop
-			      ? firstlay->zBot() : depthrg.stop;
-	    croppedlay->setThickness( zbase - ztop );
-	}
-
-	if ( croppedlay->thickness() > 1e-3f )
-	    seq.layers() += croppedlay;
-
-	seq.z0_ = ztop;
-    }
-
-    for ( int ilay=laysidx.start+1; ilay<laysidx.stop; ilay++ )
-    {
-	Layer* lay = new Layer( *layers_[ilay] );
-	if ( lay ) seq.layers() += lay;
-    }
-    if ( laysidx.stop == laysidx.start )
+    if ( sz < 1 || depthrg.isUdf() )
 	return;
 
-    const Layer* lastlay = layers_[laysidx.stop];
-    if ( lastlay )
+    for ( int ilay=0; ilay<layers_.size(); ilay++ )
     {
-	Layer* croppedlay = new Layer( *lastlay );
-	if ( cropfirstlast && croppedlay )
-	{
-	    const float ztop = lastlay->zTop() > depthrg.start
-			     ? lastlay->zTop() : depthrg.start;
-	    const float zbase = lastlay->zBot() < depthrg.stop
-			      ? lastlay->zBot() : depthrg.stop;
-	    croppedlay->setThickness( zbase - ztop );
-	}
+	const Layer& lay = *layers_[ilay];
+	if ( lay.zBot() < depthrg.start + 1e-6f )
+	    continue;
+	else if ( lay.zTop() > depthrg.stop - 1e-6f )
+	    break;
 
-	if ( croppedlay->thickness() > 1e-3f )
-	    seq.layers() += croppedlay;
+	Layer* newlay = new Layer( lay );
+	if ( lay.zTop() < depthrg.start )
+	    newlay->setThickness( lay.zBot() - depthrg.start );
+	else if ( lay.zBot() > depthrg.stop )
+	    newlay->setThickness( depthrg.stop - lay.zTop() );
+
+	out.layers() += newlay;
     }
 
-    seq.prepareUse();
+    out.z0_ = depthrg.start;
+    out.prepareUse();
 }
 
 
 void Strat::LayerSequence::prepareUse() const
 {
     float z = z0_;
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int ilay=0; ilay<size(); ilay++ )
     {
-	Layer& ly = *const_cast<Layer*>( layers_[idx] );
+	Layer& ly = *const_cast<Layer*>( layers_[ilay] );
 	ly.setZTop( z );
 	z += ly.thickness();
     }
@@ -500,8 +541,8 @@ void Strat::LayerModel::removeSequence( int seqidx )
 
 void Strat::LayerModel::prepareUse() const
 {
-    for ( int idx=0; idx<seqs_.size(); idx++ )
-	seqs_[idx]->prepareUse();
+    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
+	seqs_[iseq]->prepareUse();
 }
 
 

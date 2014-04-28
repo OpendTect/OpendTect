@@ -162,7 +162,7 @@ static const ValueProperty xposprop( xpospropref, 0 );
 static const FixedString sKeyMathForm( "Formula: " );
 
 
-static Math::SpecVarSet& getSpecVars()
+const Math::SpecVarSet& MathProperty::getSpecVars()
 {
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
 

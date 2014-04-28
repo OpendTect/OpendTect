@@ -446,29 +446,6 @@ bool Strat::SingleLayerGenerator::reset() const
 }
 
 
-static bool setLayVal( Strat::Layer& lay, int iprop, const Property& prop,
-			const Property::EvalOpts& eo )
-{
-    const float val = prop.value( eo );
-    if ( mIsUdf(val) && prop.errMsg() && *prop.errMsg() )
-	return false;
-
-    lay.setValue( iprop, val ) ;
-    return true;
-}
-
-#define mSetLayVal \
-{ \
-    if ( !setLayVal(*newlay,ipr,prop,eo) ) \
-    {  \
-	errmsg_ = prop.errMsg(); \
-	delete newlay; return false; \
-    } \
-}
-
-
-
-
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 						Property::EvalOpts eo ) const
 {
@@ -488,18 +465,26 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
 	    const Property& prop = props_.get( iprop );
-	    if ( pr == &prop.ref() )
+	    if ( pr != &prop.ref() )
+		continue;
+
+	    mDynamicCastGet(const MathProperty*,mp,&prop)
+	    if ( !mp )
 	    {
-		mDynamicCastGet(const MathProperty*,mp,&prop)
-		if ( !mp )
-		    mSetLayVal
-		else
-		{
-		    indexesofprsmath += ipr;
-		    correspondingidxinprops += iprop;
-		}
-		break;
+		const float val = prop.value( eo );
+		if ( mIsUdf(val) && prop.errMsg() && *prop.errMsg() )
+		    { errmsg_.set( prop.errMsg() ); return false; }
+		else if ( ipr == 0 && val < 1e-8 )
+		    { delete newlay; return true; }
+
+		newlay->setValue( iprop, val ) ;
 	    }
+	    else
+	    {
+		indexesofprsmath += ipr;
+		correspondingidxinprops += iprop;
+	    }
+	    break;
 	}
     }
 
@@ -510,13 +495,15 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	const PropertyRef* pr = prs[ipr];
 	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
 	if ( pr != &prop.ref() ) continue;	//huh? should never happen
-	mSetLayVal
+	if ( eo.isPrev() )
+	    newlay->setValue( ipr, prop.value( eo ) );
+	else
+	{
+	    mDynamicCastGet(const MathProperty&,mprop,prop)
+	    newlay->setValue( ipr, mprop.getForm(), prs, eo.relpos_ );
+	}
     }
 
-    const float th = newlay->thickness();
-    if ( th < 1e-8 )
-	delete newlay;
-    else
-	seq.layers() += newlay;
+    seq.layers() += newlay;
     return true;
 }

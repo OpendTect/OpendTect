@@ -76,6 +76,8 @@ public:
     PropertyRef::StdType propType( int idx )
 			{ return (*this)[idx].type_; }
 
+    static const SpecVarSet& getEmpty();
+
 };
 
 
@@ -108,6 +110,9 @@ public:
 
  The setOutputUnit() can be used to keep track of what the result
  means, or to get the result in that unit from getValue().
+
+ Lastly, the SpecVarSet you provide usually lives forever, but should at least
+ stay alive during the lifetime of the formula (it is not copied).
 
 */
 
@@ -183,7 +188,7 @@ public:
 
 
     const Expression*	expression() const	{ return expr_; };
-    const SpecVarSet&	specVars() const	{ return specvars_; }
+    const SpecVarSet&	specVars() const	{ return *specvars_; }
     bool		inputsAreSeries() const	{ return inputsareseries_; }
     int			nrConsts() const;
     const char*		userDispText() const;
@@ -221,7 +226,7 @@ protected:
     TypeSet<InpDef>	inps_;
     const UnitOfMeasure* outputunit_;
     TypeSet<double>	recstartvals_;
-    const SpecVarSet	specvars_;
+    const SpecVarSet*	specvars_;
     const bool		inputsareseries_;
 
     Expression*		expr_;

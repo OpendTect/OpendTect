@@ -15,11 +15,12 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "compoundkey.h"
-#include "mathformula.h"
 #include "stratcontent.h"
 #include "typeset.h"
 
 class PropertyRef;
+class PropertyRefSelection;
+namespace Math { class Formula; class SpecVarSet; }
 
 namespace Strat
 {
@@ -43,6 +44,9 @@ public:
     typedef CompoundKey	ID;
 
 			Layer(const LeafUnitRef&);
+			Layer(const Layer&);
+			~Layer();
+    Layer&		operator=(const Layer&);
 
     BufferString	name() const;
     const LeafUnitRef&	unitRef() const			{ return *ref_; }
@@ -55,19 +59,20 @@ public:
     inline int		nrValues() const		{ return vals_.size(); }
     float		thickness() const;
     float		value(int) const;		//!< can be undef
+    void		getValues(TypeSet<float>&) const;
+    inline float	zBot() const	{ return ztop_ + thickness(); }
+    inline float	depth() const	{ return ztop_ + 0.5f * thickness(); }
+
     inline void		setZTop( float v )		{ ztop_ = v; }
     void		setThickness(float v);
     void		setValue(int,float);
-    void		setFormula(int,const Math::Formula&);
+    void		setValue(int,const Math::Formula&,
+				 const PropertyRefSelection&,float xpos=0.5f);
     void		setContent( const Content& c )	{ content_ = &c; }
-
-    inline float	zBot() const	{ return zTop() + thickness(); }
-    inline float	depth() const	{ return zTop() + 0.5f * thickness(); }
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
 
-    void		values(float*) const;
 
     static const PropertyRef& thicknessRef();
 
@@ -76,7 +81,6 @@ protected:
     const LeafUnitRef*		ref_;
     float			ztop_;
     ObjectSet<LayerValue>	vals_;
-    TypeSet<TypeSet<int> >	inpidxes_;
     const Content*		content_;
 
 };
@@ -86,43 +90,67 @@ mExpClass(Strat) LayerValue
 {
 public:
 
-    virtual float	value(float*) const				=0;
-    virtual void	setFormula(Math::Formula)			{};
-    virtual void	setValue(float)					{};
+    virtual LayerValue*	clone() const			= 0;
+    virtual		~LayerValue()			{}
+    virtual bool	isSimple() const		{ return false; }
+    virtual float	value() const			= 0;
+
 };
 
 
 mExpClass(Strat) SimpleLayerValue : public LayerValue
 {
 public:
-			SimpleLayerValue()
-			    : val_ (mUdf(float))	{};
 			SimpleLayerValue( float val )
-			    : val_ (val)		{};
+			    : val_ (val)		{}
+    SimpleLayerValue*	clone() const
+			{ return new SimpleLayerValue(val_); }
 
-    virtual float	value(float*) const		{ return val_; }
-    void		setValue(float val)		{ val_ = val; }
+    virtual bool	isSimple() const		{ return true; }
+    virtual float	value() const			{ return val_; }
+    void		setValue( float val )		{ val_ = val; }
 
 protected:
 
     float		val_;
+
 };
 
+
+/*!\brief returns a layer value based on Math::Formula. It does not copy the
+  Formula, so keep the formula alive while the layer is alive! */
 
 mExpClass(Strat) FormulaLayerValue : public LayerValue
 {
 public:
-			FormulaLayerValue(Math::Formula);
-    virtual float	value(float*) const;
-    virtual void	setFormula(Math::Formula);
+
+			FormulaLayerValue(const Math::Formula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  float xpos);
+    FormulaLayerValue*	clone() const;
+
+    bool		isBad() const		{ return !errmsg_.isEmpty(); }
+    const char*		errMsg() const		{ return errmsg_; }
+
+    virtual float	value() const;
 
 protected:
 
-    Math::Formula	formula_;
+				FormulaLayerValue(const Math::Formula&,
+						  const Strat::Layer&,float);
+
+    const Math::Formula&	form_;
+    const Layer&		lay_;
+    const float			xpos_;
+
+    TypeSet<int>		inpidxs_;
+    mutable TypeSet<float>	inpvals_;
+    mutable BufferString	errmsg_;
+
 };
 
 
 }; // namespace Strat
 
 #endif
-

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "property.h"
 class UnitOfMeasure;
-namespace Math { class Formula; }
+namespace Math { class Formula; class SpecVarSet; }
 
 
 /*!\brief Calculated property
@@ -57,6 +57,8 @@ public:
     bool		isConst(int) const;
     void		setUnit(const UnitOfMeasure*);
     const UnitOfMeasure* unit() const;
+
+    static const Math::SpecVarSet& getSpecVars();
 
 protected:
 
