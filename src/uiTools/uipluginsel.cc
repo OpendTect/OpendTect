@@ -65,16 +65,15 @@ void uiPluginSel::makeProductList(
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	const PluginManager::Data& data = *pimdata[idx];
-	if ( data.sla_ && data.sla_->isOK()
-			&& data.autotype_ == PI_AUTO_INIT_LATE )
+	if ( data.sla_ && data.sla_->isOK() )
 	{
 	    const FixedString prodnm = data.info_->productname_;
-	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL 
-				      || prodnm == "OpendTect (dGB)" )
+	    const bool isodprod = prodnm == "OpendTect (dGB)";
+	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
 		continue;
 	    
 	    const int prodidx = getProductIndex( data.info_->productname_ );
-	    if ( !product || prodidx < 0 )
+	    if ( !product || prodidx<0 )
 	    {
 		product = new PluginProduct();
 		product->productname_ = data.info_->productname_;
@@ -84,7 +83,7 @@ void uiPluginSel::makeProductList(
 	    else
 		products_[prodidx]->libs_.addIfNew( PIM().userName(data.name_));
 
-	    const int strsz = FixedString(product->productname_).size();
+	    const int strsz = prodnm.size();
 	    maxpluginname_ = maxpluginname_ < strsz ? strsz : maxpluginname_;
 	}
     }
