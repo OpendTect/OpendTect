@@ -76,6 +76,7 @@ protected:
     bool		acceptOK(CallBacker*);
     void		attrSel(CallBacker*);
     void		psSelCB(CallBacker*);
+    void		outSelCB(CallBacker*);
     void		addNLA(Attrib::DescID&);
 
 private:

@@ -85,7 +85,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
 
     transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
-		.fornewentry(!is2d).withstep(!is2d).multiline(true) );
+			.fornewentry(true).withstep(!is2d).multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
@@ -96,6 +96,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     su.selattr( true ).allowlinesetsel( false );
 
     objfld_ = new uiSeisSel( this, ctio_, su );
+    objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
 
@@ -196,8 +197,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	mSetObjFld( desc->isStored() ? "" : todofld_->getInput() )
 	if ( is2d )
 	{
-	    BufferString attrnm( todofld_->getAttrName() );
-
 	    uiString errmsg;
 	    RefMan<Attrib::Provider> prov =
 		    Attrib::Provider::create( *desc, errmsg );
@@ -212,8 +211,12 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		transffld_->setInput( *ioobj );
 	}
     }
+}
 
-    batchfld_->setJobName( todofld_->getInput() );
+
+void uiAttrVolOut::outSelCB( CallBacker* )
+{
+    batchfld_->setJobName( objfld_->getInput() );
 }
 
 
