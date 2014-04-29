@@ -97,11 +97,10 @@ Seis2DDisplay::Seis2DDisplay()
     addChild( linename_->osgNode() );
     linename_->addText();
 
-    setMaterial(0);
-    panelstrip_->setMaterial( new visBase::Material );
-    panelstrip_->getMaterial()->setColor( Color::White() );
-    panelstrip_->getMaterial()->setAmbience( 0.8 );
-    panelstrip_->getMaterial()->setDiffIntensity( 0.2 );
+    getMaterial()->setColor( Color::White() );
+    getMaterial()->setAmbience( 0.8 );
+    getMaterial()->setDiffIntensity( 0.2 );
+
     init();
     showPanel( false );
 }
