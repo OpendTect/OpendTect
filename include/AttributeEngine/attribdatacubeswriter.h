@@ -51,7 +51,6 @@ private:
    int				totalnr_;
    const Attrib::DataCubes&	cube_;
    HorSamplingIterator		iterator_;
-   BinID			currentpos_;
    MultiID			mid_;
    SeisTrcWriter*		writer_;
    SeisTrc*			trc_;

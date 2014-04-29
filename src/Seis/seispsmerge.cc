@@ -97,10 +97,11 @@ int SeisPSMerger::nextStep()
     SeisTrcBuf* gather = 0;
     while ( true )
     {
-	if ( !iter_->next(curbid_) )
+	BinID curbid;
+	if ( !iter_->next(curbid) )
 	    return Executor::Finished();
 
-	if ( sd_ && !sd_->isOK(curbid_) )
+	if ( sd_ && !sd_->isOK(curbid) )
 	    continue;
 
 	nrdone_ ++;
@@ -109,7 +110,7 @@ int SeisPSMerger::nextStep()
 	for ( int idx=0; idx<readers_.size(); idx++ )
 	{
 	    gather = new SeisTrcBuf( true );
-	    if ( !readers_[idx]->getGather(curbid_,*gather) )
+	    if ( !readers_[idx]->getGather(curbid,*gather) )
 	    {
 		delete gather; gather = 0;
 		continue;

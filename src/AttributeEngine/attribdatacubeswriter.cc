@@ -30,7 +30,6 @@ DataCubesWriter::DataCubesWriter( const MultiID& mid,
     , totalnr_( (int) dc.cubeSampling().hrg.totalNr() )
     , cube_( dc )
     , iterator_( dc.cubeSampling().hrg )
-    , currentpos_( 0, 0 )
     , mid_( mid )
     , writer_( 0 )
     , trc_( 0 )
@@ -93,13 +92,14 @@ int DataCubesWriter::nextStep()
 
     }
 
-    if ( !iterator_.next( currentpos_ ) )
+    BinID currentpos;
+    if ( !iterator_.next( currentpos ) )
 	return Finished();
 
-    trc_->info().binid = currentpos_;
-    trc_->info().coord = SI().transform( currentpos_ );
-    const int inlidx = cube_.inlsampling_.nearestIndex( currentpos_.inl() );
-    const int crlidx = cube_.crlsampling_.nearestIndex( currentpos_.crl() );
+    trc_->info().binid = currentpos;
+    trc_->info().coord = SI().transform( currentpos );
+    const int inlidx = cube_.inlsampling_.nearestIndex( currentpos.inl() );
+    const int crlidx = cube_.crlsampling_.nearestIndex( currentpos.crl() );
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {

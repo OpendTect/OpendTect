@@ -88,7 +88,8 @@ void Tut::ThicknessCalculator::init( const char* attribname )
 
 int Tut::ThicknessCalculator::nextStep()
 {
-    if ( !iter_->next(bid_) )
+    BinID bid;
+    if ( !iter_->next(bid) )
 	return Executor::Finished();
 
     int nrsect = horizon1_->nrSections();
@@ -96,7 +97,7 @@ int Tut::ThicknessCalculator::nextStep()
 
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-	const EM::SubID subid = bid_.toInt64();
+	const EM::SubID subid = bid.toInt64();
 	const float z1 = (float) horizon1_->getPos( isect, subid ).z;
 	const float z2 = (float) horizon2_->getPos( isect, subid ).z;
 		        
@@ -129,7 +130,8 @@ Tut::HorSmoother::HorSmoother()
 
 int Tut::HorSmoother::nextStep()
 {
-    if ( !iter_->next(bid_) )
+    BinID bid;
+    if ( !iter_->next(bid) )
 	return Executor::Finished();
 
     const int nrsect = horizon1_->nrSections();
@@ -141,8 +143,8 @@ int Tut::HorSmoother::nextStep()
 	{
 	    for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	    {
-		const BinID binid = BinID( bid_.inl() + inloffs * hs_.step.inl(),
-					   bid_.crl() + crloffs * hs_.step.crl() );
+		const BinID binid = BinID( bid.inl() + inloffs *hs_.step.inl(),
+					   bid.crl() + crloffs *hs_.step.crl());
 		const EM::SubID subid = binid.toInt64();
 		const float z = (float) horizon1_->getPos( isect, subid ).z;
 		if ( mIsUdf(z) ) continue;
@@ -151,7 +153,7 @@ int Tut::HorSmoother::nextStep()
 	}
 	float val = count ? sum / count : mUdf(float);
 
-	subid_ = bid_.toInt64();
+	subid_ = bid.toInt64();
 	Coord3 pos = horizon1_->getPos( isect, subid_ );
 	pos.z = val;
 	horizon1_->setPos( isect, subid_, pos, false );

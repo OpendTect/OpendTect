@@ -35,7 +35,6 @@ public:
 protected:
 			HorTool(const char* title);
 
-    BinID		bid_;
     HorSampling		hs_;
     int			nrdone_;
 

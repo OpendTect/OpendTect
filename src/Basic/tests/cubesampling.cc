@@ -93,6 +93,30 @@ static bool testLimitTo()
 }
 
 
+bool testIterator()
+{
+    HorSampling hrg;
+    hrg.set( StepInterval<int>( 0, 2, 2 ), StepInterval<int>( 0, 2, 2 ) );
+
+    HorSamplingIterator iter( hrg );
+    BinID curbid;
+
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Initial call");
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,2), "Second call");
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "Third call");
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,2), "Forth call");
+    mRunStandardTest( !iter.next(curbid) , "Final call");
+
+    iter.reset();
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Reset");
+
+    iter.setNextPos( BinID(2,0) );
+    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "setNextPos");
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -106,7 +130,8 @@ int main( int argc, char** argv )
     if ( !testInclude()
       || !testIncludes()
       || !testEmpty()
-      || !testLimitTo() )
+      || !testLimitTo()
+      || !testIterator() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

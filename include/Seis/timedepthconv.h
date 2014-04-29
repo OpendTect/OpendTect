@@ -162,7 +162,6 @@ protected:
     BufferString		msg_;
     HorSampling			subsel_;
     HorSamplingIterator		hsiter_;
-    BinID			curbid_;
     bool			definedv0_;
     bool			definedv1_;
     bool			zistime_;

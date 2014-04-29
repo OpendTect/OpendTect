@@ -166,8 +166,8 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     else
     {
         iter.setSampling( cs_.hrg );
-        curbid = cs_.hrg.atIndex( start );
-	iter.reset( false );
+	iter.setNextPos( cs_.hrg.atIndex( start ) );
+	iter.next( curbid );
     }
 
     SeisTrc trc;

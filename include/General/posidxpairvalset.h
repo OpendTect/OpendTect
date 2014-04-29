@@ -80,7 +80,8 @@ public:
     IdxPairValueSet&	operator =(const IdxPairValueSet&);
 
     inline void		allowDuplicateIdxPairs( bool yn )
-			{ allowdup_ = yn; if ( !yn ) removeDuplicateIdxPairs(); }
+			{ allowdup_ = yn; if ( !yn ) removeDuplicateIdxPairs();}
+    bool		allowsDuplicateIdxPairs() const { return allowdup_; }
     void		setEmpty();
     bool		append(const IdxPairValueSet&);
     void		remove(const IdxPairValueSet&);

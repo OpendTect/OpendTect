@@ -700,21 +700,19 @@ void CubeSampling::normalise()
 }
 
 
-bool HorSamplingIterator::next( BinID& bid )
+void HorSamplingIterator::reset()
 {
-    if ( firstpos_ )
-    {
-	bid = hrg_.start;
-	firstpos_ = false;
-	return true;
-    }
+    curpos_ = 0;
+    totalnr_ = hrg_.totalNr();
+}
 
-    bid.crl() += hrg_.step.crl();
-    if ( bid.crl() > hrg_.stop.crl() )
-    {
-	bid.inl() += hrg_.step.inl();
-	bid.crl() = hrg_.start.crl();
-    }
 
-    return bid.inl() <= hrg_.stop.inl();
+bool HorSamplingIterator::next( BinID& res ) const
+{
+    const od_int64 mypos = curpos_++;
+    if ( mypos>=totalnr_ )
+	return false;
+
+    res = hrg_.atIndex( mypos );
+    return true;
 }

@@ -50,7 +50,6 @@ public:
 
 protected:
 
-    BinID		curbid_;
     Seis::SelData*	sd_;
     SeisResampler*	resampler_;
     Interval<float>	offsrg_;

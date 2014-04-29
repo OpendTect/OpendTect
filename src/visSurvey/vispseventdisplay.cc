@@ -499,7 +499,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     HorSamplingIterator iter( cs.hrg );
 
-    BinID bid = cs.hrg.start;
+
     int cii = 0;
     int lastmarker = 0;
 
@@ -520,7 +520,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     TypeSet<float> values;
 
-    do
+    BinID bid;
+    while ( iter.next(bid) )
     {
 	PreStack::EventSet* eventset = eventman_ ?
 	    eventman_->getEvents( bid, true, false ) : 0;
@@ -609,7 +610,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    }
 	}
 
-    } while ( iter.next( bid ) );
+    }
 
     if ( markercolor_ != Single )
     {
@@ -711,12 +712,11 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
 	deepUnRef( pao->eventsets_ );
 	HorSamplingIterator iter( pao->hrg_ );
 
-	BinID bid = pao->hrg_.start;
-	do
+	BinID bid;
+	while( iter.next( bid ))
 	{
 	    eventman_->addReloadPosition( bid );
 	}
-	while ( iter.next( bid ) );
     }
 
     deepErase( parentattached_ );

@@ -132,16 +132,17 @@ public:
     void	setSampling( const HorSampling& hs )
 		{ hrg_ = hs; reset(); }
 
-    void	reset(bool nextisfirstpos=true)	{ firstpos_ = nextisfirstpos; }
-		/*!<If nextisfirstpos, the next call to next will automatically
-		    be hrg_.start. */
-    bool	next(BinID&);
+    void	reset();
+    void	setNextPos(const BinID& bid) { curpos_ = hrg_.globalIdx(bid); }
+    bool	next(BinID&) const;
+
+    od_int64	curIdx() const		     { return curpos_; }
 
 protected:
 
-    HorSampling		hrg_;
-    bool		firstpos_;
-
+    HorSampling 			hrg_;
+    od_int64				totalnr_;
+    mutable Threads::Atomic<od_int64>	curpos_;
 };
 
 

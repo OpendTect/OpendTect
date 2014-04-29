@@ -128,7 +128,8 @@ bool Seis2DTo3D::read()
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
 	const BinID& bid = trc.info().binid; 
-	if ( !inlrg.includes( bid.inl(),false ) || !crlrg.includes( bid.crl(),false ) )
+	if ( !inlrg.includes( bid.inl(),false ) ||
+	     !crlrg.includes( bid.crl(),false ) )
 	    { seisbuf_.remove( idx ); continue; }
 
 	linecs.hrg.include( bid );
@@ -163,20 +164,21 @@ int Seis2DTo3D::nextStep()
     if ( !read_ && !read() )
 	return ErrorOccurred();
 
-    if ( !hsit_.next(curbid_) )
+    BinID curbid;
+    if ( !hsit_.next(curbid) )
 	{ writeTmpTrcs(); return Finished(); }
 
-    if ( !SI().includes( curbid_, 0, true ) )
+    if ( !SI().includes( curbid, 0, true ) )
 	return MoreToDo();
 
     if ( nrdone_ == 0 )
-	prevbid_ = curbid_;
+	prevbid_ = curbid;
 
-    if ( curbid_.inl() != prevbid_.inl() )
+    if ( curbid.inl() != prevbid_.inl() )
     {
 	if ( !writeTmpTrcs() )
 	    { errmsg_ = "Can not write trace"; return ErrorOccurred(); }
-	prevbid_ = curbid_;
+	prevbid_ = curbid;
     }
 
     od_int64 mindist = mUdf(od_int64);
@@ -188,14 +190,14 @@ int Seis2DTo3D::nextStep()
 	    const SeisTrc* trc = seisbuf_.get( idx );
 	    BinID b = trc->info().binid;
 
-	    if ( b == curbid_ )
+	    if ( b == curbid )
 	    {
 		nearesttrc = trc;
 		break;
 	    }
 
-	    int xx0 = b.inl()-curbid_.inl();     xx0 *= xx0;
-	    int yy0 = b.crl()-curbid_.crl();     yy0 *= yy0;
+	    int xx0 = b.inl()-curbid.inl();	xx0 *= xx0;
+	    int yy0 = b.crl()-curbid.crl();	yy0 *= yy0;
 
 	    if ( (  xx0 + yy0  ) < mindist || mIsUdf(mindist) )
 	    {
@@ -205,12 +207,12 @@ int Seis2DTo3D::nextStep()
 	}
 
 	SeisTrc* newtrc = new SeisTrc( *nearesttrc );
-	newtrc->info().binid = curbid_;
+	newtrc->info().binid = curbid;
 	tmpseisbuf_.add( newtrc );
     }
     else
     {
-	const int inl = curbid_.inl(); const int crl = curbid_.crl();
+	const int inl = curbid.inl(); const int crl = curbid.crl();
 	Interval<int> inlrg( inl-mInterpInlWin/2, inl+mInterpInlWin/2 );
 	Interval<int> crlrg( crl-mInterpCrlWin/2, crl+mInterpCrlWin/2 );
 	inlrg.limitTo( SI().inlRange(true) );

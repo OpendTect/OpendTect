@@ -124,7 +124,6 @@ protected:
     const Seis2DLineSet* ls_;
     IOObj*		outioobj_;
     CubeSampling	cs_;
-    BinID		curbid_;
     BinID		prevbid_;
     int			nriter_;
 

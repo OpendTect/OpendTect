@@ -216,12 +216,13 @@ protected:
     {
 	const int nrz = arr_.info().getSize( 2 );
 
-	if ( !hiter_.next( curbid_ ) )
+	BinID curbid;
+	if ( !hiter_.next( curbid ) )
 	    return Finished();
 
 	const od_int64 offset =
-	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid_.inl()),
-				  readcs_.hrg.crlIdx(curbid_.crl()), 0 );
+	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid.inl()),
+				  readcs_.hrg.crlIdx(curbid.crl()), 0 );
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
@@ -229,7 +230,7 @@ protected:
 			reader_.translator() );
 
 	SeisTrc velocitytrc;
-	if ( !veltranslator->goTo(curbid_) || !reader_.get(velocitytrc) )
+	if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
 	{
 	    Time2DepthStretcher::udfFill( arrvs, nrz );
 	    return MoreToDo();
@@ -270,7 +271,7 @@ protected:
     VelocityDesc        	veldesc_;
     bool                	velintime_;
     bool                	voiintime_;
-    BinID               	curbid_;
+
     int                 	nrdone_;
 
     SamplingData<double>	voisd_;
@@ -741,7 +742,8 @@ VelocityModelScanner::~VelocityModelScanner()
 
 int VelocityModelScanner::nextStep()
 {
-    if ( !hsiter_.next( curbid_ ) )
+    BinID curbid;
+    if ( !hsiter_.next( curbid ) )
     {
 	if ( startavgvel_.start<0 || stopavgvel_.start<0 )
 	{
@@ -762,7 +764,7 @@ int VelocityModelScanner::nextStep()
     nrdone_++; 
     
     SeisTrc veltrace;
-    if ( !veltranslator->goTo(curbid_) || !reader_->get(veltrace) )
+    if ( !veltranslator->goTo(curbid) || !reader_->get(veltrace) )
 	return MoreToDo();
 
     const SeisTrcValueSeries trcvs( veltrace, 0 );
