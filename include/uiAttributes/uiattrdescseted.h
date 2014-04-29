@@ -103,7 +103,6 @@ protected:
     uiAttrTypeSel*		attrtypefld_;
 
     uiPushButton*		addbut_;
-    uiPushButton*		revbut_;
     uiGenInput*			attrnmfld_;
     uiGenInput*			attrsetfld_;
     uiToolButton*		helpbut_;

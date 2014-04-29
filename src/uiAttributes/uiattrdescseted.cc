@@ -80,7 +80,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
 					: "Attribute Set 3D","",
                                         mODHelpKey(mAttribDescSetEdHelpID) )
-	.savebutton(true).savetext("Save on Apply")
+	.savebutton(true).savetext("Save on Close")
 	.menubar(true).modal(false))
     , inoutadsman_(adsm)
     , userattrnames_(*new BufferStringSet)
@@ -96,7 +96,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
-    setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
+    setOkCancelText( uiStrings::sClose(), "" );
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
 					   adsm->is2D() ? "3D" : "2D" );
 
@@ -241,13 +241,8 @@ void uiAttribDescSetEd::createGroups()
     attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
     addbut_ = new uiPushButton( rightgrp, "Add as new", true );
-    addbut_->attach( alignedBelow, attrnmfld_ );
+    addbut_->attach( rightTo, attrnmfld_ );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
-
-    revbut_ = new uiPushButton( rightgrp, "Revert changes", true );
-    revbut_->attach( rightTo, addbut_ );
-    revbut_->attach( rightBorder );
-    revbut_->activated.notify( mCB(this,uiAttribDescSetEd,revPush) );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -383,6 +378,7 @@ void uiAttribDescSetEd::selChg( CallBacker* )
     updateFields();
     prevdesc_ = curDesc();
     setButStates();
+    applycb.trigger();
 }
 
 
@@ -471,6 +467,7 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 
     newList( attrdescs_.size() );
     adsman_->setSaved( false );
+    applycb.trigger();
 }
 
 
@@ -570,12 +567,14 @@ void uiAttribDescSetEd::handleSensitivity()
 {
     bool havedescs = !attrdescs_.isEmpty();
     rmbut_->setSensitive( havedescs );
-    revbut_->setSensitive( havedescs );
 }
 
 
 bool uiAttribDescSetEd::acceptOK( CallBacker* )
 {
+    if ( !curDesc() )
+	return true;
+
     if ( !doCommit() || !doAcceptInputs() )
 	return false;
 
@@ -589,7 +588,7 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     prevsavestate = saveButtonChecked();
     nmprefgrp_ = attrtypefld_->group();
     applycb.trigger();
-    return false;
+    return true;
 }
 
 
@@ -1078,6 +1077,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
     setctio_.ioobj = 0;
+    applycb.trigger();
     mDelCtio;
 }
 
@@ -1092,6 +1092,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
     setctio_.ioobj = 0;
+    applycb.trigger();
 }
 
 
@@ -1114,6 +1115,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 	    newList( -1 );
 	    attrsetfld_->setText( sKeyNotSaved );
 	    setctio_.ioobj = 0;
+	    applycb.trigger();
 	}
     }
 }
@@ -1133,17 +1135,17 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 {
     if ( !offerSetSave() ) return;
     uiGetFileForAttrSet dlg( this, false, inoutadsman_->is2D() );
-    if ( dlg.go() )
-    {
-	if ( dlg.attrSet().nrDescs(false,false) < 1 )
-	    mErrRet( "No usable attributes in file" )
+    if ( !dlg.go() ) return;
 
-	*attrset_ = dlg.attrSet();
-	adsman_->setSaved( false );
+    if ( dlg.attrSet().nrDescs(false,false) < 1 )
+	mErrRet( "No usable attributes in file" )
 
-	setctio_.setObj( 0 );
-	newList( -1 ); attrsetfld_->setText( sKeyNotSaved );
-    }
+    *attrset_ = dlg.attrSet();
+    adsman_->setSaved( false );
+
+    setctio_.setObj( 0 );
+    newList( -1 ); attrsetfld_->setText( sKeyNotSaved );
+    applycb.trigger();
 }
 
 
@@ -1201,6 +1203,7 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
     replaceStoredAttr();
     newList(-1);
     adsman_->setSaved( false );
+    applycb.trigger();
 }
 
 
