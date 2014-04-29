@@ -39,49 +39,49 @@ public:
 
 			LayerSequence(const PropertyRefSelection* prs=0);
 			LayerSequence( const LayerSequence& ls )
-			    			{ *this = ls; }
+						{ *this = ls; }
     virtual		~LayerSequence();
     LayerSequence&	operator =(const LayerSequence&);
     bool		isEmpty() const		{ return layers_.isEmpty(); }
-    void		setEmpty()		{ layers_.setEmpty(); }
+    void		setEmpty()		{ deepErase(layers_); }
 
     int			size() const		{ return layers_.size(); }
     ObjectSet<Layer>&	layers()		{ return layers_; }
     const ObjectSet<Layer>& layers() const	{ return layers_; }
     int			layerIdxAtZ(float) const; //!< returns -1 if outside
     int			nearestLayerIdxAtZ(float z) const;
-    						//!< returns -1 only if empty
+						//!< returns -1 only if empty
 
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
     Interval<float>	zRange() const;
 
-    PropertyRefSelection& propertyRefs() 	{ return props_; }
+    PropertyRefSelection& propertyRefs()	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
 
     void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
-	    			     ObjectSet<const Layer>&) const;
-    			//!< cropfirstlast updates thicknesses of first and last
-    			//!< layers to exactly match the window
+				     ObjectSet<const Layer>&) const;
+			//!< cropfirstlast updates thicknesses of first and last
+			//!< layers to exactly match the window
     void		getSequencePart(const Interval<float>& depthrg,
-	    				bool cropfirstlast,
+					bool cropfirstlast,
 					LayerSequence&) const;
     const RefTree&	refTree() const;
 
     void		prepareUse() const ;	//!< needed after changes
 
-    			// Following will need to actually find the level
+			// Following will need to actually find the level
     int			indexOf(const Level&,int startsearchat=0) const;
-    			//!< may return -1 for not found
+			//!< may return -1 for not found
     float		depthOf(const Level&) const;
-    			//!< will return 0 if lvl not found
+			//!< will return 0 if lvl not found
 
-    			// Following will give the position of the level
-    			// ... even if not present
+			// Following will give the position of the level
+			// ... even if not present
     int			positionOf(const Level&) const;
-    			//!< may return size() (below last layer)
+			//!< may return size() (below last layer)
 			//!< only returns -1 if sequence is empty
     float		depthPositionOf(const Level&) const;
 
