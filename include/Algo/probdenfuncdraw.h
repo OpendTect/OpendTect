@@ -27,6 +27,7 @@ public:
 
     			ProbDenFuncDraw( const ProbDenFunc& p )
 			    : pdf_(p)		{ reset(); }
+			~ProbDenFuncDraw();
     void		reset();
 
     inline int		size() const		{ return vals_.size(); }

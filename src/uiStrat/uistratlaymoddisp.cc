@@ -15,8 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uigeninput.h"
-#include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiaxishandler.h"
@@ -28,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "property.h"
 #include "keystrs.h"
-#include "envvars.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 
@@ -125,7 +123,84 @@ void uiStratLayerModelDisp::displayFRText()
     frtxtitm_->setVisible( fluidreplon_ );
 }
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
+
+class uiStratLayerModelDispIO : public uiDialog
+{
+public:
+
+uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, 
+			    BufferString& fnm, bool forread )
+    : uiDialog( p, Setup(forread ? "Read dumped models" : "Dump models",
+		mNoDlgTitle,mTODOHelpKey) )
+    , presmathfld_(0)
+    , eachfld_(0)
+    , fnm_(fnm)
+    , lm_(lm)
+{
+    if ( !forread )
+	presmathfld_ = new uiGenInput( this, "Preserve Math Formulas",
+					BoolInpSpec(false) );
+    uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
+    filefld_ = new uiFileInput( this, "File name", su );
+    if ( presmathfld_ )
+	filefld_->attach( alignedBelow, presmathfld_ );
+
+    if ( forread )
+    {
+	eachfld_ = new uiGenInput( this, "Use each", IntInpSpec(1,1,999999) );
+	eachfld_->attach( alignedBelow, filefld_ );
+    }
+}
+
+bool acceptOK( CallBacker* )
+{
+    fnm_ = filefld_->fileName();
+    if ( fnm_.isEmpty() )
+	mErrRet( "Please provide a file name" );
+
+    if ( presmathfld_ )
+    {
+	od_ostream strm( fnm_ );
+	if ( !strm.isOK() )
+	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor write") )
+	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
+	    mErrRet( "Unknown error during write ..." )
+    }
+    else
+    {
+	if ( !File::exists(fnm_) )
+	    mErrRet( "File does not exist" );
+	od_istream strm( fnm_ );
+	if ( !strm.isOK() )
+	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor read") )
+
+	Strat::LayerModel newlm;
+	if ( !newlm.read(strm) )
+	    mErrRet( "Cannot read layer model from file.\nDetails may be "
+		    	"in the log file ('Utilities-Show log file')" )
+
+	const int each = eachfld_->getIntValue();
+	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
+	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
+	    lm.addSequence( newlm.sequence(iseq) );
+    }
+
+    return true;
+}
+
+    uiFileInput*	filefld_;
+    uiGenInput*		presmathfld_;
+    uiGenInput*		eachfld_;
+
+    const Strat::LayerModel& lm_;
+    BufferString&	fnm_;
+
+};
+
+
+#undef mErrRet
 #define mErrRet(s) \
 { \
     uiMainWin* mw = uiMSG().setMainWin( parent()->mainwin() ); \
@@ -134,48 +209,14 @@ void uiStratLayerModelDisp::displayFRText()
     return false; \
 }
 
-
 bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 {
     const Strat::LayerModel& lm = layerModel();
     if ( !foradd && lm.isEmpty() )
-	mErrRet( "Please generate some layer sequences" )
+	mErrRet( "Please generate at least one layer sequence" )
 
-    mDefineStaticLocalObject( BufferString, fixeddumpfnm,
-			      = GetEnvVar("OD_FIXED_LAYMOD_DUMPFILE") );
-    BufferString dumpfnm( fixeddumpfnm );
-    if ( dumpfnm.isEmpty() )
-    {
-	uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
-	dlg.setDirectory( GetDataDir() );
-	if ( !dlg.go() ) return false;
-	dumpfnm = dlg.fileName();
-    }
-
-    if ( !foradd )
-    {
-	od_ostream strm( dumpfnm );
-	if ( !strm.isOK() )
-	    mErrRet( BufferString("Cannot open:\n",dumpfnm,"\nfor write") )
-	if ( !lm.write(strm) )
-	    mErrRet( "Unknown error during write ..." )
-	return false;
-    }
-
-    od_istream strm( dumpfnm );
-    if ( !strm.isOK() )
-	mErrRet( BufferString("Cannot open:\n",dumpfnm,"\nfor read") )
-
-    Strat::LayerModel newlm;
-    if ( !newlm.read(strm) )
-	mErrRet( "Cannot read layer model from file."
-	     "\nDetails may be in the log file ('Utilities-Show log file')" )
-
-    for ( int ils=0; ils<newlm.size(); ils++ )
-	const_cast<Strat::LayerModel&>(lm)
-			    .addSequence( newlm.sequence( ils ) );
-
-    return true;
+    uiStratLayerModelDispIO dlg( this, lm, dumpfnm_, foradd );
+    return dlg.go();
 }
 
 

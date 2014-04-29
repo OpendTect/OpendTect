@@ -286,10 +286,10 @@ void MathProperty::setPreV5Def( const char* inpstr )
     if ( defstr.isEmpty() )
 	return;
 
-    // Variables were the property names, need to replace them with "propX"
+    // Variables were the property names, need to replace them with "v_i_xx"
     const PropertyRefSet& props = PROPS();
     BufferStringSet propnms;
-    for ( int idx=-1; idx<props.size(); idx++ )
+    for ( int idx=props.size()-1; idx>-2; idx-- )
     {
 	const char* propnm = idx<0 ? "Thickness" : props[idx]->name().buf();
 	if ( !defstr.contains(propnm) )

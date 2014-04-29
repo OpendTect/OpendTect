@@ -27,6 +27,13 @@ const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
     (sd).atIndex( (float)(indx) + Stats::randGen().get() - 0.5 );
 
 
+ProbDenFuncDraw::~ProbDenFuncDraw()
+{
+    // A place for debug code, like:
+    // od_cout() << "Destroy drawer ";
+    // od_cout().addPtr( this ) << "for " << pdf_.name() << od_endl;
+}
+
 void ProbDenFuncDraw::reset()
 {
     pdf_.prepareRandDrawing();

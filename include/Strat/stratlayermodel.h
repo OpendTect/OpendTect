@@ -66,7 +66,9 @@ public:
     const RefTree&		refTree() const;
 
     bool			read(od_istream&);
-    bool			write(od_ostream&,int modnr=0) const;
+    bool			write(od_ostream&,int modnr=0,
+	    				bool mathpreserve=false) const;
+
     static const char*		sKeyNrSeqs()		{return "Nr Sequences";}
     static FixedString          defSVelStr()		{ return "DefaultSVel";}
 

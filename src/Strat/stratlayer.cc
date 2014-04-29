@@ -11,11 +11,31 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 #include "mathformula.h"
+#include "mathproperty.h"
 #include "separstr.h"
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "elasticpropsel.h"
 
+static const char* sKeyXPos = "XPos";
+
+
+//------ LayerValue ------
+
+
+BufferString Strat::LayerValue::dumpStr() const
+{
+    BufferString ret;
+    if ( isSimple() )
+	ret = toString( value() );
+    else
+    {
+	mDynamicCastGet(const FormulaLayerValue&,flv,*this);
+	IOPar iop; flv.fillPar( iop );
+	iop.putTo( ret );
+    }
+    return ret;
+}
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
@@ -23,6 +43,45 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
     : form_(form)
     , lay_(lay)
     , xpos_(xpos)
+    , myform_(false)
+{
+    useForm( prs );
+}
+
+
+Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
+		const Strat::Layer& lay, const PropertyRefSelection& prs )
+    : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
+    , myform_(true)
+    , lay_(lay)
+    , xpos_(0.f)
+{
+    const_cast<Math::Formula&>(form_).usePar( iop );
+
+    const char* res = iop.find( sKeyXPos );
+    if ( res )
+    {
+       	float xpos = toFloat( res );
+	if ( xpos < 0 ) xpos = 0;
+	if ( xpos > 1 ) xpos = 1;
+	const_cast<float&>(xpos_) = xpos;
+    }
+
+    useForm( prs );
+}
+
+
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
+			    const Strat::Layer& lay, float xpos, bool cpform )
+    : form_(cpform ? *new Math::Formula(form) : form)
+    , myform_(cpform)
+    , lay_(lay)
+    , xpos_(xpos)
+{
+}
+
+
+void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs )
 {
     const int nrinps = form_.nrInputs();
 
@@ -34,11 +93,12 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 	   inpval = (float)form_.getConstVal( iinp );
         else if ( !form_.isSpec(iinp) )
 	{
-	    const char* pnm = form.inputDef( iinp );
+	    const char* pnm = form_.inputDef( iinp );
 	    inpidx = prs.indexOf( pnm );
 	    if ( inpidx < 0 )
 	    {
-		errmsg_.set( "Formula cannot be resolved: '" )
+		errmsg_.set( lay_.name() )
+		    .add( " - Formula cannot be resolved:\n'" )
 		    .add( form_.text() ).add( "'\nCannot find '" ).add( pnm )
 		    .add( "'" );
 		return;
@@ -51,18 +111,17 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 }
 
 
-Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
-					const Strat::Layer& lay, float xpos )
-    : form_(form)
-    , lay_(lay)
-    , xpos_(xpos)
+Strat::FormulaLayerValue::~FormulaLayerValue()
 {
+    if ( myform_ )
+	delete &form_;
 }
 
 
 Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone() const
 {
-    FormulaLayerValue* ret = new FormulaLayerValue( form_, lay_, xpos_ );
+    FormulaLayerValue* ret = new FormulaLayerValue( form_, lay_, xpos_,
+	    					    myform_ );
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
@@ -91,6 +150,16 @@ float Strat::FormulaLayerValue::value() const
 
     return form_.getValue( inpvals_.arr() );
 }
+
+
+void Strat::FormulaLayerValue::fillPar( IOPar& iop ) const
+{
+    form_.fillPar( iop );
+    iop.set( sKeyXPos, xpos_ );
+}
+
+
+//------ Layer ------
 
 
 const PropertyRef& Strat::Layer::thicknessRef()
@@ -145,6 +214,19 @@ BufferString Strat::Layer::name() const
 }
 
 
+bool Strat::Layer::isMath( int ival ) const
+{
+    const LayerValue* lv = getLayerValue( ival );
+    return lv ? !lv->isSimple() : false;
+}
+
+
+const Strat::LayerValue* Strat::Layer::getLayerValue( int ival ) const
+{
+    return vals_.validIdx( ival ) ? vals_[ival] : 0;
+}
+
+
 Color Strat::Layer::dispColor( bool lith ) const
 {
     return unitRef().dispColor( lith );
@@ -179,10 +261,12 @@ float Strat::Layer::value( int ival ) const
 }
 
 
+#define mEnsureEnoughVals() while ( vals_.size() <= ival ) vals_ += 0
+
+
 void Strat::Layer::setValue( int ival, float val )
 {
-    while ( vals_.size() <= ival )
-	vals_ += 0;
+    mEnsureEnoughVals();
 
     Strat::LayerValue* lv = vals_[ival];
     if ( lv && lv->isSimple() )
@@ -195,10 +279,21 @@ void Strat::Layer::setValue( int ival, float val )
 void Strat::Layer::setValue( int ival, const Math::Formula& form,
 			     const PropertyRefSelection& prs, float xpos )
 {
-    while ( vals_.size() <= ival )
-	vals_ += 0;
+    mEnsureEnoughVals();
 
     delete vals_.replace( ival, new FormulaLayerValue(form,*this,prs,xpos) );
+}
+
+
+void Strat::Layer::setValue( int ival, const IOPar& iop,
+				const PropertyRefSelection& prs )
+{
+    mEnsureEnoughVals();
+
+    if ( iop.size() == 1 && iop.getKey(0) == sKey::Value() )
+	setValue( ival, toFloat(iop.getValue(0)) );
+    else
+	vals_.replace( ival, new FormulaLayerValue(iop,*this,prs) );
 }
 
 
@@ -206,7 +301,7 @@ float Strat::Layer::thickness() const
 {
     float val = value( 0 );
     if ( val < 0 )
-	{ pErrMsg("thckness < 0 found" ); val = 0.0f; }
+	{ pErrMsg("thickness < 0 found" ); val = 0.0f; }
     return val;
 }
 
@@ -227,6 +322,9 @@ const Strat::Content& Strat::Layer::content() const
 {
     return content_ ? *content_ : Content::unspecified();
 }
+
+
+//------ LayerSequence ------
 
 
 Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
@@ -440,6 +538,9 @@ void Strat::LayerSequence::prepareUse() const
 }
 
 
+//------ LayerModel ------
+
+
 Strat::LayerModel::LayerModel()
 {
     proprefs_ += &Layer::thicknessRef();
@@ -566,10 +667,17 @@ bool Strat::LayerModel::read( od_istream& strm )
 	{ ErrMsg( "No properties found in file" ); return false; }
     strm.skipLine();
 
+    BufferString keyw;
+    strm.getWord( keyw );
+    const bool mathpreserve = keyw == "#MATH";
+    if ( mathpreserve )
+	{ strm.skipLine(); strm.skipWord(); }
+
     PropertyRefSelection newprops;
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
-	strm.skipWord(); // skip "#P.."
+	if ( iprop )
+	    strm.skipWord(); // skip "#P.."
 	BufferString propnm;
 	strm.getLine( propnm );
 	if ( iprop != 0 )
@@ -617,10 +725,28 @@ bool Strat::LayerModel::read( od_istream& strm )
 	    }
 	    float val; strm >> val;
 	    newlay->setThickness( val );
-	    for ( int iprop=1; iprop<nrprops; iprop++ )
-		{ strm >> val; newlay->setValue( iprop, val ); }
+	    if ( !mathpreserve )
+	    {
+		for ( int iprop=1; iprop<nrprops; iprop++ )
+		    { strm >> val; newlay->setValue( iprop, val ); }
+		strm.skipLine();
+	    }
+	    else
+	    {
+		BufferString txt;
+		for ( int iprop=1; iprop<nrprops; iprop++ )
+		{
+		    strm >> txt;
+		    if ( txt.isNumber() )
+			newlay->setValue( iprop, toFloat(txt) );
+		    else
+		    {
+			IOPar iop; iop.getFrom( txt );
+			newlay->setValue( iprop, iop, proprefs_ );
+		    }
+		}
+	    }
 	    seq->layers() += newlay;
-	    strm.skipLine();
 	}
 	if ( !seq )
 	    break;
@@ -632,11 +758,15 @@ bool Strat::LayerModel::read( od_istream& strm )
 }
 
 
-bool Strat::LayerModel::write( od_ostream& strm, int modnr ) const
+bool Strat::LayerModel::write( od_ostream& strm, int modnr,
+					bool mathpreserve ) const
 {
     const int nrseqs = seqs_.size();
     const int nrprops = proprefs_.size();
     strm << "#M" << modnr << od_tab << nrprops << od_tab << nrseqs << od_endl;
+
+    if ( mathpreserve )
+	strm << "#MATH PRESERVED" << od_endl;
 
     for ( int iprop=0; iprop<nrprops; iprop++ )
 	strm << "#P" << iprop << od_tab << proprefs_[iprop]->name() << od_endl;
@@ -661,7 +791,15 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr ) const
 	    }
 	    strm << od_tab << toString(lay.thickness());
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
-		strm << od_tab << toString(lay.value(iprop));
+	    {
+		if ( !mathpreserve || !lay.isMath(iprop) )
+		    strm << od_tab << toString(lay.value(iprop));
+		else
+		{
+		    const LayerValue& lv = *lay.getLayerValue( iprop );
+		    strm << "\t'" << lv.dumpStr() << '\'';
+		}
+	    }
 	    strm << od_endl;
 	}
     }

@@ -93,6 +93,7 @@ protected:
     bool		isbrinefilled_;
     TypeSet<float>	lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
+    BufferString	dumpfnm_;
 
     bool		haveAnyZoom() const;
     virtual uiGraphicsScene& scene() const		= 0;		

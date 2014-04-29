@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class PropertyRef;
 class PropertyRefSelection;
-namespace Math { class Formula; class SpecVarSet; }
+namespace Math { class Formula; }
 
 namespace Strat
 {
@@ -59,6 +59,8 @@ public:
     inline int		nrValues() const		{ return vals_.size(); }
     float		thickness() const;
     float		value(int) const;		//!< can be undef
+    bool		isMath(int) const;
+    const LayerValue*	getLayerValue(int) const;
     void		getValues(TypeSet<float>&) const;
     inline float	zBot() const	{ return ztop_ + thickness(); }
     inline float	depth() const	{ return ztop_ + 0.5f * thickness(); }
@@ -68,6 +70,7 @@ public:
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
+    void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setContent( const Content& c )	{ content_ = &c; }
 
     ID			id() const;	//!< unitRef().fullCode()
@@ -94,6 +97,8 @@ public:
     virtual		~LayerValue()			{}
     virtual bool	isSimple() const		{ return false; }
     virtual float	value() const			= 0;
+
+    BufferString	dumpStr() const;
 
 };
 
@@ -128,25 +133,32 @@ public:
 					  const Strat::Layer&,
 					  const PropertyRefSelection&,
 					  float xpos);
+			FormulaLayerValue(const IOPar&,const Strat::Layer&,
+					  const PropertyRefSelection&);
+			~FormulaLayerValue();
     FormulaLayerValue*	clone() const;
 
     bool		isBad() const		{ return !errmsg_.isEmpty(); }
     const char*		errMsg() const		{ return errmsg_; }
+    void		fillPar(IOPar&) const;
 
     virtual float	value() const;
 
 protected:
 
 				FormulaLayerValue(const Math::Formula&,
-						  const Strat::Layer&,float);
+				      const Strat::Layer&,float,bool c=false);
 
     const Math::Formula&	form_;
     const Layer&		lay_;
     const float			xpos_;
+    bool			myform_;
 
     TypeSet<int>		inpidxs_;
     mutable TypeSet<float>	inpvals_;
     mutable BufferString	errmsg_;
+
+    void			useForm(const PropertyRefSelection&);
 
 };
 
