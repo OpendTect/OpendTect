@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uiattrdesced.h"
 
+class uiGenInput;
 class uiListBox;
 class uiWellSel;
 
@@ -44,6 +45,7 @@ protected:
 
     uiWellSel*		wellfld_;
     uiListBox*		logsfld_;
+    uiGenInput*		sampfld_;
 
 			mDeclReqAttribUIFns
 };

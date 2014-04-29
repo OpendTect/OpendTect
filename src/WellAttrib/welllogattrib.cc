@@ -33,6 +33,10 @@ void WellLog::initClass()
 
     desc->addParam( new StringParam(keyStr()) );
     desc->addParam( new StringParam(logName()) );
+    EnumParam* scaletype = new EnumParam( upscaleType() );
+    scaletype->addEnums( Stats::UpscaleTypeNames() );
+    scaletype->setDefaultValue( (int)Stats::Average );
+    desc->addParam( scaletype );
 
     desc->setNrOutputs( Seis::UnknowData, 1 );
     desc->setLocality( Desc::SingleTrace );
@@ -48,6 +52,7 @@ WellLog::WellLog( Desc& ds )
 
     logname_ = desc_.getValParam(logName())->getStringValue( 0 );
     wellid_ = MultiID( desc_.getValParam(keyStr())->getStringValue(0) );
+    mGetEnum( upscaletype_, upscaleType() );
 }
 
 
@@ -88,6 +93,7 @@ void WellLog::prepareForComputeData()
     pars.zstep_ = SI().zStep();
     pars.extractzintime_ = SI().zIsTime();
     pars.snapZRangeToSurvey( !is2D() );
+    pars.samppol_ = (Stats::UpscaleType)upscaletype_;
 
     BufferStringSet lognms; lognms.add( logname_ );
     Well::LogSampler logsamp( wd, pars, lognms );

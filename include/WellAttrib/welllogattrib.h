@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "stattype.h"
 
 template <class T> class Array1D;
 
@@ -46,6 +47,7 @@ public:
     static const char*  attribName()		{ return "WellLog"; }
     static const char*	keyStr()		{ return "id"; }
     static const char*	logName()		{ return "logname"; }
+    static const char*	upscaleType()		{ return "upscaletype"; }
 
     void		prepareForComputeData();
 
@@ -61,6 +63,7 @@ protected:
 
     MultiID		wellid_;
     BufferString	logname_;
+    int			upscaletype_; // Stats::UpscaleType
     Array1D<float>*	logvals_;
     StepInterval<float>	arrzrg_;
 };

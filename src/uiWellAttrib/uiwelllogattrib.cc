@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 
 #include "uiattribfactory.h"
+#include "uigeninput.h"
 #include "uilistbox.h"
 #include "uiwellsel.h"
 #include "od_helpids.h"
@@ -31,16 +32,22 @@ mInitAttribUI(uiWellLogAttrib,WellLog,"WellLog",sKeyBasicGrp())
 
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mEnergyAttribHelpID) )
+    : uiAttrDescEd(p,is2d,mODHelpKey(mWellLogAttribHelpID))
 
 {
     wellfld_ = new uiWellSel( this, true );
     wellfld_->selectionDone.notify( mCB(this,uiWellLogAttrib,selDone) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs" );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Select Log", false,
+					uiLabeledListBox::LeftTop );
     llb->setStretch( 1, 1 );
     logsfld_ = llb->box();
     llb->attach( alignedBelow, wellfld_ );
+
+    sampfld_ = new uiGenInput( this, "Log resampling method",
+			       StringListInpSpec(Stats::UpscaleTypeNames()) );
+    sampfld_->setValue( Stats::UseAvg );
+    sampfld_->attach( alignedBelow, llb );
 
     setHAlignObj( wellfld_ );
 }
@@ -77,6 +84,8 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
     if ( par )
 	logsfld_->setCurrentItem( par->getStringValue(0) );
 
+    mIfGetEnum( WellLog::upscaleType(), tp, sampfld_->setValue(tp) );
+
     return true;
 }
 
@@ -100,6 +109,7 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
 
     mSetString( WellLog::keyStr(), wellfld_->key().buf() );
     mSetString( WellLog::logName(), logsfld_->getText() );
+    mSetEnum( WellLog::upscaleType(), sampfld_->getIntValue() );
 
     return true;
 }
