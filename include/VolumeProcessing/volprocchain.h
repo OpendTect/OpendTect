@@ -314,7 +314,6 @@ private:
     Epoch*			curepoch_;
 
     bool			isok_;
-    bool			firstisprep_;
     Chain&			chain_;
 
     HorSampling			outputhrg_;
