@@ -96,6 +96,12 @@ public:
     void			addUpdateToQueue(Task*);
     bool			executePendingUpdates();
 
+    void			setPixelDensity(float);
+    float			getPixelDensity() const {return pixeldensity_;}
+    static float		getDefaultPixelDensity();
+
+    Notifier<uiGraphicsScene>	pixelDensityChange;
+
     void			translateText();
 protected:
 
@@ -110,6 +116,7 @@ protected:
     int				indexOf(int id) const;
 
     int				queueid_;
+    float			pixeldensity_;
 };
 
 

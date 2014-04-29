@@ -68,6 +68,8 @@ private:
 
 void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 {
+    uiscene_.setPixelDensity( (painter->device()->logicalDpiX()+
+				painter->device()->logicalDpiY())/2 );
     uiscene_.executePendingUpdates();
     painter->setBackgroundMode( bgopaque_ ? Qt::OpaqueMode
 					  : Qt::TransparentMode );
@@ -143,6 +145,8 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     , odgraphicsscene_(new ODGraphicsScene(*this))
     , ctrlPPressed(this)
     , ctrlCPressed(this)
+    , pixeldensity_( getDefaultPixelDensity() )
+    , pixelDensityChange( this )
 {
     odgraphicsscene_->setObjectName( nm );
     odgraphicsscene_->setBackgroundBrush( Qt::white );
@@ -390,6 +394,23 @@ void uiGraphicsScene::useBackgroundPattern( bool usebgpattern )
 }
 
 
+void uiGraphicsScene::setPixelDensity( float dpi )
+{
+    if ( dpi==pixeldensity_ )
+	return;
+
+    pixeldensity_ = dpi;
+
+    pixelDensityChange.trigger();
+}
+
+
+float uiGraphicsScene::getDefaultPixelDensity()
+{
+    return uiMain::getDPI();
+}
+
+
 double uiGraphicsScene::width() const
 { return odgraphicsscene_->width(); }
 
@@ -476,6 +497,7 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
     pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
+    pdfprinter->setResolution( res );
 
     QPainter* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
@@ -492,6 +514,7 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 
 void uiGraphicsScene::saveAsPDF( const char* filename, int w, int h, int res )
 { saveAsPDF_PS( filename, true, w, h, res ); }
+
 
 void uiGraphicsScene::saveAsPS( const char* filename, int w, int h, int res )
 { saveAsPDF_PS( filename, false, w, h, res ); }
