@@ -190,8 +190,11 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	sectrg.limitTo( hs_ );
 	mDeclareAndTryAlloc( Array2D<float>*, arr,
 		Array2DImpl<float>( sectrg.nrInl(), sectrg.nrCrl() ) );
-	arr->setAll( mUdf(float) );
-	geom->setArray( sectrg.start, sectrg.step, arr, true );
+	if ( arr && !arr->isEmpty() )
+	{
+	    arr->setAll( mUdf(float) );
+	    geom->setArray( sectrg.start, sectrg.step, arr, true );
+	}
 
     }
 
@@ -476,7 +479,8 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
 const Geometry::BinIDSurface*
 Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
 {
-    return (const Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
+    return (const Geometry::BinIDSurface*) 
+				    SurfaceGeometry::sectionGeometry(sid);
 }
 
 
