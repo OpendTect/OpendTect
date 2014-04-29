@@ -245,6 +245,8 @@ public:
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const char*);
 
+    void		setCellToolTip(const RowCol&,const char*);
+
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
     void		setLabelAlignment(Alignment::HPos,bool cols);

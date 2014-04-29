@@ -938,6 +938,19 @@ void uiTable::setLabelAlignment( Alignment::HPos hal, bool col )
 }
 
 
+void uiTable::setCellToolTip( const RowCol& rc, const char* tt )
+{
+    uiObject* cellobj = getCellObject( rc );
+    if ( !cellobj )
+    {
+	QTableWidgetItem* itm = body_->getItem( rc );
+	itm->setToolTip( tt );
+    }
+    else
+	cellobj->setToolTip( tt );
+}
+
+
 int uiTable::getIntValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
