@@ -57,6 +57,8 @@ const char* hostName( const char* ip )
     mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName();
+    if ( str == ip )
+	str.setEmpty();
     return str.buf();
 }
 
