@@ -31,15 +31,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Seis2DDataSet::Seis2DDataSet( const IOObj& ioobj )
     : NamedObject(ioobj.name())
+    , ioobjpars_(*new IOPar(ioobj.pars()))
 {
-    IOPar& iopar = ioobj.pars();
-    iopar.get( sKey::Type(), datatype_ );
+    ioobjpars_.get( sKey::Type(), datatype_ );
     init( ioobj.fullUserExpr(true) );
+}
+
+
+Seis2DDataSet::Seis2DDataSet( const Seis2DDataSet& s2dds )
+    : NamedObject(s2dds.name())
+    , datatype_(s2dds.dataType())
+    , ioobjpars_(*new IOPar(s2dds.ioobjpars_))
+{
+    init( s2dds.fname_ );
 }
 
 
 Seis2DDataSet::~Seis2DDataSet()
 {
+    delete &ioobjpars_;
     deepErase( pars_ );
 }
 
@@ -151,7 +161,7 @@ void Seis2DDataSet::readDir()
 
 	if ( !cidx || cidx >= filenm.size() )
 	    continue;
-	
+
 	BufferString strgeomid( filenm.buf()+cidx+1 );
 	Pos::GeomID geomid = strgeomid.toInt();
 	newpar->set( sKey::GeomID(), geomid );
@@ -224,6 +234,7 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( IOPar* newiop )
     if ( !newiop->get(sKey::GeomID(),newgeomid) )
 	return 0; // TODO: add error message
 
+    newiop->merge( ioobjpars_ );
     BufferString typestr( "CBVS" );
 
     Seis2DLinePutter* res = 0;
@@ -253,7 +264,7 @@ Seis2DLinePutter* Seis2DDataSet::linePutter( IOPar* newiop )
 }
 
 
-bool Seis2DDataSet::addLineFrom( Seis2DDataSet& ds, const char* lnm, 
+bool Seis2DDataSet::addLineFrom( Seis2DDataSet& ds, const char* lnm,
 				 const char* dtyp )
 {
     if ( !ds.liop_ )
@@ -332,7 +343,7 @@ bool Seis2DDataSet::renameFiles( const char* newname )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	FilePath oldfp = dl.fullPath( idx );
-	Pos::GeomID geomid = geomID( oldfp.fileName() ); 
+	Pos::GeomID geomid = geomID( oldfp.fileName() );
 	const char* ext = oldfp.extension();
 	BufferString newfnm( newname );
 	newfnm += "^"; newfnm += geomid;
@@ -366,7 +377,7 @@ bool Seis2DDataSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     const Survey::Geometry* geometry = Survey::GM().getGeometry( geomID(ipar) );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
     if ( !geom2d ) return false;
-    
+
     const PosInfo::Line2DData& geom = geom2d->data();
     for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
@@ -382,7 +393,7 @@ void Seis2DDataSet::getDataSetsOnLine( const char* lnm, BufferStringSet& ds )
 { Seis2DDataSet::getDataSetsOnLine( Survey::GM().getGeomID(lnm), ds ); }
 
 
-void Seis2DDataSet::getDataSetsOnLine( const Pos::GeomID geomid, 
+void Seis2DDataSet::getDataSetsOnLine( const Pos::GeomID geomid,
 				       BufferStringSet& ds )
 {
     ds.erase();

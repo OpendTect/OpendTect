@@ -60,7 +60,7 @@ public:
 
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl, bool withext )
-    : uiDialog(p,uiDialog::Setup("Format / Scaling","Format and scaling",
+    : uiDialog(p,uiDialog::Setup("Format / Scaling",mNoDlgTitle,
 				 mODHelpKey(mSeisFmtScaleDlgHelpID) ))
     , optimfld_(0)
     , trcgrowfld_(0)
@@ -87,7 +87,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 	trcgrowfld_->attach( alignedBelow, scalefld_ );
     }
 
-    if ( !Seis::isPS(gt_) )
+    if ( Seis::is3D(gt) && !Seis::isPS(gt_) )
     {
 	optimfld_ = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec(true) );
@@ -168,7 +168,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 	, compfld_(0)
 	, scalefld_(0)
 {
-    if ( !forexp && !Seis::is2D(gt_) )
+    if ( !forexp )
 	compfld_ = new uiSeisFmtScaleComp( this, gt, issteer_, withext );
     else
 	scalefld_ = new uiScaler( this, 0, true );
@@ -243,7 +243,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 
 void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 {
-    if ( !ioobj || Seis::is2D(gt_) ) return;
+    if ( !ioobj ) return;
 
     if ( !scalefld_ )
 	fillFmtPars( ioobj->pars() );
