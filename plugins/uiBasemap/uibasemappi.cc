@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapmod.h"
 
-#include "uibasemaptreeitem.h"
+#include "uibasemapwellitem.h"
 #include "uibasemapwin.h"
 
 #include "uimenu.h"
@@ -96,7 +96,7 @@ mDefODInitPlugin(uiBasemap)
     if ( mgr ) return 0;
     mgr = new uiBasemapMgr( ODMainWin() );
 
-    uiBasemapWellTreeItem::initClass();
+    uiBasemapWellItem::initClass();
 
     return 0;
 }

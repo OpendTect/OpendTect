@@ -11,9 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapwin.h"
 
-#include "uibasemaptreeitem.h"
+#include "uibasemapitem.h"
 #include "uidockwin.h"
 #include "uisurvmap.h"
+#include "uitoolbar.h"
 #include "uitreeview.h"
 
 #include "survinfo.h"
@@ -22,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiBasemapWin::uiBasemapWin( uiParent* p )
     : uiMainWin(p,Setup("Basemap").withmenubar(false).nrstatusflds(3)
 				  .deleteonclose(false))
+    , topitem_(0)
 {
     basemapview_ = new uiSurveyMap( this );
     basemapview_->setPrefHeight( 250 );
@@ -33,6 +35,7 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
 
     tree_ = new uiTreeView( treedw_ );
     initTree();
+    initToolBar();
 
     postFinalise().notify( mCB(this,uiBasemapWin,initWin) );
 }
@@ -51,20 +54,42 @@ void uiBasemapWin::initWin( CallBacker* )
 void uiBasemapWin::initTree()
 {
     tree_->setColumnText( 0, "Elements" );
+    topitem_ = new uiBasemapTreeTop( tree_ );
+}
 
-    uiBasemapTreeTop* topitm = new uiBasemapTreeTop( tree_, *basemapview_ );
 
-    const BufferStringSet& nms = uiBasemapTreeItem::factory().getNames();
-    const TypeSet<uiString>& usrnms =
-				uiBasemapTreeItem::factory().getUserNames();
+void uiBasemapWin::initToolBar()
+{
+    toolbar_ = new uiToolBar( this, "Basemap Items" );
+
+    CallBack cb = mCB(this,uiBasemapWin,iconClickCB);
+    const BufferStringSet& nms = uiBasemapItem::factory().getNames();
+    const TypeSet<uiString>& usrnms = uiBasemapItem::factory().getUserNames();
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	uiBasemapTreeItem* itm =
-		uiBasemapTreeItem::factory().create( nms.get(idx) );
-	itm->setName( usrnms[idx].getFullString() );
-	itm->setChecked( true );
-	topitm->addChild( itm, true );
+	uiBasemapItem* itm =
+		uiBasemapItem::factory().create( nms.get(idx) );
+	itm->setBasemap( *basemapview_ );
+	itm->setTreeTop( *topitem_ );
+
+	uiString str( "Add " ); str.append( usrnms[idx] );
+	uiAction* action = new uiAction( str, cb, itm->iconName() );
+	ids_ += toolbar_->insertAction( action );
+	items_ += itm;
     }
+}
+
+
+void uiBasemapWin::iconClickCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,action,cb)
+    if ( !action ) return;
+
+    const int id = action->getID();
+    const int itmidx = ids_.indexOf( id );
+    if ( !items_.validIdx(itmidx) ) return;
+
+    items_[itmidx]->add();
 }
 
 

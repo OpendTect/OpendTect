@@ -16,9 +16,12 @@ ________________________________________________________________________
 
 #include "uimainwin.h"
 
+class uiBasemapItem;
+class uiBasemapTreeTop;
 class uiDockWin;
-class uiTreeView;
 class uiSurveyMap;
+class uiToolBar;
+class uiTreeView;
 
 mClass(uiBasemap) uiBasemapWin : public uiMainWin
 {
@@ -30,12 +33,19 @@ protected:
 
 private:
     void		initWin(CallBacker*);
+    void		initToolBar();
     void		initTree();
+    void		iconClickCB(CallBacker*);
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
+    uiToolBar*		toolbar_;
     uiDockWin*		treedw_;
     uiTreeView*		tree_;
+    uiBasemapTreeTop*	topitem_;
+
+    TypeSet<int>		ids_;
+    ObjectSet<uiBasemapItem>	items_;
 };
 
 #endif
