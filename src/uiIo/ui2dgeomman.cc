@@ -40,7 +40,8 @@ static IOObjContext mkCtxt()
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
-				 mODHelpKey(m2DGeomManageDlgHelpID) ),mkCtxt())
+				     mODHelpKey(m2DGeomManageDlgHelpID)),
+		   mkCtxt())
 {
     createDefaultUI( false, false );
     selgrp_->getManipGroup()->addButton( "trashcan", "Remove this Line",
@@ -61,9 +62,8 @@ class uiManageLineGeomDlg : public uiDialog
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
-    : uiDialog( p, uiDialog::Setup("Manage Line Geometry",
-				   mNoDlgTitle, 
-                                   mODHelpKey (mManageLineGeomDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup("Manage Line Geometry",mNoDlgTitle,
+				 mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm)
 {
     BufferString lbl( "Linename : ");
@@ -93,7 +93,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     rgfld_->attach( leftAlignedBelow, table_ );
     rgfld_->setValue( geom2d->data().zRange() );
 
-    readnewbut_ = new uiPushButton( this, "Read New Geometry ...",
+    readnewbut_ = new uiPushButton( this, "Import New Geometry ...",
 			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
     readnewbut_->attach( centeredBelow, rgfld_ );
 
@@ -108,22 +108,23 @@ class uiGeom2DImpDlg : public uiDialog
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup("Read new Line Geometry",linenm,
-                                mODHelpKey(mGeom2DImpDlgHelpID) ))
-    {
+    : uiDialog(p,uiDialog::Setup("Import new Line Geometry",linenm,
+				 mODHelpKey(mGeom2DImpDlgHelpID)))
+{
+    setOkText( uiStrings::sImport() );
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
     geom2dinfld_ = new uiFileInput( this, "2D geometry File",
 				    uiFileInput::Setup().withexamine(true) );
     dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
     dataselfld_->attach( alignedBelow, geom2dinfld_ );
-    }
+}
 
 bool acceptOK( CallBacker* )
-    {
+{
     if ( File::isEmpty(geom2dinfld_->fileName()) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
     return true;
-    }
+}
 
     uiFileInput*	geom2dinfld_;
     uiTableImpDataSel*	dataselfld_;
@@ -224,28 +225,48 @@ void ui2DGeomManageDlg::ownSelChg()
 
 void ui2DGeomManageDlg::mkFileInfo()
 {
+    const BufferString txt = getFileInfo();
+    setInfo( txt );
 }
 
 
-void ui2DGeomManageDlg::lineRemoveCB( CallBacker* cb )
+void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
-    const BufferString lnm( curioobj_->name() );
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	return;
 
-    if ( !uiMSG().askGoOn("Do you really want to remove this line?\n"
-	    "This will invalidate all other data associated with this line.") )
-	return;
+    const bool docont = uiMSG().askContinue(
+	"All selected 2D geometries will be deleted.\n"
+	"This will invalidate all other data associated with this geometry" );
+    if ( !docont ) return;
 
-    if ( !fullImplRemove(*curioobj_) )
+    MouseCursorChanger chgr( MouseCursor::Wait );
+    BufferStringSet msgs;
+    TypeSet<MultiID> selids;
+    selgrp_->getSelected( selids );
+    for ( int idx=0; idx<selids.size(); idx++ )
     {
-	uiMSG().error( "Cannot remove this line from the database" );
-	return;
+	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
+	if ( !ioobj || ioobj->implReadOnly() )
+	    continue;
+
+	const BufferString lnm( ioobj->name() );
+	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    return;
+
+	if ( !fullImplRemove(*ioobj) )
+	{
+	    msgs.add( BufferString("Cannot remove ",lnm) );
+	    continue;
+	}
+
+	IOM().permRemove( ioobj->key() );
+	Survey::GMAdmin().removeGeometry( geomid );
     }
 
-    IOM().permRemove( curioobj_->key() );
-    Survey::GMAdmin().removeGeometry( geomid );
-    selgrp_->fullUpdate( curioobj_->key() );
+    chgr.restore();
+    selgrp_->fullUpdate( MultiID::udf() );
+
+    if ( !msgs.isEmpty() )
+	uiMSG().errorWithDetails( msgs );
 }
