@@ -78,7 +78,7 @@ public:
     void		insertPos(int,const Coord3&);
     void		removePos(int, bool keepidxafter=true );
     void		removeAfter(int);
-    void		setAllPositions(const Coord3 pos,int sz,int start);
+    void		setAllPositions(const Coord3& pos,int sz,int start);
 
     void		setAllZ(const float*,int sz,float zscale=1);
 
