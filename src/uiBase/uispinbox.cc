@@ -358,27 +358,36 @@ void uiSpinBox::setStep( float stp, bool snapcur )
 }
 
 
-void uiSpinBox::setPrefix( const char* pfx )
-{ body_->setPrefix( pfx ); }
-
-
-const char* uiSpinBox::prefix() const
+void uiSpinBox::setPrefix( const uiString& pfx )
 {
-    mDeclStaticString( res );
-    res = body_->prefix();
-    return res;
+    prefix_ = pfx;
+    body_->setPrefix( pfx.getQtString() );
 }
 
 
-void uiSpinBox::setSuffix( const char* sfx )
-{ body_->setSuffix( sfx ); }
-
-
-const char* uiSpinBox::suffix() const
+uiString uiSpinBox::prefix() const
 {
-    mDeclStaticString( res );
-    res = body_->suffix();
-    return res;
+    return prefix_;
+}
+
+
+void uiSpinBox::setSuffix( const uiString& sfx )
+{
+    suffix_ = sfx;
+    body_->setSuffix( sfx.getQtString() );
+}
+
+
+uiString uiSpinBox::suffix() const
+{
+    return suffix_;
+}
+
+
+void uiSpinBox::translateText()
+{
+    body_->setSuffix( suffix_.getQtString() );
+    body_->setPrefix( prefix_.getQtString() );
 }
 
 

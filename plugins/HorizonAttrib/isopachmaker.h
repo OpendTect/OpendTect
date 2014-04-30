@@ -1,4 +1,4 @@
-#ifndef sopachmaker_h
+#ifndef isopachmaker_h
 #define isopachmaker_h
 
 /*+

@@ -57,7 +57,6 @@ static const int cHistogramIdx = 991;
 static const int cAddIdx = 999;
 static const int cDisplayIdx = 998;
 static const int cAttribIdx = 1000;
-static const int cTextureInterpIdx = 997;
 static const int cDuplicateIdx = 900;
 static const int cLockIdx = -900;
 static const int cHideIdx = -950;

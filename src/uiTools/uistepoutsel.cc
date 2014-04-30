@@ -14,17 +14,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uilabel.h"
 
-inline static BufferString mkPrefx( const char* lbl )
+inline static uiString mkPrefx( const uiString& lbl )
 {
-    BufferString ret( lbl );
-    if ( !ret.isEmpty() )
-	ret += ":";
-    return ret;
+    if ( !lbl.isEmpty() )
+	return uiString( "%1:").arg( lbl );
+
+    return uiString();
 }
 
 
 uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
-    : uiGroup(p,setup.seltxt_)
+    : uiGroup(p,setup.seltxt_.getFullString())
     , valueChanged(this)
     , valueChanging(this)
     , fld2_(0)
@@ -33,8 +33,8 @@ uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
 }
 
 
-uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const char* seltxt )
-    : uiGroup(p,seltxt)
+uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const uiString& seltxt )
+    : uiGroup(p,seltxt.getFullString() )
     , valueChanged(this)
     , valueChanging(this)
     , fld2_(0)
@@ -60,7 +60,7 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
 
-    fld1_ = new uiSpinBox( this, 0, setup.lbl1_ );
+    fld1_ = new uiSpinBox( this, 0, setup.lbl1_.getFullString() );
     fld1_->setPrefix( mkPrefx(setup.lbl1_) );
     fld1_->attach( rightOf, lbl );
     fld1_->setInterval( intv );
@@ -69,7 +69,7 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
     if ( !setup.single_ )
     {
-	fld2_ = new uiSpinBox( this, 0, setup.lbl2_ );
+	fld2_ = new uiSpinBox( this, 0, setup.lbl2_.getFullString() );
 	fld2_->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2_->attach( rightOf, fld1_ );
 	fld2_->setInterval( intv );
@@ -149,12 +149,12 @@ void uiStepOutSel::valChanging( CallBacker* cb )
 //-----------------------------------------------------------------------------
 
 uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup ) 
-        : uiStepOutSel( p, setup )                                                  
-{                                                                               
-    fld3_ = new uiSpinBox( this, 0, "Z" );                                      
-    fld3_->setPrefix( mkPrefx("Z") );                                           
-    fld3_->attach( rightOf, setup.single_ ? fld1_ : fld2_ );                       
-    setHAlignObj( fld1_ );                                                       
+	: uiStepOutSel( p, setup )
+{
+    fld3_ = new uiSpinBox( this, 0, "Z" );
+    fld3_->setPrefix( mkPrefx("Z") );
+    fld3_->attach( rightOf, setup.single_ ? fld1_ : fld2_ );
+    setHAlignObj( fld1_ );
 }
 
 
@@ -164,8 +164,8 @@ uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single, const char* seltxt )
     fld3_ = new uiSpinBox( this, 0, "Z" );                                      
     fld3_->setPrefix( mkPrefx("z") );                                           
     fld3_->attach( rightOf, fld2_ ? fld2_ : fld1_ );
-										
-    setHAlignObj( fld1_ );                                                       
+
+    setHAlignObj( fld1_ );
 }                                                                               
                                                                                 
                                                                                 
@@ -175,12 +175,12 @@ int uiStepout3DSel::val( int dir ) const
 }
 
 
-void uiStepout3DSel::setVals( int val1, int val2, int val3 )                    
-{                                                                               
-    fld1_->setValue( val1 );                                                     
-    if ( fld2_ )                             
-	fld2_->setValue( val2 );							
-    fld3_->setValue( val3 );                                                    
+void uiStepout3DSel::setVals( int val1, int val2, int val3 )
+{
+    fld1_->setValue( val1 );
+    if ( fld2_ )
+	fld2_->setValue( val2 );
+    fld3_->setValue( val3 );
 }
 
 

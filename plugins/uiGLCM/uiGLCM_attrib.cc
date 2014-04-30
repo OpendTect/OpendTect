@@ -1,7 +1,7 @@
 
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
- * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
+ * AUTHOR   : Christoph Eichkitz;
  * DATE     : November 2013
 -*/
 
@@ -74,19 +74,19 @@ static const char* attribstr[] =
 
 static const char* directionstr[]=
 {
-	"Azimuth 0°, Dip 0°",
-	"Azimuth 0°, Dip 45°",
-	"Azimuth 0°, Dip 90°",
-	"Azimuth 0°, Dip 135°",
-	"Azimuth 45°, Dip 0°",
-	"Azimuth 45°, Dip 45°",
-	"Azimuth 45°, Dip 135°",
-	"Azimuth 90°, Dip 0°",
-	"Azimuth 90°, Dip 45°",
-	"Azimuth 90°, Dip 135°",
-	"Azimuth 135°, Dip 0°",
-	"Azimuth 135°, Dip 45°",
-	"Azimuth 135°, Dip 135°",
+	"Azimuth 0, Dip 0",
+	"Azimuth 0, Dip 45",
+	"Azimuth 0, Dip 90",
+	"Azimuth 0, Dip 135",
+	"Azimuth 45, Dip 0",
+	"Azimuth 45, Dip 45",
+	"Azimuth 45, Dip 135",
+	"Azimuth 90, Dip 0",
+	"Azimuth 90, Dip 45",
+	"Azimuth 90, Dip 135",
+	"Azimuth 135, Dip 0",
+	"Azimuth 135, Dip 45",
+	"Azimuth 135, Dip 135",
 	"Inline Direction",
 	"Crossline Direction",
 	"Timeslice/Depthslice Direction",
@@ -98,47 +98,59 @@ static const char* directionstr[]=
 mInitAttribUI( uiGLCM_attrib, GLCM_attrib, "GLCM", sKeyBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
-	:uiAttrDescEd( p, is2d, mNoHelpKey )
+    : uiAttrDescEd( p, is2d, mNoHelpKey )
 {
-	inpfld_ = createInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
-	limitfld_ = new uiGenInput( this, "Min / Max of Input Data", FloatInpSpec().setName("Min amplitude"), FloatInpSpec().setName("Max amplitude") );
-	limitfld_->setElemSzPol( uiObject::Small );
-	limitfld_->attach( alignedBelow, inpfld_);
+    limitfld_ = new uiGenInput( this, tr("Min / Max of Input Data"),
+			       FloatInpSpec().setName("Min amplitude"),
+			       FloatInpSpec().setName("Max amplitude") );
+    limitfld_->setElemSzPol( uiObject::Small );
+    limitfld_->attach( alignedBelow, inpfld_);
 
-	uiPushButton* analyseButton = new uiPushButton(this, "Compute Amplitude Range", mCB(this, uiGLCM_attrib, analyseData), false);
-	analyseButton->attach( rightOf, limitfld_);						//
+    uiPushButton* analyseButton = new uiPushButton(this,
+				tr("Compute Amplitude Range"),
+				mCB(this, uiGLCM_attrib, analyseData), false);
+    analyseButton->attach( rightOf, limitfld_);
 
-	numbergreyfld_ = new uiGenInput( this, "Number of Grey Levels", IntInpSpec() );
-	numbergreyfld_->attach( alignedBelow, limitfld_ );
+    numbergreyfld_ = new uiGenInput( this, tr("Number of Grey Levels"),
+				     IntInpSpec() );
+    numbergreyfld_->attach( alignedBelow, limitfld_ );
 
-    stepoutfld_ = new uiStepOutSel( this, is2d, "Number of Traces" );
-    stepoutfld_->setFieldNames( "Number of Traces (Inl)", "Number of Traces (Crl)" );
+    stepoutfld_ = new uiStepOutSel( this, is2d, tr("Number of Traces") );
+    stepoutfld_->setFieldNames( "Number of Traces (Inl)",
+				"Number of Traces (Crl)" );
     const StepInterval<int> intv( 0, 10, 1 );
     stepoutfld_->setInterval( intv, intv );
     stepoutfld_->attach( alignedBelow,numbergreyfld_ );
 
-	samprangefld_ = new uiGenInput( this, "Vertical Search Window (+/-)", IntInpSpec() );
-	samprangefld_->attach( alignedBelow, stepoutfld_ );
+    samprangefld_ = new uiGenInput( this, "Vertical Search Window (+/-)",
+				    IntInpSpec() );
+    samprangefld_->attach( alignedBelow, stepoutfld_ );
 
-	attributefld_ = new uiGenInput( this, "GLCM Attribute", StringListInpSpec(attribstr) );
-	attributefld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib, GLCMattributeSel) );
-	attributefld_ ->attach( alignedBelow, samprangefld_ );
+    attributefld_ = new uiGenInput( this, "GLCM Attribute",
+				    StringListInpSpec(attribstr) );
+    attributefld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
+					 GLCMattributeSel) );
+    attributefld_ ->attach( alignedBelow, samprangefld_ );
 
-	directfld_ = new uiGenInput( this, "Direction of Calculation", StringListInpSpec(directionstr) );
-	directfld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib, GLCMdirectionSel) );
-	directfld_ ->attach( alignedBelow, attributefld_ );
+    directfld_ = new uiGenInput( this, "Direction of Calculation",
+				 StringListInpSpec(directionstr) );
+    directfld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
+				      GLCMdirectionSel) );
+    directfld_ ->attach( alignedBelow, attributefld_ );
 
 
-	steerfld_ = new uiSteeringSel( this, 0 , is2d );
-	steerfld_->steertypeSelected_.notify( mCB( this, uiGLCM_attrib, steerTypeSel ) );
-	steerfld_->attach( alignedBelow, directfld_ );
+    steerfld_ = new uiSteeringSel( this, 0 , is2d );
+    steerfld_->steertypeSelected_.notify( mCB( this, uiGLCM_attrib,
+					       steerTypeSel ) );
+    steerfld_->attach( alignedBelow, directfld_ );
 
-	GLCMattributeSel(0);
+    GLCMattributeSel(0);
 
-	GLCMdirectionSel(0);
+    GLCMdirectionSel(0);
 
-	setHAlignObj( inpfld_ );
+    setHAlignObj( inpfld_ );
 }
 
 void uiGLCM_attrib::GLCMattributeSel( CallBacker* )
@@ -153,22 +165,29 @@ void uiGLCM_attrib::GLCMdirectionSel( CallBacker* )
 
 bool uiGLCM_attrib::setParameters( const Desc& desc )
 {
-	if ( desc.attribName() != GLCM_attrib::attribName() )
-		return false;
+    if ( desc.attribName() != GLCM_attrib::attribName() )
+	return false;
 
-	mIfGetInt( GLCM_attrib::numbergreyStr(), greylevels, numbergreyfld_->setValue(greylevels) );
-	mIfGetFloat( GLCM_attrib::minlimitStr(), minlimit, limitfld_->setValue(minlimit,0) );
-	mIfGetFloat( GLCM_attrib::maxlimitStr(), maxlimit, limitfld_->setValue(maxlimit,1) );
-	mIfGetBinID( GLCM_attrib::stepoutStr(), stepout, stepoutfld_->setBinID(stepout) );
-	mIfGetEnum( GLCM_attrib::attributeStr(), attribute, attributefld_->setValue(attribute) );
-	mIfGetEnum( GLCM_attrib::directionStr(), direction, directfld_ ->setValue(direction) );
-	mIfGetInt( GLCM_attrib::sampStr(), samprange, samprangefld_->setValue(samprange) );
+    mIfGetInt( GLCM_attrib::numbergreyStr(), greylevels,
+	      numbergreyfld_->setValue(greylevels) );
+    mIfGetFloat( GLCM_attrib::minlimitStr(), minlimit,
+		limitfld_->setValue(minlimit,0) );
+    mIfGetFloat( GLCM_attrib::maxlimitStr(), maxlimit,
+		limitfld_->setValue(maxlimit,1) );
+    mIfGetBinID( GLCM_attrib::stepoutStr(), stepout,
+		stepoutfld_->setBinID(stepout) );
+    mIfGetEnum( GLCM_attrib::attributeStr(), attribute,
+	       attributefld_->setValue(attribute) );
+    mIfGetEnum( GLCM_attrib::directionStr(), direction,
+	       directfld_ ->setValue(direction) );
+    mIfGetInt( GLCM_attrib::sampStr(), samprange,
+	      samprangefld_->setValue(samprange) );
 
 
-	GLCMattributeSel(0);
-	GLCMdirectionSel(0);
+    GLCMattributeSel(0);
+    GLCMdirectionSel(0);
 
-	return true;
+    return true;
 }
 
 bool uiGLCM_attrib::getParameters( Desc& desc )
@@ -176,31 +195,32 @@ bool uiGLCM_attrib::getParameters( Desc& desc )
     if ( desc.attribName() != GLCM_attrib::attribName() )
 	return false;
 
-	const float minlimit=limitfld_->getfValue(0);
-	const float maxlimit=limitfld_->getfValue(1);
-	if ( mIsEqual( minlimit, maxlimit, 1e-3 ))
-	{
-		BufferString errorLimit="Minimum and Maximum values cannot be the same. \n";
-		errorLimit += "Values represent the clipping range of the input.";
-		uiMSG().error( errorLimit.buf() );
-		return false;
-	}
+    const float minlimit=limitfld_->getfValue(0);
+    const float maxlimit=limitfld_->getfValue(1);
+    if ( mIsEqual( minlimit, maxlimit, 1e-3 ))
+    {
+	const uiString errorLimit =
+		    tr("Minimum and Maximum values cannot be the same. "
+		       "Values represent the clipping range of the input.");
+	uiMSG().error( errorLimit );
+	return false;
+    }
 
-	mSetInt( GLCM_attrib::sampStr(), samprangefld_->getIntValue() );
-	mSetFloat( GLCM_attrib::minlimitStr(), limitfld_->getfValue(0) );
-	mSetFloat( GLCM_attrib::maxlimitStr(), limitfld_->getfValue(1) );
+    mSetInt( GLCM_attrib::sampStr(), samprangefld_->getIntValue() );
+    mSetFloat( GLCM_attrib::minlimitStr(), limitfld_->getfValue(0) );
+    mSetFloat( GLCM_attrib::maxlimitStr(), limitfld_->getfValue(1) );
 
-	mSetInt( GLCM_attrib::numbergreyStr(), numbergreyfld_->getIntValue() );
+    mSetInt( GLCM_attrib::numbergreyStr(), numbergreyfld_->getIntValue() );
 
-	const char* attribut = attributefld_->text();
-	const char* direction = directfld_->text();
-	BufferStringSet strattribut(attribstr);
-	BufferStringSet strdirect(directionstr);
+    const char* attribut = attributefld_->text();
+    const char* direction = directfld_->text();
+    BufferStringSet strattribut(attribstr);
+    BufferStringSet strdirect(directionstr);
 
-	mSetEnum( GLCM_attrib::attributeStr(), strattribut.indexOf(attribut) );
-	mSetEnum( GLCM_attrib::directionStr(), strdirect.indexOf(direction) );
-	mSetBinID( GLCM_attrib::stepoutStr(), stepoutfld_->getBinID() );
-	mSetBool( GLCM_attrib::steeringStr(), steerfld_->willSteer() );
+    mSetEnum( GLCM_attrib::attributeStr(), strattribut.indexOf(attribut) );
+    mSetEnum( GLCM_attrib::directionStr(), strdirect.indexOf(direction) );
+    mSetBinID( GLCM_attrib::stepoutStr(), stepoutfld_->getBinID() );
+    mSetBool( GLCM_attrib::steeringStr(), steerfld_->willSteer() );
 
     return true;
 }
@@ -208,7 +228,7 @@ bool uiGLCM_attrib::getParameters( Desc& desc )
 bool uiGLCM_attrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
-	putInp( steerfld_, desc, 1 );
+    putInp( steerfld_, desc, 1 );
 
     return true;
 }
@@ -216,47 +236,48 @@ bool uiGLCM_attrib::setInput( const Desc& desc )
 bool uiGLCM_attrib::getInput( Desc& desc )
 {
     fillInp( inpfld_, desc, 0 );
-	fillInp( steerfld_, desc, 1 );
+    fillInp( steerfld_, desc, 1 );
 
-	return true;
+    return true;
 }
 
 void uiGLCM_attrib::steerTypeSel( CallBacker* )
 {
-	if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
+    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
+    {
+	const char* steertxt = steerfld_->text();
+	if ( steertxt )
 	{
-		const char* steertxt = steerfld_->text();
-		if ( steertxt )
-		{
-			LineKey inp( inpfld_->getInput() );
-			LineKey steer( steertxt );
-			if ( inp.lineName() != steer.lineName() )
-				steerfld_->clearInpField();
-		}
+	    LineKey inp( inpfld_->getInput() );
+	    LineKey steer( steertxt );
+	    if ( inp.lineName() != steer.lineName() )
+		    steerfld_->clearInpField();
 	}
+    }
 }
 
 void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-	params += EvalParam( timegatestr(), GLCM_attrib::sampStr() );
-	params += EvalParam( stepoutstr(), GLCM_attrib::stepoutStr() );
+    params += EvalParam( timegatestr(), GLCM_attrib::sampStr() );
+    params += EvalParam( stepoutstr(), GLCM_attrib::stepoutStr() );
 
-	EvalParam ep( "Output");
-	ep.evaloutput_=true;
-	params += ep;
+    EvalParam ep( "Output");
+    ep.evaloutput_=true;
+    params += ep;
 }
 
 
 class uiSubSelForAnalysis : public uiDialog
-{
+{ mODTextTranslationClass(uiSubSelForAnalysis);
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data","For analysis",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Select data"),tr("For analysis"),
+				 mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
 {
-    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+    nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				IntInpSpec(100) );
 
     if ( is2d )
@@ -264,7 +285,7 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 	SeisIOObjInfo objinfo( mid );
 	BufferStringSet linenames;
 	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
-	linesfld_ = new uiLabeledComboBox( this, "Analyisis on line:" );
+	linesfld_ = new uiLabeledComboBox( this, tr("Analyisis on line") );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
 
@@ -288,7 +309,7 @@ bool acceptOK(CallBacker*)
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {
-	uiMSG().error( "Select at least one trace" );
+	uiMSG().error( tr("Select at least one trace") );
 	return false;
     }
 
@@ -324,7 +345,7 @@ void uiGLCM_attrib::analyseData( CallBacker* )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
     if ( !ioobj )
     {
-	uiMSG().error( "Select a valid input" );
+	uiMSG().error( tr("Select a valid input") );
 	return;
     }
 

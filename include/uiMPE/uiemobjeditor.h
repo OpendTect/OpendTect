@@ -1,5 +1,5 @@
 #ifndef uiemobjeditor_h
-#define uiehobjeditor_h
+#define uiemobjeditor_h
 
 /*+
 ________________________________________________________________________

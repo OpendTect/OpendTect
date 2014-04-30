@@ -1,6 +1,5 @@
 #ifndef uiemhorizoneditor_h
-#define uiehorizonmeditor_h
-
+#define uiemhorizoneditor_h
 /*+
 ________________________________________________________________________
 

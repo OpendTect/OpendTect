@@ -3,7 +3,7 @@
 #define uiGLCM_attrib_h
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
- * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
+ * AUTHOR   : Christoph Eichkitz
  * DATE     : November 2013
 -*/
 
@@ -23,40 +23,41 @@ class LineKey;
 
 
 class uiGLCM_attrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiGLCM_attrib);
 public:
 
-	uiGLCM_attrib( uiParent*, bool );
-	void getEvalParams(TypeSet<EvalParam>&) const;
+			uiGLCM_attrib( uiParent*, bool );
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 
-	uiAttrSel*		inpfld_;
-	uiGenInput*		attributefld_;
-	uiGenInput*		numbergreyfld_;
-	uiGenInput*		limitfld_;
-	uiGenInput*		directfld_;
-	uiStepOutSel*	stepoutfld_;
-	uiGenInput*		samprangefld_;
-	uiGenInput*		outputfld_;
-	uiSteeringSel*	steerfld_;
+    uiAttrSel*		inpfld_;
+    uiGenInput* 	attributefld_;
+    uiGenInput* 	numbergreyfld_;
+    uiGenInput* 	limitfld_;
+    uiGenInput* 	directfld_;
+    uiStepOutSel*	stepoutfld_;
+    uiGenInput* 	samprangefld_;
+    uiGenInput* 	outputfld_;
+    uiSteeringSel*	steerfld_;
 
-	void			GLCMattributeSel(CallBacker*);
-	void			GLCMdirectionSel(CallBacker*);
+    void		GLCMattributeSel(CallBacker*);
+    void		GLCMdirectionSel(CallBacker*);
 
-	void			analyseData(CallBacker*);
-	bool			readInputCube(SeisTrcBuf&, const CubeSampling&, int, const LineKey&) const;
-	void			determineMinMax( const SeisTrcBuf&);
+    void		analyseData(CallBacker*);
+    bool		readInputCube(SeisTrcBuf&, const CubeSampling&,
+				      int, const LineKey&) const;
+    void		determineMinMax( const SeisTrcBuf&);
 
-	bool			setParameters( const Attrib::Desc& );
-	bool			setInput( const Attrib::Desc& );
+    bool		setParameters( const Attrib::Desc& );
+    bool		setInput( const Attrib::Desc& );
 
-	bool			getParameters( Attrib::Desc&);
-	bool			getInput( Attrib::Desc&);
+    bool		getParameters( Attrib::Desc&);
+    bool		getInput( Attrib::Desc&);
 
-	void			steerTypeSel( CallBacker* );
-	
-					mDeclReqAttribUIFns
+    void		steerTypeSel( CallBacker* );
+
+			mDeclReqAttribUIFns
 };
 
 #endif

@@ -20,9 +20,9 @@ class uiSpinBox;
 
 
 /*! \brief allows selection of stepouts.
- 
+
   Typically, the stepout is in inl/crl or row/col.
- 
+
  */
 
 mExpClass(uiTools) uiStepOutSel : public uiGroup
@@ -38,16 +38,16 @@ public:
 			    , single_(singl)
 			    , allowneg_(false)	{}
 
-	mDefSetupMemb(BufferString,seltxt)
-	mDefSetupMemb(BufferString,lbl1)
-	mDefSetupMemb(BufferString,lbl2)
+	mDefSetupMemb(uiString,seltxt)
+	mDefSetupMemb(uiString,lbl1)
+	mDefSetupMemb(uiString,lbl2)
 	mDefSetupMemb(bool,single)	//!< Typically used for 2D
 	mDefSetupMemb(bool,allowneg)
     };
 
 			uiStepOutSel(uiParent*,const Setup&);
 			uiStepOutSel(uiParent*,bool single=false,
-					       const char* seltxt="Stepout");
+				     const uiString& seltxt="Stepout");
 			~uiStepOutSel()		{}
 
     int			val(bool dir1) const;
@@ -88,27 +88,27 @@ private:
 
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
-mExpClass(uiTools) uiStepout3DSel : public uiStepOutSel                                      
-{                                                                               
-public:                                                                         
+mExpClass(uiTools) uiStepout3DSel : public uiStepOutSel
+{
+public:
 
-			uiStepout3DSel(uiParent*,const uiStepOutSel::Setup&);   
-			uiStepout3DSel(uiParent*,bool single=false,             
-				       const char* seltxt="Stepout");           
-			~uiStepout3DSel() {}                                    
+			uiStepout3DSel(uiParent*,const uiStepOutSel::Setup&);
+			uiStepout3DSel(uiParent*,bool single=false,
+				       const char* seltxt="Stepout");
+			~uiStepout3DSel() {}
 
-    int                 val(int dir) const;                                     
-    void                setVals(int,int,int);                                   
+    int 		val(int dir) const;
+    void		setVals(int,int,int);
     virtual void	setVals(int); //!< similar to 3x setVal
 
-    int                 getZVal() const; //nr samples                           
+    int 		getZVal() const; //nr samples
     void                setZInterval(StepInterval<int> zrg); //nr samples
 
     void		setZFieldName(const char*);
 
 protected:
 
-    uiSpinBox*          fld3_;                                                  
+    uiSpinBox*		fld3_;
 
 };
 

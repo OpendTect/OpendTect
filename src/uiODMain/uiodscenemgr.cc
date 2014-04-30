@@ -77,8 +77,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cWSWidth = 600;
 static const int cWSHeight = 500;
-static const int cMinZoom = 1;
-static const int cMaxZoom = 150;
 static const char* scenestr = "Scene ";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)

@@ -81,11 +81,10 @@ public:
 
     void		stepBy( int nrsteps );
 
-    const char*		prefix() const;
-    void		setPrefix(const char*);
-    const char*		suffix() const;
-    void		setSuffix(const char*);
-
+    uiString		prefix() const;
+    void		setPrefix(const uiString&);
+    uiString		suffix() const;
+    void		setSuffix(const uiString&);
     void		doSnap( bool yn )		{ dosnap_ = yn; }
 
     void		setKeyboardTracking(bool);
@@ -101,10 +100,13 @@ public:
 
     void		notifyHandler(bool editingfinished);
 
+    void		translateText();
 private:
 
     float		oldvalue_;
 
+    uiString		prefix_;
+    uiString		suffix_;
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
