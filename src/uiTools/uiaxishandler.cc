@@ -37,6 +37,7 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , ticsz_(su.ticsz_)
     , beghndlr_(0)
     , endhndlr_(0)
+    , annotstart_(0)
     , ynmtxtvertical_(false)
 {
     setRange( StepInterval<float>(0,1,1) );

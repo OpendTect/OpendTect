@@ -387,12 +387,12 @@ int BasicInterval<T>::indexOnOrAfter( X x, const T& step, float eps ) const
 
 
 template <class T> inline BasicInterval<T>::BasicInterval()
-{ start = 0; stop = 0; }
+    : start(0), stop(0)		{}
 
 
 template <class T> inline
 BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
-{ start = t1; stop = t2; }
+    : start(t1), stop(t2)	{}
 
 template <class T> inline
 Interval<T>* Interval<T>::clone() const
@@ -431,8 +431,8 @@ BasicInterval<T>& BasicInterval<T>::operator+=( const BasicInterval<T>& i )
 template <class T> template <class X> inline
 const BasicInterval<T>& BasicInterval<T>::setFrom( const BasicInterval<X>& i )
 {
-    start = (T) i.start;
-    stop = (T) i.stop;
+    start = (T)i.start;
+    stop = (T)i.stop;
     return *this;
 }
 
@@ -598,13 +598,12 @@ bool Interval<T>::isUdf() const
 
 template <class T>
 StepInterval<T>::StepInterval()
-{ step = 1; }
+    : step(1)		{}
 
 
 template <class T>
 StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
-    : Interval<T>(t1,t2)
-{ step = t3; }
+    : Interval<T>(t1,t2), step(t3)		{}
 
 
 template <class T>
