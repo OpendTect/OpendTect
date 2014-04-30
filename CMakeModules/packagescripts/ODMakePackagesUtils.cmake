@@ -313,6 +313,12 @@ macro( init_destinationdir  PACKAGE_NAME )
     file( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
     file( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
 
+    if( APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/Contents
+			     ${DESTINATION_DIR}/Contents )
+    endif()
+
     message( "Preparing package ${VER_FILENAME}.zip ......" )
 endmacro( init_destinationdir )
 

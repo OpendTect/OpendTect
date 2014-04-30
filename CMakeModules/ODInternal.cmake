@@ -116,9 +116,6 @@ endif()
 install ( FILES ${TEXTFILES} DESTINATION . )
 
 if( APPLE )
-    install( PROGRAMS data/install_files/macscripts/chfwscript
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
-
     install( DIRECTORY data/install_files/macscripts/Contents
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
@@ -129,7 +126,7 @@ if( APPLE )
     set ( INFOFILE CMakeModules/Info.plist )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
 		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
-    install( FILES ${INFOFILE} DESTINATION "Contents" )
+    install( FILES ${CMAKE_BINARY_DIR}/${INFOFILE} DESTINATION "Contents" )
 endif( APPLE )
 
 set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
