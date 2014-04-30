@@ -234,7 +234,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	ObjectSet< Array1D<float> > arr1d;
 	const EM::SectionID sid = geom.sectionID( isect );
 	for ( int lineidx=0; lineidx<geom.nrLines(); lineidx++ )
-	    arr1d += hor2d->createArray1D( sid, geom.lineKey(lineidx) );
+	    arr1d += hor2d->createArray1D( sid, geom.geomID(lineidx) );
 
 	interpol1dsel_->setInterpolators( geom.nrLines() );
 	interpol1dsel_->setArraySet( arr1d );
@@ -251,7 +251,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	}
 
 	for ( int idx=0; idx<arr1d.size(); idx++ )
-	    usedhor2d->setArray1D( *arr1d[idx], sid,geom.lineKey(idx),false);
+	    usedhor2d->setArray1D( *arr1d[idx], sid,geom.geomID(idx),false);
     }
 
     return true;

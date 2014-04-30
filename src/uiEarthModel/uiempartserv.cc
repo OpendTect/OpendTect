@@ -1401,9 +1401,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     id = getObjectID(horid); \
 }
 void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
-				  const ObjectSet<PosInfo::Line2DData>& geoms,
-				  BufferStringSet& selectlines,
-				  const MultiID& linesetid,
+				  const BufferStringSet& selectlines,
 				  TypeSet<Coord>& coords,
 				  TypeSet< Interval<float> >& zrgs )
 {
@@ -1426,33 +1424,27 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 
     for ( int lidx=0; lidx<selectlines.size(); lidx++ )
     {
-	const PosInfo::Line2DData* ld = geoms[lidx];
-	if ( !ld ) continue;
-
-	PtrMan<IOObj> ioobj = IOM().get( linesetid );
-	if ( !ioobj ) return;
-
-	PosInfo::Line2DKey l2dky =
-	    S2DPOS().getLine2DKey( ioobj->name(), selectlines.get(lidx).buf() );
-
-	int lineidx = hor2d1->geometry().lineIndex( l2dky );
+	int lineidx = hor2d1->geometry().lineIndex( selectlines.get(lidx) );
 	if ( lineidx<0 ) continue;
 
-	const TypeSet<PosInfo::Line2DPos>& posns = ld->positions();
-	for ( int trcidx=0; trcidx<posns.size(); trcidx++ )
+	const Pos::GeomID geomid = hor2d1->geometry().geomID( lineidx );
+	const StepInterval<int> trcrg = hor2d1->geometry().colRange( geomid );
+	if ( trcrg.isUdf() ) continue;
+
+	for ( int trcidx=0; trcidx<=trcrg.nrSteps(); trcidx++ )
 	{
-	    const PosInfo::Line2DPos& l2dp = posns[trcidx];
-	    const float z1 = (float) hor2d1->getPos( 0, l2dky, l2dp.nr_ ).z;
-	    float z2 = mUdf(float);
+	    const int trcnr = trcrg.atIndex( trcidx );
+	    const Coord3 pos1 = hor2d1->getPos( 0, geomid, trcnr );
+	    Coord3 pos2 = Coord3::udf();
 
 	    if ( issecondhor )
-		z2 = (float) hor2d2->getPos( 0, l2dky, l2dp.nr_ ).z;
+		pos2 = hor2d2->getPos( 0, geomid, trcnr );
 
-	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
+	    if ( !mIsUdf(pos1.z) && ( !issecondhor || !mIsUdf(pos2.z) ) )
 	    {
-		Interval<float> zrg( z1, issecondhor ? z2 : z1 );
+		Interval<float> zrg( pos1.z, issecondhor ? pos2.z : pos1.z );
 		zrgs += zrg;
-		coords += l2dp.coord_;
+		coords += pos1;
 	    }
 	}
     }

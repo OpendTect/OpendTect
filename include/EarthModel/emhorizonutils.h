@@ -23,7 +23,6 @@ class DataPointSet;
 class HorSampling;
 class BufferStringSet;
 namespace Pos { class Provider; }
-namespace PosInfo { class Line2DKey; }
 
 namespace EM
 {
@@ -46,8 +45,7 @@ public:
     static void 	getPositions(od_ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getExactCoords(od_ostream&,const MultiID&,
-	    			       const PosInfo::Line2DKey&,
-				       const HorSampling&,
+				       Pos::GeomID,const HorSampling&,
 				       ObjectSet<DataPointSet>&);
     static void 	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
@@ -58,7 +56,7 @@ public:
     static void 	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const HorSampling&,
 				       const Interval<float>& extraz,
-				       const PosInfo::Line2DKey&);
+				       Pos::GeomID);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,
 	    			     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,

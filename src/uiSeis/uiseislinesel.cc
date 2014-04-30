@@ -249,16 +249,15 @@ void uiSeis2DLineSel::setSelLine( const char* lnm )
 }
 
 
-void uiSeis2DLineSel::setSelLine( const PosInfo::Line2DKey& l2dky )
+void uiSeis2DLineSel::setSelLine( const Pos::GeomID geomid )
 {
-    l2dky_ = l2dky;
-    const char* lnm = S2DPOS().getLineName( l2dky_.lineID() );
-    setSelLine( lnm );
+    selidxs_.erase();
+    const int idx = geomids_.indexOf( geomid );
+    if ( idx >= 0 )
+	selidxs_ += idx;
+
+    updateSummary();
 }
-
-
-const PosInfo::Line2DKey& uiSeis2DLineSel::getLine2DKey() const
-{ return l2dky_; }
 
 
 uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )

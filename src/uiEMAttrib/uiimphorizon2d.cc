@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
-#include "posinfo2dsurv.h"
+#include "survgeom2d.h"
 #include "tabledef.h"
 #include "file.h"
 #include "emhorizon2d.h"
@@ -50,20 +50,18 @@ public:
     enum UndefTreat		{ Skip, Adopt, Interpolate };
 
 Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
-		   const MultiID& setid, const BinIDValueSet* valset,
-		   UndefTreat udftreat )
+		   const BinIDValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
+    , curlinegeom_(0)
     , hors_(hors)
-    , setid_(setid)
     , bvalset_(valset)
     , prevlineidx_(-1)
     , nrdone_(0)
     , udftreat_(udftreat)
 {
-    const char* lsnm = IOM().get( setid )->name();
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	l2dkeyset_ += S2DPOS().getLine2DKey( lsnm, lnms.get(lineidx).buf() );
+	geomids_ += Survey::GM().getGeomID( lnms.get(lineidx).buf() );
 }
 
 
@@ -93,7 +91,7 @@ int nextStep()
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
 
-    const PosInfo::Line2DKey& l2dkey = l2dkeyset_[bid.inl()];
+    const Pos::GeomID geomid = geomids_[bid.inl()];
 
     if ( bid.inl() != prevlineidx_ )
     {
@@ -101,32 +99,19 @@ int nextStep()
 	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
-	linegeom_.setEmpty();
-	PtrMan<IOObj> lsobj = IOM().get( setid_ );
-	if ( !lsobj ) return Executor::ErrorOccurred();
-
-	S2DPOS().setCurLineSet( lsobj->name() );
-	BufferString linenm = S2DPOS().getLineName( l2dkey.lineID() );
-	linegeom_.setLineName( linenm );
-	if ( !S2DPOS().getGeometry(linegeom_) )
+	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
+		      Survey::GM().getGeometry(geomid) );
+	if ( !curlinegeom_ )
 	    return Executor::ErrorOccurred();
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
-	{
-	    if ( !l2dkey.isOK() )
-	    {
-		hors_[hdx]->geometry().removeLine( l2dkey );
-		continue;
-	    }
-
-	    hors_[hdx]->geometry().addLine( l2dkey );
-	}
+	    hors_[hdx]->geometry().addLine( geomid );
     }
 
     const int curtrcnr = bid.crl();
     for ( int validx=0; validx<nrvals; validx++ )
     {
-	if ( validx>=hors_.size() || !l2dkey.isOK() )
+	if ( validx>=hors_.size() )
 	    break;
 
 	if ( !hors_[validx] )
@@ -137,7 +122,7 @@ int nextStep()
 	    continue;
 
 	const EM::SectionID sid = hors_[validx]->sectionID(0);
-	hors_[validx]->setPos( sid, l2dkey, curtrcnr, curval, false );
+	hors_[validx]->setPos( sid, geomid, curtrcnr, curval, false );
 
 	if ( mIsUdf(curval) )
 	    continue;
@@ -147,7 +132,7 @@ int nextStep()
 	if ( udftreat_==Interpolate && prevtrcnr>=0
 				    && abs(curtrcnr-prevtrcnr)>1 )
 	{
-	    interpolateAndSetVals( validx, l2dkey, curtrcnr, prevtrcnr,
+	    interpolateAndSetVals( validx, geomid, curtrcnr, prevtrcnr,
 				   curval, prevtrcvals_[validx] );
 	}
 
@@ -160,17 +145,16 @@ int nextStep()
 }
 
 
-void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& l2dkey,
-			    int curtrcnr, int prevtrcnr,
-			    float curval, float prevval )
+void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
+			    int prevtrcnr, float curval, float prevval )
 {
-    if ( linegeom_.isEmpty() ) return;
+    if ( curlinegeom_ ) return;
 
     const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
     const bool isrev = curtrcnr < prevtrcnr;
     PosInfo::Line2DPos curpos, prevpos;
-    if ( !linegeom_.getPos(curtrcnr,curpos)
-	|| !linegeom_.getPos(prevtrcnr,prevpos) )
+    if ( !curlinegeom_->data().getPos(curtrcnr,curpos)
+	|| !curlinegeom_->data().getPos(prevtrcnr,prevpos) )
 	return;
 
     const Coord vec = curpos.coord_ - prevpos.coord_;
@@ -178,7 +162,7 @@ void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& l2dkey,
     {
 	const int trcnr = isrev ? prevtrcnr - idx : prevtrcnr + idx;
 	PosInfo::Line2DPos pos;
-	if ( !linegeom_.getPos(trcnr,pos) )
+	if ( !curlinegeom_->data().getPos(trcnr,pos) )
 	    continue;
 
 	const Coord newvec = pos.coord_ - prevpos.coord_;
@@ -186,7 +170,7 @@ void interpolateAndSetVals( int hidx, const PosInfo::Line2DKey& l2dkey,
 	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), l2dkey,trcnr,val,false);
+	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
     }
 }
 
@@ -194,10 +178,9 @@ protected:
 
     const BufferStringSet&	linenames_;
     ObjectSet<EM::Horizon2D>&	hors_;
-    const MultiID&		setid_;
     const BinIDValueSet*	bvalset_;
-    TypeSet<PosInfo::Line2DKey>	l2dkeyset_;
-    PosInfo::Line2DData		linegeom_;
+    TypeSet<Pos::GeomID>	geomids_;
+    const Survey::Geometry2D*	curlinegeom_;
     int				nrdone_;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
@@ -225,15 +208,6 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
-    TypeSet<BufferStringSet> linenms;
-    uiSeisPartServer::get2DLineInfo( linesetnms_, setids_, linenms );
-    uiLabeledComboBox* lsetbox = new uiLabeledComboBox( this, "Select Line Set",
-							"Line Set Selector" );
-    lsetbox->attach( alignedBelow, inpfld_ );
-    linesetfld_ = lsetbox->box();
-    linesetfld_->addItems( linesetnms_ );
-    linesetfld_->selectionChanged.notify( mCB(this,uiImportHorizon2D,setSel) );
-
     BufferStringSet hornms;
     uiEMPartServer::getAllSurfaceInfo( horinfos_, true );
     for ( int idx=0; idx<horinfos_.size(); idx++ )
@@ -241,7 +215,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
 					"Select Horizons to import", true );
-    horbox->attach( alignedBelow, lsetbox );
+    horbox->attach( alignedBelow, inpfld_ );
     horselfld_ = horbox->box();
     horselfld_->selectAll( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
@@ -299,13 +273,6 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 }
 
 
-void uiImportHorizon2D::setSel( CallBacker* )
-{
-    delete scanner_;
-    scanner_ = 0;
-}
-
-
 void uiImportHorizon2D::addHor( CallBacker* )
 {
     uiGenInputDlg dlg( this, "Add Horizon", "Name", new StringInpSpec() );
@@ -352,9 +319,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     BufferStringSet filenms;
     if ( !getFileNames(filenms) ) return;
 
-    const char* setnm = linesetfld_->text();
-    const int setidx = linesetnms_.indexOf( setnm );
-    scanner_ = new Horizon2DScanner( filenms, setids_[setidx], fd_ );
+    scanner_ = new Horizon2DScanner( filenms, fd_ );
     uiTaskRunner taskrunner( this );
     TaskRunner::execute( &taskrunner, *scanner_ );
     if ( cb )
@@ -454,10 +419,8 @@ bool uiImportHorizon2D::doImport()
 	    hor->setBurstAlert( true );
     }
 
-    const char* setnm = linesetfld_->text();
-    const int setidx = linesetnms_.indexOf( setnm );
     PtrMan<Horizon2DImporter> exec =
-	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
+	new Horizon2DImporter( linenms, horizons, valset,
 	    (Horizon2DImporter::UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
     if ( !TaskRunner::execute(&impdlg,*exec) )

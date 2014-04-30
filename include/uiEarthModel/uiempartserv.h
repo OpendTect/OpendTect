@@ -118,8 +118,7 @@ public:
 				        BinIDValueSet&,
 				        const HorSampling&) const;
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
-					const ObjectSet<PosInfo::Line2DData>&,
-					BufferStringSet&,const MultiID&,
+					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
 					TypeSet< Interval<float> >&);
 

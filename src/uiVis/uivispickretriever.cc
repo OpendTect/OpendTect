@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
+    , pickedgeomid_(Survey::GeometryManager::cUndefGeomID())
     , finished_( this )    
 {
     resetPickedPos();
@@ -118,7 +119,6 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	pickedl2dkey__ = s2dd->getLine2DKey();
 	pickedgeomid_ = s2dd->getGeomID();
 	PosInfo::Line2DPos pos2d;
 	const bool res =
@@ -150,7 +150,6 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    pickedl2dkey__.setUdf();
     pickedgeomid_ = Survey::GeometryManager::cUndefGeomID();
     pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();

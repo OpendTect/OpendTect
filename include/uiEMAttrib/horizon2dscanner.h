@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class BinIDValueSet;
-namespace PosInfo { class Line2DData; }
+namespace Survey { class Geometry2D; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
@@ -29,7 +29,6 @@ mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
 public:
 
 			Horizon2DScanner(const BufferStringSet& fnms,
-					 const MultiID& setid,
 					 Table::FormatDesc& fd);
 
     virtual const char*	message() const;
@@ -56,13 +55,12 @@ protected:
     BufferStringSet	filenames_;
     int			fileidx_;
 
-    MultiID		setid_;
     BufferString	curline_;
     bool		isgeom_;
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
 
-    PosInfo::Line2DData	linegeom_;
+    const Survey::Geometry2D*	curlinegeom_;
 
     BufferStringSet	linenames_;
     BufferStringSet	validnms_;

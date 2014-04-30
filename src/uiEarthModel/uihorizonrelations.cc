@@ -212,12 +212,11 @@ bool acceptOK( CallBacker* )
 		return false;
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
 	    {
-		const PosInfo::Line2DKey l2dkey =
-		    hor2d->geometry().lineKey( idx );
+		const Pos::GeomID geomid = hor2d->geometry().geomID( idx );
 		PtrMan< Array1D<float> > arr1d;
-		arr1d = hor2d->createArray1D( emobj->sectionID(0), l2dkey );
-		outhor2d->geometry().addLine( l2dkey );
-		outhor2d->setArray1D(*arr1d,emobj->sectionID(0),l2dkey,false);
+		arr1d = hor2d->createArray1D( emobj->sectionID(0), geomid );
+		outhor2d->geometry().addLine( geomid );
+		outhor2d->setArray1D(*arr1d,emobj->sectionID(0),geomid,false);
 	    }
 	}
     }

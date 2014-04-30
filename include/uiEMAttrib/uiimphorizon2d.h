@@ -43,7 +43,6 @@ public:
 protected:
 
     uiFileInput*	inpfld_;
-    uiComboBox*		linesetfld_;
     uiPushButton*       scanbut_;
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;

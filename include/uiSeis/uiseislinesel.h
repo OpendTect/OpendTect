@@ -43,6 +43,7 @@ public:
     const char*		lineName() const;
     Pos::GeomID		geomID() const;
     void		setSelLine(const char* lnm);
+    void		setSelLine(Pos::GeomID);
 
     void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getSelLineNames(BufferStringSet&) const;
@@ -53,9 +54,6 @@ public:
     void		setInput(const MultiID&);
     void		setInput(const BufferStringSet& lnms);
     void		setInput(const TypeSet<Pos::GeomID>& geomid);
-
-    const PosInfo::Line2DKey& getLine2DKey() const;
-    void		setSelLine(const PosInfo::Line2DKey&);
 
     void		clearSelection();
     void		setAll(bool yn);
@@ -71,8 +69,6 @@ protected:
     TypeSet<int>	selidxs_;
     bool		ismultisel_;
     
-    PosInfo::Line2DKey	l2dky_;
-
     BufferString	getSummary() const;
 
     virtual void	selPush(CallBacker*);

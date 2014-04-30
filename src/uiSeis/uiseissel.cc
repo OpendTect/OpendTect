@@ -417,12 +417,11 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 {
     ctxt.forread = forread;
     if ( geom == Seis::Line )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl =
-					TwoDDataSeisTrcTranslator::translKey();
+	ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
     else
 	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
-    if ( !forread )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl;
+
+    ctxt.toselect.allowtransls_ = ctxt.deftransl;
 }
 
 

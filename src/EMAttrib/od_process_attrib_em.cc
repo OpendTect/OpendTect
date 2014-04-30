@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "moddepmgr.h"
 #include "commandlineparser.h"
 
@@ -505,22 +506,18 @@ bool BatchProgram::go( od_ostream& strm )
 	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
 	if ( is2d )
 	{
-	    MultiID linsetid;
-	    pars().get( "Input Line Set", linsetid );
-	    PtrMan<IOObj> lineset = IOM().get( linsetid );
-	    if ( !lineset ) return false;
-	    const PosInfo::Line2DKey l2dkey =
-		S2DPOS().getLine2DKey( lineset->name(), linename );
+	    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
 	    hsamp.start.inl() = hsamp.stop.inl() = 0;
 	    if ( mIsUdf(hsamp.stop.crl()) )
 	    {
-		PosInfo::Line2DData l2dd;
-		S2DPOS().getGeometry( l2dkey, l2dd );
-		hsamp.setCrlRange( l2dd.trcNrRange() );
+		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+				 Survey::GM().getGeometry(geomid) );
+		if ( geom2d )
+		    hsamp.setCrlRange( geom2d->data().trcNrRange() );
 	    }
 
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps,
-					  hsamp, extraz, l2dkey );
+					  hsamp, extraz, geomid );
 	}
 	else
 	{

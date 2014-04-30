@@ -50,25 +50,17 @@ Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 
 
 int Horizon2DGeometry::nrLines() const
-{ return l2dkeys_.size() <= 0 ? geomids_.size() : l2dkeys_.size(); }
-
-
-int Horizon2DGeometry::lineIndex( const PosInfo::Line2DKey& l2dkey ) const
-{ return l2dkeys_.indexOf( l2dkey ); }
-
+{ return geomids_.size(); }
 
 int Horizon2DGeometry::lineIndex( Pos::GeomID geomid ) const
 { return geomids_.indexOf( geomid ); }
 
-
 int Horizon2DGeometry::lineIndex( const char* linenm ) const
 {
-    for ( int idx=0; idx<l2dkeys_.size(); idx++ )
+    for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	if( S2DPOS().curLineSetID() != l2dkeys_[idx].lsID() )
-	    S2DPOS().setCurLineSet( l2dkeys_[idx].lsID() );
-	BufferString lnm = S2DPOS().getLineName( l2dkeys_[idx].lineID() );
-	if ( lnm == linenm )
+	const FixedString curlinenm( Survey::GM().getName(geomids_[idx]) );
+	if ( curlinenm == linenm )
 	    return idx;
     }
 
@@ -76,65 +68,33 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 }
 
 
-const char* Horizon2DGeometry::lineName( int lid ) const
-{
-    const PosInfo::Line2DKey l2dkey = lineKey( lid );
-    if ( !l2dkey.isOK() ) return 0;
-
-    if( S2DPOS().curLineSetID() != l2dkey.lsID() )
-	S2DPOS().setCurLineSet( l2dkey.lsID() );
-    return S2DPOS().getLineName( l2dkey.lineID() );
-}
-
-
-const char* Horizon2DGeometry::lineSet( int lid ) const
-{
-    const PosInfo::Line2DKey l2dkey = lineKey( lid );
-    return l2dkey.isOK() ? S2DPOS().getLineSet( l2dkey.lsID() ) : 0;
-}
-
-
-PosInfo::Line2DKey Horizon2DGeometry::lineKey( int idx ) const
-{
-    return l2dkeys_.validIdx(idx) ? l2dkeys_[idx] : PosInfo::Line2DKey(-1,-1);
-}
-
+const char* Horizon2DGeometry::lineName( int lidx ) const
+{ return geomids_.validIdx(lidx) ? Survey::GM().getName( geomids_[lidx] ) : 0; }
 
 Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 {
-    return geomids_.validIdx( idx ) ? geomids_[idx] : -1;
+    return geomids_.validIdx( idx ) ? geomids_[idx]
+				    : Survey::GeometryManager::cUndefGeomID();
 }
 
 
-bool Horizon2DGeometry::includeLine( const PosInfo::Line2DKey& l2dkey,int step )
-{ return doAddLine( l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step),
-								    true ); }
-
-
 bool Horizon2DGeometry::includeLine( Pos::GeomID geomid, int step )
-{ return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
-								    true ); }
-
-
-bool Horizon2DGeometry::addLine( const PosInfo::Line2DKey& l2dkey, int step )
-{ return doAddLine(l2dkey, StepInterval<int>(mUdf(int),mUdf(int),step),
-								    false); }
+{
+    return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
+		      true );
+}
 
 
 bool Horizon2DGeometry::addLine( Pos::GeomID geomid, int step )
-{ return doAddLine(geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
-								    false); }
-
-
-bool Horizon2DGeometry::addLine( const PosInfo::Line2DKey& l2dkey,
-				 const StepInterval<int>& trg )
-{ return doAddLine( l2dkey, trg, false ); }
+{
+    return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
+		      false );
+}
 
 
 bool Horizon2DGeometry::addLine( Pos::GeomID geomid,
 				 const StepInterval<int>& trg )
 { return doAddLine( geomid, trg, false ); }
-
 
 bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 				   const StepInterval<int>& inptrg,
@@ -143,12 +103,13 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
     if ( geomids_.isPresent(geomid) )
 	return false;
 
-    const PosInfo::Line2DData linegeom( ((Survey::Geometry2D*)Survey::
-					GM().getGeometry(geomid))->data() );
-    if ( linegeom.isEmpty() )
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+		     Survey::GM().getGeometry(geomid) );
+    if ( !geom2d || geom2d->data().isEmpty() )
 	return false;
 
-    StepInterval<int> trcrg = inptrg.isUdf() ? linegeom.trcNrRange() : inptrg;
+    StepInterval<int> trcrg = inptrg.isUdf() ? geom2d->data().trcNrRange()
+					     : inptrg;
     Geometry::Horizon2DLine* h2dl =
 		    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[0] );
     int oldgeomidx = -1;
@@ -163,8 +124,8 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
 	    continue;
 
-	PosInfo::Line2DPos new0; linegeom.getPos( trg.start, new0 );
-	PosInfo::Line2DPos new1; linegeom.getPos( trg.stop, new1 );
+	PosInfo::Line2DPos new0; geom2d->data().getPos( trg.start, new0 );
+	PosInfo::Line2DPos new1; geom2d->data().getPos( trg.stop, new1 );
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
@@ -185,7 +146,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	else
 	    h2dl->reassignRow( geomids_[oldgeomidx], geomid );
 
-	h2dl->syncRow( geomid, linegeom );
+	h2dl->syncRow( geomid, geom2d->data() );
     }
 
     if ( oldgeomidx < 0 )
@@ -194,85 +155,6 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	geomids_[oldgeomidx] = geomid;
 
     return true;
-}
-
-
-bool Horizon2DGeometry::doAddLine( const PosInfo::Line2DKey& l2dkey,
-				 const StepInterval<int>& inptrg,
-				 bool mergewithdouble )
-{
-    if ( !l2dkey.isOK() || l2dkeys_.isPresent(l2dkey) )
-	return false;
-
-    if( S2DPOS().curLineSetID() != l2dkey.lsID() )
-	S2DPOS().setCurLineSet( l2dkey.lsID() );
-    PosInfo::Line2DData linegeom( S2DPOS().getLineName(l2dkey.lineID()) );
-    if ( !S2DPOS().getGeometry(linegeom) )
-	return false;
-
-    StepInterval<int> trcrg = inptrg.isUdf() ? linegeom.trcNrRange() : inptrg;
-    Geometry::Horizon2DLine* h2dl =
-		    reinterpret_cast<Geometry::Horizon2DLine*>( sections_[0] );
-
-    int oldgeomidx = -1;
-    for ( int keyidx=0; mergewithdouble && keyidx<l2dkeys_.size(); keyidx++ )
-    {
-	const int currow = h2dl->getRowIndex( l2dkeys_[keyidx] );
-	StepInterval<int> trg = h2dl->colRange( currow );
-	trg.limitTo( trcrg );
-
-	const Coord cur0 = h2dl->getKnot( RowCol(currow,trg.start) );
-	const Coord cur1 = h2dl->getKnot( RowCol(currow,trg.stop) );
-	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
-	    continue;
-
-	PosInfo::Line2DPos new0; linegeom.getPos( trg.start, new0 );
-	PosInfo::Line2DPos new1; linegeom.getPos( trg.stop, new1 );
-	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
-	    continue;
-
-	const float maxdist = (float) (0.1 * cur0.distTo(cur1) / trg.width());
-	if ( cur0.distTo(new0.coord_)>maxdist ||
-	     cur1.distTo(new1.coord_)>maxdist )
-	    continue;
-
-	oldgeomidx = keyidx;
-    }
-
-    for ( int idx=sections_.size()-1; idx>=0; idx-- )
-    {
-	h2dl = reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
-
-	if ( oldgeomidx < 0 )
-	    h2dl->addUdfRow( l2dkey, trcrg.start, trcrg.stop, trcrg.step );
-	else
-	    h2dl->reassignRow( l2dkeys_[oldgeomidx], l2dkey );
-
-        h2dl->syncRow( l2dkey, linegeom );
-    }
-
-    if ( oldgeomidx < 0 )
-	l2dkeys_ += l2dkey;
-    else
-	l2dkeys_[oldgeomidx] = l2dkey;
-
-    return true;
-}
-
-
-void Horizon2DGeometry::removeLine( const PosInfo::Line2DKey& l2dkey )
-{
-    const int lidx = l2dkeys_.indexOf( l2dkey );
-    if ( lidx < 0 )
-	return;
-
-    l2dkeys_.removeSingle( lidx );
-    for ( int idx=sections_.size()-1; idx>=0; idx-- )
-    {
-	Geometry::Horizon2DLine* section =
-	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
-	section->removeRow( l2dkey );
-    }
 }
 
 
@@ -350,37 +232,10 @@ Geometry::Horizon2DLine* Horizon2DGeometry::createSectionGeometry() const
 
 
 StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
-					const PosInfo::Line2DKey& l2dkey ) const
-{
-    const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(sid) );
-    return geom ? geom->colRange( l2dkey ) : StepInterval<int>(0,0,0);
-}
-
-
-StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
 					       Pos::GeomID geomid ) const
 {
     const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(sid) );
     return geom ? geom->colRangeForGeomID( geomid ) : StepInterval<int>(0,0,0);
-}
-
-
-StepInterval<int> Horizon2DGeometry::colRange( 
-					const PosInfo::Line2DKey& gid) const
-{
-    StepInterval<int> res(0,0,0);
-    bool isset = false;
-
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	StepInterval<int> sectionrg = colRange( sids_[idx], gid );
-	if ( sectionrg.start>sectionrg.stop )
-	    continue;
-	if ( !isset ) { res = sectionrg; isset=true; }
-	else res.include( sectionrg );
-    }
-
-    return res;
 }
 
 
@@ -409,52 +264,36 @@ void Horizon2DGeometry::fillPar( IOPar& iopar ) const
 
     PtrMan<Geometry::Horizon2DLine> geom = cgeom->clone();
     geom->trimUndefParts();
-    int nrlines = geomids_.size();
-    if ( !nrlines )
-	l2dkeys_.size();
-
+    const int nrlines = geomids_.size();
     iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
     for ( int idx=0; idx<nrlines; idx++ )
     {
 	BufferString key = IOPar::compKey( "Line", idx );
-	if ( l2dkeys_.validIdx(idx) )
-	    iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		       l2dkeys_[idx].toString() );
-	if ( geomids_.validIdx(idx) )
-	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids_[idx] );
-
-	int rowidx = geom->getRowIndex( geomids_[idx] );
-	if ( rowidx < 0 )
-	    rowidx = geom->getRowIndex( l2dkeys_[idx] );
-
+	iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids_[idx] );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
-		   geom->colRange(rowidx) );
+		   geom->colRangeForGeomID(geomids_[idx]) );
     }
 }
 
 
 bool Horizon2DGeometry::usePar( const IOPar& par )
 {
-    l2dkeys_.erase();
     geomids_.erase();
-
     int nrlines = 0;
     if ( par.get(Horizon2DGeometry::sKeyNrLines(),nrlines) )
     {
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
-	    BufferString idstr;
-	    PosInfo::Line2DKey l2dkey;
 	    Pos::GeomID geomid;
 	    if ( !par.get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
 		BufferString key = IOPar::compKey( "Line", idx );
+		BufferString idstr;
 		if ( par.get(IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
 			     idstr))
 		{
+		    PosInfo::Line2DKey l2dkey;
 		    l2dkey.fromString( idstr );
-		    l2dkeys_ += l2dkey;
-
 		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
 			S2DPOS().setCurLineSet( l2dkey.lsID() );
 
@@ -641,27 +480,15 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
     return EMObject::setPos( sid, subid, pos, addtoundo );
 }
 
-Coord3 Horizon2D::getPos( EM::SectionID sid, const PosInfo::Line2DKey& l2dkey,
-			  int trcnr ) const
-{
-    const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
-	return Coord3::udf();
 
-    const int lineidx = geom->getRowIndex( l2dkey );
-    RowCol rc( lineidx, trcnr );
-    return geom->getKnot( rc );
-}
-
-
-Coord3 Horizon2D::getPos( EM::SectionID sid, Pos::GeomID l2dkey,
+Coord3 Horizon2D::getPos( EM::SectionID sid, Pos::GeomID geomid,
 			       int trcnr ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
 	return Coord3::udf();
 
-    const int lineidx = geom->getRowIndex( l2dkey );
+    const int lineidx = geom->getRowIndex( geomid );
     RowCol rc( lineidx, trcnr );
     return geom->getKnot( rc );
 }
@@ -678,23 +505,6 @@ bool Horizon2D::setPos( const EM::SectionID& sid, const EM::SubID& subid,
 			const Coord3& pos, bool addtohistory )
 {
     return EMObject::setPos( sid, subid, pos, addtohistory );
-}
-
-
-bool Horizon2D::setPos( EM::SectionID sid, const PosInfo::Line2DKey& geomid,
-			int trcnr, float z, bool addtohistory )
-{
-    Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
-	return 0;
-
-    const int lineidx = geom->getRowIndex( geomid );
-    if ( mIsUdf(lineidx) || lineidx<0 ) return false;
-
-    EM::SubID subid = BinID( lineidx, trcnr ).toInt64();
-    Coord3 newpos = EMObject::getPos( sid, subid );
-    newpos.z = z;
-    return EMObject::setPos( sid, subid, newpos, addtohistory );
 }
 
 
@@ -738,24 +548,24 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
-			    SectionID sid, const PosInfo::Line2DKey& l2dkey,
+			    SectionID sid, Pos::GeomID geomid,
 			    bool onlyfillundefs )
 {
-    const StepInterval<int> trcrg = geometry_.colRange( l2dkey );
-    return setArray1D( arr, trcrg, sid, l2dkey, onlyfillundefs );
+    const StepInterval<int> trcrg = geometry_.colRange( geomid );
+    return setArray1D( arr, trcrg, sid, geomid, onlyfillundefs );
 }
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
 			    const StepInterval<int>& trcrg,
-			    SectionID sid, const PosInfo::Line2DKey& l2dkey,
+			    SectionID sid, Pos::GeomID geomid,
 			    bool onlyfillundefs )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
 	return false;
 
-    const int lineidx = geom->getRowIndex( l2dkey );
+    const int lineidx = geom->getRowIndex( geomid );
     if ( lineidx < 0 )
 	return false;
     
@@ -779,68 +589,6 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
     }
 
     return true;
-}
-
-
-bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid,
-			    Pos::GeomID geomid, bool onlyfillundefs )
-{
-    Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
-	return 0;
-
-    const int lineidx = geom->getRowIndex( geomid );
-    if ( lineidx < 0 )
-	return false;
-    
-    const StepInterval<int> colrg = geom->colRange( lineidx );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-    {
-	RowCol rc( lineidx, col );
-	Coord3 pos = geom->getKnot( rc );
-	if ( pos.isDefined() && onlyfillundefs )
-	    continue;
-
-	if ( arr.info().validPos(colrg.getIndex(col)) )
-	{
-	    float z = arr.get( colrg.getIndex(col) );
-	    pos.z = z;
-	    geom->setKnot( rc, pos );
-	}
-    }
-
-    return true;
-}
-
-
-Array1D<float>* Horizon2D::createArray1D( SectionID sid,
-					  const PosInfo::Line2DKey& l2dkey,
-					  const ZAxisTransform* trans ) const
-{
-    const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
-	return 0;
-
-    Array1DImpl<float>* arr = 0;
-    const int lineidx = geom->getRowIndex( l2dkey );
-    if ( lineidx < 0 )
-	return 0;
-
-    arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
-    if ( !arr || !arr->isOK() )
-	return 0;
-
-    const StepInterval<int> colrg = geom->colRange( lineidx );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-    {
-	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
-	if ( trans )
-	    pos.z = trans->transform( pos );
-
-	arr->set( colrg.getIndex(col), (float) pos.z );
-    }
-
-    return arr;
 }
 
 

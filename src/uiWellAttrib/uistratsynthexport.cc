@@ -451,8 +451,10 @@ bool uiStratSynthExport::createHor2Ds()
 		 "2D line", false );
     const char* linenm = createnew ? newlinenmsel_->getInput()
 				   : existlinenmsel_->getInput();
-    PosInfo::Line2DKey l2dky =
-	S2DPOS().getLine2DKey( linesetsel_->getIOObj()->name(), linenm );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	return false;
+
     for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
     {
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
@@ -461,10 +463,10 @@ bool uiStratSynthExport::createHor2Ds()
 	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),hornm );
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,em.getObject(emid));
 	if ( !horizon2d ) continue;
-	horizon2d->geometry().addLine( l2dky );
+	horizon2d->geometry().addLine( geomid );
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
-	    horizon2d->setPos( horizon2d->sectionID(0), l2dky, trcidx,
+	    horizon2d->setPos( horizon2d->sectionID(0), geomid, trcidx,
 			       stratlvl->zvals_[trcidx], false );
 	}
 

@@ -1284,24 +1284,11 @@ bool uiODApplMgr::handlePickServEv( int evid )
     }
     else if ( evid == uiPickPartServer::evGetHorDef2D() )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),
-				  pickserv_->lineGeoms(),
 				  pickserv_->selectLines(),
-				  pickserv_->lineSetID(),
 				  pickserv_->getPos2D(),
 				  pickserv_->getHor2DZRgs() );
     else if ( evid == uiPickPartServer::evFillPickSet() )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
-    else if ( evid == uiPickPartServer::evGet2DLineDef() )
-    {
-	BufferStringSet& lnms = pickserv_->selectLines();
-	for ( int idx=0; idx<lnms.size(); idx++ )
-	{
-	    PosInfo::Line2DData geom;
-	    seisserv_->get2DLineGeometry( pickserv_->lineSetID(), *lnms[idx],
-					  geom );
-	    pickserv_->lineGeoms() += new PosInfo::Line2DData( geom );
-	}
-    }
     else if ( evid == uiPickPartServer::evDisplayPickSet() )
     {
 	sceneMgr().addPickSetItem( pickserv_->pickSetID() );

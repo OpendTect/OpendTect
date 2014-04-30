@@ -368,10 +368,7 @@ const char* EMSurfaceProvider2D::curLine() const
 	if ( !hor2d )
 	    return 0;
 
-	const PosInfo::Line2DKey& l2dkey = hor2d->geometry().lineKey( 
-								    bid.inl() );
-	S2DPOS().setCurLineSet( l2dkey.lsID() );
-	return S2DPOS().getLineName( l2dkey.lineID() );
+	return hor2d->geometry().lineName( bid.inl() );
     }
 
     return 0;
@@ -391,9 +388,8 @@ bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const
     PosInfo::Line2DPos pos;
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	const Survey::Geometry* geometry = Survey::GM().getGeometry( 
-								geomID(lidx) );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomID(lidx)) );
 	if ( !geom2d )
 	    continue;
 

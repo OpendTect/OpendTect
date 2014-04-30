@@ -472,7 +472,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
     else
     {
 	refposfld_->setValue( pickretriever_->getTrcNr() );
-	linefld_->setSelLine( pickretriever_->getLine2DKey() );
+	linefld_->setSelLine( pickretriever_->getGeomID() );
     }
 
     refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );

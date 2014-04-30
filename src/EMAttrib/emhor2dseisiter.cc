@@ -103,9 +103,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 
 const char* EM::Hor2DSeisLineIterator::lineName() const
 {
-    const PosInfo::Line2DKey& l2dkey = geom_->lineKey( lineidx_ );
-    S2DPOS().setCurLineSet( l2dkey.lsID() );
-    return isValid() ? S2DPOS().getLineName( l2dkey.lineID() ) : 0;
+    return geom_->lineName( lineidx_ );
 }
 
 

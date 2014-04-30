@@ -161,8 +161,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
-				   const PosInfo::Line2DKey& l2dkey,
-				   const HorSampling& hsamp,
+				   Pos::GeomID geomid, const HorSampling& hsamp,
 				   ObjectSet<DataPointSet>& data )
 {
     Surface* surface = getSurface(id);
@@ -175,7 +174,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
     deepErase( data );
 
     DataPointSet* res = 0;
-    if ( hor2d && l2dkey.isOK() )
+    if ( hor2d && geomid != Survey::GeometryManager::cUndefGeomID() )
     {
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
@@ -184,7 +183,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	SectionID sid = 0; 		//multiple sections not used here
 	for ( int idx=hsamp.start.crl(); idx<=hsamp.stop.crl(); idx++ )
 	{
-	    Coord3 coords = hor2d->getPos( sid, l2dkey, idx);
+	    Coord3 coords = hor2d->getPos( sid, geomid, idx);
 	    DataPointSet::Pos newpos( coords );
 	    DataPointSet::DataRow dtrow( newpos );
 	    res->addRow( dtrow );
@@ -396,15 +395,15 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   DataPointSet* dtps,
 				   const HorSampling& horsamp,
 				   const Interval<float>& extraz,
-       				   const PosInfo::Line2DKey& l2dkey )
+				   Pos::GeomID geomid )
 {
     ObjectSet<DataPointSet> possurf0;
     ObjectSet<DataPointSet> possurf1;
-    getExactCoords( strm, *(midset[0]), l2dkey, horsamp, possurf0 );
+    getExactCoords( strm, *(midset[0]), geomid, horsamp, possurf0 );
     bool use2hor = midset.size() == 2;
 
     if ( use2hor )
-	getExactCoords( strm, *(midset[1]), l2dkey, horsamp, possurf1 );
+	getExactCoords( strm, *(midset[1]), geomid, horsamp, possurf1 );
 
     mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
     mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )

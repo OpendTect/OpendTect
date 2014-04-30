@@ -109,7 +109,6 @@ public:
     void		addGeomID(const Pos::GeomID);
     void		removeGeomID(int lidx);
     Pos::GeomID		geomID(int) const;
-    int			indexOf(const PosInfo::Line2DKey&) const;
     int			nrLines() const;
 
     mDefineFactoryInClass(Filter2D,factory);

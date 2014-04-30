@@ -500,10 +500,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 {
     uiGroup* grp = new uiGroup( this, "Seis group" );
 
-    IOObjContext ctxt = mIOObjContext( SeisTrc );
-    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
-    ctxt.forread = true;
+    IOObjContext ctxt = uiSeisSel::ioContext( Seis::Vol, true );
     infld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Vol) );
     infld_->selectionDone.notify( mCB(this,uiCreate2DGrid,inpSelCB) );
 
@@ -530,8 +527,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 	randlinegrdgrp_->attach( alignedBelow, sourceselfld_ );
     }
 
-    ctxt.forread = false;
-    ctxt.deftransl = "2D";
+    ctxt = uiSeisSel::ioContext( Seis::Line, false );
     outfld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Line) );
     outfld_->setConfirmOverwrite( false );
     outfld_->selectionDone.notify( mCB(this,uiCreate2DGrid,outSelCB) );

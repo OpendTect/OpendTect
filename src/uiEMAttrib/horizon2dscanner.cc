@@ -22,18 +22,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
-#include "uiseispartserv.h"
+#include "survgeom2d.h"
 
 
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
-				    const MultiID& setid,
 				    Table::FormatDesc& fd )
     : Executor("Scan horizon file(s)")
     , fd_(fd)
     , ascio_(0)
-    , setid_(setid)
     , bvalset_(0)
     , fileidx_(0)
+    , curlinegeom_(0)
 {
     filenames_ = fnms;
     init();
@@ -184,14 +183,10 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
-	PtrMan<IOObj> lsobj = IOM().get( setid_ );
-	if ( !lsobj ) return Executor::ErrorOccurred();
+	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
+		      Survey::GM().getGeometry(linenm) );
 
-	linegeom_.setEmpty();
-	linegeom_.setLineName( linenm );
-	S2DPOS().setCurLineSet( lsobj->name() );
-
-	if ( !S2DPOS().getGeometry(linegeom_) )
+	if ( !curlinegeom_ )
 	{
 	    invalidnms_.addIfNew( linenm );
 	    return Executor::MoreToDo();
@@ -201,20 +196,20 @@ int Horizon2DScanner::nextStep()
 	curline_ = linenm;
     }
 
-    if ( linegeom_.isEmpty() )
+    if ( !curlinegeom_ )
 	return Executor::ErrorOccurred();
 
     PosInfo::Line2DPos pos;
     if ( !mIsUdf(trcnr) )
     {
-	if ( !linegeom_.getPos(trcnr,pos) )
+	if ( !curlinegeom_->data().getPos(trcnr,pos) )
 	    return Executor::MoreToDo();
 
 	crd = pos.coord_;
     }
     else if ( crd.isDefined() )
     {
-	if ( !linegeom_.getPos(crd,pos,SI().inlDistance()) )
+	if ( !curlinegeom_->data().getPos(crd,pos,SI().inlDistance()) )
 	    return Executor::MoreToDo();
     }
     else
@@ -227,8 +222,8 @@ int Horizon2DScanner::nextStep()
     int validx = 0;
     const int nrvals = data.size();
 
-    Interval<float> validzrg( linegeom_.zRange().start,
-			      linegeom_.zRange().stop );
+    Interval<float> validzrg( curlinegeom_->data().zRange().start,
+			      curlinegeom_->data().zRange().stop );
     validzrg.widen( validzrg.width() );
     while ( validx < nrvals )
     {

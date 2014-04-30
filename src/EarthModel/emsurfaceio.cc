@@ -873,22 +873,6 @@ int dgbSurfaceReader::nextStep()
 			    geomid, firstcol+noofcoltoskip,
 			    firstcol+nrcols+noofcoltoskip-1, colstep );
 	}
-	else if ( linesets_.validIdx(rowindex_) )
-	{
-	    const PosInfo::Line2DKey l2dky =
-	    l2dkeys_.validIdx(rowindex_) ? l2dkeys_[rowindex_]
-			: S2DPOS().getLine2DKey( linesets_[rowindex_]->buf(),
-						 linenames_[rowindex_]->buf() );
-	    if ( !l2dky.isOK() )
-	    {
-		msg_ = "Cannot find 2D line associated with the 2D horizon.";
-		return ErrorOccurred();
-	    }
-	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
-				    l2dky, firstcol+noofcoltoskip,
-				    firstcol+nrcols+noofcoltoskip-1, colstep );
-
-	}
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);

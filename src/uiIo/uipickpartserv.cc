@@ -39,7 +39,6 @@ int uiPickPartServer::evGetHorInfo3D()		{ return 1; }
 int uiPickPartServer::evGetHorDef3D()		{ return 2; }
 int uiPickPartServer::evGetHorDef2D()		{ return 3; }
 int uiPickPartServer::evFillPickSet()		{ return 4; }
-int uiPickPartServer::evGet2DLineDef()		{ return 6; }
 int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
 
@@ -62,7 +61,6 @@ uiPickPartServer::~uiPickPartServer()
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
-    deepErase( linegeoms_ );
 }
 
 
@@ -266,11 +264,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
     Stats::randGen().init();
     selectlines_ = rp.linenms_;
-    deepErase( linegeoms_ );
     deepErase( selhorids_ );
-    sendEvent( evGet2DLineDef() );
-    if ( !linegeoms_.size() ) return false;
-
     coords2d_.erase();
     if ( rp.needhor_ )
     {
@@ -296,8 +290,6 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 		coords2d_ += posns[ipos].coord_;
 	}
-
-	deepErase( linegeoms_ );
     }
 
     const int nrpos = coords2d_.size();

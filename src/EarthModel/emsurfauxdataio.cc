@@ -88,13 +88,11 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	nrnodes += meshsurf->nrKnots();
     }
 
-    totalnr_ = 100;
-    chunksize_ = nrnodes/totalnr_+1;
+    chunksize_ = nrnodes/100 + 1;
     if ( chunksize_ < 100 )
-    {
 	chunksize_ = 100;
-	totalnr_ = nrnodes/chunksize_+1;
-    }
+    
+    totalnr_ = nrnodes;
 }
 
 
@@ -164,10 +162,14 @@ int dgbSurfDataWriter::nextStep()
 		const float auxval =
 		    surf_.auxdata.getAuxDataVal( dataidx_, posid );
 		if ( mIsUdf(auxval) )
+		{
+		    nrdone_++;
 		    continue;
+		}
 
 		subids_ += subid;
 		values_ += auxval;
+		nrdone_++;
 	    }
 
 	    if ( subids_.isEmpty() )
@@ -188,7 +190,6 @@ int dgbSurfDataWriter::nextStep()
 	values_.removeSingle( subidindex );
     }
 
-    nrdone_++;
     return MoreToDo();
 }
 

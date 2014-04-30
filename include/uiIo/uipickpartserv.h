@@ -68,12 +68,10 @@ public:
     static int			evGetHorDef3D();
     static int		        evGetHorDef2D();
     static int		        evFillPickSet();
-    static int			evGet2DLineDef();
     static int			evDisplayPickSet();
 
 				// Interaction stuff
     BinIDValueSet&			genDef()	{ return gendef_; }
-    ObjectSet<PosInfo::Line2DData>&	lineGeoms()	{ return linegeoms_; }
     MultiID			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
@@ -81,10 +79,7 @@ public:
     HorSampling			selHorSampling() const	{ return selhs_; }
     MultiID			horID()			{ return horid_; }
 
-    BufferStringSet&		lineSets()		{ return linesets_; }
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
-    TypeSet<MultiID>&		lineSetIds()		{ return setids_; }
-    MultiID&			lineSetID()		{ return setid_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
@@ -93,7 +88,6 @@ protected:
 
     Pick::SetMgr&		psmgr_;
     uiPickSetMgr&		uipsmgr_;
-    ObjectSet<PosInfo::Line2DData>	linegeoms_;
     BinIDValueSet& 		gendef_;
 
     ObjectSet<SurfaceInfo> 	hinfos_;
@@ -103,10 +97,7 @@ protected:
     MultiID			picksetid_;
     MultiID			horid_;
 
-    BufferStringSet		linesets_;
     TypeSet<BufferStringSet>	linenms_;
-    TypeSet<MultiID>		setids_;
-    MultiID			setid_;
     BufferStringSet		selectlines_;
     TypeSet<Coord>		coords2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
