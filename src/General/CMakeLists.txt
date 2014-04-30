@@ -74,7 +74,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    unitofmeasure.cc
 	    usrinputobj.cc
 	    variogramcomputers.cc
-	    zaxistransformdatapack.cc
+	    zaxistransformutils.cc
 	    ziparchiveinfo.cc 
 	    ziphandler.cc
 	    ziputils.cc )
