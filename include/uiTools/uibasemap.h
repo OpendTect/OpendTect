@@ -29,6 +29,7 @@ public:
     virtual			~uiBaseMapObject();
 
     void			setTransform(const uiWorld2Ui*);
+    virtual void		show(bool yn);
 
     uiGraphicsItemGroup*	itemGrp()		{ return itemgrp_; }
     virtual void		update();
@@ -54,6 +55,7 @@ public:
     void			addObject(BaseMapObject*);
     				//!Owned by caller
     void			removeObject(const BaseMapObject*);
+    void			show(const BaseMapObject&,bool yn);
 
     void			addObject(uiBaseMapObject*);
     				//! object becomes mine, obviously.

@@ -33,10 +33,11 @@ uiBaseMapObject::~uiBaseMapObject()
 }
 
 
+void uiBaseMapObject::show( bool yn )
+{ yn ? itemgrp_->show() : itemgrp_->hide(); }
+
 void uiBaseMapObject::changedCB( CallBacker* )
-{
-    update();
-}
+{ update(); }
 
 
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
@@ -210,6 +211,15 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     view_.scene().addItem( uiobj->itemGrp() );
     objects_ += uiobj;
     uiobj->setTransform( &w2ui_ );
+}
+
+
+void uiBaseMap::show( const BaseMapObject& obj, bool yn )
+{
+    const int objidx = indexOf( &obj );
+    if ( !objects_.validIdx(objidx) ) return;
+
+    objects_[objidx]->show( yn );
 }
 
 
