@@ -1,4 +1,6 @@
 #!/bin/csh -f
+# Script to update and build od/dgb
+# $Id$
 
 set shallow=no
 set askdeep=no
@@ -12,10 +14,10 @@ if ( $?CMAKE ) then
     set cmake_exec=${CMAKE}
 endif
 
-if ( $?OD_PMAKE_NR_PROCESSORS ) then
-	set nrcpus=$OD_PMAKE_NR_PROCESSORS
-else 
-	set nrcpus=`$WORK/dtect/GetNrProc`
+if ( $?OD_MAKE_NR_PROCESSORS ) then
+    set nrcpus=$OD_MAKE_NR_PROCESSORS
+else
+    set nrcpus=`$WORK/dtect/GetNrProc`
 endif
 
 parse_args:
@@ -35,7 +37,7 @@ else if ( "$1" == "--nrcpus" ) then
 else if ( "$1" == "--help" ) then
     echo "Usage: make_all [options]"
     echo " --shallow:   do not make clean before start"
-    echo " --noupd:     Do not run 'dvs update'"
+    echo " --noupd:     Do not run 'svn update'"
     echo " --stoponerr: stop on all error (i.e. don't add '-k' to make flags)"
     echo " --doc:       create classDoc"
     echo " --nrcpus:    force number of CPUs to use"
@@ -67,23 +69,23 @@ set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 
 if ( $doupd == yes ) then
     cd ..
-    echo "dvs update $oddir"
-    cd $oddir; dvs update
+    echo "svn update $oddir"
+    cd $oddir; svn update
     echo ""
-    echo "dvs update $dgbdir"
+    echo "svn update $dgbdir"
     sleep 2;
-    cd ../$dgbdir; dvs update
+    cd ../$dgbdir; svn update
     cdw
 endif
 
 if ( $askdeep == yes ) then
-	echo ""; echo -n "->> Clean-up before proceed? "
-	set tmpansw=$<
-	if ( "$tmpansw" == "y" || "$tmpansw" == "Y" ) then
-	    set shallow=no
-	else
-	    set shallow=yes
-	endif
+    echo ""; echo -n "->> Clean-up before proceed? "
+    set tmpansw=$<
+    if ( "$tmpansw" == "y" || "$tmpansw" == "Y" ) then
+	set shallow=no
+    else
+	set shallow=yes
+    endif
 endif
 
 if ( $shallow == no ) then
