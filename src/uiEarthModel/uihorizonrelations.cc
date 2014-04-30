@@ -47,21 +47,21 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
 {
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
 				         false, uiLabeledListBox::AboveLeft );
+    relationfld_->box()->setHSzPol( uiObject::Wide );
 
-    uiPushButton* orderbut = new uiPushButton( relationfld_, "&Read Horizons",
-	    				       false );
+    uiPushButton* orderbut =
+		new uiPushButton( relationfld_, "&Read Horizons", false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
     orderbut->attach( rightTo, relationfld_->box() );
 
-    crossbut_ = new uiPushButton( relationfld_, "&Check crossings",
-					       false );
+    crossbut_ = new uiPushButton( relationfld_, "&Check crossings", false );
     crossbut_->activated.notify(
-			mCB(this,uiHorizonRelationsDlg,checkCrossingsCB) );
+		mCB(this,uiHorizonRelationsDlg,checkCrossingsCB) );
     crossbut_->attach( alignedBelow, orderbut );
 
     waterbut_ = new uiPushButton( relationfld_, "&Make watertight", false );
     waterbut_->activated.notify(
-			mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
+		mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
     waterbut_->attach( alignedBelow, crossbut_ );
     waterbut_->display( false );
 
@@ -96,7 +96,6 @@ void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
     relationfld_->box()->setEmpty();
     relationfld_->box()->addItems( strs );
     crossbut_->setSensitive( strs.size() > 1 );
-    waterbut_->setSensitive( strs.size() > 1 );
 }
 
 
