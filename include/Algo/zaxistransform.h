@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "samplingdata.h"
+#include "survgeom.h"
 
 class BinIDValue;
 class CubeSampling;
@@ -62,16 +63,28 @@ public:
     virtual void		removeVolumeOfInterest(int volid);
 
     virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
-    
-				//3D    
-    virtual void		transform(const BinID&, 
+
+    virtual bool		canTransformGeom(Survey::Geometry::ID) const;
+
+				//Generic 2D and 3D
+    virtual void		transform(const TrcKey&,
+					  const SamplingData<float>&,
+					  int sz,float* res) const
+				{ return; }
+    virtual void		transformBack(const TrcKey&,
+					  const SamplingData<float>&,
+					  int sz,float* res) const
+				{ return; }
+
+				//3D
+    virtual void		transform(const BinID&,
 	    				  const SamplingData<float>&,
-					  int sz,float* res) const	= 0;
+					  int sz,float* res) const;
     float			transform(const BinIDValue&) const;
     float			transform(const Coord3&) const;
     virtual void		transformBack(const BinID&,
 	    				   const SamplingData<float>&,
-					   int sz,float* res) const	= 0;
+					   int sz,float* res) const;
     float			transformBack(const BinIDValue&) const;
     float			transformBack(const Coord3&) const;
 

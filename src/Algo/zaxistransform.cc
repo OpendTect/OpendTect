@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "zdomain.h"
+#include "survgeom.h"
 
 
 mImplFactory( ZAxisTransform, ZAxisTransform::factory );
@@ -74,6 +75,26 @@ void ZAxisTransform::removeVolumeOfInterest( int ) {}
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 { return !needsVolumeOfInterest(); }
+
+
+bool ZAxisTransform::canTransformGeom(Survey::Geometry::ID) const
+{ return true; }
+
+
+void ZAxisTransform::transform( const BinID& bid,
+				const SamplingData<float>& sd,
+				int sz,float* res) const
+{
+    transform( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+}
+
+
+void ZAxisTransform::transformBack( const BinID& bid,
+				    const SamplingData<float>& sd,
+				    int sz, float* res ) const
+{
+    transformBack( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+}
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
