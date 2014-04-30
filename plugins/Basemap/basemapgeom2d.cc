@@ -7,33 +7,33 @@
 static const char* rcsID mUsedVar = "$Id: basemappi.cc 34122 2014-04-10 18:29:49Z nanne.hemstra@dgbes.com $";
 
 
-#include "basemapline2d.h"
+#include "basemapgeom2d.h"
 
 namespace Basemap
 {
 
-Line2DObject::Line2DObject( const MultiID& mid )
+Geom2DObject::Geom2DObject( const MultiID& mid )
     : BaseMapObject(0)
     , mid_(mid)
 {
 }
 
 
-Line2DObject::~Line2DObject()
+Geom2DObject::~Geom2DObject()
 {}
 
 
-void Line2DObject::updateGeometry()
+void Geom2DObject::updateGeometry()
 { changed.trigger(); }
 
 
-int Line2DObject::nrShapes() const
+int Geom2DObject::nrShapes() const
 { return 1; }
 
-const char* Line2DObject::getShapeName( int ) const
+const char* Geom2DObject::getShapeName( int ) const
 { return 0; }
 
-void Line2DObject::getPoints( int, TypeSet<Coord>& crds ) const
+void Geom2DObject::getPoints( int, TypeSet<Coord>& crds ) const
 {
 }
 

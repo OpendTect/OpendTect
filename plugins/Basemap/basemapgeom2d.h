@@ -1,5 +1,5 @@
-#ifndef basemapline2d_h
-#define basemapline2d_h
+#ifndef basemapgeom2d_h
+#define basemapgeom2d_h
 
 /*+
 ________________________________________________________________________
@@ -20,13 +20,13 @@ ________________________________________________________________________
 namespace Basemap
 {
 
-mExpClass(Basemap) Line2DObject : public BaseMapObject
+mExpClass(Basemap) Geom2DObject : public BaseMapObject
 {
 public:
-			Line2DObject(const MultiID&);
-			~Line2DObject();
+			Geom2DObject(const MultiID&);
+			~Geom2DObject();
 
-    const char*		getType() const		{ return "Line2D"; }
+    const char*		getType() const		{ return "Geom2D"; }
     void		updateGeometry();
     int			nrShapes() const;
     const char*		getShapeName(int) const;
