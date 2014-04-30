@@ -1435,14 +1435,15 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	{
 	    const int trcnr = trcrg.atIndex( trcidx );
 	    const Coord3 pos1 = hor2d1->getPos( 0, geomid, trcnr );
-	    Coord3 pos2 = Coord3::udf();
+	    const float z1 = mCast( float, pos1.z );
+	    float z2 = mUdf(float);
 
 	    if ( issecondhor )
-		pos2 = hor2d2->getPos( 0, geomid, trcnr );
+		z2 = mCast( float, hor2d2->getPos(0,geomid,trcnr).z );
 
-	    if ( !mIsUdf(pos1.z) && ( !issecondhor || !mIsUdf(pos2.z) ) )
+	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
-		Interval<float> zrg( pos1.z, issecondhor ? pos2.z : pos1.z );
+		Interval<float> zrg( z1, issecondhor ? z2 : z1 );
 		zrgs += zrg;
 		coords += pos1;
 	    }
