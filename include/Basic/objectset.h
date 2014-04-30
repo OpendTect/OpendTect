@@ -53,9 +53,9 @@ public:
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
     inline virtual size_type	indexOf(const T*) const;
-    inline  T*			operator[](size_type);
-    inline  const T*		operator[](size_type) const;
-    inline  T*			operator[](const T*) const; //!< check & unconst
+    inline virtual T*		operator[](size_type);
+    inline virtual const T*	operator[](size_type) const;
+    inline virtual T*		operator[](const T*) const; //!< check & unconst
 
     inline virtual T*		replace(size_type idx,T*);
     inline virtual void		insertAt(T* newptr,size_type);
@@ -65,8 +65,8 @@ public:
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse(); 
 
-    inline ObjectSet<T>& operator +=(T*);
-    inline ObjectSet<T>& operator -=(T*);
+    inline virtual ObjectSet<T>& operator +=(T*);
+    inline virtual ObjectSet<T>& operator -=(T*);
     inline virtual void		push(T* ptr);
     inline virtual T*		pop();
     
