@@ -536,6 +536,7 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 
 	if ( !create ) return 0;
 	EventSet* ge = new EventSet;
+	ge->ref();
 	events_.add( &ge, bid );
 	return ge;
     }
@@ -563,7 +564,7 @@ void EventManager::cleanUp( bool keepchanged )
 	    prevkeptpos = pos;
 	else
 	{
-	    delete ge;
+	    ge->unRef();
 	    events_.remove( pos );
 	    pos = prevkeptpos;
 	}
