@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorthreadworks.h"
 #include "vishorizontexturehandler.h"
 #include "simpnumer.h"
+#include "mousecursor.h"
 
 #include "binidsurface.h"
 #include "thread.h"
@@ -353,6 +354,8 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 void HorTilesCreatorAndUpdator::updateTilesAutoResolution( 
 						  const osg::CullStack* cs )
 {
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     HorizonTileRenderPreparer task( *horsection_, cs, 
 				    horsection_->desiredresolution_ );
     task.execute();

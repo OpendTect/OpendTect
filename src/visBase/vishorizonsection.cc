@@ -89,8 +89,8 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 	if ( hrsection_->getOsgTexture()->getSetupStateSet() )
 	    cv->pushStateSet( hrsection_->getOsgTexture()->getSetupStateSet() );
 
-	if( ( hrsection_->forceupdate_ || eyeChanged( projectiondirection ) ||
-	    initialtimes_<cMinInitialTimes ) )
+	if( hrsection_->forceupdate_ || eyeChanged( projectiondirection ) ||
+	    initialtimes_<cMinInitialTimes )
 	 // during initialization, we update two times,first time is lowest
 	 // resolution, second is current resolution
 	{
@@ -248,9 +248,12 @@ void HorizonSection::setUpdateVar( bool& variable, bool yn )
 
 void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 {
+    if ( transformation_ == nt ) 
+	return;
+
     if ( transformation_ )
 	transformation_->unRef();
-
+    
     transformation_ = nt;
 
     if ( transformation_ )
@@ -275,7 +278,7 @@ void HorizonSection::setWireframeColor( Color col )
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
 	if ( tileptrs[idx] )
-	    tileptrs[idx]->setLineColor( col );
+	    tileptrs[idx]->setWireframeColor( col );
     }
     spinlock_.unLock();
 }
@@ -585,6 +588,8 @@ void HorizonSection::selectActiveVersion( int channel, int version )
 void HorizonSection::setResolution( char res, TaskRunner* tr )
 {
     desiredresolution_ = res;
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tr );
     setUpdateVar( forceupdate_, true );
 }
@@ -592,7 +597,8 @@ void HorizonSection::setResolution( char res, TaskRunner* tr )
 
 void HorizonSection::updateAutoResolution( const osg::CullStack* cs )
 {
-    hortilescreatorandupdator_->updateTilesAutoResolution( cs );
+    if ( desiredresolution_ == -1 )
+	hortilescreatorandupdator_->updateTilesAutoResolution( cs );
 }
 
 

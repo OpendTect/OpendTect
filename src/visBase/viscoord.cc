@@ -29,17 +29,20 @@ public:
 		       const TypeSet<Coord3>* inpositions = 0,
 		       TypeSet<Coord3>* outpositions= 0 );
     od_int64	totalNr() const { return totalnrcoords_; }
+    void	setWithSingleCoord(const Coord3 coord)
+		{singlecoord_ = coord;setwithsinglecoord_ = true;}
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int);
     od_int64	nrIterations() const { return totalnrcoords_; }
 
 private:
-    Coordinates* coordinates_;
-    TypeSet<Coord3>* outpositions_;
-    const TypeSet<Coord3>* inpositions_;
+    Coordinates*		coordinates_;
+    TypeSet<Coord3>*		outpositions_;
+    const TypeSet<Coord3>*	inpositions_;
     Threads::Atomic<od_int64>	totalnrcoords_;
-
+    Coord3			singlecoord_;
+    bool			setwithsinglecoord_;
 };
 
 
@@ -51,7 +54,10 @@ SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p,
     , totalnrcoords_( size )
     , inpositions_( inpositions )
     , outpositions_( outpositions )
+    , setwithsinglecoord_( false )
+    , singlecoord_( Coord3( 0,0,0 ) )
 {
+    if ( outpositions ) outpositions->setSize( size, Coord3::udf() );
 }
 
 
@@ -63,9 +69,16 @@ bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	if ( inpositions_ )
+	{
+	 if ( !setwithsinglecoord_ )
 	    coordinates_->setPosWithoutLock( idx, (*inpositions_)[idx], false );
+	 else
+	    coordinates_->setPosWithoutLock( idx, singlecoord_, false );
+	}
 	else
+	{
 	    (*outpositions_)[idx] = coordinates_->getPos( idx );
+	}
     }
     return true;
 }
@@ -369,18 +382,17 @@ void Coordinates::setAllZ( const float* vals, int sz, float zscale )
 
 void Coordinates::getPositions(TypeSet<Coord3>& res) const
 {
-    SetOrGetCoordinates SetOrGetCoordinates( const_cast<Coordinates*>(this),
+    SetOrGetCoordinates getcoordinates( const_cast<Coordinates*>(this),
 	mArrSize, 0, &res );
-    TaskRunner tr;
-    TaskRunner::execute( &tr,SetOrGetCoordinates );
+    
+    getcoordinates.execute();
 }
 
 
 void Coordinates::setPositions( const TypeSet<Coord3>& pos)
 {
-    SetOrGetCoordinates SetOrGetCoordinates( this, pos.size(), &pos, 0 );
-    TaskRunner tr;
-    TaskRunner::execute( &tr,SetOrGetCoordinates );
+    SetOrGetCoordinates setcoordinates( this, pos.size(), &pos, 0 );
+    setcoordinates.execute();
     change.trigger();
 }
 
@@ -395,15 +407,14 @@ void Coordinates::setPositions( const Coord3* pos, int sz, int start,
 }
 
 
-void Coordinates::setAllPositions( const Coord3 pos, int sz, int start )
+void Coordinates::setAllPositions( const Coord3& pos, int sz, int start )
 {
-    Threads::MutexLocker lock( mutex_ );
+    SetOrGetCoordinates setcoordinates( this,sz,0 );
+    setcoordinates.setWithSingleCoord( pos );
 
-    for ( int idx=0; idx<sz; idx++ )
-	setPosWithoutLock(idx+start, pos, false );
+    setcoordinates.execute();
 
     change.trigger();
-
 }
 
 

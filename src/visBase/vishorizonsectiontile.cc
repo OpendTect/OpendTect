@@ -227,10 +227,10 @@ void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
 	tileresolutiondata_[res]->enableGeometryTypeDisplay( type, yn );
 }
 
-void HorizonSectionTile::setLineColor( Color& color)
+void HorizonSectionTile::setWireframeColor( Color& color)
 {
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	tileresolutiondata_[res]->setLineColor( color );
+	tileresolutiondata_[res]->setWireframeColor( color );
 }
 
 
@@ -279,9 +279,15 @@ char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs )
     updateBBox();
     if ( !bbox_.valid() || !cs ) return cNoneResolution;
 
-    const float screensize = cs->clampedPixelSize( osg::BoundingSphere(bbox_) );
-    const float nrpixels = screensize*screensize;
-    const int wantednumcells = (int)( nrpixels / cIdealNrPixelsPerCell);
+    osg::Vec2 screensize;
+    const float boxwidth = bbox_.xMax()-bbox_.xMin();
+    const float boxheight = bbox_.yMax()-bbox_.yMin();
+
+    screensize[0] = cs->clampedPixelSize( bbox_.center(),boxwidth );
+    screensize[1] = cs->clampedPixelSize( bbox_.center(),boxheight );
+
+    const int wantednumcells = 
+	(int)( screensize[0]*screensize[1]/cIdealNrPixelsPerCell );
 
     if ( !wantednumcells )
 	return hrsection_.lowestresidx_;
@@ -390,7 +396,8 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
     datalock_.lock();
 
     tileresolutiondata_[0]->initVertices();
-    tileresolutiondata_[0]->setAllVertices( pos );
+    tileresolutiondata_[0]->setVerticesPositions( 
+	const_cast<TypeSet<Coord3>*>(&pos) );
     bbox_.expandBy( tileresolutiondata_[0]->bbox_ );
     tileresolutiondata_[0]->needsretesselation_ = cMustRetesselate;
     tileresolutiondata_[0]->allnormalsinvalid_ = true;

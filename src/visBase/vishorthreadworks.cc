@@ -69,11 +69,11 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
 	if ( tile )
 	{
 	    char res = tile->getActualResolution();
-	    if ( res==cNoneResolution ) res = resolution_;
+	    if ( res==cNoneResolution )
+		res = resolution_;
+	    else
+		tile->tesselateResolution( res, true );
 	    tile->updateNormals( res );
-	    const char actualres = tile->getActualResolution();
-	    if ( actualres!=cNoneResolution )
-		tile->tesselateResolution( actualres, true );
 	}
 
 	addToNrDone( 1 );
@@ -188,7 +188,6 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 	hrtiles_[idx]->setPositions( positions );
 	hrtiles_[idx]->updateNormals( lowestresidx_ );
 	hrtiles_[idx]->tesselateResolution( lowestresidx_, false );
-
 	addToNrDone( 1 );
     }
 

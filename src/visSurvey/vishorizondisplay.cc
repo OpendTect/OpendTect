@@ -162,6 +162,8 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     EMObjectDisplay::setDisplayTransformation( nt );
 
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setDisplayTransformation(transformation_);
 
@@ -949,6 +951,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 	EMObjectDisplay::setChannels2RGBA( 0 );
     }
 
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
 
@@ -1890,7 +1893,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	(lst.type_==LineStyle::Solid) != (lineStyle()->type_==LineStyle::Solid);
 
     EMObjectDisplay::setLineStyle( lst );
-
+    
     const float radius = ((float) lineStyle()->width_) / 2;
 
     if ( removelines )
@@ -1944,7 +1947,6 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	}
     }
 }
-
 
 
 void HorizonDisplay::updateSectionSeeds( 

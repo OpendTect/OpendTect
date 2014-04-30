@@ -66,7 +66,7 @@ public:
     void			applyTesselation(char res);
 				//!<Should be called from rendering thread
     void			ensureGlueTesselated();
-    void			setLineColor(Color& color);
+    void			setWireframeColor(Color& color);
     void			setTexture( const Coord& origin, 
 					    const Coord& opposite );
 				//!<Sets origin and opposite in global texture
@@ -101,7 +101,6 @@ protected:
     void			updatePrimitiveSets();
     const visBase::Coordinates* getHighestResolutionCoordinates();
     void			dirtyGeometry();
-
 
 protected:
 

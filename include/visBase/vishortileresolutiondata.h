@@ -56,7 +56,6 @@ public:
 			char resolution );
     ~TileResolutionData();
 
-    void		setAllVertices(const TypeSet<Coord3>&);
     void		setSingleVertex(int row, int col,const Coord3& pos,
 					bool& dohide);
     void		setDisplayTransformation( const mVisTrans* t ); 
@@ -67,15 +66,17 @@ public:
     void		calcNormals(bool allownormalinvalid = true );
     bool		tesselateResolution(bool onlyifabsness);
 
-
     osg::BoundingBox&	updateBBox();
     void		updatePrimitiveSets();
-    void		setLineColor(Color& color);
+    void		setWireframeColor(Color& color);
     visBase::Coordinates*	getCoordinates() { return vertices_; };
     void		dirtyGeometry();
     bool		hasDefinedCoordinates(int idx) const;
 			/*!<idx is the index of coordinates in the 
 			highest resolution vertices.*/
+
+    void		setVerticesPositions(TypeSet<Coord3>* positions = 0 );
+
 
 protected:
 
@@ -131,15 +132,13 @@ private:
     void			refOsgPrimitiveSets();
     void			unRefOsgPrimitiveSets();
     void			createPrimitiveSets();
-    void			buildLineGeometry(int idx);
+    void			buildLineGeometry(int idx, int width);
     void			buildTraingleGeometry(int idx);
     void			buildPointGeometry(int idx);
     void			setInvalidNormal(int row,int col);
     bool			setVerticesFromHighestResolution();
     void			hideFromDisplay();
     bool			detectIsolatedLine(int crdidx,char direction);
-
-
 };
 
 }

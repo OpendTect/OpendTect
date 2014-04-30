@@ -115,41 +115,56 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
     
 }
 
-
-void TileResolutionData::setAllVertices( const TypeSet<Coord3>& positions )
+void TileResolutionData::setVerticesPositions( TypeSet<Coord3>* positions )
 {
     const HorizonSection& hrsection = sectile_->hrsection_;
     const int spacing = hrsection.spacing_[resolution_];
     const int nrcoords = hrsection.nrcoordspertileside_;
-    int crdidx = 0;
-    bbox_.init();
 
     const RefMan<const Transformation> trans = 
 	sectile_->hrsection_.transformation_;
     vertices_->setDisplayTransformation( trans );
 
+    visBase::Coordinates* highestrescoords = 0;
+
+    if ( !positions )
+    {
+	HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
+	if ( !tile ) return;
+	highestrescoords = const_cast<visBase::Coordinates*>( 
+	tile->getHighestResolutionCoordinates() );
+	if ( !highestrescoords )
+	    return;
+    }
+    
+    int crdidx = 0;
+    bbox_.init();
+    
     for ( int row=0; row<nrcoords; row+=spacing )
     {
 	for ( int col=0; col<nrcoords; col+=spacing )
 	{
 	    int coordIdx = col + row*nrcoords;
-	    Coord3 vertex = positions[coordIdx];
-	    if ( coordIdx >= positions.size() || !vertex.isDefined() )
-	    {
+	    Coord3 vertex = positions ? (*positions)[coordIdx] : 
+		highestrescoords->getPos(coordIdx);
+	    const int size = positions ? positions->size() :
+		highestrescoords->size();
+	    
+	    if ( coordIdx >= size || !vertex.isDefined() )
 		vertex[2] = mUdf(float);
-	    }
 	    else
 		nrdefinedvertices_ ++;
+
 	    vertices_->setPos( crdidx, vertex );
-	    const osg::Vec3Array* arr = 
-		dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
-	    const osg::Vec3f coord = arr->at( crdidx );
-	    if( vertex[2] != mUdf(float) )
-		bbox_.expandBy( coord );
-	    crdidx++;
-	}
+
+	const osg::Vec3Array* arr = 
+	    dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
+	const osg::Vec3f coord = arr->at( crdidx );
+	if( vertex[2] != mUdf(float) )
+	    bbox_.expandBy( coord );
+	crdidx++;
+       }
     }
-    
 }
 
 
@@ -335,43 +350,7 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 
 bool TileResolutionData::setVerticesFromHighestResolution()
 {
-    HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
-    const visBase::Coordinates* highestrescoords = 
-	tile->getHighestResolutionCoordinates();
-
-    if( !tile || !highestrescoords ) return false;
-
-    const RefMan<const Transformation> trans = 
-	sectile_->hrsection_.transformation_;
-
-    vertices_->setDisplayTransformation( trans );
-    const HorizonSection& hrsection = sectile_->hrsection_;
-    const int spacing = hrsection.spacing_[resolution_];
-    const int nrcoords = hrsection.nrcoordspertileside_;
-    int crdidx = 0;
-    bbox_.init();
-
-    for ( int row=0; row<nrcoords; row+=spacing )
-    {
-	for ( int col=0; col<nrcoords; col+=spacing )
-	{
-	    int coordIdx = col + row*nrcoords;
-	    Coord3 vertex = highestrescoords->getPos( coordIdx );
-	    if ( coordIdx >= highestrescoords->size() || !vertex.isDefined() )
-	    {
-		vertex[2] = mUdf(float);
-	    }
-	    else
-		nrdefinedvertices_ ++;
-	    vertices_->setPos( crdidx, vertex );
-	    const osg::Vec3Array* arr = 
-		dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
-	    const osg::Vec3f coord = arr->at( crdidx );
-	    if( vertex[2] != mUdf(float) )
-		bbox_.expandBy( coord );
-	    crdidx++;
-	}
-    }
+    setVerticesPositions();
 
     needsretesselation_ = cMustRetesselate;
     allnormalsinvalid_ = true;
@@ -552,31 +531,29 @@ void TileResolutionData::tesselateCell( int idxthis )
 
 bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 {
-    
+
     HorizonSectionTile* curtile = const_cast<HorizonSectionTile*>( sectile_ );
     const HorizonSection& section = curtile->hrsection_;
     const int spacing = section.spacing_[resolution_];
 
     const int curroworcol = resolution_ == 0 ?
-			    section.nrcoordspertileside_/spacing :
-			    section.nrcoordspertileside_/spacing + 1;	
+	section.nrcoordspertileside_/spacing :
+	section.nrcoordspertileside_/spacing + 1;	
 
     if ( curroworcol == 0 ) return false;
-    
+
     const int currow = (int)floor( (double) curidx/curroworcol );
     const int curcol = curidx - currow*curroworcol;
-   
     const bool isfirstrow = currow == 0 ? true : false;
     const bool isfirstcol = curcol == 0 ? true : false;
     const bool islastrow =  currow == curroworcol - 1 ? true : false;
     const bool islastcol =  curcol == curroworcol - 1 ? true : false;
-
     const int nrroworcol = section.nrcoordspertileside_;
-
+	
     int highestresidx = ( currow*nrroworcol + curcol )*spacing;
     if ( islastcol ) highestresidx --;
     if ( islastrow ) highestresidx -= section.nrcoordspertileside_;
-    
+
     //00 01 02
     //10 11 12 -- 11 is this
     //20 21 22
@@ -584,14 +561,14 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     bool                  nbdef01 = false, nbdef02 = false;
     bool nbdef10 = false,		   nbdef12 = false;
     bool nbdef20 = false, nbdef21 = false, nbdef22 = false;
-
+	
     unsigned int sum = 0;
     if ( direction == cTowardDown )
     {
 	if ( isfirstcol )
 	{
 	    const HorizonSectionTile* lefttile = 
-		curtile->getNeighborTile(LEFTTILE);
+	    curtile->getNeighborTile(LEFTTILE);
 	    if ( !lefttile )
 	    {
 		nbdef10 = false; 
@@ -599,53 +576,51 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }
 	    else
 	    {
-		nbdef10 = lefttile->hasDefinedCoordinates(
-		    highestresidx + nrroworcol - 1 );
-		nbdef20 = lefttile->hasDefinedCoordinates(
-		    highestresidx + 2*nrroworcol - 1 );
+		nbdef10 = lefttile->hasDefinedCoordinates(  
+		highestresidx + nrroworcol - 1 );
+		nbdef20 = lefttile->hasDefinedCoordinates(  
+		highestresidx + 2*nrroworcol - 1 );	
 	    }
-
-	    nbdef12 =curtile->hasDefinedCoordinates( highestresidx + 1 );
-	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
-
-	}
-	else 
+	    nbdef12=curtile->hasDefinedCoordinates( highestresidx + 1 );  
+	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	} 
+	else  
 	{ 
-	    nbdef10 =curtile->hasDefinedCoordinates( highestresidx - 1 );
-	    nbdef20 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
-	    nbdef12 =curtile->hasDefinedCoordinates( highestresidx + 1 );
-	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
-	}
-	sum = nbdef10 + nbdef20 + nbdef12 + nbdef22;
-    }
-    else if ( direction == cTowardRight )
-    {
-	if ( isfirstrow )
-	{
-	    const HorizonSectionTile* uptile = curtile->getNeighborTile(UPTILE);
-	    if ( !uptile )
-	    {
-		nbdef01 = false; 
-		nbdef02 = false;
-	    }
-	    else
-	    {
-		const int size = nrroworcol*( nrroworcol - 1 );
-		nbdef01 =uptile->hasDefinedCoordinates( size + highestresidx );
-		nbdef02 =uptile->hasDefinedCoordinates( size+highestresidx+1 );
-	    }
-	    nbdef21 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
-	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
-	}
-	else
-	{ 
-	    nbdef01 =curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
-	    nbdef02 =curtile->hasDefinedCoordinates(highestresidx-nrroworcol+1);
-	    nbdef21 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
-	    nbdef22 =curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
-	}
-	sum = nbdef01 + nbdef02 + nbdef21 + nbdef22;
-    }
+	    nbdef10=curtile->hasDefinedCoordinates( highestresidx - 1 );   
+	    nbdef20=curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
+	    nbdef12=curtile->hasDefinedCoordinates( highestresidx + 1 ); 
+	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}  
+	sum = nbdef10 + nbdef20 + nbdef12 + nbdef22; 
+    }	
+    else if ( direction == cTowardRight )   
+    {	
+	if ( isfirstrow )   
+	{   
+	    const HorizonSectionTile* uptile=curtile->getNeighborTile(UPTILE);
+	    if ( !uptile )  
+	    {	
+		nbdef01 = false;   
+		nbdef02 = false;   
+	    }	
+	    else    
+	    {	
+		const int size = nrroworcol*( nrroworcol - 1 );	
+		nbdef01=uptile->hasDefinedCoordinates( size + highestresidx );
+		nbdef02=uptile->hasDefinedCoordinates( size+highestresidx+1 );
+	    }	
+	    nbdef21=curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
+	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}   
+	else	
+	{   
+	    nbdef01=curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
+	    nbdef02=curtile->hasDefinedCoordinates(highestresidx-nrroworcol+1);
+	    nbdef21=curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
+	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
+	}   
+	sum = nbdef01 + nbdef02 + nbdef21 + nbdef22;	
+    }	
     else 
     {
 	pErrMsg( "No implementation for other directions." );
@@ -775,8 +750,8 @@ void TileResolutionData::buildOsgGeometres()
     osgswitch_->setValue( Line, true );
 
     buildTraingleGeometry( Triangle );
-    buildLineGeometry( Line );
-    buildLineGeometry( WireFrame );
+    buildLineGeometry( Line,2.0 );
+    buildLineGeometry( WireFrame, 1.0 );
     buildPointGeometry( Point );
 
     createPrimitiveSets();
@@ -795,7 +770,7 @@ void TileResolutionData::initVertices()
     mGetOsgVec2Arr(txcoords_)->resize( coordsize );
 }
 
-void TileResolutionData::setLineColor( Color& color)
+void TileResolutionData::setWireframeColor( Color& color)
 {
     mGetOsgVec4Arr( linecolor_ )->clear();
     mGetOsgVec4Arr( linecolor_ )->push_back( Conv::to<osg::Vec4>( color ) );
@@ -830,14 +805,14 @@ void TileResolutionData::createPrimitiveSets()
 }
 
 
-void TileResolutionData::buildLineGeometry( int idx ) 
+void TileResolutionData::buildLineGeometry( int idx, int width ) 
 {
     osg::Geode* linegeode = mGetOsgGeode( geodes_, idx );
     if ( ! linegeode ) return;
 
     osg::ref_ptr<osg::LineWidth> linewidth = new osg::LineWidth;
     mGetOsgVec4Arr( linecolor_ )->push_back( osg::Vec4d( 1, 1, 1, 0 ) );
-    linewidth->setWidth(1.0);
+    linewidth->setWidth( width );
     osg::Geometry* linegeom = mGetOsgGeometry( linegeode );
     linegeom->setColorArray( mGetOsgVec4Arr( linecolor_ ) );
     linegeom->setColorBinding( osg::Geometry::BIND_OVERALL );
