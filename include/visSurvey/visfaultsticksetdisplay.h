@@ -134,8 +134,7 @@ protected:
     void			displayOnlyAtSectionsUpdate();
     bool			coincidesWith2DLine(
 					const Geometry::FaultStickSet&,
-					int sticknr,const MultiID& lineset,
-					const char* linenm) const;
+					int sticknr,Pos::GeomID) const;
     bool			coincidesWithPlane(
 					const Geometry::FaultStickSet&,
 					int sticknr,

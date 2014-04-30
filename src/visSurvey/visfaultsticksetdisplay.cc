@@ -395,11 +395,10 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    Seis2DDisplay* s2dd = 0;
 	    if ( emfss_->geometry().pickedOn2DLine(sid, rc.row()) )
 	    {
-		const char* lnm = emfss_->geometry().pickedName(sid, rc.row());
-		const MultiID* lset =
-			    emfss_->geometry().pickedMultiID( sid, rc.row() );
-		if ( lset )
-		    s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
+		const Pos::GeomID geomid =
+				emfss_->geometry().pickedGeomID(sid, rc.row());
+		if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+		    s2dd = Seis2DDisplay::getSeis2DDisplay( geomid );
 	    }
 
 	    const StepInterval<int> colrg = fss->colRange( rc.row() );
@@ -528,6 +527,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	const int sticknr = mousepid.getRowCol().row();
 	pos = emfss_->getPos( mousepid );
+	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
+	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
 	pickedgeomid = fssg.pickedGeomID( mousepid.sectionID(), sticknr );
 	zdragoffset = 0;
     }
@@ -576,8 +577,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
-    fsseditor_->getInteractionInfo( insertpid, pickedmid, pickedgeomid, pos,
-				    normal);
+    fsseditor_->getInteractionInfo( insertpid, pickedmid, pickednm,
+				    pickedgeomid, pos, normal);
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
 	setActiveStick( insertpid );
@@ -641,7 +642,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
 	editpids_.erase();
-	if ( pickedmid )
+	if ( pickedgeomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      pickedmid, pickednm, true );
 	else
@@ -779,8 +780,9 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	const MultiID* mid = emfss_->geometry().pickedMultiID( sid, rc.row() );
 	const Pos::GeomID geomid = emfss_->geometry().pickedGeomID( sid,
 								    rc.row() );
-	if ( mid && !emfss_->geometry().pickedOnPlane(sid, rc.row()) )
+	if ( !emfss_->geometry().pickedOnPlane(sid, rc.row()) )
 	{
+	    const char* nm = emfss_->geometry().pickedName( sid, rc.row() );
 	    const Coord3 dragpos = emfss_->getPos( cbdata.pid0 );
 	    Coord3 pos = dragpos;
 
@@ -788,7 +790,8 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	    if ( s2dd )
 		pos = s2dd->getNearestSubPos( pos, true );
 
-	    HorizonDisplay* hordisp = HorizonDisplay::getHorizonDisplay( *mid );
+	    HorizonDisplay* hordisp = mid ?
+			HorizonDisplay::getHorizonDisplay( *mid ) : 0;
 	    if ( hordisp )
 	    {
 		if ( displaytransform_ )
@@ -807,8 +810,8 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 
 		    if ( displaytransform_ )
 			displaytransform_->transformBack( pos );
-//		    if ( nm ) What is this?
-//			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
+		    if ( nm )
+			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
 
 		    zdragoffset = (float) ( pos.z - dragpos.z );
 		}
@@ -865,7 +868,7 @@ void FaultStickSetDisplay::otherObjectsMoved(
 
 bool FaultStickSetDisplay::coincidesWith2DLine(
 			const Geometry::FaultStickSet& fss, int sticknr,
-			const MultiID& pickedmid, const char* pickednm ) const
+			Pos::GeomID geomid ) const
 {
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
@@ -877,8 +880,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
     {
 	visBase::DataObject* dataobj = scene_->getObject( idx );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if ( !s2dd || !s2dd->isOn() || pickedmid!=s2dd->lineSetID() ||
-	     !pickednm || FixedString(pickednm)!=s2dd->getLineName() )
+	if ( !s2dd || !s2dd->isOn() || geomid!=s2dd->getGeomID() )
 	    continue;
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
@@ -991,10 +993,9 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row()) )
 	    {
-		const char* lnm = emfss_->geometry().pickedName(sid,rc.row());
-		const MultiID* lset =
-			    emfss_->geometry().pickedMultiID( sid, rc.row() );
-		if ( lset && coincidesWith2DLine(*fss, rc.row(), *lset, lnm) )
+		const Pos::GeomID geomid =
+				emfss_->geometry().pickedGeomID(sid,rc.row());
+		if ( coincidesWith2DLine(*fss,rc.row(),geomid) )
 		{
 		    fss->hideStick( rc.row(), false );
 		    continue;

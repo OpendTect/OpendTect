@@ -83,6 +83,13 @@ const IOObjContext& FaultStickSet::getIOObjContext() const
 
 // ***** FaultStickSetGeometry *****
 
+
+FaultStickSetGeometry::StickInfo::StickInfo()
+    : pickedgeomid(Survey::GeometryManager::cUndefGeomID())
+    , pickedmid(-1)
+{}
+
+
 FaultStickSetGeometry::FaultStickSetGeometry( Surface& surf )
     : FaultGeometry(surf)
 {}
@@ -399,8 +406,10 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
     mDefStickInfoStr( "Picked MultiID", pickedmidstr, sid, sticknr )
 #define mDefPickedNameStr( pickednmstr, sid, sticknr ) \
     mDefStickInfoStr( "Picked name", pickednmstr, sid, sticknr )
-#define mDefGeomIDStr( geomidstr, sid, sticknr ) \
-	mDefStickInfoStr( "Picked GeomID", geomidstr, sid, sticknr )
+#define mDefPickedGeomIDStr( pickedgeomidstr, sid, sticknr ) \
+	mDefStickInfoStr( "Picked GeomID", pickedgeomidstr, sid, sticknr )
+#define mDefL2DKeyStr( l2dkeystr, sid, sticknr ) \
+	mDefStickInfoStr( "GeomID", l2dkeystr, sid, sticknr )
 
 
 
@@ -424,11 +433,18 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 		par.set( pickedmidstr.buf(), *pickedmid );
 	    }
 
+	    const char* pickednm = pickedName( sid, sticknr );
+	    if ( pickednm )
+	    {
+		mDefPickedNameStr( pickednmstr, sid, sticknr );
+		par.set( pickednmstr.buf(), pickednm );
+	    }
+
 	    Pos::GeomID geomid = pickedGeomID( sid, sticknr );
 	    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	    {
-		mDefGeomIDStr( geomidstr, sid, sticknr );
-		par.set( geomidstr.buf(), geomid );
+		mDefPickedGeomIDStr( pickedgeomidstr, sid, sticknr );
+		par.set( pickedgeomidstr.buf(), geomid );
 	    }
 	}
     }
@@ -455,22 +471,40 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    stickinfo_[0]->sid = sid;
 	    stickinfo_[0]->sticknr = sticknr;
 
-	    mDefGeomIDStr( geomidstr, sid, sticknr );
-	    mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
-	    mDefLineSetStr( linesetstr, sid, sticknr );
-	    if ( !par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) &&
-		 !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) &&
-		 !par.get(linesetstr.buf(), stickinfo_[0]->pickedmid) )
+	    mDefPickedGeomIDStr( pickedgeomidstr, sid, sticknr );
+	    if ( par.get(pickedgeomidstr.buf(), stickinfo_[0]->pickedgeomid) )
+		continue;
+
+	    mDefL2DKeyStr( l2dkeystr, sid, sticknr );
+	    BufferString keybuf;
+	    if ( par.get(l2dkeystr.buf(),keybuf) )
 	    {
-		stickinfo_[0]->pickedmid = MultiID(-1);
-		stickinfo_[0]->pickedgeomid =
-				Survey::GeometryManager::cUndefGeomID();
+		PosInfo::Line2DKey l2dkey;
+		l2dkey.fromString( keybuf );
+		if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
+		    S2DPOS().setCurLineSet( l2dkey.lsID() );
+
+		stickinfo_[0]->pickedgeomid = Survey::GM().getGeomID(
+				    S2DPOS().getLineSet(l2dkey.lsID()),
+				    S2DPOS().getLineName(l2dkey.lineID()) );
+		continue;
 	    }
 
+	    mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
+	    mDefLineSetStr( linesetstr, sid, sticknr );
+	    if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid))
+		par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
 	    mDefPickedNameStr( pickednmstr, sid, sticknr );
 	    mDefLineNameStr( linenamestr, sid, sticknr );
+
 	    if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
 		par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
+
+	    PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickedmid );
+	    if ( pickedioobj )
+		stickinfo_[0]->pickedgeomid =
+			Survey::GM().getGeomID( pickedioobj->name(),
+						stickinfo_[0]->pickednm );
 	}
     }
 

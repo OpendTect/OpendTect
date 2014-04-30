@@ -138,8 +138,9 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
-			const MultiID* pickedmid, Pos::GeomID pickedgeomid,
-			const Coord3& mousepos, const Coord3* posnormal ) const
+			const MultiID* pickedmid, const char* pickednm,
+			Pos::GeomID pickedgeomid, const Coord3& mousepos,
+			const Coord3* posnormal ) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -163,6 +164,10 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 	const MultiID* mid = fssg.pickedMultiID( sid, sticknr );
 	if ( !pickedmid || !mid || *pickedmid!=*mid )
 	    return mUdf(float);
+
+	const FixedString nm( fssg.pickedName(sid,sticknr) );
+	if ( (pickednm || nm) && ( nm != pickednm ) )
+	   return mUdf(float);
     }
 
     const StepInterval<int> colrange = fss->colRange( sticknr );
@@ -214,8 +219,9 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
-			const MultiID* pickedmid, Pos::GeomID pickedgeomid,
-			const Coord3& mousepos, const Coord3* posnormal ) const
+			const MultiID* pickedmid, const char* pickednm,
+			Pos::GeomID pickedgeomid, const Coord3& mousepos,
+			const Coord3* posnormal ) const
 {
     insertpid = EM::PosID::udf();
 
@@ -229,8 +235,8 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
     {
 	sid = lastclickedpid_.sectionID();
 
-	const float dist = distToStick( sticknr, sid, pickedmid, pickedgeomid,
-					pos, posnormal );
+	const float dist = distToStick( sticknr, sid, pickedmid, pickednm,
+					pickedgeomid, pos, posnormal );
 	if ( !mIsUdf(dist) )
 	{
 	    getPidsOnStick( insertpid, sticknr, sid, pos );
@@ -238,7 +244,8 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 	}
     }
 
-    if ( getNearestStick(sticknr,sid,pickedmid,pickedgeomid,pos,posnormal) )
+    if ( getNearestStick(sticknr,sid,pickedmid,pickednm,pickedgeomid,pos,
+			 posnormal) )
 	getPidsOnStick( insertpid, sticknr, sid, pos );
 }
 
@@ -297,8 +304,9 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
-			const MultiID* pickedmid, Pos::GeomID pickedgeomid,
-			const Coord3& mousepos, const Coord3* posnormal) const
+			const MultiID* pickedmid, const char* pickednm,
+			Pos::GeomID pickedgeomid, const Coord3& mousepos,
+			const Coord3* posnormal) const
 {
     mDynamicCastGet( const EM::FaultStickSet*, emfss, &emObject() );
     if ( !emfss || !mousepos.isDefined() )
@@ -326,7 +334,7 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 
 	    const int cursticknr = rowrange.atIndex(stickidx);
 	    const float disttoline = distToStick( cursticknr, cursid, pickedmid,
-					pickedgeomid, mousepos, posnormal );
+				pickednm, pickedgeomid, mousepos, posnormal );
 	    if ( !mIsUdf(disttoline) )
 	    {
 		if ( mIsUdf(minlinedist) || disttoline<minlinedist )
@@ -476,9 +484,11 @@ void FaultStickSetEditor::cloneMovingNode()
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
     const MultiID* pickedmid = fssg.pickedMultiID( sid, sticknr );
     const Pos::GeomID pickedgeomid = fssg.pickedGeomID( sid, sticknr );
+    const char* pickednm = fssg.pickedName( sid, sticknr );
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
-    getInteractionInfo( insertpid, pickedmid, pickedgeomid, startpos, &normal );
+    getInteractionInfo( insertpid, pickedmid, pickednm, pickedgeomid,
+			startpos, &normal );
     if ( insertpid.isUdf() )
 	return;
 

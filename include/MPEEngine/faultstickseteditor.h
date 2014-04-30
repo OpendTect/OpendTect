@@ -45,6 +45,7 @@ public:
 
     void			getInteractionInfo( EM::PosID& insertpid,
 				    const MultiID* pickedmid,
+				    const char* pickednm,
 				    Pos::GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm=0) const;
 
@@ -53,10 +54,12 @@ public:
 protected:
     float		distToStick(int sticknr,const EM::SectionID& sid,
 				    const MultiID* pickedmid,
+				    const char* pickednm,
 				    Pos::GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm) const;
     bool		getNearestStick(int& sticknr,EM::SectionID& sid,
 				const MultiID* pickedmid,
+				const char* pickednm,
 				Pos::GeomID pickedgeomid,const Coord3& pos,
 				const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,

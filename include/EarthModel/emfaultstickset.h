@@ -79,6 +79,8 @@ protected:
 
     struct StickInfo
     {
+				StickInfo();
+
 	int			sid;
 	int			sticknr;
 	Pos::GeomID		pickedgeomid;

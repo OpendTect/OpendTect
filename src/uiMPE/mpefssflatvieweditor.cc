@@ -415,7 +415,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     EM::PosID pid;
     mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
-    fsseditor->getInteractionInfo( pid, 0, fsspainter_->getGeomID(), pos,
+    fsseditor->getInteractionInfo( pid, 0, 0, fsspainter_->getGeomID(), pos,
 				   &normal );
 
     if ( pid.isUdf() )
@@ -545,7 +545,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     EM::PosID interactpid;
     mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
-    fsseditor->getInteractionInfo( interactpid, 0, fsspainter_->getGeomID(),
+    fsseditor->getInteractionInfo( interactpid, 0, 0, fsspainter_->getGeomID(),
 				   pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
@@ -586,8 +586,12 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const int insertsticknr = !fss || fss->isEmpty() 
 	    			  ? 0 : fss->rowRange().stop+1;
 
-	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, geomid,
-			  true );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, true );
+	else
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, geomid,
+			      true );
+
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),sid,subid) );
 	mSetUserInteractionEnd();
