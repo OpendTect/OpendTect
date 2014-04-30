@@ -67,11 +67,11 @@ public:
     virtual bool		canTransformGeom(Survey::Geometry::ID) const;
 
 				//Generic 2D and 3D
-    virtual void		transform(const TrcKey&,
+    virtual void		transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
 					  int sz,float* res) const
 				{ return; }
-    virtual void		transformBack(const TrcKey&,
+    virtual void		transformTrcBack(const TrcKey&,
 					  const SamplingData<float>&,
 					  int sz,float* res) const
 				{ return; }

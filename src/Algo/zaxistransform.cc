@@ -85,7 +85,7 @@ void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transform( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+    transformTrc( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
 }
 
 
@@ -93,7 +93,7 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformBack( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+    transformTrcBack( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
 }
 
 
