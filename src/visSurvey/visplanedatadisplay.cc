@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "zaxistransform.h"
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 
 
 namespace visSurvey {
@@ -651,30 +651,10 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
     if ( !datatransform_ ) return;
 
     const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
-    if ( datatransform_->needsVolumeOfInterest() )
-    {
-	if ( voiid_<0 )
-	    voiid_ = datatransform_->addVolumeOfInterest( cs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiid_, cs, true );
-
-	datatransform_->loadDataIfMissing( voiid_ );
-    }
-
-    HorSamplingIterator iter( cs.hrg );
-    BinIDValue curpos;
-    curpos.val() = cs.zrg.start;
-    while ( iter.next(curpos) )
-    {
-	const float depth = datatransform_->transformBack( curpos );
-	if ( mIsUdf(depth) )
-	    continue;
-
-	DataPointSet::Pos newpos( curpos, depth );
-	DataPointSet::DataRow dtrow( newpos );
-	pos.addRow( dtrow );
-    }
-    pos.dataChanged();
+    ZAxisTransformPointGenerator generator( *datatransform_ );
+    generator.setInput( cs );
+    generator.setOutputDPS( pos );
+    generator.execute();
 }
 
 
@@ -1001,36 +981,14 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 			const BinIDValueSet* bivset, TaskRunner* )
 {
     if ( !bivset ) return;
-
     const CubeSampling cs = getCubeSampling( true, true, 0 );
-    TypeSet<DataPack::ID> attridpids;
-    for ( int idx=1; idx<bivset->nrVals(); idx++ )
-    {
-	mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-			Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() ) );
-	mDeclareAndTryAlloc( FlatDataPack*, fdp,
-	    FlatDataPack( Attrib::DataPackCommon::categoryStr(false), arr ) );
-        DPM(DataPackMgr::FlatID()).addAndObtain( fdp );
-        attridpids += fdp->id();
+    BufferStringSet userrefs;
+    for ( int idx=0; idx<userrefs_[attrib]->size(); idx++ )
+	userrefs.add( userrefs_[attrib]->get(idx) );
 
-    	float* texturedataptr = arr->getData();
-    	for ( int idy=0; idy<arr->info().getTotalSz(); idy++ )
-    	    (*texturedataptr++) = mUdf(float);
-
-    	BinIDValueSet::SPos pos;
-    	BinID bid;
-    	while ( bivset->next(pos,true) )
-    	{
-    	    bivset->get( pos, bid );
-    	    BinID idxs = (bid-cs.hrg.start)/cs.hrg.step;
-    	    arr->set( idxs.inl(), idxs.crl(), bivset->getVals(pos)[idx]);
-    	}
-    }
-
-    setDisplayDataPackIDs( attrib, attridpids );
-
-    for ( int idx=0; idx<attridpids.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( attridpids[idx] );
+    const TypeSet<DataPack::ID> dpids =
+		createDataPacksFromBIVSet( bivset, cs, userrefs );
+    setDisplayDataPackIDs( attrib, dpids );
 }
 
 

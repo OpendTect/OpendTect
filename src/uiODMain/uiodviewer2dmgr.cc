@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiodvw2dwigglevararea.h"
 #include "uitreeitemmanager.h"
 #include "uivispartserv.h"
+#include "visplanedatadisplay.h"
 #include "zaxistransform.h"
 
 #include "attribsel.h"
@@ -92,6 +93,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     ConstRefMan<ZAxisTransform> zat =
 	visServ().getZAxisTransform( visServ().getSceneID(visid) );
     curvwr->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pd,visServ().getObject(visid));
+    if ( zat && pd && !pd->isVerticalPlane() )
+	curvwr->setCubeSampling( pd->getCubeSampling(false,true) );
 
     FlatView::DataDispPars& ddp =
 	curvwr->viewwin()->viewer().appearance().ddpars_;

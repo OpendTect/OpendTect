@@ -69,12 +69,18 @@ public:
 				it has a valid one. Returns DataPack::ID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
+    DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
+				/*!< Creates DataPack for inlines, crosslines
+				and z-slices by getting CubeSampling from
+				slicepos_. Also transforms data if the 2D Viewer
+				hasZAxisTransform(). */
 
     ZAxisTransform*		getZAxisTransform() const
 				{ return datatransform_; }
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
+    void			setCubeSampling(const CubeSampling&);
 
     MultiID			lineSetID()	{ return MultiID(-1); }
     void			setGeomID( Pos::GeomID geomid )
@@ -93,8 +99,8 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     virtual void                setWinTitle(bool fromcs=false);
-				//!<If fromcs is true, window title is
-				//!<obtained from CubeSampling.
+				/*!<\param fromcs if true, CubeSampling is used
+				  to set window title.*/
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
@@ -127,9 +133,8 @@ protected:
     int				polyseltbid_;
     bool			ispolyselect_;
 
-    DataPack::ID                createDataPack(bool wva) const;
-				//!<Creates DataPack using CubeSampling from
-				//!<slicepos_ and corresponding Attrib::SelSpec.
+    DataPack::ID		createDataPackForTransformedZSlice(
+						const Attrib::SelSpec&) const;
 
     virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);

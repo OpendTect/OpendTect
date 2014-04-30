@@ -25,7 +25,6 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
-#include "zaxistransformdatapack.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
@@ -217,35 +216,32 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return;
 
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr());
-
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     MenuItem* subitem = 0;
     applMgr()->attrServer()->resetMenuItems();
-    if ( dp3d || dprdm || zatdp3d )
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
-    else if ( dp2ddh )
+
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
+    if ( dp2ddh )
     {
 	BufferString ln;
 	dp2ddh->getLineName( ln );
 	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
 					viewer2D()->lineSetID(), ln, false );
     }
+    else
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    if( dp3d || dprdm || zatdp3d )
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
-    else if ( dp2ddh )
+    if ( dp2ddh )
     {
 	BufferString ln;
 	dp2ddh->getLineName( ln );
 	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
 					viewer2D()->lineSetID(), ln, true );
     }
+    else
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 }
 
@@ -261,43 +257,12 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return false;
 
-    DataPack::ID newid = DataPack::cNoID();
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
     mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr());
 
+    DataPack::ID newid = DataPack::cNoID();
     bool dousemulticomp = false;
-    if ( dp3d || dprdm || zatdp3d )
-    {
-	if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
-	{
-	    attrserv->setTargetSelSpec( selas );
-	    if ( dp3d )
-	    {
-		newid = attrserv->createOutput( dp3d->cube().cubeSampling(),
-					        DataPack::cNoID() );
-	    }
-	    else if ( dprdm )
-	    {
-		const Interval<float> zrg(
-			mCast(float,dprdm->posData().range(false).start),
-			mCast(float,dprdm->posData().range(false).stop) );
-
-		TypeSet<BinID> bids;
-		if ( dprdm->pathBIDs() )
-		    bids = *dprdm->pathBIDs();
-		newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
-	    }
-	    else
-	    {
-		attrserv->setTargetSelSpec( selas );
-		newid = attrserv->createZTransformedOutput( zatdp3d->inputCS(),
-			viewer2D()->getZAxisTransform(),DataPack::cNoID() );
-	    }
-	}
-    }
-    else if ( dp2ddh )
+    if ( dp2ddh )
     {
 	BufferString attrbnm; bool stored = false; 
 	bool steering = false;
@@ -348,6 +313,25 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    attrserv->setTargetSelSpec( selas );
 
 	    newid = attrserv->create2DOutput( cs, lk,uitr );
+	}
+    }
+    else if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
+    {
+	if ( dprdm )
+	{
+	    attrserv->setTargetSelSpec( selas );
+	    const Interval<float> zrg(
+		    mCast(float,dprdm->posData().range(false).start),
+		    mCast(float,dprdm->posData().range(false).stop) );
+
+	    TypeSet<BinID> bids;
+	    if ( dprdm->pathBIDs() )
+		bids = *dprdm->pathBIDs();
+	    newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
+	}
+	else
+	{
+	    newid = viewer2D()->createDataPack( selas );
 	}
     }
 

@@ -9,13 +9,15 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "arrayndwrapper.h"
 #include "flatposdata.h"
 #include "cubesampling.h"
+#include "binidvalue.h"
+#include "datapointset.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "zaxistransform.h"
@@ -24,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
 						const CubeSampling& cs,
-       						ZAxisTransform& zat )
+						ZAxisTransform& zat )
     : FlatDataPack( fdp.category() )
     , inputdp_(fdp)
     , inputcs_(cs)
@@ -134,7 +136,7 @@ bool ZAxisTransformDataPack::transform()
 
     const StepInterval<float> zrg = outputcs.zrg;
     posdata_.setRange( false,
-	    	       StepInterval<double>(zrg.start,zrg.stop,zrg.step) );
+		       StepInterval<double>(zrg.start,zrg.stop,zrg.step) );
     return true;
 }
 
@@ -153,3 +155,135 @@ const Array2D<float>& ZAxisTransformDataPack::data() const
 
 const char* ZAxisTransformDataPack::dimName( bool x1 ) const
 { return inputdp_.dimName( x1 ); }
+
+
+DataPack::ID ZAxisTransformDataPack::transformDataPack( DataPack::ID dpid,
+						const CubeSampling& inputcs,
+						ZAxisTransform& zat )
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( dpid );
+    if ( !fdp ) return DataPack::cNoID();
+
+    mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
+			 ZAxisTransformDataPack( *fdp, inputcs, zat ) );
+    if ( !ztransformdp->transform() )
+	return DataPack::cNoID();
+    dpm.add( ztransformdp );
+    return ztransformdp->id();
+}
+
+
+ZAxisTransformPointGenerator::ZAxisTransformPointGenerator(
+						ZAxisTransform& zat )
+    : transform_(zat)
+    , voiid_(-1)
+    , dps_(0)
+{
+    transform_.ref();
+}
+
+
+ZAxisTransformPointGenerator::~ZAxisTransformPointGenerator()
+{
+    deepErase( bidvalsets_ );
+    transform_.unRef();
+}
+
+
+void ZAxisTransformPointGenerator::setInput( const CubeSampling& cs )
+{
+    cs_ = cs;
+    iter_.setSampling( cs.hrg );
+
+    if ( transform_.needsVolumeOfInterest() )
+    {
+	if ( voiid_ < 0 )
+	    voiid_ = transform_.addVolumeOfInterest( cs, true );
+	else
+	    transform_.setVolumeOfInterest( voiid_, cs, true );
+
+	transform_.loadDataIfMissing( voiid_ );
+    }
+}
+
+
+bool ZAxisTransformPointGenerator::doPrepare( int nrthreads )
+{
+    deepErase( bidvalsets_ );
+    for ( int idx=0; idx<nrthreads; idx++ )
+	bidvalsets_ += new BinIDValueSet( dps_->bivSet().nrVals(),
+				dps_->bivSet().allowsDuplicateIdxPairs() );
+    return true;
+}
+
+
+bool ZAxisTransformPointGenerator::doWork(
+			od_int64 start, od_int64 stop, int threadid )
+{
+    if ( !dps_ ) return false;
+    BinIDValue curpos;
+    curpos.val() = cs_.zrg.start;
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	iter_.next(curpos);
+	const float depth = transform_.transformBack( curpos );
+	if ( mIsUdf(depth) )
+	    continue;
+
+	DataPointSet::Pos newpos( curpos, depth );
+	DataPointSet::DataRow dtrow( newpos );
+	TypeSet<float> vals;
+	dtrow.getBVSValues( vals, dps_->is2D(), dps_->isMinimal() );
+	bidvalsets_[threadid]->add( dtrow.binID(), vals );
+    }
+
+    dps_->dataChanged();
+    return true;
+}
+
+
+bool ZAxisTransformPointGenerator::doFinish( bool success )
+{
+    for ( int idx=0; idx<bidvalsets_.size(); idx++ )
+    {
+	dps_->bivSet().append( *bidvalsets_[idx] );
+    }
+
+    dps_->dataChanged();
+    return success;
+}
+
+
+TypeSet<DataPack::ID> createDataPacksFromBIVSet( const BinIDValueSet* bivset,
+			const CubeSampling& cs, const BufferStringSet& names )
+{
+    TypeSet<DataPack::ID> dpids;
+    if ( !bivset || cs.nrZ()!=1 ) return dpids;
+
+    for ( int idx=1; idx<bivset->nrVals(); idx++ )
+    {
+	mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
+		Array2DImpl<float>(cs.hrg.nrInl(),cs.hrg.nrCrl()) );
+	mDeclareAndTryAlloc( FlatDataPack*, fdp,
+		FlatDataPack(sKey::EmptyString(),arr) );
+
+	if ( names.validIdx(idx-1) )
+	    fdp->setName( names[idx-1]->buf() );
+	DPM(DataPackMgr::FlatID()).add( fdp );
+	dpids += fdp->id();
+
+	arr->setAll( mUdf(float) );
+	BinIDValueSet::SPos pos;
+	BinID bid;
+	while ( bivset->next(pos,true) )
+	{
+	    bivset->get( pos, bid );
+	    arr->set( cs.hrg.inlIdx(bid.inl()), cs.hrg.crlIdx(bid.crl()),
+		      bivset->getVals(pos)[idx]);
+	}
+    }
+
+    return dpids;
+}
+

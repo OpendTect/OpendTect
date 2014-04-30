@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "zaxistransform.h"
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 #include "cubesampling.h"
 #include "binidvalue.h"
 #include "flatposdata.h"

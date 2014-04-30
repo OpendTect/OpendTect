@@ -31,13 +31,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
+#include "arrayndimpl.h"
 #include "mouseevent.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "datacoldef.h"
+#include "datapointset.h"
+#include "posvecdataset.h"
 
 #include "zaxistransform.h"
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 #include "visvw2ddataman.h"
 #include "visvw2ddata.h"
 #include "od_helpids.h"
@@ -106,35 +110,37 @@ uiODViewer2D::~uiODViewer2D()
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstDataPackRef<DataPack> dp = dpm.obtain( packid );
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr())
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,dp.ptr())
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr())
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr())
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr())
+    ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( packid );
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,fdp.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+    mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
 
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( dp3d || dprdm || zatdp3d )
-	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
-	else if ( dp2ddh )
+	if ( dp2ddh )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
+	else if ( !mapdp )
+	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
 	const bool isvertical = (dp3d && dp3d->isVertical()) ||
 				(dp2d && dp2d->isVertical()) || zatdp3d;
-	const bool needslicepos = dp3d || zatdp3d;
+	const bool needslicepos = fdp && !dp2d && !dp2ddh && !dprdm;
 	createViewWin( isvertical, needslicepos );
-	if ( slicepos_ ) slicepos_->getToolBar()->display( needslicepos );
     }
 
     if ( dp3d || zatdp3d )
     {
 	const CubeSampling& cs = dp3d ? dp3d->cube().cubeSampling()
 				      : zatdp3d->inputCS();
-	if ( cs_ != cs ) { removeAvailablePacks(); cs_ = cs; }
-	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
+	if ( cs_ != cs ) { removeAvailablePacks(); setCubeSampling( cs ); }
     }
+
+    if ( slicepos_ )
+	slicepos_->getToolBar()->display( cs_.isFlat() );
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
@@ -163,12 +169,13 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
     const bool setpack = ( !wva ? ddp.wva_.show_ : ddp.vd_.show_ );
     if ( !slicepos_ || !setpack ) return;
 
-    const CubeSampling cs = slicepos_->getCubeSampling();
+    const CubeSampling& cs = slicepos_->getCubeSampling();
     const bool newcs = ( cs != cs_ );
-    const DataPack::ID othrdpid = newcs ? createDataPack(!wva)
+    const Attrib::SelSpec& selspec( wva ? wvaselspec_ : vdselspec_ );
+    const DataPack::ID othrdpid = newcs ? createDataPack(selspec)
 					: getDataPackID(!wva);
     if ( newcs && (othrdpid != DataPack::cNoID()) )
-    { removeAvailablePacks(); cs_ = cs; slicepos_->setCubeSampling( cs_ ); }
+    { removeAvailablePacks(); setCubeSampling( cs ); }
     setDataPack( othrdpid, !wva, isnew );
 }
 
@@ -226,6 +233,28 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
     }
 
     return true;
+}
+
+
+void uiODViewer2D::setCubeSampling( const CubeSampling& cs )
+{
+    cs_ = cs;
+    if ( slicepos_ )
+    {
+	slicepos_->setCubeSampling( cs );
+	slicepos_->getToolBar()->display( cs.isFlat() );
+
+	if ( datatransform_ )
+	{
+	    CubeSampling limitcs;
+	    limitcs.zrg.setFrom( datatransform_->getZInterval(false) );
+	    slicepos_->setLimitSampling( limitcs );
+	}
+
+	if ( cs.isFlat() ) setWinTitle( true );
+    }
+
+    if ( treetp_ ) treetp_->updCubeSamling( cs, true );
 }
 
 
@@ -399,30 +428,35 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void uiODViewer2D::posChg( CallBacker* )
 {
-    if ( !slicepos_ ) return;
-    const CubeSampling cs = slicepos_->getCubeSampling();
-    setPos( cs ); setWinTitle( true );
-    slicepos_->setCubeSampling( cs_ );
+    setPos( slicepos_->getCubeSampling() );
+    setCubeSampling( cs_ );
 }
 
 
 void uiODViewer2D::setPos( const CubeSampling& cs )
 {
+    if ( cs == cs_ ) return;
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     const bool shwvd = vwr.isVisible(false);
     const bool shwwva = vwr.isVisible(true);
-    if ( cs == cs_ ) return;
+    DataPack::ID dpid = DataPack::cNoID();
 
     if ( shwvd && vdselspec_.id().isValid() )
     {
-	const DataPack::ID dpid = createDataPack(false);
+	dpid = createDataPack( vdselspec_ );
+	if ( dpid != DataPack::cNoID() ) removeAvailablePacks();
+	//<--TODO: This line is needed only for z-slices in z-transformed domain
+	//as setUpView cannot getCubeSampling from a FlatDataPack.Try to remove.
 	setUpView( dpid, false );
     }
     else if ( shwwva && wvaselspec_.id().isValid() )
     {
-	const DataPack::ID dpid = createDataPack(true);
+	dpid = createDataPack( wvaselspec_ );
+	if ( dpid != DataPack::cNoID() ) removeAvailablePacks(); //<--Same here.
 	setUpView( dpid, true );
     }
+
+    if ( dpid != DataPack::cNoID() ) cs_ = cs;
 }
 
 
@@ -436,19 +470,54 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 	const DataPack::ID dpid = vwr.packID(!wva);
 	if ( dpid != DataPack::cNoID() ) return dpid;
     }
-    return createDataPack( wva );
+    return createDataPack( wva ? wvaselspec_ : vdselspec_ );
 }
 
 
-DataPack::ID uiODViewer2D::createDataPack( bool wva ) const
+DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
     if ( !slicepos_ ) return DataPack::cNoID();
+
+    const CubeSampling& cs = slicepos_->getCubeSampling();
+    RefMan<ZAxisTransform> zat = getZAxisTransform();
+    if ( zat && cs.nrZ()==1 )
+	return createDataPackForTransformedZSlice( selspec );
+
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( wva ? wvaselspec_ : vdselspec_ );
-    const CubeSampling cs = slicepos_->getCubeSampling();
-    return hasZAxisTransform() ?
-	attrserv->createZTransformedOutput(cs,datatransform_,DataPack::cNoID())
-	: attrserv->createOutput(cs,DataPack::cNoID());
+    attrserv->setTargetSelSpec( selspec );
+    const DataPack::ID dpid = attrserv->createOutput(cs,DataPack::cNoID());
+    return zat ? ZAxisTransformDataPack::transformDataPack(dpid,cs,*zat) : dpid;
+}
+
+
+DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
+					const Attrib::SelSpec& selspec ) const
+{
+    if ( !slicepos_ || !hasZAxisTransform() ) return DataPack::cNoID();
+
+    const CubeSampling& cs = slicepos_->getCubeSampling();
+    if ( cs.nrZ() != 1 ) return DataPack::cNoID();
+
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    attrserv->setTargetSelSpec( selspec );
+
+    DataPackRef<DataPointSet> data =
+	DPM(DataPackMgr::PointID()).addAndObtain(new DataPointSet(false,true));
+
+    ZAxisTransformPointGenerator generator( *datatransform_ );
+    generator.setInput( cs );
+    generator.setOutputDPS( *data );
+    generator.execute();
+
+    const int firstcol = data->nrCols();
+    BufferStringSet userrefs; userrefs.add( selspec.userRef() );
+    data->dataSet().add( new DataColDef(userrefs.get(0)) );
+    if ( !attrserv->createOutput(*data,firstcol) )
+	return DataPack::cNoID();
+
+    const TypeSet<DataPack::ID> dpids = createDataPacksFromBIVSet(
+						&data->bivSet(), cs, userrefs );
+    return dpids.size() ? dpids[0] : DataPack::cNoID();
 }
 
 

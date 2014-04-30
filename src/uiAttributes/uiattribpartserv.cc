@@ -70,7 +70,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
 #include "uicrossattrevaluatedlg.h"
-#include "zaxistransformdatapack.h"
 
 using namespace Attrib;
 
@@ -595,28 +594,6 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 	aem->setLineKey( linekey );
 
     return aem;
-}
-
-
-DataPack::ID uiAttribPartServer::createZTransformedOutput(
-	const CubeSampling& cs, ZAxisTransform* zat, DataPack::ID cacheid )
-{
-    if ( !cs.isFlat() ) return DataPack::cNoID();
-
-    const DataPack::ID dpid = createOutput( cs, cacheid );
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    DataPackRef<DataPack> dp = dpm.obtain( dpid );
-    mDynamicCastGet(FlatDataPack*,fdp,dp.ptr());
-    mDynamicCastGet(Attrib::Flat3DDataPack*,f3ddp,dp.ptr());
-    if ( !fdp || !f3ddp ) return DataPack::cNoID();
-
-    mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
-			 ZAxisTransformDataPack( *fdp,
-			     f3ddp->cube().cubeSampling(), *zat ) );
-    if ( !ztransformdp->transform() )
-	return DataPack::cNoID();
-    dpm.add( ztransformdp );
-    return ztransformdp->id();
 }
 
 

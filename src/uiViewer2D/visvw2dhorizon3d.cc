@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "visvw2dhorizon3d.h"
 
 #include "attribdatapack.h"
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 #include "emseedpicker.h"
 #include "flatauxdataeditor.h"
 #include "horflatvieweditor3d.h"

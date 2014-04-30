@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
-#include "zaxistransformdatapack.h"
+#include "zaxistransformutils.h"
 #include "faulteditor.h"
 #include "flatauxdataeditor.h"
 #include "mpeengine.h"
