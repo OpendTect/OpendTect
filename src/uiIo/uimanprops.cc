@@ -98,12 +98,19 @@ public:
     uiColorInput*	colfld_;
     uiGenInput*		rgfld_;
     uiUnitSel*		unfld_;
-    uiGenInput*		deffld_;
+    uiGenInput*		defaultfld_;
+    uiGenInput*		definitionfld_;
+    uiPushButton*	defaultformbut_;
 
     const UnitOfMeasure* curunit_;
-    MathProperty	mathprop_;
+    MathProperty	definitionmathprop_;
+    MathProperty	defaultmathprop_;
 
-    void		setForm(CallBacker*);
+    void		setForm(bool);
+
+    void		setDefinitionForm(CallBacker*)	{ setForm(true); }
+    void		setDefaultForm(CallBacker*)	{ setForm(false); }
+    void		definitionChecked(CallBacker*);
     void		unitSel(CallBacker*);
 
 };
@@ -117,7 +124,8 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
                                  "' property"),
 		                 mODHelpKey(mEditPropRefHelpID) ))
     , pr_(pr)
-    , mathprop_(pr)
+    , defaultmathprop_(pr)
+    , definitionmathprop_(pr)
     , withform_(supportform)
     , curunit_(0)
 {
@@ -151,19 +159,34 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     }
     rgfld_->setValue( vintv );
 
-    deffld_ = new uiGenInput( this, "[Default value (if supported)]" );
-    deffld_->attach( alignedBelow, rgfld_ );
-    if ( pr_.disp_.defval_ )
+    defaultfld_ = new uiGenInput( this, "Default value" );
+    defaultfld_->attach( alignedBelow, rgfld_ );
+    if ( !pr_.disp_.defval_ )
+	defaultfld_->setValue( pr_.disp_.commonValue() );
+    else if ( pr_.disp_.defval_->isValue() )
+	defaultfld_->setValue( pr_.disp_.defval_->value() );
+    else
     {
-	mathprop_.setDef( pr_.disp_.defval_->def() );
-	deffld_->setText( mathprop_.formText(true) );
+	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
+	defaultfld_->setText( defaultmathprop_.formText(true) );
     }
-    if ( withform_ )
+    defaultformbut_ = new uiPushButton( defaultfld_, "&Formula",
+				mCB(this,uiEditPropRef,setDefaultForm), false );
+    defaultformbut_->attach( rightOf, defaultfld_->rightObj() );
+
+    definitionfld_ = new uiGenInput( this, "Fixed definition" );
+    definitionfld_->attach( alignedBelow, defaultfld_ );
+    definitionfld_->setWithCheck( true );
+    definitionfld_->setChecked( pr_.isFundamental() );
+    definitionfld_->checked.notify( mCB(this,uiEditPropRef,definitionChecked) );
+    if ( pr_.isFundamental() )
     {
-	uiPushButton* but = new uiPushButton( this, "&Formula",
-				mCB(this,uiEditPropRef,setForm), false );
-	but->attach( rightOf, deffld_ );
+	definitionmathprop_.setDef( pr_.fundamentalDefinition().def() );
+	definitionfld_->setText( definitionmathprop_.formText(true) );
     }
+    uiPushButton* but = new uiPushButton( definitionfld_, "&Formula",
+			    mCB(this,uiEditPropRef,setDefinitionForm), false );
+    but->attach( rightOf, definitionfld_->rightObj() );
 }
 
 
@@ -182,12 +205,21 @@ void uiEditPropRef::unitSel( CallBacker* )
 }
 
 
-void uiEditPropRef::setForm( CallBacker* )
+void uiEditPropRef::setForm( bool definition )
 {
     PropertyRefSelection prsel = PropertyRefSelection::getAll( true, &pr_ );
-    uiMathPropEdDlg dlg( parent(), mathprop_, prsel );
-    if ( dlg.go() )
-	deffld_->setText( mathprop_.formText(true) );
+    MathProperty& mped = definition ? definitionmathprop_ : defaultmathprop_;
+    uiMathPropEdDlg dlg( parent(), mped, prsel );
+    if ( !dlg.go() )
+	return;
+
+    (definition?definitionfld_:defaultfld_)->setText( mped.formText(true) );
+}
+
+
+void uiEditPropRef::definitionChecked( CallBacker* )
+{
+    defaultformbut_->display( !definitionfld_->isChecked() );
 }
 
 
@@ -198,6 +230,10 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !isalpha(newnm[0]) || newnm.size() < 2 )
 	mErrRet("Please enter a valid name");
+    const BufferString definitionstr( definitionfld_->text() );
+    const bool isfund = definitionfld_->isChecked();
+    if ( isfund && definitionstr.isEmpty() )
+	mErrRet("Please un-check the 'Fixed Definition' - or provide one");
 
     pr_.setName( newnm );
     SeparString ss( aliasfld_->text() ); const int nral = ss.size();
@@ -218,17 +254,22 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     }
     pr_.disp_.range_ = vintv;
 
-    BufferString defvalstr( deffld_->text() );
-    defvalstr.trimBlanks();
-    if ( defvalstr.isEmpty() )
+    BufferString defaultstr( defaultfld_->text() );
+    defaultstr.trimBlanks();
+    if ( defaultstr.isEmpty() )
 	{ delete pr_.disp_.defval_; pr_.disp_.defval_ = 0; }
     else
     {
-	if ( !withform_ || defvalstr.isNumber() )
-	    pr_.disp_.defval_ = new ValueProperty( pr_, defvalstr.toFloat() );
+	if ( !withform_ || defaultstr.isNumber() )
+	    pr_.disp_.defval_ = new ValueProperty( pr_, defaultstr.toFloat() );
 	else
-	    pr_.disp_.defval_ = new MathProperty( mathprop_ );
+	    pr_.disp_.defval_ = new MathProperty( defaultmathprop_ );
     }
+
+    if ( !isfund )
+	pr_.setFundamental( 0 );
+    else
+	pr_.setFundamental( definitionmathprop_.clone() );
 
     return true;
 }

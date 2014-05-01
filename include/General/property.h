@@ -38,6 +38,7 @@ public:
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
     bool		isEqualTo(const Property&) const;
+    virtual bool	isValue() const			{ return false; }
 
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
@@ -158,8 +159,8 @@ public: \
     virtual const char* type() const		{ return typeStr(); } \
     virtual const char* factoryKeyword() const	{ return type(); } \
     static Property*	create( const PropertyRef& r ) { return new clss(r); } \
+    virtual clss*	clone() const		{ return new clss( *this ); }\
     static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual Property*	clone() const		{ return new clss( *this ); }\
     virtual const char*	def() const; \
     virtual void	setDef(const char*); \
     virtual bool	isUdf() const
@@ -177,7 +178,8 @@ public:
 			, val_(pr.disp_.range_.center())	{}
 			ValueProperty( const PropertyRef& pr, float v )
 			: Property(pr)
-			, val_(v)				{}
+			, val_(v)		{}
+    virtual bool	isValue() const		{ return true; }
 
     float		val_;
 
@@ -208,4 +210,3 @@ public:
 
 
 #endif
-

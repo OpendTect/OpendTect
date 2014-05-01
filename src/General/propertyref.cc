@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "propertyref.h"
-#include "property.h"
+#include "mathproperty.h"
 #include "unitofmeasure.h"
 #include "survinfo.h"
 #include "ascstream.h"
@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* filenamebase = "Properties";
 static const char* sKeyAliases = "Aliases";
 static const char* sKeyDefaultValue = "DefaultValue";
+static const char* sKeyDefinition = "Definition";
 
 mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 
@@ -96,8 +97,11 @@ PropertyRef::DispDefs::~DispDefs()
 }
 
 
-float PropertyRef::DispDefs::possibleValue() const
+float PropertyRef::DispDefs::commonValue() const
 {
+    if ( defval_ && defval_->isValue() )
+	return defval_->value();
+
     const bool udf0 = mIsUdf(range_.start);
     const bool udf1 = mIsUdf(range_.stop);
     if ( udf0 && udf1 )
@@ -130,6 +134,12 @@ const PropertyRef& PropertyRef::undef()
 }
 
 
+PropertyRef::~PropertyRef()
+{
+    delete mathdef_;
+}
+
+
 PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
 {
     if ( this != &pr )
@@ -146,6 +156,13 @@ PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
 PropertyRef::StdType PropertyRef::surveyZType()
 {
     return SI().zIsTime() ? Time : Dist;
+}
+
+
+void PropertyRef::setFundamental( const MathProperty* mp )
+{
+    delete mathdef_;
+    mathdef_ = mp ? mp->clone() : 0;
 }
 
 
@@ -174,6 +191,7 @@ void PropertyRef::usePar( const IOPar& iop )
     for ( int ifms=0; ifms<sz; ifms++ )
 	aliases_.add( fms[ifms] );
 
+    iop.get( sKey::Color(), disp_.color_ );
     fms = iop.find( sKey::Range() );
     sz = fms.size();
     if ( sz > 1 )
@@ -194,21 +212,32 @@ void PropertyRef::usePar( const IOPar& iop )
 	}
     }
 
-    iop.get( sKey::Color(), disp_.color_ );
+    delete disp_.defval_; disp_.defval_ = 0;
+    delete mathdef_; mathdef_ = 0;
 
+    BufferString mathdefstr;
     fms = iop.find( sKeyDefaultValue );
     sz = fms.size();
     if ( sz > 1 )
     {
 	const BufferString typ( fms[0] );
 	Property* prop = Property::factory().create( typ, *this );
-	if ( prop )
+	mDynamicCastGet(MathProperty*,mp,prop)
+	if ( !mp )
+	    disp_.defval_ = new ValueProperty( *this, toFloat(fms[1]) );
+	else
 	{
-	    prop->setDef( fms[1] );
-	    delete disp_.defval_;
-	    disp_.defval_ = prop;
+	    mathdef_ = mp;
+	    mathdef_->setDef( fms[1] );
 	}
     }
+
+    const FixedString def = iop.find( sKeyDefinition );
+    if ( !def.isEmpty() )
+	mathdef_ = new MathProperty( *this, def );
+
+    if ( !disp_.defval_ )
+	disp_.defval_ = new ValueProperty( *this, disp_.commonValue() );
 }
 
 
@@ -241,15 +270,15 @@ void PropertyRef::fillPar( IOPar& iop ) const
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
     iop.set( sKey::Range(), fms );
-
     if ( !disp_.defval_ )
 	iop.removeWithKey( sKeyDefaultValue );
     else
-    {
-	fms = disp_.defval_->type();
-	fms += disp_.defval_->def();
-	iop.set( sKeyDefaultValue, fms );
-    }
+	iop.set( sKeyDefaultValue, disp_.defval_->def() );
+
+    if ( !mathdef_ )
+	iop.removeWithKey( sKeyDefinition );
+    else
+	iop.set( sKeyDefinition, mathdef_->def() );
 }
 
 

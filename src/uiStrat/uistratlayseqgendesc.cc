@@ -639,7 +639,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	    }
 	    if ( !toadd )
 	    {
-		float defval = pr.disp_.range_.center();
+		float defval = pr.disp_.commonValue();
 		if ( nearun )
 		{
 		    const int nidxof = nearun->properties().indexOf( pr );

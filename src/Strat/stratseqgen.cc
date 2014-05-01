@@ -363,8 +363,8 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
 	const PropertyRef& pr = *prsel[idx];
 	if ( props_.indexOf(pr) < 0 )
 	{
-	    if ( pr.disp_.defval_ )
-		props_.add( pr.disp_.defval_->clone() );
+	    if ( pr.isFundamental() )
+		props_.add( pr.fundamentalDefinition().clone() );
 	    else
 		props_.add( new ValueProperty(pr) );
 	}
