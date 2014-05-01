@@ -61,7 +61,7 @@ public:
     inline bool		operator !=( const PropertyRef& pr ) const
 			{ return name() != pr.name(); }
     bool		isKnownAs(const char*) const;
-    bool		isFundamental() const		{ return mathdef_; }
+    bool		hasFixedDef() const		{ return mathdef_; }
 
     inline StdType	stdType() const			{ return stdtype_; }
     inline bool		hasType( StdType t ) const
@@ -69,13 +69,13 @@ public:
     inline bool		isCompatibleWith( const PropertyRef& pr ) const
 			{ return hasType(pr.stdType()); }
     inline void		setStdType( StdType t )	{ stdtype_ = t; }
-    void		setFundamental(const MathProperty*);
-    				//!< copy will be made
+    void		setFixedDef(const MathProperty*);
+				//!< copy will be made
 
     inline BufferStringSet& aliases()			{ return aliases_; }
     inline const BufferStringSet& aliases() const	{ return aliases_; }
-    const MathProperty&	fundamentalDefinition() const	{ return *mathdef_; }
-    				//!< be sure isFundamental() returns true!
+    const MathProperty&	fixedDef() const		{ return *mathdef_; }
+				//!< be sure hasFixedDef() returns true!
 
     static const PropertyRef& undef();
 

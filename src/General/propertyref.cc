@@ -159,7 +159,7 @@ PropertyRef::StdType PropertyRef::surveyZType()
 }
 
 
-void PropertyRef::setFundamental( const MathProperty* mp )
+void PropertyRef::setFixedDef( const MathProperty* mp )
 {
     delete mathdef_;
     mathdef_ = mp ? mp->clone() : 0;

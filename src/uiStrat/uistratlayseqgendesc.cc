@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratcontent.h"
 #include "stratunitrefiter.h"
 #include "unitofmeasure.h"
-#include "property.h"
+#include "mathproperty.h"
 #include "keyenum.h"
 #include "od_helpids.h"
 
@@ -594,7 +594,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
-				"Define layer generation", 
+				"Define layer generation",
                                  mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
     , inpun_(inpun)
     , rt_(rt)
@@ -621,12 +621,17 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 
     uiGroup* propgrp = new uiGroup( this, "Property edit" );
     const PropertySet& props = edun_->properties();
-    for ( int idx=0; idx<proprefs.size(); idx++ )
+    propflds_.allowNull( true );
+    uiSimpPropertyEd* prevfld = 0;
+    for ( int iprop=0; iprop<proprefs.size(); iprop++ )
     {
-	const PropertyRef& pr = *proprefs[idx];
+	const PropertyRef& pr = *proprefs[iprop];
+
 	const int idxof = props.indexOf( pr );
 	if ( idxof >= 0 )
 	    workprops_.add( props.get(idxof).clone() );
+	else if ( pr.hasFixedDef() )
+	    workprops_.add( pr.fixedDef().clone() );
 	else
 	{
 	    Property* toadd = 0;
@@ -656,17 +661,22 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	    workprops_.add( toadd );
 	}
 
-	uiSimpPropertyEd* fld = new uiSimpPropertyEd( propgrp,
-						      workprops_.get(idx) );
-	if ( idx > 0 )
-	    fld->attach( alignedBelow, propflds_[idx-1] );
+	uiSimpPropertyEd* fld = 0;
+	if ( !pr.hasFixedDef() )
+	{
+	    fld = new uiSimpPropertyEd( propgrp, workprops_.get(iprop) );
+	    if ( prevfld )
+		fld->attach( alignedBelow, prevfld );
+	    prevfld = fld;
+	}
 	propflds_ += fld;
     }
 
     contfld_ = new uiStratLayerContent( propgrp, false, rt_ );
     contfld_->set( edun_->content() );
-    if ( !propflds_.isEmpty() )
-	contfld_->attach( alignedBelow, propflds_[ propflds_.size()-1 ] );
+    if ( prevfld )
+	contfld_->attach( alignedBelow, prevfld );
+
     propgrp->attach( centeredRightOf, unfld_ );
 }
 
@@ -682,7 +692,8 @@ bool acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<workprops_.size(); idx++ )
     {
-	if ( !propflds_[idx]->setProp(workprops_,idx) )
+	uiSimpPropertyEd* fld = propflds_[idx];
+	if ( fld && !fld->setProp(workprops_,idx) )
 	{
 	    const Property& prop = workprops_.get(idx);
 	    uiMSG().error( "Please fill the values for '", prop.name(), "'" );
@@ -692,13 +703,12 @@ bool acceptOK( CallBacker* )
 
     const Strat::UnitRef* ur = unfld_->firstSelected();
     if ( !ur || !ur->isLeaf() )
-    {
-	uiMSG().error( "Please select the layer" );
-	return false;
-    }
+	{ uiMSG().error( "Please select the layer" ); return false; }
+
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
     edun_->properties() = workprops_;
     edun_->setContent( contfld_->get() );
+
     return true;
 }
 

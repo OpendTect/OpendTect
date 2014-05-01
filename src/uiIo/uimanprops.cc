@@ -101,6 +101,7 @@ public:
     uiGenInput*		defaultfld_;
     uiGenInput*		definitionfld_;
     uiPushButton*	defaultformbut_;
+    uiPushButton*	definitionformbut_;
 
     const UnitOfMeasure* curunit_;
     MathProperty	definitionmathprop_;
@@ -170,23 +171,26 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
 	defaultfld_->setText( defaultmathprop_.formText(true) );
     }
-    defaultformbut_ = new uiPushButton( defaultfld_, "&Formula",
+    defaultformbut_ = new uiPushButton( this, "&Formula",
 				mCB(this,uiEditPropRef,setDefaultForm), false );
-    defaultformbut_->attach( rightOf, defaultfld_->rightObj() );
+    defaultformbut_->attach( rightOf, defaultfld_ );
 
     definitionfld_ = new uiGenInput( this, "Fixed definition" );
     definitionfld_->attach( alignedBelow, defaultfld_ );
     definitionfld_->setWithCheck( true );
-    definitionfld_->setChecked( pr_.isFundamental() );
-    definitionfld_->checked.notify( mCB(this,uiEditPropRef,definitionChecked) );
-    if ( pr_.isFundamental() )
+    definitionfld_->setChecked( pr_.hasFixedDef() );
+    if ( pr_.hasFixedDef() )
     {
-	definitionmathprop_.setDef( pr_.fundamentalDefinition().def() );
+	definitionmathprop_.setDef( pr_.fixedDef().def() );
 	definitionfld_->setText( definitionmathprop_.formText(true) );
     }
-    uiPushButton* but = new uiPushButton( definitionfld_, "&Formula",
+    definitionformbut_ = new uiPushButton( this, "&Formula",
 			    mCB(this,uiEditPropRef,setDefinitionForm), false );
-    but->attach( rightOf, definitionfld_->rightObj() );
+    definitionformbut_->attach( rightOf, definitionfld_ );
+
+    const CallBack defchckcb( mCB(this,uiEditPropRef,definitionChecked) );
+    definitionfld_->checked.notify( defchckcb );
+    postFinalise().notify( defchckcb );
 }
 
 
@@ -219,6 +223,7 @@ void uiEditPropRef::setForm( bool definition )
 
 void uiEditPropRef::definitionChecked( CallBacker* )
 {
+    definitionformbut_->setSensitive( definitionfld_->isChecked() );
     defaultformbut_->display( !definitionfld_->isChecked() );
 }
 
@@ -267,9 +272,9 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     }
 
     if ( !isfund )
-	pr_.setFundamental( 0 );
+	pr_.setFixedDef( 0 );
     else
-	pr_.setFundamental( definitionmathprop_.clone() );
+	pr_.setFixedDef( definitionmathprop_.clone() );
 
     return true;
 }
