@@ -44,6 +44,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setCtrlStyle( RunAndClose );
 
     attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
+    attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
     filludffld_ = new uiGenInput( this, "Fill undefined parts",
