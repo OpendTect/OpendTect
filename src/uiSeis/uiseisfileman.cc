@@ -91,8 +91,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    manipgrp->addButton( "man_ps", "Manage Prestack Data",
-			 mCB(this,uiSeisFileMan,manPS) );
+    attribbut_ = manipgrp->addButton( "attributes", "Show AttributeSet",
+				      mCB(this,uiSeisFileMan,showAttribSet) );
 
     mTriggerInstanceCreatedNotifier();
     selChg(0);
@@ -109,9 +109,18 @@ uiSeisFileMan::~uiSeisFileMan()
 
 void uiSeisFileMan::ownSelChg()
 {
-    if ( !browsebut_ || !curioobj_ ) return;
+    if ( !curioobj_ ) return;
 
-    browsebut_->setSensitive( curimplexists_ && !mIsOfTranslType(SEGYDirect) );
+    if ( browsebut_ )
+	browsebut_->setSensitive( curimplexists_ &&
+				  !mIsOfTranslType(SEGYDirect) );
+
+    if ( attribbut_ )
+    {
+	FilePath fp( curioobj_->fullUserExpr() );
+	fp.setExtension( "proc" );
+	attribbut_->setSensitive( File::exists(fp.fullPath()) );
+    }
 }
 
 
@@ -337,4 +346,12 @@ void uiSeisFileMan::manPS( CallBacker* )
 {
     uiSeisPreStackMan dlg( this, is2d_ );
     dlg.go();
+}
+
+
+void uiSeisFileMan::showAttribSet( CallBacker* )
+{
+    FilePath fp( curioobj_->fullUserExpr() );
+    fp.setExtension( "proc" );
+    File::launchViewer( fp.fullPath(), File::ViewPars() );
 }

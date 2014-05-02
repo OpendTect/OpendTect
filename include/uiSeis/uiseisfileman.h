@@ -30,6 +30,7 @@ protected:
 
     bool		is2d_;
     uiToolButton*	browsebut_;
+    uiToolButton*	attribbut_;
 
     void		mergePush(CallBacker*);
     void		dump2DPush(CallBacker*);
@@ -37,7 +38,7 @@ protected:
     void		copyPush(CallBacker*);
     void		man2DPush(CallBacker*);
     void		manPS(CallBacker*);
-    void		makeDefault(CallBacker*);
+    void		showAttribSet(CallBacker*);
 
     virtual void	mkFileInfo();
     virtual void	ownSelChg();
