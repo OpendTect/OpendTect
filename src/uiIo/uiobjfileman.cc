@@ -44,6 +44,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
     , lastexternal_(0)
+    , curimplexists_(false)
 {
     setCtrlStyle( CloseOnly );
 }
@@ -165,6 +166,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     saveNotes(0);
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
+    curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();
     if ( curioobj_ )
