@@ -586,6 +586,13 @@ void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 	if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T')
 	  || SeisTrcTranslator::isPS(ioobj) ) continue;
 
+	if ( !o2d.zdomky_.isEmpty() )
+	{
+	    const FixedString zdomkey = ioobj.pars().find( ZDomain::sKey() );
+	    if ( o2d.zdomky_ != zdomkey )
+		continue;
+	}
+
 	SeisIOObjInfo ibjinfo( ioobj );
 	BufferStringSet lnms;
 	ibjinfo.getLineNames( lnms, o2d );

@@ -1143,8 +1143,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     {
 	zattritm_.enabled = false;
 	BufferStringSet zattribnms;
-	seisserv->get2DZdomainAttribs( s2d->lineSetID(), objnm,
-				       scene->zDomainKey(), zattribnms );
+	seisserv->get2DZdomainAttribs( objnm, scene->zDomainKey(), zattribnms );
 	if ( zattribnms.size() )
 	{
 	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );

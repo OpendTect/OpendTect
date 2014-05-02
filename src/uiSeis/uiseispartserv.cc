@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seispreload.h"
@@ -162,37 +162,29 @@ void uiSeisPartServer::manageWavelets()
 }
 
 
-bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
+bool uiSeisPartServer::select2DSeis( MultiID& mid )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    uiSeisSel::Setup setup(Seis::Line); setup.selattr( with_attr );
+    uiSeisSel::Setup setup(Seis::Line);
     uiSeisSelDlg dlg( parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 
     mid = dlg.ioObj()->key();
-    PtrMan<IOObj> lsobj = IOM().get( mid );
-    if ( !lsobj || !S2DPOS().hasLineSet(lsobj->name()) )
-    {
-	uiMSG().error( "Lineset has no or corrupted geometry file" );
-	return false;
-    }
-
     return true;
 }
 
 
-#define mGet2DLineSet(retval) \
+#define mGet2DDataSet(retval) \
     PtrMan<IOObj> ioobj = IOM().get( mid ); \
     if ( !ioobj ) return retval; \
-    BufferString fnm = ioobj->fullUserExpr(true); \
-    Seis2DLineSet lineset( fnm );
+    Seis2DDataSet dataset( *ioobj );
 
 
-void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
+void uiSeisPartServer::get2DDataSetName( const MultiID& mid,
 					 BufferString& setname )
 {
-    mGet2DLineSet(;)
-    setname = lineset.name();
+    mGet2DDataSet(;)
+    setname = dataset.name();
 }
 
 
@@ -228,73 +220,10 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
 }
 
 
-void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
-				      TypeSet<MultiID>& setids,
-				      TypeSet<BufferStringSet>& linenames )
+void uiSeisPartServer::get2DLineInfo( TypeSet<Pos::GeomID>& geomids,
+				      BufferStringSet& linenames )
 {
-    SeisIOObjInfo::get2DLineInfo( linesets, &setids, &linenames );
-}
-
-
-bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
-					  const char* linenm,
-					  PosInfo::Line2DData& geom )
-{
-    mGet2DLineSet(false);
-
-    bool setzrange = false;
-    StepInterval<float> maxzrg;
-
-    int lineidx = lineset.indexOf( linenm );
-    if ( lineidx < 0 )
-    {
-	BufferStringSet attribs;
-	get2DStoredAttribs( linenm, attribs );
-	if ( attribs.isEmpty() ) return false;
-
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	int maxnrtrcs = 0;
-	bool first = true;
-	for ( int idx=0; idx<attribs.size(); idx++ )
-	{
-	    int indx = lineset.indexOf( LineKey(linenm,attribs.get(idx)) );
-	    if ( indx<0 || !lineset.getRanges(indx,trcrg,zrg) || !trcrg.step )
-		continue;
-
-	    const int nrtrcs = trcrg.nrSteps() + 1;
-	    if ( nrtrcs > maxnrtrcs )
-	    {
-		maxnrtrcs = nrtrcs;
-		lineidx = indx;
-	    }
-
-	    if ( first )
-	    {
-		first = false;
-		maxzrg = zrg;
-	    }
-	    else
-	    {
-		maxzrg.start = mMIN(maxzrg.start, zrg.start );
-		maxzrg.stop = mMAX(maxzrg.stop, zrg.stop );
-		maxzrg.step = mMIN(maxzrg.step, zrg.step );
-	    }
-	}
-
-	if ( lineidx < 0 ) return false;
-	setzrange = true;
-    }
-
-    S2DPOS().setCurLineSet( lineset.name() );
-    geom.setLineName( BufferString(linenm) );
-    if ( !S2DPOS().getGeometry( geom ) )
-	return false;
-
-    if ( setzrange )
-	geom.setZRange( maxzrg );
-
-    return true;
+    Survey::GM().getList( linenames, geomids, true );
 }
 
 
@@ -310,13 +239,15 @@ void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 				       CubeSampling& cs, SeisTrcBuf& buf )
 {
-    mGet2DLineSet(false)
+    mGet2DDataSet(false)
 
-    const int lidx = lineset.indexOf( linekey );
+    const int lidx = dataset.indexOf( linekey );
     if ( lidx < 0 ) return false;
 
-    lineset.getCubeSampling( cs, lidx );
-    PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
+    StepInterval<int> trcrg;
+    dataset.getRanges( lidx, trcrg, cs.zrg );
+    cs.hrg.setCrlRange( trcrg );
+    PtrMan<Executor> exec = dataset.lineFetcher( lidx, buf );
     uiTaskRunner dlg( parent() );
     return TaskRunner::execute( &dlg, *exec );
 }
@@ -376,11 +307,12 @@ void uiSeisPartServer::createMultiCubeDataStore() const
 }
 
 
-void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
-	const char* linenm, const char* zdomainstr, BufferStringSet& attribs )
+void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
+			const char* zdomainstr, BufferStringSet& attribs )
 {
-    mGet2DLineSet(;)
-    lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
+    SeisIOObjInfo::Opts2D o2d;
+    o2d.zdomky_ = zdomainstr;
+    SeisIOObjInfo::getDataSetNamesForLine( linenm, attribs, o2d );
 }
 
 

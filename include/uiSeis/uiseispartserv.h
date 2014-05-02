@@ -42,16 +42,14 @@ public:
     bool		exportSeis(int opt);
     			//!< opt == (int)uiSeisSEGYEntry::DataType
 
-    bool		select2DSeis(MultiID&,bool with_attr=false);
+    bool		select2DSeis(MultiID&);
     bool		select2DLines(BufferStringSet&,TypeSet<Pos::GeomID>&);
-    static bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
-	    				  PosInfo::Line2DData&);
-    static void		get2DLineSetName(const MultiID&,BufferString&);
-    static void		get2DLineInfo(BufferStringSet&,TypeSet<MultiID>&,
-	    			      TypeSet<BufferStringSet>&);
+    static void		get2DDataSetName(const MultiID&,BufferString&);
+    static void		get2DLineInfo(TypeSet<Pos::GeomID>&,
+	    			      BufferStringSet&);
     static void		get2DStoredAttribs(const char* linenm,
 				       BufferStringSet& attribs,int steerpol=2);
-    void		get2DZdomainAttribs(const MultiID&, const char* linenm,
+    void		get2DZdomainAttribs(const char* linenm,
 	    				    const char* zdomainstr,
 					    BufferStringSet& attribs);
     bool		create2DOutput(const MultiID&,const char* linekey,
