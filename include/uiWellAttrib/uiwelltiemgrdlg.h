@@ -42,21 +42,21 @@ namespace WellTie
 mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
 {
 
-public:    
+public:
 			uiTieWinMGRDlg(uiParent*,WellTie::Setup&);
 			~uiTieWinMGRDlg();
 
-    void		delWins(); 
+    void		delWins();
 
 protected:
 
-    WellTie::Setup& 	wtsetup_;
+    WellTie::Setup&	wtsetup_;
     CtxtIOObj&          wllctio_;
     CtxtIOObj&          wvltctio_;
     CtxtIOObj&          seisctio2d_;
     CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
-    bool		is2d_;
+    bool		is2d_; //will be removed
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
     uiWellElasticPropSel* logsfld_;
@@ -64,11 +64,11 @@ protected:
     Well::Data*		wd_;
 
     uiIOObjSel*         wellfld_;
-    uiSeisWaveletSel* 	wvltfld_;
+    uiSeisWaveletSel*	wvltfld_;
     uiGenInput*		typefld_;
     uiGenInput*		seisextractfld_;
-    uiSeisSel* 		seis2dfld_;
-    uiSeisSel* 		seis3dfld_;
+    uiSeisSel*		seis2dfld_;
+    uiSeisSel*		seis3dfld_;
     uiSeis2DLineNameSel* seislinefld_;
     uiCheckBox*		used2tmbox_;
     uiLabeledComboBox*	cscorrfld_;
@@ -80,19 +80,22 @@ protected:
     bool		getDenLogInSetup() const;
     bool		initSetup();
     void		saveWellTieSetup(const MultiID&,
-	    				 const WellTie::Setup&) const;
-    
+					 const WellTie::Setup&) const;
+
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void		extractWvltDone(CallBacker*);
+    void		typeSelChg(CallBacker*);
     void		seisSelChg(CallBacker*);
+    void		seis2DCheckChg(CallBacker*);
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
-    void 		wellTieDlgClosed(CallBacker*);
+    void		wellTieDlgClosed(CallBacker*);
     void		set3DSeis() const;
     void		set2DSeis() const;
-    void		setLine() const;
-    void		setTypeFld();
+    void		setLine() const {}; //will be removed
+    void		setTypeFld() {}; //will be removed
+    bool		selIs2D() const;
     bool		seisIDIs3D(MultiID) const;
 };
 
