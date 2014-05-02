@@ -85,8 +85,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const float defvel = getGUIDefaultVelocity();
-	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
-				  FloatInpSpec(defvel) );
+	velfld_ = new uiGenInput( this,
+				  BufferString("Temporary model velocity",
+				  zunstr,"/s)"), FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
