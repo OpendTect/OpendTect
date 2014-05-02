@@ -67,7 +67,7 @@ public:
 			{}
 };
 
-#define mODHelpKey( arg ) HelpKey( "od", toString(arg) )
+#define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
 
 
 #endif
