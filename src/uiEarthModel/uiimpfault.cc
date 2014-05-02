@@ -268,7 +268,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
     EM::FaultAscIO ascio( *fd_ );
     mDynamicCastGet( EM::Fault3D*, fault3d, &flt );
     if ( !fault3d )
-	return ascio.get( strm, flt, true, 0, false );
+	return ascio.get( strm, flt, true, false );
 
     EM::FSStoFault3DConverter::Setup convsu;
     convsu.sortsticks_ = sortsticksfld_ &&
@@ -282,7 +282,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
     const bool sortsticks = sortsticksfld_ &&
 			FixedString( sortsticksfld_->text() ) == sKeyIndexed();
-    bool res = ascio.get( strm, *interfss, sortsticks, 0, false );
+    bool res = ascio.get( strm, *interfss, sortsticks, false );
     if ( res )
     {
 	EM::FSStoFault3DConverter fsstof3d( convsu, *interfss, *fault3d );
@@ -348,5 +348,28 @@ bool uiImportFault3D::acceptOK( CallBacker* )
     if ( typefld_ && typefld_->getIntValue()!=0 )
 	return handleLMKAscii();
 
+    return handleAscii();
+}
+
+
+uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
+						  const char* type )
+    : uiImportFault(p,type,true)
+{
+    fd_ = EM::FaultAscIO::getDesc(true);
+    createUI();
+}
+
+
+bool uiImportFaultStickSet2D::getFromAscIO( od_istream& strm, EM::Fault& flt )
+{
+    EM::FaultAscIO ascio( *fd_ );
+    return ascio.get( strm, flt, false, true );
+}
+
+
+bool uiImportFaultStickSet2D::acceptOK( CallBacker* )
+{
+    if ( !checkInpFlds() ) return false;
     return handleAscii();
 }

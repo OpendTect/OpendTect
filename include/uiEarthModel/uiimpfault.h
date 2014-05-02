@@ -72,6 +72,7 @@ protected:
 };
 
 
+/*Brief Dialog for 3D Fault*/
 mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
 public:
@@ -79,6 +80,22 @@ public:
 protected:
     bool		acceptOK(CallBacker*);			
 };
+
+
+/*Brief Dialog for 2D FaultStickSet*/
+
+mExpClass(uiEarthModel) uiImportFaultStickSet2D : public uiImportFault
+{
+public:
+    			uiImportFaultStickSet2D(uiParent*,const char* type);
+
+protected:
+
+    bool		acceptOK(CallBacker*);
+    bool		getFromAscIO(od_istream&,EM::Fault&);
+
+};
+
 
 #endif
 

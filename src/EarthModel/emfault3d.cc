@@ -411,7 +411,7 @@ Coord3 getNormal( bool is2d ) const
 
 
 bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
-		      const MultiID* linesetmid, bool is2d ) const
+		      bool is2d ) const
 {
     getHdrVals( strm );
 
@@ -510,9 +510,12 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
+	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
+	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+		continue;
 	    fss->geometry().insertStick( sid, sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
-					linesetmid, stick->lnm_, false );
+					geomid, false );
 	}
 	else
 	{

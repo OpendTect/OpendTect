@@ -110,7 +110,6 @@ public:
 
     bool			get(od_istream&,EM::Fault&,
 				    bool sortsticks=false, 
-	    			    const MultiID* linesetmid=0,
 				    bool is2d=false) const;
 protected:
     bool			isXY() const;

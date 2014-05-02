@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrtrcselout.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
-#include "uiimpfaultstickset2d.h"
 #include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
 
@@ -42,7 +41,6 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     , attribidx_(0)
     , uiimphor2ddlg_(0)
     , uiseisevsnapdlg_(0)
-    , uiimpfss2ddlg_(0)
 {}
 
 
@@ -106,8 +104,6 @@ void uiEMAttribPartServer::readyForDisplayCB( CallBacker* cb )
     }
     else if ( uiimphor2ddlg_ && cb==uiimphor2ddlg_ )
 	uiimphor2ddlg_->getEMObjIDs( emobjids_ );
-    else if ( uiimpfss2ddlg_ && cb==uiimpfss2ddlg_ )
-	emobjids_ += EM::EMM().getObjectID( uiimpfss2ddlg_->getSelID() );
 
     if ( !emobjids_.isEmpty() )
 	sendEvent( evDisplayEMObject() );
@@ -250,18 +246,3 @@ void uiEMAttribPartServer::horShifted( CallBacker* cb )
     sendEvent( uiEMAttribPartServer::evHorizonShift() );
 }
 
-
-void uiEMAttribPartServer::import2DFaultStickset( const char* type )
-{
-    if ( uiimpfss2ddlg_ )
-    {
-	uiimpfss2ddlg_->show();
-	uiimpfss2ddlg_->raise();
-	return;
-    }
-
-    uiimpfss2ddlg_ = new uiImportFaultStickSet2D( parent(), type );
-    uiimpfss2ddlg_->importReady.notify(
-		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
-    uiimpfss2ddlg_->show();
-}

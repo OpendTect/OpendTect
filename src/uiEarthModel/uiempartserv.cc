@@ -97,6 +97,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , imphorattrdlg_(0)
     , imphorgeomdlg_(0)
     , impfltdlg_(0)
+    , impfss2ddlg_(0)
     , exphordlg_(0)
     , expfltdlg_(0)
     , expfltstickdlg_(0)
@@ -182,7 +183,7 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
-    mDynamicCastGet(uiImportFault3D*,fltdlg,cb)
+    mDynamicCastGet(uiImportFault*,fltdlg,cb)
     if ( (!dlg || !dlg->doDisplay()) &&
 	 (!fltdlg || !fltdlg->saveButtonChecked()) )
 	return;
@@ -237,10 +238,26 @@ bool uiEMPartServer::importFaultStickSet()
 	    new uiImportFault3D( parent(),
 				 EMFaultStickSetTranslatorGroup::keyword() );
 	impfltstickdlg_->importReady.notify(
-		mCB(this,uiEMPartServer,importReadyCB));
+				mCB(this,uiEMPartServer,importReadyCB));
     }
 
     return impfltstickdlg_->go();
+}
+
+
+void uiEMPartServer::import2DFaultStickset()
+{
+    if ( impfss2ddlg_ )
+    {
+	impfss2ddlg_->show();
+	impfss2ddlg_->raise();
+	return;
+    }
+
+    impfss2ddlg_ = new uiImportFaultStickSet2D( parent(),
+	    			EMFaultStickSetTranslatorGroup::keyword() );
+    impfss2ddlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
+    impfss2ddlg_->show();
 }
 
 

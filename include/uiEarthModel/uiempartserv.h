@@ -30,6 +30,7 @@ class SurfaceInfo;
 class uiExportFault;
 class uiExportHorizon;
 class uiImportFault3D;
+class uiImportFaultStickSet2D;
 class uiImportHorizon;
 class uiVariogramDisplay;
 
@@ -59,6 +60,7 @@ public:
     bool		export2DHorizon();
     bool		importFault();
     bool		importFaultStickSet();
+    void		import2DFaultStickset();
     bool		exportFault();
     bool		exportFaultStickSet();
 
@@ -183,6 +185,7 @@ protected:
     uiImportHorizon*	imphorgeomdlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
+    uiImportFaultStickSet2D*	impfss2ddlg_;
     uiExportHorizon*	exphordlg_;
     uiExportFault*	expfltdlg_;
     uiExportFault*	expfltstickdlg_;

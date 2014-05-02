@@ -17,6 +17,5 @@ SET(OD_MODULE_SOURCES
 		horizon2dscanner.cc
 		uiimphorizon2d.cc
 		uiseiseventsnapper.cc
-		uiimpfaultstickset2d.cc
 )
 OD_INIT_MODULE()

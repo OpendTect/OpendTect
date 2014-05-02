@@ -195,8 +195,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    else if ( opt == 1 )
 		am_.emserv_->importFaultStickSet();
 	    else if ( opt == 2 )
-		am_.emattrserv_->import2DFaultStickset(
-				EMFaultStickSetTranslatorGroup::keyword() );
+		am_.emserv_->import2DFaultStickset();
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )

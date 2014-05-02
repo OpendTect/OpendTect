@@ -26,7 +26,6 @@ class NLAModel;
 class TaskRunner;
 
 class uiHorizonShiftDialog;
-class uiImportFaultStickSet2D;
 class uiImportHorizon2D;
 class uiSeisEventSnapper;
 
@@ -84,7 +83,6 @@ public:
     StepInterval<float>		shiftRange() const;
     const char*			getAttribBaseNm() const;
     void			import2DHorizon();
-    void			import2DFaultStickset(const char* type);
 
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
 
@@ -96,7 +94,6 @@ protected:
     uiHorizonShiftDialog*	horshiftdlg_;
     uiSeisEventSnapper*		uiseisevsnapdlg_;
     uiImportHorizon2D*		uiimphor2ddlg_;
-    uiImportFaultStickSet2D*	uiimpfss2ddlg_;
     TypeSet<EM::ObjectID>	emobjids_;
 
     float			initialshift_;
