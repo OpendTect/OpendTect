@@ -557,7 +557,7 @@ class ElasticModelCreator : public ParallelTask
 {
 public:
 ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
-    : ParallelTask( "Generating Elastic Models" )
+    : ParallelTask( "Elastic Model Generator" )
     , lm_(lm)
     , aimodels_(ems)
 {
@@ -565,7 +565,14 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 }
 
 
-const char* message() const	{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+const char* message() const
+{
+    if ( errmsg_.isEmpty() )
+	return "Generating elastic model";
+    else
+	return errmsg_.buf();
+}
+
 const char* nrDoneText() const	{ return "Models done"; }
 
 protected :
@@ -1318,8 +1325,7 @@ void StratSynth::trimTraces( SeisTrcBuf& tbuf,
 	SeisTrc* trc = tbuf.get( idx );
 	SeisTrc* newtrc = new SeisTrc( *trc );
 	newtrc->info() = trc->info();
-	const int startidx =
-	    trc->nearestSample( trc->info().sampling.start + highetszkip );
+	const int startidx = trc->nearestSample( highetszkip );
 	newtrc->reSize( trc->size()-startidx, false );
 	newtrc->setStartPos( trc->samplePos(startidx) );
 	for ( int sampidx=startidx; sampidx<trc->size(); sampidx++ )

@@ -292,7 +292,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     const BufferString zlbl( "Depth (", SI().depthsInFeet() ? "ft" : "m", ")");
     yahsu.border( border ).caption( zlbl ).annotinint( false );
     yax_ = new uiAxisHandler( &scene(), yahsu );
-    yax_->setEnd( xax_ );
+    yax_->setBegin( xax_ );
     xax_->setBegin( yax_ );
 
     const CallBack redrawcb( mCB(this,uiStratSimpleLayerModelDisp,reDrawCB) );
@@ -576,6 +576,7 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
+    zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
     forceRedispAll();
 }
 

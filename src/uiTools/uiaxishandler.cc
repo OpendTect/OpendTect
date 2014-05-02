@@ -232,9 +232,15 @@ float uiAxisHandler::getVal( int pix ) const
 {
     float relpix;
     if ( isHor() )
-	{ pix -= pixBefore(); relpix = mCast( float, pix ); }
+    {
+	pix -= rgisrev_ ? pixAfter() : pixBefore();
+	relpix = mCast( float, pix );
+    }
     else
-	{ pix -= pixAfter(); relpix = mCast( float, axsz_-pix ); }
+    {
+	pix -= rgisrev_ ? pixBefore() : pixAfter();
+	relpix = mCast( float, axsz_-pix );
+    }
     relpix /= axsz_;
 
     if ( setup_.islog_ )

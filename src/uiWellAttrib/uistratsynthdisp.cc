@@ -678,6 +678,9 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 	    if ( !curdepthrg.isUdf() )
 		depthrg.include( curdepthrg );
 	}
+
+	if ( dispflattened_ )
+	    depthrg.shift( SI().seismicReferenceDatum() );
 	depthwr.setTop( depthrg.start );
 	depthwr.setBottom( depthrg.stop );
     }
@@ -807,9 +810,11 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	curSS().flattenTraces( *disptbuf );
     }
     else
+    {
         reSampleTraces( sd, *disptbuf );
+	curSS().trimTraces( *disptbuf, curd2tmodels, dispskipz_);
+    }
 
-    curSS().trimTraces( *disptbuf, curd2tmodels, dispskipz_);
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
     DPM( DataPackMgr::FlatID() ).add( dp );
