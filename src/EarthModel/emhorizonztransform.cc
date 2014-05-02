@@ -275,7 +275,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 		const Coord trccrd = horsurv->toCoord( tmptrckey );
 		if ( trccrd.isDefined() )
 		{
-		    const float dist2 = crd.sqDistTo( trccrd );
+		    const float dist2 = (float) crd.sqDistTo( trccrd );
 		    if ( mIsUdf(bestdist2) || dist2<bestdist2 )
 		    {
 			hortrckey = tmptrckey;
@@ -292,7 +292,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	const SectionID sid = horizon_->sectionID( idx );
 	pid.setSectionID( sid );
 
-	float depth = horizon_->getPos( pid ).z;
+	float depth = (float) horizon_->getPos( pid ).z;
 	if ( mIsUdf( depth ) && hor3d )
 	{
 	    const BinID bid = hortrckey.pos_;
