@@ -246,7 +246,7 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 
     const int descnr = ji.descnr_;
     BufferString hostnm;
-    if ( ji.hostdata_ ) hostnm = ji.hostdata_->name();
+    if ( ji.hostdata_ ) hostnm = ji.hostdata_->getHostName();
 
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) jhri->response_ = resp;
@@ -391,7 +391,7 @@ bool JobIOMgr::startProg( const char* progname,
     const BufferString cmdbs( cmd.string() );
     if ( !OS::ExecCommand(cmdbs,OS::RunInBG) )
     {
-	iohdlr_.removeJobDesc( machine.name(), ji.descnr_ );
+	iohdlr_.removeJobDesc( machine.getHostName(), ji.descnr_ );
 	mErrRet( BufferString("Failed to submit command '", cmdbs, "'") )
     }
 
@@ -531,11 +531,11 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
 #ifdef __msvc__
 // Do not use od_remexe if host is local
-    BufferString remhostaddress = System::hostAddress( machine.name() );
+    BufferString remhostaddress = System::hostAddress( machine.getHostName() );
     if ( remhostaddress != System::localAddress() )
     {
 	cmd.add( "od_remexec" );
-	cmd.add( machine.name() );
+	cmd.add( machine.getIPAddress() );
     }
     cmd.add( progname );
     cmd.addFlag( "-masterhost", System::localAddress() );
@@ -549,7 +549,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     if ( remote )
     {
-	cmd.add( machine.name() );
+	cmd.add( machine.getIPAddress() );
 	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
 	if ( machine.isWindows()  ) cmd.add( "--iswin" );
 

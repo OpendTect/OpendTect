@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyDispName()	{ return "Display Name"; }
 static const char* sKeyHostName()	{ return "Hostname"; }
+static const char* sKeyIPAddress()	{ return "IP Address"; }
 static const char* sKeyPlatform()	{ return "Platform"; }
 
 HostData::HostData( const char* nm )
@@ -69,7 +70,7 @@ HostData::HostData( const HostData& oth )
     , localhd_( oth.localhd_ )
     , sharedata_( oth.sharedata_ )
 {
-    init( oth.name_ );
+    init( oth.hostname_ );
 }
 
 
@@ -83,6 +84,19 @@ const char* HostData::localHostName()
 }
 
 
+void HostData::setHostName( const char* nm )
+{ hostname_ = nm; }
+
+const char* HostData::getHostName() const
+{ return hostname_; }
+
+void HostData::setIPAddress( const char* ip )
+{ ipaddress_ = ip; }
+
+const char* HostData::getIPAddress() const
+{ return ipaddress_; }
+
+
 void HostData::setAlias( const char* nm )
 {
     aliases_.erase();
@@ -93,7 +107,7 @@ void HostData::setAlias( const char* nm )
 bool HostData::isKnownAs( const char* nm ) const
 {
     if ( !nm || !*nm ) return false;
-    if ( name_ == nm ) return true;
+    if ( hostname_ == nm ) return true;
     for ( int idx=0; idx<aliases_.size(); idx++ )
 	if ( *aliases_[idx] == nm ) return true;
     return false;
@@ -102,7 +116,7 @@ bool HostData::isKnownAs( const char* nm ) const
 
 void HostData::addAlias( const char* nm )
 {
-    if ( !nm || !*nm || name_ == nm ) return;
+    if ( !nm || !*nm || hostname_ == nm ) return;
     for ( int idx=0; idx<aliases_.size(); idx++ )
 	if ( *aliases_[idx] == nm ) return;
     aliases_.add( nm );
@@ -111,7 +125,7 @@ void HostData::addAlias( const char* nm )
 
 BufferString HostData::getFullDispString() const
 {
-    BufferString ret( name() );
+    BufferString ret( hostname_ );
     for ( int idx=0; idx<nrAliases(); idx++ )
 	ret.add( " / " ).add( alias(idx) );
     return ret;
@@ -142,9 +156,10 @@ const char* HostData::getDataRoot() const
 
 void HostData::init( const char* nm )
 {
-    name_ = nm;
+    BufferString name = nm;
+    if ( name.isEmpty() ) return;
 
-    const char* ptr = name_.buf();
+    const char* ptr = name.buf();
     bool is_ip_adrr = true;
 
     while ( ptr++ && *ptr )
@@ -156,9 +171,12 @@ void HostData::init( const char* nm )
 
     if ( !is_ip_adrr )
     {
-	char* dot = name_.find( '.' );
+	char* dot = name.find( '.' );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
+	hostname_ = name;
     }
+    else
+	ipaddress_ = name;
 }
 
 
@@ -217,7 +235,8 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 
 void HostData::fillPar( IOPar& par ) const
 {
-    par.set( sKeyHostName(), name() );
+    par.set( sKeyIPAddress(), ipaddress_ );
+    par.set( sKeyHostName(), hostname_ );
     par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
     par.set( sKeyPlatform(), platform_.shortName() );
     BufferString dataroot = data_pr_.fullPath();
@@ -228,10 +247,11 @@ void HostData::fillPar( IOPar& par ) const
 
 void HostData::usePar( const IOPar& par )
 {
-    par.get( sKeyHostName(), name_ );
-    BufferString res = name_;
+    par.get( sKeyIPAddress(), ipaddress_ );
+    par.get( sKeyHostName(), hostname_ );
+    BufferString res = hostname_;
     par.get( sKeyDispName(), res );
-    if ( name_ != res ) addAlias( res );
+    if ( hostname_ != res ) addAlias( res );
 
     res.setEmpty();
     par.get( sKeyPlatform(), res );
@@ -265,33 +285,33 @@ HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
 
     batchhostsfnm_ = fname;
     if ( readhostfile )
-    {
-#ifdef __win__
-	readHostFile(fname);
-#else
-	if ( !readHostFile(fname) )
-	{
-	    sethostent(0);
-	    struct hostent* he;
-	    while ( (he = gethostent()) )
-	    {
-		HostData* newhd = new HostData( he->h_name );
-		char** al = he->h_aliases;
-		while ( *al )
-		{
-		    if ( !newhd->isKnownAs(*al) )
-			newhd->aliases_.add( *al );
-		    al++;
-		}
-		*this += newhd;
-	    }
-	    endhostent();
-	}
-#endif
-    }
+	readHostFile( fname );
 
     if ( addlocalhost )
 	handleLocal();
+}
+
+
+void HostDataList::fillFromNetwork()
+{
+#ifndef __win__
+    sethostent(0);
+    struct hostent* he;
+    while ( (he = gethostent()) )
+    {
+	HostData* newhd = new HostData( he->h_name );
+	char** al = he->h_aliases;
+	while ( *al )
+	{
+	    if ( !newhd->isKnownAs(*al) )
+		newhd->aliases_.add( *al );
+	    al++;
+	}
+	*this += newhd;
+    }
+
+    endhostent();
+#endif
 }
 
 
@@ -322,6 +342,7 @@ bool HostDataList::readHostFile( const char* fnm )
     par.get( sKeyLoginCmd(), logincmd_ );
     par.get( sKeyNiceLevel(), nicelvl_ );
     par.get( sKeyFirstPort(), firstport_ );
+    OS::MachineCommand::setDefaultRemExec( logincmd_ );
 
     deepErase( *this );
     for ( int idx=0; ; idx++ )
@@ -522,20 +543,20 @@ void HostDataList::dump( od_ostream& strm ) const
     mPrMemb(sd,share_)
     mPrMemb(sd,pass_)
     if ( sd->host_ )
-	mPrMemb(sd,host_->name())
+	mPrMemb(sd,host_->getHostName())
     else
 	strm << "-- No sharedata_->host_\n";
     strm << "--\n-- -- Host data:\n--\n";
     for ( int idx=0; idx<size(); idx++ )
     {
 	const HostData* hd = (*this)[idx];
-	mPrMemb(hd,name_)
+	mPrMemb(hd,hostname_)
 	mPrMemb(hd,isWindows())
 	mPrMemb(hd,appl_pr_.fullPath())
 	mPrMemb(hd,data_pr_.fullPath())
 	mPrMemb(hd,pass_)
 	if ( hd->localhd_ )
-	    mPrMemb(hd,localhd_->name())
+	    mPrMemb(hd,localhd_->getHostName())
 	else
 	    strm << "-- No localhd_\n";
 	sd = hd->sharedata_;
@@ -546,7 +567,7 @@ void HostDataList::dump( od_ostream& strm ) const
 	    mPrMemb(sd,share_)
 	    mPrMemb(sd,pass_)
 	    if ( sd->host_ )
-		mPrMemb(sd,host_->name())
+		mPrMemb(sd,host_->getHostName())
 	    else
 		strm << "-- No sharedata_->host_\n";
 	}
@@ -598,10 +619,10 @@ void HostDataList::handleLocal()
     }
 
     HostData& lochd = *(*this)[0];
-    if ( hnm != lochd.name() )
+    if ( hnm != lochd.getHostName() )
     {
-	BufferString oldnm = lochd.name();
-	lochd.name_ = hnm;
+	BufferString oldnm = lochd.getHostName();
+	lochd.hostname_ = hnm;
 	lochd.addAlias( oldnm );
 	for ( int idx=0; idx<lochd.aliases_.size(); idx++ )
 	{
@@ -618,7 +639,7 @@ void HostDataList::handleLocal()
 
 	if ( hd->isKnownAs(hnm) )
 	{
-	    lochd.addAlias( hd->name() );
+	    lochd.addAlias( hd->getHostName() );
 	    for ( int idy=0; idy<hd->aliases_.size(); idy++ )
 		lochd.addAlias( *hd->aliases_[idy] );
 	    *this -= hd;

@@ -129,7 +129,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	for ( int idx=0; idx<hdl_.size(); idx++ )
 	{
 	    const HostData& hd = *hdl_[idx];
-	    BufferString nm( hd.name() );
+	    BufferString nm( hd.getHostName() );
 	    const int nraliases = hd.nrAliases();
 	    for ( int aliasidx=0; aliasidx<nraliases; aliasidx++ )
 		{ nm += " / "; nm += hd.alias(aliasidx); }
@@ -399,7 +399,7 @@ void uiMMBatchJobDispatcher::jobStart( CallBacker* )
     BufferString msg( "Started processing " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->name(); }
+	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
     progrfld_->append( msg );
 }
 
@@ -410,7 +410,7 @@ void uiMMBatchJobDispatcher::jobFail( CallBacker* )
     BufferString msg( "Failure for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->name(); }
+	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
     if ( !ji.infomsg_.isEmpty() )
 	{ msg += ": "; msg += ji.infomsg_; }
     progrfld_->append( msg );
@@ -425,7 +425,7 @@ void uiMMBatchJobDispatcher::infoMsgAvail( CallBacker* )
     BufferString msg( "Info for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->name(); }
+	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
 
     msg += ": "; msg += ji.infomsg_;
     progrfld_->append( msg );
@@ -622,14 +622,14 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
 		      BufferString& errmsg )
 {
     BufferString remotecmd( rshcomm );
-    remotecmd += " "; remotecmd += hd.name();
+    remotecmd += " "; remotecmd += hd.getHostName();
     BufferString checkcmd( remotecmd ); checkcmd += " whoami";
     mAddReDirectToNull;
     if ( system(checkcmd.buf()) )
     {
 	errmsg = "Cannot establish a ";
 	errmsg += rshcomm; errmsg += " connection with ";
-	errmsg += hd.name();
+	errmsg += hd.getHostName();
 	return false;
     }
 
@@ -638,7 +638,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     if ( system(checkcmd.buf()) )
     {
 	errmsg = "Cannot find application directory ";
-	errmsg += hd.name(); errmsg += ":";
+	errmsg += hd.getHostName(); errmsg += ":";
 	errmsg += hd.convPath(HostData::Appl, GetSoftwareDir(0)).fullPath();
 	errmsg += "\nMake sure the filesystem is mounted on remote host ";
 	return false;
@@ -649,7 +649,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     if ( system(checkcmd.buf()) )
     {
 	errmsg = "Cannot find data directory ";
-	errmsg += hd.name(); errmsg += ":";
+	errmsg += hd.getHostName(); errmsg += ":";
 	errmsg += hd.convPath(HostData::Data, GetBaseDataDir()).fullPath();
 	errmsg += "\nMake sure the filesystem is mounted on remote host";
 	return false;
@@ -685,7 +685,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	if ( avmachfld_ && !avmachfld_->isSelected(idx) ) continue;
 
 	BufferString hnm = avmachfld_ ? avmachfld_->textOfItem( idx )
-				      : hdl_[0]->name();
+				      : hdl_[0]->getHostName();
 	char* ptr = hnm.find( ' ' );
 	if ( ptr )
 	    *ptr = '\0';

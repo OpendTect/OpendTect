@@ -38,7 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
     msg += "\n and "; msg += ji.hstfailures_; \
     msg += " times due to host related problems."; \
     if ( ji.hostdata_ ) \
-	{ msg += "\n Execut[ed/ing] on host: "; msg += ji.hostdata_->name(); } \
+	{ msg += "\n Execut[ed/ing] on host: "; \
+	  msg += ji.hostdata_->getHostName(); } \
     msg += "\n Status: "; msg += ji.statusmsg_; \
     msg += "\n Info: "; msg += ji.infomsg_; \
     msg += "\n Last received update: "; \
@@ -246,7 +247,8 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 	if ( mDebugOn )
 	{
 	    BufferString msg("----\nJobRunner::startJob: could not start job ");
-	    msg += ji.descnr_; msg += " on host "; msg += ji.hostdata_->name();
+	    msg += ji.descnr_; msg += " on host ";
+	    msg += ji.hostdata_->getHostName();
 	    mAddDebugMsg( ji )
 	    DBG::message(msg);
 	}
@@ -257,7 +259,8 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
     if ( mDebugOn )
     {
 	BufferString msg("----\nJobRunner::startJob : started job ");
-	msg += ji.descnr_; msg += " on host "; msg += ji.hostdata_->name();
+	msg += ji.descnr_; msg += " on host ";
+	msg += ji.hostdata_->getHostName();
 	mAddDebugMsg( ji )
 	DBG::message(msg);
     }
@@ -278,7 +281,7 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 {
     mDefineStaticLocalObject( FilePath, basefp, );
 
-    BufferString basenm( hd.name() );
+    BufferString basenm( hd.getHostName() );
 #ifdef __win__
     basenm.replace( '.',  '_' );
 #endif
@@ -298,7 +301,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	hfi = hostNFailInfoFor( ji.hostdata_ );
 	if ( hfi ) hfi->inuse_ = false;
 
-	iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+	iomgr().removeJob( ji.hostdata_->getHostName(), ji.descnr_ );
     }
 
     if ( !isAssigned(ji) )
@@ -400,7 +403,7 @@ void JobRunner::removeHost( int hnr )
 	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
 
 	if ( ji->hostdata_ )
-	    iomgr().removeJob( ji->hostdata_->name(), ji->descnr_ );
+	    iomgr().removeJob( ji->hostdata_->getHostName(), ji->descnr_ );
     }
 
     delete hfi;
@@ -457,7 +460,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	    BufferString msg( "Start time (" );
 	    msg += hfi->starttime_; msg += ") <= 0 for ";
 
-	    msg += hfi->hostdata_.name();
+	    msg += hfi->hostdata_.getHostName();
 	    msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	    msg += "\n nrsucc: "; msg += hfi->nrsucces_;
 	    msg += "\n last succes time: "; msg += hfi->lastsuccess_;
@@ -481,7 +484,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	BufferString msg( "Time since start (" );
 	msg += totltim; msg += ") <= 0 for ";
 
-	msg += hfi->hostdata_.name();
+	msg += hfi->hostdata_.getHostName();
 	msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	msg += "\n nrsucc: "; msg += hfi->nrsucces_;
 	msg += "\n startime: "; msg += hfi->starttime_;
@@ -612,7 +615,8 @@ void JobRunner::updateJobInfo()
 		    ji.statusmsg_ = "Timed out.";
 		    failedJob( ji, JobInfo::HostFailed );
 		    if ( ji.hostdata_ )
-			iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+			iomgr().removeJob( ji.hostdata_->getHostName(),
+					   ji.descnr_ );
 		}
 	    }
 	}
@@ -628,7 +632,7 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
 	const bool active = isAssigned(ji);
 	if ( active && ji.hostdata_ )
 	{
-	    BufferString* mch = new BufferString( ji.hostdata_->name() );
+	    BufferString* mch = new BufferString( ji.hostdata_->getHostName() );
 	    *mch += " -:- ";
 	    *mch += ji.statusmsg_;
 	    res += mch;

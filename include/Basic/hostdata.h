@@ -42,8 +42,10 @@ public:
 
     enum PathType	{ Appl, Data };
 
-    void		setName( const char* nm )	{ name_ = nm; }
-    const char*		name() const			{ return name_; }
+    void		setHostName(const char*);
+    const char*		getHostName() const;
+    void		setIPAddress(const char*);
+    const char*		getIPAddress() const;
     const char*		pass() const	{ mRetNoneIfEmpty(pass_) }
 
     int			nrAliases() const
@@ -88,7 +90,8 @@ public:
 protected:
 			HostData(const char* nm,const OD::Platform&);
 
-    BufferString	name_;
+    BufferString	hostname_;
+    BufferString	ipaddress_;
     BufferStringSet	aliases_;
     OD::Platform	platform_;
     FilePath		appl_pr_;
@@ -115,7 +118,7 @@ public:
     const HostData*	host() const	{ return host_; }
     const char*		hostName() const
 			{
-			    if ( host() ) return host()->name();
+			    if ( host() ) return host()->getHostName();
 			    return "_none_";
 			}
 
@@ -167,6 +170,7 @@ public:
 
     const char*		getBatchHostsFilename() const;
     bool		writeHostFile(const char* fnm);
+    void		fillFromNetwork(); // Unix only
 
 protected:
 
