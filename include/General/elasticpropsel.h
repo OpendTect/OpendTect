@@ -25,23 +25,23 @@ mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 {
 public:
 
-				ElasticPropSelection();
+				ElasticPropSelection(bool withswave=true);
 				ElasticPropSelection(
 					const ElasticPropSelection& elp)
 				{ *this = elp; }
 				~ElasticPropSelection();
     ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
-    ElasticPropertyRef&		get( int idx ) 		{ return gt(idx); }
+    ElasticPropertyRef&		get( int idx )		{ return gt(idx); }
     const ElasticPropertyRef&	get( int idx ) const	{ return gt(idx); }
-    ElasticPropertyRef&		get( ElasticFormula::Type tp ) 
-    							{ return gt(tp); }
+    ElasticPropertyRef&		get( ElasticFormula::Type tp )
+							{ return gt(tp); }
     const ElasticPropertyRef&	get( ElasticFormula::Type tp ) const
-    							{ return gt(tp); }
+							{ return gt(tp); }
 
     static ElasticPropSelection* get(const MultiID&);
     static ElasticPropSelection* get(const IOObj*);
-    bool                	put(const IOObj*) const;
+    bool	put(const IOObj*) const;
 
     bool			isValidInput(BufferString* errmsg=0) const;
 
@@ -66,17 +66,17 @@ PropertyRefSelection.
 mExpClass(General) ElasticPropGen
 {
 public:
-    			ElasticPropGen(const ElasticPropSelection& eps,
+			ElasticPropGen(const ElasticPropSelection& eps,
 					const PropertyRefSelection& rps)
 			    : elasticprops_(eps), refprops_(rps) {}
 
     float		getVal(const ElasticPropertyRef& ef,
-	    			const float* proprefvals,
+				const float* proprefvals,
 				int proprefsz) const
-    			{ return getVal(ef.formula(),proprefvals, proprefsz); }
+			{ return getVal(ef.formula(),proprefvals, proprefsz); }
 
-    void 		getVals(float& den,float& pbel,float& svel,
-	    			const float* proprefvals,int proprefsz) const;
+    void		getVals(float& den,float& pbel,float& svel,
+				const float* proprefvals,int proprefsz) const;
 
 protected:
 
@@ -84,7 +84,7 @@ protected:
     const PropertyRefSelection& refprops_;
 
     float		getVal(const ElasticFormula& ef,
-	    			const float* proprefvals,
+				const float* proprefvals,
 				int proprefsz) const;
 };
 
@@ -97,7 +97,7 @@ PropertyRefSelection.
 mExpClass(General) ElasticPropGuess
 {
 public:
-    			ElasticPropGuess(const PropertyRefSelection&,
+			ElasticPropGuess(const PropertyRefSelection&,
 						ElasticPropSelection&);
 protected:
 
@@ -105,7 +105,7 @@ protected:
 					ElasticFormula::Type);
     bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
 
-    ElasticPropSelection& elasticprops_; 
+    ElasticPropSelection& elasticprops_;
 };
 
 

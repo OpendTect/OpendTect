@@ -230,7 +230,7 @@ PropertyRef::StdType
 
 //---
 
-ElasticPropSelection::ElasticPropSelection()
+ElasticPropSelection::ElasticPropSelection( bool withswave )
 {
     mkEmpty(); // get rid of thickness
 
@@ -239,8 +239,9 @@ ElasticPropSelection::ElasticPropSelection()
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
-	*this += new ElasticPropertyRef( props[idx],
-				ElasticFormula(props[idx],"", tp) );
+	if ( withswave || tp != ElasticFormula::SVel )
+	    *this += new ElasticPropertyRef( props[idx],
+				    ElasticFormula(props[idx],"", tp) );
     }
 }
 
@@ -264,8 +265,8 @@ ElasticPropSelection::~ElasticPropSelection()
 }
 
 
-static ElasticPropertyRef emptyepr("Empty",
-			    ElasticFormula("","",ElasticFormula::Den) );
+static ElasticPropertyRef emptyepr( "Empty",
+		ElasticFormula("","",ElasticFormula::Den) );
 
 
 void ElasticPropSelection::mkEmpty()

@@ -72,6 +72,7 @@ public:
 				 const PropertyRefSelection&,float xpos=0.5f);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setContent( const Content& c )	{ content_ = &c; }
+    void		setXPos(float); // only affects Math lay vals
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
@@ -99,6 +100,7 @@ public:
     virtual float	value() const			= 0;
 
     BufferString	dumpStr() const;
+    virtual void	setXPos(float)			{}
 
 };
 
@@ -141,6 +143,7 @@ public:
     bool		isBad() const		{ return !errmsg_.isEmpty(); }
     const char*		errMsg() const		{ return errmsg_; }
     void		fillPar(IOPar&) const;
+    virtual void	setXPos(float);
 
     virtual float	value() const;
 
@@ -151,8 +154,8 @@ protected:
 
     const Math::Formula&	form_;
     const Layer&		lay_;
-    const float			xpos_;
-    bool			myform_;
+    const bool			myform_;
+    float			xpos_;
 
     TypeSet<int>		inpidxs_;
     mutable TypeSet<float>	inpvals_;

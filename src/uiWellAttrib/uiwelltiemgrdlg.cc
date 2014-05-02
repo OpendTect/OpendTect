@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelltiemgrdlg.h"
 
+#include "elasticpropsel.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
@@ -55,7 +56,7 @@ namespace WellTie
 
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
-		"Select Data to tie Well to Seismic", 
+		"Select Data to tie Well to Seismic",
                 mODHelpKey(mWellTiMgrDlemgHelpID) )
 		.savetext(sSaveAsDefault())
 		.savebutton(true)
@@ -73,14 +74,15 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, typefld_(0)
 	, extractwvltdlg_(0)
 	, wd_(0)
+	, elpropsel_(*new ElasticPropSelection(false))
 {
     setCtrlStyle( RunAndClose );
-
     if ( !wtsetup_.wellid_.isEmpty() )
 	wllctio_.setObj( wtsetup_.wellid_ );
+    const CallBack wllselcb( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 
     wellfld_ = new uiIOObjSel( this, wllctio_ );
-    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
+    wellfld_->selectionDone.notify( wllselcb );
 
     uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
@@ -141,8 +143,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    logsfld_ = new uiWellElasticPropSel( logsgrp );
-    logsfld_->setAltPropRefPreferred( true );
+    logsfld_ = new uiWellPropSel( logsgrp, elpropsel_ );
+    logsfld_->logCreated.notify( wllselcb );
 
     used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
@@ -170,13 +172,14 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
-    delete &wtsetup_;
-    delete seisctio3d_.ioobj; delete &seisctio3d_;
-    delete seisctio2d_.ioobj; delete &seisctio2d_;
+    delWins();
     if ( extractwvltdlg_ )
 	delete extractwvltdlg_;
 
-    delWins();
+    delete &wtsetup_;
+    delete &elpropsel_;
+    delete seisctio3d_.ioobj; delete &seisctio3d_;
+    delete seisctio2d_.ioobj; delete &seisctio2d_;
 }
 
 
@@ -206,7 +209,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     wd_ = Well::MGR().get( wellid, false );
 
     logsfld_->wellid_ = wllctio_.ioobj->key();
-    if ( !logsfld_->setLogs(wd_->logs()) )
+    if ( !logsfld_->setAvailableLogs(wd_->logs()) )
     {
 	BufferString errmsg = "This well has no valid log to use as input";
 	errmsg += "\n";
@@ -449,36 +452,38 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !logsfld_->isOK() )
 	mErrRet( "Cannot select appropriate logs" )
 
-    uiPropSelFromList* psflden = logsfld_->
+    uiWellSinglePropSel* psflden = logsfld_->
 				 getPropSelFromListByIndex( mDensityIdx );
     if ( !psflden )
 	mErrRet( "Cannot find the density in the log selection list" )
 
-    Well::Log* den = wd_->logs().getLog( psflden->text() );
+    Well::Log* den = wd_->logs().getLog( psflden->logName() );
     if ( !den )
 	mErrRet( "Could not extract this density log" )
 
-    if ( !psflden->uom() )
+    const UnitOfMeasure* uom = psflden->getUnit();
+    if ( !uom )
 	mErrRet( "Please select a unit for the density log" )
 
-    den->setUnitMeasLabel( psflden->uom()->symbol() );
-    wtsetup_.denlognm_ = psflden->text();
+    den->setUnitMeasLabel( uom->symbol() );
+    wtsetup_.denlognm_ = psflden->logName();
 
-    uiPropSelFromList* psflvp = logsfld_->
+    uiWellSinglePropSel* psflvp = logsfld_->
 				getPropSelFromListByIndex( mPwaveIdx );
     if ( !psflvp )
 	mErrRet( "Cannot find the Pwave in the log selection list" )
 
-    Well::Log* vp = wd_->logs().getLog( psflvp->text() );
+    Well::Log* vp = wd_->logs().getLog( psflvp->logName() );
     if ( !vp )
 	mErrRet( "Could not extract this velocity log" )
 
-    if ( !psflvp->uom() )
+    uom = psflvp->getUnit();
+    if ( !uom )
 	mErrRet( "Please select a unit for the velocity log" )
 
-    vp->setUnitMeasLabel( psflvp->uom()->symbol() );
-    wtsetup_.vellognm_ = psflvp->text();
-    wtsetup_.issonic_  = psflvp->isUseAlternate();
+    vp->setUnitMeasLabel( uom->symbol() );
+    wtsetup_.vellognm_ = psflvp->logName();
+    wtsetup_.issonic_  = psflvp->altPropSelected();
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     WellTie::Setup::parseEnumCorrType( cscorrfld_->box()->text(),

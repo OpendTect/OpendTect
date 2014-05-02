@@ -42,9 +42,9 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 	const Strat::Layer& lay, const PropertyRefSelection& prs, float xpos )
     : form_(form)
     , lay_(lay)
-    , xpos_(xpos)
     , myform_(false)
 {
+    setXPos( xpos );
     useForm( prs );
 }
 
@@ -60,12 +60,7 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 
     const char* res = iop.find( sKeyXPos );
     if ( res )
-    {
-       	float xpos = toFloat( res );
-	if ( xpos < 0 ) xpos = 0;
-	if ( xpos > 1 ) xpos = 1;
-	const_cast<float&>(xpos_) = xpos;
-    }
+	setXPos( toFloat(res) );
 
     useForm( prs );
 }
@@ -76,8 +71,14 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
     : form_(cpform ? *new Math::Formula(form) : form)
     , myform_(cpform)
     , lay_(lay)
-    , xpos_(xpos)
 {
+    setXPos( xpos );
+}
+
+void Strat::FormulaLayerValue::setXPos( float xpos )
+{
+    if ( xpos < 0.f ) xpos = 0.f; if ( xpos > 1.f ) xpos = 1.f;
+    xpos_ = xpos;
 }
 
 
@@ -121,7 +122,7 @@ Strat::FormulaLayerValue::~FormulaLayerValue()
 Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone() const
 {
     FormulaLayerValue* ret = new FormulaLayerValue( form_, lay_, xpos_,
-	    					    myform_ );
+						    myform_ );
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
@@ -306,6 +307,18 @@ float Strat::Layer::thickness() const
 }
 
 
+void Strat::Layer::setXPos( float xpos )
+{
+    const int nrvals = vals_.size();
+    for ( int ival=0; ival<nrvals; ival++ )
+    {
+	Strat::LayerValue* lv = vals_[ival];
+	if ( lv )
+	    lv->setXPos( xpos );
+    }
+}
+
+
 void Strat::Layer::setThickness( float v )
 {
     setValue( 0, v );
@@ -350,6 +363,14 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
 	props_ = oth.props_;
     }
     return *this;
+}
+
+
+void Strat::LayerSequence::setXPos( float xpos )
+{
+    const int nrlays = layers_.size();
+    for ( int ilay=0; ilay<nrlays; ilay++ )
+	layers_[ilay]->setXPos( xpos );
 }
 
 

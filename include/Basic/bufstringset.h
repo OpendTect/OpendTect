@@ -27,7 +27,7 @@ mExpClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
 
-    			BufferStringSet(int n=0,const char* s=0);
+			BufferStringSet(int n=0,const char* s=0);
 			BufferStringSet(const char* arr[],int len=-1);
     bool		operator ==(const BufferStringSet&) const;
 
@@ -42,8 +42,6 @@ public:
     inline bool		isPresent( const char* s ) const
 				{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*,bool caseinsens=true) const;
-			    //!< algo may not be very good, but anyway
-			    //!< returns -1 if size is 0
     bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
@@ -57,8 +55,8 @@ public:
     void		sort(bool caseinsens=true,bool asc=true);
 
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
-    			//!< returns new int [size()] for you to 'delete []'
-    			//!< does NOT sort but provides data for useIndexes
+			//!< returns new int [size()] for you to 'delete []'
+			//!< does NOT sort but provides data for useIndexes
     void		useIndexes(const int*);
 
     virtual void	fillPar(IOPar&) const;

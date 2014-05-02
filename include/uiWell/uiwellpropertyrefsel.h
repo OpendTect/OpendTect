@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          April 2011
+ Author:        Bruno / Bert
+ Date:          April 2011 / May 2014
  RCS:           $Id$
 ________________________________________________________________________
 
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiwellmod.h"
 
-class ElasticPropSelection;
 class PropertyRef;
 class UnitOfMeasure;
 
@@ -30,43 +29,47 @@ class uiUnitSel;
 namespace Well { class LogSet; }
 
 
-mExpClass(uiWell) uiPropSelFromList : public uiGroup
+mExpClass(uiWell) uiWellSinglePropSel : public uiGroup
 {
 public:
-			uiPropSelFromList(uiParent*,const PropertyRef&,
+			uiWellSinglePropSel(uiParent*,const PropertyRef&,
 					const PropertyRef* alternatepr=0);
-			~uiPropSelFromList();
 
-    void                setNames(const BufferStringSet& nms);
+    bool		setAvailableLogs(const Well::LogSet&);
 
     void                set(const char* txt,bool alt,const UnitOfMeasure* u=0);
     void                setCurrent(const char*);
     void                setUOM(const UnitOfMeasure&);
 
-    const char*         text() const;
-    const UnitOfMeasure* uom() const;
+    const char*         logName() const;
+    const UnitOfMeasure* getUnit() const;
 
-    void                setUseAlternate(bool yn);
-    bool                isUseAlternate() const;
+    void                selectAltProp(bool yn);
+    bool                altPropSelected() const;
 
-    const PropertyRef&  propRef() const;
-    const PropertyRef*  altPropRef() const { return altpropref_; }
+    const PropertyRef&  normPropRef() const	{ return propref_; }
+    const PropertyRef*  altPropRef() const	{ return altpropref_; }
+    const PropertyRef&  selPropRef() const;
 
-    uiComboBox* typeFld() const		{ return typefld_; }
-    uiLabel*		getLabel() const	{ return typelbl_; }
-    Notifier<uiPropSelFromList>	comboChg_;
+    Notifier<uiWellSinglePropSel> altPropChosen;
 
 protected:
+
     const PropertyRef&  propref_;
     const PropertyRef*  altpropref_;
+    BufferStringSet	normnms_, normunmeaslbls_;
+    BufferStringSet	altnms_, altunmeaslbls_;
+    int			altpref_;
 
-    uiLabel*            typelbl_;
-    uiComboBox*         typefld_;
+    uiComboBox*         lognmfld_;
     uiUnitSel*          unfld_;
-    uiCheckBox*         checkboxfld_;
+    uiCheckBox*         altbox_;
 
     void		updateSelCB(CallBacker*);
     void                switchPropCB(CallBacker*);
+
+    void                updateLogInfo();
+
 };
 
 
@@ -77,63 +80,33 @@ public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
     int			size() const	{ return propflds_.size(); }
 
-    bool		setLogs(const Well::LogSet&);
-    bool		setLog(const PropertyRef::StdType,const char*,
+    bool		setAvailableLogs(const Well::LogSet&);
+    void		setLog(const PropertyRef::StdType,const char*,
 				bool check,const UnitOfMeasure*, int idx);
     bool		getLog(const PropertyRef::StdType,BufferString&,
 				bool&, BufferString& uom, int idx) const;
 
-    uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
-    uiPropSelFromList*	getPropSelFromListByIndex(int);
+    uiWellSinglePropSel* getPropSelFromListByName(const BufferString&);
+    uiWellSinglePropSel* getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
     void		setWellID( const MultiID& wid ) { wellid_ = wid; }
-    void		setAltPropRefPreferred( bool preferaltpropref )
-			{ preferaltpropref_ =  preferaltpropref; }
-
-    MultiID		wellid_;
-
-protected:
-    void				initFlds();
-
-    const PropertyRefSelection& proprefsel_;
-    ObjectSet<uiPropSelFromList>	propflds_;
-    bool		preferaltpropref_;
-    void		updateSelCB(CallBacker*);
-
-    static const char*			sKeyPlsSel() { return "Please select"; }
-};
-
-
-mExpClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
-{
-public:
-			uiWellPropSelWithCreate(uiParent*,
-				const PropertyRefSelection&);
 
     uiButton*		getRightmostButton( int idx ) { return viewbuts_[idx]; }
 
-    Notifier<uiWellPropSel> logscreated;
+    MultiID		wellid_;
+    Notifier<uiWellPropSel> logCreated;
 
 protected:
 
+    ObjectSet<uiWellSinglePropSel> propflds_;
     ObjectSet<uiButton> createbuts_;
     ObjectSet<uiButton> viewbuts_;
 
+    void		updateSelCB(CallBacker*);
     void		createLogPushed(CallBacker*);
     void		viewLogPushed(CallBacker*);
 
 };
 
 
-
-mExpClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
-{
-public:
-			uiWellElasticPropSel(uiParent*,bool withswaves=false);
-			~uiWellElasticPropSel();
-
-};
-
-
 #endif
-

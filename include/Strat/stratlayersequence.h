@@ -55,6 +55,7 @@ public:
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
     Interval<float>	zRange() const;
+    void		setXPos(float);
 
     PropertyRefSelection& propertyRefs()	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
