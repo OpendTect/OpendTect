@@ -50,11 +50,12 @@ if ( "${filename}" == "" ) then
 endif
 
 shift 
-
-set char=`tail -c1 ${filename} | od -x | head -n 1 | awk '{print $2 }' `
-if ( "${char}" != "000a" ) then
-    echo "No EOL at end of ${filename}"
-    exit 1
+if ( -e ${filename} ) then
+    set char=`tail -c1 ${filename} | od -x | head -n 1 | awk '{print $2 }' `
+    if ( "${char}" != "000a" ) then
+	echo "No EOL at end of ${filename}"
+	exit 1
+    endif
 endif
 
 goto nextfile
