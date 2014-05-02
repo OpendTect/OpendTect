@@ -57,8 +57,8 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const		{ return totalnr_; }
 
-    bool				getInputTrace(SeisTrc&,BinID&);
-    bool				getModelTrace(SeisTrc&,BinID&);
+    bool				getInputTrace(SeisTrc&,TrcKey&);
+    bool				getModelTrace(SeisTrc&,TrcKey&);
     bool				loadTransformChunk(int firstinl);
 
     SeisTrcReader*			seisreader_;

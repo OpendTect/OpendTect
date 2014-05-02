@@ -48,6 +48,9 @@ public:
     const char*			lineSet(int id) const;
     Pos::GeomID			geomID(int idx) const;
 
+    PosID			getPosID(const TrcKey&) const;
+    TrcKey			getTrcKey(const PosID&) const;
+
     bool			includeLine(Pos::GeomID geomid,int step=1);
 
     bool			addLine(Pos::GeomID geomid,int step=1);
@@ -148,6 +151,8 @@ public:
     Array1D<float>*		createArray1D(SectionID,
 					      Pos::GeomID geomid,
 					      const ZAxisTransform* =0) const;
+
+    TrcKey::SurvID		getSurveyID() const;
 
 protected:
 

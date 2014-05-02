@@ -185,8 +185,8 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    return false;
     }
 
-    BinID curbid;
-    while ( shouldContinue() && getInputTrace( intrc, curbid ) )
+    TrcKey curtrckey;
+    while ( shouldContinue() && getInputTrace( intrc, curtrckey ) )
     {
 	int outsz = trcrg.nrSteps()+1;
 	int insz = intrc.size();
@@ -229,9 +229,8 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    SeisTrcValueSeries inputvs( intrc, 0 );
 	    
 	    
-	    ztransform_->transform( curbid, inputsd, insz,
-				    ist2d_ ? depths : twt 	);
-	    
+	    ztransform_->transformTrc( curtrckey, inputsd, insz,
+				       ist2d_ ? depths : twt );
 	    
 	    if ( ist2d_ )
 	    {
@@ -394,7 +393,6 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		}
 		    
 		outtrc->set( idx, vel, 0 );
-		    
 	    }
 	    	    
 	    outtrc->set( 0, outtrc->get( 1, 0 ), 0 );
@@ -402,7 +400,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	else
 	{
 	    if ( !sampler ) return false;
-	    sampler->setBinID( curbid );
+	    sampler->setTrcKey( curtrckey );
 	    sampler->computeCache( Interval<int>( 0, outtrc->size()-1) );
 
 	    ValueSeriesInterpolator<float>* interpol =
@@ -428,7 +426,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 }
 
 
-bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
+bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 {
     Threads::MutexLocker lock( readerlock_ );
     if ( waitforall_ )
@@ -455,19 +453,22 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 	    return false;
 	}
 
-	curbid = trc.info().binid;
 	if ( is2d_ )
 	{
-	    //TODO verify how to get lineidx if it's necessary
-	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
-		   Survey::GM().getName(seisreader_->selData()->geomID()) ) : 0;
-	    curbid.crl() = trc.info().nr;
+	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
+					    trc.info().nr );
+	}
+	else
+	{
+	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
+					    trc.info().binid.inl(),
+					    trc.info().binid.crl() );
 	}
 
-	if ( !outcs_.hrg.includes( curbid ) )
+	if ( !outcs_.hrg.includes( trckey.pos_ ) )
 	    continue;
 
-	if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
+	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey.pos_) )
 	{
 	    waitforall_ = true;
 	    while ( shouldContinue() && nrwaiting_!=nrthreads_-1 )
@@ -479,11 +480,11 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( curbid.inl() ) )
+	    if ( !loadTransformChunk( trckey.pos_.inl() ) )
 		continue;
 	}
 
-	sequentialwriter_->announceTrace( curbid );
+	sequentialwriter_->announceTrace( trckey.pos_ );
 
 	return true;
     }
@@ -492,7 +493,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 }
 
 
-bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
+bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 {
     Threads::MutexLocker lock( readerlockmodel_ );
     if ( waitforall_ )
@@ -519,19 +520,19 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
 	    return false;
 	}
 
-	curbid = trc.info().binid;
 	if ( is2d_ )
 	{
-	    //TODO verify how to get lineidx if it's necessary
-	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
-	    Survey::GM().getName(seisreadertdmodel_->selData()->geomID()) ) : 0;
-	    curbid.crl() = trc.info().nr;
+	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
+					    trc.info().nr );
+	}
+	else
+	{
+	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
+					   trc.info().binid.inl(),
+					   trc.info().binid.crl() );
 	}
 
-	if ( !outcs_.hrg.includes( curbid ) )
-	    continue;
-
-	if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
+	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey.pos_) )
 	{
 	    waitforall_ = true;
 	    while ( shouldContinue() && nrwaiting_!=nrthreads_-1 )
@@ -543,7 +544,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( curbid.inl() ) )
+	    if ( !loadTransformChunk( trckey.pos_.inl() ) )
 		continue;
 	}
 

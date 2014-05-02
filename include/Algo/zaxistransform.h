@@ -64,41 +64,17 @@ public:
 
     virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
 
-    virtual bool		canTransformGeom(Survey::Geometry::ID) const;
+    virtual bool		canTransformSurv(Pos::SurvID) const =	0;
 
 				//Generic 2D and 3D
     virtual void		transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const
-				{ return; }
+					 int sz,float* res) const	= 0;
+    float			transformTrc(const TrcKey&,float z) const;
     virtual void		transformTrcBack(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const
-				{ return; }
-
-				//3D
-    virtual void		transform(const BinID&,
-	    				  const SamplingData<float>&,
-					  int sz,float* res) const;
-    float			transform(const BinIDValue&) const;
-    float			transform(const Coord3&) const;
-    virtual void		transformBack(const BinID&,
-	    				   const SamplingData<float>&,
-					   int sz,float* res) const;
-    float			transformBack(const BinIDValue&) const;
-    float			transformBack(const Coord3&) const;
-
-    				// 2D
-    virtual void		transform2D(const char* linenm,int trcnr,
-	    				  const SamplingData<float>&,
-					  int sz,float* res) const;
-    float			transform2D(const char* linenm,int trcnr,
-					  float z) const;
-    virtual void		transformBack2D(const char* linenm,int trcnr,
-					      const SamplingData<float>&,
-					      int sz,float* res) const;
-    float			transformBack2D(const char* linenm,int trcnr,
-					      float z) const;
+					  int sz,float* res) const	= 0;
+    float			transformTrcBack(const TrcKey&,float z) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;
     				/*!\return the z interval in either to
@@ -124,21 +100,42 @@ public:
     virtual float		zScale() const { return toZScale(); }
 				/*!<Old name, use toZScale instead. */
 
-    virtual int			lineIndex( const char* linename ) const
-				{ return 0; }
-    				//!\return the index of a line in a 2D lineset.
-
     virtual NotifierAccess*	changeNotifier()		{ return 0; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 protected:
-    				ZAxisTransform(const ZDomain::Def& from,
+				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
 
     ZDomain::Info&		tozdomaininfo_;
     ZDomain::Info&		fromzdomaininfo_;
     mutable uiString		errmsg_;
+
+public: //Legacy stuff
+
+				//3D
+    virtual void		transform(const BinID&,
+				      const SamplingData<float>&,
+				      int sz,float* res) const;
+    float			transform(const BinIDValue&) const;
+    float			transform(const Coord3&) const;
+    virtual void		transformBack(const BinID&,
+					  const SamplingData<float>&,
+					  int sz,float* res) const;
+    float			transformBack(const BinIDValue&) const;
+    float			transformBack(const Coord3&) const;
+				// 2D
+    virtual void		transform2D(const char* linenm,int trcnr,
+					const SamplingData<float>&,
+					int sz,float* res) const;
+    float			transform2D(const char* linenm,int trcnr,
+					float z) const;
+    virtual void		transformBack2D(const char* linenm,int trcnr,
+					    const SamplingData<float>&,
+					    int sz,float* res) const;
+    float			transformBack2D(const char* linenm,int trcnr,
+					    float z) const;
 };
 
 
@@ -154,7 +151,8 @@ public:
 				   bool is2d);
     virtual			~ZAxisTransformSampler();
 
-    void			setBinID( const BinID& bid )	{ bid_ = bid; }
+    void			setBinID(const BinID& bid);
+    void			setTrcKey( const TrcKey& k ) { trckey_ = k ; }
     void			setLineName(const char*);
     void			setTrcNr(int);
 
@@ -166,8 +164,7 @@ protected:
     const ZAxisTransform&	transform_;
     bool			back_;
     bool			is2d_;
-    BufferString		curlinenm_;
-    BinID			bid_;
+    TrcKey			trckey_;
     const SamplingData<double>	sd_;
 
     TypeSet<float>		cache_;

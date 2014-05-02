@@ -48,7 +48,7 @@ public:
 
     const char*		fileName() const		{ return fname_; }
     const char*		type() const;
-    int			nrLines() const		{ return pars_.size(); }
+    int 		nrLines() const 		{ return pars_.size(); }
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
     bool		isEmpty(int) const;
     const char*		lineName(int) const;
@@ -56,7 +56,7 @@ public:
     Pos::GeomID		geomID(const char* filename) const;
     int			indexOf(const char* linename) const;
     int			indexOf(Pos::GeomID) const;
-    const char*		dataType() const		{   return datatype_; }
+    const char* 	dataType() const		{ return datatype_; }
     void		getLineNames(BufferStringSet&) const;
 
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,

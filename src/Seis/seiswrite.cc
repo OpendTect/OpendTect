@@ -123,7 +123,8 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	SamplingData<float> sd = trc.info().sampling;
 	StepInterval<float> zrg( sd.start, 0, sd.step );
 	zrg.stop = sd.start + sd.step * (trc.size()-1);
-	geom2d_.data().setZRange( zrg );
+	geom2d_.dataAdmin().setZRange( zrg );
+	geom2d_.touch();
     }
     else if ( psioprov_ )
     {
@@ -272,7 +273,8 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
-    geom2d_.data().add( pos );
+    geom2d_.dataAdmin().add( pos );
+    geom2d_.touch();
 
     return res;
 }

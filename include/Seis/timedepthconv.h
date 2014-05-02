@@ -34,6 +34,9 @@ mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
 
+    bool			canTransformSurv(Pos::SurvID sid) const
+				{ return sid!=TrcKey::std2DSurvID(); }
+
     static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
     static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
 
@@ -61,10 +64,10 @@ public:
     void		setVolumeOfInterest(int,const CubeSampling&,bool);
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
-    void		transform(const BinID&,const SamplingData<float>&,
+    void		transformTrc(const TrcKey&,const SamplingData<float>&,
 	    			  int,float*) const;
-    void		transformBack(const BinID&,const SamplingData<float>&,
-	    			  int,float*) const;
+    void		transformTrcBack(const TrcKey&,
+				const SamplingData<float>&,int,float*) const;
     Interval<float>	getZInterval(bool from) const;
     float		getGoodZStep() const;
     const char*		getToZDomainString() const;
@@ -119,10 +122,10 @@ public:
     void		setVolumeOfInterest(int,const CubeSampling&,bool);
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
-    void		transform(const BinID&,const SamplingData<float>&,
+    void		transformTrc(const TrcKey&,const SamplingData<float>&,
 	    			  int,float*) const;
-    void		transformBack(const BinID&,const SamplingData<float>&,
-	    			  int,float*) const;
+    void		transformTrcBack(const TrcKey&,
+				  const SamplingData<float>&,int,float*) const;
     Interval<float>	getZInterval(bool from) const;
     float		getGoodZStep() const;
     const char*		getToZDomainString() const;
@@ -182,16 +185,17 @@ mExpClass(Seis) LinearVelTransform : public ZAxisTransform
 public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
-    
+
+    bool			canTransformSurv(Pos::SurvID) const
+				{ return true; }
+
 protected:
 				LinearVelTransform(const ZDomain::Def& from,
 						   const ZDomain::Def& to,
 						   float v0, float dv);
-    void			transformT2D(const BinID&,
-					     const SamplingData<float>&,
+    void			transformT2D(const SamplingData<float>&,
 					     int sz,float* res) const;
-    void			transformD2T(const BinID&,
-					     const SamplingData<float>&,
+    void			transformD2T(const SamplingData<float>&,
 					     int sz,float* res) const;
     
     float			startvel_;
@@ -208,13 +212,13 @@ public:
 
     				LinearT2DTransform(float v0=0, float dv=0);
 
-    void			transform(const BinID&,
+    void			transformTrc(const TrcKey&,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
-    void			transformBack(const BinID&,
+    void			transformTrcBack(const TrcKey&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
-    
+
     Interval<float>		getZInterval(bool time) const;
     float			getGoodZStep() const;
  
@@ -231,10 +235,10 @@ public:
 
     				LinearD2TTransform(float v0=0, float dv=0);
 
-    void			transform(const BinID&,
+    void			transformTrc(const TrcKey&,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
-    void			transformBack(const BinID&,
+    void			transformTrcBack(const TrcKey&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;

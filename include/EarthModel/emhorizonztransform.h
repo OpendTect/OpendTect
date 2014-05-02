@@ -37,28 +37,28 @@ public:
 
     			HorizonZTransform();
     void		setHorizon(const Horizon&);
-    void		transform(const BinID&,const SamplingData<float>&,
+    void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int sz,float* res) const;
-    void		transformBack(const BinID&,const SamplingData<float>&,
+    void		transformTrcBack(const TrcKey&,
+				  const SamplingData<float>&,
 				  int sz,float* res) const;
+    bool		canTransformSurv(TrcKey::SurvID) const { return true; }
 
     Interval<float>	getZInterval(bool from) const;
     float		getZIntervalCenter(bool from) const;
     bool		needsVolumeOfInterest() const	{ return false; }
 
     Interval<float>	getDepthRange() const		{ return depthrange_; }
-
-    int			lineIndex(const char* lnm) const;
     NotifierAccess*	changeNotifier()		{ return &change_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
-    			~HorizonZTransform();
+			~HorizonZTransform();
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );
-    bool		getTopBottom(const BinID&,float&top,float&bottom) const;
+    bool		getTopBottom(const TrcKey&,float&top,float&bot) const;
 
     const Horizon*	horizon_;
     Interval<float>	depthrange_;

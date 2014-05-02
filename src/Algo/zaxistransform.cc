@@ -77,15 +77,31 @@ bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 { return !needsVolumeOfInterest(); }
 
 
-bool ZAxisTransform::canTransformGeom(Survey::Geometry::ID) const
-{ return true; }
+float ZAxisTransform::transformTrc( const TrcKey& trckey, float z ) const
+{
+    SamplingData<float> sd( z, 1 );
+    float res;
+    transformTrc( trckey, sd, 1, &res );
+    return res;
+}
+
+
+float ZAxisTransform::transformTrcBack( const TrcKey& trckey, float z ) const
+{
+    SamplingData<float> sd( z, 1 );
+    float res;
+    transformTrcBack( trckey, sd, 1, &res );
+    return res;
+}
 
 
 void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transformTrc( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+    transformTrc( Survey::GM().traceKey(Survey::GM().default3DSurvID(),
+					bid.inl(), bid.crl()),
+		  sd, sz, res );
 }
 
 
@@ -93,7 +109,9 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformTrcBack( TrcKey( Survey::GM().default3DSurvID(), bid), sd, sz, res );
+    transformTrcBack( Survey::GM().traceKey( Survey::GM().default3DSurvID(),
+					    bid.inl(), bid.crl() ),
+		      sd, sz, res );
 }
 
 
@@ -124,7 +142,9 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    transform( BinID(lineIndex(linenm),trcnr), sd, sz, res );
+    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
+    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    transformTrc( trckey, sd, sz, res );
 }
 
 
@@ -140,7 +160,9 @@ float ZAxisTransform::transform2D( const char* linenm, int trcnr,
 void ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    transformBack( BinID(lineIndex(linenm),trcnr), sd, sz, res );
+    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
+    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    transformTrcBack( trckey, sd, sz, res );
 }
 
 
@@ -225,7 +247,7 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
        					      bool is2d	)
     : transform_(trans)
     , back_(b)
-    , bid_(0,0)
+    , trckey_(0,0,0)
     , sd_(nsd)
     , is2d_(is2d)
 { transform_.ref(); }
@@ -239,12 +261,17 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
 {
     if ( !is2d_ )
 	return;
-    bid_.inl() = transform_.lineIndex(lnm);
-    curlinenm_ = lnm;
+
+    trckey_ = Survey::GM().traceKey( Survey::GM().getGeomID( lnm ), 0 );
 }
 
+
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ bid_.crl() = trcnr; }
+{ trckey_.pos_.crl() = trcnr; }
+
+
+void ZAxisTransformSampler::setBinID( const BinID& bid )
+{ trckey_ = TrcKey( bid ); }
 
 
 float ZAxisTransformSampler::operator[](int idx) const
@@ -257,13 +284,15 @@ float ZAxisTransformSampler::operator[](int idx) const
 	    return cache_[cacheidx];
     }
 
-    const BinIDValue bidval( bid_, (float)sd_.atIndex(idx) );
-    return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl(),
-						      bidval.val())
-			   : transform_.transformBack(bidval) )
-	         : ( is2d_ ? transform_.transform2D(curlinenm_,bid_.crl(),
-			     			  bidval.val())
-			   : transform_.transform(bidval) );
+    const SamplingData<float> sd( (float)sd_.atIndex(idx), 1 );
+
+    float res = mUdf(float);
+    if ( back_ )
+	transform_.transformTrcBack( trckey_, sd, 1, &res );
+    else
+	transform_.transformTrc( trckey_, sd, 1, &res );
+
+    return res;
 }
 
 
@@ -275,19 +304,11 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 					(float)sd_.step );
     if ( back_ )
     {
-	if ( is2d_ )
-	    transform_.transformBack2D( curlinenm_, bid_.crl(), cachesd,
-				      sz, cache_.arr() );
-	else
-	    transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
+	transform_.transformTrcBack( trckey_, cachesd, sz, cache_.arr() );
     }
     else
     {
-	if ( is2d_ )
-	    transform_.transform2D( curlinenm_, bid_.crl(), cachesd,
-				  sz, cache_.arr() );
-	else
-	    transform_.transform( bid_, cachesd, sz, cache_.arr() );
+	transform_.transformTrc( trckey_, cachesd, sz, cache_.arr() );
     }
 
     firstcachesample_ = range.start;

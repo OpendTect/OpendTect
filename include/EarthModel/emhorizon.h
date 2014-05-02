@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "trckey.h"
 
 
 namespace EM
@@ -33,6 +34,9 @@ mExpClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 protected:
     				HorizonGeometry( Surface& surf )
 				    : RowColSurfaceGeometry(surf)	{}
+public:
+    virtual PosID		getPosID(const TrcKey&) const		= 0;
+    virtual TrcKey		getTrcKey(const PosID&) const		= 0;
 };
 
 
@@ -67,6 +71,8 @@ public:
 			    par.get( sKey::StratRef(), stratlevelid_ );
 			    return Surface::usePar( par );
 			}
+
+    virtual TrcKey::SurvID getSurveyID() const			= 0;
 
 protected:
     			Horizon( EMManager& emm )

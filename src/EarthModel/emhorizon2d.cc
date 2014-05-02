@@ -49,6 +49,10 @@ Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 }
 
 
+TrcKey::SurvID Horizon2D::getSurveyID() const
+{ return TrcKey::std2DSurvID(); }
+
+
 int Horizon2DGeometry::nrLines() const
 { return geomids_.size(); }
 
@@ -75,6 +79,29 @@ Pos::GeomID Horizon2DGeometry::geomID( int idx ) const
 {
     return geomids_.validIdx( idx ) ? geomids_[idx]
 				    : Survey::GeometryManager::cUndefGeomID();
+}
+
+
+PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
+{
+    mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
+
+    if ( trckey.survID()!=hor->getSurveyID() )
+	return PosID::udf();
+
+    const int lineidx = geomids_.indexOf( Survey::GM().getGeomID(trckey) );
+    if ( !geomids_.validIdx( lineidx ))
+	return PosID::udf();
+
+    return PosID( surface_.id(), sectionID(0),
+		  RowCol(lineidx,trckey.trcNr()).toInt64() );
+}
+
+
+TrcKey Horizon2DGeometry::getTrcKey( const PosID& pid ) const
+{
+    const RowCol rc = pid.getRowCol();
+    return Survey::GM().traceKey(geomID(rc.row()), rc.col() );
 }
 
 

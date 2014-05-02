@@ -106,9 +106,8 @@ bool WellT2DTransform::calcDepths()
 }
 
 
-void WellT2DTransform::doTransform( const BinID& bid,
-					const SamplingData<float>& sd,
-					int ressz, float* res, bool back ) const
+void WellT2DTransform::doTransform( const SamplingData<float>& sd,
+				    int ressz, float* res, bool back ) const
 {
     const int possz = times_.size();
     if ( possz < 2 )
@@ -153,20 +152,20 @@ void WellT2DTransform::doTransform( const BinID& bid,
 }
 
 
-void WellT2DTransform::transform( const BinID& bid,
+void WellT2DTransform::transformTrc( const TrcKey&,
 					const SamplingData<float>& sd,
 					int ressz, float* res ) const
 {
-    doTransform( bid, sd, ressz, res, false );
+    doTransform( sd, ressz, res, false );
 }
 
 
 
-void WellT2DTransform::transformBack( const BinID& bid,
+void WellT2DTransform::transformTrcBack( const TrcKey&,
 					    const SamplingData<float>& sd,
 					    int ressz, float* res ) const
 {
-    doTransform( bid, sd, ressz, res, true );
+    doTransform( sd, ressz, res, true );
 }
 
 

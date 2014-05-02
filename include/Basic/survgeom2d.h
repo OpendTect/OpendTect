@@ -38,19 +38,24 @@ public:
 
     virtual bool		includes(int linenr,int tracenr) const;
 
-    PosInfo::Line2DData&	data()			{ return data_; }
+    PosInfo::Line2DData&	dataAdmin()		{ return data_; }
+				//!<If data is changed, call touch afterwards
+    void			touch();
     const PosInfo::Line2DData&	data() const		{ return data_; }
     
     StepInterval<float>		zRange() const;
 
     static BufferString  	makeUniqueLineName(const char* lsnm,
 	    					   const char* lnm);
+    float			averageTrcDist() const;
 protected:
 
                     		~Geometry2D();
 
-    PosInfo::Line2DData&	data_;
 
+    PosInfo::Line2DData&	data_;
+    mutable float		trcdist_;
+    mutable Threads::Lock	lock_;
 };
 
 } // namespace Survey

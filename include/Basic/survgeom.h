@@ -34,7 +34,7 @@ will end up in the lineNr() of the TrcKey.
 */
 
 mExpClass(Basic) Geometry
-{			mRefCountImpl(Geometry);
+{ mRefCountImpl(Geometry);
 public:
 
     typedef Pos::GeomID	ID;
@@ -63,6 +63,8 @@ public:
 
     virtual StepInterval<float> zRange() const				= 0;
 
+    virtual float		averageTrcDist() const			= 0;
+
 protected:
 
 			Geometry();
@@ -88,10 +90,16 @@ public:
     int 			nrGeometries() const;
 
     Geometry::ID		getGeomID(const TrcKey&) const;
-    Geometry::ID		getGeomID(const char* survname) const;
+    Geometry::ID		getGeomID(const char* linenm) const;
     const char*			getName(Geometry::ID) const;
     
     Coord			toCoord(const TrcKey&) const;
+
+    TrcKey			traceKey(Geometry::ID,Pos::LineID,
+					 Pos::TraceID) const;
+				//!<For 3D
+    TrcKey			traceKey(Geometry::ID,Pos::TraceID) const;
+				//!<For 2D
 
     bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,

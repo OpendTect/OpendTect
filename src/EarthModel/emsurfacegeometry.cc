@@ -136,9 +136,9 @@ bool SurfaceSectionUndoEvent::action( bool doadd ) const
 
 // ***** SurfaceGeometry *****
 
-SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
+SurfaceGeometry::SurfaceGeometry( Surface& surf )
     : changed_( false )
-    , surface_( surf_ )
+    , surface_( surf )
 {
     surface_.change.notify( mCB(this,SurfaceGeometry,geomChangeCB) );
 }
@@ -385,7 +385,8 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
     const StepInterval<int> colrange = rowRange();
 
     RowCol rc;
-    for ( rc.row()=rowrange.start;rc.row()<=rowrange.stop;rc.row()+=rowrange.step)
+    for ( rc.row()=rowrange.start;rc.row()<=rowrange.stop;
+	  rc.row()+=rowrange.step)
     {
 	for ( rc.col()=colrange.start; rc.col()<=colrange.stop;
 						    rc.col()+=colrange.step )
@@ -540,7 +541,8 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	    RowCol idx( rowrange.start, colrange.start );
 	    for ( ; rowrange.includes( idx.row() ); idx.row()+=rowrange.step )
 	    {
-		for ( ; colrange.includes( idx.col() ); idx.col()+=colrange.step )
+		for ( ; colrange.includes( idx.col() );
+		      idx.col()+=colrange.step )
 		{
 		    if ( isDefined(sid,idx) )
 			nodes += PosID(surface_.id(),sid,idx.toInt64());
@@ -709,7 +711,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
-				 const FloatMathFunction* t2dfunc, bool normalize ) const
+		    const FloatMathFunction* t2dfunc, bool normalize ) const
 {
     TypeSet<Coord3> normals;
     const int nrnodes = nodes.size();
@@ -921,8 +923,10 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 	const PosID& posid = posids[idx];
 	const BinID nodebid = SI().transform(surface_.getPos(posid));
 
-	if ( nodebid.inl()<cs.hrg.start.inl() || nodebid.inl()>cs.hrg.stop.inl() ||
-	     nodebid.crl()<cs.hrg.start.crl() || nodebid.crl()>cs.hrg.stop.crl() )
+	if ( nodebid.inl()<cs.hrg.start.inl() ||
+	     nodebid.inl()>cs.hrg.stop.inl() ||
+	     nodebid.crl()<cs.hrg.start.crl() ||
+	     nodebid.crl()>cs.hrg.stop.crl() )
 	{
 	    posids.removeSingle( idx--, false );
 	    continue;

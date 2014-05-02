@@ -52,6 +52,9 @@ public:
     void			setStep(const RowCol& step,
 					const RowCol& loadedstep);
 
+    PosID			getPosID(const TrcKey&) const;
+    TrcKey			getTrcKey(const PosID&) const;
+
     bool			enableChecks(bool yn);
     bool			isChecksEnabled() const;
     bool			isNodeOK(const PosID&) const;
@@ -122,6 +125,9 @@ public:
     Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
 					const BufferStringSet& attribnms,int,
 					const HorSampling& hs);
+
+
+    TrcKey::SurvID		getSurveyID() const;
 
     SurfaceAuxData&		auxdata;
     EdgeLineManager&		edgelinesets;

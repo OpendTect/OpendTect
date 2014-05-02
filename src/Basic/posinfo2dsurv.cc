@@ -914,13 +914,16 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
 
 Survey::Geometry2D::Geometry2D()
     : data_(*new PosInfo::Line2DData)
+    , trcdist_( mUdf(float) )
 {
 }
 
 
 Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
     : data_( *l2d )
-{}
+    , trcdist_( mUdf(float) )
+{
+}
 
 
 Survey::Geometry2D::~Geometry2D()
@@ -946,7 +949,27 @@ TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     if ( !data_.getPos(crd,pos,dist) )
 	return TrcKey::udf();
 
-    return TrcKey( Survey::GeometryManager::get2DSurvID(), id_, pos.nr_ );
+    return Survey::GM().traceKey( id_, pos.nr_ );
+}
+
+
+void Survey::Geometry2D::touch()
+{
+    Threads::Locker locker( lock_ );
+    trcdist_ = mUdf(float);
+}
+
+
+float Survey::Geometry2D::averageTrcDist() const
+{
+    Threads::Locker locker( lock_ );
+    if ( mIsUdf( trcdist_ ) )
+    {
+	float max;
+	data_.compDistBetwTrcsStats( max, trcdist_ );
+    }
+
+    return trcdist_;
 }
 
 

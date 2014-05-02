@@ -96,6 +96,15 @@ bool Survey::Geometry3D::isClockWise() const
 }
 
 
+float Survey::Geometry3D::averageTrcDist() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(cs_.hrg.step.inl(),0) );
+    const Coord c01 = transform( BinID(0,cs_.hrg.step.crl()) );
+    return (float) ( c00.distTo(c10) + c00.distTo(c01) )/2;
+}
+
+
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
     return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );

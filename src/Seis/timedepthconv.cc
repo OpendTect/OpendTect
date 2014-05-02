@@ -381,10 +381,15 @@ int minThreadSize() const	{ return 50; }
 };
 
 
-void Time2DepthStretcher::transform(const BinID& bid,
+void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
+    if ( trckey.is2D() )
+	return;
+
+    const BinID bid = trckey.pos_;
+
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
     float largestwidth = mUdf(float);
@@ -451,10 +456,15 @@ void Time2DepthStretcher::transform(const BinID& bid,
 }
 
 
-void Time2DepthStretcher::transformBack(const BinID& bid,
+void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
 				        int sz, float* res ) const
 {
+    if ( trckey.is2D() )
+	return;
+
+    const BinID bid = trckey.pos_;
+
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
     float largestwidth = mUdf(float);
@@ -660,16 +670,16 @@ bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 { return stretcher_->loadDataIfMissing( id, tr ); }
 
 
-void Depth2TimeStretcher::transform(const BinID& bid,
+void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
-{ stretcher_->transformBack( bid, sd, sz, res ); }
+{ stretcher_->transformTrcBack( trckey, sd, sz, res ); }
 
 
-void Depth2TimeStretcher::transformBack(const BinID& bid,
+void Depth2TimeStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
 				        int sz, float* res ) const
-{ stretcher_->transform( bid, sd, sz, res ); }
+{ stretcher_->transformTrc( trckey, sd, sz, res ); }
 
 
 Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
@@ -883,8 +893,7 @@ void LinearVelTransform::fillPar( IOPar& par ) const
 }
 
 
-void LinearVelTransform::transformT2D( const BinID& bid,
-				       const SamplingData<float>& sd,
+void LinearVelTransform::transformT2D( const SamplingData<float>& sd,
 				       int sz, float* res ) const
 {
     if ( !computeLinearT2D( startvel_, dv_, -SI().seismicReferenceDatum(),
@@ -896,8 +905,7 @@ void LinearVelTransform::transformT2D( const BinID& bid,
 }
 
 
-void LinearVelTransform::transformD2T( const BinID& bid,
-				      const SamplingData<float>& sd,
+void LinearVelTransform::transformD2T(const SamplingData<float>& sd,
 				      int sz, float* res ) const
 {
     if ( !computeLinearD2T( startvel_, dv_, -SI().seismicReferenceDatum(),
@@ -916,16 +924,16 @@ LinearT2DTransform::LinearT2DTransform( float startvel, float dv )
 {}
 
 
-void LinearT2DTransform::transform( const BinID& bid,
+void LinearT2DTransform::transformTrc( const TrcKey&,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
-{ transformT2D( bid, sd, sz, res ); }
+{ transformT2D( sd, sz, res ); }
 
 
-void LinearT2DTransform::transformBack( const BinID& bid,
+void LinearT2DTransform::transformTrcBack( const TrcKey&,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
-{ transformD2T( bid, sd, sz, res ); }
+{ transformD2T( sd, sz, res ); }
 
 
 Interval<float> LinearT2DTransform::getZInterval( bool time ) const
@@ -969,16 +977,16 @@ LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
 {}
 
 
-void LinearD2TTransform::transform( const BinID& bid,
+void LinearD2TTransform::transformTrc( const TrcKey&,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
-{ transformD2T( bid, sd, sz, res ); }
+{ transformD2T( sd, sz, res ); }
 
 
-void LinearD2TTransform::transformBack( const BinID& bid,
+void LinearD2TTransform::transformTrcBack( const TrcKey&,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
-{ transformT2D( bid, sd, sz, res ); }
+{ transformT2D( sd, sz, res ); }
 
 
 Interval<float> LinearD2TTransform::getZInterval( bool depth ) const

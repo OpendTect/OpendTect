@@ -70,7 +70,7 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 }
 
 
-void HorizonZTransform::transform( const BinID& bid,
+void HorizonZTransform::transformTrc( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
     if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
@@ -90,7 +90,7 @@ void HorizonZTransform::transform( const BinID& bid,
     }
 
     float top, bottom;
-    if ( !getTopBottom( bid, top, bottom ) )
+    if ( !getTopBottom( trckey, top, bottom ) )
     {
 	for ( int idx=sz-1; idx>=0; idx-- )
 	    res[idx] = mUdf(float);
@@ -108,7 +108,7 @@ void HorizonZTransform::transform( const BinID& bid,
 }
 
 
-void HorizonZTransform::transformBack( const BinID& bid,
+void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
     for ( int idx=sz-1; idx>=0; idx-- )
@@ -118,7 +118,7 @@ void HorizonZTransform::transformBack( const BinID& bid,
 	return;
 
     float top, bottom;
-    if ( !getTopBottom( bid, top, bottom ) )
+    if ( !getTopBottom( trckey, top, bottom ) )
 	return;
 
     for ( int idx=sz-1; idx>=0; idx-- )
@@ -147,14 +147,6 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
     idx = intv.stop / step;
     intv.stop = ceil(idx) * step;
     return intv;
-}
-
-
-int HorizonZTransform::lineIndex( const char* lnm ) const
-{
-    mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
-    return hor2d ? hor2d->geometry().lineIndex( lnm ) : 0;
-
 }
 
 
@@ -240,24 +232,74 @@ void HorizonZTransform::calculateHorizonRange()
 }
 
 
-bool HorizonZTransform::getTopBottom( const BinID& bid, float& top,
+bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 				      float& bottom ) const
 {
     mDynamicCastGet(const Horizon3D*,hor3d,horizon_)
     mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
     TypeSet<float> depths;
-    for ( int idx=horizon_->nrSections()-1; idx>=0; idx-- )
+    TrcKey hortrckey;
+    if ( trckey.survID()==horizon_->getSurveyID() )
+	hortrckey = trckey;
+    else
     {
-	const SectionID sid = horizon_->sectionID( idx );
-	float depth = mUdf(float);
+	Survey::Geometry::ID gid = Survey::GM().getGeomID( trckey );
+	RefMan<const Survey::Geometry> keysurv = Survey::GM().getGeometry(gid);
+
+	if ( !keysurv )
+	    return false;
+
+	const Coord crd = keysurv->toCoord( trckey );
+	if ( crd.isUdf() )
+	    return false;
+
 	if ( hor3d )
 	{
-	    const Geometry::BinIDSurface* geom =
-		hor3d->geometry().sectionGeometry(sid);
-	    depth = (float) geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+	    const Survey::Geometry::ID horgid =
+		Survey::GM().getGeomID(TrcKey(horizon_->getSurveyID(),-1,-1));
+	    RefMan<const Survey::Geometry> horsurv =
+		Survey::GM().getGeometry( horgid );
+	    hortrckey = horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
 	}
 	else if ( hor2d )
-	    depth = (float) horizon_->getPos( sid, bid.toInt64() ).z;
+	{
+	    float bestdist2 = mUdf(float);
+	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
+	    {
+		RefMan<const Survey::Geometry> horsurv =
+		    Survey::GM().getGeometry( hor2d->geometry().geomID(idx) );
+
+		const TrcKey tmptrckey =
+		    horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
+
+		const Coord trccrd = horsurv->toCoord( tmptrckey );
+		if ( trccrd.isDefined() )
+		{
+		    const float dist2 = crd.sqDistTo( trccrd );
+		    if ( mIsUdf(bestdist2) || dist2<bestdist2 )
+		    {
+			hortrckey = tmptrckey;
+			bestdist2 = dist2;
+		    }
+		}
+	    }
+	}
+    }
+
+    EM::PosID pid = horizon_->geometry().getPosID( hortrckey );
+    for ( int idx=horizon_->nrSections()-1; idx>=0; idx--)
+    {
+	const SectionID sid = horizon_->sectionID( idx );
+	pid.setSectionID( sid );
+
+	float depth = horizon_->getPos( pid ).z;
+	if ( mIsUdf( depth ) && hor3d )
+	{
+	    const BinID bid = hortrckey.pos_;
+	    const Geometry::BinIDSurface* geom =
+		hor3d->geometry().sectionGeometry(sid);
+	    depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;
+	}
 
 	if ( !mIsUdf(depth) )
 	    depths += depth;

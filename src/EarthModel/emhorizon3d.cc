@@ -329,6 +329,12 @@ float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 }
 
 
+TrcKey::SurvID Horizon3D::getSurveyID() const
+{
+    return TrcKey::std3DSurvID();
+}
+
+
 HorSampling Horizon3D::range( SectionID sid ) const
 {
     HorSampling hs( false );
@@ -563,6 +569,28 @@ bool Horizon3DGeometry::isChecksEnabled() const
 {
     return checksupport_;
 }
+
+
+
+PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
+{
+    mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
+
+    if ( trckey.survID()!=hor->getSurveyID() )
+	return PosID::udf();
+
+    return PosID( surface_.id(), sectionID(0), trckey.pos_.toInt64() );
+}
+
+
+TrcKey Horizon3DGeometry::getTrcKey( const PosID& pid ) const
+{
+    mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
+
+    const RowCol rc = pid.getRowCol();
+    return TrcKey( hor->getSurveyID(), rc );
+}
+
 
 
 bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const

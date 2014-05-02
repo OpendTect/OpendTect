@@ -179,7 +179,7 @@ bool acceptOK( CallBacker* )
     if ( !geom2d )
 	return true;
 
-    PosInfo::Line2DData& geomdata = geom2d->data();
+    PosInfo::Line2DData& geomdata = geom2d->dataAdmin();
     geomdata.setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
@@ -190,6 +190,8 @@ bool acceptOK( CallBacker* )
     }
 
     geomdata.setZRange( rgfld_->getFStepInterval() );
+    geom2d->touch();
+
     uiString errmsg;
     if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
     {

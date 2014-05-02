@@ -65,6 +65,7 @@ public:
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
     void		setGeomData(const Pos::IdxPair2Coord&,
 	    				const CubeSampling&,float zscl);
+    float		averageTrcDist() const;
 
 protected:
     

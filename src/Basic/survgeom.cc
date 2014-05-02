@@ -178,7 +178,7 @@ Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
-	if ( reqln == geometries_[idx]->getName() )
+	if ( geometries_[idx]->is2D() && reqln==geometries_[idx]->getName() )
 	    return geometries_[idx]->getID();
     }
 
@@ -211,6 +211,30 @@ Coord GeometryManager::toCoord( const TrcKey& tk ) const
     const Geometry::ID geomid = getGeomID( tk );
     mGetConstGeom(geom,geomid);
     return geom ? geom->toCoord( tk.lineNr(), tk.trcNr() ) : Coord::udf();
+}
+
+
+TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
+				  Pos::TraceID tid ) const
+{
+    mGetConstGeom(geom,geomid);
+    if ( !geom )
+	return TrcKey::udf();
+
+    if ( geom->is2D() )
+	return TrcKey( TrcKey::std2DSurvID(), geomid,  tid );
+
+    return TrcKey( geomid, lid, tid );
+}
+
+
+TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::TraceID tid ) const
+{
+    mGetConstGeom(geom,geomid);
+    if ( !geom || !geom->is2D() )
+	return TrcKey::udf();
+
+    return TrcKey( TrcKey::std2DSurvID(), geomid,  tid );
 }
 
 

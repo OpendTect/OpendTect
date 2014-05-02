@@ -33,12 +33,14 @@ public:
 				WellT2DTransform(const MultiID&);
 
     bool			isOK() const;
-    void			transform(const BinID&,
+    void			transformTrc(const TrcKey&,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
-    void			transformBack(const BinID&,
+    void			transformTrcBack(const TrcKey&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
+    bool			canTransformSurv(Pos::SurvID) const
+				{ return true; }
 
     Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
@@ -56,8 +58,7 @@ protected:
     TypeSet<float>		depths_;
 
     bool			calcDepths();
-    void			doTransform(const BinID&,
-	    				    const SamplingData<float>&,
+    void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
 };
 
