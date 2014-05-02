@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
@@ -232,7 +233,7 @@ void uiSeisBrowser::createMenuAndToolBar()
 				     "Switch to Cross-line",true );
     mAddButton( "leftarrow",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow",rightArrowPush,"Move right",false );
-    showwgglbutidx_ = mAddButton( "vd",dispTracesPush,
+    showwgglbutidx_ = mAddButton( "wva",dispTracesPush,
 				  "Display current traces",false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
@@ -243,6 +244,15 @@ void uiSeisBrowser::createMenuAndToolBar()
 	selcompnmfld_->selectionChanged.notify(
 					mCB(this,uiSeisBrowser,chgCompNrCB) );
     }
+
+    uiLabel* lbl = new uiLabel( uitb_, "Nr traces" );
+    uitb_->addObject( lbl );
+    nrtrcsfld_ = new uiSpinBox( uitb_ );
+    nrtrcsfld_->setInterval( StepInterval<int>(3,99999,2) );
+    nrtrcsfld_->doSnap( true );
+    nrtrcsfld_->setValue( 2*stepout_+1 );
+    nrtrcsfld_->valueChanged.notify( mCB(this,uiSeisBrowser,nrTracesChgCB) );
+    uitb_->addObject( nrtrcsfld_ );
 }
 
 
@@ -309,6 +319,10 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     {
 	tr_->toStart();
 	binid = tr_->readMgr()->binID();
+	if ( crlwise_ )
+	    binid.inl() += stepout_;
+	else
+	    binid.crl() += stepout_;
     }
 
     tbuf_.erase();
@@ -354,7 +368,7 @@ bool uiSeisBrowser::is2D() const
 void uiSeisBrowser::setStepout( int nr )
 {
     stepout_ = nr;
-    // TODO full redraw
+    nrtrcsfld_->setValue( nr*2+1 );
     // TODO? store in user settings
 }
 
@@ -413,6 +427,9 @@ void uiSeisBrowser::fillTable()
     }
 
     tbl_->resizeRowsToContents();
+    const int middlecol = tbuf_.size()/2;
+    tbl_->selectColumn( middlecol );
+    tbl_->ensureCellVisible( RowCol(0,middlecol) );
 }
 
 
@@ -804,7 +821,23 @@ void uiSeisBrowser::chgCompNrCB( CallBacker* )
 }
 
 
+void uiSeisBrowser::nrTracesChgCB( CallBacker* )
+{
+    const int nrtrcs = nrtrcsfld_->getValue();
+    stepout_ = nrtrcs / 2;
+    tbl_->clear();
+    tbl_->setNrCols( nrtrcs );
+    doSetPos( curBinID(), true );
+    if ( trcbufvwr_ )
+    {
+	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
+				    IOM().nameOf(setup_.id_), compnr_ );
+	trcbufvwr_->handleBufChange();
+    }
+}
 
+
+// uiSeisBrowserInfoVwr
 uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 					    bool is2d, const ZDomain::Def& zd )
     : uiAmplSpectrum(p)
