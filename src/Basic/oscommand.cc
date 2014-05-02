@@ -377,6 +377,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
+	monitorfnm_.quote( '\"' );
 
 #ifndef __win__
 	localcmd.add( " --needmonitor" );
@@ -391,6 +392,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	if ( monitorfnm_.isEmpty() )
 	{
 	    monitorfnm_ = FilePath::getTempName("txt");
+	    monitorfnm_.quote( '\"' );
 	    redirectoutput_ = true;
 	}
 #endif
