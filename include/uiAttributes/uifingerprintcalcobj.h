@@ -56,7 +56,7 @@ public:
     bool		computeValsAndRanges();
 protected:
     
-    void		findLineSetID(MultiID&) const;
+    void		findDataSetID(MultiID&) const;
     EngineMan*          createEngineMan();
     void                extractAndSaveValsAndRanges();
     void                saveValsAndRanges(const TypeSet<float>&,

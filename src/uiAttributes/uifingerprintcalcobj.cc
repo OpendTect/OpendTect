@@ -23,10 +23,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "binidvalset.h"
 #include "picksettr.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "posinfo2d.h"
-#include "survinfo.h"
 #include "posinfo2dsurv.h"
+#include "survinfo.h"
+#include "survgeom2d.h"
 #include "uitaskrunner.h"
 #include "ptrman.h"
 #include "statrand.h"
@@ -44,36 +45,24 @@ static const int cNrRandPicks = 100;
     return;\
 }\
 
-static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
+static void create2DRandPicks( const MultiID& dsetid, BinIDValueSet* rangesset )
 {
-    PtrMan<IOObj> ioobj = IOM().get( lsetid );
-    if ( !ioobj ) mErrRet( "Lineset ID is not OK" );
-    PtrMan<Seis2DLineSet> lset = new Seis2DLineSet( ioobj->fullUserExpr(true) );
-    if ( !lset )
-	mErrRet( "Cannot find input lineset" );
-    if ( lset->nrLines()==0 )
-	mErrRet( "Input lineset is empty" );
+    PtrMan<IOObj> ioobj = IOM().get( dsetid );
+    if ( !ioobj ) mErrRet( "2D Dataset ID is not OK" );
+    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj );
+    const int nrlines = dset->nrLines();
+    if ( !nrlines )
+	mErrRet( "Input Dataset is empty" );
 
-    S2DPOS().setCurLineSet( lset->name() );
-    ObjectSet<PosInfo::Line2DData> geoms;
-    for ( int lineidx=0; lineidx<lset->nrLines(); lineidx++ )
-    {
-	PosInfo::Line2DData* geometry =
-	    new PosInfo::Line2DData( lset->lineName(lineidx) );
-	if ( !S2DPOS().getGeometry(*geometry) )
-	{
-	    delete geometry;
-	    continue;
-	}
-
-	geoms += geometry;
-    }
-    
-    const int nrlines = geoms.size();
     while ( rangesset->totalSize() < cNrRandPicks )
     {
 	const int lineidx = Stats::randGen().getIndex( nrlines );
-	PosInfo::Line2DData& geometry = *geoms[lineidx];
+	const Pos::GeomID geomid = dset->geomID( lineidx );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomid) );
+	if ( !geom2d ) break;
+
+	const PosInfo::Line2DData& geometry = geom2d->data();
 	const int nrcoords = geometry.positions().size();
 	const int crdidx = Stats::randGen().getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;
@@ -142,9 +131,9 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	BinIDValueSet* rangesset = new BinIDValueSet( 2, true );
 	if ( attrset_->is2D() )
 	{
-	    MultiID linesetid;
-	    findLineSetID( linesetid );
-	    create2DRandPicks( linesetid, rangesset );
+	    MultiID datasetid;
+	    findDataSetID( datasetid );
+	    create2DRandPicks( datasetid, rangesset );
 	}
 	else
 	    create3DRandPicks( rangesset );
@@ -156,7 +145,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 }
 
 
-void calcFingParsObject::findLineSetID( MultiID& linesetid ) const
+void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 {
     BufferString firstinp = reflist_->get(0);
     for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
