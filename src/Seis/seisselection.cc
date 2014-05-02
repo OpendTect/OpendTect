@@ -30,7 +30,7 @@ static const char* sKeyBinIDSel = "BinID selection";
 
 Seis::SelData::SelData()
     : isall_(false)
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(Survey::GM().default3DSurvID())
 {
 }
 
