@@ -61,7 +61,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
-    uiIOObjSelGrp::Setup sgsu( uiIOObjSelGrp::AtLeastOne );
+    uiIOObjSelGrp::Setup sgsu( multisel ? uiIOObjSelGrp::AtLeastOne
+					: uiIOObjSelGrp::Single );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, sgsu );
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
