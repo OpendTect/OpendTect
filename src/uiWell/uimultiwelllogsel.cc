@@ -380,10 +380,10 @@ void uiMultiWellLogSel::init()
 {
     const uiObject::SzPolicy hpol = uiObject::MedMax;
     const uiObject::SzPolicy vpol = uiObject::WideMax;
-    uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
+    uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", false,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
-    logsfld_->setMultiSelect( !singlelog_ );
+    logsfld_->setMultiChoice( !singlelog_ );
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
 
@@ -393,10 +393,11 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, "Wells", true );
+	llbw = new uiLabeledListBox( this, "Wells", false );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
+	wellsfld_->setMultiChoice( true );
 	llbl->attach( rightTo, llbw );
 	setHAlignObj( llbw );
     }
@@ -423,7 +424,8 @@ void uiMultiWellLogSel::update()
     clear();
 
     if ( wellsfld_ )
-	wellsfld_->setEmpty(); logsfld_->setEmpty();
+	wellsfld_->setEmpty();
+    logsfld_->setEmpty();
 
     deepErase( wellobjs_ );
 
@@ -454,14 +456,14 @@ void uiMultiWellLogSel::update()
     }
 
     if ( wellsfld_ )
-	wellsfld_->selectAll( true );
+	wellsfld_->chooseAll( true );
     sort( mrkrs ); setMarkers( mrkrs );
 
     for ( int idx=0; idx<lognms.size(); idx++ )
 	logsfld_->addItem( lognms.get(idx) );
     const int prefnmidx = lognms.nearestMatch( prefpropnm_.buf() );
     if ( lognms.validIdx(prefnmidx) )
-	logsfld_->setCurrentItem( prefnmidx );
+	logsfld_->setChosen( prefnmidx );
 }
 
 
@@ -475,7 +477,7 @@ void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
 	{
-	    if ( wellsfld_->isSelected(idx) )
+	    if ( wellsfld_->isChosen(idx) )
 		mids.add( wellobjs_[idx]->key() );
 	}
     }
@@ -519,16 +521,16 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
     if ( singlewid_ && !wellobjs_.isEmpty() )
 	wellnms.add( wellobjs_[0]->name() );
     else
-	wellsfld_->getSelectedItems( wellnms );
+	wellsfld_->getChosen( wellnms );
 }
 
 
 void uiMultiWellLogSel::setSelWellNames( const BufferStringSet& nms )
-{ if ( wellsfld_ ) wellsfld_->setSelectedItems( nms ); }
+{ if ( wellsfld_ ) wellsfld_->setChosen( nms ); }
 
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& nms ) const
-{ logsfld_->getSelectedItems( nms ); }
+{ logsfld_->getChosen( nms ); }
 
 void uiMultiWellLogSel::setSelLogNames( const BufferStringSet& nms )
-{ logsfld_->setSelectedItems( nms ); }
+{ logsfld_->setChosen( nms ); }
 

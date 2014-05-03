@@ -52,7 +52,7 @@ public:
 	mDefSetupMemb(BufferString,mycoltxt)
     };
 
-    			uiWellDispProperties(uiParent*,const Setup&,
+			uiWellDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::BasicProps&);
 
     Well::DisplayProperties::BasicProps& props()	{ return *props_; }
@@ -73,7 +73,7 @@ protected:
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
     //uiSpinBox*		szfld_;
-    uiLabeledSpinBox*	szfld_;    
+    uiLabeledSpinBox*	szfld_;
 
 };
 
@@ -85,13 +85,13 @@ protected:
 mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
-    			uiWellTrackDispProperties(uiParent*,const Setup&,
+			uiWellTrackDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Track&);
 
     Well::DisplayProperties::Track&	trackprops()
 	{ return static_cast<Well::DisplayProperties::Track&>(*props_); }
 
-    void 		resetProps(Well::DisplayProperties::Track&);
+    void		resetProps(Well::DisplayProperties::Track&);
 
 protected:
 
@@ -112,16 +112,16 @@ protected:
 mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
-    			uiWellMarkersDispProperties(uiParent*,const Setup&,
+			uiWellMarkersDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Markers&,
 					const BufferStringSet& allmarkernms,
 					bool is2d);
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
-    
+
     void		setAllMarkerNames(const BufferStringSet&);
-    void 		resetProps(Well::DisplayProperties::Markers&);
+    void		resetProps(Well::DisplayProperties::Markers&);
 
 protected:
 
@@ -136,7 +136,6 @@ protected:
     uiLabeledSpinBox*	nmsizefld_;
     uiComboBox*		nmstylefld_;
     uiCheckBox*		samecolasmarkerfld_;
-    uiCheckBox*		checkallfld_;
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
@@ -151,39 +150,39 @@ protected:
 mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
-    			uiWellLogDispProperties(uiParent*,const Setup&,
+			uiWellLogDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Log&,
 					const Well::LogSet* wl);
 
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
-    
-    void 		resetProps(Well::DisplayProperties::Log&);
+
+    void		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
     void		disableSeisStyle(bool);
     void		disableLogWidth(bool);
 
 protected:
 
-    void        	doPutToScreen();
-    void        	doGetFromScreen();
+    void	doPutToScreen();
+    void	doGetFromScreen();
     void                isFilledSel(CallBacker*);
-    void 		isRepeatSel(CallBacker*);
-    void 		setSeismicSel();
-    void 		setTubeSel();
+    void		isRepeatSel(CallBacker*);
+    void		setSeismicSel();
+    void		setTubeSel();
     void		setWellLogSel();
-    void 		isStyleChanged(CallBacker*);
-    void 		recoverProp();
-    void 		choiceSel(CallBacker*);
-    void 		setRangeFields(Interval<float>&);
-    void 		setFillRangeFields(Interval<float>&);
-    void 		updateRange(CallBacker*);
-    void 		updateFillRange(CallBacker*);
-    void 		calcRange(const char*, Interval<float>&);
-    void  		setFldSensitive(bool);
-    void 		logSel(CallBacker*);
-    void 		selNone();
-    void 		setFieldVals();
+    void		isStyleChanged(CallBacker*);
+    void		recoverProp();
+    void		choiceSel(CallBacker*);
+    void		setRangeFields(Interval<float>&);
+    void		setFillRangeFields(Interval<float>&);
+    void		updateRange(CallBacker*);
+    void		updateFillRange(CallBacker*);
+    void		calcRange(const char*, Interval<float>&);
+    void		setFldSensitive(bool);
+    void		logSel(CallBacker*);
+    void		selNone();
+    void		setFieldVals();
     void		disableLogDisplays();
     void		setStyleSensitive(bool);
 

@@ -57,16 +57,14 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( attrgrp, "Attributes", true,
+	new uiLabeledListBox( attrgrp, "Attributes", false,
 			      uiLabeledListBox::AboveMid );
     llb->attach( leftBorder, 20 );
     attrsfld_ = llb->box();
-    if ( !ads_.is2D() )
-	attrsfld_->setMultiSelect( true );
+    attrsfld_->setMultiChoice( true );
 
     if ( ads_.is2D() )
     {
-	attrsfld_->setItemsCheckable( true );
 	attrsfld_->itemChecked.notify(
 		mCB(this,uiAttribCrossPlot,attrChecked) );
 	attrsfld_->selectionChanged.notify(
@@ -120,7 +118,8 @@ void uiAttribCrossPlot::adsChg()
 	    idx--;
 	    continue;
 	}
-	attrsfld_->addItem( attrinfo_->attrnms_.get(idx), false );
+	attrsfld_->addItem( attrinfo_->attrnms_.get(idx) );
+	attrsfld_->setChosen( attrsfld_->size()-1, true );
     }
 
     for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
@@ -217,7 +216,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 void uiAttribCrossPlot::attrChecked( CallBacker* )
 {
     MultiID selid = getSelectedID();
-    const bool ischked = attrsfld_->isItemChecked( attrsfld_->currentItem() );
+    const bool ischked = attrsfld_->isChosen( attrsfld_->currentItem() );
     if ( ischked && selidxs_.addIfNew(attrsfld_->currentItem()) )
     {
 	selids_ += selid;
@@ -320,11 +319,11 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	    linenames.add( lnms, false );
 	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
 	    {
-		const Pos::GeomID geomid = Survey::GM().getGeomID( 
+		const Pos::GeomID geomid = Survey::GM().getGeomID(
 							    lnms.get(lidx) );
 		if ( geomid == Survey::GM().cUndefGeomID() )
 		    continue;
-		
+
 		p2d->addGeomID( geomid );
 	    }
 	}
@@ -337,8 +336,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrsfld_->size(); idx++ )
     {
-	if ( ads_.is2D() ? attrsfld_->isItemChecked(idx)
-			 : attrsfld_->isSelected(idx) )
+	if ( attrsfld_->isChosen(idx) )
 	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
     }
 

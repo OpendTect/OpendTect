@@ -398,7 +398,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 				    uiLabeledListBox::AboveMid );
 	propfld_ = llb->box();
     }
-    propfld_->setItemsCheckable( true );
+    propfld_->setMultiChoice( true );
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
@@ -426,7 +426,7 @@ void uiSelectPropRefs::fillList()
     {
 	const char* nm = dispnms.get( idx ).buf();
 	const bool issel = prsel_.isPresent( nm );
-	propfld_->setItemChecked( idx, issel );
+	propfld_->setChosen( idx, issel );
 	if ( issel && firstsel < 0 ) firstsel = idx;
     }
 
@@ -465,7 +465,7 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<propfld_->size(); idx++ )
     {
-	if ( !propfld_->isItemChecked(idx) )
+	if ( !propfld_->isChosen(idx) )
 	    continue;
 
 	const char* pnm = propfld_->textOfItem( idx );

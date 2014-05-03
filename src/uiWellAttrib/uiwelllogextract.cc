@@ -48,11 +48,11 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
 	: uiGroup(p)
 	, ads_( d )
-    	, attrsfld_(0)
-    	, posfiltfld_(0)
-    	, radiusfld_(0)
-    	, curdps_(0)
-    	, setup_(setup)
+	, attrsfld_(0)
+	, posfiltfld_(0)
+	, radiusfld_(0)
+	, curdps_(0)
+	, setup_(setup)
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
@@ -62,13 +62,14 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.prefpropnm(setup.prefpropnm_));
 
     uiLabeledListBox* llba = 0;
-    llba = new uiLabeledListBox( this, "Attributes", true );
-    attrsfld_ = llba->box();
+    llba = new uiLabeledListBox( this, "Attributes" );
     llba->display( setup.withattrib_, true );
+    attrsfld_ = llba->box();
+    attrsfld_->setMultiChoice( true );
     welllogselfld_->attach( ensureBelow, llba );
     const float inldist = SI().inlDistance();
     const char* distunit =  SI().getXYUnitString();
-    BufferString radiusbuf( "  Radius around wells "); 
+    BufferString radiusbuf( "  Radius around wells ");
     radiusbuf += distunit;
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
@@ -134,8 +135,9 @@ void uiWellLogExtractGrp::adsChg()
 	    continue;
 	}
 	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
+	attrsfld_->setChosen( attrsfld_->size()-1, true );
     }
-    
+
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
@@ -145,7 +147,7 @@ void uiWellLogExtractGrp::adsChg()
 	    idx--;
 	    continue;
 	}
-	
+
 	const char* defkey = attrinf.ioobjids_.get(idx);
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
 	attrsfld_->addItem( attrinf.is2D(defkey)
@@ -160,7 +162,8 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
 {
     for ( int idx=0; idx<lb->size(); idx++ )
     {
-	if ( !lb->isSelected(idx) ) continue;
+	if ( !lb->isChosen(idx) )
+	    continue;
 	const char* nm = lb->textOfItem(idx);
 	nms.add( nm );
 	dcds += new DataColDef( nm );
@@ -205,7 +208,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     {
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = welllogselfld_->params().samppol_; 
+	wlde.samppol_ = welllogselfld_->params().samppol_;
 	if ( !TaskRunner::execute( &taskrunner, wlde ) )
 	    return false;
     }

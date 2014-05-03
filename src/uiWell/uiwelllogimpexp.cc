@@ -78,7 +78,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs to import" );
     logsfld_ = llb->box();
     llb->attach( alignedBelow, udffld_ );
-    logsfld_->setItemsCheckable( true );
+    logsfld_->setMultiChoice( true );
 
     wellfld_ = new uiWellSel( this, true, "Add to Well" );
     if ( ioobj ) wellfld_->setInput( *ioobj );
@@ -99,7 +99,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
     logsfld_->setEmpty();
     logsfld_->addItems( lfi.lognms );
-    logsfld_->setAllItemsChecked( true );
+    logsfld_->chooseAll( true );
 
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
     unitlbl_->setText( lbl );
@@ -155,7 +155,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( !lasfnm || !*lasfnm )
 	mErrRet( "Please enter a valid file name" )
 
-    BufferStringSet lognms; logsfld_->getCheckedItems( lognms );
+    BufferStringSet lognms; logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
 	mErrRet( "Please select at least one log to import" )
 

@@ -59,15 +59,15 @@ static const int cLevelCol = 5;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
-	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", 
+	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers",
                                      mODHelpKey(mMarkerDlgHelpID) ))
-    	, track_(t)
+	, track_(t)
         , oldmrkrs_(0)
         , table_(0)
-   	, unitfld_(0)
+	, unitfld_(0)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				        .rowgrow(true)
+					        .rowgrow(true)
 					        .defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
@@ -84,15 +84,15 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setPrefWidth( 650 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",
-	    			mCB(this,uiMarkerDlg,updateDisplayCB), true );
+				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
     uiButton* rfbut = new uiPushButton( this, "&Read new",
-	    				mCB(this,uiMarkerDlg,rdFile), false );
+					mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 
     uiButton* expbut = new uiPushButton( this, "&Export",
-	    				mCB(this,uiMarkerDlg,exportCB), false );
+					mCB(this,uiMarkerDlg,exportCB), false );
     expbut->attach( rightOf, rfbut );
 
     uiPushButton* setregmrkar =
@@ -101,7 +101,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     setregmrkar->attach( alignedBelow, updatebut );
 
     uiToolButton* stratbut = new uiToolButton( this, "man_strat",
-	    			"Edit Stratigraphy to define Levels",
+				"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
 
@@ -395,21 +395,21 @@ class uiReadMarkerFile : public uiDialog
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle, 
+    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle,
                                  mODHelpKey(mReadMarkerFileHelpID) ))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
     fnmfld_ = new uiFileInput( this, "Input ASCII file",
-	    		uiFileInput::Setup().withexamine(true)
+			uiFileInput::Setup().withexamine(true)
 					    .forread(true));
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mTableImpDataSelmarkersHelpID) );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, "Existing markers (if any)",
-	    		      BoolInpSpec(true,"Replace","Keep") );
+			      BoolInpSpec(true,"Replace","Keep") );
     replfld_->attach( alignedBelow, dataselfld_ );
 }
 
@@ -536,13 +536,13 @@ uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
 					mNoHelpKey) )
 {
     list_ = new uiListBox( this, "Markers" );
-    list_->setItemsCheckable( true );
+    list_->setMultiChoice( true );
     for ( int idx=0; idx<mset.size(); idx++ )
 	list_->addItem( mset[idx]->name(), mset[idx]->color() );
 }
 
 void getSelIDs( TypeSet<int>& items )
-{ list_->getCheckedItems( items ); }
+{ list_->getChosen( items ); }
 
 protected:
 	uiListBox*	list_;

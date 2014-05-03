@@ -36,7 +36,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_?"Add attribute":"Edit attribute",
-		                 gtDlgTitle(lsa,edsu.isnew_), 
+		                 gtDlgTitle(lsa,edsu.isnew_),
                                  mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
@@ -78,7 +78,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 
 	lithofld_ = new uiListBox( integrgrp_, "Lithologies", false,
 				    reftree_.lithologies().size() );
-	lithofld_->setItemsCheckable( true );
+	lithofld_->setMultiChoice( true );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
 
@@ -197,7 +197,7 @@ void uiLaySeqAttribEd::putToScreen()
 			    attr_.units_.isPresent( it.unit()->fullCode() ) );
 
 	for ( int idx=0; idx<lithofld_->size(); idx++ )
-	    lithofld_->setItemChecked( idx, attr_.liths_.isPresent(
+	    lithofld_->setChosen( idx, attr_.liths_.isPresent(
 					    lithofld_->textOfItem(idx)) );
     }
 
@@ -224,7 +224,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 	    if ( unfld_->isSelected(*it.unit()) )
 		uns.add( it.unit()->fullCode() );
 	}
-	lithofld_->getCheckedItems( liths );
+	lithofld_->getChosen( liths );
 
 	if ( uns.isEmpty() || (!lithofld_->isEmpty() && liths.isEmpty()) )
 	{

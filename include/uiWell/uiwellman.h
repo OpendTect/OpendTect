@@ -83,9 +83,6 @@ protected:
 
     double			getFileSize(const char*,int&) const;
     void			defD2T(bool);
-    int				singLogSelIdx() const;
-    const char*			firstSelLog() const;
-    int				nrSelLogs() const;
 
 };
 

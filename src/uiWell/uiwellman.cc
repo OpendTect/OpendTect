@@ -64,7 +64,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
     logsfld_ = new uiListBox( logsgrp_, "Available logs", false );
-    logsfld_->setItemsCheckable( true );
+    logsfld_->setMultiChoice( true );
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
@@ -199,7 +199,7 @@ void uiWellMan::fillLogsFld()
     for ( int idx=0; idx<availablelognms_.size(); idx++)
 	logsfld_->addItem( availablelognms_.get(idx) );
 
-    logsfld_->setAllItemsChecked( false );
+    logsfld_->chooseAll( false );
     checkButtons();
 }
 
@@ -211,46 +211,6 @@ void uiWellMan::checkButtons()
 }
 
 
-int uiWellMan::singLogSelIdx() const
-{
-    int ret = -1;
-    const int nrchecked = logsfld_->nrChecked();
-    if ( nrchecked == 1 )
-	ret = logsfld_->firstChecked();
-    else if ( nrchecked == 0 )
-	ret = logsfld_->currentItem();
-    return ret;
-}
-
-
-int uiWellMan::nrSelLogs() const
-{
-    const int nrchecked = logsfld_->nrChecked();
-    if ( nrchecked > 0 )
-	return nrchecked;
-    return logsfld_->currentItem() < 0 ? 0 : 1;
-}
-
-
-const char* uiWellMan::firstSelLog() const
-{
-    const int nrchecked = logsfld_->nrChecked();
-    if ( nrchecked > 0 )
-	return logsfld_->textOfItem( logsfld_->firstChecked() );
-
-    return logsfld_->getText();
-}
-
-
-void uiWellMan::getSelLogs( BufferStringSet& nms ) const
-{
-    if ( nrSelLogs() == 1 )
-	nms.add( firstSelLog() );
-    else
-	logsfld_->getCheckedItems( nms );
-}
-
-
 void uiWellMan::logSel( CallBacker* )
 {
     const int nrlogs = logsfld_->size();
@@ -258,12 +218,11 @@ void uiWellMan::logSel( CallBacker* )
     logdownbut_->setSensitive( curidx >= 0 && curidx < nrlogs-1 );
     logupbut_->setSensitive( curidx > 0 );
 
-    const int singselidx = singLogSelIdx();
-    const bool issing = singselidx >= 0;
-    const int nrchecked = logsfld_->nrChecked();
-    const bool oneormore = issing || nrchecked > 1;
+    const int nrchosen = logsfld_->nrChosen();
+    const bool issing = nrchosen == 1;
+    const bool oneormore = nrchosen > 0;
 
-    logvwbut_->setSensitive( issing || nrchecked == 2 );
+    logvwbut_->setSensitive( issing || nrchosen == 2 );
     logrenamebut_->setSensitive( issing );
     logrmbut_->setSensitive( oneormore );
     logexpbut_->setSensitive( oneormore );
@@ -445,7 +404,7 @@ void uiWellMan::calcLogs( CallBacker* )
 void uiWellMan::logUOMPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-    const int selidx = singLogSelIdx();
+    const int selidx = logsfld_->firstChosen();
     if ( selidx < 0 )
 	mErrRet("No log selected")
 
@@ -517,14 +476,14 @@ void uiWellMan::wellsChgd()
 
 #define mEnsureLogSelected() \
     if ( logsfld_->isEmpty() ) return; \
-    const int nrsel = nrSelLogs(); \
+    const int nrsel = logsfld_->nrChosen(); \
     if ( nrsel < 1 ) \
 	mErrRet("No log selected")
 
 #define mGetWL() \
     currdrs_[0]->getLogs(); \
     const Well::LogSet& wls = curwds_[0]->logs(); \
-    const char* lognm = firstSelLog(); \
+    const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() ); \
     const Well::Log* wl = wls.getLog( lognm ); \
     if ( !wl ) \
 	mErrRet( "Cannot read selected log" )
@@ -538,7 +497,7 @@ void uiWellMan::viewLogPush( CallBacker* )
     BufferString lognm1(lognm), lognm2;
     for ( int idx=0; idx<logsfld_->size(); idx++ )
     {
-	if ( !logsfld_->isItemChecked(idx) )
+	if ( !logsfld_->isChosen(idx) )
 	    continue;
 	const char* nm2 = logsfld_->textOfItem( idx );
 	if ( lognm1 != nm2 )
@@ -585,7 +544,7 @@ void uiWellMan::removeLogPush( CallBacker* )
     if ( !uiMSG().askRemove(msg) )
 	return;
 
-    BufferStringSet logs2rem; getSelLogs( logs2rem );
+    BufferStringSet logs2rem; logsfld_->getChosen( logs2rem );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
@@ -608,7 +567,7 @@ void uiWellMan::exportLogs( CallBacker* )
 {
     mEnsureLogSelected();
 
-    BufferStringSet sellogs; getSelLogs( sellogs );
+    BufferStringSet sellogs; logsfld_->getChosen( sellogs );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {

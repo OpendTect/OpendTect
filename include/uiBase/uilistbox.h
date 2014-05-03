@@ -29,14 +29,27 @@ mFDQtclass(QListWidgetItem)
 
 /*!\brief List Box.
 
-  Can be single- or multi-selection. Items can also be 'checkable'. Then, a
-  check box appears in front of each of the items in the list.
-
   The size of the box is determined automatically (prefNrLines=0) but can be
   overruled by setNrLines().
 
-  You can have some of the items marked. This will be done by surrounding the
-  item with curly braces, like: '{the item}'.
+  If the user can select multiple items, then there is a difference between
+  selected and current item. In the old (Windows) style, you get something that
+  is like you have many current items. Two main problems make us want to phase
+  out this style:
+  * The fact that you can choose multiple items is visually hidden.
+  * In many styles you don't know what the current item is
+  Especially the first problem is a big thing.
+
+  New style multi-select works with a check boxes in front of each item. This
+  delivers a challenge because what if the current item is not checked?
+  This is the basis for the 'chosen' concept. An item is chosen if it is
+  checked. If no box is checked, then you can have the listbox report the
+  current item as the chosen item. To switch this off, tell the listbox that
+  no chosen is a valid thing, i.e. use setAllowNoneChosen( true ).
+
+  Lastly, you can have some of the items marked. This will be done by
+  surrounding the item with curly braces, like: '{the item}'. This will not
+  affect selection/checked/chosen status.
 
 */
 
@@ -58,23 +71,18 @@ public:
 
     virtual		~uiListBox();
 
-    enum SelectionMode	{ No, Single, Multi, Extended, Contiguous };
-    void		setSelectionMode(SelectionMode);
-
-    void		setMultiSelect(bool yn=true);
+    void		setMultiChoice( bool yn )     { setItemsCheckable(yn); }
+    void		setAllowNoneChosen( bool yn ) { nochosenisvalid_ = yn; }
     void		setNotSelectable();	//!< display only, no iteraction
-    int			maxNrOfSelections() const;
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		isPresent(const char*) const;
 
-    bool		isSelected(int) const;
-    int			nextSelected(int prev=-1) const;
-    int			nrSelected() const;
-    void		setSelected(int,bool yn=true);
-    void		selectAll(bool yn=true);
-    void		clearSelection();
+    Alignment::HPos	alignment() const		{ return alignment_; }
+    void		setAlignment(Alignment::HPos);
+    void		setNrLines(int);
+    void		setFieldWidth(int);
 
     void		setEmpty();
     void		removeItem(int);
@@ -102,64 +110,48 @@ public:
 
     void		sortItems(bool asc=true);
 
+    int			indexOf(const char*) const;	//!< First match
+    const char*		textOfItem(int) const;
+    void		setItemText(int,const uiString&);
+    void		getItems(BufferStringSet&) const;
+
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
     void                setCurrentItem(int);
     void                setCurrentItem(const char*);	//!< First match
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
-    int			indexOf(const char*) const;	//!< First match
-    const char*		textOfItem(int) const;
-    void		setItemText(int,const uiString&);
-    void		getItems(BufferStringSet&) const;
+
+    int			nrChosen() const;
+    bool		isChosen(int) const;
+    int			firstChosen() const;
+    void		getChosen(BufferStringSet&) const;
+    void		getChosen(TypeSet<int>&) const;
+    void		setChosen(int,bool yn=true);
+    void		setChosen(const BufferStringSet&);
+    void		setChosen(const TypeSet<int>&);
+    void		chooseAll(bool yn);
 
     bool		isMarked(int) const;
     void		setMarked(int,bool);
-
-    void		setItemsCheckable(bool);	//!< Sets all items
-    void		setItemCheckable(int,bool);
-    void		setAllItemsChecked(bool);
-    void		setItemChecked(int,bool);
-    void		setItemChecked(const char*,bool);
-    bool		isItemCheckable(int) const;
-    bool		isItemChecked(int) const;
-    bool		isItemChecked(const char*) const;
-    int			nrChecked() const;
-    int			firstChecked() const;
-
-    void		setItemSelectable(int,bool);
-    bool		isItemSelectable(int) const;
-    void		setSelectedItems(const BufferStringSet&);
-    void		setSelectedItems(const TypeSet<int>&);
-    void		setCheckedItems(const BufferStringSet&);
-    void		setCheckedItems(const TypeSet<int>&);
-    void		getSelectedItems(BufferStringSet&) const;
-    void		getSelectedItems(TypeSet<int>&) const;
-    void		getCheckedItems(BufferStringSet&) const;
-    void		getCheckedItems(TypeSet<int>&) const;
 
     void		setItemID(int idx,int id);
     int			currentItemID() const;
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;	//!< First match
 
-    Alignment::HPos	alignment() const		{ return alignment_; }
-    void		setAlignment(Alignment::HPos);
-    void		setNrLines(int);
-    void		setFieldWidth(int);
-    int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
-    static int		cDefNrLines();		//!< == 7 (July 2011)
     void		scrollToTop();
     void		scrollToBottom();
+    bool		handleLongTabletPress();
+    void		disableRightClick(bool yn);
 
     Notifier<uiListBox> selectionChanged;
-    CNotifier<uiListBox,int> itemChecked;	//!< or un-checked (of course)
+    CNotifier<uiListBox,int> itemChosen;  //!< maybe followed by selectionChange
+    CNotifier<uiListBox,int> itemChecked; //!< always followed by itemChosen
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
-
-    bool		handleLongTabletPress();
 
 private:
 
@@ -170,18 +162,53 @@ private:
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
     bool		allowduplicates_;
+    bool		nochosenisvalid_;
     uiMenu&		rightclickmnu_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
+    void		selChgCB(CallBacker*);
 
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,bool,int,int);
 
     bool		validIndex(int) const;
+    int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
+    static int		cDefNrLines();		//!< == 7
 
 public:
-    void		disableRightClick(bool yn);
+
+    void		setItemsCheckable(bool);
+    void		setItemCheckable(int,bool);
+    void		setAllItemsChecked(bool);
+    void		setItemChecked(int,bool);
+    void		setItemChecked(const char*,bool);
+    bool		isItemCheckable(int) const;
+    bool		isItemChecked(int) const;
+    bool		isItemChecked(const char*) const;
+    int			nrChecked() const;
+    int			firstChecked() const;
+    void		setCheckedItems(const BufferStringSet&);
+    void		setCheckedItems(const TypeSet<int>&);
+    void		getCheckedItems(BufferStringSet&) const;
+    void		getCheckedItems(TypeSet<int>&) const;
+
+    enum SelectionMode	{ No, Single, Multi, Extended, Contiguous };
+    void		setSelectionMode(SelectionMode);
+    void		setMultiSelect(bool yn=true);
+    int			maxNrOfSelections() const;
+    bool		isSelected(int) const;
+    int			nextSelected(int prev=-1) const;
+    int			nrSelected() const;
+    void		setSelected(int,bool yn=true);
+    void		selectAll(bool yn=true);
+    void		clearSelection();
+    void		setItemSelectable(int,bool);
+    bool		isItemSelectable(int) const;
+    void		setSelectedItems(const BufferStringSet&);
+    void		setSelectedItems(const TypeSet<int>&);
+    void		getSelectedItems(BufferStringSet&) const;
+    void		getSelectedItems(TypeSet<int>&) const;
 
 };
 
@@ -201,7 +228,7 @@ public:
 					 bool multisel=false,LblPos p=LeftMid);
 
     uiListBox*		box()				{ return lb_; }
-    int		nrLabels() const		{ return lbls_.size(); }
+    int			nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const uiString&,int nr=0);
 

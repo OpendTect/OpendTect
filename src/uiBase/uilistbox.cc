@@ -137,7 +137,8 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     setDragDropMode( QAbstractItemView::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
     setSelectionBehavior( QAbstractItemView::SelectItems );
-    if ( ismultiselect ) setSelectionMode( mExtended );
+    if ( ismultiselect )
+	setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
     setHSzPol( uiObject::Medium );
@@ -283,18 +284,24 @@ int uiListBoxBody::maxNrOfSelections() const
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
     , itemChecked(this) \
+    , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
     , itemscheckable_(false) \
     , alignment_(Alignment::Left) \
-    , allowduplicates_(true)
+    , allowduplicates_(true) \
+    , nochosenisvalid_(false)
+
+#define mStdConstrEnd \
+    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) ); \
+    setBackgroundColor( roBackgroundColor() ); \
+    selectionChanged.notify( mCB(this,uiListBox,selChgCB) )
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw) )
     mStdInit
 {
-    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
-    setBackgroundColor( roBackgroundColor() );
+    mStdConstrEnd;
 }
 
 
@@ -305,8 +312,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
 {
     addItems( items );
     setName( "Select Data" );
-    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
-    setBackgroundColor( roBackgroundColor() );
+    mStdConstrEnd;
 }
 
 
@@ -317,8 +323,7 @@ uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
 {
     addItems( items );
     setName( "Select Data" );
-    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
-    setBackgroundColor( roBackgroundColor() );
+    mStdConstrEnd;
 }
 
 
@@ -334,6 +339,21 @@ uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 uiListBox::~uiListBox()
 {
     delete &rightclickmnu_;
+}
+
+
+void uiListBox::selChgCB( CallBacker* )
+{
+    if ( !itemscheckable_ || nochosenisvalid_ )
+	return;
+
+    const int nrchecked = nrChecked();
+    if ( nrchecked != 0 )
+	return;
+
+    const int curitm = currentItem();
+    if ( curitm >= 0 )
+	itemChosen.trigger( curitm );
 }
 
 
@@ -594,6 +614,7 @@ void uiListBox::sortItems( bool asc )
 
     NotifyStopper nss( selectionChanged );
     NotifyStopper nsc( itemChecked );
+    NotifyStopper nsch( itemChosen );
     BoolTypeSet mrkd, selected;
     const BufferString cur( getText() );
     BufferStringSet nms;
@@ -812,6 +833,90 @@ int uiListBox::firstChecked() const
 }
 
 
+int uiListBox::nrChosen() const
+{
+    int ret = nrChecked();
+    if ( ret < 1 && !nochosenisvalid_ )
+	ret = currentItem() < 0 ? 0 : 1;
+    return ret;
+}
+
+
+bool uiListBox::isChosen( int lidx ) const
+{
+    if ( isItemChecked(lidx) )
+	return true;
+    if ( nochosenisvalid_ )
+	return false;
+
+    const int nrchecked = nrChecked();
+    if ( nrchecked > 0 )
+	return false;
+    return lidx == currentItem();
+}
+
+
+int uiListBox::firstChosen() const
+{
+    int ret = firstChecked();
+    if ( ret == -1 && !nochosenisvalid_ )
+	ret = currentItem();
+    return ret;
+}
+
+
+void uiListBox::getChosen( TypeSet<int>& items ) const
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isChosen(idx) )
+	    items.add( idx );
+}
+
+
+void uiListBox::getChosen( BufferStringSet& nms ) const
+{
+    TypeSet<int> items; getChosen( items );
+    for ( int idx=0; idx<items.size(); idx++ )
+	nms.add( textOfItem(items[idx]) );
+}
+
+
+void uiListBox::setChosen( int lidx, bool yn )
+{
+    if ( itemscheckable_ )
+	setItemChecked( lidx, yn );
+    if ( yn )
+	setCurrentItem( lidx );
+}
+
+
+void uiListBox::setChosen( const TypeSet<int>& itms )
+{
+    if ( !itemscheckable_ )
+	setSelectedItems( itms );
+    else
+	setCheckedItems( itms );
+}
+
+
+void uiListBox::setChosen( const BufferStringSet& nms )
+{
+    if ( !itemscheckable_ )
+	setSelectedItems( nms );
+    else
+	setCheckedItems( nms );
+}
+
+
+void uiListBox::chooseAll( bool yn )
+{
+    if ( !itemscheckable_ )
+	selectAll( yn );
+    else
+	setAllItemsChecked( yn );
+}
+
+
 void uiListBox::setItemText( int idx, const uiString& txt )
 {
     if ( !validIndex(idx) ) return;
@@ -891,14 +996,16 @@ void uiListBox::getSelectedItems( TypeSet<int>& items ) const
 void uiListBox::getCheckedItems( BufferStringSet& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
-	if ( isItemChecked(idx) ) items.add( textOfItem(idx) );
+	if ( isItemChecked(idx) )
+	    items.add( textOfItem(idx) );
 }
 
 
 void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
-	if ( isItemChecked(idx) ) items += idx;
+	if ( isItemChecked(idx) )
+	    items += idx;
 }
 
 
@@ -956,8 +1063,13 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 
     lbitm->ischecked_ = ischecked;
     const int itmidx = body_->indexOf( lbitm );
+
+    NotifyStopper nsic( itemChosen );
     setCurrentItem( itmidx );
+    nsic.restore();
+
     itemChecked.trigger( itmidx );
+    itemChosen.trigger( itmidx );
 }
 
 
