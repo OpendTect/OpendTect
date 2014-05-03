@@ -58,7 +58,7 @@ uiWellMan::uiWellMan( uiParent* p )
 				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
 {
-    createDefaultUI( false, true );
+    createDefaultUI( false, true, true );
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
@@ -93,7 +93,6 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,logSel) );
     logsfld_->itemChecked.notify( mCB(this,uiWellMan,logSel) );
-    selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
@@ -159,8 +158,7 @@ void uiWellMan::getCurrentWells()
 
     if ( !curioobj_ ) return;
 
-    const int nrsel = selGroup()->getListField()->nrSelected();
-
+    const int nrsel = selGroup()->nrSelected();
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const IOObj* obj = IOM().get( selgrp_->selected(idx) );

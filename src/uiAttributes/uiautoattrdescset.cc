@@ -61,16 +61,16 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     selgrp_->attach( alignedBelow, usefld_ );
     lbl_ = new uiLabel( this, "Attribute Set to use" );
     lbl_->attach( centeredLeftOf, selgrp_ );
-    
+
     loadbutton_ = new uiCheckBox( this, "Load Now" );
-    loadbutton_->attach( alignedBelow, selgrp_ ); 
+    loadbutton_->attach( alignedBelow, selgrp_ );
 
     postFinalise().notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 }
 
 
 uiAutoAttrSelDlg::~uiAutoAttrSelDlg()
-{   
+{
     delete ctio_.ioobj; delete &ctio_;
 }
 
@@ -94,7 +94,7 @@ bool uiAutoAttrSelDlg::loadAuto()
 
 
 void uiAutoAttrSelDlg::useChg( CallBacker* )
-{   
+{
     const bool douse = usefld_->getBoolValue();
     selgrp_->display( douse );
     lbl_->display( douse );
@@ -104,14 +104,14 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
-{   
+{
     if ( !usefld_->getBoolValue() )
 	return true;
 
     selgrp_->processInput();
-    if ( selgrp_->nrSel() < 1 )
+    if ( selgrp_->nrSelected() < 1 )
         mErrRet("Please select an Attribute Set")
-    
+
     ctio_.setObj( selgrp_->selected() );
     Attrib::DescSet attrset( is2d_ );
     BufferString bs;
@@ -199,9 +199,9 @@ bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
 {
     usrdef_ = defselfld_->getBoolValue();
     selgrp_->processInput();
-    if ( usrdef_ && selgrp_->nrSel() < 1 )
+    if ( usrdef_ && selgrp_->nrSelected() < 1 )
 	{ uiMSG().error("Please select an Attribute Set"); return false; }
-    if ( selgrp_->nrSel() > 0 )
+    if ( selgrp_->nrSelected() > 0 )
 	ctio_.setObj( selgrp_->selected(0) );
     if ( !usrdef_ && defattrlist_->box()->nrSelected() < 1 )
         { uiMSG().error("Please select an Attribute Set"); return false; }

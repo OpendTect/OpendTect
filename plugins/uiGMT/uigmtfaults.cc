@@ -53,13 +53,13 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSelGrp( this, *mMkCtxtIOObj(EMFault3D),
-	    			   "Faults", true, false );
+		   "Faults", uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
-	    			 BoolInpSpec("true", "Z Slice", "Horizon") );
+				 BoolInpSpec("true", "Z Slice", "Horizon") );
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
 
@@ -71,8 +71,8 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, LineStyle(),
-	    			     uiSelLineStyle::Setup("Line Style" )
-				     		     .color(false) );
+				     uiSelLineStyle::Setup("Line Style" )
+						     .color(false) );
     linestfld_->attach( alignedBelow, horfld_ );
 
     colorfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
@@ -80,7 +80,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     colorfld_->attach( alignedBelow, linestfld_ );
 
     usecolorbut_ = new uiCheckBox( this, "Use fault color",
-	    			   mCB(this,uiGMTFaultsGrp,useColorCB) );
+				   mCB(this,uiGMTFaultsGrp,useColorCB) );
     usecolorbut_->attach( rightOf, colorfld_ );
     postFinalise().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
 }
@@ -102,13 +102,10 @@ void uiGMTFaultsGrp::useColorCB( CallBacker* )
 
 bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 {
-    if ( !faultfld_->nrSel() )
-    {
-	uiMSG().message( "Please select atleast one fault" );
-	return false;
-    }
-
-    for ( int idx=0; idx<faultfld_->nrSel(); idx++ )
+    const int nrsel = faultfld_->nrSelected();
+    if ( nrsel < 1 )
+	{ uiMSG().message( "Please select atleast one fault" ); return false; }
+    for ( int idx=0; idx<nrsel; idx++ )
     {
 	iop.set( iop.compKey(ODGMT::sKeyFaultID(), idx),
 		 faultfld_->selected(idx) );
@@ -125,7 +122,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	if ( !isbetween )
 	{
 	    BufferString msg( "Z value is out of survey range(" );
-	    msg.add( mNINT32(zrg.start*SI().zDomain().userFactor()) ).add( " , " )
+	    msg.add( mNINT32(zrg.start*SI().zDomain().userFactor()) ).add(" , ")
 	       .add( mNINT32(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
 	    uiMSG().message( msg );
 	    return false;

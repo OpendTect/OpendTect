@@ -71,7 +71,7 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
 bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Well() );
-    if ( !wellfld_->nrSel() )
+    if ( !wellfld_->nrSelected() )
 	mErrRet("Please select at least one well")
 
     wellfld_->fillPar( iop );

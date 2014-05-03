@@ -545,7 +545,8 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
     horcheckfld_ = new uiCheckBox( grp, "Extract horizons for the new grid",
 				   mCB(this,uiCreate2DGrid,horCheckCB) );
     IOObjContext horctxt = mIOObjContext( EMHorizon3D );
-    horselfld_ = new uiIOObjSelGrp( grp, horctxt, "Select horizons", true );
+    horselfld_ = new uiIOObjSelGrp( grp, horctxt, "Select horizons",
+			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
     hornmfld_ = new uiGenInput( grp, "Horizon 2D name prefix" );
@@ -673,7 +674,8 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 void uiCreate2DGrid::fillHorPar( IOPar& par )
 {
     BufferStringSet horids;
-    for ( int idx=0; idx<horselfld_->nrSel(); idx++ )
+    const int nrsel = horselfld_->nrSelected();
+    for ( int idx=0; idx<nrsel; idx++ )
 	horids.add( horselfld_->selected(idx).buf() );
 
     par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );

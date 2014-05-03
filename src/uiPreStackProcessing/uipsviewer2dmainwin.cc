@@ -109,7 +109,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing","", 
+    : uiDialog(p,uiDialog::Setup("Preprocessing","",
                                  mODHelpKey(mPreStackProcSelHelpID) ) )
     , cb_(cb)
 {
@@ -278,7 +278,8 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	clearAuxData();
 	deepErase( mutes_ );
 	mutecolors_.erase();
-	for ( int idx=0; idx<mutesel.selGrp()->nrSel(); idx++ )
+	const int nrsel = mutesel.selGrp()->nrSelected();
+	for ( int idx=0; idx<nrsel; idx++ )
 	{
 	    const MultiID& muteid = mutesel.selGrp()->selected( idx );
 	    PtrMan<IOObj> muteioobj = IOM().get( muteid );
@@ -794,7 +795,7 @@ class uiAngleCompParDlg : public uiDialog
 public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
-    : uiDialog(p,uiDialog::Setup("","", 
+    : uiDialog(p,uiDialog::Setup("","",
                                mODHelpKey(mViewer2DMainWindisplayAngleHelpID)))
 {
     FixedString windowtitle = isag ? "Angle Gather Display"

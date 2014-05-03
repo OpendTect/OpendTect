@@ -149,7 +149,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
     if ( !dlg.go() ) return false;
 
     deepErase( wellids );
-    const int nrsel = dlg.nrSel();
+    const int nrsel = dlg.nrSelected();
     for ( int idx=0; idx<nrsel; idx++ )
 	wellids += new MultiID( dlg.selected(idx) );
 
@@ -287,7 +287,8 @@ uiWellRockPhysLauncher( uiParent* p )
 		"Select one or more wells to add well logs to",mTODOHelpKey) )
     , ctio_(mMkCtxtIOObj(Well))
 {
-    selgrp_ = new uiIOObjSelGrp( this, *ctio_, 0, true, false, false );
+    selgrp_ = new uiIOObjSelGrp( this, *ctio_,
+			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
 }
 
 bool acceptOK( CallBacker* )
@@ -297,6 +298,8 @@ bool acceptOK( CallBacker* )
 
     TypeSet<MultiID> mids;
     selgrp_->getSelected( mids );
+    if ( mids.isEmpty() )
+	return false;
 
     uiWellLogCalc dlg( this, mids, true );
     dlg.go();

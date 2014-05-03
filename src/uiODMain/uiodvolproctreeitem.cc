@@ -51,9 +51,9 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
-    
+
     if ( !select() ) return false;
-    
+
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
@@ -123,7 +123,7 @@ bool uiDataTreeItem::selectSetup()
 
     const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
-    if ( !dlg.go() || !dlg.nrSel() )
+    if ( !dlg.go() || !dlg.nrSelected() )
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
@@ -169,7 +169,7 @@ void uiDataTreeItem::updateColumnText( int col )
     {
 	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
-		 	visserv->getObject(displayID()))
+			visserv->getObject(displayID()))
 	if ( !so )
 	{
 	    uiODDataTreeItem::updateColumnText( col );

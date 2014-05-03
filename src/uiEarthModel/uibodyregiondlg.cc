@@ -629,7 +629,8 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	return;
 
     const bool singlehormod = singlehorfld_->getBoolValue();
-    for ( int idx=0; idx<dlg->nrSel(); idx++ )
+    const int nrsel = dlg->nrSelected();
+    for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID& mid = dlg->selected( idx );
 	if ( isflt )

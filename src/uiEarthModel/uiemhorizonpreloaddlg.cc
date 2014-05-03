@@ -114,12 +114,13 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 				  : mMkCtxtIOObj(EMHorizon3D);
 
     uiIOObjSelDlg hordlg( this, *ctio, "", true );
-    if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrSel() <= 0 )
+    if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrSelected() <= 0 )
 	return false;
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
     TypeSet<MultiID> selmids;
-    for ( int idx=0; idx<hordlg.nrSel(); idx++ )
+    const int nrsel = hordlg.nrSelected();
+    for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID mid = hordlg.selected( idx );
 	selmids += mid;

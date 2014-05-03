@@ -92,21 +92,57 @@ void relocStart( const char* msg )
 
 
 
-uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-			      const uiString& seltxt, bool multisel,
-			      bool havereloc, bool havesetsurvdefault,
-			      bool needremove )
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
     : uiGroup(p)
     , ctio_(c)
-    , ismultisel_(multisel && ctio_.ctxt.forread)
-    , nmfld_(0)
-    , manipgrpsubj(0)
     , newStatusMsg(this)
-    , mkdefbut_( 0 )
     , selectionChg(this)
-    , confirmoverwrite_(true)
-    , asked2overwrite_(false)
 {
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+			      const uiIOObjSelGrp::Setup& su )
+    : uiGroup(p)
+    , ctio_(c)
+    , setup_(su)
+    , newStatusMsg(this)
+    , selectionChg(this)
+{
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+		      const uiString& seltxt )
+    : uiGroup(p)
+    , ctio_(c)
+    , newStatusMsg(this)
+    , selectionChg(this)
+{
+    init( seltxt );
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su )
+    : uiGroup(p)
+    , ctio_(c)
+    , setup_(su)
+    , newStatusMsg(this)
+    , selectionChg(this)
+{
+    init( seltxt );
+}
+
+
+void uiIOObjSelGrp::init( const uiString& seltxt )
+{
+    nmfld_ = 0; manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
+    if ( !ctio_.ctxt.forread )
+	setup_.selmode( Single );
+
     IOM().to( ctio_.ctxt.getSelKey() );
 
     topgrp_ = new uiGroup( this, "Top group" );
@@ -127,7 +163,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
     listfld_->setName( "Objects list" );
     listfld_->setMultiSelect( false );
-    if ( ismultisel_ )
+    if ( isMultiSel() )
 	listfld_->setItemsCheckable( true );
     listfld_->setPrefHeightInChar( 8 );
     fullUpdate( -1 );
@@ -158,10 +194,10 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     {
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
-							 havereloc,
-							 needremove );
+							 setup_.allowreloc_,
+							 setup_.allowremove_ );
 
-	if ( havesetsurvdefault )
+	if ( setup_.allowsetdefault_ )
 	{
 	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
 		"makedefault", "Set as default",
@@ -229,7 +265,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 }
 
 
-int uiIOObjSelGrp::nrSel() const
+int uiIOObjSelGrp::nrSelected() const
 {
     int nr = 0;
     for ( int idx=0; idx<listfld_->size(); idx++ )
@@ -241,8 +277,13 @@ int uiIOObjSelGrp::nrSel() const
 
 bool uiIOObjSelGrp::isSel( int idx ) const
 {
-    return ismultisel_ ? listfld_->isItemChecked(idx)
-		       : listfld_->isSelected(idx);
+    if ( !isMultiSel() )
+	return listfld_->isSelected( idx );
+    else if ( setup_.selmode_ == AnyNumber )
+	return listfld_->isItemChecked( idx );
+
+    const int sidx0 = listfld_->firstChecked();
+    return sidx0>=0 ? listfld_->isItemChecked(idx) : listfld_->isSelected(idx);
 }
 
 
@@ -270,7 +311,7 @@ const MultiID& uiIOObjSelGrp::selected( int objnr ) const
     }
 
     BufferString msg( "Should not reach. objnr=" );
-    msg += objnr; msg += " nrsel="; msg += nrSel();
+    msg += objnr; msg += " nrsel="; msg += nrSelected();
     pErrMsg( msg );
     return udfmid;
 }
@@ -281,7 +322,7 @@ void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
     if ( mids.isEmpty() )
 	return;
 
-    if ( ismultisel_ )
+    if ( isMultiSel() )
 	listfld_->setAllItemsChecked( false );
 
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -289,7 +330,7 @@ void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
 	const int selidx = indexOf( ioobjids_, mids[idx] );
 	if ( selidx < 0 ) continue;
 
-	if ( ismultisel_ )
+	if ( isMultiSel() )
 	    listfld_->setItemChecked( selidx, true );
 	else
 	    listfld_->setSelected( selidx, true );
@@ -299,7 +340,7 @@ void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
 
 void uiIOObjSelGrp::getSelected( TypeSet<MultiID>& mids ) const
 {
-    const int nrsel = nrSel();
+    const int nrsel = nrSelected();
     for ( int idx=0; idx<nrsel; idx++ )
 	mids += selected( idx );
 }
@@ -320,7 +361,7 @@ void uiIOObjSelGrp::setSurveyDefaultSubsel(const char* subsel)
 
 void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 {
-    if ( nrSel()!=1 )
+    if ( nrSelected()!=1 )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( selected() );
@@ -445,10 +486,11 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
     BufferString info;
     bool allowsetdefault;
-    if ( ismultisel_ && nrSel()>1 )
+    const int nrsel = nrSelected();
+    if ( isMultiSel() && nrsel>1 )
     {
 	info += "Multiple objects selected (";
-	info += nrSel(); info += "/"; info += listfld_->size(); info += ")";
+	info += nrsel; info += "/"; info += listfld_->size(); info += ")";
 	allowsetdefault = false;
     }
     else
@@ -480,28 +522,22 @@ void uiIOObjSelGrp::setContext( const IOObjContext& c )
 }
 
 
-bool uiIOObjSelGrp::processInput( bool noneisok )
+bool uiIOObjSelGrp::processInput()
 {
     const int curitm = listfld_->currentItem();
-    if ( !nmfld_ )
+    const int sz = listfld_->size();
+    if ( ctio_.ctxt.forread )
     {
-	// all 'forread' is handled here
-	if ( ismultisel_ )
-	{
-	    if ( noneisok || nrSel() > 0 )
-		return true;
-	    uiMSG().error( "Please select at least one ", mObjTypeName,
-		           "or press Cancel" );
-	    return false;
-	}
+	if ( isMultiSel() )
+	    return true;
 
 	if ( curitm < 0 )
 	{
 	    ctio_.setObj( 0 );
-	    if ( !noneisok )
+	    if ( sz > 0 )
 		uiMSG().error( "Please select the ", mObjTypeName,
 			       "or press Cancel" );
-	    return noneisok;
+	    return false;
 	}
 	PtrMan<IOObj> ioobj = getIOObj( curitm );
 	if ( !ioobj )
@@ -516,7 +552,7 @@ bool uiIOObjSelGrp::processInput( bool noneisok )
 	return true;
     }
 
-    // for write here
+    // from here for write only
     LineKey lk( nmfld_->text() );
     const BufferString seltxt( lk.lineName() );
     int itmidx = ioobjnms_.indexOf( seltxt.buf() );
@@ -528,20 +564,18 @@ bool uiIOObjSelGrp::processInput( bool noneisok )
     PtrMan<IOObj> ioobj = getIOObj( itmidx );
     if ( ioobj && ioobj->implExists(true) )
     {
-	bool ret = true;
+	bool allok = true;
 	if ( ioobj->implReadOnly() )
 	{
 	    uiMSG().error( "Selected ", mObjTypeName, " is read-only" );
-	    ret = false;
+	    allok = false;
 	}
-	else if ( confirmoverwrite_ && !asked2overwrite_ )
-	    ret = uiMSG().askOverwrite(
+	else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
+	    allok = uiMSG().askOverwrite(
 		    BufferString("Overwrite existing ",mObjTypeName,"?") );
-	if ( !ret )
-	{
-	    asked2overwrite_ = false;
-	    return false;
-	}
+
+	if ( !allok )
+	    { asked2overwrite_ = false; return false; }
 
 	asked2overwrite_ = true;
     }
@@ -580,7 +614,7 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
     if ( !const_cast<uiIOObjSelGrp*>(this)->processInput() || !ctio_.ioobj )
 	return false;
 
-    if ( !ismultisel_ )
+    if ( !isMultiSel() )
 	iop.set( sKey::ID(), ctio_.ioobj->key() );
     else
     {
@@ -596,7 +630,7 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 
 void uiIOObjSelGrp::usePar( const IOPar& iop )
 {
-    if ( !ismultisel_ )
+    if ( !isMultiSel() )
     {
 	const char* res = iop.find( sKey::ID() );
 	if ( !res || !*res ) return;
@@ -624,16 +658,19 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      const uiString& seltxt, bool multisel,
-			      bool havesetsurvdefault)
+			      bool havesetsurvdefault )
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
 			mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) )
 		.nrstatusflds(1))
 	, selgrp_( 0 )
 {
-    const bool ismultisel = multisel && c.ctxt.forread;
-    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel, false,
-				 havesetsurvdefault );
+    uiIOObjSelGrp::SelMode selmode = uiIOObjSelGrp::Single;
+    if ( c.ctxt.forread && multisel )
+	selmode = uiIOObjSelGrp::AtLeastOne;
+    uiIOObjSelGrp::Setup sgsu( selmode );
+    sgsu.allowsetdefault( havesetsurvdefault );
+    selgrp_ = new uiIOObjSelGrp( this, c, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
@@ -641,19 +678,17 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     uiString titletext( seltxt );
     if ( titletext.isEmpty() )
     {
-	if ( c.ctxt.forread )
+	if ( selgrp_->getCtxt().forread )
 	    titletext = tr("Select input %1%2");
 	else
 	    titletext = tr("Select output %1%2");
 
-	if ( c.ctxt.name().isEmpty() )
+	if ( selgrp_->getCtxt().name().isEmpty() )
 	    titletext = titletext.arg( uiString(c.ctxt.trgroup->userName()) );
 	else
 	    titletext = titletext.arg( uiString( c.ctxt.name() ) );
 
-	titletext = titletext.arg( ismultisel
-			? "(s)"
-			: uiStrings::sEmptyString() );
+	titletext = titletext.arg( multisel ? "(s)" : "" );
     }
 
     setTitleText( titletext );
@@ -661,7 +696,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     uiString captn( seltxt );
     if ( captn.isEmpty() )
     {
-	if ( c.ctxt.forread )
+	if ( selgrp_->getCtxt().forread )
 	{
 	    if ( multisel )
 		captn = tr( "Load %1(s)");
@@ -671,7 +706,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	else
 	    captn = tr("Save %1 as" );
 
-	if ( c.ctxt.name().isEmpty() )
+	if ( selgrp_->getCtxt().name().isEmpty() )
 	    captn = captn.arg( uiString( c.ctxt.trgroup->userName() ) );
 	else
 	    captn = captn.arg( uiString( c.ctxt.name() ) );
@@ -1008,7 +1043,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
     uiIOObjSelGrp* selgrp_ = dlg->selGrp();
-    if ( selgrp_ ) selgrp_->setConfirmOverwrite( false ); // handle that here
+    if ( selgrp_ )
+	selgrp_->setConfirmOverwrite( false ); // handle that here
 
     if ( !helpkey_.isEmpty() )
 	dlg->setHelpKey( helpkey_ );

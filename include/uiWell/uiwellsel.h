@@ -33,7 +33,7 @@ public:
 			uiWellParSel(uiParent*);
 			~uiWellParSel();
 
-    int			nrSel() const		{ return selids_.size(); }
+    int			nrSelected() const	{ return selids_.size(); }
     void		setSelected(const TypeSet<MultiID>&);
     void		getSelected(TypeSet<MultiID>&) const;
 

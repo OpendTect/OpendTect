@@ -43,10 +43,10 @@ namespace WellTie
     but = new uiToolButton( toolbar_, fnm, tt, mCB(this,uiControlView,cbnm) ); \
     toolbar_->addButton( but );
 
-uiControlView::uiControlView( uiParent* p, uiToolBar* tb, 
+uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 				uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
-	    		         .withcoltabed(false).withsnapshot(false))
+			         .withcoltabed(false).withsnapshot(false))
     , toolbar_(tb)
     , manip_(true)
     , selhordlg_(0)
@@ -54,7 +54,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     , server_(server)
     , redrawNeeded(this)
     , redrawAnnotNeeded(this)
-    , mrkrdlg_(0)			     
+    , mrkrdlg_(0)
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -71,7 +71,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     toolbar_->addSeparator();
     mDefBut(horbut_,"loadhoronseis",loadHorizons,"Load Horizon(s)");
     mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
-	    					"Marker display properties");
+						"Marker display properties");
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
@@ -85,14 +85,14 @@ bool uiControlView::handleUserClick( int vwridx )
     const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
-    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() 
+    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus()
 	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x,wp.y) )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
 	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
-	const SeisTrc& trc = synth ? server_.data().synthtrc_ 
-				   : server_.data().seistrc_; 
+	const SeisTrc& trc = synth ? server_.data().synthtrc_
+				   : server_.data().seistrc_;
 	server_.pickMgr().addPick( (float) wp.y, synth, &trc );
 	redrawAnnotNeeded.trigger();
 	return true;
@@ -106,7 +106,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
     const uiWorldRect& bbox = vwr_.boundingBox();
     const Interval<double> xrg( bbox.left(), bbox.right() ),
 			   zrg( bbox.bottom(), bbox.top() );
-    if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) ) 
+    if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) )
 	{ mErrRet("Please select your pick inside the work area",return false);}
     return true;
 }
@@ -138,7 +138,7 @@ void uiControlView::keyPressCB( CallBacker* )
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
     if ( ev.key_ == OD::P )
-	setEditOn( !editbut_->isOn() ); 
+	setEditOn( !editbut_->isOn() );
 }
 
 
@@ -148,7 +148,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     if ( isnewsel && vwr_.rgbCanvas().getSelectedArea() )
     {
 	const uiRect viewarea = *vwr_.rgbCanvas().getSelectedArea();
-	if ( viewarea.topLeft() == viewarea.bottomRight() || 
+	if ( viewarea.topLeft() == viewarea.bottomRight() ||
 		viewarea.width() < 10 || viewarea.height() < 10 )
 	    return;
 	uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
@@ -176,7 +176,7 @@ void uiControlView::setNewView( Geom::Point2D<double>& centre,
 
     const Interval<double> xrg( br.left(), br.right());
     wr.setLeftRight( xrg ); vwr_.setView( wr );
-    curview_ = wr; zoommgr_.add( sz ); 
+    curview_ = wr; zoommgr_.add( sz );
 
     zoomChanged.trigger();
 }
@@ -201,7 +201,7 @@ public :
 	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpKey)
 		.modal(false))
 	, pms_(pms)
-	, redrawneeded_(this)		   
+	, redrawneeded_(this)
     {
 	setCtrlStyle( CloseOnly );
 	uiGroup* topgrp = new uiGroup( this, "top group" );
@@ -227,9 +227,9 @@ public :
 	uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
 	sep->attach( stretchedBelow, topgrp );
 
-	mrkdispfld_ = new uiWellMarkersDispProperties( this, 
-		uiWellDispProperties::Setup( "Marker size", "Marker color" ), 
-		pms_.mrkdisp_, pms_.allmarkernms_, true );	
+	mrkdispfld_ = new uiWellMarkersDispProperties( this,
+		uiWellDispProperties::Setup( "Marker size", "Marker color" ),
+		pms_.mrkdisp_, pms_.allmarkernms_, true );
 	mrkdispfld_->attach( ensureBelow, sep );
 	mrkdispfld_->attach( alignedBelow, topgrp );
 	mrkdispfld_->putToScreen();
@@ -247,7 +247,7 @@ public :
 	dispmrkfullnamefld_->setSensitive( pms_.isvwrmarkerdisp_ );
 	disphorfullnamefld_->setSensitive( pms_.isvwrhordisp_ );
 
-	redrawneeded_.trigger(); 
+	redrawneeded_.trigger();
     }
 
     Notifier<uiMrkDispDlg>	redrawneeded_;
@@ -255,8 +255,8 @@ public :
 protected:
 
     DispParams&		pms_;
-    uiCheckBox* 	dispmrkfld_;
-    uiCheckBox* 	disphorfld_;
+    uiCheckBox*	dispmrkfld_;
+    uiCheckBox*	disphorfld_;
     uiCheckBox*         dispmrkfullnamefld_;
     uiCheckBox*         disphorfullnamefld_;
     uiWellMarkersDispProperties* mrkdispfld_;
@@ -283,17 +283,18 @@ void uiControlView::reDrawNeeded( CallBacker* )
 void uiControlView::loadHorizons( CallBacker* )
 {
     bool is2d = server_.is2D();
-    PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D ) 
+    PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D )
 				  : mMkCtxtIOObj( EMHorizon3D );
     if ( !selhordlg_ )
 	selhordlg_ = new uiIOObjSelDlg( this, *ctxt, "Select horizon", true );
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
     {
-	for ( int idx=0; idx<selhordlg_->nrSel(); idx++ )
+	const int nrsel = selhordlg_->nrSelected();
+	for ( int idx=0; idx<nrsel; idx++ )
 	    horselids += selhordlg_->selected( idx );
     }
-    delete ctxt->ioobj; 
+    delete ctxt->ioobj;
     BufferString errmsg; uiTaskRunner tr( this );
     server_.horizonMgr().setUpHorizons( horselids, errmsg, tr );
     if ( !errmsg.isEmpty() )
@@ -310,9 +311,9 @@ void uiControlView::fillPar( IOPar& iop ) const
 }
 
 
-void uiControlView::usePar( const IOPar& iop ) 
+void uiControlView::usePar( const IOPar& iop )
 {
-    Interval<double> zrg; 
+    Interval<double> zrg;
     iop.get( sKeyZoom, zrg );
     curview_.setTopBottom( zrg );
     setSelView( false, false );
@@ -325,4 +326,4 @@ void uiControlView::applyProperties(CallBacker*)
     setSelView( true, true );
 }
 
-}; //namespace 
+}; //namespace

@@ -45,78 +45,102 @@ public:
 };
 
 
-/*!
-\brief Basic group for letting the user select an object. It can be used
-standalone in a dialog, or as a part of dialogs.
+/*!\brief Basic group for letting the user select an object.
+
+  For the multi-select selection modes the list will be checkable. The SelMode
+  'AnyNumber' will allow the user to not check any item. In the 'AtLeastOne'
+  mode the current item is used if the user doesn't check anything.
+  In all cases 0 selected is possible (e.g. the list can be empty) - it's up
+  to you whether this will be an error.
+
 */
 
 mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
 public:
-				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
-					      const uiString& seltxt=0,
-					      bool multisel=false,
-					      bool needreloc=false,
-					      bool setdefaultbut=false,
-					      bool needremove=true);
-				~uiIOObjSelGrp();
-    bool			isEmpty() const;
-    int				size() const;
 
-    void			fullUpdate(const MultiID& kpselected);
-    bool			processInput(bool noneisok=false);
-				/*!< Processes the current selection so
-				     selected() can be queried. It also creates
-				     an entry in IOM if the selected object is
-				     new.  */
+    enum SelMode	{ Single, AnyNumber, AtLeastOne };
 
-    int				nrSel() const;
-    bool			isSel(int) const;
-    int				currentItem() const;
-    MultiID			currentID() const;
-    const MultiID&		selected(int idx=0) const;
-				/*!<\note that processInput should be called
-				    after selection, but before selected.  */
-    void			setSelected(const TypeSet<MultiID>&);
-    void			getSelected(TypeSet<MultiID>&) const;
-    void			selectAll(bool yn=true);
-    Notifier<uiIOObjSelGrp>	selectionChg;
-    Notifier<uiIOObjSelGrp>	newStatusMsg;
+    mExpClass(uiIo) Setup
+    {
+    public:
+			Setup( SelMode sm=Single )
+			    : selmode_(sm)
+			    , allowreloc_(false)
+			    , allowremove_(true)
+			    , allowsetdefault_(false)
+			    , confirmoverwrite_(true)	{}
+
+	mDefSetupMemb(SelMode,selmode);
+	mDefSetupMemb(bool,allowreloc);
+	mDefSetupMemb(bool,allowremove);
+	mDefSetupMemb(bool,allowsetdefault);
+	mDefSetupMemb(bool,confirmoverwrite);
+
+	bool		isMultiSel() const	{ return selmode_ != Single; }
+
+    };
+			uiIOObjSelGrp(uiParent*,const CtxtIOObj&);
+			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
+					const uiString& seltxt);
+			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,const Setup&);
+			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
+				      const uiString& seltxt,const Setup&);
+			~uiIOObjSelGrp();
+    bool		isEmpty() const;
+    int			size() const;
+    inline bool		isMultiSel() const	{ return setup_.isMultiSel(); }
+
+    void		fullUpdate(const MultiID& kpselected);
+    bool		processInput();
+				/*!< has to be done before selected() can be
+				   queried. It also creates an entry in IOM if
+				   the selected object is new.  */
+
+    int			nrSelected() const;
+    bool		isSel(int) const;
+    int			currentItem() const;
+    MultiID		currentID() const;
+    const MultiID&	selected(int idx=0) const;
+				//!<\note processInput should be called first!
+    void		setSelected(const TypeSet<MultiID>&);
+    void		getSelected(TypeSet<MultiID>&) const;
+    void		selectAll(bool yn=true);
+
+
+    void		setContext(const IOObjContext&);
+    const IOObjContext&	getCtxt() const			{ return ctio_.ctxt; }
+    const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
+    uiGroup*		getTopGroup()			{ return topgrp_; }
+    uiGenInput*		getNameField()			{ return nmfld_; }
+    uiListBox*		getListField()			{ return listfld_; }
+    uiIOObjManipGroup*	getManipGroup();
+    const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
+    void		setConfirmOverwrite( bool yn )
+				{ setup_.confirmoverwrite_ = yn; }
+    void		setAskedToOverwrite( bool yn )
+				{ asked2overwrite_ = yn; }
+    bool		askedToOverwrite() const { return asked2overwrite_; }
+    void		setSurveyDefaultSubsel(const char* subsel);
+
+    virtual bool	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+
+    Notifier<uiIOObjSelGrp> selectionChg;
+    Notifier<uiIOObjSelGrp> newStatusMsg;
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
-
-    void			setSurveyDefaultSubsel(const char* subsel);
-
-    void			setContext(const IOObjContext&);
-    const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
-    uiGroup*			getTopGroup()		{ return topgrp_; }
-    uiGenInput*			getNameField()		{ return nmfld_; }
-    uiListBox*			getListField()		{ return listfld_; }
-    uiIOObjManipGroup*		getManipGroup();
-    const ObjectSet<MultiID>&	getIOObjIds() const	{ return ioobjids_; }
-    void			setConfirmOverwrite( bool yn )
-				{ confirmoverwrite_ = yn; }
-    void			setAskedToOverwrite( bool yn )
-				{ asked2overwrite_ = yn; }
-    bool			askedToOverwrite() const
-				{ return asked2overwrite_; }
-
-    virtual bool		fillPar(IOPar&) const;
-    virtual void		usePar(const IOPar&);
 
 protected:
 
     CtxtIOObj		ctio_;
+    Setup		setup_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;
-    bool		ismultisel_;
-    bool		confirmoverwrite_;
     bool		asked2overwrite_;
 
-    friend class	uiIOObjSelDlg;
-    friend class	uiIOObjSelGrpManipSubj;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
@@ -130,6 +154,7 @@ protected:
     void		fillListBox();
     void		setCur(int);
     void		toStatusBar(const char*);
+    IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);
 
     void		setInitial(CallBacker*);
@@ -137,7 +162,14 @@ protected:
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
-    IOObj*		getIOObj(int);
+
+private:
+
+    void		init(const uiString& st=0);
+
+    friend class	uiIOObjSelDlg;
+    friend class	uiIOObjSelGrpManipSubj;
+
 };
 
 
@@ -153,7 +185,7 @@ public:
 				      bool multisel=false,
 				      bool allowsetsurvdefault=false);
 
-    int			nrSel() const		{ return selgrp_->nrSel(); }
+    int			nrSelected() const { return selgrp_->nrSelected(); }
     const MultiID&	selected( int i ) const	{ return selgrp_->selected(i); }
     const IOObj*	ioObj() const	{return selgrp_->getCtxtIOObj().ioobj;}
     uiIOObjSelGrp*	selGrp()		{ return selgrp_; }

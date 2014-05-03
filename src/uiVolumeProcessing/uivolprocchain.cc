@@ -348,7 +348,7 @@ bool uiChain::doSaveAs()
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
     ctxt.forread = false;
     uiIOObjSelDlg dlg( this, ctxt, "Volume Builder Setup" );
-    if ( !dlg.go() || !dlg.nrSel() )
+    if ( !dlg.go() || !dlg.nrSelected() )
 	 return false;
 
     BufferString errmsg;
@@ -439,7 +439,7 @@ void uiChain::readPush( CallBacker* )
     ctxt.forread = true;
     uiIOObjSelDlg dlg( this, ctxt );
     dlg.selGrp()->setConfirmOverwrite( false );
-    if ( !dlg.go() || !dlg.nrSel() )
+    if ( !dlg.go() || !dlg.nrSelected() )
 	return;
 
     BufferString errmsg;

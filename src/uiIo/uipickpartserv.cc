@@ -168,7 +168,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     if ( !dlg.go() ) return false;
 
     bool retval = false;
-    const int nrsel = dlg.nrSel();
+    const int nrsel = dlg.nrSelected();
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID id = dlg.selected(idx);
@@ -253,7 +253,7 @@ bool uiPickPartServer::createRandom2DSet()
     { delete newps; newps = 0; }
     if ( newps )
 	return uipsmgr_.storeNewSet( newps );
-   
+
     return false;
 }
 
@@ -279,13 +279,13 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     {
 	for ( int iln=0; iln<selectlines_.size(); iln++ )
 	{
-	    const Survey::Geometry* geom = 
+	    const Survey::Geometry* geom =
 		Survey::GM().getGeometry( selectlines_.get(iln) );
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
 		continue;
 
-	    const TypeSet<PosInfo::Line2DPos>& posns = 
+	    const TypeSet<PosInfo::Line2DPos>& posns =
 				    geom2d->data().positions();
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 		coords2d_ += posns[ipos].coord_;

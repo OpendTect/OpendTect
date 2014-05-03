@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
     : uiDialog(p,uiDialog::Setup( BufferString( "Select Input ",type,"(s)" ),
-				  mNoDlgTitle, 
+				  mNoDlgTitle,
                                   mODHelpKey(mMultiSurfaceReadDlgHelpID) )
                                   .nrstatusflds(1) )
 {
@@ -56,7 +56,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     : uiIOSurface(p,true,typ)
     , singleSurfaceSelected(this)
 {
-    ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_->ctxt, "", true );
+    ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_->ctxt,
+			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
     ioobjselgrp_->selectionChg.notify( mCB(this,uiMultiSurfaceRead,selCB) );
     ioobjselgrp_->getListField()->doubleClicked.notify(
 					mCB(this,uiMultiSurfaceRead,dClck) );
@@ -91,7 +92,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 {
     if ( !rgfld_->mainObject() || !rgfld_->mainObject()->isDisplayed() ) return;
 
-    const int nrsel = ioobjselgrp_->nrSel();
+    const int nrsel = ioobjselgrp_->nrSelected();
     if( nrsel == 0 )
 	return;
 
@@ -135,7 +136,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
-    const int nrsel = ioobjselgrp_->nrSel();
+    const int nrsel = ioobjselgrp_->nrSelected();
     BufferString errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
@@ -175,7 +176,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 {
     uiIOSurface::getSelection( sel );
 
-    if ( ioobjselgrp_->nrSel() != 1 )
+    if ( ioobjselgrp_->nrSelected() != 1 )
 	return;
 
     const MultiID mid = ioobjselgrp_->selected( 0 );

@@ -160,7 +160,7 @@ uiMergePickSets( uiParent* p, MultiID& mid )
 {
     ctioin_.setObj( IOM().get(mid_) );
     selfld = new uiIOObjSelGrp( this, ctioin_, "Select Pick Sets to merge",
-	    			true );
+			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AnyNumber) );
     ctioout_.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctioout_, "Output merged set" );
     outfld->attach( alignedBelow, selfld );
@@ -169,17 +169,11 @@ uiMergePickSets( uiParent* p, MultiID& mid )
 
 bool acceptOK( CallBacker* )
 {
-    nrsel = selfld->nrSel();
+    nrsel = selfld->nrSelected();
     if ( nrsel < 2 )
-    {
-	uiMSG().error( "Please select at least two sets" );
-	return false;
-    }
+	{ uiMSG().error( "Please select at least two sets" ); return false; }
     else if ( !outfld->commitInput() )
-    {
-	uiMSG().error( "Cannot create the output set" );
-	return false;
-    }
+	{ uiMSG().error( "Cannot create the output set" ); return false; }
 
     if ( ctioout_.ioobj )
 	mid_ = ctioout_.ioobj->key();

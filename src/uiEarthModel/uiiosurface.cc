@@ -391,7 +391,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( sectionfld_ && !sectionfld_->box()->nrSelected() )
+    if ( sectionfld_ && sectionfld_->box()->nrSelected() < 1 )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;
@@ -520,7 +520,7 @@ bool uiSurfaceRead::processInput()
 	return false;
     }
 
-    if ( sectionfld_ && !sectionfld_->box()->nrSelected() )
+    if ( sectionfld_ && sectionfld_->box()->nrSelected()<1 )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;
@@ -569,7 +569,7 @@ public:
 			continue;
 
 		    if ( geomids[gidx] ==
-			    	fss->geometry().pickedGeomID(sid,sticknr))
+				fss->geometry().pickedGeomID(sid,sticknr))
 		    { fssvalid = true; break; }
 		}
 	    }
@@ -650,7 +650,8 @@ public:
 	if ( !dlg.go() )
 	    return;
 
-	for ( int idx=0; idx<dlg.nrSel(); idx++ )
+	const int nrsel = dlg.nrSelected();
+	for ( int idx=0; idx<nrsel; idx++ )
 	{
 	    const MultiID& mid = dlg.selected( idx );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );

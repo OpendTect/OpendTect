@@ -66,7 +66,7 @@ static const char* sSeedPickOptionsInfo()
 
 static const char* sTrackInVolInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return 
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return
 	"The 2D horizon is auto-tracked from seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
@@ -74,7 +74,7 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 	"3) Finish wizard.\n"
 	"4) Pick seeds on other 2D lines in your lineset.\n"
 	"5) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
-   
+
     return
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
 	"Workflow:\n"
@@ -88,7 +88,7 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 
 static const char* sLineTrackInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return 
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return
 	"The 2D horizon is auto-tracked between seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
@@ -111,7 +111,7 @@ static const char* sLineTrackInfo( const BufferString& trackertype )
 static const char* sLineManualInfo( const BufferString& trackertype )
 {
     if ( trackertype == EMHorizon2DTranslatorGroup::keyword() )
-	return 
+	return
 	"The 2D horizon is painted (linear interpolation) between seeds\n"
 	"picked on 2D lines.\n\n"
 	"Workflow:\n"
@@ -217,9 +217,9 @@ uiGroup* Wizard::createTrackModePage()
 				 lbltxt("Object color") );
     colorfld->colorChanged.notify( mCB(this,Wizard,colorChangeCB) );
 
-    mDefSeedConModeGrp( hmodegrp, Horizon3D ); 
-    mDefSeedConModeGrp( h2dmodegrp, Horizon2D ); 
-//  mDefSeedConModeGrp( fmodegrp, Fault ); 
+    mDefSeedConModeGrp( hmodegrp, Horizon3D );
+    mDefSeedConModeGrp( h2dmodegrp, Horizon2D );
+//  mDefSeedConModeGrp( fmodegrp, Fault );
 
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, colorfld, -2 );
@@ -238,7 +238,7 @@ uiGroup* Wizard::createTrackModePage()
 
 #define mDefSetupGrp( xsetupgrp, typ ) \
     xsetupgrp = uiMPE().setupgrpfact.create( \
-	    			grp, EM##typ##TranslatorGroup::keyword(), 0 ); \
+				grp, EM##typ##TranslatorGroup::keyword(), 0 ); \
     xsetupgrp->attach( centeredAbove, lbl );
 
 uiGroup* Wizard::createSeedSetupPage()
@@ -322,11 +322,11 @@ bool Wizard::leaveNamePage( bool process )
 	if ( !askoverwrite )
 	{
 	    uiMSG().error( "An object of different type has the same name.\n"
-		    	   "Please give another name." );
+			   "Please give another name." );
 	    return false;
 	}
 	else if ( !uiMSG().askOverwrite("An object with this name exists. "
-		    		   "Overwrite?") )
+				   "Overwrite?") )
 	    return false;
     }
 
@@ -338,7 +338,7 @@ bool Wizard::leaveNamePage( bool process )
     }
 
     ioparentrycreated = !ioobj;
-    const int nrsel = objselgrp->nrSel();
+    const int nrsel = objselgrp->nrSelected();
     PtrMan<IOObj> newioobj = nrsel>0 ? IOM().get(objselgrp->selected(0)) : 0;
     if ( !newioobj )
     {
@@ -378,7 +378,7 @@ bool Wizard::leaveNamePage( bool process )
 	 typ##SeedPicker::nrSeedConnectModes()>0 ) \
 	modegrp = xmodegrp; \
     xmodegrp->display( xmodegrp==modegrp, true );
-    
+
 bool Wizard::prepareTrackModePage()
 {
     if ( currentobject!=-1 )
@@ -410,7 +410,7 @@ bool Wizard::prepareTrackModePage()
 bool Wizard::leaveTrackModePage( bool process )
 {
     if ( !process ) restoreObject();
-	
+
     if ( currentPageIdx()==lastPage() )
 	return finalizeCycle();
 
@@ -435,7 +435,7 @@ bool Wizard::prepareSeedSetupPage()
     SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );
     if ( !sectiontracker ) return false;
     setupgrp->setSectionTracker( sectiontracker );
-    setupgrp->setAttribSet( mpeserv->getCurAttrDescSet(tracker->is2D()) ); 
+    setupgrp->setAttribSet( mpeserv->getCurAttrDescSet(tracker->is2D()) );
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick() );
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
@@ -444,10 +444,10 @@ bool Wizard::prepareSeedSetupPage()
 	setRotateMode(false);
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
-    if ( addrmseednotifier ) 
+    if ( addrmseednotifier )
 	addrmseednotifier->notify( mCB(this,Wizard,aboutToAddRemoveSeed) );
     NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
-    if ( surfchangenotifier ) 
+    if ( surfchangenotifier )
 	surfchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
     initialundoid_ = EM::EMM().undo().currentEventID();
@@ -465,7 +465,7 @@ bool Wizard::prepareSeedSetupPage()
 	return retfld; \
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
     if ( !seedpicker ) \
-	return retfld; 
+	return retfld;
 
 bool Wizard::leaveSeedSetupPage( bool process )
 {
@@ -475,10 +475,10 @@ bool Wizard::leaveSeedSetupPage( bool process )
 	return false;
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
-    if ( addrmseednotifier ) 
+    if ( addrmseednotifier )
 	addrmseednotifier->remove( mCB(this,Wizard,aboutToAddRemoveSeed) );
     NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
-    if ( surfchangenotifier ) 
+    if ( surfchangenotifier )
 	surfchangenotifier->remove( mCB(this,Wizard,updateFinishButton) );
 
     setButtonSensitive( uiDialog::CANCEL, true );
@@ -541,7 +541,7 @@ void Wizard::restoreObject()
     {
 	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	emobj->setBurstAlert( true );
-	
+
 	EM::EMM().undo().unDo(
 	                EM::EMM().undo().currentEventID()-initialundoid_);
 	EM::EMM().undo().removeAllAfterCurrentEvent();
@@ -553,7 +553,7 @@ void Wizard::restoreObject()
     {
 	const MultiID mid = EM::EMM().getMultiID(currentobject);
 	PtrMan<IOObj> ioobj = IOM().get(mid);
-	
+
 	if ( ioobj )
 	{
 	    if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
@@ -565,7 +565,7 @@ void Wizard::restoreObject()
 
     // This must come before tracker is removed since
     // applman needs tracker to know what to remove.
-    // And after io-stuff removal which needs valid MultiID 
+    // And after io-stuff removal which needs valid MultiID
     if ( objectcreated )
     {
 	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
@@ -595,7 +595,7 @@ bool Wizard::isClosing( bool iscancel )
 	restoreObject();
 	MPE::engine().trackeraddremove.trigger();
     }
-    else 
+    else
     {
 	mGetSeedPicker(false);
 	mpeserv->blockDataLoading( true );
@@ -604,7 +604,7 @@ bool Wizard::isClosing( bool iscancel )
 
 	if ( !seedpicker->doesModeUseVolume() )
 	    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick() );
-	
+
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
 	mpeserv->sendEvent( uiMPEPartServer::evMPEDispIntro() );
@@ -687,7 +687,7 @@ void Wizard::adjustSeedBox()
 	    break;
 
 	const Coord3 pos = emobj->getPos(pid);
-	if ( !pos.isDefined() || 
+	if ( !pos.isDefined() ||
 	     !emobj->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
 	    continue;
 
@@ -751,7 +751,7 @@ void Wizard::updateDialogTitle()
     str += current; str += " Tracking";
     for ( int idx=0; idx<spacestoadd; idx++ )
 	str += " ";
-    
+
     setTitleText( str );
 }
 
@@ -862,7 +862,7 @@ void Wizard::aboutToAddRemoveSeed( CallBacker* )
     bool fieldchange;
     const bool isvalidsetup = setupgrp->commitToTracker(fieldchange);
     seedpicker->blockSeedPick( !isvalidsetup );
-	
+
     if ( isvalidsetup && fieldchange )
     {
 	mpeserv->loadAttribData();
