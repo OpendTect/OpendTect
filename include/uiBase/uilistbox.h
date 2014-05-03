@@ -125,6 +125,7 @@ public:
     bool		isItemChecked(int) const;
     bool		isItemChecked(const char*) const;
     int			nrChecked() const;
+    int			firstChecked() const;
 
     void		setItemSelectable(int,bool);
     bool		isItemSelectable(int) const;
@@ -200,7 +201,7 @@ public:
 					 bool multisel=false,LblPos p=LeftMid);
 
     uiListBox*		box()				{ return lb_; }
-    int 		nrLabels() const		{ return lbls_.size(); }
+    int		nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const uiString&,int nr=0);
 

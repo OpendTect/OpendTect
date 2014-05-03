@@ -73,10 +73,10 @@ public:
     int				nrSel() const;
     bool			isSel(int) const;
     int				currentItem() const;
+    MultiID			currentID() const;
     const MultiID&		selected(int idx=0) const;
 				/*!<\note that processInput should be called
-				          after selection, but before any call
-					  to this.  */
+				    after selection, but before selected.  */
     void			setSelected(const TypeSet<MultiID>&);
     void			getSelected(TypeSet<MultiID>&) const;
     void			selectAll(bool yn=true);

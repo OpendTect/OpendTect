@@ -240,6 +240,9 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	outunfld_->setUnit( UoMR().getInternalFor(newtyp) );
     }
 
+    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
+	setUnits4Log( iinp );
+
     return true;
 }
 
@@ -250,7 +253,7 @@ public:
 
 uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup("Rock Physics",
-				 "Use a rock physics formula", 
+				 "Use a rock physics formula",
                                   mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
@@ -318,28 +321,50 @@ Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, int varnr )
 }
 
 
-void uiWellLogCalc::inpSel( CallBacker* )
+void uiWellLogCalc::setUnits4Log( int inpidx )
+{
+    const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
+    const UnitOfMeasure* uom = 0;
+    PropertyRef::StdType ptyp = PropertyRef::Other;
+    if ( wl )
+    {
+	uom = wl->unitOfMeasure();
+	if ( uom )
+	    ptyp = uom->propType();
+    }
+
+    uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
+    inpfld->setPropType( ptyp );
+    inpfld->setUnit( uom );
+}
+
+
+void uiWellLogCalc::fillSRFld( int inpidx )
 {
     float sr = srfld_->getfValue();
     if ( !mIsUdf(sr) )
 	return;
 
-    for ( int idx=0; idx<formfld_->nrInputs(); idx++ )
-    {
-	const Well::Log* wl = getLog4InpIdx( superwls_, idx );
-	if ( !wl || wl->isEmpty() )
-	    continue;
-
+    const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
+    if ( wl && !wl->isEmpty() )
 	sr = wl->dahStep( false );
-	if ( !mIsUdf(sr) )
-	    break;
+    if ( !mIsUdf(sr) )
+    {
+	if ( ftbox_->isChecked() )
+	    sr *= mToFeetFactorF;
+	srfld_->setValue( sr );
     }
+}
 
-    if ( mIsUdf(sr) ) return;
 
-    if ( ftbox_->isChecked() )
-	sr *= mToFeetFactorF;
-    srfld_->setValue( sr );
+void uiWellLogCalc::inpSel( CallBacker* cb )
+{
+    const int inpidx = formfld_->inpSelNotifNr();
+    if ( inpidx >= form_.nrInputs() )
+	return;
+
+    fillSRFld( inpidx );
+    setUnits4Log( inpidx );
 }
 
 
@@ -582,7 +607,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		const float val = inpd.wl_->getValue( curdah, false );
 		inpvals[iinp] = val;
 		noudfinpvals[iinp] = !mIsUdf(val) ? val
-		    		   : inpd.wl_->getValue( curdah, true );
+				   : inpd.wl_->getValue( curdah, true );
 	    }
 	    else if ( inpd.isconst_ )
 		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;

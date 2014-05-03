@@ -27,7 +27,7 @@ namespace Well { class Data; class Reader; };
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
 {
 public:
-    				uiWellMan(uiParent*);
+				uiWellMan(uiParent*);
 				~uiWellMan();
 
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
@@ -48,6 +48,11 @@ protected:
     BufferStringSet		curfnms_;
     BufferStringSet		availablelognms_;
 
+    uiToolButton*		logvwbut_;
+    uiToolButton*		logrenamebut_;
+    uiToolButton*		logrmbut_;
+    uiToolButton*		logexpbut_;
+    uiToolButton*		loguombut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
     uiPushButton*		addlogsbut_;
@@ -64,7 +69,7 @@ protected:
     void			renameLogPush(CallBacker*);
     void			removeLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
-    void			checkMoveLogs(CallBacker*);
+    void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
@@ -78,6 +83,9 @@ protected:
 
     double			getFileSize(const char*,int&) const;
     void			defD2T(bool);
+    int				singLogSelIdx() const;
+    const char*			firstSelLog() const;
+    int				nrSelLogs() const;
 
 };
 

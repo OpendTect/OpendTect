@@ -803,6 +803,15 @@ int uiListBox::nrChecked() const
 }
 
 
+int uiListBox::firstChecked() const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( isItemChecked(idx) )
+	    return idx;
+    return -1;
+}
+
+
 void uiListBox::setItemText( int idx, const uiString& txt )
 {
     if ( !validIndex(idx) ) return;

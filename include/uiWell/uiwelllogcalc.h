@@ -74,6 +74,8 @@ protected:
     void		getAllLogs();
     bool		useForm(const TypeSet<PropertyRef::StdType>* t=0);
     Well::Log*		getLog4InpIdx(Well::LogSet&,int varnr);
+    void		setUnits4Log(int);
+    void		fillSRFld(int);
 
     bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&);
     Well::Log*		getInpLog(Well::LogSet&,int,bool);

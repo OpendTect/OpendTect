@@ -58,12 +58,13 @@ uiWellMan::uiWellMan( uiParent* p )
 				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
 {
-    createDefaultUI();
+    createDefaultUI( false, true );
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
-    logsfld_ = new uiListBox( logsgrp_, "Available logs", true );
+    logsfld_ = new uiListBox( logsgrp_, "Available logs", false );
+    logsfld_->setItemsCheckable( true );
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
@@ -76,21 +77,22 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
-    butgrp->addButton( "view_log", "View selected log",
+    logvwbut_ = butgrp->addButton( "view_log", "View selected log",
 			mCB(this,uiWellMan,viewLogPush) );
-    butgrp->addButton( uiManipButGrp::Rename, "Rename selected log",
-			mCB(this,uiWellMan,renameLogPush) );
-    butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
-			mCB(this,uiWellMan,removeLogPush) );
-    butgrp->addButton( "export", "Export log",
+    logrenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
+		"Rename selected log", mCB(this,uiWellMan,renameLogPush) );
+    logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
+		"Remove selected log(s)", mCB(this,uiWellMan,removeLogPush) );
+    logexpbut_ = butgrp->addButton( "export", "Export log(s)",
 			mCB(this,uiWellMan,exportLogs) );
-    butgrp->addButton( "unitsofmeasure", "View/edit unit of measure",
-			mCB(this,uiWellMan,logUOMPush) );
+    loguombut_ = butgrp->addButton( "unitsofmeasure",
+		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
     logupbut_ = butgrp->addButton( "uparrow", "Move up",
 			mCB(this,uiWellMan,moveLogsPush) );
     logdownbut_ = butgrp->addButton( "downarrow", "Move down",
 			mCB(this,uiWellMan,moveLogsPush) );
-    logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
+    logsfld_->selectionChanged.notify( mCB(this,uiWellMan,logSel) );
+    logsfld_->itemChecked.notify( mCB(this,uiWellMan,logSel) );
     selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
@@ -199,7 +201,7 @@ void uiWellMan::fillLogsFld()
     for ( int idx=0; idx<availablelognms_.size(); idx++)
 	logsfld_->addItem( availablelognms_.get(idx) );
 
-    logsfld_->selectAll( false );
+    logsfld_->setAllItemsChecked( false );
     checkButtons();
 }
 
@@ -207,22 +209,67 @@ void uiWellMan::fillLogsFld()
 void uiWellMan::checkButtons()
 {
     addlogsbut_->setSensitive( curwds_.size() == 1 );
-    checkMoveLogs(0);
+    logSel(0);
 }
 
 
-void uiWellMan::checkMoveLogs( CallBacker* )
+int uiWellMan::singLogSelIdx() const
 {
-    const int curidx = logsfld_->currentItem();
+    int ret = -1;
+    const int nrchecked = logsfld_->nrChecked();
+    if ( nrchecked == 1 )
+	ret = logsfld_->firstChecked();
+    else if ( nrchecked == 0 )
+	ret = logsfld_->currentItem();
+    return ret;
+}
+
+
+int uiWellMan::nrSelLogs() const
+{
+    const int nrchecked = logsfld_->nrChecked();
+    if ( nrchecked > 0 )
+	return nrchecked;
+    return logsfld_->currentItem() < 0 ? 0 : 1;
+}
+
+
+const char* uiWellMan::firstSelLog() const
+{
+    const int nrchecked = logsfld_->nrChecked();
+    if ( nrchecked > 0 )
+	return logsfld_->textOfItem( logsfld_->firstChecked() );
+
+    return logsfld_->getText();
+}
+
+
+void uiWellMan::getSelLogs( BufferStringSet& nms ) const
+{
+    if ( nrSelLogs() == 1 )
+	nms.add( firstSelLog() );
+    else
+	logsfld_->getCheckedItems( nms );
+}
+
+
+void uiWellMan::logSel( CallBacker* )
+{
     const int nrlogs = logsfld_->size();
-    const int nrlogsel = logsfld_->nrSelected();
-    const int nrsel_ = selGroup()->getListField()->nrSelected();
-    bool nomove = ( nrsel_ != 1 )
-			&& ( nrlogsel != 1 || curidx < 0 || curidx >= nrlogs );
-    bool canmoveup = curidx > 0 && !nomove && curwds_.size() == 1;
-    bool canmovedown = curidx < nrlogs-1 && !nomove && curwds_.size() == 1;
-    logupbut_->setSensitive( canmoveup );
-    logdownbut_->setSensitive( canmovedown );
+    const int curidx = logsfld_->currentItem();
+    logdownbut_->setSensitive( curidx >= 0 && curidx < nrlogs-1 );
+    logupbut_->setSensitive( curidx > 0 );
+
+    const int singselidx = singLogSelIdx();
+    const bool issing = singselidx >= 0;
+    const int nrchecked = logsfld_->nrChecked();
+    const bool oneormore = issing || nrchecked > 1;
+
+    logvwbut_->setSensitive( issing || nrchecked == 2 );
+    logrenamebut_->setSensitive( issing );
+    logrmbut_->setSensitive( oneormore );
+    logexpbut_->setSensitive( oneormore );
+    loguombut_->setSensitive( issing );
 }
 
 
@@ -400,11 +447,12 @@ void uiWellMan::calcLogs( CallBacker* )
 void uiWellMan::logUOMPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-    if ( !logsfld_->size() || !logsfld_->nrSelected() )
+    const int selidx = singLogSelIdx();
+    if ( selidx < 0 )
 	mErrRet("No log selected")
 
     currdrs_[0]->getLogs();
-    const char* lognm = logsfld_->getText();
+    const char* lognm = logsfld_->textOfItem( selidx );
     Well::LogSet& wls = curwds_[0]->logs();
     const int curlogidx = wls.indexOf( lognm );
     if ( curlogidx < 0 )
@@ -471,13 +519,14 @@ void uiWellMan::wellsChgd()
 
 #define mEnsureLogSelected() \
     if ( logsfld_->isEmpty() ) return; \
-    if ( logsfld_->nrSelected() < 1 ) \
+    const int nrsel = nrSelLogs(); \
+    if ( nrsel < 1 ) \
 	mErrRet("No log selected")
 
 #define mGetWL() \
     currdrs_[0]->getLogs(); \
     const Well::LogSet& wls = curwds_[0]->logs(); \
-    const char* lognm = logsfld_->getText(); \
+    const char* lognm = firstSelLog(); \
     const Well::Log* wl = wls.getLog( lognm ); \
     if ( !wl ) \
 	mErrRet( "Cannot read selected log" )
@@ -491,7 +540,7 @@ void uiWellMan::viewLogPush( CallBacker* )
     BufferString lognm1(lognm), lognm2;
     for ( int idx=0; idx<logsfld_->size(); idx++ )
     {
-	if ( !logsfld_->isSelected(idx) )
+	if ( !logsfld_->isItemChecked(idx) )
 	    continue;
 	const char* nm2 = logsfld_->textOfItem( idx );
 	if ( lognm1 != nm2 )
@@ -533,13 +582,12 @@ void uiWellMan::removeLogPush( CallBacker* )
     mEnsureLogSelected();
 
     BufferString msg;
-    msg = logsfld_->nrSelected() == 1 ? "This log " : "These logs ";
+    msg = nrsel  == 1 ? "This log " : "These logs ";
     msg += "will be removed from disk.\nDo you wish to continue?";
     if ( !uiMSG().askRemove(msg) )
 	return;
 
-    BufferStringSet logs2rem;
-    logsfld_->getSelectedItems( logs2rem );
+    BufferStringSet logs2rem; getSelLogs( logs2rem );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
@@ -562,8 +610,7 @@ void uiWellMan::exportLogs( CallBacker* )
 {
     mEnsureLogSelected();
 
-    BufferStringSet sellogs;
-    logsfld_->getSelectedItems( sellogs );
+    BufferStringSet sellogs; getSelLogs( sellogs );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
@@ -706,9 +753,7 @@ double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
 }
 
 
-void uiWellMan::getSelLogs( BufferStringSet& lognms ) const
-{ logsfld_->getSelectedItems( lognms ); }
-
-
 const BufferStringSet& uiWellMan::getAvailableLogs() const
-{ return availablelognms_; }
+{
+    return availablelognms_;
+}
