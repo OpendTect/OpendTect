@@ -20,6 +20,17 @@ mFDQtclass(QFontMetrics)
 class Settings;
 class uiParent;
 class BufferStringSet;
+class uiFont;
+
+mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0,
+			     const uiString& title=0 );
+	/*!< \brief pops a selector box to select a new font
+	     \return true if new font selected
+	*/
+
+mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,
+			     const uiString& title = 0);
+
 
 mExpClass(uiBase) uiFont : public CallBacker
 {			//!< font stuff that needs Qt.
@@ -122,15 +133,6 @@ private:
 
 #define FontList    uiFontList::getInst
 
-
-mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0,
-			     const uiString& title=0 );
-	/*!< \brief pops a selector box to select a new font
-	     \return true if new font selected
-	*/
-
-mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,
-			     const uiString& title = 0);
 
 #endif
 
