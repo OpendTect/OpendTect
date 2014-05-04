@@ -22,7 +22,7 @@ class uiLabeledComboBox;
 class uiFont;
 class FontData;
 
-mExpClass(uiBase) uiFontSettingsGroup : public uiSettingsGroup
+mExpClass(uiTools) uiFontSettingsGroup : public uiSettingsGroup
 {
 public:
 			mDefaultFactoryInstantiation2Param(
@@ -42,7 +42,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiSelFonts : public uiDialog
+mExpClass(uiTools) uiSelFonts : public uiDialog
 {
 public:
 
