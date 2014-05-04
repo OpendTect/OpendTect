@@ -11,19 +11,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiscenepropdlg.h"
 
-#include "datainpspec.h"
-#include "vissurvscene.h"
-#include "vispolygonoffset.h"
-#include "visscenecoltab.h"
 #include "uibutton.h"
-#include "uigeninputdlg.h"
-#include "uigeninput.h"
 #include "uicolor.h"
+#include "uifont.h"
+#include "uigeninput.h"
+#include "uigeninputdlg.h"
+#include "uimsg.h"
 #include "uislider.h"
 #include "ui3dviewer.h"
-#include "uimsg.h"
+
+#include "vispolygonoffset.h"
+#include "visscenecoltab.h"
+#include "vissurvscene.h"
+
+#include "datainpspec.h"
 #include "fontdata.h"
-#include "uifontsel.h"
 #include "od_helpids.h"
 
 bool uiScenePropertyDlg::savestatus_ = true;

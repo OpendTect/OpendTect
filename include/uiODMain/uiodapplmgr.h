@@ -124,7 +124,6 @@ public:
     void			pluginMan();
     void			posConversion();
     void			crDevEnv();
-    void			setFonts();
     void			manageShortcuts();
     void			startInstMgr();
     void			setAutoUpdatePol();

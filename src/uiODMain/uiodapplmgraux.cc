@@ -553,8 +553,6 @@ void uiODApplMgrDispatcher::pluginMan()
 { uiPluginMan dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
-void uiODApplMgrDispatcher::setFonts()
-{ uiSetFonts dlg( par_, "Set font types" ); dlg.go(); }
 void uiODApplMgrDispatcher::resortSEGY()
 { am_.seisserv_->resortSEGY(); }
 void uiODApplMgrDispatcher::createCubeFromWells()

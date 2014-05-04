@@ -10,11 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
+#include "uibatchjobdispatcherlauncher.h"
+#include "uibatchlaunch.h"
+#include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
-#include "uibatchjobdispatcherlauncher.h"
 #include "mmbatchjobdispatch.h"
-#include "uimsg.h"
 
 
 class uiMMBatchJobDispatcherLauncher : public uiBatchJobDispatcherLauncher
@@ -47,4 +48,6 @@ mDefModInitFn(uiIo)
     uiSubsampPosFiltGroup::initClass();
 
     uiMMBatchJobDispatcherLauncher::initClass();
+
+    uiProcSettings::initClass();
 }

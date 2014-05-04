@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiBatchJobDispatcherSel;
 namespace Batch {
     class JobSpec; class JobDispatcher; class SingleJobDispatcher; }
-
+class uiParent;
 
 /*!\brief launches the UI of a Batch::JobDispatcher */
 

@@ -260,44 +260,27 @@ static int theiconsz = -1;
 #define mUseSurfShaders 	"dTect.Use surface shaders"
 #define mUseVolShaders		"dTect.Use volume shaders"
 
-struct LooknFeelSettings
-{
-		LooknFeelSettings()
-		    : iconsz(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-		    , vertcoltab(true)
-		    , showinlprogress(true)
-		    , showcrlprogress(true)
-		    , textureresfactor(0)
-		    , usesurfshaders(true)
-		    , usevolshaders(true)		{}
 
-    int		iconsz;
-    bool	vertcoltab;
-    bool	showinlprogress;
-    bool	showcrlprogress;
-    int		textureresfactor;
-		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
-    bool	usesurfshaders;
-    bool	usevolshaders;
-};
+mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
+		    uiSettingsGroup::factory )
 
-
-class uiSettingsGroup : public uiDlgGroup
-{
-public:
-uiSettingsGroup( uiParent* p, const uiString& caption,
-		 Settings& setts, LooknFeelSettings& lfsetts, bool& changed )
+uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
+				  Settings& setts )
     : uiDlgGroup(p,caption)
     , setts_(setts)
-    , lfsetts_(lfsetts)
-    , changed_(changed)
+    , changed_(false)
 {
 }
 
-const char* errMsg() const
+
+uiSettingsGroup::~uiSettingsGroup()
+{}
+
+
+const char* uiSettingsGroup::errMsg() const
 { return errmsg_.buf(); }
 
-void updateSettings( bool oldval, bool newval, const char* key )
+void uiSettingsGroup::updateSettings( bool oldval, bool newval, const char* key)
 {
     if ( oldval != newval )
     {
@@ -306,43 +289,38 @@ void updateSettings( bool oldval, bool newval, const char* key )
     }
 }
 
-    BufferString	errmsg_;
-    Settings&		setts_;
-    LooknFeelSettings&	lfsetts_;
-    bool&		changed_;
-};
 
-
-class uiGeneralSettingsGroup : public uiSettingsGroup
-{
-public:
-uiGeneralSettingsGroup( uiParent* p, Settings& setts,
-			LooknFeelSettings& lfsetts, bool& changed )
-    : uiSettingsGroup(p,"General",setts,lfsetts,changed)
+// uiGeneralSettingsGroup
+uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,"General",setts)
+    , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
+    , vertcoltab_(true)
+    , showinlprogress_(true)
+    , showcrlprogress_(true)
 {
     iconszfld_ = new uiGenInput( this, "Icon Size",
-				 IntInpSpec(lfsetts_.iconsz,10,64) );
+				 IntInpSpec(iconsz_,10,64) );
 
-    setts_.getYN( mCBarKey, lfsetts_.vertcoltab );
+    setts_.getYN( mCBarKey, vertcoltab_ );
     colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
-		BoolInpSpec(lfsetts_.vertcoltab,"Vertical","Horizontal") );
+		BoolInpSpec(vertcoltab_,"Vertical","Horizontal") );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
-    setts_.getYN( mShowInlProgress, lfsetts_.showinlprogress );
+    setts_.getYN( mShowInlProgress, showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this,
 	    "Show progress when loading stored data on in-lines",
-	    BoolInpSpec(lfsetts_.showinlprogress) );
+	    BoolInpSpec(showinlprogress_) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
-    setts_.getYN( mShowCrlProgress, lfsetts_.showcrlprogress );
+    setts_.getYN( mShowCrlProgress, showcrlprogress_ );
     showcrlprogressfld_ = new uiGenInput( this,
 	    "Show progress when loading stored data on cross-lines",
-	    BoolInpSpec(lfsetts_.showcrlprogress) );
+	    BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 }
 
 
-bool acceptOK()
+bool uiGeneralSettingsGroup::acceptOK()
 {
     const int newiconsz = iconszfld_->getIntValue();
     if ( newiconsz < 10 || newiconsz > 64 )
@@ -351,7 +329,7 @@ bool acceptOK()
 	return false;
     }
 
-    if ( newiconsz != lfsetts_.iconsz )
+    if ( newiconsz != iconsz_ )
     {
 	IOPar* iopar = setts_.subselect( mIconsKey );
 	if ( !iopar ) iopar = new IOPar;
@@ -362,90 +340,81 @@ bool acceptOK()
 	theiconsz = newiconsz;
     }
 
-    updateSettings( lfsetts_.vertcoltab, colbarhvfld_->getBoolValue(),
+    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(),
 		    mCBarKey );
-
-    updateSettings( lfsetts_.showinlprogress,
+    updateSettings( showinlprogress_,
 		    showinlprogressfld_->getBoolValue(),
 		    mShowInlProgress );
-    updateSettings( lfsetts_.showcrlprogress,
+    updateSettings( showcrlprogress_,
 		    showcrlprogressfld_->getBoolValue(),
 		    mShowCrlProgress );
 
     return true;
 }
 
-protected:
 
-    uiGenInput*		iconszfld_;
-    uiGenInput*		colbarhvfld_;
-    uiGenInput*		showinlprogressfld_;
-    uiGenInput*		showcrlprogressfld_;
-
-};
-
-
-class uiVisSettingsGroup : public uiSettingsGroup
+// uiVisSettingsGroup
+uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,"Visualisation",setts)
+    , textureresfactor_(0)
+    , usesurfshaders_(true)
+    , usevolshaders_(true)
 {
-public:
-uiVisSettingsGroup( uiParent* p, Settings& setts,
-			LooknFeelSettings& lfsetts, bool& changed )
-    : uiSettingsGroup(p,"Visualisation",setts,lfsetts,changed)
-{
-    setts_.getYN( mUseSurfShaders, lfsetts_.usesurfshaders );
+    setts_.getYN( mUseSurfShaders, usesurfshaders_ );
     usesurfshadersfld_ = new uiGenInput( this,
 					 "Use OpenGL shading when available",
-					 BoolInpSpec(lfsetts_.usesurfshaders) );
+					 BoolInpSpec(usesurfshaders_) );
     usesurfshadersfld_->valuechanged.notify(
 				mCB(this,uiVisSettingsGroup,shadersChange) );
-    setts_.getYN( mUseVolShaders, lfsetts_.usevolshaders );
+    setts_.getYN( mUseVolShaders, usevolshaders_ );
     usevolshadersfld_ = new uiGenInput( this, "Also for volume rendering?",
-					BoolInpSpec(lfsetts_.usevolshaders) );
+					BoolInpSpec(usevolshaders_) );
     usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
 
-    setts_.get( mTextureResFactor, lfsetts_.textureresfactor );
-    textureresfactorfld_ = new uiLabeledComboBox( this,
-		"Default texture resolution factor" );
-    textureresfactorfld_->box()->addItem( "Standard" );
-    textureresfactorfld_->box()->addItem( "Higher" );
-    textureresfactorfld_->box()->addItem( "Highest" );
-    textureresfactorfld_->attach( alignedBelow, usesurfshadersfld_ );
+    setts_.get( mTextureResFactor, textureresfactor_ );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+					"Default texture resolution factor" );
+    lcb->attach( alignedBelow, usesurfshadersfld_ );
+    textureresfactorfld_ = lcb->box();
+    textureresfactorfld_->addItem( "Standard" );
+    textureresfactorfld_->addItem( "Higher" );
+    textureresfactorfld_->addItem( "Highest" );
 
     int selection = 0;
 
-    if ( lfsetts_.textureresfactor >= 0 && lfsetts_.textureresfactor <= 2 )
-	    selection = lfsetts_.textureresfactor;
+    if ( textureresfactor_ >= 0 && textureresfactor_ <= 2 )
+	    selection = textureresfactor_;
 
     // add the System default option if the environment variable is set
     const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
     if ( envvar && isdigit(*envvar) )
     {
-	textureresfactorfld_->box()->addItem( "System default" );
-	if ( lfsetts_.textureresfactor == -1 )
+	textureresfactorfld_->addItem( "System default" );
+	if ( textureresfactor_ == -1 )
 	    selection = 3;
     }
 
-    textureresfactorfld_->box()->setCurrentItem( selection );
+    textureresfactorfld_->setCurrentItem( selection );
 
     shadersChange(0);
 }
 
 
-bool acceptOK()
+bool uiVisSettingsGroup::acceptOK()
 {
     const bool usesurfshaders = usesurfshadersfld_->getBoolValue();
-    updateSettings( lfsetts_.usesurfshaders, usesurfshaders, mUseSurfShaders );
+    updateSettings( usesurfshaders_, usesurfshaders, mUseSurfShaders );
 
     const bool usevolshaders = usesurfshaders &&
 			       usevolshadersfld_->getBoolValue();
-    updateSettings( lfsetts_.usevolshaders, usevolshaders, mUseVolShaders );
+    updateSettings( usevolshaders_, usevolshaders, mUseVolShaders );
 
     bool textureresfacchanged = false;
     // track this change separately as this will be applied with immediate
     // effect, unlike other settings
-    int val = ( textureresfactorfld_->box()->currentItem() == 3 ) ? -1 :
-		textureresfactorfld_->box()->currentItem();
-    if ( lfsetts_.textureresfactor != val )
+    int val = ( textureresfactorfld_->currentItem() == 3 ) ? -1 :
+		textureresfactorfld_->currentItem();
+    if ( textureresfactor_ != val )
     {
 	textureresfacchanged = true;
 	setts_.set( mTextureResFactor, val );
@@ -456,54 +425,53 @@ bool acceptOK()
     return true;
 }
 
-protected:
 
-void shadersChange( CallBacker* )
+void uiVisSettingsGroup::shadersChange( CallBacker* )
 {
     usevolshadersfld_->display( usesurfshadersfld_->getBoolValue() );
     textureresfactorfld_->display( !usesurfshadersfld_->getBoolValue() );
 }
 
-    uiLabeledComboBox*	textureresfactorfld_;
-    uiGenInput* 	usesurfshadersfld_;
-    uiGenInput* 	usevolshadersfld_;
 
-};
-
-
-
-uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p )
-    : uiTabStackDlg(p,uiDialog::Setup("Look and Feel Settings",mNoDlgTitle,
+// uiSettingsDlg
+uiSettingsDlg::uiSettingsDlg( uiParent* p )
+    : uiTabStackDlg(p,uiDialog::Setup("OpendTect Settings",mNoDlgTitle,
 				      mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
-    , lfsetts_(*new LooknFeelSettings)
     , changed_(false)
 {
-    addGroup( new uiGeneralSettingsGroup(tabstack_->tabGroup(),
-					 setts_,lfsetts_,changed_) );
-    addGroup( new uiVisSettingsGroup(tabstack_->tabGroup(),
-					 setts_,lfsetts_,changed_) );
+    const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	uiSettingsGroup* grp =
+		uiSettingsGroup::factory().create( nms.get(idx),
+						   tabstack_->tabGroup(),
+						   setts_ );
+	addGroup( grp );
+	grps_ += grp;
+    }
 }
 
 
-uiLooknFeelSettings::~uiLooknFeelSettings()
+uiSettingsDlg::~uiSettingsDlg()
 {
-    delete &lfsetts_;
 }
 
 
-bool uiLooknFeelSettings::acceptOK( CallBacker* cb )
+bool uiSettingsDlg::acceptOK( CallBacker* cb )
 {
     if ( !uiTabStackDlg::acceptOK(cb) )
 	return false;
 
+    changed_ = false;
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	changed_ &= grps_[idx]->isChanged();
+
     if ( changed_ && !setts_.write() )
     {
-	changed_ = false;
 	uiMSG().error( "Cannot write settings" );
 	return false;
     }
 
     return true;
 }
-

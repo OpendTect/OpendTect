@@ -1,5 +1,5 @@
-#ifndef uifont_H
-#define uifont_H
+#ifndef uifont_h
+#define uifont_h
 
 /*+
 ________________________________________________________________________
@@ -13,13 +13,13 @@ ________________________________________________________________________
 -*/
 #include "uibasemod.h"
 #include "fontdata.h"
+#include "uistring.h"
 
 mFDQtclass(QFont)
 mFDQtclass(QFontMetrics)
 class Settings;
 class uiParent;
 class BufferStringSet;
-class uiString;
 
 mExpClass(uiBase) uiFont : public CallBacker
 {			//!< font stuff that needs Qt.
@@ -76,7 +76,7 @@ protected:
 
 mExpClass(uiBase) uiFontList : public CallBacker
 {
-    friend class	uiSetFonts;
+    friend class	uiFontSettingsGroup;
 
 public:
 
@@ -122,6 +122,15 @@ private:
 
 #define FontList    uiFontList::getInst
 
+
+mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0,
+			     const uiString& title=0 );
+	/*!< \brief pops a selector box to select a new font
+	     \return true if new font selected
+	*/
+
+mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,
+			     const uiString& title = 0);
 
 #endif
 

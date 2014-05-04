@@ -711,7 +711,6 @@ void uiODMenuMgr::fillUtilMenu()
 	updateTranslateMenu( *langmnu_ );
     }
 
-    mInsertItem( settmnu_, "&Fonts ...", mSettFontsMnuItm );
     mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
@@ -1163,14 +1162,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;
-    case mSettFontsMnuItm:	applMgr().setFonts(); break;
     case mSettMouseMnuItm:	sceneMgr().setKeyBindings(); break;
 
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
 
     case mSettLkNFlMnuItm: {
-	uiLooknFeelSettings dlg( &appl_ );
+	uiSettingsDlg dlg( &appl_ );
 	if ( dlg.go() && dlg.isChanged() )
 	    uiMSG().message("Your new settings will become active\nthe next "
 			    "time OpendTect is started.");

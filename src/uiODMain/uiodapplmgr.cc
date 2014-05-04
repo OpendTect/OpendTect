@@ -1810,8 +1810,6 @@ void uiODApplMgr::posConversion()
 { dispatcher_.posConversion(); }
 void uiODApplMgr::manageShortcuts()
 { dispatcher_.manageShortcuts(); }
-void uiODApplMgr::setFonts()
-{ dispatcher_.setFonts(); }
 int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
 { return dispatcher_.createMapDataPack( data, colnr ); }
 void uiODApplMgr::startInstMgr()

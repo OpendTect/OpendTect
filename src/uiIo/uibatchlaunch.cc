@@ -32,6 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "od_helpids.h"
 
+
+// uiProcSettings
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
 static const char* sKeyNoParFiles = "<No job files found>";
@@ -48,30 +50,33 @@ static bool enabClusterProc()
 }
 
 
-uiProcSettings::uiProcSettings( uiParent* p )
-    : uiDialog(p,Setup("Processing settings",
-                       mNoDlgTitle, mODHelpKey(mProcSettingsHelpID) ))
+uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,"Processing",setts)
 {
-    const int nrinl = InlineSplitJobDescProv::defaultNrInlPerJob();
+    nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, "Default number of inlines per job",
-				IntInpSpec(nrinl,1,10000) );
+				IntInpSpec(nrinl_,1,10000) );
 
-    const bool enabclusterproc = enabClusterProc();
+    enabclusterproc_ = enabClusterProc();
     clusterfld_ = new uiGenInput( this, "Enable cluster processing",
-				  BoolInpSpec(enabclusterproc) );
+				  BoolInpSpec(enabclusterproc_) );
     clusterfld_->attach( alignedBelow, nrinlfld_ );
 }
 
 
-bool uiProcSettings::acceptOK( CallBacker* )
+HelpKey uiProcSettings::helpKey() const
+{ return mODHelpKey(mProcSettingsHelpID); }
+
+
+bool uiProcSettings::acceptOK()
 {
     InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlfld_->getIntValue() );
     Settings::common().setYN( sKeyClusterProc, clusterfld_->getBoolValue() );
-    Settings::common().write( false );
     return true;
 }
 
 
+// uiStartBatchJobDialog
 uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     : uiDialog(p,Setup("(Re-)Start a batch job",mNoDlgTitle,
                         mODHelpKey(mRestartBatchDialogHelpID) ))

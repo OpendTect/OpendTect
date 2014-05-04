@@ -32,6 +32,7 @@ SET( OD_MODULE_SOURCES
 	uidlggroup.cc
 	uifileinput.cc
 	uifillpattern.cc
+	uifontsel.cc
 	uifreqfilter.cc
 	uifunctiondisplay.cc
 	uigeninput.cc

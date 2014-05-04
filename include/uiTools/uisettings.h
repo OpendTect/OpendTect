@@ -16,11 +16,12 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uidlggroup.h"
+#include "factory.h"
 
 class Settings;
-class uiTable;
+class uiComboBox;
 class uiGenInput;
-struct LooknFeelSettings;
+class uiTable;
 
 
 mExpClass(uiTools) uiSettings : public uiDialog
@@ -55,22 +56,99 @@ protected:
 };
 
 
-mExpClass(uiTools) uiLooknFeelSettings : public uiTabStackDlg
+mExpClass(uiTools) uiSettingsGroup : public uiDlgGroup
 {
 public:
-			uiLooknFeelSettings(uiParent*);
-    virtual		~uiLooknFeelSettings();
+			mDefineFactory2ParamInClass(uiSettingsGroup,
+						    uiParent*,Settings&,
+						    factory)
+    virtual		~uiSettingsGroup();
+
+    bool		isChanged() const	{ return changed_; }
+    const char*		errMsg() const;
+
+protected:
+			uiSettingsGroup(uiParent*,const uiString& caption,
+					Settings&);
+
+    void		updateSettings(bool oldval,bool newval,const char* key);
+
+    BufferString	errmsg_;
+    Settings&		setts_;
+    bool		changed_;
+};
+
+
+mExpClass(uiTools) uiSettingsDlg : public uiTabStackDlg
+{
+public:
+			uiSettingsDlg(uiParent*);
+			~uiSettingsDlg();
 
     bool		isChanged() const	{ return changed_; }
 
 protected:
 
-    Settings&		setts_;
-    LooknFeelSettings&	lfsetts_;
-    bool		changed_;
-
     bool		acceptOK(CallBacker*);
+
+    ObjectSet<uiSettingsGroup>	grps_;
+    Settings&		setts_;
+    bool		changed_;
+};
+
+
+mExpClass(uiTools) uiGeneralSettingsGroup : public uiSettingsGroup
+{
+public:
+			mDefaultFactoryInstantiation2Param(
+				uiSettingsGroup,
+				uiGeneralSettingsGroup,
+				uiParent*,Settings&,
+				"General",
+				sFactoryKeyword())
+
+			uiGeneralSettingsGroup(uiParent*,Settings&);
+    bool		acceptOK();
+
+protected:
+
+    uiGenInput*		iconszfld_;
+    uiGenInput*		colbarhvfld_;
+    uiGenInput*		showinlprogressfld_;
+    uiGenInput*		showcrlprogressfld_;
+
+    int			iconsz_;
+    bool		vertcoltab_;
+    bool		showinlprogress_;
+    bool		showcrlprogress_;
+};
+
+
+mExpClass(uiTools) uiVisSettingsGroup : public uiSettingsGroup
+{
+public:
+			mDefaultFactoryInstantiation2Param(
+				uiSettingsGroup,
+				uiVisSettingsGroup,
+				uiParent*,Settings&,
+				"Visualisation",
+				sFactoryKeyword())
+
+			uiVisSettingsGroup(uiParent*,Settings&);
+    bool		acceptOK();
+
+protected:
+
+    void		shadersChange(CallBacker*);
+
+    uiComboBox*		textureresfactorfld_;
+    uiGenInput* 	usesurfshadersfld_;
+    uiGenInput* 	usevolshadersfld_;
+
+		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
+    int			textureresfactor_;
+    bool		usesurfshaders_;
+    bool		usevolshaders_;
 };
 
 #endif
-

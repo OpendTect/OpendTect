@@ -73,7 +73,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		manageShortcuts();
     void		startInstMgr();
     void		setAutoUpdatePol();
-    void		setFonts();
     void		openXPlot();
     void		createCubeFromWells();
 

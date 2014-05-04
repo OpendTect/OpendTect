@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uifontsel.h"
 #include "uifont.h"
 #include "uiobj.h"
 #include "uimain.h"
@@ -345,80 +344,6 @@ void uiFontList::update( Settings& settings )
 	settings.set( IOPar::compKey(fDefKey,fnt.key()), fdbuf );
     }
     settings.write();
-}
-
-
-uiSetFonts::uiSetFonts( uiParent* p, const uiString& title )
-	: uiDialog(p,
-	       uiDialog::Setup("Fonts",title,mODHelpKey(mSetFontsHelpID))
-                    .mainwidgcentered(true))
-{
-    setCancelText( "" );
-    FontList().initialise();
-    const ObjectSet<uiFont>& fonts = FontList().fonts();
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "", uiObject::Vertical );
-    butgrp->setPrefWidthInChar( 25 );
-    for ( int idx=0; idx<fonts.size(); idx++ )
-    {
-	uiButton* but = new uiPushButton( butgrp, fonts[idx]->key(), false );
-        but->activated.notify( mCB(this,uiSetFonts,butPushed) );
-	buttons += but;
-    }
-
-    butgrp->attach( hCentered );
-}
-
-
-
-void uiSetFonts::butPushed( CallBacker* obj )
-{
-    mDynamicCastGet(uiButton*,sender,obj)
-    int idx = buttons.indexOf( sender );
-    if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
-
-    if ( select(*FontList().fonts()[idx],sender->parent()) )
-    {
-	FontList().update( Settings::common() );
-	if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
-    }
-}
-
-
-
-
-
-uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
-			const HelpKey& helpkey )
-	: uiDialog(p,uiDialog::Setup("Fonts",title,helpkey))
-{
-    FontList().listKeys( ids );
-}
-
-
-uiSelFonts::~uiSelFonts()
-{
-}
-
-
-void uiSelFonts::add( const char* nm, const char* stdfontkey )
-{
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids, nm );
-    if ( sels.size() )
-	lcb->attach( alignedBelow, sels[sels.size()-1] );
-    lcb->box()->setCurrentItem( stdfontkey );
-    sels += lcb;
-}
-
-
-const char* uiSelFonts::resultFor( const char* str )
-{
-    for ( int idx=0; idx<sels.size(); idx++ )
-    {
-	if ( sels[idx]->label()->name() == str )
-	    return sels[idx]->box()->text();
-    }
-
-    return FontList().key(0);
 }
 
 

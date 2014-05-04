@@ -13,23 +13,36 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+#include "uisettings.h"
 #include "bufstringset.h"
 
-class uiLabel;
-class uiGenInput;
-class uiListBox;
 class uiBatchJobDispatcherSel;
+class uiGenInput;
+class uiLabel;
+class uiListBox;
+class Settings;
 
-mExpClass(uiIo) uiProcSettings : public uiDialog
+mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
 {
 public:
-			uiProcSettings(uiParent*);
-protected:
+			mDefaultFactoryInstantiation2Param(
+				uiSettingsGroup,
+				uiProcSettings,
+				uiParent*,Settings&,
+				"Processing",
+				sFactoryKeyword())
 
-    bool		acceptOK(CallBacker*);
+			uiProcSettings(uiParent*,Settings&);
+    bool		acceptOK();
+    HelpKey		helpKey() const;
+
+protected:
 
     uiGenInput*		nrinlfld_;
     uiGenInput*		clusterfld_;
+
+    int			nrinl_;
+    bool		enabclusterproc_;
 };
 
 
