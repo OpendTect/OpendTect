@@ -58,7 +58,7 @@ protected:
     mutable StaticStringManager currentname_;
 
 private:
-    
+
     BufferStringSet		names_;
     TypeSet<uiString>		usernames_;
     BufferStringSet		aliases_;
@@ -69,7 +69,7 @@ private:
 /*!
 \brief Generalized static factory that can deliver instances of T, when no
 variable is needed in the creation.
-  
+
   Usage. Each implementation of the base class T must add themselves
   to the factory when application starts up, e.g. in an initClass() function:
   \code
@@ -78,7 +78,7 @@ variable is needed in the creation.
   public:
   virtual int		myFunc() 	= 0;
   };
-  
+
   class B : public A
   {
   public:
@@ -86,27 +86,27 @@ variable is needed in the creation.
   static void		initClass()
   { thefactory.addCreator(createFunc,"MyKeyword",
   "My Name"); }
-  
+
   int			myFunc();
   };
-  
+
   \endcode
-  
+
   Two macros are available to make a static accessfuncion for the factory:
   \code
   mDefineFactory( Module, ClassName, FunctionName );
   \endcode
-  
+
   that will create a static function that returns an instance to
   Factory<ClassName>.
   If the function is a static member of a class, it has to be defined with
   the mDefineFactoryInClass macro.
-  
+
   The static function must be implemented in a src-file with the macro
-  
+
   \code
   mImplFactory( ClassName, FunctionName );
-  \endcode  
+  \endcode
 */
 
 template <class T>
@@ -134,7 +134,7 @@ protected:
 /*!
 \brief Generalized static factory that can deliver instances of T, when a
 variable is needed in the creation.
-  
+
   Usage. Each implementation of the base class T must add themselves
   to the factory when application starts up, e.g. in an initClass() function:
   \code
@@ -143,7 +143,7 @@ variable is needed in the creation.
   public:
   virtual int		myFunc() 	= 0;
   };
-  
+
   class B : public A
   {
   public:
@@ -152,28 +152,28 @@ variable is needed in the creation.
   A* res = new B;
   if ( res->setParam( param ) );
   return res;
-  
+
   thefactory.errMsg() = "Could not set param";
   delete res;
   return 0;
   }
   static void		initClass()
   { thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
-  
+
   int			myFunc();
   };
-  
+
   \endcode
-  
+
   Two macros are available to make a static accessfuncion for the factory:
   \code
   mDefineFactory1Param( Module, ClassName, ParamExpClass, FunctionName );
   \endcode
-  
+
   that will create a static function that returns an instance to
   Factory1Param<ClassName,ParamExpClass>. The static function must be
   implemented in a src-file with the macro.
-  
+
   \code
   mImplFactory1Param( ClassName, ParamExpClass, FunctionName );
   \endcode
@@ -262,7 +262,7 @@ protected:
 
 #define mDefaultStaticFactoryStringDeclaration \
     static const char*	sFactoryKeyword(); \
-    static const char*  sFactoryDisplayName() 
+    static const char*  sFactoryDisplayName()
 
 #define mDefaultFactoryInitClassImpl( baseclss, createfunc ) \
 { \
@@ -292,6 +292,16 @@ static baseclss*	createInstance( parclss p1 ) \
 #define mDefaultFactoryInstantiation1Param( baseclss, clss, parclss,\
 					    keywrd, usernm ) \
     mDefaultFactoryCreatorImpl1Param( baseclss, clss, parclss ) \
+    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryInitClassImpl( baseclss, createInstance )
+
+#define mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
+static baseclss*	createInstance( parclss1 p1, parclss2 p2 ) \
+			{ return new clss( p1, p2 ); }
+
+#define mDefaultFactoryInstantiation2Param( baseclss, clss, parclss1,\
+					    parclss2, keywrd, usernm ) \
+    mDefaultFactoryCreatorImpl2Param( baseclss, clss, parclss1, parclss2 ) \
     mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
@@ -412,7 +422,7 @@ virtual const char* factoryKeyword() const { return 0; }
 { \
     mDefineStaticLocalObject(PtrMan< ::Factory<T> >,inst,(new ::Factory<T>)); \
     return *inst; \
-} 
+}
 
 
 #define mDefineFactory1Param( mod, T, P, funcname ) \
@@ -433,7 +443,7 @@ virtual const char* factoryKeyword() const { return 0; }
     mUnlockStaticInitLock( static_inst_lck__ ); \
      \
     return *inst; \
-} 
+}
 
 
 #define mDefineFactory2Param( mod, T, P0, P1, funcname ) \
@@ -455,7 +465,7 @@ virtual const char* factoryKeyword() const { return 0; }
     mUnlockStaticInitLock( static_inst_lck__ ); \
     \
     return *inst; \
-} 
+}
 
 
 #define mDefineFactory3Param( mod, T, P0, P1, P2, funcname ) \
@@ -477,7 +487,7 @@ virtual const char* factoryKeyword() const { return 0; }
     mUnlockStaticInitLock( static_inst_lck__ ); \
 \
     return *inst; \
-} 
+}
 
 #undef mCreateImpl
 #undef mAddCreator
