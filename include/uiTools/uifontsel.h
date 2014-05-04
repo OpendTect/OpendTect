@@ -34,6 +34,9 @@ public:
 
 			uiFontSettingsGroup(uiParent*,Settings&);
 
+    bool		acceptOK();
+    HelpKey		helpKey() const;
+
 protected:
 
     ObjectSet<uiButton>	buttons;

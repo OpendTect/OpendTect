@@ -53,6 +53,14 @@ void uiFontSettingsGroup::butPushed( CallBacker* obj )
 }
 
 
+bool uiFontSettingsGroup::acceptOK()
+{ return true; }
+
+
+HelpKey uiFontSettingsGroup::helpKey() const
+{ return mODHelpKey(mSetFontsHelpID); }
+
+
 // uiSelFonts
 uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
 			const HelpKey& helpkey )
