@@ -471,9 +471,8 @@ uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
 {
     if ( !setup.lbltxt_.isEmpty() ) txtfld_->setTitleText( setup.lbltxt_ );
     butPush.notify( mCB(this,uiSeis2DMultiLineSel,doDlg) );
-    if ( !setup_.filldef_ )
+    if ( setup_.filldef_ )
     {
-	ctio_.destroyAll();
 	ctio_.ctxt.deftransl = "2D";
 	ctio_.fillDefault();
     }
