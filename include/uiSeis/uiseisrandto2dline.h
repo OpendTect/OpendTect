@@ -31,7 +31,6 @@ public:
 
     const IOObj*	getInputIOObj() const;
     const IOObj*	getOutputIOObj() const;
-    const char*		getAttribName() const;
 
     bool		getRandomLineGeom(Geometry::RandomLineSet&) const;
 

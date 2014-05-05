@@ -96,11 +96,6 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
 }
 
 
-const char* uiSeisRandTo2DBase::getAttribName() const
-{ return outpfld_->attrNm(); }
-
-
-
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
     : uiDialog(p,uiDialog::Setup("Save as 2D line","",
@@ -123,7 +118,6 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     if ( !basegrp_->checkInputs() )
 	return false;
 
-    BufferString attrnm = basegrp_->getAttribName();
     BufferString linenm = linenmfld_->text();
     if ( linenm.isEmpty() )
 	mErrRet("Please enter a Line Name")
