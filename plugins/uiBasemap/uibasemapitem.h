@@ -78,6 +78,7 @@ public:
 protected:
 			uiBasemapItem();
 
+    uiParent*		parent();
     void		checkCB(CallBacker*);
 
     uiODApplMgr&		applMgr();
@@ -101,6 +102,8 @@ protected:
 
     virtual bool	isSelectable() const { return true; }
     virtual bool	isExpandable() const { return false; }
+
+    IOPar&		par_;
 };
 
 #endif

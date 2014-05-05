@@ -25,9 +25,8 @@ ________________________________________________________________________
 uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p, const char* nm )
     : uiBasemapGroup(p,nm)
 {
-    IOObjContext ctxt = mIOObjContext( Well );
-    ctxt.forread = true;
-    wellsfld_ = new uiIOObjSelGrp( this, ctxt, 0, true );
+    wellsfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
+	uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
 
     addNameField( wellsfld_->attachObj() );
 }

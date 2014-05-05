@@ -40,6 +40,7 @@ uiBasemapItem::~uiBasemapItem()
 					mCB(this,uiBasemapItem,checkCB) );
 }
 
+
 void uiBasemapItem::setBasemap( uiBaseMap& bm )
 { basemap_ = &bm; }
 
@@ -63,10 +64,12 @@ void uiBasemapItem::addTreeItem( uiTreeItem& itm )
 }
 
 
-void uiBasemapItem::checkCB( CallBacker* cb )
-{
-    show( treeitem_->isChecked() );
-}
+uiParent* uiBasemapItem::parent()
+{ return basemap_ ? basemap_->parent() : 0; }
+
+
+void uiBasemapItem::checkCB( CallBacker* )
+{ show( treeitem_->isChecked() ); }
 
 
 void uiBasemapItem::show( bool yn )
@@ -78,6 +81,7 @@ void uiBasemapItem::show( bool yn )
 
 uiODApplMgr& uiBasemapItem::applMgr()
 { return ODMainWin()->applMgr(); }
+
 
 void uiBasemapItem::fillPar( IOPar& ) const
 {}
@@ -98,10 +102,13 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 // uiBasemapTreeItem
 uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
     : uiTreeItem(nm)
+    , par_(*new IOPar)
 {}
 
 uiBasemapTreeItem::~uiBasemapTreeItem()
-{}
+{
+    delete &par_;
+}
 
 int uiBasemapTreeItem::uiTreeViewItemType() const
 { return uiTreeViewItem::CheckBox; }
