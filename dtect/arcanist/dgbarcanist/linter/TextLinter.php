@@ -316,7 +316,8 @@ final class TextLinter extends ArcanistLinter {
 
       if ( $nrspaces<2 )
       {
-         continue;
+	if ( $nrspaces==0 || ($idx<$length-1 && $changedline[$idx+1]!=="\t") )
+	    continue;
       }
 
       $lastchartocopy = $idx-$nrspaces;
