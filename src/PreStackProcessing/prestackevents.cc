@@ -560,7 +560,7 @@ void EventManager::cleanUp( bool keepchanged )
     while ( events_.next( pos, false ) )
     {
 	EventSet* ge = events_.getRef( pos, 0 );
-	if ( (keepchanged && ge->ischanged_) || ge->nrRefs()>0 )
+	if ( (keepchanged && ge->ischanged_) || ge->nrRefs()>1 )
 	    prevkeptpos = pos;
 	else
 	{

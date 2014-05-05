@@ -37,8 +37,7 @@ class EMSeedPicker;
 */
 
 mExpClass(MPEEngine) EMTracker
-{
-mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);
+{ mRefCountImpl(EMTracker);
 public:
     				EMTracker( EM::EMObject* );
 
