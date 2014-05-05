@@ -291,8 +291,6 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 	return DescID::undef();
 
     LineKey linekey( workctio_.ioobj->key() );
-    if ( is2D() ) linekey.setAttrName( attrNm() );
-
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -341,8 +339,6 @@ void uiSteerAttrSel::setDesc( const Desc* desc )
     PtrMan<IOObj> ioob = IOM().get( mid );
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();
-    if ( is2D() )
-	setAttrNm( lk.attrName() );
 }
 
 

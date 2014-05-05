@@ -448,7 +448,6 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( linenm.isEmpty() )
 	    mErrRet( "Please enter a line name" )
 	data().linekey_.setLineName( linenm );
-	data().linekey_.setAttrName( seisfld_->attrNm() );
     }
 
     data().seiskey_ = ctio_.ioobj->key();

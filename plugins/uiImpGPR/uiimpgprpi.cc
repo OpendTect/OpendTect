@@ -144,7 +144,7 @@ bool acceptOK( CallBacker* )
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;
 
-    DZT::Importer importer( fnm, *ioobj, LineKey(lnm,outfld_->attrNm()) );
+    DZT::Importer importer( fnm, *ioobj, LineKey(lnm) );
     importer.fh_.nrdef_.start = nrdeffld_->getIntValue(0);
     importer.fh_.nrdef_.step = nrdeffld_->getIntValue(0);
     importer.fh_.cstart_ = startposfld_->getCoord();

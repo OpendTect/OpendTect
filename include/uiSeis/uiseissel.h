@@ -31,32 +31,26 @@ public:
 
 			Setup( Seis::GeomType gt )
 			    : geom_(gt)
-			    , selattr_(gt==Seis::Line)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
-			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
 			    , selectcomp_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
-			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
-			    , allowlinesetsel_(true)
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
 			    , selectcomp_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(bool,selattr)		//!< 2D: can user select attrib?
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(bool,allowlinesetsel)
 	mDefSetupMemb(const char*,survdefsubsel)
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,selectcomp)		//!< Select only one component
@@ -78,10 +72,7 @@ public:
     inline bool		is2D() const	{ return Seis::is2D(seissetup_.geom_); }
     inline bool		isPS() const	{ return Seis::isPS(seissetup_.geom_); }
 
-    void		setAttrNm(const char*);
     void		setCompNr(int);
-    void		updateAttrNm();
-    const char*		attrNm() const	{ return attrnm_.buf(); }
     int			compNr() const	{ return compnr_; }
     virtual void	processInput();
     virtual bool	existingTyped() const;
@@ -93,7 +84,6 @@ public:
 protected:
 
     Setup		seissetup_;
-    BufferString	attrnm_;
     int			compnr_;
     mutable BufferString curusrnm_;
     IOPar		dlgiopar_;
@@ -139,7 +129,6 @@ protected:
     BufferString	zdomainkey_;	// 2D only
 
     void		entrySel(CallBacker*);
-    void		attrNmSel(CallBacker*);
     const char*		getDataType();
     void		getComponentNames(BufferStringSet&) const;
 private:

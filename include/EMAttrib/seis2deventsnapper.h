@@ -71,12 +71,10 @@ public:
     mExpClass(EMAttrib) Setup
     {
     public:
-				Setup(const BufferString& atrnm,int typ,
+				Setup(int typ,
 				      const Interval<float>& gt)
-				    : attrnm_(atrnm)
-				    , type_(typ)
+				    : type_(typ)
 				    , gate_(gt) {}
-	mDefSetupMemb(BufferString,attrnm)
 	mDefSetupMemb(int,type)
 	mDefSetupMemb(Interval<float>,gate)
     };
@@ -85,7 +83,6 @@ public:
 				~Seis2DLineSetEventSnapper();
 protected:
     int				type_;
-    BufferString		attribnm_;
     Interval<float>		gate_;
     const EM::Horizon2D*	orghor_;
     EM::Horizon2D*		newhor_;

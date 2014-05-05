@@ -56,8 +56,7 @@ protected:
 
     friend class	uiSEGYExpMore;
     friend class	uiSEGYExpTxtHeader;
-    bool		doWork(const IOObj&,const IOObj&,
-	    			const char*,const char*);
+    bool		doWork(const IOObj&,const IOObj&,const char*);
 
 };
 

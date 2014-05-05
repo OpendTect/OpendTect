@@ -123,15 +123,13 @@ class uiSEGYImpSimilarDlg : public uiDialog
 {
 public:
 
-uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
-		     const char* anm )
+uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
 				     "Specify file details",
                                      mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)
-	, attrnm_(anm)
 {
     const BufferString fnm( inioobj_.fullUserExpr(true) );
     FilePath fp( fnm );
@@ -186,7 +184,7 @@ IOObj* getSubstIOObj( const char* fullfnm )
 
 bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 {
-    bool res = impdlg_->impFile( *newioobj, outioobj_, lnm, attrnm_ );
+    bool res = impdlg_->impFile( *newioobj, outioobj_, lnm );
     delete newioobj;
     if ( !res )
     {
@@ -238,7 +236,6 @@ bool doImp( const FilePath& fp )
 
     const IOObj&	inioobj_;
     const IOObj&	outioobj_;
-    const char*		attrnm_;
 
 };
 
@@ -255,7 +252,6 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
     const IOObj& outioobj = *ctio_.ioobj;
     const bool is2d = Seis::is2D( setup_.geom_ );
-    const char* attrnm = seissel_->attrNm();
     const char* lnm = is2d && transffld_->selFld2D() ?
 		      transffld_->selFld2D()->selectedLine() : 0;
 
@@ -271,14 +267,14 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
     {
-	retval = impFile( *useinioobj, outioobj, lnm, attrnm );
+	retval = impFile( *useinioobj, outioobj, lnm );
 	if ( is2d && retval )
 	    uiMSG().message( "Successfully loaded ",
 				useinioobj->fullUserExpr() );
     }
     else
     {
-	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj, attrnm );
+	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj );
 	retval = dlg.go();
     }
 
@@ -290,7 +286,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
 
 bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
-				const char* linenm, const char* attrnm )
+			    const char* linenm )
 {
     const bool isps = Seis::isPS( setup_.geom_ );
     const bool is2d = Seis::is2D( setup_.geom_ );
@@ -318,21 +314,13 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( is2d )
     {
-	SeisIOObjInfo seisinfo( outioobj );
-	SeisIOObjInfo::Opts2D option;
-	option.steerpol_ = 0;
-	BufferStringSet attrnms;
-	seisinfo.getAttribNamesForLine( linenm, attrnms );
-	if ( attrnms.size()==1 )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	{
 	    BufferString msg(
 		    "Geometry of Line '", linenm,
-		    "' is already present. Do you want to overwrite?" );
-	    if ( uiMSG().askGoOn(msg) )
-	    {
-		S2DPOS().setCurLineSet( outioobj.name() );
-		PosInfo::POS2DAdmin().removeLine( linenm );
-	    }
+		    "' is already present." );
+	    uiMSG().warning( msg );
 	}
     }
 

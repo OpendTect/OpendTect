@@ -65,7 +65,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	IOObjContext ctxt = uiSeisSel::ioContext( su.geom_, false );
 	ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEGYDirect";
-	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
+	uiSeisSel::Setup sssu( setup_.geom_ );
 	outfld_ = new uiSeisSel( this, ctxt, sssu );
 	if ( optsgrp_ )
 	    outfld_->attach( alignedBelow, optsgrp_ );

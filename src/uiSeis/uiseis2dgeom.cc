@@ -44,7 +44,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	preFinalise().notify( cb );
     }
 
-    uiSeisSel::Setup ss( Seis::Line ); ss.selattr( false );
+    uiSeisSel::Setup ss( Seis::Line );
     seisfld = new uiSeisSel( this, ctio, ss );
     seisfld->selectionDone.notify( cb );
 

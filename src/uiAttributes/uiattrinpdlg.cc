@@ -148,9 +148,6 @@ const char* uiAttrInpDlg::getSeisKey() const
 	return 0;
 
     lk.setLineName( ioobj->key() );
-    if ( is2D() )
-	lk.setAttrName( seisinpfld_->attrNm() );
-
     mDeclStaticString( buf );
     buf = is2D() ? lk : lk.lineName();
     return buf;
@@ -165,9 +162,6 @@ const char* uiAttrInpDlg::getSteerKey() const
 	return 0;
 
     lk.setLineName( ioobj->key() );
-    if ( is2D() )
-	lk.setAttrName( steerinpfld_->attrNm() );
-
     mDeclStaticString( buf );
     buf = is2D() ? lk : lk.lineName();
     return buf;

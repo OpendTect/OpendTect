@@ -45,8 +45,7 @@ protected:
     virtual bool	doWork(const IOObj&);
 
     friend class	uiSEGYImpSimilarDlg;
-    bool		impFile(const IOObj&,const IOObj&,
-				const char*,const char*);
+    bool		impFile(const IOObj&,const IOObj&,const char*);
 
 };
 

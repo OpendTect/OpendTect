@@ -93,7 +93,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
     ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     uiSeisSel::Setup su( is2d, false );
-    su.selattr( true ).allowlinesetsel( false );
 
     objfld_ = new uiSeisSel( this, ctio_, su );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );

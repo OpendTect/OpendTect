@@ -82,7 +82,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
-    seis2dto3d_.setInput( *inctio_.ioobj, inpfld_->attrNm() );
+    seis2dto3d_.setInput( *inctio_.ioobj );
 
     CubeSampling cs(false);
     outsubselfld_->getSampling( cs.hrg );

@@ -54,7 +54,6 @@ public:
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
 				   const char* executor_txt,
 				   const char* work_txt,
-				   const char* attr2dnm,
 				   const char* linenm2d_overrule=0) const;
 
     uiSeisSubSel*	selfld;

@@ -66,7 +66,6 @@ int Seis2DEventSnapper::nextStep()
 Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
 					EM::Horizon2D* newhor,const Setup& su )
     : ExecutorGroup("Seis Lineset Iterator", true)
-    , attribnm_(su.attrnm_)
     , orghor_(hor)
     , newhor_(newhor)
     , type_(su.type_)

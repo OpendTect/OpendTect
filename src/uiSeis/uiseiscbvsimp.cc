@@ -357,10 +357,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     const char* titl = oinpfld ? "Copying seismic data"
 			       : "Importing CBVS seismic cube";
-    const char* attrnm = oinpfld ? oinpfld->attrNm() : "";
     PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
-				*outctio_.ioobj, titl, "Loading data",
-				attrnm );
+				*outctio_.ioobj, titl, "Loading data" );
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
 

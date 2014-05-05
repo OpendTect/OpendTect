@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "multiid.h"
 #include "ptrman.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -294,8 +294,7 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
     ctioout_.ctxt.forread = false;
     ctioout_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
-			      uiSeisSel::Setup(ads_.is2D(),false)
-			      .selattr(true).allowlinesetsel(false) );
+			      uiSeisSel::Setup(ads_.is2D(),false) );
     const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
@@ -328,18 +327,11 @@ bool uiAttrTrcSelOut::prepareProcessing()
     if ( ads_.is2D() && seis2dsubsel )
     {
 	bool lkexists = false;
-	Seis2DLineSet lineset( ctioout_.ioobj->fullUserExpr(true) );
+	Seis2DDataSet dataset( *ctioout_.ioobj );
 	if ( seis2dsubsel->isSingLine() )
-	{
-	    LineKey lk( seis2dsubsel->selectedLine(), outpfld_->attrNm() );
-	    lkexists = lineset.indexOf( lk ) >= 0;
-	}
+	    lkexists = dataset.indexOf( seis2dsubsel->selectedLine() ) >= 0;
 	else
-	{
-	    BufferStringSet linenms;
-	    lineset.getLineNamesWithAttrib( linenms, outpfld_->attrNm() );
-	    lkexists = !linenms.isEmpty();
-	}
+	    lkexists = dataset.nrLines();
 
 	if ( lkexists )
 	{
@@ -348,33 +340,11 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	    if ( !uiMSG().askOverwrite(msg) ) return false;
 	}
 
-	Attrib::Desc* desc = ads_.getDesc( attrfld_->attribID() );
 	EM::SurfaceIOData data;
 	BufferString errmsg;
 	if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),data,errmsg) )
 	{
 	    uiMSG().error( errmsg.buf() );
-	    return false;
-	}
-
-	MultiID mid;
-	if ( desc )
-	    mid = MultiID( desc->getStoredID() );
-	if ( !desc || mid.isEmpty() )            //Could be 2D neural network
-	{
-	    Desc* firststoreddsc = ads_.getFirstStored();
-	    if ( firststoreddsc )
-		mid = MultiID( firststoreddsc->getStoredID(true) );
-	}
-
-	IOObj* lineobj = IOM().get( mid );
-	Seis2DLineSet s2d( *lineobj );
-
-	BufferString msg = "The selected horizon does not share the geometry"
-	" of the selected lineset. Please choose other input data or horizon.";
-	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() )
-	{
-	    uiMSG().error( msg );
 	    return false;
 	}
     }
@@ -391,21 +361,10 @@ bool uiAttrTrcSelOut::fillPar()
 
     BufferString outseisid;
     outseisid += ctioout_.ioobj->key();
-    if ( is2d )
-    {
-	outseisid += "|";
-	outseisid += outpfld_->attrNm();
-    }
-
     fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
 		outseisid );
 
     BufferString outnm = outpfld_->getInput();
-    if ( is2d )
-    {
-	const char* outputnm = outpfld_->getInput();
-	outnm = LineKey( outputnm ).attrName();
-    }
     iopar.set( sKey::Target(), outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
@@ -492,9 +451,6 @@ bool uiAttrTrcSelOut::fillPar()
 	key = IOPar::compKey( sKey::Geometry(), "Z Boundaries" );
 	iopar.set( key, cubezbounds );
     }
-
-    if ( is2d )
-        Seis2DLineSet::invalidateCache();
 
     return true;
 }

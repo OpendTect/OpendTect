@@ -141,7 +141,6 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 				      const IOObj& outobj,
 				      const char* extxt,
 				      const char* worktxt,
-				      const char* attrnm2d,
 				      const char* linenm2d ) const
 {
     scfmtfld->updateIOObj( const_cast<IOObj*>(&outobj) );

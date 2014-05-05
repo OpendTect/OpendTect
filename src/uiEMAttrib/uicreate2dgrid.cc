@@ -41,7 +41,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seistrctr.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seiscbvs.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -655,7 +655,6 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 {
     par.set( Seis2DGridCreator::sKeyInput(), infld_->key() );
     par.set( Seis2DGridCreator::sKeyOutput(), outfld_->key() );
-    par.set( sKey::Attribute(), outfld_->attrNm() );
 
     const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
 					  : false;
@@ -680,7 +679,6 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 
     par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );
-    par.set( sKey::Attribute(), outfld_->attrNm() );
     par.set( Horizon2DGridCreator::sKeyPrefix(), hornmfld_->text() );
 }
 
@@ -713,9 +711,9 @@ bool uiCreate2DGrid::checkInput() const
     if ( ovwrlinenms.isEmpty() )
 	return true;
 
-    Seis2DLineSet s2dls( *outfld_->ioobj() );
+    Seis2DDataSet s2dds( *outfld_->ioobj() );
     BufferStringSet lines;
-    s2dls.getLineNamesWithAttrib( lines, outfld_->attrNm() );
+    s2dds.getLineNames( lines );
 
     BufferStringSet linestoremove;
     for ( int idx=0; idx<ovwrlinenms.size(); idx++ )

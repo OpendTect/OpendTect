@@ -435,10 +435,7 @@ bool uiTieWinMGRDlg::initSetup()
 
 	wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
 	if ( is2d_ )
-	{
-	    wtsetup_.linekey_.setAttrName( seis2dfld_->attrNm() );
 	    wtsetup_.linekey_.setLineName( seislinefld_->getInput() );
-	}
 	else
 	    wtsetup_.linekey_ = 0;
     }
@@ -567,6 +564,7 @@ void uiTieWinMGRDlg::set3DSeis() const
 
 void uiTieWinMGRDlg::set2DSeis() const
 {
+    /* TODO: Is this needed?
     PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
     const FixedString lsid = defpars ? mGetPar( sKeyDefault2D ) : 0;
     const LineKey curlk( seis2dfld_->getKey() );
@@ -590,9 +588,10 @@ void uiTieWinMGRDlg::set2DSeis() const
 	    attrnm = attrnms.get(0);
     }
 
-    lineidstr = LineKey( outid, attrnm );
+    lineidstr = LineKey( outid attrnm );
     const MultiID seisid = lineidstr.buf();
     seis2dfld_->setInput( seisid );
+    */
 }
 
 

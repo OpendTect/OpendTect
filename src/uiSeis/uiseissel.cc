@@ -138,12 +138,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
-
-    if ( sssu.selattr_ && is2d && !isps )
-	selgrp_->getListField()->selectionChanged.notify(
-					    mCB(this,uiSeisSelDlg,attrNmSel) );
-    else
-	selgrp_->getListField()->selectionChanged.notify(
+    selgrp_->getListField()->selectionChanged.notify(
 					    mCB(this,uiSeisSelDlg,entrySel) );
 
     if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(sssu.geom_) )
@@ -186,13 +181,6 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 }
 
 
-void uiSeisSelDlg::attrNmSel( CallBacker* )
-{
-    if ( selgrp_->getNameField() && selgrp_->getListField() )
-	selgrp_->getNameField()->setText( selgrp_->getListField()->getText() );
-}
-
-
 const char* uiSeisSelDlg::getDataType()
 {
     if ( steerpol_ )
@@ -213,32 +201,6 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 	return;
 
     SeisIOObjInfo oinf( *ioobj );
-    const bool is2d = oinf.is2D();
-
-    if ( is2d )
-    {
-	uiGenInput* nmfld = selgrp_->getNameField();
-	uiListBox* listfld = selgrp_->getListField();
-	BufferString dsnm;
-	if ( nmfld ) dsnm = nmfld->text();
-	else if ( listfld ) dsnm = listfld->getText();
-
-	const int nroccuer = dsnm.count( '|' );
-	dsnm.replace( '|', '_' );
-	if( nroccuer )
-	{
-	    BufferString msg( "Invalid charactor  '|' " );
-	    msg.add( " found in attribute name. " )
-	       .add( "It will be renamed to: '" )
-	       .add( dsnm.buf() ).add("'." )
-	       .add( "\nDo you want to continue?" );
-	    if( !uiMSG().askGoOn( msg.buf() ) )
-		return;
-	}
-
-	iopar.set( sKey::DataSet(), dsnm );
-    }
-
     if ( compfld_ )
     {
 	BufferStringSet compnms;
@@ -257,17 +219,6 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
     if ( compfld_ )
 	entrySel(0);
 
-    if ( iopar.find( sKey::DataSet() ) )
-    {
-	const char* seldatasetnm = iopar.find( sKey::DataSet() );
-	if ( seldatasetnm )
-	{
-	    uiListBox* listfld = selgrp_->getListField();
-	    if ( listfld ) listfld->setCurrentItem( seldatasetnm );
-	    uiGenInput* nmfld = selgrp_->getNameField();
-	    if ( nmfld ) nmfld->setText( seldatasetnm );
-	}
-    }
     if ( compfld_ )
     {
 	int selcompnr = mUdf(int);
@@ -428,8 +379,6 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar_ );
-    setAttrNm( dlgiopar_.find( sKey::Attribute() ) );
-
     if ( seissetup_.selectcomp_ && !dlgiopar_.get(sKey::Component(), compnr_) )
 	setCompNr( compnr_ );
 }
@@ -450,17 +399,6 @@ IOObj* uiSeisSel::createEntry( const char* nm )
 
     iostrm->setTranslator( TwoDDataSeisTrcTranslator::translKey() );
     return iostrm;
-}
-
-
-void uiSeisSel::setAttrNm( const char* nm )
-{
-    attrnm_ = nm;
-    if ( attrnm_.isEmpty() )
-	dlgiopar_.removeWithKey( sKey::Attribute() );
-    else
-	dlgiopar_.set( sKey::Attribute(), nm );
-    updateInput();
 }
 
 
@@ -489,21 +427,8 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt ) return "";
 
-    BufferString compnm;
     LineKey lk( txt );
-    compnm = uiIOObjSel::userNameFromKey( lk.attrName() );
-    if ( is2D() )
-    {
-	const char* ptr = "";
-	ptr = firstOcc( compnm.buf(), '|' );
-	if ( ptr )
-	    { ptr++; mSkipBlanks(ptr); }
-	else
-	    ptr = "";
-
-	compnm = BufferString( ptr );
-    }
-    return compnm.buf();
+    return uiIOObjSel::userNameFromKey( lk.attrName() );
 }
 
 
@@ -530,7 +455,6 @@ void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
     dlgiopar_.merge( iop );
-    attrnm_ = iop.find( sKey::Attribute() );
 
     if ( seissetup_.selectcomp_ && !iop.get(sKey::Component(), compnr_) )
 	compnr_ = 0;
@@ -543,16 +467,8 @@ void uiSeisSel::updateInput()
     if ( workctio_.ioobj )
 	ioobjkey = workctio_.ioobj->key();
 
-    if ( workctio_.ctxt.forread )
-	updateAttrNm();
-
     if ( !ioobjkey.isEmpty() )
-    {
-	if ( seissetup_.selattr_ )
-	    uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
-	else
-	    uiIOSelect::setInput( ioobjkey );
-    }
+	uiIOSelect::setInput( ioobjkey );
 
     if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
     {
@@ -564,38 +480,10 @@ void uiSeisSel::updateInput()
 	transl->getComponentNames( compnms );
 	if ( compnr_ >= compnms.size() || compnms.size()<2 ) return;
 
-	BufferString text = userNameFromKey( LineKey(ioobjkey,attrnm_).buf() );
+	BufferString text = userNameFromKey( ioobjkey );
 	text += "|";
 	text += compnms.get( compnr_ );
 	uiIOSelect::setInputText( text.buf() );
-    }
-}
-
-
-void uiSeisSel::updateAttrNm()
-{
-    if ( !seissetup_.selattr_ )
-    {
-	attrnm_ = "";
-	return;
-    }
-
-    if ( is2D() && workctio_.ioobj )
-    {
-	SeisIOObjInfo seisinfo( workctio_.ioobj  );
-	SeisIOObjInfo::Opts2D opt2d;
-	opt2d.steerpol_ = seissetup_.steerpol_;
-	opt2d.zdomky_ = seissetup_.zdomkey_;
-	BufferStringSet attrnms;
-	seisinfo.getAttribNames( attrnms, opt2d );
-	if ( attrnm_.isEmpty() || !attrnms.isPresent(attrnm_) )
-	{
-	    const int attridx = attrnms.nearestMatch( "Seis" );
-	    if ( attridx >=0 && !mIsUdf(attridx) )
-		attrnm_ = attrnms.get( attridx );
-	    if ( attrnm_.isEmpty() )
-		attrnm_ = opt2d.steerpol_ == 1 ? sKey::Steering() : "Seis";
-	}
     }
 }
 
@@ -621,7 +509,6 @@ void uiSeisSel::processInput()
     if ( !workctio_.ioobj && !workctio_.ctxt.forread )
 	return;
 
-    setAttrNm( workctio_.ioobj ? LineKey( getInput() ).attrName() : "" );
     uiIOObjSel::fillPar( dlgiopar_ );
     updateInput();
 }
@@ -640,8 +527,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 						   const char* txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.selattr( is2d ).wantSteering().seltxt( txt );
-    if ( !forread && is2d ) sssu.allowlinesetsel( false );
+    sssu.wantSteering().seltxt( txt );
     return sssu;
 }
 

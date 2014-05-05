@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 
 class IOObj;
-class Seis2DLineSet;
+class Seis2DDataSet;
 class SeisScaler;
 class SeisTrc;
 class SeisTrcWriter;
@@ -104,7 +104,7 @@ public:
     			Seis2DTo3D();
 			~Seis2DTo3D();
 
-    void		setInput(const IOObj& lineset,const char* attrnm);
+    void		setInput(const IOObj& lineset);
     void		setOutput(IOObj& cube,const CubeSampling& outcs);
 
     void		setParams(int inl,int crl,float maxvel,bool reuse);
@@ -121,7 +121,7 @@ public:
 
 protected:
 
-    const Seis2DLineSet* ls_;
+    const Seis2DDataSet* ds_;
     IOObj*		outioobj_;
     CubeSampling	cs_;
     BinID		prevbid_;
@@ -133,7 +133,6 @@ protected:
     int			crlstep_;
 
     BufferString	errmsg_;
-    BufferString	attrnm_;
 
     SeisScaler*		sc_;
 

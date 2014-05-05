@@ -237,14 +237,13 @@ class uiSEGYExpMore : public uiDialog
 {
 public:
 
-uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
+uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
 				     "Specify file details",
                                      mODHelpKey(mSEGYExpMoreHelpID) ))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
-	, attrnm_(anm)
 {
     const BufferString fnm( outioobj_.fullUserExpr(false) );
     FilePath fp( fnm );
@@ -253,35 +252,18 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     BufferString setupnm( "Exp " );
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
-    uiLabel* lbl = 0;
-    const bool isrealattrib = attrnm_ == LineKey::sKeyDefAttrib();
-    if ( isrealattrib )
-    {
-	BufferString lbltxt( "Attribute: " );
-	lbltxt += attrnm_;
-	lbl = new uiLabel( this, lbltxt );
-    }
-
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines to export",
 						    true );
     lnmsfld_ = llb->box();
     SeisIOObjInfo sii( inioobj_ );
     BufferStringSet lnms;
-    sii.getLineNamesWithAttrib( attrnm_, lnms );
+    sii.getLineNames( lnms );
     for ( int idx=0; idx<lnms.size(); idx++ )
 	lnmsfld_->addItem( lnms.get(idx) );
     lnmsfld_->selectAll();
-    if ( lbl )
-	llb->attach( alignedBelow, lbl );
 
     BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
-    if ( isrealattrib )
-    {
-	setupnm += " ("; setupnm += attrnm_; setupnm += ")";
-	BufferString clnattrnm( attrnm_ );
-	clnattrnm.clean( BufferString::AllowDots );
-	newfnm += "_"; newfnm += clnattrnm;
-    }
+    newfnm += "_"; newfnm += inioobj_.name();
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
     BufferString txt( "Output (Line name replaces '" );
@@ -333,7 +315,7 @@ IOObj* getSubstIOObj( const char* fullfnm )
 bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 {
     const IOObj& in = inioobj_; const IOObj& out = *newioobj;
-    bool res = segyexp_->doWork( in, out, lnm, attrnm_ );
+    bool res = segyexp_->doWork( in, out, lnm );
     delete newioobj;
     if ( !res )
     {
@@ -378,7 +360,6 @@ bool doExp( const FilePath& fp )
 
     const IOObj&	inioobj_;
     const IOObj&	outioobj_;
-    const BufferString	attrnm_;
 
 };
 
@@ -401,19 +382,18 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
 
-    const char* attrnm = seissel_->attrNm();
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
     bool needinfo = false;
     if ( morebox_ && morebox_->isChecked() )
     {
-	uiSEGYExpMore dlg( this, *inioobj, *outioobj, attrnm );
+	uiSEGYExpMore dlg( this, *inioobj, *outioobj );
 	dlg.go();
     }
     else
     {
-	bool result = doWork( *inioobj, *outioobj, lnm, attrnm );
+	bool result = doWork( *inioobj, *outioobj, lnm );
 	if ( !result || !manipbox_ || !manipbox_->isChecked() )
 	    needinfo = result;
 	else
@@ -432,7 +412,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 
 
 bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
-				const char* linenm, const char* attrnm )
+			const char* linenm )
 {
     const bool is2d = Seis::is2D( geom_ );
     PtrMan<uiSeisIOObjInfo> ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
@@ -451,7 +431,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     SEGY::TxtHeader::info2D() = is2d;
     Executor* exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Export seismic data", "Putting traces",
-				    attrnm, linenm );
+				    linenm );
     if ( !exec )
 	{ delete tmpioobj; return false; }
     PtrMan<Executor> execptrman = exec;

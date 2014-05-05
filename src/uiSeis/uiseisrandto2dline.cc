@@ -68,10 +68,6 @@ bool uiSeisRandTo2DBase::checkInputs()
     if ( !inpfld_->ioobj() || !outpfld_->ioobj() )
 	return false;
 
-    BufferString attrnm = outpfld_->attrNm();
-    if ( attrnm.isEmpty() )
-	mErrRet("Please provide the attribute name")
-
     return true;
 }
 

@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "dataclipper.h"
 #include "ioobj.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisread.h"
 #include "seisioobjinfo.h"
@@ -36,7 +36,7 @@ Seis2DTo3D::Seis2DTo3D()
     , wrr_(0)
     , cs_(false)
     , nrdone_(0)
-    , ls_(0)
+    , ds_(0)
     , sc_(0)
     , outioobj_(0)
     , tmpseisbuf_(true)
@@ -71,12 +71,11 @@ void Seis2DTo3D::clear()
 
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
-void Seis2DTo3D::setInput( const IOObj& obj, const char* attrnm )
+void Seis2DTo3D::setInput( const IOObj& obj )
 {
     clear();
 
-    ls_ = new Seis2DLineSet( obj ); 
-    attrnm_ = attrnm;
+    ds_ = new Seis2DDataSet( obj ); 
 }
 
 
@@ -99,22 +98,21 @@ void Seis2DTo3D::setOutput( IOObj& obj, const CubeSampling& outcs )
 
 bool Seis2DTo3D::read()
 {
-    if ( ls_->nrLines() < 1 )
+    if ( ds_->nrLines() < 1 )
 	mErrRet( "Empty LineSet" )
     BufferStringSet lnms;
-    ls_->getLineNamesWithAttrib( lnms, attrnm_.buf() );
+    ds_->getLineNames( lnms );
     if ( lnms.isEmpty() )
 	mErrRet( "No lines for this attribute" )
 
     SeisTrcBuf tmpbuf(false);
     for ( int idx=0; idx<lnms.size(); idx++)
     {
-	const LineKey lk( lnms.get( idx ), attrnm_.buf() );
-	const int lsidx = ls_->indexOf( lk );
+	const int lsidx = ds_->indexOf( lnms.get(idx) );
 	if ( lsidx < 0 )
 	    continue;
 	tmpbuf.erase();
-	Executor* lf = ls_->lineFetcher( lsidx, tmpbuf );
+	Executor* lf = ds_->lineFetcher( lsidx, tmpbuf );
 	lf->execute();
 	seisbuf_.add( tmpbuf );
     }
@@ -147,7 +145,7 @@ bool Seis2DTo3D::read()
     if ( cs_.totalNr() < 2 )
 	{ errmsg_ = "Not enough positions found in input lineset"; }
 
-    delete ls_;
+    delete ds_;
 
     sc_ = new SeisScaler( seisbuf_ );
 

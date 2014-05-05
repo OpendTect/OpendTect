@@ -426,10 +426,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
 
     if ( is2d_ )
-    {
-	su.selattr_ = false;
 	lsfld_ = new uiSeisSel( this, ctxt, su );
-    }
     else
     {
 	for ( int idx=0; idx<nrvars; idx++ )
