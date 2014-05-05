@@ -202,7 +202,7 @@ bool uiWellAttribPartServer::launchSEGYWiz( IOPar* previop, int choice )
 void uiWellAttribPartServer::segyToolEnded( CallBacker* )
 {
     if ( !cursegyread_ || cursegyread_->state() == uiVarWizard::cCancelled() )
-	return;
+    { cursegyread_ = 0; return; }
 
     IOPar previop( cursegyread_->pars() );
     cursegyread_ = 0;
