@@ -25,7 +25,6 @@ class uiLabeledSpinBox;
 class uiScrollDialog;
 class uiSliceScroll;
 class uiSpinBox;
-namespace PosInfo { class Line2DKey; }
 
 mExpClass(uiTools) uiSliceSel : public uiGroup
 {
@@ -114,7 +113,7 @@ protected:
 mExpClass(uiTools) uiLinePosSelDlg: public uiDialog
 {
 public:
-			uiLinePosSelDlg(uiParent*,const PosInfo::Line2DKey&);
+			uiLinePosSelDlg(uiParent*);
 			uiLinePosSelDlg(uiParent*,const CubeSampling&);
 			~uiLinePosSelDlg();
 

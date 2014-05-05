@@ -487,11 +487,6 @@ bool uiAttrVolOut::fillPar()
     }
 
     BufferString attrnm = todofld_ ? todofld_->getAttrName() : "Multi-attribs";
-    if ( is2d )
-    {
-	const char* outputnm = objfld_->getInput();
-	attrnm = LineKey( outputnm ).attrName();
-    }
     iop.set( sKey::Target(), attrnm.buf() );
     BufferString linename;
     if ( is2d )
@@ -506,21 +501,6 @@ bool uiAttrVolOut::fillPar()
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
-	    if ( storedid.isEmpty() )
-	    {
-		uiString errmsg;
-		RefMan<Attrib::Provider> prov =
-		    Attrib::Provider::create( *desc, errmsg );
-		if ( prov )
-		{
-		    PosInfo::Line2DKey l2dkey = prov->getLine2DKey();
-		    BufferString lsnm = S2DPOS().getLineSet( l2dkey.lsID() );
-		    SeisIOObjInfo info( lsnm );
-		    if ( info.ioObj() )
-			storedid = info.ioObj()->key();
-		}
-	    }
-
 	    if ( !storedid.isEmpty() )
 	    {
 		LineKey lk( storedid.buf() );
@@ -528,8 +508,6 @@ bool uiAttrVolOut::fillPar()
 		linename = lk.lineName();
 	    }
 	}
-
-	Seis2DLineSet::invalidateCache();
     }
 
     if ( usecs )

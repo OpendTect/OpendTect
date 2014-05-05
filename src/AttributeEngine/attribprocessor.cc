@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
+#include "survgeom2d.h"
 #include "binidvalset.h"
 
 #include <limits.h>
@@ -186,10 +187,11 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	if ( is2d_ )
 	{
 	    mytrcinfo.nr = curbid.crl();
-	    const PosInfo::Line2DKey l2dky = provider_->getLine2DKey();
-	    PosInfo::Line2DData l2dd; PosInfo::Line2DPos pos2d;
-	    if ( S2DPOS().getGeometry(l2dky,l2dd) &&
-		 l2dd.getPos(curbid.crl(),pos2d) )
+	    const Pos::GeomID geomid = provider_->getGeomID();
+	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+		    	     Survey::GM().getGeometry(geomid) );
+	    PosInfo::Line2DPos pos2d;
+	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
 		mytrcinfo.coord = pos2d.coord_;
 	}
 

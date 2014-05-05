@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 
 
 int FaultTrace::nextID( int previd ) const
@@ -780,10 +781,9 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 
 FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 					  FaultTrcHolder& holder,
-					  const PosInfo::Line2DKey& l2dkey )
+					  Pos::GeomID geomid )
   : FaultTraceExtractor(flt,holder)
-  , l2dkey_(l2dkey)
-  , linegeom_(*new PosInfo::Line2DData)
+  , geomid_(geomid)
 {
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     const EM::SectionID sid = fault_.sectionID( 0 );
@@ -792,14 +792,10 @@ FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 
 
 FaultTraceExtractor2D::~FaultTraceExtractor2D()
-{ delete &linegeom_; }
+{}
 
 bool FaultTraceExtractor2D::doPrepare( int nrthreads )
 {
-    S2DPOS().setCurLineSet( l2dkey_.lsID() );
-    if ( !S2DPOS().getGeometry(l2dkey_.lineID(),linegeom_) )
-	return false;
-
     return FaultTraceExtractor::doPrepare( nrthreads );
 }
 
@@ -870,9 +866,6 @@ bool FaultTraceExtractor2D::doFinish( bool success )
 
 bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 {
-    if ( linegeom_.isEmpty() )
-	return false;
-
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     if ( !fss ) return false;
 
@@ -885,17 +878,13 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     if ( !fss->geometry().pickedOn2DLine(sid,sticknr) )
 	return true;
 
-    const MultiID* lsid = fss->geometry().pickedMultiID( sid, sticknr );
-    if ( !lsid ) return true;
+    const Pos::GeomID geomid = fss->geometry().pickedGeomID( sid, sticknr );
+    if ( geomid != geomid ) return true;
 
-    PtrMan<IOObj> lsobj = IOM().get( *lsid );
-    if ( !lsobj ) return true;
-
-    const char* linenm = fss->geometry().pickedName( sid, sticknr );
-    if ( !linenm ) return true;
-
-    PosInfo::Line2DKey l2dkey = S2DPOS().getLine2DKey( lsobj->name(), linenm );
-    if ( !(l2dkey==l2dkey_) ) return true;
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+	    	     Survey::GM().getGeometry(geomid_) );
+    if ( !geom2d )
+	return true;
 
     const int nrknots = fltgeom->nrKnots( sticknr );
     if ( nrknots < 2 ) return true;
@@ -910,7 +899,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     for ( int idx=colrg.start; idx<=colrg.stop; idx+=colrg.step )
     {
 	const Coord3 knot = fltgeom->getKnot( RowCol(sticknr,idx) );
-	const float trcnr = getFloatTrcNr( linegeom_, knot );
+	const float trcnr = getFloatTrcNr( geom2d->data(), knot );
 	if ( mIsUdf(trcnr) )
 	    break;
 
@@ -930,8 +919,8 @@ FaultTrcDataProvider::FaultTrcDataProvider()
     : is2d_(false)
 { holders_.allowNull(); }
 
-FaultTrcDataProvider::FaultTrcDataProvider( const PosInfo::Line2DKey& l2dkey )
-    : l2dkey_(l2dkey)
+FaultTrcDataProvider::FaultTrcDataProvider( const Pos::GeomID geomid )
+    : geomid_(geomid)
     , is2d_(true)
 { holders_.allowNull(); }
 
@@ -1082,7 +1071,7 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids,
 
 	FaultTrcHolder* holder = new FaultTrcHolder();
 	holders_ += holder;
-	taskgrp.addTask( new FaultTraceExtractor2D(*flt,*holder,l2dkey_) );
+	taskgrp.addTask( new FaultTraceExtractor2D(*flt,*holder,geomid_) );
     }
 
     return TaskRunner::execute( tr, taskgrp );

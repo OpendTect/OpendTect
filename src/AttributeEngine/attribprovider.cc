@@ -1426,23 +1426,6 @@ void Provider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::Line2DKey Provider::getLine2DKey() const
-{
-    PosInfo::Line2DKey l2dky;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-        if ( !inputs_[idx] )
-            continue;
-
-        l2dky = inputs_[idx]->getLine2DKey();
-        if ( l2dky.lsID() >= 0 )
-            return l2dky;
-    }
-
-    return l2dky;
-}
-
-
 Pos::GeomID  Provider::getGeomID() const
 {
     Pos::GeomID geomid = Survey::GM().cUndefGeomID();

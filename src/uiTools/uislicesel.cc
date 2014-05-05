@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfo2dsurv.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "thread.h"
 #include "timer.h"
 #include "od_helpids.h"
@@ -583,7 +584,7 @@ bool uiSliceSelDlg::acceptOK( CallBacker* )
 
 
 // uiLinePosSelDlg
-uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const PosInfo::Line2DKey& l2d )
+uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Select line position",
 				   mNoDlgTitle,mNoHelpKey) )
     , prefcs_(0)
@@ -591,9 +592,9 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const PosInfo::Line2DKey& l2d )
     , inlcrlfld_(0)
     , posdlg_(0)
 {
-    S2DPOS().setCurLineSet( l2d.lsID() );
     BufferStringSet linenames;
-    S2DPOS().getLines( linenames );
+    TypeSet<Pos::GeomID> geomids;
+    Survey::GM().getList( linenames, geomids, true );
     linesfld_ = new uiGenInput( this, "Compute on line:",
 				StringListInpSpec(linenames) );
     setOkText( uiStrings::sNext() );
@@ -630,17 +631,17 @@ bool uiLinePosSelDlg::acceptOK( CallBacker* )
 
 bool uiLinePosSelDlg::selectPos2D()
 {
-    PosInfo::Line2DData l2dd( linesfld_->text() );
-    const bool res = S2DPOS().getGeometry( l2dd );
-    if ( !res ) return false;
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+	    	     Survey::GM().getGeometry(linesfld_->text()) );
+    if ( !geom2d ) return false;
 
     CubeSampling inputcs = cs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
     {
-	inputcs.hrg.setCrlRange( l2dd.trcNrRange() );
-	inputcs.zrg = l2dd.zRange();
+	inputcs.hrg.setCrlRange( geom2d->data().trcNrRange() );
+	inputcs.zrg = geom2d->data().zRange();
     }
 
     const ZDomain::Info info( ZDomain::SI() );

@@ -189,12 +189,6 @@ const char* Seis2DDisplay::getLineName() const
 }
 
 
-PosInfo::Line2DKey Seis2DDisplay::getLine2DKey() const
-{
-    return l2dkey_;
-}
-
-
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;

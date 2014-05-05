@@ -52,8 +52,7 @@ public:
 
     void			setGeomID(Pos::GeomID geomid);
     const char*			getLineName() const;
-    PosInfo::Line2DKey		getLine2DKey() const;
-    Pos::GeomID		getGeomID() const	   { return geomid_; }
+    Pos::GeomID			getGeomID() const	   { return geomid_; }
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -216,7 +215,6 @@ protected:
     visBase::Text2*		linename_;
     Notifier<Seis2DDisplay>	geomchanged_;
 
-    PosInfo::Line2DKey		l2dkey_;
     Pos::GeomID			geomid_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
