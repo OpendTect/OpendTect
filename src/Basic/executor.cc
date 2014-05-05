@@ -70,8 +70,8 @@ ExecutorGroup::ExecutorGroup( const char* nm, bool p, bool ownsexecs )
 	: Executor( nm )
 	, executors_( *new ObjectSet<Executor> )
 	, currentexec_( 0 )
-    	, parallel_( p )
-    	, sumstart_( 0 )
+	, parallel_( p )
+	, sumstart_( 0 )
         , ownsexecs_(ownsexecs)
 {
 }
@@ -92,10 +92,10 @@ void ExecutorGroup::findNextSumStop()
     {
 	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
 	{
-	    if ( executors_[idx]->uiNrDoneText()!=
-		 executors_[idx-1]->uiNrDoneText() ||
-		executors_[idx]->uiMessage()!=
-		 executors_[idx-1]->uiMessage() )
+	    if ( executors_[idx]->uiNrDoneText().getFullString() !=
+		 executors_[idx-1]->uiNrDoneText().getFullString() ||
+		executors_[idx]->uiMessage().getFullString() !=
+		 executors_[idx-1]->uiMessage().getFullString() )
 	    {
 		sumstop_ = idx-1;
 		return;
@@ -225,6 +225,6 @@ bool TextTaskRunner::execute( Task& t )
 	t.setProgressMeter( &progressmeter );
 	execres_ = t.execute();
     }
-    
+
     return execres_;
 }
