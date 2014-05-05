@@ -257,7 +257,7 @@ static int theiconsz = -1;
 #define mShowInlProgress	"dTect.Show inl progress"
 #define mShowCrlProgress	"dTect.Show crl progress"
 #define mTextureResFactor	"dTect.Default texture resolution factor"
-#define mUseSurfShaders 	"dTect.Use surface shaders"
+#define mUseSurfShaders	"dTect.Use surface shaders"
 #define mUseVolShaders		"dTect.Use volume shaders"
 
 
@@ -374,7 +374,7 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     setts_.get( mTextureResFactor, textureresfactor_ );
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 					"Default texture resolution factor" );
-    lcb->attach( alignedBelow, usesurfshadersfld_ );
+    lcb->attach( alignedBelow, usevolshadersfld_ );
     textureresfactorfld_ = lcb->box();
     textureresfactorfld_->addItem( "Standard" );
     textureresfactorfld_->addItem( "Higher" );
@@ -428,8 +428,8 @@ bool uiVisSettingsGroup::acceptOK()
 
 void uiVisSettingsGroup::shadersChange( CallBacker* )
 {
-    usevolshadersfld_->display( usesurfshadersfld_->getBoolValue() );
-    textureresfactorfld_->display( !usesurfshadersfld_->getBoolValue() );
+    usevolshadersfld_->setSensitive( usesurfshadersfld_->getBoolValue() );
+    textureresfactorfld_->setSensitive( !usesurfshadersfld_->getBoolValue() );
 }
 
 
