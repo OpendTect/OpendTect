@@ -657,6 +657,11 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	restoreActiveVol();
     }
+
+    mGetDisplays( false );
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->enablePicking( yn );
+
     visserv->sendPickingStatusChangeEvent();
 }
 

@@ -25,7 +25,6 @@ namespace visBase
 {
     class BoxDragger;
     class TextureChannels;
-    class TextureChannel2VolData;
     class OrthogonalSlice;
     class Transformation;
 };
@@ -59,6 +58,9 @@ public:
     
     void            showDragger(bool yn);
     bool            isDraggerShown() const;
+
+    void	    enablePicking(bool);
+    bool	    isPickingEnabled() const;
     
     void            setDraggerTransparency(float);
     float           getDraggerTransparency() const;
@@ -149,13 +151,11 @@ public:
     BufferString	getManipulationString() const;
     NotifierAccess*	getManipulationNotifier();
 
-    static int		cInLine()	{ return 2; }
+    static int		cInLine()	{ return 0; }
     static int		cCrossLine()	{ return 1; }
-    static int		cTimeSlice()	{ return 0; }
+    static int		cTimeSlice()	{ return 2; }
    
     // texture channel-related methods
-    void		setChannels2VolData(visBase::TextureChannel2VolData*);
-    visBase::TextureChannel2VolData*	getChannels2VolData();
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
@@ -169,16 +169,19 @@ public:
 
     const char*		errMsg() const { return errmsg_.str(); }
 
+    void		setDisplayTransformation(const mVisTrans*);
+
     
 protected:
     			~MPEDisplay();
     CubeSampling	getBoxPosition() const;
     void		setPlanePosition(const CubeSampling&);
 
+    void		setSliceDimension(int slice,int dim);
     void		alignSliceToSurvey(visBase::OrthogonalSlice&);
 	
     void		setSceneEventCatcher(visBase::EventCatcher*);
-	
+
     // callback from boxdragger
     void		boxDraggerFinishCB(CallBacker*);
 
@@ -229,7 +232,6 @@ protected:
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
-    bool			isinited_;
     bool			issliceshown_;
     bool			allowshading_;
     int				dim_;
@@ -237,7 +239,10 @@ protected:
    
     // texture channel-related data
     visBase::TextureChannels*	channels_;
-    
+
+    RefMan<const mVisTrans>	displaytrans_;
+    Coord3			curboxcenter_;
+    Coord3			curboxwidth_;
 
     // common keys
     static const char*		sKeyTransparency() { return "Transparency"; }
@@ -253,9 +258,6 @@ protected:
     static const char*		sKeyInline()	{ return "Inline"; }
     static const char*		sKeyCrossLine()	{ return "Crossline"; }
     static const char*		sKeyTime()	{ return "Time"; }
-
-    // texture channel-related keys
-    static const char*		sKeyTC2VolData()	{ return "TC2VolData"; }
 
 };
 
