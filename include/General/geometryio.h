@@ -29,7 +29,8 @@ public:
     static GeometryWriter*	create2DWriter()
 				{ return new GeometryWriter2D; }
     static void			initClass();
-    bool			write(Geometry&,uiString&) const;
+    bool			write(Geometry&,uiString&,
+				      const char* crfrmstr=0) const;
     IOObj*			createEntry(const char* name) const;
 
 };

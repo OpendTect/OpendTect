@@ -66,7 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 extern "C" const char* GetSettingsDataDir();
-extern void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
 extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg);
 
 
@@ -163,7 +162,6 @@ uiODMain::uiODMain( uiMain& a )
       || (IOM().isBad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
 
-    OD_Init_Transf_2DLineGeometry_From_2D_SeisLines();
     OD_Convert_OD4_Data_To_OD5(0);
     IOM().surveyChanged.notify( mSCB(OD_Convert_OD4_Data_To_OD5) );
 

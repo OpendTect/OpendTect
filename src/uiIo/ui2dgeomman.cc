@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "geom2dascio.h"
 #include "ioman.h"
 #include "od_istream.h"
-#include "posinfo2d.h"
+#include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
 
@@ -264,6 +264,20 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
 	IOM().permRemove( ioobj->key() );
 	Survey::GMAdmin().removeGeometry( geomid );
+	const FixedString crfromstr = ioobj->pars().find( sKey::CrFrom() );
+	if ( !crfromstr.isEmpty() )
+	{
+	    PosInfo::Line2DKey l2dkey;
+	    l2dkey.fromString( crfromstr );
+	    if ( l2dkey.isOK() )
+	    {
+		PosInfo::Survey2D& old2dadmin = PosInfo::POS2DAdmin();
+		if ( old2dadmin.curLineSetID() != l2dkey.lsID() )
+		    old2dadmin.setCurLineSet( l2dkey.lsID() );
+
+		old2dadmin.removeLine( l2dkey.lineID() );
+	    }
+	}
     }
 
     chgr.restore();

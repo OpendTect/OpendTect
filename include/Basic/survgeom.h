@@ -130,7 +130,7 @@ public:
 
     Geometry*			getGeometry(Geometry::ID);
     bool			write(Geometry&,uiString&);
-    IOObj*			createEntry(const char* name,const bool is2d);
+//    IOObj*			createEntry(const char* name,const bool is2d);
 				// returns new GeomID.
     bool			removeGeometry(Geometry::ID);
 
@@ -169,7 +169,8 @@ public:
     virtual		~GeometryWriter()		{};
 			mDefineFactoryInClass(GeometryWriter,factory);
 
-    virtual bool	write(Geometry&,uiString&) const { return true; }
+    virtual bool	write(Geometry&,uiString&,
+			      const char* crfromstr=0) const { return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
     virtual bool	removeEntry(const char*) const	{ return 0; }
 

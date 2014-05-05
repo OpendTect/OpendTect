@@ -284,7 +284,10 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 
 	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
 	    uiString errormsg;
-	    if ( !geomwriter->write(*geom2d,errormsg) )
+	    PosInfo::Line2DKey l2dkey =
+		S2DPOS().getLine2DKey( lsnames.get(lsidx), lnames.get(lidx) );
+	    const char* crfromstr = l2dkey.toString();
+	    if ( !geomwriter->write(*geom2d,errormsg,crfromstr) )
 	    {
 		errmsg = tr(
 		    "Unable to convert 2D geometries to OD5.0 format.\n%1").
@@ -351,7 +354,7 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 	return false;
 }
 
-
+/*
 IOObj* GeometryManager::createEntry( const char* name, const bool is2d )
 {
     if ( is2d )
@@ -364,7 +367,7 @@ IOObj* GeometryManager::createEntry( const char* name, const bool is2d )
     else
 	return 0;
 }
-
+*/
 
 bool GeometryManager::removeGeometry( Geometry::ID geomid )
 {
