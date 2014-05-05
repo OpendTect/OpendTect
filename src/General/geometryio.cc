@@ -111,6 +111,15 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 }
 
 
+Geometry::ID GeometryWriter2D::createNewGeomID( const char* name ) const
+{
+    PtrMan<IOObj> geomobj = createEntry( name );
+    if ( !geomobj )
+	return Survey::GM().cUndefGeomID();
+    return geomobj->key().ID( 1 );
+}
+
+
 IOObj* GeometryWriter2D::createEntry( const char* name ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom);

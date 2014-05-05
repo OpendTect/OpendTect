@@ -28,7 +28,7 @@ namespace Geometry { class RandomLine; }
 namespace PosInfo { class Line2DData; }
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
-{
+{ mODTextTranslationClass(uiStratSynthExport)
 public:
     enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
 
@@ -40,7 +40,7 @@ protected:
 
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiSeis2DLineNameSel* newlinenmsel_;
+    uiGenInput* 	newlinenmfld_;
     uiSeis2DLineNameSel* existlinenmsel_;
     uiGroup*		geomgrp_;
     uiGenInput*		geomsel_;
@@ -71,7 +71,6 @@ protected:
 	    				 PosInfo::Line2DData&);
 
     void		crNewChg(CallBacker*);
-    void		lsSel(CallBacker*);
     void		geomSel(CallBacker*);
 
     bool		acceptOK(CallBacker*);

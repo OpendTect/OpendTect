@@ -132,17 +132,11 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
 
 
-    uiSeisSel::Setup sssu( Seis::Line );
-    sssu.enabotherdomain( false ).zdomkey( ZDomain::sKeyTime() )
-	.selattr( false ).allowsetdefault( false );
-    linesetsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
-				sssu );
-    linesetsel_->attach( alignedBelow, crnewfld_ );
-    linesetsel_->selectionDone.notify( mCB(this,uiStratSynthExport,lsSel) );
-    newlinenmsel_ = new uiSeis2DLineNameSel( this, false );
-    newlinenmsel_->attach( alignedBelow, linesetsel_ );
+    newlinenmfld_ = new uiGenInput( this, tr("New Line Name"), StringInpSpec());
+    newlinenmfld_->attach( alignedBelow, crnewfld_ );
     existlinenmsel_ = new uiSeis2DLineNameSel( this, true );
-    existlinenmsel_->attach( alignedBelow, linesetsel_ );
+    existlinenmsel_->fillWithAll();
+    existlinenmsel_->attach( alignedBelow, crnewfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hsep 1" );
     sep->attach( stretchedBelow, existlinenmsel_ );
@@ -269,7 +263,7 @@ void uiStratSynthExport::getExpObjs()
 void uiStratSynthExport::crNewChg( CallBacker* )
 {
     const bool iscreate = crnewfld_->getBoolValue();
-    newlinenmsel_->display( iscreate );
+    newlinenmfld_->display( iscreate );
     existlinenmsel_->display( !iscreate );
     geomgrp_->display( iscreate );
     if ( iscreate )
@@ -285,12 +279,6 @@ void uiStratSynthExport::geomSel( CallBacker* )
     picksetsel_->display( selgeom == 1 );
     if ( randlinesel_ )
 	randlinesel_->display( selgeom == 2 );
-}
-
-
-void uiStratSynthExport::lsSel( CallBacker* )
-{
-    existlinenmsel_->setDataSet( linesetsel_->key() );
 }
 
 
@@ -449,7 +437,7 @@ bool uiStratSynthExport::createHor2Ds()
 	mErrRet( "Cannot create horizon without a geometry. Select any "
 		 "synthetic data to create a new geometry or use existing "
 		 "2D line", false );
-    const char* linenm = createnew ? newlinenmsel_->getInput()
+    const char* linenm = createnew ? newlinenmfld_->text()
 				   : existlinenmsel_->getInput();
     const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
     if ( geomid == Survey::GeometryManager::cUndefGeomID() )
@@ -471,8 +459,8 @@ bool uiStratSynthExport::createHor2Ds()
 	}
 
 	PtrMan<Executor> saver = horizon2d->saver();
-	uiTaskRunner tr( this );
-	if ( !TaskRunner::execute(&tr,*saver) )
+	uiTaskRunner taskrunner( this );
+	if ( !TaskRunner::execute(&taskrunner,*saver) )
 	    mErrRet( saver->uiMessage(), false );
     }
 
@@ -540,16 +528,8 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 		 "create a 2D line geometry.", false );
     }
 
-    PtrMan<const IOObj> lineobj = linesetsel_->getIOObj();
-    if ( !lineobj )
-    {
-	getExpObjs();
-	return false;
-    }
-
-    S2DPOS().setCurLineSet( lineobj->name() );
     BufferString linenm =
-	crnewfld_->getBoolValue() ? newlinenmsel_->getInput()
+	crnewfld_->getBoolValue() ? newlinenmfld_->text()
 				  : existlinenmsel_->getInput();
     if ( linenm.isEmpty() )
     {
@@ -557,14 +537,14 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	mErrRet( "No line name specified", false );
     }
 
-    PosInfo::Line2DData linegeom( linenm );
-    if ( !getGeometry(linegeom) )
+    PosInfo::Line2DData* linegeom = new PosInfo::Line2DData( linenm );
+    if ( !getGeometry(*linegeom) )
     {
 	getExpObjs();
 	mErrRet( "Could not find the geometry of specified line", false );
     }
 
-    int synthmodelsz = linegeom.positions().size();
+    int synthmodelsz = linegeom->positions().size();
     if ( !postsds_.isEmpty() )
     {
 	mDynamicCastGet(const PostStackSyntheticData*,postsd,postsds_[0]);
@@ -576,7 +556,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	synthmodelsz = presd->preStackPack().getGathers().size();
     }
 
-    if ( linegeom.positions().size() < synthmodelsz )
+    if ( linegeom->positions().size() < synthmodelsz )
 	uiMSG().warning( "The geometry of the line could not accomodate \n"
 			 "all the traces from the synthetics. Some of the \n"
 			 "end traces will be clipped" );
@@ -585,12 +565,11 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     prepostfix.add( postfxfld_->text() );
     ObjectSet<const SyntheticData> sds( postsds_ );
     sds.append( presds_ );
-    StratSynthExporter synthexp( *linesetsel_->getIOObj(), sds,
-				 linegeom, prepostfix );
-    uiTaskRunner tr( this );
-    const bool res = TaskRunner::execute( &tr, synthexp );
+    StratSynthExporter synthexp( sds, linegeom, prepostfix );
+    uiTaskRunner taskrunner( this );
+    const bool res = TaskRunner::execute( &taskrunner, synthexp );
     if ( !res )
-	mErrRet( synthexp.errMsg(), false )
+	return false;
     createHor2Ds();
     if ( !SI().has2D() )
 	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"

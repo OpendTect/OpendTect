@@ -19,20 +19,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "seisselectionimpl.h"
 #include "seispsioprov.h"
+#include "seis2dlineio.h"
 #include "stratsynthexp.h"
 #include "syntheticdataimpl.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "separstr.h"
 #include "transl.h"
 
-StratSynthExporter::StratSynthExporter( const IOObj& outobj,
+StratSynthExporter::StratSynthExporter(
 	const ObjectSet<const SyntheticData>& sds,
-	const PosInfo::Line2DData& geom, const SeparString& prepostfix )
+	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
     : Executor( "Exporting syntheic data" )
     , sds_(sds)
-    , linegeom_(geom)
-    , outobj_(outobj)
+    , linegeom_(newgeom)
     , cursdidx_(0)
     , posdone_(0)
     , prefixstr_(prepostfix[0].str())
@@ -52,13 +53,13 @@ StratSynthExporter::~StratSynthExporter()
 
 od_int64 StratSynthExporter::nrDone() const
 {
-    return (cursdidx_*linegeom_.positions().size()) + posdone_;
+    return (cursdidx_*linegeom_->positions().size()) + posdone_;
 }
 
 
 od_int64 StratSynthExporter::totalNr() const
 {
-    return sds_.size()*linegeom_.positions().size();
+    return sds_.size()*linegeom_->positions().size();
 }
 
 #define mSkipInitialBlanks( str ) \
@@ -89,19 +90,26 @@ void StratSynthExporter::prepareWriter()
 	synthnm += postfixstr_.buf();
     }
 
-    PtrMan<CtxtIOObj> psctxt;
+    PtrMan<CtxtIOObj> ctxt;
     if ( isps )
     {
-	psctxt = mMkCtxtIOObj( SeisPS2D );
-	psctxt->setName( synthnm.buf() );
-	psctxt->ctxt.deftransl = CBVSSeisPS2DTranslator::translKey();
-	IOM().getEntry( *psctxt, false );
+	ctxt = mMkCtxtIOObj( SeisPS2D );
+	ctxt->ctxt.deftransl = CBVSSeisPS2DTranslator::translKey();
+    }
+    else
+    {
+	ctxt = mMkCtxtIOObj( SeisTrc );
+	ctxt->ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
     }
 
+    ctxt->setName( synthnm.buf() );
+    IOM().getEntry( *ctxt, false );
     delete writer_;
-    writer_ = new SeisTrcWriter( isps ? psctxt->ioobj : &outobj_ );
+    writer_ = new SeisTrcWriter( ctxt->ioobj );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    seldata->setGeomID( Survey::GM().getGeomID(linegeom_.lineName()) );
+    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( linegeom_ );
+    uiString errmsg;
+    seldata->setGeomID( Survey::GMAdmin().addNewEntry(newgoem2d,errmsg) );
     writer_->setSelData( seldata );
     writer_->setAttrib( synthnm );
 }
@@ -120,8 +128,10 @@ int StratSynthExporter::nextStep()
 }
 
 
-uiStringCopy StratSynthExporter::errMsg() const
-{ return writer_->errMsg(); }
+const char* StratSynthExporter::message() const
+{
+    return writer_ ? writer_->errMsg().getOriginalString() : 0;
+}
 
 
 #define mErrRetPErr( msg ) \
@@ -135,7 +145,7 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Wrong type (not PostStackSyntheticData)" )
 
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
-    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_.positions();
+    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
     if ( !positions.validIdx(posdone_) )
     {
 	cursdidx_++;
@@ -168,7 +178,7 @@ int StratSynthExporter::writePreStackTraces()
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
-    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_.positions();
+    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
     if ( !positions.validIdx(posdone_) )
     {
 	cursdidx_++;

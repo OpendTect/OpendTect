@@ -27,15 +27,16 @@ mExpClass(WellAttrib) StratSynthExporter : public Executor
 {
 public:
     				StratSynthExporter(
-			    	    const IOObj& outobj,
 				    const ObjectSet<const SyntheticData>& sds,
-				    const PosInfo::Line2DData& geom,
+				    PosInfo::Line2DData* newgeom,
 				    const SeparString&);
     				~StratSynthExporter();
 
     od_int64				nrDone() const;
     od_int64				totalNr() const;
-    uiStringCopy			errMsg() const;
+    const char* 			nrDoneText() const
+					{ return "Data Sets Created"; }
+    const char* 			message() const;
 protected:
 
     int 				nextStep();
@@ -45,8 +46,7 @@ protected:
 
     bool				isps_;
     const ObjectSet<const SyntheticData>& sds_;
-    const PosInfo::Line2DData&		linegeom_;
-    const IOObj&			outobj_;
+    PosInfo::Line2DData*		linegeom_;
     SeisTrcWriter*			writer_;
     BufferString			prefixstr_;
     BufferString			postfixstr_;
