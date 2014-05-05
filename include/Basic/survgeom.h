@@ -130,13 +130,11 @@ public:
 
     Geometry*			getGeometry(Geometry::ID);
     bool			write(Geometry&,uiString&);
-//    IOObj*			createEntry(const char* name,const bool is2d);
-				// returns new GeomID.
     bool			removeGeometry(Geometry::ID);
 
     Geometry::ID		getGeomID(const char* lsm,
 					  const char* linenm) const;
-				/*! Use only if you are converting 
+				/*!< Use only if you are converting 
 				    od4 geometries to od5 geometries */
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.

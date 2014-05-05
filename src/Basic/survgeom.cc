@@ -354,20 +354,6 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 	return false;
 }
 
-/*
-IOObj* GeometryManager::createEntry( const char* name, const bool is2d )
-{
-    if ( is2d )
-    {
-	PtrMan<GeometryWriter> geomwriter = GeometryWriter::factory()
-				    .create( sKey::TwoD() );
-
-	return geomwriter->createEntry( name );
-    }
-    else
-	return 0;
-}
-*/
 
 bool GeometryManager::removeGeometry( Geometry::ID geomid )
 {
