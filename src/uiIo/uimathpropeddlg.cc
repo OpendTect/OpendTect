@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimathpropeddlg.h"
 #include "uimathformula.h"
+#include "uimathexpressionvariable.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
 #include "mathproperty.h"
@@ -23,16 +24,19 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 		BufferString("Value generation by formula for ",pr.name()),
 		mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
+    , prs_(*new PropertyRefSelection(prs))
 {
     uiMathFormula::Setup umfsu( "Formula (like den * vel)" );
     umfsu.proptype( prop_.ref().stdType() );
     umfsu.stortype( "Math Property" );
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
+    formfld_->inpSet.notify( mCB(this,uiMathPropEdDlg,inpSel) );
+    formfld_->formSet.notify( mCB(this,uiMathPropEdDlg,formSet) );
 
     BufferStringSet availpropnms;
-    for ( int idx=0; idx<prs.size(); idx++ )
+    for ( int idx=0; idx<prs_.size(); idx++ )
     {
-	const PropertyRef* ref = prs[idx];
+	const PropertyRef* ref = prs_[idx];
 	if ( ref != &pr.ref() )
 	    availpropnms.add( ref->name() );
     }
@@ -46,6 +50,31 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 
 uiMathPropEdDlg::~uiMathPropEdDlg()
 {
+    delete &prs_;
+}
+
+
+void uiMathPropEdDlg::formSet( CallBacker* )
+{
+    const int nrinps = formfld_->nrInputs();
+    for ( int iinp=0; iinp<nrinps; iinp++ )
+	setPType4Inp( iinp );
+}
+
+
+void uiMathPropEdDlg::inpSel( CallBacker* )
+{
+    const int inpidx = formfld_->inpSelNotifNr();
+    if ( inpidx >= 0 && inpidx < formfld_->nrInputs() )
+	setPType4Inp( inpidx );
+}
+
+
+void uiMathPropEdDlg::setPType4Inp( int inpidx )
+{
+    const PropertyRef* pr = prs_.get( formfld_->getInput(inpidx) );
+    PropertyRef::StdType ptyp = pr ? pr->stdType() : PropertyRef::Other;
+    formfld_->inpFld(inpidx)->setPropType( ptyp );
 }
 
 
