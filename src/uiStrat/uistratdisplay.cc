@@ -722,8 +722,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     const float shift=(float)(scaler.scale(newpos)-scaler.scale(startdragpos_));
     startdragpos_ = newpos;
 
-    Interval<float> rg( range_ );
-    rg.set( rg.start - shift, rg.stop - shift );
+    Interval<float> rg( range_.start - shift, range_.stop - shift );
     if ( rg.start < boundingrange_.start )
 	rg.set( boundingrange_.start, range_.stop ); 
     if ( rg.stop > boundingrange_.stop )
@@ -748,15 +747,15 @@ void uiStratViewControl::rubBandCB( CallBacker* )
 	    || (selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    Interval<float> rg( range_ );
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start,
 		      allarea.bottom()-border, range_.stop );
-    rg.set( mCast(float,scaler.scale(selarea->top())),
-	    mCast(float,scaler.scale(selarea->bottom())) );
+    const Interval<float> rg( mCast(float,scaler.scale(selarea->top())),
+	    		      mCast(float,scaler.scale(selarea->bottom())) );
     if ( rg.width()<=0.1 ) return;
 
     range_ = rg;
+    range_.sort();
     range_.limitTo( boundingrange_ );
 
     rangeChanged.trigger();
