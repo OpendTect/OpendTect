@@ -1022,12 +1022,10 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
 
-    float pos;
-    if ( dim == cInLine() )
-	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
+    float pos = mCast( float, SI().inlRange(true).snap(slicepos) );
     if ( dim == cCrossLine() )
 	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
-    if ( dim == cTimeSlice() )
+    else if ( dim == cTimeSlice() )
 	pos = mCast( float, mNINT32(slicepos*1000) );
 
     return pos;

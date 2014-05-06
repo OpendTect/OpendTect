@@ -142,8 +142,8 @@ protected:
     void		shadersChange(CallBacker*);
 
     uiComboBox*		textureresfactorfld_;
-    uiGenInput* 	usesurfshadersfld_;
-    uiGenInput* 	usevolshadersfld_;
+    uiGenInput*		usesurfshadersfld_;
+    uiGenInput*		usevolshadersfld_;
 
 		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
     int			textureresfactor_;
