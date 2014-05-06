@@ -212,9 +212,10 @@ void uiNorthArrowObject::update()
 }
 
 
-uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
+uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle, bool withnortharrow )
     : uiBaseMap(p)
-    , survbox_(0),northarrow_(0)
+    , survbox_(0)
+    , northarrow_(0)
     , survinfo_(0)
     , title_(0)
 {
@@ -222,13 +223,22 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     const mDeclAlignment( txtalign, Left, Top );
 
-    if ( !withtitle )
-	return;
+    survbox_ = new uiSurveyBoxObject( 0, true );
+    addObject( survbox_ );
 
-    title_ = view_.scene().addItem( new uiTextItem(uiPoint(10,10),"Survey name",
-						   txtalign) );
-    title_->setPenColor( Color::Black() );
-    title_->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
+    if ( withnortharrow )
+    {
+	northarrow_ = new uiNorthArrowObject( 0, true );
+	addObject( northarrow_ );
+    }
+
+    if ( withtitle )
+    {
+	title_ = view_.scene().addItem(
+		new uiTextItem(uiPoint(10,10),"Survey name",txtalign) );
+	title_->setPenColor( Color::Black() );
+	title_->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
+    }
 }
 
 
@@ -236,18 +246,8 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;
 
-    if ( !survbox_ )
-    {
-	survbox_ = new uiSurveyBoxObject( 0, true );
-	addObject( survbox_ );
-	if ( title_ )
-	{
-	    northarrow_ = new uiNorthArrowObject( 0, true );
-	    addObject( northarrow_ );
-	}
-    }
-
-    survbox_->setSurveyInfo( survinfo_ );
+    if ( survbox_ )
+	survbox_->setSurveyInfo( survinfo_ );
     if ( northarrow_ )
 	northarrow_->setSurveyInfo( survinfo_ );
     if ( title_ )

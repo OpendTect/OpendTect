@@ -71,7 +71,8 @@ protected:
 mExpClass(uiIo) uiSurveyMap : public uiBaseMap
 {
 public:
-			uiSurveyMap(uiParent*,bool withtitle=true);
+			uiSurveyMap(uiParent*,bool withtitle=true,
+				    bool withnortharrow=false);
 
     void		setSurveyInfo(const SurveyInfo*);
 
