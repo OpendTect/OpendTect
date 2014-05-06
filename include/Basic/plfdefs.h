@@ -80,6 +80,16 @@ Always defined:
 
 #if defined( __mac__ )
 # define __unix__ 1
+
+//This is a fix to fix the bug 6644037 at bugreport.apple.com
+//This bug makes the compiler not link the objectset's virtual functions under
+//some conditions.
+# if defined( __clang__) && ( __clang_major__==5 ) && ( __clang_minor__==1 )
+#  ifndef __MAC_LLVM_COMPILER_ERROR__
+#   pragma message "This version of clang is prone to errors" \
+		    "Set __MAC_LLVM_COMPILER_ERROR__ to fix it"
+#  endif
+# endif
 #endif
 
 #ifndef __unix__
