@@ -65,11 +65,10 @@ public:
     enum ChoiceMode	{ None, OnlyOne, AtLeastOne, ZeroOrMore };
 
                         uiListBox(uiParent*,const char* nm=0); //!< OnlyOne
-                        uiListBox(uiParent*,const char* nm,
-				  ChoiceMode cm,
+                        uiListBox(uiParent*,const char* nm,ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
 			uiListBox(uiParent*,const BufferStringSet&,
-				  const char* nm);
+				  const char* nm=0);
 			uiListBox(uiParent*,const BufferStringSet&,
 				  const char* nm,ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
@@ -193,11 +192,7 @@ private:
     void		updateFields2ChoiceMode();
     void		setItemCheckable(int,bool);
 
-public:
-
-
 protected:
-	// keep as deprecated, will become protected in 5.2
 
     void		setItemsCheckable( bool yn )	{ setMultiChoice(yn); }
     void		setAllItemsChecked(bool);
@@ -210,27 +205,6 @@ protected:
     void		setCheckedItems(const TypeSet<int>&);
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
-
-    /*
-	// keep as deprecated, remove in 5.2
-
-    enum SelectionMode	{ No, Single, Multi, Extended, Contiguous };
-    void		setSelectionMode(SelectionMode);
-    void		setMultiSelect(bool yn=true);
-    int			maxNrOfSelections() const;
-    bool		isSelected(int) const;
-    int			nextSelected(int prev=-1) const;
-    int			nrSelected() const;
-    void		setSelected(int,bool yn=true);
-    void		selectAll(bool yn=true);
-    void		clearSelection();
-    bool		isItemSelectable(int) const;
-    void		setSelectedItems(const BufferStringSet&);
-    void		setSelectedItems(const TypeSet<int>&);
-    void		getSelectedItems(BufferStringSet&) const;
-    void		getSelectedItems(TypeSet<int>&) const;
-
-    */
 
 };
 
