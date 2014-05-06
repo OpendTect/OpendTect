@@ -757,6 +757,7 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     if ( rg.width()<=0.1 ) return;
 
     range_ = rg;
+    range_.sort();
     range_.limitTo( boundingrange_ );
 
     rangeChanged.trigger();
