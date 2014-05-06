@@ -545,11 +545,15 @@ void uiODMenuMgr::fillAnalMenu()
 
 void uiODMenuMgr::fillSceneMenu()
 {
+    scenemnu_->clear();
     mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
 
     addtimedepthsceneitm_ = new uiAction( "Dummy",
-					    mCB(this,uiODMenuMgr,handleClick) );
+					  mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
+
+    create2D3DMnu( scenemnu_, "New [Horizon flattened]",
+		   mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm, 0 );
     lastsceneitm_ = scenemnu_->insertSeparator();
 
     mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
@@ -1146,6 +1150,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
+    case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
+    case mAddHorFlat3DMnuItm:	applMgr().addHorFlatScene(false); break;
     case mCascadeMnuItm:	sceneMgr().cascade(); break;
     case mTileAutoMnuItm:	sceneMgr().tile(); break;
     case mTileHorMnuItm:	sceneMgr().tileHorizontal(); break;
@@ -1153,7 +1159,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mScenePropMnuItm:	sceneMgr().setSceneProperties(); break;
     case mBaseMapMnuItm:	applMgr().showBaseMap(); break;
     case mWorkAreaMnuItm:	applMgr().setWorkingArea(); break;
-    case mZScaleMnuItm:	applMgr().setZStretch(); break;
+    case mZScaleMnuItm:		applMgr().setZStretch(); break;
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
@@ -1341,8 +1347,7 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillExportMenu();
     fillManMenu();
 
-    updateSceneMenu();
-
+    fillSceneMenu();
     fillAnalMenu();
     fillProcMenu();
     dTectMnuChanged.trigger();

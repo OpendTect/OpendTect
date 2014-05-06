@@ -27,6 +27,7 @@ class CubeSampling;
 class DataPointSet;
 class HorSampling;
 class SurfaceInfo;
+class ZAxisTransform;
 class uiExportFault;
 class uiExportHorizon;
 class uiImportFault3D;
@@ -34,7 +35,7 @@ class uiImportFaultStickSet2D;
 class uiImportHorizon;
 class uiVariogramDisplay;
 
-namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
+namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; }
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
 
@@ -149,6 +150,7 @@ public:
     bool		attr2Geom(const EM::ObjectID&,const char* nm,
 				  const DataPointSet&);
     bool		geom2Attr(const EM::ObjectID&);
+    ZAxisTransform*	getHorizonZAxisTransform(bool is2d);
 
     const char*		genRandLine(int opt);
     bool		dispLineOnCreation()	{ return disponcreation_; }

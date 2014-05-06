@@ -379,6 +379,21 @@ void uiODApplMgr::addTimeDepthScene()
 }
 
 
+void uiODApplMgr::addHorFlatScene( bool is2d )
+{
+    RefMan<ZAxisTransform> transform = emserv_->getHorizonZAxisTransform(is2d);
+    if ( !transform ) return;
+
+    const MultiID hormid( transform->fromZDomainInfo().getID() );
+    PtrMan<IOObj> ioobj = IOM().get( hormid );
+    const BufferString hornm =
+		ioobj ? ioobj->name().buf() : transform->factoryDisplayName();
+    BufferString scenenm( "Flattened on '", hornm,  "'" );
+    sceneMgr().tile();
+    sceneMgr().addScene( true, transform, scenenm );
+}
+
+
 void uiODApplMgr::showBaseMap()
 {
     dispatcher_.showBaseMap();

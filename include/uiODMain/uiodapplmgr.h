@@ -117,6 +117,7 @@ public:
 
     // Scene menu operations
     void			addTimeDepthScene();
+    void			addHorFlatScene(bool is2d);
 
     // Utility menu operations
     void			batchProgs();
@@ -234,7 +235,7 @@ protected:
 				MiscSurvInfo()
 				: xyunit_(1)
 			        , zunit_(0)
-				, zstep_(0.004) {};
+				, zstep_(0.004) {}
 
 	void                    refresh();
 
