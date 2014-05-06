@@ -88,7 +88,7 @@ if ( BUILD_USERDOC )
 	endif()
 
 	set ( USER $ENV{USERNAME} )
-	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} DIRECTORY )
+	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} PATH )
 	get_filename_component ( USERDOC_NAME ${USERDOC_PROJECT} NAME_WE )
 
 	set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
