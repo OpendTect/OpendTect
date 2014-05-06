@@ -257,7 +257,7 @@ static int theiconsz = -1;
 #define mShowInlProgress	"dTect.Show inl progress"
 #define mShowCrlProgress	"dTect.Show crl progress"
 #define mTextureResFactor	"dTect.Default texture resolution factor"
-#define mUseSurfShaders	"dTect.Use surface shaders"
+#define mUseSurfShaders		"dTect.Use surface shaders"
 #define mUseVolShaders		"dTect.Use volume shaders"
 
 
